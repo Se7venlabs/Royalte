@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royaltē — How to use it & FAQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+  --border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+  --text:#e8e4f4;--muted:#5a5880;--muted2:#9490b8;
+  --pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+  --grad:linear-gradient(135deg,#8a5cff,#e040c8);
+  --glow:0 0 60px rgba(138,92,255,0.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.7;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand{display:flex;flex-direction:column;line-height:1;text-decoration:none;}
+.nav-wordmark{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);}
+.nav-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-tagline{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-top:2px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* PAGE HERO */
+.page-hero{padding:140px 56px 60px;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+.hero-orb{position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:800px;height:500px;background:radial-gradient(ellipse,rgba(138,92,255,0.1) 0%,transparent 65%);pointer-events:none;}
+.ph-tag{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--pur);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.ph-tag::before{content:'//';opacity:0.5;}
+.ph-h1{font-family:'Rajdhani',sans-serif;font-size:clamp(40px,6vw,72px);font-weight:700;line-height:0.95;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:16px;position:relative;z-index:1;}
+.ph-h1 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ph-sub{font-size:16px;color:var(--muted2);max-width:540px;line-height:1.7;position:relative;z-index:1;}
+
+/* LAYOUT */
+.page-body{max-width:860px;margin:0 auto;padding:60px 56px 100px;}
+
+/* TAB NAV */
+.tab-nav{display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border2);padding:4px;border-radius:4px;width:fit-content;margin-bottom:52px;}
+.tab-btn{padding:10px 28px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;color:var(--muted);border:none;background:transparent;font-family:'Space Grotesk',sans-serif;}
+.tab-btn.active{background:var(--grad);color:#fff;}
+
+/* HOW TO USE — STEPS */
+.steps-section{display:none;}
+.steps-section.active{display:block;}
+
+.step-block{
+  display:flex;gap:24px;margin-bottom:36px;
+  opacity:0;transform:translateY(12px);
+  transition:all 0.5s ease;
+}
+.step-block.visible{opacity:1;transform:translateY(0);}
+.step-num-col{flex-shrink:0;width:48px;display:flex;flex-direction:column;align-items:center;gap:0;}
+.step-num{
+  width:48px;height:48px;border-radius:4px;
+  background:rgba(138,92,255,0.1);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Mono',monospace;font-size:14px;font-weight:700;
+  background:var(--grad);color:#fff;flex-shrink:0;
+}
+.step-line{width:1px;flex:1;background:var(--border);margin-top:8px;}
+.step-content{flex:1;padding-bottom:8px;}
+.step-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:var(--text);margin-bottom:10px;}
+.step-body{font-size:14px;color:var(--muted2);line-height:1.8;}
+.step-body strong{color:var(--text);font-weight:600;}
+.step-body code{
+  font-family:'Space Mono',monospace;font-size:12px;
+  background:var(--bg4);border:1px solid var(--border2);
+  padding:2px 8px;border-radius:2px;color:var(--pur);
+  display:inline-block;margin:4px 0;word-break:break-all;
+}
+.step-note{
+  margin-top:14px;background:rgba(138,92,255,0.06);
+  border:1px solid var(--border);border-radius:4px;
+  padding:12px 16px;font-size:13px;color:var(--muted2);
+  line-height:1.6;display:flex;gap:10px;align-items:flex-start;
+}
+.step-note-icon{flex-shrink:0;font-size:14px;}
+.step-note strong{color:var(--pur);}
+
+/* URL examples */
+.url-examples{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
+.url-ex{
+  background:var(--bg4);border:1px solid var(--border3);
+  border-radius:4px;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+}
+.url-platform{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:2px 8px;border-radius:2px;letter-spacing:0.08em;flex-shrink:0;}
+.up-spotify{background:rgba(29,185,84,0.12);color:#1db954;}
+.up-apple{background:rgba(252,60,68,0.12);color:#fc3c44;}
+.url-string{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* What you get table */
+.what-table{width:100%;margin-top:14px;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.wt-row{display:grid;grid-template-columns:1fr 2fr;border-bottom:1px solid var(--border3);}
+.wt-row:last-child{border-bottom:none;}
+.wt-row.header{background:var(--bg4);}
+.wt-cell{padding:11px 16px;font-size:13px;}
+.wt-cell.label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.wt-cell.value{color:var(--muted2);}
+.wt-cell.value strong{color:var(--text);}
+.wt-badge{display:inline-block;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:2px;margin-right:6px;}
+.wb-free{background:rgba(64,240,160,0.1);color:var(--grn);}
+.wb-paid{background:rgba(138,92,255,0.1);color:var(--pur);}
+.wb-pro{background:rgba(240,192,64,0.1);color:var(--amb);}
+
+/* CTA block */
+.step-cta{
+  margin-top:14px;
+  background:var(--grad);color:#fff;
+  padding:12px 24px;border-radius:4px;
+  font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+  transition:opacity 0.2s;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+}
+.step-cta:hover{opacity:0.88;}
+.step-cta-ghost{
+  margin-top:14px;margin-left:10px;
+  background:transparent;border:1px solid var(--border2);color:var(--muted2);
+  padding:12px 24px;border-radius:4px;
+  font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+  transition:all 0.2s;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+}
+.step-cta-ghost:hover{border-color:var(--pur);color:var(--text);}
+
+/* Disclaimer step */
+.disclaimer-block{
+  background:rgba(138,92,255,0.05);border:1px solid var(--border);
+  border-radius:6px;padding:20px 24px;margin-top:8px;
+}
+.db-title{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);margin-bottom:10px;}
+.db-body{font-size:13.5px;color:var(--muted2);line-height:1.75;}
+.db-body strong{color:var(--text);}
+
+/* ── FAQ SECTION ── */
+.faq-section{display:none;}
+.faq-section.active{display:block;}
+.faq-category{margin-bottom:44px;}
+.faq-cat-title{
+  font-family:'Space Mono',monospace;font-size:9px;font-weight:700;
+  letter-spacing:0.18em;text-transform:uppercase;color:var(--pur);
+  margin-bottom:16px;display:flex;align-items:center;gap:8px;
+}
+.faq-cat-title::before{content:'//';opacity:0.5;}
+.faq-item{border:1px solid var(--border3);border-radius:6px;margin-bottom:8px;overflow:hidden;transition:border-color 0.2s;}
+.faq-item:hover{border-color:var(--border);}
+.faq-item.open{border-color:var(--border2);}
+.faq-q{
+  padding:16px 20px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  font-size:14px;font-weight:600;color:var(--text);
+  user-select:none;transition:background 0.15s;
+}
+.faq-q:hover{background:rgba(138,92,255,0.04);}
+.faq-item.open .faq-q{background:rgba(138,92,255,0.06);color:var(--pur);}
+.faq-arrow{font-size:12px;color:var(--muted);transition:transform 0.25s;flex-shrink:0;}
+.faq-item.open .faq-arrow{transform:rotate(180deg);color:var(--pur);}
+.faq-a{
+  display:none;padding:0 20px 18px;
+  font-size:13.5px;color:var(--muted2);line-height:1.75;
+}
+.faq-item.open .faq-a{display:block;}
+.faq-a strong{color:var(--text);}
+.faq-a a{color:var(--pur);text-decoration:none;}
+.faq-a a:hover{text-decoration:underline;}
+.faq-a code{font-family:'Space Mono',monospace;font-size:11px;background:var(--bg4);border:1px solid var(--border2);padding:1px 7px;border-radius:2px;color:var(--pur);}
+
+/* CONTACT BAND */
+.contact-band{
+  margin-top:60px;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:8px;padding:32px 36px;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  position:relative;overflow:hidden;
+}
+.contact-band::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0.6;}
+.cb-text h3{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;}
+.cb-text p{font-size:13.5px;color:var(--muted2);}
+.cb-text a{color:var(--pur);text-decoration:none;font-weight:600;}
+.cb-text a:hover{text-decoration:underline;}
+.cb-actions{display:flex;gap:10px;flex-shrink:0;}
+
+/* FOOTER */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-wordmark{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.f-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.f-tagline{font-size:9px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-top:2px;}
+.f-powered{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:9px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;font-family:'Space Mono',monospace;}
+.f-powered img{height:20px;opacity:0.5;vertical-align:middle;}
+.f-copy{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-brand">
+    <div class="nav-wordmark">Royalt<span>ē</span></div>
+    <div class="nav-tagline">Music Audit Intelligence</div>
+  </a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="index.html#modules">Audit modules</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="faq.html" class="active">Help & FAQ</a>
+  </div>
+  <a href="/dashboard.html" class="nav-cta">Run Free Audit</a>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="hero-orb"></div>
+  <div style="max-width:860px;margin:0 auto;position:relative;z-index:1;">
+    <div class="ph-tag">Support & Help</div>
+    <h1 class="ph-h1">How to use<br><span>Royaltē</span></h1>
+    <p class="ph-sub">Step-by-step guide for artists, plus answers to the most common questions. Everything you need to get the most from your audit.</p>
+  </div>
+</div>
+
+<!-- PAGE BODY -->
+<div class="page-body">
+
+  <!-- TAB NAV -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('howto', this)">How to use it</button>
+    <button class="tab-btn" onclick="switchTab('faq', this)">FAQ</button>
+  </div>
+
+  <!-- ══════════════════════════════════
+       HOW TO USE IT
+  ══════════════════════════════════ -->
+  <div class="steps-section active" id="tab-howto">
+
+    <!-- Step 1 -->
+    <div class="step-block">
+      <div class="step-num-col"><div class="step-num">01</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">Find your Spotify or Apple Music link</div>
+        <div class="step-body">
+          Open Spotify on your phone or desktop. Go to your <strong>artist profile</strong> or any <strong>track</strong> you want to audit. Tap the three dots <strong>(...)</strong> next to your name or track, then tap <strong>Share → Copy link.</strong>
+          <br><br>
+          On Apple Music, go to your artist page or track, click the three dots, and tap <strong>Share → Copy link.</strong>
+          <div class="url-examples">
+            <div class="url-ex"><span class="url-platform up-spotify">Spotify artist</span><div class="url-string">https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb</div></div>
+            <div class="url-ex"><span class="url-platform up-spotify">Spotify track</span><div class="url-string">https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUIOKE</div></div>
+            <div class="url-ex"><span class="url-platform up-apple">Apple Music artist</span><div class="url-string">https://music.apple.com/us/artist/your-name/123456789</div></div>
+            <div class="url-ex"><span class="url-platform up-apple">Apple Music track</span><div class="url-string">https://music.apple.com/us/album/track-name/123456789</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-block">
+      <div class="step-num-col"><div class="step-num">02</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">Paste your link on Royaltē</div>
+        <div class="step-body">
+          Go to <strong>royalte.ai</strong>. You'll see a box at the top of the page that says <em>"Paste your artist or track link to start."</em> Paste your link in that box and click <strong>Run Audit →</strong>
+          <br><br>
+          Royaltē automatically detects whether it's a Spotify artist, Spotify track, Apple Music artist, or Apple Music track. You don't need to tell it — it figures it out from the URL.
+        </div>
+        <a href="/" class="step-cta">Go to royalte.ai →</a>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-block">
+      <div class="step-num-col"><div class="step-num">03</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">Get your free preview score</div>
+        <div class="step-body">Within about 60 seconds you'll see your results. No account needed. No credit card. Nothing to sign up for.</div>
+        <div class="what-table" style="margin-top:14px;">
+          <div class="wt-row header">
+            <div class="wt-cell label">What you see</div>
+            <div class="wt-cell label">Details</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">Audit score</div>
+            <div class="wt-cell value"><span class="wt-badge wb-free">Free</span>Your score out of 100. Below 60 means gaps worth investigating.</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">2 risk flags</div>
+            <div class="wt-cell value"><span class="wt-badge wb-free">Free</span>The top 2 issues detected. Remaining flags are locked until you pay.</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">Platform detected</div>
+            <div class="wt-cell value"><span class="wt-badge wb-free">Free</span>Confirms which platform your link resolved to.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-block">
+      <div class="step-num-col"><div class="step-num">04</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">Unlock the full report for $4.99</div>
+        <div class="step-body">
+          If your score is below 70 or the flags look serious, click <strong>Unlock full report — $4.99.</strong> This is a one-time payment. No subscription. No commitment. Pay once and keep the report forever.
+        </div>
+        <div class="what-table" style="margin-top:14px;">
+          <div class="wt-row header">
+            <div class="wt-cell label">What unlocks</div>
+            <div class="wt-cell label">Details</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">All 6 audit modules</div>
+            <div class="wt-cell value"><span class="wt-badge wb-paid">$4.99</span>Metadata, Coverage, Publishing Risk, Duplicates, YouTube/UGC, Sync Readiness.</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">Every flag</div>
+            <div class="wt-cell value"><span class="wt-badge wb-paid">$4.99</span>All issues shown with severity level — High, Medium, or Low.</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">Publishing risk score</div>
+            <div class="wt-cell value"><span class="wt-badge wb-paid">$4.99</span>Flags likely publishing gaps based on missing data and identifier conflicts.</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">Sync readiness score</div>
+            <div class="wt-cell value"><span class="wt-badge wb-paid">$4.99</span>Scores how discoverable your track is for sync licensing opportunities.</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">Recommended actions</div>
+            <div class="wt-cell value"><span class="wt-badge wb-paid">$4.99</span>Numbered list of exactly what to fix and how — no guesswork.</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">PDF download</div>
+            <div class="wt-cell value"><span class="wt-badge wb-paid">$4.99</span>Download and share your audit report with your manager, lawyer, or distributor.</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <a href="/dashboard.html" class="step-cta">Unlock full report — $4.99</a>
+          <a href="index.html#pricing" class="step-cta-ghost">See all plans</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-block">
+      <div class="step-num-col"><div class="step-num">05</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">Read your recommended actions</div>
+        <div class="step-body">
+          Inside the full report you'll see a numbered action list. Each action tells you <strong>what the issue is</strong> in plain English, <strong>why it matters</strong>, and <strong>exactly what to do.</strong>
+          <br><br>
+          Most actions take 10–30 minutes to complete. Some are as simple as logging into DistroKid and adding a missing ISRC. Others — like registering with GEMA or SoundExchange — take a few days to process, but the report tells you exactly where to go and what to submit.
+        </div>
+        <div class="step-note">
+          <span class="step-note-icon">ℹ</span>
+          <div>Royaltē tells you <strong>what to investigate</strong>. Your distributor, PRO, or music lawyer is who you take the findings to. We surface the flags — they confirm and fix them.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step-block">
+      <div class="step-num-col"><div class="step-num">06</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">Audit your whole catalog — $9.99/month</div>
+        <div class="step-body">
+          If you have more than one track or artist profile, upgrade to <strong>Artist Pro at $9.99/month.</strong> This gives you unlimited audits, your full audit history, and ongoing monitoring so new releases get checked automatically.
+          <br><br>
+          Or pay <strong>$99/year</strong> and save 2 months.
+        </div>
+        <div class="what-table" style="margin-top:14px;">
+          <div class="wt-row header">
+            <div class="wt-cell label">Plan</div>
+            <div class="wt-cell label">Best for</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">$4.99 one-time</div>
+            <div class="wt-cell value">One track or artist. First-time audit. No ongoing commitment.</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">$9.99/month</div>
+            <div class="wt-cell value">Artists with a catalog. Unlimited audits. Ongoing monitoring.</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">$99/year</div>
+            <div class="wt-cell value">Same as monthly but 2 months free. Best value for active artists.</div>
+          </div>
+          <div class="wt-row">
+            <div class="wt-cell" style="font-weight:600;color:var(--text);">$49/month</div>
+            <div class="wt-cell value">Managers and labels. Up to 10 artists. White-label PDF reports.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 7 — Disclaimer -->
+    <div class="step-block">
+      <div class="step-num-col"><div class="step-num">!</div></div>
+      <div class="step-content">
+        <div class="step-title">Important — what Royaltē is and isn't</div>
+        <div class="disclaimer-block">
+          <div class="db-title">// Please read this</div>
+          <div class="db-body">
+            Royaltē is an <strong>audit and intelligence tool.</strong> We analyse publicly available metadata to surface likely risks, gaps, and opportunities in your music setup.<br><br>
+            <strong>We are not a royalty collection service.</strong> We do not collect money on your behalf.<br>
+            <strong>We do not access your private royalty statements.</strong><br>
+            <strong>We do not confirm unpaid amounts</strong> without verified rights-chain data.<br><br>
+            We flag what looks worth investigating based on publicly available signals. Think of Royaltē like a health check for your music — we tell you what to look at. You take it to your distributor, PRO, or music lawyer to action it.<br><br>
+            Results vary by artist. Flags marked "possible" or "likely" require verification. We do not guarantee financial outcomes.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /howto -->
+
+  <!-- ══════════════════════════════════
+       FAQ
+  ══════════════════════════════════ -->
+  <div class="faq-section" id="tab-faq">
+
+    <!-- About the audit -->
+    <div class="faq-category">
+      <div class="faq-cat-title">About the audit</div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What does Royaltē actually check?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Royaltē runs 6 detection modules on your track or artist profile using publicly available metadata from Spotify, Apple Music, YouTube, and MusicBrainz. It checks for metadata consistency, platform coverage gaps, publishing risk indicators, possible duplicate recordings, YouTube and UGC presence, and sync readiness. Each module returns a score and any flags detected.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How accurate is the audit?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">The audit is based on publicly available metadata — not private royalty statements, not internal distributor data, not rights-chain records. This means our flags indicate <strong>likely risks and gaps worth investigating</strong>, not confirmed missing money. We score what we can detect. Your distributor or PRO will always be the one to confirm whether a flag is real. Most flags are genuinely worth following up on — but treat them as leads, not guarantees.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What is an audit score?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Your audit score is a number out of 100 that reflects how complete and consistent your music's metadata infrastructure is across public sources. A score of 100 means all 6 modules came back clean — correct identifiers, full platform coverage, no publishing risk indicators, no duplicates, good YouTube presence, and strong sync readiness. The average first-time score is 41. Scores below 60 typically mean there are specific things worth fixing.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How long does an audit take?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">The free preview typically takes 30–60 seconds. The full 6-module report takes 60–90 seconds. This includes resolving your URL, pulling metadata from multiple platforms, running all detection rules, and generating your plain-English recommendations.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Can I audit an album or EP?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Currently Royaltē audits individual tracks and artist profiles. Paste a Spotify or Apple Music track URL for a single-track audit, or paste your artist profile URL for an artist-level audit that looks at your overall metadata footprint. Full album and EP batch auditing is coming in a future update.</div>
+      </div>
+    </div>
+
+    <!-- Platforms & links -->
+    <div class="faq-category">
+      <div class="faq-cat-title">Platforms & links</div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Which platforms does Royaltē support?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">You can paste links from <strong>Spotify</strong> (artist or track) and <strong>Apple Music</strong> (artist or track). Once your URL is resolved, Royaltē cross-references your music against Spotify, Apple Music, YouTube, MusicBrainz, and Tidal to check platform coverage. Support for additional input platforms is on the roadmap.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Where do I find my Spotify link?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">
+          On the <strong>Spotify app</strong>: go to your artist profile or track → tap the three dots (...) → tap Share → Copy link.<br><br>
+          On the <strong>Spotify web player</strong>: go to your artist page or track → click the three dots → Share → Copy link to artist / Copy link to song.<br><br>
+          It should look like: <code>https://open.spotify.com/artist/XXXXXX</code> or <code>https://open.spotify.com/track/XXXXXX</code>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Where do I find my Apple Music link?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">
+          On <strong>Apple Music</strong>: go to your artist page or track → click the three dots (...) → Share → Copy link.<br><br>
+          It should look like: <code>https://music.apple.com/us/artist/your-name/123456789</code>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">My link isn't working — what should I do?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Make sure you're copying the full link including <code>https://</code> at the start. Shortened links (like Spotify's <code>spoti.fi/</code> links) may not resolve correctly — use the full URL. If you're still having trouble, email us at <a href="mailto:audit@royalte.ai">audit@royalte.ai</a> and we'll help you manually.</div>
+      </div>
+    </div>
+
+    <!-- Flags & results -->
+    <div class="faq-category">
+      <div class="faq-cat-title">Flags & results</div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What does a High severity flag mean?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">A <strong>High severity flag</strong> means the issue detected is likely to have a meaningful impact on your music's discoverability, metadata integrity, or publishing setup. Examples include a missing ISRC, no songwriter data found, or a significant platform coverage gap. These are worth actioning as soon as possible with your distributor or PRO.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What is an ISRC and why does it matter?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">An ISRC (International Standard Recording Code) is a unique identifier for a specific recording of a song. Think of it as a fingerprint for your track. Without an ISRC, streaming platforms and performance rights organisations may not be able to correctly attribute plays to your recording — which can affect royalty reporting. If Royaltē flags a missing ISRC, contact your distributor (DistroKid, TuneCore, etc.) and request one be assigned.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What is a publishing risk flag?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">A publishing risk flag means our engine detected one or more indicators that your publishing setup may have gaps — typically missing songwriter/composer credits in public metadata, identifier conflicts across platforms, or weak metadata infrastructure. <strong>This is not a confirmation of missing money.</strong> It's a signal that your publishing setup is worth reviewing with your PRO or a music lawyer.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What is sync readiness?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Sync readiness scores how discoverable your track is for sync licensing opportunities — placements in TV, film, ads, and games. It looks at whether your metadata is complete, your title is formatted cleanly, you have cross-platform presence, artwork is available, and mood/genre tags exist. A low sync readiness score doesn't mean you can't get sync deals — it means your metadata infrastructure may be making it harder for music supervisors to find and clear your music.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What does the territory coverage audit show?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">The territory coverage audit cross-references where your music is being streamed against where you appear to have PRO registration. If we detect significant streams in a country but no matching registration signal, we flag it as a possible gap — for example, 980K streams in Germany with no GEMA registration detected.<br><br><strong>Important:</strong> this is based on publicly available metadata — not your private PRO account. We flag what looks like a gap. Your PRO or distributor confirms whether it's real. Common territories to check include Germany (GEMA), France (SACEM), Brazil (ECAD), Japan (JASRAC), and Scandinavia (STIM/TONO/KODA).</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What does "Not Registered" mean in the territory audit?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><strong>Not Registered</strong> means our engine detected streams in that territory but found no matching PRO registration signal in publicly available metadata. This is a flag worth investigating — not a confirmed problem. The first step is to check with your PRO whether you're registered to collect in that territory, and if not, how to register or appoint a sub-publisher.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What does "Pending" mean?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><strong>Pending</strong> means a registration appears to have been initiated but is not yet confirmed in public metadata. PRO registrations can take weeks to process. If a territory shows Pending for more than 30 days, it's worth following up directly with the relevant PRO or your publisher.</div>
+      </div>
+        <div class="faq-a">Yes. Once you've fixed the flagged issues with your distributor or PRO, paste your link again and run a new audit to see your updated score. Note that metadata changes can take days or weeks to propagate across platforms, so your score may not update immediately after a fix. Artist Pro subscribers get unlimited re-audits included.</div>
+      </div>
+    </div>
+
+    <!-- Pricing & payments -->
+    <div class="faq-category">
+      <div class="faq-cat-title">Pricing & payments</div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Is the free preview really free?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Yes. The free preview — your audit score and 2 flags — is completely free. No account required. No credit card. No trial period. It runs using only free public metadata APIs so there is no cost to us to offer it and no catch for you. The full 6-module report is where the $4.99 one-time charge applies.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">What's the difference between $4.99 and $9.99/month?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><strong>$4.99 one-time</strong> gives you one full audit report for one track or artist. It's a single purchase — no subscription, no ongoing charge. Perfect if you just want to check one release.<br><br><strong>$9.99/month (or $99/year)</strong> gives you unlimited audits, your full audit history, ongoing monitoring, and batch auditing for your whole catalog. Best for active artists who release regularly or want to audit multiple tracks.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Can I cancel my subscription any time?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Yes. Cancel any time from your account settings. You keep access until the end of your billing period. No penalties, no questions asked.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Do you offer refunds?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">If you're unhappy with your audit report, email us at <a href="mailto:audit@royalte.ai">audit@royalte.ai</a> within 7 days of purchase and we'll review it. We handle refund requests on a case-by-case basis and always aim to make it right.</div>
+      </div>
+    </div>
+
+    <!-- Privacy & data -->
+    <div class="faq-category">
+      <div class="faq-cat-title">Privacy & data</div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Does Royaltē access my Spotify or Apple Music account?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">No. Royaltē only uses the public URL you paste. We do not connect to your Spotify for Artists account, your Apple Music for Artists account, or any private data. We pull publicly available metadata only — the same information anyone can see by visiting your artist page.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Does Royaltē see my earnings or royalty statements?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">No. We have no access to your earnings, royalty statements, distributor payout data, or PRO account information. Everything Royaltē analyses is based on publicly available metadata. This is also why we frame our findings as "likely risks" and "possible gaps" rather than confirmed missing money.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Do you store my audit results?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Free preview results are not stored after your session. Paid audit reports are stored in your account so you can access them any time. We do not share your audit data with third parties.</div>
+      </div>
+    </div>
+
+  </div><!-- /faq -->
+
+  <!-- CONTACT BAND -->
+  <div class="contact-band">
+    <div class="cb-text">
+      <h3>Still have questions?</h3>
+      <p>Email us at <a href="mailto:audit@royalte.ai">audit@royalte.ai</a> and we'll get back to you within 24 hours. For urgent issues please include your Spotify or Apple Music link in the email.</p>
+    </div>
+    <div class="cb-actions">
+      <a href="mailto:audit@royalte.ai" class="step-cta">Email us →</a>
+      <a href="/dashboard.html" class="step-cta-ghost">Run an audit</a>
+    </div>
+  </div>
+
+</div><!-- /page-body -->
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="f-wordmark">Royalt<span>ē</span></div>
+    <div class="f-tagline">Music Audit Intelligence</div>
+    <div class="f-powered">Powered by <img src="se7ven_labs_popped.png" alt="Se7ven Labs"> Se7ven Labs</div>
+  </div>
+  <div class="f-copy">© 2025 Royaltē · Se7ven Labs · All rights reserved.</div>
+  <div class="f-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="faq.html">Support</a>
+    <a href="#">Twitter</a>
+  </div>
+</footer>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.steps-section, .faq-section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+  // Trigger step animations
+  if(id === 'howto') triggerSteps();
+}
+function toggleFaq(item) {
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+function triggerSteps() {
+  setTimeout(() => {
+    document.querySelectorAll('.step-block').forEach((el, i) => {
+      setTimeout(() => el.classList.add('visible'), i * 80);
+    });
+  }, 50);
+}
+// Auto-trigger on load
+triggerSteps();
+// Check URL hash for tab
+if(window.location.hash === '#faq') {
+  document.querySelectorAll('.tab-btn')[1].click();
+}
+</script>
+</body>
+</html>

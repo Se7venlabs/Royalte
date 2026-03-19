@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royaltē — Live Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+  --border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.22);--border3:rgba(255,255,255,0.06);
+  --text:#e8e4f4;--muted:#5a5880;--muted2:#9490b8;
+  --pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+  --grad:linear-gradient(135deg,#8a5cff,#e040c8);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.02) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+
+/* DEMO BANNER */
+.demo-banner{
+  position:fixed;top:0;left:0;right:0;z-index:999;
+  background:linear-gradient(90deg,rgba(138,92,255,0.95),rgba(224,64,200,0.95));
+  padding:8px 24px;display:flex;align-items:center;justify-content:space-between;
+  backdrop-filter:blur(12px);
+}
+.db-left{display:flex;align-items:center;gap:10px;}
+.db-dot{width:7px;height:7px;border-radius:50%;background:#fff;animation:pulse 2s infinite;}
+.db-text{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;color:#fff;}
+.db-sub{font-size:10px;color:rgba(255,255,255,0.7);letter-spacing:0.06em;}
+.db-cta{background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);padding:6px 16px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:'Space Grotesk',sans-serif;text-decoration:none;transition:background 0.2s;}
+.db-cta:hover{background:rgba(255,255,255,0.35);}
+
+.layout{display:flex;height:100vh;padding-top:36px;position:relative;z-index:1;}
+
+/* SIDEBAR */
+.sidebar{width:240px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--border);}
+.sb-wordmark{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;line-height:1;}
+.sb-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sb-tagline{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase;margin-top:2px;}
+.sb-nav{flex:1;padding:10px 8px;}
+.sb-section{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);padding:0 10px;margin:14px 0 5px;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:3px;cursor:pointer;font-size:13px;color:var(--muted2);transition:all 0.15s;margin-bottom:1px;border:1px solid transparent;text-decoration:none;}
+.sb-item:hover{background:var(--bg3);color:var(--text);}
+.sb-item.active{background:rgba(138,92,255,0.1);color:var(--text);border-color:rgba(138,92,255,0.18);}
+.sb-badge{margin-left:auto;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:1px 6px;border-radius:2px;}
+.sb-badge.red{background:rgba(240,80,96,0.15);color:var(--red);}
+.sb-badge.amb{background:rgba(240,192,64,0.15);color:var(--amb);}
+.sb-badge.pur{background:rgba(138,92,255,0.15);color:var(--pur);}
+.sb-badge.grn{background:rgba(64,240,160,0.15);color:var(--grn);}
+.sb-footer{padding:14px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:9px;}
+.sb-av{width:32px;height:32px;border-radius:3px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.sb-uname{font-size:12px;font-weight:600;color:var(--text);}
+.sb-uplan{font-family:'Space Mono',monospace;font-size:8px;color:var(--pur);letter-spacing:0.08em;}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(7,7,15,0.8);backdrop-filter:blur(12px);flex-shrink:0;}
+.tb-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;}
+.tb-sub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-top:2px;}
+.tb-actions{display:flex;gap:8px;align-items:center;}
+.tb-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:'Space Grotesk',sans-serif;border:none;transition:all 0.15s;}
+.tb-ghost{background:var(--bg3);color:var(--muted2);border:1px solid var(--border);}
+.tb-ghost:hover{color:var(--text);border-color:var(--border2);}
+.tb-grad{background:var(--grad);color:#fff;}
+
+.content{flex:1;overflow-y:auto;padding:20px 24px;}
+
+/* GREETING */
+.greeting{margin-bottom:18px;opacity:0;animation:fadeUp 0.5s ease forwards;}
+.gr-title{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;margin-bottom:3px;}
+.gr-sub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.1em;}
+
+/* ALERT BANNER */
+.alert-banner{background:rgba(240,80,96,0.08);border:1px solid rgba(240,80,96,0.3);border-radius:5px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px;opacity:0;animation:fadeUp 0.5s ease 0.05s forwards;cursor:pointer;transition:border-color 0.2s;}
+.alert-banner:hover{border-color:rgba(240,80,96,0.5);}
+.ab-dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;animation:pulse 2s infinite;}
+.ab-text{font-size:12px;color:var(--text);flex:1;line-height:1.5;}
+.ab-text strong{color:var(--red);}
+.ab-text span{color:var(--muted2);}
+.ab-fix{font-family:'Space Mono',monospace;font-size:9px;color:var(--red);font-weight:700;flex-shrink:0;}
+
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.kpi{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:16px;position:relative;overflow:hidden;opacity:0;animation:fadeUp 0.5s ease 0.1s forwards;transition:border-color 0.2s;}
+.kpi:hover{border-color:var(--border2);}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0.5;}
+.kpi-label{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;}
+.kpi-val{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;line-height:1;margin-bottom:5px;}
+.kpi-delta{font-size:11px;display:flex;align-items:center;gap:4px;}
+.kpi-delta.up{color:var(--grn);}
+.kpi-delta.warn{color:var(--amb);}
+.kpi-delta.bad{color:var(--red);}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.card{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:16px;opacity:0;animation:fadeUp 0.5s ease 0.2s forwards;transition:border-color 0.2s;}
+.card:hover{border-color:var(--border);}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.card-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+.cbadge{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:2px;letter-spacing:0.06em;}
+.cb-red{background:rgba(240,80,96,0.1);color:var(--red);}
+.cb-grn{background:rgba(64,240,160,0.1);color:var(--grn);}
+.cb-amb{background:rgba(240,192,64,0.1);color:var(--amb);}
+.cb-pur{background:rgba(138,92,255,0.1);color:var(--pur);}
+
+/* PLATFORM BARS */
+.plat-bar-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border3);}
+.plat-bar-row:last-child{border-bottom:none;}
+.pb-name{font-size:12px;color:var(--text);width:90px;flex-shrink:0;}
+.pb-track{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.pb-fill{height:100%;border-radius:3px;background:var(--grad);transition:width 1s ease;}
+.pb-val{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--text);width:44px;text-align:right;flex-shrink:0;}
+.pb-pct{font-size:10px;color:var(--muted);width:28px;text-align:right;flex-shrink:0;}
+
+/* UNCOLLECTED ALERTS */
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border3);cursor:pointer;transition:opacity 0.15s;}
+.alert-item:last-child{border-bottom:none;}
+.alert-item:hover{opacity:0.8;}
+.ai-icon{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;}
+.ai-body{flex:1;}
+.ai-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.ai-desc{font-size:10px;color:var(--muted2);line-height:1.4;}
+.ai-amount{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;align-self:center;}
+
+/* AUDIT SCORE RING */
+.score-ring-wrap{display:flex;align-items:center;gap:16px;padding:14px;background:var(--bg4);border:1px solid var(--border3);border-radius:6px;margin-bottom:12px;}
+.score-ring{width:64px;height:64px;position:relative;flex-shrink:0;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.srn-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.srn-lbl{font-size:7px;color:var(--muted);letter-spacing:0.1em;}
+.score-ring-info{}
+.sri-title{font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);letter-spacing:0.1em;margin-bottom:4px;}
+.sri-artist{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.sri-track{font-size:11px;color:var(--muted2);}
+
+/* MODULE ROWS */
+.mod-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border3);}
+.mod-row:last-child{border-bottom:none;}
+.mod-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.mod-name{font-size:12px;font-weight:500;color:var(--text);flex:1;}
+.mod-track{width:80px;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;flex-shrink:0;}
+.mod-fill{height:100%;border-radius:2px;transition:width 1.2s ease;}
+.mod-val{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;width:40px;text-align:right;flex-shrink:0;}
+
+/* TERRITORY */
+.terr-row{display:grid;grid-template-columns:24px 1fr 70px 88px;gap:0;align-items:center;padding:7px 0;border-bottom:1px solid var(--border3);}
+.terr-row:last-child{border-bottom:none;}
+.tr-flag{font-size:14px;}
+.tr-name{font-size:11px;font-weight:500;color:var(--text);}
+.tr-streams{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2);text-align:right;}
+.tr-status{font-family:'Space Mono',monospace;font-size:8px;padding:2px 6px;border-radius:2px;font-weight:700;justify-self:end;}
+.ts-ok{background:rgba(64,240,160,0.1);color:var(--grn);}
+.ts-bad{background:rgba(240,80,96,0.1);color:var(--red);}
+.ts-pend{background:rgba(240,192,64,0.1);color:var(--amb);}
+
+/* TOP SONGS */
+.song-row{display:grid;grid-template-columns:24px 1fr 70px 60px 80px;gap:0;align-items:center;padding:8px 0;border-bottom:1px solid var(--border3);}
+.song-row:last-child{border-bottom:none;}
+.song-row.header{opacity:0.5;}
+.sr-num{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);}
+.sr-title{font-size:12px;font-weight:500;color:var(--text);}
+.sr-streams{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2);text-align:right;}
+.sr-earned{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--text);text-align:right;}
+.sr-status{font-family:'Space Mono',monospace;font-size:8px;padding:2px 6px;border-radius:2px;font-weight:700;justify-self:end;}
+
+/* UPGRADE CTA */
+.upgrade-cta{background:linear-gradient(135deg,rgba(138,92,255,0.12),rgba(224,64,200,0.08));border:1px solid rgba(138,92,255,0.3);border-radius:6px;padding:20px 24px;display:flex;align-items:center;gap:16px;margin-bottom:14px;position:relative;overflow:hidden;opacity:0;animation:fadeUp 0.5s ease 0.35s forwards;}
+.upgrade-cta::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.uc-text{flex:1;}
+.uc-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;}
+.uc-desc{font-size:12px;color:var(--muted2);line-height:1.5;}
+.uc-btn{background:var(--grad);color:#fff;padding:11px 22px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;white-space:nowrap;font-family:'Space Grotesk',sans-serif;flex-shrink:0;text-decoration:none;display:inline-block;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+@keyframes countUp{from{opacity:0;}to{opacity:1;}}
+/* MY SONGS VIEW */
+.view{display:none;}
+.view.active{display:block;}
+.connect-hero{text-align:center;padding:48px 24px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;margin-bottom:16px;position:relative;overflow:hidden;}
+.connect-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.ch-icon{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,#1db954,#17a349);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;}
+.ch-title{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;margin-bottom:8px;}
+.ch-desc{font-size:14px;color:var(--muted2);line-height:1.7;max-width:460px;margin:0 auto 28px;}
+.connect-btn{display:inline-flex;align-items:center;gap:10px;background:#1db954;color:#fff;padding:14px 32px;border-radius:50px;font-size:14px;font-weight:700;letter-spacing:0.06em;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all 0.2s;}
+.connect-btn:hover{background:#17a349;transform:translateY(-1px);}
+.connect-note{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-top:14px;}
+
+/* IMPORT PROGRESS */
+.import-progress{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:28px;margin-bottom:16px;display:none;}
+.ip-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;margin-bottom:20px;}
+.ip-step{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border3);}
+.ip-step:last-child{border-bottom:none;}
+.ip-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--muted);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:all 0.4s;}
+.ip-dot.done{background:var(--grn);border-color:var(--grn);color:var(--bg);}
+.ip-dot.active{border-color:var(--pur);animation:spinPulse 1s linear infinite;}
+.ip-label{font-size:13px;color:var(--text);flex:1;}
+.ip-count{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);}
+.ip-bar-wrap{height:4px;background:var(--bg4);border-radius:2px;margin-top:16px;overflow:hidden;}
+.ip-bar{height:100%;background:var(--grad);border-radius:2px;width:0%;transition:width 0.3s ease;}
+
+/* SONGS TABLE */
+.songs-view{display:none;}
+.songs-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;}
+.songs-search{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:9px 14px;font-size:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;outline:none;}
+.songs-search:focus{border-color:var(--border2);}
+.songs-search::placeholder{color:var(--muted);}
+.songs-filter{display:flex;gap:6px;}
+.sf-btn{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.1em;padding:7px 12px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;transition:all 0.15s;}
+.sf-btn.active{background:rgba(138,92,255,0.1);border-color:var(--border2);color:var(--pur);}
+.songs-table{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;overflow:hidden;}
+.st-header{display:grid;grid-template-columns:32px 1fr 80px 80px 70px 90px 80px;gap:0;padding:10px 14px;background:var(--bg4);border-bottom:1px solid var(--border3);}
+.st-hcell{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.st-row{display:grid;grid-template-columns:32px 1fr 80px 80px 70px 90px 80px;gap:0;padding:11px 14px;border-bottom:1px solid var(--border3);align-items:center;cursor:pointer;transition:background 0.15s;}
+.st-row:last-child{border-bottom:none;}
+.st-row:hover{background:rgba(138,92,255,0.04);}
+.st-num{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);}
+.st-title-col{display:flex;flex-direction:column;gap:2px;}
+.st-title{font-size:13px;font-weight:600;color:var(--text);}
+.st-album{font-size:10px;color:var(--muted);}
+.st-cell{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted2);}
+.st-score{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;}
+.st-badge{font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;display:inline-block;}
+.sb-clean{background:rgba(64,240,160,0.1);color:var(--grn);}
+.sb-flag{background:rgba(240,80,96,0.1);color:var(--red);}
+.sb-review{background:rgba(240,192,64,0.1);color:var(--amb);}
+.sb-queued{background:rgba(138,92,255,0.1);color:var(--pur);}
+.st-audit-btn{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:5px 10px;border-radius:3px;border:1px solid var(--border2);background:transparent;color:var(--pur);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.st-audit-btn:hover{background:rgba(138,92,255,0.1);}
+
+/* Stats row */
+.songs-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.ss-card{background:var(--bg3);border:1px solid var(--border3);border-radius:5px;padding:12px;position:relative;overflow:hidden;}
+.ss-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad);opacity:0.4;}
+.ss-val{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;line-height:1;margin-bottom:4px;}
+.ss-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+
+@keyframes spinPulse{0%,100%{border-color:var(--pur);opacity:1;}50%{border-color:var(--pnk);opacity:0.6;}}
+</style>
+</head>
+<body>
+
+<!-- DEMO BANNER -->
+<div class="demo-banner">
+  <div class="db-left">
+    <div class="db-dot"></div>
+    <div>
+      <div class="db-text">// DEMO MODE — Sample artist data</div>
+      <div class="db-sub">This is what your dashboard looks like with real data. Sign up to see yours.</div>
+    </div>
+  </div>
+  <a href="/dashboard.html" class="db-cta">Run your real audit →</a>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-wordmark">Royalt<span>ē</span></div>
+      <div class="sb-tagline">Music Audit Intelligence</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">// Overview</div>
+      <a class="sb-item active" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M3 8h7M3 12h5"/></svg>
+        Earnings history
+      </a>
+      <div class="sb-section">// Catalog</div>
+      <a class="sb-item" href="#" onclick="showView('songs');return false;">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><circle cx="8" cy="8" r="2"/></svg>
+        My songs
+        <span class="sb-badge pur" id="songs-count">12</span>
+      </a>
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2a10 10 0 0 1 0 12M8 2a10 10 0 0 0 0 12"/></svg>
+        Platforms
+      </a>
+      <div class="sb-section">// Alerts</div>
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1a5 5 0 0 1 5 5v3l1.5 2.5H1.5L3 9V6a5 5 0 0 1 5-5z"/><path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/></svg>
+        Uncollected
+        <span class="sb-badge red">4</span>
+      </a>
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2a10 10 0 0 1 0 12M8 2a10 10 0 0 0 0 12"/></svg>
+        Territories
+        <span class="sb-badge amb">2</span>
+      </a>
+      <div class="sb-section">// Audit</div>
+      <a class="sb-item" href="/dashboard.html">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+        Audit report
+        <span class="sb-badge grn">41</span>
+      </a>
+      <div class="sb-section">// Account</div>
+      <a class="sb-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 13v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1"/><circle cx="8" cy="5" r="3"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-av">JM</div>
+      <div>
+        <div class="sb-uname">Jordan Miles</div>
+        <div class="sb-uplan">// ARTIST PRO</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="tb-title">Dashboard</div>
+        <div class="tb-sub">// Q1 2025 · Last synced 14 minutes ago</div>
+      </div>
+      <div class="tb-actions">
+        <button class="tb-btn tb-ghost">Sync all</button>
+        <button class="tb-btn tb-grad">+ Export report</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div id="view-dashboard" class="view active">
+
+      <!-- GREETING -->
+      <div class="greeting">
+        <div class="gr-title">Good evening, Jordan.</div>
+        <div class="gr-sub">// Q1 2025 statement period · 12 tracks · Artist Pro</div>
+      </div>
+
+      <!-- MAIN ALERT -->
+      <div class="alert-banner">
+        <div class="ab-dot"></div>
+        <div class="ab-text">
+          <strong>$1,247 in possible uncollected royalties flagged</strong> —
+          <span>"Golden Hour" has 2.1M streams but only $180 in PRO performance earnings. Likely not registered with GEMA (Germany).</span>
+        </div>
+        <div class="ab-fix">Fix this →</div>
+      </div>
+
+      <!-- KPI ROW -->
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">Total earned</div>
+          <div class="kpi-val" style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">$4,821</div>
+          <div class="kpi-delta up">↑ 23% vs last period</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Pending payment</div>
+          <div class="kpi-val" style="color:var(--amb);">$1,340</div>
+          <div class="kpi-delta warn">Due in 6–8 weeks</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Possibly uncollected</div>
+          <div class="kpi-val" style="color:var(--red);">$1,247</div>
+          <div class="kpi-delta bad">4 issues flagged</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Total streams</div>
+          <div class="kpi-val" style="color:var(--text);">8.4M</div>
+          <div class="kpi-delta up">↑ 41% vs last period</div>
+        </div>
+      </div>
+
+      <!-- UPGRADE CTA -->
+      <div class="upgrade-cta">
+        <div class="uc-text">
+          <div class="uc-title">This is demo data — your real numbers could look very different</div>
+          <div class="uc-desc">Run your actual Spotify or Apple Music link through Royaltē to see your real audit score, flags, and what you might be missing. Takes 60 seconds.</div>
+        </div>
+        <a href="/dashboard.html" class="uc-btn">Run my real audit →</a>
+      </div>
+
+      <!-- PLATFORM EARNINGS + UNCOLLECTED ALERTS -->
+      <div class="two-col">
+
+        <!-- Platform earnings -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">// Earnings by platform</div>
+            <span class="cbadge cb-grn">6 platforms</span>
+          </div>
+          <div class="plat-bar-row">
+            <div class="pb-name">Spotify</div>
+            <div class="pb-track"><div class="pb-fill" style="width:65%"></div></div>
+            <div class="pb-val">$2,190</div>
+            <div class="pb-pct">45%</div>
+          </div>
+          <div class="plat-bar-row">
+            <div class="pb-name">Apple Music</div>
+            <div class="pb-track"><div class="pb-fill" style="width:35%"></div></div>
+            <div class="pb-val">$1,140</div>
+            <div class="pb-pct">24%</div>
+          </div>
+          <div class="plat-bar-row">
+            <div class="pb-name">YouTube</div>
+            <div class="pb-track"><div class="pb-fill" style="width:20%"></div></div>
+            <div class="pb-val">$643</div>
+            <div class="pb-pct">13%</div>
+          </div>
+          <div class="plat-bar-row">
+            <div class="pb-name">Tidal</div>
+            <div class="pb-track"><div class="pb-fill" style="width:13%"></div></div>
+            <div class="pb-val">$428</div>
+            <div class="pb-pct">9%</div>
+          </div>
+          <div class="plat-bar-row">
+            <div class="pb-name">Other</div>
+            <div class="pb-track"><div class="pb-fill" style="width:13%"></div></div>
+            <div class="pb-val">$420</div>
+            <div class="pb-pct">9%</div>
+          </div>
+        </div>
+
+        <!-- Uncollected alerts -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">// Uncollected alerts</div>
+            <span class="cbadge cb-red">4 issues</span>
+          </div>
+          <div class="alert-item">
+            <div class="ai-icon" style="background:rgba(240,80,96,0.1);">⚠</div>
+            <div class="ai-body">
+              <div class="ai-title">GEMA not registered</div>
+              <div class="ai-desc">"Golden Hour" — 2.1M streams in Germany, no PRO royalties collected</div>
+            </div>
+            <div class="ai-amount" style="color:var(--red);">$840</div>
+          </div>
+          <div class="alert-item">
+            <div class="ai-icon" style="background:rgba(240,192,64,0.1);">▶</div>
+            <div class="ai-body">
+              <div class="ai-title">YouTube unmonetised</div>
+              <div class="ai-desc">"Midnight Drive" — 340K views with no Content ID claim active</div>
+            </div>
+            <div class="ai-amount" style="color:var(--amb);">$210</div>
+          </div>
+          <div class="alert-item">
+            <div class="ai-icon" style="background:rgba(240,192,64,0.1);">◈</div>
+            <div class="ai-body">
+              <div class="ai-title">SoundExchange gap</div>
+              <div class="ai-desc">"Neon Sky" — Pandora plays but no SoundExchange registration found</div>
+            </div>
+            <div class="ai-amount" style="color:var(--amb);">$127</div>
+          </div>
+          <div class="alert-item">
+            <div class="ai-icon" style="background:rgba(138,92,255,0.1);">♪</div>
+            <div class="ai-body">
+              <div class="ai-title">Mechanical unclaimed</div>
+              <div class="ai-desc">"Golden Hour" cover by @indie_covers — 180K streams, unclaimed mechanicals</div>
+            </div>
+            <div class="ai-amount" style="color:var(--pur);">$70</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUDIT SCORE + TOP SONGS -->
+      <div class="two-col">
+
+        <!-- Audit score -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">// Audit score</div>
+            <span class="cbadge cb-red">Action needed</span>
+          </div>
+          <div class="score-ring-wrap">
+            <div class="score-ring">
+              <svg width="64" height="64" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(138,92,255,0.15)" stroke-width="6"/>
+                <circle cx="32" cy="32" r="26" fill="none" stroke="url(#sg)" stroke-width="6" stroke-dasharray="163.4" stroke-dashoffset="96" stroke-linecap="round"/>
+                <defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8a5cff"/><stop offset="100%" stop-color="#e040c8"/></linearGradient></defs>
+              </svg>
+              <div class="score-ring-num">
+                <span class="srn-val">41</span>
+                <span class="srn-lbl">/100</span>
+              </div>
+            </div>
+            <div class="score-ring-info">
+              <div class="sri-title">// Audit report</div>
+              <div class="sri-artist">Jordan Miles</div>
+              <div class="sri-track">12 tracks · Spotify Artist</div>
+            </div>
+          </div>
+          <div class="mod-row"><div class="mod-dot" style="background:var(--red)"></div><div class="mod-name">Metadata Integrity</div><div class="mod-track"><div class="mod-fill" style="width:35%;background:var(--red)"></div></div><div class="mod-val" style="color:var(--red)">35%</div></div>
+          <div class="mod-row"><div class="mod-dot" style="background:var(--amb)"></div><div class="mod-name">Platform Coverage</div><div class="mod-track"><div class="mod-fill" style="width:60%;background:var(--amb)"></div></div><div class="mod-val" style="color:var(--amb)">60%</div></div>
+          <div class="mod-row"><div class="mod-dot" style="background:var(--red)"></div><div class="mod-name">Publishing Risk</div><div class="mod-track"><div class="mod-fill" style="width:20%;background:var(--red)"></div></div><div class="mod-val" style="color:var(--red)">High</div></div>
+          <div class="mod-row"><div class="mod-dot" style="background:var(--grn)"></div><div class="mod-name">YouTube / UGC</div><div class="mod-track"><div class="mod-fill" style="width:78%;background:var(--grn)"></div></div><div class="mod-val" style="color:var(--grn)">78%</div></div>
+          <div class="mod-row"><div class="mod-dot" style="background:var(--amb)"></div><div class="mod-name">Sync Readiness</div><div class="mod-track"><div class="mod-fill" style="width:42%;background:var(--amb)"></div></div><div class="mod-val" style="color:var(--amb)">42%</div></div>
+        </div>
+
+        <!-- Top songs -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">// Top songs this period</div>
+            <span class="cbadge cb-pur">12 tracks</span>
+          </div>
+          <div class="song-row header">
+            <div class="sr-num">#</div>
+            <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">Song</div>
+            <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.1em;text-align:right;color:var(--muted);">Streams</div>
+            <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.1em;text-align:right;color:var(--muted);">Earned</div>
+            <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.1em;text-align:right;color:var(--muted);">Status</div>
+          </div>
+          <div class="song-row">
+            <div class="sr-num">01</div>
+            <div class="sr-title">Golden Hour</div>
+            <div class="sr-streams">2.1M</div>
+            <div class="sr-earned">$1,840</div>
+            <div class="sr-status" style="background:rgba(240,80,96,0.1);color:var(--red);">FLAG</div>
+          </div>
+          <div class="song-row">
+            <div class="sr-num">02</div>
+            <div class="sr-title">Midnight Drive</div>
+            <div class="sr-streams">1.4M</div>
+            <div class="sr-earned">$1,120</div>
+            <div class="sr-status" style="background:rgba(240,192,64,0.1);color:var(--amb);">REVIEW</div>
+          </div>
+          <div class="song-row">
+            <div class="sr-num">03</div>
+            <div class="sr-title">Neon Sky</div>
+            <div class="sr-streams">980K</div>
+            <div class="sr-earned">$784</div>
+            <div class="sr-status" style="background:rgba(240,192,64,0.1);color:var(--amb);">REVIEW</div>
+          </div>
+          <div class="song-row">
+            <div class="sr-num">04</div>
+            <div class="sr-title">Coastline</div>
+            <div class="sr-streams">620K</div>
+            <div class="sr-earned">$496</div>
+            <div class="sr-status" style="background:rgba(64,240,160,0.1);color:var(--grn);">CLEAN</div>
+          </div>
+          <div class="song-row">
+            <div class="sr-num">05</div>
+            <div class="sr-title">Still Water</div>
+            <div class="sr-streams">480K</div>
+            <div class="sr-earned">$384</div>
+            <div class="sr-status" style="background:rgba(64,240,160,0.1);color:var(--grn);">CLEAN</div>
+          </div>
+          <div class="song-row">
+            <div class="sr-num">06</div>
+            <div class="sr-title">Afterglow</div>
+            <div class="sr-streams">320K</div>
+            <div class="sr-earned">$197</div>
+            <div class="sr-status" style="background:rgba(64,240,160,0.1);color:var(--grn);">CLEAN</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TERRITORY COVERAGE -->
+      <div class="card" style="margin-bottom:14px;animation-delay:0.3s;">
+        <div class="card-hd">
+          <div class="card-title">// Territory coverage</div>
+          <div style="display:flex;gap:8px;">
+            <span class="cbadge cb-red">2 gaps</span>
+            <span class="cbadge cb-amb">1 pending</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+          <div>
+            <div class="terr-row"><span class="tr-flag">🇺🇸</span><span class="tr-name">United States</span><span class="tr-streams">3.1M</span><span class="tr-status ts-ok">REGISTERED</span></div>
+            <div class="terr-row"><span class="tr-flag">🇬🇧</span><span class="tr-name">United Kingdom</span><span class="tr-streams">1.2M</span><span class="tr-status ts-ok">REGISTERED</span></div>
+            <div class="terr-row" style="background:rgba(240,80,96,0.03);"><span class="tr-flag">🇩🇪</span><span class="tr-name">Germany</span><span class="tr-streams">980K</span><span class="tr-status ts-bad">NOT REGISTERED</span></div>
+            <div class="terr-row"><span class="tr-flag">🇦🇺</span><span class="tr-name">Australia</span><span class="tr-streams">620K</span><span class="tr-status ts-ok">REGISTERED</span></div>
+          </div>
+          <div>
+            <div class="terr-row"><span class="tr-flag">🇨🇦</span><span class="tr-name">Canada</span><span class="tr-streams">440K</span><span class="tr-status ts-ok">REGISTERED</span></div>
+            <div class="terr-row" style="background:rgba(240,192,64,0.03);"><span class="tr-flag">🇫🇷</span><span class="tr-name">France</span><span class="tr-streams">280K</span><span class="tr-status ts-pend">PENDING</span></div>
+            <div class="terr-row" style="background:rgba(240,80,96,0.03);"><span class="tr-flag">🇧🇷</span><span class="tr-name">Brazil</span><span class="tr-streams">190K</span><span class="tr-status ts-bad">NOT REGISTERED</span></div>
+            <div class="terr-row"><span class="tr-flag">🇯🇵</span><span class="tr-name">Japan</span><span class="tr-streams">140K</span><span class="tr-status ts-ok">REGISTERED</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM DISCLAIMER -->
+      <div style="background:rgba(138,92,255,0.04);border:1px solid var(--border);border-radius:4px;padding:12px 16px;margin-bottom:20px;display:flex;gap:8px;align-items:flex-start;">
+        <span style="font-size:13px;flex-shrink:0;">ℹ</span>
+        <div style="font-size:11px;color:var(--muted2);line-height:1.6;"><strong style="color:var(--text);">Demo data only.</strong> All figures, names, and flags shown are sample data for illustration purposes. Royaltē does not access private earnings statements. Real audits use publicly available metadata to surface likely risks and gaps — not confirmed earnings. <a href="/dashboard.html" style="color:var(--pur);text-decoration:none;font-weight:600;">Run your real audit →</a></div>
+      </div>
+
+      </div><!-- /view-dashboard -->
+
+      <!-- ── MY SONGS VIEW ── -->
+      <div id="view-songs" class="view">
+
+        <!-- SPOTIFY CONNECT HERO (shown before connect) -->
+        <div id="connect-hero" class="connect-hero">
+          <div class="ch-icon">♪</div>
+          <div class="ch-title">Connect your Spotify</div>
+          <div class="ch-desc">One click imports your entire catalog — every track, every release, every ISRC. Royaltē audits them all automatically and flags any issues across all 6 detection modules.</div>
+          <button class="connect-btn" onclick="startConnect()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+            Connect Spotify for Artists
+          </button>
+          <div class="connect-note">// Demo only — no real Spotify connection. Shows what the import experience looks like.</div>
+        </div>
+
+        <!-- IMPORT PROGRESS (shown during fake import) -->
+        <div id="import-progress" class="import-progress">
+          <div class="ip-title">Importing your catalog...</div>
+          <div class="ip-step" id="step-auth">
+            <div class="ip-dot active" id="dot-auth">1</div>
+            <div class="ip-label">Authenticating with Spotify for Artists</div>
+            <div class="ip-count" id="count-auth">—</div>
+          </div>
+          <div class="ip-step" id="step-tracks">
+            <div class="ip-dot" id="dot-tracks">2</div>
+            <div class="ip-label">Pulling tracks and releases</div>
+            <div class="ip-count" id="count-tracks">—</div>
+          </div>
+          <div class="ip-step" id="step-meta">
+            <div class="ip-dot" id="dot-meta">3</div>
+            <div class="ip-label">Resolving metadata and ISRCs</div>
+            <div class="ip-count" id="count-meta">—</div>
+          </div>
+          <div class="ip-step" id="step-audit">
+            <div class="ip-dot" id="dot-audit">4</div>
+            <div class="ip-label">Running audit modules across catalog</div>
+            <div class="ip-count" id="count-audit">—</div>
+          </div>
+          <div class="ip-bar-wrap"><div class="ip-bar" id="ip-bar"></div></div>
+        </div>
+
+        <!-- SONGS TABLE (shown after import) -->
+        <div id="songs-table-view" class="songs-view">
+
+          <!-- Stats -->
+          <div class="songs-stats">
+            <div class="ss-card"><div class="ss-val" style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">12</div><div class="ss-lbl">Total tracks</div></div>
+            <div class="ss-card"><div class="ss-val" style="color:var(--red);">3</div><div class="ss-lbl">Flagged</div></div>
+            <div class="ss-card"><div class="ss-val" style="color:var(--amb);">4</div><div class="ss-lbl">Needs review</div></div>
+            <div class="ss-card"><div class="ss-val" style="color:var(--grn);">5</div><div class="ss-lbl">Clean</div></div>
+          </div>
+
+          <!-- Search + filters -->
+          <div class="songs-topbar">
+            <input class="songs-search" type="text" placeholder="Search your catalog..." oninput="filterSongs(this.value)">
+            <div class="songs-filter">
+              <button class="sf-btn active" onclick="setFilter('all',this)">All</button>
+              <button class="sf-btn" onclick="setFilter('flag',this)">Flagged</button>
+              <button class="sf-btn" onclick="setFilter('review',this)">Review</button>
+              <button class="sf-btn" onclick="setFilter('clean',this)">Clean</button>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="songs-table">
+            <div class="st-header">
+              <div class="st-hcell">#</div>
+              <div class="st-hcell">Track</div>
+              <div class="st-hcell">Streams</div>
+              <div class="st-hcell">Earned</div>
+              <div class="st-hcell">Score</div>
+              <div class="st-hcell">Status</div>
+              <div class="st-hcell">Action</div>
+            </div>
+            <div id="songs-rows">
+              <div class="st-row" data-status="flag">
+                <div class="st-num">01</div>
+                <div class="st-title-col"><div class="st-title">Golden Hour</div><div class="st-album">Self-Titled EP · 2023</div></div>
+                <div class="st-cell">2.1M</div>
+                <div class="st-cell">$1,840</div>
+                <div class="st-score" style="color:var(--red)">35</div>
+                <div><span class="st-badge sb-flag">FLAGGED</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();alert('Demo: Would open full audit for Golden Hour')">Audit →</button>
+              </div>
+              <div class="st-row" data-status="flag">
+                <div class="st-num">02</div>
+                <div class="st-title-col"><div class="st-title">Midnight Drive</div><div class="st-album">Singles · 2023</div></div>
+                <div class="st-cell">1.4M</div>
+                <div class="st-cell">$1,120</div>
+                <div class="st-score" style="color:var(--red)">42</div>
+                <div><span class="st-badge sb-flag">FLAGGED</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();alert('Demo: Would open full audit for Midnight Drive')">Audit →</button>
+              </div>
+              <div class="st-row" data-status="review">
+                <div class="st-num">03</div>
+                <div class="st-title-col"><div class="st-title">Neon Sky</div><div class="st-album">Self-Titled EP · 2023</div></div>
+                <div class="st-cell">980K</div>
+                <div class="st-cell">$784</div>
+                <div class="st-score" style="color:var(--amb)">58</div>
+                <div><span class="st-badge sb-review">REVIEW</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();alert('Demo: Would open full audit for Neon Sky')">Audit →</button>
+              </div>
+              <div class="st-row" data-status="review">
+                <div class="st-num">04</div>
+                <div class="st-title-col"><div class="st-title">Coastline</div><div class="st-album">Coastline EP · 2022</div></div>
+                <div class="st-cell">620K</div>
+                <div class="st-cell">$496</div>
+                <div class="st-score" style="color:var(--amb)">61</div>
+                <div><span class="st-badge sb-review">REVIEW</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();alert('Demo: Would open full audit for Coastline')">Audit →</button>
+              </div>
+              <div class="st-row" data-status="review">
+                <div class="st-num">05</div>
+                <div class="st-title-col"><div class="st-title">Still Water</div><div class="st-album">Coastline EP · 2022</div></div>
+                <div class="st-cell">480K</div>
+                <div class="st-cell">$384</div>
+                <div class="st-score" style="color:var(--amb)">64</div>
+                <div><span class="st-badge sb-review">REVIEW</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();">Audit →</button>
+              </div>
+              <div class="st-row" data-status="review">
+                <div class="st-num">06</div>
+                <div class="st-title-col"><div class="st-title">After Rain</div><div class="st-album">Singles · 2022</div></div>
+                <div class="st-cell">340K</div>
+                <div class="st-cell">$272</div>
+                <div class="st-score" style="color:var(--amb)">67</div>
+                <div><span class="st-badge sb-review">REVIEW</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();">Audit →</button>
+              </div>
+              <div class="st-row" data-status="clean">
+                <div class="st-num">07</div>
+                <div class="st-title-col"><div class="st-title">Afterglow</div><div class="st-album">Debut LP · 2021</div></div>
+                <div class="st-cell">320K</div>
+                <div class="st-cell">$197</div>
+                <div class="st-score" style="color:var(--grn)">78</div>
+                <div><span class="st-badge sb-clean">CLEAN</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();">Audit →</button>
+              </div>
+              <div class="st-row" data-status="clean">
+                <div class="st-num">08</div>
+                <div class="st-title-col"><div class="st-title">Wide Awake</div><div class="st-album">Debut LP · 2021</div></div>
+                <div class="st-cell">290K</div>
+                <div class="st-cell">$180</div>
+                <div class="st-score" style="color:var(--grn)">82</div>
+                <div><span class="st-badge sb-clean">CLEAN</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();">Audit →</button>
+              </div>
+              <div class="st-row" data-status="flag">
+                <div class="st-num">09</div>
+                <div class="st-title-col"><div class="st-title">City Lights</div><div class="st-album">Debut LP · 2021</div></div>
+                <div class="st-cell">260K</div>
+                <div class="st-cell">$161</div>
+                <div class="st-score" style="color:var(--red)">29</div>
+                <div><span class="st-badge sb-flag">FLAGGED</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();">Audit →</button>
+              </div>
+              <div class="st-row" data-status="clean">
+                <div class="st-num">10</div>
+                <div class="st-title-col"><div class="st-title">Ember</div><div class="st-album">Debut LP · 2021</div></div>
+                <div class="st-cell">210K</div>
+                <div class="st-cell">$130</div>
+                <div class="st-score" style="color:var(--grn)">75</div>
+                <div><span class="st-badge sb-clean">CLEAN</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();">Audit →</button>
+              </div>
+              <div class="st-row" data-status="clean">
+                <div class="st-num">11</div>
+                <div class="st-title-col"><div class="st-title">Hollow</div><div class="st-album">Debut LP · 2021</div></div>
+                <div class="st-cell">180K</div>
+                <div class="st-cell">$112</div>
+                <div class="st-score" style="color:var(--grn)">71</div>
+                <div><span class="st-badge sb-clean">CLEAN</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();">Audit →</button>
+              </div>
+              <div class="st-row" data-status="clean">
+                <div class="st-num">12</div>
+                <div class="st-title-col"><div class="st-title">Sunrise</div><div class="st-album">Singles · 2021</div></div>
+                <div class="st-cell">140K</div>
+                <div class="st-cell">$87</div>
+                <div class="st-score" style="color:var(--grn)">80</div>
+                <div><span class="st-badge sb-clean">CLEAN</span></div>
+                <button class="st-audit-btn" onclick="event.stopPropagation();">Audit →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Demo note -->
+          <div style="margin-top:12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.06em;line-height:1.6;padding:10px 14px;background:rgba(138,92,255,0.04);border:1px solid var(--border);border-radius:4px;">
+            // Demo data only. Real Spotify connect imports your actual catalog via Spotify for Artists API. Each track gets audited across all 6 modules automatically.
+          </div>
+        </div>
+
+      </div><!-- /view-songs -->
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+</div><!-- /layout -->
+
+<script>
+// ── VIEW SWITCHING ──────────────────────────────────────
+function showView(view){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+
+  // Update topbar
+  const titles={dashboard:'Dashboard',songs:'My Songs'};
+  const subs={dashboard:'// Q1 2025 · Last synced 14 minutes ago',songs:'// Spotify for Artists · 12 tracks imported'};
+  document.querySelector('.tb-title').textContent=titles[view]||'Dashboard';
+  document.querySelector('.tb-sub').textContent=subs[view]||'';
+}
+
+// ── SPOTIFY CONNECT FLOW ───────────────────────────────
+let imported = false;
+
+function startConnect(){
+  document.getElementById('connect-hero').style.display='none';
+  const prog = document.getElementById('import-progress');
+  prog.style.display='block';
+
+  // Step sequence with realistic timing
+  const steps = [
+    {dot:'dot-auth', count:'count-auth', label:'Authenticated', delay:800, countText:'✓ Spotify for Artists'},
+    {dot:'dot-tracks', count:'count-tracks', label:'Tracks pulled', delay:1800, countText:'12 tracks found'},
+    {dot:'dot-meta', count:'count-meta', label:'Metadata resolved', delay:3000, countText:'12 / 12 ISRCs'},
+    {dot:'dot-audit', count:'count-audit', label:'Audit complete', delay:4400, countText:'3 flags · 4 reviews'},
+  ];
+
+  // Animate progress bar
+  let pct = 0;
+  const bar = document.getElementById('ip-bar');
+  const barInterval = setInterval(()=>{
+    pct = Math.min(pct + 1.8, 98);
+    bar.style.width = pct+'%';
+    if(pct>=98) clearInterval(barInterval);
+  }, 80);
+
+  steps.forEach((s,i)=>{
+    // Activate current step
+    setTimeout(()=>{
+      document.getElementById(s.dot).classList.add('active');
+    }, i===0?100:steps[i-1].delay+100);
+
+    // Complete step
+    setTimeout(()=>{
+      const dot = document.getElementById(s.dot);
+      dot.classList.remove('active');
+      dot.classList.add('done');
+      dot.textContent='✓';
+      document.getElementById(s.count).textContent=s.countText;
+
+      // Activate next
+      if(i < steps.length-1){
+        document.getElementById(steps[i+1].dot).classList.add('active');
+      }
+    }, s.delay);
+  });
+
+  // Complete — show songs table
+  setTimeout(()=>{
+    clearInterval(barInterval);
+    bar.style.width='100%';
+    setTimeout(()=>{
+      prog.style.display='none';
+      document.getElementById('songs-table-view').style.display='block';
+      imported=true;
+    }, 400);
+  }, 5200);
+}
+
+// ── SONG FILTERING ─────────────────────────────────────
+let currentFilter = 'all';
+let currentSearch = '';
+
+function setFilter(filter, btn){
+  currentFilter = filter;
+  document.querySelectorAll('.sf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter();
+}
+
+function filterSongs(val){
+  currentSearch = val.toLowerCase();
+  applyFilter();
+}
+
+function applyFilter(){
+  const rows = document.querySelectorAll('.st-row');
+  rows.forEach(row=>{
+    const status = row.dataset.status;
+    const title = row.querySelector('.st-title').textContent.toLowerCase();
+    const matchFilter = currentFilter==='all' || status===currentFilter;
+    const matchSearch = !currentSearch || title.includes(currentSearch);
+    row.style.display = (matchFilter && matchSearch)?'grid':'none';
+  });
+}
+
+// ── SIDEBAR CLICK FOR SONGS ────────────────────────────
+// If already imported, show table directly
+const origShowView = window.showView;
+window.showView = function(view){
+  origShowView(view);
+  if(view==='songs' && imported){
+    document.getElementById('connect-hero').style.display='none';
+    document.getElementById('import-progress').style.display='none';
+    document.getElementById('songs-table-view').style.display='block';
+  }
+};
+</script>
+</body>
+</html>

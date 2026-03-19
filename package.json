@@ -1,0 +1,7 @@
+{
+  "name": "royalte",
+  "version": "1.0.0",
+  "description": "Royalte Music Audit Intelligence",
+  "engines": { "node": "24.x" },
+  "scripts": { "build": "echo 'Static site'" }
+}

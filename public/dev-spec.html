@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royaltē — Developer Specification v1.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);--text:#e8e4f4;--muted:#5a5880;--muted2:#9490b8;--pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;--grad:linear-gradient(135deg,#8a5cff,#e040c8);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;line-height:1.7;padding:56px;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.02) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+.doc{max-width:860px;margin:0 auto;position:relative;z-index:1;}
+
+/* header */
+.doc-header{padding-bottom:32px;border-bottom:1px solid var(--border2);margin-bottom:40px;}
+.doc-tag{font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:12px;}
+.doc-title{font-family:'Rajdhani',sans-serif;font-size:52px;font-weight:700;text-transform:uppercase;line-height:0.95;letter-spacing:-0.01em;margin-bottom:12px;}
+.doc-title span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.doc-meta{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px;}
+.dm{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:0.08em;}
+.dm strong{color:var(--pur);}
+
+/* sections */
+.section{margin-bottom:48px;}
+.s-tag{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--pur);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.s-tag::before{content:'//';opacity:0.5;}
+h2{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;margin-bottom:14px;color:var(--text);}
+h3{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--pur);margin:20px 0 8px;letter-spacing:0.06em;}
+p{font-size:14px;color:var(--muted2);line-height:1.75;margin-bottom:12px;}
+p strong{color:var(--text);}
+ul,ol{margin:8px 0 12px 20px;}
+li{font-size:13.5px;color:var(--muted2);line-height:1.7;margin-bottom:4px;}
+li strong{color:var(--text);}
+
+/* code blocks */
+pre{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:18px 20px;overflow-x:auto;margin:14px 0;font-family:'Space Mono',monospace;font-size:11.5px;color:var(--muted2);line-height:1.65;}
+pre .k{color:var(--pur);}
+pre .s{color:var(--grn);}
+pre .c{color:var(--muted);font-style:italic;}
+code{font-family:'Space Mono',monospace;font-size:11px;background:var(--bg4);border:1px solid var(--border2);padding:1px 7px;border-radius:2px;color:var(--pur);}
+
+/* tables */
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+th{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:10px 14px;text-align:left;background:var(--bg4);border-bottom:1px solid var(--border2);}
+td{padding:10px 14px;border-bottom:1px solid var(--border3);color:var(--muted2);vertical-align:top;}
+td strong{color:var(--text);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(138,92,255,0.02);}
+.badge{display:inline-block;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:2px;margin-right:4px;}
+.b-mvp{background:rgba(64,240,160,0.1);color:var(--grn);}
+.b-p2{background:rgba(240,192,64,0.1);color:var(--amb);}
+.b-p3{background:rgba(138,92,255,0.1);color:var(--pur);}
+.b-free{background:rgba(64,240,160,0.1);color:var(--grn);}
+.b-paid{background:rgba(138,92,255,0.1);color:var(--pur);}
+
+/* divider */
+hr{border:none;border-top:1px solid var(--border);margin:40px 0;}
+
+/* disclaimer */
+.disclaimer{background:rgba(138,92,255,0.05);border:1px solid var(--border);border-radius:6px;padding:16px 20px;margin:14px 0;}
+.disclaimer strong{color:var(--pur);}
+.disclaimer p{margin:0;font-size:13px;}
+
+/* stack tag */
+.stack-item{display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);padding:6px 12px;border-radius:4px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2);margin:4px;}
+.stack-item strong{color:var(--text);}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <div class="doc-header">
+    <div class="doc-tag">// Se7ven Labs — Confidential</div>
+    <div class="doc-title">Royalt<span>ē</span><br>Developer Spec</div>
+    <div class="doc-meta">
+      <div class="dm"><strong>Version:</strong> 1.0 MVP</div>
+      <div class="dm"><strong>Date:</strong> March 2025</div>
+      <div class="dm"><strong>Product:</strong> Music Audit Intelligence Engine</div>
+      <div class="dm"><strong>Contact:</strong> audit@royalte.ai</div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: WHAT WE'RE BUILDING -->
+  <div class="section">
+    <div class="s-tag">Section 01</div>
+    <h2>What we're building</h2>
+    <p>Royaltē is a <strong>music audit and intelligence engine</strong>. An artist pastes a Spotify or Apple Music URL and within 60 seconds receives a scored audit report showing metadata gaps, platform coverage issues, publishing risk indicators, duplicate detection flags, YouTube/UGC opportunities, and sync readiness scores.</p>
+    <div class="disclaimer">
+      <p><strong>Critical constraint:</strong> Royaltē is NOT a royalty collection platform, NOT a distributor, and NOT a PRO. We surface likely risks and opportunities based on publicly available metadata only. We do not access private royalty statements, private earnings data, or rights-chain records. All findings must be framed as "possible", "likely", or "flagged for investigation" — never as confirmed missing money.</p>
+    </div>
+    <h3>Tech stack</h3>
+    <div>
+      <span class="stack-item"><strong>Frontend:</strong> Next.js 14 (App Router)</span>
+      <span class="stack-item"><strong>Backend:</strong> Next.js API Routes</span>
+      <span class="stack-item"><strong>Database:</strong> Supabase (Postgres)</span>
+      <span class="stack-item"><strong>Auth:</strong> Clerk</span>
+      <span class="stack-item"><strong>Payments:</strong> Stripe</span>
+      <span class="stack-item"><strong>AI:</strong> Anthropic Claude API</span>
+      <span class="stack-item"><strong>Hosting:</strong> Vercel</span>
+      <span class="stack-item"><strong>Analytics:</strong> PostHog</span>
+      <span class="stack-item"><strong>Domain:</strong> royalte.ai (Cloudflare)</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 2: PRICING MODEL -->
+  <div class="section">
+    <div class="s-tag">Section 02</div>
+    <h2>Pricing model & token gating</h2>
+    <table>
+      <tr><th>Tier</th><th>Price</th><th>What runs</th><th>Claude API call?</th><th>Cost to serve</th></tr>
+      <tr><td><strong>Free preview</strong></td><td>$0</td><td>Spotify API + basic rule engine only. Score + 2 flags.</td><td><span class="badge b-free">NO</span></td><td>~$0.00</td></tr>
+      <tr><td><strong>Single audit</strong></td><td>$4.99 one-time</td><td>All 6 modules + Claude writes plain-English report</td><td><span class="badge b-paid">YES</span></td><td>~$0.03–0.08</td></tr>
+      <tr><td><strong>Artist Pro</strong></td><td>$9.99/mo or $99/yr</td><td>Unlimited full audits + history + monitoring</td><td><span class="badge b-paid">YES</span></td><td>~$0.03–0.08 per audit</td></tr>
+      <tr><td><strong>Manager</strong></td><td>$49/mo</td><td>Up to 10 artists, batch audits, white-label PDF</td><td><span class="badge b-paid">YES</span></td><td>~$0.03–0.08 per audit</td></tr>
+    </table>
+    <p><strong>Key implementation rule:</strong> The free preview MUST NOT call the Claude API. It runs only free public metadata APIs and the rule engine. The Claude call fires only after a successful Stripe payment is confirmed. This keeps the free tier at zero marginal cost regardless of traffic volume.</p>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 3: URL RESOLUTION -->
+  <div class="section">
+    <div class="s-tag">Section 03</div>
+    <h2>URL input & resolution logic</h2>
+    <p>The engine accepts four URL types. Auto-detection logic must identify platform and object type before any API call is made.</p>
+    <table>
+      <tr><th>URL pattern</th><th>Platform</th><th>Type</th><th>Extract</th></tr>
+      <tr><td><code>open.spotify.com/artist/:id</code></td><td>Spotify</td><td>Artist</td><td>Artist ID</td></tr>
+      <tr><td><code>open.spotify.com/track/:id</code></td><td>Spotify</td><td>Track</td><td>Track ID</td></tr>
+      <tr><td><code>music.apple.com/*/artist/*/:id</code></td><td>Apple Music</td><td>Artist</td><td>Artist ID</td></tr>
+      <tr><td><code>music.apple.com/*/album/*/:id?i=:trackId</code></td><td>Apple Music</td><td>Track</td><td>Track ID</td></tr>
+    </table>
+    <h3>Normalised internal object</h3>
+    <pre><span class="c">// All sources resolve to this structure before the engine runs</span>
+{
+  <span class="k">sourcePlatform</span>: <span class="s">"spotify"</span> | <span class="s">"apple_music"</span>,
+  <span class="k">sourceType</span>:     <span class="s">"artist"</span> | <span class="s">"track"</span>,
+  <span class="k">sourceId</span>:       <span class="s">"4Z8W4fKeB5YxbusRsdQVPb"</span>,
+  <span class="k">artistName</span>:     <span class="s">"Jordan Miles"</span>,
+  <span class="k">trackTitle</span>:     <span class="s">"Golden Hour"</span> | null,
+  <span class="k">albumTitle</span>:     <span class="s">"Self-Titled EP"</span> | null,
+  <span class="k">isrc</span>:           <span class="s">"USRC12345678"</span> | null,
+  <span class="k">upc</span>:            <span class="s">"123456789012"</span> | null,
+  <span class="k">releaseDate</span>:    <span class="s">"2023-04-14"</span> | null,
+  <span class="k">label</span>:          <span class="s">"Self-released"</span> | null,
+  <span class="k">contributors</span>:   [],
+  <span class="k">artwork</span>:        <span class="s">"https://..."</span> | null,
+  <span class="k">externalLinks</span>:  []
+}</pre>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 4: API STACK -->
+  <div class="section">
+    <div class="s-tag">Section 04</div>
+    <h2>API stack</h2>
+    <table>
+      <tr><th>API</th><th>Used for</th><th>Cost</th><th>MVP?</th><th>Limitations</th></tr>
+      <tr><td><strong>Spotify Web API</strong></td><td>Track/artist metadata, ISRC, contributors, popularity</td><td>Free</td><td><span class="badge b-mvp">ESSENTIAL</span></td><td>No earnings data. No private account access.</td></tr>
+      <tr><td><strong>Apple Music API</strong></td><td>Cross-reference metadata, ISRC match, release date</td><td>Free (Apple dev account)</td><td><span class="badge b-mvp">ESSENTIAL</span></td><td>No earnings. Requires Apple developer token.</td></tr>
+      <tr><td><strong>YouTube Data API v3</strong></td><td>Official video detection, UGC search, channel presence</td><td>Free (quota limits)</td><td><span class="badge b-mvp">ESSENTIAL</span></td><td>No Content ID access by default. Search only.</td></tr>
+      <tr><td><strong>MusicBrainz API</strong></td><td>ISRC cross-check, contributor data, duplicate detection</td><td>Free</td><td><span class="badge b-mvp">ESSENTIAL</span></td><td>Rate limited (1 req/sec). Data quality varies.</td></tr>
+      <tr><td><strong>Anthropic Claude API</strong></td><td>Plain-English report writing, flag explanations, action recommendations</td><td>~$0.03–0.08/audit</td><td><span class="badge b-mvp">PAID TIER ONLY</span></td><td>Only fires after Stripe payment confirmed.</td></tr>
+      <tr><td><strong>Stripe API</strong></td><td>One-time payments ($4.99), subscriptions ($9.99/mo, $99/yr, $49/mo)</td><td>2.9% + 30¢</td><td><span class="badge b-mvp">ESSENTIAL</span></td><td>—</td></tr>
+      <tr><td><strong>Supabase</strong></td><td>Users, audits, flags, scores, provider responses, subscriptions</td><td>Free tier → $25/mo</td><td><span class="badge b-mvp">ESSENTIAL</span></td><td>—</td></tr>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 5: THE 6 DETECTION MODULES -->
+  <div class="section">
+    <div class="s-tag">Section 05</div>
+    <h2>The 6 detection modules</h2>
+
+    <h3>Module A — Metadata Integrity</h3>
+    <p>Cross-references artist name, track title, album, release date, ISRC, UPC, explicit flag, and contributor data across Spotify, Apple Music, and MusicBrainz. Flags mismatches and missing identifiers.</p>
+    <pre><span class="c">// Key rules</span>
+IF isrc == null across all sources          → flag("Missing ISRC", severity="high")
+IF upc == null                              → flag("Missing UPC", severity="medium")
+IF contributors.length == 0                 → flag("No songwriter data", severity="high")
+IF spotify.title != apple.title             → flag("Title mismatch", severity="medium")
+IF spotify.releaseDate != musicbrainz.date  → flag("Release date conflict", severity="low")
+IF spotify.explicit != apple.explicit       → flag("Explicit flag conflict", severity="low")</pre>
+
+    <h3>Module B — Platform Coverage</h3>
+    <p>Checks whether the track/artist is found on Spotify, Apple Music, YouTube, MusicBrainz, and Tidal. Returns found/not-found with confidence score per platform.</p>
+    <pre>IF spotify.found == true AND apple.found == false  → flag("Apple Music gap", severity="medium")
+IF youtube.officialPresence == false               → flag("No official YouTube presence", severity="medium")
+IF musicbrainz.found == false                      → flag("Not in MusicBrainz", severity="low")
+IF coverageScore &lt; 3 of 5 platforms               → flag("Limited platform coverage", severity="high")</pre>
+
+    <h3>Module C — Territory Coverage Audit</h3>
+    <p>Cross-references stream presence by territory against detected PRO registration signals. Flags territories with significant streams but no matching registration. Uses public metadata only — not private PRO records.</p>
+    <pre>IF territory.streams > 100000 AND territory.proStatus == "not_found"
+  → flag("Possible PRO gap in " + territory.name, severity="high")
+
+IF territory.streams > 50000 AND territory.proStatus == "pending"
+  → flag("Registration pending in " + territory.name, severity="medium")
+
+<span class="c">// Key territories to always check:</span>
+<span class="c">// DE=GEMA, FR=SACEM, BR=ECAD, JP=JASRAC, SE=STIM, NO=TONO, DK=KODA, NL=BUMA</span></pre>
+
+    <h3>Module D — Publishing Risk</h3>
+    <p>Scores publishing risk based on absence of songwriter data, identifier conflicts, metadata weakness, and fragmentation signals. Cannot verify actual unpaid royalties.</p>
+    <pre>IF contributors.songwriters == 0            → publishingRisk += 40
+IF isrc == null                             → publishingRisk += 25
+IF metadata conflicts > 2                   → publishingRisk += 20
+IF label == "self-released" AND isrc == null → publishingRisk += 15
+<span class="c">// Score: 0-30 = Low, 31-60 = Medium, 61+ = High</span></pre>
+
+    <h3>Module E — Duplicate & Fragmentation Detection</h3>
+    <pre>IF titleSimilarity > 0.90 AND artistSimilarity > 0.95 AND IDs conflict
+  → flag("Possible duplicate recording", severity="medium")
+IF same artist has 3+ near-identical titles with different ISRCs
+  → flag("Possible catalog fragmentation", severity="medium")</pre>
+
+    <h3>Module F — YouTube / UGC Detection</h3>
+    <pre>IF officialAudio == false AND officialVideo == false
+  → flag("No official YouTube presence", severity="medium")
+IF ugcResults > 10 AND contentIdActive == false
+  → flag("UGC detected — Content ID not active", severity="high")</pre>
+
+    <h3>Module G — Sync Readiness</h3>
+    <pre>syncScore = 0
+IF isrc != null         → syncScore += 20
+IF artwork != null      → syncScore += 15
+IF allPlatforms >= 4    → syncScore += 20
+IF titleFormatClean     → syncScore += 15
+IF genreTags.length > 0 → syncScore += 15
+IF moodTags.length > 0  → syncScore += 15
+<span class="c">// Score out of 100. Below 50 = flag sync readiness gaps</span></pre>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 6: BACKEND FLOW -->
+  <div class="section">
+    <div class="s-tag">Section 06</div>
+    <h2>Backend flow — paste to report</h2>
+    <pre><span class="c">// Full sequence from URL paste to report returned</span>
+
+1. POST /api/audit/start
+   └─ Receive URL
+   └─ Parse URL → detect platform + type + extract ID
+   └─ Return: { auditId, platform, type, sourceId }
+
+2. POST /api/audit/resolve/:auditId
+   └─ Call Spotify API (or Apple Music API)
+   └─ Normalise to internal object
+   └─ Save to resolved_tracks / resolved_artists table
+
+3. POST /api/audit/run/:auditId
+   └─ Run Module A (Metadata) — Spotify + Apple + MusicBrainz
+   └─ Run Module B (Platform Coverage) — all platforms in parallel
+   └─ Run Module C (Territory Coverage) — public stream + PRO signals
+   └─ Run Module D (Publishing Risk) — rule engine scoring
+   └─ Run Module E (Duplicates) — MusicBrainz + Spotify search
+   └─ Run Module F (YouTube/UGC) — YouTube Data API
+   └─ Run Module G (Sync Readiness) — scoring rules
+   └─ Save all flags to audit_flags table
+   └─ Calculate scores → save to audit_scores table
+
+4. <span class="c">// FREE PREVIEW — returns here, NO Claude call</span>
+   GET /api/audit/preview/:auditId
+   └─ Return: { score, topFlags[0..1], platform }
+
+5. <span class="c">// PAID FULL REPORT — only after Stripe webhook confirms payment</span>
+   POST /api/audit/unlock/:auditId
+   └─ Verify Stripe payment confirmed
+   └─ Call Claude API with full flag data
+   └─ Claude writes plain-English explanations + recommendations
+   └─ Save full report to audits table
+   └─ Return: { fullReport, allFlags, allScores, actions, territories }</pre>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 7: DATABASE SCHEMA -->
+  <div class="section">
+    <div class="s-tag">Section 07</div>
+    <h2>Database schema (Supabase / Postgres)</h2>
+    <pre><span class="c">-- Core tables for MVP</span>
+
+users (id, email, clerk_id, created_at, plan)
+
+subscriptions (id, user_id, stripe_customer_id,
+  stripe_subscription_id, plan, status, current_period_end)
+
+audits (id, user_id, input_url, platform, source_type,
+  source_id, status, overall_score, created_at, paid_at,
+  payment_intent_id, report_json)
+
+resolved_tracks (id, audit_id, artist_name, track_title,
+  album_title, isrc, upc, release_date, label,
+  contributors_json, artwork_url)
+
+audit_flags (id, audit_id, module, flag_key, severity,
+  title, description, recommended_action, confidence)
+
+audit_scores (id, audit_id, metadata_score, coverage_score,
+  territory_score, publishing_risk_score, duplicate_score,
+  youtube_score, sync_score, overall_score)
+
+territory_results (id, audit_id, territory_code,
+  territory_name, stream_estimate, pro_status,
+  pro_name, flagged)
+
+provider_responses (id, audit_id, provider, endpoint,
+  response_json, created_at)
+
+audit_one_time_purchases (id, user_id, audit_id,
+  stripe_payment_intent, amount, created_at)</pre>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 8: API ENDPOINTS -->
+  <div class="section">
+    <div class="s-tag">Section 08</div>
+    <h2>API endpoint list</h2>
+    <table>
+      <tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Description</th></tr>
+      <tr><td>POST</td><td><code>/api/audit/start</code></td><td>None</td><td>Receive URL, parse, return auditId + preview data</td></tr>
+      <tr><td>GET</td><td><code>/api/audit/preview/:id</code></td><td>None</td><td>Return free preview (score + 2 flags, no Claude)</td></tr>
+      <tr><td>POST</td><td><code>/api/audit/unlock/:id</code></td><td>Stripe webhook</td><td>Trigger full report generation after payment</td></tr>
+      <tr><td>GET</td><td><code>/api/audit/report/:id</code></td><td>Clerk (paid user)</td><td>Return full report JSON</td></tr>
+      <tr><td>GET</td><td><code>/api/audit/history</code></td><td>Clerk</td><td>Return all audits for authenticated user</td></tr>
+      <tr><td>POST</td><td><code>/api/stripe/checkout</code></td><td>Clerk (optional)</td><td>Create Stripe checkout session ($4.99 or subscription)</td></tr>
+      <tr><td>POST</td><td><code>/api/stripe/webhook</code></td><td>Stripe signature</td><td>Handle payment events, trigger report unlock</td></tr>
+      <tr><td>GET</td><td><code>/api/user/subscription</code></td><td>Clerk</td><td>Return current user plan and usage</td></tr>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 9: IMPLEMENTATION ORDER -->
+  <div class="section">
+    <div class="s-tag">Section 09</div>
+    <h2>Recommended build order</h2>
+    <table>
+      <tr><th>Week</th><th>What to build</th><th>Phase</th></tr>
+      <tr><td>1</td><td>URL parser + Spotify API integration + normalised object</td><td><span class="badge b-mvp">MVP</span></td></tr>
+      <tr><td>1</td><td>Supabase schema + basic audit flow (start → resolve → save)</td><td><span class="badge b-mvp">MVP</span></td></tr>
+      <tr><td>2</td><td>Module A (Metadata) + Module B (Platform Coverage) rule engine</td><td><span class="badge b-mvp">MVP</span></td></tr>
+      <tr><td>2</td><td>Module C (Territory Coverage) — 8 key territories</td><td><span class="badge b-mvp">MVP</span></td></tr>
+      <tr><td>2</td><td>Free preview endpoint — score + 2 flags, no Claude</td><td><span class="badge b-mvp">MVP</span></td></tr>
+      <tr><td>3</td><td>Stripe integration — $4.99 one-time + webhook unlock</td><td><span class="badge b-mvp">MVP</span></td></tr>
+      <tr><td>3</td><td>Claude API integration — plain-English report writing</td><td><span class="badge b-mvp">MVP</span></td></tr>
+      <tr><td>3</td><td>Full report endpoint + dashboard UI wired to real data</td><td><span class="badge b-mvp">MVP</span></td></tr>
+      <tr><td>4</td><td>Clerk auth + user accounts + audit history</td><td><span class="badge b-mvp">MVP</span></td></tr>
+      <tr><td>4</td><td>Subscription plans ($9.99/mo, $99/yr, $49/mo manager)</td><td><span class="badge b-mvp">MVP</span></td></tr>
+      <tr><td>5</td><td>Modules D–G (Publishing Risk, Duplicates, YouTube, Sync)</td><td><span class="badge b-p2">PHASE 2</span></td></tr>
+      <tr><td>6</td><td>PDF export, email digest, PostHog analytics</td><td><span class="badge b-p2">PHASE 2</span></td></tr>
+      <tr><td>7+</td><td>Manager dashboard, batch auditing, white-label reports</td><td><span class="badge b-p3">PHASE 3</span></td></tr>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 10: MVP LIMITATIONS -->
+  <div class="section">
+    <div class="s-tag">Section 10</div>
+    <h2>Honest MVP limitations</h2>
+    <div class="disclaimer">
+      <p><strong>What V1 can detect:</strong> Metadata inconsistencies across public sources. Missing ISRCs and UPCs. Platform coverage gaps. Territory stream presence vs PRO registration signals. Publishing risk indicators based on missing data. YouTube official presence. Basic duplicate detection by title similarity. Sync readiness based on metadata completeness.</p>
+    </div>
+    <div class="disclaimer" style="margin-top:8px;background:rgba(240,80,96,0.05);border-color:rgba(240,80,96,0.2);">
+      <p><strong style="color:var(--red);">What V1 cannot verify:</strong> Private royalty statements. Confirmed unpaid publishing royalties. Actual earnings by territory. YouTube Content ID fingerprint matching (requires Content ID partner program access). Rights-chain ownership data. Distributor payout history. PRO registration confirmation (inferred only from public signals).</p>
+    </div>
+    <p style="margin-top:14px;">All findings must be communicated as <strong>"possible"</strong>, <strong>"likely"</strong>, or <strong>"flagged for investigation"</strong> — never as confirmed missing money or verified unpaid royalties. This is both a legal requirement and a product positioning requirement.</p>
+  </div>
+
+  <hr>
+
+  <div style="padding:20px 0;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.08em;">
+    // Royaltē Developer Specification v1.0 · Se7ven Labs · Confidential · audit@royalte.ai
+  </div>
+
+</div>
+</body>
+</html>
