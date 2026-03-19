@@ -964,7 +964,7 @@ async function submitForm(){
   try{
     await fetch('https://formspree.io/f/xojkrwzp',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name,email,spotify_url:spotify,track_count:tracks,_subject:`Royaltē Full Audit Request — ${name}`})
+      body:JSON.stringify({name,email,spotify_url:spotify,track_count:tracks,_subject:`Royaltē Full Audit Request — ${name}`,_replyto:email})
     });
   }catch(e){}
   document.getElementById('form-inner').style.display='none';
