@@ -821,13 +821,20 @@ async function runAudit(){
   btn.textContent='Scanning...';
   document.getElementById('f-spotify').value=val;
 
-  animateScan(async()=>{
-    try{
-      const resp = await fetch(`/api/audit?url=${encodeURIComponent(val)}`);
-      const data = await resp.json();
-      if(data.success) showRealResults(data);
-      else showDemoResults(val);
-    }catch(e){showDemoResults(val);}
+  let auditData = null;
+  try{
+    const resp = await fetch(`/api/audit?url=${encodeURIComponent(val)}`);
+    auditData = await resp.json();
+    if(auditData && auditData.success){
+      document.getElementById('hero-artist-name').textContent = auditData.artistName;
+      document.getElementById('hero-artist-sub').textContent = `${(auditData.followers||0).toLocaleString()} followers · Spotify Artist`;
+      document.querySelector('.d-score-val') && (document.querySelector('.d-score-val').textContent = auditData.overallScore);
+    }
+  }catch(e){ auditData = null; }
+
+  animateScan(()=>{
+    if(auditData && auditData.success) showRealResults(auditData);
+    else showDemoResults(val);
     btn.disabled=false;
     btn.textContent='Run Free Audit →';
     document.getElementById('scan-progress').style.display='none';
