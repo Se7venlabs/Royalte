@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royaltē — Contact</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#5a5880;--muted2:#9490b8;
+--pur:#8a5cff;--pnk:#e040c8;--grn:#40f0a0;--red:#f05060;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);
+--glow:0 0 80px rgba(138,92,255,0.2);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand{display:flex;flex-direction:column;line-height:1;text-decoration:none;}
+.nav-wordmark{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);}
+.nav-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-tagline{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-top:2px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* HERO */
+.contact-hero{padding:140px 56px 80px;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+.orb1{position:absolute;top:-150px;left:-100px;width:700px;height:700px;background:radial-gradient(ellipse,rgba(138,92,255,0.13) 0%,transparent 65%);pointer-events:none;}
+.orb2{position:absolute;bottom:-100px;right:-100px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(224,64,200,0.08) 0%,transparent 65%);pointer-events:none;}
+.contact-hero-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;position:relative;z-index:2;}
+.contact-eyebrow{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--pur);margin-bottom:16px;}
+.contact-h1{font-family:'Rajdhani',sans-serif;font-size:clamp(42px,5vw,68px);font-weight:700;line-height:0.95;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:20px;}
+.contact-h1 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.contact-desc{font-size:15px;color:var(--muted2);line-height:1.75;margin-bottom:36px;}
+
+/* CONTACT METHODS */
+.contact-methods{display:flex;flex-direction:column;gap:12px;}
+.contact-method{display:flex;align-items:center;gap:16px;padding:18px 20px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;text-decoration:none;transition:border-color 0.2s;}
+.contact-method:hover{border-color:var(--border2);}
+.cm-icon{width:44px;height:44px;border-radius:6px;background:rgba(138,92,255,0.08);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.cm-body{}
+.cm-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.cm-value{font-size:14px;font-weight:600;color:var(--text);}
+.cm-desc{font-size:11px;color:var(--muted2);margin-top:2px;}
+
+/* RESPONSE TIMES */
+.response-grid{display:flex;flex-direction:column;gap:8px;margin-top:28px;}
+.response-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;}
+.ri-label{font-size:12px;color:var(--muted2);}
+.ri-time{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+/* FORM */
+.contact-form-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:36px;position:relative;overflow:hidden;box-shadow:var(--glow);}
+.contact-form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.form-tag{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);margin-bottom:6px;}
+.form-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:20px;}
+.form-row{margin-bottom:16px;}
+.form-label{display:block;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;}
+.form-label span{color:var(--pur);}
+.form-input{width:100%;padding:12px 16px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--border2);}
+.form-input::placeholder{color:var(--muted);}
+.form-select{width:100%;padding:12px 16px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;outline:none;appearance:none;cursor:pointer;}
+.form-select option{background:var(--bg4);}
+.form-textarea{width:100%;padding:12px 16px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;outline:none;transition:border-color 0.2s;resize:vertical;min-height:120px;line-height:1.6;}
+.form-textarea:focus{border-color:var(--border2);}
+.form-textarea::placeholder{color:var(--muted);}
+.form-submit{width:100%;padding:14px;background:var(--grad);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;margin-top:6px;box-shadow:0 4px 20px rgba(138,92,255,0.3);}
+.form-submit:hover{opacity:0.88;}
+.form-submit:disabled{opacity:0.5;cursor:not-allowed;}
+.form-microcopy{margin-top:10px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.06em;line-height:1.6;text-align:center;}
+.form-success{display:none;text-align:center;padding:40px 20px;}
+.fs-icon{font-size:40px;margin-bottom:14px;}
+.fs-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;color:var(--text);margin-bottom:8px;}
+.fs-sub{font-size:13px;color:var(--muted2);line-height:1.6;}
+
+/* FOOTER */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-wordmark{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.f-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.f-tagline{font-size:9px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-top:3px;}
+.f-copy{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+@media(max-width:900px){
+nav{padding:0 20px;}
+.nav-links{display:none;}
+.contact-hero{padding:100px 20px 60px;}
+.contact-hero-inner{grid-template-columns:1fr;gap:40px;}
+footer{padding:28px 20px;flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-brand">
+    <div class="nav-wordmark">Royalt<span>ē</span></div>
+    <div class="nav-tagline">Music Audit Intelligence</div>
+  </a>
+  <div class="nav-links">
+    <a href="/#how">How it works</a>
+    <a href="/#beta">About beta</a>
+    <a href="/#request">Free audit</a>
+    <a href="/affiliates.html">Affiliates</a>
+    <a href="/contact.html" class="active">Contact</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="nav-beta">// Beta</span>
+    <a href="/#request" class="nav-cta">Get Free Audit</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="contact-hero">
+  <div class="orb1"></div><div class="orb2"></div>
+  <div class="contact-hero-inner">
+
+    <!-- LEFT -->
+    <div>
+      <div class="contact-eyebrow">// Get in touch</div>
+      <h1 class="contact-h1">We're<br><span>Real People.</span></h1>
+      <p class="contact-desc">Royaltē is built and run by a small team at Se7ven Labs Inc. Whether you have a question about your audit, want to explore a partnership, or just want to say hello — we read every message.</p>
+
+      <div class="contact-methods">
+        <a href="mailto:info@royalte.ai" class="contact-method">
+          <div class="cm-icon">✉️</div>
+          <div class="cm-body">
+            <div class="cm-label">// General enquiries</div>
+            <div class="cm-value">info@royalte.ai</div>
+            <div class="cm-desc">Questions, feedback, partnerships, press</div>
+          </div>
+        </a>
+        <a href="mailto:audit@royalte.ai" class="contact-method">
+          <div class="cm-icon">🎵</div>
+          <div class="cm-body">
+            <div class="cm-label">// Audit support</div>
+            <div class="cm-value">audit@royalte.ai</div>
+            <div class="cm-desc">Questions about your audit report or submission</div>
+          </div>
+        </a>
+        <a href="/affiliates.html" class="contact-method">
+          <div class="cm-icon">🤝</div>
+          <div class="cm-body">
+            <div class="cm-label">// Affiliate program</div>
+            <div class="cm-value">Apply to become an affiliate</div>
+            <div class="cm-desc">Earn 30% commission helping artists get paid</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="response-grid">
+        <div style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-top:8px;margin-bottom:4px;">// Typical response times</div>
+        <div class="response-item"><span class="ri-label">General enquiries</span><span class="ri-time">Within 24 hours</span></div>
+        <div class="response-item"><span class="ri-label">Audit delivery (standard)</span><span class="ri-time">12–24 hours</span></div>
+        <div class="response-item"><span class="ri-label">Audit delivery (priority referral)</span><span class="ri-time">1–2 hours</span></div>
+        <div class="response-item"><span class="ri-label">Affiliate applications</span><span class="ri-time">Within 48 hours</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT — CONTACT FORM -->
+    <div class="contact-form-card">
+      <div id="contact-form-inner">
+        <div class="form-tag">// Send us a message</div>
+        <div class="form-title">We'll get back to you within 24 hours.</div>
+
+        <div class="form-row">
+          <label class="form-label">Full Name <span>*</span></label>
+          <input class="form-input" id="c-name" type="text" placeholder="Your full name">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Email Address <span>*</span></label>
+          <input class="form-input" id="c-email" type="email" placeholder="your@email.com">
+        </div>
+        <div class="form-row">
+          <label class="form-label">What's this about? <span>*</span></label>
+          <select class="form-select" id="c-subject">
+            <option value="">Select a topic</option>
+            <option value="audit-question">Question about my audit</option>
+            <option value="audit-request">Request a full audit</option>
+            <option value="affiliate">Affiliate program</option>
+            <option value="partnership">Partnership or press</option>
+            <option value="feedback">Feedback or feature request</option>
+            <option value="bug">Bug or technical issue</option>
+            <option value="other">Something else</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Message <span>*</span></label>
+          <textarea class="form-textarea" id="c-message" placeholder="Tell us what's on your mind..."></textarea>
+        </div>
+        <button class="form-submit" id="c-btn" onclick="submitContact()">Send Message →</button>
+        <div class="form-microcopy">Replies go to your email · We read every message · No spam</div>
+      </div>
+      <div class="form-success" id="contact-success">
+        <div class="fs-icon">📬</div>
+        <div class="fs-title">Message sent.</div>
+        <div class="fs-sub">Thanks for reaching out. We'll get back to you at your email address within 24 hours.<br><br>If your message is about an audit, check your spam folder too — our reports sometimes end up there.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="f-wordmark">Royalt<span>ē</span></div>
+    <div class="f-tagline">Music Audit Intelligence · Beta</div>
+  </div>
+  <div class="f-copy">© 2025 Royaltē · Se7ven Labs Inc. · info@royalte.ai</div>
+  <div class="f-links">
+    <a href="/">Home</a>
+    <a href="/affiliates.html">Affiliates</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+    <a href="/contact.html">Contact</a>
+  </div>
+</footer>
+
+<script>
+async function submitContact(){
+  const name    = document.getElementById('c-name').value.trim();
+  const email   = document.getElementById('c-email').value.trim();
+  const subject = document.getElementById('c-subject').value;
+  const message = document.getElementById('c-message').value.trim();
+  const btn     = document.getElementById('c-btn');
+
+  if(!name)   { document.getElementById('c-name').style.borderColor='var(--red)'; return; }
+  if(!email||!email.includes('@')){ document.getElementById('c-email').style.borderColor='var(--red)'; return; }
+  if(!subject){ document.getElementById('c-subject').style.borderColor='var(--red)'; return; }
+  if(!message){ document.getElementById('c-message').style.borderColor='var(--red)'; return; }
+
+  btn.disabled    = true;
+  btn.textContent = 'Sending...';
+
+  try{
+    await fetch('https://formspree.io/f/xojkrwzp',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        name,
+        email,
+        subject,
+        message,
+        _subject: `Royaltē Contact — ${subject} — ${name}`,
+        _replyto: email,
+        _cc:      'info@royalte.ai'
+      })
+    });
+  }catch(e){}
+
+  document.getElementById('contact-form-inner').style.display = 'none';
+  document.getElementById('contact-success').style.display    = 'block';
+}
+</script>
+</body>
+</html>
