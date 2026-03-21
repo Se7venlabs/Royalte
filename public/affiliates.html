@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royaltē — Affiliate Program</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Rewardful -->
+<script async src='https://r.wdfl.co/rw.js' data-rewardful='YOUR_REWARDFUL_ID'></script>
+<script>var rewardful=rewardful||function(){(rewardful.q=rewardful.q||[]).push(arguments)};</script>
+
+<style>
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#5a5880;--muted2:#9490b8;
+--pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);
+--glow:0 0 80px rgba(138,92,255,0.2);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand{display:flex;flex-direction:column;line-height:1;text-decoration:none;}
+.nav-wordmark{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);}
+.nav-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-tagline{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-top:2px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* HERO */
+.aff-hero{padding:140px 56px 80px;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+.orb1{position:absolute;top:-150px;left:-100px;width:700px;height:700px;background:radial-gradient(ellipse,rgba(138,92,255,0.13) 0%,transparent 65%);pointer-events:none;}
+.orb2{position:absolute;bottom:-100px;right:-100px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(224,64,200,0.08) 0%,transparent 65%);pointer-events:none;}
+.aff-hero-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:2;}
+.aff-hero-eyebrow{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--border2);background:rgba(138,92,255,0.07);padding:8px 18px;border-radius:2px;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--pur);margin-bottom:24px;font-family:'Space Mono',monospace;}
+.aff-hero-h1{font-family:'Rajdhani',sans-serif;font-size:clamp(42px,5vw,68px);font-weight:700;line-height:0.95;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:20px;}
+.gt{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.aff-hero-desc{font-size:15px;color:var(--muted2);line-height:1.75;margin-bottom:32px;}
+.aff-hero-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.hstat{display:flex;align-items:center;gap:8px;background:rgba(138,92,255,0.06);border:1px solid var(--border);padding:7px 12px;border-radius:2px;}
+.hstat-n{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hstat-l{font-size:9px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;}
+
+/* CAPTURE CARD */
+.capture-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:36px;position:relative;overflow:hidden;box-shadow:var(--glow);}
+.capture-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.capture-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);margin-bottom:8px;}
+.capture-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.capture-desc{font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:20px;}
+.capture-input-row{display:flex;gap:0;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;overflow:hidden;box-shadow:var(--glow);}
+.capture-input{flex:1;background:none;border:none;outline:none;padding:14px 18px;font-size:14px;color:var(--text);font-family:'Space Grotesk',sans-serif;}
+.capture-input::placeholder{color:var(--muted);}
+.capture-btn{background:var(--grad);color:#fff;padding:14px 24px;border:none;cursor:pointer;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;font-family:'Space Grotesk',sans-serif;white-space:nowrap;flex-shrink:0;transition:opacity 0.2s;}
+.capture-btn:hover{opacity:0.88;}
+.capture-hint{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:8px;letter-spacing:0.06em;}
+.capture-success{display:none;text-align:center;padding:20px 0;}
+
+/* SECTIONS */
+section{padding:80px 56px;position:relative;}
+.si{max-width:1180px;margin:0 auto;}
+.s-tag{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--pur);margin-bottom:18px;font-family:'Space Mono',monospace;}
+.s-tag::before{content:'//';opacity:0.5;}
+.s-h2{font-family:'Rajdhani',sans-serif;font-size:clamp(32px,4vw,52px);font-weight:700;line-height:0.95;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:16px;}
+.s-sub{font-size:15px;color:var(--muted2);max-width:560px;line-height:1.75;margin-bottom:48px;}
+
+/* HOW IT WORKS STEPS */
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border2);border-radius:6px;overflow:hidden;}
+.how-step{background:var(--bg3);padding:28px 22px;position:relative;}
+.how-step::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--grad);opacity:0.2;}
+.how-n{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:var(--pur);letter-spacing:0.12em;margin-bottom:14px;display:block;}
+.how-ico{font-size:28px;margin-bottom:12px;display:block;}
+.how-t{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:0.04em;}
+.how-d{font-size:12px;color:var(--muted2);line-height:1.6;}
+
+/* PERKS */
+.perks-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px;}
+.perk-card{background:var(--bg3);border:1px solid var(--border3);border-radius:8px;padding:24px;transition:border-color 0.2s;position:relative;overflow:hidden;}
+.perk-card:hover{border-color:var(--border2);}
+.perk-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0;}
+.perk-card:hover::before{opacity:1;}
+.perk-icon{font-size:28px;margin-bottom:14px;display:block;}
+.perk-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.perk-desc{font-size:12px;color:var(--muted2);line-height:1.6;}
+
+/* ARTIST REWARD HIGHLIGHT */
+.reward-banner{background:linear-gradient(135deg,rgba(64,240,160,0.06),rgba(138,92,255,0.06));border:1px solid rgba(64,240,160,0.2);border-radius:8px;padding:28px 32px;display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;margin-bottom:48px;}
+.reward-icon{font-size:48px;}
+.reward-body{}
+.reward-tag{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--grn);margin-bottom:8px;}
+.reward-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.reward-desc{font-size:13px;color:var(--muted2);line-height:1.65;}
+.reward-items{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap;}
+.reward-item{display:flex;align-items:center;gap:8px;background:rgba(64,240,160,0.08);border:1px solid rgba(64,240,160,0.2);border-radius:4px;padding:8px 14px;font-size:12px;font-weight:600;color:var(--text);}
+
+/* COMMISSION TABLE */
+.comm-split{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:48px;}
+.comm-card{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:24px;position:relative;overflow:hidden;}
+.comm-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.comm-card-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+.comm-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border3);}
+.comm-row:last-child{border-bottom:none;}
+.comm-label{font-size:12px;color:var(--muted2);}
+.comm-val{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+/* WHO FITS */
+.who-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:48px;}
+.who-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;}
+.who-dot{width:7px;height:7px;border-radius:50%;background:var(--grad);flex-shrink:0;}
+.who-text{font-size:13px;color:var(--muted2);}
+
+/* APPLICATION FORM */
+.app-split{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;}
+.form-card{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:32px;position:relative;overflow:hidden;}
+.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.form-row{margin-bottom:16px;}
+.form-label{display:block;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;}
+.form-label span{color:var(--pur);}
+.form-input{width:100%;padding:12px 16px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--border2);}
+.form-input::placeholder{color:var(--muted);}
+.form-select{width:100%;padding:12px 16px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;outline:none;appearance:none;cursor:pointer;}
+.form-select option{background:var(--bg4);}
+.form-textarea{width:100%;padding:12px 16px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;outline:none;transition:border-color 0.2s;resize:vertical;min-height:90px;line-height:1.6;}
+.form-textarea:focus{border-color:var(--border2);}
+.form-textarea::placeholder{color:var(--muted);}
+.form-submit{width:100%;padding:14px;background:var(--grad);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;margin-top:6px;box-shadow:0 4px 20px rgba(138,92,255,0.3);}
+.form-submit:hover{opacity:0.88;}
+.form-submit:disabled{opacity:0.5;cursor:not-allowed;}
+.form-microcopy{margin-top:12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.06em;line-height:1.6;text-align:center;}
+.form-success{display:none;text-align:center;padding:40px 20px;}
+.fs-icon{font-size:40px;margin-bottom:14px;}
+.fs-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;color:var(--text);margin-bottom:8px;}
+.fs-sub{font-size:13px;color:var(--muted2);line-height:1.6;}
+
+/* FAQ */
+.faq-list{display:flex;flex-direction:column;gap:2px;max-width:760px;}
+.faq-item{background:var(--bg3);border:1px solid var(--border3);border-radius:4px;overflow:hidden;}
+.faq-q{padding:16px 20px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:color 0.2s;}
+.faq-q:hover{color:var(--pur);}
+.faq-arrow{font-size:12px;color:var(--muted);transition:transform 0.2s;}
+.faq-a{display:none;padding:0 20px 16px;font-size:13px;color:var(--muted2);line-height:1.7;}
+.faq-item.open .faq-a{display:block;}
+.faq-item.open .faq-arrow{transform:rotate(180deg);}
+.faq-item.open .faq-q{color:var(--pur);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.reveal{opacity:0;transform:translateY(22px);transition:all 0.65s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.d1{transition-delay:0.1s;}.d2{transition-delay:0.2s;}.d3{transition-delay:0.3s;}
+
+/* FOOTER */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-wordmark{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.f-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.f-tagline{font-size:9px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-top:3px;}
+.f-copy{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+@media(max-width:900px){
+nav{padding:0 20px;}
+.nav-links{display:none;}
+.aff-hero{padding:100px 20px 60px;}
+.aff-hero-inner{grid-template-columns:1fr;gap:40px;}
+section{padding:60px 20px;}
+.how-grid{grid-template-columns:1fr 1fr;}
+.perks-grid{grid-template-columns:1fr;}
+.comm-split{grid-template-columns:1fr;}
+.who-grid{grid-template-columns:1fr;}
+.app-split{grid-template-columns:1fr;}
+.reward-banner{grid-template-columns:1fr;}
+footer{padding:28px 20px;flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-brand">
+    <div class="nav-wordmark">Royalt<span>ē</span></div>
+    <div class="nav-tagline">Music Audit Intelligence</div>
+  </a>
+  <div class="nav-links">
+    <a href="/#how">How it works</a>
+    <a href="/#beta">About beta</a>
+    <a href="/#request">Free audit</a>
+    <a href="/affiliates.html" class="active">Affiliates</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="nav-beta">// Beta</span>
+    <a href="/#request" class="nav-cta">Get Free Audit</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="aff-hero">
+  <div class="orb1"></div><div class="orb2"></div>
+  <div class="aff-hero-inner">
+    <div>
+      <div class="aff-hero-eyebrow">🤝 Founding Affiliate Program · Beta</div>
+      <h1 class="aff-hero-h1">Earn By Helping<br>Artists Get <span class="gt">What They're Owed.</span></h1>
+      <p class="aff-hero-desc">Royaltē finds the royalty money artists are missing. If you have an audience of music creators, your referral code gives them priority access — and earns you 30% commission for life. Join before paid tiers launch and lock in our best rate permanently.</p>
+      <div class="aff-hero-stats">
+        <div class="hstat"><span class="hstat-n">30%</span><span class="hstat-l">Founding rate</span></div>
+        <div class="hstat"><span class="hstat-n">60d</span><span class="hstat-l">Cookie window</span></div>
+        <div class="hstat"><span class="hstat-n">1–2h</span><span class="hstat-l">Priority for your audience</span></div>
+        <div class="hstat"><span class="hstat-n">5%</span><span class="hstat-l">Off paid tiers for referrals</span></div>
+      </div>
+    </div>
+
+    <!-- EMAIL CAPTURE -->
+    <div class="capture-card">
+      <div id="capture-inner">
+        <div class="capture-label">// Step 1 — Get the full info pack</div>
+        <div class="capture-title">Want the full details first?</div>
+        <div class="capture-desc">Enter your email and we'll send you the complete affiliate info pack — commission structure, what your audience gets, and how to promote Royaltē effectively. No spam, ever.</div>
+        <div class="capture-input-row">
+          <input class="capture-input" id="capture-email" type="email" placeholder="your@email.com">
+          <button class="capture-btn" onclick="submitCapture()">Send Info Pack →</button>
+        </div>
+        <div class="capture-hint">// Sent instantly · Unsubscribe anytime · No spam</div>
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border3);text-align:center;">
+          <div style="font-size:12px;color:var(--muted2);margin-bottom:10px;">Ready to apply right now?</div>
+          <a href="#apply" style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--pur);text-decoration:none;">Skip to application ↓</a>
+        </div>
+      </div>
+      <div class="capture-success" id="capture-success">
+        <div style="font-size:36px;margin-bottom:12px;">📬</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;text-transform:uppercase;color:var(--text);margin-bottom:8px;">Check your inbox.</div>
+        <div style="font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:16px;">The full Royaltē affiliate info pack is on its way. Ready to apply? Scroll down.</div>
+        <a href="#apply" style="background:var(--grad);color:#fff;padding:12px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;display:inline-block;">Apply now ↓</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section style="background:var(--bg2);">
+  <div class="si">
+    <div class="reveal">
+      <div class="s-tag">How it works</div>
+      <h2 class="s-h2">Simple.<br><span class="gt">Four steps.</span></h2>
+      <p class="s-sub">Apply, get approved, share your link, earn commission. No complex dashboards or confusing rules.</p>
+    </div>
+    <div class="how-grid reveal">
+      <div class="how-step">
+        <span class="how-n">// 01</span>
+        <span class="how-ico">📝</span>
+        <div class="how-t">Apply below</div>
+        <div class="how-d">Fill out the application. We review every submission personally and respond within 48 hours.</div>
+      </div>
+      <div class="how-step">
+        <span class="how-n">// 02</span>
+        <span class="how-ico">✅</span>
+        <div class="how-t">Get approved</div>
+        <div class="how-d">If you're a good fit we'll send your founding affiliate agreement and unique referral link via Rewardful.</div>
+      </div>
+      <div class="how-step">
+        <span class="how-n">// 03</span>
+        <span class="how-ico">🔗</span>
+        <div class="how-t">Share your link</div>
+        <div class="how-d">Your link looks like royalte.ai?via=yourname. Share it anywhere your music creator audience lives.</div>
+      </div>
+      <div class="how-step">
+        <span class="how-n">// 04</span>
+        <span class="how-ico">💸</span>
+        <div class="how-t">Earn commission</div>
+        <div class="how-d">Every artist who converts within 60 days of clicking your link earns you 30% — automatically tracked and paid monthly.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT YOUR AUDIENCE GETS -->
+<section style="background:var(--bg);">
+  <div class="si">
+    <div class="reveal">
+      <div class="s-tag">Artist referral reward</div>
+      <h2 class="s-h2">Your Code Gives<br><span class="gt">Your Audience Real Perks.</span></h2>
+      <p class="s-sub">You're not just pointing people at a tool — you're giving them something. Here's what artists get when they use your referral code.</p>
+    </div>
+    <div class="reward-banner reveal">
+      <div class="reward-icon">🎁</div>
+      <div class="reward-body">
+        <div class="reward-tag">// Exclusive to referred artists</div>
+        <div class="reward-title">Two perks, automatically applied when they use your code</div>
+        <div class="reward-desc">No coupon codes to copy-paste. No hoops to jump through. When an artist clicks your link or types your code, Royaltē automatically unlocks both perks — visible right on the form so they know they've got it.</div>
+        <div class="reward-items">
+          <div class="reward-item">⚡ Priority audit — delivered in 1–2 hours</div>
+          <div class="reward-item">💸 5% off when paid tiers launch — locked in</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHAT IS ROYALTE -->
+    <div class="reveal">
+      <div class="s-tag">What is Royaltē?</div>
+      <h2 class="s-h2">The Problem<br><span class="gt">Is Real.</span></h2>
+      <p class="s-sub">Most independent artists are leaving royalty money uncollected — and they don't even know it.</p>
+    </div>
+    <div class="perks-grid reveal">
+      <div class="perk-card">
+        <span class="perk-icon">📋</span>
+        <div class="perk-title">Metadata Integrity</div>
+        <div class="perk-desc">Missing or incorrect ISRC codes, genre tags, and artist bio data mean streams don't attribute correctly to royalty systems.</div>
+      </div>
+      <div class="perk-card">
+        <span class="perk-icon">⚠️</span>
+        <div class="perk-title">Publishing Risk</div>
+        <div class="perk-desc">Unregistered PRO membership, missing songwriter data, and ISRC conflicts leave performance royalties uncollected globally.</div>
+      </div>
+      <div class="perk-card">
+        <span class="perk-icon">🌐</span>
+        <div class="perk-title">Platform Coverage</div>
+        <div class="perk-desc">Artists missing from MusicBrainz, Apple Music, or YouTube lose discoverability and monetisation opportunities across platforms.</div>
+      </div>
+      <div class="perk-card">
+        <span class="perk-icon">🔍</span>
+        <div class="perk-title">Duplicate Detection</div>
+        <div class="perk-desc">Catalog fragmentation and multiple artist IDs split streams across profiles, diluting royalty attribution and audience growth.</div>
+      </div>
+      <div class="perk-card">
+        <span class="perk-icon">📺</span>
+        <div class="perk-title">YouTube / UGC</div>
+        <div class="perk-desc">Without Content ID setup, user-generated videos using an artist's music earn money for everyone except the artist.</div>
+      </div>
+      <div class="perk-card">
+        <span class="perk-icon">🎬</span>
+        <div class="perk-title">Sync Readiness</div>
+        <div class="perk-desc">Music supervisors can't license music they can't find. Royaltē scores discoverability and surfaces what's blocking sync opportunities.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMISSION + WHO FITS -->
+<section style="background:var(--bg2);">
+  <div class="si">
+    <div class="reveal">
+      <div class="s-tag">Commission structure</div>
+      <h2 class="s-h2">What You<br><span class="gt">Actually Earn.</span></h2>
+      <p class="s-sub">Founding affiliates lock in 30% for life. Standard affiliates who join after paid tiers launch earn 20%. Join now and the better rate is yours permanently.</p>
+    </div>
+    <div class="comm-split reveal">
+      <div class="comm-card">
+        <div class="comm-card-title">// Your earnings — founding rate</div>
+        <div class="comm-row"><span class="comm-label">One-time full audit</span><span class="comm-val">30% per sale</span></div>
+        <div class="comm-row"><span class="comm-label">Monthly subscription</span><span class="comm-val">30% recurring</span></div>
+        <div class="comm-row"><span class="comm-label">Annual subscription</span><span class="comm-val">30% of year 1</span></div>
+        <div class="comm-row"><span class="comm-label">Cookie window</span><span class="comm-val">60 days</span></div>
+        <div class="comm-row"><span class="comm-label">Minimum payout</span><span class="comm-val">$50 USD / month</span></div>
+        <div class="comm-row"><span class="comm-label">Payment method</span><span class="comm-val">PayPal / Wise / Bank</span></div>
+        <div class="comm-row"><span class="comm-label">Standard rate (post-launch)</span><span class="comm-val">20%</span></div>
+      </div>
+      <div class="comm-card">
+        <div class="comm-card-title">// What your audience gets</div>
+        <div class="comm-row"><span class="comm-label">Audit delivery</span><span class="comm-val">1–2 hours priority</span></div>
+        <div class="comm-row"><span class="comm-label">Discount on paid tiers</span><span class="comm-val">5% off — locked in</span></div>
+        <div class="comm-row"><span class="comm-label">Standard delivery</span><span class="comm-val">12–24 hours</span></div>
+        <div style="height:1px;background:var(--border3);margin:12px 0;"></div>
+        <div class="comm-card-title">// During beta (before paid tiers)</div>
+        <div class="comm-row"><span class="comm-label">Co-promotion</span><span class="comm-val">Featured on site</span></div>
+        <div class="comm-row"><span class="comm-label">Free full audit</span><span class="comm-val">For you or a client</span></div>
+        <div class="comm-row"><span class="comm-label">Roadmap input</span><span class="comm-val">Direct access</span></div>
+        <div class="comm-row"><span class="comm-label">Deferred commissions</span><span class="comm-val">Tracked from day 1</span></div>
+      </div>
+    </div>
+
+    <!-- WHO IS A GOOD FIT -->
+    <div class="reveal" style="margin-top:24px;">
+      <div class="s-tag">Who's a good fit</div>
+      <h2 class="s-h2">Made For Music<br><span class="gt">Educators & Creators.</span></h2>
+      <p class="s-sub">We're selective. If your audience is music creators and you talk about the business side of music, you're exactly who we want.</p>
+    </div>
+    <div class="who-grid reveal">
+      <div class="who-item"><div class="who-dot"></div><div class="who-text">YouTube music educators & tutors</div></div>
+      <div class="who-item"><div class="who-dot"></div><div class="who-text">Music business podcasters</div></div>
+      <div class="who-item"><div class="who-dot"></div><div class="who-text">Music industry newsletter writers</div></div>
+      <div class="who-item"><div class="who-dot"></div><div class="who-text">Artist managers & consultants</div></div>
+      <div class="who-item"><div class="who-dot"></div><div class="who-text">Music attorney & publishing blogs</div></div>
+      <div class="who-item"><div class="who-dot"></div><div class="who-text">Producer & beatmaker communities</div></div>
+      <div class="who-item"><div class="who-dot"></div><div class="who-text">Music distribution platforms & blogs</div></div>
+      <div class="who-item"><div class="who-dot"></div><div class="who-text">Discord / Reddit music communities</div></div>
+      <div class="who-item"><div class="who-dot"></div><div class="who-text">Independent artist coaches</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- APPLICATION FORM -->
+<section style="background:var(--bg);" id="apply">
+  <div class="si">
+    <div class="app-split">
+      <div class="reveal">
+        <div class="s-tag">Apply now</div>
+        <h2 class="s-h2">Become a<br><span class="gt">Founding Affiliate.</span></h2>
+        <p style="font-size:15px;color:var(--muted2);line-height:1.75;margin-bottom:28px;">We review every application personally. If you're a good fit we'll send your founding affiliate agreement and Rewardful dashboard link within 48 hours.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;">
+            <div style="font-size:16px;">🔒</div>
+            <div style="font-size:13px;color:var(--muted2);">30% commission rate <strong style="color:var(--text);">locked in for life</strong></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;">
+            <div style="font-size:16px;">⚡</div>
+            <div style="font-size:13px;color:var(--muted2);">Your audience gets <strong style="color:var(--text);">priority 1–2hr audits + 5% off</strong></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;">
+            <div style="font-size:16px;">📊</div>
+            <div style="font-size:13px;color:var(--muted2);">Tracked automatically via <strong style="color:var(--text);">Rewardful</strong> — no manual counting</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;">
+            <div style="font-size:16px;">💬</div>
+            <div style="font-size:13px;color:var(--muted2);">We respond to every application <strong style="color:var(--text);">within 48 hours</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal d2">
+        <div class="form-card">
+          <div id="app-form-inner">
+            <div class="form-row">
+              <label class="form-label">Full Name <span>*</span></label>
+              <input class="form-input" id="app-name" type="text" placeholder="Your full name">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Email Address <span>*</span></label>
+              <input class="form-input" id="app-email" type="email" placeholder="your@email.com">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Website or main social handle <span>*</span></label>
+              <input class="form-input" id="app-social" type="text" placeholder="youtube.com/yourchannel or @yourhandle">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Platform you mainly use <span>*</span></label>
+              <select class="form-select" id="app-platform">
+                <option value="">Select platform</option>
+                <option value="youtube">YouTube</option>
+                <option value="instagram">Instagram</option>
+                <option value="tiktok">TikTok</option>
+                <option value="podcast">Podcast</option>
+                <option value="newsletter">Newsletter / Blog</option>
+                <option value="discord">Discord / Community</option>
+                <option value="twitter">X / Twitter</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Audience size <span>*</span></label>
+              <select class="form-select" id="app-audience">
+                <option value="">Select range</option>
+                <option value="under-1k">Under 1,000</option>
+                <option value="1k-5k">1,000 – 5,000</option>
+                <option value="5k-25k">5,000 – 25,000</option>
+                <option value="25k-100k">25,000 – 100,000</option>
+                <option value="100k+">100,000+</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Tell us about your audience <span>*</span></label>
+              <textarea class="form-textarea" id="app-about" placeholder="Who do you reach? What kind of music creators follow you? How do you talk about the business side of music?"></textarea>
+            </div>
+            <button class="form-submit" id="app-btn" onclick="submitApplication()">Apply to Be a Founding Affiliate →</button>
+            <div class="form-microcopy">Reviewed personally · Response within 48 hours · No obligation</div>
+          </div>
+          <div class="form-success" id="app-success">
+            <div class="fs-icon">🎉</div>
+            <div class="fs-title">Application received.</div>
+            <div class="fs-sub">Thanks for applying to the Royaltē founding affiliate program. We review every application personally and will be in touch within 48 hours.<br><br>If you're a good fit, we'll send over your founding affiliate agreement and your unique Rewardful referral link.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section style="background:var(--bg2);">
+  <div class="si">
+    <div class="reveal">
+      <div class="s-tag">FAQ</div>
+      <h2 class="s-h2">Common<br><span class="gt">Questions.</span></h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">When do I start earning commission? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Royaltē is free during beta so there's nothing to earn commission on yet. Every qualified referral you send during beta is tracked and attributed to you from day one. When paid tiers launch, those conversions earn commission retroactively at your locked-in 30% founding rate.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How does tracking work? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">We use Rewardful, which integrates directly with Stripe. When an artist clicks your unique link, a 60-day cookie is set. If they convert within 60 days — on any device, any visit — the commission is attributed to you automatically. You'll have a Rewardful dashboard showing clicks, conversions, and earnings in real time.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What if an artist hears about Royaltē from me but doesn't click my link? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Artists can also type your referral code manually in the audit request form. We'll ask them to enter a code during signup — if they type your handle, the referral is attributed to you. For edge cases where you can provide evidence (a screenshot of a DM, post, or comment), contact us and we'll review manual attribution.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How and when do I get paid? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Commissions are paid monthly on a NET-15 basis — within 15 days of the end of each calendar month. Payments are made via PayPal, Wise, or bank transfer. The minimum payout threshold is $50 USD. Amounts below that roll over to the following month.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Is the 30% rate really locked in permanently? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">Yes — founding affiliates who sign the affiliate agreement during beta lock in 30% for the lifetime of the agreement. The founding rate cannot be reduced without your written consent. This is written into the founding affiliate agreement you'll receive if approved.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Do I need a large audience to apply? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">No — audience quality matters more than size. A music educator with 2,000 highly engaged artist subscribers is more valuable to us than a general creator with 200,000 followers. We look at how relevant your audience is to Royaltē, not just the numbers.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What do I have to do to promote Royaltē? <span class="faq-arrow">▾</span></div>
+        <div class="faq-a">There's no minimum promotion requirement. We'll give you ready-to-use captions, a sample pitch, and your unique link — but how and when you share is completely up to you. We'd rather you promote naturally and honestly than feel obligated to push it.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="f-wordmark">Royalt<span>ē</span></div>
+    <div class="f-tagline">Music Audit Intelligence · Beta</div>
+  </div>
+  <div class="f-copy">© 2025 Royaltē · Se7ven Labs Inc. · audit@royalte.ai</div>
+  <div class="f-links">
+    <a href="/">Home</a>
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="/affiliates.html">Affiliates</a>
+    <a href="mailto:audit@royalte.ai">Contact</a>
+  </div>
+</footer>
+
+<script>
+// ── SCROLL REVEAL ──────────────────────────────────
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting) setTimeout(()=>e.target.classList.add('visible'),i*80);
+  });
+},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ── FAQ TOGGLE ─────────────────────────────────────
+function toggleFaq(el){
+  const item = el.parentElement;
+  item.classList.toggle('open');
+}
+
+// ── EMAIL CAPTURE → CONVERTKIT ─────────────────────
+// Replace YOUR_CONVERTKIT_API_KEY and YOUR_CONVERTKIT_FORM_ID
+// after setting up your ConvertKit account at kit.com
+async function submitCapture(){
+  const email = document.getElementById('capture-email').value.trim();
+  if(!email||!email.includes('@')){
+    document.getElementById('capture-email').style.borderColor='var(--red)';
+    return;
+  }
+
+  // POST TO CONVERTKIT
+  try{
+    await fetch('https://api.convertkit.com/v3/forms/YOUR_CONVERTKIT_FORM_ID/subscribe',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        api_key: 'YOUR_CONVERTKIT_API_KEY',
+        email:   email,
+        tags:    ['royalte-affiliate-interest']
+      })
+    });
+  }catch(e){}
+
+  // ALSO NOTIFY INBOX VIA FORMSPREE
+  try{
+    await fetch('https://formspree.io/f/xojkrwzp',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        _type:    'affiliate_info_request',
+        email,
+        _subject: 'Royaltē Affiliate Info Request — ' + email,
+        _replyto: email
+      })
+    });
+  }catch(e){}
+
+  document.getElementById('capture-inner').style.display = 'none';
+  document.getElementById('capture-success').style.display = 'block';
+}
+
+// ── APPLICATION FORM ───────────────────────────────
+async function submitApplication(){
+  const name     = document.getElementById('app-name').value.trim();
+  const email    = document.getElementById('app-email').value.trim();
+  const social   = document.getElementById('app-social').value.trim();
+  const platform = document.getElementById('app-platform').value;
+  const audience = document.getElementById('app-audience').value;
+  const about    = document.getElementById('app-about').value.trim();
+  const btn      = document.getElementById('app-btn');
+
+  if(!name)    { document.getElementById('app-name').style.borderColor='var(--red)'; return; }
+  if(!email||!email.includes('@')){ document.getElementById('app-email').style.borderColor='var(--red)'; return; }
+  if(!social)  { document.getElementById('app-social').style.borderColor='var(--red)'; return; }
+  if(!platform){ document.getElementById('app-platform').style.borderColor='var(--red)'; return; }
+  if(!audience){ document.getElementById('app-audience').style.borderColor='var(--red)'; return; }
+  if(!about)   { document.getElementById('app-about').style.borderColor='var(--red)'; return; }
+
+  btn.disabled    = true;
+  btn.textContent = 'Submitting application...';
+
+  // SEND TO INBOX VIA FORMSPREE
+  try{
+    await fetch('https://formspree.io/f/xojkrwzp',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        _type:          'affiliate_application',
+        name, email,
+        social_handle:  social,
+        platform,
+        audience_size:  audience,
+        about_audience: about,
+        _subject:       `Royaltē Affiliate Application — ${name}`,
+        _replyto:       email
+      })
+    });
+  }catch(e){}
+
+  // ADD TO CONVERTKIT WITH APPLIED TAG
+  try{
+    await fetch('https://api.convertkit.com/v3/forms/YOUR_CONVERTKIT_FORM_ID/subscribe',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        api_key:    'YOUR_CONVERTKIT_API_KEY',
+        email,
+        first_name: name.split(' ')[0],
+        tags:       ['royalte-affiliate-applied'],
+        fields:{
+          social_handle:  social,
+          platform,
+          audience_size:  audience
+        }
+      })
+    });
+  }catch(e){}
+
+  document.getElementById('app-form-inner').style.display = 'none';
+  document.getElementById('app-success').style.display    = 'block';
+}
+</script>
+</body>
+</html>
