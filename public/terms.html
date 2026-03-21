@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royaltē — Terms & Conditions</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#5a5880;--muted2:#9490b8;
+--pur:#8a5cff;--pnk:#e040c8;--grn:#40f0a0;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand{display:flex;flex-direction:column;line-height:1;text-decoration:none;}
+.nav-wordmark{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);}
+.nav-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-tagline{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-top:2px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+.page-wrap{max-width:760px;margin:0 auto;padding:140px 56px 100px;}
+.page-eyebrow{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--pur);margin-bottom:16px;}
+.page-title{font-family:'Rajdhani',sans-serif;font-size:clamp(36px,5vw,56px);font-weight:700;line-height:0.95;text-transform:uppercase;margin-bottom:12px;}
+.page-title span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.page-meta{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;margin-bottom:48px;padding-bottom:24px;border-bottom:1px solid var(--border);}
+.doc-section{margin-bottom:40px;}
+.doc-h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border3);}
+.doc-h2 span{color:var(--pur);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;margin-right:10px;}
+.doc-p{font-size:14px;color:var(--muted2);line-height:1.8;margin-bottom:12px;}
+.doc-p strong{color:var(--text);}
+.doc-p a{color:var(--pur);text-decoration:none;}
+.doc-p a:hover{text-decoration:underline;}
+.doc-ul{margin:12px 0;display:flex;flex-direction:column;gap:8px;}
+.doc-li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--muted2);line-height:1.6;}
+.doc-li::before{content:'//';font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);flex-shrink:0;margin-top:3px;}
+.doc-highlight{background:rgba(138,92,255,0.06);border:1px solid var(--border2);border-radius:6px;padding:16px 20px;margin:16px 0;}
+.doc-highlight p{font-size:13px;color:var(--muted2);line-height:1.7;}
+.doc-highlight p strong{color:var(--text);}
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-wordmark{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.f-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.f-tagline{font-size:9px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-top:3px;}
+.f-copy{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+@media(max-width:900px){
+nav{padding:0 20px;}
+.nav-links{display:none;}
+.page-wrap{padding:100px 20px 60px;}
+footer{padding:28px 20px;flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand">
+    <div class="nav-wordmark">Royalt<span>ē</span></div>
+    <div class="nav-tagline">Music Audit Intelligence</div>
+  </a>
+  <div class="nav-links">
+    <a href="/#how">How it works</a>
+    <a href="/#beta">About beta</a>
+    <a href="/#request">Free audit</a>
+    <a href="/affiliates.html">Affiliates</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="nav-beta">// Beta</span>
+    <a href="/#request" class="nav-cta">Get Free Audit</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-eyebrow">// Legal</div>
+  <h1 class="page-title">Terms &amp; <span>Conditions.</span></h1>
+  <div class="page-meta">Last updated: March 2025 · Se7ven Labs Inc. · audit@royalte.ai</div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>01</span> Agreement to Terms</div>
+    <p class="doc-p">These Terms and Conditions ("Terms") govern your use of the Royaltē platform and services operated by <strong>Se7ven Labs Inc.</strong> ("Company", "we", "us"). By accessing royalte.ai or requesting an audit, you agree to be bound by these Terms.</p>
+    <p class="doc-p">If you do not agree to these Terms, please do not use our services.</p>
+    <div class="doc-highlight">
+      <p><strong>Plain English summary:</strong> By using Royaltē you're agreeing to these terms. We provide audit information in good faith — we're not liable for what you do with it, and we don't guarantee specific outcomes.</p>
+    </div>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>02</span> Description of Service</div>
+    <p class="doc-p">Royaltē is a music audit intelligence platform that analyses publicly available Spotify data to identify potential royalty gaps, metadata issues, publishing risks, and monetisation problems. The service currently consists of:</p>
+    <div class="doc-ul">
+      <div class="doc-li">A free automated preview scan using the Spotify public API</div>
+      <div class="doc-li">A full manual audit report delivered by the Royaltē team within 12–24 hours (currently free during beta)</div>
+      <div class="doc-li">Priority audit delivery (1–2 hours) for users arriving via an affiliate referral code during beta</div>
+    </div>
+    <p class="doc-p" style="margin-top:12px;">Royaltē is currently in beta. Features, pricing, and service levels may change. We will communicate material changes to registered users by email.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>03</span> Beta Service & Free Tier</div>
+    <p class="doc-p">During the beta period, Royaltē's full audit service is provided <strong>free of charge</strong>. This free beta period may end at any time at our discretion. We will provide reasonable notice to users before transitioning to paid tiers.</p>
+    <p class="doc-p">Beta users who request audits during the free period will not be charged retroactively. Users who arrive via an affiliate referral code during beta will receive a 5% discount on paid tiers when launched, as communicated at the time of referral.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>04</span> Accuracy of Audit Information</div>
+    <p class="doc-p">Royaltē audits are based on publicly available data and our team's analysis. While we make every effort to provide accurate and useful information, we cannot guarantee:</p>
+    <div class="doc-ul">
+      <div class="doc-li">That all royalty gaps or issues will be identified</div>
+      <div class="doc-li">That identified issues will result in recovered royalties</div>
+      <div class="doc-li">That our recommendations will be suitable for your specific situation</div>
+      <div class="doc-li">The accuracy of third-party data sources including Spotify, MusicBrainz, or PRO databases</div>
+    </div>
+    <p class="doc-p" style="margin-top:12px;">Royaltē audit reports are informational only and do not constitute legal, financial, or publishing advice. You should consult qualified professionals before making decisions based on your audit.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>05</span> User Responsibilities</div>
+    <p class="doc-p">By using Royaltē you agree to:</p>
+    <div class="doc-ul">
+      <div class="doc-li">Provide accurate information including a valid Spotify artist URL and email address</div>
+      <div class="doc-li">Use the service only for your own music catalog or catalogs you are authorised to audit</div>
+      <div class="doc-li">Not attempt to reverse engineer, scrape, or systematically extract data from Royaltē</div>
+      <div class="doc-li">Not submit false or misleading information to manipulate audit results</div>
+      <div class="doc-li">Not use the service for any unlawful purpose</div>
+    </div>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>06</span> Intellectual Property</div>
+    <p class="doc-p">All content, branding, methodology, and software associated with Royaltē is the intellectual property of Se7ven Labs Inc. You may not reproduce, distribute, or create derivative works from our platform, reports, or materials without written permission.</p>
+    <p class="doc-p">Your audit report is provided for your personal use. You may share it with your management, legal representatives, or distributors for the purpose of resolving identified issues.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>07</span> Limitation of Liability</div>
+    <p class="doc-p">To the maximum extent permitted by law, Se7ven Labs Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of Royaltē, including but not limited to:</p>
+    <div class="doc-ul">
+      <div class="doc-li">Loss of revenue or royalties</div>
+      <div class="doc-li">Decisions made based on audit findings</div>
+      <div class="doc-li">Third-party actions or inactions following your audit</div>
+      <div class="doc-li">Service interruptions or data inaccuracies</div>
+    </div>
+    <p class="doc-p" style="margin-top:12px;">Our total liability to you for any claims arising from use of the service shall not exceed the amount you paid us in the 12 months preceding the claim (or $0 during the free beta period).</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>08</span> Affiliate Program</div>
+    <p class="doc-p">Participation in the Royaltē affiliate program is governed by a separate Founding Affiliate Agreement. These Terms apply to general use of the platform. Affiliates are independent contractors and are not employees, agents, or partners of Se7ven Labs Inc.</p>
+    <p class="doc-p">Royaltē is not responsible for claims made by affiliates about the service beyond what is stated in approved marketing materials.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>09</span> Privacy</div>
+    <p class="doc-p">Your use of Royaltē is also governed by our <a href="/privacy.html">Privacy Policy</a>, which is incorporated into these Terms by reference.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>10</span> Termination</div>
+    <p class="doc-p">We reserve the right to suspend or terminate access to Royaltē for any user who violates these Terms, engages in fraudulent activity, or misuses the platform. You may stop using Royaltē at any time.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>11</span> Governing Law</div>
+    <p class="doc-p">These Terms are governed by the laws of the jurisdiction in which Se7ven Labs Inc. is incorporated. Any disputes will be resolved through good-faith negotiation first, and failing that, binding arbitration.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>12</span> Changes to Terms</div>
+    <p class="doc-p">We may update these Terms from time to time. We will notify active users of material changes by email. Continued use of Royaltē after changes are posted constitutes acceptance of the updated Terms.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>13</span> Contact</div>
+    <p class="doc-p">For questions about these Terms, contact Se7ven Labs Inc. at:</p>
+    <p class="doc-p"><a href="mailto:audit@royalte.ai">audit@royalte.ai</a></p>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <div class="f-wordmark">Royalt<span>ē</span></div>
+    <div class="f-tagline">Music Audit Intelligence · Beta</div>
+  </div>
+  <div class="f-copy">© 2025 Royaltē · Se7ven Labs Inc. · audit@royalte.ai</div>
+  <div class="f-links">
+    <a href="/">Home</a>
+    <a href="/affiliates.html">Affiliates</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+    <a href="mailto:audit@royalte.ai">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>

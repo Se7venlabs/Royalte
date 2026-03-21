@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royaltē — Privacy Policy</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#5a5880;--muted2:#9490b8;
+--pur:#8a5cff;--pnk:#e040c8;--grn:#40f0a0;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand{display:flex;flex-direction:column;line-height:1;text-decoration:none;}
+.nav-wordmark{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);}
+.nav-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-tagline{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-top:2px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* PAGE */
+.page-wrap{max-width:760px;margin:0 auto;padding:140px 56px 100px;}
+.page-eyebrow{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--pur);margin-bottom:16px;}
+.page-title{font-family:'Rajdhani',sans-serif;font-size:clamp(36px,5vw,56px);font-weight:700;line-height:0.95;text-transform:uppercase;margin-bottom:12px;}
+.page-title span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.page-meta{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;margin-bottom:48px;padding-bottom:24px;border-bottom:1px solid var(--border);}
+
+/* CONTENT */
+.doc-section{margin-bottom:40px;}
+.doc-h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border3);}
+.doc-h2 span{color:var(--pur);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;margin-right:10px;}
+.doc-p{font-size:14px;color:var(--muted2);line-height:1.8;margin-bottom:12px;}
+.doc-p strong{color:var(--text);}
+.doc-p a{color:var(--pur);text-decoration:none;}
+.doc-p a:hover{text-decoration:underline;}
+.doc-ul{margin:12px 0 12px 0;display:flex;flex-direction:column;gap:8px;}
+.doc-li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--muted2);line-height:1.6;}
+.doc-li::before{content:'//';font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);flex-shrink:0;margin-top:3px;}
+.doc-highlight{background:rgba(138,92,255,0.06);border:1px solid var(--border2);border-radius:6px;padding:16px 20px;margin:16px 0;}
+.doc-highlight p{font-size:13px;color:var(--muted2);line-height:1.7;}
+.doc-highlight p strong{color:var(--text);}
+
+/* FOOTER */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-wordmark{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.f-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.f-tagline{font-size:9px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-top:3px;}
+.f-copy{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+@media(max-width:900px){
+nav{padding:0 20px;}
+.nav-links{display:none;}
+.page-wrap{padding:100px 20px 60px;}
+footer{padding:28px 20px;flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand">
+    <div class="nav-wordmark">Royalt<span>ē</span></div>
+    <div class="nav-tagline">Music Audit Intelligence</div>
+  </a>
+  <div class="nav-links">
+    <a href="/#how">How it works</a>
+    <a href="/#beta">About beta</a>
+    <a href="/#request">Free audit</a>
+    <a href="/affiliates.html">Affiliates</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="nav-beta">// Beta</span>
+    <a href="/#request" class="nav-cta">Get Free Audit</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-eyebrow">// Legal</div>
+  <h1 class="page-title">Privacy <span>Policy.</span></h1>
+  <div class="page-meta">Last updated: March 2025 · Se7ven Labs Inc. · audit@royalte.ai</div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>01</span> Overview</div>
+    <p class="doc-p">Royaltē is a music audit intelligence platform operated by <strong>Se7ven Labs Inc.</strong> ("we", "us", "our"). This Privacy Policy explains how we collect, use, and protect your personal information when you use our website at royalte.ai and our audit services.</p>
+    <p class="doc-p">By using Royaltē, you agree to the collection and use of information in accordance with this policy. We take your privacy seriously and will never sell your data to third parties.</p>
+    <div class="doc-highlight">
+      <p><strong>Plain English summary:</strong> We collect only what we need to run your audit and communicate with you. We don't sell your data. We don't serve ads. You can ask us to delete your information at any time.</p>
+    </div>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>02</span> Information We Collect</div>
+    <p class="doc-p">We collect the following information when you use Royaltē:</p>
+    <div class="doc-ul">
+      <div class="doc-li"><strong>Spotify Artist URL</strong> — the public URL you paste to initiate a scan. This is used solely to run your audit.</div>
+      <div class="doc-li"><strong>Name and email address</strong> — collected when you request a full audit or sign up for updates. Used to deliver your report and communicate with you.</div>
+      <div class="doc-li"><strong>Track count</strong> — an approximate count of your releases, used to scope your audit.</div>
+      <div class="doc-li"><strong>Referral code</strong> — if you enter or arrive via an affiliate referral code, we record this for commission attribution purposes.</div>
+      <div class="doc-li"><strong>Usage data</strong> — standard web analytics including pages visited, time on site, and browser type. Collected anonymously via Vercel Analytics.</div>
+    </div>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>03</span> How We Use Your Information</div>
+    <p class="doc-p">We use your information exclusively to:</p>
+    <div class="doc-ul">
+      <div class="doc-li">Run your Spotify audit and deliver your report via email</div>
+      <div class="doc-li">Communicate with you about your audit, early access, and Royaltē updates</div>
+      <div class="doc-li">Attribute referrals to affiliate partners where applicable</div>
+      <div class="doc-li">Improve the Royaltē platform based on anonymised usage patterns</div>
+    </div>
+    <p class="doc-p" style="margin-top:12px;">We will never use your information for advertising, profiling, or sell it to any third party.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>04</span> Spotify Data</div>
+    <p class="doc-p">Royaltē uses the <strong>Spotify public API</strong> to retrieve data associated with the artist URL you provide. We only access publicly available Spotify data — we do not request access to your Spotify account, login credentials, private listening history, or any non-public data.</p>
+    <p class="doc-p">Spotify's own privacy policy governs data held by Spotify. You can review it at <a href="https://spotify.com/privacy" target="_blank">spotify.com/privacy</a>.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>05</span> Third-Party Services</div>
+    <p class="doc-p">We use the following trusted third-party services to operate Royaltē:</p>
+    <div class="doc-ul">
+      <div class="doc-li"><strong>Formspree</strong> — processes form submissions and forwards them to our team inbox. Your data is transmitted securely.</div>
+      <div class="doc-li"><strong>ConvertKit (Kit)</strong> — manages email communications and affiliate interest lists. You can unsubscribe at any time via the link in any email.</div>
+      <div class="doc-li"><strong>Rewardful</strong> — tracks affiliate referrals and commissions. Only referral attribution data is shared.</div>
+      <div class="doc-li"><strong>Vercel</strong> — hosts the Royaltē website and processes web requests. Standard server logs may be retained briefly.</div>
+    </div>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>06</span> Data Retention</div>
+    <p class="doc-p">We retain your personal information for as long as necessary to deliver your audit and maintain our records. Audit submissions are retained for up to 12 months. Email list subscribers are retained until you unsubscribe.</p>
+    <p class="doc-p">You may request deletion of your data at any time by emailing <a href="mailto:audit@royalte.ai">audit@royalte.ai</a>. We will action deletion requests within 30 days.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>07</span> Your Rights</div>
+    <p class="doc-p">Depending on your location, you may have the following rights regarding your personal data:</p>
+    <div class="doc-ul">
+      <div class="doc-li">The right to access the personal data we hold about you</div>
+      <div class="doc-li">The right to correct inaccurate or incomplete data</div>
+      <div class="doc-li">The right to request deletion of your data</div>
+      <div class="doc-li">The right to object to or restrict our processing of your data</div>
+      <div class="doc-li">The right to data portability</div>
+    </div>
+    <p class="doc-p" style="margin-top:12px;">To exercise any of these rights, contact us at <a href="mailto:audit@royalte.ai">audit@royalte.ai</a>.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>08</span> Cookies</div>
+    <p class="doc-p">Royaltē uses minimal cookies. We use a session cookie to track affiliate referral codes for commission attribution (a 60-day window). We do not use advertising or tracking cookies. Standard browser local storage may be used to persist your referral code across page visits.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>09</span> Security</div>
+    <p class="doc-p">We take reasonable technical and organisational measures to protect your personal information. All data is transmitted over HTTPS. We do not store payment information — payments are handled directly by Stripe when paid tiers launch.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>10</span> Changes to This Policy</div>
+    <p class="doc-p">We may update this Privacy Policy from time to time. We will notify active users of material changes by email. Continued use of Royaltē after changes constitutes acceptance of the updated policy.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-h2"><span>11</span> Contact</div>
+    <p class="doc-p">For any privacy-related questions or requests, contact Se7ven Labs Inc. at:</p>
+    <p class="doc-p"><a href="mailto:audit@royalte.ai">audit@royalte.ai</a></p>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <div class="f-wordmark">Royalt<span>ē</span></div>
+    <div class="f-tagline">Music Audit Intelligence · Beta</div>
+  </div>
+  <div class="f-copy">© 2025 Royaltē · Se7ven Labs Inc. · audit@royalte.ai</div>
+  <div class="f-links">
+    <a href="/">Home</a>
+    <a href="/affiliates.html">Affiliates</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+    <a href="mailto:audit@royalte.ai">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>
