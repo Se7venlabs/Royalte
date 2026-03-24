@@ -417,12 +417,12 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
     <p class="hero-desc">Most artists, producers, and songwriters have coverage gaps they never know about. Royaltē scans your Spotify data and surfaces potential risks, gaps, and unverified areas in your royalty collection.</p>
 
     <div class="hero-paste">
-      <div class="paste-label">// Paste your Spotify artist URL to start</div>
+      <div class="paste-label">// Paste your Spotify artist link to start</div>
       <div class="paste-box">
-        <input class="paste-input" id="hero-url" type="text" placeholder="https://open.spotify.com/artist/...">
+        <input class="paste-input" id="hero-url" type="text" placeholder="Paste your Spotify artist link here...">
         <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Audit →</button>
       </div>
-      <div class="paste-hint">// No login required · Spotify beta only · Public data scan</div>
+      <div class="paste-hint">// Open Spotify → go to your artist profile → tap Share → Copy Link</div>
       <div class="scan-progress" id="scan-progress">
         <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
         <div class="sp-label" id="sp-label">Scanning Spotify profile...</div>
@@ -707,7 +707,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
             </div>
             <div class="form-row">
               <label class="form-label">Spotify Artist URL <span>*</span></label>
-              <input class="form-input" id="f-spotify" type="text" placeholder="https://open.spotify.com/artist/...">
+              <input class="form-input" id="f-spotify" type="text" placeholder="Paste your Spotify artist link here...">
             </div>
             <div class="form-row">
               <label class="form-label">How many tracks on Spotify?</label>
@@ -813,7 +813,7 @@ async function runAudit(){
   if(!val){input.style.outline='1px solid var(--red)';input.focus();return;}
   if(!val.includes('spotify.com/artist')){
     input.style.outline='1px solid var(--red)';
-    input.placeholder='Please paste a Spotify artist URL';
+    input.placeholder='Please paste your Spotify artist link — open Spotify, go to your profile, tap Share → Copy Link';
     return;
   }
   input.style.outline='';
