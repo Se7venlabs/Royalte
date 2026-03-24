@@ -380,6 +380,17 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
   .results-wrap{padding:0 20px 60px;}
   footer{padding:28px 20px;flex-direction:column;text-align:center;}
 }
+
+/* ── ADVANCED AUDIT SECTION ── */
+.deeper-audit-wrap{background:rgba(138,92,255,0.04);border:1px solid rgba(138,92,255,0.2);border-radius:12px;padding:24px 28px;margin-bottom:32px;}
+.deeper-audit-badge{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.18em;color:var(--amb);margin-bottom:10px;}
+.deeper-audit-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:22px;color:var(--wht);margin-bottom:8px;}
+.deeper-audit-desc{font-size:13px;color:var(--mut);line-height:1.6;margin-bottom:14px;}
+.deeper-audit-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.da-pill{font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(138,92,255,0.35);color:var(--pur);background:rgba(138,92,255,0.07);}
+.deeper-audit-cta{font-size:12px;color:var(--mut2);line-height:1.6;}
+.deeper-audit-cta a{color:var(--pur);text-decoration:none;}
+.deeper-audit-cta a:hover{text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -419,7 +430,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
     <div class="hero-paste">
       <div class="paste-label">// Paste your Spotify artist link to start</div>
       <div class="paste-box">
-        <input class="paste-input" id="hero-url" type="text" placeholder="Paste your Spotify artist link here...">
+        <input class="paste-input" id="hero-url" type="text" placeholder="Paste your Spotify or Apple Artist URL — 100% free">
         <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Audit →</button>
       </div>
       <div class="paste-hint">// Open Spotify → go to your artist profile → tap Share → Copy Link</div>
@@ -707,7 +718,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
             </div>
             <div class="form-row">
               <label class="form-label">Spotify Artist URL <span>*</span></label>
-              <input class="form-input" id="f-spotify" type="text" placeholder="Paste your Spotify artist link here...">
+              <input class="form-input" id="f-spotify" type="text" placeholder="Paste your Spotify or Apple Artist URL — 100% free">
             </div>
             <div class="form-row">
               <label class="form-label">How many tracks on Spotify?</label>
