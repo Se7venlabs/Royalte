@@ -779,4 +779,15 @@ async function submitForm(){
       body:JSON.stringify({name,email,spotify_url:spotify,track_count:tracks,_subject:`Royaltē Full Audit Request — ${name}`,_replyto:email})
     });
   }catch(e){}
-  document.getElementById('f
+  document.getElementById('form-inner').style.display='none';
+  document.getElementById('form-success').style.display='block';
+}
+
+function scrollToForm(){
+  document.getElementById('request').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+document.getElementById('hero-url').addEventListener('keydown',e=>{if(e.key==='Enter')runAudit();});
+</script>
+</body>
+</html>
