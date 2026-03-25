@@ -583,17 +583,17 @@ footer{padding:40px 80px;border-top:1px solid var(--border3);display:flex;align-
     <div class="f-brand">ROYALT<span>Ē</span></div>
     <div class="f-sub">Music Audit Intelligence · Beta</div>
   </div>
-  <div class="f-copy">© 2025 Royaltē · Se7ven Labs · audit@royalte.ai</div>
+  <div class="f-copy">© 2025 Royaltē · Se7ven Labs · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f09185949984b0829f89919c8495de9199">[email&#160;protected]</a></div>
   <div class="f-links">
     <a href="#">Privacy</a>
     <a href="#">Terms</a>
-    <a href="mailto:info@royalte.ai">General Inquiries</a>
-    <a href="mailto:support@royalte.ai">Support</a>
-    <a href="mailto:audit@royalte.ai">Audit Questions</a>
+    <a href="/cdn-cgi/l/email-protection#ef86818980af9d80968e839b8ac18e86">General Inquiries</a>
+    <a href="/cdn-cgi/l/email-protection#a5d6d0d5d5cad7d1e5d7cadcc4c9d1c08bc4cc">Support</a>
+    <a href="/cdn-cgi/l/email-protection#1a7b6f7e736e5a6875637b766e7f347b73">Audit Questions</a>
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── SCROLL REVEAL ──────────────────────────────────
 const obs = new IntersectionObserver(entries=>{
   entries.forEach((e,i)=>{
@@ -667,6 +667,11 @@ async function runAudit(){
 function showRealResults(data){
   setScore(data.overallScore);
   document.getElementById('results-tag').textContent=`${data.artistName} · ${(data.followers||0).toLocaleString()} followers`;
+  // Update hero mockup header — hide preview tag, show live badge
+  const dTag = document.querySelector('.d-tag');
+  if(dTag) dTag.textContent = '// Live scan';
+  const dScanBadge = document.querySelector('.d-scan-badge');
+  if(dScanBadge){ dScanBadge.textContent = 'VERIFIED'; dScanBadge.style.color='var(--grn)'; dScanBadge.style.borderColor='rgba(64,240,160,0.3)'; dScanBadge.style.background='rgba(64,240,160,0.07)'; }
   document.getElementById('hero-artist-name').textContent = data.artistName;
   document.getElementById('hero-artist-sub').textContent = `${(data.followers||0).toLocaleString()} followers · Spotify Artist`;
   const heroCircle = document.getElementById('score-circle');
@@ -774,15 +779,4 @@ async function submitForm(){
       body:JSON.stringify({name,email,spotify_url:spotify,track_count:tracks,_subject:`Royaltē Full Audit Request — ${name}`,_replyto:email})
     });
   }catch(e){}
-  document.getElementById('form-inner').style.display='none';
-  document.getElementById('form-success').style.display='block';
-}
-
-function scrollToForm(){
-  document.getElementById('request').scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-document.getElementById('hero-url').addEventListener('keydown',e=>{if(e.key==='Enter')runAudit();});
-</script>
-</body>
-</html>
+  document.getElementById('f
