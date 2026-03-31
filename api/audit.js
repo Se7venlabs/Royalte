@@ -1,6 +1,8 @@
 // Royalte Audit API — /api/audit.js
-// Platforms: Spotify + MusicBrainz + Deezer + AudioDB + Discogs + SoundCloud + Last.fm + Wikidata + YouTube
-// Features: Royalty gap estimate, catalog age analysis, country PRO guide, real YouTube UGC detection
+// Platforms: Spotify + MusicBrainz + Deezer + AudioDB + Discogs + SoundCloud + Last.fm + Wikidata + YouTube + Apple Music
+// Features: Royalty gap estimate, catalog age analysis, country PRO guide, real YouTube UGC detection, Apple Music catalog comparison
+
+import { generateAppleToken } from './apple-token.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -29,8 +31,11 @@ export default async function handler(req, res) {
     const albumsData = await getSpotifyAlbums(parsed.type === 'artist' ? parsed.id : artistData.id, token);
     const artistName = artistData.name;
 
-    // All platforms in parallel — now includes YouTube
-    const [mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, youtubeData] = await Promise.allSettled([
+    // Get Spotify tracks for Apple Music comparison (top tracks)
+    const spotifyTopTracks = await getSpotifyTopTracks(parsed.type === 'artist' ? parsed.id : artistData.id, token);
+
+    // All platforms in parallel — includes YouTube + Apple Music
+    const [mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, youtubeData, appleMusicData] = await Promise.allSettled([
       getMusicBrainz(artistName),
       getDeezer(artistName),
       getAudioDB(artistName),
@@ -39,6 +44,7 @@ export default async function handler(req, res) {
       getLastFm(artistName),
       getWikidata(artistName),
       getYouTube(artistName),
+      getAppleMusic(artistName, trackData?.external_ids?.isrc || null, spotifyTopTracks),
     ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : { found: false }));
 
     // Catalog analysis
@@ -51,13 +57,13 @@ export default async function handler(req, res) {
     const country = audioDbData.country || wikidataData.country || null;
     const proGuide = getPROGuide(country);
 
-    const modules = runModules(artistData, trackData, mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData);
+    const modules = runModules(artistData, trackData, mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData);
 
     const overallScore = Math.round(
       Object.values(modules).reduce((a, m) => a + m.score, 0) / Object.keys(modules).length
     );
 
-    const flags = buildFlags(modules, artistData, trackData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData);
+    const flags = buildFlags(modules, artistData, trackData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData);
 
     return res.status(200).json({
       success: true,
@@ -80,6 +86,7 @@ export default async function handler(req, res) {
         lastfm: lastfmData.found,
         wikipedia: wikidataData.found,
         youtube: youtubeData.found,
+        appleMusic: appleMusicData.found,
       },
       catalog: catalogData,
       royaltyGap,
@@ -91,6 +98,7 @@ export default async function handler(req, res) {
       deezerFans: deezerData.fans || 0,
       discogsReleases: discogsData.releases || 0,
       youtube: youtubeData,
+      appleMusic: appleMusicData,
       overallScore,
       modules,
       flags,
@@ -166,6 +174,162 @@ async function getSpotifyAlbums(artistId, token) {
   } catch { return { items: [] }; }
 }
 
+async function getSpotifyTopTracks(artistId, token) {
+  try {
+    const resp = await fetch(
+      `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return (data.tracks || []).map(t => ({
+      name: t.name,
+      isrc: t.external_ids?.isrc || null,
+      artistName: t.artists?.[0]?.name || '',
+    }));
+  } catch { return []; }
+}
+
+// ────────────────────────────────────────────────────────
+// APPLE MUSIC — artist search, ISRC lookup, catalog comparison
+// ────────────────────────────────────────────────────────
+async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
+  try {
+    const appleToken = generateAppleToken();
+    const STOREFRONT = 'us';
+    const BASE = 'https://api.music.apple.com/v1';
+
+    const headers = { Authorization: `Bearer ${appleToken}` };
+
+    // 1. Search for artist on Apple Music
+    const artistQuery = encodeURIComponent(artistName);
+    const artistResp = await fetch(
+      `${BASE}/catalog/${STOREFRONT}/search?term=${artistQuery}&types=artists&limit=5`,
+      { headers }
+    );
+
+    let artistFound = false;
+    let appleArtistId = null;
+    let appleArtistUrl = null;
+    let appleArtistGenres = [];
+    let appleAlbumCount = 0;
+
+    if (artistResp.ok) {
+      const artistData = await artistResp.json();
+      const artists = artistData?.results?.artists?.data || [];
+      const norm = s => s.toLowerCase().trim();
+      const match = artists.find(a => norm(a.attributes?.name) === norm(artistName)) || artists[0];
+
+      if (match) {
+        artistFound = true;
+        appleArtistId = match.id;
+        appleArtistUrl = match.attributes?.url || null;
+        appleArtistGenres = match.attributes?.genreNames || [];
+
+        // Get album count
+        const albumResp = await fetch(
+          `${BASE}/catalog/${STOREFRONT}/artists/${appleArtistId}/albums?limit=25`,
+          { headers }
+        );
+        if (albumResp.ok) {
+          const albumData = await albumResp.json();
+          appleAlbumCount = albumData?.data?.length || 0;
+        }
+      }
+    }
+
+    // 2. ISRC lookup for the specific track (if track scan)
+    let isrcResult = null;
+    if (isrc) {
+      const isrcResp = await fetch(
+        `${BASE}/catalog/${STOREFRONT}/songs?filter[isrc]=${isrc}`,
+        { headers }
+      );
+      if (isrcResp.ok) {
+        const isrcData = await isrcResp.json();
+        const songs = isrcData?.data || [];
+        if (songs.length > 0) {
+          const song = songs[0];
+          isrcResult = {
+            found: true,
+            name: song.attributes?.name,
+            url: song.attributes?.url,
+            albumName: song.attributes?.albumName,
+            previewUrl: song.attributes?.previews?.[0]?.url || null,
+          };
+        } else {
+          isrcResult = { found: false };
+        }
+      }
+    }
+
+    // 3. Compare Spotify top tracks against Apple Music catalog
+    let catalogComparison = null;
+    if (spotifyTopTracks.length > 0) {
+      const matched = [];
+      const notFound = [];
+
+      for (const track of spotifyTopTracks.slice(0, 10)) { // limit to 10 to avoid rate limits
+        let found = false;
+
+        if (track.isrc) {
+          const isrcResp = await fetch(
+            `${BASE}/catalog/${STOREFRONT}/songs?filter[isrc]=${track.isrc}`,
+            { headers }
+          );
+          if (isrcResp.ok) {
+            const isrcData = await isrcResp.json();
+            found = (isrcData?.data?.length || 0) > 0;
+          }
+        }
+
+        if (!found) {
+          // Fallback: search by name
+          const q = encodeURIComponent(`${track.name} ${track.artistName}`);
+          const searchResp = await fetch(
+            `${BASE}/catalog/${STOREFRONT}/search?term=${q}&types=songs&limit=3`,
+            { headers }
+          );
+          if (searchResp.ok) {
+            const searchData = await searchResp.json();
+            const songs = searchData?.results?.songs?.data || [];
+            const norm = s => s.toLowerCase().trim();
+            found = songs.some(s => norm(s.attributes?.name) === norm(track.name));
+          }
+        }
+
+        if (found) {
+          matched.push(track.name);
+        } else {
+          notFound.push(track.name);
+        }
+      }
+
+      const total = matched.length + notFound.length;
+      catalogComparison = {
+        tracksChecked: total,
+        matched: matched.length,
+        notFound,
+        matchRate: total > 0 ? Math.round((matched.length / total) * 100) : 0,
+      };
+    }
+
+    return {
+      found: artistFound,
+      artistId: appleArtistId,
+      artistUrl: appleArtistUrl,
+      genres: appleArtistGenres,
+      albumCount: appleAlbumCount,
+      isrcLookup: isrcResult,
+      catalogComparison,
+    };
+
+  } catch (err) {
+    console.error('Apple Music error:', err.message);
+    return { found: false, error: err.message };
+  }
+}
+
 // ────────────────────────────────────────────────────────
 // YOUTUBE DATA API v3 — real channel + UGC detection
 // ────────────────────────────────────────────────────────
@@ -230,9 +394,7 @@ async function getYouTube(artistName) {
     if (ugcResp.ok) {
       const ugcData = await ugcResp.json();
       const ugcVideos = (ugcData.items || []).filter(v => {
-        const title = v.snippet?.title?.toLowerCase() || '';
         const channelTitle = v.snippet?.channelTitle?.toLowerCase() || '';
-        // Flag as UGC if channel doesn't match artist name closely
         return !channelTitle.includes(norm(artistName)) && !channelTitle.includes('vevo');
       });
 
@@ -243,7 +405,6 @@ async function getYouTube(artistName) {
         videoId: v.id.videoId,
       }));
 
-      // Get view counts for UGC videos
       if (ugcVideos.length > 0) {
         const videoIds = ugcVideos.map(v => v.id.videoId).filter(Boolean).join(',');
         if (videoIds) {
@@ -320,7 +481,7 @@ function analyzeCatalog(albumsData, artist) {
 }
 
 // ────────────────────────────────────────────────────────
-// ROYALTY GAP ESTIMATE — now includes YouTube UGC data
+// ROYALTY GAP ESTIMATE — includes YouTube UGC data
 // ────────────────────────────────────────────────────────
 function estimateRoyaltyGap(artist, catalog, lastfm, youtube) {
   const followers = artist.followers?.total || 0;
@@ -341,9 +502,8 @@ function estimateRoyaltyGap(artist, catalog, lastfm, youtube) {
   const totalEst = spotifyEst + proEst;
   const potentialGap = Math.round(proEst * 0.6);
 
-  // YouTube UGC unmonetised view estimate
   const ugcViews = youtube?.ugc?.estimatedViews || 0;
-  const ugcUnmonetisedEst = Math.round(ugcViews * 0.0015); // ~$1.50 CPM estimate
+  const ugcUnmonetisedEst = Math.round(ugcViews * 0.0015);
 
   return {
     estAnnualStreams,
@@ -572,9 +732,9 @@ async function getWikidata(artistName) {
 }
 
 // ────────────────────────────────────────────────────────
-// DETECTION MODULES — Module E now uses real YouTube data
+// DETECTION MODULES — includes Apple Music module
 // ────────────────────────────────────────────────────────
-function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube) {
+function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube, appleMusic) {
   const modules = {};
 
   // MODULE A — Metadata Integrity
@@ -588,7 +748,7 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
   if (lastfm.found && lastfm.tags?.length) metaScore += 5;
   modules.metadata = { name: 'Metadata Integrity', score: Math.max(Math.min(metaScore, 100), 10), flags: metaFlags };
 
-  // MODULE B — Platform Coverage
+  // MODULE B — Platform Coverage (now includes Apple Music)
   let covScore = 20;
   const covFlags = [];
   const checks = [
@@ -600,6 +760,7 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
     { name: 'Last.fm', found: lastfm.found, pts: 9 },
     { name: 'Wikipedia', found: wikidata.found, pts: 8 },
     { name: 'YouTube', found: youtube.found, pts: 10 },
+    { name: 'Apple Music', found: appleMusic.found, pts: 10 },
   ];
   checks.forEach(p => {
     if (p.found) covScore += p.pts;
@@ -617,6 +778,11 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
   if (catalog.catalogAgeYears > 5) { pubScore -= 10; pubFlags.push(`Catalog active for ${catalog.catalogAgeYears} years — extended royalty verification recommended`); }
   if (discogs.found && discogs.releases > 0) pubScore += 10;
   if (lastfm.found && lastfm.playcount > 10000) { pubScore -= 10; pubFlags.push('High Last.fm play count — significant streaming history detected, PRO verification critical'); }
+  // Apple Music ISRC mismatch flag
+  if (track?.external_ids?.isrc && appleMusic.isrcLookup && !appleMusic.isrcLookup.found) {
+    pubScore -= 15;
+    pubFlags.push('Track ISRC found on Spotify but not on Apple Music — cross-platform metadata discrepancy detected');
+  }
   modules.publishing = { name: 'Publishing Risk', score: Math.max(pubScore, 10), flags: pubFlags };
 
   // MODULE D — Duplicate Detection
@@ -627,7 +793,7 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
   if (!catalog.recentActivity && catalog.earliestYear) { dupScore -= 10; dupFlags.push(`No releases detected after ${catalog.latestYear} — catalog may be fragmented across accounts`); }
   modules.duplicates = { name: 'Duplicate Detection', score: Math.max(dupScore, 10), flags: dupFlags };
 
-  // MODULE E — YouTube / UGC (now real YouTube Data API)
+  // MODULE E — YouTube / UGC
   let ytScore = 10;
   const ytFlags = [];
 
@@ -639,24 +805,20 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
     } else {
       ytFlags.push('No official YouTube channel detected — Content ID registration unverified');
     }
-
     if (youtube.contentIdVerified) {
       ytScore += 15;
     } else {
       ytFlags.push('Content ID monetisation status unverified');
     }
-
     if (youtube.ugc?.contentIdRisk) {
       ytScore -= 15;
       ytFlags.push(`${youtube.ugc.videoCount} user-uploaded video(s) detected with no official channel — potential unmonetised UGC exposure`);
     }
-
     if (youtube.ugc?.estimatedViews > 100000) {
       ytFlags.push(`~${youtube.ugc.estimatedViews.toLocaleString()} views detected on UGC videos — significant unmonetised revenue risk`);
     }
   } else {
     ytFlags.push('YouTube scan unavailable — API key not configured or search returned no results');
-    // Fall back to AudioDB signal
     if (audiodb.found && audiodb.youtube) ytScore += 20;
     if (soundcloud.found && soundcloud.tracks > 0) ytScore += 10;
   }
@@ -664,7 +826,7 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
   if (lastfm.found && lastfm.listeners > 1000) ytScore += 5;
   modules.youtube = { name: 'YouTube / UGC', score: Math.max(Math.min(ytScore, 100), 10), flags: ytFlags };
 
-  // MODULE F — Sync Readiness
+  // MODULE F — Sync Readiness (now includes Apple Music signal)
   let syncScore = 0;
   const syncFlags = [];
   if (track?.external_ids?.isrc) { syncScore += 20; } else syncFlags.push('ISRC signal not detected');
@@ -676,15 +838,20 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
   if (lastfm.found && lastfm.listeners > 500) syncScore += 10;
   if (audiodb.found && audiodb.genre) syncScore += 8;
   if (artist.followers?.total > 1000) syncScore += 6;
+  // Apple Music presence boosts sync score
+  if (appleMusic.found) { syncScore += 10; } else syncFlags.push('Not found on Apple Music — cross-platform sync discoverability risk');
+  if (appleMusic.catalogComparison?.matchRate < 70) {
+    syncFlags.push(`Only ${appleMusic.catalogComparison.matchRate}% of top tracks matched on Apple Music — catalog gaps detected`);
+  }
   modules.sync = { name: 'Sync Readiness', score: Math.min(syncScore, 100), flags: syncFlags };
 
   return modules;
 }
 
 // ────────────────────────────────────────────────────────
-// BUILD FLAGS — includes YouTube UGC flags
+// BUILD FLAGS — includes Apple Music flags
 // ────────────────────────────────────────────────────────
-function buildFlags(modules, artist, track, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube) {
+function buildFlags(modules, artist, track, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube, appleMusic) {
   const flags = [];
 
   Object.entries(modules).forEach(([key, mod]) => {
@@ -709,6 +876,33 @@ function buildFlags(modules, artist, track, deezer, audiodb, discogs, soundcloud
       module: 'YouTube / UGC',
       severity: 'high',
       description: `~${youtube.ugc.estimatedViews.toLocaleString()} unmonetised UGC views detected on YouTube — Content ID registration recommended immediately`
+    });
+  }
+
+  // Apple Music catalog gap flag
+  if (appleMusic.found && appleMusic.catalogComparison) {
+    const { matchRate, notFound } = appleMusic.catalogComparison;
+    if (matchRate < 50) {
+      flags.push({
+        module: 'Platform Coverage',
+        severity: 'high',
+        description: `${100 - matchRate}% of top Spotify tracks not found on Apple Music — significant catalog distribution gap detected`
+      });
+    } else if (matchRate < 80) {
+      flags.push({
+        module: 'Platform Coverage',
+        severity: 'medium',
+        description: `${notFound.length} top track(s) missing from Apple Music — distribution gaps may be limiting revenue`
+      });
+    }
+  }
+
+  // Apple Music not found flag
+  if (!appleMusic.found) {
+    flags.push({
+      module: 'Platform Coverage',
+      severity: 'medium',
+      description: 'Artist not found on Apple Music — potential distribution gap across the second-largest music streaming platform'
     });
   }
 
