@@ -336,19 +336,19 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
   <div class="orb1"></div><div class="orb2"></div>
   <div class="hero-scan"></div>
   <div class="hero-left">
-    <div class="hero-eyebrow"><span class="blink">▮</span> Spotify + Apple Music Beta — Early Access</div>
+    <div class="hero-eyebrow"><span class="blink">▮</span> Spotify Beta — Early Access</div>
     <h1 class="hero-h1">Artists: You Could<br>Be Missing<br><span class="gt">Royaltē Money</span><br>Right Now.</h1>
-    <p class="hero-desc">Most artists, producers, and songwriters never see all the money they earn. Royaltē scans your Spotify or Apple Music data and shows you a preview of what might be missing.</p>
+    <p class="hero-desc">Most artists, producers, and songwriters never see all the money they earn. Royaltē scans your Spotify data and shows you a preview of what might be missing.</p>
     <div class="hero-paste">
-      <div class="paste-label">// Paste your Spotify or Apple Music artist URL to start</div>
+      <div class="paste-label">// Paste your Spotify artist URL to start</div>
       <div class="paste-box">
-        <input class="paste-input" id="hero-url" type="text" placeholder="https://open.spotify.com/artist/... or https://music.apple.com/...">
+        <input class="paste-input" id="hero-url" type="text" placeholder="https://open.spotify.com/artist/...">
         <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Audit →</button>
       </div>
-      <div class="paste-hint">// No login required · Spotify &amp; Apple Music · Public data scan</div>
+      <div class="paste-hint">// No login required · Spotify beta only · Public data scan</div>
       <div class="scan-progress" id="scan-progress">
         <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
-        <div class="sp-label" id="sp-label">Scanning profile...</div>
+        <div class="sp-label" id="sp-label">Scanning Spotify profile...</div>
       </div>
     </div>
     <div class="hero-stats">
@@ -417,7 +417,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
       </div>
       <div class="r-info">
         <div class="r-verdict" id="r-verdict">Analysing...</div>
-        <div class="r-desc" id="r-desc">Running detection modules across your profile.</div>
+        <div class="r-desc" id="r-desc">Running detection modules across your Spotify profile.</div>
       </div>
     </div>
     <div class="r-cards" id="r-cards"></div>
@@ -505,11 +505,11 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <div class="reveal">
       <div class="s-tag">How it works</div>
       <h2 class="s-h2">Three steps.<br><span class="gt">Sixty seconds.</span></h2>
-      <p class="s-sub">No login. No integrations. No credit card. Paste your Spotify or Apple Music link and get a real preview audit instantly.</p>
+      <p class="s-sub">No login. No integrations. No credit card. Paste your Spotify link and get a real preview audit instantly.</p>
     </div>
     <div class="steps reveal">
-      <div class="step"><span class="step-n">// 01 — Copy</span><div class="step-ico">🔗</div><div class="step-t">Copy your artist link</div><div class="step-d">Open Spotify or Apple Music, go to your artist profile, tap the share button → Copy link. Takes 10 seconds.</div></div>
-      <div class="step"><span class="step-n">// 02 — Paste</span><div class="step-ico">📋</div><div class="step-t">Paste into Royaltē</div><div class="step-d">Drop your Spotify or Apple Music link into the audit box above and hit Run Free Audit. No account needed, no login required.</div></div>
+      <div class="step"><span class="step-n">// 01 — Copy</span><div class="step-ico">🔗</div><div class="step-t">Copy your Spotify link</div><div class="step-d">Open Spotify, go to your artist profile, tap the three dots → Share → Copy link. Takes 10 seconds.</div></div>
+      <div class="step"><span class="step-n">// 02 — Paste</span><div class="step-ico">📋</div><div class="step-t">Paste into Royaltē</div><div class="step-d">Drop your Spotify link into the audit box above and hit Run Free Audit. No account needed, no login required.</div></div>
       <div class="step"><span class="step-n">// 03 — Results</span><div class="step-ico">📊</div><div class="step-t">Get your beta preview</div><div class="step-d">See your audit score, detected signals, and flagged risk areas. Then request the full audit from our team.</div></div>
     </div>
   </div>
@@ -521,8 +521,8 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <div class="beta-grid-2">
       <div class="reveal">
         <div class="s-tag">About this beta</div>
-        <h2 class="s-h2">Royaltē Beta —<br><span class="gt">Now on Apple Music.</span></h2>
-        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px;">Royaltē now supports both Spotify and Apple Music in beta. Paste either platform's artist URL to get a quick preview of potential Royaltē, publishing, and metadata issues across your catalog.</p>
+        <h2 class="s-h2">Royaltē Beta —<br><span class="gt">Spotify Only.</span></h2>
+        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px;">We're currently testing Royaltē in beta using Spotify data only. This first release is designed to give artists a quick preview of potential Royaltē, publishing, and metadata issues.</p>
         <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px;">Our larger vision is to build a platform that helps artists monitor music activity across all platforms globally — tracking income, protecting rights, and surfacing opportunities that most artists never see.</p>
         <p style="font-size:15px;color:var(--text2);line-height:1.75;">Full audits in this beta are delivered manually by our team within 12–24 hours.</p>
         <div class="interest-box">
@@ -533,10 +533,10 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
         <div class="s-tag">Roadmap</div>
         <div class="vision-list">
           <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">Spotify data scanning</div><div class="vl-tag vt-live">LIVE NOW</div></div>
-          <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">Apple Music cross-reference</div><div class="vl-tag vt-live">BETA</div></div>
-          <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">YouTube / UGC detection</div><div class="vl-tag vt-soon">SOON</div></div>
-          <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Publishing &amp; performance tracking</div><div class="vl-tag vt-soon">SOON</div></div>
-          <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Territory &amp; PRO registration audit</div><div class="vl-tag vt-soon">SOON</div></div>
+          <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">Apple Music cross-reference</div><div class="vl-tag vt-live">LIVE NOW</div></div>
+          <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">YouTube / UGC detection</div><div class="vl-tag vt-live">LIVE NOW</div></div>
+          <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Publishing & performance tracking</div><div class="vl-tag vt-soon">SOON</div></div>
+          <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Territory & PRO registration audit</div><div class="vl-tag vt-soon">SOON</div></div>
           <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Sync opportunity detection</div><div class="vl-tag vt-soon">SOON</div></div>
           <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Ongoing catalog monitoring</div><div class="vl-tag vt-soon">SOON</div></div>
         </div>
@@ -573,8 +573,8 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
               <input class="form-input" id="f-email" type="email" placeholder="your@email.com">
             </div>
             <div class="form-row">
-              <label class="form-label">Spotify or Apple Music Artist URL <span>*</span></label>
-              <input class="form-input" id="f-spotify" type="text" placeholder="https://open.spotify.com/artist/... or https://music.apple.com/...">
+              <label class="form-label">Spotify Artist URL <span>*</span></label>
+              <input class="form-input" id="f-spotify" type="text" placeholder="https://open.spotify.com/artist/...">
             </div>
             <div class="form-row">
               <label class="form-label">How many tracks on Spotify?</label>
@@ -620,10 +620,10 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
 <section style="background:var(--bg);padding:60px 56px;">
   <div class="si">
     <div class="trust-grid reveal">
-      <div class="trust-item"><div class="trust-icon">🔓</div><div class="trust-text">No login required</div></div>
-      <div class="trust-item"><div class="trust-icon">📡</div><div class="trust-text">Spotify &amp; Apple Music public data scan</div></div>
+      <div class="trust-item"><div class="trust-icon">🔓</div><div class="trust-text">No Spotify login required</div></div>
+      <div class="trust-item"><div class="trust-icon">📡</div><div class="trust-text">Public-data beta scan only</div></div>
       <div class="trust-item"><div class="trust-icon">👥</div><div class="trust-text">Full audits delivered manually by our team</div></div>
-      <div class="trust-item"><div class="trust-icon">🎵</div><div class="trust-text">Built for artists, producers &amp; songwriters</div></div>
+      <div class="trust-item"><div class="trust-icon">🎵</div><div class="trust-text">Built for artists, producers & songwriters</div></div>
     </div>
   </div>
 </section>
@@ -633,11 +633,11 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
   <div class="si">
     <div class="reveal">
       <div class="s-tag">Coming soon</div>
-      <h2 class="s-h2">Beyond Beta.<br><span class="gt">Beyond Boundaries.</span></h2>
+      <h2 class="s-h2">Beyond Spotify.<br><span class="gt">Beyond Beta.</span></h2>
       <p class="s-sub">Future versions of Royaltē will expand far beyond this beta to help artists track and protect their Royaltē income across every platform globally.</p>
     </div>
     <div class="future-list reveal">
-      <div class="fi-item"><div class="fi-dot"></div><div class="fi-text">Full cross-platform monitoring — Spotify, Apple Music, YouTube, Tidal and more</div></div>
+      <div class="fi-item"><div class="fi-dot"></div><div class="fi-text">Cross-platform monitoring — Spotify, Apple Music, YouTube, Tidal and more</div></div>
       <div class="fi-item"><div class="fi-dot"></div><div class="fi-text">Publishing and performance Royaltē income tracking</div></div>
       <div class="fi-item"><div class="fi-dot"></div><div class="fi-text">Global territory and PRO registration audit</div></div>
       <div class="fi-item"><div class="fi-dot"></div><div class="fi-text">Sync opportunity detection and licensing readiness score</div></div>
@@ -754,7 +754,7 @@ function animateScan(onComplete){
   const fill  = document.getElementById('sp-fill');
   const label = document.getElementById('sp-label');
   prog.style.display = 'block';
-  const labels = ['Scanning profile...','Resolving metadata...','Running detection modules...','Scoring results...'];
+  const labels = ['Scanning Spotify profile...','Resolving metadata...','Running detection modules...','Scoring results...'];
   let pct=0, li=0;
   const iv = setInterval(()=>{
     pct = Math.min(pct + Math.random()*3.5+1, 95);
@@ -772,11 +772,9 @@ async function runAudit(){
   const btn   = document.getElementById('hero-btn');
   const val   = input.value.trim();
   if(!val){input.style.outline='1px solid var(--red)';input.focus();return;}
-  const isSpotify = val.includes('spotify.com/artist');
-  const isApple   = val.includes('music.apple.com');
-  if(!isSpotify && !isApple){
+  if(!val.includes('spotify.com/artist')){
     input.style.outline='1px solid var(--red)';
-    input.placeholder='Please paste a Spotify or Apple Music artist URL';
+    input.placeholder='Please paste a Spotify artist URL';
     return;
   }
   input.style.outline='';
@@ -789,14 +787,13 @@ async function runAudit(){
     auditData  = await resp.json();
     if(auditData && auditData.success){
       document.getElementById('hero-artist-name').textContent = auditData.artistName;
-      const platformLabel = isApple ? 'Apple Music Artist' : 'Spotify Artist';
-      document.getElementById('hero-artist-sub').textContent  = `${(auditData.followers||0).toLocaleString()} followers · ${platformLabel}`;
+      document.getElementById('hero-artist-sub').textContent  = `${(auditData.followers||0).toLocaleString()} followers · Spotify Artist`;
       document.querySelector('.d-score-val') && (document.querySelector('.d-score-val').textContent = auditData.overallScore);
     }
   }catch(e){ auditData = null; }
   animateScan(()=>{
-    if(auditData && auditData.success) showRealResults(auditData, isApple);
-    else showDemoResults(val, isApple);
+    if(auditData && auditData.success) showRealResults(auditData);
+    else showDemoResults(val);
     btn.disabled=false;
     btn.textContent='Run Free Audit →';
     document.getElementById('scan-progress').style.display='none';
@@ -806,12 +803,11 @@ async function runAudit(){
 }
 
 // ── RESULTS ────────────────────────────────────────
-function showRealResults(data, isApple){
+function showRealResults(data){
   setScore(data.overallScore);
-  const platformLabel = isApple ? 'Apple Music Artist' : 'Spotify Artist';
   document.getElementById('results-tag').textContent=`${data.artistName} · ${(data.followers||0).toLocaleString()} followers`;
   document.getElementById('hero-artist-name').textContent = data.artistName;
-  document.getElementById('hero-artist-sub').textContent  = `${(data.followers||0).toLocaleString()} followers · ${platformLabel}`;
+  document.getElementById('hero-artist-sub').textContent  = `${(data.followers||0).toLocaleString()} followers · Spotify Artist`;
   const heroCircle = document.getElementById('score-circle');
   if(heroCircle){
     setTimeout(()=>{
@@ -845,10 +841,9 @@ function showRealResults(data, isApple){
   buildFlags(data.previewFlags||[]);
 }
 
-function showDemoResults(url, isApple){
+function showDemoResults(url){
   setScore(44);
-  const platformLabel = isApple ? 'Apple Music Artist Detected' : 'Spotify Artist Detected';
-  document.getElementById('results-tag').textContent = platformLabel;
+  document.getElementById('results-tag').textContent='Spotify Artist Detected';
   const fSpotify = document.getElementById('f-spotify');
   if(fSpotify){
     fSpotify.value    = url;
@@ -856,9 +851,8 @@ function showDemoResults(url, isApple){
     fSpotify.style.opacity = '0.7';
     fSpotify.style.cursor  = 'not-allowed';
   }
-  const platformName = isApple ? 'Apple Music' : 'Spotify';
   buildCards([
-    {icon:'✅',title:'Artist profile detected',value:`Found on ${platformName}`,badge:'rb-grn',bt:'CONFIRMED'},
+    {icon:'✅',title:'Artist profile detected',value:'Found on Spotify',badge:'rb-grn',bt:'CONFIRMED'},
     {icon:'📀',title:'Release activity found',value:'Multiple releases detected',badge:'rb-grn',bt:'ACTIVE'},
     {icon:'⚠️',title:'Metadata risk signals',value:'Possible gaps detected',badge:'rb-amb',bt:'REVIEW'},
     {icon:'🔍',title:'Royaltē monetisation gaps',value:'Possible issues flagged',badge:'rb-red',bt:'FLAGGED'},
@@ -917,6 +911,7 @@ async function submitForm(){
   btn.disabled    = true;
   btn.textContent = 'Sending request...';
 
+  // ── REFERRAL: Rewardful URL tracking wins, manual code is fallback ──
   var rewardfulRef = (typeof Rewardful !== 'undefined' && Rewardful.referral) ? Rewardful.referral : '';
   var manualCode   = document.getElementById('f-ref').value.trim().toLowerCase();
   var referral     = rewardfulRef || manualCode || '';
@@ -924,9 +919,6 @@ async function submitForm(){
   if(manualCode && !rewardfulRef){
     document.getElementById('f-ref').style.borderColor = 'var(--grn)';
   }
-
-  const isAppleSub    = spotify.includes('music.apple.com');
-  const platformLabel = isAppleSub ? 'Apple Music' : 'Spotify';
 
   try{
     await fetch('https://formspree.io/f/xojkrwzp',{
@@ -936,7 +928,6 @@ async function submitForm(){
         name,
         email,
         spotify_url:   spotify,
-        platform:      platformLabel,
         track_count:   tracks,
         referral:      referral,
         referral_type: rewardfulRef ? 'rewardful_link' : manualCode ? 'manual_code' : 'organic',
@@ -959,6 +950,7 @@ async function submitAffiliateCapture(){
     document.getElementById('aff-capture-email').style.borderColor='var(--red)';
     return;
   }
+
   try{
     await fetch('https://api.convertkit.com/v3/forms/YOUR_CONVERTKIT_FORM_ID/subscribe',{
       method:'POST',
@@ -970,6 +962,7 @@ async function submitAffiliateCapture(){
       })
     });
   }catch(e){}
+
   try{
     await fetch('https://formspree.io/f/xojkrwzp',{
       method:'POST',
@@ -982,6 +975,7 @@ async function submitAffiliateCapture(){
       })
     });
   }catch(e){}
+
   document.getElementById('aff-capture-inner').style.display = 'none';
   document.getElementById('aff-capture-success').style.display = 'block';
 }
