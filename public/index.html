@@ -685,7 +685,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <div class="f-wordmark">Royalt<span>ē</span></div>
     <div class="f-tagline">Music Audit Intelligence · Beta · Se7ven Labs Inc.</div>
   </div>
-  <div class="f-copy">© 2026 Royaltē · Se7ven Labs Inc. · info@royalte.ai</div>
+  <div class="f-copy">© 2026 Royaltē · Se7ven Labs Inc. · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="432a2d252c03312c3a222f37266d222a">[email&#160;protected]</a></div>
   <div class="f-links">
     <a href="/affiliates.html">Affiliates</a>
     <a href="/contact.html">Contact</a>
@@ -695,7 +695,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── SCROLL REVEAL ──────────────────────────────────
 const obs = new IntersectionObserver(entries=>{
   entries.forEach((e,i)=>{
@@ -792,8 +792,13 @@ async function runAudit(){
     }
   }catch(e){ auditData = null; }
   animateScan(()=>{
-    if(auditData && auditData.success) showRealResults(auditData);
-    else showDemoResults(val);
+    if(auditData && auditData.success){
+      showRealResults(auditData);
+    } else {
+      document.getElementById('hero-artist-name').textContent = 'Artist Profile Scanned';
+      document.getElementById('hero-artist-sub').textContent  = 'Preview results below';
+      showDemoResults(val);
+    }
     btn.disabled=false;
     btn.textContent='Run Free Audit →';
     document.getElementById('scan-progress').style.display='none';
@@ -808,7 +813,7 @@ function showRealResults(data){
   document.getElementById('results-tag').textContent=`${data.artistName} · ${(data.followers||0).toLocaleString()} followers`;
   document.getElementById('hero-artist-name').textContent = data.artistName;
   document.getElementById('hero-artist-sub').textContent  = `${(data.followers||0).toLocaleString()} followers · Artist`;
-  const heroCircle = document.getElementById('score-circle');
+  const heroCircle = document.querySelector('.d-score-ring circle:last-of-type');
   if(heroCircle){
     setTimeout(()=>{
       heroCircle.style.transition='stroke-dashoffset 1.2s ease';
@@ -995,11 +1000,4 @@ async function submitAffiliate(){
   document.getElementById('aff-success').style.display='block';
 }
 
-function scrollToForm(){
-  document.getElementById('request').scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-document.getElementById('hero-url').addEventListener('keydown',e=>{if(e.key==='Enter')runAudit();});
-</script>
-</body>
-</html>
+function scrollTo
