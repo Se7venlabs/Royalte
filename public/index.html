@@ -336,16 +336,16 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
   <div class="orb1"></div><div class="orb2"></div>
   <div class="hero-scan"></div>
   <div class="hero-left">
-    <div class="hero-eyebrow"><span class="blink">▮</span> Spotify Beta — Early Access</div>
+    <div class="hero-eyebrow"><span class="blink">▮</span> Spotify &amp; Apple Music — Early Access</div>
     <h1 class="hero-h1">Artists: You Could<br>Be Missing<br><span class="gt">Royaltē Money</span><br>Right Now.</h1>
     <p class="hero-desc">Most artists, producers, and songwriters never see all the money they earn. Royaltē scans your Spotify data and shows you a preview of what might be missing.</p>
     <div class="hero-paste">
-      <div class="paste-label">// Paste your Spotify artist URL to start</div>
+      <div class="paste-label">// Paste your Spotify or Apple Music artist URL to start</div>
       <div class="paste-box">
-        <input class="paste-input" id="hero-url" type="text" placeholder="https://open.spotify.com/artist/...">
+        <input class="paste-input" id="hero-url" type="text" placeholder="https://open.spotify.com/artist/... or https://music.apple.com/...">
         <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Audit →</button>
       </div>
-      <div class="paste-hint">// No login required · Spotify beta only · Public data scan</div>
+      <div class="paste-hint">// No login required · Spotify &amp; Apple Music · Public data scan</div>
       <div class="scan-progress" id="scan-progress">
         <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
         <div class="sp-label" id="sp-label">Scanning Spotify profile...</div>
@@ -505,11 +505,11 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <div class="reveal">
       <div class="s-tag">How it works</div>
       <h2 class="s-h2">Three steps.<br><span class="gt">Sixty seconds.</span></h2>
-      <p class="s-sub">No login. No integrations. No credit card. Paste your Spotify link and get a real preview audit instantly.</p>
+      <p class="s-sub">No login. No integrations. No credit card. Paste your Spotify or Apple Music link and get a real preview audit instantly.</p>
     </div>
     <div class="steps reveal">
-      <div class="step"><span class="step-n">// 01 — Copy</span><div class="step-ico">🔗</div><div class="step-t">Copy your Spotify link</div><div class="step-d">Open Spotify, go to your artist profile, tap the three dots → Share → Copy link. Takes 10 seconds.</div></div>
-      <div class="step"><span class="step-n">// 02 — Paste</span><div class="step-ico">📋</div><div class="step-t">Paste into Royaltē</div><div class="step-d">Drop your Spotify link into the audit box above and hit Run Free Audit. No account needed, no login required.</div></div>
+      <div class="step"><span class="step-n">// 01 — Copy</span><div class="step-ico">🔗</div><div class="step-t">Copy your artist link</div><div class="step-d">Open Spotify or Apple Music, go to your artist profile, tap Share → Copy link. Takes 10 seconds.</div></div>
+      <div class="step"><span class="step-n">// 02 — Paste</span><div class="step-ico">📋</div><div class="step-t">Paste into Royaltē</div><div class="step-d">Drop your Spotify or Apple Music link into the audit box above and hit Run Free Audit. No account needed, no login required.</div></div>
       <div class="step"><span class="step-n">// 03 — Results</span><div class="step-ico">📊</div><div class="step-t">Get your beta preview</div><div class="step-d">See your audit score, detected signals, and flagged risk areas. Then request the full audit from our team.</div></div>
     </div>
   </div>
@@ -521,8 +521,8 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <div class="beta-grid-2">
       <div class="reveal">
         <div class="s-tag">About this beta</div>
-        <h2 class="s-h2">Royaltē Beta —<br><span class="gt">Spotify Only.</span></h2>
-        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px;">We're currently testing Royaltē in beta using Spotify data only. This first release is designed to give artists a quick preview of potential Royaltē, publishing, and metadata issues.</p>
+        <h2 class="s-h2">Royaltē Beta —<br><span class="gt">Spotify &amp; Apple.</span></h2>
+        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px;">We're currently running Royaltē in beta with Spotify and Apple Music support. This release is designed to give artists a quick preview of potential Royaltē, publishing, and metadata issues across both platforms.</p>
         <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px;">Our larger vision is to build a platform that helps artists monitor music activity across all platforms globally — tracking income, protecting rights, and surfacing opportunities that most artists never see.</p>
         <p style="font-size:15px;color:var(--text2);line-height:1.75;">Full audits in this beta are delivered manually by our team within 12–24 hours.</p>
         <div class="interest-box">
@@ -573,8 +573,8 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
               <input class="form-input" id="f-email" type="email" placeholder="your@email.com">
             </div>
             <div class="form-row">
-              <label class="form-label">Spotify Artist URL <span>*</span></label>
-              <input class="form-input" id="f-spotify" type="text" placeholder="https://open.spotify.com/artist/...">
+              <label class="form-label">Spotify or Apple Music Artist URL <span>*</span></label>
+              <input class="form-input" id="f-spotify" type="text" placeholder="https://open.spotify.com/artist/... or https://music.apple.com/...">
             </div>
             <div class="form-row">
               <label class="form-label">How many tracks on Spotify?</label>
@@ -620,8 +620,8 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
 <section style="background:var(--bg);padding:60px 56px;">
   <div class="si">
     <div class="trust-grid reveal">
-      <div class="trust-item"><div class="trust-icon">🔓</div><div class="trust-text">No Spotify login required</div></div>
-      <div class="trust-item"><div class="trust-icon">📡</div><div class="trust-text">Public-data beta scan only</div></div>
+      <div class="trust-item"><div class="trust-icon">🔓</div><div class="trust-text">No login required — Spotify or Apple Music</div></div>
+      <div class="trust-item"><div class="trust-icon">📡</div><div class="trust-text">Public-data beta scan — Spotify &amp; Apple Music</div></div>
       <div class="trust-item"><div class="trust-icon">👥</div><div class="trust-text">Full audits delivered manually by our team</div></div>
       <div class="trust-item"><div class="trust-icon">🎵</div><div class="trust-text">Built for artists, producers & songwriters</div></div>
     </div>
@@ -633,7 +633,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
   <div class="si">
     <div class="reveal">
       <div class="s-tag">Coming soon</div>
-      <h2 class="s-h2">Beyond Spotify.<br><span class="gt">Beyond Beta.</span></h2>
+      <h2 class="s-h2">Beyond Beta.<br><span class="gt">Every Platform.</span></h2>
       <p class="s-sub">Future versions of Royaltē will expand far beyond this beta to help artists track and protect their Royaltē income across every platform globally.</p>
     </div>
     <div class="future-list reveal">
@@ -685,7 +685,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <div class="f-wordmark">Royalt<span>ē</span></div>
     <div class="f-tagline">Music Audit Intelligence · Beta · Se7ven Labs Inc.</div>
   </div>
-  <div class="f-copy">© 2026 Royaltē · Se7ven Labs Inc. · info@royalte.ai</div>
+  <div class="f-copy">© 2026 Royaltē · Se7ven Labs Inc. · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="10797e767f50627f69717c64753e7179">[email&#160;protected]</a></div>
   <div class="f-links">
     <a href="/affiliates.html">Affiliates</a>
     <a href="/contact.html">Contact</a>
@@ -695,7 +695,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── SCROLL REVEAL ──────────────────────────────────
 const obs = new IntersectionObserver(entries=>{
   entries.forEach((e,i)=>{
@@ -774,7 +774,7 @@ async function runAudit(){
   if(!val){input.style.outline='1px solid var(--red)';input.focus();return;}
   if(!val.includes('spotify.com/artist')){
     input.style.outline='1px solid var(--red)';
-    input.placeholder='Please paste a Spotify artist URL';
+    input.placeholder='Please paste a Spotify or Apple Music artist URL';
     return;
   }
   input.style.outline='';
@@ -1037,11 +1037,4 @@ async function submitAffiliate(){
   document.getElementById('aff-success').style.display    = 'block';
 }
 
-function scrollToForm(){
-  document.getElementById('request').scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-document.getElementById('hero-url').addEventListener('keydown',e=>{if(e.key==='Enter')runAudit();});
-</script>
-</body>
-</html>
+function scrollTo
