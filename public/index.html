@@ -338,7 +338,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
   <div class="hero-left">
     <div class="hero-eyebrow"><span class="blink">▮</span> Spotify &amp; Apple Music — Early Access</div>
     <h1 class="hero-h1">Artists: You Could<br>Be Missing<br><span class="gt">Royaltē Money</span><br>Right Now.</h1>
-    <p class="hero-desc">Most artists, producers, and songwriters never see all the money they earn. Royaltē scans your Spotify data and shows you a preview of what might be missing.</p>
+    <p class="hero-desc">Most artists, producers, and songwriters never see all the money they earn. Royaltē scans your Spotify and Apple Music data and shows you a preview of what might be missing.</p>
     <div class="hero-paste">
       <div class="paste-label">// Paste your Spotify or Apple Music artist URL to start</div>
       <div class="paste-box">
@@ -348,7 +348,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
       <div class="paste-hint">// No login required · Spotify &amp; Apple Music · Public data scan</div>
       <div class="scan-progress" id="scan-progress">
         <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
-        <div class="sp-label" id="sp-label">Scanning Spotify profile...</div>
+        <div class="sp-label" id="sp-label">Scanning artist profile...</div>
       </div>
     </div>
     <div class="hero-stats">
@@ -417,7 +417,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
       </div>
       <div class="r-info">
         <div class="r-verdict" id="r-verdict">Analysing...</div>
-        <div class="r-desc" id="r-desc">Running detection modules across your Spotify profile.</div>
+        <div class="r-desc" id="r-desc">Running detection modules across your artist profile.</div>
       </div>
     </div>
     <div class="r-cards" id="r-cards"></div>
@@ -577,7 +577,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
               <input class="form-input" id="f-spotify" type="text" placeholder="https://open.spotify.com/artist/... or https://music.apple.com/...">
             </div>
             <div class="form-row">
-              <label class="form-label">How many tracks on Spotify?</label>
+              <label class="form-label">How many tracks do you have?</label>
               <select class="form-select" id="f-tracks">
                 <option value="">Select range</option>
                 <option value="1-5">1–5 tracks</option>
@@ -754,7 +754,7 @@ function animateScan(onComplete){
   const fill  = document.getElementById('sp-fill');
   const label = document.getElementById('sp-label');
   prog.style.display = 'block';
-  const labels = ['Scanning Spotify profile...','Resolving metadata...','Running detection modules...','Scoring results...'];
+  const labels = ['Scanning artist profile...','Resolving metadata...','Running detection modules...','Scoring results...'];
   let pct=0, li=0;
   const iv = setInterval(()=>{
     pct = Math.min(pct + Math.random()*3.5+1, 95);
@@ -787,7 +787,7 @@ async function runAudit(){
     auditData  = await resp.json();
     if(auditData && auditData.success){
       document.getElementById('hero-artist-name').textContent = auditData.artistName;
-      document.getElementById('hero-artist-sub').textContent  = `${(auditData.followers||0).toLocaleString()} followers · Spotify Artist`;
+      document.getElementById('hero-artist-sub').textContent  = `${(auditData.followers||0).toLocaleString()} followers · Artist`;
       document.querySelector('.d-score-val') && (document.querySelector('.d-score-val').textContent = auditData.overallScore);
     }
   }catch(e){ auditData = null; }
@@ -807,7 +807,7 @@ function showRealResults(data){
   setScore(data.overallScore);
   document.getElementById('results-tag').textContent=`${data.artistName} · ${(data.followers||0).toLocaleString()} followers`;
   document.getElementById('hero-artist-name').textContent = data.artistName;
-  document.getElementById('hero-artist-sub').textContent  = `${(data.followers||0).toLocaleString()} followers · Spotify Artist`;
+  document.getElementById('hero-artist-sub').textContent  = `${(data.followers||0).toLocaleString()} followers · Artist`;
   const heroCircle = document.getElementById('score-circle');
   if(heroCircle){
     setTimeout(()=>{
@@ -843,7 +843,7 @@ function showRealResults(data){
 
 function showDemoResults(url){
   setScore(44);
-  document.getElementById('results-tag').textContent='Spotify Artist Detected';
+  document.getElementById('results-tag').textContent='Artist Profile Detected';
   const fSpotify = document.getElementById('f-spotify');
   if(fSpotify){
     fSpotify.value    = url;
@@ -852,7 +852,7 @@ function showDemoResults(url){
     fSpotify.style.cursor  = 'not-allowed';
   }
   buildCards([
-    {icon:'✅',title:'Artist profile detected',value:'Found on Spotify',badge:'rb-grn',bt:'CONFIRMED'},
+    {icon:'✅',title:'Artist profile detected',value:'Artist profile found',badge:'rb-grn',bt:'CONFIRMED'},
     {icon:'📀',title:'Release activity found',value:'Multiple releases detected',badge:'rb-grn',bt:'ACTIVE'},
     {icon:'⚠️',title:'Metadata risk signals',value:'Possible gaps detected',badge:'rb-amb',bt:'REVIEW'},
     {icon:'🔍',title:'Royaltē monetisation gaps',value:'Possible issues flagged',badge:'rb-red',bt:'FLAGGED'},
