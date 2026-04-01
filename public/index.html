@@ -88,6 +88,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;d
 .d-score-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .d-score-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
 .d-score-lbl{font-size:7px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
+/* FIX: d-score-info styles were missing — this is the root cause of the artist name not showing */
+.d-score-info{display:flex;flex-direction:column;gap:3px;min-width:0;overflow:hidden;}
+.d-score-title{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);margin-bottom:2px;}
+.d-score-artist{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.d-score-track{font-size:11px;color:var(--muted2);letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .d-alert{background:rgba(240,80,96,0.08);border:1px solid rgba(240,80,96,0.22);border-radius:5px;padding:10px 12px;display:flex;align-items:center;gap:9px;animation:alertPulse 3s ease-in-out infinite;}
 @keyframes alertPulse{0%,100%{border-color:rgba(240,80,96,0.22);}50%{border-color:rgba(240,80,96,0.4);}}
 .d-alert-dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;animation:pulse 2s infinite;}
@@ -336,19 +341,19 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
   <div class="orb1"></div><div class="orb2"></div>
   <div class="hero-scan"></div>
   <div class="hero-left">
-    <div class="hero-eyebrow"><span class="blink">▮</span> Spotify &amp; Apple Music — Early Access</div>
+    <div class="hero-eyebrow"><span class="blink">▮</span> Spotify Beta — Early Access</div>
     <h1 class="hero-h1">Artists: You Could<br>Be Missing<br><span class="gt">Royaltē Money</span><br>Right Now.</h1>
-    <p class="hero-desc">Most artists, producers, and songwriters never see all the money they earn. Royaltē scans your Spotify and Apple Music data and shows you a preview of what might be missing.</p>
+    <p class="hero-desc">Most artists, producers, and songwriters never see all the money they earn. Royaltē scans your Spotify data and shows you a preview of what might be missing.</p>
     <div class="hero-paste">
-      <div class="paste-label">// Paste your Spotify or Apple Music artist URL to start</div>
+      <div class="paste-label">// Paste your Spotify artist URL to start</div>
       <div class="paste-box">
-        <input class="paste-input" id="hero-url" type="text" placeholder="https://open.spotify.com/artist/... or https://music.apple.com/...">
+        <input class="paste-input" id="hero-url" type="text" placeholder="https://open.spotify.com/artist/...">
         <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Audit →</button>
       </div>
-      <div class="paste-hint">// No login required · Spotify &amp; Apple Music · Public data scan</div>
+      <div class="paste-hint">// No login required · Spotify beta only · Public data scan</div>
       <div class="scan-progress" id="scan-progress">
         <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
-        <div class="sp-label" id="sp-label">Scanning artist profile...</div>
+        <div class="sp-label" id="sp-label">Scanning Spotify profile...</div>
       </div>
     </div>
     <div class="hero-stats">
@@ -373,13 +378,13 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
           <div class="d-score-ring">
             <svg width="64" height="64" viewBox="0 0 64 64">
               <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(138,92,255,0.15)" stroke-width="6"/>
-              <circle cx="32" cy="32" r="26" fill="none" stroke="url(#sg1)" stroke-width="6" stroke-dasharray="163.4" stroke-dashoffset="96" stroke-linecap="round"/>
+              <circle id="hero-score-circle" cx="32" cy="32" r="26" fill="none" stroke="url(#sg1)" stroke-width="6" stroke-dasharray="163.4" stroke-dashoffset="96" stroke-linecap="round"/>
               <defs><linearGradient id="sg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8a5cff"/><stop offset="100%" stop-color="#e040c8"/></linearGradient></defs>
             </svg>
-            <div class="d-score-num"><span class="d-score-val">41</span><span class="d-score-lbl">/ 100</span></div>
+            <div class="d-score-num"><span class="d-score-val" id="hero-score-val">41</span><span class="d-score-lbl">/ 100</span></div>
           </div>
           <div class="d-score-info">
-            <div class="d-score-title">// Beta audit preview</div>
+            <div class="d-score-title" id="hero-scan-label">// Beta audit preview</div>
             <div class="d-score-artist" id="hero-artist-name">Paste your link</div>
             <div class="d-score-track" id="hero-artist-sub">Run audit to see your real data</div>
           </div>
@@ -417,7 +422,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
       </div>
       <div class="r-info">
         <div class="r-verdict" id="r-verdict">Analysing...</div>
-        <div class="r-desc" id="r-desc">Running detection modules across your artist profile.</div>
+        <div class="r-desc" id="r-desc">Running detection modules across your Spotify profile.</div>
       </div>
     </div>
     <div class="r-cards" id="r-cards"></div>
@@ -505,11 +510,11 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <div class="reveal">
       <div class="s-tag">How it works</div>
       <h2 class="s-h2">Three steps.<br><span class="gt">Sixty seconds.</span></h2>
-      <p class="s-sub">No login. No integrations. No credit card. Paste your Spotify or Apple Music link and get a real preview audit instantly.</p>
+      <p class="s-sub">No login. No integrations. No credit card. Paste your Spotify link and get a real preview audit instantly.</p>
     </div>
     <div class="steps reveal">
-      <div class="step"><span class="step-n">// 01 — Copy</span><div class="step-ico">🔗</div><div class="step-t">Copy your artist link</div><div class="step-d">Open Spotify or Apple Music, go to your artist profile, tap Share → Copy link. Takes 10 seconds.</div></div>
-      <div class="step"><span class="step-n">// 02 — Paste</span><div class="step-ico">📋</div><div class="step-t">Paste into Royaltē</div><div class="step-d">Drop your Spotify or Apple Music link into the audit box above and hit Run Free Audit. No account needed, no login required.</div></div>
+      <div class="step"><span class="step-n">// 01 — Copy</span><div class="step-ico">🔗</div><div class="step-t">Copy your Spotify link</div><div class="step-d">Open Spotify, go to your artist profile, tap the three dots → Share → Copy link. Takes 10 seconds.</div></div>
+      <div class="step"><span class="step-n">// 02 — Paste</span><div class="step-ico">📋</div><div class="step-t">Paste into Royaltē</div><div class="step-d">Drop your Spotify link into the audit box above and hit Run Free Audit. No account needed, no login required.</div></div>
       <div class="step"><span class="step-n">// 03 — Results</span><div class="step-ico">📊</div><div class="step-t">Get your beta preview</div><div class="step-d">See your audit score, detected signals, and flagged risk areas. Then request the full audit from our team.</div></div>
     </div>
   </div>
@@ -521,8 +526,8 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <div class="beta-grid-2">
       <div class="reveal">
         <div class="s-tag">About this beta</div>
-        <h2 class="s-h2">Royaltē Beta —<br><span class="gt">Spotify &amp; Apple.</span></h2>
-        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px;">We're currently running Royaltē in beta with Spotify and Apple Music support. This release is designed to give artists a quick preview of potential Royaltē, publishing, and metadata issues across both platforms.</p>
+        <h2 class="s-h2">Royaltē Beta —<br><span class="gt">Spotify Only.</span></h2>
+        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px;">We're currently testing Royaltē in beta using Spotify data only. This first release is designed to give artists a quick preview of potential Royaltē, publishing, and metadata issues.</p>
         <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px;">Our larger vision is to build a platform that helps artists monitor music activity across all platforms globally — tracking income, protecting rights, and surfacing opportunities that most artists never see.</p>
         <p style="font-size:15px;color:var(--text2);line-height:1.75;">Full audits in this beta are delivered manually by our team within 12–24 hours.</p>
         <div class="interest-box">
@@ -533,8 +538,8 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
         <div class="s-tag">Roadmap</div>
         <div class="vision-list">
           <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">Spotify data scanning</div><div class="vl-tag vt-live">LIVE NOW</div></div>
-          <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">Apple Music cross-reference</div><div class="vl-tag vt-live">LIVE NOW</div></div>
           <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">YouTube / UGC detection</div><div class="vl-tag vt-live">LIVE NOW</div></div>
+          <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Apple Music cross-reference</div><div class="vl-tag vt-soon">SOON</div></div>
           <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Publishing & performance tracking</div><div class="vl-tag vt-soon">SOON</div></div>
           <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Territory & PRO registration audit</div><div class="vl-tag vt-soon">SOON</div></div>
           <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Sync opportunity detection</div><div class="vl-tag vt-soon">SOON</div></div>
@@ -573,11 +578,11 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
               <input class="form-input" id="f-email" type="email" placeholder="your@email.com">
             </div>
             <div class="form-row">
-              <label class="form-label">Spotify or Apple Music Artist URL <span>*</span></label>
-              <input class="form-input" id="f-spotify" type="text" placeholder="https://open.spotify.com/artist/... or https://music.apple.com/...">
+              <label class="form-label">Spotify Artist URL <span>*</span></label>
+              <input class="form-input" id="f-spotify" type="text" placeholder="https://open.spotify.com/artist/...">
             </div>
             <div class="form-row">
-              <label class="form-label">How many tracks do you have?</label>
+              <label class="form-label">How many tracks on Spotify?</label>
               <select class="form-select" id="f-tracks">
                 <option value="">Select range</option>
                 <option value="1-5">1–5 tracks</option>
@@ -620,8 +625,8 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
 <section style="background:var(--bg);padding:60px 56px;">
   <div class="si">
     <div class="trust-grid reveal">
-      <div class="trust-item"><div class="trust-icon">🔓</div><div class="trust-text">No login required — Spotify or Apple Music</div></div>
-      <div class="trust-item"><div class="trust-icon">📡</div><div class="trust-text">Public-data beta scan — Spotify &amp; Apple Music</div></div>
+      <div class="trust-item"><div class="trust-icon">🔓</div><div class="trust-text">No Spotify login required</div></div>
+      <div class="trust-item"><div class="trust-icon">📡</div><div class="trust-text">Public-data beta scan only</div></div>
       <div class="trust-item"><div class="trust-icon">👥</div><div class="trust-text">Full audits delivered manually by our team</div></div>
       <div class="trust-item"><div class="trust-icon">🎵</div><div class="trust-text">Built for artists, producers & songwriters</div></div>
     </div>
@@ -633,7 +638,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
   <div class="si">
     <div class="reveal">
       <div class="s-tag">Coming soon</div>
-      <h2 class="s-h2">Beyond Beta.<br><span class="gt">Every Platform.</span></h2>
+      <h2 class="s-h2">Beyond Spotify.<br><span class="gt">Beyond Beta.</span></h2>
       <p class="s-sub">Future versions of Royaltē will expand far beyond this beta to help artists track and protect their Royaltē income across every platform globally.</p>
     </div>
     <div class="future-list reveal">
@@ -691,7 +696,6 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <a href="/contact.html">Contact</a>
     <a href="/privacy.html">Privacy</a>
     <a href="/terms.html">Terms</a>
-    <a href="/contact.html">Contact</a>
   </div>
 </footer>
 
@@ -754,7 +758,7 @@ function animateScan(onComplete){
   const fill  = document.getElementById('sp-fill');
   const label = document.getElementById('sp-label');
   prog.style.display = 'block';
-  const labels = ['Scanning artist profile...','Resolving metadata...','Running detection modules...','Scoring results...'];
+  const labels = ['Scanning Spotify profile...','Resolving metadata...','Running detection modules...','Scoring results...'];
   let pct=0, li=0;
   const iv = setInterval(()=>{
     pct = Math.min(pct + Math.random()*3.5+1, 95);
@@ -774,29 +778,29 @@ async function runAudit(){
   if(!val){input.style.outline='1px solid var(--red)';input.focus();return;}
   if(!val.includes('spotify.com/artist')){
     input.style.outline='1px solid var(--red)';
-    input.placeholder='Please paste a Spotify or Apple Music artist URL';
+    input.placeholder='Please paste a Spotify artist URL';
     return;
   }
   input.style.outline='';
   btn.disabled=true;
   btn.textContent='Scanning...';
   document.getElementById('f-spotify').value=val;
+
+  // Update hero label to show scan is in progress
+  document.getElementById('hero-scan-label').textContent = '// Scanning...';
+  document.getElementById('hero-artist-name').textContent = 'Loading...';
+  document.getElementById('hero-artist-sub').textContent = 'Fetching your profile data';
+
   let auditData = null;
   try{
     const resp = await fetch(`/api/audit?url=${encodeURIComponent(val)}`);
     auditData  = await resp.json();
-    if(auditData && auditData.success){
-      document.getElementById('hero-artist-name').textContent = auditData.artistName;
-      document.getElementById('hero-artist-sub').textContent  = `${(auditData.followers||0).toLocaleString()} followers · Artist`;
-      document.querySelector('.d-score-val') && (document.querySelector('.d-score-val').textContent = auditData.overallScore);
-    }
   }catch(e){ auditData = null; }
+
   animateScan(()=>{
     if(auditData && auditData.success){
       showRealResults(auditData);
     } else {
-      document.getElementById('hero-artist-name').textContent = 'Artist Profile Scanned';
-      document.getElementById('hero-artist-sub').textContent  = 'Preview results below';
       showDemoResults(val);
     }
     btn.disabled=false;
@@ -808,28 +812,46 @@ async function runAudit(){
 }
 
 // ── RESULTS ────────────────────────────────────────
-function showRealResults(data){
-  setScore(data.overallScore);
-  document.getElementById('results-tag').textContent=`${data.artistName} · ${(data.followers||0).toLocaleString()} followers`;
-  document.getElementById('hero-artist-name').textContent = data.artistName;
-  document.getElementById('hero-artist-sub').textContent  = `${(data.followers||0).toLocaleString()} followers · Artist`;
-  const heroCircle = document.getElementById('score-circle');
+function updateHeroDashboard(artistName, subText, score){
+  // Update hero dashboard widget with real scan results
+  document.getElementById('hero-scan-label').textContent = '// Artist profile scanned';
+  document.getElementById('hero-artist-name').textContent = artistName;
+  document.getElementById('hero-artist-sub').textContent  = subText;
+  document.getElementById('hero-score-val').textContent   = score;
+  // Animate hero score ring
+  const heroCircle = document.getElementById('hero-score-circle');
   if(heroCircle){
     setTimeout(()=>{
-      heroCircle.style.transition='stroke-dashoffset 1.2s ease';
-      heroCircle.style.strokeDashoffset = 163.4-(data.overallScore/100)*163.4;
-    },100);
+      heroCircle.style.transition = 'stroke-dashoffset 1.2s ease';
+      heroCircle.style.strokeDashoffset = 163.4 - (score / 100) * 163.4;
+    }, 150);
   }
-  document.querySelector('.d-score-val') && (document.querySelector('.d-score-val').textContent = data.overallScore);
+}
+
+function showRealResults(data){
+  const artistName = data.artistName || 'Artist';
+  const followers  = (data.followers || 0).toLocaleString();
+  const subText    = `${followers} followers · Spotify Artist`;
+
+  // Update hero dashboard
+  updateHeroDashboard(artistName, subText, data.overallScore);
+
+  // Update results panel
+  setScore(data.overallScore);
+  document.getElementById('results-tag').textContent = `${artistName} · ${followers} followers`;
+
+  // Update module bars in hero widget
   if(data.modules){
-    const modScores   = Object.values(data.modules);
+    const modValues   = Object.values(data.modules);
     const modFills    = document.querySelectorAll('.d-mod-fill');
     const modScoreEls = document.querySelectorAll('.d-mod-score');
-    modScores.forEach((mod,i)=>{
-      if(modFills[i])    modFills[i].style.width    = mod.score+'%';
-      if(modScoreEls[i]) modScoreEls[i].textContent = mod.score+'%';
+    modValues.forEach((mod, i)=>{
+      if(modFills[i])    modFills[i].style.width    = mod.score + '%';
+      if(modScoreEls[i]) modScoreEls[i].textContent = mod.score + '%';
     });
   }
+
+  // Pre-fill and lock the form spotify field
   const fSpotify = document.getElementById('f-spotify');
   if(fSpotify){
     fSpotify.value    = document.getElementById('hero-url').value;
@@ -837,18 +859,22 @@ function showRealResults(data){
     fSpotify.style.opacity = '0.7';
     fSpotify.style.cursor  = 'not-allowed';
   }
+
   buildCards([
-    {icon:'✅',title:'Artist profile',value:data.artistName,badge:'rb-grn',bt:'CONFIRMED'},
-    {icon:'👥',title:'Followers',value:(data.followers||0).toLocaleString(),badge:'rb-grn',bt:'FOUND'},
-    {icon:'🎵',title:'Genres',value:data.genres?.slice(0,2).join(', ')||'Not detected',badge:data.genres?.length?'rb-grn':'rb-amb',bt:data.genres?.length?'PRESENT':'MISSING'},
-    {icon:'🔑',title:'ISRC check',value:data.trackIsrc||'Not detected on this scan',badge:data.trackIsrc?'rb-grn':'rb-amb',bt:data.trackIsrc?'FOUND':'CHECK NEEDED'},
+    {icon:'✅', title:'Artist profile',     value:artistName,                                                                 badge:'rb-grn', bt:'CONFIRMED'},
+    {icon:'👥', title:'Followers',          value:followers,                                                                   badge:'rb-grn', bt:'FOUND'},
+    {icon:'🎵', title:'Genres',             value:data.genres?.slice(0,2).join(', ')||'Not detected',                         badge:data.genres?.length?'rb-grn':'rb-amb', bt:data.genres?.length?'PRESENT':'MISSING'},
+    {icon:'🔑', title:'ISRC check',         value:data.trackIsrc||'Not detected on this scan',                                badge:data.trackIsrc?'rb-grn':'rb-amb', bt:data.trackIsrc?'FOUND':'CHECK NEEDED'},
   ]);
-  buildFlags(data.previewFlags||[]);
+  buildFlags(data.previewFlags || []);
 }
 
 function showDemoResults(url){
+  // In demo mode, show a generic label since we don't have a real name
+  updateHeroDashboard('Artist Scanned', 'Preview results below', 44);
   setScore(44);
-  document.getElementById('results-tag').textContent='Artist Profile Detected';
+  document.getElementById('results-tag').textContent = 'Spotify Artist Detected';
+
   const fSpotify = document.getElementById('f-spotify');
   if(fSpotify){
     fSpotify.value    = url;
@@ -856,28 +882,43 @@ function showDemoResults(url){
     fSpotify.style.opacity = '0.7';
     fSpotify.style.cursor  = 'not-allowed';
   }
+
   buildCards([
-    {icon:'✅',title:'Artist profile detected',value:'Artist profile found',badge:'rb-grn',bt:'CONFIRMED'},
-    {icon:'📀',title:'Release activity found',value:'Multiple releases detected',badge:'rb-grn',bt:'ACTIVE'},
-    {icon:'⚠️',title:'Metadata risk signals',value:'Possible gaps detected',badge:'rb-amb',bt:'REVIEW'},
-    {icon:'🔍',title:'Royaltē monetisation gaps',value:'Possible issues flagged',badge:'rb-red',bt:'FLAGGED'},
+    {icon:'✅', title:'Artist profile detected',      value:'Found on Spotify',             badge:'rb-grn', bt:'CONFIRMED'},
+    {icon:'📀', title:'Release activity found',       value:'Multiple releases detected',   badge:'rb-grn', bt:'ACTIVE'},
+    {icon:'⚠️', title:'Metadata risk signals',        value:'Possible gaps detected',       badge:'rb-amb', bt:'REVIEW'},
+    {icon:'🔍', title:'Royaltē monetisation gaps',    value:'Possible issues flagged',      badge:'rb-red', bt:'FLAGGED'},
   ]);
   buildFlags([
-    {severity:'high',description:'Possible Royaltē publishing gaps — songwriter registration signals unclear across sources'},
-    {severity:'medium',description:'Platform coverage appears incomplete — cross-platform verification needed'},
+    {severity:'high',   description:'Possible Royaltē publishing gaps — songwriter registration signals unclear across sources'},
+    {severity:'medium', description:'Platform coverage appears incomplete — cross-platform verification needed'},
   ]);
 }
 
 function setScore(score){
-  document.getElementById('r-score-val').textContent=score;
-  const circ=document.getElementById('r-circle');
-  setTimeout(()=>{circ.style.transition='stroke-dashoffset 1.2s ease';circ.style.strokeDashoffset=175.9-(score/100)*175.9;},100);
-  const verdicts=[[0,39,'High Royaltē risk detected','Significant gaps found. Immediate investigation recommended.'],[40,59,'Moderate risk detected','Several issues worth investigating. Full audit recommended.'],[60,79,'Some issues detected','A few areas need attention. Review the flags below.'],[80,100,'Looking healthy','Profile in good shape. Minor improvements possible.']];
-  for(const[min,max,v,d] of verdicts){if(score>=min&&score<=max){document.getElementById('r-verdict').textContent=v;document.getElementById('r-desc').textContent=d;break;}}
+  document.getElementById('r-score-val').textContent = score;
+  const circ = document.getElementById('r-circle');
+  setTimeout(()=>{
+    circ.style.transition = 'stroke-dashoffset 1.2s ease';
+    circ.style.strokeDashoffset = 175.9 - (score / 100) * 175.9;
+  }, 100);
+  const verdicts = [
+    [0,  39, 'High Royaltē risk detected',  'Significant gaps found. Immediate investigation recommended.'],
+    [40, 59, 'Moderate risk detected',       'Several issues worth investigating. Full audit recommended.'],
+    [60, 79, 'Some issues detected',         'A few areas need attention. Review the flags below.'],
+    [80, 100,'Looking healthy',              'Profile in good shape. Minor improvements possible.'],
+  ];
+  for(const [min,max,v,d] of verdicts){
+    if(score>=min && score<=max){
+      document.getElementById('r-verdict').textContent = v;
+      document.getElementById('r-desc').textContent    = d;
+      break;
+    }
+  }
 }
 
 function buildCards(cards){
-  document.getElementById('r-cards').innerHTML=cards.map(c=>`
+  document.getElementById('r-cards').innerHTML = cards.map(c=>`
     <div class="r-card">
       <span class="rc-icon">${c.icon}</span>
       <div class="rc-title">${c.title}</div>
@@ -887,11 +928,11 @@ function buildCards(cards){
 }
 
 function buildFlags(flags){
-  if(!flags||!flags.length)return;
-  const sec=document.getElementById('r-flags');
-  sec.style.display='block';
-  document.getElementById('r-flags-count').textContent=`${flags.length} signals`;
-  document.getElementById('r-flags-list').innerHTML=flags.map(f=>`
+  if(!flags || !flags.length) return;
+  const sec = document.getElementById('r-flags');
+  sec.style.display = 'block';
+  document.getElementById('r-flags-count').textContent = `${flags.length} signals`;
+  document.getElementById('r-flags-list').innerHTML = flags.map(f=>`
     <div class="flag-item">
       <div class="fi-dot" style="background:${f.severity==='high'?'var(--red)':f.severity==='medium'?'var(--amb)':'var(--muted2)'}"></div>
       <div class="fi-body">
@@ -943,68 +984,15 @@ async function submitForm(){
     });
   }catch(e){}
 
-  document.getElementById('form-inner').style.display  = 'none';
+  document.getElementById('form-inner').style.display   = 'none';
   document.getElementById('form-success').style.display = 'block';
-}
-
-async function submitAffiliateCapture(){
-  const email = document.getElementById('aff-capture-email').value.trim();
-  if(!email||!email.includes('@')){
-    document.getElementById('aff-capture-email').style.borderColor='var(--red)';
-    return;
-  }
-  try{
-    await fetch('https://api.convertkit.com/v3/forms/YOUR_CONVERTKIT_FORM_ID/subscribe',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({api_key:'YOUR_CONVERTKIT_API_KEY',email,tags:['royalte-affiliate-interest']})
-    });
-  }catch(e){}
-  try{
-    await fetch('https://formspree.io/f/xojkrwzp',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({_type:'affiliate_info_request',email,_subject:'Royaltē Affiliate Info Request — '+email,_replyto:email})
-    });
-  }catch(e){}
-  document.getElementById('aff-capture-inner').style.display='none';
-  document.getElementById('aff-capture-success').style.display='block';
-}
-
-async function submitAffiliate(){
-  const name=document.getElementById('aff-name').value.trim();
-  const email=document.getElementById('aff-email').value.trim();
-  const social=document.getElementById('aff-social').value.trim();
-  const audience=document.getElementById('aff-audience').value;
-  const how=document.getElementById('aff-how').value.trim();
-  const btn=document.getElementById('aff-btn');
-  if(!name){document.getElementById('aff-name').style.borderColor='var(--red)';return;}
-  if(!email||!email.includes('@')){document.getElementById('aff-email').style.borderColor='var(--red)';return;}
-  if(!social){document.getElementById('aff-social').style.borderColor='var(--red)';return;}
-  if(!audience){document.getElementById('aff-audience').style.borderColor='var(--red)';return;}
-  if(!how){document.getElementById('aff-how').style.borderColor='var(--red)';return;}
-  btn.disabled=true;btn.textContent='Submitting application...';
-  try{
-    await fetch('https://formspree.io/f/xojkrwzp',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({_type:'affiliate_application',name,email,social_handle:social,audience_size:audience,how_they_reach:how,_subject:`Royaltē Affiliate Application — ${name}`,_replyto:email})
-    });
-  }catch(e){}
-  try{
-    await fetch('https://api.convertkit.com/v3/forms/YOUR_CONVERTKIT_FORM_ID/subscribe',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({api_key:'YOUR_CONVERTKIT_API_KEY',email,first_name:name.split(' ')[0],tags:['royalte-affiliate-applied'],fields:{social_handle:social,audience_size:audience,how_they_reach:how}})
-    });
-  }catch(e){}
-  document.getElementById('aff-form-inner').style.display='none';
-  document.getElementById('aff-success').style.display='block';
 }
 
 function scrollToForm(){
   document.getElementById('request').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-document.getElementById('hero-url').addEventListener('keydown',e=>{if(e.key==='Enter')runAudit();});
+document.getElementById('hero-url').addEventListener('keydown', e=>{if(e.key==='Enter') runAudit();});
 </script>
 </body>
 </html>
