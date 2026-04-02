@@ -13,11 +13,30 @@ export default async function handler(req, res) {
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: 'No URL provided' });
 
-  try {
-    const parsed = parseSpotifyUrl(url);
-    if (!parsed) return res.status(400).json({ error: 'Invalid URL. Please paste your Spotify artist or track link.' });
+  console.log('[Royalte Audit] Input URL:', url);
 
+  try {
+    const parsed = parseUniversalUrl(url);
+
+    if (!parsed) {
+      console.warn('[Royalte Audit] Parse failed for URL:', url);
+      return res.status(400).json({
+        error: 'Enter a valid Spotify or Apple Music URL.',
+        detail: 'Supported: open.spotify.com/artist, open.spotify.com/track, music.apple.com artist and song URLs.',
+      });
+    }
+
+    console.log('[Royalte Audit] Platform:', parsed.platform, '| Type:', parsed.type, '| ID:', parsed.id);
+
+    // ── APPLE MUSIC DIRECT ROUTE ──────────────────────
+    if (parsed.platform === 'apple') {
+      return await handleAppleMusicAudit(parsed, req, res);
+    }
+
+    // ── SPOTIFY ROUTE (default) ───────────────────────
     const token = await getSpotifyToken();
+    console.log('[Royalte Audit] Spotify token obtained');
+
     let artistData, trackData;
 
     if (parsed.type === 'artist') {
@@ -26,6 +45,8 @@ export default async function handler(req, res) {
       trackData = await getSpotifyTrack(parsed.id, token);
       artistData = await getSpotifyArtist(trackData.artists[0].id, token);
     }
+
+    console.log('[Royalte Audit] Spotify artist resolved:', artistData.name);
 
     const albumsData = await getSpotifyAlbums(
       parsed.type === 'artist' ? parsed.id : artistData.id,
@@ -187,7 +208,7 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    console.error('Audit error:', err);
+    console.error('[Royalte Audit] Spotify audit error:', err.message);
     return res.status(500).json({ error: 'Audit failed. Please check the link and try again.', detail: err.message });
   }
 }
@@ -614,22 +635,237 @@ function getPROGuide(country) {
 }
 
 // ────────────────────────────────────────────────────────
-// URL PARSER
+// UNIVERSAL URL PARSER — Spotify + Apple Music
 // ────────────────────────────────────────────────────────
-function parseSpotifyUrl(url) {
+function parseUniversalUrl(url) {
   try {
     const u = new URL(url);
-    if (!u.hostname.includes('spotify.com')) return null;
+    const hostname = u.hostname;
     const parts = u.pathname.split('/').filter(Boolean);
-    const typeIdx = parts.findIndex(p => p === 'artist' || p === 'track');
-    if (typeIdx === -1 || !parts[typeIdx + 1]) return null;
-    return { platform: 'spotify', type: parts[typeIdx], id: parts[typeIdx + 1].split('?')[0] };
-  } catch { return null; }
+
+    // ── SPOTIFY ──────────────────────────────────────
+    if (hostname.includes('spotify.com')) {
+      const typeIdx = parts.findIndex(p => p === 'artist' || p === 'track');
+      if (typeIdx === -1 || !parts[typeIdx + 1]) return null;
+      const parsed = {
+        platform: 'spotify',
+        type: parts[typeIdx],           // 'artist' | 'track'
+        id: parts[typeIdx + 1].split('?')[0],
+      };
+      console.log('[Royalte URL] Parsed:', JSON.stringify(parsed));
+      return parsed;
+    }
+
+    // ── APPLE MUSIC ───────────────────────────────────
+    if (hostname.includes('music.apple.com')) {
+      // Paths: /us/artist/name/1234567  OR  /us/album/name/1234567?i=987654  OR  /us/song/name/987654
+      let type = null;
+      let id = null;
+
+      // Song/track: ?i= param (song inside album) or /song/ path
+      const iParam = u.searchParams.get('i');
+      if (iParam) {
+        type = 'track';
+        id = iParam;
+      } else {
+        const songIdx = parts.findIndex(p => p === 'song' || p === 'songs');
+        const artistIdx = parts.findIndex(p => p === 'artist' || p === 'artists');
+        if (songIdx !== -1) {
+          type = 'track';
+          // numeric ID is the last path segment
+          const lastPart = parts[parts.length - 1].split('?')[0];
+          id = /^\d+$/.test(lastPart) ? lastPart : parts[parts.length - 2]?.split('?')[0];
+        } else if (artistIdx !== -1) {
+          type = 'artist';
+          const lastPart = parts[parts.length - 1].split('?')[0];
+          id = /^\d+$/.test(lastPart) ? lastPart : null;
+        } else {
+          // Fallback: last numeric segment
+          for (let i = parts.length - 1; i >= 0; i--) {
+            const seg = parts[i].split('?')[0];
+            if (/^\d+$/.test(seg)) { id = seg; break; }
+          }
+          type = 'artist'; // default
+        }
+      }
+
+      if (!id) return null;
+      const parsed = { platform: 'apple', type, id };
+      console.log('[Royalte URL] Parsed:', JSON.stringify(parsed));
+      return parsed;
+    }
+
+    return null;
+  } catch (e) {
+    console.error('[Royalte URL] Parse error:', e.message);
+    return null;
+  }
 }
+
+// Keep old name as alias for internal callers that may reference it
+function parseSpotifyUrl(url) { return parseUniversalUrl(url); }
 
 // ────────────────────────────────────────────────────────
 // SPOTIFY
 // ────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────
+// APPLE MUSIC DIRECT AUDIT HANDLER
+// ────────────────────────────────────────────────────────
+async function handleAppleMusicAudit(parsed, req, res) {
+  console.log('[Royalte Apple] Starting Apple Music audit | type:', parsed.type, '| id:', parsed.id);
+  try {
+    const appleToken = generateAppleToken();
+    const STOREFRONT = 'us';
+    const BASE = 'https://api.music.apple.com/v1';
+    const headers = { Authorization: `Bearer ${appleToken}` };
+
+    let artistData = null;
+    let trackData = null;
+    let artistName = null;
+
+    if (parsed.type === 'artist') {
+      const artistResp = await fetch(`${BASE}/catalog/${STOREFRONT}/artists/${parsed.id}`, { headers });
+      console.log('[Royalte Apple] Artist API response:', artistResp.status);
+      if (!artistResp.ok) return res.status(400).json({ error: 'Unable to retrieve verified data from Apple Music for this artist.' });
+      const artistJson = await artistResp.json();
+      artistData = artistJson.data?.[0];
+      if (!artistData) return res.status(404).json({ error: 'Artist not found on Apple Music.' });
+      artistName = artistData.attributes?.name;
+    } else {
+      const songResp = await fetch(`${BASE}/catalog/${STOREFRONT}/songs/${parsed.id}`, { headers });
+      console.log('[Royalte Apple] Song API response:', songResp.status);
+      if (!songResp.ok) return res.status(400).json({ error: 'Unable to retrieve verified data from Apple Music for this track.' });
+      const songJson = await songResp.json();
+      trackData = songJson.data?.[0];
+      if (!trackData) return res.status(404).json({ error: 'Track not found on Apple Music.' });
+      artistName = trackData.attributes?.artistName;
+      const artistRelId = trackData.relationships?.artists?.data?.[0]?.id;
+      if (artistRelId) {
+        const ar = await fetch(`${BASE}/catalog/${STOREFRONT}/artists/${artistRelId}`, { headers });
+        if (ar.ok) { const aj = await ar.json(); artistData = aj.data?.[0] || null; }
+      }
+    }
+
+    console.log('[Royalte Apple] Artist name resolved:', artistName);
+
+    let spotifyArtistData = null;
+    let isrc = null;
+
+    try {
+      const token = await getSpotifyToken();
+      const spSearchResp = await fetch(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist&limit=5`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (spSearchResp.ok) {
+        const spSearch = await spSearchResp.json();
+        const norm = s => s.toLowerCase().trim();
+        spotifyArtistData = (spSearch.artists?.items || []).find(a => norm(a.name) === norm(artistName)) || null;
+        if (spotifyArtistData) console.log('[Royalte Apple] Spotify cross-reference found:', spotifyArtistData.name);
+      }
+      if (trackData) {
+        const trackName = trackData.attributes?.name || '';
+        const spTrackResp = await fetch(
+          `https://api.spotify.com/v1/search?q=${encodeURIComponent(trackName + ' ' + artistName)}&type=track&limit=5`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (spTrackResp.ok) {
+          const spTrack = await spTrackResp.json();
+          const norm = s => s.toLowerCase().trim();
+          const match = (spTrack.tracks?.items || []).find(t => norm(t.name) === norm(trackName));
+          if (match) { isrc = match.external_ids?.isrc || null; console.log('[Royalte Apple] ISRC from Spotify:', isrc); }
+        }
+      }
+    } catch (spErr) { console.warn('[Royalte Apple] Spotify cross-reference failed:', spErr.message); }
+
+    const [mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, youtubeData] = await Promise.allSettled([
+      getMusicBrainz(artistName), getDeezer(artistName), getAudioDB(artistName),
+      getDiscogs(artistName), getSoundCloud(artistName), getLastFm(artistName),
+      getWikidata(artistName), getYouTube(artistName),
+    ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : { found: false }));
+
+    const appleMusicData = {
+      found: true,
+      artistId: artistData?.id || parsed.id,
+      artistUrl: artistData?.attributes?.url || null,
+      albumCount: 0,
+      isrcLookup: isrc ? { found: true } : null,
+      catalogComparison: null,
+    };
+
+    const catalogData = { totalReleases: 0, earliestYear: null, latestYear: null, recentActivity: null };
+    const country = audioDbData.country || wikidataData.country || null;
+    const proGuide = getPROGuide(country);
+
+    const syntheticArtist = {
+      id: spotifyArtistData?.id || `apple-${parsed.id}`,
+      name: artistName,
+      genres: spotifyArtistData?.genres || artistData?.attributes?.genreNames || [],
+      images: artistData?.attributes?.artwork ? [{ url: artistData.attributes.artwork.url }] : [],
+      followers: { total: spotifyArtistData?.followers?.total || 0 },
+      popularity: spotifyArtistData?.popularity || 0,
+    };
+    const syntheticTrack = trackData ? {
+      name: trackData.attributes?.name,
+      external_ids: { isrc: isrc || null },
+    } : null;
+
+    const modules = runModules(syntheticArtist, syntheticTrack, mbData, deezerData, audioDbData,
+      discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData);
+    const royaltyRiskScore = calculateRoyaltyRiskScore(modules, appleMusicData, soundcloudData, youtubeData);
+    const connectedSources = [mbData.found, deezerData.found, audioDbData.found, discogsData.found,
+      soundcloudData.found, lastfmData.found, wikidataData.found, youtubeData.found].filter(Boolean).length;
+    const auditConfidence = connectedSources >= 6 ? 'High' : connectedSources >= 3 ? 'Limited' : 'Minimal';
+    const verifiedIssues = buildVerifiedIssues(modules, syntheticArtist, syntheticTrack, appleMusicData, youtubeData, catalogData);
+    const coverageStatuses = buildCoverageStatuses(syntheticArtist, syntheticTrack, appleMusicData, soundcloudData, youtubeData, mbData, lastfmData);
+    const actionPlan = buildActionPlan(verifiedIssues, country);
+
+    console.log('[Royalte Apple] Complete | Risk score:', royaltyRiskScore, '| Issues:', verifiedIssues.length);
+
+    return res.status(200).json({
+      success: true, platform: 'apple', type: parsed.type,
+      artistName, artistId: syntheticArtist.id,
+      followers: syntheticArtist.followers.total, popularity: syntheticArtist.popularity,
+      genres: syntheticArtist.genres, trackTitle: syntheticTrack?.name || null, trackIsrc: isrc || null,
+      platforms: {
+        spotify: { status: spotifyArtistData ? 'Registered' : 'Not Confirmed', verified: !!spotifyArtistData },
+        appleMusic: { status: 'Registered', verified: true, url: appleMusicData.artistUrl },
+        musicbrainz: { status: mbData.found ? 'Registered' : 'Not Registered', verified: true },
+        deezer: { status: deezerData.found ? 'Registered' : 'Not Registered', verified: true },
+        youtube: {
+          status: youtubeData.found ? (youtubeData.officialChannel ? 'Registered' : 'Not Confirmed') : 'Not Registered',
+          verified: true, contentId: youtubeData.contentIdVerified ? 'Registered' : 'Not Confirmed',
+        },
+        soundExchange: { status: 'Not Confirmed', verified: false },
+        pro: { status: country ? 'Not Confirmed' : 'Not Connected', verified: false, guide: proGuide },
+      },
+      auditCoverage: {
+        spotify: spotifyArtistData ? 'Verified' : 'Not Confirmed',
+        appleMusic: 'Verified', publishing: 'Not Connected', soundExchange: 'Not Confirmed',
+        confidence: auditConfidence, dataLastVerified: new Date().toISOString(),
+      },
+      royaltyRiskScore,
+      riskLevel: royaltyRiskScore <= 20 ? 'Low' : royaltyRiskScore <= 50 ? 'Moderate' : 'High',
+      verifiedIssues, issueCount: verifiedIssues.length, previewIssues: verifiedIssues.slice(0, 2),
+      coverageStatuses, actionPlan, catalog: catalogData, appleMusicComparison: null,
+      youtube: youtubeData.found ? {
+        officialChannel: youtubeData.officialChannel ? {
+          title: youtubeData.officialChannel.title,
+          subscribers: youtubeData.officialChannel.subscribers,
+          videoCount: youtubeData.officialChannel.videoCount,
+        } : null,
+        contentIdVerified: youtubeData.contentIdVerified,
+        ugcVideoCount: youtubeData.ugc?.videoCount || 0,
+        ugcContentIdRisk: youtubeData.ugc?.contentIdRisk || false,
+      } : null,
+      country, scannedAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error('[Royalte Apple] Audit error:', err.message);
+    return res.status(500).json({ error: 'Apple Music audit failed.', detail: err.message });
+  }
+}
+
 async function getSpotifyToken() {
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
