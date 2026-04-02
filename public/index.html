@@ -449,7 +449,8 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
           <div class="d-risk-info">
             <div class="d-risk-title">// Royalty Risk Score</div>
             <div class="d-risk-artist" id="hero-artist-name">Paste your link</div>
-            <div class="d-risk-sub" id="hero-artist-sub">Run audit to see your verified data</div>
+            <div class="d-risk-sub" id="hero-artist-sub">Run audit to see verified data</div>
+            <div class="d-risk-sub" id="hero-platform-label" style="font-family:'Space Mono',monospace;font-size:8px;color:var(--pur);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;">Spotify + Apple Music</div>
           </div>
         </div>
         <div class="d-alert">
@@ -458,7 +459,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
         </div>
         <div class="d-coverage">
           <div class="d-cov-item"><span class="d-cov-name">Spotify</span><span class="d-cov-status s-registered">REGISTERED</span></div>
-          <div class="d-cov-item"><span class="d-cov-name">Apple Music</span><span class="d-cov-status s-not-registered">NOT REGISTERED</span></div>
+          <div class="d-cov-item" id="hero-apple-status-row"><span class="d-cov-name">Apple Music</span><span class="d-cov-status s-not-confirmed" id="hero-apple-status">NOT CONFIRMED</span></div>
           <div class="d-cov-item"><span class="d-cov-name">SoundExchange</span><span class="d-cov-status s-not-confirmed">NOT CONFIRMED</span></div>
           <div class="d-cov-item"><span class="d-cov-name">PRO</span><span class="d-cov-status s-not-connected">NOT CONNECTED</span></div>
         </div>
@@ -485,6 +486,10 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
         <div class="r-risk-info">
           <div class="r-risk-label">// Royalty Risk Score</div>
           <div class="r-risk-title" id="r-risk-title">Analysing...</div>
+          <div id="r-artist-line" style="display:none;margin-bottom:3px;">
+            <span id="r-artist-name" style="font-size:14px;font-weight:600;color:var(--text);"></span>
+            <span id="r-platform-label" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);margin-left:8px;padding:1px 6px;border-radius:2px;background:rgba(138,92,255,0.1);"></span>
+          </div>
           <div class="r-risk-desc" id="r-risk-desc">Running verified checks across your profile.</div>
         </div>
       </div>
@@ -885,6 +890,21 @@ async function runAudit() {
   });
 }
 
+// ── STATUS CLASS HELPER ───────────────────────────
+function statusClass(status) {
+  const map = {
+    'Registered': 's-registered',
+    'Profile Resolved': 's-registered',
+    'Track Resolved': 's-registered',
+    'Source Verified': 's-registered',
+    'Not Registered': 's-not-registered',
+    'Not Confirmed': 's-not-confirmed',
+    'Not Connected': 's-not-connected',
+    'Pending': 's-pending',
+  };
+  return map[status] || 's-not-confirmed';
+}
+
 // ── SHOW REAL RESULTS ──────────────────────────────
 function showRealResults(data) {
   const score = data.royaltyRiskScore || 0;
@@ -893,9 +913,20 @@ function showRealResults(data) {
   const issueCount = data.issueCount || 0;
 
   // Update hero mockup
-  document.getElementById('hero-artist-name').textContent = data.artistName;
-  document.getElementById('hero-artist-sub').textContent =
-    `${(data.followers || 0).toLocaleString()} followers · Spotify Artist`;
+  document.getElementById('hero-artist-name').textContent = data.artistName || 'Unknown Artist';
+  const followerStr = data.followers > 0 ? `${(data.followers).toLocaleString()} followers · ` : '';
+  document.getElementById('hero-artist-sub').textContent = followerStr + (data.platformLabel || 'Artist');
+  const plLabel = document.getElementById('hero-platform-label');
+  if (plLabel) plLabel.textContent = data.platform === 'apple' ? 'Apple Music' : 'Spotify';
+
+  // Update hero coverage pills dynamically
+  const appleStatusEl = document.getElementById('hero-apple-status');
+  if (appleStatusEl && data.platforms?.appleMusic) {
+    const am = data.platforms.appleMusic;
+    const st = am.status; // 'Registered' | 'Profile Resolved' | 'Track Resolved' | 'Not Confirmed' | 'Not Registered'
+    appleStatusEl.textContent = st.toUpperCase();
+    appleStatusEl.className = 'd-cov-status ' + statusClass(st);
+  }
 
   // Update hero coverage dots based on real data
   const heroRiskVal = document.querySelector('.d-risk-val');
@@ -903,8 +934,9 @@ function showRealResults(data) {
   if (heroRiskVal) heroRiskVal.textContent = score;
   if (heroRiskLbl) heroRiskLbl.textContent = level.toUpperCase();
 
+  const tagFollowers = data.followers > 0 ? ` · ${(data.followers).toLocaleString()} followers` : '';
   document.getElementById('results-tag').textContent =
-    `${data.artistName} · ${(data.followers || 0).toLocaleString()} followers`;
+    `${data.artistName || 'Unknown Artist'}${tagFollowers} · ${data.platformLabel || 'Artist'}`;
 
   // Royalty Risk Score
   setRiskScore(score, level, data);
@@ -955,7 +987,11 @@ function showRealResults(data) {
 
 // ── FALLBACK (API failed) ──────────────────────────
 function showFallbackResults(url) {
-  setRiskScore(55, 'Moderate', null);
+  setRiskScore(55, 'Moderate', {
+    artistName: null,
+    platformLabel: 'Artist',
+    trackTitle: null,
+  });
   document.getElementById('results-tag').textContent = 'Spotify Artist Detected';
 
   const fallbackIssues = [
@@ -1008,6 +1044,24 @@ function setRiskScore(score, level, data) {
 
   document.getElementById('r-risk-title').textContent = titles[level] || titles.Moderate;
   document.getElementById('r-risk-desc').textContent = descs[level] || descs.Moderate;
+
+  // Artist + platform label in score card
+  if (data && data.artistName) {
+    const artistLine = document.getElementById('r-artist-line');
+    const artistNameEl = document.getElementById('r-artist-name');
+    const platformLabelEl = document.getElementById('r-platform-label');
+    if (artistLine && artistNameEl && platformLabelEl) {
+      artistNameEl.textContent = data.artistName;
+      // Track name if available
+      if (data.trackTitle) {
+        artistNameEl.textContent = data.trackTitle;
+        platformLabelEl.textContent = data.platformLabel || 'Track';
+      } else {
+        platformLabelEl.textContent = data.platformLabel || 'Artist';
+      }
+      artistLine.style.display = 'block';
+    }
+  }
 
   // Why bullets
   const why = document.getElementById('r-risk-why');
@@ -1063,8 +1117,11 @@ function showScoreTracking(previousScore, currentScore) {
 
 // ── COVERAGE STATUSES ──────────────────────────────
 function buildCoverageStatuses(statuses) {
-  const statusClass = {
+  const statusClassMap = {
     'Registered': 's-registered',
+    'Profile Resolved': 's-registered',
+    'Track Resolved': 's-registered',
+    'Source Verified': 's-registered',
     'Not Registered': 's-not-registered',
     'Not Confirmed': 's-not-confirmed',
     'Not Connected': 's-not-connected',
@@ -1076,7 +1133,7 @@ function buildCoverageStatuses(statuses) {
         <div class="cov-name">${s.platform}</div>
         ${s.detail ? `<div class="cov-detail">${s.detail}</div>` : ''}
       </div>
-      <span class="cov-status-pill ${statusClass[s.status] || 's-not-confirmed'}">${s.status.toUpperCase()}</span>
+      <span class="cov-status-pill ${statusClassMap[s.status] || 's-not-confirmed'}">${s.status.toUpperCase()}</span>
     </div>
   `).join('');
 }
