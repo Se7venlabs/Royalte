@@ -400,21 +400,21 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
   <div class="hero-scan"></div>
 
   <div class="hero-left">
-    <div class="hero-eyebrow"><span class="blink">▮</span> Spotify Beta — Early Access</div>
+    <div class="hero-eyebrow"><span class="blink">▮</span> Spotify + Apple Music Beta</div>
     <h1 class="hero-h1">
       Artists: Your Royaltē<br>
       May Not Be<br>
       <span class="gt">Getting Collected.</span>
     </h1>
-    <p class="hero-desc">Most artists, producers, and songwriters have gaps in their royalty registration. Royaltē scans your Spotify profile and shows you a verified picture of where those gaps are.</p>
+    <p class="hero-desc">Most artists, producers, and songwriters have gaps in their royalty registration. Royaltē scans verified Spotify and Apple Music data to identify registration gaps and royalty risks.</p>
 
     <div class="hero-paste">
-      <div class="paste-label">// Paste your Spotify artist or track URL to start</div>
+      <div class="paste-label">// Paste your Spotify or Apple Music artist or track URL</div>
       <div class="paste-box">
-        <input class="paste-input" id="hero-url" type="text" placeholder="https://open.spotify.com/artist/...">
+        <input class="paste-input" id="hero-url" type="text" placeholder="Spotify or Apple Music artist / track URL...">
         <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Audit →</button>
       </div>
-      <div class="paste-hint">// No login required · Spotify + Apple Music beta · Verified data only</div>
+      <div class="paste-hint">// No login required · Spotify + Apple Music · Artist + track URLs · Verified data only</div>
       <div class="scan-progress" id="scan-progress">
         <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
         <div class="sp-label" id="sp-label">Verifying Spotify profile...</div>
@@ -662,9 +662,9 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <div class="beta-grid-2">
       <div class="reveal">
         <div class="s-tag">About this beta</div>
-        <h2 class="s-h2">Royaltē Beta —<br><span class="gt">Verified Only.</span></h2>
+        <h2 class="s-h2">Spotify + Apple Music<br><span class="gt">Beta.</span></h2>
         <p style="font-size:15px;color:var(--muted2);line-height:1.75;margin-bottom:14px;">Royaltē shows you only what is verified. We do not display stream estimates, revenue projections, or any inferred data. Every status you see — Registered, Not Registered, Pending, Not Confirmed — is based on a direct API check.</p>
-        <p style="font-size:15px;color:var(--muted2);line-height:1.75;margin-bottom:14px;">This beta covers Spotify and Apple Music. Publishing, SoundExchange, and PRO data cannot be verified via public API and are shown as Not Connected or Not Confirmed until you provide that information directly.</p>
+        <p style="font-size:15px;color:var(--muted2);line-height:1.75;margin-bottom:14px;">This beta covers Spotify and Apple Music — paste either platform's artist or track URL and we'll run the audit. Publishing, SoundExchange, and PRO data cannot be verified via public API and are shown as Not Connected or Not Confirmed until you provide that information directly.</p>
         <p style="font-size:15px;color:var(--muted2);line-height:1.75;">Full audits in this beta are delivered manually by our team within 12–24 hours.</p>
         <div class="interest-box">
           <div class="ib-text"><strong>Would ongoing cross-platform royalty monitoring be something you'd want access to as we expand?</strong> Request your full audit below and we'll add you to early access for every future Royaltē release.</div>
@@ -833,7 +833,7 @@ function animateScan(onComplete) {
   const label = document.getElementById('sp-label');
   prog.style.display = 'block';
   const labels = [
-    'Verifying Spotify profile...',
+    'Verifying your profile...',
     'Checking Apple Music catalog...',
     'Running coverage checks...',
     'Calculating Risk Score...'
@@ -856,9 +856,11 @@ async function runAudit() {
   const val = input.value.trim();
 
   if (!val) { input.style.outline = '1px solid var(--red)'; input.focus(); return; }
-  if (!val.includes('spotify.com/artist') && !val.includes('spotify.com/track')) {
+  const isSpotify = val.includes('spotify.com/artist') || val.includes('spotify.com/track');
+  const isApple = val.includes('music.apple.com');
+  if (!isSpotify && !isApple) {
     input.style.outline = '1px solid var(--red)';
-    input.placeholder = 'Please paste a Spotify artist or track URL';
+    input.placeholder = 'Enter a valid Spotify or Apple Music URL';
     return;
   }
   input.style.outline = '';
