@@ -801,60 +801,65 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
 </footer>
 
 <script>
-// ── SCORE HISTORY (localStorage — per artistId) ──────────────
-const HISTORY_KEY = 'royalte_score_history';
-
-function getScoreHistory() {
-  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}'); } catch { return {}; }
-}
-
+// ── SCORE HISTORY (localStorage) ──────────────────────────────
+const HISTORY_KEY = 'royalte_score_history_v3';
+function getScoreHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}'); } catch { return {}; } }
 function saveScore(artistId, score, issueCount) {
-  const history = getScoreHistory();
-  if (!history[artistId]) history[artistId] = [];
-  history[artistId].push({ score, issueCount, date: new Date().toISOString() });
-  // Keep last 10 scans per artist
-  if (history[artistId].length > 10) history[artistId] = history[artistId].slice(-10);
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch {}
+  const h = getScoreHistory();
+  if (!h[artistId]) h[artistId] = [];
+  h[artistId].push({ score, issueCount, date: new Date().toISOString() });
+  if (h[artistId].length > 10) h[artistId] = h[artistId].slice(-10);
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); } catch {}
 }
-
 function getPreviousScan(artistId) {
-  const history = getScoreHistory();
-  const scans = history[artistId] || [];
+  const h = getScoreHistory();
+  const scans = h[artistId] || [];
   return scans.length >= 2 ? scans[scans.length - 2] : null;
 }
 
-// ── SCROLL REVEAL ──────────────────────────────────
+// ── STATUS CLASS MAP ───────────────────────────────────────────
+function statusClass(status) {
+  const map = {
+    'Registered': 's-registered',
+    'Source Verified': 's-registered',
+    'Profile Resolved': 's-registered',
+    'Track Resolved': 's-registered',
+    'Cross-Reference Found': 's-registered',
+    'Not Registered': 's-not-registered',
+    'No Verified Match Yet': 's-not-registered',
+    'Not Confirmed': 's-not-confirmed',
+    'Manual Check Required': 's-not-confirmed',
+    'Not Connected': 's-not-connected',
+    'Pending': 's-pending',
+  };
+  return map[status] || 's-not-confirmed';
+}
+
+// ── SCROLL REVEAL ──────────────────────────────────────────────
 const obs = new IntersectionObserver(entries => {
-  entries.forEach((e, i) => {
-    if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 80);
-  });
+  entries.forEach((e, i) => { if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 80); });
 }, { threshold: 0.08 });
 document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-// ── SCAN ANIMATION ─────────────────────────────────
+// ── SCAN ANIMATION ─────────────────────────────────────────────
 function animateScan(onComplete) {
   const prog = document.getElementById('scan-progress');
   const fill = document.getElementById('sp-fill');
   const label = document.getElementById('sp-label');
   prog.style.display = 'block';
-  const labels = [
-    'Verifying your profile...',
-    'Checking Apple Music catalog...',
-    'Running coverage checks...',
-    'Calculating Risk Score...'
-  ];
+  const labels = ['Resolving source entity...', 'Running cross-references...', 'Building verified findings...', 'Calculating Risk Score...'];
   let pct = 0, li = 0;
   const iv = setInterval(() => {
     pct = Math.min(pct + Math.random() * 3.5 + 1, 95);
     fill.style.width = pct + '%';
-    if (pct > 25 && li < 1) { li = 1; label.textContent = labels[1]; }
+    if (pct > 20 && li < 1) { li = 1; label.textContent = labels[1]; }
     if (pct > 55 && li < 2) { li = 2; label.textContent = labels[2]; }
     if (pct > 80 && li < 3) { li = 3; label.textContent = labels[3]; }
     if (pct >= 95) { clearInterval(iv); fill.style.width = '100%'; setTimeout(onComplete, 400); }
   }, 80);
 }
 
-// ── RUN AUDIT ──────────────────────────────────────
+// ── RUN AUDIT ──────────────────────────────────────────────────
 async function runAudit() {
   const input = document.getElementById('hero-url');
   const btn = document.getElementById('hero-btn');
@@ -874,14 +879,17 @@ async function runAudit() {
   document.getElementById('f-spotify').value = val;
 
   let auditData = null;
+  let auditError = null;
   try {
     const resp = await fetch(`/api/audit?url=${encodeURIComponent(val)}`);
-    auditData = await resp.json();
-  } catch (e) { auditData = null; }
+    const json = await resp.json();
+    if (json.success) auditData = json;
+    else auditError = json.error || 'Audit failed';
+  } catch (e) { auditError = 'Network error — please try again'; }
 
   animateScan(() => {
-    if (auditData && auditData.success) showRealResults(auditData);
-    else showFallbackResults(val);
+    if (auditData) showRealResults(auditData);
+    else showErrorState(auditError, val);
     btn.disabled = false;
     btn.textContent = 'Run Free Audit →';
     document.getElementById('scan-progress').style.display = 'none';
@@ -890,65 +898,58 @@ async function runAudit() {
   });
 }
 
-// ── STATUS CLASS HELPER ───────────────────────────
-function statusClass(status) {
-  const map = {
-    'Registered': 's-registered',
-    'Profile Resolved': 's-registered',
-    'Track Resolved': 's-registered',
-    'Source Verified': 's-registered',
-    'Not Registered': 's-not-registered',
-    'Not Confirmed': 's-not-confirmed',
-    'Not Connected': 's-not-connected',
-    'Pending': 's-pending',
-  };
-  return map[status] || 's-not-confirmed';
-}
-
-// ── SHOW REAL RESULTS ──────────────────────────────
+// ── SHOW REAL RESULTS — driven entirely by canonicalSubject ────
 function showRealResults(data) {
+  const subject = data.canonicalSubject || {};
   const score = data.royaltyRiskScore || 0;
   const level = data.riskLevel || 'Moderate';
-  const artistId = data.artistId;
+  const artistId = subject.canonicalArtistId || data.artistId;
   const issueCount = data.issueCount || 0;
+  const artistName = subject.canonicalArtistName || data.artistName || 'Unknown Artist';
+  const trackTitle = subject.canonicalTrackName || data.trackTitle || null;
+  const platformLabel = subject.platformLabel || data.platformLabel || 'Artist';
+  const followers = subject.followers || data.followers || 0;
+  const inputPlatform = subject.inputPlatform || data.inputPlatform || data.platform;
 
-  // Update hero mockup
-  document.getElementById('hero-artist-name').textContent = data.artistName || 'Unknown Artist';
-  const followerStr = data.followers > 0 ? `${(data.followers).toLocaleString()} followers · ` : '';
-  document.getElementById('hero-artist-sub').textContent = followerStr + (data.platformLabel || 'Artist');
-  const plLabel = document.getElementById('hero-platform-label');
-  if (plLabel) plLabel.textContent = data.platform === 'apple' ? 'Apple Music' : 'Spotify';
+  // ── Hero mockup update ─────────────────────────────────────
+  document.getElementById('hero-artist-name').textContent = artistName;
+  const followerStr = followers > 0 ? `${followers.toLocaleString()} followers · ` : '';
+  document.getElementById('hero-artist-sub').textContent = followerStr + platformLabel;
+  const plLabelEl = document.getElementById('hero-platform-label');
+  if (plLabelEl) plLabelEl.textContent = inputPlatform === 'apple' ? 'Apple Music' : 'Spotify';
 
-  // Update hero coverage pills dynamically
-  const appleStatusEl = document.getElementById('hero-apple-status');
-  if (appleStatusEl && data.platforms?.appleMusic) {
-    const am = data.platforms.appleMusic;
-    const st = am.status; // 'Registered' | 'Profile Resolved' | 'Track Resolved' | 'Not Confirmed' | 'Not Registered'
-    appleStatusEl.textContent = st.toUpperCase();
-    appleStatusEl.className = 'd-cov-status ' + statusClass(st);
-  }
-
-  // Update hero coverage dots based on real data
+  // Update hero risk badge
   const heroRiskVal = document.querySelector('.d-risk-val');
   const heroRiskLbl = document.querySelector('.d-risk-lbl');
-  if (heroRiskVal) heroRiskVal.textContent = score;
-  if (heroRiskLbl) heroRiskLbl.textContent = level.toUpperCase();
+  if (heroRiskVal) { heroRiskVal.textContent = score; heroRiskVal.style.color = riskColor(level); }
+  if (heroRiskLbl) { heroRiskLbl.textContent = level.toUpperCase(); heroRiskLbl.style.color = riskColor(level); }
 
-  const tagFollowers = data.followers > 0 ? ` · ${(data.followers).toLocaleString()} followers` : '';
-  document.getElementById('results-tag').textContent =
-    `${data.artistName || 'Unknown Artist'}${tagFollowers} · ${data.platformLabel || 'Artist'}`;
+  // Update hero Apple status pill from coverage statuses
+  const heroCovEl = document.getElementById('hero-apple-status');
+  if (heroCovEl && data.coverageStatuses) {
+    // Find Apple Music entry
+    const amCov = data.coverageStatuses.find(s => s.platform === 'Apple Music');
+    if (amCov) {
+      heroCovEl.textContent = amCov.status.toUpperCase();
+      heroCovEl.className = 'd-cov-status ' + statusClass(amCov.status);
+    }
+  }
 
-  // Royalty Risk Score
-  setRiskScore(score, level, data);
+  // results-tag
+  const tagFollowers = followers > 0 ? ` · ${followers.toLocaleString()} followers` : '';
+  document.getElementById('results-tag').textContent = `${artistName}${tagFollowers} · ${platformLabel}`;
 
-  // Score tracking
+  // ── Risk score card ────────────────────────────────────────
+  setRiskScore(score, level, { artistName, trackTitle, platformLabel, issueCount, coverageStatuses: data.coverageStatuses });
+
+  // ── Score tracking ─────────────────────────────────────────
   if (artistId) {
     saveScore(artistId, score, issueCount);
     const prev = getPreviousScan(artistId);
     if (prev) showScoreTracking(prev.score, score);
   }
 
-  // Audit confidence
+  // ── Audit confidence + timestamp ───────────────────────────
   const conf = data.auditCoverage;
   if (conf) {
     document.getElementById('r-confidence').style.display = 'flex';
@@ -957,25 +958,25 @@ function showRealResults(data) {
       `Last verified: ${new Date(conf.dataLastVerified).toLocaleDateString()}`;
   }
 
-  // Coverage statuses
-  if (data.coverageStatuses) {
+  // ── Source resolution badge ────────────────────────────────
+  // Prepend a source-verified banner to coverage section
+  if (data.sourceResolution) {
     document.getElementById('r-coverage').style.display = 'block';
-    buildCoverageStatuses(data.coverageStatuses);
+    buildCoverageList(data.coverageStatuses || [], data.sourceResolution);
   }
 
-  // Verified issues
+  // ── Verified issues ────────────────────────────────────────
   const issues = data.previewIssues || [];
   if (issueCount > 0) {
     document.getElementById('r-issues').style.display = 'block';
-    document.getElementById('r-issue-count').textContent =
-      `${issueCount} issue${issueCount !== 1 ? 's' : ''} found`;
+    document.getElementById('r-issue-count').textContent = `${issueCount} issue${issueCount !== 1 ? 's' : ''} found`;
     buildIssues(issues, issueCount);
   }
 
-  // What this means
+  // ── What this means ────────────────────────────────────────
   document.getElementById('r-meaning').style.display = 'block';
 
-  // Pre-fill form
+  // ── Pre-fill form ──────────────────────────────────────────
   const fSpotify = document.getElementById('f-spotify');
   if (fSpotify) {
     fSpotify.value = document.getElementById('hero-url').value;
@@ -985,35 +986,26 @@ function showRealResults(data) {
   }
 }
 
-// ── FALLBACK (API failed) ──────────────────────────
-function showFallbackResults(url) {
-  setRiskScore(55, 'Moderate', {
-    artistName: null,
-    platformLabel: 'Artist',
-    trackTitle: null,
-  });
-  document.getElementById('results-tag').textContent = 'Spotify Artist Detected';
+// ── ERROR STATE — API failed, explicit message, no fake data ──
+function showErrorState(errorMsg, url) {
+  // Update results-tag to show explicit failure
+  document.getElementById('results-tag').textContent = 'Audit could not complete';
 
-  const fallbackIssues = [
-    {
-      priority: 'MEDIUM',
-      status: 'Not Confirmed',
-      title: 'SoundExchange registration not confirmed',
-      detail: 'SoundExchange registration status cannot be verified via public data. Manual check required at soundexchange.com.',
-    },
-    {
-      priority: 'MEDIUM',
-      status: 'Not Connected',
-      title: 'PRO registration not connected',
-      detail: 'Performance Rights Organisation membership cannot be verified via public data.',
-    },
-  ];
+  // Show error in risk card
+  document.getElementById('r-risk-num').textContent = '—';
+  document.getElementById('r-risk-level').textContent = 'ERROR';
+  document.getElementById('r-risk-title').textContent = 'Source could not be resolved';
+  document.getElementById('r-risk-desc').textContent = errorMsg || 'We could not retrieve verified data from the source platform. Please check your URL and try again.';
+  document.getElementById('r-risk-badge').className = 'r-risk-badge moderate';
+  document.getElementById('r-risk-why').innerHTML = '';
 
-  document.getElementById('r-issues').style.display = 'block';
-  document.getElementById('r-issue-count').textContent = 'Preview only';
-  buildIssues(fallbackIssues, 2);
+  // Artist line
+  const artistLine = document.getElementById('r-artist-line');
+  if (artistLine) artistLine.style.display = 'none';
+
   document.getElementById('r-meaning').style.display = 'block';
 
+  // Pre-fill form anyway
   const fSpotify = document.getElementById('f-spotify');
   if (fSpotify) {
     fSpotify.value = url;
@@ -1023,84 +1015,61 @@ function showFallbackResults(url) {
   }
 }
 
-// ── RISK SCORE ─────────────────────────────────────
+function riskColor(level) {
+  return level === 'Low' ? 'var(--grn)' : level === 'High' ? 'var(--red)' : 'var(--amb)';
+}
+
+// ── RISK SCORE CARD ────────────────────────────────────────────
 function setRiskScore(score, level, data) {
   document.getElementById('r-risk-num').textContent = score;
   document.getElementById('r-risk-level').textContent = level.toUpperCase();
+  document.getElementById('r-risk-badge').className = 'r-risk-badge ' + level.toLowerCase();
 
-  const badge = document.getElementById('r-risk-badge');
-  badge.className = 'r-risk-badge ' + level.toLowerCase();
-
-  const titles = {
-    Low: 'Low royalty risk',
-    Moderate: 'Moderate royalty risk',
-    High: 'High royalty risk',
-  };
+  const titles = { Low: 'Low royalty risk', Moderate: 'Moderate royalty risk', High: 'High royalty risk' };
   const descs = {
     Low: 'No critical verified gaps detected. Review recommended actions to maintain your score.',
-    Moderate: 'Verified issues detected that may affect royalty collection. Review and complete recommended actions.',
-    High: 'Significant verified gaps detected. Immediate action recommended to ensure royalties are being collected.',
+    Moderate: 'Verified issues found that may affect royalty collection. Review and complete recommended actions.',
+    High: 'Significant verified gaps detected. Immediate action recommended.',
   };
-
   document.getElementById('r-risk-title').textContent = titles[level] || titles.Moderate;
   document.getElementById('r-risk-desc').textContent = descs[level] || descs.Moderate;
 
-  // Artist + platform label in score card
-  if (data && data.artistName) {
-    const artistLine = document.getElementById('r-artist-line');
-    const artistNameEl = document.getElementById('r-artist-name');
-    const platformLabelEl = document.getElementById('r-platform-label');
-    if (artistLine && artistNameEl && platformLabelEl) {
-      artistNameEl.textContent = data.artistName;
-      // Track name if available
-      if (data.trackTitle) {
-        artistNameEl.textContent = data.trackTitle;
-        platformLabelEl.textContent = data.platformLabel || 'Track';
-      } else {
-        platformLabelEl.textContent = data.platformLabel || 'Artist';
-      }
-      artistLine.style.display = 'block';
-    }
+  // Artist line — driven by canonicalSubject, never static
+  const artistLine = document.getElementById('r-artist-line');
+  const artistNameEl = document.getElementById('r-artist-name');
+  const platformLabelEl = document.getElementById('r-platform-label');
+  if (artistLine && artistNameEl && platformLabelEl && data?.artistName) {
+    artistNameEl.textContent = data.trackTitle || data.artistName;
+    platformLabelEl.textContent = data.platformLabel || 'Artist';
+    artistLine.style.display = 'block';
   }
 
-  // Why bullets
+  // Why bullets — from actual coverage statuses
   const why = document.getElementById('r-risk-why');
   const bullets = [];
-  if (data) {
-    if (!data.platforms?.appleMusic?.found || data.platforms?.appleMusic?.status === 'Not Registered') {
-      bullets.push('Apple Music — Not Registered');
-    }
-    if (data.platforms?.soundExchange?.status === 'Not Confirmed') {
-      bullets.push('SoundExchange — Not Confirmed');
-    }
-    if (data.platforms?.pro?.status === 'Not Connected') {
-      bullets.push('PRO — Not Connected');
-    }
-    if (!data.trackIsrc && data.type === 'track') {
-      bullets.push('ISRC — Not Found on this recording');
-    }
+  if (data?.coverageStatuses) {
+    data.coverageStatuses.forEach(s => {
+      if (['No Verified Match Yet', 'Manual Check Required', 'Not Confirmed', 'Not Connected'].includes(s.status)) {
+        bullets.push(`${s.platform} — ${s.status}`);
+      }
+    });
   } else {
-    bullets.push('SoundExchange — Not Confirmed');
-    bullets.push('PRO — Not Connected');
+    bullets.push('SoundExchange — Manual Check Required');
+    bullets.push('PRO — Manual Check Required');
   }
-  why.innerHTML = bullets.map(b =>
-    `<div class="r-risk-why-item">${b}</div>`
-  ).join('');
+  why.innerHTML = bullets.slice(0, 4).map(b => `<div class="r-risk-why-item">${b}</div>`).join('');
 }
 
-// ── SCORE TRACKING ─────────────────────────────────
+// ── SCORE TRACKING ─────────────────────────────────────────────
 function showScoreTracking(previousScore, currentScore) {
   const el = document.getElementById('r-score-tracking');
   el.classList.add('visible');
   document.getElementById('rst-prev').textContent = previousScore;
   document.getElementById('rst-curr').textContent = currentScore;
-
   const diff = previousScore - currentScore;
   const changeEl = document.getElementById('rst-change');
   const msgEl = document.getElementById('rst-msg');
-
   if (diff > 0) {
-    // Score went down = improved (lower risk = better)
     changeEl.className = 'rst-change improved';
     changeEl.textContent = `↓ ${diff} pts`;
     msgEl.textContent = 'Your Royalty Risk Score improved after resolving issues.';
@@ -1115,36 +1084,36 @@ function showScoreTracking(previousScore, currentScore) {
   }
 }
 
-// ── COVERAGE STATUSES ──────────────────────────────
-function buildCoverageStatuses(statuses) {
-  const statusClassMap = {
-    'Registered': 's-registered',
-    'Profile Resolved': 's-registered',
-    'Track Resolved': 's-registered',
-    'Source Verified': 's-registered',
-    'Not Registered': 's-not-registered',
-    'Not Confirmed': 's-not-confirmed',
-    'Not Connected': 's-not-connected',
-    'Pending': 's-pending',
+// ── COVERAGE LIST ──────────────────────────────────────────────
+function buildCoverageList(statuses, sourceResolution) {
+  const roleLabel = {
+    'input_source': 'SOURCE',
+    'cross_reference': 'CROSS-REF',
+    'rights_system': 'RIGHTS',
   };
-  document.getElementById('r-coverage-list').innerHTML = statuses.map(s => `
+
+  document.getElementById('r-coverage-list').innerHTML = statuses.map(s => {
+    const cls = statusClass(s.status);
+    const role = roleLabel[s.role] || '';
+    return `
     <div class="cov-item">
       <div>
-        <div class="cov-name">${s.platform}</div>
+        <div class="cov-name">${s.platform}${role ? ` <span style="font-family:'Space Mono',monospace;font-size:7px;color:var(--muted);margin-left:6px;">${role}</span>` : ''}</div>
         ${s.detail ? `<div class="cov-detail">${s.detail}</div>` : ''}
       </div>
-      <span class="cov-status-pill ${statusClassMap[s.status] || 's-not-confirmed'}">${s.status.toUpperCase()}</span>
-    </div>
-  `).join('');
+      <span class="cov-status-pill ${cls}">${s.status.toUpperCase()}</span>
+    </div>`;
+  }).join('');
 }
 
-// ── VERIFIED ISSUES ────────────────────────────────
+// ── VERIFIED ISSUES ────────────────────────────────────────────
 function buildIssues(issues, total) {
   document.getElementById('r-issues-list').innerHTML = issues.map(i => `
     <div class="issue-item ${(i.priority || 'MEDIUM').toLowerCase()}">
       <div class="issue-top">
         <span class="issue-priority ip-${(i.priority || 'MEDIUM').toLowerCase()}">${i.priority || 'MEDIUM'}</span>
         <span class="issue-status">${i.status || 'Not Confirmed'}</span>
+        ${i.verifiedBy ? `<span style="font-family:'Space Mono',monospace;font-size:7px;color:var(--muted);margin-left:auto;">via ${i.verifiedBy}</span>` : ''}
       </div>
       <div class="issue-title">${i.title}</div>
       <div class="issue-detail">${i.detail}</div>
@@ -1159,35 +1128,26 @@ function buildIssues(issues, total) {
   }
 }
 
-// ── FORM ───────────────────────────────────────────
+// ── FORM ───────────────────────────────────────────────────────
 async function submitForm() {
   const name = document.getElementById('f-name').value.trim();
   const email = document.getElementById('f-email').value.trim();
   const spotify = document.getElementById('f-spotify').value.trim();
   const tracks = document.getElementById('f-tracks').value;
   const btn = document.getElementById('form-btn');
-
   if (!name) { document.getElementById('f-name').style.borderColor = 'var(--red)'; return; }
   if (!email || !email.includes('@')) { document.getElementById('f-email').style.borderColor = 'var(--red)'; return; }
   if (!spotify) { document.getElementById('f-spotify').style.borderColor = 'var(--red)'; return; }
-
   btn.disabled = true;
   btn.textContent = 'Sending request...';
-
   try {
     await fetch('https://formspree.io/f/xojkrwzp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name, email,
-        spotify_url: spotify,
-        track_count: tracks,
-        _subject: `Royaltē Full Audit Request — ${name}`,
-        _replyto: email,
-      }),
+      body: JSON.stringify({ name, email, spotify_url: spotify, track_count: tracks,
+        _subject: `Royaltē Full Audit Request — ${name}`, _replyto: email }),
     });
   } catch (e) {}
-
   document.getElementById('form-inner').style.display = 'none';
   document.getElementById('form-success').style.display = 'block';
 }
@@ -1196,9 +1156,7 @@ function scrollToForm() {
   document.getElementById('request').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-document.getElementById('hero-url').addEventListener('keydown', e => {
-  if (e.key === 'Enter') runAudit();
-});
+document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
 </script>
 </body>
 </html>
