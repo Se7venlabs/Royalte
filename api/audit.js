@@ -109,6 +109,9 @@ export default async function handler(req, res) {
       success: true,
       platform: parsed.platform,
       type: parsed.type,
+      entityType: parsed.type,
+      sourceVerified: true,
+      platformLabel: parsed.type === 'artist' ? 'Spotify Artist' : 'Spotify Track',
       artistName,
       artistId: artistData.id,
       followers: artistData.followers?.total || 0,
@@ -747,6 +750,10 @@ async function handleAppleMusicAudit(parsed, req, res) {
     }
 
     console.log('[Royalte Apple] Artist name resolved:', artistName);
+    if (!artistName) {
+      console.error('[Royalte Apple] Artist name could not be extracted from API response');
+      artistName = 'Unknown Artist';
+    }
 
     let spotifyArtistData = null;
     let isrc = null;
@@ -824,12 +831,21 @@ async function handleAppleMusicAudit(parsed, req, res) {
 
     return res.status(200).json({
       success: true, platform: 'apple', type: parsed.type,
-      artistName, artistId: syntheticArtist.id,
+      entityType: parsed.type,       // 'artist' | 'track'
+      sourceVerified: true,
+      platformLabel: parsed.type === 'artist' ? 'Apple Music Artist' : 'Apple Music Track',
+      artistName: artistName || 'Unknown Artist',
+      artistId: syntheticArtist.id,
       followers: syntheticArtist.followers.total, popularity: syntheticArtist.popularity,
       genres: syntheticArtist.genres, trackTitle: syntheticTrack?.name || null, trackIsrc: isrc || null,
       platforms: {
         spotify: { status: spotifyArtistData ? 'Registered' : 'Not Confirmed', verified: !!spotifyArtistData },
-        appleMusic: { status: 'Registered', verified: true, url: appleMusicData.artistUrl },
+        appleMusic: {
+          status: parsed.type === 'artist' ? 'Profile Resolved' : 'Track Resolved',
+          verified: true,
+          sourceVerified: true,
+          url: appleMusicData.artistUrl,
+        },
         musicbrainz: { status: mbData.found ? 'Registered' : 'Not Registered', verified: true },
         deezer: { status: deezerData.found ? 'Registered' : 'Not Registered', verified: true },
         youtube: {
