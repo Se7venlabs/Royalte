@@ -41,7 +41,18 @@ export default async function handler(req, res) {
       const msg = parsed.platform === 'apple'
         ? 'We recognized your Apple Music link, but could not retrieve verified Apple Music data right now.'
         : 'We recognized your Spotify link, but could not retrieve verified Spotify data right now.';
-      return res.status(400).json({ error: msg, detail: sourceResolution.error });
+      return res.status(400).json({
+        success: false,
+        auditReady: false,
+        sourceResolutionStatus: 'failed',
+        inputPlatform: parsed.platform,
+        entityType: parsed.type,
+        metadataStatus: 'failed',
+        artistName: null,
+        trackName: null,
+        error: msg,
+        detail: sourceResolution.error,
+      });
     }
 
     console.log('[Royalte] Stage B — Source resolved:', sourceResolution.canonicalSubject.canonicalArtistName);
@@ -76,6 +87,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
+      auditReady: true,
+      sourceResolutionStatus: 'resolved',
       scannedAt: new Date().toISOString(),
 
       // Canonical subject — always reflects actual input
@@ -284,10 +297,10 @@ async function resolveSpotifySource(parsed) {
       },
     };
 
-    return { success: true, canonicalSubject, catalog };
+    return { success: true, auditReady: true, metadataStatus: 'resolved', canonicalSubject, catalog };
   } catch (err) {
     console.error('[Royalte Spotify] Resolution error:', err.message);
-    return { success: false, error: err.message };
+    return { success: false, auditReady: false, metadataStatus: 'failed', error: err.message };
   }
 }
 
@@ -364,10 +377,10 @@ async function resolveAppleSource(parsed) {
       },
     };
 
-    return { success: true, canonicalSubject, catalog: null };
+    return { success: true, auditReady: true, metadataStatus: 'resolved', canonicalSubject, catalog: null };
   } catch (err) {
     console.error('[Royalte Apple] Resolution error:', err.message);
-    return { success: false, error: err.message };
+    return { success: false, auditReady: false, metadataStatus: 'failed', error: err.message };
   }
 }
 
