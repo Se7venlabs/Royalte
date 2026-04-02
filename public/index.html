@@ -541,6 +541,19 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
       <div class="rm-text">If a recording is <strong>Not Registered</strong>, royalties may not be collected. Issues marked <strong>Not Confirmed</strong> require manual verification — they cannot be resolved without direct contact with the relevant organisation.</div>
     </div>
 
+    <!-- Error panel — shown when source resolution fails -->
+    <div class="r-error-panel" id="r-error-panel" style="display:none;background:rgba(240,80,96,0.05);border:1px solid rgba(240,80,96,0.2);border-radius:6px;padding:24px;margin-bottom:12px;text-align:center;">
+      <div style="font-size:28px;margin-bottom:12px;">⚠️</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;color:var(--text);margin-bottom:8px;">Source could not be resolved</div>
+      <div style="font-size:13px;color:var(--muted2);line-height:1.65;margin-bottom:16px;max-width:440px;margin-left:auto;margin-right:auto;">
+        We recognized your <strong id="r-error-platform" style="color:var(--text);">Apple Music</strong> link, but could not retrieve verified data right now.
+        <br><br>
+        <span id="r-error-msg" style="color:var(--muted);font-size:12px;"></span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Please try again, or paste a Spotify artist or track URL while this is being resolved.</div>
+      <button class="rl-cta" onclick="document.getElementById('hero-url').focus();document.getElementById('results-wrap').style.display='none';">Try another URL →</button>
+    </div>
+
     <!-- Full audit reveal mockup -->
     <div class="reveal-mockup">
       <div class="rm-label">
@@ -880,16 +893,21 @@ async function runAudit() {
 
   let auditData = null;
   let auditError = null;
+  let auditErrorData = null; // structured error from backend
   try {
     const resp = await fetch(`/api/audit?url=${encodeURIComponent(val)}`);
     const json = await resp.json();
-    if (json.success) auditData = json;
-    else auditError = json.error || 'Audit failed';
+    if (json.success && json.auditReady !== false) {
+      auditData = json;
+    } else {
+      auditError = json.error || 'Audit failed';
+      auditErrorData = json; // preserve inputPlatform, entityType for error display
+    }
   } catch (e) { auditError = 'Network error — please try again'; }
 
   animateScan(() => {
     if (auditData) showRealResults(auditData);
-    else showErrorState(auditError, val);
+    else showErrorState(auditError, val, auditErrorData);
     btn.disabled = false;
     btn.textContent = 'Run Free Audit →';
     document.getElementById('scan-progress').style.display = 'none';
@@ -900,6 +918,9 @@ async function runAudit() {
 
 // ── SHOW REAL RESULTS — driven entirely by canonicalSubject ────
 function showRealResults(data) {
+  // Ensure error panel is hidden on successful scan
+  const errorPanel = document.getElementById('r-error-panel');
+  if (errorPanel) errorPanel.style.display = 'none';
   const subject = data.canonicalSubject || {};
   const score = data.royaltyRiskScore || 0;
   const level = data.riskLevel || 'Moderate';
@@ -986,32 +1007,76 @@ function showRealResults(data) {
   }
 }
 
-// ── ERROR STATE — API failed, explicit message, no fake data ──
-function showErrorState(errorMsg, url) {
-  // Update results-tag to show explicit failure
-  document.getElementById('results-tag').textContent = 'Audit could not complete';
+// ── ERROR STATE — source not resolved, no audit output rendered ──
+function showErrorState(errorMsg, url, errorData) {
+  const inputPlatform = errorData?.inputPlatform || (url.includes('music.apple.com') ? 'apple' : 'spotify');
+  const platformName = inputPlatform === 'apple' ? 'Apple Music' : 'Spotify';
 
-  // Show error in risk card
+  // results-tag — show resolution failure, not "detected"
+  document.getElementById('results-tag').textContent = `${platformName} source — not resolved`;
+
+  // Risk card — error state, no score
   document.getElementById('r-risk-num').textContent = '—';
-  document.getElementById('r-risk-level').textContent = 'ERROR';
-  document.getElementById('r-risk-title').textContent = 'Source could not be resolved';
-  document.getElementById('r-risk-desc').textContent = errorMsg || 'We could not retrieve verified data from the source platform. Please check your URL and try again.';
+  document.getElementById('r-risk-level').textContent = 'UNRESOLVED';
   document.getElementById('r-risk-badge').className = 'r-risk-badge moderate';
-  document.getElementById('r-risk-why').innerHTML = '';
+  document.getElementById('r-risk-title').textContent = 'Source could not be resolved';
+  document.getElementById('r-risk-desc').textContent =
+    errorMsg || `We could not retrieve verified ${platformName} data right now. Please check your URL and try again.`;
+  document.getElementById('r-risk-why').innerHTML =
+    '<div class="r-risk-why-item" style="color:var(--muted);">No findings available — source unresolved</div>';
 
-  // Artist line
+  // Artist line — hide entirely, no placeholder
   const artistLine = document.getElementById('r-artist-line');
   if (artistLine) artistLine.style.display = 'none';
 
-  document.getElementById('r-meaning').style.display = 'block';
+  // Suppress all audit output panels — none of these should render
+  document.getElementById('r-score-tracking').classList.remove('visible');
+  document.getElementById('r-confidence').style.display = 'none';
+  document.getElementById('r-coverage').style.display = 'none';
+  document.getElementById('r-issues').style.display = 'none';
+  document.getElementById('r-meaning').style.display = 'none';
 
-  // Pre-fill form anyway
+  // Show a clear error panel instead
+  const errorPanel = document.getElementById('r-error-panel');
+  if (errorPanel) {
+    errorPanel.style.display = 'block';
+    document.getElementById('r-error-platform').textContent = platformName;
+    document.getElementById('r-error-msg').textContent =
+      errorMsg || `We recognized your ${platformName} link, but could not retrieve verified data right now.`;
+  }
+
+  // Hero mockup — reset to neutral, never show fake resolved state
+  resetHeroToNeutral(inputPlatform);
+
+  // Pre-fill form with the attempted URL
   const fSpotify = document.getElementById('f-spotify');
   if (fSpotify) {
     fSpotify.value = url;
     fSpotify.readOnly = true;
     fSpotify.style.opacity = '0.7';
     fSpotify.style.cursor = 'not-allowed';
+  }
+}
+
+// ── RESET HERO TO NEUTRAL (error or pre-scan state) ──────────
+function resetHeroToNeutral(inputPlatform) {
+  const platformName = inputPlatform === 'apple' ? 'Apple Music' : 'Spotify';
+  document.getElementById('hero-artist-name').textContent = 'Source unresolved';
+  document.getElementById('hero-artist-sub').textContent = `${platformName} data could not be retrieved`;
+  const plLabelEl = document.getElementById('hero-platform-label');
+  if (plLabelEl) plLabelEl.textContent = platformName;
+
+  // Risk badge — neutral grey
+  const heroRiskVal = document.querySelector('.d-risk-val');
+  const heroRiskLbl = document.querySelector('.d-risk-lbl');
+  if (heroRiskVal) { heroRiskVal.textContent = '—'; heroRiskVal.style.color = 'var(--muted2)'; }
+  if (heroRiskLbl) { heroRiskLbl.textContent = 'UNRESOLVED'; heroRiskLbl.style.color = 'var(--muted2)'; }
+
+  // Apple status pill — reset to Not Confirmed, never leave as Not Registered
+  const heroCovEl = document.getElementById('hero-apple-status');
+  if (heroCovEl) {
+    heroCovEl.textContent = 'NOT CONFIRMED';
+    heroCovEl.className = 'd-cov-status s-not-confirmed';
   }
 }
 
