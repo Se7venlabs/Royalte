@@ -151,6 +151,7 @@ export default async function handler(req, res) {
     const verifiedIssues = buildVerifiedIssues(subject, moduleStates, crossRefs);
     const actionPlan = buildActionPlan(verifiedIssues, crossRefs.audiodb?.country || crossRefs.wikidata?.country || null);
     const coverageStatuses = buildCoverageStatuses(subject, sourceResolution, crossRefs);
+    const territorySignals = buildTerritorySignals(subject, crossRefs);
     const auditConfidence = deriveAuditConfidence(crossRefs, sourceResolution);
 
     // Build ISRC table and score based on scan type
@@ -225,6 +226,9 @@ export default async function handler(req, res) {
 
       // Coverage statuses for UI display
       coverageStatuses,
+
+      // Territory signals — always 5 baseline territories
+      territorySignals,
 
       // Action plan
       actionPlan,
@@ -1556,6 +1560,104 @@ function buildVerifiedIssues(subject, moduleStates, crossRefs) {
 // ─────────────────────────────────────────────────────────────────
 // COVERAGE STATUSES — for UI display, using correct status families
 // ─────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────
+// TERRITORY SIGNALS
+// Always returns the 5 baseline territories.
+// Uses honest Coverage Signal / Confidence — never Registered/Not Registered.
+// ─────────────────────────────────────────────────────────────────
+
+const BASELINE_TERRITORIES = [
+  { code: 'CA', flag: '🇨🇦', name: 'Canada' },
+  { code: 'US', flag: '🇺🇸', name: 'United States' },
+  { code: 'GB', flag: '🇬🇧', name: 'United Kingdom' },
+  { code: 'DE', flag: '🇩🇪', name: 'Germany' },
+  { code: 'FR', flag: '🇫🇷', name: 'France' },
+];
+
+// Infer home country from AudioDB, Wikidata, or genre signals
+function inferHomeCountry(crossRefs, genres = []) {
+  const raw = crossRefs.audiodb?.country || crossRefs.wikidata?.country || null;
+  if (!raw) return null;
+  const r = raw.toLowerCase();
+  if (r.includes('canada')) return 'CA';
+  if (r.includes('united states') || r.includes('usa') || r.includes('u.s.')) return 'US';
+  if (r.includes('united kingdom') || r.includes('england') || r.includes('scotland') || r.includes('wales')) return 'GB';
+  if (r.includes('germany')) return 'DE';
+  if (r.includes('france')) return 'FR';
+  return null;
+}
+
+function buildTerritorySignals(subject, crossRefs) {
+  const homeCountry = inferHomeCountry(crossRefs, subject.genres);
+  const isOnSpotify = subject.inputPlatform === 'spotify' || crossRefs.spotify?.crossReferenceStatus === 'Cross-Reference Found';
+  const isOnApple = subject.inputPlatform === 'apple' || crossRefs.appleMusic?.crossReferenceStatus === 'Cross-Reference Found';
+  const appleAuthFailed = crossRefs.appleMusic?.authError || crossRefs.appleMusic?.resolutionStatus === 'auth_failed';
+  const spotifyFailed = crossRefs.spotify?.resolutionStatus === 'failed';
+
+  // Build signal per territory
+  const territories = BASELINE_TERRITORIES.map(t => {
+    let coverageSignal, confidence, note;
+
+    const isHome = t.code === homeCountry;
+
+    // Coverage Signal logic
+    if (isHome) {
+      // Home territory — higher confidence from source platform
+      if (isOnSpotify && isOnApple) {
+        coverageSignal = 'Likely Covered';
+        confidence = 'Inferred';
+        note = 'Artist present on both Spotify and Apple Music in this market.';
+      } else if (isOnSpotify || isOnApple) {
+        coverageSignal = 'Likely Covered';
+        confidence = 'Inferred';
+        note = 'Artist present on at least one major streaming platform in this market.';
+      } else {
+        coverageSignal = 'Coverage Unclear';
+        confidence = 'Unknown';
+        note = 'Platform presence could not be confirmed in this market.';
+      }
+    } else {
+      // Non-home territory
+      if (isOnSpotify && isOnApple) {
+        coverageSignal = 'Likely Covered';
+        confidence = 'Inferred';
+        note = 'Artist present on Spotify and Apple Music — global distribution inferred.';
+      } else if (isOnSpotify || isOnApple) {
+        coverageSignal = 'Coverage Unclear';
+        confidence = 'Inferred';
+        note = 'Partial platform presence. Territory-specific availability not confirmed.';
+      } else if (appleAuthFailed || spotifyFailed) {
+        coverageSignal = 'Coverage Unknown';
+        confidence = 'Unknown';
+        note = 'Cross-reference check unavailable — cannot confirm coverage.';
+      } else {
+        coverageSignal = 'Coverage Unknown';
+        confidence = 'Unknown';
+        note = 'No verified data available for this territory.';
+      }
+    }
+
+    return {
+      ...t,
+      isHome,
+      coverageSignal,   // 'Likely Covered' | 'Coverage Unclear' | 'Coverage Unknown'
+      confidence,       // 'Verified' | 'Inferred' | 'Unknown'
+      note,
+    };
+  });
+
+  // Pin home territory to top
+  const sorted = homeCountry
+    ? [
+        ...territories.filter(t => t.isHome),
+        ...territories.filter(t => !t.isHome),
+      ]
+    : territories;
+
+  return sorted;
+}
+
 function buildCoverageStatuses(subject, sourceResolution, crossRefs) {
   const isSpotifyInput = subject.inputPlatform === 'spotify';
   const isAppleInput = subject.inputPlatform === 'apple';
