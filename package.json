@@ -2,7 +2,8 @@
   "name": "royalte",
   "version": "1.0.0",
   "description": "Royalte Music Audit Intelligence",
-  "engines": { "node": "24.x" },
+  "type": "module",
+  "engines": { "node": "20.x" },
   "scripts": { "build": "echo 'Static site'" },
   "dependencies": {
     "jsonwebtoken": "^9.0.2"
