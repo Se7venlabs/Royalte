@@ -153,9 +153,8 @@ export default async function handler(req, res) {
     const coverageStatuses = buildCoverageStatuses(subject, sourceResolution, crossRefs);
     const territorySignals = buildTerritorySignals(subject, crossRefs);
     const auditConfidence = deriveAuditConfidence(crossRefs, sourceResolution);
-    const collectionReadiness = buildCollectionReadiness(subject, crossRefs, isrcTable);
 
-    // Build ISRC table and score based on scan type
+    // Build ISRC table FIRST — must be declared before any function that uses it
     const isArtistScan = subject.canonicalSubjectType === 'artist';
     const artistTracks = subject.sourceData?.artistTracks || [];
     const spotifyToken = subject.sourceData?.spotifyToken || null;
@@ -163,17 +162,30 @@ export default async function handler(req, res) {
     let isrcTable = [];
     let primaryScore;
 
-    if (isArtistScan) {
-      // Artist scan: build 5-track ISRC table with cross-platform validation
-      if (artistTracks.length > 0) {
-        isrcTable = await buildIsrcTableForArtist(artistTracks, subject.inputPlatform, spotifyToken);
+    try {
+      if (isArtistScan) {
+        if (artistTracks.length > 0) {
+          isrcTable = await buildIsrcTableForArtist(artistTracks, subject.inputPlatform, spotifyToken);
+        }
+        primaryScore = calculateCatalogQualityScore(isrcTable);
+      } else {
+        isrcTable = await buildIsrcTableForTrack(subject, crossRefs);
+        primaryScore = calculateTrackIntegrityScore(subject, crossRefs, isrcTable);
       }
-      primaryScore = calculateCatalogQualityScore(isrcTable);
-    } else {
-      // Track scan: single-track ISRC table
-      isrcTable = await buildIsrcTableForTrack(subject, crossRefs);
-      primaryScore = calculateTrackIntegrityScore(subject, crossRefs, isrcTable);
+    } catch (isrcErr) {
+      console.error('[Royalte] Stage E — ISRC table error (non-fatal):', isrcErr.message);
+      isrcTable = [];
+      primaryScore = {
+        score: null,
+        type: isArtistScan ? 'Catalog Quality Score' : 'Track Integrity Score',
+        label: 'Limited Verification',
+        insufficient: true,
+        message: 'ISRC data unavailable for this scan. Other audit findings are still valid.',
+      };
     }
+
+    // collectionReadiness uses isrcTable — must come AFTER isrcTable is built
+    const collectionReadiness = buildCollectionReadiness(subject, crossRefs, isrcTable);
 
     console.log('[Royalte] Stage E — Score:', primaryScore.score, primaryScore.type, '| ISRC rows:', isrcTable.length, '| Issues:', verifiedIssues.length, '| Confidence:', auditConfidence);
     console.log('[Royalte] Render gate — source_resolution_status: resolved | cross_reference_complete: true | audit_ready: true');
@@ -275,7 +287,11 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error('[Royalte] Audit error:', err.message, err.stack?.split('\n')[1]);
-    return res.status(500).json({ error: 'Audit failed. Please check the link and try again.', detail: err.message });
+    return res.status(500).json({
+      error: 'Temporary system issue — please try again.',
+      detail: err.message,
+      auditReady: false,
+    });
   }
 }
 
