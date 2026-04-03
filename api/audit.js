@@ -669,6 +669,17 @@ async function crossRefAppleMusic(artistName, spotifyTopTracks, isrc) {
     if (!searchResp.ok) {
       const errBody = await searchResp.text().catch(() => '');
       console.error('[Royalte CrossRef Apple] Search failed:', searchResp.status, errBody.slice(0, 100));
+      if (searchResp.status === 401 || searchResp.status === 403) {
+        return {
+          sourceUsedForScan: false,
+          resolutionStatus: 'auth_failed',
+          crossReferenceStatus: 'Auth Unavailable',
+          registrationStatus: null, // cannot make any registration claim
+          verified: false,
+          authError: true,
+          error: `Apple Music auth failed (${searchResp.status}) — cross-reference unavailable`,
+        };
+      }
       return { sourceUsedForScan: false, resolutionStatus: 'failed', crossReferenceStatus: 'Not Confirmed', verified: false };
     }
 
@@ -1223,7 +1234,8 @@ function calculateRoyaltyRiskScore(subject, moduleStates, crossRefs) {
   // Verified: Not in MusicBrainz (confirmed via MB API)
   if (crossRefs.musicbrainz.resolutionStatus === 'resolved' && !crossRefs.musicbrainz.found) score += 15;
 
-  // Verified: Not on Apple Music cross-reference (only if Spotify was input AND Apple check completed AND no match)
+  // Verified: Not on Apple Music cross-reference (only if Spotify was input AND Apple check actually completed AND no match)
+  // auth_failed = +0 (cannot make a registration claim from a failed auth)
   if (isSpotifyInput && crossRefs.appleMusic.resolutionStatus === 'resolved' && crossRefs.appleMusic.crossReferenceStatus === 'No Verified Match Yet') score += 15;
 
   // Verified: Not on Spotify cross-reference (only if Apple was input AND Spotify check completed AND no match)
@@ -1285,7 +1297,10 @@ function buildVerifiedIssues(subject, moduleStates, crossRefs) {
   }
 
   // ── Cross-ref verified: Not on Apple Music (Spotify input only) ──
-  if (isSpotifyInput && crossRefs.appleMusic.resolutionStatus === 'resolved' && crossRefs.appleMusic.crossReferenceStatus === 'No Verified Match Yet') {
+  // Only create this issue when the cross-reference actually ran AND confirmed no match.
+  // Auth failures (resolutionStatus === 'auth_failed') must NOT create a registration claim.
+  const appleRef = crossRefs.appleMusic;
+  if (isSpotifyInput && appleRef.resolutionStatus === 'resolved' && appleRef.crossReferenceStatus === 'No Verified Match Yet') {
     issues.push({
       type: 'not_on_apple_music',
       module: 'Platform Coverage',
@@ -1294,6 +1309,18 @@ function buildVerifiedIssues(subject, moduleStates, crossRefs) {
       verifiedBy: 'Apple Music API (cross-reference)',
       title: 'No Apple Music match found',
       detail: 'Cross-reference against Apple Music returned no verified match for this artist. Distribution gaps here may be limiting royalty collection.',
+    });
+  }
+  // Apple auth failure — show as informational only, NOT as registration claim
+  if (isSpotifyInput && (appleRef.resolutionStatus === 'auth_failed' || appleRef.authError)) {
+    issues.push({
+      type: 'apple_auth_unavailable',
+      module: 'Platform Coverage',
+      priority: 'MEDIUM',
+      status: 'Auth Unavailable',
+      verifiedBy: null,
+      title: 'Apple Music cross-reference temporarily unavailable',
+      detail: 'Apple Music authentication failed during this scan. This does not indicate the artist is unregistered on Apple Music. Try again or request the full audit for manual Apple Music verification.',
     });
   }
 
@@ -1424,13 +1451,23 @@ function buildCoverageStatuses(subject, sourceResolution, crossRefs) {
   // ── Cross-references ─────────────────────────────────────────
   if (isSpotifyInput) {
     const am = crossRefs.appleMusic;
+    let amStatus, amDetail;
+    if (am.resolutionStatus === 'auth_failed' || am.authError) {
+      amStatus = 'Auth Unavailable';
+      amDetail = 'Apple Music cross-reference unavailable — Apple authentication error. This does not indicate the artist is unregistered.';
+    } else if (am.resolutionStatus === 'failed') {
+      amStatus = 'Not Confirmed';
+      amDetail = 'Cross-reference check failed — result unknown';
+    } else {
+      amStatus = am.crossReferenceStatus;
+      amDetail = null;
+    }
     statuses.push({
       platform: 'Apple Music',
       role: 'cross_reference',
-      status: am.resolutionStatus === 'failed' ? 'Not Confirmed'
-        : am.crossReferenceStatus,
+      status: amStatus,
       verified: am.verified,
-      detail: am.resolutionStatus === 'failed' ? 'Cross-reference check failed' : null,
+      detail: amDetail,
     });
   }
   if (isAppleInput) {
