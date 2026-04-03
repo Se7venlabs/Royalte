@@ -343,6 +343,17 @@ section{padding:100px 56px;position:relative;}
 .future-close{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);margin-top:28px;}
 .future-close span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
+/* ISRC TRACK TABLE */
+.r-isrc{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:14px;margin-bottom:12px;}
+.r-isrc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.r-isrc-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+.isrc-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border3);}
+.isrc-row:last-child{border-bottom:none;}
+.isrc-track-name{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.isrc-code{font-family:'Space Mono',monospace;font-size:9px;padding:2px 8px;border-radius:2px;font-weight:700;white-space:nowrap;}
+.isrc-found{background:rgba(64,240,160,0.1);color:var(--grn);}
+.isrc-missing{background:rgba(240,80,96,0.1);color:var(--red);}
+
 /* FOOTER */
 footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
 .f-wordmark{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
@@ -539,6 +550,15 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <div class="r-meaning" id="r-meaning" style="display:none;">
       <div class="rm-title">// What this means</div>
       <div class="rm-text">If a recording is <strong>Not Registered</strong>, royalties may not be collected. Issues marked <strong>Not Confirmed</strong> require manual verification — they cannot be resolved without direct contact with the relevant organisation.</div>
+    </div>
+
+    <!-- ISRC track table — shown on artist scans -->
+    <div class="r-isrc" id="r-isrc" style="display:none;">
+      <div class="r-isrc-hd">
+        <div class="r-isrc-title">// ISRC check — top tracks</div>
+        <span id="r-isrc-summary" style="font-family:'Space Mono',monospace;font-size:8px;padding:2px 8px;border-radius:2px;font-weight:700;"></span>
+      </div>
+      <div id="r-isrc-list"></div>
     </div>
 
     <!-- Error panel — shown when source resolution fails -->
@@ -1002,6 +1022,11 @@ function showRealResults(data) {
     buildIssues(issues, issueCount);
   }
 
+  // ── ISRC track table ──────────────────────────────────────
+  if (data.trackIsrcReport) {
+    buildIsrcTable(data.trackIsrcReport);
+  }
+
   // ── What this means ────────────────────────────────────────
   document.getElementById('r-meaning').style.display = 'block';
 
@@ -1044,6 +1069,8 @@ function showErrorState(errorMsg, url, errorData) {
   document.getElementById('r-issues').style.display = 'none';
   document.getElementById('r-meaning').style.display = 'none';
   // Hide locked/full-audit section — contains static fake counts that must not show
+  const isrcSection = document.getElementById('r-isrc');
+  if (isrcSection) isrcSection.style.display = 'none';
   const revealMockup = document.getElementById('r-reveal-mockup');
   if (revealMockup) revealMockup.style.display = 'none';
   const rTransition = document.getElementById('r-transition');
@@ -1215,6 +1242,39 @@ function buildIssues(issues, total) {
         + ${total - issues.length} more issue(s) in full audit
       </div>`;
   }
+}
+
+// ── ISRC TRACK TABLE ──────────────────────────────────────────
+function buildIsrcTable(trackIsrcReport) {
+  if (!trackIsrcReport || trackIsrcReport.length === 0) return;
+
+  const section = document.getElementById('r-isrc');
+  const list = document.getElementById('r-isrc-list');
+  const summary = document.getElementById('r-isrc-summary');
+
+  const missing = trackIsrcReport.filter(t => !t.hasIsrc).length;
+  const total = trackIsrcReport.length;
+
+  section.style.display = 'block';
+
+  if (missing === 0) {
+    summary.textContent = `All ${total} verified`;
+    summary.style.background = 'rgba(64,240,160,0.1)';
+    summary.style.color = 'var(--grn)';
+  } else {
+    summary.textContent = `${missing} missing`;
+    summary.style.background = 'rgba(240,80,96,0.1)';
+    summary.style.color = 'var(--red)';
+  }
+
+  list.innerHTML = trackIsrcReport.map(t => `
+    <div class="isrc-row">
+      <div class="isrc-track-name">${t.name}</div>
+      <span class="isrc-code ${t.hasIsrc ? 'isrc-found' : 'isrc-missing'}">
+        ${t.hasIsrc ? t.isrc : 'NO ISRC'}
+      </span>
+    </div>
+  `).join('');
 }
 
 // ── FORM ───────────────────────────────────────────────────────
