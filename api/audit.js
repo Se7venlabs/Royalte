@@ -3,7 +3,78 @@
 // No Spotify default bias. Verified findings only. No fake certainty.
 // Platforms: Spotify · Apple Music · MusicBrainz · Deezer · AudioDB · Discogs · SoundCloud · Last.fm · Wikidata · YouTube
 
-import { generateAppleToken } from './apple-token.js';
+// ── Apple token generation — inlined to avoid @vercel/node module bundling issues ──
+import { createPrivateKey, createSign } from 'crypto';
+
+let _cachedToken = null;
+let _tokenExpiry = null;
+
+function generateAppleToken() {
+  if (_cachedToken && _tokenExpiry && Date.now() < _tokenExpiry) {
+    return _cachedToken;
+  }
+
+  const keyId    = process.env.APPLE_KEY_ID;
+  const teamId   = process.env.APPLE_TEAM_ID;
+  let privateKey = process.env.APPLE_PRIVATE_KEY;
+
+  if (!keyId || !teamId || !privateKey) {
+    throw new Error('Missing Apple Music credentials: APPLE_KEY_ID, APPLE_TEAM_ID, APPLE_PRIVATE_KEY');
+  }
+
+  // Fix Vercel literal \n encoding
+  if (privateKey.includes('\\n')) {
+    privateKey = privateKey.replace(/\\n/g, '\n');
+  }
+
+  // Ensure PEM headers
+  if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    const body    = privateKey.replace(/\s+/g, '');
+    const wrapped = body.match(/.{1,64}/g)?.join('\n') || body;
+    privateKey    = `-----BEGIN PRIVATE KEY-----\n${wrapped}\n-----END PRIVATE KEY-----`;
+  }
+
+  console.log('[AppleToken] Team:', teamId, '| Kid:', keyId, '| Key length:', privateKey.length);
+
+  const keyObject = createPrivateKey({ key: privateKey, format: 'pem' });
+
+  const now     = Math.floor(Date.now() / 1000);
+  const exp     = now + 60 * 60 * 12;
+  const header  = { alg: 'ES256', kid: keyId };
+  const payload = { iss: teamId, iat: now, exp };
+
+  const b64url = s => Buffer.from(s, 'utf8').toString('base64')
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+  const input = `${b64url(JSON.stringify(header))}.${b64url(JSON.stringify(payload))}`;
+
+  const signer = createSign('SHA256');
+  signer.update(input);
+  signer.end();
+  const der = signer.sign(keyObject);
+
+  // DER -> raw r||s for JWT
+  let offset = 2;
+  if (der[1] & 0x80) offset += der[1] & 0x7f;
+  offset++;
+  const rLen = der[offset++];
+  let r = der.slice(offset, offset + rLen); offset += rLen;
+  offset++;
+  const sLen = der[offset++];
+  let s = der.slice(offset, offset + sLen);
+  if (r[0] === 0x00) r = r.slice(1);
+  if (s[0] === 0x00) s = s.slice(1);
+  const rPad = Buffer.concat([Buffer.alloc(Math.max(0, 32 - r.length)), r]);
+  const sPad = Buffer.concat([Buffer.alloc(Math.max(0, 32 - s.length)), s]);
+  const sig = Buffer.concat([rPad, sPad]);
+
+  const token = `${input}.${sig.toString('base64url')}`;
+  console.log('[AppleToken] Generated. Length:', token.length, '| Exp:', new Date(exp * 1000).toISOString());
+
+  _cachedToken = token;
+  _tokenExpiry = Date.now() + (exp - now) * 1000 - 60_000;
+  return token;
+}
 
 // ─────────────────────────────────────────────────────────────────
 // MAIN HANDLER
