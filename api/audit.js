@@ -651,8 +651,8 @@ async function crossRefAppleMusic(artistName, spotifyTopTracks, isrc) {
     const normName = s => s
       .toLowerCase()
       .trim()
-      .normalize('NFD').replace(/[̀-ͯ]/g, '') // strip accents
-      .replace(/[''`]/g, "'")        // normalize apostrophes
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents
+      .replace(/[\u2018\u2019\u0060]/g, "'") // normalize apostrophes
       .replace(/[^a-z0-9\s'&]/g, '') // strip other punctuation
       .replace(/\s+/g, ' ')
       .trim();
