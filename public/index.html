@@ -360,6 +360,22 @@ section{padding:100px 56px;position:relative;}
 .ip-source{background:rgba(138,92,255,0.1);color:var(--pur);}
 .ip-notconfirmed{background:rgba(240,192,64,0.1);color:var(--amb);}
 
+/* TERRITORY SIGNALS */
+.r-territory{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:14px;margin-bottom:12px;}
+.r-terr-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.r-terr-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+.terr-row{display:grid;grid-template-columns:28px 1fr 120px 80px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border3);}
+.terr-row:last-child{border-bottom:none;}
+.terr-row.home-territory{background:rgba(138,92,255,0.04);border-radius:3px;padding-left:6px;padding-right:6px;margin-left:-6px;margin-right:-6px;}
+.terr-flag{font-size:15px;}
+.terr-name{font-size:12px;font-weight:500;color:var(--text);}
+.terr-home-badge{font-family:'Space Mono',monospace;font-size:7px;font-weight:700;padding:1px 5px;border-radius:2px;background:rgba(138,92,255,0.1);color:var(--pur);margin-left:6px;vertical-align:middle;}
+.terr-signal{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:2px;text-align:center;}
+.ts-likely{background:rgba(64,240,160,0.1);color:var(--grn);}
+.ts-unclear{background:rgba(240,192,64,0.1);color:var(--amb);}
+.ts-unknown{background:rgba(90,88,128,0.15);color:var(--muted2);}
+.terr-conf{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);text-align:right;}
+
 /* FOOTER */
 footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
 .f-wordmark{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
@@ -567,6 +583,15 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
       <div id="r-isrc-list"></div>
     </div>
 
+    <!-- Territory signals — always 5 baseline territories -->
+    <div class="r-territory" id="r-territory" style="display:none;">
+      <div class="r-terr-hd">
+        <div class="r-terr-title">// Territory coverage signals</div>
+        <span style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);padding:2px 8px;border-radius:2px;background:var(--bg4);">INFERRED — not verified</span>
+      </div>
+      <div id="r-territory-list"></div>
+    </div>
+
     <!-- Error panel — shown when source resolution fails -->
     <div class="r-error-panel" id="r-error-panel" style="display:none;background:rgba(240,80,96,0.05);border:1px solid rgba(240,80,96,0.2);border-radius:6px;padding:24px;margin-bottom:12px;text-align:center;">
       <div style="font-size:28px;margin-bottom:12px;">⚠️</div>
@@ -599,19 +624,22 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
             <div class="rm-mod"><div class="rm-dot" style="background:var(--amb)"></div><div class="rm-name">Sync Readiness</div><div class="rm-issues">3 gaps</div><div class="rm-status s-not-confirmed">🔒 FULL</div></div>
           </div>
 
-          <div class="rm-section-title" style="margin-top:16px;">// Territory registration status</div>
+          <div class="rm-section-title" style="margin-top:16px;">// Territory coverage signals</div>
           <div class="rm-territory">
             <div class="rm-terr-row">
-              <span class="rm-flag">🇺🇸</span><span class="rm-tname">United States</span><span class="rm-tstatus ts-ok">REGISTERED</span>
-            </div>
-            <div class="rm-terr-row" style="background:rgba(240,80,96,0.04);">
-              <span class="rm-flag">🇩🇪</span><span class="rm-tname">Germany</span><span class="rm-tstatus ts-bad">NOT REGISTERED</span>
+              <span class="rm-flag">🇨🇦</span><span class="rm-tname">Canada</span><span class="rm-tstatus ts-pend">LIKELY COVERED</span>
             </div>
             <div class="rm-terr-row">
-              <span class="rm-flag">🇬🇧</span><span class="rm-tname">United Kingdom</span><span class="rm-tstatus ts-ok">REGISTERED</span>
+              <span class="rm-flag">🇺🇸</span><span class="rm-tname">United States</span><span class="rm-tstatus ts-pend">LIKELY COVERED</span>
             </div>
-            <div class="rm-terr-row" style="background:rgba(240,192,64,0.04);">
-              <span class="rm-flag">🇫🇷</span><span class="rm-tname">France</span><span class="rm-tstatus ts-pend">PENDING</span>
+            <div class="rm-terr-row">
+              <span class="rm-flag">🇬🇧</span><span class="rm-tname">United Kingdom</span><span class="rm-tstatus ts-pend">LIKELY COVERED</span>
+            </div>
+            <div class="rm-terr-row">
+              <span class="rm-flag">🇩🇪</span><span class="rm-tname">Germany</span><span class="rm-tstatus ts-pend">COVERAGE UNCLEAR</span>
+            </div>
+            <div class="rm-terr-row">
+              <span class="rm-flag">🇫🇷</span><span class="rm-tname">France</span><span class="rm-tstatus ts-pend">COVERAGE UNKNOWN</span>
             </div>
           </div>
 
@@ -1028,6 +1056,11 @@ function showRealResults(data) {
     buildIssues(issues, issueCount);
   }
 
+  // ── Territory signals ────────────────────────────────────
+  if (data.territorySignals) {
+    buildTerritorySection(data.territorySignals);
+  }
+
   // ── ISRC cross-platform table ────────────────────────────
   if (data.isrcTable && data.isrcTable.length > 0) {
     buildIsrcTable(data.isrcTable, data.scanType);
@@ -1075,6 +1108,8 @@ function showErrorState(errorMsg, url, errorData) {
   document.getElementById('r-issues').style.display = 'none';
   document.getElementById('r-meaning').style.display = 'none';
   // Hide locked/full-audit section — contains static fake counts that must not show
+  const terrSection = document.getElementById('r-territory');
+  if (terrSection) terrSection.style.display = 'none';
   const isrcSection = document.getElementById('r-isrc');
   if (isrcSection) isrcSection.style.display = 'none';
   const revealMockup = document.getElementById('r-reveal-mockup');
@@ -1347,6 +1382,33 @@ function buildIsrcTable(isrcTable, scanType) {
   `).join('');
 
   list.innerHTML = header + rows;
+}
+
+// ── TERRITORY SIGNALS ─────────────────────────────────────────
+function buildTerritorySection(territorySignals) {
+  if (!territorySignals || territorySignals.length === 0) return;
+
+  const section = document.getElementById('r-territory');
+  const list = document.getElementById('r-territory-list');
+  section.style.display = 'block';
+
+  const signalClass = {
+    'Likely Covered':    'ts-likely',
+    'Coverage Unclear':  'ts-unclear',
+    'Coverage Unknown':  'ts-unknown',
+  };
+
+  list.innerHTML = territorySignals.map(t => `
+    <div class="terr-row${t.isHome ? ' home-territory' : ''}">
+      <span class="terr-flag">${t.flag}</span>
+      <span class="terr-name">
+        ${t.name}
+        ${t.isHome ? '<span class="terr-home-badge">HOME</span>' : ''}
+      </span>
+      <span class="terr-signal ${signalClass[t.coverageSignal] || 'ts-unknown'}">${t.coverageSignal.toUpperCase()}</span>
+      <span class="terr-conf">${t.confidence}</span>
+    </div>
+  `).join('');
 }
 
 // ── FORM ───────────────────────────────────────────────────────
