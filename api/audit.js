@@ -787,17 +787,9 @@ async function crossRefAppleMusic(artistName, spotifyTopTracks, isrc) {
     const BASE = 'https://api.music.apple.com/v1';
     const headers = { Authorization: `Bearer ${appleToken}` };
 
-    // Name normalization — handles apostrophes, accents, punctuation, unicode
-    const normName = s => s
-      .toLowerCase()
-      .trim()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents
-      .replace(/[\u2018\u2019\u0060]/g, "'") // normalize apostrophes
-      .replace(/[^a-z0-9\s'&]/g, '') // strip other punctuation
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    const normalizedQuery = normName(artistName);
+    // Use shared normStr + normArtist from the matching engine
+    const normName = normStr;
+    const normalizedQuery = normArtist(artistName);
     console.log('[Royalte CrossRef Apple] Normalized search query:', normalizedQuery);
 
     const searchResp = await fetch(
@@ -832,24 +824,25 @@ async function crossRefAppleMusic(artistName, spotifyTopTracks, isrc) {
     let match = null;
     let matchConfidence = null;
 
-    // Strategy 1: Exact normalized match
-    match = artists.find(a => normName(a.attributes?.name || '') === normalizedQuery);
+    // Strategy 1: Exact normalized match (using normArtist for consistent stripping)
+    const nq = normArtist(artistName);
+    match = artists.find(a => normArtist(a.attributes?.name || '') === nq);
     if (match) { matchConfidence = 'exact'; }
 
-    // Strategy 2: One contains the other (handles "The X" vs "X" etc.)
+    // Strategy 2: One name contains the other
     if (!match) {
       match = artists.find(a => {
-        const cn = normName(a.attributes?.name || '');
-        return cn.includes(normalizedQuery) || normalizedQuery.includes(cn);
+        const cn = normArtist(a.attributes?.name || '');
+        return cn.includes(nq) || nq.includes(cn);
       });
       if (match) { matchConfidence = 'contains'; }
     }
 
-    // Strategy 3: High word overlap (2+ words matching)
-    if (!match && normalizedQuery.includes(' ')) {
-      const queryWords = normalizedQuery.split(' ').filter(w => w.length > 1);
+    // Strategy 3: High word overlap
+    if (!match && nq.includes(' ')) {
+      const queryWords = nq.split(' ').filter(w => w.length > 1);
       match = artists.find(a => {
-        const cn = normName(a.attributes?.name || '');
+        const cn = normArtist(a.attributes?.name || '');
         const cnWords = cn.split(' ').filter(w => w.length > 1);
         const overlap = queryWords.filter(w => cnWords.includes(w)).length;
         return overlap >= Math.max(1, queryWords.length - 1);
@@ -857,12 +850,11 @@ async function crossRefAppleMusic(artistName, spotifyTopTracks, isrc) {
       if (match) { matchConfidence = 'word_overlap'; }
     }
 
-    // Strategy 4: First result as low-confidence fallback (only if query is short/unique)
-    if (!match && artists.length > 0 && normalizedQuery.length >= 4) {
-      const firstNorm = normName(artists[0].attributes?.name || '');
-      // Only use if first result shares significant prefix
-      const minLen = Math.min(normalizedQuery.length, firstNorm.length);
-      const sharedPrefix = [...Array(minLen)].findIndex((_, i) => normalizedQuery[i] !== firstNorm[i]);
+    // Strategy 4: Prefix fallback
+    if (!match && artists.length > 0 && nq.length >= 4) {
+      const firstNorm = normArtist(artists[0].attributes?.name || '');
+      const minLen = Math.min(nq.length, firstNorm.length);
+      const sharedPrefix = [...Array(minLen)].findIndex((_, i) => nq[i] !== firstNorm[i]);
       const prefixMatch = sharedPrefix === -1 ? minLen : sharedPrefix;
       if (prefixMatch >= 4) {
         match = artists[0];
@@ -1844,57 +1836,155 @@ function analyzeCatalog(albumsData, artist) {
 // Primary: ISRC match. Fallback: name+artist+duration. Low: name only.
 // ─────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────
+// METADATA NORMALIZATION ENGINE
+// Strips features, versions, brackets, accents before comparison.
+// ─────────────────────────────────────────────────────────────────
+
 function normStr(s) {
   return (s || '').toLowerCase().trim()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents (safe unicode escape)
     .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
 }
 
-// Cross-validate a single track against the opposite platform
-// Returns: { status, confidence, matchedName, matchedIsrc }
-// status: 'Matched' | 'Possible Match' | 'Missing' | 'Auth Unavailable'
+// Deep normalization for track title matching:
+// Removes feat/ft/featuring, brackets, version/remix/edit suffixes, apostrophes
+function normTrack(s) {
+  return (s || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u2018\u2019']/g, '')          // remove apostrophes
+    .replace(/\([^)]*\)/g, ' ')               // remove (parenthetical content)
+    .replace(/\[[^\]]*\]/g, ' ')             // remove [bracketed content]
+    .replace(/\{[^}]*\}/g, ' ')               // remove {braced content}
+    .replace(/\b(feat|ft|featuring|with|x)\b.*$/i, '') // remove feat. and everything after
+    .replace(/\b(remix|radio edit|radio mix|acoustic|instrumental|live|version|edit|remaster|remastered|cover|reprise|demo|mix|extended|stripped|vevo|official)\b.*$/i, '')
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, ' ').trim();
+}
+
+// Primary artist normalization: lowercase, strip features, punctuation
+function normArtist(s) {
+  return (s || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u2018\u2019']/g, '')
+    .replace(/\b(feat|ft|featuring|with|x|and|&)\b.*$/i, '') // stop at first feat/and
+    .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+// Word overlap similarity — returns 0–1 (1 = identical words)
+function wordSimilarity(a, b) {
+  const wa = new Set(a.split(' ').filter(w => w.length > 1));
+  const wb = new Set(b.split(' ').filter(w => w.length > 1));
+  if (wa.size === 0 || wb.size === 0) return 0;
+  const intersection = [...wa].filter(w => wb.has(w)).length;
+  return intersection / Math.max(wa.size, wb.size);
+}
+
+// Resolve a match result from a list of candidates (Spotify or Apple)
+// Returns the highest-confidence result across all 4 strategies
+function resolveBestMatch(candidates, track, getNameFn, getArtistFn, getDurationFn, getIsrcFn) {
+  const nt = normTrack(track.name);
+  const na = normArtist(track.artistName);
+  const td = track.durationMs || 0;
+
+  // Strategy A: ISRC match (highest confidence)
+  if (track.isrc) {
+    const isrcMatch = candidates.find(c => getIsrcFn(c) === track.isrc);
+    if (isrcMatch) return { status: 'Matched', confidence: 'HIGH', matchedName: getNameFn(isrcMatch), matchedIsrc: getIsrcFn(isrcMatch) };
+  }
+
+  // Strategy B: Exact normalized title + artist + duration ±3s
+  const exactDuration = candidates.find(c => {
+    const cd = getDurationFn(c) || 0;
+    return normTrack(getNameFn(c)) === nt &&
+           normArtist(getArtistFn(c)) === na &&
+           (td === 0 || cd === 0 || Math.abs(cd - td) <= 3000);
+  });
+  if (exactDuration) return { status: 'Matched', confidence: 'MEDIUM', matchedName: getNameFn(exactDuration), matchedIsrc: getIsrcFn(exactDuration) };
+
+  // Strategy C: Exact normalized title + artist (no duration)
+  const exactMeta = candidates.find(c =>
+    normTrack(getNameFn(c)) === nt && normArtist(getArtistFn(c)) === na
+  );
+  if (exactMeta) return { status: 'Matched', confidence: 'MEDIUM', matchedName: getNameFn(exactMeta), matchedIsrc: getIsrcFn(exactMeta) };
+
+  // Strategy D: Exact normalized title only (artist may differ slightly)
+  const titleOnly = candidates.find(c => normTrack(getNameFn(c)) === nt);
+  if (titleOnly) return { status: 'Possible Match', confidence: 'LOW', matchedName: getNameFn(titleOnly), matchedIsrc: getIsrcFn(titleOnly) };
+
+  // Strategy E: High word overlap on title (fuzzy — catches minor variations)
+  const fuzzy = candidates
+    .map(c => ({ c, sim: wordSimilarity(normTrack(getNameFn(c)), nt) }))
+    .filter(x => x.sim >= 0.75)
+    .sort((a, b) => b.sim - a.sim)[0];
+  if (fuzzy) return { status: 'Possible Match', confidence: 'LOW', matchedName: getNameFn(fuzzy.c), matchedIsrc: getIsrcFn(fuzzy.c) };
+
+  return { status: 'No Match', confidence: null, matchedName: null, matchedIsrc: null };
+}
+
+// ─────────────────────────────────────────────────────────────────
+// CROSS-PLATFORM VALIDATORS
+// ─────────────────────────────────────────────────────────────────
+
 async function crossValidateTrackOnSpotify(track, token) {
   try {
-    const norm = normStr;
-    // Strategy 1: ISRC lookup
+    // Strategy 1: ISRC direct lookup (most reliable)
     if (track.isrc) {
       const resp = await fetch(
         `https://api.spotify.com/v1/search?q=isrc:${track.isrc}&type=track&limit=1`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      if (!resp.ok && resp.status !== 404) {
+        return { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null };
+      }
       if (resp.ok) {
         const data = await resp.json();
         const match = data.tracks?.items?.[0];
         if (match) {
+          console.log('[CrossValidate Spotify] ISRC match:', match.name);
           return { status: 'Matched', confidence: 'HIGH', matchedName: match.name, matchedIsrc: match.external_ids?.isrc || track.isrc };
         }
       }
     }
-    // Strategy 2: Name + artist search, duration fallback
-    const q = encodeURIComponent(`track:${track.name} artist:${track.artistName}`);
-    const resp2 = await fetch(
-      `https://api.spotify.com/v1/search?q=${q}&type=track&limit=5`,
+
+    // Strategy 2a: Structured search with field qualifiers
+    const q1 = encodeURIComponent(`track:${track.name} artist:${track.artistName}`);
+    const resp2a = await fetch(
+      `https://api.spotify.com/v1/search?q=${q1}&type=track&limit=10`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    if (resp2.ok) {
-      const data2 = await resp2.json();
-      const candidates = data2.tracks?.items || [];
-      // Duration match within 3 seconds
-      const durationMatch = candidates.find(c =>
-        norm(c.name) === norm(track.name) &&
-        norm(c.artists?.[0]?.name) === norm(track.artistName) &&
-        Math.abs((c.duration_ms || 0) - (track.durationMs || 0)) <= 3000
-      );
-      if (durationMatch) {
-        return { status: 'Matched', confidence: 'MEDIUM', matchedName: durationMatch.name, matchedIsrc: durationMatch.external_ids?.isrc || null };
-      }
-      // Name-only match
-      const nameMatch = candidates.find(c => norm(c.name) === norm(track.name));
-      if (nameMatch) {
-        return { status: 'Possible Match', confidence: 'LOW', matchedName: nameMatch.name, matchedIsrc: nameMatch.external_ids?.isrc || null };
-      }
-    }
-    return { status: 'Missing', confidence: null, matchedName: null, matchedIsrc: null };
+
+    // Strategy 2b: Plain text search (more forgiving for special chars / variants)
+    const q2 = encodeURIComponent(`${track.name} ${track.artistName}`);
+    const resp2b = await fetch(
+      `https://api.spotify.com/v1/search?q=${q2}&type=track&limit=10`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    const candidates2a = resp2a.ok ? (await resp2a.json()).tracks?.items || [] : [];
+    const candidates2b = resp2b.ok ? (await resp2b.json()).tracks?.items || [] : [];
+
+    // Deduplicate and merge candidates
+    const seenIds = new Set();
+    const candidates = [...candidates2a, ...candidates2b].filter(c => {
+      if (seenIds.has(c.id)) return false;
+      seenIds.add(c.id);
+      return true;
+    });
+
+    console.log('[CrossValidate Spotify] Candidates:', candidates.length, 'for track:', track.name);
+
+    const result = resolveBestMatch(
+      candidates, track,
+      c => c.name,
+      c => c.artists?.[0]?.name || '',
+      c => c.duration_ms || 0,
+      c => c.external_ids?.isrc || null,
+    );
+
+    console.log('[CrossValidate Spotify] Result:', result.status, result.confidence, '| matched:', result.matchedName);
+    return result;
+
   } catch (err) {
     console.error('[CrossValidate Spotify] Error:', err.message);
     return { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null };
@@ -1910,51 +2000,64 @@ async function crossValidateTrackOnApple(track) {
     const BASE = 'https://api.music.apple.com/v1';
     const STOREFRONT = 'us';
     const headers = { Authorization: `Bearer ${appleToken}` };
-    const norm = normStr;
 
-    // Strategy 1: ISRC
+    // Strategy 1: ISRC direct lookup
     if (track.isrc) {
       const resp = await fetch(
         `${BASE}/catalog/${STOREFRONT}/songs?filter[isrc]=${track.isrc}`,
         { headers }
       );
-      if (!resp.ok && (resp.status === 401 || resp.status === 403)) {
+      if (resp.status === 401 || resp.status === 403) {
         return { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null };
       }
       if (resp.ok) {
         const data = await resp.json();
         const match = data.data?.[0];
         if (match) {
+          console.log('[CrossValidate Apple] ISRC match:', match.attributes?.name);
           return { status: 'Matched', confidence: 'HIGH', matchedName: match.attributes?.name, matchedIsrc: track.isrc };
         }
       }
     }
-    // Strategy 2: Name + artist search
-    const q = encodeURIComponent(`${track.name} ${track.artistName}`);
-    const resp2 = await fetch(
-      `${BASE}/catalog/${STOREFRONT}/search?term=${q}&types=songs&limit=5`,
-      { headers }
-    );
-    if (!resp2.ok && (resp2.status === 401 || resp2.status === 403)) {
+
+    // Strategy 2: Search — try track name alone for broader results
+    const q1 = encodeURIComponent(`${track.name} ${track.artistName}`);
+    const q2 = encodeURIComponent(track.name); // name-only fallback
+    const [resp2a, resp2b] = await Promise.all([
+      fetch(`${BASE}/catalog/${STOREFRONT}/search?term=${q1}&types=songs&limit=10`, { headers }),
+      fetch(`${BASE}/catalog/${STOREFRONT}/search?term=${q2}&types=songs&limit=10`, { headers }),
+    ]);
+
+    if ((resp2a.status === 401 || resp2a.status === 403)) {
       return { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null };
     }
-    if (resp2.ok) {
-      const data2 = await resp2.json();
-      const candidates = data2.results?.songs?.data || [];
-      const durationMatch = candidates.find(c =>
-        norm(c.attributes?.name) === norm(track.name) &&
-        norm(c.attributes?.artistName) === norm(track.artistName) &&
-        Math.abs((c.attributes?.durationInMillis || 0) - (track.durationMs || 0)) <= 3000
-      );
-      if (durationMatch) {
-        return { status: 'Matched', confidence: 'MEDIUM', matchedName: durationMatch.attributes?.name, matchedIsrc: durationMatch.attributes?.isrc || null };
-      }
-      const nameMatch = candidates.find(c => norm(c.attributes?.name) === norm(track.name));
-      if (nameMatch) {
-        return { status: 'Possible Match', confidence: 'LOW', matchedName: nameMatch.attributes?.name, matchedIsrc: nameMatch.attributes?.isrc || null };
-      }
-    }
-    return { status: 'Missing', confidence: null, matchedName: null, matchedIsrc: null };
+
+    const candidates2a = resp2a.ok ? (await resp2a.json()).results?.songs?.data || [] : [];
+    const candidates2b = resp2b.ok ? (await resp2b.json()).results?.songs?.data || [] : [];
+
+    const seenIds = new Set();
+    const candidates = [...candidates2a, ...candidates2b].filter(c => {
+      if (seenIds.has(c.id)) return false;
+      seenIds.add(c.id);
+      return true;
+    });
+
+    console.log('[CrossValidate Apple] Candidates:', candidates.length, 'for track:', track.name);
+
+    const result = resolveBestMatch(
+      candidates, track,
+      c => c.attributes?.name || '',
+      c => c.attributes?.artistName || '',
+      c => c.attributes?.durationInMillis || 0,
+      c => c.attributes?.isrc || null,
+    );
+
+    console.log('[CrossValidate Apple] Result:', result.status, result.confidence, '| matched:', result.matchedName);
+
+    // Remap 'No Match' to 'Missing' for backward compat with ISRC table status logic
+    if (result.status === 'No Match') return { ...result, status: 'Missing' };
+    return result;
+
   } catch (err) {
     console.error('[CrossValidate Apple] Error:', err.message);
     return { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null };
@@ -1976,14 +2079,16 @@ async function buildIsrcTableForArtist(tracks, sourceplatform, spotifyToken) {
         : { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null };
     }
 
-    // Overall match status
+    // Overall match status — collapse No Match and Missing to platform-specific label
     let matchStatus;
-    if (spotifyStatus.status === 'Verified (Source)' && appleStatus.status === 'Matched') matchStatus = 'Matched';
-    else if (appleStatus.status === 'Verified (Source)' && spotifyStatus.status === 'Matched') matchStatus = 'Matched';
-    else if (appleStatus.status === 'Auth Unavailable' || spotifyStatus.status === 'Auth Unavailable') matchStatus = 'Auth Unavailable';
-    else if (appleStatus.status === 'Possible Match' || spotifyStatus.status === 'Possible Match') matchStatus = 'Possible Match';
-    else if (appleStatus.status === 'Missing') matchStatus = 'Missing on Apple';
-    else if (spotifyStatus.status === 'Missing') matchStatus = 'Missing on Spotify';
+    const appleS = appleStatus.status;
+    const spotifyS = spotifyStatus.status;
+    if (spotifyS === 'Verified (Source)' && appleS === 'Matched') matchStatus = 'Matched';
+    else if (appleS === 'Verified (Source)' && spotifyS === 'Matched') matchStatus = 'Matched';
+    else if (appleS === 'Auth Unavailable' || spotifyS === 'Auth Unavailable') matchStatus = 'Auth Unavailable';
+    else if (appleS === 'Possible Match' || spotifyS === 'Possible Match') matchStatus = 'Possible Match';
+    else if (appleS === 'Missing' || appleS === 'No Match') matchStatus = 'Missing on Apple';
+    else if (spotifyS === 'Missing' || spotifyS === 'No Match') matchStatus = 'Missing on Spotify';
     else matchStatus = 'Not Confirmed';
 
     rows.push({
