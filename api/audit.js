@@ -153,6 +153,7 @@ export default async function handler(req, res) {
     const coverageStatuses = buildCoverageStatuses(subject, sourceResolution, crossRefs);
     const territorySignals = buildTerritorySignals(subject, crossRefs);
     const auditConfidence = deriveAuditConfidence(crossRefs, sourceResolution);
+    const collectionReadiness = buildCollectionReadiness(subject, crossRefs, isrcTable);
 
     // Build ISRC table and score based on scan type
     const isArtistScan = subject.canonicalSubjectType === 'artist';
@@ -229,6 +230,9 @@ export default async function handler(req, res) {
 
       // Territory signals — always 5 baseline territories
       territorySignals,
+
+      // Global collection readiness
+      collectionReadiness,
 
       // Action plan
       actionPlan,
@@ -2060,13 +2064,13 @@ function trackIntegrityLabel(score) {
   return 'Needs Attention';
 }
 
-// Insufficient data sentinel — used throughout to signal no score
+// Limited verification sentinel — used throughout to signal no score
 const INSUFFICIENT = {
   score: null,
   type: 'Catalog Quality Score',
-  label: 'Insufficient Data',
+  label: 'Limited Verification',
   insufficient: true,
-  message: 'Unable to generate a Catalog Quality Score due to incomplete data signals.',
+  message: 'Your catalog is active across platforms, but key royalty systems are not fully verified. This may impact your ability to collect all available revenue.',
 };
 
 function calculateCatalogQualityScore(isrcTable) {
@@ -2123,6 +2127,113 @@ function catalogQualityLabel(score) {
   if (score >= 65) return 'Good';
   if (score >= 45) return 'Fair';
   return 'Needs Attention';
+}
+
+
+// ─────────────────────────────────────────────────────────────────
+// GLOBAL COLLECTION READINESS
+// Evaluates: ISRC presence, distribution coverage, metadata,
+// cross-platform presence. No country data. Only verifiable signals.
+// ─────────────────────────────────────────────────────────────────
+function buildCollectionReadiness(subject, crossRefs, isrcTable) {
+  const items = [];
+
+  // ── ISRC presence ───────────────────────────────────────────────
+  const isArtist = subject.canonicalSubjectType === 'artist';
+  let isrcStatus, isrcNote;
+  if (isArtist && isrcTable?.length > 0) {
+    const withIsrc = isrcTable.filter(t => t.isrc).length;
+    const total = isrcTable.length;
+    if (withIsrc === total) {
+      isrcStatus = 'READY';
+      isrcNote = `ISRC confirmed on all ${total} verified tracks.`;
+    } else if (withIsrc >= Math.ceil(total / 2)) {
+      isrcStatus = 'PARTIAL';
+      isrcNote = `ISRC confirmed on ${withIsrc} of ${total} tracks. Missing ISRCs may affect royalty routing.`;
+    } else {
+      isrcStatus = 'AT RISK';
+      isrcNote = `ISRC missing on ${total - withIsrc} of ${total} tracks. Performance royalty routing cannot be confirmed.`;
+    }
+  } else if (!isArtist) {
+    const hasIsrc = !!(subject.canonicalIsrc);
+    isrcStatus = hasIsrc ? 'READY' : 'AT RISK';
+    isrcNote = hasIsrc
+      ? 'ISRC confirmed on this recording.'
+      : 'ISRC not found. Performance royalty routing cannot be confirmed for this track.';
+  } else {
+    isrcStatus = 'PARTIAL';
+    isrcNote = 'ISRC data unavailable for this scan.';
+  }
+  items.push({ label: 'ISRC Registration', status: isrcStatus, note: isrcNote });
+
+  // ── Distribution coverage ───────────────────────────────────────
+  const onSpotify = subject.inputPlatform === 'spotify' || crossRefs.spotify?.crossReferenceStatus === 'Cross-Reference Found';
+  const onApple   = subject.inputPlatform === 'apple'   || crossRefs.appleMusic?.crossReferenceStatus === 'Cross-Reference Found';
+  const appleAuth = crossRefs.appleMusic?.authError || crossRefs.appleMusic?.resolutionStatus === 'auth_failed';
+
+  let distStatus, distNote;
+  if (onSpotify && onApple) {
+    distStatus = 'READY';
+    distNote = 'Catalog confirmed on Spotify and Apple Music.';
+  } else if (onSpotify && appleAuth) {
+    distStatus = 'PARTIAL';
+    distNote = 'Spotify confirmed. Apple Music verification unavailable due to authentication issue.';
+  } else if (onSpotify || onApple) {
+    distStatus = 'PARTIAL';
+    distNote = 'Catalog confirmed on one major platform. Cross-platform distribution not fully verified.';
+  } else {
+    distStatus = 'AT RISK';
+    distNote = 'Distribution coverage could not be confirmed on major streaming platforms.';
+  }
+  items.push({ label: 'Distribution Coverage', status: distStatus, note: distNote });
+
+  // ── Metadata consistency ────────────────────────────────────────
+  const hasGenres = subject.genres?.length > 0;
+  let metaStatus, metaNote;
+  if (isArtist && isrcTable?.length > 0) {
+    const consistent = isrcTable.filter(t => t.matchStatus === 'Matched').length;
+    const total = isrcTable.length;
+    if (consistent === total) {
+      metaStatus = 'READY';
+      metaNote = 'Track metadata consistent across platforms.';
+    } else if (consistent >= 1) {
+      metaStatus = 'PARTIAL';
+      metaNote = `Metadata matched on ${consistent} of ${total} tracks. Inconsistencies may affect royalty attribution.`;
+    } else {
+      metaStatus = 'AT RISK';
+      metaNote = 'Track metadata could not be confirmed consistent across platforms.';
+    }
+  } else {
+    metaStatus = hasGenres ? 'READY' : 'PARTIAL';
+    metaNote = hasGenres
+      ? 'Genre metadata present on source platform.'
+      : 'Genre metadata absent on source platform. May affect discoverability and publishing.';
+  }
+  items.push({ label: 'Metadata Consistency', status: metaStatus, note: metaNote });
+
+  // ── Cross-platform presence ─────────────────────────────────────
+  let crossStatus, crossNote;
+  if (onSpotify && onApple) {
+    crossStatus = 'READY';
+    crossNote = 'Cross-platform presence verified on both major DSPs.';
+  } else if (appleAuth) {
+    crossStatus = 'PARTIAL';
+    crossNote = 'Cross-platform check incomplete — Apple Music authentication unavailable.';
+  } else if (onSpotify || onApple) {
+    crossStatus = 'PARTIAL';
+    crossNote = 'Present on one major platform. Full cross-platform presence not confirmed.';
+  } else {
+    crossStatus = 'AT RISK';
+    crossNote = 'Cross-platform presence could not be verified.';
+  }
+  items.push({ label: 'Cross-Platform Presence', status: crossStatus, note: crossNote });
+
+  // Overall status
+  const atRisk  = items.filter(i => i.status === 'AT RISK').length;
+  const partial = items.filter(i => i.status === 'PARTIAL').length;
+  const overall = atRisk > 0 ? 'AT RISK' : partial > 0 ? 'PARTIAL' : 'READY';
+
+  return { overall, items };
 }
 
 // ─────────────────────────────────────────────────────────────────
