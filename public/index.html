@@ -427,6 +427,20 @@ section{padding:100px 56px;position:relative;}
 .rs-partial{background:rgba(255,90,0,0.12);color:var(--orn2);}
 .rs-risk{background:rgba(240,80,96,0.1);color:var(--red);}
 
+/* PLATFORM CONFIRMATION STRIP */
+.r-platform-confirm{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0 2px;border-top:1px solid var(--border3);margin-top:8px;}
+.pcs-item{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.06em;}
+.pcs-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.pcs-confirmed .pcs-dot{background:var(--grn);}
+.pcs-confirmed{color:var(--grn);}
+.pcs-possible .pcs-dot{background:var(--amb);}
+.pcs-possible{color:var(--amb);}
+.pcs-auth .pcs-dot{background:var(--muted2);}
+.pcs-auth{color:var(--muted2);}
+.pcs-nomatch .pcs-dot{background:var(--red);}
+.pcs-nomatch{color:var(--red);}
+.pcs-sep{color:var(--muted);font-size:10px;}
+
 /* TERRITORY COVERAGE INSIGHTS — updated */
 .terr-summary{font-size:12px;color:var(--muted2);line-height:1.55;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border3);}
 .terr-risk-callout{background:rgba(255,90,0,0.06);border:1px solid rgba(255,90,0,0.18);border-radius:4px;padding:8px 12px;margin-top:10px;font-size:11px;color:var(--orn2);line-height:1.5;}
@@ -603,6 +617,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
         </div>
       </div>
       <div class="r-risk-why" id="r-risk-why"></div>
+      <div class="r-platform-confirm" id="r-platform-confirm" style="display:none;"></div>
     </div>
 
     <!-- Score tracking (shown if returning) -->
@@ -1274,6 +1289,8 @@ function showErrorState(errorMsg, url, errorData) {
   document.getElementById('r-issues').style.display = 'none';
   document.getElementById('r-meaning').style.display = 'none';
   // Hide locked/full-audit section — contains static fake counts that must not show
+  const pcStrip = document.getElementById('r-platform-confirm');
+  if (pcStrip) pcStrip.style.display = 'none';
   const terrSection = document.getElementById('r-territory');
   if (terrSection) terrSection.style.display = 'none';
   const readSection = document.getElementById('r-readiness');
@@ -1423,6 +1440,28 @@ function setRiskScore(score, level, data) {
     artistNameEl.textContent = data.trackTitle || data.artistName;
     platformLabelEl.textContent = data.platformLabel || 'Artist';
     artistLine.style.display = 'block';
+  }
+
+  // ── Platform confirmation strip — single source of truth ──────
+  const pc = data.platformConfirmation;
+  if (pc) {
+    const pcEl = document.getElementById('r-platform-confirm');
+    if (pcEl) {
+      const spotClass = pc.spotify.confirmed ? 'pcs-confirmed'
+        : pc.spotify.possible ? 'pcs-possible'
+        : pc.spotify.authFail ? 'pcs-auth'
+        : 'pcs-nomatch';
+      const apClass = pc.apple.confirmed ? 'pcs-confirmed'
+        : pc.apple.possible ? 'pcs-possible'
+        : pc.apple.authFail ? 'pcs-auth'
+        : 'pcs-nomatch';
+      pcEl.innerHTML = `
+        <span class="pcs-item ${spotClass}"><span class="pcs-dot"></span>Spotify — ${pc.spotify.displayStatus}</span>
+        <span class="pcs-sep">·</span>
+        <span class="pcs-item ${apClass}"><span class="pcs-dot"></span>Apple Music — ${pc.apple.displayStatus}</span>
+      `;
+      pcEl.style.display = 'flex';
+    }
   }
 
   // Why bullets — from actual coverage statuses
