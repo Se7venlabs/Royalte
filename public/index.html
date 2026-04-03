@@ -14,6 +14,10 @@
 --grad:linear-gradient(135deg,#8a5cff,#e040c8);
 --grad2:linear-gradient(135deg,#5c8aff,#8a5cff,#e040c8);
 --glow:0 0 80px rgba(138,92,255,0.2);
+/* Royalté brand orange */
+--orn:#ff5a00;--orn2:#ff7a30;
+--grad-orn:linear-gradient(135deg,#ff4a00,#ff7a30);
+--glow-orn:0 0 40px rgba(255,90,0,0.35);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -376,6 +380,51 @@ section{padding:100px 56px;position:relative;}
 .ts-unknown{background:rgba(90,88,128,0.15);color:var(--muted2);}
 .terr-conf{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);text-align:right;}
 
+
+/* GLOBAL COLLECTION READINESS */
+.r-readiness{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:14px;margin-bottom:12px;position:relative;overflow:hidden;}
+.r-readiness::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad-orn);}
+.r-read-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.r-read-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+.r-read-overall{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 10px;border-radius:2px;}
+.ro-ready{background:rgba(64,240,160,0.1);color:var(--grn);}
+.ro-partial{background:rgba(255,90,0,0.12);color:var(--orn2);}
+.ro-risk{background:rgba(240,80,96,0.1);color:var(--red);}
+.r-read-impact{font-size:12px;color:var(--muted2);margin-bottom:12px;line-height:1.5;}
+.read-item{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border3);}
+.read-item:last-child{border-bottom:none;}
+.read-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.read-body{}
+.read-label{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.read-note{font-size:11px;color:var(--muted2);line-height:1.4;}
+.read-status{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap;align-self:flex-start;margin-top:1px;}
+.rs-ready{background:rgba(64,240,160,0.1);color:var(--grn);}
+.rs-partial{background:rgba(255,90,0,0.12);color:var(--orn2);}
+.rs-risk{background:rgba(240,80,96,0.1);color:var(--red);}
+
+/* TERRITORY COVERAGE INSIGHTS — updated */
+.terr-summary{font-size:12px;color:var(--muted2);line-height:1.55;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border3);}
+.terr-risk-callout{background:rgba(255,90,0,0.06);border:1px solid rgba(255,90,0,0.18);border-radius:4px;padding:8px 12px;margin-top:10px;font-size:11px;color:var(--orn2);line-height:1.5;}
+.terr-risk-callout strong{color:var(--orn);}
+
+/* FULL AUDIT CTA */
+.r-full-audit-cta{background:linear-gradient(135deg,rgba(8,27,78,0.9),rgba(3,3,10,0.95));border:1px solid rgba(255,90,0,0.3);border-radius:8px;padding:28px;margin-bottom:12px;position:relative;overflow:hidden;text-align:center;}
+.r-full-audit-cta::before{content:'';position:absolute;inset:-1px;border-radius:9px;background:var(--grad-orn);opacity:0.12;z-index:-1;}
+.r-full-audit-cta::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad-orn);}
+.rfac-eyebrow{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--orn2);margin-bottom:10px;}
+.rfac-headline{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;color:var(--text);margin-bottom:10px;line-height:1.1;}
+.rfac-headline span{color:var(--orn);}
+.rfac-body{font-size:13px;color:var(--muted2);line-height:1.7;max-width:480px;margin:0 auto 20px;}
+.rfac-btn{display:inline-block;background:var(--grad-orn);color:#fff;padding:14px 36px;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;text-decoration:none;box-shadow:var(--glow-orn);transition:all 0.2s;}
+.rfac-btn:hover{transform:translateY(-2px);box-shadow:0 0 60px rgba(255,90,0,0.5);}
+.rfac-scarcity{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-top:12px;}
+
+/* LIMITED VERIFICATION badge */
+.r-limited-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,90,0,0.08);border:1px solid rgba(255,90,0,0.2);border-radius:3px;padding:4px 10px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:var(--orn2);letter-spacing:0.1em;margin-bottom:8px;}
+
+/* What this means — updated */
+.r-meaning .rm-text strong{color:var(--orn2);}
+
 /* FOOTER */
 footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
 .f-wordmark{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
@@ -488,7 +537,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
         </div>
         <div class="d-alert">
           <div class="d-alert-dot"></div>
-          <div class="d-alert-t" id="hero-alert-text"><strong>Issues found</strong> — SoundExchange Not Confirmed · PRO Not Connected</div>
+          <div class="d-alert-t" id="hero-alert-text"><strong>Verification gaps detected</strong> — SoundExchange · PRO · Cross-platform</div>
         </div>
         <div class="d-coverage">
           <div class="d-cov-item"><span class="d-cov-name">Spotify</span><span class="d-cov-status s-registered">REGISTERED</span></div>
@@ -505,7 +554,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
 <div class="results-wrap" id="results-wrap">
   <div class="results-inner">
     <div class="results-hd">
-      <div class="results-title">// Your Beta Audit Preview</div>
+      <div class="results-title">// Your Royalty Audit Preview</div>
       <div class="results-tag" id="results-tag">Scanning...</div>
     </div>
 
@@ -562,7 +611,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <!-- Verified issues preview -->
     <div class="r-issues" id="r-issues" style="display:none;">
       <div class="ri-hd">
-        <div class="ri-title">// Verified issues — preview</div>
+        <div class="ri-title">// Verification gaps detected — preview</div>
         <span id="r-issue-count" style="font-family:'Space Mono',monospace;font-size:8px;padding:2px 8px;border-radius:2px;background:rgba(240,80,96,0.1);color:var(--red);font-weight:700;">—</span>
       </div>
       <div id="r-issues-list"></div>
@@ -571,7 +620,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <!-- What this means -->
     <div class="r-meaning" id="r-meaning" style="display:none;">
       <div class="rm-title">// What this means</div>
-      <div class="rm-text">If a recording is <strong>Not Registered</strong>, royalties may not be collected. Issues marked <strong>Not Confirmed</strong> require manual verification — they cannot be resolved without direct contact with the relevant organisation.</div>
+      <div class="rm-text">Your music is live — but <strong>revenue systems may not be fully connected</strong>. Verification gaps mean royalties may be going uncollected. Each gap below represents a specific action that could recover revenue you are already entitled to.</div>
     </div>
 
     <!-- ISRC track table — shown on artist scans -->
@@ -586,10 +635,33 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <!-- Territory signals — always 5 baseline territories -->
     <div class="r-territory" id="r-territory" style="display:none;">
       <div class="r-terr-hd">
-        <div class="r-terr-title">// Territory coverage signals</div>
+        <div class="r-terr-title">// Territory Coverage Insights</div>
         <span style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);padding:2px 8px;border-radius:2px;background:var(--bg4);">INFERRED — not verified</span>
       </div>
+      <div class="terr-summary" id="r-terr-summary">Your catalog appears to have partial global coverage, but key territories may not be fully validated for royalty collection.</div>
       <div id="r-territory-list"></div>
+      <div class="terr-risk-callout" id="r-terr-risk" style="display:none;">
+        <strong>Potential revenue exposure detected in:</strong> <span id="r-terr-risk-list"></span>
+      </div>
+    </div>
+
+    <!-- Global Collection Readiness -->
+    <div class="r-readiness" id="r-readiness" style="display:none;">
+      <div class="r-read-hd">
+        <div class="r-read-title">// Global Collection Readiness</div>
+        <span class="r-read-overall ro-partial" id="r-read-overall">PARTIAL</span>
+      </div>
+      <div class="r-read-impact" id="r-read-impact">Your catalog shows gaps that may prevent full royalty collection across platforms.</div>
+      <div id="r-readiness-list"></div>
+    </div>
+
+    <!-- Full Audit CTA -->
+    <div class="r-full-audit-cta" id="r-full-audit-cta" style="display:none;">
+      <div class="rfac-eyebrow">// Complimentary — Limited Access</div>
+      <div class="rfac-headline">Complimentary Full Audit<br><span>Limited to 200 Artists</span></div>
+      <div class="rfac-body">Upload your latest PRO, publishing, or distributor statement to uncover missing earnings, territory gaps, and uncollected royalties across your catalog.</div>
+      <button class="rfac-btn" onclick="scrollToForm()">Unlock Full Audit →</button>
+      <div class="rfac-scarcity">// Spots remaining · Free during beta · 12–24 hour delivery</div>
     </div>
 
     <!-- Error panel — shown when source resolution fails -->
@@ -981,6 +1053,11 @@ function showRealResults(data) {
   if (errorPanel) errorPanel.style.display = 'none';
   const revealMockup = document.getElementById('r-reveal-mockup');
   if (revealMockup) revealMockup.style.display = 'block';
+  // Readiness + CTA shown by their own render functions
+  // but ensure they're not stuck hidden from a previous error
+  const readSec = document.getElementById('r-readiness');
+  const ctaSec  = document.getElementById('r-full-audit-cta');
+  // These are shown inside their render functions, not here
   const rTransition = document.getElementById('r-transition');
   if (rTransition) rTransition.style.display = 'flex';
   const subject = data.canonicalSubject || {};
@@ -1056,10 +1133,20 @@ function showRealResults(data) {
     buildIssues(issues, issueCount);
   }
 
-  // ── Territory signals ────────────────────────────────────
+  // ── Territory signals + risk callout ────────────────────
   if (data.territorySignals) {
     buildTerritorySection(data.territorySignals);
+    buildTerritoryCallout(data.territorySignals);
   }
+
+  // ── Collection readiness ──────────────────────────────────
+  if (data.collectionReadiness) {
+    buildCollectionReadinessUI(data.collectionReadiness);
+  }
+
+  // ── Full audit CTA ────────────────────────────────────────
+  const ctaEl = document.getElementById('r-full-audit-cta');
+  if (ctaEl) ctaEl.style.display = 'block';
 
   // ── ISRC cross-platform table ────────────────────────────
   if (data.isrcTable && data.isrcTable.length > 0) {
@@ -1110,6 +1197,10 @@ function showErrorState(errorMsg, url, errorData) {
   // Hide locked/full-audit section — contains static fake counts that must not show
   const terrSection = document.getElementById('r-territory');
   if (terrSection) terrSection.style.display = 'none';
+  const readSection = document.getElementById('r-readiness');
+  if (readSection) readSection.style.display = 'none';
+  const ctaSection = document.getElementById('r-full-audit-cta');
+  if (ctaSection) ctaSection.style.display = 'none';
   const isrcSection = document.getElementById('r-isrc');
   if (isrcSection) isrcSection.style.display = 'none';
   const revealMockup = document.getElementById('r-reveal-mockup');
@@ -1190,17 +1281,17 @@ function setRiskScore(score, level, data) {
     // ── INSUFFICIENT DATA STATE ───────────────────────────────────
     // Score and label must both be hidden — no coloured badge, no quality label
     document.getElementById('r-risk-num').textContent = '—';
-    document.getElementById('r-risk-level').textContent = 'INSUFFICIENT';
+    document.getElementById('r-risk-level').textContent = 'LIMITED';
     document.getElementById('r-risk-badge').className = 'r-risk-badge'; // no colour class
     document.getElementById('r-risk-badge').style.background = 'rgba(90,88,128,0.12)';
     document.getElementById('r-risk-badge').style.border = '1px solid rgba(90,88,128,0.25)';
     document.getElementById('r-risk-num').style.color = 'var(--muted2)';
     document.getElementById('r-risk-level').style.color = 'var(--muted)';
-    document.getElementById('r-risk-title').textContent = 'Insufficient data';
+    document.getElementById('r-risk-title').textContent = 'Limited Verification';
     document.getElementById('r-risk-desc').textContent =
-      primary?.message || 'Unable to generate a score due to incomplete data signals. Try scanning a track URL for a Track Integrity Score.';
+      primary?.message || 'Your catalog is active across platforms, but key royalty systems are not fully verified. This may impact your ability to collect all available revenue.';
     document.getElementById('r-risk-why').innerHTML =
-      '<div class="r-risk-why-item" style="color:var(--muted);">Score requires at least 3 resolved tracks and 2 verified ISRCs.</div>';
+      '<div class="r-risk-why-item" style="color:var(--muted);">A full score requires at least 3 resolved tracks and 2 verified ISRCs.</div>';
     return;
   }
 
@@ -1437,6 +1528,56 @@ function buildTerritorySection(territorySignals) {
       <span class="terr-conf">${t.confidence}</span>
     </div>
   `).join('');
+}
+
+// ── COLLECTION READINESS ──────────────────────────────────────
+function buildCollectionReadinessUI(readiness) {
+  if (!readiness) return;
+  const section = document.getElementById('r-readiness');
+  const list    = document.getElementById('r-readiness-list');
+  const overall = document.getElementById('r-read-overall');
+  const impact  = document.getElementById('r-read-impact');
+  section.style.display = 'block';
+
+  const overallClass = { READY: 'ro-ready', PARTIAL: 'ro-partial', 'AT RISK': 'ro-risk' };
+  overall.textContent = readiness.overall;
+  overall.className = 'r-read-overall ' + (overallClass[readiness.overall] || 'ro-partial');
+
+  if (readiness.overall === 'AT RISK') {
+    impact.textContent = 'Your catalog shows significant gaps that may prevent full royalty collection across platforms.';
+  } else if (readiness.overall === 'PARTIAL') {
+    impact.textContent = 'Your catalog shows gaps that may prevent full royalty collection across platforms.';
+  } else {
+    impact.textContent = 'Your catalog appears well-positioned for royalty collection across verified platforms.';
+  }
+
+  const dotColor = { READY: 'var(--grn)', PARTIAL: 'var(--orn2)', 'AT RISK': 'var(--red)' };
+  const statusClass = { READY: 'rs-ready', PARTIAL: 'rs-partial', 'AT RISK': 'rs-risk' };
+
+  list.innerHTML = readiness.items.map(item => `
+    <div class="read-item">
+      <div class="read-dot" style="background:${dotColor[item.status] || 'var(--muted2)'}"></div>
+      <div class="read-body">
+        <div class="read-label">${item.label}</div>
+        <div class="read-note">${item.note}</div>
+      </div>
+      <span class="read-status ${statusClass[item.status] || 'rs-partial'}">${item.status}</span>
+    </div>
+  `).join('');
+}
+
+// ── TERRITORY CALLOUT ──────────────────────────────────────────
+function buildTerritoryCallout(territorySignals) {
+  const unclear = (territorySignals || [])
+    .filter(t => t.coverageSignal === 'Coverage Unclear' || t.coverageSignal === 'Coverage Unknown')
+    .map(t => t.name);
+
+  const callout = document.getElementById('r-terr-risk');
+  const calloutList = document.getElementById('r-terr-risk-list');
+  if (callout && calloutList && unclear.length > 0) {
+    calloutList.textContent = unclear.join(', ');
+    callout.style.display = 'block';
+  }
 }
 
 // ── FORM ───────────────────────────────────────────────────────
