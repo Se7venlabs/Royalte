@@ -172,6 +172,7 @@ export default async function handler(req, res) {
       artistName: subject.canonicalArtistName,
       trackTitle: subject.canonicalTrackName || null,
       trackIsrc: subject.canonicalIsrc || null,
+      trackIsrcReport: subject.trackIsrcReport || null,
       artistId: subject.canonicalArtistId,
       followers: subject.followers || 0,
       genres: subject.genres || [],
@@ -368,6 +369,12 @@ async function resolveSpotifySource(parsed) {
         spotifyTopTracks: topTracks,
         spotifyTrackIsrc: trackRaw?.external_ids?.isrc || null,
       },
+      // Track-level ISRC report — only populated on artist scans
+      trackIsrcReport: parsed.type === 'artist' ? topTracks.map(t => ({
+        name: t.name,
+        isrc: t.isrc || null,
+        hasIsrc: !!t.isrc,
+      })) : null,
     };
 
     return { success: true, auditReady: true, metadataStatus: 'resolved', canonicalSubject, catalog };
@@ -1341,7 +1348,7 @@ function buildVerifiedIssues(subject, moduleStates, crossRefs) {
   const isAppleInput = subject.inputPlatform === 'apple';
   const effectiveIsrc = subject.canonicalIsrc || crossRefs.spotify.isrc || null;
 
-  // ── Verified: ISRC missing ────────────────────────────────────
+  // ── Verified: ISRC missing on track scan ────────────────────
   if (isTrack && !effectiveIsrc && crossRefs.spotify.resolutionStatus === 'resolved') {
     issues.push({
       type: 'missing_isrc',
@@ -1350,8 +1357,26 @@ function buildVerifiedIssues(subject, moduleStates, crossRefs) {
       status: 'Not Confirmed',
       verifiedBy: isSpotifyInput ? 'Spotify API (source)' : 'Spotify cross-reference',
       title: 'ISRC not found on this recording',
-      detail: 'The International Standard Recording Code (ISRC) was not returned. Without an ISRC, performance royalty routing cannot be confirmed.',
+      detail: 'The International Standard Recording Code (ISRC) was not returned by Spotify for this track. Without an ISRC, performance royalty routing cannot be confirmed.',
     });
+  }
+
+  // ── Verified: ISRC gaps on artist scan — track-by-track check ──
+  // Only fires when we have actual track data to check against.
+  // Never fires on artist scans without track data (no false positives).
+  if (!isTrack && subject.trackIsrcReport && subject.trackIsrcReport.length > 0) {
+    const missingIsrc = subject.trackIsrcReport.filter(t => !t.hasIsrc);
+    if (missingIsrc.length > 0) {
+      issues.push({
+        type: 'tracks_missing_isrc',
+        module: 'Metadata Integrity',
+        priority: missingIsrc.length >= 3 ? 'HIGH' : 'MEDIUM',
+        status: 'Not Registered',
+        verifiedBy: 'Spotify API — top tracks endpoint',
+        title: `${missingIsrc.length} of ${subject.trackIsrcReport.length} top tracks missing ISRC`,
+        detail: `The following tracks have no ISRC: ${missingIsrc.map(t => t.name).join(', ')}. Without an ISRC, performance royalty routing cannot be confirmed for these recordings.`,
+      });
+    }
   }
 
   // ── Verified: Missing genres ──────────────────────────────────
