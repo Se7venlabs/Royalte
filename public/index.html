@@ -984,7 +984,7 @@ function showRealResults(data) {
   const rTransition = document.getElementById('r-transition');
   if (rTransition) rTransition.style.display = 'flex';
   const subject = data.canonicalSubject || {};
-  const score = data.primaryScore?.score ?? data.royaltyRiskScore ?? 0;
+  const score = data.primaryScore?.insufficient ? null : (data.primaryScore?.score ?? data.royaltyRiskScore ?? null);
   const level = data.primaryScore?.label || data.riskLevel || 'Moderate';
   const artistId = subject.canonicalArtistId || data.artistId;
   const issueCount = data.issueCount || 0;
@@ -1177,17 +1177,45 @@ function riskColor(level) {
 
 // ── RISK SCORE CARD ────────────────────────────────────────────
 function setRiskScore(score, level, data) {
-  document.getElementById('r-risk-num').textContent = score !== null ? score : '—';
-  document.getElementById('r-risk-level').textContent = (level || 'N/A').toUpperCase();
+  const primary = data?.primaryScore;
+  const isInsufficient = primary?.insufficient === true || score === null || score === undefined;
 
-  // Score type label — Track Integrity Score or Catalog Quality Score
+  // Score type label
   const typeLabelEl = document.getElementById('r-score-type-label');
-  if (typeLabelEl && data?.primaryScore?.type) {
-    typeLabelEl.textContent = '// ' + data.primaryScore.type;
+  if (typeLabelEl && primary?.type) {
+    typeLabelEl.textContent = '// ' + primary.type;
   }
 
-  // Badge color based on label not level string
-  const lbl = (data?.primaryScore?.label || level || '').toLowerCase();
+  if (isInsufficient) {
+    // ── INSUFFICIENT DATA STATE ───────────────────────────────────
+    // Score and label must both be hidden — no coloured badge, no quality label
+    document.getElementById('r-risk-num').textContent = '—';
+    document.getElementById('r-risk-level').textContent = 'INSUFFICIENT';
+    document.getElementById('r-risk-badge').className = 'r-risk-badge'; // no colour class
+    document.getElementById('r-risk-badge').style.background = 'rgba(90,88,128,0.12)';
+    document.getElementById('r-risk-badge').style.border = '1px solid rgba(90,88,128,0.25)';
+    document.getElementById('r-risk-num').style.color = 'var(--muted2)';
+    document.getElementById('r-risk-level').style.color = 'var(--muted)';
+    document.getElementById('r-risk-title').textContent = 'Insufficient data';
+    document.getElementById('r-risk-desc').textContent =
+      primary?.message || 'Unable to generate a score due to incomplete data signals. Try scanning a track URL for a Track Integrity Score.';
+    document.getElementById('r-risk-why').innerHTML =
+      '<div class="r-risk-why-item" style="color:var(--muted);">Score requires at least 3 resolved tracks and 2 verified ISRCs.</div>';
+    return;
+  }
+
+  // ── VALID SCORE STATE ─────────────────────────────────────────
+  // Reset any inline styles from insufficient state
+  document.getElementById('r-risk-badge').style.background = '';
+  document.getElementById('r-risk-badge').style.border = '';
+  document.getElementById('r-risk-num').style.color = '';
+  document.getElementById('r-risk-level').style.color = '';
+
+  document.getElementById('r-risk-num').textContent = score;
+  document.getElementById('r-risk-level').textContent = (level || 'N/A').toUpperCase();
+
+  // Badge color based on label
+  const lbl = (primary?.label || level || '').toLowerCase();
   const badgeClass = lbl.includes('strong') ? 'low'
     : lbl.includes('good') ? 'low'
     : lbl.includes('fair') ? 'moderate'
@@ -1200,20 +1228,20 @@ function setRiskScore(score, level, data) {
   // Title and description
   const scoreType = data?.scanType === 'track' ? 'track' : 'catalog';
   const titles = {
-    Strong: scoreType === 'track' ? 'Strong track integrity' : 'Strong catalog quality',
-    Good:   scoreType === 'track' ? 'Good track integrity' : 'Good catalog quality',
-    Fair:   scoreType === 'track' ? 'Fair track integrity' : 'Fair catalog quality',
-    'Needs Attention': scoreType === 'track' ? 'Track needs attention' : 'Catalog needs attention',
+    Strong:           scoreType === 'track' ? 'Strong track integrity'    : 'Strong catalog quality',
+    Good:             scoreType === 'track' ? 'Good track integrity'      : 'Good catalog quality',
+    Fair:             scoreType === 'track' ? 'Fair track integrity'      : 'Fair catalog quality',
+    'Needs Attention':scoreType === 'track' ? 'Track needs attention'     : 'Catalog needs attention',
   };
   const descs = {
-    Strong: 'Cross-platform presence confirmed. Metadata looks complete.',
-    Good:   'Most checks passed. Minor gaps found — review issues below.',
-    Fair:   'Several gaps detected. Review the verified issues and action plan.',
-    'Needs Attention': 'Significant gaps found. Take action on the verified issues below.',
+    Strong:           'Cross-platform presence confirmed. Metadata looks complete.',
+    Good:             'Most checks passed. Minor gaps found — review issues below.',
+    Fair:             'Several gaps detected. Review the verified issues and action plan.',
+    'Needs Attention':'Significant gaps found. Take action on the verified issues below.',
   };
-  const scoreLabel = data?.primaryScore?.label || level;
-  document.getElementById('r-risk-title').textContent = titles[scoreLabel] || titles.Good;
-  document.getElementById('r-risk-desc').textContent = descs[scoreLabel] || descs.Good;
+  const scoreLabel = primary?.label || level;
+  document.getElementById('r-risk-title').textContent = titles[scoreLabel] || 'Audit complete';
+  document.getElementById('r-risk-desc').textContent = descs[scoreLabel] || 'Review the findings below.';
 
   // Artist line — driven by canonicalSubject, never static
   const artistLine = document.getElementById('r-artist-line');
