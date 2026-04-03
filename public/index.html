@@ -347,12 +347,18 @@ section{padding:100px 56px;position:relative;}
 .r-isrc{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:14px;margin-bottom:12px;}
 .r-isrc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .r-isrc-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
-.isrc-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border3);}
+.isrc-row{display:grid;grid-template-columns:1fr 130px 90px 90px 110px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border3);font-size:11px;}
 .isrc-row:last-child{border-bottom:none;}
+.isrc-header{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--border);}
 .isrc-track-name{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.isrc-code{font-family:'Space Mono',monospace;font-size:9px;padding:2px 8px;border-radius:2px;font-weight:700;white-space:nowrap;}
-.isrc-found{background:rgba(64,240,160,0.1);color:var(--grn);}
-.isrc-missing{background:rgba(240,80,96,0.1);color:var(--red);}
+.isrc-code{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);}
+.isrc-pill{font-family:'Space Mono',monospace;font-size:8px;padding:2px 6px;border-radius:2px;font-weight:700;white-space:nowrap;text-align:center;}
+.ip-matched{background:rgba(64,240,160,0.1);color:var(--grn);}
+.ip-missing{background:rgba(240,80,96,0.1);color:var(--red);}
+.ip-possible{background:rgba(64,212,240,0.1);color:var(--cyn);}
+.ip-auth{background:rgba(90,88,128,0.15);color:var(--muted2);}
+.ip-source{background:rgba(138,92,255,0.1);color:var(--pur);}
+.ip-notconfirmed{background:rgba(240,192,64,0.1);color:var(--amb);}
 
 /* FOOTER */
 footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
@@ -495,7 +501,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
           <div class="r-risk-badge-lbl" id="r-risk-level">RISK</div>
         </div>
         <div class="r-risk-info">
-          <div class="r-risk-label">// Royalty Risk Score</div>
+          <div class="r-risk-label" id="r-score-type-label">// Royalty Risk Score</div>
           <div class="r-risk-title" id="r-risk-title">Analysing...</div>
           <div id="r-artist-line" style="display:none;margin-bottom:3px;">
             <span id="r-artist-name" style="font-size:14px;font-weight:600;color:var(--text);"></span>
@@ -950,8 +956,8 @@ function showRealResults(data) {
   const rTransition = document.getElementById('r-transition');
   if (rTransition) rTransition.style.display = 'flex';
   const subject = data.canonicalSubject || {};
-  const score = data.royaltyRiskScore || 0;
-  const level = data.riskLevel || 'Moderate';
+  const score = data.primaryScore?.score ?? data.royaltyRiskScore ?? 0;
+  const level = data.primaryScore?.label || data.riskLevel || 'Moderate';
   const artistId = subject.canonicalArtistId || data.artistId;
   const issueCount = data.issueCount || 0;
   const artistName = subject.canonicalArtistName || data.artistName || 'Unknown Artist';
@@ -989,7 +995,7 @@ function showRealResults(data) {
   document.getElementById('results-tag').textContent = `${artistName}${tagFollowers} · ${platformLabel}`;
 
   // ── Risk score card ────────────────────────────────────────
-  setRiskScore(score, level, { artistName, trackTitle, platformLabel, issueCount, coverageStatuses: data.coverageStatuses });
+  setRiskScore(score, level, { artistName, trackTitle, platformLabel, issueCount, coverageStatuses: data.coverageStatuses, primaryScore: data.primaryScore, scanType: data.scanType });
 
   // ── Score tracking ─────────────────────────────────────────
   if (artistId) {
@@ -1022,9 +1028,9 @@ function showRealResults(data) {
     buildIssues(issues, issueCount);
   }
 
-  // ── ISRC track table ──────────────────────────────────────
-  if (data.trackIsrcReport) {
-    buildIsrcTable(data.trackIsrcReport);
+  // ── ISRC cross-platform table ────────────────────────────
+  if (data.isrcTable && data.isrcTable.length > 0) {
+    buildIsrcTable(data.isrcTable, data.scanType);
   }
 
   // ── What this means ────────────────────────────────────────
@@ -1136,18 +1142,43 @@ function riskColor(level) {
 
 // ── RISK SCORE CARD ────────────────────────────────────────────
 function setRiskScore(score, level, data) {
-  document.getElementById('r-risk-num').textContent = score;
-  document.getElementById('r-risk-level').textContent = level.toUpperCase();
-  document.getElementById('r-risk-badge').className = 'r-risk-badge ' + level.toLowerCase();
+  document.getElementById('r-risk-num').textContent = score !== null ? score : '—';
+  document.getElementById('r-risk-level').textContent = (level || 'N/A').toUpperCase();
 
-  const titles = { Low: 'Low royalty risk', Moderate: 'Moderate royalty risk', High: 'High royalty risk' };
-  const descs = {
-    Low: 'No critical verified gaps detected. Review recommended actions to maintain your score.',
-    Moderate: 'Verified issues found that may affect royalty collection. Review and complete recommended actions.',
-    High: 'Significant verified gaps detected. Immediate action recommended.',
+  // Score type label — Track Integrity Score or Catalog Quality Score
+  const typeLabelEl = document.getElementById('r-score-type-label');
+  if (typeLabelEl && data?.primaryScore?.type) {
+    typeLabelEl.textContent = '// ' + data.primaryScore.type;
+  }
+
+  // Badge color based on label not level string
+  const lbl = (data?.primaryScore?.label || level || '').toLowerCase();
+  const badgeClass = lbl.includes('strong') ? 'low'
+    : lbl.includes('good') ? 'low'
+    : lbl.includes('fair') ? 'moderate'
+    : lbl.includes('attention') ? 'high'
+    : lbl.includes('low') ? 'low'
+    : lbl.includes('high') ? 'high'
+    : 'moderate';
+  document.getElementById('r-risk-badge').className = 'r-risk-badge ' + badgeClass;
+
+  // Title and description
+  const scoreType = data?.scanType === 'track' ? 'track' : 'catalog';
+  const titles = {
+    Strong: scoreType === 'track' ? 'Strong track integrity' : 'Strong catalog quality',
+    Good:   scoreType === 'track' ? 'Good track integrity' : 'Good catalog quality',
+    Fair:   scoreType === 'track' ? 'Fair track integrity' : 'Fair catalog quality',
+    'Needs Attention': scoreType === 'track' ? 'Track needs attention' : 'Catalog needs attention',
   };
-  document.getElementById('r-risk-title').textContent = titles[level] || titles.Moderate;
-  document.getElementById('r-risk-desc').textContent = descs[level] || descs.Moderate;
+  const descs = {
+    Strong: 'Cross-platform presence confirmed. Metadata looks complete.',
+    Good:   'Most checks passed. Minor gaps found — review issues below.',
+    Fair:   'Several gaps detected. Review the verified issues and action plan.',
+    'Needs Attention': 'Significant gaps found. Take action on the verified issues below.',
+  };
+  const scoreLabel = data?.primaryScore?.label || level;
+  document.getElementById('r-risk-title').textContent = titles[scoreLabel] || titles.Good;
+  document.getElementById('r-risk-desc').textContent = descs[scoreLabel] || descs.Good;
 
   // Artist line — driven by canonicalSubject, never static
   const artistLine = document.getElementById('r-artist-line');
@@ -1244,37 +1275,78 @@ function buildIssues(issues, total) {
   }
 }
 
-// ── ISRC TRACK TABLE ──────────────────────────────────────────
-function buildIsrcTable(trackIsrcReport) {
-  if (!trackIsrcReport || trackIsrcReport.length === 0) return;
+// ── ISRC TABLE ────────────────────────────────────────────────
+function matchStatusPillClass(status) {
+  if (!status) return 'ip-notconfirmed';
+  const s = status.toLowerCase();
+  if (s.includes('matched') || s.includes('source')) return 'ip-matched';
+  if (s.includes('possible')) return 'ip-possible';
+  if (s.includes('auth')) return 'ip-auth';
+  if (s.includes('missing')) return 'ip-missing';
+  if (s.includes('verified')) return 'ip-source';
+  return 'ip-notconfirmed';
+}
+
+function platformPillClass(status) {
+  if (!status) return 'ip-notconfirmed';
+  const s = status.toLowerCase();
+  if (s.includes('source') || s.includes('verified') || s.includes('matched')) return 'ip-matched';
+  if (s.includes('possible')) return 'ip-possible';
+  if (s.includes('auth')) return 'ip-auth';
+  if (s.includes('missing')) return 'ip-missing';
+  return 'ip-notconfirmed';
+}
+
+function buildIsrcTable(isrcTable, scanType) {
+  if (!isrcTable || isrcTable.length === 0) return;
 
   const section = document.getElementById('r-isrc');
   const list = document.getElementById('r-isrc-list');
   const summary = document.getElementById('r-isrc-summary');
 
-  const missing = trackIsrcReport.filter(t => !t.hasIsrc).length;
-  const total = trackIsrcReport.length;
-
   section.style.display = 'block';
 
-  if (missing === 0) {
-    summary.textContent = `All ${total} verified`;
+  const matched = isrcTable.filter(t => t.matchStatus === 'Matched').length;
+  const total = isrcTable.length;
+  const label = scanType === 'track'
+    ? '// Track cross-platform check'
+    : `// ISRC check — ${total} tracks`;
+  document.querySelector('.r-isrc-title').textContent = label;
+
+  if (matched === total) {
+    summary.textContent = `All ${total} matched`;
     summary.style.background = 'rgba(64,240,160,0.1)';
     summary.style.color = 'var(--grn)';
+  } else if (matched > 0) {
+    summary.textContent = `${matched}/${total} matched`;
+    summary.style.background = 'rgba(240,192,64,0.1)';
+    summary.style.color = 'var(--amb)';
   } else {
-    summary.textContent = `${missing} missing`;
+    summary.textContent = 'No confirmed matches';
     summary.style.background = 'rgba(240,80,96,0.1)';
     summary.style.color = 'var(--red)';
   }
 
-  list.innerHTML = trackIsrcReport.map(t => `
+  // Header row
+  const header = `<div class="isrc-row isrc-header">
+    <div>Track</div>
+    <div>ISRC</div>
+    <div>Spotify</div>
+    <div>Apple</div>
+    <div>Match</div>
+  </div>`;
+
+  const rows = isrcTable.map(t => `
     <div class="isrc-row">
-      <div class="isrc-track-name">${t.name}</div>
-      <span class="isrc-code ${t.hasIsrc ? 'isrc-found' : 'isrc-missing'}">
-        ${t.hasIsrc ? t.isrc : 'NO ISRC'}
-      </span>
+      <div class="isrc-track-name" title="${t.name}">${t.name}</div>
+      <div class="isrc-code">${t.isrcDisplay || 'Unavailable'}</div>
+      <div><span class="isrc-pill ${platformPillClass(t.spotify?.status)}">${(t.spotify?.status || 'N/A').toUpperCase().slice(0,12)}</span></div>
+      <div><span class="isrc-pill ${platformPillClass(t.apple?.status)}">${(t.apple?.status || 'N/A').toUpperCase().slice(0,12)}</span></div>
+      <div><span class="isrc-pill ${matchStatusPillClass(t.matchStatus)}">${(t.matchStatus || 'Unknown').toUpperCase().slice(0,14)}</span></div>
     </div>
   `).join('');
+
+  list.innerHTML = header + rows;
 }
 
 // ── FORM ───────────────────────────────────────────────────────
