@@ -805,15 +805,15 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
     <div class="f-wordmark">Royalt<span>ē</span></div>
     <div class="f-tagline">Music Audit Intelligence · Beta</div>
   </div>
-  <div class="f-copy">© 2025 Royaltē · Se7ven Labs · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="50312534392410223f29313c24357e3139">[email&#160;protected]</a></div>
+  <div class="f-copy">© 2025 Royaltē · Se7ven Labs · audit@royalte.ai</div>
   <div class="f-links">
     <a href="#">Privacy</a>
     <a href="#">Terms</a>
-    <a href="/cdn-cgi/l/email-protection#8eeffbeae7facefce1f7efe2faeba0efe7">Contact</a>
+    <a href="mailto:audit@royalte.ai">Contact</a>
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ── SCORE HISTORY (localStorage) ──────────────────────────────
 const HISTORY_KEY = 'royalte_score_history_v3';
 function getScoreHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}'); } catch { return {}; } }
@@ -1238,4 +1238,14 @@ async function submitForm() {
     });
   } catch (e) {}
   document.getElementById('form-inner').style.display = 'none';
-  document.getElementById('form-success').style.display = 'bl
+  document.getElementById('form-success').style.display = 'block';
+}
+
+function scrollToForm() {
+  document.getElementById('request').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
+</script>
+</body>
+</html>
