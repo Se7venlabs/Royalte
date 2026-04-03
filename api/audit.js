@@ -150,7 +150,12 @@ export default async function handler(req, res) {
     const moduleStates = buildModuleStates(subject, sourceResolution, crossRefs);
     const verifiedIssues = buildVerifiedIssues(subject, moduleStates, crossRefs);
     const actionPlan = buildActionPlan(verifiedIssues, crossRefs.audiodb?.country || crossRefs.wikidata?.country || null);
-    const coverageStatuses = buildCoverageStatuses(subject, sourceResolution, crossRefs);
+    // Platform confirmation — single source of truth, computed before everything else
+    const platformConfirmation = buildPlatformConfirmation(subject, crossRefs);
+    // Attach to crossRefs so buildVerifiedIssues can access without signature change
+    crossRefs._platformConfirmation = platformConfirmation;
+
+    const coverageStatuses = buildCoverageStatuses(subject, sourceResolution, crossRefs, platformConfirmation);
     const territorySignals = buildTerritorySignals(subject, crossRefs);
     const auditConfidence = deriveAuditConfidence(crossRefs, sourceResolution);
 
@@ -236,6 +241,9 @@ export default async function handler(req, res) {
       verifiedIssues,
       issueCount: verifiedIssues.length,
       previewIssues: verifiedIssues.slice(0, 2),
+
+      // Platform confirmation — single source of truth for platform presence
+      platformConfirmation,
 
       // Coverage statuses for UI display
       coverageStatuses,
@@ -1446,45 +1454,52 @@ function buildVerifiedIssues(subject, moduleStates, crossRefs) {
     });
   }
 
-  // ── Cross-ref verified: Not on Apple Music (Spotify input only) ──
-  // Only create this issue when the cross-reference actually ran AND confirmed no match.
-  // Auth failures (resolutionStatus === 'auth_failed') must NOT create a registration claim.
-  const appleRef = crossRefs.appleMusic;
-  if (isSpotifyInput && appleRef.resolutionStatus === 'resolved' && appleRef.crossReferenceStatus === 'No Verified Match Yet') {
-    issues.push({
-      type: 'not_on_apple_music',
-      module: 'Platform Coverage',
-      priority: 'HIGH',
-      status: 'No Verified Match Yet',
-      verifiedBy: 'Apple Music API (cross-reference)',
-      title: 'No Apple Music match found',
-      detail: 'Cross-reference against Apple Music returned no verified match for this artist. Distribution gaps here may be limiting royalty collection.',
-    });
-  }
-  // Apple auth failure — show as informational only, NOT as registration claim
-  if (isSpotifyInput && (appleRef.resolutionStatus === 'auth_failed' || appleRef.authError)) {
-    issues.push({
-      type: 'apple_auth_unavailable',
-      module: 'Platform Coverage',
-      priority: 'MEDIUM',
-      status: 'Auth Unavailable',
-      verifiedBy: null,
-      title: 'Apple Music cross-reference temporarily unavailable',
-      detail: 'Apple Music authentication failed during this scan. This does not indicate the artist is unregistered on Apple Music. Try again or request the full audit for manual Apple Music verification.',
-    });
-  }
+  // ── Platform presence issues — read from platformConfirmation (single source of truth) ──
+  // platformConfirmation is stored on crossRefs for access here without changing signature
+  const pc = crossRefs._platformConfirmation;
 
-  // ── Cross-ref verified: Not on Spotify (Apple input only) ────────
-  if (isAppleInput && crossRefs.spotify.resolutionStatus === 'resolved' && crossRefs.spotify.crossReferenceStatus === 'No Verified Match Yet') {
-    issues.push({
-      type: 'not_on_spotify',
-      module: 'Platform Coverage',
-      priority: 'HIGH',
-      status: 'No Verified Match Yet',
-      verifiedBy: 'Spotify API (cross-reference)',
-      title: 'No Spotify match found',
-      detail: 'Cross-reference against Spotify returned no verified match for this artist.',
-    });
+  if (pc) {
+    // Apple Music — only fire if pc says NO_MATCH (not auth failure, not possible match)
+    if (isSpotifyInput && pc.apple.noMatch) {
+      issues.push({
+        type: 'not_on_apple_music',
+        module: 'Platform Coverage',
+        priority: 'HIGH',
+        status: 'No Match',
+        verifiedBy: 'Apple Music API (cross-reference)',
+        title: 'No Apple Music match found',
+        detail: 'Cross-reference against Apple Music returned no verified match for this artist. Distribution gaps here may be limiting royalty collection.',
+      });
+    }
+    if (isSpotifyInput && pc.apple.authFail) {
+      issues.push({
+        type: 'apple_auth_unavailable',
+        module: 'Platform Coverage',
+        priority: 'MEDIUM',
+        status: 'Auth Unavailable',
+        verifiedBy: null,
+        title: 'Apple Music cross-reference temporarily unavailable',
+        detail: 'Apple Music authentication failed during this scan. This does not indicate the artist is unregistered on Apple Music.',
+      });
+    }
+    // Spotify — only fire if pc says NO_MATCH
+    if (isAppleInput && pc.spotify.noMatch) {
+      issues.push({
+        type: 'not_on_spotify',
+        module: 'Platform Coverage',
+        priority: 'HIGH',
+        status: 'No Match',
+        verifiedBy: 'Spotify API (cross-reference)',
+        title: 'No Spotify match found',
+        detail: 'Cross-reference against Spotify returned no verified match for this artist.',
+      });
+    }
+  } else {
+    // Fallback — no platformConfirmation available, use raw cross-ref (safe defaults)
+    const appleRef = crossRefs.appleMusic;
+    if (isSpotifyInput && appleRef.resolutionStatus === 'resolved' && appleRef.crossReferenceStatus === 'No Verified Match Yet') {
+      issues.push({ type: 'not_on_apple_music', module: 'Platform Coverage', priority: 'HIGH', status: 'No Match', verifiedBy: 'Apple Music API', title: 'No Apple Music match found', detail: 'Cross-reference against Apple Music returned no verified match.' });
+    }
   }
 
   // ── Cross-ref verified: Apple catalog gap (Spotify input only) ───
@@ -1670,65 +1685,138 @@ function buildTerritorySignals(subject, crossRefs) {
   return sorted;
 }
 
-function buildCoverageStatuses(subject, sourceResolution, crossRefs) {
+
+// ─────────────────────────────────────────────────────────────────
+// PLATFORM CONFIRMATION — SINGLE SOURCE OF TRUTH
+// Must be computed immediately after cross-references.
+// All downstream sections read from this, never from independent logic.
+// ─────────────────────────────────────────────────────────────────
+
+function buildPlatformConfirmation(subject, crossRefs) {
+  const isSpotify = subject.inputPlatform === 'spotify';
+  const isApple   = subject.inputPlatform === 'apple';
+
+  // ── Source platform — always confirmed (we resolved it) ──────
+  const sourceStatus = 'CONFIRMED';
+
+  // ── Opposite platform — derive from cross-ref result ─────────
+  function derivePlatformState(ref) {
+    if (!ref) return 'AUTH_UNAVAILABLE';
+    const rs  = ref.resolutionStatus;
+    const crs = ref.crossReferenceStatus;
+    // Auth failures — must never become NO_MATCH
+    if (rs === 'auth_failed' || ref.authError)  return 'AUTH_UNAVAILABLE';
+    if (rs === 'failed')                         return 'AUTH_UNAVAILABLE';
+    // Resolved states
+    if (rs === 'resolved') {
+      if (crs === 'Cross-Reference Found' || crs === 'Source Verified' ||
+          crs === 'Profile Resolved'      || crs === 'Track Resolved')    return 'CONFIRMED';
+      if (crs === 'Possible Match')                                        return 'POSSIBLE_MATCH';
+      if (crs === 'No Verified Match Yet' || crs === 'No Match')           return 'NO_MATCH';
+    }
+    return 'AUTH_UNAVAILABLE';
+  }
+
+  const spotifyState = isSpotify ? 'CONFIRMED' : derivePlatformState(crossRefs.spotify);
+  const appleState   = isApple   ? 'CONFIRMED' : derivePlatformState(crossRefs.appleMusic);
+
+  // ── Overall confirmation label ────────────────────────────────
+  let overallStatus;
+  if (spotifyState === 'CONFIRMED' && appleState === 'CONFIRMED') {
+    overallStatus = 'CONFIRMED_ON_BOTH';
+  } else if (spotifyState === 'AUTH_UNAVAILABLE' || appleState === 'AUTH_UNAVAILABLE') {
+    const confirmedCount = [spotifyState, appleState].filter(s => s === 'CONFIRMED').length;
+    overallStatus = confirmedCount > 0 ? 'CONFIRMED_ON_SOURCE_ONLY' : 'AUTH_UNAVAILABLE';
+  } else if (spotifyState === 'POSSIBLE_MATCH' || appleState === 'POSSIBLE_MATCH') {
+    overallStatus = 'POSSIBLE_MATCH';
+  } else if (spotifyState === 'CONFIRMED' || appleState === 'CONFIRMED') {
+    overallStatus = 'CONFIRMED_ON_SOURCE_ONLY';
+  } else {
+    overallStatus = 'NO_MATCH';
+  }
+
+  // ── Human-readable labels ─────────────────────────────────────
+  const displayLabels = {
+    CONFIRMED_ON_BOTH:     'Confirmed on both platforms',
+    CONFIRMED_ON_SOURCE_ONLY: 'Confirmed on source platform only',
+    POSSIBLE_MATCH:        'Possible cross-platform match',
+    NO_MATCH:              'No cross-platform match found',
+    AUTH_UNAVAILABLE:      'Cross-platform verification unavailable',
+  };
+
+  const result = {
+    spotify: {
+      state:      spotifyState,
+      confirmed:  spotifyState === 'CONFIRMED',
+      possible:   spotifyState === 'POSSIBLE_MATCH',
+      noMatch:    spotifyState === 'NO_MATCH',
+      authFail:   spotifyState === 'AUTH_UNAVAILABLE',
+      isSource:   isSpotify,
+      displayStatus: spotifyState === 'CONFIRMED'
+        ? (isSpotify ? 'Source Verified' : 'Cross-Reference Found')
+        : spotifyState === 'POSSIBLE_MATCH' ? 'Possible Match'
+        : spotifyState === 'NO_MATCH'       ? 'No Match'
+        : 'Auth Unavailable',
+    },
+    apple: {
+      state:      appleState,
+      confirmed:  appleState === 'CONFIRMED',
+      possible:   appleState === 'POSSIBLE_MATCH',
+      noMatch:    appleState === 'NO_MATCH',
+      authFail:   appleState === 'AUTH_UNAVAILABLE',
+      isSource:   isApple,
+      displayStatus: appleState === 'CONFIRMED'
+        ? (isApple ? 'Source Verified' : 'Cross-Reference Found')
+        : appleState === 'POSSIBLE_MATCH' ? 'Possible Match'
+        : appleState === 'NO_MATCH'       ? 'No Match'
+        : 'Auth Unavailable',
+    },
+    overallStatus,
+    overallLabel: displayLabels[overallStatus] || overallStatus,
+  };
+
+  console.log('[Royalte PlatformConfirmation] Spotify:', result.spotify.state,
+    '| Apple:', result.apple.state, '| Overall:', overallStatus);
+
+  return result;
+}
+
+// buildCoverageStatuses now accepts platformConfirmation as the single source of truth.
+// All platform presence states come from platformConfirmation — no independent logic.
+function buildCoverageStatuses(subject, sourceResolution, crossRefs, platformConfirmation) {
   const isSpotifyInput = subject.inputPlatform === 'spotify';
-  const isAppleInput = subject.inputPlatform === 'apple';
+  const isAppleInput   = subject.inputPlatform === 'apple';
+
+  // Fallback if called without platformConfirmation (defensive)
+  const pc = platformConfirmation || buildPlatformConfirmation(subject, crossRefs);
 
   const statuses = [];
 
-  // ── Input source — always Source Verified ────────────────────
-  if (isSpotifyInput) {
-    statuses.push({
-      platform: 'Spotify',
-      role: 'input_source',
-      status: 'Source Verified',
-      verified: true,
-      detail: null,
-    });
-  }
-  if (isAppleInput) {
-    statuses.push({
-      platform: 'Apple Music',
-      role: 'input_source',
-      status: subject.inputEntityType === 'artist' ? 'Profile Resolved' : 'Track Resolved',
-      verified: true,
-      detail: null,
-    });
-  }
+  // ── Spotify ── read from platformConfirmation, never from raw crossRef ──
+  statuses.push({
+    platform: 'Spotify',
+    role: pc.spotify.isSource ? 'input_source' : 'cross_reference',
+    status: pc.spotify.displayStatus,
+    verified: pc.spotify.confirmed || pc.spotify.possible,
+    detail: pc.spotify.authFail
+      ? 'Spotify cross-reference unavailable — API authentication issue. This does not confirm the artist is absent.'
+      : pc.spotify.possible
+      ? 'Possible match found — metadata similarity is below high-confidence threshold.'
+      : null,
+  });
 
-  // ── Cross-references ─────────────────────────────────────────
-  if (isSpotifyInput) {
-    const am = crossRefs.appleMusic;
-    let amStatus, amDetail;
-    if (am.resolutionStatus === 'auth_failed' || am.authError) {
-      amStatus = 'Auth Unavailable';
-      amDetail = 'Apple Music cross-reference unavailable — Apple authentication error. This does not indicate the artist is unregistered.';
-    } else if (am.resolutionStatus === 'failed') {
-      amStatus = 'Not Confirmed';
-      amDetail = 'Cross-reference check failed — result unknown';
-    } else {
-      amStatus = am.crossReferenceStatus;
-      amDetail = null;
-    }
-    statuses.push({
-      platform: 'Apple Music',
-      role: 'cross_reference',
-      status: amStatus,
-      verified: am.verified,
-      detail: amDetail,
-    });
-  }
-  if (isAppleInput) {
-    const sp = crossRefs.spotify;
-    statuses.push({
-      platform: 'Spotify',
-      role: 'cross_reference',
-      status: sp.resolutionStatus === 'failed' ? 'Not Confirmed'
-        : sp.crossReferenceStatus,
-      verified: sp.verified,
-      detail: null,
-    });
-  }
+  // ── Apple Music ── read from platformConfirmation ───────────────────────
+  statuses.push({
+    platform: 'Apple Music',
+    role: pc.apple.isSource ? 'input_source' : 'cross_reference',
+    status: pc.apple.displayStatus,
+    verified: pc.apple.confirmed || pc.apple.possible,
+    detail: pc.apple.authFail
+      ? 'Apple Music cross-reference unavailable — Apple authentication error. This does not indicate the artist is unregistered.'
+      : pc.apple.possible
+      ? 'Possible match found — metadata similarity is below high-confidence threshold.'
+      : null,
+  });
 
   // YouTube
   const yt = crossRefs.youtube;
