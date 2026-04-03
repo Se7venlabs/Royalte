@@ -1029,19 +1029,26 @@ function getPreviousScan(artistId) {
 // ── STATUS CLASS MAP ───────────────────────────────────────────
 function statusClass(status) {
   const map = {
-    // Source verified states — green
+    // Source verified / confirmed — green
     'Registered': 's-registered',
     'Source Verified': 's-registered',
     'Profile Resolved': 's-registered',
     'Track Resolved': 's-registered',
     'Cross-Reference Found': 's-registered',
-    // Missing registration — red
+    'Matched': 's-registered',
+    // Missing / unmatched — red
     'Not Registered': 's-not-registered',
     'No Verified Match Yet': 's-not-registered',
-    // Unknown / unverifiable — amber
+    'No Match': 's-not-registered',
+    'Missing on Apple': 's-not-registered',
+    'Missing on Spotify': 's-not-registered',
+    'Missing': 's-not-registered',
+    // Partial / possible — amber
+    'Possible Match': 's-pending',
+    // Unknown / unverifiable — gray-blue
     'Not Confirmed': 's-not-confirmed',
     'Manual Check Required': 's-not-confirmed',
-    'Auth Unavailable': 's-not-confirmed', // auth failure ≠ not registered
+    'Auth Unavailable': 's-not-confirmed',
     'Not Connected': 's-not-connected',
     'Pending': 's-pending',
   };
@@ -1424,7 +1431,7 @@ function setRiskScore(score, level, data) {
   if (data?.coverageStatuses) {
     data.coverageStatuses.forEach(s => {
       // Auth Unavailable is shown as informational only — not a risk bullet
-      if (['No Verified Match Yet', 'Manual Check Required', 'Not Confirmed', 'Not Connected'].includes(s.status)) {
+      if (['No Verified Match Yet', 'No Match', 'Missing on Apple', 'Missing on Spotify', 'Manual Check Required', 'Not Confirmed', 'Not Connected'].includes(s.status)) {
         bullets.push(`${s.platform} — ${s.status}`);
       }
     });
@@ -1507,11 +1514,11 @@ function buildIssues(issues, total) {
 function matchStatusPillClass(status) {
   if (!status) return 'ip-notconfirmed';
   const s = status.toLowerCase();
-  if (s.includes('matched') || s.includes('source')) return 'ip-matched';
+  if (s === 'matched') return 'ip-matched';
+  if (s.includes('source') || s.includes('verified')) return 'ip-source';
   if (s.includes('possible')) return 'ip-possible';
   if (s.includes('auth')) return 'ip-auth';
-  if (s.includes('missing')) return 'ip-missing';
-  if (s.includes('verified')) return 'ip-source';
+  if (s.includes('missing') || s === 'no match') return 'ip-missing';
   return 'ip-notconfirmed';
 }
 
