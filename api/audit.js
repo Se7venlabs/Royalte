@@ -145,16 +145,35 @@ export default async function handler(req, res) {
       `${k}:${crossRefs[k].resolutionStatus}`
     ).join(' | '));
 
-    // ── STAGE E: Build verified findings ──────────────────────────
+    // ── STAGE E: Build verified findings + ISRC table + scores ─────
     console.log('[Royalte] Stage E — Building verified findings');
     const moduleStates = buildModuleStates(subject, sourceResolution, crossRefs);
-    const royaltyRiskScore = calculateRoyaltyRiskScore(subject, moduleStates, crossRefs);
     const verifiedIssues = buildVerifiedIssues(subject, moduleStates, crossRefs);
     const actionPlan = buildActionPlan(verifiedIssues, crossRefs.audiodb?.country || crossRefs.wikidata?.country || null);
     const coverageStatuses = buildCoverageStatuses(subject, sourceResolution, crossRefs);
     const auditConfidence = deriveAuditConfidence(crossRefs, sourceResolution);
 
-    console.log('[Royalte] Stage E — Risk score:', royaltyRiskScore, '| Issues:', verifiedIssues.length, '| Confidence:', auditConfidence);
+    // Build ISRC table and score based on scan type
+    const isArtistScan = subject.canonicalSubjectType === 'artist';
+    const artistTracks = subject.sourceData?.artistTracks || [];
+    const spotifyToken = subject.sourceData?.spotifyToken || null;
+
+    let isrcTable = [];
+    let primaryScore;
+
+    if (isArtistScan) {
+      // Artist scan: build 5-track ISRC table with cross-platform validation
+      if (artistTracks.length > 0) {
+        isrcTable = await buildIsrcTableForArtist(artistTracks, subject.inputPlatform, spotifyToken);
+      }
+      primaryScore = calculateCatalogQualityScore(isrcTable);
+    } else {
+      // Track scan: single-track ISRC table
+      isrcTable = await buildIsrcTableForTrack(subject, crossRefs);
+      primaryScore = calculateTrackIntegrityScore(subject, crossRefs, isrcTable);
+    }
+
+    console.log('[Royalte] Stage E — Score:', primaryScore.score, primaryScore.type, '| ISRC rows:', isrcTable.length, '| Issues:', verifiedIssues.length, '| Confidence:', auditConfidence);
     console.log('[Royalte] Render gate — source_resolution_status: resolved | cross_reference_complete: true | audit_ready: true');
     console.log('[Royalte] Render gate — canonical_artist_name:', subject.canonicalArtistName, '| canonical_track_name:', subject.canonicalTrackName || 'N/A');
 
@@ -171,8 +190,7 @@ export default async function handler(req, res) {
       platformLabel: subject.platformLabel,
       artistName: subject.canonicalArtistName,
       trackTitle: subject.canonicalTrackName || null,
-      trackIsrc: subject.canonicalIsrc || null,
-      trackIsrcReport: subject.trackIsrcReport || null,
+      trackIsrc: subject.canonicalIsrc || subject.sourceData?.appleTrackIsrc || null,
       artistId: subject.canonicalArtistId,
       followers: subject.followers || 0,
       genres: subject.genres || [],
@@ -190,9 +208,15 @@ export default async function handler(req, res) {
       // Module states — full structured state per module
       moduleStates,
 
-      // Royalty Risk Score (higher = more risk, max 100)
-      royaltyRiskScore,
-      riskLevel: royaltyRiskScore <= 20 ? 'Low' : royaltyRiskScore <= 50 ? 'Moderate' : 'High',
+      // Primary score — type depends on scan type
+      scanType: isArtistScan ? 'artist' : 'track',
+      primaryScore, // { score, type, label, breakdown? }
+      // Legacy field kept for backward compat
+      royaltyRiskScore: primaryScore.score,
+      riskLevel: primaryScore.label,
+
+      // ISRC cross-platform table
+      isrcTable,
 
       // Verified issues — only from completed cross-references
       verifiedIssues,
@@ -349,6 +373,12 @@ async function resolveSpotifySource(parsed) {
     const topTracks = await getSpotifyTopTracks(artistRaw.id, token);
     const catalog = analyzeCatalog(albumsData, artistRaw);
 
+    // For artist scans: fetch 5 filtered original tracks for ISRC table
+    let artistTracks = [];
+    if (parsed.type === 'artist') {
+      artistTracks = await getSpotifyArtistTracks(artistRaw.id, token, 5);
+    }
+
     const canonicalSubject = {
       inputPlatform: 'spotify',
       inputEntityType: parsed.type,
@@ -358,6 +388,7 @@ async function resolveSpotifySource(parsed) {
       canonicalArtistId: artistRaw.id,
       canonicalTrackName: trackRaw?.name || null,
       canonicalIsrc: trackRaw?.external_ids?.isrc || null,
+      canonicalDurationMs: trackRaw?.duration_ms || null,
       normalizedInputUrl: parsed.rawUrl,
       platformLabel: parsed.type === 'artist' ? 'Spotify Artist' : 'Spotify Track',
       genres: artistRaw.genres || [],
@@ -366,15 +397,11 @@ async function resolveSpotifySource(parsed) {
       images: artistRaw.images || [],
       sourceData: {
         spotifyArtistId: artistRaw.id,
+        spotifyToken: token, // passed through for cross-validation
         spotifyTopTracks: topTracks,
         spotifyTrackIsrc: trackRaw?.external_ids?.isrc || null,
+        artistTracks, // filtered catalog tracks for ISRC table
       },
-      // Track-level ISRC report — only populated on artist scans
-      trackIsrcReport: parsed.type === 'artist' ? topTracks.map(t => ({
-        name: t.name,
-        isrc: t.isrc || null,
-        hasIsrc: !!t.isrc,
-      })) : null,
     };
 
     return { success: true, auditReady: true, metadataStatus: 'resolved', canonicalSubject, catalog };
@@ -528,7 +555,15 @@ async function resolveAppleSource(parsed) {
     console.log('[Royalte Apple] artist_name:', artistName, '| track_name:', trackName || 'N/A');
     console.log('[Royalte Apple] source_resolution_status: resolved | audit_ready: true');
 
-    return buildAppleCanonical(parsed, artistRaw, trackRaw, artistName, trackName, 'api', null);
+    // For artist scans: fetch 5 filtered original tracks for ISRC table
+    let artistTracks = [];
+    let appleArtistId = artistRaw?.id || parsed.id;
+    if (parsed.type === 'artist' && appleArtistId) {
+      const trackResult = await getAppleArtistTracks(appleArtistId, storefront, 5);
+      artistTracks = trackResult.tracks || [];
+    }
+
+    return buildAppleCanonical(parsed, artistRaw, trackRaw, artistName, trackName, 'api', null, artistTracks);
 
   } catch (err) {
     console.error('[Royalte Apple] Resolution error:', err.message);
@@ -538,7 +573,7 @@ async function resolveAppleSource(parsed) {
 }
 
 // Build canonical subject from resolved Apple data — separated to support fallbacks
-function buildAppleCanonical(parsed, artistRaw, trackRaw, artistName, trackName, resolvedVia, overrideId) {
+function buildAppleCanonical(parsed, artistRaw, trackRaw, artistName, trackName, resolvedVia, overrideId, artistTracks = []) {
   return {
     success: true,
     auditReady: true,
@@ -552,7 +587,8 @@ function buildAppleCanonical(parsed, artistRaw, trackRaw, artistName, trackName,
       canonicalArtistName: artistName,
       canonicalArtistId: artistRaw?.id || overrideId || `apple-${parsed.id}`,
       canonicalTrackName: trackName || null,
-      canonicalIsrc: null,
+      canonicalIsrc: trackRaw?.attributes?.isrc || null,
+      canonicalDurationMs: trackRaw?.attributes?.durationInMillis || null,
       normalizedInputUrl: parsed.rawUrl,
       platformLabel: parsed.type === 'artist' ? 'Apple Music Artist' : 'Apple Music Track',
       genres: artistRaw?.attributes?.genreNames || [],
@@ -565,6 +601,8 @@ function buildAppleCanonical(parsed, artistRaw, trackRaw, artistName, trackName,
         appleArtistId: artistRaw?.id || overrideId || parsed.id,
         appleArtistUrl: artistRaw?.attributes?.url || null,
         appleTrackId: trackRaw?.id || null,
+        appleTrackIsrc: trackRaw?.attributes?.isrc || null,
+        artistTracks, // filtered catalog tracks for ISRC table
       },
     },
     catalog: null,
@@ -1678,6 +1716,282 @@ function analyzeCatalog(albumsData, artist) {
   };
 }
 
+
+// ─────────────────────────────────────────────────────────────────
+// CROSS-PLATFORM TRACK VALIDATION
+// Primary: ISRC match. Fallback: name+artist+duration. Low: name only.
+// ─────────────────────────────────────────────────────────────────
+
+function normStr(s) {
+  return (s || '').toLowerCase().trim()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+// Cross-validate a single track against the opposite platform
+// Returns: { status, confidence, matchedName, matchedIsrc }
+// status: 'Matched' | 'Possible Match' | 'Missing' | 'Auth Unavailable'
+async function crossValidateTrackOnSpotify(track, token) {
+  try {
+    const norm = normStr;
+    // Strategy 1: ISRC lookup
+    if (track.isrc) {
+      const resp = await fetch(
+        `https://api.spotify.com/v1/search?q=isrc:${track.isrc}&type=track&limit=1`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (resp.ok) {
+        const data = await resp.json();
+        const match = data.tracks?.items?.[0];
+        if (match) {
+          return { status: 'Matched', confidence: 'HIGH', matchedName: match.name, matchedIsrc: match.external_ids?.isrc || track.isrc };
+        }
+      }
+    }
+    // Strategy 2: Name + artist search, duration fallback
+    const q = encodeURIComponent(`track:${track.name} artist:${track.artistName}`);
+    const resp2 = await fetch(
+      `https://api.spotify.com/v1/search?q=${q}&type=track&limit=5`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (resp2.ok) {
+      const data2 = await resp2.json();
+      const candidates = data2.tracks?.items || [];
+      // Duration match within 3 seconds
+      const durationMatch = candidates.find(c =>
+        norm(c.name) === norm(track.name) &&
+        norm(c.artists?.[0]?.name) === norm(track.artistName) &&
+        Math.abs((c.duration_ms || 0) - (track.durationMs || 0)) <= 3000
+      );
+      if (durationMatch) {
+        return { status: 'Matched', confidence: 'MEDIUM', matchedName: durationMatch.name, matchedIsrc: durationMatch.external_ids?.isrc || null };
+      }
+      // Name-only match
+      const nameMatch = candidates.find(c => norm(c.name) === norm(track.name));
+      if (nameMatch) {
+        return { status: 'Possible Match', confidence: 'LOW', matchedName: nameMatch.name, matchedIsrc: nameMatch.external_ids?.isrc || null };
+      }
+    }
+    return { status: 'Missing', confidence: null, matchedName: null, matchedIsrc: null };
+  } catch (err) {
+    console.error('[CrossValidate Spotify] Error:', err.message);
+    return { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null };
+  }
+}
+
+async function crossValidateTrackOnApple(track) {
+  try {
+    let appleToken;
+    try { appleToken = generateAppleToken(); }
+    catch (e) { return { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null }; }
+
+    const BASE = 'https://api.music.apple.com/v1';
+    const STOREFRONT = 'us';
+    const headers = { Authorization: `Bearer ${appleToken}` };
+    const norm = normStr;
+
+    // Strategy 1: ISRC
+    if (track.isrc) {
+      const resp = await fetch(
+        `${BASE}/catalog/${STOREFRONT}/songs?filter[isrc]=${track.isrc}`,
+        { headers }
+      );
+      if (!resp.ok && (resp.status === 401 || resp.status === 403)) {
+        return { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null };
+      }
+      if (resp.ok) {
+        const data = await resp.json();
+        const match = data.data?.[0];
+        if (match) {
+          return { status: 'Matched', confidence: 'HIGH', matchedName: match.attributes?.name, matchedIsrc: track.isrc };
+        }
+      }
+    }
+    // Strategy 2: Name + artist search
+    const q = encodeURIComponent(`${track.name} ${track.artistName}`);
+    const resp2 = await fetch(
+      `${BASE}/catalog/${STOREFRONT}/search?term=${q}&types=songs&limit=5`,
+      { headers }
+    );
+    if (!resp2.ok && (resp2.status === 401 || resp2.status === 403)) {
+      return { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null };
+    }
+    if (resp2.ok) {
+      const data2 = await resp2.json();
+      const candidates = data2.results?.songs?.data || [];
+      const durationMatch = candidates.find(c =>
+        norm(c.attributes?.name) === norm(track.name) &&
+        norm(c.attributes?.artistName) === norm(track.artistName) &&
+        Math.abs((c.attributes?.durationInMillis || 0) - (track.durationMs || 0)) <= 3000
+      );
+      if (durationMatch) {
+        return { status: 'Matched', confidence: 'MEDIUM', matchedName: durationMatch.attributes?.name, matchedIsrc: durationMatch.attributes?.isrc || null };
+      }
+      const nameMatch = candidates.find(c => norm(c.attributes?.name) === norm(track.name));
+      if (nameMatch) {
+        return { status: 'Possible Match', confidence: 'LOW', matchedName: nameMatch.attributes?.name, matchedIsrc: nameMatch.attributes?.isrc || null };
+      }
+    }
+    return { status: 'Missing', confidence: null, matchedName: null, matchedIsrc: null };
+  } catch (err) {
+    console.error('[CrossValidate Apple] Error:', err.message);
+    return { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null };
+  }
+}
+
+// Build ISRC table for artist scan — 5 tracks with cross-platform validation
+async function buildIsrcTableForArtist(tracks, sourceplatform, spotifyToken) {
+  const rows = [];
+  for (const track of tracks) {
+    let spotifyStatus, appleStatus;
+    if (sourceplatform === 'spotify') {
+      spotifyStatus = { status: 'Verified (Source)', confidence: 'SOURCE', matchedIsrc: track.isrc };
+      appleStatus = await crossValidateTrackOnApple(track);
+    } else {
+      appleStatus = { status: 'Verified (Source)', confidence: 'SOURCE', matchedIsrc: track.isrc };
+      spotifyStatus = spotifyToken
+        ? await crossValidateTrackOnSpotify(track, spotifyToken)
+        : { status: 'Auth Unavailable', confidence: null, matchedName: null, matchedIsrc: null };
+    }
+
+    // Overall match status
+    let matchStatus;
+    if (spotifyStatus.status === 'Verified (Source)' && appleStatus.status === 'Matched') matchStatus = 'Matched';
+    else if (appleStatus.status === 'Verified (Source)' && spotifyStatus.status === 'Matched') matchStatus = 'Matched';
+    else if (appleStatus.status === 'Auth Unavailable' || spotifyStatus.status === 'Auth Unavailable') matchStatus = 'Auth Unavailable';
+    else if (appleStatus.status === 'Possible Match' || spotifyStatus.status === 'Possible Match') matchStatus = 'Possible Match';
+    else if (appleStatus.status === 'Missing') matchStatus = 'Missing on Apple';
+    else if (spotifyStatus.status === 'Missing') matchStatus = 'Missing on Spotify';
+    else matchStatus = 'Not Confirmed';
+
+    rows.push({
+      name: track.name,
+      artistName: track.artistName,
+      isrc: track.isrc || null,
+      isrcDisplay: track.isrc || 'ISRC unavailable',
+      durationMs: track.durationMs,
+      spotify: { status: spotifyStatus.status, confidence: spotifyStatus.confidence },
+      apple: { status: appleStatus.status, confidence: appleStatus.confidence },
+      matchStatus,
+    });
+  }
+  return rows;
+}
+
+// Build ISRC table for track scan — single track cross-platform
+async function buildIsrcTableForTrack(subject, crossRefs) {
+  const isSpotify = subject.inputPlatform === 'spotify';
+  const spotifyIsrc = subject.canonicalIsrc || crossRefs.spotify?.isrc || null;
+
+  // Get opposite platform match status
+  let spotifyStatus, appleStatus;
+  if (isSpotify) {
+    spotifyStatus = { status: 'Verified (Source)', confidence: 'SOURCE' };
+    // Check if Apple cross-ref found a match
+    const am = crossRefs.appleMusic;
+    if (am.authError || am.resolutionStatus === 'auth_failed') {
+      appleStatus = { status: 'Auth Unavailable', confidence: null };
+    } else if (am.resolutionStatus === 'resolved' && am.crossReferenceStatus === 'Cross-Reference Found') {
+      appleStatus = { status: 'Matched', confidence: am.isrcMatchConfidence || 'MEDIUM' };
+    } else if (am.resolutionStatus === 'resolved') {
+      appleStatus = { status: 'Missing', confidence: null };
+    } else {
+      appleStatus = { status: 'Not Confirmed', confidence: null };
+    }
+  } else {
+    appleStatus = { status: 'Verified (Source)', confidence: 'SOURCE' };
+    const sp = crossRefs.spotify;
+    if (sp.resolutionStatus === 'failed') {
+      spotifyStatus = { status: 'Auth Unavailable', confidence: null };
+    } else if (sp.crossReferenceStatus === 'Cross-Reference Found') {
+      spotifyStatus = { status: 'Matched', confidence: sp.isrcMatchConfidence || 'MEDIUM' };
+    } else if (sp.resolutionStatus === 'resolved') {
+      spotifyStatus = { status: 'Missing', confidence: null };
+    } else {
+      spotifyStatus = { status: 'Not Confirmed', confidence: null };
+    }
+  }
+
+  let matchStatus;
+  if (spotifyStatus.status === 'Verified (Source)' && appleStatus.status === 'Matched') matchStatus = 'Matched';
+  else if (appleStatus.status === 'Verified (Source)' && spotifyStatus.status === 'Matched') matchStatus = 'Matched';
+  else if (appleStatus.status === 'Auth Unavailable' || spotifyStatus.status === 'Auth Unavailable') matchStatus = 'Auth Unavailable';
+  else if (appleStatus.status === 'Possible Match' || spotifyStatus.status === 'Possible Match') matchStatus = 'Possible Match';
+  else if (appleStatus.status === 'Missing') matchStatus = 'Missing on Apple';
+  else if (spotifyStatus.status === 'Missing') matchStatus = 'Missing on Spotify';
+  else matchStatus = 'Not Confirmed';
+
+  return [{
+    name: subject.canonicalTrackName,
+    artistName: subject.canonicalArtistName,
+    isrc: spotifyIsrc,
+    isrcDisplay: spotifyIsrc || 'ISRC unavailable',
+    spotify: spotifyStatus,
+    apple: appleStatus,
+    matchStatus,
+  }];
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SCORING — Track Integrity Score and Catalog Quality Score
+// ─────────────────────────────────────────────────────────────────
+
+function calculateTrackIntegrityScore(subject, crossRefs, isrcTable) {
+  let score = 100;
+  const isrc = subject.canonicalIsrc || crossRefs.spotify?.isrc || null;
+  const row = isrcTable?.[0];
+
+  if (!isrc) score -= 25;
+  if (row?.matchStatus === 'Missing on Apple' || row?.matchStatus === 'Missing on Spotify') score -= 25;
+  if (row?.matchStatus === 'Possible Match') score -= 10;
+  if (row?.matchStatus === 'Auth Unavailable') { /* no penalty — auth failure not artist's fault */ }
+  if (!subject.genres?.length) score -= 10;
+  if (crossRefs.musicbrainz?.resolutionStatus === 'resolved' && !crossRefs.musicbrainz?.found) score -= 10;
+
+  return { score: Math.max(score, 0), type: 'Track Integrity Score', label: trackIntegrityLabel(score) };
+}
+
+function trackIntegrityLabel(score) {
+  if (score >= 85) return 'Strong';
+  if (score >= 65) return 'Good';
+  if (score >= 45) return 'Fair';
+  return 'Needs Attention';
+}
+
+function calculateCatalogQualityScore(isrcTable) {
+  if (!isrcTable || isrcTable.length === 0) return { score: null, type: 'Catalog Quality Score', label: 'Insufficient data' };
+
+  const total = isrcTable.length;
+  let score = 100;
+
+  const missingIsrc = isrcTable.filter(t => !t.isrc).length;
+  const missingOnApple = isrcTable.filter(t => t.matchStatus === 'Missing on Apple').length;
+  const missingOnSpotify = isrcTable.filter(t => t.matchStatus === 'Missing on Spotify').length;
+  const possibleOnly = isrcTable.filter(t => t.matchStatus === 'Possible Match').length;
+  const authUnavail = isrcTable.filter(t => t.matchStatus === 'Auth Unavailable').length;
+  const matched = isrcTable.filter(t => t.matchStatus === 'Matched').length;
+
+  score -= (missingIsrc / total) * 30;
+  score -= (missingOnApple / total) * 25;
+  score -= (missingOnSpotify / total) * 25;
+  score -= (possibleOnly / total) * 10;
+  // Auth unavailable: no penalty
+
+  return {
+    score: Math.round(Math.max(score, 0)),
+    type: 'Catalog Quality Score',
+    label: catalogQualityLabel(score),
+    breakdown: { total, matched, missingIsrc, missingOnApple, missingOnSpotify, possibleOnly, authUnavail },
+  };
+}
+
+function catalogQualityLabel(score) {
+  if (score >= 85) return 'Strong';
+  if (score >= 65) return 'Good';
+  if (score >= 45) return 'Fair';
+  return 'Needs Attention';
+}
+
 // ─────────────────────────────────────────────────────────────────
 // PRO GUIDE
 // ─────────────────────────────────────────────────────────────────
@@ -1741,6 +2055,7 @@ async function getSpotifyAlbums(artistId, token) {
 }
 
 async function getSpotifyTopTracks(artistId, token) {
+  // Legacy — kept for Apple cross-ref catalog comparison
   try {
     const resp = await fetch(
       `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
@@ -1754,4 +2069,153 @@ async function getSpotifyTopTracks(artistId, token) {
       artistName: t.artists?.[0]?.name || '',
     }));
   } catch { return []; }
+}
+
+// Fetch up to 5 clean original tracks from artist catalog for ISRC table
+async function getSpotifyArtistTracks(artistId, token, limit = 5) {
+  try {
+    // Fetch albums + singles across catalog
+    const albumsResp = await fetch(
+      `https://api.spotify.com/v1/artists/${artistId}/albums?limit=50&include_groups=album,single&market=US`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (!albumsResp.ok) return [];
+    const albumsData = await albumsResp.json();
+    const albums = albumsData.items || [];
+
+    const EXCLUDE_PATTERNS = /\b(remix|remixed|live|acoustic|instrumental|karaoke|clean|explicit|version|edit|cover|remaster|remastered|stripped|demo|radio|mix|reprise|interlude|skit|intro|outro)\b/i;
+    const seenTitles = new Set();
+    const seenIsrc = new Set();
+    const tracks = [];
+
+    for (const album of albums) {
+      if (tracks.length >= limit) break;
+      try {
+        const tracksResp = await fetch(
+          `https://api.spotify.com/v1/albums/${album.id}/tracks?limit=50`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!tracksResp.ok) continue;
+        const tracksData = await tracksResp.json();
+
+        for (const t of (tracksData.items || [])) {
+          if (tracks.length >= limit) break;
+
+          const name = t.name || '';
+          const normName = name.toLowerCase().trim();
+
+          // Filter out non-original tracks
+          if (EXCLUDE_PATTERNS.test(name)) continue;
+
+          // Deduplicate by normalized title
+          if (seenTitles.has(normName)) continue;
+
+          // Fetch full track to get ISRC and duration
+          let isrc = null;
+          let durationMs = t.duration_ms || 0;
+          try {
+            const fullResp = await fetch(
+              `https://api.spotify.com/v1/tracks/${t.id}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (fullResp.ok) {
+              const full = await fullResp.json();
+              isrc = full.external_ids?.isrc || null;
+              durationMs = full.duration_ms || durationMs;
+            }
+          } catch {}
+
+          // Deduplicate by ISRC
+          if (isrc && seenIsrc.has(isrc)) continue;
+
+          seenTitles.add(normName);
+          if (isrc) seenIsrc.add(isrc);
+
+          tracks.push({
+            id: t.id,
+            name,
+            artistName: t.artists?.[0]?.name || '',
+            isrc,
+            durationMs,
+            albumName: album.name,
+            albumId: album.id,
+          });
+        }
+      } catch { continue; }
+    }
+
+    console.log('[Royalte Spotify] Artist tracks fetched:', tracks.length, '/ requested:', limit);
+    return tracks;
+  } catch (err) {
+    console.error('[Royalte Spotify] getSpotifyArtistTracks error:', err.message);
+    return [];
+  }
+}
+
+// Fetch 5 clean original tracks from Apple Music artist catalog
+async function getAppleArtistTracks(appleArtistId, storefront = 'us', limit = 5) {
+  try {
+    const appleToken = generateAppleToken();
+    const BASE = 'https://api.music.apple.com/v1';
+    const headers = { Authorization: `Bearer ${appleToken}` };
+
+    // Fetch artist albums
+    const albumsResp = await fetch(
+      `${BASE}/catalog/${storefront}/artists/${appleArtistId}/albums?limit=25`,
+      { headers }
+    );
+    if (!albumsResp.ok) {
+      console.warn('[Royalte Apple] Artist albums fetch failed:', albumsResp.status);
+      return { tracks: [], authFailed: albumsResp.status === 401 || albumsResp.status === 403 };
+    }
+    const albumsData = await albumsResp.json();
+    const albums = albumsData.data || [];
+
+    const EXCLUDE_PATTERNS = /\b(remix|remixed|live|acoustic|instrumental|karaoke|clean|explicit|version|edit|cover|remaster|remastered|stripped|demo|radio|mix|reprise|interlude|skit|intro|outro)\b/i;
+    const seenTitles = new Set();
+    const seenIsrc = new Set();
+    const tracks = [];
+
+    for (const album of albums) {
+      if (tracks.length >= limit) break;
+      try {
+        const tracksResp = await fetch(
+          `${BASE}/catalog/${storefront}/albums/${album.id}/tracks`,
+          { headers }
+        );
+        if (!tracksResp.ok) continue;
+        const tracksData = await tracksResp.json();
+
+        for (const t of (tracksData.data || [])) {
+          if (tracks.length >= limit) break;
+          const name = t.attributes?.name || '';
+          const normName = name.toLowerCase().trim();
+          if (EXCLUDE_PATTERNS.test(name)) continue;
+          if (seenTitles.has(normName)) continue;
+
+          const isrc = t.attributes?.isrc || null;
+          if (isrc && seenIsrc.has(isrc)) continue;
+
+          seenTitles.add(normName);
+          if (isrc) seenIsrc.add(isrc);
+
+          tracks.push({
+            id: t.id,
+            name,
+            artistName: t.attributes?.artistName || '',
+            isrc,
+            durationMs: (t.attributes?.durationInMillis) || 0,
+            albumName: album.attributes?.name || '',
+            albumId: album.id,
+          });
+        }
+      } catch { continue; }
+    }
+
+    console.log('[Royalte Apple] Artist tracks fetched:', tracks.length, '/ requested:', limit);
+    return { tracks, authFailed: false };
+  } catch (err) {
+    console.error('[Royalte Apple] getAppleArtistTracks error:', err.message);
+    return { tracks: [], authFailed: false, error: err.message };
+  }
 }
