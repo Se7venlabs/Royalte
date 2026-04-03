@@ -1030,7 +1030,7 @@ async function runAudit() {
     if (json.success && json.auditReady !== false) {
       auditData = json;
     } else {
-      auditError = json.error || 'Audit failed';
+      auditError = json.error || 'Temporary system issue — please try again.';
       auditErrorData = json; // preserve inputPlatform, entityType for error display
     }
   } catch (e) { auditError = 'Network error — please try again'; }
