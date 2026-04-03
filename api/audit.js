@@ -655,7 +655,12 @@ async function runCrossReferences(subject, sourceResolution) {
   const [spotifyRef, appleMusicRef, youtubeRef, mbRef, deezerRef, audiodbRef, discogsRef, soundcloudRef, lastfmRef, wikidataRef] = await Promise.allSettled([
     isInputSpotify
       ? Promise.resolve(buildSpotifySourceRef(sourceResolution)) // already resolved from source
-      : crossRefSpotify(name, trackName, subject.sourceData?.spotifyTopTracks),
+      : crossRefSpotify(
+          name, trackName,
+          null, // _unused (was spotifyTopTracks)
+          subject.canonicalIsrc || subject.sourceData?.appleTrackIsrc || null, // ISRC from Apple source
+          subject.canonicalDurationMs || null, // duration from Apple source
+        ),
     isInputApple
       ? Promise.resolve(buildAppleSourceRef(sourceResolution)) // already resolved from source
       : crossRefAppleMusic(name, sourceResolution.canonicalSubject?.sourceData?.spotifyTopTracks || [], null),
@@ -719,57 +724,132 @@ function buildAppleSourceRef(sourceResolution) {
 }
 
 // Cross-reference Spotify (when Apple was the input)
-async function crossRefSpotify(artistName, trackName, spotifyTopTracks) {
+// Uses ISRC-first, then multi-strategy metadata matching.
+// Only returns No Match if all strategies fail with full candidate evaluation.
+async function crossRefSpotify(artistName, trackName, _unused, isrc, durationMs) {
+  const LOG = '[Royalte CrossRef Spotify]';
+  console.log(`${LOG} Starting — artist: "${artistName}" | track: "${trackName}" | isrc: ${isrc || 'none'} | duration: ${durationMs || 'unknown'}`);
   try {
     const token = await getSpotifyToken();
-    const norm = s => s.toLowerCase().trim();
+    const headers = { Authorization: `Bearer ${token}` };
 
-    const searchResp = await fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist&limit=5`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    if (!searchResp.ok) {
-      return { sourceUsedForScan: false, resolutionStatus: 'failed', crossReferenceStatus: 'Not Confirmed', verified: false };
-    }
-
-    const searchData = await searchResp.json();
-    const match = (searchData.artists?.items || []).find(a => norm(a.name) === norm(artistName));
-
-    if (!match) {
-      console.log('[Royalte CrossRef Spotify] No match found for:', artistName);
-      return { sourceUsedForScan: false, resolutionStatus: 'resolved', crossReferenceStatus: 'No Verified Match Yet', registrationStatus: 'Not Confirmed', verified: true };
-    }
-
-    console.log('[Royalte CrossRef Spotify] Found:', match.name, '| followers:', match.followers?.total);
-
-    // Try ISRC cross-ref if track
-    let isrc = null;
-    if (trackName) {
-      const trackResp = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(trackName + ' ' + artistName)}&type=track&limit=5`,
-        { headers: { Authorization: `Bearer ${token}` } }
+    // ── Strategy A: ISRC direct lookup (highest confidence) ─────────
+    if (isrc) {
+      console.log(`${LOG} Strategy A — ISRC lookup: ${isrc}`);
+      const isrcResp = await fetch(
+        `https://api.spotify.com/v1/search?q=isrc:${isrc}&type=track&limit=1`,
+        { headers }
       );
-      if (trackResp.ok) {
-        const trackData = await trackResp.json();
-        const trackMatch = (trackData.tracks?.items || []).find(t => norm(t.name) === norm(trackName));
-        if (trackMatch) isrc = trackMatch.external_ids?.isrc || null;
+      if (isrcResp.ok) {
+        const isrcData = await isrcResp.json();
+        const isrcMatch = isrcData.tracks?.items?.[0];
+        if (isrcMatch) {
+          console.log(`${LOG} Strategy A HIT — "${isrcMatch.name}" by ${isrcMatch.artists?.[0]?.name}`);
+          return {
+            sourceUsedForScan: false, resolutionStatus: 'resolved',
+            crossReferenceStatus: 'Cross-Reference Found', registrationStatus: 'Registered',
+            verified: true, confidence: 'HIGH',
+            artistId: isrcMatch.artists?.[0]?.id, artistName: isrcMatch.artists?.[0]?.name,
+            trackName: isrcMatch.name, isrc: isrcMatch.external_ids?.isrc || isrc,
+            followers: 0, genres: [],
+          };
+        }
+        console.log(`${LOG} Strategy A — no ISRC hit on Spotify`);
       }
     }
 
+    // ── Gather candidates for metadata matching ──────────────────────
+    // Run three searches in parallel: structured, plain, artist-only
+    const q1 = trackName ? encodeURIComponent(`track:${trackName} artist:${artistName}`) : null;
+    const q2 = trackName ? encodeURIComponent(`${trackName} ${artistName}`) : encodeURIComponent(artistName);
+    const q3 = encodeURIComponent(artistName);
+
+    const fetches = [
+      q1 ? fetch(`https://api.spotify.com/v1/search?q=${q1}&type=track&limit=10`, { headers }) : Promise.resolve(null),
+      fetch(`https://api.spotify.com/v1/search?q=${q2}&type=track&limit=10`, { headers }),
+      fetch(`https://api.spotify.com/v1/search?q=${q3}&type=artist&limit=5`, { headers }),
+    ];
+    const [r1, r2, r3] = await Promise.all(fetches);
+
+    const trackCands1 = (r1 && r1.ok) ? (await r1.json()).tracks?.items || [] : [];
+    const trackCands2 = r2.ok ? (await r2.json()).tracks?.items || [] : [];
+    const artistCands = r3.ok ? (await r3.json()).artists?.items || [] : [];
+
+    // Deduplicate track candidates
+    const seenIds = new Set();
+    const trackCandidates = [...trackCands1, ...trackCands2].filter(c => {
+      if (seenIds.has(c.id)) return false;
+      seenIds.add(c.id); return true;
+    });
+
+    console.log(`${LOG} Candidates — track: ${trackCandidates.length} | artist: ${artistCands.length}`);
+    trackCandidates.slice(0, 5).forEach((c, i) =>
+      console.log(`  [${i}] "${c.name}" by ${c.artists?.[0]?.name} | dur: ${c.duration_ms}ms | isrc: ${c.external_ids?.isrc || 'none'}`)
+    );
+
+    // ── Strategy B–E: Metadata matching on track candidates ─────────
+    if (trackCandidates.length > 0 && trackName) {
+      const result = resolveBestMatch(
+        trackCandidates, { name: trackName, artistName, isrc, durationMs: durationMs || 0 },
+        c => c.name,
+        c => c.artists?.[0]?.name || '',
+        c => c.duration_ms || 0,
+        c => c.external_ids?.isrc || null,
+      );
+
+      console.log(`${LOG} Metadata match result: ${result.status} (${result.confidence || 'n/a'}) | matched: "${result.matchedName}"`);
+
+      if (result.status === 'Matched' || result.status === 'Possible Match') {
+        // Also try to get artist info for the matched track
+        const matchedTrack = trackCandidates.find(c => c.name === result.matchedName) || trackCandidates[0];
+        const artistId = matchedTrack?.artists?.[0]?.id || null;
+        let followers = 0, genres = [];
+        if (artistId) {
+          try {
+            const ar = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, { headers });
+            if (ar.ok) { const ad = await ar.json(); followers = ad.followers?.total || 0; genres = ad.genres || []; }
+          } catch {}
+        }
+        return {
+          sourceUsedForScan: false, resolutionStatus: 'resolved',
+          crossReferenceStatus: result.status === 'Matched' ? 'Cross-Reference Found' : 'Possible Match',
+          registrationStatus: result.status === 'Matched' ? 'Registered' : 'Not Confirmed',
+          verified: true, confidence: result.confidence,
+          artistId, artistName: matchedTrack?.artists?.[0]?.name || artistName,
+          trackName: result.matchedName, isrc: result.matchedIsrc || isrc,
+          followers, genres,
+        };
+      }
+    }
+
+    // ── Strategy F: Artist-only fallback ────────────────────────────
+    // If we can confirm the artist is on Spotify, that's still useful
+    const na = normArtist(artistName);
+    const artistMatch = artistCands.find(a => normArtist(a.name) === na)
+      || artistCands.find(a => normArtist(a.name).includes(na) || na.includes(normArtist(a.name)));
+
+    if (artistMatch) {
+      console.log(`${LOG} Strategy F — artist found: "${artistMatch.name}" | track match failed`);
+      // Artist confirmed but track not found — return artist confirmed with track note
+      return {
+        sourceUsedForScan: false, resolutionStatus: 'resolved',
+        crossReferenceStatus: trackName ? 'Possible Match' : 'Cross-Reference Found',
+        registrationStatus: 'Not Confirmed', verified: true, confidence: 'LOW',
+        artistId: artistMatch.id, artistName: artistMatch.name,
+        followers: artistMatch.followers?.total || 0, genres: artistMatch.genres || [],
+        isrc: null,
+        note: trackName ? 'Artist confirmed on Spotify, specific track not matched' : null,
+      };
+    }
+
+    console.log(`${LOG} All strategies failed — NO MATCH for "${artistName}" / "${trackName}"`);
     return {
-      sourceUsedForScan: false,
-      resolutionStatus: 'resolved',
-      crossReferenceStatus: 'Cross-Reference Found',
-      registrationStatus: 'Registered',
-      verified: true,
-      artistId: match.id,
-      artistName: match.name,
-      followers: match.followers?.total || 0,
-      genres: match.genres || [],
-      isrc,
+      sourceUsedForScan: false, resolutionStatus: 'resolved',
+      crossReferenceStatus: 'No Verified Match Yet', registrationStatus: 'Not Confirmed',
+      verified: true, confidence: null,
     };
   } catch (err) {
-    console.error('[Royalte CrossRef Spotify] Error:', err.message);
+    console.error(`${LOG} Error:`, err.message);
     return { sourceUsedForScan: false, resolutionStatus: 'failed', crossReferenceStatus: 'Not Confirmed', verified: false, error: err.message };
   }
 }
