@@ -84,6 +84,8 @@ export default async function handler(req, res) {
     const auditConfidence = deriveAuditConfidence(crossRefs, sourceResolution);
 
     console.log('[Royalte] Stage E — Risk score:', royaltyRiskScore, '| Issues:', verifiedIssues.length, '| Confidence:', auditConfidence);
+    console.log('[Royalte] Render gate — source_resolution_status: resolved | cross_reference_complete: true | audit_ready: true');
+    console.log('[Royalte] Render gate — canonical_artist_name:', subject.canonicalArtistName, '| canonical_track_name:', subject.canonicalTrackName || 'N/A');
 
     return res.status(200).json({
       success: true,
@@ -305,9 +307,37 @@ async function resolveSpotifySource(parsed) {
 }
 
 async function resolveAppleSource(parsed) {
+  console.log('[Royalte Apple] ── Stage B start ──');
+  console.log('[Royalte Apple] Input URL:', parsed.rawUrl);
+  console.log('[Royalte Apple] Parsed platform:', parsed.platform, '| type:', parsed.type, '| id:', parsed.id);
+
   try {
-    const appleToken = generateAppleToken();
-    const STOREFRONT = 'us';
+    // ── Token generation ──────────────────────────────────────────
+    let appleToken;
+    try {
+      appleToken = generateAppleToken();
+      if (!appleToken || typeof appleToken !== 'string' || appleToken.length < 20) {
+        console.error('[Royalte Apple] Token generation failed — token invalid:', typeof appleToken, String(appleToken).slice(0, 30));
+        return { success: false, auditReady: false, metadataStatus: 'failed', error: 'Apple Music token generation failed. Check apple-token.js configuration.' };
+      }
+      console.log('[Royalte Apple] Token generated, length:', appleToken.length);
+    } catch (tokenErr) {
+      console.error('[Royalte Apple] Token generation threw:', tokenErr.message);
+      return { success: false, auditReady: false, metadataStatus: 'failed', error: `Apple Music token error: ${tokenErr.message}` };
+    }
+
+    // Try multiple storefronts — the URL may contain a non-US storefront
+    // Extract storefront from URL path (e.g. /us/, /ca/, /gb/)
+    let storefront = 'us';
+    try {
+      const urlParts = new URL(parsed.rawUrl).pathname.split('/').filter(Boolean);
+      const sfCandidate = urlParts[0]?.toLowerCase();
+      if (sfCandidate && /^[a-z]{2}$/.test(sfCandidate)) {
+        storefront = sfCandidate;
+        console.log('[Royalte Apple] Storefront from URL:', storefront);
+      }
+    } catch {}
+
     const BASE = 'https://api.music.apple.com/v1';
     const headers = { Authorization: `Bearer ${appleToken}` };
 
@@ -317,71 +347,150 @@ async function resolveAppleSource(parsed) {
     let trackName = null;
 
     if (parsed.type === 'artist') {
-      const resp = await fetch(`${BASE}/catalog/${STOREFRONT}/artists/${parsed.id}`, { headers });
-      console.log('[Royalte Apple] Artist fetch status:', resp.status);
-      if (!resp.ok) return { success: false, error: `Apple Music API returned ${resp.status} for artist ${parsed.id}` };
+      // Try primary storefront first, then fall back to 'us'
+      const storefrontsToTry = storefront !== 'us' ? [storefront, 'us'] : ['us'];
+      let resp = null;
+      let usedStorefront = null;
+
+      for (const sf of storefrontsToTry) {
+        const endpoint = `${BASE}/catalog/${sf}/artists/${parsed.id}`;
+        console.log('[Royalte Apple] Trying artist endpoint:', endpoint);
+        try {
+          resp = await fetch(endpoint, { headers });
+          console.log('[Royalte Apple] Artist fetch status:', resp.status, '| storefront:', sf);
+          if (resp.ok) { usedStorefront = sf; break; }
+          if (resp.status === 401 || resp.status === 403) {
+            const errBody = await resp.text().catch(() => '');
+            console.error('[Royalte Apple] Auth error body:', errBody.slice(0, 200));
+            return { success: false, auditReady: false, metadataStatus: 'failed', error: `Apple Music auth failed (${resp.status}). Check apple-token.js JWT credentials.` };
+          }
+        } catch (fetchErr) {
+          console.error('[Royalte Apple] Fetch threw for storefront', sf, ':', fetchErr.message);
+        }
+      }
+
+      if (!resp || !resp.ok) {
+        const status = resp ? resp.status : 'no response';
+        console.error('[Royalte Apple] All storefronts failed. Last status:', status);
+        // Last-resort: try extracting artist name from URL slug itself
+        const urlSlug = parsed.rawUrl.match(/\/artist\/([^\/]+)\//)?.[1];
+        if (urlSlug) {
+          const nameFromSlug = urlSlug.replace(/-/g, ' ').replace(/\w/g, c => c.toUpperCase()).trim();
+          console.log('[Royalte Apple] Fallback: name extracted from URL slug:', nameFromSlug);
+          // Only use if reasonably confident (not just numbers)
+          if (nameFromSlug && !/^\d+$/.test(nameFromSlug)) {
+            return buildAppleCanonical(parsed, null, null, nameFromSlug, null, 'url_slug_fallback', parsed.id);
+          }
+        }
+        return { success: false, auditReady: false, metadataStatus: 'failed', error: `Apple Music API returned ${status} for artist ${parsed.id}` };
+      }
+
       const json = await resp.json();
+      console.log('[Royalte Apple] Artist response data count:', json.data?.length || 0);
       artistRaw = json.data?.[0];
-      if (!artistRaw) return { success: false, error: 'Artist not found in Apple Music catalog' };
+      if (!artistRaw) {
+        console.error('[Royalte Apple] No artist object in response. Response keys:', Object.keys(json));
+        return { success: false, auditReady: false, metadataStatus: 'failed', error: 'Artist not found in Apple Music catalog response' };
+      }
       artistName = artistRaw.attributes?.name;
+      console.log('[Royalte Apple] Artist name from API:', artistName);
+
     } else {
-      const resp = await fetch(`${BASE}/catalog/${STOREFRONT}/songs/${parsed.id}`, { headers });
-      console.log('[Royalte Apple] Song fetch status:', resp.status);
-      if (!resp.ok) return { success: false, error: `Apple Music API returned ${resp.status} for song ${parsed.id}` };
+      // Track/song resolution
+      const storefrontsToTry = storefront !== 'us' ? [storefront, 'us'] : ['us'];
+      let resp = null;
+
+      for (const sf of storefrontsToTry) {
+        const endpoint = `${BASE}/catalog/${sf}/songs/${parsed.id}`;
+        console.log('[Royalte Apple] Trying song endpoint:', endpoint);
+        try {
+          resp = await fetch(endpoint, { headers });
+          console.log('[Royalte Apple] Song fetch status:', resp.status, '| storefront:', sf);
+          if (resp.ok) break;
+          if (resp.status === 401 || resp.status === 403) {
+            return { success: false, auditReady: false, metadataStatus: 'failed', error: `Apple Music auth failed (${resp.status}). Check apple-token.js JWT credentials.` };
+          }
+        } catch (fetchErr) {
+          console.error('[Royalte Apple] Song fetch threw for storefront', sf, ':', fetchErr.message);
+        }
+      }
+
+      if (!resp || !resp.ok) {
+        return { success: false, auditReady: false, metadataStatus: 'failed', error: `Apple Music API returned ${resp?.status || 'no response'} for song ${parsed.id}` };
+      }
+
       const json = await resp.json();
       trackRaw = json.data?.[0];
-      if (!trackRaw) return { success: false, error: 'Track not found in Apple Music catalog' };
+      if (!trackRaw) return { success: false, auditReady: false, metadataStatus: 'failed', error: 'Track not found in Apple Music catalog response' };
       trackName = trackRaw.attributes?.name;
       artistName = trackRaw.attributes?.artistName;
+      console.log('[Royalte Apple] Track name:', trackName, '| artist:', artistName);
 
-      // Attempt to fetch artist object from relationship
+      // Attempt to fetch full artist object from relationship
       const relArtistId = trackRaw.relationships?.artists?.data?.[0]?.id;
       if (relArtistId) {
-        const ar = await fetch(`${BASE}/catalog/${STOREFRONT}/artists/${relArtistId}`, { headers });
-        if (ar.ok) {
-          const aj = await ar.json();
-          artistRaw = aj.data?.[0] || null;
-          if (artistRaw && !artistName) artistName = artistRaw.attributes?.name;
-        }
+        try {
+          const ar = await fetch(`${BASE}/catalog/${storefront}/artists/${relArtistId}`, { headers });
+          if (ar.ok) {
+            const aj = await ar.json();
+            artistRaw = aj.data?.[0] || null;
+            if (artistRaw && !artistName) artistName = artistRaw.attributes?.name;
+            console.log('[Royalte Apple] Related artist fetched:', artistRaw?.attributes?.name);
+          }
+        } catch (e) { console.warn('[Royalte Apple] Related artist fetch failed:', e.message); }
       }
     }
 
     if (!artistName) {
-      console.error('[Royalte Apple] Could not extract artist name from API response');
+      console.error('[Royalte Apple] Artist name null after all resolution attempts');
       artistName = 'Unknown Artist';
     }
 
-    console.log('[Royalte Apple] Resolved — artist:', artistName, '| track:', trackName || 'N/A');
+    console.log('[Royalte Apple] ── Stage B complete ──');
+    console.log('[Royalte Apple] artist_name:', artistName, '| track_name:', trackName || 'N/A');
+    console.log('[Royalte Apple] source_resolution_status: resolved | audit_ready: true');
 
-    const canonicalSubject = {
+    return buildAppleCanonical(parsed, artistRaw, trackRaw, artistName, trackName, 'api', null);
+
+  } catch (err) {
+    console.error('[Royalte Apple] Resolution error:', err.message);
+    console.error('[Royalte Apple] source_resolution_status: failed | audit_ready: false');
+    return { success: false, auditReady: false, metadataStatus: 'failed', error: err.message };
+  }
+}
+
+// Build canonical subject from resolved Apple data — separated to support fallbacks
+function buildAppleCanonical(parsed, artistRaw, trackRaw, artistName, trackName, resolvedVia, overrideId) {
+  return {
+    success: true,
+    auditReady: true,
+    metadataStatus: 'resolved',
+    resolvedVia, // 'api' | 'url_slug_fallback'
+    canonicalSubject: {
       inputPlatform: 'apple',
       inputEntityType: parsed.type,
       inputId: parsed.id,
       canonicalSubjectType: parsed.type,
       canonicalArtistName: artistName,
-      canonicalArtistId: artistRaw?.id || `apple-${parsed.id}`,
+      canonicalArtistId: artistRaw?.id || overrideId || `apple-${parsed.id}`,
       canonicalTrackName: trackName || null,
-      canonicalIsrc: null, // resolved via Spotify cross-ref in Stage D
+      canonicalIsrc: null,
       normalizedInputUrl: parsed.rawUrl,
       platformLabel: parsed.type === 'artist' ? 'Apple Music Artist' : 'Apple Music Track',
       genres: artistRaw?.attributes?.genreNames || [],
-      followers: 0, // Apple doesn't expose follower count
+      followers: 0,
       popularity: 0,
       images: artistRaw?.attributes?.artwork
-        ? [{ url: artistRaw.attributes.artwork.url.replace('{w}x{h}', '400x400') }]
+        ? [{ url: artistRaw.attributes.artwork.url.replace('{w}x{h}bb', '400x400bb').replace('{w}x{h}', '400x400') }]
         : [],
       sourceData: {
-        appleArtistId: artistRaw?.id || parsed.id,
+        appleArtistId: artistRaw?.id || overrideId || parsed.id,
         appleArtistUrl: artistRaw?.attributes?.url || null,
         appleTrackId: trackRaw?.id || null,
       },
-    };
-
-    return { success: true, auditReady: true, metadataStatus: 'resolved', canonicalSubject, catalog: null };
-  } catch (err) {
-    console.error('[Royalte Apple] Resolution error:', err.message);
-    return { success: false, auditReady: false, metadataStatus: 'failed', error: err.message };
-  }
+    },
+    catalog: null,
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -519,31 +628,104 @@ async function crossRefSpotify(artistName, trackName, spotifyTopTracks) {
 
 // Cross-reference Apple Music (when Spotify was the input)
 async function crossRefAppleMusic(artistName, spotifyTopTracks, isrc) {
+  console.log('[Royalte CrossRef Apple] Starting cross-reference for:', artistName);
+  console.log('[Royalte CrossRef Apple] Canonical artist name:', artistName);
   try {
-    const appleToken = generateAppleToken();
+    let appleToken;
+    try {
+      appleToken = generateAppleToken();
+      if (!appleToken || typeof appleToken !== 'string' || appleToken.length < 20) {
+        console.error('[Royalte CrossRef Apple] Token invalid');
+        return { sourceUsedForScan: false, resolutionStatus: 'failed', crossReferenceStatus: 'Not Confirmed', verified: false, error: 'Apple token invalid' };
+      }
+    } catch (tokenErr) {
+      console.error('[Royalte CrossRef Apple] Token error:', tokenErr.message);
+      return { sourceUsedForScan: false, resolutionStatus: 'failed', crossReferenceStatus: 'Not Confirmed', verified: false, error: tokenErr.message };
+    }
+
     const STOREFRONT = 'us';
     const BASE = 'https://api.music.apple.com/v1';
     const headers = { Authorization: `Bearer ${appleToken}` };
-    const norm = s => s.toLowerCase().trim();
+
+    // Name normalization — handles apostrophes, accents, punctuation, unicode
+    const normName = s => s
+      .toLowerCase()
+      .trim()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '') // strip accents
+      .replace(/[''`]/g, "'")        // normalize apostrophes
+      .replace(/[^a-z0-9\s'&]/g, '') // strip other punctuation
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const normalizedQuery = normName(artistName);
+    console.log('[Royalte CrossRef Apple] Normalized search query:', normalizedQuery);
 
     const searchResp = await fetch(
-      `${BASE}/catalog/${STOREFRONT}/search?term=${encodeURIComponent(artistName)}&types=artists&limit=5`,
+      `${BASE}/catalog/${STOREFRONT}/search?term=${encodeURIComponent(artistName)}&types=artists&limit=10`,
       { headers }
     );
+    console.log('[Royalte CrossRef Apple] Search response status:', searchResp.status);
+
     if (!searchResp.ok) {
+      const errBody = await searchResp.text().catch(() => '');
+      console.error('[Royalte CrossRef Apple] Search failed:', searchResp.status, errBody.slice(0, 100));
       return { sourceUsedForScan: false, resolutionStatus: 'failed', crossReferenceStatus: 'Not Confirmed', verified: false };
     }
 
     const searchData = await searchResp.json();
     const artists = searchData?.results?.artists?.data || [];
-    const match = artists.find(a => norm(a.attributes?.name) === norm(artistName)) || null;
+    console.log('[Royalte CrossRef Apple] Search returned', artists.length, 'candidates');
+    artists.forEach((a, i) => console.log(`  [${i}] ${a.attributes?.name}`));
+
+    // Multi-strategy matching
+    let match = null;
+    let matchConfidence = null;
+
+    // Strategy 1: Exact normalized match
+    match = artists.find(a => normName(a.attributes?.name || '') === normalizedQuery);
+    if (match) { matchConfidence = 'exact'; }
+
+    // Strategy 2: One contains the other (handles "The X" vs "X" etc.)
+    if (!match) {
+      match = artists.find(a => {
+        const cn = normName(a.attributes?.name || '');
+        return cn.includes(normalizedQuery) || normalizedQuery.includes(cn);
+      });
+      if (match) { matchConfidence = 'contains'; }
+    }
+
+    // Strategy 3: High word overlap (2+ words matching)
+    if (!match && normalizedQuery.includes(' ')) {
+      const queryWords = normalizedQuery.split(' ').filter(w => w.length > 1);
+      match = artists.find(a => {
+        const cn = normName(a.attributes?.name || '');
+        const cnWords = cn.split(' ').filter(w => w.length > 1);
+        const overlap = queryWords.filter(w => cnWords.includes(w)).length;
+        return overlap >= Math.max(1, queryWords.length - 1);
+      });
+      if (match) { matchConfidence = 'word_overlap'; }
+    }
+
+    // Strategy 4: First result as low-confidence fallback (only if query is short/unique)
+    if (!match && artists.length > 0 && normalizedQuery.length >= 4) {
+      const firstNorm = normName(artists[0].attributes?.name || '');
+      // Only use if first result shares significant prefix
+      const minLen = Math.min(normalizedQuery.length, firstNorm.length);
+      const sharedPrefix = [...Array(minLen)].findIndex((_, i) => normalizedQuery[i] !== firstNorm[i]);
+      const prefixMatch = sharedPrefix === -1 ? minLen : sharedPrefix;
+      if (prefixMatch >= 4) {
+        match = artists[0];
+        matchConfidence = 'prefix_fallback';
+      }
+    }
 
     if (!match) {
-      console.log('[Royalte CrossRef Apple] No match found for:', artistName);
+      console.log('[Royalte CrossRef Apple] No confident match found for:', artistName);
+      console.log('[Royalte CrossRef Apple] Final status: No Verified Match Yet');
       return { sourceUsedForScan: false, resolutionStatus: 'resolved', crossReferenceStatus: 'No Verified Match Yet', registrationStatus: 'Not Registered', verified: true };
     }
 
-    console.log('[Royalte CrossRef Apple] Found:', match.attributes?.name);
+    console.log('[Royalte CrossRef Apple] Match found:', match.attributes?.name, '| confidence:', matchConfidence);
 
     // Catalog comparison against top Spotify tracks
     let catalogComparison = null;
