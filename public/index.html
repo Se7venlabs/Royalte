@@ -550,12 +550,12 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
         <br><br>
         <span id="r-error-msg" style="color:var(--muted);font-size:12px;"></span>
       </div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Please try again, or paste a Spotify artist or track URL while this is being resolved.</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px;" id="r-error-guidance">Please try again, or paste a Spotify artist or track URL while this is being resolved.</div>
       <button class="rl-cta" onclick="document.getElementById('hero-url').focus();document.getElementById('results-wrap').style.display='none';">Try another URL →</button>
     </div>
 
-    <!-- Full audit reveal mockup -->
-    <div class="reveal-mockup">
+    <!-- Full audit reveal mockup — hidden on source resolution failure -->
+    <div class="reveal-mockup" id="r-reveal-mockup">
       <div class="rm-label">
         <span class="rm-tag">// What the full audit looks like</span>
         <span class="rm-badge">🔒 Locked — request to unlock</span>
@@ -622,7 +622,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
       </div>
     </div>
 
-    <div class="r-transition">
+    <div class="r-transition" id="r-transition">
       <div class="rt-icon">👇</div>
       <div class="rt-text">Ready? <strong>Request your full audit below.</strong> Our team delivers within 12–24 hours — completely free during beta.</div>
       <button class="rt-btn" onclick="scrollToForm()">Request now →</button>
@@ -918,9 +918,13 @@ async function runAudit() {
 
 // ── SHOW REAL RESULTS — driven entirely by canonicalSubject ────
 function showRealResults(data) {
-  // Ensure error panel is hidden on successful scan
+  // Ensure error panel is hidden and audit sections are visible on successful scan
   const errorPanel = document.getElementById('r-error-panel');
   if (errorPanel) errorPanel.style.display = 'none';
+  const revealMockup = document.getElementById('r-reveal-mockup');
+  if (revealMockup) revealMockup.style.display = 'block';
+  const rTransition = document.getElementById('r-transition');
+  if (rTransition) rTransition.style.display = 'flex';
   const subject = data.canonicalSubject || {};
   const score = data.royaltyRiskScore || 0;
   const level = data.riskLevel || 'Moderate';
@@ -1029,20 +1033,35 @@ function showErrorState(errorMsg, url, errorData) {
   const artistLine = document.getElementById('r-artist-line');
   if (artistLine) artistLine.style.display = 'none';
 
-  // Suppress all audit output panels — none of these should render
+  // Suppress ALL audit output — nothing renders when source is unresolved
   document.getElementById('r-score-tracking').classList.remove('visible');
   document.getElementById('r-confidence').style.display = 'none';
   document.getElementById('r-coverage').style.display = 'none';
   document.getElementById('r-issues').style.display = 'none';
   document.getElementById('r-meaning').style.display = 'none';
+  // Hide locked/full-audit section — contains static fake counts that must not show
+  const revealMockup = document.getElementById('r-reveal-mockup');
+  if (revealMockup) revealMockup.style.display = 'none';
+  const rTransition = document.getElementById('r-transition');
+  if (rTransition) rTransition.style.display = 'none';
 
   // Show a clear error panel instead
   const errorPanel = document.getElementById('r-error-panel');
   if (errorPanel) {
     errorPanel.style.display = 'block';
     document.getElementById('r-error-platform').textContent = platformName;
-    document.getElementById('r-error-msg').textContent =
-      errorMsg || `We recognized your ${platformName} link, but could not retrieve verified data right now.`;
+    // Show the specific error from backend if available
+    const displayMsg = (errorData?.detail || errorMsg || `We recognized your ${platformName} link, but could not retrieve verified data right now.`);
+    document.getElementById('r-error-msg').textContent = displayMsg;
+    // Platform-specific guidance
+    const guidanceEl = document.getElementById('r-error-guidance');
+    if (guidanceEl) {
+      if (inputPlatform === 'apple') {
+        guidanceEl.textContent = 'Apple Music API connectivity may be temporarily unavailable. Try again, or paste a Spotify URL to run a Spotify-origin audit instead.';
+      } else {
+        guidanceEl.textContent = 'Please check your URL and try again.';
+      }
+    }
   }
 
   // Hero mockup — reset to neutral, never show fake resolved state
