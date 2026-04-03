@@ -139,6 +139,31 @@ section{padding:100px 56px;position:relative;}
 .step-t{font-size:14px;font-weight:700;color:var(--text);margin-bottom:7px;font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:0.04em;}
 .step-d{font-size:12px;color:var(--muted2);line-height:1.65;}
 
+
+/* DATA UPLOAD SECTION */
+.r-upload-section{background:linear-gradient(160deg,rgba(8,27,78,0.6) 0%,rgba(3,3,10,0.95) 100%);border:1px solid rgba(255,90,0,0.2);border-radius:8px;padding:32px;margin-bottom:12px;position:relative;overflow:hidden;}
+.r-upload-section::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad-orn);}
+.rus-eyebrow{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--orn2);margin-bottom:12px;}
+.rus-headline{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;color:var(--text);margin-bottom:6px;line-height:1.05;}
+.rus-headline span{background:var(--grad-orn);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.rus-subline{font-size:13px;color:var(--orn2);font-weight:600;margin-bottom:14px;letter-spacing:0.02em;}
+.rus-body{font-size:13px;color:var(--muted2);line-height:1.75;max-width:540px;margin-bottom:22px;}
+.rus-sources{margin-bottom:22px;}
+.rus-sources-label{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.rus-badges{display:flex;flex-wrap:wrap;gap:6px;}
+.rus-badge{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:4px 10px;border-radius:3px;letter-spacing:0.06em;}
+.rus-badge-pro{background:rgba(255,90,0,0.1);color:var(--orn2);border:1px solid rgba(255,90,0,0.2);}
+.rus-badge-dist{background:rgba(138,92,255,0.08);color:var(--pur);border:1px solid var(--border2);}
+.rus-benefits{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+.rus-benefit{display:flex;align-items:flex-start;gap:10px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:4px;}
+.rus-benefit-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.rus-benefit-text{font-size:12px;color:var(--muted2);line-height:1.5;}
+.rus-benefit-text strong{display:block;font-size:12px;color:var(--text);font-weight:600;margin-bottom:2px;}
+.rus-btn{display:inline-block;background:var(--grad-orn);color:#fff;padding:16px 36px;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:var(--glow-orn);transition:all 0.2s;text-decoration:none;}
+.rus-btn:hover{transform:translateY(-2px);box-shadow:0 0 60px rgba(255,90,0,0.5);}
+.rus-trust{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.08em;margin-top:12px;display:flex;align-items:center;gap:6px;justify-content:center;}
+.rus-trust::before{content:'🔒';font-size:10px;}
+
 /* PHOTO STRIP */
 .photo-strip{overflow:hidden;height:260px;display:flex;gap:2px;background:var(--bg);}
 .ps-item{flex:1;position:relative;overflow:hidden;cursor:pointer;}
@@ -443,6 +468,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 .d1{transition-delay:0.1s;}.d2{transition-delay:0.2s;}.d3{transition-delay:0.3s;}
 
 @media(max-width:900px){
+.rus-benefits{grid-template-columns:1fr;}
+
 nav{padding:0 20px;}
 .nav-links{display:none;}
 .hero{grid-template-columns:1fr;padding:90px 20px 50px;}
@@ -662,6 +689,49 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
       <div class="rfac-body">Upload your latest PRO, publishing, or distributor statement to uncover missing earnings, territory gaps, and uncollected royalties across your catalog.</div>
       <button class="rfac-btn" onclick="scrollToForm()">Unlock Full Audit →</button>
       <div class="rfac-scarcity">// Spots remaining · Free during beta · 12–24 hour delivery</div>
+    </div>
+
+    <!-- Data Upload Section -->
+    <div class="r-upload-section" id="r-upload-section" style="display:none;">
+      <div class="rus-eyebrow">// Unlock Verified Revenue Insights</div>
+      <div class="rus-headline">See Where Your Money Is<br><span>Actually Coming From</span></div>
+      <div class="rus-subline">Most artists discover missed royalties within minutes.</div>
+      <div class="rus-body">Upload your latest royalty or distribution statement to unlock a verified revenue audit. We'll analyze your earnings, identify missing royalties, and highlight gaps in your global collection setup.</div>
+
+      <div class="rus-sources">
+        <div class="rus-sources-label">Supported Sources</div>
+        <div class="rus-badges">
+          <span class="rus-badge rus-badge-pro">SOCAN</span>
+          <span class="rus-badge rus-badge-pro">ASCAP</span>
+          <span class="rus-badge rus-badge-pro">BMI</span>
+          <span class="rus-badge rus-badge-pro">GEMA</span>
+          <span class="rus-badge rus-badge-dist">DistroKid</span>
+          <span class="rus-badge rus-badge-dist">TuneCore</span>
+          <span class="rus-badge rus-badge-dist">CD Baby</span>
+        </div>
+      </div>
+
+      <div class="rus-benefits">
+        <div class="rus-benefit">
+          <div class="rus-benefit-icon">💰</div>
+          <div class="rus-benefit-text"><strong>Identify Missing Earnings</strong>See exactly which royalty streams are not reaching you.</div>
+        </div>
+        <div class="rus-benefit">
+          <div class="rus-benefit-icon">🌍</div>
+          <div class="rus-benefit-text"><strong>See Your Top Revenue Territories</strong>Know where your catalog earns most globally.</div>
+        </div>
+        <div class="rus-benefit">
+          <div class="rus-benefit-icon">🔍</div>
+          <div class="rus-benefit-text"><strong>Detect Uncollected Royalties</strong>Surface earnings that may be sitting unclaimed.</div>
+        </div>
+        <div class="rus-benefit">
+          <div class="rus-benefit-icon">✅</div>
+          <div class="rus-benefit-text"><strong>Verify Your Registration Coverage</strong>Confirm your PRO and SoundExchange registrations are active.</div>
+        </div>
+      </div>
+
+      <button class="rus-btn" onclick="scrollToForm()">Upload Statement &amp; Unlock Full Audit →</button>
+      <div class="rus-trust">Your data is secure and used only to generate your audit.</div>
     </div>
 
     <!-- Error panel — shown when source resolution fails -->
@@ -1144,9 +1214,11 @@ function showRealResults(data) {
     buildCollectionReadinessUI(data.collectionReadiness);
   }
 
-  // ── Full audit CTA ────────────────────────────────────────
+  // ── Full audit CTA + Data Upload section ─────────────────
   const ctaEl = document.getElementById('r-full-audit-cta');
   if (ctaEl) ctaEl.style.display = 'block';
+  const uploadEl = document.getElementById('r-upload-section');
+  if (uploadEl) uploadEl.style.display = 'block';
 
   // ── ISRC cross-platform table ────────────────────────────
   if (data.isrcTable && data.isrcTable.length > 0) {
@@ -1201,6 +1273,8 @@ function showErrorState(errorMsg, url, errorData) {
   if (readSection) readSection.style.display = 'none';
   const ctaSection = document.getElementById('r-full-audit-cta');
   if (ctaSection) ctaSection.style.display = 'none';
+  const uploadSection = document.getElementById('r-upload-section');
+  if (uploadSection) uploadSection.style.display = 'none';
   const isrcSection = document.getElementById('r-isrc');
   if (isrcSection) isrcSection.style.display = 'none';
   const revealMockup = document.getElementById('r-reveal-mockup');
