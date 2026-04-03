@@ -2060,30 +2060,61 @@ function trackIntegrityLabel(score) {
   return 'Needs Attention';
 }
 
+// Insufficient data sentinel — used throughout to signal no score
+const INSUFFICIENT = {
+  score: null,
+  type: 'Catalog Quality Score',
+  label: 'Insufficient Data',
+  insufficient: true,
+  message: 'Unable to generate a Catalog Quality Score due to incomplete data signals.',
+};
+
 function calculateCatalogQualityScore(isrcTable) {
-  if (!isrcTable || isrcTable.length === 0) return { score: null, type: 'Catalog Quality Score', label: 'Insufficient data' };
+  // ── Threshold gate — must pass before any score is generated ───
+  if (!isrcTable || isrcTable.length === 0) return INSUFFICIENT;
 
   const total = isrcTable.length;
-  let score = 100;
-
-  const missingIsrc = isrcTable.filter(t => !t.isrc).length;
-  const missingOnApple = isrcTable.filter(t => t.matchStatus === 'Missing on Apple').length;
-  const missingOnSpotify = isrcTable.filter(t => t.matchStatus === 'Missing on Spotify').length;
+  const authUnavail  = isrcTable.filter(t => t.matchStatus === 'Auth Unavailable').length;
+  const resolved     = isrcTable.filter(t => t.matchStatus !== 'Auth Unavailable').length;
+  const hasIsrc      = isrcTable.filter(t => !!t.isrc).length;
+  const matched      = isrcTable.filter(t => t.matchStatus === 'Matched').length;
+  const missingIsrc  = isrcTable.filter(t => !t.isrc).length;
+  const missingApple = isrcTable.filter(t => t.matchStatus === 'Missing on Apple').length;
+  const missingSpot  = isrcTable.filter(t => t.matchStatus === 'Missing on Spotify').length;
   const possibleOnly = isrcTable.filter(t => t.matchStatus === 'Possible Match').length;
-  const authUnavail = isrcTable.filter(t => t.matchStatus === 'Auth Unavailable').length;
-  const matched = isrcTable.filter(t => t.matchStatus === 'Matched').length;
 
-  score -= (missingIsrc / total) * 30;
-  score -= (missingOnApple / total) * 25;
-  score -= (missingOnSpotify / total) * 25;
-  score -= (possibleOnly / total) * 10;
-  // Auth unavailable: no penalty
+  // Minimum thresholds — per spec
+  const enoughResolvedTracks   = resolved >= 3;                  // at least 3 of 5 resolved
+  const enoughIsrc             = hasIsrc >= 2;                   // ISRC on at least 2 tracks
+  const notBlockedByAuth       = authUnavail < Math.ceil(total / 2); // auth failures not majority
+
+  console.log('[Royalte Score] Catalog threshold check — resolved:', resolved, '/ isrc:', hasIsrc, '/ authFail:', authUnavail,
+    '| pass:', enoughResolvedTracks && enoughIsrc && notBlockedByAuth);
+
+  if (!enoughResolvedTracks || !enoughIsrc || !notBlockedByAuth) {
+    return {
+      ...INSUFFICIENT,
+      breakdown: { total, resolved, hasIsrc, authUnavail, matched, missingIsrc, missingApple, missingSpot, possibleOnly },
+    };
+  }
+
+  // ── Score calculation — only runs when threshold is met ─────────
+  // Base against resolved tracks only (exclude auth-unavailable from denominator)
+  const base = resolved;
+  let score = 100;
+  score -= (missingIsrc  / base) * 30;
+  score -= (missingApple / base) * 25;
+  score -= (missingSpot  / base) * 25;
+  score -= (possibleOnly / base) * 10;
+
+  const finalScore = Math.round(Math.max(score, 0));
 
   return {
-    score: Math.round(Math.max(score, 0)),
+    score: finalScore,
     type: 'Catalog Quality Score',
-    label: catalogQualityLabel(score),
-    breakdown: { total, matched, missingIsrc, missingOnApple, missingOnSpotify, possibleOnly, authUnavail },
+    label: catalogQualityLabel(finalScore),
+    insufficient: false,
+    breakdown: { total, resolved, matched, missingIsrc, missingApple, missingSpot, possibleOnly, authUnavail },
   };
 }
 
