@@ -622,6 +622,12 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
       <div class="results-tag" id="results-tag">Scanning...</div>
     </div>
 
+    <!-- URL resolution notice — shown when track or album URL was resolved to artist -->
+    <div id="r-resolution-notice" style="display:none;margin-bottom:12px;padding:8px 14px;background:rgba(138,92,255,0.06);border:1px solid rgba(138,92,255,0.2);border-radius:4px;display:none;">
+      <span style="font-family:'Space Mono',monospace;font-size:8px;color:var(--pur);font-weight:700;letter-spacing:0.1em;" id="r-resolution-type"></span>
+      <span style="font-size:11px;color:var(--muted2);margin-left:8px;" id="r-resolution-detail"></span>
+    </div>
+
     <!-- Royalty Risk Score -->
     <div class="r-risk-card" id="r-risk-card">
       <div class="r-risk-top">
@@ -1157,83 +1163,41 @@ async function runAudit() {
   btn.disabled = true;
   btn.textContent = 'Detecting artist...';
 
-  // ── STEP 1: Normalize to canonical artist ─────────────────────
-  // Applies to ALL scans — free and paid.
-  // Track → resolves to primary artist. Album → resolves to primary artist.
-  // The audit NEVER runs from track or album scope directly.
-  try {
-    const normResp = await fetch(`/api/audit?url=${encodeURIComponent(val)}&normalizeOnly=true`);
-    const normData = await normResp.json();
-
-    if (!normData.success || !normData.normalized) {
-      btn.disabled    = false;
-      btn.textContent = 'Run Free Audit →';
-      const errMsg = normData.error || "We couldn't detect a valid artist profile from that link.";
-      if (errorStrip) {
-        document.getElementById('normalize-error-msg').textContent = errMsg;
-        errorStrip.style.display = 'block';
-      }
-      input.style.outline = '1px solid var(--red)';
-      return;
-    }
-
-    // Lock in normalized artist — used for scan URL, form, and any upgrade/checkout flow
-    _normalizedArtist = normData.normalized;
-
-    // Show confirmation strip
-    const urlTypeLabels = {
-      artist: 'ARTIST URL',
-      track:  'TRACK URL → RESOLVED TO ARTIST',
-      album:  'ALBUM URL → RESOLVED TO ARTIST',
-    };
-    if (confirmStrip) {
-      document.getElementById('confirm-artist-name').textContent    = _normalizedArtist.artistName;
-      document.getElementById('confirm-platform-label').textContent = _normalizedArtist.platform === 'apple' ? 'Apple Music' : 'Spotify';
-      document.getElementById('confirm-url-type').textContent       = urlTypeLabels[_normalizedArtist.urlType] || _normalizedArtist.urlType.toUpperCase();
-      confirmStrip.style.display = 'block';
-    }
-
-    // Pre-fill form with normalized artist URL (not the original pasted URL)
-    const fSpotify = document.getElementById('f-spotify');
-    if (fSpotify) {
-      fSpotify.value         = _normalizedArtist.normalizedArtistUrl;
-      fSpotify.readOnly      = true;
-      fSpotify.style.opacity = '0.7';
-      fSpotify.style.cursor  = 'not-allowed';
-    }
-
-  } catch (normErr) {
-    btn.disabled    = false;
-    btn.textContent = 'Run Free Audit →';
-    if (errorStrip) {
-      document.getElementById('normalize-error-msg').textContent = 'Could not reach the server. Please try again.';
-      errorStrip.style.display = 'block';
-    }
-    return;
-  }
-
-  // ── STEP 2: Run audit from normalized artist URL ───────────────
-  // Always uses _normalizedArtist.normalizedArtistUrl — never original input.
+  // ── Single-step: run audit directly, backend handles normalization ──
+  // The backend always resolves track/album → artist before scanning.
+  // No separate normalize pre-call — avoids double API round-trip and timeout.
   btn.textContent = 'Scanning...';
-  const auditUrl = _normalizedArtist.normalizedArtistUrl;
 
   let auditData = null;
   let auditError = null;
   let auditErrorData = null;
   try {
-    const resp = await fetch(`/api/audit?url=${encodeURIComponent(auditUrl)}`);
+    const resp = await fetch(`/api/audit?url=${encodeURIComponent(val)}`);
     const json = await resp.json();
     if (json.success && json.auditReady !== false) {
       auditData = json;
+      // Store normalized artist from successful response for form/checkout flow
+      if (json.subject || json.artistName) {
+        _normalizedArtist = {
+          artistName:          json.artistName || json.subject?.canonicalArtistName,
+          artistId:            json.artistId   || json.subject?.canonicalArtistId,
+          platform:            json.inputPlatform || 'spotify',
+          normalizedArtistUrl: json.normalizedArtistUrl || val,
+          urlType:             json.originalInputType || 'artist',
+          originalInputUrl:    val,
+        };
+      }
     } else {
       auditError     = json.error || 'Temporary system issue — please try again.';
       auditErrorData = json;
     }
-  } catch (e) { auditError = 'Network error — please try again.'; }
+  } catch (e) {
+    auditError = 'Network error — please try again.';
+  }
 
   animateScan(() => {
     if (auditData) showRealResults(auditData);
-    else showErrorState(auditError, auditUrl, auditErrorData);
+    else showErrorState(auditError, val, auditErrorData);
     btn.disabled    = false;
     btn.textContent = 'Run Free Audit →';
     document.getElementById('scan-progress').style.display = 'none';
@@ -1321,6 +1285,41 @@ function showRealResults(data) {
   // results-tag
   const tagFollowers = followers > 0 ? ` · ${followers.toLocaleString()} followers` : '';
   document.getElementById('results-tag').textContent = `${artistName}${tagFollowers} · ${platformLabel}`;
+
+  // Resolution notice — only shown when input was track or album URL
+  const origType = data.originalInputType || 'artist';
+  const noticeEl = document.getElementById('r-resolution-notice');
+  if (noticeEl && origType !== 'artist') {
+    const typeLabels = { track: 'TRACK URL', album: 'ALBUM URL' };
+    document.getElementById('r-resolution-type').textContent  = `${typeLabels[origType] || origType.toUpperCase()} DETECTED`;
+    document.getElementById('r-resolution-detail').textContent = `Royaltē resolved this to the artist profile for ${artistName} — all audit data reflects the full artist catalog.`;
+    noticeEl.style.display = 'block';
+  } else if (noticeEl) {
+    noticeEl.style.display = 'none';
+  }
+
+  // Store normalized artist for form/checkout flow
+  if (data.normalizedArtistUrl && data.artistId) {
+    _normalizedArtist = {
+      artistName:          artistName,
+      artistId:            data.artistId,
+      platform:            inputPlatform,
+      normalizedArtistUrl: data.normalizedArtistUrl,
+      urlType:             origType,
+      originalInputUrl:    document.getElementById('hero-url')?.value || '',
+    };
+    // Update form with normalized artist URL
+    const fSpotify = document.getElementById('f-spotify');
+    if (fSpotify) {
+      fSpotify.value         = data.normalizedArtistUrl;
+      fSpotify.readOnly      = true;
+      fSpotify.style.opacity = '0.7';
+      fSpotify.style.cursor  = 'not-allowed';
+    }
+    // Auto-fill artist name in form if field exists
+    const fName = document.getElementById('f-artist-name');
+    if (fName && !fName.value) fName.value = artistName;
+  }
 
   // ── Risk score card ────────────────────────────────────────
   setRiskScore(score, level, { artistName, trackTitle, platformLabel, issueCount, coverageStatuses: data.coverageStatuses, primaryScore: data.primaryScore, scanType: data.scanType });
@@ -1844,24 +1843,73 @@ function buildTerritoryCallout(territorySignals) {
 
 // ── FORM ───────────────────────────────────────────────────────
 async function submitForm() {
-  const name = document.getElementById('f-name').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const spotify = document.getElementById('f-spotify').value.trim();
+  const name   = document.getElementById('f-name').value.trim();
+  const email  = document.getElementById('f-email').value.trim();
   const tracks = document.getElementById('f-tracks').value;
-  const btn = document.getElementById('form-btn');
-  if (!name) { document.getElementById('f-name').style.borderColor = 'var(--red)'; return; }
+  const btn    = document.getElementById('form-btn');
+
+  if (!name)  { document.getElementById('f-name').style.borderColor  = 'var(--red)'; return; }
   if (!email || !email.includes('@')) { document.getElementById('f-email').style.borderColor = 'var(--red)'; return; }
-  if (!spotify) { document.getElementById('f-spotify').style.borderColor = 'var(--red)'; return; }
-  btn.disabled = true;
+
+  // ── Always use the normalized artist URL for full audit submission ──
+  // If user ran a free scan first, _normalizedArtist is populated.
+  // If they scrolled straight to the form, use whatever is in the field.
+  let auditUrl = '';
+  let artistNameForSubmit = name;
+
+  if (_normalizedArtist?.normalizedArtistUrl) {
+    // Best case — came from a free scan, artist is fully resolved
+    auditUrl           = _normalizedArtist.normalizedArtistUrl;
+    artistNameForSubmit = _normalizedArtist.artistName || name;
+  } else {
+    // Direct form entry — use whatever URL they typed
+    auditUrl = document.getElementById('f-spotify').value.trim();
+  }
+
+  if (!auditUrl) {
+    document.getElementById('f-spotify').style.borderColor = 'var(--red)';
+    return;
+  }
+
+  // If URL is a track or album, resolve to artist before submitting
+  const isTrackOrAlbum = (auditUrl.includes('/track/') || auditUrl.includes('/album/'));
+  if (isTrackOrAlbum) {
+    btn.disabled    = true;
+    btn.textContent = 'Resolving artist...';
+    try {
+      const normResp = await fetch(`/api/audit?url=${encodeURIComponent(auditUrl)}&normalizeOnly=true`);
+      const normData = await normResp.json();
+      if (normData.success && normData.normalized) {
+        auditUrl           = normData.normalized.normalizedArtistUrl;
+        artistNameForSubmit = normData.normalized.artistName || artistNameForSubmit;
+        _normalizedArtist   = normData.normalized;
+      }
+    } catch (e) {
+      // Non-fatal — submit with original URL if resolve fails
+    }
+  }
+
+  btn.disabled    = true;
   btn.textContent = 'Sending request...';
+
   try {
     await fetch('https://formspree.io/f/xojkrwzp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, spotify_url: spotify, track_count: tracks,
-        _subject: `Royaltē Full Audit Request — ${name}`, _replyto: email }),
+      body: JSON.stringify({
+        name,
+        email,
+        artist_name:  artistNameForSubmit,
+        spotify_url:  auditUrl,           // always normalized artist URL
+        original_url: document.getElementById('hero-url')?.value || auditUrl,
+        url_type:     _normalizedArtist?.urlType || 'artist',
+        track_count:  tracks,
+        _subject:     `Royaltē Full Audit Request — ${artistNameForSubmit}`,
+        _replyto:     email,
+      }),
     });
   } catch (e) {}
+
   document.getElementById('form-inner').style.display = 'none';
   document.getElementById('form-success').style.display = 'block';
 }
