@@ -1,16 +1,11 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/audit.js",
-      "use": "@vercel/node",
-      "config": { "includeFiles": ["api/apple-token.js"] }
-    },
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
+  "functions": {
+    "api/audit.js": {
+      "runtime": "nodejs20.x",
+      "includeFiles": "api/apple-token.js"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/audit",
