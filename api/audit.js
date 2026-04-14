@@ -85,24 +85,91 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const { url } = req.query;
+  const { url, normalizeOnly } = req.query;
   if (!url) return res.status(400).json({ error: 'No URL provided.' });
 
-  // ── STAGE A: Parse input URL ─────────────────────────────────
+  // ── STAGE A: Parse + Normalize input URL ─────────────────────
+  // ALL scans (free or paid) must resolve to a canonical ARTIST first.
+  // Track URLs → resolve artist. Album URLs → resolve artist.
+  // No scan ever runs from track or album scope directly.
   console.log('[Royalte] Stage A — Input URL:', url);
   const parsed = parseUniversalUrl(url);
 
   if (!parsed) {
     console.warn('[Royalte] Stage A — Parse failed');
     return res.status(400).json({
-      error: 'Enter a valid Spotify or Apple Music URL.',
-      detail: 'Supported: open.spotify.com/artist, open.spotify.com/track, music.apple.com artist and song URLs.',
+      success: false,
+      error: "We couldn't detect a valid artist profile from that link. Please paste a Spotify or Apple Music artist, track, or album URL.",
+      detail: 'Supported: Spotify artist/track URLs · Apple Music artist/song/album URLs',
+    });
+  }
+
+  // Reject playlists and unsupported link types
+  if (parsed.type === 'playlist' || parsed.type === 'unsupported') {
+    return res.status(400).json({
+      success: false,
+      error: "We couldn't detect a valid artist profile from that link. Please paste a Spotify or Apple Music artist, track, or album URL.",
+      detail: `URL type "${parsed.type}" is not supported. Royalté scans artist catalogs only.`,
     });
   }
 
   console.log('[Royalte] Stage A — Parsed:', JSON.stringify(parsed));
 
+  // ── normalizeOnly mode — resolve artist identity without full audit ──
+  // Used by frontend to confirm artist before running scan.
+  if (normalizeOnly === 'true') {
+    try {
+      const normResult = await resolveArtistIdentity(parsed);
+      if (!normResult.success) {
+        return res.status(400).json({
+          success: false,
+          error: normResult.error || "We couldn't resolve an artist from that link.",
+          detail: normResult.detail || '',
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        normalized: {
+          artistName:         normResult.artistName,
+          artistId:           normResult.artistId,
+          platform:           normResult.platform,
+          normalizedArtistUrl: normResult.normalizedArtistUrl,
+          urlType:            parsed.type,       // 'artist' | 'track' | 'album'
+          originalInputUrl:   url,
+          confidence:         normResult.confidence || 'VERIFIED',
+        },
+      });
+    } catch (normErr) {
+      return res.status(500).json({ success: false, error: normErr.message });
+    }
+  }
+
   try {
+    // ── PRE-STAGE: Enforce artist normalization ───────────────────
+    // Non-negotiable: every audit runs from a normalized artist URL.
+    // If input was a track or album, resolve to artist first.
+    if (parsed.type !== 'artist') {
+      console.log('[Royalte] Pre-Stage — Non-artist URL detected, normalizing to artist...');
+      const normResult = await resolveArtistIdentity(parsed);
+      if (!normResult.success) {
+        return res.status(400).json({
+          success: false,
+          error: normResult.error || "Couldn't resolve an artist from that link.",
+          detail: normResult.detail || '',
+        });
+      }
+      // Rewrite parsed to point to canonical artist — all downstream logic runs from here
+      console.log('[Royalte] Pre-Stage — Normalized to artist:', normResult.artistName, '|', normResult.artistId);
+      parsed = {
+        platform: normResult.platform,
+        type: 'artist',
+        id: normResult.artistId,
+        rawUrl: normResult.normalizedArtistUrl,
+        originalInputUrl: url,
+        originalInputType: parsed.type,   // preserve for logging/display
+      };
+    }
+
     // ── STAGE B: Resolve source entity ───────────────────────────
     console.log('[Royalte] Stage B — Resolving source entity from', parsed.platform);
     const sourceResolution = await resolveSourceEntity(parsed);
@@ -383,6 +450,112 @@ function parseUniversalUrl(url) {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// NORMALIZATION LAYER
+// Resolves any input URL (artist, track, album) to canonical artist.
+// Used by normalizeOnly mode AND as gate before every audit run.
+// Non-negotiable: every scan originates from a normalized artist URL.
+// ─────────────────────────────────────────────────────────────────
+async function resolveArtistIdentity(parsed) {
+  try {
+    if (parsed.platform === 'spotify') {
+      const token = await getSpotifyToken();
+
+      let artistRaw;
+      if (parsed.type === 'artist') {
+        artistRaw = await getSpotifyArtist(parsed.id, token);
+      } else {
+        // Track or album — resolve primary artist
+        if (parsed.type === 'track') {
+          const trackRaw = await getSpotifyTrack(parsed.id, token);
+          if (!trackRaw?.artists?.[0]?.id) {
+            return { success: false, error: "Couldn't resolve an artist from that track.", detail: 'No artist found on track object' };
+          }
+          artistRaw = await getSpotifyArtist(trackRaw.artists[0].id, token);
+        } else {
+          // album — fetch album then get first artist
+          const albumResp = await fetch(
+            `https://api.spotify.com/v1/albums/${parsed.id}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          if (!albumResp.ok) return { success: false, error: `Spotify album fetch failed (${albumResp.status})` };
+          const albumData = await albumResp.json();
+          const artistId = albumData.artists?.[0]?.id;
+          if (!artistId) return { success: false, error: "Couldn't resolve an artist from that album." };
+          artistRaw = await getSpotifyArtist(artistId, token);
+        }
+      }
+
+      if (!artistRaw?.id) return { success: false, error: "Couldn't resolve a Spotify artist from that link." };
+
+      return {
+        success: true,
+        artistName: artistRaw.name,
+        artistId: artistRaw.id,
+        platform: 'spotify',
+        normalizedArtistUrl: `https://open.spotify.com/artist/${artistRaw.id}`,
+        confidence: 'VERIFIED',
+      };
+
+    } else if (parsed.platform === 'apple') {
+      // Apple token
+      let appleToken;
+      try { appleToken = generateAppleToken(); } catch (e) {
+        return { success: false, error: `Apple Music auth failed: ${e.message}` };
+      }
+      const BASE = 'https://api.music.apple.com/v1';
+      const headers = { Authorization: `Bearer ${appleToken}` };
+      const sfMatch = new URL(parsed.rawUrl).pathname.split('/').filter(Boolean)[0];
+      const sf = sfMatch && /^[a-z]{2}$/.test(sfMatch) ? sfMatch : 'us';
+
+      let artistId, artistName;
+
+      if (parsed.type === 'artist') {
+        // Direct artist URL
+        const resp = await fetch(`${BASE}/catalog/${sf}/artists/${parsed.id}`, { headers });
+        if (!resp.ok) return { success: false, error: `Apple Music artist fetch failed (${resp.status})` };
+        const data = await resp.json();
+        artistName = data.data?.[0]?.attributes?.name;
+        artistId   = data.data?.[0]?.id;
+      } else if (parsed.type === 'track') {
+        // Song → get artist relationship
+        const resp = await fetch(`${BASE}/catalog/${sf}/songs/${parsed.id}?include=artists`, { headers });
+        if (!resp.ok) return { success: false, error: `Apple Music song fetch failed (${resp.status})` };
+        const data = await resp.json();
+        const relArtist = data.data?.[0]?.relationships?.artists?.data?.[0];
+        artistId   = relArtist?.id;
+        artistName = data.data?.[0]?.attributes?.artistName;
+        if (!artistId) return { success: false, error: "Couldn't resolve artist from that Apple Music track." };
+      } else {
+        // Album → get artist relationship
+        const resp = await fetch(`${BASE}/catalog/${sf}/albums/${parsed.id}?include=artists`, { headers });
+        if (!resp.ok) return { success: false, error: `Apple Music album fetch failed (${resp.status})` };
+        const data = await resp.json();
+        const relArtist = data.data?.[0]?.relationships?.artists?.data?.[0];
+        artistId   = relArtist?.id;
+        artistName = data.data?.[0]?.attributes?.artistName || relArtist?.attributes?.name;
+        if (!artistId) return { success: false, error: "Couldn't resolve artist from that Apple Music album." };
+      }
+
+      if (!artistId) return { success: false, error: "Couldn't resolve an Apple Music artist from that link." };
+
+      return {
+        success: true,
+        artistName: artistName || 'Unknown Artist',
+        artistId,
+        platform: 'apple',
+        normalizedArtistUrl: `https://music.apple.com/${sf}/artist/${artistId}`,
+        confidence: 'VERIFIED',
+      };
+    }
+
+    return { success: false, error: 'Unsupported platform.' };
+  } catch (err) {
+    console.error('[Royalte Normalize] Error:', err.message);
+    return { success: false, error: err.message };
+  }
+}
+
 // STAGE B — SOURCE ENTITY RESOLUTION
 // Fetches from the input platform and builds canonical subject
 // ─────────────────────────────────────────────────────────────────
