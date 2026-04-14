@@ -570,10 +570,16 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
             <div class="d-risk-lbl" style="color:var(--amb);">MODERATE</div>
           </div>
           <div class="d-risk-info">
-            <div class="d-risk-title">// Royalty Risk Score</div>
-            <div class="d-risk-artist" id="hero-artist-name">Paste your link</div>
-            <div class="d-risk-sub" id="hero-artist-sub">Run audit to see verified data</div>
-            <div class="d-risk-sub" id="hero-platform-label" style="font-family:'Space Mono',monospace;font-size:8px;color:var(--pur);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;">Spotify + Apple Music</div>
+            <div class="d-risk-title" id="hero-score-type">// Royalty Risk Score</div>
+            <div id="hero-artist-row" style="display:flex;align-items:center;gap:6px;margin-bottom:1px;">
+              <span style="font-size:7px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:0.1em;">ARTIST</span>
+              <span class="d-risk-artist" id="hero-artist-name">Paste your link</span>
+              <span id="hero-platform-label" style="font-family:'Space Mono',monospace;font-size:7px;color:var(--pur);padding:1px 5px;border-radius:2px;background:rgba(138,92,255,0.1);text-transform:uppercase;letter-spacing:0.08em;">Spotify + Apple Music</span>
+            </div>
+            <div id="hero-track-row" style="display:none;align-items:center;gap:6px;margin-bottom:1px;">
+              <span style="font-size:7px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:0.1em;">SONG</span>
+              <span class="d-risk-sub" id="hero-artist-sub" style="color:var(--muted2);font-size:11px;"></span>
+            </div>
           </div>
         </div>
         <div class="d-alert">
@@ -1170,10 +1176,31 @@ function showRealResults(data) {
 
   // ── Hero mockup update ─────────────────────────────────────
   document.getElementById('hero-artist-name').textContent = artistName;
-  const followerStr = followers > 0 ? `${followers.toLocaleString()} followers · ` : '';
-  document.getElementById('hero-artist-sub').textContent = followerStr + platformLabel;
+
+  // Score type label in hero
+  const heroScoreType = document.getElementById('hero-score-type');
+  if (heroScoreType && data.primaryScore?.type) {
+    heroScoreType.textContent = '// ' + data.primaryScore.type;
+  }
+
+  // Platform label pill
   const plLabelEl = document.getElementById('hero-platform-label');
-  if (plLabelEl) plLabelEl.textContent = inputPlatform === 'apple' ? 'Apple Music' : 'Spotify';
+  if (plLabelEl) plLabelEl.textContent = platformLabel || (inputPlatform === 'apple' ? 'Apple Music Artist' : 'Spotify Artist');
+
+  // Track row — show only on track scans
+  const heroTrackRow = document.getElementById('hero-track-row');
+  const heroArtistSub = document.getElementById('hero-artist-sub');
+  if (trackTitle && heroTrackRow && heroArtistSub) {
+    heroArtistSub.textContent = trackTitle;
+    heroTrackRow.style.display = 'flex';
+  } else if (heroTrackRow) {
+    heroTrackRow.style.display = 'none';
+    // Show followers in sub only for artist scans when no track
+    if (heroArtistSub && followers > 0) {
+      heroArtistSub.textContent = followers.toLocaleString() + ' followers';
+      heroTrackRow.style.display = 'flex';
+    }
+  }
 
   // Update hero risk badge
   const heroRiskVal = document.querySelector('.d-risk-val');
@@ -1181,14 +1208,20 @@ function showRealResults(data) {
   if (heroRiskVal) { heroRiskVal.textContent = score; heroRiskVal.style.color = riskColor(level); }
   if (heroRiskLbl) { heroRiskLbl.textContent = level.toUpperCase(); heroRiskLbl.style.color = riskColor(level); }
 
-  // Update hero Apple status pill from coverage statuses
-  const heroCovEl = document.getElementById('hero-apple-status');
-  if (heroCovEl && data.coverageStatuses) {
-    // Find Apple Music entry
-    const amCov = data.coverageStatuses.find(s => s.platform === 'Apple Music');
-    if (amCov) {
-      heroCovEl.textContent = amCov.status.toUpperCase();
-      heroCovEl.className = 'd-cov-status ' + statusClass(amCov.status);
+  // Update hero coverage items from real platform confirmation
+  if (data.platformConfirmation) {
+    const pc = data.platformConfirmation;
+    // Spotify row — always source or cross-ref
+    const heroSpotRow = document.querySelector('.d-cov-item:first-child .d-cov-status');
+    if (heroSpotRow) {
+      heroSpotRow.textContent = pc.spotify.displayStatus.toUpperCase();
+      heroSpotRow.className = 'd-cov-status ' + statusClass(pc.spotify.displayStatus);
+    }
+    // Apple Music row
+    const heroCovEl = document.getElementById('hero-apple-status');
+    if (heroCovEl) {
+      heroCovEl.textContent = pc.apple.displayStatus.toUpperCase();
+      heroCovEl.className = 'd-cov-status ' + statusClass(pc.apple.displayStatus);
     }
   }
 
