@@ -280,6 +280,11 @@ export default async function handler(req, res) {
       artistId: subject.canonicalArtistId,
       followers: subject.followers || 0,
       genres: subject.genres || [],
+      // Normalization metadata — for frontend state and form flow
+      normalizedArtistUrl: subject.inputPlatform === 'spotify'
+        ? `https://open.spotify.com/artist/${subject.canonicalArtistId}`
+        : `https://music.apple.com/us/artist/${subject.canonicalArtistId}`,
+      originalInputType: parsed.originalInputType || parsed.type || 'artist',
 
       // Source resolution result
       sourceResolution: {
@@ -1867,7 +1872,7 @@ function buildVerifiedIssues(subject, moduleStates, crossRefs) {
     status: 'Manual Check Required',
     verifiedBy: null,
     title: 'SoundExchange — verify your ISRC registration',
-    detail: 'Being registered with SoundExchange is not enough — each recording's ISRC must be individually linked to your account. Unlinked ISRCs mean uncollected digital performance royalties.',
+        detail: "Being registered with SoundExchange is not enough — each recording's ISRC must be individually linked to your account. Unlinked ISRCs mean uncollected digital performance royalties.",
     steps: [
       'Log into your SoundExchange portal at soundexchange.com',
       'Go to My Catalog and search for each of your track titles',
