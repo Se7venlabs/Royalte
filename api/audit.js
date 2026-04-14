@@ -381,11 +381,11 @@ function parseUniversalUrl(url) {
 
     // ── SPOTIFY ──────────────────────────────────────────────────
     if (hostname.includes('spotify.com')) {
-      const typeIdx = parts.findIndex(p => p === 'artist' || p === 'track');
+      const typeIdx = parts.findIndex(p => p === 'artist' || p === 'track' || p === 'album');
       if (typeIdx === -1 || !parts[typeIdx + 1]) return null;
       return {
         platform: 'spotify',
-        type: parts[typeIdx],   // 'artist' | 'track'
+        type: parts[typeIdx],   // 'artist' | 'track' | 'album'
         id: parts[typeIdx + 1].split('?')[0],
         rawUrl: url,
       };
