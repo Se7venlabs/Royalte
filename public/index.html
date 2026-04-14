@@ -537,7 +537,24 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
         <input class="paste-input" id="hero-url" type="text" placeholder="Spotify or Apple Music artist / track URL...">
         <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Audit →</button>
       </div>
-      <div class="paste-hint">// No login required · Spotify + Apple Music · Artist + track URLs · Verified data only</div>
+      <div class="paste-hint">// No login required · Spotify + Apple Music · Artist, track or album URLs · Verified data only</div>
+
+      <!-- Artist confirmation strip — shown after normalization, before scan -->
+      <div id="artist-confirm" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(64,240,160,0.06);border:1px solid rgba(64,240,160,0.2);border-radius:4px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span style="font-size:10px;color:var(--grn);font-family:'Space Mono',monospace;font-weight:700;letter-spacing:0.1em;">✓ ARTIST DETECTED</span>
+          <span id="confirm-artist-name" style="font-size:13px;font-weight:600;color:var(--text);"></span>
+          <span id="confirm-platform-label" style="font-family:'Space Mono',monospace;font-size:8px;color:var(--pur);padding:2px 7px;border-radius:2px;background:rgba(138,92,255,0.1);"></span>
+          <span id="confirm-url-type" style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);"></span>
+        </div>
+        <div style="margin-top:4px;font-size:11px;color:var(--muted2);">Scan target: <strong style="color:var(--text);">Artist profile confirmed</strong> — all processing runs from artist catalog</div>
+      </div>
+
+      <!-- Normalization error strip -->
+      <div id="normalize-error" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(240,80,96,0.06);border:1px solid rgba(240,80,96,0.2);border-radius:4px;">
+        <span style="font-size:11px;color:var(--red);" id="normalize-error-msg"></span>
+      </div>
+
       <div class="scan-progress" id="scan-progress">
         <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
         <div class="sp-label" id="sp-label">Verifying Spotify profile...</div>
@@ -1106,45 +1123,121 @@ function animateScan(onComplete) {
 }
 
 // ── RUN AUDIT ──────────────────────────────────────────────────
+// ── Normalization state — persists through scan + form + checkout ─
+let _normalizedArtist = null;
+// Shape: { artistName, artistId, platform, normalizedArtistUrl, urlType, originalInputUrl }
+
 async function runAudit() {
   const input = document.getElementById('hero-url');
-  const btn = document.getElementById('hero-btn');
-  const val = input.value.trim();
+  const btn   = document.getElementById('hero-btn');
+  const val   = input.value.trim();
+
+  // Reset confirmation / error strips
+  const confirmStrip = document.getElementById('artist-confirm');
+  const errorStrip   = document.getElementById('normalize-error');
+  if (confirmStrip) confirmStrip.style.display = 'none';
+  if (errorStrip)   errorStrip.style.display   = 'none';
+  _normalizedArtist = null;
 
   if (!val) { input.style.outline = '1px solid var(--red)'; input.focus(); return; }
-  const isSpotify = val.includes('spotify.com/artist') || val.includes('spotify.com/track');
-  const isApple = val.includes('music.apple.com'); // includes artist, album, song URLs
-  if (!isSpotify && !isApple) {
+
+  // Basic platform gate — reject obvious non-supported links
+  const isSupported = val.includes('spotify.com') || val.includes('music.apple.com');
+  if (!isSupported) {
     input.style.outline = '1px solid var(--red)';
-    input.placeholder = 'Enter a valid Spotify or Apple Music URL';
+    if (errorStrip) {
+      document.getElementById('normalize-error-msg').textContent =
+        "We couldn't detect a valid artist profile from that link. Please paste a Spotify or Apple Music artist, track, or album URL.";
+      errorStrip.style.display = 'block';
+    }
     return;
   }
+
   input.style.outline = '';
   btn.disabled = true;
+  btn.textContent = 'Detecting artist...';
+
+  // ── STEP 1: Normalize to canonical artist ─────────────────────
+  // Applies to ALL scans — free and paid.
+  // Track → resolves to primary artist. Album → resolves to primary artist.
+  // The audit NEVER runs from track or album scope directly.
+  try {
+    const normResp = await fetch(`/api/audit?url=${encodeURIComponent(val)}&normalizeOnly=true`);
+    const normData = await normResp.json();
+
+    if (!normData.success || !normData.normalized) {
+      btn.disabled    = false;
+      btn.textContent = 'Run Free Audit →';
+      const errMsg = normData.error || "We couldn't detect a valid artist profile from that link.";
+      if (errorStrip) {
+        document.getElementById('normalize-error-msg').textContent = errMsg;
+        errorStrip.style.display = 'block';
+      }
+      input.style.outline = '1px solid var(--red)';
+      return;
+    }
+
+    // Lock in normalized artist — used for scan URL, form, and any upgrade/checkout flow
+    _normalizedArtist = normData.normalized;
+
+    // Show confirmation strip
+    const urlTypeLabels = {
+      artist: 'ARTIST URL',
+      track:  'TRACK URL → RESOLVED TO ARTIST',
+      album:  'ALBUM URL → RESOLVED TO ARTIST',
+    };
+    if (confirmStrip) {
+      document.getElementById('confirm-artist-name').textContent    = _normalizedArtist.artistName;
+      document.getElementById('confirm-platform-label').textContent = _normalizedArtist.platform === 'apple' ? 'Apple Music' : 'Spotify';
+      document.getElementById('confirm-url-type').textContent       = urlTypeLabels[_normalizedArtist.urlType] || _normalizedArtist.urlType.toUpperCase();
+      confirmStrip.style.display = 'block';
+    }
+
+    // Pre-fill form with normalized artist URL (not the original pasted URL)
+    const fSpotify = document.getElementById('f-spotify');
+    if (fSpotify) {
+      fSpotify.value         = _normalizedArtist.normalizedArtistUrl;
+      fSpotify.readOnly      = true;
+      fSpotify.style.opacity = '0.7';
+      fSpotify.style.cursor  = 'not-allowed';
+    }
+
+  } catch (normErr) {
+    btn.disabled    = false;
+    btn.textContent = 'Run Free Audit →';
+    if (errorStrip) {
+      document.getElementById('normalize-error-msg').textContent = 'Could not reach the server. Please try again.';
+      errorStrip.style.display = 'block';
+    }
+    return;
+  }
+
+  // ── STEP 2: Run audit from normalized artist URL ───────────────
+  // Always uses _normalizedArtist.normalizedArtistUrl — never original input.
   btn.textContent = 'Scanning...';
-  document.getElementById('f-spotify').value = val;
+  const auditUrl = _normalizedArtist.normalizedArtistUrl;
 
   let auditData = null;
   let auditError = null;
-  let auditErrorData = null; // structured error from backend
+  let auditErrorData = null;
   try {
-    const resp = await fetch(`/api/audit?url=${encodeURIComponent(val)}`);
+    const resp = await fetch(`/api/audit?url=${encodeURIComponent(auditUrl)}`);
     const json = await resp.json();
     if (json.success && json.auditReady !== false) {
       auditData = json;
     } else {
-      auditError = json.error || 'Temporary system issue — please try again.';
-      auditErrorData = json; // preserve inputPlatform, entityType for error display
+      auditError     = json.error || 'Temporary system issue — please try again.';
+      auditErrorData = json;
     }
-  } catch (e) { auditError = 'Network error — please try again'; }
+  } catch (e) { auditError = 'Network error — please try again.'; }
 
   animateScan(() => {
     if (auditData) showRealResults(auditData);
-    else showErrorState(auditError, val, auditErrorData);
-    btn.disabled = false;
+    else showErrorState(auditError, auditUrl, auditErrorData);
+    btn.disabled    = false;
     btn.textContent = 'Run Free Audit →';
     document.getElementById('scan-progress').style.display = 'none';
-    document.getElementById('results-wrap').style.display = 'block';
+    document.getElementById('results-wrap').style.display  = 'block';
     document.getElementById('results-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 }
