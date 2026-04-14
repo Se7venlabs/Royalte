@@ -2,7 +2,6 @@
   "version": 2,
   "functions": {
     "api/audit.js": {
-      "runtime": "nodejs20.x",
       "includeFiles": "api/apple-token.js"
     }
   },
