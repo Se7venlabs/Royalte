@@ -1693,8 +1693,16 @@ function buildVerifiedIssues(subject, moduleStates, crossRefs) {
     priority: 'MEDIUM',
     status: 'Manual Check Required',
     verifiedBy: null,
-    title: 'SoundExchange registration — manual check required',
-    detail: 'SoundExchange collects digital performance royalties for US streaming. Registration status cannot be verified via public data. Check directly at soundexchange.com.',
+    title: 'SoundExchange — verify your ISRC registration',
+    detail: 'Being registered with SoundExchange is not enough — each recording's ISRC must be individually linked to your account. Unlinked ISRCs mean uncollected digital performance royalties.',
+    steps: [
+      'Log into your SoundExchange portal at soundexchange.com',
+      'Go to My Catalog and search for each of your track titles',
+      'If a track is missing — get its ISRC from your distributor dashboard',
+      'Use Register a Sound Recording to add the ISRC manually',
+      'Confirm your artist name matches exactly how it appears on each recording',
+      'Ask your distributor to confirm they auto-report your ISRCs to SoundExchange on every release',
+    ],
   });
 
   // ── Always show: PRO (manual check required) ─────────────────
@@ -2013,7 +2021,19 @@ function buildActionPlan(verifiedIssues, country) {
     not_in_musicbrainz: { action: 'Register your artist profile on MusicBrainz (musicbrainz.org)', reason: 'Not found in MusicBrainz — verified via API', priority: 'MEDIUM' },
     no_youtube_channel: { action: 'Create or claim your official YouTube channel and register for Content ID', reason: 'No official YouTube channel matched — verified via YouTube API', priority: 'MEDIUM' },
     ugc_content_id_risk: { action: 'Register for Content ID through your distributor or a YouTube OAC partner', reason: 'User-uploaded content found with no official channel — verified via YouTube API', priority: 'HIGH' },
-    soundexchange_unconfirmed: { action: 'Register with SoundExchange at soundexchange.com', reason: 'Digital performance royalties in the US require SoundExchange registration', priority: 'MEDIUM' },
+    soundexchange_unconfirmed: {
+      action: 'Verify your SoundExchange ISRC registration',
+      reason: 'You may be registered with SoundExchange as a performer, but each individual recording needs its ISRC linked to your account to collect digital performance royalties. Unclaimed ISRCs mean uncollected money.',
+      priority: 'MEDIUM',
+      steps: [
+        'Log into your SoundExchange portal at soundexchange.com',
+        'Go to My Catalog and search for each of your track titles',
+        'If a track is missing — get its ISRC from your distributor dashboard (DistroKid, TuneCore, CD Baby, etc.)',
+        'Use Register a Sound Recording inside the portal to add the ISRC manually',
+        'Check that your artist name is credited exactly as it appears on the recording — name mismatches (e.g. "Black Alternative" vs "Black Alternative feat. Chuck Ice") can cause royalties to go unclaimed',
+        'Contact your distributor and confirm they are automatically reporting your ISRCs to SoundExchange on each release',
+      ],
+    },
     pro_not_connected: { action: country ? `Register with ${proGuide.pro} — ${proGuide.url}` : 'Register with your local PRO — find yours at cisac.org', reason: 'PRO registration is required to collect performance royalties', priority: 'MEDIUM' },
   };
 
