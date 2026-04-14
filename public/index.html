@@ -610,8 +610,13 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
           <div class="r-risk-label" id="r-score-type-label">// Royalty Risk Score</div>
           <div class="r-risk-title" id="r-risk-title">Analysing...</div>
           <div id="r-artist-line" style="display:none;margin-bottom:3px;">
+            <span style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:0.06em;margin-right:4px;" id="r-artist-label">ARTIST</span>
             <span id="r-artist-name" style="font-size:14px;font-weight:600;color:var(--text);"></span>
             <span id="r-platform-label" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);margin-left:8px;padding:1px 6px;border-radius:2px;background:rgba(138,92,255,0.1);"></span>
+          </div>
+          <div id="r-track-line" style="display:none;margin-bottom:3px;">
+            <span style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:0.06em;margin-right:4px;">SONG</span>
+            <span id="r-track-name" style="font-size:13px;font-weight:500;color:var(--muted2);"></span>
           </div>
           <div class="r-risk-desc" id="r-risk-desc">Running verified checks across your profile.</div>
         </div>
@@ -1291,6 +1296,8 @@ function showErrorState(errorMsg, url, errorData) {
   // Hide locked/full-audit section — contains static fake counts that must not show
   const pcStrip = document.getElementById('r-platform-confirm');
   if (pcStrip) pcStrip.style.display = 'none';
+  const trkLine = document.getElementById('r-track-line');
+  if (trkLine) trkLine.style.display = 'none';
   const terrSection = document.getElementById('r-territory');
   if (terrSection) terrSection.style.display = 'none';
   const readSection = document.getElementById('r-readiness');
@@ -1436,10 +1443,19 @@ function setRiskScore(score, level, data) {
   const artistLine = document.getElementById('r-artist-line');
   const artistNameEl = document.getElementById('r-artist-name');
   const platformLabelEl = document.getElementById('r-platform-label');
+  const trackLine = document.getElementById('r-track-line');
+  const trackNameEl = document.getElementById('r-track-name');
   if (artistLine && artistNameEl && platformLabelEl && data?.artistName) {
-    artistNameEl.textContent = data.trackTitle || data.artistName;
+    artistNameEl.textContent = data.artistName;
     platformLabelEl.textContent = data.platformLabel || 'Artist';
     artistLine.style.display = 'block';
+    // Show track title on its own line for track scans
+    if (data.trackTitle && trackLine && trackNameEl) {
+      trackNameEl.textContent = data.trackTitle;
+      trackLine.style.display = 'block';
+    } else if (trackLine) {
+      trackLine.style.display = 'none';
+    }
   }
 
   // ── Platform confirmation strip — single source of truth ──────
