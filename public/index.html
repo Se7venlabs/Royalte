@@ -763,13 +763,20 @@ async function playSweep() {
     const ctx = getAudioCtx();
     const buf = await _loadSweep();
     if (!buf) return;
-    const src = ctx.createBufferSource();
-    const gain = ctx.createGain();
-    src.buffer = buf;
-    gain.gain.setValueAtTime(0.22, ctx.currentTime);
-    src.connect(gain);
-    gain.connect(ctx.destination);
-    src.start(ctx.currentTime);
+
+    // Play twice — first hit then immediate repeat to match the zipper
+    const playOnce = (offset) => {
+      const src = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      src.buffer = buf;
+      gain.gain.setValueAtTime(0.22, ctx.currentTime + offset);
+      src.connect(gain);
+      gain.connect(ctx.destination);
+      src.start(ctx.currentTime + offset);
+    };
+
+    playOnce(0);
+    playOnce(buf.duration * 0.85); // second hit overlaps slightly for a continuous zip feel
   } catch(e) { /* silent fail */ }
 }
 
