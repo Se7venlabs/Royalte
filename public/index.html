@@ -37,25 +37,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;d
 .orb2{position:absolute;bottom:-100px;right:-100px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(224,64,200,0.08) 0%,transparent 65%);pointer-events:none;}
 .hero-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(138,92,255,0.006) 2px,rgba(138,92,255,0.006) 4px);pointer-events:none;}
 .hero-left{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;width:fit-content;border:1px solid var(--border2);background:rgba(138,92,255,0.07);padding:8px 18px;border-radius:2px;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--pur);margin-bottom:24px;font-family:'Space Mono',monospace;opacity:0;animation:fadeUp 0.65s ease 0.1s forwards;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;width:fit-content;border:1px solid var(--border2);background:rgba(138,92,255,0.07);padding:8px 18px;border-radius:2px;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--pur);margin-bottom:24px;font-family:'Space Mono',monospace;opacity:0;animation:fadeUp 0.65s ease 0.1s forwards;}
 .blink{animation:blink 1.2s step-end infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
 .hero-h1{font-family:'Rajdhani',sans-serif;font-size:clamp(42px,5.5vw,72px);font-weight:700;line-height:0.95;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:20px;opacity:0;animation:fadeUp 0.65s ease 0.2s forwards;}
 .gt{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-desc{font-size:15px;color:var(--text2);max-width:460px;line-height:1.75;margin-bottom:28px;opacity:0;animation:fadeUp 0.65s ease 0.28s forwards;}
+.hero-desc{font-size:17px;color:var(--text2);max-width:500px;line-height:1.8;margin-bottom:32px;opacity:0;animation:fadeUp 0.65s ease 0.28s forwards;}
 /* PASTE BOX */
 .hero-paste{opacity:0;animation:fadeUp 0.65s ease 0.34s forwards;}
-.paste-label{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--pur);margin-bottom:12px;text-shadow:0 0 20px rgba(138,92,255,0.6);}
+.paste-label{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--pur);margin-bottom:14px;text-shadow:0 0 20px rgba(138,92,255,0.6);}
 .paste-box{display:flex;gap:0;background:var(--bg3);border:2px solid var(--border2);border-radius:6px;overflow:hidden;box-shadow:var(--glow),0 0 40px rgba(138,92,255,0.15);}
 .paste-box:focus-within{border-color:rgba(138,92,255,0.6);box-shadow:0 0 0 3px rgba(138,92,255,0.12),var(--glow);}
-.paste-input{flex:1;background:none;border:none;outline:none;padding:18px 22px;font-size:15px;color:var(--text);font-family:'Space Grotesk',sans-serif;letter-spacing:0.01em;}
-.paste-input::placeholder{color:rgba(148,144,184,0.45);font-size:14px;}
-.paste-btn{background:var(--grad);color:#fff;padding:18px 28px;border:none;cursor:pointer;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;font-family:'Space Grotesk',sans-serif;white-space:nowrap;transition:all 0.2s;flex-shrink:0;}
+.paste-input{flex:1;background:none;border:none;outline:none;padding:20px 24px;font-size:17px;color:var(--text);font-family:'Space Grotesk',sans-serif;letter-spacing:0.01em;}
+.paste-input::placeholder{color:rgba(148,144,184,0.5);font-size:15px;}
+.paste-btn{background:var(--grad);color:#fff;padding:20px 36px;border:none;cursor:pointer;font-size:15px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;font-family:'Space Grotesk',sans-serif;white-space:nowrap;transition:all 0.2s;flex-shrink:0;}
 .paste-btn:hover{opacity:0.88;}
 .paste-btn:disabled{opacity:0.5;cursor:not-allowed;}
-.paste-hint{font-size:11px;color:var(--muted);margin-top:10px;font-family:'Space Mono',monospace;letter-spacing:0.05em;}
+.paste-hint{font-size:12px;color:var(--muted2);margin-top:12px;font-family:'Space Mono',monospace;letter-spacing:0.05em;}
 /* url type chip */
-.url-type-chip{display:none;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;padding:3px 10px;border-radius:100px;margin-top:8px;width:fit-content;}
+.url-type-chip{display:none;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.08em;padding:5px 14px;border-radius:100px;margin-top:10px;width:fit-content;}
 .url-type-chip.artist{display:inline-flex;background:rgba(138,92,255,0.1);border:1px solid rgba(138,92,255,0.3);color:var(--pur);}
 .url-type-chip.track{display:inline-flex;background:rgba(64,240,160,0.08);border:1px solid rgba(64,240,160,0.3);color:var(--grn);}
 .url-type-chip.album{display:inline-flex;background:rgba(224,64,200,0.08);border:1px solid rgba(224,64,200,0.3);color:var(--pnk);}
@@ -66,9 +66,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;d
 .sp-fill{height:100%;background:var(--grad);border-radius:2px;width:0%;transition:width 0.25s ease;}
 .sp-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);letter-spacing:0.12em;margin-top:6px;}
 .hero-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;opacity:0;animation:fadeUp 0.65s ease 0.56s forwards;}
-.hstat{display:flex;align-items:center;gap:8px;background:rgba(138,92,255,0.06);border:1px solid var(--border);padding:7px 12px;border-radius:2px;}
-.hstat-n{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hstat-l{font-size:9px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;}
+.hstat{display:flex;align-items:center;gap:10px;background:rgba(138,92,255,0.08);border:1px solid rgba(138,92,255,0.2);padding:10px 18px;border-radius:4px;}
+.hstat-n{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hstat-l{font-size:11px;color:var(--muted2);letter-spacing:0.08em;text-transform:uppercase;}
 /* HERO RIGHT */
 .hero-right{position:relative;z-index:2;opacity:0;animation:fadeRight 0.8s ease 0.3s forwards;}
 @keyframes fadeRight{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
