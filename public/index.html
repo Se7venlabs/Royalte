@@ -19,7 +19,7 @@
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
-body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
 nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
 .nav-brand{display:flex;flex-direction:column;line-height:1;}
 .nav-wordmark{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#ffffff;}
@@ -964,12 +964,14 @@ function renderAuditCoverage(auditCoverage, scannedAt) {
   const safeAudit = auditCoverage || {};
   const dateStr = scannedAt ? new Date(scannedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
 
-  rows.innerHTML = KNOWN_KEYS.map(key => {
+  const rowsHtml = KNOWN_KEYS.map(key => {
     const val = safeAudit[key] || {};
     const status = val.status || 'Not Connected';
     const cls = STATUS_CLASS[status] || 'acs-not-connected';
     return '<div class="ac-row"><div class="ac-name">' + LABELS[key] + '</div><span class="ac-status ' + cls + '">' + status + '</span></div>';
-  }).join('') + (dateStr ? '<div class="ac-row" style="border-top:1px solid var(--border3);"><div class="ac-name" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.08em;">Data last verified</div><span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);">' + dateStr + '</span></div>' : '');
+  }).join('');
+  const dateRow = dateStr ? '<div class="ac-row" style="border-top:1px solid var(--border3);"><div class="ac-name" style="font-size:9px;color:var(--muted);letter-spacing:0.08em;font-family:monospace;">Data last verified</div><span style="font-size:9px;color:var(--muted2);font-family:monospace;">' + dateStr + '</span></div>' : '';
+  rows.innerHTML = rowsHtml + dateRow;
 }
 
 // ── RENDER TERRITORY COVERAGE ──────────────────────────────
