@@ -776,7 +776,8 @@ async function playSweep() {
     };
 
     playOnce(0);
-    playOnce(buf.duration * 0.85); // second hit overlaps slightly for a continuous zip feel
+    playOnce(buf.duration * 0.82); // second hit
+    playOnce(buf.duration * 1.64); // third hit
   } catch(e) { /* silent fail */ }
 }
 
