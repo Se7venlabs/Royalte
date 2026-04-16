@@ -1,1218 +1,915 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Royaltē — Music Audit Intelligence · Beta · Se7ven Labs Inc.</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script async src='https://r.wdfl.co/rw.js' data-rewardful='YOUR_REWARDFUL_ID'></script>
-<script>var rewardful=rewardful||function(){(rewardful.q=rewardful.q||[]).push(arguments)};</script>
-<style>
-:root{
---bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
---border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
---text:#e8e4f4;--muted:#5a5880;--muted2:#9490b8;--text2:#c8c4e0;
---pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
---grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.2);
+// Royalte Audit API — /api/audit.js
+// Platforms: Spotify + Apple Music + MusicBrainz + Deezer + AudioDB + Discogs + SoundCloud + Last.fm + Wikidata + YouTube
+// Mode: VERIFIED DATA ONLY — no estimates, no projections, no inferred data
+// URL input: Spotify (artist/track/album) OR Apple Music (album/song/artist) → resolves to Spotify via ISRC
+
+import { generateAppleToken } from './apple-token.js';
+
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const { url } = req.query;
+  if (!url) return res.status(400).json({ error: 'No URL provided' });
+
+  try {
+    // ── Step 1: Parse URL ─────────────────────────────────────
+    let parsed = parseSpotifyUrl(url);
+    let sourcePlatform = 'spotify';
+    let appleMusicSourceData = null;
+
+    if (!parsed) {
+      const appleparsed = parseAppleMusicUrl(url);
+      if (!appleparsed) {
+        return res.status(400).json({
+          error: 'Invalid URL. Please paste a Spotify or Apple Music artist, track, or album link.'
+        });
+      }
+      const appleToken = generateAppleToken();
+      const resolved = await resolveAppleMusicToSpotify(appleparsed, appleToken);
+      if (!resolved) {
+        return res.status(400).json({
+          error: 'Could not match this Apple Music link to a Spotify track. Try pasting your Spotify link directly.'
+        });
+      }
+      parsed = resolved.spotifyParsed;
+      sourcePlatform = 'apple_music';
+      appleMusicSourceData = resolved.appleMusicData;
+    }
+
+    const token = await getSpotifyToken();
+
+    // ── Step 2: Fetch Spotify data ────────────────────────────
+    let artistData, trackData, albumData;
+    let scanMode = parsed.type;
+
+    if (parsed.type === 'artist') {
+      artistData = await getSpotifyArtist(parsed.id, token);
+    } else if (parsed.type === 'track') {
+      trackData = await getSpotifyTrack(parsed.id, token);
+      artistData = await getSpotifyArtist(trackData.artists[0].id, token);
+    } else if (parsed.type === 'album') {
+      albumData = await getSpotifyAlbum(parsed.id, token);
+      if (!albumData.artists?.[0]?.id) {
+        return res.status(400).json({ error: 'Could not resolve artist from this album.' });
+      }
+      artistData = await getSpotifyArtist(albumData.artists[0].id, token);
+      const firstTrackId = albumData.tracks?.items?.[0]?.id;
+      if (firstTrackId) trackData = await getSpotifyTrack(firstTrackId, token);
+    }
+
+    const artistName = artistData.name;
+    const artistSpotifyId = parsed.type === 'artist' ? parsed.id : artistData.id;
+    const albumsData = await getSpotifyAlbums(artistSpotifyId, token);
+    const spotifyTopTracks = await getSpotifyTopTracks(artistSpotifyId, token);
+
+    let audioFeatures = null;
+    if (parsed.type === 'track' && trackData) {
+      audioFeatures = await getSpotifyAudioFeatures([trackData.id], token);
+    } else if (parsed.type === 'album' && albumData) {
+      const ids = (albumData.tracks?.items || []).slice(0, 5).map(t => t.id);
+      if (ids.length) audioFeatures = await getSpotifyAudioFeatures(ids, token);
+    }
+
+    // ── Step 3: All platform scans in parallel ────────────────
+    const [mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, youtubeData, appleMusicData] =
+      await Promise.allSettled([
+        getMusicBrainz(artistName),
+        getDeezer(artistName),
+        getAudioDB(artistName),
+        getDiscogs(artistName),
+        getSoundCloud(artistName),
+        getLastFm(artistName),
+        getWikidata(artistName),
+        getYouTube(artistName),
+        getAppleMusic(artistName, trackData?.external_ids?.isrc || null, spotifyTopTracks),
+      ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : { found: false, verified: false }));
+
+    // ── Step 4: Analysis ──────────────────────────────────────
+    const catalogData = analyzeCatalog(albumsData, artistData);
+    const country = audioDbData.country || wikidataData.country || null;
+    const proGuide = getPROGuide(country);
+    const weights = getScoringWeights(scanMode);
+
+    const modules = runModules(
+      artistData, trackData, albumData,
+      mbData, deezerData, audioDbData, discogsData, soundcloudData,
+      lastfmData, wikidataData, catalogData, youtubeData, appleMusicData,
+      audioFeatures, scanMode, weights
+    );
+
+    const overallScore = Math.round(
+      Object.values(modules).reduce((a, m) => a + m.score, 0) / Object.keys(modules).length
+    );
+
+    const flags = buildVerifiedFlags(
+      modules, artistData, trackData, deezerData, audioDbData, discogsData,
+      soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData
+    );
+
+    // ── Step 5: Royalty Risk Score ────────────────────────────
+    const royaltyRiskScore = calcRoyaltyRiskScore(artistData, trackData, mbData, appleMusicData, country);
+
+    // ── Step 6: Territory coverage (verified only) ────────────
+    const territoryCoverage = buildTerritoryCoverage(artistData, trackData, mbData, appleMusicData, country, proGuide);
+
+    // ── Step 7: Audit coverage summary ───────────────────────
+    const auditCoverage = {
+      spotify:       { status: 'Verified',     source: 'spotify'     },
+      appleMusic:    { status: appleMusicData.found ? 'Verified' : (appleMusicData.error ? 'Not Connected' : 'Not Found'), source: 'apple_music' },
+      publishing:    { status: 'Not Connected', source: null         },
+      soundExchange: { status: 'Not Confirmed', source: null         },
+    };
+    const auditConfidence = (appleMusicData.found && mbData.found) ? 'High' : 'Limited';
+    const urlTypeLabel = { artist: 'Artist Page', track: 'Single Track', album: 'Album' }[scanMode] || 'Artist Page';
+
+    return res.status(200).json({
+      success: true,
+      platform: parsed.platform,
+      sourcePlatform,
+      appleMusicSource: appleMusicSourceData,
+      type: parsed.type,
+      scanMode,
+      urlType: urlTypeLabel,
+      artistName,
+      artistId: artistData.id,
+      followers: artistData.followers?.total || 0,
+      popularity: artistData.popularity || 0,
+      genres: artistData.genres || [],
+      trackTitle:       trackData?.name || null,
+      trackIsrc:        trackData?.external_ids?.isrc || null,
+      trackDurationMs:  trackData?.duration_ms || null,
+      trackExplicit:    trackData?.explicit ?? null,
+      trackPreviewUrl:  trackData?.preview_url || null,
+      albumTitle:       albumData?.name || trackData?.album?.name || null,
+      albumReleaseDate: albumData?.release_date || null,
+      albumTrackCount:  albumData?.total_tracks || null,
+      albumLabel:       albumData?.label || null,
+      audioFeatures:    audioFeatures || null,
+      platforms: {
+        spotify:     { found: true,                 source: 'spotify',     verified: true  },
+        musicbrainz: { found: mbData.found,         source: 'musicbrainz', verified: true  },
+        deezer:      { found: deezerData.found,     source: 'deezer',      verified: true  },
+        audiodb:     { found: audioDbData.found,    source: 'audiodb',     verified: true  },
+        discogs:     { found: discogsData.found,    source: 'discogs',     verified: true  },
+        soundcloud:  { found: soundcloudData.found, source: 'soundcloud',  verified: true  },
+        lastfm:      { found: lastfmData.found,     source: 'lastfm',      verified: true  },
+        wikipedia:   { found: wikidataData.found,   source: 'wikipedia',   verified: true  },
+        youtube:     { found: youtubeData.found,    source: 'youtube',     verified: true  },
+        appleMusic:  { found: appleMusicData.found, source: 'apple_music', verified: true  },
+      },
+      catalog: catalogData,
+      proGuide,
+      country,
+      royaltyRiskScore,
+      territoryCoverage,
+      auditCoverage,
+      auditConfidence,
+      youtube: {
+        found:             youtubeData.found,
+        officialChannel:   youtubeData.officialChannel || null,
+        ugcVideoCount:     youtubeData.ugc?.videoCount || 0,
+        contentIdVerified: youtubeData.contentIdVerified || false,
+        source:            'youtube',
+        verified:          youtubeData.found,
+      },
+      appleMusic: appleMusicData,
+      overallScore,
+      modules,
+      flags,
+      flagCount:    flags.length,
+      previewFlags: flags.slice(0, 2),
+      scannedAt:    new Date().toISOString(),
+      dataPolicy:   'verified_only',
+    });
+
+  } catch (err) {
+    console.error('Audit error:', err);
+    return res.status(500).json({ error: 'Audit failed. Please check the link and try again.', detail: err.message });
+  }
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
-body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
-nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
-.nav-brand{display:flex;flex-direction:column;line-height:1;}
-.nav-wordmark{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#ffffff;}
-.nav-wordmark .logo-accent{color:#8a5cff;background:none;-webkit-text-fill-color:#8a5cff;}
-.nav-tagline{font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-top:3px;}
-.nav-links{display:flex;align-items:center;gap:38px;}
-.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
-.nav-links a:hover{color:var(--text);}
-.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
-.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
-.nav-cta:hover{opacity:0.85;}
-/* HERO */
-.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 56px 60px;position:relative;overflow:hidden;gap:56px;}
-.orb1{position:absolute;top:-150px;left:-100px;width:700px;height:700px;background:radial-gradient(ellipse,rgba(138,92,255,0.13) 0%,transparent 65%);pointer-events:none;}
-.orb2{position:absolute;bottom:-100px;right:-100px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(224,64,200,0.08) 0%,transparent 65%);pointer-events:none;}
-.hero-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(138,92,255,0.006) 2px,rgba(138,92,255,0.006) 4px);pointer-events:none;}
-.hero-left{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;width:fit-content;border:1px solid var(--border2);background:rgba(138,92,255,0.07);padding:8px 18px;border-radius:2px;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--pur);margin-bottom:24px;font-family:'Space Mono',monospace;opacity:0;animation:fadeUp 0.65s ease 0.1s forwards;}
-.blink{animation:blink 1.2s step-end infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
-.hero-h1{font-family:'Rajdhani',sans-serif;font-size:clamp(42px,5.5vw,72px);font-weight:700;line-height:0.95;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:20px;opacity:0;animation:fadeUp 0.65s ease 0.2s forwards;}
-.gt{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-desc{font-size:15px;color:var(--text2);max-width:460px;line-height:1.75;margin-bottom:28px;opacity:0;animation:fadeUp 0.65s ease 0.28s forwards;}
-/* PASTE BOX */
-.hero-paste{opacity:0;animation:fadeUp 0.65s ease 0.34s forwards;}
-.paste-label{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--pur);margin-bottom:12px;text-shadow:0 0 20px rgba(138,92,255,0.6);}
-.paste-box{display:flex;gap:0;background:var(--bg3);border:2px solid var(--border2);border-radius:6px;overflow:hidden;box-shadow:var(--glow),0 0 40px rgba(138,92,255,0.15);}
-.paste-box:focus-within{border-color:rgba(138,92,255,0.6);box-shadow:0 0 0 3px rgba(138,92,255,0.12),var(--glow);}
-.paste-input{flex:1;background:none;border:none;outline:none;padding:18px 22px;font-size:15px;color:var(--text);font-family:'Space Grotesk',sans-serif;letter-spacing:0.01em;}
-.paste-input::placeholder{color:rgba(148,144,184,0.45);font-size:14px;}
-.paste-btn{background:var(--grad);color:#fff;padding:18px 28px;border:none;cursor:pointer;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;font-family:'Space Grotesk',sans-serif;white-space:nowrap;transition:all 0.2s;flex-shrink:0;}
-.paste-btn:hover{opacity:0.88;}
-.paste-btn:disabled{opacity:0.5;cursor:not-allowed;}
-.paste-hint{font-size:11px;color:var(--muted);margin-top:10px;font-family:'Space Mono',monospace;letter-spacing:0.05em;}
-/* url type chip */
-.url-type-chip{display:none;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;padding:3px 10px;border-radius:100px;margin-top:8px;width:fit-content;}
-.url-type-chip.artist{display:inline-flex;background:rgba(138,92,255,0.1);border:1px solid rgba(138,92,255,0.3);color:var(--pur);}
-.url-type-chip.track{display:inline-flex;background:rgba(64,240,160,0.08);border:1px solid rgba(64,240,160,0.3);color:var(--grn);}
-.url-type-chip.album{display:inline-flex;background:rgba(224,64,200,0.08);border:1px solid rgba(224,64,200,0.3);color:var(--pnk);}
-.url-type-chip.apple{display:inline-flex;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:var(--muted2);}
-/* scan progress */
-.scan-progress{display:none;margin-top:14px;}
-.sp-track{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;}
-.sp-fill{height:100%;background:var(--grad);border-radius:2px;width:0%;transition:width 0.25s ease;}
-.sp-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);letter-spacing:0.12em;margin-top:6px;}
-.hero-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;opacity:0;animation:fadeUp 0.65s ease 0.56s forwards;}
-.hstat{display:flex;align-items:center;gap:8px;background:rgba(138,92,255,0.06);border:1px solid var(--border);padding:7px 12px;border-radius:2px;}
-.hstat-n{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hstat-l{font-size:9px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;}
-/* HERO RIGHT */
-.hero-right{position:relative;z-index:2;opacity:0;animation:fadeRight 0.8s ease 0.3s forwards;}
-@keyframes fadeRight{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
-.dash-shell{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;overflow:hidden;box-shadow:var(--glow),0 40px 80px rgba(0,0,0,0.6);position:relative;}
-.dash-shell::before{content:'';position:absolute;inset:-1px;border-radius:11px;background:var(--grad);opacity:0.15;z-index:-1;animation:borderPulse 3s ease-in-out infinite;}
-@keyframes borderPulse{0%,100%{opacity:0.1;}50%{opacity:0.25;}}
-.dash-topbar{padding:11px 16px;background:var(--bg4);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
-.dtb-dot{width:9px;height:9px;border-radius:50%;}
-.dtb-url{margin-left:8px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);background:var(--bg2);padding:3px 10px;border-radius:2px;border:1px solid var(--border3);}
-.dtb-live{margin-left:auto;display:flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:9px;color:var(--grn);letter-spacing:0.1em;}
-.dtb-live-dot{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:pulse 2s infinite;}
-.dash-body{padding:14px;display:flex;flex-direction:column;gap:10px;}
-.d-score-row{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--bg4);border:1px solid var(--border3);border-radius:6px;padding:14px;}
-.d-score-ring{width:64px;height:64px;position:relative;flex-shrink:0;}
-.d-score-ring svg{transform:rotate(-90deg);}
-.d-score-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.d-score-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
-.d-score-lbl{font-size:7px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
-.d-score-info{display:flex;flex-direction:column;gap:3px;min-width:0;overflow:hidden;}
-.d-score-title{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);margin-bottom:2px;}
-.d-score-artist{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.d-score-track{font-size:11px;color:var(--muted2);letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.d-alert{background:rgba(240,80,96,0.08);border:1px solid rgba(240,80,96,0.22);border-radius:5px;padding:10px 12px;display:flex;align-items:center;gap:9px;animation:alertPulse 3s ease-in-out infinite;}
-@keyframes alertPulse{0%,100%{border-color:rgba(240,80,96,0.22);}50%{border-color:rgba(240,80,96,0.4);}}
-.d-alert-dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;animation:pulse 2s infinite;}
-.d-alert-t{font-size:11px;color:var(--text);flex:1;line-height:1.4;}
-.d-alert-t strong{color:var(--red);}
-.d-modules{display:flex;flex-direction:column;gap:6px;}
-.d-mod{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;}
-.d-mod-icon{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.d-mod-name{font-size:11px;font-weight:500;color:var(--text);flex:1;}
-.d-mod-bar{flex:1;max-width:60px;height:3px;background:var(--bg2);border-radius:1px;overflow:hidden;}
-.d-mod-fill{height:100%;border-radius:1px;}
-.d-mod-score{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;}
-.dash-badge{position:absolute;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:9px 12px;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:floatBadge 4s ease-in-out infinite;z-index:10;}
-.db1{top:-18px;right:-22px;animation-delay:0s;}
-.db2{bottom:-16px;left:-22px;animation-delay:2s;}
-@keyframes floatBadge{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
-.dbadge-val{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
-.dbadge-lbl{font-size:8px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;}
-section{padding:100px 56px;position:relative;}
-.si{max-width:1180px;margin:0 auto;}
-.s-tag{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--pur);margin-bottom:18px;font-family:'Space Mono',monospace;}
-.s-tag::before{content:'//';opacity:0.5;}
-.s-h2{font-family:'Rajdhani',sans-serif;font-size:clamp(36px,5vw,62px);font-weight:700;line-height:0.95;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:16px;}
-.s-h2 .gt{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.s-sub{font-size:15px;color:var(--text2);max-width:500px;line-height:1.75;margin-bottom:48px;}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border2);border-radius:4px;overflow:hidden;}
-.step{background:var(--bg3);padding:34px 26px;position:relative;}
-.step::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--grad);opacity:0.2;}
-.step-n{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--pur);letter-spacing:0.12em;margin-bottom:18px;display:block;}
-.step-ico{width:56px;height:56px;border-radius:6px;background:rgba(138,92,255,0.08);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:26px;}
-.step-t{font-size:14px;font-weight:700;color:var(--text);margin-bottom:7px;font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:0.04em;}
-.step-d{font-size:12px;color:var(--text2);line-height:1.65;}
-.photo-strip{overflow:hidden;height:260px;display:flex;gap:2px;background:var(--bg);}
-.ps-item{flex:1;position:relative;overflow:hidden;cursor:pointer;}
-.ps-item img{width:100%;height:100%;object-fit:cover;object-position:center top;filter:grayscale(30%) brightness(0.45);transition:all 0.45s;}
-.ps-item:hover img{filter:grayscale(10%) brightness(0.65);transform:scale(1.04);}
-.ps-item::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(3,3,10,0.85) 0%,transparent 55%);}
-.ps-item::before{content:'';position:absolute;inset:0;background:var(--grad);opacity:0;transition:opacity 0.4s;z-index:1;}
-.ps-item:hover::before{opacity:0.06;}
-.ps-overlay{position:absolute;bottom:0;left:0;right:0;padding:16px;z-index:2;}
-.ps-label{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--pur);margin-bottom:3px;}
-.ps-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-transform:uppercase;}
-/* ── RESULTS ── */
-.results-wrap{display:none;padding:0 56px 80px;}
-.results-inner{max-width:900px;margin:0 auto;}
-.results-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
-.results-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;}
-.results-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.results-tag{font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);background:rgba(138,92,255,0.1);padding:4px 10px;border-radius:2px;border:1px solid var(--border2);}
-.url-type-pill{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;padding:3px 9px;border-radius:2px;}
-.utp-artist{background:rgba(138,92,255,0.1);border:1px solid rgba(138,92,255,0.3);color:var(--pur);}
-.utp-track{background:rgba(64,240,160,0.08);border:1px solid rgba(64,240,160,0.3);color:var(--grn);}
-.utp-album{background:rgba(224,64,200,0.08);border:1px solid rgba(224,64,200,0.3);color:var(--pnk);}
-.utp-apple{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:var(--muted2);}
-.verified-badge{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.12em;padding:3px 8px;border-radius:2px;background:rgba(64,240,160,0.08);border:1px solid rgba(64,240,160,0.2);color:var(--grn);}
 
-/* ── ROYALTY RISK SCORE BANNER ── */
-.risk-banner{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:22px 24px;margin-bottom:14px;position:relative;overflow:hidden;}
-.risk-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);}
-.risk-banner-inner{display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;}
-.risk-score-block{text-align:center;}
-.risk-score-num{font-family:'Space Mono',monospace;font-size:42px;font-weight:700;line-height:1;}
-.risk-score-num.low{color:var(--grn);}
-.risk-score-num.moderate{color:var(--amb);}
-.risk-score-num.high{color:var(--red);}
-.risk-score-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
-.risk-info{}
-.risk-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;margin-bottom:4px;}
-.risk-title.low{color:var(--grn);}
-.risk-title.moderate{color:var(--amb);}
-.risk-title.high{color:var(--red);}
-.risk-urgency{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:10px;}
-.risk-reasons{display:flex;flex-direction:column;gap:5px;}
-.risk-reason{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted2);}
-.risk-reason-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;}
-.risk-next{font-family:'Space Mono',monospace;font-size:10px;color:var(--pur);letter-spacing:0.06em;margin-top:8px;}
-.risk-data-tag{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.1em;text-align:center;}
-
-/* ── SCORE RING ── */
-.r-score{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden;}
-.r-score::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
-.r-ring{width:70px;height:70px;position:relative;flex-shrink:0;}
-.r-ring svg{transform:rotate(-90deg);}
-.r-ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.r-ring-val{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
-.r-ring-max{font-size:8px;color:var(--muted);}
-.r-verdict{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.r-desc{font-size:12px;color:var(--text2);line-height:1.5;}
-.r-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;}
-.r-card{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:16px;transition:border-color 0.2s;}
-.r-card:hover{border-color:var(--border2);}
-.rc-icon{font-size:28px;margin-bottom:10px;display:block;}
-.rc-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.rc-value{font-size:12px;color:var(--text2);}
-.rc-source{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);margin-top:6px;letter-spacing:0.08em;}
-.rc-badge{font-family:'Space Mono',monospace;font-size:9px;padding:3px 9px;border-radius:2px;font-weight:700;margin-top:8px;display:inline-block;letter-spacing:0.06em;}
-.rb-grn{background:rgba(64,240,160,0.1);color:var(--grn);}
-.rb-amb{background:rgba(240,192,64,0.1);color:var(--amb);}
-.rb-red{background:rgba(240,80,96,0.1);color:var(--red);}
-
-/* ── TERRITORY COVERAGE ── */
-.territory-section{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;margin-bottom:12px;overflow:hidden;}
-.territory-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border3);}
-.territory-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
-.territory-policy{font-family:'Space Mono',monospace;font-size:8px;color:var(--grn);letter-spacing:0.08em;background:rgba(64,240,160,0.06);padding:2px 8px;border-radius:2px;border:1px solid rgba(64,240,160,0.15);}
-.territory-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border3);}
-.territory-row:last-child{border-bottom:none;}
-.territory-name{font-size:13px;font-weight:600;color:var(--text);}
-.territory-note{font-size:11px;color:var(--muted2);margin-top:2px;line-height:1.4;}
-.territory-action{font-size:11px;color:var(--amb);margin-top:4px;}
-.territory-status{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 10px;border-radius:2px;white-space:nowrap;}
-.ts-registered{background:rgba(64,240,160,0.1);color:var(--grn);}
-.ts-not-registered{background:rgba(240,80,96,0.1);color:var(--red);}
-.ts-pending{background:rgba(240,192,64,0.1);color:var(--amb);}
-.ts-no-data{background:rgba(255,255,255,0.04);color:var(--muted);}
-.territory-source{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.06em;}
-
-/* ── AUDIT COVERAGE ── */
-.audit-coverage{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;margin-bottom:12px;overflow:hidden;}
-.audit-coverage-hd{padding:12px 16px;border-bottom:1px solid var(--border3);}
-.audit-coverage-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
-.ac-row{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border3);}
-.ac-row:last-child{border-bottom:none;}
-.ac-name{font-size:13px;color:var(--text);flex:1;}
-.ac-status{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;border-radius:2px;}
-.acs-verified{background:rgba(64,240,160,0.1);color:var(--grn);}
-.acs-not-connected{background:rgba(255,255,255,0.04);color:var(--muted);}
-.acs-not-confirmed{background:rgba(240,192,64,0.08);color:var(--amb);}
-
-/* ── FLAGS ── */
-.r-flags{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:14px;margin-bottom:12px;}
-.rf-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.rf-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
-.flag-item{padding:10px 0;border-bottom:1px solid var(--border3);}
-.flag-item:last-child{border-bottom:none;}
-.flag-top{display:flex;align-items:flex-start;gap:10px;}
-.fi-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px;}
-.fi-body{flex:1;}
-.fi-sev{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;margin-bottom:4px;display:inline-block;}
-.fi-text{font-size:12px;color:var(--text2);line-height:1.4;margin-bottom:4px;}
-.fi-action{font-size:11px;color:var(--pur);font-style:italic;}
-.fi-source{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.06em;margin-top:3px;}
-.r-transition{background:linear-gradient(135deg,rgba(138,92,255,0.08),rgba(224,64,200,0.05));border:1px solid var(--border2);border-radius:6px;padding:16px 20px;display:flex;align-items:center;gap:14px;}
-.rt-icon{font-size:20px;flex-shrink:0;}
-.rt-text{font-size:13px;color:var(--text);flex:1;line-height:1.5;}
-.rt-text strong{color:var(--pur);}
-.rt-btn{background:var(--grad);color:#fff;padding:10px 20px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:'Space Grotesk',sans-serif;}
-/* ── LOCKED MOCKUP ── */
-.reveal-mockup{margin-bottom:14px;}
-.rm-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.rm-tag{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);}
-.rm-badge{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.08em;background:var(--bg3);padding:4px 10px;border-radius:2px;border:1px solid var(--border3);}
-.rm-shell{position:relative;border:1px solid var(--border2);border-radius:8px;overflow:hidden;background:var(--bg3);box-shadow:var(--glow);}
-.rm-content{padding:18px;padding-bottom:240px;}
-.rm-section-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-.rm-modules{display:flex;flex-direction:column;gap:6px;}
-.rm-mod{display:grid;grid-template-columns:10px 1fr 90px 48px 80px;gap:10px;align-items:center;padding:9px 12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;}
-.rm-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.rm-name{font-size:12px;font-weight:500;color:var(--text);}
-.rm-bar{height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;}
-.rm-fill{height:100%;border-radius:2px;}
-.rm-score{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-align:right;}
-.rm-status{font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;text-align:center;}
-.rm-fade{position:absolute;bottom:0;left:0;right:0;height:380px;background:linear-gradient(to bottom,transparent 0%,rgba(3,3,10,0.6) 20%,rgba(3,3,10,0.92) 45%,rgba(3,3,10,0.98) 65%,#03030a 80%);display:flex;align-items:flex-end;justify-content:center;padding-bottom:28px;}
-.rm-fade-cta{text-align:center;max-width:440px;padding:0 20px;}
-.rm-fade-lock{font-size:32px;margin-bottom:12px;}
-.rm-fade-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:var(--text);margin-bottom:8px;}
-.rm-fade-desc{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:18px;}
-.rm-fade-btn{background:var(--grad);color:#fff;padding:14px 32px;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all 0.2s;box-shadow:0 4px 24px rgba(138,92,255,0.4);}
-.rm-fade-btn:hover{opacity:0.88;transform:translateY(-2px);}
-/* BETA / FORMS / TRUST / FUTURE / AFFILIATES / FOOTER */
-.beta-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
-.vision-list{display:flex;flex-direction:column;gap:8px;margin-top:20px;}
-.vl-item{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;}
-.vl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.vl-dot.live{background:var(--grn);}
-.vl-dot.soon{background:rgba(138,92,255,0.3);}
-.vl-text{font-size:12.5px;color:var(--text2);}
-.vl-tag{margin-left:auto;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:2px;flex-shrink:0;}
-.vt-live{background:rgba(64,240,160,0.1);color:var(--grn);}
-.vt-soon{background:rgba(138,92,255,0.08);color:var(--muted);}
-.interest-box{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:20px;margin-top:24px;position:relative;overflow:hidden;}
-.interest-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0.6;}
-.ib-text{font-size:14px;color:var(--text2);line-height:1.7;font-style:italic;}
-.ib-text strong{color:var(--text);font-style:normal;}
-.form-split{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;}
-.form-card{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:32px;position:relative;overflow:hidden;}
-.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
-.form-row{margin-bottom:16px;}
-.form-label{display:block;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text2);margin-bottom:6px;}
-.form-label span{color:var(--pur);}
-.form-input{width:100%;padding:12px 16px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;outline:none;transition:border-color 0.2s;}
-.form-input:focus{border-color:var(--border2);}
-.form-input::placeholder{color:var(--muted);}
-.form-select{width:100%;padding:12px 16px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text);font-family:'Space Grotesk',sans-serif;outline:none;appearance:none;cursor:pointer;}
-.form-select option{background:var(--bg4);}
-.form-submit{width:100%;padding:14px;background:var(--grad);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;margin-top:6px;box-shadow:0 4px 20px rgba(138,92,255,0.3);}
-.form-submit:hover{opacity:0.88;}
-.form-submit:disabled{opacity:0.5;cursor:not-allowed;}
-.form-microcopy{margin-top:12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:0.06em;line-height:1.6;text-align:center;}
-.form-success{display:none;text-align:center;padding:32px 20px;}
-.fs-icon{font-size:40px;margin-bottom:14px;}
-.fs-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;color:var(--text);margin-bottom:8px;}
-.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border2);border-radius:4px;overflow:hidden;}
-.trust-item{background:var(--bg3);padding:28px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;}
-.trust-icon{width:56px;height:56px;border-radius:6px;background:rgba(138,92,255,0.08);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:26px;}
-.trust-text{font-size:12px;color:var(--text2);line-height:1.5;}
-.future-list{display:flex;flex-direction:column;gap:10px;margin-top:32px;max-width:680px;}
-.fi-item{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;transition:border-color 0.2s;}
-.fi-item:hover{border-color:var(--border2);}
-.fi-dot-g{width:7px;height:7px;border-radius:50%;background:var(--grad);flex-shrink:0;}
-.fi-text{font-size:13px;color:var(--text2);}
-.future-close{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);margin-top:28px;}
-.future-close span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
-.f-wordmark{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#ffffff;}
-.f-wordmark .logo-accent{color:#8a5cff;background:none;-webkit-text-fill-color:#8a5cff;}
-.f-tagline{font-size:9px;color:var(--muted2);letter-spacing:0.14em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-top:3px;}
-.f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
-.f-links{display:flex;gap:26px;}
-.f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
-.f-links a:hover{color:var(--text);}
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
-.reveal{opacity:0;transform:translateY(22px);transition:all 0.65s ease;}
-.reveal.visible{opacity:1;transform:translateY(0);}
-.d1{transition-delay:0.1s;}.d2{transition-delay:0.2s;}.d3{transition-delay:0.3s;}
-@media(max-width:900px){
-  nav{padding:0 20px;}.nav-links{display:none;}
-  .hero{grid-template-columns:1fr;padding:90px 20px 50px;}.hero-right{display:none;}
-  section{padding:60px 20px;}.steps{grid-template-columns:1fr;}.beta-grid-2{grid-template-columns:1fr;}
-  .form-split{grid-template-columns:1fr;}.trust-grid{grid-template-columns:1fr 1fr;}
-  .r-cards{grid-template-columns:1fr;}.results-wrap{padding:0 20px 60px;}
-  .risk-banner-inner{grid-template-columns:1fr;}.risk-score-block{text-align:left;}
-  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+// ────────────────────────────────────────────────────────
+// URL PARSERS
+// ────────────────────────────────────────────────────────
+function parseSpotifyUrl(url) {
+  try {
+    const u = new URL(url.trim());
+    if (!u.hostname.includes('spotify.com')) return null;
+    const parts = u.pathname.split('/').filter(Boolean);
+    const typeIdx = parts.findIndex(p => p === 'artist' || p === 'track' || p === 'album');
+    if (typeIdx === -1 || !parts[typeIdx + 1]) return null;
+    return { platform: 'spotify', type: parts[typeIdx], id: parts[typeIdx + 1].split('?')[0] };
+  } catch { return null; }
 }
-</style>
-</head>
-<body>
 
-<nav>
-  <div class="nav-brand">
-    <div class="nav-wordmark">ROYALT<span class="logo-accent">É</span></div>
-    <div class="nav-tagline">Music Audit Intelligence</div>
-  </div>
-  <div class="nav-links">
-    <a href="/#how">How it works</a>
-    <a href="/#beta">About beta</a>
-    <a href="/#request">Full audit</a>
-    <a href="/contact.html">Contact</a>
-  </div>
-  <div style="display:flex;align-items:center;gap:12px;">
-    <span class="nav-beta">// Beta</span>
-    <a href="/#request" class="nav-cta">Request Full Audit</a>
-  </div>
-</nav>
+function parseAppleMusicUrl(url) {
+  try {
+    const u = new URL(url.trim());
+    if (!u.hostname.includes('music.apple.com')) return null;
+    const parts = u.pathname.split('/').filter(Boolean);
+    const typeIdx = parts.findIndex(p => p === 'album' || p === 'song' || p === 'artist');
+    if (typeIdx === -1) return null;
+    const type = parts[typeIdx];
+    const idPart = parts[parts.length - 1].split('?')[0];
+    if (!/^\d+$/.test(idPart)) return null;
+    const storefront = parts[0]?.length === 2 ? parts[0] : 'us';
+    return { platform: 'apple_music', type, id: idPart, storefront };
+  } catch { return null; }
+}
 
-<section class="hero">
-  <div class="orb1"></div><div class="orb2"></div>
-  <div class="hero-scan"></div>
-  <div class="hero-left">
-    <div class="hero-eyebrow"><span class="blink">▮</span> Spotify + Apple Music — Early Access</div>
-    <h1 class="hero-h1">Your Royalties<br>Are Being<br>Collected.<br><span class="gt">Not All By You.</span></h1>
-    <p class="hero-desc">Most artists, producers, and songwriters are leaving money on the table. Royaltē scans your profile and shows you verified gaps — no estimates, no guesswork.</p>
-    <div class="hero-paste">
-      <div class="paste-label">// Paste your Spotify or Apple Music link to start</div>
-      <div class="paste-box">
-        <input class="paste-input" id="hero-url" type="text" placeholder="open.spotify.com/artist/... or music.apple.com/us/album/...">
-        <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Audit →</button>
-      </div>
-      <div id="url-type-chip" class="url-type-chip"></div>
-      <div class="paste-hint">// Spotify artist · track · album &nbsp;·&nbsp; Apple Music album · song · artist &nbsp;·&nbsp; Verified data only</div>
-      <div class="scan-progress" id="scan-progress">
-        <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
-        <div class="sp-label" id="sp-label">Scanning...</div>
-      </div>
-    </div>
-    <div class="hero-stats">
-      <div class="hstat"><span class="hstat-n">6</span><span class="hstat-l">Audit modules</span></div>
-      <div class="hstat"><span class="hstat-n">Verified</span><span class="hstat-l">Data only</span></div>
-      <div class="hstat"><span class="hstat-n">12–24h</span><span class="hstat-l">Full audit delivery</span></div>
-    </div>
-  </div>
-  <div class="hero-right">
-    <div class="dash-badge db1"><div class="dbadge-val">Beta</div><div class="dbadge-lbl">Live now</div></div>
-    <div class="dash-badge db2"><div class="dbadge-val">Verified</div><div class="dbadge-lbl">Data only</div></div>
-    <div class="dash-shell">
-      <div class="dash-topbar">
-        <div class="dtb-dot" style="background:#f05060"></div>
-        <div class="dtb-dot" style="background:#f0c040"></div>
-        <div class="dtb-dot" style="background:#40f0a0"></div>
-        <div class="dtb-url">royalte.ai/audit/preview</div>
-        <div class="dtb-live"><div class="dtb-live-dot"></div>SCANNING</div>
-      </div>
-      <div class="dash-body">
-        <div class="d-score-row">
-          <div class="d-score-ring">
-            <svg width="64" height="64" viewBox="0 0 64 64">
-              <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(138,92,255,0.15)" stroke-width="6"/>
-              <circle id="hero-score-circle" cx="32" cy="32" r="26" fill="none" stroke="url(#sg1)" stroke-width="6" stroke-dasharray="163.4" stroke-dashoffset="96" stroke-linecap="round"/>
-              <defs><linearGradient id="sg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8a5cff"/><stop offset="100%" stop-color="#e040c8"/></linearGradient></defs>
-            </svg>
-            <div class="d-score-num"><span class="d-score-val" id="hero-score-val">41</span><span class="d-score-lbl">/ 100</span></div>
-          </div>
-          <div class="d-score-info">
-            <div class="d-score-title" id="hero-scan-label">// Beta audit preview</div>
-            <div class="d-score-artist" id="hero-artist-name">Paste your link</div>
-            <div class="d-score-track" id="hero-artist-sub">Run audit to see your verified data</div>
-          </div>
-        </div>
-        <div class="d-alert">
-          <div class="d-alert-dot"></div>
-          <div class="d-alert-t"><strong>Royalty risk confirmed</strong> — Publishing and registration gaps found in verified data.</div>
-        </div>
-        <div class="d-modules">
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Metadata Integrity</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:35%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">35</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--amb)"></div><div class="d-mod-name">Platform Coverage</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:60%;background:var(--amb)"></div></div><div class="d-mod-score" style="color:var(--amb)">60</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Publishing Risk</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:25%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">25</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--grn)"></div><div class="d-mod-name">YouTube / UGC</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:78%;background:var(--grn)"></div></div><div class="d-mod-score" style="color:var(--grn)">78</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+// ────────────────────────────────────────────────────────
+// APPLE MUSIC → SPOTIFY RESOLVER
+// Strategy 1: ISRC lookup (most precise)
+// Strategy 2: track name + artist name search
+// Strategy 3: artist name fallback
+// ────────────────────────────────────────────────────────
+async function resolveAppleMusicToSpotify(appleparse, appleToken) {
+  const { type, id, storefront } = appleparse;
+  const BASE    = 'https://api.music.apple.com/v1';
+  const headers = { Authorization: `Bearer ${appleToken}` };
 
-<!-- RESULTS -->
-<div class="results-wrap" id="results-wrap">
-  <div class="results-inner">
-    <div class="results-hd">
-      <div class="results-title">// Your Beta Audit Preview</div>
-      <div class="results-meta">
-        <div class="results-tag" id="results-tag">Scanning...</div>
-        <span class="url-type-pill" id="url-type-pill"></span>
-        <span class="verified-badge">✓ Verified Data Only</span>
-      </div>
-    </div>
+  let isrc = null, trackName = null, artistName = null, albumName = null;
+  let appleMusicData = { type, id, storefront, source: 'apple_music', verified: true };
 
-    <!-- ROYALTY RISK SCORE BANNER -->
-    <div class="risk-banner" id="risk-banner" style="display:none;">
-      <div class="risk-banner-inner">
-        <div class="risk-score-block">
-          <div class="risk-score-num" id="risk-score-num">—</div>
-          <div class="risk-score-label">Royalty Risk Score</div>
-          <div class="risk-score-label" id="risk-level-label" style="margin-top:3px;"></div>
-        </div>
-        <div class="risk-info">
-          <div class="risk-title" id="risk-title">Calculating...</div>
-          <div class="risk-urgency" id="risk-urgency"></div>
-          <div class="risk-reasons" id="risk-reasons"></div>
-          <div class="risk-next" id="risk-next"></div>
-        </div>
-        <div class="risk-data-tag">Verified data only<br>No estimates</div>
-      </div>
-    </div>
+  try {
+    if (type === 'album') {
+      const r = await fetch(`${BASE}/catalog/${storefront}/albums/${id}`, { headers });
+      if (!r.ok) throw new Error(`Apple Music album fetch: ${r.status}`);
+      const j = await r.json();
+      const album = j.data?.[0];
+      if (!album) throw new Error('No album data');
+      albumName  = album.attributes?.name;
+      artistName = album.attributes?.artistName;
+      appleMusicData = { ...appleMusicData, albumName, artistName, releaseDate: album.attributes?.releaseDate, trackCount: album.attributes?.trackCount, url: album.attributes?.url };
+      const tr = await fetch(`${BASE}/catalog/${storefront}/albums/${id}/tracks`, { headers });
+      if (tr.ok) {
+        const tj = await tr.json();
+        const first = tj.data?.[0];
+        if (first) {
+          isrc = first.attributes?.isrc || null;
+          trackName = first.attributes?.name;
+          appleMusicData.firstTrackIsrc = isrc;
+          appleMusicData.firstTrackName = trackName;
+        }
+      }
+    } else if (type === 'song') {
+      const r = await fetch(`${BASE}/catalog/${storefront}/songs/${id}`, { headers });
+      if (!r.ok) throw new Error(`Apple Music song fetch: ${r.status}`);
+      const j = await r.json();
+      const song = j.data?.[0];
+      if (!song) throw new Error('No song data');
+      isrc = song.attributes?.isrc || null;
+      trackName = song.attributes?.name;
+      artistName = song.attributes?.artistName;
+      albumName = song.attributes?.albumName;
+      appleMusicData = { ...appleMusicData, isrc, trackName, artistName, albumName, url: song.attributes?.url };
+    } else if (type === 'artist') {
+      const r = await fetch(`${BASE}/catalog/${storefront}/artists/${id}`, { headers });
+      if (!r.ok) throw new Error(`Apple Music artist fetch: ${r.status}`);
+      const j = await r.json();
+      artistName = j.data?.[0]?.attributes?.name;
+      appleMusicData = { ...appleMusicData, artistName };
+    }
+  } catch (err) {
+    console.error('Apple Music resolve error:', err.message);
+    return null;
+  }
 
-    <!-- AUDIT SCORE RING -->
-    <div class="r-score" id="r-score">
-      <div class="r-ring">
-        <svg width="70" height="70" viewBox="0 0 70 70">
-          <circle cx="35" cy="35" r="28" fill="none" stroke="rgba(138,92,255,0.15)" stroke-width="6"/>
-          <circle cx="35" cy="35" r="28" fill="none" stroke="url(#rg)" stroke-width="6" stroke-dasharray="175.9" id="r-circle" stroke-dashoffset="175.9" stroke-linecap="round"/>
-          <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8a5cff"/><stop offset="100%" stop-color="#e040c8"/></linearGradient></defs>
-        </svg>
-        <div class="r-ring-num"><div class="r-ring-val" id="r-score-val">—</div><div class="r-ring-max">/100</div></div>
-      </div>
-      <div class="r-info">
-        <div class="r-verdict" id="r-verdict">Analysing...</div>
-        <div class="r-desc" id="r-desc">Running verification modules against your profile.</div>
-      </div>
-    </div>
+  const spotifyToken = await getSpotifyToken();
+  const sh = { Authorization: `Bearer ${spotifyToken}` };
 
-    <div class="r-cards" id="r-cards"></div>
+  // Strategy 1: ISRC
+  if (isrc) {
+    try {
+      const r = await fetch(`https://api.spotify.com/v1/search?q=isrc:${isrc}&type=track&limit=1`, { headers: sh });
+      if (r.ok) {
+        const d = await r.json();
+        const t = d.tracks?.items?.[0];
+        if (t) return { spotifyParsed: { platform: 'spotify', type: 'track', id: t.id }, appleMusicData: { ...appleMusicData, resolvedVia: 'isrc' } };
+      }
+    } catch(e) { console.warn('ISRC search failed:', e.message); }
+  }
 
-    <!-- AUDIT COVERAGE -->
-    <div class="audit-coverage" id="audit-coverage-section" style="display:none;">
-      <div class="audit-coverage-hd"><div class="audit-coverage-title">// Audit Coverage</div></div>
-      <div id="audit-coverage-rows"></div>
-    </div>
+  // Strategy 2: track + artist name
+  if (trackName && artistName) {
+    try {
+      const q = encodeURIComponent(`track:${trackName} artist:${artistName}`);
+      const r = await fetch(`https://api.spotify.com/v1/search?q=${q}&type=track&limit=1`, { headers: sh });
+      if (r.ok) {
+        const d = await r.json();
+        const t = d.tracks?.items?.[0];
+        if (t) return { spotifyParsed: { platform: 'spotify', type: 'track', id: t.id }, appleMusicData: { ...appleMusicData, resolvedVia: 'name_search' } };
+      }
+    } catch(e) { console.warn('Name search failed:', e.message); }
+  }
 
-    <!-- TERRITORY COVERAGE -->
-    <div class="territory-section" id="territory-section" style="display:none;">
-      <div class="territory-hd">
-        <div class="territory-title">// Territory Coverage Audit (Verified Data Only)</div>
-        <div class="territory-policy">✓ Verified sources only</div>
-      </div>
-      <div id="territory-rows"></div>
-    </div>
+  // Strategy 3: artist name only
+  if (artistName) {
+    try {
+      const q = encodeURIComponent(`artist:${artistName}`);
+      const r = await fetch(`https://api.spotify.com/v1/search?q=${q}&type=artist&limit=1`, { headers: sh });
+      if (r.ok) {
+        const d = await r.json();
+        const a = d.artists?.items?.[0];
+        if (a) return { spotifyParsed: { platform: 'spotify', type: 'artist', id: a.id }, appleMusicData: { ...appleMusicData, resolvedVia: 'artist_search' } };
+      }
+    } catch(e) { console.warn('Artist search failed:', e.message); }
+  }
 
-    <!-- FLAGS -->
-    <div class="r-flags" id="r-flags" style="display:none;">
-      <div class="rf-hd">
-        <div class="rf-title">// Confirmed issues — verified data only</div>
-        <span id="r-flags-count" style="font-family:'Space Mono',monospace;font-size:8px;padding:2px 8px;border-radius:2px;background:rgba(240,80,96,0.1);color:var(--red);font-weight:700;">—</span>
-      </div>
-      <div id="r-flags-list"></div>
-    </div>
-
-    <!-- LOCKED MOCKUP -->
-    <div class="reveal-mockup">
-      <div class="rm-label">
-        <span class="rm-tag">// What the full audit looks like</span>
-        <span class="rm-badge">🔒 Locked — request to unlock</span>
-      </div>
-      <div class="rm-shell">
-        <div class="rm-content">
-          <div class="rm-section-title">// All 6 module scores — verified sources</div>
-          <div class="rm-modules">
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--red)"></div><div class="rm-name">Metadata Integrity</div><div class="rm-bar"><div class="rm-fill" style="width:35%;background:var(--red)"></div></div><div class="rm-score" style="color:var(--red)">35</div><div class="rm-status rb-red">HIGH RISK</div></div>
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--amb)"></div><div class="rm-name">Platform Coverage</div><div class="rm-bar"><div class="rm-fill" style="width:60%;background:var(--amb)"></div></div><div class="rm-score" style="color:var(--amb)">60</div><div class="rm-status rb-amb">PARTIAL</div></div>
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--red)"></div><div class="rm-name">Publishing Risk</div><div class="rm-bar"><div class="rm-fill" style="width:22%;background:var(--red)"></div></div><div class="rm-score" style="color:var(--red)">22</div><div class="rm-status rb-red">🔒 FULL</div></div>
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--amb)"></div><div class="rm-name">Duplicate Detection</div><div class="rm-bar"><div class="rm-fill" style="width:55%;background:var(--amb)"></div></div><div class="rm-score" style="color:var(--amb)">55</div><div class="rm-status rb-amb">🔒 FULL</div></div>
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--grn)"></div><div class="rm-name">YouTube / UGC</div><div class="rm-bar"><div class="rm-fill" style="width:78%;background:var(--grn)"></div></div><div class="rm-score" style="color:var(--grn)">78</div><div class="rm-status rb-grn">🔒 FULL</div></div>
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--amb)"></div><div class="rm-name">Sync Readiness</div><div class="rm-bar"><div class="rm-fill" style="width:42%;background:var(--amb)"></div></div><div class="rm-score" style="color:var(--amb)">42</div><div class="rm-status rb-amb">🔒 FULL</div></div>
-          </div>
-          <div class="rm-section-title" style="margin-top:16px;">// Territory coverage — verified data only</div>
-          <div style="border:1px solid var(--border3);border-radius:4px;overflow:hidden;">
-            <div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border3);">
-              <div><div style="font-size:12px;font-weight:600;color:var(--text);">United States</div><div style="font-size:10px;color:var(--muted2);">Source: Apple Music</div></div>
-              <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 10px;border-radius:2px;background:rgba(64,240,160,0.1);color:var(--grn);">Registered</span>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border3);background:rgba(240,80,96,0.03);">
-              <div><div style="font-size:12px;font-weight:600;color:var(--text);">ISRC Registration</div><div style="font-size:10px;color:var(--muted2);">Source: Spotify</div><div style="font-size:10px;color:var(--amb);margin-top:2px;">Register ISRC with your distributor</div></div>
-              <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 10px;border-radius:2px;background:rgba(240,80,96,0.1);color:var(--red);">Not Registered</span>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 14px;">
-              <div><div style="font-size:12px;font-weight:600;color:var(--text);">Japan</div><div style="font-size:10px;color:var(--muted);">No verified data available</div></div>
-              <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 10px;border-radius:2px;background:rgba(255,255,255,0.04);color:var(--muted);">No verified data</span>
-            </div>
-          </div>
-          <div class="rm-section-title" style="margin-top:16px;">// Recommended actions — verified issues only</div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;">
-              <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--pur);font-weight:700;width:20px;flex-shrink:0;margin-top:1px;">01</div>
-              <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;">Register ISRC with your distributor</div><div style="font-size:11px;color:var(--text2);line-height:1.4;">ISRC not found on Spotify — performance royalty routing unverified (Source: Spotify)</div></div>
-              <div style="font-family:'Space Mono',monospace;font-size:8px;padding:3px 8px;border-radius:2px;font-weight:700;flex-shrink:0;background:rgba(240,80,96,0.1);color:var(--red);">HIGH</div>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;opacity:0.5;">
-              <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--pur);font-weight:700;width:20px;flex-shrink:0;margin-top:1px;">02</div>
-              <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;">Register with SoundExchange</div><div style="font-size:11px;color:var(--text2);line-height:1.4;">Digital performance royalties in the US require registration at soundexchange.com</div></div>
-              <div style="font-family:'Space Mono',monospace;font-size:8px;padding:3px 8px;border-radius:2px;font-weight:700;flex-shrink:0;background:rgba(240,192,64,0.1);color:var(--amb);">MEDIUM</div>
-            </div>
-          </div>
-        </div>
-        <div class="rm-fade">
-          <div class="rm-fade-cta">
-            <div class="rm-fade-lock">🔒</div>
-            <div class="rm-fade-title">Your full audit is waiting</div>
-            <div class="rm-fade-desc">Complete territory coverage, all 6 verified module scores, your Royalty Risk Score breakdown, and a full action plan — delivered within 12–24 hours, free during beta.</div>
-            <button class="rm-fade-btn" onclick="scrollToForm()">Request my full audit — free →</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="r-transition">
-      <div class="rt-icon">👇</div>
-      <div class="rt-text">Ready? <strong>Request your full audit below.</strong> Our team delivers within 12–24 hours — completely free during beta.</div>
-      <button class="rt-btn" onclick="scrollToForm()">Request now →</button>
-    </div>
-  </div>
-</div>
-
-<!-- PHOTO STRIP -->
-<div class="photo-strip">
-  <div class="ps-item"><img src="https://images.pexels.com/photos/8198677/pexels-photo-8198677.jpeg?auto=compress&cs=tinysrgb&w=600" alt="producer in studio"><div class="ps-overlay"><div class="ps-label">// Producer</div><div class="ps-name">In the studio</div></div></div>
-  <div class="ps-item"><img src="https://images.pexels.com/photos/2747449/pexels-photo-2747449.jpeg?auto=compress&cs=tinysrgb&w=600" alt="singer on stage"><div class="ps-overlay"><div class="ps-label">// Singer</div><div class="ps-name">Centre stage</div></div></div>
-  <div class="ps-item"><img src="https://images.pexels.com/photos/811838/pexels-photo-811838.jpeg?auto=compress&cs=tinysrgb&w=600" alt="guitarist"><div class="ps-overlay"><div class="ps-label">// Guitarist</div><div class="ps-name">Writing music</div></div></div>
-  <div class="ps-item"><img src="https://images.unsplash.com/photo-1504704911898-68304a7d2807?w=600&q=80&fit=crop" alt="drummer"><div class="ps-overlay"><div class="ps-label">// Drummer</div><div class="ps-name">Keeping time</div></div></div>
-  <div class="ps-item"><img src="https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=600&q=80&fit=crop" alt="dj"><div class="ps-overlay"><div class="ps-label">// DJ & Producer</div><div class="ps-name">In the mix</div></div></div>
-  <div class="ps-item"><img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=600&q=80&fit=crop" alt="live concert"><div class="ps-overlay"><div class="ps-label">// Live</div><div class="ps-name">On stage</div></div></div>
-</div>
-
-<!-- HOW IT WORKS -->
-<section style="background:var(--bg2);" id="how">
-  <div class="si">
-    <div class="reveal">
-      <div class="s-tag">How it works</div>
-      <h2 class="s-h2">Three steps.<br><span class="gt">Sixty seconds.</span></h2>
-      <p class="s-sub">No login. No integrations. No credit card. Paste your Spotify or Apple Music link and get a verified preview audit instantly.</p>
-    </div>
-    <div class="steps reveal">
-      <div class="step"><span class="step-n">// 01 — Copy</span><div class="step-ico">🔗</div><div class="step-t">Copy your link</div><div class="step-d">Open Spotify or Apple Music, go to your artist profile, single track, or album. Tap Share → Copy link. Takes 10 seconds.</div></div>
-      <div class="step"><span class="step-n">// 02 — Paste</span><div class="step-ico">📋</div><div class="step-t">Paste into Royaltē</div><div class="step-d">Drop your link into the audit box above and hit Run Free Audit. Spotify and Apple Music links both accepted.</div></div>
-      <div class="step"><span class="step-n">// 03 — Results</span><div class="step-ico">📊</div><div class="step-t">Get your verified preview</div><div class="step-d">See your Royalty Risk Score, verified platform coverage, and confirmed issue flags. Then request the full audit.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- BETA -->
-<section style="background:var(--bg);" id="beta">
-  <div class="si">
-    <div class="beta-grid-2">
-      <div class="reveal">
-        <div class="s-tag">About this beta</div>
-        <h2 class="s-h2">Verified Data.<br><span class="gt">Real Issues Only.</span></h2>
-        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px;">Royaltē only shows you data it can verify. No stream estimates. No projected royalty gaps. No guesswork. Every finding is tied to a confirmed source — Spotify, Apple Music, MusicBrainz, YouTube, or the platform we found you on.</p>
-        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px;">If we can't confirm it, we don't show it. What you see is what's real.</p>
-        <p style="font-size:15px;color:var(--text2);line-height:1.75;">Full audits are delivered manually by our team within 12–24 hours.</p>
-        <div class="interest-box">
-          <div class="ib-text"><strong>Royaltē is building toward continuous verified monitoring</strong> — automatic alerts when new gaps are confirmed, score improvement tracking, and cross-platform PRO verification. Request your audit below to get early access.</div>
-        </div>
-      </div>
-      <div class="reveal d2">
-        <div class="s-tag">Roadmap</div>
-        <div class="vision-list">
-          <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">Spotify scanning — artist, track & album</div><div class="vl-tag vt-live">LIVE</div></div>
-          <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">Apple Music link scanning + ISRC resolution</div><div class="vl-tag vt-live">LIVE</div></div>
-          <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">YouTube / UGC detection (verified counts)</div><div class="vl-tag vt-live">LIVE</div></div>
-          <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">Royalty Risk Score — verified gaps only</div><div class="vl-tag vt-live">LIVE</div></div>
-          <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">PRO statement upload for direct verification</div><div class="vl-tag vt-live">LIVE</div></div>
-          <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">MusicBrainz catalog cross-reference</div><div class="vl-tag vt-live">LIVE</div></div>
-          <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Score improvement tracking over time</div><div class="vl-tag vt-soon">SOON</div></div>
-          <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">SoundExchange registration check</div><div class="vl-tag vt-soon">SOON</div></div>
-          <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Ongoing catalog monitoring + alerts</div><div class="vl-tag vt-soon">SOON</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FORM -->
-<section style="background:var(--bg2);" id="request">
-  <div class="si">
-    <div class="form-split">
-      <div class="reveal">
-        <div class="s-tag">Full audit request</div>
-        <h2 class="s-h2">Request Your<br><span class="gt">Full Audit.</span></h2>
-        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:24px;">Full audits are completed manually by our team. You'll receive a complete verified report — all 6 modules, your Royalty Risk Score breakdown, territory coverage, and an action plan — within 12–24 hours. Free during beta.</p>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">⚡</div><div style="font-size:13px;color:var(--text2);">Delivered within <strong style="color:var(--text);">12–24 hours</strong></div></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">✓</div><div style="font-size:13px;color:var(--text2);"><strong style="color:var(--text);">Verified data only</strong> — no estimates or projections</div></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">🔓</div><div style="font-size:13px;color:var(--text2);">Completely <strong style="color:var(--text);">free during beta</strong></div></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">📊</div><div style="font-size:13px;color:var(--text2);">Royalty Risk Score + <strong style="color:var(--text);">action plan</strong></div></div>
-        </div>
-      </div>
-      <div class="reveal d2">
-        <div class="form-card" id="form-card">
-          <div id="form-inner">
-            <div class="form-row">
-              <label class="form-label">Artist Name <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(auto-filled from scan)</span></label>
-              <input class="form-input" id="f-name" type="text" placeholder="Run a scan above to auto-fill" readonly style="opacity:0.6;cursor:not-allowed;">
-            </div>
-            <div class="form-row">
-              <label class="form-label">Email Address <span>*</span></label>
-              <input class="form-input" id="f-email" type="email" placeholder="your@email.com">
-            </div>
-            <div class="form-row">
-              <label class="form-label">Spotify or Apple Music Link <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(auto-filled from scan)</span></label>
-              <input class="form-input" id="f-spotify" type="text" placeholder="Run a scan above to auto-fill" readonly style="opacity:0.6;cursor:not-allowed;">
-            </div>
-            <div class="form-row">
-              <label class="form-label">How many tracks on Spotify?</label>
-              <select class="form-select" id="f-tracks">
-                <option value="">Select range</option>
-                <option value="1-5">1–5 tracks</option>
-                <option value="6-20">6–20 tracks</option>
-                <option value="21-50">21–50 tracks</option>
-                <option value="50+">50+ tracks</option>
-              </select>
-            </div>
-            <div class="form-row" id="ref-row">
-              <label class="form-label">Referral code <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
-              <input class="form-input" id="f-ref" type="text" placeholder="e.g. johndoe" style="letter-spacing:0.08em;" autocomplete="off" oninput="onRefCodeInput()">
-              <div id="ref-hint" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:6px;letter-spacing:0.06em;">// Got a code from someone who referred you? Enter it here.</div>
-              <div id="ref-reward" style="display:none;margin-top:10px;background:rgba(64,240,160,0.06);border:1px solid rgba(64,240,160,0.25);border-radius:4px;padding:10px 14px;">
-                <div style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.12em;color:var(--grn);margin-bottom:6px;">// Referral code applied — you're getting:</div>
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);">⚡ <strong>Priority audit</strong> — delivered in 1–2 hours</div>
-                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);">💸 <strong>5% off</strong> when paid tiers launch</div>
-                </div>
-              </div>
-            </div>
-            <button class="form-submit" id="form-btn" onclick="submitForm()">Request My Full Audit →</button>
-            <div class="form-microcopy">Artist name and link auto-fill from your scan · Only email required<br>Full audit delivered within 12–24 hours · Verified data only</div>
-          </div>
-          <div class="form-success" id="form-success">
-            <div class="fs-icon">✅</div>
-            <div class="fs-title">You're on the list.</div>
-            <div style="font-size:13px;color:var(--muted2);line-height:1.6;">We've received your audit request. Our team will deliver your full Royaltē verified report within 12–24 hours.<br><br>You're also added to early access for all future Royaltē releases.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TRUST -->
-<section style="background:var(--bg);padding:60px 56px;">
-  <div class="si">
-    <div class="trust-grid reveal">
-      <div class="trust-item"><div class="trust-icon">✓</div><div class="trust-text">Verified data only — no estimates or projections</div></div>
-      <div class="trust-item"><div class="trust-icon">🔗</div><div class="trust-text">Spotify + Apple Music link support</div></div>
-      <div class="trust-item"><div class="trust-icon">👥</div><div class="trust-text">Full audits delivered manually by our team</div></div>
-      <div class="trust-item"><div class="trust-icon">🎵</div><div class="trust-text">Built for artists, producers, managers & labels</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- FUTURE -->
-<section style="background:var(--bg2);" id="future">
-  <div class="si">
-    <div class="reveal">
-      <div class="s-tag">Coming soon</div>
-      <h2 class="s-h2">Beyond Spotify.<br><span class="gt">Beyond Beta.</span></h2>
-      <p class="s-sub">Future versions of Royaltē will expand to help artists monitor and protect their royalty income across every platform — with verified data and real-time alerts.</p>
-    </div>
-    <div class="future-list reveal">
-      <div class="fi-item"><div class="fi-dot-g"></div><div class="fi-text">Score improvement tracking — see your Royalty Risk Score change over time</div></div>
-      <div class="fi-item"><div class="fi-dot-g"></div><div class="fi-text">Direct PRO registration verification (SOCAN, ASCAP, BMI, PRS and more)</div></div>
-      <div class="fi-item"><div class="fi-dot-g"></div><div class="fi-text">SoundExchange registration check and neighboring rights monitoring</div></div>
-      <div class="fi-item"><div class="fi-dot-g"></div><div class="fi-text">Ongoing catalog monitoring with verified issue alerts</div></div>
-      <div class="fi-item"><div class="fi-dot-g"></div><div class="fi-text">Tidal, Deezer, YouTube Music and international platform verification</div></div>
-    </div>
-    <div class="future-close reveal">This beta is <span>just the beginning.</span></div>
-  </div>
-</section>
-
-<!-- AFFILIATES -->
-
-<footer>
-  <div>
-    <div class="f-wordmark">ROYALT<span class="logo-accent">É</span></div>
-    <div class="f-tagline">Music Audit Intelligence · Beta · Se7ven Labs Inc.</div>
-  </div>
-  <div class="f-copy">© 2026 Royaltē · Se7ven Labs Inc. · info@royalte.ai</div>
-  <div class="f-links">
-    <a href="/contact.html">Contact</a>
-    <a href="/privacy.html">Privacy</a>
-    <a href="/terms.html">Terms</a>
-  </div>
-</footer>
-
-<script>
-// ── URL DETECTION ──────────────────────────────────────────
-function detectUrlType(url) {
-  if (!url) return null;
-  if (/open\.spotify\.com\/artist\/[A-Za-z0-9]+/.test(url))  return 'artist';
-  if (/open\.spotify\.com\/track\/[A-Za-z0-9]+/.test(url))   return 'track';
-  if (/open\.spotify\.com\/album\/[A-Za-z0-9]+/.test(url))   return 'album';
-  if (/music\.apple\.com\/.+\/(album|song|artist)\//.test(url)) return 'apple';
   return null;
 }
-function isValidSpotifyUrl(url) {
-  return /open\.spotify\.com\/(artist|track|album)\/[A-Za-z0-9]+/.test((url || '').trim());
-}
-function isAppleMusicUrl(url) {
-  return /music\.apple\.com\/.+\/(album|song|artist)\//.test((url || '').trim());
-}
-function isValidAuditUrl(url) {
-  return isValidSpotifyUrl(url) || isAppleMusicUrl(url);
-}
-function isPlatformUrlButNotSupported(url) {
-  return /tidal\.com|soundcloud\.com|music\.youtube\.com|deezer\.com|amazon\.com\/music|music\.amazon/.test((url || '').trim());
-}
 
-const URL_TYPE_META = {
-  artist: { icon: '🎤', label: 'Artist Page',   chipClass: 'artist', pillClass: 'utp-artist' },
-  track:  { icon: '🎵', label: 'Single Track',  chipClass: 'track',  pillClass: 'utp-track'  },
-  album:  { icon: '💿', label: 'Album',         chipClass: 'album',  pillClass: 'utp-album'  },
-  apple:  { icon: '🍎', label: 'Apple Music',   chipClass: 'apple',  pillClass: 'utp-apple'  },
-};
+// ────────────────────────────────────────────────────────
+// ROYALTY RISK SCORE — verified gaps only, additive penalties
+// 0–20 = Low  |  21–50 = Moderate  |  51–100 = High
+// ────────────────────────────────────────────────────────
+function calcRoyaltyRiskScore(artistData, trackData, mbData, appleMusicData, country) {
+  let score = 0;
+  const reasons = [];
 
-function showUrlError(msg) {
-  let el = document.getElementById('url-error-msg');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'url-error-msg';
-    el.style.cssText = 'margin-top:10px;padding:10px 14px;background:rgba(240,192,64,0.08);border:1px solid rgba(240,192,64,0.3);border-radius:4px;font-size:12px;color:var(--amb);font-family:"Space Grotesk",sans-serif;line-height:1.5;';
-    const hint = document.querySelector('.paste-hint');
-    if (hint) hint.parentNode.insertBefore(el, hint.nextSibling);
+  if (trackData && !trackData.external_ids?.isrc) {
+    score += 25;
+    reasons.push({ issue: 'ISRC not registered', points: 25, source: 'spotify', verified: true });
   }
-  el.innerHTML = msg;
-  el.style.display = 'block';
-}
-function clearUrlError() {
-  const el = document.getElementById('url-error-msg');
-  if (el) el.style.display = 'none';
-}
-
-// ── LIVE CHIP ──────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  const input = document.getElementById('hero-url');
-  if (input) {
-    input.addEventListener('input', () => {
-      clearUrlError();
-      input.style.outline = '';
-      const chip = document.getElementById('url-type-chip');
-      const type = detectUrlType(input.value.trim());
-      if (type && chip) {
-        const m = URL_TYPE_META[type];
-        chip.textContent = m.icon + ' ' + m.label + ' detected';
-        chip.className = 'url-type-chip ' + m.chipClass;
-      } else if (chip) {
-        chip.className = 'url-type-chip';
-        chip.textContent = '';
-      }
-    });
+  if (!appleMusicData.found) {
+    score += 15;
+    reasons.push({ issue: 'Not found on Apple Music', points: 15, source: 'apple_music', verified: true });
   }
-});
-
-// ── SCROLL REVEAL ──────────────────────────────────────────
-const obs = new IntersectionObserver(entries => {
-  entries.forEach((e, i) => { if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 80); });
-}, { threshold: 0.08 });
-document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-
-// ── REFERRAL CODE ──────────────────────────────────────────
-function showRefReward() {
-  const reward = document.getElementById('ref-reward');
-  const hint   = document.getElementById('ref-hint');
-  const field  = document.getElementById('f-ref');
-  if (reward) reward.style.display = 'block';
-  if (field)  field.style.borderColor = 'var(--grn)';
-  if (hint) { hint.textContent = '// ✓ Referral code applied — priority audit + 5% off unlocked.'; hint.style.color = 'var(--grn)'; }
-}
-function onRefCodeInput() {
-  const val = document.getElementById('f-ref').value.trim();
-  if (val.length > 0) showRefReward();
-  else {
-    document.getElementById('ref-reward').style.display = 'none';
-    document.getElementById('f-ref').style.borderColor = '';
-    document.getElementById('ref-hint').textContent = '// Got a code from someone who referred you? Enter it here.';
-    document.getElementById('ref-hint').style.color = 'var(--muted)';
+  if (!mbData.found) {
+    score += 20;
+    reasons.push({ issue: 'Not in MusicBrainz — publishing cross-reference unavailable', points: 20, source: 'musicbrainz', verified: true });
   }
-}
-(function () {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('via') || params.get('ref') || '';
-  if (code) {
-    const field = document.getElementById('f-ref');
-    if (field) { field.value = code; field.readOnly = true; field.style.opacity = '0.75'; field.style.cursor = 'not-allowed'; }
-    showRefReward();
-    const hint = document.getElementById('ref-hint');
-    if (hint) { hint.textContent = '// ✓ Referral code from your link — priority audit + 5% off applied.'; hint.style.color = 'var(--grn)'; }
+  if (!artistData.genres?.length) {
+    score += 10;
+    reasons.push({ issue: 'Genre metadata missing', points: 10, source: 'spotify', verified: true });
   }
-})();
+  // PRO and SoundExchange are always unconfirmed until we have direct API access
+  score += 15;
+  reasons.push({ issue: 'SoundExchange status not confirmed — register at soundexchange.com', points: 15, source: null, verified: false });
+  score += 20;
+  reasons.push({ issue: 'PRO registration not connected — connect your PRO for full audit', points: 20, source: null, verified: false });
 
-// ── SCAN ANIMATION ─────────────────────────────────────────
-function animateScan(isApple, onComplete) {
-  const prog  = document.getElementById('scan-progress');
-  const fill  = document.getElementById('sp-fill');
-  const label = document.getElementById('sp-label');
-  prog.style.display = 'block';
-  const labels = isApple
-    ? ['Resolving Apple Music link...', 'Matching ISRC to Spotify...', 'Running verification modules...', 'Building verified report...']
-    : ['Scanning Spotify profile...', 'Resolving metadata...', 'Running verification modules...', 'Building verified report...'];
-  let pct = 0, li = 0;
-  const iv = setInterval(() => {
-    pct = Math.min(pct + Math.random() * 3.5 + 1, 95);
-    fill.style.width = pct + '%';
-    if (pct > 25 && li < 1) { li = 1; label.textContent = labels[1]; }
-    if (pct > 55 && li < 2) { li = 2; label.textContent = labels[2]; }
-    if (pct > 80 && li < 3) { li = 3; label.textContent = labels[3]; }
-    if (pct >= 95) { clearInterval(iv); fill.style.width = '100%'; setTimeout(onComplete, 400); }
-  }, 80);
-}
+  if (mbData.found && mbData.artists?.length) score = Math.max(score - 5, 0);
 
-// ── RUN AUDIT ──────────────────────────────────────────────
-async function runAudit() {
-  const input = document.getElementById('hero-url');
-  const btn   = document.getElementById('hero-btn');
-  const val   = input.value.trim();
+  const capped = Math.min(score, 100);
+  const riskLevel = capped <= 20 ? 'Low' : capped <= 50 ? 'Moderate' : 'High';
 
-  if (!val) { input.style.outline = '1px solid var(--red)'; input.focus(); return; }
-  if (isPlatformUrlButNotSupported(val)) {
-    input.style.outline = '1px solid var(--amb)';
-    showUrlError('This beta supports <strong>Spotify and Apple Music links</strong> only. Paste your Spotify or Apple Music link to continue.');
-    return;
-  }
-  if (!isValidAuditUrl(val)) {
-    input.style.outline = '1px solid var(--red)';
-    showUrlError('Please paste a valid Spotify or Apple Music link — artist profile, track, or album.');
-    return;
-  }
-
-  input.style.outline = '';
-  clearUrlError();
-  btn.disabled = true;
-  btn.textContent = 'Scanning...';
-  document.getElementById('f-spotify').value = val;
-  const fNameEarly = document.getElementById('f-name');
-  if (fNameEarly && !fNameEarly.value) { fNameEarly.placeholder = 'Scanning...'; }
-
-  const isApple = isAppleMusicUrl(val);
-  const urlType = detectUrlType(val);
-  const scanLabel = isApple ? '// Resolving Apple Music...' : urlType === 'track' ? '// Scanning track...' : urlType === 'album' ? '// Scanning album...' : '// Scanning...';
-  document.getElementById('hero-scan-label').textContent = scanLabel;
-  document.getElementById('hero-artist-name').textContent = 'Loading...';
-  document.getElementById('hero-artist-sub').textContent = isApple ? 'Matching to Spotify via ISRC...' : 'Fetching verified data...';
-
-  let auditData = null;
-  try {
-    const resp = await fetch(`/api/audit?url=${encodeURIComponent(val)}`);
-    auditData = await resp.json();
-  } catch (e) { auditData = null; }
-
-  animateScan(isApple, () => {
-    if (auditData && auditData.success) {
-      showRealResults(auditData);
-    } else {
-      showDemoResults(val);
-    }
-    btn.disabled = false;
-    btn.textContent = 'Run Free Audit →';
-    document.getElementById('scan-progress').style.display = 'none';
-    document.getElementById('results-wrap').style.display = 'block';
-    document.getElementById('results-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-}
-
-// ── SET URL TYPE PILL ──────────────────────────────────────
-function setUrlTypePill(scanMode) {
-  const pill = document.getElementById('url-type-pill');
-  if (!pill || !scanMode) return;
-  const m = URL_TYPE_META[scanMode] || URL_TYPE_META.apple;
-  pill.textContent = m.icon + ' ' + m.label;
-  pill.className = 'url-type-pill ' + m.pillClass;
-}
-
-// ── UPDATE HERO DASHBOARD ──────────────────────────────────
-function updateHeroDashboard(artistName, subText, score) {
-  document.getElementById('hero-scan-label').textContent = '// Verified audit preview';
-  document.getElementById('hero-artist-name').textContent = artistName;
-  document.getElementById('hero-artist-sub').textContent = subText;
-  document.getElementById('hero-score-val').textContent = (typeof score === 'number' && !isNaN(score)) ? Math.round(score) : '—';
-  const heroCircle = document.getElementById('hero-score-circle');
-  if (heroCircle) {
-    setTimeout(() => {
-      heroCircle.style.transition = 'stroke-dashoffset 1.2s ease';
-      heroCircle.style.strokeDashoffset = 163.4 - (score / 100) * 163.4;
-    }, 150);
-  }
-}
-
-// ── RENDER ROYALTY RISK SCORE ──────────────────────────────
-function renderRiskScore(royaltyRiskScore) {
-  if (!royaltyRiskScore || typeof royaltyRiskScore !== 'object') return;
-  if (typeof royaltyRiskScore.score === 'undefined') return;
-  const banner = document.getElementById('risk-banner');
-  if (!banner) return;
-  banner.style.display = 'block';
-
-  const { score, riskLevel, reasons, urgencyMessage, nextStep } = royaltyRiskScore;
-  const numEl = document.getElementById('risk-score-num');
-  numEl.textContent = score;
-  numEl.className = 'risk-score-num ' + riskLevel.toLowerCase();
-
-  const titleEl = document.getElementById('risk-title');
-  titleEl.textContent = riskLevel === 'High' ? 'High Royalty Risk' : riskLevel === 'Moderate' ? 'Moderate Royalty Risk' : 'Low Royalty Risk';
-  titleEl.className = 'risk-title ' + riskLevel.toLowerCase();
-
-  document.getElementById('risk-level-label').textContent = riskLevel;
-  document.getElementById('risk-urgency').textContent = urgencyMessage;
-  document.getElementById('risk-next').textContent = '→ ' + nextStep;
-
-  const reasonsEl = document.getElementById('risk-reasons');
-  reasonsEl.innerHTML = (reasons || []).map(r =>
-    `<div class="risk-reason"><div class="risk-reason-dot"></div>${r.issue}</div>`
-  ).join('');
-}
-
-// ── RENDER AUDIT COVERAGE ──────────────────────────────────
-function renderAuditCoverage(auditCoverage, scannedAt) {
-  const sec = document.getElementById('audit-coverage-section');
-  const rows = document.getElementById('audit-coverage-rows');
-  if (!sec || !rows) return;
-  sec.style.display = 'block';
-
-  const KNOWN_KEYS = ['spotify', 'appleMusic', 'publishing', 'soundExchange'];
-  const LABELS = { spotify: 'Spotify', appleMusic: 'Apple Music', publishing: 'Publishing (PRO)', soundExchange: 'SoundExchange' };
-  const STATUS_CLASS = { 'Verified': 'acs-verified', 'Not Connected': 'acs-not-connected', 'Not Confirmed': 'acs-not-confirmed' };
-  const safeAudit = auditCoverage || {};
-  const dateStr = scannedAt ? new Date(scannedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
-
-  const rowsHtml = KNOWN_KEYS.map(key => {
-    const val = safeAudit[key] || {};
-    const status = val.status || 'Not Connected';
-    const cls = STATUS_CLASS[status] || 'acs-not-connected';
-    return '<div class="ac-row"><div class="ac-name">' + LABELS[key] + '</div><span class="ac-status ' + cls + '">' + status + '</span></div>';
-  }).join('');
-  const dateRow = dateStr ? '<div class="ac-row" style="border-top:1px solid var(--border3);"><div class="ac-name" style="font-size:9px;color:var(--muted);letter-spacing:0.08em;font-family:monospace;">Data last verified</div><span style="font-size:9px;color:var(--muted2);font-family:monospace;">' + dateStr + '</span></div>' : '';
-  rows.innerHTML = rowsHtml + dateRow;
-}
-
-// ── RENDER TERRITORY COVERAGE ──────────────────────────────
-function renderTerritoryCoverage(territoryCoverage) {
-  if (!territoryCoverage || !territoryCoverage.territories?.length) return;
-  const sec  = document.getElementById('territory-section');
-  const rows = document.getElementById('territory-rows');
-  if (!sec || !rows) return;
-  sec.style.display = 'block';
-
-  const STATUS_CLASS = {
-    'Registered':              'ts-registered',
-    'Not Registered':          'ts-not-registered',
-    'Pending':                 'ts-pending',
-    'No verified data available': 'ts-no-data',
+  return {
+    score: capped,
+    riskLevel,
+    reasons: reasons.filter(r => r.verified),
+    allReasons: reasons,
+    urgencyMessage: capped > 50
+      ? 'Issues confirmed that may impact royalty collection'
+      : capped > 20
+        ? 'Some issues confirmed — review recommended actions'
+        : 'No major verified issues detected',
+    nextStep: 'Review and complete recommended actions',
+    lastCalculated: new Date().toISOString(),
+    dataPolicy: 'verified_only',
   };
-
-  rows.innerHTML = territoryCoverage.territories.map(t => {
-    const statusClass = STATUS_CLASS[t.status] || 'ts-no-data';
-    return `
-      <div class="territory-row">
-        <div>
-          <div class="territory-name">${t.territory}</div>
-          ${t.note ? `<div class="territory-note">${t.note}</div>` : ''}
-          ${t.action ? `<div class="territory-action">Action: ${t.action}</div>` : ''}
-          <div class="territory-source">Source: ${t.source || 'unknown'} ${t.verified ? '· Verified' : ''}</div>
-        </div>
-        <span class="territory-status ${statusClass}">${t.status}</span>
-      </div>`;
-  }).join('');
 }
 
-// ── SHOW REAL RESULTS ──────────────────────────────────────
-function showRealResults(data) {
-  const artistName = data.artistName || 'Artist';
-  const followers  = (data.followers || 0).toLocaleString();
-  const scanMode   = data.scanMode || data.type || 'artist';
-  const isApple    = data.sourcePlatform === 'apple_music';
+// ────────────────────────────────────────────────────────
+// TERRITORY COVERAGE — verified data only, no stream counts
+// ────────────────────────────────────────────────────────
+function buildTerritoryCoverage(artistData, trackData, mbData, appleMusicData, country, proGuide) {
+  const territories = [];
 
-  let subText = `${followers} followers · Spotify`;
-  if (scanMode === 'track' && data.trackTitle) subText = `"${data.trackTitle}" · ${artistName}`;
-  else if (scanMode === 'album' && data.albumTitle) subText = `"${data.albumTitle}" · ${data.albumTrackCount || '?'} tracks`;
-  if (isApple) subText = (data.appleMusicSource?.albumName || data.appleMusicSource?.trackName || '') + ' · Matched via Apple Music';
-
-  updateHeroDashboard(artistName, subText, data.overallScore);
-  setUrlTypePill(isApple ? 'apple' : scanMode);
-  setScore(data.overallScore);
-  renderRiskScore(data.royaltyRiskScore);
-  renderAuditCoverage(data.auditCoverage, data.scannedAt);
-  renderTerritoryCoverage(data.territoryCoverage);
-
-  let tagText = `${artistName} · ${followers} followers`;
-  if (scanMode === 'track' && data.trackTitle) tagText = `${data.trackTitle} · ${artistName}`;
-  if (scanMode === 'album' && data.albumTitle)  tagText = `${data.albumTitle} · ${artistName}`;
-  if (isApple) tagText = artistName + ' · via Apple Music';
-  document.getElementById('results-tag').textContent = tagText;
-
-  // Update hero module bars
-  if (data.modules) {
-    const modValues = Object.values(data.modules);
-    const modFills  = document.querySelectorAll('.d-mod-fill');
-    const modScores = document.querySelectorAll('.d-mod-score');
-    modValues.forEach((mod, i) => {
-      if (modFills[i])  modFills[i].style.width    = mod.score + '%';
-      if (modScores[i]) modScores[i].textContent   = mod.score;
+  // Apple Music US presence = verified US availability
+  if (appleMusicData.found) {
+    territories.push({
+      territory: 'United States',
+      status: 'Registered',
+      note: 'Available on Apple Music US catalog',
+      source: 'apple_music',
+      verified: true,
+      dataExists: true
     });
   }
 
-  // Lock form fields — artist name + URL auto-filled from scan
-  const fSpotify = document.getElementById('f-spotify');
-  if (fSpotify) { fSpotify.value = document.getElementById('hero-url').value; fSpotify.readOnly = true; fSpotify.style.opacity = '0.7'; fSpotify.style.cursor = 'not-allowed'; }
-  const fName = document.getElementById('f-name');
-  if (fName) { fName.value = artistName; fName.readOnly = true; fName.style.opacity = '0.7'; fName.style.cursor = 'not-allowed'; fName.placeholder = artistName; }
-
-  // Build result cards — verified fields only
-  const isrcStatus = data.trackIsrc ? 'REGISTERED' : data.trackTitle ? 'NOT REGISTERED' : 'NOT SCANNED';
-  const isrcBadge  = data.trackIsrc ? 'rb-grn' : data.trackTitle ? 'rb-red' : 'rb-amb';
-
-  const cards = [
-    { icon: '✅', title: 'Artist profile', value: artistName, badge: 'rb-grn', bt: 'Verified', source: 'Spotify' },
-    { icon: '📡', title: 'Platform coverage', value: (() => { const plats = data.platforms || {}; const found = Object.values(plats).filter(p => p && (p.found === true || p === true)).length; const total = Object.keys(plats).length; return found + ' of ' + total + ' platforms'; })(), badge: 'rb-grn', bt: 'Verified', source: 'Multiple' },
-    { icon: '🎵', title: 'Genre metadata', value: data.genres?.slice(0, 2).join(', ') || 'Not found', badge: data.genres?.length ? 'rb-grn' : 'rb-red', bt: data.genres?.length ? 'PRESENT' : 'MISSING', source: 'Spotify' },
-    { icon: '🔑', title: 'ISRC registration', value: data.trackIsrc || (data.trackTitle ? 'Not registered' : 'Artist scan — paste a track link for ISRC check'), badge: isrcBadge, bt: isrcStatus, source: 'Spotify' },
-  ];
-
-  if (scanMode === 'track' && data.trackTitle) {
-    cards[0] = { icon: '🎵', title: 'Track scanned', value: data.trackTitle, badge: 'rb-grn', bt: 'Verified', source: 'Spotify' };
-  }
-  if (scanMode === 'album' && data.albumTitle) {
-    cards[0] = { icon: '💿', title: 'Album scanned', value: data.albumTitle, badge: 'rb-grn', bt: 'Verified', source: 'Spotify' };
-    cards[1] = { icon: '🎵', title: 'Tracks on album', value: (data.albumTrackCount || '—') + ' tracks', badge: 'rb-grn', bt: 'Verified', source: 'Spotify' };
-  }
-  if (isApple && data.appleMusicSource) {
-    const src = data.appleMusicSource;
-    cards[0] = { icon: '🍎', title: 'Apple Music match', value: src.albumName || src.trackName || src.artistName || artistName, badge: 'rb-grn', bt: 'Matched', source: 'Apple Music' };
+  // PRO country from metadata sources
+  if (country) {
+    const proName = proGuide?.pro || null;
+    const isKnownPro = !!proGuide && proGuide.pro !== 'Your local PRO';
+    territories.push({
+      territory: country,
+      status: isKnownPro ? 'Pending' : 'No verified data available',
+      note: isKnownPro ? `PRO: ${proName} — registration status not confirmed` : 'No verified PRO registration data available',
+      source: 'audiodb',
+      verified: isKnownPro,
+      dataExists: isKnownPro,
+      action: isKnownPro ? `Verify registration with ${proName}` : null,
+    });
   }
 
-  buildCards(cards);
-  buildFlags(data.flags || data.previewFlags || []);
+  // MusicBrainz presence — indicates catalog is internationally catalogued
+  if (mbData.found) {
+    territories.push({
+      territory: 'International Catalog (MusicBrainz)',
+      status: 'Registered',
+      note: 'Recording catalogued in MusicBrainz international database',
+      source: 'musicbrainz',
+      verified: true,
+      dataExists: true
+    });
+  }
+
+  // ISRC present — indicates at least one territory registration
+  if (trackData?.external_ids?.isrc) {
+    territories.push({
+      territory: 'ISRC Registration',
+      status: 'Registered',
+      note: `ISRC: ${trackData.external_ids.isrc} — confirmed on Spotify`,
+      source: 'spotify',
+      verified: true,
+      dataExists: true
+    });
+  } else if (trackData) {
+    territories.push({
+      territory: 'ISRC Registration',
+      status: 'Not Registered',
+      note: 'No ISRC detected on this track — performance royalty routing unverified',
+      source: 'spotify',
+      verified: true,
+      dataExists: true,
+      action: 'Register ISRC with your distributor immediately'
+    });
+  }
+
+  return {
+    territories,
+    header: 'Territory Coverage Audit (Verified Data Only)',
+    dataPolicy: 'verified_only',
+    disclaimer: 'Only territories with confirmed data from connected sources are shown.',
+  };
 }
 
-// ── SHOW DEMO RESULTS ─────────────────────────────────────
-function showDemoResults(url) {
-  const urlType  = detectUrlType(url) || 'artist';
-  const typeLabel = URL_TYPE_META[urlType]?.label || 'Profile';
-  updateHeroDashboard(typeLabel + ' Scanned', 'Verified preview below', 44);
-  setUrlTypePill(urlType);
-  setScore(44);
-  document.getElementById('results-tag').textContent = 'Spotify ' + typeLabel;
-
-  const fSpotify = document.getElementById('f-spotify');
-  if (fSpotify) { fSpotify.value = url; fSpotify.readOnly = true; fSpotify.style.opacity = '0.7'; fSpotify.style.cursor = 'not-allowed'; }
-  const fName = document.getElementById('f-name');
-  if (fName) { fName.value = typeLabel; fName.readOnly = true; fName.style.opacity = '0.7'; fName.style.cursor = 'not-allowed'; }
-
-  buildCards([
-    { icon: '✅', title: typeLabel + ' detected', value: 'Found on Spotify', badge: 'rb-grn', bt: 'Verified', source: 'Spotify' },
-    { icon: '⚠️', title: 'ISRC registration',    value: 'Not detected',     badge: 'rb-red', bt: 'NOT REGISTERED', source: 'Spotify' },
-    { icon: '📡', title: 'Platform coverage',     value: 'Gaps confirmed',   badge: 'rb-amb', bt: 'PARTIAL', source: 'Multiple' },
-    { icon: '🔍', title: 'Publishing registration', value: 'Not confirmed',  badge: 'rb-amb', bt: 'NOT CONFIRMED', source: null },
-  ]);
-  buildFlags([
-    { severity: 'high',   issue: 'ISRC not registered — performance royalty routing unverified', action: 'Register ISRC with your distributor immediately', source: 'Spotify', verified: true },
-    { severity: 'medium', issue: 'Platform coverage incomplete — not found on all platforms',     action: 'Ensure your music is distributed to all major platforms', source: 'Multiple', verified: true },
-  ]);
-}
-
-// ── SCORE RING ─────────────────────────────────────────────
-function setScore(score) {
-  const s = (typeof score === 'number' && !isNaN(score)) ? Math.round(score) : null;
-  document.getElementById('r-score-val').textContent = s !== null ? s : '—';
-  const circ = document.getElementById('r-circle');
-  if (s !== null) {
-    setTimeout(() => {
-      circ.style.transition = 'stroke-dashoffset 1.2s ease';
-      circ.style.strokeDashoffset = 175.9 - (s / 100) * 175.9;
-    }, 100);
-  }
-  const verdicts = [
-    [0,  39, 'High royalty risk confirmed',    'Significant verified gaps found. Immediate action recommended.'],
-    [40, 59, 'Moderate risk confirmed',         'Several verified issues found. Review the action plan below.'],
-    [60, 79, 'Some confirmed issues',           'A few areas need attention. See verified flags below.'],
-    [80, 100,'Verified profile in good shape',  'No major issues found in verified data. Minor improvements possible.'],
-  ];
-  for (const [min, max, v, d] of verdicts) {
-    if (score >= min && score <= max) {
-      document.getElementById('r-verdict').textContent = v;
-      document.getElementById('r-desc').textContent    = d;
-      break;
-    }
+// ────────────────────────────────────────────────────────
+// SCORING WEIGHTS — per scan mode
+// ────────────────────────────────────────────────────────
+function getScoringWeights(scanMode) {
+  switch (scanMode) {
+    case 'track':  return { metadata: 25, coverage: 20, publishing: 20, duplicates: 15, youtube: 10, sync: 10 };
+    case 'album':  return { metadata: 20, coverage: 20, publishing: 20, duplicates: 15, youtube: 15, sync: 10 };
+    default:       return { metadata: 20, coverage: 20, publishing: 20, duplicates: 8,  youtube: 20, sync: 15 };
   }
 }
 
-// ── BUILD CARDS ────────────────────────────────────────────
-function buildCards(cards) {
-  document.getElementById('r-cards').innerHTML = cards.map(c => `
-    <div class="r-card">
-      <span class="rc-icon">${c.icon}</span>
-      <div class="rc-title">${c.title}</div>
-      <div class="rc-value">${c.value}</div>
-      ${c.source ? `<div class="rc-source">Source: ${c.source}</div>` : ''}
-      <span class="rc-badge ${c.badge}">${c.bt}</span>
-    </div>`).join('');
+// ────────────────────────────────────────────────────────
+// SPOTIFY API CALLS
+// ────────────────────────────────────────────────────────
+async function getSpotifyToken() {
+  const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+  if (!clientId || !clientSecret) throw new Error('Spotify credentials not configured');
+  const resp = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64') },
+    body: 'grant_type=client_credentials'
+  });
+  const data = await resp.json();
+  if (!data.access_token) throw new Error('Failed to get Spotify token');
+  return data.access_token;
 }
 
-// ── BUILD FLAGS ────────────────────────────────────────────
-function buildFlags(flags) {
-  // STRICT: only show verified flags
-  const verified = (flags || []).filter(f => f.verified !== false);
-  if (!verified.length) return;
-  const sec = document.getElementById('r-flags');
-  sec.style.display = 'block';
-  document.getElementById('r-flags-count').textContent = `${verified.length} confirmed`;
-  document.getElementById('r-flags-list').innerHTML = verified.map(f => `
-    <div class="flag-item">
-      <div class="flag-top">
-        <div class="fi-dot" style="background:${f.severity === 'high' ? 'var(--red)' : f.severity === 'medium' ? 'var(--amb)' : 'var(--muted2)'}"></div>
-        <div class="fi-body">
-          <span class="fi-sev" style="background:${f.severity === 'high' ? 'rgba(240,80,96,0.1)' : f.severity === 'medium' ? 'rgba(240,192,64,0.1)' : 'rgba(255,255,255,0.05)'};color:${f.severity === 'high' ? 'var(--red)' : f.severity === 'medium' ? 'var(--amb)' : 'var(--muted2)'}">${f.severity.toUpperCase()}</span>
-          <div class="fi-text">${f.issue || f.description}</div>
-          ${f.action ? `<div class="fi-action">→ ${f.action}</div>` : ''}
-          ${f.source ? `<div class="fi-source">Source: ${f.source} · Verified</div>` : ''}
-        </div>
-      </div>
-    </div>`).join('');
+async function getSpotifyArtist(id, token) {
+  const resp = await fetch(`https://api.spotify.com/v1/artists/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!resp.ok) throw new Error(`Spotify artist fetch failed: ${resp.status}`);
+  return resp.json();
 }
 
-// ── FORM SUBMIT ────────────────────────────────────────────
-async function submitForm() {
-  const name    = document.getElementById('f-name').value.trim();
-  const email   = document.getElementById('f-email').value.trim();
-  const spotify = document.getElementById('f-spotify').value.trim();
-  const tracks  = document.getElementById('f-tracks').value;
-  const btn     = document.getElementById('form-btn');
+async function getSpotifyTrack(id, token) {
+  const resp = await fetch(`https://api.spotify.com/v1/tracks/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!resp.ok) throw new Error(`Spotify track fetch failed: ${resp.status}`);
+  return resp.json();
+}
 
-  if (!email || !email.includes('@')) { document.getElementById('f-email').style.borderColor = 'var(--red)'; return; }
-  if (!spotify){ 
-    showUrlError('Please run a scan above first — your artist name and link will auto-fill into the form.');
-    document.getElementById('request').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => document.getElementById('hero').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-    return; 
-  }
+async function getSpotifyAlbum(id, token) {
+  const resp = await fetch(`https://api.spotify.com/v1/albums/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!resp.ok) throw new Error(`Spotify album fetch failed: ${resp.status}`);
+  return resp.json();
+}
 
-  btn.disabled = true;
-  btn.textContent = 'Sending request...';
-
-  const rewardfulRef = (typeof Rewardful !== 'undefined' && Rewardful.referral) ? Rewardful.referral : '';
-  const manualCode   = document.getElementById('f-ref').value.trim().toLowerCase();
-  const referral     = rewardfulRef || manualCode || '';
-  const urlType      = detectUrlType(spotify);
-  const urlTypeLabel = urlType ? (URL_TYPE_META[urlType]?.label || urlType) : 'Unknown';
-
+async function getSpotifyAlbums(artistId, token) {
   try {
-    await fetch('https://formspree.io/f/xojkrwzp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name, email,
-        spotify_url:   spotify,
-        url_type:      urlTypeLabel,
-        track_count:   tracks,
-        referral:      referral,
-        referral_type: rewardfulRef ? 'rewardful_link' : manualCode ? 'manual_code' : 'organic',
-        priority:      referral ? 'YES — deliver within 1-2 hours' : 'standard 12-24 hours',
-        discount_note: referral ? '5% discount to be applied on paid tier signup' : '',
-        _subject:      referral ? `⚡ PRIORITY Royaltē Audit — ${name} (ref: ${referral})` : `Royaltē Full Audit Request — ${name} [${urlTypeLabel}]`,
-        _replyto:      email
-      })
+    const resp = await fetch(`https://api.spotify.com/v1/artists/${artistId}/albums?limit=50&include_groups=album,single`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!resp.ok) return { items: [] };
+    return resp.json();
+  } catch { return { items: [] }; }
+}
+
+async function getSpotifyTopTracks(artistId, token) {
+  try {
+    const resp = await fetch(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return (data.tracks || []).map(t => ({ name: t.name, isrc: t.external_ids?.isrc || null, artistName: t.artists?.[0]?.name || '' }));
+  } catch { return []; }
+}
+
+async function getSpotifyAudioFeatures(ids, token) {
+  try {
+    const resp = await fetch(`https://api.spotify.com/v1/audio-features?ids=${ids.join(',')}`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const features = (data.audio_features || []).filter(Boolean);
+    if (!features.length) return null;
+    if (features.length === 1) return features[0];
+    const avg = (key) => Math.round((features.reduce((s, f) => s + (f[key] || 0), 0) / features.length) * 1000) / 1000;
+    return { danceability: avg('danceability'), energy: avg('energy'), valence: avg('valence'), tempo: avg('tempo'), acousticness: avg('acousticness'), instrumentalness: avg('instrumentalness'), speechiness: avg('speechiness'), loudness: avg('loudness'), _averaged: true, _trackCount: features.length };
+  } catch { return null; }
+}
+
+// ────────────────────────────────────────────────────────
+// APPLE MUSIC
+// ────────────────────────────────────────────────────────
+async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
+  try {
+    const appleToken = generateAppleToken();
+    const STOREFRONT = 'us';
+    const BASE = 'https://api.music.apple.com/v1';
+    const headers = { Authorization: `Bearer ${appleToken}` };
+
+    const artistResp = await fetch(`${BASE}/catalog/${STOREFRONT}/search?term=${encodeURIComponent(artistName)}&types=artists&limit=10`, { headers });
+    let artistFound = false, appleArtistId = null, appleArtistUrl = null, appleArtistGenres = [], appleAlbumCount = 0;
+
+    if (artistResp.ok) {
+      const artistData = await artistResp.json();
+      const artists = artistData?.results?.artists?.data || [];
+      const norm = s => s.toLowerCase().trim().replace(/[^a-z0-9 ]/g, '');
+      // Try exact match first, then partial match, then first result
+      const match = artists.find(a => norm(a.attributes?.name) === norm(artistName))
+        || artists.find(a => norm(a.attributes?.name).includes(norm(artistName)) || norm(artistName).includes(norm(a.attributes?.name)))
+        || (artists.length > 0 ? artists[0] : null);
+      if (match) {
+        artistFound = true; appleArtistId = match.id; appleArtistUrl = match.attributes?.url || null; appleArtistGenres = match.attributes?.genreNames || [];
+        const albumResp = await fetch(`${BASE}/catalog/${STOREFRONT}/artists/${appleArtistId}/albums?limit=25`, { headers });
+        if (albumResp.ok) { const albumData = await albumResp.json(); appleAlbumCount = albumData?.data?.length || 0; }
+      }
+    }
+
+    let isrcResult = null;
+    if (isrc) {
+      const isrcResp = await fetch(`${BASE}/catalog/${STOREFRONT}/songs?filter[isrc]=${isrc}`, { headers });
+      if (isrcResp.ok) {
+        const isrcData = await isrcResp.json();
+        const songs = isrcData?.data || [];
+        isrcResult = songs.length > 0
+          ? { found: true, name: songs[0].attributes?.name, url: songs[0].attributes?.url, albumName: songs[0].attributes?.albumName, previewUrl: songs[0].attributes?.previews?.[0]?.url || null, verified: true, source: 'apple_music' }
+          : { found: false, verified: true, source: 'apple_music' };
+      }
+    }
+
+    let catalogComparison = null;
+    if (spotifyTopTracks.length > 0) {
+      const matched = [], notFound = [];
+      for (const track of spotifyTopTracks.slice(0, 10)) {
+        let found = false;
+        if (track.isrc) {
+          const r = await fetch(`${BASE}/catalog/${STOREFRONT}/songs?filter[isrc]=${track.isrc}`, { headers });
+          if (r.ok) { const d = await r.json(); found = (d?.data?.length || 0) > 0; }
+        }
+        if (!found) {
+          const q = encodeURIComponent(`${track.name} ${track.artistName}`);
+          const r = await fetch(`${BASE}/catalog/${STOREFRONT}/search?term=${q}&types=songs&limit=3`, { headers });
+          if (r.ok) { const d = await r.json(); const songs = d?.results?.songs?.data || []; const norm = s => s.toLowerCase().trim(); found = songs.some(s => norm(s.attributes?.name) === norm(track.name)); }
+        }
+        if (found) matched.push(track.name); else notFound.push(track.name);
+      }
+      const total = matched.length + notFound.length;
+      catalogComparison = { tracksChecked: total, matched: matched.length, notFound, matchRate: total > 0 ? Math.round((matched.length / total) * 100) : 0, verified: true, source: 'apple_music' };
+    }
+
+    return { found: artistFound, artistId: appleArtistId, artistUrl: appleArtistUrl, genres: appleArtistGenres, albumCount: appleAlbumCount, isrcLookup: isrcResult, catalogComparison, verified: true, source: 'apple_music' };
+  } catch (err) {
+    console.error('Apple Music error:', err.message);
+    return { found: false, error: err.message, verified: false };
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// YOUTUBE
+// ────────────────────────────────────────────────────────
+async function getYouTube(artistName) {
+  try {
+    const apiKey = process.env.YOUTUBE_API_KEY;
+    if (!apiKey) return { found: false, reason: 'API key not configured', verified: false };
+
+    const query = encodeURIComponent(artistName);
+    const channelResp = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=channel&maxResults=5&key=${apiKey}`);
+    if (!channelResp.ok) return { found: false, reason: `YouTube API error: ${channelResp.status}`, verified: false };
+
+    const channelData = await channelResp.json();
+    const norm = s => s.toLowerCase().trim();
+    const channels = channelData.items || [];
+    const officialChannel = channels.find(c => norm(c.snippet.channelTitle) === norm(artistName) || norm(c.snippet.channelTitle).includes(norm(artistName)) || c.snippet.description?.toLowerCase().includes('official')) || channels[0];
+
+    let officialVideoCount = 0, officialViewCount = 0, subscriberCount = 0;
+    if (officialChannel) {
+      const channelId = officialChannel.snippet.channelId || officialChannel.id?.channelId;
+      if (channelId) {
+        const statsResp = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelId}&key=${apiKey}`);
+        if (statsResp.ok) {
+          const statsData = await statsResp.json();
+          const stats = statsData.items?.[0]?.statistics;
+          if (stats) { officialVideoCount = parseInt(stats.videoCount || 0); officialViewCount = parseInt(stats.viewCount || 0); subscriberCount = parseInt(stats.subscriberCount || 0); }
+        }
+      }
+    }
+
+    const ugcResp = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=video&maxResults=10&key=${apiKey}`);
+    let ugcVideoCount = 0, topUgcVideos = [];
+    if (ugcResp.ok) {
+      const ugcData = await ugcResp.json();
+      const ugcVideos = (ugcData.items || []).filter(v => {
+        const ct = v.snippet?.channelTitle?.toLowerCase() || '';
+        return !ct.includes(norm(artistName)) && !ct.includes('vevo');
+      });
+      ugcVideoCount = ugcVideos.length;
+      topUgcVideos = ugcVideos.slice(0, 3).map(v => ({ title: v.snippet.title, channel: v.snippet.channelTitle, videoId: v.id.videoId }));
+    }
+
+    const hasOfficialChannel = !!officialChannel;
+    const contentIdRisk = ugcVideoCount > 0 && !hasOfficialChannel;
+
+    return {
+      found: true,
+      officialChannel: hasOfficialChannel ? { title: officialChannel.snippet.channelTitle, channelId: officialChannel.snippet.channelId || officialChannel.id?.channelId, subscribers: subscriberCount, totalViews: officialViewCount, videoCount: officialVideoCount } : null,
+      ugc: { videoCount: ugcVideoCount, topVideos: topUgcVideos, contentIdRisk },
+      contentIdVerified: hasOfficialChannel && officialViewCount > 0,
+      subscriberCount,
+      totalOfficialViews: officialViewCount,
+      verified: true,
+      source: 'youtube',
+    };
+  } catch (err) {
+    console.error('YouTube error:', err.message);
+    return { found: false, reason: err.message, verified: false };
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// CATALOG ANALYSIS
+// ────────────────────────────────────────────────────────
+function analyzeCatalog(albumsData, artist) {
+  const albums = albumsData.items || [];
+  if (!albums.length) return { totalReleases: 0, earliestYear: null, catalogAgeYears: 0 };
+  const years = albums.map(a => parseInt(a.release_date?.substring(0, 4))).filter(y => !isNaN(y) && y > 1950);
+  const earliestYear = years.length ? Math.min(...years) : null;
+  const currentYear = new Date().getFullYear();
+  const catalogAgeYears = earliestYear ? currentYear - earliestYear : 0;
+  return { totalReleases: albums.length, earliestYear, latestYear: years.length ? Math.max(...years) : null, catalogAgeYears, recentActivity: years.some(y => y >= currentYear - 2), source: 'spotify', verified: true };
+}
+
+// ────────────────────────────────────────────────────────
+// PRO GUIDE
+// ────────────────────────────────────────────────────────
+function getPROGuide(country) {
+  const guides = {
+    'Canada':         { pro: 'SOCAN',        url: 'https://www.socan.com',           steps: ['Go to socan.com and click Join', 'Register as a songwriter and composer', 'Register all your works in the SOCAN repertoire', 'Submit cue sheets for any TV or film placements'], note: 'SOCAN collects performance royalties for streaming, radio, TV, and live performances across Canada.' },
+    'United States':  { pro: 'ASCAP or BMI', url: 'https://www.ascap.com',           steps: ['Choose ASCAP (ascap.com) or BMI (bmi.com)', 'Register as a songwriter and publisher', 'Register all your works', 'Submit your Spotify artist URL'], note: 'ASCAP and BMI collect performance royalties for US streaming, radio, TV and live performances.' },
+    'United Kingdom': { pro: 'PRS for Music',url: 'https://www.prsformusic.com',     steps: ['Go to prsformusic.com and click Join PRS', 'Register as a writer member', 'Register all your works', 'Link your Spotify artist profile'], note: 'PRS for Music collects performance and mechanical royalties across the UK.' },
+    'Germany':        { pro: 'GEMA',         url: 'https://www.gema.de',             steps: ['Go to gema.de and register as a member', 'Register as a composer and lyricist', 'Register all your works in GEMA database', 'Submit documentation of live performances or broadcast placements'], note: 'GEMA collects performance royalties across Germany.' },
+    'France':         { pro: 'SACEM',        url: 'https://www.sacem.fr',            steps: ['Go to sacem.fr and click Adhérer', 'Register as a composer, author or publisher', 'Register all your works'], note: 'SACEM collects performance royalties across France.' },
+    'Australia':      { pro: 'APRA AMCOS',   url: 'https://www.apraamcos.com.au',    steps: ['Go to apraamcos.com.au and click Join', 'Register as a songwriter', 'Register all your works', 'Link your streaming profiles'], note: 'APRA AMCOS collects performance and mechanical royalties across Australia and New Zealand.' },
+    'Jamaica':        { pro: 'JACAP',        url: 'https://www.jacap.org',           steps: ['Go to jacap.org and register as a member', 'Register as a composer or author', 'Register all your works'], note: 'JACAP collects performance royalties across Jamaica.' },
+  };
+  const defaultGuide = { pro: 'Your local PRO', url: 'https://www.cisac.org', steps: ["Find your country's PRO at cisac.org/find-a-society", 'Register as a songwriter and composer', 'Register all your works', 'Verify reciprocal agreements with SOCAN, ASCAP, GEMA and PRS'], note: 'CISAC is the international confederation of PROs.' };
+  if (!country) return defaultGuide;
+  const match = Object.keys(guides).find(k => country.toLowerCase().includes(k.toLowerCase()));
+  return match ? { ...guides[match], country: match } : { ...defaultGuide, country };
+}
+
+// ────────────────────────────────────────────────────────
+// MUSICBRAINZ
+// ────────────────────────────────────────────────────────
+async function getMusicBrainz(artistName) {
+  try {
+    const query = encodeURIComponent(`artist:"${artistName}"`);
+    const resp = await fetch(`https://musicbrainz.org/ws/2/artist/?query=${query}&limit=3&fmt=json`, { headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)' } });
+    if (!resp.ok) return { found: false, artists: [], verified: false };
+    const data = await resp.json();
+    return { found: data.artists?.length > 0, artists: data.artists || [], topMatch: data.artists?.[0] || null, score: data.artists?.[0]?.score || 0, verified: true, source: 'musicbrainz' };
+  } catch { return { found: false, artists: [], verified: false }; }
+}
+
+// ────────────────────────────────────────────────────────
+// DEEZER
+// ────────────────────────────────────────────────────────
+async function getDeezer(artistName) {
+  try {
+    const query = encodeURIComponent(artistName);
+    const resp = await fetch(`https://api.deezer.com/search/artist?q=${query}&limit=5`);
+    if (!resp.ok) return { found: false, fans: 0, verified: false };
+    const data = await resp.json();
+    if (!data.data?.length) return { found: false, fans: 0, verified: false };
+    const norm = s => s.toLowerCase().trim();
+    const artist = data.data.find(a => norm(a.name) === norm(artistName)) || data.data[0];
+    const detail = await fetch(`https://api.deezer.com/artist/${artist.id}`).then(r => r.ok ? r.json() : artist);
+    return { found: true, fans: detail.nb_fan || 0, artistId: artist.id, name: artist.name, albums: detail.nb_album || 0, verified: true, source: 'deezer' };
+  } catch { return { found: false, fans: 0, verified: false }; }
+}
+
+// ────────────────────────────────────────────────────────
+// AUDIODB
+// ────────────────────────────────────────────────────────
+async function getAudioDB(artistName) {
+  try {
+    const resp = await fetch(`https://www.theaudiodb.com/api/v1/json/2/search.php?s=${encodeURIComponent(artistName)}`, { headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)' } });
+    if (!resp.ok) return { found: false };
+    const data = await resp.json();
+    if (!data.artists?.length) return { found: false };
+    const a = data.artists[0];
+    return { found: true, name: a.strArtist, genre: a.strGenre || null, style: a.strStyle || null, mood: a.strMood || null, country: a.strCountry || null, biography: a.strBiographyEN ? a.strBiographyEN.substring(0, 400) : null, formed: a.intFormedYear || null, verified: true, source: 'audiodb' };
+  } catch { return { found: false }; }
+}
+
+// ────────────────────────────────────────────────────────
+// DISCOGS
+// ────────────────────────────────────────────────────────
+async function getDiscogs(artistName) {
+  try {
+    const resp = await fetch(`https://api.discogs.com/database/search?q=${encodeURIComponent(artistName)}&type=artist&per_page=5`, { headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)', 'Authorization': 'Discogs key=royalteaudit, secret=royalteaudit' } });
+    if (!resp.ok) return { found: false, releases: 0 };
+    const data = await resp.json();
+    if (!data.results?.length) return { found: false, releases: 0 };
+    const norm = s => s.toLowerCase().trim();
+    const artist = data.results.find(r => norm(r.title) === norm(artistName)) || data.results[0];
+    const relResp = await fetch(`https://api.discogs.com/artists/${artist.id}/releases?per_page=1`, { headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)' } });
+    const relData = relResp.ok ? await relResp.json() : {};
+    return { found: true, artistId: artist.id, name: artist.title, releases: relData.pagination?.items || 0, link: `https://www.discogs.com/artist/${artist.id}`, verified: true, source: 'discogs' };
+  } catch { return { found: false, releases: 0 }; }
+}
+
+// ────────────────────────────────────────────────────────
+// SOUNDCLOUD
+// ────────────────────────────────────────────────────────
+async function getSoundCloud(artistName) {
+  try {
+    const resp = await fetch(`https://api.soundcloud.com/users?q=${encodeURIComponent(artistName)}&limit=5&client_id=iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX`, { headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)' } });
+    if (!resp.ok) return { found: false, followers: 0 };
+    const data = await resp.json();
+    if (!Array.isArray(data) || !data.length) return { found: false, followers: 0 };
+    const norm = s => s.toLowerCase().trim();
+    const user = data.find(u => norm(u.username) === norm(artistName) || norm(u.full_name || '') === norm(artistName)) || data[0];
+    return { found: true, username: user.username, followers: user.followers_count || 0, tracks: user.track_count || 0, permalink: user.permalink_url || null, verified: true, source: 'soundcloud' };
+  } catch { return { found: false, followers: 0 }; }
+}
+
+// ────────────────────────────────────────────────────────
+// LAST.FM
+// ────────────────────────────────────────────────────────
+async function getLastFm(artistName) {
+  try {
+    const key = process.env.LASTFM_API_KEY || '43693facbb24d1ac893a5d61c8e5d4c3';
+    const resp = await fetch(`https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(artistName)}&api_key=${key}&format=json`, { headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)' } });
+    if (!resp.ok) return { found: false };
+    const data = await resp.json();
+    if (data.error || !data.artist) return { found: false };
+    const a = data.artist;
+    return { found: true, name: a.name, playcount: parseInt(a.stats?.playcount || 0), listeners: parseInt(a.stats?.listeners || 0), tags: a.tags?.tag?.map(t => t.name) || [], bio: a.bio?.summary ? a.bio.summary.replace(/<[^>]+>/g, '').substring(0, 300) : null, url: a.url || null, verified: true, source: 'lastfm' };
+  } catch { return { found: false }; }
+}
+
+// ────────────────────────────────────────────────────────
+// WIKIDATA / WIKIPEDIA
+// ────────────────────────────────────────────────────────
+async function getWikidata(artistName) {
+  try {
+    const resp = await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(artistName)}&language=en&type=item&format=json&limit=5`, { headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)' } });
+    if (!resp.ok) return { found: false };
+    const data = await resp.json();
+    if (!data.search?.length) return { found: false };
+    const norm = s => s.toLowerCase().trim();
+    const match = data.search.find(r => norm(r.label) === norm(artistName) && (r.description?.toLowerCase().includes('musician') || r.description?.toLowerCase().includes('singer') || r.description?.toLowerCase().includes('rapper') || r.description?.toLowerCase().includes('artist') || r.description?.toLowerCase().includes('band') || r.description?.toLowerCase().includes('producer'))) || data.search.find(r => norm(r.label) === norm(artistName));
+    if (!match) return { found: false };
+    const wpResp = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(artistName)}`, { headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)' } });
+    const wpData = wpResp.ok ? await wpResp.json() : null;
+    return { found: true, wikidataId: match.id, description: match.description || null, wikipediaUrl: wpData?.content_urls?.desktop?.page || null, wikipediaFound: wpResp.ok && !wpData?.type?.includes('disambiguation'), extract: wpData?.extract?.substring(0, 300) || null, verified: true, source: 'wikipedia' };
+  } catch { return { found: false }; }
+}
+
+// ────────────────────────────────────────────────────────
+// DETECTION MODULES — verified data only, no estimates
+// ────────────────────────────────────────────────────────
+function runModules(artist, track, album, mb, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube, appleMusic, audioFeatures, scanMode, weights) {
+  const modules = {};
+  const isAlbumScan = scanMode === 'album';
+
+  // A — Metadata Integrity
+  let ms = 100; const mf = [];
+  if (!artist.genres?.length)                               { ms -= 20; mf.push({ issue: 'Genre tags not found on Spotify profile', source: 'spotify', verified: true, action: 'Add genre tags to your Spotify for Artists profile', priority: 'MEDIUM' }); }
+  if (!artist.images?.length)                               { ms -= 15; mf.push({ issue: 'No artist images found on Spotify', source: 'spotify', verified: true, action: 'Upload artist photos via Spotify for Artists', priority: 'LOW' }); }
+  if (track && !track.external_ids?.isrc)                   { ms -= 30; mf.push({ issue: 'ISRC not found on this track', source: 'spotify', verified: true, action: 'Register ISRC with your distributor immediately', priority: 'HIGH' }); }
+  if (isAlbumScan && album) {
+    if (!album.label)                                       { ms -= 10; mf.push({ issue: 'Label metadata missing from album', source: 'spotify', verified: true, action: 'Update label information via your distributor', priority: 'LOW' }); }
+    if (!album.copyrights?.length)                          { ms -= 10; mf.push({ issue: 'Copyright metadata missing from album', source: 'spotify', verified: true, action: 'Update copyright metadata via your distributor', priority: 'LOW' }); }
+  }
+  if (audiodb.found && audiodb.biography) ms += 5;
+  if (wikidata.found) ms += 5;
+  if (lastfm.found && lastfm.tags?.length) ms += 5;
+  modules.metadata = { name: 'Metadata Integrity', score: Math.max(Math.min(ms, 100), 10), flags: mf };
+
+  // B — Platform Coverage
+  let cs = 20; const cf = [];
+  [{ name: 'MusicBrainz', found: mb.found, pts: 10, src: 'musicbrainz' }, { name: 'Deezer', found: deezer.found, pts: 10, src: 'deezer' }, { name: 'AudioDB', found: audiodb.found, pts: 8, src: 'audiodb' }, { name: 'Discogs', found: discogs.found, pts: 8, src: 'discogs' }, { name: 'SoundCloud', found: soundcloud.found, pts: 7, src: 'soundcloud' }, { name: 'Last.fm', found: lastfm.found, pts: 9, src: 'lastfm' }, { name: 'Wikipedia', found: wikidata.found, pts: 8, src: 'wikipedia' }, { name: 'YouTube', found: youtube.found, pts: 10, src: 'youtube' }, { name: 'Apple Music', found: appleMusic.found, pts: 10, src: 'apple_music' }].forEach(p => {
+    if (p.found) cs += p.pts;
+    else cf.push({ issue: `Not found on ${p.name}`, source: p.src, verified: true, action: `Distribute your music to ${p.name}`, priority: 'LOW' });
+  });
+  if (artist.followers?.total > 100) cs += 10;
+  modules.coverage = { name: 'Platform Coverage', score: Math.min(cs, 100), flags: cf };
+
+  // C — Publishing Risk
+  let ps = 100; const pf = [];
+  if (track && !track.external_ids?.isrc)                                               { ps -= 35; pf.push({ issue: 'ISRC not registered — performance royalty routing unverified', source: 'spotify', verified: true, action: 'Register ISRC with your distributor immediately', priority: 'HIGH' }); }
+  if (!artist.genres?.length)                                                            { ps -= 15; pf.push({ issue: 'Genre metadata missing', source: 'spotify', verified: true, action: 'Add genre tags to your Spotify profile', priority: 'MEDIUM' }); }
+  if (!mb.found)                                                                         { ps -= 20; pf.push({ issue: 'Not in MusicBrainz — publishing cross-reference unavailable', source: 'musicbrainz', verified: true, action: 'Register your works at musicbrainz.org', priority: 'MEDIUM' }); }
+  if (catalog.catalogAgeYears > 5)                                                       { ps -= 10; pf.push({ issue: `Catalog active for ${catalog.catalogAgeYears} years — extended royalty verification recommended`, source: 'spotify', verified: true, action: 'Conduct a full historical royalty audit', priority: 'MEDIUM' }); }
+  if (discogs.found && discogs.releases > 0) ps += 10;
+  if (track?.external_ids?.isrc && appleMusic.isrcLookup && !appleMusic.isrcLookup.found){ ps -= 15; pf.push({ issue: 'ISRC confirmed on Spotify but not matched on Apple Music', source: 'apple_music', verified: true, action: 'Contact your distributor about Apple Music ISRC registration', priority: 'HIGH' }); }
+  modules.publishing = { name: 'Publishing Risk', score: Math.max(ps, 10), flags: pf };
+
+  // D — Duplicate Detection
+  let ds = 80; const df = [];
+  if (artist.followers?.total < 500 && artist.popularity > 20) { ds -= 25; df.push({ issue: 'Popularity vs follower ratio inconsistency — possible catalog fragmentation', source: 'spotify', verified: true, action: 'Check for duplicate Spotify artist profiles', priority: 'MEDIUM' }); }
+  if (mb.artists?.length > 1)                                   { ds -= 20; df.push({ issue: `${mb.artists.length} entries found in MusicBrainz — possible duplicate profiles`, source: 'musicbrainz', verified: true, action: 'Review and merge duplicate MusicBrainz entries', priority: 'MEDIUM' }); }
+  if (!catalog.recentActivity && catalog.earliestYear)          { ds -= 10; df.push({ issue: `No releases found after ${catalog.latestYear}`, source: 'spotify', verified: true, action: 'Verify all releases are under one canonical artist profile', priority: 'LOW' }); }
+  if (isAlbumScan && album) { const woi = (album.tracks?.items || []).filter(t => !t.external_ids?.isrc).length; if (woi > 0) { ds -= Math.min(woi * 5, 20); df.push({ issue: `${woi} track(s) on this album missing ISRC`, source: 'spotify', verified: true, action: 'Register ISRCs for all tracks via your distributor', priority: 'HIGH' }); } }
+  modules.duplicates = { name: 'Duplicate Detection', score: Math.max(ds, 10), flags: df };
+
+  // E — YouTube / UGC
+  let ys = 10; const yf = [];
+  if (youtube.found) {
+    if (youtube.officialChannel) { ys += 35; if (youtube.subscriberCount > 1000) ys += 10; if (youtube.totalOfficialViews > 10000) ys += 10; }
+    else { yf.push({ issue: 'No official YouTube channel found', source: 'youtube', verified: true, action: 'Create and verify an official YouTube channel', priority: 'MEDIUM' }); }
+    if (youtube.contentIdVerified) { ys += 15; }
+    else { yf.push({ issue: 'Content ID monetisation status not confirmed', source: 'youtube', verified: true, action: 'Register for YouTube Content ID via your distributor', priority: 'MEDIUM' }); }
+    if (youtube.ugc?.contentIdRisk) { ys -= 15; yf.push({ issue: `${youtube.ugc.videoCount} user-uploaded video(s) found with no official channel`, source: 'youtube', verified: true, action: 'Register for Content ID to claim user-uploaded content', priority: 'HIGH' }); }
+  } else {
+    yf.push({ issue: 'YouTube data unavailable', source: 'youtube', verified: false, action: null, priority: 'LOW' });
+    if (audiodb.found && audiodb.youtube) ys += 20;
+    if (soundcloud.found && soundcloud.tracks > 0) ys += 10;
+  }
+  if (lastfm.found && lastfm.listeners > 1000) ys += 5;
+  modules.youtube = { name: 'YouTube / UGC', score: Math.max(Math.min(ys, 100), 10), flags: yf };
+
+  // F — Sync Readiness
+  let ss = 0; const sf = [];
+  if (track?.external_ids?.isrc)  { ss += 20; } else sf.push({ issue: 'ISRC not registered', source: 'spotify', verified: true, action: 'Register ISRC to improve sync licensing eligibility', priority: 'HIGH' });
+  if (artist.genres?.length)      { ss += 15; } else sf.push({ issue: 'Genre tags missing', source: 'spotify', verified: true, action: 'Add genre metadata', priority: 'MEDIUM' });
+  if (mb.found)                   { ss += 10; } else sf.push({ issue: 'Not in MusicBrainz catalog', source: 'musicbrainz', verified: true, action: 'Register at musicbrainz.org', priority: 'LOW' });
+  if (wikidata.found)             { ss += 15; } else sf.push({ issue: 'No Wikipedia presence', source: 'wikipedia', verified: true, action: 'Create a Wikipedia page', priority: 'LOW' });
+  if (deezer.found)   ss += 8;
+  if (discogs.found)  ss += 8;
+  if (lastfm.found && lastfm.listeners > 500) ss += 10;
+  if (audiodb.found && audiodb.genre) ss += 8;
+  if (artist.followers?.total > 1000) ss += 6;
+  if (appleMusic.found) { ss += 10; } else sf.push({ issue: 'Not found on Apple Music', source: 'apple_music', verified: true, action: 'Distribute your music to Apple Music', priority: 'MEDIUM' });
+  if (audioFeatures && (audioFeatures.energy > 0.6 || audioFeatures.danceability > 0.6)) ss += 5;
+  modules.sync = { name: 'Sync Readiness', score: Math.min(ss, 100), flags: sf };
+
+  return modules;
+}
+
+// ────────────────────────────────────────────────────────
+// VERIFIED FLAGS — source-backed issues only
+// No estimates, no projections, no inferred data
+// ────────────────────────────────────────────────────────
+function buildVerifiedFlags(modules, artist, track, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube, appleMusic) {
+  const flags = [];
+
+  Object.entries(modules).forEach(([key, mod]) => {
+    mod.flags.forEach(f => {
+      if (f.verified === false) return; // strict: skip anything unverified
+      let severity = mod.score < 40 ? 'high' : mod.score < 65 ? 'medium' : 'low';
+      if (f.priority === 'HIGH') severity = 'high';
+      if (f.priority === 'MEDIUM' && severity === 'low') severity = 'medium';
+      flags.push({ module: mod.name, severity, issue: f.issue, action: f.action || null, source: f.source, verified: true });
     });
-  } catch (e) {}
+  });
 
-  document.getElementById('form-inner').style.display   = 'none';
-  document.getElementById('form-success').style.display = 'block';
+  // Catalog age — Spotify-sourced, verified
+  if (catalog.catalogAgeYears >= 10) flags.push({ module: 'Publishing Risk', severity: 'high', issue: `Catalog active for ${catalog.catalogAgeYears} years — full historical royalty audit recommended`, action: 'Conduct a full historical royalty audit with your distributor and PRO', source: 'spotify', verified: true });
+  else if (catalog.catalogAgeYears >= 5) flags.push({ module: 'Publishing Risk', severity: 'medium', issue: `Catalog active for ${catalog.catalogAgeYears} years — multi-year royalty verification recommended`, action: 'Verify royalty collection across all catalog years', source: 'spotify', verified: true });
+
+  // YouTube UGC — count only, no view estimates
+  if (youtube.found && youtube.ugc?.videoCount > 0 && !youtube.officialChannel) {
+    flags.push({ module: 'YouTube / UGC', severity: 'high', issue: `${youtube.ugc.videoCount} user-uploaded video(s) found — Content ID not active`, action: 'Register for Content ID via your distributor', source: 'youtube', verified: true });
+  }
+
+  // Apple Music catalog gaps — match rate, no estimates
+  if (appleMusic.found && appleMusic.catalogComparison) {
+    const { matchRate, notFound } = appleMusic.catalogComparison;
+    if (matchRate < 50) flags.push({ module: 'Platform Coverage', severity: 'high', issue: `${100 - matchRate}% of top Spotify tracks not found on Apple Music`, action: 'Contact your distributor to ensure full Apple Music catalog delivery', source: 'apple_music', verified: true });
+    else if (matchRate < 80 && notFound.length > 0) flags.push({ module: 'Platform Coverage', severity: 'medium', issue: `${notFound.length} top track(s) not found on Apple Music`, action: 'Contact your distributor about missing Apple Music tracks', source: 'apple_music', verified: true });
+  }
+
+  if (!appleMusic.found) flags.push({ module: 'Platform Coverage', severity: 'medium', issue: 'Artist not found on Apple Music', action: 'Distribute your music to Apple Music via your distributor', source: 'apple_music', verified: true });
+
+  const order = { high: 0, medium: 1, low: 2 };
+  return flags.sort((a, b) => order[a.severity] - order[b.severity]);
 }
-
-function scrollToForm() {
-  document.getElementById('request').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
-</script>
-</body>
-</html>
