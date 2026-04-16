@@ -480,13 +480,17 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
       <div id="audit-coverage-rows"></div>
     </div>
 
-    <!-- TERRITORY COVERAGE -->
+    <!-- TERRITORY COVERAGE — locked in free tier -->
     <div class="territory-section" id="territory-section" style="display:none;">
       <div class="territory-hd">
         <div class="territory-title">// Territory Coverage Audit (Verified Data Only)</div>
-        <div class="territory-policy">✓ Verified sources only</div>
+        <div class="territory-policy">🔒 Full audit only</div>
       </div>
       <div id="territory-rows"></div>
+      <div id="territory-lock" style="display:none;padding:20px;text-align:center;border-top:1px solid var(--border3);">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;margin-bottom:10px;">🔒 Full territory breakdown available in your audit report</div>
+        <button onclick="unlockAndScrollToForm()" style="background:var(--grad);color:#fff;padding:8px 20px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Get full audit →</button>
+      </div>
     </div>
 
     <!-- FLAGS -->
@@ -506,41 +510,37 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
       </div>
       <div class="rm-shell">
         <div class="rm-content">
-          <div class="rm-section-title">// All 6 module scores — verified sources</div>
-          <div class="rm-modules">
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--red)"></div><div class="rm-name">Metadata Integrity</div><div class="rm-bar"><div class="rm-fill" style="width:35%;background:var(--red)"></div></div><div class="rm-score" style="color:var(--red)">35</div><div class="rm-status rb-red">HIGH RISK</div></div>
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--amb)"></div><div class="rm-name">Platform Coverage</div><div class="rm-bar"><div class="rm-fill" style="width:60%;background:var(--amb)"></div></div><div class="rm-score" style="color:var(--amb)">60</div><div class="rm-status rb-amb">PARTIAL</div></div>
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--red)"></div><div class="rm-name">Publishing Risk</div><div class="rm-bar"><div class="rm-fill" style="width:22%;background:var(--red)"></div></div><div class="rm-score" style="color:var(--red)">22</div><div class="rm-status rb-red">🔒 FULL</div></div>
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--amb)"></div><div class="rm-name">Duplicate Detection</div><div class="rm-bar"><div class="rm-fill" style="width:55%;background:var(--amb)"></div></div><div class="rm-score" style="color:var(--amb)">55</div><div class="rm-status rb-amb">🔒 FULL</div></div>
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--grn)"></div><div class="rm-name">YouTube / UGC</div><div class="rm-bar"><div class="rm-fill" style="width:78%;background:var(--grn)"></div></div><div class="rm-score" style="color:var(--grn)">78</div><div class="rm-status rb-grn">🔒 FULL</div></div>
-            <div class="rm-mod"><div class="rm-dot" style="background:var(--amb)"></div><div class="rm-name">Sync Readiness</div><div class="rm-bar"><div class="rm-fill" style="width:42%;background:var(--amb)"></div></div><div class="rm-score" style="color:var(--amb)">42</div><div class="rm-status rb-amb">🔒 FULL</div></div>
-          </div>
-          <div class="rm-section-title" style="margin-top:16px;">// Territory coverage — verified data only</div>
-          <div style="border:1px solid var(--border3);border-radius:4px;overflow:hidden;">
-            <div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border3);">
-              <div><div style="font-size:12px;font-weight:600;color:var(--text);">United States</div><div style="font-size:10px;color:var(--muted2);">Source: Apple Music</div></div>
-              <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 10px;border-radius:2px;background:rgba(64,240,160,0.1);color:var(--grn);">Registered</span>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border3);background:rgba(240,80,96,0.03);">
-              <div><div style="font-size:12px;font-weight:600;color:var(--text);">ISRC Registration</div><div style="font-size:10px;color:var(--muted2);">Source: Spotify</div><div style="font-size:10px;color:var(--amb);margin-top:2px;">Register ISRC with your distributor</div></div>
-              <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 10px;border-radius:2px;background:rgba(240,80,96,0.1);color:var(--red);">Not Registered</span>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 14px;">
-              <div><div style="font-size:12px;font-weight:600;color:var(--text);">Japan</div><div style="font-size:10px;color:var(--muted);">No verified data available</div></div>
-              <span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 10px;border-radius:2px;background:rgba(255,255,255,0.04);color:var(--muted);">No verified data</span>
-            </div>
-          </div>
-          <div class="rm-section-title" style="margin-top:16px;">// Recommended actions — verified issues only</div>
+          <div class="rm-section-title">// Full audit includes</div>
           <div style="display:flex;flex-direction:column;gap:8px;">
-            <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;">
-              <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--pur);font-weight:700;width:20px;flex-shrink:0;margin-top:1px;">01</div>
-              <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;">Register ISRC with your distributor</div><div style="font-size:11px;color:var(--text2);line-height:1.4;">ISRC not found on Spotify — performance royalty routing unverified (Source: Spotify)</div></div>
-              <div style="font-family:'Space Mono',monospace;font-size:8px;padding:3px 8px;border-radius:2px;font-weight:700;flex-shrink:0;background:rgba(240,80,96,0.1);color:var(--red);">HIGH</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--pur);flex-shrink:0;"></div>
+              <div style="font-size:12px;color:var(--text2);">All 6 module scores with full breakdown</div>
+              <span style="margin-left:auto;font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;background:rgba(138,92,255,0.1);color:var(--pur);">LOCKED</span>
             </div>
-            <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;opacity:0.5;">
-              <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--pur);font-weight:700;width:20px;flex-shrink:0;margin-top:1px;">02</div>
-              <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;">Register with SoundExchange</div><div style="font-size:11px;color:var(--text2);line-height:1.4;">Digital performance royalties in the US require registration at soundexchange.com</div></div>
-              <div style="font-family:'Space Mono',monospace;font-size:8px;padding:3px 8px;border-radius:2px;font-weight:700;flex-shrink:0;background:rgba(240,192,64,0.1);color:var(--amb);">MEDIUM</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--pur);flex-shrink:0;"></div>
+              <div style="font-size:12px;color:var(--text2);">Complete territory coverage audit</div>
+              <span style="margin-left:auto;font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;background:rgba(138,92,255,0.1);color:var(--pur);">LOCKED</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--pur);flex-shrink:0;"></div>
+              <div style="font-size:12px;color:var(--text2);">All confirmed issues with action steps</div>
+              <span style="margin-left:auto;font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;background:rgba(138,92,255,0.1);color:var(--pur);">LOCKED</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--pur);flex-shrink:0;"></div>
+              <div style="font-size:12px;color:var(--text2);">Royalty Risk Score breakdown + reasons</div>
+              <span style="margin-left:auto;font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;background:rgba(138,92,255,0.1);color:var(--pur);">LOCKED</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--pur);flex-shrink:0;"></div>
+              <div style="font-size:12px;color:var(--text2);">PRO guide for your country</div>
+              <span style="margin-left:auto;font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;background:rgba(138,92,255,0.1);color:var(--pur);">LOCKED</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--pur);flex-shrink:0;"></div>
+              <div style="font-size:12px;color:var(--text2);">Numbered action plan — prioritised by impact</div>
+              <span style="margin-left:auto;font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;background:rgba(138,92,255,0.1);color:var(--pur);">LOCKED</span>
             </div>
           </div>
         </div>
@@ -960,13 +960,15 @@ function renderRiskScore(royaltyRiskScore) {
   titleEl.className = 'risk-title ' + riskLevel.toLowerCase();
 
   document.getElementById('risk-level-label').textContent = riskLevel;
+  // Free tier: show urgency message but NOT the individual reasons (those are full audit)
   document.getElementById('risk-urgency').textContent = urgencyMessage;
-  document.getElementById('risk-next').textContent = '→ ' + nextStep;
-
+  document.getElementById('risk-next').textContent = '→ Request your full audit to see a complete breakdown';
+  // Hide reasons in free tier — teaser count only
   const reasonsEl = document.getElementById('risk-reasons');
-  reasonsEl.innerHTML = (reasons || []).map(r =>
-    `<div class="risk-reason"><div class="risk-reason-dot"></div>${r.issue}</div>`
-  ).join('');
+  const reasonCount = (reasons || []).length;
+  reasonsEl.innerHTML = reasonCount > 0
+    ? '<div class="risk-reason"><div class="risk-reason-dot"></div>' + reasonCount + ' verified issue' + (reasonCount > 1 ? 's' : '') + ' found — full breakdown in your audit report</div>'
+    : '';
 }
 
 // ── RENDER AUDIT COVERAGE ──────────────────────────────────
@@ -988,7 +990,8 @@ function renderAuditCoverage(auditCoverage, scannedAt) {
     const cls = STATUS_CLASS[status] || 'acs-not-connected';
     return '<div class="ac-row"><div class="ac-name">' + LABELS[key] + '</div><span class="ac-status ' + cls + '">' + status + '</span></div>';
   }).join('');
-  const dateRow = dateStr ? '<div class="ac-row" style="border-top:1px solid var(--border3);"><div class="ac-name" style="font-size:9px;color:var(--muted);letter-spacing:0.08em;font-family:monospace;">Data last verified</div><span style="font-size:9px;color:var(--muted2);font-family:monospace;">' + dateStr + '</span></div>' : '';
+  // Date last verified — show in free tier as reassurance, but no specifics
+  const dateRow = dateStr ? '<div class="ac-row" style="border-top:1px solid var(--border3);"><div class="ac-name" style="font-size:9px;color:var(--muted);letter-spacing:0.08em;font-family:monospace;">Data verified</div><span style="font-size:9px;color:var(--grn);font-family:monospace;">✓ Today</span></div>' : '';
   rows.innerHTML = rowsHtml + dateRow;
 }
 
@@ -997,29 +1000,39 @@ function renderTerritoryCoverage(territoryCoverage) {
   if (!territoryCoverage || !territoryCoverage.territories?.length) return;
   const sec  = document.getElementById('territory-section');
   const rows = document.getElementById('territory-rows');
+  const lock = document.getElementById('territory-lock');
   if (!sec || !rows) return;
   sec.style.display = 'block';
 
   const STATUS_CLASS = {
-    'Registered':              'ts-registered',
-    'Not Registered':          'ts-not-registered',
-    'Pending':                 'ts-pending',
+    'Registered':                 'ts-registered',
+    'Not Registered':             'ts-not-registered',
+    'Pending':                    'ts-pending',
     'No verified data available': 'ts-no-data',
   };
 
-  rows.innerHTML = territoryCoverage.territories.map(t => {
+  // FREE TIER: show only first verified row, lock the rest
+  const territories = territoryCoverage.territories;
+  const preview = territories.slice(0, 1);
+  const hidden = territories.length - 1;
+
+  rows.innerHTML = preview.map(t => {
     const statusClass = STATUS_CLASS[t.status] || 'ts-no-data';
-    return `
-      <div class="territory-row">
+    return `<div class="territory-row">
         <div>
           <div class="territory-name">${t.territory}</div>
           ${t.note ? `<div class="territory-note">${t.note}</div>` : ''}
-          ${t.action ? `<div class="territory-action">Action: ${t.action}</div>` : ''}
-          <div class="territory-source">Source: ${t.source || 'unknown'} ${t.verified ? '· Verified' : ''}</div>
+          <div class="territory-source">Source: ${t.source || 'unknown'} · Verified</div>
         </div>
         <span class="territory-status ${statusClass}">${t.status}</span>
       </div>`;
   }).join('');
+
+  // Show lock if there are more territories
+  if (hidden > 0 && lock) {
+    lock.style.display = 'block';
+    lock.querySelector('div').textContent = '🔒 ' + hidden + ' more territory row' + (hidden > 1 ? 's' : '') + ' available in your audit report';
+  }
 }
 
 // ── SHOW REAL RESULTS ──────────────────────────────────────
@@ -1067,12 +1080,17 @@ function showRealResults(data) {
   // Build result cards — verified fields only
   const isrcStatus = data.trackIsrc ? 'REGISTERED' : data.trackTitle ? 'NOT REGISTERED' : 'NOT SCANNED';
   const isrcBadge  = data.trackIsrc ? 'rb-grn' : data.trackTitle ? 'rb-red' : 'rb-amb';
+  const plats = data.platforms || {};
+  const platformsFound = Object.values(plats).filter(p => p && (p.found === true || p === true)).length;
+  const platformsTotal = Object.keys(plats).length;
+  const platformStatus = platformsFound === platformsTotal ? 'FULL COVERAGE' : platformsFound > Math.floor(platformsTotal / 2) ? 'PARTIAL' : 'GAPS FOUND';
+  const platformBadge = platformsFound === platformsTotal ? 'rb-grn' : 'rb-amb';
 
   const cards = [
-    { icon: '✅', title: 'Artist profile', value: artistName, badge: 'rb-grn', bt: 'Verified', source: 'Spotify' },
-    { icon: '📡', title: 'Platform coverage', value: (() => { const plats = data.platforms || {}; const found = Object.values(plats).filter(p => p && (p.found === true || p === true)).length; const total = Object.keys(plats).length; return found + ' of ' + total + ' platforms'; })(), badge: 'rb-grn', bt: 'Verified', source: 'Multiple' },
-    { icon: '🎵', title: 'Genre metadata', value: data.genres?.slice(0, 2).join(', ') || 'Not found', badge: data.genres?.length ? 'rb-grn' : 'rb-red', bt: data.genres?.length ? 'PRESENT' : 'MISSING', source: 'Spotify' },
-    { icon: '🔑', title: 'ISRC registration', value: data.trackIsrc || (data.trackTitle ? 'Not registered' : 'Artist scan — paste a track link for ISRC check'), badge: isrcBadge, bt: isrcStatus, source: 'Spotify' },
+    { icon: '✅', title: 'Artist profile',      value: artistName,                                                              badge: 'rb-grn',      bt: 'Verified',      source: 'Spotify'   },
+    { icon: '📡', title: 'Platform coverage',   value: platformsFound >= platformsTotal ? 'Found on all platforms' : 'Coverage gaps confirmed', badge: platformBadge, bt: platformStatus,  source: 'Multiple'  },
+    { icon: '🎵', title: 'Genre metadata',      value: data.genres?.length ? 'Present' : 'Not found',                          badge: data.genres?.length ? 'rb-grn' : 'rb-red', bt: data.genres?.length ? 'PRESENT' : 'MISSING', source: 'Spotify' },
+    { icon: '🔑', title: 'ISRC registration',   value: isrcStatus === 'REGISTERED' ? 'Registered' : isrcStatus === 'NOT REGISTERED' ? 'Not registered' : 'Artist scan — paste a track link', badge: isrcBadge, bt: isrcStatus, source: 'Spotify' },
   ];
 
   if (scanMode === 'track' && data.trackTitle) {
@@ -1168,19 +1186,32 @@ function buildFlags(flags) {
   if (!verified.length) return;
   const sec = document.getElementById('r-flags');
   sec.style.display = 'block';
-  document.getElementById('r-flags-count').textContent = `${verified.length} confirmed`;
-  document.getElementById('r-flags-list').innerHTML = verified.map(f => `
+  const total = verified.length;
+  document.getElementById('r-flags-count').textContent = total + ' confirmed';
+
+  // FREE TIER: show max 2 flags, issue title + severity only — NO action steps
+  const preview = verified.slice(0, 2);
+  const hidden = total - preview.length;
+
+  const flagHtml = preview.map(f => `
     <div class="flag-item">
       <div class="flag-top">
         <div class="fi-dot" style="background:${f.severity === 'high' ? 'var(--red)' : f.severity === 'medium' ? 'var(--amb)' : 'var(--muted2)'}"></div>
         <div class="fi-body">
           <span class="fi-sev" style="background:${f.severity === 'high' ? 'rgba(240,80,96,0.1)' : f.severity === 'medium' ? 'rgba(240,192,64,0.1)' : 'rgba(255,255,255,0.05)'};color:${f.severity === 'high' ? 'var(--red)' : f.severity === 'medium' ? 'var(--amb)' : 'var(--muted2)'}">${f.severity.toUpperCase()}</span>
           <div class="fi-text">${f.issue || f.description}</div>
-          ${f.action ? `<div class="fi-action">→ ${f.action}</div>` : ''}
-          ${f.source ? `<div class="fi-source">Source: ${f.source} · Verified</div>` : ''}
+          <div class="fi-source">Source: ${f.source || 'Verified'} · Verified</div>
         </div>
       </div>
     </div>`).join('');
+
+  const lockedHtml = hidden > 0 ? `
+    <div class="flag-item" style="text-align:center;padding:14px;border-top:1px solid var(--border3);">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;">🔒 ${hidden} more issue${hidden > 1 ? 's' : ''} + full action plan in your audit report</div>
+      <button onclick="unlockAndScrollToForm()" style="margin-top:10px;background:var(--grad);color:#fff;padding:8px 20px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Get full audit →</button>
+    </div>` : '';
+
+  document.getElementById('r-flags-list').innerHTML = flagHtml + lockedHtml;
 }
 
 // ── FORM SUBMIT ────────────────────────────────────────────
