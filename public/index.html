@@ -347,7 +347,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
     <div class="nav-tagline">Music Audit Intelligence</div>
   </div>
   <div class="nav-links">
-    <a href="/#how">How it works</a>
     <a href="/#beta">About beta</a>
     <a href="/#request">Full audit</a>
     <a href="/contact.html">Contact</a>
@@ -514,22 +513,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 
   </div>
 </div>
-
-<!-- HOW IT WORKS -->
-<section style="background:var(--bg2);" id="how">
-  <div class="si">
-    <div class="reveal">
-      <div class="s-tag">How it works</div>
-      <h2 class="s-h2">Three steps.<br><span class="gt">Sixty seconds.</span></h2>
-      <p class="s-sub">No login. No integrations. No credit card. Paste your Spotify or Apple Music link and get a verified preview audit instantly.</p>
-    </div>
-    <div class="steps reveal">
-      <div class="step"><span class="step-n">// 01 — Copy</span><div class="step-ico">🔗</div><div class="step-t">Copy your link</div><div class="step-d">Open Spotify or Apple Music, go to your artist profile, single track, or album. Tap Share → Copy link. Takes 10 seconds.</div></div>
-      <div class="step"><span class="step-n">// 02 — Paste</span><div class="step-ico">📋</div><div class="step-t">Paste into Royaltē</div><div class="step-d">Drop your link into the audit box above and hit Run Free Audit. Spotify and Apple Music links both accepted.</div></div>
-      <div class="step"><span class="step-n">// 03 — Results</span><div class="step-ico">📊</div><div class="step-t">Get your verified preview</div><div class="step-d">See your Royalty Risk Score, verified platform coverage, and confirmed issue flags. Then request the full audit.</div></div>
-    </div>
-  </div>
-</section>
 
 <!-- BETA -->
 <section style="background:var(--bg);" id="beta">
@@ -1105,7 +1088,7 @@ function buildFlags(flags) {
         <div class="fi-body">
           <span class="fi-sev" style="background:${f.severity === 'high' ? 'rgba(240,80,96,0.1)' : f.severity === 'medium' ? 'rgba(240,192,64,0.1)' : 'rgba(255,255,255,0.05)'};color:${f.severity === 'high' ? 'var(--red)' : f.severity === 'medium' ? 'var(--amb)' : 'var(--muted2)'}">${f.severity.toUpperCase()}</span>
           <div class="fi-text">${f.issue || f.description}</div>
-          <div class="fi-source">Source: ${f.source || 'Verified'} · Verified</div>
+          <div class="fi-source">Source: ${f.source ? f.source.charAt(0).toUpperCase() + f.source.slice(1) : 'Verified'} · Verified</div>
         </div>
       </div>
     </div>`).join('');
