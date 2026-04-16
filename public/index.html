@@ -730,6 +730,153 @@ function onRefCodeInput() {
 })();
 
 // ── SCAN ANIMATION ─────────────────────────────────────────
+// ── AUDIO ENGINE — Web Audio API, no external files ───────────────────────
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+
+// Sweep — the purple zip across the scan bar
+function playSweep() {
+  try {
+    const ctx = getAudioCtx();
+    const t = ctx.currentTime;
+
+    // Oscillator — frequency sweeps up like a radar ping
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(180, t);
+    osc.frequency.exponentialRampToValueAtTime(1400, t + 0.18);
+    osc.frequency.exponentialRampToValueAtTime(320, t + 0.45);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(800, t);
+    filter.Q.setValueAtTime(1.8, t);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.18, t + 0.04);
+    gain.gain.linearRampToValueAtTime(0.12, t + 0.2);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.6);
+
+    // Second harmonic — adds the electronic zip texture
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sawtooth';
+    osc2.frequency.setValueAtTime(360, t + 0.02);
+    osc2.frequency.exponentialRampToValueAtTime(2200, t + 0.16);
+    gain2.gain.setValueAtTime(0, t + 0.02);
+    gain2.gain.linearRampToValueAtTime(0.06, t + 0.06);
+    gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(t + 0.02);
+    osc2.stop(t + 0.35);
+
+  } catch(e) { /* Audio not available — silent fail */ }
+}
+
+// Radiation hum — low pulsing tone while scanning
+let _humInterval = null;
+let _humNodes = null;
+
+function startRadiationHum() {
+  try {
+    stopRadiationHum();
+    const ctx = getAudioCtx();
+
+    const osc = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    const masterGain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    // Base radiation tone — low thrumming
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(55, ctx.currentTime);
+
+    // Second layer — slightly detuned for beating effect
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(58.2, ctx.currentTime);
+
+    // LFO — creates the pulsing radiation feel
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(1.8, ctx.currentTime);
+    lfoGain.gain.setValueAtTime(0.04, ctx.currentTime);
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(420, ctx.currentTime);
+    filter.Q.setValueAtTime(2.2, ctx.currentTime);
+
+    masterGain.gain.setValueAtTime(0, ctx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0.09, ctx.currentTime + 0.8);
+
+    lfo.connect(lfoGain);
+    lfoGain.connect(masterGain.gain);
+    osc.connect(filter);
+    osc2.connect(filter);
+    filter.connect(masterGain);
+    masterGain.connect(ctx.destination);
+
+    osc.start();
+    osc2.start();
+    lfo.start();
+
+    _humNodes = { osc, osc2, lfo, masterGain, ctx };
+
+    // Repeat sweep every ~1.2s in sync with radar arc
+    _humInterval = setInterval(() => playSweep(), 1400);
+
+  } catch(e) { /* Silent fail */ }
+}
+
+function stopRadiationHum() {
+  try {
+    if (_humInterval) { clearInterval(_humInterval); _humInterval = null; }
+    if (_humNodes) {
+      const { osc, osc2, lfo, masterGain, ctx } = _humNodes;
+      masterGain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      setTimeout(() => {
+        try { osc.stop(); osc2.stop(); lfo.stop(); } catch(e) {}
+      }, 700);
+      _humNodes = null;
+    }
+  } catch(e) {}
+}
+
+// Completion ping — clean tone when scan finishes
+function playCompletePing() {
+  try {
+    const ctx = getAudioCtx();
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(520, t);
+    osc.frequency.setValueAtTime(780, t + 0.08);
+    osc.frequency.setValueAtTime(1040, t + 0.16);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.14, t + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.6);
+  } catch(e) {}
+}
+
 function animateScan(isApple, onComplete) {
   const prog  = document.getElementById('scan-progress');
   const fill  = document.getElementById('sp-fill');
@@ -742,9 +889,9 @@ function animateScan(isApple, onComplete) {
   const iv = setInterval(() => {
     pct = Math.min(pct + Math.random() * 3.5 + 1, 95);
     fill.style.width = pct + '%';
-    if (pct > 25 && li < 1) { li = 1; label.textContent = labels[1]; }
-    if (pct > 55 && li < 2) { li = 2; label.textContent = labels[2]; }
-    if (pct > 80 && li < 3) { li = 3; label.textContent = labels[3]; }
+    if (pct > 25 && li < 1) { li = 1; label.textContent = labels[1]; playSweep(); }
+    if (pct > 55 && li < 2) { li = 2; label.textContent = labels[2]; playSweep(); }
+    if (pct > 80 && li < 3) { li = 3; label.textContent = labels[3]; playSweep(); }
     if (pct >= 95) { clearInterval(iv); fill.style.width = '100%'; setTimeout(onComplete, 400); }
   }, 80);
 }
@@ -771,6 +918,8 @@ async function runAudit() {
   clearUrlError();
   btn.disabled = true;
   btn.textContent = 'Scanning...';
+  playSweep();
+  startRadiationHum();
   document.getElementById('f-spotify').value = val;
   const fNameEarly = document.getElementById('f-name');
   if (fNameEarly && !fNameEarly.value) { fNameEarly.placeholder = 'Scanning...'; }
@@ -794,6 +943,8 @@ async function runAudit() {
     } else {
       showDemoResults(val);
     }
+    stopRadiationHum();
+    playCompletePing();
     btn.disabled = false;
     btn.textContent = 'Run Free Audit →';
     document.getElementById('scan-progress').style.display = 'none';
