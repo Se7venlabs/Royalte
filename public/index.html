@@ -22,9 +22,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;}
 nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
 .nav-brand{display:flex;flex-direction:column;line-height:1;}
-.nav-wordmark{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;}
-.nav-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.nav-tagline{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-top:2px;}
+.nav-wordmark{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#ffffff;}
+.nav-wordmark .logo-accent{color:#8a5cff;background:none;-webkit-text-fill-color:#8a5cff;}
+.nav-tagline{font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-top:3px;}
 .nav-links{display:flex;align-items:center;gap:38px;}
 .nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
 .nav-links a:hover{color:var(--text);}
@@ -306,8 +306,8 @@ section{padding:100px 56px;position:relative;}
 .future-close{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);margin-top:28px;}
 .future-close span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
-.f-wordmark{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
-.f-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.f-wordmark{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#ffffff;}
+.f-wordmark .logo-accent{color:#8a5cff;background:none;-webkit-text-fill-color:#8a5cff;}
 .f-tagline{font-size:9px;color:var(--muted2);letter-spacing:0.14em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-top:3px;}
 .f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
 .f-links{display:flex;gap:26px;}
@@ -333,7 +333,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 
 <nav>
   <div class="nav-brand">
-    <div class="nav-wordmark">Royalt<span>ē</span></div>
+    <div class="nav-wordmark">ROYALT<span class="logo-accent">É</span></div>
     <div class="nav-tagline">Music Audit Intelligence</div>
   </div>
   <div class="nav-links">
@@ -711,7 +711,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 
 <footer>
   <div>
-    <div class="f-wordmark">Royalt<span>ē</span></div>
+    <div class="f-wordmark">ROYALT<span class="logo-accent">É</span></div>
     <div class="f-tagline">Music Audit Intelligence · Beta · Se7ven Labs Inc.</div>
   </div>
   <div class="f-copy">© 2026 Royaltē · Se7ven Labs Inc. · info@royalte.ai</div>
