@@ -396,13 +396,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
       </div>
       <div class="dash-body">
         <div class="d-score-row">
-          <div class="d-score-ring">
-            <svg width="64" height="64" viewBox="0 0 64 64">
-              <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(138,92,255,0.15)" stroke-width="6"/>
-              <circle id="hero-score-circle" cx="32" cy="32" r="26" fill="none" stroke="url(#sg1)" stroke-width="6" stroke-dasharray="163.4" stroke-dashoffset="96" stroke-linecap="round"/>
-              <defs><linearGradient id="sg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8a5cff"/><stop offset="100%" stop-color="#e040c8"/></linearGradient></defs>
-            </svg>
-            <div class="d-score-num"><span class="d-score-val" id="hero-score-val">41</span><span class="d-score-lbl">/ 100</span></div>
+          <div class="d-score-ring" style="display:flex;align-items:center;justify-content:center;">
+            <div id="hero-risk-indicator" style="width:64px;height:64px;border-radius:50%;background:rgba(138,92,255,0.12);border:3px solid rgba(138,92,255,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:all 0.6s ease;">
+              <div id="hero-risk-dot" style="width:14px;height:14px;border-radius:50%;background:var(--pur);box-shadow:0 0 10px var(--pur);transition:all 0.6s ease;"></div>
+              <div id="hero-score-val" style="font-family:'Space Mono',monospace;font-size:8px;font-weight:700;color:var(--pur);letter-spacing:0.08em;text-transform:uppercase;transition:color 0.6s ease;">—</div>
+            </div>
           </div>
           <div class="d-score-info">
             <div class="d-score-title" id="hero-scan-label">// Beta audit preview</div>
@@ -456,20 +454,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
     </div>
 
     <!-- AUDIT SCORE RING -->
-    <div class="r-score" id="r-score">
-      <div class="r-ring">
-        <svg width="70" height="70" viewBox="0 0 70 70">
-          <circle cx="35" cy="35" r="28" fill="none" stroke="rgba(138,92,255,0.15)" stroke-width="6"/>
-          <circle cx="35" cy="35" r="28" fill="none" stroke="url(#rg)" stroke-width="6" stroke-dasharray="175.9" id="r-circle" stroke-dashoffset="175.9" stroke-linecap="round"/>
-          <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8a5cff"/><stop offset="100%" stop-color="#e040c8"/></linearGradient></defs>
-        </svg>
-        <div class="r-ring-num"><div class="r-ring-val" id="r-score-val">—</div><div class="r-ring-max">/100</div></div>
-      </div>
-      <div class="r-info">
-        <div class="r-verdict" id="r-verdict">Analysing...</div>
-        <div class="r-desc" id="r-desc">Running verification modules against your profile.</div>
-      </div>
-    </div>
+
 
     <div class="r-cards" id="r-cards"></div>
 
@@ -826,18 +811,22 @@ function setUrlTypePill(scanMode) {
 }
 
 // ── UPDATE HERO DASHBOARD ──────────────────────────────────
-function updateHeroDashboard(artistName, subText, score) {
+function updateHeroDashboard(artistName, subText, score, riskLevel) {
   document.getElementById('hero-scan-label').textContent = '// Verified audit preview';
   document.getElementById('hero-artist-name').textContent = artistName;
   document.getElementById('hero-artist-sub').textContent = subText;
-  document.getElementById('hero-score-val').textContent = (typeof score === 'number' && !isNaN(score)) ? Math.round(score) : '—';
-  const heroCircle = document.getElementById('hero-score-circle');
-  if (heroCircle) {
-    setTimeout(() => {
-      heroCircle.style.transition = 'stroke-dashoffset 1.2s ease';
-      heroCircle.style.strokeDashoffset = 163.4 - (score / 100) * 163.4;
-    }, 150);
-  }
+  // Show risk level instead of score number
+  const RISK_COLORS = { 'High': 'var(--red)', 'Moderate': 'var(--amb)', 'Low': 'var(--grn)' };
+  const RISK_GLOW   = { 'High': '#f05060',    'Moderate': '#f0c040',    'Low': '#40f0a0'    };
+  const level = riskLevel || 'Low';
+  const col = RISK_COLORS[level] || 'var(--pur)';
+  const glow = RISK_GLOW[level] || '#8a5cff';
+  const dot = document.getElementById('hero-risk-dot');
+  const lbl = document.getElementById('hero-score-val');
+  const ring = document.getElementById('hero-risk-indicator');
+  if (dot)  { dot.style.background = col; dot.style.boxShadow = '0 0 12px ' + glow; }
+  if (lbl)  { lbl.textContent = level; lbl.style.color = col; }
+  if (ring) { ring.style.borderColor = col.replace('var(', '').replace(')', '') === col ? col : glow + '66'; ring.style.background = glow + '18'; }
 }
 
 // ── RENDER ROYALTY RISK SCORE ──────────────────────────────
@@ -945,7 +934,7 @@ function showRealResults(data) {
   else if (scanMode === 'album' && data.albumTitle) subText = `"${data.albumTitle}" · ${data.albumTrackCount || '?'} tracks`;
   if (isApple) subText = (data.appleMusicSource?.albumName || data.appleMusicSource?.trackName || '') + ' · Matched via Apple Music';
 
-  updateHeroDashboard(artistName, subText, data.overallScore);
+  updateHeroDashboard(artistName, subText, data.overallScore, data.royaltyRiskScore?.riskLevel);
   setUrlTypePill(isApple ? 'apple' : scanMode);
   setScore(data.overallScore);
   renderRiskScore(data.royaltyRiskScore);
@@ -1014,7 +1003,7 @@ function showRealResults(data) {
 function showDemoResults(url) {
   const urlType  = detectUrlType(url) || 'artist';
   const typeLabel = URL_TYPE_META[urlType]?.label || 'Profile';
-  updateHeroDashboard(typeLabel + ' Scanned', 'Verified preview below', 44);
+  updateHeroDashboard(typeLabel + ' Scanned', 'Verified preview below', 44, 'Moderate');
   setUrlTypePill(urlType);
   setScore(44);
   document.getElementById('results-tag').textContent = 'Spotify ' + typeLabel;
@@ -1041,28 +1030,8 @@ function showDemoResults(url) {
 
 // ── SCORE RING ─────────────────────────────────────────────
 function setScore(score) {
-  const s = (typeof score === 'number' && !isNaN(score)) ? Math.round(score) : null;
-  document.getElementById('r-score-val').textContent = s !== null ? s : '—';
-  const circ = document.getElementById('r-circle');
-  if (s !== null) {
-    setTimeout(() => {
-      circ.style.transition = 'stroke-dashoffset 1.2s ease';
-      circ.style.strokeDashoffset = 175.9 - (s / 100) * 175.9;
-    }, 100);
-  }
-  const verdicts = [
-    [0,  39, 'High royalty risk confirmed',    'Significant verified gaps found. Immediate action recommended.'],
-    [40, 59, 'Moderate risk confirmed',         'Several verified issues found. Review the action plan below.'],
-    [60, 79, 'Some confirmed issues',           'A few areas need attention. See verified flags below.'],
-    [80, 100,'Verified profile in good shape',  'No major issues found in verified data. Minor improvements possible.'],
-  ];
-  for (const [min, max, v, d] of verdicts) {
-    if (score >= min && score <= max) {
-      document.getElementById('r-verdict').textContent = v;
-      document.getElementById('r-desc').textContent    = d;
-      break;
-    }
-  }
+  // Score ring removed — Royalty Risk Score is the primary metric
+  // Keeping function to avoid errors from any remaining calls
 }
 
 // ── BUILD CARDS ────────────────────────────────────────────
