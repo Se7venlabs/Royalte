@@ -323,6 +323,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 .f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
 .f-links a:hover{color:var(--text);}
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes radarSpin{from{transform:rotate(-90deg);}to{transform:rotate(270deg);}}
+@keyframes radarSpinRev{from{transform:rotate(90deg);}to{transform:rotate(-270deg);}}
+@keyframes corePulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.25);opacity:0.75;}}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
 .reveal{opacity:0;transform:translateY(22px);transition:all 0.65s ease;}
 .reveal.visible{opacity:1;transform:translateY(0);}
@@ -393,10 +396,26 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
       </div>
       <div class="dash-body">
         <div class="d-score-row">
-          <div class="d-score-ring" style="display:flex;align-items:center;justify-content:center;">
-            <div id="hero-risk-indicator" style="width:64px;height:64px;border-radius:50%;background:rgba(138,92,255,0.12);border:3px solid rgba(138,92,255,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:all 0.6s ease;">
-              <div id="hero-risk-dot" style="width:14px;height:14px;border-radius:50%;background:var(--pur);box-shadow:0 0 10px var(--pur);transition:all 0.6s ease;"></div>
-              <div id="hero-score-val" style="font-family:'Space Mono',monospace;font-size:8px;font-weight:700;color:var(--pur);letter-spacing:0.08em;text-transform:uppercase;transition:color 0.6s ease;">—</div>
+          <div class="d-score-ring" style="display:flex;align-items:center;justify-content:center;position:relative;">
+            <svg id="radar-svg" width="72" height="72" viewBox="0 0 72 72" style="position:absolute;top:-4px;left:-4px;">
+              <!-- Outer track -->
+              <circle cx="36" cy="36" r="32" fill="none" stroke="rgba(138,92,255,0.12)" stroke-width="2"/>
+              <!-- Animated arc — full circle, rotating -->
+              <circle id="radar-arc" cx="36" cy="36" r="32" fill="none" stroke="#8a5cff" stroke-width="2.5"
+                stroke-dasharray="80 121" stroke-linecap="round"
+                style="transform-origin:36px 36px;animation:radarSpin 2.4s linear infinite;transition:stroke 0.8s ease;"/>
+              <!-- Inner track -->
+              <circle cx="36" cy="36" r="22" fill="none" stroke="rgba(138,92,255,0.08)" stroke-width="1.5"/>
+              <!-- Inner arc — counter-rotate -->
+              <circle id="radar-arc-inner" cx="36" cy="36" r="22" fill="none" stroke="#8a5cff" stroke-width="1.5"
+                stroke-dasharray="30 108" stroke-linecap="round" stroke-opacity="0.5"
+                style="transform-origin:36px 36px;animation:radarSpinRev 3.6s linear infinite;transition:stroke 0.8s ease;"/>
+            </svg>
+            <!-- Core -->
+            <div id="hero-risk-indicator" style="width:64px;height:64px;border-radius:50%;background:rgba(138,92,255,0.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:background 0.8s ease;position:relative;z-index:2;">
+              <!-- Pulsing core dot -->
+              <div id="hero-risk-dot" style="width:16px;height:16px;border-radius:50%;background:#f0c040;box-shadow:0 0 14px #f0c040,0 0 28px rgba(240,192,64,0.4);transition:all 0.8s ease;animation:corePulse 2s ease-in-out infinite;"></div>
+              <div id="hero-score-val" style="font-family:'Space Mono',monospace;font-size:8px;font-weight:700;color:var(--pur);letter-spacing:0.06em;text-transform:uppercase;transition:color 0.8s ease;line-height:1;">—</div>
             </div>
           </div>
           <div class="d-score-info">
@@ -806,9 +825,24 @@ function updateHeroDashboard(artistName, subText, score, riskLevel) {
   const dot = document.getElementById('hero-risk-dot');
   const lbl = document.getElementById('hero-score-val');
   const ring = document.getElementById('hero-risk-indicator');
-  if (dot)  { dot.style.background = col; dot.style.boxShadow = '0 0 12px ' + glow; }
-  if (lbl)  { lbl.textContent = level; lbl.style.color = col; }
-  if (ring) { ring.style.borderColor = col.replace('var(', '').replace(')', '') === col ? col : glow + '66'; ring.style.background = glow + '18'; }
+  // Core dot stays amber/gold — it's the signal, not the risk level
+  if (dot) {
+    dot.style.background = '#f0c040';
+    dot.style.boxShadow = '0 0 14px #f0c040, 0 0 28px rgba(240,192,64,0.4)';
+  }
+  if (lbl) { lbl.textContent = level; lbl.style.color = col; }
+  if (ring) { ring.style.background = glow + '12'; }
+  // Change radar arc colours to match risk level
+  const arc = document.getElementById('radar-arc');
+  const arcInner = document.getElementById('radar-arc-inner');
+  if (arc) { arc.style.stroke = glow; }
+  if (arcInner) { arcInner.style.stroke = glow; }
+  // Spin speed — faster for high risk
+  if (arc) {
+    const speed = level === 'High' ? '1.2s' : level === 'Moderate' ? '2.4s' : '3.6s';
+    arc.style.animation = 'none';
+    setTimeout(() => { arc.style.animation = 'radarSpin ' + speed + ' linear infinite'; }, 10);
+  }
 }
 
 // ── RENDER ROYALTY RISK SCORE ──────────────────────────────
