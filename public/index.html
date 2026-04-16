@@ -277,8 +277,18 @@ section{padding:100px 56px;position:relative;}
 .ib-text{font-size:14px;color:var(--text2);line-height:1.7;font-style:italic;}
 .ib-text strong{color:var(--text);font-style:normal;}
 .form-split{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;}
-.form-card{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:32px;position:relative;overflow:hidden;}
+.form-card{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:32px;position:relative;overflow:hidden;transition:border-color 0.4s,box-shadow 0.4s;}
 .form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.form-card.form-highlighted{border-color:var(--pur);box-shadow:0 0 0 3px rgba(138,92,255,0.2),var(--glow);}
+.form-lock-overlay{position:absolute;inset:0;background:rgba(3,3,10,0.82);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:10;backdrop-filter:blur(2px);transition:opacity 0.4s;}
+.form-lock-overlay.hidden{opacity:0;pointer-events:none;}
+.form-lock-icon{font-size:32px;}
+.form-lock-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text);text-align:center;}
+.form-lock-sub{font-size:13px;color:var(--muted2);text-align:center;max-width:260px;line-height:1.6;}
+.form-lock-btn{background:var(--grad);color:#fff;padding:12px 28px;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;margin-top:4px;}
+.form-lock-btn:hover{opacity:0.88;}
+.r-transition{background:linear-gradient(135deg,rgba(138,92,255,0.08),rgba(224,64,200,0.05));border:1px solid var(--border2);border-radius:6px;padding:16px 20px;display:flex;align-items:center;gap:14px;animation:ctaPulse 2.5s ease-in-out infinite;}
+@keyframes ctaPulse{0%,100%{border-color:rgba(138,92,255,0.25);}50%{border-color:rgba(138,92,255,0.6);box-shadow:0 0 20px rgba(138,92,255,0.15);}}
 .form-row{margin-bottom:16px;}
 .form-label{display:block;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text2);margin-bottom:6px;}
 .form-label span{color:var(--pur);}
@@ -539,16 +549,16 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
             <div class="rm-fade-lock">🔒</div>
             <div class="rm-fade-title">Your full audit is waiting</div>
             <div class="rm-fade-desc">Complete territory coverage, all 6 verified module scores, your Royalty Risk Score breakdown, and a full action plan — delivered within 12–24 hours, free during beta.</div>
-            <button class="rm-fade-btn" onclick="scrollToForm()">Request my full audit — free →</button>
+            <button class="rm-fade-btn" onclick="unlockAndScrollToForm()">Get my full audit emailed — free →</button>
           </div>
         </div>
       </div>
     </div>
 
     <div class="r-transition">
-      <div class="rt-icon">👇</div>
-      <div class="rt-text">Ready? <strong>Request your full audit below.</strong> Our team delivers within 12–24 hours — completely free during beta.</div>
-      <button class="rt-btn" onclick="scrollToForm()">Request now →</button>
+      <div class="rt-icon">📬</div>
+      <div class="rt-text"><strong>Get your full audit emailed to you.</strong> All 6 modules, Royalty Risk Score breakdown, territory coverage, and action plan — delivered within 12–24 hours, free during beta.</div>
+      <button class="rt-btn" onclick="unlockAndScrollToForm()">Get my full audit →</button>
     </div>
   </div>
 </div>
@@ -601,6 +611,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
           <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">YouTube / UGC detection (verified counts)</div><div class="vl-tag vt-live">LIVE</div></div>
           <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">Royalty Risk Score — verified gaps only</div><div class="vl-tag vt-live">LIVE</div></div>
           <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">PRO statement upload for direct verification</div><div class="vl-tag vt-live">LIVE</div></div>
+          <div class="vl-item"><div class="vl-dot live"></div><div class="vl-text">MusicBrainz catalog cross-reference</div><div class="vl-tag vt-live">LIVE</div></div>
           <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Score improvement tracking over time</div><div class="vl-tag vt-soon">SOON</div></div>
           <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">SoundExchange registration check</div><div class="vl-tag vt-soon">SOON</div></div>
           <div class="vl-item"><div class="vl-dot soon"></div><div class="vl-text">Ongoing catalog monitoring + alerts</div><div class="vl-tag vt-soon">SOON</div></div>
@@ -627,6 +638,13 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
       </div>
       <div class="reveal d2">
         <div class="form-card" id="form-card">
+          <!-- Lock overlay — hidden after scan completes -->
+          <div class="form-lock-overlay" id="form-lock-overlay">
+            <div class="form-lock-icon">🔒</div>
+            <div class="form-lock-title">Run a free scan first</div>
+            <div class="form-lock-sub">Paste your Spotify or Apple Music link above and run a scan — your artist name and link will auto-fill here.</div>
+            <button class="form-lock-btn" onclick="document.getElementById('hero').scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('hero-url').focus();">Run Free Scan →</button>
+          </div>
           <div id="form-inner">
             <div class="form-row">
               <label class="form-label">Artist Name <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(auto-filled from scan)</span></label>
@@ -1071,6 +1089,9 @@ function showRealResults(data) {
 
   buildCards(cards);
   buildFlags(data.flags || data.previewFlags || []);
+  // Unlock the form now that scan is complete
+  const overlay = document.getElementById('form-lock-overlay');
+  if (overlay) overlay.classList.add('hidden');
 }
 
 // ── SHOW DEMO RESULTS ─────────────────────────────────────
@@ -1097,6 +1118,9 @@ function showDemoResults(url) {
     { severity: 'high',   issue: 'ISRC not registered — performance royalty routing unverified', action: 'Register ISRC with your distributor immediately', source: 'Spotify', verified: true },
     { severity: 'medium', issue: 'Platform coverage incomplete — not found on all platforms',     action: 'Ensure your music is distributed to all major platforms', source: 'Multiple', verified: true },
   ]);
+  // Unlock the form
+  const overlayD = document.getElementById('form-lock-overlay');
+  if (overlayD) overlayD.classList.add('hidden');
 }
 
 // ── SCORE RING ─────────────────────────────────────────────
@@ -1207,8 +1231,24 @@ async function submitForm() {
   document.getElementById('form-success').style.display = 'block';
 }
 
-function scrollToForm() {
+function unlockAndScrollToForm() {
+  // Remove the lock overlay
+  const overlay = document.getElementById('form-lock-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  // Scroll to the form section
   document.getElementById('request').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Highlight the form card after scroll completes
+  setTimeout(() => {
+    const card = document.getElementById('form-card');
+    if (card) {
+      card.classList.add('form-highlighted');
+      setTimeout(() => card.classList.remove('form-highlighted'), 2500);
+    }
+  }, 700);
+}
+
+function scrollToForm() {
+  unlockAndScrollToForm();
 }
 
 document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
