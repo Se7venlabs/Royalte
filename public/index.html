@@ -103,9 +103,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;d
 .d-mod-bar{flex:1;max-width:60px;height:3px;background:var(--bg2);border-radius:1px;overflow:hidden;}
 .d-mod-fill{height:100%;border-radius:1px;}
 .d-mod-score{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;}
-.dash-badge{position:absolute;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:9px 12px;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:floatBadge 4s ease-in-out infinite;z-index:10;}
-.db1{top:-18px;right:-22px;animation-delay:0s;}
-.db2{bottom:-16px;left:-22px;animation-delay:2s;}
+.dash-badge{position:absolute;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:9px 12px;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:floatBadge 4s ease-in-out infinite;z-index:2;}
+.db1{top:12px;right:12px;animation-delay:0s;}
 @keyframes floatBadge{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
 .dbadge-val{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
 .dbadge-lbl{font-size:8px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;}
@@ -385,7 +384,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
   </div>
   <div class="hero-right">
     <div class="dash-badge db1"><div class="dbadge-val">Beta</div><div class="dbadge-lbl">Live now</div></div>
-    <div class="dash-badge db2"><div class="dbadge-val">Verified</div><div class="dbadge-lbl">Data only</div></div>
     <div class="dash-shell">
       <div class="dash-topbar">
         <div class="dtb-dot" style="background:#f05060"></div>
