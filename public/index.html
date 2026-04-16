@@ -630,16 +630,16 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
         <div class="form-card" id="form-card">
           <div id="form-inner">
             <div class="form-row">
-              <label class="form-label">Full Name <span>*</span></label>
-              <input class="form-input" id="f-name" type="text" placeholder="Your full name">
+              <label class="form-label">Artist Name <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(auto-filled from scan)</span></label>
+              <input class="form-input" id="f-name" type="text" placeholder="Run a scan above to auto-fill" readonly style="opacity:0.6;cursor:not-allowed;">
             </div>
             <div class="form-row">
               <label class="form-label">Email Address <span>*</span></label>
               <input class="form-input" id="f-email" type="email" placeholder="your@email.com">
             </div>
             <div class="form-row">
-              <label class="form-label">Spotify or Apple Music Link <span>*</span></label>
-              <input class="form-input" id="f-spotify" type="text" placeholder="open.spotify.com/... or music.apple.com/...">
+              <label class="form-label">Spotify or Apple Music Link <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(auto-filled from scan)</span></label>
+              <input class="form-input" id="f-spotify" type="text" placeholder="Run a scan above to auto-fill" readonly style="opacity:0.6;cursor:not-allowed;">
             </div>
             <div class="form-row">
               <label class="form-label">How many tracks on Spotify?</label>
@@ -664,7 +664,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
               </div>
             </div>
             <button class="form-submit" id="form-btn" onclick="submitForm()">Request My Full Audit →</button>
-            <div class="form-microcopy">Full audit delivered within 12–24 hours · Verified data only<br>Added to early access for all future Royaltē releases</div>
+            <div class="form-microcopy">Artist name and link auto-fill from your scan · Only email required<br>Full audit delivered within 12–24 hours · Verified data only</div>
           </div>
           <div class="form-success" id="form-success">
             <div class="fs-icon">✅</div>
@@ -890,6 +890,8 @@ async function runAudit() {
   btn.disabled = true;
   btn.textContent = 'Scanning...';
   document.getElementById('f-spotify').value = val;
+  const fNameEarly = document.getElementById('f-name');
+  if (fNameEarly && !fNameEarly.value) { fNameEarly.placeholder = 'Scanning...'; }
 
   const isApple = isAppleMusicUrl(val);
   const urlType = detectUrlType(val);
@@ -1052,9 +1054,11 @@ function showRealResults(data) {
     });
   }
 
-  // Lock form spotify field
+  // Lock form fields — artist name + URL auto-filled from scan
   const fSpotify = document.getElementById('f-spotify');
   if (fSpotify) { fSpotify.value = document.getElementById('hero-url').value; fSpotify.readOnly = true; fSpotify.style.opacity = '0.7'; fSpotify.style.cursor = 'not-allowed'; }
+  const fName = document.getElementById('f-name');
+  if (fName) { fName.value = artistName; fName.readOnly = true; fName.style.opacity = '0.7'; fName.style.cursor = 'not-allowed'; fName.placeholder = artistName; }
 
   // Build result cards — verified fields only
   const isrcStatus = data.trackIsrc ? 'REGISTERED' : data.trackTitle ? 'NOT REGISTERED' : 'NOT SCANNED';
@@ -1094,6 +1098,8 @@ function showDemoResults(url) {
 
   const fSpotify = document.getElementById('f-spotify');
   if (fSpotify) { fSpotify.value = url; fSpotify.readOnly = true; fSpotify.style.opacity = '0.7'; fSpotify.style.cursor = 'not-allowed'; }
+  const fName = document.getElementById('f-name');
+  if (fName) { fName.value = typeLabel; fName.readOnly = true; fName.style.opacity = '0.7'; fName.style.cursor = 'not-allowed'; }
 
   buildCards([
     { icon: '✅', title: typeLabel + ' detected', value: 'Found on Spotify', badge: 'rb-grn', bt: 'Verified', source: 'Spotify' },
@@ -1172,9 +1178,13 @@ async function submitForm() {
   const tracks  = document.getElementById('f-tracks').value;
   const btn     = document.getElementById('form-btn');
 
-  if (!name)   { document.getElementById('f-name').style.borderColor   = 'var(--red)'; return; }
   if (!email || !email.includes('@')) { document.getElementById('f-email').style.borderColor = 'var(--red)'; return; }
-  if (!spotify){ document.getElementById('f-spotify').style.borderColor = 'var(--red)'; return; }
+  if (!spotify){ 
+    showUrlError('Please run a scan above first — your artist name and link will auto-fill into the form.');
+    document.getElementById('request').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => document.getElementById('hero').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    return; 
+  }
 
   btn.disabled = true;
   btn.textContent = 'Sending request...';
