@@ -914,7 +914,7 @@ function updateHeroDashboard(artistName, subText, score) {
   document.getElementById('hero-scan-label').textContent = '// Verified audit preview';
   document.getElementById('hero-artist-name').textContent = artistName;
   document.getElementById('hero-artist-sub').textContent = subText;
-  document.getElementById('hero-score-val').textContent = score;
+  document.getElementById('hero-score-val').textContent = (typeof score === 'number' && !isNaN(score)) ? Math.round(score) : '—';
   const heroCircle = document.getElementById('hero-score-circle');
   if (heroCircle) {
     setTimeout(() => {
@@ -926,7 +926,8 @@ function updateHeroDashboard(artistName, subText, score) {
 
 // ── RENDER ROYALTY RISK SCORE ──────────────────────────────
 function renderRiskScore(royaltyRiskScore) {
-  if (!royaltyRiskScore) return;
+  if (!royaltyRiskScore || typeof royaltyRiskScore !== 'object') return;
+  if (typeof royaltyRiskScore.score === 'undefined') return;
   const banner = document.getElementById('risk-banner');
   if (!banner) return;
   banner.style.display = 'block';
@@ -951,21 +952,24 @@ function renderRiskScore(royaltyRiskScore) {
 }
 
 // ── RENDER AUDIT COVERAGE ──────────────────────────────────
-function renderAuditCoverage(auditCoverage) {
-  if (!auditCoverage) return;
+function renderAuditCoverage(auditCoverage, scannedAt) {
   const sec = document.getElementById('audit-coverage-section');
   const rows = document.getElementById('audit-coverage-rows');
   if (!sec || !rows) return;
   sec.style.display = 'block';
 
+  const KNOWN_KEYS = ['spotify', 'appleMusic', 'publishing', 'soundExchange'];
   const LABELS = { spotify: 'Spotify', appleMusic: 'Apple Music', publishing: 'Publishing (PRO)', soundExchange: 'SoundExchange' };
   const STATUS_CLASS = { 'Verified': 'acs-verified', 'Not Connected': 'acs-not-connected', 'Not Confirmed': 'acs-not-confirmed' };
+  const safeAudit = auditCoverage || {};
+  const dateStr = scannedAt ? new Date(scannedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
 
-  rows.innerHTML = Object.entries(auditCoverage).map(([key, val]) => `
-    <div class="ac-row">
-      <div class="ac-name">${LABELS[key] || key}</div>
-      <span class="ac-status ${STATUS_CLASS[val.status] || 'acs-not-connected'}">${val.status}</span>
-    </div>`).join('');
+  rows.innerHTML = KNOWN_KEYS.map(key => {
+    const val = safeAudit[key] || {};
+    const status = val.status || 'Not Connected';
+    const cls = STATUS_CLASS[status] || 'acs-not-connected';
+    return '<div class="ac-row"><div class="ac-name">' + LABELS[key] + '</div><span class="ac-status ' + cls + '">' + status + '</span></div>';
+  }).join('') + (dateStr ? '<div class="ac-row" style="border-top:1px solid var(--border3);"><div class="ac-name" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.08em;">Data last verified</div><span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);">' + dateStr + '</span></div>' : '');
 }
 
 // ── RENDER TERRITORY COVERAGE ──────────────────────────────
@@ -1014,7 +1018,7 @@ function showRealResults(data) {
   setUrlTypePill(isApple ? 'apple' : scanMode);
   setScore(data.overallScore);
   renderRiskScore(data.royaltyRiskScore);
-  renderAuditCoverage(data.auditCoverage);
+  renderAuditCoverage(data.auditCoverage, data.scannedAt);
   renderTerritoryCoverage(data.territoryCoverage);
 
   let tagText = `${artistName} · ${followers} followers`;
@@ -1046,7 +1050,7 @@ function showRealResults(data) {
 
   const cards = [
     { icon: '✅', title: 'Artist profile', value: artistName, badge: 'rb-grn', bt: 'Verified', source: 'Spotify' },
-    { icon: '📡', title: 'Platform coverage', value: `${Object.values(data.platforms || {}).filter(p => p.found).length} of ${Object.keys(data.platforms || {}).length} platforms`, badge: 'rb-grn', bt: 'Verified', source: 'Multiple' },
+    { icon: '📡', title: 'Platform coverage', value: (() => { const plats = data.platforms || {}; const found = Object.values(plats).filter(p => p && (p.found === true || p === true)).length; const total = Object.keys(plats).length; return found + ' of ' + total + ' platforms'; })(), badge: 'rb-grn', bt: 'Verified', source: 'Multiple' },
     { icon: '🎵', title: 'Genre metadata', value: data.genres?.slice(0, 2).join(', ') || 'Not found', badge: data.genres?.length ? 'rb-grn' : 'rb-red', bt: data.genres?.length ? 'PRESENT' : 'MISSING', source: 'Spotify' },
     { icon: '🔑', title: 'ISRC registration', value: data.trackIsrc || (data.trackTitle ? 'Not registered' : 'Artist scan — paste a track link for ISRC check'), badge: isrcBadge, bt: isrcStatus, source: 'Spotify' },
   ];
@@ -1095,12 +1099,15 @@ function showDemoResults(url) {
 
 // ── SCORE RING ─────────────────────────────────────────────
 function setScore(score) {
-  document.getElementById('r-score-val').textContent = score;
+  const s = (typeof score === 'number' && !isNaN(score)) ? Math.round(score) : null;
+  document.getElementById('r-score-val').textContent = s !== null ? s : '—';
   const circ = document.getElementById('r-circle');
-  setTimeout(() => {
-    circ.style.transition = 'stroke-dashoffset 1.2s ease';
-    circ.style.strokeDashoffset = 175.9 - (score / 100) * 175.9;
-  }, 100);
+  if (s !== null) {
+    setTimeout(() => {
+      circ.style.transition = 'stroke-dashoffset 1.2s ease';
+      circ.style.strokeDashoffset = 175.9 - (s / 100) * 175.9;
+    }, 100);
+  }
   const verdicts = [
     [0,  39, 'High royalty risk confirmed',    'Significant verified gaps found. Immediate action recommended.'],
     [40, 59, 'Moderate risk confirmed',         'Several verified issues found. Review the action plan below.'],
