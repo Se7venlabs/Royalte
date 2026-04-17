@@ -23,6 +23,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
 .nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
 .nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
+.nav-logo-mobile{display:none;}
 .nav-brand-link:hover .nav-logo{opacity:0.85;}
 .nav-right{display:flex;align-items:center;gap:28px;}
 .nav-brand{display:flex;flex-direction:column;line-height:1;}
@@ -322,6 +323,7 @@ section{padding:140px 56px;position:relative;}
 .future-close span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
 .f-logo{height:72px;width:auto;display:block;margin-bottom:8px;}
+.f-logo-mobile{display:none;}
 .f-tagline{font-size:9px;color:var(--muted2);letter-spacing:0.14em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-top:3px;}
 .f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
 .f-links{display:flex;gap:26px;}
@@ -346,7 +348,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 .d1{transition-delay:0.1s;}.d2{transition-delay:0.2s;}.d3{transition-delay:0.3s;}
 @media(max-width:900px){
   nav{padding:0 16px;height:64px;}
-  .nav-logo{height:48px;}
+  .nav-logo-full{display:none;}
+  .nav-logo-mobile{display:block;height:32px;}
   .nav-links{display:none;}
   .nav-beta{display:none;}
   .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
@@ -358,7 +361,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
   .r-cards{grid-template-columns:1fr;}.results-wrap{padding:0 20px 60px;}
   .risk-banner-inner{grid-template-columns:1fr;}.risk-score-block{text-align:left;}
   footer{padding:28px 20px;flex-direction:column;text-align:center;align-items:center;}
-  .f-logo{height:48px;margin:0 auto 8px;}
+  .f-logo-full{display:none;}
+  .f-logo-mobile{display:block;height:40px;margin:0 auto 8px;}
   .hero-scan-eyebrow-section{margin-bottom:28px;}
   .hero-scan-eyebrow-section .sec-h2{font-size:clamp(28px,8vw,40px);}
   .paste-box{flex-direction:column;gap:10px;}
@@ -625,7 +629,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 <!-- Background music — served as static asset from /audio/ -->
 <nav>
   <a href="/" class="nav-brand-link" aria-label="Royaltē home">
-    <svg class="nav-logo" xmlns="http://www.w3.org/2000/svg" width="115" height="48" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <svg class="nav-logo nav-logo-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <defs>
         <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
           <stop offset="0%" stop-color="#8a5cff"/>
@@ -645,6 +649,16 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
       <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
       <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
       <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="nav-logo nav-logo-mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="navm-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="100" x2="1000" y2="280">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="260" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="280" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#navm-egrad)">Ē</tspan></text>
     </svg>
   </a>
   <div class="nav-right">
@@ -919,7 +933,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 
 <footer>
   <div>
-    <svg class="f-logo" width="115" height="48" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+    <svg class="f-logo f-logo-full" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
       <defs>
         <linearGradient id="f-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
           <stop offset="0%" stop-color="#8a5cff"/>
@@ -939,6 +953,16 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
       <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#f-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#f-egrad)">Ē</tspan></text>
       <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#f-purpink)" stroke-width="1.5" opacity="0.6"/>
       <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="f-logo f-logo-mobile" viewBox="0 0 1200 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <defs>
+        <linearGradient id="fm-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="100" x2="1000" y2="280">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="260" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="280" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#fm-egrad)">Ē</tspan></text>
     </svg>
     <div class="f-tagline">Se7ven Labs Inc. · Beta</div>
   </div>
