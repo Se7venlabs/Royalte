@@ -330,9 +330,10 @@ section{padding:140px 56px;position:relative;}
 .future-close{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);margin-top:28px;}
 .future-close span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+footer > div:first-child{display:flex;flex-direction:column;align-items:center;text-align:center;width:fit-content;}
 .f-logo{height:72px;width:auto;display:block;margin-bottom:8px;}
 .f-logo-mobile{display:none;}
-.f-tagline{font-size:9px;color:var(--muted2);letter-spacing:0.14em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-top:3px;}
+.f-tagline{font-size:9px;color:var(--muted2);letter-spacing:0.14em;text-transform:uppercase;font-family:'Space Mono',monospace;margin-top:3px;text-align:center;width:100%;}
 .f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
 .f-links{display:flex;gap:26px;}
 .f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
@@ -485,7 +486,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 
 @media(max-width:900px){
   .new-hero{grid-template-columns:1fr;padding:120px 22px 50px;gap:40px;min-height:auto;}
-  .nh-collage{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(4,1fr);opacity:0.5;}
+  .nh-collage{grid-template-columns:repeat(2,1fr) !important;grid-template-rows:repeat(3,1fr) !important;opacity:0.5;}
+  .nh-mobile-hide{display:none !important;}
   .nh-right{max-width:420px;margin:0 auto;min-height:auto;margin-left:auto;}
   .nh-visual{max-width:420px;}
   .nh-eyebrow{display:none;}
@@ -528,11 +530,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
   <div class="grid-bg"></div>
   <div class="nh-collage" aria-hidden="true">
     <img src="/images/artist-crowd-lights.jpg" alt="" style="object-position:center center;">
-    <img src="/images/artist-singer-smoke.jpg" alt="" style="object-position:center center;filter:brightness(1.5) contrast(1.1);">
+    <img src="/images/artist-singer-smoke.jpg" alt="" class="nh-mobile-hide" style="object-position:center center;filter:brightness(1.5) contrast(1.1);">
     <img src="/images/artist-producer.jpg" alt="" style="object-position:center center;">
     <img src="/images/artist-cowboy-guitar.jpg" alt="" style="object-position:center center;">
     <img src="/images/artist-stage-red.jpg" alt="" style="object-position:center center;">
-    <img src="/images/artist-acoustic.jpg" alt="" style="object-position:center 25%;">
+    <img src="/images/artist-acoustic.jpg" alt="" class="nh-mobile-hide" style="object-position:center 25%;">
     <img src="/images/artist-mic.jpg" alt="" style="object-position:center center;">
     <img src="/images/artist-singer-belt.jpg" alt="" style="object-position:center center;">
   </div>
@@ -1051,7 +1053,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
     <svg class="f-logo f-logo-mobile" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
       <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
     </svg>
-    <div class="f-tagline">Se7ven Labs Inc. · Beta</div>
   </div>
   <div class="f-copy">© 2026 Royaltē · Se7ven Labs Inc. · info@royalte.ai</div>
   <div class="f-links">
