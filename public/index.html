@@ -345,13 +345,29 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 .reveal.visible{opacity:1;transform:translateY(0);}
 .d1{transition-delay:0.1s;}.d2{transition-delay:0.2s;}.d3{transition-delay:0.3s;}
 @media(max-width:900px){
-  nav{padding:0 20px;}.nav-links{display:none;}
-  .hero{grid-template-columns:1fr;padding:114px 20px 50px;}.hero-right{display:none;}
-  section{padding:90px 20px;}.steps{grid-template-columns:1fr;}.beta-grid-2{grid-template-columns:1fr;}
+  nav{padding:0 16px;height:64px;}
+  .nav-logo{height:40px;}
+  .nav-links{display:none;}
+  .nav-beta{display:none;}
+  .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
+  .nav-right{gap:0;}
+  .hero{grid-template-columns:1fr;padding:84px 20px 50px;}.hero-right{display:none;}
+  #scan-tool{padding:70px 20px 60px;}
+  section{padding:60px 20px;}.steps{grid-template-columns:1fr;}.beta-grid-2{grid-template-columns:1fr;}
   .form-split{grid-template-columns:1fr;}.trust-grid{grid-template-columns:1fr 1fr;}
   .r-cards{grid-template-columns:1fr;}.results-wrap{padding:0 20px 60px;}
   .risk-banner-inner{grid-template-columns:1fr;}.risk-score-block{text-align:left;}
-  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+  footer{padding:28px 20px;flex-direction:column;text-align:center;align-items:center;}
+  .f-logo{height:56px;margin:0 auto 8px;}
+  .hero-scan-eyebrow-section{margin-bottom:28px;}
+  .hero-scan-eyebrow-section .sec-h2{font-size:clamp(28px,8vw,40px);}
+  .paste-box{flex-direction:column;gap:10px;}
+  .paste-input,.paste-btn{width:100%;box-sizing:border-box;}
+  .photo-strip{height:180px;gap:4px;margin:32px 0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .photo-strip::-webkit-scrollbar{display:none;}
+  .ps-item{flex:0 0 70%;scroll-snap-align:start;min-width:240px;}
+  .ps-label{font-size:9px;}
+  .ps-name{font-size:14px;}
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -421,7 +437,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 .hero-scan-eyebrow-section .sec-h2 .gt{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
 @media(max-width:900px){
-  .new-hero{grid-template-columns:1fr;padding:110px 20px 80px;gap:40px;min-height:auto;}
+  .new-hero{grid-template-columns:1fr;padding:84px 20px 60px;gap:32px;min-height:auto;}
   .nh-right{order:-1;max-width:420px;margin:0 auto;min-height:auto;}
   .nh-visual{max-width:420px;}
   .nh-h1{font-size:clamp(40px,9vw,56px);}
