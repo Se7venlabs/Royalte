@@ -592,11 +592,12 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
               <div id="url-type-indicator" class="url-type-pill url-pill-hidden"></div>
             </div>
 
-            <!-- ARTIST NAME ON PLATFORM -->
+            <!-- ARTIST NAME ON PLATFORM — auto-filled from scan, locked -->
             <div class="form-row">
               <label class="form-label">Artist Name on Spotify <span>*</span></label>
-              <span class="form-sublabel">// As it appears on Spotify — may differ from your name above</span>
-              <input class="form-input" id="f-artist" type="text" placeholder="e.g. Gentlemen X">
+              <span class="form-sublabel">// Auto-filled from your free audit scan — cannot be edited manually</span>
+              <input class="form-input" id="f-artist" type="text" placeholder="Run the free audit above to auto-fill" readonly style="opacity:0.7;cursor:not-allowed;background:var(--bg2);">
+              <div id="f-artist-hint" style="display:none;font-family:'Space Mono',monospace;font-size:9px;color:var(--red);margin-top:6px;letter-spacing:0.06em;">// Run the free audit first to auto-fill the artist name</div>
             </div>
 
             <!-- TRACK COUNT -->
@@ -880,6 +881,17 @@ function showRealResults(data){
     fSpotify.style.opacity = '0.7';
     fSpotify.style.cursor  = 'not-allowed';
   }
+  // ── Auto-fill and lock the artist name field from the scan result ──
+  const fArtist = document.getElementById('f-artist');
+  if(fArtist && data.artistName){
+    fArtist.value          = data.artistName;
+    fArtist.readOnly       = true;
+    fArtist.style.opacity  = '0.7';
+    fArtist.style.cursor   = 'not-allowed';
+    fArtist.style.borderColor = '';
+    const hint = document.getElementById('f-artist-hint');
+    if(hint) hint.style.display = 'none';
+  }
   buildCards([
     {icon:'✅',title:'Artist profile',value:data.artistName,badge:'rb-grn',bt:'CONFIRMED'},
     {icon:'👥',title:'Followers',value:(data.followers||0).toLocaleString(),badge:'rb-grn',bt:'FOUND'},
@@ -898,6 +910,19 @@ function showDemoResults(url){
     fSpotify.readOnly = true;
     fSpotify.style.opacity = '0.7';
     fSpotify.style.cursor  = 'not-allowed';
+  }
+  // ── Scan did not resolve a valid artist — keep artist field empty and locked ──
+  const fArtist = document.getElementById('f-artist');
+  if(fArtist){
+    fArtist.value         = '';
+    fArtist.readOnly      = true;
+    fArtist.style.opacity = '0.7';
+    fArtist.style.cursor  = 'not-allowed';
+    const hint = document.getElementById('f-artist-hint');
+    if(hint){
+      hint.textContent   = '// Scan did not resolve a valid artist — paste a valid Spotify URL above and run the free audit again';
+      hint.style.display = 'block';
+    }
   }
   buildCards([
     {icon:'✅',title:'Artist profile detected',value:'Found on Spotify',badge:'rb-grn',bt:'CONFIRMED'},
@@ -956,7 +981,19 @@ async function submitForm(){
   if(!name)   { document.getElementById('f-name').style.borderColor='var(--red)'; return; }
   if(!email||!email.includes('@')) { document.getElementById('f-email').style.borderColor='var(--red)'; return; }
   if(!spotify){ document.getElementById('f-spotify').style.borderColor='var(--red)'; return; }
-  if(!artist) { document.getElementById('f-artist').style.borderColor='var(--red)'; return; }
+  // ── Artist name must come from a successful scan, not manual entry ──
+  if(!artist) {
+    const fArtist = document.getElementById('f-artist');
+    const hint    = document.getElementById('f-artist-hint');
+    if(fArtist) fArtist.style.borderColor = 'var(--red)';
+    if(hint)    hint.style.display = 'block';
+    const heroUrl = document.getElementById('hero-url');
+    if(heroUrl){
+      heroUrl.scrollIntoView({behavior:'smooth',block:'center'});
+      setTimeout(()=>heroUrl.focus(), 600);
+    }
+    return;
+  }
 
   // Determine URL type for the submission
   const urlType = spotify.includes('spotify.com/artist/') ? 'Artist Page' : spotify.includes('spotify.com/track/') ? 'Single Track' : 'Unknown';
@@ -992,7 +1029,6 @@ async function submitForm(){
       })
     });
   }catch(e){}
-}catch(e){}
 
   // ── MODULE 2: Insert audit request into Supabase ──────────────────────────
   try {
@@ -1011,7 +1047,6 @@ async function submitForm(){
   }
   // ─────────────────────────────────────────────────────────────────────────
 
-  document.getElementById('form-inner').style.display  = 'none';
   document.getElementById('form-inner').style.display  = 'none';
   document.getElementById('form-success').style.display = 'block';
 }
