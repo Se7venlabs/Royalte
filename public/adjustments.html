@@ -992,7 +992,26 @@ async function submitForm(){
       })
     });
   }catch(e){}
+}catch(e){}
 
+  // ── MODULE 2: Insert audit request into Supabase ──────────────────────────
+  try {
+    await fetch('/api/submit-audit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source_url:  spotify,
+        artist_name: artist,
+        email:       email,
+        url_type:    urlType
+      })
+    });
+  } catch(e) {
+    console.warn('[Royaltē] Supabase insert non-blocking error:', e.message);
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
+  document.getElementById('form-inner').style.display  = 'none';
   document.getElementById('form-inner').style.display  = 'none';
   document.getElementById('form-success').style.display = 'block';
 }
