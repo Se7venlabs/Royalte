@@ -817,9 +817,16 @@ async function getAudioDB(artistName) {
 async function getDiscogs(artistName) {
   try {
     const query = encodeURIComponent(artistName);
+    const discogsKey = process.env.DISCOGS_KEY;
+    const discogsSecret = process.env.DISCOGS_SECRET;
+    const discogsAuth = discogsKey && discogsSecret
+      ? `Discogs key=${discogsKey}, secret=${discogsSecret}`
+      : '';
+    const authHeaders = { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)' };
+    if (discogsAuth) authHeaders['Authorization'] = discogsAuth;
     const resp = await fetch(
       `https://api.discogs.com/database/search?q=${query}&type=artist&per_page=5`,
-      { headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)', 'Authorization': 'Discogs key=royalteaudit, secret=royalteaudit' } }
+      { headers: authHeaders }
     );
     if (!resp.ok) return { found: false, releases: 0 };
     const data = await resp.json();
@@ -840,7 +847,12 @@ async function getDiscogs(artistName) {
 async function getSoundCloud(artistName) {
   try {
     const query = encodeURIComponent(artistName);
-    const resp = await fetch(`https://api.soundcloud.com/users?q=${query}&limit=5&client_id=iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX`, {
+    const scClientId = process.env.SOUNDCLOUD_CLIENT_ID;
+    if (!scClientId) {
+      console.warn('SOUNDCLOUD_CLIENT_ID not set — skipping SoundCloud scan');
+      return { found: false, followers: 0 };
+    }
+    const resp = await fetch(`https://api.soundcloud.com/users?q=${query}&limit=5&client_id=${scClientId}`, {
       headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)' }
     });
     if (!resp.ok) return { found: false, followers: 0 };
@@ -857,7 +869,11 @@ async function getSoundCloud(artistName) {
 // ────────────────────────────────────────────────────────
 async function getLastFm(artistName) {
   try {
-    const key = process.env.LASTFM_API_KEY || '43693facbb24d1ac893a5d61c8e5d4c3';
+    const key = process.env.LASTFM_API_KEY;
+    if (!key) {
+      console.warn('LASTFM_API_KEY not set — skipping Last.fm scan');
+      return { found: false };
+    }
     const query = encodeURIComponent(artistName);
     const resp = await fetch(
       `https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${query}&api_key=${key}&format=json`,
