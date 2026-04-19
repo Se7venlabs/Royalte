@@ -6,6 +6,7 @@
   "engines": { "node": "20.x" },
   "scripts": { "build": "echo 'Static site'" },
   "dependencies": {
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "@supabase/supabase-js": "^2.45.0"
   }
 }
