@@ -1773,10 +1773,26 @@ async function submitForm() {
     });
   } catch (e) {}
 
+  // ── MODULE 2: Insert into Supabase audit_requests ─────────
+  try {
+    await fetch('/api/submit-audit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source_url:  spotify,
+        artist_name: name,
+        email:       email,
+        url_type:    urlTypeLabel
+      })
+    });
+  } catch (e) {
+    console.warn('[Royaltē] Supabase insert non-blocking error:', e.message);
+  }
+  // ──────────────────────────────────────────────────────────
+
   document.getElementById('form-inner').style.display   = 'none';
   document.getElementById('form-success').style.display = 'block';
 }
-
 function unlockAndScrollToForm() {
   // Remove the lock overlay
   const overlay = document.getElementById('form-lock-overlay');
