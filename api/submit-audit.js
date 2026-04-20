@@ -1,10 +1,8 @@
 // Royaltē — /api/submit-audit.js
 // MODULE 2: Audit Request Insert
-// MODULE 3: Fire-and-forget trigger to /api/process-audit after insert
 //
 // PURPOSE: Receive form submission from the landing page and insert a new
 //          record into the Supabase `audit_requests` table with status = 'pending'.
-//          Then trigger the processing engine asynchronously.
 //
 // CALLED BY: public/adjustments.html → submitForm()
 // PATTERN: Mirrors Supabase client setup from api/territory-scan.js
@@ -102,26 +100,29 @@ export default async function handler(req, res) {
     // ── SUCCESS ───────────────────────────────────────────────────────────
     console.log('[submit-audit] ✅ Inserted audit_request id:', data.id, '| status:', data.status, '| created_at:', data.created_at);
 
-    // ── MODULE 3: Fire-and-forget trigger to processing engine ────────────
-    // We intentionally do NOT await this. The user gets their 200 immediately;
-    // processing happens in the background. Any error here is logged only.
+    // ── TRIGGER BACKGROUND PROCESSING (fire-and-forget) ───────────────────
+    // Resolve the absolute URL because serverless functions can't call themselves
+    // with a relative path. We read the host from the incoming request headers.
     try {
       const host = req.headers['x-forwarded-host'] || req.headers.host;
       const proto = req.headers['x-forwarded-proto'] || 'https';
-      const triggerUrl = `${proto}://${host}/api/process-audit`;
-
-      fetch(triggerUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: data.id }),
-      }).catch(err => {
-        console.error('[submit-audit] Background trigger failed | id:', data.id, '| err:', err.message);
-      });
-
-      console.log('[submit-audit] ▶ Triggered processing | id:', data.id, '| url:', triggerUrl);
+      if (host) {
+        const triggerUrl = `${proto}://${host}/api/process-audit`;
+        // Do NOT await — we want the response to return to the user immediately.
+        // Vercel keeps the container alive long enough for the TCP handshake.
+        fetch(triggerUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: data.id }),
+        }).catch(err => {
+          console.warn('[submit-audit] process-audit trigger failed (non-blocking):', err.message);
+        });
+        console.log('[submit-audit] 🔔 Triggered process-audit for id:', data.id);
+      } else {
+        console.warn('[submit-audit] No host header — cannot trigger process-audit');
+      }
     } catch (triggerErr) {
-      // Never let a trigger error block the user's submission.
-      console.error('[submit-audit] Trigger setup error | id:', data.id, '| err:', triggerErr.message);
+      console.warn('[submit-audit] Trigger dispatch threw (non-blocking):', triggerErr.message);
     }
 
     return res.status(200).json({
