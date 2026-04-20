@@ -2,23 +2,27 @@
 // Platforms: Spotify + MusicBrainz + Deezer + AudioDB + Discogs + SoundCloud + Last.fm + Wikidata + YouTube + Apple Music
 // Features: Royalty gap estimate, catalog age analysis, country PRO guide, real YouTube UGC detection, Apple Music catalog comparison
 // URL Resolution: Accepts artist, track, and album URLs — resolves to artist-level scan automatically
+//
+// MODULE 3: Exposes runAudit() as a reusable function for /api/process-audit.
+//           The HTTP handler now thinly wraps runAudit() — behavior is identical.
 
 import { generateAppleToken } from './apple-token.js';
 
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-
-  const { url, type: urlTypeHint } = req.query;
-  if (!url) return res.status(400).json({ error: 'No URL provided' });
+// ─────────────────────────────────────────────────────────────────────────────
+// CORE AUDIT FUNCTION — reusable, no HTTP coupling.
+// Returns: { ok: true, payload: {...} } on success
+//          { ok: false, status: 400|500, error, detail? } on failure
+// ─────────────────────────────────────────────────────────────────────────────
+export async function runAudit(url, urlTypeHint) {
+  if (!url) {
+    return { ok: false, status: 400, error: 'No URL provided' };
+  }
 
   try {
     // ── STEP 1: Parse and resolve URL to artist-level ──
     const resolved = await resolveUrl(url, urlTypeHint);
     if (!resolved) {
-      return res.status(400).json({ error: 'Invalid URL. Paste a Spotify or Apple Music artist, song, or album link.' });
+      return { ok: false, status: 400, error: 'Invalid URL. Paste a Spotify or Apple Music artist, song, or album link.' };
     }
 
     const token = await getSpotifyToken();
@@ -28,7 +32,7 @@ export default async function handler(req, res) {
       // Apple Music URL — search for artist on Spotify to run the full scan
       const appleArtistName = resolved.artistName;
       if (!appleArtistName) {
-        return res.status(400).json({ error: 'Could not resolve Apple Music link. Try a Spotify link instead.' });
+        return { ok: false, status: 400, error: 'Could not resolve Apple Music link. Try a Spotify link instead.' };
       }
       // Search Spotify for this artist
       const searchResp = await fetch(
@@ -40,7 +44,7 @@ export default async function handler(req, res) {
       const norm = s => s.toLowerCase().trim();
       const spotifyMatch = searchData.artists?.items?.find(a => norm(a.name) === norm(appleArtistName)) || searchData.artists?.items?.[0];
       if (!spotifyMatch) {
-        return res.status(400).json({ error: `Could not find "${appleArtistName}" on Spotify. Try pasting their Spotify link directly.` });
+        return { ok: false, status: 400, error: `Could not find "${appleArtistName}" on Spotify. Try pasting their Spotify link directly.` };
       }
       artistData = spotifyMatch;
       trackData = null;
@@ -90,7 +94,7 @@ export default async function handler(req, res) {
 
     const flags = buildFlags(modules, artistData, trackData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData);
 
-    return res.status(200).json({
+    const payload = {
       success: true,
       platform: resolved.platform,
       type: resolved.originalType,
@@ -131,12 +135,36 @@ export default async function handler(req, res) {
       flagCount: flags.length,
       previewFlags: flags.slice(0, 2),
       scannedAt: new Date().toISOString(),
-    });
+    };
+
+    return { ok: true, payload };
 
   } catch (err) {
-    console.error('Audit error:', err);
-    return res.status(500).json({ error: 'Audit failed. Please check the link and try again.', detail: err.message });
+    console.error('[runAudit] error:', err);
+    return { ok: false, status: 500, error: 'Audit failed. Please check the link and try again.', detail: err.message };
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HTTP HANDLER — thin wrapper around runAudit(). Preserves existing API contract.
+// ─────────────────────────────────────────────────────────────────────────────
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const { url, type: urlTypeHint } = req.query;
+
+  const result = await runAudit(url, urlTypeHint);
+
+  if (result.ok) {
+    return res.status(200).json(result.payload);
+  }
+
+  const body = { error: result.error };
+  if (result.detail) body.detail = result.detail;
+  return res.status(result.status || 500).json(body);
 }
 
 // ────────────────────────────────────────────────────────
