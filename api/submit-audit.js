@@ -1,8 +1,10 @@
 // Royaltē — /api/submit-audit.js
 // MODULE 2: Audit Request Insert
+// MODULE 3: Fire-and-forget trigger to /api/process-audit after insert
 //
 // PURPOSE: Receive form submission from the landing page and insert a new
 //          record into the Supabase `audit_requests` table with status = 'pending'.
+//          Then trigger the processing engine asynchronously.
 //
 // CALLED BY: public/adjustments.html → submitForm()
 // PATTERN: Mirrors Supabase client setup from api/territory-scan.js
@@ -99,6 +101,28 @@ export default async function handler(req, res) {
 
     // ── SUCCESS ───────────────────────────────────────────────────────────
     console.log('[submit-audit] ✅ Inserted audit_request id:', data.id, '| status:', data.status, '| created_at:', data.created_at);
+
+    // ── MODULE 3: Fire-and-forget trigger to processing engine ────────────
+    // We intentionally do NOT await this. The user gets their 200 immediately;
+    // processing happens in the background. Any error here is logged only.
+    try {
+      const host = req.headers['x-forwarded-host'] || req.headers.host;
+      const proto = req.headers['x-forwarded-proto'] || 'https';
+      const triggerUrl = `${proto}://${host}/api/process-audit`;
+
+      fetch(triggerUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: data.id }),
+      }).catch(err => {
+        console.error('[submit-audit] Background trigger failed | id:', data.id, '| err:', err.message);
+      });
+
+      console.log('[submit-audit] ▶ Triggered processing | id:', data.id, '| url:', triggerUrl);
+    } catch (triggerErr) {
+      // Never let a trigger error block the user's submission.
+      console.error('[submit-audit] Trigger setup error | id:', data.id, '| err:', triggerErr.message);
+    }
 
     return res.status(200).json({
       success: true,
