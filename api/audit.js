@@ -126,6 +126,52 @@ export async function runAudit(url, urlTypeHint) {
       }
     }
 
+    // ── LAYERED ISRC FALLBACK ──
+    // A track's ISRC is a global identifier — if any platform has it, the track HAS one.
+    // If trackData exists but has no ISRC (platform's specific lookup failed), look elsewhere.
+    if (trackData && !trackData.external_ids?.isrc) {
+      const wantedName = (trackData.name || appleMusicSource?.trackName || '').toLowerCase().trim();
+
+      // Try to find matching ISRC in Spotify top-tracks by track name
+      if (wantedName && spotifyTopTracks && spotifyTopTracks.length > 0) {
+        const nameMatch = spotifyTopTracks.find(t => (t.name || '').toLowerCase().trim() === wantedName && t.isrc);
+        if (nameMatch) {
+          trackData.external_ids = { ...(trackData.external_ids || {}), isrc: nameMatch.isrc };
+          trackData._isrcFallback = 'spotify_top_tracks_name_match';
+          console.log('[audit] ISRC fallback matched via Spotify top-tracks | ISRC:', nameMatch.isrc, '| track:', nameMatch.name);
+        }
+      }
+
+      // Apple-origin specific: if still no ISRC, do a direct Spotify track search by name + artist
+      if (!trackData.external_ids?.isrc && resolved.platform === 'apple' && wantedName) {
+        try {
+          const q = encodeURIComponent(`track:"${trackData.name || appleMusicSource?.trackName}" artist:"${artistName}"`);
+          const srchResp = await fetch(
+            `https://api.spotify.com/v1/search?q=${q}&type=track&limit=5`,
+            { headers: { 'Authorization': `Bearer ${token}` } }
+          );
+          if (srchResp.ok) {
+            const srchData = await srchResp.json();
+            const hits = srchData.tracks?.items || [];
+            const norm = s => (s || '').toLowerCase().trim();
+            const hit = hits.find(h => norm(h.name) === wantedName && h.external_ids?.isrc);
+            if (hit) {
+              trackData.external_ids = { ...(trackData.external_ids || {}), isrc: hit.external_ids.isrc };
+              trackData.duration_ms = trackData.duration_ms || hit.duration_ms || null;
+              trackData._isrcFallback = 'spotify_direct_search_apple_origin';
+              console.log('[audit] ISRC fallback matched via Spotify direct search (Apple origin) | ISRC:', hit.external_ids.isrc);
+            }
+          }
+        } catch (e) {
+          console.warn('[audit] Spotify direct-search fallback failed:', e.message);
+        }
+      }
+
+      if (!trackData.external_ids?.isrc) {
+        console.log('[audit] ISRC fallback: no match found, trackIsrc will be null');
+      }
+    }
+
     // All platforms in parallel — includes YouTube + Apple Music
     const [mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, youtubeData, appleMusicData] = await Promise.allSettled([
       getMusicBrainz(artistName),
@@ -202,8 +248,10 @@ export async function runAudit(url, urlTypeHint) {
     // ── TEMP LOGGING (remove after production verification)
     const isrcPresent = !!(trackData?.external_ids?.isrc);
     const isrcSource = !trackData ? 'none'
+      : !isrcPresent ? 'none'
+      : trackData._isrcFallback ? trackData._isrcFallback
       : trackData._source === 'top_tracks_hoist' ? 'top_tracks_hoist'
-      : resolved.platform === 'apple' && trackData.external_ids?.isrc ? 'apple_isrc_to_spotify'
+      : resolved.platform === 'apple' && trackData.external_ids?.isrc ? 'apple_native'
       : resolved.originalType === 'album' ? 'album_first_track'
       : 'track_direct';
     console.log('[audit] source platform:', resolved.platform, '| URL type:', resolved.originalType);
@@ -225,6 +273,7 @@ export async function runAudit(url, urlTypeHint) {
       genres: artistData.genres || [],
       trackTitle: trackData?.name || null,
       trackIsrc: trackData?.external_ids?.isrc || null,
+      trackIsrcSource: isrcPresent ? isrcSource : null,
       platforms: {
         spotify: true,
         musicbrainz: mbData.found,
