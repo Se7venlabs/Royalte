@@ -3,12 +3,23 @@
   "functions": {
     "api/audit.js": {
       "includeFiles": "api/apple-token.js"
+    },
+    "api/process-audit.js": {
+      "includeFiles": "api/apple-token.js"
     }
   },
   "routes": [
     {
       "src": "/api/audit",
       "dest": "/api/audit.js"
+    },
+    {
+      "src": "/api/submit-audit",
+      "dest": "/api/submit-audit.js"
+    },
+    {
+      "src": "/api/process-audit",
+      "dest": "/api/process-audit.js"
     },
     {
       "src": "/dashboard.html",
@@ -36,4 +47,3 @@
     }
   ]
 }
-
