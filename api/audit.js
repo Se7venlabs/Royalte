@@ -28,31 +28,70 @@ export async function runAudit(url, urlTypeHint) {
     let appleMusicSource = null; // populated only when URL was Apple Music
 
     if (resolved.platform === 'apple') {
-      // Apple Music URL — search for artist on Spotify to run the full scan
+      // Apple Music URL — resolve Apple-native metadata, then find matching Spotify track/artist.
+      // Priority: (1) Spotify ISRC lookup if Apple gave us an ISRC → exact cross-platform match
+      //           (2) fallback to existing artist-name search (preserves old behavior)
       const appleArtistName = resolved.artistName;
       if (!appleArtistName) {
         return { ok: false, status: 400, error: 'Could not resolve Apple Music link. Try a Spotify link instead.' };
       }
-      // Search Spotify for this artist
-      const searchResp = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(appleArtistName)}&type=artist&limit=5`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
-      if (!searchResp.ok) throw new Error('Spotify search failed: ' + searchResp.status);
-      const searchData = await searchResp.json();
-      const norm = s => s.toLowerCase().trim();
-      const spotifyMatch = searchData.artists?.items?.find(a => norm(a.name) === norm(appleArtistName)) || searchData.artists?.items?.[0];
-      if (!spotifyMatch) {
-        return { ok: false, status: 400, error: `Could not find "${appleArtistName}" on Spotify. Try pasting their Spotify link directly.` };
+
+      const norm = s => (s || '').toLowerCase().trim();
+      let spotifyMatchArtist = null;
+      let spotifyMatchTrack = null;
+      let spotifyLookupTier = null;
+
+      // Tier 1 — Apple ISRC → Spotify track (most accurate)
+      if (resolved.isrc) {
+        try {
+          const isrcResp = await fetch(
+            `https://api.spotify.com/v1/search?q=${encodeURIComponent('isrc:' + resolved.isrc)}&type=track&limit=1`,
+            { headers: { 'Authorization': `Bearer ${token}` } }
+          );
+          if (isrcResp.ok) {
+            const isrcData = await isrcResp.json();
+            const hit = isrcData.tracks?.items?.[0];
+            if (hit?.artists?.[0]?.id) {
+              spotifyMatchTrack = hit;
+              // Fetch full artist record (search result artist is a stub)
+              spotifyMatchArtist = await getSpotifyArtist(hit.artists[0].id, token);
+              spotifyLookupTier = 'isrc';
+              console.log('[audit] Apple→Spotify match via ISRC:', resolved.isrc, '→ artist:', spotifyMatchArtist.name);
+            }
+          }
+        } catch (e) {
+          console.warn('[audit] Apple→Spotify ISRC lookup failed (falling back):', e.message);
+        }
       }
-      artistData = spotifyMatch;
-      trackData = null;
+
+      // Tier 2 — fallback: artist-name search (preserves prior behavior)
+      if (!spotifyMatchArtist) {
+        const searchResp = await fetch(
+          `https://api.spotify.com/v1/search?q=${encodeURIComponent(appleArtistName)}&type=artist&limit=5`,
+          { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+        if (!searchResp.ok) throw new Error('Spotify search failed: ' + searchResp.status);
+        const searchData = await searchResp.json();
+        const stubMatch = searchData.artists?.items?.find(a => norm(a.name) === norm(appleArtistName)) || searchData.artists?.items?.[0];
+        if (!stubMatch) {
+          return { ok: false, status: 400, error: `Could not find "${appleArtistName}" on Spotify. Try pasting their Spotify link directly.` };
+        }
+        spotifyMatchArtist = stubMatch;
+        spotifyLookupTier = 'artist_name';
+        console.log('[audit] Apple→Spotify match via artist name:', appleArtistName);
+      }
+
+      artistData = spotifyMatchArtist;
+      trackData = spotifyMatchTrack; // null if only artist match, real track object if ISRC matched
       // Minimal appleMusicSource record — frontend reads albumName / trackName
       appleMusicSource = {
         albumName: resolved.albumName || null,
         trackName: resolved.trackName || null,
         artistName: appleArtistName,
         originalType: resolved.originalType,
+        isrc: resolved.isrc || null,
+        durationMs: resolved.durationMs || null,
+        spotifyLookupTier,
       };
     } else {
       // Spotify URL — use resolved artist ID
@@ -68,6 +107,24 @@ export async function runAudit(url, urlTypeHint) {
 
     // Get Spotify tracks for Apple Music comparison (top tracks)
     const spotifyTopTracks = await getSpotifyTopTracks(artistId, token);
+
+    // ── ISRC HOIST ──
+    // Artist URLs and any case where trackData is still null but top tracks have ISRCs:
+    // surface the top track as trackData so `trackIsrc` in the response reflects reality.
+    // This does NOT fabricate — it only uses an ISRC that actually exists on Spotify's servers.
+    if (!trackData && spotifyTopTracks && spotifyTopTracks.length > 0) {
+      const topWithIsrc = spotifyTopTracks.find(t => t.isrc) || spotifyTopTracks[0];
+      if (topWithIsrc && topWithIsrc.isrc) {
+        trackData = {
+          name: topWithIsrc.name,
+          external_ids: { isrc: topWithIsrc.isrc },
+          duration_ms: topWithIsrc.durationMs || null,
+          artists: [{ name: topWithIsrc.artistName || artistName }],
+          _source: 'top_tracks_hoist',
+        };
+        console.log('[audit] trackData hoisted from top tracks | ISRC:', topWithIsrc.isrc, '| track:', topWithIsrc.name);
+      }
+    }
 
     // All platforms in parallel — includes YouTube + Apple Music
     const [mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, youtubeData, appleMusicData] = await Promise.allSettled([
@@ -143,8 +200,15 @@ export async function runAudit(url, urlTypeHint) {
     };
 
     // ── TEMP LOGGING (remove after production verification)
-    console.log('[audit] source platform:', resolved.platform);
-    console.log('[audit] ISRC present:', !!(trackData?.external_ids?.isrc));
+    const isrcPresent = !!(trackData?.external_ids?.isrc);
+    const isrcSource = !trackData ? 'none'
+      : trackData._source === 'top_tracks_hoist' ? 'top_tracks_hoist'
+      : resolved.platform === 'apple' && trackData.external_ids?.isrc ? 'apple_isrc_to_spotify'
+      : resolved.originalType === 'album' ? 'album_first_track'
+      : 'track_direct';
+    console.log('[audit] source platform:', resolved.platform, '| URL type:', resolved.originalType);
+    console.log('[audit] ISRC present:', isrcPresent, '| ISRC source:', isrcSource);
+    if (isrcPresent) console.log('[audit] ISRC value:', trackData.external_ids.isrc);
     console.log('[audit] Spotify match result:', spotifyStatus);
     console.log('[audit] Apple match result:', appleStatus, '(tier:', appleVerification.tier + ')');
 
@@ -274,13 +338,29 @@ async function resolveUrl(url, typeHint) {
       }
 
       if (parsed.type === 'track') {
-        const artistName = await retryOnce(() => resolveAppleMusicSong(parsed.trackId, appleToken));
-        return { platform: 'apple', originalType: 'track', artistName, resolvedFrom: 'track' };
+        const meta = await retryOnce(() => resolveAppleMusicSong(parsed.trackId, appleToken));
+        return {
+          platform: 'apple',
+          originalType: 'track',
+          artistName: meta.artistName,
+          trackName: meta.trackName,
+          isrc: meta.isrc,
+          durationMs: meta.durationMs,
+          resolvedFrom: 'track'
+        };
       }
 
       if (parsed.type === 'album') {
-        const artistName = await retryOnce(() => resolveAppleMusicAlbumToArtist(parsed.albumId, appleToken));
-        return { platform: 'apple', originalType: 'album', artistName, resolvedFrom: 'album' };
+        const meta = await retryOnce(() => resolveAppleMusicAlbumToArtist(parsed.albumId, appleToken));
+        return {
+          platform: 'apple',
+          originalType: 'album',
+          artistName: meta.artistName,
+          trackName: meta.trackName,
+          isrc: meta.isrc,
+          durationMs: meta.durationMs,
+          resolvedFrom: 'album'
+        };
       }
 
       return null;
@@ -320,11 +400,30 @@ async function resolveSpotifyAlbum(albumId, token) {
   const album = await resp.json();
   const artist = album.artists?.[0];
   if (!artist?.id) throw new Error('Could not extract artist from album');
+
+  // Surface first track's ISRC so album-level scans still get ISRC-verified.
+  // Album tracks DON'T include external_ids — need a follow-up /v1/tracks/{id} fetch.
+  let trackData = null;
+  const firstTrack = album.tracks?.items?.[0];
+  if (firstTrack?.id) {
+    try {
+      const tResp = await fetch(`https://api.spotify.com/v1/tracks/${firstTrack.id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (tResp.ok) {
+        trackData = await tResp.json();
+        console.log('[audit] album first-track ISRC source:', trackData?.external_ids?.isrc || '(none)');
+      }
+    } catch (e) {
+      console.warn('[audit] album first-track ISRC fetch failed:', e.message);
+    }
+  }
+
   return {
     platform: 'spotify',
     originalType: 'album',
     artistId: artist.id,
-    trackData: null,
+    trackData,
     resolvedFrom: 'album'
   };
 }
@@ -358,28 +457,43 @@ async function resolveAppleMusicArtist(artistId, appleToken) {
   return name;
 }
 
-// ── Apple Music Song ID → Artist Name ──
+// ── Apple Music Song ID → Full metadata (artist, track, isrc, duration) ──
 async function resolveAppleMusicSong(songId, appleToken) {
   const resp = await fetch(`https://api.music.apple.com/v1/catalog/us/songs/${songId}`, {
     headers: { 'Authorization': `Bearer ${appleToken}` }
   });
   if (!resp.ok) throw new Error('Apple Music song lookup failed: ' + resp.status);
   const data = await resp.json();
-  const name = data.data?.[0]?.attributes?.artistName;
-  if (!name) throw new Error('Could not extract artist from Apple Music song');
-  return name;
+  const attrs = data.data?.[0]?.attributes;
+  if (!attrs?.artistName) throw new Error('Could not extract artist from Apple Music song');
+  return {
+    artistName: attrs.artistName,
+    trackName: attrs.name || null,
+    isrc: attrs.isrc || null,
+    durationMs: attrs.durationInMillis || null,
+  };
 }
 
-// ── Apple Music Album ID → Artist Name ──
+// ── Apple Music Album ID → Full metadata (artist + first track isrc/duration) ──
 async function resolveAppleMusicAlbumToArtist(albumId, appleToken) {
-  const resp = await fetch(`https://api.music.apple.com/v1/catalog/us/albums/${albumId}`, {
-    headers: { 'Authorization': `Bearer ${appleToken}` }
-  });
+  // include=tracks pulls track relationships inline with ISRCs + durations
+  const resp = await fetch(
+    `https://api.music.apple.com/v1/catalog/us/albums/${albumId}?include=tracks`,
+    { headers: { 'Authorization': `Bearer ${appleToken}` } }
+  );
   if (!resp.ok) throw new Error('Apple Music album lookup failed: ' + resp.status);
   const data = await resp.json();
-  const name = data.data?.[0]?.attributes?.artistName;
-  if (!name) throw new Error('Could not extract artist from Apple Music album');
-  return name;
+  const albumAttrs = data.data?.[0]?.attributes;
+  if (!albumAttrs?.artistName) throw new Error('Could not extract artist from Apple Music album');
+
+  // First track (relationships.tracks.data is ordered per Apple catalog)
+  const firstTrack = data.data?.[0]?.relationships?.tracks?.data?.[0]?.attributes;
+  return {
+    artistName: albumAttrs.artistName,
+    trackName: firstTrack?.name || null,
+    isrc: firstTrack?.isrc || null,
+    durationMs: firstTrack?.durationInMillis || null,
+  };
 }
 
 // ── Retry Helper ──
