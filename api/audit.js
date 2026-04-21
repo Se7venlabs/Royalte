@@ -504,18 +504,47 @@ async function resolveSpotifyAlbum(albumId, token) {
 }
 
 // ── Apple Music URL Parser ──
+// Accepts the following Apple Music URL formats (Apple generates all of these):
+//   Track (with slug):       https://music.apple.com/us/album/song-name/123456789?i=987654321
+//   Track (without slug):    https://music.apple.com/us/album/123456789?i=987654321
+//   Song (direct):           https://music.apple.com/us/song/song-name/987654321
+//   Song (direct no slug):   https://music.apple.com/us/song/987654321
+//   Album (with slug):       https://music.apple.com/us/album/album-name/123456789
+//   Album (without slug):    https://music.apple.com/us/album/123456789
+//   Artist (with slug):      https://music.apple.com/us/artist/artist-name/123456789
+//   Artist (without slug):   https://music.apple.com/us/artist/123456789
 function parseAppleMusicUrl(url) {
-  // Track: https://music.apple.com/us/album/song-name/123456789?i=987654321
-  const trackMatch = url.match(/\/album\/[^/]+\/(\d+)\?.*i=(\d+)/);
-  if (trackMatch) return { type: 'track', albumId: trackMatch[1], trackId: trackMatch[2] };
+  // Track via album+i-param (WITH slug):     /album/<slug>/<albumId>?i=<trackId>
+  const trackWithSlug = url.match(/\/album\/[^/]+\/(\d+)\?.*i=(\d+)/);
+  if (trackWithSlug) return { type: 'track', albumId: trackWithSlug[1], trackId: trackWithSlug[2] };
 
-  // Album: https://music.apple.com/us/album/album-name/123456789
-  const albumMatch = url.match(/\/album\/[^/]+\/(\d+)/);
-  if (albumMatch) return { type: 'album', albumId: albumMatch[1] };
+  // Track via album+i-param (NO slug):       /album/<albumId>?i=<trackId>
+  const trackNoSlug = url.match(/\/album\/(\d+)\?.*i=(\d+)/);
+  if (trackNoSlug) return { type: 'track', albumId: trackNoSlug[1], trackId: trackNoSlug[2] };
 
-  // Artist: https://music.apple.com/us/artist/artist-name/123456789
-  const artistMatch = url.match(/\/artist\/[^/]+\/(\d+)/);
-  if (artistMatch) return { type: 'artist', artistId: artistMatch[1] };
+  // Direct song link (WITH slug):            /song/<slug>/<trackId>
+  const songWithSlug = url.match(/\/song\/[^/]+\/(\d+)/);
+  if (songWithSlug) return { type: 'track', albumId: null, trackId: songWithSlug[1] };
+
+  // Direct song link (NO slug):              /song/<trackId>
+  const songNoSlug = url.match(/\/song\/(\d+)(?:[?/#]|$)/);
+  if (songNoSlug) return { type: 'track', albumId: null, trackId: songNoSlug[1] };
+
+  // Album (WITH slug):                       /album/<slug>/<albumId>
+  const albumWithSlug = url.match(/\/album\/[^/]+\/(\d+)(?:[?/#]|$)/);
+  if (albumWithSlug) return { type: 'album', albumId: albumWithSlug[1] };
+
+  // Album (NO slug):                         /album/<albumId>
+  const albumNoSlug = url.match(/\/album\/(\d+)(?:[?/#]|$)/);
+  if (albumNoSlug) return { type: 'album', albumId: albumNoSlug[1] };
+
+  // Artist (WITH slug):                      /artist/<slug>/<artistId>
+  const artistWithSlug = url.match(/\/artist\/[^/]+\/(\d+)(?:[?/#]|$)/);
+  if (artistWithSlug) return { type: 'artist', artistId: artistWithSlug[1] };
+
+  // Artist (NO slug):                        /artist/<artistId>
+  const artistNoSlug = url.match(/\/artist\/(\d+)(?:[?/#]|$)/);
+  if (artistNoSlug) return { type: 'artist', artistId: artistNoSlug[1] };
 
   return { type: 'unknown' };
 }
