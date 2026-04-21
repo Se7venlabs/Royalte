@@ -4,6 +4,7 @@
 // URL Resolution: Accepts artist, track, and album URLs — resolves to artist-level scan automatically
 
 import { generateAppleToken } from './apple-token.js';
+import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib/rate-limit.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CORE AUDIT FUNCTION — reusable, no HTTP coupling.
@@ -314,11 +315,39 @@ export async function runAudit(url, urlTypeHint) {
 // ─────────────────────────────────────────────────────────────────────────────
 // HTTP HANDLER — thin wrapper around runAudit(). Preserves existing API contract.
 // ─────────────────────────────────────────────────────────────────────────────
+// Rate limit targets for /api/audit
+// Soft rollout per locked plan: 20/hr, 100/day. Tighten to 10/hr, 50/day after 48h + log review.
+const AUDIT_RATE_LIMITS = {
+  burst: { max: 3 },   // 3 requests per 10-second window
+  hour:  { max: 20 },  // rollout value — tighten to 10 after review
+  day:   { max: 100 }, // rollout value — tighten to 50 after review
+};
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // ── ABUSE PROTECTION (runs BEFORE expensive runAudit) ──
+  const ip = extractIp(req);
+
+  // 1. Hard block check (24h block list)
+  const blockStatus = await checkBlocked(ip);
+  if (blockStatus.blocked) {
+    const retryAfter = Math.max(1, Math.ceil((new Date(blockStatus.expiresAt).getTime() - Date.now()) / 1000));
+    res.setHeader('Retry-After', retryAfter);
+    return res.status(429).json({ error: 'Too many requests', retryAfter });
+  }
+
+  // 2. Rate limit check + increment
+  const rl = await checkRateLimit(ip, 'audit', AUDIT_RATE_LIMITS);
+  if (!rl.allowed) {
+    res.setHeader('Retry-After', rl.retryAfter || 60);
+    // Track the violation; may escalate to 24h block after 5 violations/hour
+    recordViolation(ip, 'audit', rl.reason).catch(() => {});
+    return res.status(429).json({ error: 'Too many requests', retryAfter: rl.retryAfter || 60 });
+  }
 
   const { url, type: urlTypeHint } = req.query;
 
