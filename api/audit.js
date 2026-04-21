@@ -1182,7 +1182,8 @@ async function getTidal(artistName) {
     const resp = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Accept':        'application/vnd.tidal.v1+json',
+        'accept':        'application/vnd.tidal.v1+json',
+        'Content-Type':  'application/vnd.tidal.v1+json',
       },
     });
     if (!resp.ok) return { found: false, popularity: 0 };
