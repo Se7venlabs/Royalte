@@ -1,4 +1,4 @@
-// Royaltē — /api/_lib/rate-limit.js
+// Royalte / api / _lib / rate-limit.js
 //
 // Shared anti-abuse helpers used by /api/audit and /api/submit-audit.
 //
