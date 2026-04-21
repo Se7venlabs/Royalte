@@ -39,9 +39,6 @@ export function generateAppleToken() {
     privateKey    = `-----BEGIN PRIVATE KEY-----\n${wrapped}\n-----END PRIVATE KEY-----`;
   }
 
-  console.log('[AppleToken] Key OK — begins:', privateKey.substring(0, 36));
-  console.log('[AppleToken] Team ID:', teamId, '| Key ID:', keyId);
-
   // Parse EC private key
   let keyObject;
   try {
@@ -78,9 +75,6 @@ export function generateAppleToken() {
   }
 
   const token = `${input}.${sig.toString('base64url')}`;
-
-  console.log('[AppleToken] Token generated. Length:', token.length,
-              '| Expires:', new Date(exp * 1000).toISOString());
 
   cachedToken = token;
   tokenExpiry = Date.now() + (exp - now) * 1000 - 60_000;
