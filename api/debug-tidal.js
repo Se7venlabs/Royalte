@@ -61,45 +61,89 @@ export default async function handler(req, res) {
     return res.status(200).json(result);
   }
 
-  // Step 2 — Call Tidal search endpoint to verify token works
+  // Step 2 — Try BOTH known Tidal search endpoint formats (Tidal has shipped two)
+  // Format A: /v2/searchresults/{query}?countryCode=X (JSON:API v2, documented)
+  // Format B: /v2/search?query={term}&types=ARTISTS&countryCode=X (alternate)
   const searchQuery = 'drake';
-  const searchUrl = `${TIDAL_API_BASE}/searchresults/${encodeURIComponent(searchQuery)}?countryCode=US&include=artists`;
+
+  result.tidal_api_tests = [];
+
+  // Test A — searchresults path
   try {
+    const urlA = `${TIDAL_API_BASE}/searchresults/${encodeURIComponent(searchQuery)}?countryCode=US&include=artists`;
     const t0 = Date.now();
-    const apiResp = await fetch(searchUrl, {
+    const respA = await fetch(urlA, {
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Accept':        'application/vnd.tidal.v1+json',
+        'accept':        'application/vnd.tidal.v1+json',
+        'Content-Type':  'application/vnd.tidal.v1+json',
       },
     });
-    const latencyMs = Date.now() - t0;
-
-    const respText = await apiResp.text();
-    let respBody = respText;
-    try { respBody = JSON.parse(respText); } catch (_) {}
-
-    result.tidal_api_call = {
-      url: searchUrl,
-      http_status: apiResp.status,
-      http_status_text: apiResp.statusText,
-      latency_ms: latencyMs,
-      response_headers: {
-        'content-type':       apiResp.headers.get('content-type'),
-        'x-ratelimit-remaining': apiResp.headers.get('x-ratelimit-remaining'),
-        'x-ratelimit-limit':     apiResp.headers.get('x-ratelimit-limit'),
-        'retry-after':           apiResp.headers.get('retry-after'),
-      },
-      // Truncate response body if huge — Tidal responses can be 50KB+
-      response_body: typeof respBody === 'string' && respBody.length > 2000
-        ? respBody.substring(0, 2000) + '...[truncated]'
-        : respBody,
-    };
+    const textA = await respA.text();
+    let bodyA = textA;
+    try { bodyA = JSON.parse(textA); } catch (_) {}
+    result.tidal_api_tests.push({
+      label: 'A: /searchresults/{query}',
+      url: urlA,
+      http_status: respA.status,
+      latency_ms: Date.now() - t0,
+      content_type: respA.headers.get('content-type'),
+      response_body: typeof bodyA === 'string' && bodyA.length > 500 ? bodyA.substring(0, 500) + '...' : bodyA,
+    });
   } catch (err) {
-    result.tidal_api_call = {
-      url: searchUrl,
-      fetch_error: err.message,
-      stack: err.stack?.split('\n').slice(0, 5).join('\n'),
-    };
+    result.tidal_api_tests.push({ label: 'A: /searchresults/{query}', error: err.message });
+  }
+
+  // Test B — /search path with query param
+  try {
+    const urlB = `${TIDAL_API_BASE}/search?query=${encodeURIComponent(searchQuery)}&countryCode=US&include=artists&type=ARTISTS`;
+    const t0 = Date.now();
+    const respB = await fetch(urlB, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept':        'application/vnd.tidal.v1+json',
+        'Content-Type':  'application/vnd.tidal.v1+json',
+      },
+    });
+    const textB = await respB.text();
+    let bodyB = textB;
+    try { bodyB = JSON.parse(textB); } catch (_) {}
+    result.tidal_api_tests.push({
+      label: 'B: /search?query=...',
+      url: urlB,
+      http_status: respB.status,
+      latency_ms: Date.now() - t0,
+      content_type: respB.headers.get('content-type'),
+      response_body: typeof bodyB === 'string' && bodyB.length > 500 ? bodyB.substring(0, 500) + '...' : bodyB,
+    });
+  } catch (err) {
+    result.tidal_api_tests.push({ label: 'B: /search?query=...', error: err.message });
+  }
+
+  // Test C — known-good endpoint from Tidal quick-start (direct album lookup)
+  try {
+    const urlC = `${TIDAL_API_BASE}/albums/59727856?countryCode=US`;
+    const t0 = Date.now();
+    const respC = await fetch(urlC, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'accept':        'application/vnd.tidal.v1+json',
+        'Content-Type':  'application/vnd.tidal.v1+json',
+      },
+    });
+    const textC = await respC.text();
+    let bodyC = textC;
+    try { bodyC = JSON.parse(textC); } catch (_) {}
+    result.tidal_api_tests.push({
+      label: 'C: /albums/59727856 (known-good from docs)',
+      url: urlC,
+      http_status: respC.status,
+      latency_ms: Date.now() - t0,
+      content_type: respC.headers.get('content-type'),
+      response_body: typeof bodyC === 'string' && bodyC.length > 500 ? bodyC.substring(0, 500) + '...' : bodyC,
+    });
+  } catch (err) {
+    result.tidal_api_tests.push({ label: 'C: /albums/59727856', error: err.message });
   }
 
   return res.status(200).json(result);
