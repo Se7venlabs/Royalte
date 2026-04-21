@@ -129,7 +129,9 @@ function _readEnv() {
   //   1) Strip surrounding quotes if pasted as JSON string
   //   2) Replace literal "\n" with real newlines (Vercel sometimes stores them this way)
   //   3) Ensure PEM framing; if raw base64 was pasted, wrap it
-  //   4) Normalize CRLF → LF
+  //   4) Auto-repair: if BEGIN is present but END is missing (Vercel web UI sometimes
+  //      truncates the last line on save), append the END marker
+  //   5) Normalize CRLF → LF
   let pem = raw.trim();
   if ((pem.startsWith('"') && pem.endsWith('"')) || (pem.startsWith("'") && pem.endsWith("'"))) {
     pem = pem.slice(1, -1);
@@ -141,6 +143,11 @@ function _readEnv() {
     const body = pem.replace(/\s+/g, '');
     const wrapped = body.match(/.{1,64}/g)?.join('\n') || body;
     pem = `-----BEGIN PRIVATE KEY-----\n${wrapped}\n-----END PRIVATE KEY-----\n`;
+  } else if (!pem.includes('-----END PRIVATE KEY-----')) {
+    // BEGIN present but END missing — append END marker after the last non-empty line
+    const lines = pem.split('\n').map(l => l.trimEnd()).filter(Boolean);
+    lines.push('-----END PRIVATE KEY-----');
+    pem = lines.join('\n');
   }
   pem = pem.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   if (!pem.endsWith('\n')) pem += '\n';
