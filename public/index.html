@@ -854,7 +854,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);"></div>
       <div style="font-size:32px;margin-bottom:14px;">🔒</div>
       <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:var(--text);margin-bottom:10px;">Your Full Audit Is Waiting</div>
-      <div style="font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto;">Complete territory coverage, all 6 verified module scores, your Royalty Risk Score breakdown, and a full action plan — delivered within 12–24 hours, free during beta.</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto;">Complete territory coverage, all 6 verified module scores, your Royalty Risk Score breakdown, and a full action plan — delivered within 12–24 hours, free for the first 200 artists.</div>
       <button onclick="unlockAndScrollToForm()" style="background:var(--grad);color:#fff;padding:16px 40px;border-radius:4px;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 4px 24px rgba(138,92,255,0.4);">Get My Full Audit Emailed — Free →</button>
     </div>
 
@@ -1000,11 +1000,11 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <div class="reveal">
         <div class="s-tag">Full audit request</div>
         <h2 class="s-h2">Request Your<br><span class="gt">Full Audit.</span></h2>
-        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:24px;">Full audits are completed manually by our team. You'll receive a complete verified report — all 6 modules, your Royalty Risk Score breakdown, territory coverage, and an action plan — within 12–24 hours. Free during beta.</p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:24px;">Full audits are completed manually by our team. You'll receive a complete verified report — all 6 modules, your Royalty Risk Score breakdown, territory coverage, and an action plan — within 12–24 hours. Free for the first 200 artists.</p>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">⚡</div><div style="font-size:13px;color:var(--text2);">Delivered within <strong style="color:var(--text);">12–24 hours</strong></div></div>
           <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">✓</div><div style="font-size:13px;color:var(--text2);"><strong style="color:var(--text);">Verified data only</strong> — no estimates or projections</div></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">🔓</div><div style="font-size:13px;color:var(--text2);">Completely <strong style="color:var(--text);">free during beta</strong></div></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">🔓</div><div style="font-size:13px;color:var(--text2);"><strong style="color:var(--text);">Free for the first 200 artists</strong> — spots are limited</div></div>
           <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">📊</div><div style="font-size:13px;color:var(--text2);">Royalty Risk Score + <strong style="color:var(--text);">action plan</strong></div></div>
         </div>
       </div>
@@ -1056,9 +1056,9 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
             <div class="form-microcopy">Artist name and link auto-fill from your scan · Only email required<br>Full audit delivered within 12–24 hours · Verified data only</div>
           </div>
           <div class="form-success" id="form-success">
-            <div class="fs-icon">✅</div>
-            <div class="fs-title">You're on the list.</div>
-            <div style="font-size:13px;color:var(--muted2);line-height:1.6;">We've received your audit request. Our team will deliver your full Royaltē verified report within 12–24 hours.<br><br>You're also added to early access for all future Royaltē releases.</div>
+            <div class="fs-icon" id="fs-icon">✅</div>
+            <div class="fs-title" id="fs-title">You're on the list.</div>
+            <div id="fs-body" style="font-size:13px;color:var(--muted2);line-height:1.6;">We've received your audit request. Our team will deliver your full Royaltē verified report within 12–24 hours.<br><br>You're also added to early access for all future Royaltē releases.</div>
           </div>
         </div>
       </div>
@@ -1382,18 +1382,39 @@ async function runAudit() {
   document.getElementById('hero-artist-sub').textContent = isApple ? 'Matching to Spotify via ISRC...' : 'Fetching verified data...';
 
   let auditData = null;
+  let rateLimited = false;
+  let rateLimitRetryAfter = 60;
   try {
     const meta = getMusicInputMeta(val);
     const qs = meta
       ? `?url=${encodeURIComponent(val)}&platform=${encodeURIComponent(meta.platform)}&type=${encodeURIComponent(meta.type)}`
       : `?url=${encodeURIComponent(val)}`;
     const resp = await fetchWithRetry(`/api/audit${qs}`);
-    auditData = await resp.json();
+    if (resp && resp.status === 429) {
+      rateLimited = true;
+      try {
+        const rlBody = await resp.json();
+        if (rlBody && typeof rlBody.retryAfter === 'number') rateLimitRetryAfter = rlBody.retryAfter;
+      } catch (_) {}
+    } else {
+      auditData = await resp.json();
+    }
   } catch (e) { auditData = null; }
 
   animateScan(isApple, () => {
     // Stop the looping processing sound and fire success chime
     stopProcessingSound();
+    if (rateLimited) {
+      // Friendly rate-limit UX — no demo fallback, no success chime
+      document.getElementById('scan-progress').style.display = 'none';
+      const waitMins = Math.max(1, Math.ceil(rateLimitRetryAfter / 60));
+      const waitLabel = waitMins === 1 ? 'a minute' : `${waitMins} minutes`;
+      showUrlError(`You've made several scans recently — please wait ${waitLabel} before trying again.`);
+      input.style.outline = '1px solid var(--amb)';
+      btn.disabled = false;
+      btn.textContent = 'Run Free Audit →';
+      return;
+    }
     playSuccessChime();
     if (auditData && auditData.success) {
       showRealResults(auditData);
@@ -1893,8 +1914,9 @@ async function submitForm() {
   } catch (e) {}
 
   // ── MODULE 2: Insert into Supabase audit_requests ─────────
+  let submitData = null;
   try {
-    await fetch('/api/submit-audit', {
+    const resp = await fetch('/api/submit-audit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1904,10 +1926,22 @@ async function submitForm() {
         url_type:    urlTypeLabel
       })
     });
+    try { submitData = await resp.json(); } catch (_) { submitData = null; }
   } catch (e) {
     console.warn('[Royaltē] Supabase insert non-blocking error:', e.message);
   }
   // ──────────────────────────────────────────────────────────
+
+  // If backend returned duplicate:true, swap the success copy to the
+  // "already have an audit" message before revealing the success card.
+  if (submitData && submitData.duplicate === true) {
+    const iconEl  = document.getElementById('fs-icon');
+    const titleEl = document.getElementById('fs-title');
+    const bodyEl  = document.getElementById('fs-body');
+    if (iconEl)  iconEl.textContent  = 'ℹ️';
+    if (titleEl) titleEl.textContent = 'Audit already in progress.';
+    if (bodyEl)  bodyEl.innerHTML    = "You already have an audit in progress or recently completed for this email. Email <a href=\"mailto:info@royalte.ai\" style=\"color:var(--pur);text-decoration:underline;\">info@royalte.ai</a> if you need a fresh re-scan.";
+  }
 
   document.getElementById('form-inner').style.display   = 'none';
   document.getElementById('form-success').style.display = 'block';
