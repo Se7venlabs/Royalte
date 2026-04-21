@@ -843,6 +843,12 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <div id="r-flags-list"></div>
     </div>
 
+    <!-- INSIGHT BLOCK — concise, data-derived, not duplicating flags -->
+    <div class="r-insight" id="r-insight" style="display:none;background:#0e0b1e;border:1px solid rgba(138,92,255,0.25);border-left:2px solid var(--pur);border-radius:8px;padding:16px 20px;margin-bottom:12px;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;">// Insight</div>
+      <div id="r-insight-body" style="font-size:14px;color:var(--text2);line-height:1.6;"></div>
+    </div>
+
     <!-- LOCKED MOCKUP -->
     <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:32px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden;">
       <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);"></div>
@@ -913,6 +919,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       </div>
       <div id="url-type-chip" class="url-type-chip"></div>
       <div class="paste-hint">// Supports Spotify &amp; Apple Music · artist, album, track, or song links</div>
+      <div class="paste-clarity" style="font-size:11px;color:var(--muted2);margin-top:10px;line-height:1.55;max-width:460px;font-family:'Space Grotesk',sans-serif;opacity:0.85;">We don't collect royalties for you — we show you exactly where you may be missing them.</div>
       <div class="scan-progress" id="scan-progress">
         <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
         <div class="sp-label" id="sp-label">Scanning...</div>
@@ -1087,6 +1094,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
     </svg>
   </div>
+  <div class="f-social-proof" style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--muted2);letter-spacing:0.04em;text-align:center;margin-bottom:6px;opacity:0.85;">Built for independent artists and emerging labels</div>
   <div class="f-copy">© 2026 Royaltē · Se7ven Labs Inc. · info@royalte.ai</div>
   <div class="f-links">
     <a href="/contact.html">Contact</a>
@@ -1715,6 +1723,7 @@ function showRealResults(data) {
 
   buildCards(cards);
   buildFlags(data.flags || data.previewFlags || []);
+  renderInsight(data);
   // Unlock the form now that scan is complete
   const overlay = document.getElementById('form-lock-overlay');
   if (overlay) overlay.classList.add('hidden');
@@ -1765,6 +1774,44 @@ function buildCards(cards) {
       ${c.source ? `<div class="rc-source">Source: ${c.source}</div>` : ''}
       <span class="rc-badge ${c.badge}">${c.bt}</span>
     </div>`).join('');
+}
+
+// ── RENDER INSIGHT ─────────────────────────────────────────
+// Concise, factual, derived from existing signals. Does NOT duplicate flags.
+// Picks the single most relevant observation based on coverage + ISRC + risk level.
+function renderInsight(data) {
+  const block = document.getElementById('r-insight');
+  const body  = document.getElementById('r-insight-body');
+  if (!block || !body || !data) return;
+
+  const plats = data.platforms || {};
+  const platformsFound = Object.values(plats).filter(p => p && (p.found === true || p === true)).length;
+  const platformsTotal = Object.keys(plats).length;
+  const coverageRatio = platformsTotal > 0 ? platformsFound / platformsTotal : 0;
+  const riskLevel = data.royaltyRiskScore?.riskLevel || null;
+  const isrcRegistered = !!data.trackIsrc;
+  const scanMode = data.scanMode || data.type || 'artist';
+  const subject = scanMode === 'track' ? 'This track' : scanMode === 'album' ? 'This album' : 'This artist';
+
+  let text = null;
+
+  // Priority ladder — pick the single most relevant observation.
+  if (isrcRegistered && coverageRatio < 0.7) {
+    text = `${subject} has a registered ISRC but incomplete platform coverage. You may not be capturing full royalties across all platforms.`;
+  } else if (!isrcRegistered && scanMode === 'track') {
+    text = `${subject} has no ISRC detected. Without a registered ISRC, performance royalty routing is unverified across platforms.`;
+  } else if (riskLevel === 'High') {
+    text = `${subject} shows activity with multiple verified royalty-risk signals. Review the full audit to see the complete breakdown.`;
+  } else if (coverageRatio >= 0.85 && riskLevel !== 'High') {
+    text = `${subject} has strong platform coverage. The full audit verifies metadata consistency and publishing registration across all platforms.`;
+  } else if (coverageRatio < 0.5) {
+    text = `${subject} shows limited cross-platform presence. Distribution gaps are often linked to missing or unrouted royalty streams.`;
+  } else {
+    text = `${subject} has activity across multiple platforms. The full audit cross-verifies metadata, ISRC routing, and publishing coverage end-to-end.`;
+  }
+
+  body.textContent = text;
+  block.style.display = 'block';
 }
 
 // ── BUILD FLAGS ────────────────────────────────────────────
