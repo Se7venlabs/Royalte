@@ -9,6 +9,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { createClient } from '@supabase/supabase-js';
+import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib/rate-limit.js';
 
 // ── SUPABASE CLIENT ───────────────────────────────────────────────────────────
 function getSupabase() {
@@ -64,14 +65,67 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid email address' });
   }
 
+  // ── ABUSE PROTECTION (rate limits before any DB writes) ──
+  const ip = extractIp(req);
+
+  const blockStatus = await checkBlocked(ip);
+  if (blockStatus.blocked) {
+    const retryAfter = Math.max(1, Math.ceil((new Date(blockStatus.expiresAt).getTime() - Date.now()) / 1000));
+    res.setHeader('Retry-After', retryAfter);
+    return res.status(429).json({ error: 'Too many requests', retryAfter });
+  }
+
+  // Soft rollout: 10/hr submits (tighten to 5/hr after 48h log review)
+  const rl = await checkRateLimit(ip, 'submit-audit', {
+    burst: { max: 2 },   // 2 submits per 10-second window
+    hour:  { max: 10 },  // rollout value — tighten to 5 after review
+    day:   { max: 20 },  // rollout value — tighten to 10 after review
+  });
+  if (!rl.allowed) {
+    res.setHeader('Retry-After', rl.retryAfter || 60);
+    recordViolation(ip, 'submit-audit', rl.reason).catch(() => {});
+    return res.status(429).json({ error: 'Too many requests', retryAfter: rl.retryAfter || 60 });
+  }
+
   // ── SUPABASE INSERT ───────────────────────────────────────────────────────
   try {
     const supabase = getSupabase();
 
+    // ── PER-EMAIL SOFT LOCK ──
+    // Prevent duplicate audits for the same email if one is:
+    //   - pending
+    //   - processing
+    //   - completed within the last 7 days
+    // Friendly response (not a hard block) — directs users to email for re-scans.
+    const normalizedEmail = email.trim().toLowerCase();
+    const sevenDaysAgo = new Date(Date.now() - (7 * 24 * 3600 * 1000)).toISOString();
+    const { data: existingRows, error: lockErr } = await supabase
+      .from('audit_requests')
+      .select('id, status, created_at, source_url, artist_name')
+      .eq('email', normalizedEmail)
+      .or(`status.eq.pending,status.eq.processing,and(status.eq.completed,created_at.gte.${sevenDaysAgo})`)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (lockErr) {
+      console.warn('[submit-audit] per-email lock check failed (allowing):', lockErr.message);
+      // Fail-open: if the lock query itself errors, proceed with insert
+    } else if (existingRows && existingRows.length > 0) {
+      const existing = existingRows[0];
+      console.log('[submit-audit] 🛑 Duplicate suppressed | email:', normalizedEmail, '| existing id:', existing.id, '| status:', existing.status);
+      return res.status(200).json({
+        success: true,
+        duplicate: true,
+        message: 'You already have an audit in progress or recently completed. Email info@royalte.ai if you need a fresh re-scan.',
+        existing_id: existing.id,
+        existing_status: existing.status,
+      });
+    }
+
     const insertPayload = {
       source_url:  source_url.trim(),
       artist_name: artist_name.trim(),
-      email:       email.trim().toLowerCase(),
+      email:       normalizedEmail,
       url_type:    url_type || null,
       status:      'pending',
     };
@@ -110,9 +164,13 @@ export default async function handler(req, res) {
         const triggerUrl = `${proto}://${host}/api/process-audit`;
         // Do NOT await — we want the response to return to the user immediately.
         // Vercel keeps the container alive long enough for the TCP handshake.
+        const triggerHeaders = { 'Content-Type': 'application/json' };
+        if (process.env.INTERNAL_API_SECRET) {
+          triggerHeaders['x-internal-secret'] = process.env.INTERNAL_API_SECRET;
+        }
         fetch(triggerUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: triggerHeaders,
           body: JSON.stringify({ id: data.id }),
         }).catch(err => {
           console.warn('[submit-audit] process-audit trigger failed (non-blocking):', err.message);
