@@ -10,6 +10,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { runAudit } from './audit.js';
+import { verifyInternalSecret } from './_lib/rate-limit.js';
 
 // ── SUPABASE CLIENT (mirrors submit-audit.js pattern) ────────────────────────
 function getSupabase() {
@@ -71,8 +72,14 @@ function buildSummary(payload) {
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-internal-secret');
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // ── INTERNAL AUTH — only submit-audit.js (via INTERNAL_API_SECRET) may trigger this
+  if (!verifyInternalSecret(req)) {
+    console.warn('[process-audit] Rejected — missing/invalid x-internal-secret header');
+    return res.status(403).json({ error: 'Forbidden' });
+  }
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
