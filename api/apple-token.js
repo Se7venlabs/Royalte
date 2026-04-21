@@ -1,114 +1,213 @@
 // api/apple-token.js
-// Fixed: ESM export (matches audit.js import syntax)
-// Fixed: No jsonwebtoken dependency — uses Node.js built-in crypto only
-// Fixed: Handles Vercel \n encoding in APPLE_PRIVATE_KEY
-// Apple Music developer tokens are valid for up to 180 days.
-// We cache for 12 hours and regenerate, same as before.
+// ─────────────────────────────────────────────────────────────────────────────
+// Royaltē — Apple Music Developer Token Generator (rebuilt clean)
+//
+// Produces a valid Apple MusicKit JWT using ES256 on Node's built-in crypto.
+// Zero npm dependencies. Runs on Vercel serverless functions (Node 20).
+//
+// Public exports:
+//   getAppleDeveloperToken()   — preferred name, auto-refreshing
+//   generateAppleToken()       — alias for backwards compatibility
+//
+// Env vars (required):
+//   APPLE_TEAM_ID              — Apple Developer Team ID (10 chars, e.g. D2472VHQJY)
+//   APPLE_KEY_ID               — 10-char MusicKit Key ID (e.g. 733AS3YV7J)
+//   APPLE_PRIVATE_KEY          — full .p8 contents (with BEGIN/END lines)
+//                                 accepts either real newlines OR literal "\n" escapes
+// ─────────────────────────────────────────────────────────────────────────────
 
 import { createPrivateKey, createSign } from 'crypto';
 
-let cachedToken = null;
-let tokenExpiry = null;
+// Apple allows tokens up to 180 days. We generate for 6 months (maximum).
+// We pre-emptively refresh 1 hour before true expiry so in-flight calls never race expiry.
+const TOKEN_TTL_SECONDS  = 60 * 60 * 24 * 180;  // 180 days (Apple max)
+const REFRESH_BUFFER_MS  = 60 * 60 * 1000;      // refresh 1h before expiry
 
+// Module-scoped cache. Shared across requests on the same Vercel instance.
+let _cachedToken    = null;
+let _cachedExpiryMs = 0;
+
+// ── PUBLIC API ───────────────────────────────────────────────────────────────
+
+/**
+ * Returns a valid Apple MusicKit developer token.
+ * Reuses cached token if still valid; regenerates otherwise.
+ *
+ * @returns {string} JWT suitable for Authorization: Bearer <token>
+ * @throws if env vars are missing or key is invalid
+ */
+export function getAppleDeveloperToken() {
+  if (_cachedToken && Date.now() < _cachedExpiryMs - REFRESH_BUFFER_MS) {
+    return _cachedToken;
+  }
+  return _mintNewToken();
+}
+
+/** Backwards-compatible alias — keeps existing `import { generateAppleToken }` call sites working. */
 export function generateAppleToken() {
-  // Return cached token if still valid
-  if (cachedToken && tokenExpiry && Date.now() < tokenExpiry) {
-    return cachedToken;
-  }
+  return getAppleDeveloperToken();
+}
 
-  const keyId      = process.env.APPLE_KEY_ID;
-  const teamId     = process.env.APPLE_TEAM_ID;
-  let   privateKey = process.env.APPLE_PRIVATE_KEY;
+// ── INTERNAL: MINT A FRESH TOKEN ─────────────────────────────────────────────
 
-  if (!keyId || !teamId || !privateKey) {
-    throw new Error(
-      'Missing Apple Music credentials. Check APPLE_KEY_ID, APPLE_TEAM_ID, APPLE_PRIVATE_KEY env vars.'
-    );
-  }
+function _mintNewToken() {
+  const { teamId, keyId, privateKeyPem } = _readEnv();
 
-  // FIX 1: Vercel stores multiline env vars with literal \n
-  // Convert to real newlines so the PEM key parses correctly.
-  if (privateKey.includes('\\n')) {
-    privateKey = privateKey.replace(/\\n/g, '\n');
-  }
-
-  // FIX 2: Ensure PEM headers are present
-  if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
-    const body    = privateKey.replace(/\s+/g, '');
-    const wrapped = body.match(/.{1,64}/g)?.join('\n') || body;
-    privateKey    = `-----BEGIN PRIVATE KEY-----\n${wrapped}\n-----END PRIVATE KEY-----`;
-  }
-
-  // Parse EC private key
+  // Parse the .p8 into a KeyObject (validates format up-front)
   let keyObject;
   try {
-    keyObject = createPrivateKey({ key: privateKey, format: 'pem' });
+    keyObject = createPrivateKey({ key: privateKeyPem, format: 'pem' });
   } catch (err) {
     throw new Error(
-      `Apple private key parse failed: ${err.message}. ` +
-      'Ensure APPLE_PRIVATE_KEY is the full .p8 file content including PEM headers.'
+      `[apple-token] Failed to parse APPLE_PRIVATE_KEY as PEM: ${err.message}. ` +
+      'Ensure the env var contains the full .p8 file contents including ' +
+      '"-----BEGIN PRIVATE KEY-----" and "-----END PRIVATE KEY-----" lines.'
     );
   }
 
-  // Build JWT — no jsonwebtoken dependency, pure Node crypto
-  const now      = Math.floor(Date.now() / 1000);
-  const exp      = now + 60 * 60 * 12; // 12 hours
+  // Sanity-check: MusicKit keys must be EC P-256
+  const { asymmetricKeyType } = keyObject;
+  if (asymmetricKeyType !== 'ec') {
+    throw new Error(
+      `[apple-token] Private key is not EC (got type="${asymmetricKeyType}"). ` +
+      'MusicKit requires an EC P-256 key — confirm the key has MusicKit enabled in Apple Developer.'
+    );
+  }
 
-  const header  = { alg: 'ES256', kid: keyId };
-  const payload = { iss: teamId, iat: now, exp };
+  // Build JWT
+  const nowSec = Math.floor(Date.now() / 1000);
+  const expSec = nowSec + TOKEN_TTL_SECONDS;
 
-  const headerB64  = b64url(JSON.stringify(header));
-  const payloadB64 = b64url(JSON.stringify(payload));
-  const input      = `${headerB64}.${payloadB64}`;
+  const header  = { alg: 'ES256', kid: keyId, typ: 'JWT' };
+  const payload = { iss: teamId, iat: nowSec, exp: expSec };
 
-  let sig;
+  const headerB64  = _base64UrlEncode(JSON.stringify(header));
+  const payloadB64 = _base64UrlEncode(JSON.stringify(payload));
+  const signingInput = `${headerB64}.${payloadB64}`;
+
+  // Sign with ES256 (P-256 + SHA-256). Node emits DER-encoded signature.
+  // JWT requires raw r||s concatenation — convert.
+  let rawSig;
   try {
     const signer = createSign('SHA256');
-    signer.update(input);
+    signer.update(signingInput);
     signer.end();
-    sig = derToRawSignature(signer.sign(keyObject));
+    const derSig = signer.sign(keyObject);
+    rawSig = _derToJose(derSig, 32); // 32 bytes each for r and s on P-256
   } catch (err) {
     throw new Error(
-      `Apple JWT signing failed: ${err.message}. ` +
-      'Ensure the key is an EC P-256 MusicKit key (not App Store Connect).'
+      `[apple-token] Signing failed: ${err.message}. ` +
+      'This usually means the key is not a MusicKit key or the .p8 content is corrupted.'
     );
   }
 
-  const token = `${input}.${sig.toString('base64url')}`;
+  const signatureB64 = _bufferToBase64Url(rawSig);
+  const token = `${signingInput}.${signatureB64}`;
 
-  cachedToken = token;
-  tokenExpiry = Date.now() + (exp - now) * 1000 - 60_000;
+  _cachedToken    = token;
+  _cachedExpiryMs = expSec * 1000;
 
   return token;
 }
 
-function b64url(str) {
-  return Buffer.from(str, 'utf8')
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
+// ── INTERNAL: ENV VAR READING + NORMALIZATION ────────────────────────────────
+
+function _readEnv() {
+  const teamId = process.env.APPLE_TEAM_ID;
+  const keyId  = process.env.APPLE_KEY_ID;
+  let   raw    = process.env.APPLE_PRIVATE_KEY;
+
+  const missing = [];
+  if (!teamId) missing.push('APPLE_TEAM_ID');
+  if (!keyId)  missing.push('APPLE_KEY_ID');
+  if (!raw)    missing.push('APPLE_PRIVATE_KEY');
+  if (missing.length) {
+    throw new Error(`[apple-token] Missing env vars: ${missing.join(', ')}`);
+  }
+
+  // Normalize private key:
+  //   1) Strip surrounding quotes if pasted as JSON string
+  //   2) Replace literal "\n" with real newlines (Vercel sometimes stores them this way)
+  //   3) Ensure PEM framing; if raw base64 was pasted, wrap it
+  //   4) Normalize CRLF → LF
+  let pem = raw.trim();
+  if ((pem.startsWith('"') && pem.endsWith('"')) || (pem.startsWith("'") && pem.endsWith("'"))) {
+    pem = pem.slice(1, -1);
+  }
+  if (pem.includes('\\n')) {
+    pem = pem.replace(/\\n/g, '\n');
+  }
+  if (!pem.includes('-----BEGIN PRIVATE KEY-----')) {
+    const body = pem.replace(/\s+/g, '');
+    const wrapped = body.match(/.{1,64}/g)?.join('\n') || body;
+    pem = `-----BEGIN PRIVATE KEY-----\n${wrapped}\n-----END PRIVATE KEY-----\n`;
+  }
+  pem = pem.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  if (!pem.endsWith('\n')) pem += '\n';
+
+  return { teamId, keyId, privateKeyPem: pem };
 }
 
-// DER-encoded ECDSA → raw r‖s (JWT requires 64-byte raw format)
-function derToRawSignature(der) {
-  let offset = 2;
-  if (der[1] & 0x80) offset += der[1] & 0x7f;
+// ── INTERNAL: BASE64URL HELPERS ──────────────────────────────────────────────
 
-  offset++;
-  const rLen = der[offset++];
-  let r = der.slice(offset, offset + rLen);
+function _base64UrlEncode(str) {
+  return _bufferToBase64Url(Buffer.from(str, 'utf8'));
+}
+
+function _bufferToBase64Url(buf) {
+  return buf
+    .toString('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+}
+
+// ── INTERNAL: DER ECDSA → JOSE raw (r||s) ────────────────────────────────────
+// Node's createSign('SHA256') with an EC key emits DER-encoded ECDSA signatures.
+// JWT ES256 requires the JOSE format: fixed-length r||s concatenation.
+// For P-256, r and s are each 32 bytes → total 64 bytes.
+function _derToJose(derBuf, componentLength) {
+  // DER format:
+  //   0x30 <seq-length>
+  //     0x02 <r-length> <r-bytes>
+  //     0x02 <s-length> <s-bytes>
+  let offset = 0;
+
+  if (derBuf[offset++] !== 0x30) {
+    throw new Error('[apple-token] Invalid DER: expected SEQUENCE tag');
+  }
+  // Sequence length (may be short-form or long-form)
+  let seqLen = derBuf[offset++];
+  if (seqLen & 0x80) {
+    const lenBytes = seqLen & 0x7f;
+    seqLen = 0;
+    for (let i = 0; i < lenBytes; i++) {
+      seqLen = (seqLen << 8) | derBuf[offset++];
+    }
+  }
+
+  // r INTEGER
+  if (derBuf[offset++] !== 0x02) {
+    throw new Error('[apple-token] Invalid DER: expected INTEGER tag for r');
+  }
+  const rLen = derBuf[offset++];
+  let r = derBuf.slice(offset, offset + rLen);
   offset += rLen;
 
-  offset++;
-  const sLen = der[offset++];
-  let s = der.slice(offset, offset + sLen);
+  // s INTEGER
+  if (derBuf[offset++] !== 0x02) {
+    throw new Error('[apple-token] Invalid DER: expected INTEGER tag for s');
+  }
+  const sLen = derBuf[offset++];
+  let s = derBuf.slice(offset, offset + sLen);
 
-  if (r[0] === 0x00) r = r.slice(1);
-  if (s[0] === 0x00) s = s.slice(1);
+  // DER INTEGER may have a leading 0x00 to disambiguate sign — strip it
+  if (r.length > componentLength && r[0] === 0x00) r = r.slice(r.length - componentLength);
+  if (s.length > componentLength && s[0] === 0x00) s = s.slice(s.length - componentLength);
 
-  const rPad = Buffer.concat([Buffer.alloc(Math.max(0, 32 - r.length)), r]);
-  const sPad = Buffer.concat([Buffer.alloc(Math.max(0, 32 - s.length)), s]);
+  // Left-pad to fixed component length
+  const rPadded = Buffer.concat([Buffer.alloc(componentLength - r.length, 0), r]);
+  const sPadded = Buffer.concat([Buffer.alloc(componentLength - s.length, 0), s]);
 
-  return Buffer.concat([rPad, sPad]);
+  return Buffer.concat([rPadded, sPadded]);
 }
