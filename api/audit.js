@@ -4,6 +4,7 @@
 // URL Resolution: Accepts artist, track, and album URLs — resolves to artist-level scan automatically
 
 import { generateAppleToken } from './apple-token.js';
+import { getTidalAccessToken } from './tidal-token.js';
 import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib/rate-limit.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -171,8 +172,8 @@ export async function runAudit(url, urlTypeHint) {
       }
     }
 
-    // All platforms in parallel — includes YouTube + Apple Music
-    const [mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, youtubeData, appleMusicData] = await Promise.allSettled([
+    // All platforms in parallel — includes YouTube + Apple Music + Tidal
+    const [mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, youtubeData, appleMusicData, tidalData] = await Promise.allSettled([
       getMusicBrainz(artistName),
       getDeezer(artistName),
       getAudioDB(artistName),
@@ -182,6 +183,7 @@ export async function runAudit(url, urlTypeHint) {
       getWikidata(artistName),
       getYouTube(artistName),
       getAppleMusic(artistName, trackData?.external_ids?.isrc || null, spotifyTopTracks, resolved.storefront || 'us'),
+      getTidal(artistName),
     ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : { found: false }));
 
     // Catalog analysis
@@ -194,13 +196,13 @@ export async function runAudit(url, urlTypeHint) {
     const country = audioDbData.country || wikidataData.country || null;
     const proGuide = getPROGuide(country);
 
-    const modules = runModules(artistData, trackData, mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData);
+    const modules = runModules(artistData, trackData, mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData, tidalData);
 
     const overallScore = Math.round(
       Object.values(modules).reduce((a, m) => a + m.score, 0) / Object.keys(modules).length
     );
 
-    const flags = buildFlags(modules, artistData, trackData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData);
+    const flags = buildFlags(modules, artistData, trackData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData, tidalData);
 
     // ── AUDIT COVERAGE — strict Apple Music verification + Spotify presence
     // Frontend reads: auditCoverage[spotify|appleMusic|publishing|soundExchange].status
@@ -281,6 +283,7 @@ export async function runAudit(url, urlTypeHint) {
         wikipedia: wikidataData.found,
         youtube: youtubeData.found,
         appleMusic: appleMusicData.found,
+        tidal: tidalData.found,
       },
       catalog: catalogData,
       royaltyGap,
@@ -290,6 +293,7 @@ export async function runAudit(url, urlTypeHint) {
       lastfmListeners: lastfmData.listeners || 0,
       wikipediaUrl: wikidataData.wikipediaUrl || null,
       deezerFans: deezerData.fans || 0,
+      tidalPopularity: tidalData.popularity || 0,
       discogsReleases: discogsData.releases || 0,
       youtube: youtubeData,
       appleMusic: appleMusicData,
@@ -1163,6 +1167,56 @@ async function getDeezer(artistName) {
 }
 
 // ────────────────────────────────────────────────────────
+// TIDAL
+// ────────────────────────────────────────────────────────
+// Searches Tidal's v2 OpenAPI for an artist by name.
+// Uses OAuth 2.1 client-credentials flow via ./tidal-token.js (24h token cache).
+// Returns popularity score (0-100) rather than fan count — Tidal's public API
+// does not expose raw fan/follower counts.
+// Fails open on any error (returns { found: false }).
+async function getTidal(artistName) {
+  try {
+    const token = await getTidalAccessToken();
+    const query = encodeURIComponent(artistName);
+    const url = `https://openapi.tidal.com/v2/searchresults/${query}?countryCode=US&include=artists`;
+    const resp = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept':        'application/vnd.tidal.v1+json',
+      },
+    });
+    if (!resp.ok) return { found: false, popularity: 0 };
+    const data = await resp.json();
+
+    // Tidal v2 uses JSON:API format:
+    //   data = { data: { id, type: 'searchResults', relationships: { artists: { data: [...] } } },
+    //            included: [ { id, type: 'artists', attributes: {...} }, ... ] }
+    const included = Array.isArray(data?.included) ? data.included : [];
+    const artists = included.filter(item => item?.type === 'artists');
+    if (artists.length === 0) return { found: false, popularity: 0 };
+
+    // Pick best match: exact name match (case-insensitive) or first result
+    const norm = s => (s || '').toLowerCase().trim();
+    const target = norm(artistName);
+    const best =
+      artists.find(a => norm(a.attributes?.name) === target) ||
+      artists[0];
+
+    const attrs = best?.attributes || {};
+    return {
+      found: true,
+      artistId:   best?.id || null,
+      name:       attrs.name || null,
+      popularity: typeof attrs.popularity === 'number' ? attrs.popularity : 0,
+      url:        attrs.externalLinks?.[0]?.href || null,
+      pictureUrl: attrs.imageLinks?.[0]?.href || null,
+    };
+  } catch {
+    return { found: false, popularity: 0 };
+  }
+}
+
+// ────────────────────────────────────────────────────────
 // AUDIODB
 // ────────────────────────────────────────────────────────
 async function getAudioDB(artistName) {
@@ -1306,7 +1360,7 @@ async function getWikidata(artistName) {
 // ────────────────────────────────────────────────────────
 // DETECTION MODULES — includes Apple Music module
 // ────────────────────────────────────────────────────────
-function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube, appleMusic) {
+function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube, appleMusic, tidal) {
   const modules = {};
 
   // MODULE A — Metadata Integrity
@@ -1320,7 +1374,7 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
   if (lastfm.found && lastfm.tags?.length) metaScore += 5;
   modules.metadata = { name: 'Metadata Integrity', score: Math.max(Math.min(metaScore, 100), 10), flags: metaFlags };
 
-  // MODULE B — Platform Coverage (now includes Apple Music)
+  // MODULE B — Platform Coverage (now includes Apple Music + Tidal)
   let covScore = 20;
   const covFlags = [];
   const checks = [
@@ -1333,6 +1387,7 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
     { name: 'Wikipedia', found: wikidata.found, pts: 8 },
     { name: 'YouTube', found: youtube.found, pts: 10 },
     { name: 'Apple Music', found: appleMusic.found, pts: 10 },
+    { name: 'Tidal', found: tidal?.found || false, pts: 10 },
   ];
   checks.forEach(p => {
     if (p.found) covScore += p.pts;
@@ -1405,6 +1460,7 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
   if (mb.found) { syncScore += 10; } else syncFlags.push('Not in MusicBrainz catalog');
   if (wikidata.found) { syncScore += 15; } else syncFlags.push('No Wikipedia presence — sync discoverability risk');
   if (deezer.found) syncScore += 8;
+  if (tidal?.found) syncScore += 6;
   if (discogs.found) syncScore += 8;
   if (lastfm.found && lastfm.listeners > 500) syncScore += 10;
   if (audiodb.found && audiodb.genre) syncScore += 8;
@@ -1421,7 +1477,7 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
 // ────────────────────────────────────────────────────────
 // BUILD FLAGS — includes Apple Music flags
 // ────────────────────────────────────────────────────────
-function buildFlags(modules, artist, track, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube, appleMusic) {
+function buildFlags(modules, artist, track, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube, appleMusic, tidal) {
   const flags = [];
 
   Object.entries(modules).forEach(([key, mod]) => {
