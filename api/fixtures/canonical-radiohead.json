@@ -1,0 +1,315 @@
+{
+  "schemaVersion": "1.0.0",
+  "scanId": "45b4f76c-8e37-4ea9-a762-4092056c4a2c",
+  "scannedAt": "2026-04-22T12:01:42.776Z",
+  "source": {
+    "platform": "spotify",
+    "urlType": "artist",
+    "resolvedFrom": "artist",
+    "originalUrl": "https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb",
+    "storefront": "us"
+  },
+  "subject": {
+    "artistName": "Radiohead",
+    "artistId": "4Z8W4fKeB5YxbusRsdQVPb",
+    "trackTitle": "Creep",
+    "trackIsrc": "GBAYE9300001",
+    "trackIsrcSource": "top_tracks_hoist",
+    "albumName": null
+  },
+  "metrics": {
+    "followers": 8234567,
+    "popularity": 82,
+    "genres": [
+      "alternative rock",
+      "art rock",
+      "melancholia",
+      "oxford indie"
+    ],
+    "lastfmPlays": 234567890,
+    "lastfmListeners": 4567890,
+    "deezerFans": 2345678,
+    "tidalPopularity": 78,
+    "discogsReleases": 89,
+    "country": "United Kingdom",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/Radiohead"
+  },
+  "catalog": {
+    "totalReleases": 47,
+    "earliestYear": 1993,
+    "latestYear": 2023,
+    "catalogAgeYears": 33,
+    "estimatedAnnualStreams": 98814804,
+    "recentActivity": true
+  },
+  "platforms": {
+    "spotify": {
+      "availability": "VERIFIED",
+      "details": null
+    },
+    "appleMusic": {
+      "availability": "VERIFIED",
+      "details": {
+        "artistId": "657515",
+        "artistUrl": "https://music.apple.com/us/artist/radiohead/657515",
+        "albumCount": 15,
+        "catalogComparison": {
+          "tracksChecked": 10,
+          "matched": 9,
+          "notFound": [
+            "Karma Police (Live)"
+          ],
+          "matchRate": 90
+        },
+        "isrcLookup": {
+          "found": true,
+          "name": "Creep",
+          "albumName": "Pablo Honey"
+        }
+      }
+    },
+    "musicbrainz": {
+      "availability": "VERIFIED",
+      "details": null
+    },
+    "deezer": {
+      "availability": "VERIFIED",
+      "details": null
+    },
+    "audiodb": {
+      "availability": "VERIFIED",
+      "details": null
+    },
+    "discogs": {
+      "availability": "VERIFIED",
+      "details": null
+    },
+    "soundcloud": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "lastfm": {
+      "availability": "VERIFIED",
+      "details": null
+    },
+    "wikipedia": {
+      "availability": "VERIFIED",
+      "details": null
+    },
+    "youtube": {
+      "availability": "VERIFIED",
+      "details": {
+        "officialChannel": {
+          "title": "Radiohead",
+          "channelId": "UC...",
+          "subscribers": 4200000,
+          "totalViews": 2100000000,
+          "videoCount": 89
+        },
+        "ugc": {
+          "videoCount": 10,
+          "estimatedViews": 1234567,
+          "topVideos": [],
+          "contentIdRisk": false
+        },
+        "subscriberCount": 4200000
+      }
+    },
+    "tidal": {
+      "availability": "VERIFIED",
+      "details": null
+    }
+  },
+  "auditCoverage": {
+    "spotify": {
+      "status": "Verified",
+      "tier": null
+    },
+    "appleMusic": {
+      "status": "Verified",
+      "tier": "isrc"
+    },
+    "publishing": {
+      "status": "Not Confirmed",
+      "tier": null
+    },
+    "soundExchange": {
+      "status": "Not Confirmed",
+      "tier": null
+    }
+  },
+  "auditCoverageRaw": {
+    "_deprecated": true,
+    "spotify": {
+      "connected": true
+    },
+    "apple_music": {
+      "connected": true
+    }
+  },
+  "modules": {
+    "metadata": {
+      "key": "metadata",
+      "name": "Metadata Integrity",
+      "score": 82,
+      "grade": "B",
+      "availability": "AVAILABLE",
+      "issueCount": 1,
+      "flags": [
+        "ISRC signal not detected on this track"
+      ]
+    },
+    "coverage": {
+      "key": "coverage",
+      "name": "Platform Coverage",
+      "score": 74,
+      "grade": "C",
+      "availability": "AVAILABLE",
+      "issueCount": 1,
+      "flags": [
+        "SoundCloud presence not detected — coverage risk"
+      ]
+    },
+    "publishing": {
+      "key": "publishing",
+      "name": "Publishing Risk",
+      "score": 52,
+      "grade": "F",
+      "availability": "AVAILABLE",
+      "issueCount": 2,
+      "flags": [
+        "Catalog active for 33 years — extended royalty verification recommended",
+        "High Last.fm play count — significant streaming history detected, PRO verification critical"
+      ]
+    },
+    "duplicates": {
+      "key": "duplicates",
+      "name": "Duplicate Detection",
+      "score": 88,
+      "grade": "B",
+      "availability": "AVAILABLE",
+      "issueCount": 0,
+      "flags": []
+    },
+    "youtube": {
+      "key": "youtube",
+      "name": "YouTube / UGC",
+      "score": 45,
+      "grade": "F",
+      "availability": "AVAILABLE",
+      "issueCount": 1,
+      "flags": [
+        "Content ID monetisation status unverified"
+      ]
+    },
+    "sync": {
+      "key": "sync",
+      "name": "Sync Readiness",
+      "score": 71,
+      "grade": "C",
+      "availability": "AVAILABLE",
+      "issueCount": 1,
+      "flags": [
+        "Only 90% of top tracks matched on Apple Music — catalog gaps detected"
+      ]
+    }
+  },
+  "issues": [
+    {
+      "id": "5c15bdca5c3a",
+      "module": "publishing",
+      "moduleName": "Publishing Risk",
+      "severity": "HIGH",
+      "title": "Catalog active for 33 years",
+      "detail": "Catalog active for 33 years — extended period of potential royalty exposure detected",
+      "source": "module"
+    },
+    {
+      "id": "49c1becfa6a9",
+      "module": "coverage",
+      "moduleName": "Platform Coverage",
+      "severity": "HIGH",
+      "title": "234,567,890 Last.fm plays detected",
+      "detail": "234,567,890 Last.fm plays detected — significant historical streaming activity warrants full PRO audit",
+      "source": "platform"
+    },
+    {
+      "id": "dc3bc43c82cf",
+      "module": "youtube",
+      "moduleName": "YouTube / UGC",
+      "severity": "WARNING",
+      "title": "~1,234,567 views detected on UGC videos",
+      "detail": "~1,234,567 views detected on UGC videos — significant unmonetised revenue risk",
+      "source": "module"
+    },
+    {
+      "id": "fdd42a03b263",
+      "module": "publishing",
+      "moduleName": "Ownership & Publishing",
+      "severity": "WARNING",
+      "title": "Ownership data not confirmed via performing rights organizations",
+      "detail": "Ownership data not confirmed via performing rights organizations — verify songwriter and publisher registration via ASCAP/BMI Songview.",
+      "source": "ownership"
+    },
+    {
+      "id": "8220df43a367",
+      "module": "sync",
+      "moduleName": "Sync Readiness",
+      "severity": "WARNING",
+      "title": "No Wikipedia presence detected",
+      "detail": "No Wikipedia presence detected — sync licensing teams often research artists on Wikipedia before licensing",
+      "source": "module"
+    },
+    {
+      "id": "34c6626f9e14",
+      "module": "duplicates",
+      "moduleName": "Duplicate Detection",
+      "severity": "INFO",
+      "title": "89 releases found on Discogs",
+      "detail": "89 releases found on Discogs — physical catalog confirmed",
+      "source": "module"
+    }
+  ],
+  "score": {
+    "overall": 65,
+    "riskLevel": "MODERATE",
+    "riskSummary": "Moderate risk — some gaps detected. Top concerns: Catalog active for 33 years; 234,567,890 Last.fm plays detected.",
+    "moduleAverage": 69,
+    "ownershipImpact": -4
+  },
+  "royaltyGap": {
+    "estAnnualStreams": 65614404,
+    "estLifetimeStreams": 656144040,
+    "estSpotifyRoyalties": 2624576,
+    "estPROEarnings": 524915,
+    "estTotalRoyalties": 3149491,
+    "potentialGapLow": 157474,
+    "potentialGapHigh": 314949,
+    "catalogYears": 33,
+    "ugcUnmonetisedViews": 1234567,
+    "ugcPotentialRevenue": 1852,
+    "disclaimer": "Estimates only. Verify with your distributor and PRO."
+  },
+  "proGuide": {
+    "pro": "PRS for Music",
+    "url": "https://www.prsformusic.com",
+    "steps": [
+      "Go to prsformusic.com and click Join PRS",
+      "Register as a writer member"
+    ],
+    "note": "PRS for Music collects performance royalties across the UK.",
+    "country": "United Kingdom"
+  },
+  "ownership": {
+    "status": "unverified",
+    "confidence": "MEDIUM",
+    "scoreImpact": -4,
+    "render": {
+      "headline": "Ownership: Unverified",
+      "detail": "Cross-platform signals present but PRO registration unconfirmed.",
+      "cta": "Verify with ASCAP/BMI Songview"
+    }
+  },
+  "territoryCoverage": null,
+  "isrcValidation": null
+}
