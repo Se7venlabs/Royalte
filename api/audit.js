@@ -16,7 +16,7 @@ import {
   evaluateOwnership,
   evaluateOwnershipBatch,
   renderOwnershipSection,
-} from './ownership-verification.js';
+} from '../ownership-verification.js';
 import { normalizeAuditResponse } from './lib/normalizeAuditResponse.js';
 import { validateAuditResponse, AuditSchemaError } from './schema/auditResponse.js';
 
