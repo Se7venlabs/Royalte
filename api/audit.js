@@ -1,11 +1,17 @@
 // Royalte Audit API — /api/audit.js
-// Platforms: Spotify + MusicBrainz + Deezer + AudioDB + Discogs + SoundCloud + Last.fm + Wikidata + YouTube + Apple Music
-// Features: Royalty gap estimate, catalog age analysis, country PRO guide, real YouTube UGC detection, Apple Music catalog comparison
+// Platforms: Spotify + MusicBrainz + Deezer + AudioDB + Discogs + SoundCloud + Last.fm + Wikidata + YouTube + Apple Music + Tidal
+// Features: Royalty gap estimate, catalog age analysis, country PRO guide, real YouTube UGC detection, Apple Music catalog comparison,
+//           Ownership & Publishing Verification (ASCAP/BMI Songview guidance)
 // URL Resolution: Accepts artist, track, and album URLs — resolves to artist-level scan automatically
 
 import { generateAppleToken } from './apple-token.js';
 import { getTidalAccessToken } from './tidal-token.js';
 import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib/rate-limit.js';
+import {
+  evaluateOwnership,
+  evaluateOwnershipBatch,
+  renderOwnershipSection,
+} from './ownership-verification.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CORE AUDIT FUNCTION — reusable, no HTTP coupling.
@@ -198,12 +204,6 @@ export async function runAudit(url, urlTypeHint) {
 
     const modules = runModules(artistData, trackData, mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData, tidalData);
 
-    const overallScore = Math.round(
-      Object.values(modules).reduce((a, m) => a + m.score, 0) / Object.keys(modules).length
-    );
-
-    const flags = buildFlags(modules, artistData, trackData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData, tidalData);
-
     // ── AUDIT COVERAGE — strict Apple Music verification + Spotify presence
     // Frontend reads: auditCoverage[spotify|appleMusic|publishing|soundExchange].status
     // Compatibility mirror: auditCoverageRaw[spotify|apple_music].connected
@@ -236,6 +236,58 @@ export async function runAudit(url, urlTypeHint) {
 
     const spotifyStatus = 'Verified'; // if we got here, Spotify resolver + artist fetch both succeeded
     const appleStatus = appleVerification.status;
+
+    // ── OWNERSHIP & PUBLISHING VERIFICATION ──
+    // Runs AFTER platform confirmation so we can read the verified Spotify/Apple
+    // signals. Confidence is derived from the same source auditCoverage uses:
+    //   Verified      → HIGH
+    //   Not Confirmed → AUTH_UNAVAILABLE   (treated as LOW / at-risk contributor)
+    //   Not Connected → LOW                (artist/track genuinely missing)
+    const statusToConfidence = (s) => {
+      if (s === 'Verified') return 'HIGH';
+      if (s === 'Not Confirmed') return 'AUTH_UNAVAILABLE';
+      return 'LOW';
+    };
+    const spotifyConfidence = statusToConfidence(spotifyStatus);
+    const appleConfidence   = statusToConfidence(appleStatus);
+
+    let ownershipVerification;
+    if (resolved.originalType === 'artist' && spotifyTopTracks && spotifyTopTracks.length > 0) {
+      // Artist scan — evaluate across the top tracks that have ISRCs,
+      // so the aggregate reflects catalog-wide ownership risk.
+      ownershipVerification = evaluateOwnershipBatch(
+        spotifyTopTracks.slice(0, 5).map(t => ({
+          artist_name: t.artistName || artistName,
+          track_name: t.name,
+          isrc: t.isrc || null,
+          spotify_confidence: spotifyConfidence,
+          apple_confidence: appleConfidence,
+          ownership_data: null,
+        })),
+        artistName
+      );
+    } else {
+      // Track / album / fallback — single evaluation
+      ownershipVerification = evaluateOwnership({
+        artist_name: artistName,
+        track_name: trackData?.name || appleMusicSource?.trackName || artistName,
+        album_name: appleMusicSource?.albumName || null,
+        isrc: trackData?.external_ids?.isrc || null,
+        spotify_confidence: spotifyConfidence,
+        apple_confidence: appleConfidence,
+        ownership_data: null, // placeholder — wire in real PRO data here once available
+      });
+    }
+    const ownershipVerificationRender = renderOwnershipSection(ownershipVerification);
+
+    // ── OVERALL SCORE ──
+    // Modules average + ownership score_impact (clamped 0..100).
+    const moduleAvg = Math.round(
+      Object.values(modules).reduce((a, m) => a + m.score, 0) / Object.keys(modules).length
+    );
+    const overallScore = Math.max(0, Math.min(100, moduleAvg + (ownershipVerification.score_impact || 0)));
+
+    const flags = buildFlags(modules, artistData, trackData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData, tidalData, ownershipVerification);
 
     const auditCoverage = {
       spotify:       { status: spotifyStatus },
@@ -306,6 +358,8 @@ export async function runAudit(url, urlTypeHint) {
       scannedAt: new Date().toISOString(),
       auditCoverage,
       auditCoverageRaw,
+      ownershipVerification,          // raw structured object (for API consumers + PDF)
+      ownershipVerificationRender,    // widget-ready payload (for frontend rendering)
     };
 
     return { ok: true, payload };
@@ -1476,9 +1530,9 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
 }
 
 // ────────────────────────────────────────────────────────
-// BUILD FLAGS — includes Apple Music flags
+// BUILD FLAGS — includes Apple Music + Ownership flags
 // ────────────────────────────────────────────────────────
-function buildFlags(modules, artist, track, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube, appleMusic, tidal) {
+function buildFlags(modules, artist, track, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube, appleMusic, tidal, ownership) {
   const flags = [];
 
   Object.entries(modules).forEach(([key, mod]) => {
@@ -1539,6 +1593,25 @@ function buildFlags(modules, artist, track, deezer, audiodb, discogs, soundcloud
 
   if (discogs.found && discogs.releases > 5) {
     flags.push({ module: 'Duplicate Detection', severity: 'low', description: `${discogs.releases} releases found on Discogs — physical catalog confirmed` });
+  }
+
+  // ── OWNERSHIP & PUBLISHING FLAGS ──
+  // Surface ownership status into the main flags list so the PDF + widget
+  // critical banner logic picks it up without extra wiring.
+  if (ownership) {
+    if (ownership.ownership_status === 'at_risk') {
+      flags.push({
+        module: 'Ownership & Publishing',
+        severity: 'high',
+        description: 'Ownership at risk — songwriter/publisher registration cannot be verified from cross-platform signals. Confirm with ASCAP/BMI Songview.'
+      });
+    } else if (ownership.ownership_status === 'unverified') {
+      flags.push({
+        module: 'Ownership & Publishing',
+        severity: 'medium',
+        description: 'Ownership data not confirmed via performing rights organizations — verify songwriter and publisher registration via ASCAP/BMI Songview.'
+      });
+    }
   }
 
   const order = { high: 0, medium: 1, low: 2 };
