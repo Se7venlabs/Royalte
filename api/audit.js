@@ -571,7 +571,7 @@ async function getSpotifyArtist(id, token) {
     throw new Error(`Spotify artist fetch failed: ${resp.status}`);
   }
   const rawText = await resp.text();
-  console.log('[audit:diag] getSpotifyArtist raw body length:', rawText.length, 'preview:', rawText.slice(0, 300));
+  console.log('[audit:diag] getSpotifyArtist raw body length:', rawText.length, 'preview:', rawText.slice(0, 800));
   try {
     return JSON.parse(rawText);
   } catch (e) {
