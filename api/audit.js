@@ -559,8 +559,25 @@ async function getSpotifyToken() {
 
 async function getSpotifyArtist(id, token) {
   const resp = await fetch(`https://api.spotify.com/v1/artists/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-  if (!resp.ok) throw new Error(`Spotify artist fetch failed: ${resp.status}`);
-  return resp.json();
+  console.log('[audit:diag] getSpotifyArtist status:', resp.status, 'url:', resp.url);
+  console.log('[audit:diag] getSpotifyArtist headers:', JSON.stringify({
+    'content-type': resp.headers.get('content-type'),
+    'cache-control': resp.headers.get('cache-control'),
+    'x-ratelimit-remaining': resp.headers.get('x-ratelimit-remaining'),
+  }));
+  if (!resp.ok) {
+    const errBody = await resp.text();
+    console.log('[audit:diag] getSpotifyArtist ERROR body:', errBody.slice(0, 500));
+    throw new Error(`Spotify artist fetch failed: ${resp.status}`);
+  }
+  const rawText = await resp.text();
+  console.log('[audit:diag] getSpotifyArtist raw body length:', rawText.length, 'preview:', rawText.slice(0, 300));
+  try {
+    return JSON.parse(rawText);
+  } catch (e) {
+    console.log('[audit:diag] getSpotifyArtist JSON parse failed:', e.message);
+    throw new Error('Spotify artist response not valid JSON');
+  }
 }
 
 async function getSpotifyAlbums(artistId, token) {
