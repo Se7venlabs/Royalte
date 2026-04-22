@@ -106,6 +106,18 @@ export async function runAudit(url, urlTypeHint) {
       trackData = resolved.trackData || null;
     }
 
+    // ── DIAGNOSTIC LOG (temporary — remove after zeros-for-followers bug is fixed) ──
+    console.log('[audit:diag] artistData keys:', Object.keys(artistData || {}));
+    console.log('[audit:diag] artistData sample:', JSON.stringify({
+      id: artistData?.id,
+      name: artistData?.name,
+      followers: artistData?.followers,
+      popularity: artistData?.popularity,
+      genres: artistData?.genres,
+      hasImages: Array.isArray(artistData?.images) ? artistData.images.length : 'n/a',
+      type: artistData?.type,
+    }));
+
     const artistId = artistData.id;
     const artistName = artistData.name;
 
