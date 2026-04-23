@@ -106,18 +106,6 @@ export async function runAudit(url, urlTypeHint) {
       trackData = resolved.trackData || null;
     }
 
-    // ── DIAGNOSTIC LOG (temporary — remove after zeros-for-followers bug is fixed) ──
-    console.log('[audit:diag] artistData keys:', Object.keys(artistData || {}));
-    console.log('[audit:diag] artistData sample:', JSON.stringify({
-      id: artistData?.id,
-      name: artistData?.name,
-      followers: artistData?.followers,
-      popularity: artistData?.popularity,
-      genres: artistData?.genres,
-      hasImages: Array.isArray(artistData?.images) ? artistData.images.length : 'n/a',
-      type: artistData?.type,
-    }));
-
     const artistId = artistData.id;
     const artistName = artistData.name;
 
@@ -283,6 +271,66 @@ export async function runAudit(url, urlTypeHint) {
       : 'track_direct';
 
     // ── RAW ENGINE OUTPUT — fed into normalizer, NOT returned directly ──
+    //
+    // MULTI-SOURCE FALLBACK for Spotify's abbreviated artist responses:
+    // As of April 2026, Spotify's /v1/artists/{id} endpoint — when called with
+    // client_credentials tokens — sometimes omits followers, popularity, and
+    // genres. The response still has 200 OK and includes id/name/images, but
+    // the engagement fields are missing. This is a Spotify-side restriction,
+    // not something we can patch.
+    //
+    // To keep audit reports useful, we fall back to equivalent signals from
+    // other platforms when Spotify's values are missing. The derived values
+    // are labeled via `followersSource` / `popularitySource` / `genresSource`
+    // so the frontend can show where the number actually came from.
+    //
+    // When/if Spotify starts returning full data again (or you upgrade to
+    // OAuth), this fallback deactivates transparently — the source fields
+    // will just read 'spotify' instead of 'deezer'/'lastfm'/'audiodb'.
+    const spotifyFollowers  = artistData.followers?.total ?? 0;
+    const spotifyPopularity = artistData.popularity ?? 0;
+    const spotifyGenres     = Array.isArray(artistData.genres) ? artistData.genres : [];
+
+    let followers        = spotifyFollowers;
+    let followersSource  = 'spotify';
+    if (!followers || followers === 0) {
+      // Prefer Deezer fan count (closest Spotify-equivalent), fall back to Last.fm listeners
+      if (deezerData.found && deezerData.fans > 0) {
+        followers = deezerData.fans;
+        followersSource = 'deezer';
+      } else if (lastfmData.found && lastfmData.listeners > 0) {
+        followers = lastfmData.listeners;
+        followersSource = 'lastfm';
+      }
+    }
+
+    let popularity        = spotifyPopularity;
+    let popularitySource  = 'spotify';
+    if (!popularity || popularity === 0) {
+      // Derive a 0-100 popularity score from Last.fm listeners (log scale, capped)
+      // 1M listeners ≈ 60, 10M ≈ 80, 100M+ ≈ 100
+      if (lastfmData.found && lastfmData.listeners > 0) {
+        const l = lastfmData.listeners;
+        popularity = Math.min(100, Math.round(20 * Math.log10(Math.max(l, 10))));
+        popularitySource = 'lastfm_derived';
+      }
+    }
+
+    let genres        = spotifyGenres;
+    let genresSource  = 'spotify';
+    if (genres.length === 0) {
+      // AudioDB provides genre/style strings; Last.fm provides tags
+      const fromAudioDb = [audioDbData.genre, audioDbData.style].filter(Boolean);
+      const fromLastfm  = Array.isArray(lastfmData.tags) ? lastfmData.tags.slice(0, 5) : [];
+      if (fromAudioDb.length > 0) {
+        genres = fromAudioDb;
+        genresSource = 'audiodb';
+      } else if (fromLastfm.length > 0) {
+        genres = fromLastfm;
+        genresSource = 'lastfm';
+      }
+    }
+
     const rawEngineOutput = {
       _originalUrl: url,
       _storefront: resolved.storefront || null,
@@ -292,9 +340,12 @@ export async function runAudit(url, urlTypeHint) {
       resolvedFrom: resolved.resolvedFrom || null,
       artistName,
       artistId: artistData.id,
-      followers: artistData.followers?.total || 0,
-      popularity: artistData.popularity || 0,
-      genres: artistData.genres || [],
+      followers,
+      popularity,
+      genres,
+      followersSource,
+      popularitySource,
+      genresSource,
       trackTitle: trackData?.name || null,
       trackIsrc: trackData?.external_ids?.isrc || null,
       trackIsrcSource: isrcPresent ? isrcSource : null,
@@ -559,25 +610,8 @@ async function getSpotifyToken() {
 
 async function getSpotifyArtist(id, token) {
   const resp = await fetch(`https://api.spotify.com/v1/artists/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-  console.log('[audit:diag] getSpotifyArtist status:', resp.status, 'url:', resp.url);
-  console.log('[audit:diag] getSpotifyArtist headers:', JSON.stringify({
-    'content-type': resp.headers.get('content-type'),
-    'cache-control': resp.headers.get('cache-control'),
-    'x-ratelimit-remaining': resp.headers.get('x-ratelimit-remaining'),
-  }));
-  if (!resp.ok) {
-    const errBody = await resp.text();
-    console.log('[audit:diag] getSpotifyArtist ERROR body:', errBody.slice(0, 500));
-    throw new Error(`Spotify artist fetch failed: ${resp.status}`);
-  }
-  const rawText = await resp.text();
-  console.log('[audit:diag] getSpotifyArtist raw body length:', rawText.length, 'preview:', rawText.slice(0, 800));
-  try {
-    return JSON.parse(rawText);
-  } catch (e) {
-    console.log('[audit:diag] getSpotifyArtist JSON parse failed:', e.message);
-    throw new Error('Spotify artist response not valid JSON');
-  }
+  if (!resp.ok) throw new Error(`Spotify artist fetch failed: ${resp.status}`);
+  return resp.json();
 }
 
 async function getSpotifyAlbums(artistId, token) {
