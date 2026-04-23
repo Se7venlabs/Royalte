@@ -223,7 +223,20 @@ export async function runAudit(url, urlTypeHint) {
       spotify_confidence: spotifyConfidence,
       apple_confidence: appleConfidence,
     };
-    const ownershipVerificationRender = null;
+    const ownershipVerificationRender = {
+      title: 'Ownership & Publishing Verification',
+      status_label: 'Unverified',
+      status_icon: 'ℹ️',
+      status: 'unverified',
+      confidence: 'low',
+      score_impact: 0,
+      issues: [],
+      recommendations: ['Verify songwriter and publisher registration via ASCAP/BMI Songview.'],
+      actions: [
+        { label: 'Check ASCAP', url: `https://www.ascap.com/repertory#/ace/search/title/${encodeURIComponent(artistName)}` },
+        { label: 'Check BMI',   url: `https://repertoire.bmi.com/Search/Search?SearchForm.View_Count=20&SearchForm.Main_Search_Text=${encodeURIComponent(artistName)}&SearchForm.Main_Search=Title` },
+      ],
+    };
 
     // Overall score (computed here, then normalizer may refine)
     const moduleAvg = Math.round(
