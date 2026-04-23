@@ -1,39 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Royaltē — Find Missing Music Royalties</title>
-
-<!-- SEO -->
-<meta name="description" content="Run a free music audit and discover missing royalties, metadata gaps, and platform issues in seconds. Built for artists, labels, and managers.">
-<meta name="robots" content="index, follow">
-<meta name="theme-color" content="#8a5cff">
-<link rel="canonical" href="https://royalte.ai/">
-
-<!-- Favicon -->
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
-<!-- Open Graph (Social Sharing) -->
-<meta property="og:title" content="Royaltē — Music Audit Intelligence">
-<meta property="og:description" content="Find missing royalties in your music catalog. Run your free audit in seconds.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://royalte.ai/">
-<meta property="og:site_name" content="Royaltē">
-<meta property="og:image" content="https://royalte.ai/og-image.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Royaltē — Music Audit Intelligence">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Royaltē — Music Audit Intelligence">
-<meta name="twitter:description" content="Find missing royalties in your music catalog. Run your free audit in seconds.">
-<meta name="twitter:image" content="https://royalte.ai/og-image.jpg">
-<meta name="twitter:image:alt" content="Royaltē — Music Audit Intelligence">
-
+<title>Royaltē — Music Audit Intelligence · Beta · Se7ven Labs Inc.</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="/images/artist-crowd-lights.jpg">
 <link rel="preload" as="image" href="/images/artist-singer-smoke.jpg">
@@ -183,13 +154,13 @@ section{padding:140px 56px;position:relative;}
 .results-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
 .results-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;}
 .results-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.results-tag{font-family:'Space Mono',monospace;font-size:11px;color:var(--pur);background:rgba(138,92,255,0.1);padding:4px 10px;border-radius:2px;border:1px solid var(--border2);}
+.results-tag{font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);background:rgba(138,92,255,0.1);padding:4px 10px;border-radius:2px;border:1px solid var(--border2);}
 .url-type-pill{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;padding:3px 9px;border-radius:2px;}
 .utp-artist{background:rgba(138,92,255,0.1);border:1px solid rgba(138,92,255,0.3);color:var(--pur);}
 .utp-track{background:rgba(64,240,160,0.08);border:1px solid rgba(64,240,160,0.3);color:var(--grn);}
 .utp-album{background:rgba(224,64,200,0.08);border:1px solid rgba(224,64,200,0.3);color:var(--pnk);}
 .utp-apple{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:var(--muted2);}
-.verified-badge{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.12em;padding:3px 8px;border-radius:2px;background:rgba(64,240,160,0.08);border:1px solid rgba(64,240,160,0.2);color:var(--grn);}
+.verified-badge{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.12em;padding:3px 8px;border-radius:2px;background:rgba(64,240,160,0.08);border:1px solid rgba(64,240,160,0.2);color:var(--grn);}
 
 /* ── ROYALTY RISK SCORE BANNER ── */
 .risk-banner{background:#0e0b1e;border:1px solid rgba(138,92,255,0.4);border-radius:8px;padding:24px 28px;margin-bottom:14px;position:relative;overflow:hidden;}
@@ -579,10 +550,10 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       Every stream, sync, and performance earns you royalties. <span class="nh-tagline-emphasis">Royaltē shows you exactly where yours are.</span>
     </p>
     <p class="nh-desc">
-      Every stream, sync, and performance generates royalties. Most artists never collect all of them. Royaltē shows you exactly where you're missing out — and how to fix it.
+      Every stream, sync, and performance generates royalties. Most artists never collect all of them. Royaltē scans your catalog, identifies exactly where money is slipping away, and tells you how to fix it.
     </p>
     <p class="nh-desc-mobile">
-      Every stream, sync, and performance generates royalties. Most artists never collect all of them. Royaltē shows you exactly where you're missing out — and how to fix it.
+      Every stream, sync, and performance generates royalties. Most artists never collect all of them. Royaltē shows you exactly where the money is.
     </p>
     <button class="nh-cta-btn" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('hero-url').focus(),800);">Run Free Scan →</button>
     <div class="nh-finds">
@@ -787,7 +758,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <div class="results-meta">
         <div class="results-tag" id="results-tag">Scanning...</div>
         <span class="url-type-pill" id="url-type-pill"></span>
-        <span class="results-matched-note" id="results-matched-note" style="display:none;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted2);background:rgba(138,92,255,0.06);padding:4px 10px;border-radius:2px;border:1px solid var(--border2);letter-spacing:0.05em;">// Matched to artist automatically</span>
+        <span class="results-matched-note" id="results-matched-note" style="display:none;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);background:rgba(138,92,255,0.06);padding:4px 10px;border-radius:2px;border:1px solid var(--border2);letter-spacing:0.05em;">// Matched to artist automatically</span>
         <span class="verified-badge">✓ Verified Data Only</span>
       </div>
     </div>
@@ -843,18 +814,12 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <div id="r-flags-list"></div>
     </div>
 
-    <!-- INSIGHT BLOCK — concise, data-derived, not duplicating flags -->
-    <div class="r-insight" id="r-insight" style="display:none;background:#0e0b1e;border:1px solid rgba(138,92,255,0.25);border-left:2px solid var(--pur);border-radius:8px;padding:16px 20px;margin-bottom:12px;">
-      <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;">// Insight</div>
-      <div id="r-insight-body" style="font-size:14px;color:var(--text2);line-height:1.6;"></div>
-    </div>
-
     <!-- LOCKED MOCKUP -->
     <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:32px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden;">
       <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);"></div>
       <div style="font-size:32px;margin-bottom:14px;">🔒</div>
       <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:var(--text);margin-bottom:10px;">Your Full Audit Is Waiting</div>
-      <div style="font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto;">Complete territory coverage, all 6 verified module scores, your Royalty Risk Score breakdown, and a full action plan — delivered within 12–24 hours, free for the first 200 artists.</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto;">Complete territory coverage, all 6 verified module scores, your Royalty Risk Score breakdown, and a full action plan — delivered within 12–24 hours, free during beta.</div>
       <button onclick="unlockAndScrollToForm()" style="background:var(--grad);color:#fff;padding:16px 40px;border-radius:4px;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 4px 24px rgba(138,92,255,0.4);">Get My Full Audit Emailed — Free →</button>
     </div>
 
@@ -919,7 +884,6 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       </div>
       <div id="url-type-chip" class="url-type-chip"></div>
       <div class="paste-hint">// Supports Spotify &amp; Apple Music · artist, album, track, or song links</div>
-      <div class="paste-clarity" style="font-size:11px;color:var(--muted2);margin-top:10px;line-height:1.55;max-width:460px;font-family:'Space Grotesk',sans-serif;opacity:0.85;">We don't collect royalties for you — we show you exactly where you may be missing them.</div>
       <div class="scan-progress" id="scan-progress">
         <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
         <div class="sp-label" id="sp-label">Scanning...</div>
@@ -1000,11 +964,11 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <div class="reveal">
         <div class="s-tag">Full audit request</div>
         <h2 class="s-h2">Request Your<br><span class="gt">Full Audit.</span></h2>
-        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:24px;">Full audits are completed manually by our team. You'll receive a complete verified report — all 6 modules, your Royalty Risk Score breakdown, territory coverage, and an action plan — within 12–24 hours. Free for the first 200 artists.</p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:24px;">Full audits are completed manually by our team. You'll receive a complete verified report — all 6 modules, your Royalty Risk Score breakdown, territory coverage, and an action plan — within 12–24 hours. Free during beta.</p>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">⚡</div><div style="font-size:13px;color:var(--text2);">Delivered within <strong style="color:var(--text);">12–24 hours</strong></div></div>
           <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">✓</div><div style="font-size:13px;color:var(--text2);"><strong style="color:var(--text);">Verified data only</strong> — no estimates or projections</div></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">🔓</div><div style="font-size:13px;color:var(--text2);"><strong style="color:var(--text);">Free for the first 200 artists</strong> — spots are limited</div></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">🔓</div><div style="font-size:13px;color:var(--text2);">Completely <strong style="color:var(--text);">free during beta</strong></div></div>
           <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">📊</div><div style="font-size:13px;color:var(--text2);">Royalty Risk Score + <strong style="color:var(--text);">action plan</strong></div></div>
         </div>
       </div>
@@ -1056,9 +1020,9 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
             <div class="form-microcopy">Artist name and link auto-fill from your scan · Only email required<br>Full audit delivered within 12–24 hours · Verified data only</div>
           </div>
           <div class="form-success" id="form-success">
-            <div class="fs-icon" id="fs-icon">✅</div>
-            <div class="fs-title" id="fs-title">You're on the list.</div>
-            <div id="fs-body" style="font-size:13px;color:var(--muted2);line-height:1.6;">We've received your audit request. Our team will deliver your full Royaltē verified report within 12–24 hours.<br><br>You're also added to early access for all future Royaltē releases.</div>
+            <div class="fs-icon">✅</div>
+            <div class="fs-title">You're on the list.</div>
+            <div style="font-size:13px;color:var(--muted2);line-height:1.6;">We've received your audit request. Our team will deliver your full Royaltē verified report within 12–24 hours.<br><br>You're also added to early access for all future Royaltē releases.</div>
           </div>
         </div>
       </div>
@@ -1094,7 +1058,6 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
     </svg>
   </div>
-  <div class="f-social-proof" style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--muted2);letter-spacing:0.04em;text-align:center;margin-bottom:6px;opacity:0.85;">Built for independent artists and emerging labels</div>
   <div class="f-copy">© 2026 Royaltē · Se7ven Labs Inc. · info@royalte.ai</div>
   <div class="f-links">
     <a href="/contact.html">Contact</a>
@@ -1382,39 +1345,18 @@ async function runAudit() {
   document.getElementById('hero-artist-sub').textContent = isApple ? 'Matching to Spotify via ISRC...' : 'Fetching verified data...';
 
   let auditData = null;
-  let rateLimited = false;
-  let rateLimitRetryAfter = 60;
   try {
     const meta = getMusicInputMeta(val);
     const qs = meta
       ? `?url=${encodeURIComponent(val)}&platform=${encodeURIComponent(meta.platform)}&type=${encodeURIComponent(meta.type)}`
       : `?url=${encodeURIComponent(val)}`;
     const resp = await fetchWithRetry(`/api/audit${qs}`);
-    if (resp && resp.status === 429) {
-      rateLimited = true;
-      try {
-        const rlBody = await resp.json();
-        if (rlBody && typeof rlBody.retryAfter === 'number') rateLimitRetryAfter = rlBody.retryAfter;
-      } catch (_) {}
-    } else {
-      auditData = await resp.json();
-    }
+    auditData = await resp.json();
   } catch (e) { auditData = null; }
 
   animateScan(isApple, () => {
     // Stop the looping processing sound and fire success chime
     stopProcessingSound();
-    if (rateLimited) {
-      // Friendly rate-limit UX — no demo fallback, no success chime
-      document.getElementById('scan-progress').style.display = 'none';
-      const waitMins = Math.max(1, Math.ceil(rateLimitRetryAfter / 60));
-      const waitLabel = waitMins === 1 ? 'a minute' : `${waitMins} minutes`;
-      showUrlError(`You've made several scans recently — please wait ${waitLabel} before trying again.`);
-      input.style.outline = '1px solid var(--amb)';
-      btn.disabled = false;
-      btn.textContent = 'Run Free Audit →';
-      return;
-    }
     playSuccessChime();
     if (auditData && auditData.success) {
       showRealResults(auditData);
@@ -1744,7 +1686,6 @@ function showRealResults(data) {
 
   buildCards(cards);
   buildFlags(data.flags || data.previewFlags || []);
-  renderInsight(data);
   // Unlock the form now that scan is complete
   const overlay = document.getElementById('form-lock-overlay');
   if (overlay) overlay.classList.add('hidden');
@@ -1795,44 +1736,6 @@ function buildCards(cards) {
       ${c.source ? `<div class="rc-source">Source: ${c.source}</div>` : ''}
       <span class="rc-badge ${c.badge}">${c.bt}</span>
     </div>`).join('');
-}
-
-// ── RENDER INSIGHT ─────────────────────────────────────────
-// Concise, factual, derived from existing signals. Does NOT duplicate flags.
-// Picks the single most relevant observation based on coverage + ISRC + risk level.
-function renderInsight(data) {
-  const block = document.getElementById('r-insight');
-  const body  = document.getElementById('r-insight-body');
-  if (!block || !body || !data) return;
-
-  const plats = data.platforms || {};
-  const platformsFound = Object.values(plats).filter(p => p && (p.found === true || p === true)).length;
-  const platformsTotal = Object.keys(plats).length;
-  const coverageRatio = platformsTotal > 0 ? platformsFound / platformsTotal : 0;
-  const riskLevel = data.royaltyRiskScore?.riskLevel || null;
-  const isrcRegistered = !!data.trackIsrc;
-  const scanMode = data.scanMode || data.type || 'artist';
-  const subject = scanMode === 'track' ? 'This track' : scanMode === 'album' ? 'This album' : 'This artist';
-
-  let text = null;
-
-  // Priority ladder — pick the single most relevant observation.
-  if (isrcRegistered && coverageRatio < 0.7) {
-    text = `${subject} has a registered ISRC but incomplete platform coverage. You may not be capturing full royalties across all platforms.`;
-  } else if (!isrcRegistered && scanMode === 'track') {
-    text = `${subject} has no ISRC detected. Without a registered ISRC, performance royalty routing is unverified across platforms.`;
-  } else if (riskLevel === 'High') {
-    text = `${subject} shows activity with multiple verified royalty-risk signals. Review the full audit to see the complete breakdown.`;
-  } else if (coverageRatio >= 0.85 && riskLevel !== 'High') {
-    text = `${subject} has strong platform coverage. The full audit verifies metadata consistency and publishing registration across all platforms.`;
-  } else if (coverageRatio < 0.5) {
-    text = `${subject} shows limited cross-platform presence. Distribution gaps are often linked to missing or unrouted royalty streams.`;
-  } else {
-    text = `${subject} has activity across multiple platforms. The full audit cross-verifies metadata, ISRC routing, and publishing coverage end-to-end.`;
-  }
-
-  body.textContent = text;
-  block.style.display = 'block';
 }
 
 // ── BUILD FLAGS ────────────────────────────────────────────
@@ -1914,9 +1817,8 @@ async function submitForm() {
   } catch (e) {}
 
   // ── MODULE 2: Insert into Supabase audit_requests ─────────
-  let submitData = null;
   try {
-    const resp = await fetch('/api/submit-audit', {
+    await fetch('/api/submit-audit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1926,22 +1828,10 @@ async function submitForm() {
         url_type:    urlTypeLabel
       })
     });
-    try { submitData = await resp.json(); } catch (_) { submitData = null; }
   } catch (e) {
     console.warn('[Royaltē] Supabase insert non-blocking error:', e.message);
   }
   // ──────────────────────────────────────────────────────────
-
-  // If backend returned duplicate:true, swap the success copy to the
-  // "already have an audit" message before revealing the success card.
-  if (submitData && submitData.duplicate === true) {
-    const iconEl  = document.getElementById('fs-icon');
-    const titleEl = document.getElementById('fs-title');
-    const bodyEl  = document.getElementById('fs-body');
-    if (iconEl)  iconEl.textContent  = 'ℹ️';
-    if (titleEl) titleEl.textContent = 'Audit already in progress.';
-    if (bodyEl)  bodyEl.innerHTML    = "You already have an audit in progress or recently completed for this email. Email <a href=\"mailto:info@royalte.ai\" style=\"color:var(--pur);text-decoration:underline;\">info@royalte.ai</a> if you need a fresh re-scan.";
-  }
 
   document.getElementById('form-inner').style.display   = 'none';
   document.getElementById('form-success').style.display = 'block';
@@ -1970,4 +1860,3 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
 </script>
 </body>
 </html>
-
