@@ -12,11 +12,6 @@
 import { generateAppleToken } from './apple-token.js';
 import { getTidalAccessToken } from './tidal-token.js';
 import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib/rate-limit.js';
-import {
-  evaluateOwnership,
-  evaluateOwnershipBatch,
-  renderOwnershipSection,
-} from './ownership-verification.js';
 import { normalizeAuditResponse } from './lib/normalizeAuditResponse.js';
 import { validateAuditResponse, AuditSchemaError } from './schema/auditResponse.js';
 
@@ -220,31 +215,15 @@ export async function runAudit(url, urlTypeHint) {
     const spotifyConfidence = statusToConfidence(spotifyStatus);
     const appleConfidence   = statusToConfidence(appleStatus);
 
-    let ownershipVerification;
-    if (resolved.originalType === 'artist' && spotifyTopTracks && spotifyTopTracks.length > 0) {
-      ownershipVerification = evaluateOwnershipBatch(
-        spotifyTopTracks.slice(0, 5).map(t => ({
-          artist_name: t.artistName || artistName,
-          track_name: t.name,
-          isrc: t.isrc || null,
-          spotify_confidence: spotifyConfidence,
-          apple_confidence: appleConfidence,
-          ownership_data: null,
-        })),
-        artistName
-      );
-    } else {
-      ownershipVerification = evaluateOwnership({
-        artist_name: artistName,
-        track_name: trackData?.name || appleMusicSource?.trackName || artistName,
-        album_name: appleMusicSource?.albumName || null,
-        isrc: trackData?.external_ids?.isrc || null,
-        spotify_confidence: spotifyConfidence,
-        apple_confidence: appleConfidence,
-        ownership_data: null,
-      });
-    }
-    const ownershipVerificationRender = renderOwnershipSection(ownershipVerification);
+    // Ownership verification stub (file not deployed to production)
+    const ownershipVerification = {
+      ownership_status: 'unverified',
+      confidence: 'LOW',
+      score_impact: 0,
+      spotify_confidence: spotifyConfidence,
+      apple_confidence: appleConfidence,
+    };
+    const ownershipVerificationRender = null;
 
     // Overall score (computed here, then normalizer may refine)
     const moduleAvg = Math.round(
@@ -271,6 +250,66 @@ export async function runAudit(url, urlTypeHint) {
       : 'track_direct';
 
     // ── RAW ENGINE OUTPUT — fed into normalizer, NOT returned directly ──
+    //
+    // MULTI-SOURCE FALLBACK for Spotify's abbreviated artist responses:
+    // As of April 2026, Spotify's /v1/artists/{id} endpoint — when called with
+    // client_credentials tokens — sometimes omits followers, popularity, and
+    // genres. The response still has 200 OK and includes id/name/images, but
+    // the engagement fields are missing. This is a Spotify-side restriction,
+    // not something we can patch.
+    //
+    // To keep audit reports useful, we fall back to equivalent signals from
+    // other platforms when Spotify's values are missing. The derived values
+    // are labeled via `followersSource` / `popularitySource` / `genresSource`
+    // so the frontend can show where the number actually came from.
+    //
+    // When/if Spotify starts returning full data again (or you upgrade to
+    // OAuth), this fallback deactivates transparently — the source fields
+    // will just read 'spotify' instead of 'deezer'/'lastfm'/'audiodb'.
+    const spotifyFollowers  = artistData.followers?.total ?? 0;
+    const spotifyPopularity = artistData.popularity ?? 0;
+    const spotifyGenres     = Array.isArray(artistData.genres) ? artistData.genres : [];
+
+    let followers        = spotifyFollowers;
+    let followersSource  = 'spotify';
+    if (!followers || followers === 0) {
+      // Prefer Deezer fan count (closest Spotify-equivalent), fall back to Last.fm listeners
+      if (deezerData.found && deezerData.fans > 0) {
+        followers = deezerData.fans;
+        followersSource = 'deezer';
+      } else if (lastfmData.found && lastfmData.listeners > 0) {
+        followers = lastfmData.listeners;
+        followersSource = 'lastfm';
+      }
+    }
+
+    let popularity        = spotifyPopularity;
+    let popularitySource  = 'spotify';
+    if (!popularity || popularity === 0) {
+      // Derive a 0-100 popularity score from Last.fm listeners (log scale, capped)
+      // 1M listeners ≈ 60, 10M ≈ 80, 100M+ ≈ 100
+      if (lastfmData.found && lastfmData.listeners > 0) {
+        const l = lastfmData.listeners;
+        popularity = Math.min(100, Math.round(20 * Math.log10(Math.max(l, 10))));
+        popularitySource = 'lastfm_derived';
+      }
+    }
+
+    let genres        = spotifyGenres;
+    let genresSource  = 'spotify';
+    if (genres.length === 0) {
+      // AudioDB provides genre/style strings; Last.fm provides tags
+      const fromAudioDb = [audioDbData.genre, audioDbData.style].filter(Boolean);
+      const fromLastfm  = Array.isArray(lastfmData.tags) ? lastfmData.tags.slice(0, 5) : [];
+      if (fromAudioDb.length > 0) {
+        genres = fromAudioDb;
+        genresSource = 'audiodb';
+      } else if (fromLastfm.length > 0) {
+        genres = fromLastfm;
+        genresSource = 'lastfm';
+      }
+    }
+
     const rawEngineOutput = {
       _originalUrl: url,
       _storefront: resolved.storefront || null,
@@ -280,9 +319,12 @@ export async function runAudit(url, urlTypeHint) {
       resolvedFrom: resolved.resolvedFrom || null,
       artistName,
       artistId: artistData.id,
-      followers: artistData.followers?.total || 0,
-      popularity: artistData.popularity || 0,
-      genres: artistData.genres || [],
+      followers,
+      popularity,
+      genres,
+      followersSource,
+      popularitySource,
+      genresSource,
       trackTitle: trackData?.name || null,
       trackIsrc: trackData?.external_ids?.isrc || null,
       trackIsrcSource: isrcPresent ? isrcSource : null,
