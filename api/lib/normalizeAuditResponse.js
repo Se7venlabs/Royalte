@@ -92,6 +92,13 @@ function _normalizeMetrics(r) {
     followers:       _num(r.followers),
     popularity:      _num(r.popularity),
     genres:          Array.isArray(r.genres) ? r.genres.filter(g => typeof g === 'string') : [],
+    // Provenance — tells the frontend which platform's data is in each field.
+    // When Spotify returns abbreviated responses, these surface 'deezer' / 'lastfm'
+    // / 'audiodb' / 'lastfm_derived' instead of 'spotify'. Default to 'spotify' for
+    // backward-compat with any caller written before the multi-source fallback.
+    followersSource:  _nullableString(r.followersSource) || 'spotify',
+    popularitySource: _nullableString(r.popularitySource) || 'spotify',
+    genresSource:     _nullableString(r.genresSource) || 'spotify',
     lastfmPlays:     _num(r.lastfmPlays),
     lastfmListeners: _num(r.lastfmListeners),
     deezerFans:      _num(r.deezerFans),
