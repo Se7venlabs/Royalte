@@ -1,0 +1,69 @@
+/* Issue list (top-issues preview + Issues Found page) + filter chips. */
+
+.issue-list { list-style: none; margin: 0; padding: 0; }
+.issue-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.issue-row:last-child { border-bottom: none; }
+.issue-icon {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+}
+.issue-icon-high { background: var(--red-soft); color: var(--red); }
+.issue-icon-medium { background: var(--amber-soft); color: var(--amber); }
+.issue-icon-low { background: var(--purple-soft); color: var(--purple); }
+
+.issue-info { min-width: 0; }
+.issue-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.issue-sub { font-size: 12px; color: var(--text-muted); }
+
+.issue-severity {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.sev-High { background: var(--red-soft); color: var(--red); }
+.sev-Medium { background: var(--amber-soft); color: var(--amber); }
+.sev-Low { background: var(--green-soft); color: var(--green); }
+
+.issue-impact {
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+.issue-list-full .issue-row { padding: 16px 0; }
+
+/* Filter chips on Issues Found */
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-chip {
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.15s ease;
+}
+.filter-chip:hover { color: var(--text-primary); border-color: var(--border-strong); }
+.filter-chip.active {
+  background: var(--purple-soft);
+  border-color: var(--purple);
+  color: var(--purple);
+}
+.chip-count {
+  background: rgba(255,255,255,0.08);
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+.filter-chip.active .chip-count { background: var(--purple); color: white; }

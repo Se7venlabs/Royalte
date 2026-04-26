@@ -1,0 +1,2817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Royaltē — Dashboard (Preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   ROYALTĒ DASHBOARD — DESIGN TOKENS
+   ------------------------------------------------------------
+   All color, radius, sidebar-width vars live here.
+   Components reference these via var(--name).
+   ============================================================ */
+:root {
+  /* Royaltē brand */
+  --bg-base: #0a0a0f;
+  --bg-elev-1: #12121a;
+  --bg-elev-2: #1a1a24;
+  --bg-card: #14141d;
+  --bg-card-hover: #1c1c28;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.10);
+
+  --text-primary: #ffffff;
+  --text-secondary: #a8a8b3;
+  --text-muted: #6b6b78;
+
+  --purple: #8b5cf6;
+  --purple-hover: #9d6ffb;
+  --purple-soft: rgba(139, 92, 246, 0.12);
+  --purple-soft-strong: rgba(139, 92, 246, 0.22);
+  --purple-glow: rgba(139, 92, 246, 0.35);
+
+  --green: #22c55e;
+  --green-soft: rgba(34, 197, 94, 0.12);
+  --amber: #f59e0b;
+  --amber-soft: rgba(245, 158, 11, 0.12);
+  --red: #ef4444;
+  --red-soft: rgba(239, 68, 68, 0.12);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 24px rgba(0,0,0,0.3);
+
+  --sidebar-w: 240px;
+}
+
+
+/* Resets, typography, body. */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input { font-family: inherit; }
+
+
+/* App shell, sidebar container, main pane, topbar layout. */
+
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: var(--bg-base);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 12px;
+}
+.footer-link {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: color 0.15s ease;
+}
+.footer-link:hover { color: var(--text-secondary); }
+
+.main {
+  padding: 32px 40px 80px;
+  max-width: 1280px;
+}
+
+/* TOPBAR */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+.welcome {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+}
+.wave { display: inline-block; }
+.subtitle { color: var(--text-secondary); margin: 0; font-size: 14px; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+
+/* ROUTES */
+.route { display: flex; flex-direction: column; gap: 20px; }
+.route.hidden { display: none; }
+
+.page-header { margin-bottom: 4px; }
+.page-title { font-size: 22px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em; }
+.page-sub { color: var(--text-secondary); margin: 0; font-size: 13px; }
+
+.pro-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: var(--purple);
+  color: white;
+  padding: 2px 7px;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 20px;
+}
+
+/* DISCLAIMER */
+.disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 16px 4px 0;
+}
+.disclaimer u { color: var(--text-secondary); text-decoration: underline; }
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .platform-grid { grid-template-columns: repeat(3, 1fr); }
+  .hero-card { grid-template-columns: 1fr; }
+  .hero-stats { border-left: none; padding-left: 0; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px; }
+}
+@media (max-width: 900px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .setup-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  :root { --sidebar-w: 64px; }
+  .sidebar { padding: 16px 8px; }
+  .brand-wordmark, .brand-tagline, .nav-item span, .nav-badge, .nav-tag, .upgrade-card, .user-meta, .sidebar-footer { display: none; }
+  .nav-item { justify-content: center; }
+  .main { padding: 20px 16px 80px; }
+  .platform-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-stats { grid-template-columns: 1fr; }
+  .plan-toggle { left: 12px; right: 12px; bottom: 12px; justify-content: center; }
+}
+
+
+/* Sidebar wordmark + tagline. */
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 4px 8px 28px;
+}
+.brand-wordmark {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.brand-wordmark .brand-e { color: var(--purple); }
+.brand-tagline {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+
+/* Sidebar nav items, badges, upgrade card, user card. */
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  position: relative;
+}
+.nav-item:hover { background: var(--bg-elev-1); color: var(--text-primary); }
+.nav-item.active {
+  background: var(--purple-soft);
+  color: var(--text-primary);
+}
+.nav-item.active svg { color: var(--purple); }
+.nav-item svg { color: var(--text-muted); flex-shrink: 0; }
+.nav-item:hover svg { color: var(--text-secondary); }
+.nav-item span:first-of-type { flex: 1; }
+.nav-badge {
+  background: var(--purple);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  min-width: 20px;
+  text-align: center;
+}
+.nav-tag {
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--bg-elev-2);
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+/* Upgrade card */
+.upgrade-card {
+  margin-top: auto;
+  margin-bottom: 16px;
+  padding: 18px 16px;
+  background: linear-gradient(180deg, var(--bg-elev-1), var(--bg-base));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  position: relative;
+}
+.upgrade-icon {
+  width: 36px; height: 36px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: var(--purple-soft);
+  color: var(--purple);
+  display: grid; place-items: center;
+}
+.upgrade-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+.upgrade-text { color: var(--text-secondary); font-size: 12px; line-height: 1.45; margin-bottom: 12px; }
+.upgrade-text strong { color: var(--text-primary); font-weight: 600; }
+
+/* User card */
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: white;
+  display: grid; place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.user-meta { flex: 1; min-width: 0; }
+.user-name { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+.verified { color: var(--purple); font-size: 11px; }
+.user-plan { font-size: 11px; color: var(--purple); font-weight: 500; }
+
+
+/* All shared buttons + bell. */
+.btn-upgrade {
+  width: 100%;
+  background: var(--purple);
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  transition: background 0.15s ease;
+}
+.btn-upgrade:hover { background: var(--purple-hover); }
+
+.btn-scan {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+}
+.btn-scan:hover { background: var(--bg-card-hover); border-color: var(--purple); }
+
+.btn-bell {
+  position: relative;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border-strong);
+  display: grid; place-items: center;
+  color: var(--text-secondary);
+}
+.btn-bell:hover { color: var(--text-primary); }
+.bell-count {
+  position: absolute;
+  top: -4px; right: -4px;
+  background: var(--purple);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  border: 2px solid var(--bg-base);
+}
+
+.btn-primary {
+  background: var(--purple);
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 11px 18px;
+  border-radius: var(--radius-md);
+  transition: background 0.15s ease;
+}
+.btn-primary:hover { background: var(--purple-hover); }
+.btn-block { width: 100%; }
+
+.btn-secondary {
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+}
+.btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--purple); }
+
+.btn-download {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+.btn-download:hover { background: var(--purple); border-color: var(--purple); }
+
+/* Pills, links, chips that aren't large enough to deserve their own file */
+.select-pill {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border-strong);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.caret { font-size: 9px; opacity: 0.7; }
+.link-arrow {
+  color: var(--purple);
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+.link-arrow:hover { color: var(--purple-hover); }
+.more-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 12px 0 0;
+  margin-top: 8px;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+.more-toggle:hover { color: var(--text-primary); }
+
+
+/* Generic card chrome + hero stats card + revenue card + recent scan card. */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-card);
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.card-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.info-tip { color: var(--text-muted); font-size: 12px; cursor: help; }
+.muted { color: var(--text-muted); font-weight: 400; font-size: 13px; }
+.badge-pill {
+  background: var(--purple-soft);
+  color: var(--purple);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+
+/* HERO STATS */
+.hero-card {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(139, 92, 246, 0.04) 60%);
+  border: 1px solid var(--purple-soft-strong);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  display: grid;
+  grid-template-columns: 1.4fr 2fr;
+  gap: 28px;
+  align-items: center;
+}
+.hero-score { display: flex; align-items: center; gap: 20px; }
+
+.score-ring {
+  position: relative;
+  width: 110px; height: 110px;
+  flex-shrink: 0;
+}
+.ring-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 10; }
+.ring-fg {
+  fill: none;
+  stroke: var(--purple);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 326.7;
+  stroke-dashoffset: 91.5;
+  transition: stroke-dashoffset 0.6s ease;
+  filter: drop-shadow(0 0 12px var(--purple-glow));
+}
+.score-value {
+  position: absolute;
+  inset: 0;
+  display: grid; place-items: center;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.score-label {
+  font-size: 13px;
+  color: var(--purple);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.score-headline {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+.score-link {
+  color: var(--purple);
+  font-size: 13px;
+  font-weight: 500;
+}
+.score-link:hover { color: var(--purple-hover); }
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  padding-left: 28px;
+}
+.stat { display: flex; flex-direction: column; gap: 4px; }
+.stat-icon {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  margin-bottom: 6px;
+}
+.stat-icon-purple { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.stat-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.stat-value { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 2px 0; }
+.stat-tag { font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; }
+.tag-high { color: var(--red); }
+.tag-warn { color: var(--amber); }
+.tag-good { color: var(--green); }
+.tag-arrow { font-size: 10px; }
+
+/* REVENUE / BIG NUMBER / CHART CARDS */
+.big-number {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 4px 0 2px;
+}
+.big-number-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.chart-wrap {
+  width: 100%;
+  height: 220px;
+  margin: 8px 0 14px;
+}
+.chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+.callout {
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.callout-icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--purple-soft);
+  color: var(--purple);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.callout-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.callout-sub { font-size: 12px; color: var(--text-secondary); }
+
+/* RECENT SCAN */
+.scan-meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; }
+.scan-status {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.status-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.status-dot-success {
+  background: var(--green-soft);
+  color: var(--green);
+}
+.scan-status-title { font-weight: 600; font-size: 13px; }
+.scan-status-sub { font-size: 12px; color: var(--text-secondary); }
+
+.next-scan {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.next-scan svg { color: var(--text-muted); }
+.next-scan-label { font-size: 11px; color: var(--text-muted); }
+.next-scan-date { font-size: 13px; font-weight: 500; }
+
+
+/* Issue list (top-issues preview + Issues Found page) + filter chips. */
+
+.issue-list { list-style: none; margin: 0; padding: 0; }
+.issue-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.issue-row:last-child { border-bottom: none; }
+.issue-icon {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+}
+.issue-icon-high { background: var(--red-soft); color: var(--red); }
+.issue-icon-medium { background: var(--amber-soft); color: var(--amber); }
+.issue-icon-low { background: var(--purple-soft); color: var(--purple); }
+
+.issue-info { min-width: 0; }
+.issue-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.issue-sub { font-size: 12px; color: var(--text-muted); }
+
+.issue-severity {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.sev-High { background: var(--red-soft); color: var(--red); }
+.sev-Medium { background: var(--amber-soft); color: var(--amber); }
+.sev-Low { background: var(--green-soft); color: var(--green); }
+
+.issue-impact {
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+.issue-list-full .issue-row { padding: 16px 0; }
+
+/* Filter chips on Issues Found */
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-chip {
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.15s ease;
+}
+.filter-chip:hover { color: var(--text-primary); border-color: var(--border-strong); }
+.filter-chip.active {
+  background: var(--purple-soft);
+  border-color: var(--purple);
+  color: var(--purple);
+}
+.chip-count {
+  background: rgba(255,255,255,0.08);
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+.filter-chip.active .chip-count { background: var(--purple); color: white; }
+
+
+/* Action list (dashboard preview + Action Plan page). */
+/* ============================================================
+   ACTION LIST
+   ============================================================ */
+.action-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  position: relative;
+}
+.action-list::before {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 18px;
+  bottom: 18px;
+  width: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+.action-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  position: relative;
+  z-index: 1;
+}
+.action-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--bg-elev-2);
+  border: 2px solid var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  display: grid; place-items: center;
+}
+.action-info { min-width: 0; }
+.action-title { font-size: 13px; font-weight: 600; }
+.action-sub { font-size: 12px; color: var(--text-muted); }
+.action-arrow { color: var(--text-muted); }
+
+.action-plan-list { display: flex; flex-direction: column; gap: 12px; }
+.action-plan-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 14px;
+  align-items: flex-start;
+}
+.action-plan-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--purple-soft);
+  color: var(--purple);
+  display: grid; place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+.action-plan-body { min-width: 0; }
+.action-plan-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.action-plan-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+.action-plan-steps {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.action-plan-steps li { margin-bottom: 4px; }
+.action-plan-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--purple);
+}
+
+
+/* Platform grid + brand-color tints. Catalog dots also styled here. */
+/* ============================================================
+   PLATFORM GRID
+   ============================================================ */
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+.platform-cell {
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+.platform-cell:hover { border-color: var(--purple); background: var(--bg-card-hover); }
+.platform-logo {
+  width: 44px; height: 44px;
+  margin: 0 auto 10px;
+  border-radius: 12px;
+  background: var(--bg-elev-2);
+  display: grid; place-items: center;
+  font-size: 22px;
+  color: var(--text-secondary);
+}
+.platform-logo svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+.platform-logo-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+/* Platform brand tints — apply at the cell level so logo + name share color cue */
+.platform-cell[data-platform="spotify"]    .platform-logo { color: #1DB954; }
+.platform-cell[data-platform="apple"]      .platform-logo { color: #ffffff; }
+.platform-cell[data-platform="youtube"]    .platform-logo { color: #FF0000; }
+.platform-cell[data-platform="soundcloud"] .platform-logo { color: #FF5500; }
+.platform-cell[data-platform="tiktok"]     .platform-logo { color: #ffffff; }
+.platform-name {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.platform-status {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.platform-status.connected { color: var(--green); }
+.platform-status.partial { color: var(--amber); }
+.platform-status.missing { color: var(--text-muted); }
+
+
+/* My Setup rich cards: header, detected, intake, checks, warning, actions. */
+/* ============================================================
+   SETUP GRID
+   ============================================================ */
+.setup-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+.setup-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+/* ── Rich card: header strip ── */
+.setup-card-rich { padding: 24px; }
+.setup-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+.setup-card-titlewrap { flex: 1; min-width: 0; }
+.setup-card-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.setup-card-blurb { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.setup-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.setup-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.3px;
+}
+.setup-status.connected { background: var(--green-soft); color: var(--green); }
+.setup-status.partial   { background: var(--amber-soft); color: var(--amber); }
+.setup-status.missing   { background: var(--red-soft); color: var(--red); }
+
+.setup-score-wrap { display: flex; align-items: baseline; gap: 2px; }
+.setup-score { font-size: 22px; font-weight: 700; line-height: 1; }
+.setup-score-connected { color: var(--green); }
+.setup-score-partial   { color: var(--amber); }
+.setup-score-missing   { color: var(--red); }
+.setup-score-label { font-size: 11px; color: var(--text-muted); }
+
+.setup-card-verified {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+/* ── Section labels inside card ── */
+.setup-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 18px 0 10px;
+}
+.setup-section-label:first-of-type { margin-top: 0; }
+
+/* ── Detected fields grid ── */
+.setup-detected-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  background: var(--bg-elev-1);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.detected-item {
+  padding: 12px 14px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.detected-item:nth-child(2n) { border-right: none; }
+.detected-item:nth-last-child(-n+2) { border-bottom: none; }
+.detected-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.detected-value { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+
+/* ── Intake fields grid ── */
+.intake-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+.intake-field { display: flex; flex-direction: column; gap: 6px; }
+.intake-field-wide { grid-column: 1 / -1; }
+.intake-field-toggle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.intake-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.intake-input {
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.intake-input::placeholder { color: var(--text-muted); }
+.intake-input:hover { border-color: var(--border-strong); }
+.intake-input:focus {
+  border-color: var(--purple);
+  background: var(--bg-elev-2);
+  box-shadow: 0 0 0 3px var(--purple-soft);
+}
+.intake-textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+.intake-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b78' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.intake-hint { font-size: 11px; color: var(--text-muted); }
+
+/* ── Multi-select chips ── */
+.multi-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.multi-chip {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.multi-chip:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.multi-chip.active {
+  background: var(--purple-soft);
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+/* ── Sub-checks ── */
+.setup-checks { list-style: none; margin: 0; padding: 0; }
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+}
+.check-item:last-child { margin-bottom: 0; }
+.check-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.check-ok      .check-icon { background: var(--green-soft);  color: var(--green); }
+.check-partial .check-icon { background: var(--amber-soft);  color: var(--amber); }
+.check-missing .check-icon { background: var(--red-soft);    color: var(--red); }
+.check-body { flex: 1; min-width: 0; }
+.check-label { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+.check-detail { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── Warning callout ── */
+.setup-warning {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  margin-top: 16px;
+  border: 1px solid;
+}
+.setup-warning-low    { background: var(--amber-soft); border-color: rgba(245, 158, 11, 0.25); color: var(--amber); }
+.setup-warning-medium { background: var(--amber-soft); border-color: rgba(245, 158, 11, 0.30); color: var(--amber); }
+.setup-warning-high   { background: var(--red-soft);   border-color: rgba(239, 68, 68, 0.30);  color: var(--red); }
+.setup-warning-icon { flex-shrink: 0; padding-top: 1px; }
+.setup-warning-body { flex: 1; min-width: 0; }
+.setup-warning-text { font-size: 12px; line-height: 1.5; color: var(--text-primary); }
+.setup-warning-impact {
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* ── Action button row ── */
+.setup-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.setup-action-btn { font-size: 13px; padding: 9px 14px; }
+
+@media (max-width: 720px) {
+  .setup-card-rich { padding: 18px; }
+  .setup-card-header { flex-direction: column; align-items: stretch; }
+  .setup-card-meta { justify-content: space-between; }
+  .setup-detected-grid { grid-template-columns: 1fr; }
+  .detected-item { border-right: none; }
+  .detected-item:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }
+  .detected-item:last-child { border-bottom: none; }
+  .intake-grid { grid-template-columns: 1fr; }
+}
+
+
+
+/* Catalog table + per-track platform dots. */
+   CATALOG TABLE
+   ============================================================ */
+.catalog-table-wrap { overflow-x: auto; }
+.catalog-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.catalog-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.catalog-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.catalog-table tr:last-child td { border-bottom: none; }
+.catalog-track-name { font-weight: 600; }
+.catalog-isrc { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); }
+.catalog-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  display: inline-block;
+}
+.catalog-status.full { background: var(--green-soft); color: var(--green); }
+.catalog-status.partial { background: var(--amber-soft); color: var(--amber); }
+.catalog-status.missing { background: var(--red-soft); color: var(--red); }
+.platform-dots { display: flex; gap: 4px; }
+.platform-dot {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: var(--bg-elev-2);
+  display: grid; place-items: center;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.platform-dot svg { width: 12px; height: 12px; display: block; }
+.platform-dot[data-platform="spotify"]    { color: #1DB954; }
+.platform-dot[data-platform="apple"]      { color: #ffffff; }
+.platform-dot[data-platform="youtube"]    { color: #FF0000; }
+.platform-dot[data-platform="soundcloud"] { color: #FF5500; }
+.platform-dot[data-platform="tiktok"]     { color: #ffffff; }
+
+
+/* Monitoring page: gated wrap, gate card, mini list, alert list. */
+/* ============================================================
+   MONITORING (gated)
+   ============================================================ */
+.gated-wrap { position: relative; }
+.gated-content { display: flex; flex-direction: column; gap: 20px; }
+.gated-content.locked {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.55;
+}
+.gate-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 5;
+}
+.gate-overlay.hidden { display: none; }
+.gate-card {
+  background: var(--bg-card);
+  border: 1px solid var(--purple-soft-strong);
+  border-radius: var(--radius-xl);
+  padding: 32px 36px;
+  max-width: 460px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px var(--purple-glow);
+}
+.gate-icon {
+  width: 60px; height: 60px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--purple-soft);
+  color: var(--purple);
+  display: grid; place-items: center;
+}
+.gate-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+.gate-text {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 0 0 16px;
+  line-height: 1.55;
+}
+.gate-bullets {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: inline-block;
+}
+.gate-bullets li { padding: 4px 0; }
+
+.mini-list { list-style: none; margin: 12px 0 0; padding: 0; font-size: 13px; }
+.mini-list li { padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.mini-list li:last-child { border-bottom: none; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dot-high { background: var(--red); }
+.dot-medium { background: var(--amber); }
+.dot-low { background: var(--green); }
+
+.alert-list { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+.alert-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.alert-list li:last-child { border-bottom: none; }
+.alert-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 80px;
+}
+
+
+/* Reports page list. */
+/* ============================================================
+   REPORTS
+   ============================================================ */
+.reports-list { list-style: none; margin: 0; padding: 0; }
+.report-row {
+  display: grid;
+  grid-template-columns: 40px 1fr auto auto;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.report-row:last-child { border-bottom: none; }
+.report-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--purple-soft);
+  color: var(--purple);
+  display: grid; place-items: center;
+}
+.report-title { font-weight: 600; font-size: 13px; }
+.report-meta { font-size: 12px; color: var(--text-muted); }
+.report-score {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--purple);
+}
+
+
+/* Settings rows, subscription row, switch toggle. */
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+.settings-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.settings-row input {
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  width: 100%;
+  max-width: 360px;
+}
+.settings-row input:focus { outline: none; border-color: var(--purple); }
+.settings-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.settings-row-toggle {
+  grid-template-columns: 1fr auto;
+}
+
+.sub-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+.sub-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.sub-meta { font-size: 12px; color: var(--text-muted); }
+
+/* Switch */
+.switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.slider:before {
+  content: '';
+  position: absolute;
+  height: 16px; width: 16px;
+  left: 2px; bottom: 2px;
+  background: var(--text-secondary);
+  border-radius: 50%;
+  transition: 0.2s;
+}
+.switch input:checked + .slider { background: var(--purple); border-color: var(--purple); }
+.switch input:checked + .slider:before { transform: translateX(18px); background: white; }
+
+
+/* Plan-state preview pill (bottom-right) + free-plan blur gating. */
+/* ============================================================
+   PLAN-STATE TOGGLE (preview only)
+   ============================================================ */
+.plan-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  font-size: 12px;
+}
+.plan-toggle-label {
+  color: var(--text-muted);
+  padding: 0 10px 0 12px;
+  font-weight: 500;
+}
+.plan-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 12px;
+  transition: all 0.15s ease;
+}
+.plan-btn:hover { color: var(--text-primary); }
+.plan-btn.active {
+  background: var(--purple);
+  color: white;
+}
+
+/* ============================================================
+   PLAN-STATE VISUAL GATING
+   ============================================================ */
+/* FREE plan — most things blurred */
+body.plan-free .lockable-free {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  position: relative;
+}
+body.plan-free .free-lock-message {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 10;
+  filter: none;
+  pointer-events: auto;
+}
+body.plan-free .free-lock-message-card {
+  background: var(--bg-card);
+  border: 1px solid var(--purple);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PLAN-STATE TOGGLE (preview tool — remove for production)
+     ============================================================ -->
+<div class="plan-toggle" id="planToggle">
+  <span class="plan-toggle-label">Preview as:</span>
+  <button class="plan-btn" data-plan="free">Free Scan</button>
+  <button class="plan-btn active" data-plan="audit">Full Audit</button>
+  <button class="plan-btn" data-plan="pro">Pro Monitoring</button>
+</div>
+
+<div class="app">
+
+  <!-- ============================================================
+       SIDEBAR
+       ============================================================ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-wordmark">ROYALT<span class="brand-e">Ē</span></div>
+      <div class="brand-tagline">Music Audit Intelligence</div>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-item active" data-route="dashboard" href="#dashboard">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" data-route="setup" href="#setup">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>My Setup</span>
+      </a>
+      <a class="nav-item" data-route="issues" href="#issues">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Issues Found</span>
+        <span class="nav-badge" id="navIssuesBadge">8</span>
+      </a>
+      <a class="nav-item" data-route="actions" href="#actions">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Action Plan</span>
+      </a>
+      <a class="nav-item" data-route="catalog" href="#catalog">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Catalog</span>
+        <span class="nav-tag">Soon</span>
+      </a>
+      <a class="nav-item" data-route="monitoring" href="#monitoring">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Monitoring</span>
+        <span class="nav-tag">Soon</span>
+      </a>
+      <a class="nav-item" data-route="reports" href="#reports">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>Reports</span>
+      </a>
+      <a class="nav-item" data-route="settings" href="#settings">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m11-11h-6m-10 0H1m17.66-7.66-4.24 4.24M9.17 14.83l-4.24 4.24m0-14.14 4.24 4.24m5.66 5.66 4.24 4.24"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+
+    <!-- Upgrade card (Free + Audit only) -->
+    <div class="upgrade-card" id="upgradeCard">
+      <div class="upgrade-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="upgrade-title">Unlock Full Access</div>
+      <div class="upgrade-text">Unlock full issue tracking, continuous monitoring, and <strong>real-time alerts</strong> across your setup.</div>
+      <button class="btn-upgrade" data-action="upgrade">Upgrade Now</button>
+    </div>
+
+    <div class="user-card">
+      <div class="user-avatar">JK</div>
+      <div class="user-meta">
+        <div class="user-name">Jordan Kai <span class="verified">✓</span></div>
+        <div class="user-plan" id="userPlanLabel">Artist Plan</div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="#" class="footer-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Need help?</a>
+      <a href="#" class="footer-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Contact Support</a>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <main class="main">
+
+    <!-- ===== TOP BAR ===== -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="welcome">Welcome back, Jordan <span class="wave">👋</span></h1>
+        <p class="subtitle" id="topbarSubtitle">Here's what's happening with your royalties.</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-scan" data-action="new-scan">
+          Run New Scan
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="btn-bell">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="bell-count">3</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============================================================
+         ROUTE: DASHBOARD (HOME)
+         ============================================================ -->
+    <section class="route" data-route-content="dashboard">
+
+      <!-- Hero stats row -->
+      <div class="hero-card">
+        <div class="hero-score">
+          <div class="score-ring" data-score="72">
+            <svg viewBox="0 0 120 120" class="ring-svg">
+              <circle cx="60" cy="60" r="52" class="ring-bg"/>
+              <circle cx="60" cy="60" r="52" class="ring-fg" id="scoreRing"/>
+            </svg>
+            <div class="score-value"><span id="scoreNumber">72</span>%</div>
+          </div>
+          <div class="score-meta">
+            <div class="score-label">Overall Score</div>
+            <div class="score-headline">Issues detected in your setup</div>
+            <a href="#issues" class="score-link" data-route-link="issues">See what's missing →</a>
+          </div>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-icon stat-icon-purple">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="stat-label">Est. Revenue at Risk</div>
+            <div class="stat-value">$4,892+</div>
+            <div class="stat-tag tag-high">High <span class="tag-arrow">↗</span></div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon stat-icon-purple">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="stat-label">Issues Found</div>
+            <div class="stat-value">8</div>
+            <div class="stat-tag tag-warn">Needs attention</div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon stat-icon-purple">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="stat-label">Active Systems</div>
+            <div class="stat-value">12</div>
+            <div class="stat-tag tag-good">Good</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue chart + Recent scan -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Revenue at Risk <span class="info-tip" title="Estimated based on identified issues across your catalog. Royaltē does not collect royalties.">ⓘ</span></h3>
+            </div>
+            <div class="select-pill">Last 6 Months <span class="caret">▾</span></div>
+          </div>
+          <div class="big-number">$4,892+</div>
+          <div class="big-number-sub">Based on identified issues in your current setup</div>
+          <div class="chart-wrap">
+            <canvas id="revenueChart" width="600" height="220"></canvas>
+          </div>
+          <div class="callout">
+            <div class="callout-icon">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 7l-5-5-5 5M17 17l-5 5-5-5"/></svg>
+            </div>
+            <div>
+              <div class="callout-title">We've identified issues that may impact your royalty earnings.</div>
+              <div class="callout-sub">Work through your action plan to address them.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Recent Scan</h3>
+          <div class="scan-meta">Apr 24, 2026 · 10:32 AM</div>
+          <div class="scan-status">
+            <div class="status-dot status-dot-success">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="scan-status-title">Scan completed</div>
+              <div class="scan-status-sub">We analyzed your setup across 30+ royalty sources.</div>
+            </div>
+          </div>
+          <button class="btn-primary btn-block" data-route-link="reports">View Scan Report</button>
+          <div class="next-scan">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div>
+              <div class="next-scan-label">Next recommended scan</div>
+              <div class="next-scan-date">May 24, 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top issues + action plan preview -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Top Issues Found <span class="badge-pill">8</span></h3>
+            <a href="#issues" class="link-arrow" data-route-link="issues">View All Issues →</a>
+          </div>
+          <ul class="issue-list" id="topIssuesList"></ul>
+          <button class="more-toggle">+ 3 more issues <span class="caret">▾</span></button>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Action Plan</h3>
+          <div class="card-sub">Your personalized recommendations</div>
+          <ol class="action-list" id="topActionList"></ol>
+          <button class="btn-secondary btn-block" data-route-link="actions">View Full Action Plan →</button>
+        </div>
+      </div>
+
+      <!-- Platforms -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Your Platforms <span class="muted">Connected: 9 of 15</span></h3>
+          <a href="#setup" class="link-arrow" data-route-link="setup">Manage Connections →</a>
+        </div>
+        <div class="platform-grid" id="platformGrid"></div>
+      </div>
+
+      <div class="disclaimer">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Royaltē <u>does not</u> collect money. We identify problems and give you the action plan to fix them.
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: MY SETUP
+         ============================================================ -->
+    <section class="route hidden" data-route-content="setup">
+      <div class="page-header">
+        <h2 class="page-title">My Setup</h2>
+        <p class="page-sub">How your royalty system is structured across distributors, PROs, publishing, and platforms.</p>
+      </div>
+      <div class="setup-grid" id="setupGrid"></div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: ISSUES FOUND
+         ============================================================ -->
+    <section class="route hidden" data-route-content="issues">
+      <div class="page-header">
+        <h2 class="page-title">Issues Found</h2>
+        <p class="page-sub">All problems identified in your setup, ranked by estimated revenue impact.</p>
+      </div>
+      <div class="filter-row">
+        <button class="filter-chip active" data-filter="all">All <span class="chip-count">8</span></button>
+        <button class="filter-chip" data-filter="High">High <span class="chip-count">2</span></button>
+        <button class="filter-chip" data-filter="Medium">Medium <span class="chip-count">3</span></button>
+        <button class="filter-chip" data-filter="Low">Low <span class="chip-count">3</span></button>
+      </div>
+      <div class="card">
+        <ul class="issue-list issue-list-full" id="allIssuesList"></ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: ACTION PLAN
+         ============================================================ -->
+    <section class="route hidden" data-route-content="actions">
+      <div class="page-header">
+        <h2 class="page-title">Action Plan</h2>
+        <p class="page-sub">Step-by-step fixes for the issues we identified, ordered by impact.</p>
+      </div>
+      <div class="action-plan-list" id="fullActionList"></div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: CATALOG
+         ============================================================ -->
+    <section class="route hidden" data-route-content="catalog">
+      <div class="page-header">
+        <h2 class="page-title">Catalog</h2>
+        <p class="page-sub">Your music inventory and per-track monetization status.</p>
+      </div>
+      <div class="card">
+        <div class="catalog-table-wrap">
+          <table class="catalog-table" id="catalogTable">
+            <thead>
+              <tr>
+                <th>Track</th>
+                <th>ISRC</th>
+                <th>Platforms</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: MONITORING (PRO ONLY)
+         ============================================================ -->
+    <section class="route hidden" data-route-content="monitoring">
+      <div class="page-header">
+        <h2 class="page-title">Monitoring <span class="pro-tag">PRO</span></h2>
+        <p class="page-sub">Continuous tracking, alerts, and re-scans across your entire setup.</p>
+      </div>
+
+      <div class="gated-wrap">
+        <div class="gated-content" id="monitoringContent">
+          <div class="grid-2">
+            <div class="card">
+              <h3 class="card-title">New Issues Detected</h3>
+              <div class="card-sub">Last 7 days</div>
+              <div class="big-number">2 new</div>
+              <ul class="mini-list">
+                <li><span class="dot dot-high"></span>Apple Music: 1 new track missing editorial tags</li>
+                <li><span class="dot dot-medium"></span>YouTube: Content ID claim conflict on 1 track</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Score Trend</h3>
+              <div class="card-sub">Your overall score over time</div>
+              <div class="chart-wrap"><canvas id="trendChart" width="500" height="180"></canvas></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Alert History</h3>
+              <span class="muted">SMS + Email</span>
+            </div>
+            <ul class="alert-list">
+              <li><span class="alert-time">2h ago</span>New issue detected on Apple Music</li>
+              <li><span class="alert-time">Yesterday</span>Re-scan complete — 1 issue resolved</li>
+              <li><span class="alert-time">3d ago</span>Score improved from 70% to 72%</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="gate-overlay" id="monitoringGate">
+          <div class="gate-card">
+            <div class="gate-icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h3 class="gate-title">Monitoring is a Pro feature</h3>
+            <p class="gate-text">Get continuous tracking, real-time SMS &amp; email alerts when new issues are detected, and automatic monthly re-scans of your full catalog.</p>
+            <ul class="gate-bullets">
+              <li>✓ Real-time alerts (SMS + email)</li>
+              <li>✓ Monthly automatic re-scans</li>
+              <li>✓ Full issue history &amp; trends</li>
+              <li>✓ Score change notifications</li>
+            </ul>
+            <button class="btn-primary" data-action="upgrade">Upgrade to Pro — $19.99/mo</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: REPORTS
+         ============================================================ -->
+    <section class="route hidden" data-route-content="reports">
+      <div class="page-header">
+        <h2 class="page-title">Reports</h2>
+        <p class="page-sub">Downloadable PDF audit reports and full scan history.</p>
+      </div>
+      <div class="card">
+        <ul class="reports-list" id="reportsList"></ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: SETTINGS
+         ============================================================ -->
+    <section class="route hidden" data-route-content="settings">
+      <div class="page-header">
+        <h2 class="page-title">Settings</h2>
+        <p class="page-sub">Account, notifications, and connected platforms.</p>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Account</h3>
+        <div class="settings-row"><label>Name</label><input type="text" value="Jordan Kai" /></div>
+        <div class="settings-row"><label>Email</label><input type="email" value="jordan@example.com" /></div>
+        <div class="settings-row"><label>Phone (SMS alerts)</label><input type="tel" value="+1 (555) 123-4567" /></div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Subscription</h3>
+        <div class="sub-row">
+          <div>
+            <div class="sub-name" id="subName">Full Audit (one-time)</div>
+            <div class="sub-meta" id="subMeta">Snapshot report &amp; limited dashboard access</div>
+          </div>
+          <button class="btn-primary" data-action="upgrade" id="subUpgradeBtn">Upgrade to Pro</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Notifications</h3>
+        <div class="settings-row settings-row-toggle">
+          <div><strong>Email alerts</strong><div class="settings-sub">New issues, score changes, re-scan results</div></div>
+          <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
+        </div>
+        <div class="settings-row settings-row-toggle">
+          <div><strong>SMS alerts</strong><div class="settings-sub">Pro-only — high-severity issues</div></div>
+          <label class="switch"><input type="checkbox" /><span class="slider"></span></label>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* === js/utils/dom.js === */
+// Small DOM helpers. Imported by components that need terse selectors.
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+const on = (el, event, handler) => el && el.addEventListener(event, handler);
+
+
+/* === js/utils/router.js === */
+// Single-page hash-based router. Drives nav active-state + section visibility +
+// topbar subtitle text. Exposes setRoute() for programmatic navigation
+// (called by data-route-link delegation in app.js).
+const ROUTES = ['dashboard', 'setup', 'issues', 'actions', 'catalog', 'monitoring', 'reports', 'settings'];
+
+const SUBTITLES = {
+  dashboard: "Here's what's happening with your royalties.",
+  setup:     'Manage how your royalty system is structured.',
+  issues:    'Review every issue we identified in your setup.',
+  actions:   'Step-by-step plan to fix what we found.',
+  catalog:   'Your catalog and per-track monetization status.',
+  monitoring:'Continuous tracking, alerts, and re-scans.',
+  reports:   'Your audit reports and scan history.',
+  settings:  'Account, notifications, and connections.',
+};
+
+function setRoute(route) {
+  if (!ROUTES.includes(route)) route = 'dashboard';
+  $$('[data-route-content]').forEach(s => s.classList.toggle('hidden', s.dataset.routeContent !== route));
+  $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.route === route));
+  const sub = $('#topbarSubtitle');
+  if (sub) sub.textContent = SUBTITLES[route];
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function initRouter() {
+  // Sidebar nav clicks
+  $$('.nav-item').forEach(item => {
+    item.addEventListener('click', e => { e.preventDefault(); setRoute(item.dataset.route); });
+  });
+  // Cross-route links (delegated so dynamically rendered links also fire)
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-route-link]');
+    if (!el) return;
+    e.preventDefault();
+    setRoute(el.dataset.routeLink);
+  });
+  // Initial route from hash
+  const hash = window.location.hash.replace('#', '');
+  if (ROUTES.includes(hash)) setRoute(hash);
+}
+
+
+/* === js/data/revenueTrend.js === */
+// [API HOOK] GET /api/audit?session_id=... → results.revenueTrend
+const REVENUE_TREND = [
+  { month: 'Feb', value: 1800 },
+  { month: 'Mar', value: 2200 },
+  { month: 'Apr', value: 2700 },
+  { month: 'May', value: 3400 },
+  { month: 'Jun', value: 4100 },
+  { month: 'Jul', value: 4892 },
+];
+
+
+/* === js/utils/charts.js === */
+// Canvas chart drawing — revenue trend on Dashboard, score trend on Monitoring.
+// Hand-drawn (no chart library) so we have zero runtime dependencies.
+// [Polish candidate] swap to Chart.js or Recharts later for richer interactivity.
+function drawRevenueChart() {
+  const canvas = $('#revenueChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+
+  const W = rect.width;
+  const H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const padL = 40, padR = 16, padT = 12, padB = 28;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+
+  const max = Math.max(...REVENUE_TREND.map(d => d.value)) * 1.1;
+  const min = 0;
+
+  // Gridlines + Y labels
+  ctx.fillStyle = '#6b6b78';
+  ctx.font = '11px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  const yTicks = 4;
+  for (let i = 0; i <= yTicks; i++) {
+    const yVal = min + (max - min) * (i / yTicks);
+    const y = padT + innerH - (yVal / max) * innerH;
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(W - padR, y);
+    ctx.stroke();
+    ctx.fillText('$' + (yVal >= 1000 ? (yVal/1000).toFixed(0)+'K' : Math.round(yVal)), padL - 6, y + 4);
+  }
+
+  // X labels
+  ctx.textAlign = 'center';
+  REVENUE_TREND.forEach((d, i) => {
+    const x = padL + (innerW * i) / (REVENUE_TREND.length - 1);
+    ctx.fillText(d.month, x, H - 8);
+  });
+
+  // Area gradient
+  const grad = ctx.createLinearGradient(0, padT, 0, H - padB);
+  grad.addColorStop(0, 'rgba(139, 92, 246, 0.35)');
+  grad.addColorStop(1, 'rgba(139, 92, 246, 0)');
+
+  ctx.beginPath();
+  REVENUE_TREND.forEach((d, i) => {
+    const x = padL + (innerW * i) / (REVENUE_TREND.length - 1);
+    const y = padT + innerH - (d.value / max) * innerH;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.lineTo(padL + innerW, H - padB);
+  ctx.lineTo(padL, H - padB);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  REVENUE_TREND.forEach((d, i) => {
+    const x = padL + (innerW * i) / (REVENUE_TREND.length - 1);
+    const y = padT + innerH - (d.value / max) * innerH;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = '#8b5cf6';
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // Endpoint dot
+  const last = REVENUE_TREND[REVENUE_TREND.length - 1];
+  const lx = padL + innerW;
+  const ly = padT + innerH - (last.value / max) * innerH;
+  ctx.beginPath();
+  ctx.arc(lx, ly, 4, 0, Math.PI * 2);
+  ctx.fillStyle = '#8b5cf6';
+  ctx.fill();
+}
+
+function drawTrendChart() {
+  const canvas = $('#trendChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+
+  const W = rect.width, H = rect.height;
+  const data = [62, 64, 66, 68, 70, 70, 72, 72];
+  const padL = 30, padR = 12, padT = 10, padB = 24;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = padL + (innerW * i) / (data.length - 1);
+    const y = padT + innerH - ((v - 50) / 50) * innerH;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = '#8b5cf6';
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  ctx.fillStyle = '#6b6b78';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ['8w', '6w', '4w', '2w', 'now'].forEach((lbl, i) => {
+    const x = padL + (innerW * i) / 4;
+    ctx.fillText(lbl, x, H - 6);
+  });
+}
+
+
+/* === js/data/summary.js === */
+// [API HOOK] GET /api/audit?session_id=...  →  current scan summary
+const SCAN_SUMMARY = {
+  artist: 'Jordan Kai',
+  scanDate: 'Apr 24, 2026 · 10:32 AM',
+  nextScan: 'May 24, 2026',
+  overallScore: 72,
+  revenueAtRisk: 4892,
+  issuesCount: 8,
+  thingsWorking: 12,
+  platformsConnected: 9,
+  platformsTotal: 15,
+};
+
+
+/* === js/components/heroStats.js === */
+// Hero card: animated score-ring fill + 3-stat row.
+// The HTML markup is static in dashboard.html; this just sets the ring stroke
+// + the score number.
+function renderHeroStats() {
+  const ring = $('#scoreRing');
+  const num  = $('#scoreNumber');
+  if (!ring || !num) return;
+  const score = SCAN_SUMMARY.overallScore;
+  const circumference = 2 * Math.PI * 52; // matches r=52 in SVG
+  const offset = circumference - (score / 100) * circumference;
+  ring.style.strokeDasharray = circumference;
+  ring.style.strokeDashoffset = offset;
+  num.textContent = score;
+}
+
+
+/* === js/data/issues.js === */
+// [API HOOK] GET /api/audit?session_id=... → results.issues
+const ISSUES = [
+  { id: 1, icon: 'tag',     title: 'Missing ISRC for 3 tracks',         sub: 'Tracks may not be properly tracked',     severity: 'High',   impact: '$1,210+', tracks: 3 },
+  { id: 2, icon: 'youtube', title: 'YouTube Content ID not claimed',    sub: "You're missing out on Content ID revenue", severity: 'High',   impact: '$1,032+', tracks: 2 },
+  { id: 3, icon: 'link',    title: 'Publishing not linked to recordings', sub: 'Publishing and master not connected',  severity: 'Medium', impact: '$842+',   tracks: 4 },
+  { id: 4, icon: 'users',   title: 'Missing writer splits on 2 tracks', sub: 'Incomplete splits can cause payment issues', severity: 'Medium', impact: '$623+', tracks: 2 },
+  { id: 5, icon: 'apple',   title: 'Apple Music missing editorial tags', sub: 'Improper tagging reduces discoverability', severity: 'Low', impact: '$320+', tracks: 7 },
+  { id: 6, icon: 'globe',   title: 'Territory coverage gap (3 regions)', sub: 'Music not registered in 3 collection territories', severity: 'Medium', impact: '$487+', tracks: 0 },
+  { id: 7, icon: 'tag',     title: 'Inconsistent artist name on 1 track', sub: 'Name spelling differs across platforms', severity: 'Low', impact: '$210+', tracks: 1 },
+  { id: 8, icon: 'shield',  title: 'SoundExchange registration incomplete', sub: 'Digital performance royalties at risk', severity: 'Low', impact: '$168+', tracks: 0 },
+];
+
+
+/* === js/utils/issueIcons.js === */
+// Issue-row icons keyed by issue.icon string in data/issues.js.
+const ICONS = {
+  tag:     '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+  youtube: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>',
+  link:    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+  users:   '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  apple:   '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>',
+  globe:   '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  shield:  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+};
+
+
+/* === js/components/topIssuesCard.js === */
+// Top Issues card on the Dashboard route + full Issues Found page list.
+// Both share the same row template via issueRow().
+function issueRow(i, full = false) {
+  const sevClass = `issue-icon-${i.severity.toLowerCase()}`;
+  return `
+    <li class="issue-row">
+      <div class="issue-icon ${sevClass}">${ICONS[i.icon] || ICONS.tag}</div>
+      <div class="issue-info">
+        <div class="issue-title">${i.title}</div>
+        <div class="issue-sub">${i.sub}${full && i.tracks ? ` · ${i.tracks} track${i.tracks !== 1 ? 's' : ''}` : ''}</div>
+      </div>
+      <span class="issue-severity sev-${i.severity}">${i.severity}</span>
+      <span class="issue-impact">${i.impact}</span>
+    </li>`;
+}
+
+function renderTopIssues() {
+  const list = $('#topIssuesList');
+  if (!list) return;
+  list.innerHTML = ISSUES.slice(0, 5).map(i => issueRow(i)).join('');
+}
+
+function renderAllIssues(filter = 'all') {
+  const list = $('#allIssuesList');
+  if (!list) return;
+  const filtered = filter === 'all' ? ISSUES : ISSUES.filter(i => i.severity === filter);
+  list.innerHTML = filtered.map(i => issueRow(i, true)).join('');
+}
+
+
+/* === js/components/issuesPage.js === */
+// Issues Found route — wires the filter chips. Initial render + filtered
+// re-renders both call into renderAllIssues from topIssuesCard.js.
+function initIssuesFilter() {
+  $$('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      $$('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      renderAllIssues(chip.dataset.filter);
+    });
+  });
+}
+
+
+/* === js/data/actionPlan.js === */
+// [API HOOK] GET /api/audit?session_id=... → results.actionPlan
+const ACTION_PLAN = [
+  { num: 1, title: 'Add missing ISRCs',           sub: '3 tracks',    severity: 'High',   steps: ['Log into your distributor', 'Locate the 3 tracks flagged below', 'Submit ISRC codes via the distributor dashboard'], link: 'https://help.distrokid.com/hc/en-us/articles/360008486514' },
+  { num: 2, title: 'Claim YouTube Content ID',    sub: '2 channels',  severity: 'High',   steps: ['Apply for YouTube Content ID through your distributor', 'Verify channel ownership', 'Wait 7-14 days for approval'], link: 'https://support.google.com/youtube/answer/2797370' },
+  { num: 3, title: 'Link publishing to recordings', sub: '4 releases', severity: 'Medium', steps: ['Open your publishing admin dashboard', 'Match each work to its master recording', 'Submit ISWC ↔ ISRC linking'], link: '#' },
+  { num: 4, title: 'Review & update splits',      sub: '2 tracks',    severity: 'Medium', steps: ['Review writer splits with co-writers', 'Update splits in PRO portal (ASCAP/BMI/SOCAN)', 'Sync changes with publishing admin'], link: '#' },
+  { num: 5, title: 'Add editorial tags',          sub: '7 tracks',    severity: 'Low',    steps: ['Open Apple Music for Artists', 'Submit editorial tag requests for each track', 'Allow 5-10 business days for review'], link: 'https://artists.apple.com' },
+];
+
+
+/* === js/components/actionPlanCard.js === */
+// Action Plan: numbered preview list on Dashboard + full step-by-step list
+// on the Action Plan route.
+function renderTopActions() {
+  const list = $('#topActionList');
+  if (!list) return;
+  list.innerHTML = ACTION_PLAN.map(a => `
+    <li class="action-row">
+      <div class="action-num">${a.num}</div>
+      <div class="action-info">
+        <div class="action-title">${a.title}</div>
+        <div class="action-sub">${a.sub}</div>
+      </div>
+      <span class="issue-severity sev-${a.severity}">${a.severity}</span>
+      <span class="action-arrow">›</span>
+    </li>`).join('');
+}
+
+function renderFullActionPlan() {
+  const list = $('#fullActionList');
+  if (!list) return;
+  list.innerHTML = ACTION_PLAN.map(a => `
+    <div class="action-plan-card">
+      <div class="action-plan-num">${a.num}</div>
+      <div class="action-plan-body">
+        <div class="action-plan-title">${a.title}</div>
+        <div class="action-plan-desc">${a.sub} — estimated impact addressed</div>
+        <ol class="action-plan-steps">
+          ${a.steps.map(s => `<li>${s}</li>`).join('')}
+        </ol>
+        ${a.link && a.link !== '#' ? `<a href="${a.link}" target="_blank" rel="noopener" class="action-plan-link">Open helpful resource →</a>` : ''}
+      </div>
+      <span class="issue-severity sev-${a.severity}">${a.severity}</span>
+    </div>`).join('');
+}
+
+
+/* === js/data/platforms.js === */
+// [API HOOK] GET /api/audit?session_id=... → results.platforms
+// `icon` references a key in BRAND_ICONS (utils/brandIcons.js).
+const PLATFORMS = [
+  { name: 'Spotify',     icon: 'spotify',    status: 'connected' },
+  { name: 'Apple Music', icon: 'apple',      status: 'connected' },
+  { name: 'YouTube',     icon: 'youtube',    status: 'connected' },
+  { name: 'SoundCloud',  icon: 'soundcloud', status: 'connected' },
+  { name: 'TikTok',      icon: 'tiktok',     status: 'connected' },
+  { name: '+9',          icon: 'more',       status: 'available', meta: 'More Platforms' },
+];
+
+
+/* === js/utils/brandIcons.js === */
+// Single-color SVG brand marks for nominative platform identification.
+// Marks are silhouettes filled with currentColor, drawn in 24x24 viewBox.
+// To swap in licensed full-color assets later, replace path data here.
+const BRAND_ICONS = {
+  spotify:    '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12C24 5.4 18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/></svg>',
+  apple:      '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>',
+  youtube:    '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+  soundcloud: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M1.175 12.225c-.051 0-.094.046-.101.1l-.233 2.154.233 2.105c.007.058.05.098.101.098.05 0 .09-.04.099-.098l.255-2.105-.27-2.154c0-.057-.045-.1-.09-.1m-.899.828c-.06 0-.091.037-.104.094L0 14.479l.165 1.308c0 .055.045.094.09.094s.089-.045.104-.104l.21-1.319-.21-1.34c0-.045-.06-.09-.09-.09zm1.83-1.229c-.061 0-.12.045-.12.104l-.21 2.563.225 2.458c0 .06.045.12.12.12.06 0 .12-.061.12-.12l.255-2.474-.27-2.548c0-.06-.045-.104-.12-.104zm.945-.089c-.075 0-.135.06-.15.135l-.21 2.64.225 2.41c.016.075.075.135.15.135s.135-.06.15-.135l.24-2.41-.24-2.64c0-.075-.061-.135-.165-.135zm1.155.36c-.005-.09-.075-.149-.159-.149-.09 0-.158.06-.164.149l-.217 2.404.21 2.475c0 .089.075.158.159.158.09 0 .158-.069.164-.158l.24-2.475-.24-2.404zm.93-1.439c-.045-.087-.105-.149-.18-.149-.06 0-.119.061-.149.149-.045.044-.061.105-.061.149l-.195 3.69.21 2.475c0 .104.09.18.18.18.104 0 .18-.075.18-.18l.225-2.475-.21-3.84zm.929 6.524c.105 0 .195-.075.21-.18l.18-2.265-.196-4.95c-.014-.105-.105-.18-.21-.18-.119 0-.21.075-.21.18l-.165 4.949.165 2.266c.017.105.105.18.226.18zm.945.045c.119 0 .225-.09.225-.225l.179-2.4-.18-5.474c0-.135-.119-.24-.225-.24-.135 0-.24.09-.24.24l-.149 5.474.149 2.414c.001.121.105.211.241.211zm.973-2.265l-.165-7.075c0-.149-.135-.27-.27-.27a.275.275 0 0 0-.27.27l-.149 7.061.149 2.385c0 .149.135.27.27.27.149 0 .27-.135.27-.285l.165-2.356zm.929-9.749a.317.317 0 0 0-.149-.044c-.061 0-.105.015-.165.044a.34.34 0 0 0-.135.255v.061l-.135 9.674.06 1.215.075 1.155c0 .165.135.299.3.299s.3-.135.3-.314l.165-2.37-.165-9.704c-.001-.135-.105-.24-.226-.27zm.945-.93c-.045-.029-.105-.045-.149-.045-.075 0-.135.016-.18.045a.305.305 0 0 0-.165.27l-.135 10.514.16 2.385c0 .18.149.329.329.329a.342.342 0 0 0 .329-.329l.165-2.385-.165-10.529c0-.135-.075-.24-.18-.255zm.704 13.439c.18 0 .345-.165.345-.345l.165-2.354-.165-10.604c0-.181-.165-.346-.345-.346s-.345.165-.345.346l-.149 10.604.149 2.354c.015.195.165.345.345.345zm1.351-13.799c-.046-.045-.135-.075-.196-.075-.075 0-.165.029-.225.075-.105.06-.18.18-.18.314v.046l-.105 11.099.149 2.34c0 .195.165.359.36.359s.36-.165.375-.359l.165-2.34-.165-11.13c-.015-.135-.075-.255-.18-.329zm.945-.166c-.061-.029-.135-.045-.21-.045-.075 0-.149.016-.21.045-.119.061-.21.181-.21.331l-.135 11.234.149 2.31c0 .21.18.394.39.394.21 0 .375-.18.375-.39l.18-2.31-.18-11.249c0-.149-.105-.27-.225-.33zm.913-.018a.522.522 0 0 0-.225-.045.508.508 0 0 0-.21.061c-.135.061-.225.21-.225.36l-.135 11.099.151 2.314c.015.226.18.405.42.405.225 0 .39-.165.42-.405l.149-2.314-.149-11.099c0-.16-.105-.301-.226-.376zm1.486 11.46l-.149-11.07c0-.18-.135-.346-.301-.42a.581.581 0 0 0-.225-.044.583.583 0 0 0-.255.06c-.149.075-.225.226-.225.404v.075l-.135 11.025.149 2.265c0 .226.21.42.45.42.225 0 .42-.196.42-.42l.149-2.295zm6.703-7.575c-.93 0-1.844.224-2.654.659-.553-6.225-7.156-9.045-12.015-5.235-.6.45-.749.6-.749 1.05v15.105c0 .465.359.84.81.93h14.61c2.985-.42 5.205-2.91 5.205-5.97 0-3.345-2.7-6.063-6.075-6.063l-.005-.001-.039.014z"/></svg>',
+  tiktok:     '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>',
+  more:       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg"><line x1="12" y1="6" x2="12" y2="18"/><line x1="6" y1="12" x2="18" y2="12"/></svg>',
+};
+
+
+/* === js/components/platformStrip.js === */
+// "Your Platforms" grid on the Dashboard route.
+// Uses BRAND_ICONS for the SVG mark and brand-tint CSS via [data-platform].
+function renderPlatforms() {
+  const grid = $('#platformGrid');
+  if (!grid) return;
+  grid.innerHTML = PLATFORMS.map(p => {
+    const mark = BRAND_ICONS[p.icon] || `<span class="platform-logo-text">${p.name}</span>`;
+    return `
+    <div class="platform-cell" data-platform="${p.icon}">
+      <div class="platform-logo">${mark}</div>
+      <div class="platform-name">${p.meta || p.name}</div>
+      <div class="platform-status ${p.status}">${p.status === 'connected' ? 'Connected' : p.status === 'partial' ? 'Partial' : 'Available'}</div>
+    </div>`;
+  }).join('');
+}
+
+
+/* === js/data/setup.js === */
+// [API HOOK] GET /api/setup → distributor / PRO / publishing / etc.
+// Each area is an intake "module" with:
+//   detected:  fields auto-populated from connected platforms (read-only)
+//   intake:    fields the user fills in (input/select/toggle)
+//   checks:    sub-checks that roll up into the area's status
+//   warning:   inline missing-item alert with revenue-at-risk (optional)
+//   actions:   route links the user can jump to (Action Plan / Issues)
+const SETUP = [
+  {
+    id: 'distributor',
+    title: 'Distributor',
+    blurb: 'How your music is delivered to streaming platforms and download stores.',
+    status: 'connected',
+    score: 88,
+    lastVerified: 'Apr 24, 2026',
+    detected: [
+      { label: 'Provider',         value: 'DistroKid' },
+      { label: 'Account email',    value: 'jordan@example.com' },
+      { label: 'Active releases',  value: '14' },
+      { label: 'Last sync',        value: '2 days ago' },
+    ],
+    intake: [
+      { type: 'select', label: 'Backup distributor (optional)', value: '', options: ['', 'TuneCore', 'CD Baby', 'AWAL', 'UnitedMasters', 'Amuse'], placeholder: 'None selected' },
+      { type: 'text',   label: 'Tracks awaiting ISRC',          value: '3', hint: 'Detected from your latest scan' },
+    ],
+    checks: [
+      { label: 'ISRC coverage',           state: 'partial', detail: '11 of 14 tracks have ISRCs' },
+      { label: 'Content ID enrollment',   state: 'ok',      detail: 'Enrolled via DistroKid' },
+      { label: 'Apple Digital Masters',   state: 'ok',      detail: 'Eligible' },
+      { label: 'Spotify for Artists',     state: 'partial', detail: 'Claimed but not verified' },
+    ],
+    warning: { severity: 'medium', text: '3 tracks are missing ISRCs and may not be tracked on streaming platforms.', impact: '$1,210+ at risk' },
+    actions: [
+      { label: 'Fix in Action Plan',      route: 'actions' },
+      { label: 'View affected tracks',    route: 'catalog' },
+    ],
+  },
+  {
+    id: 'pro',
+    title: 'PRO (Performance Rights)',
+    blurb: 'Your performance rights organization. Collects royalties when your songs are played publicly.',
+    status: 'connected',
+    score: 76,
+    lastVerified: 'Apr 22, 2026',
+    detected: [
+      { label: 'Society',           value: 'SOCAN' },
+      { label: 'Member ID',         value: '****-2871' },
+      { label: 'Registered works',  value: '12 of 14' },
+      { label: 'Account status',    value: 'Active' },
+    ],
+    intake: [
+      { type: 'text',   label: 'IPI / CAE number',           value: '00374829471', hint: '11 digits, assigned by your PRO' },
+      { type: 'select', label: 'Splits set with co-writers', value: 'partial', options: ['confirmed', 'partial', 'not-set'], labels: { confirmed: 'Confirmed for all works', partial: 'Confirmed for some works', 'not-set': 'Not yet set' } },
+      { type: 'toggle', label: 'Foreign collection enabled', value: true,  hint: 'Allows your PRO to collect from sister societies abroad' },
+    ],
+    checks: [
+      { label: 'Writer splits documented',     state: 'partial', detail: '2 tracks pending co-writer confirmation' },
+      { label: 'Works registered with PRO',    state: 'partial', detail: '12 of 14 works' },
+      { label: 'Statements uploaded',          state: 'ok',      detail: '4 statements parsed' },
+      { label: 'IPI / CAE number on file',     state: 'ok',      detail: 'Verified' },
+    ],
+    warning: { severity: 'medium', text: '2 tracks have unconfirmed writer splits, which can delay or block royalty distribution.', impact: '$420+ at risk' },
+    actions: [
+      { label: 'Review splits in Action Plan', route: 'actions' },
+      { label: 'View 2 affected issues',       route: 'issues' },
+    ],
+  },
+  {
+    id: 'publishing',
+    title: 'Publishing Admin',
+    blurb: 'Connects your songs (compositions) to recordings so mechanical and sync royalties flow to you.',
+    status: 'partial',
+    score: 58,
+    lastVerified: 'Apr 22, 2026',
+    detected: [
+      { label: 'Provider',           value: 'Songtrust' },
+      { label: 'Publisher name',     value: 'Jordan Kai Music' },
+      { label: 'Linked recordings',  value: '10 of 14' },
+      { label: 'Open issues',        value: '4' },
+    ],
+    intake: [
+      { type: 'text',     label: 'Publisher / company name',    value: 'Jordan Kai Music' },
+      { type: 'textarea', label: 'ISWCs (one per line)',        value: 'T-309.123.456-1\nT-309.123.457-9\nT-309.123.458-6', hint: 'International Standard Musical Work Codes' },
+      { type: 'multi',    label: 'Sub-publishing territories',  value: ['NA', 'EU', 'UK'], options: ['NA', 'EU', 'UK', 'JP', 'AU', 'LATAM', 'Asia (other)'], hint: 'Where your publisher collects on your behalf' },
+    ],
+    checks: [
+      { label: 'ISWC ↔ ISRC linking',         state: 'partial', detail: '10 of 14 recordings linked to compositions' },
+      { label: 'Sub-publishing coverage',     state: 'partial', detail: '3 of 7 territories registered' },
+      { label: 'Mechanical collections',      state: 'ok',      detail: 'Active via Songtrust' },
+      { label: 'Sync rep / agent',            state: 'missing', detail: 'No representation on file' },
+    ],
+    warning: { severity: 'high', text: '4 recordings are not linked to their compositions. Mechanical and streaming-mechanical royalties may be uncollected.', impact: '$842+ at risk' },
+    actions: [
+      { label: 'Link recordings in Action Plan', route: 'actions' },
+      { label: 'View 4 affected issues',         route: 'issues' },
+    ],
+  },
+  {
+    id: 'soundexchange',
+    title: 'SoundExchange',
+    blurb: 'US digital performance royalties from non-interactive radio (Pandora, SiriusXM, internet radio).',
+    status: 'partial',
+    score: 62,
+    lastVerified: 'Apr 21, 2026',
+    detected: [
+      { label: 'Account status',     value: 'Active' },
+      { label: 'Registered tracks',  value: '8 of 14' },
+      { label: 'Direct deposit',     value: 'Set up' },
+      { label: 'Payee type',         value: 'Featured artist' },
+    ],
+    intake: [
+      { type: 'text',   label: 'Payee number',                value: 'PA-7782619' },
+      { type: 'text',   label: 'SR (Sound Recording) number', value: '', placeholder: 'Required for some claims', hint: 'Optional, but recommended' },
+      { type: 'toggle', label: 'Also collect as non-featured', value: false, hint: 'Enable if you also perform as a session musician' },
+    ],
+    checks: [
+      { label: 'Payee registered',             state: 'ok',      detail: 'Verified' },
+      { label: 'Direct deposit configured',    state: 'ok',      detail: 'Linked to checking account' },
+      { label: 'All recordings registered',    state: 'partial', detail: '8 of 14 recordings registered' },
+      { label: 'Featured/non-featured split',  state: 'missing', detail: 'Not yet declared' },
+    ],
+    warning: { severity: 'low', text: '6 recordings are not yet registered with SoundExchange. US digital radio plays will not generate royalties for those tracks.', impact: '$168+ at risk' },
+    actions: [
+      { label: 'Register tracks in Action Plan', route: 'actions' },
+    ],
+  },
+  {
+    id: 'youtube',
+    title: 'YouTube Content ID',
+    blurb: 'YouTube\'s rights-management system. Identifies your music in user-uploaded videos and monetizes the views.',
+    status: 'missing',
+    score: 22,
+    lastVerified: 'Apr 18, 2026',
+    detected: [
+      { label: 'Enrollment status',  value: 'Not enrolled' },
+      { label: 'Eligible tracks',    value: '14' },
+      { label: 'Channels linked',    value: '1' },
+      { label: 'Recommended path',   value: 'Apply via distributor' },
+    ],
+    intake: [
+      { type: 'text',   label: 'Primary YouTube channel URL', value: 'https://youtube.com/@jordankai' },
+      { type: 'text',   label: 'Additional channels',         value: '', placeholder: 'One URL per line' },
+      { type: 'toggle', label: 'YouTube Partner Program enabled', value: true,  hint: 'Required for AdSense revenue' },
+      { type: 'toggle', label: 'AdSense linked to channel',       value: true },
+    ],
+    checks: [
+      { label: 'Content ID enrollment',     state: 'missing', detail: 'Not enrolled — apply via distributor' },
+      { label: 'Channel ownership verified', state: 'ok',      detail: 'Verified' },
+      { label: 'Active claim conflicts',    state: 'partial', detail: '1 disputed claim on "Late Light"' },
+      { label: 'AdSense monetization',      state: 'ok',      detail: 'Active' },
+    ],
+    warning: { severity: 'high', text: 'You are not enrolled in Content ID. UGC uses of your music on YouTube are not being monetized.', impact: '$1,032+ at risk' },
+    actions: [
+      { label: 'Enroll via Action Plan',  route: 'actions' },
+      { label: 'View 2 affected issues',  route: 'issues' },
+    ],
+  },
+  {
+    id: 'neighbouring',
+    title: 'Neighbouring Rights',
+    blurb: 'Performer royalties from radio, public venues, and streaming outside the US. Separate from songwriter and master royalties.',
+    status: 'missing',
+    score: 18,
+    lastVerified: 'Apr 18, 2026',
+    detected: [
+      { label: 'Society',              value: 'None registered' },
+      { label: 'Performer ISNI',       value: 'Not on file' },
+      { label: 'Territories covered',  value: '0 of 12' },
+      { label: 'Estimated annual impact', value: '$487+' },
+    ],
+    intake: [
+      { type: 'text',   label: 'Performer ISNI',              value: '', placeholder: '0000 0000 1234 5678', hint: 'International Standard Name Identifier' },
+      { type: 'select', label: 'Primary society',             value: '', options: ['', 'Re:Sound (Canada)', 'PPL (UK)', 'GVL (Germany)', 'SCF (Italy)', 'SAMI (Sweden)', 'Gramex (Denmark)'], placeholder: 'Select your home society' },
+      { type: 'multi',  label: 'Territories to register',     value: [], options: ['Canada', 'United Kingdom', 'Germany', 'France', 'Italy', 'Spain', 'Netherlands', 'Sweden', 'Denmark', 'Australia', 'Japan', 'Brazil'] },
+    ],
+    checks: [
+      { label: 'Home society registered',      state: 'missing', detail: 'Not registered with any society' },
+      { label: 'Performer ISNI on file',       state: 'missing', detail: 'Required for cross-border collection' },
+      { label: 'Featured performer credits',   state: 'partial', detail: '11 of 14 recordings credited' },
+      { label: 'Sister-society agreements',    state: 'missing', detail: 'No reciprocal coverage' },
+    ],
+    warning: { severity: 'medium', text: 'You are not registered with any neighbouring rights society. Performer royalties from international radio and public performance are not being collected.', impact: '$487+ at risk' },
+    actions: [
+      { label: 'Register in Action Plan',  route: 'actions' },
+    ],
+  },
+];
+
+
+/* === js/components/setupIntakeField.js === */
+// SetupIntakeField — renders one editable input inside a SetupCard.
+// Type-discriminated: text | textarea | select | toggle | multi.
+// Multi-chip click handlers + change events are wired in setupPage.js.
+function renderIntakeField(f, idx) {
+  const id = `intake-${idx}`;
+
+  if (f.type === 'text') {
+    return `
+      <div class="intake-field">
+        <label class="intake-label" for="${id}">${f.label}</label>
+        <input id="${id}" class="intake-input" type="text" value="${f.value || ''}" placeholder="${f.placeholder || ''}" />
+        ${f.hint ? `<div class="intake-hint">${f.hint}</div>` : ''}
+      </div>`;
+  }
+
+  if (f.type === 'textarea') {
+    return `
+      <div class="intake-field intake-field-wide">
+        <label class="intake-label" for="${id}">${f.label}</label>
+        <textarea id="${id}" class="intake-input intake-textarea" rows="3" placeholder="${f.placeholder || ''}">${f.value || ''}</textarea>
+        ${f.hint ? `<div class="intake-hint">${f.hint}</div>` : ''}
+      </div>`;
+  }
+
+  if (f.type === 'select') {
+    const opts = f.options.map(o => {
+      const display = (f.labels && f.labels[o]) || o || (f.placeholder || '— Select —');
+      const selected = o === f.value ? 'selected' : '';
+      return `<option value="${o}" ${selected}>${display}</option>`;
+    }).join('');
+    return `
+      <div class="intake-field">
+        <label class="intake-label" for="${id}">${f.label}</label>
+        <select id="${id}" class="intake-input intake-select">${opts}</select>
+        ${f.hint ? `<div class="intake-hint">${f.hint}</div>` : ''}
+      </div>`;
+  }
+
+  if (f.type === 'toggle') {
+    const checked = f.value ? 'checked' : '';
+    return `
+      <div class="intake-field intake-field-toggle">
+        <div>
+          <label class="intake-label" for="${id}">${f.label}</label>
+          ${f.hint ? `<div class="intake-hint">${f.hint}</div>` : ''}
+        </div>
+        <label class="switch"><input id="${id}" type="checkbox" ${checked} /><span class="slider"></span></label>
+      </div>`;
+  }
+
+  if (f.type === 'multi') {
+    const chips = f.options.map(o => {
+      const active = (f.value || []).includes(o) ? 'active' : '';
+      return `<button type="button" class="multi-chip ${active}" data-value="${o}">${o}</button>`;
+    }).join('');
+    return `
+      <div class="intake-field intake-field-wide">
+        <label class="intake-label">${f.label}</label>
+        <div class="multi-chips">${chips}</div>
+        ${f.hint ? `<div class="intake-hint">${f.hint}</div>` : ''}
+      </div>`;
+  }
+
+  return '';
+}
+
+
+/* === js/components/setupStatusRow.js === */
+// SetupStatusRow — a single sub-check row inside a SetupCard.
+// Renders ✓ / ⚠ / ✕ icon + label + detail line.
+const STATE_ICONS = { ok: '✓', partial: '⚠', missing: '✕' };
+
+function renderStatusRow(check) {
+  return `
+    <li class="check-item check-${check.state}">
+      <span class="check-icon">${STATE_ICONS[check.state] || '·'}</span>
+      <div class="check-body">
+        <div class="check-label">${check.label}</div>
+        <div class="check-detail">${check.detail}</div>
+      </div>
+    </li>`;
+}
+
+function renderStatusRows(checks) {
+  return `<ul class="setup-checks">${checks.map(renderStatusRow).join('')}</ul>`;
+}
+
+
+/* === js/components/setupActionButtons.js === */
+// SetupActionButtons — the Connect / Verify / View affected tracks / etc.
+// row at the bottom of each SetupCard. First button is primary, rest are
+// secondary. data-route-link is honored by router delegation.
+function renderActionButtons(actions = []) {
+  if (!actions.length) return '';
+  return `
+    <div class="setup-actions">
+      ${actions.map((a, i) => `
+        <button class="${i === 0 ? 'btn-primary' : 'btn-secondary'} setup-action-btn" data-route-link="${a.route}">${a.label} →</button>
+      `).join('')}
+    </div>`;
+}
+
+
+/* === js/components/setupCard.js === */
+// SetupCard — single rich card for one setup area (Distributor / PRO / etc).
+// Composed of: header strip, detected fields grid, intake fields,
+// SetupStatusRow checks, warning callout, SetupActionButtons.
+const STATUS_LABEL = { connected: 'Connected', partial: 'Partial', missing: 'Missing' };
+
+function renderSetupCard(s) {
+  return `
+    <div class="setup-card setup-card-rich" data-setup-id="${s.id}">
+
+      <!-- Header strip: title + blurb + status badge + score + last verified -->
+      <div class="setup-card-header">
+        <div class="setup-card-titlewrap">
+          <div class="setup-card-title">${s.title}</div>
+          <div class="setup-card-blurb">${s.blurb}</div>
+        </div>
+        <div class="setup-card-meta">
+          <span class="setup-status ${s.status}">${STATUS_LABEL[s.status]}</span>
+          <div class="setup-score-wrap">
+            <span class="setup-score setup-score-${s.status}">${s.score}</span>
+            <span class="setup-score-label">/ 100</span>
+          </div>
+        </div>
+      </div>
+      <div class="setup-card-verified">Last verified ${s.lastVerified}</div>
+
+      <!-- Detected: read-only fields auto-populated from connected platforms -->
+      <div class="setup-section-label">Detected</div>
+      <div class="setup-detected-grid">
+        ${s.detected.map(d => `
+          <div class="detected-item">
+            <div class="detected-label">${d.label}</div>
+            <div class="detected-value">${d.value}</div>
+          </div>`).join('')}
+      </div>
+
+      <!-- Intake: editable fields the user fills in -->
+      ${s.intake && s.intake.length ? `
+        <div class="setup-section-label">Intake</div>
+        <div class="intake-grid">
+          ${s.intake.map(renderIntakeField).join('')}
+        </div>` : ''}
+
+      <!-- Sub-checks -->
+      <div class="setup-section-label">Checks</div>
+      ${renderStatusRows(s.checks)}
+
+      <!-- Inline warning callout -->
+      ${s.warning ? `
+        <div class="setup-warning setup-warning-${s.warning.severity}">
+          <div class="setup-warning-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="setup-warning-body">
+            <div class="setup-warning-text">${s.warning.text}</div>
+            <div class="setup-warning-impact">${s.warning.impact}</div>
+          </div>
+        </div>` : ''}
+
+      ${renderActionButtons(s.actions)}
+    </div>`;
+}
+
+
+/* === js/components/setupPage.js === */
+// My Setup route — renders all 6 SetupCards and wires intake-field
+// console-logging (visual only, no persistence per scope).
+// [API HOOK] PATCH /api/setup/:areaId — wire these to the backend later.
+function renderSetup() {
+  const grid = $('#setupGrid');
+  if (!grid) return;
+
+  grid.innerHTML = SETUP.map(renderSetupCard).join('');
+
+  // Wire intake field interactions — visual only, no persistence.
+  const areaIdOf = (el) => el.closest('[data-setup-id]')?.dataset.setupId || 'unknown';
+  const fieldOf  = (el) => el.closest('.intake-field')?.querySelector('.intake-label')?.textContent || '';
+
+  $$('.multi-chip', grid).forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('active');
+      console.log('[setup intake]', { area: areaIdOf(chip), field: fieldOf(chip), value: chip.dataset.value, active: chip.classList.contains('active') });
+    });
+  });
+
+  $$('.intake-input', grid).forEach(input => {
+    const evt = input.tagName === 'SELECT' || input.type === 'checkbox' ? 'change' : 'input';
+    input.addEventListener(evt, () => {
+      const value = input.type === 'checkbox' ? input.checked : input.value;
+      console.log('[setup intake]', { area: areaIdOf(input), field: fieldOf(input), value });
+    });
+  });
+
+  $$('.intake-field-toggle input[type="checkbox"]', grid).forEach(input => {
+    input.addEventListener('change', () => {
+      console.log('[setup intake]', { area: areaIdOf(input), field: fieldOf(input), value: input.checked });
+    });
+  });
+}
+
+
+/* === js/data/catalog.js === */
+// [API HOOK] GET /api/catalog → tracks
+const CATALOG = [
+  { track: 'Midnight Rewind',    isrc: 'CAUM72400001', platforms: ['spotify','apple','youtube','soundcloud','tiktok'], status: 'full' },
+  { track: 'Black Velvet',       isrc: 'CAUM72400002', platforms: ['spotify','apple','youtube','soundcloud'], status: 'full' },
+  { track: 'After Hours',        isrc: '—',           platforms: ['spotify','apple','youtube'], status: 'missing' },
+  { track: 'Neon Skin',          isrc: 'CAUM72400003', platforms: ['spotify','apple','youtube','soundcloud','tiktok'], status: 'full' },
+  { track: 'Lowlight',           isrc: '—',           platforms: ['spotify','apple'], status: 'missing' },
+  { track: 'Static',             isrc: 'CAUM72400004', platforms: ['spotify','apple','youtube'], status: 'partial' },
+  { track: 'Run It Back',        isrc: 'CAUM72400005', platforms: ['spotify','apple','youtube','soundcloud','tiktok'], status: 'full' },
+  { track: 'Fade Into You',      isrc: '—',           platforms: ['spotify','apple'], status: 'missing' },
+  { track: 'Telegraph',          isrc: 'CAUM72400006', platforms: ['spotify','apple','youtube','soundcloud'], status: 'full' },
+  { track: 'Dark Eyes',          isrc: 'CAUM72400007', platforms: ['spotify','apple','youtube','soundcloud','tiktok'], status: 'full' },
+];
+
+
+/* === js/components/catalogPage.js === */
+// Catalog table — per-track ISRC + monetization status + brand-marked platform dots.
+function renderCatalog() {
+  const tbody = document.querySelector('#catalogTable tbody');
+  if (!tbody) return;
+  tbody.innerHTML = CATALOG.map(t => `
+    <tr>
+      <td class="catalog-track-name">${t.track}</td>
+      <td class="catalog-isrc">${t.isrc}</td>
+      <td><div class="platform-dots">${t.platforms.map(p => `<span class="platform-dot" data-platform="${p}" title="${p.charAt(0).toUpperCase() + p.slice(1)}">${BRAND_ICONS[p] || ''}</span>`).join('')}</div></td>
+      <td><span class="catalog-status ${t.status}">${t.status === 'full' ? 'Fully monetized' : t.status === 'partial' ? 'Partial' : 'Missing data'}</span></td>
+    </tr>`).join('');
+}
+
+
+/* === js/data/reports.js === */
+// [API HOOK] GET /api/reports → past audit reports
+const REPORTS = [
+  { title: 'Royaltē Audit — April 2026', date: 'Apr 24, 2026', score: 72 },
+  { title: 'Royaltē Audit — March 2026', date: 'Mar 18, 2026', score: 68 },
+  { title: 'Royaltē Audit — February 2026', date: 'Feb 12, 2026', score: 64 },
+];
+
+
+/* === js/components/reportsPage.js === */
+// Reports route — past audit history with download-PDF buttons.
+function renderReports() {
+  const list = $('#reportsList');
+  if (!list) return;
+  list.innerHTML = REPORTS.map(r => `
+    <li class="report-row">
+      <div class="report-icon">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div>
+        <div class="report-title">${r.title}</div>
+        <div class="report-meta">${r.date}</div>
+      </div>
+      <div class="report-score">${r.score}%</div>
+      <button class="btn-download" data-action="download-report">Download PDF</button>
+    </li>`).join('');
+}
+
+
+/* === js/data/planConfig.js === */
+// Plan label map for the plan-state toggle and sidebar user card.
+const PLAN_LABELS = {
+  free: 'Free Scan',
+  audit: 'Full Audit',
+  pro: 'Pro Monitoring',
+};
+
+
+/* === js/components/planToggle.js === */
+// Plan-state toggle (Free / Audit / Pro).
+//
+// Drives:
+//   - body.plan-{free|audit|pro} class for CSS gating
+//   - sidebar user-plan label
+//   - Settings → Subscription card text/button
+//   - Monitoring page gate overlay
+//   - Sidebar upgrade card visibility (hidden for Pro)
+//   - Free-plan blur overlay on Issues / Action Plan / Catalog / Reports
+//
+// [API HOOK] Replace with real subscription_status from Supabase
+//   (e.g. audit_sessions.user_tier or similar).
+let currentPlan = 'audit';
+
+function setPlan(plan) {
+  currentPlan = plan;
+  document.body.classList.remove('plan-free', 'plan-audit', 'plan-pro');
+  document.body.classList.add(`plan-${plan}`);
+
+  // Toggle buttons active state
+  $$('.plan-btn').forEach(b => b.classList.toggle('active', b.dataset.plan === plan));
+
+  // Sidebar plan label
+  const planLabel = $('#userPlanLabel');
+  if (planLabel) planLabel.textContent = `${PLAN_LABELS[plan]} Plan`;
+
+  // Settings subscription card
+  const subName = $('#subName');
+  const subMeta = $('#subMeta');
+  const subBtn  = $('#subUpgradeBtn');
+  if (subName && subMeta && subBtn) {
+    if (plan === 'free') {
+      subName.textContent = 'Free Scan';
+      subMeta.textContent = 'Limited preview only — upgrade to view full results';
+      subBtn.textContent = 'Get Full Audit';
+      subBtn.style.display = '';
+    } else if (plan === 'audit') {
+      subName.textContent = 'Full Audit (one-time)';
+      subMeta.textContent = 'Snapshot report & limited dashboard access';
+      subBtn.textContent = 'Upgrade to Pro';
+      subBtn.style.display = '';
+    } else {
+      subName.textContent = 'Pro Monitoring — $19.99/mo';
+      subMeta.textContent = 'Continuous monitoring, alerts, and full dashboard';
+      subBtn.style.display = 'none';
+    }
+  }
+
+  // Monitoring gate
+  const monGate = $('#monitoringGate');
+  const monContent = $('#monitoringContent');
+  if (monGate && monContent) {
+    if (plan === 'pro') {
+      monGate.classList.add('hidden');
+      monContent.classList.remove('locked');
+    } else {
+      monGate.classList.remove('hidden');
+      monContent.classList.add('locked');
+    }
+  }
+
+  // Upgrade card hidden for Pro
+  const upgradeCard = $('#upgradeCard');
+  if (upgradeCard) upgradeCard.style.display = plan === 'pro' ? 'none' : '';
+
+  applyFreeGating();
+}
+
+function applyFreeGating() {
+  const lockableRoutes = ['issues', 'actions', 'catalog', 'reports'];
+  lockableRoutes.forEach(r => {
+    const section = document.querySelector(`[data-route-content="${r}"]`);
+    if (!section) return;
+    section.querySelectorAll('.free-lock-message').forEach(n => n.remove());
+    section.querySelectorAll('.lockable-free').forEach(n => n.classList.remove('lockable-free'));
+
+    if (currentPlan === 'free') {
+      const cards = section.querySelectorAll('.card, .action-plan-list, .filter-row');
+      cards.forEach(c => c.classList.add('lockable-free'));
+      const lock = document.createElement('div');
+      lock.className = 'free-lock-message';
+      lock.innerHTML = `
+        <div class="free-lock-message-card">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Get the Full Audit to unlock this view
+          <button class="btn-primary" data-action="upgrade" style="margin-left:8px;padding:7px 14px;font-size:12px;">Get Full Audit</button>
+        </div>`;
+      section.style.position = 'relative';
+      section.appendChild(lock);
+    }
+  });
+}
+
+function initPlanToggle() {
+  $$('.plan-btn').forEach(btn => on(btn, 'click', () => setPlan(btn.dataset.plan)));
+  setPlan('audit'); // default
+}
+
+
+/* === js/app.js === */
+/* ============================================================
+   ROYALTĒ DASHBOARD — APP ENTRY POINT
+   ------------------------------------------------------------
+   UI prototype only. No backend, no Stripe, no auth yet.
+   API hook points are marked across the codebase with: // [API HOOK]
+   ------------------------------------------------------------
+   This file orchestrates init only. Component logic lives in
+   js/components/. Mock data lives in js/data/. Utilities in js/utils/.
+   ============================================================ */
+
+// Global action handlers (mock buttons that hit an API in production).
+// Lives at app level since it's a tiny global delegated listener.
+function initGlobalActions() {
+  document.addEventListener('click', e => {
+    const action = e.target.closest('[data-action]')?.dataset.action;
+    if (!action) return;
+    if (action === 'upgrade') {
+      // [API HOOK] POST /api/create-checkout-session
+      alert('Upgrade flow → would redirect to Stripe Checkout for Pro Monitor ($19.99/mo).');
+    } else if (action === 'new-scan') {
+      // [API HOOK] POST /api/submit-audit
+      alert('Run New Scan → would call /api/submit-audit and start a new ScanSession.');
+    } else if (action === 'download-report') {
+      // [API HOOK] GET /api/reports/:id/pdf
+      alert('Download PDF → would fetch the generated audit report.');
+    }
+  });
+}
+
+function init() {
+  // Static renders
+  renderHeroStats();
+  renderTopIssues();
+  renderAllIssues('all');
+  renderTopActions();
+  renderFullActionPlan();
+  renderPlatforms();
+  renderSetup();
+  renderCatalog();
+  renderReports();
+
+  // Charts
+  drawRevenueChart();
+  drawTrendChart();
+
+  // Interactivity
+  initRouter();
+  initIssuesFilter();
+  initPlanToggle();
+  initGlobalActions();
+}
+
+window.addEventListener('load', init);
+window.addEventListener('resize', () => {
+  drawRevenueChart();
+  drawTrendChart();
+});
+
+</script>
+</body>
+</html>

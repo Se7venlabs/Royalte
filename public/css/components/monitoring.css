@@ -1,0 +1,83 @@
+/* Monitoring page: gated wrap, gate card, mini list, alert list. */
+/* ============================================================
+   MONITORING (gated)
+   ============================================================ */
+.gated-wrap { position: relative; }
+.gated-content { display: flex; flex-direction: column; gap: 20px; }
+.gated-content.locked {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.55;
+}
+.gate-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 5;
+}
+.gate-overlay.hidden { display: none; }
+.gate-card {
+  background: var(--bg-card);
+  border: 1px solid var(--purple-soft-strong);
+  border-radius: var(--radius-xl);
+  padding: 32px 36px;
+  max-width: 460px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px var(--purple-glow);
+}
+.gate-icon {
+  width: 60px; height: 60px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--purple-soft);
+  color: var(--purple);
+  display: grid; place-items: center;
+}
+.gate-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+.gate-text {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 0 0 16px;
+  line-height: 1.55;
+}
+.gate-bullets {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: inline-block;
+}
+.gate-bullets li { padding: 4px 0; }
+
+.mini-list { list-style: none; margin: 12px 0 0; padding: 0; font-size: 13px; }
+.mini-list li { padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.mini-list li:last-child { border-bottom: none; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dot-high { background: var(--red); }
+.dot-medium { background: var(--amber); }
+.dot-low { background: var(--green); }
+
+.alert-list { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+.alert-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.alert-list li:last-child { border-bottom: none; }
+.alert-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 80px;
+}

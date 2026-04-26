@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Royaltē — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<!-- Design tokens -->
+<link rel="stylesheet" href="css/tokens.css" />
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/layout.css" />
+<!-- Components -->
+<link rel="stylesheet" href="css/components/brand.css" />
+<link rel="stylesheet" href="css/components/nav.css" />
+<link rel="stylesheet" href="css/components/buttons.css" />
+<link rel="stylesheet" href="css/components/cards.css" />
+<link rel="stylesheet" href="css/components/issues.css" />
+<link rel="stylesheet" href="css/components/actions.css" />
+<link rel="stylesheet" href="css/components/platforms.css" />
+<link rel="stylesheet" href="css/components/setup.css" />
+<link rel="stylesheet" href="css/components/catalog.css" />
+<link rel="stylesheet" href="css/components/monitoring.css" />
+<link rel="stylesheet" href="css/components/reports.css" />
+<link rel="stylesheet" href="css/components/settings.css" />
+<link rel="stylesheet" href="css/components/plan-toggle.css" />
+</head>
+<body>
+
+<!-- ============================================================
+     PLAN-STATE TOGGLE (preview tool — remove for production)
+     ============================================================ -->
+<div class="plan-toggle" id="planToggle">
+  <span class="plan-toggle-label">Preview as:</span>
+  <button class="plan-btn" data-plan="free">Free Scan</button>
+  <button class="plan-btn active" data-plan="audit">Full Audit</button>
+  <button class="plan-btn" data-plan="pro">Pro Monitoring</button>
+</div>
+
+<div class="app">
+
+  <!-- ============================================================
+       SIDEBAR
+       ============================================================ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-wordmark">ROYALT<span class="brand-e">Ē</span></div>
+      <div class="brand-tagline">Music Audit Intelligence</div>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-item active" data-route="dashboard" href="#dashboard">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" data-route="setup" href="#setup">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>My Setup</span>
+      </a>
+      <a class="nav-item" data-route="issues" href="#issues">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Issues Found</span>
+        <span class="nav-badge" id="navIssuesBadge">8</span>
+      </a>
+      <a class="nav-item" data-route="actions" href="#actions">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Action Plan</span>
+      </a>
+      <a class="nav-item" data-route="catalog" href="#catalog">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Catalog</span>
+        <span class="nav-tag">Soon</span>
+      </a>
+      <a class="nav-item" data-route="monitoring" href="#monitoring">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Monitoring</span>
+        <span class="nav-tag">Soon</span>
+      </a>
+      <a class="nav-item" data-route="reports" href="#reports">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>Reports</span>
+      </a>
+      <a class="nav-item" data-route="settings" href="#settings">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m11-11h-6m-10 0H1m17.66-7.66-4.24 4.24M9.17 14.83l-4.24 4.24m0-14.14 4.24 4.24m5.66 5.66 4.24 4.24"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+
+    <!-- Upgrade card (Free + Audit only) -->
+    <div class="upgrade-card" id="upgradeCard">
+      <div class="upgrade-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="upgrade-title">Unlock Full Access</div>
+      <div class="upgrade-text">Unlock full issue tracking, continuous monitoring, and <strong>real-time alerts</strong> across your setup.</div>
+      <button class="btn-upgrade" data-action="upgrade">Upgrade Now</button>
+    </div>
+
+    <div class="user-card">
+      <div class="user-avatar">JK</div>
+      <div class="user-meta">
+        <div class="user-name">Jordan Kai <span class="verified">✓</span></div>
+        <div class="user-plan" id="userPlanLabel">Artist Plan</div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="#" class="footer-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Need help?</a>
+      <a href="#" class="footer-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Contact Support</a>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <main class="main">
+
+    <!-- ===== TOP BAR ===== -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="welcome">Welcome back, Jordan <span class="wave">👋</span></h1>
+        <p class="subtitle" id="topbarSubtitle">Here's what's happening with your royalties.</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-scan" data-action="new-scan">
+          Run New Scan
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="btn-bell">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="bell-count">3</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============================================================
+         ROUTE: DASHBOARD (HOME)
+         ============================================================ -->
+    <section class="route" data-route-content="dashboard">
+
+      <!-- Hero stats row -->
+      <div class="hero-card">
+        <div class="hero-score">
+          <div class="score-ring" data-score="72">
+            <svg viewBox="0 0 120 120" class="ring-svg">
+              <circle cx="60" cy="60" r="52" class="ring-bg"/>
+              <circle cx="60" cy="60" r="52" class="ring-fg" id="scoreRing"/>
+            </svg>
+            <div class="score-value"><span id="scoreNumber">72</span>%</div>
+          </div>
+          <div class="score-meta">
+            <div class="score-label">Overall Score</div>
+            <div class="score-headline">Issues detected in your setup</div>
+            <a href="#issues" class="score-link" data-route-link="issues">See what's missing →</a>
+          </div>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-icon stat-icon-purple">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="stat-label">Est. Revenue at Risk</div>
+            <div class="stat-value">$4,892+</div>
+            <div class="stat-tag tag-high">High <span class="tag-arrow">↗</span></div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon stat-icon-purple">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="stat-label">Issues Found</div>
+            <div class="stat-value">8</div>
+            <div class="stat-tag tag-warn">Needs attention</div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon stat-icon-purple">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="stat-label">Active Systems</div>
+            <div class="stat-value">12</div>
+            <div class="stat-tag tag-good">Good</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue chart + Recent scan -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Revenue at Risk <span class="info-tip" title="Estimated based on identified issues across your catalog. Royaltē does not collect royalties.">ⓘ</span></h3>
+            </div>
+            <div class="select-pill">Last 6 Months <span class="caret">▾</span></div>
+          </div>
+          <div class="big-number">$4,892+</div>
+          <div class="big-number-sub">Based on identified issues in your current setup</div>
+          <div class="chart-wrap">
+            <canvas id="revenueChart" width="600" height="220"></canvas>
+          </div>
+          <div class="callout">
+            <div class="callout-icon">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 7l-5-5-5 5M17 17l-5 5-5-5"/></svg>
+            </div>
+            <div>
+              <div class="callout-title">We've identified issues that may impact your royalty earnings.</div>
+              <div class="callout-sub">Work through your action plan to address them.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Recent Scan</h3>
+          <div class="scan-meta">Apr 24, 2026 · 10:32 AM</div>
+          <div class="scan-status">
+            <div class="status-dot status-dot-success">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="scan-status-title">Scan completed</div>
+              <div class="scan-status-sub">We analyzed your setup across 30+ royalty sources.</div>
+            </div>
+          </div>
+          <button class="btn-primary btn-block" data-route-link="reports">View Scan Report</button>
+          <div class="next-scan">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div>
+              <div class="next-scan-label">Next recommended scan</div>
+              <div class="next-scan-date">May 24, 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top issues + action plan preview -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Top Issues Found <span class="badge-pill">8</span></h3>
+            <a href="#issues" class="link-arrow" data-route-link="issues">View All Issues →</a>
+          </div>
+          <ul class="issue-list" id="topIssuesList"></ul>
+          <button class="more-toggle">+ 3 more issues <span class="caret">▾</span></button>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Action Plan</h3>
+          <div class="card-sub">Your personalized recommendations</div>
+          <ol class="action-list" id="topActionList"></ol>
+          <button class="btn-secondary btn-block" data-route-link="actions">View Full Action Plan →</button>
+        </div>
+      </div>
+
+      <!-- Platforms -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Your Platforms <span class="muted">Connected: 9 of 15</span></h3>
+          <a href="#setup" class="link-arrow" data-route-link="setup">Manage Connections →</a>
+        </div>
+        <div class="platform-grid" id="platformGrid"></div>
+      </div>
+
+      <div class="disclaimer">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Royaltē <u>does not</u> collect money. We identify problems and give you the action plan to fix them.
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: MY SETUP
+         ============================================================ -->
+    <section class="route hidden" data-route-content="setup">
+      <div class="page-header">
+        <h2 class="page-title">My Setup</h2>
+        <p class="page-sub">How your royalty system is structured across distributors, PROs, publishing, and platforms.</p>
+      </div>
+      <div class="setup-grid" id="setupGrid"></div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: ISSUES FOUND
+         ============================================================ -->
+    <section class="route hidden" data-route-content="issues">
+      <div class="page-header">
+        <h2 class="page-title">Issues Found</h2>
+        <p class="page-sub">All problems identified in your setup, ranked by estimated revenue impact.</p>
+      </div>
+      <div class="filter-row">
+        <button class="filter-chip active" data-filter="all">All <span class="chip-count">8</span></button>
+        <button class="filter-chip" data-filter="High">High <span class="chip-count">2</span></button>
+        <button class="filter-chip" data-filter="Medium">Medium <span class="chip-count">3</span></button>
+        <button class="filter-chip" data-filter="Low">Low <span class="chip-count">3</span></button>
+      </div>
+      <div class="card">
+        <ul class="issue-list issue-list-full" id="allIssuesList"></ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: ACTION PLAN
+         ============================================================ -->
+    <section class="route hidden" data-route-content="actions">
+      <div class="page-header">
+        <h2 class="page-title">Action Plan</h2>
+        <p class="page-sub">Step-by-step fixes for the issues we identified, ordered by impact.</p>
+      </div>
+      <div class="action-plan-list" id="fullActionList"></div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: CATALOG
+         ============================================================ -->
+    <section class="route hidden" data-route-content="catalog">
+      <div class="page-header">
+        <h2 class="page-title">Catalog</h2>
+        <p class="page-sub">Your music inventory and per-track monetization status.</p>
+      </div>
+      <div class="card">
+        <div class="catalog-table-wrap">
+          <table class="catalog-table" id="catalogTable">
+            <thead>
+              <tr>
+                <th>Track</th>
+                <th>ISRC</th>
+                <th>Platforms</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: MONITORING (PRO ONLY)
+         ============================================================ -->
+    <section class="route hidden" data-route-content="monitoring">
+      <div class="page-header">
+        <h2 class="page-title">Monitoring <span class="pro-tag">PRO</span></h2>
+        <p class="page-sub">Continuous tracking, alerts, and re-scans across your entire setup.</p>
+      </div>
+
+      <div class="gated-wrap">
+        <div class="gated-content" id="monitoringContent">
+          <div class="grid-2">
+            <div class="card">
+              <h3 class="card-title">New Issues Detected</h3>
+              <div class="card-sub">Last 7 days</div>
+              <div class="big-number">2 new</div>
+              <ul class="mini-list">
+                <li><span class="dot dot-high"></span>Apple Music: 1 new track missing editorial tags</li>
+                <li><span class="dot dot-medium"></span>YouTube: Content ID claim conflict on 1 track</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Score Trend</h3>
+              <div class="card-sub">Your overall score over time</div>
+              <div class="chart-wrap"><canvas id="trendChart" width="500" height="180"></canvas></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Alert History</h3>
+              <span class="muted">SMS + Email</span>
+            </div>
+            <ul class="alert-list">
+              <li><span class="alert-time">2h ago</span>New issue detected on Apple Music</li>
+              <li><span class="alert-time">Yesterday</span>Re-scan complete — 1 issue resolved</li>
+              <li><span class="alert-time">3d ago</span>Score improved from 70% to 72%</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="gate-overlay" id="monitoringGate">
+          <div class="gate-card">
+            <div class="gate-icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h3 class="gate-title">Monitoring is a Pro feature</h3>
+            <p class="gate-text">Get continuous tracking, real-time SMS &amp; email alerts when new issues are detected, and automatic monthly re-scans of your full catalog.</p>
+            <ul class="gate-bullets">
+              <li>✓ Real-time alerts (SMS + email)</li>
+              <li>✓ Monthly automatic re-scans</li>
+              <li>✓ Full issue history &amp; trends</li>
+              <li>✓ Score change notifications</li>
+            </ul>
+            <button class="btn-primary" data-action="upgrade">Upgrade to Pro — $19.99/mo</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: REPORTS
+         ============================================================ -->
+    <section class="route hidden" data-route-content="reports">
+      <div class="page-header">
+        <h2 class="page-title">Reports</h2>
+        <p class="page-sub">Downloadable PDF audit reports and full scan history.</p>
+      </div>
+      <div class="card">
+        <ul class="reports-list" id="reportsList"></ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ROUTE: SETTINGS
+         ============================================================ -->
+    <section class="route hidden" data-route-content="settings">
+      <div class="page-header">
+        <h2 class="page-title">Settings</h2>
+        <p class="page-sub">Account, notifications, and connected platforms.</p>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Account</h3>
+        <div class="settings-row"><label>Name</label><input type="text" value="Jordan Kai" /></div>
+        <div class="settings-row"><label>Email</label><input type="email" value="jordan@example.com" /></div>
+        <div class="settings-row"><label>Phone (SMS alerts)</label><input type="tel" value="+1 (555) 123-4567" /></div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Subscription</h3>
+        <div class="sub-row">
+          <div>
+            <div class="sub-name" id="subName">Full Audit (one-time)</div>
+            <div class="sub-meta" id="subMeta">Snapshot report &amp; limited dashboard access</div>
+          </div>
+          <button class="btn-primary" data-action="upgrade" id="subUpgradeBtn">Upgrade to Pro</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Notifications</h3>
+        <div class="settings-row settings-row-toggle">
+          <div><strong>Email alerts</strong><div class="settings-sub">New issues, score changes, re-scan results</div></div>
+          <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
+        </div>
+        <div class="settings-row settings-row-toggle">
+          <div><strong>SMS alerts</strong><div class="settings-sub">Pro-only — high-severity issues</div></div>
+          <label class="switch"><input type="checkbox" /><span class="slider"></span></label>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+/* Platform grid + brand-color tints. Catalog dots also styled here. */
+/* ============================================================
+   PLATFORM GRID
+   ============================================================ */
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+.platform-cell {
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+.platform-cell:hover { border-color: var(--purple); background: var(--bg-card-hover); }
+.platform-logo {
+  width: 44px; height: 44px;
+  margin: 0 auto 10px;
+  border-radius: 12px;
+  background: var(--bg-elev-2);
+  display: grid; place-items: center;
+  font-size: 22px;
+  color: var(--text-secondary);
+}
+.platform-logo svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+.platform-logo-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+/* Platform brand tints — apply at the cell level so logo + name share color cue */
+.platform-cell[data-platform="spotify"]    .platform-logo { color: #1DB954; }
+.platform-cell[data-platform="apple"]      .platform-logo { color: #ffffff; }
+.platform-cell[data-platform="youtube"]    .platform-logo { color: #FF0000; }
+.platform-cell[data-platform="soundcloud"] .platform-logo { color: #FF5500; }
+.platform-cell[data-platform="tiktok"]     .platform-logo { color: #ffffff; }
+.platform-name {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.platform-status {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.platform-status.connected { color: var(--green); }
+.platform-status.partial { color: var(--amber); }
+.platform-status.missing { color: var(--text-muted); }
