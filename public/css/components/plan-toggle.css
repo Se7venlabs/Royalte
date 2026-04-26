@@ -1,0 +1,68 @@
+/* Plan-state preview pill (bottom-right) + free-plan blur gating. */
+/* ============================================================
+   PLAN-STATE TOGGLE (preview only)
+   ============================================================ */
+.plan-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  font-size: 12px;
+}
+.plan-toggle-label {
+  color: var(--text-muted);
+  padding: 0 10px 0 12px;
+  font-weight: 500;
+}
+.plan-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 12px;
+  transition: all 0.15s ease;
+}
+.plan-btn:hover { color: var(--text-primary); }
+.plan-btn.active {
+  background: var(--purple);
+  color: white;
+}
+
+/* ============================================================
+   PLAN-STATE VISUAL GATING
+   ============================================================ */
+/* FREE plan — most things blurred */
+body.plan-free .lockable-free {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  position: relative;
+}
+body.plan-free .free-lock-message {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 10;
+  filter: none;
+  pointer-events: auto;
+}
+body.plan-free .free-lock-message-card {
+  background: var(--bg-card);
+  border: 1px solid var(--purple);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

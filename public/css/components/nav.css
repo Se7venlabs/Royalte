@@ -1,0 +1,89 @@
+/* Sidebar nav items, badges, upgrade card, user card. */
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  position: relative;
+}
+.nav-item:hover { background: var(--bg-elev-1); color: var(--text-primary); }
+.nav-item.active {
+  background: var(--purple-soft);
+  color: var(--text-primary);
+}
+.nav-item.active svg { color: var(--purple); }
+.nav-item svg { color: var(--text-muted); flex-shrink: 0; }
+.nav-item:hover svg { color: var(--text-secondary); }
+.nav-item span:first-of-type { flex: 1; }
+.nav-badge {
+  background: var(--purple);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  min-width: 20px;
+  text-align: center;
+}
+.nav-tag {
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--bg-elev-2);
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+/* Upgrade card */
+.upgrade-card {
+  margin-top: auto;
+  margin-bottom: 16px;
+  padding: 18px 16px;
+  background: linear-gradient(180deg, var(--bg-elev-1), var(--bg-base));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  position: relative;
+}
+.upgrade-icon {
+  width: 36px; height: 36px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: var(--purple-soft);
+  color: var(--purple);
+  display: grid; place-items: center;
+}
+.upgrade-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+.upgrade-text { color: var(--text-secondary); font-size: 12px; line-height: 1.45; margin-bottom: 12px; }
+.upgrade-text strong { color: var(--text-primary); font-weight: 600; }
+
+/* User card */
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: white;
+  display: grid; place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.user-meta { flex: 1; min-width: 0; }
+.user-name { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+.verified { color: var(--purple); font-size: 11px; }
+.user-plan { font-size: 11px; color: var(--purple); font-weight: 500; }
