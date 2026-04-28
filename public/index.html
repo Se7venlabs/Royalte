@@ -176,6 +176,7 @@ section{padding:140px 56px;position:relative;}
 .risk-title.low{color:var(--grn);}
 .risk-title.moderate{color:var(--amb);}
 .risk-title.high{color:var(--red);}
+.risk-impact{font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:10px;font-style:italic;}
 .risk-urgency{font-size:15px;color:var(--text);line-height:1.5;margin-bottom:10px;}
 .risk-reasons{display:flex;flex-direction:column;gap:5px;}
 .risk-reason{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted2);}
@@ -199,6 +200,7 @@ section{padding:140px 56px;position:relative;}
 .rc-icon{font-size:36px;margin-bottom:12px;display:block;}
 .rc-title{font-size:15px;font-weight:700;color:#ffffff;margin-bottom:6px;}
 .rc-value{font-size:14px;color:var(--text);}
+.rc-consequence{font-size:12px;color:var(--text2);line-height:1.5;margin-top:6px;}
 .rc-source{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);margin-top:6px;letter-spacing:0.08em;}
 .rc-badge{font-family:'Space Mono',monospace;font-size:10px;padding:4px 12px;border-radius:3px;font-weight:700;margin-top:10px;display:inline-block;letter-spacing:0.06em;}
 .rb-grn{background:rgba(64,240,160,0.1);color:var(--grn);}
@@ -761,6 +763,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
         <span class="verified-badge">✓ Verified Data Only</span>
       </div>
     </div>
+    <div class="results-trust-receipt" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.08em;margin-bottom:14px;">// Scanned multiple sources · Verified today · No assumptions shown</div>
 
     <!-- ROYALTY RISK SCORE BANNER -->
     <div class="risk-banner" id="risk-banner" style="display:none;">
@@ -772,6 +775,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
         </div>
         <div class="risk-info">
           <div class="risk-title" id="risk-title">Calculating...</div>
+          <div class="risk-impact" id="risk-impact" style="display:none;"></div>
           <div class="risk-urgency" id="risk-urgency"></div>
           <div class="risk-reasons" id="risk-reasons"></div>
           <div class="risk-next" id="risk-next"></div>
@@ -807,7 +811,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
     <!-- FLAGS -->
     <div class="r-flags" id="r-flags" style="display:none;">
       <div class="rf-hd">
-        <div class="rf-title">// Confirmed issues — verified data only</div>
+        <div class="rf-title">// Where Your Royalties May Be Leaking</div>
         <span id="r-flags-count" style="font-family:'Space Mono',monospace;font-size:8px;padding:2px 8px;border-radius:2px;background:rgba(240,80,96,0.1);color:var(--red);font-weight:700;">—</span>
       </div>
       <div id="r-flags-list"></div>
@@ -835,8 +839,8 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <p class="stakes-sub">Every year, artists miss out on royalties they've already earned. Splits go unregistered. Metadata gets lost between platforms. YouTube Content ID matches go unclaimed. The money exists — it just never reaches you.</p>
       <div class="stakes-stats">
         <div class="stakes-stat">
-          <div class="stakes-stat-num">$500M+</div>
-          <div class="stakes-stat-label">sits in <strong style="color:var(--text);font-weight:700;">The Black Box</strong> — unclaimed mechanical royalties held by US collection societies</div>
+          <div class="stakes-stat-num">$2B+</div>
+          <div class="stakes-stat-label">in unclaimed royalties sit with PROs globally each year</div>
         </div>
         <div class="stakes-stat">
           <div class="stakes-stat-num">Up to 1 in 3</div>
@@ -1536,6 +1540,24 @@ function renderRiskScore(royaltyRiskScore) {
   reasonsEl.innerHTML = reasonCount > 0
     ? '<div class="risk-reason"><div class="risk-reason-dot"></div>' + reasonCount + ' verified issue' + (reasonCount > 1 ? 's' : '') + ' found — full breakdown in your audit report</div>'
     : '';
+
+  // Translate the score into artist impact — one line, plain language
+  const impactEl = document.getElementById('risk-impact');
+  if (impactEl) {
+    let impactText = '';
+    const TOTAL_AREAS = 6;
+    if (reasonCount >= TOTAL_AREAS) {
+      impactText = 'You have verified gaps across all ' + TOTAL_AREAS + ' audit areas — these may affect royalty collection.';
+    } else if (reasonCount > 0) {
+      impactText = 'You have verified gaps in ' + reasonCount + ' of ' + TOTAL_AREAS + ' audit areas — these may affect royalty collection.';
+    } else if (riskLevel === 'Low') {
+      impactText = 'No verified gaps detected across your audit areas — your setup looks healthy.';
+    } else {
+      impactText = 'Your setup may have gaps that could affect royalty collection — full audit recommended.';
+    }
+    impactEl.textContent = impactText;
+    impactEl.style.display = 'block';
+  }
 }
 
 // ── RENDER AUDIT COVERAGE ──────────────────────────────────
@@ -1727,14 +1749,39 @@ function setScore(score) {
 
 // ── BUILD CARDS ────────────────────────────────────────────
 function buildCards(cards) {
-  document.getElementById('r-cards').innerHTML = cards.map(c => `
+  // Generate one-line consequence copy per card based on existing badge + title
+  function consequenceFor(card) {
+    const t = (card.title || '').toLowerCase();
+    const status = card.badge; // 'rb-grn' | 'rb-amb' | 'rb-red'
+    if (status === 'rb-grn') return 'Verified — data found from a trusted source.';
+    if (status === 'rb-amb') {
+      if (t.includes('isrc'))     return 'Partial — run a track scan to confirm ISRC registration.';
+      if (t.includes('platform')) return 'Partial — some coverage gaps remain across platforms.';
+      if (t.includes('genre'))    return 'Partial — some genre tags may be incomplete.';
+      if (t.includes('publishing')) return 'Partial — publishing registration not fully confirmed.';
+      return 'Partial — some coverage gaps remain.';
+    }
+    if (status === 'rb-red') {
+      if (t.includes('isrc'))     return 'Missing — performance royalties may not route correctly.';
+      if (t.includes('genre'))    return 'Missing — may impact discovery and payout matching.';
+      if (t.includes('platform')) return 'Missing — your catalog may not be reaching every platform.';
+      if (t.includes('publishing')) return 'Missing — publishing splits and PRO routing may be incomplete.';
+      return 'Missing — may impact discovery and payout matching.';
+    }
+    return '';
+  }
+  document.getElementById('r-cards').innerHTML = cards.map(c => {
+    const consequence = consequenceFor(c);
+    return `
     <div class="r-card">
       <span class="rc-icon">${c.icon}</span>
       <div class="rc-title">${c.title}</div>
       <div class="rc-value">${c.value}</div>
+      ${consequence ? `<div class="rc-consequence">${consequence}</div>` : ''}
       ${c.source ? `<div class="rc-source">Source: ${c.source}</div>` : ''}
       <span class="rc-badge ${c.badge}">${c.bt}</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 // ── BUILD FLAGS ────────────────────────────────────────────
@@ -1765,7 +1812,7 @@ function buildFlags(flags) {
 
   const lockedHtml = hidden > 0 ? `
     <div class="flag-item" style="text-align:center;padding:12px;border-top:1px solid var(--border3);">
-      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;">🔒 ${hidden} more issue${hidden > 1 ? 's' : ''} — full action plan in your audit report</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;">🔒 ${hidden} more verified issue${hidden > 1 ? 's' : ''} — including gaps that may affect future royalty collection</div>
     </div>` : '';
 
   document.getElementById('r-flags-list').innerHTML = flagHtml + lockedHtml;
