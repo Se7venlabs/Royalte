@@ -818,7 +818,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);"></div>
       <div style="font-size:32px;margin-bottom:14px;">🔒</div>
       <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:var(--text);margin-bottom:10px;">Your Full Audit Is Waiting</div>
-      <div style="font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto;">Complete territory coverage, all 6 verified module scores, your Royalty Risk Score breakdown, and a full action plan — delivered within 12–24 hours, free during beta.</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto;">We scan 10+ data sources across 6 verified audit modules to uncover missing royalties, broken data, and revenue gaps — then give you a full action plan, delivered within 12–24 hours, free during beta.</div>
       <button onclick="unlockAndScrollToForm()" style="background:var(--grad);color:#fff;padding:16px 40px;border-radius:4px;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 4px 24px rgba(138,92,255,0.4);">Get My Full Audit Emailed — Free →</button>
     </div>
 
@@ -1607,39 +1607,24 @@ function showRealResults(data) {
   const artistName = data.artistName || 'Artist';
   const followers  = (data.followers || 0).toLocaleString();
   const scanMode   = data.scanMode || data.type || 'artist';
-
-  // Canonical resolver flags:
-  //   spotifyResolved   — Spotify produced canonical artist data (artistId is the Spotify ID).
-  //   appleMusicMatched — Apple URL was the input source OR Apple Music confirmed a match.
-  //   useAppleAsPrimary — only when Apple matched AND Spotify could NOT resolve (true fallback).
-  const spotifyResolved   = !!data.artistId;
-  const appleMusicMatched = (data.sourcePlatform === 'apple_music') || !!data.appleMusicSource;
-  const useAppleAsPrimary = appleMusicMatched && !spotifyResolved;
+  const isApple    = data.sourcePlatform === 'apple_music';
 
   let subText = `${followers} followers · Spotify`;
   if (scanMode === 'track' && data.trackTitle) subText = `"${data.trackTitle}" · ${artistName}`;
   else if (scanMode === 'album' && data.albumTitle) subText = `"${data.albumTitle}" · ${data.albumTrackCount || '?'} tracks`;
-  // Apple naming only when Spotify could not resolve
-  if (useAppleAsPrimary) {
-    subText = (data.appleMusicSource?.albumName || data.appleMusicSource?.trackName || '') + ' · Matched via Apple Music';
-  } else if (appleMusicMatched && spotifyResolved) {
-    // Both — Spotify wins for naming, Apple gets a small verification hint
-    subText = subText + ' · ✓ Apple Music verified';
-  }
+  if (isApple) subText = (data.appleMusicSource?.albumName || data.appleMusicSource?.trackName || '') + ' · Matched via Apple Music';
 
   updateHeroDashboard(artistName, subText, data.overallScore, data.royaltyRiskScore?.riskLevel);
-  // URL pill reflects what the user actually pasted, not the resolution outcome
-  setUrlTypePill(appleMusicMatched && !spotifyResolved ? 'apple' : (data.sourcePlatform === 'apple_music' ? 'apple' : scanMode));
+  setUrlTypePill(isApple ? 'apple' : scanMode);
   setScore(data.overallScore);
   renderRiskScore(data.royaltyRiskScore);
-  renderAuditCoverage(data, data.scannedAt);
+  renderAuditCoverage(data.auditCoverage, data.scannedAt);
   renderTerritoryCoverage(data.territoryCoverage);
 
   let tagText = `${artistName} · ${followers} followers`;
   if (scanMode === 'track' && data.trackTitle) tagText = `${data.trackTitle} · ${artistName}`;
   if (scanMode === 'album' && data.albumTitle)  tagText = `${data.albumTitle} · ${artistName}`;
-  // Apple naming in tag only when Spotify could not resolve
-  if (useAppleAsPrimary) tagText = artistName + ' · via Apple Music';
+  if (isApple) tagText = artistName + ' · via Apple Music';
   document.getElementById('results-tag').textContent = tagText;
 
   // Non-artist URL → show "matched to artist" hint.
@@ -1693,8 +1678,7 @@ function showRealResults(data) {
     cards[0] = { icon: '💿', title: 'Album scanned', value: data.albumTitle, badge: 'rb-grn', bt: 'Verified', source: 'Spotify' };
     cards[1] = { icon: '🎵', title: 'Tracks on album', value: (data.albumTrackCount || '—') + ' tracks', badge: 'rb-grn', bt: 'Verified', source: 'Spotify' };
   }
-  // Apple Music card[0] override only when Spotify could not resolve (true fallback)
-  if (useAppleAsPrimary && data.appleMusicSource) {
+  if (isApple && data.appleMusicSource) {
     const src = data.appleMusicSource;
     cards[0] = { icon: '🍎', title: 'Apple Music match', value: src.albumName || src.trackName || src.artistName || artistName, badge: 'rb-grn', bt: 'Matched', source: 'Apple Music' };
   }
