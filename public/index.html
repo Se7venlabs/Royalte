@@ -818,7 +818,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);"></div>
       <div style="font-size:32px;margin-bottom:14px;">🔒</div>
       <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:var(--text);margin-bottom:10px;">Your Full Audit Is Waiting</div>
-      <div style="font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto;">We scan 10+ data sources across 6 verified audit modules to uncover missing royalties, broken data, and revenue gaps — then give you a full action plan, delivered within 12–24 hours, free during beta.</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto;">Complete territory coverage, all 6 verified module scores, your Royalty Risk Score breakdown, and a full action plan — delivered within 12–24 hours, free during beta.</div>
       <button onclick="unlockAndScrollToForm()" style="background:var(--grad);color:#fff;padding:16px 40px;border-radius:4px;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;box-shadow:0 4px 24px rgba(138,92,255,0.4);">Get My Full Audit Emailed — Free →</button>
     </div>
 
@@ -1604,7 +1604,21 @@ function renderTerritoryCoverage(territoryCoverage) {
 
 // ── SHOW REAL RESULTS ──────────────────────────────────────
 function showRealResults(data) {
-  const artistName = data.artistName || 'Artist';
+  // ── Resolve artist name with bulletproof fallback chain ──
+  // Spotify-derived name comes first (preserves Spotify-canonical behavior).
+  // Apple Music sources only used when Spotify did not resolve a name.
+  // Final fallback is a sensible placeholder — UI never renders blank.
+  const artistName =
+    data.artistName ||
+    data.canonicalArtistName ||
+    data.spotifyArtistName ||
+    data.appleMusicSource?.artistName ||
+    data.appleMusic?.artistName ||
+    data.trackArtistName ||
+    data.track?.artists?.[0]?.name ||
+    data.album?.artists?.[0]?.name ||
+    data.inputArtistName ||
+    'Artist detected';
   const followers  = (data.followers || 0).toLocaleString();
   const scanMode   = data.scanMode || data.type || 'artist';
   const isApple    = data.sourcePlatform === 'apple_music';
