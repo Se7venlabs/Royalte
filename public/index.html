@@ -25,7 +25,29 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;padding-top:44px;}
+@media(max-width:760px){body{padding-top:38px;}}
+
+/* ── BETA ACCESS BANNER ── */
+.beta-banner{position:fixed;top:0;left:0;right:0;height:44px;z-index:600;display:flex;align-items:center;justify-content:center;gap:14px;background:linear-gradient(90deg,#0a0410 0%,#1a0d2e 50%,#0a0410 100%);border-bottom:1px solid rgba(138,92,255,0.25);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);letter-spacing:0.02em;padding:0 20px;box-shadow:0 2px 24px rgba(138,92,255,0.12);}
+.beta-banner-dot{width:7px;height:7px;border-radius:50%;background:var(--pur,#8a5cff);box-shadow:0 0 12px rgba(138,92,255,0.8);animation:beta-pulse 2s ease-in-out infinite;}
+@keyframes beta-pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.7);}}
+.beta-banner-text{display:flex;align-items:center;gap:10px;}
+.beta-banner-pill{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:var(--pur,#8a5cff);background:rgba(138,92,255,0.12);padding:3px 8px;border-radius:2px;border:1px solid rgba(138,92,255,0.3);letter-spacing:0.08em;}
+.beta-banner-cta{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#fff;background:var(--grad,linear-gradient(135deg,#8a5cff,#c44dff));padding:6px 14px;border-radius:3px;text-decoration:none;letter-spacing:0.05em;cursor:pointer;border:none;transition:transform 0.15s ease;}
+.beta-banner-cta:hover{transform:translateY(-1px);}
+.beta-banner-mobile{display:none;}
+@media(max-width:760px){
+  .beta-banner{height:38px;font-size:11px;gap:8px;padding:0 12px;}
+  .beta-banner-desktop{display:none;}
+  .beta-banner-mobile{display:inline;}
+  .beta-banner-pill{font-size:8px;padding:2px 6px;}
+  .beta-banner-cta{font-size:10px;padding:5px 10px;}
+}
+
+/* Post-scan scroll lands cleanly below banner */
+.results-wrap{scroll-margin-top:60px;}
+@media(max-width:760px){.results-wrap{scroll-margin-top:50px;}}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
 nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
@@ -524,6 +546,17 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 </style>
 </head>
 <body>
+
+<!-- ═══ BETA ACCESS BANNER ═══ -->
+<div class="beta-banner" role="banner">
+  <span class="beta-banner-dot"></span>
+  <span class="beta-banner-text">
+    <span class="beta-banner-desktop">🎯 BETA ACCESS — FIRST 200 ARTISTS GET A FULL ROYALTÉ AUDIT FREE</span>
+    <span class="beta-banner-mobile">🎯 BETA — FREE AUDIT FOR FIRST 200</span>
+    <span class="beta-banner-pill">$99 VALUE</span>
+  </span>
+  <button class="beta-banner-cta" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('hero-url').focus(),800);">Run My Free Scan →</button>
+</div>
 
 <!-- ═══ NEW HERO ═══ -->
 <section class="new-hero" id="top">
