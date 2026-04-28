@@ -28,21 +28,7 @@ html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
-nav{position:fixed;top:44px;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
-
-/* ── BETA BANNER ── slim premium strip above nav */
-.beta-banner{position:fixed;top:0;left:0;right:0;z-index:600;height:44px;display:flex;align-items:center;justify-content:center;gap:18px;padding:0 24px;background:linear-gradient(90deg,rgba(11,8,24,0.95) 0%,rgba(20,12,38,0.95) 50%,rgba(11,8,24,0.95) 100%);border-bottom:1px solid rgba(138,92,255,0.32);backdrop-filter:blur(20px);font-family:'Space Mono',monospace;}
-.beta-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--pur) 25%,var(--pnk) 50%,var(--pur) 75%,transparent 100%);opacity:0.6;}
-.bb-dot{width:7px;height:7px;border-radius:50%;background:var(--pur);box-shadow:0 0 12px var(--pur),0 0 24px rgba(138,92,255,0.4);animation:bbDotPulse 2s ease-in-out infinite;flex-shrink:0;}
-@keyframes bbDotPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.7);}}
-.bb-text{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);line-height:1;display:flex;align-items:center;gap:10px;}
-.bb-eyebrow{color:var(--pur);}
-.bb-divider{color:var(--muted);opacity:0.5;}
-.bb-value{font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--muted);padding:3px 7px;border:1px solid rgba(138,92,255,0.28);border-radius:2px;background:rgba(138,92,255,0.06);white-space:nowrap;}
-.bb-cta{background:var(--grad);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:7px 16px;border-radius:3px;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 12px rgba(138,92,255,0.3);white-space:nowrap;flex-shrink:0;}
-.bb-cta:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(138,92,255,0.45);}
-.bb-text-mobile{display:none;}
-/* ── END BETA BANNER ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
 .nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
 .nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
 .nav-logo-mobile{display:none;}
@@ -162,7 +148,7 @@ section{padding:140px 56px;position:relative;}
 .ps-label{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--pur);margin-bottom:3px;}
 .ps-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-transform:uppercase;}
 /* ── RESULTS ── */
-.results-wrap{display:none;padding:0 56px 80px;scroll-margin-top:140px;}
+.results-wrap{display:none;padding:0 56px 80px;}
 .results-inner{max-width:900px;margin:0 auto;}
 .results-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
 .results-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;}
@@ -370,13 +356,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 .reveal.visible{opacity:1;transform:translateY(0);}
 .d1{transition-delay:0.1s;}.d2{transition-delay:0.2s;}.d3{transition-delay:0.3s;}
 @media(max-width:900px){
-  nav{padding:0 14px;height:64px;top:38px;}
-  /* Beta banner mobile — slimmer + shorter copy */
-  .beta-banner{height:38px;padding:0 14px;gap:10px;}
-  .bb-text{display:none;}
-  .bb-text-mobile{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);line-height:1;}
-  .bb-value{display:none;}
-  .bb-cta{font-size:10px;padding:6px 12px;letter-spacing:0.06em;}
+  nav{padding:0 14px;height:64px;}
   .nav-logo-full{display:none;}
   .nav-logo-mobile{display:block;height:32px;}
   .nav-links{display:none;}
@@ -389,7 +369,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   #beta{padding-top:30px;}
   #request{padding-top:30px;}
   .form-split{grid-template-columns:1fr;}.trust-grid{grid-template-columns:1fr 1fr;}
-  .r-cards{grid-template-columns:1fr;}.results-wrap{padding:0 20px 60px;scroll-margin-top:102px;}
+  .r-cards{grid-template-columns:1fr;}.results-wrap{padding:0 20px 60px;}
   .risk-banner-inner{grid-template-columns:1fr;}.risk-score-block{text-align:left;}
   footer{padding:28px 20px;flex-direction:column;text-align:center;align-items:center;}
   .f-logo-full{display:none;}
@@ -544,22 +524,6 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 </style>
 </head>
 <body>
-
-<!-- ═══ BETA BANNER ═══ -->
-<div class="beta-banner" role="banner" aria-label="Beta access offer">
-  <div class="bb-dot" aria-hidden="true"></div>
-  <div class="bb-text">
-    <span class="bb-eyebrow">🎯 BETA ACCESS</span>
-    <span class="bb-divider">—</span>
-    <span>First 200 artists get a full Royaltē audit free</span>
-    <span class="bb-value">$99 VALUE</span>
-  </div>
-  <div class="bb-text-mobile">
-    <span class="bb-eyebrow">🎯 BETA</span>
-    <span>First 200 artists get a full audit free</span>
-  </div>
-  <button class="bb-cta" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('hero-url').focus(),800);">Run My Free Scan →</button>
-</div>
 
 <!-- ═══ NEW HERO ═══ -->
 <section class="new-hero" id="top">
@@ -1575,7 +1539,7 @@ function renderRiskScore(royaltyRiskScore) {
 }
 
 // ── RENDER AUDIT COVERAGE ──────────────────────────────────
-function renderAuditCoverage(auditCoverage, scannedAt) {
+function renderAuditCoverage(data, scannedAt) {
   const sec = document.getElementById('audit-coverage-section');
   const rows = document.getElementById('audit-coverage-rows');
   if (!sec || !rows) return;
@@ -1584,12 +1548,65 @@ function renderAuditCoverage(auditCoverage, scannedAt) {
   const KNOWN_KEYS = ['spotify', 'appleMusic', 'publishing', 'soundExchange'];
   const LABELS = { spotify: 'Spotify', appleMusic: 'Apple Music', publishing: 'Publishing (PRO)', soundExchange: 'SoundExchange' };
   const STATUS_CLASS = { 'Verified': 'acs-verified', 'Not Connected': 'acs-not-connected', 'Not Confirmed': 'acs-not-confirmed' };
-  const safeAudit = auditCoverage || {};
+
+  // Backward-compat: callers may pass either the full data object or a legacy auditCoverage map.
+  // If data has a `platforms` field, treat it as the full response object (new behavior).
+  // Otherwise treat the argument itself as the legacy auditCoverage map.
+  const safeData = data || {};
+  const auditOverride = safeData.auditCoverage || (safeData.platforms ? null : safeData) || {};
+  const platforms = safeData.platforms || {};
+
+  // Normalize platform truthiness — handles boolean, {found:true}, or string variants
+  function isPlatformPresent(value) {
+    if (value === true) return true;
+    if (value && typeof value === 'object' && value.found === true) return true;
+    return false;
+  }
+
+  // Resolve a status for each known audit-coverage row
+  function resolveStatus(key) {
+    // 1. If backend explicitly provides auditCoverage[key].status, honor it (forward-compatible)
+    if (auditOverride && auditOverride[key] && auditOverride[key].status) {
+      return auditOverride[key].status;
+    }
+    // 2. Otherwise derive from data.platforms — the same source of truth used by the Platform Coverage card
+    if (key === 'spotify') {
+      // Spotify is always queried; if the scan returned, Spotify is verified
+      if (isPlatformPresent(platforms.spotify) || safeData.artistId) return 'Verified';
+      return 'Not Connected';
+    }
+    if (key === 'appleMusic') {
+      // Accept any Apple Music key alias the backend might use
+      if (isPlatformPresent(platforms.appleMusic) ||
+          isPlatformPresent(platforms.apple_music) ||
+          isPlatformPresent(platforms.apple) ||
+          (safeData.appleMusic && safeData.appleMusic.found === true)) {
+        return 'Verified';
+      }
+      return 'Not Connected';
+    }
+    if (key === 'publishing') {
+      // No publishing API verified yet — leave honest "Not Connected"
+      // Future-proof: if backend ever returns publishing data, mark verified
+      if (isPlatformPresent(platforms.publishing) || safeData.publishingVerified === true) {
+        return 'Verified';
+      }
+      return 'Not Connected';
+    }
+    if (key === 'soundExchange') {
+      // Same pattern as publishing
+      if (isPlatformPresent(platforms.soundExchange) || safeData.soundExchangeVerified === true) {
+        return 'Verified';
+      }
+      return 'Not Connected';
+    }
+    return 'Not Connected';
+  }
+
   const dateStr = scannedAt ? new Date(scannedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
 
   const rowsHtml = KNOWN_KEYS.map(key => {
-    const val = safeAudit[key] || {};
-    const status = val.status || 'Not Connected';
+    const status = resolveStatus(key);
     const cls = STATUS_CLASS[status] || 'acs-not-connected';
     return '<div class="ac-row"><div class="ac-name">' + LABELS[key] + '</div><span class="ac-status ' + cls + '">' + status + '</span></div>';
   }).join('');
@@ -1654,7 +1671,7 @@ function showRealResults(data) {
   setUrlTypePill(isApple ? 'apple' : scanMode);
   setScore(data.overallScore);
   renderRiskScore(data.royaltyRiskScore);
-  renderAuditCoverage(data.auditCoverage, data.scannedAt);
+  renderAuditCoverage(data, data.scannedAt);
   renderTerritoryCoverage(data.territoryCoverage);
 
   let tagText = `${artistName} · ${followers} followers`;
