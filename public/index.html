@@ -28,7 +28,21 @@ html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
-nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+nav{position:fixed;top:44px;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+
+/* ── BETA BANNER ── slim premium strip above nav */
+.beta-banner{position:fixed;top:0;left:0;right:0;z-index:600;height:44px;display:flex;align-items:center;justify-content:center;gap:18px;padding:0 24px;background:linear-gradient(90deg,rgba(11,8,24,0.95) 0%,rgba(20,12,38,0.95) 50%,rgba(11,8,24,0.95) 100%);border-bottom:1px solid rgba(138,92,255,0.32);backdrop-filter:blur(20px);font-family:'Space Mono',monospace;}
+.beta-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--pur) 25%,var(--pnk) 50%,var(--pur) 75%,transparent 100%);opacity:0.6;}
+.bb-dot{width:7px;height:7px;border-radius:50%;background:var(--pur);box-shadow:0 0 12px var(--pur),0 0 24px rgba(138,92,255,0.4);animation:bbDotPulse 2s ease-in-out infinite;flex-shrink:0;}
+@keyframes bbDotPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.7);}}
+.bb-text{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);line-height:1;display:flex;align-items:center;gap:10px;}
+.bb-eyebrow{color:var(--pur);}
+.bb-divider{color:var(--muted);opacity:0.5;}
+.bb-value{font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--muted);padding:3px 7px;border:1px solid rgba(138,92,255,0.28);border-radius:2px;background:rgba(138,92,255,0.06);white-space:nowrap;}
+.bb-cta{background:var(--grad);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:7px 16px;border-radius:3px;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 12px rgba(138,92,255,0.3);white-space:nowrap;flex-shrink:0;}
+.bb-cta:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(138,92,255,0.45);}
+.bb-text-mobile{display:none;}
+/* ── END BETA BANNER ── */
 .nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
 .nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
 .nav-logo-mobile{display:none;}
@@ -176,7 +190,6 @@ section{padding:140px 56px;position:relative;}
 .risk-title.low{color:var(--grn);}
 .risk-title.moderate{color:var(--amb);}
 .risk-title.high{color:var(--red);}
-.risk-impact{font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:10px;font-style:italic;}
 .risk-urgency{font-size:15px;color:var(--text);line-height:1.5;margin-bottom:10px;}
 .risk-reasons{display:flex;flex-direction:column;gap:5px;}
 .risk-reason{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted2);}
@@ -200,7 +213,6 @@ section{padding:140px 56px;position:relative;}
 .rc-icon{font-size:36px;margin-bottom:12px;display:block;}
 .rc-title{font-size:15px;font-weight:700;color:#ffffff;margin-bottom:6px;}
 .rc-value{font-size:14px;color:var(--text);}
-.rc-consequence{font-size:12px;color:var(--text2);line-height:1.5;margin-top:6px;}
 .rc-source{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);margin-top:6px;letter-spacing:0.08em;}
 .rc-badge{font-family:'Space Mono',monospace;font-size:10px;padding:4px 12px;border-radius:3px;font-weight:700;margin-top:10px;display:inline-block;letter-spacing:0.06em;}
 .rb-grn{background:rgba(64,240,160,0.1);color:var(--grn);}
@@ -358,7 +370,13 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 .reveal.visible{opacity:1;transform:translateY(0);}
 .d1{transition-delay:0.1s;}.d2{transition-delay:0.2s;}.d3{transition-delay:0.3s;}
 @media(max-width:900px){
-  nav{padding:0 14px;height:64px;}
+  nav{padding:0 14px;height:64px;top:38px;}
+  /* Beta banner mobile — slimmer + shorter copy */
+  .beta-banner{height:38px;padding:0 14px;gap:10px;}
+  .bb-text{display:none;}
+  .bb-text-mobile{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);line-height:1;}
+  .bb-value{display:none;}
+  .bb-cta{font-size:10px;padding:6px 12px;letter-spacing:0.06em;}
   .nav-logo-full{display:none;}
   .nav-logo-mobile{display:block;height:32px;}
   .nav-links{display:none;}
@@ -526,6 +544,22 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 </style>
 </head>
 <body>
+
+<!-- ═══ BETA BANNER ═══ -->
+<div class="beta-banner" role="banner" aria-label="Beta access offer">
+  <div class="bb-dot" aria-hidden="true"></div>
+  <div class="bb-text">
+    <span class="bb-eyebrow">🎯 BETA ACCESS</span>
+    <span class="bb-divider">—</span>
+    <span>First 200 artists get a full Royaltē audit free</span>
+    <span class="bb-value">$99 VALUE</span>
+  </div>
+  <div class="bb-text-mobile">
+    <span class="bb-eyebrow">🎯 BETA</span>
+    <span>First 200 artists get a full audit free</span>
+  </div>
+  <button class="bb-cta" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('hero-url').focus(),800);">Run My Free Scan →</button>
+</div>
 
 <!-- ═══ NEW HERO ═══ -->
 <section class="new-hero" id="top">
@@ -763,7 +797,6 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
         <span class="verified-badge">✓ Verified Data Only</span>
       </div>
     </div>
-    <div class="results-trust-receipt" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.08em;margin-bottom:14px;">// Scanned multiple sources · Verified today · No assumptions shown</div>
 
     <!-- ROYALTY RISK SCORE BANNER -->
     <div class="risk-banner" id="risk-banner" style="display:none;">
@@ -775,7 +808,6 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
         </div>
         <div class="risk-info">
           <div class="risk-title" id="risk-title">Calculating...</div>
-          <div class="risk-impact" id="risk-impact" style="display:none;"></div>
           <div class="risk-urgency" id="risk-urgency"></div>
           <div class="risk-reasons" id="risk-reasons"></div>
           <div class="risk-next" id="risk-next"></div>
@@ -811,7 +843,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
     <!-- FLAGS -->
     <div class="r-flags" id="r-flags" style="display:none;">
       <div class="rf-hd">
-        <div class="rf-title">// Where Your Royalties May Be Leaking</div>
+        <div class="rf-title">// Confirmed issues — verified data only</div>
         <span id="r-flags-count" style="font-family:'Space Mono',monospace;font-size:8px;padding:2px 8px;border-radius:2px;background:rgba(240,80,96,0.1);color:var(--red);font-weight:700;">—</span>
       </div>
       <div id="r-flags-list"></div>
@@ -1540,24 +1572,6 @@ function renderRiskScore(royaltyRiskScore) {
   reasonsEl.innerHTML = reasonCount > 0
     ? '<div class="risk-reason"><div class="risk-reason-dot"></div>' + reasonCount + ' verified issue' + (reasonCount > 1 ? 's' : '') + ' found — full breakdown in your audit report</div>'
     : '';
-
-  // Translate the score into artist impact — one line, plain language
-  const impactEl = document.getElementById('risk-impact');
-  if (impactEl) {
-    let impactText = '';
-    const TOTAL_AREAS = 6;
-    if (reasonCount >= TOTAL_AREAS) {
-      impactText = 'You have verified gaps across all ' + TOTAL_AREAS + ' audit areas — these may affect royalty collection.';
-    } else if (reasonCount > 0) {
-      impactText = 'You have verified gaps in ' + reasonCount + ' of ' + TOTAL_AREAS + ' audit areas — these may affect royalty collection.';
-    } else if (riskLevel === 'Low') {
-      impactText = 'No verified gaps detected across your audit areas — your setup looks healthy.';
-    } else {
-      impactText = 'Your setup may have gaps that could affect royalty collection — full audit recommended.';
-    }
-    impactEl.textContent = impactText;
-    impactEl.style.display = 'block';
-  }
 }
 
 // ── RENDER AUDIT COVERAGE ──────────────────────────────────
@@ -1749,39 +1763,14 @@ function setScore(score) {
 
 // ── BUILD CARDS ────────────────────────────────────────────
 function buildCards(cards) {
-  // Generate one-line consequence copy per card based on existing badge + title
-  function consequenceFor(card) {
-    const t = (card.title || '').toLowerCase();
-    const status = card.badge; // 'rb-grn' | 'rb-amb' | 'rb-red'
-    if (status === 'rb-grn') return 'Verified — data found from a trusted source.';
-    if (status === 'rb-amb') {
-      if (t.includes('isrc'))     return 'Partial — run a track scan to confirm ISRC registration.';
-      if (t.includes('platform')) return 'Partial — some coverage gaps remain across platforms.';
-      if (t.includes('genre'))    return 'Partial — some genre tags may be incomplete.';
-      if (t.includes('publishing')) return 'Partial — publishing registration not fully confirmed.';
-      return 'Partial — some coverage gaps remain.';
-    }
-    if (status === 'rb-red') {
-      if (t.includes('isrc'))     return 'Missing — performance royalties may not route correctly.';
-      if (t.includes('genre'))    return 'Missing — may impact discovery and payout matching.';
-      if (t.includes('platform')) return 'Missing — your catalog may not be reaching every platform.';
-      if (t.includes('publishing')) return 'Missing — publishing splits and PRO routing may be incomplete.';
-      return 'Missing — may impact discovery and payout matching.';
-    }
-    return '';
-  }
-  document.getElementById('r-cards').innerHTML = cards.map(c => {
-    const consequence = consequenceFor(c);
-    return `
+  document.getElementById('r-cards').innerHTML = cards.map(c => `
     <div class="r-card">
       <span class="rc-icon">${c.icon}</span>
       <div class="rc-title">${c.title}</div>
       <div class="rc-value">${c.value}</div>
-      ${consequence ? `<div class="rc-consequence">${consequence}</div>` : ''}
       ${c.source ? `<div class="rc-source">Source: ${c.source}</div>` : ''}
       <span class="rc-badge ${c.badge}">${c.bt}</span>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
 
 // ── BUILD FLAGS ────────────────────────────────────────────
@@ -1812,7 +1801,7 @@ function buildFlags(flags) {
 
   const lockedHtml = hidden > 0 ? `
     <div class="flag-item" style="text-align:center;padding:12px;border-top:1px solid var(--border3);">
-      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;">🔒 ${hidden} more verified issue${hidden > 1 ? 's' : ''} — including gaps that may affect future royalty collection</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;">🔒 ${hidden} more issue${hidden > 1 ? 's' : ''} — full action plan in your audit report</div>
     </div>` : '';
 
   document.getElementById('r-flags-list').innerHTML = flagHtml + lockedHtml;
