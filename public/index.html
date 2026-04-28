@@ -1539,7 +1539,7 @@ function renderRiskScore(royaltyRiskScore) {
 }
 
 // ── RENDER AUDIT COVERAGE ──────────────────────────────────
-function renderAuditCoverage(data, scannedAt) {
+function renderAuditCoverage(auditCoverage, scannedAt) {
   const sec = document.getElementById('audit-coverage-section');
   const rows = document.getElementById('audit-coverage-rows');
   if (!sec || !rows) return;
@@ -1548,65 +1548,12 @@ function renderAuditCoverage(data, scannedAt) {
   const KNOWN_KEYS = ['spotify', 'appleMusic', 'publishing', 'soundExchange'];
   const LABELS = { spotify: 'Spotify', appleMusic: 'Apple Music', publishing: 'Publishing (PRO)', soundExchange: 'SoundExchange' };
   const STATUS_CLASS = { 'Verified': 'acs-verified', 'Not Connected': 'acs-not-connected', 'Not Confirmed': 'acs-not-confirmed' };
-
-  // Backward-compat: callers may pass either the full data object or a legacy auditCoverage map.
-  // If data has a `platforms` field, treat it as the full response object (new behavior).
-  // Otherwise treat the argument itself as the legacy auditCoverage map.
-  const safeData = data || {};
-  const auditOverride = safeData.auditCoverage || (safeData.platforms ? null : safeData) || {};
-  const platforms = safeData.platforms || {};
-
-  // Normalize platform truthiness — handles boolean, {found:true}, or string variants
-  function isPlatformPresent(value) {
-    if (value === true) return true;
-    if (value && typeof value === 'object' && value.found === true) return true;
-    return false;
-  }
-
-  // Resolve a status for each known audit-coverage row
-  function resolveStatus(key) {
-    // 1. If backend explicitly provides auditCoverage[key].status, honor it (forward-compatible)
-    if (auditOverride && auditOverride[key] && auditOverride[key].status) {
-      return auditOverride[key].status;
-    }
-    // 2. Otherwise derive from data.platforms — the same source of truth used by the Platform Coverage card
-    if (key === 'spotify') {
-      // Spotify is always queried; if the scan returned, Spotify is verified
-      if (isPlatformPresent(platforms.spotify) || safeData.artistId) return 'Verified';
-      return 'Not Connected';
-    }
-    if (key === 'appleMusic') {
-      // Accept any Apple Music key alias the backend might use
-      if (isPlatformPresent(platforms.appleMusic) ||
-          isPlatformPresent(platforms.apple_music) ||
-          isPlatformPresent(platforms.apple) ||
-          (safeData.appleMusic && safeData.appleMusic.found === true)) {
-        return 'Verified';
-      }
-      return 'Not Connected';
-    }
-    if (key === 'publishing') {
-      // No publishing API verified yet — leave honest "Not Connected"
-      // Future-proof: if backend ever returns publishing data, mark verified
-      if (isPlatformPresent(platforms.publishing) || safeData.publishingVerified === true) {
-        return 'Verified';
-      }
-      return 'Not Connected';
-    }
-    if (key === 'soundExchange') {
-      // Same pattern as publishing
-      if (isPlatformPresent(platforms.soundExchange) || safeData.soundExchangeVerified === true) {
-        return 'Verified';
-      }
-      return 'Not Connected';
-    }
-    return 'Not Connected';
-  }
-
+  const safeAudit = auditCoverage || {};
   const dateStr = scannedAt ? new Date(scannedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
 
   const rowsHtml = KNOWN_KEYS.map(key => {
-    const status = resolveStatus(key);
+    const val = safeAudit[key] || {};
+    const status = val.status || 'Not Connected';
     const cls = STATUS_CLASS[status] || 'acs-not-connected';
     return '<div class="ac-row"><div class="ac-name">' + LABELS[key] + '</div><span class="ac-status ' + cls + '">' + status + '</span></div>';
   }).join('');
@@ -1660,15 +1607,29 @@ function showRealResults(data) {
   const artistName = data.artistName || 'Artist';
   const followers  = (data.followers || 0).toLocaleString();
   const scanMode   = data.scanMode || data.type || 'artist';
-  const isApple    = data.sourcePlatform === 'apple_music';
+
+  // Canonical resolver flags:
+  //   spotifyResolved   — Spotify produced canonical artist data (artistId is the Spotify ID).
+  //   appleMusicMatched — Apple URL was the input source OR Apple Music confirmed a match.
+  //   useAppleAsPrimary — only when Apple matched AND Spotify could NOT resolve (true fallback).
+  const spotifyResolved   = !!data.artistId;
+  const appleMusicMatched = (data.sourcePlatform === 'apple_music') || !!data.appleMusicSource;
+  const useAppleAsPrimary = appleMusicMatched && !spotifyResolved;
 
   let subText = `${followers} followers · Spotify`;
   if (scanMode === 'track' && data.trackTitle) subText = `"${data.trackTitle}" · ${artistName}`;
   else if (scanMode === 'album' && data.albumTitle) subText = `"${data.albumTitle}" · ${data.albumTrackCount || '?'} tracks`;
-  if (isApple) subText = (data.appleMusicSource?.albumName || data.appleMusicSource?.trackName || '') + ' · Matched via Apple Music';
+  // Apple naming only when Spotify could not resolve
+  if (useAppleAsPrimary) {
+    subText = (data.appleMusicSource?.albumName || data.appleMusicSource?.trackName || '') + ' · Matched via Apple Music';
+  } else if (appleMusicMatched && spotifyResolved) {
+    // Both — Spotify wins for naming, Apple gets a small verification hint
+    subText = subText + ' · ✓ Apple Music verified';
+  }
 
   updateHeroDashboard(artistName, subText, data.overallScore, data.royaltyRiskScore?.riskLevel);
-  setUrlTypePill(isApple ? 'apple' : scanMode);
+  // URL pill reflects what the user actually pasted, not the resolution outcome
+  setUrlTypePill(appleMusicMatched && !spotifyResolved ? 'apple' : (data.sourcePlatform === 'apple_music' ? 'apple' : scanMode));
   setScore(data.overallScore);
   renderRiskScore(data.royaltyRiskScore);
   renderAuditCoverage(data, data.scannedAt);
@@ -1677,7 +1638,8 @@ function showRealResults(data) {
   let tagText = `${artistName} · ${followers} followers`;
   if (scanMode === 'track' && data.trackTitle) tagText = `${data.trackTitle} · ${artistName}`;
   if (scanMode === 'album' && data.albumTitle)  tagText = `${data.albumTitle} · ${artistName}`;
-  if (isApple) tagText = artistName + ' · via Apple Music';
+  // Apple naming in tag only when Spotify could not resolve
+  if (useAppleAsPrimary) tagText = artistName + ' · via Apple Music';
   document.getElementById('results-tag').textContent = tagText;
 
   // Non-artist URL → show "matched to artist" hint.
@@ -1731,7 +1693,8 @@ function showRealResults(data) {
     cards[0] = { icon: '💿', title: 'Album scanned', value: data.albumTitle, badge: 'rb-grn', bt: 'Verified', source: 'Spotify' };
     cards[1] = { icon: '🎵', title: 'Tracks on album', value: (data.albumTrackCount || '—') + ' tracks', badge: 'rb-grn', bt: 'Verified', source: 'Spotify' };
   }
-  if (isApple && data.appleMusicSource) {
+  // Apple Music card[0] override only when Spotify could not resolve (true fallback)
+  if (useAppleAsPrimary && data.appleMusicSource) {
     const src = data.appleMusicSource;
     cards[0] = { icon: '🍎', title: 'Apple Music match', value: src.albumName || src.trackName || src.artistName || artistName, badge: 'rb-grn', bt: 'Matched', source: 'Apple Music' };
   }
