@@ -521,6 +521,139 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   .nh-tagline-emphasis{color:#ffffff;font-weight:600;}
   .nh-h1{text-align:center;}
 }
+/* ═══════════════════════════════════════════════════════════
+   SCAN RESULT CARD UPGRADES — visual/UX patch (additive only)
+   Scoped to .d-score-row and .dash-shell. Does not affect
+   anything outside the scan preview card.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Artist image — sits between orb and text block.
+   Source priority handled in JS: imageUrl > artistImageUrl > albumImageUrl > initials fallback */
+.d-score-img-wrap{
+  width:84px;height:84px;flex-shrink:0;border-radius:50%;overflow:hidden;
+  border:2px solid rgba(138,92,255,0.42);
+  box-shadow:0 0 24px rgba(138,92,255,0.28),0 0 12px rgba(64,212,240,0.18);
+  background:linear-gradient(135deg,#2a1a4a,#3a2a5a);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  transition:opacity 0.4s ease,transform 0.4s ease;
+}
+.d-score-img-wrap img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+.d-score-img-wrap .d-score-img-fallback{
+  font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;
+  color:rgba(255,255,255,0.85);letter-spacing:0.04em;text-transform:uppercase;
+  line-height:1;
+}
+
+/* Realness line above the eyebrow */
+.d-score-realness{
+  font-size:11px;color:#9490b8;letter-spacing:0.04em;
+  margin-bottom:4px;font-family:'Space Grotesk',sans-serif;
+  display:none;
+}
+.d-score-row.is-revealed .d-score-realness{display:block;}
+
+/* Stronger artist name — overrides only inside .d-score-row to keep idle state untouched */
+.d-score-row.is-revealed .d-score-artist{
+  font-size:24px;font-weight:800;letter-spacing:0;
+}
+
+/* Royaltē Score block — sits below identity row, above the risk alert */
+.d-score-tag{
+  display:none;
+  align-items:center;gap:14px;
+  background:rgba(138,92,255,0.08);
+  border:1px solid rgba(138,92,255,0.32);
+  border-radius:8px;
+  padding:12px 16px;
+  margin-top:10px;
+  box-shadow:0 0 20px rgba(138,92,255,0.12);
+}
+.d-score-tag.is-shown{display:flex;}
+.d-score-tag-num{
+  font-family:'Rajdhani',sans-serif;font-size:38px;font-weight:800;
+  background:linear-gradient(135deg,#8a5cff,#e040c8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;letter-spacing:-0.01em;
+}
+.d-score-tag-lbl{
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:0.18em;text-transform:uppercase;color:#c8c4e0;
+}
+
+/* Update grid so image fits between orb and text */
+.d-score-row{grid-template-columns:auto auto 1fr;}
+
+/* Locked Full Audit CTA inside the dashboard preview */
+.d-locked-cta{
+  margin-top:12px;
+  background:linear-gradient(135deg,rgba(138,92,255,0.10),rgba(224,64,200,0.06));
+  border:1px solid rgba(138,92,255,0.32);
+  border-radius:8px;
+  padding:14px 16px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.d-locked-cta-text{flex:1;min-width:200px;}
+.d-locked-cta-title{
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
+  color:#ffffff;margin-bottom:2px;letter-spacing:0.01em;
+}
+.d-locked-cta-sub{
+  font-size:11.5px;color:#c8c4e0;line-height:1.45;
+}
+.d-locked-cta-btn{
+  background:linear-gradient(135deg,#8a5cff,#e040c8);color:#fff;
+  padding:11px 20px;border-radius:5px;font-size:12px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;
+  font-family:'Space Grotesk',sans-serif;
+  box-shadow:0 4px 18px rgba(138,92,255,0.32);
+  transition:opacity 0.2s,transform 0.2s,box-shadow 0.2s;
+  white-space:nowrap;
+}
+.d-locked-cta-btn:hover{
+  opacity:0.92;transform:translateY(-1px);
+  box-shadow:0 6px 24px rgba(138,92,255,0.45);
+}
+
+/* Stronger risk-alert first phrase + line break support */
+.d-alert-t .d-alert-strong{
+  display:block;color:var(--red);font-weight:700;margin-bottom:2px;
+  font-size:13.5px;letter-spacing:0.01em;
+}
+
+/* ── REVEAL STAGGER ── */
+/* When .is-revealed is added, children fade/slide in with delays.
+   Score block, locked CTA, and realness line use their own selectors. */
+@keyframes resultFadeUp{
+  from{opacity:0;transform:translateY(6px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.d-score-row.is-revealed .d-score-img-wrap{animation:resultFadeUp 0.45s ease 0.10s both;}
+.d-score-row.is-revealed .d-score-info{animation:resultFadeUp 0.45s ease 0.20s both;}
+.d-score-row.is-revealed .d-score-realness{animation:resultFadeUp 0.40s ease 0.28s both;}
+.d-score-tag.is-shown{animation:resultFadeUp 0.45s ease 0.36s both;}
+.dash-body.is-revealed .d-alert{animation:resultFadeUp 0.45s ease 0.46s both;}
+.dash-body.is-revealed .d-mod{animation:resultFadeUp 0.40s ease both;}
+.dash-body.is-revealed .d-mod:nth-child(1){animation-delay:0.56s;}
+.dash-body.is-revealed .d-mod:nth-child(2){animation-delay:0.62s;}
+.dash-body.is-revealed .d-mod:nth-child(3){animation-delay:0.68s;}
+.dash-body.is-revealed .d-mod:nth-child(4){animation-delay:0.74s;}
+.dash-body.is-revealed .d-locked-cta{animation:resultFadeUp 0.45s ease 0.86s both;}
+
+/* Mobile — stack image cleanly, keep CTA visible, no overflow */
+@media(max-width:900px){
+  .d-score-row{grid-template-columns:auto 1fr;gap:12px;}
+  .d-score-img-wrap{width:64px;height:64px;grid-column:1;grid-row:2;}
+  .d-score-ring{grid-column:1;grid-row:1;}
+  .d-score-info{grid-column:2;grid-row:1 / span 2;}
+  .d-score-row.is-revealed .d-score-artist{font-size:20px;}
+  .d-score-tag{padding:10px 14px;}
+  .d-score-tag-num{font-size:32px;}
+  .d-locked-cta{padding:12px 14px;flex-direction:column;align-items:stretch;text-align:left;}
+  .d-locked-cta-btn{width:100%;text-align:center;}
+}
 </style>
 </head>
 <body>
@@ -936,21 +1069,37 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
               <div id="hero-score-val" style="display:none;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:#fff;letter-spacing:0.06em;text-transform:uppercase;line-height:1;"></div>
             </div>
           </div>
+          <div class="d-score-img-wrap" id="hero-artist-img-wrap">
+            <img id="hero-artist-img" alt="" style="display:none;" />
+            <span class="d-score-img-fallback" id="hero-artist-img-fallback">—</span>
+          </div>
           <div class="d-score-info">
+            <div class="d-score-realness">This is your real music data</div>
             <div class="d-score-title" id="hero-scan-label">// Beta audit preview</div>
             <div class="d-score-artist is-idle" id="hero-artist-name">Please stand by for initialization.</div>
             <div class="d-score-track" id="hero-artist-sub">Run audit to see your verified data</div>
           </div>
         </div>
+        <div class="d-score-tag" id="hero-score-tag">
+          <div class="d-score-tag-num" id="hero-score-tag-num">—</div>
+          <div class="d-score-tag-lbl">Royaltē Score</div>
+        </div>
         <div class="d-alert">
           <div class="d-alert-dot"></div>
-          <div class="d-alert-t"><strong>Royalty risk confirmed</strong> — Publishing and registration gaps found in verified data.</div>
+          <div class="d-alert-t"><span class="d-alert-strong">⚠️ You are losing royalties</span>Publishing and registration gaps detected in verified data.</div>
         </div>
         <div class="d-modules">
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Metadata Integrity</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:35%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">35</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--amb)"></div><div class="d-mod-name">Platform Coverage</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:60%;background:var(--amb)"></div></div><div class="d-mod-score" style="color:var(--amb)">60</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Publishing Risk</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:25%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">25</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--grn)"></div><div class="d-mod-name">YouTube / UGC</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:78%;background:var(--grn)"></div></div><div class="d-mod-score" style="color:var(--grn)">78</div></div>
+          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Metadata Issues Detected</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:35%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">35</div></div>
+          <div class="d-mod"><div class="d-mod-icon" style="background:var(--amb)"></div><div class="d-mod-name">Platform Coverage Gaps</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:60%;background:var(--amb)"></div></div><div class="d-mod-score" style="color:var(--amb)">60</div></div>
+          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Publishing Risk Exposure</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:25%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">25</div></div>
+          <div class="d-mod"><div class="d-mod-icon" style="background:var(--grn)"></div><div class="d-mod-name">YouTube / UGC Exposure</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:78%;background:var(--grn)"></div></div><div class="d-mod-score" style="color:var(--grn)">78</div></div>
+        </div>
+        <div class="d-locked-cta">
+          <div class="d-locked-cta-text">
+            <div class="d-locked-cta-title">🔒 Full audit locked</div>
+            <div class="d-locked-cta-sub">See exactly where your royalties may be leaking.</div>
+          </div>
+          <button class="d-locked-cta-btn" onclick="scrollToForm()">Unlock Full Audit →</button>
         </div>
       </div>
     </div>
@@ -1741,6 +1890,46 @@ function showRealResults(data) {
   renderRiskScore(data.royaltyRiskScore);
   renderAuditCoverage(data.auditCoverage, data.scannedAt);
   renderTerritoryCoverage(data.territoryCoverage);
+
+  // ── SCAN CARD UPGRADES — image, score block, reveal stagger ──
+  // Image source priority: imageUrl > artistImageUrl > albumImageUrl > initials fallback.
+  const imgEl     = document.getElementById('hero-artist-img');
+  const imgFb     = document.getElementById('hero-artist-img-fallback');
+  if (imgEl && imgFb) {
+    const src = data.imageUrl || data.artistImageUrl || data.albumImageUrl || '';
+    if (src) {
+      imgEl.onerror = function() {
+        imgEl.style.display = 'none';
+        imgFb.textContent = (artistName || '—').trim().charAt(0).toUpperCase() || '—';
+        imgFb.style.display = '';
+      };
+      imgEl.onload = function() {
+        imgEl.style.display = '';
+        imgFb.style.display = 'none';
+      };
+      imgEl.src = src;
+    } else {
+      imgEl.style.display = 'none';
+      imgFb.textContent = (artistName || '—').trim().charAt(0).toUpperCase() || '—';
+      imgFb.style.display = '';
+    }
+  }
+  // Royaltē Score block — hide if 0, null, or undefined (per spec, no fabrication).
+  const scoreTagEl = document.getElementById('hero-score-tag');
+  const scoreNumEl = document.getElementById('hero-score-tag-num');
+  if (scoreTagEl && scoreNumEl) {
+    if (typeof data.overallScore === 'number' && data.overallScore > 0) {
+      scoreNumEl.textContent = data.overallScore;
+      scoreTagEl.classList.add('is-shown');
+    } else {
+      scoreTagEl.classList.remove('is-shown');
+    }
+  }
+  // Trigger reveal stagger on the result card (CSS handles the rest).
+  const scoreRow = document.querySelector('.dash-shell .d-score-row');
+  const dashBody = document.querySelector('.dash-shell .dash-body');
+  if (scoreRow) scoreRow.classList.add('is-revealed');
+  if (dashBody) dashBody.classList.add('is-revealed');
 
   const tagText = `${artistName} · ${audience.text}`;
   document.getElementById('results-tag').textContent = tagText;
