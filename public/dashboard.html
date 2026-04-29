@@ -236,9 +236,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .issue-sev.low{color:var(--grn);}
 .issue-impact{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--text);min-width:74px;text-align:right;letter-spacing:0.04em;}
 
-.issues-foot{display:flex;justify-content:center;align-items:center;gap:6px;padding:14px 0 4px;font-family:'Space Mono',monospace;font-size:11px;color:var(--pur);letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;border-top:1px solid var(--border3);margin-top:6px;background:none;border-left:none;border-right:none;border-bottom:none;width:100%;font-weight:700;transition:color 0.18s;}
-.issues-foot:hover{color:#fff;}
-.issues-foot svg{width:12px;height:12px;}
+.issues-foot{display:none;} /* deprecated — replaced by .issues-locked-overflow */
 
 .view-all{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--pur);letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;cursor:pointer;background:none;border:none;}
 .view-all:hover{color:#fff;}
@@ -263,9 +261,50 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .action-arrow{color:var(--muted);}
 .action-arrow svg{width:14px;height:14px;}
 
-.action-foot-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:14px;padding:12px;background:rgba(138,92,255,0.06);border:1px solid var(--border2);border-radius:6px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--pur);cursor:pointer;transition:all 0.2s;}
-.action-foot-btn:hover{background:rgba(138,92,255,0.12);color:#fff;}
-.action-foot-btn svg{width:12px;height:12px;}
+.action-foot-btn{display:none;} /* deprecated — replaced by .action-locked-cta inside .action-locked-overlay */
+
+/* ─── LOCKED CONTENT SYSTEM ─── */
+
+/* big horizontal lock strip between revenue row and issues row */
+.lock-strip{display:flex;align-items:center;gap:18px;background:linear-gradient(135deg,rgba(138,92,255,0.08),rgba(224,64,200,0.05));border:1px solid var(--border2);border-radius:10px;padding:18px 22px;margin-bottom:18px;position:relative;overflow:hidden;}
+.lock-strip::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.lock-strip-ico{width:42px;height:42px;border-radius:8px;background:rgba(138,92,255,0.12);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--pur);flex-shrink:0;}
+.lock-strip-ico svg{width:20px;height:20px;}
+.lock-strip-body{flex:1;min-width:0;}
+.lock-strip-h{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.2;margin-bottom:4px;}
+.lock-strip-d{font-size:13px;color:var(--text2);line-height:1.55;}
+.lock-strip-d strong{color:#fff;font-weight:700;}
+.lock-strip-cta{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;padding:11px 22px;border:none;border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;text-decoration:none;flex-shrink:0;}
+.lock-strip-cta:hover{opacity:0.88;}
+.lock-strip-cta svg{width:12px;height:12px;}
+
+/* locked overflow row inside Top Issues card */
+.issues-locked-overflow{display:flex;align-items:center;gap:12px;padding:14px 14px;margin-top:10px;background:rgba(138,92,255,0.06);border:1px solid var(--border2);border-radius:6px;cursor:pointer;transition:background 0.18s;text-decoration:none;}
+.issues-locked-overflow:hover{background:rgba(138,92,255,0.12);}
+.issues-locked-ico{width:30px;height:30px;border-radius:6px;background:rgba(138,92,255,0.12);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--pur);flex-shrink:0;}
+.issues-locked-ico svg{width:14px;height:14px;}
+.issues-locked-text{flex:1;min-width:0;}
+.issues-locked-h{font-size:13px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:2px;}
+.issues-locked-d{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;}
+.issues-locked-arrow{color:var(--pur);flex-shrink:0;}
+.issues-locked-arrow svg{width:14px;height:14px;}
+
+/* locked overlay for Action Plan card */
+.action-locked-wrap{position:relative;}
+.action-locked-preview{filter:blur(2px);opacity:0.45;pointer-events:none;user-select:none;}
+.action-locked-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;background:linear-gradient(180deg,rgba(14,11,30,0.55) 0%,rgba(14,11,30,0.92) 60%,rgba(14,11,30,0.98) 100%);border-radius:8px;}
+.action-locked-ico{width:48px;height:48px;border-radius:10px;background:rgba(138,92,255,0.14);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--pur);margin-bottom:12px;}
+.action-locked-ico svg{width:22px;height:22px;}
+.action-locked-h{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.2;margin-bottom:6px;}
+.action-locked-d{font-size:12px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;line-height:1.5;margin-bottom:14px;max-width:280px;}
+.action-locked-cta{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;padding:11px 22px;border:none;border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;text-decoration:none;}
+.action-locked-cta:hover{opacity:0.88;}
+.action-locked-cta svg{width:12px;height:12px;}
+
+@media(max-width:760px){
+  .lock-strip{flex-direction:column;text-align:center;}
+  .lock-strip-cta{width:100%;justify-content:center;}
+}
 
 /* ─── PLATFORMS CARD ─── */
 .platforms-card{margin-bottom:18px;}
@@ -546,6 +585,21 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
         </section>
       </div>
 
+      <!-- ─── LOCK STRIP (between Revenue row and Issues row) ─── -->
+      <div class="lock-strip fade-in d5" id="lock-strip" style="display:none;">
+        <div class="lock-strip-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="lock-strip-body">
+          <div class="lock-strip-h" id="lock-strip-h">Want the full picture?</div>
+          <div class="lock-strip-d" id="lock-strip-d">Loading…</div>
+        </div>
+        <a href="/#request" class="lock-strip-cta" data-unlock="lock-strip">
+          Unlock Full Audit
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+
       <!-- ─── ISSUES + ACTION PLAN ─── -->
       <div class="grid-2-eq">
         <!-- Top Issues -->
@@ -555,38 +609,53 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
               Top Issues Found
               <span class="card-pill count" id="issues-count">0</span>
             </h2>
-            <button class="view-all">
+            <a href="/#request" class="view-all" data-unlock="issues-view-all">
               View All Issues
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </button>
+            </a>
           </div>
 
           <div class="issues-list" id="issues-list">
             <!-- populated by dashboard.js -->
           </div>
 
-          <button class="issues-foot" id="issues-foot" style="display:none;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span id="issues-foot-text">— more issues</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
+          <a class="issues-locked-overflow" id="issues-locked-overflow" href="/#request" data-unlock="issues-overflow" style="display:none;">
+            <div class="issues-locked-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div class="issues-locked-text">
+              <div class="issues-locked-h" id="issues-locked-h">— more issues hidden</div>
+              <div class="issues-locked-d">Unlock Full Audit to see them all</div>
+            </div>
+            <div class="issues-locked-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+          </a>
         </section>
 
-        <!-- Action Plan -->
+        <!-- Action Plan (locked) -->
         <section class="card fade-in d6">
           <div class="card-hd">
             <h2 class="card-title">Action Plan</h2>
           </div>
           <p class="card-sub">Fix these to recover your revenue</p>
 
-          <div class="action-list" id="action-list">
-            <!-- populated by dashboard.js -->
+          <div class="action-locked-wrap" id="action-locked-wrap">
+            <div class="action-list action-locked-preview" id="action-list">
+              <!-- populated by dashboard.js (rendered as blurred preview when locked) -->
+            </div>
+            <div class="action-locked-overlay" id="action-locked-overlay">
+              <div class="action-locked-ico">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <div class="action-locked-h">Action Plan Locked</div>
+              <div class="action-locked-d" id="action-locked-d">Your full step-by-step plan to recover unclaimed royalties is in the Full Audit.</div>
+              <a href="/#request" class="action-locked-cta" data-unlock="action-plan">
+                Unlock Full Action Plan
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </a>
+            </div>
           </div>
-
-          <button class="action-foot-btn">
-            View Full Action Plan
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
         </section>
       </div>
 
