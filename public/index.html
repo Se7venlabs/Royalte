@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1261,23 +1260,47 @@ async function playSuccessChime() {
 async function playSweep() { startProcessingSound(); }
 
 
-function animateScan(isApple, onComplete) {
+function animateScan(isApple) {
   const prog  = document.getElementById('scan-progress');
   const fill  = document.getElementById('sp-fill');
   const label = document.getElementById('sp-label');
   prog.style.display = 'block';
+  // reset any prior error styling
+  label.style.color = '';
   const labels = isApple
     ? ['Resolving Apple Music link...', 'Matching ISRC to Spotify...', 'Running verification modules...', 'Building verified report...']
     : ['Scanning Spotify profile...', 'Resolving metadata...', 'Running verification modules...', 'Building verified report...'];
   let pct = 0, li = 0;
-  const iv = setInterval(() => {
-    pct = Math.min(pct + Math.random() * 3.5 + 1, 95);
-    fill.style.width = pct + '%';
-    if (pct > 25 && li < 1) { li = 1; label.textContent = labels[1]; }
-    if (pct > 55 && li < 2) { li = 2; label.textContent = labels[2]; }
-    if (pct > 80 && li < 3) { li = 3; label.textContent = labels[3]; }
-    if (pct >= 95) { clearInterval(iv); fill.style.width = '100%'; setTimeout(onComplete, 400); }
-  }, 80);
+
+  // Run to 95%, then HOLD until the API caller resolves the animation.
+  const animation = new Promise((animResolve) => {
+    const iv = setInterval(() => {
+      pct = Math.min(pct + Math.random() * 3.5 + 1, 95);
+      fill.style.width = pct + '%';
+      if (pct > 25 && li < 1) { li = 1; label.textContent = labels[1]; }
+      if (pct > 55 && li < 2) { li = 2; label.textContent = labels[2]; }
+      if (pct > 80 && li < 3) { li = 3; label.textContent = labels[3]; }
+      if (pct >= 95) {
+        clearInterval(iv);
+        fill.style.width = '95%';
+        label.textContent = 'Finalising results...';
+        animResolve();
+      }
+    }, 80);
+  });
+
+  return {
+    animation,
+    complete() {
+      fill.style.width = '100%';
+      label.textContent = 'Complete';
+    },
+    fail(message) {
+      label.textContent = message || 'Scan failed — please try again';
+      // inline error styling — no CSS edit
+      label.style.color = 'var(--red)';
+    }
+  };
 }
 
 // ── MUSIC INPUT META (platform + entity type) ──────────────
@@ -1344,32 +1367,59 @@ async function runAudit() {
   nameEl.textContent = 'Loading...';
   document.getElementById('hero-artist-sub').textContent = isApple ? 'Matching to Spotify via ISRC...' : 'Fetching verified data...';
 
-  let auditData = null;
-  try {
-    const meta = getMusicInputMeta(val);
-    const qs = meta
-      ? `?url=${encodeURIComponent(val)}&platform=${encodeURIComponent(meta.platform)}&type=${encodeURIComponent(meta.type)}`
-      : `?url=${encodeURIComponent(val)}`;
-    const resp = await fetchWithRetry(`/api/audit${qs}`);
-    auditData = await resp.json();
-  } catch (e) { auditData = null; }
+  // Start the animation. It will run to 95% then HOLD with "Finalising results..."
+  // until scan.complete() or scan.fail() is called below.
+  const scan = animateScan(isApple);
 
-  animateScan(isApple, () => {
+  // 30-second hard timeout on the API.
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  // Fire the API in parallel with the animation.
+  const meta = getMusicInputMeta(val);
+  const qs = meta
+    ? `?url=${encodeURIComponent(val)}&platform=${encodeURIComponent(meta.platform)}&type=${encodeURIComponent(meta.type)}`
+    : `?url=${encodeURIComponent(val)}`;
+  const fetchPromise = fetch(`/api/audit${qs}`, { signal: controller.signal })
+    .then(r => r.json())
+    .catch(err => ({ __error: err }));
+
+  // Wait for BOTH the animation to reach 95% AND the API to return.
+  // If the API is faster, we still wait for the animation. If slower, we hold at 95%.
+  const [_, auditData] = await Promise.all([scan.animation, fetchPromise]);
+  clearTimeout(timeoutId);
+
+  const apiOk = auditData && !auditData.__error && auditData.success;
+
+  if (apiOk) {
     // Stop the looping processing sound and fire success chime
     stopProcessingSound();
     playSuccessChime();
-    if (auditData && auditData.success) {
-      showRealResults(auditData);
-    } else {
-      showDemoResults(val);
-    }
-    // Arcs will be re-activated by updateHeroDashboard with risk colour
+    scan.complete();
+    showRealResults(auditData);
     btn.disabled = false;
     btn.textContent = 'Run Free Audit →';
-    document.getElementById('scan-progress').style.display = 'none';
+    setTimeout(() => {
+      document.getElementById('scan-progress').style.display = 'none';
+    }, 600);
     document.getElementById('results-wrap').style.display = 'block';
     document.getElementById('results-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
+    return;
+  }
+
+  // API actually failed — show an honest error. Do NOT call showDemoResults.
+  // Stop the audio loop so it doesn't keep playing; do NOT play the success chime.
+  stopProcessingSound();
+  let msg = 'Scan failed — please try again';
+  if (auditData && auditData.__error && auditData.__error.name === 'AbortError') {
+    msg = 'Scan timed out — please try again';
+  } else if (auditData && auditData.error) {
+    msg = auditData.error;
+  }
+  scan.fail(msg);
+  showUrlError(msg);
+  btn.disabled = false;
+  btn.textContent = 'Run Free Audit →';
 }
 
 // ── SET URL TYPE PILL ──────────────────────────────────────
@@ -1860,4 +1910,3 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
 </script>
 </body>
 </html>
-
