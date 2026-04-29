@@ -3,698 +3,609 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Royaltē — Audit Report</title>
+<title>Royaltē Dashboard · Music Audit Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ─────────────────────────────────────────────────────────────────
+   ROYALTĒ DASHBOARD V1
+   Design system inherited from index.html (homepage / scan results).
+   Do NOT introduce new tokens. Reuse existing CSS variables only.
+   ───────────────────────────────────────────────────────────────── */
+
 :root{
   --bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
-  --border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.22);--border3:rgba(255,255,255,0.06);
-  --text:#e8e4f4;--muted:#5a5880;--muted2:#9490b8;
+  --border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+  --text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
   --pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
   --grad:linear-gradient(135deg,#8a5cff,#e040c8);
-  --glow:0 0 60px rgba(138,92,255,0.15);
+  --glow:0 0 80px rgba(138,92,255,0.2);
 }
+
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;}
-body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow:hidden;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.02) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;min-height:100vh;}
 
-.layout{display:flex;height:100vh;position:relative;z-index:1;}
+/* same grid background + noise overlay as homepage */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
 
-/* SIDEBAR */
-.sidebar{width:232px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;}
-.sb-logo{padding:20px 18px 18px;border-bottom:1px solid var(--border);}
-.sb-wordmark{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;line-height:1;}
-.sb-wordmark span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.sb-tagline{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase;margin-top:2px;}
-.sb-nav{flex:1;padding:12px 8px;overflow-y:auto;}
-.sb-section{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);padding:0 10px;margin:16px 0 5px;}
-.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:3px;cursor:pointer;font-size:13px;color:var(--muted2);transition:all 0.15s;margin-bottom:1px;border:1px solid transparent;}
-.sb-item:hover{background:var(--bg3);color:var(--text);}
-.sb-item.active{background:rgba(138,92,255,0.1);color:var(--text);border-color:rgba(138,92,255,0.18);}
-.sb-item.active .si-ico{color:var(--pur);}
-.si-ico{width:14px;height:14px;flex-shrink:0;opacity:0.65;}
-.sb-item.active .si-ico{opacity:1;}
-.sb-badge{margin-left:auto;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:1px 6px;border-radius:2px;}
-.sb-badge.red{background:rgba(240,80,96,0.15);color:var(--red);}
-.sb-badge.amb{background:rgba(240,192,64,0.15);color:var(--amb);}
-.sb-badge.pur{background:rgba(138,92,255,0.15);color:var(--pur);}
-.sb-footer{padding:14px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:9px;}
-.sb-av{width:32px;height:32px;border-radius:3px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
-.sb-uname{font-size:12px;font-weight:600;color:var(--text);}
-.sb-uplan{font-family:'Space Mono',monospace;font-size:8px;color:var(--pur);letter-spacing:0.08em;}
-.sb-back{margin-left:auto;font-size:10px;color:var(--muted);cursor:pointer;font-family:'Space Mono',monospace;letter-spacing:0.06em;transition:color 0.15s;text-decoration:none;}
-.sb-back:hover{color:var(--pur);}
+/* atmospheric orbs (lighter than homepage so dashboard reads cleaner) */
+.orb-a{position:fixed;top:-200px;left:-150px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(138,92,255,0.08) 0%,transparent 65%);pointer-events:none;z-index:0;}
+.orb-b{position:fixed;bottom:-200px;right:-150px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(224,64,200,0.05) 0%,transparent 65%);pointer-events:none;z-index:0;}
 
-/* MAIN */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.topbar{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(7,7,15,0.8);backdrop-filter:blur(12px);flex-shrink:0;}
-.tb-left{}
-.tb-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;line-height:1;}
-.tb-sub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-top:2px;}
-.tb-actions{display:flex;gap:8px;align-items:center;}
-.tb-live{display:flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:9px;color:var(--grn);letter-spacing:0.1em;}
-.tb-live-dot{width:5px;height:5px;border-radius:50%;background:var(--grn);animation:pulse 2s infinite;}
-.tb-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:'Space Grotesk',sans-serif;border:none;transition:all 0.15s;}
-.tb-ghost{background:var(--bg3);color:var(--muted2);border:1px solid var(--border);}
-.tb-ghost:hover{color:var(--text);border-color:var(--border2);}
-.tb-grad{background:var(--grad);color:#fff;}
-.tb-grad:hover{opacity:0.88;}
+/* ─── APP SHELL (sidebar + main) ─── */
+.app{position:relative;z-index:2;display:grid;grid-template-columns:264px 1fr;min-height:100vh;}
 
-/* CONTENT */
-.content{flex:1;overflow-y:auto;padding:20px 24px;}
+/* ─── SIDEBAR ─── */
+.sidebar{background:rgba(7,7,15,0.7);backdrop-filter:blur(28px);border-right:1px solid var(--border);padding:28px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+.sb-brand{display:flex;align-items:center;gap:10px;padding:0 24px 32px;text-decoration:none;}
+.sb-brand-mark{width:32px;height:32px;border-radius:6px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.02em;}
+.sb-brand-text{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#fff;line-height:1;}
+.sb-brand-text .ac{color:var(--pur);}
 
-/* TRACK INFO ROW */
-.track-info{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:16px;position:relative;overflow:hidden;opacity:0;animation:fadeUp 0.5s ease forwards;}
-.track-info::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad);opacity:0.5;}
-.track-artwork{width:56px;height:56px;border-radius:4px;background:var(--grad);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;}
-.track-meta{flex:1;}
-.track-artist{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:var(--text);}
-.track-title{font-size:13px;color:var(--muted2);margin-top:1px;}
-.track-source{font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);letter-spacing:0.1em;margin-top:3px;}
-.track-score{text-align:right;flex-shrink:0;}
-.ts-num{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
-.ts-lbl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-top:2px;}
-.track-badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-.t-badge{font-family:'Space Mono',monospace;font-size:8px;padding:3px 8px;border-radius:2px;font-weight:700;letter-spacing:0.06em;}
-.tb-spotify{background:rgba(29,185,84,0.12);color:#1db954;}
-.tb-apple{background:rgba(252,60,68,0.12);color:#fc3c44;}
-.tb-isrc{background:rgba(138,92,255,0.12);color:var(--pur);}
-.tb-warn{background:rgba(240,80,96,0.12);color:var(--red);}
+.sb-nav{display:flex;flex-direction:column;gap:2px;padding:0 12px;flex:1;}
+.sb-link{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:6px;font-size:13px;font-weight:600;color:var(--muted2);text-decoration:none;letter-spacing:0.04em;text-transform:uppercase;font-family:'Space Grotesk',sans-serif;transition:all 0.18s;border:1px solid transparent;cursor:pointer;}
+.sb-link:hover{color:var(--text);background:rgba(138,92,255,0.05);}
+.sb-link.active{color:#fff;background:rgba(138,92,255,0.12);border-color:var(--border2);box-shadow:inset 0 0 24px rgba(138,92,255,0.08);}
+.sb-link svg{width:16px;height:16px;flex-shrink:0;opacity:0.85;}
+.sb-link.active svg{opacity:1;color:var(--pur);}
+.sb-link-name{flex:1;}
+.sb-badge{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;background:rgba(240,80,96,0.15);color:var(--red);border:1px solid rgba(240,80,96,0.3);letter-spacing:0.06em;}
+.sb-badge.soon{background:rgba(138,92,255,0.1);color:var(--pur);border-color:var(--border2);}
 
-/* DISCLAIMER BAR */
-.disc-bar{background:rgba(138,92,255,0.05);border:1px solid var(--border);border-radius:4px;padding:10px 14px;display:flex;gap:8px;align-items:flex-start;margin-bottom:16px;opacity:0;animation:fadeUp 0.5s ease 0.05s forwards;}
-.disc-bar-icon{font-size:12px;flex-shrink:0;margin-top:1px;}
-.disc-bar-text{font-size:11px;color:var(--muted2);line-height:1.5;}
-.disc-bar-text strong{color:var(--text);}
+/* upgrade card in sidebar */
+.sb-upgrade{margin:24px 16px 16px;padding:20px 18px;background:#0e0b1e;border:1px solid var(--border2);border-radius:8px;text-align:center;position:relative;overflow:hidden;}
+.sb-upgrade::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.sb-upgrade-ico{width:36px;height:36px;border-radius:50%;background:rgba(138,92,255,0.12);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:var(--pur);}
+.sb-upgrade-t{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#fff;margin-bottom:6px;line-height:1.2;}
+.sb-upgrade-d{font-size:11px;color:var(--muted2);line-height:1.55;margin-bottom:14px;}
+.sb-upgrade-d strong{color:var(--text);font-weight:700;}
+.sb-upgrade-btn{display:block;width:100%;background:var(--grad);color:#fff;padding:10px;border:none;border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;}
+.sb-upgrade-btn:hover{opacity:0.88;}
 
-/* SCORE + FLAGS ROW */
-.score-flags-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+/* user pill */
+.sb-user{margin:0 16px 12px;padding:12px 14px;background:rgba(7,7,15,0.5);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;gap:10px;}
+.sb-user-avatar{width:34px;height:34px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.sb-user-info{flex:1;min-width:0;}
+.sb-user-name{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#fff;font-family:'Rajdhani',sans-serif;letter-spacing:0.03em;text-transform:uppercase;}
+.sb-user-verified{color:var(--cyn);}
+.sb-user-plan{font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;}
 
-/* Module scores */
-.mod-scores{display:flex;flex-direction:column;gap:8px;}
-.ms-card{display:flex;align-items:center;gap:12px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;}
-.ms-card:hover{border-color:var(--border2);}
-.ms-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.ms-name{font-size:12px;font-weight:500;color:var(--text);flex:1;}
-.ms-bar{width:80px;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;flex-shrink:0;}
-.ms-fill{height:100%;border-radius:2px;}
-.ms-val{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;width:36px;text-align:right;flex-shrink:0;}
-.ms-status{font-family:'Space Mono',monospace;font-size:8px;padding:2px 6px;border-radius:2px;font-weight:700;flex-shrink:0;}
+.sb-foot{padding:0 16px;display:flex;flex-direction:column;gap:2px;}
+.sb-foot a{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:0.06em;text-decoration:none;border-radius:6px;transition:color 0.18s;}
+.sb-foot a:hover{color:var(--muted2);}
+.sb-foot svg{width:14px;height:14px;}
 
-/* Flags panel */
-.flags-panel{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:14px;overflow-y:auto;max-height:320px;}
-.flags-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.flags-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
-.flag-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border3);cursor:pointer;transition:opacity 0.15s;}
-.flag-item:last-child{border-bottom:none;}
-.flag-item:hover{opacity:0.8;}
-.fi-sev{width:26px;height:26px;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}
-.fi-sev.high{background:rgba(240,80,96,0.12);}
-.fi-sev.med{background:rgba(240,192,64,0.12);}
-.fi-sev.low{background:rgba(64,240,160,0.12);}
-.fi-body{flex:1;}
-.fi-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
-.fi-desc{font-size:10px;color:var(--muted2);line-height:1.4;}
-.fi-mod{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.08em;margin-top:2px;}
-.fi-sev-badge{font-family:'Space Mono',monospace;font-size:7px;padding:2px 5px;border-radius:2px;font-weight:700;flex-shrink:0;align-self:flex-start;margin-top:2px;}
-.fsb-high{background:rgba(240,80,96,0.12);color:var(--red);}
-.fsb-med{background:rgba(240,192,64,0.12);color:var(--amb);}
-.fsb-low{background:rgba(64,240,160,0.12);color:var(--grn);}
+/* ─── MAIN ─── */
+.main{padding:36px 48px 80px;max-width:1360px;width:100%;}
 
-/* PLATFORM COVERAGE + METADATA ROW */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-.card{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:14px;opacity:0;animation:fadeUp 0.5s ease 0.2s forwards;transition:border-color 0.2s;}
-.card:hover{border-color:var(--border);}
-.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.card-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
-.cbadge{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:2px;letter-spacing:0.06em;}
-.cb-grn{background:rgba(64,240,160,0.1);color:var(--grn);}
-.cb-red{background:rgba(240,80,96,0.1);color:var(--red);}
-.cb-amb{background:rgba(240,192,64,0.1);color:var(--amb);}
-.cb-pur{background:rgba(138,92,255,0.1);color:var(--pur);}
+/* page header */
+.page-hd{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;margin-bottom:32px;}
+.page-hd-left{flex:1;min-width:300px;}
+.welcome-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--pur);background:rgba(138,92,255,0.07);border:1px solid var(--border2);padding:5px 12px;border-radius:2px;margin-bottom:14px;}
+.welcome-eyebrow .blink{animation:blink 1.2s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.welcome-h1{font-family:'Rajdhani',sans-serif;font-size:clamp(28px,3.5vw,40px);font-weight:700;line-height:1;letter-spacing:-0.005em;text-transform:uppercase;color:#fff;margin-bottom:8px;}
+.welcome-h1 .wave{display:inline-block;animation:wave 2s ease infinite;transform-origin:70% 70%;font-size:0.85em;}
+@keyframes wave{0%,100%{transform:rotate(0deg);}10%,30%{transform:rotate(14deg);}20%{transform:rotate(-8deg);}40%{transform:rotate(0deg);}}
+.welcome-sub{font-size:14px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;}
 
-/* platform rows */
-.plat-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border3);}
-.plat-row:last-child{border-bottom:none;}
-.plat-ico{width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}
-.plat-name{font-size:12px;color:var(--text);flex:1;}
-.plat-status{font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;}
-.ps-found{background:rgba(64,240,160,0.1);color:var(--grn);}
-.ps-notfound{background:rgba(240,80,96,0.1);color:var(--red);}
-.ps-partial{background:rgba(240,192,64,0.1);color:var(--amb);}
-.plat-conf{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-left:6px;}
+.page-hd-right{display:flex;align-items:center;gap:12px;}
+.scan-btn{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;padding:12px 22px;border:none;border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;text-decoration:none;}
+.scan-btn:hover{opacity:0.88;}
+.scan-btn svg{width:14px;height:14px;}
+.bell-btn{position:relative;width:42px;height:42px;border-radius:6px;background:rgba(138,92,255,0.06);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--muted2);cursor:pointer;transition:all 0.18s;}
+.bell-btn:hover{color:var(--text);background:rgba(138,92,255,0.12);}
+.bell-btn svg{width:18px;height:18px;}
+.bell-count{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);}
 
-/* metadata checks */
-.meta-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border3);}
-.meta-row:last-child{border-bottom:none;}
-.meta-icon{width:14px;height:14px;flex-shrink:0;text-align:center;font-size:11px;}
-.meta-field{font-size:12px;color:var(--muted2);flex:1;}
-.meta-val{font-size:11px;font-weight:500;color:var(--text);max-width:160px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.meta-status{font-family:'Space Mono',monospace;font-size:8px;padding:2px 6px;border-radius:2px;font-weight:700;margin-left:6px;flex-shrink:0;}
+/* ─── HERO BANNER (overall score + 3 stat tiles) ─── */
+.hero-banner{background:#0e0b1e;border:1px solid rgba(138,92,255,0.4);border-radius:10px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;display:grid;grid-template-columns:auto minmax(220px,1fr) auto auto auto;gap:28px;align-items:center;}
+.hero-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);}
+.hero-banner::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 0% 0%,rgba(138,92,255,0.08) 0%,transparent 60%);pointer-events:none;}
 
-/* ACTIONS + SYNC ROW */
-.actions-card{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:14px;opacity:0;animation:fadeUp 0.5s ease 0.3s forwards;}
-.action-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border3);cursor:pointer;}
-.action-item:last-child{border-bottom:none;}
-.action-num{font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);font-weight:700;width:18px;flex-shrink:0;margin-top:1px;}
-.action-body{flex:1;}
-.action-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
-.action-desc{font-size:11px;color:var(--muted2);line-height:1.4;}
-.action-impact{font-family:'Space Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;flex-shrink:0;align-self:flex-start;margin-top:1px;}
-.ai-high{background:rgba(240,80,96,0.1);color:var(--red);}
-.ai-med{background:rgba(240,192,64,0.1);color:var(--amb);}
-.ai-low{background:rgba(64,240,160,0.1);color:var(--grn);}
+.hero-score-block{display:flex;align-items:center;gap:18px;position:relative;}
+.score-ring{width:88px;height:88px;position:relative;flex-shrink:0;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-ring-val{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.score-ring-lbl{font-size:8px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin-top:2px;}
 
-/* UPGRADE BANNER */
-.upgrade-banner{background:linear-gradient(135deg,rgba(138,92,255,0.12),rgba(224,64,200,0.08));border:1px solid rgba(138,92,255,0.3);border-radius:6px;padding:18px 20px;display:flex;align-items:center;gap:16px;margin-bottom:14px;position:relative;overflow:hidden;opacity:0;animation:fadeUp 0.5s ease 0.08s forwards;}
-.upgrade-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0.8;}
-.ub-text{flex:1;}
-.ub-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;}
-.ub-desc{font-size:12px;color:var(--muted2);line-height:1.5;}
-.ub-btn{background:var(--grad);color:#fff;padding:10px 20px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;white-space:nowrap;font-family:'Space Grotesk',sans-serif;flex-shrink:0;}
+.hero-score-info{display:flex;flex-direction:column;gap:4px;}
+.hero-score-tag{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--pur);margin-bottom:2px;}
+.hero-score-h{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.15;max-width:240px;}
+.hero-score-link{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:11px;color:var(--pur);letter-spacing:0.06em;text-decoration:none;margin-top:6px;cursor:pointer;background:none;border:none;}
+.hero-score-link:hover{color:#fff;}
 
-/* TERRITORY AUDIT ROWS */
-.terr-row-audit{display:grid;grid-template-columns:28px 1fr 80px 90px;gap:0;padding:8px 12px;border-bottom:1px solid var(--border3);align-items:center;}
-.terr-row-audit:last-child{border-bottom:none;}
-.tf{font-size:14px;}
-.tn{font-size:11px;font-weight:500;color:var(--text);}
-.ts-v{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2);text-align:right;}
-.ta{font-family:'Space Mono',monospace;font-size:8px;padding:2px 6px;border-radius:2px;font-weight:700;text-align:right;justify-self:end;}
-.ts-ok-a{background:rgba(64,240,160,0.1);color:var(--grn);}
-.ts-bad-a{background:rgba(240,80,96,0.1);color:var(--red);}
-.ts-pend-a{background:rgba(240,192,64,0.1);color:var(--amb);}
+.hero-stat{display:flex;flex-direction:column;gap:4px;min-width:140px;position:relative;}
+.hero-stat-ico{position:absolute;top:-2px;left:0;width:32px;height:32px;border-radius:50%;background:rgba(138,92,255,0.1);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--pur);}
+.hero-stat-ico svg{width:14px;height:14px;}
+.hero-stat-body{padding-left:44px;}
+.hero-stat-lbl{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted2);}
+.hero-stat-val{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:#fff;line-height:1.15;letter-spacing:-0.01em;}
+.hero-stat-sub{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.06em;}
+.hero-stat-sub.high{color:var(--amb);}
+.hero-stat-sub.med{color:var(--amb);}
+.hero-stat-sub.good{color:var(--grn);}
+.hero-stat-sub.bad{color:var(--red);}
 
+/* ─── ARTIST IDENTITY CARD (inside hero-banner middle slot) ─── */
+.hero-identity{background:rgba(7,7,15,0.55);border:1px solid var(--border2);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;align-self:stretch;justify-content:center;min-width:0;}
+.hero-identity::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(138,92,255,0.06) 0%,transparent 70%);pointer-events:none;}
+.hi-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0;position:relative;}
+.hi-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);flex-shrink:0;}
+.hi-name{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;}
+.hi-resolved{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:500;color:var(--text2);letter-spacing:0.01em;line-height:1.3;}
+.hi-status{display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:11px;color:var(--grn);letter-spacing:0.05em;}
+.hi-status.limited{color:var(--amb);}
+.hi-status svg{width:11px;height:11px;flex-shrink:0;}
+.hi-status .pulse-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite;flex-shrink:0;}
+.hi-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;position:relative;}
+.hi-pill{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:100px;letter-spacing:0.06em;}
+.hi-pill.verified{background:rgba(64,240,160,0.08);color:var(--grn);border:1px solid rgba(64,240,160,0.28);}
+.hi-pill.limited{background:rgba(240,192,64,0.08);color:var(--amb);border:1px solid rgba(240,192,64,0.28);}
+.hi-pill svg{width:10px;height:10px;flex-shrink:0;}
+.hi-fallback{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;letter-spacing:0.06em;background:rgba(240,192,64,0.08);color:var(--amb);border:1px solid rgba(240,192,64,0.28);width:fit-content;margin-top:2px;}
+.hi-fallback svg{width:10px;height:10px;flex-shrink:0;}
 
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+/* ─── VERIFIED STRIP ─── */
+.verified-strip{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;padding:12px 18px;background:rgba(64,240,160,0.04);border:1px solid rgba(64,240,160,0.18);border-radius:6px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.08em;color:var(--muted2);}
+.verified-strip-ico{color:var(--grn);}
+.verified-strip strong{color:var(--grn);font-weight:700;letter-spacing:0.1em;}
+.verified-strip .dot-sep{color:var(--border2);}
 
+/* ─── 2-COLUMN GRID ─── */
+.grid-2{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px;}
+.grid-2-eq{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+
+/* card baseline */
+.card{background:#0e0b1e;border:1px solid var(--border2);border-radius:10px;padding:22px;position:relative;}
+.card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.card-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:#fff;display:flex;align-items:center;gap:8px;}
+.card-title-info{width:14px;height:14px;color:var(--muted);}
+.card-sub{font-size:12px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;margin-top:-10px;margin-bottom:14px;}
+.card-pill{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px;letter-spacing:0.08em;}
+.card-pill.count{background:rgba(240,80,96,0.12);color:var(--red);border:1px solid rgba(240,80,96,0.25);}
+
+/* dropdown / select */
+.range-select{display:inline-flex;align-items:center;gap:6px;background:rgba(7,7,15,0.6);border:1px solid var(--border2);border-radius:4px;padding:6px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;cursor:pointer;transition:border-color 0.18s;}
+.range-select:hover{border-color:rgba(138,92,255,0.5);}
+.range-select svg{width:12px;height:12px;color:var(--muted);}
+
+/* ─── REVENUE AT RISK CARD ─── */
+.rev-headline{display:flex;align-items:baseline;gap:14px;margin-bottom:4px;flex-wrap:wrap;}
+.rev-amount{font-family:'Rajdhani',sans-serif;font-size:42px;font-weight:700;color:#fff;line-height:1;letter-spacing:-0.015em;}
+.rev-tier-pill{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 10px;border-radius:100px;letter-spacing:0.1em;text-transform:uppercase;}
+.rev-tier-pill.high{background:rgba(240,80,96,0.12);color:var(--red);border:1px solid rgba(240,80,96,0.3);}
+.rev-tier-pill.med{background:rgba(240,192,64,0.1);color:var(--amb);border:1px solid rgba(240,192,64,0.3);}
+.rev-tier-pill.low{background:rgba(64,240,160,0.08);color:var(--grn);border:1px solid rgba(64,240,160,0.3);}
+.rev-sub{font-size:13px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;margin-bottom:24px;}
+
+.rev-chart{height:180px;width:100%;position:relative;}
+.rev-chart svg{width:100%;height:100%;display:block;}
+
+.rev-helper{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:rgba(138,92,255,0.05);border:1px solid var(--border);border-radius:6px;margin-top:18px;}
+.rev-helper-ico{width:28px;height:28px;border-radius:50%;background:rgba(138,92,255,0.12);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--pur);}
+.rev-helper-ico svg{width:14px;height:14px;}
+.rev-helper-t{font-size:13px;line-height:1.55;color:var(--text2);}
+.rev-helper-t strong{color:#fff;font-weight:700;}
+
+/* ─── RECENT SCAN CARD ─── */
+.recent-scan-meta{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted2);letter-spacing:0.06em;margin-bottom:18px;}
+.scan-status{display:flex;align-items:center;gap:10px;padding:14px 16px;background:rgba(64,240,160,0.05);border:1px solid rgba(64,240,160,0.2);border-radius:6px;margin-bottom:14px;}
+.scan-status-ico{width:24px;height:24px;border-radius:50%;background:rgba(64,240,160,0.15);display:flex;align-items:center;justify-content:center;color:var(--grn);flex-shrink:0;}
+.scan-status-ico svg{width:14px;height:14px;}
+.scan-status-text{flex:1;}
+.scan-status-h{font-size:13px;font-weight:700;color:#fff;line-height:1.3;}
+.scan-status-d{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;margin-top:3px;}
+.recent-scan .scan-btn{width:100%;justify-content:center;margin-bottom:14px;}
+.next-scan{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--border3);}
+.next-scan-ico{color:var(--muted);}
+.next-scan-ico svg{width:14px;height:14px;}
+.next-scan-text{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;}
+.next-scan-text strong{color:var(--text);font-weight:700;}
+
+/* ─── ISSUES + ACTION PLAN GRID ─── */
+.issues-list{display:flex;flex-direction:column;gap:0;}
+.issue-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border3);transition:background 0.15s;cursor:pointer;}
+.issue-row:last-child{border-bottom:none;}
+.issue-row:hover{background:rgba(138,92,255,0.04);}
+.issue-ico{width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.issue-ico.high{background:rgba(240,80,96,0.1);color:var(--red);border:1px solid rgba(240,80,96,0.2);}
+.issue-ico.med{background:rgba(240,192,64,0.08);color:var(--amb);border:1px solid rgba(240,192,64,0.2);}
+.issue-ico.low{background:rgba(64,240,160,0.06);color:var(--grn);border:1px solid rgba(64,240,160,0.2);}
+.issue-ico svg{width:16px;height:16px;}
+.issue-body{min-width:0;}
+.issue-title{font-size:13px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:3px;}
+.issue-desc{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;}
+.issue-sev{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+.issue-sev.high{color:var(--red);}
+.issue-sev.med{color:var(--amb);}
+.issue-sev.low{color:var(--grn);}
+.issue-impact{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--text);min-width:74px;text-align:right;letter-spacing:0.04em;}
+
+.issues-foot{display:flex;justify-content:center;align-items:center;gap:6px;padding:14px 0 4px;font-family:'Space Mono',monospace;font-size:11px;color:var(--pur);letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;border-top:1px solid var(--border3);margin-top:6px;background:none;border-left:none;border-right:none;border-bottom:none;width:100%;font-weight:700;transition:color 0.18s;}
+.issues-foot:hover{color:#fff;}
+.issues-foot svg{width:12px;height:12px;}
+
+.view-all{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--pur);letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;cursor:pointer;background:none;border:none;}
+.view-all:hover{color:#fff;}
+.view-all svg{width:12px;height:12px;}
+
+/* action plan */
+.action-list{display:flex;flex-direction:column;}
+.action-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border3);position:relative;cursor:pointer;}
+.action-row:last-child{border-bottom:none;}
+.action-row:hover{background:rgba(138,92,255,0.04);}
+.action-num{width:34px;height:34px;border-radius:50%;background:rgba(138,92,255,0.08);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--pur);flex-shrink:0;}
+.action-row::after{content:'';position:absolute;left:16px;top:48px;width:1px;height:calc(100% - 24px);background:var(--border);}
+.action-row:last-child::after{display:none;}
+.action-body{min-width:0;}
+.action-title{font-size:13px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:3px;}
+.action-meta{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;display:flex;align-items:center;gap:6px;}
+.action-meta svg{width:11px;height:11px;}
+.action-pill{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px;letter-spacing:0.08em;text-transform:uppercase;}
+.action-pill.high{background:rgba(240,80,96,0.12);color:var(--red);border:1px solid rgba(240,80,96,0.25);}
+.action-pill.med{background:rgba(240,192,64,0.1);color:var(--amb);border:1px solid rgba(240,192,64,0.25);}
+.action-pill.low{background:rgba(64,240,160,0.08);color:var(--grn);border:1px solid rgba(64,240,160,0.25);}
+.action-arrow{color:var(--muted);}
+.action-arrow svg{width:14px;height:14px;}
+
+.action-foot-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:14px;padding:12px;background:rgba(138,92,255,0.06);border:1px solid var(--border2);border-radius:6px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--pur);cursor:pointer;transition:all 0.2s;}
+.action-foot-btn:hover{background:rgba(138,92,255,0.12);color:#fff;}
+.action-foot-btn svg{width:12px;height:12px;}
+
+/* ─── PLATFORMS CARD ─── */
+.platforms-card{margin-bottom:18px;}
+.platforms-meta{font-family:'Space Mono',monospace;font-size:11px;color:var(--pur);letter-spacing:0.08em;}
+.platforms-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;}
+.platform-tile{padding:18px 12px;background:#0a0818;border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;transition:all 0.18s;cursor:pointer;}
+.platform-tile:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(138,92,255,0.08);}
+.platform-tile.more{background:rgba(138,92,255,0.04);border-color:var(--border2);border-style:dashed;}
+.platform-logo{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#fff;letter-spacing:-0.01em;}
+.platform-logo.spotify{background:#1ed760;color:#000;}
+.platform-logo.apple{background:linear-gradient(135deg,#fa233b,#fb5c74);}
+.platform-logo.youtube{background:#ff0033;}
+.platform-logo.soundcloud{background:#ff5500;}
+.platform-logo.tiktok{background:#000;border:1px solid var(--border3);}
+.platform-logo.more{background:rgba(138,92,255,0.1);border:1px solid var(--border2);font-family:'Space Mono',monospace;color:var(--pur);font-size:12px;letter-spacing:0.04em;}
+.platform-name{font-size:12px;font-weight:700;color:#fff;font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:0.03em;}
+.platform-status{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;}
+.platform-status.connected{color:var(--grn);}
+.platform-status.available{color:var(--muted);}
+.manage-link{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--pur);letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;background:none;border:none;}
+.manage-link:hover{color:#fff;}
+.manage-link svg{width:12px;height:12px;}
+
+/* ─── FOOTER NOTE ─── */
+.foot-note{display:flex;align-items:center;justify-content:center;gap:10px;padding:24px 16px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.06em;border-top:1px solid var(--border);margin-top:32px;}
+.foot-note-ico{color:var(--muted);}
+.foot-note-ico svg{width:14px;height:14px;}
+.foot-note strong{color:var(--text2);font-weight:700;}
+.foot-note u{text-decoration:underline;text-decoration-color:var(--pur);text-underline-offset:2px;}
+
+/* ─── ENTRANCE ANIMS ─── */
+.fade-in{opacity:0;animation:fadeUp 0.55s ease forwards;}
+.fade-in.d1{animation-delay:0.05s;}
+.fade-in.d2{animation-delay:0.12s;}
+.fade-in.d3{animation-delay:0.18s;}
+.fade-in.d4{animation-delay:0.24s;}
+.fade-in.d5{animation-delay:0.3s;}
+.fade-in.d6{animation-delay:0.36s;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.18);opacity:0.6;}}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:1180px){
+  .hero-banner{grid-template-columns:auto 1fr;gap:22px;row-gap:24px;}
+  .hero-identity{grid-column:2;}
+  .hero-stat{grid-column:auto;}
+  .hero-stat:nth-of-type(1){grid-column:1/2;grid-row:2;}
+  .hero-stat:nth-of-type(2){grid-column:2/3;grid-row:2;}
+  .hero-stat:nth-of-type(3){grid-column:1/-1;grid-row:3;border-top:1px solid var(--border3);padding-top:18px;}
+  .platforms-grid{grid-template-columns:repeat(3,1fr);}
+}
+@media(max-width:980px){
+  .grid-2,.grid-2-eq{grid-template-columns:1fr;}
+}
+@media(max-width:760px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--border);}
+  .main{padding:24px 20px 60px;}
+  .hero-banner{grid-template-columns:1fr;text-align:left;padding:20px;gap:18px;}
+  .hero-identity,.hero-stat,.hero-stat:nth-of-type(1),.hero-stat:nth-of-type(2),.hero-stat:nth-of-type(3){grid-column:1;grid-row:auto;border-top:none;padding-top:0;}
+  .platforms-grid{grid-template-columns:repeat(2,1fr);}
+  .page-hd{flex-direction:column;align-items:flex-start;}
+}
 </style>
 </head>
 <body>
-<div class="layout">
+  <div class="orb-a"></div>
+  <div class="orb-b"></div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sb-logo">
-      <div class="sb-wordmark">Royalt<span>ē</span></div>
-      <div class="sb-tagline">Music Audit Intelligence</div>
-    </div>
-    <nav class="sb-nav">
-      <div class="sb-section">// Audits</div>
-      <div class="sb-item active">
-        <svg class="si-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-        Current audit
-        <span class="sb-badge pur">Demo</span>
-      </div>
-      <div class="sb-item">
-        <svg class="si-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M3 8h7M3 12h5"/></svg>
-        Audit history
-      </div>
-      <div class="sb-section">// Flags</div>
-      <div class="sb-item">
-        <svg class="si-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1a5 5 0 0 1 5 5v3l1.5 2.5H1.5L3 9V6a5 5 0 0 1 5-5z"/><path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/></svg>
-        Risk flags
-        <span class="sb-badge red">4</span>
-      </div>
-      <div class="sb-item">
-        <svg class="si-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3 1.5.5-3.5L3 5.5l3.5-.5z"/></svg>
-        Recommended actions
-        <span class="sb-badge amb">3</span>
-      </div>
-      <div class="sb-section">// Modules</div>
-      <div class="sb-item">
-        <svg class="si-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/></svg>
-        Metadata integrity
-      </div>
-      <div class="sb-item">
-        <svg class="si-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2a10 10 0 0 1 0 12M8 2a10 10 0 0 0 0 12"/></svg>
-        Platform coverage
-      </div>
-      <div class="sb-item">
-        <svg class="si-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1l1.5 5h5l-4 3 1.5 5L8 11l-4 3 1.5-5-4-3h5z"/></svg>
-        Publishing risk
-      </div>
-      <div class="sb-item">
-        <svg class="si-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="6,2 14,8 6,14"/></svg>
-        YouTube / UGC
-      </div>
-      <div class="sb-item">
-        <svg class="si-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="9" rx="1"/><path d="M5 14h6"/></svg>
-        Sync readiness
-      </div>
-      <div class="sb-section">// Account</div>
-      <div class="sb-item">
-        <svg class="si-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 13v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1"/><circle cx="8" cy="5" r="3"/></svg>
-        Run new audit
-      </div>
-    </nav>
-    <div class="sb-footer">
-      <div class="sb-av">JM</div>
-      <div><div class="sb-uname">Demo Report</div><div class="sb-uplan">// FREE PREVIEW</div></div>
-      <a href="/" class="sb-back">← Site</a>
-    </div>
-  </aside>
+  <div class="app">
 
-  <!-- MAIN -->
-  <div class="main">
-    <div class="topbar">
-      <div class="tb-left">
-        <div class="tb-title">Audit Report</div>
-        <div class="tb-sub">// Jordan Miles · Golden Hour · Scanned 2 minutes ago via Spotify</div>
-      </div>
-      <div class="tb-actions">
-        <div class="tb-live"><div class="tb-live-dot"></div>COMPLETE</div>
-        <button class="tb-btn tb-ghost">
-          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8l5 5 5-5"/></svg>
-          Export PDF
-        </button>
-        <button class="tb-btn tb-grad">Run new audit →</button>
-      </div>
-    </div>
+    <!-- ───── SIDEBAR ───── -->
+    <aside class="sidebar">
+      <a href="/" class="sb-brand">
+        <div class="sb-brand-mark">R</div>
+        <div class="sb-brand-text">Royalt<span class="ac">ē</span></div>
+      </a>
 
-    <div class="content">
+      <nav class="sb-nav" id="sb-nav">
+        <!-- populated by dashboard.js -->
+      </nav>
 
-      <!-- TRACK INFO -->
-      <div class="track-info">
-        <div class="track-artwork">🎵</div>
-        <div class="track-meta">
-          <div class="track-artist">Jordan Miles</div>
-          <div class="track-title">Golden Hour · Self-released · 2023</div>
-          <div class="track-badges" style="margin-top:7px;">
-            <span class="t-badge tb-spotify">SPOTIFY ARTIST</span>
-            <span class="t-badge tb-apple">APPLE MUSIC</span>
-            <span class="t-badge tb-isrc">ISRC: NOT FOUND</span>
-            <span class="t-badge tb-warn">⚠ HIGH RISK</span>
+      <div class="sb-upgrade" id="sb-upgrade">
+        <!-- populated by dashboard.js -->
+      </div>
+
+      <div class="sb-user" id="sb-user">
+        <!-- populated by dashboard.js -->
+      </div>
+
+      <div class="sb-foot">
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Need help?</a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Contact Support</a>
+      </div>
+    </aside>
+
+    <!-- ───── MAIN ───── -->
+    <main class="main">
+
+      <header class="page-hd fade-in">
+        <div class="page-hd-left">
+          <div class="welcome-eyebrow"><span class="blink">●</span> Live Monitoring</div>
+          <h1 class="welcome-h1">Welcome back, <span id="artist-name">—</span> <span class="wave">👋</span></h1>
+          <p class="welcome-sub" id="welcome-sub">Here's what we found in your royalty setup.</p>
+        </div>
+        <div class="page-hd-right">
+          <a href="/" class="scan-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Run New Scan
+          </a>
+          <button class="bell-btn" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="bell-count" id="bell-count">0</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- ─── HERO BANNER ─── -->
+      <section class="hero-banner fade-in d1" id="hero-banner">
+        <!-- score block -->
+        <div class="hero-score-block">
+          <div class="score-ring">
+            <svg width="88" height="88" viewBox="0 0 88 88">
+              <circle cx="44" cy="44" r="38" fill="none" stroke="rgba(138,92,255,0.1)" stroke-width="6"/>
+              <circle id="score-arc" cx="44" cy="44" r="38" fill="none" stroke="url(#score-grad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="238.76" stroke-dashoffset="238.76"/>
+              <defs>
+                <linearGradient id="score-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#8a5cff"/>
+                  <stop offset="100%" stop-color="#e040c8"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="score-ring-inner">
+              <div class="score-ring-val" id="score-val">—</div>
+              <div class="score-ring-lbl">Score</div>
+            </div>
+          </div>
+          <div class="hero-score-info">
+            <div class="hero-score-tag">Overall Score</div>
+            <div class="hero-score-h" id="score-headline">Loading…</div>
+            <button class="hero-score-link" data-jump="issues">
+              See what's missing
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
           </div>
         </div>
-        <div class="track-score">
-          <div class="ts-num">41</div>
-          <div class="ts-lbl">// Audit score / 100</div>
+
+        <aside class="hero-identity" id="hero-identity">
+          <!-- populated by dashboard.js (renderHeroIdentity) -->
+        </aside>
+
+        <div class="hero-stat">
+          <div class="hero-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="hero-stat-body">
+            <div class="hero-stat-lbl">Est. Revenue at Risk</div>
+            <div class="hero-stat-val" id="stat-revenue">—</div>
+            <div class="hero-stat-sub high" id="stat-revenue-tier">—</div>
+          </div>
         </div>
+
+        <div class="hero-stat">
+          <div class="hero-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="hero-stat-body">
+            <div class="hero-stat-lbl">Issues Found</div>
+            <div class="hero-stat-val" id="stat-issues">—</div>
+            <div class="hero-stat-sub bad">Needs attention</div>
+          </div>
+        </div>
+
+        <div class="hero-stat">
+          <div class="hero-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="hero-stat-body">
+            <div class="hero-stat-lbl">Things Working</div>
+            <div class="hero-stat-val" id="stat-working">—</div>
+            <div class="hero-stat-sub good">Verified</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── VERIFIED STRIP ─── -->
+      <div class="verified-strip fade-in d2">
+        <span class="verified-strip-ico">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+        <strong>Verified across 10+ data sources</strong>
+        <span class="dot-sep">·</span>
+        <span>No estimates</span>
+        <span class="dot-sep">·</span>
+        <span>No guesswork</span>
       </div>
 
-      <!-- DISCLAIMER -->
-      <div class="disc-bar">
-        <span class="disc-bar-icon">ℹ</span>
-        <div class="disc-bar-text"><strong>About this report:</strong> Royaltē detects likely risks, gaps, and opportunities using publicly available metadata. We do not access private royalty statements or confirm unpaid amounts. Flags marked "possible" or "likely" require verification with your distributor or PRO. This is an audit intelligence report — not a guarantee of financial recovery.</div>
-      </div>
-
-      <!-- UPGRADE BANNER — $4.99 as primary CTA -->
-      <div class="upgrade-banner">
-        <div class="ub-text">
-          <div class="ub-title">You're seeing a preview — 2 of 4 flags hidden</div>
-          <div class="ub-desc">Your audit score is 41/100. We found 4 risk flags — you can see 2 of them. Pay $4.99 once to unlock the full 6-module report, all flags, and your recommended action plan. No subscription needed.</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
-          <button class="ub-btn" onclick="showPaywall('single')">See full report — $4.99</button>
-          <button style="background:transparent;border:1px solid rgba(138,92,255,0.3);color:var(--muted2);padding:8px 16px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:'Space Grotesk',sans-serif;" onclick="showPaywall('monthly')">Or subscribe — $9.99/mo unlimited</button>
-        </div>
-      </div>
-
-      <!-- MODULE SCORES + FLAGS -->
-      <div class="score-flags-row">
-        <!-- Module scores -->
-        <div class="card" style="animation-delay:0.1s;">
+      <!-- ─── REVENUE + RECENT SCAN ─── -->
+      <div class="grid-2">
+        <!-- Revenue at Risk -->
+        <section class="card fade-in d3">
           <div class="card-hd">
-            <div class="card-title">// Module scores</div>
-            <span class="cbadge cb-red">Action needed</span>
+            <h2 class="card-title">
+              Estimated Unclaimed Royalties
+              <svg class="card-title-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </h2>
+            <button class="range-select">
+              <span id="rev-range-label">Last 6 Months</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
           </div>
-          <div class="mod-scores">
-            <div class="ms-card">
-              <div class="ms-dot" style="background:var(--red)"></div>
-              <div class="ms-name">Metadata Integrity</div>
-              <div class="ms-bar"><div class="ms-fill" style="width:35%;background:var(--red)"></div></div>
-              <div class="ms-val" style="color:var(--red)">35%</div>
-              <div class="ms-status" style="background:rgba(240,80,96,0.1);color:var(--red)">HIGH RISK</div>
-            </div>
-            <div class="ms-card">
-              <div class="ms-dot" style="background:var(--amb)"></div>
-              <div class="ms-name">Platform Coverage</div>
-              <div class="ms-bar"><div class="ms-fill" style="width:60%;background:var(--amb)"></div></div>
-              <div class="ms-val" style="color:var(--amb)">60%</div>
-              <div class="ms-status" style="background:rgba(240,192,64,0.1);color:var(--amb)">PARTIAL</div>
-            </div>
-            <div class="ms-card">
-              <div class="ms-dot" style="background:var(--red)"></div>
-              <div class="ms-name">Publishing Risk</div>
-              <div class="ms-bar"><div class="ms-fill" style="width:20%;background:var(--red)"></div></div>
-              <div class="ms-val" style="color:var(--red)">High</div>
-              <div class="ms-status" style="background:rgba(240,80,96,0.1);color:var(--red)">🔒 PRO</div>
-            </div>
-            <div class="ms-card">
-              <div class="ms-dot" style="background:var(--amb)"></div>
-              <div class="ms-name">Duplicate Detection</div>
-              <div class="ms-bar"><div class="ms-fill" style="width:55%;background:var(--amb)"></div></div>
-              <div class="ms-val" style="color:var(--amb)">55%</div>
-              <div class="ms-status" style="background:rgba(240,192,64,0.1);color:var(--amb)">🔒 PRO</div>
-            </div>
-            <div class="ms-card">
-              <div class="ms-dot" style="background:var(--grn)"></div>
-              <div class="ms-name">YouTube / UGC</div>
-              <div class="ms-bar"><div class="ms-fill" style="width:78%;background:var(--grn)"></div></div>
-              <div class="ms-val" style="color:var(--grn)">78%</div>
-              <div class="ms-status" style="background:rgba(64,240,160,0.1);color:var(--grn)">🔒 PRO</div>
-            </div>
-            <div class="ms-card">
-              <div class="ms-dot" style="background:var(--amb)"></div>
-              <div class="ms-name">Sync Readiness</div>
-              <div class="ms-bar"><div class="ms-fill" style="width:42%;background:var(--amb)"></div></div>
-              <div class="ms-val" style="color:var(--amb)">42%</div>
-              <div class="ms-status" style="background:rgba(240,192,64,0.1);color:var(--amb)">🔒 PRO</div>
-            </div>
-          </div>
-        </div>
+          <p class="card-sub">Based on verified gaps in your setup</p>
 
-        <!-- Risk flags -->
-        <div class="card flags-panel" style="animation-delay:0.15s;padding:14px;">
-          <div class="flags-header">
-            <div class="card-title">// Risk flags detected</div>
-            <span class="cbadge cb-red">4 flags</span>
+          <div class="rev-headline">
+            <div class="rev-amount" id="rev-amount">—</div>
+            <div class="rev-tier-pill high" id="rev-tier-pill">—</div>
           </div>
-          <div class="flag-item">
-            <div class="fi-sev high">⚠</div>
-            <div class="fi-body">
-              <div class="fi-title">ISRC not found across sources</div>
-              <div class="fi-desc">No ISRC identifier detected on Spotify or MusicBrainz. Streams may not be tracked correctly for performance royalty reporting.</div>
-              <div class="fi-mod">// Metadata Integrity Module</div>
+          <p class="rev-sub" id="rev-sub">Exact recovery amount requires full audit review</p>
+
+          <div class="rev-chart">
+            <svg viewBox="0 0 600 180" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="rev-area" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#8a5cff" stop-opacity="0.32"/>
+                  <stop offset="100%" stop-color="#8a5cff" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="rev-line" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#8a5cff"/>
+                  <stop offset="100%" stop-color="#e040c8"/>
+                </linearGradient>
+              </defs>
+              <!-- gridlines -->
+              <line x1="0" y1="40" x2="600" y2="40" stroke="rgba(138,92,255,0.06)" stroke-width="1"/>
+              <line x1="0" y1="90" x2="600" y2="90" stroke="rgba(138,92,255,0.06)" stroke-width="1"/>
+              <line x1="0" y1="140" x2="600" y2="140" stroke="rgba(138,92,255,0.06)" stroke-width="1"/>
+              <!-- area + line populated by JS -->
+              <path id="rev-area-path" d="" fill="url(#rev-area)"/>
+              <path id="rev-line-path" d="" fill="none" stroke="url(#rev-line)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- x-axis labels populated by JS -->
+              <g id="rev-x-labels"></g>
+              <!-- y-axis labels (decorative tier-based) -->
+              <text x="6" y="44" font-family="Space Mono" font-size="9" fill="#8480a8" letter-spacing="0.08em">HIGH</text>
+              <text x="6" y="94" font-family="Space Mono" font-size="9" fill="#8480a8" letter-spacing="0.08em">MED</text>
+              <text x="6" y="144" font-family="Space Mono" font-size="9" fill="#8480a8" letter-spacing="0.08em">LOW</text>
+            </svg>
+          </div>
+
+          <div class="rev-helper">
+            <div class="rev-helper-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             </div>
-            <span class="fi-sev-badge fsb-high">HIGH</span>
-          </div>
-          <div class="flag-item">
-            <div class="fi-sev high">⚠</div>
-            <div class="fi-body">
-              <div class="fi-title">No songwriter / composer data found</div>
-              <div class="fi-desc">No writer credits detected in public metadata across Spotify or MusicBrainz. Possible publishing risk — performance royalties may not route correctly.</div>
-              <div class="fi-mod">// Publishing Risk Module</div>
+            <div class="rev-helper-t">
+              <strong>You could be losing thousands in unclaimed royalties.</strong> Fix the issues below to stop the leaks.
             </div>
-            <span class="fi-sev-badge fsb-high">HIGH</span>
           </div>
-          <div class="flag-item">
-            <div class="fi-sev med">◈</div>
-            <div class="fi-body">
-              <div class="fi-title">Not found on Apple Music</div>
-              <div class="fi-desc">Track / artist not detected on Apple Music. Possible distribution gap or metadata mismatch preventing match.</div>
-              <div class="fi-mod">// Platform Coverage Module</div>
+        </section>
+
+        <!-- Recent Scan -->
+        <section class="card recent-scan fade-in d4">
+          <div class="card-hd">
+            <h2 class="card-title">Recent Scan</h2>
+          </div>
+          <p class="recent-scan-meta" id="recent-scan-meta">—</p>
+
+          <div class="scan-status">
+            <div class="scan-status-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <span class="fi-sev-badge fsb-med">MEDIUM</span>
-          </div>
-          <div class="flag-item">
-            <div class="fi-sev med">◈</div>
-            <div class="fi-body">
-              <div class="fi-title">Possible title variant / fragmentation</div>
-              <div class="fi-desc">Similar title detected with conflicting metadata across sources. May indicate catalog fragmentation or duplicate upload.</div>
-              <div class="fi-mod">// Duplicate Detection Module</div>
+            <div class="scan-status-text">
+              <div class="scan-status-h">Scan completed</div>
+              <div class="scan-status-d">We analyzed your setup across 10+ verified data sources</div>
             </div>
-            <span class="fi-sev-badge fsb-med">MEDIUM</span>
           </div>
-        </div>
+
+          <button class="scan-btn" data-jump="report" style="background:var(--grad);">
+            View Full Audit Report
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+
+          <div class="next-scan">
+            <span class="next-scan-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+            <span class="next-scan-text">Next recommended scan: <strong id="next-scan-date">—</strong></span>
+          </div>
+        </section>
       </div>
 
-      <!-- PLATFORM COVERAGE + METADATA -->
-      <div class="two-col">
-        <div class="card">
+      <!-- ─── ISSUES + ACTION PLAN ─── -->
+      <div class="grid-2-eq">
+        <!-- Top Issues -->
+        <section class="card fade-in d5" id="issues-card">
           <div class="card-hd">
-            <div class="card-title">// Platform coverage</div>
-            <span class="cbadge cb-amb">Partial</span>
+            <h2 class="card-title">
+              Top Issues Found
+              <span class="card-pill count" id="issues-count">0</span>
+            </h2>
+            <button class="view-all">
+              View All Issues
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
           </div>
-          <div class="plat-row">
-            <div class="plat-ico" style="background:rgba(29,185,84,0.1);">🟢</div>
-            <div class="plat-name">Spotify</div>
-            <div class="plat-status ps-found">FOUND</div>
-            <div class="plat-conf">94%</div>
-          </div>
-          <div class="plat-row">
-            <div class="plat-ico" style="background:rgba(252,60,68,0.1);">🔴</div>
-            <div class="plat-name">Apple Music</div>
-            <div class="plat-status ps-notfound">NOT FOUND</div>
-            <div class="plat-conf">—</div>
-          </div>
-          <div class="plat-row">
-            <div class="plat-ico" style="background:rgba(255,0,0,0.1);">▶️</div>
-            <div class="plat-name">YouTube</div>
-            <div class="plat-status ps-partial">PARTIAL</div>
-            <div class="plat-conf">61%</div>
-          </div>
-          <div class="plat-row">
-            <div class="plat-ico" style="background:rgba(138,92,255,0.1);">🔵</div>
-            <div class="plat-name">MusicBrainz</div>
-            <div class="plat-status ps-notfound">NOT FOUND</div>
-            <div class="plat-conf">—</div>
-          </div>
-          <div class="plat-row">
-            <div class="plat-ico" style="background:rgba(0,180,230,0.1);">🔷</div>
-            <div class="plat-name">Tidal</div>
-            <div class="plat-status ps-found">FOUND</div>
-            <div class="plat-conf">88%</div>
-          </div>
-        </div>
 
-        <div class="card">
+          <div class="issues-list" id="issues-list">
+            <!-- populated by dashboard.js -->
+          </div>
+
+          <button class="issues-foot" id="issues-foot" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span id="issues-foot-text">— more issues</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </section>
+
+        <!-- Action Plan -->
+        <section class="card fade-in d6">
           <div class="card-hd">
-            <div class="card-title">// Metadata integrity check</div>
-            <span class="cbadge cb-red">Issues found</span>
+            <h2 class="card-title">Action Plan</h2>
           </div>
-          <div class="meta-row">
-            <div class="meta-icon">✓</div>
-            <div class="meta-field">Artist name</div>
-            <div class="meta-val">Jordan Miles</div>
-            <div class="meta-status" style="background:rgba(64,240,160,0.1);color:var(--grn)">OK</div>
+          <p class="card-sub">Fix these to recover your revenue</p>
+
+          <div class="action-list" id="action-list">
+            <!-- populated by dashboard.js -->
           </div>
-          <div class="meta-row">
-            <div class="meta-icon">✓</div>
-            <div class="meta-field">Track title</div>
-            <div class="meta-val">Golden Hour</div>
-            <div class="meta-status" style="background:rgba(64,240,160,0.1);color:var(--grn)">OK</div>
-          </div>
-          <div class="meta-row">
-            <div class="meta-icon">⚠</div>
-            <div class="meta-field">ISRC</div>
-            <div class="meta-val" style="color:var(--red)">Not found</div>
-            <div class="meta-status" style="background:rgba(240,80,96,0.1);color:var(--red)">MISSING</div>
-          </div>
-          <div class="meta-row">
-            <div class="meta-icon">⚠</div>
-            <div class="meta-field">Songwriter data</div>
-            <div class="meta-val" style="color:var(--red)">Not found</div>
-            <div class="meta-status" style="background:rgba(240,80,96,0.1);color:var(--red)">MISSING</div>
-          </div>
-          <div class="meta-row">
-            <div class="meta-icon">◈</div>
-            <div class="meta-field">Release date</div>
-            <div class="meta-val" style="color:var(--amb)">Conflict</div>
-            <div class="meta-status" style="background:rgba(240,192,64,0.1);color:var(--amb)">CONFLICT</div>
-          </div>
-          <div class="meta-row">
-            <div class="meta-icon">✓</div>
-            <div class="meta-field">Explicit flag</div>
-            <div class="meta-val">Clean</div>
-            <div class="meta-status" style="background:rgba(64,240,160,0.1);color:var(--grn)">OK</div>
-          </div>
-        </div>
+
+          <button class="action-foot-btn">
+            View Full Action Plan
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </section>
       </div>
 
-      <!-- TERRITORY COVERAGE AUDIT -->
-      <div class="card" style="margin-bottom:14px;animation-delay:0.28s;">
+      <!-- ─── PLATFORMS ─── -->
+      <section class="card platforms-card fade-in d6">
         <div class="card-hd">
-          <div class="card-title">// Territory coverage audit</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <span class="cbadge cb-red">2 not registered</span>
-            <span class="cbadge cb-amb">1 pending</span>
-          </div>
-        </div>
-        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:0.06em;margin-bottom:12px;line-height:1.5;">// Streams detected in these territories. Flags show where you may not be collecting performance royalties due to missing PRO registration.</div>
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border3);border:1px solid var(--border3);border-radius:4px;overflow:hidden;">
-
-          <!-- Header row -->
-          <div style="display:grid;grid-template-columns:28px 1fr 80px 90px;gap:0;background:var(--bg4);padding:8px 12px;grid-column:span 2;">
-            <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;"></div>
-            <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;">Territory</div>
-            <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;text-align:right;">Streams</div>
-            <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;text-align:right;">PRO Status</div>
-          </div>
-
-          <!-- Rows — left column -->
-          <div style="background:var(--bg4);">
-            <div class="terr-row-audit" style="background:transparent;">
-              <span class="tf">🇺🇸</span><span class="tn">United States</span><span class="ts-v">3.1M</span><span class="ta ts-ok-a">REGISTERED</span>
-            </div>
-            <div class="terr-row-audit">
-              <span class="tf">🇬🇧</span><span class="tn">United Kingdom</span><span class="ts-v">1.2M</span><span class="ta ts-ok-a">REGISTERED</span>
-            </div>
-            <div class="terr-row-audit" style="background:rgba(240,80,96,0.04);">
-              <span class="tf">🇩🇪</span><span class="tn">Germany</span><span class="ts-v">980K</span><span class="ta ts-bad-a">NOT REGISTERED</span>
-            </div>
-            <div class="terr-row-audit">
-              <span class="tf">🇦🇺</span><span class="tn">Australia</span><span class="ts-v">620K</span><span class="ta ts-ok-a">REGISTERED</span>
-            </div>
-          </div>
-
-          <!-- Rows — right column -->
-          <div style="background:var(--bg4);border-left:1px solid var(--border3);">
-            <div class="terr-row-audit">
-              <span class="tf">🇨🇦</span><span class="tn">Canada</span><span class="ts-v">440K</span><span class="ta ts-ok-a">REGISTERED</span>
-            </div>
-            <div class="terr-row-audit" style="background:rgba(240,192,64,0.04);">
-              <span class="tf">🇫🇷</span><span class="tn">France</span><span class="ts-v">280K</span><span class="ta ts-pend-a">PENDING</span>
-            </div>
-            <div class="terr-row-audit" style="background:rgba(240,80,96,0.04);">
-              <span class="tf">🇧🇷</span><span class="tn">Brazil</span><span class="ts-v">190K</span><span class="ta ts-bad-a">NOT REGISTERED</span>
-            </div>
-            <div class="terr-row-audit">
-              <span class="tf">🇯🇵</span><span class="tn">Japan</span><span class="ts-v">140K</span><span class="ta ts-ok-a">REGISTERED</span>
-            </div>
-          </div>
+          <h2 class="card-title">
+            Your Platforms
+            <span class="platforms-meta" id="platforms-meta">— of —</span>
+          </h2>
+          <button class="manage-link">
+            Manage Connections
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
         </div>
 
-        <!-- Flag callout -->
-        <div style="margin-top:12px;background:rgba(240,80,96,0.06);border:1px solid rgba(240,80,96,0.18);border-radius:4px;padding:11px 14px;display:flex;align-items:flex-start;gap:10px;">
-          <div style="width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:3px;animation:pulse 2s infinite;"></div>
-          <div style="font-size:11px;color:var(--text);line-height:1.5;flex:1;"><strong style="color:var(--red);">Germany flagged — likely GEMA registration gap.</strong> 980K streams detected with no matching PRO registration. This is a possible performance royalty risk. Register at gema.de or contact your distributor.</div>
-          <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--red);font-weight:700;flex-shrink:0;cursor:pointer;">FIX →</div>
+        <div class="platforms-grid" id="platforms-grid">
+          <!-- populated by dashboard.js -->
         </div>
-        <div style="margin-top:8px;background:rgba(240,192,64,0.05);border:1px solid rgba(240,192,64,0.15);border-radius:4px;padding:10px 14px;display:flex;align-items:flex-start;gap:10px;">
-          <div style="width:7px;height:7px;border-radius:50%;background:var(--amb);flex-shrink:0;margin-top:3px;"></div>
-          <div style="font-size:11px;color:var(--muted2);line-height:1.5;flex:1;"><strong style="color:var(--amb);">France — registration pending.</strong> SACEM registration submitted but not yet confirmed. Follow up if outstanding more than 30 days.</div>
-        </div>
-        <div style="margin-top:10px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.06em;line-height:1.5;">// Stream data is indicative only. Territory registration status is inferred from publicly available metadata — not verified from private PRO records. Confirm with your PRO directly.</div>
+      </section>
+
+      <!-- ─── FOOTER NOTE ─── -->
+      <div class="foot-note">
+        <span class="foot-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        Royaltē <u>does not</u> collect money. <strong>We identify problems and give you the action plan to fix them.</strong>
       </div>
 
-      <!-- RECOMMENDED ACTIONS -->
-      <div class="actions-card">
-        <div class="card-hd" style="margin-bottom:12px;">
-          <div class="card-title">// Recommended actions</div>
-          <span class="cbadge cb-pur">3 actions</span>
-        </div>
-        <div class="action-item">
-          <div class="action-num">01</div>
-          <div class="action-body">
-            <div class="action-title">Register ISRC with your distributor</div>
-            <div class="action-desc">Contact your distributor (DistroKid, TuneCore, etc.) and request an ISRC for this recording. Without it, streams may not attribute correctly to performance royalty systems.</div>
-          </div>
-          <div class="action-impact ai-high">HIGH IMPACT</div>
-        </div>
-        <div class="action-item">
-          <div class="action-num">02</div>
-          <div class="action-body">
-            <div class="action-title">Add songwriter / composer credits to your distributor</div>
-            <div class="action-desc">Ensure songwriter and composer data is filed with your PRO (ASCAP, BMI, PRS, etc.) and with your distributor metadata. Missing credits are a publishing risk indicator.</div>
-          </div>
-          <div class="action-impact ai-high">HIGH IMPACT</div>
-        </div>
-        <div class="action-item">
-          <div class="action-num">03</div>
-          <div class="action-body">
-            <div class="action-title">Investigate Apple Music absence</div>
-            <div class="action-desc">Your track was not detected on Apple Music. Confirm with your distributor that the release was submitted to Apple and check for metadata mismatches that may be preventing a match.</div>
-          </div>
-          <div class="action-impact ai-med">MEDIUM IMPACT</div>
-        </div>
-      </div>
-
-    </div><!-- /content -->
-  </div><!-- /main -->
-</div><!-- /layout -->
-<!-- PAYWALL MODAL -->
-<div id="paywall-overlay" style="display:none;position:fixed;inset:0;background:rgba(3,3,10,0.88);z-index:1000;backdrop-filter:blur(8px);align-items:center;justify-content:center;">
-  <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;width:100%;max-width:520px;margin:20px;position:relative;overflow:hidden;">
-    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);"></div>
-    <div style="padding:28px 28px 0;">
-      <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);letter-spacing:0.16em;margin-bottom:14px;">// UNLOCK YOUR FULL AUDIT REPORT</div>
-      <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;text-transform:uppercase;margin-bottom:8px;">Your score is 41/100.<br>We found 4 risk flags.</div>
-      <div style="font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:24px;">You've seen 2 of them. The other 2 — including a likely publishing risk on your biggest track — are locked. Choose how you want to proceed.</div>
-    </div>
-
-    <!-- Two options side by side -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
-      <!-- Option A: $4.99 -->
-      <div id="opt-single" style="background:var(--bg4);padding:22px;cursor:pointer;transition:background 0.15s;border:2px solid var(--pur);" onclick="selectPlan('single')">
-        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--pur);letter-spacing:0.14em;margin-bottom:10px;">// BEST FIRST STEP</div>
-        <div style="font-family:'Space Mono',monospace;font-size:32px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:6px;">$4.99</div>
-        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;">Single full audit</div>
-        <div style="font-size:11px;color:var(--muted2);line-height:1.5;">One-time. No subscription. See this full report right now. All 4 flags, all 6 modules, PDF download.</div>
-        <div style="margin-top:12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--grn);">✓ No commitment</div>
-      </div>
-      <!-- Option B: $9.99/mo -->
-      <div id="opt-monthly" style="background:var(--bg3);padding:22px;cursor:pointer;transition:background 0.15s;" onclick="selectPlan('monthly')">
-        <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.14em;margin-bottom:10px;">// UNLIMITED</div>
-        <div style="font-family:'Space Mono',monospace;font-size:32px;font-weight:700;color:var(--text);line-height:1;margin-bottom:6px;">$9.99<span style="font-size:14px;color:var(--muted);font-weight:400;">/mo</span></div>
-        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;">Artist Pro · Unlimited</div>
-        <div style="font-size:11px;color:var(--muted2);line-height:1.5;">Unlimited audits, whole catalog, ongoing monitoring. Or pay $99/year — save 2 months.</div>
-        <div style="margin-top:12px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);">14-day free trial included</div>
-      </div>
-    </div>
-
-    <div style="padding:20px 28px;display:flex;align-items:center;gap:14px;">
-      <button id="paywall-cta" onclick="processPayment()" style="flex:1;padding:13px;background:var(--grad);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Get full report — $4.99</button>
-      <button onclick="closePaywall()" style="background:transparent;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:'Space Mono',monospace;letter-spacing:0.08em;">Cancel</button>
-    </div>
-    <div style="padding:0 28px 18px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.06em;line-height:1.5;">// Powered by Stripe · Secure payment · Instant access after purchase · Cancel anytime for subscriptions</div>
+    </main>
   </div>
-</div>
 
-<script>
-let selectedPlan = 'single';
-function showPaywall(plan){
-  selectedPlan = plan || 'single';
-  document.getElementById('paywall-overlay').style.display='flex';
-  selectPlan(selectedPlan);
-}
-function selectPlan(plan){
-  selectedPlan = plan;
-  const single = document.getElementById('opt-single');
-  const monthly = document.getElementById('opt-monthly');
-  const cta = document.getElementById('paywall-cta');
-  if(plan === 'single'){
-    single.style.border='2px solid var(--pur)';
-    monthly.style.border='2px solid transparent';
-    cta.textContent='Get full report — $4.99';
-  } else {
-    monthly.style.border='2px solid var(--pur)';
-    single.style.border='2px solid transparent';
-    cta.textContent='Start free trial — $9.99/mo';
-  }
-}
-function closePaywall(){
-  document.getElementById('paywall-overlay').style.display='none';
-}
-function processPayment(){
-  const cta = document.getElementById('paywall-cta');
-  cta.textContent='Processing...';
-  setTimeout(()=>{
-    closePaywall();
-    // In production: redirect to Stripe checkout
-    // For demo: show unlocked state
-    unlockReport();
-  },1500);
-}
-function unlockReport(){
-  // Remove upgrade banner
-  const banner = document.querySelector('.upgrade-banner');
-  if(banner) banner.style.display='none';
-  // Unlock all locked module badges
-  document.querySelectorAll('.ms-status').forEach(el=>{
-    if(el.textContent.includes('🔒')){
-      const val = el.previousElementSibling?.textContent;
-      el.textContent = val > 60 ? 'GOOD' : val > 40 ? 'REVIEW' : 'RISK';
-      el.style.background='rgba(64,240,160,0.1)';
-      el.style.color='var(--grn)';
-    }
-  });
-  // Show success toast
-  const toast = document.createElement('div');
-  toast.style.cssText='position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid rgba(64,240,160,0.3);border-radius:6px;padding:14px 18px;z-index:2000;font-family:Space Mono,monospace;font-size:11px;color:var(--grn);letter-spacing:0.08em;animation:fadeUp 0.3s ease forwards;';
-  toast.textContent='✓ Full report unlocked';
-  document.body.appendChild(toast);
-  setTimeout(()=>toast.remove(),3000);
-}
-// Allow clicking overlay to close
-document.getElementById('paywall-overlay').addEventListener('click',function(e){
-  if(e.target===this) closePaywall();
-});
-</script>
+  <script src="dashboard.js"></script>
 </body>
 </html>
