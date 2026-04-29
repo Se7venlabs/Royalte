@@ -130,23 +130,36 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .hero-stat-sub.bad{color:var(--red);}
 
 /* ─── ARTIST IDENTITY CARD (inside hero-banner middle slot) ─── */
-.hero-identity{background:rgba(7,7,15,0.55);border:1px solid var(--border2);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;align-self:stretch;justify-content:center;min-width:0;}
+.hero-identity{background:rgba(7,7,15,0.55);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;position:relative;overflow:hidden;align-self:stretch;justify-content:center;min-width:0;max-width:340px;}
 .hero-identity::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(138,92,255,0.06) 0%,transparent 70%);pointer-events:none;}
 .hi-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0;position:relative;}
 .hi-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);flex-shrink:0;}
-.hi-name{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;}
-.hi-resolved{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:500;color:var(--text2);letter-spacing:0.01em;line-height:1.3;}
-.hi-status{display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:11px;color:var(--grn);letter-spacing:0.05em;}
+.hi-name{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;}
+.hi-resolved{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;color:var(--text2);letter-spacing:0.01em;line-height:1.3;}
+.hi-status{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;color:var(--grn);letter-spacing:0.05em;margin-top:1px;}
 .hi-status.limited{color:var(--amb);}
-.hi-status svg{width:11px;height:11px;flex-shrink:0;}
+.hi-status svg{width:10px;height:10px;flex-shrink:0;}
 .hi-status .pulse-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite;flex-shrink:0;}
-.hi-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;position:relative;}
-.hi-pill{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 9px;border-radius:100px;letter-spacing:0.06em;}
+.hi-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px;position:relative;}
+.hi-pill{display:inline-flex;align-items:center;gap:4px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 7px;border-radius:100px;letter-spacing:0.06em;}
 .hi-pill.verified{background:rgba(64,240,160,0.08);color:var(--grn);border:1px solid rgba(64,240,160,0.28);}
 .hi-pill.limited{background:rgba(240,192,64,0.08);color:var(--amb);border:1px solid rgba(240,192,64,0.28);}
-.hi-pill svg{width:10px;height:10px;flex-shrink:0;}
-.hi-fallback{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;letter-spacing:0.06em;background:rgba(240,192,64,0.08);color:var(--amb);border:1px solid rgba(240,192,64,0.28);width:fit-content;margin-top:2px;}
-.hi-fallback svg{width:10px;height:10px;flex-shrink:0;}
+.hi-pill svg{width:9px;height:9px;flex-shrink:0;}
+.hi-fallback{display:inline-flex;align-items:center;gap:4px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 7px;border-radius:100px;letter-spacing:0.06em;background:rgba(240,192,64,0.08);color:var(--amb);border:1px solid rgba(240,192,64,0.28);width:fit-content;margin-top:2px;}
+.hi-fallback svg{width:9px;height:9px;flex-shrink:0;}
+
+/* tiny artist avatar — sits inline with name, never dominates */
+.hi-name-row{display:flex;align-items:center;gap:9px;min-width:0;position:relative;}
+.hi-avatar{width:36px;height:36px;border-radius:6px;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,rgba(138,92,255,0.18),rgba(224,64,200,0.18));border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;position:relative;}
+.hi-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+.hi-avatar-initials{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.04em;line-height:1;}
+.hi-name-stack{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1;}
+.hi-name-stack .hi-label{margin-bottom:1px;}
+.hi-name-stack .hi-name{font-size:17px;}
+
+/* stale data banner */
+.hi-stale{display:flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:9px;color:var(--amb);letter-spacing:0.06em;margin-top:3px;padding-top:5px;border-top:1px dashed rgba(240,192,64,0.2);}
+.hi-stale svg{width:10px;height:10px;flex-shrink:0;}
 
 /* ─── VERIFIED STRIP ─── */
 .verified-strip{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;padding:12px 18px;background:rgba(64,240,160,0.04);border:1px solid rgba(64,240,160,0.18);border-radius:6px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.08em;color:var(--muted2);}
@@ -606,6 +619,6 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
     </main>
   </div>
 
-  <script src="dashboard.js"></script>
+  <script src="/js/dashboard.js"></script>
 </body>
 </html>
