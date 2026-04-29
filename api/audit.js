@@ -27,8 +27,55 @@ export default async function handler(req, res) {
     // canonical artist before the scan runs. The scan ALWAYS runs on the
     // artist — never on track or album.
     const resolved = await resolveToArtist(url, token);
-    if (!resolved || !resolved.artistId) {
+    if (!resolved) {
       return res.status(400).json({ error: 'Could not resolve this link to an artist. Please try a different link.' });
+    }
+
+    // ── DEGRADED PATH: Apple input with no Spotify match ────
+    // Per spec: DO NOT fail the scan. Return a success response with
+    // artistName from Apple and followers = -1 so the UI can show
+    // "Fans on streaming platforms" instead of an error.
+    if (!resolved.artistId) {
+      return res.status(200).json({
+        success: true,
+        platform: 'apple',
+        type: 'artist',
+        artistName: resolved.artistName,
+        artistId: null,
+        followers: -1,
+        popularity: 0,
+        genres: [],
+        trackTitle: null,
+        trackIsrc: null,
+        resolvedFrom:       resolved.resolvedFrom,
+        resolvedFromType:   resolved.resolvedFromType,
+        resolvedFromTitle:  resolved.resolvedFromTitle,
+        canonicalTarget:    'artist',
+        spotifyMatched:     false,
+        artistUrl:          null,
+        platforms: {
+          spotify: false, musicbrainz: false, deezer: false, audiodb: false,
+          discogs: false, soundcloud: false, lastfm: false, wikipedia: false,
+          youtube: false, appleMusic: false,
+        },
+        catalog: { totalReleases: 0, earliestYear: null, catalogAgeYears: 0, estimatedAnnualStreams: 0 },
+        royaltyGap: null,
+        proGuide: getPROGuide(null),
+        country: null,
+        lastfmPlays: 0,
+        lastfmListeners: 0,
+        wikipediaUrl: null,
+        deezerFans: 0,
+        discogsReleases: 0,
+        youtube: { found: false },
+        appleMusic: { found: false },
+        overallScore: 0,
+        modules: {},
+        flags: [],
+        flagCount: 0,
+        previewFlags: [],
+        scannedAt: new Date().toISOString(),
+      });
     }
 
     const artistId = resolved.artistId;
@@ -228,7 +275,16 @@ async function resolveToArtist(inputUrl, token) {
     if (!appleArtistName) {
       throw new Error('Could not resolve artist from Apple Music link');
     }
-    const spotifyArtist = await searchSpotifyArtistByName(appleArtistName, token);
+    // First attempt: search Spotify with the raw Apple name.
+    let spotifyArtist = await searchSpotifyArtistByName(appleArtistName, token);
+    // Conservative retry: strip parentheticals + collapse whitespace, keep case
+    // and stylized punctuation (P!nk, BØRNS, etc.).
+    if (!spotifyArtist) {
+      const cleaned = cleanArtistName(appleArtistName);
+      if (cleaned && cleaned !== appleArtistName) {
+        spotifyArtist = await searchSpotifyArtistByName(cleaned, token);
+      }
+    }
     if (spotifyArtist) {
       return {
         artistId:          spotifyArtist.id,
@@ -242,16 +298,17 @@ async function resolveToArtist(inputUrl, token) {
         canonicalTarget:   'artist',
       };
     }
-    // No Spotify match — return Apple-only minimal artist record.
-    // The audit pipeline downstream requires a Spotify artistId; without one
-    // the handler will surface a clean error. spotifyMatched:false flagged
-    // for any future caller that wants to handle this state directly.
+    // No Spotify match after retry. Per spec: DO NOT fail the scan.
+    // Return a degraded record with followers: -1 sentinel so the handler
+    // can ship a success response even though Spotify-dependent fields
+    // will be empty.
     return {
       artistId:          null,
       artistName:        appleArtistName,
       artistImage:       null,
       artistUrl:         null,
       spotifyMatched:    false,
+      followers:         -1,
       resolvedFrom:      'apple',
       resolvedFromType:  'external',
       resolvedFromTitle: appleArtistName,
@@ -260,6 +317,20 @@ async function resolveToArtist(inputUrl, token) {
   }
 
   throw new Error('Unsupported input type');
+}
+
+// ────────────────────────────────────────────────────────
+// CONSERVATIVE NAME CLEANING — strips parentheticals + whitespace only.
+// Keeps case, apostrophes, and stylized symbols intact so names like
+// "P!nk", "BØRNS", "Tyler, The Creator" still match where possible.
+// ────────────────────────────────────────────────────────
+function cleanArtistName(name) {
+  if (!name) return '';
+  return String(name)
+    .replace(/\([^)]*\)/g, '')   // strip "(feat. X)", "(Deluxe)", etc.
+    .replace(/\[[^\]]*\]/g, '')  // strip "[Bonus Track]" style brackets too
+    .replace(/\s+/g, ' ')         // collapse whitespace
+    .trim();
 }
 
 // ────────────────────────────────────────────────────────
