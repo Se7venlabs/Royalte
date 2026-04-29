@@ -243,9 +243,9 @@ function renderSidebar(data) {
   // upgrade card
   document.getElementById("sb-upgrade").innerHTML = `
     <div class="sb-upgrade-ico">${ICONS.upgrade}</div>
-    <div class="sb-upgrade-t">Stop the revenue leaks</div>
-    <div class="sb-upgrade-d">Get continuous monitoring, <strong>real-time alerts</strong>, and protect your royalties.</div>
-    <button class="sb-upgrade-btn" data-action="upgrade">Upgrade &amp; Protect</button>
+    <div class="sb-upgrade-t">Unlock Full Audit</div>
+    <div class="sb-upgrade-d">See <strong>every issue</strong>, the <strong>full action plan</strong>, and your complete recovery roadmap.</div>
+    <button class="sb-upgrade-btn" data-action="upgrade">Unlock Full Audit →</button>
   `;
 
   // user pill
@@ -473,11 +473,19 @@ function renderRecentScan(data) {
 
 function renderIssues(data) {
   const issues = data.issues || [];
-  const previewCount = 5;
-  const preview = issues.slice(0, previewCount);
-  const moreCount = Math.max(0, issues.length - previewCount);
+  const VISIBLE = 3; // V1 lock: only show top 3
+  const preview = issues.slice(0, VISIBLE);
 
-  document.getElementById("issues-count").textContent = data.stats.issuesFound + "";
+  // total count from stats (may be larger than issues.length if backend caps the array)
+  const total = Math.max(data.stats.issuesFound || 0, issues.length);
+  const visibleShown = Math.min(preview.length, VISIBLE);
+  const hiddenCount = Math.max(0, total - visibleShown);
+
+  // pill format: "3 of 15"
+  const pill = document.getElementById("issues-count");
+  if (pill) {
+    pill.textContent = total > 0 ? `${visibleShown} of ${total}` : "0";
+  }
 
   const html = preview.map(issue => `
     <div class="issue-row" data-issue="${issue.id}">
@@ -495,13 +503,16 @@ function renderIssues(data) {
 
   document.getElementById("issues-list").innerHTML = html;
 
-  // "+ N more issues" footer
-  const foot = document.getElementById("issues-foot");
-  if (moreCount > 0) {
-    document.getElementById("issues-foot-text").textContent = `${moreCount} more issue${moreCount === 1 ? "" : "s"}`;
-    foot.style.display = "flex";
-  } else {
-    foot.style.display = "none";
+  // locked overflow row (replaces old "+ N more issues" footer)
+  const overflow = document.getElementById("issues-locked-overflow");
+  const overflowH = document.getElementById("issues-locked-h");
+  if (overflow && overflowH) {
+    if (hiddenCount > 0) {
+      overflowH.innerHTML = `🔒 ${hiddenCount} more issue${hiddenCount === 1 ? "" : "s"} hidden`;
+      overflow.style.display = "flex";
+    } else {
+      overflow.style.display = "none";
+    }
   }
 }
 
@@ -513,6 +524,9 @@ function renderIssues(data) {
 function renderActionPlan(data) {
   const actions = data.actionPlan || [];
 
+  // V1 lock: action plan is always rendered as a blurred preview, with
+  // .action-locked-overlay sitting on top. We still render the rows so
+  // the blur looks like real content rather than empty space.
   const html = actions.map(a => `
     <div class="action-row" data-step="${a.step}">
       <div class="action-num">${a.step}</div>
@@ -529,6 +543,45 @@ function renderActionPlan(data) {
   `).join("");
 
   document.getElementById("action-list").innerHTML = html;
+
+  // dynamic locked copy (shown by .action-locked-overlay)
+  const lockedD = document.getElementById("action-locked-d");
+  if (lockedD) {
+    const stepCount = actions.length || data.stats.issuesFound || 0;
+    lockedD.textContent = stepCount > 0
+      ? `${stepCount} step${stepCount === 1 ? "" : "s"} to recover unclaimed royalties — included in your Full Audit.`
+      : `Your full step-by-step plan to recover unclaimed royalties is in the Full Audit.`;
+  }
+}
+
+
+/* ─────────────────────────────────────────────
+   LOCK STRIP (between revenue row and issues row)
+   Surfaces dynamic counts of what's hidden + CTA.
+   ───────────────────────────────────────────── */
+
+function renderLockStrip(data) {
+  const strip = document.getElementById("lock-strip");
+  const desc  = document.getElementById("lock-strip-d");
+  if (!strip || !desc) return;
+
+  const totalIssues = Math.max(data.stats.issuesFound || 0, (data.issues || []).length);
+  const hiddenIssues = Math.max(0, totalIssues - 3);
+  const stepCount = (data.actionPlan || []).length;
+
+  const parts = [];
+  if (hiddenIssues > 0) parts.push(`<strong>${hiddenIssues} more issue${hiddenIssues === 1 ? "" : "s"}</strong>`);
+  if (stepCount > 0)    parts.push(`<strong>your ${stepCount}-step action plan</strong>`);
+  parts.push(`<strong>territory + sync detail</strong>`);
+
+  // graceful joiner: "A, B + C"
+  let body;
+  if (parts.length === 1) body = `Unlock ${parts[0]} with the Full Audit.`;
+  else if (parts.length === 2) body = `Unlock ${parts[0]} and ${parts[1]} with the Full Audit.`;
+  else body = `Unlock ${parts[0]}, ${parts[1]} and ${parts[parts.length - 1]} with the Full Audit.`;
+
+  desc.innerHTML = body;
+  strip.style.display = "flex";
 }
 
 
@@ -586,10 +639,17 @@ function wireInteractions() {
     console.log("[v1] nav →", link.dataset.nav);
   });
 
-  // upgrade button
+  // upgrade button (sidebar)
   document.querySelector("[data-action='upgrade']")?.addEventListener("click", () => {
-    // V2: link to Stripe checkout for Pro plan
-    window.location.href = "/#pricing";
+    // V1: route to homepage Full Audit form. Same destination as all unlock CTAs.
+    window.location.href = "/#request";
+  });
+
+  // unlock CTAs — log which surface fired, then let the <a href="/#request"> navigate naturally
+  document.querySelectorAll("[data-unlock]").forEach(el => {
+    el.addEventListener("click", () => {
+      console.log("[v1] unlock CTA →", el.getAttribute("data-unlock"));
+    });
   });
 
   // issue / action / platform tile clicks (V1: log only)
@@ -598,13 +658,21 @@ function wireInteractions() {
     const step     = e.target.closest("[data-step]");
     const platform = e.target.closest("[data-platform]");
     if (issue)    console.log("[v1] open issue", issue.dataset.issue);
-    if (step)     console.log("[v1] open action step", step.dataset.step);
+    // step rows live under the locked overlay — they're behind a blur and pointer-events:none on
+    // the preview, but we also short-circuit any leaked clicks just in case
+    if (step) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("[v1] action step locked — redirecting to unlock");
+      window.location.href = "/#request";
+      return;
+    }
     if (platform) console.log("[v1] manage platform", platform.dataset.platform);
   });
 
-  // "View All Issues" / "View Full Action Plan" — log only in V1
-  document.querySelectorAll(".view-all, .action-foot-btn, .issues-foot, .manage-link, [data-jump]")
-    .forEach(btn => btn.addEventListener("click", (e) => {
+  // "View All Issues" / "Manage Connections" / etc. — log clicks (real links navigate via href)
+  document.querySelectorAll(".view-all, .manage-link, [data-jump]")
+    .forEach(btn => btn.addEventListener("click", () => {
       console.log("[v1] CTA clicked:", btn.textContent.trim());
     }));
 }
@@ -1001,6 +1069,7 @@ function init() {
   renderHeroIdentity(data);
   renderRevenueCard(data);
   renderRecentScan(data);
+  renderLockStrip(data);
   renderIssues(data);
   renderActionPlan(data);
   renderPlatforms(data);
