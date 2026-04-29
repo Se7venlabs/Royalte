@@ -1360,12 +1360,22 @@ async function runAudit() {
 
   const isApple = isAppleMusicUrl(val);
   const urlType = detectUrlType(val);
-  const scanLabel = isApple ? '// Resolving Apple Music...' : urlType === 'track' ? '// Scanning track...' : urlType === 'album' ? '// Scanning album...' : '// Scanning...';
+  // ── ARTIST RESOLUTION SCAN COPY ──
+  // All inputs (track/album/apple) normalize to the artist before scanning.
+  const scanLabel =
+    isApple              ? '// Apple Music link detected — resolving artist profile…' :
+    urlType === 'track'  ? '// Track detected — resolving artist profile…' :
+    urlType === 'album'  ? '// Album detected — resolving artist profile…' :
+                           '// Scanning...';
   document.getElementById('hero-scan-label').textContent = scanLabel;
   const nameEl = document.getElementById('hero-artist-name');
   nameEl.classList.remove('is-idle');
   nameEl.textContent = 'Loading...';
-  document.getElementById('hero-artist-sub').textContent = isApple ? 'Matching to Spotify via ISRC...' : 'Fetching verified data...';
+  document.getElementById('hero-artist-sub').textContent =
+    isApple              ? 'Resolving artist profile…' :
+    urlType === 'track'  ? 'Resolving artist profile…' :
+    urlType === 'album'  ? 'Resolving artist profile…' :
+                           'Fetching verified data...';
 
   // Start the animation. It will run to 95% then HOLD with "Finalising results..."
   // until scan.complete() or scan.fail() is called below.
@@ -1660,10 +1670,10 @@ function showRealResults(data) {
   const scanMode   = data.scanMode || data.type || 'artist';
   const isApple    = data.sourcePlatform === 'apple_music';
 
-  let subText = `${followers} followers · Spotify`;
-  if (scanMode === 'track' && data.trackTitle) subText = `"${data.trackTitle}" · ${artistName}`;
-  else if (scanMode === 'album' && data.albumTitle) subText = `"${data.albumTitle}" · ${data.albumTrackCount || '?'} tracks`;
-  if (isApple) subText = (data.appleMusicSource?.albumName || data.appleMusicSource?.trackName || '') + ' · Matched via Apple Music';
+  // ── ARTIST-FIRST IDENTITY ──
+  // Track / album / Apple are only INPUT SHORTCUTS to find the artist.
+  // The artist is always the primary identity — never overridden by track/album/source.
+  const subText = `${followers} followers · Spotify`;
 
   updateHeroDashboard(artistName, subText, data.overallScore, data.royaltyRiskScore?.riskLevel);
   setUrlTypePill(isApple ? 'apple' : scanMode);
@@ -1672,21 +1682,36 @@ function showRealResults(data) {
   renderAuditCoverage(data.auditCoverage, data.scannedAt);
   renderTerritoryCoverage(data.territoryCoverage);
 
-  let tagText = `${artistName} · ${followers} followers`;
-  if (scanMode === 'track' && data.trackTitle) tagText = `${data.trackTitle} · ${artistName}`;
-  if (scanMode === 'album' && data.albumTitle)  tagText = `${data.albumTitle} · ${artistName}`;
-  if (isApple) tagText = artistName + ' · via Apple Music';
+  const tagText = `${artistName} · ${followers} followers`;
   document.getElementById('results-tag').textContent = tagText;
 
-  // Non-artist URL → show "matched to artist" hint.
-  // Prefer backend `resolvedFrom` if provided; otherwise fall back to existing scanMode.
+  // ── RESOLVED-FROM PILL ──
+  // Replaces the old "Matched to artist automatically" copy with explicit
+  // "Resolved from track / album / Apple Music link" context.
   const matchedNote = document.getElementById('results-matched-note');
   if (matchedNote) {
-    const resolvedFrom = data.resolvedFrom || null;
-    const wasNonArtist = resolvedFrom
-      ? (resolvedFrom !== 'artist')
-      : (scanMode && scanMode !== 'artist');
-    matchedNote.style.display = wasNonArtist ? 'inline-block' : 'none';
+    const rType  = data.resolvedFromType || null;
+    const rTitle = data.resolvedFromTitle || null;
+    const rFrom  = data.resolvedFrom || null;
+    let pillText = '';
+    if (rType === 'track' && rTitle) {
+      pillText = '// Resolved from track: ' + rTitle;
+    } else if (rType === 'album' && rTitle) {
+      pillText = '// Resolved from album: ' + rTitle;
+    } else if (rType === 'external' || rFrom === 'apple') {
+      pillText = '// Resolved from Apple Music link';
+    } else if (!rType && scanMode === 'track' && data.trackTitle) {
+      // Fallback if backend hasn't supplied resolvedFromType yet.
+      pillText = '// Resolved from track: ' + data.trackTitle;
+    } else if (!rType && scanMode === 'album' && data.albumTitle) {
+      pillText = '// Resolved from album: ' + data.albumTitle;
+    }
+    if (pillText) {
+      matchedNote.textContent = pillText;
+      matchedNote.style.display = 'inline-block';
+    } else {
+      matchedNote.style.display = 'none';
+    }
   }
 
   // Update hero module bars
@@ -1722,17 +1747,8 @@ function showRealResults(data) {
     { icon: '🔑', title: 'ISRC registration',   value: isrcStatus === 'REGISTERED' ? 'Registered' : isrcStatus === 'NOT REGISTERED' ? 'Not registered' : 'Artist scan — paste a track link', badge: isrcBadge, bt: isrcStatus, source: 'Spotify' },
   ];
 
-  if (scanMode === 'track' && data.trackTitle) {
-    cards[0] = { icon: '🎵', title: 'Track scanned', value: data.trackTitle, badge: 'rb-grn', bt: 'Verified', source: 'Spotify' };
-  }
-  if (scanMode === 'album' && data.albumTitle) {
-    cards[0] = { icon: '💿', title: 'Album scanned', value: data.albumTitle, badge: 'rb-grn', bt: 'Verified', source: 'Spotify' };
-    cards[1] = { icon: '🎵', title: 'Tracks on album', value: (data.albumTrackCount || '—') + ' tracks', badge: 'rb-grn', bt: 'Verified', source: 'Spotify' };
-  }
-  if (isApple && data.appleMusicSource) {
-    const src = data.appleMusicSource;
-    cards[0] = { icon: '🍎', title: 'Apple Music match', value: src.albumName || src.trackName || src.artistName || artistName, badge: 'rb-grn', bt: 'Matched', source: 'Apple Music' };
-  }
+  // ── ARTIST-FIRST: do NOT override the artist card with track/album/Apple identity. ──
+  // Resolution context (Resolved from track/album/Apple) lives in the matched-note pill above.
 
   buildCards(cards);
   buildFlags(data.flags || data.previewFlags || []);
