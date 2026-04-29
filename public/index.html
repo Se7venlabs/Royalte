@@ -1689,21 +1689,21 @@ function formatFollowers(n) {
 }
 
 // ── AUDIENCE SIGNAL PICKER ──
-// Trust over technical purity. Indie artists with low Spotify followers
+// Trust over technical purity. Indie artists with small Spotify followings
 // often have huge Last.fm listener history or Deezer fan counts. Show the
 // strongest honest signal, never "0 followers".
 //
 // Priority:
-//   1. Spotify followers > 1000     → "X followers"
+//   1. Spotify followers (any > 0)  → "X followers"   (12, 542, 219K, all valid)
 //   2. Last.fm listeners (any > 0)  → "X listeners"
 //   3. Deezer fans (any > 0)        → "X fans"
 //   4. Nothing usable                → "Fans on streaming platforms"
 //
 // The -1 sentinel from Apple-input + no Spotify match also routes to step 4.
 function pickAudienceSignal(data) {
-  const spotify = (typeof data.followers       === 'number' && data.followers       > 1000) ? data.followers       : null;
-  const lastfm  = (typeof data.lastfmListeners === 'number' && data.lastfmListeners > 0)    ? data.lastfmListeners : null;
-  const deezer  = (typeof data.deezerFans      === 'number' && data.deezerFans      > 0)    ? data.deezerFans      : null;
+  const spotify = (typeof data.followers       === 'number' && data.followers       > 0) ? data.followers       : null;
+  const lastfm  = (typeof data.lastfmListeners === 'number' && data.lastfmListeners > 0) ? data.lastfmListeners : null;
+  const deezer  = (typeof data.deezerFans      === 'number' && data.deezerFans      > 0) ? data.deezerFans      : null;
 
   if (spotify !== null) {
     return { source: 'spotify', count: spotify, label: 'followers', text: `${formatFollowers(spotify)} followers` };
