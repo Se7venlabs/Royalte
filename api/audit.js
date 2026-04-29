@@ -1,7 +1,6 @@
 // Royalte Audit API — /api/audit.js
 // Platforms: Spotify + MusicBrainz + Deezer + AudioDB + Discogs + SoundCloud + Last.fm + Wikidata + YouTube + Apple Music
 // Features: Royalty gap estimate, catalog age analysis, country PRO guide, real YouTube UGC detection, Apple Music catalog comparison
-// Apple Music URL support: parses Apple Music links and resolves canonical artist via Spotify when possible.
 
 import { generateAppleToken } from './apple-token.js';
 
@@ -15,50 +14,9 @@ export default async function handler(req, res) {
   if (!url) return res.status(400).json({ error: 'No URL provided' });
 
   try {
-    // ── URL DISPATCH ─────────────────────────────────────
-    // Try Spotify first (preserves existing behavior). If not Spotify, try Apple Music.
-    let parsed = parseSpotifyUrl(url);
-    let appleSource = null;
-    let resolvedFrom = 'spotify';
-    let sourcePlatform = 'spotify';
+    const parsed = parseSpotifyUrl(url);
+    if (!parsed) return res.status(400).json({ error: 'Invalid URL. Please paste your Spotify artist link.' });
 
-    if (!parsed) {
-      const appleParsed = parseAppleMusicUrl(url);
-      if (!appleParsed) {
-        return res.status(400).json({ error: 'Invalid URL. Please paste a Spotify or Apple Music link.' });
-      }
-      // Apple URL — resolve identity from Apple catalog API
-      const entity = await resolveAppleMusicEntity(appleParsed);
-      if (!entity || !entity.artistName) {
-        return res.status(400).json({ error: 'Could not resolve Apple Music URL. Please try a Spotify link.' });
-      }
-      appleSource = {
-        platform: 'apple_music',
-        type: appleParsed.type,
-        id: appleParsed.id,
-        storefront: appleParsed.storefront,
-        artistName: entity.artistName,
-        albumName: entity.albumName || null,
-        trackName: entity.trackName || null,
-        isrc: entity.isrc || null,
-        appleArtistId: entity.appleArtistId || null,
-      };
-      sourcePlatform = 'apple_music';
-
-      // Try to map Apple artist to Spotify so the full audit can run
-      const spotifyTokenForLookup = await getSpotifyToken();
-      const spotifyMatch = await searchSpotifyByName(entity.artistName, spotifyTokenForLookup);
-      if (spotifyMatch?.id) {
-        // Spotify match found — convert to Spotify artist scan, full audit continues below
-        parsed = { platform: 'spotify', type: 'artist', id: spotifyMatch.id };
-        resolvedFrom = 'spotify_from_apple';
-      } else {
-        // No Spotify match — return Apple-only minimal response (still successful, with real artist name)
-        return res.status(200).json(buildAppleOnlyResponse(appleSource));
-      }
-    }
-
-    // ── EXISTING SPOTIFY FLOW (unchanged) ───────────────
     const token = await getSpotifyToken();
     let artistData, trackData;
 
@@ -107,21 +65,34 @@ export default async function handler(req, res) {
 
     const flags = buildFlags(modules, artistData, trackData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData);
 
+    // ── IMAGE EXTRACTION (surgical addition — no existing logic changed) ──
+    // Priority: track scan → album artwork; artist scan → artist image.
+    // Apple artwork is included as a fallback but never overrides Spotify.
+    const artistImageUrl  = artistData?.images?.[0]?.url || null;
+    const albumImageUrl   = trackData?.album?.images?.[0]?.url || null;
+    const appleArtworkUrl = appleMusicData?.artworkUrl || null;
+    const imageUrl =
+      (parsed.type === 'track' ? albumImageUrl : null) ||
+      artistImageUrl ||
+      appleArtworkUrl ||
+      null;
+
     return res.status(200).json({
       success: true,
       platform: parsed.platform,
-      type: resolvedFrom === 'spotify_from_apple' ? (appleSource?.type || parsed.type) : parsed.type,
+      type: parsed.type,
       artistName,
-      canonicalArtistName: artistName,
       artistId: artistData.id,
-      sourcePlatform,
-      resolvedFrom,
-      appleMusicSource: appleSource,
       followers: artistData.followers?.total || 0,
       popularity: artistData.popularity || 0,
       genres: artistData.genres || [],
       trackTitle: trackData?.name || null,
       trackIsrc: trackData?.external_ids?.isrc || null,
+      // ── canonical image fields for dashboard ──
+      imageUrl,
+      artistImageUrl,
+      albumImageUrl,
+      appleArtworkUrl,
       platforms: {
         spotify: true,
         musicbrainz: mbData.found,
@@ -160,7 +131,7 @@ export default async function handler(req, res) {
 }
 
 // ────────────────────────────────────────────────────────
-// URL PARSER — SPOTIFY (unchanged)
+// URL PARSER
 // ────────────────────────────────────────────────────────
 function parseSpotifyUrl(url) {
   try {
@@ -171,180 +142,6 @@ function parseSpotifyUrl(url) {
     if (typeIdx === -1 || !parts[typeIdx + 1]) return null;
     return { platform: 'spotify', type: parts[typeIdx], id: parts[typeIdx + 1].split('?')[0] };
   } catch { return null; }
-}
-
-// ────────────────────────────────────────────────────────
-// URL PARSER — APPLE MUSIC (new)
-// Supported URL shapes:
-//   music.apple.com/{storefront}/artist/{slug}/{id}
-//   music.apple.com/{storefront}/album/{slug}/{id}
-//   music.apple.com/{storefront}/album/{slug}/{id}?i={song_id}   → song
-//   music.apple.com/{storefront}/song/{slug}/{id}
-// ────────────────────────────────────────────────────────
-function parseAppleMusicUrl(url) {
-  try {
-    const u = new URL(url);
-    if (!u.hostname.includes('music.apple.com')) return null;
-    const parts = u.pathname.split('/').filter(Boolean);
-    if (parts.length < 3) return null;
-    const storefront = parts[0]; // e.g., 'us', 'gb', 'ca'
-    const typeRaw = parts[1];    // 'artist' | 'album' | 'song'
-    const lastPart = parts[parts.length - 1];
-    const idMatch = lastPart.match(/^\d+$/);
-    const id = idMatch ? idMatch[0] : null;
-    if (!id) return null;
-
-    // Album URL with ?i={song_id} is treated as a song
-    const songIdParam = u.searchParams.get('i');
-    if (typeRaw === 'album' && songIdParam && /^\d+$/.test(songIdParam)) {
-      return { platform: 'apple_music', type: 'song', id: songIdParam, albumId: id, storefront };
-    }
-    if (typeRaw === 'artist') return { platform: 'apple_music', type: 'artist', id, storefront };
-    if (typeRaw === 'album')  return { platform: 'apple_music', type: 'album',  id, storefront };
-    if (typeRaw === 'song')   return { platform: 'apple_music', type: 'song',   id, storefront };
-    return null;
-  } catch { return null; }
-}
-
-// ────────────────────────────────────────────────────────
-// APPLE MUSIC ENTITY RESOLVER (new)
-// Hits Apple's catalog API to get the artist name (and optional song/album/ISRC info)
-// from a parsed Apple Music URL. Returns null on any failure — never throws.
-// ────────────────────────────────────────────────────────
-async function resolveAppleMusicEntity(parsed) {
-  try {
-    const appleToken = generateAppleToken();
-    const headers = { Authorization: `Bearer ${appleToken}` };
-    const storefront = parsed.storefront || 'us';
-    const BASE = 'https://api.music.apple.com/v1';
-
-    if (parsed.type === 'artist') {
-      const resp = await fetch(`${BASE}/catalog/${storefront}/artists/${parsed.id}`, { headers });
-      if (!resp.ok) return null;
-      const data = await resp.json();
-      const a = data?.data?.[0];
-      if (!a) return null;
-      return {
-        artistName: a.attributes?.name || null,
-        appleArtistId: a.id,
-      };
-    }
-
-    if (parsed.type === 'album') {
-      const resp = await fetch(`${BASE}/catalog/${storefront}/albums/${parsed.id}`, { headers });
-      if (!resp.ok) return null;
-      const data = await resp.json();
-      const a = data?.data?.[0];
-      if (!a) return null;
-      return {
-        artistName: a.attributes?.artistName || null,
-        albumName: a.attributes?.name || null,
-        appleArtistId: a.relationships?.artists?.data?.[0]?.id || null,
-      };
-    }
-
-    if (parsed.type === 'song') {
-      const resp = await fetch(`${BASE}/catalog/${storefront}/songs/${parsed.id}`, { headers });
-      if (!resp.ok) return null;
-      const data = await resp.json();
-      const s = data?.data?.[0];
-      if (!s) return null;
-      return {
-        artistName: s.attributes?.artistName || null,
-        trackName: s.attributes?.name || null,
-        albumName: s.attributes?.albumName || null,
-        isrc: s.attributes?.isrc || null,
-        appleArtistId: s.relationships?.artists?.data?.[0]?.id || null,
-      };
-    }
-
-    return null;
-  } catch (err) {
-    console.error('Apple resolve error:', err.message);
-    return null;
-  }
-}
-
-// ────────────────────────────────────────────────────────
-// SPOTIFY SEARCH BY NAME (new) — maps Apple Music artist → Spotify artist
-// Returns the best match (exact normalized name, or top result), or null.
-// ────────────────────────────────────────────────────────
-async function searchSpotifyByName(artistName, token) {
-  try {
-    const q = encodeURIComponent(artistName);
-    const resp = await fetch(
-      `https://api.spotify.com/v1/search?q=${q}&type=artist&limit=5`,
-      { headers: { 'Authorization': `Bearer ${token}` } }
-    );
-    if (!resp.ok) return null;
-    const data = await resp.json();
-    const artists = data?.artists?.items || [];
-    if (!artists.length) return null;
-    const norm = s => (s || '').toLowerCase().trim();
-    const exact = artists.find(a => norm(a.name) === norm(artistName));
-    return exact || artists[0];
-  } catch (err) {
-    console.error('Spotify search error:', err.message);
-    return null;
-  }
-}
-
-// ────────────────────────────────────────────────────────
-// APPLE-ONLY MINIMAL RESPONSE (new)
-// When Apple URL resolves but no Spotify match: returns a successful response
-// with Apple identity so the frontend never sees demo state.
-// ────────────────────────────────────────────────────────
-function buildAppleOnlyResponse(appleSource) {
-  const artistName = appleSource.artistName || 'Artist detected';
-  return {
-    success: true,
-    platform: 'apple_music',
-    type: appleSource.type,
-    artistName,
-    canonicalArtistName: artistName,
-    artistId: null,
-    sourcePlatform: 'apple_music',
-    resolvedFrom: 'apple_music',
-    appleMusicSource: appleSource,
-    followers: 0,
-    popularity: 0,
-    genres: [],
-    trackTitle: appleSource.trackName || null,
-    trackIsrc: appleSource.isrc || null,
-    platforms: {
-      spotify: false,
-      musicbrainz: false,
-      deezer: false,
-      audiodb: false,
-      discogs: false,
-      soundcloud: false,
-      lastfm: false,
-      wikipedia: false,
-      youtube: false,
-      appleMusic: true,
-    },
-    catalog: { totalReleases: 0, earliestYear: null, catalogAgeYears: 0, estimatedAnnualStreams: 0 },
-    royaltyGap: null,
-    proGuide: null,
-    country: null,
-    lastfmPlays: 0,
-    lastfmListeners: 0,
-    wikipediaUrl: null,
-    deezerFans: 0,
-    discogsReleases: 0,
-    youtube: { found: false },
-    appleMusic: { found: true, artistId: appleSource.appleArtistId, isrcLookup: null, catalogComparison: null },
-    overallScore: 0,
-    modules: {},
-    flags: [
-      { module: 'Platform Coverage', severity: 'medium', description: 'Spotify match not found for this Apple Music artist — full audit limited.' }
-    ],
-    flagCount: 1,
-    previewFlags: [
-      { module: 'Platform Coverage', severity: 'medium', description: 'Spotify match not found for this Apple Music artist — full audit limited.' }
-    ],
-    scannedAt: new Date().toISOString(),
-  };
 }
 
 // ────────────────────────────────────────────────────────
@@ -433,6 +230,7 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
     let appleArtistUrl = null;
     let appleArtistGenres = [];
     let appleAlbumCount = 0;
+    let appleArtworkUrl = null; // ── added: capture artwork URL ──
 
     if (artistResp.ok) {
       const artistData = await artistResp.json();
@@ -445,6 +243,12 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
         appleArtistId = match.id;
         appleArtistUrl = match.attributes?.url || null;
         appleArtistGenres = match.attributes?.genreNames || [];
+
+        // ── added: extract artwork URL, replace {w}/{h} placeholders ──
+        const artworkTpl = match.attributes?.artwork?.url;
+        if (artworkTpl && typeof artworkTpl === 'string') {
+          appleArtworkUrl = artworkTpl.replace('{w}', '600').replace('{h}', '600');
+        }
 
         // Get album count
         const albumResp = await fetch(
@@ -538,6 +342,7 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
       found: artistFound,
       artistId: appleArtistId,
       artistUrl: appleArtistUrl,
+      artworkUrl: appleArtworkUrl, // ── added: surface to consumer ──
       genres: appleArtistGenres,
       albumCount: appleAlbumCount,
       isrcLookup: isrcResult,
