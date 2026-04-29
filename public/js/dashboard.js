@@ -375,10 +375,28 @@ function renderHeroIdentity(data) {
        </div>`
     : "";
 
+  // tiny avatar — image if provided, initials fallback otherwise
+  const initials = (id.artistName || "")
+    .split(/\s+/).map(s => s[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "?";
+  const avatarInner = id.artistImage
+    ? `<img src="${escapeHtml(id.artistImage)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'hi-avatar-initials',textContent:'${escapeHtml(initials)}'}))">`
+    : `<span class="hi-avatar-initials">${escapeHtml(initials)}</span>`;
+
+  // stale data banner (only when localStorage scan is older than 24h)
+  const staleBanner = id._staleHours
+    ? `<div class="hi-stale">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+         Showing scan from ${escapeHtml(id._staleHours)} ago
+       </div>`
+    : "";
+
   host.innerHTML = `
-    <div class="hi-row">
-      <span class="hi-label">Artist</span>
-      <span class="hi-name" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</span>
+    <div class="hi-name-row">
+      <div class="hi-avatar">${avatarInner}</div>
+      <div class="hi-name-stack">
+        <span class="hi-label">Artist</span>
+        <span class="hi-name" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</span>
+      </div>
     </div>
     <div class="hi-row">
       <span class="hi-label">Resolved from</span>
@@ -390,6 +408,7 @@ function renderHeroIdentity(data) {
     </div>
     ${pills.length ? `<div class="hi-pills">${pills.join("")}</div>` : ""}
     ${fallbackTag}
+    ${staleBanner}
   `;
 }
 
@@ -632,20 +651,316 @@ function smoothPath(points) {
 }
 
 
+/* ═════════════════════════════════════════════════════════════════
+   SCAN → DASHBOARD HANDOFF
+   Reads the audit response from localStorage (set by index.html
+   after a successful scan) and transforms it into dashboard shape.
+   Falls back to mockData() when nothing is stored.
+   ═════════════════════════════════════════════════════════════════ */
+
+const SCAN_KEY      = "royalte_scan_data";
+const SCAN_TIME_KEY = "royalte_scan_time";
+
+function getDashboardData() {
+  try {
+    const raw = localStorage.getItem(SCAN_KEY);
+    if (!raw) return mockData();
+
+    const audit = JSON.parse(raw);
+    if (!audit || typeof audit !== "object") return mockData();
+
+    const data = mapScanToDashboard(audit);
+
+    // mark stale if the stored scan is older than 24h
+    const t = Number(localStorage.getItem(SCAN_TIME_KEY));
+    if (t && Number.isFinite(t)) {
+      const ageHours = (Date.now() - t) / 36e5;
+      if (ageHours >= 24 && data.identity) {
+        data.identity._staleHours = ageHours < 48
+          ? Math.round(ageHours) + "h"
+          : Math.round(ageHours / 24) + "d";
+      }
+    }
+    return data;
+  } catch (e) {
+    console.warn("[dashboard] failed to parse stored scan, using mock data:", e);
+    return mockData();
+  }
+}
+
+/**
+ * Transform the audit.js response into the dashboard data contract.
+ * Defensively tolerates missing fields — every output property has a
+ * sensible default, so the dashboard never breaks on partial data.
+ *
+ * @param {Object} audit - raw response from /api/audit
+ * @returns {DashboardData}
+ */
+function mapScanToDashboard(audit) {
+  audit = audit || {};
+
+  // ── score ────────────────────────────────────
+  const score = pickFirst([audit.overallScore, audit.score, audit.royaltyScore], 0);
+  const scoreHeadline = headlineForScore(score);
+
+  // ── revenue risk (Path B: ranges, not exact $) ─
+  const riskTier = mapRiskTier(audit.royaltyRiskScore || audit.riskLevel || riskFromScore(score));
+  const revenueRisk = {
+    range: revenueRangeForTier(riskTier),
+    tier: riskTier,
+    tierLabel: riskTier.charAt(0).toUpperCase() + riskTier.slice(1),
+    note: "Exact recovery amount requires full audit review"
+  };
+
+  // ── stats (issues / things working) ──────────
+  const flags = Array.isArray(audit.flags) ? audit.flags : [];
+  const verifiedFlags = flags.filter(f => f && f.verified !== false);
+  const issuesFound = verifiedFlags.length || pickFirst([audit.issuesFound, audit.flagCount], 0);
+  // "things working" is a derived count — modules at high scores
+  const modules = audit.modules && typeof audit.modules === "object" ? audit.modules : {};
+  const modScores = Object.values(modules).map(m => Number(m && m.score) || 0);
+  const thingsWorking = Math.max(
+    pickFirst([audit.thingsWorking, audit.verifiedCount], 0),
+    modScores.filter(s => s >= 75).length * 2
+  );
+
+  // ── recent scan dates ────────────────────────
+  const scannedAt = audit.scannedAt ? new Date(audit.scannedAt) : new Date();
+  const next = new Date(scannedAt.getTime()); next.setDate(next.getDate() + 30);
+
+  // ── identity ─────────────────────────────────
+  const platforms = audit.platforms && typeof audit.platforms === "object" ? audit.platforms : {};
+  const identity = {
+    artistName:     pickFirst([audit.artistName, audit.artist, audit.subjectName], null),
+    artistImage:    pickFirst([audit.artistImage, audit.image, audit.imageUrl, audit.artwork], null),
+    sourcePlatform: detectSourcePlatform(audit, platforms),
+    resolvedFrom:   detectResolvedFrom(audit, platforms),
+    platforms: {
+      spotify:    !!(platforms.spotify    && (platforms.spotify.found    !== false)),
+      appleMusic: !!(platforms.appleMusic && (platforms.appleMusic.found !== false))
+                  || !!(platforms.apple && (platforms.apple.found !== false))
+    },
+    scanStatus: detectScanStatus(audit)
+  };
+
+  // ── trend (Path B: tier-based silhouette) ────
+  // V1: a single scan can't paint a real trend. Show a flat-ish line
+  // at the current tier so the chart isn't empty.
+  const trend = buildTrendFromCurrentTier(riskTier);
+
+  // ── issues + action plan ─────────────────────
+  const issues = verifiedFlags.slice(0, 5).map((f, i) => ({
+    id:          f.id || ("i" + (i + 1)),
+    title:       f.title || f.message || f.name || "Issue detected",
+    desc:        f.description || f.detail || "—",
+    severity:    normalizeSeverity(f.severity),
+    impactLabel: f.impact || impactLabelForSeverity(normalizeSeverity(f.severity)),
+    icon:        f.icon || iconKeyForFlag(f)
+  }));
+
+  const actionPlan = (audit.actionPlan || verifiedFlags).slice(0, 5).map((src, i) => {
+    const sev = normalizeSeverity(src.severity);
+    return {
+      step: i + 1,
+      title: src.action || src.fix || actionTitleFromFlag(src),
+      meta:  src.meta || src.scope || "—",
+      severity: sev
+    };
+  });
+
+  // ── platforms grid ───────────────────────────
+  const PLAT_KEYS = [
+    { audit: "spotify",    key: "spotify",    name: "Spotify" },
+    { audit: "appleMusic", key: "apple",      name: "Apple Music" },
+    { audit: "apple",      key: "apple",      name: "Apple Music" },
+    { audit: "youtube",    key: "youtube",    name: "YouTube" },
+    { audit: "soundcloud", key: "soundcloud", name: "SoundCloud" },
+    { audit: "tiktok",     key: "tiktok",     name: "TikTok" }
+  ];
+  const seen = new Set();
+  const platformList = [];
+  PLAT_KEYS.forEach(p => {
+    if (seen.has(p.key)) return;
+    const m = platforms[p.audit];
+    if (m && m.found !== false) {
+      platformList.push({ key: p.key, name: p.name, status: "connected" });
+      seen.add(p.key);
+    }
+  });
+  const totalAvailable = pickFirst([audit.platformsTotal, audit.totalPlatforms], 15);
+
+  // ── final assembly ───────────────────────────
+  return {
+    user: {
+      firstName: firstWord(identity.artistName) || "there",
+      fullName:  identity.artistName || "Artist",
+      plan:      "Free Scan",
+      verified:  identity.scanStatus === "verified",
+      notifications: 0
+    },
+    score: { value: clamp(Math.round(score), 0, 100), headline: scoreHeadline },
+    revenueRisk,
+    stats: { issuesFound, thingsWorking },
+    recentScan: {
+      dateLabel:     formatScanDate(scannedAt),
+      nextDateLabel: formatNextDate(next),
+      sourcesCount:  10
+    },
+    identity,
+    trend,
+    issues:     issues.length     ? issues     : [],
+    actionPlan: actionPlan.length ? actionPlan : [],
+    platforms:  platformList,
+    platformsConnected: platformList.length,
+    platformsTotal:     totalAvailable
+  };
+}
+
+/* ── mapping helpers ──────────────────────────── */
+
+function pickFirst(values, fallback) {
+  for (const v of values) {
+    if (v !== undefined && v !== null && v !== "") return v;
+  }
+  return fallback;
+}
+
+function firstWord(s) {
+  if (!s) return "";
+  const m = String(s).trim().match(/^\S+/);
+  return m ? m[0] : "";
+}
+
+function normalizeSeverity(s) {
+  s = String(s || "").toLowerCase();
+  if (s === "high"   || s === "critical") return "high";
+  if (s === "low"    || s === "info")     return "low";
+  return "medium";
+}
+
+function mapRiskTier(v) {
+  if (typeof v === "number") {
+    if (v >= 70) return "high";
+    if (v >= 40) return "medium";
+    return "low";
+  }
+  const s = String(v || "").toLowerCase();
+  if (s.includes("high"))   return "high";
+  if (s.includes("low"))    return "low";
+  return "medium";
+}
+
+function riskFromScore(score) {
+  // inverse: lower score = higher risk
+  if (score < 50) return "high";
+  if (score < 75) return "medium";
+  return "low";
+}
+
+function revenueRangeForTier(tier) {
+  if (tier === "high")   return "$1K–$10K+";
+  if (tier === "medium") return "Hundreds–Thousands";
+  return "Low impact";
+}
+
+function impactLabelForSeverity(sev) {
+  if (sev === "high")   return "Thousands at risk";
+  if (sev === "medium") return "Hundreds at risk";
+  return "Minor";
+}
+
+function headlineForScore(score) {
+  if (score >= 85) return "Your setup is solid";
+  if (score >= 70) return "Your setup needs improvement";
+  if (score >= 50) return "Multiple gaps detected";
+  return "Critical gaps detected";
+}
+
+function detectSourcePlatform(audit, platforms) {
+  if (audit.sourcePlatform) return String(audit.sourcePlatform).toLowerCase();
+  if (platforms.spotify    && platforms.spotify.found    !== false) return "spotify";
+  if (platforms.appleMusic && platforms.appleMusic.found !== false) return "apple_music";
+  if (platforms.apple      && platforms.apple.found      !== false) return "apple_music";
+  return "spotify";
+}
+
+function detectResolvedFrom(audit, platforms) {
+  if (audit.resolvedFrom) return audit.resolvedFrom;
+  const sp = !!(platforms.spotify    && platforms.spotify.found    !== false);
+  const ap = !!((platforms.appleMusic && platforms.appleMusic.found !== false) ||
+                (platforms.apple      && platforms.apple.found      !== false));
+  if (sp && ap) return "spotify_and_apple";
+  if (sp) return "spotify";
+  if (ap) return "apple_music";
+  return "spotify";
+}
+
+function detectScanStatus(audit) {
+  if (audit.scanStatus) return String(audit.scanStatus).toLowerCase();
+  // Apple-only scans have less data — flag as limited
+  const platforms = audit.platforms || {};
+  const sp = !!(platforms.spotify    && platforms.spotify.found    !== false);
+  const ap = !!((platforms.appleMusic && platforms.appleMusic.found !== false) ||
+                (platforms.apple      && platforms.apple.found      !== false));
+  if (!sp && ap) return "limited";
+  return "verified";
+}
+
+function iconKeyForFlag(f) {
+  const key = String((f && (f.category || f.type || f.code || f.title)) || "").toLowerCase();
+  if (key.includes("isrc"))     return "isrc";
+  if (key.includes("youtube") || key.includes("content id")) return "yt";
+  if (key.includes("publish")) return "pub";
+  if (key.includes("split"))   return "splits";
+  if (key.includes("tag") || key.includes("metadata")) return "tags";
+  return "isrc";
+}
+
+function actionTitleFromFlag(f) {
+  const t = String((f && (f.title || f.message || f.name)) || "").toLowerCase();
+  if (t.includes("isrc"))            return "Fix missing ISRCs (recover revenue)";
+  if (t.includes("content id"))      return "Claim YouTube Content ID (recover revenue)";
+  if (t.includes("publish"))         return "Link publishing to recordings";
+  if (t.includes("split"))           return "Review & update splits";
+  if (t.includes("tag") || t.includes("metadata")) return "Add editorial tags";
+  return f && f.title ? "Fix: " + f.title : "Review issue";
+}
+
+function buildTrendFromCurrentTier(tier) {
+  // V1: no historical data — paint a flat current-tier line
+  return [
+    { date: "Feb", tier },
+    { date: "Mar", tier },
+    { date: "Apr", tier },
+    { date: "May", tier },
+    { date: "Jun", tier },
+    { date: "Jul", tier }
+  ];
+}
+
+function formatScanDate(d) {
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const h = d.getHours();
+  const min = String(d.getMinutes()).padStart(2, "0");
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = ((h + 11) % 12) + 1;
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} · ${h12}:${min} ${ampm}`;
+}
+
+function formatNextDate(d) {
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+
 /* ─────────────────────────────────────────────
    INIT
    ───────────────────────────────────────────── */
 
-async function init() {
-  // ──────────────────────────────────────────
-  // V2 SWAP POINT:
-  //   const data = await fetch('/api/dashboard', {
-  //     headers: { Authorization: `Bearer ${supabaseToken}` }
-  //   }).then(r => r.json());
-  //
-  // For V1 we use hardcoded mock data.
-  // ──────────────────────────────────────────
-  const data = mockData();
+function init() {
+  // V1 data source: localStorage scan handoff with mock fallback.
+  // V2 will replace this with /api/dashboard fetch.
+  const data = getDashboardData();
 
   renderSidebar(data);
   renderHeader(data);
