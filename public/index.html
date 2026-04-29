@@ -83,6 +83,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:72px;d
 .dtb-live-dot{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:pulse 2s infinite;}
 .dash-body{padding:14px;display:flex;flex-direction:column;gap:10px;}
 .d-score-row{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--bg4);border:1px solid var(--border3);border-radius:6px;padding:14px;}
+/* When the avatar slot is populated, switch to a 3-column grid */
+.d-score-row.has-avatar{grid-template-columns:auto auto 1fr;}
 .d-score-ring{width:64px;height:64px;position:relative;flex-shrink:0;}
 .d-score-ring svg{transform:rotate(-90deg);}
 .d-score-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
@@ -140,6 +142,8 @@ section{padding:100px 56px;position:relative;}
 .results-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;}
 .results-tag{font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);background:rgba(138,92,255,0.1);padding:4px 10px;border-radius:2px;border:1px solid var(--border2);}
 .r-score{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden;}
+/* When the avatar slot is populated, switch to a 3-column grid */
+.r-score.has-avatar{grid-template-columns:auto auto 1fr;}
 .r-score::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
 .r-ring{width:70px;height:70px;position:relative;flex-shrink:0;}
 .r-ring svg{transform:rotate(-90deg);}
@@ -148,6 +152,43 @@ section{padding:100px 56px;position:relative;}
 .r-ring-max{font-size:8px;color:var(--muted);}
 .r-verdict{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
 .r-desc{font-size:12px;color:var(--text2);line-height:1.5;}
+/* ── ARTIST MINI AVATAR (visual polish only) ── */
+.artist-mini-avatar{
+  width:52px;
+  height:52px;
+  border-radius:999px;
+  object-fit:cover;
+  border:1px solid rgba(139,92,246,0.65);
+  box-shadow:0 0 14px rgba(88,101,242,0.25);
+  background:rgba(255,255,255,0.06);
+  flex-shrink:0;
+  display:block;
+}
+.artist-mini-avatar-fallback{
+  width:52px;
+  height:52px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  font-size:16px;
+  color:#ffffff;
+  background:linear-gradient(135deg,#6D5DFB,#2F80ED);
+  border:1px solid rgba(255,255,255,0.18);
+  flex-shrink:0;
+  font-family:'Space Grotesk',sans-serif;
+  letter-spacing:0.02em;
+  text-transform:uppercase;
+}
+/* Slightly smaller variant for the hero dashboard preview */
+.d-score-row .artist-mini-avatar,
+.d-score-row .artist-mini-avatar-fallback{
+  width:44px;
+  height:44px;
+  font-size:14px;
+}
+/* ── END ARTIST MINI AVATAR ── */
 .r-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;}
 .r-card{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:18px;transition:border-color 0.2s;}
 .r-card:hover{border-color:var(--border2);}
@@ -307,6 +348,13 @@ section{padding:60px 20px;}
 .r-cards{grid-template-columns:1fr;}
 .results-wrap{padding:0 20px 60px;}
 footer{padding:28px 20px;flex-direction:column;text-align:center;}
+/* Mobile avatar — slightly smaller per spec */
+.artist-mini-avatar,
+.artist-mini-avatar-fallback{
+  width:44px;
+  height:44px;
+  font-size:14px;
+}
 }
 </style>
 </head>
@@ -369,7 +417,7 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
         <div class="dtb-live"><div class="dtb-live-dot"></div>SCANNING</div>
       </div>
       <div class="dash-body">
-        <div class="d-score-row">
+        <div class="d-score-row" id="d-score-row">
           <div class="d-score-ring">
             <svg width="64" height="64" viewBox="0 0 64 64">
               <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(138,92,255,0.15)" stroke-width="6"/>
@@ -378,6 +426,8 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
             </svg>
             <div class="d-score-num"><span class="d-score-val">41</span><span class="d-score-lbl">/ 100</span></div>
           </div>
+          <!-- Avatar slot — populated by renderArtistAvatar() after scan -->
+          <div id="hero-avatar-slot" style="display:none;"></div>
           <div class="d-score-info">
             <div class="d-score-title">// Beta audit preview</div>
             <div class="d-score-artist" id="hero-artist-name">Paste your link</div>
@@ -415,6 +465,8 @@ footer{padding:28px 20px;flex-direction:column;text-align:center;}
         </svg>
         <div class="r-ring-num"><div class="r-ring-val" id="r-score-val">—</div><div class="r-ring-max">/100</div></div>
       </div>
+      <!-- Avatar slot — populated by renderArtistAvatar() after scan -->
+      <div id="r-avatar-slot" style="display:none;"></div>
       <div class="r-info">
         <div class="r-verdict" id="r-verdict">Analysing...</div>
         <div class="r-desc" id="r-desc">Running detection modules across your Spotify profile.</div>
@@ -766,6 +818,68 @@ function animateScan(onComplete){
   },80);
 }
 
+// ── ARTIST MINI AVATAR (visual polish only, never blocks scan) ─────────────
+function pickArtistImage(data){
+  if(!data) return null;
+  return data?.artist?.image_url ||
+         data?.artistImageUrl     ||
+         data?.artist_image_url   ||
+         data?.artistImage        ||
+         data?.image_url          ||
+         null;
+}
+
+function getArtistInitials(name){
+  if(!name || typeof name !== 'string') return '?';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if(parts.length === 0) return '?';
+  if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+}
+
+function renderArtistAvatar(slotId, parentRowSelector, data){
+  try{
+    const slot = document.getElementById(slotId);
+    if(!slot) return;
+    const parent = parentRowSelector ? document.querySelector(parentRowSelector) : null;
+    const imgUrl = pickArtistImage(data);
+    const name   = data?.artist?.name || data?.artistName || '';
+    const initials = getArtistInitials(name);
+
+    // Reset slot
+    slot.innerHTML = '';
+    slot.style.display = 'flex';
+    slot.style.alignItems = 'center';
+    if(parent) parent.classList.add('has-avatar');
+
+    if(imgUrl){
+      const img = document.createElement('img');
+      img.className = 'artist-mini-avatar';
+      img.alt = name ? (name + ' artist photo') : 'Artist photo';
+      img.referrerPolicy = 'no-referrer';
+      // Fallback to initials on broken image
+      img.onerror = function(){
+        const fb = document.createElement('div');
+        fb.className = 'artist-mini-avatar-fallback';
+        fb.textContent = initials;
+        slot.innerHTML = '';
+        slot.appendChild(fb);
+      };
+      img.src = imgUrl;
+      slot.appendChild(img);
+    } else {
+      const fb = document.createElement('div');
+      fb.className = 'artist-mini-avatar-fallback';
+      fb.textContent = initials;
+      slot.appendChild(fb);
+    }
+  } catch(e){
+    // Avatar is purely cosmetic — never block the scan flow on a render error
+    console.warn('Avatar render skipped:', e);
+  }
+}
+// ── END ARTIST MINI AVATAR ─────────────────────────
+
 // ── RUN AUDIT ──────────────────────────────────────
 async function runAudit(){
   const input = document.getElementById('hero-url');
@@ -789,22 +903,12 @@ async function runAudit(){
       document.getElementById('hero-artist-name').textContent = auditData.artistName;
       document.getElementById('hero-artist-sub').textContent  = `${(auditData.followers||0).toLocaleString()} followers · Spotify Artist`;
       document.querySelector('.d-score-val') && (document.querySelector('.d-score-val').textContent = auditData.overallScore);
+      // Render avatar inside the hero dashboard preview row
+      renderArtistAvatar('hero-avatar-slot', '#d-score-row', auditData);
     }
   }catch(e){ auditData = null; }
   animateScan(()=>{
-    if(auditData && auditData.success) {
-      showRealResults(auditData);
-      // ── ROYALTĒ DASHBOARD HANDOFF (Option 2 — 1.5s delay) ──
-      try {
-        localStorage.setItem("royalte_scan_data", JSON.stringify(auditData));
-        localStorage.setItem("royalte_scan_time", String(Date.now()));
-      } catch (e) {
-        console.warn("[scan] could not store scan for dashboard:", e);
-      }
-      setTimeout(() => {
-        window.location.href = "/dashboard.html";
-      }, 1500);
-    }
+    if(auditData && auditData.success) showRealResults(auditData);
     else showDemoResults(val);
     btn.disabled=false;
     btn.textContent='Run Free Audit →';
@@ -820,6 +924,9 @@ function showRealResults(data){
   document.getElementById('results-tag').textContent=`${data.artistName} · ${(data.followers||0).toLocaleString()} followers`;
   document.getElementById('hero-artist-name').textContent = data.artistName;
   document.getElementById('hero-artist-sub').textContent  = `${(data.followers||0).toLocaleString()} followers · Spotify Artist`;
+  // Render avatar inside the results scan card AND hero dashboard
+  renderArtistAvatar('r-avatar-slot',    '#r-score',      data);
+  renderArtistAvatar('hero-avatar-slot', '#d-score-row',  data);
   const heroCircle = document.getElementById('score-circle');
   if(heroCircle){
     setTimeout(()=>{
@@ -856,6 +963,9 @@ function showRealResults(data){
 function showDemoResults(url){
   setScore(44);
   document.getElementById('results-tag').textContent='Spotify Artist Detected';
+  // Render placeholder avatar (no data → initials fallback) on both cards
+  renderArtistAvatar('r-avatar-slot',    '#r-score',     {artistName:'?'});
+  renderArtistAvatar('hero-avatar-slot', '#d-score-row', {artistName:'?'});
   const fSpotify = document.getElementById('f-spotify');
   if(fSpotify){
     fSpotify.value    = url;
@@ -1063,3 +1173,4 @@ document.getElementById('hero-url').addEventListener('keydown',e=>{if(e.key==='E
 </script>
 </body>
 </html>
+
