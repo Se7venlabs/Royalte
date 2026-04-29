@@ -835,8 +835,9 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <p class="stakes-sub">Every year, artists miss out on royalties they've already earned. Splits go unregistered. Metadata gets lost between platforms. YouTube Content ID matches go unclaimed. The money exists — it just never reaches you.</p>
       <div class="stakes-stats">
         <div class="stakes-stat">
-          <div class="stakes-stat-num">$2B+</div>
-          <div class="stakes-stat-label">in unclaimed royalties sit with PROs globally each year</div>
+          <div class="stakes-stat-num">$500M+</div>
+          <div class="stakes-stat-label">in royalties sit in the global black box</div>
+          <div class="stakes-stat-label">Metadata gaps, missing registrations, and bad data keep money from reaching the right artists.</div>
         </div>
         <div class="stakes-stat">
           <div class="stakes-stat-num">Up to 1 in 3</div>
@@ -1687,23 +1688,52 @@ function formatFollowers(n) {
   return String(Math.floor(n));
 }
 
+// ── AUDIENCE SIGNAL PICKER ──
+// Trust over technical purity. Indie artists with low Spotify followers
+// often have huge Last.fm listener history or Deezer fan counts. Show the
+// strongest honest signal, never "0 followers".
+//
+// Priority:
+//   1. Spotify followers > 1000     → "X followers"
+//   2. Last.fm listeners (any > 0)  → "X listeners"
+//   3. Deezer fans (any > 0)        → "X fans"
+//   4. Nothing usable                → "Fans on streaming platforms"
+//
+// The -1 sentinel from Apple-input + no Spotify match also routes to step 4.
+function pickAudienceSignal(data) {
+  const spotify = (typeof data.followers       === 'number' && data.followers       > 1000) ? data.followers       : null;
+  const lastfm  = (typeof data.lastfmListeners === 'number' && data.lastfmListeners > 0)    ? data.lastfmListeners : null;
+  const deezer  = (typeof data.deezerFans      === 'number' && data.deezerFans      > 0)    ? data.deezerFans      : null;
+
+  if (spotify !== null) {
+    return { source: 'spotify', count: spotify, label: 'followers', text: `${formatFollowers(spotify)} followers` };
+  }
+  if (lastfm !== null) {
+    return { source: 'lastfm',  count: lastfm,  label: 'listeners', text: `${formatFollowers(lastfm)} listeners` };
+  }
+  if (deezer !== null) {
+    return { source: 'deezer',  count: deezer,  label: 'fans',      text: `${formatFollowers(deezer)} fans` };
+  }
+  return { source: 'none', count: 0, label: '', text: 'Fans on streaming platforms' };
+}
+
 // ── SHOW REAL RESULTS ──────────────────────────────────────
 function showRealResults(data) {
   const artistName = data.artistName || 'Artist';
-  const followersRaw = (typeof data.followers === 'number') ? data.followers : 0;
-  const followersDisplay = formatFollowers(followersRaw);
-  const isNoData         = (followersRaw === -1);
   const scanMode   = data.scanMode || data.type || 'artist';
   const isApple    = data.sourcePlatform === 'apple_music';
 
-  // ── ARTIST-FIRST IDENTITY ──
-  // Track / album / Apple are only INPUT SHORTCUTS to find the artist.
-  // The artist is always the primary identity — never overridden by track/album/source.
-  // Followers shown as 1.2M / 542K / "0 followers" / "Fans on streaming platforms"
-  // (the no-data sentinel — Apple input where no Spotify match was found).
-  const subText = isNoData
-    ? 'Fans on streaming platforms'
-    : `${followersDisplay} followers · Spotify`;
+  // ── AUDIENCE SIGNAL — best available, never "0 followers" ──
+  // Priority order:
+  //   1. Spotify followers (if > 1000)        → "X followers"
+  //   2. Last.fm listeners (highest fallback)  → "X listeners"
+  //   3. Deezer fans (final fallback)          → "X fans"
+  //   4. None of the above                     → "Fans on streaming platforms"
+  // Strict exclusion of low/zero/missing Spotify: 0 followers is misleading
+  // for indie artists who have audience on other platforms. We always pick
+  // the strongest honest signal we have.
+  const audience = pickAudienceSignal(data);
+  const subText  = audience.text;
 
   updateHeroDashboard(artistName, subText, data.overallScore, data.royaltyRiskScore?.riskLevel);
   setUrlTypePill(isApple ? 'apple' : scanMode);
@@ -1712,9 +1742,7 @@ function showRealResults(data) {
   renderAuditCoverage(data.auditCoverage, data.scannedAt);
   renderTerritoryCoverage(data.territoryCoverage);
 
-  const tagText = isNoData
-    ? `${artistName} · Fans on streaming platforms`
-    : `${artistName} · ${followersDisplay} followers`;
+  const tagText = `${artistName} · ${audience.text}`;
   document.getElementById('results-tag').textContent = tagText;
 
   // ── RESOLVED-FROM PILL ──
