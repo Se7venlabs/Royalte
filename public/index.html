@@ -530,9 +530,9 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 /* Artist image — sits between orb and text block.
    Source priority handled in JS: imageUrl > artistImageUrl > albumImageUrl > initials fallback */
 .d-score-img-wrap{
-  width:84px;height:84px;flex-shrink:0;border-radius:50%;overflow:hidden;
-  border:2px solid rgba(138,92,255,0.42);
-  box-shadow:0 0 24px rgba(138,92,255,0.28),0 0 12px rgba(64,212,240,0.18);
+  width:104px;height:104px;flex-shrink:0;border-radius:50%;overflow:hidden;
+  border:2px solid rgba(138,92,255,0.45);
+  box-shadow:0 0 32px rgba(138,92,255,0.30),0 0 16px rgba(64,212,240,0.20);
   background:linear-gradient(135deg,#2a1a4a,#3a2a5a);
   display:flex;align-items:center;justify-content:center;
   position:relative;
@@ -542,7 +542,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   width:100%;height:100%;object-fit:cover;display:block;
 }
 .d-score-img-wrap .d-score-img-fallback{
-  font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;
+  font-family:'Rajdhani',sans-serif;font-size:38px;font-weight:700;
   color:rgba(255,255,255,0.85);letter-spacing:0.04em;text-transform:uppercase;
   line-height:1;
 }
@@ -645,7 +645,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 /* Mobile — stack image cleanly, keep CTA visible, no overflow */
 @media(max-width:900px){
   .d-score-row{grid-template-columns:auto 1fr;gap:12px;}
-  .d-score-img-wrap{width:64px;height:64px;grid-column:1;grid-row:2;}
+  .d-score-img-wrap{width:80px;height:80px;grid-column:1;grid-row:2;}
   .d-score-ring{grid-column:1;grid-row:1;}
   .d-score-info{grid-column:2;grid-row:1 / span 2;}
   .d-score-row.is-revealed .d-score-artist{font-size:20px;}
@@ -654,6 +654,138 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   .d-locked-cta{padding:12px 14px;flex-direction:column;align-items:stretch;text-align:left;}
   .d-locked-cta-btn{width:100%;text-align:center;}
 }
+/* ═══════════════════════════════════════════════════════════
+   JARVIS ORB — post-scan "alive energy field" state
+   Activates when #hero-risk-indicator gets .jarvis-active class.
+   Layers: rotating conic palette + breathing radial + counter-
+   rotating shimmer + hue-shifting outer glow.
+   ═══════════════════════════════════════════════════════════ */
+@keyframes jarvisRotate{
+  0%   {transform:rotate(0deg);}
+  100% {transform:rotate(360deg);}
+}
+@keyframes jarvisRotateRev{
+  0%   {transform:rotate(360deg);}
+  100% {transform:rotate(0deg);}
+}
+@keyframes jarvisBreathe{
+  0%,100% {transform:scale(1);  opacity:0.9;}
+  50%     {transform:scale(1.08);opacity:1;}
+}
+@keyframes jarvisGlow{
+  0%,100% {box-shadow:0 0 28px rgba(138,92,255,0.55),0 0 56px rgba(138,92,255,0.22),0 0 92px rgba(138,92,255,0.12);}
+  25%     {box-shadow:0 0 28px rgba(224,64,200,0.55),0 0 56px rgba(224,64,200,0.22),0 0 92px rgba(224,64,200,0.12);}
+  50%     {box-shadow:0 0 28px rgba(64,212,240,0.55),0 0 56px rgba(64,212,240,0.22),0 0 92px rgba(64,212,240,0.12);}
+  75%     {box-shadow:0 0 28px rgba(90,155,255,0.55),0 0 56px rgba(90,155,255,0.22),0 0 92px rgba(90,155,255,0.12);}
+}
+.jarvis-active{
+  background:conic-gradient(from 0deg,#8a5cff 0deg,#e040c8 90deg,#40d4f0 180deg,#5a9bff 270deg,#8a5cff 360deg)!important;
+  animation:jarvisGlow 12s ease-in-out infinite!important;
+  position:relative!important;
+  overflow:visible!important;
+}
+.jarvis-active::before{
+  content:'';position:absolute;inset:-2px;border-radius:50%;
+  background:conic-gradient(from 90deg,rgba(138,92,255,0.35),rgba(224,64,200,0.35),rgba(64,212,240,0.35),rgba(90,155,255,0.35),rgba(138,92,255,0.35));
+  animation:jarvisRotate 24s linear infinite;
+  z-index:1;
+  pointer-events:none;
+}
+.jarvis-active::after{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.45) 0%,rgba(255,255,255,0.18) 18%,rgba(138,92,255,0.0) 55%),
+             conic-gradient(from 180deg,rgba(64,212,240,0.25),rgba(224,64,200,0.20),rgba(138,92,255,0.25),rgba(90,155,255,0.20),rgba(64,212,240,0.25));
+  animation:jarvisRotateRev 30s linear infinite,jarvisBreathe 2.2s ease-in-out infinite;
+  z-index:2;
+  pointer-events:none;
+  mix-blend-mode:screen;
+}
+/* When Jarvis is active, suppress the default solid-color core override
+   that updateHeroDashboard sets — we want the gradient field to win. */
+.jarvis-active #hero-risk-dot{
+  background:rgba(255,255,255,0.85)!important;
+  box-shadow:0 0 6px rgba(255,255,255,0.6)!important;
+  z-index:3;position:relative;
+}
+/* Smooth fade-in when transitioning from radar arcs to Jarvis */
+.jarvis-fade-in{animation:resultFadeUp 0.6s ease both;}
+
+/* Hide radar arcs once Jarvis takes over */
+.d-score-ring.jarvis-on #radar-arc,
+.d-score-ring.jarvis-on #radar-arc-inner{
+  opacity:0!important;
+  transition:opacity 0.6s ease!important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONVERSION BLOCK — appears below scan card after success
+   ═══════════════════════════════════════════════════════════ */
+.scan-conversion{
+  display:none;
+  margin-top:16px;
+  background:linear-gradient(135deg,rgba(138,92,255,0.12),rgba(224,64,200,0.08));
+  border:1px solid rgba(138,92,255,0.4);
+  border-radius:8px;
+  padding:18px 20px;
+  text-align:center;
+  box-shadow:0 0 30px rgba(138,92,255,0.18);
+}
+.scan-conversion.is-shown{display:block;animation:resultFadeUp 0.5s ease 0.20s both;}
+.scan-conversion-eyebrow{
+  font-family:'Space Mono',monospace;font-size:11px;font-weight:700;
+  letter-spacing:0.18em;text-transform:uppercase;color:#e040c8;
+  margin-bottom:6px;
+}
+.scan-conversion-headline{
+  font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:800;
+  color:#ffffff;line-height:1.15;letter-spacing:0;margin-bottom:6px;
+  text-transform:uppercase;
+}
+.scan-conversion-headline .gt{
+  background:linear-gradient(135deg,#8a5cff,#e040c8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.scan-conversion-sub{
+  font-size:13.5px;color:#c8c4e0;line-height:1.55;margin-bottom:6px;
+}
+.scan-conversion-list{
+  font-size:13px;color:#e8e4f4;line-height:1.7;margin-bottom:14px;
+  text-align:left;display:inline-block;
+}
+.scan-conversion-list li{list-style:none;padding-left:18px;position:relative;}
+.scan-conversion-list li::before{
+  content:'•';position:absolute;left:6px;color:#8a5cff;font-weight:700;
+}
+.scan-conversion-btn{
+  background:linear-gradient(135deg,#8a5cff,#e040c8);color:#fff;
+  padding:14px 32px;border-radius:6px;font-size:14px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;
+  font-family:'Space Grotesk',sans-serif;
+  box-shadow:0 6px 26px rgba(138,92,255,0.42);
+  transition:opacity 0.2s,transform 0.2s,box-shadow 0.2s;
+}
+.scan-conversion-btn:hover{
+  opacity:0.94;transform:translateY(-1px);
+  box-shadow:0 8px 32px rgba(138,92,255,0.55);
+}
+@media(max-width:900px){
+  .scan-conversion{padding:14px 16px;margin-top:12px;}
+  .scan-conversion-headline{font-size:18px;}
+  .scan-conversion-sub{font-size:12.5px;}
+  .scan-conversion-list{font-size:12.5px;}
+  .scan-conversion-btn{width:100%;padding:14px;}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAV CTA SUBTLE PULSE — "Request Full Audit" button
+   Low-intensity glow cycle, doesn't distract.
+   ═══════════════════════════════════════════════════════════ */
+@keyframes navCtaPulse{
+  0%,100% {box-shadow:0 0 0 rgba(138,92,255,0);}
+  50%     {box-shadow:0 0 18px rgba(138,92,255,0.45),0 0 32px rgba(224,64,200,0.20);}
+}
+.nav-cta-pulse{animation:navCtaPulse 3.4s ease-in-out infinite;}
+
 </style>
 </head>
 <body>
@@ -876,7 +1008,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <a href="/contact.html">Contact</a>
     </div>
     <span class="nav-beta">// Beta</span>
-    <a href="/#request" class="nav-cta">Request Full Audit</a>
+    <a href="/#request" class="nav-cta nav-cta-pulse">Request Full Audit</a>
   </div>
 </nav>
 
@@ -1102,6 +1234,18 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
           <button class="d-locked-cta-btn" onclick="scrollToForm()">Unlock Full Audit →</button>
         </div>
       </div>
+    </div>
+    <div class="scan-conversion" id="scan-conversion">
+      <div class="scan-conversion-eyebrow">// Limited Beta Offer</div>
+      <div class="scan-conversion-headline">First 200 artists get a <span class="gt">full audit free</span><br>($99 value)</div>
+      <div class="scan-conversion-sub">We found issues in your setup. Your full report shows exactly:</div>
+      <ul class="scan-conversion-list">
+        <li>what's broken</li>
+        <li>what's missing</li>
+        <li>how to fix it</li>
+      </ul>
+      <br>
+      <button class="scan-conversion-btn" onclick="scrollToForm()">Get My Full Audit →</button>
     </div>
   </div>
 </section>
@@ -1563,7 +1707,7 @@ async function runAudit() {
       document.getElementById('scan-progress').style.display = 'none';
     }, 600);
     document.getElementById('results-wrap').style.display = 'block';
-    document.getElementById('results-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // No auto-scroll. User stays on the scan card to absorb the reveal moment.
     return;
   }
 
@@ -1930,6 +2074,23 @@ function showRealResults(data) {
   const dashBody = document.querySelector('.dash-shell .dash-body');
   if (scoreRow) scoreRow.classList.add('is-revealed');
   if (dashBody) dashBody.classList.add('is-revealed');
+
+  // ── JARVIS ORB TRANSITION ──
+  // After scan completes the radar arcs fade out, then the Jarvis orb fades in.
+  // This is the "holy sh*t" moment — radar (functional) → Jarvis (alive).
+  setTimeout(() => {
+    const ring = document.querySelector('.d-score-ring');
+    const indicator = document.getElementById('hero-risk-indicator');
+    if (ring) ring.classList.add('jarvis-on');
+    if (indicator) {
+      indicator.classList.add('jarvis-active');
+      indicator.classList.add('jarvis-fade-in');
+    }
+  }, 500);
+
+  // ── CONVERSION BLOCK REVEAL ──
+  const conversionEl = document.getElementById('scan-conversion');
+  if (conversionEl) conversionEl.classList.add('is-shown');
 
   const tagText = `${artistName} · ${audience.text}`;
   document.getElementById('results-tag').textContent = tagText;
