@@ -1095,7 +1095,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <a href="/contact.html">Contact</a>
     </div>
     <span class="nav-beta">// Beta</span>
-    <a href="/audit.html" class="nav-cta nav-cta-pulse">Request Full Audit</a>
+    <a href="/#request" class="nav-cta nav-cta-pulse">Request Full Audit</a>
   </div>
 </nav>
 
@@ -1250,6 +1250,95 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       </div>
     </div>
     <div class="scan-conversion" id="scan-conversion" style="display:none;"></div>
+  </div>
+</section>
+
+<!-- CONVERSION BLOCK — full-width, between scan and form -->
+<section id="scan-conversion-section" class="scan-conversion-section">
+  <div class="scan-conversion-inner">
+    <h2 class="scan-conversion-headline">FIRST 200 ARTISTS GET A FULL AUDIT FREE</h2>
+    <div class="scan-conversion-subhead">($99 VALUE)</div>
+    <p class="scan-conversion-body">We found issues in your setup.<br>Your full report shows exactly:</p>
+    <ul class="scan-conversion-list">
+      <li>what's broken</li>
+      <li>what's missing</li>
+      <li>how to fix it</li>
+    </ul>
+    <button class="scan-conversion-btn" onclick="scrollToForm()">Get My Full Audit →</button>
+    <div class="scan-conversion-trust">No spam. Just your full Royaltē audit.</div>
+  </div>
+</section>
+
+<!-- FORM -->
+<section style="background:var(--bg2);" id="request">
+  <div class="si">
+    <div class="form-split">
+      <div class="reveal">
+        <div class="s-tag">Full audit request</div>
+        <h2 class="s-h2">Request Your<br><span class="gt">Full Audit.</span></h2>
+        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:24px;">Full audits are completed manually by our team. You'll receive a complete verified report — all 6 modules, your Royalty Risk Score breakdown, territory coverage, and an action plan — within 12–24 hours. Free during beta.</p>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">⚡</div><div style="font-size:13px;color:var(--text2);">Delivered within <strong style="color:var(--text);">12–24 hours</strong></div></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">✓</div><div style="font-size:13px;color:var(--text2);"><strong style="color:var(--text);">Verified data only</strong> — no estimates or projections</div></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">🔓</div><div style="font-size:13px;color:var(--text2);">Completely <strong style="color:var(--text);">free during beta</strong></div></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">📊</div><div style="font-size:13px;color:var(--text2);">Royalty Risk Score + <strong style="color:var(--text);">action plan</strong></div></div>
+        </div>
+      </div>
+      <div class="reveal d2">
+        <div class="form-card" id="form-card">
+          <!-- Lock overlay — hidden after scan completes -->
+          <div class="form-lock-overlay" id="form-lock-overlay">
+            <div class="form-lock-icon">🔒</div>
+            <div class="form-lock-title">Run a free scan first</div>
+            <div class="form-lock-sub">Paste your Spotify or Apple Music link above and run a scan — your artist name and link will auto-fill here.</div>
+            <button class="form-lock-btn" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('hero-url').focus();">Run Free Scan →</button>
+          </div>
+          <div id="form-inner">
+            <div class="form-row">
+              <label class="form-label">Artist Name <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(auto-filled from scan)</span></label>
+              <input class="form-input" id="f-name" type="text" placeholder="Run a scan above to auto-fill" readonly style="opacity:0.6;cursor:not-allowed;">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Email Address <span>*</span></label>
+              <input class="form-input" id="f-email" type="email" placeholder="your@email.com">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Spotify or Apple Music Link <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(auto-filled from scan)</span></label>
+              <input class="form-input" id="f-spotify" type="text" placeholder="Run a scan above to auto-fill" readonly style="opacity:0.6;cursor:not-allowed;">
+            </div>
+            <div class="form-row">
+              <label class="form-label">How many tracks on Spotify?</label>
+              <select class="form-select" id="f-tracks">
+                <option value="">Select range</option>
+                <option value="1-5">1–5 tracks</option>
+                <option value="6-20">6–20 tracks</option>
+                <option value="21-50">21–50 tracks</option>
+                <option value="50+">50+ tracks</option>
+              </select>
+            </div>
+            <div class="form-row" id="ref-row">
+              <label class="form-label">Referral code <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+              <input class="form-input" id="f-ref" type="text" placeholder="e.g. johndoe" style="letter-spacing:0.08em;" autocomplete="off" oninput="onRefCodeInput()">
+              <div id="ref-hint" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:6px;letter-spacing:0.06em;">// Got a code from someone who referred you? Enter it here.</div>
+              <div id="ref-reward" style="display:none;margin-top:10px;background:rgba(64,240,160,0.06);border:1px solid rgba(64,240,160,0.25);border-radius:4px;padding:10px 14px;">
+                <div style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.12em;color:var(--grn);margin-bottom:6px;">// Referral code applied — you're getting:</div>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);">⚡ <strong>Priority audit</strong> — delivered in 1–2 hours</div>
+                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);">💸 <strong>5% off</strong> when paid tiers launch</div>
+                </div>
+              </div>
+            </div>
+            <button class="form-submit" id="form-btn" onclick="submitForm()">Request My Full Audit →</button>
+            <div class="form-microcopy">Artist name and link auto-fill from your scan · Only email required<br>Full audit delivered within 12–24 hours · Verified data only</div>
+          </div>
+          <div class="form-success" id="form-success">
+            <div class="fs-icon">✅</div>
+            <div class="fs-title">You're on the list.</div>
+            <div style="font-size:13px;color:var(--muted2);line-height:1.6;">We've received your audit request. Our team will deliver your full Royaltē verified report within 12–24 hours.<br><br>You're also added to early access for all future Royaltē releases.</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1571,46 +1660,6 @@ async function runAudit() {
     return;
   }
 
-  // ── HOMEPAGE → AUDIT PAGE HANDOFF ──
-  // Homepage doesn't run the scan inline anymore. Show a brief "Resolving…"
-  // feedback moment (~2.5s), then hand off to /audit.html?url=… where the
-  // actual scan + result rendering lives. Only triggers when the homepage
-  // <body> is NOT tagged as the audit page (audit.html sets body.audit-page).
-  if (!document.body.classList.contains('audit-page')) {
-    input.style.outline = '';
-    clearUrlError();
-    stopArcHum();
-    btn.disabled = true;
-    btn.textContent = 'Resolving…';
-    playSweep();
-
-    // Update the dash-shell to show the resolving state visually.
-    const isAppleHandoff = isAppleMusicUrl(val);
-    const urlTypeHandoff = detectUrlType(val);
-    const handoffLabel =
-      isAppleHandoff              ? '// Apple Music link detected — resolving artist profile…' :
-      urlTypeHandoff === 'track'  ? '// Track detected — resolving artist profile…' :
-      urlTypeHandoff === 'album'  ? '// Album detected — resolving artist profile…' :
-                                    '// Resolving artist…';
-    const heroLabel = document.getElementById('hero-scan-label');
-    if (heroLabel) heroLabel.textContent = handoffLabel;
-    const heroName = document.getElementById('hero-artist-name');
-    if (heroName) {
-      heroName.classList.remove('is-idle');
-      heroName.textContent = 'Loading…';
-    }
-    const heroSub = document.getElementById('hero-artist-sub');
-    if (heroSub) heroSub.textContent = 'Preparing your audit…';
-
-    // Brief animation flash then redirect.
-    const handoffScan = animateScan(isAppleHandoff);
-    setTimeout(() => {
-      stopProcessingSound();
-      window.location.href = '/audit.html?url=' + encodeURIComponent(val);
-    }, 2500);
-    return;
-  }
-
   input.style.outline = '';
   clearUrlError();
   stopArcHum();
@@ -1923,7 +1972,6 @@ function renderIssues(flags) {
   // Severity sort: high first, then medium, then low
   const sevRank = { high: 0, medium: 1, low: 2 };
   const sorted = [...arr].sort((a, b) => (sevRank[a.severity] ?? 3) - (sevRank[b.severity] ?? 3));
-  const top3 = sorted.slice(0, 3);
 
   // Map a flag's technical description to {impact, explanation, emoji}
   const mapFlag = (flag) => {
@@ -2030,17 +2078,29 @@ function renderIssues(flags) {
         explanation: 'Physical catalog records may be incomplete.'
       };
     }
-    // Default fallback — short impact line, no technical filler
-    return {
-      emoji,
-      impact: isHigh ? 'Royalty issue detected' : 'Minor issue detected',
-      explanation: 'Details available in your full audit.'
-    };
+    // No pattern matched — skip this flag entirely.
+    // We only render strong, recognized issues. Unmatched flags don't render at all.
+    return null;
   };
 
-  const html = top3.map(flag => {
-    const m = mapFlag(flag);
-    return `<div class="d-issue severity-${flag.severity || 'low'}">
+  // Map every flag, drop unmatched (null) results, then take top 3.
+  const mapped = sorted.map(f => {
+    const m = mapFlag(f);
+    if (!m) return null;
+    return { ...m, severity: f.severity || 'low' };
+  }).filter(Boolean);
+
+  // If no flags pattern-matched, hide the block entirely.
+  if (mapped.length === 0) {
+    wrapEl.style.display = 'none';
+    wrapEl.classList.remove('is-shown');
+    return;
+  }
+
+  const top3 = mapped.slice(0, 3);
+
+  const html = top3.map(m => {
+    return `<div class="d-issue severity-${m.severity}">
       <div class="d-issue-impact">${m.emoji} ${m.impact}</div>
       <div class="d-issue-explanation">${m.explanation}</div>
     </div>`;
