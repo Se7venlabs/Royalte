@@ -2826,18 +2826,27 @@ function closeAuditModal() {
   document.body.style.overflow = '';
 }
 
-// Close on overlay click (clicking outside the card)
-document.getElementById('audit-modal').addEventListener('click', function(e){
-  if (e.target === this) closeAuditModal();
-});
-
-// Close on Escape key
-document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape') {
-    const modal = document.getElementById('audit-modal');
-    if (modal && modal.classList.contains('is-open')) closeAuditModal();
+// Close on overlay click (clicking outside the card) + Escape key
+// Deferred to DOMContentLoaded to ensure #audit-modal exists when we attach.
+function _attachAuditModalListeners() {
+  const modal = document.getElementById('audit-modal');
+  if (modal) {
+    modal.addEventListener('click', function(e){
+      if (e.target === this) closeAuditModal();
+    });
   }
-});
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') {
+      const m = document.getElementById('audit-modal');
+      if (m && m.classList.contains('is-open')) closeAuditModal();
+    }
+  });
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _attachAuditModalListeners);
+} else {
+  _attachAuditModalListeners();
+}
 
 async function submitAuditModal(e) {
   if (e && e.preventDefault) e.preventDefault();
