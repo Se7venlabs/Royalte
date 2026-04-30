@@ -873,6 +873,47 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 }
 .nav-cta-pulse{animation:navCtaPulse 3.4s ease-in-out infinite;}
 
+/* ═══════════════════════════════════════════════════════════
+   HERO VISUAL — studio photo in empty lower-left area
+   Sits below .hero-stats inside .hero-left. Fills remaining
+   vertical space to balance the audit card on the right.
+   Photo on ::before (with opacity + filter applied)
+   Right-side fade on ::after (full opacity gradient)
+   Inset purple glow + radius + clipping on the container itself.
+   ═══════════════════════════════════════════════════════════ */
+.hero-left:has(.hero-visual){justify-content:flex-start;padding-top:24px;}
+.hero-visual{
+  position:relative;
+  flex:1;
+  min-height:240px;
+  margin-top:32px;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:inset 0 0 120px rgba(138,92,255,0.12);
+}
+.hero-visual::before{
+  content:'';
+  position:absolute;inset:0;
+  background-image:url('/images/producer-studio.jpg');
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  opacity:0.82;
+  filter:brightness(0.85) contrast(1.1);
+  z-index:0;
+}
+.hero-visual::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(to right, rgba(7,4,16,0) 55%, rgba(7,4,16,0.9) 100%);
+  z-index:1;
+  pointer-events:none;
+}
+
+@media(max-width:900px){
+  .hero-visual{min-height:180px;margin-top:24px;}
+}
+
 </style>
 </head>
 <body>
@@ -1169,6 +1210,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <div class="hstat"><span class="hstat-n">Verified</span><span class="hstat-l">Data only</span></div>
       <div class="hstat"><span class="hstat-n">12–24h</span><span class="hstat-l">Full audit delivery</span></div>
     </div>
+    <div class="hero-visual" aria-hidden="true"></div>
   </div>
   <div class="hero-right">
     <div class="dash-badge db1"><div class="dbadge-val">Beta</div><div class="dbadge-lbl">Live now</div></div>
