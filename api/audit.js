@@ -53,6 +53,10 @@ export default async function handler(req, res) {
         canonicalTarget:    'artist',
         spotifyMatched:     false,
         artistUrl:          null,
+        imageUrl:           resolved.artistImage || resolved.appleArtworkUrl || null,
+        artistImageUrl:     resolved.artistImage || resolved.appleArtworkUrl || null,
+        albumImageUrl:      null,
+        appleArtworkUrl:    resolved.appleArtworkUrl || null,
         platforms: {
           spotify: false, musicbrainz: false, deezer: false, audiodb: false,
           discogs: false, soundcloud: false, lastfm: false, wikipedia: false,
@@ -146,6 +150,12 @@ export default async function handler(req, res) {
       canonicalTarget:    'artist',
       spotifyMatched:     resolved.spotifyMatched !== false,
       artistUrl:          resolved.artistUrl || artistData.external_urls?.spotify || null,
+      // ── ARTIST IMAGE FIELDS (additive) ──
+      // Priority: Spotify artist image → resolved.artistImage (may be Apple artwork) → track album image → null
+      imageUrl:           artistData.images?.[0]?.url || resolved.artistImage || trackData?.album?.images?.[0]?.url || null,
+      artistImageUrl:     artistData.images?.[0]?.url || resolved.artistImage || null,
+      albumImageUrl:      trackData?.album?.images?.[0]?.url || null,
+      appleArtworkUrl:    resolved.appleArtworkUrl || null,
       platforms: {
         spotify: true,
         musicbrainz: mbData.found,
@@ -271,7 +281,10 @@ async function resolveToArtist(inputUrl, token) {
   // Apple URL → resolve artist name on Apple → search Spotify for that name.
   // If no Spotify match, return spotifyMatched: false but DO NOT fail.
   if (inputType === 'apple') {
-    const appleArtistName = await resolveAppleArtistName(inputUrl);
+    // Resolve Apple artist + artwork in one shot
+    const appleResolved = await resolveAppleArtist(inputUrl);
+    const appleArtistName = appleResolved?.name;
+    const appleArtwork    = appleResolved?.artworkUrl || null;
     if (!appleArtistName) {
       throw new Error('Could not resolve artist from Apple Music link');
     }
@@ -289,23 +302,24 @@ async function resolveToArtist(inputUrl, token) {
       return {
         artistId:          spotifyArtist.id,
         artistName:        spotifyArtist.name,
-        artistImage:       spotifyArtist.images?.[0]?.url || null,
+        artistImage:       spotifyArtist.images?.[0]?.url || appleArtwork || null,
         artistUrl:         spotifyArtist.external_urls?.spotify || null,
         spotifyMatched:    true,
         resolvedFrom:      'apple',
         resolvedFromType:  'external',
         resolvedFromTitle: appleArtistName,
         canonicalTarget:   'artist',
+        appleArtworkUrl:   appleArtwork,
       };
     }
     // No Spotify match after retry. Per spec: DO NOT fail the scan.
     // Return a degraded record with followers: -1 sentinel so the handler
     // can ship a success response even though Spotify-dependent fields
-    // will be empty.
+    // will be empty. Apple artwork still serves as the image.
     return {
       artistId:          null,
       artistName:        appleArtistName,
-      artistImage:       null,
+      artistImage:       appleArtwork || null,
       artistUrl:         null,
       spotifyMatched:    false,
       followers:         -1,
@@ -313,6 +327,7 @@ async function resolveToArtist(inputUrl, token) {
       resolvedFromType:  'external',
       resolvedFromTitle: appleArtistName,
       canonicalTarget:   'artist',
+      appleArtworkUrl:   appleArtwork,
     };
   }
 
@@ -454,7 +469,7 @@ async function getSpotifyTopTracks(artistId, token) {
 // enrichment AFTER artist is known.
 // Supports artist / song / album URLs from music.apple.com.
 // ────────────────────────────────────────────────────────
-async function resolveAppleArtistName(appleUrl) {
+async function resolveAppleArtist(appleUrl) {
   try {
     const meta = parseAppleMusicUrl(appleUrl);
     if (!meta) return null;
@@ -464,18 +479,41 @@ async function resolveAppleArtistName(appleUrl) {
     const BASE = 'https://api.music.apple.com/v1';
     const sf = meta.storefront || 'us';
 
+    const formatArtwork = (artwork) => {
+      if (!artwork || !artwork.url) return null;
+      // Apple's url is a template like https://....{w}x{h}bb.jpg
+      // Substitute 600x600 for a high-quality square image.
+      return artwork.url.replace('{w}', '600').replace('{h}', '600');
+    };
+
     if (meta.kind === 'artist') {
       const r = await fetch(`${BASE}/catalog/${sf}/artists/${meta.id}`, { headers });
       if (!r.ok) return null;
       const data = await r.json();
-      return data?.data?.[0]?.attributes?.name || null;
+      const attrs = data?.data?.[0]?.attributes;
+      if (!attrs) return null;
+      // Artist endpoint sometimes lacks artwork — fall back to artist search
+      let artworkUrl = formatArtwork(attrs.artwork);
+      if (!artworkUrl) {
+        const sresp = await fetch(`${BASE}/catalog/${sf}/search?term=${encodeURIComponent(attrs.name)}&types=artists&limit=3`, { headers });
+        if (sresp.ok) {
+          const sdata = await sresp.json();
+          const match = sdata?.results?.artists?.data?.[0];
+          artworkUrl = formatArtwork(match?.attributes?.artwork);
+        }
+      }
+      return { name: attrs.name, artworkUrl };
     }
 
     if (meta.kind === 'song') {
       const r = await fetch(`${BASE}/catalog/${sf}/songs/${meta.id}`, { headers });
       if (!r.ok) return null;
       const data = await r.json();
-      return data?.data?.[0]?.attributes?.artistName || null;
+      const attrs = data?.data?.[0]?.attributes;
+      if (!attrs?.artistName) return null;
+      // Songs always have artwork (album cover) — use as fallback
+      const artworkUrl = formatArtwork(attrs.artwork);
+      return { name: attrs.artistName, artworkUrl };
     }
 
     if (meta.kind === 'album') {
@@ -484,14 +522,18 @@ async function resolveAppleArtistName(appleUrl) {
         const rs = await fetch(`${BASE}/catalog/${sf}/songs/${meta.songId}`, { headers });
         if (rs.ok) {
           const data = await rs.json();
-          const n = data?.data?.[0]?.attributes?.artistName;
-          if (n) return n;
+          const attrs = data?.data?.[0]?.attributes;
+          if (attrs?.artistName) {
+            return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork) };
+          }
         }
       }
       const r = await fetch(`${BASE}/catalog/${sf}/albums/${meta.id}`, { headers });
       if (!r.ok) return null;
       const data = await r.json();
-      return data?.data?.[0]?.attributes?.artistName || null;
+      const attrs = data?.data?.[0]?.attributes;
+      if (!attrs?.artistName) return null;
+      return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork) };
     }
 
     return null;
@@ -499,6 +541,12 @@ async function resolveAppleArtistName(appleUrl) {
     console.error('Apple resolution error:', err.message);
     return null;
   }
+}
+
+// Backwards-compat alias — keep the old function name in case anything else calls it
+async function resolveAppleArtistName(appleUrl) {
+  const r = await resolveAppleArtist(appleUrl);
+  return r ? r.name : null;
 }
 
 function parseAppleMusicUrl(url) {
