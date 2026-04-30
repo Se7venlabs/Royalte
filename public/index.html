@@ -1258,12 +1258,13 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
             <span class="d-score-img-fallback" id="hero-artist-img-fallback">—</span>
           </div>
           <div class="d-score-info">
-            <div class="d-score-realness">This is your real music data</div>
-            <div class="d-score-title" id="hero-scan-label">// Beta audit preview</div>
-            <div class="d-score-artist is-idle" id="hero-artist-name">Please stand by for initialization.</div>
-            <div class="d-score-track" id="hero-artist-sub">Run audit to see your verified data</div>
+            <div class="d-score-realness" style="display:none;">This is your real music data</div>
+            <div class="d-score-title" id="hero-scan-label" style="display:none;">// Beta audit preview</div>
+            <div class="d-score-artist is-idle" id="hero-artist-name">Run a scan to see your audit results</div>
+            <div class="d-score-track" id="hero-artist-sub"></div>
           </div>
         </div>
+        <div id="audit-results" style="display:none;">
         <div class="d-score-tag" id="hero-score-tag">
           <div class="d-score-tag-num" id="hero-score-tag-num">—</div>
           <div class="d-score-tag-lbl">Royaltē Score</div>
@@ -1273,12 +1274,12 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
           <div class="d-alert-t"><span class="d-alert-strong">⚠️ You are losing royalties</span>Publishing and registration gaps detected in verified data.</div>
         </div>
         <div class="d-modules">
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Metadata Issues Detected</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:35%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">35</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--amb)"></div><div class="d-mod-name">Platform Coverage Gaps</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:60%;background:var(--amb)"></div></div><div class="d-mod-score" style="color:var(--amb)">60</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Publishing Risk Exposure</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:25%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">25</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--grn)"></div><div class="d-mod-name">YouTube / UGC Exposure</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:78%;background:var(--grn)"></div></div><div class="d-mod-score" style="color:var(--grn)">78</div></div>
+          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Metadata Issues Detected</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">—</div></div>
+          <div class="d-mod"><div class="d-mod-icon" style="background:var(--amb)"></div><div class="d-mod-name">Platform Coverage Gaps</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;background:var(--amb)"></div></div><div class="d-mod-score" style="color:var(--amb)">—</div></div>
+          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Publishing Risk Exposure</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">—</div></div>
+          <div class="d-mod"><div class="d-mod-icon" style="background:var(--grn)"></div><div class="d-mod-name">YouTube / UGC Exposure</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;background:var(--grn)"></div></div><div class="d-mod-score" style="color:var(--grn)">—</div></div>
         </div>
-        <div class="d-issues" id="d-issues" style="display:none;">
+        <div class="d-issues" id="d-issues">
           <div class="d-issues-list" id="d-issues-list"></div>
           <div class="d-issues-footer">🔒 Full breakdown available in your audit</div>
         </div>
@@ -1288,6 +1289,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
             <div class="d-locked-cta-sub">See exactly where your royalties may be leaking.</div>
           </div>
           <button class="d-locked-cta-btn" onclick="scrollToForm()">Unlock Full Audit →</button>
+        </div>
         </div>
       </div>
     </div>
@@ -1722,10 +1724,12 @@ async function runAudit() {
     urlType === 'track'  ? '// Track detected — resolving artist profile…' :
     urlType === 'album'  ? '// Album detected — resolving artist profile…' :
                            '// Scanning...';
-  document.getElementById('hero-scan-label').textContent = scanLabel;
+  const scanLabelEl = document.getElementById('hero-scan-label');
+  scanLabelEl.style.display = '';
+  scanLabelEl.textContent = scanLabel;
   const nameEl = document.getElementById('hero-artist-name');
   nameEl.classList.remove('is-idle');
-  nameEl.textContent = 'Loading...';
+  nameEl.textContent = 'Analyzing your catalog...';
   document.getElementById('hero-artist-sub').textContent =
     isApple              ? 'Resolving artist profile…' :
     urlType === 'track'  ? 'Resolving artist profile…' :
@@ -1782,6 +1786,13 @@ async function runAudit() {
   }
   scan.fail(msg);
   showUrlError(msg);
+  // Reset orb to idle pre-scan state — audit-results stays hidden, no fake data shows
+  const scanLabelFail = document.getElementById('hero-scan-label');
+  if (scanLabelFail) { scanLabelFail.style.display = 'none'; scanLabelFail.textContent = '// Beta audit preview'; }
+  const nameFail = document.getElementById('hero-artist-name');
+  if (nameFail) { nameFail.textContent = 'Run a scan to see your audit results'; nameFail.classList.add('is-idle'); }
+  const subFail = document.getElementById('hero-artist-sub');
+  if (subFail) subFail.textContent = '';
   btn.disabled = false;
   btn.textContent = 'Run Free Audit →';
 }
@@ -1892,9 +1903,17 @@ function deactivateRadarArcs() {
 }
 
 function updateHeroDashboard(artistName, subText, score, riskLevel) {
-  document.getElementById('hero-scan-label').textContent = '// Verified audit preview';
+  const scanLabelEl = document.getElementById('hero-scan-label');
+  scanLabelEl.style.display = '';
+  scanLabelEl.textContent = '// Verified audit preview';
   document.getElementById('hero-artist-name').textContent = artistName;
   document.getElementById('hero-artist-sub').textContent = subText;
+  // Reveal "This is your real music data" line (was hidden pre-scan)
+  const realnessEl = document.querySelector('.d-score-realness');
+  if (realnessEl) realnessEl.style.display = '';
+  // Reveal entire audit results container — score, alert, modules, issues, locked CTA
+  const resultsEl = document.getElementById('audit-results');
+  if (resultsEl) resultsEl.style.display = 'block';
   // Show risk level instead of score number
   const RISK_COLORS = { 'High': 'var(--red)', 'Moderate': 'var(--amb)', 'Low': 'var(--grn)' };
   const RISK_GLOW   = { 'High': '#f05060',    'Moderate': '#f0c040',    'Low': '#40f0a0'    };
