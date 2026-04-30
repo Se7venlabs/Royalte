@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Audit — Royaltē · Music Audit Intelligence</title>
+<title>Royaltē — Music Audit Intelligence · Beta · Se7ven Labs Inc.</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="/images/artist-crowd-lights.jpg">
 <link rel="preload" as="image" href="/images/artist-singer-smoke.jpg">
@@ -873,280 +873,195 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 }
 .nav-cta-pulse{animation:navCtaPulse 3.4s ease-in-out infinite;}
 
-/* ═══════════════════════════════════════════════════════════
-   AUDIT PAGE OVERRIDES — only active on audit.html (body.audit-page)
-   Compact scan bar at top, full-width dash-shell below, plus
-   Expanded Findings + Action Plan sections that don't exist on homepage.
-   Reuses every existing component. Does NOT affect homepage.
-   ═══════════════════════════════════════════════════════════ */
-
-/* Hide marketing-feel elements on audit page */
-.audit-page #scan-tool .hero-h1,
-.audit-page #scan-tool .hero-desc,
-.audit-page #scan-tool .hero-stats{display:none;}
-
-/* Compact scan-tool section — sits right under nav */
-.audit-page #scan-tool{
-  padding:96px 56px 32px;
-  flex-direction:column;
-  align-items:stretch;
-  gap:28px;
-}
-.audit-page #scan-tool .hero-left,
-.audit-page #scan-tool .hero-right{
-  width:100%;
-  max-width:1100px;
-  margin:0 auto;
-}
-.audit-page #scan-tool .hero-paste{
-  max-width:920px;
-  margin:0 auto;
-}
-.audit-page #scan-tool .hero-right{
-  display:flex;
-  justify-content:center;
-}
-.audit-page #scan-tool .dash-shell{
-  width:100%;
-  max-width:1100px;
-}
-.audit-page #scan-tool .paste-input{font-size:15px;padding:18px 22px;}
-.audit-page #scan-tool .paste-btn{font-size:13px;padding:18px 28px;}
-.audit-page #scan-tool .paste-hint{text-align:center;}
-.audit-page #scan-tool .url-type-chip{justify-content:center;}
-
-/* Audit-page eyebrow — sits above the compact paste bar */
-.audit-page-eyebrow{
-  font-family:'Space Mono',monospace;
-  font-size:11px;font-weight:700;
-  letter-spacing:0.18em;
-  color:#8a5cff;
-  text-align:center;
-  margin-bottom:14px;
-  text-transform:uppercase;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   EXPANDED FINDINGS — full list of all flags grouped by severity
-   ═══════════════════════════════════════════════════════════ */
-.findings-section{
-  display:none;
-  background:var(--bg);
-  padding:48px 56px 32px;
-}
-.findings-section.is-shown{display:block;}
-.findings-inner{
-  max-width:1100px;
-  margin:0 auto;
-}
-.findings-header{
-  font-family:'Rajdhani',sans-serif;
-  font-size:clamp(24px,3vw,32px);
-  font-weight:800;
-  color:#ffffff;
-  text-transform:uppercase;
-  letter-spacing:0.005em;
-  margin-bottom:6px;
-  line-height:1.1;
-}
-.findings-eyebrow{
-  font-family:'Space Mono',monospace;
-  font-size:11px;font-weight:700;
-  letter-spacing:0.18em;
-  color:#8a5cff;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-.findings-sub{
-  font-size:14px;color:#c8c4e0;line-height:1.55;margin-bottom:32px;
-}
-.findings-group{margin-bottom:28px;}
-.findings-group-title{
-  font-family:'Space Mono',monospace;
-  font-size:12px;font-weight:700;
-  letter-spacing:0.14em;
-  text-transform:uppercase;
-  margin-bottom:12px;
-  display:flex;align-items:center;gap:8px;
-}
-.findings-group-title .fg-dot{
-  width:8px;height:8px;border-radius:50%;
-}
-.findings-group.severity-high .fg-dot{background:var(--red);}
-.findings-group.severity-medium .fg-dot{background:var(--amb);}
-.findings-group.severity-low .fg-dot{background:var(--grn);}
-.findings-group.severity-high .findings-group-title{color:var(--red);}
-.findings-group.severity-medium .findings-group-title{color:var(--amb);}
-.findings-group.severity-low .findings-group-title{color:var(--grn);}
-.findings-list{display:flex;flex-direction:column;gap:10px;}
-.finding-row{
-  display:flex;flex-direction:column;gap:3px;
-  padding:14px 18px;
-  background:rgba(7,7,15,0.55);
-  border:1px solid rgba(255,255,255,0.06);
-  border-radius:6px;
-  border-left:3px solid var(--amb);
-}
-.finding-row.severity-high{border-left-color:var(--red);}
-.finding-row.severity-low{border-left-color:var(--grn);}
-.finding-impact{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:14.5px;font-weight:700;
-  color:#ffffff;line-height:1.35;
-}
-.finding-explanation{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:13px;color:#c8c4e0;line-height:1.5;
-}
-.findings-empty{
-  padding:24px 18px;
-  background:rgba(64,240,160,0.06);
-  border:1px solid rgba(64,240,160,0.22);
-  border-radius:6px;
-  font-size:14px;color:#c8c4e0;text-align:center;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   ACTION PLAN — checklist + PRO guide + royalty gap callout
-   ═══════════════════════════════════════════════════════════ */
-.action-section{
-  display:none;
-  background:var(--bg2);
-  padding:48px 56px;
-}
-.action-section.is-shown{display:block;}
-.action-inner{max-width:1100px;margin:0 auto;}
-.action-header{
-  font-family:'Rajdhani',sans-serif;
-  font-size:clamp(24px,3vw,32px);
-  font-weight:800;
-  color:#ffffff;
-  text-transform:uppercase;
-  letter-spacing:0.005em;
-  margin-bottom:6px;
-  line-height:1.1;
-}
-.action-eyebrow{
-  font-family:'Space Mono',monospace;
-  font-size:11px;font-weight:700;
-  letter-spacing:0.18em;
-  color:#8a5cff;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-.action-sub{
-  font-size:14px;color:#c8c4e0;line-height:1.55;margin-bottom:32px;
-}
-.action-cols{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:24px;
-}
-.action-checklist{
-  background:#0a0818;
-  border:1px solid rgba(138,92,255,0.22);
-  border-radius:8px;
-  padding:24px 28px;
-}
-.action-checklist-title{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:15px;font-weight:700;color:#ffffff;
-  margin-bottom:16px;
-  text-transform:uppercase;letter-spacing:0.06em;
-}
-.action-step{
-  display:flex;gap:12px;
-  padding:12px 0;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-}
-.action-step:last-child{border-bottom:none;}
-.action-step-num{
-  flex-shrink:0;
-  width:28px;height:28px;
-  background:linear-gradient(135deg,#8a5cff,#e040c8);
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#fff;
-}
-.action-step-text{
-  font-size:13.5px;color:#e8e4f4;line-height:1.5;
-  flex:1;align-self:center;
-}
-.action-side{
-  display:flex;flex-direction:column;gap:18px;
-}
-.action-card{
-  background:#0a0818;
-  border:1px solid rgba(138,92,255,0.22);
-  border-radius:8px;
-  padding:22px 24px;
-}
-.action-card-eyebrow{
-  font-family:'Space Mono',monospace;
-  font-size:10px;font-weight:700;
-  letter-spacing:0.16em;
-  color:#9490b8;
-  text-transform:uppercase;
-  margin-bottom:6px;
-}
-.action-card-title{
-  font-family:'Rajdhani',sans-serif;
-  font-size:22px;font-weight:800;color:#ffffff;
-  text-transform:uppercase;letter-spacing:0.005em;
-  margin-bottom:10px;
-  line-height:1.1;
-}
-.action-card .gt{
-  background:linear-gradient(135deg,#8a5cff,#e040c8);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.action-card-body{
-  font-size:13px;color:#c8c4e0;line-height:1.6;
-}
-.action-card-link{
-  display:inline-block;margin-top:12px;
-  color:#8a5cff;font-weight:700;font-size:13px;
-  text-decoration:none;
-}
-.action-card-link:hover{color:#e040c8;}
-.royalty-gap-num{
-  font-family:'Rajdhani',sans-serif;
-  font-size:32px;font-weight:800;
-  background:linear-gradient(135deg,#8a5cff,#e040c8);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  line-height:1;letter-spacing:0;margin-bottom:4px;
-}
-.royalty-gap-label{
-  font-size:12px;color:#9490b8;
-  font-family:'Space Mono',monospace;
-  letter-spacing:0.1em;text-transform:uppercase;
-}
-
-/* Audit-page error state for invalid ?url= or API failure */
-.audit-error-banner{
-  display:none;
-  max-width:920px;margin:0 auto 16px;
-  background:rgba(240,80,96,0.08);
-  border:1px solid rgba(240,80,96,0.32);
-  border-radius:6px;
-  padding:14px 18px;
-  font-size:13.5px;color:#e8e4f4;line-height:1.45;
-}
-.audit-error-banner.is-shown{display:block;}
-.audit-error-banner strong{color:var(--red);}
-
-@media(max-width:900px){
-  .audit-page #scan-tool{padding:88px 18px 24px;}
-  .findings-section{padding:36px 18px 24px;}
-  .action-section{padding:36px 18px;}
-  .action-cols{grid-template-columns:1fr;}
-  .findings-header,.action-header{font-size:24px;}
-  .finding-impact{font-size:13.5px;}
-  .finding-explanation{font-size:12.5px;}
-}
 </style>
 </head>
-<body class="audit-page">
+<body>
+
+<!-- ═══ NEW HERO ═══ -->
+<section class="new-hero" id="top">
+  <div class="orb-a"></div>
+  <div class="orb-b"></div>
+  <div class="grid-bg"></div>
+  <div class="nh-collage" aria-hidden="true">
+    <img src="/images/artist-crowd-lights.jpg" alt="" style="object-position:center center;">
+    <img src="/images/artist-singer-smoke.jpg" alt="" class="nh-mobile-hide" style="object-position:center center;filter:brightness(1.5) contrast(1.1);">
+    <img src="/images/artist-producer.jpg" alt="" style="object-position:center center;">
+    <img src="/images/artist-cowboy-guitar.jpg" alt="" style="object-position:center center;">
+    <img src="/images/artist-stage-red.jpg" alt="" style="object-position:center center;">
+    <img src="/images/artist-acoustic.jpg" alt="" class="nh-mobile-hide" style="object-position:center 25%;">
+    <img src="/images/artist-dj-booth.jpg" alt="" style="object-position:center 60%;">
+    <img src="/images/artist-singer-belt.jpg" alt="" style="object-position:center center;">
+  </div>
+  <div class="nh-collage-overlay" aria-hidden="true"></div>
+  <div class="nh-left">
+    <h1 class="nh-h1">
+      You can't collect<br>what you <span class="gt-block" style="display:inline;">can't see.</span>
+    </h1>
+    <p class="nh-tagline">
+      Every stream, sync, and performance earns you royalties. <span class="nh-tagline-emphasis">Royaltē shows you exactly where yours are.</span>
+    </p>
+    <p class="nh-desc">
+      Every stream, sync, and performance generates royalties. Most artists never collect all of them. Royaltē scans your catalog, identifies exactly where money is slipping away, and tells you how to fix it.
+    </p>
+    <p class="nh-desc-mobile">
+      Every stream, sync, and performance generates royalties. Most artists never collect all of them. Royaltē shows you exactly where the money is.
+    </p>
+    <button class="nh-cta-btn" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('hero-url').focus(),800);">Run Free Scan →</button>
+    <div class="nh-finds">
+      <div class="nh-find-row">
+        <div class="nh-find-marker"></div>
+        <div class="nh-find-content">
+          <div class="nh-find-title">Metadata gaps that block payouts</div>
+          <div class="nh-find-sub">ISRCs, ISWCs, writer splits, publisher info</div>
+        </div>
+      </div>
+      <div class="nh-find-row">
+        <div class="nh-find-marker"></div>
+        <div class="nh-find-content">
+          <div class="nh-find-title">Cross-platform registration leaks</div>
+          <div class="nh-find-sub">Spotify, Apple Music, SoundExchange, PROs</div>
+        </div>
+      </div>
+      <div class="nh-find-row">
+        <div class="nh-find-marker"></div>
+        <div class="nh-find-content">
+          <div class="nh-find-title">Unclaimed YouTube / UGC revenue</div>
+          <div class="nh-find-sub">Content ID matches, sync opportunities</div>
+        </div>
+      </div>
+    </div>
+    <div class="nh-footnote">// verified data only · no estimates · no guesswork</div>
+  </div>
+
+  <div class="nh-right">
+    <div class="nh-visual">
+      <svg viewBox="-260 -260 520 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#8a5cff" stop-opacity="0.55"/>
+            <stop offset="60%" stop-color="#8a5cff" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#8a5cff" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#8a5cff"/>
+            <stop offset="100%" stop-color="#e040c8"/>
+          </linearGradient>
+          <linearGradient id="streamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#8a5cff" stop-opacity="0"/>
+            <stop offset="50%" stop-color="#8a5cff" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#e040c8" stop-opacity="0"/>
+          </linearGradient>
+          <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- outer glow halo -->
+        <circle cx="0" cy="0" r="240" fill="url(#coreGlow)" opacity="0.7"/>
+
+        <!-- outermost ring w/ ticks -->
+        <g class="ring-outer">
+          <circle cx="0" cy="0" r="230" fill="none" stroke="rgba(138,92,255,0.15)" stroke-width="1"/>
+          <g stroke="rgba(138,92,255,0.4)" stroke-width="1.5" stroke-linecap="round">
+            <line x1="230" y1="0" x2="246" y2="0"/>
+            <line x1="-230" y1="0" x2="-246" y2="0"/>
+            <line x1="0" y1="230" x2="0" y2="246"/>
+            <line x1="0" y1="-230" x2="0" y2="-246"/>
+            <line x1="162.6" y1="162.6" x2="174" y2="174" transform="rotate(0)"/>
+            <line x1="-162.6" y1="162.6" x2="-174" y2="174"/>
+            <line x1="162.6" y1="-162.6" x2="174" y2="-174"/>
+            <line x1="-162.6" y1="-162.6" x2="-174" y2="-174"/>
+          </g>
+        </g>
+
+        <!-- mid ring, dashed -->
+        <g class="ring-mid">
+          <circle cx="0" cy="0" r="180" fill="none" stroke="url(#ringGrad)" stroke-width="1.5" stroke-dasharray="6 10" opacity="0.55"/>
+        </g>
+
+        <!-- scanning sweep wedge -->
+        <g class="scan-line">
+          <path d="M 0 0 L 180 -40 A 184 184 0 0 1 180 40 Z" fill="url(#ringGrad)" opacity="0.25"/>
+          <line x1="0" y1="0" x2="180" y2="0" stroke="#8a5cff" stroke-width="1.5" opacity="0.6"/>
+        </g>
+
+        <!-- inner solid ring -->
+        <circle cx="0" cy="0" r="130" fill="none" stroke="url(#ringGrad)" stroke-width="2" opacity="0.85"/>
+
+        <!-- data streams (curved paths from nodes to center) -->
+        <g stroke="url(#streamGrad)" stroke-width="1.5" fill="none">
+          <path class="data-stream" d="M 0 0 Q 90 -80 180 -110"/>
+          <path class="data-stream" d="M 0 0 Q -100 -60 -195 -30" style="animation-delay:0.8s;"/>
+          <path class="data-stream" d="M 0 0 Q 70 110 150 175" style="animation-delay:1.6s;"/>
+          <path class="data-stream" d="M 0 0 Q -120 70 -210 60" style="animation-delay:2.4s;"/>
+          <path class="data-stream" d="M 0 0 Q 40 -130 -30 -215" style="animation-delay:3.2s;"/>
+        </g>
+
+        <!-- core disc with rotating markers -->
+        <g class="core-disc">
+          <circle cx="0" cy="0" r="80" fill="rgba(12,12,26,0.6)" stroke="url(#ringGrad)" stroke-width="2"/>
+          <circle cx="80" cy="0" r="4" fill="#8a5cff"/>
+          <circle cx="-80" cy="0" r="4" fill="#e040c8"/>
+          <circle cx="0" cy="80" r="3" fill="#8a5cff" opacity="0.7"/>
+          <circle cx="0" cy="-80" r="3" fill="#e040c8" opacity="0.7"/>
+        </g>
+
+        <!-- center pulsing core -->
+        <g class="center-pulse" filter="url(#softGlow)">
+          <circle cx="0" cy="0" r="42" fill="url(#ringGrad)" opacity="0.18"/>
+          <circle cx="0" cy="0" r="28" fill="url(#ringGrad)" opacity="0.35"/>
+          <circle cx="0" cy="0" r="14" fill="url(#ringGrad)"/>
+        </g>
+
+        <!-- Platform status nodes -->
+        <!-- Spotify — top right (green/OK) -->
+        <g class="node" transform="translate(180, -110)">
+          <circle r="14" fill="rgba(64,240,160,0.15)" stroke="#40f0a0" stroke-width="1.5"/>
+          <circle r="5" fill="#40f0a0"/>
+          <text x="22" y="4" class="visual-label" fill="#40f0a0">SPOTIFY</text>
+          <text x="22" y="18" class="visual-label" fill="#5a5880" style="font-size:8px;">✓ Registered</text>
+        </g>
+
+        <!-- Apple Music — left (amber/warn) -->
+        <g class="node node-2" transform="translate(-195, -30)">
+          <circle r="14" fill="rgba(240,192,64,0.15)" stroke="#f0c040" stroke-width="1.5"/>
+          <circle r="5" fill="#f0c040"/>
+          <text x="-22" y="4" class="visual-label" fill="#f0c040" text-anchor="end">APPLE MUSIC</text>
+          <text x="-22" y="18" class="visual-label" fill="#5a5880" text-anchor="end" style="font-size:8px;">⚠ Not Confirmed</text>
+        </g>
+
+        <!-- SoundExchange — bottom right (red/gap) -->
+        <g class="node node-3" transform="translate(150, 175)">
+          <circle r="14" fill="rgba(240,80,96,0.15)" stroke="#f05060" stroke-width="1.5"/>
+          <circle r="5" fill="#f05060"/>
+          <text x="22" y="4" class="visual-label" fill="#f05060">SOUNDEXCHANGE</text>
+          <text x="22" y="18" class="visual-label" fill="#5a5880" style="font-size:8px;">✗ Not Confirmed</text>
+        </g>
+
+        <!-- PRO — bottom left (red/gap) -->
+        <g class="node node-4" transform="translate(-210, 60)">
+          <circle r="14" fill="rgba(240,80,96,0.15)" stroke="#f05060" stroke-width="1.5"/>
+          <circle r="5" fill="#f05060"/>
+          <text x="-22" y="4" class="visual-label" fill="#f05060" text-anchor="end">PRO</text>
+          <text x="-22" y="18" class="visual-label" fill="#5a5880" text-anchor="end" style="font-size:8px;">✗ Not Connected</text>
+        </g>
+
+        <!-- YouTube / UGC — top left (ok) -->
+        <g class="node node-5" transform="translate(-30, -215)">
+          <circle r="14" fill="rgba(64,240,160,0.15)" stroke="#40f0a0" stroke-width="1.5"/>
+          <circle r="5" fill="#40f0a0"/>
+          <text x="22" y="4" class="visual-label" fill="#40f0a0">YOUTUBE / UGC</text>
+          <text x="22" y="18" class="visual-label" fill="#5a5880" style="font-size:8px;">✓ Detected</text>
+        </g>
+
+        <!-- center label -->
+        <text x="0" y="3" text-anchor="middle" fill="#ffffff" font-family="'Rajdhani',sans-serif" font-size="14" font-weight="700" letter-spacing="2">SCAN</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
 <!-- Background music — served as static asset from /audio/ -->
 <nav>
   <a href="/" class="nav-brand-link" aria-label="Royaltē home">
@@ -1180,18 +1095,61 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <a href="/contact.html">Contact</a>
     </div>
     <span class="nav-beta">// Beta</span>
-    <a href="/#request" class="nav-cta nav-cta-pulse">Request Full Audit</a>
+    <a href="/audit.html" class="nav-cta nav-cta-pulse">Request Full Audit</a>
   </div>
 </nav>
 
 
 
+<!-- STAKES / THE NUMBERS -->
+<section style="background:var(--bg2);" id="stakes">
+  <div class="stakes-wrap reveal">
+    <div class="stakes-copy">
+      <div class="stakes-eyebrow">// the reality</div>
+      <h2 class="stakes-h">You're leaving money <span class="gt">on the table.</span></h2>
+      <p class="stakes-sub">Every year, artists miss out on royalties they've already earned. Splits go unregistered. Metadata gets lost between platforms. YouTube Content ID matches go unclaimed. The money exists — it just never reaches you.</p>
+      <div class="stakes-stats">
+        <div class="stakes-stat">
+          <div class="stakes-stat-num">$500M+</div>
+          <div class="stakes-stat-label">in royalties sit in the global black box</div>
+          <div class="stakes-stat-label">Metadata gaps, missing registrations, and bad data keep money from reaching the right artists.</div>
+        </div>
+        <div class="stakes-stat">
+          <div class="stakes-stat-num">Up to 1 in 3</div>
+          <div class="stakes-stat-label">releases contain metadata issues that can block payouts</div>
+        </div>
+        <div class="stakes-stat">
+          <div class="stakes-stat-num">Royaltē scans 6 core data sources</div>
+          <div class="stakes-stat-label">to uncover where your catalog may be leaking revenue</div>
+        </div>
+      </div>
+    </div>
+    <div class="stakes-photo-wrap">
+      <div class="stakes-photo" style="background-image:url('/images/artist-laptop-studio.jpg');"></div>
+      <div class="stakes-photo-fade"></div>
+    </div>
+  </div>
+</section>
+
+<!-- BUILT BY ARTISTS -->
+<section style="background:var(--bg);" id="beta">
+  <div class="built-wrap reveal">
+    <div class="built-photo-wrap">
+      <div class="built-photo"></div>
+      <div class="built-photo-fade"></div>
+    </div>
+    <div class="built-copy">
+      <div class="built-eyebrow">// built by artists</div>
+      <h2 class="built-h">Built by artists<br><span class="gt">for artists.</span></h2>
+      <p class="built-sub">We've been in the room. We know what it feels like to leave money on the table because the system wasn't built for you. Royaltē was.</p>
+    </div>
+  </div>
+</section>
+
 <section class="hero" id="scan-tool">
   <div class="orb1"></div><div class="orb2"></div>
   <div class="hero-scan"></div>
   <div class="hero-left">
-    <div class="audit-page-eyebrow">// Royaltē Audit Engine · Live Scan</div>
-    <div class="audit-error-banner" id="audit-error-banner"></div>
     <h3 class="hero-h1">Paste your link. See your gaps in <span class="gt">seconds.</span></h3>
     <p class="hero-desc">Royaltē scans your profile and shows you verified gaps — no estimates, no guesswork.</p>
     <div class="hero-paste">
@@ -1292,138 +1250,6 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       </div>
     </div>
     <div class="scan-conversion" id="scan-conversion" style="display:none;"></div>
-  </div>
-</section>
-
-<!-- EXPANDED FINDINGS — full list of all flags from the API -->
-<section class="findings-section" id="findings-section">
-  <div class="findings-inner">
-    <div class="findings-eyebrow">// Expanded Findings</div>
-    <h2 class="findings-header">Every issue we detected</h2>
-    <p class="findings-sub">Each one is a real signal pulled from your verified public data. Severity ranks how directly it affects your royalty flow.</p>
-    <div id="findings-content"></div>
-  </div>
-</section>
-
-<!-- ACTION PLAN — checklist + PRO guide + royalty gap -->
-<section class="action-section" id="action-section">
-  <div class="action-inner">
-    <div class="action-eyebrow">// Action Plan</div>
-    <h2 class="action-header">What to do next</h2>
-    <p class="action-sub">A clear sequence to close the gaps in your setup. Your full Royaltē audit pinpoints the exact fixes.</p>
-    <div class="action-cols">
-      <div class="action-checklist">
-        <div class="action-checklist-title">Recommended Steps</div>
-        <div class="action-step"><div class="action-step-num">1</div><div class="action-step-text">Verify your artist profile data — name, genres, image, and links are clean and consistent.</div></div>
-        <div class="action-step"><div class="action-step-num">2</div><div class="action-step-text">Confirm every release has correct ISRCs and metadata registered with your distributor.</div></div>
-        <div class="action-step"><div class="action-step-num">3</div><div class="action-step-text">Check your PRO and publishing registration — works should be filed in your local society's repertoire.</div></div>
-        <div class="action-step"><div class="action-step-num">4</div><div class="action-step-text">Review your YouTube / Content ID exposure — claim user-generated content on official channels.</div></div>
-        <div class="action-step"><div class="action-step-num">5</div><div class="action-step-text">Request your full Royaltē audit for the exact fixes, sized to your catalog.</div></div>
-      </div>
-      <div class="action-side">
-        <div class="action-card" id="pro-guide-card" style="display:none;">
-          <div class="action-card-eyebrow">// PRO Registration</div>
-          <div class="action-card-title" id="pro-guide-title"><span class="gt">Your local PRO</span></div>
-          <div class="action-card-body" id="pro-guide-body"></div>
-          <a class="action-card-link" id="pro-guide-link" href="#" target="_blank" rel="noopener noreferrer">Open registration site →</a>
-        </div>
-        <div class="action-card" id="royalty-gap-card" style="display:none;">
-          <div class="action-card-eyebrow">// Estimated Exposure</div>
-          <div class="royalty-gap-num" id="royalty-gap-num">—</div>
-          <div class="royalty-gap-label">Annual streams (estimated)</div>
-          <div class="action-card-body" id="royalty-gap-body" style="margin-top:12px;"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CONVERSION BLOCK — full-width, between scan and form -->
-<section id="scan-conversion-section" class="scan-conversion-section">
-  <div class="scan-conversion-inner">
-    <h2 class="scan-conversion-headline">FIRST 200 ARTISTS GET A FULL AUDIT FREE</h2>
-    <div class="scan-conversion-subhead">($99 VALUE)</div>
-    <p class="scan-conversion-body">We found issues in your setup.<br>Your full report shows exactly:</p>
-    <ul class="scan-conversion-list">
-      <li>what's broken</li>
-      <li>what's missing</li>
-      <li>how to fix it</li>
-    </ul>
-    <button class="scan-conversion-btn" onclick="scrollToForm()">Get My Full Audit →</button>
-    <div class="scan-conversion-trust">No spam. Just your full Royaltē audit.</div>
-  </div>
-</section>
-
-<!-- FORM -->
-<section style="background:var(--bg2);" id="request">
-  <div class="si">
-    <div class="form-split">
-      <div class="reveal">
-        <div class="s-tag">Full audit request</div>
-        <h2 class="s-h2">Request Your<br><span class="gt">Full Audit.</span></h2>
-        <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:24px;">Full audits are completed manually by our team. You'll receive a complete verified report — all 6 modules, your Royalty Risk Score breakdown, territory coverage, and an action plan — within 12–24 hours. Free during beta.</p>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">⚡</div><div style="font-size:13px;color:var(--text2);">Delivered within <strong style="color:var(--text);">12–24 hours</strong></div></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">✓</div><div style="font-size:13px;color:var(--text2);"><strong style="color:var(--text);">Verified data only</strong> — no estimates or projections</div></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">🔓</div><div style="font-size:13px;color:var(--text2);">Completely <strong style="color:var(--text);">free during beta</strong></div></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">📊</div><div style="font-size:13px;color:var(--text2);">Royalty Risk Score + <strong style="color:var(--text);">action plan</strong></div></div>
-        </div>
-      </div>
-      <div class="reveal d2">
-        <div class="form-card" id="form-card">
-          <!-- Lock overlay — hidden after scan completes -->
-          <div class="form-lock-overlay" id="form-lock-overlay">
-            <div class="form-lock-icon">🔒</div>
-            <div class="form-lock-title">Run a free scan first</div>
-            <div class="form-lock-sub">Paste your Spotify or Apple Music link above and run a scan — your artist name and link will auto-fill here.</div>
-            <button class="form-lock-btn" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('hero-url').focus();">Run Free Scan →</button>
-          </div>
-          <div id="form-inner">
-            <div class="form-row">
-              <label class="form-label">Artist Name <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(auto-filled from scan)</span></label>
-              <input class="form-input" id="f-name" type="text" placeholder="Run a scan above to auto-fill" readonly style="opacity:0.6;cursor:not-allowed;">
-            </div>
-            <div class="form-row">
-              <label class="form-label">Email Address <span>*</span></label>
-              <input class="form-input" id="f-email" type="email" placeholder="your@email.com">
-            </div>
-            <div class="form-row">
-              <label class="form-label">Spotify or Apple Music Link <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(auto-filled from scan)</span></label>
-              <input class="form-input" id="f-spotify" type="text" placeholder="Run a scan above to auto-fill" readonly style="opacity:0.6;cursor:not-allowed;">
-            </div>
-            <div class="form-row">
-              <label class="form-label">How many tracks on Spotify?</label>
-              <select class="form-select" id="f-tracks">
-                <option value="">Select range</option>
-                <option value="1-5">1–5 tracks</option>
-                <option value="6-20">6–20 tracks</option>
-                <option value="21-50">21–50 tracks</option>
-                <option value="50+">50+ tracks</option>
-              </select>
-            </div>
-            <div class="form-row" id="ref-row">
-              <label class="form-label">Referral code <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
-              <input class="form-input" id="f-ref" type="text" placeholder="e.g. johndoe" style="letter-spacing:0.08em;" autocomplete="off" oninput="onRefCodeInput()">
-              <div id="ref-hint" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:6px;letter-spacing:0.06em;">// Got a code from someone who referred you? Enter it here.</div>
-              <div id="ref-reward" style="display:none;margin-top:10px;background:rgba(64,240,160,0.06);border:1px solid rgba(64,240,160,0.25);border-radius:4px;padding:10px 14px;">
-                <div style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.12em;color:var(--grn);margin-bottom:6px;">// Referral code applied — you're getting:</div>
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);">⚡ <strong>Priority audit</strong> — delivered in 1–2 hours</div>
-                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);">💸 <strong>5% off</strong> when paid tiers launch</div>
-                </div>
-              </div>
-            </div>
-            <button class="form-submit" id="form-btn" onclick="submitForm()">Request My Full Audit →</button>
-            <div class="form-microcopy">Artist name and link auto-fill from your scan · Only email required<br>Full audit delivered within 12–24 hours · Verified data only</div>
-          </div>
-          <div class="form-success" id="form-success">
-            <div class="fs-icon">✅</div>
-            <div class="fs-title">You're on the list.</div>
-            <div style="font-size:13px;color:var(--muted2);line-height:1.6;">We've received your audit request. Our team will deliver your full Royaltē verified report within 12–24 hours.<br><br>You're also added to early access for all future Royaltē releases.</div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -1529,25 +1355,6 @@ document.addEventListener('DOMContentLoaded', () => {
         chip.textContent = '';
       }
     });
-  }
-
-  // ── AUDIT-PAGE AUTO-SCAN ──
-  // If ?url= param is present, prefill the paste box and trigger the scan.
-  // runAudit's validation handles invalid URLs and shows an error banner.
-  if (document.body.classList.contains('audit-page')) {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const urlParam = params.get('url');
-      if (urlParam && input) {
-        input.value = urlParam;
-        // Trigger the input event to update the URL-type chip
-        input.dispatchEvent(new Event('input'));
-        // Small delay so user can see the URL appear before scan starts
-        setTimeout(() => { runAudit(); }, 250);
-      }
-    } catch (err) {
-      console.error('Auto-scan param parse error:', err);
-    }
   }
 });
 
@@ -1765,19 +1572,42 @@ async function runAudit() {
   }
 
   // ── HOMEPAGE → AUDIT PAGE HANDOFF ──
-  // Homepage doesn't run the scan inline anymore. Show a brief "Redirecting…"
-  // feedback moment, then hand off to /audit.html?url=… where the actual
-  // scan + result rendering lives. Only triggers when the homepage <body>
-  // is NOT tagged as the audit page (audit.html sets body.audit-page).
+  // Homepage doesn't run the scan inline anymore. Show a brief "Resolving…"
+  // feedback moment (~2.5s), then hand off to /audit.html?url=… where the
+  // actual scan + result rendering lives. Only triggers when the homepage
+  // <body> is NOT tagged as the audit page (audit.html sets body.audit-page).
   if (!document.body.classList.contains('audit-page')) {
     input.style.outline = '';
     clearUrlError();
+    stopArcHum();
     btn.disabled = true;
-    btn.textContent = 'Redirecting…';
-    // Short visual confirmation so the click feels acknowledged.
+    btn.textContent = 'Resolving…';
+    playSweep();
+
+    // Update the dash-shell to show the resolving state visually.
+    const isAppleHandoff = isAppleMusicUrl(val);
+    const urlTypeHandoff = detectUrlType(val);
+    const handoffLabel =
+      isAppleHandoff              ? '// Apple Music link detected — resolving artist profile…' :
+      urlTypeHandoff === 'track'  ? '// Track detected — resolving artist profile…' :
+      urlTypeHandoff === 'album'  ? '// Album detected — resolving artist profile…' :
+                                    '// Resolving artist…';
+    const heroLabel = document.getElementById('hero-scan-label');
+    if (heroLabel) heroLabel.textContent = handoffLabel;
+    const heroName = document.getElementById('hero-artist-name');
+    if (heroName) {
+      heroName.classList.remove('is-idle');
+      heroName.textContent = 'Loading…';
+    }
+    const heroSub = document.getElementById('hero-artist-sub');
+    if (heroSub) heroSub.textContent = 'Preparing your audit…';
+
+    // Brief animation flash then redirect.
+    const handoffScan = animateScan(isAppleHandoff);
     setTimeout(() => {
+      stopProcessingSound();
       window.location.href = '/audit.html?url=' + encodeURIComponent(val);
-    }, 1200);
+    }, 2500);
     return;
   }
 
@@ -1861,10 +1691,6 @@ async function runAudit() {
   }
   scan.fail(msg);
   showUrlError(msg);
-  // Audit page also shows an error banner under the eyebrow with a "try again" prompt
-  if (document.body.classList.contains('audit-page')) {
-    showAuditError(msg + '. Try a different link, or paste a Spotify or Apple Music link in the box above.');
-  }
   btn.disabled = false;
   btn.textContent = 'Run Free Audit →';
 }
@@ -2082,149 +1908,6 @@ function pickAudienceSignal(data) {
 // Transforms data.flags (technical descriptions) into emotional impact/explanation
 // pairs. Max 3 issues, prioritised by severity (high → medium → low).
 // Hides the block entirely if no flags are present (no fabrication).
-// ── EXPANDED FINDINGS RENDERER (audit-page only) ──
-// Shows ALL data.flags (not just top 3), grouped by severity high → medium → low.
-// Same emotional impact/explanation pattern as the dashboard issues block.
-function renderExpandedFindings(flags) {
-  const sectionEl = document.getElementById('findings-section');
-  const contentEl = document.getElementById('findings-content');
-  if (!sectionEl || !contentEl) return;
-
-  const arr = Array.isArray(flags) ? flags : [];
-  if (arr.length === 0) {
-    contentEl.innerHTML = '<div class="findings-empty">✅ No critical issues detected in this scan. Your full Royaltē audit confirms with a deeper review.</div>';
-    sectionEl.classList.add('is-shown');
-    return;
-  }
-
-  // Reuse mapFlag-style logic locally to avoid coupling to renderIssues internals
-  const mapFlag = (flag) => {
-    const desc = String(flag.description || '');
-    const sev  = flag.severity || 'low';
-    const isHigh = sev === 'high';
-    const lower = desc.toLowerCase();
-    const numMatch = desc.match(/([\d,]+(?:\.\d+)?)\s*([A-Za-z%]+)?/);
-    const rawNum = numMatch ? Number(numMatch[1].replace(/,/g, '')) : null;
-    const formattedNum = (typeof rawNum === 'number' && !isNaN(rawNum) && rawNum > 0) ? formatFollowers(rawNum) : null;
-
-    if (lower.includes('unmonetised') || lower.includes('unmonetized') || (lower.includes('youtube') && lower.includes('views'))) {
-      return { emoji:'💥', impact: formattedNum ? `${formattedNum} views are not monetized` : 'Unmonetized views detected on YouTube', explanation:'This content is generating traffic without being claimed.' };
-    }
-    if (lower.includes('last.fm') || lower.includes('lastfm play')) {
-      return { emoji:'⚠️', impact:'High streaming activity detected', explanation:'Your catalog may not be fully registered for royalty collection.' };
-    }
-    if (lower.includes('not found on apple music') && (lower.includes('% of top') || lower.includes('tracks missing'))) {
-      const pct = numMatch ? numMatch[1] : null;
-      return { emoji:'💥', impact: pct ? `${pct}% of your catalog is missing from Apple Music` : 'Apple Music catalog gaps detected', explanation:'Distribution gaps are limiting your revenue.' };
-    }
-    if (lower.includes('not found on apple music') || (lower.includes('artist') && lower.includes('apple music'))) {
-      return { emoji:'⚠️', impact:'Missing from Apple Music', explanation:"You're invisible on the second-largest streaming platform." };
-    }
-    if (lower.includes('isrc')) {
-      return { emoji:'💥', impact:'Track ISRC not registered', explanation:'Performance royalties may not route correctly without it.' };
-    }
-    if (lower.includes('catalog active for') || lower.includes('catalog active') || lower.includes('catalog age')) {
-      const yearMatch = desc.match(/(\d+)\s*year/i);
-      return { emoji:'⚠️', impact: yearMatch ? `${yearMatch[1]} years of catalog exposure` : 'Multi-year royalty exposure detected', explanation:'Extended history may have unclaimed earnings.' };
-    }
-    if (lower.includes('musicbrainz')) {
-      return { emoji:'⚠️', impact:'Not registered in MusicBrainz', explanation:"Publishing data can't be cross-referenced." };
-    }
-    if (lower.includes('wikipedia') || lower.includes('wikidata')) {
-      return { emoji:'⚠️', impact:'No Wikipedia presence', explanation:'Sync licensors often check Wikipedia before licensing.' };
-    }
-    if (lower.includes('genre')) {
-      return { emoji:'⚠️', impact:'Genre metadata missing', explanation:'Sync placements and discovery may be blocked.' };
-    }
-    if (lower.includes('content id')) {
-      return { emoji:'💥', impact:'Content ID not verified', explanation:'YouTube monetization status is unclear.' };
-    }
-    if (lower.includes('discogs')) {
-      return { emoji:'⚠️', impact:'Limited Discogs presence', explanation:'Physical catalog records may be incomplete.' };
-    }
-    return { emoji: isHigh ? '💥' : '⚠️', impact: isHigh ? 'Royalty issue detected' : 'Minor issue detected', explanation:'Details available in your full audit.' };
-  };
-
-  // Group by severity
-  const groups = { high: [], medium: [], low: [] };
-  arr.forEach(f => {
-    const s = (f.severity === 'high' || f.severity === 'medium' || f.severity === 'low') ? f.severity : 'low';
-    groups[s].push(f);
-  });
-
-  const groupLabels = { high: 'High Severity', medium: 'Medium Severity', low: 'Low Severity' };
-  let html = '';
-  for (const sev of ['high','medium','low']) {
-    const list = groups[sev];
-    if (!list.length) continue;
-    html += `<div class="findings-group severity-${sev}">
-      <div class="findings-group-title"><span class="fg-dot"></span>${groupLabels[sev]} · ${list.length}</div>
-      <div class="findings-list">
-        ${list.map(f => {
-          const m = mapFlag(f);
-          return `<div class="finding-row severity-${sev}">
-            <div class="finding-impact">${m.emoji} ${m.impact}</div>
-            <div class="finding-explanation">${m.explanation}</div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }
-  contentEl.innerHTML = html;
-  sectionEl.classList.add('is-shown');
-}
-
-// ── ACTION PLAN RENDERER (audit-page only) ──
-// Renders the static checklist (always present) + dynamic PRO guide + royalty gap callouts
-function renderActionPlan(data) {
-  const sectionEl = document.getElementById('action-section');
-  if (!sectionEl) return;
-  sectionEl.classList.add('is-shown');
-
-  // PRO guide
-  const proCard = document.getElementById('pro-guide-card');
-  if (proCard && data.proGuide && data.proGuide.pro) {
-    document.getElementById('pro-guide-title').innerHTML = `<span class="gt">${data.proGuide.pro}</span>`;
-    let proBody = '';
-    if (data.proGuide.note) proBody += `<div style="margin-bottom:10px;">${data.proGuide.note}</div>`;
-    if (Array.isArray(data.proGuide.steps) && data.proGuide.steps.length) {
-      proBody += '<div style="font-size:12.5px;color:#9490b8;margin-top:8px;">Quick start:</div>';
-      proBody += '<ul style="margin:6px 0 0 18px;padding:0;font-size:12.5px;color:#c8c4e0;line-height:1.7;">';
-      data.proGuide.steps.slice(0, 3).forEach(s => { proBody += `<li>${s}</li>`; });
-      proBody += '</ul>';
-    }
-    document.getElementById('pro-guide-body').innerHTML = proBody;
-    const link = document.getElementById('pro-guide-link');
-    if (link && data.proGuide.url) link.href = data.proGuide.url;
-    proCard.style.display = 'block';
-  }
-
-  // Royalty gap
-  const gapCard = document.getElementById('royalty-gap-card');
-  if (gapCard && data.royaltyGap && typeof data.royaltyGap.estAnnualStreams === 'number' && data.royaltyGap.estAnnualStreams > 0) {
-    document.getElementById('royalty-gap-num').textContent = formatFollowers(data.royaltyGap.estAnnualStreams);
-    let gapBody = '';
-    if (typeof data.royaltyGap.potentialGapHigh === 'number' && data.royaltyGap.potentialGapHigh > 0) {
-      const lo = data.royaltyGap.potentialGapLow || 0;
-      const hi = data.royaltyGap.potentialGapHigh;
-      gapBody += `<div>Estimated potential royalty gap: <strong style="color:#fff;">$${lo.toLocaleString()}–$${hi.toLocaleString()}</strong></div>`;
-    }
-    if (data.royaltyGap.disclaimer) {
-      gapBody += `<div style="font-size:11.5px;color:#9490b8;margin-top:10px;line-height:1.5;">${data.royaltyGap.disclaimer}</div>`;
-    }
-    document.getElementById('royalty-gap-body').innerHTML = gapBody;
-    gapCard.style.display = 'block';
-  }
-}
-
-// ── AUDIT-PAGE ERROR DISPLAY ──
-function showAuditError(msg) {
-  const banner = document.getElementById('audit-error-banner');
-  if (!banner) return;
-  banner.innerHTML = `<strong>Scan failed</strong> — ${msg}`;
-  banner.classList.add('is-shown');
-}
-
 function renderIssues(flags) {
   const listEl = document.getElementById('d-issues-list');
   const wrapEl = document.getElementById('d-issues');
@@ -2449,14 +2132,6 @@ function showRealResults(data) {
   // ── ISSUES BLOCK ──
   // Renders up to 3 emotional impact rows from data.flags. Hides if empty.
   renderIssues(data.flags || data.previewFlags || []);
-
-  // ── AUDIT-PAGE ONLY: expanded findings + action plan ──
-  // These render only on audit.html (elements don't exist on homepage,
-  // so the functions no-op silently when called there).
-  if (document.body.classList.contains('audit-page')) {
-    renderExpandedFindings(data.flags || []);
-    renderActionPlan(data);
-  }
 
   // ── CONVERSION BLOCK REVEAL ──
   const conversionEl = document.getElementById('scan-conversion-section');
