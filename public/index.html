@@ -807,6 +807,63 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 }
 
 /* ═══════════════════════════════════════════════════════════
+   ISSUES BLOCK — emotional conversion section
+   "Why this matters" — sits between module bars and locked CTA.
+   Hidden if data.flags is empty (never fabricate).
+   ═══════════════════════════════════════════════════════════ */
+.d-issues{
+  margin-top:12px;
+  padding:14px 16px;
+  background:linear-gradient(135deg,rgba(240,80,96,0.06),rgba(138,92,255,0.04));
+  border:1px solid rgba(240,80,96,0.22);
+  border-radius:8px;
+}
+.d-issues.is-shown{display:block!important;}
+.d-issues-list{display:flex;flex-direction:column;gap:14px;}
+.d-issue{
+  display:flex;flex-direction:column;gap:3px;
+  padding:11px 14px;
+  background:rgba(7,7,15,0.55);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:6px;
+  border-left:3px solid var(--red);
+}
+.d-issue.severity-medium,
+.d-issue.severity-low{
+  border-left-color:var(--amb);
+}
+.d-issue-impact{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:14px;font-weight:700;
+  color:#ffffff;line-height:1.35;letter-spacing:0.005em;
+}
+.d-issue-explanation{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:12.5px;font-weight:400;
+  color:#c8c4e0;line-height:1.45;
+}
+.d-issues-footer{
+  margin-top:14px;padding-top:12px;
+  border-top:1px solid rgba(138,92,255,0.18);
+  font-family:'Space Mono',monospace;
+  font-size:11px;font-weight:600;
+  letter-spacing:0.08em;
+  color:#9490b8;
+  text-align:center;
+}
+/* Reveal stagger — fits between modules (delay 0.74s) and CTA (0.86s) */
+.dash-body.is-revealed .d-issues.is-shown{
+  animation:resultFadeUp 0.45s ease 0.78s both;
+}
+@media(max-width:900px){
+  .d-issues{padding:12px 14px;margin-top:10px;}
+  .d-issue{padding:10px 12px;}
+  .d-issue-impact{font-size:13.5px;}
+  .d-issue-explanation{font-size:12px;}
+  .d-issues-footer{font-size:10.5px;}
+}
+
+/* ═══════════════════════════════════════════════════════════
    NAV CTA SUBTLE PULSE — "Request Full Audit" button
    Low-intensity glow cycle, doesn't distract.
    ═══════════════════════════════════════════════════════════ */
@@ -1178,6 +1235,10 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
           <div class="d-mod"><div class="d-mod-icon" style="background:var(--amb)"></div><div class="d-mod-name">Platform Coverage Gaps</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:60%;background:var(--amb)"></div></div><div class="d-mod-score" style="color:var(--amb)">60</div></div>
           <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Publishing Risk Exposure</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:25%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">25</div></div>
           <div class="d-mod"><div class="d-mod-icon" style="background:var(--grn)"></div><div class="d-mod-name">YouTube / UGC Exposure</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:78%;background:var(--grn)"></div></div><div class="d-mod-score" style="color:var(--grn)">78</div></div>
+        </div>
+        <div class="d-issues" id="d-issues" style="display:none;">
+          <div class="d-issues-list" id="d-issues-list"></div>
+          <div class="d-issues-footer">🔒 Full breakdown available in your audit</div>
         </div>
         <div class="d-locked-cta">
           <div class="d-locked-cta-text">
@@ -1892,6 +1953,153 @@ function pickAudienceSignal(data) {
   return { source: 'none', count: 0, label: '', text: 'Fans on streaming platforms' };
 }
 
+// ── ISSUES RENDERER ──
+// Transforms data.flags (technical descriptions) into emotional impact/explanation
+// pairs. Max 3 issues, prioritised by severity (high → medium → low).
+// Hides the block entirely if no flags are present (no fabrication).
+function renderIssues(flags) {
+  const listEl = document.getElementById('d-issues-list');
+  const wrapEl = document.getElementById('d-issues');
+  if (!listEl || !wrapEl) return;
+
+  const arr = Array.isArray(flags) ? flags : [];
+  if (arr.length === 0) {
+    wrapEl.style.display = 'none';
+    wrapEl.classList.remove('is-shown');
+    return;
+  }
+
+  // Severity sort: high first, then medium, then low
+  const sevRank = { high: 0, medium: 1, low: 2 };
+  const sorted = [...arr].sort((a, b) => (sevRank[a.severity] ?? 3) - (sevRank[b.severity] ?? 3));
+  const top3 = sorted.slice(0, 3);
+
+  // Map a flag's technical description to {impact, explanation, emoji}
+  const mapFlag = (flag) => {
+    const desc = String(flag.description || '');
+    const sev  = flag.severity || 'low';
+    const isHigh = sev === 'high';
+    const emoji = isHigh ? '💥' : '⚠️';
+
+    // Try to extract a number-with-units from the description (e.g. "13,800,000 views", "682,000 plays")
+    const numMatch = desc.match(/([\d,]+(?:\.\d+)?)\s*([A-Za-z%]+)?/);
+    const rawNum = numMatch ? Number(numMatch[1].replace(/,/g, '')) : null;
+    const formattedNum = (typeof rawNum === 'number' && !isNaN(rawNum) && rawNum > 0) ? formatFollowers(rawNum) : null;
+
+    // Pattern matching — most specific patterns first
+    const lower = desc.toLowerCase();
+
+    // YouTube unmonetised views
+    if (lower.includes('unmonetised') || lower.includes('unmonetized') || (lower.includes('youtube') && lower.includes('views'))) {
+      return {
+        emoji: '💥',
+        impact: formattedNum ? `${formattedNum} views are not monetized` : 'Unmonetized views detected on YouTube',
+        explanation: 'This content is generating traffic without being claimed.'
+      };
+    }
+    // Last.fm streaming activity
+    if (lower.includes('last.fm') || lower.includes('lastfm play')) {
+      return {
+        emoji: '⚠️',
+        impact: 'High streaming activity detected',
+        explanation: 'Your catalog may not be fully registered for royalty collection.'
+      };
+    }
+    // Apple Music — catalog gap (X% missing)
+    if (lower.includes('not found on apple music') && (lower.includes('% of top') || lower.includes('tracks missing'))) {
+      const pct = numMatch ? numMatch[1] : null;
+      return {
+        emoji: '💥',
+        impact: pct ? `${pct}% of your catalog is missing from Apple Music` : 'Apple Music catalog gaps detected',
+        explanation: 'Distribution gaps are limiting your revenue.'
+      };
+    }
+    // Apple Music — artist not found at all
+    if (lower.includes('not found on apple music') || (lower.includes('artist') && lower.includes('apple music'))) {
+      return {
+        emoji: '⚠️',
+        impact: 'Missing from Apple Music',
+        explanation: 'You\'re invisible on the second-largest streaming platform.'
+      };
+    }
+    // ISRC issues
+    if (lower.includes('isrc')) {
+      return {
+        emoji: '💥',
+        impact: 'Track ISRC not registered',
+        explanation: 'Performance royalties may not route correctly without it.'
+      };
+    }
+    // Catalog age
+    if (lower.includes('catalog active for') || lower.includes('catalog active') || lower.includes('catalog age')) {
+      const yearMatch = desc.match(/(\d+)\s*year/i);
+      return {
+        emoji: '⚠️',
+        impact: yearMatch ? `${yearMatch[1]} years of catalog exposure` : 'Multi-year royalty exposure detected',
+        explanation: 'Extended history may have unclaimed earnings.'
+      };
+    }
+    // MusicBrainz / publishing data cross-reference
+    if (lower.includes('musicbrainz')) {
+      return {
+        emoji: '⚠️',
+        impact: 'Not registered in MusicBrainz',
+        explanation: 'Publishing data can\'t be cross-referenced.'
+      };
+    }
+    // Wikipedia / Wikidata
+    if (lower.includes('wikipedia') || lower.includes('wikidata')) {
+      return {
+        emoji: '⚠️',
+        impact: 'No Wikipedia presence',
+        explanation: 'Sync licensors often check Wikipedia before licensing.'
+      };
+    }
+    // Genre metadata
+    if (lower.includes('genre')) {
+      return {
+        emoji: '⚠️',
+        impact: 'Genre metadata missing',
+        explanation: 'Sync placements and discovery may be blocked.'
+      };
+    }
+    // Content ID
+    if (lower.includes('content id')) {
+      return {
+        emoji: '💥',
+        impact: 'Content ID not verified',
+        explanation: 'YouTube monetization status is unclear.'
+      };
+    }
+    // Discogs
+    if (lower.includes('discogs')) {
+      return {
+        emoji: '⚠️',
+        impact: 'Limited Discogs presence',
+        explanation: 'Physical catalog records may be incomplete.'
+      };
+    }
+    // Default fallback — short impact line, no technical filler
+    return {
+      emoji,
+      impact: isHigh ? 'Royalty issue detected' : 'Minor issue detected',
+      explanation: 'Details available in your full audit.'
+    };
+  };
+
+  const html = top3.map(flag => {
+    const m = mapFlag(flag);
+    return `<div class="d-issue severity-${flag.severity || 'low'}">
+      <div class="d-issue-impact">${m.emoji} ${m.impact}</div>
+      <div class="d-issue-explanation">${m.explanation}</div>
+    </div>`;
+  }).join('');
+
+  listEl.innerHTML = html;
+  wrapEl.style.display = 'block';
+  wrapEl.classList.add('is-shown');
+}
+
 // ── SHOW REAL RESULTS ──────────────────────────────────────
 function showRealResults(data) {
   const artistName = data.artistName || 'Artist';
@@ -1969,6 +2177,10 @@ function showRealResults(data) {
       indicator.classList.add('jarvis-fade-in');
     }
   }, 500);
+
+  // ── ISSUES BLOCK ──
+  // Renders up to 3 emotional impact rows from data.flags. Hides if empty.
+  renderIssues(data.flags || data.previewFlags || []);
 
   // ── CONVERSION BLOCK REVEAL ──
   const conversionEl = document.getElementById('scan-conversion-section');
