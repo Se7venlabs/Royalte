@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2512,15 +2513,18 @@ function showRealResults(data) {
 
   // ── SNAPSHOT FOR MODAL ──
   // Stash a small subset of scan data on a global so the audit-request
-  // modal can include hidden context (artist, URL, score) when the
-  // user submits their email. Refreshed on every successful scan.
+  // modal can include hidden context (artist, URL, score, issues count,
+  // timestamp) when the user submits their email. Refreshed on every
+  // successful scan.
   try {
+    const flagsArr = Array.isArray(data.flags) ? data.flags : [];
     window.__royalteScan = {
-      artistName: artistName,
-      sourceUrl:  document.getElementById('hero-url')?.value?.trim() || '',
-      score:      (data.royalteScore != null) ? data.royalteScore : (data.riskScore != null ? data.riskScore : null),
-      urlType:    detectUrlType(document.getElementById('hero-url')?.value?.trim() || '') || (isApple ? 'apple' : 'unknown'),
-      scannedAt:  new Date().toISOString()
+      artistName:  artistName,
+      sourceUrl:   document.getElementById('hero-url')?.value?.trim() || '',
+      score:       (data.royalteScore != null) ? data.royalteScore : (data.riskScore != null ? data.riskScore : null),
+      issuesCount: flagsArr.length,
+      urlType:     detectUrlType(document.getElementById('hero-url')?.value?.trim() || '') || (isApple ? 'apple' : 'unknown'),
+      scannedAt:   new Date().toISOString()
     };
   } catch(e){ /* non-blocking */ }
 
@@ -2879,19 +2883,36 @@ async function submitAuditModal(e) {
 
   // Pull hidden scan context from the global snapshot
   const scan = (typeof window !== 'undefined' && window.__royalteScan) ? window.__royalteScan : {};
-  const artistName = scan.artistName || '';
-  const sourceUrl  = scan.sourceUrl  || '';
-  const score      = (scan.score != null) ? scan.score : '';
-  const urlType    = scan.urlType    || '';
-  const scannedAt  = scan.scannedAt  || '';
-  const submittedAt= new Date().toISOString();
+  const artistName  = scan.artistName  || '';
+  const sourceUrl   = scan.sourceUrl   || '';
+  const score       = (scan.score != null) ? scan.score : '';
+  const issuesCount = (scan.issuesCount != null) ? scan.issuesCount : '';
+  const urlType     = scan.urlType     || '';
+  const scannedAt   = scan.scannedAt   || '';
+  const submittedAt = new Date().toISOString();
 
   // Map url type to label that matches the inline form's payload format
   const urlTypeLabel = urlType
     ? (URL_TYPE_META && URL_TYPE_META[urlType]?.label ? URL_TYPE_META[urlType].label : urlType)
     : 'Unknown';
 
-  // ── 1. Formspree — email notification (same endpoint as inline form) ──
+  // Supabase-ready payload shape (used for /api/submit-audit + future Resend trigger).
+  // Arta will plug Supabase insert + Resend send here next phase. For now the
+  // existing /api/submit-audit endpoint receives this payload — fields it doesn't
+  // know about are silently ignored, which keeps Phase 1 backwards-compatible.
+  const supabasePayload = {
+    email:        email,
+    artist_name:  artistName,
+    source_url:   sourceUrl,
+    score:        score,
+    issues_count: issuesCount,
+    url_type:     urlTypeLabel,
+    timestamp:    submittedAt,
+    scanned_at:   scannedAt,
+    source:       'modal'
+  };
+
+  // ── 1. Formspree — email notification (Phase 1 source of truth, must keep working) ──
   try {
     await fetch('https://formspree.io/f/xojkrwzp', {
       method: 'POST',
@@ -2902,6 +2923,7 @@ async function submitAuditModal(e) {
         spotify_url:    sourceUrl,
         url_type:       urlTypeLabel,
         royalte_score:  score,
+        issues_count:   issuesCount,
         scanned_at:     scannedAt,
         submitted_at:   submittedAt,
         source:         'modal',
@@ -2912,25 +2934,24 @@ async function submitAuditModal(e) {
       })
     });
   } catch (err) {
-    // Non-blocking — Supabase insert below is the source of truth for the request
+    // Non-blocking — backend insert below is the secondary path
   }
 
-  // ── 2. /api/submit-audit — Supabase insert (same endpoint as inline form) ──
+  // ── 2. /api/submit-audit — Phase 2 Supabase insert (Arta wires this next) ──
   try {
     await fetch('/api/submit-audit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        source_url:  sourceUrl,
-        artist_name: artistName,
-        email:       email,
-        url_type:    urlTypeLabel
-      })
+      body: JSON.stringify(supabasePayload)
     });
   } catch (err) {
-    // Non-blocking — Formspree above gives us the email backup
+    // Non-blocking — Formspree above is the Phase 1 source of truth
     console.warn('[Royaltē] Modal Supabase insert non-blocking error:', err.message);
   }
+
+  // Clear input so reopening the modal starts fresh; keep button disabled
+  // (will reset only when modal is reopened via openAuditModal).
+  if (inputEl) inputEl.value = '';
 
   // Show success state
   formEl.style.display = 'none';
@@ -2970,8 +2991,8 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
     </div>
     <div class="audit-modal-success" id="audit-modal-success-state">
       <div class="audit-modal-success-icon">✓</div>
-      <h2 class="audit-modal-success-title">Audit request received</h2>
-      <p class="audit-modal-success-body">Your audit request has been received. We'll send your full report within 12–24 hours to the email you provided.</p>
+      <h2 class="audit-modal-success-title">Your audit is on the way</h2>
+      <p class="audit-modal-success-body">Check your email. Your full Royaltē audit will arrive within 12–24 hours.</p>
       <button class="audit-modal-success-close" type="button" onclick="closeAuditModal()">Close</button>
     </div>
   </div>
@@ -2979,3 +3000,4 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
 
 </body>
 </html>
+
