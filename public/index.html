@@ -1117,6 +1117,18 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   font-size:11px;font-weight:700;color:#fff;
   flex-shrink:0;
 }
+/* Urgency line — between checklist and form. Italic, centered, slightly muted.
+   Quiet enough not to compete with the headline above or the CTA below,
+   but italic + central placement makes it land before the user types. */
+.audit-modal-urgency{
+  text-align:center;
+  font-size:13px;
+  font-style:italic;
+  color:#9490b8;
+  margin:6px 0 18px 0;
+  line-height:1.4;
+  letter-spacing:0.005em;
+}
 .audit-modal-form{display:flex;flex-direction:column;gap:0;}
 .audit-modal-label{
   font-family:'Space Mono',monospace;
@@ -1749,7 +1761,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <li>how to fix it</li>
     </ul>
     <button class="scan-conversion-btn" onclick="scrollToForm()">Get My Full Audit →</button>
-    <div class="scan-conversion-trust">No spam. Just your full Royaltē audit.</div>
+    <div class="scan-conversion-trust">No spam. Just your Royaltē audit.</div>
   </div>
 </section>
 
@@ -3048,7 +3060,7 @@ function openAuditModal() {
   const inputEl = document.getElementById('audit-modal-email');
   if (inputEl) inputEl.classList.remove('is-invalid');
   const btnEl = document.getElementById('audit-modal-submit-btn');
-  if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Send My Audit →'; }
+  if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Get My Full Audit →'; }
   // Open
   modal.classList.add('is-open');
   modal.setAttribute('aria-hidden', 'false');
@@ -3201,13 +3213,14 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
     <button class="audit-modal-close" type="button" onclick="closeAuditModal()" aria-label="Close">×</button>
     <div id="audit-modal-form-state">
       <div class="audit-modal-eyebrow">// Royaltē Audit Request</div>
-      <h2 class="audit-modal-title" id="audit-modal-title">Get your <span class="audit-modal-title-em">Full Royaltē Audit</span></h2>
-      <p class="audit-modal-body">We'll send your full report within 12–24 hours.</p>
+      <h2 class="audit-modal-title" id="audit-modal-title">Fix Your Royalties — <span class="audit-modal-title-em">Get Your Full Audit</span></h2>
+      <p class="audit-modal-body">We found issues in your setup.<br>This report shows exactly how to fix them.</p>
       <ul class="audit-modal-checklist">
-        <li><span class="am-check">✓</span>All issues — every flag we detected</li>
-        <li><span class="am-check">✓</span>Full breakdown across all 6 modules</li>
-        <li><span class="am-check">✓</span>Step-by-step fixes, sized to your catalog</li>
+        <li><span class="am-check">✓</span>What's broken</li>
+        <li><span class="am-check">✓</span>What's missing</li>
+        <li><span class="am-check">✓</span>How to fix it</li>
       </ul>
+      <p class="audit-modal-urgency">This is where artists lose the most money.</p>
       <form class="audit-modal-form" id="audit-modal-form" onsubmit="submitAuditModal(event); return false;">
         <label class="audit-modal-label" for="audit-modal-email">Email address</label>
         <input
@@ -3220,9 +3233,9 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
           required
         />
         <div class="audit-modal-error" id="audit-modal-error"></div>
-        <button class="audit-modal-submit" type="submit" id="audit-modal-submit-btn">Send My Audit →</button>
+        <button class="audit-modal-submit" type="submit" id="audit-modal-submit-btn">Get My Full Audit →</button>
       </form>
-      <p class="audit-modal-trust">No spam. Just your full Royaltē audit.</p>
+      <p class="audit-modal-trust">No spam. Just your Royaltē audit.</p>
     </div>
     <div class="audit-modal-success" id="audit-modal-success-state">
       <div class="audit-modal-success-icon">✓</div>
