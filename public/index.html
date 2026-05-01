@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1244,6 +1243,74 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   .d-conversion-list li{font-size:12.5px;}
 }
 
+/* ═══════════════════════════════════════════════════════════
+   SCORE BAND COLORS — frontend-derived from score value
+   80–100: Healthy (green)
+   60–79:  At Risk (orange)
+   0–59:   High Risk (red)
+   These override backend riskLevel for color purposes only.
+   The number color + label color move together with band.
+   ═══════════════════════════════════════════════════════════ */
+.d-score-tag.band-healthy .d-score-tag-num{
+  color:var(--grn);
+  text-shadow:0 0 18px rgba(64,240,160,0.32);
+}
+.d-score-tag.band-healthy .d-score-tag-lbl{color:var(--grn);}
+
+.d-score-tag.band-warning .d-score-tag-num{
+  color:var(--amb);
+  text-shadow:0 0 18px rgba(240,192,64,0.32);
+}
+.d-score-tag.band-warning .d-score-tag-lbl{color:var(--amb);}
+
+.d-score-tag.band-danger .d-score-tag-num{
+  color:var(--red);
+  text-shadow:0 0 18px rgba(240,80,96,0.32);
+}
+.d-score-tag.band-danger .d-score-tag-lbl{color:var(--red);}
+
+/* Helper text below score with hover tooltip */
+.d-score-helper{
+  display:block;
+  font-size:11px;
+  font-family:'Space Mono',monospace;
+  color:#7a7598;
+  letter-spacing:0.04em;
+  margin-top:8px;
+  position:relative;
+  cursor:help;
+  border-bottom:1px dashed rgba(138,92,255,0.32);
+  padding-bottom:1px;
+  width:fit-content;
+}
+.d-score-helper:hover{color:#c8c4e0;border-bottom-color:rgba(138,92,255,0.6);}
+.d-score-helper-tooltip{
+  display:none;
+  position:absolute;
+  left:0;top:calc(100% + 8px);
+  background:#0a0612;
+  border:1px solid rgba(138,92,255,0.4);
+  border-radius:6px;
+  padding:10px 14px;
+  font-size:11px;
+  color:#c8c4e0;
+  line-height:1.6;
+  white-space:nowrap;
+  z-index:10;
+  box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 24px rgba(138,92,255,0.18);
+  font-family:'Space Mono',monospace;
+}
+.d-score-helper-tooltip strong{color:#fff;}
+.d-score-helper-tooltip .tt-row{display:flex;align-items:center;gap:8px;}
+.d-score-helper-tooltip .tt-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.d-score-helper-tooltip .tt-row.healthy .tt-dot{background:var(--grn);}
+.d-score-helper-tooltip .tt-row.warning .tt-dot{background:var(--amb);}
+.d-score-helper-tooltip .tt-row.danger .tt-dot{background:var(--red);}
+.d-score-helper:hover .d-score-helper-tooltip{display:block;}
+
+/* Alert gating — hidden when no high-severity flag exists post-scan */
+.d-alert.is-suppressed{display:none;}
+
 </style>
 </head>
 <body>
@@ -1597,7 +1664,15 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
         <div id="audit-results" style="display:none;">
         <div class="d-score-tag" id="hero-score-tag">
           <div class="d-score-tag-num" id="hero-score-tag-num">—</div>
-          <div class="d-score-tag-lbl">Royaltē Score</div>
+          <div class="d-score-tag-lbl" id="hero-score-tag-lbl">Royaltē Score</div>
+        </div>
+        <div class="d-score-helper" id="hero-score-helper" style="display:none;">
+          Score based on metadata, registrations, and revenue signals
+          <div class="d-score-helper-tooltip">
+            <div class="tt-row healthy"><span class="tt-dot"></span><strong>80–100</strong> · Healthy</div>
+            <div class="tt-row warning"><span class="tt-dot"></span><strong>60–79</strong> · At Risk</div>
+            <div class="tt-row danger"><span class="tt-dot"></span><strong>0–59</strong> · High Risk</div>
+          </div>
         </div>
         <div class="d-alert">
           <div class="d-alert-dot"></div>
@@ -2126,6 +2201,11 @@ async function runAudit() {
   if (nameFail) { nameFail.textContent = 'Run a scan to see your audit results'; nameFail.classList.add('is-idle'); }
   const subFail = document.getElementById('hero-artist-sub');
   if (subFail) subFail.textContent = '';
+  // Reset alert + score band state so a re-scan starts clean
+  const alertReset = document.querySelector('.dash-shell .d-alert');
+  if (alertReset) alertReset.classList.remove('is-suppressed');
+  const scoreReset = document.getElementById('hero-score-tag');
+  if (scoreReset) scoreReset.classList.remove('band-healthy','band-warning','band-danger');
   btn.disabled = false;
   btn.textContent = 'Run Free Audit →';
 }
@@ -2303,6 +2383,19 @@ function renderTerritoryCoverage(territoryCoverage) {
 //   0          → "0"   (real zero from Spotify is a valid value)
 //   -1         → ""    (callers branch on the -1 sentinel separately)
 // One decimal place is shown only when it adds precision (e.g. "1.2M" vs "10M").
+// ── SCORE BAND HELPER ──
+// Maps a numeric Royaltē Score to its visual band + status label.
+// Frontend-derived per spec — independent of backend riskLevel.
+//   80–100 → Healthy   (green)
+//   60–79  → At Risk   (orange)
+//   0–59   → High Risk (red)
+function getScoreBand(score) {
+  const n = Number(score);
+  if (n >= 80) return { className: 'band-healthy', label: 'Healthy',   emoji: ''     };
+  if (n >= 60) return { className: 'band-warning', label: 'At Risk ⚠️', emoji: '⚠️' };
+  return         { className: 'band-danger',  label: 'High Risk 🚨', emoji: '🚨' };
+}
+
 function formatFollowers(n) {
   if (n === -1) return '';
   if (typeof n !== 'number' || !isFinite(n)) return '0';
@@ -2571,14 +2664,41 @@ function showRealResults(data) {
     }
   }
   // Royaltē Score block — hide if 0, null, or undefined (per spec, no fabrication).
+  // Color band is derived from the score VALUE on the frontend (80/60 thresholds),
+  // independent of backend riskLevel. Status label appears next to "Royaltē Score".
   const scoreTagEl = document.getElementById('hero-score-tag');
   const scoreNumEl = document.getElementById('hero-score-tag-num');
+  const scoreLblEl = document.getElementById('hero-score-tag-lbl');
+  const scoreHelpEl = document.getElementById('hero-score-helper');
   if (scoreTagEl && scoreNumEl) {
     if (typeof data.overallScore === 'number' && data.overallScore > 0) {
+      const band = getScoreBand(data.overallScore);
       scoreNumEl.textContent = data.overallScore;
+      if (scoreLblEl) scoreLblEl.textContent = `Royaltē Score · ${band.label}`;
+      // Reset prior band classes, apply current
+      scoreTagEl.classList.remove('band-healthy','band-warning','band-danger');
+      scoreTagEl.classList.add(band.className);
       scoreTagEl.classList.add('is-shown');
+      if (scoreHelpEl) scoreHelpEl.style.display = '';
     } else {
       scoreTagEl.classList.remove('is-shown');
+      if (scoreHelpEl) scoreHelpEl.style.display = 'none';
+    }
+  }
+
+  // ── ALERT GATING ──
+  // "You are losing royalties" alert ONLY shows when at least one
+  // high-severity flag exists. Score band is irrelevant — even a 92
+  // (Healthy) score still shows the alert if there's a high-severity
+  // issue like missing PRO registration. No high flags → hide entirely.
+  const alertEl = document.querySelector('.dash-shell .d-alert');
+  const flagsArr = Array.isArray(data.flags) ? data.flags : [];
+  const hasHighSeverity = flagsArr.some(f => f && f.severity === 'high');
+  if (alertEl) {
+    if (hasHighSeverity) {
+      alertEl.classList.remove('is-suppressed');
+    } else {
+      alertEl.classList.add('is-suppressed');
     }
   }
   // Trigger reveal stagger on the result card (CSS handles the rest).
@@ -3000,4 +3120,3 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
 
 </body>
 </html>
-
