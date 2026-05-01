@@ -112,7 +112,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;d
 .d-alert-t{font-size:13px;color:#ffffff;flex:1;line-height:1.4;}
 .d-alert-t strong{color:var(--red);}
 .d-modules{display:flex;flex-direction:column;gap:6px;}
-.d-mod{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#0a0818;border:1px solid rgba(138,92,255,0.15);border-radius:6px;}
+.d-mod{display:flex;flex-direction:column;gap:6px;padding:10px 14px;background:#0a0818;border:1px solid rgba(138,92,255,0.15);border-radius:6px;}
+.d-mod-top{display:flex;align-items:center;gap:12px;}
+.d-mod-problem{font-size:11.5px;color:#c8c4e0;line-height:1.35;padding-left:20px;letter-spacing:0.005em;}
+.d-mod-impact{font-size:10.5px;color:#7a7598;line-height:1.3;padding-left:20px;font-style:italic;letter-spacing:0.01em;}
 .d-mod-icon{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .d-mod-name{font-size:13px;font-weight:600;color:#ffffff;flex:1;}
 .d-mod-bar{flex:1;max-width:80px;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;}
@@ -1691,10 +1694,26 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
           <div class="d-alert-t"><span class="d-alert-strong">⚠️ You are losing royalties right now</span>Publishing and registration gaps detected in verified data.</div>
         </div>
         <div class="d-modules">
-          <div class="d-mod"><div class="d-mod-icon"></div><div class="d-mod-name">Metadata Health</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
-          <div class="d-mod"><div class="d-mod-icon"></div><div class="d-mod-name">Platform Coverage</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
-          <div class="d-mod"><div class="d-mod-icon"></div><div class="d-mod-name">Publishing Health</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
-          <div class="d-mod"><div class="d-mod-icon"></div><div class="d-mod-name">YouTube / UGC Coverage</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
+          <div class="d-mod">
+            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Metadata Health</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
+            <div class="d-mod-problem"></div>
+            <div class="d-mod-impact"></div>
+          </div>
+          <div class="d-mod">
+            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Platform Coverage</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
+            <div class="d-mod-problem"></div>
+            <div class="d-mod-impact"></div>
+          </div>
+          <div class="d-mod">
+            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Publishing Health</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
+            <div class="d-mod-problem"></div>
+            <div class="d-mod-impact"></div>
+          </div>
+          <div class="d-mod">
+            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">YouTube / UGC Coverage</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
+            <div class="d-mod-problem"></div>
+            <div class="d-mod-impact"></div>
+          </div>
         </div>
         <div class="d-issues" id="d-issues">
           <div class="d-issues-list" id="d-issues-list"></div>
@@ -2788,6 +2807,48 @@ function showRealResults(data) {
     }
   }
 
+  // ── MODULE COPY — band-aware messaging ──
+  // Each of the 4 modules has 3 messages keyed by score band.
+  // Index order matches the markup order:
+  //   [0] Metadata Health
+  //   [1] Platform Coverage
+  //   [2] Publishing Health
+  //   [3] YouTube / UGC Coverage
+  const MODULE_COPY = [
+    {
+      'band-healthy': { problem: 'Most fields look clean — minor fixes possible',
+                        impact:  '→ Small gaps may still limit edge-case royalties' },
+      'band-warning': { problem: 'Missing or inconsistent metadata detected',
+                        impact:  '→ You may be losing some royalty payments' },
+      'band-danger':  { problem: 'Critical metadata is missing or incorrect',
+                        impact:  '→ This can block royalty payments completely' }
+    },
+    {
+      'band-healthy': { problem: 'Strong presence across major platforms',
+                        impact:  "→ You're capturing most available revenue" },
+      'band-warning': { problem: 'Coverage gaps detected across some platforms',
+                        impact:  '→ You may be missing royalties from certain services' },
+      'band-danger':  { problem: 'Major platforms are not tracking your music',
+                        impact:  '→ Significant revenue is currently unreachable' }
+    },
+    {
+      'band-healthy': { problem: 'Publishing setup is mostly complete',
+                        impact:  '→ Performance royalties are likely flowing' },
+      'band-warning': { problem: 'Publishing registration gaps detected',
+                        impact:  '→ Some royalties may not be reaching you' },
+      'band-danger':  { problem: 'Publishing data is missing or incomplete',
+                        impact:  '→ You may not be collecting performance royalties' }
+    },
+    {
+      'band-healthy': { problem: 'UGC and platform tracking is active',
+                        impact:  "→ You're capturing additional revenue streams" },
+      'band-warning': { problem: 'UGC monitoring gaps detected',
+                        impact:  '→ Some content usage may not be monetized' },
+      'band-danger':  { problem: 'No active UGC tracking detected',
+                        impact:  '→ All user-generated content is unmonetized' }
+    }
+  ];
+
   // ── MODULE BARS — uniform "high = good, low = bad" display ──
   // Backend returns risk-style scores (high = bad). Invert on the frontend
   // so HIGH = HEALTHY everywhere in the UI. Band colors then come from the
@@ -2816,6 +2877,13 @@ function showRealResults(data) {
       if (fill) { fill.style.width = display + '%'; fill.style.background = color; }
       if (num)  { num.textContent  = display;       num.style.color       = color; }
       if (icon) {                                    icon.style.background = color; }
+      // Band-aware problem + impact copy
+      const copyTable = MODULE_COPY[i];
+      const copy = copyTable ? copyTable[band.className] : null;
+      const problemEl = el.querySelector('.d-mod-problem');
+      const impactEl  = el.querySelector('.d-mod-impact');
+      if (problemEl) problemEl.textContent = copy ? copy.problem : '';
+      if (impactEl)  impactEl.textContent  = copy ? copy.impact  : '';
     });
   }
 
