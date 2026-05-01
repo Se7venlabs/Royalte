@@ -1691,10 +1691,10 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
           <div class="d-alert-t"><span class="d-alert-strong">⚠️ You are losing royalties right now</span>Publishing and registration gaps detected in verified data.</div>
         </div>
         <div class="d-modules">
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Metadata Issues Detected</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">—</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--amb)"></div><div class="d-mod-name">Platform Coverage Gaps</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;background:var(--amb)"></div></div><div class="d-mod-score" style="color:var(--amb)">—</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Publishing Risk Exposure</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">—</div></div>
-          <div class="d-mod"><div class="d-mod-icon" style="background:var(--grn)"></div><div class="d-mod-name">YouTube / UGC Exposure</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;background:var(--grn)"></div></div><div class="d-mod-score" style="color:var(--grn)">—</div></div>
+          <div class="d-mod"><div class="d-mod-icon"></div><div class="d-mod-name">Metadata Health</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
+          <div class="d-mod"><div class="d-mod-icon"></div><div class="d-mod-name">Platform Coverage</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
+          <div class="d-mod"><div class="d-mod-icon"></div><div class="d-mod-name">Publishing Health</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
+          <div class="d-mod"><div class="d-mod-icon"></div><div class="d-mod-name">YouTube / UGC Coverage</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
         </div>
         <div class="d-issues" id="d-issues">
           <div class="d-issues-list" id="d-issues-list"></div>
@@ -2788,14 +2788,34 @@ function showRealResults(data) {
     }
   }
 
-  // Update hero module bars
+  // ── MODULE BARS — uniform "high = good, low = bad" display ──
+  // Backend returns risk-style scores (high = bad). Invert on the frontend
+  // so HIGH = HEALTHY everywhere in the UI. Band colors then come from the
+  // SAME getScoreBand thresholds used on the main Royaltē Score:
+  //   80–100 → green, 60–79 → orange, 0–59 → red
+  // Per-module color logic is identical to the score band logic — no exceptions.
   if (data.modules) {
     const modValues = Object.values(data.modules);
-    const modFills  = document.querySelectorAll('.d-mod-fill');
-    const modScores = document.querySelectorAll('.d-mod-score');
+    const modEls    = document.querySelectorAll('.d-modules .d-mod');
+    const BAND_COLOR = {
+      'band-healthy': 'var(--grn)',
+      'band-warning': 'var(--amb)',
+      'band-danger':  'var(--red)'
+    };
     modValues.forEach((mod, i) => {
-      if (modFills[i])  modFills[i].style.width    = mod.score + '%';
-      if (modScores[i]) modScores[i].textContent   = mod.score;
+      const el = modEls[i];
+      if (!el) return;
+      // Invert: backend risk score → frontend health score, clamp to [0, 100]
+      const raw = (typeof mod.score === 'number') ? mod.score : Number(mod.score) || 0;
+      const display = Math.max(0, Math.min(100, 100 - raw));
+      const band = getScoreBand(display);
+      const color = BAND_COLOR[band.className];
+      const fill  = el.querySelector('.d-mod-fill');
+      const num   = el.querySelector('.d-mod-score');
+      const icon  = el.querySelector('.d-mod-icon');
+      if (fill) { fill.style.width = display + '%'; fill.style.background = color; }
+      if (num)  { num.textContent  = display;       num.style.color       = color; }
+      if (icon) {                                    icon.style.background = color; }
     });
   }
 
