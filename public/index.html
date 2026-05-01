@@ -1311,6 +1311,18 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 /* Alert gating — hidden when no high-severity flag exists post-scan */
 .d-alert.is-suppressed{display:none;}
 
+/* Preview note — sits above the conversion block.
+   Quiet, italic, muted — doesn't compete with the conversion headline. */
+.d-preview-note{
+  font-size:12px;
+  font-style:italic;
+  color:#7a7598;
+  text-align:center;
+  margin:14px 0 10px 0;
+  letter-spacing:0.02em;
+  line-height:1.4;
+}
+
 </style>
 </head>
 <body>
@@ -1676,7 +1688,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
         </div>
         <div class="d-alert">
           <div class="d-alert-dot"></div>
-          <div class="d-alert-t"><span class="d-alert-strong">⚠️ You are losing royalties</span>Publishing and registration gaps detected in verified data.</div>
+          <div class="d-alert-t"><span class="d-alert-strong">⚠️ You are losing royalties right now</span>Publishing and registration gaps detected in verified data.</div>
         </div>
         <div class="d-modules">
           <div class="d-mod"><div class="d-mod-icon" style="background:var(--red)"></div><div class="d-mod-name">Metadata Issues Detected</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;background:var(--red)"></div></div><div class="d-mod-score" style="color:var(--red)">—</div></div>
@@ -1688,6 +1700,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
           <div class="d-issues-list" id="d-issues-list"></div>
           <div class="d-issues-footer">🔒 Full breakdown available in your audit</div>
         </div>
+        <div class="d-preview-note">This is only a preview of your issues</div>
         <div class="d-conversion">
           <div class="d-conversion-headline">You're already losing money. <span class="d-conversion-headline-em">This is just the surface.</span></div>
           <div class="d-conversion-body">Your full audit shows exactly:</div>
@@ -2173,7 +2186,21 @@ async function runAudit() {
     stopProcessingSound();
     playSuccessChime();
     scan.complete();
-    showRealResults(auditData);
+    // ── 400ms "VERIFIED DATA FOUND" BEAT ──
+    // Brief moment between scan completion and full result reveal.
+    // Artist name slot reads "✓ Verified data found" so the user feels
+    // the system found something REAL before the score + flags hit them.
+    // #audit-results remains hidden — showRealResults reveals it after the pause.
+    const verifiedNameEl = document.getElementById('hero-artist-name');
+    const verifiedSubEl  = document.getElementById('hero-artist-sub');
+    if (verifiedNameEl) {
+      verifiedNameEl.classList.remove('is-idle');
+      verifiedNameEl.textContent = '✓ Verified data found';
+    }
+    if (verifiedSubEl) verifiedSubEl.textContent = '';
+    setTimeout(() => {
+      showRealResults(auditData);
+    }, 400);
     btn.disabled = false;
     btn.textContent = 'Run Free Audit →';
     setTimeout(() => {
