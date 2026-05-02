@@ -2909,14 +2909,21 @@ function showRealResults(data) {
   const isrcStatus = data.trackIsrc ? 'REGISTERED' : data.trackTitle ? 'NOT REGISTERED' : 'NOT SCANNED';
   const isrcBadge  = data.trackIsrc ? 'rb-grn' : data.trackTitle ? 'rb-red' : 'rb-amb';
   const plats = data.platforms || {};
-  const platformsFound = Object.values(plats).filter(p => p && (p.found === true || p === true)).length;
-  const platformsTotal = Object.keys(plats).length;
-  const platformStatus = platformsFound === platformsTotal ? 'FULL COVERAGE' : platformsFound > Math.floor(platformsTotal / 2) ? 'PARTIAL' : 'GAPS FOUND';
-  const platformBadge = platformsFound === platformsTotal ? 'rb-grn' : 'rb-amb';
+  const platformValues = Object.values(plats);
+  const verifiedCount = platformValues.filter(p => p === true || p?.found === true).length;
+  const totalCount = platformValues.length;
+  const unverifiedCount = totalCount - verifiedCount;
+  let platformStatus = '';
+  if (verifiedCount === totalCount) {
+    platformStatus = 'All Platforms Verified';
+  } else {
+    platformStatus = `${verifiedCount} Verified • ${unverifiedCount} Unverified`;
+  }
+  const platformBadge = verifiedCount === totalCount ? 'rb-grn' : 'rb-amb';
 
   const cards = [
     { icon: '✅', title: 'Artist profile',      value: artistName,                                                              badge: 'rb-grn',      bt: 'Verified',      source: 'Spotify'   },
-    { icon: '📡', title: 'Platform coverage',   value: platformsFound >= platformsTotal ? 'Found on all platforms' : 'Coverage gaps confirmed', badge: platformBadge, bt: platformStatus,  source: 'Multiple'  },
+    { icon: '📡', title: 'Platform coverage',   value: verifiedCount === totalCount ? 'All platforms verified' : `${verifiedCount} of ${totalCount} platforms verified`, badge: platformBadge, bt: platformStatus,  source: 'Multiple'  },
     { icon: '🎵', title: 'Genre metadata',      value: data.genres?.length ? 'Present' : 'Not found',                          badge: data.genres?.length ? 'rb-grn' : 'rb-red', bt: data.genres?.length ? 'PRESENT' : 'MISSING', source: 'Spotify' },
     { icon: '🔑', title: 'ISRC registration',   value: isrcStatus === 'REGISTERED' ? 'Registered' : isrcStatus === 'NOT REGISTERED' ? 'Not registered' : 'Artist scan — paste a track link', badge: isrcBadge, bt: isrcStatus, source: 'Spotify' },
   ];
