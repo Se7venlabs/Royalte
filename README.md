@@ -118,3 +118,4 @@ Before you have a real product, capture interest with a free tool:
 ---
 
 *Built with Se7ven Labs AI · Powered by Claude*
+
