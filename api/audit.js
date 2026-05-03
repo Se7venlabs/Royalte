@@ -3,6 +3,71 @@
 // Features: Royalty gap estimate, catalog age analysis, country PRO guide, real YouTube UGC detection, Apple Music catalog comparison
 
 import { generateAppleToken } from './apple-token.js';
+import { randomUUID } from 'node:crypto';
+import { createClient } from '@supabase/supabase-js';
+import { normalizeAuditResponse } from './lib/normalizeAuditResponse.js';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AUDIT_SCANS PERSISTENCE
+//
+// Two-shape emission (deliberate, per the v1.0.0 migration plan):
+//   - HTTP response body  → raw legacy shape (the frontend reads this and
+//                           must NOT change yet — see FRONTEND_MIGRATION.md)
+//   - audit_scans.payload → canonical AuditResponse v1.0.0 (PDF renderer
+//                           and any future canonical consumer reads from
+//                           here; this is the single source of truth)
+//
+// Failure is fatal: persistCanonicalScan throws on any persistence
+// failure (Supabase unavailable, normalizer throws, insert fails after
+// 3 retries). The handler catches and returns HTTP 500 so the wire
+// scanId always points to a real audit_scans row.
+// ─────────────────────────────────────────────────────────────────────────────
+function getAuditScansSupabase() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
+
+async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId) {
+  const supabase = getAuditScansSupabase();
+  if (!supabase) {
+    throw new Error('audit_scans persistence unavailable: Supabase not configured');
+  }
+
+  // Pass handler-generated scanId in so canonical.scanId === scanId.
+  const canonical = normalizeAuditResponse({ ...rawResponse, scanId, _originalUrl: originalUrl });
+
+  const spotifyArtistId = rawResponse.artistId || null;
+  const appleArtistId   = rawResponse.appleMusic?.artistId || null;
+
+  const insertRow = {
+    id:                scanId,
+    source_url:        originalUrl,
+    url_type:          urlType,
+    artist_name:       canonical.subject.artistName,
+    spotify_artist_id: spotifyArtistId,
+    apple_artist_id:   appleArtistId,
+    payload:           canonical,
+  };
+
+  const MAX_ATTEMPTS = 3;
+  let lastError = null;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const { error } = await supabase.from('audit_scans').insert(insertRow);
+      if (!error) return scanId;
+      // Duplicate-key on retry → row was inserted on a prior attempt; treat as success.
+      if (error.code === '23505') return scanId;
+      lastError = error;
+      console.warn(`[audit] audit_scans insert attempt ${attempt}/${MAX_ATTEMPTS} failed:`, error.message);
+    } catch (err) {
+      lastError = err;
+      console.warn(`[audit] audit_scans insert attempt ${attempt}/${MAX_ATTEMPTS} threw:`, err.message);
+    }
+  }
+  throw new Error(`audit_scans persistence failed after ${MAX_ATTEMPTS} attempts: ${lastError?.message || 'unknown error'}`);
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,6 +75,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  const scanId = randomUUID();
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: 'No URL provided' });
 
@@ -36,7 +102,7 @@ export default async function handler(req, res) {
     // artistName from Apple and followers = -1 so the UI can show
     // "Fans on streaming platforms" instead of an error.
     if (!resolved.artistId) {
-      return res.status(200).json({
+      const rawResponse = {
         success: true,
         platform: 'apple',
         type: 'artist',
@@ -72,14 +138,24 @@ export default async function handler(req, res) {
         deezerFans: 0,
         discogsReleases: 0,
         youtube: { found: false },
-        appleMusic: { found: false },
+        appleMusic: { found: false, artistId: resolved.appleArtistId || null },
         overallScore: 0,
         modules: {},
         flags: [],
         flagCount: 0,
         previewFlags: [],
         scannedAt: new Date().toISOString(),
-      });
+      };
+      try {
+        await persistCanonicalScan(rawResponse, url, 'apple', scanId);
+      } catch (persistErr) {
+        console.error('[audit] persistence failed (apple-only):', persistErr.message);
+        return res.status(500).json({
+          error: 'Failed to persist audit scan',
+          detail: persistErr.message,
+        });
+      }
+      return res.status(200).json({ ...rawResponse, scanId });
     }
 
     const artistId = resolved.artistId;
@@ -132,7 +208,7 @@ export default async function handler(req, res) {
 
     const flags = buildFlags(modules, artistData, trackData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData);
 
-    return res.status(200).json({
+    const rawResponse = {
       success: true,
       platform: 'spotify',
       type: 'artist',
@@ -185,7 +261,18 @@ export default async function handler(req, res) {
       flagCount: flags.length,
       previewFlags: flags.slice(0, 2),
       scannedAt: new Date().toISOString(),
-    });
+    };
+
+    try {
+      await persistCanonicalScan(rawResponse, url, detectInputType(url), scanId);
+    } catch (persistErr) {
+      console.error('[audit] persistence failed:', persistErr.message);
+      return res.status(500).json({
+        error: 'Failed to persist audit scan',
+        detail: persistErr.message,
+      });
+    }
+    return res.status(200).json({ ...rawResponse, scanId });
 
   } catch (err) {
     console.error('Audit error:', err);
@@ -285,6 +372,7 @@ async function resolveToArtist(inputUrl, token) {
     const appleResolved = await resolveAppleArtist(inputUrl);
     const appleArtistName = appleResolved?.name;
     const appleArtwork    = appleResolved?.artworkUrl || null;
+    const appleArtistId   = appleResolved?.appleArtistId || null;
     if (!appleArtistName) {
       throw new Error('Could not resolve artist from Apple Music link');
     }
@@ -310,6 +398,7 @@ async function resolveToArtist(inputUrl, token) {
         resolvedFromTitle: appleArtistName,
         canonicalTarget:   'artist',
         appleArtworkUrl:   appleArtwork,
+        appleArtistId,
       };
     }
     // No Spotify match after retry. Per spec: DO NOT fail the scan.
@@ -328,6 +417,7 @@ async function resolveToArtist(inputUrl, token) {
       resolvedFromTitle: appleArtistName,
       canonicalTarget:   'artist',
       appleArtworkUrl:   appleArtwork,
+      appleArtistId,
     };
   }
 
@@ -502,7 +592,7 @@ async function resolveAppleArtist(appleUrl) {
           artworkUrl = formatArtwork(match?.attributes?.artwork);
         }
       }
-      return { name: attrs.name, artworkUrl };
+      return { name: attrs.name, artworkUrl, appleArtistId: meta.id };
     }
 
     if (meta.kind === 'song') {
@@ -513,7 +603,8 @@ async function resolveAppleArtist(appleUrl) {
       if (!attrs?.artistName) return null;
       // Songs always have artwork (album cover) — use as fallback
       const artworkUrl = formatArtwork(attrs.artwork);
-      return { name: attrs.artistName, artworkUrl };
+      const appleArtistId = data?.data?.[0]?.relationships?.artists?.data?.[0]?.id || null;
+      return { name: attrs.artistName, artworkUrl, appleArtistId };
     }
 
     if (meta.kind === 'album') {
@@ -524,7 +615,8 @@ async function resolveAppleArtist(appleUrl) {
           const data = await rs.json();
           const attrs = data?.data?.[0]?.attributes;
           if (attrs?.artistName) {
-            return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork) };
+            const appleArtistId = data?.data?.[0]?.relationships?.artists?.data?.[0]?.id || null;
+            return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork), appleArtistId };
           }
         }
       }
@@ -533,7 +625,8 @@ async function resolveAppleArtist(appleUrl) {
       const data = await r.json();
       const attrs = data?.data?.[0]?.attributes;
       if (!attrs?.artistName) return null;
-      return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork) };
+      const appleArtistId = data?.data?.[0]?.relationships?.artists?.data?.[0]?.id || null;
+      return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork), appleArtistId };
     }
 
     return null;

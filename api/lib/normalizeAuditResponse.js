@@ -77,9 +77,14 @@ function _normalizeSource(r) {
 }
 
 function _normalizeSubject(r) {
+  const spotifyId = _nullableString(r.artistId);
+  const appleId   = _nullableString(r.appleMusic?.artistId);
+  if (!spotifyId && !appleId) {
+    throw new Error('[normalizeAuditResponse] Scan requires at least one platform artist ID (Spotify or Apple)');
+  }
   return {
     artistName:      _requireString(r.artistName, 'subject.artistName'),
-    artistId:        _requireString(r.artistId, 'subject.artistId'),
+    artistId:        spotifyId,
     trackTitle:      _nullableString(r.trackTitle),
     trackIsrc:       _nullableString(r.trackIsrc),
     trackIsrcSource: _nullableString(r.trackIsrcSource),

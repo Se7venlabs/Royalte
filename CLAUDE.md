@@ -38,7 +38,7 @@ Modules degrade gracefully when keys are missing — see "AUTH_UNAVAILABLE" belo
 2. **`POST /api/process-audit`** — protected by `INTERNAL_API_SECRET` (`x-internal-secret` header, verified via `api/_lib/rate-limit.js#verifyInternalSecret`). Idempotent on `status === 'pending'`. Flips row to `processing`, calls `runAudit()` from `api/audit.js`, then writes a trimmed `result_payload` (see `buildSummary`) and flips to `completed` or `failed`.
 3. **`GET /api/audit?url=...`** — synchronous engine endpoint used directly by the live site preview. Same engine code path as step 2.
 
-`api/process-audit.js` imports `runAudit` from `./audit.js`, so any refactor of `api/audit.js` must keep that named export available alongside the default `handler`.
+`api/process-audit.js` imports `runAudit` from `./audit.js`, but that named export does not currently exist in `api/audit.js` — only `default async function handler` is exported. The import resolves to `undefined` and `/api/process-audit` 500s on first invocation. The new audit pipeline (`/api/submit-audit` calling `lib/render-audit-pdf.js` directly) routes around this. See Followups.
 
 ### The canonical AuditResponse contract
 
@@ -91,3 +91,7 @@ There is also a **degraded path**: if input is Apple Music and no Spotify match 
 - `public/index.html` is ~800KB and `public/audit.html` is ~750KB — they are intentionally single-file pages. Prefer surgical edits; do not reformat or reflow.
 - The empty `main` file at the repo root and the empty `api/pages` / `api/scripts` files are placeholders/cruft, not real targets.
 - Comments throughout the codebase document **why** decisions were made (fail-open rate limiting, AUTH_UNAVAILABLE semantics, idempotency on `pending`). Read them before changing the surrounding logic.
+
+## Followups
+
+- **`process-audit.js` has a dead `runAudit` import.** `api/audit.js` only exports `default async function handler`; `runAudit` is never named-exported. Side effects: `/api/process-audit` 500s on first invocation, the fire-and-forget trigger from `submit-audit.js` is silently swallowed (caller `.catch()`'s the rejection), and `audit_requests` rows that depended on `process-audit` to advance their lifecycle stay at `status='pending'` forever. The new audit pipeline routes around this — `submit-audit.js` calls `lib/render-audit-pdf.js` directly. To revive `process-audit.js`, refactor `audit.js` to extract the engine logic into a named export `runAudit(url, urlType?) → { ok, payload }` matching the shape `process-audit.js` already expects.

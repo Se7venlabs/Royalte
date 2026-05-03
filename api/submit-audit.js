@@ -9,6 +9,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
+import { renderAuditPdf } from '../lib/render-audit-pdf.js';
 
 // ── SUPABASE CLIENT ───────────────────────────────────────────────────────────
 function getSupabase() {
@@ -16,6 +18,104 @@ function getSupabase() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) throw new Error('[submit-audit] Supabase credentials not configured');
   return createClient(url, key);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PDF render + email pipeline (introduced for v1.0.0 audit_scans flow).
+//
+// Render timing: lazy here (vs eager in /api/audit) — the user only gets
+// a PDF when they hand over an email. submit-audit awaits the render +
+// email synchronously, then returns.
+//
+// Retry policy: 1 retry max, enforced via audit_scans.pdf_attempts. The
+// renderer increments attempts internally on each call, so once attempts
+// hits 2 we stop. Cap is global (across submit-audit invocations), not
+// per-invocation — protects against runaway PDFShift cost if a user
+// re-submits the form for the same scanId multiple times.
+//
+// Soft-fail: on render or send failure, audit_requests is marked 'failed'
+// with an error_message but the HTTP response still returns success so
+// the user sees "we'll email you shortly" UX. Errors live in logs.
+// ─────────────────────────────────────────────────────────────────────────────
+const PDF_ATTEMPT_CAP = 2;
+
+function escHtml(value) {
+  if (value == null) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+async function renderWithRetryCap(scanId, supabase) {
+  // Pre-flight: short-circuit on already-ready, refuse if cap hit.
+  const { data: row, error } = await supabase
+    .from('audit_scans')
+    .select('pdf_status, pdf_url, pdf_attempts')
+    .eq('id', scanId)
+    .single();
+  if (error || !row) {
+    throw new Error(`audit_scans row not found for scanId ${scanId}: ${error?.message || 'no row'}`);
+  }
+  if (row.pdf_status === 'ready' && row.pdf_url) {
+    return { pdfUrl: row.pdf_url, alreadyRendered: true };
+  }
+  if ((row.pdf_attempts || 0) >= PDF_ATTEMPT_CAP) {
+    throw new Error(`render cap reached (${row.pdf_attempts} attempts) — not retrying`);
+  }
+
+  try {
+    return await renderAuditPdf(scanId);
+  } catch (firstErr) {
+    // Re-check cap before deciding to retry. renderAuditPdf bumps attempts
+    // internally on failure, so we may already be at the cap.
+    const { data: row2 } = await supabase
+      .from('audit_scans')
+      .select('pdf_attempts')
+      .eq('id', scanId)
+      .single();
+    if (!row2 || (row2.pdf_attempts || 0) >= PDF_ATTEMPT_CAP) {
+      throw firstErr;
+    }
+    return await renderAuditPdf(scanId);
+  }
+}
+
+async function sendAuditEmail({ to, artistName, pdfUrl }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error('RESEND_API_KEY not configured');
+
+  const resend = new Resend(apiKey);
+  const safeArtist = escHtml(artistName || 'your music');
+  const safeUrl    = escHtml(pdfUrl);
+
+  const html = `
+    <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;max-width:560px;color:#1a0d2e;line-height:1.5;">
+      <h2 style="color:#8a5cff;font-size:22px;margin:0 0 16px 0;">Your Royaltē Audit is Ready</h2>
+      <p>Hi,</p>
+      <p>The audit for <strong>${safeArtist}</strong> is complete.</p>
+      <p style="margin:20px 0;">
+        <a href="${safeUrl}" style="display:inline-block;background:linear-gradient(135deg,#8a5cff,#e040c8);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:600;">Download Your Audit (PDF)</a>
+      </p>
+      <p style="color:#666;font-size:13px;">If the button doesn't work, copy this link:<br><a href="${safeUrl}" style="color:#8a5cff;word-break:break-all;">${safeUrl}</a></p>
+      <p>Questions? Just reply to this email.</p>
+      <p style="color:#999;font-size:12px;border-top:1px solid #eee;padding-top:12px;margin-top:24px;">— The Royaltē Team</p>
+    </div>
+  `;
+
+  const result = await resend.emails.send({
+    from:    'Royaltē <info@royalte.ai>',
+    to:      [to],
+    subject: 'Your Royaltē Audit',
+    html,
+  });
+  if (result.error) {
+    const detail = result.error.message || JSON.stringify(result.error);
+    throw new Error(`Resend send failed: ${detail}`);
+  }
+  return result.data?.id || null;
 }
 
 // ── HANDLER ───────────────────────────────────────────────────────────────────
@@ -42,6 +142,7 @@ export default async function handler(req, res) {
     artist_name,
     email,
     url_type,
+    scanId,
   } = req.body || {};
 
   // ── VALIDATION ────────────────────────────────────────────────────────────
@@ -73,6 +174,7 @@ export default async function handler(req, res) {
       artist_name: artist_name.trim(),
       email:       email.trim().toLowerCase(),
       url_type:    url_type || null,
+      scan_id:     scanId || null,
       status:      'pending',
     };
 
@@ -103,27 +205,101 @@ export default async function handler(req, res) {
     // ── TRIGGER BACKGROUND PROCESSING (fire-and-forget) ───────────────────
     // Resolve the absolute URL because serverless functions can't call themselves
     // with a relative path. We read the host from the incoming request headers.
-    try {
-      const host = req.headers['x-forwarded-host'] || req.headers.host;
-      const proto = req.headers['x-forwarded-proto'] || 'https';
-      if (host) {
-        const triggerUrl = `${proto}://${host}/api/process-audit`;
-        // Do NOT await — we want the response to return to the user immediately.
-        // Vercel keeps the container alive long enough for the TCP handshake.
-        fetch(triggerUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: data.id }),
-        }).catch(err => {
-          console.warn('[submit-audit] process-audit trigger failed (non-blocking):', err.message);
-        });
-        console.log('[submit-audit] 🔔 Triggered process-audit for id:', data.id);
-      } else {
-        console.warn('[submit-audit] No host header — cannot trigger process-audit');
+    // Skip when scanId is present — saved audit_scans row is the source of truth.
+    if (!scanId) {
+      try {
+        const host = req.headers['x-forwarded-host'] || req.headers.host;
+        const proto = req.headers['x-forwarded-proto'] || 'https';
+        if (host) {
+          const triggerUrl = `${proto}://${host}/api/process-audit`;
+          // Do NOT await — we want the response to return to the user immediately.
+          // Vercel keeps the container alive long enough for the TCP handshake.
+          fetch(triggerUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: data.id }),
+          }).catch(err => {
+            console.warn('[submit-audit] process-audit trigger failed (non-blocking):', err.message);
+          });
+          console.log('[submit-audit] 🔔 Triggered process-audit for id:', data.id);
+        } else {
+          console.warn('[submit-audit] No host header — cannot trigger process-audit');
+        }
+      } catch (triggerErr) {
+        console.warn('[submit-audit] Trigger dispatch threw (non-blocking):', triggerErr.message);
       }
-    } catch (triggerErr) {
-      console.warn('[submit-audit] Trigger dispatch threw (non-blocking):', triggerErr.message);
     }
+
+    // ── PDF RENDER + EMAIL (lazy, synchronous, 1 retry max) ─────────────────
+    // Soft-fail throughout: any failure here updates audit_requests to
+    // 'failed' but the response below still returns success — users see
+    // "we'll email you shortly" UX and Resend retries can run out-of-band.
+    // Skips entirely when scanId is absent (degraded Apple path returns
+    // null scanId from /api/audit; legacy submissions don't include it).
+    if (scanId) {
+      let pdfUrl    = null;
+      let renderErr = null;
+
+      try {
+        const result = await renderWithRetryCap(scanId, supabase);
+        pdfUrl = result.pdfUrl;
+      } catch (err) {
+        renderErr = err;
+        console.warn('[submit-audit] PDF render failed | scanId:', scanId, '| err:', err.message);
+      }
+
+      if (pdfUrl) {
+        try {
+          const emailId = await sendAuditEmail({
+            to:         insertPayload.email,
+            artistName: insertPayload.artist_name,
+            pdfUrl,
+          });
+          console.log('[submit-audit] ✓ Audit email sent | id:', data.id, '| resend:', emailId);
+
+          // Advance audit_requests since we delivered. Failure here is
+          // non-blocking — the email is already out the door.
+          try {
+            await supabase
+              .from('audit_requests')
+              .update({
+                status:        'completed',
+                processed_at:  new Date().toISOString(),
+                error_message: null,
+              })
+              .eq('id', data.id);
+          } catch (updErr) {
+            console.warn('[submit-audit] audit_requests completion update failed (non-blocking):', updErr.message);
+          }
+        } catch (sendErr) {
+          console.error('[submit-audit] Resend send failed | id:', data.id, '| err:', sendErr.message);
+          try {
+            await supabase
+              .from('audit_requests')
+              .update({
+                status:        'failed',
+                error_message: `Email send failed: ${sendErr.message}`.slice(0, 2000),
+                processed_at:  new Date().toISOString(),
+              })
+              .eq('id', data.id);
+          } catch (_) { /* best effort */ }
+        }
+      } else if (renderErr) {
+        // Render failed (caps hit or PDFShift errored). Record on the
+        // audit_requests row but keep user-facing success.
+        try {
+          await supabase
+            .from('audit_requests')
+            .update({
+              status:        'failed',
+              error_message: `PDF render failed: ${renderErr.message}`.slice(0, 2000),
+              processed_at:  new Date().toISOString(),
+            })
+            .eq('id', data.id);
+        } catch (_) { /* best effort */ }
+      }
+    }
+    // ── END PDF RENDER + EMAIL ──────────────────────────────────────────────
 
     return res.status(200).json({
       success: true,

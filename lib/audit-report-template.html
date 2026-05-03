@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royaltē Audit Report — {{artist_name}}</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070410;
+  --bg2:#0a0612;
+  --bg3:#0f0a1c;
+  --purple:#8a5cff;
+  --magenta:#e040c8;
+  --grad:linear-gradient(135deg,#8a5cff,#e040c8);
+  --text:#e8e4f4;
+  --text-muted:#c8c4e0;
+  --text-faint:#9490b8;
+  --text-quiet:#7a7598;
+  --red:#ff5566;
+  --amber:#ffb366;
+  --green:#5fd49a;
+  --border:rgba(138,92,255,0.22);
+  --border-soft:rgba(138,92,255,0.12);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--text);font-family:'Space Grotesk','Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55;}
+
+.report{
+  max-width:840px;
+  margin:0 auto;
+  padding:0;
+}
+
+.page{
+  position:relative;
+  min-height:1056px;
+  padding:64px 64px 48px 64px;
+  background:var(--bg);
+  overflow:hidden;
+}
+.page + .page{
+  border-top:1px dashed rgba(138,92,255,0.18);
+}
+
+.page-num{
+  position:absolute;
+  bottom:24px;right:32px;
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:var(--text-quiet);
+  letter-spacing:0.2em;
+}
+.page-brand{
+  position:absolute;
+  bottom:24px;left:32px;
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:var(--text-quiet);
+  letter-spacing:0.2em;
+}
+
+.eyebrow{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.3em;
+  color:var(--purple);
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.section-title{
+  font-family:'Rajdhani',sans-serif;
+  font-size:32px;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:-0.5px;
+  margin-bottom:8px;
+  line-height:1.05;
+}
+.section-headline{
+  font-family:'Rajdhani',sans-serif;
+  font-size:28px;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:-0.3px;
+  line-height:1.1;
+  margin-bottom:24px;
+}
+.section-headline-em{
+  background:var(--grad);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+}
+.section-headline-em-strong{color:var(--magenta);}
+
+.body-text{
+  font-size:15px;
+  color:var(--text-muted);
+  line-height:1.65;
+  margin-bottom:14px;
+}
+.body-text-strong{
+  font-size:15px;
+  color:#fff;
+  line-height:1.6;
+  font-weight:500;
+  margin-bottom:14px;
+}
+.closing-line{
+  font-size:14px;
+  color:var(--text-faint);
+  font-style:italic;
+  margin-top:24px;
+  padding-top:18px;
+  border-top:1px solid var(--border-soft);
+}
+
+.divider{
+  height:1px;background:var(--border-soft);
+  margin:28px 0;
+}
+
+.cover{
+  background:var(--bg);
+  position:relative;
+  overflow:hidden;
+}
+.cover-bg{
+  position:absolute;inset:0;
+  background-image:url('/images/producer-studio.jpg');
+  background-size:cover;
+  background-position:center 55%;
+  opacity:0.12;
+  filter:grayscale(0.4) brightness(0.7);
+  z-index:0;
+}
+.cover-glow{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(138,92,255,0.18), transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(224,64,200,0.15), transparent 55%),
+    linear-gradient(180deg, transparent 60%, rgba(7,4,16,0.9) 100%);
+  z-index:1;
+}
+.cover-content{
+  position:relative;
+  z-index:2;
+  height:calc(100vh - 112px);
+  min-height:944px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.cover-top{
+  padding-top:8px;
+}
+.cover-brand{
+  display:flex;align-items:baseline;gap:14px;
+  margin-bottom:48px;
+}
+.cover-brand-logo{
+  font-family:'Rajdhani',sans-serif;
+  font-size:24px;font-weight:700;
+  color:#fff;
+  letter-spacing:1px;
+}
+.cover-brand-logo .em{color:var(--magenta);}
+.cover-brand-tag{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:var(--text-quiet);
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  padding-left:14px;
+  border-left:1px solid var(--border);
+}
+.cover-doc-label{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  color:var(--purple);
+  letter-spacing:0.32em;
+  text-transform:uppercase;
+  margin-bottom:32px;
+}
+.cover-title{
+  font-family:'Rajdhani',sans-serif;
+  font-size:64px;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:-1.5px;
+  line-height:0.95;
+  margin-bottom:32px;
+}
+.cover-title .em{
+  background:var(--grad);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+}
+.cover-subhead{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:22px;
+  color:var(--text);
+  line-height:1.4;
+  font-weight:400;
+  max-width:540px;
+  margin-bottom:8px;
+}
+.cover-subhead-em{
+  color:#fff;font-weight:600;
+}
+
+.cover-meta{
+  border-top:1px solid var(--border);
+  padding-top:24px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:32px;
+}
+.cover-meta-cell{}
+.cover-meta-label{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:var(--text-quiet);
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.cover-meta-value{
+  font-family:'Rajdhani',sans-serif;
+  font-size:18px;
+  font-weight:600;
+  color:#fff;
+  letter-spacing:0.2px;
+}
+
+.score-block{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:32px;
+  margin-bottom:24px;
+  position:relative;
+  overflow:hidden;
+}
+.score-block::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at top right, rgba(138,92,255,0.10), transparent 60%);
+  pointer-events:none;
+}
+.score-block-grid{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:32px;
+  align-items:center;
+  position:relative;z-index:1;
+}
+.score-num{
+  font-family:'Rajdhani',sans-serif;
+  font-size:96px;
+  font-weight:700;
+  background:var(--grad);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  line-height:0.9;
+  letter-spacing:-3px;
+}
+.score-num-suffix{
+  font-family:'Space Mono',monospace;
+  font-size:14px;
+  color:var(--text-faint);
+  margin-top:2px;
+  letter-spacing:0.1em;
+}
+.score-label{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  color:var(--purple);
+  letter-spacing:0.32em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.score-interp{
+  font-size:14px;
+  color:var(--text-muted);
+  line-height:1.6;
+}
+
+.finding-block{
+  background:rgba(255,85,102,0.08);
+  border:1px solid rgba(255,85,102,0.32);
+  border-radius:8px;
+  padding:18px 22px;
+  margin-bottom:24px;
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+}
+.finding-icon{
+  width:28px;height:28px;
+  border-radius:50%;
+  background:rgba(255,85,102,0.18);
+  border:1px solid rgba(255,85,102,0.4);
+  color:var(--red);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;
+  flex-shrink:0;
+}
+.finding-text{
+  font-size:14px;
+  color:#fff;
+  line-height:1.5;
+  font-weight:500;
+}
+
+.issue-counts{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:14px;
+  margin-bottom:8px;
+}
+.issue-count-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:18px;
+  text-align:center;
+}
+.issue-count-card.high{border-color:rgba(255,85,102,0.4);background:rgba(255,85,102,0.06);}
+.issue-count-card.medium{border-color:rgba(255,179,102,0.4);background:rgba(255,179,102,0.06);}
+.issue-count-card.low{border-color:rgba(95,212,154,0.35);background:rgba(95,212,154,0.06);}
+.issue-count-num{
+  font-family:'Rajdhani',sans-serif;
+  font-size:38px;
+  font-weight:700;
+  line-height:1;
+  margin-bottom:6px;
+}
+.issue-count-card.high .issue-count-num{color:var(--red);}
+.issue-count-card.medium .issue-count-num{color:var(--amber);}
+.issue-count-card.low .issue-count-num{color:var(--green);}
+.issue-count-label{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:var(--text-faint);
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+}
+
+.issue-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:24px 26px;
+  margin-bottom:18px;
+  position:relative;
+}
+.issue-card-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:18px;
+}
+.issue-card-title{
+  font-family:'Rajdhani',sans-serif;
+  font-size:20px;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:0.3px;
+  line-height:1.2;
+  flex:1;
+}
+.risk-badge{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  padding:5px 12px;
+  border-radius:4px;
+  flex-shrink:0;
+  white-space:nowrap;
+}
+.risk-badge-high{
+  background:rgba(255,85,102,0.14);
+  color:var(--red);
+  border:1px solid rgba(255,85,102,0.4);
+}
+.risk-badge-medium{
+  background:rgba(255,179,102,0.14);
+  color:var(--amber);
+  border:1px solid rgba(255,179,102,0.4);
+}
+.risk-badge-low{
+  background:rgba(95,212,154,0.14);
+  color:var(--green);
+  border:1px solid rgba(95,212,154,0.35);
+}
+.issue-card-row{
+  display:grid;
+  grid-template-columns:96px 1fr;
+  gap:16px;
+  margin-bottom:10px;
+}
+.issue-card-row:last-child{margin-bottom:0;}
+.issue-card-row-label{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:var(--text-quiet);
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  padding-top:3px;
+}
+.issue-card-row-value{
+  font-size:14px;
+  color:var(--text);
+  line-height:1.55;
+}
+.impact-tag{
+  display:block;
+  margin-top:8px;
+  font-size:13px;
+  color:var(--magenta);
+  font-weight:500;
+  font-style:italic;
+}
+
+.platform-list{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  overflow:hidden;
+}
+.platform-row{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:18px;
+  padding:18px 22px;
+  border-bottom:1px solid var(--border-soft);
+}
+.platform-row:last-child{border-bottom:none;}
+.platform-icon{
+  width:36px;height:36px;
+  border-radius:6px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px;font-weight:700;
+  color:var(--purple);
+}
+.platform-name{
+  font-family:'Rajdhani',sans-serif;
+  font-size:18px;
+  font-weight:600;
+  color:#fff;
+}
+.status-pill{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  padding:6px 12px;
+  border-radius:4px;
+}
+.status-connected{background:rgba(95,212,154,0.14);color:var(--green);border:1px solid rgba(95,212,154,0.35);}
+.status-not-connected{background:rgba(255,85,102,0.14);color:var(--red);border:1px solid rgba(255,85,102,0.4);}
+.status-unknown{background:rgba(148,144,184,0.14);color:var(--text-faint);border:1px solid rgba(148,144,184,0.3);}
+
+.module-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:22px 26px;
+  margin-bottom:14px;
+}
+.module-card-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:12px;
+}
+.module-name{
+  font-family:'Rajdhani',sans-serif;
+  font-size:18px;
+  font-weight:600;
+  color:#fff;
+  letter-spacing:0.2px;
+}
+.module-score{
+  font-family:'Space Mono',monospace;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:0.05em;
+}
+.module-bar-track{
+  height:6px;
+  background:var(--bg3);
+  border-radius:3px;
+  overflow:hidden;
+  margin-bottom:12px;
+}
+.module-bar-fill{
+  height:100%;
+  border-radius:3px;
+}
+.module-card.healthy .module-bar-fill{background:var(--green);}
+.module-card.warning .module-bar-fill{background:var(--amber);}
+.module-card.danger .module-bar-fill{background:var(--red);}
+.module-card.healthy .module-score{color:var(--green);}
+.module-card.warning .module-score{color:var(--amber);}
+.module-card.danger .module-score{color:var(--red);}
+.module-explanation{
+  font-size:13px;
+  color:var(--text-muted);
+  line-height:1.55;
+}
+
+.action-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:22px 26px;
+  margin-bottom:14px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:18px;
+}
+.action-disclaimer{
+  font-size:13.5px;
+  color:var(--text);
+  line-height:1.55;
+  background:rgba(255,179,102,0.06);
+  border-left:3px solid rgba(255,179,102,0.6);
+  padding:12px 16px;
+  border-radius:0 6px 6px 0;
+  margin:8px 0 18px 0;
+  font-weight:500;
+  font-style:italic;
+}
+.action-num{
+  width:40px;height:40px;
+  border-radius:50%;
+  background:var(--grad);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Rajdhani',sans-serif;
+  font-size:18px;font-weight:700;
+  color:#fff;
+  flex-shrink:0;
+}
+.action-content{}
+.action-card-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:10px;
+}
+.action-title{
+  font-family:'Rajdhani',sans-serif;
+  font-size:18px;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:0.2px;
+  line-height:1.2;
+}
+.priority-pill{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  padding:4px 10px;
+  border-radius:4px;
+  flex-shrink:0;
+}
+.priority-high{background:rgba(255,85,102,0.14);color:var(--red);border:1px solid rgba(255,85,102,0.4);}
+.priority-medium{background:rgba(255,179,102,0.14);color:var(--amber);border:1px solid rgba(255,179,102,0.4);}
+.priority-low{background:rgba(95,212,154,0.14);color:var(--green);border:1px solid rgba(95,212,154,0.35);}
+.action-instruction{
+  font-size:14px;
+  color:var(--text-muted);
+  line-height:1.55;
+}
+
+.cta-block{
+  margin-top:18px;
+  background:linear-gradient(135deg, rgba(138,92,255,0.10), rgba(224,64,200,0.06));
+  border:1px solid rgba(138,92,255,0.4);
+  border-radius:12px;
+  padding:28px 36px;
+  position:relative;
+  overflow:hidden;
+}
+.urgency-bridge{
+  margin:14px 0 0 0;
+  padding:14px 20px;
+  border-left:3px solid var(--magenta);
+  background:rgba(224,64,200,0.06);
+  border-radius:0 6px 6px 0;
+}
+.urgency-bridge-line{
+  font-size:14px;
+  color:var(--text);
+  line-height:1.5;
+  margin:0;
+}
+.urgency-bridge-emphasis{
+  margin-top:4px;
+  color:#fff;
+  font-weight:600;
+}
+.cta-block::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at top right, rgba(224,64,200,0.10), transparent 60%);
+  pointer-events:none;
+}
+.cta-content{position:relative;z-index:1;}
+.cta-eyebrow{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.32em;
+  color:var(--purple);
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.cta-title{
+  font-family:'Rajdhani',sans-serif;
+  font-size:30px;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:-0.3px;
+  line-height:1.1;
+  margin-bottom:6px;
+}
+.cta-secondary-headline{
+  font-family:'Rajdhani',sans-serif;
+  font-size:18px;
+  font-weight:600;
+  background:var(--grad);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  letter-spacing:0.2px;
+  margin:0 0 20px 0;
+}
+.cta-features{
+  list-style:none;
+  margin:0 0 20px 0;
+  padding:0;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.cta-features li{
+  display:flex;align-items:center;gap:10px;
+  font-size:14px;
+  color:var(--text);
+}
+.cta-check{
+  width:18px;height:18px;
+  border-radius:50%;
+  background:var(--grad);
+  display:inline-flex;
+  align-items:center;justify-content:center;
+  font-size:11px;
+  font-weight:700;
+  color:#fff;
+  flex-shrink:0;
+}
+.cta-button{
+  display:inline-block;
+  background:var(--grad);
+  color:#fff;
+  text-decoration:none;
+  padding:16px 32px;
+  border-radius:8px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  box-shadow:0 0 32px rgba(138,92,255,0.4);
+  margin-bottom:14px;
+}
+.cta-url{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  color:var(--text-faint);
+  letter-spacing:0.1em;
+  margin-bottom:20px;
+}
+.cta-cancel-line{
+  text-align:center;
+  font-size:12px;
+  color:var(--text-faint);
+  margin:10px 0 0 0;
+  letter-spacing:0.02em;
+}
+.cta-trust{
+  font-family:'Space Mono',monospace;
+  font-size:12px;
+  color:var(--text-faint);
+  font-style:italic;
+  padding-top:24px;
+  border-top:1px solid var(--border-soft);
+}
+
+@media print{
+  @page{
+    size:letter;
+    margin:0.6in 0.6in 0.7in 0.6in;
+  }
+  html,body{
+    background:#ffffff !important;
+    color:#1a0d2e !important;
+  }
+  .report{max-width:none;}
+  .page{
+    background:#ffffff !important;
+    page-break-after:always;
+    page-break-inside:avoid;
+    min-height:auto;
+    padding:0;
+    border:none;
+  }
+  .page:last-child{page-break-after:auto;}
+  .page + .page{border-top:none;}
+  .page-num,.page-brand{color:#9490b8 !important;}
+
+  .cover{background:#ffffff !important;}
+  .cover-bg{display:none !important;}
+  .cover-glow{
+    background:
+      radial-gradient(circle at 20% 30%, rgba(138,92,255,0.08), transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(224,64,200,0.06), transparent 55%) !important;
+  }
+  .cover-content{height:auto;min-height:9.2in;}
+  .cover-brand-logo{color:#1a0d2e !important;}
+  .cover-brand-tag{color:#5a5578 !important;border-color:rgba(138,92,255,0.3) !important;}
+  .cover-doc-label{color:var(--purple) !important;}
+  .cover-title{color:#1a0d2e !important;}
+  .cover-subhead{color:#3a2a5e !important;}
+  .cover-subhead-em{color:#1a0d2e !important;}
+  .cover-meta{border-color:rgba(138,92,255,0.3) !important;}
+  .cover-meta-label{color:#7a7598 !important;}
+  .cover-meta-value{color:#1a0d2e !important;}
+
+  .eyebrow{color:var(--purple) !important;}
+  .section-title{color:#1a0d2e !important;}
+  .section-headline{color:#1a0d2e !important;}
+  .body-text{color:#3a2a5e !important;}
+  .body-text-strong{color:#1a0d2e !important;}
+  .closing-line{color:#5a5578 !important;border-color:rgba(138,92,255,0.18) !important;}
+  .divider{background:rgba(138,92,255,0.18) !important;}
+
+  .score-block{background:#faf8ff !important;border-color:rgba(138,92,255,0.3) !important;}
+  .score-block::before{display:none;}
+  .score-label{color:var(--purple) !important;}
+  .score-interp{color:#3a2a5e !important;}
+  .score-num-suffix{color:#7a7598 !important;}
+  .score-block p[style*="color:#fff"]{color:#1a0d2e !important;}
+
+  .finding-block{background:#fff4f5 !important;border-color:rgba(255,85,102,0.4) !important;}
+  .finding-text{color:#1a0d2e !important;}
+
+  .issue-count-card{background:#faf8ff !important;border-color:rgba(138,92,255,0.22) !important;}
+  .issue-count-card.high{background:#fff4f5 !important;border-color:rgba(255,85,102,0.4) !important;}
+  .issue-count-card.medium{background:#fff8f0 !important;border-color:rgba(255,179,102,0.4) !important;}
+  .issue-count-card.low{background:#f0fbf5 !important;border-color:rgba(95,212,154,0.4) !important;}
+  .issue-count-label{color:#5a5578 !important;}
+
+  .issue-card,.module-card,.action-card{
+    background:#faf8ff !important;
+    border-color:rgba(138,92,255,0.22) !important;
+    page-break-inside:avoid;
+  }
+  .issue-card-title,.module-name,.action-title{color:#1a0d2e !important;}
+  .issue-card-row-label{color:#7a7598 !important;}
+  .issue-card-row-value{color:#1a0d2e !important;}
+  .impact-tag{color:#c41a8e !important;}
+  .module-explanation{color:#3a2a5e !important;}
+  .action-instruction{color:#3a2a5e !important;}
+  .action-disclaimer{
+    background:#fff8f0 !important;
+    border-left-color:rgba(255,179,102,0.7) !important;
+    color:#1a0d2e !important;
+  }
+  .module-bar-track{background:#e8e4f4 !important;}
+  .body-text[style*="color:var(--magenta)"],
+  .body-text[style*="color: var(--magenta)"]{
+    color:#c41a8e !important;
+  }
+
+  .platform-list{background:#faf8ff !important;border-color:rgba(138,92,255,0.22) !important;}
+  .platform-row{border-color:rgba(138,92,255,0.12) !important;}
+  .platform-icon{background:#ffffff !important;color:var(--purple) !important;border-color:rgba(138,92,255,0.3) !important;}
+  .platform-name{color:#1a0d2e !important;}
+
+  .cta-block{
+    background:#faf8ff !important;
+    border-color:rgba(138,92,255,0.4) !important;
+    page-break-inside:avoid;
+  }
+  .cta-block::before{display:none;}
+  .cta-title{color:#1a0d2e !important;}
+  .cta-secondary-headline{
+    background:none !important;
+    -webkit-background-clip:initial !important;
+    background-clip:initial !important;
+    -webkit-text-fill-color:initial !important;
+    color:#c41a8e !important;
+  }
+  .cta-features li{color:#1a0d2e !important;}
+  .cta-trust{color:#5a5578 !important;border-color:rgba(138,92,255,0.18) !important;}
+  .cta-button{
+    box-shadow:none !important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .cta-url{color:#5a5578 !important;}
+  .cta-cancel-line{color:#7a7598 !important;}
+
+  .urgency-bridge{
+    background:#fdf4fa !important;
+    border-left-color:#c41a8e !important;
+  }
+  .urgency-bridge-line{color:#1a0d2e !important;}
+  .urgency-bridge-emphasis{color:#1a0d2e !important;font-weight:600 !important;}
+
+  .page > div[style*="background:var(--bg2)"],
+  .page div[style*="var(--bg2)"]{
+    background:#faf8ff !important;
+    border-color:rgba(138,92,255,0.22) !important;
+  }
+  .page div[style*="color:var(--text)"],
+  .page div[style*="color:#fff"]{
+    color:#1a0d2e !important;
+  }
+  .page strong[style*="#fff"]{
+    color:#1a0d2e !important;
+  }
+
+  *{
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+
+  .cover-title .em,
+  .section-headline-em,
+  .score-num{
+    background:none !important;
+    -webkit-background-clip:initial !important;
+    background-clip:initial !important;
+    -webkit-text-fill-color:initial !important;
+    color:#c41a8e !important;
+  }
+  .score-num{
+    color:#8a5cff !important;
+  }
+
+  .page-num,
+  .page-brand{
+    display:none !important;
+  }
+
+  @page{
+    @bottom-left{
+      content:"Royaltē · Confidential";
+      font-family:'Space Mono',monospace;
+      font-size:9px;
+      color:#9490b8;
+      letter-spacing:0.2em;
+    }
+    @bottom-right{
+      content:"Page " counter(page) " / " counter(pages);
+      font-family:'Space Mono',monospace;
+      font-size:9px;
+      color:#9490b8;
+      letter-spacing:0.15em;
+    }
+  }
+}
+</style>
+</head>
+<body>
+
+<main class="report">
+
+<section class="page cover">
+  <div class="cover-bg"></div>
+  <div class="cover-glow"></div>
+  <div class="cover-content">
+    <div class="cover-top">
+      <div class="cover-brand">
+        <span class="cover-brand-logo">ROYALT<span class="em">Ē</span></span>
+        <span class="cover-brand-tag">Music Audit Intelligence</span>
+      </div>
+      <div class="cover-doc-label">// Audit Report · v2</div>
+      <h1 class="cover-title">ROYALTĒ<br>AUDIT <span class="em">REPORT</span></h1>
+      <p class="cover-subhead"><span class="cover-subhead-em">You are generating royalties.</span><br>You are not receiving all of them.</p>
+    </div>
+    <div class="cover-meta">
+      <div class="cover-meta-cell">
+        <div class="cover-meta-label">Artist</div>
+        <div class="cover-meta-value">{{artist_name}}</div>
+      </div>
+      <div class="cover-meta-cell">
+        <div class="cover-meta-label">Scan Date</div>
+        <div class="cover-meta-value">{{scan_date}}</div>
+      </div>
+      <div class="cover-meta-cell">
+        <div class="cover-meta-label">Report ID</div>
+        <div class="cover-meta-value">{{report_id}}</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
+  <div class="page-num">PAGE 01 / 08</div>
+</section>
+
+<section class="page">
+  <div class="eyebrow">// Page 02 · Executive Summary</div>
+  <h2 class="section-title">Executive Summary</h2>
+  <h3 class="section-headline">Your setup is <span class="section-headline-em-strong">costing you royalties.</span></h3>
+
+  <div class="score-block">
+    <div class="score-block-grid">
+      <div>
+        <div class="score-num">{{score}}</div>
+        <div class="score-num-suffix">/ 100</div>
+        <p class="score-interp" style="margin-top:10px;font-size:12px;line-height:1.5;">This score indicates your setup is not fully optimized to collect all available royalties.</p>
+      </div>
+      <div>
+        <div class="score-label">Royaltē Health Score</div>
+        <p class="score-interp">This score indicates gaps in your metadata, registrations, or platform coverage that may prevent you from receiving full royalty payouts.</p>
+        <p class="score-interp" style="margin-top:8px;color:#fff;font-weight:500;">You are not receiving all the royalties your music is generating.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding-block">
+    <div class="finding-icon">!</div>
+    <div class="finding-text">We detected issues that may prevent royalties from being properly tracked, attributed, or paid.</div>
+  </div>
+
+  <div class="eyebrow" style="margin-top:24px;">// Issue Breakdown</div>
+  <div class="issue-counts">
+    <div class="issue-count-card high">
+      <div class="issue-count-num">{{high_risk_count}}</div>
+      <div class="issue-count-label">High Risk</div>
+    </div>
+    <div class="issue-count-card medium">
+      <div class="issue-count-num">{{medium_risk_count}}</div>
+      <div class="issue-count-label">Medium Risk</div>
+    </div>
+    <div class="issue-count-card low">
+      <div class="issue-count-num">{{low_risk_count}}</div>
+      <div class="issue-count-label">Low Risk</div>
+    </div>
+  </div>
+
+  <p class="closing-line">These issues do not reduce your streams — they reduce what you get paid.</p>
+
+  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
+  <div class="page-num">PAGE 02 / 08</div>
+</section>
+
+<section class="page">
+  <div class="eyebrow">// Page 03 · Top Issues</div>
+  <h2 class="section-title">Top Issues Costing You Money</h2>
+  <p class="body-text" style="margin-bottom:28px;">The following issues were identified during the audit. Each represents a structural gap that may interfere with proper royalty collection.</p>
+
+  <div class="issue-card">
+    <div class="issue-card-header">
+      <div class="issue-card-title">{{issue_1_title}}</div>
+      <span class="risk-badge risk-badge-{{issue_1_risk}}">{{issue_1_risk}} Risk</span>
+    </div>
+    <div class="issue-card-row">
+      <div class="issue-card-row-label">What this means</div>
+      <div class="issue-card-row-value">{{issue_1_meaning}}</div>
+    </div>
+    <div class="issue-card-row">
+      <div class="issue-card-row-label">Impact</div>
+      <div class="issue-card-row-value">{{issue_1_impact}} <span class="impact-tag">This directly impacts your ability to get paid.</span></div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-card-header">
+      <div class="issue-card-title">{{issue_2_title}}</div>
+      <span class="risk-badge risk-badge-{{issue_2_risk}}">{{issue_2_risk}} Risk</span>
+    </div>
+    <div class="issue-card-row">
+      <div class="issue-card-row-label">What this means</div>
+      <div class="issue-card-row-value">{{issue_2_meaning}}</div>
+    </div>
+    <div class="issue-card-row">
+      <div class="issue-card-row-label">Impact</div>
+      <div class="issue-card-row-value">{{issue_2_impact}} <span class="impact-tag">This directly impacts your ability to get paid.</span></div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-card-header">
+      <div class="issue-card-title">{{issue_3_title}}</div>
+      <span class="risk-badge risk-badge-{{issue_3_risk}}">{{issue_3_risk}} Risk</span>
+    </div>
+    <div class="issue-card-row">
+      <div class="issue-card-row-label">What this means</div>
+      <div class="issue-card-row-value">{{issue_3_meaning}}</div>
+    </div>
+    <div class="issue-card-row">
+      <div class="issue-card-row-label">Impact</div>
+      <div class="issue-card-row-value">{{issue_3_impact}} <span class="impact-tag">This directly impacts your ability to get paid.</span></div>
+    </div>
+  </div>
+
+  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
+  <div class="page-num">PAGE 03 / 08</div>
+</section>
+
+<section class="page">
+  <div class="eyebrow">// Page 04 · Why This Matters</div>
+  <h2 class="section-title">Why This Matters</h2>
+  <h3 class="section-headline">Your music can perform — <span class="section-headline-em">and still not pay you.</span></h3>
+
+  <p class="body-text-strong">Streaming platforms and royalty systems depend on accurate data and registrations.</p>
+  <p class="body-text">If your setup is incomplete:</p>
+
+  <div style="margin:24px 0;display:flex;flex-direction:column;gap:14px;">
+    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--purple);margin-top:8px;flex-shrink:0;"></div>
+      <div style="font-size:14px;color:var(--text);line-height:1.55;"><strong style="color:#fff;">Royalties may not be tracked</strong> — without correct identifiers, plays don't link to your account.</div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--purple);margin-top:8px;flex-shrink:0;"></div>
+      <div style="font-size:14px;color:var(--text);line-height:1.55;"><strong style="color:#fff;">Payments may not be routed</strong> — even tracked royalties need a clear collection path.</div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--purple);margin-top:8px;flex-shrink:0;"></div>
+      <div style="font-size:14px;color:var(--text);line-height:1.55;"><strong style="color:#fff;">Revenue may remain unclaimed</strong> — money sits in collection pools instead of reaching you.</div>
+    </div>
+  </div>
+
+  <p class="closing-line">This is how artists lose money without realizing it — even with strong streaming numbers.</p>
+
+  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
+  <div class="page-num">PAGE 04 / 08</div>
+</section>
+
+<section class="page">
+  <div class="eyebrow">// Page 05 · Platform Coverage</div>
+  <h2 class="section-title">Platform Coverage</h2>
+  <p class="body-text" style="margin-bottom:28px;">Connection status across major platforms and rights organizations.</p>
+
+  <div class="platform-list">
+    <div class="platform-row">
+      <div class="platform-icon">S</div>
+      <div class="platform-name">Spotify</div>
+      <span class="status-pill status-{{platform_spotify_status}}">{{platform_spotify}}</span>
+    </div>
+    <div class="platform-row">
+      <div class="platform-icon">A</div>
+      <div class="platform-name">Apple Music</div>
+      <span class="status-pill status-{{platform_apple_status}}">{{platform_apple}}</span>
+    </div>
+    <div class="platform-row">
+      <div class="platform-icon">Y</div>
+      <div class="platform-name">YouTube / Content ID</div>
+      <span class="status-pill status-{{platform_youtube_status}}">{{platform_youtube}}</span>
+    </div>
+    <div class="platform-row">
+      <div class="platform-icon">P</div>
+      <div class="platform-name">Performance Rights Org (PRO)</div>
+      <span class="status-pill status-{{platform_pro_status}}">{{platform_pro}}</span>
+    </div>
+  </div>
+
+  <p class="closing-line">Missing or incomplete connections can prevent you from getting paid.</p>
+
+  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
+  <div class="page-num">PAGE 05 / 08</div>
+</section>
+
+<section class="page">
+  <div class="eyebrow">// Page 06 · Module Analysis</div>
+  <h2 class="section-title">Module Analysis</h2>
+  <p class="body-text" style="margin-bottom:8px;">Each module measures a different dimension of your royalty setup. Higher is better — high scores indicate stronger collection coverage.</p>
+  <p class="body-text" style="margin-bottom:28px;color:var(--magenta);font-weight:500;">Low scores indicate areas where revenue may be lost.</p>
+
+  <div class="module-card {{module_metadata_band}}">
+    <div class="module-card-top">
+      <div class="module-name">Metadata Integrity</div>
+      <div class="module-score">{{module_metadata}} / 100</div>
+    </div>
+    <div class="module-bar-track">
+      <div class="module-bar-fill" style="width:{{module_metadata}}%;"></div>
+    </div>
+    <p class="module-explanation">Missing or incomplete metadata may limit discoverability and prevent platforms from correctly attributing royalties.</p>
+  </div>
+
+  <div class="module-card {{module_platform_band}}">
+    <div class="module-card-top">
+      <div class="module-name">Platform Coverage</div>
+      <div class="module-score">{{module_platform}} / 100</div>
+    </div>
+    <div class="module-bar-track">
+      <div class="module-bar-fill" style="width:{{module_platform}}%;"></div>
+    </div>
+    <p class="module-explanation">Gaps in platform presence reduce the surfaces where your music can earn — limiting reach and recoverable royalties.</p>
+  </div>
+
+  <div class="module-card {{module_publishing_band}}">
+    <div class="module-card-top">
+      <div class="module-name">Publishing Risk</div>
+      <div class="module-score">{{module_publishing}} / 100</div>
+    </div>
+    <div class="module-bar-track">
+      <div class="module-bar-fill" style="width:{{module_publishing}}%;"></div>
+    </div>
+    <p class="module-explanation">Publishing and PRO registration is what allows performance and mechanical royalties to be collected on your behalf.</p>
+  </div>
+
+  <div class="module-card {{module_ugc_band}}">
+    <div class="module-card-top">
+      <div class="module-name">YouTube / UGC Coverage</div>
+      <div class="module-score">{{module_ugc}} / 100</div>
+    </div>
+    <div class="module-bar-track">
+      <div class="module-bar-fill" style="width:{{module_ugc}}%;"></div>
+    </div>
+    <p class="module-explanation">Without active UGC monitoring, third-party uses of your music — Reels, Shorts, fan content — may go unmonetized.</p>
+  </div>
+
+  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
+  <div class="page-num">PAGE 06 / 08</div>
+</section>
+
+<section class="page">
+  <div class="eyebrow">// Page 07 · Action Plan</div>
+  <h2 class="section-title">Action Plan</h2>
+  <p class="action-disclaimer">These actions improve your ability to collect royalties — but do not guarantee full coverage.</p>
+  <p class="body-text" style="margin-bottom:28px;">Priority steps to recover lost royalties and prevent future loss.</p>
+
+  <div class="action-card">
+    <div class="action-num">1</div>
+    <div class="action-content">
+      <div class="action-card-header">
+        <div class="action-title">{{action_1_title}}</div>
+        <span class="priority-pill priority-{{action_1_priority}}">{{action_1_priority}} Priority</span>
+      </div>
+      <p class="action-instruction">{{action_1_instruction}}</p>
+    </div>
+  </div>
+
+  <div class="action-card">
+    <div class="action-num">2</div>
+    <div class="action-content">
+      <div class="action-card-header">
+        <div class="action-title">{{action_2_title}}</div>
+        <span class="priority-pill priority-{{action_2_priority}}">{{action_2_priority}} Priority</span>
+      </div>
+      <p class="action-instruction">{{action_2_instruction}}</p>
+    </div>
+  </div>
+
+  <div class="action-card">
+    <div class="action-num">3</div>
+    <div class="action-content">
+      <div class="action-card-header">
+        <div class="action-title">{{action_3_title}}</div>
+        <span class="priority-pill priority-{{action_3_priority}}">{{action_3_priority}} Priority</span>
+      </div>
+      <p class="action-instruction">{{action_3_instruction}}</p>
+    </div>
+  </div>
+
+  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
+  <div class="page-num">PAGE 07 / 08</div>
+</section>
+
+<section class="page">
+  <div class="eyebrow">// Page 08 · Next Step</div>
+  <h2 class="section-title">Your setup is not being monitored.</h2>
+
+  <p class="body-text-strong" style="margin-top:18px;">Even after fixing these issues:</p>
+
+  <div style="margin:16px 0 20px 0;display:flex;flex-direction:column;gap:8px;">
+    <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--magenta);margin-top:7px;flex-shrink:0;"></div>
+      <div style="font-size:14px;color:var(--text);line-height:1.5;">New problems can appear as you release new music.</div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--magenta);margin-top:7px;flex-shrink:0;"></div>
+      <div style="font-size:14px;color:var(--text);line-height:1.5;">Releases can be misregistered without your knowledge.</div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--magenta);margin-top:7px;flex-shrink:0;"></div>
+      <div style="font-size:14px;color:var(--text);line-height:1.5;">Royalties can still be missed at any point in the chain.</div>
+    </div>
+  </div>
+
+  <p class="closing-line" style="border:none;padding:0;margin:0 0 0 0;font-style:normal;font-size:15px;color:#fff;font-weight:500;">Without monitoring, you won't know when revenue is lost.</p>
+
+  <div class="urgency-bridge">
+    <p class="urgency-bridge-line">This report shows what we detected today.</p>
+    <p class="urgency-bridge-line urgency-bridge-emphasis">It does not protect you from future issues.</p>
+  </div>
+
+  <div class="cta-block">
+    <div class="cta-content">
+      <div class="cta-eyebrow">// Recommended Next Step</div>
+      <h3 class="cta-title">You're still not protected.</h3>
+      <p class="cta-secondary-headline">Unlock Full Royaltē Monitoring</p>
+      <ul class="cta-features">
+        <li><span class="cta-check">✓</span>Ongoing catalog scans</li>
+        <li><span class="cta-check">✓</span>New issue detection</li>
+        <li><span class="cta-check">✓</span>Alerts when problems appear</li>
+        <li><span class="cta-check">✓</span>Track improvements over time</li>
+      </ul>
+      <a href="https://royalte.ai/pricing.html" class="cta-button">Stop Losing Money →</a>
+      <p class="cta-cancel-line">Cancel anytime. No long-term commitment.</p>
+      <div class="cta-url">royalte.ai/pricing</div>
+      <p class="cta-trust">Built by artists who were losing money — and fixed it.</p>
+    </div>
+  </div>
+
+  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
+  <div class="page-num">PAGE 08 / 08</div>
+</section>
+
+</main>
+
+</body>
+</html>

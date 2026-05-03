@@ -2675,7 +2675,8 @@ function showRealResults(data) {
       score:       (data.royalteScore != null) ? data.royalteScore : (data.riskScore != null ? data.riskScore : null),
       issuesCount: flagsArr.length,
       urlType:     detectUrlType(document.getElementById('hero-url')?.value?.trim() || '') || (isApple ? 'apple' : 'unknown'),
-      scannedAt:   new Date().toISOString()
+      scannedAt:   new Date().toISOString(),
+      scanId:      data.scanId || null
     };
   } catch(e){ /* non-blocking */ }
 
@@ -3015,7 +3016,8 @@ async function submitForm() {
         source_url:  spotify,
         artist_name: name,
         email:       email,
-        url_type:    urlTypeLabel
+        url_type:    urlTypeLabel,
+        scanId:      window.__royalteScan?.scanId || null
       })
     });
   } catch (e) {
@@ -3163,7 +3165,8 @@ async function submitAuditModal(e) {
     url_type:     urlTypeLabel,
     timestamp:    submittedAt,
     scanned_at:   scannedAt,
-    source:       'modal'
+    source:       'modal',
+    scanId:       scan.scanId || null
   };
 
   // ── 1. Formspree — email notification (Phase 1 source of truth, must keep working) ──
