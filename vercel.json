@@ -6,6 +6,9 @@
     },
     "api/process-audit.js": {
       "includeFiles": "api/apple-token.js"
+    },
+    "api/submit-audit.js": {
+      "maxDuration": 60
     }
   },
   "routes": [
