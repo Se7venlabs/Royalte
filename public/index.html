@@ -1825,6 +1825,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
               </div>
             </div>
             <button class="form-submit" id="form-btn" onclick="submitForm()">Request My Full Audit →</button>
+            <div id="form-inner-error" class="form-error" style="display:none;color:var(--red);font-size:12px;margin-top:10px;font-family:'Space Grotesk',sans-serif;line-height:1.5;"></div>
             <div class="form-microcopy">Artist name and link auto-fill from your scan · Only email required<br>Full audit delivered within 12–24 hours · Verified data only</div>
           </div>
           <div class="form-success" id="form-success">
@@ -2968,48 +2969,37 @@ async function submitForm() {
   const name    = document.getElementById('f-name').value.trim();
   const email   = document.getElementById('f-email').value.trim();
   const spotify = document.getElementById('f-spotify').value.trim();
-  const tracks  = document.getElementById('f-tracks').value;
   const btn     = document.getElementById('form-btn');
+  const errorEl = document.getElementById('form-inner-error');
+
+  if (errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
 
   if (!email || !email.includes('@')) { document.getElementById('f-email').style.borderColor = 'var(--red)'; return; }
-  if (!spotify){ 
+  if (!spotify){
     showUrlError('Please run a scan above first — your artist name and link will auto-fill into the form.');
     document.getElementById('request').scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => document.getElementById('scan-tool').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-    return; 
+    return;
+  }
+
+  const scanId = window.__royalteScan?.scanId;
+  if (typeof scanId !== 'string' || scanId.length === 0) {
+    if (errorEl) {
+      errorEl.textContent = 'Please run a scan above first — your scan ID is missing.';
+      errorEl.style.display = 'block';
+    }
+    return;
   }
 
   btn.disabled = true;
   btn.textContent = 'Sending request...';
 
-  const rewardfulRef = (typeof Rewardful !== 'undefined' && Rewardful.referral) ? Rewardful.referral : '';
-  const manualCode   = document.getElementById('f-ref').value.trim().toLowerCase();
-  const referral     = rewardfulRef || manualCode || '';
   const urlType      = detectUrlType(spotify);
   const urlTypeLabel = urlType ? (URL_TYPE_META[urlType]?.label || urlType) : 'Unknown';
 
+  let response;
   try {
-    await fetch('https://formspree.io/f/xojkrwzp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name, email,
-        spotify_url:   spotify,
-        url_type:      urlTypeLabel,
-        track_count:   tracks,
-        referral:      referral,
-        referral_type: rewardfulRef ? 'rewardful_link' : manualCode ? 'manual_code' : 'organic',
-        priority:      referral ? 'YES — deliver within 1-2 hours' : 'standard 12-24 hours',
-        discount_note: referral ? '5% discount to be applied on paid tier signup' : '',
-        _subject:      referral ? `⚡ PRIORITY Royaltē Audit — ${name} (ref: ${referral})` : `Royaltē Full Audit Request — ${name} [${urlTypeLabel}]`,
-        _replyto:      email
-      })
-    });
-  } catch (e) {}
-
-  // ── MODULE 2: Insert into Supabase audit_requests ─────────
-  try {
-    await fetch('/api/submit-audit', {
+    response = await fetch('/api/submit-audit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -3017,13 +3007,36 @@ async function submitForm() {
         artist_name: name,
         email:       email,
         url_type:    urlTypeLabel,
-        scanId:      window.__royalteScan?.scanId || null
+        scanId:      scanId
       })
     });
-  } catch (e) {
-    console.warn('[Royaltē] Supabase insert non-blocking error:', e.message);
+  } catch (err) {
+    console.warn('[Royaltē] submit-audit fetch error:', err.message);
+    if (errorEl) {
+      errorEl.textContent = "Couldn't submit your request — please try again.";
+      errorEl.style.display = 'block';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Request My Full Audit →';
+    return;
   }
-  // ──────────────────────────────────────────────────────────
+
+  if (!response.ok) {
+    let detail = '';
+    try {
+      const body = await response.json();
+      detail = body?.detail || body?.error || '';
+    } catch (_) { /* non-JSON body */ }
+    if (errorEl) {
+      errorEl.textContent = detail
+        ? `Submission failed: ${detail}`
+        : "Couldn't submit your request — please try again.";
+      errorEl.style.display = 'block';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Request My Full Audit →';
+    return;
+  }
 
   document.getElementById('form-inner').style.display   = 'none';
   document.getElementById('form-success').style.display = 'block';
@@ -3119,12 +3132,10 @@ async function submitAuditModal(e) {
 
   const email = (inputEl.value || '').trim();
 
-  // Reset prior error
   inputEl.classList.remove('is-invalid');
   errorEl.classList.remove('is-shown');
   errorEl.textContent = '';
 
-  // Basic email validation
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if (!emailValid) {
     inputEl.classList.add('is-invalid');
@@ -3134,10 +3145,6 @@ async function submitAuditModal(e) {
     return;
   }
 
-  btnEl.disabled = true;
-  btnEl.textContent = 'Sending...';
-
-  // Pull hidden scan context from the global snapshot
   const scan = (typeof window !== 'undefined' && window.__royalteScan) ? window.__royalteScan : {};
   const artistName  = scan.artistName  || '';
   const sourceUrl   = scan.sourceUrl   || '';
@@ -3145,17 +3152,23 @@ async function submitAuditModal(e) {
   const issuesCount = (scan.issuesCount != null) ? scan.issuesCount : '';
   const urlType     = scan.urlType     || '';
   const scannedAt   = scan.scannedAt   || '';
+  const scanId      = scan.scanId;
+
+  if (typeof scanId !== 'string' || scanId.length === 0) {
+    errorEl.textContent = 'Please run a scan first — your scan ID is missing.';
+    errorEl.classList.add('is-shown');
+    return;
+  }
+
   const submittedAt = new Date().toISOString();
 
-  // Map url type to label that matches the inline form's payload format
   const urlTypeLabel = urlType
     ? (URL_TYPE_META && URL_TYPE_META[urlType]?.label ? URL_TYPE_META[urlType].label : urlType)
     : 'Unknown';
 
-  // Supabase-ready payload shape (used for /api/submit-audit + future Resend trigger).
-  // Arta will plug Supabase insert + Resend send here next phase. For now the
-  // existing /api/submit-audit endpoint receives this payload — fields it doesn't
-  // know about are silently ignored, which keeps Phase 1 backwards-compatible.
+  btnEl.disabled = true;
+  btnEl.textContent = 'Sending...';
+
   const supabasePayload = {
     email:        email,
     artist_name:  artistName,
@@ -3166,51 +3179,42 @@ async function submitAuditModal(e) {
     timestamp:    submittedAt,
     scanned_at:   scannedAt,
     source:       'modal',
-    scanId:       scan.scanId || null
+    scanId:       scanId
   };
 
-  // ── 1. Formspree — email notification (Phase 1 source of truth, must keep working) ──
+  let response;
   try {
-    await fetch('https://formspree.io/f/xojkrwzp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name:           artistName,
-        email:          email,
-        spotify_url:    sourceUrl,
-        url_type:       urlTypeLabel,
-        royalte_score:  score,
-        issues_count:   issuesCount,
-        scanned_at:     scannedAt,
-        submitted_at:   submittedAt,
-        source:         'modal',
-        _subject:       artistName
-                          ? `Royaltē Modal Audit Request — ${artistName} [${urlTypeLabel}]`
-                          : `Royaltē Modal Audit Request [${urlTypeLabel}]`,
-        _replyto:       email
-      })
-    });
-  } catch (err) {
-    // Non-blocking — backend insert below is the secondary path
-  }
-
-  // ── 2. /api/submit-audit — Phase 2 Supabase insert (Arta wires this next) ──
-  try {
-    await fetch('/api/submit-audit', {
+    response = await fetch('/api/submit-audit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(supabasePayload)
     });
   } catch (err) {
-    // Non-blocking — Formspree above is the Phase 1 source of truth
-    console.warn('[Royaltē] Modal Supabase insert non-blocking error:', err.message);
+    console.warn('[Royaltē] submit-audit fetch error:', err.message);
+    errorEl.textContent = "Couldn't submit your request — please try again.";
+    errorEl.classList.add('is-shown');
+    btnEl.disabled = false;
+    btnEl.textContent = 'Get My Full Audit →';
+    return;
   }
 
-  // Clear input so reopening the modal starts fresh; keep button disabled
-  // (will reset only when modal is reopened via openAuditModal).
+  if (!response.ok) {
+    let detail = '';
+    try {
+      const body = await response.json();
+      detail = body?.detail || body?.error || '';
+    } catch (_) { /* non-JSON body */ }
+    errorEl.textContent = detail
+      ? `Submission failed: ${detail}`
+      : "Couldn't submit your request — please try again.";
+    errorEl.classList.add('is-shown');
+    btnEl.disabled = false;
+    btnEl.textContent = 'Get My Full Audit →';
+    return;
+  }
+
   if (inputEl) inputEl.value = '';
 
-  // Show success state
   formEl.style.display = 'none';
   successEl.classList.add('is-shown');
 }
