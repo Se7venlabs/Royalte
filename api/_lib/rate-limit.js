@@ -241,18 +241,3 @@ export async function recordViolation(ip, endpoint, reason) {
     console.warn('[rate-limit] recordViolation exception:', e.message);
   }
 }
-
-// ── INTERNAL SECRET VERIFICATION ─────────────────────────────────────────────
-// Used by process-audit to require a shared secret on external calls.
-// Returns true if the header matches env INTERNAL_API_SECRET.
-export function verifyInternalSecret(req) {
-  const expected = process.env.INTERNAL_API_SECRET;
-  if (!expected) {
-    // If secret is NOT set, we fail-open to avoid bricking the endpoint during rollout.
-    // In production you MUST set INTERNAL_API_SECRET in Vercel env vars.
-    console.warn('[rate-limit] INTERNAL_API_SECRET not set — verifyInternalSecret returning true (fail-open)');
-    return true;
-  }
-  const provided = req.headers['x-internal-secret'];
-  return provided && provided === expected;
-}

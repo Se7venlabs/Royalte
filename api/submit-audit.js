@@ -145,6 +145,13 @@ export default async function handler(req, res) {
     scanId,
   } = req.body || {};
 
+  if (!scanId || typeof scanId !== 'string' || scanId.length === 0) {
+    return res.status(400).json({
+      error: 'scan_id required',
+      detail: 'No saved scan to process. Please run a scan first.'
+    });
+  }
+
   // ── VALIDATION ────────────────────────────────────────────────────────────
   const missing = [];
   if (!source_url)  missing.push('source_url');
@@ -201,34 +208,6 @@ export default async function handler(req, res) {
 
     // ── SUCCESS ───────────────────────────────────────────────────────────
     console.log('[submit-audit] ✅ Inserted audit_request id:', data.id, '| status:', data.status, '| created_at:', data.created_at);
-
-    // ── TRIGGER BACKGROUND PROCESSING (fire-and-forget) ───────────────────
-    // Resolve the absolute URL because serverless functions can't call themselves
-    // with a relative path. We read the host from the incoming request headers.
-    // Skip when scanId is present — saved audit_scans row is the source of truth.
-    if (!scanId) {
-      try {
-        const host = req.headers['x-forwarded-host'] || req.headers.host;
-        const proto = req.headers['x-forwarded-proto'] || 'https';
-        if (host) {
-          const triggerUrl = `${proto}://${host}/api/process-audit`;
-          // Do NOT await — we want the response to return to the user immediately.
-          // Vercel keeps the container alive long enough for the TCP handshake.
-          fetch(triggerUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: data.id }),
-          }).catch(err => {
-            console.warn('[submit-audit] process-audit trigger failed (non-blocking):', err.message);
-          });
-          console.log('[submit-audit] 🔔 Triggered process-audit for id:', data.id);
-        } else {
-          console.warn('[submit-audit] No host header — cannot trigger process-audit');
-        }
-      } catch (triggerErr) {
-        console.warn('[submit-audit] Trigger dispatch threw (non-blocking):', triggerErr.message);
-      }
-    }
 
     // ── PDF RENDER + EMAIL (lazy, synchronous, 1 retry max) ─────────────────
     // Soft-fail throughout: any failure here updates audit_requests to

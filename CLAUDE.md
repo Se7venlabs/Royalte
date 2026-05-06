@@ -24,7 +24,7 @@ There is no bundler, no framework, no TypeScript. Edits to `public/*.html` ship 
 Set in Vercel project settings (and locally in `.env` for `vercel dev`):
 
 - Supabase: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-- Internal auth: `INTERNAL_API_SECRET` (gates `/api/process-audit`)
+- Internal auth: `INTERNAL_API_SECRET` (gates `api/debug-tidal.js`)
 - Apple Music JWT: `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` (full `.p8` contents; literal `\n` accepted)
 - Third-party APIs: `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `YOUTUBE_API_KEY`, `LASTFM_API_KEY`, `TIDAL_CLIENT_ID`, `TIDAL_CLIENT_SECRET`, `DISCOGS_CONSUMER_KEY`, `DISCOGS_CONSUMER_SECRET`, `DISCOGS_USER_AGENT`
 
@@ -32,13 +32,10 @@ Modules degrade gracefully when keys are missing — see "AUTH_UNAVAILABLE" belo
 
 ## Architecture
 
-### Audit request lifecycle (3 endpoints, async)
+### Audit request lifecycle (2 endpoints)
 
-1. **`POST /api/submit-audit`** — landing page form posts here. Inserts a `pending` row into Supabase `audit_requests`, then **fire-and-forgets** a `POST` to `/api/process-audit` (does not await). Response returns immediately to the user.
-2. **`POST /api/process-audit`** — protected by `INTERNAL_API_SECRET` (`x-internal-secret` header, verified via `api/_lib/rate-limit.js#verifyInternalSecret`). Idempotent on `status === 'pending'`. Flips row to `processing`, calls `runAudit()` from `api/audit.js`, then writes a trimmed `result_payload` (see `buildSummary`) and flips to `completed` or `failed`.
-3. **`GET /api/audit?url=...`** — synchronous engine endpoint used directly by the live site preview. Same engine code path as step 2.
-
-`api/process-audit.js` imports `runAudit` from `./audit.js`, but that named export does not currently exist in `api/audit.js` — only `default async function handler` is exported. The import resolves to `undefined` and `/api/process-audit` 500s on first invocation. The new audit pipeline (`/api/submit-audit` calling `lib/render-audit-pdf.js` directly) routes around this. See Followups.
+1. **`GET /api/audit?url=...`** — runs the engine, persists a canonical scan into Supabase `audit_scans` with a handler-generated `scanId`, returns the scan to the frontend (which captures `scanId` for step 2). Synchronous.
+2. **`POST /api/submit-audit`** — receives the form submission with the captured `scanId` plus email. Requires `scanId` — returns HTTP 400 if missing/empty (`scan_id required`). Inserts an `audit_requests` row, renders the PDF via `lib/render-audit-pdf.js` from the saved `audit_scans.payload`, sends the audit email via Resend, marks the row `completed`. Synchronous; `vercel.json` sets `maxDuration: 60` on this function to cover PDFShift + Resend latency.
 
 ### The canonical AuditResponse contract
 
@@ -84,14 +81,10 @@ There is also a **degraded path**: if input is Apple Music and no Spotify match 
 
 ### Vercel routing quirks
 
-`vercel.json` routes top-level `/dashboard.html`, `/demo.html`, `/faq.html` etc. to their `public/` paths explicitly, with a catch-all `/(.*)` → `/public/$1`. Adding a new top-level static page generally just works through the catch-all; only add an explicit route if you need a non-default mapping. The `vercel.json#functions.includeFiles` block ensures `apple-token.js` is bundled with `audit.js` and `process-audit.js`.
+`vercel.json` routes top-level `/dashboard.html`, `/demo.html`, `/faq.html` etc. to their `public/` paths explicitly, with a catch-all `/(.*)` → `/public/$1`. Adding a new top-level static page generally just works through the catch-all; only add an explicit route if you need a non-default mapping. The `vercel.json#functions.includeFiles` block ensures `apple-token.js` is bundled with `audit.js`. `api/submit-audit.js` has `maxDuration: 60` to cover the synchronous PDF render + email.
 
 ## Things to know before editing
 
 - `public/index.html` is ~800KB and `public/audit.html` is ~750KB — they are intentionally single-file pages. Prefer surgical edits; do not reformat or reflow.
 - The empty `main` file at the repo root and the empty `api/pages` / `api/scripts` files are placeholders/cruft, not real targets.
 - Comments throughout the codebase document **why** decisions were made (fail-open rate limiting, AUTH_UNAVAILABLE semantics, idempotency on `pending`). Read them before changing the surrounding logic.
-
-## Followups
-
-- **`process-audit.js` has a dead `runAudit` import.** `api/audit.js` only exports `default async function handler`; `runAudit` is never named-exported. Side effects: `/api/process-audit` 500s on first invocation, the fire-and-forget trigger from `submit-audit.js` is silently swallowed (caller `.catch()`'s the rejection), and `audit_requests` rows that depended on `process-audit` to advance their lifecycle stay at `status='pending'` forever. The new audit pipeline routes around this — `submit-audit.js` calls `lib/render-audit-pdf.js` directly. To revive `process-audit.js`, refactor `audit.js` to extract the engine logic into a named export `runAudit(url, urlType?) → { ok, payload }` matching the shape `process-audit.js` already expects.
