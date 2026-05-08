@@ -127,7 +127,7 @@ export default async function handler(req, res) {
         platforms: {
           spotify: false, musicbrainz: false, deezer: false, audiodb: false,
           discogs: false, soundcloud: false, lastfm: false, wikipedia: false,
-          youtube: false, appleMusic: false,
+          youtube: false, appleMusic: true,
         },
         catalog: { totalReleases: 0, earliestYear: null, catalogAgeYears: 0, estimatedAnnualStreams: 0 },
         royaltyGap: null,
