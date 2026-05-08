@@ -112,8 +112,8 @@ export default async function handler(req, res) {
         followers: -1,
         popularity: 0,
         genres: [],
-        trackTitle: null,
-        trackIsrc: null,
+        trackTitle: resolved.trackTitle ?? null,
+        trackIsrc: resolved.trackIsrc ?? null,
         resolvedFrom:       resolved.resolvedFrom,
         resolvedFromType:   resolved.resolvedFromType,
         resolvedFromTitle:  resolved.resolvedFromTitle,
@@ -374,6 +374,8 @@ async function resolveToArtist(inputUrl, token) {
     const appleArtistName = appleResolved?.name;
     const appleArtwork    = appleResolved?.artworkUrl || null;
     const appleArtistId   = appleResolved?.appleArtistId || null;
+    const appleTrackTitle = appleResolved?.trackTitle ?? null;
+    const appleTrackIsrc  = appleResolved?.trackIsrc ?? null;
     if (!appleArtistName) {
       throw new Error('Could not resolve artist from Apple Music link');
     }
@@ -419,6 +421,8 @@ async function resolveToArtist(inputUrl, token) {
       canonicalTarget:   'artist',
       appleArtworkUrl:   appleArtwork,
       appleArtistId,
+      trackTitle:        appleTrackTitle,
+      trackIsrc:         appleTrackIsrc,
     };
   }
 
@@ -605,7 +609,7 @@ async function resolveAppleArtist(appleUrl) {
       // Songs always have artwork (album cover) — use as fallback
       const artworkUrl = formatArtwork(attrs.artwork);
       const appleArtistId = data?.data?.[0]?.relationships?.artists?.data?.[0]?.id || null;
-      return { name: attrs.artistName, artworkUrl, appleArtistId };
+      return { name: attrs.artistName, artworkUrl, appleArtistId, trackTitle: attrs.name ?? null, trackIsrc: attrs.isrc ?? null };
     }
 
     if (meta.kind === 'album') {
@@ -617,7 +621,7 @@ async function resolveAppleArtist(appleUrl) {
           const attrs = data?.data?.[0]?.attributes;
           if (attrs?.artistName) {
             const appleArtistId = data?.data?.[0]?.relationships?.artists?.data?.[0]?.id || null;
-            return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork), appleArtistId };
+            return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork), appleArtistId, trackTitle: attrs.name ?? null, trackIsrc: attrs.isrc ?? null };
           }
         }
       }
