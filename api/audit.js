@@ -3,6 +3,7 @@
 // Features: Royalty gap estimate, catalog age analysis, country PRO guide, real YouTube UGC detection, Apple Music catalog comparison
 
 import { generateAppleToken } from './apple-token.js';
+import { lookupByISRC } from './apple-music.js';
 import { randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { normalizeAuditResponse } from './lib/normalizeAuditResponse.js';
@@ -712,26 +713,12 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
     // 2. ISRC lookup for the specific track (if track scan)
     let isrcResult = null;
     if (isrc) {
-      const isrcResp = await fetch(
-        `${BASE}/catalog/${STOREFRONT}/songs?filter[isrc]=${isrc}`,
-        { headers }
-      );
-      if (isrcResp.ok) {
-        const isrcData = await isrcResp.json();
-        const songs = isrcData?.data || [];
-        if (songs.length > 0) {
-          const song = songs[0];
-          isrcResult = {
-            found: true,
-            name: song.attributes?.name,
-            url: song.attributes?.url,
-            albumName: song.attributes?.albumName,
-            previewUrl: song.attributes?.previews?.[0]?.url || null,
-          };
-        } else {
-          isrcResult = { found: false };
-        }
-      }
+      const r = await lookupByISRC(isrc);
+      // Preserve original semantics: only surface definitive results.
+      // Helper errors (r.error present) stay invisible so the
+      // "ISRC found on Spotify but not on Apple Music" flag at
+      // audit.js:1253 doesn't fire on transient Apple API failures.
+      if (!r.error) isrcResult = r;
     }
 
     // 3. Compare Spotify top tracks against Apple Music catalog
@@ -744,14 +731,7 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
         let found = false;
 
         if (track.isrc) {
-          const isrcResp = await fetch(
-            `${BASE}/catalog/${STOREFRONT}/songs?filter[isrc]=${track.isrc}`,
-            { headers }
-          );
-          if (isrcResp.ok) {
-            const isrcData = await isrcResp.json();
-            found = (isrcData?.data?.length || 0) > 0;
-          }
+          found = (await lookupByISRC(track.isrc)).found;
         }
 
         if (!found) {

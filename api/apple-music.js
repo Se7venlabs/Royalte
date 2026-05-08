@@ -1,4 +1,4 @@
-const { generateAppleToken } = require('./apple-token');
+import { generateAppleToken } from './apple-token.js';
 
 const APPLE_MUSIC_API = 'https://api.music.apple.com/v1';
 const STOREFRONT = 'us';
@@ -209,7 +209,7 @@ async function compareSpotifyToApple(spotifyTracks = []) {
   return results;
 }
 
-module.exports = {
+export {
   searchArtist,
   getArtistAlbums,
   lookupByISRC,
