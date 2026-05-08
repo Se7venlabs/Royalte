@@ -88,3 +88,17 @@ There is also a **degraded path**: if input is Apple Music and no Spotify match 
 - `public/index.html` is ~800KB and `public/audit.html` is ~750KB — they are intentionally single-file pages. Prefer surgical edits; do not reformat or reflow.
 - The empty `main` file at the repo root and the empty `api/pages` / `api/scripts` files are placeholders/cruft, not real targets.
 - Comments throughout the codebase document **why** decisions were made (fail-open rate limiting, AUTH_UNAVAILABLE semantics, idempotency on `pending`). Read them before changing the surrounding logic.
+
+## Deploy Discipline
+
+NEVER push directly to main for changes that touch Vercel functions.
+Always:
+1. Branch: git checkout -b feature/<name>
+2. Push: git push -u origin <branch>
+3. Test against Vercel preview URL with curl (use -L to follow apex 307 redirect, or hit www.royalte.ai directly)
+4. Merge to main only after preview returns HTTP 200 and expected JSON
+
+Lesson learned 2026-05-08 — direct push of 9beccad caused 3 min
+production outage. Preview deploy would have caught it (apple-music.js
+was CJS under "type": "module", failed at module-load time).
+Fixed and re-shipped as 5812d14 via preview-tested feature branch.
