@@ -1588,7 +1588,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
       <a href="/faq.html">FAQ</a>
     </div>
     <span class="nav-beta">// Beta</span>
-    <button class="nav-cta nav-cta-pulse" type="button" onclick="openAuditModal()">Request Full Audit</button>
+    <button class="nav-cta nav-cta-pulse" type="button" onclick="requestFullAuditFromNav()">Request Full Audit</button>
   </div>
 </nav>
 
@@ -3117,6 +3117,16 @@ function openAuditModal() {
   document.body.style.overflow = 'hidden';
   // Focus the email input after the open animation
   setTimeout(() => { if (inputEl) inputEl.focus(); }, 280);
+}
+
+function requestFullAuditFromNav() {
+  const scanId = window.__royalteScan?.scanId;
+  if (typeof scanId === 'string' && scanId.length > 0) {
+    openAuditModal();
+    return;
+  }
+  document.getElementById('scan-tool')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => document.getElementById('hero-url')?.focus(), 600);
 }
 
 function closeAuditModal() {
