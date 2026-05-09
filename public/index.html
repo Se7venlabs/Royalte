@@ -1648,7 +1648,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
     <div class="hero-paste">
       <div class="paste-box">
         <input class="paste-input" id="hero-url" type="text" placeholder="open.spotify.com/artist/... or music.apple.com/us/album/...">
-        <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Audit →</button>
+        <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Scan →</button>
       </div>
       <div id="url-type-chip" class="url-type-chip"></div>
       <div class="paste-hint">// Supports Spotify &amp; Apple Music · artist, album, track, or song links</div>
@@ -2262,7 +2262,7 @@ async function runAudit() {
       showRealResults(auditData);
     }, 400);
     btn.disabled = false;
-    btn.textContent = 'Run Free Audit →';
+    btn.textContent = 'Run Free Scan →';
     setTimeout(() => {
       document.getElementById('scan-progress').style.display = 'none';
     }, 600);
@@ -2294,7 +2294,7 @@ async function runAudit() {
   const scoreReset = document.getElementById('hero-score-tag');
   if (scoreReset) scoreReset.classList.remove('band-healthy','band-warning','band-danger');
   btn.disabled = false;
-  btn.textContent = 'Run Free Audit →';
+  btn.textContent = 'Run Free Scan →';
 }
 
 // ── SET URL TYPE PILL ──────────────────────────────────────
