@@ -10,6 +10,11 @@
   },
   "routes": [
     {
+      "src": "/pricing.html",
+      "status": 302,
+      "headers": { "Location": "/" }
+    },
+    {
       "src": "/api/audit",
       "dest": "/api/audit.js"
     },
