@@ -10,16 +10,27 @@
   },
   "routes": [
     {
+      "src": "/pricing.html",
+      "status": 302,
+      "headers": { "Location": "/" }
+    },
+    {
+      "src": "/dev-spec.html",
+      "status": 302,
+      "headers": { "Location": "/" }
+    },
+    {
+      "src": "/dashboard.html",
+      "status": 302,
+      "headers": { "Location": "/" }
+    },
+    {
       "src": "/api/audit",
       "dest": "/api/audit.js"
     },
     {
       "src": "/api/submit-audit",
       "dest": "/api/submit-audit.js"
-    },
-    {
-      "src": "/dashboard.html",
-      "dest": "/public/dashboard.html"
     },
     {
       "src": "/demo.html",
