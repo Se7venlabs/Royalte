@@ -231,3 +231,36 @@ create index if not exists audit_requests_subscription_id_idx
   where subscription_id is not null;
 
 commit;
+
+-- =============================================================================
+-- ROLLBACK (manual — do not run automatically)
+-- =============================================================================
+-- To reverse this migration, run the following in order. Order matters:
+-- FK must drop before its referenced table; enums must drop after all
+-- columns using them are gone.
+--
+-- BEGIN;
+--
+-- -- 1. Drop FK on audit_requests
+-- ALTER TABLE audit_requests DROP COLUMN IF EXISTS subscription_id;
+--
+-- -- 2. Drop tables (reverse dependency order)
+-- DROP TABLE IF EXISTS drip_queue CASCADE;
+-- DROP TABLE IF EXISTS monitoring_alerts CASCADE;
+-- DROP TABLE IF EXISTS monitoring_scans CASCADE;
+-- DROP TABLE IF EXISTS subscriptions CASCADE;
+--
+-- -- 3. Drop enums (only after tables using them are gone)
+-- DROP TYPE IF EXISTS drip_template;
+-- DROP TYPE IF EXISTS drip_status;
+-- DROP TYPE IF EXISTS alert_tier;
+-- DROP TYPE IF EXISTS alert_status;
+-- DROP TYPE IF EXISTS monitoring_scan_type;
+-- DROP TYPE IF EXISTS monitoring_scan_status;
+-- DROP TYPE IF EXISTS subscription_product_type;
+-- DROP TYPE IF EXISTS subscription_status;
+--
+-- -- Note: pdf_render_status is NOT dropped — it predates this migration.
+--
+-- COMMIT;
+-- =============================================================================
