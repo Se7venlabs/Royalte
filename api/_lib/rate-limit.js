@@ -113,57 +113,34 @@ export async function checkRateLimit(ip, endpoint, limits) {
       { type: 'day',   start: startOfDayWindow(now),   max: limits.day?.max   ?? null, seconds: 86400 },
     ].filter(w => w.max != null);
 
-    // Read existing counts for all applicable windows in one query
-    const startIsos = windows.map(w => w.start.toISOString());
-    const { data: rows, error: readErr } = await supabase
-      .from('rate_limits')
-      .select('window_type, count, window_start')
-      .eq('ip', ip)
-      .eq('endpoint', endpoint)
-      .in('window_start', startIsos);
-
-    if (readErr) {
-      console.warn('[rate-limit] read failed (fail-open):', readErr.message);
-      return { allowed: true, reason: 'read_error' };
-    }
-
-    // Build a lookup: { 'burst' → count, 'hour' → count, 'day' → count }
-    const existing = {};
-    (rows || []).forEach(r => {
-      // Only count if the row matches the current window (defensive)
-      const match = windows.find(w => w.type === r.window_type && new Date(w.start).getTime() === new Date(r.window_start).getTime());
-      if (match) existing[r.window_type] = r.count;
-    });
-
-    // Check if any window is already at/over the limit
+    // Atomic check-and-increment per window via SECURITY DEFINER RPC.
+    // PG's row-level lock on the INSERT...ON CONFLICT serialises parallel
+    // callers, so N concurrent requests get monotonically increasing counts
+    // (1, 2, 3, ...) instead of all racing to count=1.
+    //
+    // Short-circuit on the first window that rejects. Earlier windows that
+    // already incremented stay incremented — that's correct: the request
+    // does count against those windows even though it was blocked by a
+    // later one. Order matters: burst (smallest max, most likely to reject)
+    // is checked first to minimise over-counting on rejection.
     for (const w of windows) {
-      const current = existing[w.type] || 0;
-      if (current >= w.max) {
-        // Retry-after = seconds until the NEXT window of this type starts
-        const nextStart = new Date(w.start.getTime() + (w.seconds * 1000));
-        const retryAfter = Math.max(1, Math.ceil((nextStart.getTime() - now.getTime()) / 1000));
-        return { allowed: false, reason: w.type, retryAfter };
+      const { data, error } = await supabase.rpc('rate_limit_check_and_increment', {
+        p_ip:           ip,
+        p_endpoint:     endpoint,
+        p_window:       w.type,
+        p_window_start: w.start.toISOString(),
+        p_max:          w.max,
+      });
+      if (error) {
+        console.warn('[rate-limit] RPC failed (fail-open):', error.message);
+        return { allowed: true, reason: 'rpc_error' };
       }
-    }
-
-    // All windows within limits — increment each. Use upsert with merge on count.
-    // We do individual upserts (small N = 3, trivial), each atomic via unique constraint.
-    for (const w of windows) {
-      const nextCount = (existing[w.type] || 0) + 1;
-      const { error: upErr } = await supabase
-        .from('rate_limits')
-        .upsert({
-          ip,
-          endpoint,
-          window_type: w.type,
-          window_start: w.start.toISOString(),
-          count: nextCount,
-          updated_at: now.toISOString(),
-        }, { onConflict: 'ip,endpoint,window_type,window_start' });
-      if (upErr) {
-        // Upsert failure is non-fatal — we still allow the request (fail-open)
-        console.warn('[rate-limit] upsert failed (allowing):', upErr.message);
-      }
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row || row.allowed) continue; // window passed (or unexpected shape — fail-open)
+      // Window rejected — compute retry-after = seconds until next window starts
+      const nextStart = new Date(w.start.getTime() + (w.seconds * 1000));
+      const retryAfter = Math.max(1, Math.ceil((nextStart.getTime() - now.getTime()) / 1000));
+      return { allowed: false, reason: w.type, retryAfter };
     }
 
     return { allowed: true };
