@@ -24,7 +24,6 @@ There is no bundler, no framework, no TypeScript. Edits to `public/*.html` ship 
 Set in Vercel project settings (and locally in `.env` for `vercel dev`):
 
 - Supabase: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-- Internal auth: `INTERNAL_API_SECRET` (gates `api/debug-tidal.js`)
 - Apple Music JWT: `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` (full `.p8` contents; literal `\n` accepted)
 - Third-party APIs: `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `YOUTUBE_API_KEY`, `LASTFM_API_KEY`, `TIDAL_CLIENT_ID`, `TIDAL_CLIENT_SECRET`, `DISCOGS_CONSUMER_KEY`, `DISCOGS_CONSUMER_SECRET`, `DISCOGS_USER_AGENT`
 
