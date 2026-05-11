@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Royaltē — Music Audit Intelligence · Beta · Se7ven Labs LLC</title>
+<title>Royaltē — Founding Artist Beta · Music Audit Intelligence · Se7ven Labs LLC</title>
 <!-- Open Graph / Facebook / iMessage / LinkedIn -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://royalte.ai/">
 <meta property="og:title" content="Royaltē — Music Audit Intelligence">
-<meta property="og:description" content="See what your streaming royalties miss. Audit your catalog across Spotify, Apple Music, and Deezer in seconds.">
+<meta property="og:description" content="Founding Artist Beta now open. We diagnose the royalty infrastructure problems your distributor, PRO, and publisher don't catch. 1,000 spots.">
 <meta property="og:image" content="https://royalte.ai/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -17,11 +17,11 @@
 <!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Royaltē — Music Audit Intelligence">
-<meta name="twitter:description" content="See what your streaming royalties miss. Audit your catalog across Spotify, Apple Music, and Deezer in seconds.">
+<meta name="twitter:description" content="Founding Artist Beta now open. We diagnose the royalty infrastructure problems your distributor, PRO, and publisher don't catch. 1,000 spots.">
 <meta name="twitter:image" content="https://royalte.ai/og-image.jpg">
 
 <!-- SEO description (also used by Google search results) -->
-<meta name="description" content="Royaltē audits your music catalog across streaming platforms to surface registration gaps, metadata issues, and missing platform coverage that may be blocking royalty flow.">
+<meta name="description" content="Royaltē audits your music catalog across streaming platforms to surface registration gaps, metadata issues, and missing platform coverage that may be blocking royalty flow. Founding Artist Beta now accepting first 1,000 artists.">
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -1387,16 +1387,16 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   <div class="nh-collage-overlay" aria-hidden="true"></div>
   <div class="nh-left">
     <h1 class="nh-h1">
-      You can't <span class="gt-block" style="display:inline;">collect</span><br>what you can't see.
+      Your royalty reports show what you <span class="gt-block" style="display:inline;">earned.</span>
     </h1>
     <p class="nh-tagline">
-      Every stream, sync, and performance earns you royalties. <span class="nh-tagline-emphasis">Royaltē shows you exactly where yours are.</span>
+      <span class="nh-tagline-emphasis">We show what's leaking underneath.</span>
     </p>
     <p class="nh-desc">
-      Every stream, sync, and performance generates royalties. Most artists never collect all of them. Royaltē scans your catalog, identifies exactly where money is slipping away, and tells you how to fix it.
+      We diagnose the infrastructure problems your distributor, PRO, and publisher don't catch. Founding Artist Beta — 1,000 spots, lifetime 30% off Pro Monitoring locked in for everyone who claims one.
     </p>
     <p class="nh-desc-mobile">
-      Every stream, sync, and performance generates royalties. Most artists never collect all of them. Royaltē shows you exactly where the money is.
+      We diagnose the infrastructure problems your distributor, PRO, and publisher don't catch. Founding Artist Beta — limited to 1,000 artists.
     </p>
     <button class="nh-cta-btn" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('hero-url').focus(),800);">Run Free Scan →</button>
     <div class="nh-finds">
@@ -1761,14 +1761,14 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
         </div>
         <div class="d-preview-note">This is only a preview of your issues</div>
         <div class="d-conversion">
-          <div class="d-conversion-headline">You're already losing money. <span class="d-conversion-headline-em">This is just the surface.</span></div>
-          <div class="d-conversion-body">Your full audit shows exactly:</div>
+          <div class="d-conversion-headline">You've seen the leaks. <span class="d-conversion-headline-em">Claim your full audit + Founding Artist status.</span></div>
+          <div class="d-conversion-body">Founding Artists get the full audit + lifetime 30% off Pro Monitoring. 1,000 spots total.</div>
           <ul class="d-conversion-list">
             <li><span class="d-conversion-check">✓</span>What's broken</li>
             <li><span class="d-conversion-check">✓</span>What's missing</li>
             <li><span class="d-conversion-check">✓</span>How to fix it</li>
           </ul>
-          <button class="d-conversion-btn" type="button" onclick="openAuditModal()">Get My Full Audit →</button>
+          <button class="d-conversion-btn" type="button" onclick="openAuditModal()">Claim Founding Artist Access →</button>
         </div>
         </div>
       </div>
@@ -1985,7 +1985,7 @@ function showRefReward() {
   const field  = document.getElementById('f-ref');
   if (reward) reward.style.display = 'block';
   if (field)  field.style.borderColor = 'var(--grn)';
-  if (hint) { hint.textContent = '// ✓ Referral code applied — 5% off paid tiers unlocked.'; hint.style.color = 'var(--grn)'; }
+  if (hint) { hint.textContent = '// ✓ Referral code applied — Founding Artist rate locked in (30% off Pro for life).'; hint.style.color = 'var(--grn)'; }
 }
 function onRefCodeInput() {
   const val = document.getElementById('f-ref').value.trim();
@@ -2005,7 +2005,7 @@ function onRefCodeInput() {
     if (field) { field.value = code; field.readOnly = true; field.style.opacity = '0.75'; field.style.cursor = 'not-allowed'; }
     showRefReward();
     const hint = document.getElementById('ref-hint');
-    if (hint) { hint.textContent = '// ✓ Referral code from your link — 5% off paid tiers applied.'; hint.style.color = 'var(--grn)'; }
+    if (hint) { hint.textContent = '// ✓ Referral code from your link — Founding Artist rate locked in (30% off Pro for life).'; hint.style.color = 'var(--grn)'; }
   }
 })();
 
@@ -3265,14 +3265,14 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
     <button class="audit-modal-close" type="button" onclick="closeAuditModal()" aria-label="Close">×</button>
     <div id="audit-modal-form-state">
       <div class="audit-modal-eyebrow">// Royaltē Audit Request</div>
-      <h2 class="audit-modal-title" id="audit-modal-title">Fix Your Royalties — <span class="audit-modal-title-em">Get Your Full Audit</span></h2>
-      <p class="audit-modal-body">We found issues in your setup.<br>This report shows exactly how to fix them.</p>
+      <h2 class="audit-modal-title" id="audit-modal-title">Claim Your <span class="audit-modal-title-em">Founding Artist Access</span></h2>
+      <p class="audit-modal-body">Your full audit is on its way.<br>As a Founding Artist, you also lock in lifetime 30% off Pro Monitoring when it launches.</p>
       <ul class="audit-modal-checklist">
         <li><span class="am-check">✓</span>What's broken</li>
         <li><span class="am-check">✓</span>What's missing</li>
         <li><span class="am-check">✓</span>How to fix it</li>
       </ul>
-      <p class="audit-modal-urgency">This is where artists lose the most money.</p>
+      <p class="audit-modal-urgency">1,000 Founding Artist spots — yours is locked in when you submit.</p>
       <form class="audit-modal-form" id="audit-modal-form" onsubmit="submitAuditModal(event); return false;">
         <label class="audit-modal-label" for="audit-modal-email">Email address</label>
         <input
@@ -3291,8 +3291,8 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
     </div>
     <div class="audit-modal-success" id="audit-modal-success-state">
       <div class="audit-modal-success-icon">✓</div>
-      <h2 class="audit-modal-success-title">Your audit is on the way</h2>
-      <p class="audit-modal-success-body">Check your inbox — your full Royaltē audit is on its way.</p>
+      <h2 class="audit-modal-success-title">You're a Founding Artist.</h2>
+      <p class="audit-modal-success-body">Your audit is on its way. Lifetime 30% off Pro Monitoring is locked in for you.</p>
       <button class="audit-modal-success-close" type="button" onclick="closeAuditModal()">Close</button>
     </div>
   </div>
