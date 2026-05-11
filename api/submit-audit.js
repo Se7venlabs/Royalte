@@ -11,6 +11,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 import { renderAuditPdf } from '../lib/render-audit-pdf.js';
+import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib/rate-limit.js';
 
 // ── SUPABASE CLIENT ───────────────────────────────────────────────────────────
 function getSupabase() {
@@ -134,6 +135,28 @@ export default async function handler(req, res) {
   // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  // ── ANTI-ABUSE: blocked-IP check + per-IP rate limit ──
+  // Helpers fail-open on Supabase errors per documented policy in
+  // api/_lib/rate-limit.js — a DB outage degrades to no-rate-limiting,
+  // not to locking out legit traffic.
+  const clientIp = extractIp(req);
+  const blocked = await checkBlocked(clientIp);
+  if (blocked.blocked) {
+    const retryAfter = Math.max(1, Math.ceil((new Date(blocked.expiresAt).getTime() - Date.now()) / 1000));
+    res.setHeader('Retry-After', String(retryAfter));
+    return res.status(429).json({ error: 'rate_limited', reason: 'blocked', retryAfter });
+  }
+  const limit = await checkRateLimit(clientIp, 'submit-audit', {
+    burst: { max: 2 },
+    hour:  { max: 10 },
+    day:   { max: 20 },
+  });
+  if (!limit.allowed) {
+    await recordViolation(clientIp, 'submit-audit', limit.reason);
+    res.setHeader('Retry-After', String(limit.retryAfter));
+    return res.status(429).json({ error: 'rate_limited', reason: limit.reason, retryAfter: limit.retryAfter });
   }
 
   // ── PARSE BODY ────────────────────────────────────────────────────────────

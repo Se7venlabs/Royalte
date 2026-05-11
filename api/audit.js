@@ -7,6 +7,7 @@ import { lookupByISRC } from './apple-music.js';
 import { randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { normalizeAuditResponse } from './lib/normalizeAuditResponse.js';
+import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib/rate-limit.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AUDIT_SCANS PERSISTENCE
@@ -81,6 +82,28 @@ export default async function handler(req, res) {
   if (!url) return res.status(400).json({ error: 'No URL provided' });
 
   try {
+    // ── ANTI-ABUSE: blocked-IP check + per-IP rate limit ──
+    // Both helpers fail-open on Supabase errors (per documented policy in
+    // api/_lib/rate-limit.js) — a DB outage degrades to no-rate-limiting,
+    // not to locking out legit traffic.
+    const clientIp = extractIp(req);
+    const blocked = await checkBlocked(clientIp);
+    if (blocked.blocked) {
+      const retryAfter = Math.max(1, Math.ceil((new Date(blocked.expiresAt).getTime() - Date.now()) / 1000));
+      res.setHeader('Retry-After', String(retryAfter));
+      return res.status(429).json({ error: 'rate_limited', reason: 'blocked', retryAfter });
+    }
+    const limit = await checkRateLimit(clientIp, 'audit', {
+      burst: { max: 2 },
+      hour:  { max: 30 },
+      day:   { max: 100 },
+    });
+    if (!limit.allowed) {
+      await recordViolation(clientIp, 'audit', limit.reason);
+      res.setHeader('Retry-After', String(limit.retryAfter));
+      return res.status(429).json({ error: 'rate_limited', reason: limit.reason, retryAfter: limit.retryAfter });
+    }
+
     // Quick top-level guard so unknown inputs are rejected early.
     const inputType = detectInputType(url);
     if (inputType === 'unknown') {
