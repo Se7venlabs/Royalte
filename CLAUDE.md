@@ -76,7 +76,17 @@ There is also a **degraded path**: if input is Apple Music and no Spotify match 
 
 ### Rate limiting & abuse
 
-`api/_lib/rate-limit.js` provides `extractIp`, `checkBlocked`, `checkRateLimit`, `recordViolation` against Supabase tables `rate_limits` and `blocked_ips`. Three sliding windows: 10-second burst, hour, day. Policy is **fail-open** on DB errors — do not change this without a deliberate decision; the comment in the file explains the reasoning.
+`api/_lib/rate-limit.js` is wired into both `api/audit.js` and `api/submit-audit.js` — both handlers call `extractIp` → `checkBlocked` → `checkRateLimit` before any external API or DB work. Storage: Supabase tables `rate_limits` and `blocked_ips`. Three sliding windows: 10-second burst, hour, day.
+
+Limits per endpoint:
+- `/api/audit` — burst=2/10s, hour=30, day=100
+- `/api/submit-audit` — burst=2/10s, hour=10, day=20 (tighter — every call burns PDFShift + Resend quota)
+
+Atomicity: `checkRateLimit` calls the SECURITY DEFINER RPC `public.rate_limit_check_and_increment` (added by `supabase/migrations/20260511163847_rate_limit_rpc.sql`), which performs `INSERT ... ON CONFLICT DO UPDATE ... RETURNING` in a single statement. PG's row-level lock on the conflict target serialises parallel callers so concurrent burst requests produce monotonically increasing counts (1, 2, 3, ...) instead of all racing to count=1. The prior read-then-upsert pattern had this race; the RPC closes it.
+
+Auto-escalation: `recordViolation` runs on every 429. After **5+ violations from the same IP in a 1-hour window**, the IP is auto-blocked for 24 hours via `blocked_ips`. `checkBlocked` short-circuits to 429 with `reason: 'blocked'` before rate-limit work, so blocked IPs don't consume rate-limit slots.
+
+Policy: **fail-open** on any DB error (RPC failure, SELECT failure, exception) — do not change this without a deliberate decision; the comment in `api/_lib/rate-limit.js` explains the reasoning.
 
 ### Vercel routing quirks
 
