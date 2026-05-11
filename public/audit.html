@@ -1196,7 +1196,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
     <div class="hero-paste">
       <div class="paste-box">
         <input class="paste-input" id="hero-url" type="text" placeholder="open.spotify.com/artist/... or music.apple.com/us/album/...">
-        <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Audit →</button>
+        <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Scan →</button>
       </div>
       <div id="url-type-chip" class="url-type-chip"></div>
       <div class="paste-hint">// Supports Spotify &amp; Apple Music · artist, album, track, or song links</div>
@@ -1340,15 +1340,15 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 <!-- CONVERSION BLOCK — full-width, between scan and form -->
 <section id="scan-conversion-section" class="scan-conversion-section">
   <div class="scan-conversion-inner">
-    <h2 class="scan-conversion-headline">FIRST 200 ARTISTS GET A FULL AUDIT FREE</h2>
-    <div class="scan-conversion-subhead">($99 VALUE)</div>
+    <h2 class="scan-conversion-headline">FOUNDING ARTIST BETA — 1,000 SPOTS</h2>
+    <div class="scan-conversion-subhead">Lifetime 30% off Pro Monitoring locked in</div>
     <p class="scan-conversion-body">We found issues in your setup.<br>Your full report shows exactly:</p>
     <ul class="scan-conversion-list">
       <li>what's broken</li>
       <li>what's missing</li>
       <li>how to fix it</li>
     </ul>
-    <button class="scan-conversion-btn" onclick="scrollToForm()">Get My Full Audit →</button>
+    <button class="scan-conversion-btn" onclick="scrollToForm()">Claim Founding Artist Access →</button>
     <div class="scan-conversion-trust">No spam. Just your full Royaltē audit.</div>
   </div>
 </section>
@@ -1364,7 +1364,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">⚡</div><div style="font-size:13px;color:var(--text2);">Delivered <strong style="color:var(--text);">instantly to your inbox</strong></div></div>
           <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">✓</div><div style="font-size:13px;color:var(--text2);"><strong style="color:var(--text);">Verified data only</strong> — no estimates or projections</div></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">🔓</div><div style="font-size:13px;color:var(--text2);">Completely <strong style="color:var(--text);">free during beta</strong></div></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">🔓</div><div style="font-size:13px;color:var(--text2);"><strong style="color:var(--text);">Founding Artist Beta</strong> · 1,000 spots · 30% off Pro for life</div></div>
           <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">📊</div><div style="font-size:13px;color:var(--text2);">Royalty Risk Score + <strong style="color:var(--text);">action plan</strong></div></div>
         </div>
       </div>
@@ -1407,7 +1407,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
               <div id="ref-reward" style="display:none;margin-top:10px;background:rgba(64,240,160,0.06);border:1px solid rgba(64,240,160,0.25);border-radius:4px;padding:10px 14px;">
                 <div style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.12em;color:var(--grn);margin-bottom:6px;">// Referral code applied — you're getting:</div>
                 <div style="display:flex;flex-direction:column;gap:4px;">
-                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);">💸 <strong>5% off</strong> when paid tiers launch</div>
+                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);">💸 Founding Artist rate locked in — <strong>30% off Pro Monitoring for life</strong></div>
                 </div>
               </div>
             </div>
@@ -1417,7 +1417,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
           <div class="form-success" id="form-success">
             <div class="fs-icon">✅</div>
             <div class="fs-title">You're on the list.</div>
-            <div style="font-size:13px;color:var(--muted2);line-height:1.6;">Your full Royaltē audit is on its way — check your inbox now.<br><br>You're also added to early access for all future Royaltē releases.</div>
+            <div style="font-size:13px;color:var(--muted2);line-height:1.6;">Your full Royaltē audit is on its way — check your inbox now.<br><br>You're also locked in as a Founding Artist — lifetime 30% off Pro Monitoring and first access to every future Royaltē release.</div>
           </div>
         </div>
       </div>
@@ -1562,7 +1562,7 @@ function showRefReward() {
   const field  = document.getElementById('f-ref');
   if (reward) reward.style.display = 'block';
   if (field)  field.style.borderColor = 'var(--grn)';
-  if (hint) { hint.textContent = '// ✓ Referral code applied — 5% off paid tiers unlocked.'; hint.style.color = 'var(--grn)'; }
+  if (hint) { hint.textContent = '// ✓ Referral code applied — Founding Artist rate locked in (30% off Pro for life).'; hint.style.color = 'var(--grn)'; }
 }
 function onRefCodeInput() {
   const val = document.getElementById('f-ref').value.trim();
@@ -1582,7 +1582,7 @@ function onRefCodeInput() {
     if (field) { field.value = code; field.readOnly = true; field.style.opacity = '0.75'; field.style.cursor = 'not-allowed'; }
     showRefReward();
     const hint = document.getElementById('ref-hint');
-    if (hint) { hint.textContent = '// ✓ Referral code from your link — 5% off paid tiers applied.'; hint.style.color = 'var(--grn)'; }
+    if (hint) { hint.textContent = '// ✓ Referral code from your link — Founding Artist rate locked in (30% off Pro for life).'; hint.style.color = 'var(--grn)'; }
   }
 })();
 
@@ -1840,7 +1840,7 @@ async function runAudit() {
     scan.complete();
     showRealResults(auditData);
     btn.disabled = false;
-    btn.textContent = 'Run Free Audit →';
+    btn.textContent = 'Run Free Scan →';
     setTimeout(() => {
       document.getElementById('scan-progress').style.display = 'none';
     }, 600);
@@ -1864,7 +1864,7 @@ async function runAudit() {
     showAuditError(msg + '. Try a different link, or paste a Spotify or Apple Music link in the box above.');
   }
   btn.disabled = false;
-  btn.textContent = 'Run Free Audit →';
+  btn.textContent = 'Run Free Scan →';
 }
 
 // ── SET URL TYPE PILL ──────────────────────────────────────
@@ -2597,7 +2597,7 @@ async function submitForm() {
         referral:      referral,
         referral_type: rewardfulRef ? 'rewardful_link' : manualCode ? 'manual_code' : 'organic',
         priority:      referral ? 'YES — referral conversion' : 'standard',
-        discount_note: referral ? '5% discount to be applied on paid tier signup' : '',
+        discount_note: referral ? 'Founding Artist rate: 30% off Pro Monitoring for life' : '',
         _subject:      referral ? `⚡ PRIORITY Royaltē Audit — ${name} (ref: ${referral})` : `Royaltē Full Audit Request — ${name} [${urlTypeLabel}]`,
         _replyto:      email
       })
