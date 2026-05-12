@@ -188,6 +188,182 @@ section{padding:60px 20px;}
 .reward-banner{grid-template-columns:1fr;}
 footer{padding:28px 20px;flex-direction:column;text-align:center;}
 }
+
+/* ────────────────────────────────────────────────────────────────
+   MOBILE / TABLET HAMBURGER MENU
+   Active at max-width:1024px. Hidden on desktop.
+   ──────────────────────────────────────────────────────────────── */
+
+.nav-hamburger {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.nav-hamburger:hover {
+  border-color: var(--pur);
+  background: rgba(138, 92, 255, 0.08);
+}
+.nav-hamburger .hamburger-line {
+  display: block;
+  width: 18px;
+  height: 1.5px;
+  background: var(--text);
+  border-radius: 1px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+/* Animate to X when menu open */
+.nav-hamburger[aria-expanded="true"] .hamburger-line:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+}
+.nav-hamburger[aria-expanded="true"] .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+.nav-hamburger[aria-expanded="true"] .hamburger-line:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
+}
+
+/* Backdrop overlay */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.mobile-menu-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Drawer */
+.mobile-menu-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: min(82vw, 360px);
+  background: linear-gradient(180deg, rgba(15, 13, 26, 0.96) 0%, rgba(8, 7, 18, 0.98) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-left: 1px solid var(--border2);
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5), inset 1px 0 0 rgba(138, 92, 255, 0.1);
+  z-index: 999;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 80px 32px 32px;
+}
+.mobile-menu-drawer.is-open {
+  transform: translateX(0);
+}
+
+/* Close button */
+.mobile-menu-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.mobile-menu-close:hover {
+  border-color: var(--pur);
+  color: var(--pur);
+  background: rgba(138, 92, 255, 0.08);
+}
+
+/* Nav inside drawer */
+.mobile-menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 24px;
+}
+.mobile-menu-link {
+  display: block;
+  padding: 18px 4px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  transition: color 0.2s, padding-left 0.2s;
+}
+.mobile-menu-link:hover {
+  color: var(--pur);
+  padding-left: 8px;
+}
+.mobile-menu-cta {
+  display: block;
+  margin-top: 28px;
+  padding: 16px 24px;
+  background: var(--grad);
+  color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(138, 92, 255, 0.25);
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.mobile-menu-cta:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px rgba(138, 92, 255, 0.35);
+}
+
+/* Body lock when menu open */
+body.menu-locked {
+  overflow: hidden;
+}
+
+/* Show hamburger, hide desktop nav-links at tablet/mobile */
+@media (max-width: 1024px) {
+  .nav-hamburger {
+    display: inline-flex;
+  }
+  .nav-links {
+    display: none;
+  }
+}
+
+/* Above 1024px, drawer + hamburger fully hidden */
+@media (min-width: 1025px) {
+  .nav-hamburger,
+  .mobile-menu-overlay,
+  .mobile-menu-drawer {
+    display: none !important;
+  }
+}
 </style>
 </head>
 <body>
