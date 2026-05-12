@@ -3452,6 +3452,68 @@ async function submitAuditModal(e) {
 }
 
 document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
+
+// ─────────────────────────────────────────────
+// Mobile menu drawer
+// ─────────────────────────────────────────────
+(function() {
+  const hamburger = document.querySelector('.nav-hamburger');
+  const drawer = document.getElementById('mobile-menu-drawer');
+  const overlay = document.getElementById('mobile-menu-overlay');
+  const closeBtn = document.querySelector('.mobile-menu-close');
+  const menuLinks = document.querySelectorAll('.mobile-menu-link, .mobile-menu-cta');
+
+  if (!hamburger || !drawer || !overlay) return;
+
+  function openMenu() {
+    drawer.classList.add('is-open');
+    overlay.classList.add('is-open');
+    document.body.classList.add('menu-locked');
+    hamburger.setAttribute('aria-expanded', 'true');
+    hamburger.setAttribute('aria-label', 'Close menu');
+    drawer.setAttribute('aria-hidden', 'false');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeMenu() {
+    drawer.classList.remove('is-open');
+    overlay.classList.remove('is-open');
+    document.body.classList.remove('menu-locked');
+    hamburger.setAttribute('aria-expanded', 'false');
+    hamburger.setAttribute('aria-label', 'Open menu');
+    drawer.setAttribute('aria-hidden', 'true');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+
+  hamburger.addEventListener('click', function() {
+    if (drawer.classList.contains('is-open')) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+  overlay.addEventListener('click', closeMenu);
+
+  menuLinks.forEach(function(link) {
+    link.addEventListener('click', closeMenu);
+  });
+
+  // ESC key closes menu
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
+      closeMenu();
+    }
+  });
+
+  // Close menu on viewport resize above 1024px (handles orientation changes)
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 1024 && drawer.classList.contains('is-open')) {
+      closeMenu();
+    }
+  });
+})();
 </script>
 <!-- AUDIT REQUEST MODAL — opened from in-card CTA after scan -->
 <div class="audit-modal-overlay" id="audit-modal" role="dialog" aria-modal="true" aria-labelledby="audit-modal-title" aria-hidden="true">
