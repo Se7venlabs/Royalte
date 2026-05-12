@@ -39,11 +39,60 @@ export function extractIp(req) {
   return null;
 }
 
+// ── ALLOWLIST CHECK ──────────────────────────────────────────────────────────
+// allowed_ips is a read-only allowlist populated manually via SQL in the
+// Supabase dashboard. IPs in the list skip rate-limit blocking entirely
+// (no checkBlocked enforcement, no 429 from checkRateLimit) but counters
+// still tick for log visibility — see the counter-tick branch in
+// checkRateLimit.
+//
+// TODO: Replace manual SQL allowlist insertion with /api/admin/allow-ip
+// endpoint when team grows beyond founder. See conversation 2026-05-13.
+//
+// Cache: per-instance Map with 10s TTL. Reduces the two RPC roundtrips
+// per request (one in checkBlocked, one in checkRateLimit) to ~1 per IP
+// per 10s across the lifetime of a warm lambda. Allowlist changes
+// propagate within 10s on already-warm instances.
+//
+// Fail-open: if the RPC errors, treat as not allowlisted and let normal
+// rate-limit logic apply. Never block legitimate traffic on an allowlist
+// DB issue.
+const _allowlistCache = new Map(); // ip → { result: boolean, expiresAt: number }
+const ALLOWLIST_CACHE_TTL_MS = 10_000;
+
+export async function isIpAllowed(ip) {
+  if (!ip) return false;
+  const cached = _allowlistCache.get(ip);
+  if (cached && cached.expiresAt > Date.now()) return cached.result;
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase.rpc('is_ip_allowed', { p_ip: ip });
+    if (error) {
+      console.warn('[rate-limit] is_ip_allowed RPC failed (fail-open):', error.message);
+      return false;
+    }
+    const result = data === true;
+    _allowlistCache.set(ip, { result, expiresAt: Date.now() + ALLOWLIST_CACHE_TTL_MS });
+    return result;
+  } catch (e) {
+    console.warn('[rate-limit] isIpAllowed exception (fail-open):', e.message);
+    return false;
+  }
+}
+
 // ── BLOCKED IP CHECK ─────────────────────────────────────────────────────────
 // Returns { blocked: true, expiresAt } if IP is in blocked_ips and not yet expired.
 // Fail-open on error (never hard-block legit traffic on a DB blip).
 export async function checkBlocked(ip) {
   if (!ip) return { blocked: false };
+
+  // Allowlist takes precedence over all blocking. Allowlisted IPs never see
+  // the blocked_ips table — even if mistakenly added to blocked_ips, the
+  // allowlist short-circuits before the query runs.
+  if (await isIpAllowed(ip)) {
+    return { blocked: false, allowlisted: true };
+  }
+
   try {
     const supabase = getSupabase();
     const nowIso = new Date().toISOString();
@@ -103,6 +152,36 @@ function startOfDayWindow(now) {
 // ─────────────────────────────────────────────────────────────────────────────
 export async function checkRateLimit(ip, endpoint, limits) {
   if (!ip) return { allowed: true, reason: 'no_ip' }; // fail-open per policy
+
+  // Allowlist takes precedence. Counters still tick via the same RPC for log
+  // visibility, but the function always returns allowed=true so no 429 fires
+  // and the handler never calls recordViolation.
+  if (await isIpAllowed(ip)) {
+    try {
+      const supabase = getSupabase();
+      const now = new Date();
+      const windows = [
+        { type: 'burst', start: startOfBurstWindow(now), max: limits.burst?.max ?? null },
+        { type: 'hour',  start: startOfHourWindow(now),  max: limits.hour?.max  ?? null },
+        { type: 'day',   start: startOfDayWindow(now),   max: limits.day?.max   ?? null },
+      ].filter(w => w.max != null);
+      for (const w of windows) {
+        // Increment side of the RPC ticks the counter row regardless. We
+        // deliberately ignore the returned `allowed` flag — allowlisted
+        // IPs always pass even if the count exceeds max.
+        await supabase.rpc('rate_limit_check_and_increment', {
+          p_ip:           ip,
+          p_endpoint:     endpoint,
+          p_window:       w.type,
+          p_window_start: w.start.toISOString(),
+          p_max:          w.max,
+        });
+      }
+    } catch (e) {
+      console.warn('[rate-limit] allowlisted counter-tick exception (continuing):', e.message);
+    }
+    return { allowed: true, reason: 'allowlisted' };
+  }
 
   try {
     const supabase = getSupabase();
