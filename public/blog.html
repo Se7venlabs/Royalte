@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royaltē Knowledge Hub — Music Royalty Education for Artists, Songwriters, Managers, and Rights Holders</title>
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://royalte.ai/blog.html">
+<meta property="og:title" content="Royaltē Knowledge Hub — Music Royalty Education">
+<meta property="og:description" content="Practical guides on music royalties, publishing, metadata, MLC, SoundExchange, and platform coverage. From Royaltē, the audit layer for music infrastructure.">
+<meta property="og:image" content="https://royalte.ai/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Royaltē">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Royaltē Knowledge Hub — Music Royalty Education">
+<meta name="twitter:description" content="Practical guides on music royalties, publishing, metadata, MLC, SoundExchange, and platform coverage. From Royaltē, the audit layer for music infrastructure.">
+<meta name="twitter:image" content="https://royalte.ai/og-image.jpg">
+
+<meta name="description" content="Practical guides on music royalties, publishing, metadata, MLC, SoundExchange, and platform coverage. From Royaltē, the audit layer for music infrastructure.">
+
+<link rel="canonical" href="https://royalte.ai/blog.html">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#8A5CFF">
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── ROOT TOKENS (mirrors index.html — do not redefine in blog.css) ── */
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
+--pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.2);
+}
+
+/* ── BASE (matches index.html) ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
+
+/* ── NAV (matches index.html) ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
+.nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
+.nav-logo-mobile{display:none;}
+.nav-brand-link:hover .nav-logo{opacity:0.85;}
+.nav-right{display:flex;align-items:center;gap:28px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── FOOTER (matches index.html) ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-logo{height:72px;width:auto;display:block;margin-bottom:8px;}
+.f-logo-mobile{display:none;}
+.f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+/* ── MOBILE NAV / FOOTER (matches index.html) ── */
+@media (max-width:900px){
+  nav{padding:0 18px;height:64px;}
+  .nav-logo-full{display:none;}
+  .nav-logo-mobile{display:block;height:32px;}
+  .nav-links{display:none;}
+  .nav-beta{display:none;}
+  .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
+  .nav-right{gap:0;}
+  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+  .f-logo-full{display:none;}
+  .f-logo-mobile{display:block;height:48px;margin:0 auto 6px auto;}
+  .f-links{justify-content:center;}
+}
+</style>
+
+<link rel="stylesheet" href="/css/blog.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand-link" aria-label="Royaltē home">
+    <svg class="nav-logo nav-logo-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="nav-logo nav-logo-mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+      <text x="20" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/contact.html">Contact</a>
+      <a href="/faq.html">FAQ</a>
+      <a href="/blog.html" class="active">Learn</a>
+    </div>
+    <span class="nav-beta">// Beta</span>
+  </div>
+</nav>
+
+<main class="blog-main">
+
+  <section class="blog-hero">
+    <h1 class="blog-hero-h1">Royaltē Knowledge Hub</h1>
+    <p class="blog-hero-subhead">Practical guides for artists, songwriters, managers, and rights holders who want to understand where royalty money leaks, how metadata breaks, and what to verify before revenue disappears.</p>
+  </section>
+
+  <!-- TODO: wire filter logic -->
+  <section class="blog-filter" aria-label="Filter articles by category">
+    <button class="filter-pill active" type="button" data-cat="all">All</button>
+    <button class="filter-pill" type="button" data-cat="Publishing">Publishing</button>
+    <button class="filter-pill" type="button" data-cat="Metadata">Metadata</button>
+    <button class="filter-pill" type="button" data-cat="Royalties">Royalties</button>
+    <button class="filter-pill" type="button" data-cat="MLC">MLC</button>
+    <button class="filter-pill" type="button" data-cat="SoundExchange">SoundExchange</button>
+    <button class="filter-pill" type="button" data-cat="YouTube / UGC">YouTube / UGC</button>
+    <button class="filter-pill" type="button" data-cat="Distribution">Distribution</button>
+    <button class="filter-pill" type="button" data-cat="Artist Education">Artist Education</button>
+  </section>
+
+  <!-- Cards are hand-maintained for crawler / AI-search visibility. Do not JS-render from blog-posts.js. Order must match the locked publishing roadmap in /blog/README.md. -->
+  <section class="blog-grid" aria-label="Articles">
+
+    <article class="blog-card" data-cat="Royalties">
+      <span class="blog-card-cat">Royalties</span>
+      <h3 class="blog-card-title">Your Music Isn't The Problem. Your Backend Might Be Broken.</h3>
+      <p class="blog-card-excerpt">Streaming numbers look healthy but royalty payouts don't always match. This article breaks down how multiple royalty layers, fragmented backend systems, and incomplete metadata can quietly delay or misroute revenue — and what artists can do to spot it.</p>
+      <div class="blog-card-meta">2026-05-11 · 8 min read</div>
+      <a class="blog-card-link" href="/blog/your-backend-might-be-broken.html">Read article →</a>
+    </article>
+
+    <article class="blog-card" data-cat="Royalties" aria-disabled="true">
+      <span class="blog-card-cat coming-soon">Royalties · Coming soon</span>
+      <h3 class="blog-card-title">Why Your Spotify Streams Don't Match Your Money</h3>
+      <p class="blog-card-excerpt">Stream counts and royalty payouts often look disconnected. This guide explains the gap between what Spotify reports and what eventually lands in your account — and the registration and metadata factors that shape it.</p>
+      <div class="blog-card-meta">Coming soon</div>
+      <a class="blog-card-link" href="/blog/spotify-streams-vs-royalties.html" aria-disabled="true">Read article →</a>
+    </article>
+
+    <article class="blog-card" data-cat="Metadata" aria-disabled="true">
+      <span class="blog-card-cat coming-soon">Metadata · Coming soon</span>
+      <h3 class="blog-card-title">The 7 Metadata Mistakes Killing Artist Royalties</h3>
+      <p class="blog-card-excerpt">Bad metadata is one of the most common reasons royalties get misrouted or never collected. This guide covers the seven most frequent errors — from missing ISRCs to mismatched credits — and how to spot them before they cost you.</p>
+      <div class="blog-card-meta">Coming soon</div>
+      <a class="blog-card-link" href="/blog/metadata-mistakes-killing-royalties.html" aria-disabled="true">Read article →</a>
+    </article>
+
+    <article class="blog-card" data-cat="MLC" aria-disabled="true">
+      <span class="blog-card-cat coming-soon">MLC · Coming soon</span>
+      <h3 class="blog-card-title">What The MLC Actually Does (And Why So Many Artists Miss It)</h3>
+      <p class="blog-card-excerpt">The Mechanical Licensing Collective handles mechanical royalties for streaming in the US, but most artists don't know what it covers or how to register. A plain-language explanation of what the MLC is, what it pays, and how to make sure you're in the system.</p>
+      <div class="blog-card-meta">Coming soon</div>
+      <a class="blog-card-link" href="/blog/what-the-mlc-actually-does.html" aria-disabled="true">Read article →</a>
+    </article>
+
+    <article class="blog-card" data-cat="SoundExchange" aria-disabled="true">
+      <span class="blog-card-cat coming-soon">SoundExchange · Coming soon</span>
+      <h3 class="blog-card-title">SoundExchange Explained For Artists</h3>
+      <p class="blog-card-excerpt">SoundExchange collects digital performance royalties for recording artists in the US — but only if you're registered and your tracks are properly attributed. Here's what SoundExchange covers, what it doesn't, and how to make sure you're collecting what you've earned.</p>
+      <div class="blog-card-meta">Coming soon</div>
+      <a class="blog-card-link" href="/blog/soundexchange-explained-for-artists.html" aria-disabled="true">Read article →</a>
+    </article>
+
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <svg class="f-logo f-logo-full" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <defs>
+        <linearGradient id="f-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#f-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#f-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#f-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="f-logo f-logo-mobile" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </div>
+  <div class="f-copy">© 2026 Royaltē. Powered by Se7ven Labs LLC. · info@royalte.ai</div>
+  <div class="f-links">
+    <a href="/contact.html">Contact</a>
+    <a href="/faq.html">FAQ</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+  </div>
+</footer>
+
+</body>
+</html>
