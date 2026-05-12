@@ -110,13 +110,69 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid URL. Please paste a Spotify or Apple Music link.' });
     }
 
-    const token = await getSpotifyToken();
+    // ── SPOTIFY TOKEN — fatal-with-precision ────────────────
+    // Distinguishes "credentials missing" (operator issue, 500 + generic)
+    // from "Spotify auth endpoint unavailable" (transient, 503 + specific
+    // retry hint). Outer generic catch (below) handles unclassified throws.
+    let token;
+    try {
+      token = await getSpotifyToken();
+    } catch (tokenErr) {
+      console.error('[audit] Spotify token fetch failed:', tokenErr.message);
+      const isAuthMissing = /credentials not configured/i.test(tokenErr.message);
+      if (isAuthMissing) {
+        return res.status(500).json({
+          error: 'Audit failed. Please check the link and try again.',
+          detail: tokenErr.message,
+        });
+      }
+      return res.status(503).json({
+        error: 'Spotify is temporarily unavailable. Please try again in a moment.',
+        detail: tokenErr.message,
+      });
+    }
 
     // ── ARTIST RESOLUTION ───────────────────────────────────
     // ALL inputs (artist / track / album / apple) normalize to a single
     // canonical artist before the scan runs. The scan ALWAYS runs on the
     // artist — never on track or album.
-    const resolved = await resolveToArtist(url, token);
+    //
+    // Throws inside resolveToArtist are classified by err.message pattern
+    // into user-actionable messages with appropriate HTTP status codes.
+    // Unclassified throws bubble to the outer catch (generic 500).
+    let resolved;
+    try {
+      resolved = await resolveToArtist(url, token);
+    } catch (resErr) {
+      console.error('[audit] resolveToArtist threw:', resErr.message);
+      const m = resErr.message || '';
+      if (/has no associated artist/.test(m)) {
+        return res.status(400).json({
+          error: "This Spotify link doesn't have a linked artist. Try pasting the artist's page directly.",
+          detail: m,
+        });
+      }
+      if (/Could not resolve artist from Apple Music/.test(m)) {
+        return res.status(503).json({
+          error: 'Apple Music is temporarily unavailable. Please try again in a moment.',
+          detail: m,
+        });
+      }
+      if (/Could not parse Spotify/.test(m)) {
+        return res.status(400).json({
+          error: 'Could not read this Spotify link. Please paste an artist, track, or album URL.',
+          detail: m,
+        });
+      }
+      if (/Spotify (artist|track|album) fetch failed/.test(m)) {
+        return res.status(503).json({
+          error: 'Spotify is temporarily unavailable. Please try again in a moment.',
+          detail: m,
+        });
+      }
+      // Unclassified — let outer catch handle (generic 500 with detail).
+      throw resErr;
+    }
     if (!resolved) {
       return res.status(400).json({ error: 'Could not resolve this link to an artist. Please try a different link.' });
     }
@@ -183,7 +239,43 @@ export default async function handler(req, res) {
     }
 
     const artistId = resolved.artistId;
-    const artistData = await getSpotifyArtist(artistId, token);
+
+    // ── DEGRADABLE: getSpotifyArtist after successful resolution ─────────
+    // resolveToArtist already fetched the artist internally (it had to, to
+    // build `resolved`). This second fetch retrieves the FULL artist object
+    // (followers/popularity/genres). If the second call hits a transient
+    // Spotify hiccup (502/503/etc.) OR returns 404, we degrade rather than
+    // hard-fail: synthesize a stub from `resolved` (which has artistId,
+    // artistName, image, url), use the followers:-1 sentinel that the
+    // frontend already understands (Apple-only path uses the same), and
+    // continue the pipeline. The fan-out at Promise.allSettled below runs
+    // on artistName, so it doesn't need the full artistData.
+    //
+    // The 404 case is treated identically to transient because we can't
+    // reliably distinguish "deleted" from "region-unavailable" from "blip"
+    // from the response, and degrading gives the user useful data either way.
+    const warnings = [];
+    let artistData;
+    try {
+      artistData = await getSpotifyArtist(artistId, token);
+    } catch (artistErr) {
+      console.warn('[audit] getSpotifyArtist failed — degrading to partial data:', artistErr.message);
+      const detailSuffix = artistErr.message.replace(/^Spotify artist fetch failed:\s*/i, '');
+      warnings.push({
+        platform: 'spotify',
+        stage: 'artist_fetch',
+        reason: `Spotify artist fetch failed for ID ${artistId}: ${detailSuffix}`,
+      });
+      artistData = {
+        id: resolved.artistId,
+        name: resolved.artistName,
+        followers: { total: -1 },
+        popularity: 0,
+        genres: [],
+        images: resolved.artistImage ? [{ url: resolved.artistImage }] : [],
+        external_urls: resolved.artistUrl ? { spotify: resolved.artistUrl } : {},
+      };
+    }
 
     // For track inputs we still want trackData populated for the existing
     // ISRC / Apple cross-reference logic — it does not change the audit
@@ -296,6 +388,16 @@ export default async function handler(req, res) {
         detail: persistErr.message,
       });
     }
+
+    // Inject wire-only degradation signal AFTER persistence so the canonical
+    // payload stays clean (AUDIT_RESPONSE_VERSION 1.0.0, no schema change).
+    // Fields only appear when degradation actually occurred — happy-path
+    // responses are byte-identical to pre-change behavior.
+    if (warnings.length > 0) {
+      rawResponse.degraded = true;
+      rawResponse.warnings = warnings;
+    }
+
     return res.status(200).json({ ...rawResponse, scanId });
 
   } catch (err) {
