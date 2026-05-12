@@ -146,14 +146,14 @@
 .blog-card-excerpt{
   font-size:14px;
   line-height:1.65;
-  color:var(--muted2);
+  color:var(--text2);
   flex:1;
 }
 
 .blog-card-meta{
   font-family:'Space Mono',monospace;
   font-size:11px;
-  color:var(--muted);
+  color:var(--muted2);
   letter-spacing:0.04em;
 }
 
