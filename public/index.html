@@ -2471,7 +2471,12 @@ async function runAudit() {
   if (auditData && auditData.__error && auditData.__error.name === 'AbortError') {
     msg = 'Scan timed out — please try again';
   } else if (auditData && auditData.error) {
-    msg = auditData.error;
+    // Surface API `detail` (HTML-escaped) for beta debugging. Built-in
+    // `error` string is preserved as-is so its inline HTML formatting renders.
+    const escDetail = auditData.detail
+      ? String(auditData.detail).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+      : '';
+    msg = escDetail ? `${auditData.error} (${escDetail})` : auditData.error;
   }
   scan.fail(msg);
   showUrlError(msg);
