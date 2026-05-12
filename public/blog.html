@@ -153,20 +153,28 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
     <button class="filter-pill" type="button" data-cat="Artist Education">Artist Education</button>
   </section>
 
-  <!-- TODO: convert to JS-driven render from /js/blog-posts.js (Phase 4) -->
+  <!-- Cards are hand-maintained for crawler / AI-search visibility. Do not JS-render from blog-posts.js. Order must match the locked publishing roadmap in /blog/README.md. -->
   <section class="blog-grid" aria-label="Articles">
 
-    <article class="blog-card" data-cat="Publishing">
-      <span class="blog-card-cat">Publishing</span>
-      <h3 class="blog-card-title">Songtrust vs TuneCore Publishing: What Artists Need to Know</h3>
-      <p class="blog-card-excerpt">Both Songtrust and TuneCore Publishing offer publishing administration for independent artists, but they collect different types of royalties through different paths. This guide breaks down what each service actually does, where they overlap, and the questions to ask before signing with either.</p>
-      <div class="blog-card-meta">2026-05-11 · 7 min read</div>
-      <a class="blog-card-link" href="/blog/songtrust-vs-tunecore-publishing.html">Read article →</a>
+    <article class="blog-card" data-cat="Royalties">
+      <span class="blog-card-cat">Royalties</span>
+      <h3 class="blog-card-title">Your Music Isn't The Problem. Your Backend Might Be Broken.</h3>
+      <p class="blog-card-excerpt">Streaming numbers look healthy but royalty payouts don't always match. This article breaks down how multiple royalty layers, fragmented backend systems, and incomplete metadata can quietly delay or misroute revenue — and what artists can do to spot it.</p>
+      <div class="blog-card-meta">2026-05-11 · 8 min read</div>
+      <a class="blog-card-link" href="/blog/your-backend-might-be-broken.html">Read article →</a>
+    </article>
+
+    <article class="blog-card" data-cat="Royalties" aria-disabled="true">
+      <span class="blog-card-cat coming-soon">Royalties · Coming soon</span>
+      <h3 class="blog-card-title">Why Your Spotify Streams Don't Match Your Money</h3>
+      <p class="blog-card-excerpt">Stream counts and royalty payouts often look disconnected. This guide explains the gap between what Spotify reports and what eventually lands in your account — and the registration and metadata factors that shape it.</p>
+      <div class="blog-card-meta">Coming soon</div>
+      <a class="blog-card-link" href="/blog/spotify-streams-vs-royalties.html" aria-disabled="true">Read article →</a>
     </article>
 
     <article class="blog-card" data-cat="Metadata" aria-disabled="true">
       <span class="blog-card-cat coming-soon">Metadata · Coming soon</span>
-      <h3 class="blog-card-title">7 Metadata Mistakes Killing Artist Royalties</h3>
+      <h3 class="blog-card-title">The 7 Metadata Mistakes Killing Artist Royalties</h3>
       <p class="blog-card-excerpt">Bad metadata is one of the most common reasons royalties get misrouted or never collected. This guide covers the seven most frequent errors — from missing ISRCs to mismatched credits — and how to spot them before they cost you.</p>
       <div class="blog-card-meta">Coming soon</div>
       <a class="blog-card-link" href="/blog/metadata-mistakes-killing-royalties.html" aria-disabled="true">Read article →</a>
@@ -174,18 +182,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 
     <article class="blog-card" data-cat="MLC" aria-disabled="true">
       <span class="blog-card-cat coming-soon">MLC · Coming soon</span>
-      <h3 class="blog-card-title">What The MLC Actually Does</h3>
+      <h3 class="blog-card-title">What The MLC Actually Does (And Why So Many Artists Miss It)</h3>
       <p class="blog-card-excerpt">The Mechanical Licensing Collective handles mechanical royalties for streaming in the US, but most artists don't know what it covers or how to register. A plain-language explanation of what the MLC is, what it pays, and how to make sure you're in the system.</p>
       <div class="blog-card-meta">Coming soon</div>
       <a class="blog-card-link" href="/blog/what-the-mlc-actually-does.html" aria-disabled="true">Read article →</a>
-    </article>
-
-    <article class="blog-card" data-cat="Royalties" aria-disabled="true">
-      <span class="blog-card-cat coming-soon">Royalties · Coming soon</span>
-      <h3 class="blog-card-title">Why Your Spotify Streams Don't Match Your Royalties</h3>
-      <p class="blog-card-excerpt">Stream counts and royalty payouts often look disconnected. This guide explains the gap between what Spotify reports and what eventually lands in your account — and the registration and metadata factors that shape it.</p>
-      <div class="blog-card-meta">Coming soon</div>
-      <a class="blog-card-link" href="/blog/spotify-streams-vs-royalties.html" aria-disabled="true">Read article →</a>
     </article>
 
     <article class="blog-card" data-cat="SoundExchange" aria-disabled="true">

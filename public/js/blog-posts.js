@@ -17,17 +17,27 @@
 
 const blogPosts = [
   {
-    title: "Songtrust vs TuneCore Publishing: What Artists Need to Know",
-    excerpt: "Both Songtrust and TuneCore Publishing offer publishing administration for independent artists, but they collect different types of royalties through different paths. This guide breaks down what each service actually does, where they overlap, and the questions to ask before signing with either.",
-    category: "Publishing",
+    title: "Your Music Isn't The Problem. Your Backend Might Be Broken.",
+    excerpt: "Streaming numbers look healthy but royalty payouts don't always match. This article breaks down how multiple royalty layers, fragmented backend systems, and incomplete metadata can quietly delay or misroute revenue — and what artists can do to spot it.",
+    category: "Royalties",
     date: "2026-05-11",
-    readTime: "7 min read",
-    slug: "songtrust-vs-tunecore-publishing",
-    url: "/blog/songtrust-vs-tunecore-publishing.html",
+    readTime: "8 min read",
+    slug: "your-backend-might-be-broken",
+    url: "/blog/your-backend-might-be-broken.html",
     status: "live"
   },
   {
-    title: "7 Metadata Mistakes Killing Artist Royalties",
+    title: "Why Your Spotify Streams Don't Match Your Money",
+    excerpt: "Stream counts and royalty payouts often look disconnected. This guide explains the gap between what Spotify reports and what eventually lands in your account — and the registration and metadata factors that shape it.",
+    category: "Royalties",
+    date: null,
+    readTime: null,
+    slug: "spotify-streams-vs-royalties",
+    url: "/blog/spotify-streams-vs-royalties.html",
+    status: "coming_soon"
+  },
+  {
+    title: "The 7 Metadata Mistakes Killing Artist Royalties",
     excerpt: "Bad metadata is one of the most common reasons royalties get misrouted or never collected. This guide covers the seven most frequent errors — from missing ISRCs to mismatched credits — and how to spot them before they cost you.",
     category: "Metadata",
     date: null,
@@ -37,23 +47,13 @@ const blogPosts = [
     status: "coming_soon"
   },
   {
-    title: "What The MLC Actually Does",
+    title: "What The MLC Actually Does (And Why So Many Artists Miss It)",
     excerpt: "The Mechanical Licensing Collective handles mechanical royalties for streaming in the US, but most artists don't know what it covers or how to register. A plain-language explanation of what the MLC is, what it pays, and how to make sure you're in the system.",
     category: "MLC",
     date: null,
     readTime: null,
     slug: "what-the-mlc-actually-does",
     url: "/blog/what-the-mlc-actually-does.html",
-    status: "coming_soon"
-  },
-  {
-    title: "Why Your Spotify Streams Don't Match Your Royalties",
-    excerpt: "Stream counts and royalty payouts often look disconnected. This guide explains the gap between what Spotify reports and what eventually lands in your account — and the registration and metadata factors that shape it.",
-    category: "Royalties",
-    date: null,
-    readTime: null,
-    slug: "spotify-streams-vs-royalties",
-    url: "/blog/spotify-streams-vs-royalties.html",
     status: "coming_soon"
   },
   {
