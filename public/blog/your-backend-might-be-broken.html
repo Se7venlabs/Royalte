@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Music Isn't The Problem. Your Backend Might Be Broken. — Royaltē Knowledge Hub</title>
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://royalte.ai/blog/your-backend-might-be-broken.html">
+<meta property="og:title" content="Your Music Isn't The Problem. Your Backend Might Be Broken. — Royaltē Knowledge Hub">
+<meta property="og:description" content="Why streaming numbers across Spotify, Apple Music, Deezer, YouTube, and other platforms don't always match royalty payouts.">
+<meta property="og:image" content="https://royalte.ai/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Royaltē">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Your Music Isn't The Problem. Your Backend Might Be Broken. — Royaltē Knowledge Hub">
+<meta name="twitter:description" content="Why streaming numbers across Spotify, Apple Music, Deezer, YouTube, and other platforms don't always match royalty payouts.">
+<meta name="twitter:image" content="https://royalte.ai/og-image.jpg">
+
+<meta name="description" content="Why streaming numbers across Spotify, Apple Music, Deezer, YouTube, and other platforms don't always match royalty payouts.">
+
+<link rel="canonical" href="https://royalte.ai/blog/your-backend-might-be-broken.html">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#8A5CFF">
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── ROOT TOKENS (mirrors index.html / blog.html — do not redefine in blog.css) ── */
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
+--pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.2);
+}
+
+/* ── BASE (matches index.html) ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
+
+/* ── NAV (matches index.html) ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
+.nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
+.nav-logo-mobile{display:none;}
+.nav-brand-link:hover .nav-logo{opacity:0.85;}
+.nav-right{display:flex;align-items:center;gap:28px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── FOOTER (matches index.html) ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-logo{height:72px;width:auto;display:block;margin-bottom:8px;}
+.f-logo-mobile{display:none;}
+.f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+/* ── MOBILE NAV / FOOTER (matches index.html) ── */
+@media (max-width:900px){
+  nav{padding:0 18px;height:64px;}
+  .nav-logo-full{display:none;}
+  .nav-logo-mobile{display:block;height:32px;}
+  .nav-links{display:none;}
+  .nav-beta{display:none;}
+  .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
+  .nav-right{gap:0;}
+  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+  .f-logo-full{display:none;}
+  .f-logo-mobile{display:block;height:48px;margin:0 auto 6px auto;}
+  .f-links{justify-content:center;}
+}
+</style>
+
+<link rel="stylesheet" href="/css/blog.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand-link" aria-label="Royaltē home">
+    <svg class="nav-logo nav-logo-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="nav-logo nav-logo-mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+      <text x="20" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/contact.html">Contact</a>
+      <a href="/faq.html">FAQ</a>
+      <a href="/blog.html" class="active">Learn</a>
+    </div>
+    <span class="nav-beta">// Beta</span>
+  </div>
+</nav>
+
+<main class="article-main">
+
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <span class="article-category">Royalties</span>
+      <h1 class="article-title">Your Music Isn't The Problem. Your Backend Might Be Broken.</h1>
+      <div class="article-meta">2026-05-11 · 8 min read</div>
+    </header>
+
+    <img class="article-hero-image" src="/blog/images/your-backend-might-be-broken-hero.png" alt="Your Music Isn't The Problem. Your Backend Might Be Broken." loading="eager">
+
+    <div class="article-intro">
+      <p>An artist opens Spotify for Artists and sees 250,000 streams.</p>
+      <p>Apple Music numbers are climbing. YouTube Music activity looks healthy. TikTok clips are gaining traction.</p>
+      <p>But then the royalty payout arrives…</p>
+      <p>…and something feels off. Smaller than expected. Delayed. Confusing. Incomplete.</p>
+      <p>For many artists, this creates the same question:</p>
+      <blockquote>"How can my music be performing across all these platforms… but the money still doesn't feel right?"</blockquote>
+    </div>
+
+    <!-- Mid-article CTA — baked in, do not edit per article -->
+    <aside class="mid-cta" aria-label="Run a free Royaltē scan">
+      <div class="mid-cta-headline">Think your royalties might be leaking because of metadata, publishing, or missing registrations?</div>
+      <a class="mid-cta-btn" href="/#scan-tool">Run Your Free Royaltē Scan →</a>
+    </aside>
+
+    <div class="article-body">
+      <p>The assumption is usually that streaming platforms simply "don't pay enough." And while streaming economics are absolutely part of the conversation, the reality is often more complicated than that.</p>
+
+      <p>Because streaming royalties don't move through one clean system. They move through a fragmented backend infrastructure made up of distributors, publishers, collection societies, metadata systems, rights databases, and reporting pipelines. And when parts of that backend are incomplete, disconnected, or incorrectly configured, revenue can become delayed, mismatched, or harder to track properly.</p>
+
+      <h2>Streaming Platforms Don't Pay Just One Royalty</h2>
+
+      <p>One of the biggest misconceptions in music is that Spotify, Apple Music, Deezer, or YouTube pay artists through one simple royalty. They don't.</p>
+
+      <p>Streaming revenue can involve multiple royalty layers, including:</p>
+
+      <ul>
+        <li>master recording royalties</li>
+        <li>publishing royalties</li>
+        <li>mechanical royalties</li>
+        <li>performance royalties</li>
+        <li>neighboring rights</li>
+        <li>YouTube and user-generated content revenue</li>
+      </ul>
+
+      <p>Different organizations collect different portions of that money. Some payments may flow through:</p>
+
+      <ul>
+        <li>distributors</li>
+        <li>publishing administrators</li>
+        <li>PROs</li>
+        <li>The MLC</li>
+        <li>SoundExchange</li>
+        <li>rights management systems</li>
+        <li>international collection societies</li>
+      </ul>
+
+      <p>That means an artist can successfully upload music to Spotify or Apple Music while still having important backend registrations incomplete elsewhere.</p>
+
+      <h2>Metadata Quietly Controls More Than Most Artists Realize</h2>
+
+      <p>Streaming platforms rely heavily on metadata. Things like:</p>
+
+      <ul>
+        <li>ISRC codes</li>
+        <li>songwriter credits</li>
+        <li>contributor information</li>
+        <li>ownership splits</li>
+        <li>release titles</li>
+        <li>publishing data</li>
+        <li>artist naming consistency</li>
+      </ul>
+
+      <p>Even small inconsistencies can create matching problems across royalty systems. For example:</p>
+
+      <ul>
+        <li>missing songwriter information</li>
+        <li>duplicate recordings</li>
+        <li>incorrect ownership percentages</li>
+        <li>inconsistent artist naming</li>
+        <li>incomplete publishing registrations</li>
+        <li>mismatched release data</li>
+      </ul>
+
+      <p>can make royalty processing more difficult behind the scenes. Most artists never actually see these systems directly. They only notice the result:</p>
+
+      <blockquote>the money doesn't seem to match the momentum.</blockquote>
+
+      <h2>Uploading Music Does Not Mean Everything Is Properly Registered</h2>
+
+      <p>One of the most misunderstood parts of the music industry is the assumption that distribution equals complete royalty setup. It doesn't.</p>
+
+      <p>Uploading music through a distributor gets music onto platforms. But many artists later discover that:</p>
+
+      <ul>
+        <li>publishing registrations were incomplete</li>
+        <li>mechanical collections were never configured correctly</li>
+        <li>SoundExchange registrations were missing</li>
+        <li>writer shares were inaccurate</li>
+        <li>metadata was inconsistent across platforms</li>
+        <li>contributor information was incomplete</li>
+      </ul>
+
+      <p>Not every issue means revenue is permanently lost. But incomplete backend infrastructure can absolutely create:</p>
+
+      <ul>
+        <li>reporting gaps</li>
+        <li>payout confusion</li>
+        <li>delayed collections</li>
+        <li>fragmented revenue visibility</li>
+        <li>administrative friction</li>
+      </ul>
+
+      <h2>Reporting Delays Are Also Real</h2>
+
+      <p>Not every mismatch is an error. Streaming royalties move through delayed reporting cycles. Different platforms report differently. Different territories report differently. Different organizations process royalties on different timelines.</p>
+
+      <p>Publishing royalties, in particular, often move slower than master royalties.</p>
+
+      <p>That's why transparency matters. Artists deserve to understand:</p>
+
+      <ul>
+        <li>where revenue is flowing</li>
+        <li>which systems are connected</li>
+        <li>which registrations exist</li>
+        <li>and where gaps may still exist</li>
+      </ul>
+
+      <h2>Most Artists Can See Their Streams. Very Few Can See The Backend Infrastructure.</h2>
+
+      <p>That's the real problem. The modern music industry gives artists more visibility than ever into audience growth — but very little visibility into the backend systems connected to monetization. And that backend is where many of the industry's biggest points of confusion still exist.</p>
+
+      <p>Streams are visible. Infrastructure is not.</p>
+
+      <h2>The Platforms Are Only One Part Of The System</h2>
+
+      <p>Spotify. Apple Music. Deezer. YouTube Music. Amazon Music. TikTok. These platforms are only the front-end layer of a much larger royalty ecosystem.</p>
+
+      <p>Behind every stream is a network of:</p>
+
+      <ul>
+        <li>metadata systems</li>
+        <li>publishing registrations</li>
+        <li>ownership databases</li>
+        <li>collection societies</li>
+        <li>reporting pipelines</li>
+        <li>distribution infrastructure</li>
+      </ul>
+
+      <p>And when pieces of that infrastructure don't line up properly, artists can struggle to understand where revenue is actually flowing.</p>
+
+      <p class="article-closer"><em>Royaltē. Built by artists, for the entire royalty chain.</em></p>
+    </div>
+
+    <!-- Final CTA — Founding Artist Beta framing, baked in, do not edit per article -->
+    <aside class="final-cta" aria-label="Claim a Founding Artist Beta spot">
+      <h2 class="final-cta-headline">Your music may not be the problem. Your backend might be broken.</h2>
+      <p class="final-cta-body">Founding Artist Beta is now open. Royaltē helps artists and rights holders identify metadata gaps, registration issues, platform coverage problems, and royalty risk signals before more money slips through the cracks.</p>
+      <a class="final-cta-btn" href="/#scan-tool">Claim One Of 1,000 Founding Artist Spots →</a>
+    </aside>
+
+  </article>
+
+  <section class="related-articles" aria-label="Related articles">
+    <h3 class="related-h3">Related Articles</h3>
+    <div id="related-grid" class="related-grid"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <svg class="f-logo f-logo-full" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <defs>
+        <linearGradient id="f-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#f-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#f-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#f-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="f-logo f-logo-mobile" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </div>
+  <div class="f-copy">© 2026 Royaltē. Powered by Se7ven Labs LLC. · info@royalte.ai</div>
+  <div class="f-links">
+    <a href="/contact.html">Contact</a>
+    <a href="/faq.html">FAQ</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+  </div>
+</footer>
+
+<!-- Render related articles from the canonical registry, excluding the current article. -->
+<script src="/js/blog-posts.js"></script>
+<script>
+(function(){
+  var currentSlug = 'your-backend-might-be-broken';
+  var grid = document.getElementById('related-grid');
+  if (!grid || !Array.isArray(window.blogPosts)) return;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  var others = window.blogPosts.filter(function(p){ return p.slug !== currentSlug; }).slice(0, 4);
+  if (others.length === 0) { grid.parentNode.style.display = 'none'; return; }
+
+  grid.innerHTML = others.map(function(post){
+    var isLive = post.status === 'live';
+    var cls = 'related-card' + (isLive ? '' : ' coming-soon');
+    var disabled = isLive ? '' : ' aria-disabled="true"';
+    var catLabel = isLive ? post.category : (post.category + ' · Coming soon');
+    return '<a class="' + cls + '" href="' + esc(post.url) + '"' + disabled + '>' +
+             '<span class="related-cat">' + esc(catLabel) + '</span>' +
+             '<div class="related-title">' + esc(post.title) + '</div>' +
+           '</a>';
+  }).join('');
+})();
+</script>
+
+</body>
+</html>
