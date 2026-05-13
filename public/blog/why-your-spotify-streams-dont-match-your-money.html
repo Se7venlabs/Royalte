@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Your Spotify Streams Don't Match Your Money — Royaltē Knowledge Hub</title>
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://royalte.ai/blog/why-your-spotify-streams-dont-match-your-money.html">
+<meta property="og:title" content="Why Your Spotify Streams Don't Match Your Money — Royaltē Knowledge Hub">
+<meta property="og:description" content="The reason Spotify stream counts and royalty payouts often don't align — and the backend systems most artists never see.">
+<meta property="og:image" content="https://royalte.ai/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Royaltē">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Why Your Spotify Streams Don't Match Your Money — Royaltē Knowledge Hub">
+<meta name="twitter:description" content="The reason Spotify stream counts and royalty payouts often don't align — and the backend systems most artists never see.">
+<meta name="twitter:image" content="https://royalte.ai/og-image.jpg">
+
+<meta name="description" content="The reason Spotify stream counts and royalty payouts often don't align — and the backend systems most artists never see.">
+
+<link rel="canonical" href="https://royalte.ai/blog/why-your-spotify-streams-dont-match-your-money.html">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#8A5CFF">
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── ROOT TOKENS (mirrors index.html / blog.html — do not redefine in blog.css) ── */
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
+--pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.2);
+}
+
+/* ── BASE (matches index.html) ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
+
+/* ── NAV (matches index.html) ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
+.nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
+.nav-logo-mobile{display:none;}
+.nav-brand-link:hover .nav-logo{opacity:0.85;}
+.nav-right{display:flex;align-items:center;gap:28px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── FOOTER (matches index.html) ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-logo{height:72px;width:auto;display:block;margin-bottom:8px;}
+.f-logo-mobile{display:none;}
+.f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+/* ── MOBILE NAV / FOOTER (matches index.html) ── */
+@media (max-width:900px){
+  nav{padding:0 18px;height:64px;}
+  .nav-logo-full{display:none;}
+  .nav-logo-mobile{display:block;height:32px;}
+  .nav-links{display:none;}
+  .nav-beta{display:none;}
+  .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
+  .nav-right{gap:0;}
+  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+  .f-logo-full{display:none;}
+  .f-logo-mobile{display:block;height:48px;margin:0 auto 6px auto;}
+  .f-links{justify-content:center;}
+}
+</style>
+
+<link rel="stylesheet" href="/css/blog.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand-link" aria-label="Royaltē home">
+    <svg class="nav-logo nav-logo-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="nav-logo nav-logo-mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+      <text x="20" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/contact.html">Contact</a>
+      <a href="/faq.html">FAQ</a>
+      <a href="/blog.html" class="active">Learn</a>
+    </div>
+    <span class="nav-beta">// Beta</span>
+  </div>
+</nav>
+
+<main class="article-main">
+
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <span class="article-category">Royalties</span>
+      <h1 class="article-title">Why Your Spotify Streams Don't Match Your Money</h1>
+      <div class="article-meta">2026-05-15 · 9 min read</div>
+    </header>
+
+    <img class="article-hero-image" src="/blog/images/why-your-spotify-streams-dont-match-your-money-hero.jpg" alt="Why Your Spotify Streams Don't Match Your Money" loading="eager">
+
+    <div class="article-intro">
+      <p>An artist opens Spotify for Artists and sees 250,000 streams.</p>
+      <p>They've heard the number before: roughly $0.004 per stream. So they do the math.</p>
+      <p>250,000 × $0.004 = $1,000.</p>
+      <p>But the payout arrives, and it's not $1,000.</p>
+      <p>Sometimes it's $400. Sometimes $800. Sometimes it shows up in pieces, weeks apart, from organizations the artist didn't know were involved. Some of it never shows up at all.</p>
+      <p>The standard explanation is that "streaming pays badly." That's part of it. But it doesn't answer the actual question:</p>
+      <blockquote>Why don't the numbers match?</blockquote>
+      <p>The reason is something most artists are never told.</p>
+      <p>A single Spotify stream isn't one payment.</p>
+      <p>It's three. Going to three different places. Through three different systems. With three different registration requirements.</p>
+    </div>
+
+    <!-- Mid-article CTA — baked in, do not edit per article -->
+    <aside class="mid-cta" aria-label="Run a free Royaltē scan">
+      <div class="mid-cta-headline">Think your royalties might be leaking because of metadata, publishing, or missing registrations?</div>
+      <a class="mid-cta-btn" href="/#scan-tool">Run Your Free Royaltē Scan →</a>
+    </aside>
+
+    <div class="article-body">
+
+      <h2>One Stream, Three Payments</h2>
+
+      <p>When a song is streamed on Spotify, the platform owes royalties on two separate copyrightable assets: the master recording (the sound file) and the composition (the underlying song — the lyrics and melody).</p>
+
+      <p>That single stream actually generates three separate royalty payments:</p>
+
+      <ul>
+        <li>a master recording royalty — roughly 80% of the gross</li>
+        <li>a performance royalty — roughly 10%, the songwriting side</li>
+        <li>a mechanical royalty — roughly 10%, also songwriting side</li>
+      </ul>
+
+      <p>Each one flows through a different system:</p>
+
+      <ul>
+        <li>Master royalties move through the artist's distributor</li>
+        <li>Performance royalties move through a PRO — ASCAP, BMI, SESAC in the US, PRS in the UK, SOCAN in Canada, and so on</li>
+        <li>Mechanical royalties move through the MLC in the US, or international mechanical societies elsewhere</li>
+      </ul>
+
+      <p>Each one pays on a different schedule. Each one requires the rights holder to be registered in that specific system.</p>
+
+      <p>The Spotify for Artists dashboard shows the first one.</p>
+
+      <p>The other two live somewhere else.</p>
+
+      <h2>Walking Through 250,000 Streams</h2>
+
+      <p>Take that 250,000-stream number and walk it through the actual royalty pipeline.</p>
+
+      <h3>Step 1: The gross calculation</h3>
+
+      <p>250,000 streams × $0.004 average = $1,000 in total royalty pool generated by that activity.</p>
+
+      <p>That's not the artist's number yet. That's the total amount Spotify owes to everyone with a claim on those streams.</p>
+
+      <h3>Step 2: How the $1,000 splits</h3>
+
+      <ul>
+        <li>Roughly $800 → master recording royalty</li>
+        <li>Roughly $100 → performance royalty (publishing side)</li>
+        <li>Roughly $100 → mechanical royalty (publishing side)</li>
+      </ul>
+
+      <p>The exact split varies by territory and by deal terms. But this is the rough shape across most situations.</p>
+
+      <h3>Step 3: Where each piece actually goes</h3>
+
+      <p>The $800 master share moves from Spotify to the artist's distributor, then to the artist. This is the number most artists watch. It typically arrives on the distributor's standard reporting cycle — often 60 to 90 days after the streams happened.</p>
+
+      <p>The $100 performance share moves from Spotify to publishing rights organizations, then to a PRO, then to the songwriter. This is paid only if the songwriter is registered with a PRO and the specific song is registered with that PRO. Reporting lag is often 6 to 9 months.</p>
+
+      <p>The $100 mechanical share moves from Spotify to the MLC in the US — or to an international mechanical society for streams in other territories — then to the songwriter or publisher. This is paid only if the songwriter is registered with the MLC (or has a publishing administrator handling international collection). Reporting lag is often 9 to 12 months.</p>
+
+      <h3>Step 4: Where the math breaks</h3>
+
+      <p>If the distributor has correct metadata, the $800 arrives.</p>
+
+      <p>If the PRO isn't registered for that song, the $100 performance share sits in the PRO's unallocated pool — sometimes called "black box" funds. Some of it eventually gets distributed through market-share formulas. Some of it doesn't.</p>
+
+      <p>If the MLC isn't registered, the $100 mechanical share sits in that pool, with similar fate.</p>
+
+      <p>Many independent artists are missing one or both publishing-side registrations entirely. Most never realize it, because the only number they can see — the master royalty estimate on Spotify for Artists — looks roughly right.</p>
+
+      <h3>Step 5: What the artist actually sees</h3>
+
+      <p>The dashboard shows ~$1,000 worth of streams.</p>
+
+      <p>The artist might collect $800 (master only). Or $720 after distributor fees. Or $400 after label splits. Or even less if many of the tracks fall below the 1,000-stream annual threshold that Spotify requires before paying out at all.</p>
+
+      <p>The dashboard isn't wrong. It's just showing one piece of a three-piece system.</p>
+
+      <h2>Even The $800 Master Share Has Variables</h2>
+
+      <p>Per-stream rates aren't fixed.</p>
+
+      <p>Spotify operates a revenue-pool model: total streaming revenue for the month is divided across total streams that month, weighted by territory and subscription tier. The $0.004 average is a planning figure, not a guarantee.</p>
+
+      <p>A few things move that number:</p>
+
+      <ul>
+        <li>Streams from US, UK, Nordic, and German listeners pay roughly 3 to 6 times more than streams from emerging markets</li>
+        <li>Premium subscriber streams pay roughly 3 to 4 times more than ad-supported (free-tier) streams</li>
+        <li>The total revenue pool shifts monthly with subscriber growth, ad sales, and seasonal patterns</li>
+      </ul>
+
+      <p>There's also a threshold most artists don't know about. Roughly 87% of tracks on Spotify earn nothing — because Spotify only pays out on tracks that hit a minimum stream count per year (currently 1,000 plays per track). Below that threshold, the track is excluded from the royalty pool entirely.</p>
+
+      <p>So even the visible master royalty number is subject to variance the dashboard doesn't surface.</p>
+
+      <h2>Streams Are A Number. Money Is A System.</h2>
+
+      <p>Spotify for Artists shows stream counts. It shows rough payout estimates for the master recording side. It does that part well.</p>
+
+      <p>What it cannot show:</p>
+
+      <ul>
+        <li>PRO collection status</li>
+        <li>MLC registration status</li>
+        <li>international mechanical collection across dozens of territories</li>
+        <li>YouTube Content ID matches that feed back into publishing royalties</li>
+        <li>whether the artist's distributor metadata is correctly enabling collection on any of the above</li>
+      </ul>
+
+      <p>Everything outside the master royalty path lives in systems Spotify has no visibility into. And most artists don't have visibility into them either.</p>
+
+      <p>The mismatch between streams and money isn't a scam. It isn't a bug. It's a structural property of how the modern royalty system actually works.</p>
+
+      <p>Streams are a single visible number.</p>
+
+      <p>Money is a fractured set of payments routed through systems that don't talk to each other.</p>
+
+      <p>The streams are real. The money is real. The disconnect is the gap between them.</p>
+
+      <p class="article-closer"><em>Royaltē. Built by artists, for artists.</em></p>
+    </div>
+
+    <!-- Final CTA — Founding Artist Beta framing, baked in, do not edit per article -->
+    <aside class="final-cta" aria-label="Claim a Founding Artist Beta spot">
+      <h2 class="final-cta-headline">Your music may not be the problem. Your backend might be broken.</h2>
+      <p class="final-cta-body">Founding Artist Beta is now open. Royaltē helps artists and rights holders identify metadata gaps, registration issues, platform coverage problems, and royalty risk signals before more money slips through the cracks.</p>
+      <a class="final-cta-btn" href="/#scan-tool">Claim One Of 1,000 Founding Artist Spots →</a>
+    </aside>
+
+  </article>
+
+  <section class="related-articles" aria-label="Related articles">
+    <h3 class="related-h3">Related Articles</h3>
+    <div id="related-grid" class="related-grid"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <svg class="f-logo f-logo-full" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <defs>
+        <linearGradient id="f-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#f-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#f-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#f-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="f-logo f-logo-mobile" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </div>
+  <div class="f-copy">© 2026 Royaltē. Powered by Se7ven Labs LLC. · info@royalte.ai</div>
+  <div class="f-links">
+    <a href="/contact.html">Contact</a>
+    <a href="/faq.html">FAQ</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+  </div>
+</footer>
+
+<!-- Render related articles from the canonical registry, excluding the current article. -->
+<script src="/js/blog-posts.js"></script>
+<script>
+(function(){
+  var currentSlug = 'why-your-spotify-streams-dont-match-your-money';
+  var grid = document.getElementById('related-grid');
+  if (!grid || !Array.isArray(window.blogPosts)) return;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  var others = window.blogPosts.filter(function(p){ return p.slug !== currentSlug; }).slice(0, 4);
+  if (others.length === 0) { grid.parentNode.style.display = 'none'; return; }
+
+  grid.innerHTML = others.map(function(post){
+    var isLive = post.status === 'live';
+    var cls = 'related-card' + (isLive ? '' : ' coming-soon');
+    var disabled = isLive ? '' : ' aria-disabled="true"';
+    var catLabel = isLive ? post.category : (post.category + ' · Coming soon');
+    return '<a class="' + cls + '" href="' + esc(post.url) + '"' + disabled + '>' +
+             '<span class="related-cat">' + esc(catLabel) + '</span>' +
+             '<div class="related-title">' + esc(post.title) + '</div>' +
+           '</a>';
+  }).join('');
+})();
+</script>
+
+</body>
+</html>

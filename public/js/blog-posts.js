@@ -28,13 +28,13 @@ const blogPosts = [
   },
   {
     title: "Why Your Spotify Streams Don't Match Your Money",
-    excerpt: "Stream counts and royalty payouts often look disconnected. This guide explains the gap between what Spotify reports and what eventually lands in your account — and the registration and metadata factors that shape it.",
+    excerpt: "The reason Spotify stream counts and royalty payouts often don't align — and the backend systems most artists never see.",
     category: "Royalties",
-    date: null,
-    readTime: null,
-    slug: "spotify-streams-vs-royalties",
-    url: "/blog/spotify-streams-vs-royalties.html",
-    status: "coming_soon"
+    date: "2026-05-15",
+    readTime: "9 min read",
+    slug: "why-your-spotify-streams-dont-match-your-money",
+    url: "/blog/why-your-spotify-streams-dont-match-your-money.html",
+    status: "live"
   },
   {
     title: "The 7 Metadata Mistakes Killing Artist Royalties",
