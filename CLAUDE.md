@@ -17,7 +17,7 @@ There is no bundler, no framework, no TypeScript. Edits to `public/*.html` ship 
   - Exercises `normalizeAuditResponse` → `validateAuditResponse` end-to-end against a realistic raw engine payload, plus negative cases. No test runner / framework — it just throws on failure.
 - **Local dev** (serverless functions + static site): `vercel dev`
 - **Deploy**: `vercel` (preview) / `vercel --prod`. `package.json` `build` is a no-op (`echo 'Static site'`); Vercel serves `public/` directly per the routes in `vercel.json`.
-- **Generate an audit PDF**: `python3 generate_audit_pdf.py --payload scan.json --theme {brand|print} --out report.pdf`. The script validates the input against its Pydantic mirror of the canonical schema and refuses to render on any drift.
+- **Generate an audit PDF**: `python3 ./generate_audit_pdf.py --payload scan.json --theme {brand|print} --out report.pdf`. The script lives at the repo root. Older notes referencing `/home/claude/generate_royalte_pdf.py` are stale — that path is from a deprecated sandbox setup; the file does not exist there. The script validates the input against its Pydantic mirror of the canonical schema and refuses to render on any drift.
 
 ## Required environment variables
 
@@ -97,6 +97,13 @@ Policy: **fail-open** on any DB error (RPC failure, SELECT failure, exception) �
 - `public/index.html` is ~800KB and `public/audit.html` is ~750KB — they are intentionally single-file pages. Prefer surgical edits; do not reformat or reflow.
 - The empty `main` file at the repo root and the empty `api/pages` / `api/scripts` files are placeholders/cruft, not real targets.
 - Comments throughout the codebase document **why** decisions were made (fail-open rate limiting, AUTH_UNAVAILABLE semantics, idempotency on `pending`). Read them before changing the surrounding logic.
+- **Verify long-form text written to disk via the Read tool, not terminal output.** When generating commit messages, PR bodies, or other multi-line files via the Write tool, terminal display can wrap or reorder long lines in confusing ways — what looks like on-disk corruption is almost always a display artifact in the rendering pipeline between tool output and your terminal. The Read tool returns line-numbered, exact file content directly from disk and is the source of truth. Confirmed twice on 2026-05-13: a PR body and a commit-message file both appeared scrambled in terminal output but were byte-clean on disk.
+
+## Commit & merge conventions
+
+- **No `Co-Authored-By:` trailer on commits.** This includes merge commits. The commit body documents what changed and why — that's the engineering record. Skip the AI-attribution trailer (`Co-Authored-By: Claude …`) entirely. Repo-wide convention as of 2026-05-13.
+- **Merge style: `gh pr merge <N> --rebase --delete-branch`.** Rebase preserves linear history; `--delete-branch` keeps the remote tidy and triggers auto-cleanup of the local feature branch on the next fast-forward pull. Do NOT default to local `git merge --no-ff` from main when a PR is open — that creates a merge commit and diverges from the established pattern. If a brief is ambiguous about merge style on an open PR, ASK before merging. Established 2026-05-13 after PR #7 was accidentally merged with `--no-ff` based on extrapolation from earlier non-PR work.
+- **Branch protection enforces the gate.** Ruleset id `16344395` on `main` requires the `Run pipeline test` check (from `.github/workflows/pipeline-test.yml`) to pass before merge. Failing PRs cannot be merged through the API or UI without ruleset bypass. Added 2026-05-13.
 
 ## Deploy Discipline
 
