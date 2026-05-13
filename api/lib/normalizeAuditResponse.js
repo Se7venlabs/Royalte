@@ -84,7 +84,9 @@ function _normalizeSubject(r) {
   }
   return {
     artistName:      _requireString(r.artistName, 'subject.artistName'),
-    artistId:        spotifyId,
+    // Prefer Spotify ID; fall back to Apple ID for Apple-only artists.
+    // L82 guard guarantees at least one is non-null, so artistId is never null.
+    artistId:        spotifyId || appleId,
     trackTitle:      _nullableString(r.trackTitle),
     trackIsrc:       _nullableString(r.trackIsrc),
     trackIsrcSource: _nullableString(r.trackIsrcSource),
