@@ -3,6 +3,11 @@
 
 import { normalizeAuditResponse } from '../api/lib/normalizeAuditResponse.js';
 import { validateAuditResponse, AUDIT_RESPONSE_VERSION } from '../api/schema/auditResponse.js';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Realistic raw engine output — mirrors what runAudit() produces just before
 // piping into normalizeAuditResponse(). Matches the shape of the original audit.js output.
@@ -163,7 +168,7 @@ console.log(JSON.stringify(canonical, null, 2).slice(0, 2000) + '\n...[truncated
 
 // Save the full canonical payload as a fixture for Python renderer testing
 import { writeFileSync } from 'node:fs';
-const fixturePath = '/home/claude/royalte-refactor/api/fixtures/canonical-radiohead.json';
+const fixturePath = join(__dirname, '..', 'api', 'fixtures', 'canonical-radiohead.json');
 writeFileSync(fixturePath, JSON.stringify(canonical, null, 2));
 console.log(`\n✓ Canonical fixture saved to: ${fixturePath}`);
 
