@@ -82,7 +82,12 @@ const rawEngineOutput = {
     { module: 'Sync Readiness', severity: 'medium', description: 'No Wikipedia presence detected — sync licensing teams often research artists on Wikipedia before licensing' },
     { module: 'Duplicate Detection', severity: 'low', description: '89 releases found on Discogs — physical catalog confirmed' },
   ],
-  scannedAt: new Date().toISOString(),
+  // Deterministic identity for fixture stability — see commit message for rationale.
+  // The normalizer's `r.scanId || randomUUID()` and `r.scannedAt || new Date().toISOString()`
+  // fallbacks mean production callers (audit.js, submit-audit.js) continue to get
+  // fresh values; only this test injects fixed ones for byte-identical fixture output.
+  scanId:    '00000000-0000-0000-0000-000000000001',
+  scannedAt: '2026-01-01T00:00:00.000Z',
   auditCoverage: {
     spotify:       { status: 'Verified', tier: null },
     appleMusic:    { status: 'Verified', tier: 'isrc' },
@@ -263,7 +268,10 @@ const rawAppleOnlyOutput = {
     sync:       { name: 'Sync Readiness',      score: 50, flags: [] },
   },
   flags: [],
-  scannedAt: new Date().toISOString(),
+  // Deterministic identity — separate UUID from the Radiohead fixture so the
+  // two fixtures are visually distinguishable in audit_scans / debug logs.
+  scanId:    '00000000-0000-0000-0000-000000000002',
+  scannedAt: '2026-01-01T00:00:00.000Z',
   auditCoverage: {
     spotify:       { status: 'Not Confirmed', tier: null },
     appleMusic:    { status: 'Verified',      tier: 'artist' },

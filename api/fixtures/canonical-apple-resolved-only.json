@@ -1,0 +1,215 @@
+{
+  "schemaVersion": "1.0.0",
+  "scanId": "00000000-0000-0000-0000-000000000002",
+  "scannedAt": "2026-01-01T00:00:00.000Z",
+  "source": {
+    "platform": "apple_music",
+    "urlType": "artist",
+    "resolvedFrom": "artist",
+    "originalUrl": "https://music.apple.com/us/artist/test-apple-only-artist/1234567890",
+    "storefront": "us"
+  },
+  "subject": {
+    "artistName": "Test Apple Only Artist",
+    "artistId": "1234567890",
+    "trackTitle": null,
+    "trackIsrc": null,
+    "trackIsrcSource": null,
+    "albumName": null
+  },
+  "metrics": {
+    "followers": 0,
+    "popularity": 0,
+    "genres": [],
+    "lastfmPlays": 0,
+    "lastfmListeners": 0,
+    "deezerFans": 0,
+    "tidalPopularity": 0,
+    "discogsReleases": 0,
+    "country": null,
+    "wikipediaUrl": null
+  },
+  "catalog": {
+    "totalReleases": 3,
+    "earliestYear": 2022,
+    "latestYear": 2024,
+    "catalogAgeYears": 2,
+    "estimatedAnnualStreams": 50000,
+    "recentActivity": true
+  },
+  "platforms": {
+    "spotify": {
+      "availability": "VERIFIED",
+      "details": null
+    },
+    "appleMusic": {
+      "availability": "VERIFIED",
+      "details": {
+        "artistId": "1234567890",
+        "artistUrl": "https://music.apple.com/us/artist/test-apple-only-artist/1234567890",
+        "albumCount": 3,
+        "catalogComparison": null,
+        "isrcLookup": null
+      }
+    },
+    "musicbrainz": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "deezer": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "audiodb": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "discogs": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "soundcloud": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "lastfm": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "wikipedia": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "youtube": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "tidal": {
+      "availability": "NOT_FOUND",
+      "details": null
+    }
+  },
+  "auditCoverage": {
+    "spotify": {
+      "status": "Not Confirmed",
+      "tier": null
+    },
+    "appleMusic": {
+      "status": "Verified",
+      "tier": "artist"
+    },
+    "publishing": {
+      "status": "Not Confirmed",
+      "tier": null
+    },
+    "soundExchange": {
+      "status": "Not Confirmed",
+      "tier": null
+    }
+  },
+  "auditCoverageRaw": {
+    "_deprecated": true,
+    "spotify": {
+      "connected": false
+    },
+    "apple_music": {
+      "connected": true
+    }
+  },
+  "modules": {
+    "metadata": {
+      "key": "metadata",
+      "name": "Metadata Integrity",
+      "score": 60,
+      "grade": "D",
+      "availability": "AVAILABLE",
+      "issueCount": 0,
+      "flags": []
+    },
+    "coverage": {
+      "key": "coverage",
+      "name": "Platform Coverage",
+      "score": 40,
+      "grade": "F",
+      "availability": "AVAILABLE",
+      "issueCount": 0,
+      "flags": []
+    },
+    "publishing": {
+      "key": "publishing",
+      "name": "Publishing Risk",
+      "score": 50,
+      "grade": "F",
+      "availability": "AVAILABLE",
+      "issueCount": 0,
+      "flags": []
+    },
+    "duplicates": {
+      "key": "duplicates",
+      "name": "Duplicate Detection",
+      "score": 70,
+      "grade": "C",
+      "availability": "AVAILABLE",
+      "issueCount": 0,
+      "flags": []
+    },
+    "youtube": {
+      "key": "youtube",
+      "name": "YouTube / UGC",
+      "score": 50,
+      "grade": "F",
+      "availability": "AVAILABLE",
+      "issueCount": 0,
+      "flags": []
+    },
+    "sync": {
+      "key": "sync",
+      "name": "Sync Readiness",
+      "score": 50,
+      "grade": "F",
+      "availability": "AVAILABLE",
+      "issueCount": 0,
+      "flags": []
+    }
+  },
+  "issues": [],
+  "score": {
+    "overall": 53,
+    "riskLevel": "HIGH",
+    "riskSummary": "High risk — multiple issues need attention.",
+    "moduleAverage": 53,
+    "ownershipImpact": 0
+  },
+  "royaltyGap": {
+    "estAnnualStreams": 0,
+    "estLifetimeStreams": 0,
+    "estSpotifyRoyalties": 0,
+    "estPROEarnings": 0,
+    "estTotalRoyalties": 0,
+    "potentialGapLow": 0,
+    "potentialGapHigh": 0,
+    "catalogYears": 2,
+    "ugcUnmonetisedViews": 0,
+    "ugcPotentialRevenue": 0,
+    "disclaimer": "Estimates only. Verify with your distributor and PRO."
+  },
+  "proGuide": {
+    "pro": "Your local PRO",
+    "url": "https://www.cisac.org",
+    "steps": [],
+    "note": "",
+    "country": null
+  },
+  "ownership": {
+    "status": "unverified",
+    "confidence": "LOW",
+    "scoreImpact": 0,
+    "render": {
+      "headline": "Ownership: Unverified",
+      "detail": "Apple Music presence confirmed; PRO registration unconfirmed.",
+      "cta": "Verify with ASCAP/BMI Songview"
+    }
+  },
+  "territoryCoverage": null,
+  "isrcValidation": null
+}
