@@ -103,6 +103,13 @@ const rawEngineOutput = {
   },
 };
 
+// ═════════════════════════════════════════════════════════════════════════════
+// ── SPOTIFY PATH ──
+// ═════════════════════════════════════════════════════════════════════════════
+console.log('\n═════════════════════════════════════════════');
+console.log('  ── SPOTIFY PATH ──');
+console.log('═════════════════════════════════════════════');
+
 // ── Run the pipeline ─────────────────────────────────────────────────────────
 console.log('[TEST] normalizing raw engine output...');
 const canonical = normalizeAuditResponse(rawEngineOutput);
@@ -111,7 +118,12 @@ console.log('[TEST] validating canonical output against schema...');
 validateAuditResponse(canonical);
 
 // ── Assertions ───────────────────────────────────────────────────────────────
-const assert = (cond, msg) => { if (!cond) { console.error('✗ FAIL:', msg); process.exit(1); } console.log('✓', msg); };
+let positiveCount = 0;
+const assert = (cond, msg) => {
+  if (!cond) { console.error('✗ FAIL:', msg); process.exit(1); }
+  console.log('✓', msg);
+  positiveCount++;
+};
 
 assert(canonical.schemaVersion === AUDIT_RESPONSE_VERSION, `schemaVersion is ${AUDIT_RESPONSE_VERSION}`);
 assert(typeof canonical.scanId === 'string' && canonical.scanId.length > 0, 'scanId generated');
@@ -172,9 +184,133 @@ const fixturePath = join(__dirname, '..', 'api', 'fixtures', 'canonical-radiohea
 writeFileSync(fixturePath, JSON.stringify(canonical, null, 2));
 console.log(`\n✓ Canonical fixture saved to: ${fixturePath}`);
 
+// ═════════════════════════════════════════════════════════════════════════════
+// ── APPLE-RESOLVED-ONLY PATH ──
+// Exercises the Shape B fallback from PR #8 (commit 9f4efcd): when the raw
+// engine output has artistId = null but appleMusic.artistId populated, the
+// canonical's subject.artistId resolves to the Apple ID via the
+// spotifyId || appleId fallback in _normalizeSubject.
+//
+// "Apple-resolved-only" means the resolution code path where the normalizer
+// received an Apple Music URL and could not produce a Spotify artist ID
+// (Spotify cross-reference failed, name match below threshold, small/new
+// or regional artist). The fixture is synthetic by design — not a real artist.
+// ═════════════════════════════════════════════════════════════════════════════
+console.log('\n═════════════════════════════════════════════');
+console.log('  ── APPLE-RESOLVED-ONLY PATH ──');
+console.log('═════════════════════════════════════════════');
+
+const rawAppleOnlyOutput = {
+  _originalUrl: 'https://music.apple.com/us/artist/test-apple-only-artist/1234567890',
+  _storefront: 'us',
+  platform: 'apple',                    // normalizer maps to 'apple_music' in canonical
+  sourcePlatform: 'apple_music',
+  type: 'artist',
+  resolvedFrom: 'artist',
+  artistName: 'Test Apple Only Artist', // clearly synthetic
+  artistId: null,                       // ← Spotify ID absent — Shape B fallback fires
+  followers: 0,
+  popularity: 0,
+  genres: [],
+  trackTitle: null,
+  trackIsrc: null,
+  trackIsrcSource: null,
+  platforms: {
+    spotify: false, musicbrainz: false, deezer: false, audiodb: false,
+    discogs: false, soundcloud: false, lastfm: false, wikipedia: false,
+    youtube: false, appleMusic: true, tidal: false,
+  },
+  catalog: {
+    totalReleases: 3, earliestYear: 2022, latestYear: 2024,
+    catalogAgeYears: 2, estimatedAnnualStreams: 50000, recentActivity: true,
+  },
+  royaltyGap: {
+    estAnnualStreams: 0, estLifetimeStreams: 0,
+    estSpotifyRoyalties: 0, estPROEarnings: 0,
+    estTotalRoyalties: 0, potentialGapLow: 0, potentialGapHigh: 0,
+    catalogYears: 2, ugcUnmonetisedViews: 0, ugcPotentialRevenue: 0,
+    disclaimer: 'Estimates only. Verify with your distributor and PRO.',
+  },
+  proGuide: {
+    pro: 'Your local PRO', url: 'https://www.cisac.org',
+    steps: [], note: '', country: null,
+  },
+  country: null,
+  lastfmPlays: 0, lastfmListeners: 0,
+  wikipediaUrl: null,
+  deezerFans: 0, tidalPopularity: 0, discogsReleases: 0,
+  // youtube intentionally found:false with NO `reason` field — keeps availability
+  // as NOT_FOUND, not AUTH_UNAVAILABLE (assertion #7 depends on this)
+  youtube: { found: false },
+  appleMusic: {
+    found: true,
+    artistId: '1234567890',
+    artistUrl: 'https://music.apple.com/us/artist/test-apple-only-artist/1234567890',
+    genres: [], albumCount: 3,
+    isrcLookup: null,
+    catalogComparison: null,
+  },
+  appleMusicSource: null,
+  overallScore: 50,
+  // All 6 module keys populated — prevents normalizer from defaulting any of
+  // them to AUTH_UNAVAILABLE (assertion #7 depends on this)
+  modules: {
+    metadata:   { name: 'Metadata Integrity',  score: 60, flags: [] },
+    coverage:   { name: 'Platform Coverage',   score: 40, flags: [] },
+    publishing: { name: 'Publishing Risk',     score: 50, flags: [] },
+    duplicates: { name: 'Duplicate Detection', score: 70, flags: [] },
+    youtube:    { name: 'YouTube / UGC',       score: 50, flags: [] },
+    sync:       { name: 'Sync Readiness',      score: 50, flags: [] },
+  },
+  flags: [],
+  scannedAt: new Date().toISOString(),
+  auditCoverage: {
+    spotify:       { status: 'Not Confirmed', tier: null },
+    appleMusic:    { status: 'Verified',      tier: 'artist' },
+    publishing:    { status: 'Not Confirmed', tier: null },
+    soundExchange: { status: 'Not Confirmed', tier: null },
+  },
+  // Confidence values must NOT be AUTH_UNAVAILABLE (assertion #7 depends on this)
+  ownershipVerification: {
+    ownership_status: 'unverified',
+    confidence: 'LOW',
+    score_impact: 0,
+    spotify_confidence: 'LOW',
+    apple_confidence: 'MEDIUM',
+  },
+  ownershipVerificationRender: {
+    headline: 'Ownership: Unverified',
+    detail: 'Apple Music presence confirmed; PRO registration unconfirmed.',
+    cta: 'Verify with ASCAP/BMI Songview',
+  },
+};
+
+console.log('[TEST] normalizing Apple-resolved-only raw engine output...');
+const canonicalAppleOnly = normalizeAuditResponse(rawAppleOnlyOutput);
+
+console.log('[TEST] validating Apple-resolved-only canonical output against schema...');
+validateAuditResponse(canonicalAppleOnly);
+
+// ── Apple-resolved-only assertions ───────────────────────────────────────────
+assert(canonicalAppleOnly.subject.artistName === 'Test Apple Only Artist', 'apple subject.artistName preserved');
+assert(canonicalAppleOnly.subject.artistId === '1234567890', 'apple subject.artistId resolves to Apple ID via Shape B fallback');
+assert(canonicalAppleOnly.source.platform === 'apple_music', 'apple source.platform mapped to apple_music');
+assert(canonicalAppleOnly.source.resolvedFrom === 'artist', 'apple source.resolvedFrom is artist');
+assert(canonicalAppleOnly.platforms.appleMusic.details !== null, 'apple platforms.appleMusic.details populated');
+assert(['VERIFIED', 'NOT_FOUND', 'ERROR'].includes(canonicalAppleOnly.platforms.appleMusic.availability), 'apple platforms.appleMusic.availability is a valid non-AUTH_UNAVAILABLE enum');
+assert(!JSON.stringify(canonicalAppleOnly).includes('AUTH_UNAVAILABLE'), 'apple canonical contains no AUTH_UNAVAILABLE leakage');
+assert(canonicalAppleOnly.schemaVersion === AUDIT_RESPONSE_VERSION, `apple schemaVersion is ${AUDIT_RESPONSE_VERSION}`);
+assert(typeof canonicalAppleOnly.scanId === 'string' && canonicalAppleOnly.scanId.length > 0, 'apple scanId generated');
+assert(canonicalAppleOnly.subject.trackTitle === null, 'apple subject.trackTitle null for artist-URL scan');
+
+const appleFixturePath = join(__dirname, '..', 'api', 'fixtures', 'canonical-apple-resolved-only.json');
+writeFileSync(appleFixturePath, JSON.stringify(canonicalAppleOnly, null, 2));
+console.log(`\n✓ Apple-resolved-only canonical fixture saved to: ${appleFixturePath}`);
+
 // ── Negative tests: failure modes ────────────────────────────────────────────
 console.log('\n[TEST] Running negative tests (these SHOULD throw)...');
 
+let negativeCount = 0;
 function expectThrow(fn, matcher, label) {
   try {
     fn();
@@ -183,6 +319,7 @@ function expectThrow(fn, matcher, label) {
   } catch (e) {
     if (matcher.test(e.message)) {
       console.log(`✓ ${label} — threw as expected: ${e.message.slice(0, 80)}...`);
+      negativeCount++;
     } else {
       console.error(`✗ FAIL: ${label} — threw but wrong message: ${e.message}`);
       process.exit(1);
@@ -232,7 +369,21 @@ expectThrow(
   'null in non-nullable throws'
 );
 
+// Apple-resolved raw with BOTH artistId and appleMusic.artistId null — guard
+// at normalizeAuditResponse.js L82-84 must throw before reaching the Shape B
+// fallback at L87. This is the failure mode the L82 guard exists to prevent.
+expectThrow(
+  () => normalizeAuditResponse({
+    ...rawAppleOnlyOutput,
+    artistId: null,
+    appleMusic: { ...rawAppleOnlyOutput.appleMusic, artistId: null },
+  }),
+  /at least one platform artist ID/,
+  'apple raw with both artistId and appleMusic.artistId null throws guard error'
+);
+
 console.log('\n✓ All negative tests passed.\n');
 console.log('═════════════════════════════════════════════');
 console.log('  PIPELINE VERIFIED: normalize + validate working end-to-end');
 console.log('═════════════════════════════════════════════');
+console.log(`Total: ${positiveCount} positive + ${negativeCount} negative assertions passed`);
