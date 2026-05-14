@@ -13,7 +13,8 @@ it's not in here, it's not tracked.
 
 The next 2-3 actionable items. Update this section every session.
 
-- [ ] **Block A · Auth foundation** — first thread to pull. No external dependency, unblocks B onward.
+- [ ] **Mobile scan visibility (URGENT)** — Right column with score/banner/sections/findings/CTA is hidden at ≤900px (`.hero-right` `display:none`). Most artists scan on mobile and currently see nothing useful below the hero. Needs dedicated PR with mobile design pass.
+- [ ] **Block A · Auth foundation** — first thread to pull on dashboard wiring. No external dependency, unblocks B onward.
 - [ ] **Business foundation in flight** — LLC, Mercury, Stripe business account, TikTok. See Business foundation section.
 - [ ] **Legal pages drafting** — ToS, privacy, refund policy. Can run in parallel with Block A.
 
@@ -93,6 +94,24 @@ The next 2-3 actionable items. Update this section every session.
 
 ---
 
+## Mobile scan visibility (urgent, conversion-critical)
+
+Most artists scan from phones. The current `public/index.html` layout
+hides `.hero-right` at ≤900px, meaning mobile users see the hero,
+input, "Run Free Scan" button, and trust badges — but no scan results.
+No score. No banner. No section cards. No findings. No CTA. Discovered
+during PR #24 (feat/scan-ux-clarity) pre-flight.
+
+- [ ] Confirm intent: is mobile hiding intentional (mobile funnels to email PDF) or an unintentional pre-existing gap?
+- [ ] If unintentional: design a mobile presentation of scan results that preserves the v4 decoder panel + scoring vocabulary
+- [ ] Implement responsive layout for mobile scan view
+- [ ] Verify decoder panel position works in stacked mobile order (between hero and score card per v4 spec)
+- [ ] Consider mobile collapse pattern for decoder panel (accordion or condensed) — desktop-first locked, mobile pattern TBD
+- [ ] Verify "+N risk" treatment + section-card red-bar visuals render correctly on narrow viewports
+- [ ] Vercel preview check on real mobile device, not just devtools emulator
+
+---
+
 ## Pre-launch (non-block) items
 
 Things that aren't in the block sequence but need to be done before June 1.
@@ -133,7 +152,28 @@ These need answers before the blocks they affect can ship.
 
 Items get moved here when checked off. Keeps the active list scannable.
 
-(empty for now)
+### Scan UX clarity — PR #24 (merged 2026-05-14)
+
+Removed frontend inversion of audit scores. Displayed score is now the
+raw backend risk value (higher = more risk). Flipped getScoreBand to
+a 4-tier model (Low / Moderate / At Risk / Critical, 0-30 / 31-60 /
+61-80 / 81-100). Added left-column "Understanding Your Risk Score"
+decoder panel with calm Bloomberg-style legend + colored dots.
+Reformatted section numbers as "+N risk". Replaced "You are losing
+royalties right now" alert banner with the intelligence-framed
+"Royaltē detected verified royalty-risk issues in your backend setup"
+(removes money-recovery claim that violated locked positioning rule).
+Rewrote all 4 MODULE_COPY band variants per module (healthy / warning
+/ atrisk / danger) with consistent risk vocabulary. Generalized
+Wikipedia finding to "public artist authority signal" so the audit
+engine can expand to MusicBrainz / Discogs / knowledge panels without
+copy rework. Updated ISRC, genre, and authority findings in both
+index.html and audit.html.
+
+Polish refinements landed in second commit on same PR:
+- "elevated royalty and metadata risk" → "elevated risk to royalty collection"
+- Appended "and backend risk exposure" to decoder body second sentence
+- Reduced foot helper opacity to 0.7 so it reads as helper text below the legend
 
 ---
 
