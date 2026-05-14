@@ -17,6 +17,16 @@
 
 const blogPosts = [
   {
+    title: "Using Suno AI? Read This Before Releasing Anything.",
+    excerpt: "The ownership, royalty, distribution, and copyright risks artists need to understand before commercially releasing AI-generated music.",
+    category: "AI Music",
+    date: "2026-05-14",
+    readTime: "10 min read",
+    slug: "suno-ai-release-risks",
+    url: "/blog/suno-ai-release-risks.html",
+    status: "live"
+  },
+  {
     title: "Your Music Isn't The Problem. Your Backend Might Be Broken.",
     excerpt: "Streaming numbers look healthy but royalty payouts don't always match. This article breaks down how multiple royalty layers, fragmented backend systems, and incomplete metadata can quietly delay or misroute revenue — and what artists can do to spot it.",
     category: "Royalties",
