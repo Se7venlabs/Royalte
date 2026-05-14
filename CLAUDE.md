@@ -4,6 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Active task list:** See `LAUNCH_CHECKLIST.md` at repo root. Read it at the start of every session — it's the source of truth for what's on deck and what's left before the June 1, 2026 beta launch.
 
+**Scan scoring model (locked 2026-05-14, PR #24):** The audit engine returns raw risk scores (higher = more risk). The frontend displays these values directly with no inversion. Score bands: 0-30 Low Risk, 31-60 Moderate Risk, 61-80 At Risk, 81-100 Critical Risk. Section numbers render as "+N risk" to communicate risk contribution. DO NOT reintroduce health-score framing or invert the displayed values — that was the source of artist confusion before v4.
+
 ## What this is
 
 Royaltē is a music-royalty audit product. The repo bundles two things:
