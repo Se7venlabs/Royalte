@@ -227,7 +227,7 @@ export const AUDIT_RESPONSE_SCHEMA = {
       status:      { type: 'string', required: true, enum: Object.values(OWNERSHIP_STATUS) },
       confidence:  { type: 'string', required: true, enum: Object.values(OWNERSHIP_CONFIDENCE) },
       scoreImpact: { type: 'number', required: true },
-      render:      { type: 'any',    required: true }, // widget-ready payload, opaque to schema
+      render:      { type: 'any',    required: true, nullable: true }, // widget-ready payload, opaque to schema; null when engine omits ownershipVerificationRender
     },
   },
 

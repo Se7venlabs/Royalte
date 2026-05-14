@@ -102,11 +102,9 @@ const rawEngineOutput = {
     spotify_confidence: 'HIGH',
     apple_confidence: 'HIGH',
   },
-  ownershipVerificationRender: {
-    headline: 'Ownership: Unverified',
-    detail: 'Cross-platform signals present but PRO registration unconfirmed.',
-    cta: 'Verify with ASCAP/BMI Songview',
-  },
+  // ownershipVerificationRender intentionally absent — exercises the
+  // null-render path that real production audits hit. The schema marks
+  // ownership.render as nullable for exactly this case.
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -173,7 +171,7 @@ assert(typeof canonical.score.riskSummary === 'string' && canonical.score.riskSu
 // Ownership
 assert(canonical.ownership.status === 'unverified', 'ownership.status preserved');
 assert(canonical.ownership.confidence === 'MEDIUM', 'ownership.confidence preserved');
-assert(canonical.ownership.render !== null, 'ownership.render preserved');
+assert(canonical.ownership.render === null, 'ownership.render null when raw lacks ownershipVerificationRender (production case)');
 
 // Reserved fields
 assert(canonical.territoryCoverage === null, 'territoryCoverage explicit null');

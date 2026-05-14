@@ -304,11 +304,7 @@
     "status": "unverified",
     "confidence": "MEDIUM",
     "scoreImpact": -4,
-    "render": {
-      "headline": "Ownership: Unverified",
-      "detail": "Cross-platform signals present but PRO registration unconfirmed.",
-      "cta": "Verify with ASCAP/BMI Songview"
-    }
+    "render": null
   },
   "territoryCoverage": null,
   "isrcValidation": null
