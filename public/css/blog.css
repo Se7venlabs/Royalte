@@ -228,6 +228,15 @@
   color:#ffffff;
   margin-bottom:14px;
 }
+.article-subtitle{
+  font-size:13px;
+  color:var(--muted2);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  margin:8px 0 0;
+  line-height:1.5;
+  font-family:'Space Mono',monospace;
+}
 .article-meta{
   font-family:'Space Mono',monospace;
   font-size:12px;
