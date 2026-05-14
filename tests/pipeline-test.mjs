@@ -3,6 +3,7 @@
 
 import { normalizeAuditResponse } from '../api/lib/normalizeAuditResponse.js';
 import { validateAuditResponse, AUDIT_RESPONSE_VERSION } from '../api/schema/auditResponse.js';
+import { persistCanonicalScan } from '../api/audit.js';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -335,6 +336,22 @@ function expectThrow(fn, matcher, label) {
   }
 }
 
+async function expectThrowAsync(fn, matcher, label) {
+  try {
+    await fn();
+    console.error(`✗ FAIL: ${label} — did not throw`);
+    process.exit(1);
+  } catch (e) {
+    if (matcher.test(e.message)) {
+      console.log(`✓ ${label} — threw as expected: ${e.message.slice(0, 100)}...`);
+      negativeCount++;
+    } else {
+      console.error(`✗ FAIL: ${label} — threw but wrong message: ${e.message}`);
+      process.exit(1);
+    }
+  }
+}
+
 // Missing required field
 expectThrow(
   () => validateAuditResponse({ ...canonical, subject: { ...canonical.subject, artistName: undefined } }),
@@ -389,6 +406,49 @@ expectThrow(
   /at least one platform artist ID/,
   'apple raw with both artistId and appleMusic.artistId null throws guard error'
 );
+
+// persistCanonicalScan validation gate (dev/test env path):
+// raw → normalize → validate → handleSchemaViolation re-throws because
+// VERCEL_ENV is unset. _normalizeOwnership passes ov.ownership_status through
+// unchanged when truthy, so a non-enum value produces a canonical that
+// normalizes cleanly but trips the validator at $.ownership.status.
+//
+// Dummy Supabase creds let getAuditScansSupabase return a client (truthy env
+// check), but no DB call ever fires — validation throws first.
+const savedSupabaseUrl = process.env.SUPABASE_URL;
+const savedSupabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const savedVercelEnv   = process.env.VERCEL_ENV;
+
+try {
+  process.env.SUPABASE_URL              = 'https://test-not-real.supabase.co';
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key-not-real';
+  delete process.env.VERCEL_ENV;
+
+  const rawWithInvalidOwnership = {
+    ...rawEngineOutput,
+    ownershipVerification: {
+      ...rawEngineOutput.ownershipVerification,
+      ownership_status: 'TOTALLY_BOGUS_NOT_AN_ENUM_VALUE',
+    },
+  };
+
+  await expectThrowAsync(
+    () => persistCanonicalScan(
+      rawWithInvalidOwnership,
+      'https://open.spotify.com/artist/test',
+      'artist',
+      '00000000-0000-0000-0000-0000000000aa',
+    ),
+    /ownership\.status/,
+    'persistCanonicalScan throws AuditSchemaError when canonical fails validation (test env)'
+  );
+} finally {
+  if (savedSupabaseUrl === undefined) delete process.env.SUPABASE_URL;
+  else process.env.SUPABASE_URL = savedSupabaseUrl;
+  if (savedSupabaseKey === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+  else process.env.SUPABASE_SERVICE_ROLE_KEY = savedSupabaseKey;
+  if (savedVercelEnv !== undefined) process.env.VERCEL_ENV = savedVercelEnv;
+}
 
 console.log('\n✓ All negative tests passed.\n');
 console.log('═════════════════════════════════════════════');
