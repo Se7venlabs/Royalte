@@ -110,6 +110,71 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;d
 .hstat{display:flex;align-items:center;gap:10px;background:rgba(138,92,255,0.08);border:1px solid rgba(138,92,255,0.2);padding:10px 18px;border-radius:4px;}
 .hstat-n{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .hstat-l{font-size:11px;color:var(--muted2);letter-spacing:0.08em;text-transform:uppercase;}
+
+/* ═══════════════════════════════════════════════════════════
+   SCAN DECODER PANEL — left-column risk-score legend
+   Calm explainer beneath the trust badges. Sits opposite the
+   right-column results in document flow. Uses existing tokens;
+   one-off #e08858 for the At Risk warm-orange (no --orange token).
+   ═══════════════════════════════════════════════════════════ */
+.scan-decoder{
+  margin-top:24px;
+  padding:20px 22px;
+  background:rgba(7,7,15,0.55);
+  border:1px solid var(--border3);
+  border-radius:6px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.scan-decoder-hd{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.scan-decoder-body{
+  font-size:12.5px;
+  color:var(--text2);
+  line-height:1.55;
+}
+.scan-decoder-legend{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  font-family:'Space Mono',monospace;
+  font-size:12px;
+  color:var(--text);
+  letter-spacing:0.02em;
+}
+.scan-decoder-legend-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.scan-decoder-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  flex-shrink:0;
+}
+.scan-decoder-dot.low{background:var(--grn);}
+.scan-decoder-dot.moderate{background:var(--amb);}
+.scan-decoder-dot.atrisk{background:#e08858;}
+.scan-decoder-dot.critical{background:var(--red);}
+.scan-decoder-range{
+  display:inline-block;
+  min-width:54px;
+  color:var(--muted2);
+}
+.scan-decoder-foot{
+  font-size:11.5px;
+  color:var(--muted);
+  line-height:1.55;
+  padding-top:6px;
+  border-top:1px solid var(--border3);
+}
 /* HERO RIGHT */
 .hero-right{position:relative;z-index:2;opacity:0;animation:fadeRight 0.8s ease 0.3s forwards;}
 @keyframes fadeRight{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
@@ -1286,10 +1351,12 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 }
 
 /* ═══════════════════════════════════════════════════════════
-   SCORE BAND COLORS — frontend-derived from score value
-   80–100: Healthy (green)
-   60–79:  At Risk (orange)
-   0–59:   High Risk (red)
+   SCORE BAND COLORS — frontend-derived from risk score value
+   Higher score = more risk.
+   0–30:   Low Risk      (green)
+   31–60:  Moderate Risk (amber)
+   61–80:  At Risk       (warm-orange #e08858, one-off — no --orange token)
+   81–100: Critical Risk (red)
    These override backend riskLevel for color purposes only.
    The number color + label color move together with band.
    ═══════════════════════════════════════════════════════════ */
@@ -1304,6 +1371,12 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   text-shadow:0 0 18px rgba(240,192,64,0.32);
 }
 .d-score-tag.band-warning .d-score-tag-lbl{color:var(--amb);}
+
+.d-score-tag.band-atrisk .d-score-tag-num{
+  color:#e08858;
+  text-shadow:0 0 18px rgba(224,136,88,0.32);
+}
+.d-score-tag.band-atrisk .d-score-tag-lbl{color:#e08858;}
 
 .d-score-tag.band-danger .d-score-tag-num{
   color:var(--red);
@@ -1347,7 +1420,8 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 .d-score-helper-tooltip .tt-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 .d-score-helper-tooltip .tt-row.healthy .tt-dot{background:var(--grn);}
 .d-score-helper-tooltip .tt-row.warning .tt-dot{background:var(--amb);}
-.d-score-helper-tooltip .tt-row.danger .tt-dot{background:var(--red);}
+.d-score-helper-tooltip .tt-row.atrisk  .tt-dot{background:#e08858;}
+.d-score-helper-tooltip .tt-row.danger  .tt-dot{background:var(--red);}
 .d-score-helper:hover .d-score-helper-tooltip{display:block;}
 
 /* Alert gating — hidden when no high-severity flag exists post-scan */
@@ -1856,6 +1930,17 @@ body.menu-locked {
       <div class="hstat"><span class="hstat-n">Verified</span><span class="hstat-l">Data only</span></div>
       <div class="hstat"><span class="hstat-n">Instant</span><span class="hstat-l">Full audit delivery</span></div>
     </div>
+    <div class="scan-decoder" aria-label="Understanding your risk score">
+      <div class="scan-decoder-hd">Understanding your risk score</div>
+      <div class="scan-decoder-body">Higher scores indicate elevated royalty and metadata risk. Royaltē analyzes verified metadata, publishing, platform coverage, and monetization signals to identify potential royalty collection gaps.</div>
+      <div class="scan-decoder-legend">
+        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot low"></span><span class="scan-decoder-range">0–30</span>Low Risk</div>
+        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot moderate"></span><span class="scan-decoder-range">31–60</span>Moderate Risk</div>
+        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot atrisk"></span><span class="scan-decoder-range">61–80</span>At Risk</div>
+        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot critical"></span><span class="scan-decoder-range">81–100</span>Critical Risk</div>
+      </div>
+      <div class="scan-decoder-foot">Each audit section adds risk points based on verified issues detected in your music data.</div>
+    </div>
     <div class="hero-visual" aria-hidden="true"></div>
   </div>
   <div class="hero-right">
@@ -1918,14 +2003,15 @@ body.menu-locked {
         <div class="d-score-helper" id="hero-score-helper" style="display:none;">
           Score based on metadata, registrations, and revenue signals
           <div class="d-score-helper-tooltip">
-            <div class="tt-row healthy"><span class="tt-dot"></span><strong>80–100</strong> · Healthy</div>
-            <div class="tt-row warning"><span class="tt-dot"></span><strong>60–79</strong> · At Risk</div>
-            <div class="tt-row danger"><span class="tt-dot"></span><strong>0–59</strong> · High Risk</div>
+            <div class="tt-row healthy"><span class="tt-dot"></span><strong>0–30</strong> · Low Risk</div>
+            <div class="tt-row warning"><span class="tt-dot"></span><strong>31–60</strong> · Moderate Risk</div>
+            <div class="tt-row atrisk"><span class="tt-dot"></span><strong>61–80</strong> · At Risk</div>
+            <div class="tt-row danger"><span class="tt-dot"></span><strong>81–100</strong> · Critical Risk</div>
           </div>
         </div>
         <div class="d-alert">
           <div class="d-alert-dot"></div>
-          <div class="d-alert-t"><span class="d-alert-strong">⚠️ You are losing royalties right now</span>Publishing and registration gaps detected in verified data.</div>
+          <div class="d-alert-t"><span class="d-alert-strong">⚠️ Royaltē detected verified royalty-risk issues in your backend setup.</span>Publishing and registration gaps found in your audit data.</div>
         </div>
         <div class="d-modules">
           <div class="d-mod">
@@ -2670,16 +2756,18 @@ function renderTerritoryCoverage(territoryCoverage) {
 //   -1         → ""    (callers branch on the -1 sentinel separately)
 // One decimal place is shown only when it adds precision (e.g. "1.2M" vs "10M").
 // ── SCORE BAND HELPER ──
-// Maps a numeric Royaltē Score to its visual band + status label.
-// Frontend-derived per spec — independent of backend riskLevel.
-//   80–100 → Healthy   (green)
-//   60–79  → At Risk   (orange)
-//   0–59   → High Risk (red)
+// Maps a numeric Royaltē Risk Score to its visual band + status label.
+// Higher score = more risk. Frontend-derived per spec — independent of backend riskLevel.
+//   0–30   → Low Risk      (green)
+//   31–60  → Moderate Risk (amber)
+//   61–80  → At Risk       (warm-orange)
+//   81–100 → Critical Risk (red)
 function getScoreBand(score) {
   const n = Number(score);
-  if (n >= 80) return { className: 'band-healthy', label: 'Healthy',   emoji: ''     };
-  if (n >= 60) return { className: 'band-warning', label: 'At Risk ⚠️', emoji: '⚠️' };
-  return         { className: 'band-danger',  label: 'High Risk 🚨', emoji: '🚨' };
+  if (n <= 30) return { className: 'band-healthy', label: 'Low Risk',      emoji: '' };
+  if (n <= 60) return { className: 'band-warning', label: 'Moderate Risk', emoji: '' };
+  if (n <= 80) return { className: 'band-atrisk',  label: 'At Risk',       emoji: '' };
+  return         { className: 'band-danger',  label: 'Critical Risk', emoji: '' };
 }
 
 function formatFollowers(n) {
@@ -2798,8 +2886,8 @@ function renderIssues(flags) {
     if (lower.includes('isrc')) {
       return {
         emoji: '💥',
-        impact: 'Track ISRC not registered',
-        explanation: 'Performance royalties may not route correctly without it.'
+        impact: 'Verified ISRC registration could not be confirmed.',
+        explanation: 'Missing ISRC data can create royalty matching and reporting issues across platforms.'
       };
     }
     // Catalog age
@@ -2823,8 +2911,8 @@ function renderIssues(flags) {
     if (lower.includes('wikipedia') || lower.includes('wikidata')) {
       return {
         emoji: '⚠️',
-        impact: 'No Wikipedia presence',
-        explanation: 'Sync licensors often check Wikipedia before licensing.'
+        impact: 'No public artist authority signal detected.',
+        explanation: 'Public artist verification signals may influence sync research and licensing confidence.'
       };
     }
     // Genre metadata
@@ -2832,7 +2920,7 @@ function renderIssues(flags) {
       return {
         emoji: '⚠️',
         impact: 'Genre metadata missing',
-        explanation: 'Sync placements and discovery may be blocked.'
+        explanation: 'Missing genre metadata may reduce playlisting, discovery, and sync categorization opportunities.'
       };
     }
     // Content ID
@@ -3057,44 +3145,52 @@ function showRealResults(data) {
   //   [3] YouTube / UGC Coverage
   const MODULE_COPY = [
     {
-      'band-healthy': { problem: 'Most fields look clean — minor fixes possible',
-                        impact:  '→ Small gaps may still limit edge-case royalties' },
-      'band-warning': { problem: 'Missing or inconsistent metadata detected',
-                        impact:  '→ You may be losing some royalty payments' },
-      'band-danger':  { problem: 'Critical metadata is missing or incorrect',
-                        impact:  '→ This can block royalty payments completely' }
+      'band-healthy': { problem: 'Verified metadata appears clean; low routing risk detected.',
+                        impact:  '→ Royalty routing should function reliably across collection systems.' },
+      'band-warning': { problem: 'Some metadata gaps detected; partial risk to royalty routing accuracy.',
+                        impact:  '→ Royalty matching accuracy may be reduced in some cases.' },
+      'band-atrisk':  { problem: 'Elevated metadata risk detected — multiple verified issues may interfere with royalty matching.',
+                        impact:  '→ Royalty routing reliability is meaningfully reduced; multiple gaps need attention.' },
+      'band-danger':  { problem: 'Verified metadata issues detected that may interfere with royalty matching and payments.',
+                        impact:  '→ Missing metadata can prevent collection systems from properly routing royalties.' }
     },
     {
-      'band-healthy': { problem: 'Strong presence across major platforms',
-                        impact:  "→ You're capturing most available revenue" },
-      'band-warning': { problem: 'Coverage gaps detected across some platforms',
-                        impact:  '→ You may be missing royalties from certain services' },
-      'band-danger':  { problem: 'Major platforms are not tracking your music',
-                        impact:  '→ Significant revenue is currently unreachable' }
+      'band-healthy': { problem: 'Platform coverage verified across expected services; low coverage risk.',
+                        impact:  '→ Music appears reachable across the major royalty-generating platforms.' },
+      'band-warning': { problem: 'Platform coverage partially verified; some services may be missing.',
+                        impact:  '→ Some revenue-generating services may not be tracking this catalog.' },
+      'band-atrisk':  { problem: 'Significant platform coverage gaps detected across expected music services.',
+                        impact:  '→ Multiple revenue channels appear unreachable; coverage needs review.' },
+      'band-danger':  { problem: 'Royaltē could not verify strong platform coverage across expected music services.',
+                        impact:  '→ Missing platform coverage may reduce discoverability and revenue collection.' }
     },
     {
-      'band-healthy': { problem: 'Publishing setup is mostly complete',
-                        impact:  '→ Performance royalties are likely flowing' },
-      'band-warning': { problem: 'Publishing registration gaps detected',
-                        impact:  '→ Some royalties may not be reaching you' },
-      'band-danger':  { problem: 'Publishing data is missing or incomplete',
-                        impact:  '→ You may not be collecting performance royalties' }
+      'band-healthy': { problem: 'Publishing and registration data appears verified; low performance royalty risk.',
+                        impact:  '→ Performance royalty collection paths appear intact.' },
+      'band-warning': { problem: 'Publishing data partially verified; some registration gaps detected.',
+                        impact:  '→ Some performance royalties may not route through expected collection channels.' },
+      'band-atrisk':  { problem: 'Publishing and songwriter registration shows substantial gaps in verified data.',
+                        impact:  '→ Performance royalty collection may be meaningfully reduced until gaps are resolved.' },
+      'band-danger':  { problem: 'Publishing and songwriter registration data appears incomplete or unverified.',
+                        impact:  '→ This may impact performance royalty collection.' }
     },
     {
-      'band-healthy': { problem: 'UGC and platform tracking is active',
-                        impact:  "→ You're capturing additional revenue streams" },
-      'band-warning': { problem: 'UGC monitoring gaps detected',
-                        impact:  '→ Some content usage may not be monetized' },
-      'band-danger':  { problem: 'No active UGC tracking detected',
-                        impact:  '→ All user-generated content is unmonetized' }
+      'band-healthy': { problem: 'UGC monetization coverage confirmed; low UGC revenue risk.',
+                        impact:  '→ Fan uploads and reposted content appear to be generating revenue.' },
+      'band-warning': { problem: 'UGC monetization partially detected; some content types may not be covered.',
+                        impact:  '→ Some categories of fan-generated content may not be monetized.' },
+      'band-atrisk':  { problem: 'Significant gaps in user-generated content monetization coverage detected.',
+                        impact:  '→ A meaningful share of fan-generated content may not be earning revenue.' },
+      'band-danger':  { problem: 'Royaltē could not confirm active user-generated content monetization coverage.',
+                        impact:  '→ Fan uploads, lyric videos, Shorts, and reposted content may not be monetized properly.' }
     }
   ];
 
-  // ── MODULE BARS — uniform "high = good, low = bad" display ──
-  // Backend returns risk-style scores (high = bad). Invert on the frontend
-  // so HIGH = HEALTHY everywhere in the UI. Band colors then come from the
-  // SAME getScoreBand thresholds used on the main Royaltē Score:
-  //   80–100 → green, 60–79 → orange, 0–59 → red
+  // ── MODULE BARS — uniform "high = more risk" display ──
+  // Backend returns risk-style scores (high = bad). Display raw, no inversion.
+  // Band colors come from getScoreBand on the SAME 4-tier scale used by the
+  // main Royaltē Risk Score:
+  //   0–30 → green, 31–60 → amber, 61–80 → warm-orange, 81–100 → red
   // Per-module color logic is identical to the score band logic — no exceptions.
   if (data.modules) {
     const modValues = Object.values(data.modules);
@@ -3102,21 +3198,22 @@ function showRealResults(data) {
     const BAND_COLOR = {
       'band-healthy': 'var(--grn)',
       'band-warning': 'var(--amb)',
+      'band-atrisk':  '#e08858',
       'band-danger':  'var(--red)'
     };
     modValues.forEach((mod, i) => {
       const el = modEls[i];
       if (!el) return;
-      // Invert: backend risk score → frontend health score, clamp to [0, 100]
+      // Raw risk score → display as-is. Higher = more risk. Clamp to [0, 100].
       const raw = (typeof mod.score === 'number') ? mod.score : Number(mod.score) || 0;
-      const display = Math.max(0, Math.min(100, 100 - raw));
+      const display = Math.max(0, Math.min(100, raw));
       const band = getScoreBand(display);
       const color = BAND_COLOR[band.className];
       const fill  = el.querySelector('.d-mod-fill');
       const num   = el.querySelector('.d-mod-score');
       const icon  = el.querySelector('.d-mod-icon');
       if (fill) { fill.style.width = display + '%'; fill.style.background = color; }
-      if (num)  { num.textContent  = display;       num.style.color       = color; }
+      if (num)  { num.textContent  = '+' + display + ' risk'; num.style.color = color; }
       if (icon) {                                    icon.style.background = color; }
       // Band-aware problem + impact copy
       const copyTable = MODULE_COPY[i];
