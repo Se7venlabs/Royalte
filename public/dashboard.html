@@ -407,9 +407,9 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 
       <header class="page-hd fade-in">
         <div class="page-hd-left">
-          <div class="welcome-eyebrow"><span class="blink">●</span> Live Monitoring</div>
-          <h1 class="welcome-h1">Welcome back, <span id="artist-name">—</span> <span class="wave">👋</span></h1>
-          <p class="welcome-sub" id="welcome-sub">Here's what we found in your royalty setup.</p>
+          <div class="welcome-eyebrow">○ Audit Active</div>
+          <h1 class="welcome-h1">Catalog audit for <span id="artist-name">—</span></h1>
+          <p class="welcome-sub" id="welcome-sub">Last scan completed —.</p>
         </div>
         <div class="page-hd-right">
           <a href="/" class="scan-btn">
@@ -485,25 +485,13 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
         </div>
       </section>
 
-      <!-- ─── VERIFIED STRIP ─── -->
-      <div class="verified-strip fade-in d2">
-        <span class="verified-strip-ico">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        </span>
-        <strong>Verified across 10+ data sources</strong>
-        <span class="dot-sep">·</span>
-        <span>No estimates</span>
-        <span class="dot-sep">·</span>
-        <span>No guesswork</span>
-      </div>
-
       <!-- ─── REVENUE + RECENT SCAN ─── -->
       <div class="grid-2">
         <!-- Revenue at Risk -->
         <section class="card fade-in d3">
           <div class="card-hd">
             <h2 class="card-title">
-              Estimated Unclaimed Royalties
+              Estimated Revenue at Risk
               <svg class="card-title-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             </h2>
             <button class="range-select">
@@ -552,7 +540,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             </div>
             <div class="rev-helper-t">
-              <strong>You could be losing thousands in unclaimed royalties.</strong> Fix the issues below to stop the leaks.
+              <strong>Your audit surfaced issues that may affect what you collect.</strong> Address them below to reduce risk in your royalty setup.
             </div>
           </div>
         </section>
@@ -639,7 +627,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
           <div class="card-hd">
             <h2 class="card-title">Action Plan</h2>
           </div>
-          <p class="card-sub">Fix these to recover your revenue</p>
+          <p class="card-sub">Address these to reduce risk in your royalty flow</p>
 
           <div class="action-locked-wrap" id="action-locked-wrap">
             <div class="action-list action-locked-preview" id="action-list">
