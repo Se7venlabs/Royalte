@@ -459,7 +459,20 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   .nav-beta{display:none;}
   .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
   .nav-right{gap:0;}
-  .hero{grid-template-columns:1fr;padding:84px 20px 50px;}.hero-right{display:none;}
+  .hero{grid-template-columns:1fr;padding:84px 20px 50px;}
+  /* Mobile scan visibility: render .hero-right (the scan dashboard) stacked
+     below .hero-left. Override the desktop slide-in-from-right animation
+     since the column now sits below rather than beside .hero-left. */
+  .hero-right{animation:fadeUp 0.8s ease 0.3s forwards;}
+  /* Decoder panel condensed on mobile: keep header + 4-row legend; hide the
+     explanatory body paragraph and the foot helper line to tighten the
+     left-column footprint before the dashboard stacks below. */
+  .scan-decoder{padding:16px 18px;}
+  .scan-decoder-body{display:none;}
+  .scan-decoder-foot{display:none;}
+  /* Tighten dashboard internal padding so the stacked column reads cleanly
+     at narrow widths. */
+  .dash-body{padding:14px;}
   #scan-tool{padding:60px 20px;}
   section{padding:60px 20px;}.steps{grid-template-columns:1fr;}.beta-grid-2{grid-template-columns:1fr;}
   #beta{padding-top:30px;}
