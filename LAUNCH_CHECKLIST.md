@@ -13,8 +13,7 @@ it's not in here, it's not tracked.
 
 The next 2-3 actionable items. Update this section every session.
 
-- [ ] **Mobile scan visibility (URGENT)** — Right column with score/banner/sections/findings/CTA is hidden at ≤900px (`.hero-right` `display:none`). Most artists scan on mobile and currently see nothing useful below the hero. Needs dedicated PR with mobile design pass.
-- [ ] **Block A · Auth foundation** — first thread to pull on dashboard wiring. No external dependency, unblocks B onward.
+- [ ] **Block A · Auth foundation** — next major workstream. No external dependency, unblocks B onward.
 - [ ] **Business foundation in flight** — LLC, Mercury, Stripe business account, TikTok. See Business foundation section.
 - [ ] **Legal pages drafting** — ToS, privacy, refund policy. Can run in parallel with Block A.
 
@@ -94,24 +93,6 @@ The next 2-3 actionable items. Update this section every session.
 
 ---
 
-## Mobile scan visibility (urgent, conversion-critical)
-
-Most artists scan from phones. The current `public/index.html` layout
-hides `.hero-right` at ≤900px, meaning mobile users see the hero,
-input, "Run Free Scan" button, and trust badges — but no scan results.
-No score. No banner. No section cards. No findings. No CTA. Discovered
-during PR #24 (feat/scan-ux-clarity) pre-flight.
-
-- [ ] Confirm intent: is mobile hiding intentional (mobile funnels to email PDF) or an unintentional pre-existing gap?
-- [ ] If unintentional: design a mobile presentation of scan results that preserves the v4 decoder panel + scoring vocabulary
-- [ ] Implement responsive layout for mobile scan view
-- [ ] Verify decoder panel position works in stacked mobile order (between hero and score card per v4 spec)
-- [ ] Consider mobile collapse pattern for decoder panel (accordion or condensed) — desktop-first locked, mobile pattern TBD
-- [ ] Verify "+N risk" treatment + section-card red-bar visuals render correctly on narrow viewports
-- [ ] Vercel preview check on real mobile device, not just devtools emulator
-
----
-
 ## Pre-launch (non-block) items
 
 Things that aren't in the block sequence but need to be done before June 1.
@@ -174,6 +155,25 @@ Polish refinements landed in second commit on same PR:
 - "elevated royalty and metadata risk" → "elevated risk to royalty collection"
 - Appended "and backend risk exposure" to decoder body second sentence
 - Reduced foot helper opacity to 0.7 so it reads as helper text below the legend
+
+### Mobile scan visibility — PR #26 (merged 2026-05-14)
+
+`.hero-right` was `display:none` at ≤900px, hiding the entire scan
+dashboard (score, banner, section cards, findings, CTA) from mobile
+users. Most artists scan from phones, so this was a conversion black
+hole on the most common device.
+
+Removed the display:none rule and let `.hero-right` stack naturally
+below `.hero-left` on mobile. Decoder panel condensed on mobile
+(header + 4-row legend kept; body paragraph and foot helper hidden).
+Producer photo kept visible as a visual divider between input section
+and stacked results section. Desktop slide-in-from-right animation
+swapped for fade-up on mobile so the now-stacked column animates in
+the correct direction. Internal dashboard padding tightened slightly
+for narrow widths.
+
+No backend changes. No new design tokens. All work inside the existing
+≤900px media query.
 
 ---
 
