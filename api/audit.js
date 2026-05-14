@@ -7,6 +7,7 @@ import { lookupByISRC } from './apple-music.js';
 import { randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { normalizeAuditResponse } from './lib/normalizeAuditResponse.js';
+import { validateAuditResponse } from './schema/auditResponse.js';
 import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib/rate-limit.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -31,7 +32,70 @@ function getAuditScansSupabase() {
   return createClient(url, key);
 }
 
-async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId) {
+// ─────────────────────────────────────────────────────────────────────────────
+// SCHEMA VIOLATION HANDLER
+// Env-aware failure mode for canonical-shape drift:
+//   - production / preview          → log + best-effort insert into
+//                                      schema_violations, then continue (the
+//                                      audit_scans insert still runs so
+//                                      user-facing scans never break)
+//   - anything else (dev/test/CI)   → re-throw the original AuditSchemaError so
+//                                      drift surfaces immediately in tests
+//
+// validateAuditResponse throws on the first failure (no collect mode), so
+// validation_errors is always a single-item array.
+// ─────────────────────────────────────────────────────────────────────────────
+async function handleSchemaViolation({ scanId, canonical, err }) {
+  const vercelEnv  = process.env.VERCEL_ENV || null;
+  const isProdLike = vercelEnv === 'production' || vercelEnv === 'preview';
+
+  const validationErrors = [{
+    name:    err.name,
+    message: err.message,
+    path:    err.path,
+    detail:  err.detail,
+  }];
+
+  console.error('[schema-violation]', JSON.stringify({
+    scan_id:             scanId,
+    vercel_env:          vercelEnv,
+    subject_artist_name: canonical?.subject?.artistName || null,
+    subject_artist_id:   canonical?.subject?.artistId   || null,
+    source_platform:     canonical?.source?.platform    || null,
+    validation_errors:   validationErrors,
+  }));
+
+  if (!isProdLike) {
+    // Dev / test / CI: surface the failure immediately. Do NOT persist.
+    throw err;
+  }
+
+  // Prod-like: best-effort insert into schema_violations. Secondary failures
+  // log but don't throw — the audit_scans insert downstream must still run.
+  try {
+    const supabase = getAuditScansSupabase();
+    if (!supabase) {
+      console.error('[schema-violation] schema_violations insert skipped: Supabase not configured');
+      return;
+    }
+    const { error } = await supabase.from('schema_violations').insert({
+      scan_id:             scanId,
+      vercel_env:          vercelEnv,
+      validation_errors:   validationErrors,
+      canonical_snapshot:  canonical,
+      subject_artist_name: canonical?.subject?.artistName || null,
+      subject_artist_id:   canonical?.subject?.artistId   || null,
+      source_platform:     canonical?.source?.platform    || null,
+    });
+    if (error) {
+      console.error('[schema-violation] schema_violations insert failed:', error.message);
+    }
+  } catch (insertErr) {
+    console.error('[schema-violation] schema_violations insert threw:', insertErr.message);
+  }
+}
+
+export async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId) {
   const supabase = getAuditScansSupabase();
   if (!supabase) {
     throw new Error('audit_scans persistence unavailable: Supabase not configured');
@@ -39,6 +103,15 @@ async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId) {
 
   // Pass handler-generated scanId in so canonical.scanId === scanId.
   const canonical = normalizeAuditResponse({ ...rawResponse, scanId, _originalUrl: originalUrl });
+
+  // VALIDATION GATE — fires before any DB write. handleSchemaViolation either
+  // logs + persists to schema_violations and returns (prod/preview), or
+  // re-throws the AuditSchemaError (dev/test/CI). See helper for env policy.
+  try {
+    validateAuditResponse(canonical);
+  } catch (err) {
+    await handleSchemaViolation({ scanId, canonical, err });
+  }
 
   const spotifyArtistId = rawResponse.artistId || null;
   const appleArtistId   = rawResponse.appleMusic?.artistId || null;
