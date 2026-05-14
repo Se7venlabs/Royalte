@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**Active task list:** See `LAUNCH_CHECKLIST.md` at repo root. Read it at the start of every session — it's the source of truth for what's on deck and what's left before the June 1, 2026 beta launch.
+
 ## What this is
 
 Royaltē is a music-royalty audit product. The repo bundles two things:
