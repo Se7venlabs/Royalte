@@ -35,4 +35,8 @@ jobs:
       - name: Run smoke test
         env:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
-        run: node scripts/smoke-test.mjs "${{ github.event.deployment_status.target_url }}"
+        # Hardcoded to the public custom domain. deployment_status.target_url
+        # returns the auth-protected vercel.app hash URL even for production
+        # deploys; the workflow filter above restricts to environment=Production
+        # so royalte.ai is always the correct target.
+        run: node scripts/smoke-test.mjs "https://royalte.ai"
