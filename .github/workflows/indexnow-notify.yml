@@ -1,0 +1,74 @@
+name: IndexNow notify
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/js/blog-posts.js'
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository (with history for diff)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # need previous commit for diff
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Detect new live blog URLs
+        id: detect
+        run: |
+          # Read both versions of the registry, extract URLs with status: "live"
+          # Output new URLs as a space-separated list
+
+          PREV_SHA=$(git rev-parse HEAD~1)
+          CURR_SHA=$(git rev-parse HEAD)
+
+          echo "Previous: $PREV_SHA"
+          echo "Current:  $CURR_SHA"
+
+          # Extract live URLs from current registry
+          CURR_URLS=$(node -e "
+            const file = require('fs').readFileSync('public/js/blog-posts.js', 'utf8');
+            const arrMatch = file.match(/const blogPosts = (\[[\s\S]*?\n\]);/);
+            if (!arrMatch) { console.error('Could not parse blog-posts.js'); process.exit(1); }
+            const posts = eval(arrMatch[1]);
+            const live = posts.filter(p => p.status === 'live').map(p => 'https://royalte.ai' + p.url);
+            console.log(live.join('\n'));
+          ")
+
+          # Extract live URLs from previous registry
+          git show ${PREV_SHA}:public/js/blog-posts.js > /tmp/prev-blog-posts.js
+          PREV_URLS=$(node -e "
+            const file = require('fs').readFileSync('/tmp/prev-blog-posts.js', 'utf8');
+            const arrMatch = file.match(/const blogPosts = (\[[\s\S]*?\n\]);/);
+            if (!arrMatch) { console.error('Could not parse previous blog-posts.js'); process.exit(1); }
+            const posts = eval(arrMatch[1]);
+            const live = posts.filter(p => p.status === 'live').map(p => 'https://royalte.ai' + p.url);
+            console.log(live.join('\n'));
+          ")
+
+          # Diff: URLs in current that aren't in previous
+          NEW_URLS=$(comm -23 <(echo "$CURR_URLS" | sort -u) <(echo "$PREV_URLS" | sort -u) | tr '\n' ' ')
+
+          echo "New live URLs detected: ${NEW_URLS:-<none>}"
+          echo "new_urls=${NEW_URLS}" >> $GITHUB_OUTPUT
+
+      - name: Notify IndexNow
+        if: steps.detect.outputs.new_urls != ''
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: node scripts/indexnow-notify.mjs ${{ steps.detect.outputs.new_urls }}
+
+      - name: No new URLs
+        if: steps.detect.outputs.new_urls == ''
+        run: echo "No new live blog URLs detected in this commit. Skipping IndexNow submission."
