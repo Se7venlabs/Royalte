@@ -14,7 +14,6 @@ it's not in here, it's not tracked.
 The next 2-3 actionable items. Update this section every session.
 
 - [ ] **Block A · Auth foundation** — first thread to pull. No external dependency, unblocks B onward.
-- [ ] **Decision: Free Scan locked-section UI treatment** — needs answer before Block B's tier-gating UI work.
 - [ ] **Business foundation in flight** — LLC, Mercury, Stripe business account, TikTok. See Business foundation section.
 - [ ] **Legal pages drafting** — ToS, privacy, refund policy. Can run in parallel with Block A.
 
@@ -46,7 +45,7 @@ The next 2-3 actionable items. Update this section every session.
 - [ ] No session → show free-scan-anonymous mode (limited visibility)
 - [ ] Session → fetch user's profile + tier + most recent scan
 - [ ] Replace mock data with real Supabase queries
-- [ ] Build tier-gating UI: locked sections look intentional, not broken
+- [ ] Build tier-gating UI: grayed-out cards with lock icon + "Unlock Full Audit $19.99" CTA per locked section (no blur, no hidden — show structure, not fake content)
 - [ ] "Unlock Full Audit" prompts on locked features for Free tier
 
 ## Block C — Stripe payment (2 days) — `BLOCKED: see Business foundation section (LLC + Mercury + Stripe account)`
@@ -120,14 +119,13 @@ Things that aren't in the block sequence but need to be done before June 1.
 
 These need answers before the blocks they affect can ship.
 
-1. **Free Scan locked-section UI** — blur + overlay, grayed cards, or hidden? (Affects Block B)
-2. **Stripe tax handling** — Stripe Tax or customer-provided? (Affects Block C)
-3. **Subscription cancellation UX** — immediate or end-of-period? (Affects Block C)
-4. **Monitoring cancellation data handling** — keep account at Full Audit tier, downgrade to Free, or delete after retention? (Affects Block C)
-5. **Failed Monitoring scan handling** — retry next day, skip to next week, email user? (Affects Block D)
-6. **Spotify URL change** — user-editable + triggers rescan, or locked at signup? (Affects Block F)
-7. **Stripe email vs Supabase Auth email** — auto-use Stripe email or let user choose at set-password? (Leaning: auto-use Stripe.) (Affects Block C)
-8. **Refund data handling** — keep scan, revoke access immediately, retention window? (Affects Block C + refund policy doc)
+1. **Stripe tax handling** — Stripe Tax or customer-provided? (Affects Block C)
+2. **Subscription cancellation UX** — immediate or end-of-period? (Affects Block C)
+3. **Monitoring cancellation data handling** — keep account at Full Audit tier, downgrade to Free, or delete after retention? (Affects Block C)
+4. **Failed Monitoring scan handling** — retry next day, skip to next week, email user? (Affects Block D)
+5. **Spotify URL change** — user-editable + triggers rescan, or locked at signup? (Affects Block F)
+6. **Stripe email vs Supabase Auth email** — auto-use Stripe email or let user choose at set-password? (Leaning: auto-use Stripe.) (Affects Block C)
+7. **Refund data handling** — keep scan, revoke access immediately, retention window? (Affects Block C + refund policy doc)
 
 ---
 
