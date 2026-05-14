@@ -15,7 +15,17 @@ The next 2-3 actionable items. Update this section every session.
 
 - [ ] **Block A · Auth foundation** — first thread to pull. No external dependency, unblocks B onward.
 - [ ] **Decision: Free Scan locked-section UI treatment** — needs answer before Block B's tier-gating UI work.
+- [ ] **Business foundation in flight** — LLC, Mercury, Stripe business account, TikTok. See Business foundation section.
 - [ ] **Legal pages drafting** — ToS, privacy, refund policy. Can run in parallel with Block A.
+
+---
+
+## Business foundation (pre-launch, gates Block C)
+
+- [ ] Setup LLC in Wyoming (Se7ven Labs / Royaltē entity)
+- [ ] Open Mercury business bank account (requires LLC formation docs + EIN)
+- [ ] Setup new Stripe business account under Royaltē (requires LLC + bank account)
+- [ ] Setup TikTok Business account (marketing channel — independent dependency)
 
 ---
 
@@ -39,7 +49,7 @@ The next 2-3 actionable items. Update this section every session.
 - [ ] Build tier-gating UI: locked sections look intentional, not broken
 - [ ] "Unlock Full Audit" prompts on locked features for Free tier
 
-## Block C — Stripe payment (2 days) — `BLOCKED: business registration pending (~mid-May 2026)`
+## Block C — Stripe payment (2 days) — `BLOCKED: see Business foundation section (LLC + Mercury + Stripe account)`
 
 - [ ] Create Stripe products + prices: `full_audit_one_time` ($19.99), `monitoring_monthly` ($29.99/mo)
 - [ ] Build `/api/create-checkout-session.js`
