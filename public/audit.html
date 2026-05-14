@@ -2316,7 +2316,7 @@ function renderExpandedFindings(flags) {
       return { emoji:'⚠️', impact:'Missing from Apple Music', explanation:"You're invisible on the second-largest streaming platform." };
     }
     if (lower.includes('isrc')) {
-      return { emoji:'💥', impact:'Track ISRC not registered', explanation:'Performance royalties may not route correctly without it.' };
+      return { emoji:'💥', impact:'Verified ISRC registration could not be confirmed.', explanation:'Missing ISRC data can create royalty matching and reporting issues across platforms.' };
     }
     if (lower.includes('catalog active for') || lower.includes('catalog active') || lower.includes('catalog age')) {
       const yearMatch = desc.match(/(\d+)\s*year/i);
@@ -2326,10 +2326,10 @@ function renderExpandedFindings(flags) {
       return { emoji:'⚠️', impact:'Not registered in MusicBrainz', explanation:"Publishing data can't be cross-referenced." };
     }
     if (lower.includes('wikipedia') || lower.includes('wikidata')) {
-      return { emoji:'⚠️', impact:'No Wikipedia presence', explanation:'Sync licensors often check Wikipedia before licensing.' };
+      return { emoji:'⚠️', impact:'No public artist authority signal detected.', explanation:'Public artist verification signals may influence sync research and licensing confidence.' };
     }
     if (lower.includes('genre')) {
-      return { emoji:'⚠️', impact:'Genre metadata missing', explanation:'Sync placements and discovery may be blocked.' };
+      return { emoji:'⚠️', impact:'Genre metadata missing', explanation:'Missing genre metadata may reduce playlisting, discovery, and sync categorization opportunities.' };
     }
     if (lower.includes('content id')) {
       return { emoji:'💥', impact:'Content ID not verified', explanation:'YouTube monetization status is unclear.' };
@@ -2489,8 +2489,8 @@ function renderIssues(flags) {
     if (lower.includes('isrc')) {
       return {
         emoji: '💥',
-        impact: 'Track ISRC not registered',
-        explanation: 'Performance royalties may not route correctly without it.'
+        impact: 'Verified ISRC registration could not be confirmed.',
+        explanation: 'Missing ISRC data can create royalty matching and reporting issues across platforms.'
       };
     }
     // Catalog age
@@ -2514,8 +2514,8 @@ function renderIssues(flags) {
     if (lower.includes('wikipedia') || lower.includes('wikidata')) {
       return {
         emoji: '⚠️',
-        impact: 'No Wikipedia presence',
-        explanation: 'Sync licensors often check Wikipedia before licensing.'
+        impact: 'No public artist authority signal detected.',
+        explanation: 'Public artist verification signals may influence sync research and licensing confidence.'
       };
     }
     // Genre metadata
@@ -2523,7 +2523,7 @@ function renderIssues(flags) {
       return {
         emoji: '⚠️',
         impact: 'Genre metadata missing',
-        explanation: 'Sync placements and discovery may be blocked.'
+        explanation: 'Missing genre metadata may reduce playlisting, discovery, and sync categorization opportunities.'
       };
     }
     // Content ID
