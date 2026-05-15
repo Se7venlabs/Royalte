@@ -17,6 +17,16 @@
 
 const blogPosts = [
   {
+    title: "The Silent Money Leaks Killing Independent Artists",
+    excerpt: "AI didn't break music's backend — it exposed how broken it already was. The metadata, publishing, and royalty leaks most artists never see.",
+    category: "AI Music",
+    date: "2026-05-15",
+    readTime: "9 min read",
+    slug: "silent-money-leaks-killing-independent-artists",
+    url: "/blog/silent-money-leaks-killing-independent-artists.html",
+    status: "live"
+  },
+  {
     title: "Using Suno AI? Read This Before Releasing Anything.",
     excerpt: "The ownership, royalty, distribution, and copyright risks artists need to understand before commercially releasing AI-generated music.",
     category: "AI Music",

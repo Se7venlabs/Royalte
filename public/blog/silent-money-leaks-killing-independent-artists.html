@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Silent Money Leaks Killing Independent Artists — Royaltē</title>
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://royalte.ai/blog/silent-money-leaks-killing-independent-artists.html">
+<meta property="og:title" content="The Silent Money Leaks Killing Independent Artists — Royaltē">
+<meta property="og:description" content="AI didn't break music's backend — it exposed how broken it already was. The metadata, publishing, and royalty leaks most artists never see.">
+<meta property="og:image" content="https://royalte.ai/blog/images/silent-money-leaks-killing-independent-artists-hero.jpg">
+<meta property="og:image:width" content="1536">
+<meta property="og:image:height" content="1024">
+<meta property="og:site_name" content="Royaltē">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Silent Money Leaks Killing Independent Artists — Royaltē">
+<meta name="twitter:description" content="AI didn't break music's backend — it exposed how broken it already was. The metadata, publishing, and royalty leaks most artists never see.">
+<meta name="twitter:image" content="https://royalte.ai/blog/images/silent-money-leaks-killing-independent-artists-hero.jpg">
+
+<meta name="description" content="AI didn't break music's backend — it exposed how broken it already was. The metadata, publishing, and royalty leaks most artists never see.">
+
+<link rel="canonical" href="https://royalte.ai/blog/silent-money-leaks-killing-independent-artists.html">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#8A5CFF">
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── ROOT TOKENS (mirrors index.html / blog.html — do not redefine in blog.css) ── */
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
+--pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.2);
+}
+
+/* ── BASE (matches index.html) ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
+
+/* ── NAV (matches index.html) ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
+.nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
+.nav-logo-mobile{display:none;}
+.nav-brand-link:hover .nav-logo{opacity:0.85;}
+.nav-right{display:flex;align-items:center;gap:28px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── FOOTER (matches index.html) ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-logo{height:72px;width:auto;display:block;margin-bottom:8px;}
+.f-logo-mobile{display:none;}
+.f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+/* ── MOBILE NAV / FOOTER (matches index.html) ── */
+@media (max-width:900px){
+  nav{padding:0 18px;height:64px;}
+  .nav-logo-full{display:none;}
+  .nav-logo-mobile{display:block;height:32px;}
+  .nav-links{display:none;}
+  .nav-beta{display:none;}
+  .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
+  .nav-right{gap:0;}
+  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+  .f-logo-full{display:none;}
+  .f-logo-mobile{display:block;height:48px;margin:0 auto 6px auto;}
+  .f-links{justify-content:center;}
+}
+</style>
+
+<link rel="stylesheet" href="/css/blog.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand-link" aria-label="Royaltē home">
+    <svg class="nav-logo nav-logo-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="nav-logo nav-logo-mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+      <text x="20" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/contact.html">Contact</a>
+      <a href="/faq.html">FAQ</a>
+      <a href="/blog.html" class="active">Learn</a>
+    </div>
+    <span class="nav-beta">// Beta</span>
+  </div>
+</nav>
+
+<main class="article-main">
+
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <span class="article-category">AI Music</span>
+      <h1 class="article-title">The Silent Money Leaks Killing Independent Artists</h1>
+      <p class="article-subtitle">PART 3 OF 4 — AI Music &amp; Royalties</p>
+      <div class="article-meta">2026-05-15 · 9 min read</div>
+    </header>
+
+    <p>Streaming numbers can look healthy while the systems underneath them quietly fail. Here is what most artists never see.</p>
+
+    <img class="article-hero-image" src="/blog/images/silent-money-leaks-killing-independent-artists-hero.jpg" alt="The Silent Money Leaks Killing Independent Artists" loading="eager">
+
+    <div class="article-intro">
+      <p>AI didn't create the music industry's backend problems.<br>It exposed how broken the system already was.</p>
+      <p>Every independent artist has felt the same quiet frustration. The streams are coming in. The songs are live. The numbers on the dashboard are moving. And yet the money never quite adds up the way it should.</p>
+      <p>Most artists assume that means they have a music problem — that they need a better song, a bigger playlist, a harder push. The truth is less obvious and harder to see. Most artists don't have a music problem. They have an infrastructure problem.</p>
+      <p>Three quiet assumptions cost independent artists money every single month:</p>
+      <ul>
+        <li>Streaming does not equal properly collected royalties.</li>
+        <li>Uploading does not equal clean registrations.</li>
+        <li>Releasing does not equal a protected catalog.</li>
+      </ul>
+      <p>None of that shows up on a streaming dashboard. It lives one layer underneath — in the metadata, the registrations, and the rights infrastructure most artists never look at until something breaks.</p>
+    </div>
+
+    <!-- Mid-article CTA — baked in, do not edit per article -->
+    <aside class="mid-cta" aria-label="Run a free Royaltē scan">
+      <div class="mid-cta-headline">Think your royalties might be leaking because of metadata, publishing, or missing registrations?</div>
+      <a class="mid-cta-btn" href="/#scan-tool">Run Your Free Royaltē Scan →</a>
+    </aside>
+
+    <div class="article-body">
+
+      <h2>Your Song Can Stream Millions Of Times And Still Be Broken</h2>
+
+      <p>Here is the uncomfortable part. A song can perform well and still be quietly broken underneath.</p>
+
+      <p>Streaming royalties don't travel in a straight line from a listener to an artist. They move through a long, fragmented payout chain — distributors, digital service providers, collection societies, publishers, and administrators — and every handoff in that chain depends on the data attached to the recording.</p>
+
+      <p>When that data is inconsistent, money slows down or stops:</p>
+
+      <ul>
+        <li>Metadata mismatches between the recording and its registration</li>
+        <li>Missing publishing information on songs that are clearly generating revenue</li>
+        <li>Recordings that never get matched to the right rights holder</li>
+        <li>Territory gaps, where a song earns in countries it was never properly registered in</li>
+        <li>Incorrect or incomplete registrations that route royalties to the wrong place — or nowhere</li>
+      </ul>
+
+      <p>The emotional anchor most artists carry is simple: "If it's on Spotify, I'm covered." It feels true. The song is live, it's earning, the platform clearly knows it exists.</p>
+
+      <p>But being live on a platform only confirms that the platform can play the song. It says nothing about whether every royalty that song generates is being matched, accounted for, and routed correctly underneath.</p>
+
+      <p>A song can stream millions of times and still leak money the entire way.</p>
+
+      <h2>Most Artists Don't Even Know What They're Missing</h2>
+
+      <p>The hardest leaks to spot are the ones you can't see — because you never knew the money was supposed to exist in the first place.</p>
+
+      <p>A modern recording can generate royalties from far more sources than most independent artists ever account for:</p>
+
+      <ul>
+        <li><strong>SoundExchange</strong> — digital performance royalties for recordings, which sit completely separate from streaming payouts</li>
+        <li><strong>The MLC</strong> — the Mechanical Licensing Collective, handling mechanical royalties many DIY artists never register to collect</li>
+        <li><strong>Publishing administration</strong> — the songwriting side of a release, a different income stream from the recording itself</li>
+        <li><strong>Neighboring rights</strong> — performance royalties tied to the recording in territories around the world</li>
+        <li><strong>PRO registrations</strong> — performance rights organizations that pay songwriters, but only for works that are actually registered</li>
+      </ul>
+
+      <p>Then there is the data noise that quietly corrupts all of it:</p>
+
+      <ul>
+        <li>Duplicate versions of the same song competing against each other inside collection databases</li>
+        <li>Contributor mismatches, where the credited names don't line up across systems</li>
+      </ul>
+
+      <p>You can't claim what you don't know exists. And you can't fix a gap you've never been shown. Most artists aren't losing money because they did something wrong — they're losing it because no one ever handed them the map.</p>
+
+      <h2>Metadata Is The New Management</h2>
+
+      <p>There used to be a buffer between artists and all of this.</p>
+
+      <p>In the old industry, a label was an infrastructure company as much as a marketing one. Behind the scenes, staff handled registrations, publishing administration, metadata, royalty accounting, rights management, and catalog upkeep. The artist made music. The system handled the system.</p>
+
+      <p>That buffer is gone for most independent artists. The DIY era didn't just remove the gatekeepers — it removed the back office. Every independent artist is now running a mini-label, whether they realize it or not.</p>
+
+      <p>And a single modern release quietly demands all of this:</p>
+
+      <ul>
+        <li>Distribution across dozens of platforms and territories</li>
+        <li>Metadata accuracy across every one of them</li>
+        <li>Publishing setup and songwriter registration</li>
+        <li>Rights and ownership documentation</li>
+        <li>Collection-society registrations</li>
+        <li>Monetization and Content ID management</li>
+        <li>And now AI-assisted releases, which add new questions about ownership and origin</li>
+      </ul>
+
+      <p>Most artists are carrying all of that without ever being told it became their job. They think they signed up to make music. They actually signed up to operate infrastructure.</p>
+
+      <blockquote>Metadata is the new management.</blockquote>
+
+      <p>The work a manager and a label's back office used to absorb hasn't disappeared. It just moved — quietly, completely — onto the artist. And it now lives in the metadata.</p>
+
+      <h2>Broken Metadata Creates Broken Money</h2>
+
+      <p>Most artists think of metadata as paperwork — the boring fields you fill in on the way to hitting "release." That mental model is exactly why money leaks.</p>
+
+      <p>Metadata isn't admin. It's the routing layer for every dollar a song earns. Here is what breaks it:</p>
+
+      <ul>
+        <li><strong>ISRC conflicts</strong> — the same recording carrying multiple codes, or codes that collide with other releases</li>
+        <li><strong>Duplicate releases</strong> — the same song uploaded more than once, splitting its own earning history</li>
+        <li><strong>Inconsistent artist naming</strong> — small spelling and formatting differences that read as different artists to collection systems</li>
+        <li><strong>Songwriter mismatches</strong> — credited writers that don't match across publishing and PRO databases</li>
+        <li><strong>Bad splits</strong> — ownership percentages that don't add up, or were never documented at all</li>
+        <li><strong>Incorrect contributor data</strong> — producers, features, and writers logged wrong or left off entirely</li>
+        <li><strong>Publishing gaps</strong> — songs earning on the recording side with no publishing registration behind them</li>
+      </ul>
+
+      <p>Every one of those is a place where money either slows down, routes to the wrong party, or never gets accounted for at all.</p>
+
+      <p>So metadata deserves a more honest definition. It is money routing. It is ownership evidence. It is the infrastructure your entire catalog runs on.</p>
+
+      <blockquote>Broken metadata creates broken money.</blockquote>
+
+      <h2>The Music Industry Was Never Built For DIY Scale</h2>
+
+      <p>Step back, and the real problem comes into focus. None of this infrastructure was designed for one person to run alone.</p>
+
+      <p>The royalty system, the registration system, the publishing system, the rights system — they were all built in an era when teams of specialists sat between the artist and the machinery. The complexity was always there. It was just somebody else's job.</p>
+
+      <p>Now a single independent artist is expected to be the recording artist, the songwriter, the marketer, the distributor, the publisher, the rights manager, and the metadata administrator — often while releasing music faster than any label ever did.</p>
+
+      <p>Artists are becoming businesses overnight without ever being handed a business's tools. And the honest realization at the end of that thought is uncomfortable: no one can manually track all of this forever. Spreadsheets don't scale. Memory doesn't scale. Hoping the data is fine doesn't scale.</p>
+
+      <p>Artists think they have a music problem. They actually have a systems problem.</p>
+
+      <h2>Fast Releases Create Fragile Catalogs</h2>
+
+      <p>Bring it back to where the AI era is pushing all of this.</p>
+
+      <p>Music has never been faster to make or easier to release. AI-assisted production, instant distribution, and frictionless uploads mean an artist can go from idea to live release in a single afternoon.</p>
+
+      <p>That speed is genuinely exciting. But speed without infrastructure carries a cost:</p>
+
+      <ul>
+        <li>Fast releases that skip registration and publishing setup entirely</li>
+        <li>Distributor uploads pushed live without verifying the metadata underneath</li>
+        <li>AI-assisted production that adds new ownership and origin questions</li>
+        <li>Uploads with no documentation of who created what</li>
+        <li>Metadata shortcuts taken to ship faster, then never revisited</li>
+      </ul>
+
+      <p>Each shortcut is small. The catalog they add up to is not. A large catalog built on rushed, undocumented, inconsistent data isn't an asset — it's a fragile structure waiting for a dispute, an audit, or a missed payment to expose it.</p>
+
+      <blockquote>Fast music with broken infrastructure becomes liability.</blockquote>
+
+      <p>The artists who treat speed and structure as opposites will keep producing fragile catalogs. The ones who pair them will own something that lasts. The future belongs to clean catalogs.</p>
+
+      <p class="article-closer">The artists who survive the next era won't just make great music.<br>
+      They'll build clean catalogs.<br>
+      Clean metadata.<br>
+      Clean ownership.<br>
+      Clean systems.<br>
+      Because the modern music industry is becoming infrastructure-driven.<br>
+      And most artists don't even realize they're operating broken systems.</p>
+
+      <p class="article-closer"><em>Royaltē. Built by artists, for artists.</em></p>
+    </div>
+
+    <!-- Final CTA — Founding Artist Beta framing, baked in, do not edit per article -->
+    <aside class="final-cta" aria-label="Claim a Founding Artist Beta spot">
+      <h2 class="final-cta-headline">Your music may not be the problem. Your backend might be broken.</h2>
+      <p class="final-cta-body">Founding Artist Beta is now open. Royaltē helps artists and rights holders identify metadata gaps, registration issues, platform coverage problems, and royalty risk signals before more money slips through the cracks.</p>
+      <a class="final-cta-btn" href="/#scan-tool">Claim One Of 1,000 Founding Artist Spots →</a>
+    </aside>
+
+  </article>
+
+  <section class="related-articles" aria-label="Related articles">
+    <h3 class="related-h3">Related Articles</h3>
+    <div id="related-grid" class="related-grid"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <svg class="f-logo f-logo-full" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <defs>
+        <linearGradient id="f-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#f-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#f-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#f-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="f-logo f-logo-mobile" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </div>
+  <div class="f-copy">© 2026 Royaltē. Powered by Se7ven Labs LLC. · info@royalte.ai</div>
+  <div class="f-links">
+    <a href="/contact.html">Contact</a>
+    <a href="/faq.html">FAQ</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+  </div>
+</footer>
+
+<!-- Render related articles from the canonical registry, excluding the current article. -->
+<script src="/js/blog-posts.js"></script>
+<script>
+(function(){
+  var currentSlug = 'silent-money-leaks-killing-independent-artists';
+  var grid = document.getElementById('related-grid');
+  if (!grid || !Array.isArray(window.blogPosts)) return;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  var others = window.blogPosts.filter(function(p){ return p.slug !== currentSlug; }).slice(0, 4);
+  if (others.length === 0) { grid.parentNode.style.display = 'none'; return; }
+
+  grid.innerHTML = others.map(function(post){
+    var isLive = post.status === 'live';
+    var cls = 'related-card' + (isLive ? '' : ' coming-soon');
+    var disabled = isLive ? '' : ' aria-disabled="true"';
+    var catLabel = isLive ? post.category : (post.category + ' · Coming soon');
+    return '<a class="' + cls + '" href="' + esc(post.url) + '"' + disabled + '>' +
+             '<span class="related-cat">' + esc(catLabel) + '</span>' +
+             '<div class="related-title">' + esc(post.title) + '</div>' +
+           '</a>';
+  }).join('');
+})();
+</script>
+
+</body>
+</html>
