@@ -175,6 +175,79 @@ for narrow widths.
 No backend changes. No new design tokens. All work inside the existing
 ≤900px media query.
 
+### Blog Part 3 published + blog index cards synced — PR #28 (merged 2026-05-15)
+
+Published Part 3 of the AI Music & Royalties series ("The Silent Money
+Leaks Killing Independent Artists") to the Knowledge Hub. Article URL:
+/blog/silent-money-leaks-killing-independent-artists.html.
+
+6 body sections, 4 required positioning lines preserved verbatim,
+locked baked-in CTAs (mid-cta + Founding Artist final-cta), per-article
+hero used as og:image (override from generic /og-image.jpg used on the
+3 existing articles). IndexNow auto-fired, sitemap entry added,
+production smoke-test green.
+
+Scope expanded mid-PR to fix three stale cards in public/blog.html
+that surfaced during discovery: added Part 1 card (was completely
+missing from index despite article being live), fixed "Why Your
+Spotify Streams" card (broken slug link + stale coming-soon status).
+
+### Blog index drift guard — PR #29 (merged 2026-05-15)
+
+public/blog.html hand-maintains the article card grid in parallel
+with public/js/blog-posts.js (the canonical registry that drives
+related-articles blocks + IndexNow). Nothing enforced sync between
+the two, and they drifted repeatedly — Part 3's PR had to fix three
+stale cards at once.
+
+Considered moving the grid to JS rendering, but the repo deliberately
+keeps cards as static HTML for non-JS-executing AI crawler visibility
+(ChatGPT, Perplexity, Bing, Claude) — documented in blog.html,
+blog-posts.js, and blog/README.md. Kept the static cards and added a
+build-time drift check instead.
+
+tests/blog-index-sync-test.mjs parses both files and asserts a 1:1
+match on title, excerpt, category, status, and meta. Errors name the
+slug, the field, and both values with a fix instruction. Wired into
+the existing "Run pipeline test" required check, so branch protection
+blocks merges on drift with no ruleset change.
+
+Result: drift bug class is permanently closed without trading off
+AI-crawler visibility.
+
 ---
 
-*Last updated: 2026-05-14*
+## Follow-ups (queued, not yet on On Deck)
+
+Items surfaced during today's session that need PRs but aren't on the
+critical path:
+
+### Blog SEO + content hygiene
+
+- [ ] **Embedded "Metadata Is The New Management" mid-article image for Part 3** — Part 3 source brief called for a second image embedded in Section 3. Asset doesn't exist yet. Follow-up PR once the image is generated/sourced.
+
+- [ ] **og:image backfill on the 3 existing articles** — Part 3 uses a per-article hero as og:image. The other 3 articles (suno-ai-release-risks, your-backend-might-be-broken, why-your-spotify-streams-dont-match-your-money) still point at generic `/og-image.jpg`. Small PR — one meta tag change per article.
+
+- [ ] **Sitemap.xml backfill** — Part 3 added itself but two existing articles (suno-ai-release-risks and why-your-spotify-streams-dont-match-your-money) are missing from sitemap.xml. Two URLs to add.
+
+- [ ] **public/blog/README.md "Locked Article Order" update** — predates the AI Music & Royalties series. Doc still lists Backend/Spotify/Metadata/MLC/SoundExchange roadmap with no AI series. Planning doc, not user-facing — refresh when convenient.
+
+- [ ] **Part 2 of AI Music & Royalties series doesn't exist** — series is currently 1, _, 3 of 4. Reader who lands on Part 3 sees the series numbering and Part 2 simply doesn't appear in related-articles (registry-driven). Content-pipeline gap. Needs writing.
+
+### Blog infrastructure
+
+- [ ] **Blog CTA library commit** — `~/Downloads/blog-cta-variants.md` contains 12 CTA variants (6 cold + 6 warm reader, with usage notes and SEO keyword pairings). Should be committed to the repo at `/docs/blog-cta-variants.md` as a reference doc for future article briefs and the post-beta CTA evolution.
+
+### Mobile + responsive
+
+- [ ] **public/audit.html `.hero-right` mobile audit** — PR #26 fixed the same `.hero-right` `display:none` at ≤900px pattern in public/index.html. The audit.html file has a similar structure and may have the same bug. Phase 1 discovery + possible mobile fix PR if the gap is real.
+
+### Pre-launch (CTA strategy)
+
+- [ ] **Blog CTA audit** — decide steady-state post-beta CTA copy (the current Founding Artist 1,000 Spots scarcity play expires at launch). Use the CTA library variants to choose. Update template once, propagates to all articles.
+
+- [ ] **/pricing.html page** — doesn't exist yet, must be built before warm-reader CTAs can go live. Pre-launch dependency.
+
+---
+
+*Last updated: 2026-05-15*
