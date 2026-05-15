@@ -15,6 +15,8 @@
      - One-line swap: see TODO comment in init()
    ═══════════════════════════════════════════════════════════════════ */
 
+import { getSupabase } from '/js/supabase-client.js';
+
 
 /* ─────────────────────────────────────────────
    DATA CONTRACT
@@ -764,6 +766,10 @@ function getDashboardData() {
   }
 }
 
+// TODO(post-Chunk-3): delete mapScanToDashboard() — dead since Chunk 3.
+// The dashboard now loads audit_scans.payload (canonical AuditResponse) via
+// mapCanonicalToDashboard(). This raw-shape mapper and its localStorage
+// loader (getDashboardData / mockData) are no longer on the load path.
 /**
  * Transform the audit.js response into the dashboard data contract.
  * Defensively tolerates missing fields — every output property has a
@@ -890,6 +896,129 @@ function mapScanToDashboard(audit) {
     platforms:  platformList,
     platformsConnected: platformList.length,
     platformsTotal:     totalAvailable
+  };
+}
+
+/**
+ * Transform a canonical AuditResponse (audit_scans.payload, schema v1.0.0)
+ * into the dashboard data contract. This is the Chunk 3 load path — the
+ * dashboard reads the user's latest scan from Supabase, not localStorage.
+ * Reuses the shared mapping helpers below.
+ *
+ * @param {Object} canonical - audit_scans.payload (canonical AuditResponse)
+ * @returns {DashboardData}
+ */
+function mapCanonicalToDashboard(canonical) {
+  canonical = canonical || {};
+  const subject   = canonical.subject  || {};
+  const scoreObj  = canonical.score    || {};
+  const modules   = canonical.modules && typeof canonical.modules === "object" ? canonical.modules : {};
+  const platforms = canonical.platforms && typeof canonical.platforms === "object" ? canonical.platforms : {};
+  const issuesRaw = Array.isArray(canonical.issues) ? canonical.issues : [];
+
+  // ── score ────────────────────────────────────
+  const score = clamp(Math.round(Number(scoreObj.overall) || 0), 0, 100);
+  const scoreHeadline = headlineForScore(score);
+
+  // ── revenue risk (Path B: tier-based ranges, not exact $) ─
+  const riskTier = mapRiskTier(scoreObj.riskLevel || riskFromScore(score));
+  const revenueRisk = {
+    range: revenueRangeForTier(riskTier),
+    tier: riskTier,
+    tierLabel: riskTier.charAt(0).toUpperCase() + riskTier.slice(1),
+    confidence: "Moderate",
+    note: "Exact exposure breakdown requires full audit"
+  };
+
+  // ── stats ────────────────────────────────────
+  const issuesFound = issuesRaw.length;
+  const modScores = Object.values(modules).map(m => Number(m && m.score) || 0);
+  const thingsWorking = modScores.filter(s => s >= 75).length * 2;
+
+  // ── recent scan dates ────────────────────────
+  const scannedAt = canonical.scannedAt ? new Date(canonical.scannedAt) : new Date();
+  const next = new Date(scannedAt.getTime()); next.setDate(next.getDate() + 30);
+
+  // ── identity ─────────────────────────────────
+  const spotifyOk = (platforms.spotify    || {}).availability === "VERIFIED";
+  const appleOk   = (platforms.appleMusic || {}).availability === "VERIFIED";
+  let resolvedFrom = "spotify";
+  if (spotifyOk && appleOk)        resolvedFrom = "spotify_and_apple";
+  else if (appleOk && !spotifyOk)  resolvedFrom = "apple_music";
+  const identity = {
+    artistName:     subject.artistName || null,
+    artistImage:    null,
+    sourcePlatform: spotifyOk ? "spotify" : (appleOk ? "apple_music" : "spotify"),
+    resolvedFrom:   resolvedFrom,
+    platforms: { spotify: spotifyOk, appleMusic: appleOk },
+    scanStatus:     spotifyOk ? "verified" : (appleOk ? "limited" : "verified")
+  };
+
+  // ── trend (Path B: tier-based silhouette) ────
+  const trend = buildTrendFromCurrentTier(riskTier);
+
+  // ── issues + action plan ─────────────────────
+  const issues = issuesRaw.slice(0, 5).map((it, i) => {
+    const sev = normalizeSeverity(it.severity);
+    return {
+      id:          it.id || ("i" + (i + 1)),
+      title:       it.title || "Issue detected",
+      desc:        it.detail || it.title || "—",
+      severity:    sev,
+      impactLabel: impactLabelForSeverity(sev),
+      icon:        iconKeyForFlag(it)
+    };
+  });
+
+  const actionPlan = issuesRaw.slice(0, 5).map((it, i) => ({
+    step:     i + 1,
+    title:    actionTitleFromFlag(it),
+    meta:     it.moduleName || "—",
+    severity: normalizeSeverity(it.severity)
+  }));
+
+  // ── platforms grid ───────────────────────────
+  const PLAT_META = {
+    spotify:    { key: "spotify",    name: "Spotify" },
+    appleMusic: { key: "apple",      name: "Apple Music" },
+    youtube:    { key: "youtube",    name: "YouTube" },
+    soundcloud: { key: "soundcloud", name: "SoundCloud" },
+    deezer:     { key: "deezer",     name: "Deezer" },
+    tidal:      { key: "tidal",      name: "Tidal" }
+  };
+  const platformList = [];
+  Object.keys(PLAT_META).forEach(k => {
+    const p = platforms[k];
+    if (p && p.availability === "VERIFIED") {
+      platformList.push({ key: PLAT_META[k].key, name: PLAT_META[k].name, status: "connected" });
+    }
+  });
+  const platformsTotal = Object.keys(platforms).length || 15;
+
+  // ── final assembly ───────────────────────────
+  return {
+    user: {
+      firstName: firstWord(identity.artistName) || "there",
+      fullName:  identity.artistName || "Artist",
+      plan:      "Free Scan",
+      verified:  identity.scanStatus === "verified",
+      notifications: 0
+    },
+    score: { value: score, headline: scoreHeadline },
+    revenueRisk,
+    stats: { issuesFound, thingsWorking },
+    recentScan: {
+      dateLabel:     formatScanDate(scannedAt),
+      nextDateLabel: formatNextDate(next),
+      sourcesCount:  10
+    },
+    identity,
+    trend,
+    issues,
+    actionPlan,
+    platforms:  platformList,
+    platformsConnected: platformList.length,
+    platformsTotal:     platformsTotal
   };
 }
 
@@ -1064,14 +1193,10 @@ function formatNextDate(d) {
 
 
 /* ─────────────────────────────────────────────
-   INIT
+   INIT — auth-gated; loads the user's latest scan
    ───────────────────────────────────────────── */
 
-function init() {
-  // V1 data source: localStorage scan handoff with mock fallback.
-  // V2 will replace this with /api/dashboard fetch.
-  const data = getDashboardData();
-
+function renderAll(data) {
   renderSidebar(data);
   renderHeader(data);
   renderHeroBanner(data);
@@ -1082,8 +1207,70 @@ function init() {
   renderIssues(data);
   renderActionPlan(data);
   renderPlatforms(data);
-
   wireInteractions();
+}
+
+function renderEmptyState() {
+  const main = document.querySelector(".main");
+  if (!main) return;
+  main.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;gap:14px;padding:40px;">
+      <h1 style="font-family:'Rajdhani',sans-serif;font-size:28px;text-transform:uppercase;letter-spacing:0.04em;margin:0;">No scans yet</h1>
+      <p style="opacity:0.7;margin:0;">Run your first catalog audit to see your dashboard.</p>
+      <a href="/" class="scan-btn">Run a scan</a>
+    </div>`;
+}
+
+async function loadLatestScan(supabase, userId) {
+  const { data: scans, error } = await supabase
+    .from("audit_scans")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  if (error) {
+    console.error("[dashboard] scan fetch failed", error);
+    return null;
+  }
+  return (scans && scans.length) ? scans[0] : null;
+}
+
+function wireSignOut(supabase) {
+  const btn = document.getElementById("sign-out-btn");
+  if (!btn) return;
+  btn.addEventListener("click", async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.error("[dashboard] sign-out failed", e);
+    }
+    window.location.href = "/";
+  });
+}
+
+async function init() {
+  // Auth gate — no active session means no dashboard. Redirect home.
+  const supabase = getSupabase();
+  if (!supabase) { window.location.href = "/"; return; }
+
+  let session = null;
+  try {
+    const res = await supabase.auth.getSession();
+    session = res.data.session;
+  } catch (e) {
+    console.error("[dashboard] getSession failed", e);
+  }
+  if (!session) { window.location.href = "/"; return; }
+
+  wireSignOut(supabase);
+
+  // Load the user's latest scan and render real data (not mock).
+  const scan = await loadLatestScan(supabase, session.user.id);
+  if (!scan || !scan.payload) {
+    renderEmptyState();
+    return;
+  }
+  renderAll(mapCanonicalToDashboard(scan.payload));
 }
 
 if (document.readyState === "loading") {

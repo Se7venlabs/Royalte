@@ -8,10 +8,11 @@
 //   1. supabase-js (detectSessionInUrl) exchanges the hash for a session
 //   2. if the user's metadata carries a session_id, call the
 //      migrate_anonymous_scans RPC to claim their anonymous scan
-//   3. show a static "Welcome to Royaltē OS" holding page — no redirect
+//   3. play the cinematic initialization sequence (5-step checkmark
+//      progression), then redirect to /dashboard.html
 //
-// Chunk 3 evolves this same handler into the cinematic initialization
-// sequence (checkmark boot). The route stays; only the page body changes.
+// On any auth/session failure the sequence does not run — the page shows a
+// "Verification failed" error state instead.
 
 export default function handler(req, res) {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -19,7 +20,7 @@ export default function handler(req, res) {
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Welcome to Royaltē OS</title>
+<title>Initializing Royaltē OS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,8 +28,8 @@ export default function handler(req, res) {
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Space+Grotesk:wght@400;500&family=Space+Mono&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#03030a; --text:#e8e4f4; --muted:#b0abd0;
-    --pur:#8a5cff; --pnk:#e040c8; --red:#f05060;
+    --bg:#03030a; --text:#e8e4f4; --muted:#8480a8;
+    --pur:#8a5cff; --pnk:#e040c8; --grn:#40f0a0; --red:#f05060;
   }
   *{box-sizing:border-box;}
   body{
@@ -44,45 +45,76 @@ export default function handler(req, res) {
     background:linear-gradient(135deg,var(--pur),var(--pnk));
     -webkit-background-clip:text; background-clip:text;
     -webkit-text-fill-color:transparent;
-    margin-bottom:28px;
+    margin-bottom:24px;
   }
   h1{
     font-family:'Rajdhani',sans-serif; font-weight:700;
-    font-size:30px; letter-spacing:0.06em; text-transform:uppercase;
-    margin:0 0 12px; line-height:1.15;
+    font-size:28px; letter-spacing:0.06em; text-transform:uppercase;
+    margin:0; line-height:1.15;
   }
-  p{ font-size:14px; color:var(--muted); margin:0; line-height:1.6; }
-  .err{ color:var(--red); }
-  .spinner{
-    width:26px; height:26px; margin:0 auto 22px;
-    border:2px solid rgba(138,92,255,0.25);
-    border-top-color:var(--pur); border-radius:50%;
-    animation:spin 0.8s linear infinite;
+  .steps{
+    list-style:none; margin:30px 0 0; padding:0;
+    display:inline-block; text-align:left;
   }
-  .spinner.hidden{ display:none; }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .step{
+    display:flex; align-items:center; gap:12px;
+    font-family:'Space Mono',monospace; font-size:13px; letter-spacing:0.03em;
+    color:var(--muted); margin:12px 0;
+    opacity:0.55; transition:opacity 0.3s ease, color 0.3s ease;
+  }
+  .step-marker{
+    width:18px; height:18px; flex-shrink:0;
+    border:1.5px solid var(--muted); border-radius:3px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; line-height:1; color:#fff;
+    transition:border-color 0.3s ease, background 0.3s ease;
+  }
+  .step.active{ opacity:1; }
+  .step.active .step-marker{
+    border-color:var(--pur);
+    animation:markerPulse 1s ease-in-out infinite;
+  }
+  .step.done{ opacity:1; color:var(--text); }
+  .step.done .step-marker{
+    border-color:transparent;
+    background:linear-gradient(135deg,var(--pur),var(--pnk));
+  }
+  @keyframes markerPulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(138,92,255,0.45); }
+    50%{ box-shadow:0 0 0 6px rgba(138,92,255,0); }
+  }
+  .err{ color:var(--red); font-size:14px; line-height:1.6; margin:20px 0 0; }
+  [hidden]{ display:none !important; }
 </style>
 </head>
 <body>
 <div class="box">
   <div class="brand">Royaltē OS</div>
-  <div class="spinner" id="spinner"></div>
-  <h1 id="headline">Signing you in</h1>
-  <p id="status">Verifying your secure link…</p>
+  <h1 id="headline">Initializing Royaltē OS</h1>
+  <ul class="steps" id="steps">
+    <li class="step" data-step="0"><span class="step-marker"></span><span>Artist profile mapped</span></li>
+    <li class="step" data-step="1"><span class="step-marker"></span><span>Platform coverage analyzed</span></li>
+    <li class="step" data-step="2"><span class="step-marker"></span><span>Backend risk baseline generated</span></li>
+    <li class="step" data-step="3"><span class="step-marker"></span><span>Revenue-risk profile created</span></li>
+    <li class="step" data-step="4"><span class="step-marker"></span><span>Catalog visibility initialized</span></li>
+  </ul>
+  <p class="err" id="error" hidden></p>
 </div>
 <script type="module">
 import { getSupabase } from '/js/supabase-client.js';
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 (async () => {
-  const spinner = document.getElementById('spinner');
   const headline = document.getElementById('headline');
-  const status = document.getElementById('status');
+  const stepsEl = document.getElementById('steps');
+  const errorEl = document.getElementById('error');
 
   function fail(msg) {
-    spinner.classList.add('hidden');
-    headline.textContent = 'Something went wrong';
-    status.textContent = msg;
-    status.className = 'err';
+    stepsEl.hidden = true;
+    headline.textContent = 'Verification failed';
+    errorEl.textContent = msg;
+    errorEl.hidden = false;
   }
 
   const supabase = getSupabase();
@@ -93,7 +125,7 @@ import { getSupabase } from '/js/supabase-client.js';
 
   // detectSessionInUrl (set in createClient) consumes the hash on load.
   // Give it a tick to settle, then read the session.
-  await new Promise(r => setTimeout(r, 150));
+  await sleep(150);
 
   let session = null;
   try {
@@ -105,7 +137,7 @@ import { getSupabase } from '/js/supabase-client.js';
   }
 
   if (!session) {
-    fail('Verification failed. Please request a new link from the homepage.');
+    fail('Your secure link could not be verified. Please request a new one from the homepage.');
     return;
   }
 
@@ -125,9 +157,20 @@ import { getSupabase } from '/js/supabase-client.js';
     }
   }
 
-  spinner.classList.add('hidden');
-  headline.textContent = 'Welcome to Royaltē OS';
-  status.textContent = 'Your account is ready — your audit workspace is initializing.';
+  // Cinematic initialization sequence — each step holds active for 600ms,
+  // then completes. ~4s total from load to dashboard redirect; deliberately
+  // brief — users coming back from email want momentum.
+  const steps = Array.from(stepsEl.querySelectorAll('.step'));
+  for (const step of steps) {
+    step.classList.add('active');
+    await sleep(600);
+    step.classList.remove('active');
+    step.classList.add('done');
+    step.querySelector('.step-marker').textContent = '✓';
+  }
+
+  await sleep(600);
+  window.location.href = '/dashboard.html';
 })();
 </script>
 </body>
