@@ -1167,6 +1167,17 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 .d-conversion-email::placeholder{
   color:var(--muted);
 }
+.d-conversion-status{
+  font-family:'Space Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.04em;
+  text-align:center;
+  margin-top:8px;
+  min-height:18px;
+  color:var(--muted);
+}
+.d-conversion-status.success{ color:var(--grn); }
+.d-conversion-status.error{ color:var(--red); }
 .d-conversion-subtext{
   font-family:'Space Mono',monospace;
   font-size:11px;
@@ -2153,10 +2164,12 @@ body.menu-locked {
               autocomplete="email"
               required
             />
-            <button class="d-conversion-btn" type="button" onclick="openAuditModal()">
+            <button class="d-conversion-btn" id="continue-inside-os-btn" type="button">
               Claim Free Audit &amp; Enter Royaltē OS →
             </button>
           </div>
+
+          <div class="d-conversion-status" id="continue-inside-os-status" role="status" aria-live="polite"></div>
 
           <div class="d-conversion-subtext">
             No password required. Secure magic-link access.
@@ -2619,9 +2632,14 @@ async function runAudit() {
 
   // Fire the API in parallel with the animation.
   const meta = getMusicInputMeta(val);
-  const qs = meta
+  let qs = meta
     ? `?url=${encodeURIComponent(val)}&platform=${encodeURIComponent(meta.platform)}&type=${encodeURIComponent(meta.type)}`
     : `?url=${encodeURIComponent(val)}`;
+  // Tag the scan with the anonymous session_id so it can be claimed onto a
+  // user account after sign-in (see migrate_anonymous_scans). Optional —
+  // the scan still runs if the id is unavailable.
+  const auditSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
+  if (auditSessionId) qs += `&session_id=${encodeURIComponent(auditSessionId)}`;
   const fetchPromise = fetch(`/api/audit${qs}`, { signal: controller.signal })
     .then(r => r.json())
     .catch(err => ({ __error: err }));
@@ -3772,6 +3790,76 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
     </div>
   </div>
 </div>
+
+<!-- ── V5 magic-link signup wiring ─────────────────────────────────
+     The V5 continuation CTA sends a Supabase magic link instead of
+     opening the audit modal. Module script — uses ESM imports. -->
+<script type="module">
+import { getSupabase, getOrCreateSessionId } from '/js/supabase-client.js';
+
+const continueBtn = document.getElementById('continue-inside-os-btn');
+const continueEmail = document.getElementById('d-conversion-email');
+const continueStatus = document.getElementById('continue-inside-os-status');
+
+function setStatus(msg, kind) {
+  if (!continueStatus) return;
+  continueStatus.textContent = msg || '';
+  continueStatus.className = 'd-conversion-status' + (kind ? ' ' + kind : '');
+}
+
+async function handleContinueInsideOS() {
+  const email = (continueEmail?.value || '').trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setStatus('Please enter a valid email address.', 'error');
+    continueEmail?.focus();
+    return;
+  }
+  const supabase = getSupabase();
+  if (!supabase) {
+    setStatus('Auth temporarily unavailable. Please try again.', 'error');
+    return;
+  }
+
+  setStatus('Sending your secure link…', '');
+  continueBtn.disabled = true;
+
+  const sessionId = getOrCreateSessionId();
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: window.location.origin + '/auth/callback',
+      data: {
+        session_id: sessionId,
+        source: 'homepage_scan',
+      },
+    },
+  });
+
+  continueBtn.disabled = false;
+
+  if (error) {
+    console.error('[continue-inside-os] signInWithOtp error', error);
+    setStatus('Could not send link. Please try again or refresh the page.', 'error');
+    return;
+  }
+
+  setStatus('Check your inbox — your Royaltē OS access link is on the way.', 'success');
+}
+
+if (continueBtn) {
+  continueBtn.addEventListener('click', handleContinueInsideOS);
+}
+
+if (continueEmail) {
+  continueEmail.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleContinueInsideOS();
+    }
+  });
+}
+</script>
 
 </body>
 </html>
