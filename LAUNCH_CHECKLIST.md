@@ -3,6 +3,7 @@
 **Target:** June 1, 2026 beta launch
 **Owner:** Darryl West, Se7ven Labs Inc.
 **Status:** Living document — update at end of every working session.
+**Spec:** V5 supersedes V4 as primary source of truth, locked Saturday May 16, 2026.
 
 This is the source of truth for what's left. Not memory, not chat history. If
 it's not in here, it's not tracked.
@@ -11,40 +12,79 @@ it's not in here, it's not tracked.
 
 ## Today / On Deck
 
-The next 2-3 actionable items. Update this section every session.
+The next actionable items. Update this section every session.
 
-- [ ] **Block A · Auth foundation Chunk 1** — Supabase Auth provider + email confirmation, `profiles` table + RLS policies, auto-create-profile trigger, `user_id` column on `audit_scans`. Schema-only, no UI. Deferred from week 1.
-- [ ] **V4 spec commit** — get the full Royaltē OS V4 spec + quick-reference one-pager into the repo so future Code briefs reference it from source, not from briefs.
-- [ ] **Phase 2 dashboard evolution scoping** — decide the next bounded PR: sidebar expansion vs degradation states vs Alert Center.
+**⚠️ Schedule risk:** ~17 days to the June 1, 2026 beta launch (as of 2026-05-15). The Tier 1 non-code critical path below has weeks of external lead time and is untouched — start it immediately, in parallel with code work.
+
+### Next code task
+
+- [ ] **Block A · Chunk 3** — initialization sequence + dashboard handoff. Cinematic "Initializing Royaltē OS…" sequence, Founding Artist counter, audit-modal removal, dashboard data wiring, dashboard auth gating, `/dashboard.html` un-park decision. See the Block A section for the full item list.
+
+### Tier 1 — Non-code critical path (start now, dependency-ordered)
+
+Single source of truth for the LLC / EIN / banking / Stripe / legal track (the standalone "Business foundation" section was folded in here). This track gates Block C entirely.
+
+- [ ] **Wyoming LLC formation** — no dependencies, start immediately.
+- [ ] **EIN application** — blocked on LLC formation.
+- [ ] **Mercury bank account** — blocked on EIN.
+- [ ] **Stripe account setup** — blocked on Mercury account + Refund Policy.
+- [ ] **Terms of Service** — no dependencies, start immediately.
+- [ ] **Privacy Policy** — no dependencies, start immediately.
+- [ ] **Refund Policy** — no dependencies; blocks Stripe account setup.
+
+### Tier 3 — Marketing / Ops (parallel track, no Block C dependency)
+
+Independent of the Tier 1 LLC/payments path — none of these gate Block C. Start as capacity allows.
+
+- [ ] **TikTok Business account** — marketing channel setup. No dependencies.
+- [ ] **Analytics installed** — PostHog or equivalent (TBD).
+- [ ] **Error monitoring installed** — Sentry or equivalent (TBD).
+- [ ] **Uptime check** — on royalte.ai + key API endpoints.
 
 ---
 
-## Business foundation (pre-launch, gates Block C)
+## Block A — Auth foundation (V5 magic-link)
 
-- [ ] Setup LLC in Wyoming (Se7ven Labs / Royaltē entity)
-- [ ] Open Mercury business bank account (requires LLC formation docs + EIN)
-- [ ] Setup new Stripe business account under Royaltē (requires LLC + bank account)
-- [ ] Setup TikTok Business account (marketing channel — independent dependency)
+The original V4 plan here was password-login — `/login.html`, `/signup.html`,
+`/set-password.html`, and a shared `/js/auth.js` session module. **None of that
+shipped.** V5 replaced it with Supabase magic-link auth, delivered in three
+chunks. The struck V4 items are kept below for the record.
 
----
+- [x] ~~Build `/login.html` matching dashboard brand voice~~ — superseded by V5 magic-link
+- [x] ~~Build `/signup.html` matching dashboard brand voice~~ — superseded by V5 magic-link
+- [x] ~~Build `/set-password.html` that consumes Supabase magic link tokens~~ — superseded by V5 magic-link
+- [x] ~~Build session check + logout in shared `/js/auth.js`~~ — superseded by V5 (`supabase-client.js` singleton)
 
-## Block A — Auth foundation (1.5 days, no blockers)
+### Chunk 1 — Auth schema foundation ✅ done (PR #36, `d4da105`)
 
-- [ ] Enable Supabase Auth Email provider; configure email confirmation required
-- [ ] Create `profiles` table + RLS policies
-- [ ] Create trigger: insert into `profiles` when `auth.users` row created
-- [ ] Build `/login.html` matching dashboard brand voice
-- [ ] Build `/signup.html` matching dashboard brand voice
-- [ ] Build `/set-password.html` that consumes Supabase magic link tokens
-- [ ] Build session check + logout in shared `/js/auth.js`
-- [ ] Add `user_id` column to `audit_scans`
+- [x] `profiles` table + RLS policies + auto-create-profile trigger on `auth.users` insert
+- [x] `audit_scans.user_id` + `audit_scans.session_id` columns (nullable)
+- [x] `migrate_anonymous_scans` RPC (SECURITY DEFINER) to claim anonymous scans onto a user
 
-## Block B — Dashboard auth wiring + tier gating (1.5 days, no blockers)
+### Chunk 2 — Magic-link delivery + homepage wiring ✅ done (PR #37, `8259796`)
 
-- [ ] Dashboard reads current session on load
-- [ ] No session → show free-scan-anonymous mode (limited visibility)
-- [ ] Session → fetch user's profile + tier + most recent scan
-- [ ] Replace mock data with real Supabase queries
+- [x] `public/js/supabase-client.js` — browser anon client singleton + `getOrCreateSessionId()`
+- [x] V5 continuation CTA wired to `signInWithOtp` (replaces audit-modal open)
+- [x] `/auth/callback` handler — verifies session, calls `migrate_anonymous_scans`, shows "Welcome to Royaltē OS" holding page
+- [x] `profiles` + RLS schema and `audit_scans` `user_id`/`session_id` now exercised end-to-end
+- [x] GRANT/REVOKE migration scoping `migrate_anonymous_scans` EXECUTE to `authenticated` (and revoked from `anon`)
+
+### Chunk 3 — Initialization sequence + dashboard handoff ⏳ on deck (next code task)
+
+- [ ] Cinematic initialization sequence — "Initializing Royaltē OS…" with checkmark progression
+- [ ] Founding Artist counter logic — first 1,000 verified signups gate
+- [ ] Audit modal removal — `openAuditModal`, `submitAuditModal`, and the modal markup
+- [ ] Dashboard data wiring — load the migrated scan into the dashboard view
+- [ ] `dashboard.html` auth gating
+- [ ] `/dashboard.html` un-park decision — `vercel.json` 302 redirect currently in place
+
+## Block B — Dashboard tier gating
+
+Dashboard session read, data wiring, and auth gating moved to **Block A
+Chunk 3** (see above) — that is now the single home for dashboard handoff,
+including the no-session free-scan-anonymous mode. Block B is scoped to the
+tier-gating UI built on top of that wiring.
+
 - [ ] Build tier-gating UI: grayed-out cards with lock icon + "Unlock Full Audit $19.99" CTA per locked section (no blur, no hidden — show structure, not fake content)
 - [ ] "Unlock Full Audit" prompts on locked features for Free tier
 
@@ -108,10 +148,9 @@ Things that aren't in the block sequence but need to be done before June 1.
 - [ ] Remove noindex + redirect from `public/dashboard.html` when ready
 
 ### Ops / monitoring
-- [ ] Analytics installed (PostHog or equivalent — TBD)
-- [ ] Error monitoring installed (Sentry or equivalent — TBD)
-- [ ] Uptime check on royalte.ai + key API endpoints
 - [ ] Support inbox monitoring plan for `info@royalte.ai` (who watches, response SLA)
+
+Analytics, error monitoring, and uptime checks moved to On Deck → Tier 3 — Marketing / Ops.
 
 ---
 
@@ -263,6 +302,46 @@ toward the Royaltē OS V4 spec. Four bounded changes:
 Out of scope (later phases): sidebar expansion, degradation states,
 Alert Center, multi-page routing, auth, real upload backend.
 
+### V5 Phase 1 — homepage positioning shift — PR #35 (merged 2026-05-15, `6c5407a`)
+
+Reframed the homepage as a detection/signal layer per the V5 spec.
+Compressed flag rendering to locked 🔒 signals, replaced the legacy
+`.d-conversion` block with the "Continue Inside Royaltē OS"
+continuation section, stacked the email form vertically, and rewired
+the nav CTA to scroll to the continuation section.
+
+### Block A Chunk 1 — auth schema foundation — PR #36 (merged 2026-05-15, `d4da105`)
+
+Schema groundwork for Supabase magic-link auth. `profiles` table
+(1:1 with `auth.users`) + RLS + an auto-create-profile trigger;
+`audit_scans` gained nullable `user_id` and `session_id`;
+`migrate_anonymous_scans(text, uuid)` RPC (SECURITY DEFINER) to claim
+anonymous scans onto a user account. No UI / client code. Migration
+applied via psql over the Session Pooler.
+
+### Block A Chunk 2 — magic-link delivery + homepage wiring — PR #37 (merged 2026-05-15, `8259796`)
+
+Made signup work. New `public/js/supabase-client.js` (browser anon
+client singleton + `getOrCreateSessionId()`); the V5 continuation CTA
+now calls `signInWithOtp` instead of opening the audit modal; new
+`/auth/callback` handler verifies the session, calls
+`migrate_anonymous_scans`, and shows a static "Welcome to Royaltē OS"
+holding page (no redirect — dashboard stays parked). A follow-up
+GRANT/REVOKE migration scopes the RPC to `authenticated` only (revoked
+from `anon`). `api/audit.js` now accepts an optional `session_id`.
+Smoke-tested end-to-end on a Vercel preview before merge.
+
+### .gitignore hygiene — PR #38 (merged 2026-05-15, `42e5023`)
+
+Added `.vercel` to `.gitignore` — the Vercel CLI's local project-
+linkage directory, which must never be committed.
+
+### V5 spec lock-in — locked 2026-05-16
+
+V5 is now the primary source of truth, superseding V4. V4 artifacts
+in this checklist and elsewhere are retained for the record only;
+all new work references V5.
+
 ---
 
 ## Follow-ups (queued, not yet on On Deck)
@@ -290,11 +369,12 @@ critical path:
 
 - [ ] **Multi-page routing decision** — separate HTML files vs SPA routing vs same-page sections. Gates how the Phase 2 sidebar links work.
 
-### V4 spec
+### V4 spec — archived
 
-- [ ] **V4 spec commit** — commit the full Royaltē OS V4 spec to `/docs/royalte-os-v4-spec.md` so future sessions reference it from source, not from briefs.
+- [x] ~~**V4 spec commit** — commit the full Royaltē OS V4 spec to `/docs/royalte-os-v4-spec.md`~~ — dropped; V4 superseded by V5.
+- [x] ~~**V4 quick-reference one-pager** — `/docs/royalte-os-quick-reference.md`~~ — dropped; V4 superseded by V5.
 
-- [ ] **V4 quick-reference one-pager** — `/docs/royalte-os-quick-reference.md` for Code session priming.
+V4 docs are not to be expanded post-V5 lock-in (2026-05-16); V4 artifacts are retained for historical record only.
 
 ### audit.html cleanup
 
@@ -307,6 +387,14 @@ critical path:
 - [ ] **Blog CTA audit** — decide steady-state post-beta CTA copy (the current Founding Artist 1,000 Spots scarcity play expires at launch). Use the CTA library variants to choose. Update template once, propagates to all articles.
 
 - [ ] **/pricing.html page** — doesn't exist yet, must be built before warm-reader CTAs can go live. Pre-launch dependency.
+
+### V5 auth / Block A follow-ups
+
+- [ ] **Rotate Supabase DB password** — the production DB password was pasted in chat during Chunk 1 and Chunk 2 migration work, so it should be rotated (Supabase dashboard → Settings → Database). The DB password is independent of `SUPABASE_SERVICE_ROLE_KEY`, so rotating does not affect the Vercel functions.
+
+- [ ] **Migrate the `runAudit` script block to an ES module** — `runAudit()` lives in a regular non-module `<script>` block, so Chunk 2 added a `window.getOrCreateSessionId` bridge to reach the module helper. Converting that block to an ES module drops the bridge and the window-namespace pollution. Touches many inline `onclick=` handlers — needs care.
+
+- [ ] **Custom magic-link email template** — Chunk 2 ships on Supabase's default magic-link email. Replace with a V5-toned branded template (Supabase dashboard → Authentication → Email Templates).
 
 ---
 
