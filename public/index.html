@@ -1192,251 +1192,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   AUDIT REQUEST MODAL — opens from in-card CTA
-   Email-only capture. Hidden scan context auto-included.
-   ═══════════════════════════════════════════════════════════ */
-.audit-modal-overlay{
-  position:fixed;inset:0;
-  background:rgba(7,4,16,0.82);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-  opacity:0;
-  transition:opacity 0.25s ease;
-  padding:20px;
-}
-.audit-modal-overlay.is-open{
-  display:flex;
-  opacity:1;
-}
-.audit-modal-card{
-  background:#0a0612;
-  border:1px solid rgba(138,92,255,0.4);
-  border-radius:12px;
-  padding:32px 32px 28px;
-  max-width:480px;
-  width:100%;
-  position:relative;
-  box-shadow:
-    0 24px 64px rgba(0,0,0,0.6),
-    0 0 80px rgba(138,92,255,0.18),
-    inset 0 0 80px rgba(138,92,255,0.04);
-  transform:translateY(20px) scale(0.97);
-  transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);
-  max-height:90vh;
-  overflow-y:auto;
-}
-.audit-modal-overlay.is-open .audit-modal-card{
-  transform:translateY(0) scale(1);
-}
-.audit-modal-close{
-  position:absolute;
-  top:14px;right:14px;
-  width:32px;height:32px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:50%;
-  color:#9490b8;
-  font-size:18px;
-  line-height:1;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:background 0.2s ease, color 0.2s ease;
-  font-family:sans-serif;
-}
-.audit-modal-close:hover{
-  background:rgba(138,92,255,0.12);
-  color:#ffffff;
-}
-.audit-modal-eyebrow{
-  font-family:'Space Mono',monospace;
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:0.18em;
-  color:#8a5cff;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-.audit-modal-title{
-  font-family:'Rajdhani',sans-serif;
-  font-size:26px;
-  font-weight:800;
-  color:#ffffff;
-  text-transform:uppercase;
-  letter-spacing:0.005em;
-  line-height:1.05;
-  margin:0 0 10px 0;
-}
-.audit-modal-title-em{
-  background:linear-gradient(135deg,#8a5cff,#e040c8);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.audit-modal-body{
-  font-size:14px;
-  color:#c8c4e0;
-  line-height:1.55;
-  margin:0 0 18px 0;
-}
-.audit-modal-checklist{
-  list-style:none;
-  padding:0;margin:0 0 22px 0;
-  display:flex;flex-direction:column;gap:8px;
-}
-.audit-modal-checklist li{
-  display:flex;align-items:center;gap:10px;
-  font-size:13.5px;color:#e8e4f4;
-}
-.audit-modal-checklist .am-check{
-  display:inline-flex;
-  align-items:center;justify-content:center;
-  width:18px;height:18px;
-  background:linear-gradient(135deg,#8a5cff,#e040c8);
-  border-radius:50%;
-  font-size:11px;font-weight:700;color:#fff;
-  flex-shrink:0;
-}
-/* Urgency line — between checklist and form. Italic, centered, slightly muted.
-   Quiet enough not to compete with the headline above or the CTA below,
-   but italic + central placement makes it land before the user types. */
-.audit-modal-urgency{
-  text-align:center;
-  font-size:13px;
-  font-style:italic;
-  color:#9490b8;
-  margin:6px 0 18px 0;
-  line-height:1.4;
-  letter-spacing:0.005em;
-}
-.audit-modal-form{display:flex;flex-direction:column;gap:0;}
-.audit-modal-label{
-  font-family:'Space Mono',monospace;
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:0.14em;
-  color:#9490b8;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-.audit-modal-input{
-  width:100%;
-  background:#070410;
-  border:1px solid rgba(138,92,255,0.28);
-  border-radius:6px;
-  padding:14px 16px;
-  font-family:'Space Grotesk',sans-serif;
-  font-size:15px;
-  color:#ffffff;
-  outline:none;
-  transition:border-color 0.2s ease, box-shadow 0.2s ease;
-  margin-bottom:14px;
-}
-.audit-modal-input::placeholder{color:#6a6588;}
-.audit-modal-input:focus{
-  border-color:rgba(138,92,255,0.6);
-  box-shadow:0 0 0 3px rgba(138,92,255,0.12);
-}
-.audit-modal-input.is-invalid{
-  border-color:rgba(240,80,96,0.6);
-  box-shadow:0 0 0 3px rgba(240,80,96,0.12);
-}
-.audit-modal-error{
-  font-size:12px;
-  color:#ff8590;
-  margin:-8px 0 12px 2px;
-  display:none;
-}
-.audit-modal-error.is-shown{display:block;}
-.audit-modal-submit{
-  width:100%;
-  background:linear-gradient(135deg,#8a5cff,#e040c8);
-  color:#fff;
-  border:none;
-  padding:14px 24px;
-  border-radius:6px;
-  font-family:'Space Grotesk',sans-serif;
-  font-size:13px;font-weight:700;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  cursor:pointer;
-  transition:transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-  box-shadow:0 0 24px rgba(138,92,255,0.32);
-  margin-bottom:12px;
-}
-.audit-modal-submit:hover:not(:disabled){
-  transform:translateY(-1px);
-  box-shadow:0 0 32px rgba(138,92,255,0.5);
-}
-.audit-modal-submit:disabled{
-  opacity:0.6;
-  cursor:not-allowed;
-}
-.audit-modal-trust{
-  font-size:12px;
-  color:#7a7598;
-  text-align:center;
-  font-family:'Space Mono',monospace;
-  letter-spacing:0.04em;
-}
-/* Success state — replaces form content */
-.audit-modal-success{
-  display:none;
-  text-align:center;
-  padding:8px 0;
-}
-.audit-modal-success.is-shown{display:block;}
-.audit-modal-success-icon{
-  width:56px;height:56px;
-  margin:0 auto 18px;
-  border-radius:50%;
-  background:linear-gradient(135deg,#8a5cff,#e040c8);
-  display:flex;align-items:center;justify-content:center;
-  font-size:28px;color:#fff;
-  box-shadow:0 0 32px rgba(138,92,255,0.4);
-}
-.audit-modal-success-title{
-  font-family:'Rajdhani',sans-serif;
-  font-size:24px;font-weight:800;
-  color:#ffffff;
-  text-transform:uppercase;
-  letter-spacing:0.005em;
-  margin:0 0 12px 0;
-  line-height:1.1;
-}
-.audit-modal-success-body{
-  font-size:14px;color:#c8c4e0;
-  line-height:1.55;
-  margin:0 0 22px 0;
-}
-.audit-modal-success-close{
-  background:transparent;
-  border:1px solid rgba(138,92,255,0.4);
-  color:#c8c4e0;
-  padding:10px 28px;
-  border-radius:6px;
-  font-family:'Space Grotesk',sans-serif;
-  font-size:12px;font-weight:600;
-  letter-spacing:0.06em;
-  text-transform:uppercase;
-  cursor:pointer;
-  transition:background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-.audit-modal-success-close:hover{
-  background:rgba(138,92,255,0.12);
-  border-color:rgba(138,92,255,0.6);
-  color:#ffffff;
-}
-
 @media(max-width:640px){
-  .audit-modal-card{padding:28px 22px 24px;border-radius:10px;}
-  .audit-modal-title{font-size:22px;}
-  .audit-modal-body{font-size:13.5px;}
-  .audit-modal-checklist li{font-size:13px;}
   .d-conversion{padding:20px;}
   .d-conversion-headline{font-size:18px;}
   .d-conversion-list li{font-size:12.5px;}
@@ -2153,7 +1909,7 @@ body.menu-locked {
             <li>Get alerts when new risks appear</li>
           </ul>
 
-          <div class="d-conversion-scarcity">1,000 Founding Artist spots available.</div>
+          <div class="d-conversion-scarcity" id="founding-artist-remaining">1,000 Founding Artist spots available.</div>
 
           <div class="d-conversion-form">
             <input
@@ -3519,36 +3275,6 @@ function scrollToForm() {
   unlockAndScrollToForm();
 }
 
-// ═══════════════════════════════════════════════════════════
-// AUDIT REQUEST MODAL — primary conversion path
-// Opens from the in-card CTA after scan results render.
-// Collects email; auto-includes hidden scan context (artist,
-// URL, score, timestamp) from window.__royalteScan.
-// POSTs to Formspree (email notification) + /api/submit-audit
-// (Supabase insert) — mirrors existing inline-form behavior.
-// ═══════════════════════════════════════════════════════════
-
-function openAuditModal() {
-  const modal = document.getElementById('audit-modal');
-  if (!modal) return;
-  // Reset to form state in case modal was previously closed in success state
-  document.getElementById('audit-modal-form-state').style.display = 'block';
-  const successEl = document.getElementById('audit-modal-success-state');
-  if (successEl) successEl.classList.remove('is-shown');
-  const errorEl = document.getElementById('audit-modal-error');
-  if (errorEl) { errorEl.classList.remove('is-shown'); errorEl.textContent = ''; }
-  const inputEl = document.getElementById('audit-modal-email');
-  if (inputEl) inputEl.classList.remove('is-invalid');
-  const btnEl = document.getElementById('audit-modal-submit-btn');
-  if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Get My Full Audit →'; }
-  // Open
-  modal.classList.add('is-open');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-  // Focus the email input after the open animation
-  setTimeout(() => { if (inputEl) inputEl.focus(); }, 280);
-}
-
 function requestFullAuditFromNav() {
   const scanId = window.__royalteScan?.scanId;
   if (typeof scanId === 'string' && scanId.length > 0) {
@@ -3558,134 +3284,6 @@ function requestFullAuditFromNav() {
   }
   document.getElementById('scan-tool')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   setTimeout(() => document.getElementById('hero-url')?.focus(), 600);
-}
-
-function closeAuditModal() {
-  const modal = document.getElementById('audit-modal');
-  if (!modal) return;
-  modal.classList.remove('is-open');
-  modal.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-
-// Close on overlay click (clicking outside the card) + Escape key
-// Deferred to DOMContentLoaded to ensure #audit-modal exists when we attach.
-function _attachAuditModalListeners() {
-  const modal = document.getElementById('audit-modal');
-  if (modal) {
-    modal.addEventListener('click', function(e){
-      if (e.target === this) closeAuditModal();
-    });
-  }
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape') {
-      const m = document.getElementById('audit-modal');
-      if (m && m.classList.contains('is-open')) closeAuditModal();
-    }
-  });
-}
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', _attachAuditModalListeners);
-} else {
-  _attachAuditModalListeners();
-}
-
-async function submitAuditModal(e) {
-  if (e && e.preventDefault) e.preventDefault();
-  const inputEl  = document.getElementById('audit-modal-email');
-  const errorEl  = document.getElementById('audit-modal-error');
-  const btnEl    = document.getElementById('audit-modal-submit-btn');
-  const formEl   = document.getElementById('audit-modal-form-state');
-  const successEl= document.getElementById('audit-modal-success-state');
-  if (!inputEl || !btnEl) return;
-
-  const email = (inputEl.value || '').trim();
-
-  inputEl.classList.remove('is-invalid');
-  errorEl.classList.remove('is-shown');
-  errorEl.textContent = '';
-
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!emailValid) {
-    inputEl.classList.add('is-invalid');
-    errorEl.textContent = 'Please enter a valid email address.';
-    errorEl.classList.add('is-shown');
-    inputEl.focus();
-    return;
-  }
-
-  const scan = (typeof window !== 'undefined' && window.__royalteScan) ? window.__royalteScan : {};
-  const artistName  = scan.artistName  || '';
-  const sourceUrl   = scan.sourceUrl   || '';
-  const score       = (scan.score != null) ? scan.score : '';
-  const issuesCount = (scan.issuesCount != null) ? scan.issuesCount : '';
-  const urlType     = scan.urlType     || '';
-  const scannedAt   = scan.scannedAt   || '';
-  const scanId      = scan.scanId;
-
-  if (typeof scanId !== 'string' || scanId.length === 0) {
-    errorEl.textContent = 'Please run a scan first — your scan ID is missing.';
-    errorEl.classList.add('is-shown');
-    return;
-  }
-
-  const submittedAt = new Date().toISOString();
-
-  const urlTypeLabel = urlType
-    ? (URL_TYPE_META && URL_TYPE_META[urlType]?.label ? URL_TYPE_META[urlType].label : urlType)
-    : 'Unknown';
-
-  btnEl.disabled = true;
-  btnEl.textContent = 'Sending...';
-
-  const supabasePayload = {
-    email:        email,
-    artist_name:  artistName,
-    source_url:   sourceUrl,
-    score:        score,
-    issues_count: issuesCount,
-    url_type:     urlTypeLabel,
-    timestamp:    submittedAt,
-    scanned_at:   scannedAt,
-    source:       'modal',
-    scanId:       scanId
-  };
-
-  let response;
-  try {
-    response = await fetch('/api/submit-audit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(supabasePayload)
-    });
-  } catch (err) {
-    console.warn('[Royaltē] submit-audit fetch error:', err.message);
-    errorEl.textContent = "Couldn't submit your request — please try again.";
-    errorEl.classList.add('is-shown');
-    btnEl.disabled = false;
-    btnEl.textContent = 'Get My Full Audit →';
-    return;
-  }
-
-  if (!response.ok) {
-    let detail = '';
-    try {
-      const body = await response.json();
-      detail = body?.detail || body?.error || '';
-    } catch (_) { /* non-JSON body */ }
-    errorEl.textContent = detail
-      ? `Submission failed: ${detail}`
-      : "Couldn't submit your request — please try again.";
-    errorEl.classList.add('is-shown');
-    btnEl.disabled = false;
-    btnEl.textContent = 'Get My Full Audit →';
-    return;
-  }
-
-  if (inputEl) inputEl.value = '';
-
-  formEl.style.display = 'none';
-  successEl.classList.add('is-shown');
 }
 
 document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
@@ -3752,44 +3350,6 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
   });
 })();
 </script>
-<!-- AUDIT REQUEST MODAL — opened from in-card CTA after scan -->
-<div class="audit-modal-overlay" id="audit-modal" role="dialog" aria-modal="true" aria-labelledby="audit-modal-title" aria-hidden="true">
-  <div class="audit-modal-card" role="document">
-    <button class="audit-modal-close" type="button" onclick="closeAuditModal()" aria-label="Close">×</button>
-    <div id="audit-modal-form-state">
-      <div class="audit-modal-eyebrow">// Royaltē Audit Request</div>
-      <h2 class="audit-modal-title" id="audit-modal-title">Claim Your <span class="audit-modal-title-em">Founding Artist Access</span></h2>
-      <p class="audit-modal-body">Your full audit is on its way.<br>As a Founding Artist, you also lock in lifetime 30% off Pro Monitoring when it launches.</p>
-      <ul class="audit-modal-checklist">
-        <li><span class="am-check">✓</span>What's broken</li>
-        <li><span class="am-check">✓</span>What's missing</li>
-        <li><span class="am-check">✓</span>How to fix it</li>
-      </ul>
-      <p class="audit-modal-urgency">1,000 Founding Artist spots — yours is locked in when you submit.</p>
-      <form class="audit-modal-form" id="audit-modal-form" onsubmit="submitAuditModal(event); return false;">
-        <label class="audit-modal-label" for="audit-modal-email">Email address</label>
-        <input
-          class="audit-modal-input"
-          id="audit-modal-email"
-          type="email"
-          name="email"
-          placeholder="your@email.com"
-          autocomplete="email"
-          required
-        />
-        <div class="audit-modal-error" id="audit-modal-error"></div>
-        <button class="audit-modal-submit" type="submit" id="audit-modal-submit-btn">Get My Full Audit →</button>
-      </form>
-      <p class="audit-modal-trust">No spam. Just your Royaltē audit.</p>
-    </div>
-    <div class="audit-modal-success" id="audit-modal-success-state">
-      <div class="audit-modal-success-icon">✓</div>
-      <h2 class="audit-modal-success-title">You're a Founding Artist.</h2>
-      <p class="audit-modal-success-body">Your audit is on its way. Lifetime 30% off Pro Monitoring is locked in for you.</p>
-      <button class="audit-modal-success-close" type="button" onclick="closeAuditModal()">Close</button>
-    </div>
-  </div>
-</div>
 
 <!-- ── V5 magic-link signup wiring ─────────────────────────────────
      The V5 continuation CTA sends a Supabase magic link instead of
@@ -3859,6 +3419,34 @@ if (continueEmail) {
     }
   });
 }
+
+// ── Founding Artist counter — server-authoritative read ─────────
+function updateFoundingArtistUI(status) {
+  const remainingEl = document.getElementById('founding-artist-remaining');
+  if (!remainingEl) return;
+  if (status.spots_available) {
+    remainingEl.textContent = status.remaining + ' Founding Artist spots available.';
+  } else {
+    remainingEl.textContent = 'Founding Artist program full — join the waitlist.';
+  }
+}
+
+async function loadFoundingArtistStatus() {
+  const supabase = getSupabase();
+  if (!supabase) return;
+  try {
+    const { data, error } = await supabase
+      .from('founding_artist_status')
+      .select('*')
+      .single();
+    if (error || !data) return;
+    updateFoundingArtistUI(data);
+  } catch (e) {
+    console.error('[founding-artist] status read failed', e);
+  }
+}
+
+loadFoundingArtistStatus();
 </script>
 
 </body>
