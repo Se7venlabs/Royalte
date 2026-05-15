@@ -1114,6 +1114,73 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 }
 .d-conversion-btn:active{transform:translateY(0);}
 
+/* ─── V5 CONTINUATION SECTION ─── */
+.d-conversion-list-v5{
+  margin:16px 0;
+  padding:0;
+  list-style:none;
+}
+.d-conversion-list-v5 li{
+  position:relative;
+  padding-left:24px;
+  margin-bottom:8px;
+  color:var(--text2);
+  font-size:14px;
+}
+.d-conversion-list-v5 li::before{
+  content:'✓';
+  position:absolute;
+  left:0;
+  color:var(--grn);
+  font-weight:700;
+}
+.d-conversion-scarcity{
+  font-family:'Space Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--pur);
+  margin:18px 0 14px;
+  text-align:center;
+}
+.d-conversion-form{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-bottom:12px;
+}
+.d-conversion-email{
+  flex:1;
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:6px;
+  padding:14px 16px;
+  color:var(--text);
+  font-family:'Space Grotesk',sans-serif;
+  font-size:14px;
+  outline:none;
+}
+.d-conversion-email:focus{
+  border-color:var(--pur);
+  box-shadow:0 0 0 3px rgba(138,92,255,0.15);
+}
+.d-conversion-email::placeholder{
+  color:var(--muted);
+}
+.d-conversion-subtext{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.06em;
+  color:var(--muted);
+  text-align:center;
+  margin-top:4px;
+}
+@media (max-width:640px){
+  .d-conversion-list-v5 li{
+    font-size:13px;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════
    AUDIT REQUEST MODAL — opens from in-card CTA
    Email-only capture. Hidden scan context auto-included.
@@ -2054,15 +2121,46 @@ body.menu-locked {
           <div class="d-issues-footer">🔒 Full breakdown available in your audit</div>
         </div>
         <div class="d-preview-note">This is only a preview of your issues</div>
-        <div class="d-conversion">
-          <div class="d-conversion-headline">You've seen the leaks. <span class="d-conversion-headline-em">Claim your full audit + Founding Artist status.</span></div>
-          <div class="d-conversion-body">Founding Artists get the full audit + lifetime 30% off Pro Monitoring. 1,000 spots total.</div>
-          <ul class="d-conversion-list">
-            <li><span class="d-conversion-check">✓</span>What's broken</li>
-            <li><span class="d-conversion-check">✓</span>What's missing</li>
-            <li><span class="d-conversion-check">✓</span>How to fix it</li>
+        <div class="d-conversion d-conversion-v5" id="continue-inside-os">
+          <div class="d-conversion-headline">
+            Continue Inside <span class="d-conversion-headline-em">Royaltē OS</span>
+          </div>
+
+          <div class="d-conversion-body">
+            Your scan uncovered backend risks and revenue visibility gaps.
+          </div>
+
+          <div class="d-conversion-body">
+            As a Founding Artist, your Full Audit is currently included free during beta.
+          </div>
+
+          <ul class="d-conversion-list d-conversion-list-v5">
+            <li>Save this scan</li>
+            <li>Unlock your Full Audit</li>
+            <li>Track issue changes over time</li>
+            <li>Monitor your backend</li>
+            <li>Get alerts when new risks appear</li>
           </ul>
-          <button class="d-conversion-btn" type="button" onclick="openAuditModal()">Claim Founding Artist Access →</button>
+
+          <div class="d-conversion-scarcity">1,000 Founding Artist spots available.</div>
+
+          <div class="d-conversion-form">
+            <input
+              type="email"
+              class="d-conversion-email"
+              id="d-conversion-email"
+              placeholder="your@email.com"
+              autocomplete="email"
+              required
+            />
+            <button class="d-conversion-btn" type="button" onclick="openAuditModal()">
+              Claim Free Audit &amp; Enter Royaltē OS →
+            </button>
+          </div>
+
+          <div class="d-conversion-subtext">
+            No password required. Secure magic-link access.
+          </div>
         </div>
         </div>
       </div>
@@ -2863,99 +2961,103 @@ function renderIssues(flags) {
     // Pattern matching — most specific patterns first
     const lower = desc.toLowerCase();
 
+    // V5: every recognized pattern returns a short locked signal.
+    // The homepage detects and signals only — the full breakdown lives inside Royaltē OS.
+
     // YouTube unmonetised views
     if (lower.includes('unmonetised') || lower.includes('unmonetized') || (lower.includes('youtube') && lower.includes('views'))) {
       return {
-        emoji: '💥',
-        impact: formattedNum ? `${formattedNum} views are not monetized` : 'Unmonetized views detected on YouTube',
-        explanation: 'This content is generating traffic without being claimed.'
+        emoji: '🔒',
+        impact: 'Platform coverage incomplete',
+        explanation: 'Full breakdown available inside Royaltē OS.'
       };
     }
     // Last.fm streaming activity
     if (lower.includes('last.fm') || lower.includes('lastfm play')) {
       return {
-        emoji: '⚠️',
-        impact: 'High streaming activity detected',
-        explanation: 'Your catalog may not be fully registered for royalty collection.'
+        emoji: '🔒',
+        impact: 'Streaming registration unverified',
+        explanation: 'Full breakdown available inside Royaltē OS.'
       };
     }
     // Apple Music — catalog gap (X% missing)
     if (lower.includes('not found on apple music') && (lower.includes('% of top') || lower.includes('tracks missing'))) {
-      const pct = numMatch ? numMatch[1] : null;
       return {
-        emoji: '💥',
-        impact: pct ? `${pct}% of your catalog is missing from Apple Music` : 'Apple Music catalog gaps detected',
-        explanation: 'Distribution gaps are limiting your revenue.'
+        emoji: '🔒',
+        impact: 'Platform coverage incomplete',
+        explanation: 'Full breakdown available inside Royaltē OS.'
       };
     }
     // Apple Music — artist not found at all
     if (lower.includes('not found on apple music') || (lower.includes('artist') && lower.includes('apple music'))) {
       return {
-        emoji: '⚠️',
-        impact: 'Missing from Apple Music',
-        explanation: 'You\'re invisible on the second-largest streaming platform.'
+        emoji: '🔒',
+        impact: 'Platform coverage incomplete',
+        explanation: 'Full breakdown available inside Royaltē OS.'
       };
     }
     // ISRC issues
     if (lower.includes('isrc')) {
       return {
-        emoji: '💥',
-        impact: 'Verified ISRC registration could not be confirmed.',
-        explanation: 'Missing ISRC data can create royalty matching and reporting issues across platforms.'
+        emoji: '🔒',
+        impact: 'ISRC verification incomplete',
+        explanation: 'Full breakdown available inside Royaltē OS.'
       };
     }
     // Catalog age
     if (lower.includes('catalog active for') || lower.includes('catalog active') || lower.includes('catalog age')) {
-      const yearMatch = desc.match(/(\d+)\s*year/i);
       return {
-        emoji: '⚠️',
-        impact: yearMatch ? `${yearMatch[1]} years of catalog exposure` : 'Multi-year royalty exposure detected',
-        explanation: 'Extended history may have unclaimed earnings.'
+        emoji: '🔒',
+        impact: 'Catalog history unverified',
+        explanation: 'Full breakdown available inside Royaltē OS.'
       };
     }
     // MusicBrainz / publishing data cross-reference
     if (lower.includes('musicbrainz')) {
       return {
-        emoji: '⚠️',
-        impact: 'Not registered in MusicBrainz',
-        explanation: 'Publishing data can\'t be cross-referenced.'
+        emoji: '🔒',
+        impact: 'Ownership visibility reduced',
+        explanation: 'Full breakdown available inside Royaltē OS.'
       };
     }
     // Wikipedia / Wikidata
     if (lower.includes('wikipedia') || lower.includes('wikidata')) {
       return {
-        emoji: '⚠️',
-        impact: 'No public artist authority signal detected.',
-        explanation: 'Public artist verification signals may influence sync research and licensing confidence.'
+        emoji: '🔒',
+        impact: 'Artist authority signal incomplete',
+        explanation: 'Full breakdown available inside Royaltē OS.'
       };
     }
     // Genre metadata
     if (lower.includes('genre')) {
       return {
-        emoji: '⚠️',
-        impact: 'Genre metadata missing',
-        explanation: 'Missing genre metadata may reduce playlisting, discovery, and sync categorization opportunities.'
+        emoji: '🔒',
+        impact: 'Metadata inconsistency detected',
+        explanation: 'Full breakdown available inside Royaltē OS.'
       };
     }
     // Content ID
     if (lower.includes('content id')) {
       return {
-        emoji: '💥',
-        impact: 'Content ID not verified',
-        explanation: 'YouTube monetization status is unclear.'
+        emoji: '🔒',
+        impact: 'Content ID claim status unverified',
+        explanation: 'Full breakdown available inside Royaltē OS.'
       };
     }
     // Discogs
     if (lower.includes('discogs')) {
       return {
-        emoji: '⚠️',
-        impact: 'Limited Discogs presence',
-        explanation: 'Physical catalog records may be incomplete.'
+        emoji: '🔒',
+        impact: 'Discogs coverage incomplete',
+        explanation: 'Full breakdown available inside Royaltē OS.'
       };
     }
-    // No pattern matched — skip this flag entirely.
-    // We only render strong, recognized issues. Unmatched flags don't render at all.
-    return null;
+    // No specific pattern matched — render as a generic locked backend signal.
+    return {
+      emoji: '🔒',
+      impact: 'Backend signal detected',
+      explanation: 'Full breakdown available inside Royaltē OS.'
+    };
   };
 
   // Map every flag, drop unmatched (null) results, then take top 3.
@@ -3432,7 +3534,8 @@ function openAuditModal() {
 function requestFullAuditFromNav() {
   const scanId = window.__royalteScan?.scanId;
   if (typeof scanId === 'string' && scanId.length > 0) {
-    openAuditModal();
+    document.getElementById('continue-inside-os')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => document.getElementById('d-conversion-email')?.focus(), 600);
     return;
   }
   document.getElementById('scan-tool')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
