@@ -95,7 +95,7 @@ async function handleSchemaViolation({ scanId, canonical, err }) {
   }
 }
 
-export async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId) {
+export async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId, sessionId = null) {
   const supabase = getAuditScansSupabase();
   if (!supabase) {
     throw new Error('audit_scans persistence unavailable: Supabase not configured');
@@ -124,6 +124,9 @@ export async function persistCanonicalScan(rawResponse, originalUrl, urlType, sc
     spotify_artist_id: spotifyArtistId,
     apple_artist_id:   appleArtistId,
     payload:           canonical,
+    // Optional anonymous-session id — set when the browser passed one.
+    // Bridges this scan to a user account via migrate_anonymous_scans.
+    session_id:        sessionId || null,
   };
 
   const MAX_ATTEMPTS = 3;
@@ -153,6 +156,12 @@ export default async function handler(req, res) {
   const scanId = randomUUID();
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: 'No URL provided' });
+
+  // Optional anonymous-session id from the browser. Length-capped defensively
+  // before it touches the DB. Absent → scan still saves with session_id NULL.
+  const sessionId = typeof req.query.session_id === 'string'
+    ? req.query.session_id.slice(0, 100)
+    : null;
 
   try {
     // ── ANTI-ABUSE: blocked-IP check + per-IP rate limit ──
@@ -300,7 +309,7 @@ export default async function handler(req, res) {
         scannedAt: new Date().toISOString(),
       };
       try {
-        await persistCanonicalScan(rawResponse, url, 'apple', scanId);
+        await persistCanonicalScan(rawResponse, url, 'apple', scanId, sessionId);
       } catch (persistErr) {
         console.error('[audit] persistence failed (apple-only):', persistErr.message);
         return res.status(500).json({
@@ -453,7 +462,7 @@ export default async function handler(req, res) {
     };
 
     try {
-      await persistCanonicalScan(rawResponse, url, detectInputType(url), scanId);
+      await persistCanonicalScan(rawResponse, url, detectInputType(url), scanId, sessionId);
     } catch (persistErr) {
       console.error('[audit] persistence failed:', persistErr.message);
       return res.status(500).json({

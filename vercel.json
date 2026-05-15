@@ -33,6 +33,10 @@
       "dest": "/api/submit-audit.js"
     },
     {
+      "src": "/auth/callback",
+      "dest": "/api/auth/callback.js"
+    },
+    {
       "src": "/demo.html",
       "dest": "/public/demo.html"
     },
