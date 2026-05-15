@@ -13,9 +13,9 @@ it's not in here, it's not tracked.
 
 The next 2-3 actionable items. Update this section every session.
 
-- [ ] **Block A · Auth foundation** — next major workstream. No external dependency, unblocks B onward.
-- [ ] **Business foundation in flight** — LLC, Mercury, Stripe business account, TikTok. See Business foundation section.
-- [ ] **Legal pages drafting** — ToS, privacy, refund policy. Can run in parallel with Block A.
+- [ ] **Block A · Auth foundation Chunk 1** — Supabase Auth provider + email confirmation, `profiles` table + RLS policies, auto-create-profile trigger, `user_id` column on `audit_scans`. Schema-only, no UI. Deferred from week 1.
+- [ ] **V4 spec commit** — get the full Royaltē OS V4 spec + quick-reference one-pager into the repo so future Code briefs reference it from source, not from briefs.
+- [ ] **Phase 2 dashboard evolution scoping** — decide the next bounded PR: sidebar expansion vs degradation states vs Alert Center.
 
 ---
 
@@ -215,32 +215,92 @@ blocks merges on drift with no ruleset change.
 Result: drift bug class is permanently closed without trading off
 AI-crawler visibility.
 
+### Blog SEO backfill — PR #31 (merged 2026-05-15)
+
+Sitemap and og:image consistency cleanup for the 3 articles published
+before Part 3. Added sitemap.xml entries for suno-ai-release-risks and
+why-your-spotify-streams-dont-match-your-money (both live but never
+listed). Switched all 3 existing articles' og:image and twitter:image
+from the generic /og-image.jpg to their per-article hero images, with
+og:image:width/height corrected to each hero's real dimensions —
+matching the pattern Part 3 introduced.
+
+### CTA library commit + blog README refresh — PR #32 (merged 2026-05-15)
+
+Committed the blog CTA library to /docs/blog-cta-variants.md (12 CTA
+variants — 6 cold-reader, 6 warm-reader — with usage notes and SEO
+keyword pairings) so it survives session boundaries as the canonical
+reference for future article briefs.
+
+Refreshed public/blog/README.md for accuracy: replaced the stale
+Week 1-5 "Locked Article Order" roadmap with the actual current state
+(4 articles live, AI series Parts 1 + 3 live, 2 + 4 planned), corrected
+the "sitemap currently absent" note, updated the Hero Images section to
+real dimensions, and added references to the drift guard test, IndexNow
+auto-fire, and the CTA library. Preserved the documented AI-crawler
+visibility decision and hand-maintained card grid rationale.
+
+### Dashboard Phase 1 — Royaltē OS V4 evolution — PR #33 (merged 2026-05-15)
+
+First evolution PR moving public/dashboard.html + public/js/dashboard.js
+toward the Royaltē OS V4 spec. Four bounded changes:
+
+- Positioning copy scrub — removed every "recover" / "recovery"
+  reference across both files (mockData and the real-data
+  mapScanToDashboard path); also fixed a regression where renderHeader()
+  overwrote PR #24's parked welcome-sub copy.
+- Revenue Risk model rebalance — replaced the "$1K-$10K+" placeholder
+  with V4-pattern probabilistic ranges ("$420 – $2,100 annually"),
+  dropped the "+" suffix everywhere, added a Confidence label to both
+  data paths.
+- Hero stat CSS emphasis — Revenue at Risk now visually dominates the
+  hero stat row (larger value with glow, tier rendered as a pill);
+  Issues Found and Things Working shrink to supporting size.
+- Statement Upload preview tile — new locked/preview card between the
+  Action Plan row and Platforms, inert "Coming Soon" state, signaling a
+  future Royaltē OS capability.
+
+Out of scope (later phases): sidebar expansion, degradation states,
+Alert Center, multi-page routing, auth, real upload backend.
+
 ---
 
 ## Follow-ups (queued, not yet on On Deck)
 
-Items surfaced during today's session that need PRs but aren't on the
+Items surfaced during recent sessions that need PRs but aren't on the
 critical path:
 
 ### Blog SEO + content hygiene
 
 - [ ] **Embedded "Metadata Is The New Management" mid-article image for Part 3** — Part 3 source brief called for a second image embedded in Section 3. Asset doesn't exist yet. Follow-up PR once the image is generated/sourced.
 
-- [ ] **og:image backfill on the 3 existing articles** — Part 3 uses a per-article hero as og:image. The other 3 articles (suno-ai-release-risks, your-backend-might-be-broken, why-your-spotify-streams-dont-match-your-money) still point at generic `/og-image.jpg`. Small PR — one meta tag change per article.
-
-- [ ] **Sitemap.xml backfill** — Part 3 added itself but two existing articles (suno-ai-release-risks and why-your-spotify-streams-dont-match-your-money) are missing from sitemap.xml. Two URLs to add.
-
-- [ ] **public/blog/README.md "Locked Article Order" update** — predates the AI Music & Royalties series. Doc still lists Backend/Spotify/Metadata/MLC/SoundExchange roadmap with no AI series. Planning doc, not user-facing — refresh when convenient.
-
 - [ ] **Part 2 of AI Music & Royalties series doesn't exist** — series is currently 1, _, 3 of 4. Reader who lands on Part 3 sees the series numbering and Part 2 simply doesn't appear in related-articles (registry-driven). Content-pipeline gap. Needs writing.
 
-### Blog infrastructure
+### Phase 2 dashboard evolution
 
-- [ ] **Blog CTA library commit** — `~/Downloads/blog-cta-variants.md` contains 12 CTA variants (6 cold + 6 warm reader, with usage notes and SEO keyword pairings). Should be committed to the repo at `/docs/blog-cta-variants.md` as a reference doc for future article briefs and the post-beta CTA evolution.
+- [ ] **Degradation states** — "monitoring inactive", "last scan: N days ago", "risk estimate may be outdated". The dashboard currently assumes everything-active.
 
-### Mobile + responsive
+- [ ] **Alert Center scaffolding** — page route + alert categories per V4: metadata inconsistency, platform mismatch, duplicate release, ownership inconsistency.
 
-- [ ] **public/audit.html `.hero-right` mobile audit** — PR #26 fixed the same `.hero-right` `display:none` at ≤900px pattern in public/index.html. The audit.html file has a similar structure and may have the same bug. Phase 1 discovery + possible mobile fix PR if the gap is real.
+- [ ] **Sidebar expansion to V4's 6 functional sections** — Dashboard / Revenue Risk / Issues Found / Alerts / Monitoring / Scan History.
+
+- [ ] **Present-but-locked nav for the 8 V4 preview sections** — Catalog / Action Center / Reports / Activity Feed / Platforms / AI Insights / Settings / Billing.
+
+- [ ] **Statement Upload backend** — parsing engine for PRO/DSP/distributor/publishing/royalty accounting statements; comparison logic against existing scan data; encrypted storage for sensitive financial files. Phase 1 shipped the inert preview tile only.
+
+- [ ] **Multi-page routing decision** — separate HTML files vs SPA routing vs same-page sections. Gates how the Phase 2 sidebar links work.
+
+### V4 spec
+
+- [ ] **V4 spec commit** — commit the full Royaltē OS V4 spec to `/docs/royalte-os-v4-spec.md` so future sessions reference it from source, not from briefs.
+
+- [ ] **V4 quick-reference one-pager** — `/docs/royalte-os-quick-reference.md` for Code session priming.
+
+### audit.html cleanup
+
+- [ ] **Inert dead-code cleanup** — `.hero-right{display:none}` at audit.html L369 is unreachable (overridden by `.audit-page #scan-tool .hero-right{display:flex}` at L908). Remove or comment to reduce future-developer confusion. Low priority.
+
+- [ ] **Full mobile QA sweep of audit.html** — the Phase 1 audit was scoped to `.hero-right` only. Other mobile-breakable patterns may exist elsewhere on the page. Sweep before launch.
 
 ### Pre-launch (CTA strategy)
 
