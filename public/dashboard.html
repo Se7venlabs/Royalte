@@ -126,8 +126,20 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .hero-stat-sub{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.06em;}
 .hero-stat-sub.high{color:var(--amb);}
 .hero-stat-sub.med{color:var(--amb);}
+.hero-stat-sub.low{color:var(--grn);}
 .hero-stat-sub.good{color:var(--grn);}
 .hero-stat-sub.bad{color:var(--red);}
+
+/* Revenue at Risk is the hero-stat centerpiece (V4 emphasis rebalance) */
+.hero-stat.primary .hero-stat-lbl{font-size:11px;color:var(--text2);}
+.hero-stat.primary .hero-stat-val{font-size:32px;text-shadow:0 0 24px rgba(138,92,255,0.45);}
+.hero-stat.primary .hero-stat-sub{font-size:12px;display:inline-flex;width:fit-content;padding:3px 10px;border-radius:100px;}
+.hero-stat.primary .hero-stat-sub.high,
+.hero-stat.primary .hero-stat-sub.med{background:rgba(240,192,64,0.14);border:1px solid rgba(240,192,64,0.45);}
+.hero-stat.primary .hero-stat-sub.low{background:rgba(64,240,160,0.14);border:1px solid rgba(64,240,160,0.45);}
+.hero-stat:not(.primary) .hero-stat-val{font-size:21px;}
+.hero-stat:not(.primary) .hero-stat-lbl{font-size:9px;}
+.hero-stat-conf{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:5px;}
 
 /* ─── ARTIST IDENTITY CARD (inside hero-banner middle slot) ─── */
 .hero-identity{background:rgba(7,7,15,0.55);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;position:relative;overflow:hidden;align-self:stretch;justify-content:center;min-width:0;max-width:340px;}
@@ -192,6 +204,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .rev-tier-pill.high{background:rgba(240,80,96,0.12);color:var(--red);border:1px solid rgba(240,80,96,0.3);}
 .rev-tier-pill.med{background:rgba(240,192,64,0.1);color:var(--amb);border:1px solid rgba(240,192,64,0.3);}
 .rev-tier-pill.low{background:rgba(64,240,160,0.08);color:var(--grn);border:1px solid rgba(64,240,160,0.3);}
+.rev-confidence{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
 .rev-sub{font-size:13px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;margin-bottom:24px;}
 
 .rev-chart{height:180px;width:100%;position:relative;}
@@ -329,6 +342,103 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .manage-link:hover{color:#fff;}
 .manage-link svg{width:12px;height:12px;}
 
+/* ─── STATEMENT UPLOAD CARD (preview/locked) ─── */
+.statement-upload-card{
+  position:relative;
+  opacity:0.78;
+}
+.statement-upload-card .card-title{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.badge-soon{
+  display:inline-block;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  padding:4px 10px;
+  border-radius:3px;
+  background:rgba(138,92,255,0.12);
+  color:var(--pur);
+  border:1px solid var(--border2);
+}
+.statement-upload-body{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  grid-template-rows:auto auto auto;
+  gap:18px 24px;
+  align-items:start;
+  margin-top:16px;
+}
+.statement-upload-ico{
+  grid-row:1 / span 2;
+  width:64px;
+  height:64px;
+  color:var(--pur);
+  opacity:0.7;
+}
+.statement-upload-ico svg{
+  width:100%;
+  height:100%;
+}
+.statement-upload-types{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.statement-type{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  padding:6px 12px;
+  border-radius:3px;
+  background:var(--bg3);
+  color:var(--muted2);
+  border:1px solid var(--border);
+}
+.statement-upload-helper{
+  grid-column:1 / -1;
+  font-size:13px;
+  color:var(--muted2);
+  line-height:1.5;
+  margin:0;
+}
+.statement-upload-btn{
+  grid-column:1 / -1;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:14px 24px;
+  background:rgba(138,92,255,0.08);
+  color:var(--muted2);
+  border:1px dashed var(--border2);
+  border-radius:4px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  cursor:not-allowed;
+  width:100%;
+}
+.statement-upload-btn:hover{
+  background:rgba(138,92,255,0.08);
+}
+@media (max-width:760px){
+  .statement-upload-body{
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .statement-upload-ico{
+    grid-row:auto;
+    width:48px;
+    height:48px;
+  }
+}
+
 /* ─── FOOTER NOTE ─── */
 .foot-note{display:flex;align-items:center;justify-content:center;gap:10px;padding:24px 16px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.06em;border-top:1px solid var(--border);margin-top:32px;}
 .foot-note-ico{color:var(--muted);}
@@ -457,12 +567,13 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
           <!-- populated by dashboard.js (renderHeroIdentity) -->
         </aside>
 
-        <div class="hero-stat">
+        <div class="hero-stat primary">
           <div class="hero-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
           <div class="hero-stat-body">
             <div class="hero-stat-lbl">Est. Revenue at Risk</div>
             <div class="hero-stat-val" id="stat-revenue">—</div>
             <div class="hero-stat-sub high" id="stat-revenue-tier">—</div>
+            <div class="hero-stat-conf" id="stat-revenue-conf">—</div>
           </div>
         </div>
 
@@ -505,7 +616,8 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
             <div class="rev-amount" id="rev-amount">—</div>
             <div class="rev-tier-pill high" id="rev-tier-pill">—</div>
           </div>
-          <p class="rev-sub" id="rev-sub">Exact recovery amount requires full audit review</p>
+          <div class="rev-confidence" id="rev-confidence">—</div>
+          <p class="rev-sub" id="rev-sub">Exact exposure breakdown requires full audit</p>
 
           <div class="rev-chart">
             <svg viewBox="0 0 600 180" preserveAspectRatio="none">
@@ -638,7 +750,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
               <div class="action-locked-h">Action Plan Locked</div>
-              <div class="action-locked-d" id="action-locked-d">Your full step-by-step plan to recover unclaimed royalties is in the Full Audit.</div>
+              <div class="action-locked-d" id="action-locked-d">Your full step-by-step plan to address unclaimed setup issues is in the Full Audit.</div>
               <a href="/#request" class="action-locked-cta" data-unlock="action-plan">
                 Unlock Full Action Plan
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -647,6 +759,43 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
           </div>
         </section>
       </div>
+
+      <!-- ── Statement Upload (preview / locked) ── -->
+      <section class="card statement-upload-card fade-in d5" aria-label="Statement Upload">
+        <div class="card-hd">
+          <h2 class="card-title">
+            Statement Upload
+            <span class="badge-soon">Coming Soon</span>
+          </h2>
+        </div>
+        <p class="card-sub">Upload a PRO, DSP, or royalty statement to expand your audit scope and improve risk confidence.</p>
+
+        <div class="statement-upload-body">
+          <div class="statement-upload-ico" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 6h16l8 8v24a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4z"/>
+              <path d="M30 6v8h8"/>
+              <line x1="20" y1="24" x2="32" y2="24"/>
+              <line x1="20" y1="30" x2="32" y2="30"/>
+              <line x1="20" y1="36" x2="28" y2="36"/>
+            </svg>
+          </div>
+
+          <div class="statement-upload-types">
+            <div class="statement-type">PRO statements</div>
+            <div class="statement-type">DSP statements</div>
+            <div class="statement-type">Distributor reports</div>
+            <div class="statement-type">Publishing statements</div>
+            <div class="statement-type">Royalty accounting</div>
+          </div>
+
+          <p class="statement-upload-helper">Compare reported earnings against detected backend risks, expand analysis, and improve confidence in your Revenue Risk estimate.</p>
+
+          <button class="statement-upload-btn" disabled aria-disabled="true">
+            Statement Upload — Coming Soon
+          </button>
+        </div>
+      </section>
 
       <!-- ─── PLATFORMS ─── -->
       <section class="card platforms-card fade-in d6">
