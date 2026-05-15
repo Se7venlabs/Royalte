@@ -37,10 +37,11 @@
  * @property {string} score.headline       - "Your setup needs improvement"
  *
  * @property {Object} revenueRisk          - Path B: ranges, not exact dollars
- * @property {string} revenueRisk.range    - "$1K–$10K+"
+ * @property {string} revenueRisk.range    - "$420 – $2,100 annually"
  * @property {string} revenueRisk.tier     - "high" | "medium" | "low"
  * @property {string} revenueRisk.tierLabel- "High"
- * @property {string} revenueRisk.note     - "Exact recovery requires full audit"
+ * @property {string} revenueRisk.confidence - "Moderate"
+ * @property {string} revenueRisk.note     - "Exact exposure breakdown requires full audit"
  *
  * @property {Object} stats
  * @property {number} stats.issuesFound
@@ -75,14 +76,14 @@
  * @property {string} title           - "Missing ISRC for 3 tracks"
  * @property {string} desc            - "Tracks may not be properly tracked"
  * @property {string} severity        - "high" | "medium" | "low"
- * @property {string} impactLabel     - "Thousands at risk" | "$1K–$5K+" | "—"
+ * @property {string} impactLabel     - "Thousands at risk" | "Hundreds at risk" | "—"
  * @property {string} icon            - emoji or key
  */
 
 /**
  * @typedef {Object} Action
  * @property {number} step
- * @property {string} title           - "Fix missing ISRCs (recover revenue)"
+ * @property {string} title           - "Fix missing ISRCs (reduce revenue exposure)"
  * @property {string} meta            - "3 tracks"
  * @property {string} severity        - "high" | "medium" | "low"
  */
@@ -114,10 +115,11 @@ function mockData() {
       headline: "Your setup needs improvement"
     },
     revenueRisk: {
-      range: "$1K–$10K+",
+      range: "$420 – $2,100 annually",
       tier: "high",
       tierLabel: "High",
-      note: "Exact recovery amount requires full audit review"
+      confidence: "Moderate",
+      note: "Exact exposure breakdown requires full audit"
     },
     stats: {
       issuesFound: 8,
@@ -162,8 +164,8 @@ function mockData() {
       { id: "i5", title: "Apple Music missing editorial tags", desc: "Improper tagging reduces discoverability",     severity: "low",    impactLabel: "Minor",            icon: "tags" }
     ],
     actionPlan: [
-      { step: 1, title: "Fix missing ISRCs (recover revenue)",        meta: "3 tracks",  severity: "high"   },
-      { step: 2, title: "Claim YouTube Content ID (recover revenue)", meta: "2 channels",severity: "high"   },
+      { step: 1, title: "Fix missing ISRCs (reduce revenue exposure)", meta: "3 tracks", severity: "high" },
+      { step: 2, title: "Claim YouTube Content ID (reduce revenue exposure)", meta: "2 channels", severity: "high" },
       { step: 3, title: "Link publishing to recordings",              meta: "4 releases",severity: "medium" },
       { step: 4, title: "Review & update splits",                     meta: "2 tracks",  severity: "medium" },
       { step: 5, title: "Add editorial tags",                         meta: "7 tracks",  severity: "low"    }
@@ -244,7 +246,7 @@ function renderSidebar(data) {
   document.getElementById("sb-upgrade").innerHTML = `
     <div class="sb-upgrade-ico">${ICONS.upgrade}</div>
     <div class="sb-upgrade-t">Unlock Full Audit</div>
-    <div class="sb-upgrade-d">See <strong>every issue</strong>, the <strong>full action plan</strong>, and your complete recovery roadmap.</div>
+    <div class="sb-upgrade-d">See <strong>every issue</strong>, the <strong>full action plan</strong>, and your complete risk breakdown.</div>
     <button class="sb-upgrade-btn" data-action="upgrade">Unlock Full Audit →</button>
   `;
 
@@ -271,7 +273,7 @@ function renderSidebar(data) {
 
 function renderHeader(data) {
   document.getElementById("artist-name").textContent = data.user.firstName;
-  document.getElementById("welcome-sub").textContent = "Here's what we found in your royalty setup.";
+  document.getElementById("welcome-sub").textContent = "Last scan completed " + data.recentScan.dateLabel + ".";
 
   const bell = document.getElementById("bell-count");
   if (data.user.notifications > 0) {
@@ -308,6 +310,9 @@ function renderHeroBanner(data) {
   const tierEl = document.getElementById("stat-revenue-tier");
   tierEl.textContent = data.revenueRisk.tierLabel;
   tierEl.className = "hero-stat-sub " + tierClass(data.revenueRisk.tier);
+
+  const heroConf = document.getElementById("stat-revenue-conf");
+  if (heroConf) heroConf.textContent = "Confidence: " + data.revenueRisk.confidence;
 
   document.getElementById("stat-issues").textContent  = data.stats.issuesFound;
   document.getElementById("stat-working").textContent = data.stats.thingsWorking;
@@ -425,6 +430,9 @@ function renderRevenueCard(data) {
   const pill = document.getElementById("rev-tier-pill");
   pill.textContent = data.revenueRisk.tierLabel;
   pill.className = "rev-tier-pill " + tierClass(data.revenueRisk.tier);
+
+  const revConf = document.getElementById("rev-confidence");
+  if (revConf) revConf.textContent = "Confidence: " + data.revenueRisk.confidence;
 
   document.getElementById("rev-sub").textContent = data.revenueRisk.note;
 
@@ -549,8 +557,8 @@ function renderActionPlan(data) {
   if (lockedD) {
     const stepCount = actions.length || data.stats.issuesFound || 0;
     lockedD.textContent = stepCount > 0
-      ? `${stepCount} step${stepCount === 1 ? "" : "s"} to recover unclaimed royalties — included in your Full Audit.`
-      : `Your full step-by-step plan to recover unclaimed royalties is in the Full Audit.`;
+      ? `${stepCount} step${stepCount === 1 ? "" : "s"} to address unclaimed setup issues — included in your Full Audit.`
+      : `Your full step-by-step plan to address unclaimed setup issues is in the Full Audit.`;
   }
 }
 
@@ -777,7 +785,8 @@ function mapScanToDashboard(audit) {
     range: revenueRangeForTier(riskTier),
     tier: riskTier,
     tierLabel: riskTier.charAt(0).toUpperCase() + riskTier.slice(1),
-    note: "Exact recovery amount requires full audit review"
+    confidence: "Moderate",
+    note: "Exact exposure breakdown requires full audit"
   };
 
   // ── stats (issues / things working) ──────────
@@ -959,9 +968,9 @@ function riskFromScore(score) {
 }
 
 function revenueRangeForTier(tier) {
-  if (tier === "high")   return "$1K–$10K+";
-  if (tier === "medium") return "Hundreds–Thousands";
-  return "Low impact";
+  if (tier === "high")   return "$420 – $2,100 annually";
+  if (tier === "medium") return "$140 – $780 annually";
+  return "$0 – $190 annually";
 }
 
 function impactLabelForSeverity(sev) {
@@ -1019,8 +1028,8 @@ function iconKeyForFlag(f) {
 
 function actionTitleFromFlag(f) {
   const t = String((f && (f.title || f.message || f.name)) || "").toLowerCase();
-  if (t.includes("isrc"))            return "Fix missing ISRCs (recover revenue)";
-  if (t.includes("content id"))      return "Claim YouTube Content ID (recover revenue)";
+  if (t.includes("isrc"))            return "Fix missing ISRCs (reduce revenue exposure)";
+  if (t.includes("content id"))      return "Claim YouTube Content ID (reduce revenue exposure)";
   if (t.includes("publish"))         return "Link publishing to recordings";
   if (t.includes("split"))           return "Review & update splits";
   if (t.includes("tag") || t.includes("metadata")) return "Add editorial tags";
