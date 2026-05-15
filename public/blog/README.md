@@ -55,11 +55,17 @@ adding a new article.
    mirroring the new entry. The landing page is intentionally hand-maintained
    in HTML (not JS-rendered from `blog-posts.js`) so that search bots and AI
    crawlers without JS execution can still see every article. The two sources
-   must agree.
+   must agree — `tests/blog-index-sync-test.mjs` runs inside the `Run pipeline
+   test` CI check and fails the build if any card field (title, excerpt,
+   category, status, date, read time) drifts from the registry. Keep them in
+   sync; the registry is the source of truth.
 
 5. **Commit and push to `main`.**
    Suggested commit message format:
    `feat(blog): publish <slug> — <short title>`.
+   Pushing a change to `blog-posts.js` auto-fires the IndexNow workflow
+   (`.github/workflows/indexnow-notify.yml`), which submits the new article
+   URL to Bing, Yandex, and other participating search engines.
 
 6. **Verify on production after the Vercel deploy.**
    - Article URL renders.
@@ -92,13 +98,27 @@ This sequence is strategically designed to build topical authority, emotional pr
 
 ### Locked Article Order
 
-| Week | Mon | Thu |
-|---|---|---|
-| 1 | Your Music Isn't The Problem. Your Backend Might Be Broken. ✅ LIVE | Why Your Spotify Streams Don't Match Your Money |
-| 2 | The 7 Metadata Mistakes Killing Artist Royalties | What The MLC Actually Does (And Why So Many Artists Miss It) |
-| 3 | SoundExchange Explained For Artists | Songtrust vs TuneCore Publishing |
-| 4 | Why Your Music Is Missing From Certain Countries | Uploading Music Does NOT Mean You're Fully Registered |
-| 5 | What Happens When Your ISRC Codes Are Wrong | The Hidden Royalties Most Artists Never Collect |
+`public/js/blog-posts.js` is the canonical source of truth for article order
+and metadata. This section is a human-readable summary — if the two disagree,
+the registry wins.
+
+**Live (4):**
+
+- Your Music Isn't The Problem. Your Backend Might Be Broken.
+- Why Your Spotify Streams Don't Match Your Money
+- Using Suno AI? Read This Before Releasing Anything. — *AI Music & Royalties, Part 1 of 4*
+- The Silent Money Leaks Killing Independent Artists — *AI Music & Royalties, Part 3 of 4*
+
+**Queued in the registry as `coming_soon` (3):**
+
+- The 7 Metadata Mistakes Killing Artist Royalties
+- What The MLC Actually Does (And Why So Many Artists Miss It)
+- SoundExchange Explained For Artists
+
+**AI Music & Royalties series** is a planned 4-part arc. Parts 1 and 3 are
+live; Parts 2 and 4 are not yet written. Part 3 references the series
+numbering, so a reader sees the gap until Part 2 ships — a known
+content-pipeline follow-up, not a bug.
 
 ### Positioning Rules
 
@@ -120,9 +140,17 @@ The publishing order matters. Each article reinforces the next.
 
 ### Hero Images
 
-Each article requires a hero image at `public/blog/images/<slug>-hero.png`. Recommended dimensions: 1200x630 minimum, wide horizontal aspect. Articles will render with a broken image placeholder if the file is missing.
+Each article requires a hero image at `public/blog/images/<slug>-hero.<ext>`
+— `.jpg` or `.png` (most are `.jpg`; `your-backend-might-be-broken-hero.png`
+is the one PNG). Articles render with a broken image placeholder if the file
+is missing.
 
-Currently pending hero image: `your-backend-might-be-broken-hero.png` (to be uploaded by Darryl).
+Current heroes run roughly 1536x1024 and 1660x948 — wide horizontal, but not
+the 1.91:1 (1200x630) social-card standard. `og:image` / `twitter:image` on
+each article point at its per-article hero, and the `og:image:width` /
+`og:image:height` tags reflect each image's real dimensions. The 1.91:1
+mismatch is known and kept consistent across all four articles; standardizing
+hero dimensions would be a future image-standards refresh.
 
 ---
 
@@ -154,6 +182,12 @@ They do not promise recovery.
 - 4–8 H2 sections in the body
 - Final CTA with Founding Artist Beta framing (baked, do not edit)
 - Related articles strip (auto-rendered from `blog-posts.js`)
+
+The mid-article and final CTAs are baked into `_template.html` and identical
+across every article — never customise them per article (it breaks A/B
+testing). CTA copy variants for future template-level changes are catalogued
+in `/docs/blog-cta-variants.md` (12 variants, cold- and warm-reader); the warm
+variants are post-beta and depend on a pricing page that does not yet exist.
 
 ---
 
@@ -204,10 +238,11 @@ pills on `/blog.html`. If you need a new category, add the pill there first.
 
 These are deferred follow-ups, not blockers for the launch:
 
-- **`/sitemap.xml`** — currently absent. Once the Knowledge Hub has ~5 live
-  articles, add a sitemap that lists `/`, `/blog.html`, and every live article
-  URL with `<lastmod>` derived from the article date in `blog-posts.js`. Submit
-  it to Google Search Console and Bing Webmaster Tools.
+- **`/sitemap.xml`** — done. Live and manually maintained at
+  `public/sitemap.xml`, listing `/`, `/blog.html`, and every live article URL
+  with `<lastmod>`. Completed May 2026 (Part 3 added its own entry; PR #31
+  backfilled the two earlier articles that had been missed). Upkeep is manual:
+  add a `<url>` block when publishing a new article.
 - **Filter-pill JS.** The pills on `/blog.html` are currently visual only.
   Once the article count grows past ~10, wire the filter to show/hide cards
   client-side based on `data-cat`.
