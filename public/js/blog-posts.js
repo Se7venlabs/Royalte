@@ -11,7 +11,9 @@
 // 2. Find-and-replace the {{TOKENS}} in the new file
 // 3. Prepend a new object to this array
 // 4. Also add one <article> block to /blog.html mirroring the new entry
-//    (hand-maintained for crawler compatibility — see header note above)
+//    (hand-maintained for crawler compatibility — see header note above).
+//    tests/blog-index-sync-test.mjs fails the build if the card and this
+//    registry entry drift on any field — keep every field in sync.
 // 5. Commit + push to main
 // See /blog/README.md for the full workflow.
 
