@@ -14,11 +14,11 @@ it's not in here, it's not tracked.
 
 The next actionable items. Update this section every session.
 
-**⚠️ Schedule risk:** ~17 days to the June 1, 2026 beta launch (as of 2026-05-15). The Tier 1 non-code critical path below has weeks of external lead time and is untouched — start it immediately, in parallel with code work.
+**⚠️ Schedule risk:** ~16 days to the June 1, 2026 beta launch (as of 2026-05-16). The Tier 1 non-code critical path below still has weeks of external lead time and is untouched — start it immediately, in parallel with code work.
 
 ### Next code task
 
-- [ ] **Block A · Chunk 3** — initialization sequence + dashboard handoff. Cinematic "Initializing Royaltē OS…" sequence, Founding Artist counter, audit-modal removal, dashboard data wiring, dashboard auth gating, `/dashboard.html` un-park decision. See the Block A section for the full item list.
+Blocks A, B, and D are shipped, plus V5 Phase 2 Founding Artist pricing (see Done). **Block C (Stripe) is the next major block but is hard-blocked on the Tier 1 LLC/payments track.** Unblocked code work available now: Block E (manual rescan), Block F (polish / edge cases), Block G (history view), plus the queued Follow-ups. Darryl to pick the next bounded task.
 
 ### Tier 1 — Non-code critical path (start now, dependency-ordered)
 
@@ -40,6 +40,7 @@ Independent of the Tier 1 LLC/payments path — none of these gate Block C. Star
 - [ ] **Analytics installed** — PostHog or equivalent (TBD).
 - [ ] **Error monitoring installed** — Sentry or equivalent (TBD).
 - [ ] **Uptime check** — on royalte.ai + key API endpoints.
+- [ ] **Supabase Pro upgrade** — $25/month per project. Free-tier rate limits (especially magic-link auth sends) blocked smoke testing repeatedly; not sustainable once real user traffic shares the quota. Schedule: Thursday May 21, 2026.
 
 ---
 
@@ -69,28 +70,27 @@ chunks. The struck V4 items are kept below for the record.
 - [x] `profiles` + RLS schema and `audit_scans` `user_id`/`session_id` now exercised end-to-end
 - [x] GRANT/REVOKE migration scoping `migrate_anonymous_scans` EXECUTE to `authenticated` (and revoked from `anon`)
 
-### Chunk 3 — Initialization sequence + dashboard handoff ⏳ on deck (next code task)
+### Chunk 3 — Initialization sequence + dashboard handoff ✅ done (PR #40, `48b60ac`)
 
-- [ ] Cinematic initialization sequence — "Initializing Royaltē OS…" with checkmark progression
-- [ ] Founding Artist counter logic — first 1,000 verified signups gate
-- [ ] Audit modal removal — `openAuditModal`, `submitAuditModal`, and the modal markup
-- [ ] Dashboard data wiring — load the migrated scan into the dashboard view
-- [ ] `dashboard.html` auth gating
-- [ ] `/dashboard.html` un-park decision — `vercel.json` 302 redirect currently in place
+- [x] Cinematic initialization sequence — "Initializing Royaltē OS…" with checkmark progression
+- [x] Founding Artist counter logic — first 1,000 verified signups gate
+- [x] Audit modal removal — `openAuditModal`, `submitAuditModal`, and the modal markup
+- [x] Dashboard data wiring — load the migrated scan into the dashboard view
+- [x] `dashboard.html` auth gating
+- [x] `/dashboard.html` un-parked — the `vercel.json` 302 redirect was removed
 
-## Block B — Dashboard tier gating
+## Block B — Dashboard tier gating ✅ done (PR #42, `dd460ff`)
 
-Dashboard session read, data wiring, and auth gating moved to **Block A
-Chunk 3** (see above) — that is now the single home for dashboard handoff,
-including the no-session free-scan-anonymous mode. Block B is scoped to the
-tier-gating UI built on top of that wiring.
+- [x] Tier-gating UI — grayed-card lock overlays (no blur, per the PR #23 decision) on the dashboard's Action Plan, Issue Details, Revenue Risk, and Platforms sections; homepage issue descriptions gated.
+- [x] "Unlock Full Audit →" CTA on locked sections (no price displayed — Stripe is Block C). `profiles.tier` column added; `data-lock-cta` contract established for the Block C swap.
 
-- [ ] Build tier-gating UI: grayed-out cards with lock icon + "Unlock Full Audit $19.99" CTA per locked section (no blur, no hidden — show structure, not fake content)
-- [ ] "Unlock Full Audit" prompts on locked features for Free tier
+Scope note: Block B gated only the sections that existed at the time — Monitoring / Alerts / "Why This Matters" gating was deferred (see Follow-ups).
 
-## Block C — Stripe payment (2 days) — `BLOCKED: see Business foundation section (LLC + Mercury + Stripe account)`
+## Block C — Stripe payment (2 days) — `BLOCKED: see Tier 1 (LLC + Mercury + Stripe account)`
 
-- [ ] Create Stripe products + prices: `full_audit_one_time` ($19.99), `monitoring_monthly` ($29.99/mo)
+V5 Phase 2 (PR #46) already shipped the pricing UI + the `founding_artist_reservations` table — Block C wires real checkout behind them, flipping `tier='pro'` (and `founding_artist=true` for the Founding Artist plan) on success.
+
+- [ ] Create Stripe products + prices matching the shipped pricing UI: Founding Artist Access ($99 one-time), Monthly Monitoring ($19.99/mo)
 - [ ] Build `/api/create-checkout-session.js`
 - [ ] Wire "Upgrade" buttons to create checkout sessions
 - [ ] Pass `scan_id` from localStorage as Stripe metadata
@@ -102,15 +102,19 @@ tier-gating UI built on top of that wiring.
 - [ ] Idempotency via Stripe event ID
 - [ ] End-to-end test in Stripe test mode
 
-## Block D — Monitoring auto-scan + diff (2.5 days)
+## Block D — Monitoring auto-scan + diff ✅ done (PR #44, `cedadf6`; fix PR #45)
 
-- [ ] Vercel cron `/api/cron/weekly-rescan.js` runs daily at 3am UTC
-- [ ] Query monitoring users where `signup_day_of_week === today`
-- [ ] For each: call `/api/audit`, persist new scan
-- [ ] Diff against previous scan: new issues, resolved, score delta, metadata, territory
-- [ ] Write `scan_diffs` row
-- [ ] Send "Royaltē Monitoring · Weekly Check-in" email via Resend
-- [ ] Update dashboard to render `scan_diffs`: "What's Changed" card + inline badges
+Shipped — with implementation that differs from this section's original sketch:
+
+- [x] Vercel cron — `/api/cron/rescan.js`, daily 06:00 UTC (not `weekly-rescan.js` / 3am)
+- [x] Cron queries `profiles` due for rescan (`next_rescan_at <= now()`); reuses the scan engine via the extracted `api/_lib/run-scan.js`
+- [x] Diff computed into `scan_changes` rows (not `scan_diffs`) — issue_new / issue_resolved / score_change / revenue_risk_change / platform_change, via `api/_lib/compute-changes.js`
+- [x] `scan_snapshots` table — one canonical-payload snapshot per rescan; the dashboard reads living state from it
+- [x] Dashboard Monitoring card — tier/status-aware (Pro active view; Free grace_period; Free inactive protection-loss banner)
+- [x] Free grace-period → one rescan → `inactive`; Pro → continuous weekly rescans
+- [ ] ~~Send "Weekly Check-in" email via Resend~~ — deferred to Block E (email/push alerts)
+
+Follow-up fix (PR #45): `computeChanges` originally matched issues by content-hash id, producing phantom diffs on metric drift — now matched on a stable normalized key.
 
 ## Block E — Manual rescan + rate limiting (0.5 days)
 
@@ -161,7 +165,7 @@ These need answers before the blocks they affect can ship.
 1. **Stripe tax handling** — Stripe Tax or customer-provided? (Affects Block C)
 2. **Subscription cancellation UX** — immediate or end-of-period? (Affects Block C)
 3. **Monitoring cancellation data handling** — keep account at Full Audit tier, downgrade to Free, or delete after retention? (Affects Block C)
-4. **Failed Monitoring scan handling** — retry next day, skip to next week, email user? (Affects Block D)
+4. ~~**Failed Monitoring scan handling**~~ — RESOLVED in Block D: a degraded rescan is skipped entirely (no snapshot, no diff), `next_rescan_at` left unchanged so the next cron cycle retries. No backoff counter for V1.
 5. **Spotify URL change** — user-editable + triggers rescan, or locked at signup? (Affects Block F)
 6. **Stripe email vs Supabase Auth email** — auto-use Stripe email or let user choose at set-password? (Leaning: auto-use Stripe.) (Affects Block C)
 7. **Refund data handling** — keep scan, revoke access immediately, retention window? (Affects Block C + refund policy doc)
@@ -342,6 +346,65 @@ V5 is now the primary source of truth, superseding V4. V4 artifacts
 in this checklist and elsewhere are retained for the record only;
 all new work references V5.
 
+### Block A Chunk 3 — initialization sequence + dashboard handoff — PR #40 (merged 2026-05-15, `48b60ac`)
+
+Cinematic 5-step "Initializing Royaltē OS" sequence on `/auth/callback`;
+Founding Artist counter (advisory-locked, 1,000 cap); audit modal fully
+removed; dashboard auth-gated and wired to render the migrated scan;
+`/dashboard.html` un-parked. Block A complete.
+
+### Block B — tier-gating UI — PR #42 (merged 2026-05-16, `dd460ff`)
+
+`profiles.tier` column; `<body>` `.tier-free` / `.tier-pro` class;
+grayed-card lock overlays (no blur, per PR #23) on the dashboard's
+Action Plan / Issue Details / Revenue Risk / Platforms and on homepage
+issue descriptions; "Unlock Full Audit →" CTAs via the `data-lock-cta`
+contract; `#upgrade` placeholder. Existing always-on locks made
+tier-conditional.
+
+### Dead-code cleanup — mapScanToDashboard cluster — PR #43 (merged 2026-05-16, `999b8e7`)
+
+Deleted the dead V1 localStorage scan→dashboard handoff cluster
+(`mockData`, `getDashboardData`, `SCAN_KEY`/`SCAN_TIME_KEY`,
+`mapScanToDashboard`) from `dashboard.js` — unreachable since Chunk 3
+swapped the dashboard to the canonical mapper. 258-line removal, no
+behavior change.
+
+### Block D — monitoring foundation — PR #44 (merged 2026-05-16, `cedadf6`)
+
+Scheduled rescans + living backend state. `scan_snapshots` +
+`scan_changes` tables; `profiles.monitoring_status` + `next_rescan_at`;
+daily `/api/cron/rescan.js`; the scan engine extracted to
+`api/_lib/run-scan.js` (callable by both `/api/audit` and the cron);
+`computeChanges` diff; tier/status-aware dashboard Monitoring card.
+Free users get one grace-period rescan then go inactive; Pro users get
+continuous weekly monitoring.
+
+### computeChanges stable issue matching — PR #45 (merged 2026-05-16, `fb7940e`)
+
+Fixed a diff-quality bug found in the Block D cron dry-run: issue ids
+are content hashes of titles that embed volatile metrics, so a metric
+tick produced phantom resolved+new pairs. `computeChanges` now matches
+issues on a normalized key (module + severity + digit-stripped title).
+Verified live: 0 spurious changes on a real rescan.
+
+### V5 Phase 2 — Founding Artist pricing + reservations — PR #46 (merged 2026-05-16, `326709a`)
+
+`founding_artist_reservations` table; rate-limited
+`POST /api/founding-artist/reserve` (idempotent upsert, optional session
+link); dashboard Welcome panel + two-card pricing section ($99 Founding
+Artist / $19.99-mo Monthly); reservation flow with a "Reservation
+Confirmed" state. Founding Artist is a billing flag (`tier='pro'` +
+`founding_artist=true`), not a new tier — pre-Stripe intent capture only.
+
+### Blog Part 4 — "The Backend Infrastructure Powering Modern Music" — PR #47 (merged 2026-05-16, `32fecda`)
+
+Final article in the AI Music & Royalties series, at
+`/blog/the-backend-infrastructure-powering-modern-music.html`. Built to
+the Part 3 structure; registry + blog-index card added in sync (drift
+guard passes); 4 required positioning lines verbatim; IndexNow
+auto-submits the URL on merge.
+
 ---
 
 ## Follow-ups (queued, not yet on On Deck)
@@ -353,7 +416,7 @@ critical path:
 
 - [ ] **Embedded "Metadata Is The New Management" mid-article image for Part 3** — Part 3 source brief called for a second image embedded in Section 3. Asset doesn't exist yet. Follow-up PR once the image is generated/sourced.
 
-- [ ] **Part 2 of AI Music & Royalties series doesn't exist** — series is currently 1, _, 3 of 4. Reader who lands on Part 3 sees the series numbering and Part 2 simply doesn't appear in related-articles (registry-driven). Content-pipeline gap. Needs writing.
+- [ ] **Part 2 of AI Music & Royalties series doesn't exist** — series is now 1, _, 3, 4 of 4 (Parts 1, 3, 4 live; Part 2 never written). Part 2 simply doesn't appear in related-articles (registry-driven). Content-pipeline gap. Needs writing.
 
 ### Phase 2 dashboard evolution
 
@@ -401,7 +464,7 @@ V4 docs are not to be expanded post-V5 lock-in (2026-05-16); V4 artifacts are re
 Block B gated only the sections that exist today. These were scoped out because the content doesn't exist yet — gate them when it does:
 
 - [ ] **Write "Why This Matters" premium copy** — the explanation layer is the intended biggest conversion driver, but no discrete WTM content exists yet. Write it as net-new premium content, then gate it.
-- [ ] **Gate the Monitoring section** — once Block D ships the Monitoring auto-scan/diff UI (it's currently only a "Soon" sidebar nav item).
+- [x] ~~**Gate the Monitoring section**~~ — done: Block D (PR #44) built the Monitoring card tier/status-aware (Pro active view; Free grace/inactive with an "Activate Monitoring" lock CTA).
 - [ ] **Gate the Alerts section** — once Alerts exist (no Alerts section in the dashboard today).
 
 ### Block D follow-ups
@@ -409,6 +472,11 @@ Block B gated only the sections that exist today. These were scoped out because 
 - [ ] **Cron batch size vs function timeout** — at scale (>10 active monitored users) the 50-user sequential scan won't fit in the 300s function budget. Revisit (smaller batches / multiple daily runs) when the active monitored user count grows.
 - [ ] **Remove the `audit_scans` fallback in `loadLatestScan`** — the dashboard reads `scan_snapshots` with a temporary `audit_scans` fallback for users without a snapshot. Drop the fallback once snapshot coverage is confirmed for all users.
 
+### V5 Phase 2 follow-ups
+
+- [ ] **Founding Artist reservation flow — live verification** — the reserve flow (PR #46) was build-verified only; exercise a real logged-in reserve POST → "Reservation Confirmed" on production.
+- [ ] **Block B tier-overlay live visual check** — the tier-overlay / lock states were not eyeballed on a live session pre-merge (Supabase rate limit); verify free overlays show / pro overlays hidden via an SQL tier-flip on production.
+
 ---
 
-*Last updated: 2026-05-15*
+*Last updated: 2026-05-16*
