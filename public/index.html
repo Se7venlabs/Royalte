@@ -951,6 +951,26 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   font-size:12.5px;font-weight:400;
   color:#c8c4e0;line-height:1.45;
 }
+/* Block B — gated issue explanation (homepage is always-teaser).
+   The issue title stays visible; the explanation is replaced by a
+   lock CTA. No blur — per the locked grayed-card decision. */
+.d-issue-explanation-locked{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.d-issue-explanation-locked .lock-icon{font-size:14px;line-height:1;}
+.d-issue-explanation-locked .lock-cta{
+  font-family:'Space Mono',monospace;
+  font-size:10.5px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--pur);
+  background:rgba(138,92,255,0.1);
+  border:1px solid rgba(138,92,255,0.3);
+  border-radius:4px;
+  padding:6px 12px;
+  cursor:pointer;
+  transition:background 0.2s ease;
+}
+.d-issue-explanation-locked .lock-cta:hover{background:rgba(138,92,255,0.18);}
 .d-issues-footer{
   margin-top:14px;padding-top:12px;
   border-top:1px solid rgba(138,92,255,0.18);
@@ -1465,7 +1485,7 @@ body.menu-locked {
 
 </style>
 </head>
-<body>
+<body class="tier-free">
 
 <!-- ═══ NEW HERO ═══ -->
 <section class="new-hero" id="top">
@@ -2853,7 +2873,10 @@ function renderIssues(flags) {
   const html = top3.map(m => {
     return `<div class="d-issue severity-${m.severity}">
       <div class="d-issue-impact">${m.emoji} ${m.impact}</div>
-      <div class="d-issue-explanation">${m.explanation}</div>
+      <div class="d-issue-explanation d-issue-explanation-locked">
+        <span class="lock-icon" aria-hidden="true">🔒</span>
+        <button class="lock-cta" type="button" data-lock-cta>Unlock Full Audit →</button>
+      </div>
     </div>`;
   }).join('');
 
@@ -3447,6 +3470,21 @@ async function loadFoundingArtistStatus() {
 }
 
 loadFoundingArtistStatus();
+
+// ── Block B — homepage lock CTAs ─────────────────────────────────
+// Gated issue explanations are rendered after a scan, so use a
+// delegated listener. Lock CTAs scroll to the continuation section
+// and focus the email field (mirrors requestFullAuditFromNav timing).
+document.addEventListener('click', (e) => {
+  const cta = e.target.closest('[data-lock-cta]');
+  if (!cta) return;
+  e.preventDefault();
+  const target = document.getElementById('continue-inside-os');
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => document.getElementById('d-conversion-email')?.focus(), 600);
+  }
+});
 </script>
 
 </body>
