@@ -953,10 +953,12 @@ function renderAll(data) {
 }
 
 function renderEmptyState() {
-  const main = document.querySelector(".main");
-  if (!main) return;
-  main.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;gap:14px;padding:40px;">
+  // Only the scan-dependent content is swapped — the Welcome panel and the
+  // Pricing section live outside #scan-content and survive the empty state.
+  const target = document.getElementById("scan-content");
+  if (!target) return;
+  target.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:48vh;text-align:center;gap:14px;padding:40px;">
       <h1 style="font-family:'Rajdhani',sans-serif;font-size:28px;text-transform:uppercase;letter-spacing:0.04em;margin:0;">No scans yet</h1>
       <p style="opacity:0.7;margin:0;">Run your first catalog audit to see your dashboard.</p>
       <a href="/" class="scan-btn">Run a scan</a>
@@ -1139,6 +1141,106 @@ function wireLockCTAs() {
   });
 }
 
+/* ── V5 Phase 2 — Welcome panel + Founding Artist pricing ───────── */
+
+function renderWelcomePanel(profile) {
+  const sub = document.getElementById("welcome-panel-sub");
+  if (!sub) return;
+  if (profile.founding_artist === true) {
+    sub.textContent = "Founding Artist Access — thank you for being early.";
+  } else if (profile.tier === "pro") {
+    sub.textContent = "Pro Member — your backend is actively monitored.";
+  } else {
+    sub.textContent = "Backend visibility, audit history, and ongoing monitoring — built for working artists.";
+  }
+}
+
+async function loadReservation(supabase, userId) {
+  try {
+    const { data, error } = await supabase
+      .from("founding_artist_reservations")
+      .select("email, created_at")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error) { console.error("[dashboard] reservation read failed", error); return null; }
+    return data || null;
+  } catch (e) {
+    console.error("[dashboard] reservation read failed", e);
+    return null;
+  }
+}
+
+function fillConfirmedState(confirmed, email) {
+  if (!confirmed) return;
+  const sub = confirmed.querySelector(".cta-confirmed-sub");
+  if (sub) sub.textContent = `We'll notify you when checkout opens. Reserved spot for ${email}.`;
+  confirmed.style.display = "";
+}
+
+function renderPricing(profile, reservation) {
+  const section = document.getElementById("pricing");
+  if (!section) return;
+  // Pro users already have full access — hide pricing entirely. A
+  // "Manage Subscription" replacement is Block C scope.
+  if (profile.tier === "pro") { section.style.display = "none"; return; }
+
+  const cta = document.getElementById("reserve-founding-artist");
+  const confirmed = document.getElementById("founding-artist-confirmed");
+  if (reservation) {
+    if (cta) cta.style.display = "none";
+    fillConfirmedState(confirmed, reservation.email);
+  } else {
+    if (cta) cta.style.display = "";
+    if (confirmed) confirmed.style.display = "none";
+  }
+}
+
+function wireReservationFlow(session) {
+  const cta = document.getElementById("reserve-founding-artist");
+  if (!cta) return;
+  cta.addEventListener("click", () => handleReserveClick(session, cta));
+}
+
+async function handleReserveClick(session, cta) {
+  const email = session?.user?.email;
+  const errEl = document.getElementById("founding-artist-error");
+  if (errEl) { errEl.style.display = "none"; errEl.textContent = ""; }
+  if (!email) {
+    if (errEl) { errEl.textContent = "Couldn't read your account email — please refresh and try again."; errEl.style.display = ""; }
+    return;
+  }
+
+  const originalText = cta.textContent;
+  cta.disabled = true;
+  cta.textContent = "Reserving…";
+
+  try {
+    const resp = await fetch("/api/founding-artist/reserve", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + session.access_token,
+      },
+      body: JSON.stringify({ email }),
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || !data.success) {
+      throw new Error(data.error || ("HTTP " + resp.status));
+    }
+    // Success — flip to the confirmed state.
+    cta.style.display = "none";
+    fillConfirmedState(document.getElementById("founding-artist-confirmed"), email);
+  } catch (e) {
+    console.error("[dashboard] reservation failed", e);
+    cta.disabled = false;
+    cta.textContent = originalText;
+    if (errEl) {
+      errEl.textContent = "Couldn't reserve your spot — please try again in a moment.";
+      errEl.style.display = "";
+    }
+  }
+}
+
 async function init() {
   // Auth gate — no active session means no dashboard. Redirect home.
   const supabase = getSupabase();
@@ -1155,24 +1257,32 @@ async function init() {
 
   wireSignOut(supabase);
 
-  // Profile drives tier gating (body class) and the monitoring section.
-  // Defaults to free / grace_period on any read failure.
+  // Profile drives tier gating (body class), the monitoring section, the
+  // welcome panel, and pricing. Defaults to free / grace_period on failure.
   const profile = await loadProfile(supabase, session.user.id);
   document.body.classList.add("tier-" + profile.tier);
 
-  // Load the user's latest scan and render real data (not mock).
+  // Welcome panel renders on every path — including the no-scan empty state
+  // — so it lives outside #scan-content.
+  renderWelcomePanel(profile);
+
+  // Load the user's latest scan. Only #scan-content is scan-dependent.
   const scan = await loadLatestScan(supabase, session.user.id);
   if (!scan || !scan.payload) {
     renderEmptyState();
-    return;
+  } else {
+    renderAll(mapCanonicalToDashboard(scan.payload));
+    // Block D — Monitoring section (tier + monitoring_status aware).
+    await loadMonitoringState(supabase, session.user.id, profile, scan);
   }
-  renderAll(mapCanonicalToDashboard(scan.payload));
 
-  // Block D — Monitoring section (tier + monitoring_status aware).
-  await loadMonitoringState(supabase, session.user.id, profile, scan);
+  // V5 Phase 2 — Founding Artist pricing + reservation flow. Renders on
+  // every path so a no-scan user still sees pricing.
+  const reservation = await loadReservation(supabase, session.user.id);
+  renderPricing(profile, reservation);
+  wireReservationFlow(session);
 
-  // Wire lock CTAs after all gated sections + the monitoring section
-  // (which contains a data-lock-cta) are in the DOM.
+  // Wire lock CTAs after all gated sections are in the DOM.
   wireLockCTAs();
 }
 
