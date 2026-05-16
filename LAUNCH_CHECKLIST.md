@@ -396,6 +396,14 @@ V4 docs are not to be expanded post-V5 lock-in (2026-05-16); V4 artifacts are re
 
 - [ ] **Custom magic-link email template** — Chunk 2 ships on Supabase's default magic-link email. Replace with a V5-toned branded template (Supabase dashboard → Authentication → Email Templates).
 
+### Block B follow-ups
+
+Block B gated only the sections that exist today. These were scoped out because the content doesn't exist yet — gate them when it does:
+
+- [ ] **Write "Why This Matters" premium copy** — the explanation layer is the intended biggest conversion driver, but no discrete WTM content exists yet. Write it as net-new premium content, then gate it.
+- [ ] **Gate the Monitoring section** — once Block D ships the Monitoring auto-scan/diff UI (it's currently only a "Soon" sidebar nav item).
+- [ ] **Gate the Alerts section** — once Alerts exist (no Alerts section in the dashboard today).
+
 ---
 
 *Last updated: 2026-05-15*

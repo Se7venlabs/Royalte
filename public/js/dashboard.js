@@ -1248,6 +1248,35 @@ function wireSignOut(supabase) {
   });
 }
 
+async function loadUserTier(supabase, userId) {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("tier")
+      .eq("id", userId)
+      .single();
+    if (error || !data) return "free";
+    return data.tier;
+  } catch (e) {
+    console.error("[dashboard] tier read failed", e);
+    return "free";
+  }
+}
+
+// Lock CTAs smooth-scroll to the in-dashboard #upgrade placeholder.
+// Pro users see no overlays, so these listeners are inert for them.
+// Block C swaps the scroll for real Stripe checkout — data-lock-cta
+// is the stable contract for that future swap.
+function wireLockCTAs() {
+  document.querySelectorAll("[data-lock-cta]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const target = document.getElementById("upgrade");
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+}
+
 async function init() {
   // Auth gate — no active session means no dashboard. Redirect home.
   const supabase = getSupabase();
@@ -1264,6 +1293,11 @@ async function init() {
 
   wireSignOut(supabase);
 
+  // Tier gating — tag <body> so the lock CSS renders (free) or stays
+  // hidden (pro). Defaults to free on any read failure.
+  const userTier = await loadUserTier(supabase, session.user.id);
+  document.body.classList.add("tier-" + userTier);
+
   // Load the user's latest scan and render real data (not mock).
   const scan = await loadLatestScan(supabase, session.user.id);
   if (!scan || !scan.payload) {
@@ -1271,6 +1305,9 @@ async function init() {
     return;
   }
   renderAll(mapCanonicalToDashboard(scan.payload));
+
+  // Wire lock CTAs after the gated sections are in the DOM.
+  wireLockCTAs();
 }
 
 if (document.readyState === "loading") {
