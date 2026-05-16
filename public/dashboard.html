@@ -589,6 +589,114 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
 .inactive-banner .lock-cta{margin-top:8px;}
 .grace-status{font-size:14px;font-weight:700;color:var(--grn);margin-bottom:4px;}
 .grace-next{font-size:13px;color:var(--muted2);}
+
+/* ─── V5 PHASE 2 — fade-in stagger extension ─────────────────── */
+.fade-in.d7{animation-delay:0.42s;}
+.fade-in.d8{animation-delay:0.48s;}
+
+/* ─── V5 PHASE 2 — WELCOME PANEL ─────────────────────────────── */
+.welcome-panel{
+  margin-bottom:22px;padding:34px 32px;
+  border:1px solid var(--border2);border-radius:12px;
+  background:linear-gradient(135deg,rgba(138,92,255,0.07),rgba(224,64,200,0.03));
+  position:relative;overflow:hidden;
+}
+.welcome-panel::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);
+}
+.welcome-panel-inner{max-width:640px;}
+.welcome-panel-badge{
+  display:inline-block;font-family:'Space Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--pur);background:rgba(138,92,255,0.08);
+  border:1px solid var(--border2);padding:5px 12px;border-radius:2px;margin-bottom:16px;
+}
+.welcome-panel-title{
+  font-family:'Rajdhani',sans-serif;font-size:clamp(30px,4vw,44px);font-weight:700;
+  line-height:1;letter-spacing:0.01em;text-transform:uppercase;color:#fff;margin:0 0 6px;
+}
+.welcome-panel-tagline{
+  font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--text2);margin:0 0 14px;
+}
+.welcome-panel-sub{
+  font-family:'Space Grotesk',sans-serif;font-size:14px;
+  color:var(--muted2);line-height:1.6;margin:0;
+}
+
+/* ─── V5 PHASE 2 — PRICING SECTION ───────────────────────────── */
+.pricing-section{margin-top:22px;}
+.pricing-header{text-align:center;margin-bottom:22px;}
+.pricing-badge{
+  display:inline-block;font-family:'Space Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--pur);background:rgba(138,92,255,0.08);
+  border:1px solid var(--border2);padding:5px 12px;border-radius:2px;margin-bottom:12px;
+}
+.pricing-title{
+  font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.03em;color:#fff;margin:0;
+}
+.pricing-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start;}
+.pricing-card{
+  border:1px solid var(--border2);border-radius:12px;
+  padding:28px 26px;background:rgba(255,255,255,0.02);
+}
+.pricing-primary{
+  border-color:rgba(138,92,255,0.45);
+  background:linear-gradient(160deg,rgba(138,92,255,0.1),rgba(224,64,200,0.04));
+  box-shadow:0 0 40px rgba(138,92,255,0.12);
+}
+.pricing-secondary{opacity:0.92;}
+.pricing-card-label{
+  font-family:'Space Mono',monospace;font-size:11px;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--muted2);margin-bottom:10px;
+}
+.pricing-card-price{
+  font-family:'Rajdhani',sans-serif;font-size:40px;font-weight:700;
+  color:#fff;line-height:1;margin-bottom:18px;
+}
+.price-suffix{
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;
+  color:var(--muted2);margin-left:8px;letter-spacing:0.02em;
+}
+.pricing-card-list{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:9px;}
+.pricing-card-list li{
+  position:relative;padding-left:22px;
+  font-size:13.5px;color:var(--text2);line-height:1.4;
+}
+.pricing-card-list li::before{content:'✓';position:absolute;left:0;color:var(--pur);font-weight:700;}
+.pricing-card-sub{
+  font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;
+  letter-spacing:0.04em;margin:0 0 18px;
+}
+.pricing-cta{
+  width:100%;padding:13px 20px;border-radius:6px;
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;border:none;
+  transition:opacity 0.2s ease,transform 0.2s ease;
+}
+.pricing-cta-primary{background:var(--grad);color:#fff;box-shadow:0 0 24px rgba(138,92,255,0.3);}
+.pricing-cta-primary:hover{transform:translateY(-1px);opacity:0.95;}
+.pricing-cta-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.pricing-cta-secondary{background:transparent;color:var(--muted2);border:1px solid var(--border2);}
+.pricing-cta-secondary:disabled{cursor:not-allowed;opacity:0.7;}
+.pricing-cta-confirmed{
+  text-align:center;font-family:'Space Grotesk',sans-serif;
+  font-size:14px;font-weight:700;color:var(--grn);
+}
+.cta-check{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:50%;background:rgba(64,240,160,0.14);
+  color:var(--grn);font-size:12px;margin-right:6px;vertical-align:middle;
+}
+.cta-confirmed-sub{
+  font-family:'Space Mono',monospace;font-size:11px;font-weight:400;
+  color:var(--muted2);letter-spacing:0.03em;margin:8px 0 0;line-height:1.5;
+}
+.pricing-error{font-size:12px;color:#f05060;margin-top:10px;text-align:center;}
+@media(max-width:720px){
+  .pricing-grid{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
@@ -642,6 +750,19 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
           <button id="sign-out-btn" type="button" style="background:transparent;border:1px solid rgba(255,255,255,0.14);color:inherit;font:inherit;font-size:13px;padding:9px 16px;border-radius:8px;cursor:pointer;">Sign out</button>
         </div>
       </header>
+
+      <!-- ─── WELCOME PANEL (V5 Phase 2) ─── -->
+      <section class="welcome-panel fade-in d0">
+        <div class="welcome-panel-inner">
+          <div class="welcome-panel-badge">Early Access Beta Phase</div>
+          <h1 class="welcome-panel-title">Royaltē OS</h1>
+          <p class="welcome-panel-tagline">Your music backend, monitored.</p>
+          <p class="welcome-panel-sub" id="welcome-panel-sub"></p>
+        </div>
+      </section>
+
+      <!-- scan-dependent content — swapped for the empty state when no scan exists -->
+      <div id="scan-content">
 
       <!-- ─── HERO BANNER ─── -->
       <section class="hero-banner fade-in d1" id="hero-banner">
@@ -973,6 +1094,7 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
           <div class="grace-next">Next rescan —</div>
         </div>
       </section>
+      </div><!-- /scan-content -->
 
       <!-- ─── FOOTER NOTE ─── -->
       <div class="foot-note">
@@ -984,6 +1106,57 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
       <section id="upgrade" class="upgrade-placeholder">
         <h2>Upgrade to unlock the full Royaltē OS</h2>
         <p>Pricing and checkout coming soon.</p>
+      </section>
+
+      <!-- ─── FOUNDING ARTIST PRICING (V5 Phase 2) ─── -->
+      <section id="pricing" class="pricing-section fade-in d8">
+        <div class="pricing-header">
+          <div class="pricing-badge">Early Access Beta Phase</div>
+          <h2 class="pricing-title">Access Plans</h2>
+        </div>
+
+        <div class="pricing-grid">
+          <!-- FOUNDING ARTIST (PRIMARY) -->
+          <div class="pricing-card pricing-primary" id="founding-artist-card">
+            <div class="pricing-card-label">Founding Artist Access</div>
+            <div class="pricing-card-price">$99<span class="price-suffix">one-time</span></div>
+            <ul class="pricing-card-list">
+              <li>Lifetime core monitoring</li>
+              <li>Audit history access</li>
+              <li>Early platform access</li>
+              <li>Founder pricing protection</li>
+              <li>Future foundational feature access</li>
+            </ul>
+            <p class="pricing-card-sub">No monthly subscription</p>
+            <div class="pricing-card-cta-container">
+              <button class="pricing-cta pricing-cta-primary" id="reserve-founding-artist" type="button">
+                Reserve Founding Artist Access →
+              </button>
+              <div class="pricing-cta-confirmed" id="founding-artist-confirmed" style="display:none;">
+                <span class="cta-check">✓</span> Reservation Confirmed
+                <p class="cta-confirmed-sub">We'll notify you when checkout opens.</p>
+              </div>
+              <div class="pricing-error" id="founding-artist-error" role="alert" style="display:none;"></div>
+            </div>
+          </div>
+
+          <!-- MONTHLY MONITORING (SECONDARY) -->
+          <div class="pricing-card pricing-secondary" id="monthly-monitoring-card">
+            <div class="pricing-card-label">Monthly Monitoring</div>
+            <div class="pricing-card-price">$19.99<span class="price-suffix">/month</span></div>
+            <ul class="pricing-card-list">
+              <li>Ongoing monitoring</li>
+              <li>Dashboard access</li>
+              <li>Future platform updates</li>
+            </ul>
+            <p class="pricing-card-sub">Cancel anytime</p>
+            <div class="pricing-card-cta-container">
+              <button class="pricing-cta pricing-cta-secondary" id="monthly-monitoring-cta" type="button" disabled>
+                Available at Launch
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
 
     </main>

@@ -42,6 +42,10 @@
       "dest": "/api/cron/rescan.js"
     },
     {
+      "src": "/api/founding-artist/reserve",
+      "dest": "/api/founding-artist/reserve.js"
+    },
+    {
       "src": "/auth/callback",
       "dest": "/api/auth/callback.js"
     },
