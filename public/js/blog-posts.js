@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "The Backend Infrastructure Powering Modern Music",
+    excerpt: "The systems behind every stream, sync, and royalty payment — and why independent artists need to understand them.",
+    category: "AI Music",
+    date: "2026-05-16",
+    readTime: "10 min read",
+    slug: "the-backend-infrastructure-powering-modern-music",
+    url: "/blog/the-backend-infrastructure-powering-modern-music.html",
+    status: "live"
+  },
+  {
     title: "The Silent Money Leaks Killing Independent Artists",
     excerpt: "AI didn't break music's backend — it exposed how broken it already was. The metadata, publishing, and royalty leaks most artists never see.",
     category: "AI Music",
