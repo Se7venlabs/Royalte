@@ -40,6 +40,7 @@ Independent of the Tier 1 LLC/payments path — none of these gate Block C. Star
 - [ ] **Analytics installed** — PostHog or equivalent (TBD).
 - [ ] **Error monitoring installed** — Sentry or equivalent (TBD).
 - [ ] **Uptime check** — on royalte.ai + key API endpoints.
+- [ ] **Supabase Pro upgrade** — $25/month per project. Free-tier rate limits (especially magic-link auth sends) blocked Chunk 3 smoke testing; not sustainable once real user traffic shares the quota. Schedule: Thursday May 21, 2026.
 
 ---
 
