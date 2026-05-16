@@ -14,6 +14,28 @@
 // The cron skips diffing entirely when a rescan is degraded (per the Block D
 // decision), so computeChanges itself carries no degradation guard.
 
+// Stable issue identity for diffing.
+//
+// Canonical issue `id`s are content hashes of the title — and titles embed
+// volatile metrics ("~1,734,031 unmonetised UGC views…"). A metric tick
+// between rescans produces a different hash for what is the SAME issue, which
+// made the raw-id diff emit phantom issue_resolved + issue_new pairs.
+//
+// issueKey() matches on (module + severity + digit-stripped title) instead,
+// so metric drift no longer reads as a change. Conservative by design: if two
+// genuinely different issues happen to collapse to one key, we under-report
+// (a false negative) rather than fabricate a change (a false positive).
+function issueKey(issue) {
+  const mod = String(issue.module ?? '').trim().toLowerCase();
+  const sev = String(issue.severity ?? '').trim().toLowerCase();
+  const title = String(issue.title ?? '')
+    .replace(/[\d,]/g, '')   // strip digits + thousands separators (volatile metrics)
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+  return `${mod}|${sev}|${title}`;
+}
+
 /**
  * @param {Object} prevPayload - prior canonical AuditResponse (snapshot N)
  * @param {Object} nextPayload - fresh canonical AuditResponse (snapshot N+1)
@@ -24,25 +46,36 @@ export function computeChanges(prevPayload, nextPayload) {
   const next = nextPayload || {};
   const changes = [];
 
-  // ── Issues — new + resolved, diffed by issue id ─────────────────────────
+  // ── Issues — new + resolved ─────────────────────────────────────────────
+  // Matched on the stable normalized key (issueKey), NOT the raw content-hash
+  // id. Same key in both snapshots → no change emitted.
   const prevIssues = Array.isArray(prev.issues) ? prev.issues : [];
   const nextIssues = Array.isArray(next.issues) ? next.issues : [];
-  const prevById = new Map(prevIssues.filter(i => i && i.id != null).map(i => [i.id, i]));
-  const nextById = new Map(nextIssues.filter(i => i && i.id != null).map(i => [i.id, i]));
+  const prevKeys = new Set(prevIssues.filter(Boolean).map(issueKey));
+  const nextKeys = new Set(nextIssues.filter(Boolean).map(issueKey));
 
-  for (const [id, issue] of nextById) {
-    if (!prevById.has(id)) {
+  const emittedNew = new Set();
+  for (const issue of nextIssues) {
+    if (!issue) continue;
+    const key = issueKey(issue);
+    if (!prevKeys.has(key) && !emittedNew.has(key)) {
+      emittedNew.add(key);
       changes.push({
         change_type: 'issue_new',
-        payload: { issue_id: id, title: issue.title ?? null, severity: issue.severity ?? null },
+        payload: { issue_id: issue.id ?? null, title: issue.title ?? null, severity: issue.severity ?? null },
       });
     }
   }
-  for (const [id, issue] of prevById) {
-    if (!nextById.has(id)) {
+
+  const emittedResolved = new Set();
+  for (const issue of prevIssues) {
+    if (!issue) continue;
+    const key = issueKey(issue);
+    if (!nextKeys.has(key) && !emittedResolved.has(key)) {
+      emittedResolved.add(key);
       changes.push({
         change_type: 'issue_resolved',
-        payload: { issue_id: id, title: issue.title ?? null, severity: issue.severity ?? null },
+        payload: { issue_id: issue.id ?? null, title: issue.title ?? null, severity: issue.severity ?? null },
       });
     }
   }
