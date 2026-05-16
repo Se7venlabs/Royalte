@@ -6,8 +6,18 @@
     },
     "api/submit-audit.js": {
       "maxDuration": 60
+    },
+    "api/cron/rescan.js": {
+      "maxDuration": 300,
+      "includeFiles": "api/apple-token.js"
     }
   },
+  "crons": [
+    {
+      "path": "/api/cron/rescan",
+      "schedule": "0 6 * * *"
+    }
+  ],
   "routes": [
     {
       "src": "/pricing.html",
@@ -26,6 +36,10 @@
     {
       "src": "/api/submit-audit",
       "dest": "/api/submit-audit.js"
+    },
+    {
+      "src": "/api/cron/rescan",
+      "dest": "/api/cron/rescan.js"
     },
     {
       "src": "/auth/callback",

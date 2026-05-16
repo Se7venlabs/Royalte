@@ -545,6 +545,50 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
   color:#fff;margin:0 0 8px;
 }
 .upgrade-placeholder p{font-size:13px;color:var(--muted2);margin:0;}
+
+/* ─── BLOCK D — MONITORING ─────────────────────────────────── */
+.monitoring-card{margin-bottom:18px;}
+.monitoring-status-badge{
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;padding:4px 10px;border-radius:3px;
+}
+.monitoring-status-badge.active{color:var(--grn);background:rgba(64,240,160,0.1);border:1px solid rgba(64,240,160,0.3);}
+.monitoring-status-badge.active::before{
+  content:'';display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--grn);margin-right:6px;vertical-align:middle;
+}
+.monitoring-status-badge.inactive{color:#f0c040;background:rgba(240,192,64,0.1);border:1px solid rgba(240,192,64,0.3);}
+.monitoring-status-badge.grace{color:var(--muted2);background:rgba(255,255,255,0.04);border:1px solid var(--border2);}
+.monitoring-meta-row{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:18px;}
+.last-monitored{font-size:13px;color:var(--text2);}
+.next-rescan{font-size:13px;color:var(--muted2);}
+.recent-changes-h{
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;
+}
+.recent-changes-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;}
+.recent-changes-list li{
+  display:flex;justify-content:space-between;gap:12px;
+  font-size:13px;color:var(--text2);padding:9px 0;border-bottom:1px solid var(--border);
+}
+.recent-changes-list li:last-child{border-bottom:none;}
+.change-when{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);flex-shrink:0;}
+.change-empty{color:var(--muted2);font-style:italic;}
+.inactive-banner{
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;
+  padding:24px 18px;background:rgba(240,192,64,0.05);
+  border:1px solid rgba(240,192,64,0.25);border-radius:8px;
+}
+.inactive-icon{font-size:24px;}
+.inactive-headline{
+  font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.02em;color:#fff;
+}
+.inactive-meta{font-size:12.5px;color:var(--muted2);}
+.inactive-warning{font-size:12.5px;color:#f0c040;}
+.inactive-banner .lock-cta{margin-top:8px;}
+.grace-status{font-size:14px;font-weight:700;color:var(--grn);margin-bottom:4px;}
+.grace-next{font-size:13px;color:var(--muted2);}
 </style>
 </head>
 <body>
@@ -888,6 +932,45 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
         <div class="lock-overlay">
           <div class="lock-icon" aria-hidden="true">🔒</div>
           <button class="lock-cta" type="button" data-lock-cta>Unlock Full Audit →</button>
+        </div>
+      </section>
+
+      <!-- ─── MONITORING (Block D) ─── -->
+      <section id="monitoring" class="card monitoring-card fade-in d6">
+        <div class="card-hd">
+          <h2 class="card-title">Monitoring</h2>
+          <div class="monitoring-status-badge"></div>
+        </div>
+
+        <!-- Pro: continuous active monitoring -->
+        <div class="monitoring-active" style="display:none;">
+          <div class="monitoring-meta-row">
+            <div class="last-monitored">Last monitored —</div>
+            <div class="next-rescan">Next rescan —</div>
+          </div>
+          <div class="recent-changes">
+            <h3 class="recent-changes-h">Recent Changes</h3>
+            <ul id="recent-changes-list" class="recent-changes-list">
+              <!-- populated by dashboard.js from scan_changes -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Free + inactive: protection-loss state -->
+        <div class="monitoring-inactive" style="display:none;">
+          <div class="inactive-banner">
+            <div class="inactive-icon" aria-hidden="true">⚠</div>
+            <div class="inactive-headline">Monitoring inactive</div>
+            <div class="inactive-meta">Backend no longer actively watched.</div>
+            <div class="inactive-warning">Changes may no longer be tracked.</div>
+            <button class="lock-cta" type="button" data-lock-cta>Activate Monitoring →</button>
+          </div>
+        </div>
+
+        <!-- Free + grace period: subtle active state -->
+        <div class="monitoring-grace" style="display:none;">
+          <div class="grace-status">Monitoring active</div>
+          <div class="grace-next">Next rescan —</div>
         </div>
       </section>
 

@@ -404,6 +404,11 @@ Block B gated only the sections that exist today. These were scoped out because 
 - [ ] **Gate the Monitoring section** — once Block D ships the Monitoring auto-scan/diff UI (it's currently only a "Soon" sidebar nav item).
 - [ ] **Gate the Alerts section** — once Alerts exist (no Alerts section in the dashboard today).
 
+### Block D follow-ups
+
+- [ ] **Cron batch size vs function timeout** — at scale (>10 active monitored users) the 50-user sequential scan won't fit in the 300s function budget. Revisit (smaller batches / multiple daily runs) when the active monitored user count grows.
+- [ ] **Remove the `audit_scans` fallback in `loadLatestScan`** — the dashboard reads `scan_snapshots` with a temporary `audit_scans` fallback for users without a snapshot. Drop the fallback once snapshot coverage is confirmed for all users.
+
 ---
 
 *Last updated: 2026-05-15*

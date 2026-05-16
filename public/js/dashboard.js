@@ -134,7 +134,7 @@ function renderSidebar(data) {
     { id: "issues",     label: "Issues Found", icon: "issues", badge: data.stats.issuesFound + "" },
     { id: "action",     label: "Action Plan",  icon: "action"  },
     { id: "catalog",    label: "Catalog",      icon: "catalog",    soonLabel: "Soon" },
-    { id: "monitoring", label: "Monitoring",   icon: "monitoring", soonLabel: "Soon" },
+    { id: "monitoring", label: "Monitoring",   icon: "monitoring" },
     { id: "reports",    label: "Reports",      icon: "reports" },
     { id: "settings",   label: "Settings",     icon: "settings" }
   ];
@@ -964,14 +964,28 @@ function renderEmptyState() {
 }
 
 async function loadLatestScan(supabase, userId) {
-  const { data: scans, error } = await supabase
+  // Block D: the dashboard reads living backend state from scan_snapshots
+  // (latest by sequence_number) — the monitoring cron writes new snapshots
+  // there. Falls back to audit_scans for any user without a snapshot yet.
+  // TODO(post-Block-D): drop the audit_scans fallback once snapshot coverage
+  // is confirmed for all users (tracked in LAUNCH_CHECKLIST Block D follow-ups).
+  const { data: snapshots, error } = await supabase
+    .from("scan_snapshots")
+    .select("id, payload, created_at, sequence_number")
+    .eq("user_id", userId)
+    .order("sequence_number", { ascending: false })
+    .limit(1);
+  if (error) console.error("[dashboard] snapshot fetch failed", error);
+  if (snapshots && snapshots.length) return snapshots[0];
+
+  const { data: scans, error: scanErr } = await supabase
     .from("audit_scans")
     .select("*")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(1);
-  if (error) {
-    console.error("[dashboard] scan fetch failed", error);
+  if (scanErr) {
+    console.error("[dashboard] scan fetch failed", scanErr);
     return null;
   }
   return (scans && scans.length) ? scans[0] : null;
@@ -990,18 +1004,124 @@ function wireSignOut(supabase) {
   });
 }
 
-async function loadUserTier(supabase, userId) {
+async function loadProfile(supabase, userId) {
+  const fallback = { tier: "free", monitoring_status: "grace_period", next_rescan_at: null };
   try {
     const { data, error } = await supabase
       .from("profiles")
-      .select("tier")
+      .select("tier, monitoring_status, next_rescan_at")
       .eq("id", userId)
       .single();
-    if (error || !data) return "free";
-    return data.tier;
+    if (error || !data) return fallback;
+    return data;
   } catch (e) {
-    console.error("[dashboard] tier read failed", e);
-    return "free";
+    console.error("[dashboard] profile read failed", e);
+    return fallback;
+  }
+}
+
+/* ── Block D — Monitoring section (tier + monitoring_status aware) ── */
+
+function relativeTimePast(date) {
+  const ms = Date.now() - date.getTime();
+  if (ms < 36e5) return "less than an hour ago";
+  const hours = Math.floor(ms / 36e5);
+  if (hours < 24) return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 14) return days === 1 ? "1 day ago" : `${days} days ago`;
+  const weeks = Math.floor(days / 7);
+  return weeks === 1 ? "1 week ago" : `${weeks} weeks ago`;
+}
+
+function relativeTimeFuture(date) {
+  const ms = date.getTime() - Date.now();
+  if (ms <= 0) return "soon";
+  const days = Math.ceil(ms / 864e5);
+  return days === 1 ? "in 1 day" : `in ${days} days`;
+}
+
+function changeLabel(c) {
+  const p = c.payload || {};
+  switch (c.change_type) {
+    case "issue_new":           return `New issue detected: ${p.title || "issue"}`;
+    case "issue_resolved":      return `Issue resolved: ${p.title || "issue"}`;
+    case "score_change":        return `Health score ${p.delta > 0 ? "improved" : "changed"}: ${p.from} → ${p.to}`;
+    case "revenue_risk_change": return `Revenue risk: ${p.from} → ${p.to}`;
+    case "platform_change":     return `Platform ${p.to === "connected" ? "connected" : "disconnected"}: ${p.platform}`;
+    default:                    return "Change detected";
+  }
+}
+
+async function loadMonitoringState(supabase, userId, profile, latestScan) {
+  const section = document.getElementById("monitoring");
+  if (!section) return;
+
+  const activeEl   = section.querySelector(".monitoring-active");
+  const inactiveEl = section.querySelector(".monitoring-inactive");
+  const graceEl    = section.querySelector(".monitoring-grace");
+  const badge      = section.querySelector(".monitoring-status-badge");
+  [activeEl, inactiveEl, graceEl].forEach(el => { if (el) el.style.display = "none"; });
+
+  const isPro = profile.tier === "pro";
+
+  // Pro — continuous active monitoring.
+  if (isPro) {
+    if (badge) { badge.textContent = "Active"; badge.className = "monitoring-status-badge active"; }
+    if (activeEl) activeEl.style.display = "";
+
+    const lastEl = section.querySelector(".last-monitored");
+    if (lastEl && latestScan && latestScan.created_at) {
+      lastEl.textContent = "Last monitored " + relativeTimePast(new Date(latestScan.created_at));
+    }
+    const nextEl = section.querySelector(".next-rescan");
+    if (nextEl) {
+      nextEl.textContent = profile.next_rescan_at
+        ? "Next rescan " + relativeTimeFuture(new Date(profile.next_rescan_at))
+        : "Next rescan scheduled";
+    }
+
+    const listEl = section.querySelector("#recent-changes-list");
+    if (listEl) {
+      const since = new Date(Date.now() - 14 * 864e5).toISOString();
+      const { data: changes } = await supabase
+        .from("scan_changes")
+        .select("change_type, payload, created_at")
+        .eq("user_id", userId)
+        .gte("created_at", since)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (changes && changes.length) {
+        listEl.innerHTML = changes.map(c =>
+          `<li><span class="change-text">${escapeHtml(changeLabel(c))}</span>` +
+          `<span class="change-when">${escapeHtml(relativeTimePast(new Date(c.created_at)))}</span></li>`
+        ).join("");
+      } else {
+        listEl.innerHTML = `<li class="change-empty">No changes detected yet — your backend is being watched.</li>`;
+      }
+    }
+    return;
+  }
+
+  // Free + inactive — monitoring spent, protection-loss messaging.
+  if (profile.monitoring_status === "inactive") {
+    if (badge) { badge.textContent = "Inactive"; badge.className = "monitoring-status-badge inactive"; }
+    if (inactiveEl) inactiveEl.style.display = "";
+    const metaEl = section.querySelector(".inactive-meta");
+    if (metaEl && latestScan && latestScan.created_at) {
+      metaEl.textContent =
+        `Last monitored ${new Date(latestScan.created_at).toLocaleDateString()}. Backend no longer actively watched.`;
+    }
+    return;
+  }
+
+  // Free + grace_period (default) — subtle "active, next rescan in N days".
+  if (badge) { badge.textContent = "Active"; badge.className = "monitoring-status-badge grace"; }
+  if (graceEl) graceEl.style.display = "";
+  const graceNext = section.querySelector(".grace-next");
+  if (graceNext) {
+    graceNext.textContent = profile.next_rescan_at
+      ? "Next rescan " + relativeTimeFuture(new Date(profile.next_rescan_at))
+      : "Next rescan scheduled";
   }
 }
 
@@ -1035,10 +1155,10 @@ async function init() {
 
   wireSignOut(supabase);
 
-  // Tier gating — tag <body> so the lock CSS renders (free) or stays
-  // hidden (pro). Defaults to free on any read failure.
-  const userTier = await loadUserTier(supabase, session.user.id);
-  document.body.classList.add("tier-" + userTier);
+  // Profile drives tier gating (body class) and the monitoring section.
+  // Defaults to free / grace_period on any read failure.
+  const profile = await loadProfile(supabase, session.user.id);
+  document.body.classList.add("tier-" + profile.tier);
 
   // Load the user's latest scan and render real data (not mock).
   const scan = await loadLatestScan(supabase, session.user.id);
@@ -1048,7 +1168,11 @@ async function init() {
   }
   renderAll(mapCanonicalToDashboard(scan.payload));
 
-  // Wire lock CTAs after the gated sections are in the DOM.
+  // Block D — Monitoring section (tier + monitoring_status aware).
+  await loadMonitoringState(supabase, session.user.id, profile, scan);
+
+  // Wire lock CTAs after all gated sections + the monitoring section
+  // (which contains a data-lock-cta) are in the DOM.
   wireLockCTAs();
 }
 
