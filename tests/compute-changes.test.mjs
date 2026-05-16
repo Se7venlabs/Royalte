@@ -111,6 +111,38 @@ const issueC = { id: 'c', title: 'YouTube gap', severity: 'LOW' };
     'multiple changes → issue_new + issue_resolved + score + risk + platform');
 }
 
+// ── 8. Metric drift in issue titles → no spurious change (the Block D cron bug) ──
+// Same issues, different raw content-hash ids, titles differ only in a volatile
+// number. Pre-fix this emitted 2x issue_resolved + 2x issue_new (all phantom).
+{
+  const prev = payload({ issues: [
+    { id: "hash-old-a", module: "youtube", severity: "HIGH",    title: "~1,734,031 unmonetised UGC views detected on YouTube" },
+    { id: "hash-old-b", module: "youtube", severity: "WARNING", title: "~1,734,031 views detected on UGC videos" },
+  ] });
+  const next = payload({ issues: [
+    { id: "hash-new-a", module: "youtube", severity: "HIGH",    title: "~1,734,780 unmonetised UGC views detected on YouTube" },
+    { id: "hash-new-b", module: "youtube", severity: "WARNING", title: "~1,734,780 views detected on UGC videos" },
+  ] });
+  const changes = computeChanges(prev, next);
+  assert(changes.length === 0, 'metric drift (same issue, drifted number, different raw id) → zero changes');
+}
+
+// ── 9. A genuine new issue in the same module is still detected ──────────────
+// Proves the fix suppresses drift without over-suppressing real changes.
+{
+  const prev = payload({ issues: [
+    { id: "x1", module: "youtube", severity: "HIGH", title: "~1,000 unmonetised UGC views detected on YouTube" },
+  ] });
+  const next = payload({ issues: [
+    { id: "x2", module: "youtube", severity: "HIGH", title: "~2,000 unmonetised UGC views detected on YouTube" },
+    { id: "x3", module: "youtube", severity: "HIGH", title: "Content ID not enabled on official channel" },
+  ] });
+  const changes = computeChanges(prev, next);
+  assert(changes.length === 1, 'genuine new issue alongside metric drift → exactly one change');
+  assert(changes[0].change_type === 'issue_new', 'genuine new issue → issue_new');
+  assert(changes[0].payload.issue_id === 'x3', 'genuine new issue → the truly-new issue (drift suppressed)');
+}
+
 console.log(`\n═══════════════════════════════════════`);
 console.log(`  computeChanges VERIFIED — ${passed} assertions passed`);
 console.log(`═══════════════════════════════════════`);
