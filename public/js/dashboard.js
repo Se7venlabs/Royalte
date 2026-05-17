@@ -1007,11 +1007,17 @@ function wireSignOut(supabase) {
 }
 
 async function loadProfile(supabase, userId) {
-  const fallback = { tier: "free", monitoring_status: "grace_period", next_rescan_at: null };
+  const fallback = {
+    tier: "free",
+    monitoring_status: "inactive",
+    next_rescan_at: null,
+    trial_started_at: null,
+    founding_artist: false,
+  };
   try {
     const { data, error } = await supabase
       .from("profiles")
-      .select("tier, monitoring_status, next_rescan_at")
+      .select("tier, monitoring_status, next_rescan_at, trial_started_at, founding_artist")
       .eq("id", userId)
       .single();
     if (error || !data) return fallback;
@@ -1106,12 +1112,12 @@ async function loadMonitoringState(supabase, userId, profile, latestScan) {
 
   // Free + inactive — monitoring spent, protection-loss messaging.
   if (profile.monitoring_status === "inactive") {
-    if (badge) { badge.textContent = "Inactive"; badge.className = "monitoring-status-badge inactive"; }
+    if (badge) { badge.textContent = "Paused"; badge.className = "monitoring-status-badge inactive"; }
     if (inactiveEl) inactiveEl.style.display = "";
     const metaEl = section.querySelector(".inactive-meta");
     if (metaEl && latestScan && latestScan.created_at) {
       metaEl.textContent =
-        `Last monitored ${new Date(latestScan.created_at).toLocaleDateString()}. Backend no longer actively watched.`;
+        `Last monitored ${new Date(latestScan.created_at).toLocaleDateString()}. Continuous monitoring and change detection are currently inactive.`;
     }
     return;
   }
@@ -1139,6 +1145,70 @@ function wireLockCTAs() {
       if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
+}
+
+/* ── Block D.2 — Trial activation + countdown ───────────────────── */
+
+// First-login trial activation. Signups land monitoring_status='inactive'
+// with no trial history; the 14-day trial starts the first time the user
+// opens the OS. Only flips inactive users with trial_started_at still null —
+// grace_period users (already in a trial) and anyone with a recorded trial
+// are skipped. On failure the user stays inactive and retries next load.
+async function activateTrialIfNeeded(supabase, userId, profile) {
+  if (profile.monitoring_status !== "inactive") return profile;
+  if (profile.trial_started_at != null) return profile;
+
+  const now = new Date();
+  const trialEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .update({
+        monitoring_status: "grace_period",
+        trial_started_at: now.toISOString(),
+        next_rescan_at: trialEnd.toISOString(),
+      })
+      .eq("id", userId)
+      .select("tier, monitoring_status, next_rescan_at, trial_started_at, founding_artist")
+      .single();
+    if (error || !data) {
+      console.error("[dashboard] trial activation failed", error);
+      return profile;
+    }
+    return data;
+  } catch (e) {
+    console.error("[dashboard] trial activation failed", e);
+    return profile;
+  }
+}
+
+// Calm trial countdown banner — shown only during an active trial
+// (grace_period + trial_started_at set). Hidden once the window lapses;
+// the cron flips the row to inactive, this is just a stale-data buffer.
+function renderTrialBanner(profile) {
+  const banner = document.getElementById("trial-banner");
+  if (!banner) return;
+
+  const inGrace = profile.monitoring_status === "grace_period";
+  const trialStarted = profile.trial_started_at != null;
+  if (!inGrace || !trialStarted) {
+    banner.style.display = "none";
+    return;
+  }
+
+  const trialEnd = new Date(profile.next_rescan_at);
+  const daysRemaining = Math.ceil((trialEnd - new Date()) / 864e5);
+  if (daysRemaining <= 0) {
+    banner.style.display = "none";
+    return;
+  }
+
+  const numEl = document.getElementById("trial-days-num");
+  if (numEl) numEl.textContent = String(daysRemaining);
+  const labelEl = document.getElementById("trial-days-label");
+  if (labelEl) labelEl.textContent = daysRemaining === 1 ? "day remaining" : "days remaining";
+  banner.style.display = "";
 }
 
 /* ── V5 Phase 2 — Welcome panel + Founding Artist pricing ───────── */
@@ -1259,12 +1329,17 @@ async function init() {
 
   // Profile drives tier gating (body class), the monitoring section, the
   // welcome panel, and pricing. Defaults to free / grace_period on failure.
-  const profile = await loadProfile(supabase, session.user.id);
+  let profile = await loadProfile(supabase, session.user.id);
+  // Block D.2 — start the 14-day trial on first OS login. Runs before any
+  // render so the welcome panel, trial banner, and monitoring section all
+  // see the activated state.
+  profile = await activateTrialIfNeeded(supabase, session.user.id, profile);
   document.body.classList.add("tier-" + profile.tier);
 
-  // Welcome panel renders on every path — including the no-scan empty state
-  // — so it lives outside #scan-content.
+  // Welcome panel + trial banner render on every path — including the no-scan
+  // empty state — so they live outside #scan-content.
   renderWelcomePanel(profile);
+  renderTrialBanner(profile);
 
   // Load the user's latest scan. Only #scan-content is scan-dependent.
   const scan = await loadLatestScan(supabase, session.user.id);

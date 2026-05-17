@@ -579,13 +579,11 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
   padding:24px 18px;background:rgba(240,192,64,0.05);
   border:1px solid rgba(240,192,64,0.25);border-radius:8px;
 }
-.inactive-icon{font-size:24px;}
 .inactive-headline{
   font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;
   text-transform:uppercase;letter-spacing:0.02em;color:#fff;
 }
 .inactive-meta{font-size:12.5px;color:var(--muted2);}
-.inactive-warning{font-size:12.5px;color:#f0c040;}
 .inactive-banner .lock-cta{margin-top:8px;}
 .grace-status{font-size:14px;font-weight:700;color:var(--grn);margin-bottom:4px;}
 .grace-next{font-size:13px;color:var(--muted2);}
@@ -621,6 +619,34 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
 .welcome-panel-sub{
   font-family:'Space Grotesk',sans-serif;font-size:14px;
   color:var(--muted2);line-height:1.6;margin:0;
+}
+
+/* ─── BLOCK D.2 — TRIAL BANNER ───────────────────────────────── */
+/* Calm, infrastructural — a status readout, not a countdown-sale. */
+.trial-banner{
+  margin-bottom:22px;padding:20px 24px;
+  border:1px solid var(--border2);border-radius:12px;
+  background:rgba(138,92,255,0.05);
+}
+.trial-banner-inner{display:flex;flex-direction:column;gap:7px;}
+.trial-banner-badge{
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:0.16em;text-transform:uppercase;color:var(--pur);
+}
+.trial-banner-countdown{display:flex;align-items:baseline;gap:8px;}
+.trial-days-num{
+  font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;
+  color:#fff;line-height:1;
+}
+.trial-days-label{
+  font-family:'Space Grotesk',sans-serif;font-size:13.5px;color:var(--text2);
+}
+.trial-banner-sub{
+  font-family:'Space Grotesk',sans-serif;font-size:13px;
+  color:var(--muted2);line-height:1.5;margin:0;
+}
+@media(max-width:720px){
+  .trial-banner{padding:18px 20px;}
 }
 
 /* ─── V5 PHASE 2 — PRICING SECTION ───────────────────────────── */
@@ -758,6 +784,19 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
           <h1 class="welcome-panel-title">Royaltē OS</h1>
           <p class="welcome-panel-tagline">Your music backend, monitored.</p>
           <p class="welcome-panel-sub" id="welcome-panel-sub"></p>
+        </div>
+      </section>
+
+      <!-- Block D.2 — trial countdown. Outside #scan-content so it survives
+           the no-scan empty state (a first-login trial user has no scan yet). -->
+      <section class="trial-banner fade-in d2" id="trial-banner" style="display:none;">
+        <div class="trial-banner-inner">
+          <div class="trial-banner-badge">Founding Artist Trial Active</div>
+          <div class="trial-banner-countdown">
+            <span class="trial-days-num" id="trial-days-num">14</span>
+            <span class="trial-days-label" id="trial-days-label">days remaining</span>
+          </div>
+          <p class="trial-banner-sub">Your backend is being actively monitored.</p>
         </div>
       </section>
 
@@ -1080,10 +1119,8 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
         <!-- Free + inactive: protection-loss state -->
         <div class="monitoring-inactive" style="display:none;">
           <div class="inactive-banner">
-            <div class="inactive-icon" aria-hidden="true">⚠</div>
-            <div class="inactive-headline">Monitoring inactive</div>
-            <div class="inactive-meta">Backend no longer actively watched.</div>
-            <div class="inactive-warning">Changes may no longer be tracked.</div>
+            <div class="inactive-headline">Monitoring Paused</div>
+            <div class="inactive-meta">Your last backend snapshot remains available. Continuous monitoring and change detection are currently inactive.</div>
             <button class="lock-cta" type="button" data-lock-cta>Activate Monitoring →</button>
           </div>
         </div>
