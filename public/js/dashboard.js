@@ -845,9 +845,9 @@ function revenueRangeForTier(tier) {
 }
 
 function impactLabelForSeverity(sev) {
-  if (sev === "high")   return "Thousands at risk";
-  if (sev === "medium") return "Hundreds at risk";
-  return "Minor";
+  if (sev === "high")   return "Significant exposure";
+  if (sev === "medium") return "Moderate exposure";
+  return "Limited exposure";
 }
 
 function headlineForScore(score) {
@@ -1054,7 +1054,7 @@ function changeLabel(c) {
     case "issue_new":           return `New issue detected: ${p.title || "issue"}`;
     case "issue_resolved":      return `Issue resolved: ${p.title || "issue"}`;
     case "score_change":        return `Health score ${p.delta > 0 ? "improved" : "changed"}: ${p.from} → ${p.to}`;
-    case "revenue_risk_change": return `Revenue risk: ${p.from} → ${p.to}`;
+    case "revenue_risk_change": return `Revenue exposure: ${p.from} → ${p.to}`;
     case "platform_change":     return `Platform ${p.to === "connected" ? "connected" : "disconnected"}: ${p.platform}`;
     default:                    return "Change detected";
   }
