@@ -1334,6 +1334,82 @@ async function handleReserveClick(session, cta) {
   }
 }
 
+/* ── Block G.1 — Artist Footprint ───────────────────────────────── */
+
+// Scale confidence buckets — locked (Block G.1 brief, Decision #4E).
+// followers === -1 (Apple-degraded sentinel) fails every follower
+// threshold naturally, so popularity alone decides — no special-casing.
+function scaleConfidence(followers, popularity) {
+  const f = Number(followers);
+  const p = Number(popularity);
+  if (f >= 100000 || p >= 70) {
+    return { label: "Strong", desc: "Established audience and streaming presence." };
+  }
+  if (f >= 10000 || p >= 40) {
+    return { label: "Moderate", desc: "A growing audience with developing reach." };
+  }
+  return { label: "Limited", desc: "Early-stage reach — your footprint is still developing." };
+}
+
+// Reads the canonical scan payload directly (metrics.* / platforms.* are the
+// stable contract). Edge cases A–F are locked in the brief — implemented exactly.
+function renderArtistFootprint(payload) {
+  const card = document.getElementById("artist-footprint");
+  if (!card) return;
+
+  const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+  const p         = payload || {};
+  const metrics   = p.metrics || {};
+  const platforms = p.platforms || {};
+  const apple     = platforms.appleMusic || {};
+
+  const appleVerified = apple.availability === "VERIFIED";
+  // AUTH_UNAVAILABLE / ERROR — service unavailability, not a data gap (edge D).
+  const appleDashed   = apple.availability === "AUTH_UNAVAILABLE" || apple.availability === "ERROR";
+
+  const followers  = Number(metrics.followers);
+  const popularity = Number(metrics.popularity);
+
+  // #1 Spotify followers — edge A: -1 sentinel hides the whole row.
+  const followersRow = document.getElementById("af-row-followers");
+  if (followers === -1) {
+    if (followersRow) followersRow.style.display = "none";
+  } else {
+    if (followersRow) followersRow.style.display = "";
+    set("af-followers", Number.isFinite(followers) ? followers.toLocaleString("en-US") : "—");
+  }
+
+  // #2 Spotify popularity — edge B: 0 renders honestly.
+  set("af-popularity", Number.isFinite(popularity) ? popularity + " / 100" : "—");
+
+  // #3 Apple Music presence — edge D: dashed availability dashes out.
+  set("af-apple-presence", appleDashed ? "—" : (appleVerified ? "On Apple Music" : "Not on Apple Music"));
+
+  // #4 Apple Music release count — edge C: "25+" at the engine's 25-album
+  // cap; edge D: dashed out. NOT_FOUND has no details → "—" (consistent).
+  if (appleVerified) {
+    const count = Number(apple.details && apple.details.albumCount);
+    set("af-apple-releases", Number.isFinite(count) ? (count >= 25 ? "25+" : String(count)) : "—");
+  } else {
+    set("af-apple-releases", "—");
+  }
+
+  // #5 Platform linkage — computed from the two availability fields.
+  const spotifyVerified = (platforms.spotify || {}).availability === "VERIFIED";
+  let linkage = "—";
+  if (!appleDashed) {
+    if (spotifyVerified && appleVerified)       linkage = "Linked — Spotify + Apple Music";
+    else if (spotifyVerified && !appleVerified) linkage = "Spotify only";
+  }
+  set("af-linkage", linkage);
+
+  // #6 Scale confidence — locked buckets.
+  const scale = scaleConfidence(followers, popularity);
+  set("af-scale", scale.label);
+  set("af-scale-desc", scale.desc);
+}
+
 async function init() {
   // Auth gate — no active session means no dashboard. Redirect home.
   const supabase = getSupabase();
@@ -1371,6 +1447,8 @@ async function init() {
     renderEmptyState();
   } else {
     renderAll(mapCanonicalToDashboard(scan.payload));
+    // Block G.1 — Artist Footprint reads the raw canonical payload directly.
+    renderArtistFootprint(scan.payload);
     // Block D — Monitoring section (tier + monitoring_status aware).
     await loadMonitoringState(supabase, session.user.id, profile, scan);
   }
