@@ -40,8 +40,8 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 /* ─── SIDEBAR ─── */
 .sidebar{background:rgba(7,7,15,0.7);backdrop-filter:blur(28px);border-right:1px solid var(--border);padding:28px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
 .sb-brand{display:flex;align-items:center;gap:10px;padding:0 24px 32px;text-decoration:none;}
-.sb-brand-text{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#fff;line-height:1;}
-.sb-brand-text .ac{color:var(--pur);}
+.sb-brand-logo{height:36px;max-height:40px;width:auto;display:block;}
+.sb-brand-e{fill:var(--pur);}
 
 .sb-nav{display:flex;flex-direction:column;gap:2px;padding:0 12px;flex:1;}
 .sb-link{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:6px;font-size:13px;font-weight:600;color:var(--muted2);text-decoration:none;letter-spacing:0.04em;text-transform:uppercase;font-family:'Space Grotesk',sans-serif;transition:all 0.18s;border:1px solid transparent;cursor:pointer;}
@@ -130,7 +130,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .hero-stat-sub.good{color:var(--grn);}
 .hero-stat-sub.bad{color:var(--red);}
 
-/* Revenue at Risk is the hero-stat centerpiece (V4 emphasis rebalance) */
+/* Revenue Exposure is the hero-stat centerpiece (V4 emphasis rebalance) */
 .hero-stat.primary .hero-stat-lbl{font-size:11px;color:var(--text2);}
 .hero-stat.primary .hero-stat-val{font-size:32px;text-shadow:0 0 24px rgba(138,92,255,0.45);}
 .hero-stat.primary .hero-stat-sub{font-size:12px;display:inline-flex;width:fit-content;padding:3px 10px;border-radius:100px;}
@@ -197,7 +197,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .range-select:hover{border-color:rgba(138,92,255,0.5);}
 .range-select svg{width:12px;height:12px;color:var(--muted);}
 
-/* ─── REVENUE AT RISK CARD ─── */
+/* ─── REVENUE EXPOSURE CARD ─── */
 .rev-headline{display:flex;align-items:baseline;gap:14px;margin-bottom:4px;flex-wrap:wrap;}
 .rev-amount{font-family:'Rajdhani',sans-serif;font-size:42px;font-weight:700;color:#fff;line-height:1;letter-spacing:-0.015em;}
 .rev-tier-pill{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 10px;border-radius:100px;letter-spacing:0.1em;text-transform:uppercase;}
@@ -490,7 +490,7 @@ body.tier-pro #action-locked-overlay{display:none !important;}
 body.tier-pro .action-locked-preview{filter:none;opacity:1;}
 
 /* Grayed-card lock overlay for sections with no pre-existing lock
-   (Revenue at Risk, Your Platforms). No blur — structure stays
+   (Revenue Exposure, Your Platforms). No blur — structure stays
    visible through the scrim. Shown only under body.tier-free. */
 .lock-overlay{
   display:none;
@@ -614,7 +614,11 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
   line-height:1;letter-spacing:0.01em;text-transform:uppercase;color:#fff;margin:0 0 6px;
 }
 .welcome-panel-tagline{
-  font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--text2);margin:0 0 14px;
+  font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--text2);margin:0 0 10px;
+}
+.welcome-panel-intelligence{
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-style:italic;
+  color:var(--muted2);line-height:1.6;margin:0 0 12px;
 }
 .welcome-panel-sub{
   font-family:'Space Grotesk',sans-serif;font-size:14px;
@@ -644,6 +648,10 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
 .trial-banner-sub{
   font-family:'Space Grotesk',sans-serif;font-size:13px;
   color:var(--muted2);line-height:1.5;margin:0;
+}
+.trial-banner-context{
+  font-family:'Space Grotesk',sans-serif;font-size:12.5px;
+  color:var(--muted);line-height:1.5;margin:7px 0 0;
 }
 @media(max-width:720px){
   .trial-banner{padding:18px 20px;}
@@ -733,8 +741,10 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
 
     <!-- ───── SIDEBAR ───── -->
     <aside class="sidebar">
-      <a href="/" class="sb-brand">
-        <div class="sb-brand-text">Royalt<span class="ac">ē</span></div>
+      <a href="/" class="sb-brand" aria-label="Royaltē">
+        <svg class="sb-brand-logo" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <text x="20" y="250" font-family="'Rajdhani','Arial Black',sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan class="sb-brand-e">Ē</tspan></text>
+        </svg>
       </a>
 
       <nav class="sb-nav" id="sb-nav">
@@ -783,6 +793,7 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
           <div class="welcome-panel-badge">Early Access Beta Phase</div>
           <h1 class="welcome-panel-title">Royaltē OS</h1>
           <p class="welcome-panel-tagline">Your music backend, monitored.</p>
+          <p class="welcome-panel-intelligence">Your audit is saved here. Monitoring tracks what changes after the snapshot.</p>
           <p class="welcome-panel-sub" id="welcome-panel-sub"></p>
         </div>
       </section>
@@ -797,6 +808,7 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
             <span class="trial-days-label" id="trial-days-label">days remaining</span>
           </div>
           <p class="trial-banner-sub">Your backend is being actively monitored.</p>
+          <p class="trial-banner-context">Your audit is your snapshot. Monitoring watches what changes next.</p>
         </div>
       </section>
 
@@ -827,7 +839,7 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
             <div class="hero-score-tag">Overall Score</div>
             <div class="hero-score-h" id="score-headline">Loading…</div>
             <button class="hero-score-link" data-jump="issues">
-              See what's missing
+              Review your risk areas
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </button>
           </div>
@@ -840,7 +852,7 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
         <div class="hero-stat primary">
           <div class="hero-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
           <div class="hero-stat-body">
-            <div class="hero-stat-lbl">Est. Revenue at Risk</div>
+            <div class="hero-stat-lbl">Estimated Revenue Exposure</div>
             <div class="hero-stat-val" id="stat-revenue">—</div>
             <div class="hero-stat-sub high" id="stat-revenue-tier">—</div>
             <div class="hero-stat-conf" id="stat-revenue-conf">—</div>
@@ -868,11 +880,11 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
 
       <!-- ─── REVENUE + RECENT SCAN ─── -->
       <div class="grid-2">
-        <!-- Revenue at Risk -->
+        <!-- Revenue Exposure -->
         <section class="card fade-in d3 gated-section">
           <div class="card-hd">
             <h2 class="card-title">
-              Estimated Revenue at Risk
+              Estimated Revenue Exposure
               <svg class="card-title-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             </h2>
             <button class="range-select">
@@ -880,7 +892,7 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
           </div>
-          <p class="card-sub">Based on verified gaps in your setup</p>
+          <p class="card-sub">Estimated using detected backend inconsistencies, metadata integrity, catalog scale, and registration confidence analysis.</p>
 
           <div class="rev-headline">
             <div class="rev-amount" id="rev-amount">—</div>
