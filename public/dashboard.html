@@ -40,8 +40,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 /* ─── SIDEBAR ─── */
 .sidebar{background:rgba(7,7,15,0.7);backdrop-filter:blur(28px);border-right:1px solid var(--border);padding:28px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
 .sb-brand{display:flex;align-items:center;gap:10px;padding:0 24px 32px;text-decoration:none;}
-.sb-brand-logo{height:36px;max-height:40px;width:auto;display:block;}
-.sb-brand-e{fill:var(--pur);}
+.sb-brand-logo{height:76px;width:auto;display:block;}
 
 .sb-nav{display:flex;flex-direction:column;gap:2px;padding:0 12px;flex:1;}
 .sb-link{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:6px;font-size:13px;font-weight:600;color:var(--muted2);text-decoration:none;letter-spacing:0.04em;text-transform:uppercase;font-family:'Space Grotesk',sans-serif;transition:all 0.18s;border:1px solid transparent;cursor:pointer;}
@@ -146,7 +145,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .hero-identity::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(138,92,255,0.06) 0%,transparent 70%);pointer-events:none;}
 .hi-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0;position:relative;}
 .hi-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);flex-shrink:0;}
-.hi-name{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;}
+.hi-name{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.1;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-width:0;flex:1;}
 .hi-resolved{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;color:var(--text2);letter-spacing:0.01em;line-height:1.3;}
 .hi-status{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;color:var(--grn);letter-spacing:0.05em;margin-top:1px;}
 .hi-status.limited{color:var(--amb);}
@@ -742,8 +741,26 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
     <!-- ───── SIDEBAR ───── -->
     <aside class="sidebar">
       <a href="/" class="sb-brand" aria-label="Royaltē">
-        <svg class="sb-brand-logo" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <text x="20" y="250" font-family="'Rajdhani','Arial Black',sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan class="sb-brand-e">Ē</tspan></text>
+        <svg class="sb-brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <defs>
+            <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+              <stop offset="0%" stop-color="#8a5cff"/>
+              <stop offset="100%" stop-color="#e040c8"/>
+            </linearGradient>
+            <linearGradient id="nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+              <stop offset="0%" stop-color="#b963ec"/>
+              <stop offset="60%" stop-color="#8a5cff"/>
+              <stop offset="100%" stop-color="#e040c8"/>
+            </linearGradient>
+            <linearGradient id="nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="82%" stop-color="#ffffff"/>
+              <stop offset="100%" stop-color="#b963ec"/>
+            </linearGradient>
+          </defs>
+          <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
+          <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
+          <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
         </svg>
       </a>
 
