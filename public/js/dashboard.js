@@ -27,7 +27,6 @@ import { getSupabase } from '/js/supabase-client.js';
 /**
  * @typedef {Object} DashboardData
  * @property {Object} user
- * @property {string} user.firstName       - "Jordan"
  * @property {string} user.fullName        - "Jordan Kai"
  * @property {string} user.plan            - "Artist Plan" | "Pro" | "Free"
  * @property {boolean} user.verified
@@ -215,7 +214,7 @@ function renderSidebarUpgrade(profile) {
    ───────────────────────────────────────────── */
 
 function renderHeader(data) {
-  document.getElementById("artist-name").textContent = data.user.firstName;
+  document.getElementById("artist-name").textContent = data.user.fullName;
   document.getElementById("welcome-sub").textContent = "Last scan completed " + data.recentScan.dateLabel + ".";
 
   const bell = document.getElementById("bell-count");
@@ -763,7 +762,6 @@ function mapCanonicalToDashboard(canonical) {
   // ── final assembly ───────────────────────────
   return {
     user: {
-      firstName: firstWord(identity.artistName) || "there",
       fullName:  identity.artistName || "Artist",
       plan:      "Free Scan",
       verified:  identity.scanStatus === "verified",
@@ -829,11 +827,6 @@ function pickArtistImage(audit) {
   return null;
 }
 
-function firstWord(s) {
-  if (!s) return "";
-  const m = String(s).trim().match(/^\S+/);
-  return m ? m[0] : "";
-}
 
 function normalizeSeverity(s) {
   s = String(s || "").toLowerCase();
