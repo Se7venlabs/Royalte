@@ -141,10 +141,15 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     return;
   }
 
-  // Claim the anonymous scan if signInWithOtp stashed a session_id in the
-  // user's metadata. Non-fatal: sign-in succeeds regardless — the scan just
-  // doesn't migrate this round.
-  const sessionId = session.user?.user_metadata?.session_id;
+  // Claim the anonymous scan. session_id arrives on the redirect URL query
+  // (the channel that works for returning users — data.* only persists to
+  // user_metadata when Supabase creates the user). The URL param wins: it is
+  // the fresh signal from THIS sign-in; user_metadata is from account
+  // creation. Non-fatal: sign-in succeeds regardless — the scan just doesn't
+  // migrate this round.
+  const sessionId =
+    new URLSearchParams(window.location.search).get('session_id') ||
+    session.user?.user_metadata?.session_id;
   if (sessionId) {
     try {
       const { error: rpcErr } = await supabase.rpc('migrate_anonymous_scans', {

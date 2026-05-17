@@ -3445,11 +3445,18 @@ async function sendMagicLink(email, source) {
   const supabase = getSupabase();
   if (!supabase) return { ok: false, kind: 'unavailable' };
   try {
+    // session_id rides in BOTH the redirect URL and the data payload.
+    // data.* only persists to user_metadata when Supabase CREATES the user,
+    // so for returning users the URL param is the channel the callback reads.
+    const sessionId = getOrCreateSessionId();
+    const redirectUrl = new URL('/auth/callback', window.location.origin);
+    redirectUrl.searchParams.set('session_id', sessionId);
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: window.location.origin + '/auth/callback',
-        data: { session_id: getOrCreateSessionId(), source: source || 'homepage_scan' },
+        emailRedirectTo: redirectUrl.toString(),
+        data: { session_id: sessionId, source: source || 'homepage_scan' },
       },
     });
     if (error) {
