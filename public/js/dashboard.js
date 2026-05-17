@@ -111,7 +111,6 @@ const ICONS = {
   monitoring: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
   reports:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
   settings:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
-  upgrade:    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
   // issue category icons
   isrc:       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/></svg>',
   yt:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>',
@@ -156,14 +155,6 @@ function renderSidebar(data) {
 
   document.getElementById("sb-nav").innerHTML = navHTML;
 
-  // upgrade card
-  document.getElementById("sb-upgrade").innerHTML = `
-    <div class="sb-upgrade-ico">${ICONS.upgrade}</div>
-    <div class="sb-upgrade-t">Unlock Full Audit</div>
-    <div class="sb-upgrade-d">See <strong>every issue</strong>, the <strong>full action plan</strong>, and your complete risk breakdown.</div>
-    <button class="sb-upgrade-btn" data-action="upgrade">Unlock Full Audit →</button>
-  `;
-
   // user pill
   const initials = (data.user.fullName || "")
     .split(/\s+/).map(s => s[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "U";
@@ -178,6 +169,44 @@ function renderSidebar(data) {
       <div class="sb-user-plan">${escapeHtml(data.user.plan)}</div>
     </div>
   `;
+}
+
+// Sidebar upgrade card — profile-driven, not scan-driven, so it renders on
+// every init() path (including the no-scan empty state). Three outcomes:
+// pro → hidden; active trial → calm informational card, no CTA; otherwise
+// (paused / pre-trial) → "Activate Monitoring" CTA. The CTA carries
+// data-lock-cta so wireLockCTAs() smooth-scrolls it to #upgrade.
+function renderSidebarUpgrade(profile) {
+  const el = document.getElementById("sb-upgrade");
+  if (!el) return;
+
+  // Pro users have full active monitoring — no upgrade card at all.
+  if (profile.tier === "pro") {
+    el.style.display = "none";
+    return;
+  }
+  el.style.display = "";
+
+  const inTrial = profile.monitoring_status === "grace_period"
+    && profile.trial_started_at != null;
+
+  if (inTrial) {
+    el.innerHTML = `
+      <div class="sb-upgrade-state-trial">
+        <div class="sb-upgrade-badge">Founding Artist Trial Active</div>
+        <p class="sb-upgrade-body">Your backend is currently being actively monitored.</p>
+        <p class="sb-upgrade-context">Your audit is your snapshot. Monitoring watches what changes next.</p>
+      </div>
+    `;
+  } else {
+    el.innerHTML = `
+      <div class="sb-upgrade-state-paused">
+        <div class="sb-upgrade-badge">Monitoring Paused</div>
+        <p class="sb-upgrade-body">Your audit remains available. Continuous monitoring and change detection are currently inactive.</p>
+        <button class="sb-upgrade-cta" type="button" data-lock-cta>Activate Monitoring →</button>
+      </div>
+    `;
+  }
 }
 
 
@@ -559,12 +588,6 @@ function wireInteractions() {
     link.classList.add("active");
     // V2: route to /dashboard/{id}
     console.log("[v1] nav →", link.dataset.nav);
-  });
-
-  // upgrade button (sidebar)
-  document.querySelector("[data-action='upgrade']")?.addEventListener("click", () => {
-    // V1: route to homepage Full Audit form. Same destination as all unlock CTAs.
-    window.location.href = "/#request";
   });
 
   // unlock CTAs — log which surface fired, then let the <a href="/#request"> navigate naturally
@@ -1340,6 +1363,7 @@ async function init() {
   // empty state — so they live outside #scan-content.
   renderWelcomePanel(profile);
   renderTrialBanner(profile);
+  renderSidebarUpgrade(profile);
 
   // Load the user's latest scan. Only #scan-content is scan-dependent.
   const scan = await loadLatestScan(supabase, session.user.id);

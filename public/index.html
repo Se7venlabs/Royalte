@@ -70,6 +70,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;d
 .nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
 .nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
 .nav-cta:hover{opacity:0.85;}
+.nav-os-entry{display:inline-block;text-decoration:none;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);background:rgba(138,92,255,0.06);border:1px solid var(--border2);padding:9px 20px;border-radius:4px;white-space:nowrap;transition:background 0.2s,border-color 0.2s,color 0.2s;}
+.nav-os-entry:hover{background:rgba(138,92,255,0.12);border-color:var(--pur);color:#fff;}
 /* HERO */
 .hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:124px 56px 60px;position:relative;overflow:hidden;gap:56px;}
 #scan-tool{min-height:auto;padding:124px 56px 32px;align-items:start;}
@@ -457,8 +459,9 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   .nav-logo-mobile{display:block;height:32px;}
   .nav-links{display:none;}
   .nav-beta{display:none;}
-  .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
-  .nav-right{gap:0;}
+  .nav-cta{display:none;}
+  .nav-os-entry{padding:8px 14px;font-size:10px;letter-spacing:0.08em;}
+  .nav-right{gap:14px;}
   .hero{grid-template-columns:1fr;padding:84px 20px 50px;}
   /* Mobile scan visibility: render .hero-right (the scan dashboard) stacked
      below .hero-left. Override the desktop slide-in-from-right animation
@@ -1707,6 +1710,7 @@ body.menu-locked {
       <a href="/blog.html">Learn</a>
     </div>
     <span class="nav-beta">// Beta</span>
+    <a href="/dashboard.html" class="nav-os-entry" id="enter-os-btn">Enter Royaltē OS →</a>
     <button class="nav-cta nav-cta-pulse" type="button" onclick="requestFullAuditFromNav()">Request Full Audit</button>
     <button class="nav-hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu-drawer">
       <span class="hamburger-line"></span>
@@ -3485,6 +3489,37 @@ document.addEventListener('click', (e) => {
     setTimeout(() => document.getElementById('d-conversion-email')?.focus(), 600);
   }
 });
+
+// ── PR B — "Enter Royaltē OS" nav button ─────────────────────────
+// Session-aware: logged-in users follow the native <a> to the
+// dashboard; logged-out users get the click intercepted to scroll to
+// the magic-link section instead. Until getSession() resolves the
+// button stays a live link — a logged-out click in that <1s window
+// just bounces off the dashboard auth gate, which is acceptable for V1.
+async function wireOSEntry() {
+  const btn = document.getElementById('enter-os-btn');
+  if (!btn) return;
+  const supabase = getSupabase();
+  if (!supabase) return;
+  let session = null;
+  try {
+    ({ data: { session } } = await supabase.auth.getSession());
+  } catch (e) {
+    console.error('[enter-os] getSession failed', e);
+  }
+  if (session) return; // logged in — native href to /dashboard.html
+
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.getElementById('continue-inside-os');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => document.getElementById('d-conversion-email')?.focus(), 600);
+    }
+  });
+}
+
+wireOSEntry();
 </script>
 
 </body>
