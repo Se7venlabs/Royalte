@@ -191,6 +191,16 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .card-pill{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px;letter-spacing:0.08em;}
 .card-pill.count{background:rgba(240,80,96,0.12);color:var(--red);border:1px solid rgba(240,80,96,0.25);}
 
+/* ─── BLOCK G.1 — ARTIST FOOTPRINT ───────────────────────────── */
+.af-grid{display:flex;flex-direction:column;}
+.af-row{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--border3);}
+.af-row:last-child{border-bottom:none;padding-bottom:0;}
+.af-label{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);}
+.af-value{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-align:right;line-height:1.1;}
+.af-row-scale{flex-direction:column;align-items:stretch;gap:5px;}
+.af-scale-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;}
+.af-scale-desc{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:var(--muted2);line-height:1.5;margin:0;}
+
 /* dropdown / select */
 .range-select{display:inline-flex;align-items:center;gap:6px;background:rgba(7,7,15,0.6);border:1px solid var(--border2);border-radius:4px;padding:6px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;cursor:pointer;transition:border-color 0.18s;}
 .range-select:hover{border-color:rgba(138,92,255,0.5);}
@@ -891,6 +901,43 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
             <div class="hero-stat-lbl">Things Working</div>
             <div class="hero-stat-val" id="stat-working">—</div>
             <div class="hero-stat-sub good">Verified</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── ARTIST FOOTPRINT (Block G.1) ─── -->
+      <section class="card fade-in d2" id="artist-footprint">
+        <div class="card-hd">
+          <h2 class="card-title">Artist Footprint</h2>
+        </div>
+        <p class="card-sub">Your reach and platform standing across the major DSPs.</p>
+        <div class="af-grid">
+          <div class="af-row" id="af-row-followers">
+            <span class="af-label">Spotify Followers</span>
+            <span class="af-value" id="af-followers">—</span>
+          </div>
+          <div class="af-row">
+            <span class="af-label">Spotify Popularity</span>
+            <span class="af-value" id="af-popularity">—</span>
+          </div>
+          <div class="af-row">
+            <span class="af-label">Apple Music</span>
+            <span class="af-value" id="af-apple-presence">—</span>
+          </div>
+          <div class="af-row">
+            <span class="af-label">Apple Music Releases</span>
+            <span class="af-value" id="af-apple-releases">—</span>
+          </div>
+          <div class="af-row">
+            <span class="af-label">Platform Linkage</span>
+            <span class="af-value" id="af-linkage">—</span>
+          </div>
+          <div class="af-row af-row-scale">
+            <div class="af-scale-head">
+              <span class="af-label">Scale Confidence</span>
+              <span class="af-value" id="af-scale">—</span>
+            </div>
+            <p class="af-scale-desc" id="af-scale-desc"></p>
           </div>
         </div>
       </section>
