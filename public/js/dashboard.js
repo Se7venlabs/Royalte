@@ -684,15 +684,37 @@ function mapCanonicalToDashboard(canonical) {
   const score = clamp(Math.round(Number(scoreObj.overall) || 0), 0, 100);
   const scoreHeadline = headlineForScore(score);
 
-  // ── revenue risk (Path B: tier-based ranges, not exact $) ─
+  // riskTier still drives the trend silhouette below — kept.
   const riskTier = mapRiskTier(scoreObj.riskLevel || riskFromScore(score));
-  const revenueRisk = {
-    range: revenueRangeForTier(riskTier),
-    tier: riskTier,
-    tierLabel: riskTier.charAt(0).toUpperCase() + riskTier.slice(1),
-    confidence: "Moderate",
-    note: "Exact exposure breakdown requires full audit"
-  };
+
+  // ── revenue exposure — real royaltyGap numbers (Spotify-demotion Phase 2).
+  // Replaces the canned tier-bucket strings: the hero stat is now a per-artist
+  // estimate from royaltyGap.potentialGapLow/High. Tier label + confidence are
+  // computed here from the canonical payload — no schema change.
+  const royaltyGap    = canonical.royaltyGap || {};
+  const metricsObj    = canonical.metrics || {};
+  const gapLow        = Math.max(0, Math.round(Number(royaltyGap.potentialGapLow)  || 0));
+  const gapHigh       = Math.max(0, Math.round(Number(royaltyGap.potentialGapHigh) || 0));
+  const annualStreams = Number(royaltyGap.estAnnualStreams) || 0;
+  const lastfmPlays   = Number(metricsObj.lastfmPlays) || 0;
+  // Edge A — no Last.fm signal at all: honest "Limited data", not fake numbers.
+  const exposureNoData = annualStreams === 0 || lastfmPlays === 0;
+  const exposureTier   = exposureTierFromValue(gapHigh);
+  const revenueRisk = exposureNoData
+    ? {
+        range: "$0 – $0 annually",
+        tier: "low",
+        tierLabel: "Limited data",
+        confidence: "Limited",
+        note: "Limited scan data — run a fresh scan for a fuller estimate.",
+      }
+    : {
+        range: formatExposureRange(gapLow, gapHigh),
+        tier: exposureTier.cssKey,
+        tierLabel: exposureTier.label,
+        confidence: confidenceFromLastfm(lastfmPlays),
+        note: "Estimated from streaming activity. Recalibrated over the first 30 days of monitoring.",
+      };
 
   // ── stats ────────────────────────────────────
   const issuesFound = issuesRaw.length;
@@ -854,10 +876,36 @@ function riskFromScore(score) {
   return "low";
 }
 
-function revenueRangeForTier(tier) {
-  if (tier === "high")   return "$420 – $2,100 annually";
-  if (tier === "medium") return "$140 – $780 annually";
-  return "$0 – $190 annually";
+/* ── Revenue Exposure helpers (Spotify-demotion Phase 2) ─────────── */
+
+// Compact USD formatting — $X / $XK / $X.XM.
+function fmtMoney(n) {
+  const v = Math.max(0, Math.round(Number(n) || 0));
+  if (v >= 1000000) return "$" + (v / 1000000).toFixed(v >= 10000000 ? 0 : 1) + "M";
+  if (v >= 1000)    return "$" + Math.round(v / 1000) + "K";
+  return "$" + v;
+}
+
+function formatExposureRange(low, high) {
+  return fmtMoney(low) + " – " + fmtMoney(high) + " annually";
+}
+
+// Exposure tier label — locked PR A thresholds on royaltyGap.potentialGapHigh.
+// cssKey feeds tierClass() for the existing high/med/low pill styling.
+function exposureTierFromValue(high) {
+  const h = Number(high) || 0;
+  if (h >= 10000) return { label: "Significant exposure", cssKey: "high" };
+  if (h >= 1000)  return { label: "Moderate exposure",    cssKey: "medium" };
+  if (h >= 100)   return { label: "Limited exposure",     cssKey: "low" };
+  return { label: "Minimal exposure", cssKey: "low" };
+}
+
+// Confidence from Last.fm play volume — aligns with Phase 1 Scale Confidence.
+function confidenceFromLastfm(plays) {
+  const p = Number(plays) || 0;
+  if (p >= 10000000) return "High";
+  if (p >= 100000)   return "Moderate";
+  return "Limited";
 }
 
 function impactLabelForSeverity(sev) {
