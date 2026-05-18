@@ -200,6 +200,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .af-row-scale{flex-direction:column;align-items:stretch;gap:5px;}
 .af-scale-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;}
 .af-scale-desc{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:var(--muted2);line-height:1.5;margin:0;}
+.af-degraded-note{font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--muted);line-height:1.5;margin:14px 0 0;}
 
 /* dropdown / select */
 .range-select{display:inline-flex;align-items:center;gap:6px;background:rgba(7,7,15,0.6);border:1px solid var(--border2);border-radius:4px;padding:6px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;cursor:pointer;transition:border-color 0.18s;}
@@ -905,32 +906,35 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
         </div>
       </section>
 
-      <!-- ─── ARTIST FOOTPRINT (Block G.1) ─── -->
+      <!-- ─── ARTIST FOOTPRINT ─── -->
       <section class="card fade-in d2" id="artist-footprint">
         <div class="card-hd">
           <h2 class="card-title">Artist Footprint</h2>
         </div>
-        <p class="card-sub">Your reach and platform standing across the major DSPs.</p>
+        <p class="card-sub">Your reach and platform standing across the major catalog network.</p>
         <div class="af-grid">
-          <div class="af-row" id="af-row-followers">
-            <span class="af-label">Spotify Followers</span>
-            <span class="af-value" id="af-followers">—</span>
+          <div class="af-row">
+            <span class="af-label">Last.fm Listeners</span>
+            <span class="af-value" id="af-lastfm-listeners">—</span>
           </div>
           <div class="af-row">
-            <span class="af-label">Spotify Popularity</span>
-            <span class="af-value" id="af-popularity">—</span>
-          </div>
-          <div class="af-row">
-            <span class="af-label">Apple Music</span>
-            <span class="af-value" id="af-apple-presence">—</span>
+            <span class="af-label">Total Plays</span>
+            <span class="af-value" id="af-lastfm-plays">—</span>
           </div>
           <div class="af-row">
             <span class="af-label">Apple Music Releases</span>
             <span class="af-value" id="af-apple-releases">—</span>
           </div>
           <div class="af-row">
-            <span class="af-label">Platform Linkage</span>
-            <span class="af-value" id="af-linkage">—</span>
+            <span class="af-label">Deezer Fans</span>
+            <span class="af-value" id="af-deezer-fans">—</span>
+          </div>
+          <div class="af-row af-row-scale">
+            <div class="af-scale-head">
+              <span class="af-label">Platform Presence</span>
+              <span class="af-value" id="af-presence">—</span>
+            </div>
+            <p class="af-scale-desc" id="af-presence-list"></p>
           </div>
           <div class="af-row af-row-scale">
             <div class="af-scale-head">
@@ -940,6 +944,7 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
             <p class="af-scale-desc" id="af-scale-desc"></p>
           </div>
         </div>
+        <p class="af-degraded-note" id="af-degraded-note" style="display:none;">Scan data limited — try again later.</p>
       </section>
 
       <!-- ─── REVENUE + RECENT SCAN ─── -->
