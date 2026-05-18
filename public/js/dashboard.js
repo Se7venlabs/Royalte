@@ -1380,98 +1380,413 @@ async function handleReserveClick(session, cta) {
 
 /* ── Block G.1 — Artist Footprint ───────────────────────────────── */
 
-// Scale confidence — Last.fm-based buckets (Spotify demoted, Path A:
-// Spotify Development Mode no longer returns follower/popularity data).
-// Thresholds are INITIAL — recalibrate against real beta data later.
-function scaleConfidence(listeners, plays) {
-  const l = Number(listeners);
-  const p = Number(plays);
-  if (l >= 1000000 || p >= 100000000) {
-    return { label: "Strong", desc: "Established audience with strong streaming history." };
-  }
-  if (l >= 100000 || p >= 10000000) {
-    return { label: "Moderate", desc: "Growing audience with developing reach." };
-  }
-  return { label: "Limited", desc: "Early-stage reach — your footprint is still developing." };
+/* ── V3 Section 1 — Backend Intelligence ─────────────────────────
+   The card reads the canonical payload directly. User-facing strings
+   are source-agnostic — no DSP/provider names in any rendered text. */
+
+// 5-tier ladder — Backend Confidence (STATUS hero, composite) and the
+// Global Listener Footprint base tier (Section 3). Locked thresholds.
+function getBackendConfidence(listeners, plays) {
+  const l = Number(listeners) || 0;
+  const p = Number(plays) || 0;
+  if (l >= 10000000 || p >= 1000000000)
+    return { label: "GLOBAL FOOTPRINT", desc: "Major catalog with verified global audience reach." };
+  if (l >= 1000000 || p >= 100000000)
+    return { label: "STRONG PRESENCE", desc: "Substantial cross-platform audience activity verified." };
+  if (l >= 100000 || p >= 10000000)
+    return { label: "EXPANDING", desc: "Growing audience footprint with multi-platform engagement." };
+  if (l >= 10000 || p >= 1000000)
+    return { label: "ESTABLISHED", desc: "Verified audience activity confirmed across multiple ecosystems." };
+  return { label: "EARLY-STAGE", desc: "Verified audience activity is still developing." };
 }
 
-// Cross-platform presence — one uniform rule: platforms.<key>.availability
-// === 'VERIFIED', across all 8 catalog-network platforms. No raw booleans,
-// no >0 proxies — availability is the canonical presence contract.
-function crossPlatformPresence(payload) {
-  const platforms = (payload && payload.platforms) || {};
-  const checks = [
-    ["appleMusic", "Apple Music"], ["lastfm", "Last.fm"], ["musicbrainz", "MusicBrainz"],
-    ["deezer", "Deezer"], ["youtube", "YouTube"], ["discogs", "Discogs"],
-    ["soundcloud", "SoundCloud"], ["wikipedia", "Wikipedia"],
+// Confidence tier → color-state modifier class (polish #2).
+const CONFIDENCE_STATE = {
+  "GLOBAL FOOTPRINT": "strong", "STRONG PRESENCE": "strong",
+  "EXPANDING": "established", "ESTABLISHED": "established",
+  "EARLY-STAGE": "early",
+};
+
+// Global Listener Footprint — Backend Confidence ladder re-labelled with
+// intelligence-grade vocabulary (polish #8). AUDIENCE INTELLIGENCE only.
+const LISTENER_FOOTPRINT_LABELS = {
+  "GLOBAL FOOTPRINT": "GLOBAL ECOSYSTEM CONFIRMED",
+  "STRONG PRESENCE": "STRONG CROSS-ECOSYSTEM PRESENCE",
+  "EXPANDING": "MULTI-NETWORK CONFIRMED",
+  "ESTABLISHED": "VERIFIED AUDIENCE ACTIVITY",
+  "EARLY-STAGE": "LIMITED ACTIVITY SIGNAL",
+};
+
+// Verified Play History — 4-tier, intelligence-grade labels (polish #8).
+function getPlayHistoryTier(plays) {
+  const p = Number(plays) || 0;
+  if (p >= 1000000000) return "EXTENSIVE ACTIVITY VERIFIED";
+  if (p >= 10000000)   return "SUBSTANTIAL ACTIVITY VERIFIED";
+  if (p >= 100000)     return "VERIFIED ACTIVITY DETECTED";
+  return "ACTIVITY SIGNAL PENDING";
+}
+
+// Metadata / consistency / identifier helpers return a bare tier KEY; the
+// label maps below carry the displayed wording (polish #9). The bare key
+// also feeds the Intelligence Summary so it reads "strong metadata
+// integrity", not the redundant "strong integrity metadata integrity".
+function getMetadataIntegrityTier(score) {
+  if (score == null) return "PENDING";
+  if (score >= 90) return "VERIFIED";
+  if (score >= 70) return "STRONG";
+  if (score >= 50) return "MODERATE";
+  return "LIMITED";
+}
+const METADATA_INTEGRITY_LABELS = {
+  VERIFIED: "VERIFIED INTEGRITY", STRONG: "STRONG INTEGRITY",
+  MODERATE: "MODERATE INTEGRITY", LIMITED: "LIMITED INTEGRITY",
+  PENDING: "PENDING VERIFICATION",
+};
+
+function getMetadataConsistencyTier(matchRate) {
+  if (matchRate == null) return "PENDING";
+  if (matchRate >= 85) return "VERIFIED";
+  if (matchRate >= 60) return "STRONG";
+  if (matchRate >= 30) return "MODERATE";
+  return "LIMITED";
+}
+const METADATA_CONSISTENCY_LABELS = {
+  VERIFIED: "FULLY CONSISTENT", STRONG: "STRONG CONSISTENCY",
+  MODERATE: "MODERATE CONSISTENCY", LIMITED: "INCONSISTENCY DETECTED",
+  PENDING: "CONSISTENCY PENDING",
+};
+
+// Release Identifier Coverage — VERIFIED if a track ISRC is present or any
+// retained album carries ISRCs (the album path is G.2a — absent on main).
+function getReleaseIdentifierTier(payload) {
+  const trackIsrc = (payload && payload.subject && payload.subject.trackIsrc) || null;
+  const albums = ((payload && payload.catalog && payload.catalog.appleMusic) || {}).albums;
+  const anyAlbumIsrc = Array.isArray(albums)
+    && albums.some(a => a && Array.isArray(a.isrcs) && a.isrcs.length > 0);
+  return (trackIsrc != null || anyAlbumIsrc) ? "VERIFIED" : "PENDING";
+}
+const IDENTIFIER_LABELS = {
+  VERIFIED: "IDENTIFIER VERIFIED", PARTIAL: "PARTIAL COVERAGE", PENDING: "IDENTIFIER PENDING",
+};
+
+// Verified Presence — security-audit-style assertions; only fired ones return.
+function getVerifiedPresenceAssertions(payload) {
+  const pf = (payload && payload.platforms) || {};
+  const v = (k) => (pf[k] || {}).availability === "VERIFIED";
+  const out = [];
+  if (v("appleMusic") || v("spotify")) out.push("Primary streaming catalog confirmed");
+  if (["lastfm", "deezer", "youtube", "soundcloud"].filter(v).length >= 2)
+    out.push("Audience activity validated across multiple ecosystems");
+  if (v("musicbrainz")) out.push("Industry metadata registry linked");
+  if (v("discogs")) out.push("Historical catalog records detected");
+  if (v("youtube")) out.push("Video distribution network confirmed");
+  return out;
+}
+
+/* ── Observation rewording — 3-tier intelligence interpretation ───
+   The engine emits raw findings; this layer interprets them into
+   premium intelligence vocabulary. Tier 1 exact dictionary, Tier 2
+   parameterized regex, Tier 3 keyword sanitizer (source-name guard).
+   No future engine flag can leak a raw provider name to the card. */
+
+// Tier 1 — exact-match dictionary (byte-exact, em-dash U+2014).
+const EXACT_REWORDS = {
+  "Genre metadata absent across major DSPs":
+    "Genre metadata absent across verified catalog network",
+  "No artist images found across major DSPs":
+    "Artist imagery missing across verified catalog surfaces",
+  "ISRC signal not detected on this track":
+    "Release identifier signal not detected on submitted track",
+
+  "MusicBrainz presence not detected — coverage risk":
+    "Industry metadata registry not detected — coverage risk",
+  "Deezer presence not detected — coverage risk":
+    "Secondary streaming catalog not detected — coverage risk",
+  "AudioDB presence not detected — coverage risk":
+    "Editorial catalog reference not detected — coverage risk",
+  "Discogs presence not detected — coverage risk":
+    "Historical catalog database not detected — coverage risk",
+  "SoundCloud presence not detected — coverage risk":
+    "Independent catalog network not detected — coverage risk",
+  "Last.fm presence not detected — coverage risk":
+    "Audience verification network not detected — coverage risk",
+  "Wikipedia presence not detected — coverage risk":
+    "Editorial reference not detected — coverage risk",
+  "YouTube presence not detected — coverage risk":
+    "Video distribution network not detected — coverage risk",
+  "Apple Music presence not detected — coverage risk":
+    "Primary catalog network not detected — coverage risk",
+
+  "ISRC not detected — performance royalty routing unverified":
+    "Release identifier not detected — performance royalty routing unverified",
+  "Genre metadata absent — sync and publishing discoverability risk":
+    "Genre metadata absent — sync and publishing discoverability limited",
+  "Not in MusicBrainz — publishing data cross-reference unavailable":
+    "Industry metadata registry not linked — cross-reference verification unavailable",
+  "High Last.fm play count — significant streaming history detected, PRO verification critical":
+    "Substantial audience activity detected — registration verification recommended",
+  "Track ISRC found on Spotify but not on Apple Music — cross-platform metadata discrepancy detected":
+    "Cross-platform release identifier discrepancy detected across catalog network",
+
+  "No official YouTube channel detected — Content ID registration unverified":
+    "Video distribution channel not detected — content protection verification unavailable",
+  "Content ID monetisation status unverified":
+    "Content protection monetisation status unverified",
+  "YouTube scan unavailable — API key not configured or search returned no results":
+    "Video distribution scan unavailable — verification pending",
+
+  "ISRC signal not detected":
+    "Release identifier signal not detected",
+  "Genre tags absent":
+    "Genre metadata absent",
+  "Not in MusicBrainz catalog":
+    "Industry metadata registry not linked",
+  "No Wikipedia presence — sync discoverability risk":
+    "Editorial reference unavailable — sync discoverability limited",
+  "Not found on Apple Music — cross-platform sync discoverability risk":
+    "Primary catalog network not detected — sync discoverability limited",
+
+  "Artist not found on Apple Music — potential distribution gap across the second-largest music streaming platform":
+    "Primary catalog network not detected — significant distribution gap across major streaming infrastructure",
+  "No Wikipedia presence detected — sync licensing teams often research artists on Wikipedia before licensing":
+    "Editorial reference unavailable — sync licensing discoverability limited",
+};
+
+// Tier 2 — parameterized regex; captures preserve interpolated values.
+const PATTERN_REWORDS = [
+  {
+    pattern: /^Catalog active for (\d+) years — extended royalty verification recommended$/,
+    replace: m => `Catalog active for ${m[1]} years — extended verification recommended`,
+  },
+  {
+    pattern: /^Catalog active for (\d+) years — extended period of potential royalty exposure detected$/,
+    replace: m => `Catalog active for ${m[1]} years — extended exposure period detected`,
+  },
+  {
+    pattern: /^Catalog active for (\d+) years — multi-year royalty verification recommended$/,
+    replace: m => `Catalog active for ${m[1]} years — multi-year verification recommended`,
+  },
+  {
+    pattern: /^(\d+) MusicBrainz entries detected — possible duplicate profiles$/,
+    replace: m => `${m[1]} alternate industry metadata registry entries detected — potential identity fragmentation`,
+  },
+  {
+    pattern: /^No releases detected after (\d{4}) — catalog may be fragmented across accounts$/,
+    replace: m => `No releases detected after ${m[1]} — catalog fragmentation indicator`,
+  },
+  {
+    pattern: /^(\d+) user-uploaded video\(s\) detected with no official channel — potential unmonetised UGC exposure$/,
+    replace: m => `${m[1]} user-uploaded video(s) detected without verified distribution channel — unmonetised exposure indicator`,
+  },
+  {
+    pattern: /^~([\d,]+) views detected on UGC videos — significant unmonetised revenue risk$/,
+    replace: m => `~${m[1]} views detected on user-generated content — substantial unmonetised activity indicator`,
+  },
+  {
+    pattern: /^~([\d,]+) unmonetised UGC views detected on YouTube — Content ID registration recommended immediately$/,
+    replace: m => `~${m[1]} unmonetised user-generated views detected on video distribution network — content protection registration recommended`,
+  },
+  {
+    pattern: /^Only (\d+)% of top tracks matched on Apple Music — catalog gaps detected$/,
+    replace: m => `Only ${m[1]}% of top tracks verified on primary catalog network — cross-network catalog gaps detected`,
+  },
+  {
+    pattern: /^(\d+)% of top Spotify tracks not found on Apple Music — significant catalog distribution gap detected$/,
+    replace: m => `${m[1]}% of top tracks not verified on primary catalog network — significant cross-network distribution gap detected`,
+  },
+  {
+    pattern: /^(\d+) top track\(s\) missing from Apple Music — distribution gaps may be limiting revenue$/,
+    replace: m => `${m[1]} top track(s) missing from primary catalog network — distribution gap exposure indicator`,
+  },
+  {
+    pattern: /^([\d,]+) Last\.fm plays detected — significant historical streaming activity warrants full PRO audit$/,
+    replace: m => `${m[1]} verified historical plays detected — substantial activity warrants registration audit`,
+  },
+  {
+    pattern: /^(\d+) releases found on Discogs — physical catalog confirmed$/,
+    replace: m => `${m[1]} historical releases verified — physical catalog confirmed`,
+  },
+];
+
+// Tier 3 — keyword sanitizer. Last line of defence for any unmapped or
+// future engine flag: strips source names so the card never leaks one.
+function keywordReword(detail) {
+  let reworded = detail;
+  const providers = [
+    [/\bMusicBrainz\b/g,  'industry metadata registry'],
+    [/\bApple Music\b/g,  'primary catalog network'],
+    [/\bSpotify\b/g,      'verified catalog network'],
+    [/\bLast\.fm\b/g,     'audience verification network'],
+    [/\bDeezer\b/g,       'secondary streaming catalog'],
+    [/\bDiscogs\b/g,      'historical catalog database'],
+    [/\bSoundCloud\b/g,   'independent catalog network'],
+    [/\bYouTube\b/g,      'video distribution network'],
+    [/\bWikipedia\b/g,    'editorial reference'],
+    [/\bAudioDB\b/g,      'editorial catalog reference'],
   ];
-  const list = checks
-    .filter(([key]) => (platforms[key] || {}).availability === "VERIFIED")
-    .map(([, name]) => name);
-  const count = list.length;
-  let tier;
-  if (count >= 6)      tier = "Detected across the major catalog network";
-  else if (count >= 4) tier = "Detected on " + count + " major platforms";
-  else                 tier = "Limited platform presence";
-  return { count, list, tier };
+  const terms = [
+    [/\bUGC\b/g,                       'user-generated content'],
+    [/\bContent ID\b/g,                'content protection'],
+    [/\bPRO\b/g,                       'rights organization'],
+    [/\bDSP\b/g,                       'catalog network'],
+    [/\bDSPs\b/g,                      'catalog networks'],
+    [/\bAPI key\b/g,                   'verification credentials'],
+    [/\broyalty[- ]loss\b/gi,          'royalty exposure'],
+    [/\bmissing royalt(y|ies)\b/gi,    'royalty exposure indicator'],
+    [/\bunmonetised revenue risk\b/g,  'unmonetised activity indicator'],
+    [/\bcoverage risk\b/g,             'coverage gap'],
+    [/\bdiscoverability risk\b/g,      'discoverability limitation'],
+  ];
+  for (const [re, sub] of providers) reworded = reworded.replace(re, sub);
+  for (const [re, sub] of terms)     reworded = reworded.replace(re, sub);
+  return reworded;
 }
 
-// Reads the canonical scan payload directly (metrics.* / platforms.*.availability
-// are the stable contract). Spotify-free — followers/popularity were removed
-// when Spotify was demoted to supplementary. Number.isFinite guards are
-// defensive: metrics.* are required numbers, so the realistic degraded value
-// is 0 (honest zeros), not null.
+// 3-tier rewording entry point — Tier 1 exact, Tier 2 pattern, Tier 3 safety.
+function rewordObservation(detail) {
+  if (!detail || typeof detail !== 'string') return detail;
+  if (EXACT_REWORDS[detail]) return EXACT_REWORDS[detail];
+  for (const { pattern, replace } of PATTERN_REWORDS) {
+    const match = detail.match(pattern);
+    if (match) return replace(match);
+  }
+  return keywordReword(detail);
+}
+
+// Top backend observations — from payload.issues (text + severity), reworded,
+// sorted by severity, capped. Canonical severity → icon/class (polish #5).
+function getTopObservations(payload, maxCount) {
+  const issues = Array.isArray(payload && payload.issues) ? payload.issues : [];
+  const rank = { CRITICAL: 0, HIGH: 1, WARNING: 2, INFO: 3 };
+  const sevClass = (sev) => {
+    if (sev === "CRITICAL") return { icon: "⚠", cls: "critical" };
+    if (sev === "HIGH")     return { icon: "⚠", cls: "high" };
+    if (sev === "WARNING")  return { icon: "◐", cls: "warning" };
+    return { icon: "·", cls: "info" };
+  };
+  return issues
+    .slice()
+    .sort((a, b) => (rank[a.severity] == null ? 3 : rank[a.severity]) - (rank[b.severity] == null ? 3 : rank[b.severity]))
+    .slice(0, maxCount)
+    .map(it => {
+      const s = sevClass(it.severity);
+      return { text: rewordObservation(it.detail || it.title || ""), icon: s.icon, cls: s.cls };
+    });
+}
+
+// Bottom-of-card composed summary — operational, calm, never invented.
+// metadataKey is the BARE tier key so the sentence reads naturally.
+function buildIntelligenceSummary(verifiedCount, audienceTierLabel, metadataKey) {
+  if (verifiedCount === 0)
+    return "Royaltē backend verification pending — scan again for full intelligence report.";
+  const eco = verifiedCount === 1 ? "ecosystem" : "ecosystems";
+  return "Royaltē verified your backend across " + verifiedCount + " music " + eco
+    + " with " + audienceTierLabel.toLowerCase() + " audience presence and "
+    + metadataKey.toLowerCase() + " metadata integrity.";
+}
+
+// Backend Intelligence card (V3 Section 1). The DOM id #artist-footprint and
+// this function name are retained to avoid touching callers / admin preview.
 function renderArtistFootprint(payload) {
   const card = document.getElementById("artist-footprint");
   if (!card) return;
 
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-  const fmt = (n) => Number.isFinite(n) ? n.toLocaleString("en-US") : "—";
 
   const p         = payload || {};
   const metrics   = p.metrics || {};
-  const apple     = (p.platforms || {}).appleMusic || {};
+  const platforms = p.platforms || {};
+  const listeners = Number(metrics.lastfmListeners) || 0;
+  const plays     = Number(metrics.lastfmPlays) || 0;
+  const deezerFans = Number(metrics.deezerFans) || 0;
 
-  const lastfmListeners = Number(metrics.lastfmListeners);
-  const lastfmPlays     = Number(metrics.lastfmPlays);
-  const deezerFans      = Number(metrics.deezerFans);
+  // ── Section 1 — STATUS ──────────────────────────────────────
+  const DOT_KEYS = ["appleMusic", "spotify", "lastfm", "deezer", "musicbrainz", "youtube", "discogs", "soundcloud"];
+  let verifiedCount = 0;
+  const dotsHtml = DOT_KEYS.map(k => {
+    const verified = (platforms[k] || {}).availability === "VERIFIED";
+    if (verified) verifiedCount++;
+    return '<span class="bi-dot ' + (verified ? "bi-dot-verified" : "bi-dot-unverified") + '"></span>';
+  }).join("");
+  const dotsEl = document.getElementById("bi-status-dots");
+  if (dotsEl) dotsEl.innerHTML = dotsHtml;
+  set("bi-status-counts", verifiedCount + " verified · " + (DOT_KEYS.length - verifiedCount) + " unverified");
 
-  // #1 Last.fm Listeners — edge A: honest zeros.
-  set("af-lastfm-listeners", fmt(lastfmListeners));
-
-  // #2 Last.fm Plays (cumulative).
-  set("af-lastfm-plays", Number.isFinite(lastfmPlays)
-    ? lastfmPlays.toLocaleString("en-US") + " plays" : "—");
-
-  // #3 Apple Music Releases — edge C: "25+" at the 25-album cap; edge D:
-  // AUTH_UNAVAILABLE / ERROR dash out; NOT_FOUND reads as a plain gap.
-  const appleAvail = apple.availability;
-  if (appleAvail === "AUTH_UNAVAILABLE" || appleAvail === "ERROR") {
-    set("af-apple-releases", "—");
-  } else if (appleAvail === "VERIFIED") {
-    const count = Number(apple.details && apple.details.albumCount);
-    set("af-apple-releases", Number.isFinite(count) ? (count >= 25 ? "25+" : String(count)) : "—");
-  } else {
-    set("af-apple-releases", "Not on Apple Music");
+  const backend = getBackendConfidence(listeners, plays);
+  const tierEl = document.getElementById("bi-confidence-tier");
+  if (tierEl) {
+    tierEl.textContent = backend.label;
+    tierEl.className = "bi-confidence-tier bi-confidence-tier-" + (CONFIDENCE_STATE[backend.label] || "early");
   }
 
-  // #4 Deezer Fans — edge A: honest zeros.
-  set("af-deezer-fans", fmt(deezerFans));
+  // ── Section 2 — VERIFIED PRESENCE ───────────────────────────
+  const assertEl = document.getElementById("bi-assertion-list");
+  if (assertEl) {
+    const assertions = getVerifiedPresenceAssertions(p);
+    assertEl.innerHTML = assertions.length === 0
+      ? '<div class="bi-assertion pending"><span class="bi-assertion-node"></span>Backend verification pending — scan again for full intelligence report.</div>'
+      : assertions.map(a => '<div class="bi-assertion"><span class="bi-assertion-node"></span>' + escapeHtml(a) + '</div>').join("");
+  }
 
-  // #5 Cross-Platform Presence.
-  const presence = crossPlatformPresence(p);
-  set("af-presence", presence.tier);
-  set("af-presence-list", presence.list.join(", "));
+  // ── Section 3 — AUDIENCE INTELLIGENCE ───────────────────────
+  const footprintTier = getBackendConfidence(listeners, 0).label;
+  set("bi-row-listener-footprint", LISTENER_FOOTPRINT_LABELS[footprintTier] || footprintTier);
+  set("bi-row-play-history", getPlayHistoryTier(plays));
+  const ytSubs = Number(((platforms.youtube || {}).details || {}).subscriberCount) || 0;
+  set("bi-row-audience-signal", (deezerFans > 0 || ytSubs > 0)
+    ? "CROSS-ECOSYSTEM CONFIRMED" : "SINGLE-NETWORK ACTIVITY");
 
-  // #6 Scale Confidence — Last.fm-based.
-  const scale = scaleConfidence(lastfmListeners, lastfmPlays);
-  set("af-scale", scale.label);
-  set("af-scale-desc", scale.desc);
+  // ── Section 4 — METADATA & CATALOG ──────────────────────────
+  const catalog = p.catalog || {};
+  const appleDetails = (platforms.appleMusic || {}).details || {};
+  const appleAlbumCount = Number(appleDetails.albumCount);
+  const depth = Math.max(Number(catalog.totalReleases) || 0,
+    Number.isFinite(appleAlbumCount) ? appleAlbumCount : 0);
+  const depthCapped = Number.isFinite(appleAlbumCount) && appleAlbumCount === 25;
+  set("bi-row-catalog-depth", depth > 0
+    ? depth + (depthCapped ? "+" : "") + " verified releases"
+    : "PENDING VERIFICATION");
 
-  // Edge E — all platform sources degraded (should not happen; the engine
-  // degrades gracefully). Defensive annotation only.
-  const note = document.getElementById("af-degraded-note");
-  if (note) note.style.display = presence.count === 0 ? "" : "none";
+  const metaScore = (p.modules && p.modules.metadata && p.modules.metadata.score != null)
+    ? p.modules.metadata.score : null;
+  const metadataKey = getMetadataIntegrityTier(metaScore);
+  set("bi-row-metadata-integrity", METADATA_INTEGRITY_LABELS[metadataKey]);
+
+  const identifierKey = getReleaseIdentifierTier(p);
+  set("bi-row-identifier-coverage", IDENTIFIER_LABELS[identifierKey] || identifierKey);
+
+  const matchRate = (appleDetails.catalogComparison || {}).matchRate;
+  const consistencyKey = getMetadataConsistencyTier(matchRate == null ? null : Number(matchRate));
+  set("bi-row-consistency", METADATA_CONSISTENCY_LABELS[consistencyKey]);
+
+  // ── Section 5 — BACKEND OBSERVATIONS ────────────────────────
+  const observations = getTopObservations(p, 5);
+  const obsHeader = document.getElementById("bi-observations-count");
+  const obsContainer = document.getElementById("bi-observations-container");
+  if (observations.length < 3) {
+    if (obsHeader) {
+      obsHeader.textContent = verifiedCount === 0
+        ? "✓ No backend data available yet"
+        : "✓ No backend issues detected";
+      obsHeader.className = "bi-section-header bi-no-issues";
+    }
+    if (obsContainer) obsContainer.innerHTML = "";
+  } else {
+    if (obsHeader) {
+      obsHeader.textContent = "⚠ " + observations.length + " Backend Observations";
+      obsHeader.className = "bi-section-header";
+    }
+    if (obsContainer) {
+      obsContainer.innerHTML = observations.map(o =>
+        '<div class="bi-observation bi-observation-' + o.cls + '">'
+        + '<span class="bi-obs-icon">' + o.icon + '</span>'
+        + '<span>' + escapeHtml(o.text) + '</span></div>'
+      ).join("");
+    }
+  }
+
+  // ── Section 6 — INTELLIGENCE SUMMARY ────────────────────────
+  set("bi-summary", buildIntelligenceSummary(verifiedCount, backend.label, metadataKey));
 }
 
 /* ── Block F Step 4 — Admin preview-state tooling ───────────────── */

@@ -191,16 +191,52 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .card-pill{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px;letter-spacing:0.08em;}
 .card-pill.count{background:rgba(240,80,96,0.12);color:var(--red);border:1px solid rgba(240,80,96,0.25);}
 
-/* ─── BLOCK G.1 — ARTIST FOOTPRINT ───────────────────────────── */
-.af-grid{display:flex;flex-direction:column;}
-.af-row{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--border3);}
-.af-row:last-child{border-bottom:none;padding-bottom:0;}
-.af-label{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);}
-.af-value{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-align:right;line-height:1.1;}
-.af-row-scale{flex-direction:column;align-items:stretch;gap:5px;}
-.af-scale-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;}
-.af-scale-desc{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:var(--muted2);line-height:1.5;margin:0;}
-.af-degraded-note{font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--muted);line-height:1.5;margin:14px 0 0;}
+/* ─── V3 SECTION 1 — BACKEND INTELLIGENCE ────────────────────── */
+.bi-section{padding:16px 0;border-bottom:1px solid var(--border3);}
+.bi-section:last-of-type{border-bottom:none;}
+.bi-section-header{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:13px;}
+/* Status — monitoring node strip + Backend Confidence hero */
+.bi-status-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;}
+.bi-status-row:last-child{margin-bottom:0;}
+.bi-dot-strip{display:inline-flex;gap:5px;align-items:center;}
+.bi-dot{width:10px;height:10px;border-radius:50%;}
+.bi-dot-verified{background:var(--text2);box-shadow:0 0 6px rgba(255,255,255,0.15);animation:bi-node-pulse 4s ease-in-out infinite;}
+.bi-dot-unverified{background:transparent;border:1px solid var(--border2);}
+@keyframes bi-node-pulse{0%,100%{box-shadow:0 0 6px rgba(255,255,255,0.15);}50%{box-shadow:0 0 10px rgba(255,255,255,0.25);}}
+.bi-confidence-tier{font-family:'Rajdhani',sans-serif;font-weight:800;font-size:26px;letter-spacing:0.04em;line-height:1;text-shadow:0 0 24px rgba(138,92,255,0.15);}
+.bi-confidence-tier-strong{color:var(--pur);}
+.bi-confidence-tier-established{color:#fff;}
+.bi-confidence-tier-early{color:var(--muted2);}
+/* Verified Presence — node-style verification indicators */
+.bi-assertion-list{display:flex;flex-direction:column;gap:8px;}
+.bi-assertion{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-size:13px;color:var(--text2);line-height:1.4;}
+.bi-assertion.pending{color:var(--amb);}
+.bi-assertion-node{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:rgba(64,240,160,0.12);border:1px solid var(--grn);display:inline-flex;align-items:center;justify-content:center;}
+.bi-assertion-node::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--grn);box-shadow:0 0 5px rgba(64,240,160,0.7);}
+.bi-assertion.pending .bi-assertion-node{background:rgba(240,192,64,0.12);border-color:var(--amb);}
+.bi-assertion.pending .bi-assertion-node::after{background:var(--amb);box-shadow:0 0 5px rgba(240,192,64,0.7);}
+/* Stat rows — single column on mobile, 2-column grid on desktop */
+.bi-row{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--border3);}
+.bi-row:last-child{border-bottom:none;padding-bottom:0;}
+.bi-row-label{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);}
+.bi-row-value{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-align:right;line-height:1.1;}
+/* Backend Observations — severity hierarchy, no wall-of-red */
+.bi-observation{font-family:'Space Grotesk',sans-serif;font-size:13px;line-height:1.5;margin:7px 0;display:flex;gap:9px;padding-left:11px;}
+.bi-observation .bi-obs-icon{flex-shrink:0;}
+.bi-observation-critical{color:var(--red);border-left:2px solid var(--red);}
+.bi-observation-high{color:#ffb84d;border-left:2px solid #ffb84d;}
+.bi-observation-warning{color:#ffd166;border-left:2px solid #ffd166;}
+.bi-observation-info{color:#8a8ec7;border-left:2px solid var(--border2);}
+.bi-no-issues{color:var(--grn);}
+.bi-summary{font-family:'Space Grotesk',sans-serif;font-size:13px;font-style:italic;color:var(--muted);line-height:1.55;margin-top:20px;padding-top:16px;border-top:1px solid var(--border3);}
+@media (min-width:1024px){
+  .bi-row-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 32px;}
+  .bi-row-grid .bi-row:nth-last-child(2):nth-child(odd){border-bottom:none;}
+  .bi-assertion-list{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .bi-dot-verified{animation:none;}
+}
 
 /* dropdown / select */
 .range-select{display:inline-flex;align-items:center;gap:6px;background:rgba(7,7,15,0.6);border:1px solid var(--border2);border-radius:4px;padding:6px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;cursor:pointer;transition:border-color 0.18s;}
@@ -906,45 +942,76 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
         </div>
       </section>
 
-      <!-- ─── ARTIST FOOTPRINT ─── -->
+      <!-- ─── BACKEND INTELLIGENCE (V3 Section 1) ─── -->
       <section class="card fade-in d2" id="artist-footprint">
         <div class="card-hd">
-          <h2 class="card-title">Artist Footprint</h2>
+          <h2 class="card-title">Backend Intelligence</h2>
         </div>
-        <p class="card-sub">Your reach and platform standing across the major catalog network.</p>
-        <div class="af-grid">
-          <div class="af-row">
-            <span class="af-label">Last.fm Listeners</span>
-            <span class="af-value" id="af-lastfm-listeners">—</span>
+        <p class="card-sub">Your verified backend footprint across the music network.</p>
+
+        <div class="bi-section">
+          <div class="bi-section-header">Status</div>
+          <div class="bi-status-row">
+            <span class="bi-dot-strip" id="bi-status-dots"></span>
+            <span class="bi-row-value" id="bi-status-counts">—</span>
           </div>
-          <div class="af-row">
-            <span class="af-label">Total Plays</span>
-            <span class="af-value" id="af-lastfm-plays">—</span>
-          </div>
-          <div class="af-row">
-            <span class="af-label">Apple Music Releases</span>
-            <span class="af-value" id="af-apple-releases">—</span>
-          </div>
-          <div class="af-row">
-            <span class="af-label">Deezer Fans</span>
-            <span class="af-value" id="af-deezer-fans">—</span>
-          </div>
-          <div class="af-row af-row-scale">
-            <div class="af-scale-head">
-              <span class="af-label">Platform Presence</span>
-              <span class="af-value" id="af-presence">—</span>
-            </div>
-            <p class="af-scale-desc" id="af-presence-list"></p>
-          </div>
-          <div class="af-row af-row-scale">
-            <div class="af-scale-head">
-              <span class="af-label">Scale Confidence</span>
-              <span class="af-value" id="af-scale">—</span>
-            </div>
-            <p class="af-scale-desc" id="af-scale-desc"></p>
+          <div class="bi-status-row">
+            <span class="bi-row-label">Backend Confidence</span>
+            <span class="bi-confidence-tier" id="bi-confidence-tier">—</span>
           </div>
         </div>
-        <p class="af-degraded-note" id="af-degraded-note" style="display:none;">Scan data limited — try again later.</p>
+
+        <div class="bi-section">
+          <div class="bi-section-header">Verified Presence</div>
+          <div class="bi-assertion-list" id="bi-assertion-list"></div>
+        </div>
+
+        <div class="bi-section">
+          <div class="bi-section-header">Audience Intelligence</div>
+          <div class="bi-row-grid">
+            <div class="bi-row">
+              <span class="bi-row-label">Global Listener Footprint</span>
+              <span class="bi-row-value" id="bi-row-listener-footprint">—</span>
+            </div>
+            <div class="bi-row">
+              <span class="bi-row-label">Verified Play History</span>
+              <span class="bi-row-value" id="bi-row-play-history">—</span>
+            </div>
+            <div class="bi-row">
+              <span class="bi-row-label">Cross-platform Audience Signal</span>
+              <span class="bi-row-value" id="bi-row-audience-signal">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bi-section">
+          <div class="bi-section-header">Metadata &amp; Catalog</div>
+          <div class="bi-row-grid">
+            <div class="bi-row">
+              <span class="bi-row-label">Catalog Depth</span>
+              <span class="bi-row-value" id="bi-row-catalog-depth">—</span>
+            </div>
+            <div class="bi-row">
+              <span class="bi-row-label">Metadata Integrity</span>
+              <span class="bi-row-value" id="bi-row-metadata-integrity">—</span>
+            </div>
+            <div class="bi-row">
+              <span class="bi-row-label">Release Identifier Coverage</span>
+              <span class="bi-row-value" id="bi-row-identifier-coverage">—</span>
+            </div>
+            <div class="bi-row">
+              <span class="bi-row-label">Cross-platform Metadata Consistency</span>
+              <span class="bi-row-value" id="bi-row-consistency">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bi-section">
+          <div class="bi-section-header" id="bi-observations-count">Backend Observations</div>
+          <div id="bi-observations-container"></div>
+        </div>
+
+        <p class="bi-summary" id="bi-summary"></p>
       </section>
 
       <!-- ─── REVENUE + RECENT SCAN ─── -->
