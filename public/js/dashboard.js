@@ -1332,78 +1332,98 @@ async function handleReserveClick(session, cta) {
 
 /* ── Block G.1 — Artist Footprint ───────────────────────────────── */
 
-// Scale confidence buckets — locked (Block G.1 brief, Decision #4E).
-// followers === -1 (Apple-degraded sentinel) fails every follower
-// threshold naturally, so popularity alone decides — no special-casing.
-function scaleConfidence(followers, popularity) {
-  const f = Number(followers);
-  const p = Number(popularity);
-  if (f >= 100000 || p >= 70) {
-    return { label: "Strong", desc: "Established audience and streaming presence." };
+// Scale confidence — Last.fm-based buckets (Spotify demoted, Path A:
+// Spotify Development Mode no longer returns follower/popularity data).
+// Thresholds are INITIAL — recalibrate against real beta data later.
+function scaleConfidence(listeners, plays) {
+  const l = Number(listeners);
+  const p = Number(plays);
+  if (l >= 1000000 || p >= 100000000) {
+    return { label: "Strong", desc: "Established audience with strong streaming history." };
   }
-  if (f >= 10000 || p >= 40) {
-    return { label: "Moderate", desc: "A growing audience with developing reach." };
+  if (l >= 100000 || p >= 10000000) {
+    return { label: "Moderate", desc: "Growing audience with developing reach." };
   }
   return { label: "Limited", desc: "Early-stage reach — your footprint is still developing." };
 }
 
-// Reads the canonical scan payload directly (metrics.* / platforms.* are the
-// stable contract). Edge cases A–F are locked in the brief — implemented exactly.
+// Cross-platform presence — one uniform rule: platforms.<key>.availability
+// === 'VERIFIED', across all 8 catalog-network platforms. No raw booleans,
+// no >0 proxies — availability is the canonical presence contract.
+function crossPlatformPresence(payload) {
+  const platforms = (payload && payload.platforms) || {};
+  const checks = [
+    ["appleMusic", "Apple Music"], ["lastfm", "Last.fm"], ["musicbrainz", "MusicBrainz"],
+    ["deezer", "Deezer"], ["youtube", "YouTube"], ["discogs", "Discogs"],
+    ["soundcloud", "SoundCloud"], ["wikipedia", "Wikipedia"],
+  ];
+  const list = checks
+    .filter(([key]) => (platforms[key] || {}).availability === "VERIFIED")
+    .map(([, name]) => name);
+  const count = list.length;
+  let tier;
+  if (count >= 6)      tier = "Detected across the major catalog network";
+  else if (count >= 4) tier = "Detected on " + count + " major platforms";
+  else                 tier = "Limited platform presence";
+  return { count, list, tier };
+}
+
+// Reads the canonical scan payload directly (metrics.* / platforms.*.availability
+// are the stable contract). Spotify-free — followers/popularity were removed
+// when Spotify was demoted to supplementary. Number.isFinite guards are
+// defensive: metrics.* are required numbers, so the realistic degraded value
+// is 0 (honest zeros), not null.
 function renderArtistFootprint(payload) {
   const card = document.getElementById("artist-footprint");
   if (!card) return;
 
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  const fmt = (n) => Number.isFinite(n) ? n.toLocaleString("en-US") : "—";
 
   const p         = payload || {};
   const metrics   = p.metrics || {};
-  const platforms = p.platforms || {};
-  const apple     = platforms.appleMusic || {};
+  const apple     = (p.platforms || {}).appleMusic || {};
 
-  const appleVerified = apple.availability === "VERIFIED";
-  // AUTH_UNAVAILABLE / ERROR — service unavailability, not a data gap (edge D).
-  const appleDashed   = apple.availability === "AUTH_UNAVAILABLE" || apple.availability === "ERROR";
+  const lastfmListeners = Number(metrics.lastfmListeners);
+  const lastfmPlays     = Number(metrics.lastfmPlays);
+  const deezerFans      = Number(metrics.deezerFans);
 
-  const followers  = Number(metrics.followers);
-  const popularity = Number(metrics.popularity);
+  // #1 Last.fm Listeners — edge A: honest zeros.
+  set("af-lastfm-listeners", fmt(lastfmListeners));
 
-  // #1 Spotify followers — edge A: -1 sentinel hides the whole row.
-  const followersRow = document.getElementById("af-row-followers");
-  if (followers === -1) {
-    if (followersRow) followersRow.style.display = "none";
-  } else {
-    if (followersRow) followersRow.style.display = "";
-    set("af-followers", Number.isFinite(followers) ? followers.toLocaleString("en-US") : "—");
-  }
+  // #2 Last.fm Plays (cumulative).
+  set("af-lastfm-plays", Number.isFinite(lastfmPlays)
+    ? lastfmPlays.toLocaleString("en-US") + " plays" : "—");
 
-  // #2 Spotify popularity — edge B: 0 renders honestly.
-  set("af-popularity", Number.isFinite(popularity) ? popularity + " / 100" : "—");
-
-  // #3 Apple Music presence — edge D: dashed availability dashes out.
-  set("af-apple-presence", appleDashed ? "—" : (appleVerified ? "On Apple Music" : "Not on Apple Music"));
-
-  // #4 Apple Music release count — edge C: "25+" at the engine's 25-album
-  // cap; edge D: dashed out. NOT_FOUND has no details → "—" (consistent).
-  if (appleVerified) {
+  // #3 Apple Music Releases — edge C: "25+" at the 25-album cap; edge D:
+  // AUTH_UNAVAILABLE / ERROR dash out; NOT_FOUND reads as a plain gap.
+  const appleAvail = apple.availability;
+  if (appleAvail === "AUTH_UNAVAILABLE" || appleAvail === "ERROR") {
+    set("af-apple-releases", "—");
+  } else if (appleAvail === "VERIFIED") {
     const count = Number(apple.details && apple.details.albumCount);
     set("af-apple-releases", Number.isFinite(count) ? (count >= 25 ? "25+" : String(count)) : "—");
   } else {
-    set("af-apple-releases", "—");
+    set("af-apple-releases", "Not on Apple Music");
   }
 
-  // #5 Platform linkage — computed from the two availability fields.
-  const spotifyVerified = (platforms.spotify || {}).availability === "VERIFIED";
-  let linkage = "—";
-  if (!appleDashed) {
-    if (spotifyVerified && appleVerified)       linkage = "Linked — Spotify + Apple Music";
-    else if (spotifyVerified && !appleVerified) linkage = "Spotify only";
-  }
-  set("af-linkage", linkage);
+  // #4 Deezer Fans — edge A: honest zeros.
+  set("af-deezer-fans", fmt(deezerFans));
 
-  // #6 Scale confidence — locked buckets.
-  const scale = scaleConfidence(followers, popularity);
+  // #5 Cross-Platform Presence.
+  const presence = crossPlatformPresence(p);
+  set("af-presence", presence.tier);
+  set("af-presence-list", presence.list.join(", "));
+
+  // #6 Scale Confidence — Last.fm-based.
+  const scale = scaleConfidence(lastfmListeners, lastfmPlays);
   set("af-scale", scale.label);
   set("af-scale-desc", scale.desc);
+
+  // Edge E — all platform sources degraded (should not happen; the engine
+  // degrades gracefully). Defensive annotation only.
+  const note = document.getElementById("af-degraded-note");
+  if (note) note.style.display = presence.count === 0 ? "" : "none";
 }
 
 /* ── Block F Step 4 — Admin preview-state tooling ───────────────── */
