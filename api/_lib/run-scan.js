@@ -1154,14 +1154,35 @@ async function getWikidata(artistName) {
 // ────────────────────────────────────────────────────────
 // DETECTION MODULES — includes Apple Music module
 // ────────────────────────────────────────────────────────
+// Genre source of truth (Spotify demoted — Development Mode returns no genres).
+// Spotify first so behaviour is preserved if Spotify access ever recovers, then
+// Apple Music genreNames, then Last.fm tags — all already string arrays here.
+// Empty only when every DSP genuinely lacks genre data (a real metadata gap).
+function getEffectiveGenres(artist, appleMusic, lastfm) {
+  if (artist?.genres?.length > 0) return artist.genres;
+  if (appleMusic?.genres?.length > 0) return appleMusic.genres;
+  if (lastfm?.tags?.length > 0) return lastfm.tags;
+  return [];
+}
+
+// Audience-scale source of truth for the follower-threshold checks.
+// Last.fm listeners, then Deezer fans, then Spotify followers.
+function getEffectiveAudienceScale(lastfm, deezer, artist) {
+  const lastfmListeners = Number(lastfm?.listeners) || 0;
+  if (lastfmListeners > 0) return lastfmListeners;
+  const deezerFans = Number(deezer?.fans) || 0;
+  if (deezerFans > 0) return deezerFans;
+  return Number(artist?.followers?.total) || 0;
+}
+
 function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, lastfm, wikidata, catalog, youtube, appleMusic) {
   const modules = {};
 
   // MODULE A — Metadata Integrity
   let metaScore = 100;
   const metaFlags = [];
-  if (!artist.genres?.length) { metaScore -= 20; metaFlags.push('Genre tags not detected on Spotify profile'); }
-  if (!artist.images?.length) { metaScore -= 15; metaFlags.push('No artist images found on Spotify'); }
+  if (!getEffectiveGenres(artist, appleMusic, lastfm).length) { metaScore -= 20; metaFlags.push('Genre metadata absent across major DSPs'); }
+  if (!artist.images?.length) { metaScore -= 15; metaFlags.push('No artist images found across major DSPs'); }
   if (track && !track.external_ids?.isrc) { metaScore -= 30; metaFlags.push('ISRC signal not detected on this track'); }
   if (audiodb.found && audiodb.biography) metaScore += 5;
   if (wikidata.found) metaScore += 5;
@@ -1186,14 +1207,14 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
     if (p.found) covScore += p.pts;
     else covFlags.push(`${p.name} presence not detected — coverage risk`);
   });
-  if (artist.followers?.total > 100) covScore += 10;
+  if (getEffectiveAudienceScale(lastfm, deezer, artist) > 100) covScore += 10;
   modules.coverage = { name: 'Platform Coverage', score: Math.min(covScore, 100), flags: covFlags };
 
   // MODULE C — Publishing Risk
   let pubScore = 100;
   const pubFlags = [];
   if (track && !track.external_ids?.isrc) { pubScore -= 35; pubFlags.push('ISRC not detected — performance royalty routing unverified'); }
-  if (!artist.genres?.length) { pubScore -= 15; pubFlags.push('Genre metadata absent — sync and publishing discoverability risk'); }
+  if (!getEffectiveGenres(artist, appleMusic, lastfm).length) { pubScore -= 15; pubFlags.push('Genre metadata absent — sync and publishing discoverability risk'); }
   if (!mb.found) { pubScore -= 20; pubFlags.push('Not in MusicBrainz — publishing data cross-reference unavailable'); }
   if (catalog.catalogAgeYears > 5) { pubScore -= 10; pubFlags.push(`Catalog active for ${catalog.catalogAgeYears} years — extended royalty verification recommended`); }
   if (discogs.found && discogs.releases > 0) pubScore += 10;
@@ -1206,9 +1227,10 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
   modules.publishing = { name: 'Publishing Risk', score: Math.max(pubScore, 10), flags: pubFlags };
 
   // MODULE D — Duplicate Detection
+  // The Spotify popularity/followers ratio check was removed (Phase 3): it was
+  // Spotify-only and dead under Development Mode degradation (popularity 0).
   let dupScore = 80;
   const dupFlags = [];
-  if (artist.followers?.total < 500 && artist.popularity > 20) { dupScore -= 25; dupFlags.push('Popularity vs follower ratio — possible catalog fragmentation signal'); }
   if (mb.artists?.length > 1) { dupScore -= 20; dupFlags.push(`${mb.artists.length} MusicBrainz entries detected — possible duplicate profiles`); }
   if (!catalog.recentActivity && catalog.earliestYear) { dupScore -= 10; dupFlags.push(`No releases detected after ${catalog.latestYear} — catalog may be fragmented across accounts`); }
   modules.duplicates = { name: 'Duplicate Detection', score: Math.max(dupScore, 10), flags: dupFlags };
@@ -1250,14 +1272,14 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
   let syncScore = 0;
   const syncFlags = [];
   if (track?.external_ids?.isrc) { syncScore += 20; } else syncFlags.push('ISRC signal not detected');
-  if (artist.genres?.length) { syncScore += 15; } else syncFlags.push('Genre tags absent');
+  if (getEffectiveGenres(artist, appleMusic, lastfm).length) { syncScore += 15; } else syncFlags.push('Genre tags absent');
   if (mb.found) { syncScore += 10; } else syncFlags.push('Not in MusicBrainz catalog');
   if (wikidata.found) { syncScore += 15; } else syncFlags.push('No Wikipedia presence — sync discoverability risk');
   if (deezer.found) syncScore += 8;
   if (discogs.found) syncScore += 8;
   if (lastfm.found && lastfm.listeners > 500) syncScore += 10;
   if (audiodb.found && audiodb.genre) syncScore += 8;
-  if (artist.followers?.total > 1000) syncScore += 6;
+  if (getEffectiveAudienceScale(lastfm, deezer, artist) > 1000) syncScore += 6;
   // Apple Music presence boosts sync score
   if (appleMusic.found) { syncScore += 10; } else syncFlags.push('Not found on Apple Music — cross-platform sync discoverability risk');
   if (appleMusic.catalogComparison?.matchRate < 70) {
