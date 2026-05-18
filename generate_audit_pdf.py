@@ -13,7 +13,7 @@ Usage
 
 Contract
 --------
-Input JSON MUST conform to AuditResponse schema v1.0.0
+Input JSON MUST conform to AuditResponse schema v1.1.0
 (mirror of api/schema/auditResponse.js). Any missing required fields,
 type mismatches, or enum violations will raise AuditSchemaError and
 NO PDF will be generated. This is by design — the goal is zero drift.
@@ -47,7 +47,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -197,6 +197,24 @@ class RoyaltyGap(BaseModel):
     disclaimer: str
 
 
+class GapIndicator(BaseModel):
+    id: str
+    severity: str
+    title: str
+    description: str
+    exposureLow: Optional[int] = None
+    exposureHigh: Optional[int] = None
+    methodology: str
+
+
+class GapBasedExposure(BaseModel):
+    indicators: list[GapIndicator]
+    aggregateLow: Optional[int] = None
+    aggregateHigh: Optional[int] = None
+    pendingValidationCount: int
+    hasAnyGaps: bool
+
+
 class ProGuide(BaseModel):
     pro: str
     url: str
@@ -227,6 +245,7 @@ class AuditResponse(BaseModel):
     issues: list[Issue]
     score: Score
     royaltyGap: RoyaltyGap
+    gapBasedExposure: GapBasedExposure
     proGuide: ProGuide
     ownership: Ownership
     territoryCoverage: Optional[Any] = None
@@ -248,12 +267,27 @@ class AuditSchemaError(Exception):
 # THEME SYSTEM — two palettes, one layout
 # ═══════════════════════════════════════════════════════════════════════════
 
-# Register DejaVu fonts (handles ē glyph correctly)
-FONT_DIR = "/usr/share/fonts/truetype/dejavu/"
-pdfmetrics.registerFont(TTFont("DV",    FONT_DIR + "DejaVuSans.ttf"))
-pdfmetrics.registerFont(TTFont("DV-B",  FONT_DIR + "DejaVuSans-Bold.ttf"))
-pdfmetrics.registerFont(TTFont("DV-I",  FONT_DIR + "DejaVuSans-Oblique.ttf"))
-pdfmetrics.registerFont(TTFont("DV-M",  FONT_DIR + "DejaVuSansMono.ttf"))
+# Register DejaVu fonts (handles ē glyph correctly). The font directory is
+# resolved from a candidate list: the repo-bundled fonts/ dir first — so the
+# PDF renders with identical, deterministic output on any machine — then the
+# Linux system path, then the macOS user font dir.
+_FONT_FILES = {
+    "DV":   "DejaVuSans.ttf",
+    "DV-B": "DejaVuSans-Bold.ttf",
+    "DV-I": "DejaVuSans-Oblique.ttf",
+    "DV-M": "DejaVuSansMono.ttf",
+}
+_FONT_CANDIDATES = [
+    Path(__file__).resolve().parent / "fonts",
+    Path("/usr/share/fonts/truetype/dejavu"),
+    Path.home() / "Library" / "Fonts",
+]
+FONT_DIR = next(
+    (d for d in _FONT_CANDIDATES if (d / _FONT_FILES["DV"]).is_file()),
+    _FONT_CANDIDATES[0],
+)
+for _font_name, _font_file in _FONT_FILES.items():
+    pdfmetrics.registerFont(TTFont(_font_name, str(FONT_DIR / _font_file)))
 
 
 class Theme:
@@ -390,11 +424,14 @@ def render_pdf(payload: AuditResponse, theme: Theme, out_path: Path) -> None:
     # ── FINDINGS ────────────────────────────────────────────────────────────
     story.extend(_render_issues(payload, theme, W))
 
-    # ── ROYALTY GAP ─────────────────────────────────────────────────────────
-    story.extend(_render_royalty_gap(payload, theme, W))
+    # ── GAP-BASED EXPOSURE ──────────────────────────────────────────────────
+    story.extend(_render_gap_based_exposure(payload, theme, W))
 
     # ── PRO GUIDE ───────────────────────────────────────────────────────────
     story.extend(_render_pro_guide(payload, theme, W))
+
+    # ── GAP-BASED EXPOSURE METHODOLOGY (appendix) ───────────────────────────
+    story.extend(_render_gbe_methodology(payload, theme, W))
 
     # ── FOOTER ──────────────────────────────────────────────────────────────
     story.extend(_render_footer(payload, theme, W, generated))
@@ -419,9 +456,12 @@ def _fmt_timestamp(iso: str) -> str:
 # ── Section renderers ───────────────────────────────────────────────────────
 
 def _render_header(p: AuditResponse, t: Theme, W: float) -> list:
+    # Header — wordmark left, report label right. The label dropped its
+    # leading "Royalty" word — that framing is legacy positioning the
+    # product is moving away from; "Audit Report" stays.
     tbl = Table([[
         Paragraph("<b>Royaltē</b>", style("logo", "DV-B", 18, colors.black)),
-        Paragraph("ROYALTY AUDIT REPORT", style("hd", "DV-B", 10, t.brand, align=2)),
+        Paragraph("AUDIT REPORT", style("hd", "DV-B", 10, t.brand, align=2)),
     ]], colWidths=[W * 0.5, W * 0.5])
     tbl.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -646,46 +686,145 @@ def _render_issues(p: AuditResponse, t: Theme, W: float) -> list:
     return out
 
 
-def _render_royalty_gap(p: AuditResponse, t: Theme, W: float) -> list:
-    g = p.royaltyGap
+def _render_gap_based_exposure(p: AuditResponse, t: Theme, W: float) -> list:
+    # Gap-Based Exposure — full per-indicator detail (the PDF is a paid
+    # deliverable). Primary statement is an operational observation; the
+    # aggregate dollar range is supporting evidence, never the headline.
+    g = p.gapBasedExposure
     out: list = [
-        Paragraph("// ROYALTY GAP ESTIMATE", style("h2", "DV-B", 9, t.brand)),
+        Paragraph("// GAP-BASED EXPOSURE", style("h2", "DV-B", 9, t.brand)),
         HRFlowable(width=W, thickness=0.5, color=t.line, spaceBefore=2, spaceAfter=6),
     ]
 
     def money(n: int) -> str:
         return f"${n:,}"
 
-    def num(n: int) -> str:
-        return f"{n:,}"
+    def esc(s: str) -> str:
+        return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
-    rows = [
-        [Paragraph("<b>Est. annual streams</b>", style("k", "DV", 9, t.ink)),
-         Paragraph(num(g.estAnnualStreams), style("v", "DV-M", 9, t.ink, align=2))],
-        [Paragraph("<b>Est. lifetime streams</b>", style("k", "DV", 9, t.ink)),
-         Paragraph(num(g.estLifetimeStreams), style("v", "DV-M", 9, t.ink, align=2))],
-        [Paragraph("<b>Est. Spotify royalties</b>", style("k", "DV", 9, t.ink)),
-         Paragraph(money(g.estSpotifyRoyalties), style("v", "DV-M", 9, t.ok, align=2))],
-        [Paragraph("<b>Est. PRO earnings</b>", style("k", "DV", 9, t.ink)),
-         Paragraph(money(g.estPROEarnings), style("v", "DV-M", 9, t.ok, align=2))],
-        [Paragraph("<b>Potential gap (range)</b>", style("k", "DV-B", 9, t.ink)),
-         Paragraph(f"{money(g.potentialGapLow)} – {money(g.potentialGapHigh)}",
-                   style("v", "DV-M", 9, t.critical, align=2))],
-        [Paragraph("<b>Unmonetised UGC views</b>", style("k", "DV", 9, t.ink)),
-         Paragraph(num(g.ugcUnmonetisedViews), style("v", "DV-M", 9, t.warning, align=2))],
+    if not g.hasAnyGaps:
+        out.append(Paragraph("<b>No revenue-relevant backend gaps detected.</b>",
+                             style("v", "DV-B", 10, t.ok)))
+        out.append(Spacer(1, 3))
+        out.append(Paragraph(
+            "Your music's backend infrastructure shows complete verification across "
+            "the detected ecosystem signals.",
+            style("v", "DV", 8.5, t.muted)))
+        out.append(Spacer(1, 14))
+        return out
+
+    out.append(Paragraph(
+        "Revenue-relevant backend gaps detected across multiple ecosystem signals.",
+        style("v", "DV", 9.5, t.ink)))
+    out.append(Spacer(1, 7))
+
+    has_agg = g.aggregateLow is not None and g.aggregateHigh is not None
+    out.append(Paragraph("ESTIMATED COMBINED EXPOSURE RANGE",
+                         style("k", "DV-B", 7, t.muted)))
+    if has_agg:
+        out.append(Paragraph(f"{money(g.aggregateLow)} – {money(g.aggregateHigh)} annually",
+                             style("v", "DV-B", 13, t.ink)))
+    else:
+        out.append(Paragraph("Exposure pending validation",
+                             style("v", "DV-I", 11, t.muted)))
+    if has_agg and g.pendingValidationCount > 0:
+        n = g.pendingValidationCount
+        out.append(Spacer(1, 2))
+        out.append(Paragraph(
+            f"Additional exposure pending validation on {n} indicator"
+            f"{'' if n == 1 else 's'}.",
+            style("v", "DV", 8, t.muted)))
+    out.append(Spacer(1, 8))
+    out.append(HRFlowable(width=W, thickness=0.3, color=t.line, spaceBefore=0, spaceAfter=8))
+
+    sev_color = {"HIGH": t.critical, "MED": t.warning, "LOW": t.muted}
+    for ind in g.indicators:
+        col = sev_color.get(ind.severity, t.muted)
+        hexc = "#" + col.hexval()[2:8]
+        lbl = ind.severity if ind.severity in sev_color else "LOW"
+        out.append(Paragraph(
+            f'<font color="{hexc}"><b>{lbl}</b></font>&nbsp;&nbsp;<b>{esc(ind.title)}</b>',
+            style("v", "DV", 9, t.ink)))
+        out.append(Paragraph(esc(ind.description), style("v", "DV", 8, t.muted)))
+        if ind.exposureLow is not None and ind.exposureHigh is not None:
+            out.append(Paragraph(
+                f"Estimated exposure: {money(ind.exposureLow)} – "
+                f"{money(ind.exposureHigh)}/yr",
+                style("v", "DV-M", 8, t.ink)))
+        else:
+            out.append(Paragraph("Exposure pending validation",
+                                 style("v", "DV-I", 8, t.muted)))
+        out.append(Spacer(1, 7))
+
+    out.append(HRFlowable(width=W, thickness=0.3, color=t.line, spaceBefore=0, spaceAfter=6))
+    out.append(Paragraph(
+        "<i>Gap-based exposure derives from each detected gap individually. Actual "
+        "exposure depends on your distribution, registration, and rights setup. Verify "
+        "with your publisher, distributor, and PRO for full accounting.</i>",
+        style("disc", "DV-I", 7, t.muted)))
+    out.append(Spacer(1, 14))
+    return out
+
+
+def _render_gbe_methodology(p: AuditResponse, t: Theme, W: float) -> list:
+    # Methodology appendix — the transparent trail for how indicator ranges
+    # are derived. End-user adaptation of docs/gap-based-exposure-methodology.md.
+    out: list = [
+        Paragraph("// GAP-BASED EXPOSURE — METHODOLOGY", style("h2", "DV-B", 9, t.brand)),
+        HRFlowable(width=W, thickness=0.5, color=t.line, spaceBefore=2, spaceAfter=6),
     ]
-    tbl = Table(rows, colWidths=[W * 0.55, W * 0.45])
+    out.append(Paragraph(
+        "Exposure is derived from specific detected backend gaps — not from audience "
+        "estimation. Each indicator carries its own dollar-impact range tied to the gap "
+        "it detects; the combined exposure is the sum of the quantified indicator "
+        "ranges. Indicators with no defensible dollar math are shown as \"Exposure "
+        "pending validation\" rather than a fabricated figure.",
+        style("v", "DV", 8.5, t.ink)))
+    out.append(Spacer(1, 6))
+    out.append(Paragraph(
+        "<b>Per-indicator impact ranges are INITIAL estimates</b> — deliberately wide "
+        "and conservative, to be recalibrated with real recovery data. Treat them as "
+        "operational indicators, not precise figures.",
+        style("v", "DV", 8, t.muted)))
+    out.append(Spacer(1, 8))
+
+    rows = [[Paragraph("<b>Indicator</b>", style("k", "DV-B", 7.5, t.muted)),
+             Paragraph("<b>Per-incident range</b>", style("k", "DV-B", 7.5, t.muted)),
+             Paragraph("<b>Basis</b>", style("k", "DV-B", 7.5, t.muted))]]
+    method = [
+        ("Performance royalty routing — ISRC missing", "$50–$300 / release",
+         "PRO unmatched-performance recovery rate"),
+        ("Content ID gap — unmonetized UGC views", "$5–$50 / 1,000 views",
+         "Published video-network payout rates"),
+        ("Cross-network distribution gap", "$200–$500 band",
+         "Primary-network reach-loss estimate"),
+        ("Publishing cross-reference gap", "$50–$250 band",
+         "Registry match-rate degradation estimate"),
+        ("Catalog age — extended verification", "$3–$18 / release-year",
+         "Unaudited-activity accrual over catalog age"),
+    ]
+    for name, rng, basis in method:
+        rows.append([
+            Paragraph(name, style("v", "DV", 7.5, t.ink)),
+            Paragraph(rng, style("v", "DV-M", 7.5, t.ink)),
+            Paragraph(basis, style("v", "DV", 7.5, t.muted)),
+        ])
+    tbl = Table(rows, colWidths=[W * 0.40, W * 0.24, W * 0.36])
     tbl.setStyle(TableStyle([
-        ("LINEBELOW", (0, 0), (-1, -2), 0.3, t.line),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LINEBELOW", (0, 0), (-1, -1), 0.3, t.line),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
         ("TOPPADDING", (0, 0), (-1, -1), 4),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
     ]))
     out.append(tbl)
     out.append(Spacer(1, 6))
-    out.append(Paragraph(f"<i>{g.disclaimer}</i>",
-                         style("disc", "DV-I", 7, t.muted)))
-    out.append(Spacer(1, 14))
+    out.append(Paragraph(
+        "<i>Unquantifiable gaps — sync-licensing discoverability, metadata richness, "
+        "ecosystem confidence, editorial reference, genre metadata — are revenue-"
+        "relevant but not directly priceable; they appear as \"Exposure pending "
+        "validation.\" Methodology is reviewed quarterly.</i>",
+        style("disc", "DV-I", 7, t.muted)))
+    out.append(Spacer(1, 12))
     return out
 
 

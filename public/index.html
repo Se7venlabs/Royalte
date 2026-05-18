@@ -1416,6 +1416,27 @@ body.menu-locked {
   }
 }
 
+/* ─── GAP-BASED EXPOSURE (homepage mirror — reduced for conversion) ───
+   Aggregate range + gap count + tease only. Per-indicator detail is held
+   back for the authenticated dashboard. */
+.gbe-card{margin-top:14px;padding:18px 20px;background:#0a0818;border:1px solid rgba(138,92,255,0.25);border-radius:8px;}
+.gbe-card-title{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);margin-bottom:14px;}
+.gbe-body{display:flex;flex-direction:column;}
+.gbe-primary-statement{font-size:14px;color:var(--text2);line-height:1.55;margin:0 0 16px;}
+.gbe-aggregate{margin-bottom:2px;}
+.gbe-aggregate-label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.gbe-aggregate-value{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:#fff;letter-spacing:0.02em;line-height:1.1;}
+.gbe-aggregate-value.gbe-exposure-pending{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:400;font-style:italic;color:var(--muted);}
+.gbe-aggregate-note{font-size:12px;color:var(--muted2);margin-top:6px;line-height:1.5;}
+.gbe-count{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#fff;letter-spacing:0.02em;margin-top:12px;}
+.gbe-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:14px 0;}
+.gbe-tease{font-size:12.5px;color:var(--muted2);line-height:1.55;margin:0 0 12px;}
+.gbe-disclaimer{font-size:12px;color:var(--muted);font-style:italic;line-height:1.55;margin:0;}
+.gbe-empty{text-align:center;padding:18px 8px;}
+.gbe-empty-check{font-size:30px;color:var(--grn);line-height:1;margin-bottom:10px;}
+.gbe-empty-title{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:8px;}
+.gbe-empty-body{font-size:13px;color:var(--muted2);line-height:1.6;margin:0 auto;max-width:380px;}
+
 </style>
 </head>
 <body class="tier-free">
@@ -1859,6 +1880,10 @@ body.menu-locked {
             <div class="d-mod-problem"></div>
             <div class="d-mod-impact"></div>
           </div>
+        </div>
+        <div class="gbe-card">
+          <div class="gbe-card-title">Gap-Based Exposure</div>
+          <div class="gbe-body" id="gbe-body"><!-- populated by renderGapBasedExposure() --></div>
         </div>
         <div class="bi-os-preview" id="bi-os-preview">
           <div class="bi-os-preview-header">BACKEND INTELLIGENCE OS</div>
@@ -2647,6 +2672,62 @@ function getEcosystemSignal(data) {
 }
 
 // ── SHOW REAL RESULTS ──────────────────────────────────────
+// ── GAP-BASED EXPOSURE (homepage mirror — reduced for conversion) ──
+// The homepage shows the primary observation, the aggregate range, the gap
+// count, and a tease. Per-indicator detail (severity rows, descriptions,
+// per-gap ranges) is deliberately held back for the authenticated dashboard
+// — that asymmetry is the signup driver. Reads data.gapBasedExposure from
+// the raw /api/audit response.
+function gbeFmtMoney(n) {
+  const v = Math.max(0, Math.round(Number(n) || 0));
+  if (v >= 1000000) return '$' + (v / 1000000).toFixed(v >= 10000000 ? 0 : 1) + 'M';
+  if (v >= 1000)    return '$' + Math.round(v / 1000) + 'K';
+  return '$' + v;
+}
+function renderGapBasedExposure(gbe) {
+  const body = document.getElementById('gbe-body');
+  if (!body) return;
+  const g = gbe || { indicators: [], aggregateLow: null, aggregateHigh: null,
+                     pendingValidationCount: 0, hasAnyGaps: false };
+
+  if (!g.hasAnyGaps) {
+    body.innerHTML =
+      '<div class="gbe-empty"><div class="gbe-empty-check">✓</div>'
+      + '<div class="gbe-empty-title">No revenue-relevant backend gaps detected</div>'
+      + '<p class="gbe-empty-body">Your music’s backend infrastructure shows complete '
+      + 'verification across the detected ecosystem signals. Continue monitoring with '
+      + 'Royaltē OS to track changes and emerging gaps over time.</p></div>';
+    return;
+  }
+
+  const hasAgg = g.aggregateLow != null && g.aggregateHigh != null;
+  const gapN   = (g.indicators || []).length;
+  let html =
+    '<p class="gbe-primary-statement">Revenue-relevant backend gaps detected across '
+    + 'multiple ecosystem signals.</p>'
+    + '<div class="gbe-aggregate">'
+    + '<div class="gbe-aggregate-label">Estimated combined exposure range</div>'
+    + (hasAgg
+        ? '<div class="gbe-aggregate-value">' + gbeFmtMoney(g.aggregateLow) + ' – '
+          + gbeFmtMoney(g.aggregateHigh) + ' annually</div>'
+        : '<div class="gbe-aggregate-value gbe-exposure-pending">Exposure pending validation</div>');
+  if (hasAgg && g.pendingValidationCount > 0) {
+    html += '<div class="gbe-aggregate-note">Additional exposure pending validation on '
+      + g.pendingValidationCount + ' indicator' + (g.pendingValidationCount === 1 ? '' : 's')
+      + '.</div>';
+  }
+  html += '</div>'
+    + '<div class="gbe-count">' + gapN + ' revenue-relevant gap' + (gapN === 1 ? '' : 's')
+    + ' detected</div>'
+    + '<div class="gbe-divider"></div>'
+    + '<p class="gbe-tease">Indicator-level breakdown, per-gap exposure ranges, and '
+    + 'remediation guidance available in Royaltē OS.</p>'
+    + '<p class="gbe-disclaimer">Gap-based exposure derives from each detected gap '
+    + 'individually. Actual exposure depends on your distribution, registration, and '
+    + 'rights setup. Verify with your publisher, distributor, and PRO for full accounting.</p>';
+  body.innerHTML = html;
+}
+
 function showRealResults(data) {
   const artistName = data.artistName || 'Artist';
   const scanMode   = data.scanMode || data.type || 'artist';
@@ -2887,6 +2968,9 @@ function showRealResults(data) {
       if (impactEl)  impactEl.textContent  = copy ? copy.impact  : '';
     });
   }
+
+  // ── Gap-Based Exposure — per-indicator revenue exposure component.
+  renderGapBasedExposure(data.gapBasedExposure);
 
   // Lock form fields — artist name + URL auto-filled from scan
   const fSpotify = document.getElementById('f-spotify');

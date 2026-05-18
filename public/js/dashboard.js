@@ -36,12 +36,12 @@ import { getSupabase } from '/js/supabase-client.js';
  * @property {number} score.value          - 0–100
  * @property {string} score.headline       - "Your setup needs improvement"
  *
- * @property {Object} revenueRisk          - Path B: ranges, not exact dollars
- * @property {string} revenueRisk.range    - "$420 – $2,100 annually"
- * @property {string} revenueRisk.tier     - "high" | "medium" | "low"
- * @property {string} revenueRisk.tierLabel- "High"
- * @property {string} revenueRisk.confidence - "Moderate"
- * @property {string} revenueRisk.note     - "Exact exposure breakdown requires full audit"
+ * @property {Object}  gapExposure          - Gap-Based Exposure (canonical gapBasedExposure)
+ * @property {Array}   gapExposure.indicators - per-gap exposure rows
+ * @property {?number} gapExposure.aggregateLow  - sum of quantified lows, or null
+ * @property {?number} gapExposure.aggregateHigh - sum of quantified highs, or null
+ * @property {number}  gapExposure.pendingValidationCount - unquantified indicator count
+ * @property {boolean} gapExposure.hasAnyGaps  - false means render the empty state
  *
  * @property {Object} stats
  * @property {number} stats.issuesFound
@@ -247,14 +247,26 @@ function renderHeroBanner(data) {
   document.getElementById("score-val").textContent = score + "%";
   document.getElementById("score-headline").textContent = data.score.headline;
 
-  // revenue at risk (Path B: range string, not number)
-  document.getElementById("stat-revenue").textContent = data.revenueRisk.range;
-  const tierEl = document.getElementById("stat-revenue-tier");
-  tierEl.textContent = data.revenueRisk.tierLabel;
-  tierEl.className = "hero-stat-sub " + tierClass(data.revenueRisk.tier);
-
-  const heroConf = document.getElementById("stat-revenue-conf");
-  if (heroConf) heroConf.textContent = "Confidence: " + data.revenueRisk.confidence;
+  // Gap-Based Exposure — compact hero-stat summary. OBSERVATIONAL ONLY: the
+  // tile never headlines a dollar figure. The locked framing is "operational
+  // observation, dollar range is supporting evidence" — a stat tile cannot
+  // carry that structure honestly, so the aggregate lives only in the full
+  // card below. The tile reports the gap count, nothing monetary.
+  const gbeHero  = data.gapExposure || {};
+  const stRev    = document.getElementById("stat-revenue");
+  const stTier   = document.getElementById("stat-revenue-tier");
+  const stConf   = document.getElementById("stat-revenue-conf");
+  if (!gbeHero.hasAnyGaps) {
+    if (stRev)  stRev.textContent = "No gaps detected";
+    if (stTier) { stTier.textContent = "Backend verified"; stTier.className = "hero-stat-sub low"; }
+    if (stConf) stConf.textContent = "";
+  } else {
+    const gapN = (gbeHero.indicators || []).length;
+    if (stRev)  stRev.textContent = gapN + " gap" + (gapN === 1 ? "" : "s") + " detected";
+    if (stTier) { stTier.textContent = "Revenue-relevant backend gaps"; stTier.className = "hero-stat-sub high"; }
+    if (stConf) stConf.textContent = gbeHero.pendingValidationCount > 0
+      ? gbeHero.pendingValidationCount + " pending validation" : "";
+  }
 
   document.getElementById("stat-issues").textContent  = data.stats.issuesFound;
   document.getElementById("stat-working").textContent = data.stats.thingsWorking;
@@ -366,44 +378,76 @@ function renderHeroIdentity(data) {
    not fake dollar amounts.
    ───────────────────────────────────────────── */
 
-function renderRevenueCard(data) {
-  document.getElementById("rev-amount").textContent = data.revenueRisk.range;
+// Gap-Based Exposure severity → icon + class (consistent with V3 Backend
+// Observations). Locked HIGH / MED / LOW vocabulary.
+const GBE_SEV = {
+  HIGH: { icon: "⚠", cls: "high", label: "HIGH" },
+  MED:  { icon: "◐", cls: "med",  label: "MED"  },
+  LOW:  { icon: "·", cls: "low",  label: "LOW"  },
+};
 
-  const pill = document.getElementById("rev-tier-pill");
-  pill.textContent = data.revenueRisk.tierLabel;
-  pill.className = "rev-tier-pill " + tierClass(data.revenueRisk.tier);
+// Renders the Gap-Based Exposure component into #gbe-body. Primary statement
+// is an operational observation; the aggregate is supporting evidence.
+// Unquantified indicators render "Exposure pending validation" — never a
+// fabricated dollar figure. Empty state is a calm green checkmark.
+function renderGapBasedExposure(gbe) {
+  const body = document.getElementById("gbe-body");
+  if (!body) return;
+  const g = gbe || { indicators: [], aggregateLow: null, aggregateHigh: null,
+                     pendingValidationCount: 0, hasAnyGaps: false };
 
-  const revConf = document.getElementById("rev-confidence");
-  if (revConf) revConf.textContent = "Confidence: " + data.revenueRisk.confidence;
+  if (!g.hasAnyGaps) {
+    body.innerHTML =
+      '<div class="gbe-empty">'
+      + '<div class="gbe-empty-check">✓</div>'
+      + '<div class="gbe-empty-title">No revenue-relevant backend gaps detected</div>'
+      + '<p class="gbe-empty-body">Your music’s backend infrastructure shows complete '
+      + 'verification across the detected ecosystem signals. Continue monitoring with '
+      + 'Royaltē OS to track changes and emerging gaps over time.</p>'
+      + '</div>';
+    return;
+  }
 
-  document.getElementById("rev-sub").textContent = data.revenueRisk.note;
+  const hasAgg = g.aggregateLow != null && g.aggregateHigh != null;
+  let html =
+    '<p class="gbe-primary-statement">Revenue-relevant backend gaps detected across '
+    + 'multiple ecosystem signals.</p>'
+    + '<div class="gbe-aggregate">'
+    + '<div class="gbe-aggregate-label">Estimated combined exposure range</div>'
+    + (hasAgg
+        ? '<div class="gbe-aggregate-value">' + fmtMoney(g.aggregateLow) + ' – '
+          + fmtMoney(g.aggregateHigh) + ' annually</div>'
+        : '<div class="gbe-aggregate-value gbe-exposure-pending">Exposure pending validation</div>');
+  if (hasAgg && g.pendingValidationCount > 0) {
+    html += '<div class="gbe-aggregate-note">Additional exposure pending validation on '
+      + g.pendingValidationCount + ' indicator' + (g.pendingValidationCount === 1 ? '' : 's')
+      + '.</div>';
+  }
+  html += '</div><div class="gbe-divider"></div>';
 
-  // build the chart silhouette from tier history
-  const trend = data.trend || [];
-  if (!trend.length) return;
+  for (const ind of (g.indicators || [])) {
+    const sev = GBE_SEV[ind.severity] || GBE_SEV.LOW;
+    const quantified = ind.exposureLow != null && ind.exposureHigh != null;
+    html += '<div class="gbe-indicator gbe-indicator-severity-' + sev.cls + '">'
+      + '<div class="gbe-indicator-head">'
+      + '<span class="gbe-indicator-icon">' + sev.icon + '</span>'
+      + '<span class="gbe-indicator-sev">' + sev.label + '</span>'
+      + '<span class="gbe-indicator-title">' + escapeHtml(rewordObservation(ind.title)) + '</span>'
+      + '</div>'
+      + '<div class="gbe-indicator-desc">' + escapeHtml(rewordObservation(ind.description)) + '</div>'
+      + (quantified
+          ? '<div class="gbe-exposure-value">Estimated exposure: ' + fmtMoney(ind.exposureLow)
+            + ' – ' + fmtMoney(ind.exposureHigh) + '/yr</div>'
+          : '<div class="gbe-exposure-pending">Exposure pending validation</div>')
+      + '</div>';
+  }
 
-  const W = 600, H = 180;
-  const padL = 36, padR = 16, padT = 10, padB = 28;
-  const innerW = W - padL - padR;
-  const innerH = H - padT - padB;
+  html += '<div class="gbe-divider"></div>'
+    + '<p class="gbe-disclaimer">Gap-based exposure derives from each detected gap '
+    + 'individually. Actual exposure depends on your distribution, registration, and '
+    + 'rights setup. Verify with your publisher, distributor, and PRO for full accounting.</p>';
 
-  const tierY = { low: padT + innerH * 0.85, med: padT + innerH * 0.5, high: padT + innerH * 0.15 };
-
-  const stepX = innerW / Math.max(trend.length - 1, 1);
-  const points = trend.map((p, i) => ({ x: padL + i * stepX, y: tierY[p.tier] || tierY.med, label: p.date }));
-
-  // smooth path using simple cubic interpolation
-  const linePath = smoothPath(points);
-  const areaPath = `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${(H - padB).toFixed(1)} L ${points[0].x.toFixed(1)} ${(H - padB).toFixed(1)} Z`;
-
-  document.getElementById("rev-line-path").setAttribute("d", linePath);
-  document.getElementById("rev-area-path").setAttribute("d", areaPath);
-
-  // x-axis labels
-  const labelsHTML = points.map(p =>
-    `<text x="${p.x.toFixed(1)}" y="${(H - 8).toFixed(0)}" font-family="Space Mono" font-size="10" fill="#8480a8" text-anchor="middle" letter-spacing="0.06em">${escapeHtml(p.label)}</text>`
-  ).join("");
-  document.getElementById("rev-x-labels").innerHTML = labelsHTML;
+  body.innerHTML = html;
 }
 
 
@@ -687,34 +731,13 @@ function mapCanonicalToDashboard(canonical) {
   // riskTier still drives the trend silhouette below — kept.
   const riskTier = mapRiskTier(scoreObj.riskLevel || riskFromScore(score));
 
-  // ── revenue exposure — real royaltyGap numbers (Spotify-demotion Phase 2).
-  // Replaces the canned tier-bucket strings: the hero stat is now a per-artist
-  // estimate from royaltyGap.potentialGapLow/High. Tier label + confidence are
-  // computed here from the canonical payload — no schema change.
-  const royaltyGap    = canonical.royaltyGap || {};
-  const metricsObj    = canonical.metrics || {};
-  const gapLow        = Math.max(0, Math.round(Number(royaltyGap.potentialGapLow)  || 0));
-  const gapHigh       = Math.max(0, Math.round(Number(royaltyGap.potentialGapHigh) || 0));
-  const annualStreams = Number(royaltyGap.estAnnualStreams) || 0;
-  const lastfmPlays   = Number(metricsObj.lastfmPlays) || 0;
-  // Edge A — no Last.fm signal at all: honest "Limited data", not fake numbers.
-  const exposureNoData = annualStreams === 0 || lastfmPlays === 0;
-  const exposureTier   = exposureTierFromValue(gapHigh);
-  const revenueRisk = exposureNoData
-    ? {
-        range: "$0 – $0 annually",
-        tier: "low",
-        tierLabel: "Limited data",
-        confidence: "Limited",
-        note: "Limited scan data — run a fresh scan for a fuller estimate.",
-      }
-    : {
-        range: formatExposureRange(gapLow, gapHigh),
-        tier: exposureTier.cssKey,
-        tierLabel: exposureTier.label,
-        confidence: confidenceFromLastfm(lastfmPlays),
-        note: "Estimated from streaming activity. Recalibrated over the first 30 days of monitoring.",
-      };
+  // ── Gap-Based Exposure — per-indicator revenue exposure straight from the
+  // canonical payload (replaces the Phase 2 audience-estimation model). The
+  // engine derives exposure from detected backend gaps; this is pass-through.
+  const gapExposure = canonical.gapBasedExposure || {
+    indicators: [], aggregateLow: null, aggregateHigh: null,
+    pendingValidationCount: 0, hasAnyGaps: false,
+  };
 
   // ── stats ────────────────────────────────────
   const issuesFound = issuesRaw.length;
@@ -790,7 +813,7 @@ function mapCanonicalToDashboard(canonical) {
       notifications: 0
     },
     score: { value: score, headline: scoreHeadline },
-    revenueRisk,
+    gapExposure,
     stats: { issuesFound, thingsWorking },
     recentScan: {
       dateLabel:     formatScanDate(scannedAt),
@@ -884,28 +907,6 @@ function fmtMoney(n) {
   if (v >= 1000000) return "$" + (v / 1000000).toFixed(v >= 10000000 ? 0 : 1) + "M";
   if (v >= 1000)    return "$" + Math.round(v / 1000) + "K";
   return "$" + v;
-}
-
-function formatExposureRange(low, high) {
-  return fmtMoney(low) + " – " + fmtMoney(high) + " annually";
-}
-
-// Exposure tier label — locked PR A thresholds on royaltyGap.potentialGapHigh.
-// cssKey feeds tierClass() for the existing high/med/low pill styling.
-function exposureTierFromValue(high) {
-  const h = Number(high) || 0;
-  if (h >= 10000) return { label: "Significant exposure", cssKey: "high" };
-  if (h >= 1000)  return { label: "Moderate exposure",    cssKey: "medium" };
-  if (h >= 100)   return { label: "Limited exposure",     cssKey: "low" };
-  return { label: "Minimal exposure", cssKey: "low" };
-}
-
-// Confidence from Last.fm play volume — aligns with Phase 1 Scale Confidence.
-function confidenceFromLastfm(plays) {
-  const p = Number(plays) || 0;
-  if (p >= 10000000) return "High";
-  if (p >= 100000)   return "Moderate";
-  return "Limited";
 }
 
 function impactLabelForSeverity(sev) {
@@ -1007,7 +1008,7 @@ function renderAll(data) {
   renderHeader(data);
   renderHeroBanner(data);
   renderHeroIdentity(data);
-  renderRevenueCard(data);
+  renderGapBasedExposure(data.gapExposure);
   renderRecentScan(data);
   renderLockStrip(data);
   renderIssues(data);
