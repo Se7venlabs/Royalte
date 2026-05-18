@@ -117,65 +117,82 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     errorEl.hidden = false;
   }
 
-  const supabase = getSupabase();
-  if (!supabase) {
-    fail('Auth client unavailable. Please request a new link from the homepage.');
-    return;
-  }
-
-  // detectSessionInUrl (set in createClient) consumes the hash on load.
-  // Give it a tick to settle, then read the session.
-  await sleep(150);
-
-  let session = null;
-  try {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    session = data.session;
-  } catch (e) {
-    console.error('[auth/callback] getSession error', e);
-  }
-
-  if (!session) {
-    fail('Your secure link could not be verified. Please request a new one from the homepage.');
-    return;
-  }
-
-  // Claim the anonymous scan. session_id arrives on the redirect URL query
-  // (the channel that works for returning users — data.* only persists to
-  // user_metadata when Supabase creates the user). The URL param wins: it is
-  // the fresh signal from THIS sign-in; user_metadata is from account
-  // creation. Non-fatal: sign-in succeeds regardless — the scan just doesn't
-  // migrate this round.
-  const sessionId =
-    new URLSearchParams(window.location.search).get('session_id') ||
-    session.user?.user_metadata?.session_id;
-  if (sessionId) {
-    try {
-      const { error: rpcErr } = await supabase.rpc('migrate_anonymous_scans', {
-        p_session_id: sessionId,
-        p_user_id: session.user.id,
-      });
-      if (rpcErr) console.error('[auth/callback] migrate_anonymous_scans error', rpcErr);
-    } catch (e) {
-      console.error('[auth/callback] migrate exception', e);
+  // Init flow — auth, anonymous-scan migration, the cinematic sequence, and
+  // the dashboard redirect. Wrapped in a function so it can be raced against
+  // the watchdog below.
+  async function runInit() {
+    const supabase = getSupabase();
+    if (!supabase) {
+      fail('Auth client unavailable. Please request a new link from the homepage.');
+      return;
     }
-  }
 
-  // Cinematic initialization sequence — each step holds active for 600ms,
-  // then completes. ~4s total from load to dashboard redirect; deliberately
-  // brief — users coming back from email want momentum.
-  const steps = Array.from(stepsEl.querySelectorAll('.step'));
-  for (const step of steps) {
-    step.classList.add('active');
+    // detectSessionInUrl (set in createClient) consumes the hash on load.
+    // Give it a tick to settle, then read the session.
+    await sleep(150);
+
+    let session = null;
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      session = data.session;
+    } catch (e) {
+      console.error('[auth/callback] getSession error', e);
+    }
+
+    if (!session) {
+      fail('Your secure link could not be verified. Please request a new one from the homepage.');
+      return;
+    }
+
+    // Claim the anonymous scan. session_id arrives on the redirect URL query
+    // (the channel that works for returning users — data.* only persists to
+    // user_metadata when Supabase creates the user). The URL param wins: it is
+    // the fresh signal from THIS sign-in; user_metadata is from account
+    // creation. Non-fatal: sign-in succeeds regardless — the scan just doesn't
+    // migrate this round.
+    const sessionId =
+      new URLSearchParams(window.location.search).get('session_id') ||
+      session.user?.user_metadata?.session_id;
+    if (sessionId) {
+      try {
+        const { error: rpcErr } = await supabase.rpc('migrate_anonymous_scans', {
+          p_session_id: sessionId,
+          p_user_id: session.user.id,
+        });
+        if (rpcErr) console.error('[auth/callback] migrate_anonymous_scans error', rpcErr);
+      } catch (e) {
+        console.error('[auth/callback] migrate exception', e);
+      }
+    }
+
+    // Cinematic initialization sequence — each step holds active for 600ms,
+    // then completes. ~4s total from load to dashboard redirect; deliberately
+    // brief — users coming back from email want momentum.
+    const steps = Array.from(stepsEl.querySelectorAll('.step'));
+    for (const step of steps) {
+      step.classList.add('active');
+      await sleep(600);
+      step.classList.remove('active');
+      step.classList.add('done');
+      step.querySelector('.step-marker').textContent = '✓';
+    }
+
     await sleep(600);
-    step.classList.remove('active');
-    step.classList.add('done');
-    step.querySelector('.step-marker').textContent = '✓';
+    window.location.href = '/dashboard.html';
   }
 
-  await sleep(600);
-  window.location.href = '/dashboard.html';
+  // 10s watchdog — a stalled getSession() or migrate RPC must never strand the
+  // user on an infinite loading screen. Race the init flow against a timeout;
+  // whichever settles first wins. On timeout, surface an actionable error.
+  let timedOut = false;
+  await Promise.race([
+    runInit(),
+    sleep(10000).then(() => { timedOut = true; }),
+  ]);
+  if (timedOut) {
+    fail('Verification timed out — please refresh and try again.');
+  }
 })();
 </script>
 </body>
