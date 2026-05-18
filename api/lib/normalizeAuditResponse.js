@@ -118,6 +118,19 @@ function _normalizeCatalog(r) {
     catalogAgeYears:        _num(c.catalogAgeYears),
     estimatedAnnualStreams: _num(c.estimatedAnnualStreams),
     recentActivity:         Boolean(c.recentActivity),
+    // v1.1.0 (Block G.2a) — retained structured catalog data. Defaults to
+    // empty arrays when the engine emits nothing, so a raw payload that
+    // predates the engine retention work still normalizes cleanly.
+    spotify:    _catalogPlatform(c.spotify),
+    appleMusic: _catalogPlatform(c.appleMusic),
+  };
+}
+
+function _catalogPlatform(p) {
+  p = p || {};
+  return {
+    albums: Array.isArray(p.albums) ? p.albums : [],
+    tracks: Array.isArray(p.tracks) ? p.tracks : [],
   };
 }
 

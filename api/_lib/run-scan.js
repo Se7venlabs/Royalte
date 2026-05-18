@@ -165,6 +165,15 @@ export async function runScan(url) {
   ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : { found: false }));
 
   const catalogData = analyzeCatalog(albumsData, artistData);
+  // G.2a — retain the structured catalog records the engine already fetched.
+  catalogData.spotify = {
+    albums: buildSpotifyAlbums(albumsData, spotifyTopTracks),
+    tracks: buildSpotifyTracks(spotifyTopTracks),
+  };
+  catalogData.appleMusic = {
+    albums: Array.isArray(appleMusicData.albums) ? appleMusicData.albums : [],
+    tracks: Array.isArray(appleMusicData.tracks) ? appleMusicData.tracks : [],
+  };
   const royaltyGap = estimateRoyaltyGap(artistData, catalogData, lastfmData, youtubeData);
   const country = audioDbData.country || wikidataData.country || null;
   const proGuide = getPROGuide(country);
@@ -501,10 +510,15 @@ async function getSpotifyTopTracks(artistId, token) {
     );
     if (!resp.ok) return [];
     const data = await resp.json();
+    // G.2a — id / albumId / durationMs added from the SAME response (no new
+    // request). name/isrc/artistName retained — getAppleMusic still uses them.
     return (data.tracks || []).map(t => ({
+      id: t.id || '',
       name: t.name,
       isrc: t.external_ids?.isrc || null,
       artistName: t.artists?.[0]?.name || '',
+      albumId: t.album?.id || null,
+      durationMs: typeof t.duration_ms === 'number' ? t.duration_ms : null,
     }));
   } catch { return []; }
 }
@@ -640,6 +654,7 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
     let appleArtistUrl = null;
     let appleArtistGenres = [];
     let appleAlbumCount = 0;
+    let appleAlbums = [];   // G.2a — retained Apple album records
 
     if (artistResp.ok) {
       const artistData = await artistResp.json();
@@ -661,6 +676,15 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
         if (albumResp.ok) {
           const albumData = await albumResp.json();
           appleAlbumCount = albumData?.data?.length || 0;
+          // G.2a — retain the album records (already fetched, was discarded).
+          // isrcs left empty: per-album track ISRCs would need new fetches.
+          appleAlbums = (albumData?.data || []).map(al => ({
+            id:          al.id,
+            title:       al.attributes?.name || '',
+            releaseDate: al.attributes?.releaseDate || null,
+            trackCount:  typeof al.attributes?.trackCount === 'number' ? al.attributes.trackCount : 0,
+            isrcs:       [],
+          }));
         }
       }
     }
@@ -678,6 +702,7 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
 
     // 3. Compare Spotify top tracks against Apple Music catalog
     let catalogComparison = null;
+    const appleTracks = [];   // G.2a — retained from the ISRC-lookup results below
     if (spotifyTopTracks.length > 0) {
       const matched = [];
       const notFound = [];
@@ -686,7 +711,20 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
         let found = false;
 
         if (track.isrc) {
-          found = (await lookupByISRC(track.isrc)).found;
+          // Same lookupByISRC call as before — no new request. Previously only
+          // .found was read; G.2a retains the full record (composer, duration).
+          const r = await lookupByISRC(track.isrc);
+          found = r.found;
+          if (r.found) {
+            appleTracks.push({
+              id:           r.id || '',
+              title:        r.name || '',
+              isrc:         r.isrc || track.isrc || null,
+              albumId:      null,
+              composerName: r.composerName || null,
+              durationMs:   typeof r.durationMs === 'number' ? r.durationMs : null,
+            });
+          }
         }
 
         if (!found) {
@@ -728,6 +766,8 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
       albumCount: appleAlbumCount,
       isrcLookup: isrcResult,
       catalogComparison,
+      albums: appleAlbums,   // G.2a — retained Apple catalog records
+      tracks: appleTracks,
     };
 
   } catch (err) {
@@ -860,6 +900,33 @@ async function getYouTube(artistName) {
 // ────────────────────────────────────────────────────────
 // CATALOG AGE ANALYSIS
 // ────────────────────────────────────────────────────────
+// G.2a — build the retained Spotify catalog records from data already
+// fetched by getSpotifyAlbums + getSpotifyTopTracks. No new API calls.
+// Album isrcs are cross-referenced from the top-tracks (the only ISRC
+// source the engine has) — sparse by nature, full population is G.2b.
+function buildSpotifyAlbums(albumsData, topTracks) {
+  const items = (albumsData && albumsData.items) || [];
+  const tracks = topTracks || [];
+  return items.map(a => ({
+    id:          a.id,
+    title:       a.name || '',
+    albumType:   a.album_type || 'album',
+    releaseDate: a.release_date || null,
+    totalTracks: typeof a.total_tracks === 'number' ? a.total_tracks : 0,
+    isrcs:       [...new Set(tracks.filter(t => t.albumId === a.id && t.isrc).map(t => t.isrc))],
+  }));
+}
+
+function buildSpotifyTracks(topTracks) {
+  return (topTracks || []).map(t => ({
+    id:         t.id || '',
+    title:      t.name || '',
+    isrc:       t.isrc || null,
+    albumId:    t.albumId || null,
+    durationMs: typeof t.durationMs === 'number' ? t.durationMs : null,
+  }));
+}
+
 function analyzeCatalog(albumsData, artist) {
   const albums = albumsData.items || [];
   if (!albums.length) return { totalReleases: 0, earliestYear: null, catalogAgeYears: 0, estimatedAnnualStreams: 0 };

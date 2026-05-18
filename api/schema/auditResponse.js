@@ -5,7 +5,7 @@
 // Any change to this file is a breaking change — bump AUDIT_RESPONSE_VERSION.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const AUDIT_RESPONSE_VERSION = '1.0.0';
+export const AUDIT_RESPONSE_VERSION = '1.1.0';
 
 // ── Enums ────────────────────────────────────────────────────────────────────
 export const PLATFORM_AVAILABILITY = Object.freeze({
@@ -117,6 +117,22 @@ export const AUDIT_RESPONSE_SCHEMA = {
       catalogAgeYears:        { type: 'number',  required: true },
       estimatedAnnualStreams: { type: 'number',  required: true },
       recentActivity:         { type: 'boolean', required: true },
+      // v1.1.0 (Block G.2a) — retained structured catalog data. Engine fills
+      // these from data it already fetches; renderers may ignore them.
+      spotify: {
+        type: 'object', required: true,
+        shape: {
+          albums: { type: 'array', required: true, itemShape: _spotifyAlbum() },
+          tracks: { type: 'array', required: true, itemShape: _spotifyTrack() },
+        },
+      },
+      appleMusic: {
+        type: 'object', required: true,
+        shape: {
+          albums: { type: 'array', required: true, itemShape: _appleAlbum() },
+          tracks: { type: 'array', required: true, itemShape: _appleTrack() },
+        },
+      },
     },
   },
 
@@ -240,6 +256,49 @@ function _coverageEntry() {
   return {
     status: { type: 'string', required: true, enum: Object.values(COVERAGE_STATUS) },
     tier:   { type: 'string', required: false, nullable: true },
+  };
+}
+
+// ── v1.1.0 (Block G.2a) — retained catalog item shapes ──────────────────────
+// Every key is required so the engine emits a complete object per item;
+// genuinely-optional values are nullable. isrcs is the album's track ISRCs
+// where the engine already has them — otherwise an empty array.
+function _spotifyAlbum() {
+  return {
+    id:          { type: 'string', required: true },
+    title:       { type: 'string', required: true },
+    albumType:   { type: 'string', required: true },
+    releaseDate: { type: 'string', required: true, nullable: true },
+    totalTracks: { type: 'number', required: true },
+    isrcs:       { type: 'array',  required: true, itemType: 'string' },
+  };
+}
+function _spotifyTrack() {
+  return {
+    id:         { type: 'string', required: true },
+    title:      { type: 'string', required: true },
+    isrc:       { type: 'string', required: true, nullable: true },
+    albumId:    { type: 'string', required: true, nullable: true },
+    durationMs: { type: 'number', required: true, nullable: true },
+  };
+}
+function _appleAlbum() {
+  return {
+    id:          { type: 'string', required: true },
+    title:       { type: 'string', required: true },
+    releaseDate: { type: 'string', required: true, nullable: true },
+    trackCount:  { type: 'number', required: true },
+    isrcs:       { type: 'array',  required: true, itemType: 'string' },
+  };
+}
+function _appleTrack() {
+  return {
+    id:           { type: 'string', required: true },
+    title:        { type: 'string', required: true },
+    isrc:         { type: 'string', required: true, nullable: true },
+    albumId:      { type: 'string', required: true, nullable: true },
+    composerName: { type: 'string', required: true, nullable: true },
+    durationMs:   { type: 'number', required: true, nullable: true },
   };
 }
 

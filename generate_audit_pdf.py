@@ -13,7 +13,7 @@ Usage
 
 Contract
 --------
-Input JSON MUST conform to AuditResponse schema v1.0.0
+Input JSON MUST conform to AuditResponse schema v1.1.0
 (mirror of api/schema/auditResponse.js). Any missing required fields,
 type mismatches, or enum violations will raise AuditSchemaError and
 NO PDF will be generated. This is by design — the goal is zero drift.
@@ -47,7 +47,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -94,6 +94,51 @@ class Metrics(BaseModel):
     wikipediaUrl: Optional[str] = None
 
 
+# v1.1.0 (Block G.2a) — retained structured catalog data.
+class SpotifyAlbum(BaseModel):
+    id: str
+    title: str
+    albumType: str
+    releaseDate: Optional[str] = None
+    totalTracks: int
+    isrcs: list[str] = Field(default_factory=list)
+
+
+class SpotifyTrack(BaseModel):
+    id: str
+    title: str
+    isrc: Optional[str] = None
+    albumId: Optional[str] = None
+    durationMs: Optional[int] = None
+
+
+class AppleAlbum(BaseModel):
+    id: str
+    title: str
+    releaseDate: Optional[str] = None
+    trackCount: int
+    isrcs: list[str] = Field(default_factory=list)
+
+
+class AppleTrack(BaseModel):
+    id: str
+    title: str
+    isrc: Optional[str] = None
+    albumId: Optional[str] = None
+    composerName: Optional[str] = None
+    durationMs: Optional[int] = None
+
+
+class CatalogSpotify(BaseModel):
+    albums: list[SpotifyAlbum] = Field(default_factory=list)
+    tracks: list[SpotifyTrack] = Field(default_factory=list)
+
+
+class CatalogAppleMusic(BaseModel):
+    albums: list[AppleAlbum] = Field(default_factory=list)
+    tracks: list[AppleTrack] = Field(default_factory=list)
+
+
 class Catalog(BaseModel):
     totalReleases: int
     earliestYear: Optional[int] = None
@@ -101,6 +146,8 @@ class Catalog(BaseModel):
     catalogAgeYears: int
     estimatedAnnualStreams: int
     recentActivity: bool
+    spotify: CatalogSpotify = Field(default_factory=CatalogSpotify)
+    appleMusic: CatalogAppleMusic = Field(default_factory=CatalogAppleMusic)
 
 
 class PlatformEntry(BaseModel):
