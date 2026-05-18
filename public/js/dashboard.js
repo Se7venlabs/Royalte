@@ -1288,6 +1288,9 @@ function wireReservationFlow(session) {
 }
 
 async function handleReserveClick(session, cta) {
+  // Block F Step 4 — admins may be viewing a synthetic preview state; never
+  // let a preview produce a real reservation write.
+  if (window.__royalteIsAdmin) { console.log("[admin] reservation skipped — preview mode"); return; }
   const email = session?.user?.email;
   const errEl = document.getElementById("founding-artist-error");
   if (errEl) { errEl.style.display = "none"; errEl.textContent = ""; }
@@ -1403,6 +1406,67 @@ function renderArtistFootprint(payload) {
   set("af-scale-desc", scale.desc);
 }
 
+/* ── Block F Step 4 — Admin preview-state tooling ───────────────── */
+
+// Admin status is server-enforced: the admin_users RLS policy
+// (auth.uid() = user_id) returns the caller's own row only, so a
+// non-admin gets zero rows and this resolves false — it cannot be faked
+// from the frontend. State-mutating paths check window.__royalteIsAdmin.
+async function checkAdminStatus(supabase, userId) {
+  try {
+    const { data, error } = await supabase
+      .from("admin_users")
+      .select("id")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error || !data) return false;
+    return true;
+  } catch (err) {
+    console.error("[admin] check failed", err);
+    return false;
+  }
+}
+
+// Synthetic profile for ?preview_state= — render-only, never written back.
+// Returns null for an unknown key (caller leaves the real profile intact).
+function getSyntheticProfile(state) {
+  const now = Date.now();
+  const day = 24 * 60 * 60 * 1000;
+  switch (state) {
+    case "trial_active":
+      return {
+        tier: "free", founding_artist: false, monitoring_status: "grace_period",
+        trial_started_at: new Date(now - 7 * day).toISOString(),
+        next_rescan_at:   new Date(now + 7 * day).toISOString(),
+      };
+    case "paused":
+      return {
+        tier: "free", founding_artist: false, monitoring_status: "inactive",
+        trial_started_at: new Date(now - 30 * day).toISOString(),
+        next_rescan_at:   null,
+      };
+    case "monthly_paid":
+      return {
+        tier: "pro", founding_artist: false, monitoring_status: "active",
+        trial_started_at: null,
+        next_rescan_at:   new Date(now + 7 * day).toISOString(),
+      };
+    case "founding_artist":
+      return {
+        tier: "pro", founding_artist: true, monitoring_status: "active",
+        trial_started_at: null,
+        next_rescan_at:   new Date(now + 7 * day).toISOString(),
+      };
+    case "pre_trial":
+      return {
+        tier: "free", founding_artist: false, monitoring_status: "inactive",
+        trial_started_at: null, next_rescan_at: null,
+      };
+    default:
+      return null;
+  }
+}
+
 async function init() {
   // Auth gate — no active session means no dashboard. Redirect home.
   const supabase = getSupabase();
@@ -1419,13 +1483,37 @@ async function init() {
 
   wireSignOut(supabase);
 
+  // Block F Step 4 — admin status (server-enforced via admin_users RLS).
+  // The global flag gates state-mutating paths (reservation writes,
+  // activateTrialIfNeeded) so admin preview mode never touches real data.
+  const isAdmin = await checkAdminStatus(supabase, session.user.id);
+  window.__royalteIsAdmin = isAdmin;
+
   // Profile drives tier gating (body class), the monitoring section, the
   // welcome panel, and pricing. Defaults to free / grace_period on failure.
   let profile = await loadProfile(supabase, session.user.id);
+
+  // Block F Step 4 — admin ?preview_state= override. Synthetic profile,
+  // render-only, no DB writes. Ignored entirely for non-admins.
+  if (isAdmin) {
+    const previewState = new URLSearchParams(location.search).get("preview_state");
+    if (previewState) {
+      const synthetic = getSyntheticProfile(previewState);
+      if (synthetic) {
+        profile = { ...profile, ...synthetic };
+        console.log("[admin] preview state:", previewState, profile);
+      }
+    }
+  }
+
   // Block D.2 — start the 14-day trial on first OS login. Runs before any
   // render so the welcome panel, trial banner, and monitoring section all
-  // see the activated state.
-  profile = await activateTrialIfNeeded(supabase, session.user.id, profile);
+  // see the activated state. Skipped for admins — they are not real
+  // customers, and a synthetic 'inactive' preview must never trigger the
+  // grace_period DB write inside activateTrialIfNeeded.
+  if (!isAdmin) {
+    profile = await activateTrialIfNeeded(supabase, session.user.id, profile);
+  }
   document.body.classList.add("tier-" + profile.tier);
 
   // Welcome panel + trial banner render on every path — including the no-scan
