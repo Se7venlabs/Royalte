@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "scanId": "00000000-0000-0000-0000-000000000002",
   "scannedAt": "2026-01-01T00:00:00.000Z",
   "source": {
@@ -192,6 +192,13 @@
     "ugcUnmonetisedViews": 0,
     "ugcPotentialRevenue": 0,
     "disclaimer": "Estimates only. Verify with your distributor and PRO."
+  },
+  "gapBasedExposure": {
+    "indicators": [],
+    "aggregateLow": null,
+    "aggregateHigh": null,
+    "pendingValidationCount": 0,
+    "hasAnyGaps": false
   },
   "proGuide": {
     "pro": "Your local PRO",

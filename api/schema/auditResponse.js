@@ -5,7 +5,7 @@
 // Any change to this file is a breaking change — bump AUDIT_RESPONSE_VERSION.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const AUDIT_RESPONSE_VERSION = '1.0.0';
+export const AUDIT_RESPONSE_VERSION = '1.1.0';
 
 // ── Enums ────────────────────────────────────────────────────────────────────
 export const PLATFORM_AVAILABILITY = Object.freeze({
@@ -193,6 +193,10 @@ export const AUDIT_RESPONSE_SCHEMA = {
     },
   },
 
+  // DEPRECATED (v1.1.0) — the audience-estimation revenue model. Still emitted
+  // by the engine and preserved here for legacy/internal reference, but NO
+  // surface displays it. The displayed revenue component is gapBasedExposure
+  // below. royaltyGap may be retired entirely in a post-launch cleanup PR.
   royaltyGap: {
     type: 'object', required: true,
     shape: {
@@ -207,6 +211,32 @@ export const AUDIT_RESPONSE_SCHEMA = {
       ugcUnmonetisedViews:  { type: 'number', required: true },
       ugcPotentialRevenue:  { type: 'number', required: true },
       disclaimer:           { type: 'string', required: true },
+    },
+  },
+
+  // Gap-Based Exposure (v1.1.0) — the displayed revenue component. Exposure is
+  // derived per detected backend gap, not from audience estimation. See
+  // docs/gap-based-exposure-methodology.md. exposureLow/High are null on
+  // indicators with no defensible dollar math ("Exposure pending validation").
+  gapBasedExposure: {
+    type: 'object', required: true,
+    shape: {
+      indicators: {
+        type: 'array', required: true,
+        itemShape: {
+          id:           { type: 'string', required: true },
+          severity:     { type: 'string', required: true, enum: ['HIGH', 'MED', 'LOW'] },
+          title:        { type: 'string', required: true },
+          description:  { type: 'string', required: true },
+          exposureLow:  { type: 'number', required: true, nullable: true },
+          exposureHigh: { type: 'number', required: true, nullable: true },
+          methodology:  { type: 'string', required: true },
+        },
+      },
+      aggregateLow:           { type: 'number',  required: true, nullable: true },
+      aggregateHigh:          { type: 'number',  required: true, nullable: true },
+      pendingValidationCount: { type: 'number',  required: true },
+      hasAnyGaps:             { type: 'boolean', required: true },
     },
   },
 

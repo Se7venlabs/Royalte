@@ -38,6 +38,7 @@ export function normalizeAuditResponse(raw) {
   const score    = _computeScore(raw, modules, ownership);
   const issues   = _normalizeIssues(raw, modules);
   const royaltyGap = _normalizeRoyaltyGap(raw);
+  const gapBasedExposure = _normalizeGapBasedExposure(raw);
   const proGuide = _normalizeProGuide(raw);
 
   return {
@@ -55,6 +56,7 @@ export function normalizeAuditResponse(raw) {
     issues,
     score,
     royaltyGap,
+    gapBasedExposure,
     proGuide,
     ownership,
     territoryCoverage: null,
@@ -442,6 +444,33 @@ function _normalizeRoyaltyGap(r) {
     ugcUnmonetisedViews:  _num(g.ugcUnmonetisedViews),
     ugcPotentialRevenue:  _num(g.ugcPotentialRevenue),
     disclaimer:           g.disclaimer || 'Estimates only. Verify with your distributor and PRO.',
+  };
+}
+
+// Gap-Based Exposure — passes the engine's per-indicator structure through to
+// the canonical payload. Defaults to an empty (no-gaps) shape when the engine
+// did not emit the field, so older raw payloads still validate.
+function _normalizeGapBasedExposure(r) {
+  const g = r.gapBasedExposure;
+  if (!g || !Array.isArray(g.indicators)) {
+    return { indicators: [], aggregateLow: null, aggregateHigh: null, pendingValidationCount: 0, hasAnyGaps: false };
+  }
+  const SEV = { HIGH: 'HIGH', MED: 'MED', LOW: 'LOW' };
+  const indicators = g.indicators.map(i => ({
+    id:           String((i && i.id) || ''),
+    severity:     SEV[i && i.severity] || 'LOW',
+    title:        String((i && i.title) || ''),
+    description:  String((i && i.description) || ''),
+    exposureLow:  (i && i.exposureLow  != null) ? _num(i.exposureLow)  : null,
+    exposureHigh: (i && i.exposureHigh != null) ? _num(i.exposureHigh) : null,
+    methodology:  String((i && i.methodology) || ''),
+  }));
+  return {
+    indicators,
+    aggregateLow:           (g.aggregateLow  != null) ? _num(g.aggregateLow)  : null,
+    aggregateHigh:          (g.aggregateHigh != null) ? _num(g.aggregateHigh) : null,
+    pendingValidationCount: _num(g.pendingValidationCount),
+    hasAnyGaps:             !!g.hasAnyGaps,
   };
 }
 

@@ -188,6 +188,11 @@ export async function runScan(url) {
 
   const flags = buildFlags(modules, artistData, trackData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, catalogData, youtubeData, appleMusicData);
 
+  const gapBasedExposure = computeGapBasedExposure({
+    catalog: catalogData, track: trackData, youtube: youtubeData,
+    appleMusic: appleMusicData, mb: mbData, flags,
+  });
+
   const rawResponse = {
     success: true,
     platform: 'spotify',
@@ -223,6 +228,7 @@ export async function runScan(url) {
     },
     catalog: catalogData,
     royaltyGap,
+    gapBasedExposure,
     proGuide,
     country,
     lastfmPlays: lastfmData.playcount || 0,
@@ -937,6 +943,134 @@ function estimateRoyaltyGap(catalog, lastfm, youtube) {
     ugcUnmonetisedViews: ugcViews,
     ugcPotentialRevenue: ugcUnmonetisedEst,
     disclaimer: 'Estimates only. Based on streaming activity and platform coverage. Verify with your distributor and PRO.'
+  };
+}
+
+// ────────────────────────────────────────────────────────
+// GAP-BASED EXPOSURE
+// Revenue exposure derived per detected backend gap — NOT from audience
+// estimation (that is the deprecated royaltyGap model). Each indicator
+// carries its own dollar band; the aggregate sums the quantified ones.
+// Indicators with no defensible dollar math return null bounds and render
+// as "Exposure pending validation". Descriptions are authored source-
+// agnostic; the dashboard re-runs them through rewordObservation only as a
+// safety pass. Per-incident ranges are INITIAL — see
+// docs/gap-based-exposure-methodology.md, recalibrate post-beta.
+function severityRank(s) {
+  return s === 'HIGH' ? 0 : s === 'MED' ? 1 : 2;
+}
+
+function computeGapBasedExposure({ catalog, track, youtube, appleMusic, mb, flags }) {
+  const indicators = [];
+  const c  = catalog || {};
+  const am = appleMusic || {};
+
+  // Indicator 1 — Performance royalty routing: ISRC missing. Track-input
+  // scans only — the engine has no per-release ISRC list for artist scans.
+  if (track && !(track.external_ids && track.external_ids.isrc)) {
+    indicators.push({
+      id: 'isrc-missing', severity: 'HIGH',
+      title: 'Performance royalty routing unverified',
+      description: 'Release identifier missing on 1 release.',
+      exposureLow: 50, exposureHigh: 300,
+      methodology: 'PRO unmatched-performance recovery rate × release count',
+    });
+  }
+
+  // Indicator 2 — Content ID gap: unmonetized UGC views.
+  const ugcViews = Math.max(0, Math.round(Number(youtube && youtube.ugc && youtube.ugc.estimatedViews) || 0));
+  if (ugcViews > 100) {
+    indicators.push({
+      id: 'content-id-gap', severity: 'HIGH',
+      title: 'Unmonetized content activity detected',
+      description: `${ugcViews.toLocaleString('en-US')} user-generated views found with no verified channel claim.`,
+      exposureLow:  Math.round((ugcViews / 1000) * 5),
+      exposureHigh: Math.round((ugcViews / 1000) * 50),
+      methodology: 'Video-network payout rate × UGC view volume / 1000',
+    });
+  }
+
+  // Indicator 3 — Cross-network distribution gap.
+  const matchRate = am.catalogComparison ? Number(am.catalogComparison.matchRate) : NaN;
+  if (am.found === false) {
+    indicators.push({
+      id: 'distribution-gap', severity: 'MED',
+      title: 'Cross-network distribution gap',
+      description: 'Catalog not detected on a primary catalog network.',
+      exposureLow: 200, exposureHigh: 500,
+      methodology: 'Primary-network reach-loss band — catalog absent',
+    });
+  } else if (Number.isFinite(matchRate) && matchRate < 100) {
+    const factor = Math.min(1, Math.max(0, (100 - matchRate) / 100));
+    indicators.push({
+      id: 'distribution-gap', severity: 'MED',
+      title: 'Cross-network distribution gap',
+      description: 'Catalog presence varies across primary catalog networks.',
+      exposureLow:  Math.round(200 * factor),
+      exposureHigh: Math.round(500 * factor),
+      methodology: 'Primary-network reach-loss band × (1 − match rate)',
+    });
+  }
+
+  // Indicator 4 — Publishing cross-reference gap.
+  if (mb && mb.found === false) {
+    indicators.push({
+      id: 'publishing-xref-gap', severity: 'MED',
+      title: 'Publishing cross-reference unavailable',
+      description: 'Industry metadata registry not linked.',
+      exposureLow: 50, exposureHigh: 250,
+      methodology: 'Publishing match-rate degradation band — registry absent',
+    });
+  }
+
+  // Indicator 5 — Catalog age: extended royalty verification.
+  const ageYears     = Math.max(0, Number(c.catalogAgeYears) || 0);
+  const releaseCount = Math.max(1, Number(c.totalReleases) || 0);
+  if (ageYears > 5) {
+    const units = ageYears * releaseCount;
+    indicators.push({
+      id: 'catalog-age', severity: 'MED',
+      title: 'Extended royalty verification recommended',
+      description: `Catalog active for ${ageYears} years across ${releaseCount} release${releaseCount === 1 ? '' : 's'}.`,
+      exposureLow:  Math.round(3 * units),
+      exposureHigh: Math.round(18 * units),
+      methodology: 'Unaudited-activity accrual × (catalog age × release count)',
+    });
+  }
+
+  // Pending-validation indicators — revenue-relevant, no defensible dollar
+  // math. Derived from already-detected engine flags; null bounds.
+  const flagText = (Array.isArray(flags) ? flags : [])
+    .map(f => String((f && f.description) || '')).join(' | ').toLowerCase();
+  if (/sync discoverability|wikipedia|editorial/.test(flagText)) {
+    indicators.push({
+      id: 'sync-discoverability', severity: 'LOW',
+      title: 'Sync licensing discoverability limited',
+      description: 'Editorial reference signals partial.',
+      exposureLow: null, exposureHigh: null,
+      methodology: 'Exposure pending validation',
+    });
+  }
+  if (/genre/.test(flagText)) {
+    indicators.push({
+      id: 'genre-metadata-gap', severity: 'LOW',
+      title: 'Genre metadata gap',
+      description: 'Genre metadata incomplete across catalog networks.',
+      exposureLow: null, exposureHigh: null,
+      methodology: 'Exposure pending validation',
+    });
+  }
+
+  indicators.sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
+  const displayed  = indicators.slice(0, 5);
+  const quantified = displayed.filter(i => i.exposureLow !== null);
+
+  return {
+    indicators: displayed,
+    aggregateLow:  quantified.length ? quantified.reduce((s, i) => s + i.exposureLow, 0)  : null,
+    aggregateHigh: quantified.length ? quantified.reduce((s, i) => s + i.exposureHigh, 0) : null,
+    pendingValidationCount: displayed.length - quantified.length,
+    hasAnyGaps: displayed.length > 0,
   };
 }
 
