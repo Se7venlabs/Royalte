@@ -16,6 +16,15 @@
 import { generateAppleToken } from '../apple-token.js';
 import { lookupByISRC } from '../apple-music.js';
 
+// ── Revenue Exposure estimation constants ───────────────────────────────────
+// Last.fm playcount is the primary stream-volume signal (Spotify demoted —
+// Development Mode no longer returns followers/popularity). Every value below
+// is an INITIAL estimate — recalibrate post-launch against real beta data.
+const LASTFM_SAMPLING_MULTIPLIER = 10;    // Last.fm scrobbles ≈ 10% of total streaming activity
+const PER_STREAM_RATE            = 0.003; // USD per stream — industry-average premium-tier rate
+const LOW_GAP_RATIO              = 0.05;  // minimum realistic share of royalties left unclaimed
+const HIGH_GAP_RATIO             = 0.30;  // maximum realistic share of royalties left unclaimed
+
 // ─────────────────────────────────────────────────────────────────────────────
 // runScan — the scan orchestrator.
 //
@@ -164,8 +173,10 @@ export async function runScan(url) {
     getAppleMusic(artistName, trackData?.external_ids?.isrc || null, spotifyTopTracks),
   ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : { found: false }));
 
-  const catalogData = analyzeCatalog(albumsData, artistData);
-  const royaltyGap = estimateRoyaltyGap(artistData, catalogData, lastfmData, youtubeData);
+  const catalogData = analyzeCatalog(albumsData);
+  const royaltyGap = estimateRoyaltyGap(catalogData, lastfmData, youtubeData);
+  // Single source of truth — catalog and royalty figures share one estimate.
+  catalogData.estimatedAnnualStreams = royaltyGap.estAnnualStreams;
   const country = audioDbData.country || wikidataData.country || null;
   const proGuide = getPROGuide(country);
 
@@ -860,7 +871,7 @@ async function getYouTube(artistName) {
 // ────────────────────────────────────────────────────────
 // CATALOG AGE ANALYSIS
 // ────────────────────────────────────────────────────────
-function analyzeCatalog(albumsData, artist) {
+function analyzeCatalog(albumsData) {
   const albums = albumsData.items || [];
   if (!albums.length) return { totalReleases: 0, earliestYear: null, catalogAgeYears: 0, estimatedAnnualStreams: 0 };
 
@@ -872,16 +883,14 @@ function analyzeCatalog(albumsData, artist) {
   const currentYear = new Date().getFullYear();
   const catalogAgeYears = earliestYear ? currentYear - earliestYear : 0;
 
-  const followers = artist.followers?.total || 0;
-  const popularity = artist.popularity || 0;
-  const estAnnualStreams = Math.round((followers * 12) + (popularity * 1000));
-
   return {
     totalReleases: albums.length,
     earliestYear,
     latestYear: years.length ? Math.max(...years) : null,
     catalogAgeYears,
-    estimatedAnnualStreams: estAnnualStreams,
+    // Placeholder — runScan overwrites this with royaltyGap.estAnnualStreams so
+    // the catalog and royalty figures share one Last.fm-derived source of truth.
+    estimatedAnnualStreams: 0,
     recentActivity: years.some(y => y >= currentYear - 2),
   };
 }
@@ -889,40 +898,45 @@ function analyzeCatalog(albumsData, artist) {
 // ────────────────────────────────────────────────────────
 // ROYALTY GAP ESTIMATE — includes YouTube UGC data
 // ────────────────────────────────────────────────────────
-function estimateRoyaltyGap(artist, catalog, lastfm, youtube) {
-  const followers = artist.followers?.total || 0;
-  const popularity = artist.popularity || 0;
-  const catalogYears = catalog.catalogAgeYears || 1;
+// Revenue Exposure estimate. Last.fm playcount is the primary stream-volume
+// signal (Spotify followers/popularity removed — Development Mode zeroes them).
+// royaltyGap output shape is a payload contract — field names/types preserved;
+// only the computation changed.
+function estimateRoyaltyGap(catalog, lastfm, youtube) {
+  // Edge C — guard a 0 / negative catalog age against divide-by-zero.
+  const catalogYears = catalog.catalogAgeYears > 0 ? catalog.catalogAgeYears : 1;
 
-  const estMonthlyStreams = Math.round((followers * 1.2) + (popularity * 800));
-  const estAnnualStreams = estMonthlyStreams * 12;
-  const estLifetimeStreams = estAnnualStreams * Math.min(catalogYears, 10);
+  const lastfmPlays = (lastfm && lastfm.found && lastfm.playcount > 0) ? lastfm.playcount : 0;
 
-  const lastfmBoost = lastfm.found && lastfm.playcount > 0
-    ? Math.min(lastfm.playcount * 0.3, estLifetimeStreams * 2)
-    : 0;
+  const estLifetimeStreams = Math.round(lastfmPlays * LASTFM_SAMPLING_MULTIPLIER);
+  const estAnnualStreams   = Math.round(estLifetimeStreams / catalogYears);
+  const estTotalRoyalties  = Math.round(estAnnualStreams * PER_STREAM_RATE);
 
-  const totalEstStreams = estLifetimeStreams + lastfmBoost;
-  const spotifyEst = Math.round(totalEstStreams * 0.004);
-  const proEst = Math.round(totalEstStreams * 0.0008);
-  const totalEst = spotifyEst + proEst;
-  const potentialGap = Math.round(proEst * 0.6);
+  // estSpotifyRoyalties / estPROEarnings retained for payload-shape stability
+  // (royaltyGap field names are a contract). Split ~5:1, summing to total —
+  // neither is Spotify-derived any longer; the field name is legacy.
+  const estPROEarnings      = Math.round(estTotalRoyalties / 6);
+  const estSpotifyRoyalties = estTotalRoyalties - estPROEarnings;
+
+  // Edge A — lastfmPlays 0 ⇒ estTotalRoyalties 0 ⇒ both bounds 0 (honest).
+  const potentialGapLow  = Math.round(estTotalRoyalties * LOW_GAP_RATIO);
+  const potentialGapHigh = Math.round(estTotalRoyalties * HIGH_GAP_RATIO);
 
   const ugcViews = youtube?.ugc?.estimatedViews || 0;
   const ugcUnmonetisedEst = Math.round(ugcViews * 0.0015);
 
   return {
     estAnnualStreams,
-    estLifetimeStreams: Math.round(totalEstStreams),
-    estSpotifyRoyalties: spotifyEst,
-    estPROEarnings: proEst,
-    estTotalRoyalties: totalEst,
-    potentialGapLow: Math.round(potentialGap * 0.5),
-    potentialGapHigh: potentialGap,
+    estLifetimeStreams,
+    estSpotifyRoyalties,
+    estPROEarnings,
+    estTotalRoyalties,
+    potentialGapLow,
+    potentialGapHigh,
     catalogYears,
     ugcUnmonetisedViews: ugcViews,
     ugcPotentialRevenue: ugcUnmonetisedEst,
-    disclaimer: 'Estimates only. Based on public follower, popularity, and YouTube signals. Verify with your distributor and PRO.'
+    disclaimer: 'Estimates only. Based on streaming activity and platform coverage. Verify with your distributor and PRO.'
   };
 }
 
