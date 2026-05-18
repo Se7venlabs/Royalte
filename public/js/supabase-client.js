@@ -8,7 +8,10 @@
 // security. The service-role key is server-only and never appears in any
 // client/public file.
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+// Vendored locally at /js/vendor/supabase-js.js — NOT loaded from the esm.sh
+// CDN. A CDN connection failure was freezing /auth/callback (the auth library
+// failed to load, so no Supabase call could fire). See public/js/vendor/.
+import { createClient } from '/js/vendor/supabase-js.js';
 
 const SUPABASE_URL = 'https://dhfndrrfekwuxzgjblci.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoZm5kcnJmZWt3dXh6Z2pibGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MzM4NTMsImV4cCI6MjA5MjEwOTg1M30.7WjaiC4JvoLEghRQzSqo0VogZ6GBzgd_ipPhFf2Ida4';
