@@ -50,6 +50,10 @@
       "dest": "/api/auth/callback.js"
     },
     {
+      "src": "/auth/reset-password",
+      "dest": "/api/auth/reset-password.js"
+    },
+    {
       "src": "/demo.html",
       "dest": "/public/demo.html"
     },
