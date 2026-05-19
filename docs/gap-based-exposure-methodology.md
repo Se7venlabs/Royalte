@@ -34,9 +34,11 @@ payouts — that audience signals such as streaming playcount cannot see.
 - **Source:** YouTube published payout rates ($0.005–$0.05 per 1,000 views)
   plus Content ID coverage data
 - **Calibration:** blended rate accounting for variable claim-approval rates
-- **Detectable from:** `youtube.ugc.estimatedViews` with no verified official
-  channel claiming them
-- **Multiplier:** estimated unmonetized UGC views / 1,000
+- **Detectable from:** the engine's `youtube.ugc.contentIdRisk` flag — true
+  only when UGC is present *and* no official channel claims it. The indicator
+  does **not** fire on a raw `estimatedViews` delta alone; a present official
+  channel suppresses it (the content is treated as covered).
+- **Multiplier:** estimated unmonetized UGC views / 1,000, gated as above
 
 ## Indicator 3: Cross-network distribution gap (primary catalog network)
 
