@@ -977,9 +977,15 @@ function computeGapBasedExposure({ catalog, track, youtube, appleMusic, mb, flag
     });
   }
 
-  // Indicator 2 — Content ID gap: unmonetized UGC views.
+  // Indicator 2 — Content ID gap: unmonetized UGC views. Gated on the engine's
+  // own UGC-risk flag (youtube.ugc.contentIdRisk), which is true only when UGC
+  // exists AND no official channel claims it. When an official channel is
+  // present the content is already treated as covered — and getYouTube's raw
+  // keyword search is unreliable for generic-name artists (name-collision view
+  // inflation), so a raw view sum must not drive this indicator on its own.
+  const ugcRisk  = !!(youtube && youtube.ugc && youtube.ugc.contentIdRisk);
   const ugcViews = Math.max(0, Math.round(Number(youtube && youtube.ugc && youtube.ugc.estimatedViews) || 0));
-  if (ugcViews > 100) {
+  if (ugcRisk && ugcViews > 100) {
     indicators.push({
       id: 'content-id-gap', severity: 'HIGH',
       title: 'Unmonetized content activity detected',
