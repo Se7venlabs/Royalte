@@ -85,6 +85,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;d
 .os-modal-label{display:block;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px;}
 .os-modal-input{width:100%;padding:11px 13px;background:var(--bg);color:var(--text);border:1px solid var(--border2);border-radius:6px;font-family:'Space Grotesk',sans-serif;font-size:14px;}
 .os-modal-input:focus{outline:none;border-color:var(--pur);}
+.os-modal-forgot{display:block;width:100%;margin:8px 0 0;padding:0;background:none;border:none;cursor:pointer;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.06em;color:var(--muted);text-align:right;}
+.os-modal-forgot:hover{color:var(--pur);}
+.os-modal-forgot:disabled{opacity:0.5;cursor:default;}
 .os-modal-btn{width:100%;margin-top:18px;padding:12px;background:var(--grad);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;transition:opacity 0.2s;}
 .os-modal-btn:hover{opacity:0.9;}
 .os-modal-btn:disabled{opacity:0.55;cursor:not-allowed;}
@@ -1695,6 +1698,7 @@ body.menu-locked {
     <input class="os-modal-input" id="os-login-email" type="email" autocomplete="username" required>
     <label class="os-modal-label" for="os-login-password">Password</label>
     <input class="os-modal-input" id="os-login-password" type="password" autocomplete="current-password">
+    <button class="os-modal-forgot" id="os-forgot-btn" type="button">Forgot password?</button>
     <button class="os-modal-btn" id="os-login-submit" type="submit">Sign In</button>
   </form>
   <div class="os-modal-divider"><span>or</span></div>
@@ -3298,6 +3302,7 @@ const osModalEmail = document.getElementById('os-login-email');
 const osModalPass  = document.getElementById('os-login-password');
 const osSubmitBtn  = document.getElementById('os-login-submit');
 const osMagicBtn   = document.getElementById('os-magic-btn');
+const osForgotBtn  = document.getElementById('os-forgot-btn');
 const osStatusEl   = document.getElementById('os-login-status');
 const osCloseBtn   = document.getElementById('os-login-close');
 
@@ -3364,6 +3369,46 @@ if (osModalForm) {
       osStatus('Sign in failed. Please try again.', 'error');
       osSubmitBtn.disabled = false;
       osSubmitBtn.textContent = original;
+    }
+  });
+}
+
+// Forgot-password path — sends a Supabase recovery email. redirectTo is
+// computed from window.location.origin so it resolves on production, preview,
+// and localhost. Status renders inline in the modal — the login form is not
+// dismissed (the user stays oriented while they go check their inbox).
+if (osForgotBtn) {
+  osForgotBtn.addEventListener('click', async () => {
+    const email = (osModalEmail && osModalEmail.value || '').trim();
+    if (!EMAIL_RE.test(email)) {
+      osStatus('Enter your email above, then tap Forgot password.', 'error');
+      if (osModalEmail) osModalEmail.focus();
+      return;
+    }
+    const supabase = getSupabase();
+    if (!supabase) { osStatus('Could not send reset link — please try again.', 'error'); return; }
+
+    const original = osForgotBtn.textContent;
+    osForgotBtn.disabled = true;
+    osForgotBtn.textContent = 'Sending…';
+    osStatus('', '');
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/auth/reset-password',
+      });
+      osForgotBtn.disabled = false;
+      osForgotBtn.textContent = original;
+      if (error) {
+        console.error('[os-login] resetPasswordForEmail error', error);
+        osStatus('Could not send reset link — please try again.', 'error');
+        return;
+      }
+      osStatus('Check your email for a password reset link.', 'success');
+    } catch (err) {
+      console.error('[os-login] resetPasswordForEmail threw', err);
+      osForgotBtn.disabled = false;
+      osForgotBtn.textContent = original;
+      osStatus('Could not send reset link — please try again.', 'error');
     }
   });
 }
