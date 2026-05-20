@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Active task list:** See `LAUNCH_CHECKLIST.md` at repo root. Read it at the start of every session — it's the source of truth for what's on deck and what's left before the June 1, 2026 beta launch.
 
-**Scan scoring model (locked 2026-05-14, PR #24):** The audit engine returns raw risk scores (higher = more risk). The frontend displays these values directly with no inversion. Score bands: 0-30 Low Risk, 31-60 Moderate Risk, 61-80 At Risk, 81-100 Critical Risk. Section numbers render as "+N risk" to communicate risk contribution. DO NOT reintroduce health-score framing or invert the displayed values — that was the source of artist confusion before v4.
+**Scan scoring model — V1 audit display (locked 2026-05-14, PR #24):** The audit engine returns raw risk scores (higher = more risk). The V1 frontend audit/dashboard surfaces (`public/audit.html`, the audit-report dashboard view, the brand+print PDF) display these values directly with no inversion. Score bands: 0-30 Low Risk, 31-60 Moderate Risk, 61-80 At Risk, 81-100 Critical Risk. Section numbers render as "+N risk" to communicate risk contribution. DO NOT reintroduce health-score framing or invert the displayed values on the V1 audit display — that was the source of artist confusion before v4.
+
+**Scoring on V2 (Royaltē OS) — different surface, different framing (2026-05-20):** The V2 OS monitoring product uses a `health_score` (0-100, higher = better) on `scan_snapshots`, with a `score_breakdown` jsonb of per-section components (`catalog_verification`, `big6_coverage`, `backend_health`, `youtube_presence`). The V1 lock above applies only to the V1 audit-display surface; the V2 OS dashboard is a separate product surface and intentionally uses health framing. Do not "harmonise" them — they're answering different questions for different users.
 
 ## What this is
 
