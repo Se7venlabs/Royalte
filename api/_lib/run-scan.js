@@ -1396,7 +1396,10 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
       ytScore -= 15;
       ytFlags.push(`${youtube.ugc.videoCount} user-uploaded video(s) detected with no official channel — potential unmonetised UGC exposure`);
     }
-    if (youtube.ugc?.estimatedViews > 100000) {
+    // Gated on contentIdRisk: estimatedViews comes from getYouTube's free-text
+    // keyword search, which name-collides for generic artist names. The flag
+    // only fires when there is genuine UGC risk (no official channel).
+    if (youtube.ugc?.contentIdRisk && youtube.ugc?.estimatedViews > 100000) {
       ytFlags.push(`~${youtube.ugc.estimatedViews.toLocaleString()} views detected on UGC videos — significant unmonetised revenue risk`);
     }
   } else {
@@ -1411,7 +1414,10 @@ function runModules(artist, track, mb, deezer, audiodb, discogs, soundcloud, las
   // MODULE F — Sync Readiness (now includes Apple Music signal)
   let syncScore = 0;
   const syncFlags = [];
-  if (track?.external_ids?.isrc) { syncScore += 20; } else syncFlags.push('ISRC signal not detected');
+  if (track?.external_ids?.isrc) { syncScore += 20; }
+  // Track-gated: only flag a missing ISRC when a track was actually scanned.
+  // An artist-input scan has no track, so a missing track ISRC is not a gap.
+  if (track && !track.external_ids?.isrc) { syncFlags.push('ISRC signal not detected'); }
   if (getEffectiveGenres(artist, appleMusic, lastfm).length) { syncScore += 15; } else syncFlags.push('Genre tags absent');
   if (mb.found) { syncScore += 10; } else syncFlags.push('Not in MusicBrainz catalog');
   if (wikidata.found) { syncScore += 15; } else syncFlags.push('No Wikipedia presence — sync discoverability risk');
@@ -1452,8 +1458,11 @@ function buildFlags(modules, artist, track, deezer, audiodb, discogs, soundcloud
     flags.push({ module: 'Publishing Risk', severity: 'medium', description: `Catalog active for ${catalog.catalogAgeYears} years — multi-year royalty verification recommended` });
   }
 
-  // YouTube UGC high-value flag
-  if (youtube.found && youtube.ugc?.estimatedViews > 50000) {
+  // YouTube UGC high-value flag — gated on contentIdRisk. estimatedViews is a
+  // free-text keyword-search sum (name-collides for generic artist names), so
+  // it only drives this flag when there is genuine UGC risk (no official
+  // channel claiming the content).
+  if (youtube.found && youtube.ugc?.contentIdRisk && youtube.ugc?.estimatedViews > 50000) {
     flags.push({
       module: 'YouTube / UGC',
       severity: 'high',
@@ -1493,10 +1502,9 @@ function buildFlags(modules, artist, track, deezer, audiodb, discogs, soundcloud
     flags.push({ module: 'Platform Coverage', severity: 'high', description: `${lastfm.playcount.toLocaleString()} Last.fm plays detected — significant historical streaming activity warrants full PRO audit` });
   }
 
-  // Wikipedia flag
-  if (!wikidata.found) {
-    flags.push({ module: 'Sync Readiness', severity: 'medium', description: 'No Wikipedia presence detected — sync licensing teams often research artists on Wikipedia before licensing' });
-  }
+  // (No Wikipedia hand-built flag here — the Module F syncFlag
+  // 'No Wikipedia presence — sync discoverability risk' is the canonical
+  // source for this fact; a second hand-built flag was a visible duplicate.)
 
   // Positive signals
   if (discogs.found && discogs.releases > 5) {
