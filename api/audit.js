@@ -8,6 +8,7 @@ import { normalizeAuditResponse } from './lib/normalizeAuditResponse.js';
 import { validateAuditResponse } from './schema/auditResponse.js';
 import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib/rate-limit.js';
 import { runScan } from './_lib/run-scan.js';
+import { persistOSScanSnapshot, resolveUserIdFromAuthHeader } from './_lib/persist-os-scan.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AUDIT_SCANS PERSISTENCE
@@ -133,9 +134,9 @@ export async function persistCanonicalScan(rawResponse, originalUrl, urlType, sc
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
       const { error } = await supabase.from('audit_scans').insert(insertRow);
-      if (!error) return scanId;
+      if (!error) return { scanId, canonical };
       // Duplicate-key on retry → row was inserted on a prior attempt; treat as success.
-      if (error.code === '23505') return scanId;
+      if (error.code === '23505') return { scanId, canonical };
       lastError = error;
       console.warn(`[audit] audit_scans insert attempt ${attempt}/${MAX_ATTEMPTS} failed:`, error.message);
     } catch (err) {
@@ -250,14 +251,39 @@ export default async function handler(req, res) {
     }
 
     // ── PERSIST ──
+    let canonical = null;
     try {
-      await persistCanonicalScan(result.rawResponse, url, result.urlType, scanId, sessionId);
+      const persisted = await persistCanonicalScan(result.rawResponse, url, result.urlType, scanId, sessionId);
+      canonical = persisted.canonical;
     } catch (persistErr) {
       console.error('[audit] persistence failed:', persistErr.message);
       return res.status(500).json({
         error: 'Failed to persist audit scan',
         detail: persistErr.message,
       });
+    }
+
+    // ── V2 OS SCAN-WRITE PATH (Brief 003) ──
+    // Authenticated callers get a scan_snapshots row + delta-engine alerts +
+    // monitoring_subscriptions upsert. Anonymous callers (no Bearer token)
+    // skip this entirely. Failures here are logged and swallowed — the
+    // user-facing scan response must NEVER depend on V2 monitoring work.
+    try {
+      const supabaseForOS = getAuditScansSupabase();
+      if (supabaseForOS && canonical) {
+        const userId = await resolveUserIdFromAuthHeader(req, supabaseForOS);
+        if (userId) {
+          await persistOSScanSnapshot({
+            canonical,
+            urlType: result.urlType,
+            userId,
+            supabase: supabaseForOS,
+            warnings: result.warnings,
+          });
+        }
+      }
+    } catch (osErr) {
+      console.error('[os-scan] V2 write path failed (non-blocking):', osErr.message);
     }
 
     // Inject wire-only degradation signal AFTER persistence so the canonical

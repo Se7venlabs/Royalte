@@ -470,6 +470,186 @@ try {
 }
 
 console.log('\n✓ All negative tests passed.\n');
+
+// ─── V2 OS scan-write path (Brief 003) ──────────────────────────────────────
+// Unit tests against persistOSScanSnapshot with a mock Supabase client.
+// Confirms:
+//   • scan_snapshots insert includes the V2 fields (artist_id, artist_name,
+//     canonical_data, scan_number, status) per the brief.
+//   • monitoring_subscriptions upsert is invoked with onConflict on
+//     (user_id, artist_id) and the expected payload.
+//
+// computeDelta is exercised here transitively; its own coverage lives in
+// tests/delta-engine-test.mjs.
+
+console.log('\n[TEST] V2 OS scan-write path (Brief 003)...');
+
+const { persistOSScanSnapshot } = await import('../api/_lib/persist-os-scan.js');
+
+function buildOSMockSupabase({ priorScanCount = 0, priorSequence = null } = {}) {
+  const captured = { inserts: {}, upserts: {}, updates: {} };
+  return {
+    _captured: captured,
+    from(table) {
+      const builder = {
+        // .select with count flag — used for scan_number = COUNT(*) + 1.
+        select(_cols, opts) {
+          if (opts && opts.count === 'exact' && opts.head === true) {
+            const filterable = {
+              eq() { return filterable; },
+              then(resolve) {
+                return resolve({ count: priorScanCount, error: null });
+              },
+            };
+            return filterable;
+          }
+          // sequence_number lookup — order().limit().maybeSingle().
+          const queryable = {
+            eq() { return queryable; },
+            neq() { return queryable; },
+            order() { return queryable; },
+            limit() { return queryable; },
+            maybeSingle() {
+              return Promise.resolve({
+                data: priorSequence === null ? null : { sequence_number: priorSequence },
+                error: null,
+              });
+            },
+            single() {
+              return Promise.resolve({ data: null, error: null });
+            },
+          };
+          return queryable;
+        },
+        insert(row) {
+          const list = Array.isArray(row) ? row : [row];
+          captured.inserts[table] = (captured.inserts[table] || []).concat(list);
+          // The persist-os-scan helper expects .insert(row).select('*').single()
+          // to return the inserted row including its generated id.
+          const withId = { ...list[0], id: 'inserted-snapshot-id' };
+          return {
+            select() {
+              return {
+                single() {
+                  return Promise.resolve({ data: withId, error: null });
+                },
+              };
+            },
+            then(resolve) {
+              return resolve({ data: list, error: null });
+            },
+          };
+        },
+        update(payload) {
+          return {
+            eq(col, val) {
+              captured.updates[table] = (captured.updates[table] || []).concat([
+                { payload, where: { [col]: val } },
+              ]);
+              return Promise.resolve({ data: payload, error: null });
+            },
+          };
+        },
+        upsert(row, opts) {
+          captured.upserts[table] = (captured.upserts[table] || []).concat([{ row, opts }]);
+          return Promise.resolve({ data: row, error: null });
+        },
+      };
+      return builder;
+    },
+  };
+}
+
+// Test 1 — scan_snapshots insert includes the V2 fields per the brief.
+{
+  const sb = buildOSMockSupabase({ priorScanCount: 0, priorSequence: null });
+  const canonicalForOS = {
+    schemaVersion: '1.1.0',
+    subject: { artistId: 'spotify-1lnM3VZrD6SG9vxBsE9654', artistName: 'Black Alternative' },
+    issues: [],
+  };
+  const result = await persistOSScanSnapshot({
+    canonical: canonicalForOS,
+    urlType: 'spotify',
+    userId: 'user-test-uuid',
+    supabase: sb,
+    warnings: [],
+  });
+
+  assert(result.written === true, 'os-scan: write reported as successful');
+  assert(result.scanNumber === 1, 'os-scan: scan_number is 1 for a brand-new (user, artist)');
+
+  const snapshots = sb._captured.inserts.scan_snapshots || [];
+  assert(snapshots.length === 1, 'os-scan: exactly one scan_snapshots insert');
+  const ins = snapshots[0];
+  assert(ins.user_id === 'user-test-uuid', 'os-scan: user_id wired');
+  assert(ins.artist_id === 'spotify-1lnM3VZrD6SG9vxBsE9654', 'os-scan: artist_id from canonical.subject');
+  assert(ins.artist_name === 'Black Alternative', 'os-scan: artist_name from canonical.subject');
+  assert(ins.canonical_data && ins.canonical_data.schemaVersion === '1.1.0', 'os-scan: canonical_data populated');
+  assert(ins.payload && ins.payload === ins.canonical_data, 'os-scan: payload mirrors canonical_data (V1 compat)');
+  assert(ins.scan_number === 1, 'os-scan: scan_number = 1 (baseline)');
+  assert(ins.sequence_number === 1, 'os-scan: legacy sequence_number populated to 1');
+  assert(ins.source === 'spotify', 'os-scan: source maps to V2 platform enum (spotify)');
+  assert(ins.status === 'complete', 'os-scan: status = complete when no warnings');
+  assert(typeof ins.scanned_at === 'string' && ins.scanned_at.length > 0, 'os-scan: scanned_at is an ISO string');
+}
+
+// Test 2 — monitoring_subscriptions upsert is wired with correct keys + onConflict.
+{
+  const sb = buildOSMockSupabase({ priorScanCount: 2, priorSequence: 4 });
+  const canonicalForOS = {
+    schemaVersion: '1.1.0',
+    subject: { artistId: 'spotify-xyz', artistName: 'Test Artist' },
+    issues: [],
+  };
+  await persistOSScanSnapshot({
+    canonical: canonicalForOS,
+    urlType: 'apple_music',
+    userId: 'user-A',
+    supabase: sb,
+    warnings: ['some-degradation'],
+  });
+
+  const upserts = sb._captured.upserts.monitoring_subscriptions || [];
+  assert(upserts.length === 1, 'os-scan: exactly one monitoring_subscriptions upsert');
+  assert(upserts[0].opts && upserts[0].opts.onConflict === 'user_id,artist_id', 'os-scan: upsert onConflict targets (user_id, artist_id)');
+  const sub = upserts[0].row;
+  assert(sub.user_id === 'user-A', 'os-scan: subscription user_id');
+  assert(sub.artist_id === 'spotify-xyz', 'os-scan: subscription artist_id');
+  assert(sub.artist_name === 'Test Artist', 'os-scan: subscription artist_name');
+  assert(sub.scan_frequency === 'weekly', 'os-scan: subscription scan_frequency defaults to weekly');
+  assert(sub.active === true, 'os-scan: subscription set active=true');
+  assert(typeof sub.last_scanned_at === 'string', 'os-scan: subscription last_scanned_at set');
+  assert(typeof sub.next_scan_at === 'string', 'os-scan: subscription next_scan_at set');
+  // next ≈ last + 7 days
+  const last = new Date(sub.last_scanned_at).getTime();
+  const next = new Date(sub.next_scan_at).getTime();
+  const diffDays = Math.round((next - last) / (1000 * 60 * 60 * 24));
+  assert(diffDays === 7, 'os-scan: next_scan_at is exactly 7 days after last_scanned_at');
+
+  // Also verify scan_number = prior_count + 1, sequence_number = prior_max + 1,
+  // and that 'partial' status fires when warnings are non-empty.
+  const ins = sb._captured.inserts.scan_snapshots[0];
+  assert(ins.scan_number === 3, 'os-scan: scan_number = priorScanCount(2) + 1');
+  assert(ins.sequence_number === 5, 'os-scan: sequence_number = priorMax(4) + 1');
+  assert(ins.source === 'apple_music', 'os-scan: source maps to apple_music for Apple URL');
+  assert(ins.status === 'partial', 'os-scan: status = partial when warnings non-empty');
+}
+
+// Test 3 — no-op short-circuits (anonymous / no canonical / no subject).
+{
+  const sb = buildOSMockSupabase();
+  const r1 = await persistOSScanSnapshot({ canonical: { subject: { artistId: 'x', artistName: 'y' } }, urlType: 'spotify', userId: null, supabase: sb });
+  assert(r1.written === false && r1.reason === 'no_user_id', 'os-scan: skips cleanly when no user_id (anonymous scan)');
+  const r2 = await persistOSScanSnapshot({ canonical: null, urlType: 'spotify', userId: 'u', supabase: sb });
+  assert(r2.written === false && r2.reason === 'no_canonical', 'os-scan: skips cleanly when no canonical');
+  const r3 = await persistOSScanSnapshot({ canonical: { subject: {} }, urlType: 'spotify', userId: 'u', supabase: sb });
+  assert(r3.written === false && r3.reason === 'no_artist_subject', 'os-scan: skips cleanly when subject has no artistId/artistName');
+  assert(!sb._captured.inserts.scan_snapshots, 'os-scan: no insert occurred for any of the short-circuit cases');
+}
+
+console.log('\n✓ V2 OS scan-write path tests passed.\n');
+
 console.log('═════════════════════════════════════════════');
 console.log('  PIPELINE VERIFIED: normalize + validate working end-to-end');
 console.log('═════════════════════════════════════════════');
