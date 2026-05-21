@@ -1443,20 +1443,34 @@ body.menu-locked {
 .gbe-empty-body{font-size:13px;color:var(--muted2);line-height:1.6;margin:0 auto;max-width:380px;}
 
 /* ─────────────────────────────────────────────────────────────────
-   V2 SCAN RESULTS — Brief 007 (dark-theme revision)
-   Uses the existing homepage palette only: --pur / --grn / --amb /
-   --red / --cyn / --text / --muted / --muted2 / --border2.
-   No scoped --osr-* tokens. Cards are dark + frosted to match the
-   existing .risk-banner / .gbe-card aesthetic; all text is light.
+   V2 SCAN RESULTS — Brief 007 (new full-width layout)
+   Hero is untouched. After scan completes, #audit-results breaks out
+   of the .hero-right column and spans the viewport BELOW the hero.
+   Layout inside: full-width artist strip → 2-col grid (score |
+   findings+found) → bridge line → CTA. Dark surface throughout
+   (#0a0a0f container, rgba(255,255,255,0.04) cards, purple border).
+   Existing homepage palette only — no scoped --osr-* tokens.
    ───────────────────────────────────────────────────────────────── */
+#audit-results{
+  position:relative;
+  left:50%;right:50%;
+  margin-left:-50vw;margin-right:-50vw;
+  width:100vw;max-width:100vw;
+  background:#0a0a0f;
+  border-top:1px solid rgba(138,92,255,0.20);
+  padding:40px 24px 48px;
+  margin-top:32px;
+  box-sizing:border-box;
+}
 .os-results{
   font-family:'Space Grotesk',system-ui,sans-serif;color:var(--text);
-  display:flex;flex-direction:column;gap:20px;margin-top:20px;
+  display:flex;flex-direction:column;gap:20px;
+  max-width:1280px;margin-left:auto;margin-right:auto;
 }
 .os-results *{box-sizing:border-box;}
 .os-section{
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(138,92,255,0.20);
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(138,92,255,0.25);
   border-radius:12px;
   padding:28px 32px;
   box-shadow:0 1px 0 rgba(255,255,255,0.03),0 16px 40px rgba(0,0,0,0.32);
@@ -1466,45 +1480,67 @@ body.menu-locked {
   letter-spacing:0.02em;margin:0 0 18px;color:var(--text);
 }
 
-/* Section 1 — Artist verified */
-.os-verified-head{display:flex;align-items:center;gap:18px;margin-bottom:20px;}
-.os-verified-avatar{
+/* ── 1. Full-width artist verification strip ────────────────────── */
+.os-artist-strip{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:28px;
+  align-items:center;
+}
+.os-strip-id{display:flex;align-items:center;gap:16px;min-width:0;}
+.os-strip-avatar{
   width:64px;height:64px;border-radius:50%;flex-shrink:0;
   background:linear-gradient(135deg,rgba(138,92,255,0.30),rgba(224,64,200,0.30));
   display:flex;align-items:center;justify-content:center;
   font-family:'Rajdhani',sans-serif;font-weight:700;font-size:26px;
   color:#ffffff;border:1px solid rgba(138,92,255,0.30);overflow:hidden;
 }
-.os-verified-avatar img{width:100%;height:100%;object-fit:cover;}
-.os-verified-name{
+.os-strip-avatar img{width:100%;height:100%;object-fit:cover;}
+.os-strip-info{min-width:0;}
+.os-strip-name{
   margin:0;font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;
-  color:#ffffff;letter-spacing:-0.01em;line-height:1.15;
+  color:#ffffff;letter-spacing:-0.01em;line-height:1.1;
 }
-.os-verified-meta{margin-top:4px;font-size:13px;color:var(--muted2);}
-.os-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.os-strip-meta{margin-top:4px;font-size:13px;color:var(--muted2);}
+.os-strip-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+}
+.os-strip-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+
+/* Stat cells — used inside the strip */
 .os-stat{
-  background:rgba(255,255,255,0.08);
-  border:1px solid rgba(255,255,255,0.04);
-  border-radius:8px;padding:16px 18px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;padding:10px 14px;min-width:0;
 }
 .os-stat-label{
-  font-size:13px;color:var(--muted2);font-weight:500;letter-spacing:0.02em;
+  font-size:12px;color:var(--muted2);font-weight:500;letter-spacing:0.02em;
 }
 .os-stat-value{
-  margin-top:6px;font-size:28px;font-weight:700;color:#ffffff;
+  margin-top:4px;font-size:22px;font-weight:700;color:#ffffff;
   font-variant-numeric:tabular-nums;font-family:'Rajdhani',sans-serif;line-height:1;
 }
-.os-pills{display:flex;flex-wrap:wrap;gap:10px;}
+
+/* Source pills — small, one-line */
 .os-pill{
-  display:inline-flex;align-items:center;gap:6px;
+  display:inline-flex;align-items:center;gap:5px;
   background:rgba(64,240,160,0.10);color:var(--grn);
   border:1px solid rgba(64,240,160,0.25);
-  font-size:13px;font-weight:500;padding:6px 14px;border-radius:20px;
+  font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;
+  white-space:nowrap;
 }
-.os-pill i{font-size:15px;}
+.os-pill i{font-size:13px;}
 
-/* Section 2 — Score */
-.os-score-top{display:flex;align-items:center;gap:22px;margin-bottom:20px;}
+/* ── 2. Two-col body grid ───────────────────────────────────────── */
+.os-grid-2{
+  display:grid;grid-template-columns:420px 1fr;gap:20px;align-items:start;
+}
+.os-col-stack{display:flex;flex-direction:column;gap:20px;}
+
+/* Score card — vertical layout (circle on top, label/desc below) */
+.os-score-card .os-score-top{
+  display:flex;flex-direction:column;align-items:flex-start;gap:14px;margin-bottom:20px;
+}
 .os-score-circle{
   width:100px;height:100px;border-radius:50%;
   background:rgba(255,255,255,0.04);
@@ -1629,12 +1665,21 @@ body.menu-locked {
   font-size:12px;color:var(--muted);text-align:center;line-height:1.55;
 }
 
+/* Tablet — collapse the 2-col body grid and let the artist strip wrap. */
+@media (max-width:1024px){
+  .os-grid-2{grid-template-columns:1fr;}
+  .os-artist-strip{grid-template-columns:1fr;}
+  .os-strip-pills{justify-content:flex-start;}
+}
+@media (max-width:720px){
+  .os-strip-stats{grid-template-columns:repeat(2,1fr);}
+}
 @media (max-width:640px){
+  #audit-results{padding:24px 16px 32px;}
   .os-section{padding:22px 22px;}
-  .os-stats,.os-found-grid,.os-cta-features,.os-score-legend{grid-template-columns:1fr;}
-  .os-score-top{flex-direction:column;align-items:flex-start;}
-  .os-verified-name{font-size:22px;}
-  .os-stat-value{font-size:24px;}
+  .os-found-grid,.os-cta-features,.os-score-legend{grid-template-columns:1fr;}
+  .os-strip-name{font-size:22px;}
+  .os-stat-value{font-size:20px;}
 }
 
 </style>
@@ -2052,63 +2097,67 @@ body.menu-locked {
              inside Section 5 with the same IDs so the existing submit
              handler (around line 3097) keeps working unchanged. -->
         <section class="os-results">
-          <!-- Section 1 — Artist verified -->
-          <div class="os-section">
-            <div class="os-verified-head">
-              <div class="os-verified-avatar" id="os-v-avatar">—</div>
-              <div class="os-verified-info">
-                <h3 class="os-verified-name" id="os-v-name">—</h3>
-                <div class="os-verified-meta" id="os-v-meta"></div>
+          <!-- 1. Full-width artist verification strip
+               id / 4 stat cards / source pills on one row -->
+          <div class="os-section os-artist-strip">
+            <div class="os-strip-id">
+              <div class="os-strip-avatar" id="os-v-avatar">—</div>
+              <div class="os-strip-info">
+                <h3 class="os-strip-name" id="os-v-name">—</h3>
+                <div class="os-strip-meta" id="os-v-meta"></div>
               </div>
             </div>
-            <div class="os-stats" id="os-v-stats"></div>
-            <div class="os-pills" id="os-v-pills"></div>
+            <div class="os-strip-stats" id="os-v-stats"></div>
+            <div class="os-strip-pills" id="os-v-pills"></div>
           </div>
 
-          <!-- Section 2 — Royaltē Health Score -->
-          <div class="os-section">
-            <h3 class="os-section-title">Royaltē Health Score&trade;</h3>
-            <div class="os-score-top">
-              <div class="os-score-circle band-excellent" id="os-score-circle">
-                <div class="os-score-num" id="os-score-num">—</div>
-                <div class="os-score-unit">/100</div>
+          <!-- 2. Two-col grid: health score (left) · findings + what-found (right) -->
+          <div class="os-grid-2">
+            <!-- LEFT: Royaltē Health Score -->
+            <div class="os-section os-score-card">
+              <h3 class="os-section-title">Royaltē Health Score&trade;</h3>
+              <div class="os-score-top">
+                <div class="os-score-circle band-excellent" id="os-score-circle">
+                  <div class="os-score-num" id="os-score-num">—</div>
+                  <div class="os-score-unit">/100</div>
+                </div>
+                <div class="os-score-text">
+                  <div class="os-score-label" id="os-score-label">—</div>
+                  <div class="os-score-desc" id="os-score-desc">—</div>
+                </div>
               </div>
-              <div class="os-score-text">
-                <div class="os-score-label" id="os-score-label">—</div>
-                <div class="os-score-desc" id="os-score-desc">—</div>
+              <div class="os-score-legend">
+                <div class="os-score-legend-row"><span class="os-score-legend-dot band-excellent"></span><span class="os-score-legend-range">90–100</span>Excellent</div>
+                <div class="os-score-legend-row"><span class="os-score-legend-dot band-strong"></span><span class="os-score-legend-range">75–89</span>Strong</div>
+                <div class="os-score-legend-row"><span class="os-score-legend-dot band-moderate"></span><span class="os-score-legend-range">60–74</span>Moderate</div>
+                <div class="os-score-legend-row"><span class="os-score-legend-dot band-review"></span><span class="os-score-legend-range">&lt; 60</span>Review recommended</div>
+              </div>
+              <div class="os-score-disclaimer">
+                <span class="os-score-not-label">Score is not:</span>
+                <span class="os-score-not-pill">A royalty estimate</span>
+                <span class="os-score-not-pill">A revenue prediction</span>
+                <span class="os-score-not-pill">A popularity score</span>
               </div>
             </div>
-            <div class="os-score-legend">
-              <div class="os-score-legend-row"><span class="os-score-legend-dot band-excellent"></span><span class="os-score-legend-range">90–100</span>Excellent</div>
-              <div class="os-score-legend-row"><span class="os-score-legend-dot band-strong"></span><span class="os-score-legend-range">75–89</span>Strong</div>
-              <div class="os-score-legend-row"><span class="os-score-legend-dot band-moderate"></span><span class="os-score-legend-range">60–74</span>Moderate</div>
-              <div class="os-score-legend-row"><span class="os-score-legend-dot band-review"></span><span class="os-score-legend-range">&lt; 60</span>Review recommended</div>
+
+            <!-- RIGHT: findings + what Royaltē found, stacked -->
+            <div class="os-col-stack">
+              <div class="os-section">
+                <h3 class="os-section-title">Top findings</h3>
+                <div class="os-findings" id="os-findings"></div>
+              </div>
+              <div class="os-section">
+                <h3 class="os-section-title">What Royaltē found</h3>
+                <div class="os-found-grid" id="os-found-grid"></div>
+              </div>
             </div>
-            <div class="os-score-disclaimer">
-              <span class="os-score-not-label">Score is not:</span>
-              <span class="os-score-not-pill">A royalty estimate</span>
-              <span class="os-score-not-pill">A revenue prediction</span>
-              <span class="os-score-not-pill">A popularity score</span>
-            </div>
           </div>
 
-          <!-- Section 3 — Top findings -->
-          <div class="os-section">
-            <h3 class="os-section-title">Top findings</h3>
-            <div class="os-findings" id="os-findings"></div>
-          </div>
-
-          <!-- Section 4 — What Royaltē found -->
-          <div class="os-section">
-            <h3 class="os-section-title">What Royaltē found</h3>
-            <div class="os-found-grid" id="os-found-grid"></div>
-          </div>
-
-          <!-- Bridge line -->
+          <!-- 3. Bridge line — full width, centered italic -->
           <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
 
-          <!-- Section 5 — OS preview CTA -->
-          <div class="os-section">
+          <!-- 4. CTA — full width, centered -->
+          <div class="os-section os-cta-card">
             <h3 class="os-cta-headline">Unlock continuous monitoring</h3>
             <p class="os-cta-subtext">Royaltē OS continuously monitors your catalog and alerts you when something changes.</p>
             <div class="os-cta-features">
@@ -2119,9 +2168,8 @@ body.menu-locked {
               <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>YouTube presence</div>
               <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Action center</div>
             </div>
-            <!-- Preserved ID + classes for the existing /api/submit-audit
-                 handler. The handler magic-link signs the user in AND emails
-                 the audit PDF — single form serving both intents. -->
+            <!-- Preserved id + classes for the existing /api/submit-audit
+                 handler. Magic-link signup + PDF email served by one form. -->
             <form class="bi-os-form os-cta-form" id="bi-os-form" novalidate>
               <input type="email" class="bi-os-email os-cta-email" id="bi-os-email"
                 placeholder="your@email.com" autocomplete="email" required>
@@ -3102,22 +3150,34 @@ function renderV2Section1(data, artistName) {
     metaEl.textContent = genre || (data.type ? data.type.charAt(0).toUpperCase() + data.type.slice(1) + ' scan' : '');
   }
 
-  // Stats — Tracks · Releases · Territories.
-  // Territory data is not yet emitted by the V1 engine → "—".
-  const cc = data.appleMusic && data.appleMusic.details && data.appleMusic.details.catalogComparison;
+  // Stats — Tracks · Releases · Territories · ISRCs (4 cards).
+  // /api/audit raw shape exposes fields FLAT (data.appleMusic.albumCount,
+  // data.appleMusic.catalogComparison.*); canonical nests them under
+  // .details. Read both defensively. Territory data is not emitted by the
+  // V1 engine → "—".
+  const am = data.appleMusic || {};
+  const cc = am.catalogComparison || (am.details && am.details.catalogComparison) || null;
   const tracksFound = (cc && typeof cc.tracksChecked === 'number') ? cc.tracksChecked
                     : (data.trackTitle ? 1 : null);
-  const releasesFound = (data.appleMusic && data.appleMusic.details && typeof data.appleMusic.details.albumCount === 'number')
-                      ? data.appleMusic.details.albumCount
+  const albumCount  = (typeof am.albumCount === 'number') ? am.albumCount
+                    : (am.details && typeof am.details.albumCount === 'number') ? am.details.albumCount
+                    : null;
+  const releasesFound = albumCount != null ? albumCount
                       : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
                          ? data.catalog.totalReleases : null);
-  const territoriesFound = null;
+  const territoriesFound = null;  // no source on the V1 engine yet
+  // ISRCs: cc.matched is a count of verified-ISRC tracks (Drake-style
+  // track scans return 10); for an artist scan we fall back to "is there
+  // a single track ISRC on the subject?" (1 or null).
+  const isrcsFound = (cc && typeof cc.matched === 'number') ? cc.matched
+                   : (data.trackIsrc ? 1 : null);
   const statsEl = document.getElementById('os-v-stats');
   if (statsEl) {
     const stats = [
-      { label: 'Tracks found',    value: tracksFound      != null ? tracksFound      : '—' },
-      { label: 'Releases found',  value: releasesFound    != null ? releasesFound    : '—' },
-      { label: 'Territories',     value: territoriesFound != null ? territoriesFound : '—' },
+      { label: 'Tracks',      value: tracksFound      != null ? tracksFound      : '—' },
+      { label: 'Releases',    value: releasesFound    != null ? releasesFound    : '—' },
+      { label: 'Territories', value: territoriesFound != null ? territoriesFound : '—' },
+      { label: 'ISRCs',       value: isrcsFound       != null ? isrcsFound       : '—' },
     ];
     statsEl.innerHTML = stats.map(s => `
       <div class="os-stat">
@@ -3167,7 +3227,18 @@ function renderV2Section3(data, flagsArr) {
   const findingsEl = document.getElementById('os-findings');
   if (!findingsEl) return;
 
-  if (!flagsArr || flagsArr.length === 0) {
+  // V1 platform-presence flags (Wikipedia / AudioDB / Discogs / SoundCloud)
+  // are noise for V2 — these are "we couldn't find an artist page on
+  // [some niche service]" signals, not V2-grade backend findings. Filter
+  // them out before mapping. Anything that survives is mapped to one of
+  // five V2 categories.
+  const v2Flags = (flagsArr || []).filter((f) => {
+    const text = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
+    if (/\b(wikipedia|audiodb|discogs|soundcloud)\b/.test(text)) return false;
+    return true;
+  });
+
+  if (v2Flags.length === 0) {
     findingsEl.innerHTML = `<div class="os-finding-empty">No priority findings detected in this scan. Royaltē OS will continue monitoring for changes.</div>`;
     return;
   }
@@ -3178,17 +3249,14 @@ function renderV2Section3(data, flagsArr) {
     if (/territory|storefront|country/.test(text))    return { title: 'Territory availability review',  icon: 'ti-world-off' };
     if (/youtube|ugc|video/.test(text))               return { title: 'Limited visibility detected',    icon: 'ti-eye-off' };
     if (/duplicate|collision|fragment/.test(text))    return { title: 'Catalog consistency review',     icon: 'ti-copy-off' };
-    if (/metadata|genre|sync discoverability|wikipedia/.test(text))
-                                                       return { title: 'Metadata completeness review',  icon: 'ti-file-unknown' };
-    if (/platform|coverage|presence/.test(text))      return { title: 'Catalog consistency review',     icon: 'ti-copy-off' };
+    if (/metadata|genre/.test(text))                  return { title: 'Metadata completeness review',   icon: 'ti-file-unknown' };
     return                                                    { title: 'Catalog consistency review',     icon: 'ti-copy-off' };
   };
 
-  // Clean up V1 risk suffixes from descriptions to keep the V2 surface
-  // calm. Conservative strip: only trims trailing "— … risk".
+  // Strip trailing "— … risk" from V1 descriptions to keep the V2 surface calm.
   const cleanDesc = (s) => (s || '').replace(/\s+[—-]\s+[\w\s]*\brisk\s*$/i, '').trim();
 
-  const findings = flagsArr.slice(0, 3).map((f) => {
+  const findings = v2Flags.slice(0, 3).map((f) => {
     const m = mapFlag(f);
     return { title: m.title, icon: m.icon, desc: cleanDesc(f.description) };
   });
@@ -3207,11 +3275,15 @@ function renderV2Section4(data) {
   const gridEl = document.getElementById('os-found-grid');
   if (!gridEl) return;
 
-  const cc = data.appleMusic && data.appleMusic.details && data.appleMusic.details.catalogComparison;
-  const albums = (data.appleMusic && data.appleMusic.details && typeof data.appleMusic.details.albumCount === 'number')
-                 ? data.appleMusic.details.albumCount
-                 : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
-                    ? data.catalog.totalReleases : null);
+  // Raw /api/audit shape (flat) vs canonical (nested under .details). Read both.
+  const am = data.appleMusic || {};
+  const cc = am.catalogComparison || (am.details && am.details.catalogComparison) || null;
+  const albumCount = (typeof am.albumCount === 'number') ? am.albumCount
+                   : (am.details && typeof am.details.albumCount === 'number') ? am.details.albumCount
+                   : null;
+  const albums = albumCount != null ? albumCount
+               : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
+                  ? data.catalog.totalReleases : null);
   const tracks = (cc && typeof cc.tracksChecked === 'number') ? cc.tracksChecked
                 : (data.trackTitle ? 1 : null);
 
@@ -3226,14 +3298,24 @@ function renderV2Section4(data) {
     return 'Unknown';
   })();
 
+  // Catalog availability — the RAW response exposes presence as booleans on
+  // data.platforms.*. The canonical response uses .availability strings under
+  // each platform. Read both shapes; AUTH_UNAVAILABLE means "we didn't try".
   const catalogAvail = (() => {
-    const am = data.appleMusic && data.appleMusic.availability;
-    const sp = data.spotify     && data.spotify.availability;
-    const verified = [am, sp].filter(v => v === 'VERIFIED').length;
-    const tried    = [am, sp].filter(v => v && v !== 'AUTH_UNAVAILABLE').length;
-    if (tried === 0) return 'Unknown';
-    if (verified >= 2)  return 'Strong';
-    if (verified === 1) return 'Moderate';
+    const p = data.platforms || {};
+    // Per-platform "did we verify it?" — raw bool === true OR canonical VERIFIED.
+    const verifAM = (p.appleMusic === true) ||
+                    (data.appleMusic && data.appleMusic.availability === 'VERIFIED') ||
+                    (am.found === true);
+    const verifSP = (p.spotify === true) ||
+                    (data.spotify && data.spotify.availability === 'VERIFIED') ||
+                    (data.spotifyMatched === true);
+    const triedAM = verifAM || (data.appleMusic && data.appleMusic.availability && data.appleMusic.availability !== 'AUTH_UNAVAILABLE');
+    const triedSP = verifSP || (data.spotify && data.spotify.availability && data.spotify.availability !== 'AUTH_UNAVAILABLE');
+    if (!triedAM && !triedSP) return 'Unknown';
+    const verifiedCount = (verifAM ? 1 : 0) + (verifSP ? 1 : 0);
+    if (verifiedCount >= 2) return 'Strong';
+    if (verifiedCount === 1) return 'Moderate';
     return 'Limited';
   })();
 
