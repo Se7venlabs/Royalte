@@ -57,8 +57,10 @@ export function getOrCreateSessionId() {
 
 // Legacy bridge: the homepage scan code (runAudit) lives in a regular
 // non-module <script> block and cannot `import`. Expose getOrCreateSessionId
-// on window so that block can tag scans with the session_id. Drop this once
-// the homepage scan code moves into a module (frontend migration).
+// AND getSupabase on window so that block can tag scans with the session_id
+// and resolve the auth session (for the V2 OS Authorization: Bearer header).
+// Drop both when the homepage scan code moves into a module.
 if (typeof window !== 'undefined') {
   window.getOrCreateSessionId = getOrCreateSessionId;
+  window.getSupabase          = getSupabase;
 }

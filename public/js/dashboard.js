@@ -1922,20 +1922,12 @@ async function init() {
     // reads monitoring_alerts + monitoring_subscriptions via RLS — empty
     // for users whose first authenticated scan has not yet hit the new
     // V2 write path.
-    console.log("[backend-protection] init starting");
     try {
       const subject = (scan.payload && scan.payload.subject) || {};
       const artistId = subject.artistId || null;
       const artistName = subject.artistName || "";
-      const container = document.getElementById("backend-protection-panel");
-      console.log("[backend-protection] artistId=", artistId, "artistName=", artistName, "container?", !!container);
-      if (!artistId) {
-        console.warn("[backend-protection] SKIPPING — no artistId on scan.payload.subject");
-      } else if (!container) {
-        console.warn("[backend-protection] SKIPPING — #backend-protection-panel not in DOM");
-      } else {
+      if (artistId) {
         const mod = await import("/components/backend-protection.js");
-        console.log("[backend-protection] component module loaded:", !!mod && !!mod.BackendProtectionPanel);
         const panel = new mod.BackendProtectionPanel({
           supabase,
           artistId,
@@ -1943,10 +1935,9 @@ async function init() {
           containerId: "backend-protection-panel",
         });
         await panel.render();
-        console.log("[backend-protection] render() resolved");
       }
     } catch (e) {
-      console.error("[backend-protection] init failed:", e);
+      console.warn("[backend-protection] init failed (non-fatal):", e);
     }
   }
 

@@ -2386,7 +2386,27 @@ async function runAudit() {
   // the scan still runs if the id is unavailable.
   const auditSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
   if (auditSessionId) qs += `&session_id=${encodeURIComponent(auditSessionId)}`;
-  const fetchPromise = fetch(`/api/audit${qs}`, { signal: controller.signal })
+
+  // V2 OS — when the visitor is logged in, attach an Authorization: Bearer
+  // header so /api/audit's V2 scan-write path can resolve user_id and
+  // activate monitoring (scan_snapshots + delta engine + subscription
+  // upsert). Anonymous visitors send no token → V2 path skipped server-side.
+  const auditHeaders = {};
+  try {
+    if (window.getSupabase) {
+      const sb = window.getSupabase();
+      if (sb) {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session && session.access_token) {
+          auditHeaders['Authorization'] = `Bearer ${session.access_token}`;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[audit] auth header lookup failed (non-fatal):', e);
+  }
+
+  const fetchPromise = fetch(`/api/audit${qs}`, { signal: controller.signal, headers: auditHeaders })
     .then(r => r.json())
     .catch(err => ({ __error: err }));
 

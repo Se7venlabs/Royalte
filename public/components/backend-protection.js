@@ -290,26 +290,18 @@ export class BackendProtectionPanel {
       return;
     }
     if (!this.artistId) {
-      console.warn('[backend-protection] no artistId, clearing container');
       root.innerHTML = '';
       return;
     }
     this._renderLoading();
-    console.log('[backend-protection] loading state rendered, fetching data for artistId=', this.artistId);
     try {
       await this._load();
-      console.log('[backend-protection] data loaded:', {
-        alerts: this.data.alerts.length,
-        subscription: this.data.subscription ? 'present' : 'null',
-        scanMapKeys: Object.keys(this.data.scanMap).length,
-      });
     } catch (e) {
       console.error('[backend-protection] load failed:', e);
       this._renderEmptyCard('Could not load monitoring data. Please refresh.');
       return;
     }
     this._renderPanel();
-    console.log('[backend-protection] panel rendered (subscription:', this.data.subscription ? 'active' : 'missing', ')');
   }
 
   async _load() {
