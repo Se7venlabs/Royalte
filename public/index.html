@@ -13,6 +13,8 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:site_name" content="Royaltē">
+<!-- Tabler outline icons — V2 scan-results panel (Brief 007). -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/tabler-icons.min.css">
 
 <!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image">
@@ -1440,6 +1442,118 @@ body.menu-locked {
 .gbe-empty-title{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:8px;}
 .gbe-empty-body{font-size:13px;color:var(--muted2);line-height:1.6;margin:0 auto;max-width:380px;}
 
+/* ─────────────────────────────────────────────────────────────────
+   V2 SCAN RESULTS — Brief 007
+   Tokens scoped to .os-results so the existing dark page palette is
+   untouched. The cards intentionally render white on the dark page
+   for a deliberate "verified data" contrast.
+   ───────────────────────────────────────────────────────────────── */
+.os-results{
+  --osr-bg-card:#ffffff;
+  --osr-bg-secondary:#f4f4f8;
+  --osr-bg-danger:#fdecec;
+  --osr-bg-warning:#fef5e7;
+  --osr-bg-success:#e8f6ee;
+  --osr-bg-info:#e8f2ff;
+  --osr-text:#0e0b1e;
+  --osr-text-secondary:#5d5b7a;
+  --osr-text-tertiary:#7c7898;
+  --osr-text-danger:#b1271c;
+  --osr-text-warning:#8a5a13;
+  --osr-text-success:#15663b;
+  --osr-text-info:#1a4cb8;
+  --osr-border:rgba(20,20,40,0.10);
+  --osr-band-excellent:#15a35d;
+  --osr-band-strong:#14a39a;
+  --osr-band-moderate:#b87515;
+  --osr-band-review:#b1271c;
+  font-family:'Space Grotesk',system-ui,sans-serif;color:var(--osr-text);
+  display:flex;flex-direction:column;gap:16px;margin-top:18px;
+}
+.os-results *{box-sizing:border-box;}
+.os-section{background:var(--osr-bg-card);border:0.5px solid var(--osr-border);border-radius:12px;padding:1.25rem;box-shadow:0 1px 0 rgba(255,255,255,0.04),0 12px 36px rgba(0,0,0,0.18);}
+.os-section-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.02em;margin:0 0 14px;color:var(--osr-text);}
+
+/* Section 1 — Artist verified */
+.os-verified-head{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.os-verified-avatar{width:52px;height:52px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,rgba(138,92,255,0.16),rgba(224,64,200,0.16));display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:22px;color:var(--osr-text);border:0.5px solid var(--osr-border);overflow:hidden;}
+.os-verified-avatar img{width:100%;height:100%;object-fit:cover;}
+.os-verified-name{margin:0;font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--osr-text);letter-spacing:-0.01em;}
+.os-verified-meta{margin-top:2px;font-size:12px;color:var(--osr-text-secondary);}
+.os-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.os-stat{background:var(--osr-bg-secondary);border-radius:8px;padding:12px 14px;}
+.os-stat-label{font-size:11px;color:var(--osr-text-secondary);font-weight:500;letter-spacing:0.02em;}
+.os-stat-value{margin-top:4px;font-size:20px;font-weight:600;color:var(--osr-text);font-variant-numeric:tabular-nums;}
+.os-pills{display:flex;flex-wrap:wrap;gap:8px;}
+.os-pill{display:inline-flex;align-items:center;gap:6px;background:var(--osr-bg-success);color:var(--osr-text-success);font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;}
+.os-pill i{font-size:14px;}
+
+/* Section 2 — Score */
+.os-score-top{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
+.os-score-circle{width:80px;height:80px;border-radius:50%;background:var(--osr-bg-secondary);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;border:2px solid var(--osr-band-excellent);}
+.os-score-circle.band-excellent{border-color:var(--osr-band-excellent);}
+.os-score-circle.band-strong{border-color:var(--osr-band-strong);}
+.os-score-circle.band-moderate{border-color:var(--osr-band-moderate);}
+.os-score-circle.band-review{border-color:var(--osr-band-review);}
+.os-score-num{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;line-height:1;color:var(--osr-text);}
+.os-score-circle.band-excellent .os-score-num{color:var(--osr-band-excellent);}
+.os-score-circle.band-strong .os-score-num{color:var(--osr-band-strong);}
+.os-score-circle.band-moderate .os-score-num{color:var(--osr-band-moderate);}
+.os-score-circle.band-review .os-score-num{color:var(--osr-band-review);}
+.os-score-unit{font-size:10px;color:var(--osr-text-tertiary);letter-spacing:0.04em;margin-top:1px;}
+.os-score-text{min-width:0;}
+.os-score-label{font-size:16px;font-weight:600;color:var(--osr-text);}
+.os-score-desc{margin-top:3px;font-size:13px;color:var(--osr-text-secondary);line-height:1.5;}
+.os-score-legend{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;padding:14px;background:var(--osr-bg-secondary);border-radius:8px;margin-bottom:14px;}
+.os-score-legend-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--osr-text-secondary);}
+.os-score-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.os-score-legend-dot.band-excellent{background:var(--osr-band-excellent);}
+.os-score-legend-dot.band-strong{background:var(--osr-band-strong);}
+.os-score-legend-dot.band-moderate{background:var(--osr-band-moderate);}
+.os-score-legend-dot.band-review{background:var(--osr-band-review);}
+.os-score-legend-range{font-weight:600;color:var(--osr-text);}
+.os-score-disclaimer{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+.os-score-not-label{font-size:11px;color:var(--osr-text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;}
+.os-score-not-pill{display:inline-flex;align-items:center;background:var(--osr-bg-danger);color:var(--osr-text-danger);font-size:11px;font-weight:500;padding:3px 10px;border-radius:12px;}
+
+/* Section 3 — Findings */
+.os-findings{display:flex;flex-direction:column;gap:8px;}
+.os-finding{display:grid;grid-template-columns:36px 1fr;gap:12px;padding:12px 14px;border:0.5px solid var(--osr-border);border-radius:8px;align-items:flex-start;}
+.os-finding-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:var(--osr-bg-warning);color:var(--osr-text-warning);font-size:18px;}
+.os-finding-body{min-width:0;}
+.os-finding-title{font-size:14px;font-weight:600;color:var(--osr-text);margin:0 0 2px;}
+.os-finding-desc{font-size:12px;color:var(--osr-text-secondary);line-height:1.5;margin:0;}
+.os-finding-empty{padding:16px;background:var(--osr-bg-secondary);border-radius:8px;color:var(--osr-text-secondary);font-size:13px;text-align:center;}
+
+/* Section 4 — What Royaltē found */
+.os-found-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.os-found-row{background:var(--osr-bg-secondary);border-radius:8px;padding:12px 14px;}
+.os-found-label{font-size:11px;color:var(--osr-text-secondary);font-weight:500;}
+.os-found-value{margin-top:3px;font-size:16px;font-weight:600;color:var(--osr-text);}
+
+/* Bridge line */
+.os-bridge{font-style:italic;text-align:center;font-size:13px;color:var(--osr-text-secondary);padding:14px 8px;border-top:0.5px solid var(--osr-border);border-bottom:0.5px solid var(--osr-border);margin:4px 0;}
+
+/* Section 5 — CTA */
+.os-section-cta{display:flex;flex-direction:column;align-items:stretch;}
+.os-cta-headline{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin:0 0 6px;color:var(--osr-text);}
+.os-cta-subtext{margin:0 0 14px;font-size:13px;color:var(--osr-text-secondary);line-height:1.5;}
+.os-cta-features{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-bottom:14px;}
+.os-cta-feature{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--osr-text-secondary);}
+.os-cta-feature i{color:var(--osr-text-success);font-size:16px;}
+.os-cta-form{display:flex;flex-direction:column;gap:8px;}
+.os-cta-email{width:100%;padding:11px 13px;border-radius:8px;border:0.5px solid var(--osr-border);background:var(--osr-bg-secondary);color:var(--osr-text);font-family:inherit;font-size:14px;}
+.os-cta-email:focus{outline:none;border-color:var(--osr-text-info);}
+.os-cta-btn{width:100%;padding:13px 16px;border-radius:8px;border:2px solid var(--osr-text-info);background:var(--osr-bg-info);color:var(--osr-text-info);font-family:inherit;font-size:14px;font-weight:600;letter-spacing:0.02em;cursor:pointer;transition:background 0.15s ease;}
+.os-cta-btn:hover{background:#d4e3ff;}
+.os-cta-subcopy{margin:10px 0 0;font-size:11px;color:var(--osr-text-tertiary);text-align:center;letter-spacing:0.02em;}
+.os-cta-pdf-note{margin-top:14px;padding-top:12px;border-top:0.5px solid var(--osr-border);font-size:11px;color:var(--osr-text-tertiary);text-align:center;line-height:1.5;}
+
+@media (max-width:640px){
+  .os-stats,.os-found-grid,.os-cta-features,.os-score-legend{grid-template-columns:1fr;}
+  .os-score-top{flex-direction:column;align-items:flex-start;}
+}
+
 </style>
 </head>
 <body class="tier-free">
@@ -1776,7 +1890,10 @@ body.menu-locked {
       <div class="hstat"><span class="hstat-n">Verified</span><span class="hstat-l">Data only</span></div>
       <div class="hstat"><span class="hstat-n">Instant</span><span class="hstat-l">Full audit delivery</span></div>
     </div>
-    <div class="scan-decoder" aria-label="Understanding your risk score">
+    <!-- V1 risk-score legend — hidden in V2 (Brief 007). The new health-score
+         legend lives inside the Section 2 results card. Markup kept in case
+         a rollback is needed; CSS class removal would remove the panel cleanly. -->
+    <div class="scan-decoder" aria-label="Understanding your risk score" style="display:none;">
       <div class="scan-decoder-hd">Understanding your risk score</div>
       <div class="scan-decoder-body">Higher scores indicate elevated risk to royalty collection. Royaltē analyzes verified metadata, registration, platform coverage, and monetization signals to identify potential royalty collection gaps and backend risk exposure.</div>
       <div class="scan-decoder-legend">
@@ -1846,81 +1963,92 @@ body.menu-locked {
           </div>
         </div>
         <div id="audit-results" style="display:none;">
-        <div class="d-score-tag" id="hero-score-tag">
-          <div class="d-score-tag-num" id="hero-score-tag-num">—</div>
-          <div class="d-score-tag-lbl" id="hero-score-tag-lbl">Royaltē Score</div>
-        </div>
-        <div class="d-score-helper" id="hero-score-helper" style="display:none;">
-          Composite signal across metadata, coverage, registration, distribution, and verification layers.
-          <div class="d-score-helper-tooltip">
-            <div class="tt-row healthy"><span class="tt-dot"></span><strong>0–30</strong> · Low Risk</div>
-            <div class="tt-row warning"><span class="tt-dot"></span><strong>31–60</strong> · Moderate Risk</div>
-            <div class="tt-row atrisk"><span class="tt-dot"></span><strong>61–80</strong> · At Risk</div>
-            <div class="tt-row danger"><span class="tt-dot"></span><strong>81–100</strong> · Critical Risk</div>
+        <!-- V2 Scan Results (Brief 007) — populated by showRealResults().
+             Five sections: Artist verified · Health Score · Top findings ·
+             What Royaltē found · OS preview CTA. The bi-os-form is preserved
+             inside Section 5 with the same IDs so the existing submit
+             handler (around line 3097) keeps working unchanged. -->
+        <section class="os-results">
+          <!-- Section 1 — Artist verified -->
+          <div class="os-section">
+            <div class="os-verified-head">
+              <div class="os-verified-avatar" id="os-v-avatar">—</div>
+              <div class="os-verified-info">
+                <h3 class="os-verified-name" id="os-v-name">—</h3>
+                <div class="os-verified-meta" id="os-v-meta"></div>
+              </div>
+            </div>
+            <div class="os-stats" id="os-v-stats"></div>
+            <div class="os-pills" id="os-v-pills"></div>
           </div>
-        </div>
-        <div class="d-alert">
-          <div class="d-alert-dot"></div>
-          <div class="d-alert-t"><span class="d-alert-strong">⚠️ Royaltē detected verified royalty-risk issues in your backend setup.</span>Registration and metadata gaps detected in your audit data.</div>
-        </div>
-        <div class="d-modules">
-          <div class="d-mod">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Metadata Health</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
-            <div class="d-mod-problem"></div>
-            <div class="d-mod-impact"></div>
+
+          <!-- Section 2 — Royaltē Health Score -->
+          <div class="os-section">
+            <h3 class="os-section-title">Royaltē Health Score&trade;</h3>
+            <div class="os-score-top">
+              <div class="os-score-circle band-excellent" id="os-score-circle">
+                <div class="os-score-num" id="os-score-num">—</div>
+                <div class="os-score-unit">/100</div>
+              </div>
+              <div class="os-score-text">
+                <div class="os-score-label" id="os-score-label">—</div>
+                <div class="os-score-desc" id="os-score-desc">—</div>
+              </div>
+            </div>
+            <div class="os-score-legend">
+              <div class="os-score-legend-row"><span class="os-score-legend-dot band-excellent"></span><span class="os-score-legend-range">90–100</span>Excellent</div>
+              <div class="os-score-legend-row"><span class="os-score-legend-dot band-strong"></span><span class="os-score-legend-range">75–89</span>Strong</div>
+              <div class="os-score-legend-row"><span class="os-score-legend-dot band-moderate"></span><span class="os-score-legend-range">60–74</span>Moderate</div>
+              <div class="os-score-legend-row"><span class="os-score-legend-dot band-review"></span><span class="os-score-legend-range">&lt; 60</span>Review recommended</div>
+            </div>
+            <div class="os-score-disclaimer">
+              <span class="os-score-not-label">Score is not:</span>
+              <span class="os-score-not-pill">A royalty estimate</span>
+              <span class="os-score-not-pill">A revenue prediction</span>
+              <span class="os-score-not-pill">A popularity score</span>
+            </div>
           </div>
-          <div class="d-mod">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Platform Coverage</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
-            <div class="d-mod-problem"></div>
-            <div class="d-mod-impact"></div>
+
+          <!-- Section 3 — Top findings -->
+          <div class="os-section">
+            <h3 class="os-section-title">Top findings</h3>
+            <div class="os-findings" id="os-findings"></div>
           </div>
-          <div class="d-mod">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Registration Signals</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
-            <div class="d-mod-problem"></div>
-            <div class="d-mod-impact"></div>
+
+          <!-- Section 4 — What Royaltē found -->
+          <div class="os-section">
+            <h3 class="os-section-title">What Royaltē found</h3>
+            <div class="os-found-grid" id="os-found-grid"></div>
           </div>
-          <div class="d-mod">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">YouTube / UGC Coverage</div><div class="d-mod-bar"><div class="d-mod-fill" style="width:0%;"></div></div><div class="d-mod-score">—</div></div>
-            <div class="d-mod-problem"></div>
-            <div class="d-mod-impact"></div>
+
+          <!-- Bridge line -->
+          <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
+
+          <!-- Section 5 — OS preview CTA -->
+          <div class="os-section">
+            <h3 class="os-cta-headline">Unlock continuous monitoring</h3>
+            <p class="os-cta-subtext">Royaltē OS continuously monitors your catalog and alerts you when something changes.</p>
+            <div class="os-cta-features">
+              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Territory changes</div>
+              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Catalog changes</div>
+              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Identifier changes</div>
+              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Metadata coverage</div>
+              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>YouTube presence</div>
+              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Action center</div>
+            </div>
+            <!-- Preserved ID + classes for the existing /api/submit-audit
+                 handler. The handler magic-link signs the user in AND emails
+                 the audit PDF — single form serving both intents. -->
+            <form class="bi-os-form os-cta-form" id="bi-os-form" novalidate>
+              <input type="email" class="bi-os-email os-cta-email" id="bi-os-email"
+                placeholder="your@email.com" autocomplete="email" required>
+              <button type="submit" class="bi-os-cta os-cta-btn" data-cta="enter-os">Get Founding Artist Access</button>
+            </form>
+            <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
+            <p class="os-cta-subcopy">Limited founding artist spots available · $19.99/month</p>
+            <p class="os-cta-pdf-note">Magic-link sign-in · PDF copy of your audit emailed alongside</p>
           </div>
-        </div>
-        <div class="gbe-card">
-          <div class="gbe-card-title">Gap-Based Exposure</div>
-          <div class="gbe-body" id="gbe-body"><!-- populated by renderGapBasedExposure() --></div>
-        </div>
-        <div class="bi-os-preview" id="bi-os-preview">
-          <div class="bi-os-preview-header">BACKEND INTELLIGENCE OS</div>
-          <p class="bi-os-preview-intro">
-            This audit shows the surface.<br>
-            The Backend Intelligence OS reveals the full picture.
-          </p>
-          <ul class="bi-os-preview-features">
-            <li><span class="bi-os-bullet"></span>Verified ecosystem presence</li>
-            <li><span class="bi-os-bullet"></span>Audience confidence analysis</li>
-            <li><span class="bi-os-bullet"></span>Metadata integrity monitoring</li>
-            <li><span class="bi-os-bullet"></span>Backend observations &amp; risk signals</li>
-            <li><span class="bi-os-bullet"></span>Catalog fragmentation detection</li>
-            <li><span class="bi-os-bullet"></span>Continuous backend monitoring</li>
-          </ul>
-          <div class="bi-os-divider"></div>
-          <p class="bi-os-beta-intro">
-            As a Founding Artist, your Full Audit is included free during beta access.
-          </p>
-          <form class="bi-os-form" id="bi-os-form" novalidate>
-            <input
-              type="email"
-              class="bi-os-email"
-              id="bi-os-email"
-              placeholder="your@email.com"
-              autocomplete="email"
-              required
-            >
-            <button type="submit" class="bi-os-cta" data-cta="enter-os">ENTER BACKEND INTELLIGENCE OS →</button>
-          </form>
-          <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
-          <p class="bi-os-access">No password required · Secure magic-link access</p>
-        </div>
+        </section>
         </div>
       </div>
     </div>
@@ -2753,17 +2881,21 @@ function renderGapBasedExposure(gbe) {
 }
 
 function showRealResults(data) {
+  // V2 (Brief 007) — replaces the V1 risk-themed render with five clean
+  // sections (Artist verified · Health Score · Top findings · What
+  // Royaltē found · OS preview CTA). The V1 helpers below
+  // (renderRiskScore, renderAuditCoverage, renderTerritoryCoverage,
+  // setScore, MODULE_COPY, gbe-card render, buildCards, buildFlags) are
+  // intentionally NOT called — their DOM targets were removed from
+  // #audit-results. Helper functions are kept defined so any other call
+  // path (legacy modal, demo, etc.) does not break.
   const artistName = data.artistName || 'Artist';
   const scanMode   = data.scanMode || data.type || 'artist';
   const isApple    = data.sourcePlatform === 'apple_music';
+  const flagsArr   = Array.isArray(data.flags) ? data.flags : [];
 
-  // ── SNAPSHOT FOR MODAL ──
-  // Stash a small subset of scan data on a global so the audit-request
-  // modal can include hidden context (artist, URL, score, issues count,
-  // timestamp) when the user submits their email. Refreshed on every
-  // successful scan.
+  // ── SNAPSHOT FOR MODAL (preserved) ──
   try {
-    const flagsArr = Array.isArray(data.flags) ? data.flags : [];
     window.__royalteScan = {
       artistName:  artistName,
       sourceUrl:   document.getElementById('hero-url')?.value?.trim() || '',
@@ -2775,264 +2907,266 @@ function showRealResults(data) {
     };
   } catch(e){ /* non-blocking */ }
 
-  // ── ECOSYSTEM SIGNAL — source-agnostic hero sub-line ──
-  // The scan result never shows a follower count as the artist's identity.
-  // Spotify / Apple Music verify presence; they are not authority metrics.
+  // ── Hero (above the V2 panel) — name + sub line only, no risk colour ──
   const subText = getEcosystemSignal(data);
+  if (typeof updateHeroDashboard === 'function') updateHeroDashboard(artistName, subText, null, null);
+  if (typeof setUrlTypePill === 'function')      setUrlTypePill(isApple ? 'apple' : scanMode);
 
-  updateHeroDashboard(artistName, subText, data.overallScore, data.royaltyRiskScore?.riskLevel);
-  setUrlTypePill(isApple ? 'apple' : scanMode);
-  setScore(data.overallScore);
-  renderRiskScore(data.royaltyRiskScore);
-  renderAuditCoverage(data.auditCoverage, data.scannedAt);
-  renderTerritoryCoverage(data.territoryCoverage);
-
-  // ── SCAN CARD UPGRADES — image, score block, reveal stagger ──
-  // Image source priority: imageUrl > artistImageUrl > albumImageUrl > initials fallback.
-  const imgEl     = document.getElementById('hero-artist-img');
-  const imgFb     = document.getElementById('hero-artist-img-fallback');
+  // Hero image fallback (the scan card's small artist image)
+  const imgEl = document.getElementById('hero-artist-img');
+  const imgFb = document.getElementById('hero-artist-img-fallback');
   if (imgEl && imgFb) {
     const src = data.imageUrl || data.artistImageUrl || data.albumImageUrl || '';
+    const initials = (artistName || '—').trim().charAt(0).toUpperCase() || '—';
     if (src) {
-      imgEl.onerror = function() {
-        imgEl.style.display = 'none';
-        imgFb.textContent = (artistName || '—').trim().charAt(0).toUpperCase() || '—';
-        imgFb.style.display = '';
-      };
-      imgEl.onload = function() {
-        imgEl.style.display = '';
-        imgFb.style.display = 'none';
-      };
+      imgEl.onerror = function() { imgEl.style.display = 'none'; imgFb.textContent = initials; imgFb.style.display = ''; };
+      imgEl.onload  = function() { imgEl.style.display = '';     imgFb.style.display = 'none'; };
       imgEl.src = src;
     } else {
       imgEl.style.display = 'none';
-      imgFb.textContent = (artistName || '—').trim().charAt(0).toUpperCase() || '—';
+      imgFb.textContent = initials;
       imgFb.style.display = '';
     }
   }
-  // Royaltē Score block — hide if 0, null, or undefined (per spec, no fabrication).
-  // Color band is derived from the score VALUE on the frontend (80/60 thresholds),
-  // independent of backend riskLevel. Status label appears next to "Royaltē Score".
-  const scoreTagEl = document.getElementById('hero-score-tag');
-  const scoreNumEl = document.getElementById('hero-score-tag-num');
-  const scoreLblEl = document.getElementById('hero-score-tag-lbl');
-  const scoreHelpEl = document.getElementById('hero-score-helper');
-  if (scoreTagEl && scoreNumEl) {
-    if (typeof data.overallScore === 'number' && data.overallScore > 0) {
-      const band = getScoreBand(data.overallScore);
-      scoreNumEl.textContent = data.overallScore;
-      if (scoreLblEl) scoreLblEl.textContent = `Royaltē Score · ${band.label}`;
-      // Reset prior band classes, apply current
-      scoreTagEl.classList.remove('band-healthy','band-warning','band-danger');
-      scoreTagEl.classList.add(band.className);
-      scoreTagEl.classList.add('is-shown');
-      if (scoreHelpEl) scoreHelpEl.style.display = '';
-    } else {
-      scoreTagEl.classList.remove('is-shown');
-      if (scoreHelpEl) scoreHelpEl.style.display = 'none';
-    }
-  }
+  // ── JARVIS ORB TRANSITION (kept — pure visual flair, not risk-tied) ──
+  setTimeout(() => {
+    const ring = document.querySelector('.d-score-ring');
+    const indicator = document.getElementById('hero-risk-indicator');
+    if (ring) ring.classList.add('jarvis-on');
+    if (indicator) { indicator.classList.add('jarvis-active'); indicator.classList.add('jarvis-fade-in'); }
+  }, 500);
 
-  // ── ALERT GATING ──
-  // "You are losing royalties" alert ONLY shows when at least one
-  // high-severity flag exists. Score band is irrelevant — even a 92
-  // (Healthy) score still shows the alert if there's a high-severity
-  // issue like missing PRO registration. No high flags → hide entirely.
-  const alertEl = document.querySelector('.dash-shell .d-alert');
-  const flagsArr = Array.isArray(data.flags) ? data.flags : [];
-  const hasHighSeverity = flagsArr.some(f => f && f.severity === 'high');
-  if (alertEl) {
-    if (hasHighSeverity) {
-      alertEl.classList.remove('is-suppressed');
-    } else {
-      alertEl.classList.add('is-suppressed');
-    }
-  }
-  // Trigger reveal stagger on the result card (CSS handles the rest).
+  // Reveal stagger trigger — CSS handles the actual animation.
   const scoreRow = document.querySelector('.dash-shell .d-score-row');
   const dashBody = document.querySelector('.dash-shell .dash-body');
   if (scoreRow) scoreRow.classList.add('is-revealed');
   if (dashBody) dashBody.classList.add('is-revealed');
 
-  // ── JARVIS ORB TRANSITION ──
-  // After scan completes the radar arcs fade out, then the Jarvis orb fades in.
-  // This is the "holy sh*t" moment — radar (functional) → Jarvis (alive).
-  setTimeout(() => {
-    const ring = document.querySelector('.d-score-ring');
-    const indicator = document.getElementById('hero-risk-indicator');
-    if (ring) ring.classList.add('jarvis-on');
-    if (indicator) {
-      indicator.classList.add('jarvis-active');
-      indicator.classList.add('jarvis-fade-in');
-    }
-  }, 500);
-
-  // ── CONVERSION BLOCK REVEAL ──
-  const conversionEl = document.getElementById('scan-conversion-section');
-  if (conversionEl) conversionEl.classList.add('is-shown');
-
-  const tagText = `${artistName} · ${getEcosystemSignal(data)}`;
-  const tagEl = document.getElementById('results-tag');
-  if (tagEl) tagEl.textContent = tagText;
-
-  // ── RESOLVED-FROM PILL ──
-  // Replaces the old "Matched to artist automatically" copy with explicit
-  // "Resolved from track / album / Apple Music link" context.
+  // ── Resolved-from pill (kept — not risk-themed) ──
   const matchedNote = document.getElementById('results-matched-note');
   if (matchedNote) {
     const rType  = data.resolvedFromType || null;
     const rTitle = data.resolvedFromTitle || null;
     const rFrom  = data.resolvedFrom || null;
     let pillText = '';
-    if (rType === 'track' && rTitle) {
-      pillText = '// Resolved from track: ' + rTitle;
-    } else if (rType === 'album' && rTitle) {
-      pillText = '// Resolved from album: ' + rTitle;
-    } else if (rType === 'external' || rFrom === 'apple') {
-      pillText = '// Resolved from Apple Music link';
-    } else if (!rType && scanMode === 'track' && data.trackTitle) {
-      // Fallback if backend hasn't supplied resolvedFromType yet.
-      pillText = '// Resolved from track: ' + data.trackTitle;
-    } else if (!rType && scanMode === 'album' && data.albumTitle) {
-      pillText = '// Resolved from album: ' + data.albumTitle;
-    }
-    if (pillText) {
-      matchedNote.textContent = pillText;
-      matchedNote.style.display = 'inline-block';
-    } else {
-      matchedNote.style.display = 'none';
-    }
+    if      (rType === 'track'    && rTitle) pillText = '// Resolved from track: '   + rTitle;
+    else if (rType === 'album'    && rTitle) pillText = '// Resolved from album: '   + rTitle;
+    else if (rType === 'external' || rFrom === 'apple') pillText = '// Resolved from Apple Music link';
+    else if (!rType && scanMode === 'track' && data.trackTitle) pillText = '// Resolved from track: ' + data.trackTitle;
+    else if (!rType && scanMode === 'album' && data.albumTitle) pillText = '// Resolved from album: ' + data.albumTitle;
+    matchedNote.textContent = pillText;
+    matchedNote.style.display = pillText ? 'inline-block' : 'none';
   }
 
-  // ── MODULE COPY — band-aware messaging ──
-  // Each of the 4 modules has 3 messages keyed by score band.
-  // Index order matches the markup order:
-  //   [0] Metadata Health
-  //   [1] Platform Coverage
-  //   [2] Registration Signals
-  //   [3] YouTube / UGC Coverage
-  const MODULE_COPY = [
-    {
-      'band-healthy': { problem: 'Verified metadata appears clean; low routing risk detected.',
-                        impact:  '→ Royalty routing should function reliably across collection systems.' },
-      'band-warning': { problem: 'Some metadata gaps detected; partial risk to royalty routing accuracy.',
-                        impact:  '→ Royalty matching accuracy may be reduced in some cases.' },
-      'band-atrisk':  { problem: 'Elevated metadata risk detected — multiple verified issues may interfere with royalty matching.',
-                        impact:  '→ Royalty routing reliability is meaningfully reduced; multiple gaps need attention.' },
-      'band-danger':  { problem: 'Verified metadata issues detected that may interfere with royalty matching and payments.',
-                        impact:  '→ Missing metadata can prevent collection systems from properly routing royalties.' }
-    },
-    {
-      'band-healthy': { problem: 'Platform coverage verified across expected services; low coverage risk.',
-                        impact:  '→ Music appears reachable across the major royalty-generating platforms.' },
-      'band-warning': { problem: 'Platform coverage partially verified; some services may be missing.',
-                        impact:  '→ Some revenue-generating services may not be tracking this catalog.' },
-      'band-atrisk':  { problem: 'Significant platform coverage gaps detected across expected music services.',
-                        impact:  '→ Multiple revenue channels appear unreachable; coverage needs review.' },
-      'band-danger':  { problem: 'Royaltē could not verify strong platform coverage across expected music services.',
-                        impact:  '→ Missing platform coverage may reduce discoverability and revenue collection.' }
-    },
-    {
-      'band-healthy': { problem: 'Registration and metadata indicators appear consistent in the verified data.',
-                        impact:  '→ Observable registration signals look intact across the data Royaltē can see.' },
-      'band-warning': { problem: 'Some registration indicators are missing or inconsistent in the verified data.',
-                        impact:  '→ Partial registration signals can be associated with performance-royalty routing gaps.' },
-      'band-atrisk':  { problem: 'Multiple registration and metadata indicators are missing across the verified data.',
-                        impact:  '→ Weak registration signals are often associated with performance-royalty routing gaps.' },
-      'band-danger':  { problem: 'Royaltē could not observe consistent registration indicators in the verified data.',
-                        impact:  '→ Missing registration signals may be associated with performance-royalty routing gaps.' }
-    },
-    {
-      'band-healthy': { problem: 'UGC monetization coverage confirmed; low UGC revenue risk.',
-                        impact:  '→ Fan uploads and reposted content appear to be generating revenue.' },
-      'band-warning': { problem: 'UGC monetization partially detected; some content types may not be covered.',
-                        impact:  '→ Some categories of fan-generated content may not be monetized.' },
-      'band-atrisk':  { problem: 'Significant gaps in user-generated content monetization coverage detected.',
-                        impact:  '→ A meaningful share of fan-generated content may not be earning revenue.' },
-      'band-danger':  { problem: 'Royaltē could not confirm active user-generated content monetization coverage.',
-                        impact:  '→ Fan uploads, lyric videos, Shorts, and reposted content may not be monetized properly.' }
-    }
-  ];
+  // ── V2 SECTIONS (Brief 007) ──
+  renderV2Section1(data, artistName);
+  renderV2Section2(data);
+  renderV2Section3(data, flagsArr);
+  renderV2Section4(data);
 
-  // ── MODULE BARS — uniform "high = more risk" display ──
-  // Backend returns risk-style scores (high = bad). Display raw, no inversion.
-  // Band colors come from getScoreBand on the SAME 4-tier scale used by the
-  // main Royaltē Risk Score:
-  //   0–30 → green, 31–60 → amber, 61–80 → warm-orange, 81–100 → red
-  // Per-module color logic is identical to the score band logic — no exceptions.
-  if (data.modules) {
-    const modValues = Object.values(data.modules);
-    const modEls    = document.querySelectorAll('.d-modules .d-mod');
-    const BAND_COLOR = {
-      'band-healthy': 'var(--grn)',
-      'band-warning': 'var(--amb)',
-      'band-atrisk':  '#e08858',
-      'band-danger':  'var(--red)'
-    };
-    modValues.forEach((mod, i) => {
-      const el = modEls[i];
-      if (!el) return;
-      // Raw risk score → display as-is. Higher = more risk. Clamp to [0, 100].
-      const raw = (typeof mod.score === 'number') ? mod.score : Number(mod.score) || 0;
-      const display = Math.max(0, Math.min(100, raw));
-      const band = getScoreBand(display);
-      const color = BAND_COLOR[band.className];
-      const fill  = el.querySelector('.d-mod-fill');
-      const num   = el.querySelector('.d-mod-score');
-      const icon  = el.querySelector('.d-mod-icon');
-      if (fill) { fill.style.width = display + '%'; fill.style.background = color; }
-      if (num)  { num.textContent  = '+' + display + ' risk'; num.style.color = color; }
-      if (icon) {                                    icon.style.background = color; }
-      // Band-aware problem + impact copy
-      const copyTable = MODULE_COPY[i];
-      const copy = copyTable ? copyTable[band.className] : null;
-      const problemEl = el.querySelector('.d-mod-problem');
-      const impactEl  = el.querySelector('.d-mod-impact');
-      if (problemEl) problemEl.textContent = copy ? copy.problem : '';
-      if (impactEl)  impactEl.textContent  = copy ? copy.impact  : '';
-    });
-  }
-
-  // ── Gap-Based Exposure — per-indicator revenue exposure component.
-  renderGapBasedExposure(data.gapBasedExposure);
-
-  // Lock form fields — artist name + URL auto-filled from scan
+  // Modal form-lock unlock (preserved — used by the audit-request modal).
   const fSpotify = document.getElementById('f-spotify');
   if (fSpotify) { fSpotify.value = document.getElementById('hero-url').value; fSpotify.readOnly = true; fSpotify.style.opacity = '0.7'; fSpotify.style.cursor = 'not-allowed'; }
   const fName = document.getElementById('f-name');
   if (fName) { fName.value = artistName; fName.readOnly = true; fName.style.opacity = '0.7'; fName.style.cursor = 'not-allowed'; fName.placeholder = artistName; }
-
-  // Build result cards — verified fields only
-  const isrcStatus = data.trackIsrc ? 'REGISTERED' : data.trackTitle ? 'NOT REGISTERED' : 'NOT SCANNED';
-  const isrcBadge  = data.trackIsrc ? 'rb-grn' : data.trackTitle ? 'rb-red' : 'rb-amb';
-  const plats = data.platforms || {};
-  const platformValues = Object.values(plats);
-  const verifiedCount = platformValues.filter(p => p === true || p?.found === true).length;
-  const totalCount = platformValues.length;
-  const unverifiedCount = totalCount - verifiedCount;
-  let platformStatus = '';
-  if (verifiedCount === totalCount) {
-    platformStatus = 'All Platforms Verified';
-  } else {
-    platformStatus = `${verifiedCount} Verified • ${unverifiedCount} Unverified`;
-  }
-  const platformBadge = verifiedCount === totalCount ? 'rb-grn' : 'rb-amb';
-
-  const cards = [
-    { icon: '✅', title: 'Artist profile',      value: artistName,                                                              badge: 'rb-grn',      bt: 'Verified',      source: 'Spotify'   },
-    { icon: '📡', title: 'Platform coverage',   value: verifiedCount === totalCount ? 'All platforms verified' : `${verifiedCount} of ${totalCount} platforms verified`, badge: platformBadge, bt: platformStatus,  source: 'Multiple'  },
-    { icon: '🎵', title: 'Genre metadata',      value: data.genres?.length ? 'Present' : 'Not found',                          badge: data.genres?.length ? 'rb-grn' : 'rb-red', bt: data.genres?.length ? 'PRESENT' : 'MISSING', source: 'Spotify' },
-    { icon: '🔑', title: 'ISRC registration',   value: isrcStatus === 'REGISTERED' ? 'Registered' : isrcStatus === 'NOT REGISTERED' ? 'Not registered' : 'Artist scan — paste a track link', badge: isrcBadge, bt: isrcStatus, source: 'Spotify' },
-  ];
-
-  // ── ARTIST-FIRST: do NOT override the artist card with track/album/Apple identity. ──
-  // Resolution context (Resolved from track/album/Apple) lives in the matched-note pill above.
-
-  buildCards(cards);
-  buildFlags(data.flags || data.previewFlags || []);
-  // Unlock the form now that scan is complete
   const overlay = document.getElementById('form-lock-overlay');
   if (overlay) overlay.classList.add('hidden');
+}
+
+// ─── V2 scan-results helpers (Brief 007) ──────────────────────────────────
+
+function _osEscape(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function _osHealthBand(health) {
+  if (health >= 90) return { className: 'band-excellent', label: 'Excellent',           desc: 'Your music business backend appears healthy across reviewed sources.' };
+  if (health >= 75) return { className: 'band-strong',    label: 'Strong',              desc: 'Most backend signals are present and verified. Minor areas may benefit from review.' };
+  if (health >= 60) return { className: 'band-moderate',  label: 'Moderate',            desc: 'Royaltē detected incomplete or unavailable signals that may deserve attention.' };
+  return                  { className: 'band-review',    label: 'Review recommended', desc: 'Multiple areas require review. Royaltē recommends investigating findings identified during this scan.' };
+}
+
+function renderV2Section1(data, artistName) {
+  // Avatar
+  const avatarEl = document.getElementById('os-v-avatar');
+  if (avatarEl) {
+    const src = data.imageUrl || data.artistImageUrl || data.albumImageUrl || '';
+    const initials = (artistName || '—').trim().charAt(0).toUpperCase() || '—';
+    if (src) {
+      avatarEl.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = artistName;
+      img.onerror = function() { avatarEl.textContent = initials; };
+      avatarEl.appendChild(img);
+    } else {
+      avatarEl.textContent = initials;
+    }
+  }
+  const nameEl = document.getElementById('os-v-name');
+  if (nameEl) nameEl.textContent = artistName;
+  const metaEl = document.getElementById('os-v-meta');
+  if (metaEl) {
+    const genre = Array.isArray(data.genres) && data.genres.length > 0
+      ? data.genres.slice(0, 2).join(' · ')
+      : '';
+    metaEl.textContent = genre || (data.type ? data.type.charAt(0).toUpperCase() + data.type.slice(1) + ' scan' : '');
+  }
+
+  // Stats — Tracks · Releases · Territories.
+  // Territory data is not yet emitted by the V1 engine → "—".
+  const cc = data.appleMusic && data.appleMusic.details && data.appleMusic.details.catalogComparison;
+  const tracksFound = (cc && typeof cc.tracksChecked === 'number') ? cc.tracksChecked
+                    : (data.trackTitle ? 1 : null);
+  const releasesFound = (data.appleMusic && data.appleMusic.details && typeof data.appleMusic.details.albumCount === 'number')
+                      ? data.appleMusic.details.albumCount
+                      : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
+                         ? data.catalog.totalReleases : null);
+  const territoriesFound = null;
+  const statsEl = document.getElementById('os-v-stats');
+  if (statsEl) {
+    const stats = [
+      { label: 'Tracks found',    value: tracksFound      != null ? tracksFound      : '—' },
+      { label: 'Releases found',  value: releasesFound    != null ? releasesFound    : '—' },
+      { label: 'Territories',     value: territoriesFound != null ? territoriesFound : '—' },
+    ];
+    statsEl.innerHTML = stats.map(s => `
+      <div class="os-stat">
+        <div class="os-stat-label">${_osEscape(s.label)}</div>
+        <div class="os-stat-value">${_osEscape(s.value)}</div>
+      </div>`).join('');
+  }
+
+  // Source pills — only show sources actually checked during this scan.
+  const plats = data.platforms || {};
+  const checked = (k) => plats[k] === true || (plats[k] && plats[k].found === true);
+  const pills = [
+    { key: 'appleMusic',  label: 'Apple Music' },
+    { key: 'spotify',     label: 'Spotify' },
+    { key: 'youtube',     label: 'YouTube' },
+    { key: 'musicbrainz', label: 'MusicBrainz' },
+  ].filter(p => checked(p.key));
+  const pillsEl = document.getElementById('os-v-pills');
+  if (pillsEl) {
+    pillsEl.innerHTML = pills.map(p =>
+      `<span class="os-pill"><i class="ti ti-circle-check" aria-hidden="true"></i>${_osEscape(p.label)}</span>`
+    ).join('');
+  }
+}
+
+function renderV2Section2(data) {
+  const risk = (typeof data.overallScore === 'number')
+    ? Math.max(0, Math.min(100, data.overallScore))
+    : null;
+  if (risk == null) return; // No score — leave placeholders.
+  const health = 100 - risk;
+  const band = _osHealthBand(health);
+  const circleEl = document.getElementById('os-score-circle');
+  const numEl    = document.getElementById('os-score-num');
+  const labelEl  = document.getElementById('os-score-label');
+  const descEl   = document.getElementById('os-score-desc');
+  if (circleEl) {
+    circleEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
+    circleEl.classList.add(band.className);
+  }
+  if (numEl)   numEl.textContent   = String(health);
+  if (labelEl) labelEl.textContent = band.label;
+  if (descEl)  descEl.textContent  = band.desc;
+}
+
+function renderV2Section3(data, flagsArr) {
+  const findingsEl = document.getElementById('os-findings');
+  if (!findingsEl) return;
+
+  if (!flagsArr || flagsArr.length === 0) {
+    findingsEl.innerHTML = `<div class="os-finding-empty">No priority findings detected in this scan. Royaltē OS will continue monitoring for changes.</div>`;
+    return;
+  }
+
+  const mapFlag = (f) => {
+    const text = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
+    if (/\bisrc\b/.test(text))                        return { title: 'Identifier coverage review',     icon: 'ti-fingerprint-off' };
+    if (/territory|storefront|country/.test(text))    return { title: 'Territory availability review',  icon: 'ti-world-off' };
+    if (/youtube|ugc|video/.test(text))               return { title: 'Limited visibility detected',    icon: 'ti-eye-off' };
+    if (/duplicate|collision|fragment/.test(text))    return { title: 'Catalog consistency review',     icon: 'ti-copy-off' };
+    if (/metadata|genre|sync discoverability|wikipedia/.test(text))
+                                                       return { title: 'Metadata completeness review',  icon: 'ti-file-unknown' };
+    if (/platform|coverage|presence/.test(text))      return { title: 'Catalog consistency review',     icon: 'ti-copy-off' };
+    return                                                    { title: 'Catalog consistency review',     icon: 'ti-copy-off' };
+  };
+
+  // Clean up V1 risk suffixes from descriptions to keep the V2 surface
+  // calm. Conservative strip: only trims trailing "— … risk".
+  const cleanDesc = (s) => (s || '').replace(/\s+[—-]\s+[\w\s]*\brisk\s*$/i, '').trim();
+
+  const findings = flagsArr.slice(0, 3).map((f) => {
+    const m = mapFlag(f);
+    return { title: m.title, icon: m.icon, desc: cleanDesc(f.description) };
+  });
+
+  findingsEl.innerHTML = findings.map(f => `
+    <div class="os-finding">
+      <div class="os-finding-icon"><i class="ti ${_osEscape(f.icon)}" aria-hidden="true"></i></div>
+      <div class="os-finding-body">
+        <p class="os-finding-title">${_osEscape(f.title)}</p>
+        <p class="os-finding-desc">${_osEscape(f.desc)}</p>
+      </div>
+    </div>`).join('');
+}
+
+function renderV2Section4(data) {
+  const gridEl = document.getElementById('os-found-grid');
+  if (!gridEl) return;
+
+  const cc = data.appleMusic && data.appleMusic.details && data.appleMusic.details.catalogComparison;
+  const albums = (data.appleMusic && data.appleMusic.details && typeof data.appleMusic.details.albumCount === 'number')
+                 ? data.appleMusic.details.albumCount
+                 : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
+                    ? data.catalog.totalReleases : null);
+  const tracks = (cc && typeof cc.tracksChecked === 'number') ? cc.tracksChecked
+                : (data.trackTitle ? 1 : null);
+
+  const isrcCoverage = (() => {
+    if (cc && typeof cc.matchRate === 'number') {
+      if (cc.matchRate >= 95) return 'Complete';
+      if (cc.matchRate >= 50) return 'Partial';
+      if (cc.matchRate >= 1)  return 'Limited';
+      return 'Limited';
+    }
+    if (data.trackIsrc) return 'Complete';
+    return 'Unknown';
+  })();
+
+  const catalogAvail = (() => {
+    const am = data.appleMusic && data.appleMusic.availability;
+    const sp = data.spotify     && data.spotify.availability;
+    const verified = [am, sp].filter(v => v === 'VERIFIED').length;
+    const tried    = [am, sp].filter(v => v && v !== 'AUTH_UNAVAILABLE').length;
+    if (tried === 0) return 'Unknown';
+    if (verified >= 2)  return 'Strong';
+    if (verified === 1) return 'Moderate';
+    return 'Limited';
+  })();
+
+  const rows = [
+    { label: 'Albums',               value: albums != null ? albums : '—' },
+    { label: 'EPs',                  value: '—' },
+    { label: 'Singles',              value: '—' },
+    { label: 'Tracks',               value: tracks != null ? tracks : '—' },
+    { label: 'ISRC coverage',        value: isrcCoverage },
+    { label: 'Catalog availability', value: catalogAvail },
+  ];
+  gridEl.innerHTML = rows.map(r => `
+    <div class="os-found-row">
+      <div class="os-found-label">${_osEscape(r.label)}</div>
+      <div class="os-found-value">${_osEscape(r.value)}</div>
+    </div>`).join('');
 }
 
 // ── SHOW DEMO RESULTS ─────────────────────────────────────
