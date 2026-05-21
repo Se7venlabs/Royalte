@@ -484,7 +484,146 @@ console.log('\n✓ All negative tests passed.\n');
 
 console.log('\n[TEST] V2 OS scan-write path (Brief 003)...');
 
-const { persistOSScanSnapshot } = await import('../api/_lib/persist-os-scan.js');
+const {
+  persistOSScanSnapshot,
+  extractTerritories,
+  extractTracks,
+  extractReleases,
+  extractYoutubeMatches,
+  buildCanonicalDataV2,
+} = await import('../api/_lib/persist-os-scan.js');
+
+// ─── V2 canonical-array extractors (Brief 006) ──────────────────────────────
+
+// Mock A — artist-input scan (mirrors BA's real shape: subject has nulls,
+// no isrcLookup, no confirmedMatches, no territoryCoverage).
+const mockArtistScan = {
+  subject: { artistId: 'a', artistName: 'Z', trackTitle: null, trackIsrc: null, albumName: null },
+  platforms: {
+    appleMusic: { availability: 'VERIFIED', details: { artistId: '1', albumCount: 4, isrcLookup: null, catalogComparison: null } },
+    youtube:    { availability: 'VERIFIED', details: { ugc: { topVideos: [{ title: 'name-collision', videoId: 'x', channel: 'somebody else' }], videoCount: 9, contentIdRisk: false, estimatedViews: 18000000 }, officialChannel: { title: 'Z - Topic', channelId: 'UC', totalViews: 13, videoCount: 4, subscribers: 4 } } },
+  },
+  catalog: { totalReleases: 0 },
+  territoryCoverage: null,
+};
+
+// Mock B — track-URL scan with isrcLookup populated (mirrors a Drake-style
+// scan: subject has track/album fields, Apple isrcLookup resolved, V2-native
+// confirmedMatches[] + territoryCoverage.available[] present.
+const mockTrackScan = {
+  subject: { artistId: 'd', artistName: 'Drake', trackTitle: "God's Plan", trackIsrc: 'USCM51800004', albumName: "God's Plan (Sped Up) - Single" },
+  platforms: {
+    appleMusic: {
+      availability: 'VERIFIED',
+      details: {
+        artistId: 'apple-d',
+        isrcLookup: { found: true, name: "God's Plan (Sped Up)", isrc: 'USCM51800004', albumName: "God's Plan (Sped Up) - Single" },
+        catalogComparison: { matched: 10, notFound: [], matchRate: 100, tracksChecked: 10 },
+      },
+    },
+    youtube: {
+      availability: 'VERIFIED',
+      details: {
+        confirmedMatches: [
+          { title: "God's Plan (Official Music Video)", videoId: 'xpVfcZ0ZcFM', views: 1234567 },
+          { title: 'God\'s Plan', videoId: 'abc', views: 9 },
+          { title: null, videoId: 'no-title-skip', views: 1 },
+        ],
+      },
+    },
+  },
+  territoryCoverage: { available: ['US', 'GB', 'JP'] },
+};
+
+// extractTerritories
+{
+  assert(Array.isArray(extractTerritories(mockArtistScan)) && extractTerritories(mockArtistScan).length === 0, 'extractTerritories: [] for artist scan with no territoryCoverage');
+  const t = extractTerritories(mockTrackScan);
+  assert(Array.isArray(t) && t.length === 3, 'extractTerritories: pulls available[] when populated');
+  assert(t.includes('US') && t.includes('GB') && t.includes('JP'), 'extractTerritories: contents preserved as string codes');
+  assert(extractTerritories(null).length === 0, 'extractTerritories: null-safe');
+  assert(extractTerritories({}).length === 0, 'extractTerritories: empty-canonical-safe');
+  // Also accepts bare array shape (V2-native variant).
+  assert(extractTerritories({ territoryCoverage: ['AU', 'NZ'] }).length === 2, 'extractTerritories: accepts bare-array shape');
+  // Filters non-strings to be defensive.
+  assert(extractTerritories({ territoryCoverage: ['US', null, 42, 'JP'] }).length === 2, 'extractTerritories: filters non-strings');
+}
+
+// extractTracks
+{
+  assert(extractTracks(mockArtistScan).length === 0, 'extractTracks: [] for artist scan with null trackTitle + null isrcLookup');
+  const tr = extractTracks(mockTrackScan);
+  // subject contributes one entry; isrcLookup contributes the same ISRC →
+  // de-duped to a single record.
+  assert(tr.length === 1, 'extractTracks: de-dups subject + isrcLookup when ISRC matches');
+  assert(tr[0].isrc === 'USCM51800004', 'extractTracks: isrc preserved');
+  assert(typeof tr[0].name === 'string' && tr[0].name.length > 0, 'extractTracks: name populated');
+  assert(extractTracks(null).length === 0, 'extractTracks: null-safe');
+  // When subject has a track but isrcLookup is null/not found.
+  const tr2 = extractTracks({ subject: { trackTitle: 'Solo', trackIsrc: 'XYZ' } });
+  assert(tr2.length === 1 && tr2[0].isrc === 'XYZ', 'extractTracks: subject-only path works');
+}
+
+// extractReleases
+{
+  assert(extractReleases(mockArtistScan).length === 0, 'extractReleases: [] for artist scan with no albumName');
+  const rel = extractReleases(mockTrackScan);
+  // subject.albumName and isrcLookup.albumName are identical strings → 1 record.
+  assert(rel.length === 1, 'extractReleases: de-dups subject + isrcLookup when title matches');
+  assert(rel[0].title === "God's Plan (Sped Up) - Single", 'extractReleases: title preserved');
+  assert(rel[0].type === 'album', 'extractReleases: default type=album');
+  assert(extractReleases(null).length === 0, 'extractReleases: null-safe');
+}
+
+// extractYoutubeMatches
+{
+  assert(extractYoutubeMatches(mockArtistScan).length === 0, 'extractYoutubeMatches: [] when no confirmedMatches (ugc.topVideos ignored)');
+  const ym = extractYoutubeMatches(mockTrackScan);
+  // 3 in the mock; one has title=null and is filtered out.
+  assert(ym.length === 2, 'extractYoutubeMatches: emits confirmed entries, drops items missing title/videoId');
+  assert(ym[0].videoId === 'xpVfcZ0ZcFM' && ym[0].views === 1234567, 'extractYoutubeMatches: videoId + views preserved');
+  assert(ym[1].views === 9, 'extractYoutubeMatches: views=number preserved (no coercion)');
+  // Defaults views to 0 when missing.
+  const ym2 = extractYoutubeMatches({ platforms: { youtube: { details: { confirmedMatches: [{ title: 't', videoId: 'v' }] } } } });
+  assert(ym2[0].views === 0, 'extractYoutubeMatches: views defaults to 0');
+  assert(extractYoutubeMatches(null).length === 0, 'extractYoutubeMatches: null-safe');
+}
+
+// buildCanonicalDataV2 — merge contract
+{
+  const merged = buildCanonicalDataV2(mockTrackScan);
+  // Original V1 fields preserved
+  assert(merged.subject && merged.subject.artistName === 'Drake', 'buildCanonicalDataV2: V1 subject preserved');
+  assert(merged.platforms && merged.platforms.appleMusic, 'buildCanonicalDataV2: V1 platforms preserved');
+  // V2 arrays added
+  assert(Array.isArray(merged.territories) && merged.territories.length === 3, 'buildCanonicalDataV2: territories[] present');
+  assert(Array.isArray(merged.tracks)         && merged.tracks.length         === 1, 'buildCanonicalDataV2: tracks[] present');
+  assert(Array.isArray(merged.releases)       && merged.releases.length       === 1, 'buildCanonicalDataV2: releases[] present');
+  assert(Array.isArray(merged.youtubeMatches) && merged.youtubeMatches.length === 2, 'buildCanonicalDataV2: youtubeMatches[] present');
+}
+
+// Persist path — the snapshot insert uses the V2-augmented canonical_data.
+{
+  const sb = buildOSMockSupabase({ priorScanCount: 0, priorSequence: null });
+  await persistOSScanSnapshot({
+    canonical: mockTrackScan,
+    urlType: 'spotify',
+    userId: 'u-x',
+    supabase: sb,
+    warnings: [],
+  });
+  const ins = sb._captured.inserts.scan_snapshots[0];
+  assert(Array.isArray(ins.canonical_data.territories) && ins.canonical_data.territories.length === 3,
+    'persist: canonical_data carries territories[]');
+  assert(Array.isArray(ins.canonical_data.tracks) && ins.canonical_data.tracks.length === 1,
+    'persist: canonical_data carries tracks[]');
+  // payload mirror is the pure V1 shape (no diff arrays) so V1 dashboard reads unchanged.
+  assert(!('territories' in ins.payload), 'persist: payload (V1 mirror) does not carry V2 arrays');
+  assert(!('youtubeMatches' in ins.payload), 'persist: payload (V1 mirror) does not carry V2 arrays');
+}
+
+console.log('\n✓ V2 canonical-array extractors (Brief 006) passed.\n');
+
 
 function buildOSMockSupabase({ priorScanCount = 0, priorSequence = null } = {}) {
   const captured = { inserts: {}, upserts: {}, updates: {} };
@@ -586,7 +725,13 @@ function buildOSMockSupabase({ priorScanCount = 0, priorSequence = null } = {}) 
   assert(ins.artist_id === 'spotify-1lnM3VZrD6SG9vxBsE9654', 'os-scan: artist_id from canonical.subject');
   assert(ins.artist_name === 'Black Alternative', 'os-scan: artist_name from canonical.subject');
   assert(ins.canonical_data && ins.canonical_data.schemaVersion === '1.1.0', 'os-scan: canonical_data populated');
-  assert(ins.payload && ins.payload === ins.canonical_data, 'os-scan: payload mirrors canonical_data (V1 compat)');
+  // Brief 006 — canonical_data carries the V2 arrays; payload keeps the
+  // pure V1 shape so the V1 dashboard's read path is unchanged. They are
+  // intentionally different objects from here on; payload must NOT carry
+  // the V2 diff lists.
+  assert(ins.payload && ins.payload.schemaVersion === ins.canonical_data.schemaVersion, 'os-scan: payload retains canonical schemaVersion (V1 compat)');
+  assert(!('territories' in ins.payload),    'os-scan: payload (V1 mirror) does not carry V2 territories[]');
+  assert(!('youtubeMatches' in ins.payload), 'os-scan: payload (V1 mirror) does not carry V2 youtubeMatches[]');
   assert(ins.scan_number === 1, 'os-scan: scan_number = 1 (baseline)');
   assert(ins.sequence_number === 1, 'os-scan: legacy sequence_number populated to 1');
   assert(ins.source === 'spotify', 'os-scan: source maps to V2 platform enum (spotify)');
