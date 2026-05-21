@@ -33,6 +33,139 @@ function sourceFromUrlType(urlType) {
   return 'spotify';
 }
 
+// ─── V2 canonical-array extractors (Brief 006) ─────────────────────────────
+//
+// The V1 audit engine writes a canonical payload (subject / platforms /
+// catalog / etc.) but does NOT emit the per-item diff lists the V2 delta
+// engine reads. These extractors build those four lists from whatever
+// real data the current canonical exposes, returning [] when there is no
+// honest signal — Brief 002 + 006 both authorise the empty case.
+//
+// They are V2-native-aware: if and when the audit engine starts emitting
+// `territoryCoverage.available[]` or `youtube.details.confirmedMatches[]`,
+// the extractors pick them up automatically without code changes here.
+
+export function extractTerritories(canonical) {
+  if (!canonical) return [];
+  const tc = canonical.territoryCoverage;
+  if (Array.isArray(tc)) {
+    return tc.filter((x) => typeof x === 'string');
+  }
+  if (tc && Array.isArray(tc.available)) {
+    return tc.available.filter((x) => typeof x === 'string');
+  }
+  if (tc && Array.isArray(tc.territories)) {
+    return tc.territories.filter((x) => typeof x === 'string');
+  }
+  return [];
+}
+
+export function extractTracks(canonical) {
+  if (!canonical) return [];
+  const out = [];
+  const subj = canonical.subject || {};
+
+  // Track from the input URL (when the scan was a track URL — artist scans
+  // leave both fields null on the subject).
+  if (subj.trackTitle) {
+    out.push({ name: subj.trackTitle, isrc: subj.trackIsrc || null });
+  }
+
+  // Apple Music's per-track ISRC lookup — richer track view when the input
+  // resolved against Apple. Single-track object today (not an array).
+  const lookup = canonical.platforms
+    && canonical.platforms.appleMusic
+    && canonical.platforms.appleMusic.details
+    && canonical.platforms.appleMusic.details.isrcLookup;
+  if (lookup && lookup.found && (lookup.name || lookup.isrc)) {
+    out.push({
+      name: lookup.name || subj.trackTitle || null,
+      isrc: lookup.isrc || null,
+    });
+  }
+
+  // De-dup: ISRC is the unique key when present (same ISRC + slightly
+  // different names — e.g. subject vs. isrcLookup — collapse to one).
+  // Fall back to name when ISRC is missing.
+  const seen = new Set();
+  const dedup = [];
+  for (const t of out) {
+    if (!t.name && !t.isrc) continue;
+    const key = t.isrc || t.name;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    dedup.push(t);
+  }
+  return dedup;
+}
+
+export function extractReleases(canonical) {
+  if (!canonical) return [];
+  const out = [];
+  const subj = canonical.subject || {};
+
+  if (subj.albumName) {
+    out.push({ title: subj.albumName, type: 'album' });
+  }
+
+  const lookup = canonical.platforms
+    && canonical.platforms.appleMusic
+    && canonical.platforms.appleMusic.details
+    && canonical.platforms.appleMusic.details.isrcLookup;
+  if (lookup && lookup.albumName) {
+    out.push({ title: lookup.albumName, type: 'album' });
+  }
+
+  // De-dup by title.
+  const seen = new Set();
+  const dedup = [];
+  for (const r of out) {
+    if (!r.title) continue;
+    if (seen.has(r.title)) continue;
+    seen.add(r.title);
+    dedup.push(r);
+  }
+  return dedup;
+}
+
+export function extractYoutubeMatches(canonical) {
+  if (!canonical) return [];
+  // The V1 engine does not yet emit per-video confirmed-matches data.
+  // ugc.topVideos[] is name-collision-prone search output (Brief 002
+  // documents this in detail) and explicitly cannot be treated as
+  // confirmed. The officialChannel sub-object is a single channel-level
+  // summary, not per-video.
+  //
+  // V2-native path: when the engine adds
+  // canonical.platforms.youtube.details.confirmedMatches[], we read it
+  // here. Until then, return [].
+  const yt = canonical.platforms
+    && canonical.platforms.youtube
+    && canonical.platforms.youtube.details;
+  if (yt && Array.isArray(yt.confirmedMatches)) {
+    return yt.confirmedMatches
+      .filter((v) => v && v.title && v.videoId)
+      .map((v) => ({
+        title:   v.title,
+        videoId: v.videoId,
+        views:   typeof v.views === 'number' ? v.views : 0,
+      }));
+  }
+  return [];
+}
+
+// Merge the four V2 arrays into a copy of the canonical payload. The
+// existing V1 shape is preserved untouched; the new arrays live alongside.
+export function buildCanonicalDataV2(canonical) {
+  return {
+    ...canonical,
+    territories:    extractTerritories(canonical),
+    tracks:         extractTracks(canonical),
+    releases:       extractReleases(canonical),
+    youtubeMatches: extractYoutubeMatches(canonical),
+  };
+}
+
 export async function persistOSScanSnapshot({
   canonical,
   urlType,
@@ -75,6 +208,13 @@ export async function persistOSScanSnapshot({
   }
   const sequenceNumber = (seqRow?.sequence_number || 0) + 1;
 
+  // ── Build V2 canonical (with diff-list arrays) ─────────────────────────
+  // canonical_data carries the V2-augmented payload (V1 fields untouched +
+  // four diff arrays the delta engine reads). payload keeps the pure V1
+  // shape so the V1 dashboard continues to see exactly what it has always
+  // seen — no V1 read-path change.
+  const canonicalDataV2 = buildCanonicalDataV2(canonical);
+
   // ── Insert the snapshot ────────────────────────────────────────────────
   const insertRow = {
     user_id:         userId,
@@ -83,7 +223,7 @@ export async function persistOSScanSnapshot({
     scan_number:     scanNumber,
     sequence_number: sequenceNumber,
     scanned_at:      new Date().toISOString(),
-    canonical_data:  canonical,
+    canonical_data:  canonicalDataV2,
     payload:         canonical,
     source:          sourceFromUrlType(urlType),
     status:          warnings && warnings.length > 0 ? 'partial' : 'complete',
