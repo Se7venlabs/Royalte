@@ -6,6 +6,8 @@
 <meta name="robots" content="noindex">
 <title>Royaltē Dashboard · Music Audit Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Tabler outline icons — used by the V2 Backend Protection panel (Brief 004). -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/tabler-icons.min.css">
 <style>
 /* ─────────────────────────────────────────────────────────────────
    ROYALTĒ DASHBOARD V1
@@ -1259,6 +1261,14 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
           <div class="grace-status">Monitoring active</div>
           <div class="grace-next">Next rescan —</div>
         </div>
+      </section>
+
+      <!-- ─── V2 BACKEND PROTECTION (Brief 004) ─── -->
+      <!-- Populated by /public/components/backend-protection.js after the
+           latest scan loads. Self-contained: styles + queries injected by
+           the component, no host-level CSS or markup beyond this anchor. -->
+      <section id="backend-protection-section">
+        <div id="backend-protection-panel"></div>
       </section>
       </div><!-- /scan-content -->
 

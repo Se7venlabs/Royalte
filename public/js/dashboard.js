@@ -1916,6 +1916,29 @@ async function init() {
     renderArtistFootprint(scan.payload);
     // Block D — Monitoring section (tier + monitoring_status aware).
     await loadMonitoringState(supabase, session.user.id, profile, scan);
+
+    // V2 OS — Backend Protection panel (Brief 004). Lazy-imported so a
+    // component-load failure can never block the V1 dashboard. The panel
+    // reads monitoring_alerts + monitoring_subscriptions via RLS — empty
+    // for users whose first authenticated scan has not yet hit the new
+    // V2 write path.
+    try {
+      const subject = (scan.payload && scan.payload.subject) || {};
+      const artistId = subject.artistId || null;
+      const artistName = subject.artistName || "";
+      if (artistId) {
+        const mod = await import("/components/backend-protection.js");
+        const panel = new mod.BackendProtectionPanel({
+          supabase,
+          artistId,
+          artistName,
+          containerId: "backend-protection-panel",
+        });
+        await panel.render();
+      }
+    } catch (e) {
+      console.warn("[backend-protection] init failed (non-fatal):", e);
+    }
   }
 
   // V5 Phase 2 — Founding Artist pricing + reservation flow. Renders on
