@@ -1451,43 +1451,56 @@ body.menu-locked {
    (#0a0a0f container, rgba(255,255,255,0.04) cards, purple border).
    Existing homepage palette only — no scoped --osr-* tokens.
    ───────────────────────────────────────────────────────────────── */
+/* Container — a sibling of <section class="hero"> in the HTML source,
+   so it always flows as a normal full-width block below the hero. No
+   positioning, no margin negation, no max-width cap. */
 #audit-results{
-  position:relative;
-  left:50%;right:50%;
-  margin-left:-50vw;margin-right:-50vw;
-  width:100vw;max-width:100vw;
+  width:100%;
   background:#0a0a0f;
+  padding:0;
+  /* display:none initial — toggled to block by showRealResults() */
   border-top:1px solid rgba(138,92,255,0.20);
-  padding:40px 24px 48px;
-  margin-top:32px;
+  color:var(--text);
+  font-family:'Space Grotesk',system-ui,sans-serif;
   box-sizing:border-box;
 }
-.os-results{
-  font-family:'Space Grotesk',system-ui,sans-serif;color:var(--text);
-  display:flex;flex-direction:column;gap:20px;
-  max-width:1280px;margin-left:auto;margin-right:auto;
+#audit-results *{box-sizing:border-box;font-family:'Space Grotesk',system-ui,sans-serif;}
+#audit-results > .os-section,
+#audit-results > .os-two-col,
+#audit-results > .os-bridge{
+  width:100%;
+  display:block;
 }
-.os-results *{box-sizing:border-box;}
+#audit-results > * + *{margin-top:20px;}
 .os-section{
   background:rgba(255,255,255,0.04);
   border:1px solid rgba(138,92,255,0.25);
-  border-radius:12px;
-  padding:28px 32px;
+  border-radius:0;
+  padding:32px 40px;
   box-shadow:0 1px 0 rgba(255,255,255,0.03),0 16px 40px rgba(0,0,0,0.32);
+  color:var(--text);
 }
 .os-section-title{
   font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;
   letter-spacing:0.02em;margin:0 0 18px;color:var(--text);
 }
 
-/* ── 1. Full-width artist verification strip ────────────────────── */
+/* ── 1. Full-width artist verification strip ──────────────────────
+   Row 1: id (avatar + name) · 4 stat cards
+   Row 2: source pills, full-width — moved off the constrained third
+          column so they never clip when the strip card is full-width. */
 .os-artist-strip{
   display:grid;
-  grid-template-columns:auto 1fr auto;
-  gap:28px;
+  grid-template-columns:auto 1fr;
+  grid-template-areas:
+    "id    stats"
+    "pills pills";
+  gap:20px 28px;
   align-items:center;
 }
-.os-strip-id{display:flex;align-items:center;gap:16px;min-width:0;}
+.os-strip-id   {grid-area:id;display:flex;align-items:center;gap:16px;min-width:0;}
+.os-strip-stats{grid-area:stats;}
+.os-strip-pills{grid-area:pills;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start;}
 .os-strip-avatar{
   width:64px;height:64px;border-radius:50%;flex-shrink:0;
   background:linear-gradient(135deg,rgba(138,92,255,0.30),rgba(224,64,200,0.30));
@@ -1502,10 +1515,12 @@ body.menu-locked {
   color:#ffffff;letter-spacing:-0.01em;line-height:1.1;
 }
 .os-strip-meta{margin-top:4px;font-size:13px;color:var(--muted2);}
+/* Stats grid lives on row 1 alongside the id; pills on row 2 full-width.
+   The grid-template-areas + .os-strip-stats / .os-strip-pills rules
+   higher up own placement + display. Only inner-grid layout here. */
 .os-strip-stats{
   display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
 }
-.os-strip-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
 
 /* Stat cells — used inside the strip */
 .os-stat{
@@ -1531,9 +1546,9 @@ body.menu-locked {
 }
 .os-pill i{font-size:13px;}
 
-/* ── 2. Two-col body grid ───────────────────────────────────────── */
-.os-grid-2{
-  display:grid;grid-template-columns:420px 1fr;gap:20px;align-items:start;
+/* ── 2. Two-col body grid — two equal columns ──────────────────── */
+.os-two-col{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;
 }
 .os-col-stack{display:flex;flex-direction:column;gap:20px;}
 
@@ -1667,7 +1682,7 @@ body.menu-locked {
 
 /* Tablet — collapse the 2-col body grid and let the artist strip wrap. */
 @media (max-width:1024px){
-  .os-grid-2{grid-template-columns:1fr;}
+  .os-two-col{grid-template-columns:1fr;}
   .os-artist-strip{grid-template-columns:1fr;}
   .os-strip-pills{justify-content:flex-start;}
 }
@@ -2090,102 +2105,104 @@ body.menu-locked {
             <div class="d-score-track" id="hero-artist-sub"></div>
           </div>
         </div>
-        <div id="audit-results" style="display:none;">
-        <!-- V2 Scan Results (Brief 007) — populated by showRealResults().
-             Five sections: Artist verified · Health Score · Top findings ·
-             What Royaltē found · OS preview CTA. The bi-os-form is preserved
-             inside Section 5 with the same IDs so the existing submit
-             handler (around line 3097) keeps working unchanged. -->
-        <section class="os-results">
-          <!-- 1. Full-width artist verification strip
-               id / 4 stat cards / source pills on one row -->
-          <div class="os-section os-artist-strip">
-            <div class="os-strip-id">
-              <div class="os-strip-avatar" id="os-v-avatar">—</div>
-              <div class="os-strip-info">
-                <h3 class="os-strip-name" id="os-v-name">—</h3>
-                <div class="os-strip-meta" id="os-v-meta"></div>
-              </div>
-            </div>
-            <div class="os-strip-stats" id="os-v-stats"></div>
-            <div class="os-strip-pills" id="os-v-pills"></div>
-          </div>
-
-          <!-- 2. Two-col grid: health score (left) · findings + what-found (right) -->
-          <div class="os-grid-2">
-            <!-- LEFT: Royaltē Health Score -->
-            <div class="os-section os-score-card">
-              <h3 class="os-section-title">Royaltē Health Score&trade;</h3>
-              <div class="os-score-top">
-                <div class="os-score-circle band-excellent" id="os-score-circle">
-                  <div class="os-score-num" id="os-score-num">—</div>
-                  <div class="os-score-unit">/100</div>
-                </div>
-                <div class="os-score-text">
-                  <div class="os-score-label" id="os-score-label">—</div>
-                  <div class="os-score-desc" id="os-score-desc">—</div>
-                </div>
-              </div>
-              <div class="os-score-legend">
-                <div class="os-score-legend-row"><span class="os-score-legend-dot band-excellent"></span><span class="os-score-legend-range">90–100</span>Excellent</div>
-                <div class="os-score-legend-row"><span class="os-score-legend-dot band-strong"></span><span class="os-score-legend-range">75–89</span>Strong</div>
-                <div class="os-score-legend-row"><span class="os-score-legend-dot band-moderate"></span><span class="os-score-legend-range">60–74</span>Moderate</div>
-                <div class="os-score-legend-row"><span class="os-score-legend-dot band-review"></span><span class="os-score-legend-range">&lt; 60</span>Review recommended</div>
-              </div>
-              <div class="os-score-disclaimer">
-                <span class="os-score-not-label">Score is not:</span>
-                <span class="os-score-not-pill">A royalty estimate</span>
-                <span class="os-score-not-pill">A revenue prediction</span>
-                <span class="os-score-not-pill">A popularity score</span>
-              </div>
-            </div>
-
-            <!-- RIGHT: findings + what Royaltē found, stacked -->
-            <div class="os-col-stack">
-              <div class="os-section">
-                <h3 class="os-section-title">Top findings</h3>
-                <div class="os-findings" id="os-findings"></div>
-              </div>
-              <div class="os-section">
-                <h3 class="os-section-title">What Royaltē found</h3>
-                <div class="os-found-grid" id="os-found-grid"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3. Bridge line — full width, centered italic -->
-          <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
-
-          <!-- 4. CTA — full width, centered -->
-          <div class="os-section os-cta-card">
-            <h3 class="os-cta-headline">Unlock continuous monitoring</h3>
-            <p class="os-cta-subtext">Royaltē OS continuously monitors your catalog and alerts you when something changes.</p>
-            <div class="os-cta-features">
-              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Territory changes</div>
-              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Catalog changes</div>
-              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Identifier changes</div>
-              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Metadata coverage</div>
-              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>YouTube presence</div>
-              <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Action center</div>
-            </div>
-            <!-- Preserved id + classes for the existing /api/submit-audit
-                 handler. Magic-link signup + PDF email served by one form. -->
-            <form class="bi-os-form os-cta-form" id="bi-os-form" novalidate>
-              <input type="email" class="bi-os-email os-cta-email" id="bi-os-email"
-                placeholder="your@email.com" autocomplete="email" required>
-              <button type="submit" class="bi-os-cta os-cta-btn" data-cta="enter-os">Get Founding Artist Access</button>
-            </form>
-            <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
-            <p class="os-cta-subcopy">Limited founding artist spots available · $19.99/month</p>
-            <p class="os-cta-pdf-note">Magic-link sign-in · PDF copy of your audit emailed alongside</p>
-          </div>
-        </section>
-        </div>
+        <!-- #audit-results lives BELOW the hero in source — see after the
+             closing </section> of this hero. The hero markup itself is
+             untouched; only the V2 results subtree was relocated. -->
       </div>
     </div>
     <div class="scan-conversion" id="scan-conversion" style="display:none;"></div>
   </div>
 </section>
+
+<!-- ─── V2 SCAN RESULTS (Brief 007) ─────────────────────────────────────
+     Sibling of <section class="hero">, NOT a child of it. Stays
+     display:none until showRealResults() flips it to block; then it
+     flows as a normal full-width block below the hero. Direct children:
+       .os-artist-strip · .os-two-col · .os-bridge · .os-cta
+     IDs are preserved (os-v-*, os-score-*, os-findings, os-found-grid,
+     bi-os-form/email/status) so the existing render + submit handlers
+     work unchanged. -->
+<div id="audit-results" style="display:none;">
+  <!-- 1. Full-width artist verification strip -->
+  <div class="os-section os-artist-strip">
+    <div class="os-strip-id">
+      <div class="os-strip-avatar" id="os-v-avatar">—</div>
+      <div class="os-strip-info">
+        <h3 class="os-strip-name" id="os-v-name">—</h3>
+        <div class="os-strip-meta" id="os-v-meta"></div>
+      </div>
+    </div>
+    <div class="os-strip-stats" id="os-v-stats"></div>
+    <div class="os-strip-pills" id="os-v-pills"></div>
+  </div>
+
+  <!-- 2. Two equal columns: score (left) · findings + what-found (right) -->
+  <div class="os-two-col">
+    <div class="os-section os-score-card">
+      <h3 class="os-section-title">Royaltē Health Score&trade;</h3>
+      <div class="os-score-top">
+        <div class="os-score-circle band-excellent" id="os-score-circle">
+          <div class="os-score-num" id="os-score-num">—</div>
+          <div class="os-score-unit">/100</div>
+        </div>
+        <div class="os-score-text">
+          <div class="os-score-label" id="os-score-label">—</div>
+          <div class="os-score-desc" id="os-score-desc">—</div>
+        </div>
+      </div>
+      <div class="os-score-legend">
+        <div class="os-score-legend-row"><span class="os-score-legend-dot band-excellent"></span><span class="os-score-legend-range">90–100</span>Excellent</div>
+        <div class="os-score-legend-row"><span class="os-score-legend-dot band-strong"></span><span class="os-score-legend-range">75–89</span>Strong</div>
+        <div class="os-score-legend-row"><span class="os-score-legend-dot band-moderate"></span><span class="os-score-legend-range">60–74</span>Moderate</div>
+        <div class="os-score-legend-row"><span class="os-score-legend-dot band-review"></span><span class="os-score-legend-range">&lt; 60</span>Review recommended</div>
+      </div>
+      <div class="os-score-disclaimer">
+        <span class="os-score-not-label">Score is not:</span>
+        <span class="os-score-not-pill">A royalty estimate</span>
+        <span class="os-score-not-pill">A revenue prediction</span>
+        <span class="os-score-not-pill">A popularity score</span>
+      </div>
+    </div>
+
+    <div class="os-col-stack">
+      <div class="os-section">
+        <h3 class="os-section-title">Top findings</h3>
+        <div class="os-findings" id="os-findings"></div>
+      </div>
+      <div class="os-section">
+        <h3 class="os-section-title">What Royaltē found</h3>
+        <div class="os-found-grid" id="os-found-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Bridge line -->
+  <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
+
+  <!-- 4. CTA — full width, centered -->
+  <div class="os-section os-cta">
+    <h3 class="os-cta-headline">Unlock continuous monitoring</h3>
+    <p class="os-cta-subtext">Royaltē OS continuously monitors your catalog and alerts you when something changes.</p>
+    <div class="os-cta-features">
+      <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Territory changes</div>
+      <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Catalog changes</div>
+      <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Identifier changes</div>
+      <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Metadata coverage</div>
+      <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>YouTube presence</div>
+      <div class="os-cta-feature"><i class="ti ti-circle-check" aria-hidden="true"></i>Action center</div>
+    </div>
+    <!-- Preserved id + classes for the existing /api/submit-audit handler.
+         Magic-link signup + PDF email served by one form. -->
+    <form class="bi-os-form os-cta-form" id="bi-os-form" novalidate>
+      <input type="email" class="bi-os-email os-cta-email" id="bi-os-email"
+        placeholder="your@email.com" autocomplete="email" required>
+      <button type="submit" class="bi-os-cta os-cta-btn" data-cta="enter-os">Get Founding Artist Access</button>
+    </form>
+    <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
+    <p class="os-cta-subcopy">Limited founding artist spots available · $19.99/month</p>
+    <p class="os-cta-pdf-note">Magic-link sign-in · PDF copy of your audit emailed alongside</p>
+  </div>
+</div>
 
 <!-- CONVERSION BLOCK — full-width, between scan and form -->
 <section id="scan-conversion-section" class="scan-conversion-section" style="display:none !important;">
@@ -2852,6 +2869,9 @@ function updateHeroDashboard(artistName, subText, score, riskLevel) {
   const realnessEl = document.querySelector('.d-score-realness');
   if (realnessEl) realnessEl.style.display = '';
   // Reveal entire audit results container — score, alert, modules, issues, locked CTA
+  // #audit-results is now a sibling of the hero in the HTML source —
+  // see the markup after </section> of <section class="hero">. No DOM
+  // relocation needed; just flip display.
   const resultsEl = document.getElementById('audit-results');
   if (resultsEl) resultsEl.style.display = 'block';
   // Show risk level instead of score number
@@ -3150,34 +3170,32 @@ function renderV2Section1(data, artistName) {
     metaEl.textContent = genre || (data.type ? data.type.charAt(0).toUpperCase() + data.type.slice(1) + ' scan' : '');
   }
 
-  // Stats — Tracks · Releases · Territories · ISRCs (4 cards).
-  // /api/audit raw shape exposes fields FLAT (data.appleMusic.albumCount,
-  // data.appleMusic.catalogComparison.*); canonical nests them under
-  // .details. Read both defensively. Territory data is not emitted by the
-  // V1 engine → "—".
+  // Stats — Albums · Followers · Modules reviewed · Flags found.
+  // Lineup chosen to read real numbers from BA-style artist scans;
+  // tracks / territories / ISRCs / singles / EPs have no source field
+  // in the V1 engine output today (see Brief 006). When the engine
+  // starts emitting per-item data the lineup can swap back.
+  // /api/audit raw shape is FLAT (data.appleMusic.albumCount); canonical
+  // nests it under .details. Read both defensively.
   const am = data.appleMusic || {};
-  const cc = am.catalogComparison || (am.details && am.details.catalogComparison) || null;
-  const tracksFound = (cc && typeof cc.tracksChecked === 'number') ? cc.tracksChecked
-                    : (data.trackTitle ? 1 : null);
-  const albumCount  = (typeof am.albumCount === 'number') ? am.albumCount
-                    : (am.details && typeof am.details.albumCount === 'number') ? am.details.albumCount
-                    : null;
-  const releasesFound = albumCount != null ? albumCount
-                      : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
-                         ? data.catalog.totalReleases : null);
-  const territoriesFound = null;  // no source on the V1 engine yet
-  // ISRCs: cc.matched is a count of verified-ISRC tracks (Drake-style
-  // track scans return 10); for an artist scan we fall back to "is there
-  // a single track ISRC on the subject?" (1 or null).
-  const isrcsFound = (cc && typeof cc.matched === 'number') ? cc.matched
-                   : (data.trackIsrc ? 1 : null);
+  const albumCount = (typeof am.albumCount === 'number') ? am.albumCount
+                   : (am.details && typeof am.details.albumCount === 'number') ? am.details.albumCount
+                   : null;
+  const albumsValue = albumCount != null ? albumCount
+                    : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
+                       ? data.catalog.totalReleases : null);
+  const followersValue  = (typeof data.followers === 'number') ? data.followers : null;
+  const modulesReviewed = 6;  // hardcoded: the audit engine runs 6 modules
+  const flagsValue      = (typeof data.flagCount === 'number') ? data.flagCount
+                        : (Array.isArray(data.flags) ? data.flags.length : null);
+  const num = (n) => (n == null ? '—' : Number(n).toLocaleString());
   const statsEl = document.getElementById('os-v-stats');
   if (statsEl) {
     const stats = [
-      { label: 'Tracks',      value: tracksFound      != null ? tracksFound      : '—' },
-      { label: 'Releases',    value: releasesFound    != null ? releasesFound    : '—' },
-      { label: 'Territories', value: territoriesFound != null ? territoriesFound : '—' },
-      { label: 'ISRCs',       value: isrcsFound       != null ? isrcsFound       : '—' },
+      { label: 'Albums',           value: num(albumsValue) },
+      { label: 'Followers',        value: num(followersValue) },
+      { label: 'Modules reviewed', value: num(modulesReviewed) },
+      { label: 'Flags found',      value: num(flagsValue) },
     ];
     statsEl.innerHTML = stats.map(s => `
       <div class="os-stat">
