@@ -99,24 +99,48 @@ export function extractTracks(canonical) {
   return dedup;
 }
 
+// Apple Music doesn't tag releases as Single / EP / Album in a single field,
+// so we classify by track count using the industry-standard convention.
+// 1 track → single · 2–6 tracks → EP · 7+ → album. Unknown trackCount
+// defaults to 'album' (most common case in the wild).
+export function classifyRelease(trackCount) {
+  if (typeof trackCount !== 'number' || trackCount <= 0) return 'album';
+  if (trackCount === 1) return 'single';
+  if (trackCount <= 6)  return 'ep';
+  return                       'album';
+}
+
 export function extractReleases(canonical) {
   if (!canonical) return [];
   const out = [];
-  const subj = canonical.subject || {};
 
+  // 1. Primary source (Brief 008): the per-artist albums list surfaced by
+  //    run-scan.js → normalize. Each item has { id, name, releaseDate,
+  //    trackCount, url }. Read both shapes (raw flat / canonical nested).
+  const am = canonical.platforms && canonical.platforms.appleMusic
+           && canonical.platforms.appleMusic.details
+           ? canonical.platforms.appleMusic.details
+           : canonical.appleMusic || {};
+  const albumList = Array.isArray(am.albums) ? am.albums : [];
+  for (const a of albumList) {
+    const title = a && a.name;
+    if (title) out.push({ title, type: classifyRelease(a.trackCount) });
+  }
+
+  // 2. Secondary sources — single-track scan paths. Subject.albumName +
+  //    isrcLookup.albumName cover the case where the input was a track URL
+  //    (an artist scan won't have these). Default type=album for these
+  //    fallback paths since we don't have trackCount.
+  const subj = canonical.subject || {};
   if (subj.albumName) {
     out.push({ title: subj.albumName, type: 'album' });
   }
-
-  const lookup = canonical.platforms
-    && canonical.platforms.appleMusic
-    && canonical.platforms.appleMusic.details
-    && canonical.platforms.appleMusic.details.isrcLookup;
-  if (lookup && lookup.albumName) {
-    out.push({ title: lookup.albumName, type: 'album' });
+  if (am.isrcLookup && am.isrcLookup.albumName) {
+    out.push({ title: am.isrcLookup.albumName, type: 'album' });
   }
 
-  // De-dup by title.
+  // De-dup by title (first occurrence wins — preserves the rich albums[]
+  // entry over the fallback subject/isrcLookup duplicate).
   const seen = new Set();
   const dedup = [];
   for (const r of out) {

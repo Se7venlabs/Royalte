@@ -2911,16 +2911,42 @@ function _renderV2Findings(flagsArr) {
 function _renderV2Found(data) {
   const gridEl = document.getElementById('os-found-grid');
   if (!gridEl) return;
-  const am = data.appleMusic || {};
-  const cc = am.catalogComparison || (am.details && am.details.catalogComparison) || null;
-  const albumCount = (typeof am.albumCount === 'number') ? am.albumCount
-                   : (am.details && typeof am.details.albumCount === 'number') ? am.details.albumCount
-                   : null;
-  const albums = albumCount != null ? albumCount
-               : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
-                  ? data.catalog.totalReleases : null);
-  const tracks = (cc && typeof cc.tracksChecked === 'number') ? cc.tracksChecked
-                : (data.trackTitle ? 1 : null);
+  // Raw shape vs canonical: data.appleMusic is the raw root object;
+  // data.platforms.appleMusic.details is the canonical-nested form.
+  const am = data.appleMusic || (data.platforms && data.platforms.appleMusic && data.platforms.appleMusic.details) || {};
+  const cc = am.catalogComparison || null;
+
+  // Brief 008 — classify each release from appleMusic.albums[] by track
+  // count: 1 → Single · 2–6 → EP · 7+ → Album. Tracks = sum of trackCount
+  // across all surfaced albums. Falls back to legacy paths when the
+  // albums[] list isn't present (older snapshots / non-Apple-resolved).
+  const albumsList = Array.isArray(am.albums) ? am.albums : [];
+  let cAlbums = 0, cEps = 0, cSingles = 0, cTracks = 0, anyTrackCount = false;
+  for (const a of albumsList) {
+    const tc = (a && typeof a.trackCount === 'number') ? a.trackCount : null;
+    if (tc != null) { anyTrackCount = true; cTracks += tc; }
+    if (tc === 1)        cSingles++;
+    else if (tc != null && tc <= 6) cEps++;
+    else                 cAlbums++;
+  }
+
+  // Albums display — prefer the classified count from albums[]; fall back
+  // to appleMusic.albumCount or catalog.totalReleases when no albums[].
+  const albumsValue = albumsList.length > 0 ? cAlbums
+                    : (typeof am.albumCount === 'number') ? am.albumCount
+                    : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
+                       ? data.catalog.totalReleases : null);
+
+  const epsValue     = albumsList.length > 0 ? cEps     : null;
+  const singlesValue = albumsList.length > 0 ? cSingles : null;
+
+  // Tracks — sum across surfaced releases when track counts are present;
+  // else use catalogComparison.tracksChecked (track-URL scans) or 1 for a
+  // single-track input.
+  const tracksValue = anyTrackCount ? cTracks
+                    : (cc && typeof cc.tracksChecked === 'number') ? cc.tracksChecked
+                    : (data.trackTitle ? 1 : null);
+
   const isrcCoverage = (() => {
     if (cc && typeof cc.matchRate === 'number') {
       if (cc.matchRate >= 95) return 'Complete';
@@ -2939,11 +2965,12 @@ function _renderV2Found(data) {
     if (v === 1) return 'Moderate';
     return 'Unknown';
   })();
+
   const rows = [
-    { label: 'Albums',                value: albums != null ? albums : '—' },
-    { label: 'EPs',                   value: '—' },
-    { label: 'Singles',               value: '—' },
-    { label: 'Tracks',                value: tracks != null ? tracks : '—' },
+    { label: 'Albums',                value: albumsValue  != null ? albumsValue  : '—' },
+    { label: 'EPs',                   value: epsValue     != null ? epsValue     : '—' },
+    { label: 'Singles',               value: singlesValue != null ? singlesValue : '—' },
+    { label: 'Tracks',                value: tracksValue  != null ? tracksValue  : '—' },
     { label: 'ISRC coverage',         value: isrcCoverage },
     { label: 'Catalog availability',  value: catalogAvail },
   ];

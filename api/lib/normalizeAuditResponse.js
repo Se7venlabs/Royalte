@@ -145,6 +145,7 @@ function _normalizePlatforms(r) {
       artistId:          appleMusicDetails.artistId || null,
       artistUrl:         appleMusicDetails.artistUrl || null,
       albumCount:        _num(appleMusicDetails.albumCount),
+      albums:            Array.isArray(appleMusicDetails.albums) ? appleMusicDetails.albums : [],
       catalogComparison: appleMusicDetails.catalogComparison || null,
       isrcLookup:        appleMusicDetails.isrcLookup || null,
     } : null,
