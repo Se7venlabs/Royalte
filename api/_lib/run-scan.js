@@ -657,6 +657,7 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
     let appleArtistUrl = null;
     let appleArtistGenres = [];
     let appleAlbumCount = 0;
+    let appleAlbums = [];
 
     if (artistResp.ok) {
       const artistData = await artistResp.json();
@@ -670,14 +671,25 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
         appleArtistUrl = match.attributes?.url || null;
         appleArtistGenres = match.attributes?.genreNames || [];
 
-        // Get album count
+        // Get album list (up to 25). We previously surfaced only the count;
+        // the full list is the source for V2 releases[] / EPs / Singles /
+        // Tracks (Brief 008). attributes.trackCount lets the consumer side
+        // classify each release: 1 → Single · 2–6 → EP · 7+ → Album.
         const albumResp = await fetch(
           `${BASE}/catalog/${STOREFRONT}/artists/${appleArtistId}/albums?limit=25`,
           { headers }
         );
         if (albumResp.ok) {
           const albumData = await albumResp.json();
-          appleAlbumCount = albumData?.data?.length || 0;
+          const rows = albumData?.data || [];
+          appleAlbumCount = rows.length;
+          appleAlbums = rows.map((a) => ({
+            id:          a.id || null,
+            name:        a.attributes?.name || null,
+            releaseDate: a.attributes?.releaseDate || null,
+            trackCount:  (typeof a.attributes?.trackCount === 'number') ? a.attributes.trackCount : null,
+            url:         a.attributes?.url || null,
+          }));
         }
       }
     }
@@ -743,6 +755,7 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
       artistUrl: appleArtistUrl,
       genres: appleArtistGenres,
       albumCount: appleAlbumCount,
+      albums: appleAlbums,
       isrcLookup: isrcResult,
       catalogComparison,
     };

@@ -491,6 +491,7 @@ const {
   extractReleases,
   extractYoutubeMatches,
   buildCanonicalDataV2,
+  classifyRelease,
 } = await import('../api/_lib/persist-os-scan.js');
 
 // ─── V2 canonical-array extractors (Brief 006) ──────────────────────────────
@@ -564,15 +565,76 @@ const mockTrackScan = {
   assert(tr2.length === 1 && tr2[0].isrc === 'XYZ', 'extractTracks: subject-only path works');
 }
 
-// extractReleases
+// extractReleases (Brief 006 baseline + Brief 008 albums[] path)
 {
-  assert(extractReleases(mockArtistScan).length === 0, 'extractReleases: [] for artist scan with no albumName');
+  assert(extractReleases(mockArtistScan).length === 0, 'extractReleases: [] for artist scan with no albumName + no albums[]');
   const rel = extractReleases(mockTrackScan);
   // subject.albumName and isrcLookup.albumName are identical strings → 1 record.
   assert(rel.length === 1, 'extractReleases: de-dups subject + isrcLookup when title matches');
   assert(rel[0].title === "God's Plan (Sped Up) - Single", 'extractReleases: title preserved');
-  assert(rel[0].type === 'album', 'extractReleases: default type=album');
+  assert(rel[0].type === 'album', 'extractReleases: default type=album for fallback path');
   assert(extractReleases(null).length === 0, 'extractReleases: null-safe');
+}
+
+// classifyRelease — Brief 008 classification (1 → single · 2-6 → ep · 7+ → album)
+{
+  assert(classifyRelease(1)    === 'single', 'classifyRelease: 1 → single');
+  assert(classifyRelease(2)    === 'ep',     'classifyRelease: 2 → ep (lower bound)');
+  assert(classifyRelease(6)    === 'ep',     'classifyRelease: 6 → ep (upper bound)');
+  assert(classifyRelease(7)    === 'album',  'classifyRelease: 7 → album (lower bound)');
+  assert(classifyRelease(14)   === 'album',  'classifyRelease: 14 → album');
+  assert(classifyRelease(0)    === 'album',  'classifyRelease: 0 → album (defensive default)');
+  assert(classifyRelease(null) === 'album',  'classifyRelease: null → album (unknown defaults to album)');
+  assert(classifyRelease()     === 'album',  'classifyRelease: undefined → album');
+}
+
+// extractReleases — Brief 008 albums[] path (raw shape + canonical shape)
+{
+  // Mock matches the engine output after Brief 008 — appleMusic.albums[]
+  // is the per-artist Apple Music album list with attributes.trackCount.
+  const baStyleArtist = {
+    appleMusic: {
+      found: true, albumCount: 4,
+      albums: [
+        { id: '1', name: 'Daylight EP',     trackCount: 4  },
+        { id: '2', name: 'Single Cut',      trackCount: 1  },
+        { id: '3', name: 'Live at Brixton', trackCount: 14 },
+        { id: '4', name: 'The Real Deal',   trackCount: 9  },
+      ],
+    },
+  };
+  const rel = extractReleases(baStyleArtist);
+  assert(rel.length === 4, 'extractReleases: emits 4 releases from albums[] (raw shape)');
+  assert(rel.find(r => r.title === 'Daylight EP').type     === 'ep',     'extractReleases: 4-track album classified as EP');
+  assert(rel.find(r => r.title === 'Single Cut').type      === 'single', 'extractReleases: 1-track album classified as Single');
+  assert(rel.find(r => r.title === 'Live at Brixton').type === 'album',  'extractReleases: 14-track album classified as Album');
+  assert(rel.find(r => r.title === 'The Real Deal').type   === 'album',  'extractReleases: 9-track album classified as Album');
+
+  // Canonical-nested shape (what scan_snapshots.canonical_data carries
+  // after normalize). extractReleases must read either shape.
+  const canonicalShape = {
+    platforms: { appleMusic: { availability: 'VERIFIED', details: {
+      albumCount: 2,
+      albums: [
+        { name: 'A', trackCount: 5 },
+        { name: 'B', trackCount: 1 },
+      ],
+    } } },
+  };
+  const rel2 = extractReleases(canonicalShape);
+  assert(rel2.length === 2, 'extractReleases: reads canonical-nested platforms.appleMusic.details.albums[]');
+  assert(rel2[0].type === 'ep'     && rel2[1].type === 'single', 'extractReleases: classification preserved through canonical path');
+
+  // De-dup behaviour when subject.albumName overlaps with an albums[] title.
+  const overlap = {
+    subject: { albumName: 'Daylight EP' },
+    appleMusic: { albums: [{ name: 'Daylight EP', trackCount: 4 }, { name: 'Other', trackCount: 1 }] },
+  };
+  const relDup = extractReleases(overlap);
+  assert(relDup.length === 2, 'extractReleases: dedups subject.albumName against albums[] entry of same title');
+  // First-occurrence wins → the rich albums[] entry (type='ep') keeps its
+  // classification over the fallback subject entry (type='album').
+  assert(relDup.find(r => r.title === 'Daylight EP').type === 'ep', 'extractReleases: albums[] entry beats subject fallback on de-dup');
 }
 
 // extractYoutubeMatches
