@@ -2879,7 +2879,7 @@ function _renderV2Findings(flagsArr) {
   // Filter V1 platform-presence noise (Wikipedia / AudioDB / Discogs / SoundCloud)
   const v2Flags = (flagsArr || []).filter((f) => {
     const text = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
-    return !/\b(wikipedia|audiodb|discogs|soundcloud)\b/.test(text);
+    return !/\b(wikipedia|audiodb|discogs|soundcloud|musicbrainz)\b/.test(text);
   });
   if (v2Flags.length === 0) {
     findingsEl.innerHTML = '<div class="os-finding-empty">No priority findings detected in this scan. Royaltē OS will continue monitoring for changes.</div>';

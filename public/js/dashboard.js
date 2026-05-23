@@ -584,8 +584,18 @@ function renderLockStrip(data) {
    ───────────────────────────────────────────── */
 
 function renderPlatforms(data) {
-  document.getElementById("platforms-meta").textContent =
-    `Connected: ${data.platformsConnected} of ${data.platformsTotal}`;
+  // Brief 009 — show only platforms with a real verified status.
+  // Anything that would render as a letter-placeholder with no
+  // verified connection (e.g. Deezer on a sparse artist) is dropped.
+  const verified = (data.platforms || []).filter(
+    (p) => p && p.status === 'connected'
+  );
+  const total = (typeof data.platformsTotal === 'number')
+              ? data.platformsTotal
+              : verified.length;
+
+  const metaEl = document.getElementById("platforms-meta");
+  if (metaEl) metaEl.textContent = `Connected: ${verified.length} of ${total}`;
 
   // logo content lookup (first letter / brand mark)
   const LOGO_CHAR = {
@@ -593,16 +603,24 @@ function renderPlatforms(data) {
     soundcloud: "☁", tiktok: "♫"
   };
 
-  const tiles = (data.platforms || []).map(p => `
+  const tiles = verified.map((p) => `
     <div class="platform-tile" data-platform="${p.key}">
       <div class="platform-logo ${p.key}">${LOGO_CHAR[p.key] || (p.name[0] || "?")}</div>
       <div class="platform-name">${escapeHtml(p.name)}</div>
-      <div class="platform-status ${p.status}">${p.status === 'connected' ? 'Connected' : 'Available'}</div>
+      <div class="platform-status ${p.status}">Connected</div>
     </div>
   `).join("");
 
-  // "+N More Platforms" tile
-  const remaining = Math.max(0, data.platformsTotal - data.platforms.length);
+  const gridEl = document.getElementById("platforms-grid");
+  if (!gridEl) return;
+
+  if (verified.length === 0) {
+    gridEl.innerHTML = `<div class="platform-tile" style="grid-column:1/-1;text-align:center;color:var(--muted2);font-size:13px;padding:18px;">No verified platform connections on this scan yet.</div>`;
+    return;
+  }
+
+  // "+N More Platforms" tile when the verified subset is less than total.
+  const remaining = Math.max(0, total - verified.length);
   const moreTile = remaining > 0 ? `
     <div class="platform-tile more">
       <div class="platform-logo more">+${remaining}</div>
@@ -611,7 +629,7 @@ function renderPlatforms(data) {
     </div>
   ` : "";
 
-  document.getElementById("platforms-grid").innerHTML = tiles + moreTile;
+  gridEl.innerHTML = tiles + moreTile;
 }
 
 
@@ -1004,17 +1022,102 @@ function formatNextDate(d) {
    ───────────────────────────────────────────── */
 
 function renderAll(data) {
+  // Brief 009 reset — removed: renderHeroBanner, renderHeroIdentity,
+  // renderGapBasedExposure, renderRecentScan, renderLockStrip,
+  // renderIssues, renderActionPlan. Their DOM was deleted from
+  // dashboard.html. The function definitions are kept (dead code,
+  // harmless) in case any other path references them. Health Score
+  // is rendered separately from init() so it can read from the
+  // raw scan_snapshots row (with .health_score / .score_breakdown).
   renderSidebar(data);
   renderHeader(data);
-  renderHeroBanner(data);
-  renderHeroIdentity(data);
-  renderGapBasedExposure(data.gapExposure);
-  renderRecentScan(data);
-  renderLockStrip(data);
-  renderIssues(data);
-  renderActionPlan(data);
   renderPlatforms(data);
   wireInteractions();
+}
+
+// ── Brief 009: Health Score panel ────────────────────────────────
+// Reads scan_snapshots.health_score directly (set by Brief 002 delta
+// engine). Falls back to 100 − payload.overallScore for snapshots that
+// pre-date the V2 write path. score_breakdown jsonb is rendered as 4
+// sub-bars when present; the breakdown block stays hidden when it's
+// null (most users today — breakdown only populates on scans with a
+// prior baseline to compare against).
+function _healthBand(h) {
+  if (h >= 90) return { className: 'band-excellent', label: 'Excellent' };
+  if (h >= 75) return { className: 'band-strong',    label: 'Strong' };
+  if (h >= 60) return { className: 'band-moderate',  label: 'Moderate' };
+  return                  { className: 'band-review',    label: 'Review recommended' };
+}
+
+const _HEALTH_BUCKETS = [
+  { key: 'catalog_verification', max: 35 },
+  { key: 'big6_coverage',        max: 30 },
+  { key: 'backend_health',       max: 20 },
+  { key: 'youtube_presence',     max: 15 },
+];
+
+function renderHealthScore(scan) {
+  if (!scan) return;
+
+  // Compute health — prefer the persisted score from Brief 002's delta
+  // engine; fall back to inverting the V1 risk score on the payload.
+  let health = null;
+  if (typeof scan.health_score === 'number') {
+    health = Math.max(0, Math.min(100, scan.health_score));
+  } else if (scan.payload && typeof scan.payload.overallScore === 'number') {
+    health = Math.max(0, Math.min(100, 100 - scan.payload.overallScore));
+  }
+  if (health == null) return;
+
+  const band = _healthBand(health);
+  const circleEl = document.getElementById('hsc-circle');
+  if (circleEl) {
+    circleEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
+    circleEl.classList.add(band.className);
+  }
+  const numEl   = document.getElementById('hsc-num');
+  const lblEl   = document.getElementById('hsc-band-label');
+  if (numEl)   numEl.textContent   = String(health);
+  if (lblEl)   lblEl.textContent   = band.label;
+
+  // Last scan timestamp — prefer the scan_snapshots row timestamp;
+  // fall back to payload.scannedAt.
+  const lastEl = document.getElementById('hsc-last-scan');
+  if (lastEl) {
+    const ts = scan.scanned_at || scan.created_at || scan.payload?.scannedAt || null;
+    if (ts) {
+      const d = new Date(ts);
+      if (!isNaN(d.getTime())) {
+        lastEl.textContent = 'Last scan ' + relativeTimePast(d);
+      }
+    }
+  }
+
+  // Score breakdown — hide entirely when null/missing (per Brief 009
+  // founder direction). Show sub-bars when populated by the delta engine.
+  const bdEl = document.getElementById('hsc-breakdown');
+  if (!bdEl) return;
+  const bd = scan.score_breakdown || null;
+  if (!bd || typeof bd !== 'object' || Object.keys(bd).length === 0) {
+    bdEl.hidden = true;
+    return;
+  }
+  bdEl.hidden = false;
+  for (const bucket of _HEALTH_BUCKETS) {
+    const cell = bdEl.querySelector(`.hsc-bd-cell[data-key="${bucket.key}"]`);
+    if (!cell) continue;
+    const raw = (typeof bd[bucket.key] === 'number') ? bd[bucket.key] : null;
+    const fill = cell.querySelector('.hsc-bd-fill');
+    const val  = cell.querySelector('.hsc-bd-val');
+    if (raw == null) {
+      if (fill) fill.style.width = '0%';
+      if (val)  val.textContent  = '—';
+      continue;
+    }
+    const pct = Math.max(0, Math.min(100, (raw / bucket.max) * 100));
+    if (fill) fill.style.width = pct + '%';
+    if (val)  val.textContent  = raw + ' / ' + bucket.max;
+  }
 }
 
 function renderEmptyState() {
@@ -1900,9 +2003,9 @@ async function init() {
   }
   document.body.classList.add("tier-" + profile.tier);
 
-  // Welcome panel + trial banner render on every path — including the no-scan
-  // empty state — so they live outside #scan-content.
-  renderWelcomePanel(profile);
+  // Trial banner + sidebar upgrade render on every path (no scan needed).
+  // The welcome panel was removed in Brief 009 — the Health Score panel
+  // inside #scan-content now takes the top position.
   renderTrialBanner(profile);
   renderSidebarUpgrade(profile);
 
@@ -1912,8 +2015,12 @@ async function init() {
     renderEmptyState();
   } else {
     renderAll(mapCanonicalToDashboard(scan.payload));
-    // Block G.1 — Artist Footprint reads the raw canonical payload directly.
-    renderArtistFootprint(scan.payload);
+    // Brief 009 — Health Score panel reads scan_snapshots.health_score
+    // directly (falls back to 100 - overallScore on snapshots from before
+    // the V2 write path); breakdown sub-bars hide when score_breakdown is
+    // null. Brief 009 also removed the V1 Backend Intelligence section
+    // (renderArtistFootprint) — no longer called.
+    renderHealthScore(scan);
     // Block D — Monitoring section (tier + monitoring_status aware).
     await loadMonitoringState(supabase, session.user.id, profile, scan);
 

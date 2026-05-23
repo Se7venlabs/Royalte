@@ -619,7 +619,60 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
   text-transform:uppercase;letter-spacing:0.02em;
   color:#fff;margin:0 0 8px;
 }
-.upgrade-placeholder p{font-size:13px;color:var(--muted2);margin:0;}
+.upgrade-placeholder p{font-size:13px;color:var(--muted2);margin:0 0 14px;}
+.upgrade-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;
+  padding:11px 18px;border-radius:6px;text-decoration:none;
+  background:rgba(138,92,255,0.10);color:var(--pur);
+  border:2px solid var(--pur);transition:background 0.15s ease;
+}
+.upgrade-cta:hover{background:rgba(138,92,255,0.20);}
+
+/* ── Health Score panel — Brief 009 ───────────────────────────── */
+.health-score-card{padding:22px 24px;}
+.hsc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
+.hsc-titles{display:flex;flex-direction:column;gap:4px;}
+.hsc-eyebrow{
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);
+}
+.hsc-band-label{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:0.01em;line-height:1.1;}
+.hsc-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:12px;color:var(--muted2);}
+.hsc-last-scan{}
+.hsc-scan-again{color:var(--pur);text-decoration:none;font-weight:600;}
+.hsc-scan-again:hover{text-decoration:underline;}
+.hsc-body{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;padding:6px 0;}
+.hsc-circle{
+  width:96px;height:96px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,0.04);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:3px solid var(--grn);
+}
+.hsc-circle.band-excellent{border-color:var(--grn);}
+.hsc-circle.band-strong   {border-color:var(--cyn);}
+.hsc-circle.band-moderate {border-color:var(--amb);}
+.hsc-circle.band-review   {border-color:var(--red);}
+.hsc-num{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;line-height:1;color:#fff;}
+.hsc-circle.band-excellent .hsc-num{color:var(--grn);}
+.hsc-circle.band-strong    .hsc-num{color:var(--cyn);}
+.hsc-circle.band-moderate  .hsc-num{color:var(--amb);}
+.hsc-circle.band-review    .hsc-num{color:var(--red);}
+.hsc-unit{font-size:10px;color:var(--muted);letter-spacing:0.04em;margin-top:2px;}
+.hsc-desc{font-size:13px;color:var(--muted2);line-height:1.6;margin:0;}
+.hsc-breakdown{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:10px 18px;
+  padding:14px 0 0;margin-top:18px;border-top:1px solid var(--border3);
+}
+.hsc-bd-cell{display:flex;flex-direction:column;gap:4px;}
+.hsc-bd-label{font-size:11px;color:var(--muted2);font-weight:500;letter-spacing:0.02em;}
+.hsc-bd-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.hsc-bd-fill{height:100%;width:0;background:var(--pur);transition:width 0.5s ease;}
+.hsc-bd-val{font-family:'Space Mono',monospace;font-size:11px;color:var(--text);text-align:right;}
+@media (max-width:720px){
+  .hsc-breakdown{grid-template-columns:1fr;}
+  .hsc-meta{align-items:flex-start;}
+}
 
 /* ─── BLOCK D — MONITORING ─────────────────────────────────── */
 .monitoring-card{margin-bottom:18px;}
@@ -880,16 +933,8 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
         </div>
       </header>
 
-      <!-- ─── WELCOME PANEL (V5 Phase 2) ─── -->
-      <section class="welcome-panel fade-in d0">
-        <div class="welcome-panel-inner">
-          <div class="welcome-panel-badge">Early Access Beta Phase</div>
-          <h1 class="welcome-panel-title">Royaltē OS</h1>
-          <p class="welcome-panel-tagline">Your music backend, monitored.</p>
-          <p class="welcome-panel-intelligence">Your audit is saved here. Monitoring tracks what changes after the snapshot.</p>
-          <p class="welcome-panel-sub" id="welcome-panel-sub"></p>
-        </div>
-      </section>
+      <!-- Welcome panel removed (Brief 009) — Health Score panel inside
+           #scan-content now takes the top position. -->
 
       <!-- Block D.2 — trial countdown. Outside #scan-content so it survives
            the no-scan empty state (a first-login trial user has no scan yet). -->
@@ -908,323 +953,62 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
       <!-- scan-dependent content — swapped for the empty state when no scan exists -->
       <div id="scan-content">
 
-      <!-- ─── HERO BANNER ─── -->
-      <section class="hero-banner fade-in d1" id="hero-banner">
-        <!-- score block -->
-        <div class="hero-score-block">
-          <div class="score-ring">
-            <svg width="88" height="88" viewBox="0 0 88 88">
-              <circle cx="44" cy="44" r="38" fill="none" stroke="rgba(138,92,255,0.1)" stroke-width="6"/>
-              <circle id="score-arc" cx="44" cy="44" r="38" fill="none" stroke="url(#score-grad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="238.76" stroke-dashoffset="238.76"/>
-              <defs>
-                <linearGradient id="score-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#8a5cff"/>
-                  <stop offset="100%" stop-color="#e040c8"/>
-                </linearGradient>
-              </defs>
-            </svg>
-            <div class="score-ring-inner">
-              <div class="score-ring-val" id="score-val">—</div>
-              <div class="score-ring-lbl">Score</div>
-            </div>
+      <!-- ─── HEALTH SCORE PANEL (Brief 009) ───
+           Populated by renderHealthScore(scan) in dashboard.js using
+           scan_snapshots.health_score (set by Brief 002 delta engine);
+           falls back to 100 − scan.payload.overallScore for snapshots
+           that pre-date the V2 write path. Breakdown sub-bars hidden
+           until score_breakdown jsonb is populated. -->
+      <section class="card health-score-card fade-in d0" id="health-score-card">
+        <div class="hsc-head">
+          <div class="hsc-titles">
+            <div class="hsc-eyebrow">Royaltē Health Score&trade;</div>
+            <div class="hsc-band-label" id="hsc-band-label">—</div>
           </div>
-          <div class="hero-score-info">
-            <div class="hero-score-tag">Overall Score</div>
-            <div class="hero-score-h" id="score-headline">Loading…</div>
-            <button class="hero-score-link" data-jump="issues">
-              Review your risk areas
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </button>
+          <div class="hsc-meta">
+            <div class="hsc-last-scan" id="hsc-last-scan">Last scan —</div>
+            <a href="/" class="hsc-scan-again">Scan again →</a>
           </div>
         </div>
-
-        <aside class="hero-identity" id="hero-identity">
-          <!-- populated by dashboard.js (renderHeroIdentity) -->
-        </aside>
-
-        <div class="hero-stat primary">
-          <div class="hero-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-          <div class="hero-stat-body">
-            <div class="hero-stat-lbl">Gap-Based Exposure</div>
-            <div class="hero-stat-val" id="stat-revenue">—</div>
-            <div class="hero-stat-sub high" id="stat-revenue-tier">—</div>
-            <div class="hero-stat-conf" id="stat-revenue-conf">—</div>
+        <div class="hsc-body">
+          <div class="hsc-circle band-excellent" id="hsc-circle">
+            <div class="hsc-num" id="hsc-num">—</div>
+            <div class="hsc-unit">/ 100</div>
           </div>
+          <p class="hsc-desc" id="hsc-desc">Score reflects what Royaltē can verify from public catalog data. It is not a royalty estimate, revenue prediction, or popularity score.</p>
         </div>
-
-        <div class="hero-stat">
-          <div class="hero-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-          <div class="hero-stat-body">
-            <div class="hero-stat-lbl">Issues Found</div>
-            <div class="hero-stat-val" id="stat-issues">—</div>
-            <div class="hero-stat-sub bad">Needs attention</div>
+        <div class="hsc-breakdown" id="hsc-breakdown" hidden>
+          <div class="hsc-bd-cell" data-key="catalog_verification">
+            <div class="hsc-bd-label">Catalog Verification</div>
+            <div class="hsc-bd-bar"><div class="hsc-bd-fill"></div></div>
+            <div class="hsc-bd-val">—</div>
           </div>
-        </div>
-
-        <div class="hero-stat">
-          <div class="hero-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-          <div class="hero-stat-body">
-            <div class="hero-stat-lbl">Things Working</div>
-            <div class="hero-stat-val" id="stat-working">—</div>
-            <div class="hero-stat-sub good">Verified</div>
+          <div class="hsc-bd-cell" data-key="big6_coverage">
+            <div class="hsc-bd-label">BIG 6 Coverage</div>
+            <div class="hsc-bd-bar"><div class="hsc-bd-fill"></div></div>
+            <div class="hsc-bd-val">—</div>
+          </div>
+          <div class="hsc-bd-cell" data-key="backend_health">
+            <div class="hsc-bd-label">Backend Health</div>
+            <div class="hsc-bd-bar"><div class="hsc-bd-fill"></div></div>
+            <div class="hsc-bd-val">—</div>
+          </div>
+          <div class="hsc-bd-cell" data-key="youtube_presence">
+            <div class="hsc-bd-label">YouTube Presence</div>
+            <div class="hsc-bd-bar"><div class="hsc-bd-fill"></div></div>
+            <div class="hsc-bd-val">—</div>
           </div>
         </div>
       </section>
 
-      <!-- ─── BACKEND INTELLIGENCE (V3 Section 1) ─── -->
-      <section class="card fade-in d2" id="artist-footprint">
-        <div class="card-hd">
-          <h2 class="card-title">Backend Intelligence</h2>
-        </div>
-        <p class="card-sub">Your verified backend footprint across the music network.</p>
-
-        <div class="bi-section">
-          <div class="bi-section-header">Status</div>
-          <div class="bi-status-row">
-            <span class="bi-dot-strip" id="bi-status-dots"></span>
-            <span class="bi-row-value" id="bi-status-counts">—</span>
-          </div>
-          <div class="bi-status-row">
-            <span class="bi-row-label">Backend Confidence</span>
-            <span class="bi-confidence-tier" id="bi-confidence-tier">—</span>
-          </div>
-        </div>
-
-        <div class="bi-section">
-          <div class="bi-section-header">Verified Presence</div>
-          <div class="bi-assertion-list" id="bi-assertion-list"></div>
-        </div>
-
-        <div class="bi-section">
-          <div class="bi-section-header">Audience Intelligence</div>
-          <div class="bi-row-grid">
-            <div class="bi-row">
-              <span class="bi-row-label">Global Listener Footprint</span>
-              <span class="bi-row-value" id="bi-row-listener-footprint">—</span>
-            </div>
-            <div class="bi-row">
-              <span class="bi-row-label">Verified Play History</span>
-              <span class="bi-row-value" id="bi-row-play-history">—</span>
-            </div>
-            <div class="bi-row">
-              <span class="bi-row-label">Cross-platform Audience Signal</span>
-              <span class="bi-row-value" id="bi-row-audience-signal">—</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="bi-section">
-          <div class="bi-section-header">Metadata &amp; Catalog</div>
-          <div class="bi-row-grid">
-            <div class="bi-row">
-              <span class="bi-row-label">Catalog Depth</span>
-              <span class="bi-row-value" id="bi-row-catalog-depth">—</span>
-            </div>
-            <div class="bi-row">
-              <span class="bi-row-label">Metadata Integrity</span>
-              <span class="bi-row-value" id="bi-row-metadata-integrity">—</span>
-            </div>
-            <div class="bi-row">
-              <span class="bi-row-label">Release Identifier Coverage</span>
-              <span class="bi-row-value" id="bi-row-identifier-coverage">—</span>
-            </div>
-            <div class="bi-row">
-              <span class="bi-row-label">Cross-platform Metadata Consistency</span>
-              <span class="bi-row-value" id="bi-row-consistency">—</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="bi-section">
-          <div class="bi-section-header" id="bi-observations-count">Backend Observations</div>
-          <div id="bi-observations-container"></div>
-        </div>
-
-        <p class="bi-summary" id="bi-summary"></p>
-      </section>
-
-      <!-- ─── REVENUE + RECENT SCAN ─── -->
-      <div class="grid-2">
-        <!-- Gap-Based Exposure -->
-        <section class="card fade-in d3 gated-section">
-          <div class="card-hd">
-            <h2 class="card-title">
-              Gap-Based Exposure
-              <svg class="card-title-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            </h2>
-          </div>
-          <div class="gbe-body" id="gbe-body">
-            <!-- populated by dashboard.js renderGapBasedExposure() -->
-          </div>
-
-          <div class="lock-overlay">
-            <div class="lock-icon" aria-hidden="true">🔒</div>
-            <button class="lock-cta" type="button" data-lock-cta>Unlock Full Audit →</button>
-          </div>
-        </section>
-
-        <!-- Recent Scan -->
-        <section class="card recent-scan fade-in d4">
-          <div class="card-hd">
-            <h2 class="card-title">Recent Scan</h2>
-          </div>
-          <p class="recent-scan-meta" id="recent-scan-meta">—</p>
-
-          <div class="scan-status">
-            <div class="scan-status-ico">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="scan-status-text">
-              <div class="scan-status-h">Scan completed</div>
-              <div class="scan-status-d">We analyzed your setup across 10+ verified data sources</div>
-            </div>
-          </div>
-
-          <button class="scan-btn" data-jump="report" style="background:var(--grad);">
-            View Full Audit Report
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-
-          <div class="next-scan">
-            <span class="next-scan-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-            <span class="next-scan-text">Next recommended scan: <strong id="next-scan-date">—</strong></span>
-          </div>
-        </section>
-      </div>
-
-      <!-- ─── LOCK STRIP (between Revenue row and Issues row) ─── -->
-      <div class="lock-strip fade-in d5" id="lock-strip" style="display:none;">
-        <div class="lock-strip-ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        </div>
-        <div class="lock-strip-body">
-          <div class="lock-strip-h" id="lock-strip-h">Want the full picture?</div>
-          <div class="lock-strip-d" id="lock-strip-d">Loading…</div>
-        </div>
-        <a href="/#request" class="lock-strip-cta" data-unlock="lock-strip" data-lock-cta>
-          Unlock Full Audit
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
-      </div>
-
-      <!-- ─── ISSUES + ACTION PLAN ─── -->
-      <div class="grid-2-eq">
-        <!-- Top Issues -->
-        <section class="card fade-in d5" id="issues-card">
-          <div class="card-hd">
-            <h2 class="card-title">
-              Top Issues Found
-              <span class="card-pill count" id="issues-count">0</span>
-            </h2>
-            <a href="/#request" class="view-all" data-unlock="issues-view-all">
-              View All Issues
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </a>
-          </div>
-
-          <div class="issues-list" id="issues-list">
-            <!-- populated by dashboard.js -->
-          </div>
-
-          <a class="issues-locked-overflow" id="issues-locked-overflow" href="/#request" data-unlock="issues-overflow" data-lock-cta style="display:none;">
-            <div class="issues-locked-ico">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
-            <div class="issues-locked-text">
-              <div class="issues-locked-h" id="issues-locked-h">— more issues hidden</div>
-              <div class="issues-locked-d">Unlock Full Audit to see them all</div>
-            </div>
-            <div class="issues-locked-arrow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </div>
-          </a>
-        </section>
-
-        <!-- Action Plan (locked) -->
-        <section class="card fade-in d6">
-          <div class="card-hd">
-            <h2 class="card-title">Action Plan</h2>
-          </div>
-          <p class="card-sub">Address these to reduce risk in your royalty flow</p>
-
-          <div class="action-locked-wrap" id="action-locked-wrap">
-            <div class="action-list action-locked-preview" id="action-list">
-              <!-- populated by dashboard.js (rendered as blurred preview when locked) -->
-            </div>
-            <div class="action-locked-overlay" id="action-locked-overlay">
-              <div class="action-locked-ico">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              </div>
-              <div class="action-locked-h">Action Plan Locked</div>
-              <div class="action-locked-d" id="action-locked-d">Your full step-by-step plan to address unclaimed setup issues is in the Full Audit.</div>
-              <a href="/#request" class="action-locked-cta" data-unlock="action-plan" data-lock-cta>
-                Unlock Full Action Plan
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </a>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <!-- ── Statement Upload (preview / locked) ── -->
-      <section class="card statement-upload-card fade-in d5" aria-label="Statement Upload">
-        <div class="card-hd">
-          <h2 class="card-title">
-            Statement Upload
-            <span class="badge-soon">Coming Soon</span>
-          </h2>
-        </div>
-        <p class="card-sub">Upload a PRO, DSP, or royalty statement to expand your audit scope and improve risk confidence.</p>
-
-        <div class="statement-upload-body">
-          <div class="statement-upload-ico" aria-hidden="true">
-            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 6h16l8 8v24a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4z"/>
-              <path d="M30 6v8h8"/>
-              <line x1="20" y1="24" x2="32" y2="24"/>
-              <line x1="20" y1="30" x2="32" y2="30"/>
-              <line x1="20" y1="36" x2="28" y2="36"/>
-            </svg>
-          </div>
-
-          <div class="statement-upload-types">
-            <div class="statement-type">PRO statements</div>
-            <div class="statement-type">DSP statements</div>
-            <div class="statement-type">Distributor reports</div>
-            <div class="statement-type">Publishing statements</div>
-            <div class="statement-type">Royalty accounting</div>
-          </div>
-
-          <p class="statement-upload-helper">Compare reported earnings against detected backend risks, expand analysis, and improve confidence in your Revenue Risk estimate.</p>
-
-          <button class="statement-upload-btn" disabled aria-disabled="true">
-            Statement Upload — Coming Soon
-          </button>
-        </div>
-      </section>
-
-      <!-- ─── PLATFORMS ─── -->
-      <section class="card platforms-card fade-in d6 gated-section">
-        <div class="card-hd">
-          <h2 class="card-title">
-            Your Platforms
-            <span class="platforms-meta" id="platforms-meta">— of —</span>
-          </h2>
-          <button class="manage-link">
-            Manage Connections
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-
-        <div class="platforms-grid" id="platforms-grid">
-          <!-- populated by dashboard.js -->
-        </div>
-
-        <div class="lock-overlay">
-          <div class="lock-icon" aria-hidden="true">🔒</div>
-          <button class="lock-cta" type="button" data-lock-cta>Unlock Full Audit →</button>
-        </div>
-      </section>
+      <!-- ─── V1 SECTIONS REMOVED (Brief 009) ───
+           Hero banner (75% risk score + Issues Found / Things Working stat
+           cards) · Backend Intelligence (Verified Presence / Audience
+           Intelligence / Metadata & Catalog / Backend Observations) ·
+           Gap-Based Exposure card · Recent Scan card · Lock Strip
+           (Unlock Full Audit promo) · Top Issues Found · Action Plan ·
+           Statement Upload "coming soon". All replaced by the V2
+           Health Score panel above. -->
 
       <!-- ─── MONITORING (Block D) ─── -->
       <section id="monitoring" class="card monitoring-card fade-in d6">
@@ -1270,6 +1054,30 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
       <section id="backend-protection-section">
         <div id="backend-protection-panel"></div>
       </section>
+
+      <!-- ─── PLATFORMS ─── -->
+      <section class="card platforms-card fade-in d6 gated-section">
+        <div class="card-hd">
+          <h2 class="card-title">
+            Your Platforms
+            <span class="platforms-meta" id="platforms-meta">— of —</span>
+          </h2>
+          <button class="manage-link">
+            Manage Connections
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+
+        <div class="platforms-grid" id="platforms-grid">
+          <!-- populated by dashboard.js — renderPlatforms() filters out
+               sources with no verified connection (Brief 009). -->
+        </div>
+
+        <div class="lock-overlay">
+          <div class="lock-icon" aria-hidden="true">🔒</div>
+          <button class="lock-cta" type="button" data-lock-cta>Unlock Full Audit →</button>
+        </div>
+      </section>
       </div><!-- /scan-content -->
 
       <!-- ─── FOOTER NOTE ─── -->
@@ -1278,10 +1086,11 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
         Royaltē <u>does not</u> collect money. <strong>We identify problems and give you the action plan to fix them.</strong>
       </div>
 
-      <!-- ── Upgrade placeholder — CTA anchor target until Block C ── -->
+      <!-- ── Upgrade section — Brief 009 copy update ── -->
       <section id="upgrade" class="upgrade-placeholder">
-        <h2>Upgrade to unlock the full Royaltē OS</h2>
-        <p>Pricing and checkout coming soon.</p>
+        <h2>Royaltē OS is live</h2>
+        <p>You're in early access. Founding Artist pricing is $19.99/month. Full monitoring, change detection, and catalog protection — active now.</p>
+        <a href="/pricing" class="upgrade-cta">Manage Subscription →</a>
       </section>
 
       <!-- ─── FOUNDING ARTIST PRICING (V5 Phase 2) ─── -->
