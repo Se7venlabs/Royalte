@@ -664,6 +664,11 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
   display:grid;grid-template-columns:repeat(2,1fr);gap:10px 18px;
   padding:14px 0 0;margin-top:18px;border-top:1px solid var(--border3);
 }
+/* Override the default [hidden] vs class-display specificity conflict —
+   without this, `.hsc-breakdown[hidden]` stays visible because the
+   .hsc-breakdown rule above wins over the generic [hidden]{display:none}
+   browser default. */
+.hsc-breakdown[hidden]{display:none;}
 .hsc-bd-cell{display:flex;flex-direction:column;gap:4px;}
 .hsc-bd-label{font-size:11px;color:var(--muted2);font-weight:500;letter-spacing:0.02em;}
 .hsc-bd-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}

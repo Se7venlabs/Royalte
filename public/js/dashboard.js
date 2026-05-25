@@ -1060,12 +1060,22 @@ function renderHealthScore(scan) {
   if (!scan) return;
 
   // Compute health — prefer the persisted score from Brief 002's delta
-  // engine; fall back to inverting the V1 risk score on the payload.
+  // engine; fall back to inverting the canonical risk score. The
+  // canonical payload exposes the risk score as payload.score.overall
+  // (an object with overall / riskLevel / moduleAverage / etc.); older
+  // raw-shape snapshots used the flat payload.overallScore number.
+  // Read both shapes.
   let health = null;
   if (typeof scan.health_score === 'number') {
     health = Math.max(0, Math.min(100, scan.health_score));
-  } else if (scan.payload && typeof scan.payload.overallScore === 'number') {
-    health = Math.max(0, Math.min(100, 100 - scan.payload.overallScore));
+  } else {
+    const p = scan.payload || {};
+    const overall = (p.score && typeof p.score.overall === 'number') ? p.score.overall
+                  : (typeof p.overallScore === 'number')              ? p.overallScore
+                  : null;
+    if (overall != null) {
+      health = Math.max(0, Math.min(100, 100 - overall));
+    }
   }
   if (health == null) return;
 
@@ -1099,6 +1109,17 @@ function renderHealthScore(scan) {
   if (!bdEl) return;
   const bd = scan.score_breakdown || null;
   if (!bd || typeof bd !== 'object' || Object.keys(bd).length === 0) {
+    bdEl.hidden = true;
+    return;
+  }
+  // Hide when every bucket is still at its max default — that's the
+  // "no comparable scan yet" state (Brief 002's computeScores
+  // initialises each bucket at max and only deducts on alerts; a
+  // baseline scan with no prior snapshot to diff against ends up
+  // all-at-max, which would otherwise render as "100% on everything"
+  // — misleading).
+  const allAtMax = _HEALTH_BUCKETS.every((b) => bd[b.key] === b.max);
+  if (allAtMax) {
     bdEl.hidden = true;
     return;
   }
@@ -1139,9 +1160,12 @@ async function loadLatestScan(supabase, userId) {
   // there. Falls back to audit_scans for any user without a snapshot yet.
   // TODO(post-Block-D): drop the audit_scans fallback once snapshot coverage
   // is confirmed for all users (tracked in LAUNCH_CHECKLIST Block D follow-ups).
+  // Brief 009 — health_score + score_breakdown are required by the
+  // Health Score panel. scanned_at + artist_id + artist_name are V2
+  // columns added in Brief 001 and used by downstream code paths.
   const { data: snapshots, error } = await supabase
     .from("scan_snapshots")
-    .select("id, payload, created_at, sequence_number")
+    .select("id, payload, created_at, sequence_number, health_score, score_breakdown, scanned_at, artist_id, artist_name")
     .eq("user_id", userId)
     .order("sequence_number", { ascending: false })
     .limit(1);
