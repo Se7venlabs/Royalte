@@ -30,22 +30,25 @@ function ensureStylesInjected() {
   style.id = STYLE_ID;
   style.textContent = `
 .os-protection-panel{
-  /* Brief's tokens, scoped to the panel only — see header comment for why. */
-  --color-background-primary:#ffffff;
-  --color-background-secondary:#f4f4f8;
-  --color-background-danger:#fdecec;
-  --color-background-warning:#fef5e7;
-  --color-background-success:#e8f6ee;
-  --color-text-primary:#0e0b1e;
-  --color-text-secondary:#5d5b7a;
-  --color-text-tertiary:#7c7898;
-  --color-text-danger:#b1271c;
-  --color-text-warning:#8a5a13;
-  --color-text-success:#15663b;
-  --color-border:rgba(20,20,40,0.10);
-  --color-success-dot:#15a35d;
-  --color-active-dot:#15a35d;
-  --color-inactive-dot:#a4a3b3;
+  /* Brief 009 — dark-themed for the dashboard. Same scoped-token approach
+     as before, palette swapped from white-card to dark-frosted to match
+     the dashboard's existing .card aesthetic. The component remains
+     drop-in usable elsewhere — only the palette values changed. */
+  --color-background-primary:rgba(255,255,255,0.04);
+  --color-background-secondary:rgba(255,255,255,0.06);
+  --color-background-danger:rgba(240,80,96,0.12);
+  --color-background-warning:rgba(240,192,64,0.12);
+  --color-background-success:rgba(64,240,160,0.12);
+  --color-text-primary:#e8e4f4;
+  --color-text-secondary:#b0abd0;
+  --color-text-tertiary:#8480a8;
+  --color-text-danger:#f05060;
+  --color-text-warning:#f0c040;
+  --color-text-success:#40f0a0;
+  --color-border:rgba(138,92,255,0.25);
+  --color-success-dot:#40f0a0;
+  --color-active-dot:#40f0a0;
+  --color-inactive-dot:#8480a8;
   --osp-fs-sm:12px;
   --osp-fs-md:14px;
   --osp-fs-lg:18px;
@@ -53,14 +56,14 @@ function ensureStylesInjected() {
 
   background:var(--color-background-primary);
   color:var(--color-text-primary);
-  border:0.5px solid var(--color-border);
+  border:1px solid var(--color-border);
   border-radius:12px;
   padding:1.25rem;
   font-family:'Space Grotesk',system-ui,sans-serif;
   font-size:var(--osp-fs-md);
   line-height:1.5;
   margin:24px 0;
-  box-shadow:0 1px 0 rgba(255,255,255,0.04), 0 12px 36px rgba(0,0,0,0.18);
+  box-shadow:0 1px 0 rgba(255,255,255,0.03), 0 16px 40px rgba(0,0,0,0.32);
 }
 
 .os-protection-panel *{box-sizing:border-box;}
