@@ -10,6 +10,10 @@
     "api/cron/rescan.js": {
       "maxDuration": 300,
       "includeFiles": "api/apple-token.js"
+    },
+    "api/cron/scan-subscription.js": {
+      "maxDuration": 60,
+      "includeFiles": "api/apple-token.js"
     }
   },
   "crons": [
@@ -40,6 +44,10 @@
     {
       "src": "/api/cron/rescan",
       "dest": "/api/cron/rescan.js"
+    },
+    {
+      "src": "/api/cron/scan-subscription",
+      "dest": "/api/cron/scan-subscription.js"
     },
     {
       "src": "/api/founding-artist/reserve",
