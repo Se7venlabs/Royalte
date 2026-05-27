@@ -3,6 +3,11 @@ import { generateAppleToken } from './apple-token.js';
 const APPLE_MUSIC_API = 'https://api.music.apple.com/v1';
 const STOREFRONT = 'us';
 
+// Brief 011 — BIG 6 storefronts: the seven regions that represent the
+// majority of global streaming revenue. Order is region-grouped so that
+// downstream consumers (dashboard, tests) can iterate predictably.
+const BIG6_STOREFRONTS = ['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au'];
+
 async function appleRequest(path) {
   const token = generateAppleToken();
   const res = await fetch(`${APPLE_MUSIC_API}${path}`, {
@@ -209,10 +214,61 @@ async function compareSpotifyToApple(spotifyTracks = []) {
   return results;
 }
 
+/**
+ * Brief 011 — Check album availability across the BIG 6 storefronts.
+ *
+ * Accepts a pre-built `headers` object (with the same Apple Music JWT used
+ * by the caller) so all 7 parallel storefront calls share one token (Option
+ * A from the Brief 011 findings report). Single-storefront errors are
+ * isolated to that storefront (Option α) — that entry returns
+ * `{ available: [], unavailable: [], error: <msg> }` and the other 6
+ * continue. The dashboard renders an errored storefront as "—".
+ *
+ * @param {string[]} albumIds   Apple Music album IDs (≤ 25 — fits one batch
+ *                              per storefront via `?ids=` query param).
+ * @param {Object}   headers    Fetch headers with Authorization: Bearer.
+ * @returns {Promise<Object>}   { us:{available,unavailable}, ca:{…}, … }
+ */
+async function checkStorefrontAvailability(albumIds, headers) {
+  // Empty / invalid input → return shape-stable empty result for every
+  // storefront so the consumer always sees the same key set.
+  const empty = () => BIG6_STOREFRONTS.reduce((acc, sf) => {
+    acc[sf] = { available: [], unavailable: [] };
+    return acc;
+  }, {});
+  if (!Array.isArray(albumIds) || albumIds.length === 0) return empty();
+
+  const idsParam = albumIds.join(',');
+
+  const results = await Promise.all(BIG6_STOREFRONTS.map(async (sf) => {
+    try {
+      const res = await fetch(
+        `${APPLE_MUSIC_API}/catalog/${sf}/albums?ids=${idsParam}`,
+        { headers }
+      );
+      if (!res.ok) {
+        return [sf, { available: [], unavailable: [], error: `HTTP ${res.status}` }];
+      }
+      const data = await res.json();
+      const rows = (data && Array.isArray(data.data)) ? data.data : [];
+      const available = rows.map((r) => r && r.id).filter(Boolean);
+      const availableSet = new Set(available);
+      const unavailable = albumIds.filter((id) => !availableSet.has(id));
+      return [sf, { available, unavailable }];
+    } catch (err) {
+      return [sf, { available: [], unavailable: [], error: err.message }];
+    }
+  }));
+
+  return Object.fromEntries(results);
+}
+
 export {
   searchArtist,
   getArtistAlbums,
   lookupByISRC,
   searchTrack,
   compareSpotifyToApple,
+  checkStorefrontAvailability,
+  BIG6_STOREFRONTS,
 };

@@ -1141,6 +1141,119 @@ function renderHealthScore(scan) {
   }
 }
 
+// ── Brief 011: BIG 6 territory panel ──────────────────────────────
+// Reads scan.payload.platforms.appleMusic.details.storefrontAvailability
+// (the per-storefront {available, unavailable} buckets produced by
+// apple-music.js checkStorefrontAvailability). For each of the 7
+// territories the dashboard shows ✓ (all albums), ⚠ N of M, ✗ (none),
+// or — (storefront errored or data absent). Clicking a territory
+// toggles a drilldown showing which specific album names are
+// unavailable there (resolved against appleMusic.details.albums[]).
+const _BIG6_TERRITORIES = ['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au'];
+
+function renderBig6(scan) {
+  const card = document.getElementById('big6-card');
+  if (!card) return;
+
+  const am = (scan && scan.payload && scan.payload.platforms
+              && scan.payload.platforms.appleMusic
+              && scan.payload.platforms.appleMusic.details) || {};
+  const sfa = am.storefrontAvailability || null;
+  const albums = Array.isArray(am.albums) ? am.albums : [];
+  const albumNameById = Object.fromEntries(albums.map((a) => [a.id, a.name || a.id]));
+  const drilldown = document.getElementById('big6-drilldown');
+  const emptyEl = document.getElementById('big6-empty');
+
+  if (!sfa) {
+    // Older scan (pre-Brief-011) — no storefront data. Show empty state;
+    // territory rows stay disabled with "—".
+    if (emptyEl) emptyEl.hidden = false;
+    for (const sf of _BIG6_TERRITORIES) {
+      const btn = card.querySelector(`.big6-territory[data-storefront="${sf}"]`);
+      if (btn) btn.disabled = true;
+    }
+    return;
+  }
+  if (emptyEl) emptyEl.hidden = true;
+
+  for (const sf of _BIG6_TERRITORIES) {
+    const btn = card.querySelector(`.big6-territory[data-storefront="${sf}"]`);
+    const statusEl = card.querySelector(`.big6-status[data-status-for="${sf}"]`);
+    if (!btn || !statusEl) continue;
+
+    const data = sfa[sf];
+    statusEl.classList.remove('big6-ok','big6-partial','big6-none','big6-na');
+    btn.disabled = false;
+
+    if (!data || data.error) {
+      statusEl.textContent = '—';
+      statusEl.classList.add('big6-na');
+      btn.disabled = true;
+      continue;
+    }
+    const avail = (data.available || []).length;
+    const unavail = (data.unavailable || []).length;
+    const total = avail + unavail;
+    if (total === 0) {
+      statusEl.textContent = '—';
+      statusEl.classList.add('big6-na');
+      btn.disabled = true;
+    } else if (avail === total) {
+      statusEl.textContent = '✓';
+      statusEl.classList.add('big6-ok');
+      // No unavailable albums → keep button enabled for drilldown but
+      // there's nothing to show; leave clickable for symmetry.
+    } else if (avail === 0) {
+      statusEl.textContent = '✗';
+      statusEl.classList.add('big6-none');
+    } else {
+      statusEl.textContent = `⚠ ${avail}/${total}`;
+      statusEl.classList.add('big6-partial');
+    }
+  }
+
+  // Drilldown wiring — click a territory to show which albums are
+  // unavailable there. Same button click toggles closed.
+  card.querySelectorAll('.big6-territory').forEach((btn) => {
+    if (btn.dataset.big6Wired === '1') return;
+    btn.dataset.big6Wired = '1';
+    btn.addEventListener('click', () => {
+      const sf = btn.dataset.storefront;
+      const data = sfa[sf];
+      const wasOpen = btn.classList.contains('is-open');
+      card.querySelectorAll('.big6-territory.is-open').forEach((b) => b.classList.remove('is-open'));
+      if (wasOpen) {
+        if (drilldown) drilldown.hidden = true;
+        return;
+      }
+      btn.classList.add('is-open');
+      if (!drilldown) return;
+      if (!data || data.error) {
+        drilldown.innerHTML = `<div class="big6-drilldown-h">${escapeHtml(_big6Label(sf))}</div>
+          <p style="margin:0;">Data not available${data?.error ? ' — ' + escapeHtml(data.error) : ''}.</p>`;
+        drilldown.hidden = false;
+        return;
+      }
+      const unavail = (data.unavailable || []).map((id) => albumNameById[id] || id);
+      if (unavail.length === 0) {
+        drilldown.innerHTML = `<div class="big6-drilldown-h">${escapeHtml(_big6Label(sf))}</div>
+          <p style="margin:0;">All ${(data.available || []).length} albums available.</p>`;
+      } else {
+        const items = unavail.map((n) => `<li>${escapeHtml(n)}</li>`).join('');
+        drilldown.innerHTML = `<div class="big6-drilldown-h">${escapeHtml(_big6Label(sf))} — ${unavail.length} unavailable</div>
+          <ul class="big6-drilldown-list">${items}</ul>`;
+      }
+      drilldown.hidden = false;
+    });
+  });
+}
+
+function _big6Label(sf) {
+  return {
+    us:'USA', ca:'Canada', gb:'UK', de:'Germany', fr:'France', jp:'Japan', au:'Australia'
+  }[sf] || sf.toUpperCase();
+}
+
 function renderEmptyState() {
   // Only the scan-dependent content is swapped — the Welcome panel and the
   // Pricing section live outside #scan-content and survive the empty state.
@@ -2045,6 +2158,11 @@ async function init() {
     // null. Brief 009 also removed the V1 Backend Intelligence section
     // (renderArtistFootprint) — no longer called.
     renderHealthScore(scan);
+    // Brief 011 — BIG 6 territory panel reads
+    // scan.payload.platforms.appleMusic.details.storefrontAvailability
+    // (set on every new scan run-scan.js performs after Brief 011).
+    // Older snapshots render the empty state.
+    renderBig6(scan);
     // Block D — Monitoring section (tier + monitoring_status aware).
     await loadMonitoringState(supabase, session.user.id, profile, scan);
 

@@ -49,6 +49,7 @@
         "artistUrl": "https://music.apple.com/us/artist/test-apple-only-artist/1234567890",
         "albumCount": 3,
         "albums": [],
+        "storefrontAvailability": null,
         "catalogComparison": null,
         "isrcLookup": null
       }

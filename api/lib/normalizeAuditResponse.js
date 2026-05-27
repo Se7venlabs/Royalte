@@ -142,12 +142,13 @@ function _normalizePlatforms(r) {
       ? PLATFORM_AVAILABILITY.ERROR
       : (p.appleMusic ? PLATFORM_AVAILABILITY.VERIFIED : PLATFORM_AVAILABILITY.NOT_FOUND),
     details: p.appleMusic ? {
-      artistId:          appleMusicDetails.artistId || null,
-      artistUrl:         appleMusicDetails.artistUrl || null,
-      albumCount:        _num(appleMusicDetails.albumCount),
-      albums:            Array.isArray(appleMusicDetails.albums) ? appleMusicDetails.albums : [],
-      catalogComparison: appleMusicDetails.catalogComparison || null,
-      isrcLookup:        appleMusicDetails.isrcLookup || null,
+      artistId:                appleMusicDetails.artistId || null,
+      artistUrl:               appleMusicDetails.artistUrl || null,
+      albumCount:              _num(appleMusicDetails.albumCount),
+      albums:                  Array.isArray(appleMusicDetails.albums) ? appleMusicDetails.albums : [],
+      storefrontAvailability:  appleMusicDetails.storefrontAvailability || null,
+      catalogComparison:       appleMusicDetails.catalogComparison || null,
+      isrcLookup:              appleMusicDetails.isrcLookup || null,
     } : null,
   };
 
