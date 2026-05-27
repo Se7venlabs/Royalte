@@ -686,6 +686,103 @@ const mockTrackScan = {
 
 console.log('\n✓ V2 canonical-array extractors (Brief 006) passed.\n');
 
+// ─── BIG 6 storefront availability (Brief 011) ─────────────────────────────
+
+console.log('\n[TEST] BIG 6 storefront availability (Brief 011)...');
+
+const { checkStorefrontAvailability, BIG6_STOREFRONTS } = await import('../api/apple-music.js');
+const _savedFetch = global.fetch;
+
+assert(Array.isArray(BIG6_STOREFRONTS) && BIG6_STOREFRONTS.length === 7,
+  'BIG6_STOREFRONTS: 7 storefronts exported');
+assert(BIG6_STOREFRONTS.join(',') === 'us,ca,gb,de,fr,jp,au',
+  'BIG6_STOREFRONTS: ordered us,ca,gb,de,fr,jp,au');
+
+// Mock 1 — every storefront returns every album. Expect all available.
+{
+  global.fetch = async () => ({
+    ok: true,
+    json: async () => ({ data: [{ id: '1' }, { id: '2' }, { id: '3' }] }),
+  });
+  const r = await checkStorefrontAvailability(['1','2','3'], {});
+  assert(Object.keys(r).length === 7, 'all-available: returns 7 storefronts');
+  for (const sf of BIG6_STOREFRONTS) {
+    assert(r[sf].available.length === 3, `all-available: ${sf} → 3 available`);
+    assert(r[sf].unavailable.length === 0, `all-available: ${sf} → 0 unavailable`);
+  }
+}
+
+// Mock 2 — every storefront returns only id=1. Expect 2 unavailable each.
+{
+  global.fetch = async () => ({
+    ok: true,
+    json: async () => ({ data: [{ id: '1' }] }),
+  });
+  const r = await checkStorefrontAvailability(['1','2','3'], {});
+  for (const sf of BIG6_STOREFRONTS) {
+    assert(r[sf].available.length === 1 && r[sf].available[0] === '1',
+      `partial: ${sf} → only id=1 available`);
+    assert(r[sf].unavailable.length === 2,
+      `partial: ${sf} → 2 unavailable`);
+    assert(r[sf].unavailable.includes('2') && r[sf].unavailable.includes('3'),
+      `partial: ${sf} → unavailable lists 2 + 3`);
+  }
+}
+
+// Mock 3 — one storefront 500s, the other 6 return all albums. Verify the
+// failure is isolated per Brief 011 Option α (errored storefront returns
+// {available:[], unavailable:[1], error}, others continue).
+{
+  const targetSf = 'gb';
+  global.fetch = async (url) => {
+    if (url.includes(`/catalog/${targetSf}/`)) {
+      return { ok: false, status: 503, json: async () => ({}) };
+    }
+    return { ok: true, json: async () => ({ data: [{ id: '1' }] }) };
+  };
+  const r = await checkStorefrontAvailability(['1'], {});
+  assert(r[targetSf].error === 'HTTP 503',
+    `error-isolation: ${targetSf} → captures HTTP 503`);
+  assert(r[targetSf].available.length === 0,
+    `error-isolation: ${targetSf} → empty available`);
+  assert(r[targetSf].unavailable.length === 0,
+    `error-isolation: ${targetSf} → empty unavailable when errored`);
+  for (const sf of BIG6_STOREFRONTS) {
+    if (sf === targetSf) continue;
+    assert(r[sf].available.length === 1,
+      `error-isolation: ${sf} → still resolves cleanly`);
+    assert(!('error' in r[sf]),
+      `error-isolation: ${sf} → no error flag`);
+  }
+}
+
+// Mock 4 — network throw on every call. Each storefront captures the error.
+{
+  global.fetch = async () => { throw new Error('ENOTFOUND'); };
+  const r = await checkStorefrontAvailability(['1','2'], {});
+  for (const sf of BIG6_STOREFRONTS) {
+    assert(r[sf].error === 'ENOTFOUND', `network-throw: ${sf} → captures error`);
+  }
+}
+
+// Mock 5 — empty albumIds short-circuits (no fetch calls).
+{
+  let called = 0;
+  global.fetch = async () => { called++; return { ok: true, json: async () => ({}) }; };
+  const r = await checkStorefrontAvailability([], {});
+  assert(called === 0, 'empty-input: no fetch calls issued');
+  assert(Object.keys(r).length === 7, 'empty-input: still returns 7-key shape');
+  for (const sf of BIG6_STOREFRONTS) {
+    assert(r[sf].available.length === 0 && r[sf].unavailable.length === 0,
+      `empty-input: ${sf} → shape-stable empty`);
+  }
+}
+
+// Restore fetch.
+global.fetch = _savedFetch;
+
+console.log('\n✓ BIG 6 storefront availability tests (Brief 011) passed.\n');
+
 
 function buildOSMockSupabase({ priorScanCount = 0, priorSequence = null } = {}) {
   const captured = { inserts: {}, upserts: {}, updates: {} };

@@ -669,6 +669,55 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
    .hsc-breakdown rule above wins over the generic [hidden]{display:none}
    browser default. */
 .hsc-breakdown[hidden]{display:none;}
+
+/* ── BIG 6 territory panel — Brief 011 ─────────────────────────── */
+.big6-card{padding:22px 24px;}
+.big6-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px 24px;margin-top:14px;}
+.big6-region{display:flex;flex-direction:column;gap:8px;min-width:0;}
+.big6-region-h{
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);
+}
+.big6-territories{display:flex;flex-direction:column;gap:6px;}
+.big6-territory{
+  display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;
+  padding:10px 14px;border-radius:8px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border3);
+  cursor:pointer;font:inherit;color:inherit;text-align:left;
+  transition:background 0.15s ease,border-color 0.15s ease;
+}
+.big6-territory:hover{background:rgba(255,255,255,0.06);border-color:var(--border2);}
+.big6-territory.is-open{border-color:var(--pur);background:rgba(138,92,255,0.06);}
+.big6-flag{font-size:16px;line-height:1;}
+.big6-name{font-size:13px;color:var(--text);}
+.big6-status{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.02em;color:var(--muted);}
+.big6-status.big6-ok      {color:var(--grn);}
+.big6-status.big6-partial {color:var(--amb);}
+.big6-status.big6-none    {color:var(--red);}
+.big6-status.big6-na      {color:var(--muted);}
+.big6-drilldown{
+  margin-top:14px;padding:14px 16px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border3);border-radius:8px;
+  font-size:12px;color:var(--muted2);line-height:1.55;
+}
+.big6-drilldown[hidden]{display:none;}
+.big6-drilldown-h{
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:0.10em;text-transform:uppercase;color:var(--text);margin-bottom:8px;
+}
+.big6-drilldown-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;}
+.big6-drilldown-list li{padding:4px 0;color:var(--text2);}
+.big6-empty{
+  margin:14px 0 0;padding:12px;border-radius:6px;
+  background:rgba(255,255,255,0.03);
+  color:var(--muted2);font-size:12px;text-align:center;
+}
+.big6-empty[hidden]{display:none;}
+@media (max-width:720px){
+  .big6-grid{grid-template-columns:1fr;}
+}
 .hsc-bd-cell{display:flex;flex-direction:column;gap:4px;}
 .hsc-bd-label{font-size:11px;color:var(--muted2);font-weight:500;letter-spacing:0.02em;}
 .hsc-bd-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
@@ -1014,6 +1063,79 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
            (Unlock Full Audit promo) · Top Issues Found · Action Plan ·
            Statement Upload "coming soon". All replaced by the V2
            Health Score panel above. -->
+
+      <!-- ─── BIG 6 TERRITORY PANEL (Brief 011) ───
+           Populated by renderBig6(scan) from
+           scan.payload.platforms.appleMusic.details.storefrontAvailability
+           when present; otherwise renders the empty state ("Run a new
+           scan to see territory data"). -->
+      <section class="card big6-card fade-in d1" id="big6-card">
+        <div class="card-hd">
+          <h2 class="card-title">The BIG 6</h2>
+        </div>
+        <p class="card-sub">Territory availability across the world's major music markets</p>
+
+        <div class="big6-grid" id="big6-grid">
+          <div class="big6-region">
+            <div class="big6-region-h">North America</div>
+            <div class="big6-territories">
+              <button class="big6-territory" data-storefront="us" type="button">
+                <span class="big6-flag">🇺🇸</span>
+                <span class="big6-name">USA</span>
+                <span class="big6-status" data-status-for="us">—</span>
+              </button>
+              <button class="big6-territory" data-storefront="ca" type="button">
+                <span class="big6-flag">🇨🇦</span>
+                <span class="big6-name">Canada</span>
+                <span class="big6-status" data-status-for="ca">—</span>
+              </button>
+            </div>
+          </div>
+          <div class="big6-region">
+            <div class="big6-region-h">Europe</div>
+            <div class="big6-territories">
+              <button class="big6-territory" data-storefront="gb" type="button">
+                <span class="big6-flag">🇬🇧</span>
+                <span class="big6-name">UK</span>
+                <span class="big6-status" data-status-for="gb">—</span>
+              </button>
+              <button class="big6-territory" data-storefront="de" type="button">
+                <span class="big6-flag">🇩🇪</span>
+                <span class="big6-name">Germany</span>
+                <span class="big6-status" data-status-for="de">—</span>
+              </button>
+              <button class="big6-territory" data-storefront="fr" type="button">
+                <span class="big6-flag">🇫🇷</span>
+                <span class="big6-name">France</span>
+                <span class="big6-status" data-status-for="fr">—</span>
+              </button>
+            </div>
+          </div>
+          <div class="big6-region">
+            <div class="big6-region-h">Asia-Pacific</div>
+            <div class="big6-territories">
+              <button class="big6-territory" data-storefront="jp" type="button">
+                <span class="big6-flag">🇯🇵</span>
+                <span class="big6-name">Japan</span>
+                <span class="big6-status" data-status-for="jp">—</span>
+              </button>
+              <button class="big6-territory" data-storefront="au" type="button">
+                <span class="big6-flag">🇦🇺</span>
+                <span class="big6-name">Australia</span>
+                <span class="big6-status" data-status-for="au">—</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="big6-drilldown" id="big6-drilldown" hidden>
+          <!-- populated by renderBig6 when a territory is clicked -->
+        </div>
+
+        <p class="big6-empty" id="big6-empty" hidden>
+          Run a new scan to see territory data
+        </p>
+      </section>
 
       <!-- ─── MONITORING (Block D) ─── -->
       <section id="monitoring" class="card monitoring-card fade-in d6">

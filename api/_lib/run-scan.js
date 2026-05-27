@@ -14,7 +14,7 @@
 // the inline handler used before this extraction.
 
 import { generateAppleToken } from '../apple-token.js';
-import { lookupByISRC } from '../apple-music.js';
+import { lookupByISRC, checkStorefrontAvailability } from '../apple-music.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -694,6 +694,27 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
       }
     }
 
+    // Brief 011 — BIG 6 storefront availability. Reuses the same JWT
+    // (single shared `headers` object) for 7 parallel `/catalog/{sf}/
+    // albums?ids=...` calls. Failure on any one storefront is isolated
+    // to that storefront's entry; others continue. Skipped entirely on
+    // an artist with no Apple Music albums.
+    let storefrontAvailability = null;
+    if (appleAlbums.length > 0) {
+      const albumIds = appleAlbums.map((a) => a.id).filter(Boolean);
+      if (albumIds.length > 0) {
+        try {
+          storefrontAvailability = await checkStorefrontAvailability(albumIds, headers);
+        } catch (sfErr) {
+          // checkStorefrontAvailability already isolates per-storefront
+          // errors; a top-level throw here means the whole Promise.all
+          // failed (e.g. headers / network catastrophe). Leave the field
+          // null so the dashboard renders the "—" empty state.
+          console.error('Apple Music storefront availability failed:', sfErr.message);
+        }
+      }
+    }
+
     // 2. ISRC lookup for the specific track (if track scan)
     let isrcResult = null;
     if (isrc) {
@@ -756,6 +777,7 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
       genres: appleArtistGenres,
       albumCount: appleAlbumCount,
       albums: appleAlbums,
+      storefrontAvailability,
       isrcLookup: isrcResult,
       catalogComparison,
     };
