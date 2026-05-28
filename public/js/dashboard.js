@@ -126,15 +126,22 @@ const ICONS = {
    ───────────────────────────────────────────── */
 
 function renderSidebar(data) {
+  // Brief 012 — consolidated "Issues Found" + "Action Plan" V1 entries
+  // into a single "Action Center" entry pointing at the V2 #action-center
+  // section. The badge counts UNRESOLVED action_needed alerts only
+  // (data.stats.actionNeededCount, set at init time via a one-shot
+  // monitoring_alerts count). Badge hidden when count = 0.
+  const acCount = (data.stats && typeof data.stats.actionNeededCount === 'number')
+                ? data.stats.actionNeededCount : 0;
   const navItems = [
-    { id: "dashboard",  label: "Dashboard",  icon: "dashboard",  active: true  },
-    { id: "setup",      label: "My Setup",   icon: "setup"   },
-    { id: "issues",     label: "Issues Found", icon: "issues", badge: data.stats.issuesFound + "" },
-    { id: "action",     label: "Action Plan",  icon: "action"  },
-    { id: "catalog",    label: "Catalog",      icon: "catalog",    soonLabel: "Soon" },
-    { id: "monitoring", label: "Monitoring",   icon: "monitoring" },
-    { id: "reports",    label: "Reports",      icon: "reports" },
-    { id: "settings",   label: "Settings",     icon: "settings" }
+    { id: "dashboard",     label: "Dashboard",     icon: "dashboard",  active: true },
+    { id: "setup",         label: "My Setup",      icon: "setup" },
+    { id: "action-center", label: "Action Center", icon: "issues",
+      badge: acCount > 0 ? String(acCount) : null },
+    { id: "catalog",       label: "Catalog",       icon: "catalog",    soonLabel: "Soon" },
+    { id: "monitoring",    label: "Monitoring",    icon: "monitoring" },
+    { id: "reports",       label: "Reports",       icon: "reports" },
+    { id: "settings",      label: "Settings",      icon: "settings" }
   ];
 
   const navHTML = navItems.map(item => {
@@ -1248,6 +1255,172 @@ function renderBig6(scan) {
   });
 }
 
+// ── Brief 012: Action Center ──────────────────────────────────────
+// Two-source action item feed.
+//   Source 1: monitoring_alerts WHERE resolved=false AND severity IN
+//             ('action_needed','monitor') ORDER BY detected_at DESC.
+//   Source 2: appleMusic.details.storefrontAvailability — per-territory,
+//             one item per BIG 6 storefront whose unavailable[] > 0
+//             (cap 7 by definition).
+// Every item is action-grade and names a specific object (track /
+// territory / identifier / release). 0 items → empty-state message.
+
+const _AC_WHY_BY_CHANGE_TYPE = {
+  territory_loss:        "Listeners in this territory can no longer stream this release; affected royalties stop generating.",
+  isrc_dropped:          "Distributors and PROs may not be able to match streams to this track for royalty accounting.",
+  isrc_mismatch:         "The track's identifier changed between scans; royalty matching against prior data may break.",
+  release_removed:       "This release is no longer present on the platform; streams have stopped.",
+  video_removed:         "A confirmed YouTube match disappeared; monetization on that video has stopped.",
+  profile_missing:       "An artist profile detected previously is no longer present; metadata routing may be broken.",
+  metadata_changed:      "Catalog metadata changed since last scan; verify downstream systems picked up the update.",
+};
+
+const _AC_ICON_BY_CHANGE_TYPE = {
+  territory_loss:        '🌍',
+  isrc_dropped:          '🔑',
+  isrc_mismatch:         '⚠',
+  release_removed:       '📀',
+  video_removed:         '▶',
+  profile_missing:       '👤',
+  metadata_changed:      '✎',
+};
+
+const _BIG6_LABEL = { us:'USA', ca:'Canada', gb:'UK', de:'Germany', fr:'France', jp:'Japan', au:'Australia' };
+
+function _acAlertItem(alert) {
+  const change = alert.change_type || '';
+  const why = _AC_WHY_BY_CHANGE_TYPE[change]
+    || "Royaltē OS detected a change that may affect royalty routing or distribution.";
+  const icon = _AC_ICON_BY_CHANGE_TYPE[change] || '⚠';
+  return {
+    sev:    alert.severity,                // 'action_needed' | 'monitor'
+    title:  alert.title || 'Monitoring alert',
+    detail: alert.detail || '',
+    why,
+    icon,
+    source: 'Monitoring alert',
+  };
+}
+
+function _acTerritoryItems(scan) {
+  // Per-territory items (cap 7). One per BIG 6 storefront with
+  // unavailable.length > 0. Albums named in the detail line.
+  const out = [];
+  const am = (scan && scan.payload && scan.payload.platforms
+              && scan.payload.platforms.appleMusic
+              && scan.payload.platforms.appleMusic.details) || {};
+  const sfa = am.storefrontAvailability || null;
+  if (!sfa) return out;
+  const albums = Array.isArray(am.albums) ? am.albums : [];
+  const nameById = Object.fromEntries(albums.map((a) => [a.id, a.name || a.id]));
+
+  for (const sf of ['us','ca','gb','de','fr','jp','au']) {
+    const data = sfa[sf];
+    if (!data || data.error) continue;
+    const unavail = Array.isArray(data.unavailable) ? data.unavailable : [];
+    if (unavail.length === 0) continue;
+
+    const country = _BIG6_LABEL[sf] || sf.toUpperCase();
+    const titles = unavail.map((id) => nameById[id] || id);
+    out.push({
+      sev:    'action_needed',
+      title:  `${unavail.length} release${unavail.length === 1 ? '' : 's'} unavailable in ${country}`,
+      detail: `Missing from Apple Music ${country} storefront: ${titles.join(' · ')}`,
+      why:    `Listeners in ${country} can't stream these releases; royalties not generated.`,
+      icon:   '🌍',
+      source: 'Territory gap',
+    });
+  }
+  return out;
+}
+
+async function renderActionCenter(scan, supabase, userId) {
+  const listEl  = document.getElementById('ac-list');
+  const emptyEl = document.getElementById('ac-empty');
+  const countEl = document.getElementById('ac-count');
+  if (!listEl) return;
+
+  // Source 1 — monitoring_alerts (per brief filter)
+  let alerts = [];
+  try {
+    const { data, error } = await supabase
+      .from('monitoring_alerts')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('resolved', false)
+      .in('severity', ['action_needed', 'monitor'])
+      .order('detected_at', { ascending: false })
+      .limit(20);
+    if (error) console.warn('[action-center] alerts fetch failed:', error.message);
+    else alerts = data || [];
+  } catch (e) {
+    console.warn('[action-center] alerts fetch threw:', e.message);
+  }
+
+  // Source 2 — territory gaps from latest scan
+  const territoryItems = _acTerritoryItems(scan);
+
+  // Merge: monitoring alerts first (newest), then territory gaps.
+  const items = [
+    ...alerts.map(_acAlertItem),
+    ...territoryItems,
+  ];
+
+  // Card-header count badge — total items (both sources, both severities)
+  if (countEl) {
+    if (items.length > 0) {
+      countEl.textContent = String(items.length);
+      countEl.hidden = false;
+    } else {
+      countEl.hidden = true;
+    }
+  }
+
+  if (items.length === 0) {
+    listEl.innerHTML = '';
+    if (emptyEl) emptyEl.hidden = false;
+    return;
+  }
+  if (emptyEl) emptyEl.hidden = true;
+
+  listEl.innerHTML = items.map((it) => {
+    const sevLabel = it.sev === 'action_needed' ? 'Action needed' : 'Monitor';
+    return `
+      <div class="ac-item ac-${escapeHtml(it.sev)}">
+        <div class="ac-item-icon" aria-hidden="true">${escapeHtml(it.icon)}</div>
+        <div class="ac-item-body">
+          <p class="ac-item-title">${escapeHtml(it.title)}</p>
+          ${it.detail ? `<p class="ac-item-detail">${escapeHtml(it.detail)}</p>` : ''}
+          <p class="ac-item-why">${escapeHtml(it.why)}</p>
+        </div>
+        <div class="ac-item-meta">
+          <span class="ac-sev-badge ac-${escapeHtml(it.sev)}">${escapeHtml(sevLabel)}</span>
+          <span class="ac-source-tag">${escapeHtml(it.source)}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// One-shot Supabase count of UNRESOLVED action_needed alerts.
+// Used to set data.stats.actionNeededCount for the sidebar badge
+// (per Brief 012: badge counts action_needed only; monitor and
+// territory gaps are NOT counted in the sidebar badge).
+async function _countActionNeededAlerts(supabase, userId) {
+  try {
+    const { count, error } = await supabase
+      .from('monitoring_alerts')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('resolved', false)
+      .eq('severity', 'action_needed');
+    if (error) { console.warn('[action-center] sidebar count failed:', error.message); return 0; }
+    return count || 0;
+  } catch (e) {
+    console.warn('[action-center] sidebar count threw:', e.message);
+    return 0;
+  }
+}
+
 function _big6Label(sf) {
   return {
     us:'USA', ca:'Canada', gb:'UK', de:'Germany', fr:'France', jp:'Japan', au:'Australia'
@@ -2151,7 +2324,14 @@ async function init() {
   if (!scan || !scan.payload) {
     renderEmptyState();
   } else {
-    renderAll(mapCanonicalToDashboard(scan.payload));
+    // Brief 012 — pull the unresolved action_needed count up-front so
+    // renderSidebar can stamp it on the Action Center nav badge.
+    // Non-blocking on failure (returns 0).
+    const acNeededCount = await _countActionNeededAlerts(supabase, session.user.id);
+    const dashData = mapCanonicalToDashboard(scan.payload);
+    dashData.stats = dashData.stats || {};
+    dashData.stats.actionNeededCount = acNeededCount;
+    renderAll(dashData);
     // Brief 009 — Health Score panel reads scan_snapshots.health_score
     // directly (falls back to 100 - overallScore on snapshots from before
     // the V2 write path); breakdown sub-bars hide when score_breakdown is
@@ -2163,6 +2343,11 @@ async function init() {
     // (set on every new scan run-scan.js performs after Brief 011).
     // Older snapshots render the empty state.
     renderBig6(scan);
+    // Brief 012 — Action Center reads monitoring_alerts (action_needed +
+    // monitor severities, unresolved) and territory gaps from the latest
+    // scan's storefrontAvailability. Awaited so the items render before
+    // the user scrolls down.
+    await renderActionCenter(scan, supabase, session.user.id);
     // Block D — Monitoring section (tier + monitoring_status aware).
     await loadMonitoringState(supabase, session.user.id, profile, scan);
 
