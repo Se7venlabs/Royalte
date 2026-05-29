@@ -224,7 +224,6 @@ body.os-modal-open{overflow:hidden;}
 .d-score-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
 .d-score-lbl{font-size:7px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
 .d-score-info{display:flex;flex-direction:column;gap:3px;min-width:0;overflow:hidden;flex:1;}
-.d-score-title{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);margin-bottom:4px;}
 .d-score-artist{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .d-score-artist.is-idle{font-size:14px;white-space:normal;line-height:1.3;letter-spacing:0.04em;}
 .d-score-track{font-size:13px;color:var(--muted2);letter-spacing:0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -701,14 +700,6 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   line-height:1;
 }
 
-/* Realness line above the eyebrow */
-.d-score-realness{
-  font-size:11px;color:#9490b8;letter-spacing:0.04em;
-  margin-bottom:4px;font-family:'Space Grotesk',sans-serif;
-  display:none;
-}
-.d-score-row.is-revealed .d-score-realness{display:block;}
-
 /* Stronger artist name — overrides only inside .d-score-row to keep idle state untouched */
 .d-score-row.is-revealed .d-score-artist{
   font-size:24px;font-weight:800;letter-spacing:0;
@@ -786,7 +777,6 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 }
 .d-score-row.is-revealed .d-score-img-wrap{animation:resultFadeUp 0.45s ease 0.10s both;}
 .d-score-row.is-revealed .d-score-info{animation:resultFadeUp 0.45s ease 0.20s both;}
-.d-score-row.is-revealed .d-score-realness{animation:resultFadeUp 0.40s ease 0.28s both;}
 .d-score-tag.is-shown{animation:resultFadeUp 0.45s ease 0.36s both;}
 .dash-body.is-revealed .d-alert{animation:resultFadeUp 0.45s ease 0.46s both;}
 .dash-body.is-revealed .d-mod{animation:resultFadeUp 0.40s ease both;}
@@ -1883,8 +1873,6 @@ body.menu-locked {
             <span class="d-score-img-fallback" id="hero-artist-img-fallback">—</span>
           </div>
           <div class="d-score-info">
-            <div class="d-score-realness" style="display:none;">This is your real music data</div>
-            <div class="d-score-title" id="hero-scan-label" style="display:none;">// Beta audit preview</div>
             <div class="d-score-artist is-idle" id="hero-artist-name">Run a scan to see your audit results</div>
             <div class="d-score-track" id="hero-artist-sub"></div>
           </div>
@@ -1912,8 +1900,8 @@ body.menu-locked {
                75–89 + drivers=0 → hidden
                < 75 + drivers>0  → shown (REQUIRED by brief)
              Subtle amber styling — "factors", not "issues". -->
-        <div class="os-score-drivers" id="os-score-drivers" hidden>
-          <p class="os-drivers-label">Score factors</p>
+        <div class="os-score-drivers" id="os-score-drivers">
+          <p class="os-drivers-label">What influenced your Health Score</p>
           <ul class="os-drivers-list" id="os-drivers-list"></ul>
         </div>
 
@@ -1946,7 +1934,7 @@ body.menu-locked {
           <!-- bi-os-form IDs preserved → /api/submit-audit handler unchanged. -->
           <form class="bi-os-form" id="bi-os-form" novalidate>
             <input type="email" class="bi-os-email" id="bi-os-email" placeholder="your@email.com" autocomplete="email" required>
-            <button type="submit" class="bi-os-cta" data-cta="enter-os">GET FOUNDING ARTIST ACCESS</button>
+            <button type="submit" class="bi-os-cta" data-cta="enter-os">Activate Royaltē OS</button>
           </form>
           <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
           <p class="os-cta-foot">Limited founding artist spots · $19.99/month · Magic-link sign-in · PDF copy emailed</p>
@@ -2379,16 +2367,6 @@ async function runAudit() {
 
   const isApple = isAppleMusicUrl(val);
   const urlType = detectUrlType(val);
-  // ── ARTIST RESOLUTION SCAN COPY ──
-  // All inputs (track/album/apple) normalize to the artist before scanning.
-  const scanLabel =
-    isApple              ? '// Apple Music link detected — resolving artist profile…' :
-    urlType === 'track'  ? '// Track detected — resolving artist profile…' :
-    urlType === 'album'  ? '// Album detected — resolving artist profile…' :
-                           '// Scanning...';
-  const scanLabelEl = document.getElementById('hero-scan-label');
-  scanLabelEl.style.display = '';
-  scanLabelEl.textContent = scanLabel;
   const nameEl = document.getElementById('hero-artist-name');
   nameEl.classList.remove('is-idle');
   nameEl.textContent = 'Analyzing your catalog...';
@@ -2493,8 +2471,6 @@ async function runAudit() {
   scan.fail(msg);
   showUrlError(msg);
   // Reset orb to idle pre-scan state — audit-results stays hidden, no fake data shows
-  const scanLabelFail = document.getElementById('hero-scan-label');
-  if (scanLabelFail) { scanLabelFail.style.display = 'none'; scanLabelFail.textContent = '// Beta audit preview'; }
   const nameFail = document.getElementById('hero-artist-name');
   if (nameFail) { nameFail.textContent = 'Run a scan to see your audit results'; nameFail.classList.add('is-idle'); }
   const subFail = document.getElementById('hero-artist-sub');
@@ -2614,14 +2590,8 @@ function deactivateRadarArcs() {
 }
 
 function updateHeroDashboard(artistName, subText, score, riskLevel) {
-  const scanLabelEl = document.getElementById('hero-scan-label');
-  scanLabelEl.style.display = '';
-  scanLabelEl.textContent = '// Verified audit preview';
   document.getElementById('hero-artist-name').textContent = artistName;
   document.getElementById('hero-artist-sub').textContent = subText;
-  // Reveal "This is your real music data" line (was hidden pre-scan)
-  const realnessEl = document.querySelector('.d-score-realness');
-  if (realnessEl) realnessEl.style.display = '';
   // Reveal entire audit results container — score, alert, modules, issues, locked CTA
   const resultsEl = document.getElementById('audit-results');
   if (resultsEl) resultsEl.style.display = 'block';
@@ -2860,23 +2830,15 @@ function showRealResults(data) {
       scoreTagEl.classList.add('is-shown');
       if (scoreHelpEl) scoreHelpEl.style.display = '';
 
-      // Brief 012a — Score Drivers display rule (LOCKED):
-      //   score ≥ 90        → hidden
-      //   75–89 + drivers>0 → shown (optional)
-      //   75–89 + drivers=0 → hidden
-      //   <75               → REQUIRED, always shown when any driver exists
-      // (drivers list is never empty for a sub-90 score under the
-      // current weighting; defensive hide if it somehow is.)
+      // Brief 012b — drivers always shown. Empty list gets a neutral line.
       if (driversEl && driversList) {
-        const showDrivers = health < 90 && drivers.length > 0;
-        if (showDrivers) {
+        driversEl.hidden = false;
+        if (drivers.length > 0) {
           driversList.innerHTML = drivers.map(
             (d) => `<li>⚠ ${_osEscape(d.text)}</li>`
           ).join('');
-          driversEl.hidden = false;
         } else {
-          driversList.innerHTML = '';
-          driversEl.hidden = true;
+          driversList.innerHTML = '<li class="os-driver-empty">Your score is not currently being lowered by any observed factors.</li>';
         }
       }
     }

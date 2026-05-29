@@ -553,7 +553,7 @@ export class BackendProtectionPanel {
     ];
     return `
       <div class="osp-section">
-        <div class="osp-section-label">Protected areas</div>
+        <div class="osp-section-label">What Royaltē watches</div>
         <div class="osp-protected">
           ${areas.map((a) => `
             <div class="osp-protected-item">
