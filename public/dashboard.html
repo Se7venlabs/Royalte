@@ -718,6 +718,76 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
 @media (max-width:720px){
   .big6-grid{grid-template-columns:1fr;}
 }
+
+/* ── Action Center — Brief 012 ──────────────────────────────────── */
+.action-center-card{padding:22px 24px;}
+.ac-count-pill{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:22px;height:22px;padding:0 8px;margin-left:10px;
+  border-radius:11px;background:rgba(240,80,96,0.12);
+  border:1px solid rgba(240,80,96,0.30);
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  color:var(--red);letter-spacing:0.04em;vertical-align:middle;
+}
+.ac-count-pill[hidden]{display:none;}
+.ac-list{display:flex;flex-direction:column;gap:10px;margin-top:14px;}
+.ac-item{
+  display:grid;grid-template-columns:36px 1fr auto;gap:14px;align-items:flex-start;
+  padding:14px 16px;border-radius:8px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border3);
+}
+.ac-item-icon{
+  display:flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:8px;font-size:18px;
+  background:rgba(240,192,64,0.12);
+  border:1px solid rgba(240,192,64,0.25);
+  color:var(--amb);
+}
+.ac-item.ac-action_needed .ac-item-icon{
+  background:rgba(240,80,96,0.12);
+  border-color:rgba(240,80,96,0.25);
+  color:var(--red);
+}
+.ac-item-body{min-width:0;}
+.ac-item-title{
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;
+  color:#fff;margin:0 0 4px;line-height:1.3;
+}
+.ac-item-detail{font-size:12px;color:var(--muted2);line-height:1.55;margin:0 0 4px;}
+.ac-item-why{
+  font-size:11px;color:var(--text2);line-height:1.55;margin:0;
+  font-style:italic;
+}
+.ac-item-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+.ac-sev-badge{
+  display:inline-flex;align-items:center;
+  font-family:'Space Mono',monospace;font-size:9px;font-weight:700;
+  padding:3px 8px;border-radius:4px;letter-spacing:0.06em;text-transform:uppercase;
+}
+.ac-sev-badge.ac-action_needed{
+  background:rgba(240,80,96,0.12);color:var(--red);
+  border:1px solid rgba(240,80,96,0.30);
+}
+.ac-sev-badge.ac-monitor{
+  background:rgba(240,192,64,0.12);color:var(--amb);
+  border:1px solid rgba(240,192,64,0.30);
+}
+.ac-source-tag{
+  font-family:'Space Mono',monospace;font-size:9px;
+  color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;
+  white-space:nowrap;
+}
+.ac-empty{
+  margin:14px 0 0;padding:18px;border-radius:8px;
+  background:rgba(255,255,255,0.03);
+  color:var(--muted2);font-size:13px;line-height:1.55;text-align:center;
+}
+.ac-empty[hidden]{display:none;}
+@media (max-width:720px){
+  .ac-item{grid-template-columns:32px 1fr;}
+  .ac-item-meta{grid-column:1/-1;flex-direction:row;justify-content:space-between;}
+}
 .hsc-bd-cell{display:flex;flex-direction:column;gap:4px;}
 .hsc-bd-label{font-size:11px;color:var(--muted2);font-weight:500;letter-spacing:0.02em;}
 .hsc-bd-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
@@ -1134,6 +1204,33 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
 
         <p class="big6-empty" id="big6-empty" hidden>
           Run a new scan to see territory data
+        </p>
+      </section>
+
+      <!-- ─── ACTION CENTER (Brief 012) ───
+           Populated by renderActionCenter(scan, supabase, userId) from
+           TWO sources:
+             • monitoring_alerts WHERE resolved=false AND severity IN
+               ('action_needed','monitor') ORDER BY detected_at DESC
+             • appleMusic.details.storefrontAvailability — any of the
+               7 BIG 6 storefronts with unavailable.length>0 → 1 item.
+           Each item is action-grade and names a specific object
+           (track / territory / identifier / release). 0 items →
+           empty state. -->
+      <section class="card action-center-card fade-in d2" id="action-center">
+        <div class="card-hd">
+          <h2 class="card-title">Action Center
+            <span class="ac-count-pill" id="ac-count" hidden>0</span>
+          </h2>
+        </div>
+        <p class="card-sub">Specific, verified action items from monitoring + territory checks</p>
+
+        <div class="ac-list" id="ac-list">
+          <!-- populated by renderActionCenter -->
+        </div>
+
+        <p class="ac-empty" id="ac-empty" hidden>
+          No action items at this time. Royaltē OS is monitoring your catalog for changes.
         </p>
       </section>
 
