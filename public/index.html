@@ -1450,6 +1450,29 @@ body.menu-locked {
 .os-finding-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:var(--text);margin:0 0 2px;line-height:1.3;}
 .os-finding-desc{font-size:11px;color:var(--muted2);line-height:1.5;margin:0;}
 .os-finding-empty{font-size:12px;color:var(--muted2);line-height:1.55;padding:6px 0;}
+
+/* Score drivers — Brief 012a. Subtle amber pillar, not red. Sits below
+   the score chip + helper inside the V1 .d-score-tag area. */
+.os-score-drivers{
+  margin:10px 0 0;padding:10px 12px;
+  background:rgba(240,192,64,0.06);
+  border:1px solid rgba(240,192,64,0.20);
+  border-radius:6px;
+}
+.os-score-drivers[hidden]{display:none;}
+.os-drivers-label{
+  font-family:'Space Mono',monospace;font-size:9px;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--amb);margin:0 0 6px;
+}
+.os-drivers-list{
+  list-style:none;padding:0;margin:0;
+  display:flex;flex-direction:column;gap:4px;
+}
+.os-drivers-list li{
+  font-size:11px;color:var(--text2);line-height:1.55;
+  padding-left:2px;
+}
 .os-found-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;}
 .os-found-row{padding:6px 8px;background:rgba(255,255,255,0.03);border-radius:4px;}
 .os-found-label{font-size:10px;color:var(--muted2);font-weight:500;letter-spacing:0.04em;text-transform:uppercase;}
@@ -1799,7 +1822,7 @@ body.menu-locked {
     </div>
     <div class="scan-decoder" aria-label="Understanding your Health Score">
       <div class="scan-decoder-hd">Understanding your Health Score</div>
-      <div class="scan-decoder-body">Higher scores indicate a healthier music business backend. Royaltē reviews catalog presence, identifier coverage, and platform availability across verified public sources to compute the Health Score.</div>
+      <div class="scan-decoder-body">Higher scores indicate a healthier music business backend. Royaltē reviews catalog presence, identifier coverage, and platform availability across verified public sources to compute the Health Score.<br><br>Score is based on verified data only — no estimates or assumptions.</div>
       <div class="scan-decoder-legend">
         <div class="scan-decoder-legend-row"><span class="scan-decoder-dot low"></span><span class="scan-decoder-range">90–100</span>Excellent</div>
         <div class="scan-decoder-legend-row"><span class="scan-decoder-dot moderate"></span><span class="scan-decoder-range">75–89</span>Strong</div>
@@ -1880,6 +1903,18 @@ body.menu-locked {
             <div class="tt-row atrisk"><span class="tt-dot"></span><strong>60–74</strong> · Moderate</div>
             <div class="tt-row danger"><span class="tt-dot"></span><strong>&lt; 60</strong> · Review recommended</div>
           </div>
+        </div>
+
+        <!-- Score drivers (Brief 012a) — populated + shown/hidden by
+             renderV2Section2 per the locked display rule:
+               score ≥ 90        → hidden
+               75–89 + drivers>0 → shown
+               75–89 + drivers=0 → hidden
+               < 75 + drivers>0  → shown (REQUIRED by brief)
+             Subtle amber styling — "factors", not "issues". -->
+        <div class="os-score-drivers" id="os-score-drivers" hidden>
+          <p class="os-drivers-label">Score factors</p>
+          <ul class="os-drivers-list" id="os-drivers-list"></ul>
         </div>
 
         <!-- 2. Top Findings + What Royaltē Found — same .d-modules / .d-mod
@@ -2799,22 +2834,52 @@ function showRealResults(data) {
   }
 
   // ── Health Score chip (V1 .d-score-tag, V2 content) ──
-  // health = 100 − overallScore. Same chip CSS classes V1 used; the
-  // band thresholds differ (V2: 90/75/60).
+  // Brief 012a: score computed from V2 verified signals only — NOT
+  // inverted from the V1 risk engine's overallScore. The V1 score was
+  // built on retired philosophy (Wikipedia absence, AudioDB, etc.)
+  // which we filter out of Findings, so inverting it produced a
+  // 25/100 "Review Recommended" that contradicted "No findings."
+  // _computeV2HealthScore reads the same signals the V2 surfaces
+  // already render: catalog depth, platform presence, BIG 6 territory
+  // coverage, ISRC presence.
   const scoreTagEl  = document.getElementById('hero-score-tag');
   const scoreNumEl  = document.getElementById('hero-score-tag-num');
   const scoreLblEl  = document.getElementById('hero-score-tag-lbl');
   const scoreHelpEl = document.getElementById('hero-score-helper');
-  if (scoreTagEl && scoreNumEl && typeof data.overallScore === 'number') {
-    const risk   = Math.max(0, Math.min(100, data.overallScore));
-    const health = 100 - risk;
-    const band   = _getHealthBand(health);
-    scoreNumEl.textContent = health;
-    if (scoreLblEl) scoreLblEl.textContent = `Health Score · ${band.label}`;
-    scoreTagEl.classList.remove('band-healthy','band-warning','band-atrisk','band-danger');
-    scoreTagEl.classList.add(band.className);
-    scoreTagEl.classList.add('is-shown');
-    if (scoreHelpEl) scoreHelpEl.style.display = '';
+  const driversEl   = document.getElementById('os-score-drivers');
+  const driversList = document.getElementById('os-drivers-list');
+  if (scoreTagEl && scoreNumEl) {
+    const result = _computeV2HealthScore(data);
+    if (result != null) {
+      const { score: health, drivers } = result;
+      const band = _getHealthBand(health);
+      scoreNumEl.textContent = health;
+      if (scoreLblEl) scoreLblEl.textContent = `Health Score · ${band.label}`;
+      scoreTagEl.classList.remove('band-healthy','band-warning','band-atrisk','band-danger');
+      scoreTagEl.classList.add(band.className);
+      scoreTagEl.classList.add('is-shown');
+      if (scoreHelpEl) scoreHelpEl.style.display = '';
+
+      // Brief 012a — Score Drivers display rule (LOCKED):
+      //   score ≥ 90        → hidden
+      //   75–89 + drivers>0 → shown (optional)
+      //   75–89 + drivers=0 → hidden
+      //   <75               → REQUIRED, always shown when any driver exists
+      // (drivers list is never empty for a sub-90 score under the
+      // current weighting; defensive hide if it somehow is.)
+      if (driversEl && driversList) {
+        const showDrivers = health < 90 && drivers.length > 0;
+        if (showDrivers) {
+          driversList.innerHTML = drivers.map(
+            (d) => `<li>⚠ ${_osEscape(d.text)}</li>`
+          ).join('');
+          driversEl.hidden = false;
+        } else {
+          driversList.innerHTML = '';
+          driversEl.hidden = true;
+        }
+      }
+    }
   }
 
   // ── Reveal stagger (same V1 trigger) ──
@@ -2872,6 +2937,90 @@ function _getHealthBand(health) {
   return                   { className: 'band-danger',  label: 'Review recommended' };
 }
 
+// ── Brief 012a: V2 verified-signal Health Score + Score Drivers ──
+// Replaces the V1 (100 − overallScore) inversion. Score is built only
+// from signals the V2 surfaces actually display: catalog depth, BIG 6
+// territory availability (Brief 011), platform presence, ISRC coverage.
+// Returns { score, drivers } — drivers explain what reduced the score
+// (one per missing signal, sorted by weight desc, top 4). Returns null
+// when no usable data exists (caller leaves the chip blank instead of
+// fabricating a number).
+function _computeV2HealthScore(data) {
+  if (!data) return null;
+  let score = 0;
+  const drivers = [];
+
+  // Raw response (flat) vs canonical (nested under .details). Read both.
+  const am = (data.appleMusic && (data.appleMusic.albums || data.appleMusic.albumCount != null || data.appleMusic.storefrontAvailability != null))
+             ? data.appleMusic
+             : (data.platforms && data.platforms.appleMusic && data.platforms.appleMusic.details) || {};
+
+  // Catalog depth (max 40)
+  const albums      = Array.isArray(am.albums) ? am.albums : [];
+  const albumCount  = (typeof am.albumCount === 'number') ? am.albumCount : albums.length;
+  if (albums.length > 0)  score += 20;
+  if (albumCount >= 4)    score += 10;
+  if (albumCount >= 10)   score += 10;
+  if (albumCount < 4) {
+    drivers.push({ text: 'Limited catalog depth detected', weight: 10 });
+  }
+
+  // Platform presence (max 30) — raw exposes data.platforms.* booleans;
+  // canonical-nested exposes platforms.*.availability === 'VERIFIED'.
+  const p = data.platforms || {};
+  const verified = (k) => p[k] === true
+    || (p[k] && p[k].availability === 'VERIFIED')
+    || (k === 'spotify' && data.spotifyMatched === true)
+    || (k === 'appleMusic' && data.appleMusic && data.appleMusic.found === true);
+  if (verified('appleMusic')) score += 10;
+  else drivers.push({ text: 'Apple Music presence could not be confirmed', weight: 10 });
+  if (verified('spotify'))    score += 10;
+  else drivers.push({ text: 'Spotify presence could not be confirmed',     weight: 10 });
+  if (verified('youtube'))    score += 10;
+  else drivers.push({ text: 'Limited YouTube presence detected',           weight: 10 });
+
+  // Territory availability (max 20) — from Brief 011 storefrontAvailability.
+  const sfa = am.storefrontAvailability || null;
+  if (!sfa || typeof sfa !== 'object') {
+    drivers.push({ text: 'Territory availability not yet verified', weight: 10 });
+  } else {
+    score += 10;
+    const keys = ['us','ca','gb','de','fr','jp','au'];
+    let fullCount = 0;
+    for (const sf of keys) {
+      const ent = sfa[sf];
+      if (!ent || ent.error) continue;
+      const avail = Array.isArray(ent.available) ? ent.available.length : 0;
+      const unav  = Array.isArray(ent.unavailable) ? ent.unavailable.length : 0;
+      const total = avail + unav;
+      if (total > 0 && avail === total) fullCount++;
+    }
+    if (fullCount === keys.length) {
+      score += 10;
+    } else if (fullCount >= 5) {
+      score += 5;
+      drivers.push({ text: 'Limited availability in some major markets', weight: 5 });
+    } else {
+      drivers.push({ text: 'Limited availability in some major markets', weight: 5 });
+    }
+  }
+
+  // ISRC coverage (max 10) — any verified track-level ISRC.
+  const lookup = am.isrcLookup || null;
+  const hasIsrc = !!(data.trackIsrc
+                    || (lookup && lookup.isrc)
+                    || (am.catalogComparison && typeof am.catalogComparison.matched === 'number' && am.catalogComparison.matched > 0));
+  if (hasIsrc) score += 10;
+  else drivers.push({ text: 'ISRC coverage could not be confirmed', weight: 10 });
+
+  // Sort drivers by weight desc; cap top 4 per brief.
+  drivers.sort((a, b) => b.weight - a.weight);
+  return {
+    score:   Math.max(0, Math.min(100, score)),
+    drivers: drivers.slice(0, 4),
+  };
+}
+
 function _renderV2Findings(flagsArr) {
   const findingsEl = document.getElementById('os-findings');
   if (!findingsEl) return;
@@ -2882,7 +3031,7 @@ function _renderV2Findings(flagsArr) {
     return !/\b(wikipedia|audiodb|discogs|soundcloud|musicbrainz)\b/.test(text);
   });
   if (v2Flags.length === 0) {
-    findingsEl.innerHTML = '<div class="os-finding-empty">No priority findings detected in this scan. Royaltē OS will continue monitoring for changes.</div>';
+    findingsEl.innerHTML = '<div class="os-finding-empty">Your catalog looks clean. Royaltē OS is monitoring for changes and will alert you if anything needs attention.</div>';
     return;
   }
 
