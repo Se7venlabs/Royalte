@@ -222,7 +222,30 @@ function renderSidebarUpgrade(profile) {
 
 function renderHeader(data) {
   document.getElementById("artist-name").textContent = data.user.fullName;
-  document.getElementById("welcome-sub").textContent = "Last scan completed " + data.recentScan.dateLabel + ".";
+
+  // Brief 012b — em-dash unwired fields (monitoring.active, unresolvedCount).
+  const monitoring = data.monitoring || {};
+  const dot = document.getElementById("dss-monitoring-dot");
+  const monStatusEl = document.getElementById("dss-monitoring-status");
+  if (typeof monitoring.active === "boolean") {
+    monStatusEl.textContent = monitoring.active ? "Monitoring Active" : "Monitoring Inactive";
+    if (dot) dot.classList.toggle("active", monitoring.active);
+  } else {
+    monStatusEl.textContent = "—";
+    if (dot) dot.classList.remove("active");
+  }
+
+  const lastScan = data.recentScan && data.recentScan.dateLabel;
+  document.getElementById("dss-last-scan").textContent = lastScan || "—";
+
+  const changesN = typeof monitoring.unresolvedCount === "number" ? monitoring.unresolvedCount : null;
+  document.getElementById("dss-changes-text").textContent =
+    changesN == null
+      ? "— changes since last scan"
+      : changesN + " change" + (changesN === 1 ? "" : "s") + " since last scan";
+
+  const scoreVal = data.score && typeof data.score.value === "number" ? data.score.value : null;
+  document.getElementById("dss-health-score").textContent = scoreVal == null ? "—" : String(scoreVal);
 
   const bell = document.getElementById("bell-count");
   if (data.user.notifications > 0) {

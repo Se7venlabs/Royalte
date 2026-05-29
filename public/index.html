@@ -1912,8 +1912,8 @@ body.menu-locked {
                75–89 + drivers=0 → hidden
                < 75 + drivers>0  → shown (REQUIRED by brief)
              Subtle amber styling — "factors", not "issues". -->
-        <div class="os-score-drivers" id="os-score-drivers" hidden>
-          <p class="os-drivers-label">Score factors</p>
+        <div class="os-score-drivers" id="os-score-drivers">
+          <p class="os-drivers-label">What influenced your Health Score</p>
           <ul class="os-drivers-list" id="os-drivers-list"></ul>
         </div>
 
@@ -2860,23 +2860,15 @@ function showRealResults(data) {
       scoreTagEl.classList.add('is-shown');
       if (scoreHelpEl) scoreHelpEl.style.display = '';
 
-      // Brief 012a — Score Drivers display rule (LOCKED):
-      //   score ≥ 90        → hidden
-      //   75–89 + drivers>0 → shown (optional)
-      //   75–89 + drivers=0 → hidden
-      //   <75               → REQUIRED, always shown when any driver exists
-      // (drivers list is never empty for a sub-90 score under the
-      // current weighting; defensive hide if it somehow is.)
+      // Brief 012b — drivers always shown. Empty list gets a neutral line.
       if (driversEl && driversList) {
-        const showDrivers = health < 90 && drivers.length > 0;
-        if (showDrivers) {
+        driversEl.hidden = false;
+        if (drivers.length > 0) {
           driversList.innerHTML = drivers.map(
             (d) => `<li>⚠ ${_osEscape(d.text)}</li>`
           ).join('');
-          driversEl.hidden = false;
         } else {
-          driversList.innerHTML = '';
-          driversEl.hidden = true;
+          driversList.innerHTML = '<li class="os-driver-empty">Your score is not currently being lowered by any observed factors.</li>';
         }
       }
     }
