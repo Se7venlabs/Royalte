@@ -146,6 +146,28 @@ function _donutGradient(pct) {
   return `conic-gradient(var(--pur-2) 0deg ${deg}deg,rgba(255,255,255,0.05) ${deg}deg)`;
 }
 
+// Brief 015a-rev3 Fix 1+2 — inline-style fallback for the colored icon
+// chips on feed items and status dots. The CSS classes still ship for
+// semantic clarity, but inline styles outclass CSS specificity so the
+// colors render even if the stylesheet doesn't load, is cached stale,
+// or is being overridden by something we haven't identified.
+const ICON_COLORS = Object.freeze({
+  green:  { bg: 'rgba(52,211,153,0.40)',  fg: '#34d399', border: 'rgba(52,211,153,0.55)' },
+  amber:  { bg: 'rgba(245,158,11,0.40)',  fg: '#f59e0b', border: 'rgba(245,158,11,0.55)' },
+  red:    { bg: 'rgba(239,68,68,0.40)',   fg: '#ef4444', border: 'rgba(239,68,68,0.55)' },
+  purple: { bg: 'rgba(138,92,255,0.40)',  fg: '#a78bfa', border: 'rgba(138,92,255,0.55)' },
+  blue:   { bg: 'rgba(96,165,250,0.40)',  fg: '#60a5fa', border: 'rgba(96,165,250,0.55)' },
+});
+function _iconStyle(colorKey) {
+  const c = ICON_COLORS[colorKey] || ICON_COLORS.blue;
+  return `background:${c.bg};color:${c.fg};border:1px solid ${c.border};`;
+}
+// Translate the existing .is-X class suffix to our color key.
+function _iconColorKey(iconClass) {
+  if (!iconClass) return 'blue';
+  return iconClass.replace(/^is-/, '');
+}
+
 // Intelligence Feed display mapper — change_type → user-facing copy.
 // LOCKED LANGUAGE per Brief 015: song-first, never system language.
 function _feedDisplay(alert) {
@@ -323,15 +345,49 @@ async function loadScanHistory(supabase, userId) {
   return data || [];
 }
 
-async function loadAlertFeed(supabase, userId, limit = 5) {
+// Brief 015a-rev2 Fix 5 — fetch a wider window (20) so we can filter
+// baseline-artifact alerts client-side and still surface up to 5 real
+// post-baseline changes in the feed.
+async function loadAlertFeed(supabase, userId, fetchLimit = 20) {
   const { data, error } = await supabase
     .from('monitoring_alerts')
     .select('change_type, severity, track_name, artist_name, territory, platform, detected_at, title, detail')
     .eq('user_id', userId)
     .order('detected_at', { ascending: false })
-    .limit(limit);
+    .limit(fetchLimit);
   if (error) { console.error('[mc] feed fetch failed', error); return []; }
   return data || [];
+}
+
+// Brief 015a-rev3 Fix 4 — baselineTimes is now passed in (queried once
+// per page load by _loadBaselineTimes against monitoring_alerts). The
+// previous in-alerts derivation failed when the baseline_established
+// marker fell outside the 20-row fetch window, leaving artifact alerts
+// visible. The dedicated query guarantees correctness regardless of how
+// many alerts the user has accumulated.
+//
+// Filter rule: a release_added alert whose detected_at is within 1 hour
+// of ANY baseline_established timestamp is treated as a baseline
+// artifact (from the first delta-engine run) and excluded.
+// baseline_established itself is kept — it IS a meaningful event.
+function _filterBaselineArtifacts(alerts, baselineTimes) {
+  if (!Array.isArray(alerts) || alerts.length === 0) return alerts;
+  if (!Array.isArray(baselineTimes) || baselineTimes.length === 0) return alerts;
+  const ONE_HOUR_MS = 60 * 60 * 1000;
+  return alerts.filter(a => {
+    if (a.change_type !== 'release_added') return true;
+    const t = new Date(a.detected_at).getTime();
+    if (Number.isNaN(t)) return true;
+    return !baselineTimes.some(bt => Math.abs(t - bt) <= ONE_HOUR_MS);
+  });
+}
+
+// For Card 4 "Last Change Detected" — exclude baseline_established too,
+// since the baseline marker is an inception event, not a "change".
+function _lastGenuineChangeAt(alerts, baselineTimes) {
+  const cleaned = _filterBaselineArtifacts(alerts, baselineTimes)
+    .filter(a => a.change_type !== 'baseline_established');
+  return cleaned.length > 0 ? cleaned[0].detected_at : null;
 }
 
 async function loadActionItems(supabase, userId, limit = 3) {
@@ -364,6 +420,23 @@ async function loadAlertOverview(supabase, userId) {
     out.resolved = resolvedResp.count || 0;
   } catch (e) { console.error('[mc] alert overview failed', e); }
   return out;
+}
+
+// Brief 015a-rev3 Fix 4 — loads every baseline_established detected_at
+// timestamp for the user. Separate query so the filter is correct even
+// when baseline_established lies outside the alert-feed fetch window.
+async function _loadBaselineTimes(supabase, userId) {
+  try {
+    const { data, error } = await supabase
+      .from('monitoring_alerts')
+      .select('detected_at')
+      .eq('user_id', userId)
+      .eq('change_type', 'baseline_established');
+    if (error) { console.error('[mc] baseline times fetch failed', error); return []; }
+    return (data || [])
+      .map(r => new Date(r.detected_at).getTime())
+      .filter(t => !Number.isNaN(t));
+  } catch (e) { console.error('[mc] baseline times fetch failed', e); return []; }
 }
 
 async function loadMonitoringActive(supabase, userId) {
@@ -417,11 +490,17 @@ function renderMcSidebar(profile) {
   }
 }
 
-// CARD 1 — Royaltē Health Score™ (Brief 015a Fix 1: uses resolver)
+// CARD 1 — Royaltē Health Score™
+// Score reading uses the resolver (so legacy snapshots still display).
+// Brief 015a-rev2 Fix 3 — delta only computes against a TRULY stored
+// baseline (not the V1 fallback). If baseline scan predates Brief 012a,
+// no fake delta — show "Baseline established" instead. Keeps Card 1 and
+// Card 9 in the same score family.
 function renderMcHealth(scan, history) {
-  const current  = _resolveHealthScoreFromSnapshot(scan);
-  const baseline = (history && history.length > 0) ? _resolveHealthScoreFromSnapshot(history[0]) : null;
-  const delta    = (current != null && baseline != null) ? (current - baseline) : null;
+  const current        = _resolveHealthScoreFromSnapshot(scan);
+  const baselineStored = (history && history.length > 0 && typeof history[0].health_score === 'number')
+    ? history[0].health_score : null;
+  const delta = (current != null && baselineStored != null) ? (current - baselineStored) : null;
 
   const numEl    = document.getElementById('mc-score-num');
   const circleEl = document.getElementById('mc-score-circle');
@@ -485,9 +564,16 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
 
   const rows = [];
 
+  // Each status dot now carries inline color styles in addition to its
+  // class — see ICON_COLORS / _iconStyle above. Bulletproof against any
+  // CSS that fails to load or is overridden.
+  const dotGreen  = _iconStyle('green');
+  const dotAmber  = _iconStyle('amber');
+  const dotRed    = _iconStyle('red');
+
   rows.push(`
     <div class="mc-status-row">
-      <div class="mc-status-dot ${monitoringActive ? 'is-green' : 'is-amber'}">
+      <div class="mc-status-dot ${monitoringActive ? 'is-green' : 'is-amber'}" style="${monitoringActive ? dotGreen : dotAmber}">
         <i class="ti ${monitoringActive ? 'ti-check' : 'ti-alert-triangle'}"></i>
       </div>
       <div class="mc-status-text">
@@ -500,7 +586,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   if (criticalCount > 0) {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot is-red"><i class="ti ti-alert-circle"></i></div>
+        <div class="mc-status-dot is-red" style="${dotRed}"><i class="ti ti-alert-circle"></i></div>
         <div class="mc-status-text">
           <div class="mc-status-title">${criticalCount} Critical Issue${criticalCount === 1 ? '' : 's'}</div>
           <div class="mc-status-sub">Requires attention</div>
@@ -510,7 +596,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   } else {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot is-green"><i class="ti ti-check"></i></div>
+        <div class="mc-status-dot is-green" style="${dotGreen}"><i class="ti ti-check"></i></div>
         <div class="mc-status-text">
           <div class="mc-status-title">No Critical Issues</div>
           <div class="mc-status-sub">No problems detected</div>
@@ -522,7 +608,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   if (opportunitiesCount > 0) {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot is-amber"><i class="ti ti-bulb"></i></div>
+        <div class="mc-status-dot is-amber" style="${dotAmber}"><i class="ti ti-bulb"></i></div>
         <div class="mc-status-text">
           <div class="mc-status-title">${opportunitiesCount} Opportunit${opportunitiesCount === 1 ? 'y' : 'ies'}</div>
           <div class="mc-status-sub">Review recommended</div>
@@ -532,7 +618,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   } else {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot is-green"><i class="ti ti-check"></i></div>
+        <div class="mc-status-dot is-green" style="${dotGreen}"><i class="ti ti-check"></i></div>
         <div class="mc-status-text">
           <div class="mc-status-title">No Opportunities</div>
           <div class="mc-status-sub">Nothing to review right now</div>
@@ -544,20 +630,25 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   list.innerHTML = rows.join('');
 }
 
-// CARD 3 — Intelligence Feed
-function renderMcFeed(alerts) {
+// CARD 3 — Intelligence Feed (Brief 015a-rev3 Fix 4 — baselineTimes
+// passed in from init so the filter works even when the marker is
+// outside the alert-feed fetch window).
+function renderMcFeed(alertsRaw, baselineTimes) {
   const list = document.getElementById('mc-feed-list');
   if (!list) return;
-  if (!alerts || alerts.length === 0) {
+  const alerts = _filterBaselineArtifacts(alertsRaw || [], baselineTimes).slice(0, 5);
+  if (alerts.length === 0) {
     list.innerHTML = `<div class="mc-feed-empty">Your backend is being watched. Royaltē will surface activity here as it's detected.</div>`;
     return;
   }
   list.innerHTML = alerts.map((a) => {
     const d = _feedDisplay(a);
     const when = relativeTimeShort(a.detected_at);
+    // Inline-style fallback — see ICON_COLORS / _iconStyle.
+    const iconStyle = _iconStyle(_iconColorKey(d.iconClass));
     return `
       <div class="mc-feed-item">
-        <div class="mc-feed-icon ${escapeHtml(d.iconClass)}"><i class="ti ${escapeHtml(d.iconName)}"></i></div>
+        <div class="mc-feed-icon ${escapeHtml(d.iconClass)}" style="${iconStyle}"><i class="ti ${escapeHtml(d.iconName)}"></i></div>
         <div class="mc-feed-body">
           <div class="mc-feed-title">${escapeHtml(d.title)}</div>
           <div class="mc-feed-sub">${escapeHtml(d.sub)}</div>
@@ -569,7 +660,7 @@ function renderMcFeed(alerts) {
 }
 
 // CARD 4 — Catalog Intelligence (Brief 015a Change 1)
-function renderMcCatalogIntelligence(scan, feedAlerts) {
+function renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes) {
   const am = scan?.payload?.platforms?.appleMusic?.details || {};
   const albums = Array.isArray(am.albums) ? am.albums : [];
   const tracks = albums.reduce((n, a) => n + (typeof a?.trackCount === 'number' ? a.trackCount : 0), 0);
@@ -578,9 +669,11 @@ function renderMcCatalogIntelligence(scan, feedAlerts) {
   const p = scan?.payload?.platforms || {};
   const sources = ['appleMusic','spotify','youtube','musicbrainz','discogs','lastfm']
     .filter(k => p[k]?.availability === 'VERIFIED').length;
-  const lastAlert = feedAlerts && feedAlerts.length > 0 ? feedAlerts[0] : null;
-  const lastChange = lastAlert?.detected_at
-    ? relativeTimePast(new Date(lastAlert.detected_at))
+  // Brief 015a-rev3 Fix 4 — baselineTimes passed in; exclude baseline
+  // artifacts AND the baseline marker itself.
+  const lastChangeAt = _lastGenuineChangeAt(feedAlerts, baselineTimes);
+  const lastChange = lastChangeAt
+    ? relativeTimePast(new Date(lastChangeAt))
     : 'No changes detected yet';
 
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
@@ -709,7 +802,15 @@ function renderMcMonitoringOverview({ history, alertOverview }) {
 }
 
 // CARD 9 — Your Royaltē Review (Brief 015a Change 3, swapped to position 9)
-function renderMcYourReview({ baseline, pdfUrl, confidenceLabel }) {
+//
+// Brief 015a-rev2 Fix 3 (revised) — when the baseline scan predates
+// Brief 012a it has no stored health_score, and the V1 fallback would
+// produce a misleading number (100 − risk = e.g. 25). Instead: show the
+// CURRENT scan's stored health_score so Card 1 and Card 9 always sit in
+// the same score family. Add the subtitle "Score reflects current data"
+// when we fall through to current. Card 1's delta also avoids the V1
+// fallback (see renderMcHealth) for the same consistency reason.
+function renderMcYourReview({ baseline, currentScan, pdfUrl, confidenceLabel }) {
   const numEl  = document.getElementById('mc-review-num');
   const dateEl = document.getElementById('mc-review-date');
   const confEl = document.getElementById('mc-review-confidence');
@@ -728,10 +829,19 @@ function renderMcYourReview({ baseline, pdfUrl, confidenceLabel }) {
     setPdfDisabled(true);
     return;
   }
-  const score = _resolveHealthScoreFromSnapshot(baseline);
-  if (numEl)  numEl.textContent = score == null ? '—' : String(score);
+
+  const baselineScore = typeof baseline.health_score === 'number' ? baseline.health_score : null;
+  const currentScore  = typeof currentScan?.health_score === 'number' ? currentScan.health_score : null;
+  const usingCurrent  = baselineScore == null && currentScore != null;
+  const scoreToShow   = baselineScore != null ? baselineScore : currentScore;
+
+  if (numEl)  numEl.textContent = scoreToShow == null ? '—' : String(scoreToShow);
   if (dateEl) dateEl.textContent = `Generated ${formatScanDateShort(baseline.scanned_at)}`;
-  if (confEl) confEl.textContent = `Review Confidence: ${confidenceLabel || '—'}`;
+  if (confEl) {
+    if (usingCurrent)              confEl.textContent = 'Score reflects current data';
+    else if (scoreToShow == null)  confEl.textContent = 'Review Confidence: —';
+    else                            confEl.textContent = `Review Confidence: ${confidenceLabel || '—'}`;
+  }
   if (pdfUrl) { if (pdfBtn) pdfBtn.href = pdfUrl; setPdfDisabled(false); }
   else        { setPdfDisabled(true); }
 }
@@ -933,10 +1043,11 @@ async function init() {
   renderMcSidebar(profile);
   renderTrialBanner(profile);
 
-  const [scan, history, monitoringActive] = await Promise.all([
+  const [scan, history, monitoringActive, baselineTimes] = await Promise.all([
     loadLatestScan(supabase, session.user.id),
     loadScanHistory(supabase, session.user.id),
     loadMonitoringActive(supabase, session.user.id),
+    _loadBaselineTimes(supabase, session.user.id),
   ]);
 
   const artistName = (scan && scan.artist_name) || (scan?.payload?.subject?.artistName) || (session.user?.email?.split('@')[0]) || 'Artist';
@@ -952,12 +1063,13 @@ async function init() {
   ]);
   renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesCount });
 
-  // Card 3 — Intelligence Feed (feed alerts also feed Card 4 last-change)
-  const feedAlerts = await loadAlertFeed(supabase, session.user.id, 5);
-  renderMcFeed(feedAlerts);
+  // Card 3 — Intelligence Feed (feed alerts also feed Card 4 last-change).
+  // baselineTimes passed to the artifact filter for both cards (Fix 4).
+  const feedAlerts = await loadAlertFeed(supabase, session.user.id);
+  renderMcFeed(feedAlerts, baselineTimes);
 
-  // Card 4 — Catalog Intelligence (uses scan + latest alert for "Last Change Detected")
-  renderMcCatalogIntelligence(scan, feedAlerts);
+  // Card 4 — Catalog Intelligence (uses scan + latest GENUINE change)
+  renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes);
 
   // Card 5 — Action Center
   const actionItems = await loadActionItems(supabase, session.user.id, 3);
@@ -977,7 +1089,7 @@ async function init() {
   const baseline = (history && history.length > 0) ? history[0] : null;
   const baselinePdfUrl = await loadBaselinePdf(supabase, baseline);
   const confidence = _confidenceLabelForScan(baseline || scan);
-  renderMcYourReview({ baseline, pdfUrl: baselinePdfUrl, confidenceLabel: confidence.label });
+  renderMcYourReview({ baseline, currentScan: scan, pdfUrl: baselinePdfUrl, confidenceLabel: confidence.label });
 
   // Below-grid conditional sections
   const reservation = await loadReservation(supabase, session.user.id);
