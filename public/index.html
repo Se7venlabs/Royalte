@@ -1473,6 +1473,13 @@ body.menu-locked {
 .os-cta-features li{position:relative;padding-left:16px;font-size:11px;color:var(--text2);line-height:1.55;}
 .os-cta-features li::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--grn);}
 .os-cta-card .os-cta-body{font-size:12px;color:var(--muted2);line-height:1.55;margin:0 0 12px;}
+.os-cta-card .os-fa-section{background:rgba(138,92,255,0.06);border:1px solid rgba(138,92,255,0.18);border-radius:8px;padding:14px 16px;margin:0 0 14px;}
+.os-cta-card .os-fa-heading{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#fff;letter-spacing:0.02em;text-transform:uppercase;margin:0 0 6px;}
+.os-cta-card .os-fa-sub{font-size:11.5px;color:var(--muted2);line-height:1.5;margin:0 0 10px;}
+.os-cta-card .os-fa-counter{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-top:8px;border-top:1px solid rgba(138,92,255,0.18);}
+.os-cta-card .os-fa-counter-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+.os-cta-card .os-fa-counter-value{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;}
+.bi-os-cta:disabled{opacity:0.5;cursor:not-allowed;}
 
 </style>
 </head>
@@ -1935,10 +1942,24 @@ body.menu-locked {
             <li>YouTube Presence</li>
           </ul>
           <p class="os-cta-body">Royaltē OS continuously monitors your music business backend and alerts you when meaningful changes are detected.</p>
-          <!-- bi-os-form IDs preserved → /api/submit-audit handler unchanged. -->
+          <!-- Founding Artist subsection (Brief 012a follow-up) — counter
+               populated by loadFoundingArtistCount() against
+               /api/founding-artist-count. Closed-state swap is innerHTML-
+               replaced and the submit button is disabled in place. -->
+          <div class="os-fa-section" id="os-fa-section">
+            <h3 class="os-fa-heading">Become A Founding Artist</h3>
+            <p class="os-fa-sub">The first 1,000 artists can secure lifetime Founding Artist access and unlock Royaltē OS before the program closes.</p>
+            <div class="os-fa-counter">
+              <div class="os-fa-counter-label">Founding Artist Program</div>
+              <div class="os-fa-counter-value" id="os-fa-counter-value">— of 1,000 spots claimed</div>
+            </div>
+          </div>
+          <!-- bi-os-form IDs preserved → sendMagicLink behavior unchanged.
+               Button text renamed per Brief 012a; submit handler at line ~3349
+               still calls sendMagicLink(email, 'homepage_scan'). -->
           <form class="bi-os-form" id="bi-os-form" novalidate>
             <input type="email" class="bi-os-email" id="bi-os-email" placeholder="your@email.com" autocomplete="email" required>
-            <button type="submit" class="bi-os-cta" data-cta="enter-os">Activate Royaltē OS</button>
+            <button type="submit" class="bi-os-cta" data-cta="enter-os">Become A Founding Artist</button>
           </form>
           <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
         </div>
@@ -3375,6 +3396,39 @@ if (biOsForm) {
     handleBiOsSubmit();
   });
 }
+
+// ── Founding Artist counter (Brief 012a follow-up) ──
+// Reads /api/founding-artist-count on page load and updates the Section 5
+// counter. On closed state (count >= 1000), swaps the subsection content
+// and disables the submit button in place. Network failures leave the
+// placeholder visible — no broken UX, just no live number.
+async function loadFoundingArtistCount() {
+  const valueEl   = document.getElementById('os-fa-counter-value');
+  const sectionEl = document.getElementById('os-fa-section');
+  const buttonEl  = biOsForm ? biOsForm.querySelector('.bi-os-cta') : null;
+  if (!valueEl || !sectionEl) return;
+  try {
+    const resp = await fetch('/api/founding-artist-count');
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const count = typeof data.count === 'number' ? data.count : null;
+    const cap   = typeof data.cap   === 'number' ? data.cap   : 1000;
+    if (data.closed) {
+      sectionEl.innerHTML =
+        '<h3 class="os-fa-heading">Founding Artist Program Closed</h3>' +
+        '<p class="os-fa-sub">The first 1,000 artists successfully secured Founding Artist access. Join the waitlist for standard membership.</p>';
+      if (buttonEl) {
+        buttonEl.textContent = 'Founding Artist Program Closed';
+        buttonEl.disabled = true;
+      }
+    } else if (count != null) {
+      valueEl.textContent = count + ' of ' + cap + ' spots claimed';
+    }
+  } catch (e) {
+    console.warn('[founding-artist-count] fetch failed', e);
+  }
+}
+loadFoundingArtistCount();
 
 // ── Royaltē OS login modal (Block F) ────────────────────────────
 // Returning-user entry. NOT an admin gate — any valid sign-in is let
