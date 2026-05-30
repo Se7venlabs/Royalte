@@ -94,11 +94,11 @@ async function sendAuditEmail({ to, artistName, pdfUrl }) {
 
   const html = `
     <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;max-width:560px;color:#1a0d2e;line-height:1.5;">
-      <h2 style="color:#8a5cff;font-size:22px;margin:0 0 16px 0;">Your Royaltē Audit is Ready</h2>
+      <h2 style="color:#8a5cff;font-size:22px;margin:0 0 16px 0;">Your Royaltē Review Is Ready</h2>
       <p>Hi,</p>
-      <p>The audit for <strong>${safeArtist}</strong> is complete.</p>
+      <p>Your Royaltē Review for <strong>${safeArtist}</strong> is ready. It is the baseline document Royaltē OS will monitor moving forward.</p>
       <p style="margin:20px 0;">
-        <a href="${safeUrl}" style="display:inline-block;background:linear-gradient(135deg,#8a5cff,#e040c8);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:600;">Download Your Audit (PDF)</a>
+        <a href="${safeUrl}" style="display:inline-block;background:linear-gradient(135deg,#8a5cff,#e040c8);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:600;">Download Your Royaltē Review (PDF)</a>
       </p>
       <p style="color:#666;font-size:13px;">If the button doesn't work, copy this link:<br><a href="${safeUrl}" style="color:#8a5cff;word-break:break-all;">${safeUrl}</a></p>
       <p>Questions? Just reply to this email.</p>
@@ -109,7 +109,7 @@ async function sendAuditEmail({ to, artistName, pdfUrl }) {
   const result = await resend.emails.send({
     from:    'Royaltē <info@royalte.ai>',
     to:      [to],
-    subject: 'Your Royaltē Audit',
+    subject: `Your Royaltē Review — ${artistName || 'your music'}`,
     html,
   });
   if (result.error) {
