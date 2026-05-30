@@ -4,1378 +4,664 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Royaltē Dashboard · Music Audit Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<!-- Tabler outline icons — used by the V2 Backend Protection panel (Brief 004). -->
+<title>Mission Control · Royaltē</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Tabler outline icons — used throughout Mission Control. -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/tabler-icons.min.css">
 <style>
-/* ─────────────────────────────────────────────────────────────────
-   ROYALTĒ DASHBOARD V1
-   Design system inherited from index.html (homepage / scan results).
-   Do NOT introduce new tokens. Reuse existing CSS variables only.
-   ───────────────────────────────────────────────────────────────── */
+/* ───────────────────────────────────────────────────────────────────────
+   ROYALTĒ MISSION CONTROL (Brief 015)
+   The primary authenticated experience. Replaces the V1 dashboard
+   entirely — new 200px sidebar + 3×3 grid of 9 cards. Single source
+   of truth for the V2 Health Score is computeV2HealthScore() in
+   api/_lib/persist-os-scan.js — surfaces consume the stored value,
+   none recompute.
+   ─────────────────────────────────────────────────────────────────── */
 
 :root{
-  --bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
-  --border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
-  --text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
-  --pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+  --bg:#0a0a0f;
+  --bg-2:#0d0b1a;
+  --card:#0e0b1e;
+  --border:rgba(138,92,255,0.15);
+  --border-2:rgba(138,92,255,0.25);
+  --border-soft:rgba(255,255,255,0.06);
+  --text:#e8e4f4;
+  --text-2:#d4d0e8;
+  --muted:rgba(255,255,255,0.4);
+  --muted-2:rgba(255,255,255,0.3);
+  --muted-3:rgba(255,255,255,0.2);
+  --pur:#8a5cff;
+  --pur-2:#a78bfa;
+  --pnk:#e040c8;
+  --grn:#34d399;
+  --amb:#f59e0b;
+  --red:#ef4444;
+  --blu:#60a5fa;
   --grad:linear-gradient(135deg,#8a5cff,#e040c8);
-  --glow:0 0 80px rgba(138,92,255,0.2);
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;min-height:100vh;}
+html,body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;line-height:1.5;}
+button{font-family:inherit;cursor:pointer;}
+a{color:inherit;text-decoration:none;}
+ul,ol{list-style:none;}
 
-/* same grid background + noise overlay as homepage */
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
-body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
+/* ── Outer shell ─────────────────────────────────────────────────────── */
+.shell{display:grid;grid-template-rows:auto 1fr auto;min-height:100vh;}
+.grid-row{display:grid;grid-template-columns:200px 1fr;min-height:0;}
 
-/* atmospheric orbs (lighter than homepage so dashboard reads cleaner) */
-.orb-a{position:fixed;top:-200px;left:-150px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(138,92,255,0.08) 0%,transparent 65%);pointer-events:none;z-index:0;}
-.orb-b{position:fixed;bottom:-200px;right:-150px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(224,64,200,0.05) 0%,transparent 65%);pointer-events:none;z-index:0;}
-
-/* ─── APP SHELL (sidebar + main) ─── */
-.app{position:relative;z-index:2;display:grid;grid-template-columns:264px 1fr;min-height:100vh;}
-
-/* ─── SIDEBAR ─── */
-.sidebar{background:rgba(7,7,15,0.7);backdrop-filter:blur(28px);border-right:1px solid var(--border);padding:28px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
-.sb-brand{display:flex;align-items:center;gap:10px;padding:0 24px 32px;text-decoration:none;}
-.sb-brand-logo{height:76px;width:auto;display:block;}
-
-.sb-nav{display:flex;flex-direction:column;gap:2px;padding:0 12px;flex:1;}
-.sb-link{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:6px;font-size:13px;font-weight:600;color:var(--muted2);text-decoration:none;letter-spacing:0.04em;text-transform:uppercase;font-family:'Space Grotesk',sans-serif;transition:all 0.18s;border:1px solid transparent;cursor:pointer;}
-.sb-link:hover{color:var(--text);background:rgba(138,92,255,0.05);}
-.sb-link.active{color:#fff;background:rgba(138,92,255,0.12);border-color:var(--border2);box-shadow:inset 0 0 24px rgba(138,92,255,0.08);}
-.sb-link svg{width:16px;height:16px;flex-shrink:0;opacity:0.85;}
-.sb-link.active svg{opacity:1;color:var(--pur);}
-.sb-link-name{flex:1;}
-.sb-badge{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;background:rgba(240,80,96,0.15);color:var(--red);border:1px solid rgba(240,80,96,0.3);letter-spacing:0.06em;}
-.sb-badge.soon{background:rgba(138,92,255,0.1);color:var(--pur);border-color:var(--border2);}
-
-/* upgrade card in sidebar */
-.sb-upgrade{margin:24px 16px 16px;padding:20px 18px;background:#0e0b1e;border:1px solid var(--border2);border-radius:8px;text-align:center;position:relative;overflow:hidden;}
-.sb-upgrade::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
-.sb-upgrade-badge{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);margin-bottom:10px;}
-.sb-upgrade-body{font-size:11px;color:var(--muted2);line-height:1.55;margin:0;}
-.sb-upgrade-context{font-size:10.5px;color:var(--muted);line-height:1.55;margin:8px 0 0;}
-.sb-upgrade-state-paused .sb-upgrade-body{margin-bottom:14px;}
-.sb-upgrade-cta{display:block;width:100%;background:var(--grad);color:#fff;padding:10px;border:none;border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;}
-.sb-upgrade-cta:hover{opacity:0.88;}
-
-/* user pill */
-.sb-user{margin:0 16px 12px;padding:12px 14px;background:rgba(7,7,15,0.5);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;gap:10px;}
-.sb-user-avatar{width:34px;height:34px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
-.sb-user-info{flex:1;min-width:0;}
-.sb-user-name{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#fff;font-family:'Rajdhani',sans-serif;letter-spacing:0.03em;text-transform:uppercase;}
-.sb-user-verified{color:var(--cyn);}
-.sb-user-plan{font-family:'Space Mono',monospace;font-size:9px;color:var(--pur);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;}
-
-.sb-foot{padding:0 16px;display:flex;flex-direction:column;gap:2px;}
-.sb-foot a{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:0.06em;text-decoration:none;border-radius:6px;transition:color 0.18s;}
-.sb-foot a:hover{color:var(--muted2);}
-.sb-foot svg{width:14px;height:14px;}
-
-/* ─── MAIN ─── */
-.main{padding:36px 48px 80px;max-width:1360px;width:100%;}
-
-/* page header */
-.page-hd{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;margin-bottom:32px;}
-.page-hd-left{flex:1;min-width:300px;}
-.welcome-h1{font-family:'Rajdhani',sans-serif;font-size:clamp(28px,3.5vw,40px);font-weight:700;line-height:1;letter-spacing:-0.005em;text-transform:uppercase;color:#fff;margin-bottom:8px;}
-.welcome-h1 .wave{display:inline-block;animation:wave 2s ease infinite;transform-origin:70% 70%;font-size:0.85em;}
-@keyframes wave{0%,100%{transform:rotate(0deg);}10%,30%{transform:rotate(14deg);}20%{transform:rotate(-8deg);}40%{transform:rotate(0deg);}}
-.dash-status-strip{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted2);letter-spacing:0.04em;margin:0 0 6px;}
-.dss-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;}
-.dss-dot.active{background:#40f0a0;box-shadow:0 0 6px rgba(64,240,160,0.6);}
-.dss-sep{color:var(--muted);}
-.dash-subtitle{font-size:12px;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-style:italic;letter-spacing:0.02em;margin:0 0 14px;}
-
-.page-hd-right{display:flex;align-items:center;gap:12px;}
-.scan-btn{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;padding:12px 22px;border:none;border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;text-decoration:none;}
-.scan-btn:hover{opacity:0.88;}
-.scan-btn svg{width:14px;height:14px;}
-.bell-btn{position:relative;width:42px;height:42px;border-radius:6px;background:rgba(138,92,255,0.06);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--muted2);cursor:pointer;transition:all 0.18s;}
-.bell-btn:hover{color:var(--text);background:rgba(138,92,255,0.12);}
-.bell-btn svg{width:18px;height:18px;}
-.bell-count{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);}
-
-/* ─── HERO BANNER (overall score + 3 stat tiles) ─── */
-.hero-banner{background:#0e0b1e;border:1px solid rgba(138,92,255,0.4);border-radius:10px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;display:grid;grid-template-columns:auto minmax(220px,1fr) auto auto auto;gap:28px;align-items:center;}
-.hero-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);}
-.hero-banner::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 0% 0%,rgba(138,92,255,0.08) 0%,transparent 60%);pointer-events:none;}
-
-.hero-score-block{display:flex;align-items:center;gap:18px;position:relative;}
-.score-ring{width:88px;height:88px;position:relative;flex-shrink:0;}
-.score-ring svg{transform:rotate(-90deg);}
-.score-ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.score-ring-val{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
-.score-ring-lbl{font-size:8px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin-top:2px;}
-
-.hero-score-info{display:flex;flex-direction:column;gap:4px;}
-.hero-score-tag{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--pur);margin-bottom:2px;}
-.hero-score-h{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.15;max-width:240px;}
-.hero-score-link{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:11px;color:var(--pur);letter-spacing:0.06em;text-decoration:none;margin-top:6px;cursor:pointer;background:none;border:none;}
-.hero-score-link:hover{color:#fff;}
-
-.hero-stat{display:flex;flex-direction:column;gap:4px;min-width:140px;position:relative;}
-.hero-stat-ico{position:absolute;top:-2px;left:0;width:32px;height:32px;border-radius:50%;background:rgba(138,92,255,0.1);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--pur);}
-.hero-stat-ico svg{width:14px;height:14px;}
-.hero-stat-body{padding-left:44px;}
-.hero-stat-lbl{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted2);}
-.hero-stat-val{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:#fff;line-height:1.15;letter-spacing:-0.01em;}
-.hero-stat-sub{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.06em;}
-.hero-stat-sub.high{color:var(--amb);}
-.hero-stat-sub.med{color:var(--amb);}
-.hero-stat-sub.low{color:var(--grn);}
-.hero-stat-sub.good{color:var(--grn);}
-.hero-stat-sub.bad{color:var(--red);}
-
-/* Revenue Exposure is the hero-stat centerpiece (V4 emphasis rebalance) */
-.hero-stat.primary .hero-stat-lbl{font-size:11px;color:var(--text2);}
-.hero-stat.primary .hero-stat-val{font-size:32px;text-shadow:0 0 24px rgba(138,92,255,0.45);}
-.hero-stat.primary .hero-stat-sub{font-size:12px;display:inline-flex;width:fit-content;padding:3px 10px;border-radius:100px;}
-.hero-stat.primary .hero-stat-sub.high,
-.hero-stat.primary .hero-stat-sub.med{background:rgba(240,192,64,0.14);border:1px solid rgba(240,192,64,0.45);}
-.hero-stat.primary .hero-stat-sub.low{background:rgba(64,240,160,0.14);border:1px solid rgba(64,240,160,0.45);}
-.hero-stat:not(.primary) .hero-stat-val{font-size:21px;}
-.hero-stat:not(.primary) .hero-stat-lbl{font-size:9px;}
-.hero-stat-conf{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:5px;}
-
-/* ─── ARTIST IDENTITY CARD (inside hero-banner middle slot) ─── */
-.hero-identity{background:rgba(7,7,15,0.55);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;position:relative;overflow:hidden;align-self:stretch;justify-content:center;min-width:0;max-width:340px;}
-.hero-identity::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(138,92,255,0.06) 0%,transparent 70%);pointer-events:none;}
-.hi-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0;position:relative;}
-.hi-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);flex-shrink:0;}
-.hi-name{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.1;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-width:0;flex:1;}
-.hi-resolved{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;color:var(--text2);letter-spacing:0.01em;line-height:1.3;}
-.hi-status{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;color:var(--grn);letter-spacing:0.05em;margin-top:1px;}
-.hi-status.limited{color:var(--amb);}
-.hi-status svg{width:10px;height:10px;flex-shrink:0;}
-.hi-status .pulse-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite;flex-shrink:0;}
-.hi-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px;position:relative;}
-.hi-pill{display:inline-flex;align-items:center;gap:4px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 7px;border-radius:100px;letter-spacing:0.06em;}
-.hi-pill.verified{background:rgba(64,240,160,0.08);color:var(--grn);border:1px solid rgba(64,240,160,0.28);}
-.hi-pill.limited{background:rgba(240,192,64,0.08);color:var(--amb);border:1px solid rgba(240,192,64,0.28);}
-.hi-pill svg{width:9px;height:9px;flex-shrink:0;}
-.hi-fallback{display:inline-flex;align-items:center;gap:4px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 7px;border-radius:100px;letter-spacing:0.06em;background:rgba(240,192,64,0.08);color:var(--amb);border:1px solid rgba(240,192,64,0.28);width:fit-content;margin-top:2px;}
-.hi-fallback svg{width:9px;height:9px;flex-shrink:0;}
-
-/* tiny artist avatar — sits inline with name, never dominates */
-.hi-name-row{display:flex;align-items:center;gap:9px;min-width:0;position:relative;}
-.hi-avatar{width:44px;height:44px;border-radius:6px;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,rgba(138,92,255,0.18),rgba(224,64,200,0.18));border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;position:relative;}
-.hi-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
-.hi-avatar-initials{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.04em;line-height:1;}
-.hi-name-stack{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1;}
-.hi-name-stack .hi-label{margin-bottom:1px;}
-.hi-name-stack .hi-name{font-size:17px;}
-
-/* stale data banner */
-.hi-stale{display:flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:9px;color:var(--amb);letter-spacing:0.06em;margin-top:3px;padding-top:5px;border-top:1px dashed rgba(240,192,64,0.2);}
-.hi-stale svg{width:10px;height:10px;flex-shrink:0;}
-
-/* ─── VERIFIED STRIP ─── */
-.verified-strip{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;padding:12px 18px;background:rgba(64,240,160,0.04);border:1px solid rgba(64,240,160,0.18);border-radius:6px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.08em;color:var(--muted2);}
-.verified-strip-ico{color:var(--grn);}
-.verified-strip strong{color:var(--grn);font-weight:700;letter-spacing:0.1em;}
-.verified-strip .dot-sep{color:var(--border2);}
-
-/* ─── 2-COLUMN GRID ─── */
-.grid-2{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px;}
-.grid-2-eq{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
-
-/* card baseline */
-.card{background:#0e0b1e;border:1px solid var(--border2);border-radius:10px;padding:22px;position:relative;}
-.card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
-.card-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:#fff;display:flex;align-items:center;gap:8px;}
-.card-title-info{width:14px;height:14px;color:var(--muted);}
-.card-sub{font-size:12px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;margin-top:-10px;margin-bottom:14px;}
-.card-sub-meta{font-size:10.5px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:0.04em;line-height:1.55;margin:-8px 0 14px;}
-.card-pill{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px;letter-spacing:0.08em;}
-.card-pill.count{background:rgba(240,80,96,0.12);color:var(--red);border:1px solid rgba(240,80,96,0.25);}
-
-/* ─── V3 SECTION 1 — BACKEND INTELLIGENCE ────────────────────── */
-.bi-section{padding:16px 0;border-bottom:1px solid var(--border3);}
-.bi-section:last-of-type{border-bottom:none;}
-.bi-section-header{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:13px;}
-/* Status — monitoring node strip + Backend Confidence hero */
-.bi-status-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;}
-.bi-status-row:last-child{margin-bottom:0;}
-.bi-dot-strip{display:inline-flex;gap:5px;align-items:center;}
-.bi-dot{width:10px;height:10px;border-radius:50%;}
-.bi-dot-verified{background:var(--text2);box-shadow:0 0 6px rgba(255,255,255,0.15);animation:bi-node-pulse 4s ease-in-out infinite;}
-.bi-dot-unverified{background:transparent;border:1px solid var(--border2);}
-@keyframes bi-node-pulse{0%,100%{box-shadow:0 0 6px rgba(255,255,255,0.15);}50%{box-shadow:0 0 10px rgba(255,255,255,0.25);}}
-.bi-confidence-tier{font-family:'Rajdhani',sans-serif;font-weight:800;font-size:26px;letter-spacing:0.04em;line-height:1;text-shadow:0 0 24px rgba(138,92,255,0.15);}
-.bi-confidence-tier-strong{color:var(--pur);}
-.bi-confidence-tier-established{color:#fff;}
-.bi-confidence-tier-early{color:var(--muted2);}
-/* Verified Presence — node-style verification indicators */
-.bi-assertion-list{display:flex;flex-direction:column;gap:8px;}
-.bi-assertion{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-size:13px;color:var(--text2);line-height:1.4;}
-.bi-assertion.pending{color:var(--amb);}
-.bi-assertion-node{flex-shrink:0;width:15px;height:15px;border-radius:50%;background:rgba(64,240,160,0.12);border:1px solid var(--grn);display:inline-flex;align-items:center;justify-content:center;}
-.bi-assertion-node::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--grn);box-shadow:0 0 5px rgba(64,240,160,0.7);}
-.bi-assertion.pending .bi-assertion-node{background:rgba(240,192,64,0.12);border-color:var(--amb);}
-.bi-assertion.pending .bi-assertion-node::after{background:var(--amb);box-shadow:0 0 5px rgba(240,192,64,0.7);}
-/* Stat rows — single column on mobile, 2-column grid on desktop */
-.bi-row{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--border3);}
-.bi-row:last-child{border-bottom:none;padding-bottom:0;}
-.bi-row-label{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);}
-.bi-row-value{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-align:right;line-height:1.1;}
-/* Backend Observations — severity hierarchy, no wall-of-red */
-.bi-observation{font-family:'Space Grotesk',sans-serif;font-size:13px;line-height:1.5;margin:7px 0;display:flex;gap:9px;padding-left:11px;}
-.bi-observation .bi-obs-icon{flex-shrink:0;}
-.bi-observation-critical{color:var(--red);border-left:2px solid var(--red);}
-.bi-observation-high{color:#ffb84d;border-left:2px solid #ffb84d;}
-.bi-observation-warning{color:#ffd166;border-left:2px solid #ffd166;}
-.bi-observation-info{color:#8a8ec7;border-left:2px solid var(--border2);}
-.bi-no-issues{color:var(--grn);}
-.bi-summary{font-family:'Space Grotesk',sans-serif;font-size:13px;font-style:italic;color:var(--muted);line-height:1.55;margin-top:20px;padding-top:16px;border-top:1px solid var(--border3);}
-@media (min-width:1024px){
-  .bi-row-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 32px;}
-  .bi-row-grid .bi-row:nth-last-child(2):nth-child(odd){border-bottom:none;}
-  .bi-assertion-list{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
+/* ── Top bar ─────────────────────────────────────────────────────────── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border-soft);
+  background:var(--bg-2);
 }
-@media (prefers-reduced-motion:reduce){
-  .bi-dot-verified{animation:none;}
+.topbar-left .tb-welcome{font-size:20px;font-weight:600;color:var(--text);line-height:1.2;}
+.topbar-left .tb-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.tb-last-scan{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+.tb-last-scan i{font-size:14px;}
+.tb-scan-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:8px;
+  background:transparent;border:1px solid rgba(138,92,255,0.5);
+  color:var(--pur-2);font-size:11px;font-weight:600;letter-spacing:0.04em;
+  text-transform:uppercase;transition:all 0.18s;
 }
+.tb-scan-btn:hover{background:rgba(138,92,255,0.08);}
+.tb-scan-btn i{font-size:14px;}
 
-/* dropdown / select */
-.range-select{display:inline-flex;align-items:center;gap:6px;background:rgba(7,7,15,0.6);border:1px solid var(--border2);border-radius:4px;padding:6px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;cursor:pointer;transition:border-color 0.18s;}
-.range-select:hover{border-color:rgba(138,92,255,0.5);}
-.range-select svg{width:12px;height:12px;color:var(--muted);}
-
-/* ─── GAP-BASED EXPOSURE CARD ─── */
-.gbe-body{display:flex;flex-direction:column;}
-.gbe-primary-statement{font-size:14px;color:var(--text2);line-height:1.55;margin:0 0 16px;}
-.gbe-aggregate{margin-bottom:2px;}
-.gbe-aggregate-label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-.gbe-aggregate-value{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:#fff;letter-spacing:0.02em;line-height:1.1;}
-.gbe-aggregate-value.gbe-exposure-pending{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:400;}
-.gbe-aggregate-note{font-size:12px;color:var(--muted2);margin-top:6px;line-height:1.5;}
-.gbe-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:16px 0;}
-.gbe-indicator{padding:13px 0;border-bottom:1px solid var(--border3);}
-.gbe-indicator:last-of-type{border-bottom:none;padding-bottom:0;}
-.gbe-indicator-head{display:flex;align-items:baseline;gap:9px;}
-.gbe-indicator-icon{flex-shrink:0;font-size:13px;}
-.gbe-indicator-sev{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;flex-shrink:0;}
-.gbe-indicator-title{font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:600;color:#fff;line-height:1.4;}
-.gbe-indicator-severity-high .gbe-indicator-icon,.gbe-indicator-severity-high .gbe-indicator-sev{color:var(--red);}
-.gbe-indicator-severity-med .gbe-indicator-icon,.gbe-indicator-severity-med .gbe-indicator-sev{color:#ffb84d;}
-.gbe-indicator-severity-low .gbe-indicator-icon,.gbe-indicator-severity-low .gbe-indicator-sev{color:var(--muted2);}
-.gbe-indicator-desc{font-size:12.5px;color:var(--muted2);line-height:1.5;margin:5px 0 5px 22px;}
-.gbe-exposure-value{font-family:'Space Mono',monospace;font-size:12px;color:var(--text2);letter-spacing:0.02em;}
-.gbe-exposure-pending{font-family:'Space Grotesk',sans-serif;font-size:12px;font-style:italic;color:var(--muted);}
-.gbe-indicator .gbe-exposure-value,.gbe-indicator .gbe-exposure-pending{margin-left:22px;display:block;}
-.gbe-disclaimer{font-size:12px;color:var(--muted);font-style:italic;line-height:1.55;margin:0;}
-.gbe-empty{text-align:center;padding:18px 8px;}
-.gbe-empty-check{font-size:30px;color:var(--grn);line-height:1;margin-bottom:10px;}
-.gbe-empty-title{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:8px;}
-.gbe-empty-body{font-size:13px;color:var(--muted2);line-height:1.6;margin:0 auto;max-width:380px;}
-/* ─── REVENUE EXPOSURE CARD (legacy .rev-* — retained, no longer rendered) ─── */
-.rev-headline{display:flex;align-items:baseline;gap:14px;margin-bottom:4px;flex-wrap:wrap;}
-.rev-amount{font-family:'Rajdhani',sans-serif;font-size:42px;font-weight:700;color:#fff;line-height:1;letter-spacing:-0.015em;}
-.rev-tier-pill{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 10px;border-radius:100px;letter-spacing:0.1em;text-transform:uppercase;}
-.rev-tier-pill.high{background:rgba(240,80,96,0.12);color:var(--red);border:1px solid rgba(240,80,96,0.3);}
-.rev-tier-pill.med{background:rgba(240,192,64,0.1);color:var(--amb);border:1px solid rgba(240,192,64,0.3);}
-.rev-tier-pill.low{background:rgba(64,240,160,0.08);color:var(--grn);border:1px solid rgba(64,240,160,0.3);}
-.rev-confidence{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-.rev-sub{font-size:13px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;margin-bottom:24px;}
-
-.rev-chart{height:180px;width:100%;position:relative;}
-.rev-chart svg{width:100%;height:100%;display:block;}
-
-.rev-helper{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:rgba(138,92,255,0.05);border:1px solid var(--border);border-radius:6px;margin-top:18px;}
-.rev-helper-ico{width:28px;height:28px;border-radius:50%;background:rgba(138,92,255,0.12);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--pur);}
-.rev-helper-ico svg{width:14px;height:14px;}
-.rev-helper-t{font-size:13px;line-height:1.55;color:var(--text2);}
-.rev-helper-t strong{color:#fff;font-weight:700;}
-
-/* ─── RECENT SCAN CARD ─── */
-.recent-scan-meta{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted2);letter-spacing:0.06em;margin-bottom:18px;}
-.scan-status{display:flex;align-items:center;gap:10px;padding:14px 16px;background:rgba(64,240,160,0.05);border:1px solid rgba(64,240,160,0.2);border-radius:6px;margin-bottom:14px;}
-.scan-status-ico{width:24px;height:24px;border-radius:50%;background:rgba(64,240,160,0.15);display:flex;align-items:center;justify-content:center;color:var(--grn);flex-shrink:0;}
-.scan-status-ico svg{width:14px;height:14px;}
-.scan-status-text{flex:1;}
-.scan-status-h{font-size:13px;font-weight:700;color:#fff;line-height:1.3;}
-.scan-status-d{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;margin-top:3px;}
-.recent-scan .scan-btn{width:100%;justify-content:center;margin-bottom:14px;}
-.next-scan{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--border3);}
-.next-scan-ico{color:var(--muted);}
-.next-scan-ico svg{width:14px;height:14px;}
-.next-scan-text{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;}
-.next-scan-text strong{color:var(--text);font-weight:700;}
-
-/* ─── ISSUES + ACTION PLAN GRID ─── */
-.issues-list{display:flex;flex-direction:column;gap:0;}
-.issue-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border3);transition:background 0.15s;cursor:pointer;}
-.issue-row:last-child{border-bottom:none;}
-.issue-row:hover{background:rgba(138,92,255,0.04);}
-.issue-ico{width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.issue-ico.high{background:rgba(240,80,96,0.1);color:var(--red);border:1px solid rgba(240,80,96,0.2);}
-.issue-ico.med{background:rgba(240,192,64,0.08);color:var(--amb);border:1px solid rgba(240,192,64,0.2);}
-.issue-ico.low{background:rgba(64,240,160,0.06);color:var(--grn);border:1px solid rgba(64,240,160,0.2);}
-.issue-ico svg{width:16px;height:16px;}
-.issue-body{min-width:0;}
-.issue-title{font-size:13px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:3px;}
-.issue-desc{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;}
-.issue-sev{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
-.issue-sev.high{color:var(--red);}
-.issue-sev.med{color:var(--amb);}
-.issue-sev.low{color:var(--grn);}
-.issue-impact{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--text);min-width:74px;text-align:right;letter-spacing:0.04em;}
-
-.issues-foot{display:none;} /* deprecated — replaced by .issues-locked-overflow */
-
-.view-all{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--pur);letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;cursor:pointer;background:none;border:none;}
-.view-all:hover{color:#fff;}
-.view-all svg{width:12px;height:12px;}
-
-/* action plan */
-.action-list{display:flex;flex-direction:column;}
-.action-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border3);position:relative;cursor:pointer;}
-.action-row:last-child{border-bottom:none;}
-.action-row:hover{background:rgba(138,92,255,0.04);}
-.action-num{width:34px;height:34px;border-radius:50%;background:rgba(138,92,255,0.08);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--pur);flex-shrink:0;}
-.action-row::after{content:'';position:absolute;left:16px;top:48px;width:1px;height:calc(100% - 24px);background:var(--border);}
-.action-row:last-child::after{display:none;}
-.action-body{min-width:0;}
-.action-title{font-size:13px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:3px;}
-.action-meta{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;display:flex;align-items:center;gap:6px;}
-.action-meta svg{width:11px;height:11px;}
-.action-pill{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px;letter-spacing:0.08em;text-transform:uppercase;}
-.action-pill.high{background:rgba(240,80,96,0.12);color:var(--red);border:1px solid rgba(240,80,96,0.25);}
-.action-pill.med{background:rgba(240,192,64,0.1);color:var(--amb);border:1px solid rgba(240,192,64,0.25);}
-.action-pill.low{background:rgba(64,240,160,0.08);color:var(--grn);border:1px solid rgba(64,240,160,0.25);}
-.action-arrow{color:var(--muted);}
-.action-arrow svg{width:14px;height:14px;}
-
-.action-foot-btn{display:none;} /* deprecated — replaced by .action-locked-cta inside .action-locked-overlay */
-
-/* ─── LOCKED CONTENT SYSTEM ─── */
-
-/* big horizontal lock strip between revenue row and issues row */
-.lock-strip{display:flex;align-items:center;gap:18px;background:linear-gradient(135deg,rgba(138,92,255,0.08),rgba(224,64,200,0.05));border:1px solid var(--border2);border-radius:10px;padding:18px 22px;margin-bottom:18px;position:relative;overflow:hidden;}
-.lock-strip::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
-.lock-strip-ico{width:42px;height:42px;border-radius:8px;background:rgba(138,92,255,0.12);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--pur);flex-shrink:0;}
-.lock-strip-ico svg{width:20px;height:20px;}
-.lock-strip-body{flex:1;min-width:0;}
-.lock-strip-h{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.2;margin-bottom:4px;}
-.lock-strip-d{font-size:13px;color:var(--text2);line-height:1.55;}
-.lock-strip-d strong{color:#fff;font-weight:700;}
-.lock-strip-cta{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;padding:11px 22px;border:none;border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;text-decoration:none;flex-shrink:0;}
-.lock-strip-cta:hover{opacity:0.88;}
-.lock-strip-cta svg{width:12px;height:12px;}
-
-/* locked overflow row inside Top Issues card */
-.issues-locked-overflow{display:flex;align-items:center;gap:12px;padding:14px 14px;margin-top:10px;background:rgba(138,92,255,0.06);border:1px solid var(--border2);border-radius:6px;cursor:pointer;transition:background 0.18s;text-decoration:none;}
-.issues-locked-overflow:hover{background:rgba(138,92,255,0.12);}
-.issues-locked-ico{width:30px;height:30px;border-radius:6px;background:rgba(138,92,255,0.12);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--pur);flex-shrink:0;}
-.issues-locked-ico svg{width:14px;height:14px;}
-.issues-locked-text{flex:1;min-width:0;}
-.issues-locked-h{font-size:13px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:2px;}
-.issues-locked-d{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;}
-.issues-locked-arrow{color:var(--pur);flex-shrink:0;}
-.issues-locked-arrow svg{width:14px;height:14px;}
-
-/* locked overlay for Action Plan card */
-.action-locked-wrap{position:relative;}
-.action-locked-preview{filter:blur(2px);opacity:0.45;pointer-events:none;user-select:none;}
-.action-locked-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;background:linear-gradient(180deg,rgba(14,11,30,0.55) 0%,rgba(14,11,30,0.92) 60%,rgba(14,11,30,0.98) 100%);border-radius:8px;}
-.action-locked-ico{width:48px;height:48px;border-radius:10px;background:rgba(138,92,255,0.14);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--pur);margin-bottom:12px;}
-.action-locked-ico svg{width:22px;height:22px;}
-.action-locked-h{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.02em;line-height:1.2;margin-bottom:6px;}
-.action-locked-d{font-size:12px;color:var(--muted2);font-family:'Space Mono',monospace;letter-spacing:0.04em;line-height:1.5;margin-bottom:14px;max-width:280px;}
-.action-locked-cta{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;padding:11px 22px;border:none;border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;text-decoration:none;}
-.action-locked-cta:hover{opacity:0.88;}
-.action-locked-cta svg{width:12px;height:12px;}
-
-@media(max-width:760px){
-  .lock-strip{flex-direction:column;text-align:center;}
-  .lock-strip-cta{width:100%;justify-content:center;}
+/* ── Sidebar ─────────────────────────────────────────────────────────── */
+.sidebar{
+  background:var(--bg-2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  padding:0;min-height:100%;
 }
+.sb-logo{padding:20px 16px 8px;}
+.sb-logo-mark{font-size:18px;font-weight:700;color:#fff;letter-spacing:0.02em;font-family:'Rajdhani',sans-serif;}
+.sb-logo-mark .em{color:var(--pur-2);}
+.sb-logo-tag{
+  font-size:9px;letter-spacing:0.12em;color:var(--pur-2);
+  text-transform:uppercase;margin-top:2px;font-family:'Space Mono',monospace;
+}
+.sb-nav{padding:8px;display:flex;flex-direction:column;gap:2px;}
+.sb-nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:8px;
+  color:var(--text-2);transition:all 0.14s;cursor:pointer;
+}
+.sb-nav-item i{font-size:18px;color:var(--muted);flex-shrink:0;}
+.sb-nav-text{display:flex;flex-direction:column;min-width:0;}
+.sb-nav-label{font-size:13px;font-weight:500;line-height:1.15;}
+.sb-nav-sub{font-size:10px;color:var(--muted-2);line-height:1.2;margin-top:1px;}
+.sb-nav-item:hover{background:rgba(255,255,255,0.05);}
+.sb-nav-item.is-active{background:rgba(138,92,255,0.2);color:var(--pur-2);}
+.sb-nav-item.is-active i{color:var(--pur-2);}
+.sb-nav-item.is-active .sb-nav-sub{color:rgba(167,139,250,0.5);}
 
-/* ─── PLATFORMS CARD ─── */
-.platforms-card{margin-bottom:18px;}
-.platforms-meta{font-family:'Space Mono',monospace;font-size:11px;color:var(--pur);letter-spacing:0.08em;}
-.platforms-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;}
-.platform-tile{padding:18px 12px;background:#0a0818;border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;transition:all 0.18s;cursor:pointer;}
-.platform-tile:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(138,92,255,0.08);}
-.platform-tile.more{background:rgba(138,92,255,0.04);border-color:var(--border2);border-style:dashed;}
-.platform-logo{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#fff;letter-spacing:-0.01em;}
-.platform-logo.spotify{background:#1ed760;color:#000;}
-.platform-logo.apple{background:linear-gradient(135deg,#fa233b,#fb5c74);}
-.platform-logo.youtube{background:#ff0033;}
-.platform-logo.soundcloud{background:#ff5500;}
-.platform-logo.tiktok{background:#000;border:1px solid var(--border3);}
-.platform-logo.more{background:rgba(138,92,255,0.1);border:1px solid var(--border2);font-family:'Space Mono',monospace;color:var(--pur);font-size:12px;letter-spacing:0.04em;}
-.platform-name{font-size:12px;font-weight:700;color:#fff;font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:0.03em;}
-.platform-status{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;}
-.platform-status.connected{color:var(--grn);}
-.platform-status.available{color:var(--muted);}
-.manage-link{display:inline-flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--pur);letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;background:none;border:none;}
-.manage-link:hover{color:#fff;}
-.manage-link svg{width:12px;height:12px;}
+.sb-spacer{flex:1;}
 
-/* ─── STATEMENT UPLOAD CARD (preview/locked) ─── */
-.statement-upload-card{
-  position:relative;
-  opacity:0.78;
+.sb-fa{
+  margin:8px;padding:12px;border-radius:8px;
+  background:rgba(138,92,255,0.1);border:1px solid rgba(138,92,255,0.2);
 }
-.statement-upload-card .card-title{
-  display:flex;
-  align-items:center;
-  gap:12px;
+.sb-fa-hd{display:flex;align-items:center;gap:6px;}
+.sb-fa-hd i{font-size:12px;color:var(--pur-2);}
+.sb-fa-eyebrow{font-size:9px;color:var(--pur-2);text-transform:uppercase;letter-spacing:0.1em;font-weight:600;font-family:'Space Mono',monospace;}
+.sb-fa-num{font-size:11px;color:var(--pur-2);font-weight:700;margin-left:auto;font-family:'Space Mono',monospace;}
+.sb-fa-line1{font-size:12px;color:#fff;font-weight:500;margin-top:6px;}
+.sb-fa-line2{font-size:10px;color:var(--muted);margin-top:2px;}
+
+.sb-foot{
+  padding:10px 14px;border-top:1px solid var(--border-soft);
+  font-size:10px;color:var(--muted-2);font-family:'Space Mono',monospace;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
 }
-.badge-soon{
-  display:inline-block;
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  padding:4px 10px;
-  border-radius:3px;
-  background:rgba(138,92,255,0.12);
-  color:var(--pur);
-  border:1px solid var(--border2);
-}
-.statement-upload-body{
-  display:grid;
-  grid-template-columns:auto 1fr;
-  grid-template-rows:auto auto auto;
-  gap:18px 24px;
-  align-items:start;
-  margin-top:16px;
-}
-.statement-upload-ico{
-  grid-row:1 / span 2;
-  width:64px;
-  height:64px;
-  color:var(--pur);
-  opacity:0.7;
-}
-.statement-upload-ico svg{
-  width:100%;
-  height:100%;
-}
-.statement-upload-types{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-.statement-type{
+.sb-foot button{
+  background:transparent;border:none;color:var(--muted-2);font-size:10px;
+  letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:0;
   font-family:'Space Mono',monospace;
-  font-size:11px;
-  letter-spacing:0.06em;
-  text-transform:uppercase;
-  padding:6px 12px;
-  border-radius:3px;
-  background:var(--bg3);
-  color:var(--muted2);
-  border:1px solid var(--border);
 }
-.statement-upload-helper{
-  grid-column:1 / -1;
-  font-size:13px;
-  color:var(--muted2);
-  line-height:1.5;
-  margin:0;
-}
-.statement-upload-btn{
-  grid-column:1 / -1;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:14px 24px;
-  background:rgba(138,92,255,0.08);
-  color:var(--muted2);
-  border:1px dashed var(--border2);
-  border-radius:4px;
-  font-family:'Space Grotesk',sans-serif;
-  font-size:13px;
-  font-weight:600;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  cursor:not-allowed;
-  width:100%;
-}
-.statement-upload-btn:hover{
-  background:rgba(138,92,255,0.08);
-}
-@media (max-width:760px){
-  .statement-upload-body{
-    grid-template-columns:1fr;
-    gap:14px;
-  }
-  .statement-upload-ico{
-    grid-row:auto;
-    width:48px;
-    height:48px;
-  }
-}
+.sb-foot button:hover{color:var(--text-2);}
 
-/* ─── FOOTER NOTE ─── */
-.foot-note{display:flex;align-items:center;justify-content:center;gap:10px;padding:24px 16px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.06em;border-top:1px solid var(--border);margin-top:32px;}
-.foot-note-ico{color:var(--muted);}
-.foot-note-ico svg{width:14px;height:14px;}
-.foot-note strong{color:var(--text2);font-weight:700;}
-.foot-note u{text-decoration:underline;text-decoration-color:var(--pur);text-underline-offset:2px;}
+/* ── Main area + grid ────────────────────────────────────────────────── */
+.main{display:flex;flex-direction:column;min-width:0;background:var(--bg);}
+.mc-grid{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
+  padding:16px 20px;align-content:start;
+}
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:16px;display:flex;flex-direction:column;
+  min-height:120px;
+}
+.card-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.card-title{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:rgba(138,92,255,0.8);
+}
+.card-link{
+  font-size:10px;color:var(--pur-2);font-weight:500;letter-spacing:0.04em;
+  display:inline-flex;align-items:center;gap:4px;
+}
+.card-link i{font-size:12px;}
 
-/* ─── ENTRANCE ANIMS ─── */
-.fade-in{opacity:0;animation:fadeUp 0.55s ease forwards;}
-.fade-in.d1{animation-delay:0.05s;}
-.fade-in.d2{animation-delay:0.12s;}
-.fade-in.d3{animation-delay:0.18s;}
-.fade-in.d4{animation-delay:0.24s;}
-.fade-in.d5{animation-delay:0.3s;}
-.fade-in.d6{animation-delay:0.36s;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-
-@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.18);opacity:0.6;}}
-
-/* ─── RESPONSIVE ─── */
-@media(max-width:1180px){
-  .hero-banner{grid-template-columns:auto 1fr;gap:22px;row-gap:24px;}
-  .hero-identity{grid-column:2;}
-  .hero-stat{grid-column:auto;}
-  .hero-stat:nth-of-type(1){grid-column:1/2;grid-row:2;}
-  .hero-stat:nth-of-type(2){grid-column:2/3;grid-row:2;}
-  .hero-stat:nth-of-type(3){grid-column:1/-1;grid-row:3;border-top:1px solid var(--border3);padding-top:18px;}
-  .platforms-grid{grid-template-columns:repeat(3,1fr);}
-}
-@media(max-width:980px){
-  .grid-2,.grid-2-eq{grid-template-columns:1fr;}
-}
-@media(max-width:760px){
-  .app{grid-template-columns:1fr;}
-  .sidebar{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--border);}
-  .main{padding:24px 20px 60px;}
-  .hero-banner{grid-template-columns:1fr;text-align:left;padding:20px;gap:18px;}
-  .hero-identity,.hero-stat,.hero-stat:nth-of-type(1),.hero-stat:nth-of-type(2),.hero-stat:nth-of-type(3){grid-column:1;grid-row:auto;border-top:none;padding-top:0;}
-  .platforms-grid{grid-template-columns:repeat(2,1fr);}
-  .page-hd{flex-direction:column;align-items:flex-start;}
-}
-
-/* ─── BLOCK B — TIER GATING ─────────────────────────────────── */
-/* Pro users: the always-on free-tier locks are hidden so content
-   renders unobstructed. Free users keep the existing lock behavior. */
-body.tier-pro #lock-strip,
-body.tier-pro #issues-locked-overflow,
-body.tier-pro #action-locked-overlay{display:none !important;}
-body.tier-pro .action-locked-preview{filter:none;opacity:1;}
-
-/* Grayed-card lock overlay for sections with no pre-existing lock
-   (Revenue Exposure, Your Platforms). No blur — structure stays
-   visible through the scrim. Shown only under body.tier-free. */
-.lock-overlay{
-  display:none;
-  position:absolute;
-  inset:0;
-  z-index:10;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:14px;
-  text-align:center;
-  padding:24px;
-  background:rgba(10,7,20,0.62);
-  border-radius:inherit;
-}
-.lock-icon{font-size:22px;opacity:0.9;}
-.lock-cta{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  font-family:'Space Grotesk',sans-serif;
-  font-size:12px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:0.1em;
-  padding:11px 22px;
-  border-radius:4px;
-  background:var(--grad);
-  color:#fff;
-  border:none;
-  cursor:pointer;
-  transition:opacity 0.2s ease;
-}
-.lock-cta:hover{opacity:0.88;}
-body.tier-free .gated-section{position:relative;}
-body.tier-free .gated-section .lock-overlay{display:flex;}
-
-/* Temporary upgrade placeholder — CTA anchor target until Block C
-   wires real Stripe checkout. */
-.upgrade-placeholder{
-  margin-top:22px;
-  padding:32px 28px;
-  border:1px solid var(--border2);
-  border-radius:10px;
-  background:linear-gradient(135deg,rgba(138,92,255,0.08),rgba(224,64,200,0.05));
-  text-align:center;
-}
-.upgrade-placeholder h2{
-  font-family:'Rajdhani',sans-serif;
-  font-size:22px;font-weight:700;
-  text-transform:uppercase;letter-spacing:0.02em;
-  color:#fff;margin:0 0 8px;
-}
-.upgrade-placeholder p{font-size:13px;color:var(--muted2);margin:0 0 14px;}
-.upgrade-cta{
-  display:inline-flex;align-items:center;gap:8px;
-  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;
-  padding:11px 18px;border-radius:6px;text-decoration:none;
-  background:rgba(138,92,255,0.10);color:var(--pur);
-  border:2px solid var(--pur);transition:background 0.15s ease;
-}
-.upgrade-cta:hover{background:rgba(138,92,255,0.20);}
-
-/* ── Health Score panel — Brief 009 ───────────────────────────── */
-.health-score-card{padding:22px 24px;}
-.hsc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
-.hsc-titles{display:flex;flex-direction:column;gap:4px;}
-.hsc-eyebrow{
-  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
-  letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);
-}
-.hsc-band-label{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:0.01em;line-height:1.1;}
-.hsc-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:12px;color:var(--muted2);}
-.hsc-last-scan{}
-.hsc-scan-again{color:var(--pur);text-decoration:none;font-weight:600;}
-.hsc-scan-again:hover{text-decoration:underline;}
-.hsc-body{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;padding:6px 0;}
-.hsc-circle{
-  width:96px;height:96px;border-radius:50%;flex-shrink:0;
-  background:rgba(255,255,255,0.04);
+/* ── Card 1 — Royaltē Health Score™ ──────────────────────────────────── */
+.mc-health-row{display:flex;align-items:center;gap:16px;}
+.mc-score-circle{
+  width:80px;height:80px;border-radius:50%;border:3px solid var(--muted-2);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  border:3px solid var(--grn);
+  flex-shrink:0;
 }
-.hsc-circle.band-excellent{border-color:var(--grn);}
-.hsc-circle.band-strong   {border-color:var(--cyn);}
-.hsc-circle.band-moderate {border-color:var(--amb);}
-.hsc-circle.band-review   {border-color:var(--red);}
-.hsc-num{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;line-height:1;color:#fff;}
-.hsc-circle.band-excellent .hsc-num{color:var(--grn);}
-.hsc-circle.band-strong    .hsc-num{color:var(--cyn);}
-.hsc-circle.band-moderate  .hsc-num{color:var(--amb);}
-.hsc-circle.band-review    .hsc-num{color:var(--red);}
-.hsc-unit{font-size:10px;color:var(--muted);letter-spacing:0.04em;margin-top:2px;}
-.hsc-desc{font-size:13px;color:var(--muted2);line-height:1.6;margin:0;}
-.hsc-breakdown{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:10px 18px;
-  padding:14px 0 0;margin-top:18px;border-top:1px solid var(--border3);
-}
-/* Override the default [hidden] vs class-display specificity conflict —
-   without this, `.hsc-breakdown[hidden]` stays visible because the
-   .hsc-breakdown rule above wins over the generic [hidden]{display:none}
-   browser default. */
-.hsc-breakdown[hidden]{display:none;}
+.mc-score-circle.band-strong,.mc-score-circle.band-excellent{border-color:var(--grn);}
+.mc-score-circle.band-moderate{border-color:var(--amb);}
+.mc-score-circle.band-review{border-color:var(--red);}
+.mc-score-num{font-size:28px;font-weight:700;color:#fff;line-height:1;}
+.mc-score-of{font-size:10px;color:var(--muted);}
+.mc-score-info{flex:1;min-width:0;}
+.mc-score-band-label{font-size:18px;font-weight:600;color:var(--grn);}
+.mc-score-band-label.band-moderate{color:var(--amb);}
+.mc-score-band-label.band-review{color:var(--red);}
+.mc-score-desc{font-size:11px;color:var(--muted);line-height:1.4;margin:4px 0 6px;}
+.mc-score-delta{font-size:12px;color:var(--grn);display:inline-flex;align-items:center;gap:4px;}
+.mc-score-delta.is-neutral{color:var(--muted-2);}
+.mc-score-delta.is-down{color:var(--red);}
+.mc-score-delta i{font-size:14px;}
+.mc-spark{width:100%;height:32px;margin-top:10px;}
+.mc-spark-foot{margin-top:8px;}
 
-/* ── BIG 6 territory panel — Brief 011 ─────────────────────────── */
-.big6-card{padding:22px 24px;}
-.big6-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px 24px;margin-top:14px;}
-.big6-region{display:flex;flex-direction:column;gap:8px;min-width:0;}
-.big6-region-h{
-  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
-  letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);
+/* ── Card 2 — Backend Status ─────────────────────────────────────────── */
+.mc-status-list{display:flex;flex-direction:column;gap:10px;}
+.mc-status-row{display:flex;align-items:flex-start;gap:10px;}
+.mc-status-dot{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:rgba(52,211,153,0.15);color:var(--grn);
 }
-.big6-territories{display:flex;flex-direction:column;gap:6px;}
-.big6-territory{
-  display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;
-  padding:10px 14px;border-radius:8px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid var(--border3);
-  cursor:pointer;font:inherit;color:inherit;text-align:left;
-  transition:background 0.15s ease,border-color 0.15s ease;
-}
-.big6-territory:hover{background:rgba(255,255,255,0.06);border-color:var(--border2);}
-.big6-territory.is-open{border-color:var(--pur);background:rgba(138,92,255,0.06);}
-.big6-flag{font-size:16px;line-height:1;}
-.big6-name{font-size:13px;color:var(--text);}
-.big6-status{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.02em;color:var(--muted);}
-.big6-status.big6-ok      {color:var(--grn);}
-.big6-status.big6-partial {color:var(--amb);}
-.big6-status.big6-none    {color:var(--red);}
-.big6-status.big6-na      {color:var(--muted);}
-.big6-drilldown{
-  margin-top:14px;padding:14px 16px;
-  background:rgba(255,255,255,0.03);
-  border:1px solid var(--border3);border-radius:8px;
-  font-size:12px;color:var(--muted2);line-height:1.55;
-}
-.big6-drilldown[hidden]{display:none;}
-.big6-drilldown-h{
-  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
-  letter-spacing:0.10em;text-transform:uppercase;color:var(--text);margin-bottom:8px;
-}
-.big6-drilldown-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;}
-.big6-drilldown-list li{padding:4px 0;color:var(--text2);}
-.big6-empty{
-  margin:14px 0 0;padding:12px;border-radius:6px;
-  background:rgba(255,255,255,0.03);
-  color:var(--muted2);font-size:12px;text-align:center;
-}
-.big6-empty[hidden]{display:none;}
-@media (max-width:720px){
-  .big6-grid{grid-template-columns:1fr;}
-}
+.mc-status-dot.is-amber{background:rgba(245,158,11,0.15);color:var(--amb);}
+.mc-status-dot.is-red{background:rgba(239,68,68,0.15);color:var(--red);}
+.mc-status-dot i{font-size:14px;}
+.mc-status-text{flex:1;min-width:0;}
+.mc-status-title{font-size:13px;color:#fff;font-weight:500;line-height:1.2;}
+.mc-status-sub{font-size:10px;color:var(--muted-2);margin-top:2px;}
+.mc-status-foot{margin-top:10px;}
 
-/* ── Action Center — Brief 012 ──────────────────────────────────── */
-.action-center-card{padding:22px 24px;}
-.ac-count-pill{
-  display:inline-flex;align-items:center;justify-content:center;
-  min-width:22px;height:22px;padding:0 8px;margin-left:10px;
-  border-radius:11px;background:rgba(240,80,96,0.12);
-  border:1px solid rgba(240,80,96,0.30);
-  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
-  color:var(--red);letter-spacing:0.04em;vertical-align:middle;
+/* ── Card 3 — Intelligence Feed ──────────────────────────────────────── */
+.mc-feed-list{display:flex;flex-direction:column;gap:10px;}
+.mc-feed-item{display:flex;align-items:flex-start;gap:10px;}
+.mc-feed-icon{
+  width:28px;height:28px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:rgba(96,165,250,0.12);color:var(--blu);
 }
-.ac-count-pill[hidden]{display:none;}
-.ac-list{display:flex;flex-direction:column;gap:10px;margin-top:14px;}
-.ac-item{
-  display:grid;grid-template-columns:36px 1fr auto;gap:14px;align-items:flex-start;
-  padding:14px 16px;border-radius:8px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid var(--border3);
+.mc-feed-icon.is-purple{background:rgba(138,92,255,0.15);color:var(--pur-2);}
+.mc-feed-icon.is-green{background:rgba(52,211,153,0.15);color:var(--grn);}
+.mc-feed-icon.is-amber{background:rgba(245,158,11,0.15);color:var(--amb);}
+.mc-feed-icon.is-red{background:rgba(239,68,68,0.15);color:var(--red);}
+.mc-feed-icon i{font-size:14px;}
+.mc-feed-body{flex:1;min-width:0;}
+.mc-feed-title{font-size:12px;color:#fff;font-weight:500;line-height:1.3;}
+.mc-feed-sub{font-size:10px;color:var(--muted-2);margin-top:2px;}
+.mc-feed-time{font-size:10px;color:var(--muted-3);flex-shrink:0;text-align:right;}
+.mc-feed-empty{font-size:11px;color:var(--muted);padding:10px 0;}
+
+/* ── Card 4 — Health Journey ─────────────────────────────────────────── */
+.mc-journey-row{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+.mc-journey-baseline,.mc-journey-current{display:flex;flex-direction:column;align-items:center;}
+.mc-journey-num{font-size:28px;font-weight:700;line-height:1;}
+.mc-journey-baseline .mc-journey-num{color:#fff;}
+.mc-journey-current .mc-journey-num{color:var(--pur-2);}
+.mc-journey-lbl{font-size:9px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;font-family:'Space Mono',monospace;}
+.mc-journey-arrow{color:var(--muted-2);font-size:16px;}
+.mc-journey-badge{
+  margin-left:auto;padding:4px 10px;border-radius:999px;
+  background:rgba(52,211,153,0.15);color:var(--grn);
+  font-size:10px;font-weight:600;letter-spacing:0.04em;
+  display:inline-flex;align-items:center;gap:4px;
 }
-.ac-item-icon{
-  display:flex;align-items:center;justify-content:center;
-  width:36px;height:36px;border-radius:8px;font-size:18px;
-  background:rgba(240,192,64,0.12);
-  border:1px solid rgba(240,192,64,0.25);
-  color:var(--amb);
+.mc-journey-badge.is-neutral{background:rgba(255,255,255,0.04);color:var(--muted);}
+.mc-journey-chart{width:100%;height:80px;margin-top:10px;}
+.mc-journey-empty{font-size:11px;color:var(--muted);padding:10px 0;}
+
+/* ── Card 5 — Action Center ──────────────────────────────────────────── */
+.mc-action-count{font-size:11px;color:var(--amb);margin-bottom:10px;}
+.mc-action-count.is-good{color:var(--grn);}
+.mc-action-list{display:flex;flex-direction:column;gap:8px;}
+.mc-action-item{
+  display:flex;flex-direction:column;gap:2px;
+  padding:8px 10px;border-radius:6px;background:rgba(255,255,255,0.02);
+  border-left:3px solid var(--muted-3);
 }
-.ac-item.ac-action_needed .ac-item-icon{
-  background:rgba(240,80,96,0.12);
-  border-color:rgba(240,80,96,0.25);
-  color:var(--red);
+.mc-action-item.sev-action_needed{border-left-color:var(--red);}
+.mc-action-item.sev-monitor{border-left-color:var(--amb);}
+.mc-action-item.sev-positive{border-left-color:var(--grn);}
+.mc-action-row1{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.mc-action-title{font-size:12px;color:#fff;font-weight:500;flex:1;}
+.mc-action-badge{
+  font-size:9px;padding:2px 6px;border-radius:999px;
+  background:rgba(239,68,68,0.15);color:var(--red);
+  letter-spacing:0.06em;text-transform:uppercase;font-weight:600;
 }
-.ac-item-body{min-width:0;}
-.ac-item-title{
-  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;
-  color:#fff;margin:0 0 4px;line-height:1.3;
-}
-.ac-item-detail{font-size:12px;color:var(--muted2);line-height:1.55;margin:0 0 4px;}
-.ac-item-why{
-  font-size:11px;color:var(--text2);line-height:1.55;margin:0;
-  font-style:italic;
-}
-.ac-item-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
-.ac-sev-badge{
-  display:inline-flex;align-items:center;
-  font-family:'Space Mono',monospace;font-size:9px;font-weight:700;
-  padding:3px 8px;border-radius:4px;letter-spacing:0.06em;text-transform:uppercase;
-}
-.ac-sev-badge.ac-action_needed{
-  background:rgba(240,80,96,0.12);color:var(--red);
-  border:1px solid rgba(240,80,96,0.30);
-}
-.ac-sev-badge.ac-monitor{
-  background:rgba(240,192,64,0.12);color:var(--amb);
-  border:1px solid rgba(240,192,64,0.30);
-}
-.ac-source-tag{
-  font-family:'Space Mono',monospace;font-size:9px;
-  color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;
-  white-space:nowrap;
-}
-.ac-empty{
-  margin:14px 0 0;padding:18px;border-radius:8px;
-  background:rgba(255,255,255,0.03);
-  color:var(--muted2);font-size:13px;line-height:1.55;text-align:center;
-}
-.ac-empty[hidden]{display:none;}
-@media (max-width:720px){
-  .ac-item{grid-template-columns:32px 1fr;}
-  .ac-item-meta{grid-column:1/-1;flex-direction:row;justify-content:space-between;}
-}
-.hsc-bd-cell{display:flex;flex-direction:column;gap:4px;}
-.hsc-bd-label{font-size:11px;color:var(--muted2);font-weight:500;letter-spacing:0.02em;}
-.hsc-bd-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
-.hsc-bd-fill{height:100%;width:0;background:var(--pur);transition:width 0.5s ease;}
-.hsc-bd-val{font-family:'Space Mono',monospace;font-size:11px;color:var(--text);text-align:right;}
-@media (max-width:720px){
-  .hsc-breakdown{grid-template-columns:1fr;}
-  .hsc-meta{align-items:flex-start;}
+.mc-action-badge.sev-monitor{background:rgba(245,158,11,0.15);color:var(--amb);}
+.mc-action-badge.sev-positive{background:rgba(52,211,153,0.15);color:var(--grn);}
+.mc-action-sub{font-size:10px;color:var(--muted-2);}
+.mc-action-empty{
+  padding:12px;border-radius:6px;background:rgba(52,211,153,0.08);
+  border-left:3px solid var(--grn);color:var(--grn);font-size:11px;line-height:1.5;
 }
 
-/* ─── BLOCK D — MONITORING ─────────────────────────────────── */
-.monitoring-card{margin-bottom:18px;}
-.monitoring-status-badge{
-  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
-  letter-spacing:0.12em;text-transform:uppercase;padding:4px 10px;border-radius:3px;
+/* ── Card 6 — Intelligence Profile ───────────────────────────────────── */
+.mc-profile-row{display:flex;align-items:center;gap:14px;}
+.mc-donut{
+  width:70px;height:70px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;position:relative;
+  background:conic-gradient(var(--pur-2) 0deg,rgba(255,255,255,0.05) 0deg);
 }
-.monitoring-status-badge.active{color:var(--grn);background:rgba(64,240,160,0.1);border:1px solid rgba(64,240,160,0.3);}
-.monitoring-status-badge.active::before{
-  content:'';display:inline-block;width:6px;height:6px;border-radius:50%;
-  background:var(--grn);margin-right:6px;vertical-align:middle;
+.mc-donut::after{
+  content:'';position:absolute;inset:8px;border-radius:50%;background:var(--card);
 }
-.monitoring-status-badge.inactive{color:#f0c040;background:rgba(240,192,64,0.1);border:1px solid rgba(240,192,64,0.3);}
-.monitoring-status-badge.grace{color:var(--muted2);background:rgba(255,255,255,0.04);border:1px solid var(--border2);}
-.monitoring-meta-row{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:18px;}
-.last-monitored{font-size:13px;color:var(--text2);}
-.next-rescan{font-size:13px;color:var(--muted2);}
-.recent-changes-h{
-  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
-  letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;
-}
-.recent-changes-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;}
-.recent-changes-list li{
-  display:flex;justify-content:space-between;gap:12px;
-  font-size:13px;color:var(--text2);padding:9px 0;border-bottom:1px solid var(--border);
-}
-.recent-changes-list li:last-child{border-bottom:none;}
-.change-when{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);flex-shrink:0;}
-.change-empty{color:var(--muted2);font-style:italic;}
-.inactive-banner{
-  display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;
-  padding:24px 18px;background:rgba(240,192,64,0.05);
-  border:1px solid rgba(240,192,64,0.25);border-radius:8px;
-}
-.inactive-headline{
-  font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;
-  text-transform:uppercase;letter-spacing:0.02em;color:#fff;
-}
-.inactive-meta{font-size:12.5px;color:var(--muted2);}
-.inactive-banner .lock-cta{margin-top:8px;}
-.grace-status{font-size:14px;font-weight:700;color:var(--grn);margin-bottom:4px;}
-.grace-next{font-size:13px;color:var(--muted2);}
+.mc-donut-center{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;}
+.mc-donut-label{font-size:11px;font-weight:700;color:#fff;line-height:1;}
+.mc-donut-sub{font-size:8px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;font-family:'Space Mono',monospace;}
+.mc-profile-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;}
+.mc-profile-row-kv{display:flex;justify-content:space-between;font-size:11px;}
+.mc-profile-k{color:var(--muted-2);}
+.mc-profile-v{color:#fff;font-weight:500;}
+.mc-profile-foot{margin-top:10px;}
 
-/* ─── V5 PHASE 2 — fade-in stagger extension ─────────────────── */
-.fade-in.d7{animation-delay:0.42s;}
-.fade-in.d8{animation-delay:0.48s;}
+/* ── Card 7 — Global Presence ────────────────────────────────────────── */
+.mc-presence-sub{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.mc-flag-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+}
+.mc-flag-cell{
+  display:flex;flex-direction:column;align-items:center;
+  padding:6px 4px;
+}
+.mc-flag-emoji{font-size:20px;line-height:1;}
+.mc-flag-name{font-size:9px;color:var(--muted-2);margin-top:4px;text-align:center;letter-spacing:0.04em;}
+.mc-flag-cell.is-verified .mc-flag-name{color:var(--grn);}
+.mc-flag-cell.is-partial .mc-flag-name{color:var(--amb);}
+.mc-flag-cell.is-unavail .mc-flag-name{color:var(--red);}
+.mc-presence-foot{margin-top:10px;}
 
-/* ─── V5 PHASE 2 — WELCOME PANEL ─────────────────────────────── */
-.welcome-panel{
-  margin-bottom:22px;padding:34px 32px;
-  border:1px solid var(--border2);border-radius:12px;
-  background:linear-gradient(135deg,rgba(138,92,255,0.07),rgba(224,64,200,0.03));
-  position:relative;overflow:hidden;
+/* ── Card 8 — Baseline Review ────────────────────────────────────────── */
+.mc-baseline-date{font-size:10px;color:var(--muted);margin-bottom:10px;}
+.mc-baseline-row{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.mc-baseline-thumb{
+  width:44px;height:56px;border-radius:4px;
+  background:rgba(138,92,255,0.1);border:1px solid rgba(138,92,255,0.2);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-size:8px;color:var(--pur-2);font-weight:600;letter-spacing:0.04em;
+  line-height:1.2;padding:4px;flex-shrink:0;
 }
-.welcome-panel::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);
+.mc-baseline-score{display:flex;flex-direction:column;}
+.mc-baseline-num{font-size:24px;color:#fff;font-weight:700;line-height:1;}
+.mc-baseline-lbl{font-size:10px;color:var(--muted);margin-top:4px;}
+.mc-baseline-actions{display:flex;gap:6px;}
+.mc-baseline-btn{
+  flex:1;display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  padding:6px 10px;border-radius:6px;
+  background:transparent;border:1px solid rgba(138,92,255,0.3);
+  color:var(--pur-2);font-size:10px;font-weight:500;letter-spacing:0.04em;
+  cursor:pointer;transition:all 0.14s;text-decoration:none;
 }
-.welcome-panel-inner{max-width:640px;}
-.welcome-panel-badge{
-  display:inline-block;font-family:'Space Mono',monospace;
-  font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-  color:var(--pur);background:rgba(138,92,255,0.08);
-  border:1px solid var(--border2);padding:5px 12px;border-radius:2px;margin-bottom:16px;
-}
-.welcome-panel-title{
-  font-family:'Rajdhani',sans-serif;font-size:clamp(30px,4vw,44px);font-weight:700;
-  line-height:1;letter-spacing:0.01em;text-transform:uppercase;color:#fff;margin:0 0 6px;
-}
-.welcome-panel-tagline{
-  font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--text2);margin:0 0 10px;
-}
-.welcome-panel-intelligence{
-  font-family:'Space Grotesk',sans-serif;font-size:14px;font-style:italic;
-  color:var(--muted2);line-height:1.6;margin:0 0 12px;
-}
-.welcome-panel-sub{
-  font-family:'Space Grotesk',sans-serif;font-size:14px;
-  color:var(--muted2);line-height:1.6;margin:0;
-}
+.mc-baseline-btn:hover{background:rgba(138,92,255,0.08);}
+.mc-baseline-btn i{font-size:12px;}
+.mc-baseline-empty{font-size:11px;color:var(--muted);padding:10px 0;}
 
-/* ─── BLOCK D.2 — TRIAL BANNER ───────────────────────────────── */
-/* Calm, infrastructural — a status readout, not a countdown-sale. */
-.trial-banner{
-  margin-bottom:22px;padding:20px 24px;
-  border:1px solid var(--border2);border-radius:12px;
-  background:rgba(138,92,255,0.05);
+/* ── Card 9 — Monitoring Overview ────────────────────────────────────── */
+.mc-overview-sub{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.mc-overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mc-overview-cell{
+  background:rgba(255,255,255,0.02);border-radius:6px;padding:10px;
 }
-.trial-banner-inner{display:flex;flex-direction:column;gap:7px;}
-.trial-banner-badge{
-  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
-  letter-spacing:0.16em;text-transform:uppercase;color:var(--pur);
+.mc-overview-num{font-size:20px;color:#fff;font-weight:700;line-height:1;}
+.mc-overview-num.is-good{color:var(--grn);}
+.mc-overview-lbl{font-size:9px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;font-family:'Space Mono',monospace;}
+
+/* ── Footer ──────────────────────────────────────────────────────────── */
+.mc-foot{
+  border-top:1px solid var(--border-soft);
+  padding:14px 20px;text-align:center;
+  font-size:11px;color:var(--muted-3);
+  display:flex;align-items:center;justify-content:center;gap:8px;
 }
-.trial-banner-countdown{display:flex;align-items:baseline;gap:8px;}
-.trial-days-num{
-  font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;
-  color:#fff;line-height:1;
+.mc-foot i{font-size:13px;}
+
+/* ── Below-grid conditional sections (trial banner, upgrade, pricing) ──
+   These render conditionally for free/trial users only. Founding Artists
+   never see them. Preserved per Brief 015 Flag C1. */
+.trial-banner{padding:14px 20px;background:rgba(245,158,11,0.06);border-bottom:1px solid rgba(245,158,11,0.2);display:none;}
+.trial-banner-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:14px;}
+.trial-eyebrow{font-size:9px;color:var(--amb);text-transform:uppercase;letter-spacing:0.12em;font-weight:700;font-family:'Space Mono',monospace;}
+.trial-num-row{display:flex;align-items:baseline;gap:6px;margin-top:4px;}
+.trial-num{font-size:22px;font-weight:700;color:#fff;}
+.trial-label{font-size:12px;color:var(--text-2);}
+
+.upgrade-placeholder{
+  padding:14px 20px;text-align:center;
+  background:rgba(138,92,255,0.04);border-top:1px solid var(--border);
 }
-.trial-days-label{
-  font-family:'Space Grotesk',sans-serif;font-size:13.5px;color:var(--text2);
-}
-.trial-banner-sub{
-  font-family:'Space Grotesk',sans-serif;font-size:13px;
-  color:var(--muted2);line-height:1.5;margin:0;
-}
-.trial-banner-context{
-  font-family:'Space Grotesk',sans-serif;font-size:12.5px;
-  color:var(--muted);line-height:1.5;margin:7px 0 0;
-}
-@media(max-width:720px){
-  .trial-banner{padding:18px 20px;}
+.upgrade-cta{
+  display:inline-block;padding:10px 18px;border-radius:6px;
+  background:var(--grad);color:#fff;font-size:12px;font-weight:600;
+  letter-spacing:0.04em;text-transform:uppercase;
 }
 
-/* ─── V5 PHASE 2 — PRICING SECTION ───────────────────────────── */
-.pricing-section{margin-top:22px;}
-.pricing-header{text-align:center;margin-bottom:22px;}
-.pricing-badge{
-  display:inline-block;font-family:'Space Mono',monospace;
-  font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-  color:var(--pur);background:rgba(138,92,255,0.08);
-  border:1px solid var(--border2);padding:5px 12px;border-radius:2px;margin-bottom:12px;
-}
-.pricing-title{
-  font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;
-  text-transform:uppercase;letter-spacing:0.03em;color:#fff;margin:0;
-}
-.pricing-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start;}
+.pricing-section{padding:30px 20px;border-top:1px solid var(--border);}
+.pricing-inner{max-width:1100px;margin:0 auto;}
+.pricing-section.fade-in{}
 .pricing-card{
-  border:1px solid var(--border2);border-radius:12px;
-  padding:28px 26px;background:rgba(255,255,255,0.02);
+  background:var(--card);border:1px solid var(--border-2);border-radius:10px;
+  padding:24px;text-align:center;max-width:520px;margin:0 auto;
 }
-.pricing-primary{
-  border-color:rgba(138,92,255,0.45);
-  background:linear-gradient(160deg,rgba(138,92,255,0.1),rgba(224,64,200,0.04));
-  box-shadow:0 0 40px rgba(138,92,255,0.12);
-}
-.pricing-secondary{opacity:0.92;}
-.pricing-card-label{
-  font-family:'Space Mono',monospace;font-size:11px;font-weight:700;
-  letter-spacing:0.12em;text-transform:uppercase;color:var(--muted2);margin-bottom:10px;
-}
-.pricing-card-price{
-  font-family:'Rajdhani',sans-serif;font-size:40px;font-weight:700;
-  color:#fff;line-height:1;margin-bottom:18px;
-}
-.price-suffix{
-  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;
-  color:var(--muted2);margin-left:8px;letter-spacing:0.02em;
-}
-.pricing-card-list{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:9px;}
-.pricing-card-list li{
-  position:relative;padding-left:22px;
-  font-size:13.5px;color:var(--text2);line-height:1.4;
-}
-.pricing-card-list li::before{content:'✓';position:absolute;left:0;color:var(--pur);font-weight:700;}
-.pricing-card-sub{
-  font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;
-  letter-spacing:0.04em;margin:0 0 18px;
-}
+.pricing-card h3{font-size:18px;color:#fff;margin-bottom:6px;}
+.pricing-card-sub{font-size:12px;color:var(--muted-2);margin-bottom:14px;}
+.pricing-price{font-size:32px;color:var(--pur-2);font-weight:700;margin-bottom:14px;}
 .pricing-cta{
-  width:100%;padding:13px 20px;border-radius:6px;
-  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
-  letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;border:none;
-  transition:opacity 0.2s ease,transform 0.2s ease;
+  display:inline-block;padding:12px 24px;border-radius:8px;
+  background:var(--grad);color:#fff;font-size:12px;font-weight:700;
+  letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:none;
 }
-.pricing-cta-primary{background:var(--grad);color:#fff;box-shadow:0 0 24px rgba(138,92,255,0.3);}
-.pricing-cta-primary:hover{transform:translateY(-1px);opacity:0.95;}
-.pricing-cta-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
-.pricing-cta-secondary{background:transparent;color:var(--muted2);border:1px solid var(--border2);}
-.pricing-cta-secondary:disabled{cursor:not-allowed;opacity:0.7;}
-.pricing-cta-confirmed{
-  text-align:center;font-family:'Space Grotesk',sans-serif;
-  font-size:14px;font-weight:700;color:var(--grn);
+.pricing-cta:disabled{opacity:0.5;cursor:not-allowed;}
+.cta-confirmed-sub{font-size:12px;color:var(--grn);margin-top:10px;}
+.cta-error{font-size:11px;color:var(--red);margin-top:8px;display:none;}
+
+/* ── Responsive — collapse grid to 2-col then 1-col ──────────────────── */
+@media (max-width: 1100px){
+  .mc-grid{grid-template-columns:1fr 1fr;}
+  .mc-flag-grid{grid-template-columns:repeat(4,1fr);}
 }
-.cta-check{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:20px;height:20px;border-radius:50%;background:rgba(64,240,160,0.14);
-  color:var(--grn);font-size:12px;margin-right:6px;vertical-align:middle;
-}
-.cta-confirmed-sub{
-  font-family:'Space Mono',monospace;font-size:11px;font-weight:400;
-  color:var(--muted2);letter-spacing:0.03em;margin:8px 0 0;line-height:1.5;
-}
-.pricing-error{font-size:12px;color:#f05060;margin-top:10px;text-align:center;}
-@media(max-width:720px){
-  .pricing-grid{grid-template-columns:1fr;}
+@media (max-width: 760px){
+  .grid-row{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .mc-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
 <body>
-  <div class="orb-a"></div>
-  <div class="orb-b"></div>
 
-  <div class="app">
+<div class="shell">
 
-    <!-- ───── SIDEBAR ───── -->
-    <aside class="sidebar">
-      <a href="/" class="sb-brand" aria-label="Royaltē">
-        <svg class="sb-brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-          <defs>
-            <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
-              <stop offset="0%" stop-color="#8a5cff"/>
-              <stop offset="100%" stop-color="#e040c8"/>
-            </linearGradient>
-            <linearGradient id="nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
-              <stop offset="0%" stop-color="#b963ec"/>
-              <stop offset="60%" stop-color="#8a5cff"/>
-              <stop offset="100%" stop-color="#e040c8"/>
-            </linearGradient>
-            <linearGradient id="nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
-              <stop offset="0%" stop-color="#ffffff"/>
-              <stop offset="82%" stop-color="#ffffff"/>
-              <stop offset="100%" stop-color="#b963ec"/>
-            </linearGradient>
-          </defs>
-          <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
-          <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
-          <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
-        </svg>
+  <!-- ─── TOP BAR ─────────────────────────────────────────────────── -->
+  <header class="topbar" id="mc-topbar">
+    <div class="topbar-left">
+      <div class="tb-welcome">Welcome back, <span id="tb-artist-name">—</span></div>
+      <div class="tb-sub">Royaltē is monitoring your music business backend 24/7.</div>
+    </div>
+    <div class="topbar-right">
+      <div class="tb-last-scan">
+        <i class="ti ti-clock"></i>
+        <span>Last scan: <span id="tb-last-scan">—</span></span>
+      </div>
+      <a href="/" class="tb-scan-btn">
+        <i class="ti ti-player-play"></i>
+        Run New Scan
       </a>
+    </div>
+  </header>
 
-      <nav class="sb-nav" id="sb-nav">
-        <!-- populated by dashboard.js -->
-      </nav>
+  <!-- ─── GRID ROW (sidebar | main) ───────────────────────────────── -->
+  <div class="grid-row">
 
-      <div class="sb-upgrade" id="sb-upgrade">
-        <!-- populated by dashboard.js -->
+    <!-- ─── SIDEBAR ──────────────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sb-logo">
+        <div class="sb-logo-mark">ROYALT<span class="em">Ē</span></div>
+        <div class="sb-logo-tag">Mission Control</div>
       </div>
 
-      <div class="sb-user" id="sb-user">
-        <!-- populated by dashboard.js -->
+      <nav class="sb-nav" id="sb-nav">
+        <a class="sb-nav-item is-active" data-nav="mission-control" href="#mission-control">
+          <i class="ti ti-layout-dashboard"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Mission Control</div>
+            <div class="sb-nav-sub">Overview &amp; Health</div>
+          </div>
+        </a>
+        <a class="sb-nav-item" data-nav="action-center" href="#action-center">
+          <i class="ti ti-bell"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Action Center</div>
+            <div class="sb-nav-sub">Tasks &amp; Alerts</div>
+          </div>
+        </a>
+        <a class="sb-nav-item" data-nav="catalog" href="#catalog">
+          <i class="ti ti-music"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Catalog</div>
+            <div class="sb-nav-sub">Your Music Map</div>
+          </div>
+        </a>
+        <a class="sb-nav-item" data-nav="reviews" href="#reviews">
+          <i class="ti ti-file-text"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Reviews</div>
+            <div class="sb-nav-sub">Baseline &amp; History</div>
+          </div>
+        </a>
+        <a class="sb-nav-item" data-nav="intelligence-sources" href="#intelligence-sources">
+          <i class="ti ti-database"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Intelligence Sources</div>
+            <div class="sb-nav-sub">Connections &amp; Uploads</div>
+          </div>
+        </a>
+        <a class="sb-nav-item" data-nav="settings" href="#settings">
+          <i class="ti ti-settings"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Settings</div>
+            <div class="sb-nav-sub">Account &amp; Preferences</div>
+          </div>
+        </a>
+      </nav>
+
+      <div class="sb-spacer"></div>
+
+      <div class="sb-fa" id="sb-fa" style="display:none;">
+        <div class="sb-fa-hd">
+          <i class="ti ti-crown"></i>
+          <span class="sb-fa-eyebrow">Founding Artist</span>
+          <span class="sb-fa-num" id="sb-fa-num"></span>
+        </div>
+        <div class="sb-fa-line1">Lifetime Access</div>
+        <div class="sb-fa-line2" id="sb-fa-since">Member Since —</div>
       </div>
 
       <div class="sb-foot">
-        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Need help?</a>
-        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Contact Support</a>
+        <span>v1.0</span>
+        <button type="button" id="sign-out-btn">Sign out</button>
       </div>
     </aside>
 
-    <!-- ───── MAIN ───── -->
+    <!-- ─── MAIN ─────────────────────────────────────────────────── -->
     <main class="main">
 
-      <header class="page-hd fade-in">
-        <div class="page-hd-left">
-          <h1 class="welcome-h1"><span id="artist-name">—</span></h1>
-          <p class="dash-status-strip" id="dash-status-strip">
-            <span class="dss-dot" id="dss-monitoring-dot"></span>
-            <span id="dss-monitoring-status">—</span>
-            <span class="dss-sep">·</span>
-            <span>Last scan: <span id="dss-last-scan">—</span></span>
-            <span class="dss-sep">·</span>
-            <span id="dss-changes-text">— changes since last scan</span>
-            <span class="dss-sep">·</span>
-            <span>Health Score: <span id="dss-health-score">—</span></span>
-          </p>
-          <p class="dash-subtitle">One scan shows a snapshot. Royaltē OS watches what changes.</p>
-        </div>
-        <div class="page-hd-right">
-          <a href="/" class="scan-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Run New Scan
-          </a>
-          <button class="bell-btn" aria-label="Notifications">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span class="bell-count" id="bell-count">0</span>
-          </button>
-          <button id="sign-out-btn" type="button" style="background:transparent;border:1px solid rgba(255,255,255,0.14);color:inherit;font:inherit;font-size:13px;padding:9px 16px;border-radius:8px;cursor:pointer;">Sign out</button>
-        </div>
-      </header>
+      <!-- 3×3 grid of 9 Mission Control cards -->
+      <section class="mc-grid" id="mc-grid">
 
-      <!-- Welcome panel removed (Brief 009) — Health Score panel inside
-           #scan-content now takes the top position. -->
-
-      <!-- Block D.2 — trial countdown. Outside #scan-content so it survives
-           the no-scan empty state (a first-login trial user has no scan yet). -->
-      <section class="trial-banner fade-in d2" id="trial-banner" style="display:none;">
-        <div class="trial-banner-inner">
-          <div class="trial-banner-badge">Founding Artist Trial Active</div>
-          <div class="trial-banner-countdown">
-            <span class="trial-days-num" id="trial-days-num">14</span>
-            <span class="trial-days-label" id="trial-days-label">days remaining</span>
+        <!-- CARD 1 — Royaltē Health Score™ -->
+        <article class="card" id="card-health">
+          <div class="card-hd">
+            <div class="card-title">Royaltē Health Score™</div>
+            <a class="card-link" href="#health-drivers">View Score Drivers <i class="ti ti-arrow-right"></i></a>
           </div>
-          <p class="trial-banner-sub">Your backend is being actively monitored.</p>
-          <p class="trial-banner-context">Your audit is your snapshot. Monitoring watches what changes next.</p>
-        </div>
-      </section>
-
-      <!-- scan-dependent content — swapped for the empty state when no scan exists -->
-      <div id="scan-content">
-
-      <!-- ─── HEALTH SCORE PANEL (Brief 009) ───
-           Populated by renderHealthScore(scan) in dashboard.js using
-           scan_snapshots.health_score (set by Brief 002 delta engine);
-           falls back to 100 − scan.payload.overallScore for snapshots
-           that pre-date the V2 write path. Breakdown sub-bars hidden
-           until score_breakdown jsonb is populated. -->
-      <section class="card health-score-card fade-in d0" id="health-score-card">
-        <div class="hsc-head">
-          <div class="hsc-titles">
-            <div class="hsc-eyebrow">Royaltē Health Score&trade;</div>
-            <div class="hsc-band-label" id="hsc-band-label">—</div>
-          </div>
-          <div class="hsc-meta">
-            <div class="hsc-last-scan" id="hsc-last-scan">Last scan —</div>
-            <a href="/" class="hsc-scan-again">Scan again →</a>
-          </div>
-        </div>
-        <div class="hsc-body">
-          <div class="hsc-circle band-excellent" id="hsc-circle">
-            <div class="hsc-num" id="hsc-num">—</div>
-            <div class="hsc-unit">/ 100</div>
-          </div>
-          <p class="hsc-desc" id="hsc-desc">Score reflects what Royaltē can verify from public catalog data. It is not a royalty estimate, revenue prediction, or popularity score.</p>
-        </div>
-        <div class="hsc-breakdown" id="hsc-breakdown" hidden>
-          <div class="hsc-bd-cell" data-key="catalog_verification">
-            <div class="hsc-bd-label">Your catalog</div>
-            <div class="hsc-bd-bar"><div class="hsc-bd-fill"></div></div>
-            <div class="hsc-bd-val">—</div>
-          </div>
-          <div class="hsc-bd-cell" data-key="big6_coverage">
-            <div class="hsc-bd-label">BIG 6 Coverage</div>
-            <div class="hsc-bd-bar"><div class="hsc-bd-fill"></div></div>
-            <div class="hsc-bd-val">—</div>
-          </div>
-          <div class="hsc-bd-cell" data-key="backend_health">
-            <div class="hsc-bd-label">Backend Health</div>
-            <div class="hsc-bd-bar"><div class="hsc-bd-fill"></div></div>
-            <div class="hsc-bd-val">—</div>
-          </div>
-          <div class="hsc-bd-cell" data-key="youtube_presence">
-            <div class="hsc-bd-label">YouTube Presence</div>
-            <div class="hsc-bd-bar"><div class="hsc-bd-fill"></div></div>
-            <div class="hsc-bd-val">—</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ─── V1 SECTIONS REMOVED (Brief 009) ───
-           Hero banner (75% risk score + Issues Found / Things Working stat
-           cards) · Backend Intelligence (Verified Presence / Audience
-           Intelligence / Metadata & Catalog / Backend Observations) ·
-           Gap-Based Exposure card · Recent Scan card · Lock Strip
-           (Unlock Full Audit promo) · Top Issues Found · Action Plan ·
-           Statement Upload "coming soon". All replaced by the V2
-           Health Score panel above. -->
-
-      <!-- ─── BIG 6 TERRITORY PANEL (Brief 011) ───
-           Populated by renderBig6(scan) from
-           scan.payload.platforms.appleMusic.details.storefrontAvailability
-           when present; otherwise renders the empty state ("Run a new
-           scan to see territory data"). -->
-      <section class="card big6-card fade-in d1" id="big6-card">
-        <div class="card-hd">
-          <h2 class="card-title">The BIG 6</h2>
-        </div>
-        <p class="card-sub">Where your music is available today</p>
-        <p class="card-sub-meta">Royaltē monitors your presence across the platforms that matter most.</p>
-
-        <div class="big6-grid" id="big6-grid">
-          <div class="big6-region">
-            <div class="big6-region-h">North America</div>
-            <div class="big6-territories">
-              <button class="big6-territory" data-storefront="us" type="button">
-                <span class="big6-flag">🇺🇸</span>
-                <span class="big6-name">USA</span>
-                <span class="big6-status" data-status-for="us">—</span>
-              </button>
-              <button class="big6-territory" data-storefront="ca" type="button">
-                <span class="big6-flag">🇨🇦</span>
-                <span class="big6-name">Canada</span>
-                <span class="big6-status" data-status-for="ca">—</span>
-              </button>
+          <div class="mc-health-row">
+            <div class="mc-score-circle" id="mc-score-circle">
+              <div class="mc-score-num" id="mc-score-num">—</div>
+              <div class="mc-score-of">/100</div>
             </div>
-          </div>
-          <div class="big6-region">
-            <div class="big6-region-h">Europe</div>
-            <div class="big6-territories">
-              <button class="big6-territory" data-storefront="gb" type="button">
-                <span class="big6-flag">🇬🇧</span>
-                <span class="big6-name">UK</span>
-                <span class="big6-status" data-status-for="gb">—</span>
-              </button>
-              <button class="big6-territory" data-storefront="de" type="button">
-                <span class="big6-flag">🇩🇪</span>
-                <span class="big6-name">Germany</span>
-                <span class="big6-status" data-status-for="de">—</span>
-              </button>
-              <button class="big6-territory" data-storefront="fr" type="button">
-                <span class="big6-flag">🇫🇷</span>
-                <span class="big6-name">France</span>
-                <span class="big6-status" data-status-for="fr">—</span>
-              </button>
-            </div>
-          </div>
-          <div class="big6-region">
-            <div class="big6-region-h">Asia-Pacific</div>
-            <div class="big6-territories">
-              <button class="big6-territory" data-storefront="jp" type="button">
-                <span class="big6-flag">🇯🇵</span>
-                <span class="big6-name">Japan</span>
-                <span class="big6-status" data-status-for="jp">—</span>
-              </button>
-              <button class="big6-territory" data-storefront="au" type="button">
-                <span class="big6-flag">🇦🇺</span>
-                <span class="big6-name">Australia</span>
-                <span class="big6-status" data-status-for="au">—</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="big6-drilldown" id="big6-drilldown" hidden>
-          <!-- populated by renderBig6 when a territory is clicked -->
-        </div>
-
-        <p class="big6-empty" id="big6-empty" hidden>
-          Run a new scan to see territory data
-        </p>
-      </section>
-
-      <!-- ─── ACTION CENTER (Brief 012) ───
-           Populated by renderActionCenter(scan, supabase, userId) from
-           TWO sources:
-             • monitoring_alerts WHERE resolved=false AND severity IN
-               ('action_needed','monitor') ORDER BY detected_at DESC
-             • appleMusic.details.storefrontAvailability — any of the
-               7 BIG 6 storefronts with unavailable.length>0 → 1 item.
-           Each item is action-grade and names a specific object
-           (track / territory / identifier / release). 0 items →
-           empty state. -->
-      <section class="card action-center-card fade-in d2" id="action-center">
-        <div class="card-hd">
-          <h2 class="card-title">Action Center
-            <span class="ac-count-pill" id="ac-count" hidden>0</span>
-          </h2>
-        </div>
-        <p class="card-sub">Specific, verified action items from monitoring + territory checks</p>
-
-        <div class="ac-list" id="ac-list">
-          <!-- populated by renderActionCenter -->
-        </div>
-
-        <p class="ac-empty" id="ac-empty" hidden>
-          No action items at this time. Royaltē OS is monitoring your catalog for changes.
-        </p>
-      </section>
-
-      <!-- ─── MONITORING (Block D) ─── -->
-      <section id="monitoring" class="card monitoring-card fade-in d6">
-        <div class="card-hd">
-          <h2 class="card-title">Monitoring</h2>
-          <div class="monitoring-status-badge"></div>
-        </div>
-
-        <!-- Pro: continuous active monitoring -->
-        <div class="monitoring-active" style="display:none;">
-          <div class="monitoring-meta-row">
-            <div class="last-monitored">Last monitored —</div>
-            <div class="next-rescan">Next rescan —</div>
-          </div>
-          <div class="recent-changes">
-            <h3 class="recent-changes-h">Recent Changes</h3>
-            <ul id="recent-changes-list" class="recent-changes-list">
-              <!-- populated by dashboard.js from scan_changes -->
-            </ul>
-          </div>
-        </div>
-
-        <!-- Free + inactive: protection-loss state -->
-        <div class="monitoring-inactive" style="display:none;">
-          <div class="inactive-banner">
-            <div class="inactive-headline">Monitoring Paused</div>
-            <div class="inactive-meta">Your last backend snapshot remains available. Continuous monitoring and change detection are currently inactive.</div>
-            <button class="lock-cta" type="button" data-lock-cta>Activate Monitoring →</button>
-          </div>
-        </div>
-
-        <!-- Free + grace period: subtle active state -->
-        <div class="monitoring-grace" style="display:none;">
-          <div class="grace-status">Monitoring active</div>
-          <div class="grace-next">Next rescan —</div>
-        </div>
-      </section>
-
-      <!-- ─── V2 BACKEND PROTECTION (Brief 004) ─── -->
-      <!-- Populated by /public/components/backend-protection.js after the
-           latest scan loads. Self-contained: styles + queries injected by
-           the component, no host-level CSS or markup beyond this anchor. -->
-      <section id="backend-protection-section">
-        <div id="backend-protection-panel"></div>
-      </section>
-
-      <!-- ─── PLATFORMS ─── -->
-      <section class="card platforms-card fade-in d6 gated-section">
-        <div class="card-hd">
-          <h2 class="card-title">
-            Your Platforms
-            <span class="platforms-meta" id="platforms-meta">— of —</span>
-          </h2>
-          <button class="manage-link">
-            Manage Connections
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-
-        <div class="platforms-grid" id="platforms-grid">
-          <!-- populated by dashboard.js — renderPlatforms() filters out
-               sources with no verified connection (Brief 009). -->
-        </div>
-
-        <div class="lock-overlay">
-          <div class="lock-icon" aria-hidden="true">🔒</div>
-          <button class="lock-cta" type="button" data-lock-cta>Unlock Your Royaltē Review →</button>
-        </div>
-      </section>
-      </div><!-- /scan-content -->
-
-      <!-- ─── FOOTER NOTE ─── -->
-      <div class="foot-note">
-        <span class="foot-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-        Royaltē <u>does not</u> collect money. <strong>We identify problems and give you the action plan to fix them.</strong>
-      </div>
-
-      <!-- ── Upgrade section — Brief 009 copy update ── -->
-      <section id="upgrade" class="upgrade-placeholder">
-        <h2>Royaltē OS is live</h2>
-        <p>You're in early access. Founding Artist pricing is $19.99/month. Full monitoring, change detection, and catalog protection — active now.</p>
-        <a href="/pricing" class="upgrade-cta">Manage Subscription →</a>
-      </section>
-
-      <!-- ─── FOUNDING ARTIST PRICING (V5 Phase 2) ─── -->
-      <section id="pricing" class="pricing-section fade-in d8">
-        <div class="pricing-header">
-          <div class="pricing-badge">Early Access Beta Phase</div>
-          <h2 class="pricing-title">Access Plans</h2>
-        </div>
-
-        <div class="pricing-grid">
-          <!-- FOUNDING ARTIST (PRIMARY) -->
-          <div class="pricing-card pricing-primary" id="founding-artist-card">
-            <div class="pricing-card-label">Founding Artist Access</div>
-            <div class="pricing-card-price">$99<span class="price-suffix">one-time</span></div>
-            <ul class="pricing-card-list">
-              <li>Lifetime core monitoring</li>
-              <li>Audit history access</li>
-              <li>Early platform access</li>
-              <li>Founder pricing protection</li>
-              <li>Future foundational feature access</li>
-            </ul>
-            <p class="pricing-card-sub">No monthly subscription</p>
-            <div class="pricing-card-cta-container">
-              <button class="pricing-cta pricing-cta-primary" id="reserve-founding-artist" type="button">
-                Reserve Founding Artist Access →
-              </button>
-              <div class="pricing-cta-confirmed" id="founding-artist-confirmed" style="display:none;">
-                <span class="cta-check">✓</span> Reservation Confirmed
-                <p class="cta-confirmed-sub">We'll notify you when checkout opens.</p>
+            <div class="mc-score-info">
+              <div class="mc-score-band-label" id="mc-score-band">—</div>
+              <div class="mc-score-desc" id="mc-score-desc">Loading your backend health…</div>
+              <div class="mc-score-delta is-neutral" id="mc-score-delta">
+                <i class="ti ti-minus"></i>
+                <span>—</span>
               </div>
-              <div class="pricing-error" id="founding-artist-error" role="alert" style="display:none;"></div>
             </div>
           </div>
+          <svg class="mc-spark" id="mc-spark-health" viewBox="0 0 200 32" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </article>
 
-          <!-- MONTHLY MONITORING (SECONDARY) -->
-          <div class="pricing-card pricing-secondary" id="monthly-monitoring-card">
-            <div class="pricing-card-label">Monthly Monitoring</div>
-            <div class="pricing-card-price">$19.99<span class="price-suffix">/month</span></div>
-            <ul class="pricing-card-list">
-              <li>Ongoing monitoring</li>
-              <li>Dashboard access</li>
-              <li>Future platform updates</li>
-            </ul>
-            <p class="pricing-card-sub">Cancel anytime</p>
-            <div class="pricing-card-cta-container">
-              <button class="pricing-cta pricing-cta-secondary" id="monthly-monitoring-cta" type="button" disabled>
-                Available at Launch
-              </button>
+        <!-- CARD 2 — Backend Status -->
+        <article class="card" id="card-status">
+          <div class="card-hd">
+            <div class="card-title">Backend Status</div>
+          </div>
+          <div class="mc-status-list" id="mc-status-list">
+            <!-- populated by renderMcBackendStatus -->
+          </div>
+          <div class="mc-status-foot">
+            <a class="card-link" href="#card-action">View Action Center <i class="ti ti-arrow-right"></i></a>
+          </div>
+        </article>
+
+        <!-- CARD 3 — Royaltē Intelligence Feed -->
+        <article class="card" id="card-feed">
+          <div class="card-hd">
+            <div class="card-title">Intelligence Feed</div>
+            <a class="card-link" href="#feed-all">View all <i class="ti ti-arrow-right"></i></a>
+          </div>
+          <div class="mc-feed-list" id="mc-feed-list">
+            <!-- populated by renderMcFeed -->
+          </div>
+        </article>
+
+        <!-- CARD 4 — Backend Health Journey™ -->
+        <article class="card" id="card-journey">
+          <div class="card-hd">
+            <div class="card-title">Backend Health Journey™</div>
+            <span style="font-size:10px;color:var(--muted);">Since Baseline Review</span>
+          </div>
+          <div id="mc-journey-body">
+            <!-- populated by renderMcJourney -->
+          </div>
+        </article>
+
+        <!-- CARD 5 — Action Center -->
+        <article class="card" id="card-action">
+          <div class="card-hd">
+            <div class="card-title">Action Center</div>
+            <a class="card-link" href="#action-all">View all <i class="ti ti-arrow-right"></i></a>
+          </div>
+          <div class="mc-action-count" id="mc-action-count">—</div>
+          <div class="mc-action-list" id="mc-action-list">
+            <!-- populated by renderMcActionCenter -->
+          </div>
+        </article>
+
+        <!-- CARD 6 — Intelligence Profile -->
+        <article class="card" id="card-profile">
+          <div class="card-hd">
+            <div class="card-title">Intelligence Profile</div>
+          </div>
+          <div class="mc-profile-row">
+            <div class="mc-donut" id="mc-donut" style="background:conic-gradient(var(--pur-2) 0deg,rgba(255,255,255,0.05) 0deg);">
+              <div class="mc-donut-center">
+                <div class="mc-donut-label" id="mc-donut-label">—</div>
+                <div class="mc-donut-sub">Confidence</div>
+              </div>
             </div>
+            <div class="mc-profile-info">
+              <div class="mc-profile-row-kv"><span class="mc-profile-k">Public Sources</span><span class="mc-profile-v" id="mc-profile-public">— / 6</span></div>
+              <div class="mc-profile-row-kv"><span class="mc-profile-k">Private Sources</span><span class="mc-profile-v" id="mc-profile-private">— / 7</span></div>
+              <div class="mc-profile-row-kv"><span class="mc-profile-k">Data Points</span><span class="mc-profile-v" id="mc-profile-points">—</span></div>
+              <div class="mc-profile-row-kv"><span class="mc-profile-k">Last Updated</span><span class="mc-profile-v" id="mc-profile-updated">—</span></div>
+            </div>
+          </div>
+          <div class="mc-profile-foot">
+            <a class="card-link" href="#intelligence-sources">Manage Intelligence Sources <i class="ti ti-arrow-right"></i></a>
+          </div>
+        </article>
+
+        <!-- CARD 7 — Global Presence -->
+        <article class="card" id="card-presence">
+          <div class="card-hd">
+            <div class="card-title"><i class="ti ti-world" style="font-size:13px;"></i> Global Presence</div>
+          </div>
+          <div class="mc-presence-sub" id="mc-presence-sub">— of 7 regions verified</div>
+          <div class="mc-flag-grid" id="mc-flag-grid">
+            <!-- populated by renderMcGlobalPresence -->
+          </div>
+          <div class="mc-presence-foot">
+            <a class="card-link" href="#global-map">View Full Map <i class="ti ti-arrow-right"></i></a>
+          </div>
+        </article>
+
+        <!-- CARD 8 — Baseline Review -->
+        <article class="card" id="card-baseline">
+          <div class="card-hd">
+            <div class="card-title">Baseline Review</div>
+          </div>
+          <div class="mc-baseline-date" id="mc-baseline-date">—</div>
+          <div class="mc-baseline-row">
+            <div class="mc-baseline-thumb">ROYALTĒ<br>Review</div>
+            <div class="mc-baseline-score">
+              <div class="mc-baseline-num" id="mc-baseline-num">—</div>
+              <div class="mc-baseline-lbl">Baseline Score</div>
+            </div>
+          </div>
+          <div class="mc-baseline-actions">
+            <a class="mc-baseline-btn" id="mc-baseline-pdf" href="#" target="_blank" rel="noopener">
+              <i class="ti ti-download"></i> PDF Report
+            </a>
+            <a class="mc-baseline-btn" id="mc-baseline-view" href="#reviews">
+              <i class="ti ti-eye"></i> View Review
+            </a>
+          </div>
+        </article>
+
+        <!-- CARD 9 — Monitoring Overview -->
+        <article class="card" id="card-overview">
+          <div class="card-hd">
+            <div class="card-title">Monitoring Overview</div>
+          </div>
+          <div class="mc-overview-sub">Your backend at a glance</div>
+          <div class="mc-overview-grid">
+            <div class="mc-overview-cell"><div class="mc-overview-num" id="mc-ovr-days">—</div><div class="mc-overview-lbl">Days Monitored</div></div>
+            <div class="mc-overview-cell"><div class="mc-overview-num" id="mc-ovr-changes">—</div><div class="mc-overview-lbl">Changes Detected</div></div>
+            <div class="mc-overview-cell"><div class="mc-overview-num is-good" id="mc-ovr-resolved">—</div><div class="mc-overview-lbl">Actions Completed</div></div>
+            <div class="mc-overview-cell"><div class="mc-overview-num is-good">100%</div><div class="mc-overview-lbl">Monitoring Uptime</div></div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- ─── BELOW-GRID CONDITIONAL SECTIONS (Brief 015 C1) ───────
+           Trial banner, upgrade prompt, and Founding Artist pricing
+           render only for free / trial users. Founding Artists pass
+           through without seeing any of these. -->
+
+      <section class="trial-banner" id="trial-banner">
+        <div class="trial-banner-inner">
+          <div>
+            <div class="trial-eyebrow">Trial Active</div>
+            <div class="trial-num-row">
+              <span class="trial-num" id="trial-days-num">—</span>
+              <span class="trial-label" id="trial-days-label">days remaining</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="upgrade" class="upgrade-placeholder" style="display:none;">
+        <a href="#pricing" class="upgrade-cta" id="upgrade-cta-link">Upgrade to Pro</a>
+      </section>
+
+      <section id="pricing" class="pricing-section">
+        <div class="pricing-inner">
+          <div class="pricing-card">
+            <h3>Founding Artist Access</h3>
+            <p class="pricing-card-sub">Lifetime — no monthly subscription</p>
+            <div class="pricing-price">$199</div>
+            <button type="button" class="pricing-cta" id="reserve-founding-artist">Reserve My Spot</button>
+            <div class="cta-confirmed-sub" id="founding-artist-confirmed" style="display:none;">Reserved.</div>
+            <div class="cta-error" id="founding-artist-error"></div>
           </div>
         </div>
       </section>
@@ -1383,6 +669,14 @@ body.tier-free .gated-section .lock-overlay{display:flex;}
     </main>
   </div>
 
-  <script type="module" src="/js/dashboard.js"></script>
+  <!-- ─── FOOTER ─────────────────────────────────────────────────── -->
+  <footer class="mc-foot">
+    <i class="ti ti-lock"></i>
+    <span>Royaltē does not collect money. We identify problems and give you the action plan to fix them.</span>
+  </footer>
+
+</div>
+
+<script type="module" src="/js/dashboard.js"></script>
 </body>
 </html>
