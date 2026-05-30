@@ -1,24 +1,24 @@
 /* ═══════════════════════════════════════════════════════════════════
-   ROYALTĒ MISSION CONTROL — render layer (Brief 015)
+   ROYALTĒ MISSION CONTROL — render layer (Brief 015 + 015a fixes)
 
-   Replaces the V1 dashboard.js entirely. Populates the 9-card grid
-   in public/dashboard.html. Auth / session / Supabase wiring is
-   preserved verbatim from the V1 dashboard (loadLatestScan,
-   loadProfile, wireSignOut, checkAdminStatus, getSyntheticProfile,
-   activateTrialIfNeeded, renderTrialBanner, loadReservation,
-   renderPricing, wireReservationFlow, handleReserveClick,
-   wireLockCTAs, fillConfirmedState, _countActionNeededAlerts).
+   Populates the 9-card grid in public/dashboard.html.
 
    SINGLE SOURCE OF TRUTH (LOCKED): health_score is read from
-   scan_snapshots only. computeV2HealthScore() in
-   api/_lib/persist-os-scan.js is the only place it's computed.
-   No render function recomputes the score.
+   scan_snapshots only via _resolveHealthScoreFromSnapshot, which
+   prefers the stored value and falls back to the V1 risk score
+   (100 - payload.overallScore / 100 - payload.score.overall) ONLY
+   for legacy snapshots that predate Brief 012a. Returns null when
+   no signal is available — never 0. computeV2HealthScore() in
+   api/_lib/persist-os-scan.js is the only place the V2 score is
+   computed from canonical data. No dashboard surface computes it
+   from scratch.
 
-   Removed in this rebuild:
-     · components/backend-protection.js — folded into Cards 2 + 5
-     · All V1 reword tables (EXACT_REWORDS, PATTERN_REWORDS, etc.)
-     · mapCanonicalToDashboard / renderAll — V1 surface, deleted
-     · V1 helpers (tierClass, severityLabel, getBackendConfidence, etc.)
+   Preserved verbatim from V1 (auth/session/Supabase wiring):
+   wireSignOut, checkAdminStatus, getSyntheticProfile,
+   activateTrialIfNeeded, renderTrialBanner, renderPricing,
+   wireReservationFlow, handleReserveClick, fillConfirmedState,
+   wireLockCTAs, loadLatestScan, loadReservation,
+   _countActionNeededAlerts.
    ═══════════════════════════════════════════════════════════════════ */
 
 import { getSupabase } from '/js/supabase-client.js';
@@ -73,7 +73,6 @@ function relativeTimeFuture(date) {
   return days === 1 ? 'in 1 day' : `in ${days} days`;
 }
 
-// Short relative time for the Intelligence Feed (e.g. "2h", "3d").
 function relativeTimeShort(iso) {
   if (!iso) return '';
   const d = new Date(iso);
@@ -86,7 +85,37 @@ function relativeTimeShort(iso) {
   return `${Math.floor(ms / (30 * 864e5))}mo`;
 }
 
-// Score → band label + CSS class suffix.
+// Brief 015a Fix 1+2 — legacy-data graceful degradation. Prefers the
+// stored V2 health_score; falls back to (100 - V1 risk) for snapshots
+// that predate Brief 012a's V2 write path. Returns null (not 0) when
+// no usable signal exists — caller renders "—".
+function _resolveHealthScoreFromSnapshot(s) {
+  if (!s) return null;
+  if (typeof s.health_score === 'number') return s.health_score;
+  const p = s.payload || {};
+  if (typeof p.overallScore === 'number') {
+    return clamp(100 - p.overallScore, 0, 100);
+  }
+  if (p.score && typeof p.score.overall === 'number') {
+    return clamp(100 - p.score.overall, 0, 100);
+  }
+  return null;
+}
+
+// Review Confidence label from a single scan — used by Card 6 donut
+// label AND Card 9 Your Royaltē Review subtitle. One helper, one
+// definition. Counts VERIFIED platforms across the 6 reviewed
+// sources (Apple, Spotify, YouTube, MusicBrainz, Discogs, LastFM).
+function _confidenceLabelForScan(scan) {
+  const p = (scan && scan.payload && scan.payload.platforms) || {};
+  const sources = ['appleMusic','spotify','youtube','musicbrainz','discogs','lastfm'];
+  const verified = sources.filter(k => p[k]?.availability === 'VERIFIED').length;
+  if (verified >= 3) return { label: 'High',     count: verified, total: sources.length };
+  if (verified >= 2) return { label: 'Moderate', count: verified, total: sources.length };
+  return                    { label: 'Limited',  count: verified, total: sources.length };
+}
+
+// Score band → display label + CSS class suffix.
 function _healthBand(score) {
   if (score >= 90) return { label: 'Excellent',          cls: 'band-excellent' };
   if (score >= 75) return { label: 'Strong',             cls: 'band-strong'    };
@@ -94,8 +123,7 @@ function _healthBand(score) {
   return                  { label: 'Review Recommended', cls: 'band-review'    };
 }
 
-// SVG sparkline polyline. Values is an array of numbers, all 0–100.
-// Returns SVG path "d" attribute fitting a 200×32 viewBox by default.
+// SVG sparkline path generator.
 function _sparkPath(values, opts = {}) {
   const w = opts.width  || 200;
   const h = opts.height || 32;
@@ -112,14 +140,13 @@ function _sparkPath(values, opts = {}) {
   }).join(' ');
 }
 
-// Donut CSS conic-gradient — purple fill for `pct`% of the ring,
-// dim background for the rest.
+// Donut CSS conic-gradient — purple fill for `pct`% of the ring.
 function _donutGradient(pct) {
   const deg = clamp(pct, 0, 100) * 3.6;
   return `conic-gradient(var(--pur-2) 0deg ${deg}deg,rgba(255,255,255,0.05) ${deg}deg)`;
 }
 
-// Intelligence Feed display mapper — change_type + alert → user-facing.
+// Intelligence Feed display mapper — change_type → user-facing copy.
 // LOCKED LANGUAGE per Brief 015: song-first, never system language.
 function _feedDisplay(alert) {
   const trackName = alert.track_name || alert.artist_name || 'Your catalog';
@@ -132,68 +159,57 @@ function _feedDisplay(alert) {
     case 'territory_loss':
       out.title = `${trackName} — No longer available in ${territory || 'a territory'}`;
       out.sub = platform || 'territory change';
-      out.iconClass = 'is-amber';
-      out.iconName = 'ti-world';
+      out.iconClass = 'is-amber'; out.iconName = 'ti-world';
       break;
     case 'territory_gain':
       out.title = `${trackName} — Now available in ${territory || 'a new territory'}`;
       out.sub = platform || 'territory change';
-      out.iconClass = 'is-green';
-      out.iconName = 'ti-world';
+      out.iconClass = 'is-green'; out.iconName = 'ti-world';
       break;
     case 'isrc_dropped':
       out.title = `${trackName} — Identifier signal changed`;
       out.sub = 'ISRC no longer detected from reviewed sources';
-      out.iconClass = 'is-amber';
-      out.iconName = 'ti-key';
+      out.iconClass = 'is-amber'; out.iconName = 'ti-key';
       break;
     case 'isrc_added':
       out.title = `${trackName} — Identifier verified`;
       out.sub = 'ISRC confirmed';
-      out.iconClass = 'is-green';
-      out.iconName = 'ti-key';
+      out.iconClass = 'is-green'; out.iconName = 'ti-key';
       break;
     case 'isrc_mismatch':
       out.title = `${trackName} — Identifier mismatch noted`;
       out.sub = 'Cross-source ISRC values differ';
-      out.iconClass = 'is-amber';
-      out.iconName = 'ti-key';
+      out.iconClass = 'is-amber'; out.iconName = 'ti-key';
       break;
     case 'release_added':
       out.title = `${trackName} — New release detected`;
       out.sub = platform || 'release';
-      out.iconClass = 'is-purple';
-      out.iconName = 'ti-music';
+      out.iconClass = 'is-purple'; out.iconName = 'ti-music';
       break;
     case 'release_removed':
       out.title = `${trackName} — Release no longer detected`;
       out.sub = platform || 'release';
-      out.iconClass = 'is-amber';
-      out.iconName = 'ti-music';
+      out.iconClass = 'is-amber'; out.iconName = 'ti-music';
       break;
     case 'video_added':
       out.title = `${trackName} — YouTube match verified`;
       out.sub = 'YouTube';
-      out.iconClass = 'is-green';
-      out.iconName = 'ti-video';
+      out.iconClass = 'is-green'; out.iconName = 'ti-video';
       break;
     case 'video_removed':
       out.title = `${trackName} — YouTube match no longer detected`;
       out.sub = 'YouTube';
-      out.iconClass = 'is-amber';
-      out.iconName = 'ti-video';
+      out.iconClass = 'is-amber'; out.iconName = 'ti-video';
       break;
     case 'metadata_changed':
       out.title = `${trackName} — Metadata change detected`;
       out.sub = platform || 'metadata';
-      out.iconClass = 'is-amber';
-      out.iconName = 'ti-database';
+      out.iconClass = 'is-amber'; out.iconName = 'ti-database';
       break;
     case 'baseline_established':
       out.title = 'Baseline established — monitoring now active';
       out.sub = 'Royaltē OS';
-      out.iconClass = 'is-green';
-      out.iconName = 'ti-file-check';
+      out.iconClass = 'is-green'; out.iconName = 'ti-file-check';
       break;
     default:
       out.title = `${trackName} — Change detected`;
@@ -203,11 +219,9 @@ function _feedDisplay(alert) {
 }
 
 /* ─────────────────────────────────────────────
-   LOADERS — preserved + new (V2 only)
+   LOADERS — preserved + new
    ───────────────────────────────────────────── */
 
-// PRESERVED. Reads scan_snapshots latest by sequence_number, falls
-// back to audit_scans for users without a snapshot yet.
 async function loadLatestScan(supabase, userId) {
   const { data: snapshots, error } = await supabase
     .from('scan_snapshots')
@@ -231,8 +245,6 @@ async function loadLatestScan(supabase, userId) {
   return (scans && scans.length) ? scans[0] : null;
 }
 
-// PRESERVED + EXTENDED. Now selects founding_artist_number + created_at
-// for the sidebar Founding Artist badge (Brief 015 Flag A1).
 async function loadProfile(supabase, userId) {
   const fallback = {
     tier: 'free',
@@ -257,7 +269,6 @@ async function loadProfile(supabase, userId) {
   }
 }
 
-// PRESERVED. Founding Artist reservation row.
 async function loadReservation(supabase, userId) {
   try {
     const { data, error } = await supabase
@@ -273,9 +284,6 @@ async function loadReservation(supabase, userId) {
   }
 }
 
-// PRESERVED. Unresolved action_needed count for Card 5 (and the old
-// sidebar nav badge; that badge is gone in MC but the count is still
-// surfaced in the Action Center card subtitle).
 async function _countActionNeededAlerts(supabase, userId) {
   try {
     const { count, error } = await supabase
@@ -289,7 +297,6 @@ async function _countActionNeededAlerts(supabase, userId) {
   } catch (e) { console.error('[mc] action count failed', e); return 0; }
 }
 
-// NEW — count of unresolved 'monitor' alerts (Opportunities row on Card 2).
 async function _countMonitorAlerts(supabase, userId) {
   try {
     const { count, error } = await supabase
@@ -303,12 +310,12 @@ async function _countMonitorAlerts(supabase, userId) {
   } catch (e) { console.error('[mc] monitor count failed', e); return 0; }
 }
 
-// NEW — full scan_snapshots history for the user, oldest first.
-// Used by Card 1 (sparkline) and Card 4 (Journey baseline/current/delta).
+// Brief 015a Fix 1 — SELECT now includes `payload` so the resolver can
+// fall back to V1 risk for legacy snapshots.
 async function loadScanHistory(supabase, userId) {
   const { data, error } = await supabase
     .from('scan_snapshots')
-    .select('id, health_score, scanned_at')
+    .select('id, health_score, scanned_at, payload')
     .eq('user_id', userId)
     .order('scanned_at', { ascending: true })
     .limit(50);
@@ -316,7 +323,6 @@ async function loadScanHistory(supabase, userId) {
   return data || [];
 }
 
-// NEW — recent monitoring_alerts for the Intelligence Feed (Card 3).
 async function loadAlertFeed(supabase, userId, limit = 5) {
   const { data, error } = await supabase
     .from('monitoring_alerts')
@@ -328,7 +334,6 @@ async function loadAlertFeed(supabase, userId, limit = 5) {
   return data || [];
 }
 
-// NEW — unresolved action_needed alerts for Card 5 list (up to 3).
 async function loadActionItems(supabase, userId, limit = 3) {
   const { data, error } = await supabase
     .from('monitoring_alerts')
@@ -342,7 +347,6 @@ async function loadActionItems(supabase, userId, limit = 3) {
   return data || [];
 }
 
-// NEW — totals for Card 9 Monitoring Overview.
 async function loadAlertOverview(supabase, userId) {
   const out = { total: 0, resolved: 0 };
   try {
@@ -362,7 +366,6 @@ async function loadAlertOverview(supabase, userId) {
   return out;
 }
 
-// NEW — monitoring_subscriptions.active for Card 2 row 1.
 async function loadMonitoringActive(supabase, userId) {
   try {
     const { data, error } = await supabase
@@ -375,15 +378,9 @@ async function loadMonitoringActive(supabase, userId) {
   } catch (e) { console.error('[mc] monitoring active fetch failed', e); return false; }
 }
 
-// NEW — earliest scan_snapshot row's matching audit_scans pdf_url for
-// Card 8 Baseline Review. Best-effort: returns null if the older
-// snapshot has no matching audit_scans row, which is common for V2
-// re-scans where only the first audit_scans row carries pdf_url.
 async function loadBaselinePdf(supabase, baselineSnapshot) {
   if (!baselineSnapshot) return null;
   try {
-    // Most recent ready PDF for this user — usually the baseline since
-    // PDFs are only generated via submit-audit (one per scan).
     const { data } = await supabase
       .from('audit_scans')
       .select('pdf_url, pdf_status, created_at')
@@ -407,9 +404,6 @@ function renderMcTopBar(artistName, scanDate) {
 }
 
 function renderMcSidebar(profile) {
-  // Active state: Mission Control on load (set by the .is-active class
-  // in the HTML). Sidebar nav click → set active state via hash routing
-  // is a follow-up; for now nav items are passive links.
   const faBox     = document.getElementById('sb-fa');
   const faNumEl   = document.getElementById('sb-fa-num');
   const faSinceEl = document.getElementById('sb-fa-since');
@@ -423,12 +417,11 @@ function renderMcSidebar(profile) {
   }
 }
 
-// CARD 1 — Royaltē Health Score™
+// CARD 1 — Royaltē Health Score™ (Brief 015a Fix 1: uses resolver)
 function renderMcHealth(scan, history) {
-  const current = (scan && typeof scan.health_score === 'number') ? scan.health_score : null;
-  const baseline = (history && history.length > 0 && typeof history[0].health_score === 'number')
-    ? history[0].health_score : null;
-  const delta = (current != null && baseline != null) ? (current - baseline) : null;
+  const current  = _resolveHealthScoreFromSnapshot(scan);
+  const baseline = (history && history.length > 0) ? _resolveHealthScoreFromSnapshot(history[0]) : null;
+  const delta    = (current != null && baseline != null) ? (current - baseline) : null;
 
   const numEl    = document.getElementById('mc-score-num');
   const circleEl = document.getElementById('mc-score-circle');
@@ -476,7 +469,7 @@ function renderMcHealth(scan, history) {
 
   if (sparkEl) {
     const values = (history && history.length)
-      ? history.map(h => typeof h.health_score === 'number' ? h.health_score : 0)
+      ? history.map(h => _resolveHealthScoreFromSnapshot(h) ?? 0)
       : [current];
     sparkEl.innerHTML =
       `<path d="${_sparkPath(values)}" stroke="var(--pur-2)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />` +
@@ -485,7 +478,7 @@ function renderMcHealth(scan, history) {
   }
 }
 
-// CARD 2 — Backend Status
+// CARD 2 — Backend Status (Brief 015a Fix 4: explicit .is-green class)
 function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesCount }) {
   const list = document.getElementById('mc-status-list');
   if (!list) return;
@@ -494,7 +487,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
 
   rows.push(`
     <div class="mc-status-row">
-      <div class="mc-status-dot${monitoringActive ? '' : ' is-amber'}">
+      <div class="mc-status-dot ${monitoringActive ? 'is-green' : 'is-amber'}">
         <i class="ti ${monitoringActive ? 'ti-check' : 'ti-alert-triangle'}"></i>
       </div>
       <div class="mc-status-text">
@@ -517,7 +510,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   } else {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot"><i class="ti ti-check"></i></div>
+        <div class="mc-status-dot is-green"><i class="ti ti-check"></i></div>
         <div class="mc-status-text">
           <div class="mc-status-title">No Critical Issues</div>
           <div class="mc-status-sub">No problems detected</div>
@@ -539,7 +532,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   } else {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot"><i class="ti ti-check"></i></div>
+        <div class="mc-status-dot is-green"><i class="ti ti-check"></i></div>
         <div class="mc-status-text">
           <div class="mc-status-title">No Opportunities</div>
           <div class="mc-status-sub">Nothing to review right now</div>
@@ -575,47 +568,27 @@ function renderMcFeed(alerts) {
   }).join('');
 }
 
-// CARD 4 — Backend Health Journey™
-function renderMcJourney(history) {
-  const body = document.getElementById('mc-journey-body');
-  if (!body) return;
-  if (!history || history.length === 0) {
-    body.innerHTML = `<div class="mc-journey-empty">Awaiting your first scan to establish a baseline.</div>`;
-    return;
-  }
-  if (history.length < 2) {
-    body.innerHTML = `<div class="mc-journey-empty">Baseline established. Score progress appears after your next scan.</div>`;
-    return;
-  }
-  const baseline = history[0].health_score ?? 0;
-  const current  = history[history.length - 1].health_score ?? 0;
-  const delta    = current - baseline;
-  const deltaCls = delta > 0 ? '' : 'is-neutral';
-  const deltaIcon = delta > 0 ? 'ti-trending-up' : (delta < 0 ? 'ti-trending-down' : 'ti-equal');
-  const deltaTxt = delta > 0 ? `↑ ${delta} Points Improved`
-                 : delta < 0 ? `${delta} Points Changed`
-                 : '0 Points · Holding';
-  const values = history.map(h => typeof h.health_score === 'number' ? h.health_score : 0);
+// CARD 4 — Catalog Intelligence (Brief 015a Change 1)
+function renderMcCatalogIntelligence(scan, feedAlerts) {
+  const am = scan?.payload?.platforms?.appleMusic?.details || {};
+  const albums = Array.isArray(am.albums) ? am.albums : [];
+  const tracks = albums.reduce((n, a) => n + (typeof a?.trackCount === 'number' ? a.trackCount : 0), 0);
+  const releases = albums.length || am.albumCount || 0;
+  const isrcVerified = !!am.isrcLookup?.isrc;
+  const p = scan?.payload?.platforms || {};
+  const sources = ['appleMusic','spotify','youtube','musicbrainz','discogs','lastfm']
+    .filter(k => p[k]?.availability === 'VERIFIED').length;
+  const lastAlert = feedAlerts && feedAlerts.length > 0 ? feedAlerts[0] : null;
+  const lastChange = lastAlert?.detected_at
+    ? relativeTimePast(new Date(lastAlert.detected_at))
+    : 'No changes detected yet';
 
-  body.innerHTML = `
-    <div class="mc-journey-row">
-      <div class="mc-journey-baseline">
-        <div class="mc-journey-num">${baseline}</div>
-        <div class="mc-journey-lbl">Baseline</div>
-      </div>
-      <span class="mc-journey-arrow"><i class="ti ti-arrow-right"></i></span>
-      <div class="mc-journey-current">
-        <div class="mc-journey-num">${current}</div>
-        <div class="mc-journey-lbl">Current</div>
-      </div>
-      <span class="mc-journey-badge ${deltaCls}"><i class="ti ${deltaIcon}"></i>${escapeHtml(deltaTxt)}</span>
-    </div>
-    <svg class="mc-journey-chart" viewBox="0 0 320 80" preserveAspectRatio="none" aria-hidden="true">
-      <path d="${_sparkPath(values, { width: 320, height: 64 })}"
-        stroke="var(--pur-2)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-      <circle cx="320" cy="${(64 - (current/100)*64).toFixed(1)}" r="3" fill="var(--pur-2)" />
-    </svg>
-  `;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
+  set('mc-cat-tracks',   tracks);
+  set('mc-cat-releases', releases);
+  set('mc-cat-isrc',     isrcVerified ? 'Verified' : 'Pending verification');
+  set('mc-cat-sources',  `${sources} / 6`);
+  set('mc-cat-last',     lastChange);
 }
 
 // CARD 5 — Action Center
@@ -648,38 +621,42 @@ function renderMcActionCenter({ items, totalCount }) {
   }).join('');
 }
 
-// CARD 6 — Intelligence Profile
-function renderMcIntelligenceProfile(scan) {
+// CARD 6 — Intelligence Confidence (Brief 015a Change 2)
+function renderMcIntelligenceConfidence(scan) {
   const p = (scan && scan.payload && scan.payload.platforms) || {};
-  const sources = ['appleMusic','spotify','youtube','musicbrainz','discogs','lastfm'];
-  const verifiedCount = sources.filter(k => p[k]?.availability === 'VERIFIED').length;
-  const pct = (verifiedCount / sources.length) * 100;
+  const v = (k) => p[k]?.availability === 'VERIFIED';
+  const conf = _confidenceLabelForScan(scan);
+  const pct = (conf.count / conf.total) * 100;
 
-  let confidence;
-  if (verifiedCount >= 3) confidence = 'High';
-  else if (verifiedCount >= 2) confidence = 'Moderate';
-  else confidence = 'Limited';
+  // Catalog Coverage — 3 catalog-bearing DSPs (Apple, Spotify, YouTube).
+  const catCount = ['appleMusic','spotify','youtube'].filter(v).length;
+  const catalogCoverage = catCount >= 3 ? 'High' : catCount >= 2 ? 'Moderate' : 'Limited';
+
+  // Publishing Visibility — MusicBrainz preferred, Spotify-only is Moderate.
+  const publishingVisibility = v('musicbrainz') ? 'Verified'
+    : v('spotify') ? 'Moderate' : 'Limited';
+
+  // Metadata Confidence — Apple+Spotify both = High, one = Moderate.
+  const appleAndSpotify = v('appleMusic') && v('spotify');
+  const oneOfTwo = v('appleMusic') || v('spotify');
+  const metadataConfidence = appleAndSpotify ? 'High' : (oneOfTwo ? 'Moderate' : 'Limited');
 
   const donut    = document.getElementById('mc-donut');
   const labelEl  = document.getElementById('mc-donut-label');
-  const pubEl    = document.getElementById('mc-profile-public');
-  const privEl   = document.getElementById('mc-profile-private');
-  const pointsEl = document.getElementById('mc-profile-points');
-  const updEl    = document.getElementById('mc-profile-updated');
+  const srcEl    = document.getElementById('mc-profile-sources');
+  const catEl    = document.getElementById('mc-profile-catalog');
+  const pubEl    = document.getElementById('mc-profile-publishing');
+  const metEl    = document.getElementById('mc-profile-metadata');
 
   if (donut)   donut.style.background = _donutGradient(pct);
-  if (labelEl) labelEl.textContent = confidence;
-  if (pubEl)   pubEl.textContent  = `${verifiedCount} / 6`;
-  if (privEl)  privEl.textContent = '0 / 7';
-  if (pointsEl) {
-    // Rough data-points count — sum of non-empty canonical platform details.
-    const fields = sources.reduce((n, k) => n + (p[k]?.details ? Object.keys(p[k].details).length : 0), 0);
-    pointsEl.textContent = String(fields);
-  }
-  if (updEl) updEl.textContent = scan?.scanned_at ? relativeTimePast(new Date(scan.scanned_at)) : '—';
+  if (labelEl) labelEl.textContent = conf.label;
+  if (srcEl)   srcEl.textContent = `${conf.count} / ${conf.total}`;
+  if (catEl)   catEl.textContent = catalogCoverage;
+  if (pubEl)   pubEl.textContent = publishingVisibility;
+  if (metEl)   metEl.textContent = metadataConfidence;
 }
 
-// CARD 7 — Global Presence (BIG 6 storefront grid)
+// CARD 7 — Global Presence
 const BIG6 = [
   { code:'us', name:'USA',       flag:'🇺🇸' },
   { code:'ca', name:'Canada',    flag:'🇨🇦' },
@@ -714,28 +691,7 @@ function renderMcGlobalPresence(scan) {
   if (subEl) subEl.textContent = `${verifiedN} of 7 regions verified`;
 }
 
-// CARD 8 — Baseline Review
-function renderMcBaselineReview({ baseline, pdfUrl }) {
-  const dateEl  = document.getElementById('mc-baseline-date');
-  const numEl   = document.getElementById('mc-baseline-num');
-  const pdfBtn  = document.getElementById('mc-baseline-pdf');
-  const viewBtn = document.getElementById('mc-baseline-view');
-
-  if (!baseline) {
-    if (dateEl) dateEl.textContent = 'No baseline yet';
-    if (numEl)  numEl.textContent = '—';
-    if (pdfBtn) { pdfBtn.removeAttribute('href'); pdfBtn.style.opacity = '0.5'; pdfBtn.style.pointerEvents = 'none'; }
-    return;
-  }
-  if (dateEl) dateEl.textContent = `Generated ${formatScanDateShort(baseline.scanned_at)}`;
-  if (numEl)  numEl.textContent = String(baseline.health_score ?? '—');
-  if (pdfBtn) {
-    if (pdfUrl) { pdfBtn.href = pdfUrl; pdfBtn.style.opacity = ''; pdfBtn.style.pointerEvents = ''; }
-    else        { pdfBtn.removeAttribute('href'); pdfBtn.style.opacity = '0.5'; pdfBtn.style.pointerEvents = 'none'; }
-  }
-}
-
-// CARD 9 — Monitoring Overview
+// CARD 8 (was 9) — Monitoring Overview
 function renderMcMonitoringOverview({ history, alertOverview }) {
   const daysEl     = document.getElementById('mc-ovr-days');
   const changesEl  = document.getElementById('mc-ovr-changes');
@@ -752,10 +708,36 @@ function renderMcMonitoringOverview({ history, alertOverview }) {
   if (resolvedEl) resolvedEl.textContent = String(alertOverview.resolved || 0);
 }
 
+// CARD 9 — Your Royaltē Review (Brief 015a Change 3, swapped to position 9)
+function renderMcYourReview({ baseline, pdfUrl, confidenceLabel }) {
+  const numEl  = document.getElementById('mc-review-num');
+  const dateEl = document.getElementById('mc-review-date');
+  const confEl = document.getElementById('mc-review-confidence');
+  const pdfBtn = document.getElementById('mc-review-pdf');
+
+  const setPdfDisabled = (disabled) => {
+    if (!pdfBtn) return;
+    if (disabled) { pdfBtn.removeAttribute('href'); pdfBtn.style.opacity = '0.5'; pdfBtn.style.pointerEvents = 'none'; }
+    else          { pdfBtn.style.opacity = ''; pdfBtn.style.pointerEvents = ''; }
+  };
+
+  if (!baseline) {
+    if (numEl)  numEl.textContent = '—';
+    if (dateEl) dateEl.textContent = 'No baseline yet';
+    if (confEl) confEl.textContent = 'Review Confidence: —';
+    setPdfDisabled(true);
+    return;
+  }
+  const score = _resolveHealthScoreFromSnapshot(baseline);
+  if (numEl)  numEl.textContent = score == null ? '—' : String(score);
+  if (dateEl) dateEl.textContent = `Generated ${formatScanDateShort(baseline.scanned_at)}`;
+  if (confEl) confEl.textContent = `Review Confidence: ${confidenceLabel || '—'}`;
+  if (pdfUrl) { if (pdfBtn) pdfBtn.href = pdfUrl; setPdfDisabled(false); }
+  else        { setPdfDisabled(true); }
+}
+
 /* ─────────────────────────────────────────────
    PRESERVED — auth, trial, reservation, lock CTAs
-   (V1 wiring kept verbatim except where modified
-   above; see top-of-file comment for the list.)
    ───────────────────────────────────────────── */
 
 function wireSignOut(supabase) {
@@ -951,7 +933,6 @@ async function init() {
   renderMcSidebar(profile);
   renderTrialBanner(profile);
 
-  // Latest scan + history are needed by Cards 1, 4, 9.
   const [scan, history, monitoringActive] = await Promise.all([
     loadLatestScan(supabase, session.user.id),
     loadScanHistory(supabase, session.user.id),
@@ -964,40 +945,41 @@ async function init() {
   // Card 1 — Health Score
   renderMcHealth(scan, history);
 
-  // Card 2 — Backend Status (run counts in parallel)
+  // Card 2 — Backend Status
   const [criticalCount, opportunitiesCount] = await Promise.all([
     _countActionNeededAlerts(supabase, session.user.id),
     _countMonitorAlerts(supabase, session.user.id),
   ]);
   renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesCount });
 
-  // Card 3 — Intelligence Feed
+  // Card 3 — Intelligence Feed (feed alerts also feed Card 4 last-change)
   const feedAlerts = await loadAlertFeed(supabase, session.user.id, 5);
   renderMcFeed(feedAlerts);
 
-  // Card 4 — Backend Health Journey™
-  renderMcJourney(history);
+  // Card 4 — Catalog Intelligence (uses scan + latest alert for "Last Change Detected")
+  renderMcCatalogIntelligence(scan, feedAlerts);
 
-  // Card 5 — Action Center (uses the same critical+monitor pool)
+  // Card 5 — Action Center
   const actionItems = await loadActionItems(supabase, session.user.id, 3);
   renderMcActionCenter({ items: actionItems, totalCount: criticalCount + opportunitiesCount });
 
-  // Card 6 — Intelligence Profile
-  renderMcIntelligenceProfile(scan);
+  // Card 6 — Intelligence Confidence
+  renderMcIntelligenceConfidence(scan);
 
   // Card 7 — Global Presence
   renderMcGlobalPresence(scan);
 
-  // Card 8 — Baseline Review
-  const baseline = (history && history.length > 0) ? history[0] : null;
-  const baselinePdfUrl = await loadBaselinePdf(supabase, baseline);
-  renderMcBaselineReview({ baseline, pdfUrl: baselinePdfUrl });
-
-  // Card 9 — Monitoring Overview
+  // Card 8 — Monitoring Overview (moved up per Brief 015a Change 4)
   const alertOverview = await loadAlertOverview(supabase, session.user.id);
   renderMcMonitoringOverview({ history, alertOverview });
 
-  // Below-grid conditional sections (trial banner already rendered above).
+  // Card 9 — Your Royaltē Review (moved down, renamed per Brief 015a Change 3 + 4)
+  const baseline = (history && history.length > 0) ? history[0] : null;
+  const baselinePdfUrl = await loadBaselinePdf(supabase, baseline);
+  const confidence = _confidenceLabelForScan(baseline || scan);
+  renderMcYourReview({ baseline, pdfUrl: baselinePdfUrl, confidenceLabel: confidence.label });
+
+  // Below-grid conditional sections
   const reservation = await loadReservation(supabase, session.user.id);
   renderPricing(profile, reservation);
   wireReservationFlow(session);
