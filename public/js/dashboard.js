@@ -573,8 +573,8 @@ function renderActionPlan(data) {
   if (lockedD) {
     const stepCount = actions.length || data.stats.issuesFound || 0;
     lockedD.textContent = stepCount > 0
-      ? `${stepCount} step${stepCount === 1 ? "" : "s"} to address unclaimed setup issues — included in your Full Audit.`
-      : `Your full step-by-step plan to address unclaimed setup issues is in the Full Audit.`;
+      ? `${stepCount} step${stepCount === 1 ? "" : "s"} to address unclaimed setup issues — included in your Royaltē Review.`
+      : `Your full step-by-step plan to address unclaimed setup issues is in your Royaltē Review.`;
   }
 }
 
@@ -600,9 +600,9 @@ function renderLockStrip(data) {
 
   // graceful joiner: "A, B + C"
   let body;
-  if (parts.length === 1) body = `Unlock ${parts[0]} with the Full Audit.`;
-  else if (parts.length === 2) body = `Unlock ${parts[0]} and ${parts[1]} with the Full Audit.`;
-  else body = `Unlock ${parts[0]}, ${parts[1]} and ${parts[parts.length - 1]} with the Full Audit.`;
+  if (parts.length === 1) body = `Unlock ${parts[0]} with your Royaltē Review.`;
+  else if (parts.length === 2) body = `Unlock ${parts[0]} and ${parts[1]} with your Royaltē Review.`;
+  else body = `Unlock ${parts[0]}, ${parts[1]} and ${parts[parts.length - 1]} with your Royaltē Review.`;
 
   desc.innerHTML = body;
   strip.style.display = "flex";

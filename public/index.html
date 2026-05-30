@@ -1468,11 +1468,18 @@ body.menu-locked {
 .os-found-label{font-size:10px;color:var(--muted2);font-weight:500;letter-spacing:0.04em;text-transform:uppercase;}
 .os-found-value{font-size:13px;color:var(--text);font-weight:600;margin-top:2px;}
 .os-bridge{font-family:'Space Grotesk',sans-serif;font-style:italic;text-align:center;font-size:12px;color:var(--muted2);padding:14px 8px;border-top:1px solid var(--border3);border-bottom:1px solid var(--border3);margin:10px 0;line-height:1.55;}
-.os-cta-card .os-cta-sub{font-size:12px;color:var(--muted2);line-height:1.55;margin:6px 0 10px;}
+.os-cta-card .os-cta-statement{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;line-height:1.3;letter-spacing:0.005em;margin:6px 0 14px;}
 .os-cta-features{list-style:none;padding:0;margin:0 0 12px;display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;}
 .os-cta-features li{position:relative;padding-left:16px;font-size:11px;color:var(--text2);line-height:1.55;}
 .os-cta-features li::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--grn);}
-.os-cta-foot{font-size:10px;color:var(--muted);text-align:center;margin:10px 0 0;line-height:1.5;}
+.os-cta-card .os-cta-body{font-size:12px;color:var(--muted2);line-height:1.55;margin:0 0 12px;}
+.os-cta-card .os-fa-section{background:rgba(138,92,255,0.06);border:1px solid rgba(138,92,255,0.18);border-radius:8px;padding:14px 16px;margin:0 0 14px;}
+.os-cta-card .os-fa-heading{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#fff;letter-spacing:0.02em;text-transform:uppercase;margin:0 0 6px;}
+.os-cta-card .os-fa-sub{font-size:11.5px;color:var(--muted2);line-height:1.5;margin:0 0 10px;}
+.os-cta-card .os-fa-counter{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-top:8px;border-top:1px solid rgba(138,92,255,0.18);}
+.os-cta-card .os-fa-counter-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+.os-cta-card .os-fa-counter-value{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;}
+.bi-os-cta:disabled{opacity:0.5;cursor:not-allowed;}
 
 </style>
 </head>
@@ -1699,7 +1706,7 @@ body.menu-locked {
     </div>
     <span class="nav-beta">// Beta</span>
     <a href="/dashboard.html" class="nav-os-entry" id="enter-os-btn">Enter Royaltē OS →</a>
-    <button class="nav-cta nav-cta-pulse" type="button" onclick="requestFullAuditFromNav()">Request Full Audit</button>
+    <button class="nav-cta nav-cta-pulse" type="button" onclick="requestFullAuditFromNav()">Get Your Royaltē Review</button>
     <button class="nav-hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu-drawer">
       <span class="hamburger-line"></span>
       <span class="hamburger-line"></span>
@@ -1921,23 +1928,40 @@ body.menu-locked {
         <!-- 3. Bridge line + CTA — replaces V1 .gbe-card position. -->
         <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
         <div class="d-mod os-cta-card">
-          <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Unlock continuous monitoring</div></div>
-          <p class="os-cta-sub">Royaltē OS continuously monitors your catalog and alerts you when something changes.</p>
+          <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Royaltē OS Is Monitoring Signals This Scan Doesn't Show</div></div>
+          <p class="os-cta-statement">One Scan Shows A Snapshot.<br>Royaltē OS Watches What Changes.</p>
           <ul class="os-cta-features">
-            <li>Territory changes</li>
-            <li>Catalog changes</li>
-            <li>Identifier changes</li>
-            <li>Metadata coverage</li>
-            <li>YouTube presence</li>
-            <li>Action center</li>
+            <li>Catalog Change Detection</li>
+            <li>Health Score Tracking</li>
+            <li>Backend Protection</li>
+            <li>Action Center</li>
+            <li>Continuous Monitoring</li>
+            <li>Territory Changes</li>
+            <li>Identifier Changes</li>
+            <li>Metadata Coverage</li>
+            <li>YouTube Presence</li>
           </ul>
-          <!-- bi-os-form IDs preserved → /api/submit-audit handler unchanged. -->
+          <p class="os-cta-body">Royaltē OS continuously monitors your music business backend and alerts you when meaningful changes are detected.</p>
+          <!-- Founding Artist subsection (Brief 012a follow-up) — counter
+               populated by loadFoundingArtistCount() against
+               /api/founding-artist-count. Closed-state swap is innerHTML-
+               replaced and the submit button is disabled in place. -->
+          <div class="os-fa-section" id="os-fa-section">
+            <h3 class="os-fa-heading">Become A Founding Artist</h3>
+            <p class="os-fa-sub">The first 1,000 artists can secure lifetime Founding Artist access and unlock Royaltē OS before the program closes.</p>
+            <div class="os-fa-counter">
+              <div class="os-fa-counter-label">Founding Artist Program</div>
+              <div class="os-fa-counter-value" id="os-fa-counter-value">— of 1,000 spots claimed</div>
+            </div>
+          </div>
+          <!-- bi-os-form IDs preserved → sendMagicLink behavior unchanged.
+               Button text renamed per Brief 012a; submit handler at line ~3349
+               still calls sendMagicLink(email, 'homepage_scan'). -->
           <form class="bi-os-form" id="bi-os-form" novalidate>
             <input type="email" class="bi-os-email" id="bi-os-email" placeholder="your@email.com" autocomplete="email" required>
-            <button type="submit" class="bi-os-cta" data-cta="enter-os">Activate Royaltē OS</button>
+            <button type="submit" class="bi-os-cta" data-cta="enter-os">Become A Founding Artist</button>
           </form>
           <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
-          <p class="os-cta-foot">Limited founding artist spots · $19.99/month · Magic-link sign-in · PDF copy emailed</p>
         </div>
         </div>
       </div>
@@ -1949,7 +1973,7 @@ body.menu-locked {
 <!-- CONVERSION BLOCK — full-width, between scan and form -->
 <section id="scan-conversion-section" class="scan-conversion-section" style="display:none !important;">
   <div class="scan-conversion-inner">
-    <h2 class="scan-conversion-headline">FIRST 200 ARTISTS GET A FULL AUDIT FREE</h2>
+    <h2 class="scan-conversion-headline">FIRST 200 ARTISTS GET A ROYALTĒ REVIEW FREE</h2>
     <div class="scan-conversion-subhead">($99 VALUE)</div>
     <p class="scan-conversion-body">We found issues in your setup.<br>Your full report shows exactly:</p>
     <ul class="scan-conversion-list">
@@ -1957,7 +1981,7 @@ body.menu-locked {
       <li>what's missing</li>
       <li>how to fix it</li>
     </ul>
-    <button class="scan-conversion-btn" onclick="scrollToForm()">Get My Full Audit →</button>
+    <button class="scan-conversion-btn" onclick="scrollToForm()">Get My Royaltē Review →</button>
     <div class="scan-conversion-trust">No spam. Just your Royaltē audit.</div>
   </div>
 </section>
@@ -1968,7 +1992,7 @@ body.menu-locked {
     <div class="form-split">
       <div class="reveal">
         <div class="s-tag">Full audit request</div>
-        <h2 class="s-h2">Request Your<br><span class="gt">Full Audit.</span></h2>
+        <h2 class="s-h2">Request Your<br><span class="gt">Royaltē Review.</span></h2>
         <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:24px;">Full audits are powered by our cross-platform audit engine. You'll receive a complete verified report — all 6 modules, your Royalty Risk Score breakdown, territory coverage, and an action plan — instantly to your inbox. Free during beta.</p>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:4px;"><div style="font-size:16px;">⚡</div><div style="font-size:13px;color:var(--text2);">Delivered <strong style="color:var(--text);">instantly to your inbox</strong></div></div>
@@ -2020,7 +2044,7 @@ body.menu-locked {
                 </div>
               </div>
             </div>
-            <button class="form-submit" id="form-btn" onclick="submitForm()">Request My Full Audit →</button>
+            <button class="form-submit" id="form-btn" onclick="submitForm()">Get My Royaltē Review →</button>
             <div id="form-inner-error" class="form-error" style="display:none;color:var(--red);font-size:12px;margin-top:10px;font-family:'Space Grotesk',sans-serif;line-height:1.5;"></div>
             <div class="form-microcopy">Artist name and link auto-fill from your scan · Only email required<br>Full audit delivered instantly to your inbox · Verified data only</div>
           </div>
@@ -2899,86 +2923,90 @@ function _getHealthBand(health) {
   return                   { className: 'band-danger',  label: 'Review recommended' };
 }
 
-// ── Brief 012a: V2 verified-signal Health Score + Score Drivers ──
-// Replaces the V1 (100 − overallScore) inversion. Score is built only
-// from signals the V2 surfaces actually display: catalog depth, BIG 6
-// territory availability (Brief 011), platform presence, ISRC coverage.
-// Returns { score, drivers } — drivers explain what reduced the score
-// (one per missing signal, sorted by weight desc, top 4). Returns null
-// when no usable data exists (caller leaves the chip blank instead of
-// fabricating a number).
+// ── Brief 012a (follow-up): V2 verified-signal Health Score ──
+// Mirrors api/_lib/persist-os-scan.js computeV2HealthScore exactly.
+// Logic, weights, and driver tone are locked there — keep this in sync.
+// Client reads both the raw flat response shape (what /api/audit
+// returns to the browser pre-persist) and the canonical-nested shape.
+// Returns { score, drivers } where drivers are objects with .text
+// (so renderV2Section2 can iterate). Returns null when no data exists.
 function _computeV2HealthScore(data) {
   if (!data) return null;
-  let score = 0;
-  const drivers = [];
 
   // Raw response (flat) vs canonical (nested under .details). Read both.
   const am = (data.appleMusic && (data.appleMusic.albums || data.appleMusic.albumCount != null || data.appleMusic.storefrontAvailability != null))
              ? data.appleMusic
              : (data.platforms && data.platforms.appleMusic && data.platforms.appleMusic.details) || {};
+  const p = data.platforms || {};
+
+  let catalogPoints   = 0;
+  let backendPoints   = 0;
+  let youtubePoints   = 0;
+  let territoryPoints = 0;
+  let isrcPoints      = 0;
+  const drivers       = [];
 
   // Catalog depth (max 40)
-  const albums      = Array.isArray(am.albums) ? am.albums : [];
-  const albumCount  = (typeof am.albumCount === 'number') ? am.albumCount : albums.length;
-  if (albums.length > 0)  score += 20;
-  if (albumCount >= 4)    score += 10;
-  if (albumCount >= 10)   score += 10;
-  if (albumCount < 4) {
-    drivers.push({ text: 'Limited catalog depth detected', weight: 10 });
+  const albums     = Array.isArray(am.albums) ? am.albums : [];
+  const albumCount = albums.length || (typeof am.albumCount === 'number' ? am.albumCount : 0);
+  if (albums.length >= 1) catalogPoints += 20;
+  if (albumCount >= 4)    catalogPoints += 10;
+  if (albumCount >= 10)   catalogPoints += 10;
+  if (albumCount === 0) {
+    drivers.push({ text: 'Catalog depth could not be determined from reviewed sources', weight: 40 });
+  } else if (albumCount < 4) {
+    drivers.push({ text: 'Catalog depth was below the typical range in reviewed sources', weight: 20 });
   }
 
-  // Platform presence (max 30) — raw exposes data.platforms.* booleans;
-  // canonical-nested exposes platforms.*.availability === 'VERIFIED'.
-  const p = data.platforms || {};
+  // Platform presence — Apple+Spotify → backend_health (max 20), YouTube → youtube_presence (max 10).
+  // Reads multiple shapes: raw booleans + .found flag + canonical .availability.
   const verified = (k) => p[k] === true
     || (p[k] && p[k].availability === 'VERIFIED')
     || (k === 'spotify' && data.spotifyMatched === true)
     || (k === 'appleMusic' && data.appleMusic && data.appleMusic.found === true);
-  if (verified('appleMusic')) score += 10;
-  else drivers.push({ text: 'Apple Music presence could not be confirmed', weight: 10 });
-  if (verified('spotify'))    score += 10;
-  else drivers.push({ text: 'Spotify presence could not be confirmed',     weight: 10 });
-  if (verified('youtube'))    score += 10;
-  else drivers.push({ text: 'Limited YouTube presence detected',           weight: 10 });
+  if (verified('appleMusic')) backendPoints += 10;
+  else drivers.push({ text: 'Apple Music presence was not available from reviewed sources', weight: 10 });
+  if (verified('spotify'))    backendPoints += 10;
+  else drivers.push({ text: 'Spotify presence was not available from reviewed sources',     weight: 10 });
+  if (verified('youtube'))    youtubePoints += 10;
+  else drivers.push({ text: 'YouTube presence was not available from reviewed sources',     weight: 10 });
 
-  // Territory availability (max 20) — from Brief 011 storefrontAvailability.
+  // Territory availability (max 20)
   const sfa = am.storefrontAvailability || null;
   if (!sfa || typeof sfa !== 'object') {
-    drivers.push({ text: 'Territory availability not yet verified', weight: 10 });
+    drivers.push({ text: 'Territory availability was not yet verified in this scan', weight: 20 });
   } else {
-    score += 10;
+    territoryPoints += 10;
     const keys = ['us','ca','gb','de','fr','jp','au'];
     let fullCount = 0;
     for (const sf of keys) {
       const ent = sfa[sf];
       if (!ent || ent.error) continue;
       const avail = Array.isArray(ent.available) ? ent.available.length : 0;
-      const unav  = Array.isArray(ent.unavailable) ? ent.unavailable.length : 0;
-      const total = avail + unav;
-      if (total > 0 && avail === total) fullCount++;
+      if (avail > 0) fullCount++;
     }
     if (fullCount === keys.length) {
-      score += 10;
+      territoryPoints += 10;
     } else if (fullCount >= 5) {
-      score += 5;
-      drivers.push({ text: 'Limited availability in some major markets', weight: 5 });
+      territoryPoints += 5;
+      drivers.push({ text: 'Availability was not yet verified across all reviewed territories', weight: 10 });
     } else {
-      drivers.push({ text: 'Limited availability in some major markets', weight: 5 });
+      drivers.push({ text: 'Availability was not yet verified across all reviewed territories', weight: 10 });
     }
   }
 
-  // ISRC coverage (max 10) — any verified track-level ISRC.
+  // ISRC coverage (max 10) — client also recognizes raw .trackIsrc.
   const lookup = am.isrcLookup || null;
   const hasIsrc = !!(data.trackIsrc
                     || (lookup && lookup.isrc)
                     || (am.catalogComparison && typeof am.catalogComparison.matched === 'number' && am.catalogComparison.matched > 0));
-  if (hasIsrc) score += 10;
-  else drivers.push({ text: 'ISRC coverage could not be confirmed', weight: 10 });
+  if (hasIsrc) isrcPoints += 10;
+  else drivers.push({ text: 'ISRC information was not available from reviewed sources', weight: 10 });
 
-  // Sort drivers by weight desc; cap top 4 per brief.
+  const total = catalogPoints + backendPoints + youtubePoints + territoryPoints + isrcPoints;
   drivers.sort((a, b) => b.weight - a.weight);
   return {
-    score:   Math.max(0, Math.min(100, score)),
+    score:   Math.max(0, Math.min(100, total)),
     drivers: drivers.slice(0, 4),
   };
 }
@@ -3003,7 +3031,7 @@ function _renderV2Findings(flagsArr) {
     const t = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
     if (/\bisrc\b/.test(t))                     return 'Identifier coverage review';
     if (/territory|storefront|country/.test(t)) return 'Territory availability review';
-    if (/youtube|ugc|video/.test(t))            return 'Limited visibility detected';
+    if (/youtube|ugc|video/.test(t))            return 'Limited visibility observed in reviewed sources';
     if (/duplicate|collision|fragment/.test(t)) return 'Catalog consistency review';
     if (/metadata|genre/.test(t))               return 'Metadata completeness review';
     return                                              'Catalog consistency review';
@@ -3169,7 +3197,7 @@ async function submitForm() {
       errorEl.style.display = 'block';
     }
     btn.disabled = false;
-    btn.textContent = 'Request My Full Audit →';
+    btn.textContent = 'Get My Royaltē Review →';
     return;
   }
 
@@ -3186,7 +3214,7 @@ async function submitForm() {
       errorEl.style.display = 'block';
     }
     btn.disabled = false;
-    btn.textContent = 'Request My Full Audit →';
+    btn.textContent = 'Get My Royaltē Review →';
     return;
   }
 
@@ -3347,6 +3375,20 @@ async function handleBiOsSubmit() {
     return;
   }
 
+  // Capture lead regardless of magic-link completion (Brief 012a). Non-
+  // blocking — rate-limit or transient failure never blocks signup. The
+  // artistName field is intentionally empty; the homepage does not collect
+  // it at this step, and reserve.js silently ignores extra body fields.
+  try {
+    await fetch('/api/founding-artist/reserve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, artistName: '' }),
+    });
+  } catch (e) {
+    console.warn('[royalte] lead capture failed:', e.message);
+  }
+
   setStatus('Sending your secure link…', '');
   if (biOsBtn) biOsBtn.disabled = true;
   const res = await sendMagicLink(email, 'homepage_scan');
@@ -3368,6 +3410,39 @@ if (biOsForm) {
     handleBiOsSubmit();
   });
 }
+
+// ── Founding Artist counter (Brief 012a follow-up) ──
+// Reads /api/founding-artist-count on page load and updates the Section 5
+// counter. On closed state (count >= 1000), swaps the subsection content
+// and disables the submit button in place. Network failures leave the
+// placeholder visible — no broken UX, just no live number.
+async function loadFoundingArtistCount() {
+  const valueEl   = document.getElementById('os-fa-counter-value');
+  const sectionEl = document.getElementById('os-fa-section');
+  const buttonEl  = biOsForm ? biOsForm.querySelector('.bi-os-cta') : null;
+  if (!valueEl || !sectionEl) return;
+  try {
+    const resp = await fetch('/api/founding-artist-count');
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const count = typeof data.count === 'number' ? data.count : null;
+    const cap   = typeof data.cap   === 'number' ? data.cap   : 1000;
+    if (data.closed) {
+      sectionEl.innerHTML =
+        '<h3 class="os-fa-heading">Founding Artist Program Closed</h3>' +
+        '<p class="os-fa-sub">The first 1,000 artists successfully secured Founding Artist access. Join the waitlist for standard membership.</p>';
+      if (buttonEl) {
+        buttonEl.textContent = 'Founding Artist Program Closed';
+        buttonEl.disabled = true;
+      }
+    } else if (count != null) {
+      valueEl.textContent = count + ' of ' + cap + ' spots claimed';
+    }
+  } catch (e) {
+    console.warn('[founding-artist-count] fetch failed', e);
+  }
+}
+loadFoundingArtistCount();
 
 // ── Royaltē OS login modal (Block F) ────────────────────────────
 // Returning-user entry. NOT an admin gate — any valid sign-in is let

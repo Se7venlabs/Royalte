@@ -752,7 +752,7 @@ body.menu-locked {
     <div class="form-split">
       <div class="reveal">
         <div class="s-tag">Full audit request</div>
-        <h2 class="s-h2">Request Your<br><span class="gt">Full Audit.</span></h2>
+        <h2 class="s-h2">Request Your<br><span class="gt">Royaltē Review.</span></h2>
         <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:24px;">Full audits are powered by our cross-platform audit engine. Enter your details and we'll deliver a complete report instantly to your inbox. Part of the Founding Artist Beta — 1,000 spots, lifetime 30% off Pro Monitoring.</p>
         <p style="font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:24px;">You'll also be locked in for early access to every future Royaltē release.</p>
         <div style="display:flex;flex-direction:column;gap:12px;">
@@ -820,7 +820,7 @@ body.menu-locked {
               </div>
             </div>
 
-            <button class="form-submit" id="form-btn" onclick="submitForm()">Request My Full Audit →</button>
+            <button class="form-submit" id="form-btn" onclick="submitForm()">Get My Royaltē Review →</button>
             <div class="form-microcopy">Full audit delivered instantly to your inbox<br>You'll also get early access as Royaltē expands</div>
           </div>
           <div class="form-success" id="form-success">
@@ -1218,7 +1218,7 @@ async function submitForm(){
         referral_type: rewardfulRef ? 'rewardful_link' : manualCode ? 'manual_code' : 'organic',
         priority:      referral ? 'YES — referral conversion' : 'standard',
         discount_note: referral ? 'Founding Artist rate: 30% off Pro Monitoring for life' : '',
-        _subject:      referral ? `⚡ PRIORITY Royaltē Audit — ${artist} (req: ${name} · ref: ${referral})` : `Royaltē Full Audit Request — ${artist} (req: ${name})`,
+        _subject:      referral ? `⚡ PRIORITY Royaltē Review — ${artist} (req: ${name} · ref: ${referral})` : `Royaltē Review Request — ${artist} (req: ${name})`,
         _replyto:      email
       })
     });
