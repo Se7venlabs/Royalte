@@ -3375,6 +3375,20 @@ async function handleBiOsSubmit() {
     return;
   }
 
+  // Capture lead regardless of magic-link completion (Brief 012a). Non-
+  // blocking — rate-limit or transient failure never blocks signup. The
+  // artistName field is intentionally empty; the homepage does not collect
+  // it at this step, and reserve.js silently ignores extra body fields.
+  try {
+    await fetch('/api/founding-artist/reserve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, artistName: '' }),
+    });
+  } catch (e) {
+    console.warn('[royalte] lead capture failed:', e.message);
+  }
+
   setStatus('Sending your secure link…', '');
   if (biOsBtn) biOsBtn.disabled = true;
   const res = await sendMagicLink(email, 'homepage_scan');
