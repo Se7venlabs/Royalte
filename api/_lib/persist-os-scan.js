@@ -221,7 +221,7 @@ export function computeV2HealthScore(canonical) {
   if (albumCount === 0) {
     drivers.push({ text: 'Catalog depth could not be determined from reviewed sources', weight: 40 });
   } else if (albumCount < 4) {
-    drivers.push({ text: 'Catalog depth below typical range in reviewed sources', weight: 20 });
+    drivers.push({ text: 'Catalog depth was below the typical range in reviewed sources', weight: 20 });
   }
 
   // ── Platform presence — Apple/Spotify → backend_health (max 20); YouTube → youtube_presence (max 10) ──
@@ -250,9 +250,9 @@ export function computeV2HealthScore(canonical) {
       territoryPoints += 10;
     } else if (fullCount >= 5) {
       territoryPoints += 5;
-      drivers.push({ text: 'Limited availability detected in some major markets', weight: 10 });
+      drivers.push({ text: 'Availability was not yet verified across all reviewed territories', weight: 10 });
     } else {
-      drivers.push({ text: 'Limited availability detected in some major markets', weight: 10 });
+      drivers.push({ text: 'Availability was not yet verified across all reviewed territories', weight: 10 });
     }
   }
 

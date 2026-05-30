@@ -177,7 +177,7 @@ const fullCanonical = () => ({
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 8. Catalog 0 < count < 4 → "below typical range" driver
+// 8. Catalog 0 < count < 4 → "was below the typical range" driver
 // ═══════════════════════════════════════════════════════════════════════════
 
 {
@@ -188,8 +188,8 @@ const fullCanonical = () => ({
   assert(r.score === 80, 'small catalog: score is 80');
   assert(r.drivers.length === 1, 'small catalog: one driver');
   assert(
-    r.drivers[0] === 'Catalog depth below typical range in reviewed sources',
-    'small catalog: "below typical range" driver, not "could not be determined"',
+    r.drivers[0] === 'Catalog depth was below the typical range in reviewed sources',
+    'small catalog: "was below the typical range" driver, not "could not be determined"',
   );
   assert(r.breakdown.catalog_verification === 20, 'small catalog: catalog bucket is 20');
 }
@@ -214,8 +214,8 @@ const fullCanonical = () => ({
   assert(r.score === 95, 'partial territory: score is 95');
   assert(r.breakdown.big6_coverage === 15, 'partial territory: big6 bucket is 15');
   assert(
-    r.drivers.includes('Limited availability detected in some major markets'),
-    'partial territory: "limited availability" driver present',
+    r.drivers.includes('Availability was not yet verified across all reviewed territories'),
+    'partial territory: "not yet verified across territories" driver present',
   );
 }
 

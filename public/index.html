@@ -1468,11 +1468,11 @@ body.menu-locked {
 .os-found-label{font-size:10px;color:var(--muted2);font-weight:500;letter-spacing:0.04em;text-transform:uppercase;}
 .os-found-value{font-size:13px;color:var(--text);font-weight:600;margin-top:2px;}
 .os-bridge{font-family:'Space Grotesk',sans-serif;font-style:italic;text-align:center;font-size:12px;color:var(--muted2);padding:14px 8px;border-top:1px solid var(--border3);border-bottom:1px solid var(--border3);margin:10px 0;line-height:1.55;}
-.os-cta-card .os-cta-sub{font-size:12px;color:var(--muted2);line-height:1.55;margin:6px 0 10px;}
+.os-cta-card .os-cta-statement{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;line-height:1.3;letter-spacing:0.005em;margin:6px 0 14px;}
 .os-cta-features{list-style:none;padding:0;margin:0 0 12px;display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;}
 .os-cta-features li{position:relative;padding-left:16px;font-size:11px;color:var(--text2);line-height:1.55;}
 .os-cta-features li::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--grn);}
-.os-cta-foot{font-size:10px;color:var(--muted);text-align:center;margin:10px 0 0;line-height:1.5;}
+.os-cta-card .os-cta-body{font-size:12px;color:var(--muted2);line-height:1.55;margin:0 0 12px;}
 
 </style>
 </head>
@@ -1922,22 +1922,25 @@ body.menu-locked {
         <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
         <div class="d-mod os-cta-card">
           <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Royaltē OS Is Monitoring Signals This Scan Doesn't Show</div></div>
-          <p class="os-cta-sub">One scan shows a snapshot. Royaltē OS watches what changes.</p>
+          <p class="os-cta-statement">One Scan Shows A Snapshot.<br>Royaltē OS Watches What Changes.</p>
           <ul class="os-cta-features">
-            <li>Territory changes</li>
-            <li>Catalog changes</li>
-            <li>Identifier changes</li>
-            <li>Metadata coverage</li>
-            <li>YouTube presence</li>
-            <li>Action center</li>
+            <li>Catalog Change Detection</li>
+            <li>Health Score Tracking</li>
+            <li>Backend Protection</li>
+            <li>Action Center</li>
+            <li>Continuous Monitoring</li>
+            <li>Territory Changes</li>
+            <li>Identifier Changes</li>
+            <li>Metadata Coverage</li>
+            <li>YouTube Presence</li>
           </ul>
+          <p class="os-cta-body">Royaltē OS continuously monitors your music business backend and alerts you when meaningful changes are detected.</p>
           <!-- bi-os-form IDs preserved → /api/submit-audit handler unchanged. -->
           <form class="bi-os-form" id="bi-os-form" novalidate>
             <input type="email" class="bi-os-email" id="bi-os-email" placeholder="your@email.com" autocomplete="email" required>
             <button type="submit" class="bi-os-cta" data-cta="enter-os">Activate Royaltē OS</button>
           </form>
           <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
-          <p class="os-cta-foot">Limited founding artist spots · $19.99/month · Magic-link sign-in · PDF copy emailed</p>
         </div>
         </div>
       </div>
@@ -2931,7 +2934,7 @@ function _computeV2HealthScore(data) {
   if (albumCount === 0) {
     drivers.push({ text: 'Catalog depth could not be determined from reviewed sources', weight: 40 });
   } else if (albumCount < 4) {
-    drivers.push({ text: 'Catalog depth below typical range in reviewed sources', weight: 20 });
+    drivers.push({ text: 'Catalog depth was below the typical range in reviewed sources', weight: 20 });
   }
 
   // Platform presence — Apple+Spotify → backend_health (max 20), YouTube → youtube_presence (max 10).
@@ -2965,9 +2968,9 @@ function _computeV2HealthScore(data) {
       territoryPoints += 10;
     } else if (fullCount >= 5) {
       territoryPoints += 5;
-      drivers.push({ text: 'Limited availability detected in some major markets', weight: 10 });
+      drivers.push({ text: 'Availability was not yet verified across all reviewed territories', weight: 10 });
     } else {
-      drivers.push({ text: 'Limited availability detected in some major markets', weight: 10 });
+      drivers.push({ text: 'Availability was not yet verified across all reviewed territories', weight: 10 });
     }
   }
 
@@ -3007,7 +3010,7 @@ function _renderV2Findings(flagsArr) {
     const t = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
     if (/\bisrc\b/.test(t))                     return 'Identifier coverage review';
     if (/territory|storefront|country/.test(t)) return 'Territory availability review';
-    if (/youtube|ugc|video/.test(t))            return 'Limited visibility detected';
+    if (/youtube|ugc|video/.test(t))            return 'Limited visibility observed in reviewed sources';
     if (/duplicate|collision|fragment/.test(t)) return 'Catalog consistency review';
     if (/metadata|genre/.test(t))               return 'Metadata completeness review';
     return                                              'Catalog consistency review';
