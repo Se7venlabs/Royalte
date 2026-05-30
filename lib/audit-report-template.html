@@ -2,1236 +2,714 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Royaltē Audit Report — {{artist_name}}</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Royaltē Review — {{artist_name}}</title>
 <style>
-:root{
-  --bg:#070410;
-  --bg2:#0a0612;
-  --bg3:#0f0a1c;
-  --purple:#8a5cff;
-  --magenta:#e040c8;
-  --grad:linear-gradient(135deg,#8a5cff,#e040c8);
-  --text:#e8e4f4;
-  --text-muted:#c8c4e0;
-  --text-faint:#9490b8;
-  --text-quiet:#7a7598;
-  --red:#ff5566;
-  --amber:#ffb366;
-  --green:#5fd49a;
-  --border:rgba(138,92,255,0.22);
-  --border-soft:rgba(138,92,255,0.12);
-}
+  /* ───────────────────────────────────────────────────────────────────────
+     Royaltē Review — Brief 014 rebuild
+     Light-theme, 11-page print layout. Rendered server-side by
+     lib/render-audit-pdf.js and converted to PDF via PDFShift.
 
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{background:var(--bg);color:var(--text);font-family:'Space Grotesk','Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55;}
+     All visible numbers + driver strings come from the V2 Health Score
+     resolved by resolveHealthScore() in the renderer — which prefers
+     persist-os-scan's stored value and falls back to the canonical
+     computeV2HealthScore function. The renderer NEVER recomputes locally.
 
-.report{
-  max-width:840px;
-  margin:0 auto;
-  padding:0;
-}
+     Tone is locked: never accuse, never speculate, report what was
+     verified and what could not be verified.
+     ─────────────────────────────────────────────────────────────────────── */
 
-.page{
-  position:relative;
-  min-height:1056px;
-  padding:64px 64px 48px 64px;
-  background:var(--bg);
-  overflow:hidden;
-}
-.page + .page{
-  border-top:1px dashed rgba(138,92,255,0.18);
-}
-
-.page-num{
-  position:absolute;
-  bottom:24px;right:32px;
-  font-family:'Space Mono',monospace;
-  font-size:10px;
-  color:var(--text-quiet);
-  letter-spacing:0.2em;
-}
-.page-brand{
-  position:absolute;
-  bottom:24px;left:32px;
-  font-family:'Space Mono',monospace;
-  font-size:10px;
-  color:var(--text-quiet);
-  letter-spacing:0.2em;
-}
-
-.eyebrow{
-  font-family:'Space Mono',monospace;
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:0.3em;
-  color:var(--purple);
-  text-transform:uppercase;
-  margin-bottom:14px;
-}
-.section-title{
-  font-family:'Rajdhani',sans-serif;
-  font-size:32px;
-  font-weight:700;
-  color:#fff;
-  letter-spacing:-0.5px;
-  margin-bottom:8px;
-  line-height:1.05;
-}
-.section-headline{
-  font-family:'Rajdhani',sans-serif;
-  font-size:28px;
-  font-weight:700;
-  color:#fff;
-  letter-spacing:-0.3px;
-  line-height:1.1;
-  margin-bottom:24px;
-}
-.section-headline-em{
-  background:var(--grad);
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
-}
-.section-headline-em-strong{color:var(--magenta);}
-
-.body-text{
-  font-size:15px;
-  color:var(--text-muted);
-  line-height:1.65;
-  margin-bottom:14px;
-}
-.body-text-strong{
-  font-size:15px;
-  color:#fff;
-  line-height:1.6;
-  font-weight:500;
-  margin-bottom:14px;
-}
-.closing-line{
-  font-size:14px;
-  color:var(--text-faint);
-  font-style:italic;
-  margin-top:24px;
-  padding-top:18px;
-  border-top:1px solid var(--border-soft);
-}
-
-.divider{
-  height:1px;background:var(--border-soft);
-  margin:28px 0;
-}
-
-.cover{
-  background:var(--bg);
-  position:relative;
-  overflow:hidden;
-}
-.cover-bg{
-  position:absolute;inset:0;
-  background-image:url('/images/producer-studio.jpg');
-  background-size:cover;
-  background-position:center 55%;
-  opacity:0.12;
-  filter:grayscale(0.4) brightness(0.7);
-  z-index:0;
-}
-.cover-glow{
-  position:absolute;inset:0;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(138,92,255,0.18), transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(224,64,200,0.15), transparent 55%),
-    linear-gradient(180deg, transparent 60%, rgba(7,4,16,0.9) 100%);
-  z-index:1;
-}
-.cover-content{
-  position:relative;
-  z-index:2;
-  height:calc(100vh - 112px);
-  min-height:944px;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-}
-.cover-top{
-  padding-top:8px;
-}
-.cover-brand{
-  display:flex;align-items:baseline;gap:14px;
-  margin-bottom:48px;
-}
-.cover-brand-logo{
-  font-family:'Rajdhani',sans-serif;
-  font-size:24px;font-weight:700;
-  color:#fff;
-  letter-spacing:1px;
-}
-.cover-brand-logo .em{color:var(--magenta);}
-.cover-brand-tag{
-  font-family:'Space Mono',monospace;
-  font-size:10px;
-  color:var(--text-quiet);
-  letter-spacing:0.24em;
-  text-transform:uppercase;
-  padding-left:14px;
-  border-left:1px solid var(--border);
-}
-.cover-doc-label{
-  font-family:'Space Mono',monospace;
-  font-size:11px;
-  color:var(--purple);
-  letter-spacing:0.32em;
-  text-transform:uppercase;
-  margin-bottom:32px;
-}
-.cover-title{
-  font-family:'Rajdhani',sans-serif;
-  font-size:64px;
-  font-weight:700;
-  color:#fff;
-  letter-spacing:-1.5px;
-  line-height:0.95;
-  margin-bottom:32px;
-}
-.cover-title .em{
-  background:var(--grad);
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
-}
-.cover-subhead{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:22px;
-  color:var(--text);
-  line-height:1.4;
-  font-weight:400;
-  max-width:540px;
-  margin-bottom:8px;
-}
-.cover-subhead-em{
-  color:#fff;font-weight:600;
-}
-
-.cover-meta{
-  border-top:1px solid var(--border);
-  padding-top:24px;
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:32px;
-}
-.cover-meta-cell{}
-.cover-meta-label{
-  font-family:'Space Mono',monospace;
-  font-size:10px;
-  color:var(--text-quiet);
-  letter-spacing:0.24em;
-  text-transform:uppercase;
-  margin-bottom:6px;
-}
-.cover-meta-value{
-  font-family:'Rajdhani',sans-serif;
-  font-size:18px;
-  font-weight:600;
-  color:#fff;
-  letter-spacing:0.2px;
-}
-
-.score-block{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:32px;
-  margin-bottom:24px;
-  position:relative;
-  overflow:hidden;
-}
-.score-block::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(circle at top right, rgba(138,92,255,0.10), transparent 60%);
-  pointer-events:none;
-}
-.score-block-grid{
-  display:grid;
-  grid-template-columns:auto 1fr;
-  gap:32px;
-  align-items:center;
-  position:relative;z-index:1;
-}
-.score-num{
-  font-family:'Rajdhani',sans-serif;
-  font-size:96px;
-  font-weight:700;
-  background:var(--grad);
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
-  line-height:0.9;
-  letter-spacing:-3px;
-}
-.score-num-suffix{
-  font-family:'Space Mono',monospace;
-  font-size:14px;
-  color:var(--text-faint);
-  margin-top:2px;
-  letter-spacing:0.1em;
-}
-.score-label{
-  font-family:'Space Mono',monospace;
-  font-size:11px;
-  color:var(--purple);
-  letter-spacing:0.32em;
-  text-transform:uppercase;
-  margin-bottom:10px;
-}
-.score-interp{
-  font-size:14px;
-  color:var(--text-muted);
-  line-height:1.6;
-}
-
-.finding-block{
-  background:rgba(255,85,102,0.08);
-  border:1px solid rgba(255,85,102,0.32);
-  border-radius:8px;
-  padding:18px 22px;
-  margin-bottom:24px;
-  display:flex;
-  gap:14px;
-  align-items:flex-start;
-}
-.finding-icon{
-  width:28px;height:28px;
-  border-radius:50%;
-  background:rgba(255,85,102,0.18);
-  border:1px solid rgba(255,85,102,0.4);
-  color:var(--red);
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;font-weight:700;
-  flex-shrink:0;
-}
-.finding-text{
-  font-size:14px;
-  color:#fff;
-  line-height:1.5;
-  font-weight:500;
-}
-
-.issue-counts{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:14px;
-  margin-bottom:8px;
-}
-.issue-count-card{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:18px;
-  text-align:center;
-}
-.issue-count-card.high{border-color:rgba(255,85,102,0.4);background:rgba(255,85,102,0.06);}
-.issue-count-card.medium{border-color:rgba(255,179,102,0.4);background:rgba(255,179,102,0.06);}
-.issue-count-card.low{border-color:rgba(95,212,154,0.35);background:rgba(95,212,154,0.06);}
-.issue-count-num{
-  font-family:'Rajdhani',sans-serif;
-  font-size:38px;
-  font-weight:700;
-  line-height:1;
-  margin-bottom:6px;
-}
-.issue-count-card.high .issue-count-num{color:var(--red);}
-.issue-count-card.medium .issue-count-num{color:var(--amber);}
-.issue-count-card.low .issue-count-num{color:var(--green);}
-.issue-count-label{
-  font-family:'Space Mono',monospace;
-  font-size:10px;
-  color:var(--text-faint);
-  letter-spacing:0.2em;
-  text-transform:uppercase;
-}
-
-.issue-card{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:24px 26px;
-  margin-bottom:18px;
-  position:relative;
-}
-.issue-card-header{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:18px;
-  margin-bottom:18px;
-}
-.issue-card-title{
-  font-family:'Rajdhani',sans-serif;
-  font-size:20px;
-  font-weight:700;
-  color:#fff;
-  letter-spacing:0.3px;
-  line-height:1.2;
-  flex:1;
-}
-.risk-badge{
-  font-family:'Space Mono',monospace;
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:0.18em;
-  text-transform:uppercase;
-  padding:5px 12px;
-  border-radius:4px;
-  flex-shrink:0;
-  white-space:nowrap;
-}
-.risk-badge-high{
-  background:rgba(255,85,102,0.14);
-  color:var(--red);
-  border:1px solid rgba(255,85,102,0.4);
-}
-.risk-badge-medium{
-  background:rgba(255,179,102,0.14);
-  color:var(--amber);
-  border:1px solid rgba(255,179,102,0.4);
-}
-.risk-badge-low{
-  background:rgba(95,212,154,0.14);
-  color:var(--green);
-  border:1px solid rgba(95,212,154,0.35);
-}
-.issue-card-row{
-  display:grid;
-  grid-template-columns:96px 1fr;
-  gap:16px;
-  margin-bottom:10px;
-}
-.issue-card-row:last-child{margin-bottom:0;}
-.issue-card-row-label{
-  font-family:'Space Mono',monospace;
-  font-size:10px;
-  color:var(--text-quiet);
-  letter-spacing:0.2em;
-  text-transform:uppercase;
-  padding-top:3px;
-}
-.issue-card-row-value{
-  font-size:14px;
-  color:var(--text);
-  line-height:1.55;
-}
-.impact-tag{
-  display:block;
-  margin-top:8px;
-  font-size:13px;
-  color:var(--magenta);
-  font-weight:500;
-  font-style:italic;
-}
-
-.platform-list{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-radius:8px;
-  overflow:hidden;
-}
-.platform-row{
-  display:grid;
-  grid-template-columns:auto 1fr auto;
-  align-items:center;
-  gap:18px;
-  padding:18px 22px;
-  border-bottom:1px solid var(--border-soft);
-}
-.platform-row:last-child{border-bottom:none;}
-.platform-icon{
-  width:36px;height:36px;
-  border-radius:6px;
-  background:var(--bg3);
-  border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Rajdhani',sans-serif;
-  font-size:16px;font-weight:700;
-  color:var(--purple);
-}
-.platform-name{
-  font-family:'Rajdhani',sans-serif;
-  font-size:18px;
-  font-weight:600;
-  color:#fff;
-}
-.status-pill{
-  font-family:'Space Mono',monospace;
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:0.16em;
-  text-transform:uppercase;
-  padding:6px 12px;
-  border-radius:4px;
-}
-.status-connected{background:rgba(95,212,154,0.14);color:var(--green);border:1px solid rgba(95,212,154,0.35);}
-.status-not-connected{background:rgba(255,85,102,0.14);color:var(--red);border:1px solid rgba(255,85,102,0.4);}
-.status-unknown{background:rgba(148,144,184,0.14);color:var(--text-faint);border:1px solid rgba(148,144,184,0.3);}
-
-.module-card{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:22px 26px;
-  margin-bottom:14px;
-}
-.module-card-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  margin-bottom:12px;
-}
-.module-name{
-  font-family:'Rajdhani',sans-serif;
-  font-size:18px;
-  font-weight:600;
-  color:#fff;
-  letter-spacing:0.2px;
-}
-.module-score{
-  font-family:'Space Mono',monospace;
-  font-size:14px;
-  font-weight:700;
-  letter-spacing:0.05em;
-}
-.module-bar-track{
-  height:6px;
-  background:var(--bg3);
-  border-radius:3px;
-  overflow:hidden;
-  margin-bottom:12px;
-}
-.module-bar-fill{
-  height:100%;
-  border-radius:3px;
-}
-.module-card.healthy .module-bar-fill{background:var(--green);}
-.module-card.warning .module-bar-fill{background:var(--amber);}
-.module-card.danger .module-bar-fill{background:var(--red);}
-.module-card.healthy .module-score{color:var(--green);}
-.module-card.warning .module-score{color:var(--amber);}
-.module-card.danger .module-score{color:var(--red);}
-.module-explanation{
-  font-size:13px;
-  color:var(--text-muted);
-  line-height:1.55;
-}
-
-.action-card{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:22px 26px;
-  margin-bottom:14px;
-  display:grid;
-  grid-template-columns:auto 1fr;
-  gap:18px;
-}
-.action-disclaimer{
-  font-size:13.5px;
-  color:var(--text);
-  line-height:1.55;
-  background:rgba(255,179,102,0.06);
-  border-left:3px solid rgba(255,179,102,0.6);
-  padding:12px 16px;
-  border-radius:0 6px 6px 0;
-  margin:8px 0 18px 0;
-  font-weight:500;
-  font-style:italic;
-}
-.action-num{
-  width:40px;height:40px;
-  border-radius:50%;
-  background:var(--grad);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Rajdhani',sans-serif;
-  font-size:18px;font-weight:700;
-  color:#fff;
-  flex-shrink:0;
-}
-.action-content{}
-.action-card-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  margin-bottom:10px;
-}
-.action-title{
-  font-family:'Rajdhani',sans-serif;
-  font-size:18px;
-  font-weight:700;
-  color:#fff;
-  letter-spacing:0.2px;
-  line-height:1.2;
-}
-.priority-pill{
-  font-family:'Space Mono',monospace;
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:0.16em;
-  text-transform:uppercase;
-  padding:4px 10px;
-  border-radius:4px;
-  flex-shrink:0;
-}
-.priority-high{background:rgba(255,85,102,0.14);color:var(--red);border:1px solid rgba(255,85,102,0.4);}
-.priority-medium{background:rgba(255,179,102,0.14);color:var(--amber);border:1px solid rgba(255,179,102,0.4);}
-.priority-low{background:rgba(95,212,154,0.14);color:var(--green);border:1px solid rgba(95,212,154,0.35);}
-.action-instruction{
-  font-size:14px;
-  color:var(--text-muted);
-  line-height:1.55;
-}
-
-.cta-block{
-  margin-top:18px;
-  background:linear-gradient(135deg, rgba(138,92,255,0.10), rgba(224,64,200,0.06));
-  border:1px solid rgba(138,92,255,0.4);
-  border-radius:12px;
-  padding:28px 36px;
-  position:relative;
-  overflow:hidden;
-}
-.urgency-bridge{
-  margin:14px 0 0 0;
-  padding:14px 20px;
-  border-left:3px solid var(--magenta);
-  background:rgba(224,64,200,0.06);
-  border-radius:0 6px 6px 0;
-}
-.urgency-bridge-line{
-  font-size:14px;
-  color:var(--text);
-  line-height:1.5;
-  margin:0;
-}
-.urgency-bridge-emphasis{
-  margin-top:4px;
-  color:#fff;
-  font-weight:600;
-}
-.cta-block::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(circle at top right, rgba(224,64,200,0.10), transparent 60%);
-  pointer-events:none;
-}
-.cta-content{position:relative;z-index:1;}
-.cta-eyebrow{
-  font-family:'Space Mono',monospace;
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:0.32em;
-  color:var(--purple);
-  text-transform:uppercase;
-  margin-bottom:14px;
-}
-.cta-title{
-  font-family:'Rajdhani',sans-serif;
-  font-size:30px;
-  font-weight:700;
-  color:#fff;
-  letter-spacing:-0.3px;
-  line-height:1.1;
-  margin-bottom:6px;
-}
-.cta-secondary-headline{
-  font-family:'Rajdhani',sans-serif;
-  font-size:18px;
-  font-weight:600;
-  background:var(--grad);
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
-  letter-spacing:0.2px;
-  margin:0 0 20px 0;
-}
-.cta-features{
-  list-style:none;
-  margin:0 0 20px 0;
-  padding:0;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-.cta-features li{
-  display:flex;align-items:center;gap:10px;
-  font-size:14px;
-  color:var(--text);
-}
-.cta-check{
-  width:18px;height:18px;
-  border-radius:50%;
-  background:var(--grad);
-  display:inline-flex;
-  align-items:center;justify-content:center;
-  font-size:11px;
-  font-weight:700;
-  color:#fff;
-  flex-shrink:0;
-}
-.cta-button{
-  display:inline-block;
-  background:var(--grad);
-  color:#fff;
-  text-decoration:none;
-  padding:16px 32px;
-  border-radius:8px;
-  font-family:'Space Grotesk',sans-serif;
-  font-size:13px;
-  font-weight:700;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  box-shadow:0 0 32px rgba(138,92,255,0.4);
-  margin-bottom:14px;
-}
-.cta-url{
-  font-family:'Space Mono',monospace;
-  font-size:11px;
-  color:var(--text-faint);
-  letter-spacing:0.1em;
-  margin-bottom:20px;
-}
-.cta-cancel-line{
-  text-align:center;
-  font-size:12px;
-  color:var(--text-faint);
-  margin:10px 0 0 0;
-  letter-spacing:0.02em;
-}
-.cta-trust{
-  font-family:'Space Mono',monospace;
-  font-size:12px;
-  color:var(--text-faint);
-  font-style:italic;
-  padding-top:24px;
-  border-top:1px solid var(--border-soft);
-}
-
-@media print{
-  @page{
-    size:letter;
-    margin:0.6in 0.6in 0.7in 0.6in;
+  :root{
+    --bg:#f5f5f7;
+    --card:#ffffff;
+    --text:#0f0a1f;
+    --text-2:#3d3753;
+    --muted:#6b6485;
+    --muted-2:#8e87a8;
+    --border:#e6e2ee;
+    --border-2:#d8d3e3;
+    --purple:#8a5cff;
+    --pink:#e040c8;
+    --grad:linear-gradient(135deg,#8a5cff,#e040c8);
+    --green:#1f9d5b;
+    --green-bg:#e7f6ee;
+    --amber:#b87a00;
+    --amber-bg:#fdf3df;
+    --red:#c12d2d;
+    --red-bg:#fbe7e7;
+    --neutral-bg:#eeeaf6;
   }
-  html,body{
-    background:#ffffff !important;
-    color:#1a0d2e !important;
-  }
-  .report{max-width:none;}
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:'DejaVu Sans','Helvetica Neue',Arial,sans-serif;
+    font-size:10pt;line-height:1.5;}
+  h1,h2,h3,h4{margin:0;font-weight:700;color:var(--text);letter-spacing:-0.01em;}
+  p{margin:0 0 8px;}
+  ul,ol{margin:0;padding:0 0 0 18px;}
+
+  /* ── Page frame ─────────────────────────────────────────────────────── */
+  @page{ size: Letter; margin: 0.45in 0.45in 0.6in 0.45in; }
   .page{
-    background:#ffffff !important;
+    background:var(--card);
+    padding:36px 40px 44px;
     page-break-after:always;
     page-break-inside:avoid;
-    min-height:auto;
-    padding:0;
-    border:none;
+    position:relative;
+    min-height:9.6in;
   }
-  .page:last-child{page-break-after:auto;}
-  .page + .page{border-top:none;}
-  .page-num,.page-brand{color:#9490b8 !important;}
+  .page:last-of-type{page-break-after:auto;}
 
-  .cover{background:#ffffff !important;}
-  .cover-bg{display:none !important;}
-  .cover-glow{
-    background:
-      radial-gradient(circle at 20% 30%, rgba(138,92,255,0.08), transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(224,64,200,0.06), transparent 55%) !important;
+  /* ── Per-page header ────────────────────────────────────────────────── */
+  .ph{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    padding-bottom:12px;margin-bottom:22px;
+    border-bottom:1px solid var(--border);
   }
-  .cover-content{height:auto;min-height:9.2in;}
-  .cover-brand-logo{color:#1a0d2e !important;}
-  .cover-brand-tag{color:#5a5578 !important;border-color:rgba(138,92,255,0.3) !important;}
-  .cover-doc-label{color:var(--purple) !important;}
-  .cover-title{color:#1a0d2e !important;}
-  .cover-subhead{color:#3a2a5e !important;}
-  .cover-subhead-em{color:#1a0d2e !important;}
-  .cover-meta{border-color:rgba(138,92,255,0.3) !important;}
-  .cover-meta-label{color:#7a7598 !important;}
-  .cover-meta-value{color:#1a0d2e !important;}
-
-  .eyebrow{color:var(--purple) !important;}
-  .section-title{color:#1a0d2e !important;}
-  .section-headline{color:#1a0d2e !important;}
-  .body-text{color:#3a2a5e !important;}
-  .body-text-strong{color:#1a0d2e !important;}
-  .closing-line{color:#5a5578 !important;border-color:rgba(138,92,255,0.18) !important;}
-  .divider{background:rgba(138,92,255,0.18) !important;}
-
-  .score-block{background:#faf8ff !important;border-color:rgba(138,92,255,0.3) !important;}
-  .score-block::before{display:none;}
-  .score-label{color:var(--purple) !important;}
-  .score-interp{color:#3a2a5e !important;}
-  .score-num-suffix{color:#7a7598 !important;}
-  .score-block p[style*="color:#fff"]{color:#1a0d2e !important;}
-
-  .finding-block{background:#fff4f5 !important;border-color:rgba(255,85,102,0.4) !important;}
-  .finding-text{color:#1a0d2e !important;}
-
-  .issue-count-card{background:#faf8ff !important;border-color:rgba(138,92,255,0.22) !important;}
-  .issue-count-card.high{background:#fff4f5 !important;border-color:rgba(255,85,102,0.4) !important;}
-  .issue-count-card.medium{background:#fff8f0 !important;border-color:rgba(255,179,102,0.4) !important;}
-  .issue-count-card.low{background:#f0fbf5 !important;border-color:rgba(95,212,154,0.4) !important;}
-  .issue-count-label{color:#5a5578 !important;}
-
-  .issue-card,.module-card,.action-card{
-    background:#faf8ff !important;
-    border-color:rgba(138,92,255,0.22) !important;
-    page-break-inside:avoid;
+  .ph-left{display:flex;align-items:baseline;gap:8px;}
+  .ph-logo{
+    font-family:'DejaVu Sans',Arial,sans-serif;font-weight:700;
+    font-size:14pt;letter-spacing:0.02em;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;
+    color:transparent;
   }
-  .issue-card-title,.module-name,.action-title{color:#1a0d2e !important;}
-  .issue-card-row-label{color:#7a7598 !important;}
-  .issue-card-row-value{color:#1a0d2e !important;}
-  .impact-tag{color:#c41a8e !important;}
-  .module-explanation{color:#3a2a5e !important;}
-  .action-instruction{color:#3a2a5e !important;}
-  .action-disclaimer{
-    background:#fff8f0 !important;
-    border-left-color:rgba(255,179,102,0.7) !important;
-    color:#1a0d2e !important;
+  .ph-tag{font-size:8pt;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;}
+  .ph-right{text-align:right;font-size:8.5pt;color:var(--muted);line-height:1.35;}
+  .ph-right .ph-artist{color:var(--text);font-weight:700;font-size:9pt;}
+  .ph-right .ph-doc{color:var(--text-2);}
+
+  /* ── Per-page footer ────────────────────────────────────────────────── */
+  .pf{
+    position:absolute;left:40px;right:40px;bottom:18px;
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:7.5pt;color:var(--muted-2);letter-spacing:0.04em;
+    padding-top:8px;border-top:1px solid var(--border);
   }
-  .module-bar-track{background:#e8e4f4 !important;}
-  .body-text[style*="color:var(--magenta)"],
-  .body-text[style*="color: var(--magenta)"]{
-    color:#c41a8e !important;
+  .pf-num{font-family:'DejaVu Sans Mono','Courier New',monospace;}
+
+  /* ── Page heading block ─────────────────────────────────────────────── */
+  .ph-section{margin-bottom:18px;}
+  .eyebrow{
+    font-size:8pt;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--purple);margin-bottom:6px;
+  }
+  .page-title{font-size:20pt;line-height:1.15;margin-bottom:6px;}
+  .page-sub{color:var(--muted);font-size:9.5pt;line-height:1.5;max-width:620px;}
+
+  /* ── Cards ──────────────────────────────────────────────────────────── */
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:10px;
+    padding:18px;margin:0 0 14px;
   }
 
-  .platform-list{background:#faf8ff !important;border-color:rgba(138,92,255,0.22) !important;}
-  .platform-row{border-color:rgba(138,92,255,0.12) !important;}
-  .platform-icon{background:#ffffff !important;color:var(--purple) !important;border-color:rgba(138,92,255,0.3) !important;}
-  .platform-name{color:#1a0d2e !important;}
+  /* ── Status pills ───────────────────────────────────────────────────── */
+  .pill{
+    display:inline-block;padding:3px 10px;border-radius:999px;
+    font-size:8pt;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+  }
+  .pill.verified,
+  .pill.high,
+  .pill.excellent,
+  .pill.strong       { background:var(--green-bg); color:var(--green); }
+  .pill.partial,
+  .pill.moderate     { background:var(--amber-bg); color:var(--amber); }
+  .pill.not-confirmed,
+  .pill.limited      { background:var(--neutral-bg); color:var(--muted); }
+  .pill.review       { background:var(--red-bg);   color:var(--red);   }
 
+  /* ── Page 1: executive summary ─────────────────────────────────────── */
+  .exec-row{display:flex;gap:18px;margin-bottom:18px;}
+  .exec-score{
+    flex:0 0 240px;background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:20px;text-align:center;
+  }
+  .exec-score-label{
+    font-size:8pt;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;
+    margin-bottom:6px;
+  }
+  .exec-score-num{
+    font-size:56pt;line-height:1;font-weight:700;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .exec-score-of{color:var(--muted);font-size:11pt;}
+  .exec-score-band{margin-top:8px;}
+  .exec-confidence{
+    flex:1;background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:20px;
+  }
+  .exec-confidence-label{
+    font-size:8pt;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;
+    margin-bottom:6px;
+  }
+  .exec-confidence-band{margin:6px 0 12px;}
+  .exec-confidence-explain{font-size:8.5pt;color:var(--muted);line-height:1.5;}
+  .exec-list-hd{
+    font-size:9pt;text-transform:uppercase;letter-spacing:0.08em;
+    color:var(--text-2);font-weight:700;margin:14px 0 6px;
+  }
+  .observation, .observation-empty{
+    list-style:none;margin:6px 0;padding:8px 12px;
+    border-left:3px solid var(--purple);background:#faf8ff;
+    font-size:9.5pt;color:var(--text-2);
+  }
+  .observation-empty{border-left-color:var(--green);background:var(--green-bg);}
+  .action-summary, .action-summary-empty{
+    list-style:none;margin:6px 0;padding:8px 12px 8px 14px;
+    border-left:3px solid var(--border);background:#fbfaff;
+    font-size:9.5pt;color:var(--text-2);
+    display:flex;gap:10px;align-items:flex-start;
+  }
+  .action-summary.priority-high   { border-left-color:var(--red);   }
+  .action-summary.priority-medium { border-left-color:var(--amber); }
+  .action-summary.priority-low    { border-left-color:var(--green); }
+  .action-summary-priority{
+    flex:0 0 64px;font-size:7.5pt;font-weight:700;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--muted);padding-top:1px;
+  }
+  .action-summary-text{flex:1;}
+
+  /* ── Page 2: verified data points + status grid ────────────────────── */
+  .kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;margin:8px 0 14px;}
+  .kv{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:6px 0;border-bottom:1px solid var(--border);font-size:9.5pt;
+  }
+  .kv-k{color:var(--muted);text-transform:uppercase;font-size:8pt;letter-spacing:0.08em;}
+  .kv-v{color:var(--text);font-weight:700;}
+  .status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;margin-top:8px;}
+  .status-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 12px;background:#fbfaff;border:1px solid var(--border);border-radius:8px;
+    font-size:9.5pt;
+  }
+  .status-label{color:var(--text-2);}
+
+  /* ── Page 3: action plan cards ─────────────────────────────────────── */
+  .action-card{
+    background:var(--card);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;margin-bottom:12px;page-break-inside:avoid;
+  }
+  .action-card.priority-high   { border-left:4px solid var(--red);   }
+  .action-card.priority-medium { border-left:4px solid var(--amber); }
+  .action-card.priority-low    { border-left:4px solid var(--green); }
+  .action-card-hd{
+    display:flex;align-items:center;gap:10px;margin-bottom:10px;
+    padding-bottom:8px;border-bottom:1px solid var(--border);
+  }
+  .action-num{
+    font-family:'DejaVu Sans Mono','Courier New',monospace;
+    font-size:11pt;font-weight:700;color:var(--purple);
+    width:24px;text-align:center;
+  }
+  .action-priority{
+    flex:1;font-size:8pt;font-weight:700;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--text-2);
+  }
+  .action-effort{
+    font-size:7.5pt;color:var(--muted);letter-spacing:0.04em;
+    background:var(--neutral-bg);padding:2px 8px;border-radius:999px;
+  }
+  .action-body{margin:0;display:grid;grid-template-columns:140px 1fr;gap:6px 12px;}
+  .action-body dt{
+    font-size:7.5pt;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--muted);padding-top:2px;
+  }
+  .action-body dd{margin:0;font-size:9.5pt;color:var(--text-2);line-height:1.45;}
+  .action-empty{
+    padding:14px 16px;background:var(--green-bg);border:1px solid #c7e7d4;
+    border-radius:10px;color:var(--green);font-size:9.5pt;
+  }
+
+  /* ── Page 4: score breakdown + drivers ─────────────────────────────── */
+  .breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 16px;}
+  .breakdown-cell{
+    background:#fbfaff;border:1px solid var(--border);border-radius:10px;
+    padding:12px;text-align:center;
+  }
+  .breakdown-label{
+    font-size:7.5pt;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:4px;
+  }
+  .breakdown-value{font-size:18pt;font-weight:700;color:var(--text);line-height:1;}
+  .breakdown-max{font-size:9pt;color:var(--muted);}
+  .drivers-list{list-style:none;padding:0;margin:0;}
+  .drivers-list li{
+    padding:8px 12px;background:#fbfaff;border:1px solid var(--border);
+    border-left:3px solid var(--amber);border-radius:6px;
+    margin-bottom:6px;font-size:9.5pt;color:var(--text-2);
+  }
+  .drivers-empty{
+    padding:14px 16px;background:var(--green-bg);border:1px solid #c7e7d4;
+    border-radius:10px;color:var(--green);font-size:9.5pt;
+  }
+
+  /* ── Page 5: catalog tables ────────────────────────────────────────── */
+  .release-table,.isrc-table{
+    width:100%;border-collapse:collapse;font-size:9pt;margin-top:8px;
+  }
+  .release-table th,.isrc-table th{
+    text-align:left;font-size:7.5pt;font-weight:700;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--muted);padding:8px 10px;
+    border-bottom:1px solid var(--border-2);background:#fbfaff;
+  }
+  .release-table td,.isrc-table td{
+    padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text-2);
+  }
+  .release-more td{color:var(--muted);font-style:italic;text-align:center;}
+  .release-empty,.isrc-empty,.storefront-empty{
+    padding:14px 16px;background:var(--neutral-bg);border:1px solid var(--border);
+    border-radius:8px;color:var(--text-2);font-size:9.5pt;
+  }
+  .isrc-table code{
+    font-family:'DejaVu Sans Mono','Courier New',monospace;font-size:9pt;
+    background:var(--neutral-bg);padding:2px 6px;border-radius:4px;
+  }
+
+  /* ── Page 7: BIG 6 storefront grid ─────────────────────────────────── */
+  .storefront-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .storefront-cell{
+    background:#fbfaff;border:1px solid var(--border);border-radius:10px;
+    padding:12px;text-align:center;
+  }
+  .storefront-cell.status-verified     { border-color:#c7e7d4;background:var(--green-bg); }
+  .storefront-cell.status-not-confirmed{ border-color:var(--border);background:var(--neutral-bg); }
+  .storefront-flag{font-size:18pt;line-height:1;margin-bottom:4px;}
+  .storefront-name{font-size:9pt;font-weight:700;color:var(--text);margin-bottom:2px;}
+  .storefront-status{font-size:7.5pt;color:var(--muted-2);}
+
+  /* ── Page 8: metadata checklist ────────────────────────────────────── */
+  .metadata-checklist{list-style:none;padding:0;margin:0;}
+  .metadata-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 14px;background:#fbfaff;border:1px solid var(--border);
+    border-radius:8px;margin-bottom:6px;font-size:9.5pt;
+  }
+  .metadata-row.status-verified     { border-left:3px solid var(--green); }
+  .metadata-row.status-not-confirmed{ border-left:3px solid var(--muted-2); }
+  .metadata-label{color:var(--text-2);}
+  .metadata-status{font-size:8pt;color:var(--muted);}
+  .metadata-row.status-verified .metadata-status{color:var(--green);}
+
+  /* ── Page 9: YouTube block ─────────────────────────────────────────── */
+  .youtube-block{list-style:none;padding:0;margin:0;}
+  .yt-row{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:8px 0;border-bottom:1px solid var(--border);font-size:9.5pt;
+  }
+  .yt-label{color:var(--muted);text-transform:uppercase;font-size:8pt;letter-spacing:0.08em;}
+  .yt-value{color:var(--text);font-weight:700;}
+  .yt-value.status-verified     { color:var(--green); }
+  .yt-value.status-partial      { color:var(--amber); }
+  .yt-value.status-not-confirmed{ color:var(--muted); }
+  .yt-disclaimer{font-size:8pt;color:var(--muted);margin-top:10px;font-style:italic;}
+
+  /* ── Page 10: unverified list ──────────────────────────────────────── */
+  .unverified-list{list-style:none;padding:0;margin:0;}
+  .unverified-list li{
+    padding:8px 12px;background:#fbfaff;border:1px solid var(--border);
+    border-left:3px solid var(--muted-2);border-radius:6px;
+    margin-bottom:6px;font-size:9.5pt;color:var(--text-2);
+  }
+  .unverified-empty{
+    padding:14px 16px;background:var(--green-bg);border:1px solid #c7e7d4;
+    border-radius:10px;color:var(--green);font-size:9.5pt;
+  }
+
+  /* ── Final page: monitoring bridge ─────────────────────────────────── */
+  .bridge-statement{
+    text-align:center;padding:30px 20px;margin:24px 0;
+    background:linear-gradient(135deg,rgba(138,92,255,0.06),rgba(224,64,200,0.06));
+    border:1px solid var(--border);border-radius:12px;
+  }
+  .bridge-statement-line{
+    font-size:22pt;font-weight:700;line-height:1.25;letter-spacing:-0.01em;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .bridge-list{
+    list-style:none;padding:0;margin:14px 0 20px;
+    display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;
+  }
+  .bridge-list li{
+    padding:6px 0 6px 18px;position:relative;font-size:9.5pt;color:var(--text-2);
+  }
+  .bridge-list li::before{
+    content:'';position:absolute;left:0;top:11px;width:7px;height:7px;
+    border-radius:50%;background:var(--purple);
+  }
   .cta-block{
-    background:#faf8ff !important;
-    border-color:rgba(138,92,255,0.4) !important;
-    page-break-inside:avoid;
+    text-align:center;padding:24px;background:var(--card);
+    border:1px solid var(--border);border-radius:12px;margin-top:18px;
   }
-  .cta-block::before{display:none;}
-  .cta-title{color:#1a0d2e !important;}
-  .cta-secondary-headline{
-    background:none !important;
-    -webkit-background-clip:initial !important;
-    background-clip:initial !important;
-    -webkit-text-fill-color:initial !important;
-    color:#c41a8e !important;
-  }
-  .cta-features li{color:#1a0d2e !important;}
-  .cta-trust{color:#5a5578 !important;border-color:rgba(138,92,255,0.18) !important;}
   .cta-button{
-    box-shadow:none !important;
-    -webkit-print-color-adjust:exact;
-    print-color-adjust:exact;
+    display:inline-block;padding:14px 32px;
+    background:var(--grad);color:#fff;text-decoration:none;border-radius:8px;
+    font-weight:700;font-size:11pt;letter-spacing:0.04em;
   }
-  .cta-url{color:#5a5578 !important;}
-  .cta-cancel-line{color:#7a7598 !important;}
+  .cta-foot{margin-top:10px;font-size:8.5pt;color:var(--muted);}
 
-  .urgency-bridge{
-    background:#fdf4fa !important;
-    border-left-color:#c41a8e !important;
-  }
-  .urgency-bridge-line{color:#1a0d2e !important;}
-  .urgency-bridge-emphasis{color:#1a0d2e !important;font-weight:600 !important;}
-
-  .page > div[style*="background:var(--bg2)"],
-  .page div[style*="var(--bg2)"]{
-    background:#faf8ff !important;
-    border-color:rgba(138,92,255,0.22) !important;
-  }
-  .page div[style*="color:var(--text)"],
-  .page div[style*="color:#fff"]{
-    color:#1a0d2e !important;
-  }
-  .page strong[style*="#fff"]{
-    color:#1a0d2e !important;
-  }
-
-  *{
-    -webkit-print-color-adjust:exact !important;
-    print-color-adjust:exact !important;
-  }
-
-  .cover-title .em,
-  .section-headline-em,
-  .score-num{
-    background:none !important;
-    -webkit-background-clip:initial !important;
-    background-clip:initial !important;
-    -webkit-text-fill-color:initial !important;
-    color:#c41a8e !important;
-  }
-  .score-num{
-    color:#8a5cff !important;
-  }
-
-  .page-num,
-  .page-brand{
-    display:none !important;
-  }
-
-  @page{
-    @bottom-left{
-      content:"Royaltē · Confidential";
-      font-family:'Space Mono',monospace;
-      font-size:9px;
-      color:#9490b8;
-      letter-spacing:0.2em;
-    }
-    @bottom-right{
-      content:"Page " counter(page) " / " counter(pages);
-      font-family:'Space Mono',monospace;
-      font-size:9px;
-      color:#9490b8;
-      letter-spacing:0.15em;
+  @media print{
+    body{background:#ffffff;}
+    .page{box-shadow:none;}
+    .pill,.bridge-statement-line,.exec-score-num,.ph-logo{
+      -webkit-print-color-adjust:exact;print-color-adjust:exact;
     }
   }
-}
 </style>
 </head>
 <body>
 
-<main class="report">
-
-<section class="page cover">
-  <div class="cover-bg"></div>
-  <div class="cover-glow"></div>
-  <div class="cover-content">
-    <div class="cover-top">
-      <div class="cover-brand">
-        <span class="cover-brand-logo">ROYALT<span class="em">Ē</span></span>
-        <span class="cover-brand-tag">Music Audit Intelligence</span>
-      </div>
-      <div class="cover-doc-label">// Audit Report · v2</div>
-      <h1 class="cover-title">ROYALTĒ<br>AUDIT <span class="em">REPORT</span></h1>
-      <p class="cover-subhead"><span class="cover-subhead-em">You are generating royalties.</span><br>You are not receiving all of them.</p>
-    </div>
-    <div class="cover-meta">
-      <div class="cover-meta-cell">
-        <div class="cover-meta-label">Artist</div>
-        <div class="cover-meta-value">{{artist_name}}</div>
-      </div>
-      <div class="cover-meta-cell">
-        <div class="cover-meta-label">Scan Date</div>
-        <div class="cover-meta-value">{{scan_date}}</div>
-      </div>
-      <div class="cover-meta-cell">
-        <div class="cover-meta-label">Report ID</div>
-        <div class="cover-meta-value">{{report_id}}</div>
-      </div>
+<!-- PAGE 1 — Executive Summary -->
+<section class="page">
+  <div class="ph">
+    <div class="ph-left"><span class="ph-logo">Royaltē</span><span class="ph-tag">Review</span></div>
+    <div class="ph-right">
+      <div class="ph-artist">{{artist_name}}</div>
+      <div class="ph-doc">Royaltē Review · {{scan_date}}</div>
     </div>
   </div>
-  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
-  <div class="page-num">PAGE 01 / 08</div>
+
+  <div class="ph-section">
+    <div class="eyebrow">Executive Summary</div>
+    <h1 class="page-title">Royaltē Review for {{artist_name}}</h1>
+    <p class="page-sub">This Review is the baseline document Royaltē will monitor moving forward. It reports what was verified from reviewed sources at the time of this scan — not what may exist elsewhere.</p>
+  </div>
+
+  <div class="exec-row">
+    <div class="exec-score">
+      <div class="exec-score-label">Royaltē Health Score™</div>
+      <div class="exec-score-num">{{health_score}}<span class="exec-score-of"> / 100</span></div>
+      <div class="exec-score-band"><span class="pill {{score_band_class}}">{{score_band_label}}</span></div>
+    </div>
+    <div class="exec-confidence">
+      <div class="exec-confidence-label">Review Confidence</div>
+      <div class="exec-confidence-band"><span class="pill {{confidence_class}}">{{confidence_label}}</span></div>
+      <div class="exec-confidence-explain">Computed from {{confidence_count}} verified sources during this scan.<br>High = 3+ sources verified · Moderate = 2 · Limited = 1 or fewer. Higher confidence means more cross-checks were possible.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="exec-list-hd">Top Observations</div>
+    <ul style="list-style:none;padding:0;margin:0;">{{top_observations_html}}</ul>
+  </div>
+
+  <div class="card">
+    <div class="exec-list-hd">Top Recommended Actions</div>
+    <ul style="list-style:none;padding:0;margin:0;">{{top_actions_html}}</ul>
+  </div>
+
+  <div class="pf">
+    <span>© 2026 Royaltē. Powered by Se7ven Labs LLC.</span>
+    <span class="pf-num">PAGE 01 / 11</span>
+  </div>
 </section>
 
+<!-- PAGE 2 — What Royaltē Learned -->
 <section class="page">
-  <div class="eyebrow">// Page 02 · Executive Summary</div>
-  <h2 class="section-title">Executive Summary</h2>
-  <h3 class="section-headline">Your setup is <span class="section-headline-em-strong">costing you royalties.</span></h3>
-
-  <div class="score-block">
-    <div class="score-block-grid">
-      <div>
-        <div class="score-num">{{score}}</div>
-        <div class="score-num-suffix">/ 100</div>
-        <p class="score-interp" style="margin-top:10px;font-size:12px;line-height:1.5;">This score indicates your setup is not fully optimized to collect all available royalties.</p>
-      </div>
-      <div>
-        <div class="score-label">Royaltē Health Score</div>
-        <p class="score-interp">This score indicates gaps in your metadata, registrations, or platform coverage that may prevent you from receiving full royalty payouts.</p>
-        <p class="score-interp" style="margin-top:8px;color:#fff;font-weight:500;">You are not receiving all the royalties your music is generating.</p>
-      </div>
+  <div class="ph">
+    <div class="ph-left"><span class="ph-logo">Royaltē</span><span class="ph-tag">Review</span></div>
+    <div class="ph-right">
+      <div class="ph-artist">{{artist_name}}</div>
+      <div class="ph-doc">Royaltē Review · {{scan_date}}</div>
     </div>
   </div>
 
-  <div class="finding-block">
-    <div class="finding-icon">!</div>
-    <div class="finding-text">We detected issues that may prevent royalties from being properly tracked, attributed, or paid.</div>
+  <div class="ph-section">
+    <div class="eyebrow">Page 2 of 11</div>
+    <h2 class="page-title">What Royaltē Learned About Your Music Business Backend</h2>
+    <p class="page-sub">These are the data points Royaltē was able to verify from reviewed sources. Anything that could not be verified appears on Page 10 — not here.</p>
   </div>
 
-  <div class="eyebrow" style="margin-top:24px;">// Issue Breakdown</div>
-  <div class="issue-counts">
-    <div class="issue-count-card high">
-      <div class="issue-count-num">{{high_risk_count}}</div>
-      <div class="issue-count-label">High Risk</div>
+  <div class="card">
+    <div class="kv-grid">
+      <div class="kv"><span class="kv-k">Tracks Found</span><span class="kv-v">{{tracks_found_n}}</span></div>
+      <div class="kv"><span class="kv-k">Releases Found</span><span class="kv-v">{{releases_found_n}}</span></div>
+      <div class="kv" style="grid-column:1 / -1;"><span class="kv-k">Verified Platforms</span><span class="kv-v">{{verified_platforms}}</span></div>
     </div>
-    <div class="issue-count-card medium">
-      <div class="issue-count-num">{{medium_risk_count}}</div>
-      <div class="issue-count-label">Medium Risk</div>
-    </div>
-    <div class="issue-count-card low">
-      <div class="issue-count-num">{{low_risk_count}}</div>
-      <div class="issue-count-label">Low Risk</div>
+
+    <div class="status-grid">
+      <div class="status-row"><span class="status-label">Catalog Presence</span><span class="pill {{catalog_status_class}}">{{catalog_status_label}}</span></div>
+      <div class="status-row"><span class="status-label">Identifier Visibility</span><span class="pill {{identifier_status_class}}">{{identifier_status_label}}</span></div>
+      <div class="status-row"><span class="status-label">Metadata Visibility</span><span class="pill {{metadata_status_class}}">{{metadata_status_label}}</span></div>
+      <div class="status-row"><span class="status-label">YouTube Visibility</span><span class="pill {{youtube_status_class}}">{{youtube_status_label}}</span></div>
     </div>
   </div>
 
-  <p class="closing-line">These issues do not reduce your streams — they reduce what you get paid.</p>
-
-  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
-  <div class="page-num">PAGE 02 / 08</div>
+  <div class="pf">
+    <span>© 2026 Royaltē. Powered by Se7ven Labs LLC.</span>
+    <span class="pf-num">PAGE 02 / 11</span>
+  </div>
 </section>
 
+<!-- PAGE 3 — Royaltē Action Plan -->
 <section class="page">
-  <div class="eyebrow">// Page 03 · Top Issues</div>
-  <h2 class="section-title">Top Issues Costing You Money</h2>
-  <p class="body-text" style="margin-bottom:28px;">The following issues were identified during the audit. Each represents a structural gap that may interfere with proper royalty collection.</p>
-
-  <div class="issue-card">
-    <div class="issue-card-header">
-      <div class="issue-card-title">{{issue_1_title}}</div>
-      <span class="risk-badge risk-badge-{{issue_1_risk}}">{{issue_1_risk}} Risk</span>
-    </div>
-    <div class="issue-card-row">
-      <div class="issue-card-row-label">What this means</div>
-      <div class="issue-card-row-value">{{issue_1_meaning}}</div>
-    </div>
-    <div class="issue-card-row">
-      <div class="issue-card-row-label">Impact</div>
-      <div class="issue-card-row-value">{{issue_1_impact}} <span class="impact-tag">This directly impacts your ability to get paid.</span></div>
+  <div class="ph">
+    <div class="ph-left"><span class="ph-logo">Royaltē</span><span class="ph-tag">Review</span></div>
+    <div class="ph-right">
+      <div class="ph-artist">{{artist_name}}</div>
+      <div class="ph-doc">Royaltē Review · {{scan_date}}</div>
     </div>
   </div>
 
-  <div class="issue-card">
-    <div class="issue-card-header">
-      <div class="issue-card-title">{{issue_2_title}}</div>
-      <span class="risk-badge risk-badge-{{issue_2_risk}}">{{issue_2_risk}} Risk</span>
-    </div>
-    <div class="issue-card-row">
-      <div class="issue-card-row-label">What this means</div>
-      <div class="issue-card-row-value">{{issue_2_meaning}}</div>
-    </div>
-    <div class="issue-card-row">
-      <div class="issue-card-row-label">Impact</div>
-      <div class="issue-card-row-value">{{issue_2_impact}} <span class="impact-tag">This directly impacts your ability to get paid.</span></div>
-    </div>
+  <div class="ph-section">
+    <div class="eyebrow">Page 3 of 11 · Action Center</div>
+    <h2 class="page-title">Royaltē Action Plan</h2>
+    <p class="page-sub">Specific, evidence-based next steps derived only from verified observations in this scan. Each item names the relevant signal and a concrete action. Royaltē OS will monitor whether each item is resolved.</p>
   </div>
 
-  <div class="issue-card">
-    <div class="issue-card-header">
-      <div class="issue-card-title">{{issue_3_title}}</div>
-      <span class="risk-badge risk-badge-{{issue_3_risk}}">{{issue_3_risk}} Risk</span>
-    </div>
-    <div class="issue-card-row">
-      <div class="issue-card-row-label">What this means</div>
-      <div class="issue-card-row-value">{{issue_3_meaning}}</div>
-    </div>
-    <div class="issue-card-row">
-      <div class="issue-card-row-label">Impact</div>
-      <div class="issue-card-row-value">{{issue_3_impact}} <span class="impact-tag">This directly impacts your ability to get paid.</span></div>
-    </div>
-  </div>
+  {{action_plan_html}}
 
-  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
-  <div class="page-num">PAGE 03 / 08</div>
+  <div class="pf">
+    <span>© 2026 Royaltē. Powered by Se7ven Labs LLC.</span>
+    <span class="pf-num">PAGE 03 / 11</span>
+  </div>
 </section>
 
+<!-- PAGE 4 — Why Your Health Score Is What It Is -->
 <section class="page">
-  <div class="eyebrow">// Page 04 · Why This Matters</div>
-  <h2 class="section-title">Why This Matters</h2>
-  <h3 class="section-headline">Your music can perform — <span class="section-headline-em">and still not pay you.</span></h3>
-
-  <p class="body-text-strong">Streaming platforms and royalty systems depend on accurate data and registrations.</p>
-  <p class="body-text">If your setup is incomplete:</p>
-
-  <div style="margin:24px 0;display:flex;flex-direction:column;gap:14px;">
-    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;">
-      <div style="width:6px;height:6px;border-radius:50%;background:var(--purple);margin-top:8px;flex-shrink:0;"></div>
-      <div style="font-size:14px;color:var(--text);line-height:1.55;"><strong style="color:#fff;">Royalties may not be tracked</strong> — without correct identifiers, plays don't link to your account.</div>
-    </div>
-    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;">
-      <div style="width:6px;height:6px;border-radius:50%;background:var(--purple);margin-top:8px;flex-shrink:0;"></div>
-      <div style="font-size:14px;color:var(--text);line-height:1.55;"><strong style="color:#fff;">Payments may not be routed</strong> — even tracked royalties need a clear collection path.</div>
-    </div>
-    <div style="display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;">
-      <div style="width:6px;height:6px;border-radius:50%;background:var(--purple);margin-top:8px;flex-shrink:0;"></div>
-      <div style="font-size:14px;color:var(--text);line-height:1.55;"><strong style="color:#fff;">Revenue may remain unclaimed</strong> — money sits in collection pools instead of reaching you.</div>
+  <div class="ph">
+    <div class="ph-left"><span class="ph-logo">Royaltē</span><span class="ph-tag">Review</span></div>
+    <div class="ph-right">
+      <div class="ph-artist">{{artist_name}}</div>
+      <div class="ph-doc">Royaltē Review · {{scan_date}}</div>
     </div>
   </div>
 
-  <p class="closing-line">This is how artists lose money without realizing it — even with strong streaming numbers.</p>
+  <div class="ph-section">
+    <div class="eyebrow">Page 4 of 11 · Health Score</div>
+    <h2 class="page-title">Why Your Health Score Is What It Is</h2>
+    <p class="page-sub">The Royaltē Health Score™ is signal-driven — built from what Royaltē verified during this scan. The factors below explain the score. They do not accuse; they explain.</p>
+  </div>
 
-  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
-  <div class="page-num">PAGE 04 / 08</div>
+  <div class="breakdown">
+    <div class="breakdown-cell">
+      <div class="breakdown-label">Catalog Verification</div>
+      <div class="breakdown-value">{{bucket_catalog_pts}}<span class="breakdown-max"> / 40</span></div>
+    </div>
+    <div class="breakdown-cell">
+      <div class="breakdown-label">BIG 6 Coverage</div>
+      <div class="breakdown-value">{{bucket_big6_pts}}<span class="breakdown-max"> / 20</span></div>
+    </div>
+    <div class="breakdown-cell">
+      <div class="breakdown-label">Backend Health</div>
+      <div class="breakdown-value">{{bucket_backend_pts}}<span class="breakdown-max"> / 20</span></div>
+    </div>
+    <div class="breakdown-cell">
+      <div class="breakdown-label">YouTube Presence</div>
+      <div class="breakdown-value">{{bucket_youtube_pts}}<span class="breakdown-max"> / 10</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="exec-list-hd">What Influenced Your Health Score</div>
+    {{drivers_html}}
+  </div>
+
+  <p class="page-sub" style="margin-top:14px;">ISRC verification contributes the remaining 10 points to the 100-point total. Drivers above use locked Royaltē tone: every gap is reported as something Royaltē could not verify, never as something missing or wrong.</p>
+
+  <div class="pf">
+    <span>© 2026 Royaltē. Powered by Se7ven Labs LLC.</span>
+    <span class="pf-num">PAGE 04 / 11</span>
+  </div>
 </section>
 
+<!-- PAGE 5 — Catalog Verification -->
 <section class="page">
-  <div class="eyebrow">// Page 05 · Platform Coverage</div>
-  <h2 class="section-title">Platform Coverage</h2>
-  <p class="body-text" style="margin-bottom:28px;">Connection status across major platforms and rights organizations.</p>
-
-  <div class="platform-list">
-    <div class="platform-row">
-      <div class="platform-icon">S</div>
-      <div class="platform-name">Spotify</div>
-      <span class="status-pill status-{{platform_spotify_status}}">{{platform_spotify}}</span>
-    </div>
-    <div class="platform-row">
-      <div class="platform-icon">A</div>
-      <div class="platform-name">Apple Music</div>
-      <span class="status-pill status-{{platform_apple_status}}">{{platform_apple}}</span>
-    </div>
-    <div class="platform-row">
-      <div class="platform-icon">Y</div>
-      <div class="platform-name">YouTube / Content ID</div>
-      <span class="status-pill status-{{platform_youtube_status}}">{{platform_youtube}}</span>
-    </div>
-    <div class="platform-row">
-      <div class="platform-icon">P</div>
-      <div class="platform-name">Performance Rights Org (PRO)</div>
-      <span class="status-pill status-{{platform_pro_status}}">{{platform_pro}}</span>
+  <div class="ph">
+    <div class="ph-left"><span class="ph-logo">Royaltē</span><span class="ph-tag">Review</span></div>
+    <div class="ph-right">
+      <div class="ph-artist">{{artist_name}}</div>
+      <div class="ph-doc">Royaltē Review · {{scan_date}}</div>
     </div>
   </div>
 
-  <p class="closing-line">Missing or incomplete connections can prevent you from getting paid.</p>
+  <div class="ph-section">
+    <div class="eyebrow">Page 5 of 11</div>
+    <h2 class="page-title">Catalog Verification</h2>
+    <p class="page-sub">Royaltē verified the following catalog from reviewed sources. Releases are classified by track count (Single = 1, EP = 2–6, Album = 7+).</p>
+  </div>
 
-  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
-  <div class="page-num">PAGE 05 / 08</div>
+  <div class="card">
+    <div class="kv-grid">
+      <div class="kv"><span class="kv-k">Albums</span><span class="kv-v">{{catalog_albums_n}}</span></div>
+      <div class="kv"><span class="kv-k">EPs</span><span class="kv-v">{{catalog_eps_n}}</span></div>
+      <div class="kv"><span class="kv-k">Singles</span><span class="kv-v">{{catalog_singles_n}}</span></div>
+      <div class="kv"><span class="kv-k">Tracks</span><span class="kv-v">{{catalog_tracks_n}}</span></div>
+    </div>
+    {{release_list_html}}
+  </div>
+
+  <div class="pf">
+    <span>© 2026 Royaltē. Powered by Se7ven Labs LLC.</span>
+    <span class="pf-num">PAGE 05 / 11</span>
+  </div>
 </section>
 
+<!-- PAGE 6 — Identifier Verification -->
 <section class="page">
-  <div class="eyebrow">// Page 06 · Module Analysis</div>
-  <h2 class="section-title">Module Analysis</h2>
-  <p class="body-text" style="margin-bottom:8px;">Each module measures a different dimension of your royalty setup. Higher is better — high scores indicate stronger collection coverage.</p>
-  <p class="body-text" style="margin-bottom:28px;color:var(--magenta);font-weight:500;">Low scores indicate areas where revenue may be lost.</p>
-
-  <div class="module-card {{module_metadata_band}}">
-    <div class="module-card-top">
-      <div class="module-name">Metadata Integrity</div>
-      <div class="module-score">{{module_metadata}} / 100</div>
+  <div class="ph">
+    <div class="ph-left"><span class="ph-logo">Royaltē</span><span class="ph-tag">Review</span></div>
+    <div class="ph-right">
+      <div class="ph-artist">{{artist_name}}</div>
+      <div class="ph-doc">Royaltē Review · {{scan_date}}</div>
     </div>
-    <div class="module-bar-track">
-      <div class="module-bar-fill" style="width:{{module_metadata}}%;"></div>
-    </div>
-    <p class="module-explanation">Missing or incomplete metadata may limit discoverability and prevent platforms from correctly attributing royalties.</p>
   </div>
 
-  <div class="module-card {{module_platform_band}}">
-    <div class="module-card-top">
-      <div class="module-name">Platform Coverage</div>
-      <div class="module-score">{{module_platform}} / 100</div>
-    </div>
-    <div class="module-bar-track">
-      <div class="module-bar-fill" style="width:{{module_platform}}%;"></div>
-    </div>
-    <p class="module-explanation">Gaps in platform presence reduce the surfaces where your music can earn — limiting reach and recoverable royalties.</p>
+  <div class="ph-section">
+    <div class="eyebrow">Page 6 of 11</div>
+    <h2 class="page-title">Identifier Verification</h2>
+    <p class="page-sub">ISRCs are the unique identifier that tie streams and downloads to royalties. Royaltē reports verified ISRCs from reviewed sources — proof, not conclusions.</p>
   </div>
 
-  <div class="module-card {{module_publishing_band}}">
-    <div class="module-card-top">
-      <div class="module-name">Publishing Risk</div>
-      <div class="module-score">{{module_publishing}} / 100</div>
+  <div class="card">
+    <div class="kv-grid">
+      <div class="kv"><span class="kv-k">Tracks Reviewed</span><span class="kv-v">{{tracks_reviewed_n}}</span></div>
+      <div class="kv"><span class="kv-k">ISRCs Verified</span><span class="kv-v">{{isrcs_verified_n}}</span></div>
     </div>
-    <div class="module-bar-track">
-      <div class="module-bar-fill" style="width:{{module_publishing}}%;"></div>
-    </div>
-    <p class="module-explanation">Publishing and PRO registration is what allows performance and mechanical royalties to be collected on your behalf.</p>
+    {{isrc_section_html}}
   </div>
 
-  <div class="module-card {{module_ugc_band}}">
-    <div class="module-card-top">
-      <div class="module-name">YouTube / UGC Coverage</div>
-      <div class="module-score">{{module_ugc}} / 100</div>
-    </div>
-    <div class="module-bar-track">
-      <div class="module-bar-fill" style="width:{{module_ugc}}%;"></div>
-    </div>
-    <p class="module-explanation">Without active UGC monitoring, third-party uses of your music — Reels, Shorts, fan content — may go unmonetized.</p>
+  <div class="pf">
+    <span>© 2026 Royaltē. Powered by Se7ven Labs LLC.</span>
+    <span class="pf-num">PAGE 06 / 11</span>
   </div>
-
-  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
-  <div class="page-num">PAGE 06 / 08</div>
 </section>
 
+<!-- PAGE 7 — The BIG 6 / Global Presence -->
 <section class="page">
-  <div class="eyebrow">// Page 07 · Action Plan</div>
-  <h2 class="section-title">Action Plan</h2>
-  <p class="action-disclaimer">These actions improve your ability to collect royalties — but do not guarantee full coverage.</p>
-  <p class="body-text" style="margin-bottom:28px;">Priority steps to recover lost royalties and prevent future loss.</p>
-
-  <div class="action-card">
-    <div class="action-num">1</div>
-    <div class="action-content">
-      <div class="action-card-header">
-        <div class="action-title">{{action_1_title}}</div>
-        <span class="priority-pill priority-{{action_1_priority}}">{{action_1_priority}} Priority</span>
-      </div>
-      <p class="action-instruction">{{action_1_instruction}}</p>
+  <div class="ph">
+    <div class="ph-left"><span class="ph-logo">Royaltē</span><span class="ph-tag">Review</span></div>
+    <div class="ph-right">
+      <div class="ph-artist">{{artist_name}}</div>
+      <div class="ph-doc">Royaltē Review · {{scan_date}}</div>
     </div>
   </div>
 
-  <div class="action-card">
-    <div class="action-num">2</div>
-    <div class="action-content">
-      <div class="action-card-header">
-        <div class="action-title">{{action_2_title}}</div>
-        <span class="priority-pill priority-{{action_2_priority}}">{{action_2_priority}} Priority</span>
-      </div>
-      <p class="action-instruction">{{action_2_instruction}}</p>
-    </div>
+  <div class="ph-section">
+    <div class="eyebrow">Page 7 of 11 · Global Presence</div>
+    <h2 class="page-title">Where Your Music Is Available</h2>
+    <p class="page-sub">The BIG 6 are the major royalty-generating markets globally. Status shown for each is what Royaltē verified from Apple Music storefront data in this scan.</p>
   </div>
 
-  <div class="action-card">
-    <div class="action-num">3</div>
-    <div class="action-content">
-      <div class="action-card-header">
-        <div class="action-title">{{action_3_title}}</div>
-        <span class="priority-pill priority-{{action_3_priority}}">{{action_3_priority}} Priority</span>
-      </div>
-      <p class="action-instruction">{{action_3_instruction}}</p>
-    </div>
-  </div>
+  <div class="card">{{storefront_grid_html}}</div>
 
-  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
-  <div class="page-num">PAGE 07 / 08</div>
+  <div class="pf">
+    <span>© 2026 Royaltē. Powered by Se7ven Labs LLC.</span>
+    <span class="pf-num">PAGE 07 / 11</span>
+  </div>
 </section>
 
+<!-- PAGE 8 — Metadata Coverage -->
 <section class="page">
-  <div class="eyebrow">// Page 08 · Next Step</div>
-  <h2 class="section-title">Your setup is not being monitored.</h2>
-
-  <p class="body-text-strong" style="margin-top:18px;">Even after fixing these issues:</p>
-
-  <div style="margin:16px 0 20px 0;display:flex;flex-direction:column;gap:8px;">
-    <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;">
-      <div style="width:6px;height:6px;border-radius:50%;background:var(--magenta);margin-top:7px;flex-shrink:0;"></div>
-      <div style="font-size:14px;color:var(--text);line-height:1.5;">New problems can appear as you release new music.</div>
-    </div>
-    <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;">
-      <div style="width:6px;height:6px;border-radius:50%;background:var(--magenta);margin-top:7px;flex-shrink:0;"></div>
-      <div style="font-size:14px;color:var(--text);line-height:1.5;">Releases can be misregistered without your knowledge.</div>
-    </div>
-    <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;">
-      <div style="width:6px;height:6px;border-radius:50%;background:var(--magenta);margin-top:7px;flex-shrink:0;"></div>
-      <div style="font-size:14px;color:var(--text);line-height:1.5;">Royalties can still be missed at any point in the chain.</div>
+  <div class="ph">
+    <div class="ph-left"><span class="ph-logo">Royaltē</span><span class="ph-tag">Review</span></div>
+    <div class="ph-right">
+      <div class="ph-artist">{{artist_name}}</div>
+      <div class="ph-doc">Royaltē Review · {{scan_date}}</div>
     </div>
   </div>
 
-  <p class="closing-line" style="border:none;padding:0;margin:0 0 0 0;font-style:normal;font-size:15px;color:#fff;font-weight:500;">Without monitoring, you won't know when revenue is lost.</p>
+  <div class="ph-section">
+    <div class="eyebrow">Page 8 of 11</div>
+    <h2 class="page-title">What Royaltē Can See About Your Music</h2>
+    <p class="page-sub">Metadata visibility from reviewed sources. Anything reported as "Not confirmed from reviewed sources" was not visible to Royaltē in this scan — that does not mean it is missing elsewhere.</p>
+  </div>
 
-  <div class="urgency-bridge">
-    <p class="urgency-bridge-line">This report shows what we detected today.</p>
-    <p class="urgency-bridge-line urgency-bridge-emphasis">It does not protect you from future issues.</p>
+  <div class="card">{{metadata_checklist_html}}</div>
+
+  <div class="pf">
+    <span>© 2026 Royaltē. Powered by Se7ven Labs LLC.</span>
+    <span class="pf-num">PAGE 08 / 11</span>
+  </div>
+</section>
+
+<!-- PAGE 9 — YouTube Presence -->
+<section class="page">
+  <div class="ph">
+    <div class="ph-left"><span class="ph-logo">Royaltē</span><span class="ph-tag">Review</span></div>
+    <div class="ph-right">
+      <div class="ph-artist">{{artist_name}}</div>
+      <div class="ph-doc">Royaltē Review · {{scan_date}}</div>
+    </div>
+  </div>
+
+  <div class="ph-section">
+    <div class="eyebrow">Page 9 of 11</div>
+    <h2 class="page-title">YouTube Presence</h2>
+    <p class="page-sub">Visibility only. Royaltē reports confirmed matches and official-video counts — never revenue, monetization, or UGC claims.</p>
+  </div>
+
+  <div class="card">{{youtube_block_html}}</div>
+
+  <div class="pf">
+    <span>© 2026 Royaltē. Powered by Se7ven Labs LLC.</span>
+    <span class="pf-num">PAGE 09 / 11</span>
+  </div>
+</section>
+
+<!-- PAGE 10 — What Royaltē Could Not Verify -->
+<section class="page">
+  <div class="ph">
+    <div class="ph-left"><span class="ph-logo">Royaltē</span><span class="ph-tag">Review</span></div>
+    <div class="ph-right">
+      <div class="ph-artist">{{artist_name}}</div>
+      <div class="ph-doc">Royaltē Review · {{scan_date}}</div>
+    </div>
+  </div>
+
+  <div class="ph-section">
+    <div class="eyebrow">Page 10 of 11</div>
+    <h2 class="page-title">What Royaltē Could Not Verify</h2>
+    <p class="page-sub">Royaltē reports both what was verified and what could not be verified. The items below were not available from reviewed sources in this scan — Royaltē OS will alert you if any of them change in future scans.</p>
+  </div>
+
+  <div class="card">{{unverified_html}}</div>
+
+  <div class="pf">
+    <span>© 2026 Royaltē. Powered by Se7ven Labs LLC.</span>
+    <span class="pf-num">PAGE 10 / 11</span>
+  </div>
+</section>
+
+<!-- PAGE 11 — What Happens Next -->
+<section class="page">
+  <div class="ph">
+    <div class="ph-left"><span class="ph-logo">Royaltē</span><span class="ph-tag">Review</span></div>
+    <div class="ph-right">
+      <div class="ph-artist">{{artist_name}}</div>
+      <div class="ph-doc">Royaltē Review · {{scan_date}}</div>
+    </div>
+  </div>
+
+  <div class="ph-section">
+    <div class="eyebrow">Page 11 of 11 · What Happens Next</div>
+    <h2 class="page-title">This Review reflects a single point in time.</h2>
+    <p class="page-sub">Since this Review was generated, any of the following may change:</p>
+  </div>
+
+  <ul class="bridge-list">
+    <li>Catalog availability</li>
+    <li>Metadata</li>
+    <li>Identifiers</li>
+    <li>Visibility</li>
+    <li>Platform coverage</li>
+    <li>Territory coverage</li>
+  </ul>
+
+  <div class="bridge-statement">
+    <div class="bridge-statement-line">One Scan Shows A Snapshot.</div>
+    <div class="bridge-statement-line">Royaltē OS Watches What Changes.</div>
   </div>
 
   <div class="cta-block">
-    <div class="cta-content">
-      <div class="cta-eyebrow">// Recommended Next Step</div>
-      <h3 class="cta-title">You're still not protected.</h3>
-      <p class="cta-secondary-headline">Unlock Full Royaltē Monitoring</p>
-      <ul class="cta-features">
-        <li><span class="cta-check">✓</span>Ongoing catalog scans</li>
-        <li><span class="cta-check">✓</span>New issue detection</li>
-        <li><span class="cta-check">✓</span>Alerts when problems appear</li>
-        <li><span class="cta-check">✓</span>Track improvements over time</li>
-      </ul>
-      <a href="https://royalte.ai/pricing.html" class="cta-button">Stop Losing Money →</a>
-      <p class="cta-cancel-line">Cancel anytime. No long-term commitment.</p>
-      <div class="cta-url">royalte.ai/pricing</div>
-      <p class="cta-trust">Built by artists who were losing money — and fixed it.</p>
-    </div>
+    <a href="https://royalte.ai/dashboard" class="cta-button">Continue To Royaltē OS</a>
+    <div class="cta-foot">Your Royaltē Review is the baseline. Royaltē OS monitors every change from here forward.</div>
   </div>
 
-  <div class="page-brand">ROYALTĒ · CONFIDENTIAL</div>
-  <div class="page-num">PAGE 08 / 08</div>
+  <div class="pf">
+    <span>© 2026 Royaltē. Powered by Se7ven Labs LLC.</span>
+    <span class="pf-num">PAGE 11 / 11</span>
+  </div>
 </section>
-
-</main>
 
 </body>
 </html>
