@@ -190,6 +190,96 @@ export function buildCanonicalDataV2(canonical) {
   };
 }
 
+// Brief 012a (follow-up) — V2 verified-signal Health Score.
+// Reads only signals the V2 surfaces actually display: catalog depth,
+// BIG 6 territory availability, platform presence, ISRC coverage.
+// Returns { score, drivers, breakdown }:
+//   score:     0–100 (signal-driven, not change-driven)
+//   drivers:   top 4 explanatory strings, sorted by impact desc
+//   breakdown: per-bucket points for the dashboard breakdown grid
+// Driver tone follows the locked trust rule: never speculate, never
+// accuse — phrase every gap as "not available from reviewed sources".
+export function computeV2HealthScore(canonical) {
+  const am      = (canonical && canonical.platforms && canonical.platforms.appleMusic && canonical.platforms.appleMusic.details) || {};
+  const apple   = (canonical && canonical.platforms && canonical.platforms.appleMusic) || {};
+  const spotify = (canonical && canonical.platforms && canonical.platforms.spotify)    || {};
+  const youtube = (canonical && canonical.platforms && canonical.platforms.youtube)    || {};
+
+  let catalogPoints   = 0; // bucket: catalog_verification (max 40)
+  let backendPoints   = 0; // bucket: backend_health       (Apple + Spotify, max 20)
+  let youtubePoints   = 0; // bucket: youtube_presence     (YouTube, max 10)
+  let territoryPoints = 0; // bucket: big6_coverage        (max 20)
+  let isrcPoints      = 0; // not bucketed; contributes to total only (max 10)
+  const drivers       = [];
+
+  // ── Catalog depth (max 40) ──────────────────────────────────────────────
+  const albums     = Array.isArray(am.albums) ? am.albums : [];
+  const albumCount = albums.length || am.albumCount || 0;
+  if (albums.length >= 1) catalogPoints += 20;
+  if (albumCount >= 4)    catalogPoints += 10;
+  if (albumCount >= 10)   catalogPoints += 10;
+  if (albumCount === 0) {
+    drivers.push({ text: 'Catalog depth could not be determined from reviewed sources', weight: 40 });
+  } else if (albumCount < 4) {
+    drivers.push({ text: 'Catalog depth below typical range in reviewed sources', weight: 20 });
+  }
+
+  // ── Platform presence — Apple/Spotify → backend_health (max 20); YouTube → youtube_presence (max 10) ──
+  if (apple.availability   === 'VERIFIED') backendPoints += 10;
+  else drivers.push({ text: 'Apple Music presence was not available from reviewed sources', weight: 10 });
+  if (spotify.availability === 'VERIFIED') backendPoints += 10;
+  else drivers.push({ text: 'Spotify presence was not available from reviewed sources',     weight: 10 });
+  if (youtube.availability === 'VERIFIED') youtubePoints += 10;
+  else drivers.push({ text: 'YouTube presence was not available from reviewed sources',     weight: 10 });
+
+  // ── Territory availability (max 20) ─────────────────────────────────────
+  const sfa = am.storefrontAvailability;
+  if (!sfa || typeof sfa !== 'object') {
+    drivers.push({ text: 'Territory availability was not yet verified in this scan', weight: 20 });
+  } else {
+    territoryPoints += 10;
+    const keys = ['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au'];
+    let fullCount = 0;
+    for (const sf of keys) {
+      const ent = sfa[sf];
+      if (!ent || ent.error) continue;
+      const avail = Array.isArray(ent.available) ? ent.available.length : 0;
+      if (avail > 0) fullCount++;
+    }
+    if (fullCount === keys.length) {
+      territoryPoints += 10;
+    } else if (fullCount >= 5) {
+      territoryPoints += 5;
+      drivers.push({ text: 'Limited availability detected in some major markets', weight: 10 });
+    } else {
+      drivers.push({ text: 'Limited availability detected in some major markets', weight: 10 });
+    }
+  }
+
+  // ── ISRC coverage (max 10) ──────────────────────────────────────────────
+  const isrcLookup = am.isrcLookup;
+  if (isrcLookup && isrcLookup.isrc) {
+    isrcPoints += 10;
+  } else {
+    drivers.push({ text: 'ISRC information was not available from reviewed sources', weight: 10 });
+  }
+
+  const total = catalogPoints + backendPoints + youtubePoints + territoryPoints + isrcPoints;
+  const score = Math.max(0, Math.min(100, total));
+
+  drivers.sort((a, b) => b.weight - a.weight);
+  return {
+    score,
+    drivers: drivers.slice(0, 4).map((d) => d.text),
+    breakdown: {
+      catalog_verification: catalogPoints,
+      big6_coverage:        territoryPoints,
+      backend_health:       backendPoints,
+      youtube_presence:     youtubePoints,
+    },
+  };
+}
+
 export async function persistOSScanSnapshot({
   canonical,
   urlType,
@@ -239,6 +329,12 @@ export async function persistOSScanSnapshot({
   // seen — no V1 read-path change.
   const canonicalDataV2 = buildCanonicalDataV2(canonical);
 
+  // ── V2 health score (Brief 012a follow-up) ─────────────────────────────
+  //    Computed at insert time from verified signals only. The delta
+  //    engine no longer touches health_score; score reflects what is
+  //    verified now, not what changed since the last scan.
+  const v2 = computeV2HealthScore(canonical);
+
   // ── Insert the snapshot ────────────────────────────────────────────────
   const insertRow = {
     user_id:         userId,
@@ -251,7 +347,8 @@ export async function persistOSScanSnapshot({
     payload:         canonical,
     source:          sourceFromUrlType(urlType),
     status:          warnings && warnings.length > 0 ? 'partial' : 'complete',
-    // health_score + score_breakdown — populated by computeDelta below.
+    health_score:    v2.score,
+    score_breakdown: { ...v2.breakdown, drivers: v2.drivers },
   };
 
   const { data: inserted, error: insertErr } = await supabase

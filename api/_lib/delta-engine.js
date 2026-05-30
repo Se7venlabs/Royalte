@@ -1,12 +1,13 @@
-// Royaltē OS — Delta Engine (Brief 002)
+// Royaltē OS — Delta Engine (Brief 002 · score authority moved to
+// persist-os-scan.js by Brief 012a follow-up).
 //
 // Compares a new scan_snapshots row against the prior snapshot for the
 // same (user, artist) and emits monitoring_alerts rows for each meaningful
-// change. After emitting, updates scan_snapshots.health_score and
-// scan_snapshots.score_breakdown for the new row.
+// change. health_score and score_breakdown are written at insert time by
+// persistOSScanSnapshot using the V2 signal-driven formula; this engine
+// no longer touches them.
 //
-// Backend only — not yet wired into any API route. Brief 003 will hook
-// this into the V2 write path. Tests inject a mock Supabase client.
+// Backend only. Tests inject a mock Supabase client.
 //
 // Contract for canonical_data shape (V2):
 //   territories:     string[]            — territory codes (e.g. 'US', 'JP')
@@ -15,37 +16,6 @@
 //   youtubeMatches:  { title|name }[]    — confirmed YouTube matches
 // Each list is optional; missing fields are treated as empty arrays so the
 // engine degrades gracefully against V1-shaped payloads.
-
-// ─── Score model ────────────────────────────────────────────────────────────
-
-const SEVERITY_DELTA = {
-  action_needed: -8,
-  monitor: -4,
-  positive: +2,
-  informational: 0,
-};
-
-// change_type → which breakdown bucket and how much it shifts.
-// Buckets start at their max value; deductions floor at 0, additions cap
-// at the bucket max.
-const BREAKDOWN_DELTA = {
-  release_removed: { bucket: 'catalog_verification', delta: -8 },
-  isrc_dropped:    { bucket: 'catalog_verification', delta: -6 },
-  isrc_mismatch:   { bucket: 'catalog_verification', delta: -3 },
-  territory_loss:  { bucket: 'big6_coverage',        delta: -6 },
-  video_removed:   { bucket: 'youtube_presence',     delta: -6 },
-  video_added:     { bucket: 'youtube_presence',     delta: +3 },
-};
-
-const BUCKET_MAX = {
-  catalog_verification: 35,
-  big6_coverage: 30,
-  backend_health: 20,
-  youtube_presence: 15,
-};
-
-const HEALTH_FLOOR = 20;
-const HEALTH_CAP   = 100;
 
 // ─── Canonical-data accessors (graceful on missing fields) ──────────────────
 
@@ -279,25 +249,6 @@ function emitVideoDeltas(currentSnapshot, previousSnapshot) {
   return alerts;
 }
 
-// ─── Score computation ──────────────────────────────────────────────────────
-
-export function computeScores(alerts) {
-  let health = HEALTH_CAP;
-  const buckets = { ...BUCKET_MAX };
-
-  for (const a of alerts) {
-    health += SEVERITY_DELTA[a.severity] || 0;
-    const td = BREAKDOWN_DELTA[a.change_type];
-    if (td) buckets[td.bucket] += td.delta;
-  }
-
-  health = Math.max(HEALTH_FLOOR, Math.min(HEALTH_CAP, health));
-  for (const k of Object.keys(buckets)) {
-    buckets[k] = Math.max(0, Math.min(BUCKET_MAX[k], buckets[k]));
-  }
-  return { health_score: health, score_breakdown: buckets };
-}
-
 // ─── Public entry point ─────────────────────────────────────────────────────
 
 export async function computeDelta(currentSnapshot, previousSnapshot, supabase) {
@@ -314,24 +265,11 @@ export async function computeDelta(currentSnapshot, previousSnapshot, supabase) 
       ]
     : emitBaseline(currentSnapshot);
 
-  const scores = computeScores(alerts);
-
   if (alerts.length > 0) {
     const { error } = await supabase.from('monitoring_alerts').insert(alerts);
     if (error) {
       throw new Error(`monitoring_alerts insert failed: ${error.message || error}`);
     }
-  }
-
-  const { error: updateError } = await supabase
-    .from('scan_snapshots')
-    .update({
-      health_score:    scores.health_score,
-      score_breakdown: scores.score_breakdown,
-    })
-    .eq('id', currentSnapshot.id);
-  if (updateError) {
-    throw new Error(`scan_snapshots score update failed: ${updateError.message || updateError}`);
   }
 
   return alerts;

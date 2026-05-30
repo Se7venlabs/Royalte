@@ -1,7 +1,7 @@
 // Delta-engine tests (Brief 002). Pure unit tests against mock snapshot
 // objects + a stub Supabase client — no live DB calls.
 
-import { computeDelta, computeScores } from '../api/_lib/delta-engine.js';
+import { computeDelta } from '../api/_lib/delta-engine.js';
 
 // ── Mock Supabase ───────────────────────────────────────────────────────────
 //
@@ -86,16 +86,10 @@ const assert = (cond, msg) => {
   assert(alerts[0].scan_id === 'scan-001', 'baseline: scan_id matches current');
   assert(alerts[0].resolved === false, 'baseline: resolved defaults to false');
 
-  // Score: baseline emits an informational alert; severity delta is 0;
-  // no breakdown deltas. Score stays at 100 with full buckets.
+  // Brief 012a follow-up: delta engine no longer writes scan_snapshots —
+  // score authority moved to persist-os-scan. Engine inserts alerts only.
   const updates = sb._captured.updates.scan_snapshots || [];
-  assert(updates.length === 1, 'baseline: scan_snapshots score updated exactly once');
-  assert(updates[0].where.id === 'scan-001', 'baseline: score update targets currentSnapshot.id');
-  assert(updates[0].payload.health_score === 100, 'baseline: health_score is 100 on a clean baseline');
-  assert(updates[0].payload.score_breakdown.catalog_verification === 35, 'baseline: catalog_verification bucket at max');
-  assert(updates[0].payload.score_breakdown.big6_coverage === 30, 'baseline: big6_coverage bucket at max');
-  assert(updates[0].payload.score_breakdown.backend_health === 20, 'baseline: backend_health bucket at max');
-  assert(updates[0].payload.score_breakdown.youtube_presence === 15, 'baseline: youtube_presence bucket at max');
+  assert(updates.length === 0, 'baseline: scan_snapshots no longer updated by delta engine');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -218,51 +212,6 @@ const assert = (cond, msg) => {
   assert(added[0].track_name === 'Quiet Storm (Official Video)', 'video_added: track_name holds the video title');
   assert(added[0].platform === 'youtube', 'video_added: platform is youtube');
   assert(added[0].severity === 'positive', 'video_added: severity is positive');
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 8. Health score floor — never below 20
-// ═══════════════════════════════════════════════════════════════════════════
-
-{
-  // 20 territory losses × -8 (action_needed severity) = -160. 100 - 160 = -60.
-  // Floor must clamp to 20.
-  const prevTerritories = Array.from({ length: 20 }, (_, i) => `T${String(i).padStart(2, '0')}`);
-  const prev = baseSnapshot('scan-prev', { territories: prevTerritories });
-  const curr = baseSnapshot('scan-curr', { territories: [] });
-  const sb = mockSupabase();
-  const alerts = await computeDelta(curr, prev, sb);
-
-  assert(alerts.length === 20, 'floor: 20 territory_loss alerts emitted as expected');
-  const update = sb._captured.updates.scan_snapshots[0];
-  assert(update.payload.health_score === 20, 'floor: health_score clamped to 20 despite -160 deduction');
-  assert(update.payload.score_breakdown.big6_coverage === 0, 'floor: big6_coverage bucket floored at 0 (would be -90)');
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 9. Health score cap — never above 100
-// ═══════════════════════════════════════════════════════════════════════════
-
-{
-  // 50 territory gains × +2 = +100. Score starts at 100. Cap must clamp to 100.
-  const currTerritories = Array.from({ length: 50 }, (_, i) => `G${String(i).padStart(2, '0')}`);
-  const prev = baseSnapshot('scan-prev', { territories: [] });
-  const curr = baseSnapshot('scan-curr', { territories: currTerritories });
-  const sb = mockSupabase();
-  const alerts = await computeDelta(curr, prev, sb);
-
-  assert(alerts.length === 50, 'cap: 50 territory_gain alerts emitted as expected');
-  const update = sb._captured.updates.scan_snapshots[0];
-  assert(update.payload.health_score === 100, 'cap: health_score clamped to 100 (no overflow from +100 of positives)');
-
-  // Bucket cap sanity — youtube bucket should not exceed 15 even with many video_added.
-  // Use computeScores directly with synthetic alerts for the bucket-cap proof.
-  const synthetic = Array.from({ length: 10 }, () => ({
-    severity: 'positive',
-    change_type: 'video_added',
-  }));
-  const { score_breakdown } = computeScores(synthetic);
-  assert(score_breakdown.youtube_presence === 15, 'cap: youtube_presence bucket capped at 15 despite +30 of video_added');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
