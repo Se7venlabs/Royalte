@@ -218,12 +218,16 @@ ul,ol{list-style:none;}
 .mc-feed-list{display:flex;flex-direction:column;gap:10px;}
 .mc-feed-item{display:flex;align-items:flex-start;gap:10px;}
 /* Brief 015b — bumped 28→32px + emoji font sizing. Emoji renders as
-   text content inside the chip (no CDN dependency). */
+   text content inside the chip (no CDN dependency). Explicit emoji
+   font stack forces the browser to reach for color-emoji support
+   before falling back to Space Grotesk (which has no emoji glyphs
+   and would render as missing-glyph tofu — appears as a dark square). */
 .mc-feed-icon{
   width:32px;height:32px;border-radius:6px;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
   background:rgba(96,165,250,0.25);color:var(--blu);
   font-size:16px;line-height:1;
+  font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','Twemoji Mozilla',sans-serif;
 }
 /* Album artwork variant — 32×32 image, slightly rounder corners. */
 .mc-feed-art{
@@ -751,6 +755,9 @@ ul,ol{list-style:none;}
 
 </div>
 
-<script type="module" src="/js/dashboard.js"></script>
+<!-- Brief 015b debug — `?v=2` busts browser + Vercel CDN cache so the
+     latest dashboard.js bundle is fetched. Remove after the icon-render
+     issue is resolved. -->
+<script type="module" src="/js/dashboard.js?v=2"></script>
 </body>
 </html>
