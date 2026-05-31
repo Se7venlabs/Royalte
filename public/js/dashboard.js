@@ -693,6 +693,29 @@ function renderMcFeed(alertsRaw, baselineTimes, albums) {
   const list = document.getElementById('mc-feed-list');
   if (!list) return;
   const alerts = _filterBaselineArtifacts(alertsRaw || [], baselineTimes).slice(0, 5);
+
+  // TEMP DEBUG (Brief 015b) — writes the first item's icon shape to
+  // an on-page yellow line so we can see what the JS produced without
+  // DevTools. Remove with the corresponding <div id="mc-feed-debug">
+  // in dashboard.html once the icon issue is resolved.
+  const debugEl = document.getElementById('mc-feed-debug');
+  if (debugEl) {
+    const albumsN = Array.isArray(albums) ? albums.length : 0;
+    if (alerts.length === 0) {
+      debugEl.textContent = `Feed icon type: (no alerts) | Albums loaded: ${albumsN}`;
+    } else {
+      const firstAlert  = alerts[0];
+      const firstDisp   = _feedDisplay(firstAlert);
+      const firstArt    = _matchAlbumArtwork(firstAlert, albums);
+      debugEl.textContent =
+        `Feed icon type: ${firstArt ? 'img' : 'emoji'}` +
+        ` | First emoji: ${firstDisp.emoji}` +
+        ` | First class: ${firstDisp.iconClass}` +
+        ` | Albums loaded: ${albumsN}` +
+        ` | Alerts after filter: ${alerts.length}`;
+    }
+  }
+
   if (alerts.length === 0) {
     list.innerHTML = `<div class="mc-feed-empty">Your backend is being watched. Royaltē will surface activity here as it's detected.</div>`;
     return;
