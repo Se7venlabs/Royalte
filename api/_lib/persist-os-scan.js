@@ -238,7 +238,7 @@ export function computeV2HealthScore(canonical) {
     drivers.push({ text: 'Territory availability was not yet verified in this scan', weight: 20 });
   } else {
     territoryPoints += 10;
-    const keys = ['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au'];
+    const keys = ['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au', 'br'];
     let fullCount = 0;
     for (const sf of keys) {
       const ent = sfa[sf];

@@ -6,7 +6,7 @@ const STOREFRONT = 'us';
 // Brief 011 — BIG 6 storefronts: the seven regions that represent the
 // majority of global streaming revenue. Order is region-grouped so that
 // downstream consumers (dashboard, tests) can iterate predictably.
-const BIG6_STOREFRONTS = ['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au'];
+const BIG6_STOREFRONTS = ['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au', 'br'];
 
 async function appleRequest(path) {
   const token = generateAppleToken();

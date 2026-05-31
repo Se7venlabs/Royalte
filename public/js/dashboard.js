@@ -1,2415 +1,1218 @@
 /* ═══════════════════════════════════════════════════════════════════
-   ROYALTĒ DASHBOARD V1
-   Render layer — populates dashboard.html from a single data object.
+   ROYALTĒ MISSION CONTROL — render layer (Brief 015 + 015a fixes)
 
-   V1 SCOPE:
-     - Hardcoded mock data (one artist, one scan, fixed values)
-     - No auth, no Stripe, no real backend
-     - Money values shown as RANGES not specific dollars (Path B)
-     - "Verified Data Only" tone preserved throughout
+   Populates the 9-card grid in public/dashboard.html.
 
-   V2 (LATER):
-     - Add Supabase auth gate before render
-     - Wire alerts, statement uploads, real scan history
-     - One-line swap: see TODO comment in init()
+   SINGLE SOURCE OF TRUTH (LOCKED): health_score is read from
+   scan_snapshots only via _resolveHealthScoreFromSnapshot, which
+   prefers the stored value and falls back to the V1 risk score
+   (100 - payload.overallScore / 100 - payload.score.overall) ONLY
+   for legacy snapshots that predate Brief 012a. Returns null when
+   no signal is available — never 0. computeV2HealthScore() in
+   api/_lib/persist-os-scan.js is the only place the V2 score is
+   computed from canonical data. No dashboard surface computes it
+   from scratch.
+
+   Preserved verbatim from V1 (auth/session/Supabase wiring):
+   wireSignOut, checkAdminStatus, getSyntheticProfile,
+   activateTrialIfNeeded, renderTrialBanner, renderPricing,
+   wireReservationFlow, handleReserveClick, fillConfirmedState,
+   wireLockCTAs, loadLatestScan, loadReservation,
+   _countActionNeededAlerts.
    ═══════════════════════════════════════════════════════════════════ */
 
 import { getSupabase } from '/js/supabase-client.js';
-
-
-/* ─────────────────────────────────────────────
-   DATA CONTRACT
-   This is the JSON shape /api/dashboard must
-   eventually return. Kept here as the single
-   source of truth for backend + frontend.
-   ───────────────────────────────────────────── */
-
-/**
- * @typedef {Object} DashboardData
- * @property {Object} user
- * @property {string} user.fullName        - "Jordan Kai"
- * @property {string} user.plan            - "Artist Plan" | "Pro" | "Free"
- * @property {boolean} user.verified
- * @property {number} user.notifications
- *
- * @property {Object} score
- * @property {number} score.value          - 0–100
- * @property {string} score.headline       - "Your setup needs improvement"
- *
- * @property {Object}  gapExposure          - Gap-Based Exposure (canonical gapBasedExposure)
- * @property {Array}   gapExposure.indicators - per-gap exposure rows
- * @property {?number} gapExposure.aggregateLow  - sum of quantified lows, or null
- * @property {?number} gapExposure.aggregateHigh - sum of quantified highs, or null
- * @property {number}  gapExposure.pendingValidationCount - unquantified indicator count
- * @property {boolean} gapExposure.hasAnyGaps  - false means render the empty state
- *
- * @property {Object} stats
- * @property {number} stats.issuesFound
- * @property {number} stats.thingsWorking
- *
- * @property {Object} recentScan
- * @property {string} recentScan.dateLabel   - "Apr 24, 2026 · 10:32 AM"
- * @property {string} recentScan.nextDateLabel - "May 24, 2026"
- * @property {number} recentScan.sourcesCount  - 10+
- *
- * @property {Object} identity
- * @property {?string} identity.artistName   - "Gentlemen X" or null
- * @property {string} identity.sourcePlatform - "spotify" | "apple_music"
- * @property {string} identity.resolvedFrom  - "spotify" | "apple_music" | "spotify_from_apple" | "spotify_and_apple"
- * @property {{spotify:boolean, appleMusic:boolean}} identity.platforms
- * @property {string} identity.scanStatus    - "verified" | "limited" | "pending"
- *
- * @property {Array<{date:string, tier:'low'|'med'|'high'}>} trend
- *   - 6 months of severity tier history (Path B: tier-based, not $)
- *
- * @property {Array<Issue>} issues
- * @property {Array<Action>} actionPlan
- *
- * @property {Array<Platform>} platforms
- * @property {number} platformsConnected
- * @property {number} platformsTotal
- */
-
-/**
- * @typedef {Object} Issue
- * @property {string} id
- * @property {string} title           - "Missing ISRC for 3 tracks"
- * @property {string} desc            - "Tracks may not be properly tracked"
- * @property {string} severity        - "high" | "medium" | "low"
- * @property {string} impactLabel     - "Thousands at risk" | "Hundreds at risk" | "—"
- * @property {string} icon            - emoji or key
- */
-
-/**
- * @typedef {Object} Action
- * @property {number} step
- * @property {string} title           - "Fix missing ISRCs (reduce revenue exposure)"
- * @property {string} meta            - "3 tracks"
- * @property {string} severity        - "high" | "medium" | "low"
- */
-
-/**
- * @typedef {Object} Platform
- * @property {string} key             - "spotify" | "apple" | "youtube" | etc.
- * @property {string} name            - "Spotify"
- * @property {string} status          - "connected" | "available"
- */
-
-
-/* ─────────────────────────────────────────────
-   ICONS — inline SVG, kept in JS so HTML stays clean
-   ───────────────────────────────────────────── */
-
-const ICONS = {
-  // sidebar nav
-  dashboard:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
-  setup:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
-  issues:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-  action:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
-  catalog:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
-  monitoring: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
-  reports:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
-  settings:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
-  // issue category icons
-  isrc:       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/></svg>',
-  yt:         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>',
-  pub:        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
-  splits:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/></svg>',
-  tags:       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
-  // misc
-  arrow:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>'
-};
-
-
-/* ─────────────────────────────────────────────
-   SIDEBAR
-   ───────────────────────────────────────────── */
-
-function renderSidebar(data) {
-  // Brief 012 — consolidated "Issues Found" + "Action Plan" V1 entries
-  // into a single "Action Center" entry pointing at the V2 #action-center
-  // section. The badge counts UNRESOLVED action_needed alerts only
-  // (data.stats.actionNeededCount, set at init time via a one-shot
-  // monitoring_alerts count). Badge hidden when count = 0.
-  const acCount = (data.stats && typeof data.stats.actionNeededCount === 'number')
-                ? data.stats.actionNeededCount : 0;
-  const navItems = [
-    { id: "dashboard",     label: "Dashboard",     icon: "dashboard",  active: true },
-    { id: "setup",         label: "My Setup",      icon: "setup" },
-    { id: "action-center", label: "Action Center", icon: "issues",
-      badge: acCount > 0 ? String(acCount) : null },
-    { id: "catalog",       label: "Catalog",       icon: "catalog",    soonLabel: "Soon" },
-    { id: "monitoring",    label: "Monitoring",    icon: "monitoring" },
-    { id: "reports",       label: "Reports",       icon: "reports" },
-    { id: "settings",      label: "Settings",      icon: "settings" }
-  ];
-
-  const navHTML = navItems.map(item => {
-    const badge = item.badge
-      ? `<span class="sb-badge">${item.badge}</span>`
-      : item.soonLabel
-        ? `<span class="sb-badge soon">${item.soonLabel}</span>`
-        : "";
-    return `
-      <a class="sb-link ${item.active ? 'active' : ''}" data-nav="${item.id}" href="#${item.id}">
-        ${ICONS[item.icon]}
-        <span class="sb-link-name">${item.label}</span>
-        ${badge}
-      </a>
-    `;
-  }).join("");
-
-  document.getElementById("sb-nav").innerHTML = navHTML;
-
-  // user pill
-  const initials = (data.user.fullName || "")
-    .split(/\s+/).map(s => s[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "U";
-
-  document.getElementById("sb-user").innerHTML = `
-    <div class="sb-user-avatar">${initials}</div>
-    <div class="sb-user-info">
-      <div class="sb-user-name">
-        ${escapeHtml(data.user.fullName)}
-        ${data.user.verified ? '<svg class="sb-user-verified" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" fill="none"/></svg>' : ''}
-      </div>
-      <div class="sb-user-plan">${escapeHtml(data.user.plan)}</div>
-    </div>
-  `;
-}
-
-// Sidebar upgrade card — profile-driven, not scan-driven, so it renders on
-// every init() path (including the no-scan empty state). Three outcomes:
-// pro → hidden; active trial → calm informational card, no CTA; otherwise
-// (paused / pre-trial) → "Activate Monitoring" CTA. The CTA carries
-// data-lock-cta so wireLockCTAs() smooth-scrolls it to #upgrade.
-function renderSidebarUpgrade(profile) {
-  const el = document.getElementById("sb-upgrade");
-  if (!el) return;
-
-  // Pro users have full active monitoring — no upgrade card at all.
-  if (profile.tier === "pro") {
-    el.style.display = "none";
-    return;
-  }
-  el.style.display = "";
-
-  const inTrial = profile.monitoring_status === "grace_period"
-    && profile.trial_started_at != null;
-
-  if (inTrial) {
-    el.innerHTML = `
-      <div class="sb-upgrade-state-trial">
-        <div class="sb-upgrade-badge">Founding Artist Trial Active</div>
-        <p class="sb-upgrade-body">Your backend is currently being actively monitored.</p>
-        <p class="sb-upgrade-context">Your audit is your snapshot. Monitoring watches what changes next.</p>
-      </div>
-    `;
-  } else {
-    el.innerHTML = `
-      <div class="sb-upgrade-state-paused">
-        <div class="sb-upgrade-badge">Monitoring Paused</div>
-        <p class="sb-upgrade-body">Your audit remains available. Continuous monitoring and change detection are currently inactive.</p>
-        <button class="sb-upgrade-cta" type="button" data-lock-cta>Activate Monitoring →</button>
-      </div>
-    `;
-  }
-}
-
-
-/* ─────────────────────────────────────────────
-   PAGE HEADER
-   ───────────────────────────────────────────── */
-
-function renderHeader(data) {
-  document.getElementById("artist-name").textContent = data.user.fullName;
-
-  // Brief 012b — em-dash unwired fields (monitoring.active, unresolvedCount).
-  const monitoring = data.monitoring || {};
-  const dot = document.getElementById("dss-monitoring-dot");
-  const monStatusEl = document.getElementById("dss-monitoring-status");
-  if (typeof monitoring.active === "boolean") {
-    monStatusEl.textContent = monitoring.active ? "Monitoring Active" : "Monitoring Inactive";
-    if (dot) dot.classList.toggle("active", monitoring.active);
-  } else {
-    monStatusEl.textContent = "—";
-    if (dot) dot.classList.remove("active");
-  }
-
-  const lastScan = data.recentScan && data.recentScan.dateLabel;
-  document.getElementById("dss-last-scan").textContent = lastScan || "—";
-
-  const changesN = typeof monitoring.unresolvedCount === "number" ? monitoring.unresolvedCount : null;
-  document.getElementById("dss-changes-text").textContent =
-    changesN == null
-      ? "— changes since last scan"
-      : changesN + " change" + (changesN === 1 ? "" : "s") + " since last scan";
-
-  const scoreVal = data.score && typeof data.score.value === "number" ? data.score.value : null;
-  document.getElementById("dss-health-score").textContent = scoreVal == null ? "—" : String(scoreVal);
-
-  const bell = document.getElementById("bell-count");
-  if (data.user.notifications > 0) {
-    bell.textContent = data.user.notifications;
-    bell.style.display = "flex";
-  } else {
-    bell.style.display = "none";
-  }
-}
-
-
-/* ─────────────────────────────────────────────
-   HERO BANNER (score ring + 3 stats)
-   ───────────────────────────────────────────── */
-
-function renderHeroBanner(data) {
-  const score = clamp(data.score.value, 0, 100);
-
-  // animate the score ring
-  const arc = document.getElementById("score-arc");
-  const circumference = 2 * Math.PI * 38; // r=38 → ~238.76
-  const offset = circumference - (circumference * score / 100);
-  // delay so the entrance fade plays first
-  setTimeout(() => {
-    arc.style.transition = "stroke-dashoffset 1.1s cubic-bezier(0.22,0.61,0.36,1)";
-    arc.style.strokeDashoffset = offset;
-  }, 250);
-
-  document.getElementById("score-val").textContent = score + "%";
-  document.getElementById("score-headline").textContent = data.score.headline;
-
-  // Gap-Based Exposure — compact hero-stat summary. OBSERVATIONAL ONLY: the
-  // tile never headlines a dollar figure. The locked framing is "operational
-  // observation, dollar range is supporting evidence" — a stat tile cannot
-  // carry that structure honestly, so the aggregate lives only in the full
-  // card below. The tile reports the gap count, nothing monetary.
-  const gbeHero  = data.gapExposure || {};
-  const stRev    = document.getElementById("stat-revenue");
-  const stTier   = document.getElementById("stat-revenue-tier");
-  const stConf   = document.getElementById("stat-revenue-conf");
-  if (!gbeHero.hasAnyGaps) {
-    if (stRev)  stRev.textContent = "No gaps detected";
-    if (stTier) { stTier.textContent = "Backend verified"; stTier.className = "hero-stat-sub low"; }
-    if (stConf) stConf.textContent = "";
-  } else {
-    const gapN = (gbeHero.indicators || []).length;
-    if (stRev)  stRev.textContent = gapN + " gap" + (gapN === 1 ? "" : "s") + " detected";
-    if (stTier) { stTier.textContent = "Revenue-relevant backend gaps"; stTier.className = "hero-stat-sub high"; }
-    if (stConf) stConf.textContent = gbeHero.pendingValidationCount > 0
-      ? gbeHero.pendingValidationCount + " pending validation" : "";
-  }
-
-  document.getElementById("stat-issues").textContent  = data.stats.issuesFound;
-  document.getElementById("stat-working").textContent = data.stats.thingsWorking;
-}
-
-
-/* ─────────────────────────────────────────────
-   ARTIST IDENTITY CARD (inside hero banner)
-   Renders artist name, resolved-from line, status,
-   and platform pills based on scan data.
-   ───────────────────────────────────────────── */
-
-function renderHeroIdentity(data) {
-  const id = data.identity || {};
-  const platforms = id.platforms || {};
-  const host = document.getElementById("hero-identity");
-  if (!host) return;
-
-  // Rule 6.1: artist name fallback
-  const displayName = (id.artistName && id.artistName.trim())
-    ? id.artistName
-    : "Artist detected.";
-
-  // resolved-from copy (Rule 6.5/6.6)
-  let resolvedFromText = "";
-  switch (id.resolvedFrom) {
-    case "spotify":            resolvedFromText = "Spotify"; break;
-    case "apple_music":        resolvedFromText = "Apple Music"; break;
-    case "spotify_from_apple": resolvedFromText = "Matched from Apple → Spotify"; break;
-    case "spotify_and_apple":  resolvedFromText = "Spotify + Apple Music"; break;
-    default:                   resolvedFromText = "—";
-  }
-
-  // status row (verified/limited/pending)
-  const isLimited = id.scanStatus === "limited" || id.resolvedFrom === "apple_music";
-  const statusText = id.scanStatus === "pending"
-    ? "Scan in progress"
-    : isLimited
-      ? "Limited scan complete"
-      : "Verified scan complete";
-  const statusIcon = id.scanStatus === "pending"
-    ? `<span class="pulse-dot"></span>`
-    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`;
-
-  // platform pills (Rule 6.3 / 6.4)
-  const pills = [];
-  if (platforms.spotify) {
-    pills.push(`<span class="hi-pill verified">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-      Spotify
-    </span>`);
-  }
-  if (platforms.appleMusic) {
-    pills.push(`<span class="hi-pill verified">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-      Apple Music
-    </span>`);
-  }
-
-  // amber fallback tag for Apple-only result (Rule 6.5)
-  const fallbackTag = id.resolvedFrom === "apple_music"
-    ? `<div class="hi-fallback">
-         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-         Limited Apple result
-       </div>`
-    : "";
-
-  // tiny avatar — image if provided, initials fallback otherwise
-  const initials = (id.artistName || "")
-    .split(/\s+/).map(s => s[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "?";
-  const avatarInner = id.artistImage
-    ? `<img src="${escapeHtml(id.artistImage)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'hi-avatar-initials',textContent:'${escapeHtml(initials)}'}))">`
-    : `<span class="hi-avatar-initials">${escapeHtml(initials)}</span>`;
-
-  // stale data banner (only when localStorage scan is older than 24h)
-  const staleBanner = id._staleHours
-    ? `<div class="hi-stale">
-         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-         Showing scan from ${escapeHtml(id._staleHours)} ago
-       </div>`
-    : "";
-
-  host.innerHTML = `
-    <div class="hi-name-row">
-      <div class="hi-avatar">${avatarInner}</div>
-      <div class="hi-name-stack">
-        <span class="hi-label">Artist</span>
-        <span class="hi-name" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</span>
-      </div>
-    </div>
-    <div class="hi-row">
-      <span class="hi-label">Resolved from</span>
-      <span class="hi-resolved">${escapeHtml(resolvedFromText)}</span>
-    </div>
-    <div class="hi-status ${isLimited ? 'limited' : ''}">
-      ${statusIcon}
-      ${escapeHtml(statusText)}
-    </div>
-    ${pills.length ? `<div class="hi-pills">${pills.join("")}</div>` : ""}
-    ${fallbackTag}
-    ${staleBanner}
-  `;
-}
-
-
-/* ─────────────────────────────────────────────
-   REVENUE-AT-RISK CARD (chart + headline)
-   Path B: chart paints severity tiers over time,
-   not fake dollar amounts.
-   ───────────────────────────────────────────── */
-
-// Gap-Based Exposure severity → icon + class (consistent with V3 Backend
-// Observations). Locked HIGH / MED / LOW vocabulary.
-const GBE_SEV = {
-  HIGH: { icon: "⚠", cls: "high", label: "HIGH" },
-  MED:  { icon: "◐", cls: "med",  label: "MED"  },
-  LOW:  { icon: "·", cls: "low",  label: "LOW"  },
-};
-
-// Renders the Gap-Based Exposure component into #gbe-body. Primary statement
-// is an operational observation; the aggregate is supporting evidence.
-// Unquantified indicators render "Exposure pending validation" — never a
-// fabricated dollar figure. Empty state is a calm green checkmark.
-function renderGapBasedExposure(gbe) {
-  const body = document.getElementById("gbe-body");
-  if (!body) return;
-  const g = gbe || { indicators: [], aggregateLow: null, aggregateHigh: null,
-                     pendingValidationCount: 0, hasAnyGaps: false };
-
-  if (!g.hasAnyGaps) {
-    body.innerHTML =
-      '<div class="gbe-empty">'
-      + '<div class="gbe-empty-check">✓</div>'
-      + '<div class="gbe-empty-title">No revenue-relevant backend gaps detected</div>'
-      + '<p class="gbe-empty-body">Your music’s backend infrastructure shows complete '
-      + 'verification across the detected ecosystem signals. Continue monitoring with '
-      + 'Royaltē OS to track changes and emerging gaps over time.</p>'
-      + '</div>';
-    return;
-  }
-
-  const hasAgg = g.aggregateLow != null && g.aggregateHigh != null;
-  let html =
-    '<p class="gbe-primary-statement">Revenue-relevant backend gaps detected across '
-    + 'multiple ecosystem signals.</p>'
-    + '<div class="gbe-aggregate">'
-    + '<div class="gbe-aggregate-label">Estimated combined exposure range</div>'
-    + (hasAgg
-        ? '<div class="gbe-aggregate-value">' + fmtMoney(g.aggregateLow) + ' – '
-          + fmtMoney(g.aggregateHigh) + ' annually</div>'
-        : '<div class="gbe-aggregate-value gbe-exposure-pending">Exposure pending validation</div>');
-  if (hasAgg && g.pendingValidationCount > 0) {
-    html += '<div class="gbe-aggregate-note">Additional exposure pending validation on '
-      + g.pendingValidationCount + ' indicator' + (g.pendingValidationCount === 1 ? '' : 's')
-      + '.</div>';
-  }
-  html += '</div><div class="gbe-divider"></div>';
-
-  for (const ind of (g.indicators || [])) {
-    const sev = GBE_SEV[ind.severity] || GBE_SEV.LOW;
-    const quantified = ind.exposureLow != null && ind.exposureHigh != null;
-    html += '<div class="gbe-indicator gbe-indicator-severity-' + sev.cls + '">'
-      + '<div class="gbe-indicator-head">'
-      + '<span class="gbe-indicator-icon">' + sev.icon + '</span>'
-      + '<span class="gbe-indicator-sev">' + sev.label + '</span>'
-      + '<span class="gbe-indicator-title">' + escapeHtml(rewordObservation(ind.title)) + '</span>'
-      + '</div>'
-      + '<div class="gbe-indicator-desc">' + escapeHtml(rewordObservation(ind.description)) + '</div>'
-      + (quantified
-          ? '<div class="gbe-exposure-value">Estimated exposure: ' + fmtMoney(ind.exposureLow)
-            + ' – ' + fmtMoney(ind.exposureHigh) + '/yr</div>'
-          : '<div class="gbe-exposure-pending">Exposure pending validation</div>')
-      + '</div>';
-  }
-
-  html += '<div class="gbe-divider"></div>'
-    + '<p class="gbe-disclaimer">Gap-based exposure derives from each detected gap '
-    + 'individually. Actual exposure depends on your distribution, registration, and '
-    + 'rights setup. Verify with your publisher, distributor, and PRO for full accounting.</p>';
-
-  body.innerHTML = html;
-}
-
-
-/* ─────────────────────────────────────────────
-   RECENT SCAN CARD
-   ───────────────────────────────────────────── */
-
-function renderRecentScan(data) {
-  document.getElementById("recent-scan-meta").textContent = data.recentScan.dateLabel;
-  document.getElementById("next-scan-date").textContent  = data.recentScan.nextDateLabel;
-}
-
-
-/* ─────────────────────────────────────────────
-   ISSUES LIST
-   ───────────────────────────────────────────── */
-
-function renderIssues(data) {
-  const issues = data.issues || [];
-  const VISIBLE = 3; // V1 lock: only show top 3
-  const preview = issues.slice(0, VISIBLE);
-
-  // total count from stats (may be larger than issues.length if backend caps the array)
-  const total = Math.max(data.stats.issuesFound || 0, issues.length);
-  const visibleShown = Math.min(preview.length, VISIBLE);
-  const hiddenCount = Math.max(0, total - visibleShown);
-
-  // pill format: "3 of 15"
-  const pill = document.getElementById("issues-count");
-  if (pill) {
-    pill.textContent = total > 0 ? `${visibleShown} of ${total}` : "0";
-  }
-
-  const html = preview.map(issue => `
-    <div class="issue-row" data-issue="${issue.id}">
-      <div class="issue-ico ${tierClass(issue.severity)}">
-        ${ICONS[issue.icon] || ICONS.issues}
-      </div>
-      <div class="issue-body">
-        <div class="issue-title">${escapeHtml(issue.title)}</div>
-        <div class="issue-desc">${escapeHtml(issue.desc)}</div>
-      </div>
-      <div class="issue-sev ${tierClass(issue.severity)}">${escapeHtml(severityLabel(issue.severity))}</div>
-      <div class="issue-impact">${escapeHtml(issue.impactLabel)}</div>
-    </div>
-  `).join("");
-
-  document.getElementById("issues-list").innerHTML = html;
-
-  // locked overflow row (replaces old "+ N more issues" footer)
-  const overflow = document.getElementById("issues-locked-overflow");
-  const overflowH = document.getElementById("issues-locked-h");
-  if (overflow && overflowH) {
-    if (hiddenCount > 0) {
-      overflowH.innerHTML = `🔒 ${hiddenCount} more issue${hiddenCount === 1 ? "" : "s"} hidden`;
-      overflow.style.display = "flex";
-    } else {
-      overflow.style.display = "none";
-    }
-  }
-}
-
-
-/* ─────────────────────────────────────────────
-   ACTION PLAN LIST
-   ───────────────────────────────────────────── */
-
-function renderActionPlan(data) {
-  const actions = data.actionPlan || [];
-
-  // V1 lock: action plan is always rendered as a blurred preview, with
-  // .action-locked-overlay sitting on top. We still render the rows so
-  // the blur looks like real content rather than empty space.
-  const html = actions.map(a => `
-    <div class="action-row" data-step="${a.step}">
-      <div class="action-num">${a.step}</div>
-      <div class="action-body">
-        <div class="action-title">${escapeHtml(a.title)}</div>
-        <div class="action-meta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/></svg>
-          ${escapeHtml(a.meta)}
-        </div>
-      </div>
-      <div class="action-pill ${tierClass(a.severity)}">${escapeHtml(severityLabel(a.severity))}</div>
-      <div class="action-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
-    </div>
-  `).join("");
-
-  document.getElementById("action-list").innerHTML = html;
-
-  // dynamic locked copy (shown by .action-locked-overlay)
-  const lockedD = document.getElementById("action-locked-d");
-  if (lockedD) {
-    const stepCount = actions.length || data.stats.issuesFound || 0;
-    lockedD.textContent = stepCount > 0
-      ? `${stepCount} step${stepCount === 1 ? "" : "s"} to address unclaimed setup issues — included in your Royaltē Review.`
-      : `Your full step-by-step plan to address unclaimed setup issues is in your Royaltē Review.`;
-  }
-}
-
-
-/* ─────────────────────────────────────────────
-   LOCK STRIP (between revenue row and issues row)
-   Surfaces dynamic counts of what's hidden + CTA.
-   ───────────────────────────────────────────── */
-
-function renderLockStrip(data) {
-  const strip = document.getElementById("lock-strip");
-  const desc  = document.getElementById("lock-strip-d");
-  if (!strip || !desc) return;
-
-  const totalIssues = Math.max(data.stats.issuesFound || 0, (data.issues || []).length);
-  const hiddenIssues = Math.max(0, totalIssues - 3);
-  const stepCount = (data.actionPlan || []).length;
-
-  const parts = [];
-  if (hiddenIssues > 0) parts.push(`<strong>${hiddenIssues} more issue${hiddenIssues === 1 ? "" : "s"}</strong>`);
-  if (stepCount > 0)    parts.push(`<strong>your ${stepCount}-step action plan</strong>`);
-  parts.push(`<strong>territory + sync detail</strong>`);
-
-  // graceful joiner: "A, B + C"
-  let body;
-  if (parts.length === 1) body = `Unlock ${parts[0]} with your Royaltē Review.`;
-  else if (parts.length === 2) body = `Unlock ${parts[0]} and ${parts[1]} with your Royaltē Review.`;
-  else body = `Unlock ${parts[0]}, ${parts[1]} and ${parts[parts.length - 1]} with your Royaltē Review.`;
-
-  desc.innerHTML = body;
-  strip.style.display = "flex";
-}
-
-
-/* ─────────────────────────────────────────────
-   PLATFORMS GRID
-   ───────────────────────────────────────────── */
-
-function renderPlatforms(data) {
-  // Brief 009 — show only platforms with a real verified status.
-  // Anything that would render as a letter-placeholder with no
-  // verified connection (e.g. Deezer on a sparse artist) is dropped.
-  const verified = (data.platforms || []).filter(
-    (p) => p && p.status === 'connected'
-  );
-  const total = (typeof data.platformsTotal === 'number')
-              ? data.platformsTotal
-              : verified.length;
-
-  const metaEl = document.getElementById("platforms-meta");
-  if (metaEl) metaEl.textContent = `Connected: ${verified.length} of ${total}`;
-
-  // logo content lookup (first letter / brand mark)
-  const LOGO_CHAR = {
-    spotify: "♪", apple: "", youtube: "▶",
-    soundcloud: "☁", tiktok: "♫"
-  };
-
-  const tiles = verified.map((p) => `
-    <div class="platform-tile" data-platform="${p.key}">
-      <div class="platform-logo ${p.key}">${LOGO_CHAR[p.key] || (p.name[0] || "?")}</div>
-      <div class="platform-name">${escapeHtml(p.name)}</div>
-      <div class="platform-status ${p.status}">Connected</div>
-    </div>
-  `).join("");
-
-  const gridEl = document.getElementById("platforms-grid");
-  if (!gridEl) return;
-
-  if (verified.length === 0) {
-    gridEl.innerHTML = `<div class="platform-tile" style="grid-column:1/-1;text-align:center;color:var(--muted2);font-size:13px;padding:18px;">No verified platform connections on this scan yet.</div>`;
-    return;
-  }
-
-  // "+N More Platforms" tile when the verified subset is less than total.
-  const remaining = Math.max(0, total - verified.length);
-  const moreTile = remaining > 0 ? `
-    <div class="platform-tile more">
-      <div class="platform-logo more">+${remaining}</div>
-      <div class="platform-name">More Platforms</div>
-      <div class="platform-status available">Available</div>
-    </div>
-  ` : "";
-
-  gridEl.innerHTML = tiles + moreTile;
-}
-
-
-/* ─────────────────────────────────────────────
-   INTERACTIONS
-   Wire up buttons — V1 uses console.log + alerts
-   as placeholders. V2 will wire to real routes.
-   ───────────────────────────────────────────── */
-
-function wireInteractions() {
-  // sidebar nav (V1: visual only — no routing)
-  document.getElementById("sb-nav").addEventListener("click", (e) => {
-    const link = e.target.closest("[data-nav]");
-    if (!link) return;
-    e.preventDefault();
-    document.querySelectorAll(".sb-link").forEach(el => el.classList.remove("active"));
-    link.classList.add("active");
-    // V2: route to /dashboard/{id}
-    console.log("[v1] nav →", link.dataset.nav);
-  });
-
-  // unlock CTAs — log which surface fired, then let the <a href="/#request"> navigate naturally
-  document.querySelectorAll("[data-unlock]").forEach(el => {
-    el.addEventListener("click", () => {
-      console.log("[v1] unlock CTA →", el.getAttribute("data-unlock"));
-    });
-  });
-
-  // issue / action / platform tile clicks (V1: log only)
-  document.body.addEventListener("click", (e) => {
-    const issue    = e.target.closest("[data-issue]");
-    const step     = e.target.closest("[data-step]");
-    const platform = e.target.closest("[data-platform]");
-    if (issue)    console.log("[v1] open issue", issue.dataset.issue);
-    // step rows live under the locked overlay — they're behind a blur and pointer-events:none on
-    // the preview, but we also short-circuit any leaked clicks just in case
-    if (step) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log("[v1] action step locked — redirecting to unlock");
-      window.location.href = "/#request";
-      return;
-    }
-    if (platform) console.log("[v1] manage platform", platform.dataset.platform);
-  });
-
-  // "View All Issues" / "Manage Connections" / etc. — log clicks (real links navigate via href)
-  document.querySelectorAll(".view-all, .manage-link, [data-jump]")
-    .forEach(btn => btn.addEventListener("click", () => {
-      console.log("[v1] CTA clicked:", btn.textContent.trim());
-    }));
-}
-
 
 /* ─────────────────────────────────────────────
    HELPERS
    ───────────────────────────────────────────── */
 
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
 
-function tierClass(tier) {
-  if (tier === "high") return "high";
-  if (tier === "medium" || tier === "med") return "med";
-  return "low";
+function formatScanDateShort(iso) {
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(d);
+  } catch { return '—'; }
 }
 
-function severityLabel(tier) {
-  if (tier === "high") return "High";
-  if (tier === "medium" || tier === "med") return "Medium";
-  return "Low";
+function formatMemberSince(iso) {
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(d);
+  } catch { return '—'; }
 }
 
-function escapeHtml(s) {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+function relativeTimePast(date) {
+  const ms = Date.now() - date.getTime();
+  if (ms < 36e5) return 'less than an hour ago';
+  const hours = Math.floor(ms / 36e5);
+  if (hours < 24) return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 14) return days === 1 ? '1 day ago' : `${days} days ago`;
+  const weeks = Math.floor(days / 7);
+  return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
 }
 
-// simple smooth path through points using midpoint averaging
-function smoothPath(points) {
-  if (points.length < 2) return "";
-  if (points.length === 2) return `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)} L ${points[1].x.toFixed(1)} ${points[1].y.toFixed(1)}`;
-  let d = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i];
-    const p1 = points[i + 1];
-    const cx = (p0.x + p1.x) / 2;
-    d += ` Q ${p0.x.toFixed(1)} ${p0.y.toFixed(1)} ${cx.toFixed(1)} ${((p0.y + p1.y) / 2).toFixed(1)}`;
+function relativeTimeFuture(date) {
+  const ms = date.getTime() - Date.now();
+  if (ms <= 0) return 'soon';
+  const days = Math.ceil(ms / 864e5);
+  return days === 1 ? 'in 1 day' : `in ${days} days`;
+}
+
+function relativeTimeShort(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const ms = Date.now() - d.getTime();
+  if (ms < 60e3) return 'just now';
+  if (ms < 36e5) return `${Math.floor(ms / 60e3)}m`;
+  if (ms < 864e5) return `${Math.floor(ms / 36e5)}h`;
+  if (ms < 30 * 864e5) return `${Math.floor(ms / 864e5)}d`;
+  return `${Math.floor(ms / (30 * 864e5))}mo`;
+}
+
+// Brief 015a Fix 1+2 — legacy-data graceful degradation. Prefers the
+// stored V2 health_score; falls back to (100 - V1 risk) for snapshots
+// that predate Brief 012a's V2 write path. Returns null (not 0) when
+// no usable signal exists — caller renders "—".
+function _resolveHealthScoreFromSnapshot(s) {
+  if (!s) return null;
+  if (typeof s.health_score === 'number') return s.health_score;
+  const p = s.payload || {};
+  if (typeof p.overallScore === 'number') {
+    return clamp(100 - p.overallScore, 0, 100);
   }
-  const last = points[points.length - 1];
-  d += ` T ${last.x.toFixed(1)} ${last.y.toFixed(1)}`;
-  return d;
-}
-
-
-/**
- * Transform a canonical AuditResponse (audit_scans.payload, schema v1.0.0)
- * into the dashboard data contract. This is the Chunk 3 load path — the
- * dashboard reads the user's latest scan from Supabase, not localStorage.
- * Reuses the shared mapping helpers below.
- *
- * @param {Object} canonical - audit_scans.payload (canonical AuditResponse)
- * @returns {DashboardData}
- */
-function mapCanonicalToDashboard(canonical) {
-  canonical = canonical || {};
-  const subject   = canonical.subject  || {};
-  const scoreObj  = canonical.score    || {};
-  const modules   = canonical.modules && typeof canonical.modules === "object" ? canonical.modules : {};
-  const platforms = canonical.platforms && typeof canonical.platforms === "object" ? canonical.platforms : {};
-  const issuesRaw = Array.isArray(canonical.issues) ? canonical.issues : [];
-
-  // ── score ────────────────────────────────────
-  const score = clamp(Math.round(Number(scoreObj.overall) || 0), 0, 100);
-  const scoreHeadline = headlineForScore(score);
-
-  // riskTier still drives the trend silhouette below — kept.
-  const riskTier = mapRiskTier(scoreObj.riskLevel || riskFromScore(score));
-
-  // ── Gap-Based Exposure — per-indicator revenue exposure straight from the
-  // canonical payload (replaces the Phase 2 audience-estimation model). The
-  // engine derives exposure from detected backend gaps; this is pass-through.
-  const gapExposure = canonical.gapBasedExposure || {
-    indicators: [], aggregateLow: null, aggregateHigh: null,
-    pendingValidationCount: 0, hasAnyGaps: false,
-  };
-
-  // ── stats ────────────────────────────────────
-  const issuesFound = issuesRaw.length;
-  const modScores = Object.values(modules).map(m => Number(m && m.score) || 0);
-  const thingsWorking = modScores.filter(s => s >= 75).length * 2;
-
-  // ── recent scan dates ────────────────────────
-  const scannedAt = canonical.scannedAt ? new Date(canonical.scannedAt) : new Date();
-  const next = new Date(scannedAt.getTime()); next.setDate(next.getDate() + 30);
-
-  // ── identity ─────────────────────────────────
-  const spotifyOk = (platforms.spotify    || {}).availability === "VERIFIED";
-  const appleOk   = (platforms.appleMusic || {}).availability === "VERIFIED";
-  let resolvedFrom = "spotify";
-  if (spotifyOk && appleOk)        resolvedFrom = "spotify_and_apple";
-  else if (appleOk && !spotifyOk)  resolvedFrom = "apple_music";
-  const identity = {
-    artistName:     subject.artistName || null,
-    artistImage:    null,
-    sourcePlatform: spotifyOk ? "spotify" : (appleOk ? "apple_music" : "spotify"),
-    resolvedFrom:   resolvedFrom,
-    platforms: { spotify: spotifyOk, appleMusic: appleOk },
-    scanStatus:     spotifyOk ? "verified" : (appleOk ? "limited" : "verified")
-  };
-
-  // ── trend (Path B: tier-based silhouette) ────
-  const trend = buildTrendFromCurrentTier(riskTier);
-
-  // ── issues + action plan ─────────────────────
-  const issues = issuesRaw.slice(0, 5).map((it, i) => {
-    const sev = normalizeSeverity(it.severity);
-    return {
-      id:          it.id || ("i" + (i + 1)),
-      title:       it.title || "Issue detected",
-      desc:        it.detail || it.title || "—",
-      severity:    sev,
-      impactLabel: impactLabelForSeverity(sev),
-      icon:        iconKeyForFlag(it)
-    };
-  });
-
-  const actionPlan = issuesRaw.slice(0, 5).map((it, i) => ({
-    step:     i + 1,
-    title:    actionTitleFromFlag(it),
-    meta:     it.moduleName || "—",
-    severity: normalizeSeverity(it.severity)
-  }));
-
-  // ── platforms grid ───────────────────────────
-  const PLAT_META = {
-    spotify:    { key: "spotify",    name: "Spotify" },
-    appleMusic: { key: "apple",      name: "Apple Music" },
-    youtube:    { key: "youtube",    name: "YouTube" },
-    soundcloud: { key: "soundcloud", name: "SoundCloud" },
-    deezer:     { key: "deezer",     name: "Deezer" },
-    tidal:      { key: "tidal",      name: "Tidal" }
-  };
-  const platformList = [];
-  Object.keys(PLAT_META).forEach(k => {
-    const p = platforms[k];
-    if (p && p.availability === "VERIFIED") {
-      platformList.push({ key: PLAT_META[k].key, name: PLAT_META[k].name, status: "connected" });
-    }
-  });
-  const platformsTotal = Object.keys(platforms).length || 15;
-
-  // ── final assembly ───────────────────────────
-  return {
-    user: {
-      fullName:  identity.artistName || "Artist",
-      plan:      "Free Scan",
-      verified:  identity.scanStatus === "verified",
-      notifications: 0
-    },
-    score: { value: score, headline: scoreHeadline },
-    gapExposure,
-    stats: { issuesFound, thingsWorking },
-    recentScan: {
-      dateLabel:     formatScanDate(scannedAt),
-      nextDateLabel: formatNextDate(next),
-      sourcesCount:  10
-    },
-    identity,
-    trend,
-    issues,
-    actionPlan,
-    platforms:  platformList,
-    platformsConnected: platformList.length,
-    platformsTotal:     platformsTotal
-  };
-}
-
-/* ── mapping helpers ──────────────────────────── */
-
-function pickFirst(values, fallback) {
-  for (const v of values) {
-    if (v !== undefined && v !== null && v !== "") return v;
-  }
-  return fallback;
-}
-
-/**
- * Look up the artist/album/track image URL across known shapes.
- * Order is intentional — exactly per spec.
- *   1. audit.imageUrl
- *   2. audit.artworkUrl
- *   3. audit.artistImageUrl
- *   4. audit.albumImageUrl
- *   5. audit.trackImageUrl
- *   6. audit.track?.album?.images?.[0]?.url
- *   7. audit.album?.images?.[0]?.url
- *   8. audit.artist?.images?.[0]?.url
- * Returns null if none yield a usable URL string → initials fallback.
- */
-function pickArtistImage(audit) {
-  if (!audit || typeof audit !== "object") return null;
-
-  const candidates = [
-    audit.imageUrl,
-    audit.artworkUrl,
-    audit.artistImageUrl,
-    audit.albumImageUrl,
-    audit.trackImageUrl,
-    audit.track && audit.track.album && audit.track.album.images && audit.track.album.images[0] && audit.track.album.images[0].url,
-    audit.album && audit.album.images && audit.album.images[0] && audit.album.images[0].url,
-    audit.artist && audit.artist.images && audit.artist.images[0] && audit.artist.images[0].url
-  ];
-
-  for (const c of candidates) {
-    if (typeof c === "string" && c.trim().length > 0) return c.trim();
+  if (p.score && typeof p.score.overall === 'number') {
+    return clamp(100 - p.score.overall, 0, 100);
   }
   return null;
 }
 
-
-function normalizeSeverity(s) {
-  s = String(s || "").toLowerCase();
-  if (s === "high"   || s === "critical") return "high";
-  if (s === "low"    || s === "info")     return "low";
-  return "medium";
+// Review Confidence label from a single scan — used by Card 6 donut
+// label AND Card 9 Your Royaltē Review subtitle. One helper, one
+// definition. Counts VERIFIED platforms across the 6 reviewed
+// sources (Apple, Spotify, YouTube, MusicBrainz, Discogs, LastFM).
+function _confidenceLabelForScan(scan) {
+  const p = (scan && scan.payload && scan.payload.platforms) || {};
+  const sources = ['appleMusic','spotify','youtube','musicbrainz','discogs','lastfm'];
+  const verified = sources.filter(k => p[k]?.availability === 'VERIFIED').length;
+  if (verified >= 3) return { label: 'High',     count: verified, total: sources.length };
+  if (verified >= 2) return { label: 'Moderate', count: verified, total: sources.length };
+  return                    { label: 'Limited',  count: verified, total: sources.length };
 }
 
-function mapRiskTier(v) {
-  if (typeof v === "number") {
-    if (v >= 70) return "high";
-    if (v >= 40) return "medium";
-    return "low";
+// Score band → display label + CSS class suffix.
+function _healthBand(score) {
+  if (score >= 90) return { label: 'Excellent',          cls: 'band-excellent' };
+  if (score >= 75) return { label: 'Strong',             cls: 'band-strong'    };
+  if (score >= 60) return { label: 'Moderate',           cls: 'band-moderate'  };
+  return                  { label: 'Review Recommended', cls: 'band-review'    };
+}
+
+// SVG sparkline path generator.
+function _sparkPath(values, opts = {}) {
+  const w = opts.width  || 200;
+  const h = opts.height || 32;
+  if (!Array.isArray(values) || values.length === 0) return '';
+  if (values.length === 1) {
+    const y = h - (values[0] / 100) * h;
+    return `M 0 ${y} L ${w} ${y}`;
   }
-  const s = String(v || "").toLowerCase();
-  if (s.includes("high"))   return "high";
-  if (s.includes("low"))    return "low";
-  return "medium";
+  const step = w / (values.length - 1);
+  return values.map((v, i) => {
+    const x = i * step;
+    const y = h - (clamp(v, 0, 100) / 100) * h;
+    return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(' ');
 }
 
-function riskFromScore(score) {
-  // inverse: lower score = higher risk
-  if (score < 50) return "high";
-  if (score < 75) return "medium";
-  return "low";
+// Donut CSS conic-gradient — purple fill for `pct`% of the ring.
+function _donutGradient(pct) {
+  const deg = clamp(pct, 0, 100) * 3.6;
+  return `conic-gradient(var(--pur-2) 0deg ${deg}deg,rgba(255,255,255,0.05) ${deg}deg)`;
 }
 
-/* ── Revenue Exposure helpers (Spotify-demotion Phase 2) ─────────── */
-
-// Compact USD formatting — $X / $XK / $X.XM.
-function fmtMoney(n) {
-  const v = Math.max(0, Math.round(Number(n) || 0));
-  if (v >= 1000000) return "$" + (v / 1000000).toFixed(v >= 10000000 ? 0 : 1) + "M";
-  if (v >= 1000)    return "$" + Math.round(v / 1000) + "K";
-  return "$" + v;
+// Brief 015a-rev3 Fix 1+2 — inline-style fallback for the colored icon
+// chips on feed items and status dots. The CSS classes still ship for
+// semantic clarity, but inline styles outclass CSS specificity so the
+// colors render even if the stylesheet doesn't load, is cached stale,
+// or is being overridden by something we haven't identified.
+const ICON_COLORS = Object.freeze({
+  green:  { bg: 'rgba(52,211,153,0.40)',  fg: '#34d399', border: 'rgba(52,211,153,0.55)' },
+  amber:  { bg: 'rgba(245,158,11,0.40)',  fg: '#f59e0b', border: 'rgba(245,158,11,0.55)' },
+  red:    { bg: 'rgba(239,68,68,0.40)',   fg: '#ef4444', border: 'rgba(239,68,68,0.55)' },
+  purple: { bg: 'rgba(138,92,255,0.40)',  fg: '#a78bfa', border: 'rgba(138,92,255,0.55)' },
+  blue:   { bg: 'rgba(96,165,250,0.40)',  fg: '#60a5fa', border: 'rgba(96,165,250,0.55)' },
+});
+// Brief 015b debug — color removed from inline style. When the chip's
+// inline `color` matched its background tint (e.g. both purple at 0.40
+// alpha), monochrome-emoji fallback glyphs were rendering invisible.
+// Background + border still ride inline so the chip itself outclasses
+// any CSS specificity issue; color is left to the CSS modifier classes.
+function _iconStyle(colorKey) {
+  const c = ICON_COLORS[colorKey] || ICON_COLORS.blue;
+  return `background:${c.bg};border:1px solid ${c.border};`;
+}
+// Translate the existing .is-X class suffix to our color key.
+function _iconColorKey(iconClass) {
+  if (!iconClass) return 'blue';
+  return iconClass.replace(/^is-/, '');
 }
 
-function impactLabelForSeverity(sev) {
-  if (sev === "high")   return "Significant exposure";
-  if (sev === "medium") return "Moderate exposure";
-  return "Limited exposure";
-}
-
-function headlineForScore(score) {
-  if (score >= 85) return "Your setup is solid";
-  if (score >= 70) return "Your setup needs improvement";
-  if (score >= 50) return "Multiple gaps detected";
-  return "Critical gaps detected";
-}
-
-function detectSourcePlatform(audit, platforms) {
-  if (audit.sourcePlatform) return String(audit.sourcePlatform).toLowerCase();
-  if (platforms.spotify    && platforms.spotify.found    !== false) return "spotify";
-  if (platforms.appleMusic && platforms.appleMusic.found !== false) return "apple_music";
-  if (platforms.apple      && platforms.apple.found      !== false) return "apple_music";
-  return "spotify";
-}
-
-function detectResolvedFrom(audit, platforms) {
-  if (audit.resolvedFrom) return audit.resolvedFrom;
-  const sp = !!(platforms.spotify    && platforms.spotify.found    !== false);
-  const ap = !!((platforms.appleMusic && platforms.appleMusic.found !== false) ||
-                (platforms.apple      && platforms.apple.found      !== false));
-  if (sp && ap) return "spotify_and_apple";
-  if (sp) return "spotify";
-  if (ap) return "apple_music";
-  return "spotify";
-}
-
-function detectScanStatus(audit) {
-  if (audit.scanStatus) return String(audit.scanStatus).toLowerCase();
-  // Apple-only scans have less data — flag as limited
-  const platforms = audit.platforms || {};
-  const sp = !!(platforms.spotify    && platforms.spotify.found    !== false);
-  const ap = !!((platforms.appleMusic && platforms.appleMusic.found !== false) ||
-                (platforms.apple      && platforms.apple.found      !== false));
-  if (!sp && ap) return "limited";
-  return "verified";
-}
-
-function iconKeyForFlag(f) {
-  const key = String((f && (f.category || f.type || f.code || f.title)) || "").toLowerCase();
-  if (key.includes("isrc"))     return "isrc";
-  if (key.includes("youtube") || key.includes("content id")) return "yt";
-  if (key.includes("publish")) return "pub";
-  if (key.includes("split"))   return "splits";
-  if (key.includes("tag") || key.includes("metadata")) return "tags";
-  return "isrc";
-}
-
-function actionTitleFromFlag(f) {
-  const t = String((f && (f.title || f.message || f.name)) || "").toLowerCase();
-  if (t.includes("isrc"))            return "Fix missing ISRCs (reduce revenue exposure)";
-  if (t.includes("content id"))      return "Claim YouTube Content ID (reduce revenue exposure)";
-  if (t.includes("publish"))         return "Link publishing to recordings";
-  if (t.includes("split"))           return "Review & update splits";
-  if (t.includes("tag") || t.includes("metadata")) return "Add editorial tags";
-  return f && f.title ? "Fix: " + f.title : "Review issue";
-}
-
-function buildTrendFromCurrentTier(tier) {
-  // V1: no historical data — paint a flat current-tier line
-  return [
-    { date: "Feb", tier },
-    { date: "Mar", tier },
-    { date: "Apr", tier },
-    { date: "May", tier },
-    { date: "Jun", tier },
-    { date: "Jul", tier }
-  ];
-}
-
-function formatScanDate(d) {
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const h = d.getHours();
-  const min = String(d.getMinutes()).padStart(2, "0");
-  const ampm = h >= 12 ? "PM" : "AM";
-  const h12 = ((h + 11) % 12) + 1;
-  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} · ${h12}:${min} ${ampm}`;
-}
-
-function formatNextDate(d) {
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-}
-
-
-/* ─────────────────────────────────────────────
-   INIT — auth-gated; loads the user's latest scan
-   ───────────────────────────────────────────── */
-
-function renderAll(data) {
-  // Brief 009 reset — removed: renderHeroBanner, renderHeroIdentity,
-  // renderGapBasedExposure, renderRecentScan, renderLockStrip,
-  // renderIssues, renderActionPlan. Their DOM was deleted from
-  // dashboard.html. The function definitions are kept (dead code,
-  // harmless) in case any other path references them. Health Score
-  // is rendered separately from init() so it can read from the
-  // raw scan_snapshots row (with .health_score / .score_breakdown).
-  renderSidebar(data);
-  renderHeader(data);
-  renderPlatforms(data);
-  wireInteractions();
-}
-
-// ── Brief 009: Health Score panel ────────────────────────────────
-// Reads scan_snapshots.health_score directly (set by Brief 002 delta
-// engine). Falls back to 100 − payload.overallScore for snapshots that
-// pre-date the V2 write path. score_breakdown jsonb is rendered as 4
-// sub-bars when present; the breakdown block stays hidden when it's
-// null (most users today — breakdown only populates on scans with a
-// prior baseline to compare against).
-function _healthBand(h) {
-  if (h >= 90) return { className: 'band-excellent', label: 'Excellent' };
-  if (h >= 75) return { className: 'band-strong',    label: 'Strong' };
-  if (h >= 60) return { className: 'band-moderate',  label: 'Moderate' };
-  return                  { className: 'band-review',    label: 'Review recommended' };
-}
-
-const _HEALTH_BUCKETS = [
-  { key: 'catalog_verification', max: 35 },
-  { key: 'big6_coverage',        max: 30 },
-  { key: 'backend_health',       max: 20 },
-  { key: 'youtube_presence',     max: 15 },
-];
-
-function renderHealthScore(scan) {
-  if (!scan) return;
-
-  // Compute health — prefer the persisted score from Brief 002's delta
-  // engine; fall back to inverting the canonical risk score. The
-  // canonical payload exposes the risk score as payload.score.overall
-  // (an object with overall / riskLevel / moduleAverage / etc.); older
-  // raw-shape snapshots used the flat payload.overallScore number.
-  // Read both shapes.
-  let health = null;
-  if (typeof scan.health_score === 'number') {
-    health = Math.max(0, Math.min(100, scan.health_score));
-  } else {
-    const p = scan.payload || {};
-    const overall = (p.score && typeof p.score.overall === 'number') ? p.score.overall
-                  : (typeof p.overallScore === 'number')              ? p.overallScore
-                  : null;
-    if (overall != null) {
-      health = Math.max(0, Math.min(100, 100 - overall));
+// Brief 015b Part 3 — match a feed alert against the latest scan's
+// Apple Music albums[]. Returns the artwork URL (with {w}x{h}
+// substituted) or null if no match.
+function _matchAlbumArtwork(alert, albums) {
+  if (!Array.isArray(albums) || albums.length === 0) return null;
+  const haystack = ((alert.track_name || '') + ' ' + (alert.title || '')).toLowerCase().trim();
+  if (!haystack) return null;
+  for (const a of albums) {
+    const name = (a?.name || '').toLowerCase().trim();
+    if (!name) continue;
+    if (haystack.includes(name) || name.includes(haystack)) {
+      const url = a?.artwork?.url;
+      if (!url) continue;
+      // Apple Music URL template uses {w}x{h}. 64×64 = 2× for retina at 32px.
+      return url.replace('{w}', '64').replace('{h}', '64');
     }
   }
-  if (health == null) return;
-
-  const band = _healthBand(health);
-  const circleEl = document.getElementById('hsc-circle');
-  if (circleEl) {
-    circleEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
-    circleEl.classList.add(band.className);
-  }
-  const numEl   = document.getElementById('hsc-num');
-  const lblEl   = document.getElementById('hsc-band-label');
-  if (numEl)   numEl.textContent   = String(health);
-  if (lblEl)   lblEl.textContent   = band.label;
-
-  // Last scan timestamp — prefer the scan_snapshots row timestamp;
-  // fall back to payload.scannedAt.
-  const lastEl = document.getElementById('hsc-last-scan');
-  if (lastEl) {
-    const ts = scan.scanned_at || scan.created_at || scan.payload?.scannedAt || null;
-    if (ts) {
-      const d = new Date(ts);
-      if (!isNaN(d.getTime())) {
-        lastEl.textContent = 'Last scan ' + relativeTimePast(d);
-      }
-    }
-  }
-
-  // Score breakdown — hide entirely when null/missing (per Brief 009
-  // founder direction). Show sub-bars when populated by the delta engine.
-  const bdEl = document.getElementById('hsc-breakdown');
-  if (!bdEl) return;
-  const bd = scan.score_breakdown || null;
-  if (!bd || typeof bd !== 'object' || Object.keys(bd).length === 0) {
-    bdEl.hidden = true;
-    return;
-  }
-  // Hide when every bucket is still at its max default — that's the
-  // "no comparable scan yet" state (Brief 002's computeScores
-  // initialises each bucket at max and only deducts on alerts; a
-  // baseline scan with no prior snapshot to diff against ends up
-  // all-at-max, which would otherwise render as "100% on everything"
-  // — misleading).
-  const allAtMax = _HEALTH_BUCKETS.every((b) => bd[b.key] === b.max);
-  if (allAtMax) {
-    bdEl.hidden = true;
-    return;
-  }
-  bdEl.hidden = false;
-  for (const bucket of _HEALTH_BUCKETS) {
-    const cell = bdEl.querySelector(`.hsc-bd-cell[data-key="${bucket.key}"]`);
-    if (!cell) continue;
-    const raw = (typeof bd[bucket.key] === 'number') ? bd[bucket.key] : null;
-    const fill = cell.querySelector('.hsc-bd-fill');
-    const val  = cell.querySelector('.hsc-bd-val');
-    if (raw == null) {
-      if (fill) fill.style.width = '0%';
-      if (val)  val.textContent  = '—';
-      continue;
-    }
-    const pct = Math.max(0, Math.min(100, (raw / bucket.max) * 100));
-    if (fill) fill.style.width = pct + '%';
-    if (val)  val.textContent  = raw + ' / ' + bucket.max;
-  }
+  return null;
 }
 
-// ── Brief 011: BIG 6 territory panel ──────────────────────────────
-// Reads scan.payload.platforms.appleMusic.details.storefrontAvailability
-// (the per-storefront {available, unavailable} buckets produced by
-// apple-music.js checkStorefrontAvailability). For each of the 7
-// territories the dashboard shows ✓ (all albums), ⚠ N of M, ✗ (none),
-// or — (storefront errored or data absent). Clicking a territory
-// toggles a drilldown showing which specific album names are
-// unavailable there (resolved against appleMusic.details.albums[]).
-const _BIG6_TERRITORIES = ['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au'];
-
-function renderBig6(scan) {
-  const card = document.getElementById('big6-card');
-  if (!card) return;
-
-  const am = (scan && scan.payload && scan.payload.platforms
-              && scan.payload.platforms.appleMusic
-              && scan.payload.platforms.appleMusic.details) || {};
-  const sfa = am.storefrontAvailability || null;
-  const albums = Array.isArray(am.albums) ? am.albums : [];
-  const albumNameById = Object.fromEntries(albums.map((a) => [a.id, a.name || a.id]));
-  const drilldown = document.getElementById('big6-drilldown');
-  const emptyEl = document.getElementById('big6-empty');
-
-  if (!sfa) {
-    // Older scan (pre-Brief-011) — no storefront data. Show empty state;
-    // territory rows stay disabled with "—".
-    if (emptyEl) emptyEl.hidden = false;
-    for (const sf of _BIG6_TERRITORIES) {
-      const btn = card.querySelector(`.big6-territory[data-storefront="${sf}"]`);
-      if (btn) btn.disabled = true;
-    }
-    return;
-  }
-  if (emptyEl) emptyEl.hidden = true;
-
-  for (const sf of _BIG6_TERRITORIES) {
-    const btn = card.querySelector(`.big6-territory[data-storefront="${sf}"]`);
-    const statusEl = card.querySelector(`.big6-status[data-status-for="${sf}"]`);
-    if (!btn || !statusEl) continue;
-
-    const data = sfa[sf];
-    statusEl.classList.remove('big6-ok','big6-partial','big6-none','big6-na');
-    btn.disabled = false;
-
-    if (!data || data.error) {
-      statusEl.textContent = '—';
-      statusEl.classList.add('big6-na');
-      btn.disabled = true;
-      continue;
-    }
-    const avail = (data.available || []).length;
-    const unavail = (data.unavailable || []).length;
-    const total = avail + unavail;
-    if (total === 0) {
-      statusEl.textContent = '—';
-      statusEl.classList.add('big6-na');
-      btn.disabled = true;
-    } else if (avail === total) {
-      statusEl.textContent = '✓';
-      statusEl.classList.add('big6-ok');
-      // No unavailable albums → keep button enabled for drilldown but
-      // there's nothing to show; leave clickable for symmetry.
-    } else if (avail === 0) {
-      statusEl.textContent = '✗';
-      statusEl.classList.add('big6-none');
-    } else {
-      statusEl.textContent = `⚠ ${avail}/${total}`;
-      statusEl.classList.add('big6-partial');
-    }
-  }
-
-  // Drilldown wiring — click a territory to show which albums are
-  // unavailable there. Same button click toggles closed.
-  card.querySelectorAll('.big6-territory').forEach((btn) => {
-    if (btn.dataset.big6Wired === '1') return;
-    btn.dataset.big6Wired = '1';
-    btn.addEventListener('click', () => {
-      const sf = btn.dataset.storefront;
-      const data = sfa[sf];
-      const wasOpen = btn.classList.contains('is-open');
-      card.querySelectorAll('.big6-territory.is-open').forEach((b) => b.classList.remove('is-open'));
-      if (wasOpen) {
-        if (drilldown) drilldown.hidden = true;
-        return;
-      }
-      btn.classList.add('is-open');
-      if (!drilldown) return;
-      if (!data || data.error) {
-        drilldown.innerHTML = `<div class="big6-drilldown-h">${escapeHtml(_big6Label(sf))}</div>
-          <p style="margin:0;">Data not available${data?.error ? ' — ' + escapeHtml(data.error) : ''}.</p>`;
-        drilldown.hidden = false;
-        return;
-      }
-      const unavail = (data.unavailable || []).map((id) => albumNameById[id] || id);
-      if (unavail.length === 0) {
-        drilldown.innerHTML = `<div class="big6-drilldown-h">${escapeHtml(_big6Label(sf))}</div>
-          <p style="margin:0;">All ${(data.available || []).length} albums available.</p>`;
-      } else {
-        const items = unavail.map((n) => `<li>${escapeHtml(n)}</li>`).join('');
-        drilldown.innerHTML = `<div class="big6-drilldown-h">${escapeHtml(_big6Label(sf))} — ${unavail.length} unavailable</div>
-          <ul class="big6-drilldown-list">${items}</ul>`;
-      }
-      drilldown.hidden = false;
-    });
-  });
-}
-
-// ── Brief 012: Action Center ──────────────────────────────────────
-// Two-source action item feed.
-//   Source 1: monitoring_alerts WHERE resolved=false AND severity IN
-//             ('action_needed','monitor') ORDER BY detected_at DESC.
-//   Source 2: appleMusic.details.storefrontAvailability — per-territory,
-//             one item per BIG 6 storefront whose unavailable[] > 0
-//             (cap 7 by definition).
-// Every item is action-grade and names a specific object (track /
-// territory / identifier / release). 0 items → empty-state message.
-
-const _AC_WHY_BY_CHANGE_TYPE = {
-  territory_loss:        "Listeners in this territory can no longer stream this release; affected royalties stop generating.",
-  isrc_dropped:          "Distributors and PROs may not be able to match streams to this track for royalty accounting.",
-  isrc_mismatch:         "The track's identifier changed between scans; royalty matching against prior data may break.",
-  release_removed:       "This release is no longer present on the platform; streams have stopped.",
-  video_removed:         "A confirmed YouTube match disappeared; monetization on that video has stopped.",
-  profile_missing:       "An artist profile detected previously is no longer present; metadata routing may be broken.",
-  metadata_changed:      "Catalog metadata changed since last scan; verify downstream systems picked up the update.",
+// Invoked by <img onerror=...> when album artwork fails to load.
+// Swaps the broken img element with the emoji icon fallback. Global
+// so it's reachable from inline onerror handlers built in renderMcFeed.
+window._mcFeedArtFallback = function(img) {
+  if (!img || !img.dataset) return;
+  const emoji = img.dataset.fallbackEmoji || '●';
+  const cls   = img.dataset.fallbackClass || 'is-blue';
+  const style = img.dataset.fallbackStyle || '';
+  const div = document.createElement('div');
+  div.className = `mc-feed-icon ${cls}`;
+  div.setAttribute('style', style);
+  div.textContent = emoji;
+  img.replaceWith(div);
 };
 
-const _AC_ICON_BY_CHANGE_TYPE = {
-  territory_loss:        '🌍',
-  isrc_dropped:          '🔑',
-  isrc_mismatch:         '⚠',
-  release_removed:       '📀',
-  video_removed:         '▶',
-  profile_missing:       '👤',
-  metadata_changed:      '✎',
-};
+// Intelligence Feed display mapper — change_type → user-facing copy.
+// LOCKED LANGUAGE per Brief 015: song-first, never system language.
+// Brief 015b — emoji replaces Tabler icon glyph (no CDN dependency).
+// iconClass still drives the colored background chip.
+function _feedDisplay(alert) {
+  const trackName = alert.track_name || alert.artist_name || 'Your catalog';
+  const territory = alert.territory ? String(alert.territory).toUpperCase() : '';
+  const platform  = alert.platform || '';
+  const t = alert.change_type;
 
-const _BIG6_LABEL = { us:'USA', ca:'Canada', gb:'UK', de:'Germany', fr:'France', jp:'Japan', au:'Australia' };
-
-function _acAlertItem(alert) {
-  const change = alert.change_type || '';
-  const why = _AC_WHY_BY_CHANGE_TYPE[change]
-    || "Royaltē OS detected a change that may affect royalty routing or distribution.";
-  const icon = _AC_ICON_BY_CHANGE_TYPE[change] || '⚠';
-  return {
-    sev:    alert.severity,                // 'action_needed' | 'monitor'
-    title:  alert.title || 'Monitoring alert',
-    detail: alert.detail || '',
-    why,
-    icon,
-    source: 'Monitoring alert',
-  };
-}
-
-function _acTerritoryItems(scan) {
-  // Per-territory items (cap 7). One per BIG 6 storefront with
-  // unavailable.length > 0. Albums named in the detail line.
-  const out = [];
-  const am = (scan && scan.payload && scan.payload.platforms
-              && scan.payload.platforms.appleMusic
-              && scan.payload.platforms.appleMusic.details) || {};
-  const sfa = am.storefrontAvailability || null;
-  if (!sfa) return out;
-  const albums = Array.isArray(am.albums) ? am.albums : [];
-  const nameById = Object.fromEntries(albums.map((a) => [a.id, a.name || a.id]));
-
-  for (const sf of ['us','ca','gb','de','fr','jp','au']) {
-    const data = sfa[sf];
-    if (!data || data.error) continue;
-    const unavail = Array.isArray(data.unavailable) ? data.unavailable : [];
-    if (unavail.length === 0) continue;
-
-    const country = _BIG6_LABEL[sf] || sf.toUpperCase();
-    const titles = unavail.map((id) => nameById[id] || id);
-    out.push({
-      sev:    'action_needed',
-      title:  `${unavail.length} release${unavail.length === 1 ? '' : 's'} unavailable in ${country}`,
-      detail: `Missing from Apple Music ${country} storefront: ${titles.join(' · ')}`,
-      why:    `Listeners in ${country} can't stream these releases; royalties not generated.`,
-      icon:   '🌍',
-      source: 'Territory gap',
-    });
+  const out = { title: '', sub: '', iconClass: 'is-purple', emoji: '●' };
+  switch (t) {
+    case 'territory_loss':
+      out.title = `${trackName} — No longer available in ${territory || 'a territory'}`;
+      out.sub = platform || 'territory change';
+      out.iconClass = 'is-amber'; out.emoji = '🌎';
+      break;
+    case 'territory_gain':
+      out.title = `${trackName} — Now available in ${territory || 'a new territory'}`;
+      out.sub = platform || 'territory change';
+      out.iconClass = 'is-green'; out.emoji = '🌎';
+      break;
+    case 'isrc_dropped':
+      out.title = `${trackName} — Identifier signal changed`;
+      out.sub = 'ISRC no longer detected from reviewed sources';
+      out.iconClass = 'is-amber'; out.emoji = '🔑';
+      break;
+    case 'isrc_added':
+      out.title = `${trackName} — Identifier verified`;
+      out.sub = 'ISRC confirmed';
+      out.iconClass = 'is-green'; out.emoji = '🔑';
+      break;
+    case 'isrc_mismatch':
+      out.title = `${trackName} — Identifier mismatch noted`;
+      out.sub = 'Cross-source ISRC values differ';
+      out.iconClass = 'is-amber'; out.emoji = '🔑';
+      break;
+    case 'release_added':
+      out.title = `${trackName} — New release detected`;
+      out.sub = platform || 'release';
+      out.iconClass = 'is-purple'; out.emoji = '🎵';
+      break;
+    case 'release_removed':
+      out.title = `${trackName} — Release no longer detected`;
+      out.sub = platform || 'release';
+      out.iconClass = 'is-amber'; out.emoji = '🎵';
+      break;
+    case 'video_added':
+      out.title = `${trackName} — YouTube match verified`;
+      out.sub = 'YouTube';
+      out.iconClass = 'is-green'; out.emoji = '🎥';
+      break;
+    case 'video_removed':
+      out.title = `${trackName} — YouTube match no longer detected`;
+      out.sub = 'YouTube';
+      out.iconClass = 'is-amber'; out.emoji = '🎥';
+      break;
+    case 'metadata_changed':
+      out.title = `${trackName} — Metadata change detected`;
+      out.sub = platform || 'metadata';
+      out.iconClass = 'is-amber'; out.emoji = '📋';
+      break;
+    case 'baseline_established':
+      out.title = 'Baseline established — monitoring now active';
+      out.sub = 'Royaltē OS';
+      out.iconClass = 'is-green'; out.emoji = '✓';
+      break;
+    case 'profile_missing':
+      out.title = `${trackName} — Profile missing`;
+      out.sub = platform || 'profile';
+      out.iconClass = 'is-amber'; out.emoji = '⚠';
+      break;
+    default:
+      out.title = `${trackName} — Change detected`;
+      out.sub = platform || territory || '';
   }
   return out;
 }
 
-async function renderActionCenter(scan, supabase, userId) {
-  const listEl  = document.getElementById('ac-list');
-  const emptyEl = document.getElementById('ac-empty');
-  const countEl = document.getElementById('ac-count');
-  if (!listEl) return;
-
-  // Source 1 — monitoring_alerts (per brief filter)
-  let alerts = [];
-  try {
-    const { data, error } = await supabase
-      .from('monitoring_alerts')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('resolved', false)
-      .in('severity', ['action_needed', 'monitor'])
-      .order('detected_at', { ascending: false })
-      .limit(20);
-    if (error) console.warn('[action-center] alerts fetch failed:', error.message);
-    else alerts = data || [];
-  } catch (e) {
-    console.warn('[action-center] alerts fetch threw:', e.message);
-  }
-
-  // Source 2 — territory gaps from latest scan
-  const territoryItems = _acTerritoryItems(scan);
-
-  // Merge: monitoring alerts first (newest), then territory gaps.
-  const items = [
-    ...alerts.map(_acAlertItem),
-    ...territoryItems,
-  ];
-
-  // Card-header count badge — total items (both sources, both severities)
-  if (countEl) {
-    if (items.length > 0) {
-      countEl.textContent = String(items.length);
-      countEl.hidden = false;
-    } else {
-      countEl.hidden = true;
-    }
-  }
-
-  if (items.length === 0) {
-    listEl.innerHTML = '';
-    if (emptyEl) emptyEl.hidden = false;
-    return;
-  }
-  if (emptyEl) emptyEl.hidden = true;
-
-  listEl.innerHTML = items.map((it) => {
-    const sevLabel = it.sev === 'action_needed' ? 'Action needed' : 'Monitor';
-    return `
-      <div class="ac-item ac-${escapeHtml(it.sev)}">
-        <div class="ac-item-icon" aria-hidden="true">${escapeHtml(it.icon)}</div>
-        <div class="ac-item-body">
-          <p class="ac-item-title">${escapeHtml(it.title)}</p>
-          ${it.detail ? `<p class="ac-item-detail">${escapeHtml(it.detail)}</p>` : ''}
-          <p class="ac-item-why">${escapeHtml(it.why)}</p>
-        </div>
-        <div class="ac-item-meta">
-          <span class="ac-sev-badge ac-${escapeHtml(it.sev)}">${escapeHtml(sevLabel)}</span>
-          <span class="ac-source-tag">${escapeHtml(it.source)}</span>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-// One-shot Supabase count of UNRESOLVED action_needed alerts.
-// Used to set data.stats.actionNeededCount for the sidebar badge
-// (per Brief 012: badge counts action_needed only; monitor and
-// territory gaps are NOT counted in the sidebar badge).
-async function _countActionNeededAlerts(supabase, userId) {
-  try {
-    const { count, error } = await supabase
-      .from('monitoring_alerts')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('resolved', false)
-      .eq('severity', 'action_needed');
-    if (error) { console.warn('[action-center] sidebar count failed:', error.message); return 0; }
-    return count || 0;
-  } catch (e) {
-    console.warn('[action-center] sidebar count threw:', e.message);
-    return 0;
-  }
-}
-
-function _big6Label(sf) {
-  return {
-    us:'USA', ca:'Canada', gb:'UK', de:'Germany', fr:'France', jp:'Japan', au:'Australia'
-  }[sf] || sf.toUpperCase();
-}
-
-function renderEmptyState() {
-  // Only the scan-dependent content is swapped — the Welcome panel and the
-  // Pricing section live outside #scan-content and survive the empty state.
-  const target = document.getElementById("scan-content");
-  if (!target) return;
-  target.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:48vh;text-align:center;gap:14px;padding:40px;">
-      <h1 style="font-family:'Rajdhani',sans-serif;font-size:28px;text-transform:uppercase;letter-spacing:0.04em;margin:0;">No scans yet</h1>
-      <p style="opacity:0.7;margin:0;">Run your first catalog audit to see your dashboard.</p>
-      <a href="/" class="scan-btn">Run a scan</a>
-    </div>`;
-}
+/* ─────────────────────────────────────────────
+   LOADERS — preserved + new
+   ───────────────────────────────────────────── */
 
 async function loadLatestScan(supabase, userId) {
-  // Block D: the dashboard reads living backend state from scan_snapshots
-  // (latest by sequence_number) — the monitoring cron writes new snapshots
-  // there. Falls back to audit_scans for any user without a snapshot yet.
-  // TODO(post-Block-D): drop the audit_scans fallback once snapshot coverage
-  // is confirmed for all users (tracked in LAUNCH_CHECKLIST Block D follow-ups).
-  // Brief 009 — health_score + score_breakdown are required by the
-  // Health Score panel. scanned_at + artist_id + artist_name are V2
-  // columns added in Brief 001 and used by downstream code paths.
   const { data: snapshots, error } = await supabase
-    .from("scan_snapshots")
-    .select("id, payload, created_at, sequence_number, health_score, score_breakdown, scanned_at, artist_id, artist_name")
-    .eq("user_id", userId)
-    .order("sequence_number", { ascending: false })
+    .from('scan_snapshots')
+    .select('id, payload, created_at, sequence_number, health_score, score_breakdown, scanned_at, artist_id, artist_name')
+    .eq('user_id', userId)
+    .order('sequence_number', { ascending: false })
     .limit(1);
-  if (error) console.error("[dashboard] snapshot fetch failed", error);
+  if (error) console.error('[mc] snapshot fetch failed', error);
   if (snapshots && snapshots.length) return snapshots[0];
 
   const { data: scans, error: scanErr } = await supabase
-    .from("audit_scans")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
+    .from('audit_scans')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
     .limit(1);
   if (scanErr) {
-    console.error("[dashboard] scan fetch failed", scanErr);
+    console.error('[mc] scan fetch failed', scanErr);
     return null;
   }
   return (scans && scans.length) ? scans[0] : null;
 }
 
-function wireSignOut(supabase) {
-  const btn = document.getElementById("sign-out-btn");
-  if (!btn) return;
-  btn.addEventListener("click", async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (e) {
-      console.error("[dashboard] sign-out failed", e);
-    }
-    window.location.href = "/";
-  });
-}
-
 async function loadProfile(supabase, userId) {
   const fallback = {
-    tier: "free",
-    monitoring_status: "inactive",
+    tier: 'free',
+    monitoring_status: 'inactive',
     next_rescan_at: null,
     trial_started_at: null,
     founding_artist: false,
+    founding_artist_number: null,
+    created_at: null,
   };
   try {
     const { data, error } = await supabase
-      .from("profiles")
-      .select("tier, monitoring_status, next_rescan_at, trial_started_at, founding_artist")
-      .eq("id", userId)
+      .from('profiles')
+      .select('tier, monitoring_status, next_rescan_at, trial_started_at, founding_artist, founding_artist_number, created_at')
+      .eq('id', userId)
       .single();
     if (error || !data) return fallback;
     return data;
   } catch (e) {
-    console.error("[dashboard] profile read failed", e);
+    console.error('[mc] profile read failed', e);
     return fallback;
-  }
-}
-
-/* ── Block D — Monitoring section (tier + monitoring_status aware) ── */
-
-function relativeTimePast(date) {
-  const ms = Date.now() - date.getTime();
-  if (ms < 36e5) return "less than an hour ago";
-  const hours = Math.floor(ms / 36e5);
-  if (hours < 24) return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 14) return days === 1 ? "1 day ago" : `${days} days ago`;
-  const weeks = Math.floor(days / 7);
-  return weeks === 1 ? "1 week ago" : `${weeks} weeks ago`;
-}
-
-function relativeTimeFuture(date) {
-  const ms = date.getTime() - Date.now();
-  if (ms <= 0) return "soon";
-  const days = Math.ceil(ms / 864e5);
-  return days === 1 ? "in 1 day" : `in ${days} days`;
-}
-
-function changeLabel(c) {
-  const p = c.payload || {};
-  switch (c.change_type) {
-    case "issue_new":           return `New issue detected: ${p.title || "issue"}`;
-    case "issue_resolved":      return `Issue resolved: ${p.title || "issue"}`;
-    case "score_change":        return `Health score ${p.delta > 0 ? "improved" : "changed"}: ${p.from} → ${p.to}`;
-    case "revenue_risk_change": return `Revenue exposure: ${p.from} → ${p.to}`;
-    case "platform_change":     return `Platform ${p.to === "connected" ? "connected" : "disconnected"}: ${p.platform}`;
-    default:                    return "Change detected";
-  }
-}
-
-async function loadMonitoringState(supabase, userId, profile, latestScan) {
-  const section = document.getElementById("monitoring");
-  if (!section) return;
-
-  const activeEl   = section.querySelector(".monitoring-active");
-  const inactiveEl = section.querySelector(".monitoring-inactive");
-  const graceEl    = section.querySelector(".monitoring-grace");
-  const badge      = section.querySelector(".monitoring-status-badge");
-  [activeEl, inactiveEl, graceEl].forEach(el => { if (el) el.style.display = "none"; });
-
-  const isPro = profile.tier === "pro";
-
-  // Pro — continuous active monitoring.
-  if (isPro) {
-    if (badge) { badge.textContent = "Active"; badge.className = "monitoring-status-badge active"; }
-    if (activeEl) activeEl.style.display = "";
-
-    const lastEl = section.querySelector(".last-monitored");
-    if (lastEl && latestScan && latestScan.created_at) {
-      lastEl.textContent = "Last monitored " + relativeTimePast(new Date(latestScan.created_at));
-    }
-    const nextEl = section.querySelector(".next-rescan");
-    if (nextEl) {
-      nextEl.textContent = profile.next_rescan_at
-        ? "Next rescan " + relativeTimeFuture(new Date(profile.next_rescan_at))
-        : "Next rescan scheduled";
-    }
-
-    const listEl = section.querySelector("#recent-changes-list");
-    if (listEl) {
-      const since = new Date(Date.now() - 14 * 864e5).toISOString();
-      const { data: changes } = await supabase
-        .from("scan_changes")
-        .select("change_type, payload, created_at")
-        .eq("user_id", userId)
-        .gte("created_at", since)
-        .order("created_at", { ascending: false })
-        .limit(20);
-      if (changes && changes.length) {
-        listEl.innerHTML = changes.map(c =>
-          `<li><span class="change-text">${escapeHtml(changeLabel(c))}</span>` +
-          `<span class="change-when">${escapeHtml(relativeTimePast(new Date(c.created_at)))}</span></li>`
-        ).join("");
-      } else {
-        listEl.innerHTML = `<li class="change-empty">No changes detected yet — your backend is being watched.</li>`;
-      }
-    }
-    return;
-  }
-
-  // Free + inactive — monitoring spent, protection-loss messaging.
-  if (profile.monitoring_status === "inactive") {
-    if (badge) { badge.textContent = "Paused"; badge.className = "monitoring-status-badge inactive"; }
-    if (inactiveEl) inactiveEl.style.display = "";
-    const metaEl = section.querySelector(".inactive-meta");
-    if (metaEl && latestScan && latestScan.created_at) {
-      metaEl.textContent =
-        `Last monitored ${new Date(latestScan.created_at).toLocaleDateString()}. Continuous monitoring and change detection are currently inactive.`;
-    }
-    return;
-  }
-
-  // Free + grace_period (default) — subtle "active, next rescan in N days".
-  if (badge) { badge.textContent = "Active"; badge.className = "monitoring-status-badge grace"; }
-  if (graceEl) graceEl.style.display = "";
-  const graceNext = section.querySelector(".grace-next");
-  if (graceNext) {
-    graceNext.textContent = profile.next_rescan_at
-      ? "Next rescan " + relativeTimeFuture(new Date(profile.next_rescan_at))
-      : "Next rescan scheduled";
-  }
-}
-
-// Lock CTAs smooth-scroll to the in-dashboard #upgrade placeholder.
-// Pro users see no overlays, so these listeners are inert for them.
-// Block C swaps the scroll for real Stripe checkout — data-lock-cta
-// is the stable contract for that future swap.
-function wireLockCTAs() {
-  document.querySelectorAll("[data-lock-cta]").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const target = document.getElementById("upgrade");
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  });
-}
-
-/* ── Block D.2 — Trial activation + countdown ───────────────────── */
-
-// First-login trial activation. Signups land monitoring_status='inactive'
-// with no trial history; the 14-day trial starts the first time the user
-// opens the OS. Only flips inactive users with trial_started_at still null —
-// grace_period users (already in a trial) and anyone with a recorded trial
-// are skipped. On failure the user stays inactive and retries next load.
-async function activateTrialIfNeeded(supabase, userId, profile) {
-  if (profile.monitoring_status !== "inactive") return profile;
-  if (profile.trial_started_at != null) return profile;
-
-  const now = new Date();
-  const trialEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
-
-  try {
-    const { data, error } = await supabase
-      .from("profiles")
-      .update({
-        monitoring_status: "grace_period",
-        trial_started_at: now.toISOString(),
-        next_rescan_at: trialEnd.toISOString(),
-      })
-      .eq("id", userId)
-      .select("tier, monitoring_status, next_rescan_at, trial_started_at, founding_artist")
-      .single();
-    if (error || !data) {
-      console.error("[dashboard] trial activation failed", error);
-      return profile;
-    }
-    return data;
-  } catch (e) {
-    console.error("[dashboard] trial activation failed", e);
-    return profile;
-  }
-}
-
-// Calm trial countdown banner — shown only during an active trial
-// (grace_period + trial_started_at set). Hidden once the window lapses;
-// the cron flips the row to inactive, this is just a stale-data buffer.
-function renderTrialBanner(profile) {
-  const banner = document.getElementById("trial-banner");
-  if (!banner) return;
-
-  const inGrace = profile.monitoring_status === "grace_period";
-  const trialStarted = profile.trial_started_at != null;
-  if (!inGrace || !trialStarted) {
-    banner.style.display = "none";
-    return;
-  }
-
-  const trialEnd = new Date(profile.next_rescan_at);
-  const daysRemaining = Math.ceil((trialEnd - new Date()) / 864e5);
-  if (daysRemaining <= 0) {
-    banner.style.display = "none";
-    return;
-  }
-
-  const numEl = document.getElementById("trial-days-num");
-  if (numEl) numEl.textContent = String(daysRemaining);
-  const labelEl = document.getElementById("trial-days-label");
-  if (labelEl) labelEl.textContent = daysRemaining === 1 ? "day remaining" : "days remaining";
-  banner.style.display = "";
-}
-
-/* ── V5 Phase 2 — Welcome panel + Founding Artist pricing ───────── */
-
-function renderWelcomePanel(profile) {
-  const sub = document.getElementById("welcome-panel-sub");
-  if (!sub) return;
-  if (profile.founding_artist === true) {
-    sub.textContent = "Founding Artist Access — thank you for being early.";
-  } else if (profile.tier === "pro") {
-    sub.textContent = "Pro Member — your backend is actively monitored.";
-  } else {
-    sub.textContent = "Backend visibility, audit history, and ongoing monitoring — built for working artists.";
   }
 }
 
 async function loadReservation(supabase, userId) {
   try {
     const { data, error } = await supabase
-      .from("founding_artist_reservations")
-      .select("email, created_at")
-      .eq("user_id", userId)
+      .from('founding_artist_reservations')
+      .select('email, created_at')
+      .eq('user_id', userId)
       .maybeSingle();
-    if (error) { console.error("[dashboard] reservation read failed", error); return null; }
+    if (error) { console.error('[mc] reservation read failed', error); return null; }
     return data || null;
   } catch (e) {
-    console.error("[dashboard] reservation read failed", e);
+    console.error('[mc] reservation read failed', e);
     return null;
   }
 }
 
-function fillConfirmedState(confirmed, email) {
-  if (!confirmed) return;
-  const sub = confirmed.querySelector(".cta-confirmed-sub");
-  if (sub) sub.textContent = `We'll notify you when checkout opens. Reserved spot for ${email}.`;
-  confirmed.style.display = "";
-}
-
-function renderPricing(profile, reservation) {
-  const section = document.getElementById("pricing");
-  if (!section) return;
-  // Pro users already have full access — hide pricing entirely. A
-  // "Manage Subscription" replacement is Block C scope.
-  if (profile.tier === "pro") { section.style.display = "none"; return; }
-
-  const cta = document.getElementById("reserve-founding-artist");
-  const confirmed = document.getElementById("founding-artist-confirmed");
-  if (reservation) {
-    if (cta) cta.style.display = "none";
-    fillConfirmedState(confirmed, reservation.email);
-  } else {
-    if (cta) cta.style.display = "";
-    if (confirmed) confirmed.style.display = "none";
-  }
-}
-
-function wireReservationFlow(session) {
-  const cta = document.getElementById("reserve-founding-artist");
-  if (!cta) return;
-  cta.addEventListener("click", () => handleReserveClick(session, cta));
-}
-
-async function handleReserveClick(session, cta) {
-  // Block F Step 4 — admins may be viewing a synthetic preview state; never
-  // let a preview produce a real reservation write.
-  if (window.__royalteIsAdmin) { console.log("[admin] reservation skipped — preview mode"); return; }
-  const email = session?.user?.email;
-  const errEl = document.getElementById("founding-artist-error");
-  if (errEl) { errEl.style.display = "none"; errEl.textContent = ""; }
-  if (!email) {
-    if (errEl) { errEl.textContent = "Couldn't read your account email — please refresh and try again."; errEl.style.display = ""; }
-    return;
-  }
-
-  const originalText = cta.textContent;
-  cta.disabled = true;
-  cta.textContent = "Reserving…";
-
+async function _countActionNeededAlerts(supabase, userId) {
   try {
-    const resp = await fetch("/api/founding-artist/reserve", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + session.access_token,
-      },
-      body: JSON.stringify({ email }),
-    });
-    const data = await resp.json().catch(() => ({}));
-    if (!resp.ok || !data.success) {
-      throw new Error(data.error || ("HTTP " + resp.status));
-    }
-    // Success — flip to the confirmed state.
-    cta.style.display = "none";
-    fillConfirmedState(document.getElementById("founding-artist-confirmed"), email);
-  } catch (e) {
-    console.error("[dashboard] reservation failed", e);
-    cta.disabled = false;
-    cta.textContent = originalText;
-    if (errEl) {
-      errEl.textContent = "Couldn't reserve your spot — please try again in a moment.";
-      errEl.style.display = "";
-    }
-  }
+    const { count, error } = await supabase
+      .from('monitoring_alerts')
+      .select('id', { head: true, count: 'exact' })
+      .eq('user_id', userId)
+      .eq('resolved', false)
+      .eq('severity', 'action_needed');
+    if (error) { console.error('[mc] action count failed', error); return 0; }
+    return count || 0;
+  } catch (e) { console.error('[mc] action count failed', e); return 0; }
 }
 
-/* ── Block G.1 — Artist Footprint ───────────────────────────────── */
-
-/* ── V3 Section 1 — Backend Intelligence ─────────────────────────
-   The card reads the canonical payload directly. User-facing strings
-   are source-agnostic — no DSP/provider names in any rendered text. */
-
-// 5-tier ladder — Backend Confidence (STATUS hero, composite) and the
-// Global Listener Footprint base tier (Section 3). Locked thresholds.
-function getBackendConfidence(listeners, plays) {
-  const l = Number(listeners) || 0;
-  const p = Number(plays) || 0;
-  if (l >= 10000000 || p >= 1000000000)
-    return { label: "GLOBAL FOOTPRINT", desc: "Major catalog with verified global audience reach." };
-  if (l >= 1000000 || p >= 100000000)
-    return { label: "STRONG PRESENCE", desc: "Substantial cross-platform audience activity verified." };
-  if (l >= 100000 || p >= 10000000)
-    return { label: "EXPANDING", desc: "Growing audience footprint with multi-platform engagement." };
-  if (l >= 10000 || p >= 1000000)
-    return { label: "ESTABLISHED", desc: "Verified audience activity confirmed across multiple ecosystems." };
-  return { label: "EARLY-STAGE", desc: "Verified audience activity is still developing." };
+async function _countMonitorAlerts(supabase, userId) {
+  try {
+    const { count, error } = await supabase
+      .from('monitoring_alerts')
+      .select('id', { head: true, count: 'exact' })
+      .eq('user_id', userId)
+      .eq('resolved', false)
+      .eq('severity', 'monitor');
+    if (error) { console.error('[mc] monitor count failed', error); return 0; }
+    return count || 0;
+  } catch (e) { console.error('[mc] monitor count failed', e); return 0; }
 }
 
-// Confidence tier → color-state modifier class (polish #2).
-const CONFIDENCE_STATE = {
-  "GLOBAL FOOTPRINT": "strong", "STRONG PRESENCE": "strong",
-  "EXPANDING": "established", "ESTABLISHED": "established",
-  "EARLY-STAGE": "early",
-};
-
-// Global Listener Footprint — Backend Confidence ladder re-labelled with
-// intelligence-grade vocabulary (polish #8). AUDIENCE INTELLIGENCE only.
-const LISTENER_FOOTPRINT_LABELS = {
-  "GLOBAL FOOTPRINT": "GLOBAL ECOSYSTEM CONFIRMED",
-  "STRONG PRESENCE": "STRONG CROSS-ECOSYSTEM PRESENCE",
-  "EXPANDING": "MULTI-NETWORK CONFIRMED",
-  "ESTABLISHED": "VERIFIED AUDIENCE ACTIVITY",
-  "EARLY-STAGE": "LIMITED ACTIVITY SIGNAL",
-};
-
-// Verified Play History — 4-tier, intelligence-grade labels (polish #8).
-function getPlayHistoryTier(plays) {
-  const p = Number(plays) || 0;
-  if (p >= 1000000000) return "EXTENSIVE ACTIVITY VERIFIED";
-  if (p >= 10000000)   return "SUBSTANTIAL ACTIVITY VERIFIED";
-  if (p >= 100000)     return "VERIFIED ACTIVITY DETECTED";
-  return "ACTIVITY SIGNAL PENDING";
+// Brief 015a Fix 1 — SELECT now includes `payload` so the resolver can
+// fall back to V1 risk for legacy snapshots.
+async function loadScanHistory(supabase, userId) {
+  const { data, error } = await supabase
+    .from('scan_snapshots')
+    .select('id, health_score, scanned_at, payload')
+    .eq('user_id', userId)
+    .order('scanned_at', { ascending: true })
+    .limit(50);
+  if (error) { console.error('[mc] history fetch failed', error); return []; }
+  return data || [];
 }
 
-// Metadata / consistency / identifier helpers return a bare tier KEY; the
-// label maps below carry the displayed wording (polish #9). The bare key
-// also feeds the Intelligence Summary so it reads "strong metadata
-// integrity", not the redundant "strong integrity metadata integrity".
-function getMetadataIntegrityTier(score) {
-  if (score == null) return "PENDING";
-  if (score >= 90) return "VERIFIED";
-  if (score >= 70) return "STRONG";
-  if (score >= 50) return "MODERATE";
-  return "LIMITED";
+// Brief 015a-rev2 Fix 5 — fetch a wider window (20) so we can filter
+// baseline-artifact alerts client-side and still surface up to 5 real
+// post-baseline changes in the feed.
+async function loadAlertFeed(supabase, userId, fetchLimit = 20) {
+  const { data, error } = await supabase
+    .from('monitoring_alerts')
+    .select('change_type, severity, track_name, artist_name, territory, platform, detected_at, title, detail')
+    .eq('user_id', userId)
+    .order('detected_at', { ascending: false })
+    .limit(fetchLimit);
+  if (error) { console.error('[mc] feed fetch failed', error); return []; }
+  return data || [];
 }
-const METADATA_INTEGRITY_LABELS = {
-  VERIFIED: "VERIFIED INTEGRITY", STRONG: "STRONG INTEGRITY",
-  MODERATE: "MODERATE INTEGRITY", LIMITED: "LIMITED INTEGRITY",
-  PENDING: "PENDING VERIFICATION",
-};
 
-function getMetadataConsistencyTier(matchRate) {
-  if (matchRate == null) return "PENDING";
-  if (matchRate >= 85) return "VERIFIED";
-  if (matchRate >= 60) return "STRONG";
-  if (matchRate >= 30) return "MODERATE";
-  return "LIMITED";
+// Brief 015a-rev3 Fix 4 — baselineTimes is now passed in (queried once
+// per page load by _loadBaselineTimes against monitoring_alerts). The
+// previous in-alerts derivation failed when the baseline_established
+// marker fell outside the 20-row fetch window, leaving artifact alerts
+// visible. The dedicated query guarantees correctness regardless of how
+// many alerts the user has accumulated.
+//
+// Filter rule: a release_added alert whose detected_at is within 1 hour
+// of ANY baseline_established timestamp is treated as a baseline
+// artifact (from the first delta-engine run) and excluded.
+// baseline_established itself is kept — it IS a meaningful event.
+function _filterBaselineArtifacts(alerts, baselineTimes) {
+  if (!Array.isArray(alerts) || alerts.length === 0) return alerts;
+  if (!Array.isArray(baselineTimes) || baselineTimes.length === 0) return alerts;
+  const ONE_HOUR_MS = 60 * 60 * 1000;
+  return alerts.filter(a => {
+    if (a.change_type !== 'release_added') return true;
+    const t = new Date(a.detected_at).getTime();
+    if (Number.isNaN(t)) return true;
+    return !baselineTimes.some(bt => Math.abs(t - bt) <= ONE_HOUR_MS);
+  });
 }
-const METADATA_CONSISTENCY_LABELS = {
-  VERIFIED: "FULLY CONSISTENT", STRONG: "STRONG CONSISTENCY",
-  MODERATE: "MODERATE CONSISTENCY", LIMITED: "INCONSISTENCY DETECTED",
-  PENDING: "CONSISTENCY PENDING",
-};
 
-// Release Identifier Coverage — VERIFIED if a track ISRC is present or any
-// retained album carries ISRCs (the album path is G.2a — absent on main).
-function getReleaseIdentifierTier(payload) {
-  const trackIsrc = (payload && payload.subject && payload.subject.trackIsrc) || null;
-  const albums = ((payload && payload.catalog && payload.catalog.appleMusic) || {}).albums;
-  const anyAlbumIsrc = Array.isArray(albums)
-    && albums.some(a => a && Array.isArray(a.isrcs) && a.isrcs.length > 0);
-  return (trackIsrc != null || anyAlbumIsrc) ? "VERIFIED" : "PENDING";
+// For Card 4 "Last Change Detected" — exclude baseline_established too,
+// since the baseline marker is an inception event, not a "change".
+function _lastGenuineChangeAt(alerts, baselineTimes) {
+  const cleaned = _filterBaselineArtifacts(alerts, baselineTimes)
+    .filter(a => a.change_type !== 'baseline_established');
+  return cleaned.length > 0 ? cleaned[0].detected_at : null;
 }
-const IDENTIFIER_LABELS = {
-  VERIFIED: "IDENTIFIER VERIFIED", PARTIAL: "PARTIAL COVERAGE", PENDING: "IDENTIFIER PENDING",
-};
 
-// Verified Presence — security-audit-style assertions; only fired ones return.
-function getVerifiedPresenceAssertions(payload) {
-  const pf = (payload && payload.platforms) || {};
-  const v = (k) => (pf[k] || {}).availability === "VERIFIED";
-  const out = [];
-  if (v("appleMusic") || v("spotify")) out.push("Primary streaming catalog confirmed");
-  if (["lastfm", "deezer", "youtube", "soundcloud"].filter(v).length >= 2)
-    out.push("Audience activity validated across multiple ecosystems");
-  if (v("musicbrainz")) out.push("Industry metadata registry linked");
-  if (v("discogs")) out.push("Historical catalog records detected");
-  if (v("youtube")) out.push("Video distribution network confirmed");
+async function loadActionItems(supabase, userId, limit = 3) {
+  const { data, error } = await supabase
+    .from('monitoring_alerts')
+    .select('title, detail, severity, change_type')
+    .eq('user_id', userId)
+    .eq('resolved', false)
+    .in('severity', ['action_needed', 'monitor'])
+    .order('detected_at', { ascending: false })
+    .limit(limit);
+  if (error) { console.error('[mc] action items fetch failed', error); return []; }
+  return data || [];
+}
+
+async function loadAlertOverview(supabase, userId) {
+  const out = { total: 0, resolved: 0 };
+  try {
+    const totalResp = await supabase
+      .from('monitoring_alerts')
+      .select('id', { head: true, count: 'exact' })
+      .eq('user_id', userId);
+    out.total = totalResp.count || 0;
+
+    const resolvedResp = await supabase
+      .from('monitoring_alerts')
+      .select('id', { head: true, count: 'exact' })
+      .eq('user_id', userId)
+      .eq('resolved', true);
+    out.resolved = resolvedResp.count || 0;
+  } catch (e) { console.error('[mc] alert overview failed', e); }
   return out;
 }
 
-/* ── Observation rewording — 3-tier intelligence interpretation ───
-   The engine emits raw findings; this layer interprets them into
-   premium intelligence vocabulary. Tier 1 exact dictionary, Tier 2
-   parameterized regex, Tier 3 keyword sanitizer (source-name guard).
-   No future engine flag can leak a raw provider name to the card. */
+// Brief 015a-rev3 Fix 4 — loads every baseline_established detected_at
+// timestamp for the user. Separate query so the filter is correct even
+// when baseline_established lies outside the alert-feed fetch window.
+async function _loadBaselineTimes(supabase, userId) {
+  try {
+    const { data, error } = await supabase
+      .from('monitoring_alerts')
+      .select('detected_at')
+      .eq('user_id', userId)
+      .eq('change_type', 'baseline_established');
+    if (error) { console.error('[mc] baseline times fetch failed', error); return []; }
+    const times = (data || [])
+      .map(r => new Date(r.detected_at).getTime())
+      .filter(t => !Number.isNaN(t));
+    // Brief 015b Part 4 — diagnostic. Confirms the dedicated baseline
+    // query is returning timestamps. If empty, the artifact filter is
+    // a no-op and release_added entries will leak through.
+    console.log('[mc] baseline_established times loaded:', times.length, times);
+    return times;
+  } catch (e) { console.error('[mc] baseline times fetch failed', e); return []; }
+}
 
-// Tier 1 — exact-match dictionary (byte-exact, em-dash U+2014).
-const EXACT_REWORDS = {
-  "Genre metadata absent across major DSPs":
-    "Genre metadata absent across verified catalog network",
-  "No artist images found across major DSPs":
-    "Artist imagery missing across verified catalog surfaces",
-  "ISRC signal not detected on this track":
-    "Release identifier signal not detected on submitted track",
+async function loadMonitoringActive(supabase, userId) {
+  try {
+    const { data, error } = await supabase
+      .from('monitoring_subscriptions')
+      .select('active')
+      .eq('user_id', userId)
+      .limit(1);
+    if (error || !data || !data.length) return false;
+    return data[0].active === true;
+  } catch (e) { console.error('[mc] monitoring active fetch failed', e); return false; }
+}
 
-  "MusicBrainz presence not detected — coverage risk":
-    "Industry metadata registry not detected — coverage risk",
-  "Deezer presence not detected — coverage risk":
-    "Secondary streaming catalog not detected — coverage risk",
-  "AudioDB presence not detected — coverage risk":
-    "Editorial catalog reference not detected — coverage risk",
-  "Discogs presence not detected — coverage risk":
-    "Historical catalog database not detected — coverage risk",
-  "SoundCloud presence not detected — coverage risk":
-    "Independent catalog network not detected — coverage risk",
-  "Last.fm presence not detected — coverage risk":
-    "Audience verification network not detected — coverage risk",
-  "Wikipedia presence not detected — coverage risk":
-    "Editorial reference not detected — coverage risk",
-  "YouTube presence not detected — coverage risk":
-    "Video distribution network not detected — coverage risk",
-  "Apple Music presence not detected — coverage risk":
-    "Primary catalog network not detected — coverage risk",
+async function loadBaselinePdf(supabase, baselineSnapshot) {
+  if (!baselineSnapshot) return null;
+  try {
+    const { data } = await supabase
+      .from('audit_scans')
+      .select('pdf_url, pdf_status, created_at')
+      .eq('pdf_status', 'ready')
+      .order('created_at', { ascending: true })
+      .limit(1);
+    if (data && data.length) return data[0].pdf_url || null;
+  } catch (e) { console.error('[mc] baseline pdf fetch failed', e); }
+  return null;
+}
 
-  "ISRC not detected — performance royalty routing unverified":
-    "Release identifier not detected — performance royalty routing unverified",
-  "Genre metadata absent — sync and publishing discoverability risk":
-    "Genre metadata absent — sync and publishing discoverability limited",
-  "Not in MusicBrainz — publishing data cross-reference unavailable":
-    "Industry metadata registry not linked — cross-reference verification unavailable",
-  "High Last.fm play count — significant streaming history detected, PRO verification critical":
-    "Substantial audience activity detected — registration verification recommended",
-  "Track ISRC found on Spotify but not on Apple Music — cross-platform metadata discrepancy detected":
-    "Cross-platform release identifier discrepancy detected across catalog network",
+/* ─────────────────────────────────────────────
+   RENDERERS — Mission Control
+   ───────────────────────────────────────────── */
 
-  "No official YouTube channel detected — Content ID registration unverified":
-    "Video distribution channel not detected — content protection verification unavailable",
-  "Content ID monetisation status unverified":
-    "Content protection monetisation status unverified",
-  "YouTube scan unavailable — API key not configured or search returned no results":
-    "Video distribution scan unavailable — verification pending",
+function renderMcTopBar(artistName, scanDate) {
+  const nameEl = document.getElementById('tb-artist-name');
+  if (nameEl) nameEl.textContent = artistName || 'Artist';
+  const lastEl = document.getElementById('tb-last-scan');
+  if (lastEl) lastEl.textContent = scanDate ? relativeTimePast(new Date(scanDate)) : '—';
+}
 
-  "ISRC signal not detected":
-    "Release identifier signal not detected",
-  "Genre tags absent":
-    "Genre metadata absent",
-  "Not in MusicBrainz catalog":
-    "Industry metadata registry not linked",
-  "No Wikipedia presence — sync discoverability risk":
-    "Editorial reference unavailable — sync discoverability limited",
-  "Not found on Apple Music — cross-platform sync discoverability risk":
-    "Primary catalog network not detected — sync discoverability limited",
+function renderMcSidebar(profile) {
+  const faBox     = document.getElementById('sb-fa');
+  const faNumEl   = document.getElementById('sb-fa-num');
+  const faSinceEl = document.getElementById('sb-fa-since');
+  if (!faBox) return;
+  if (profile && profile.founding_artist === true) {
+    faBox.style.display = '';
+    if (faNumEl) faNumEl.textContent = profile.founding_artist_number != null ? `#${profile.founding_artist_number}` : '';
+    if (faSinceEl) faSinceEl.textContent = `Member Since ${formatMemberSince(profile.created_at)}`;
+  } else {
+    faBox.style.display = 'none';
+  }
+}
 
-  "Artist not found on Apple Music — potential distribution gap across the second-largest music streaming platform":
-    "Primary catalog network not detected — significant distribution gap across major streaming infrastructure",
-  "No Wikipedia presence detected — sync licensing teams often research artists on Wikipedia before licensing":
-    "Editorial reference unavailable — sync licensing discoverability limited",
-};
+// CARD 1 — Royaltē Health Score™
+// Score reading uses the resolver (so legacy snapshots still display).
+// Brief 015a-rev2 Fix 3 — delta only computes against a TRULY stored
+// baseline (not the V1 fallback). If baseline scan predates Brief 012a,
+// no fake delta — show "Baseline established" instead. Keeps Card 1 and
+// Card 9 in the same score family.
+function renderMcHealth(scan, history) {
+  const current        = _resolveHealthScoreFromSnapshot(scan);
+  const baselineStored = (history && history.length > 0 && typeof history[0].health_score === 'number')
+    ? history[0].health_score : null;
+  const delta = (current != null && baselineStored != null) ? (current - baselineStored) : null;
 
-// Tier 2 — parameterized regex; captures preserve interpolated values.
-const PATTERN_REWORDS = [
-  {
-    pattern: /^Catalog active for (\d+) years — extended royalty verification recommended$/,
-    replace: m => `Catalog active for ${m[1]} years — extended verification recommended`,
-  },
-  {
-    pattern: /^Catalog active for (\d+) years — extended period of potential royalty exposure detected$/,
-    replace: m => `Catalog active for ${m[1]} years — extended exposure period detected`,
-  },
-  {
-    pattern: /^Catalog active for (\d+) years — multi-year royalty verification recommended$/,
-    replace: m => `Catalog active for ${m[1]} years — multi-year verification recommended`,
-  },
-  {
-    pattern: /^(\d+) MusicBrainz entries detected — possible duplicate profiles$/,
-    replace: m => `${m[1]} alternate industry metadata registry entries detected — potential identity fragmentation`,
-  },
-  {
-    pattern: /^No releases detected after (\d{4}) — catalog may be fragmented across accounts$/,
-    replace: m => `No releases detected after ${m[1]} — catalog fragmentation indicator`,
-  },
-  {
-    pattern: /^(\d+) user-uploaded video\(s\) detected with no official channel — potential unmonetised UGC exposure$/,
-    replace: m => `${m[1]} user-uploaded video(s) detected without verified distribution channel — unmonetised exposure indicator`,
-  },
-  {
-    pattern: /^~([\d,]+) views detected on UGC videos — significant unmonetised revenue risk$/,
-    replace: m => `~${m[1]} views detected on user-generated content — substantial unmonetised activity indicator`,
-  },
-  {
-    pattern: /^~([\d,]+) unmonetised UGC views detected on YouTube — Content ID registration recommended immediately$/,
-    replace: m => `~${m[1]} unmonetised user-generated views detected on video distribution network — content protection registration recommended`,
-  },
-  {
-    pattern: /^Only (\d+)% of top tracks matched on Apple Music — catalog gaps detected$/,
-    replace: m => `Only ${m[1]}% of top tracks verified on primary catalog network — cross-network catalog gaps detected`,
-  },
-  {
-    pattern: /^(\d+)% of top Spotify tracks not found on Apple Music — significant catalog distribution gap detected$/,
-    replace: m => `${m[1]}% of top tracks not verified on primary catalog network — significant cross-network distribution gap detected`,
-  },
-  {
-    pattern: /^(\d+) top track\(s\) missing from Apple Music — distribution gaps may be limiting revenue$/,
-    replace: m => `${m[1]} top track(s) missing from primary catalog network — distribution gap exposure indicator`,
-  },
-  {
-    pattern: /^([\d,]+) Last\.fm plays detected — significant historical streaming activity warrants full PRO audit$/,
-    replace: m => `${m[1]} verified historical plays detected — substantial activity warrants registration audit`,
-  },
-  {
-    pattern: /^(\d+) releases found on Discogs — physical catalog confirmed$/,
-    replace: m => `${m[1]} historical releases verified — physical catalog confirmed`,
-  },
+  const numEl    = document.getElementById('mc-score-num');
+  const circleEl = document.getElementById('mc-score-circle');
+  const bandEl   = document.getElementById('mc-score-band');
+  const descEl   = document.getElementById('mc-score-desc');
+  const deltaEl  = document.getElementById('mc-score-delta');
+  const sparkEl  = document.getElementById('mc-spark-health');
+
+  if (current == null) {
+    if (numEl)  numEl.textContent = '—';
+    if (bandEl) bandEl.textContent = 'Awaiting first scan';
+    if (descEl) descEl.textContent = 'Your Health Score appears after your first scan.';
+    if (deltaEl) deltaEl.innerHTML = '<i class="ti ti-minus"></i><span>—</span>';
+    return;
+  }
+
+  const band = _healthBand(current);
+  if (numEl)  numEl.textContent = String(current);
+  if (circleEl) {
+    circleEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
+    circleEl.classList.add(band.cls);
+  }
+  if (bandEl) {
+    bandEl.textContent = band.label;
+    bandEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
+    bandEl.classList.add(band.cls);
+  }
+  if (descEl) descEl.textContent = 'Your music business backend health, computed from verified sources.';
+
+  if (deltaEl) {
+    if (delta == null || history.length < 2) {
+      deltaEl.className = 'mc-score-delta is-neutral';
+      deltaEl.innerHTML = '<i class="ti ti-minus"></i><span>Baseline established</span>';
+    } else if (delta > 0) {
+      deltaEl.className = 'mc-score-delta';
+      deltaEl.innerHTML = `<i class="ti ti-trending-up"></i><span>+${delta} points since baseline</span>`;
+    } else if (delta < 0) {
+      deltaEl.className = 'mc-score-delta is-down';
+      deltaEl.innerHTML = `<i class="ti ti-trending-down"></i><span>${delta} points since baseline</span>`;
+    } else {
+      deltaEl.className = 'mc-score-delta is-neutral';
+      deltaEl.innerHTML = '<i class="ti ti-equal"></i><span>0 points since baseline</span>';
+    }
+  }
+
+  if (sparkEl) {
+    const values = (history && history.length)
+      ? history.map(h => _resolveHealthScoreFromSnapshot(h) ?? 0)
+      : [current];
+    sparkEl.innerHTML =
+      `<path d="${_sparkPath(values)}" stroke="var(--pur-2)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />` +
+      `<circle cx="200" cy="${(32 - (current/100)*32).toFixed(1)}" r="2.5" fill="var(--pur-2)" />`;
+    sparkEl.setAttribute('preserveAspectRatio', 'none');
+  }
+}
+
+// CARD 2 — Backend Status (Brief 015a Fix 4: explicit .is-green class)
+function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesCount }) {
+  const list = document.getElementById('mc-status-list');
+  if (!list) return;
+
+  const rows = [];
+
+  // Brief 015b Part 1 — CSS-only indicators. Outer .mc-status-dot
+  // carries the tinted ring (inline style fallback retained); inner
+  // .mc-pulse-dot / .mc-solid-dot is a pure-CSS colored circle with
+  // no font dependency.
+  const dotGreen = _iconStyle('green');
+  const dotAmber = _iconStyle('amber');
+  const dotRed   = _iconStyle('red');
+
+  // Row 1 — Monitoring status (green pulse when active, amber solid when paused)
+  rows.push(`
+    <div class="mc-status-row">
+      <div class="mc-status-dot ${monitoringActive ? 'green' : 'amber'}" style="${monitoringActive ? dotGreen : dotAmber}">
+        ${monitoringActive ? '<span class="mc-pulse-dot"></span>' : '<span class="mc-solid-dot amber"></span>'}
+      </div>
+      <div class="mc-status-text">
+        <div class="mc-status-title">${monitoringActive ? 'Monitoring Active' : 'Monitoring Paused'}</div>
+        <div class="mc-status-sub">${monitoringActive ? 'Your backend is being monitored 24/7' : 'Continuous monitoring is currently paused'}</div>
+      </div>
+    </div>
+  `);
+
+  // Row 2 — Critical Issues
+  if (criticalCount > 0) {
+    rows.push(`
+      <div class="mc-status-row">
+        <div class="mc-status-dot red" style="${dotRed}"><span class="mc-solid-dot red"></span></div>
+        <div class="mc-status-text">
+          <div class="mc-status-title">${criticalCount} Critical Issue${criticalCount === 1 ? '' : 's'}</div>
+          <div class="mc-status-sub">Requires attention</div>
+        </div>
+      </div>
+    `);
+  } else {
+    rows.push(`
+      <div class="mc-status-row">
+        <div class="mc-status-dot green" style="${dotGreen}"><span class="mc-solid-dot green"></span></div>
+        <div class="mc-status-text">
+          <div class="mc-status-title">No Critical Issues</div>
+          <div class="mc-status-sub">No problems detected</div>
+        </div>
+      </div>
+    `);
+  }
+
+  // Row 3 — Opportunities
+  if (opportunitiesCount > 0) {
+    rows.push(`
+      <div class="mc-status-row">
+        <div class="mc-status-dot amber" style="${dotAmber}"><span class="mc-solid-dot amber"></span></div>
+        <div class="mc-status-text">
+          <div class="mc-status-title">${opportunitiesCount} Opportunit${opportunitiesCount === 1 ? 'y' : 'ies'}</div>
+          <div class="mc-status-sub">Review recommended</div>
+        </div>
+      </div>
+    `);
+  } else {
+    rows.push(`
+      <div class="mc-status-row">
+        <div class="mc-status-dot green" style="${dotGreen}"><span class="mc-solid-dot green"></span></div>
+        <div class="mc-status-text">
+          <div class="mc-status-title">No Opportunities</div>
+          <div class="mc-status-sub">Nothing to review right now</div>
+        </div>
+      </div>
+    `);
+  }
+
+  list.innerHTML = rows.join('');
+}
+
+// CARD 3 — Intelligence Feed
+// Brief 015a-rev3 Fix 4 — baselineTimes passed in so the artifact
+// filter works regardless of fetch window.
+// Brief 015b Part 2 + 3 — emoji icon replaces Tabler glyph (no CDN
+// dependency); when a feed item matches an album in the latest
+// scan's appleMusic.albums[], the album artwork displays instead
+// of the emoji chip. img errors fall back to emoji via
+// window._mcFeedArtFallback.
+function renderMcFeed(alertsRaw, baselineTimes, albums) {
+  const list = document.getElementById('mc-feed-list');
+  if (!list) return;
+  const alerts = _filterBaselineArtifacts(alertsRaw || [], baselineTimes).slice(0, 5);
+
+  // TEMP DEBUG (Brief 015b) — writes the first item's icon shape to
+  // an on-page yellow line so we can see what the JS produced without
+  // DevTools. Remove with the corresponding <div id="mc-feed-debug">
+  // in dashboard.html once the icon issue is resolved.
+  const debugEl = document.getElementById('mc-feed-debug');
+  if (debugEl) {
+    const albumsN = Array.isArray(albums) ? albums.length : 0;
+    if (alerts.length === 0) {
+      debugEl.textContent = `Feed icon type: (no alerts) | Albums loaded: ${albumsN}`;
+    } else {
+      const firstAlert  = alerts[0];
+      const firstDisp   = _feedDisplay(firstAlert);
+      const firstArt    = _matchAlbumArtwork(firstAlert, albums);
+      debugEl.textContent =
+        `Feed icon type: ${firstArt ? 'img' : 'emoji'}` +
+        ` | First emoji: ${firstDisp.emoji}` +
+        ` | First class: ${firstDisp.iconClass}` +
+        ` | Albums loaded: ${albumsN}` +
+        ` | Alerts after filter: ${alerts.length}`;
+    }
+  }
+
+  if (alerts.length === 0) {
+    list.innerHTML = `<div class="mc-feed-empty">Your backend is being watched. Royaltē will surface activity here as it's detected.</div>`;
+    return;
+  }
+  list.innerHTML = alerts.map((a) => {
+    const d = _feedDisplay(a);
+    const when = relativeTimeShort(a.detected_at);
+    const iconStyle = _iconStyle(_iconColorKey(d.iconClass));
+    const artwork = _matchAlbumArtwork(a, albums);
+    let iconEl;
+    if (artwork) {
+      // img + emoji fallback via global error handler. data-fallback-*
+      // carry everything needed to rebuild the chip in place on failure.
+      iconEl = `<img class="mc-feed-art" src="${escapeHtml(artwork)}" alt="" loading="lazy" crossorigin="anonymous"`
+             + ` data-fallback-emoji="${escapeHtml(d.emoji)}"`
+             + ` data-fallback-class="${escapeHtml(d.iconClass)}"`
+             + ` data-fallback-style="${escapeHtml(iconStyle)}"`
+             + ` onerror="window._mcFeedArtFallback&&window._mcFeedArtFallback(this)">`;
+    } else {
+      iconEl = `<div class="mc-feed-icon ${escapeHtml(d.iconClass)}" style="${iconStyle}">${d.emoji}</div>`;
+    }
+    return `
+      <div class="mc-feed-item">
+        ${iconEl}
+        <div class="mc-feed-body">
+          <div class="mc-feed-title">${escapeHtml(d.title)}</div>
+          <div class="mc-feed-sub">${escapeHtml(d.sub)}</div>
+        </div>
+        <div class="mc-feed-time">${escapeHtml(when)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// CARD 4 — Catalog Intelligence (Brief 015a Change 1)
+function renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes) {
+  const am = scan?.payload?.platforms?.appleMusic?.details || {};
+  const albums = Array.isArray(am.albums) ? am.albums : [];
+  const tracks = albums.reduce((n, a) => n + (typeof a?.trackCount === 'number' ? a.trackCount : 0), 0);
+  const releases = albums.length || am.albumCount || 0;
+  const isrcVerified = !!am.isrcLookup?.isrc;
+  const p = scan?.payload?.platforms || {};
+  const sources = ['appleMusic','spotify','youtube','musicbrainz','discogs','lastfm']
+    .filter(k => p[k]?.availability === 'VERIFIED').length;
+  // Brief 015a-rev3 Fix 4 — baselineTimes passed in; exclude baseline
+  // artifacts AND the baseline marker itself.
+  const lastChangeAt = _lastGenuineChangeAt(feedAlerts, baselineTimes);
+  const lastChange = lastChangeAt
+    ? relativeTimePast(new Date(lastChangeAt))
+    : 'No changes detected yet';
+
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
+  set('mc-cat-tracks',   tracks);
+  set('mc-cat-releases', releases);
+  set('mc-cat-isrc',     isrcVerified ? 'Verified' : 'Pending verification');
+  set('mc-cat-sources',  `${sources} / 6`);
+  set('mc-cat-last',     lastChange);
+}
+
+// CARD 5 — Action Center
+function renderMcActionCenter({ items, totalCount }) {
+  const countEl = document.getElementById('mc-action-count');
+  const listEl  = document.getElementById('mc-action-list');
+  if (!countEl || !listEl) return;
+
+  if (totalCount === 0) {
+    countEl.className = 'mc-action-count is-good';
+    countEl.textContent = 'Nothing requires attention right now';
+    listEl.innerHTML = `<div class="mc-action-empty">You're in good shape. Royaltē has not detected any issues requiring action. Monitoring continues.</div>`;
+    return;
+  }
+
+  countEl.className = 'mc-action-count';
+  countEl.textContent = `${totalCount} item${totalCount === 1 ? '' : 's'} need your attention`;
+
+  listEl.innerHTML = items.map((it) => {
+    const sev = it.severity || 'monitor';
+    return `
+      <div class="mc-action-item sev-${escapeHtml(sev)}">
+        <div class="mc-action-row1">
+          <div class="mc-action-title">${escapeHtml(it.title || 'Action needed')}</div>
+          <span class="mc-action-badge sev-${escapeHtml(sev)}">${sev === 'action_needed' ? 'Action' : (sev === 'monitor' ? 'Monitor' : 'Info')}</span>
+        </div>
+        <div class="mc-action-sub">${escapeHtml(it.detail || '')}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// CARD 6 — Intelligence Confidence (Brief 015a Change 2)
+function renderMcIntelligenceConfidence(scan) {
+  const p = (scan && scan.payload && scan.payload.platforms) || {};
+  const v = (k) => p[k]?.availability === 'VERIFIED';
+  const conf = _confidenceLabelForScan(scan);
+  const pct = (conf.count / conf.total) * 100;
+
+  // Catalog Coverage — 3 catalog-bearing DSPs (Apple, Spotify, YouTube).
+  const catCount = ['appleMusic','spotify','youtube'].filter(v).length;
+  const catalogCoverage = catCount >= 3 ? 'High' : catCount >= 2 ? 'Moderate' : 'Limited';
+
+  // Publishing Visibility — MusicBrainz preferred, Spotify-only is Moderate.
+  const publishingVisibility = v('musicbrainz') ? 'Verified'
+    : v('spotify') ? 'Moderate' : 'Limited';
+
+  // Metadata Confidence — Apple+Spotify both = High, one = Moderate.
+  const appleAndSpotify = v('appleMusic') && v('spotify');
+  const oneOfTwo = v('appleMusic') || v('spotify');
+  const metadataConfidence = appleAndSpotify ? 'High' : (oneOfTwo ? 'Moderate' : 'Limited');
+
+  const donut    = document.getElementById('mc-donut');
+  const labelEl  = document.getElementById('mc-donut-label');
+  const srcEl    = document.getElementById('mc-profile-sources');
+  const catEl    = document.getElementById('mc-profile-catalog');
+  const pubEl    = document.getElementById('mc-profile-publishing');
+  const metEl    = document.getElementById('mc-profile-metadata');
+
+  if (donut)   donut.style.background = _donutGradient(pct);
+  if (labelEl) labelEl.textContent = conf.label;
+  if (srcEl)   srcEl.textContent = `${conf.count} / ${conf.total}`;
+  if (catEl)   catEl.textContent = catalogCoverage;
+  if (pubEl)   pubEl.textContent = publishingVisibility;
+  if (metEl)   metEl.textContent = metadataConfidence;
+}
+
+// CARD 7 — Global Presence
+// Brief 015b — Brazil added as the 8th market. Constant name kept as
+// BIG6 for legacy reach; the count is dynamic via BIG6.length.
+const BIG6 = [
+  { code:'us', name:'USA',       flag:'🇺🇸' },
+  { code:'ca', name:'Canada',    flag:'🇨🇦' },
+  { code:'gb', name:'UK',        flag:'🇬🇧' },
+  { code:'de', name:'Germany',   flag:'🇩🇪' },
+  { code:'fr', name:'France',    flag:'🇫🇷' },
+  { code:'jp', name:'Japan',     flag:'🇯🇵' },
+  { code:'au', name:'Australia', flag:'🇦🇺' },
+  { code:'br', name:'Brazil',    flag:'🇧🇷' },
 ];
 
-// Tier 3 — keyword sanitizer. Last line of defence for any unmapped or
-// future engine flag: strips source names so the card never leaks one.
-function keywordReword(detail) {
-  let reworded = detail;
-  const providers = [
-    [/\bMusicBrainz\b/g,  'industry metadata registry'],
-    [/\bApple Music\b/g,  'primary catalog network'],
-    [/\bSpotify\b/g,      'verified catalog network'],
-    [/\bLast\.fm\b/g,     'audience verification network'],
-    [/\bDeezer\b/g,       'secondary streaming catalog'],
-    [/\bDiscogs\b/g,      'historical catalog database'],
-    [/\bSoundCloud\b/g,   'independent catalog network'],
-    [/\bYouTube\b/g,      'video distribution network'],
-    [/\bWikipedia\b/g,    'editorial reference'],
-    [/\bAudioDB\b/g,      'editorial catalog reference'],
-  ];
-  const terms = [
-    [/\bUGC\b/g,                       'user-generated content'],
-    [/\bContent ID\b/g,                'content protection'],
-    [/\bPRO\b/g,                       'rights organization'],
-    [/\bDSP\b/g,                       'catalog network'],
-    [/\bDSPs\b/g,                      'catalog networks'],
-    [/\bAPI key\b/g,                   'verification credentials'],
-    [/\broyalty[- ]loss\b/gi,          'royalty exposure'],
-    [/\bmissing royalt(y|ies)\b/gi,    'royalty exposure indicator'],
-    [/\bunmonetised revenue risk\b/g,  'unmonetised activity indicator'],
-    [/\bcoverage risk\b/g,             'coverage gap'],
-    [/\bdiscoverability risk\b/g,      'discoverability limitation'],
-  ];
-  for (const [re, sub] of providers) reworded = reworded.replace(re, sub);
-  for (const [re, sub] of terms)     reworded = reworded.replace(re, sub);
-  return reworded;
+function renderMcGlobalPresence(scan) {
+  const sfa = scan?.payload?.platforms?.appleMusic?.details?.storefrontAvailability;
+  const grid = document.getElementById('mc-flag-grid');
+  const subEl = document.getElementById('mc-presence-sub');
+  if (!grid) return;
+
+  let verifiedN = 0;
+  const cells = BIG6.map(sf => {
+    const ent = sfa ? sfa[sf.code] : null;
+    let cls = '';
+    if (!ent || ent.error) cls = '';
+    else {
+      const avail = Array.isArray(ent.available) ? ent.available.length : 0;
+      const unavail = Array.isArray(ent.unavailable) ? ent.unavailable.length : 0;
+      if (avail > 0 && unavail === 0) { cls = 'is-verified'; verifiedN++; }
+      else if (avail > 0)             { cls = 'is-partial'; verifiedN++; }
+      else                             { cls = 'is-unavail'; }
+    }
+    return `<div class="mc-flag-cell ${cls}"><div class="mc-flag-emoji">${sf.flag}</div><div class="mc-flag-name">${escapeHtml(sf.name)}</div></div>`;
+  }).join('');
+  grid.innerHTML = cells;
+  if (subEl) subEl.textContent = `${verifiedN} of ${BIG6.length} regions verified`;
 }
 
-// 3-tier rewording entry point — Tier 1 exact, Tier 2 pattern, Tier 3 safety.
-function rewordObservation(detail) {
-  if (!detail || typeof detail !== 'string') return detail;
-  if (EXACT_REWORDS[detail]) return EXACT_REWORDS[detail];
-  for (const { pattern, replace } of PATTERN_REWORDS) {
-    const match = detail.match(pattern);
-    if (match) return replace(match);
+// CARD 8 (was 9) — Monitoring Overview
+function renderMcMonitoringOverview({ history, alertOverview }) {
+  const daysEl     = document.getElementById('mc-ovr-days');
+  const changesEl  = document.getElementById('mc-ovr-changes');
+  const resolvedEl = document.getElementById('mc-ovr-resolved');
+  if (!daysEl) return;
+
+  let days = 0;
+  if (history && history.length > 0 && history[0].scanned_at) {
+    const start = new Date(history[0].scanned_at).getTime();
+    days = Math.max(1, Math.floor((Date.now() - start) / 864e5) + 1);
   }
-  return keywordReword(detail);
+  daysEl.textContent = String(days);
+  if (changesEl)  changesEl.textContent  = String(alertOverview.total || 0);
+  if (resolvedEl) resolvedEl.textContent = String(alertOverview.resolved || 0);
 }
 
-// Top backend observations — from payload.issues (text + severity), reworded,
-// sorted by severity, capped. Canonical severity → icon/class (polish #5).
-function getTopObservations(payload, maxCount) {
-  const issues = Array.isArray(payload && payload.issues) ? payload.issues : [];
-  const rank = { CRITICAL: 0, HIGH: 1, WARNING: 2, INFO: 3 };
-  const sevClass = (sev) => {
-    if (sev === "CRITICAL") return { icon: "⚠", cls: "critical" };
-    if (sev === "HIGH")     return { icon: "⚠", cls: "high" };
-    if (sev === "WARNING")  return { icon: "◐", cls: "warning" };
-    return { icon: "·", cls: "info" };
+// CARD 9 — Your Royaltē Review (Brief 015a Change 3, swapped to position 9)
+//
+// Brief 015a-rev2 Fix 3 (revised) — when the baseline scan predates
+// Brief 012a it has no stored health_score, and the V1 fallback would
+// produce a misleading number (100 − risk = e.g. 25). Instead: show the
+// CURRENT scan's stored health_score so Card 1 and Card 9 always sit in
+// the same score family. Add the subtitle "Score reflects current data"
+// when we fall through to current. Card 1's delta also avoids the V1
+// fallback (see renderMcHealth) for the same consistency reason.
+function renderMcYourReview({ baseline, currentScan, pdfUrl, confidenceLabel }) {
+  const numEl  = document.getElementById('mc-review-num');
+  const dateEl = document.getElementById('mc-review-date');
+  const confEl = document.getElementById('mc-review-confidence');
+  const pdfBtn = document.getElementById('mc-review-pdf');
+
+  const setPdfDisabled = (disabled) => {
+    if (!pdfBtn) return;
+    if (disabled) { pdfBtn.removeAttribute('href'); pdfBtn.style.opacity = '0.5'; pdfBtn.style.pointerEvents = 'none'; }
+    else          { pdfBtn.style.opacity = ''; pdfBtn.style.pointerEvents = ''; }
   };
-  return issues
-    .slice()
-    .sort((a, b) => (rank[a.severity] == null ? 3 : rank[a.severity]) - (rank[b.severity] == null ? 3 : rank[b.severity]))
-    .slice(0, maxCount)
-    .map(it => {
-      const s = sevClass(it.severity);
-      return { text: rewordObservation(it.detail || it.title || ""), icon: s.icon, cls: s.cls };
-    });
-}
 
-// Bottom-of-card composed summary — operational, calm, never invented.
-// metadataKey is the BARE tier key so the sentence reads naturally.
-function buildIntelligenceSummary(verifiedCount, audienceTierLabel, metadataKey) {
-  if (verifiedCount === 0)
-    return "Royaltē backend verification pending — scan again for full intelligence report.";
-  const eco = verifiedCount === 1 ? "ecosystem" : "ecosystems";
-  return "Royaltē verified your backend across " + verifiedCount + " music " + eco
-    + " with " + audienceTierLabel.toLowerCase() + " audience presence and "
-    + metadataKey.toLowerCase() + " metadata integrity.";
-}
-
-// Backend Intelligence card (V3 Section 1). The DOM id #artist-footprint and
-// this function name are retained to avoid touching callers / admin preview.
-function renderArtistFootprint(payload) {
-  const card = document.getElementById("artist-footprint");
-  if (!card) return;
-
-  const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-
-  const p         = payload || {};
-  const metrics   = p.metrics || {};
-  const platforms = p.platforms || {};
-  const listeners = Number(metrics.lastfmListeners) || 0;
-  const plays     = Number(metrics.lastfmPlays) || 0;
-  const deezerFans = Number(metrics.deezerFans) || 0;
-
-  // ── Section 1 — STATUS ──────────────────────────────────────
-  const DOT_KEYS = ["appleMusic", "spotify", "lastfm", "deezer", "musicbrainz", "youtube", "discogs", "soundcloud"];
-  let verifiedCount = 0;
-  const dotsHtml = DOT_KEYS.map(k => {
-    const verified = (platforms[k] || {}).availability === "VERIFIED";
-    if (verified) verifiedCount++;
-    return '<span class="bi-dot ' + (verified ? "bi-dot-verified" : "bi-dot-unverified") + '"></span>';
-  }).join("");
-  const dotsEl = document.getElementById("bi-status-dots");
-  if (dotsEl) dotsEl.innerHTML = dotsHtml;
-  set("bi-status-counts", verifiedCount + " verified · " + (DOT_KEYS.length - verifiedCount) + " unverified");
-
-  const backend = getBackendConfidence(listeners, plays);
-  const tierEl = document.getElementById("bi-confidence-tier");
-  if (tierEl) {
-    tierEl.textContent = backend.label;
-    tierEl.className = "bi-confidence-tier bi-confidence-tier-" + (CONFIDENCE_STATE[backend.label] || "early");
+  if (!baseline) {
+    if (numEl)  numEl.textContent = '—';
+    if (dateEl) dateEl.textContent = 'No baseline yet';
+    if (confEl) confEl.textContent = 'Review Confidence: —';
+    setPdfDisabled(true);
+    return;
   }
 
-  // ── Section 2 — VERIFIED PRESENCE ───────────────────────────
-  const assertEl = document.getElementById("bi-assertion-list");
-  if (assertEl) {
-    const assertions = getVerifiedPresenceAssertions(p);
-    assertEl.innerHTML = assertions.length === 0
-      ? '<div class="bi-assertion pending"><span class="bi-assertion-node"></span>Backend verification pending — scan again for full intelligence report.</div>'
-      : assertions.map(a => '<div class="bi-assertion"><span class="bi-assertion-node"></span>' + escapeHtml(a) + '</div>').join("");
+  const baselineScore = typeof baseline.health_score === 'number' ? baseline.health_score : null;
+  const currentScore  = typeof currentScan?.health_score === 'number' ? currentScan.health_score : null;
+  const usingCurrent  = baselineScore == null && currentScore != null;
+  const scoreToShow   = baselineScore != null ? baselineScore : currentScore;
+
+  if (numEl)  numEl.textContent = scoreToShow == null ? '—' : String(scoreToShow);
+  if (dateEl) dateEl.textContent = `Generated ${formatScanDateShort(baseline.scanned_at)}`;
+  if (confEl) {
+    if (usingCurrent)              confEl.textContent = 'Score reflects current data';
+    else if (scoreToShow == null)  confEl.textContent = 'Review Confidence: —';
+    else                            confEl.textContent = `Review Confidence: ${confidenceLabel || '—'}`;
   }
-
-  // ── Section 3 — AUDIENCE INTELLIGENCE ───────────────────────
-  const footprintTier = getBackendConfidence(listeners, 0).label;
-  set("bi-row-listener-footprint", LISTENER_FOOTPRINT_LABELS[footprintTier] || footprintTier);
-  set("bi-row-play-history", getPlayHistoryTier(plays));
-  const ytSubs = Number(((platforms.youtube || {}).details || {}).subscriberCount) || 0;
-  set("bi-row-audience-signal", (deezerFans > 0 || ytSubs > 0)
-    ? "CROSS-ECOSYSTEM CONFIRMED" : "SINGLE-NETWORK ACTIVITY");
-
-  // ── Section 4 — METADATA & CATALOG ──────────────────────────
-  const catalog = p.catalog || {};
-  const appleDetails = (platforms.appleMusic || {}).details || {};
-  const appleAlbumCount = Number(appleDetails.albumCount);
-  const depth = Math.max(Number(catalog.totalReleases) || 0,
-    Number.isFinite(appleAlbumCount) ? appleAlbumCount : 0);
-  const depthCapped = Number.isFinite(appleAlbumCount) && appleAlbumCount === 25;
-  set("bi-row-catalog-depth", depth > 0
-    ? depth + (depthCapped ? "+" : "") + " verified releases"
-    : "PENDING VERIFICATION");
-
-  const metaScore = (p.modules && p.modules.metadata && p.modules.metadata.score != null)
-    ? p.modules.metadata.score : null;
-  const metadataKey = getMetadataIntegrityTier(metaScore);
-  set("bi-row-metadata-integrity", METADATA_INTEGRITY_LABELS[metadataKey]);
-
-  const identifierKey = getReleaseIdentifierTier(p);
-  set("bi-row-identifier-coverage", IDENTIFIER_LABELS[identifierKey] || identifierKey);
-
-  const matchRate = (appleDetails.catalogComparison || {}).matchRate;
-  const consistencyKey = getMetadataConsistencyTier(matchRate == null ? null : Number(matchRate));
-  set("bi-row-consistency", METADATA_CONSISTENCY_LABELS[consistencyKey]);
-
-  // ── Section 5 — BACKEND OBSERVATIONS ────────────────────────
-  const observations = getTopObservations(p, 5);
-  const obsHeader = document.getElementById("bi-observations-count");
-  const obsContainer = document.getElementById("bi-observations-container");
-  if (observations.length < 3) {
-    if (obsHeader) {
-      obsHeader.textContent = verifiedCount === 0
-        ? "✓ No backend data available yet"
-        : "✓ No backend issues detected";
-      obsHeader.className = "bi-section-header bi-no-issues";
-    }
-    if (obsContainer) obsContainer.innerHTML = "";
-  } else {
-    if (obsHeader) {
-      obsHeader.textContent = "⚠ " + observations.length + " Backend Observations";
-      obsHeader.className = "bi-section-header";
-    }
-    if (obsContainer) {
-      obsContainer.innerHTML = observations.map(o =>
-        '<div class="bi-observation bi-observation-' + o.cls + '">'
-        + '<span class="bi-obs-icon">' + o.icon + '</span>'
-        + '<span>' + escapeHtml(o.text) + '</span></div>'
-      ).join("");
-    }
-  }
-
-  // ── Section 6 — INTELLIGENCE SUMMARY ────────────────────────
-  set("bi-summary", buildIntelligenceSummary(verifiedCount, backend.label, metadataKey));
+  if (pdfUrl) { if (pdfBtn) pdfBtn.href = pdfUrl; setPdfDisabled(false); }
+  else        { setPdfDisabled(true); }
 }
 
-/* ── Block F Step 4 — Admin preview-state tooling ───────────────── */
+/* ─────────────────────────────────────────────
+   PRESERVED — auth, trial, reservation, lock CTAs
+   ───────────────────────────────────────────── */
 
-// Admin status is server-enforced: the admin_users RLS policy
-// (auth.uid() = user_id) returns the caller's own row only, so a
-// non-admin gets zero rows and this resolves false — it cannot be faked
-// from the frontend. State-mutating paths check window.__royalteIsAdmin.
+function wireSignOut(supabase) {
+  const btn = document.getElementById('sign-out-btn');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    try { await supabase.auth.signOut(); }
+    catch (e) { console.error('[mc] sign-out failed', e); }
+    window.location.href = '/';
+  });
+}
+
 async function checkAdminStatus(supabase, userId) {
   try {
     const { data, error } = await supabase
-      .from("admin_users")
-      .select("id")
-      .eq("user_id", userId)
+      .from('admin_users')
+      .select('id')
+      .eq('user_id', userId)
       .maybeSingle();
     if (error || !data) return false;
     return true;
-  } catch (err) {
-    console.error("[admin] check failed", err);
-    return false;
-  }
+  } catch (err) { console.error('[admin] check failed', err); return false; }
 }
 
-// Synthetic profile for ?preview_state= — render-only, never written back.
-// Returns null for an unknown key (caller leaves the real profile intact).
 function getSyntheticProfile(state) {
   const now = Date.now();
   const day = 24 * 60 * 60 * 1000;
   switch (state) {
-    case "trial_active":
-      return {
-        tier: "free", founding_artist: false, monitoring_status: "grace_period",
-        trial_started_at: new Date(now - 7 * day).toISOString(),
-        next_rescan_at:   new Date(now + 7 * day).toISOString(),
-      };
-    case "paused":
-      return {
-        tier: "free", founding_artist: false, monitoring_status: "inactive",
-        trial_started_at: new Date(now - 30 * day).toISOString(),
-        next_rescan_at:   null,
-      };
-    case "monthly_paid":
-      return {
-        tier: "pro", founding_artist: false, monitoring_status: "active",
-        trial_started_at: null,
-        next_rescan_at:   new Date(now + 7 * day).toISOString(),
-      };
-    case "founding_artist":
-      return {
-        tier: "pro", founding_artist: true, monitoring_status: "active",
-        trial_started_at: null,
-        next_rescan_at:   new Date(now + 7 * day).toISOString(),
-      };
-    case "pre_trial":
-      return {
-        tier: "free", founding_artist: false, monitoring_status: "inactive",
-        trial_started_at: null, next_rescan_at: null,
-      };
+    case 'trial_active':
+      return { tier:'free', founding_artist:false, monitoring_status:'grace_period',
+        trial_started_at:new Date(now - 7*day).toISOString(),
+        next_rescan_at:  new Date(now + 7*day).toISOString() };
+    case 'paused':
+      return { tier:'free', founding_artist:false, monitoring_status:'inactive',
+        trial_started_at:new Date(now - 30*day).toISOString(), next_rescan_at:null };
+    case 'monthly_paid':
+      return { tier:'pro', founding_artist:false, monitoring_status:'active',
+        trial_started_at:null, next_rescan_at:new Date(now + 7*day).toISOString() };
+    case 'founding_artist':
+      return { tier:'pro', founding_artist:true, monitoring_status:'active',
+        trial_started_at:null, next_rescan_at:new Date(now + 7*day).toISOString() };
+    case 'pre_trial':
+      return { tier:'free', founding_artist:false, monitoring_status:'inactive',
+        trial_started_at:null, next_rescan_at:null };
     default:
       return null;
   }
 }
 
+async function activateTrialIfNeeded(supabase, userId, profile) {
+  if (profile.monitoring_status !== 'inactive') return profile;
+  if (profile.trial_started_at != null) return profile;
+
+  const now = new Date();
+  const trialEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        monitoring_status: 'grace_period',
+        trial_started_at:  now.toISOString(),
+        next_rescan_at:    trialEnd.toISOString(),
+      })
+      .eq('id', userId)
+      .select('tier, monitoring_status, next_rescan_at, trial_started_at, founding_artist, founding_artist_number, created_at')
+      .single();
+    if (error || !data) { console.error('[mc] trial activation failed', error); return profile; }
+    return data;
+  } catch (e) { console.error('[mc] trial activation failed', e); return profile; }
+}
+
+function renderTrialBanner(profile) {
+  const banner = document.getElementById('trial-banner');
+  if (!banner) return;
+  const inGrace = profile.monitoring_status === 'grace_period';
+  const trialStarted = profile.trial_started_at != null;
+  if (!inGrace || !trialStarted) { banner.style.display = 'none'; return; }
+  const trialEnd = new Date(profile.next_rescan_at);
+  const daysRemaining = Math.ceil((trialEnd - new Date()) / 864e5);
+  if (daysRemaining <= 0) { banner.style.display = 'none'; return; }
+  const numEl = document.getElementById('trial-days-num');
+  if (numEl) numEl.textContent = String(daysRemaining);
+  const labelEl = document.getElementById('trial-days-label');
+  if (labelEl) labelEl.textContent = daysRemaining === 1 ? 'day remaining' : 'days remaining';
+  banner.style.display = '';
+}
+
+function fillConfirmedState(confirmed, email) {
+  if (!confirmed) return;
+  confirmed.textContent = `Reserved. We'll notify ${email} when checkout opens.`;
+  confirmed.style.display = '';
+}
+
+function renderPricing(profile, reservation) {
+  const section = document.getElementById('pricing');
+  if (!section) return;
+  if (profile.tier === 'pro' || profile.founding_artist === true) {
+    section.style.display = 'none'; return;
+  }
+  const cta = document.getElementById('reserve-founding-artist');
+  const confirmed = document.getElementById('founding-artist-confirmed');
+  if (reservation) {
+    if (cta) cta.style.display = 'none';
+    fillConfirmedState(confirmed, reservation.email);
+  } else {
+    if (cta) cta.style.display = '';
+    if (confirmed) confirmed.style.display = 'none';
+  }
+}
+
+function wireReservationFlow(session) {
+  const cta = document.getElementById('reserve-founding-artist');
+  if (!cta) return;
+  cta.addEventListener('click', () => handleReserveClick(session, cta));
+}
+
+async function handleReserveClick(session, cta) {
+  if (window.__royalteIsAdmin) { console.log('[admin] reservation skipped — preview mode'); return; }
+  const email = session?.user?.email;
+  const errEl = document.getElementById('founding-artist-error');
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+  if (!email) {
+    if (errEl) { errEl.textContent = "Couldn't read your account email — please refresh and try again."; errEl.style.display = ''; }
+    return;
+  }
+  const originalText = cta.textContent;
+  cta.disabled = true;
+  cta.textContent = 'Reserving…';
+  try {
+    const resp = await fetch('/api/founding-artist/reserve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ email }),
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || !data.success) throw new Error(data.error || ('HTTP ' + resp.status));
+    cta.style.display = 'none';
+    fillConfirmedState(document.getElementById('founding-artist-confirmed'), email);
+  } catch (e) {
+    console.error('[mc] reservation failed', e);
+    cta.disabled = false;
+    cta.textContent = originalText;
+    if (errEl) { errEl.textContent = "Couldn't reserve your spot — please try again in a moment."; errEl.style.display = ''; }
+  }
+}
+
+function wireLockCTAs() {
+  document.querySelectorAll('[data-lock-cta]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById('upgrade');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+/* ─────────────────────────────────────────────
+   INIT
+   ───────────────────────────────────────────── */
+
 async function init() {
-  // Auth gate — no active session means no dashboard. Redirect home.
   const supabase = getSupabase();
-  if (!supabase) { window.location.href = "/"; return; }
+  if (!supabase) { window.location.href = '/'; return; }
 
   let session = null;
   try {
     const res = await supabase.auth.getSession();
     session = res.data.session;
-  } catch (e) {
-    console.error("[dashboard] getSession failed", e);
-  }
-  if (!session) { window.location.href = "/"; return; }
+  } catch (e) { console.error('[mc] getSession failed', e); }
+  if (!session) { window.location.href = '/'; return; }
 
   wireSignOut(supabase);
 
-  // Block F Step 4 — admin status (server-enforced via admin_users RLS).
-  // The global flag gates state-mutating paths (reservation writes,
-  // activateTrialIfNeeded) so admin preview mode never touches real data.
   const isAdmin = await checkAdminStatus(supabase, session.user.id);
   window.__royalteIsAdmin = isAdmin;
 
-  // Profile drives tier gating (body class), the monitoring section, the
-  // welcome panel, and pricing. Defaults to free / grace_period on failure.
   let profile = await loadProfile(supabase, session.user.id);
-
-  // Block F Step 4 — admin ?preview_state= override. Synthetic profile,
-  // render-only, no DB writes. Ignored entirely for non-admins.
   if (isAdmin) {
-    const previewState = new URLSearchParams(location.search).get("preview_state");
+    const previewState = new URLSearchParams(location.search).get('preview_state');
     if (previewState) {
       const synthetic = getSyntheticProfile(previewState);
       if (synthetic) {
         profile = { ...profile, ...synthetic };
-        console.log("[admin] preview state:", previewState, profile);
+        console.log('[admin] preview state:', previewState, profile);
       }
     }
   }
-
-  // Block D.2 — start the 14-day trial on first OS login. Runs before any
-  // render so the welcome panel, trial banner, and monitoring section all
-  // see the activated state. Skipped for admins — they are not real
-  // customers, and a synthetic 'inactive' preview must never trigger the
-  // grace_period DB write inside activateTrialIfNeeded.
   if (!isAdmin) {
     profile = await activateTrialIfNeeded(supabase, session.user.id, profile);
   }
-  document.body.classList.add("tier-" + profile.tier);
+  document.body.classList.add('tier-' + profile.tier);
 
-  // Trial banner + sidebar upgrade render on every path (no scan needed).
-  // The welcome panel was removed in Brief 009 — the Health Score panel
-  // inside #scan-content now takes the top position.
+  renderMcSidebar(profile);
   renderTrialBanner(profile);
-  renderSidebarUpgrade(profile);
 
-  // Load the user's latest scan. Only #scan-content is scan-dependent.
-  const scan = await loadLatestScan(supabase, session.user.id);
-  if (!scan || !scan.payload) {
-    renderEmptyState();
-  } else {
-    // Brief 012 — pull the unresolved action_needed count up-front so
-    // renderSidebar can stamp it on the Action Center nav badge.
-    // Non-blocking on failure (returns 0).
-    const acNeededCount = await _countActionNeededAlerts(supabase, session.user.id);
-    const dashData = mapCanonicalToDashboard(scan.payload);
-    dashData.stats = dashData.stats || {};
-    dashData.stats.actionNeededCount = acNeededCount;
-    renderAll(dashData);
-    // Brief 009 — Health Score panel reads scan_snapshots.health_score
-    // directly (falls back to 100 - overallScore on snapshots from before
-    // the V2 write path); breakdown sub-bars hide when score_breakdown is
-    // null. Brief 009 also removed the V1 Backend Intelligence section
-    // (renderArtistFootprint) — no longer called.
-    renderHealthScore(scan);
-    // Brief 011 — BIG 6 territory panel reads
-    // scan.payload.platforms.appleMusic.details.storefrontAvailability
-    // (set on every new scan run-scan.js performs after Brief 011).
-    // Older snapshots render the empty state.
-    renderBig6(scan);
-    // Brief 012 — Action Center reads monitoring_alerts (action_needed +
-    // monitor severities, unresolved) and territory gaps from the latest
-    // scan's storefrontAvailability. Awaited so the items render before
-    // the user scrolls down.
-    await renderActionCenter(scan, supabase, session.user.id);
-    // Block D — Monitoring section (tier + monitoring_status aware).
-    await loadMonitoringState(supabase, session.user.id, profile, scan);
+  const [scan, history, monitoringActive, baselineTimes] = await Promise.all([
+    loadLatestScan(supabase, session.user.id),
+    loadScanHistory(supabase, session.user.id),
+    loadMonitoringActive(supabase, session.user.id),
+    _loadBaselineTimes(supabase, session.user.id),
+  ]);
 
-    // V2 OS — Backend Protection panel (Brief 004). Lazy-imported so a
-    // component-load failure can never block the V1 dashboard. The panel
-    // reads monitoring_alerts + monitoring_subscriptions via RLS — empty
-    // for users whose first authenticated scan has not yet hit the new
-    // V2 write path.
-    try {
-      const subject = (scan.payload && scan.payload.subject) || {};
-      const artistId = subject.artistId || null;
-      const artistName = subject.artistName || "";
-      if (artistId) {
-        const mod = await import("/components/backend-protection.js");
-        const panel = new mod.BackendProtectionPanel({
-          supabase,
-          artistId,
-          artistName,
-          containerId: "backend-protection-panel",
-        });
-        await panel.render();
-      }
-    } catch (e) {
-      console.warn("[backend-protection] init failed (non-fatal):", e);
-    }
+  const artistName = (scan && scan.artist_name) || (scan?.payload?.subject?.artistName) || (session.user?.email?.split('@')[0]) || 'Artist';
+  renderMcTopBar(artistName, scan?.scanned_at || scan?.created_at);
+
+  // Card 1 — Health Score
+  renderMcHealth(scan, history);
+
+  // Card 2 — Backend Status
+  const [criticalCount, opportunitiesCount] = await Promise.all([
+    _countActionNeededAlerts(supabase, session.user.id),
+    _countMonitorAlerts(supabase, session.user.id),
+  ]);
+  renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesCount });
+
+  // Card 3 — Intelligence Feed. albums[] from the latest scan flows
+  // into renderMcFeed so feed items matching a known release can show
+  // the Apple Music artwork instead of the emoji chip (Brief 015b).
+  const feedAlerts = await loadAlertFeed(supabase, session.user.id);
+  const albums = scan?.payload?.platforms?.appleMusic?.details?.albums || [];
+  // TEMP DEBUG (Brief 015b) — albums path diagnostic. Albums:0 in
+  // the on-page debug line could mean any link in the chain is missing.
+  console.log('[mc] albums for feed:', albums?.length, albums?.[0]?.name);
+  renderMcFeed(feedAlerts, baselineTimes, albums);
+  const _feedDebugEl = document.getElementById('mc-feed-debug');
+  if (_feedDebugEl) {
+    _feedDebugEl.textContent +=
+      ` | path: payload=${!!scan?.payload}` +
+      ` apple=${!!scan?.payload?.platforms?.appleMusic}` +
+      ` details=${!!scan?.payload?.platforms?.appleMusic?.details}` +
+      ` albums-arr=${Array.isArray(scan?.payload?.platforms?.appleMusic?.details?.albums)}`;
   }
 
-  // V5 Phase 2 — Founding Artist pricing + reservation flow. Renders on
-  // every path so a no-scan user still sees pricing.
+  // Card 4 — Catalog Intelligence (uses scan + latest GENUINE change)
+  renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes);
+
+  // Card 5 — Action Center
+  const actionItems = await loadActionItems(supabase, session.user.id, 3);
+  renderMcActionCenter({ items: actionItems, totalCount: criticalCount + opportunitiesCount });
+
+  // Card 6 — Intelligence Confidence
+  renderMcIntelligenceConfidence(scan);
+
+  // Card 7 — Global Presence
+  renderMcGlobalPresence(scan);
+
+  // Card 8 — Monitoring Overview (moved up per Brief 015a Change 4)
+  const alertOverview = await loadAlertOverview(supabase, session.user.id);
+  renderMcMonitoringOverview({ history, alertOverview });
+
+  // Card 9 — Your Royaltē Review (moved down, renamed per Brief 015a Change 3 + 4)
+  const baseline = (history && history.length > 0) ? history[0] : null;
+  const baselinePdfUrl = await loadBaselinePdf(supabase, baseline);
+  const confidence = _confidenceLabelForScan(baseline || scan);
+  renderMcYourReview({ baseline, currentScan: scan, pdfUrl: baselinePdfUrl, confidenceLabel: confidence.label });
+
+  // Below-grid conditional sections
   const reservation = await loadReservation(supabase, session.user.id);
   renderPricing(profile, reservation);
   wireReservationFlow(session);
 
-  // Wire lock CTAs after all gated sections are in the DOM.
   wireLockCTAs();
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
 } else {
   init();
 }
