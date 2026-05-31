@@ -168,70 +168,112 @@ function _iconColorKey(iconClass) {
   return iconClass.replace(/^is-/, '');
 }
 
+// Brief 015b Part 3 — match a feed alert against the latest scan's
+// Apple Music albums[]. Returns the artwork URL (with {w}x{h}
+// substituted) or null if no match.
+function _matchAlbumArtwork(alert, albums) {
+  if (!Array.isArray(albums) || albums.length === 0) return null;
+  const haystack = ((alert.track_name || '') + ' ' + (alert.title || '')).toLowerCase().trim();
+  if (!haystack) return null;
+  for (const a of albums) {
+    const name = (a?.name || '').toLowerCase().trim();
+    if (!name) continue;
+    if (haystack.includes(name) || name.includes(haystack)) {
+      const url = a?.artwork?.url;
+      if (!url) continue;
+      // Apple Music URL template uses {w}x{h}. 64×64 = 2× for retina at 32px.
+      return url.replace('{w}', '64').replace('{h}', '64');
+    }
+  }
+  return null;
+}
+
+// Invoked by <img onerror=...> when album artwork fails to load.
+// Swaps the broken img element with the emoji icon fallback. Global
+// so it's reachable from inline onerror handlers built in renderMcFeed.
+window._mcFeedArtFallback = function(img) {
+  if (!img || !img.dataset) return;
+  const emoji = img.dataset.fallbackEmoji || '●';
+  const cls   = img.dataset.fallbackClass || 'is-blue';
+  const style = img.dataset.fallbackStyle || '';
+  const div = document.createElement('div');
+  div.className = `mc-feed-icon ${cls}`;
+  div.setAttribute('style', style);
+  div.textContent = emoji;
+  img.replaceWith(div);
+};
+
 // Intelligence Feed display mapper — change_type → user-facing copy.
 // LOCKED LANGUAGE per Brief 015: song-first, never system language.
+// Brief 015b — emoji replaces Tabler icon glyph (no CDN dependency).
+// iconClass still drives the colored background chip.
 function _feedDisplay(alert) {
   const trackName = alert.track_name || alert.artist_name || 'Your catalog';
   const territory = alert.territory ? String(alert.territory).toUpperCase() : '';
   const platform  = alert.platform || '';
   const t = alert.change_type;
 
-  const out = { title: '', sub: '', iconClass: 'is-purple', iconName: 'ti-music' };
+  const out = { title: '', sub: '', iconClass: 'is-purple', emoji: '●' };
   switch (t) {
     case 'territory_loss':
       out.title = `${trackName} — No longer available in ${territory || 'a territory'}`;
       out.sub = platform || 'territory change';
-      out.iconClass = 'is-amber'; out.iconName = 'ti-world';
+      out.iconClass = 'is-amber'; out.emoji = '🌎';
       break;
     case 'territory_gain':
       out.title = `${trackName} — Now available in ${territory || 'a new territory'}`;
       out.sub = platform || 'territory change';
-      out.iconClass = 'is-green'; out.iconName = 'ti-world';
+      out.iconClass = 'is-green'; out.emoji = '🌎';
       break;
     case 'isrc_dropped':
       out.title = `${trackName} — Identifier signal changed`;
       out.sub = 'ISRC no longer detected from reviewed sources';
-      out.iconClass = 'is-amber'; out.iconName = 'ti-key';
+      out.iconClass = 'is-amber'; out.emoji = '🔑';
       break;
     case 'isrc_added':
       out.title = `${trackName} — Identifier verified`;
       out.sub = 'ISRC confirmed';
-      out.iconClass = 'is-green'; out.iconName = 'ti-key';
+      out.iconClass = 'is-green'; out.emoji = '🔑';
       break;
     case 'isrc_mismatch':
       out.title = `${trackName} — Identifier mismatch noted`;
       out.sub = 'Cross-source ISRC values differ';
-      out.iconClass = 'is-amber'; out.iconName = 'ti-key';
+      out.iconClass = 'is-amber'; out.emoji = '🔑';
       break;
     case 'release_added':
       out.title = `${trackName} — New release detected`;
       out.sub = platform || 'release';
-      out.iconClass = 'is-purple'; out.iconName = 'ti-music';
+      out.iconClass = 'is-purple'; out.emoji = '🎵';
       break;
     case 'release_removed':
       out.title = `${trackName} — Release no longer detected`;
       out.sub = platform || 'release';
-      out.iconClass = 'is-amber'; out.iconName = 'ti-music';
+      out.iconClass = 'is-amber'; out.emoji = '🎵';
       break;
     case 'video_added':
       out.title = `${trackName} — YouTube match verified`;
       out.sub = 'YouTube';
-      out.iconClass = 'is-green'; out.iconName = 'ti-video';
+      out.iconClass = 'is-green'; out.emoji = '🎥';
       break;
     case 'video_removed':
       out.title = `${trackName} — YouTube match no longer detected`;
       out.sub = 'YouTube';
-      out.iconClass = 'is-amber'; out.iconName = 'ti-video';
+      out.iconClass = 'is-amber'; out.emoji = '🎥';
       break;
     case 'metadata_changed':
       out.title = `${trackName} — Metadata change detected`;
       out.sub = platform || 'metadata';
-      out.iconClass = 'is-amber'; out.iconName = 'ti-database';
+      out.iconClass = 'is-amber'; out.emoji = '📋';
       break;
     case 'baseline_established':
       out.title = 'Baseline established — monitoring now active';
       out.sub = 'Royaltē OS';
-      out.iconClass = 'is-green'; out.iconName = 'ti-file-check';
+      out.iconClass = 'is-green'; out.emoji = '✓';
+      break;
+    case 'profile_missing':
+      out.title = `${trackName} — Profile missing`;
+      out.sub = platform || 'profile';
+      out.iconClass = 'is-amber'; out.emoji = '⚠';
       break;
     default:
       out.title = `${trackName} — Change detected`;
@@ -433,9 +475,14 @@ async function _loadBaselineTimes(supabase, userId) {
       .eq('user_id', userId)
       .eq('change_type', 'baseline_established');
     if (error) { console.error('[mc] baseline times fetch failed', error); return []; }
-    return (data || [])
+    const times = (data || [])
       .map(r => new Date(r.detected_at).getTime())
       .filter(t => !Number.isNaN(t));
+    // Brief 015b Part 4 — diagnostic. Confirms the dedicated baseline
+    // query is returning timestamps. If empty, the artifact filter is
+    // a no-op and release_added entries will leak through.
+    console.log('[mc] baseline_established times loaded:', times.length, times);
+    return times;
   } catch (e) { console.error('[mc] baseline times fetch failed', e); return []; }
 }
 
@@ -564,17 +611,19 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
 
   const rows = [];
 
-  // Each status dot now carries inline color styles in addition to its
-  // class — see ICON_COLORS / _iconStyle above. Bulletproof against any
-  // CSS that fails to load or is overridden.
-  const dotGreen  = _iconStyle('green');
-  const dotAmber  = _iconStyle('amber');
-  const dotRed    = _iconStyle('red');
+  // Brief 015b Part 1 — CSS-only indicators. Outer .mc-status-dot
+  // carries the tinted ring (inline style fallback retained); inner
+  // .mc-pulse-dot / .mc-solid-dot is a pure-CSS colored circle with
+  // no font dependency.
+  const dotGreen = _iconStyle('green');
+  const dotAmber = _iconStyle('amber');
+  const dotRed   = _iconStyle('red');
 
+  // Row 1 — Monitoring status (green pulse when active, amber solid when paused)
   rows.push(`
     <div class="mc-status-row">
-      <div class="mc-status-dot ${monitoringActive ? 'is-green' : 'is-amber'}" style="${monitoringActive ? dotGreen : dotAmber}">
-        <i class="ti ${monitoringActive ? 'ti-check' : 'ti-alert-triangle'}"></i>
+      <div class="mc-status-dot ${monitoringActive ? 'green' : 'amber'}" style="${monitoringActive ? dotGreen : dotAmber}">
+        ${monitoringActive ? '<span class="mc-pulse-dot"></span>' : '<span class="mc-solid-dot amber"></span>'}
       </div>
       <div class="mc-status-text">
         <div class="mc-status-title">${monitoringActive ? 'Monitoring Active' : 'Monitoring Paused'}</div>
@@ -583,10 +632,11 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
     </div>
   `);
 
+  // Row 2 — Critical Issues
   if (criticalCount > 0) {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot is-red" style="${dotRed}"><i class="ti ti-alert-circle"></i></div>
+        <div class="mc-status-dot red" style="${dotRed}"><span class="mc-solid-dot red"></span></div>
         <div class="mc-status-text">
           <div class="mc-status-title">${criticalCount} Critical Issue${criticalCount === 1 ? '' : 's'}</div>
           <div class="mc-status-sub">Requires attention</div>
@@ -596,7 +646,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   } else {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot is-green" style="${dotGreen}"><i class="ti ti-check"></i></div>
+        <div class="mc-status-dot green" style="${dotGreen}"><span class="mc-solid-dot green"></span></div>
         <div class="mc-status-text">
           <div class="mc-status-title">No Critical Issues</div>
           <div class="mc-status-sub">No problems detected</div>
@@ -605,10 +655,11 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
     `);
   }
 
+  // Row 3 — Opportunities
   if (opportunitiesCount > 0) {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot is-amber" style="${dotAmber}"><i class="ti ti-bulb"></i></div>
+        <div class="mc-status-dot amber" style="${dotAmber}"><span class="mc-solid-dot amber"></span></div>
         <div class="mc-status-text">
           <div class="mc-status-title">${opportunitiesCount} Opportunit${opportunitiesCount === 1 ? 'y' : 'ies'}</div>
           <div class="mc-status-sub">Review recommended</div>
@@ -618,7 +669,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   } else {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot is-green" style="${dotGreen}"><i class="ti ti-check"></i></div>
+        <div class="mc-status-dot green" style="${dotGreen}"><span class="mc-solid-dot green"></span></div>
         <div class="mc-status-text">
           <div class="mc-status-title">No Opportunities</div>
           <div class="mc-status-sub">Nothing to review right now</div>
@@ -630,10 +681,15 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   list.innerHTML = rows.join('');
 }
 
-// CARD 3 — Intelligence Feed (Brief 015a-rev3 Fix 4 — baselineTimes
-// passed in from init so the filter works even when the marker is
-// outside the alert-feed fetch window).
-function renderMcFeed(alertsRaw, baselineTimes) {
+// CARD 3 — Intelligence Feed
+// Brief 015a-rev3 Fix 4 — baselineTimes passed in so the artifact
+// filter works regardless of fetch window.
+// Brief 015b Part 2 + 3 — emoji icon replaces Tabler glyph (no CDN
+// dependency); when a feed item matches an album in the latest
+// scan's appleMusic.albums[], the album artwork displays instead
+// of the emoji chip. img errors fall back to emoji via
+// window._mcFeedArtFallback.
+function renderMcFeed(alertsRaw, baselineTimes, albums) {
   const list = document.getElementById('mc-feed-list');
   if (!list) return;
   const alerts = _filterBaselineArtifacts(alertsRaw || [], baselineTimes).slice(0, 5);
@@ -644,11 +700,23 @@ function renderMcFeed(alertsRaw, baselineTimes) {
   list.innerHTML = alerts.map((a) => {
     const d = _feedDisplay(a);
     const when = relativeTimeShort(a.detected_at);
-    // Inline-style fallback — see ICON_COLORS / _iconStyle.
     const iconStyle = _iconStyle(_iconColorKey(d.iconClass));
+    const artwork = _matchAlbumArtwork(a, albums);
+    let iconEl;
+    if (artwork) {
+      // img + emoji fallback via global error handler. data-fallback-*
+      // carry everything needed to rebuild the chip in place on failure.
+      iconEl = `<img class="mc-feed-art" src="${escapeHtml(artwork)}" alt="" loading="lazy" crossorigin="anonymous"`
+             + ` data-fallback-emoji="${escapeHtml(d.emoji)}"`
+             + ` data-fallback-class="${escapeHtml(d.iconClass)}"`
+             + ` data-fallback-style="${escapeHtml(iconStyle)}"`
+             + ` onerror="window._mcFeedArtFallback&&window._mcFeedArtFallback(this)">`;
+    } else {
+      iconEl = `<div class="mc-feed-icon ${escapeHtml(d.iconClass)}" style="${iconStyle}">${d.emoji}</div>`;
+    }
     return `
       <div class="mc-feed-item">
-        <div class="mc-feed-icon ${escapeHtml(d.iconClass)}" style="${iconStyle}"><i class="ti ${escapeHtml(d.iconName)}"></i></div>
+        ${iconEl}
         <div class="mc-feed-body">
           <div class="mc-feed-title">${escapeHtml(d.title)}</div>
           <div class="mc-feed-sub">${escapeHtml(d.sub)}</div>
@@ -750,6 +818,8 @@ function renderMcIntelligenceConfidence(scan) {
 }
 
 // CARD 7 — Global Presence
+// Brief 015b — Brazil added as the 8th market. Constant name kept as
+// BIG6 for legacy reach; the count is dynamic via BIG6.length.
 const BIG6 = [
   { code:'us', name:'USA',       flag:'🇺🇸' },
   { code:'ca', name:'Canada',    flag:'🇨🇦' },
@@ -758,6 +828,7 @@ const BIG6 = [
   { code:'fr', name:'France',    flag:'🇫🇷' },
   { code:'jp', name:'Japan',     flag:'🇯🇵' },
   { code:'au', name:'Australia', flag:'🇦🇺' },
+  { code:'br', name:'Brazil',    flag:'🇧🇷' },
 ];
 
 function renderMcGlobalPresence(scan) {
@@ -781,7 +852,7 @@ function renderMcGlobalPresence(scan) {
     return `<div class="mc-flag-cell ${cls}"><div class="mc-flag-emoji">${sf.flag}</div><div class="mc-flag-name">${escapeHtml(sf.name)}</div></div>`;
   }).join('');
   grid.innerHTML = cells;
-  if (subEl) subEl.textContent = `${verifiedN} of 7 regions verified`;
+  if (subEl) subEl.textContent = `${verifiedN} of ${BIG6.length} regions verified`;
 }
 
 // CARD 8 (was 9) — Monitoring Overview
@@ -1063,10 +1134,12 @@ async function init() {
   ]);
   renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesCount });
 
-  // Card 3 — Intelligence Feed (feed alerts also feed Card 4 last-change).
-  // baselineTimes passed to the artifact filter for both cards (Fix 4).
+  // Card 3 — Intelligence Feed. albums[] from the latest scan flows
+  // into renderMcFeed so feed items matching a known release can show
+  // the Apple Music artwork instead of the emoji chip (Brief 015b).
   const feedAlerts = await loadAlertFeed(supabase, session.user.id);
-  renderMcFeed(feedAlerts, baselineTimes);
+  const albums = scan?.payload?.platforms?.appleMusic?.details?.albums || [];
+  renderMcFeed(feedAlerts, baselineTimes, albums);
 
   // Card 4 — Catalog Intelligence (uses scan + latest GENUINE change)
   renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes);

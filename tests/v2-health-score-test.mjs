@@ -20,6 +20,7 @@ const FULL_SFA = {
   fr: { available: ['x'], unavailable: [] },
   jp: { available: ['x'], unavailable: [] },
   au: { available: ['x'], unavailable: [] },
+  br: { available: ['x'], unavailable: [] },
 };
 
 const fullCanonical = () => ({
