@@ -158,9 +158,14 @@ const ICON_COLORS = Object.freeze({
   purple: { bg: 'rgba(138,92,255,0.40)',  fg: '#a78bfa', border: 'rgba(138,92,255,0.55)' },
   blue:   { bg: 'rgba(96,165,250,0.40)',  fg: '#60a5fa', border: 'rgba(96,165,250,0.55)' },
 });
+// Brief 015b debug — color removed from inline style. When the chip's
+// inline `color` matched its background tint (e.g. both purple at 0.40
+// alpha), monochrome-emoji fallback glyphs were rendering invisible.
+// Background + border still ride inline so the chip itself outclasses
+// any CSS specificity issue; color is left to the CSS modifier classes.
 function _iconStyle(colorKey) {
   const c = ICON_COLORS[colorKey] || ICON_COLORS.blue;
-  return `background:${c.bg};color:${c.fg};border:1px solid ${c.border};`;
+  return `background:${c.bg};border:1px solid ${c.border};`;
 }
 // Translate the existing .is-X class suffix to our color key.
 function _iconColorKey(iconClass) {
@@ -1162,7 +1167,18 @@ async function init() {
   // the Apple Music artwork instead of the emoji chip (Brief 015b).
   const feedAlerts = await loadAlertFeed(supabase, session.user.id);
   const albums = scan?.payload?.platforms?.appleMusic?.details?.albums || [];
+  // TEMP DEBUG (Brief 015b) — albums path diagnostic. Albums:0 in
+  // the on-page debug line could mean any link in the chain is missing.
+  console.log('[mc] albums for feed:', albums?.length, albums?.[0]?.name);
   renderMcFeed(feedAlerts, baselineTimes, albums);
+  const _feedDebugEl = document.getElementById('mc-feed-debug');
+  if (_feedDebugEl) {
+    _feedDebugEl.textContent +=
+      ` | path: payload=${!!scan?.payload}` +
+      ` apple=${!!scan?.payload?.platforms?.appleMusic}` +
+      ` details=${!!scan?.payload?.platforms?.appleMusic?.details}` +
+      ` albums-arr=${Array.isArray(scan?.payload?.platforms?.appleMusic?.details?.albums)}`;
+  }
 
   // Card 4 — Catalog Intelligence (uses scan + latest GENUINE change)
   renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes);
