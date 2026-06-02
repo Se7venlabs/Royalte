@@ -693,10 +693,10 @@ console.log('\n[TEST] BIG 6 storefront availability (Brief 011)...');
 const { checkStorefrontAvailability, BIG6_STOREFRONTS } = await import('../api/apple-music.js');
 const _savedFetch = global.fetch;
 
-assert(Array.isArray(BIG6_STOREFRONTS) && BIG6_STOREFRONTS.length === 7,
-  'BIG6_STOREFRONTS: 7 storefronts exported');
-assert(BIG6_STOREFRONTS.join(',') === 'us,ca,gb,de,fr,jp,au',
-  'BIG6_STOREFRONTS: ordered us,ca,gb,de,fr,jp,au');
+assert(Array.isArray(BIG6_STOREFRONTS) && BIG6_STOREFRONTS.length === 8,
+  'BIG6_STOREFRONTS: 8 storefronts exported (Brazil added in Brief 015b)');
+assert(BIG6_STOREFRONTS.join(',') === 'us,ca,gb,de,fr,jp,au,br',
+  'BIG6_STOREFRONTS: ordered us,ca,gb,de,fr,jp,au,br');
 
 // Mock 1 — every storefront returns every album. Expect all available.
 {
@@ -705,7 +705,7 @@ assert(BIG6_STOREFRONTS.join(',') === 'us,ca,gb,de,fr,jp,au',
     json: async () => ({ data: [{ id: '1' }, { id: '2' }, { id: '3' }] }),
   });
   const r = await checkStorefrontAvailability(['1','2','3'], {});
-  assert(Object.keys(r).length === 7, 'all-available: returns 7 storefronts');
+  assert(Object.keys(r).length === 8, 'all-available: returns 8 storefronts');
   for (const sf of BIG6_STOREFRONTS) {
     assert(r[sf].available.length === 3, `all-available: ${sf} → 3 available`);
     assert(r[sf].unavailable.length === 0, `all-available: ${sf} → 0 unavailable`);
@@ -771,7 +771,7 @@ assert(BIG6_STOREFRONTS.join(',') === 'us,ca,gb,de,fr,jp,au',
   global.fetch = async () => { called++; return { ok: true, json: async () => ({}) }; };
   const r = await checkStorefrontAvailability([], {});
   assert(called === 0, 'empty-input: no fetch calls issued');
-  assert(Object.keys(r).length === 7, 'empty-input: still returns 7-key shape');
+  assert(Object.keys(r).length === 8, 'empty-input: still returns 8-key shape');
   for (const sf of BIG6_STOREFRONTS) {
     assert(r[sf].available.length === 0 && r[sf].unavailable.length === 0,
       `empty-input: ${sf} → shape-stable empty`);
