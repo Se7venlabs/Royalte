@@ -146,17 +146,28 @@ function _donutGradient(pct) {
   return `conic-gradient(var(--pur-2) 0deg ${deg}deg,rgba(255,255,255,0.05) ${deg}deg)`;
 }
 
-// Brief 015a-rev3 Fix 1+2 — inline-style fallback for the colored icon
-// chips on feed items and status dots. The CSS classes still ship for
-// semantic clarity, but inline styles outclass CSS specificity so the
-// colors render even if the stylesheet doesn't load, is cached stale,
-// or is being overridden by something we haven't identified.
+// Inline-style fallback colors for the chips (still applied to status
+// dots + feed icons). See _iconStyle below.
 const ICON_COLORS = Object.freeze({
   green:  { bg: 'rgba(52,211,153,0.40)',  fg: '#34d399', border: 'rgba(52,211,153,0.55)' },
   amber:  { bg: 'rgba(245,158,11,0.40)',  fg: '#f59e0b', border: 'rgba(245,158,11,0.55)' },
   red:    { bg: 'rgba(239,68,68,0.40)',   fg: '#ef4444', border: 'rgba(239,68,68,0.55)' },
   purple: { bg: 'rgba(138,92,255,0.40)',  fg: '#a78bfa', border: 'rgba(138,92,255,0.55)' },
   blue:   { bg: 'rgba(96,165,250,0.40)',  fg: '#60a5fa', border: 'rgba(96,165,250,0.55)' },
+});
+
+// Brief 015b — inline SVG icons for the Intelligence Feed chips.
+// Replaces emoji entirely. SVG paths use currentColor so the chip's
+// CSS color (#ffffff) drives the stroke/fill — no font dependency, no
+// emoji glyph fallback uncertainty.
+const ICON_SVG = Object.freeze({
+  music: '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M9 3v7.26A3 3 0 1 0 11 13V5h3V3H9z"/></svg>',
+  globe: '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><ellipse cx="8" cy="8" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5"/></svg>',
+  video: '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><rect x="1" y="3" width="10" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 6l4-2v8l-4-2V6z"/></svg>',
+  key:   '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="5" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 8h7M13 8v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  check: '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 8l3.5 3.5L13 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  alert: '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 2L1 14h14L8 2z" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="7" x2="8" y2="10" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="12" r="0.5" fill="currentColor"/></svg>',
+  dot:   '<svg viewBox="0 0 16 16" fill="currentColor" width="8" height="8"><circle cx="8" cy="8" r="4"/></svg>',
 });
 // Brief 015b debug — color removed from inline style. When the chip's
 // inline `color` matched its background tint (e.g. both purple at 0.40
@@ -194,23 +205,24 @@ function _matchAlbumArtwork(alert, albums) {
 }
 
 // Invoked by <img onerror=...> when album artwork fails to load.
-// Swaps the broken img element with the emoji icon fallback. Global
+// Swaps the broken img element with the SVG icon fallback. Global
 // so it's reachable from inline onerror handlers built in renderMcFeed.
 window._mcFeedArtFallback = function(img) {
   if (!img || !img.dataset) return;
-  const emoji = img.dataset.fallbackEmoji || '●';
-  const cls   = img.dataset.fallbackClass || 'is-blue';
-  const style = img.dataset.fallbackStyle || '';
+  const svgKey = img.dataset.fallbackSvgKey || 'dot';
+  const cls    = img.dataset.fallbackClass  || 'is-blue';
+  const style  = img.dataset.fallbackStyle  || '';
+  const svg    = ICON_SVG[svgKey] || ICON_SVG.dot;
   const div = document.createElement('div');
   div.className = `mc-feed-icon ${cls}`;
   div.setAttribute('style', style);
-  div.textContent = emoji;
+  div.innerHTML = svg;
   img.replaceWith(div);
 };
 
 // Intelligence Feed display mapper — change_type → user-facing copy.
 // LOCKED LANGUAGE per Brief 015: song-first, never system language.
-// Brief 015b — emoji replaces Tabler icon glyph (no CDN dependency).
+// Brief 015b — inline SVG via svgKey replaces emoji entirely.
 // iconClass still drives the colored background chip.
 function _feedDisplay(alert) {
   const trackName = alert.track_name || alert.artist_name || 'Your catalog';
@@ -218,67 +230,67 @@ function _feedDisplay(alert) {
   const platform  = alert.platform || '';
   const t = alert.change_type;
 
-  const out = { title: '', sub: '', iconClass: 'is-purple', emoji: '●' };
+  const out = { title: '', sub: '', iconClass: 'is-purple', svgKey: 'dot' };
   switch (t) {
     case 'territory_loss':
       out.title = `${trackName} — No longer available in ${territory || 'a territory'}`;
       out.sub = platform || 'territory change';
-      out.iconClass = 'is-amber'; out.emoji = '🌎';
+      out.iconClass = 'is-amber'; out.svgKey = 'globe';
       break;
     case 'territory_gain':
       out.title = `${trackName} — Now available in ${territory || 'a new territory'}`;
       out.sub = platform || 'territory change';
-      out.iconClass = 'is-green'; out.emoji = '🌎';
+      out.iconClass = 'is-green'; out.svgKey = 'globe';
       break;
     case 'isrc_dropped':
       out.title = `${trackName} — Identifier signal changed`;
       out.sub = 'ISRC no longer detected from reviewed sources';
-      out.iconClass = 'is-amber'; out.emoji = '🔑';
+      out.iconClass = 'is-amber'; out.svgKey = 'key';
       break;
     case 'isrc_added':
       out.title = `${trackName} — Identifier verified`;
       out.sub = 'ISRC confirmed';
-      out.iconClass = 'is-green'; out.emoji = '🔑';
+      out.iconClass = 'is-green'; out.svgKey = 'key';
       break;
     case 'isrc_mismatch':
       out.title = `${trackName} — Identifier mismatch noted`;
       out.sub = 'Cross-source ISRC values differ';
-      out.iconClass = 'is-amber'; out.emoji = '🔑';
+      out.iconClass = 'is-amber'; out.svgKey = 'key';
       break;
     case 'release_added':
       out.title = `${trackName} — New release detected`;
       out.sub = platform || 'release';
-      out.iconClass = 'is-purple'; out.emoji = '🎵';
+      out.iconClass = 'is-purple'; out.svgKey = 'music';
       break;
     case 'release_removed':
       out.title = `${trackName} — Release no longer detected`;
       out.sub = platform || 'release';
-      out.iconClass = 'is-amber'; out.emoji = '🎵';
+      out.iconClass = 'is-amber'; out.svgKey = 'music';
       break;
     case 'video_added':
       out.title = `${trackName} — YouTube match verified`;
       out.sub = 'YouTube';
-      out.iconClass = 'is-green'; out.emoji = '🎥';
+      out.iconClass = 'is-green'; out.svgKey = 'video';
       break;
     case 'video_removed':
       out.title = `${trackName} — YouTube match no longer detected`;
       out.sub = 'YouTube';
-      out.iconClass = 'is-amber'; out.emoji = '🎥';
+      out.iconClass = 'is-amber'; out.svgKey = 'video';
       break;
     case 'metadata_changed':
       out.title = `${trackName} — Metadata change detected`;
       out.sub = platform || 'metadata';
-      out.iconClass = 'is-amber'; out.emoji = '📋';
+      out.iconClass = 'is-amber'; out.svgKey = 'alert';
       break;
     case 'baseline_established':
       out.title = 'Baseline established — monitoring now active';
       out.sub = 'Royaltē OS';
-      out.iconClass = 'is-green'; out.emoji = '✓';
+      out.iconClass = 'is-green'; out.svgKey = 'check';
       break;
     case 'profile_missing':
       out.title = `${trackName} — Profile missing`;
       out.sub = platform || 'profile';
-      out.iconClass = 'is-amber'; out.emoji = '⚠';
+      out.iconClass = 'is-amber'; out.svgKey = 'alert';
       break;
     default:
       out.title = `${trackName} — Change detected`;
@@ -708,17 +720,19 @@ function renderMcFeed(alertsRaw, baselineTimes, albums) {
     const when = relativeTimeShort(a.detected_at);
     const iconStyle = _iconStyle(_iconColorKey(d.iconClass));
     const artwork = _matchAlbumArtwork(a, albums);
+    const svg = ICON_SVG[d.svgKey] || ICON_SVG.dot;
     let iconEl;
     if (artwork) {
-      // img + emoji fallback via global error handler. data-fallback-*
-      // carry everything needed to rebuild the chip in place on failure.
+      // img + SVG fallback via global error handler. data-fallback-svg-key
+      // carries the SVG identifier (not the SVG string itself — that would
+      // break quoting inside the attribute).
       iconEl = `<img class="mc-feed-art" src="${escapeHtml(artwork)}" alt="" loading="lazy" crossorigin="anonymous"`
-             + ` data-fallback-emoji="${escapeHtml(d.emoji)}"`
+             + ` data-fallback-svg-key="${escapeHtml(d.svgKey)}"`
              + ` data-fallback-class="${escapeHtml(d.iconClass)}"`
              + ` data-fallback-style="${escapeHtml(iconStyle)}"`
              + ` onerror="window._mcFeedArtFallback&&window._mcFeedArtFallback(this)">`;
     } else {
-      iconEl = `<div class="mc-feed-icon ${escapeHtml(d.iconClass)}" style="${iconStyle}">${d.emoji}</div>`;
+      iconEl = `<div class="mc-feed-icon ${escapeHtml(d.iconClass)}" style="${iconStyle}">${svg}</div>`;
     }
     return `
       <div class="mc-feed-item">
