@@ -217,17 +217,24 @@ ul,ol{list-style:none;}
 /* ── Card 3 — Intelligence Feed ──────────────────────────────────────── */
 .mc-feed-list{display:flex;flex-direction:column;gap:10px;}
 .mc-feed-item{display:flex;align-items:flex-start;gap:10px;}
-/* Brief 015b — bumped 28→32px + emoji rendering rules. Color removed
-   from inline style in JS (was matching the background tint and
-   making monochrome-emoji fallback glyphs invisible against the chip).
-   Per Brief 015b debug round: line-height:28px, text-align:center,
-   overflow:visible all explicit so nothing clips the emoji glyph. */
+/* Brief 015b debug — nuclear !important overrides. The investigation
+   confirmed the emoji reaches the DOM (path + alerts + albums all
+   verified), so something else was winning the specificity battle on
+   text rendering. -webkit-text-fill-color is required to defeat Safari's
+   gradient-text inheritance that some emoji glyphs pick up monochrome.
+   Width/height/border-radius/flex-shrink/background stay non-important
+   — they're not the problem. */
 .mc-feed-icon{
-  width:32px;height:32px;border-radius:6px;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  width:32px;height:32px;border-radius:6px;flex-shrink:0;
   background:rgba(96,165,250,0.25);
-  font-size:16px;line-height:28px;text-align:center;overflow:visible;
-  font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','Twemoji Mozilla',sans-serif;
+  font-size:16px!important;
+  line-height:1!important;
+  color:#ffffff!important;
+  -webkit-text-fill-color:#ffffff!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif!important;
 }
 /* Album artwork variant — 32×32 image, slightly rounder corners. */
 .mc-feed-art{
@@ -608,8 +615,6 @@ ul,ol{list-style:none;}
             <div class="card-title">Intelligence Feed</div>
             <a class="card-link" href="#feed-all">View all <i class="ti ti-arrow-right"></i></a>
           </div>
-          <!-- TEMP DEBUG (Brief 015b) — remove once feed-icon issue is resolved. -->
-          <div id="mc-feed-debug" style="font-size:10px;color:yellow;padding:4px;font-family:monospace;"></div>
           <div class="mc-feed-list" id="mc-feed-list">
             <!-- populated by renderMcFeed -->
           </div>
