@@ -143,6 +143,7 @@ ul,ol{list-style:none;}
   margin-bottom:12px;
 }
 .card-title{
+  display:flex;align-items:center;gap:6px;
   font-size:10px;font-weight:700;letter-spacing:0.1em;
   text-transform:uppercase;color:rgba(138,92,255,0.8);
 }
@@ -184,24 +185,17 @@ ul,ol{list-style:none;}
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
   background:rgba(52,211,153,0.25);color:var(--grn);
 }
-/* Brief 015b — CSS-only status indicators (no Tabler dependency).
-   Inner solid dot rendered as a plain colored circle; the pulse
-   variant adds an expanding ring via @keyframes mc-pulse. */
-.mc-pulse-dot{
-  display:block;width:10px;height:10px;border-radius:50%;
-  background:#34d399;
-  box-shadow:0 0 0 3px rgba(52,211,153,0.25);
-  animation:mc-pulse 2s infinite;
-}
-@keyframes mc-pulse{
-  0%   { box-shadow:0 0 0 0 rgba(52,211,153,0.4); }
-  70%  { box-shadow:0 0 0 6px rgba(52,211,153,0); }
+/* Brief 015d — Lucide icons inside the status dot. The pulse moves
+   from an inner CSS dot to the outer chip's box-shadow ring so
+   Monitoring Active still feels "alive" while showing a real icon.
+   Old .mc-pulse-dot / .mc-solid-dot CSS removed — both unused after
+   the icon-pass JS rewrite (renderMcBackendStatus). */
+.mc-status-dot.is-pulse{animation:mc-status-pulse 2s infinite;}
+@keyframes mc-status-pulse{
+  0%   { box-shadow:0 0 0 0 rgba(52,211,153,0.45); }
+  70%  { box-shadow:0 0 0 8px rgba(52,211,153,0); }
   100% { box-shadow:0 0 0 0 rgba(52,211,153,0); }
 }
-.mc-solid-dot{display:block;width:10px;height:10px;border-radius:50%;}
-.mc-solid-dot.green { background:#34d399; }
-.mc-solid-dot.amber { background:#f59e0b; }
-.mc-solid-dot.red   { background:#ef4444; }
 /* Brief 015a-rev2 Fix 1+2 — opacity 0.25 → 0.4, defensive !important,
    1px border at higher alpha for crisp edges. Defends against any
    unknown CSS override that might be washing these out in the browser. */
@@ -490,7 +484,7 @@ ul,ol{list-style:none;}
     </div>
     <div class="topbar-right">
       <div class="tb-last-scan">
-        <i data-lucide="clock"></i>
+        <i data-lucide="scan-search"></i>
         <span>Last scan: <span id="tb-last-scan">—</span></span>
       </div>
       <a href="/" class="tb-scan-btn">
@@ -519,14 +513,14 @@ ul,ol{list-style:none;}
           </div>
         </a>
         <a class="sb-nav-item" data-nav="action-center" href="#action-center">
-          <i data-lucide="bell"></i>
+          <i data-lucide="shield-alert"></i>
           <div class="sb-nav-text">
             <div class="sb-nav-label">Action Center</div>
             <div class="sb-nav-sub">Tasks &amp; Alerts</div>
           </div>
         </a>
         <a class="sb-nav-item" data-nav="catalog" href="#catalog">
-          <i data-lucide="music"></i>
+          <i data-lucide="disc-3"></i>
           <div class="sb-nav-text">
             <div class="sb-nav-label">Catalog</div>
             <div class="sb-nav-sub">Your Music Map</div>
@@ -559,7 +553,7 @@ ul,ol{list-style:none;}
 
       <div class="sb-fa" id="sb-fa" style="display:none;">
         <div class="sb-fa-hd">
-          <i data-lucide="crown"></i>
+          <i data-lucide="badge-check"></i>
           <span class="sb-fa-eyebrow">Founding Artist</span>
           <span class="sb-fa-num" id="sb-fa-num"></span>
         </div>
@@ -582,7 +576,7 @@ ul,ol{list-style:none;}
         <!-- CARD 1 — Royaltē Health Score™ -->
         <article class="card" id="card-health">
           <div class="card-hd">
-            <div class="card-title">Royaltē Health Score™</div>
+            <div class="card-title"><i data-lucide="activity"></i>Royaltē Health Score™</div>
             <a class="card-link" href="#health-drivers">View Score Drivers <i data-lucide="arrow-right"></i></a>
           </div>
           <div class="mc-health-row">
@@ -605,7 +599,7 @@ ul,ol{list-style:none;}
         <!-- CARD 2 — Backend Status -->
         <article class="card" id="card-status">
           <div class="card-hd">
-            <div class="card-title">Backend Status</div>
+            <div class="card-title"><i data-lucide="shield-check"></i>Backend Status</div>
           </div>
           <div class="mc-status-list" id="mc-status-list">
             <!-- populated by renderMcBackendStatus -->
@@ -618,7 +612,7 @@ ul,ol{list-style:none;}
         <!-- CARD 3 — Royaltē Intelligence Feed -->
         <article class="card" id="card-feed">
           <div class="card-hd">
-            <div class="card-title">Intelligence Feed</div>
+            <div class="card-title"><i data-lucide="audio-lines"></i>Intelligence Feed</div>
             <a class="card-link" href="#feed-all">View all <i data-lucide="arrow-right"></i></a>
           </div>
           <div class="mc-feed-list" id="mc-feed-list">
@@ -629,7 +623,7 @@ ul,ol{list-style:none;}
         <!-- CARD 4 — Catalog Intelligence (Brief 015a Change 1) -->
         <article class="card" id="card-catalog">
           <div class="card-hd">
-            <div class="card-title">Catalog Intelligence</div>
+            <div class="card-title"><i data-lucide="disc-3"></i>Catalog Intelligence</div>
           </div>
           <div class="mc-catalog-list">
             <div class="mc-catalog-row"><span class="mc-catalog-k">Tracks Monitored</span><span class="mc-catalog-v" id="mc-cat-tracks">—</span></div>
@@ -643,7 +637,7 @@ ul,ol{list-style:none;}
         <!-- CARD 5 — Action Center -->
         <article class="card" id="card-action">
           <div class="card-hd">
-            <div class="card-title">Action Center</div>
+            <div class="card-title"><i data-lucide="shield-alert"></i>Action Center</div>
             <a class="card-link" href="#action-all">View all <i data-lucide="arrow-right"></i></a>
           </div>
           <div class="mc-action-count" id="mc-action-count">—</div>
@@ -655,7 +649,7 @@ ul,ol{list-style:none;}
         <!-- CARD 6 — Intelligence Confidence (Brief 015a Change 2) -->
         <article class="card" id="card-profile">
           <div class="card-hd">
-            <div class="card-title">Intelligence Confidence</div>
+            <div class="card-title"><i data-lucide="badge-check"></i>Intelligence Confidence</div>
           </div>
           <div class="mc-profile-row">
             <div class="mc-donut" id="mc-donut" style="background:conic-gradient(var(--pur-2) 0deg,rgba(255,255,255,0.05) 0deg);">
@@ -679,7 +673,7 @@ ul,ol{list-style:none;}
         <!-- CARD 7 — Global Presence -->
         <article class="card" id="card-presence">
           <div class="card-hd">
-            <div class="card-title"><i data-lucide="globe"></i> Global Presence</div>
+            <div class="card-title"><i data-lucide="globe"></i>Global Presence</div>
           </div>
           <div class="mc-presence-sub" id="mc-presence-sub">— of 8 regions verified</div>
           <div class="mc-flag-grid" id="mc-flag-grid">
@@ -693,7 +687,7 @@ ul,ol{list-style:none;}
         <!-- CARD 8 — Monitoring Overview (moved up per Brief 015a Change 4) -->
         <article class="card" id="card-overview">
           <div class="card-hd">
-            <div class="card-title">Monitoring Overview</div>
+            <div class="card-title"><i data-lucide="scan-search"></i>Monitoring Overview</div>
           </div>
           <div class="mc-overview-sub">Your backend at a glance</div>
           <div class="mc-overview-grid">
@@ -707,7 +701,7 @@ ul,ol{list-style:none;}
         <!-- CARD 9 — Your Royaltē Review (Brief 015a Change 3, position 9) -->
         <article class="card" id="card-review">
           <div class="card-hd">
-            <div class="card-title">Your Royaltē Review</div>
+            <div class="card-title"><i data-lucide="file-text"></i>Your Royaltē Review</div>
           </div>
           <div class="mc-review-anchor">
             <div class="mc-review-num" id="mc-review-num">—</div>

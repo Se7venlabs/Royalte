@@ -217,82 +217,46 @@ window._mcFeedArtFallback = function(img) {
 };
 
 // Intelligence Feed display mapper — change_type → user-facing copy.
-// LOCKED LANGUAGE per Brief 015: song-first, never system language.
-// Brief 015b → Lucide: lucide field carries the Lucide icon name;
-// iconClass still drives the colored background chip.
+// LOCKED FORMAT per Brief 015d:
+//   title: "{song name}"
+//   sub:   "{what happened} · {territory if any} · {platform}"
+// For events without a song name (e.g. baseline_established), the
+// label becomes the title.
+const FEED_META = Object.freeze({
+  release_added:        { icon: 'music',        label: 'New release detected',                color: 'is-purple' },
+  release_removed:      { icon: 'music',        label: 'Release no longer detected',          color: 'is-amber'  },
+  territory_gain:       { icon: 'globe',        label: 'New regional presence detected',      color: 'is-green'  },
+  territory_loss:       { icon: 'globe',        label: 'No longer available in region',       color: 'is-amber'  },
+  isrc_added:           { icon: 'link',         label: 'ISRC linked',                          color: 'is-green'  },
+  isrc_dropped:         { icon: 'link',         label: 'ISRC signal changed',                  color: 'is-amber'  },
+  isrc_mismatch:        { icon: 'link',         label: 'Identifier mismatch detected',         color: 'is-amber'  },
+  video_added:          { icon: 'circle-play',  label: 'YouTube match verified',               color: 'is-green'  },
+  video_removed:        { icon: 'circle-play',  label: 'YouTube match no longer detected',     color: 'is-amber'  },
+  metadata_changed:     { icon: 'badge-check',  label: 'Metadata updated',                     color: 'is-amber'  },
+  baseline_established: { icon: 'scan-search',  label: 'Monitoring started',                   color: 'is-green'  },
+  profile_missing:      { icon: 'alert-circle', label: 'Artist profile signal changed',        color: 'is-amber'  },
+});
+const FEED_DEFAULT = Object.freeze({ icon: 'activity', label: 'Backend signal detected', color: 'is-purple' });
+
 function _feedDisplay(alert) {
-  const trackName = alert.track_name || alert.artist_name || 'Your catalog';
+  const trackName = alert.track_name || alert.artist_name || '';
   const territory = alert.territory ? String(alert.territory).toUpperCase() : '';
   const platform  = alert.platform || '';
-  const t = alert.change_type;
+  const meta = FEED_META[alert.change_type] || FEED_DEFAULT;
 
-  const out = { title: '', sub: '', iconClass: 'is-purple', lucide: 'activity' };
-  switch (t) {
-    case 'territory_loss':
-      out.title = `${trackName} — No longer available in ${territory || 'a territory'}`;
-      out.sub = platform || 'territory change';
-      out.iconClass = 'is-amber'; out.lucide = 'globe';
-      break;
-    case 'territory_gain':
-      out.title = `${trackName} — Now available in ${territory || 'a new territory'}`;
-      out.sub = platform || 'territory change';
-      out.iconClass = 'is-green'; out.lucide = 'globe';
-      break;
-    case 'isrc_dropped':
-      out.title = `${trackName} — Identifier signal changed`;
-      out.sub = 'ISRC no longer detected from reviewed sources';
-      out.iconClass = 'is-amber'; out.lucide = 'key';
-      break;
-    case 'isrc_added':
-      out.title = `${trackName} — Identifier verified`;
-      out.sub = 'ISRC confirmed';
-      out.iconClass = 'is-green'; out.lucide = 'key';
-      break;
-    case 'isrc_mismatch':
-      out.title = `${trackName} — Identifier mismatch noted`;
-      out.sub = 'Cross-source ISRC values differ';
-      out.iconClass = 'is-amber'; out.lucide = 'key';
-      break;
-    case 'release_added':
-      out.title = `${trackName} — New release detected`;
-      out.sub = platform || 'release';
-      out.iconClass = 'is-purple'; out.lucide = 'music';
-      break;
-    case 'release_removed':
-      out.title = `${trackName} — Release no longer detected`;
-      out.sub = platform || 'release';
-      out.iconClass = 'is-amber'; out.lucide = 'music';
-      break;
-    case 'video_added':
-      out.title = `${trackName} — YouTube match verified`;
-      out.sub = 'YouTube';
-      out.iconClass = 'is-green'; out.lucide = 'youtube';
-      break;
-    case 'video_removed':
-      out.title = `${trackName} — YouTube match no longer detected`;
-      out.sub = 'YouTube';
-      out.iconClass = 'is-amber'; out.lucide = 'youtube';
-      break;
-    case 'metadata_changed':
-      out.title = `${trackName} — Metadata change detected`;
-      out.sub = platform || 'metadata';
-      out.iconClass = 'is-amber'; out.lucide = 'alert-triangle';
-      break;
-    case 'baseline_established':
-      out.title = 'Baseline established — monitoring now active';
-      out.sub = 'Royaltē OS';
-      out.iconClass = 'is-green'; out.lucide = 'check-circle';
-      break;
-    case 'profile_missing':
-      out.title = `${trackName} — Profile missing`;
-      out.sub = platform || 'profile';
-      out.iconClass = 'is-amber'; out.lucide = 'alert-triangle';
-      break;
-    default:
-      out.title = `${trackName} — Change detected`;
-      out.sub = platform || territory || '';
-  }
-  return out;
+  // Title = song name. When no track context, fall back to the label
+  // (e.g. baseline_established).
+  const title = trackName || meta.label;
+
+  // Sub = "{label} · {territory} · {platform}". Skip the label segment
+  // when the title is already the label (avoid duplication).
+  const subParts = [];
+  if (trackName) subParts.push(meta.label);
+  if (territory) subParts.push(territory);
+  if (platform)  subParts.push(platform);
+  const sub = subParts.join(' · ');
+
+  return { title, sub, iconClass: meta.color, lucide: meta.icon };
 }
 
 /* ─────────────────────────────────────────────
@@ -625,32 +589,46 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
 
   const rows = [];
 
-  // Brief 015b Part 1 — CSS-only indicators. Outer .mc-status-dot
-  // carries the tinted ring (inline style fallback retained); inner
-  // .mc-pulse-dot / .mc-solid-dot is a pure-CSS colored circle with
-  // no font dependency.
+  // Brief 015d — Lucide icons inside the colored dot. Monitoring
+  // Active gets the .is-pulse modifier which animates the outer
+  // chip's box-shadow ring (mc-status-pulse keyframe), keeping the
+  // "alive" feel without an inner CSS dot.
   const dotGreen = _iconStyle('green');
   const dotAmber = _iconStyle('amber');
   const dotRed   = _iconStyle('red');
 
-  // Row 1 — Monitoring status (green pulse when active, amber solid when paused)
-  rows.push(`
-    <div class="mc-status-row">
-      <div class="mc-status-dot ${monitoringActive ? 'green' : 'amber'}" style="${monitoringActive ? dotGreen : dotAmber}">
-        ${monitoringActive ? '<span class="mc-pulse-dot"></span>' : '<span class="mc-solid-dot amber"></span>'}
+  // Row 1 — Monitoring status
+  if (monitoringActive) {
+    rows.push(`
+      <div class="mc-status-row">
+        <div class="mc-status-dot green is-pulse" style="${dotGreen}">
+          <i data-lucide="shield-check"></i>
+        </div>
+        <div class="mc-status-text">
+          <div class="mc-status-title">Monitoring Active</div>
+          <div class="mc-status-sub">Your backend is being monitored 24/7</div>
+        </div>
       </div>
-      <div class="mc-status-text">
-        <div class="mc-status-title">${monitoringActive ? 'Monitoring Active' : 'Monitoring Paused'}</div>
-        <div class="mc-status-sub">${monitoringActive ? 'Your backend is being monitored 24/7' : 'Continuous monitoring is currently paused'}</div>
+    `);
+  } else {
+    rows.push(`
+      <div class="mc-status-row">
+        <div class="mc-status-dot amber" style="${dotAmber}">
+          <i data-lucide="shield-off"></i>
+        </div>
+        <div class="mc-status-text">
+          <div class="mc-status-title">Monitoring Paused</div>
+          <div class="mc-status-sub">Continuous monitoring is currently paused</div>
+        </div>
       </div>
-    </div>
-  `);
+    `);
+  }
 
   // Row 2 — Critical Issues
   if (criticalCount > 0) {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot red" style="${dotRed}"><span class="mc-solid-dot red"></span></div>
+        <div class="mc-status-dot red" style="${dotRed}"><i data-lucide="triangle-alert"></i></div>
         <div class="mc-status-text">
           <div class="mc-status-title">${criticalCount} Critical Issue${criticalCount === 1 ? '' : 's'}</div>
           <div class="mc-status-sub">Requires attention</div>
@@ -660,7 +638,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   } else {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot green" style="${dotGreen}"><span class="mc-solid-dot green"></span></div>
+        <div class="mc-status-dot green" style="${dotGreen}"><i data-lucide="circle-check"></i></div>
         <div class="mc-status-text">
           <div class="mc-status-title">No Critical Issues</div>
           <div class="mc-status-sub">No problems detected</div>
@@ -673,7 +651,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   if (opportunitiesCount > 0) {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot amber" style="${dotAmber}"><span class="mc-solid-dot amber"></span></div>
+        <div class="mc-status-dot amber" style="${dotAmber}"><i data-lucide="alert-circle"></i></div>
         <div class="mc-status-text">
           <div class="mc-status-title">${opportunitiesCount} Opportunit${opportunitiesCount === 1 ? 'y' : 'ies'}</div>
           <div class="mc-status-sub">Review recommended</div>
@@ -683,7 +661,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   } else {
     rows.push(`
       <div class="mc-status-row">
-        <div class="mc-status-dot green" style="${dotGreen}"><span class="mc-solid-dot green"></span></div>
+        <div class="mc-status-dot green" style="${dotGreen}"><i data-lucide="circle-check"></i></div>
         <div class="mc-status-text">
           <div class="mc-status-title">No Opportunities</div>
           <div class="mc-status-sub">Nothing to review right now</div>
@@ -693,6 +671,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
   }
 
   list.innerHTML = rows.join('');
+  _renderLucide();
 }
 
 // CARD 3 — Intelligence Feed
