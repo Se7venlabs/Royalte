@@ -303,23 +303,12 @@ ul,ol{list-style:none;}
    intentional. Pure CSS keyframes; no JS animation loop. */
 .mc-spark-wrap{position:relative;width:100%;height:32px;margin-top:10px;}
 .mc-spark{width:100%;height:32px;display:block;}
-.mc-spark-signal{
-  position:absolute;top:50%;left:0;
-  width:6px;height:6px;border-radius:50%;
-  background:#22d3ee;
-  box-shadow:0 0 12px rgba(34,211,238,0.85), 0 0 4px rgba(34,211,238,0.55);
-  transform:translate(-50%,-50%);
-  opacity:0;
-  animation:mc-spark-travel 7s ease-in-out infinite;
-  pointer-events:none;
-}
-@keyframes mc-spark-travel{
-  0%   { left:0%;   opacity:0; animation-timing-function:ease-out; }
-  6%   { left:6%;   opacity:1; animation-timing-function:linear;   }
-  35%  { left:96%;  opacity:1; animation-timing-function:ease-out; }
-  40%  { left:100%; opacity:0; }
-  100% { left:100%; opacity:0; }
-}
+/* The spike (.mc-spark-spike) is now an inline SVG <g> animated via
+   SMIL <animateTransform> inside the rendered SVG — it travels ON
+   the cyan track itself, deforming the line as it passes (per the
+   "spike travels through a network" model). The CSS-overlay span
+   approach was replaced because it read as a separate decorative
+   dot rather than a signal on the line. */
 .mc-spark-live{
   position:absolute;top:50%;right:0;
   width:6px;height:6px;border-radius:50%;
@@ -915,7 +904,6 @@ ul,ol{list-style:none;}
           </div>
           <div class="mc-spark-wrap" aria-hidden="true">
             <svg class="mc-spark" id="mc-spark-health" viewBox="0 0 200 32" preserveAspectRatio="none"></svg>
-            <span class="mc-spark-signal"></span>
             <span class="mc-spark-live"></span>
           </div>
         </article>

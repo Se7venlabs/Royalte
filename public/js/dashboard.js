@@ -123,23 +123,6 @@ function _healthBand(score) {
   return                  { label: 'Review Recommended', cls: 'band-review'    };
 }
 
-// SVG sparkline path generator.
-function _sparkPath(values, opts = {}) {
-  const w = opts.width  || 200;
-  const h = opts.height || 32;
-  if (!Array.isArray(values) || values.length === 0) return '';
-  if (values.length === 1) {
-    const y = h - (values[0] / 100) * h;
-    return `M 0 ${y} L ${w} ${y}`;
-  }
-  const step = w / (values.length - 1);
-  return values.map((v, i) => {
-    const x = i * step;
-    const y = h - (clamp(v, 0, 100) / 100) * h;
-    return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
-  }).join(' ');
-}
-
 // Donut CSS conic-gradient — purple fill for `pct`% of the ring.
 function _donutGradient(pct) {
   const deg = clamp(pct, 0, 100) * 3.6;
@@ -576,17 +559,36 @@ function renderMcHealth(scan, history) {
   }
 
   if (sparkEl) {
-    // Brief 015j — track only (cyan, low alpha). The live dot is now
-    // a CSS-animated overlay (.mc-spark-live) so the static SVG circle
-    // is gone — the dot pulses on a 7s cycle synced with the cyan
-    // traveling signal (.mc-spark-signal).
-    const values = (history && history.length)
-      ? history.map(h => _resolveHealthScoreFromSnapshot(h) ?? 0)
-      : [current];
+    // Brief 015j rev2 — monitoring signal travels ON the line.
+    //   • Flat cyan track at baseline y=16 (the "network line")
+    //   • Spike <g> rides the line via SMIL animateTransform, deforming
+    //     the line into a small upward bump as it passes through.
+    //   • Two stacked paths give the bump a soft outer glow (5px, low
+    //     alpha) + bright inner core (1.8px, full cyan).
+    //   • 7s cycle. keyTimes:
+    //       0    invisible at left
+    //       0.04 fade in at left
+    //       0.35 arrived at right edge (linear travel between)
+    //       0.40 faded out
+    //       1.0  quiet (4.2s rest)
+    //   • Live dot pulse (.mc-spark-live, CSS-driven) peaks at 38% of
+    //     the same cycle so spike arrival hands off to the dot pulse.
     sparkEl.innerHTML =
-      `<path d="${_sparkPath(values)}" stroke="rgba(34,211,238,0.55)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />`;
+      `<path d="M 0 16 L 200 16" stroke="rgba(34,211,238,0.55)" stroke-width="1.5" fill="none" stroke-linecap="round" />` +
+      `<g class="mc-spark-spike">` +
+        `<path d="M 0 16 C 5 16 5 4 9 4 C 13 4 13 16 18 16" stroke="rgba(34,211,238,0.45)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />` +
+        `<path d="M 0 16 C 5 16 5 4 9 4 C 13 4 13 16 18 16" stroke="#67e8f9" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" />` +
+        `<animateTransform attributeName="transform" type="translate" ` +
+          `values="0,0; 0,0; 182,0; 182,0; 182,0" ` +
+          `keyTimes="0; 0.04; 0.35; 0.40; 1" dur="7s" repeatCount="indefinite" />` +
+        `<animate attributeName="opacity" values="0; 1; 1; 0; 0" ` +
+          `keyTimes="0; 0.04; 0.35; 0.40; 1" dur="7s" repeatCount="indefinite" />` +
+      `</g>`;
     sparkEl.setAttribute('preserveAspectRatio', 'none');
   }
+  // Note: the multi-point history values are no longer used as the
+  // sparkline path — the line is now a flat monitoring track, not a
+  // data viz. Score trend lives in the big number + delta on this card.
 }
 
 // CARD 2 — Backend Status (Brief 015a Fix 4: explicit .is-green class)
