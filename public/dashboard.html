@@ -182,7 +182,28 @@ ul,ol{list-style:none;}
   background:var(--card);border:1px solid var(--border);
   border-radius:10px;padding:16px;display:flex;flex-direction:column;
   min-height:120px;
+  transition:transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
+
+/* Brief 015h — subtle ambient glows by card role. 6-8% intensity at
+   rest, doubling on hover. No neon, no heavy shadows — the page just
+   feels powered on. */
+.card.has-glow-green {box-shadow:0 0 24px rgba(52,211,153,0.07);}
+.card.has-glow-emerald{box-shadow:0 0 24px rgba(16,185,129,0.08);}
+.card.has-glow-blue  {box-shadow:0 0 24px rgba(96,165,250,0.07);}
+.card.has-glow-amber {box-shadow:0 0 24px rgba(245,158,11,0.07);}
+.card.has-glow-purple{box-shadow:0 0 24px rgba(138,92,255,0.08);}
+
+.card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(255,255,255,0.10);
+  box-shadow:0 6px 24px rgba(0,0,0,0.30);
+}
+.card.has-glow-green:hover  {box-shadow:0 6px 24px rgba(0,0,0,0.28), 0 0 28px rgba(52,211,153,0.14);}
+.card.has-glow-emerald:hover{box-shadow:0 6px 24px rgba(0,0,0,0.28), 0 0 28px rgba(16,185,129,0.16);}
+.card.has-glow-blue:hover   {box-shadow:0 6px 24px rgba(0,0,0,0.28), 0 0 28px rgba(96,165,250,0.14);}
+.card.has-glow-amber:hover  {box-shadow:0 6px 24px rgba(0,0,0,0.28), 0 0 28px rgba(245,158,11,0.14);}
+.card.has-glow-purple:hover {box-shadow:0 6px 24px rgba(0,0,0,0.28), 0 0 28px rgba(138,92,255,0.16);}
 .card-hd{
   display:flex;align-items:center;justify-content:space-between;
   margin-bottom:14px;
@@ -242,14 +263,28 @@ ul,ol{list-style:none;}
 
 /* ── Card 1 — Royaltē Health Score™ ──────────────────────────────────── */
 .mc-health-row{display:flex;align-items:center;gap:16px;}
+/* Brief 015h — slow breathing emerald glow on the score ring.
+   ~6s cycle, very subtle (~7% to ~14% alpha). Communicates "alive
+   and monitoring" without any RGB / gaming feel. */
+@keyframes mc-health-breathe{
+  0%, 100% { box-shadow:0 0 22px rgba(52,211,153,0.07); }
+  50%      { box-shadow:0 0 40px rgba(52,211,153,0.16); }
+}
 .mc-score-circle{
   width:80px;height:80px;border-radius:50%;border:3px solid var(--muted-2);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   flex-shrink:0;
+  animation:mc-health-breathe 6s ease-in-out infinite;
 }
 .mc-score-circle.band-strong,.mc-score-circle.band-excellent{border-color:var(--grn);}
-.mc-score-circle.band-moderate{border-color:var(--amb);}
-.mc-score-circle.band-review{border-color:var(--red);}
+.mc-score-circle.band-moderate{
+  border-color:var(--amb);
+  animation:none;box-shadow:0 0 26px rgba(245,158,11,0.10);
+}
+.mc-score-circle.band-review{
+  border-color:var(--red);
+  animation:none;box-shadow:0 0 26px rgba(239,68,68,0.12);
+}
 .mc-score-num{font-size:28px;font-weight:700;color:#fff;line-height:1;}
 .mc-score-of{font-size:10px;color:var(--muted);}
 .mc-score-info{flex:1;min-width:0;}
@@ -376,19 +411,28 @@ ul,ol{list-style:none;}
 .mc-feed-item:first-child{padding-top:6px;}
 .mc-feed-item:last-child{border-bottom:none;padding-bottom:6px;}
 .mc-feed-tag{display:flex;align-items:center;gap:8px;}
+/* Brief 015h — feed dot heartbeat. Subtle scale pulse (~3.5s) makes
+   the feed feel actively monitored, not historical. Only the dot
+   animates; the row stays static. Two-layer box-shadow boosts the
+   chromatic presence so each category color reads clearly at a glance. */
+@keyframes mc-feed-heartbeat{
+  0%, 100% { transform:scale(1);   opacity:1;    }
+  50%      { transform:scale(1.20); opacity:0.92; }
+}
 .mc-feed-tag-dot{
   width:10px;height:10px;border-radius:50%;flex-shrink:0;
   background:#60a5fa;
+  animation:mc-feed-heartbeat 3.5s ease-in-out infinite;
 }
-.mc-feed-tag-dot.is-purple{background:#a78bfa;box-shadow:0 0 10px rgba(167,139,250,0.60);}
-.mc-feed-tag-dot.is-green {background:#34d399;box-shadow:0 0 10px rgba(52,211,153,0.60);}
-.mc-feed-tag-dot.is-blue  {background:#60a5fa;box-shadow:0 0 10px rgba(96,165,250,0.60);}
-.mc-feed-tag-dot.is-amber {background:#f59e0b;box-shadow:0 0 10px rgba(245,158,11,0.60);}
-.mc-feed-tag-dot.is-red   {background:#ef4444;box-shadow:0 0 10px rgba(239,68,68,0.60);}
+.mc-feed-tag-dot.is-purple{background:#a78bfa;box-shadow:0 0 12px rgba(167,139,250,0.80), 0 0 4px rgba(167,139,250,0.50);}
+.mc-feed-tag-dot.is-green {background:#34d399;box-shadow:0 0 12px rgba(52,211,153,0.80),  0 0 4px rgba(52,211,153,0.50);}
+.mc-feed-tag-dot.is-blue  {background:#60a5fa;box-shadow:0 0 12px rgba(96,165,250,0.80),  0 0 4px rgba(96,165,250,0.50);}
+.mc-feed-tag-dot.is-amber {background:#f59e0b;box-shadow:0 0 12px rgba(245,158,11,0.80),  0 0 4px rgba(245,158,11,0.50);}
+.mc-feed-tag-dot.is-red   {background:#ef4444;box-shadow:0 0 12px rgba(239,68,68,0.85),   0 0 4px rgba(239,68,68,0.55);}
 .mc-feed-tag-label{
   font-family:'Space Mono',monospace;
   font-size:10px;font-weight:700;letter-spacing:0.12em;
-  text-transform:uppercase;color:rgba(255,255,255,0.82);
+  text-transform:uppercase;color:rgba(255,255,255,0.92);
 }
 /* Track title — the largest text in the feed item per Brief 015g rev2. */
 .mc-feed-track{
@@ -431,9 +475,22 @@ ul,ol{list-style:none;}
 
 /* ── Card 9 — Your Royaltē Review (Brief 015a Change 3, position 9) ─── */
 .mc-review-anchor{display:flex;flex-direction:column;align-items:center;padding:10px 0 4px;}
+/* Brief 015h — small premium eyebrow pill above the score number, so the
+   card reads as an intelligence report rather than a PDF download.
+   Purple mono caps in a soft purple-tinted capsule. */
+.mc-review-eyebrow{
+  font-family:'Space Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:0.16em;
+  text-transform:uppercase;color:#c4b5fd;
+  padding:4px 10px;border-radius:999px;
+  background:rgba(138,92,255,0.10);
+  border:1px solid rgba(138,92,255,0.30);
+  margin-bottom:10px;
+}
 .mc-review-num{
   font-size:40px;font-weight:700;line-height:1;
   background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 24px rgba(138,92,255,0.30);
 }
 .mc-review-num-lbl{
   font-size:9px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.08em;
@@ -458,7 +515,6 @@ ul,ol{list-style:none;}
 
 /* ── Card 5 — Action Center ──────────────────────────────────────────── */
 .mc-action-count{font-size:11px;color:var(--amb);margin-bottom:10px;}
-.mc-action-count.is-good{color:var(--grn);}
 .mc-action-list{display:flex;flex-direction:column;gap:8px;}
 .mc-action-item{
   display:flex;flex-direction:column;gap:2px;
@@ -481,6 +537,37 @@ ul,ol{list-style:none;}
 .mc-action-empty{
   padding:12px;border-radius:6px;background:rgba(52,211,153,0.08);
   border-left:3px solid var(--grn);color:var(--grn);font-size:11px;line-height:1.5;
+}
+
+/* Brief 015h — healthy-state banner. Replaces the prior simple
+   "mc-action-empty" line. Pulsing green dot + bold mono status label +
+   two-line body. Stronger gradient bg + outer glow so the artist's eye
+   lands here and immediately reads "no action required". */
+.mc-action-banner{
+  padding:18px 16px;border-radius:10px;
+  background:linear-gradient(135deg, rgba(52,211,153,0.16), rgba(52,211,153,0.05));
+  border:1px solid rgba(52,211,153,0.40);
+  box-shadow:0 0 22px rgba(52,211,153,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.mc-action-banner-status{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.mc-action-banner-dot{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
+  background:#34d399;
+  box-shadow:0 0 0 0 rgba(52,211,153,0.65);
+  animation:mc-action-banner-pulse 2.4s infinite;
+}
+@keyframes mc-action-banner-pulse{
+  0%   { box-shadow:0 0 0 0 rgba(52,211,153,0.55), 0 0 10px rgba(52,211,153,0.45); }
+  70%  { box-shadow:0 0 0 8px rgba(52,211,153,0),  0 0 10px rgba(52,211,153,0.45); }
+  100% { box-shadow:0 0 0 0 rgba(52,211,153,0),    0 0 10px rgba(52,211,153,0.45); }
+}
+.mc-action-banner-label{
+  font-family:'Space Mono',monospace;
+  font-size:13px;font-weight:700;letter-spacing:0.14em;
+  color:#34d399;
+}
+.mc-action-banner-body{
+  font-size:12px;color:rgba(255,255,255,0.86);line-height:1.55;
 }
 
 /* ── Card 6 — Intelligence Profile ───────────────────────────────────── */
@@ -553,14 +640,28 @@ ul,ol{list-style:none;}
 .mc-baseline-btn i{font-size:12px;}
 .mc-baseline-empty{font-size:11px;color:var(--muted);padding:10px 0;}
 
-/* ── Card 9 — Monitoring Overview ────────────────────────────────────── */
+/* ── Card 9 — Monitoring Overview (Brief 015h — per-metric color coding) ─
+   Each of the 4 cells carries its own accent so the metrics are
+   scannable at a glance:
+     Days Monitored    → blue    (info / time)
+     Changes Detected  → purple  (event / brand)
+     Actions Completed → green   (positive / done)
+     Monitoring Uptime → emerald (system / SLA) */
 .mc-overview-sub{font-size:11px;color:var(--muted);margin-bottom:10px;}
 .mc-overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .mc-overview-cell{
   background:rgba(255,255,255,0.02);border-radius:6px;padding:10px;
+  border-left:2px solid rgba(255,255,255,0.06);
 }
+.mc-overview-cell.is-blue   {border-left-color:rgba(96,165,250,0.55); background:rgba(96,165,250,0.05);}
+.mc-overview-cell.is-purple {border-left-color:rgba(138,92,255,0.55); background:rgba(138,92,255,0.05);}
+.mc-overview-cell.is-green  {border-left-color:rgba(52,211,153,0.55); background:rgba(52,211,153,0.05);}
+.mc-overview-cell.is-emerald{border-left-color:rgba(16,185,129,0.60); background:rgba(16,185,129,0.06);}
 .mc-overview-num{font-size:20px;color:#fff;font-weight:700;line-height:1;}
-.mc-overview-num.is-good{color:var(--grn);}
+.mc-overview-cell.is-blue    .mc-overview-num{color:#93c5fd;}
+.mc-overview-cell.is-purple  .mc-overview-num{color:#c4b5fd;}
+.mc-overview-cell.is-green   .mc-overview-num{color:#6ee7b7;}
+.mc-overview-cell.is-emerald .mc-overview-num{color:#34d399;}
 .mc-overview-lbl{font-size:9px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;font-family:'Space Mono',monospace;}
 
 /* ── Footer ──────────────────────────────────────────────────────────── */
@@ -745,7 +846,7 @@ ul,ol{list-style:none;}
       <section class="mc-grid" id="mc-grid">
 
         <!-- CARD 1 — Royaltē Health Score™ -->
-        <article class="card" id="card-health">
+        <article class="card has-glow-green" id="card-health">
           <div class="card-hd">
             <div class="card-title"><span class="card-title-icon ic-purple"><i data-lucide="activity"></i></span>Royaltē Health Score™</div>
             <a class="card-link" href="#health-drivers">View Score Drivers <i data-lucide="arrow-right"></i></a>
@@ -768,7 +869,7 @@ ul,ol{list-style:none;}
         </article>
 
         <!-- CARD 2 — Backend Status -->
-        <article class="card" id="card-status">
+        <article class="card has-glow-emerald" id="card-status">
           <div class="card-hd">
             <div class="card-title"><span class="card-title-icon ic-green"><i data-lucide="shield-check"></i></span>Backend Status</div>
           </div>
@@ -781,7 +882,7 @@ ul,ol{list-style:none;}
         </article>
 
         <!-- CARD 3 — Royaltē Intelligence Feed -->
-        <article class="card" id="card-feed">
+        <article class="card has-glow-blue" id="card-feed">
           <div class="card-hd">
             <div class="card-title"><span class="card-title-icon ic-blue"><i data-lucide="audio-lines"></i></span>Intelligence Feed</div>
             <a class="card-link" href="#feed-all">View all <i data-lucide="arrow-right"></i></a>
@@ -798,15 +899,15 @@ ul,ol{list-style:none;}
           </div>
           <div class="mc-overview-sub">Your backend at a glance</div>
           <div class="mc-overview-grid">
-            <div class="mc-overview-cell"><div class="mc-overview-num" id="mc-ovr-days">—</div><div class="mc-overview-lbl">Days Monitored</div></div>
-            <div class="mc-overview-cell"><div class="mc-overview-num" id="mc-ovr-changes">—</div><div class="mc-overview-lbl">Changes Detected</div></div>
-            <div class="mc-overview-cell"><div class="mc-overview-num is-good" id="mc-ovr-resolved">—</div><div class="mc-overview-lbl">Actions Completed</div></div>
-            <div class="mc-overview-cell"><div class="mc-overview-num is-good">100%</div><div class="mc-overview-lbl">Monitoring Uptime</div></div>
+            <div class="mc-overview-cell is-blue"><div class="mc-overview-num" id="mc-ovr-days">—</div><div class="mc-overview-lbl">Days Monitored</div></div>
+            <div class="mc-overview-cell is-purple"><div class="mc-overview-num" id="mc-ovr-changes">—</div><div class="mc-overview-lbl">Changes Detected</div></div>
+            <div class="mc-overview-cell is-green"><div class="mc-overview-num" id="mc-ovr-resolved">—</div><div class="mc-overview-lbl">Actions Completed</div></div>
+            <div class="mc-overview-cell is-emerald"><div class="mc-overview-num">100%</div><div class="mc-overview-lbl">Monitoring Uptime</div></div>
           </div>
         </article>
 
         <!-- CARD 5 — Action Center -->
-        <article class="card" id="card-action">
+        <article class="card has-glow-amber" id="card-action">
           <div class="card-hd">
             <div class="card-title"><span class="card-title-icon ic-amber"><i data-lucide="shield-alert"></i></span>Action Center</div>
             <a class="card-link" href="#action-all">View all <i data-lucide="arrow-right"></i></a>
@@ -870,11 +971,12 @@ ul,ol{list-style:none;}
         </article>
 
         <!-- CARD 9 — Your Royaltē Review (Brief 015a Change 3, position 9) -->
-        <article class="card" id="card-review">
+        <article class="card has-glow-purple" id="card-review">
           <div class="card-hd">
             <div class="card-title"><span class="card-title-icon ic-purple"><i data-lucide="file-text"></i></span>Your Royaltē Review</div>
           </div>
           <div class="mc-review-anchor">
+            <div class="mc-review-eyebrow">Royaltē Review</div>
             <div class="mc-review-num" id="mc-review-num">—</div>
             <div class="mc-review-num-lbl">Health Score</div>
           </div>

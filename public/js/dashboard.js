@@ -710,12 +710,28 @@ function renderMcActionCenter({ items, totalCount }) {
   if (!countEl || !listEl) return;
 
   if (totalCount === 0) {
-    countEl.className = 'mc-action-count is-good';
-    countEl.textContent = 'ALL SYSTEMS NORMAL';
-    listEl.innerHTML = `<div class="mc-action-empty">Royaltē has not detected any issues requiring action. Monitoring continues.</div>`;
+    // Brief 015h — healthy state collapses into a single banner. The
+    // pulsing green dot + bold status label + two-line body replaces
+    // the prior count-line + empty-line pair so the reassurance lands
+    // as one strong block.
+    countEl.style.display = 'none';
+    countEl.textContent = '';
+    listEl.innerHTML = `
+      <div class="mc-action-banner">
+        <div class="mc-action-banner-status">
+          <span class="mc-action-banner-dot"></span>
+          <span class="mc-action-banner-label">ALL SYSTEMS NORMAL</span>
+        </div>
+        <div class="mc-action-banner-body">
+          Royaltē has not detected any issues requiring action.<br>
+          Monitoring continues.
+        </div>
+      </div>
+    `;
     return;
   }
 
+  countEl.style.display = '';
   countEl.className = 'mc-action-count';
   countEl.textContent = `${totalCount} item${totalCount === 1 ? '' : 's'} need your attention`;
 
