@@ -123,23 +123,6 @@ function _healthBand(score) {
   return                  { label: 'Review Recommended', cls: 'band-review'    };
 }
 
-// SVG sparkline path generator.
-function _sparkPath(values, opts = {}) {
-  const w = opts.width  || 200;
-  const h = opts.height || 32;
-  if (!Array.isArray(values) || values.length === 0) return '';
-  if (values.length === 1) {
-    const y = h - (values[0] / 100) * h;
-    return `M 0 ${y} L ${w} ${y}`;
-  }
-  const step = w / (values.length - 1);
-  return values.map((v, i) => {
-    const x = i * step;
-    const y = h - (clamp(v, 0, 100) / 100) * h;
-    return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
-  }).join(' ');
-}
-
 // Donut CSS conic-gradient — purple fill for `pct`% of the ring.
 function _donutGradient(pct) {
   const deg = clamp(pct, 0, 100) * 3.6;
@@ -576,12 +559,13 @@ function renderMcHealth(scan, history) {
   }
 
   if (sparkEl) {
-    const values = (history && history.length)
-      ? history.map(h => _resolveHealthScoreFromSnapshot(h) ?? 0)
-      : [current];
+    // Brief 015j rev3 — flat cyan baseline (the "monitoring track").
+    // The traveling spike lives in .mc-spark-spike-overlay (CSS keyframes
+    // outside the SVG), and the live green dot is .mc-spark-live (CSS
+    // overlay span). The previous purple data-line + end-circle are gone
+    // — score trend lives in the big number + delta on this same card.
     sparkEl.innerHTML =
-      `<path d="${_sparkPath(values)}" stroke="var(--pur-2)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />` +
-      `<circle cx="200" cy="${(32 - (current/100)*32).toFixed(1)}" r="2.5" fill="var(--pur-2)" />`;
+      `<path d="M 0 16 L 200 16" stroke="rgba(34,211,238,0.55)" stroke-width="1.5" fill="none" stroke-linecap="round" />`;
     sparkEl.setAttribute('preserveAspectRatio', 'none');
   }
 }
