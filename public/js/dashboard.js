@@ -146,16 +146,6 @@ function _donutGradient(pct) {
   return `conic-gradient(var(--pur-2) 0deg ${deg}deg,rgba(255,255,255,0.05) ${deg}deg)`;
 }
 
-// Inline-style fallback colors for the chips (still applied to status
-// dots + feed icons). See _iconStyle below.
-const ICON_COLORS = Object.freeze({
-  green:  { bg: 'rgba(52,211,153,0.40)',  fg: '#34d399', border: 'rgba(52,211,153,0.55)' },
-  amber:  { bg: 'rgba(245,158,11,0.40)',  fg: '#f59e0b', border: 'rgba(245,158,11,0.55)' },
-  red:    { bg: 'rgba(239,68,68,0.40)',   fg: '#ef4444', border: 'rgba(239,68,68,0.55)' },
-  purple: { bg: 'rgba(138,92,255,0.40)',  fg: '#a78bfa', border: 'rgba(138,92,255,0.55)' },
-  blue:   { bg: 'rgba(96,165,250,0.40)',  fg: '#60a5fa', border: 'rgba(96,165,250,0.55)' },
-});
-
 // Brief 015b → Lucide migration: feed chips, score-delta arrows, and
 // every dynamic icon use <i data-lucide="..."> placeholders that
 // lucide.createIcons() converts to inline SVGs after each render.
@@ -165,104 +155,67 @@ function _renderLucide() {
     try { window.lucide.createIcons(); } catch (e) { /* non-fatal */ }
   }
 }
-// Brief 015b debug — color removed from inline style. When the chip's
-// inline `color` matched its background tint (e.g. both purple at 0.40
-// alpha), monochrome-emoji fallback glyphs were rendering invisible.
-// Background + border still ride inline so the chip itself outclasses
-// any CSS specificity issue; color is left to the CSS modifier classes.
-function _iconStyle(colorKey) {
-  const c = ICON_COLORS[colorKey] || ICON_COLORS.blue;
-  return `background:${c.bg};border:1px solid ${c.border};`;
-}
-// Translate the existing .is-X class suffix to our color key.
-function _iconColorKey(iconClass) {
-  if (!iconClass) return 'blue';
-  return iconClass.replace(/^is-/, '');
-}
 
-// Brief 015b Part 3 — match a feed alert against the latest scan's
-// Apple Music albums[]. Returns the artwork URL (with {w}x{h}
-// substituted) or null if no match.
-function _matchAlbumArtwork(alert, albums) {
-  if (!Array.isArray(albums) || albums.length === 0) return null;
-  const haystack = ((alert.track_name || '') + ' ' + (alert.title || '')).toLowerCase().trim();
-  if (!haystack) return null;
-  for (const a of albums) {
-    const name = (a?.name || '').toLowerCase().trim();
-    if (!name) continue;
-    if (haystack.includes(name) || name.includes(haystack)) {
-      const url = a?.artwork?.url;
-      if (!url) continue;
-      // Apple Music URL template uses {w}x{h}. 64×64 = 2× for retina at 32px.
-      return url.replace('{w}', '64').replace('{h}', '64');
-    }
-  }
-  return null;
-}
-
-// Invoked by <img onerror=...> when album artwork fails to load.
-// Swaps the broken img element with the SVG icon fallback. Global
-// so it's reachable from inline onerror handlers built in renderMcFeed.
-window._mcFeedArtFallback = function(img) {
-  if (!img || !img.dataset) return;
-  const lucideName = img.dataset.fallbackLucide || 'activity';
-  const cls        = img.dataset.fallbackClass  || 'is-blue';
-  const style      = img.dataset.fallbackStyle  || '';
-  const div = document.createElement('div');
-  div.className = `mc-feed-icon ${cls}`;
-  div.setAttribute('style', style);
-  div.innerHTML = `<i data-lucide="${lucideName}"></i>`;
-  img.replaceWith(div);
-  _renderLucide();
-};
-
-// Intelligence Feed display mapper — change_type → user-facing copy.
-// LOCKED FORMAT per Brief 015d:
-//   title: "{song name}"
-//   sub:   "{what happened} · {territory if any} · {platform}"
-// For events without a song name (e.g. baseline_established), the
-// label becomes the title.
-// Brief 015d Item 8 — Event-chip color semantics (NOT severity).
-//   🟢 Green  = Verified         (ISRC verified, metadata verified, source confirmed)
-//   🟣 Purple = New Release      (new release / album / single / EP detected)
-//   🔵 Blue   = Discovery        (new source connected, new region, new platform, monitoring started)
-//   🟠 Amber  = Review           (publishing / metadata / catalog / confidence review recommended)
-//   🔴 Red    = Action Required  (critical issue, action required, source unavailable, monitoring alert)
+// Intelligence Feed display mapper — change_type → category tag + color.
+// Brief 015g layout: each item shows TAG (colored dot + uppercase
+// category) → track name → meta line. Categories compress to 5:
+//   🟢 VERIFIED    = ISRC verified, YouTube match, metadata verified
+//   🟣 NEW RELEASE = release_added
+//   🔵 DISCOVERY   = territory gain, baseline established
+//   🟠 REVIEW      = takedowns, dropped ISRCs, no-longer-visible signals
+//   🔴 ACTION      = ISRC mismatch, profile signal lost
+//
+// `metaHint` is a short noun phrase used as the meta line when no
+// territory is present (e.g. ISRC events) — overrides the platform
+// fallback so the third line reads as semantic event context.
 const FEED_META = Object.freeze({
-  release_added:        { icon: 'music',        label: 'New release detected',                color: 'is-purple' },
-  release_removed:      { icon: 'music',        label: 'Release no longer detected',          color: 'is-amber'  },
-  territory_gain:       { icon: 'globe',        label: 'New regional presence detected',      color: 'is-blue'   },
-  territory_loss:       { icon: 'globe',        label: 'No longer available in region',       color: 'is-amber'  },
-  isrc_added:           { icon: 'link',         label: 'ISRC linked',                          color: 'is-green'  },
-  isrc_dropped:         { icon: 'link',         label: 'ISRC signal changed',                  color: 'is-amber'  },
-  isrc_mismatch:        { icon: 'link',         label: 'Identifier mismatch detected',         color: 'is-red'    },
-  video_added:          { icon: 'circle-play',  label: 'YouTube match verified',               color: 'is-green'  },
-  video_removed:        { icon: 'circle-play',  label: 'YouTube match no longer detected',     color: 'is-amber'  },
-  metadata_changed:     { icon: 'badge-check',  label: 'Metadata updated',                     color: 'is-green'  },
-  baseline_established: { icon: 'scan-search',  label: 'Monitoring started',                   color: 'is-blue'   },
-  profile_missing:      { icon: 'alert-circle', label: 'Artist profile signal changed',        color: 'is-red'    },
+  release_added:        { tag: 'NEW RELEASE', color: 'is-purple' },
+  release_removed:      { tag: 'REVIEW',      color: 'is-amber', metaHint: 'Release Missing' },
+  territory_gain:       { tag: 'DISCOVERY',   color: 'is-blue'  },
+  territory_loss:       { tag: 'REVIEW',      color: 'is-amber' },
+  isrc_added:           { tag: 'VERIFIED',    color: 'is-green', metaHint: 'ISRC Verified' },
+  isrc_dropped:         { tag: 'REVIEW',      color: 'is-amber', metaHint: 'ISRC Changed' },
+  isrc_mismatch:        { tag: 'ACTION REQUIRED',      color: 'is-red',   metaHint: 'ISRC Mismatch' },
+  video_added:          { tag: 'VERIFIED',    color: 'is-green', metaHint: 'YouTube Match' },
+  video_removed:        { tag: 'REVIEW',      color: 'is-amber', metaHint: 'YouTube Missing' },
+  metadata_changed:     { tag: 'VERIFIED',    color: 'is-green', metaHint: 'Metadata Updated' },
+  baseline_established: { tag: 'DISCOVERY',   color: 'is-blue',  metaHint: 'Monitoring Started' },
+  profile_missing:      { tag: 'ACTION REQUIRED',      color: 'is-red',   metaHint: 'Profile Signal' },
 });
-const FEED_DEFAULT = Object.freeze({ icon: 'activity', label: 'Backend signal detected', color: 'is-purple' });
+const FEED_DEFAULT = Object.freeze({ tag: 'SIGNAL', color: 'is-purple' });
+
+const PLATFORM_DISPLAY = Object.freeze({
+  apple_music: 'Apple Music',
+  spotify:     'Spotify',
+  youtube:     'YouTube',
+});
+function _platformDisplay(p) {
+  if (!p) return '';
+  return PLATFORM_DISPLAY[p] || p;
+}
 
 function _feedDisplay(alert) {
-  const trackName = alert.track_name || alert.artist_name || '';
-  const territory = alert.territory ? String(alert.territory).toUpperCase() : '';
-  const platform  = alert.platform || '';
   const meta = FEED_META[alert.change_type] || FEED_DEFAULT;
+  const trackName = alert.track_name || alert.artist_name || '';
+  // Track line — prefer real subject name; fall back to category tag
+  // (formatted in Title Case) so baseline-style events still have a
+  // headline. We avoid the prior "label as title" pattern that produced
+  // sentence-style titles like "Monitoring started".
+  const track = trackName || _titleCase(meta.tag);
 
-  // Title = song name. When no track context, fall back to the label
-  // (e.g. baseline_established).
-  const title = trackName || meta.label;
+  // Meta line — territory wins (it's the most specific context);
+  // then a metaHint when defined (e.g. "ISRC Verified"); then platform.
+  let metaLine = '';
+  if (alert.territory)      metaLine = String(alert.territory).toUpperCase();
+  else if (meta.metaHint)   metaLine = meta.metaHint;
+  else if (alert.platform)  metaLine = _platformDisplay(alert.platform);
 
-  // Sub = "{label} · {territory} · {platform}". Skip the label segment
-  // when the title is already the label (avoid duplication).
-  const subParts = [];
-  if (trackName) subParts.push(meta.label);
-  if (territory) subParts.push(territory);
-  if (platform)  subParts.push(platform);
-  const sub = subParts.join(' · ');
+  return { category: meta.tag, color: meta.color, track, meta: metaLine };
+}
 
-  return { title, sub, iconClass: meta.color, lucide: meta.icon };
+function _titleCase(s) {
+  if (!s) return '';
+  return s.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
 /* ─────────────────────────────────────────────
@@ -634,92 +587,53 @@ function renderMcHealth(scan, history) {
 }
 
 // CARD 2 — Backend Status (Brief 015a Fix 4: explicit .is-green class)
+// Brief 015g — Backend Status renders 3 tile-style rows so each status
+// indicator is its own visual unit (vs. the prior pattern of three
+// similar-looking rows that visually blurred together). Each tile:
+//   - large iconified container (recognizable from 6+ ft)
+//   - one short uppercase status word
+//   - per-state CSS variant carries color + emphasis
+// Visual hierarchy across the three positive states:
+//   • Monitoring Active   → green, icon pulses (system is "alive")
+//   • No Critical Issues  → BRIGHTEST GREEN + halo (the headline reassurance)
+//   • All Clear           → soft green (neutral positive — quiet OK)
 function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesCount }) {
   const list = document.getElementById('mc-status-list');
   if (!list) return;
 
+  const tile = (variant, icon, title, sub) => `
+      <div class="mc-bs-tile ${variant}">
+        <div class="mc-bs-tile-icon"><i data-lucide="${icon}"></i></div>
+        <div class="mc-bs-tile-text">
+          <div class="mc-bs-tile-title">${escapeHtml(title)}</div>
+          <div class="mc-bs-tile-sub">${escapeHtml(sub)}</div>
+        </div>
+      </div>`;
+
   const rows = [];
 
-  // Brief 015d — Lucide icons inside the colored dot. Monitoring
-  // Active gets the .is-pulse modifier which animates the outer
-  // chip's box-shadow ring (mc-status-pulse keyframe), keeping the
-  // "alive" feel without an inner CSS dot.
-  const dotGreen = _iconStyle('green');
-  const dotAmber = _iconStyle('amber');
-  const dotRed   = _iconStyle('red');
+  // Row 1 — Monitoring (active/paused)
+  rows.push(monitoringActive
+    ? tile('is-monitoring-on',  'shield-check', 'Monitoring Active',
+           'Your backend is being monitored 24/7')
+    : tile('is-monitoring-off', 'shield-off',   'Monitoring Paused',
+           'Continuous monitoring is currently paused'));
 
-  // Row 1 — Monitoring status
-  if (monitoringActive) {
-    rows.push(`
-      <div class="mc-status-row">
-        <div class="mc-status-dot green is-pulse" style="${dotGreen}">
-          <i data-lucide="shield-check"></i>
-        </div>
-        <div class="mc-status-text">
-          <div class="mc-status-title">Monitoring Active</div>
-          <div class="mc-status-sub">Your backend is being monitored 24/7</div>
-        </div>
-      </div>
-    `);
-  } else {
-    rows.push(`
-      <div class="mc-status-row">
-        <div class="mc-status-dot amber" style="${dotAmber}">
-          <i data-lucide="shield-off"></i>
-        </div>
-        <div class="mc-status-text">
-          <div class="mc-status-title">Monitoring Paused</div>
-          <div class="mc-status-sub">Continuous monitoring is currently paused</div>
-        </div>
-      </div>
-    `);
-  }
+  // Row 2 — Critical issues (cleared/found). Cleared is THE headline.
+  rows.push(criticalCount > 0
+    ? tile('is-critical-found', 'triangle-alert',
+           `${criticalCount} Critical Issue${criticalCount === 1 ? '' : 's'}`,
+           'Requires attention')
+    : tile('is-critical-clear', 'circle-check', 'No Critical Issues',
+           'No problems detected'));
 
-  // Row 2 — Critical Issues
-  if (criticalCount > 0) {
-    rows.push(`
-      <div class="mc-status-row">
-        <div class="mc-status-dot red" style="${dotRed}"><i data-lucide="triangle-alert"></i></div>
-        <div class="mc-status-text">
-          <div class="mc-status-title">${criticalCount} Critical Issue${criticalCount === 1 ? '' : 's'}</div>
-          <div class="mc-status-sub">Requires attention</div>
-        </div>
-      </div>
-    `);
-  } else {
-    rows.push(`
-      <div class="mc-status-row">
-        <div class="mc-status-dot green" style="${dotGreen}"><i data-lucide="circle-check"></i></div>
-        <div class="mc-status-text">
-          <div class="mc-status-title">No Critical Issues</div>
-          <div class="mc-status-sub">No problems detected</div>
-        </div>
-      </div>
-    `);
-  }
-
-  // Row 3 — Opportunities
-  if (opportunitiesCount > 0) {
-    rows.push(`
-      <div class="mc-status-row">
-        <div class="mc-status-dot amber" style="${dotAmber}"><i data-lucide="alert-circle"></i></div>
-        <div class="mc-status-text">
-          <div class="mc-status-title">${opportunitiesCount} Opportunit${opportunitiesCount === 1 ? 'y' : 'ies'}</div>
-          <div class="mc-status-sub">Review recommended</div>
-        </div>
-      </div>
-    `);
-  } else {
-    rows.push(`
-      <div class="mc-status-row">
-        <div class="mc-status-dot green" style="${dotGreen}"><i data-lucide="circle-check"></i></div>
-        <div class="mc-status-text">
-          <div class="mc-status-title">No Opportunities</div>
-          <div class="mc-status-sub">Nothing to review right now</div>
-        </div>
-      </div>
-    `);
-  }
+  // Row 3 — Opportunities (cleared/found). Cleared is neutral positive.
+  rows.push(opportunitiesCount > 0
+    ? tile('is-opportunities-found', 'alert-circle',
+           `${opportunitiesCount} Opportunit${opportunitiesCount === 1 ? 'y' : 'ies'}`,
+           'Review recommended')
+    : tile('is-opportunities-clear', 'zap', 'No Opportunities',
+           'Nothing requiring review'));
 
   list.innerHTML = rows.join('');
   _renderLucide();
@@ -728,12 +642,14 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
 // CARD 3 — Intelligence Feed
 // Brief 015a-rev3 Fix 4 — baselineTimes passed in so the artifact
 // filter works regardless of fetch window.
-// Brief 015b Part 2 + 3 — emoji icon replaces Tabler glyph (no CDN
-// dependency); when a feed item matches an album in the latest
-// scan's appleMusic.albums[], the album artwork displays instead
-// of the emoji chip. img errors fall back to emoji via
-// window._mcFeedArtFallback.
-function renderMcFeed(alertsRaw, baselineTimes, albums) {
+// Brief 015g — Feed item layout: 3 stacked lines per event.
+//   line 1: <colored dot> UPPERCASE CATEGORY TAG   (the category signal)
+//   line 2: Track / event name                     (the headline)
+//   line 3: context • time                         (the supporting detail)
+// The colored dot replaces the prior 40px chip; the chromatic signal is
+// now small but always paired with an explicit word ("NEW RELEASE"),
+// so categories are immediately readable from a glance.
+function renderMcFeed(alertsRaw, baselineTimes) {
   const list = document.getElementById('mc-feed-list');
   if (!list) return;
   const alerts = _filterBaselineArtifacts(alertsRaw || [], baselineTimes).slice(0, 5);
@@ -745,28 +661,17 @@ function renderMcFeed(alertsRaw, baselineTimes, albums) {
   list.innerHTML = alerts.map((a) => {
     const d = _feedDisplay(a);
     const when = relativeTimeShort(a.detected_at);
-    const iconStyle = _iconStyle(_iconColorKey(d.iconClass));
-    const artwork = _matchAlbumArtwork(a, albums);
-    let iconEl;
-    if (artwork) {
-      // img + Lucide fallback via global error handler. data-fallback-lucide
-      // carries the Lucide icon name string.
-      iconEl = `<img class="mc-feed-art" src="${escapeHtml(artwork)}" alt="" loading="lazy" crossorigin="anonymous"`
-             + ` data-fallback-lucide="${escapeHtml(d.lucide)}"`
-             + ` data-fallback-class="${escapeHtml(d.iconClass)}"`
-             + ` data-fallback-style="${escapeHtml(iconStyle)}"`
-             + ` onerror="window._mcFeedArtFallback&&window._mcFeedArtFallback(this)">`;
-    } else {
-      iconEl = `<div class="mc-feed-icon ${escapeHtml(d.iconClass)}" style="${iconStyle}"><i data-lucide="${escapeHtml(d.lucide)}"></i></div>`;
-    }
+    const metaLine = d.meta
+      ? `${escapeHtml(d.meta)} • ${escapeHtml(when)}`
+      : escapeHtml(when);
     return `
       <div class="mc-feed-item">
-        ${iconEl}
-        <div class="mc-feed-body">
-          <div class="mc-feed-title">${escapeHtml(d.title)}</div>
-          <div class="mc-feed-sub">${escapeHtml(d.sub)}</div>
+        <div class="mc-feed-tag">
+          <span class="mc-feed-tag-dot ${escapeHtml(d.color)}"></span>
+          <span class="mc-feed-tag-label">${escapeHtml(d.category)}</span>
         </div>
-        <div class="mc-feed-time">${escapeHtml(when)}</div>
+        <div class="mc-feed-track">${escapeHtml(d.track)}</div>
+        <div class="mc-feed-meta">${metaLine}</div>
       </div>
     `;
   }).join('');
@@ -1183,12 +1088,9 @@ async function init() {
   ]);
   renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesCount });
 
-  // Card 3 — Intelligence Feed. albums[] from the latest scan flows
-  // into renderMcFeed so feed items matching a known release can show
-  // the Apple Music artwork instead of the emoji chip (Brief 015b).
+  // Card 3 — Intelligence Feed
   const feedAlerts = await loadAlertFeed(supabase, session.user.id);
-  const albums = scan?.payload?.platforms?.appleMusic?.details?.albums || [];
-  renderMcFeed(feedAlerts, baselineTimes, albums);
+  renderMcFeed(feedAlerts, baselineTimes);
 
   // Card 4 — Catalog Intelligence (uses scan + latest GENUINE change)
   renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes);
