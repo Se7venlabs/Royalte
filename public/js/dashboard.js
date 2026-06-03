@@ -576,12 +576,15 @@ function renderMcHealth(scan, history) {
   }
 
   if (sparkEl) {
+    // Brief 015j — track only (cyan, low alpha). The live dot is now
+    // a CSS-animated overlay (.mc-spark-live) so the static SVG circle
+    // is gone — the dot pulses on a 7s cycle synced with the cyan
+    // traveling signal (.mc-spark-signal).
     const values = (history && history.length)
       ? history.map(h => _resolveHealthScoreFromSnapshot(h) ?? 0)
       : [current];
     sparkEl.innerHTML =
-      `<path d="${_sparkPath(values)}" stroke="var(--pur-2)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />` +
-      `<circle cx="200" cy="${(32 - (current/100)*32).toFixed(1)}" r="2.5" fill="var(--pur-2)" />`;
+      `<path d="${_sparkPath(values)}" stroke="rgba(34,211,238,0.55)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />`;
     sparkEl.setAttribute('preserveAspectRatio', 'none');
   }
 }

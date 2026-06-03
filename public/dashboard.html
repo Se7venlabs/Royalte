@@ -296,7 +296,45 @@ ul,ol{list-style:none;}
 .mc-score-delta.is-neutral{color:var(--muted-2);}
 .mc-score-delta.is-down{color:var(--red);}
 .mc-score-delta i{font-size:14px;}
-.mc-spark{width:100%;height:32px;margin-top:10px;}
+/* Brief 015j — Health Score signature signal. A cyan monitoring pulse
+   travels left-to-right across the sparkline every ~7s; when it
+   arrives at the right edge, the green live dot pulses in sync.
+   Communicates "Royaltē just checked something" — calm, premium,
+   intentional. Pure CSS keyframes; no JS animation loop. */
+.mc-spark-wrap{position:relative;width:100%;height:32px;margin-top:10px;}
+.mc-spark{width:100%;height:32px;display:block;}
+.mc-spark-signal{
+  position:absolute;top:50%;left:0;
+  width:6px;height:6px;border-radius:50%;
+  background:#22d3ee;
+  box-shadow:0 0 12px rgba(34,211,238,0.85), 0 0 4px rgba(34,211,238,0.55);
+  transform:translate(-50%,-50%);
+  opacity:0;
+  animation:mc-spark-travel 7s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes mc-spark-travel{
+  0%   { left:0%;   opacity:0; animation-timing-function:ease-out; }
+  6%   { left:6%;   opacity:1; animation-timing-function:linear;   }
+  35%  { left:96%;  opacity:1; animation-timing-function:ease-out; }
+  40%  { left:100%; opacity:0; }
+  100% { left:100%; opacity:0; }
+}
+.mc-spark-live{
+  position:absolute;top:50%;right:0;
+  width:6px;height:6px;border-radius:50%;
+  background:#34d399;
+  box-shadow:0 0 6px rgba(52,211,153,0.65);
+  transform:translate(50%,-50%);
+  animation:mc-spark-live-pulse 7s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes mc-spark-live-pulse{
+  0%, 32%   { transform:translate(50%,-50%) scale(1);    box-shadow:0 0 6px rgba(52,211,153,0.65); }
+  38%       { transform:translate(50%,-50%) scale(1.13); box-shadow:0 0 14px rgba(52,211,153,0.95), 0 0 0 4px rgba(52,211,153,0.30); }
+  50%       { transform:translate(50%,-50%) scale(1.05); box-shadow:0 0 10px rgba(52,211,153,0.80); }
+  62%, 100% { transform:translate(50%,-50%) scale(1);    box-shadow:0 0 6px rgba(52,211,153,0.65); }
+}
 .mc-spark-foot{margin-top:8px;}
 
 /* ── Card 2 — Backend Status (Brief 015g — tile layout) ──────────────────
@@ -875,7 +913,11 @@ ul,ol{list-style:none;}
               </div>
             </div>
           </div>
-          <svg class="mc-spark" id="mc-spark-health" viewBox="0 0 200 32" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div class="mc-spark-wrap" aria-hidden="true">
+            <svg class="mc-spark" id="mc-spark-health" viewBox="0 0 200 32" preserveAspectRatio="none"></svg>
+            <span class="mc-spark-signal"></span>
+            <span class="mc-spark-live"></span>
+          </div>
         </article>
 
         <!-- CARD 2 — Backend Status -->
