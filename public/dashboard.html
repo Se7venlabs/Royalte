@@ -336,19 +336,22 @@ ul,ol{list-style:none;}
   height: 8px;
   border-radius: 50%;
   background: #22d3ee;
+  /* Ambient cyan glow — always visible so the dot reads as "live"
+     even when no signal is arriving. */
+  box-shadow: 0 0 8px 0 rgba(34,211,238,0.45);
   animation: dot-receive 7s ease-out infinite;
 }
+/* Arrival event ~560ms total (88%→96% of 7s cycle):
+     idle ambient glow → soft intensified halo + scale 1.15 → fade back.
+     Scale within the 10-15% spec; glow doubles in spread + alpha
+     for a clear "signal received" beat without becoming dramatic. */
 @keyframes dot-receive {
-  0%   { box-shadow: 0 0 0 0 rgba(34,211,238,0);
-         transform: translateY(-50%) scale(1); }
-  88%  { box-shadow: 0 0 0 0 rgba(34,211,238,0);
-         transform: translateY(-50%) scale(1); }
-  92%  { box-shadow: 0 0 8px 4px rgba(34,211,238,0.8);
-         transform: translateY(-50%) scale(1.4); }
-  96%  { box-shadow: 0 0 0 0 rgba(34,211,238,0);
-         transform: translateY(-50%) scale(1); }
-  100% { box-shadow: 0 0 0 0 rgba(34,211,238,0);
-         transform: translateY(-50%) scale(1); }
+  0%, 88% { box-shadow: 0 0 8px 0 rgba(34,211,238,0.45);
+            transform: translateY(-50%) scale(1); }
+  92%     { box-shadow: 0 0 16px 6px rgba(34,211,238,0.85);
+            transform: translateY(-50%) scale(1.15); }
+  96%, 100% { box-shadow: 0 0 8px 0 rgba(34,211,238,0.45);
+              transform: translateY(-50%) scale(1); }
 }
 
 /* ── Card 2 — Backend Status (Brief 015g — tile layout) ──────────────────
@@ -932,7 +935,7 @@ ul,ol{list-style:none;}
               <line x1="0" y1="20" x2="400" y2="20" stroke="#22d3ee" stroke-width="1" opacity="0.3"/>
             </svg>
             <svg class="mc-ekg-spike" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
-              <path d="M0,20 L20,20 L25,4 L30,36 L35,20 L38,23 L42,20 L60,20" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M0,20 L20,20 L25,1.5 L30,38.5 L35,20 L38,23 L42,20 L60,20" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
             <div class="mc-ekg-dot"></div>
           </div>
