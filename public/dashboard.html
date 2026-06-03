@@ -6,8 +6,10 @@
 <meta name="robots" content="noindex">
 <title>Mission Control · Royaltē</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<!-- Tabler outline icons — used throughout Mission Control. -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/tabler-icons.min.css">
+<!-- Lucide icons — UMD bundle. Initial DOM swap happens via the
+     lucide.createIcons() call at the bottom of <body>; dynamic
+     content (feed items, score delta) calls it again after innerHTML. -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
 /* ───────────────────────────────────────────────────────────────────────
    ROYALTĒ MISSION CONTROL (Brief 015)
@@ -411,6 +413,19 @@ ul,ol{list-style:none;}
   display:flex;align-items:center;justify-content:center;gap:8px;
 }
 .mc-foot i{font-size:13px;}
+/* Lucide-generated SVGs default to 24×24. Scale to parent font-size
+   (1em) so they slot into existing layouts; explicit overrides on
+   chips/sidebars below give pixel-perfect sizing. */
+.lucide{width:1em;height:1em;display:inline-block;vertical-align:middle;stroke-width:2;}
+.sb-nav-item .lucide{width:18px;height:18px;}
+.sb-fa-hd .lucide{width:12px;height:12px;}
+.sb-foot .lucide{width:13px;height:13px;}
+.tb-last-scan .lucide,.tb-scan-btn .lucide{width:14px;height:14px;}
+.card-link .lucide{width:12px;height:12px;}
+.mc-score-delta .lucide{width:14px;height:14px;}
+.card-title .lucide{width:13px;height:13px;}
+.mc-foot .lucide{width:13px;height:13px;}
+.mc-feed-icon .lucide{width:16px;height:16px;}
 
 /* ── Below-grid conditional sections (trial banner, upgrade, pricing) ──
    These render conditionally for free/trial users only. Founding Artists
@@ -475,11 +490,11 @@ ul,ol{list-style:none;}
     </div>
     <div class="topbar-right">
       <div class="tb-last-scan">
-        <i class="ti ti-clock"></i>
+        <i data-lucide="clock"></i>
         <span>Last scan: <span id="tb-last-scan">—</span></span>
       </div>
       <a href="/" class="tb-scan-btn">
-        <i class="ti ti-player-play"></i>
+        <i data-lucide="play"></i>
         Run New Scan
       </a>
     </div>
@@ -497,42 +512,42 @@ ul,ol{list-style:none;}
 
       <nav class="sb-nav" id="sb-nav">
         <a class="sb-nav-item is-active" data-nav="mission-control" href="#mission-control">
-          <i class="ti ti-layout-dashboard"></i>
+          <i data-lucide="layout-dashboard"></i>
           <div class="sb-nav-text">
             <div class="sb-nav-label">Mission Control</div>
             <div class="sb-nav-sub">Overview &amp; Health</div>
           </div>
         </a>
         <a class="sb-nav-item" data-nav="action-center" href="#action-center">
-          <i class="ti ti-bell"></i>
+          <i data-lucide="bell"></i>
           <div class="sb-nav-text">
             <div class="sb-nav-label">Action Center</div>
             <div class="sb-nav-sub">Tasks &amp; Alerts</div>
           </div>
         </a>
         <a class="sb-nav-item" data-nav="catalog" href="#catalog">
-          <i class="ti ti-music"></i>
+          <i data-lucide="music"></i>
           <div class="sb-nav-text">
             <div class="sb-nav-label">Catalog</div>
             <div class="sb-nav-sub">Your Music Map</div>
           </div>
         </a>
         <a class="sb-nav-item" data-nav="reviews" href="#reviews">
-          <i class="ti ti-file-text"></i>
+          <i data-lucide="file-text"></i>
           <div class="sb-nav-text">
             <div class="sb-nav-label">Reviews</div>
             <div class="sb-nav-sub">Baseline &amp; History</div>
           </div>
         </a>
         <a class="sb-nav-item" data-nav="intelligence-sources" href="#intelligence-sources">
-          <i class="ti ti-database"></i>
+          <i data-lucide="database"></i>
           <div class="sb-nav-text">
             <div class="sb-nav-label">Intelligence Sources</div>
             <div class="sb-nav-sub">Connections &amp; Uploads</div>
           </div>
         </a>
         <a class="sb-nav-item" data-nav="settings" href="#settings">
-          <i class="ti ti-settings"></i>
+          <i data-lucide="settings"></i>
           <div class="sb-nav-text">
             <div class="sb-nav-label">Settings</div>
             <div class="sb-nav-sub">Account &amp; Preferences</div>
@@ -544,7 +559,7 @@ ul,ol{list-style:none;}
 
       <div class="sb-fa" id="sb-fa" style="display:none;">
         <div class="sb-fa-hd">
-          <i class="ti ti-crown"></i>
+          <i data-lucide="crown"></i>
           <span class="sb-fa-eyebrow">Founding Artist</span>
           <span class="sb-fa-num" id="sb-fa-num"></span>
         </div>
@@ -568,7 +583,7 @@ ul,ol{list-style:none;}
         <article class="card" id="card-health">
           <div class="card-hd">
             <div class="card-title">Royaltē Health Score™</div>
-            <a class="card-link" href="#health-drivers">View Score Drivers <i class="ti ti-arrow-right"></i></a>
+            <a class="card-link" href="#health-drivers">View Score Drivers <i data-lucide="arrow-right"></i></a>
           </div>
           <div class="mc-health-row">
             <div class="mc-score-circle" id="mc-score-circle">
@@ -579,7 +594,7 @@ ul,ol{list-style:none;}
               <div class="mc-score-band-label" id="mc-score-band">—</div>
               <div class="mc-score-desc" id="mc-score-desc">Loading your backend health…</div>
               <div class="mc-score-delta is-neutral" id="mc-score-delta">
-                <i class="ti ti-minus"></i>
+                <i data-lucide="minus"></i>
                 <span>—</span>
               </div>
             </div>
@@ -596,7 +611,7 @@ ul,ol{list-style:none;}
             <!-- populated by renderMcBackendStatus -->
           </div>
           <div class="mc-status-foot">
-            <a class="card-link" href="#card-action">View Action Center <i class="ti ti-arrow-right"></i></a>
+            <a class="card-link" href="#card-action">View Action Center <i data-lucide="arrow-right"></i></a>
           </div>
         </article>
 
@@ -604,7 +619,7 @@ ul,ol{list-style:none;}
         <article class="card" id="card-feed">
           <div class="card-hd">
             <div class="card-title">Intelligence Feed</div>
-            <a class="card-link" href="#feed-all">View all <i class="ti ti-arrow-right"></i></a>
+            <a class="card-link" href="#feed-all">View all <i data-lucide="arrow-right"></i></a>
           </div>
           <div class="mc-feed-list" id="mc-feed-list">
             <!-- populated by renderMcFeed -->
@@ -629,7 +644,7 @@ ul,ol{list-style:none;}
         <article class="card" id="card-action">
           <div class="card-hd">
             <div class="card-title">Action Center</div>
-            <a class="card-link" href="#action-all">View all <i class="ti ti-arrow-right"></i></a>
+            <a class="card-link" href="#action-all">View all <i data-lucide="arrow-right"></i></a>
           </div>
           <div class="mc-action-count" id="mc-action-count">—</div>
           <div class="mc-action-list" id="mc-action-list">
@@ -657,21 +672,21 @@ ul,ol{list-style:none;}
             </div>
           </div>
           <div class="mc-profile-foot">
-            <a class="card-link" href="#intelligence-sources">Manage Intelligence Sources <i class="ti ti-arrow-right"></i></a>
+            <a class="card-link" href="#intelligence-sources">Manage Intelligence Sources <i data-lucide="arrow-right"></i></a>
           </div>
         </article>
 
         <!-- CARD 7 — Global Presence -->
         <article class="card" id="card-presence">
           <div class="card-hd">
-            <div class="card-title"><i class="ti ti-world" style="font-size:13px;"></i> Global Presence</div>
+            <div class="card-title"><i data-lucide="globe"></i> Global Presence</div>
           </div>
           <div class="mc-presence-sub" id="mc-presence-sub">— of 8 regions verified</div>
           <div class="mc-flag-grid" id="mc-flag-grid">
             <!-- populated by renderMcGlobalPresence -->
           </div>
           <div class="mc-presence-foot">
-            <a class="card-link" href="#global-map">View Full Map <i class="ti ti-arrow-right"></i></a>
+            <a class="card-link" href="#global-map">View Full Map <i data-lucide="arrow-right"></i></a>
           </div>
         </article>
 
@@ -747,12 +762,17 @@ ul,ol{list-style:none;}
 
   <!-- ─── FOOTER ─────────────────────────────────────────────────── -->
   <footer class="mc-foot">
-    <i class="ti ti-lock"></i>
+    <i data-lucide="lock"></i>
     <span>Royaltē does not collect money. We identify problems and give you the action plan to fix them.</span>
   </footer>
 
 </div>
 
 <script type="module" src="/js/dashboard.js"></script>
+<!-- Lucide first-pass — converts all static <i data-lucide> elements
+     in the HTML to inline SVGs. Dynamic renders (feed, score delta)
+     call lucide.createIcons() again after injecting their own
+     placeholders. -->
+<script>if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();</script>
 </body>
 </html>
