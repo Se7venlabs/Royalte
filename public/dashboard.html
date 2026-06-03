@@ -296,46 +296,59 @@ ul,ol{list-style:none;}
 .mc-score-delta.is-neutral{color:var(--muted-2);}
 .mc-score-delta.is-down{color:var(--red);}
 .mc-score-delta i{font-size:14px;}
-/* Brief 015j rev4 — EKG monitor (scrolling SVG approach).
-   Implementation copied verbatim from founder spec. The SVG holds
-   three pre-drawn QRS spikes baked into the path (at viewBox x=95,
-   295, 495). The SVG element is sized to 200% of the wrap width and
-   animated translateX(0 → -50%) over 3s linear — the whole SVG slides
-   left, scrolling the spikes continuously through the visible viewport.
-   The wrap clips the overflow. */
-.mc-ekg-wrap{
-  position:relative;
-  width:100%;
-  height:40px;
-  overflow:hidden;
-  margin-top:12px;
+/* Brief 015j rev5 — single spike travels across a static cyan line.
+   Verbatim founder spec. Static cyan baseline (.mc-ekg-bg) + one
+   traveling spike (.mc-ekg-spike) whose `left` animates -60px →
+   calc(100% - 10px) over 7s. Dot pulses on arrival. */
+.mc-ekg-wrap {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  overflow: hidden;
+  margin-top: 8px;
 }
-.mc-ekg-svg{
-  width:200%;
-  height:100%;
-  animation:ekg-scroll 8s linear infinite;
+.mc-ekg-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
 }
-@keyframes ekg-scroll{
-  from { transform:translateX(0);    }
-  to   { transform:translateX(-50%); }
+.mc-ekg-spike {
+  position: absolute;
+  top: 0;
+  width: 60px;
+  height: 100%;
+  animation: spike-travel 7s linear infinite;
 }
-.mc-ekg-dot{
-  position:absolute;
-  right:4px;
-  top:50%;
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#ef4444;
-  box-shadow:0 0 8px rgba(239,68,68,0.75);
-  pointer-events:none;
-  animation:ekg-dot-pulse 8s ease-in-out infinite;
-  animation-delay:7.2s;
+@keyframes spike-travel {
+  0%   { left: -60px; opacity: 0; }
+  5%   { opacity: 1; }
+  90%  { opacity: 1; }
+  95%  { left: calc(100% - 10px); opacity: 1; }
+  96%  { opacity: 0; }
+  100% { left: calc(100% - 10px); opacity: 0; }
 }
-@keyframes ekg-dot-pulse{
-  0%   { transform:translateY(-50%) scale(1);    box-shadow:0 0 8px rgba(239,68,68,0.75); }
-  50%  { transform:translateY(-50%) scale(1.30); box-shadow:0 0 14px rgba(239,68,68,1.00), 0 0 0 4px rgba(239,68,68,0.30); }
-  100% { transform:translateY(-50%) scale(1);    box-shadow:0 0 8px rgba(239,68,68,0.75); }
+.mc-ekg-dot {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22d3ee;
+  animation: dot-receive 7s ease-out infinite;
+}
+@keyframes dot-receive {
+  0%   { box-shadow: 0 0 0 0 rgba(34,211,238,0);
+         transform: translateY(-50%) scale(1); }
+  88%  { box-shadow: 0 0 0 0 rgba(34,211,238,0);
+         transform: translateY(-50%) scale(1); }
+  92%  { box-shadow: 0 0 8px 4px rgba(34,211,238,0.8);
+         transform: translateY(-50%) scale(1.4); }
+  96%  { box-shadow: 0 0 0 0 rgba(34,211,238,0);
+         transform: translateY(-50%) scale(1); }
+  100% { box-shadow: 0 0 0 0 rgba(34,211,238,0);
+         transform: translateY(-50%) scale(1); }
 }
 
 /* ── Card 2 — Backend Status (Brief 015g — tile layout) ──────────────────
@@ -915,8 +928,11 @@ ul,ol{list-style:none;}
             </div>
           </div>
           <div class="mc-ekg-wrap" aria-hidden="true">
-            <svg class="mc-ekg-svg" viewBox="0 0 600 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-              <path class="mc-ekg-path" d="M0,20 L80,20 L90,20 L95,5 L100,35 L105,20 L110,22 L115,20 L200,20 L280,20 L290,20 L295,5 L300,35 L305,20 L310,22 L315,20 L400,20 L480,20 L490,20 L495,5 L500,35 L505,20 L510,22 L515,20 L600,20" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+            <svg class="mc-ekg-bg" viewBox="0 0 400 40" preserveAspectRatio="none">
+              <line x1="0" y1="20" x2="400" y2="20" stroke="#22d3ee" stroke-width="1" opacity="0.3"/>
+            </svg>
+            <svg class="mc-ekg-spike" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0,20 L20,20 L25,4 L30,36 L35,20 L38,23 L42,20 L60,20" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
             <div class="mc-ekg-dot"></div>
           </div>
