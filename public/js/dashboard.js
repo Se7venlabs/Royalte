@@ -156,19 +156,15 @@ const ICON_COLORS = Object.freeze({
   blue:   { bg: 'rgba(96,165,250,0.40)',  fg: '#60a5fa', border: 'rgba(96,165,250,0.55)' },
 });
 
-// Brief 015b — inline SVG icons for the Intelligence Feed chips.
-// Replaces emoji entirely. SVG paths use currentColor so the chip's
-// CSS color (#ffffff) drives the stroke/fill — no font dependency, no
-// emoji glyph fallback uncertainty.
-const ICON_SVG = Object.freeze({
-  music: '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M9 3v7.26A3 3 0 1 0 11 13V5h3V3H9z"/></svg>',
-  globe: '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><ellipse cx="8" cy="8" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5"/></svg>',
-  video: '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><rect x="1" y="3" width="10" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 6l4-2v8l-4-2V6z"/></svg>',
-  key:   '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><circle cx="5" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 8h7M13 8v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  check: '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3 8l3.5 3.5L13 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-  alert: '<svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 2L1 14h14L8 2z" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="7" x2="8" y2="10" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="12" r="0.5" fill="currentColor"/></svg>',
-  dot:   '<svg viewBox="0 0 16 16" fill="currentColor" width="8" height="8"><circle cx="8" cy="8" r="4"/></svg>',
-});
+// Brief 015b → Lucide migration: feed chips, score-delta arrows, and
+// every dynamic icon use <i data-lucide="..."> placeholders that
+// lucide.createIcons() converts to inline SVGs after each render.
+// Helper hoisted here so all renderers can call it without scoping.
+function _renderLucide() {
+  if (typeof window !== 'undefined' && window.lucide && typeof window.lucide.createIcons === 'function') {
+    try { window.lucide.createIcons(); } catch (e) { /* non-fatal */ }
+  }
+}
 // Brief 015b debug — color removed from inline style. When the chip's
 // inline `color` matched its background tint (e.g. both purple at 0.40
 // alpha), monochrome-emoji fallback glyphs were rendering invisible.
@@ -209,20 +205,20 @@ function _matchAlbumArtwork(alert, albums) {
 // so it's reachable from inline onerror handlers built in renderMcFeed.
 window._mcFeedArtFallback = function(img) {
   if (!img || !img.dataset) return;
-  const svgKey = img.dataset.fallbackSvgKey || 'dot';
-  const cls    = img.dataset.fallbackClass  || 'is-blue';
-  const style  = img.dataset.fallbackStyle  || '';
-  const svg    = ICON_SVG[svgKey] || ICON_SVG.dot;
+  const lucideName = img.dataset.fallbackLucide || 'activity';
+  const cls        = img.dataset.fallbackClass  || 'is-blue';
+  const style      = img.dataset.fallbackStyle  || '';
   const div = document.createElement('div');
   div.className = `mc-feed-icon ${cls}`;
   div.setAttribute('style', style);
-  div.innerHTML = svg;
+  div.innerHTML = `<i data-lucide="${lucideName}"></i>`;
   img.replaceWith(div);
+  _renderLucide();
 };
 
 // Intelligence Feed display mapper — change_type → user-facing copy.
 // LOCKED LANGUAGE per Brief 015: song-first, never system language.
-// Brief 015b — inline SVG via svgKey replaces emoji entirely.
+// Brief 015b → Lucide: lucide field carries the Lucide icon name;
 // iconClass still drives the colored background chip.
 function _feedDisplay(alert) {
   const trackName = alert.track_name || alert.artist_name || 'Your catalog';
@@ -230,67 +226,67 @@ function _feedDisplay(alert) {
   const platform  = alert.platform || '';
   const t = alert.change_type;
 
-  const out = { title: '', sub: '', iconClass: 'is-purple', svgKey: 'dot' };
+  const out = { title: '', sub: '', iconClass: 'is-purple', lucide: 'activity' };
   switch (t) {
     case 'territory_loss':
       out.title = `${trackName} — No longer available in ${territory || 'a territory'}`;
       out.sub = platform || 'territory change';
-      out.iconClass = 'is-amber'; out.svgKey = 'globe';
+      out.iconClass = 'is-amber'; out.lucide = 'globe';
       break;
     case 'territory_gain':
       out.title = `${trackName} — Now available in ${territory || 'a new territory'}`;
       out.sub = platform || 'territory change';
-      out.iconClass = 'is-green'; out.svgKey = 'globe';
+      out.iconClass = 'is-green'; out.lucide = 'globe';
       break;
     case 'isrc_dropped':
       out.title = `${trackName} — Identifier signal changed`;
       out.sub = 'ISRC no longer detected from reviewed sources';
-      out.iconClass = 'is-amber'; out.svgKey = 'key';
+      out.iconClass = 'is-amber'; out.lucide = 'key';
       break;
     case 'isrc_added':
       out.title = `${trackName} — Identifier verified`;
       out.sub = 'ISRC confirmed';
-      out.iconClass = 'is-green'; out.svgKey = 'key';
+      out.iconClass = 'is-green'; out.lucide = 'key';
       break;
     case 'isrc_mismatch':
       out.title = `${trackName} — Identifier mismatch noted`;
       out.sub = 'Cross-source ISRC values differ';
-      out.iconClass = 'is-amber'; out.svgKey = 'key';
+      out.iconClass = 'is-amber'; out.lucide = 'key';
       break;
     case 'release_added':
       out.title = `${trackName} — New release detected`;
       out.sub = platform || 'release';
-      out.iconClass = 'is-purple'; out.svgKey = 'music';
+      out.iconClass = 'is-purple'; out.lucide = 'music';
       break;
     case 'release_removed':
       out.title = `${trackName} — Release no longer detected`;
       out.sub = platform || 'release';
-      out.iconClass = 'is-amber'; out.svgKey = 'music';
+      out.iconClass = 'is-amber'; out.lucide = 'music';
       break;
     case 'video_added':
       out.title = `${trackName} — YouTube match verified`;
       out.sub = 'YouTube';
-      out.iconClass = 'is-green'; out.svgKey = 'video';
+      out.iconClass = 'is-green'; out.lucide = 'youtube';
       break;
     case 'video_removed':
       out.title = `${trackName} — YouTube match no longer detected`;
       out.sub = 'YouTube';
-      out.iconClass = 'is-amber'; out.svgKey = 'video';
+      out.iconClass = 'is-amber'; out.lucide = 'youtube';
       break;
     case 'metadata_changed':
       out.title = `${trackName} — Metadata change detected`;
       out.sub = platform || 'metadata';
-      out.iconClass = 'is-amber'; out.svgKey = 'alert';
+      out.iconClass = 'is-amber'; out.lucide = 'alert-triangle';
       break;
     case 'baseline_established':
       out.title = 'Baseline established — monitoring now active';
       out.sub = 'Royaltē OS';
-      out.iconClass = 'is-green'; out.svgKey = 'check';
+      out.iconClass = 'is-green'; out.lucide = 'check-circle';
       break;
     case 'profile_missing':
       out.title = `${trackName} — Profile missing`;
       out.sub = platform || 'profile';
-      out.iconClass = 'is-amber'; out.svgKey = 'alert';
+      out.iconClass = 'is-amber'; out.lucide = 'alert-triangle';
       break;
     default:
       out.title = `${trackName} — Change detected`;
@@ -577,7 +573,7 @@ function renderMcHealth(scan, history) {
     if (numEl)  numEl.textContent = '—';
     if (bandEl) bandEl.textContent = 'Awaiting first scan';
     if (descEl) descEl.textContent = 'Your Health Score appears after your first scan.';
-    if (deltaEl) deltaEl.innerHTML = '<i class="ti ti-minus"></i><span>—</span>';
+    if (deltaEl) { deltaEl.innerHTML = '<i data-lucide="minus"></i><span>—</span>'; _renderLucide(); }
     return;
   }
 
@@ -597,17 +593,18 @@ function renderMcHealth(scan, history) {
   if (deltaEl) {
     if (delta == null || history.length < 2) {
       deltaEl.className = 'mc-score-delta is-neutral';
-      deltaEl.innerHTML = '<i class="ti ti-minus"></i><span>Baseline established</span>';
+      deltaEl.innerHTML = '<i data-lucide="minus"></i><span>Baseline established</span>';
     } else if (delta > 0) {
       deltaEl.className = 'mc-score-delta';
-      deltaEl.innerHTML = `<i class="ti ti-trending-up"></i><span>+${delta} points since baseline</span>`;
+      deltaEl.innerHTML = `<i data-lucide="trending-up"></i><span>+${delta} points since baseline</span>`;
     } else if (delta < 0) {
       deltaEl.className = 'mc-score-delta is-down';
-      deltaEl.innerHTML = `<i class="ti ti-trending-down"></i><span>${delta} points since baseline</span>`;
+      deltaEl.innerHTML = `<i data-lucide="trending-down"></i><span>${delta} points since baseline</span>`;
     } else {
       deltaEl.className = 'mc-score-delta is-neutral';
-      deltaEl.innerHTML = '<i class="ti ti-equal"></i><span>0 points since baseline</span>';
+      deltaEl.innerHTML = '<i data-lucide="equal"></i><span>0 points since baseline</span>';
     }
+    _renderLucide();
   }
 
   if (sparkEl) {
@@ -720,19 +717,17 @@ function renderMcFeed(alertsRaw, baselineTimes, albums) {
     const when = relativeTimeShort(a.detected_at);
     const iconStyle = _iconStyle(_iconColorKey(d.iconClass));
     const artwork = _matchAlbumArtwork(a, albums);
-    const svg = ICON_SVG[d.svgKey] || ICON_SVG.dot;
     let iconEl;
     if (artwork) {
-      // img + SVG fallback via global error handler. data-fallback-svg-key
-      // carries the SVG identifier (not the SVG string itself — that would
-      // break quoting inside the attribute).
+      // img + Lucide fallback via global error handler. data-fallback-lucide
+      // carries the Lucide icon name string.
       iconEl = `<img class="mc-feed-art" src="${escapeHtml(artwork)}" alt="" loading="lazy" crossorigin="anonymous"`
-             + ` data-fallback-svg-key="${escapeHtml(d.svgKey)}"`
+             + ` data-fallback-lucide="${escapeHtml(d.lucide)}"`
              + ` data-fallback-class="${escapeHtml(d.iconClass)}"`
              + ` data-fallback-style="${escapeHtml(iconStyle)}"`
              + ` onerror="window._mcFeedArtFallback&&window._mcFeedArtFallback(this)">`;
     } else {
-      iconEl = `<div class="mc-feed-icon ${escapeHtml(d.iconClass)}" style="${iconStyle}">${svg}</div>`;
+      iconEl = `<div class="mc-feed-icon ${escapeHtml(d.iconClass)}" style="${iconStyle}"><i data-lucide="${escapeHtml(d.lucide)}"></i></div>`;
     }
     return `
       <div class="mc-feed-item">
@@ -745,6 +740,7 @@ function renderMcFeed(alertsRaw, baselineTimes, albums) {
       </div>
     `;
   }).join('');
+  _renderLucide();
 }
 
 // CARD 4 — Catalog Intelligence (Brief 015a Change 1)
@@ -1190,6 +1186,10 @@ async function init() {
   wireReservationFlow(session);
 
   wireLockCTAs();
+
+  // Final sweep — convert any remaining <i data-lucide="..."> placeholders
+  // emitted during init() to inline SVGs.
+  _renderLucide();
 }
 
 if (document.readyState === 'loading') {
