@@ -499,11 +499,56 @@ async function loadBaselinePdf(supabase, baselineSnapshot) {
    RENDERERS — Mission Control
    ───────────────────────────────────────────── */
 
-function renderMcTopBar(artistName, scanDate) {
+// Brief 015e P0 — artist name is the personal anchor; set it as early
+// as we know it so it paints before alert-derived data arrives.
+function renderMcArtistName(artistName) {
   const nameEl = document.getElementById('tb-artist-name');
-  if (nameEl) nameEl.textContent = artistName || 'Artist';
-  const lastEl = document.getElementById('tb-last-scan');
-  if (lastEl) lastEl.textContent = scanDate ? relativeTimePast(new Date(scanDate)) : '—';
+  if (nameEl) nameEl.textContent = (artistName || 'Artist').toUpperCase();
+}
+
+// Brief 015e P1 — command-center status strip. Status derivation:
+//   criticalCount > 0       → ACTION REQUIRED  (red)
+//   opportunitiesCount > 0  → ATTENTION NEEDED (amber)
+//   otherwise               → ALL SYSTEMS NORMAL (green)
+function renderMcStatusBar({
+  healthScore,
+  monitoringActive,
+  criticalCount = 0,
+  opportunitiesCount = 0,
+  totalChanges = 0,
+  confidenceLabel,
+  scanDate,
+}) {
+  let statusClass, statusText;
+  if (criticalCount > 0) {
+    statusClass = 'is-red';
+    statusText  = 'ACTION REQUIRED';
+  } else if (opportunitiesCount > 0) {
+    statusClass = 'is-amber';
+    statusText  = 'ATTENTION NEEDED';
+  } else {
+    statusClass = 'is-green';
+    statusText  = 'ALL SYSTEMS NORMAL';
+  }
+
+  const dotEl = document.getElementById('tb-status-dot');
+  if (dotEl) {
+    dotEl.classList.remove('is-green', 'is-amber', 'is-red');
+    dotEl.classList.add(statusClass);
+  }
+  const labelEl = document.getElementById('tb-status-label');
+  if (labelEl) {
+    labelEl.textContent = statusText;
+    labelEl.classList.remove('is-green', 'is-amber', 'is-red');
+    labelEl.classList.add(statusClass);
+  }
+
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('tb-stat-health',     healthScore == null ? '—' : String(healthScore));
+  set('tb-stat-monitoring', monitoringActive ? 'Active' : 'Paused');
+  set('tb-stat-changes',    String(totalChanges || 0));
+  set('tb-stat-confidence', confidenceLabel || '—');
+  set('tb-last-scan',       scanDate ? relativeTimePast(new Date(scanDate)) : '—');
 }
 
 function renderMcSidebar(profile) {
@@ -761,8 +806,8 @@ function renderMcActionCenter({ items, totalCount }) {
 
   if (totalCount === 0) {
     countEl.className = 'mc-action-count is-good';
-    countEl.textContent = 'All Systems Normal';
-    listEl.innerHTML = `<div class="mc-action-empty">You're in good shape. Royaltē has not detected any issues requiring action. Monitoring continues.</div>`;
+    countEl.textContent = 'ALL SYSTEMS NORMAL';
+    listEl.innerHTML = `<div class="mc-action-empty">Royaltē has not detected any issues requiring action. Monitoring continues.</div>`;
     return;
   }
 
@@ -1123,7 +1168,10 @@ async function init() {
   ]);
 
   const artistName = (scan && scan.artist_name) || (scan?.payload?.subject?.artistName) || (session.user?.email?.split('@')[0]) || 'Artist';
-  renderMcTopBar(artistName, scan?.scanned_at || scan?.created_at);
+  // Paint the artist name immediately (Brief 015e P0); the status row,
+  // stats, and Last Scan get populated by renderMcStatusBar at the end
+  // of init() once all the derived data is loaded.
+  renderMcArtistName(artistName);
 
   // Card 1 — Health Score
   renderMcHealth(scan, history);
@@ -1164,6 +1212,20 @@ async function init() {
   const baselinePdfUrl = await loadBaselinePdf(supabase, baseline);
   const confidence = _confidenceLabelForScan(baseline || scan);
   renderMcYourReview({ baseline, currentScan: scan, pdfUrl: baselinePdfUrl, confidenceLabel: confidence.label });
+
+  // Brief 015e P1 — populate the command-center status bar now that we
+  // have every input. Health score uses the current scan (same source
+  // Card 1 reads). Confidence reads the baseline (or the current scan
+  // when no baseline yet exists), matching Card 9's framing.
+  renderMcStatusBar({
+    healthScore: _resolveHealthScoreFromSnapshot(scan),
+    monitoringActive,
+    criticalCount,
+    opportunitiesCount,
+    totalChanges: (alertOverview && typeof alertOverview.total === 'number') ? alertOverview.total : 0,
+    confidenceLabel: confidence.label,
+    scanDate: scan?.scanned_at || scan?.created_at,
+  });
 
   // Below-grid conditional sections
   const reservation = await loadReservation(supabase, session.user.id);
