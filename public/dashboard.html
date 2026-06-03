@@ -296,54 +296,41 @@ ul,ol{list-style:none;}
 .mc-score-delta.is-neutral{color:var(--muted-2);}
 .mc-score-delta.is-down{color:var(--red);}
 .mc-score-delta i{font-size:14px;}
-/* Brief 015j rev3 — Health Score signature signal. A cyan spike
-   travels continuously left → right across the flat cyan baseline
-   (3s linear loop). When it arrives, the green live dot scales up
-   with a soft halo. Communicates "Royaltē is actively scanning your
-   catalog."
-
-   Implementation note: spike is an HTML overlay (.mc-spark-spike-overlay)
-   containing a small bump SVG, positioned-animated via CSS `left:%`.
-   The CSS-percentage approach avoids SVG-inner-transform browser
-   quirks (transform-box / SMIL inconsistency) that broke earlier
-   attempts. The bump SVG's start/end Y match the baseline's Y=16, so
-   visually the spike appears to deform the line at its current x. */
-.mc-spark-wrap{position:relative;width:100%;height:32px;margin-top:10px;}
-.mc-spark{position:absolute;top:0;left:0;width:100%;height:100%;display:block;}
-
-/* Traveling spike overlay — 9% wide (= 18 of 200 viewBox units). */
-.mc-spark-spike-overlay{
-  position:absolute;top:0;left:0;
-  width:9%;height:100%;
-  opacity:0;
-  pointer-events:none;
-  animation:mc-spark-spike-travel 3s linear infinite;
+/* Brief 015j rev4 — EKG monitor (scrolling SVG approach).
+   Implementation copied verbatim from founder spec. The SVG holds
+   three pre-drawn QRS spikes baked into the path (at viewBox x=95,
+   295, 495). The SVG element is sized to 200% of the wrap width and
+   animated translateX(0 → -50%) over 3s linear — the whole SVG slides
+   left, scrolling the spikes continuously through the visible viewport.
+   The wrap clips the overflow. */
+.mc-ekg-wrap{
+  position:relative;
+  width:100%;
+  height:40px;
+  overflow:hidden;
+  margin-top:12px;
 }
-.mc-spark-spike-overlay svg{width:100%;height:100%;display:block;}
-@keyframes mc-spark-spike-travel{
-  0%   { left:0%;   opacity:0; }    /* invisible at left */
-  4%   { left:2%;   opacity:1; }    /* fade in just inside left edge */
-  85%  { left:89%;  opacity:1; }    /* arrived at right edge */
-  92%  { left:91%;  opacity:0; }    /* fade out as it merges with dot */
-  100% { left:0%;   opacity:0; }    /* reset to left (invisible) */
+.mc-ekg-svg{
+  width:200%;
+  height:100%;
+  animation:ekg-scroll 3s linear infinite;
 }
-
-/* Live indicator dot — green, pinned right, pulses when spike arrives. */
-.mc-spark-live{
-  position:absolute;top:50%;right:0;
-  width:6px;height:6px;border-radius:50%;
+@keyframes ekg-scroll{
+  from { transform:translateX(0);    }
+  to   { transform:translateX(-50%); }
+}
+.mc-ekg-dot{
+  position:absolute;
+  right:4px;
+  top:50%;
+  transform:translateY(-50%);
+  width:8px;
+  height:8px;
+  border-radius:50%;
   background:#34d399;
-  box-shadow:0 0 6px rgba(52,211,153,0.65);
-  transform:translate(50%,-50%);
-  animation:mc-spark-live-pulse 3s linear infinite;
+  box-shadow:0 0 8px rgba(52,211,153,0.75);
   pointer-events:none;
 }
-@keyframes mc-spark-live-pulse{
-  0%, 84%   { transform:translate(50%,-50%) scale(1);    box-shadow:0 0 6px rgba(52,211,153,0.65); }
-  90%       { transform:translate(50%,-50%) scale(1.25); box-shadow:0 0 14px rgba(52,211,153,0.95), 0 0 0 4px rgba(52,211,153,0.30); }
-  96%, 100% { transform:translate(50%,-50%) scale(1);    box-shadow:0 0 6px rgba(52,211,153,0.65); }
-}
-.mc-spark-foot{margin-top:8px;}
 
 /* ── Card 2 — Backend Status (Brief 015g — tile layout) ──────────────────
    Each status is its own tile so the three rows read as distinct visual
@@ -921,15 +908,11 @@ ul,ol{list-style:none;}
               </div>
             </div>
           </div>
-          <div class="mc-spark-wrap" aria-hidden="true">
-            <svg class="mc-spark" id="mc-spark-health" viewBox="0 0 200 32" preserveAspectRatio="none"></svg>
-            <div class="mc-spark-spike-overlay">
-              <svg viewBox="0 0 18 32" preserveAspectRatio="none">
-                <path d="M 0 16 C 5 16 5 4 9 4 C 13 4 13 16 18 16" stroke="rgba(34,211,238,0.45)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M 0 16 C 5 16 5 4 9 4 C 13 4 13 16 18 16" stroke="#67e8f9" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </div>
-            <span class="mc-spark-live"></span>
+          <div class="mc-ekg-wrap" aria-hidden="true">
+            <svg class="mc-ekg-svg" viewBox="0 0 600 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <path class="mc-ekg-path" d="M0,20 L80,20 L90,20 L95,5 L100,35 L105,20 L110,22 L115,20 L200,20 L280,20 L290,20 L295,5 L300,35 L305,20 L310,22 L315,20 L400,20 L480,20 L490,20 L495,5 L500,35 L505,20 L510,22 L515,20 L600,20" fill="none" stroke="#34d399" stroke-width="1.5"/>
+            </svg>
+            <div class="mc-ekg-dot"></div>
           </div>
         </article>
 

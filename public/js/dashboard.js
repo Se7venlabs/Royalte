@@ -518,7 +518,8 @@ function renderMcHealth(scan, history) {
   const bandEl   = document.getElementById('mc-score-band');
   const descEl   = document.getElementById('mc-score-desc');
   const deltaEl  = document.getElementById('mc-score-delta');
-  const sparkEl  = document.getElementById('mc-spark-health');
+  // Brief 015j rev4 — sparkline SVG is now static (.mc-ekg-svg in HTML,
+  // self-animating via CSS keyframes). No JS render needed.
 
   if (current == null) {
     if (numEl)  numEl.textContent = '—';
@@ -558,16 +559,6 @@ function renderMcHealth(scan, history) {
     _renderLucide();
   }
 
-  if (sparkEl) {
-    // Brief 015j rev3 — flat cyan baseline (the "monitoring track").
-    // The traveling spike lives in .mc-spark-spike-overlay (CSS keyframes
-    // outside the SVG), and the live green dot is .mc-spark-live (CSS
-    // overlay span). The previous purple data-line + end-circle are gone
-    // — score trend lives in the big number + delta on this same card.
-    sparkEl.innerHTML =
-      `<path d="M 0 16 L 200 16" stroke="rgba(34,211,238,0.55)" stroke-width="1.5" fill="none" stroke-linecap="round" />`;
-    sparkEl.setAttribute('preserveAspectRatio', 'none');
-  }
 }
 
 // CARD 2 — Backend Status (Brief 015a Fix 4: explicit .is-green class)
