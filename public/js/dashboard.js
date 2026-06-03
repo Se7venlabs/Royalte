@@ -222,19 +222,25 @@ window._mcFeedArtFallback = function(img) {
 //   sub:   "{what happened} · {territory if any} · {platform}"
 // For events without a song name (e.g. baseline_established), the
 // label becomes the title.
+// Brief 015d Item 8 — Event-chip color semantics (NOT severity).
+//   🟢 Green  = Verified         (ISRC verified, metadata verified, source confirmed)
+//   🟣 Purple = New Release      (new release / album / single / EP detected)
+//   🔵 Blue   = Discovery        (new source connected, new region, new platform, monitoring started)
+//   🟠 Amber  = Review           (publishing / metadata / catalog / confidence review recommended)
+//   🔴 Red    = Action Required  (critical issue, action required, source unavailable, monitoring alert)
 const FEED_META = Object.freeze({
   release_added:        { icon: 'music',        label: 'New release detected',                color: 'is-purple' },
   release_removed:      { icon: 'music',        label: 'Release no longer detected',          color: 'is-amber'  },
-  territory_gain:       { icon: 'globe',        label: 'New regional presence detected',      color: 'is-green'  },
+  territory_gain:       { icon: 'globe',        label: 'New regional presence detected',      color: 'is-blue'   },
   territory_loss:       { icon: 'globe',        label: 'No longer available in region',       color: 'is-amber'  },
   isrc_added:           { icon: 'link',         label: 'ISRC linked',                          color: 'is-green'  },
   isrc_dropped:         { icon: 'link',         label: 'ISRC signal changed',                  color: 'is-amber'  },
-  isrc_mismatch:        { icon: 'link',         label: 'Identifier mismatch detected',         color: 'is-amber'  },
+  isrc_mismatch:        { icon: 'link',         label: 'Identifier mismatch detected',         color: 'is-red'    },
   video_added:          { icon: 'circle-play',  label: 'YouTube match verified',               color: 'is-green'  },
   video_removed:        { icon: 'circle-play',  label: 'YouTube match no longer detected',     color: 'is-amber'  },
-  metadata_changed:     { icon: 'badge-check',  label: 'Metadata updated',                     color: 'is-amber'  },
-  baseline_established: { icon: 'scan-search',  label: 'Monitoring started',                   color: 'is-green'  },
-  profile_missing:      { icon: 'alert-circle', label: 'Artist profile signal changed',        color: 'is-amber'  },
+  metadata_changed:     { icon: 'badge-check',  label: 'Metadata updated',                     color: 'is-green'  },
+  baseline_established: { icon: 'scan-search',  label: 'Monitoring started',                   color: 'is-blue'   },
+  profile_missing:      { icon: 'alert-circle', label: 'Artist profile signal changed',        color: 'is-red'    },
 });
 const FEED_DEFAULT = Object.freeze({ icon: 'activity', label: 'Backend signal detected', color: 'is-purple' });
 
@@ -755,7 +761,7 @@ function renderMcActionCenter({ items, totalCount }) {
 
   if (totalCount === 0) {
     countEl.className = 'mc-action-count is-good';
-    countEl.textContent = 'Nothing requires attention right now';
+    countEl.textContent = 'All Systems Normal';
     listEl.innerHTML = `<div class="mc-action-empty">You're in good shape. Royaltē has not detected any issues requiring action. Monitoring continues.</div>`;
     return;
   }

@@ -293,6 +293,11 @@ ul,ol{list-style:none;}
   cursor:pointer;transition:all 0.14s;text-decoration:none;
 }
 .mc-review-btn:hover{background:rgba(138,92,255,0.08);}
+/* Brief 015d Item 7 — View Review elevated to primary action. */
+.mc-review-btn.is-primary{
+  background:var(--grad);border-color:transparent;color:#ffffff;
+}
+.mc-review-btn.is-primary:hover{background:var(--grad);opacity:0.92;}
 
 /* ── Card 5 — Action Center ──────────────────────────────────────────── */
 .mc-action-count{font-size:11px;color:var(--amb);margin-bottom:10px;}
@@ -710,7 +715,7 @@ ul,ol{list-style:none;}
           <div class="mc-review-date" id="mc-review-date">No baseline yet</div>
           <div class="mc-review-confidence" id="mc-review-confidence">Review Confidence: —</div>
           <div class="mc-review-actions">
-            <a class="mc-review-btn" id="mc-review-view" href="#reviews">View Review →</a>
+            <a class="mc-review-btn is-primary" id="mc-review-view" href="#reviews">View Review →</a>
             <a class="mc-review-btn" id="mc-review-pdf" href="#" target="_blank" rel="noopener">Download PDF →</a>
           </div>
         </article>
