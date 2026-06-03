@@ -151,21 +151,24 @@ function _renderLucide() {
 // `metaHint` is a short noun phrase used as the meta line when no
 // territory is present (e.g. ISRC events) — overrides the platform
 // fallback so the third line reads as semantic event context.
+// Brief 015k — added `event` (full descriptive sentence) for the
+// second feed line. The short `tag` is now used only by the fallback
+// chip color class.
 const FEED_META = Object.freeze({
-  release_added:        { tag: 'NEW RELEASE', color: 'is-purple' },
-  release_removed:      { tag: 'REVIEW',      color: 'is-amber', metaHint: 'Release Missing' },
-  territory_gain:       { tag: 'DISCOVERY',   color: 'is-blue'  },
-  territory_loss:       { tag: 'REVIEW',      color: 'is-amber' },
-  isrc_added:           { tag: 'VERIFIED',    color: 'is-green', metaHint: 'ISRC Verified' },
-  isrc_dropped:         { tag: 'REVIEW',      color: 'is-amber', metaHint: 'ISRC Changed' },
-  isrc_mismatch:        { tag: 'ACTION REQUIRED',      color: 'is-red',   metaHint: 'ISRC Mismatch' },
-  video_added:          { tag: 'VERIFIED',    color: 'is-green', metaHint: 'YouTube Match' },
-  video_removed:        { tag: 'REVIEW',      color: 'is-amber', metaHint: 'YouTube Missing' },
-  metadata_changed:     { tag: 'VERIFIED',    color: 'is-green', metaHint: 'Metadata Updated' },
-  baseline_established: { tag: 'DISCOVERY',   color: 'is-blue',  metaHint: 'Monitoring Started' },
-  profile_missing:      { tag: 'ACTION REQUIRED',      color: 'is-red',   metaHint: 'Profile Signal' },
+  release_added:        { tag: 'NEW RELEASE',      color: 'is-purple', event: 'New Release Detected' },
+  release_removed:      { tag: 'REVIEW',           color: 'is-amber',  event: 'Release Removed' },
+  territory_gain:       { tag: 'DISCOVERY',        color: 'is-blue',   event: 'New Region Detected' },
+  territory_loss:       { tag: 'REVIEW',           color: 'is-amber',  event: 'Region Unavailable' },
+  isrc_added:           { tag: 'VERIFIED',         color: 'is-green',  event: 'ISRC Verified' },
+  isrc_dropped:         { tag: 'REVIEW',           color: 'is-amber',  event: 'ISRC Changed' },
+  isrc_mismatch:        { tag: 'ACTION REQUIRED',  color: 'is-red',    event: 'ISRC Mismatch Detected' },
+  video_added:          { tag: 'VERIFIED',         color: 'is-green',  event: 'YouTube Match Verified' },
+  video_removed:        { tag: 'REVIEW',           color: 'is-amber',  event: 'YouTube Match Removed' },
+  metadata_changed:     { tag: 'VERIFIED',         color: 'is-green',  event: 'Metadata Verified' },
+  baseline_established: { tag: 'DISCOVERY',        color: 'is-blue',   event: 'Monitoring Started' },
+  profile_missing:      { tag: 'ACTION REQUIRED',  color: 'is-red',    event: 'Profile Signal Changed' },
 });
-const FEED_DEFAULT = Object.freeze({ tag: 'SIGNAL', color: 'is-purple' });
+const FEED_DEFAULT = Object.freeze({ tag: 'SIGNAL', color: 'is-purple', event: 'Backend Signal' });
 
 const PLATFORM_DISPLAY = Object.freeze({
   apple_music: 'Apple Music',
@@ -177,23 +180,83 @@ function _platformDisplay(p) {
   return PLATFORM_DISPLAY[p] || p;
 }
 
+// Brief 015k — small country-code lookup so the meta line shows
+// readable region names (per the founder's mockup: "Germany • 2d ago"
+// rather than "DE • 2d ago"). Unknowns fall back to the uppercase
+// code so unmapped territories are still legible.
+const TERRITORY_NAMES = Object.freeze({
+  us: 'United States', ca: 'Canada',         gb: 'United Kingdom',
+  de: 'Germany',       fr: 'France',         jp: 'Japan',
+  au: 'Australia',     br: 'Brazil',         es: 'Spain',
+  it: 'Italy',         mx: 'Mexico',         nl: 'Netherlands',
+  se: 'Sweden',        no: 'Norway',         dk: 'Denmark',
+  fi: 'Finland',       pl: 'Poland',         ie: 'Ireland',
+  nz: 'New Zealand',   kr: 'South Korea',    in: 'India',
+  ar: 'Argentina',     cl: 'Chile',          co: 'Colombia',
+  za: 'South Africa',  pt: 'Portugal',       be: 'Belgium',
+  ch: 'Switzerland',   at: 'Austria',
+});
+function _territoryDisplay(code) {
+  if (!code) return '';
+  const k = String(code).toLowerCase();
+  return TERRITORY_NAMES[k] || String(code).toUpperCase();
+}
+
+// Brief 015k — match a feed alert to an Apple Music album so the feed
+// item can render real artwork. Two-way `includes` catches partial
+// matches like "Nosferatu (Cryptic Mix)" against album "Nosferatu".
+// Returns the artwork URL (already 300x300 pre-substituted upstream in
+// api/apple-music.js) or null when no match exists — caller renders
+// the colored-chip fallback.
+function _matchAlbumArtwork(alert, albums) {
+  if (!Array.isArray(albums) || albums.length === 0) return null;
+  const haystack = ((alert.track_name || '') + ' ' + (alert.title || '')).toLowerCase().trim();
+  if (!haystack) return null;
+  for (const a of albums) {
+    const name = (a?.name || '').toLowerCase().trim();
+    if (!name) continue;
+    if (haystack.includes(name) || name.includes(haystack)) {
+      // a.artwork is a string URL (pre-substituted to 300x300 at fetch
+      // time — see api/apple-music.js). Use as-is.
+      const url = typeof a.artwork === 'string' ? a.artwork : (a?.artwork?.url || null);
+      if (!url) continue;
+      return url;
+    }
+  }
+  return null;
+}
+
+// When an artwork <img> fails to load (404, CORS, network), swap in
+// the colored-chip fallback so the row still renders. Color class is
+// preserved via data-fallback-color attribute.
+window._mcFeedArtFallback = function(img) {
+  if (!img || !img.dataset) return;
+  const colorClass = img.dataset.fallbackColor || 'is-purple';
+  const div = document.createElement('div');
+  div.className = `mc-feed-fallback ${colorClass}`;
+  div.innerHTML = `<i data-lucide="music"></i>`;
+  img.replaceWith(div);
+  _renderLucide();
+};
+
 function _feedDisplay(alert) {
   const meta = FEED_META[alert.change_type] || FEED_DEFAULT;
   const trackName = alert.track_name || alert.artist_name || '';
-  // Track line — prefer real subject name; fall back to category tag
-  // (formatted in Title Case) so baseline-style events still have a
-  // headline. We avoid the prior "label as title" pattern that produced
-  // sentence-style titles like "Monitoring started".
-  const track = trackName || _titleCase(meta.tag);
+  // Track line — prefer real subject name; fall back to the event
+  // sentence (e.g. "Monitoring Started") so events without a track
+  // (baseline_established, profile_missing) still have a headline.
+  const track = trackName || meta.event || _titleCase(meta.tag);
+  // Event line — only render when there's a separate track headline,
+  // otherwise the track IS the event and we'd be duplicating.
+  const event = trackName ? meta.event : '';
 
-  // Meta line — territory wins (it's the most specific context);
-  // then a metaHint when defined (e.g. "ISRC Verified"); then platform.
+  // Meta line — territory wins (most specific context); then platform;
+  // omit entirely otherwise (the time will stand alone).
   let metaLine = '';
-  if (alert.territory)      metaLine = String(alert.territory).toUpperCase();
-  else if (meta.metaHint)   metaLine = meta.metaHint;
-  else if (alert.platform)  metaLine = _platformDisplay(alert.platform);
+  if (alert.territory)     metaLine = _territoryDisplay(alert.territory);
+  else if (alert.platform) metaLine = _platformDisplay(alert.platform);
 
-  return { category: meta.tag, color: meta.color, track, meta: metaLine };
+  return { color: meta.color, track, event, meta: metaLine };
 }
 
 function _titleCase(s) {
@@ -617,14 +680,15 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
 // CARD 3 — Intelligence Feed
 // Brief 015a-rev3 Fix 4 — baselineTimes passed in so the artifact
 // filter works regardless of fetch window.
-// Brief 015g — Feed item layout: 3 stacked lines per event.
-//   line 1: <colored dot> UPPERCASE CATEGORY TAG   (the category signal)
-//   line 2: Track / event name                     (the headline)
-//   line 3: context • time                         (the supporting detail)
-// The colored dot replaces the prior 40px chip; the chromatic signal is
-// now small but always paired with an explicit word ("NEW RELEASE"),
-// so categories are immediately readable from a glance.
-function renderMcFeed(alertsRaw, baselineTimes) {
+// Brief 015k — feed item is now [artwork] + [track/event/meta column].
+// Artwork is the primary visual anchor (the artist's own cover art);
+// when no Apple Music match exists we fall back to the colored-chip
+// icon so the row still has a recognizable category signal. Item
+// structure:
+//   [56×56 artwork OR fallback chip] | TRACK NAME (uppercase)
+//                                    | Event description
+//                                    | Context • Age
+function renderMcFeed(alertsRaw, baselineTimes, albums) {
   const list = document.getElementById('mc-feed-list');
   if (!list) return;
   const alerts = _filterBaselineArtifacts(alertsRaw || [], baselineTimes).slice(0, 5);
@@ -639,14 +703,23 @@ function renderMcFeed(alertsRaw, baselineTimes) {
     const metaLine = d.meta
       ? `${escapeHtml(d.meta)} • ${escapeHtml(when)}`
       : escapeHtml(when);
+    const artworkUrl = _matchAlbumArtwork(a, albums);
+    const anchorEl = artworkUrl
+      ? `<img class="mc-feed-art" src="${escapeHtml(artworkUrl)}" alt="" loading="lazy"`
+        + ` data-fallback-color="${escapeHtml(d.color)}"`
+        + ` onerror="window._mcFeedArtFallback&&window._mcFeedArtFallback(this)">`
+      : `<div class="mc-feed-fallback ${escapeHtml(d.color)}"><i data-lucide="music"></i></div>`;
+    const eventEl = d.event
+      ? `<div class="mc-feed-event">${escapeHtml(d.event)}</div>`
+      : '';
     return `
       <div class="mc-feed-item">
-        <div class="mc-feed-tag">
-          <span class="mc-feed-tag-dot ${escapeHtml(d.color)}"></span>
-          <span class="mc-feed-tag-label">${escapeHtml(d.category)}</span>
+        ${anchorEl}
+        <div class="mc-feed-body">
+          <div class="mc-feed-track">${escapeHtml(d.track)}</div>
+          ${eventEl}
+          <div class="mc-feed-meta">${metaLine}</div>
         </div>
-        <div class="mc-feed-track">${escapeHtml(d.track)}</div>
-        <div class="mc-feed-meta">${metaLine}</div>
       </div>
     `;
   }).join('');
@@ -1081,7 +1154,11 @@ async function init() {
 
   // Card 3 — Intelligence Feed
   const feedAlerts = await loadAlertFeed(supabase, session.user.id);
-  renderMcFeed(feedAlerts, baselineTimes);
+  // Brief 015k — pass Apple Music albums so the feed can show real
+  // cover art per item; falls through to the colored-chip fallback
+  // when no match exists (or no albums in the scan payload).
+  const albums = scan?.payload?.platforms?.appleMusic?.details?.albums || [];
+  renderMcFeed(feedAlerts, baselineTimes, albums);
 
   // Card 4 — Catalog Intelligence (uses scan + latest GENUINE change)
   renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes);

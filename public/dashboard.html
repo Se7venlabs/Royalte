@@ -458,49 +458,63 @@ ul,ol{list-style:none;}
 
 .mc-status-foot{margin-top:10px;}
 
-/* ── Card 3 — Intelligence Feed (Brief 015g — tag/track/meta layout) ─────
-   Each item is 3 stacked lines:
-     1. <colored dot> UPPERCASE CATEGORY TAG  (the category signal)
-     2. Track / event name                    (the headline)
-     3. context • time                        (the supporting detail)
-   The small colored dot + explicit word ("NEW RELEASE") replaces the
-   prior 40px chip — chromatic signal still present, but always paired
-   with a category word so meaning is unambiguous at a glance. */
+/* ── Card 3 — Intelligence Feed (Brief 015k — artwork-anchored) ──────────
+   Each item is a row: 56×56 artwork (or fallback colored chip) on
+   the left, three-line text column on the right (TRACK / event /
+   context • age). The artist's own cover art is the visual anchor —
+   the feed should feel like "that's my music," not "system notifications." */
 .mc-feed-list{display:flex;flex-direction:column;}
 .mc-feed-item{
-  display:flex;flex-direction:column;gap:4px;
-  padding:14px 0;
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;
   border-bottom:1px solid rgba(255,255,255,0.08);
 }
-.mc-feed-item:first-child{padding-top:6px;}
-.mc-feed-item:last-child{border-bottom:none;padding-bottom:6px;}
-.mc-feed-tag{display:flex;align-items:center;gap:8px;}
-/* Brief 015h — feed dot heartbeat. Subtle scale pulse (~3.5s) makes
-   the feed feel actively monitored, not historical. Only the dot
-   animates; the row stays static. Two-layer box-shadow boosts the
-   chromatic presence so each category color reads clearly at a glance. */
-@keyframes mc-feed-heartbeat{
-  0%, 100% { transform:scale(1);   opacity:1;    }
-  50%      { transform:scale(1.20); opacity:0.92; }
+.mc-feed-item:first-child{padding-top:4px;}
+.mc-feed-item:last-child{border-bottom:none;padding-bottom:4px;}
+
+/* Artwork — primary visual anchor (Apple Music cover art, 300×300
+   pre-substituted upstream, displayed 56×56). */
+.mc-feed-art{
+  width:56px;height:56px;
+  border-radius:8px;
+  object-fit:cover;
+  flex-shrink:0;display:block;
+  background:rgba(255,255,255,0.04);
 }
-.mc-feed-tag-dot{
-  width:10px;height:10px;border-radius:50%;flex-shrink:0;
-  background:#60a5fa;
-  animation:mc-feed-heartbeat 3.5s ease-in-out infinite;
+
+/* Fallback chip — same 56×56 footprint, colored per category. Renders
+   when no artwork match is found (or the img fails to load). */
+.mc-feed-fallback{
+  width:56px;height:56px;
+  border-radius:8px;
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  color:#ffffff;
+  background:rgba(96,165,250,0.40);
+  border:1px solid rgba(96,165,250,0.55);
 }
-.mc-feed-tag-dot.is-purple{background:#a78bfa;box-shadow:0 0 12px rgba(167,139,250,0.80), 0 0 4px rgba(167,139,250,0.50);}
-.mc-feed-tag-dot.is-green {background:#34d399;box-shadow:0 0 12px rgba(52,211,153,0.80),  0 0 4px rgba(52,211,153,0.50);}
-.mc-feed-tag-dot.is-blue  {background:#60a5fa;box-shadow:0 0 12px rgba(96,165,250,0.80),  0 0 4px rgba(96,165,250,0.50);}
-.mc-feed-tag-dot.is-amber {background:#f59e0b;box-shadow:0 0 12px rgba(245,158,11,0.80),  0 0 4px rgba(245,158,11,0.50);}
-.mc-feed-tag-dot.is-red   {background:#ef4444;box-shadow:0 0 12px rgba(239,68,68,0.85),   0 0 4px rgba(239,68,68,0.55);}
-.mc-feed-tag-label{
-  font-family:'Space Mono',monospace;
-  font-size:10px;font-weight:700;letter-spacing:0.12em;
-  text-transform:uppercase;color:rgba(255,255,255,0.92);
+.mc-feed-fallback.is-purple{background:rgba(138,92,255,0.40);border-color:rgba(138,92,255,0.55);}
+.mc-feed-fallback.is-green {background:rgba(52,211,153,0.40); border-color:rgba(52,211,153,0.55);}
+.mc-feed-fallback.is-blue  {background:rgba(96,165,250,0.40); border-color:rgba(96,165,250,0.55);}
+.mc-feed-fallback.is-amber {background:rgba(245,158,11,0.40); border-color:rgba(245,158,11,0.55);}
+.mc-feed-fallback.is-red   {background:rgba(239,68,68,0.40);  border-color:rgba(239,68,68,0.55);}
+.mc-feed-fallback .lucide{width:26px;height:26px;stroke-width:1.75;}
+
+/* Text column. */
+.mc-feed-body{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;gap:3px;
 }
-/* Track title — the largest text in the feed item per Brief 015g rev2. */
 .mc-feed-track{
-  font-size:15px;font-weight:600;color:#fff;line-height:1.25;
+  font-size:13px;font-weight:700;color:#fff;
+  text-transform:uppercase;letter-spacing:0.05em;
+  line-height:1.25;
+  /* Keep long titles on one line so the row footprint stays predictable. */
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.mc-feed-event{
+  font-size:12px;color:rgba(255,255,255,0.78);
+  line-height:1.3;
 }
 .mc-feed-meta{
   font-family:'Space Mono',monospace;
