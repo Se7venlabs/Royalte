@@ -126,16 +126,13 @@ ul,ol{list-style:none;}
 .tb-stat-v.is-gold{color:var(--gold-2);}
 .tb-stat-lbl.is-gold{color:rgba(224,182,90,0.85);}
 
-/* Brief 015h (heartbeat) — ● LIVE indicator before the status text.
-   Static at rest; brightens briefly in sync with the system heartbeat
-   (see body.mc-beating rules below). The continuous 2s blink was
-   removed — the LIVE chip now reads as steady "system online" with a
-   beat that comes from the shared heartbeat clock. */
+/* ● LIVE indicator before the status text — steady electric-blue
+   chip reading "system online." (The body.mc-beating coupling
+   from Brief 015h was removed alongside the EKG in Brief 015q.) */
 .mc-live-dot{
   color:#60a5fa;
   font-size:10px;font-weight:700;letter-spacing:0.10em;
   margin-right:8px;
-  transition:color 0.30s ease, text-shadow 0.30s ease;
 }
 
 /* Last scan line. */
@@ -334,10 +331,10 @@ ul,ol{list-style:none;}
 
 /* ── Card 1 — Royaltē Health Score™ ──────────────────────────────────── */
 .mc-health-row{display:flex;align-items:center;gap:16px;}
-/* Brief 015h (heartbeat) — orb is steady between beats. Glass via
-   radial gradients (Brief 015m). The continuous orb-breathe and the
-   ::after receive-halo were removed; the orb now pulses ONLY in
-   sync with the system heartbeat (body.mc-beating rules below). */
+/* Health Score orb — steady glass surface. Radial-gradient depth
+   (Brief 015m). No continuous animation; the Royaltē Signal Meter
+   below the orb (Brief 015q) carries the "alive" feel via its
+   sweep + drift, leaving the orb itself as a calm anchor. */
 .mc-score-circle{
   width:88px;height:88px;border-radius:50%;border:3px solid var(--muted-2);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -381,50 +378,38 @@ ul,ol{list-style:none;}
 .mc-score-delta.is-neutral{color:var(--muted-2);}
 .mc-score-delta.is-down{color:var(--red);}
 .mc-score-delta i{font-size:14px;}
-/* Brief 015g (pre-freeze) — EKG re-implemented as canvas + JS so the
-   spike actually travels. CSS handles only the wrap, canvas sizing,
-   and the static dot + its .pulse modifier (toggled by initEKG when
-   the spike crosses 88-96% of the cycle). */
-.mc-ekg-wrap {
-  position: relative;
-  width: 100%;
-  height: 40px;
-  margin-top: 8px;
+/* Brief 015q — Royaltē Signal Meter™. Replaces the EKG entirely.
+   Vintage VU-meter aesthetic (SSL / Neve / UREI inspired, not a
+   literal copy). Cream needle on a dark face with brass pivot;
+   color-banded arc per the locked Royaltē scale (amber/blue/teal/gold).
+   Needle sweeps to the current Health Score over ~1.8s on first
+   paint, then drifts ±0.5-1 every 20-30s for "alive" feel. */
+.mc-signal-meter{
+  position:relative;
+  width:100%;
+  margin-top:12px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
-#mc-ekg-canvas {
-  width: 100%;
-  height: 40px;
-  display: block;
+.mc-signal-meter svg{
+  width:100%;
+  height:auto;
+  max-height:170px;
+  display:block;
 }
-.mc-ekg-dot {
-  position: absolute;
-  right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #22d3ee;
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+.mc-signal-label{
+  font-family:'Space Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:rgba(245,230,200,0.55);
+  margin-top:-4px;
+  text-align:center;
+  text-shadow:0 0 12px rgba(212,166,74,0.20);
 }
-.mc-ekg-dot.pulse {
-  box-shadow: 0 0 10px 2px rgba(34,211,238,0.75);
-  transform: translateY(-50%) scale(1.10);
-}
-
-/* Brief 015h (heartbeat) — synchronized beat. The initEKG rAF loop
-   toggles body.mc-beating during the ~500ms beat window. All synced
-   elements have their own 0.30s transition, so the in/out fade reads
-   as one coherent system breath. Alarm-state orbs (band-moderate /
-   band-review) are excluded — their alarm shadow stays steady. */
-body.mc-beating .mc-score-circle.band-strong,
-body.mc-beating .mc-score-circle.band-excellent{
-  box-shadow:0 0 24px 6px rgba(52,211,153,0.28), inset 0 0 30px rgba(52,211,153,0.14);
-  transform:scale(1.015);
-}
-body.mc-beating .mc-live-dot{
-  color:#93c5fd;
-  text-shadow:0 0 10px rgba(96,165,250,0.80);
+.mc-signal-label sup{
+  font-size:7px;letter-spacing:0;margin-left:2px;
+  vertical-align:super;
 }
 
 /* ── Card 2 — Backend Status (Brief 015g — tile layout) ──────────────────
@@ -1092,9 +1077,76 @@ body.mc-beating .mc-live-dot{
               </div>
             </div>
           </div>
-          <div class="mc-ekg-wrap" aria-hidden="true">
-            <canvas id="mc-ekg-canvas" height="40"></canvas>
-            <div class="mc-ekg-dot" id="mc-ekg-dot"></div>
+          <div class="mc-signal-meter" aria-hidden="true">
+            <svg viewBox="0 0 400 160" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <radialGradient id="mc-signal-face-bg" cx="50%" cy="100%" r="120%">
+                  <stop offset="0%"  stop-color="rgba(255,255,255,0.04)"/>
+                  <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+                </radialGradient>
+                <radialGradient id="mc-signal-pivot-grad" cx="35%" cy="35%" r="65%">
+                  <stop offset="0%"  stop-color="#f0d8a8"/>
+                  <stop offset="55%" stop-color="#b88e4a"/>
+                  <stop offset="100%" stop-color="#3a2a14"/>
+                </radialGradient>
+                <linearGradient id="mc-signal-needle-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"  stop-color="#fff5dc"/>
+                  <stop offset="100%" stop-color="#d8c39a"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Subtle face glow (vintage console feel) -->
+              <rect x="20" y="20" width="360" height="120" rx="6" fill="url(#mc-signal-face-bg)"/>
+
+              <!-- Color-banded arc (amber / blue / teal / gold) -->
+              <g fill="none" stroke-width="5" stroke-linecap="butt">
+                <path d="M 96.6 100.4 A 110 110 0 0 1 148.4 40.9"  stroke="#f59e0b" opacity="0.85"/>
+                <path d="M 148.4 40.9 A 110 110 0 0 1 226.6 31.3"  stroke="#60a5fa" opacity="0.85"/>
+                <path d="M 226.6 31.3 A 110 110 0 0 1 273.6 56.3"  stroke="#2dd4bf" opacity="0.85"/>
+                <path d="M 273.6 56.3 A 110 110 0 0 1 303.4 100.4" stroke="#d4a64a" opacity="0.95"/>
+              </g>
+
+              <!-- Major tick marks at 0, 30, 60, 80, 100 -->
+              <g stroke="rgba(245,230,200,0.55)" stroke-width="1.5" stroke-linecap="round">
+                <!-- 0 -->   <line x1="92.9" y1="101.8" x2="86.6" y2="104.1"/>
+                <!-- 30 -->  <line x1="146.6" y1="36.7"  x2="143.7" y2="29.7"/>
+                <!-- 60 -->  <line x1="225.6" y1="27.1"  x2="225.2" y2="19.5"/>
+                <!-- 80 -->  <line x1="276.4" y1="52.0"  x2="280.4" y2="45.5"/>
+                <!-- 100 --> <line x1="307.1" y1="101.8" x2="313.4" y2="104.1"/>
+              </g>
+
+              <!-- Minor tick marks at 10, 20, 40, 50, 70, 90 -->
+              <g stroke="rgba(245,230,200,0.30)" stroke-width="1" stroke-linecap="round">
+                <!-- 10 -->  <line x1="114.1" y1="79.4" x2="110.0" y2="76.2"/>
+                <!-- 20 -->  <line x1="128.0" y1="56.5" x2="122.7" y2="55.5"/>
+                <!-- 40 -->  <line x1="170.7" y1="29.3" x2="168.6" y2="22.4"/>
+                <!-- 50 -->  <line x1="200.0" y1="27.0" x2="200.0" y2="19.5"/>
+                <!-- 70 -->  <line x1="251.4" y1="32.6" x2="253.4" y2="25.5"/>
+                <!-- 90 -->  <line x1="290.9" y1="76.2" x2="296.0" y2="71.5"/>
+              </g>
+
+              <!-- Endpoint numerals -->
+              <g fill="rgba(245,230,200,0.45)" font-family="'Space Mono', monospace" font-size="8" font-weight="700">
+                <text x="78"  y="118" text-anchor="middle">0</text>
+                <text x="322" y="118" text-anchor="middle">100</text>
+              </g>
+
+              <!-- Needle group — rotates via JS (initial -70° = score 0).
+                   transform attribute updated by initSignalMeter().      -->
+              <g id="mc-signal-needle" transform="rotate(-70 200 138)">
+                <!-- Counterweight stub below pivot -->
+                <line x1="200" y1="138" x2="200" y2="148" stroke="#5a4429" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- Main needle -->
+                <line x1="200" y1="138" x2="200" y2="34" stroke="url(#mc-signal-needle-grad)" stroke-width="2" stroke-linecap="round"/>
+                <!-- Needle tip -->
+                <circle cx="200" cy="34" r="1.6" fill="#fff5dc"/>
+              </g>
+
+              <!-- Pivot cap (brass) -->
+              <circle cx="200" cy="138" r="8" fill="url(#mc-signal-pivot-grad)" stroke="rgba(0,0,0,0.40)" stroke-width="0.5"/>
+              <circle cx="200" cy="138" r="2.5" fill="rgba(20,12,4,0.85)"/>
+            </svg>
+            <div class="mc-signal-label">Royaltē Signal<sup>™</sup></div>
           </div>
         </article>
 

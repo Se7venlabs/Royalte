@@ -586,9 +586,6 @@ function renderMcHealth(scan, history) {
   const bandEl   = document.getElementById('mc-score-band');
   const descEl   = document.getElementById('mc-score-desc');
   const deltaEl  = document.getElementById('mc-score-delta');
-  // Brief 015j rev4 — sparkline SVG is now static (.mc-ekg-svg in HTML,
-  // self-animating via CSS keyframes). No JS render needed.
-
   if (current == null) {
     if (numEl)  numEl.textContent = '—';
     if (bandEl) bandEl.textContent = 'Awaiting first scan';
@@ -596,6 +593,11 @@ function renderMcHealth(scan, history) {
     if (deltaEl) { deltaEl.innerHTML = '<i data-lucide="minus"></i><span>—</span>'; _renderLucide(); }
     return;
   }
+
+  // Brief 015q — Royaltē Signal Meter sweeps to the current score.
+  // First call wins; later renders are no-ops so the sweep doesn't
+  // restart if the card re-renders mid-session.
+  initSignalMeter(current);
 
   const band = _healthBand(current);
   if (numEl)  numEl.textContent = String(current);
@@ -1263,129 +1265,81 @@ async function init() {
   // emitted during init() to inline SVGs.
   _renderLucide();
 
-  // Brief 015g (pre-freeze) — canvas-driven EKG. requestAnimationFrame
-  // loop owns the spike position; toggles .pulse on the dot when the
-  // spike crosses 88-96% of the cycle.
-  initEKG();
 }
 
-// Brief 015h fix — heartbeat travels visibly across the full line.
+// Brief 015q — Royaltē Signal Meter™.
 //
-// One QRS spike ENTERS from off-screen-left (anchor=-25 → spike's
-// right edge just touches x=0 at the start of each cycle). The
-// anchor advances linearly during the travel phase (0 → TRAVEL_END)
-// until the spike's peak reaches the dot. After arrival the anchor
-// LOCKS at the dot position while the opacity fades — visually
-// unambiguous "spike reached here, dot lit up, signal terminated."
-// Then the cycle resets and the spike re-enters from the left.
-function initEKG() {
-  const canvas = document.getElementById('mc-ekg-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const dot = document.getElementById('mc-ekg-dot');
+// Premium vintage VU-meter aesthetic (SSL / Neve / UREI inspired, not a
+// literal copy). The needle SVG element is rotated via setAttribute
+// so we get SVG-native rotation around an explicit pivot, sidestepping
+// the transform-box / SMIL cross-browser issues that plagued the
+// earlier EKG implementations.
+//
+// Behavior:
+//   • Needle starts at -70° (V=0) when the SVG renders.
+//   • On first renderMcHealth call with a non-null score, the needle
+//     sweeps to the score's angle over 1.8s (cubic ease-out).
+//   • After arrival, a drift loop kicks in: every 20-30s the needle
+//     smoothly transitions ±0.5-1 from the score over ~500ms, so the
+//     meter feels alive without ever wandering far from the truth.
+//   • Subsequent renderMcHealth calls are no-ops (one-shot init).
+let _signalMeterInitialized = false;
+function initSignalMeter(currentScore) {
+  if (_signalMeterInitialized) return;
+  const needle = document.getElementById('mc-signal-needle');
+  if (!needle || currentScore == null) return;
+  _signalMeterInitialized = true;
 
-  function resize() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 40;
-  }
-  resize();
-  window.addEventListener('resize', resize);
+  const PIVOT_CX  = 200;
+  const PIVOT_CY  = 138;
+  const ANGLE_MIN = -70;     // V=0
+  const ANGLE_MAX =  70;     // V=100
+  const SWEEP_MS  = 1800;
 
-  const H = 40;
-  const MID = H / 2;
-  const CYCLE         = 6000; // ms — slowest end of the 4-6s spec
-  const TRAVEL_END    = 0.85; // spike reaches the dot at this progress
-  const ARRIVAL_START = 0.85; // body.mc-beating + dot.pulse turn on here
-  const ARRIVAL_END   = 0.95;
-  const FADE_START    = 0.85; // spike begins fading as the dot lights up
-  const FADE_END      = 0.95; // fully invisible by here (300ms calm tail)
+  const scoreToAngle = (v) =>
+    ANGLE_MIN + (Math.max(0, Math.min(100, v)) / 100) * (ANGLE_MAX - ANGLE_MIN);
 
-  // QRS shape — offsets from the spike's anchor. Anchor traverses
-  // left→right; offsets are static. Peak (negative dy) is at -5 from
-  // anchor; downstroke (positive dy) is at +0.
-  const SHAPE = [
-    [-25,   0],
-    [-10,   0],
-    [ -5, -16],
-    [  0,  18],
-    [  5,   0],
-    [  8,   5],
-    [ 12,   0],
-    [ 25,   0],
-  ];
+  const setAngle = (a) => {
+    needle.setAttribute('transform', `rotate(${a.toFixed(2)} ${PIVOT_CX} ${PIVOT_CY})`);
+  };
 
-  let startTime   = null;
-  let wasArriving = false;
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
-  function drawFrame(ts) {
-    if (!startTime) startTime = ts;
-    const elapsed  = (ts - startTime) % CYCLE;
-    const progress = elapsed / CYCLE;
-    const W = canvas.width;
-
-    ctx.clearRect(0, 0, W, H);
-
-    // Faint baseline (always).
-    ctx.beginPath();
-    ctx.moveTo(0, MID);
-    ctx.lineTo(W, MID);
-    ctx.strokeStyle = 'rgba(34,211,238,0.25)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // Anchor trajectory:
-    //   start → spike's right edge at x=0 (entirely off-screen except
-    //           the rightmost point touches the canvas left edge)
-    //   end   → spike's peak (offset -5,0,5 from anchor) at the dot
-    //
-    // Dot center sits at right:6px + width:8px/2 = 10px from right
-    // edge of wrap, so the dot's x in canvas coords is W - 10.
-    const startAnchor   = -25;
-    const arrivalAnchor = W - 10;
-    let anchor;
-    if (progress <= TRAVEL_END) {
-      anchor = startAnchor + (arrivalAnchor - startAnchor) * (progress / TRAVEL_END);
-    } else {
-      // Arrived; freeze at dot while opacity fades.
-      anchor = arrivalAnchor;
+  function animate(from, to, duration, onDone) {
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = easeOutCubic(t);
+      setAngle(from + (to - from) * eased);
+      if (t < 1) requestAnimationFrame(step);
+      else if (onDone) onDone();
     }
-
-    // Opacity envelope: 1 during travel, fades 1→0 during arrival.
-    let spikeAlpha = 1;
-    if (progress >= FADE_START) {
-      spikeAlpha = Math.max(0, 1 - (progress - FADE_START) / (FADE_END - FADE_START));
-    }
-
-    if (spikeAlpha > 0.01) {
-      ctx.globalAlpha = spikeAlpha;
-      ctx.beginPath();
-      for (let i = 0; i < SHAPE.length; i++) {
-        const [dx, dy] = SHAPE[i];
-        const x = anchor + dx;
-        const y = MID + dy;
-        if (i === 0) ctx.moveTo(x, y);
-        else         ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = '#22d3ee';
-      ctx.lineWidth   = 2;  // 1.5→2 for stronger presence during motion
-      ctx.lineJoin    = 'round';
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-    }
-
-    // Synced arrival pulse — orb + LIVE + end dot all react together
-    // via body.mc-beating (CSS transitions, no per-element animation).
-    const inArrival = progress >= ARRIVAL_START && progress < ARRIVAL_END;
-    if (inArrival !== wasArriving) {
-      wasArriving = inArrival;
-      document.body.classList.toggle('mc-beating', inArrival);
-      if (dot) dot.classList.toggle('pulse', inArrival);
-    }
-
-    requestAnimationFrame(drawFrame);
+    requestAnimationFrame(step);
   }
 
-  requestAnimationFrame(drawFrame);
+  const targetAngle = scoreToAngle(currentScore);
+  animate(ANGLE_MIN, targetAngle, SWEEP_MS, () => {
+    startDrift(targetAngle, currentScore);
+  });
+
+  function startDrift(restAngle, baseScore) {
+    let lastAngle = restAngle;
+    function scheduleNext() {
+      const delay = 20000 + Math.random() * 10000; // 20-30s
+      setTimeout(() => {
+        // Random drift in ±0.5-1.0 score points (sign random).
+        const magnitude = 0.5 + Math.random() * 0.5;
+        const sign = Math.random() < 0.5 ? -1 : 1;
+        const driftedScore = Math.max(0, Math.min(100, baseScore + sign * magnitude));
+        const driftedAngle = scoreToAngle(driftedScore);
+        animate(lastAngle, driftedAngle, 500, () => {
+          lastAngle = driftedAngle;
+          scheduleNext();
+        });
+      }, delay);
+    }
+    scheduleNext();
+  }
 }
 
 if (document.readyState === 'loading') {
