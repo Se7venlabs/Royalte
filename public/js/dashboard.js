@@ -714,6 +714,7 @@ function renderMcFeed(alertsRaw, baselineTimes, albums) {
       : '';
     return `
       <div class="mc-feed-item">
+        <div class="mc-feed-accent ${escapeHtml(d.color)}"></div>
         ${anchorEl}
         <div class="mc-feed-body">
           <div class="mc-feed-track">${escapeHtml(d.track)}</div>
