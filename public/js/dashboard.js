@@ -23,6 +23,13 @@
 
 import { getSupabase } from '/js/supabase-client.js';
 
+// Brief 015r — Mission Control build version. Surfaced in the sidebar
+// footer so artists (and support) can confirm at a glance which build
+// they're running. Bump on every deploy that should force installed
+// PWAs to update (the SW_VERSION in /sw.js should be bumped in lock-
+// step so the controllerchange auto-reload fires on next open).
+const MC_VERSION = '1.0.0';
+
 /* ─────────────────────────────────────────────
    HELPERS
    ───────────────────────────────────────────── */
@@ -1176,6 +1183,11 @@ async function init() {
   }
 
   if (!session) { window.location.href = '/'; return; }
+
+  // Brief 015r — render the build version in the sidebar footer so
+  // artists can verify their installed PWA matches production.
+  const versionEl = document.getElementById('sb-version');
+  if (versionEl) versionEl.textContent = `MC v${MC_VERSION}`;
 
   wireSignOut(supabase);
 
