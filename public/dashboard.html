@@ -1151,11 +1151,12 @@ body.mc-signal-infusing .mc-score-band-inside.band-review{
                   <stop offset="55%" stop-color="#b88e4a"/>
                   <stop offset="100%" stop-color="#3a2a14"/>
                 </radialGradient>
-                <!-- Needle gradient (dark navy → near-black for depth) -->
-                <linearGradient id="mc-signal-needle-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stop-color="#2a2530"/>
-                  <stop offset="100%" stop-color="#0a0a10"/>
-                </linearGradient>
+                <!-- Drop-shadow filter for the needle. Soft, slightly
+                     offset downward to suggest the needle floats above
+                     the meter face under the glass cover. -->
+                <filter id="mc-signal-needle-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-color="#000000" flood-opacity="0.50"/>
+                </filter>
               </defs>
 
               <!-- 1. Dark charcoal equipment panel (full viewBox) -->
@@ -1226,18 +1227,20 @@ body.mc-signal-infusing .mc-score-band-inside.band-review{
                 <text x="354" y="160" text-anchor="middle">100</text>
               </g>
 
-              <!-- 4. Needle — initial position -70° (V=0). transform
-                   attribute updated by initSignalMeter() in dashboard.js.
-                   Length 138 (to reach near new arc radius 145).         -->
-              <g id="mc-signal-needle" transform="rotate(-70 200 188)">
-                <!-- Counterweight stub below pivot -->
-                <line x1="200" y1="188" x2="200" y2="201" stroke="#1a1410" stroke-width="3.5" stroke-linecap="round"/>
-                <!-- Main needle (3px stroke) -->
-                <line x1="200" y1="188" x2="200" y2="50" stroke="url(#mc-signal-needle-grad)" stroke-width="3" stroke-linecap="round"/>
-                <!-- Needle tip (small flare) -->
-                <circle cx="200" cy="50" r="2.2" fill="#1a1410"/>
-                <!-- Subtle needle highlight (left edge catching light) -->
-                <line x1="199" y1="188" x2="199" y2="50" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+              <!-- 4. Needle (Brief 015q rev5 — true analog needle).
+                   Tapered polygon, matte black, drop-shadow for depth.
+                   Pivots from the brass center hub at (200, 188).
+                   Initial rotation -70° = V=0 (left edge of arc).
+                   transform attribute updated by initSignalMeter().      -->
+              <g id="mc-signal-needle" transform="rotate(-70 200 188)" filter="url(#mc-signal-needle-shadow)">
+                <!-- Counterweight stub below pivot. Mostly hidden by the
+                     brass cap (drawn after this group); the 3px sliver
+                     that pokes out below sells the "spring-loaded" feel. -->
+                <rect x="198.5" y="188" width="3" height="13" fill="#0d0d10" rx="0.5"/>
+                <!-- Main needle. 4px wide at the base, tapers to a fine
+                     point at y=46 (length 142). Matte black solid fill —
+                     no gradient, no highlight, no cartoon styling.       -->
+                <polygon points="198,188 202,188 200,46" fill="#0d0d10"/>
               </g>
 
               <!-- 5. Pivot cap (brass) -->
