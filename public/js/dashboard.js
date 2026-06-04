@@ -1267,22 +1267,28 @@ async function init() {
 
 }
 
-// Brief 015q — Royaltē Signal Meter™.
+// Brief 015q rev2 — Royaltē Signal Meter™ + Signal Infusion.
 //
-// Premium vintage VU-meter aesthetic (SSL / Neve / UREI inspired, not a
-// literal copy). The needle SVG element is rotated via setAttribute
-// so we get SVG-native rotation around an explicit pivot, sidestepping
-// the transform-box / SMIL cross-browser issues that plagued the
-// earlier EKG implementations.
+// Premium VU-meter aesthetic mounted in a charcoal equipment panel.
+// The needle SVG element is rotated via setAttribute so we get
+// SVG-native rotation around an explicit pivot, sidestepping the
+// transform-box / SMIL cross-browser issues from the EKG era.
 //
-// Behavior:
-//   • Needle starts at -70° (V=0) when the SVG renders.
-//   • On first renderMcHealth call with a non-null score, the needle
-//     sweeps to the score's angle over 1.8s (cubic ease-out).
-//   • After arrival, a drift loop kicks in: every 20-30s the needle
-//     smoothly transitions ±0.5-1 from the score over ~500ms, so the
-//     meter feels alive without ever wandering far from the truth.
-//   • Subsequent renderMcHealth calls are no-ops (one-shot init).
+// Sequence on first paint:
+//   1. Needle starts at -70° (V=0).
+//   2. On first renderMcHealth call with a non-null score, needle
+//      sweeps to score angle over 1.8s (cubic ease-out).
+//   3. On arrival: triggerSignalInfusion() fires once —
+//        - .mc-signal-pulse element animates from meter area
+//          toward the orb (CSS keyframe mc-signal-traverse)
+//        - 400ms after pulse starts, body.mc-signal-infusing
+//          class is added → score number + STRONG band briefly
+//          brighten (CSS keyframes mc-score-infuse + mc-band-infuse)
+//        - 800ms later the class is removed; everything settles.
+//   4. Drift loop kicks in: every 20-30s the needle smoothly
+//      transitions ±0.5-1 from score over 500ms.
+//   5. Subsequent renderMcHealth calls are no-ops (one-shot init).
+//      Infusion does NOT repeat on drift — only the first sweep.
 let _signalMeterInitialized = false;
 function initSignalMeter(currentScore) {
   if (_signalMeterInitialized) return;
@@ -1291,7 +1297,7 @@ function initSignalMeter(currentScore) {
   _signalMeterInitialized = true;
 
   const PIVOT_CX  = 200;
-  const PIVOT_CY  = 138;
+  const PIVOT_CY  = 188;     // pivot moved down for larger meter (rev2)
   const ANGLE_MIN = -70;     // V=0
   const ANGLE_MAX =  70;     // V=100
   const SWEEP_MS  = 1800;
@@ -1317,8 +1323,34 @@ function initSignalMeter(currentScore) {
     requestAnimationFrame(step);
   }
 
+  // Brief 015q rev2 — Signal Infusion. Fires ONCE after the initial
+  // sweep completes. The pulse + orb glow visually communicate "the
+  // meter measured your catalog and delivered the score to the orb."
+  function triggerSignalInfusion() {
+    const pulse = document.getElementById('mc-signal-pulse');
+    if (pulse) {
+      // Restart the animation cleanly — remove class, force reflow,
+      // re-add. (Belt-and-braces in case anything else added it.)
+      pulse.classList.remove('is-active');
+      void pulse.offsetWidth;
+      pulse.classList.add('is-active');
+      pulse.addEventListener('animationend', () => {
+        pulse.classList.remove('is-active');
+      }, { once: true });
+    }
+    // Orb infusion ~400ms after pulse start — synced to the pulse's
+    // visual arrival at the orb's location.
+    setTimeout(() => {
+      document.body.classList.add('mc-signal-infusing');
+      setTimeout(() => {
+        document.body.classList.remove('mc-signal-infusing');
+      }, 850);
+    }, 400);
+  }
+
   const targetAngle = scoreToAngle(currentScore);
   animate(ANGLE_MIN, targetAngle, SWEEP_MS, () => {
+    triggerSignalInfusion();
     startDrift(targetAngle, currentScore);
   });
 

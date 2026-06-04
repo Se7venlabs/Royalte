@@ -378,38 +378,78 @@ ul,ol{list-style:none;}
 .mc-score-delta.is-neutral{color:var(--muted-2);}
 .mc-score-delta.is-down{color:var(--red);}
 .mc-score-delta i{font-size:14px;}
-/* Brief 015q — Royaltē Signal Meter™. Replaces the EKG entirely.
-   Vintage VU-meter aesthetic (SSL / Neve / UREI inspired, not a
-   literal copy). Cream needle on a dark face with brass pivot;
-   color-banded arc per the locked Royaltē scale (amber/blue/teal/gold).
-   Needle sweeps to the current Health Score over ~1.8s on first
-   paint, then drifts ±0.5-1 every 20-30s for "alive" feel. */
+/* Brief 015q rev2 — Royaltē Signal Meter™ mounted in a studio-grade
+   equipment panel. Dark charcoal housing, cream meter face, brass
+   engraved nameplate. SSL / Neve / Abbey Road mastering-console
+   inspiration (not a literal copy). Larger than rev1 — the lower
+   half of the card now reads as installed hardware, not floating
+   gauge. */
 .mc-signal-meter{
   position:relative;
   width:100%;
-  margin-top:12px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+  margin-top:6px;
+  display:block;
 }
 .mc-signal-meter svg{
   width:100%;
   height:auto;
-  max-height:170px;
+  max-height:240px;
   display:block;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,0.40));
 }
-.mc-signal-label{
-  font-family:'Space Mono',monospace;
-  font-size:9px;font-weight:700;letter-spacing:0.18em;
-  text-transform:uppercase;
-  color:rgba(245,230,200,0.55);
-  margin-top:-4px;
-  text-align:center;
-  text-shadow:0 0 12px rgba(212,166,74,0.20);
+
+/* Pulse element — the "signal infusion" beat that fires once after
+   the needle sweep completes. Positioned at the meter's pivot in
+   card-relative coordinates and animates up-left toward the orb,
+   then fades. Card must be position:relative so this absolute
+   positioning is scoped to the card. */
+#card-health{position:relative;overflow:hidden;}
+.mc-signal-pulse{
+  position:absolute;
+  left:50%;
+  bottom:80px;            /* roughly at the meter pivot vertically */
+  width:8px;height:8px;
+  border-radius:50%;
+  background:#67e8f9;
+  box-shadow:0 0 14px 3px rgba(103,232,249,0.90), 0 0 28px rgba(103,232,249,0.45);
+  opacity:0;
+  pointer-events:none;
+  transform:translate(-50%, 0);
 }
-.mc-signal-label sup{
-  font-size:7px;letter-spacing:0;margin-left:2px;
-  vertical-align:super;
+.mc-signal-pulse.is-active{
+  animation:mc-signal-traverse 550ms cubic-bezier(0.4, 0.05, 0.2, 1) forwards;
+}
+@keyframes mc-signal-traverse{
+  0%   { opacity:0; transform:translate(-50%, 0)               scale(0.5); }
+  12%  { opacity:1; transform:translate(-50%, -10px)           scale(1.0); }
+  100% { opacity:0; transform:translate(calc(-50% - 110px), -150px) scale(0.5); }
+}
+
+/* Orb infusion — triggered ~400ms after the pulse fires so the
+   visual hand-off "lands" at the orb just as the pulse arrives.
+   Score number gets a brief cyan text-glow; STRONG band label
+   brightens; both settle back to their resting state. */
+body.mc-signal-infusing .mc-score-num{
+  animation:mc-score-infuse 800ms ease-out forwards;
+}
+@keyframes mc-score-infuse{
+  0%   { text-shadow:0 0 0 rgba(103,232,249,0); }
+  30%  { text-shadow:0 0 18px rgba(103,232,249,0.85), 0 0 6px rgba(103,232,249,0.65); }
+  100% { text-shadow:0 0 0 rgba(103,232,249,0); }
+}
+body.mc-signal-infusing .mc-score-band-inside{
+  animation:mc-band-infuse 800ms ease-out forwards;
+}
+@keyframes mc-band-infuse{
+  0%   { color:var(--grn); text-shadow:0 0 8px rgba(52,211,153,0.60); }
+  30%  { color:#a7f3d0;     text-shadow:0 0 16px rgba(167,243,208,1.0); }
+  100% { color:var(--grn); text-shadow:0 0 8px rgba(52,211,153,0.60); }
+}
+/* Alarm bands shouldn't infuse with health-green either — keep their
+   own color stable through the animation. */
+body.mc-signal-infusing .mc-score-band-inside.band-moderate,
+body.mc-signal-infusing .mc-score-band-inside.band-review{
+  animation:none;
 }
 
 /* ── Card 2 — Backend Status (Brief 015g — tile layout) ──────────────────
@@ -1078,76 +1118,131 @@ ul,ol{list-style:none;}
             </div>
           </div>
           <div class="mc-signal-meter" aria-hidden="true">
-            <svg viewBox="0 0 400 160" preserveAspectRatio="xMidYMid meet">
+            <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid meet">
               <defs>
-                <radialGradient id="mc-signal-face-bg" cx="50%" cy="100%" r="120%">
-                  <stop offset="0%"  stop-color="rgba(255,255,255,0.04)"/>
-                  <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
-                </radialGradient>
-                <radialGradient id="mc-signal-pivot-grad" cx="35%" cy="35%" r="65%">
+                <!-- Dark charcoal equipment panel -->
+                <linearGradient id="mc-signal-panel" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"  stop-color="#26272e"/>
+                  <stop offset="50%" stop-color="#1c1d23"/>
+                  <stop offset="100%" stop-color="#15161b"/>
+                </linearGradient>
+                <!-- Cream meter face (warm, not white, not yellow) -->
+                <linearGradient id="mc-signal-face" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"  stop-color="#ede1c2"/>
+                  <stop offset="100%" stop-color="#d8c69a"/>
+                </linearGradient>
+                <!-- Glass cover sheen (top-down) -->
+                <linearGradient id="mc-signal-sheen" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"  stop-color="rgba(255,255,255,0.18)"/>
+                  <stop offset="35%" stop-color="rgba(255,255,255,0.04)"/>
+                  <stop offset="100%" stop-color="rgba(0,0,0,0.10)"/>
+                </linearGradient>
+                <!-- Brass plate gradient -->
+                <linearGradient id="mc-signal-brass" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"  stop-color="#d4a64a"/>
+                  <stop offset="40%" stop-color="#a07a30"/>
+                  <stop offset="100%" stop-color="#5a3f18"/>
+                </linearGradient>
+                <!-- Brass pivot cap (radial — light-from-upper-left) -->
+                <radialGradient id="mc-signal-pivot-grad" cx="35%" cy="32%" r="68%">
                   <stop offset="0%"  stop-color="#f0d8a8"/>
                   <stop offset="55%" stop-color="#b88e4a"/>
                   <stop offset="100%" stop-color="#3a2a14"/>
                 </radialGradient>
+                <!-- Needle gradient (dark navy → near-black for depth) -->
                 <linearGradient id="mc-signal-needle-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stop-color="#fff5dc"/>
-                  <stop offset="100%" stop-color="#d8c39a"/>
+                  <stop offset="0%"  stop-color="#2a2530"/>
+                  <stop offset="100%" stop-color="#0a0a10"/>
                 </linearGradient>
               </defs>
 
-              <!-- Subtle face glow (vintage console feel) -->
-              <rect x="20" y="20" width="360" height="120" rx="6" fill="url(#mc-signal-face-bg)"/>
+              <!-- 1. Dark charcoal equipment panel (full viewBox) -->
+              <rect x="0" y="0" width="400" height="240" rx="8" fill="url(#mc-signal-panel)"/>
+              <!-- Subtle top highlight (light catching the panel's top edge) -->
+              <rect x="6" y="2" width="388" height="1" fill="rgba(255,255,255,0.08)"/>
+              <!-- Subtle bottom shadow line (panel depth) -->
+              <rect x="6" y="237" width="388" height="1" fill="rgba(0,0,0,0.50)"/>
 
-              <!-- Color-banded arc (amber / blue / teal / gold) -->
-              <g fill="none" stroke-width="5" stroke-linecap="butt">
-                <path d="M 96.6 100.4 A 110 110 0 0 1 148.4 40.9"  stroke="#f59e0b" opacity="0.85"/>
-                <path d="M 148.4 40.9 A 110 110 0 0 1 226.6 31.3"  stroke="#60a5fa" opacity="0.85"/>
-                <path d="M 226.6 31.3 A 110 110 0 0 1 273.6 56.3"  stroke="#2dd4bf" opacity="0.85"/>
-                <path d="M 273.6 56.3 A 110 110 0 0 1 303.4 100.4" stroke="#d4a64a" opacity="0.95"/>
+              <!-- 2. Cream meter face inset (mounted inside the panel) -->
+              <rect x="14" y="10" width="372" height="184" rx="5"
+                    fill="url(#mc-signal-face)"
+                    stroke="rgba(0,0,0,0.45)" stroke-width="0.75"/>
+              <!-- Face inner shadow (top edge — "recessed" feel) -->
+              <rect x="15" y="11" width="370" height="3" fill="rgba(0,0,0,0.12)"/>
+
+              <!-- 3. Color-banded arc (amber/blue/teal/gold) on cream face.
+                   Pivot (200, 188), radius 130, sweep -70° → +70°.        -->
+              <g fill="none" stroke-width="7" stroke-linecap="butt">
+                <path d="M 77.8 143.5 A 130 130 0 0 1 138.9 73.2"  stroke="#d97706" opacity="0.92"/>
+                <path d="M 138.9 73.2 A 130 130 0 0 1 231.4 61.9"  stroke="#2563eb" opacity="0.90"/>
+                <path d="M 231.4 61.9 A 130 130 0 0 1 287.0 91.4"  stroke="#0d9488" opacity="0.90"/>
+                <path d="M 287.0 91.4 A 130 130 0 0 1 322.2 143.5" stroke="#b88e3a" opacity="0.98"/>
               </g>
 
-              <!-- Major tick marks at 0, 30, 60, 80, 100 -->
-              <g stroke="rgba(245,230,200,0.55)" stroke-width="1.5" stroke-linecap="round">
-                <!-- 0 -->   <line x1="92.9" y1="101.8" x2="86.6" y2="104.1"/>
-                <!-- 30 -->  <line x1="146.6" y1="36.7"  x2="143.7" y2="29.7"/>
-                <!-- 60 -->  <line x1="225.6" y1="27.1"  x2="225.2" y2="19.5"/>
-                <!-- 80 -->  <line x1="276.4" y1="52.0"  x2="280.4" y2="45.5"/>
-                <!-- 100 --> <line x1="307.1" y1="101.8" x2="313.4" y2="104.1"/>
+              <!-- Major tick marks (dark, 0/30/60/80/100) -->
+              <g stroke="#1f1f1f" stroke-width="1.75" stroke-linecap="round">
+                <!-- 0 -->   <line x1="73.4"  y1="145.0" x2="65.9"  y2="147.7"/>
+                <!-- 30 -->  <line x1="136.5" y1="67.6"  x2="133.1" y2="59.6"/>
+                <!-- 60 -->  <line x1="230.4" y1="56.6"  x2="229.9" y2="47.6"/>
+                <!-- 80 -->  <line x1="290.5" y1="86.0"  x2="295.3" y2="78.4"/>
+                <!-- 100 --> <line x1="326.6" y1="145.0" x2="334.1" y2="147.7"/>
               </g>
 
-              <!-- Minor tick marks at 10, 20, 40, 50, 70, 90 -->
-              <g stroke="rgba(245,230,200,0.30)" stroke-width="1" stroke-linecap="round">
-                <!-- 10 -->  <line x1="114.1" y1="79.4" x2="110.0" y2="76.2"/>
-                <!-- 20 -->  <line x1="128.0" y1="56.5" x2="122.7" y2="55.5"/>
-                <!-- 40 -->  <line x1="170.7" y1="29.3" x2="168.6" y2="22.4"/>
-                <!-- 50 -->  <line x1="200.0" y1="27.0" x2="200.0" y2="19.5"/>
-                <!-- 70 -->  <line x1="251.4" y1="32.6" x2="253.4" y2="25.5"/>
-                <!-- 90 -->  <line x1="290.9" y1="76.2" x2="296.0" y2="71.5"/>
+              <!-- Minor tick marks (slightly fainter) -->
+              <g stroke="rgba(31,31,31,0.55)" stroke-width="1.25" stroke-linecap="round">
+                <!-- 10 -->  <line x1="94.6"  y1="118.6" x2="89.8"  y2="115.0"/>
+                <!-- 20 -->  <line x1="111.0" y1="91.6"  x2="104.7" y2="90.4"/>
+                <!-- 40 -->  <line x1="161.5" y1="59.5"  x2="159.0" y2="51.3"/>
+                <!-- 50 -->  <line x1="200.0" y1="58.0"  x2="200.0" y2="49.0"/>
+                <!-- 70 -->  <line x1="260.7" y1="63.8"  x2="263.0" y2="55.4"/>
+                <!-- 90 -->  <line x1="305.4" y1="115.0" x2="311.3" y2="109.5"/>
               </g>
 
-              <!-- Endpoint numerals -->
-              <g fill="rgba(245,230,200,0.45)" font-family="'Space Mono', monospace" font-size="8" font-weight="700">
-                <text x="78"  y="118" text-anchor="middle">0</text>
-                <text x="322" y="118" text-anchor="middle">100</text>
+              <!-- Endpoint numerals (dark on cream) -->
+              <g fill="#3a2a14" font-family="'Space Mono', monospace" font-size="10" font-weight="700">
+                <text x="56"  y="165" text-anchor="middle">0</text>
+                <text x="344" y="165" text-anchor="middle">100</text>
               </g>
 
-              <!-- Needle group — rotates via JS (initial -70° = score 0).
-                   transform attribute updated by initSignalMeter().      -->
-              <g id="mc-signal-needle" transform="rotate(-70 200 138)">
+              <!-- 4. Needle — initial position -70° (V=0). transform
+                   attribute updated by initSignalMeter() in dashboard.js. -->
+              <g id="mc-signal-needle" transform="rotate(-70 200 188)">
                 <!-- Counterweight stub below pivot -->
-                <line x1="200" y1="138" x2="200" y2="148" stroke="#5a4429" stroke-width="2.5" stroke-linecap="round"/>
-                <!-- Main needle -->
-                <line x1="200" y1="138" x2="200" y2="34" stroke="url(#mc-signal-needle-grad)" stroke-width="2" stroke-linecap="round"/>
-                <!-- Needle tip -->
-                <circle cx="200" cy="34" r="1.6" fill="#fff5dc"/>
+                <line x1="200" y1="188" x2="200" y2="201" stroke="#1a1410" stroke-width="3.5" stroke-linecap="round"/>
+                <!-- Main needle (thicker than rev1 — 3px) -->
+                <line x1="200" y1="188" x2="200" y2="56" stroke="url(#mc-signal-needle-grad)" stroke-width="3" stroke-linecap="round"/>
+                <!-- Needle tip (small flare) -->
+                <circle cx="200" cy="56" r="2.2" fill="#1a1410"/>
+                <!-- Subtle needle highlight (left edge catching light) -->
+                <line x1="199" y1="188" x2="199" y2="56" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
               </g>
 
-              <!-- Pivot cap (brass) -->
-              <circle cx="200" cy="138" r="8" fill="url(#mc-signal-pivot-grad)" stroke="rgba(0,0,0,0.40)" stroke-width="0.5"/>
-              <circle cx="200" cy="138" r="2.5" fill="rgba(20,12,4,0.85)"/>
+              <!-- 5. Pivot cap (brass) -->
+              <circle cx="200" cy="188" r="10" fill="url(#mc-signal-pivot-grad)" stroke="rgba(0,0,0,0.45)" stroke-width="0.6"/>
+              <circle cx="200" cy="188" r="3" fill="rgba(20,12,4,0.85)"/>
+
+              <!-- 6. Glass cover sheen (subtle reflection over face) -->
+              <rect x="14" y="10" width="372" height="80" rx="5" fill="url(#mc-signal-sheen)" pointer-events="none"/>
+
+              <!-- 7. Brass engraved nameplate -->
+              <g>
+                <rect x="130" y="208" width="140" height="22" rx="2.5"
+                      fill="url(#mc-signal-brass)"
+                      stroke="rgba(0,0,0,0.55)" stroke-width="0.6"/>
+                <!-- Top highlight line (light edge) -->
+                <line x1="132" y1="210" x2="268" y2="210" stroke="rgba(255,255,255,0.20)" stroke-width="0.5"/>
+                <!-- Bottom shadow line (depth) -->
+                <line x1="132" y1="228" x2="268" y2="228" stroke="rgba(0,0,0,0.45)" stroke-width="0.5"/>
+                <!-- Engraved text — dark on brass, subtle bevel via stroke -->
+                <text x="200" y="223" text-anchor="middle"
+                      font-family="'Space Mono', monospace" font-size="10" font-weight="700"
+                      fill="#2a1c08" letter-spacing="0.20em">ROYALTĒ SIGNAL™</text>
+              </g>
             </svg>
-            <div class="mc-signal-label">Royaltē Signal<sup>™</sup></div>
           </div>
+          <!-- Signal infusion pulse — fires once after the needle sweep
+               completes. CSS-animated; JS toggles .is-active class. -->
+          <div class="mc-signal-pulse" id="mc-signal-pulse"></div>
         </article>
 
         <!-- CARD 2 — Backend Status -->
