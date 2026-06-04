@@ -22,6 +22,7 @@ import { createClient } from '@supabase/supabase-js';
 import { runScan } from '../_lib/run-scan.js';
 import { persistCanonicalScan } from '../audit.js';
 import { persistOSScanSnapshot } from '../_lib/persist-os-scan.js';
+import { runPodcastDiscovery } from '../_lib/podcast-intelligence.js';
 import { randomUUID } from 'node:crypto';
 
 export default async function handler(req, res) {
@@ -130,6 +131,32 @@ export default async function handler(req, res) {
     });
   }
 
+  // ── Podcast Intelligence (Brief 015o Phase 2) ────────────────────────
+  // Run on the same 7-day cadence as the scan itself. The orchestrator
+  // gates on (a) monitoring-subscriber status from profiles and (b) its
+  // own 7-day interval guard against profiles.podcast_intelligence_last_run.
+  // Failures are non-blocking — the scan succeeded; podcast discovery is
+  // additive intelligence layered on top.
+  let podcastResult = { ran: false, reason: 'not_attempted' };
+  try {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, founding_artist, tier, podcast_intelligence_last_run')
+      .eq('id', sub.user_id)
+      .maybeSingle();
+
+    podcastResult = await runPodcastDiscovery(supabase, {
+      profile,
+      userId: sub.user_id,
+      artistId: sub.artist_id,
+      artistName: sub.artist_name,
+      scanId,
+    });
+  } catch (podErr) {
+    console.error('[pg-cron scan-subscription] podcast discovery failed:', podErr.message);
+    podcastResult = { ran: false, reason: 'exception', error: podErr.message };
+  }
+
   return res.status(200).json({
     ok: true,
     subscription_id: sub.id,
@@ -138,5 +165,6 @@ export default async function handler(req, res) {
     scan_number: osResult?.scanNumber || null,
     alerts: osResult?.alertCount || 0,
     degraded,
+    podcast: podcastResult,
   });
 }

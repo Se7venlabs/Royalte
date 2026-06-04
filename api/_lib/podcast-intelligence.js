@@ -49,18 +49,54 @@ export function isMonitoringSubscriber(profile) {
  *                    totalCount?: number, availability?: string,
  *                    error?: string}>}
  */
+export const PODCAST_INTERVAL_DAYS = 7;
+
 export async function runPodcastDiscovery(supabase, {
   profile,
   userId,
   artistId,
   artistName,
   scanId,
+  intervalDays = PODCAST_INTERVAL_DAYS,
 }) {
   if (!isMonitoringSubscriber(profile)) {
     return { ran: false, reason: 'not_subscribed', newCount: 0 };
   }
   if (!supabase || !userId || !artistName) {
     return { ran: false, reason: 'missing_inputs', newCount: 0 };
+  }
+
+  // Brief 015o Phase 2 — API conservation. Skip the Listen Notes call
+  // entirely if discovery already ran for this user within the
+  // interval window. The monitoring_subscriptions cadence already
+  // paces things at 7 days; this is a second line of defense so
+  // out-of-band callers (manual retries, future endpoints) can't burn
+  // the free-tier quota by accident.
+  //
+  // TODO(Phase 3) — Multi-artist granularity.
+  //   This guard tracks last_run at the PROFILE (user) level. A user
+  //   with multiple monitoring_subscriptions only gets podcast
+  //   discovery for the FIRST artist scanned in each 7-day window —
+  //   subsequent artists in the same window hit this guard and skip.
+  //   Conservation-safe today; UX edge case for multi-artist
+  //   monitoring. Acceptable for Beta (most users monitor one artist).
+  //   Phase 3 would move tracking to a per (user_id, artist_id) row —
+  //   either a new podcast_intelligence_runs table OR a column on
+  //   monitoring_subscriptions. Do not build Phase 3 until multi-artist
+  //   monitoring is common enough to warrant the change.
+  const lastRunRaw = profile?.podcast_intelligence_last_run;
+  if (lastRunRaw) {
+    const lastMs     = new Date(lastRunRaw).getTime();
+    const intervalMs = intervalDays * 24 * 60 * 60 * 1000;
+    if (Number.isFinite(lastMs) && (Date.now() - lastMs) < intervalMs) {
+      return {
+        ran: false,
+        reason: 'within_interval',
+        newCount: 0,
+        lastRunAt: lastRunRaw,
+        intervalDays,
+      };
+    }
   }
 
   const search = await searchEpisodesByArtist(artistName);
@@ -144,10 +180,25 @@ export async function runPodcastDiscovery(supabase, {
     }
   }
 
+  // Brief 015o Phase 2 — record the run timestamp. Updated only after
+  // a successful VERIFIED Listen Notes response (i.e. we actually
+  // burned an API call). Best-effort: a failed UPDATE doesn't undo
+  // the discovery, but the interval guard would only fail-open on
+  // the next tick, not fail-closed — acceptable.
+  const ranAt = new Date().toISOString();
+  const { error: tsErr } = await supabase
+    .from('profiles')
+    .update({ podcast_intelligence_last_run: ranAt })
+    .eq('id', userId);
+  if (tsErr) {
+    console.error('[podcast-intelligence] last_run update failed:', tsErr.message);
+  }
+
   return {
     ran: true,
     newCount: newRows.length,
     totalCount: episodes.length,
     availability: 'VERIFIED',
+    ranAt,
   };
 }
