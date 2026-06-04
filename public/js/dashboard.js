@@ -1239,10 +1239,15 @@ async function init() {
   initEKG();
 }
 
-// Brief 015g (pre-freeze) — Health Signal canvas implementation. A
-// single QRS spike travels from off-screen-left to off-screen-right
-// every 7s; baseline + spike are drawn each frame. Dot pulses via
-// .pulse class toggle (CSS transition) at the arrival window.
+// Brief 015h (heartbeat) — Mission Control system heartbeat.
+//
+// The line stays mostly still. Every CYCLE ms, a single QRS spike
+// appears AT A FIXED POSITION (it does not travel), peaking via a
+// triangular amplitude envelope over BEAT_DURATION ms. During the
+// beat window the body gets a `.mc-beating` class, which lets the
+// score orb + LIVE chip pulse in CSS through their own 0.30s
+// transitions — so the whole UI takes one synchronized breath each
+// beat, then returns to calm.
 function initEKG() {
   const canvas = document.getElementById('mc-ekg-canvas');
   if (!canvas) return;
@@ -1256,51 +1261,81 @@ function initEKG() {
   resize();
   window.addEventListener('resize', resize);
 
-  const W = () => canvas.width;
   const H = 40;
   const MID = H / 2;
-  const SPIKE_W = 50;
-  const DURATION = 7000; // 7 seconds per cycle
+  const CYCLE         = 4000; // ms between heartbeats
+  const BEAT_DURATION = 500;  // ms — the visible beat window
+  const BEAT_START    = CYCLE - BEAT_DURATION; // beat happens at the END of each cycle
+  const PEAK_FRAC     = 0.30; // 30% of beat = rise to peak, 70% = settle back
+
   let startTime = null;
+  let wasBeating = false;
+
+  // QRS shape — offsets from the spike's anchor point. Y values are
+  // relative to baseline (negative = up, positive = down). Amplitude
+  // multiplier (0 → 1 → 0) scales the Y deflections so the spike
+  // GROWS OUT of the line at a fixed X, then settles back.
+  const SHAPE = [
+    [-25,   0],
+    [-10,   0],
+    [ -5, -16],  // sharp up
+    [  0,  18],  // sharp down past baseline
+    [  5,   0],
+    [  8,   5],  // small recovery notch
+    [ 12,   0],
+    [ 25,   0],
+  ];
 
   function drawFrame(ts) {
     if (!startTime) startTime = ts;
-    const elapsed = (ts - startTime) % DURATION;
-    const progress = elapsed / DURATION;
+    const elapsed = (ts - startTime) % CYCLE;
+    const W = canvas.width;
 
-    ctx.clearRect(0, 0, W(), H);
+    ctx.clearRect(0, 0, W, H);
 
-    // Baseline — faint cyan line across the full width.
+    // Always: faint cyan baseline across the full width.
     ctx.beginPath();
     ctx.moveTo(0, MID);
-    ctx.lineTo(W(), MID);
+    ctx.lineTo(W, MID);
     ctx.strokeStyle = 'rgba(34,211,238,0.25)';
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Spike position — travels from -SPIKE_W to W() across the cycle.
-    const spikeX = -SPIKE_W + (W() + SPIKE_W) * progress;
+    const inBeat = elapsed >= BEAT_START;
+    if (inBeat) {
+      const beatProgress = (elapsed - BEAT_START) / BEAT_DURATION;
+      // Triangular envelope: 0 → 1 → 0 over the beat window.
+      let amp;
+      if (beatProgress < PEAK_FRAC) amp = beatProgress / PEAK_FRAC;
+      else                          amp = 1 - (beatProgress - PEAK_FRAC) / (1 - PEAK_FRAC);
+      amp = Math.max(0, Math.min(1, amp));
 
-    // QRS shape: flat, sharp up, sharp down past baseline, recovery
-    // notch, flat.
-    ctx.beginPath();
-    ctx.moveTo(spikeX,        MID);
-    ctx.lineTo(spikeX + 15,   MID);
-    ctx.lineTo(spikeX + 20,   MID - 14);
-    ctx.lineTo(spikeX + 25,   MID + 16);
-    ctx.lineTo(spikeX + 30,   MID);
-    ctx.lineTo(spikeX + 33,   MID + 4);
-    ctx.lineTo(spikeX + 37,   MID);
-    ctx.lineTo(spikeX + SPIKE_W, MID);
-    ctx.strokeStyle = '#22d3ee';
-    ctx.lineWidth = 1.5;
-    ctx.lineJoin = 'round';
-    ctx.stroke();
+      // Anchor the spike near the dot side of the chart so the EKG
+      // "lands" close to the live indicator. 70% across reads as
+      // "near the dot but not behind it."
+      const centerX = W * 0.70;
 
-    // Dot pulse window — synced to spike arrival at the right edge.
-    if (dot) {
-      if (progress > 0.88 && progress < 0.96) dot.classList.add('pulse');
-      else                                     dot.classList.remove('pulse');
+      ctx.beginPath();
+      for (let i = 0; i < SHAPE.length; i++) {
+        const [dx, dy] = SHAPE[i];
+        const x = centerX + dx;
+        const y = MID + dy * amp;
+        if (i === 0) ctx.moveTo(x, y);
+        else         ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = '#22d3ee';
+      ctx.lineWidth = 1.5;
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    }
+
+    // Class toggle drives the synchronized pulse on orb + LIVE chip +
+    // end dot. Only toggle on change so we're not thrashing classList
+    // on every frame.
+    if (inBeat !== wasBeating) {
+      wasBeating = inBeat;
+      document.body.classList.toggle('mc-beating', inBeat);
+      if (dot) dot.classList.toggle('pulse', inBeat);
     }
 
     requestAnimationFrame(drawFrame);

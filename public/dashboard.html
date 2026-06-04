@@ -110,18 +110,16 @@ ul,ol{list-style:none;}
 .tb-stat-v.is-gold{color:var(--gold-2);}
 .tb-stat-lbl.is-gold{color:rgba(224,182,90,0.85);}
 
-/* Brief 015g (pre-freeze) — ● LIVE indicator before the status text.
-   Electric blue, 2s subtle blink. Reads as "system is live and
-   reporting" — separate signal from the green health state. */
+/* Brief 015h (heartbeat) — ● LIVE indicator before the status text.
+   Static at rest; brightens briefly in sync with the system heartbeat
+   (see body.mc-beating rules below). The continuous 2s blink was
+   removed — the LIVE chip now reads as steady "system online" with a
+   beat that comes from the shared heartbeat clock. */
 .mc-live-dot{
   color:#60a5fa;
   font-size:10px;font-weight:700;letter-spacing:0.10em;
   margin-right:8px;
-  animation:live-blink 2s ease-in-out infinite;
-}
-@keyframes live-blink{
-  0%, 100% { opacity:1;    }
-  50%      { opacity:0.50; }
+  transition:color 0.30s ease, text-shadow 0.30s ease;
 }
 
 /* Last scan line. */
@@ -285,14 +283,10 @@ ul,ol{list-style:none;}
 
 /* ── Card 1 — Royaltē Health Score™ ──────────────────────────────────── */
 .mc-health-row{display:flex;align-items:center;gap:16px;}
-/* Brief 015g (pre-freeze) — orb-breathe carries both outer glow and
-   inset glow now so the orb reads as a depth object with internal
-   light, not just a flat circle with a halo. 5s cycle. Brief 015m
-   radial-gradient glass kept as the base layer underneath. */
-@keyframes orb-breathe{
-  0%, 100% { box-shadow:0 0 0 0 rgba(52,211,153,0.10),  inset 0 0 20px rgba(52,211,153,0.05); }
-  50%      { box-shadow:0 0 16px 4px rgba(52,211,153,0.20), inset 0 0 30px rgba(52,211,153,0.10); }
-}
+/* Brief 015h (heartbeat) — orb is steady between beats. Glass via
+   radial gradients (Brief 015m). The continuous orb-breathe and the
+   ::after receive-halo were removed; the orb now pulses ONLY in
+   sync with the system heartbeat (body.mc-beating rules below). */
 .mc-score-circle{
   width:88px;height:88px;border-radius:50%;border:3px solid var(--muted-2);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -300,25 +294,8 @@ ul,ol{list-style:none;}
   background:
     radial-gradient(circle at 35% 35%, rgba(255,255,255,0.06) 0%, rgba(0,0,0,0.0) 60%),
     radial-gradient(circle at center,   rgba(52,211,153,0.06) 0%, rgba(0,0,0,0.0) 70%);
-  animation:orb-breathe 5s ease-in-out infinite;
-}
-/* Brief 015l Item 3 — score-receive halo. A subtle green ring ripples
-   outward once per 7s, synced to the spike-travel cycle so the score
-   visibly "receives" the signal that just traveled across the
-   sparkline. The ::after carries the ripple so the existing
-   breathe animation on the host element is untouched. */
-.mc-score-circle::after{
-  content:'';
-  position:absolute;inset:-4px;border-radius:50%;
-  border:2px solid #34d399;
-  opacity:0;pointer-events:none;
-  animation:mc-score-receive 7s linear infinite;
-}
-@keyframes mc-score-receive{
-  0%, 88% { opacity:0;    transform:scale(1);    }
-  92%     { opacity:0.55; transform:scale(1.06); }
-  96%     { opacity:0.22; transform:scale(1.10); }
-  100%    { opacity:0;    transform:scale(1.12); }
+  box-shadow:0 0 12px 0 rgba(52,211,153,0.08), inset 0 0 18px rgba(52,211,153,0.04);
+  transition:box-shadow 0.30s ease, transform 0.30s ease;
 }
 .mc-score-circle.band-strong,.mc-score-circle.band-excellent{border-color:var(--grn);}
 .mc-score-circle.band-moderate{
@@ -380,8 +357,23 @@ ul,ol{list-style:none;}
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 .mc-ekg-dot.pulse {
-  box-shadow: 0 0 12px 4px rgba(34,211,238,0.80);
-  transform: translateY(-50%) scale(1.4);
+  box-shadow: 0 0 10px 2px rgba(34,211,238,0.75);
+  transform: translateY(-50%) scale(1.10);
+}
+
+/* Brief 015h (heartbeat) — synchronized beat. The initEKG rAF loop
+   toggles body.mc-beating during the ~500ms beat window. All synced
+   elements have their own 0.30s transition, so the in/out fade reads
+   as one coherent system breath. Alarm-state orbs (band-moderate /
+   band-review) are excluded — their alarm shadow stays steady. */
+body.mc-beating .mc-score-circle.band-strong,
+body.mc-beating .mc-score-circle.band-excellent{
+  box-shadow:0 0 24px 6px rgba(52,211,153,0.28), inset 0 0 30px rgba(52,211,153,0.14);
+  transform:scale(1.015);
+}
+body.mc-beating .mc-live-dot{
+  color:#93c5fd;
+  text-shadow:0 0 10px rgba(96,165,250,0.80);
 }
 
 /* ── Card 2 — Backend Status (Brief 015g — tile layout) ──────────────────
