@@ -689,6 +689,18 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
             releaseDate: a.attributes?.releaseDate || null,
             trackCount:  (typeof a.attributes?.trackCount === 'number') ? a.attributes.trackCount : null,
             url:         a.attributes?.url || null,
+            // Brief 015k Fix #1 — persist cover artwork so Mission Control's
+            // Intelligence Feed can render real release art instead of the
+            // music-icon fallback. Apple Music returns a URL template with
+            // {w}x{h} placeholders; we substitute 300×300 here so the
+            // stored URL is immediately usable by any consumer (dashboard
+            // displays at 56×56 — 300×300 is ~retina-5×, slightly heavy
+            // bandwidth but matches the pattern already used in
+            // api/apple-music.js:79-81 / 117-119). Pre-existing scans
+            // won't have this field until they re-scan.
+            artwork:     a.attributes?.artwork?.url
+              ? a.attributes.artwork.url.replace('{w}', '300').replace('{h}', '300')
+              : null,
           }));
         }
       }
