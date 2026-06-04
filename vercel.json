@@ -74,6 +74,22 @@
       "dest": "/public/se7ven_labs_popped.png"
     },
     {
+      "src": "/sw.js",
+      "headers": {
+        "cache-control": "no-cache, no-store, must-revalidate",
+        "content-type": "application/javascript; charset=utf-8"
+      },
+      "dest": "/public/sw.js"
+    },
+    {
+      "src": "/mission-control.webmanifest",
+      "headers": {
+        "cache-control": "no-cache, no-store, must-revalidate",
+        "content-type": "application/manifest+json; charset=utf-8"
+      },
+      "dest": "/public/mission-control.webmanifest"
+    },
+    {
       "src": "/",
       "dest": "/public/index.html"
     },

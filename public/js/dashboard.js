@@ -23,6 +23,13 @@
 
 import { getSupabase } from '/js/supabase-client.js';
 
+// Brief 015r — Mission Control build version. Surfaced in the sidebar
+// footer so artists (and support) can confirm at a glance which build
+// they're running. Bump on every deploy that should force installed
+// PWAs to update (the SW_VERSION in /sw.js should be bumped in lock-
+// step so the controllerchange auto-reload fires on next open).
+const MC_VERSION = '1.0.0';
+
 /* ─────────────────────────────────────────────
    HELPERS
    ───────────────────────────────────────────── */
@@ -586,9 +593,6 @@ function renderMcHealth(scan, history) {
   const bandEl   = document.getElementById('mc-score-band');
   const descEl   = document.getElementById('mc-score-desc');
   const deltaEl  = document.getElementById('mc-score-delta');
-  // Brief 015j rev4 — sparkline SVG is now static (.mc-ekg-svg in HTML,
-  // self-animating via CSS keyframes). No JS render needed.
-
   if (current == null) {
     if (numEl)  numEl.textContent = '—';
     if (bandEl) bandEl.textContent = 'Awaiting first scan';
@@ -597,18 +601,38 @@ function renderMcHealth(scan, history) {
     return;
   }
 
+  // Brief 015q — Royaltē Signal Meter sweeps to the current score.
+  // First call wins; later renders are no-ops so the sweep doesn't
+  // restart if the card re-renders mid-session.
   const band = _healthBand(current);
-  if (numEl)  numEl.textContent = String(current);
+
+  // Orb's chrome is visible immediately — border color reflects band so
+  // the orb's identity reads even before the value is revealed.
   if (circleEl) {
     circleEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
     circleEl.classList.add(band.cls);
   }
+
+  // Brief 015q rev4 — score reveal is deferred. The orb shows a "—"
+  // placeholder and an empty band label while the Royaltē Signal™
+  // meter sweeps; the actual value + band label are revealed when
+  // the infusion fires (~4s after load), simulating "the meter
+  // analyzed the backend and delivered the result."
+  if (numEl) {
+    numEl.dataset.targetValue = String(current);
+    numEl.textContent = '—';
+  }
   if (bandEl) {
-    bandEl.textContent = band.label;
+    bandEl.dataset.targetLabel = band.label;
+    bandEl.dataset.targetClass = band.cls;
+    bandEl.textContent = '';
     bandEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
-    bandEl.classList.add(band.cls);
   }
   if (descEl) descEl.textContent = 'Your music business backend health, computed from verified sources.';
+
+  // Start the meter — the sweep + settle + infusion will eventually
+  // call revealScore() and the deferred values land.
+  initSignalMeter(current);
 
   if (deltaEl) {
     if (delta == null || history.length < 2) {
@@ -1160,6 +1184,11 @@ async function init() {
 
   if (!session) { window.location.href = '/'; return; }
 
+  // Brief 015r — render the build version in the sidebar footer so
+  // artists can verify their installed PWA matches production.
+  const versionEl = document.getElementById('sb-version');
+  if (versionEl) versionEl.textContent = `MC v${MC_VERSION}`;
+
   wireSignOut(supabase);
 
   const isAdmin = await checkAdminStatus(supabase, session.user.id);
@@ -1263,129 +1292,153 @@ async function init() {
   // emitted during init() to inline SVGs.
   _renderLucide();
 
-  // Brief 015g (pre-freeze) — canvas-driven EKG. requestAnimationFrame
-  // loop owns the spike position; toggles .pulse on the dot when the
-  // spike crosses 88-96% of the cycle.
-  initEKG();
 }
 
-// Brief 015h fix — heartbeat travels visibly across the full line.
+// Brief 015q rev2 — Royaltē Signal Meter™ + Signal Infusion.
 //
-// One QRS spike ENTERS from off-screen-left (anchor=-25 → spike's
-// right edge just touches x=0 at the start of each cycle). The
-// anchor advances linearly during the travel phase (0 → TRAVEL_END)
-// until the spike's peak reaches the dot. After arrival the anchor
-// LOCKS at the dot position while the opacity fades — visually
-// unambiguous "spike reached here, dot lit up, signal terminated."
-// Then the cycle resets and the spike re-enters from the left.
-function initEKG() {
-  const canvas = document.getElementById('mc-ekg-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const dot = document.getElementById('mc-ekg-dot');
+// Premium VU-meter aesthetic mounted in a charcoal equipment panel.
+// The needle SVG element is rotated via setAttribute so we get
+// SVG-native rotation around an explicit pivot, sidestepping the
+// transform-box / SMIL cross-browser issues from the EKG era.
+//
+// Sequence on first paint:
+//   1. Needle starts at -70° (V=0).
+//   2. On first renderMcHealth call with a non-null score, needle
+//      sweeps to score angle over 1.8s (cubic ease-out).
+//   3. On arrival: triggerSignalInfusion() fires once —
+//        - .mc-signal-pulse element animates from meter area
+//          toward the orb (CSS keyframe mc-signal-traverse)
+//        - 400ms after pulse starts, body.mc-signal-infusing
+//          class is added → score number + STRONG band briefly
+//          brighten (CSS keyframes mc-score-infuse + mc-band-infuse)
+//        - 800ms later the class is removed; everything settles.
+//   4. Drift loop kicks in: every 20-30s the needle smoothly
+//      transitions ±0.5-1 from score over 500ms.
+//   5. Subsequent renderMcHealth calls are no-ops (one-shot init).
+//      Infusion does NOT repeat on drift — only the first sweep.
+let _signalMeterInitialized = false;
+function initSignalMeter(currentScore) {
+  if (_signalMeterInitialized) return;
+  const needle = document.getElementById('mc-signal-needle');
+  if (!needle || currentScore == null) return;
+  _signalMeterInitialized = true;
 
-  function resize() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 40;
+  const PIVOT_CX        = 200;
+  const PIVOT_CY        = 188;
+  const ANGLE_MIN       = -70;   // V=0
+  const ANGLE_MAX       =  70;   // V=100
+  const SWEEP_MS        = 3000;  // Brief 015q rev3 — slower, deliberate sweep
+  const SETTLE_MS       = 600;   // overshoot → target settle
+  const OVERSHOOT_PTS   = 2;     // analog needle overshoots ~2 points then settles
+
+  const scoreToAngle = (v) =>
+    ANGLE_MIN + (Math.max(0, Math.min(100, v)) / 100) * (ANGLE_MAX - ANGLE_MIN);
+
+  const setAngle = (a) => {
+    needle.setAttribute('transform', `rotate(${a.toFixed(2)} ${PIVOT_CX} ${PIVOT_CY})`);
+  };
+
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+  function animate(from, to, duration, onDone) {
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = easeOutCubic(t);
+      setAngle(from + (to - from) * eased);
+      if (t < 1) requestAnimationFrame(step);
+      else if (onDone) onDone();
+    }
+    requestAnimationFrame(step);
   }
-  resize();
-  window.addEventListener('resize', resize);
 
-  const H = 40;
-  const MID = H / 2;
-  const CYCLE         = 6000; // ms — slowest end of the 4-6s spec
-  const TRAVEL_END    = 0.85; // spike reaches the dot at this progress
-  const ARRIVAL_START = 0.85; // body.mc-beating + dot.pulse turn on here
-  const ARRIVAL_END   = 0.95;
-  const FADE_START    = 0.85; // spike begins fading as the dot lights up
-  const FADE_END      = 0.95; // fully invisible by here (300ms calm tail)
-
-  // QRS shape — offsets from the spike's anchor. Anchor traverses
-  // left→right; offsets are static. Peak (negative dy) is at -5 from
-  // anchor; downstroke (positive dy) is at +0.
-  const SHAPE = [
-    [-25,   0],
-    [-10,   0],
-    [ -5, -16],
-    [  0,  18],
-    [  5,   0],
-    [  8,   5],
-    [ 12,   0],
-    [ 25,   0],
-  ];
-
-  let startTime   = null;
-  let wasArriving = false;
-
-  function drawFrame(ts) {
-    if (!startTime) startTime = ts;
-    const elapsed  = (ts - startTime) % CYCLE;
-    const progress = elapsed / CYCLE;
-    const W = canvas.width;
-
-    ctx.clearRect(0, 0, W, H);
-
-    // Faint baseline (always).
-    ctx.beginPath();
-    ctx.moveTo(0, MID);
-    ctx.lineTo(W, MID);
-    ctx.strokeStyle = 'rgba(34,211,238,0.25)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // Anchor trajectory:
-    //   start → spike's right edge at x=0 (entirely off-screen except
-    //           the rightmost point touches the canvas left edge)
-    //   end   → spike's peak (offset -5,0,5 from anchor) at the dot
-    //
-    // Dot center sits at right:6px + width:8px/2 = 10px from right
-    // edge of wrap, so the dot's x in canvas coords is W - 10.
-    const startAnchor   = -25;
-    const arrivalAnchor = W - 10;
-    let anchor;
-    if (progress <= TRAVEL_END) {
-      anchor = startAnchor + (arrivalAnchor - startAnchor) * (progress / TRAVEL_END);
-    } else {
-      // Arrived; freeze at dot while opacity fades.
-      anchor = arrivalAnchor;
+  // Brief 015q rev2 — Signal Infusion. Fires ONCE after the initial
+  // sweep completes. The pulse + orb glow visually communicate "the
+  // meter measured your catalog and delivered the score to the orb."
+  function triggerSignalInfusion() {
+    const pulse = document.getElementById('mc-signal-pulse');
+    if (pulse) {
+      // Restart the animation cleanly — remove class, force reflow,
+      // re-add. (Belt-and-braces in case anything else added it.)
+      pulse.classList.remove('is-active');
+      void pulse.offsetWidth;
+      pulse.classList.add('is-active');
+      pulse.addEventListener('animationend', () => {
+        pulse.classList.remove('is-active');
+      }, { once: true });
     }
+    // Orb infusion ~400ms after pulse start — synced to the pulse's
+    // visual arrival at the orb's location. Score reveal (Brief 015q
+    // rev4) fires at the same moment so the score values appear AS
+    // the pulse hand-off lands at the orb.
+    setTimeout(() => {
+      revealScore();
+      document.body.classList.add('mc-signal-infusing');
+      setTimeout(() => {
+        document.body.classList.remove('mc-signal-infusing');
+      }, 850);
+    }, 400);
+  }
 
-    // Opacity envelope: 1 during travel, fades 1→0 during arrival.
-    let spikeAlpha = 1;
-    if (progress >= FADE_START) {
-      spikeAlpha = Math.max(0, 1 - (progress - FADE_START) / (FADE_END - FADE_START));
+  // Brief 015q rev4 — swap the deferred score + band placeholders for
+  // their actual values. renderMcHealth set placeholders ('—' for the
+  // score, empty for the band) and stashed the targets in dataset;
+  // this resolves them at the moment of the orb's pulse-arrival glow
+  // so the score appears to "land" with the signal.
+  function revealScore() {
+    const numEl  = document.getElementById('mc-score-num');
+    const bandEl = document.getElementById('mc-score-band');
+    if (numEl && numEl.dataset.targetValue) {
+      numEl.textContent = numEl.dataset.targetValue;
+      delete numEl.dataset.targetValue;
     }
-
-    if (spikeAlpha > 0.01) {
-      ctx.globalAlpha = spikeAlpha;
-      ctx.beginPath();
-      for (let i = 0; i < SHAPE.length; i++) {
-        const [dx, dy] = SHAPE[i];
-        const x = anchor + dx;
-        const y = MID + dy;
-        if (i === 0) ctx.moveTo(x, y);
-        else         ctx.lineTo(x, y);
+    if (bandEl && bandEl.dataset.targetLabel) {
+      bandEl.textContent = bandEl.dataset.targetLabel;
+      if (bandEl.dataset.targetClass) {
+        bandEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
+        bandEl.classList.add(bandEl.dataset.targetClass);
       }
-      ctx.strokeStyle = '#22d3ee';
-      ctx.lineWidth   = 2;  // 1.5→2 for stronger presence during motion
-      ctx.lineJoin    = 'round';
-      ctx.stroke();
-      ctx.globalAlpha = 1;
+      delete bandEl.dataset.targetLabel;
+      delete bandEl.dataset.targetClass;
     }
-
-    // Synced arrival pulse — orb + LIVE + end dot all react together
-    // via body.mc-beating (CSS transitions, no per-element animation).
-    const inArrival = progress >= ARRIVAL_START && progress < ARRIVAL_END;
-    if (inArrival !== wasArriving) {
-      wasArriving = inArrival;
-      document.body.classList.toggle('mc-beating', inArrival);
-      if (dot) dot.classList.toggle('pulse', inArrival);
-    }
-
-    requestAnimationFrame(drawFrame);
   }
 
-  requestAnimationFrame(drawFrame);
+  // Two-stage sweep with analog overshoot — needle accelerates past
+  // the target by ~2 points, then settles back. Mimics a real
+  // spring-loaded VU meter coming to rest.
+  const targetAngle    = scoreToAngle(currentScore);
+  const overshootScore = Math.min(100, currentScore + OVERSHOOT_PTS);
+  const overshootAngle = scoreToAngle(overshootScore);
+
+  animate(ANGLE_MIN, overshootAngle, SWEEP_MS, () => {
+    animate(overshootAngle, targetAngle, SETTLE_MS, () => {
+      triggerSignalInfusion();
+      startDrift(targetAngle, currentScore);
+    });
+  });
+
+  // Brief 015q rev3 — drift dialed back. Smaller magnitude, slightly
+  // less frequent, slower transition. The needle should look like
+  // it's barely moving — just enough to suggest "hardware is alive"
+  // without ever being noticed unless the artist watches closely.
+  function startDrift(restAngle, baseScore) {
+    let lastAngle = restAngle;
+    function scheduleNext() {
+      const delay = 25000 + Math.random() * 15000; // 25-40s
+      setTimeout(() => {
+        // ±0.2-0.5 score points (rev2 was ±0.5-1.0).
+        const magnitude = 0.2 + Math.random() * 0.3;
+        const sign = Math.random() < 0.5 ? -1 : 1;
+        const driftedScore = Math.max(0, Math.min(100, baseScore + sign * magnitude));
+        const driftedAngle = scoreToAngle(driftedScore);
+        animate(lastAngle, driftedAngle, 700, () => {  // 500→700ms
+          lastAngle = driftedAngle;
+          scheduleNext();
+        });
+      }, delay);
+    }
+    scheduleNext();
+  }
 }
 
 if (document.readyState === 'loading') {

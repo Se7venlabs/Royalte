@@ -1,37 +1,43 @@
 // ─────────────────────────────────────────────────────────────────────────
-// Royaltē Mission Control — service worker (Brief 015p Phase 1 PWA).
+// Royaltē Mission Control — service worker (Brief 015r auto-update).
 //
-// Minimal pass-through SW. Its job is to make the page installable on
-// Chrome/Edge/Android (which require a registered SW for install
-// eligibility) and to keep the installed app functioning as a real
-// application. It does NOT cache anything offline — Mission Control
-// is a live monitoring view; serving stale dashboard data would be
-// worse than showing a clean network error. Offline shell caching
-// can be a Phase 2 enhancement once the launch shape settles.
+// Pass-through (no offline cache by design — see Brief 015p), but with
+// an explicit version constant and update-friendly lifecycle:
+//   - install:    skipWaiting() so a new SW activates immediately
+//                 instead of waiting for all tabs to close.
+//   - activate:   clients.claim() so the new SW takes control of all
+//                 open tabs without a reload. The pwa-install.js
+//                 controllerchange listener then triggers a refresh
+//                 so the new HTML/JS/CSS loads.
+//   - message:    responds to {type:'sw-version-query'} with the
+//                 current SW_VERSION (used by the sidebar footer to
+//                 verify the installed app matches production).
 //
-// Scope: root (/). The SW must be served from /sw.js to claim the
-// whole origin. Vercel's catch-all route handles this via /public/sw.js.
+// To force every installed Mission Control to update on next launch,
+// bump SW_VERSION below. The browser already revalidates /sw.js on
+// every navigation (cache-control no-cache header in vercel.json +
+// update_via_cache:'none' in the manifest), so the new SW is detected
+// the moment a user opens the installed app after a deploy.
 // ─────────────────────────────────────────────────────────────────────────
 
-self.addEventListener('install', (event) => {
-  // Skip waiting so the new SW activates immediately on update.
+const SW_VERSION = '1.0.0';
+
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  // Take control of all open clients without requiring a reload.
   event.waitUntil(self.clients.claim());
 });
 
-// Required for Chrome's "installable" criteria: the SW must register a
-// fetch handler that can respond to the start_url. We do a transparent
-// network pass-through — no caching, no offline fallback.
 self.addEventListener('fetch', (event) => {
-  // Only intercept top-level navigation + same-origin requests. Letting
-  // cross-origin requests pass through untouched avoids breaking CORS
-  // and third-party fetches (Supabase, Apple Music CDN, etc.).
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-
   event.respondWith(fetch(event.request));
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'sw-version-query') {
+    event.source?.postMessage({ type: 'sw-version', version: SW_VERSION });
+  }
 });

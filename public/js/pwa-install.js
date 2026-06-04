@@ -117,12 +117,41 @@
   }
   runDiagnostics();
 
-  // ── Service worker registration ──────────────────────────────────────
+  // ── Service worker registration + auto-update (Brief 015r) ──────────
+  //
+  // Auto-update flow:
+  //   1. Register /sw.js. Immediately call registration.update() to
+  //      force a check (the browser revalidates /sw.js because of the
+  //      cache-control: no-cache header in vercel.json + the manifest's
+  //      update_via_cache: "none").
+  //   2. Re-check every 5 minutes while the app is open so long-running
+  //      sessions eventually pick up new deploys.
+  //   3. When a new SW activates, the controllerchange event fires —
+  //      reload the page so the new HTML/JS/CSS take effect.
+  //
+  // Guard with _reloadOnControllerChange so the very first SW take-
+  // over on a fresh install doesn't cause an immediate reload loop.
+  let _reloadOnControllerChange = !!navigator.serviceWorker?.controller;
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
-        .then((reg) => log('SW registered, scope:', reg.scope))
+        .then((reg) => {
+          log('SW registered, scope:', reg.scope);
+          // Force a check now (and again every 5 min while open).
+          reg.update().catch(() => {});
+          setInterval(() => reg.update().catch(() => {}), 5 * 60 * 1000);
+          reg.addEventListener('updatefound', () => {
+            log('SW update detected — new version installing');
+          });
+        })
         .catch((e) => err('SW registration failed:', e.message));
+    });
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (_reloadOnControllerChange) {
+        log('SW controller changed — reloading to pick up new version');
+        _reloadOnControllerChange = false;
+        window.location.reload();
+      }
     });
   } else {
     warn('serviceWorker API not available');
