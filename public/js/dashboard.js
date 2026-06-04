@@ -597,20 +597,35 @@ function renderMcHealth(scan, history) {
   // Brief 015q — Royaltē Signal Meter sweeps to the current score.
   // First call wins; later renders are no-ops so the sweep doesn't
   // restart if the card re-renders mid-session.
-  initSignalMeter(current);
-
   const band = _healthBand(current);
-  if (numEl)  numEl.textContent = String(current);
+
+  // Orb's chrome is visible immediately — border color reflects band so
+  // the orb's identity reads even before the value is revealed.
   if (circleEl) {
     circleEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
     circleEl.classList.add(band.cls);
   }
+
+  // Brief 015q rev4 — score reveal is deferred. The orb shows a "—"
+  // placeholder and an empty band label while the Royaltē Signal™
+  // meter sweeps; the actual value + band label are revealed when
+  // the infusion fires (~4s after load), simulating "the meter
+  // analyzed the backend and delivered the result."
+  if (numEl) {
+    numEl.dataset.targetValue = String(current);
+    numEl.textContent = '—';
+  }
   if (bandEl) {
-    bandEl.textContent = band.label;
+    bandEl.dataset.targetLabel = band.label;
+    bandEl.dataset.targetClass = band.cls;
+    bandEl.textContent = '';
     bandEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
-    bandEl.classList.add(band.cls);
   }
   if (descEl) descEl.textContent = 'Your music business backend health, computed from verified sources.';
+
+  // Start the meter — the sweep + settle + infusion will eventually
+  // call revealScore() and the deferred values land.
+  initSignalMeter(current);
 
   if (deltaEl) {
     if (delta == null || history.length < 2) {
@@ -1341,13 +1356,39 @@ function initSignalMeter(currentScore) {
       }, { once: true });
     }
     // Orb infusion ~400ms after pulse start — synced to the pulse's
-    // visual arrival at the orb's location.
+    // visual arrival at the orb's location. Score reveal (Brief 015q
+    // rev4) fires at the same moment so the score values appear AS
+    // the pulse hand-off lands at the orb.
     setTimeout(() => {
+      revealScore();
       document.body.classList.add('mc-signal-infusing');
       setTimeout(() => {
         document.body.classList.remove('mc-signal-infusing');
       }, 850);
     }, 400);
+  }
+
+  // Brief 015q rev4 — swap the deferred score + band placeholders for
+  // their actual values. renderMcHealth set placeholders ('—' for the
+  // score, empty for the band) and stashed the targets in dataset;
+  // this resolves them at the moment of the orb's pulse-arrival glow
+  // so the score appears to "land" with the signal.
+  function revealScore() {
+    const numEl  = document.getElementById('mc-score-num');
+    const bandEl = document.getElementById('mc-score-band');
+    if (numEl && numEl.dataset.targetValue) {
+      numEl.textContent = numEl.dataset.targetValue;
+      delete numEl.dataset.targetValue;
+    }
+    if (bandEl && bandEl.dataset.targetLabel) {
+      bandEl.textContent = bandEl.dataset.targetLabel;
+      if (bandEl.dataset.targetClass) {
+        bandEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
+        bandEl.classList.add(bandEl.dataset.targetClass);
+      }
+      delete bandEl.dataset.targetLabel;
+      delete bandEl.dataset.targetClass;
+    }
   }
 
   // Two-stage sweep with analog overshoot — needle accelerates past

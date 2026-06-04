@@ -1165,12 +1165,31 @@ body.mc-signal-infusing .mc-score-band-inside.band-review{
               <!-- Subtle bottom shadow line (panel depth) -->
               <rect x="6" y="237" width="388" height="1" fill="rgba(0,0,0,0.50)"/>
 
-              <!-- 2. Cream meter face inset (mounted inside the panel) -->
-              <rect x="14" y="10" width="372" height="184" rx="5"
+              <!-- 1a. Four mounting screws (Brief 015q rev4). Aged brass,
+                       slot-head, varied slot orientations for realism.
+                       Mounted in the housing frame outside the cream face. -->
+              <g class="mc-signal-screws">
+                <!-- TL -->
+                <circle cx="18" cy="18" r="5.5" fill="url(#mc-signal-pivot-grad)" stroke="rgba(0,0,0,0.55)" stroke-width="0.6"/>
+                <line x1="14.6" y1="18" x2="21.4" y2="18" stroke="rgba(20,12,4,0.80)" stroke-width="1.1" transform="rotate(35 18 18)"/>
+                <!-- TR -->
+                <circle cx="382" cy="18" r="5.5" fill="url(#mc-signal-pivot-grad)" stroke="rgba(0,0,0,0.55)" stroke-width="0.6"/>
+                <line x1="378.6" y1="18" x2="385.4" y2="18" stroke="rgba(20,12,4,0.80)" stroke-width="1.1" transform="rotate(-50 382 18)"/>
+                <!-- BL -->
+                <circle cx="18" cy="222" r="5.5" fill="url(#mc-signal-pivot-grad)" stroke="rgba(0,0,0,0.55)" stroke-width="0.6"/>
+                <line x1="14.6" y1="222" x2="21.4" y2="222" stroke="rgba(20,12,4,0.80)" stroke-width="1.1" transform="rotate(75 18 222)"/>
+                <!-- BR -->
+                <circle cx="382" cy="222" r="5.5" fill="url(#mc-signal-pivot-grad)" stroke="rgba(0,0,0,0.55)" stroke-width="0.6"/>
+                <line x1="378.6" y1="222" x2="385.4" y2="222" stroke="rgba(20,12,4,0.80)" stroke-width="1.1" transform="rotate(-20 382 222)"/>
+              </g>
+
+              <!-- 2. Cream meter face inset (rev4 — shrunk to leave room
+                   for the screws in the housing frame). -->
+              <rect x="30" y="30" width="340" height="168" rx="5"
                     fill="url(#mc-signal-face)"
                     stroke="rgba(0,0,0,0.45)" stroke-width="0.75"/>
               <!-- Face inner shadow (top edge — "recessed" feel) -->
-              <rect x="15" y="11" width="370" height="3" fill="rgba(0,0,0,0.12)"/>
+              <rect x="31" y="31" width="338" height="3" fill="rgba(0,0,0,0.12)"/>
 
               <!-- 3. Color-banded arc (amber/blue/teal/gold) on cream face.
                    Pivot (200, 188), radius 145 (+12% vs rev2), sweep -70° → +70°.
@@ -1226,7 +1245,7 @@ body.mc-signal-infusing .mc-score-band-inside.band-review{
               <circle cx="200" cy="188" r="3" fill="rgba(20,12,4,0.85)"/>
 
               <!-- 6. Glass cover sheen (warm-tinted reflection across face) -->
-              <rect x="14" y="10" width="372" height="80" rx="5" fill="url(#mc-signal-sheen)" pointer-events="none"/>
+              <rect x="30" y="30" width="340" height="75" rx="5" fill="url(#mc-signal-sheen)" pointer-events="none"/>
 
               <!-- 7. Brass engraved nameplate (rev3 — taller + wider, reads
                    as physically mounted hardware badge, not a label) -->
