@@ -1131,11 +1131,13 @@ body.mc-signal-infusing .mc-score-band-inside.band-review{
                   <stop offset="0%"  stop-color="#ede1c2"/>
                   <stop offset="100%" stop-color="#d8c69a"/>
                 </linearGradient>
-                <!-- Glass cover sheen (top-down) -->
+                <!-- Glass cover sheen — warm-tinted (rev3) for "glass over
+                     cream face under studio lighting" rather than cold
+                     reflection. Very subtle; subconscious only. -->
                 <linearGradient id="mc-signal-sheen" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stop-color="rgba(255,255,255,0.18)"/>
-                  <stop offset="35%" stop-color="rgba(255,255,255,0.04)"/>
-                  <stop offset="100%" stop-color="rgba(0,0,0,0.10)"/>
+                  <stop offset="0%"  stop-color="rgba(255,245,220,0.20)"/>
+                  <stop offset="35%" stop-color="rgba(255,240,210,0.04)"/>
+                  <stop offset="100%" stop-color="rgba(40,28,12,0.12)"/>
                 </linearGradient>
                 <!-- Brass plate gradient -->
                 <linearGradient id="mc-signal-brass" x1="0" y1="0" x2="0" y2="1">
@@ -1171,72 +1173,75 @@ body.mc-signal-infusing .mc-score-band-inside.band-review{
               <rect x="15" y="11" width="370" height="3" fill="rgba(0,0,0,0.12)"/>
 
               <!-- 3. Color-banded arc (amber/blue/teal/gold) on cream face.
-                   Pivot (200, 188), radius 130, sweep -70° → +70°.        -->
+                   Pivot (200, 188), radius 145 (+12% vs rev2), sweep -70° → +70°.
+                   Needle has more travel distance; meter feels expansive. -->
               <g fill="none" stroke-width="7" stroke-linecap="butt">
-                <path d="M 77.8 143.5 A 130 130 0 0 1 138.9 73.2"  stroke="#d97706" opacity="0.92"/>
-                <path d="M 138.9 73.2 A 130 130 0 0 1 231.4 61.9"  stroke="#2563eb" opacity="0.90"/>
-                <path d="M 231.4 61.9 A 130 130 0 0 1 287.0 91.4"  stroke="#0d9488" opacity="0.90"/>
-                <path d="M 287.0 91.4 A 130 130 0 0 1 322.2 143.5" stroke="#b88e3a" opacity="0.98"/>
+                <path d="M 63.7 138.4 A 145 145 0 0 1 131.9 60.0"  stroke="#d97706" opacity="0.92"/>
+                <path d="M 131.9 60.0 A 145 145 0 0 1 235.1 47.3"  stroke="#2563eb" opacity="0.90"/>
+                <path d="M 235.1 47.3 A 145 145 0 0 1 297.0 80.3"  stroke="#0d9488" opacity="0.90"/>
+                <path d="M 297.0 80.3 A 145 145 0 0 1 336.3 138.4" stroke="#b88e3a" opacity="0.98"/>
               </g>
 
-              <!-- Major tick marks (dark, 0/30/60/80/100) -->
+              <!-- Major tick marks (dark, 0/30/60/80/100) — radii 138/152 -->
               <g stroke="#1f1f1f" stroke-width="1.75" stroke-linecap="round">
-                <!-- 0 -->   <line x1="73.4"  y1="145.0" x2="65.9"  y2="147.7"/>
-                <!-- 30 -->  <line x1="136.5" y1="67.6"  x2="133.1" y2="59.6"/>
-                <!-- 60 -->  <line x1="230.4" y1="56.6"  x2="229.9" y2="47.6"/>
-                <!-- 80 -->  <line x1="290.5" y1="86.0"  x2="295.3" y2="78.4"/>
-                <!-- 100 --> <line x1="326.6" y1="145.0" x2="334.1" y2="147.7"/>
+                <!-- 0 -->   <line x1="70.3"  y1="140.8" x2="57.2"  y2="136.0"/>
+                <!-- 30 -->  <line x1="135.2" y1="66.2"  x2="128.6" y2="53.8"/>
+                <!-- 60 -->  <line x1="233.4" y1="54.1"  x2="236.8" y2="40.5"/>
+                <!-- 80 -->  <line x1="292.3" y1="85.5"  x2="301.7" y2="75.0"/>
+                <!-- 100 --> <line x1="329.7" y1="140.8" x2="342.8" y2="136.0"/>
               </g>
 
-              <!-- Minor tick marks (slightly fainter) -->
+              <!-- Minor tick marks (slightly fainter) — radii 140/150 -->
               <g stroke="rgba(31,31,31,0.55)" stroke-width="1.25" stroke-linecap="round">
-                <!-- 10 -->  <line x1="94.6"  y1="118.6" x2="89.8"  y2="115.0"/>
-                <!-- 20 -->  <line x1="111.0" y1="91.6"  x2="104.7" y2="90.4"/>
-                <!-- 40 -->  <line x1="161.5" y1="59.5"  x2="159.0" y2="51.3"/>
-                <!-- 50 -->  <line x1="200.0" y1="58.0"  x2="200.0" y2="49.0"/>
-                <!-- 70 -->  <line x1="260.7" y1="63.8"  x2="263.0" y2="55.4"/>
-                <!-- 90 -->  <line x1="305.4" y1="115.0" x2="311.3" y2="109.5"/>
+                <!-- 10 -->  <line x1="83.9"  y1="109.7" x2="75.6"  y2="104.1"/>
+                <!-- 20 -->  <line x1="106.3" y1="84.0"  x2="99.6"  y2="76.5"/>
+                <!-- 40 -->  <line x1="166.1" y1="52.2"  x2="163.7" y2="42.5"/>
+                <!-- 50 -->  <line x1="200.0" y1="48.0"  x2="200.0" y2="38.0"/>
+                <!-- 70 -->  <line x1="265.7" y1="64.4"  x2="270.4" y2="55.6"/>
+                <!-- 90 -->  <line x1="316.1" y1="109.7" x2="324.4" y2="104.1"/>
               </g>
 
-              <!-- Endpoint numerals (dark on cream) -->
+              <!-- Endpoint numerals (dark on cream) — positioned at R≈160 -->
               <g fill="#3a2a14" font-family="'Space Mono', monospace" font-size="10" font-weight="700">
-                <text x="56"  y="165" text-anchor="middle">0</text>
-                <text x="344" y="165" text-anchor="middle">100</text>
+                <text x="46"  y="160" text-anchor="middle">0</text>
+                <text x="354" y="160" text-anchor="middle">100</text>
               </g>
 
               <!-- 4. Needle — initial position -70° (V=0). transform
-                   attribute updated by initSignalMeter() in dashboard.js. -->
+                   attribute updated by initSignalMeter() in dashboard.js.
+                   Length 138 (to reach near new arc radius 145).         -->
               <g id="mc-signal-needle" transform="rotate(-70 200 188)">
                 <!-- Counterweight stub below pivot -->
                 <line x1="200" y1="188" x2="200" y2="201" stroke="#1a1410" stroke-width="3.5" stroke-linecap="round"/>
-                <!-- Main needle (thicker than rev1 — 3px) -->
-                <line x1="200" y1="188" x2="200" y2="56" stroke="url(#mc-signal-needle-grad)" stroke-width="3" stroke-linecap="round"/>
+                <!-- Main needle (3px stroke) -->
+                <line x1="200" y1="188" x2="200" y2="50" stroke="url(#mc-signal-needle-grad)" stroke-width="3" stroke-linecap="round"/>
                 <!-- Needle tip (small flare) -->
-                <circle cx="200" cy="56" r="2.2" fill="#1a1410"/>
+                <circle cx="200" cy="50" r="2.2" fill="#1a1410"/>
                 <!-- Subtle needle highlight (left edge catching light) -->
-                <line x1="199" y1="188" x2="199" y2="56" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+                <line x1="199" y1="188" x2="199" y2="50" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
               </g>
 
               <!-- 5. Pivot cap (brass) -->
               <circle cx="200" cy="188" r="10" fill="url(#mc-signal-pivot-grad)" stroke="rgba(0,0,0,0.45)" stroke-width="0.6"/>
               <circle cx="200" cy="188" r="3" fill="rgba(20,12,4,0.85)"/>
 
-              <!-- 6. Glass cover sheen (subtle reflection over face) -->
+              <!-- 6. Glass cover sheen (warm-tinted reflection across face) -->
               <rect x="14" y="10" width="372" height="80" rx="5" fill="url(#mc-signal-sheen)" pointer-events="none"/>
 
-              <!-- 7. Brass engraved nameplate -->
+              <!-- 7. Brass engraved nameplate (rev3 — taller + wider, reads
+                   as physically mounted hardware badge, not a label) -->
               <g>
-                <rect x="130" y="208" width="140" height="22" rx="2.5"
+                <rect x="120" y="204" width="160" height="28" rx="3"
                       fill="url(#mc-signal-brass)"
-                      stroke="rgba(0,0,0,0.55)" stroke-width="0.6"/>
+                      stroke="rgba(0,0,0,0.60)" stroke-width="0.7"/>
                 <!-- Top highlight line (light edge) -->
-                <line x1="132" y1="210" x2="268" y2="210" stroke="rgba(255,255,255,0.20)" stroke-width="0.5"/>
+                <line x1="122" y1="206" x2="278" y2="206" stroke="rgba(255,255,255,0.22)" stroke-width="0.5"/>
                 <!-- Bottom shadow line (depth) -->
-                <line x1="132" y1="228" x2="268" y2="228" stroke="rgba(0,0,0,0.45)" stroke-width="0.5"/>
-                <!-- Engraved text — dark on brass, subtle bevel via stroke -->
-                <text x="200" y="223" text-anchor="middle"
-                      font-family="'Space Mono', monospace" font-size="10" font-weight="700"
-                      fill="#2a1c08" letter-spacing="0.20em">ROYALTĒ SIGNAL™</text>
+                <line x1="122" y1="230" x2="278" y2="230" stroke="rgba(0,0,0,0.50)" stroke-width="0.5"/>
+                <!-- Engraved text — dark on brass, slightly larger for badge feel -->
+                <text x="200" y="222" text-anchor="middle"
+                      font-family="'Space Mono', monospace" font-size="11" font-weight="700"
+                      fill="#2a1c08" letter-spacing="0.22em">ROYALTĒ SIGNAL™</text>
               </g>
             </svg>
           </div>

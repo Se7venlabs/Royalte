@@ -1296,11 +1296,13 @@ function initSignalMeter(currentScore) {
   if (!needle || currentScore == null) return;
   _signalMeterInitialized = true;
 
-  const PIVOT_CX  = 200;
-  const PIVOT_CY  = 188;     // pivot moved down for larger meter (rev2)
-  const ANGLE_MIN = -70;     // V=0
-  const ANGLE_MAX =  70;     // V=100
-  const SWEEP_MS  = 1800;
+  const PIVOT_CX        = 200;
+  const PIVOT_CY        = 188;
+  const ANGLE_MIN       = -70;   // V=0
+  const ANGLE_MAX       =  70;   // V=100
+  const SWEEP_MS        = 3000;  // Brief 015q rev3 — slower, deliberate sweep
+  const SETTLE_MS       = 600;   // overshoot → target settle
+  const OVERSHOOT_PTS   = 2;     // analog needle overshoots ~2 points then settles
 
   const scoreToAngle = (v) =>
     ANGLE_MIN + (Math.max(0, Math.min(100, v)) / 100) * (ANGLE_MAX - ANGLE_MIN);
@@ -1348,23 +1350,35 @@ function initSignalMeter(currentScore) {
     }, 400);
   }
 
-  const targetAngle = scoreToAngle(currentScore);
-  animate(ANGLE_MIN, targetAngle, SWEEP_MS, () => {
-    triggerSignalInfusion();
-    startDrift(targetAngle, currentScore);
+  // Two-stage sweep with analog overshoot — needle accelerates past
+  // the target by ~2 points, then settles back. Mimics a real
+  // spring-loaded VU meter coming to rest.
+  const targetAngle    = scoreToAngle(currentScore);
+  const overshootScore = Math.min(100, currentScore + OVERSHOOT_PTS);
+  const overshootAngle = scoreToAngle(overshootScore);
+
+  animate(ANGLE_MIN, overshootAngle, SWEEP_MS, () => {
+    animate(overshootAngle, targetAngle, SETTLE_MS, () => {
+      triggerSignalInfusion();
+      startDrift(targetAngle, currentScore);
+    });
   });
 
+  // Brief 015q rev3 — drift dialed back. Smaller magnitude, slightly
+  // less frequent, slower transition. The needle should look like
+  // it's barely moving — just enough to suggest "hardware is alive"
+  // without ever being noticed unless the artist watches closely.
   function startDrift(restAngle, baseScore) {
     let lastAngle = restAngle;
     function scheduleNext() {
-      const delay = 20000 + Math.random() * 10000; // 20-30s
+      const delay = 25000 + Math.random() * 15000; // 25-40s
       setTimeout(() => {
-        // Random drift in ±0.5-1.0 score points (sign random).
-        const magnitude = 0.5 + Math.random() * 0.5;
+        // ±0.2-0.5 score points (rev2 was ±0.5-1.0).
+        const magnitude = 0.2 + Math.random() * 0.3;
         const sign = Math.random() < 0.5 ? -1 : 1;
         const driftedScore = Math.max(0, Math.min(100, baseScore + sign * magnitude));
         const driftedAngle = scoreToAngle(driftedScore);
-        animate(lastAngle, driftedAngle, 500, () => {
+        animate(lastAngle, driftedAngle, 700, () => {  // 500→700ms
           lastAngle = driftedAngle;
           scheduleNext();
         });
