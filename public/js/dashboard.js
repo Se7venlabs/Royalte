@@ -1144,6 +1144,20 @@ async function init() {
     const res = await supabase.auth.getSession();
     session = res.data.session;
   } catch (e) { console.error('[mc] getSession failed', e); }
+
+  // Brief 015p — one-shot refresh before bailing. Persistent session
+  // is the locked product behavior ("stay logged in unless explicitly
+  // signed out"). autoRefreshToken: true handles steady-state token
+  // rotation, but cold launches (PWA open from home screen, browser
+  // restart) can race the auth client's hydration — if getSession
+  // returns null, try a refresh once before redirecting to login.
+  if (!session) {
+    try {
+      const ref = await supabase.auth.refreshSession();
+      session = ref?.data?.session || null;
+    } catch (e) { /* refresh failed — fall through to redirect */ }
+  }
+
   if (!session) { window.location.href = '/'; return; }
 
   wireSignOut(supabase);

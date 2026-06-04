@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>Mission Control · Royaltē</title>
+
+<!-- Brief 015p — Mission Control PWA. The manifest below is MC-specific
+     (start_url=/dashboard.html) and is linked ONLY from this page so
+     the install prompt is scoped to authenticated Mission Control.
+     The marketing site continues to use /site.webmanifest separately. -->
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/mission-control.webmanifest">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mission Control">
+
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <!-- Lucide icons — UMD bundle. Initial DOM swap happens via the
      lucide.createIcons() call at the bottom of <body>; dynamic
@@ -137,6 +153,41 @@ ul,ol{list-style:none;}
 }
 .tb-scan-btn:hover{background:rgba(138,92,255,0.08);}
 .tb-scan-btn .lucide{width:14px;height:14px;}
+
+/* Brief 015p — PWA install button. Four explicit states:
+   default (Ready)         → bright blue, clickable, fires native prompt
+   .is-pending             → muted blue, disabled, "Install App"
+                              (Chromium browser; waiting for browser to
+                              fire beforeinstallprompt)
+   .is-installed           → green, disabled, "✓ Installed"
+   .is-unavailable         → gray, disabled, "Install Unavailable"
+                              (browsers without programmatic install:
+                              iOS Safari, macOS Safari, Firefox)
+   No instructional modals — if install isn't supported the button
+   communicates that visibly rather than pretending to be one-click. */
+.tb-install-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:8px;
+  background:transparent;border:1px solid rgba(96,165,250,0.50);
+  color:var(--blu);font-size:11px;font-weight:600;letter-spacing:0.04em;
+  text-transform:uppercase;transition:all 0.18s;
+  cursor:pointer;font-family:inherit;
+}
+.tb-install-btn:hover:not(:disabled){background:rgba(96,165,250,0.08);}
+.tb-install-btn .lucide{width:14px;height:14px;}
+.tb-install-btn:disabled{cursor:default;}
+.tb-install-btn.is-pending{
+  border-color:rgba(96,165,250,0.22);
+  color:rgba(96,165,250,0.55);
+}
+.tb-install-btn.is-installed{
+  border-color:rgba(52,211,153,0.50);
+  color:var(--grn);
+}
+.tb-install-btn.is-unavailable{
+  border-color:rgba(255,255,255,0.10);
+  color:var(--muted);
+}
 
 /* ── Sidebar ─────────────────────────────────────────────────────────── */
 .sidebar{
@@ -931,6 +982,10 @@ body.mc-beating .mc-live-dot{
       <div class="tb-last-scan-line">Last Scan: <span id="tb-last-scan">—</span></div>
     </div>
     <div class="topbar-right">
+      <button type="button" class="tb-install-btn" id="mc-install-btn">
+        <i data-lucide="download"></i>
+        Install App
+      </button>
       <a href="/" class="tb-scan-btn">
         <i data-lucide="play"></i>
         Run New Scan
@@ -1223,5 +1278,10 @@ body.mc-beating .mc-live-dot{
      call lucide.createIcons() again after injecting their own
      placeholders. -->
 <script>if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();</script>
+<!-- Brief 015p — PWA install handler. Registers /sw.js, captures
+     beforeinstallprompt on Chrome/Edge/Android, surfaces the
+     header install button, and falls back to a Share-sheet hint
+     on iOS Safari (which doesn't expose programmatic install). -->
+<script src="/js/pwa-install.js"></script>
 </body>
 </html>
