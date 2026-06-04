@@ -39,6 +39,12 @@
   --amb:#f59e0b;
   --red:#ef4444;
   --blu:#60a5fa;
+  /* Brief 015m — locked color system. Teal = monitoring (separate from
+     blue = discovery/data). Gold = revenue / opportunity / value. */
+  --teal:#2dd4bf;
+  --teal-2:#5eead4;
+  --gold:#d4a64a;
+  --gold-2:#e0b65a;
   --grad:linear-gradient(135deg,#8a5cff,#e040c8);
 }
 
@@ -101,6 +107,8 @@ ul,ol{list-style:none;}
 }
 .tb-stat-sep{color:var(--muted-3);}
 .tb-stat-v{color:#fff;font-weight:700;}
+.tb-stat-v.is-gold{color:var(--gold-2);}
+.tb-stat-lbl.is-gold{color:rgba(224,182,90,0.85);}
 
 /* Last scan line. */
 .tb-last-scan-line{
@@ -270,10 +278,16 @@ ul,ol{list-style:none;}
   0%, 100% { box-shadow:0 0 22px rgba(52,211,153,0.07); }
   50%      { box-shadow:0 0 40px rgba(52,211,153,0.16); }
 }
+/* Brief 015m — Royaltē Intelligence Core. Premium glass: subtle
+   radial highlight + 1px inset top edge + outer depth. Breathing
+   animation still drives the green ambient halo. */
 .mc-score-circle{
-  width:80px;height:80px;border-radius:50%;border:3px solid var(--muted-2);
+  width:88px;height:88px;border-radius:50%;border:3px solid var(--muted-2);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   flex-shrink:0;position:relative;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.0) 55%),
+    radial-gradient(circle at center, rgba(52,211,153,0.06) 0%, rgba(0,0,0,0.0) 70%);
   animation:mc-health-breathe 6s ease-in-out infinite;
 }
 /* Brief 015l Item 3 — score-receive halo. A subtle green ring ripples
@@ -308,11 +322,18 @@ ul,ol{list-style:none;}
   animation:none;box-shadow:0 0 26px rgba(239,68,68,0.12);
 }
 .mc-score-num{font-size:28px;font-weight:700;color:#fff;line-height:1;}
-.mc-score-of{font-size:10px;color:var(--muted);}
+.mc-score-of{font-size:10px;color:var(--muted);line-height:1;margin-top:1px;}
+/* Brief 015m — band label moved INSIDE the orb (Intelligence Core
+   stack: score / /100 / STRONG). Mono caps, sized to fit the 88px orb. */
+.mc-score-band-inside{
+  font-family:'Space Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--grn);
+  margin-top:4px;line-height:1;
+}
+.mc-score-band-inside.band-moderate{color:var(--amb);}
+.mc-score-band-inside.band-review  {color:var(--red);}
 .mc-score-info{flex:1;min-width:0;}
-.mc-score-band-label{font-size:18px;font-weight:600;color:var(--grn);}
-.mc-score-band-label.band-moderate{color:var(--amb);}
-.mc-score-band-label.band-review{color:var(--red);}
 .mc-score-desc{font-size:11px;color:var(--muted);line-height:1.4;margin:4px 0 6px;}
 .mc-score-delta{font-size:12px;color:var(--grn);display:inline-flex;align-items:center;gap:4px;}
 .mc-score-delta.is-neutral{color:var(--muted-2);}
@@ -383,12 +404,12 @@ ul,ol{list-style:none;}
      • No Critical Issues → BRIGHTEST GREEN + halo (the headline reassurance)
      • All Clear          → soft green (neutral positive — quiet OK) */
 .mc-status-list{display:flex;flex-direction:column;gap:8px;}
-/* Brief 015i — Monitoring is system activity (cyan), not health.
-   Pulse ring re-themed cyan to match the new "is-monitoring-on" tile. */
+/* Brief 015m — Monitoring is TEAL (locked color system, separate from
+   blue = discovery/data). Pulse ring uses teal. */
 @keyframes mc-status-pulse{
-  0%   { box-shadow:0 0 0 0 rgba(34,211,238,0.55), 0 0 10px rgba(34,211,238,0.40); }
-  70%  { box-shadow:0 0 0 8px rgba(34,211,238,0),  0 0 10px rgba(34,211,238,0.40); }
-  100% { box-shadow:0 0 0 0 rgba(34,211,238,0),    0 0 10px rgba(34,211,238,0.40); }
+  0%   { box-shadow:0 0 0 0 rgba(45,212,191,0.55), 0 0 10px rgba(45,212,191,0.40); }
+  70%  { box-shadow:0 0 0 8px rgba(45,212,191,0),  0 0 10px rgba(45,212,191,0.40); }
+  100% { box-shadow:0 0 0 0 rgba(45,212,191,0),    0 0 10px rgba(45,212,191,0.40); }
 }
 .mc-bs-tile{
   display:flex;align-items:center;gap:12px;
@@ -412,14 +433,14 @@ ul,ol{list-style:none;}
   font-size:11px;color:var(--muted-2);line-height:1.3;
 }
 
-/* Variant — Monitoring Active: cyan (system activity), icon pulses. */
+/* Variant — Monitoring Active: TEAL (system activity), icon pulses. */
 .mc-bs-tile.is-monitoring-on{
-  background:rgba(34,211,238,0.07);
-  border-color:rgba(34,211,238,0.24);
+  background:rgba(45,212,191,0.07);
+  border-color:rgba(45,212,191,0.24);
 }
 .mc-bs-tile.is-monitoring-on .mc-bs-tile-icon{
-  background:rgba(34,211,238,0.30);
-  border-color:rgba(34,211,238,0.55);
+  background:rgba(45,212,191,0.30);
+  border-color:rgba(45,212,191,0.55);
   animation:mc-status-pulse 2s infinite;
 }
 
@@ -591,6 +612,8 @@ ul,ol{list-style:none;}
 .mc-catalog-row:last-child{border-bottom:none;}
 .mc-catalog-k{color:var(--muted-2);text-transform:uppercase;font-size:10px;letter-spacing:0.06em;font-family:'Space Mono',monospace;}
 .mc-catalog-v{color:#fff;font-weight:500;}
+/* Brief 015m — gold accent for opportunity / progress values. */
+.mc-catalog-v.is-opportunity{color:var(--gold-2);}
 
 /* ── Card 9 — Your Royaltē Review (Brief 015a Change 3, position 9) ─── */
 .mc-review-anchor{display:flex;flex-direction:column;align-items:center;padding:10px 0 4px;}
@@ -691,19 +714,28 @@ ul,ol{list-style:none;}
   font-size:12px;color:rgba(255,255,255,0.86);line-height:1.55;
 }
 
-/* ── Card 6 — Intelligence Profile ───────────────────────────────────── */
+/* ── Card 6 — Intelligence Confidence (Brief 015m — bigger donut,
+   HIGH centered, "Confidence Level" eyebrow). */
 .mc-profile-row{display:flex;align-items:center;gap:14px;}
 .mc-donut{
-  width:70px;height:70px;border-radius:50%;flex-shrink:0;
+  width:88px;height:88px;border-radius:50%;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;position:relative;
   background:conic-gradient(var(--pur-2) 0deg,rgba(255,255,255,0.05) 0deg);
 }
 .mc-donut::after{
-  content:'';position:absolute;inset:8px;border-radius:50%;background:var(--card);
+  content:'';position:absolute;inset:9px;border-radius:50%;background:var(--card);
 }
 .mc-donut-center{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;}
-.mc-donut-label{font-size:11px;font-weight:700;color:#fff;line-height:1;}
-.mc-donut-sub{font-size:8px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;font-family:'Space Mono',monospace;}
+/* Big confidence word — the headline inside the orb. */
+.mc-donut-label{
+  font-size:16px;font-weight:700;color:#fff;line-height:1;
+  letter-spacing:0.02em;text-transform:uppercase;
+}
+/* Small eyebrow below the word — context label. */
+.mc-donut-sub{
+  font-size:8px;color:var(--muted-2);text-transform:uppercase;
+  letter-spacing:0.10em;margin-top:4px;font-family:'Space Mono',monospace;
+}
 /* Brief 015b — final Intelligence Confidence column layout per
    founder spec. Brief 015e Priority 4 — stacked label-above-value
    layout (no horizontal K/V competition) so "Verified" / "High" /
@@ -721,6 +753,18 @@ ul,ol{list-style:none;}
 .mc-profile-foot{margin-top:10px;}
 
 /* ── Card 7 — Global Presence ────────────────────────────────────────── */
+/* Brief 015m — prominent count above flags: "8 / REGIONS VERIFIED". */
+.mc-presence-count{
+  display:flex;align-items:baseline;gap:8px;margin-bottom:10px;
+}
+.mc-presence-count-num{
+  font-size:28px;font-weight:700;color:#fff;line-height:1;
+}
+.mc-presence-count-lbl{
+  font-family:'Space Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--muted-2);
+}
 .mc-presence-sub{font-size:11px;color:var(--muted);margin-bottom:10px;}
 .mc-flag-grid{
   display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
@@ -729,7 +773,7 @@ ul,ol{list-style:none;}
   display:flex;flex-direction:column;align-items:center;
   padding:6px 4px;
 }
-.mc-flag-emoji{font-size:20px;line-height:1;}
+.mc-flag-emoji{font-size:24px;line-height:1;}
 .mc-flag-name{font-size:9px;color:var(--muted-2);margin-top:4px;text-align:center;letter-spacing:0.04em;}
 .mc-flag-cell.is-verified .mc-flag-name{color:var(--grn);}
 .mc-flag-cell.is-partial .mc-flag-name{color:var(--amb);}
@@ -776,12 +820,12 @@ ul,ol{list-style:none;}
 .mc-overview-cell.is-blue   {border-left-color:rgba(96,165,250,0.55); background:rgba(96,165,250,0.05);}
 .mc-overview-cell.is-purple {border-left-color:rgba(138,92,255,0.55); background:rgba(138,92,255,0.05);}
 .mc-overview-cell.is-amber  {border-left-color:rgba(245,158,11,0.55); background:rgba(245,158,11,0.05);}
-.mc-overview-cell.is-cyan   {border-left-color:rgba(34,211,238,0.60); background:rgba(34,211,238,0.06);}
+.mc-overview-cell.is-teal   {border-left-color:rgba(45,212,191,0.60); background:rgba(45,212,191,0.06);}
 .mc-overview-num{font-size:20px;color:#fff;font-weight:700;line-height:1;}
 .mc-overview-cell.is-blue    .mc-overview-num{color:#93c5fd;}
 .mc-overview-cell.is-purple  .mc-overview-num{color:#c4b5fd;}
 .mc-overview-cell.is-amber   .mc-overview-num{color:#fcd34d;}
-.mc-overview-cell.is-cyan    .mc-overview-num{color:#67e8f9;}
+.mc-overview-cell.is-teal    .mc-overview-num{color:var(--teal-2);}
 .mc-overview-lbl{font-size:9px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;font-family:'Space Mono',monospace;}
 
 /* ── Footer ──────────────────────────────────────────────────────────── */
@@ -872,9 +916,11 @@ ul,ol{list-style:none;}
         <span class="tb-stat-sep">·</span>
         <span class="tb-stat">Monitoring: <span class="tb-stat-v" id="tb-stat-monitoring">—</span></span>
         <span class="tb-stat-sep">·</span>
-        <span class="tb-stat">Changes: <span class="tb-stat-v" id="tb-stat-changes">—</span></span>
+        <span class="tb-stat">Changes Detected: <span class="tb-stat-v" id="tb-stat-changes">—</span></span>
         <span class="tb-stat-sep">·</span>
         <span class="tb-stat">Confidence: <span class="tb-stat-v" id="tb-stat-confidence">—</span></span>
+        <span class="tb-stat-sep">·</span>
+        <span class="tb-stat"><span class="tb-stat-lbl is-gold">Revenue Signals:</span> <span class="tb-stat-v is-gold" id="tb-stat-revenue">0</span></span>
       </div>
       <div class="tb-last-scan-line">Last Scan: <span id="tb-last-scan">—</span></div>
     </div>
@@ -975,9 +1021,9 @@ ul,ol{list-style:none;}
             <div class="mc-score-circle" id="mc-score-circle">
               <div class="mc-score-num" id="mc-score-num">—</div>
               <div class="mc-score-of">/100</div>
+              <div class="mc-score-band-inside" id="mc-score-band">—</div>
             </div>
             <div class="mc-score-info">
-              <div class="mc-score-band-label" id="mc-score-band">—</div>
               <div class="mc-score-desc" id="mc-score-desc">Loading your backend health…</div>
               <div class="mc-score-delta is-neutral" id="mc-score-delta">
                 <i data-lucide="minus"></i>
@@ -1027,10 +1073,10 @@ ul,ol{list-style:none;}
           </div>
           <div class="mc-overview-sub">Your backend at a glance</div>
           <div class="mc-overview-grid">
-            <div class="mc-overview-cell is-blue"><div class="mc-overview-num" id="mc-ovr-days">—</div><div class="mc-overview-lbl">Days Monitored</div></div>
+            <div class="mc-overview-cell is-blue"><div class="mc-overview-num" id="mc-ovr-days">—</div><div class="mc-overview-lbl">Days Protected</div></div>
             <div class="mc-overview-cell is-purple"><div class="mc-overview-num" id="mc-ovr-changes">—</div><div class="mc-overview-lbl">Changes Detected</div></div>
-            <div class="mc-overview-cell is-amber"><div class="mc-overview-num" id="mc-ovr-resolved">—</div><div class="mc-overview-lbl">Actions Completed</div></div>
-            <div class="mc-overview-cell is-cyan"><div class="mc-overview-num">100%</div><div class="mc-overview-lbl">Monitoring Uptime</div></div>
+            <div class="mc-overview-cell is-amber"><div class="mc-overview-num" id="mc-ovr-resolved">—</div><div class="mc-overview-lbl">Actions Required</div></div>
+            <div class="mc-overview-cell is-teal"><div class="mc-overview-num">100%</div><div class="mc-overview-lbl">Monitoring Uptime</div></div>
           </div>
         </article>
 
@@ -1075,7 +1121,10 @@ ul,ol{list-style:none;}
           <div class="card-hd">
             <div class="card-title"><span class="card-title-icon ic-green"><i data-lucide="globe"></i></span>Global Presence</div>
           </div>
-          <div class="mc-presence-sub" id="mc-presence-sub">— of 8 regions verified</div>
+          <div class="mc-presence-count">
+            <span class="mc-presence-count-num" id="mc-presence-count-num">—</span>
+            <span class="mc-presence-count-lbl">Regions Verified</span>
+          </div>
           <div class="mc-flag-grid" id="mc-flag-grid">
             <!-- populated by renderMcGlobalPresence -->
           </div>
@@ -1092,8 +1141,8 @@ ul,ol{list-style:none;}
           <div class="mc-catalog-list">
             <div class="mc-catalog-row"><span class="mc-catalog-k">Tracks Monitored</span><span class="mc-catalog-v" id="mc-cat-tracks">—</span></div>
             <div class="mc-catalog-row"><span class="mc-catalog-k">Releases Monitored</span><span class="mc-catalog-v" id="mc-cat-releases">—</span></div>
-            <div class="mc-catalog-row"><span class="mc-catalog-k">ISRC Coverage</span><span class="mc-catalog-v" id="mc-cat-isrc">—</span></div>
-            <div class="mc-catalog-row"><span class="mc-catalog-k">Sources Connected</span><span class="mc-catalog-v" id="mc-cat-sources">—</span></div>
+            <div class="mc-catalog-row"><span class="mc-catalog-k">Metadata Quality</span><span class="mc-catalog-v" id="mc-cat-isrc">—</span></div>
+            <div class="mc-catalog-row"><span class="mc-catalog-k">Catalog Coverage</span><span class="mc-catalog-v" id="mc-cat-sources">—</span></div>
             <div class="mc-catalog-row"><span class="mc-catalog-k">Last Change Detected</span><span class="mc-catalog-v" id="mc-cat-last">—</span></div>
           </div>
         </article>

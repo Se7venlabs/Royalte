@@ -547,6 +547,11 @@ function renderMcStatusBar({
   set('tb-stat-monitoring', monitoringActive ? 'Active' : 'Paused');
   set('tb-stat-changes',    String(totalChanges || 0));
   set('tb-stat-confidence', confidenceLabel || '—');
+  // Brief 015m — Revenue Signals (gold). Reuses opportunitiesCount as
+  // the underlying value: monitor-severity alerts are the
+  // catalog-expansion / metadata-progress opportunities Royaltē
+  // surfaces. Always renders, even when zero (founder spec).
+  set('tb-stat-revenue',    String(opportunitiesCount || 0));
   set('tb-last-scan',       scanDate ? relativeTimePast(new Date(scanDate)) : '—');
 }
 
@@ -750,6 +755,17 @@ function renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes) {
   set('mc-cat-isrc',     isrcVerified ? 'Verified' : 'Pending verification');
   set('mc-cat-sources',  `${sources} / 6`);
   set('mc-cat-last',     lastChange);
+
+  // Brief 015m — gold accent on opportunity values. ISRC pending verification
+  // and incomplete source coverage both represent revenue/opportunity
+  // signals Royaltē surfaces to artists.
+  const setOpportunity = (id, isOpp) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('is-opportunity', !!isOpp);
+  };
+  setOpportunity('mc-cat-isrc',    !isrcVerified);
+  setOpportunity('mc-cat-sources', sources < 6);
 }
 
 // CARD 5 — Action Center
@@ -850,7 +866,7 @@ const BIG6 = [
 function renderMcGlobalPresence(scan) {
   const sfa = scan?.payload?.platforms?.appleMusic?.details?.storefrontAvailability;
   const grid = document.getElementById('mc-flag-grid');
-  const subEl = document.getElementById('mc-presence-sub');
+  const countEl = document.getElementById('mc-presence-count-num');
   if (!grid) return;
 
   let verifiedN = 0;
@@ -868,11 +884,16 @@ function renderMcGlobalPresence(scan) {
     return `<div class="mc-flag-cell ${cls}"><div class="mc-flag-emoji">${sf.flag}</div><div class="mc-flag-name">${escapeHtml(sf.name)}</div></div>`;
   }).join('');
   grid.innerHTML = cells;
-  if (subEl) subEl.textContent = `${verifiedN} of ${BIG6.length} regions verified`;
+  // Brief 015m — prominent count above the flag grid: "{N} / Regions Verified".
+  if (countEl) countEl.textContent = `${verifiedN} / ${BIG6.length}`;
 }
 
 // CARD 8 (was 9) — Monitoring Overview
-function renderMcMonitoringOverview({ history, alertOverview }) {
+// Brief 015m — language updates ("Days Protected", "Actions Required").
+// The third cell now shows criticalCount (action-needed alerts) instead
+// of resolved count — matches the new "Actions Required" label
+// semantically (counting what NEEDS attention, not what's been done).
+function renderMcMonitoringOverview({ history, alertOverview, criticalCount }) {
   const daysEl     = document.getElementById('mc-ovr-days');
   const changesEl  = document.getElementById('mc-ovr-changes');
   const resolvedEl = document.getElementById('mc-ovr-resolved');
@@ -885,7 +906,7 @@ function renderMcMonitoringOverview({ history, alertOverview }) {
   }
   daysEl.textContent = String(days);
   if (changesEl)  changesEl.textContent  = String(alertOverview.total || 0);
-  if (resolvedEl) resolvedEl.textContent = String(alertOverview.resolved || 0);
+  if (resolvedEl) resolvedEl.textContent = String(criticalCount || 0);
 }
 
 // CARD 9 — Your Royaltē Review (Brief 015a Change 3, swapped to position 9)
@@ -1176,7 +1197,7 @@ async function init() {
 
   // Card 8 — Monitoring Overview (moved up per Brief 015a Change 4)
   const alertOverview = await loadAlertOverview(supabase, session.user.id);
-  renderMcMonitoringOverview({ history, alertOverview });
+  renderMcMonitoringOverview({ history, alertOverview, criticalCount });
 
   // Card 9 — Your Royaltē Review (moved down, renamed per Brief 015a Change 3 + 4)
   const baseline = (history && history.length > 0) ? history[0] : null;
