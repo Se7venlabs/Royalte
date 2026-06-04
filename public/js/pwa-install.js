@@ -1,23 +1,18 @@
 // ─────────────────────────────────────────────────────────────────────────
-// Mission Control PWA install handler (Brief 015p Phase 1).
+// Mission Control PWA install handler (Brief 015p — always-visible fix).
 //
-// Loaded only from /dashboard.html. The install button + this handler
-// exist ONLY inside the authenticated Mission Control surface; the
-// marketing pages don't get an install prompt because they don't link
-// the mission-control.webmanifest.
+// The install button is a product affordance, NOT a browser event. It
+// is always visible from the moment Mission Control renders, except
+// when the app is already installed (then "✓ Installed").
 //
-// Flow:
-//   1. Register the service worker (/sw.js — required for Chrome
-//      installability).
-//   2. Capture beforeinstallprompt on Chrome/Edge/Android, surface the
-//      header button, fire the deferred prompt on click.
-//   3. iOS Safari doesn't expose programmatic install — it requires
-//      Share → Add to Home Screen. The button on iOS opens a one-time
-//      hint dialog explaining those two taps. Unavoidable platform
-//      limitation, not a design choice.
-//   4. After installation (appinstalled event OR detected standalone
-//      mode on next visit), the button switches to "Installed ✓" and
-//      becomes inert.
+// Click behavior is adaptive:
+//   • If beforeinstallprompt has fired and we have a deferred prompt:
+//     trigger the native install dialog.
+//   • Otherwise: open a platform-specific hint dialog with the right
+//     install path for the user's browser/OS.
+//
+// This handler lives only inside /dashboard.html — marketing pages
+// don't link the manifest and don't load this script.
 // ─────────────────────────────────────────────────────────────────────────
 
 (function () {
@@ -25,14 +20,19 @@
 
   let deferredPrompt = null;
 
+  const ua = navigator.userAgent || '';
   const isStandalone = () =>
     window.matchMedia?.('(display-mode: standalone)').matches ||
     window.navigator.standalone === true;
+  const isIOS = () => /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  const isAndroid = () => /Android/.test(ua);
+  const isFirefox = () => /Firefox/.test(ua);
+  const isSafariDesktop = () =>
+    /Safari/.test(ua) && !/Chrome|Chromium|Edg|OPR/.test(ua) && !isIOS();
+  const isChromiumDesktop = () =>
+    /Chrome|Chromium|Edg/.test(ua) && !isIOS() && !isAndroid();
 
-  const isIOS = () =>
-    /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-  // ── Service worker registration ──────────────────────────────────────
+  // ── Service worker registration (Chrome installability requirement) ──
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js').catch((err) => {
@@ -41,86 +41,122 @@
     });
   }
 
-  // ── Install button wiring ────────────────────────────────────────────
+  // ── Capture beforeinstallprompt globally (may or may not fire) ──────
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    const btn = document.getElementById('mc-install-btn');
+    if (btn) markInstalled(btn);
+  });
+
+  // ── Button wiring ────────────────────────────────────────────────────
   function setupInstallButton() {
     const btn = document.getElementById('mc-install-btn');
     if (!btn) return;
 
-    // Already running as an installed app → button is irrelevant.
+    // Already running standalone → switch to "✓ Installed" state.
     if (isStandalone()) {
       markInstalled(btn);
       return;
     }
 
-    // Chrome/Edge/Android — beforeinstallprompt fires once eligible
-    // criteria are met (manifest + SW + engagement heuristics).
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      btn.hidden = false;
-    });
-
-    // Successful install (any browser that fires the event).
-    window.addEventListener('appinstalled', () => {
-      deferredPrompt = null;
-      markInstalled(btn);
-    });
-
-    // iOS Safari path — show the button immediately (the OS can install,
-    // just not via a JS prompt) and fall back to the Share-sheet hint.
-    if (isIOS()) {
-      btn.hidden = false;
-      btn.addEventListener('click', showIOSInstructions);
-      return;
-    }
-
-    // Standard install click handler (Chrome/Edge/Android).
     btn.addEventListener('click', async () => {
-      if (!deferredPrompt) {
-        // No prompt available — likely already installable but the event
-        // hasn't fired yet, or the user dismissed it. Show iOS-style hint
-        // as a last resort so the click isn't a no-op.
-        showInstallUnavailable();
+      // Path 1: native prompt available — fire it.
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        try {
+          await deferredPrompt.userChoice;
+        } catch (e) {
+          // user choice rejected/dismissed — silent
+        }
+        deferredPrompt = null;
         return;
       }
-      deferredPrompt.prompt();
-      try {
-        await deferredPrompt.userChoice;
-      } catch (e) {
-        // user choice rejected — silent
-      }
-      deferredPrompt = null;
+      // Path 2: no native prompt — show platform-specific instructions.
+      showPlatformInstructions();
     });
   }
 
   function markInstalled(btn) {
     btn.classList.add('is-installed');
     btn.disabled = true;
-    btn.hidden = false;
     btn.innerHTML = '<i data-lucide="check-circle-2"></i> Installed';
     if (window.lucide?.createIcons) {
       try { window.lucide.createIcons(); } catch (e) { /* non-fatal */ }
     }
   }
 
-  function showIOSInstructions() {
+  // ── Platform-specific instructions ───────────────────────────────────
+  function showPlatformInstructions() {
+    const { title, body } = instructionsForPlatform();
     const dialog = ensureHintDialog();
-    dialog.querySelector('.mc-install-hint-title').textContent =
-      'Add Mission Control to your Home Screen';
-    dialog.querySelector('.mc-install-hint-body').innerHTML =
-      'Tap the <strong>Share</strong> button in Safari, ' +
-      'then choose <strong>Add to Home Screen</strong>.';
+    dialog.querySelector('.mc-install-hint-title').textContent = title;
+    dialog.querySelector('.mc-install-hint-body').innerHTML = body;
     dialog.classList.add('is-open');
   }
 
-  function showInstallUnavailable() {
-    const dialog = ensureHintDialog();
-    dialog.querySelector('.mc-install-hint-title').textContent =
-      'Install Mission Control';
-    dialog.querySelector('.mc-install-hint-body').textContent =
-      'Your browser will offer the install prompt shortly. Try again ' +
-      'in a moment, or use your browser menu to install the app.';
-    dialog.classList.add('is-open');
+  function instructionsForPlatform() {
+    if (isIOS()) {
+      return {
+        title: 'Add Mission Control to your Home Screen',
+        body:
+          'Tap the <strong>Share</strong> button at the bottom of Safari, ' +
+          'then choose <strong>Add to Home Screen</strong>. ' +
+          'Mission Control will appear on your home screen like a native app.',
+      };
+    }
+    if (isAndroid()) {
+      return {
+        title: 'Install Mission Control',
+        body:
+          'Tap your browser menu (<strong>⋮</strong>), then choose ' +
+          '<strong>Install app</strong> or <strong>Add to Home screen</strong>. ' +
+          'Mission Control will appear on your home screen like a native app.',
+      };
+    }
+    if (isSafariDesktop()) {
+      return {
+        title: 'Add Mission Control to your Dock',
+        body:
+          'In Safari, click <strong>File</strong> → ' +
+          '<strong>Add to Dock</strong> (macOS 14+). Mission Control will ' +
+          'launch from your Dock like a native app. On older macOS, use ' +
+          '<strong>Share</strong> → <strong>Add to Dock</strong>.',
+      };
+    }
+    if (isFirefox()) {
+      return {
+        title: 'Install Mission Control',
+        body:
+          'Firefox does not currently support installing this app directly. ' +
+          'To install Mission Control as a standalone app, open this page ' +
+          'in <strong>Chrome</strong>, <strong>Edge</strong>, or <strong>Safari</strong> ' +
+          'and tap the Install button there.',
+      };
+    }
+    if (isChromiumDesktop()) {
+      return {
+        title: 'Install Mission Control',
+        body:
+          'Look for the install icon (<strong>⊕</strong>) at the right end of ' +
+          'your address bar, or open your browser menu (<strong>⋮</strong>) ' +
+          'and choose <strong>Install Royaltē Mission Control</strong>. ' +
+          'The install prompt may need a few seconds of engagement before ' +
+          'it becomes available.',
+      };
+    }
+    return {
+      title: 'Install Mission Control',
+      body:
+        'Your browser may not support installing this app directly. ' +
+        'Try opening Mission Control in <strong>Chrome</strong>, ' +
+        '<strong>Edge</strong>, or <strong>Safari</strong> to install it ' +
+        'as a standalone app.',
+    };
   }
 
   function ensureHintDialog() {
