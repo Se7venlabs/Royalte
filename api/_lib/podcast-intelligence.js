@@ -72,6 +72,18 @@ export async function runPodcastDiscovery(supabase, {
   // paces things at 7 days; this is a second line of defense so
   // out-of-band callers (manual retries, future endpoints) can't burn
   // the free-tier quota by accident.
+  //
+  // TODO(Phase 3) — Multi-artist granularity.
+  //   This guard tracks last_run at the PROFILE (user) level. A user
+  //   with multiple monitoring_subscriptions only gets podcast
+  //   discovery for the FIRST artist scanned in each 7-day window —
+  //   subsequent artists in the same window hit this guard and skip.
+  //   Conservation-safe today; UX edge case for multi-artist
+  //   monitoring. Acceptable for Beta (most users monitor one artist).
+  //   Phase 3 would move tracking to a per (user_id, artist_id) row —
+  //   either a new podcast_intelligence_runs table OR a column on
+  //   monitoring_subscriptions. Do not build Phase 3 until multi-artist
+  //   monitoring is common enough to warrant the change.
   const lastRunRaw = profile?.podcast_intelligence_last_run;
   if (lastRunRaw) {
     const lastMs     = new Date(lastRunRaw).getTime();
