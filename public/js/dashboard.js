@@ -1239,18 +1239,15 @@ async function init() {
   initEKG();
 }
 
-// Brief 015h-final — heartbeat travels across the line.
+// Brief 015h fix — heartbeat travels visibly across the full line.
 //
-// One QRS spike enters from the left, travels slowly rightward over a
-// CYCLE (5s), and fades as it meets the live dot. The dot pulses, the
-// orb pulses, the LIVE chip pulses — all synchronized to the arrival
-// moment via body.mc-beating (handled by CSS transitions). Then the
-// spike loops back to the left and starts over.
-//
-// Difference from earlier traveling implementation: slower cycle
-// (4-6s spec, mid is 5s) + spike fades at arrival so the dot pulse
-// reads as "the heartbeat terminated at the health indicator" rather
-// than "a packet crossed and kept going."
+// One QRS spike ENTERS from off-screen-left (anchor=-25 → spike's
+// right edge just touches x=0 at the start of each cycle). The
+// anchor advances linearly during the travel phase (0 → TRAVEL_END)
+// until the spike's peak reaches the dot. After arrival the anchor
+// LOCKS at the dot position while the opacity fades — visually
+// unambiguous "spike reached here, dot lit up, signal terminated."
+// Then the cycle resets and the spike re-enters from the left.
 function initEKG() {
   const canvas = document.getElementById('mc-ekg-canvas');
   if (!canvas) return;
@@ -1266,28 +1263,28 @@ function initEKG() {
 
   const H = 40;
   const MID = H / 2;
-  const CYCLE          = 5000; // ms per traversal — slow enough to follow visually
-  const ARRIVAL_START  = 0.88; // spike "meets" the dot around here
-  const ARRIVAL_END    = 0.96; // dot pulse holds through here
-  const FADE_OUT_START = 0.88; // spike begins fading as it reaches the dot
-  const FADE_OUT_END   = 0.96; // fully invisible by here
+  const CYCLE         = 6000; // ms — slowest end of the 4-6s spec
+  const TRAVEL_END    = 0.85; // spike reaches the dot at this progress
+  const ARRIVAL_START = 0.85; // body.mc-beating + dot.pulse turn on here
+  const ARRIVAL_END   = 0.95;
+  const FADE_START    = 0.85; // spike begins fading as the dot lights up
+  const FADE_END      = 0.95; // fully invisible by here (300ms calm tail)
 
-  // QRS shape — offsets from the spike's anchor point. The anchor
-  // travels left→right across the cycle; offsets are static.
+  // QRS shape — offsets from the spike's anchor. Anchor traverses
+  // left→right; offsets are static. Peak (negative dy) is at -5 from
+  // anchor; downstroke (positive dy) is at +0.
   const SHAPE = [
     [-25,   0],
     [-10,   0],
-    [ -5, -16],  // sharp up
-    [  0,  18],  // sharp down past baseline
+    [ -5, -16],
+    [  0,  18],
     [  5,   0],
-    [  8,   5],  // small recovery notch
+    [  8,   5],
     [ 12,   0],
     [ 25,   0],
   ];
-  const ANCHOR_OFFSET_LEFT  = -25; // leftmost shape point relative to anchor
-  const ANCHOR_OFFSET_RIGHT =  25; // rightmost shape point relative to anchor
 
-  let startTime  = null;
+  let startTime   = null;
   let wasArriving = false;
 
   function drawFrame(ts) {
@@ -1298,7 +1295,7 @@ function initEKG() {
 
     ctx.clearRect(0, 0, W, H);
 
-    // Always: faint cyan baseline.
+    // Faint baseline (always).
     ctx.beginPath();
     ctx.moveTo(0, MID);
     ctx.lineTo(W, MID);
@@ -1306,18 +1303,27 @@ function initEKG() {
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Spike anchor — starts with the leftmost shape point at x=0
-    // (spike just inside left edge) and ends with the rightmost
-    // shape point at x=W (spike right at the dot).
-    const anchorStart = -ANCHOR_OFFSET_LEFT;             // 25
-    const anchorEnd   = W - ANCHOR_OFFSET_RIGHT;         // W - 25
-    const anchor = anchorStart + (anchorEnd - anchorStart) * progress;
+    // Anchor trajectory:
+    //   start → spike's right edge at x=0 (entirely off-screen except
+    //           the rightmost point touches the canvas left edge)
+    //   end   → spike's peak (offset -5,0,5 from anchor) at the dot
+    //
+    // Dot center sits at right:6px + width:8px/2 = 10px from right
+    // edge of wrap, so the dot's x in canvas coords is W - 10.
+    const startAnchor   = -25;
+    const arrivalAnchor = W - 10;
+    let anchor;
+    if (progress <= TRAVEL_END) {
+      anchor = startAnchor + (arrivalAnchor - startAnchor) * (progress / TRAVEL_END);
+    } else {
+      // Arrived; freeze at dot while opacity fades.
+      anchor = arrivalAnchor;
+    }
 
-    // Fade out as the spike meets the dot, so the dot pulse becomes
-    // the dominant visual at arrival ("heartbeat terminated here").
+    // Opacity envelope: 1 during travel, fades 1→0 during arrival.
     let spikeAlpha = 1;
-    if (progress >= FADE_OUT_START) {
-      spikeAlpha = Math.max(0, 1 - (progress - FADE_OUT_START) / (FADE_OUT_END - FADE_OUT_START));
+    if (progress >= FADE_START) {
+      spikeAlpha = Math.max(0, 1 - (progress - FADE_START) / (FADE_END - FADE_START));
     }
 
     if (spikeAlpha > 0.01) {
@@ -1331,15 +1337,14 @@ function initEKG() {
         else         ctx.lineTo(x, y);
       }
       ctx.strokeStyle = '#22d3ee';
-      ctx.lineWidth = 1.5;
-      ctx.lineJoin = 'round';
+      ctx.lineWidth   = 2;  // 1.5→2 for stronger presence during motion
+      ctx.lineJoin    = 'round';
       ctx.stroke();
       ctx.globalAlpha = 1;
     }
 
-    // Arrival window — orb + LIVE + dot all pulse together as the
-    // spike reaches the dot. Toggle on change only to avoid classList
-    // thrash; CSS 0.30s transitions handle the smooth in/out.
+    // Synced arrival pulse — orb + LIVE + end dot all react together
+    // via body.mc-beating (CSS transitions, no per-element animation).
     const inArrival = progress >= ARRIVAL_START && progress < ARRIVAL_END;
     if (inArrival !== wasArriving) {
       wasArriving = inArrival;
