@@ -31,7 +31,9 @@ Set in Vercel project settings (and locally in `.env` for `vercel dev`):
 
 - Supabase: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 - Apple Music JWT: `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` (full `.p8` contents; literal `\n` accepted)
-- Third-party APIs: `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `YOUTUBE_API_KEY`, `LASTFM_API_KEY`, `TIDAL_CLIENT_ID`, `TIDAL_CLIENT_SECRET`, `DISCOGS_CONSUMER_KEY`, `DISCOGS_CONSUMER_SECRET`, `DISCOGS_USER_AGENT`
+- Third-party APIs: `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `YOUTUBE_API_KEY`, `LASTFM_API_KEY`, `TIDAL_CLIENT_ID`, `TIDAL_CLIENT_SECRET`, `DISCOGS_CONSUMER_KEY`, `DISCOGS_CONSUMER_SECRET`, `DISCOGS_USER_AGENT`, `LISTEN_NOTES_API_KEY`
+
+**`LISTEN_NOTES_API_KEY` is monitoring-plan only** (Brief 015o). It powers Podcast Intelligence and must never be invoked from the free `/api/audit` scan path. The only legitimate caller is `api/_lib/podcast-intelligence.js`, whose `runPodcastDiscovery()` gates on `isMonitoringSubscriber(profile)` before any API call — non-subscribers exit early so the key is never burned for free-tier users. Outcome language only in UI: never name "Listen Notes" anywhere artist-facing.
 
 Modules degrade gracefully when keys are missing — see "AUTH_UNAVAILABLE" below.
 
