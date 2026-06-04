@@ -1239,15 +1239,18 @@ async function init() {
   initEKG();
 }
 
-// Brief 015h (heartbeat) — Mission Control system heartbeat.
+// Brief 015h-final — heartbeat travels across the line.
 //
-// The line stays mostly still. Every CYCLE ms, a single QRS spike
-// appears AT A FIXED POSITION (it does not travel), peaking via a
-// triangular amplitude envelope over BEAT_DURATION ms. During the
-// beat window the body gets a `.mc-beating` class, which lets the
-// score orb + LIVE chip pulse in CSS through their own 0.30s
-// transitions — so the whole UI takes one synchronized breath each
-// beat, then returns to calm.
+// One QRS spike enters from the left, travels slowly rightward over a
+// CYCLE (5s), and fades as it meets the live dot. The dot pulses, the
+// orb pulses, the LIVE chip pulses — all synchronized to the arrival
+// moment via body.mc-beating (handled by CSS transitions). Then the
+// spike loops back to the left and starts over.
+//
+// Difference from earlier traveling implementation: slower cycle
+// (4-6s spec, mid is 5s) + spike fades at arrival so the dot pulse
+// reads as "the heartbeat terminated at the health indicator" rather
+// than "a packet crossed and kept going."
 function initEKG() {
   const canvas = document.getElementById('mc-ekg-canvas');
   if (!canvas) return;
@@ -1263,18 +1266,14 @@ function initEKG() {
 
   const H = 40;
   const MID = H / 2;
-  const CYCLE         = 4000; // ms between heartbeats
-  const BEAT_DURATION = 500;  // ms — the visible beat window
-  const BEAT_START    = CYCLE - BEAT_DURATION; // beat happens at the END of each cycle
-  const PEAK_FRAC     = 0.30; // 30% of beat = rise to peak, 70% = settle back
+  const CYCLE          = 5000; // ms per traversal — slow enough to follow visually
+  const ARRIVAL_START  = 0.88; // spike "meets" the dot around here
+  const ARRIVAL_END    = 0.96; // dot pulse holds through here
+  const FADE_OUT_START = 0.88; // spike begins fading as it reaches the dot
+  const FADE_OUT_END   = 0.96; // fully invisible by here
 
-  let startTime = null;
-  let wasBeating = false;
-
-  // QRS shape — offsets from the spike's anchor point. Y values are
-  // relative to baseline (negative = up, positive = down). Amplitude
-  // multiplier (0 → 1 → 0) scales the Y deflections so the spike
-  // GROWS OUT of the line at a fixed X, then settles back.
+  // QRS shape — offsets from the spike's anchor point. The anchor
+  // travels left→right across the cycle; offsets are static.
   const SHAPE = [
     [-25,   0],
     [-10,   0],
@@ -1285,15 +1284,21 @@ function initEKG() {
     [ 12,   0],
     [ 25,   0],
   ];
+  const ANCHOR_OFFSET_LEFT  = -25; // leftmost shape point relative to anchor
+  const ANCHOR_OFFSET_RIGHT =  25; // rightmost shape point relative to anchor
+
+  let startTime  = null;
+  let wasArriving = false;
 
   function drawFrame(ts) {
     if (!startTime) startTime = ts;
-    const elapsed = (ts - startTime) % CYCLE;
+    const elapsed  = (ts - startTime) % CYCLE;
+    const progress = elapsed / CYCLE;
     const W = canvas.width;
 
     ctx.clearRect(0, 0, W, H);
 
-    // Always: faint cyan baseline across the full width.
+    // Always: faint cyan baseline.
     ctx.beginPath();
     ctx.moveTo(0, MID);
     ctx.lineTo(W, MID);
@@ -1301,25 +1306,27 @@ function initEKG() {
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    const inBeat = elapsed >= BEAT_START;
-    if (inBeat) {
-      const beatProgress = (elapsed - BEAT_START) / BEAT_DURATION;
-      // Triangular envelope: 0 → 1 → 0 over the beat window.
-      let amp;
-      if (beatProgress < PEAK_FRAC) amp = beatProgress / PEAK_FRAC;
-      else                          amp = 1 - (beatProgress - PEAK_FRAC) / (1 - PEAK_FRAC);
-      amp = Math.max(0, Math.min(1, amp));
+    // Spike anchor — starts with the leftmost shape point at x=0
+    // (spike just inside left edge) and ends with the rightmost
+    // shape point at x=W (spike right at the dot).
+    const anchorStart = -ANCHOR_OFFSET_LEFT;             // 25
+    const anchorEnd   = W - ANCHOR_OFFSET_RIGHT;         // W - 25
+    const anchor = anchorStart + (anchorEnd - anchorStart) * progress;
 
-      // Anchor the spike near the dot side of the chart so the EKG
-      // "lands" close to the live indicator. 70% across reads as
-      // "near the dot but not behind it."
-      const centerX = W * 0.70;
+    // Fade out as the spike meets the dot, so the dot pulse becomes
+    // the dominant visual at arrival ("heartbeat terminated here").
+    let spikeAlpha = 1;
+    if (progress >= FADE_OUT_START) {
+      spikeAlpha = Math.max(0, 1 - (progress - FADE_OUT_START) / (FADE_OUT_END - FADE_OUT_START));
+    }
 
+    if (spikeAlpha > 0.01) {
+      ctx.globalAlpha = spikeAlpha;
       ctx.beginPath();
       for (let i = 0; i < SHAPE.length; i++) {
         const [dx, dy] = SHAPE[i];
-        const x = centerX + dx;
-        const y = MID + dy * amp;
+        const x = anchor + dx;
+        const y = MID + dy;
         if (i === 0) ctx.moveTo(x, y);
         else         ctx.lineTo(x, y);
       }
@@ -1327,15 +1334,17 @@ function initEKG() {
       ctx.lineWidth = 1.5;
       ctx.lineJoin = 'round';
       ctx.stroke();
+      ctx.globalAlpha = 1;
     }
 
-    // Class toggle drives the synchronized pulse on orb + LIVE chip +
-    // end dot. Only toggle on change so we're not thrashing classList
-    // on every frame.
-    if (inBeat !== wasBeating) {
-      wasBeating = inBeat;
-      document.body.classList.toggle('mc-beating', inBeat);
-      if (dot) dot.classList.toggle('pulse', inBeat);
+    // Arrival window — orb + LIVE + dot all pulse together as the
+    // spike reaches the dot. Toggle on change only to avoid classList
+    // thrash; CSS 0.30s transitions handle the smooth in/out.
+    const inArrival = progress >= ARRIVAL_START && progress < ARRIVAL_END;
+    if (inArrival !== wasArriving) {
+      wasArriving = inArrival;
+      document.body.classList.toggle('mc-beating', inArrival);
+      if (dot) dot.classList.toggle('pulse', inArrival);
     }
 
     requestAnimationFrame(drawFrame);
