@@ -693,8 +693,11 @@ body.mc-beating .mc-live-dot{
   font-size:12px;color:rgba(255,255,255,0.86);line-height:1.55;
 }
 
-/* ── Card 6 — Intelligence Confidence (Brief 015m — bigger donut,
-   HIGH centered, "Confidence Level" eyebrow). */
+/* ── Card 6 — Intelligence Confidence (Brief 015n — outcome rows).
+   Six intelligence signals as compact single-line rows. The donut
+   stays as the visual anchor; rows on the right are the outcomes.
+   Source names (Apple Music, Spotify, MusicBrainz, etc.) are never
+   surfaced — only the verified concepts they collectively produce. */
 .mc-profile-row{display:flex;align-items:center;gap:14px;}
 .mc-donut{
   width:88px;height:88px;border-radius:50%;flex-shrink:0;
@@ -721,14 +724,29 @@ body.mc-beating .mc-live-dot{
    "Moderate" can never clip on narrow cards. Eyebrow mono label sits
    above the value at full width, matching the command-center status
    bar typography. */
-.mc-profile-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;}
-.mc-profile-row-kv{display:flex;flex-direction:column;gap:2px;min-width:0;}
-.mc-profile-k{
-  color:var(--muted-2);font-family:'Space Mono',monospace;
-  font-size:9px;font-weight:700;letter-spacing:0.08em;
-  text-transform:uppercase;line-height:1.2;
+.mc-profile-info{flex:1;min-width:0;display:flex;flex-direction:column;}
+.mc-intel-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:7px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  min-width:0;
 }
-.mc-profile-v{color:#fff;font-weight:600;font-size:12px;line-height:1.2;}
+.mc-intel-row:last-child{border-bottom:none;}
+.mc-intel-k{
+  font-size:11px;font-weight:500;color:rgba(255,255,255,0.82);
+  line-height:1.2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.mc-intel-v{
+  font-family:'Space Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:0.10em;
+  text-transform:uppercase;flex-shrink:0;
+  color:rgba(255,255,255,0.40);
+}
+.mc-intel-v.is-verified{color:#34d399;}
+.mc-intel-v.is-active  {color:#60a5fa;}
+.mc-intel-v.is-locked  {color:rgba(255,255,255,0.40);}
+.mc-intel-v.is-pending {color:rgba(255,255,255,0.40);}
 .mc-profile-foot{margin-top:10px;}
 
 /* ── Card 7 — Global Presence ────────────────────────────────────────── */
@@ -959,11 +977,11 @@ body.mc-beating .mc-live-dot{
             <div class="sb-nav-sub">Baseline &amp; History</div>
           </div>
         </a>
-        <a class="sb-nav-item" data-nav="intelligence-sources" href="#intelligence-sources">
+        <a class="sb-nav-item" data-nav="intelligence-network" href="#intelligence-network">
           <i data-lucide="database"></i>
           <div class="sb-nav-text">
-            <div class="sb-nav-label">Intelligence Sources</div>
-            <div class="sb-nav-sub">Connections &amp; Uploads</div>
+            <div class="sb-nav-label">Intelligence Network</div>
+            <div class="sb-nav-sub">Verification &amp; Coverage</div>
           </div>
         </a>
         <a class="sb-nav-item" data-nav="settings" href="#settings">
@@ -1088,14 +1106,16 @@ body.mc-beating .mc-live-dot{
               </div>
             </div>
             <div class="mc-profile-info">
-              <div class="mc-profile-row-kv"><span class="mc-profile-k">Sources Connected</span><span class="mc-profile-v" id="mc-profile-sources">— / 6</span></div>
-              <div class="mc-profile-row-kv"><span class="mc-profile-k">Catalog Coverage</span><span class="mc-profile-v" id="mc-profile-catalog">—</span></div>
-              <div class="mc-profile-row-kv"><span class="mc-profile-k">Publishing Visibility</span><span class="mc-profile-v" id="mc-profile-publishing">—</span></div>
-              <div class="mc-profile-row-kv"><span class="mc-profile-k">Metadata Confidence</span><span class="mc-profile-v" id="mc-profile-metadata">—</span></div>
+              <div class="mc-intel-row"><span class="mc-intel-k">Streaming Presence</span>    <span class="mc-intel-v" id="mc-intel-streaming">—</span></div>
+              <div class="mc-intel-row"><span class="mc-intel-k">Metadata Verification</span> <span class="mc-intel-v" id="mc-intel-metadata">—</span></div>
+              <div class="mc-intel-row"><span class="mc-intel-k">Artist Identity</span>       <span class="mc-intel-v" id="mc-intel-identity">—</span></div>
+              <div class="mc-intel-row"><span class="mc-intel-k">Authority Signals</span>     <span class="mc-intel-v" id="mc-intel-authority">—</span></div>
+              <div class="mc-intel-row"><span class="mc-intel-k">Podcast Intelligence</span>  <span class="mc-intel-v" id="mc-intel-podcast">—</span></div>
+              <div class="mc-intel-row"><span class="mc-intel-k">Catalog Monitoring</span>    <span class="mc-intel-v" id="mc-intel-catalog">—</span></div>
             </div>
           </div>
           <div class="mc-profile-foot">
-            <a class="card-link" href="#intelligence-sources">Manage Intelligence Sources <i data-lucide="arrow-right"></i></a>
+            <a class="card-link" href="#confidence-details">View Confidence Details <i data-lucide="arrow-right"></i></a>
           </div>
         </article>
 

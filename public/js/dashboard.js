@@ -814,39 +814,55 @@ function renderMcActionCenter({ items, totalCount }) {
   }).join('');
 }
 
-// CARD 6 — Intelligence Confidence (Brief 015a Change 2)
-function renderMcIntelligenceConfidence(scan) {
+// CARD 6 — Intelligence Confidence (Brief 015n — outcome rows).
+//
+// The artist sees six verified concepts; the source platforms behind
+// them never surface here. This is intentional — Royaltē communicates
+// intelligence outcomes, not implementation details. The internal
+// derivation from scan.payload.platforms.* is the only place the
+// source-to-outcome mapping lives.
+function renderMcIntelligenceConfidence(scan, profile) {
   const p = (scan && scan.payload && scan.payload.platforms) || {};
   const v = (k) => p[k]?.availability === 'VERIFIED';
   const conf = _confidenceLabelForScan(scan);
   const pct = (conf.count / conf.total) * 100;
 
-  // Catalog Coverage — 3 catalog-bearing DSPs (Apple, Spotify, YouTube).
-  const catCount = ['appleMusic','spotify','youtube'].filter(v).length;
-  const catalogCoverage = catCount >= 3 ? 'High' : catCount >= 2 ? 'Moderate' : 'Limited';
+  // Six outcome signals — what the artist cares about, not which APIs
+  // power them. Each maps to one or more underlying VERIFIED platforms.
+  const streamingPresence    = (v('appleMusic') || v('spotify'))       ? 'verified' : 'pending';
+  const metadataVerification = (v('appleMusic') && v('spotify'))       ? 'verified' : 'pending';
+  const artistIdentity       = v('musicbrainz')                         ? 'verified' : 'pending';
+  const authoritySignals     = (v('discogs') || v('lastfm'))           ? 'verified' : 'pending';
 
-  // Publishing Visibility — MusicBrainz preferred, Spotify-only is Moderate.
-  const publishingVisibility = v('musicbrainz') ? 'Verified'
-    : v('spotify') ? 'Moderate' : 'Limited';
+  // Podcast Intelligence is subscription-gated. Founding artists +
+  // paid tier qualify as monitoring subscribers; everyone else sees
+  // the upgrade nudge. Catalog Monitoring is always Active for any
+  // user reaching Mission Control (free tier already gets a scan).
+  const isMonitoring = !!(profile && (profile.founding_artist === true || profile.tier === 'paid'));
+  const podcastIntelligence = isMonitoring ? 'active'  : 'locked';
+  const catalogMonitoring   = 'active';
 
-  // Metadata Confidence — Apple+Spotify both = High, one = Moderate.
-  const appleAndSpotify = v('appleMusic') && v('spotify');
-  const oneOfTwo = v('appleMusic') || v('spotify');
-  const metadataConfidence = appleAndSpotify ? 'High' : (oneOfTwo ? 'Moderate' : 'Limited');
-
-  const donut    = document.getElementById('mc-donut');
-  const labelEl  = document.getElementById('mc-donut-label');
-  const srcEl    = document.getElementById('mc-profile-sources');
-  const catEl    = document.getElementById('mc-profile-catalog');
-  const pubEl    = document.getElementById('mc-profile-publishing');
-  const metEl    = document.getElementById('mc-profile-metadata');
-
+  const donut   = document.getElementById('mc-donut');
+  const labelEl = document.getElementById('mc-donut-label');
   if (donut)   donut.style.background = _donutGradient(pct);
   if (labelEl) labelEl.textContent = conf.label;
-  if (srcEl)   srcEl.textContent = `${conf.count} / ${conf.total}`;
-  if (catEl)   catEl.textContent = catalogCoverage;
-  if (pubEl)   pubEl.textContent = publishingVisibility;
-  if (metEl)   metEl.textContent = metadataConfidence;
+
+  // Status-class + label text in one shot. The status class drives the
+  // color (is-verified green / is-active blue / is-locked or is-pending
+  // muted) so the row reads its meaning before the text is parsed.
+  const setRow = (id, status, label) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = label;
+    el.className = `mc-intel-v is-${status}`;
+  };
+  setRow('mc-intel-streaming', streamingPresence,    streamingPresence    === 'verified' ? 'Verified' : 'Pending');
+  setRow('mc-intel-metadata',  metadataVerification, metadataVerification === 'verified' ? 'Verified' : 'Pending');
+  setRow('mc-intel-identity',  artistIdentity,       artistIdentity       === 'verified' ? 'Verified' : 'Pending');
+  setRow('mc-intel-authority', authoritySignals,     authoritySignals     === 'verified' ? 'Verified' : 'Pending');
+  setRow('mc-intel-podcast',   podcastIntelligence,
+         podcastIntelligence === 'active' ? 'Active' : 'Monitoring Plan Required');
+  setRow('mc-intel-catalog',   catalogMonitoring,    'Active');
 }
 
 // CARD 7 — Global Presence
@@ -1193,7 +1209,7 @@ async function init() {
   renderMcActionCenter({ items: actionItems, totalCount: criticalCount + opportunitiesCount });
 
   // Card 6 — Intelligence Confidence
-  renderMcIntelligenceConfidence(scan);
+  renderMcIntelligenceConfidence(scan, profile);
 
   // Card 7 — Global Presence
   renderMcGlobalPresence(scan);
