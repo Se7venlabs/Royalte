@@ -866,7 +866,8 @@ const BIG6 = [
 function renderMcGlobalPresence(scan) {
   const sfa = scan?.payload?.platforms?.appleMusic?.details?.storefrontAvailability;
   const grid = document.getElementById('mc-flag-grid');
-  const countEl = document.getElementById('mc-presence-count-num');
+  const countEl = document.getElementById('mc-presence-num');
+  const totalEl = document.getElementById('mc-presence-total');
   if (!grid) return;
 
   let verifiedN = 0;
@@ -884,8 +885,10 @@ function renderMcGlobalPresence(scan) {
     return `<div class="mc-flag-cell ${cls}"><div class="mc-flag-emoji">${sf.flag}</div><div class="mc-flag-name">${escapeHtml(sf.name)}</div></div>`;
   }).join('');
   grid.innerHTML = cells;
-  // Brief 015m — prominent count above the flag grid: "{N} / Regions Verified".
-  if (countEl) countEl.textContent = `${verifiedN} / ${BIG6.length}`;
+  // Brief 015g (pre-freeze) — split numeric "{N} / {TOTAL}". Each piece
+  // is its own span so the CSS can scale the parts independently.
+  if (countEl) countEl.textContent = String(verifiedN);
+  if (totalEl) totalEl.textContent = String(BIG6.length);
 }
 
 // CARD 8 (was 9) — Monitoring Overview
@@ -1229,6 +1232,81 @@ async function init() {
   // Final sweep — convert any remaining <i data-lucide="..."> placeholders
   // emitted during init() to inline SVGs.
   _renderLucide();
+
+  // Brief 015g (pre-freeze) — canvas-driven EKG. requestAnimationFrame
+  // loop owns the spike position; toggles .pulse on the dot when the
+  // spike crosses 88-96% of the cycle.
+  initEKG();
+}
+
+// Brief 015g (pre-freeze) — Health Signal canvas implementation. A
+// single QRS spike travels from off-screen-left to off-screen-right
+// every 7s; baseline + spike are drawn each frame. Dot pulses via
+// .pulse class toggle (CSS transition) at the arrival window.
+function initEKG() {
+  const canvas = document.getElementById('mc-ekg-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dot = document.getElementById('mc-ekg-dot');
+
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 40;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const W = () => canvas.width;
+  const H = 40;
+  const MID = H / 2;
+  const SPIKE_W = 50;
+  const DURATION = 7000; // 7 seconds per cycle
+  let startTime = null;
+
+  function drawFrame(ts) {
+    if (!startTime) startTime = ts;
+    const elapsed = (ts - startTime) % DURATION;
+    const progress = elapsed / DURATION;
+
+    ctx.clearRect(0, 0, W(), H);
+
+    // Baseline — faint cyan line across the full width.
+    ctx.beginPath();
+    ctx.moveTo(0, MID);
+    ctx.lineTo(W(), MID);
+    ctx.strokeStyle = 'rgba(34,211,238,0.25)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Spike position — travels from -SPIKE_W to W() across the cycle.
+    const spikeX = -SPIKE_W + (W() + SPIKE_W) * progress;
+
+    // QRS shape: flat, sharp up, sharp down past baseline, recovery
+    // notch, flat.
+    ctx.beginPath();
+    ctx.moveTo(spikeX,        MID);
+    ctx.lineTo(spikeX + 15,   MID);
+    ctx.lineTo(spikeX + 20,   MID - 14);
+    ctx.lineTo(spikeX + 25,   MID + 16);
+    ctx.lineTo(spikeX + 30,   MID);
+    ctx.lineTo(spikeX + 33,   MID + 4);
+    ctx.lineTo(spikeX + 37,   MID);
+    ctx.lineTo(spikeX + SPIKE_W, MID);
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // Dot pulse window — synced to spike arrival at the right edge.
+    if (dot) {
+      if (progress > 0.88 && progress < 0.96) dot.classList.add('pulse');
+      else                                     dot.classList.remove('pulse');
+    }
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  requestAnimationFrame(drawFrame);
 }
 
 if (document.readyState === 'loading') {

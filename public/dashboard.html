@@ -110,6 +110,20 @@ ul,ol{list-style:none;}
 .tb-stat-v.is-gold{color:var(--gold-2);}
 .tb-stat-lbl.is-gold{color:rgba(224,182,90,0.85);}
 
+/* Brief 015g (pre-freeze) — ● LIVE indicator before the status text.
+   Electric blue, 2s subtle blink. Reads as "system is live and
+   reporting" — separate signal from the green health state. */
+.mc-live-dot{
+  color:#60a5fa;
+  font-size:10px;font-weight:700;letter-spacing:0.10em;
+  margin-right:8px;
+  animation:live-blink 2s ease-in-out infinite;
+}
+@keyframes live-blink{
+  0%, 100% { opacity:1;    }
+  50%      { opacity:0.50; }
+}
+
 /* Last scan line. */
 .tb-last-scan-line{
   font-family:'Space Mono',monospace;font-size:10px;
@@ -271,24 +285,22 @@ ul,ol{list-style:none;}
 
 /* ── Card 1 — Royaltē Health Score™ ──────────────────────────────────── */
 .mc-health-row{display:flex;align-items:center;gap:16px;}
-/* Brief 015h — slow breathing emerald glow on the score ring.
-   ~6s cycle, very subtle (~7% to ~14% alpha). Communicates "alive
-   and monitoring" without any RGB / gaming feel. */
-@keyframes mc-health-breathe{
-  0%, 100% { box-shadow:0 0 22px rgba(52,211,153,0.07); }
-  50%      { box-shadow:0 0 40px rgba(52,211,153,0.16); }
+/* Brief 015g (pre-freeze) — orb-breathe carries both outer glow and
+   inset glow now so the orb reads as a depth object with internal
+   light, not just a flat circle with a halo. 5s cycle. Brief 015m
+   radial-gradient glass kept as the base layer underneath. */
+@keyframes orb-breathe{
+  0%, 100% { box-shadow:0 0 0 0 rgba(52,211,153,0.10),  inset 0 0 20px rgba(52,211,153,0.05); }
+  50%      { box-shadow:0 0 16px 4px rgba(52,211,153,0.20), inset 0 0 30px rgba(52,211,153,0.10); }
 }
-/* Brief 015m — Royaltē Intelligence Core. Premium glass: subtle
-   radial highlight + 1px inset top edge + outer depth. Breathing
-   animation still drives the green ambient halo. */
 .mc-score-circle{
   width:88px;height:88px;border-radius:50%;border:3px solid var(--muted-2);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   flex-shrink:0;position:relative;
   background:
-    radial-gradient(circle at 32% 28%, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.0) 55%),
-    radial-gradient(circle at center, rgba(52,211,153,0.06) 0%, rgba(0,0,0,0.0) 70%);
-  animation:mc-health-breathe 6s ease-in-out infinite;
+    radial-gradient(circle at 35% 35%, rgba(255,255,255,0.06) 0%, rgba(0,0,0,0.0) 60%),
+    radial-gradient(circle at center,   rgba(52,211,153,0.06) 0%, rgba(0,0,0,0.0) 70%);
+  animation:orb-breathe 5s ease-in-out infinite;
 }
 /* Brief 015l Item 3 — score-receive halo. A subtle green ring ripples
    outward once per 7s, synced to the spike-travel cycle so the score
@@ -323,12 +335,14 @@ ul,ol{list-style:none;}
 }
 .mc-score-num{font-size:28px;font-weight:700;color:#fff;line-height:1;}
 .mc-score-of{font-size:10px;color:var(--muted);line-height:1;margin-top:1px;}
-/* Brief 015m — band label moved INSIDE the orb (Intelligence Core
-   stack: score / /100 / STRONG). Mono caps, sized to fit the 88px orb. */
+/* Brief 015g (pre-freeze) — band label inside the orb. Tighter
+   letter-spacing + soft green text-shadow for the "Intelligence Core"
+   feel without crossing into sci-fi. */
 .mc-score-band-inside{
   font-family:'Space Mono',monospace;
-  font-size:9px;font-weight:700;letter-spacing:0.14em;
-  text-transform:uppercase;color:var(--grn);
+  font-size:9px;font-weight:700;letter-spacing:0.10em;
+  text-transform:uppercase;color:#34d399;
+  text-shadow:0 0 8px rgba(52,211,153,0.60);
   margin-top:4px;line-height:1;
 }
 .mc-score-band-inside.band-moderate{color:var(--amb);}
@@ -339,36 +353,20 @@ ul,ol{list-style:none;}
 .mc-score-delta.is-neutral{color:var(--muted-2);}
 .mc-score-delta.is-down{color:var(--red);}
 .mc-score-delta i{font-size:14px;}
-/* Brief 015j rev5 — single spike travels across a static cyan line.
-   Verbatim founder spec. Static cyan baseline (.mc-ekg-bg) + one
-   traveling spike (.mc-ekg-spike) whose `left` animates -60px →
-   calc(100% - 10px) over 7s. Dot pulses on arrival. */
+/* Brief 015g (pre-freeze) — EKG re-implemented as canvas + JS so the
+   spike actually travels. CSS handles only the wrap, canvas sizing,
+   and the static dot + its .pulse modifier (toggled by initEKG when
+   the spike crosses 88-96% of the cycle). */
 .mc-ekg-wrap {
   position: relative;
   width: 100%;
   height: 40px;
-  overflow: hidden;
   margin-top: 8px;
 }
-.mc-ekg-bg {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-}
-.mc-ekg-spike {
-  position: absolute;
-  top: 0;
-  width: 60px;
-  height: 100%;
-  animation: spike-travel 7s linear infinite;
-}
-@keyframes spike-travel {
-  0%   { left: -60px; opacity: 0; }
-  5%   { opacity: 1; }
-  90%  { opacity: 1; }
-  95%  { left: calc(100% - 10px); opacity: 1; }
-  96%  { opacity: 0; }
-  100% { left: calc(100% - 10px); opacity: 0; }
+#mc-ekg-canvas {
+  width: 100%;
+  height: 40px;
+  display: block;
 }
 .mc-ekg-dot {
   position: absolute;
@@ -379,22 +377,11 @@ ul,ol{list-style:none;}
   height: 8px;
   border-radius: 50%;
   background: #22d3ee;
-  /* Ambient cyan glow — always visible so the dot reads as "live"
-     even when no signal is arriving. */
-  box-shadow: 0 0 8px 0 rgba(34,211,238,0.45);
-  animation: dot-receive 7s ease-out infinite;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
-/* Arrival event ~560ms total (88%→96% of 7s cycle):
-     idle ambient glow → soft intensified halo + scale 1.15 → fade back.
-     Scale within the 10-15% spec; glow doubles in spread + alpha
-     for a clear "signal received" beat without becoming dramatic. */
-@keyframes dot-receive {
-  0%, 88% { box-shadow: 0 0 8px 0 rgba(34,211,238,0.45);
-            transform: translateY(-50%) scale(1); }
-  92%     { box-shadow: 0 0 16px 6px rgba(34,211,238,0.85);
-            transform: translateY(-50%) scale(1.15); }
-  96%, 100% { box-shadow: 0 0 8px 0 rgba(34,211,238,0.45);
-              transform: translateY(-50%) scale(1); }
+.mc-ekg-dot.pulse {
+  box-shadow: 0 0 12px 4px rgba(34,211,238,0.80);
+  transform: translateY(-50%) scale(1.4);
 }
 
 /* ── Card 2 — Backend Status (Brief 015g — tile layout) ──────────────────
@@ -753,21 +740,29 @@ ul,ol{list-style:none;}
 .mc-profile-foot{margin-top:10px;}
 
 /* ── Card 7 — Global Presence ────────────────────────────────────────── */
-/* Brief 015m — prominent count above flags: "8 / REGIONS VERIFIED". */
+/* Brief 015g (pre-freeze) — split numeric: big num + thin separator
+   + faded total. REGIONS VERIFIED label sits below as mono caps. */
 .mc-presence-count{
-  display:flex;align-items:baseline;gap:8px;margin-bottom:10px;
+  display:flex;align-items:baseline;gap:4px;
+  margin-bottom:4px;
 }
-.mc-presence-count-num{
-  font-size:28px;font-weight:700;color:#fff;line-height:1;
+.mc-presence-num{
+  font-size:32px;font-weight:700;color:#fff;line-height:1;
 }
-.mc-presence-count-lbl{
-  font-family:'Space Mono',monospace;
-  font-size:9px;font-weight:700;letter-spacing:0.14em;
-  text-transform:uppercase;color:var(--muted-2);
+.mc-presence-sep{
+  font-size:20px;color:rgba(255,255,255,0.30);
+}
+.mc-presence-total{
+  font-size:20px;color:rgba(255,255,255,0.50);
+}
+.mc-presence-label{
+  font-size:9px;font-weight:700;letter-spacing:0.12em;
+  color:#60a5fa;font-family:'Space Mono',monospace;
+  margin-bottom:12px;
 }
 .mc-presence-sub{font-size:11px;color:var(--muted);margin-bottom:10px;}
 .mc-flag-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
 }
 .mc-flag-cell{
   display:flex;flex-direction:column;align-items:center;
@@ -908,6 +903,7 @@ ul,ol{list-style:none;}
     <div class="topbar-left">
       <div class="tb-artist-name" id="tb-artist-name">—</div>
       <div class="tb-status">
+        <span class="mc-live-dot">● LIVE</span>
         <span class="tb-status-dot" id="tb-status-dot"></span>
         <span class="tb-status-label" id="tb-status-label">—</span>
       </div>
@@ -1032,13 +1028,8 @@ ul,ol{list-style:none;}
             </div>
           </div>
           <div class="mc-ekg-wrap" aria-hidden="true">
-            <svg class="mc-ekg-bg" viewBox="0 0 400 40" preserveAspectRatio="none">
-              <line x1="0" y1="20" x2="400" y2="20" stroke="#22d3ee" stroke-width="1" opacity="0.3"/>
-            </svg>
-            <svg class="mc-ekg-spike" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
-              <path d="M0,20 L20,20 L25,1.5 L30,38.5 L35,20 L38,23 L42,20 L60,20" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            <div class="mc-ekg-dot"></div>
+            <canvas id="mc-ekg-canvas" height="40"></canvas>
+            <div class="mc-ekg-dot" id="mc-ekg-dot"></div>
           </div>
         </article>
 
@@ -1122,9 +1113,11 @@ ul,ol{list-style:none;}
             <div class="card-title"><span class="card-title-icon ic-green"><i data-lucide="globe"></i></span>Global Presence</div>
           </div>
           <div class="mc-presence-count">
-            <span class="mc-presence-count-num" id="mc-presence-count-num">—</span>
-            <span class="mc-presence-count-lbl">Regions Verified</span>
+            <span class="mc-presence-num" id="mc-presence-num">—</span>
+            <span class="mc-presence-sep">/</span>
+            <span class="mc-presence-total" id="mc-presence-total">8</span>
           </div>
+          <div class="mc-presence-label">Regions Verified</div>
           <div class="mc-flag-grid" id="mc-flag-grid">
             <!-- populated by renderMcGlobalPresence -->
           </div>
@@ -1139,11 +1132,11 @@ ul,ol{list-style:none;}
             <div class="card-title"><span class="card-title-icon ic-blue"><i data-lucide="disc-3"></i></span>Catalog Intelligence</div>
           </div>
           <div class="mc-catalog-list">
-            <div class="mc-catalog-row"><span class="mc-catalog-k">Tracks Monitored</span><span class="mc-catalog-v" id="mc-cat-tracks">—</span></div>
-            <div class="mc-catalog-row"><span class="mc-catalog-k">Releases Monitored</span><span class="mc-catalog-v" id="mc-cat-releases">—</span></div>
-            <div class="mc-catalog-row"><span class="mc-catalog-k">Metadata Quality</span><span class="mc-catalog-v" id="mc-cat-isrc">—</span></div>
-            <div class="mc-catalog-row"><span class="mc-catalog-k">Catalog Coverage</span><span class="mc-catalog-v" id="mc-cat-sources">—</span></div>
-            <div class="mc-catalog-row"><span class="mc-catalog-k">Last Change Detected</span><span class="mc-catalog-v" id="mc-cat-last">—</span></div>
+            <div class="mc-catalog-row"><span class="mc-catalog-k">Catalog Coverage</span><span class="mc-catalog-v" id="mc-cat-tracks">—</span></div>
+            <div class="mc-catalog-row"><span class="mc-catalog-k">Releases Tracked</span><span class="mc-catalog-v" id="mc-cat-releases">—</span></div>
+            <div class="mc-catalog-row"><span class="mc-catalog-k">Verification Progress</span><span class="mc-catalog-v" id="mc-cat-isrc">—</span></div>
+            <div class="mc-catalog-row"><span class="mc-catalog-k">Connected Sources</span><span class="mc-catalog-v" id="mc-cat-sources">—</span></div>
+            <div class="mc-catalog-row"><span class="mc-catalog-k">Last Activity</span><span class="mc-catalog-v" id="mc-cat-last">—</span></div>
           </div>
         </article>
 
