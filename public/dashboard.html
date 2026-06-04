@@ -115,14 +115,17 @@ ul,ol{list-style:none;}
 .tb-status-label.is-amber{color:#f59e0b;}
 .tb-status-label.is-red  {color:#ef4444;}
 
-/* Inline stats row. */
+/* Inline stats row. Brief 015s — polish pass: more breathing room
+   between stats, tighter letter-spacing on values, labels muted
+   slightly so the numeric values read as the focal points. Each
+   stat now visually behaves like a command-center indicator. */
 .tb-stats{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   font-family:'Space Mono',monospace;font-size:11px;
-  color:var(--text-2);letter-spacing:0.04em;
+  color:rgba(255,255,255,0.55);letter-spacing:0.06em;
 }
-.tb-stat-sep{color:var(--muted-3);}
-.tb-stat-v{color:#fff;font-weight:700;}
+.tb-stat-sep{color:rgba(255,255,255,0.18);font-size:9px;}
+.tb-stat-v{color:#fff;font-weight:700;letter-spacing:0.02em;}
 .tb-stat-v.is-gold{color:var(--gold-2);}
 .tb-stat-lbl.is-gold{color:rgba(224,182,90,0.85);}
 
@@ -658,15 +661,18 @@ body.mc-signal-infusing .mc-score-band-inside.band-review{
 .mc-journey-empty{font-size:11px;color:var(--muted);padding:10px 0;}
 
 /* ── Card 4 — Catalog Intelligence (Brief 015a Change 1) ────────────── */
+/* Brief 015s — polish pass: more row breathing room, bolder values,
+   slightly stronger row separators. Pushes the card from "raw data
+   list" toward "intelligence readout" without restructuring. */
 .mc-catalog-list{display:flex;flex-direction:column;gap:2px;}
 .mc-catalog-row{
   display:flex;justify-content:space-between;align-items:baseline;
-  padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);
   font-size:12px;
 }
 .mc-catalog-row:last-child{border-bottom:none;}
-.mc-catalog-k{color:var(--muted-2);text-transform:uppercase;font-size:10px;letter-spacing:0.06em;font-family:'Space Mono',monospace;}
-.mc-catalog-v{color:#fff;font-weight:500;}
+.mc-catalog-k{color:var(--muted-2);text-transform:uppercase;font-size:10px;letter-spacing:0.08em;font-family:'Space Mono',monospace;}
+.mc-catalog-v{color:#fff;font-weight:600;font-size:12.5px;letter-spacing:0.01em;}
 /* Brief 015m — gold accent for opportunity / progress values. */
 .mc-catalog-v.is-opportunity{color:var(--gold-2);}
 
@@ -801,10 +807,11 @@ body.mc-signal-infusing .mc-score-band-inside.band-review{
    above the value at full width, matching the command-center status
    bar typography. */
 .mc-profile-info{flex:1;min-width:0;display:flex;flex-direction:column;}
+/* Brief 015s — polish: row padding 7→9px for breathing room. */
 .mc-intel-row{
   display:flex;align-items:center;justify-content:space-between;
-  gap:12px;padding:7px 0;
-  border-bottom:1px solid rgba(255,255,255,0.04);
+  gap:12px;padding:9px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
   min-width:0;
 }
 .mc-intel-row:last-child{border-bottom:none;}
@@ -847,15 +854,18 @@ body.mc-signal-infusing .mc-score-band-inside.band-review{
   margin-bottom:12px;
 }
 .mc-presence-sub{font-size:11px;color:var(--muted);margin-bottom:10px;}
+/* Brief 015s — polish: larger country markers + slightly more cell
+   breathing room. Card structure unchanged; the major upgrade
+   happens in the future Global Presence View All experience. */
 .mc-flag-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
 }
 .mc-flag-cell{
   display:flex;flex-direction:column;align-items:center;
-  padding:6px 4px;
+  padding:8px 4px;
 }
-.mc-flag-emoji{font-size:24px;line-height:1;}
-.mc-flag-name{font-size:9px;color:var(--muted-2);margin-top:4px;text-align:center;letter-spacing:0.04em;}
+.mc-flag-emoji{font-size:28px;line-height:1;}
+.mc-flag-name{font-size:9px;color:var(--muted-2);margin-top:6px;text-align:center;letter-spacing:0.06em;}
 .mc-flag-cell.is-verified .mc-flag-name{color:var(--grn);}
 .mc-flag-cell.is-partial .mc-flag-name{color:var(--amb);}
 .mc-flag-cell.is-unavail .mc-flag-name{color:var(--red);}

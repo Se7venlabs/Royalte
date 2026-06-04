@@ -28,7 +28,7 @@ import { getSupabase } from '/js/supabase-client.js';
 // they're running. Bump on every deploy that should force installed
 // PWAs to update (the SW_VERSION in /sw.js should be bumped in lock-
 // step so the controllerchange auto-reload fires on next open).
-const MC_VERSION = '1.0.0';
+const MC_VERSION = '1.0.1';
 
 /* ─────────────────────────────────────────────
    HELPERS
