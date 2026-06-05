@@ -1233,6 +1233,47 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   .bi-os-access{font-size:10.5px;letter-spacing:0.06em;}
 }
 
+/* ── Mobile responsiveness pass 2026-06-05 ────────────────────────────────
+   Approved audit fixes. CSS-only, mobile-only. Desktop above 768px is
+   byte-identical. Orbs reduced in visual weight (not removed) per founder
+   modification. */
+@media (max-width:768px){
+  /* I-C1 — territory rows stack vertically; status allowed to wrap */
+  .territory-row{grid-template-columns:1fr;gap:4px;}
+  .territory-status{white-space:normal;}
+
+  /* I-C2 + I-C3 — post-scan OS grids stack to single column */
+  .os-cta-features{grid-template-columns:1fr;}
+  .os-found-grid{grid-template-columns:1fr;}
+
+  /* I-C4 + I-C5 + I-C6 — prevent iOS auto-zoom on input focus
+     (Safari zooms in when input font-size < 16px) */
+  .form-input,
+  .bi-os-email,
+  .os-modal-input{font-size:16px;}
+
+  /* I-H1 + I-H2 — tap targets ≥44px (WCAG / iOS HIG) */
+  .nav-hamburger,
+  .mobile-menu-close{width:44px;height:44px;}
+
+  /* I-H3 — submit button height ≥44px */
+  .form-submit{padding:16px;min-height:44px;}
+
+  /* I-M1 + I-M2 — findings + steps body readability bump */
+  .d-mod-problem{font-size:12.5px;}
+  .step-d{font-size:13px;}
+
+  /* I-M3 (revised) — reduce orb visual weight on mobile rather than
+     hiding entirely; keeps the ambient aesthetic but eases paint cost
+     and avoids brittle overflow positioning at narrow viewports */
+  .orb1,.orb2{opacity:0.25;}
+  .hero .orb1,.hero .orb2{opacity:0.3;}
+
+  /* I-M4 — tighten paste-btn padding so stacked button doesn't waste
+     horizontal space on narrow viewports */
+  .paste-btn{padding:14px 24px;}
+}
+
 /* ────────────────────────────────────────────────────────────────
    MOBILE / TABLET HAMBURGER MENU
    Active at max-width:1024px. Hidden on desktop.

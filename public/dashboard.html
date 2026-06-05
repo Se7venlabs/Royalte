@@ -978,6 +978,55 @@ body.mc-signal-infusing .mc-score-band-inside.band-review{
   .sidebar{display:none;}
   .mc-grid{grid-template-columns:1fr;}
 }
+
+/* ── Mobile responsiveness pass 2026-06-05 ───────────────────────────────
+   Closes the 760→1100 gap that left iPad portrait (768px) on the desktop
+   layout, plus tap-target / typography / sizing fixes per the approved
+   audit. CSS-only, mobile-only, desktop above 768px is byte-identical.
+   D-H1 (.mc-overview-grid 2→1) intentionally held pending visual review. */
+@media (max-width: 768px){
+  /* D-C1 + D-C2 — close the iPad-portrait gap */
+  .grid-row{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .mc-grid{grid-template-columns:1fr;}
+
+  /* D-H2 — flag grid 4→2 columns (one breakpoint earlier than line 974) */
+  .mc-flag-grid{grid-template-columns:repeat(2,1fr);}
+
+  /* D-H3 — profile row stacks donut above intel list */
+  .mc-profile-row{flex-direction:column;align-items:stretch;}
+
+  /* D-M2 + D-M3 — card sizing */
+  .card{min-height:auto;padding:12px;}
+
+  /* D-M4 — card header stacks title above "View X →" link */
+  .card-hd{flex-direction:column;align-items:flex-start;gap:8px;}
+
+  /* D-M5 — Signal Meter + journey chart shorter on mobile */
+  .mc-signal-meter svg{max-height:180px;}
+  .mc-journey-chart{height:60px;}
+
+  /* D-T1..T6 — tap targets ≥44px (WCAG / iOS HIG) */
+  .sb-nav-item{padding:12px 14px;min-height:44px;box-sizing:border-box;}
+  .tb-scan-btn,
+  .tb-install-btn{padding:12px 16px;min-height:44px;}
+  .sb-foot button{padding:10px 12px;min-height:44px;}
+  .card-link{padding:10px 12px;border-radius:6px;min-height:44px;
+             display:inline-flex;align-items:center;}
+  .mc-review-btn{padding:12px 16px;min-height:44px;}
+
+  /* Topbar reflow at narrow widths */
+  .topbar{padding:12px 14px;flex-wrap:wrap;gap:8px;}
+
+  /* Secondary typography */
+  .sb-nav-sub{font-size:11px;}
+  .tb-last-scan-line{font-size:11px;}
+  .tb-stats{font-size:10px;}
+}
+
+/* D-M1 — donut sub-label readability. 8px is below the readability floor
+   on every device; apply globally rather than mobile-only. */
+.mc-donut-sub{font-size:9px;}
 </style>
 </head>
 <body>
