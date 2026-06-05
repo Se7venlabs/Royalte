@@ -14,7 +14,7 @@
 // the inline handler used before this extraction.
 
 import { generateAppleToken } from '../apple-token.js';
-import { lookupByISRC, checkStorefrontAvailability } from '../apple-music.js';
+import { lookupByISRC, checkStorefrontAvailability, getArtistAlbums } from '../apple-music.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -72,7 +72,36 @@ export async function runScan(url) {
   // Per spec: DO NOT fail the scan. Return a success payload with artistName
   // from Apple and followers = -1 so the UI shows "Fans on streaming
   // platforms" instead of an error.
+  //
+  // 2026-06-05 Apple-degraded enrichment — when we have an Apple artist ID
+  // from the URL (which is the case for every Apple-input scan that gets
+  // here, because resolveAppleArtist is URL-ID-based), fetch the artist's
+  // catalog directly from Apple. Previously the degraded path returned
+  // 0 releases / 0 tracks even though Apple's data was one ID lookup away.
+  // V1 audit display only — monitoring persistence still gated on Spotify ID
+  // per scope of this PR (Phase 4 work).
   if (!resolved.artistId) {
+    let appleAlbums = [];
+    let appleEarliestYear = null;
+    if (resolved.appleArtistId) {
+      try {
+        appleAlbums = await getArtistAlbums(resolved.appleArtistId, resolved.appleStorefront || 'us');
+        const years = appleAlbums
+          .map(a => (a.releaseDate || '').slice(0, 4))
+          .filter(y => /^\d{4}$/.test(y))
+          .map(y => parseInt(y, 10));
+        if (years.length) appleEarliestYear = Math.min(...years);
+      } catch (err) {
+        console.warn(`[apple-degraded] getArtistAlbums failed for ${resolved.appleArtistId}: ${err.message}`);
+      }
+    }
+    const appleTotalTracks = appleAlbums.reduce(
+      (n, a) => n + (typeof a.trackCount === 'number' ? a.trackCount : 0), 0
+    );
+    const currentYear = new Date().getUTCFullYear();
+    const appleCatalogAgeYears = appleEarliestYear ? (currentYear - appleEarliestYear) : 0;
+    const appleHasCatalog = appleAlbums.length > 0;
+
     const rawResponse = {
       success: true,
       platform: 'apple',
@@ -97,9 +126,15 @@ export async function runScan(url) {
       platforms: {
         spotify: false, musicbrainz: false, deezer: false, audiodb: false,
         discogs: false, soundcloud: false, lastfm: false, wikipedia: false,
-        youtube: false, appleMusic: true,
+        youtube: false, appleMusic: appleHasCatalog,
       },
-      catalog: { totalReleases: 0, earliestYear: null, catalogAgeYears: 0, estimatedAnnualStreams: 0 },
+      catalog: {
+        totalReleases: appleAlbums.length,
+        totalTracks:   appleTotalTracks,
+        earliestYear:  appleEarliestYear,
+        catalogAgeYears: appleCatalogAgeYears,
+        estimatedAnnualStreams: 0,
+      },
       royaltyGap: null,
       proGuide: getPROGuide(null),
       country: null,
@@ -109,7 +144,17 @@ export async function runScan(url) {
       deezerFans: 0,
       discogsReleases: 0,
       youtube: { found: false },
-      appleMusic: { found: false, artistId: resolved.appleArtistId || null },
+      appleMusic: {
+        found:      appleHasCatalog,
+        artistId:   resolved.appleArtistId || null,
+        artistUrl:  null,
+        genres:     [],
+        albumCount: appleAlbums.length,
+        albums:     appleAlbums,
+        storefrontAvailability: null,
+        isrcLookup: null,
+        catalogComparison: null,
+      },
       overallScore: 0,
       modules: {},
       flags: [],
@@ -347,6 +392,7 @@ async function resolveToArtist(inputUrl, token) {
     const appleArtistName = appleResolved?.name;
     const appleArtwork    = appleResolved?.artworkUrl || null;
     const appleArtistId   = appleResolved?.appleArtistId || null;
+    const appleStorefront = appleResolved?.storefront || 'us';
     const appleTrackTitle = appleResolved?.trackTitle ?? null;
     const appleTrackIsrc  = appleResolved?.trackIsrc ?? null;
     if (!appleArtistName) {
@@ -381,6 +427,7 @@ async function resolveToArtist(inputUrl, token) {
         canonicalTarget:   'artist',
         appleArtworkUrl:   appleArtwork,
         appleArtistId,
+        appleStorefront,
       };
     }
     // No Spotify match after retry. Per spec: DO NOT fail the scan.
@@ -400,6 +447,7 @@ async function resolveToArtist(inputUrl, token) {
       canonicalTarget:   'artist',
       appleArtworkUrl:   appleArtwork,
       appleArtistId,
+      appleStorefront,
       trackTitle:        appleTrackTitle,
       trackIsrc:         appleTrackIsrc,
     };
@@ -586,7 +634,7 @@ async function resolveAppleArtist(appleUrl) {
           artworkUrl = formatArtwork(match?.attributes?.artwork);
         }
       }
-      return { name: attrs.name, artworkUrl, appleArtistId: meta.id };
+      return { name: attrs.name, artworkUrl, appleArtistId: meta.id, storefront: sf };
     }
 
     if (meta.kind === 'song') {
@@ -598,7 +646,7 @@ async function resolveAppleArtist(appleUrl) {
       // Songs always have artwork (album cover) — use as fallback
       const artworkUrl = formatArtwork(attrs.artwork);
       const appleArtistId = data?.data?.[0]?.relationships?.artists?.data?.[0]?.id || null;
-      return { name: attrs.artistName, artworkUrl, appleArtistId, trackTitle: attrs.name ?? null, trackIsrc: attrs.isrc ?? null };
+      return { name: attrs.artistName, artworkUrl, appleArtistId, trackTitle: attrs.name ?? null, trackIsrc: attrs.isrc ?? null, storefront: sf };
     }
 
     if (meta.kind === 'album') {
@@ -610,7 +658,7 @@ async function resolveAppleArtist(appleUrl) {
           const attrs = data?.data?.[0]?.attributes;
           if (attrs?.artistName) {
             const appleArtistId = data?.data?.[0]?.relationships?.artists?.data?.[0]?.id || null;
-            return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork), appleArtistId, trackTitle: attrs.name ?? null, trackIsrc: attrs.isrc ?? null };
+            return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork), appleArtistId, trackTitle: attrs.name ?? null, trackIsrc: attrs.isrc ?? null, storefront: sf };
           }
         }
       }
@@ -620,7 +668,7 @@ async function resolveAppleArtist(appleUrl) {
       const attrs = data?.data?.[0]?.attributes;
       if (!attrs?.artistName) return null;
       const appleArtistId = data?.data?.[0]?.relationships?.artists?.data?.[0]?.id || null;
-      return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork), appleArtistId };
+      return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork), appleArtistId, storefront: sf };
     }
 
     return null;
