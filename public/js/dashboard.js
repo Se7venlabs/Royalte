@@ -337,12 +337,14 @@ async function loadReservation(supabase, userId) {
   }
 }
 
-async function _countActionNeededAlerts(supabase, userId) {
+async function _countActionNeededAlerts(supabase, userId, artistId) {
+  if (!artistId) return 0;
   try {
     const { count, error } = await supabase
       .from('monitoring_alerts')
       .select('id', { head: true, count: 'exact' })
       .eq('user_id', userId)
+      .eq('artist_id', artistId)
       .eq('resolved', false)
       .eq('severity', 'action_needed');
     if (error) { console.error('[mc] action count failed', error); return 0; }
@@ -350,12 +352,14 @@ async function _countActionNeededAlerts(supabase, userId) {
   } catch (e) { console.error('[mc] action count failed', e); return 0; }
 }
 
-async function _countMonitorAlerts(supabase, userId) {
+async function _countMonitorAlerts(supabase, userId, artistId) {
+  if (!artistId) return 0;
   try {
     const { count, error } = await supabase
       .from('monitoring_alerts')
       .select('id', { head: true, count: 'exact' })
       .eq('user_id', userId)
+      .eq('artist_id', artistId)
       .eq('resolved', false)
       .eq('severity', 'monitor');
     if (error) { console.error('[mc] monitor count failed', error); return 0; }
@@ -365,11 +369,13 @@ async function _countMonitorAlerts(supabase, userId) {
 
 // Brief 015a Fix 1 — SELECT now includes `payload` so the resolver can
 // fall back to V1 risk for legacy snapshots.
-async function loadScanHistory(supabase, userId) {
+async function loadScanHistory(supabase, userId, artistId) {
+  if (!artistId) return [];
   const { data, error } = await supabase
     .from('scan_snapshots')
     .select('id, health_score, scanned_at, payload')
     .eq('user_id', userId)
+    .eq('artist_id', artistId)
     .order('scanned_at', { ascending: true })
     .limit(50);
   if (error) { console.error('[mc] history fetch failed', error); return []; }
@@ -379,11 +385,13 @@ async function loadScanHistory(supabase, userId) {
 // Brief 015a-rev2 Fix 5 — fetch a wider window (20) so we can filter
 // baseline-artifact alerts client-side and still surface up to 5 real
 // post-baseline changes in the feed.
-async function loadAlertFeed(supabase, userId, fetchLimit = 20) {
+async function loadAlertFeed(supabase, userId, artistId, fetchLimit = 20) {
+  if (!artistId) return [];
   const { data, error } = await supabase
     .from('monitoring_alerts')
-    .select('change_type, severity, track_name, artist_name, territory, platform, detected_at, title, detail')
+    .select('artist_id, change_type, severity, track_name, artist_name, territory, platform, detected_at, title, detail')
     .eq('user_id', userId)
+    .eq('artist_id', artistId)
     .order('detected_at', { ascending: false })
     .limit(fetchLimit);
   if (error) { console.error('[mc] feed fetch failed', error); return []; }
@@ -421,11 +429,13 @@ function _lastGenuineChangeAt(alerts, baselineTimes) {
   return cleaned.length > 0 ? cleaned[0].detected_at : null;
 }
 
-async function loadActionItems(supabase, userId, limit = 3) {
+async function loadActionItems(supabase, userId, artistId, limit = 3) {
+  if (!artistId) return [];
   const { data, error } = await supabase
     .from('monitoring_alerts')
     .select('title, detail, severity, change_type')
     .eq('user_id', userId)
+    .eq('artist_id', artistId)
     .eq('resolved', false)
     .in('severity', ['action_needed', 'monitor'])
     .order('detected_at', { ascending: false })
@@ -434,19 +444,22 @@ async function loadActionItems(supabase, userId, limit = 3) {
   return data || [];
 }
 
-async function loadAlertOverview(supabase, userId) {
+async function loadAlertOverview(supabase, userId, artistId) {
   const out = { total: 0, resolved: 0 };
+  if (!artistId) return out;
   try {
     const totalResp = await supabase
       .from('monitoring_alerts')
       .select('id', { head: true, count: 'exact' })
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .eq('artist_id', artistId);
     out.total = totalResp.count || 0;
 
     const resolvedResp = await supabase
       .from('monitoring_alerts')
       .select('id', { head: true, count: 'exact' })
       .eq('user_id', userId)
+      .eq('artist_id', artistId)
       .eq('resolved', true);
     out.resolved = resolvedResp.count || 0;
   } catch (e) { console.error('[mc] alert overview failed', e); }
@@ -456,12 +469,14 @@ async function loadAlertOverview(supabase, userId) {
 // Brief 015a-rev3 Fix 4 — loads every baseline_established detected_at
 // timestamp for the user. Separate query so the filter is correct even
 // when baseline_established lies outside the alert-feed fetch window.
-async function _loadBaselineTimes(supabase, userId) {
+async function _loadBaselineTimes(supabase, userId, artistId) {
+  if (!artistId) return [];
   try {
     const { data, error } = await supabase
       .from('monitoring_alerts')
       .select('detected_at')
       .eq('user_id', userId)
+      .eq('artist_id', artistId)
       .eq('change_type', 'baseline_established');
     if (error) { console.error('[mc] baseline times fetch failed', error); return []; }
     const times = (data || [])
@@ -717,10 +732,17 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
 //   [56×56 artwork OR fallback chip] | TRACK NAME (uppercase)
 //                                    | Event description
 //                                    | Context • Age
-function renderMcFeed(alertsRaw, baselineTimes, albums) {
+function renderMcFeed(alertsRaw, baselineTimes, albums, currentArtistId) {
   const list = document.getElementById('mc-feed-list');
   if (!list) return;
-  const alerts = _filterBaselineArtifacts(alertsRaw || [], baselineTimes).slice(0, 5);
+  // Defensive render-layer scope: even if a query returns alerts for a
+  // different artist (stale row, future migration error, etc), never
+  // render an item whose artist_id does not match the currently-viewed
+  // artist. Belt-and-braces against the artist-identity contamination
+  // class of bugs found 2026-06-05.
+  const scoped = (alertsRaw || []).filter(a =>
+    !currentArtistId || !a.artist_id || a.artist_id === currentArtistId);
+  const alerts = _filterBaselineArtifacts(scoped, baselineTimes).slice(0, 5);
 
   if (alerts.length === 0) {
     list.innerHTML = `<div class="mc-feed-empty">Your backend is being watched. Royaltē will surface activity here as it's detected.</div>`;
@@ -1213,11 +1235,19 @@ async function init() {
   renderMcSidebar(profile);
   renderTrialBanner(profile);
 
-  const [scan, history, monitoringActive, baselineTimes] = await Promise.all([
-    loadLatestScan(supabase, session.user.id),
-    loadScanHistory(supabase, session.user.id),
+  // Fix 2026-06-05 (artist-identity contamination) — load the latest
+  // scan first so we know which artist this page is showing, then scope
+  // every alert / history query to (user_id, artist_id). Previously the
+  // alert queries were filtered by user_id only, so an account with
+  // multiple artists (or leftover demo-seed rows) would see events from
+  // every artist mixed into the feed.
+  const scan = await loadLatestScan(supabase, session.user.id);
+  const currentArtistId = scan?.artist_id || null;
+
+  const [history, monitoringActive, baselineTimes] = await Promise.all([
+    loadScanHistory(supabase, session.user.id, currentArtistId),
     loadMonitoringActive(supabase, session.user.id),
-    _loadBaselineTimes(supabase, session.user.id),
+    _loadBaselineTimes(supabase, session.user.id, currentArtistId),
   ]);
 
   const artistName = (scan && scan.artist_name) || (scan?.payload?.subject?.artistName) || (session.user?.email?.split('@')[0]) || 'Artist';
@@ -1231,24 +1261,24 @@ async function init() {
 
   // Card 2 — Backend Status
   const [criticalCount, opportunitiesCount] = await Promise.all([
-    _countActionNeededAlerts(supabase, session.user.id),
-    _countMonitorAlerts(supabase, session.user.id),
+    _countActionNeededAlerts(supabase, session.user.id, currentArtistId),
+    _countMonitorAlerts(supabase, session.user.id, currentArtistId),
   ]);
   renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesCount });
 
   // Card 3 — Intelligence Feed
-  const feedAlerts = await loadAlertFeed(supabase, session.user.id);
+  const feedAlerts = await loadAlertFeed(supabase, session.user.id, currentArtistId);
   // Brief 015k — pass Apple Music albums so the feed can show real
   // cover art per item; falls through to the colored-chip fallback
   // when no match exists (or no albums in the scan payload).
   const albums = scan?.payload?.platforms?.appleMusic?.details?.albums || [];
-  renderMcFeed(feedAlerts, baselineTimes, albums);
+  renderMcFeed(feedAlerts, baselineTimes, albums, currentArtistId);
 
   // Card 4 — Catalog Intelligence (uses scan + latest GENUINE change)
   renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes);
 
   // Card 5 — Action Center
-  const actionItems = await loadActionItems(supabase, session.user.id, 3);
+  const actionItems = await loadActionItems(supabase, session.user.id, currentArtistId, 3);
   renderMcActionCenter({ items: actionItems, totalCount: criticalCount + opportunitiesCount });
 
   // Card 6 — Intelligence Confidence
@@ -1258,7 +1288,7 @@ async function init() {
   renderMcGlobalPresence(scan);
 
   // Card 8 — Monitoring Overview (moved up per Brief 015a Change 4)
-  const alertOverview = await loadAlertOverview(supabase, session.user.id);
+  const alertOverview = await loadAlertOverview(supabase, session.user.id, currentArtistId);
   renderMcMonitoringOverview({ history, alertOverview, criticalCount });
 
   // Card 9 — Your Royaltē Review (moved down, renamed per Brief 015a Change 3 + 4)
