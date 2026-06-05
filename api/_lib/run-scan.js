@@ -157,7 +157,12 @@ export async function runScan(url) {
   }
 
   const albumsData = await getSpotifyAlbums(artistId, token);
-  const artistName = artistData.name;
+  // 2026-06-05 identity-lock — use the canonical name from resolveToArtist,
+  // NOT artistData.name. For Apple-input scans, resolved.artistName is
+  // Apple's authoritative name; artistData.name is Spotify's (which may
+  // differ in casing/punctuation even when normalized-exact-match passed).
+  // For Spotify-input scans, the two are equivalent so this is a no-op.
+  const artistName = resolved.artistName;
   const spotifyTopTracks = await getSpotifyTopTracks(artistId, token);
 
   // All platforms in parallel — includes YouTube + Apple Music.
@@ -358,10 +363,16 @@ async function resolveToArtist(inputUrl, token) {
       }
     }
     if (spotifyArtist) {
+      // 2026-06-05 identity-lock — when input is Apple, Apple's artistName
+      // is authoritative for display + canonical identity. Spotify's ID is
+      // captured for catalog enrichment (top tracks, full artist profile)
+      // but Spotify's name does NOT overwrite Apple's. Under strict exact
+      // matching above, the two names normalize to the same value, but
+      // display casing/punctuation can differ — Apple wins.
       return {
         artistId:          spotifyArtist.id,
-        artistName:        spotifyArtist.name,
-        artistImage:       spotifyArtist.images?.[0]?.url || appleArtwork || null,
+        artistName:        appleArtistName,
+        artistImage:       appleArtwork || spotifyArtist.images?.[0]?.url || null,
         artistUrl:         spotifyArtist.external_urls?.spotify || null,
         spotifyMatched:    true,
         resolvedFrom:      'apple',
@@ -484,6 +495,12 @@ async function getSpotifyAlbum(id, token) {
   return resp.json();
 }
 
+// 2026-06-05 identity-lock — strict exact match only. If no Spotify artist
+// is named EXACTLY the queried name (case-insensitive, trimmed), return null.
+// The Apple-input degraded path at line 379 then takes over and preserves the
+// Apple identity. The prior `|| items[0]` fallback silently substituted
+// whichever artist Spotify ranked first for the query — the root cause of the
+// "Black Alternative → ALT BLK ERA" production contamination.
 async function searchSpotifyArtistByName(name, token) {
   try {
     const q = encodeURIComponent(name);
@@ -495,7 +512,11 @@ async function searchSpotifyArtistByName(name, token) {
     const items = data?.artists?.items || [];
     if (!items.length) return null;
     const norm = s => s.toLowerCase().trim();
-    return items.find(a => norm(a.name) === norm(name)) || items[0];
+    const match = items.find(a => norm(a.name) === norm(name)) || null;
+    if (!match) {
+      console.log(`[identity] Spotify returned ${items.length} candidates for "${name}" but no exact match — caller will fall through to degraded path`);
+    }
+    return match;
   } catch { return null; }
 }
 
@@ -663,7 +684,13 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
       const artistData = await artistResp.json();
       const artists = artistData?.results?.artists?.data || [];
       const norm = s => s.toLowerCase().trim();
-      const match = artists.find(a => norm(a.attributes?.name) === norm(artistName)) || artists[0];
+      // 2026-06-05 identity-lock — strict exact match only. Prior
+      // `|| artists[0]` fallback would silently substitute Apple's top
+      // search hit (potentially a third artist after Spotify's wrong pick).
+      const match = artists.find(a => norm(a.attributes?.name) === norm(artistName)) || null;
+      if (!match && artists.length) {
+        console.log(`[identity] Apple returned ${artists.length} candidates for "${artistName}" but no exact match — skipping Apple Music enrichment`);
+      }
 
       if (match) {
         artistFound = true;
@@ -762,7 +789,14 @@ async function getAppleMusic(artistName, isrc, spotifyTopTracks = []) {
             const searchData = await searchResp.json();
             const songs = searchData?.results?.songs?.data || [];
             const norm = s => s.toLowerCase().trim();
-            found = songs.some(s => norm(s.attributes?.name) === norm(track.name));
+            // 2026-06-05 identity-lock — require BOTH track name AND artist
+            // name to match. Previously the name-only check let a same-titled
+            // track from a different artist count as a match, inflating the
+            // catalog-comparison match rate.
+            found = songs.some(s =>
+              norm(s.attributes?.name) === norm(track.name) &&
+              norm(s.attributes?.artistName || '') === norm(track.artistName || '')
+            );
           }
         }
 
@@ -1192,7 +1226,16 @@ async function getMusicBrainz(artistName) {
     );
     if (!resp.ok) return { found: false, artists: [] };
     const data = await resp.json();
-    return { found: data.artists?.length > 0, artists: data.artists || [], topMatch: data.artists?.[0] || null, score: data.artists?.[0]?.score || 0 };
+    const arr = data.artists || [];
+    // 2026-06-05 identity-lock — require exact-name match for topMatch.
+    // Prior `artists?.[0]` would surface MusicBrainz's top-scored candidate
+    // regardless of whether the name matched.
+    const norm = s => (s || '').toLowerCase().trim();
+    const topMatch = arr.find(a => norm(a.name) === norm(artistName)) || null;
+    if (!topMatch && arr.length) {
+      console.log(`[identity] MusicBrainz returned ${arr.length} candidates for "${artistName}" but no exact match — skipping enrichment`);
+    }
+    return { found: !!topMatch, artists: arr, topMatch, score: topMatch?.score || 0 };
   } catch { return { found: false, artists: [] }; }
 }
 
@@ -1207,7 +1250,12 @@ async function getDeezer(artistName) {
     const data = await resp.json();
     if (!data.data?.length) return { found: false, fans: 0 };
     const norm = s => s.toLowerCase().trim();
-    const artist = data.data.find(a => norm(a.name) === norm(artistName)) || data.data[0];
+    // 2026-06-05 identity-lock — strict exact match only.
+    const artist = data.data.find(a => norm(a.name) === norm(artistName)) || null;
+    if (!artist) {
+      console.log(`[identity] Deezer returned ${data.data.length} candidates for "${artistName}" but no exact match — skipping enrichment`);
+      return { found: false, fans: 0 };
+    }
     const detail = await fetch(`https://api.deezer.com/artist/${artist.id}`).then(r => r.ok ? r.json() : artist);
     return { found: true, fans: detail.nb_fan || 0, artistId: artist.id, name: artist.name, albums: detail.nb_album || 0 };
   } catch { return { found: false, fans: 0 }; }
@@ -1225,7 +1273,14 @@ async function getAudioDB(artistName) {
     if (!resp.ok) return { found: false };
     const data = await resp.json();
     if (!data.artists?.length) return { found: false };
-    const a = data.artists[0];
+    // 2026-06-05 identity-lock — AudioDB previously took data.artists[0]
+    // with NO name check at all. Require exact match.
+    const norm = s => (s || '').toLowerCase().trim();
+    const a = data.artists.find(x => norm(x.strArtist) === norm(artistName)) || null;
+    if (!a) {
+      console.log(`[identity] AudioDB returned ${data.artists.length} candidates for "${artistName}" but no exact match — skipping enrichment`);
+      return { found: false };
+    }
     return {
       found: true, name: a.strArtist, genre: a.strGenre || null, style: a.strStyle || null,
       mood: a.strMood || null, country: a.strCountry || null,
@@ -1250,7 +1305,12 @@ async function getDiscogs(artistName) {
     const data = await resp.json();
     if (!data.results?.length) return { found: false, releases: 0 };
     const norm = s => s.toLowerCase().trim();
-    const artist = data.results.find(r => norm(r.title) === norm(artistName)) || data.results[0];
+    // 2026-06-05 identity-lock — strict exact match only.
+    const artist = data.results.find(r => norm(r.title) === norm(artistName)) || null;
+    if (!artist) {
+      console.log(`[identity] Discogs returned ${data.results.length} candidates for "${artistName}" but no exact match — skipping enrichment`);
+      return { found: false, releases: 0 };
+    }
     const relResp = await fetch(`https://api.discogs.com/artists/${artist.id}/releases?per_page=1`, {
       headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)' }
     });
@@ -1272,7 +1332,12 @@ async function getSoundCloud(artistName) {
     const data = await resp.json();
     if (!Array.isArray(data) || !data.length) return { found: false, followers: 0 };
     const norm = s => s.toLowerCase().trim();
-    const user = data.find(u => norm(u.username) === norm(artistName) || norm(u.full_name || '') === norm(artistName)) || data[0];
+    // 2026-06-05 identity-lock — strict exact match (username OR full_name).
+    const user = data.find(u => norm(u.username) === norm(artistName) || norm(u.full_name || '') === norm(artistName)) || null;
+    if (!user) {
+      console.log(`[identity] SoundCloud returned ${data.length} candidates for "${artistName}" but no exact match — skipping enrichment`);
+      return { found: false, followers: 0 };
+    }
     return { found: true, username: user.username, followers: user.followers_count || 0, tracks: user.track_count || 0, permalink: user.permalink_url || null };
   } catch { return { found: false, followers: 0 }; }
 }
@@ -1317,13 +1382,20 @@ async function getWikidata(artistName) {
     const data = await resp.json();
     if (!data.search?.length) return { found: false };
     const norm = s => s.toLowerCase().trim();
+    // 2026-06-05 identity-lock — strict exact name match AND music-role
+    // descriptor required. Prior fallback `data.search.find(label-only)`
+    // would surface ANY Wikidata entity matching the label (footballer,
+    // place name, etc.) when no musician matched.
     const match = data.search.find(r =>
       norm(r.label) === norm(artistName) &&
       (r.description?.toLowerCase().includes('musician') || r.description?.toLowerCase().includes('singer') ||
        r.description?.toLowerCase().includes('rapper') || r.description?.toLowerCase().includes('artist') ||
        r.description?.toLowerCase().includes('band') || r.description?.toLowerCase().includes('producer'))
-    ) || data.search.find(r => norm(r.label) === norm(artistName));
-    if (!match) return { found: false };
+    ) || null;
+    if (!match) {
+      console.log(`[identity] Wikidata returned ${data.search.length} candidates for "${artistName}" but no exact musician match — skipping enrichment`);
+      return { found: false };
+    }
     const wpResp = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(artistName)}`,
       { headers: { 'User-Agent': 'RoyalteAudit/1.0 (audit@royalte.ai)' } }
