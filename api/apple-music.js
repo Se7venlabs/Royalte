@@ -61,12 +61,15 @@ async function searchArtist(artistName) {
 }
 
 /**
- * Fetch Apple Music tracks for an artist by their Apple Music artist ID
+ * Fetch Apple Music tracks for an artist by their Apple Music artist ID.
+ * storefront defaults to module-level STOREFRONT ('us') for back-compat;
+ * pass the URL's source storefront (e.g. 'ca') to query that region's
+ * catalog directly (used by the Apple-input degraded enrichment path).
  */
-async function getArtistAlbums(appleArtistId) {
+async function getArtistAlbums(appleArtistId, storefront = STOREFRONT) {
   try {
     const data = await appleRequest(
-      `/catalog/${STOREFRONT}/artists/${appleArtistId}/albums?limit=25`
+      `/catalog/${storefront}/artists/${appleArtistId}/albums?limit=25`
     );
 
     const albums = data?.data || [];
