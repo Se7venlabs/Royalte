@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Royaltē Review · Mission Control</title>
+
+<!-- PWA assets shared with Mission Control. -->
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/mission-control.webmanifest">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mission Control">
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+/* ───────────────────────────────────────────────────────────────────────
+   ROYALTĒ REVIEW (Brief 016)
+   Dedicated in-app executive intelligence briefing. Reuses the Mission
+   Control shell (sidebar + top command bar + color system + typography)
+   and adds review-specific section styles. NOT a PDF viewer, NOT a
+   modal — a full page that renders inside the same shell.
+   ─────────────────────────────────────────────────────────────────── */
+
+:root{
+  --bg:#0a0a0f;
+  --bg-2:#0d0b1a;
+  --card:#0e0b1e;
+  --border:rgba(138,92,255,0.15);
+  --border-2:rgba(138,92,255,0.25);
+  --border-soft:rgba(255,255,255,0.06);
+  --text:#e8e4f4;
+  --text-2:#d4d0e8;
+  --muted:rgba(255,255,255,0.4);
+  --muted-2:rgba(255,255,255,0.3);
+  --muted-3:rgba(255,255,255,0.2);
+  --pur:#8a5cff;
+  --pur-2:#a78bfa;
+  --pnk:#e040c8;
+  --grn:#34d399;
+  --amb:#f59e0b;
+  --red:#ef4444;
+  --blu:#60a5fa;
+  --teal:#2dd4bf;
+  --teal-2:#5eead4;
+  --gold:#d4a64a;
+  --gold-2:#e0b65a;
+  --grad:linear-gradient(135deg,#8a5cff,#e040c8);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;line-height:1.5;}
+button{font-family:inherit;cursor:pointer;}
+a{color:inherit;text-decoration:none;}
+ul,ol{list-style:none;}
+
+/* ── Outer shell — mirrors dashboard.html ───────────────────────────── */
+.shell{display:grid;grid-template-rows:auto 1fr auto;min-height:100vh;}
+.grid-row{display:grid;grid-template-columns:200px 1fr;min-height:0;}
+
+/* ── Top command bar (mirror Mission Control) ───────────────────────── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border-soft);
+  background:var(--bg-2);gap:14px;
+}
+.topbar-left{display:flex;flex-direction:column;gap:8px;min-width:0;}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.tb-artist-name{
+  font-family:'Rajdhani',sans-serif;
+  font-size:24px;font-weight:700;color:#fff;
+  letter-spacing:0.04em;text-transform:uppercase;line-height:1;
+}
+.tb-status{display:flex;align-items:center;gap:10px;}
+.tb-status-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--muted-2);flex-shrink:0;
+}
+.tb-status-dot.is-green{background:#34d399;box-shadow:0 0 0 3px rgba(52,211,153,0.20);animation:tb-status-pulse 2s infinite;}
+.tb-status-dot.is-amber{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.20);}
+.tb-status-dot.is-red  {background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,0.20);}
+@keyframes tb-status-pulse{
+  0%   { box-shadow:0 0 0 0 rgba(52,211,153,0.45); }
+  70%  { box-shadow:0 0 0 8px rgba(52,211,153,0); }
+  100% { box-shadow:0 0 0 0 rgba(52,211,153,0); }
+}
+.tb-status-label{
+  font-family:'Space Mono',monospace;font-size:13px;font-weight:700;
+  letter-spacing:0.12em;color:#fff;
+}
+.tb-status-label.is-green{color:#34d399;}
+.tb-status-label.is-amber{color:#f59e0b;}
+.tb-status-label.is-red  {color:#ef4444;}
+.tb-stats{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  font-family:'Space Mono',monospace;font-size:11px;
+  color:rgba(255,255,255,0.55);letter-spacing:0.06em;
+}
+.tb-stat-sep{color:rgba(255,255,255,0.18);font-size:9px;}
+.tb-stat-v{color:#fff;font-weight:700;letter-spacing:0.02em;}
+.tb-stat-v.is-gold{color:var(--gold-2);}
+.tb-stat-lbl.is-gold{color:rgba(224,182,90,0.85);}
+.mc-live-dot{color:#60a5fa;font-size:10px;font-weight:700;letter-spacing:0.10em;margin-right:8px;}
+.tb-last-scan-line{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.06em;}
+.tb-install-btn,.tb-scan-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:8px;
+  background:transparent;font-size:11px;font-weight:600;letter-spacing:0.04em;
+  text-transform:uppercase;transition:all 0.18s;cursor:pointer;font-family:inherit;
+}
+.tb-install-btn{border:1px solid rgba(96,165,250,0.50);color:var(--blu);}
+.tb-install-btn:hover:not(:disabled){background:rgba(96,165,250,0.08);}
+.tb-install-btn:disabled{cursor:default;}
+.tb-install-btn.is-pending{border-color:rgba(96,165,250,0.22);color:rgba(96,165,250,0.55);}
+.tb-install-btn.is-installed{border-color:rgba(52,211,153,0.50);color:var(--grn);}
+.tb-install-btn.is-unavailable{border-color:rgba(255,255,255,0.10);color:var(--muted);}
+.tb-install-btn .lucide,.tb-scan-btn .lucide{width:14px;height:14px;}
+.tb-scan-btn{border:1px solid rgba(138,92,255,0.5);color:var(--pur-2);}
+.tb-scan-btn:hover{background:rgba(138,92,255,0.08);}
+
+/* ── Sidebar (mirror Mission Control) ───────────────────────────────── */
+.sidebar{
+  background:var(--bg-2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:0;min-height:100%;
+}
+.sb-logo{padding:20px 16px 8px;}
+.sb-logo-mark{font-size:18px;font-weight:700;color:#fff;letter-spacing:0.02em;font-family:'Rajdhani',sans-serif;}
+.sb-logo-mark .em{color:var(--pur-2);}
+.sb-logo-tag{font-size:9px;letter-spacing:0.12em;color:var(--pur-2);text-transform:uppercase;margin-top:2px;font-family:'Space Mono',monospace;}
+.sb-nav{padding:8px;display:flex;flex-direction:column;gap:2px;}
+.sb-nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--text-2);transition:all 0.14s;cursor:pointer;}
+.sb-nav-item i{font-size:18px;color:var(--muted);flex-shrink:0;}
+.sb-nav-text{display:flex;flex-direction:column;min-width:0;}
+.sb-nav-label{font-size:13px;font-weight:500;line-height:1.15;}
+.sb-nav-sub{font-size:10px;color:var(--muted-2);line-height:1.2;margin-top:1px;}
+.sb-nav-item:hover{background:rgba(255,255,255,0.05);}
+.sb-nav-item.is-active{background:rgba(138,92,255,0.2);color:var(--pur-2);}
+.sb-nav-item.is-active i{color:var(--pur-2);}
+.sb-nav-item.is-active .sb-nav-sub{color:rgba(167,139,250,0.5);}
+.sb-nav-item .lucide{width:18px;height:18px;}
+.sb-spacer{flex:1;}
+.sb-fa{margin:8px;padding:12px;border-radius:8px;background:rgba(138,92,255,0.1);border:1px solid rgba(138,92,255,0.2);}
+.sb-fa-hd{display:flex;align-items:center;gap:6px;}
+.sb-fa-hd i{font-size:12px;color:var(--pur-2);}
+.sb-fa-eyebrow{font-size:9px;color:var(--pur-2);text-transform:uppercase;letter-spacing:0.1em;font-weight:600;font-family:'Space Mono',monospace;}
+.sb-fa-num{font-size:11px;color:var(--pur-2);font-weight:700;margin-left:auto;font-family:'Space Mono',monospace;}
+.sb-fa-line1{font-size:12px;color:#fff;font-weight:500;margin-top:6px;}
+.sb-fa-line2{font-size:10px;color:var(--muted);margin-top:2px;}
+.sb-foot{padding:10px 14px;border-top:1px solid var(--border-soft);font-size:10px;color:var(--muted-2);font-family:'Space Mono',monospace;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.sb-foot button{background:transparent;border:none;color:var(--muted-2);font-size:10px;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:0;font-family:'Space Mono',monospace;}
+.sb-foot button:hover{color:var(--text-2);}
+
+/* ── Main area ──────────────────────────────────────────────────────── */
+.main{display:flex;flex-direction:column;min-width:0;background:var(--bg);}
+
+/* ── REVIEW PAGE — page-specific styles ─────────────────────────────── */
+.review-main{
+  padding:24px 32px 64px;max-width:980px;width:100%;margin:0 auto;
+}
+
+/* Breadcrumb */
+.review-crumbs{
+  display:flex;align-items:center;gap:8px;
+  font-family:'Space Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(255,255,255,0.50);
+  margin-bottom:18px;
+}
+.review-crumbs a{color:rgba(255,255,255,0.50);transition:color 0.14s;}
+.review-crumbs a:hover{color:var(--pur-2);}
+.review-crumbs-sep{color:rgba(255,255,255,0.20);}
+.review-crumbs-current{color:#fff;}
+
+/* Section header */
+.review-section{margin-bottom:28px;}
+.review-section-title{
+  font-family:'Space Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:0.16em;
+  text-transform:uppercase;color:var(--pur-2);
+  margin-bottom:10px;
+}
+
+/* Card surface (base shared across sections) */
+.review-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:22px 26px;
+}
+
+/* ── Section 1 — Header ─────────────────────────────────────────────── */
+.review-header{
+  display:flex;flex-direction:column;gap:8px;
+  padding:30px 26px 26px;
+}
+.review-header-artist{
+  font-family:'Rajdhani',sans-serif;
+  font-size:34px;font-weight:700;color:#fff;
+  letter-spacing:0.04em;text-transform:uppercase;line-height:1;
+}
+.review-header-meta{
+  display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+  font-family:'Space Mono',monospace;font-size:12px;
+  color:rgba(255,255,255,0.65);letter-spacing:0.04em;
+  margin-top:8px;
+}
+.review-header-meta-sep{color:rgba(255,255,255,0.20);font-size:10px;}
+.review-header-score{color:#fff;font-weight:700;letter-spacing:0.02em;}
+.review-header-band{color:var(--grn);font-weight:700;letter-spacing:0.04em;text-transform:uppercase;}
+.review-header-band.band-moderate{color:var(--amb);}
+.review-header-band.band-review{color:var(--red);}
+.review-header-last{color:var(--muted);}
+
+/* ── Section 2 — Assessment ─────────────────────────────────────────── */
+.review-assessment-body{
+  font-size:15px;line-height:1.65;color:rgba(255,255,255,0.88);
+  font-weight:300;
+}
+.review-assessment-body strong{color:#fff;font-weight:600;}
+
+/* ── Section 3 — Royaltē Confidence ─────────────────────────────────── */
+.review-confidence{
+  display:flex;align-items:center;gap:32px;
+  flex-wrap:wrap;
+}
+.review-confidence-headline{
+  display:flex;flex-direction:column;gap:4px;flex-shrink:0;
+}
+.review-confidence-level{
+  font-family:'Rajdhani',sans-serif;
+  font-size:48px;font-weight:700;color:var(--grn);line-height:1;
+  letter-spacing:0.02em;text-transform:uppercase;
+}
+.review-confidence-level.is-moderate{color:var(--amb);}
+.review-confidence-level.is-limited {color:var(--red);}
+.review-confidence-sub{
+  font-family:'Space Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--muted);
+}
+.review-confidence-list{
+  flex:1;min-width:240px;
+  display:flex;flex-direction:column;
+}
+.review-confidence-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:9px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.review-confidence-row:last-child{border-bottom:none;}
+.review-confidence-row-k{
+  font-size:12px;color:rgba(255,255,255,0.82);font-weight:500;
+}
+.review-confidence-row-v{
+  font-family:'Space Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:0.10em;
+  text-transform:uppercase;flex-shrink:0;
+  color:rgba(255,255,255,0.40);
+}
+.review-confidence-row-v.is-verified{color:#34d399;}
+.review-confidence-row-v.is-active  {color:#60a5fa;}
+.review-confidence-row-v.is-locked  {color:rgba(255,255,255,0.40);}
+.review-confidence-row-v.is-pending {color:rgba(255,255,255,0.40);}
+
+/* ── Section 4 — Opportunity Signals ────────────────────────────────── */
+.review-opportunity-empty{
+  font-size:13px;color:rgba(255,255,255,0.65);font-style:italic;line-height:1.55;
+}
+.review-opportunity-list{display:flex;flex-direction:column;gap:10px;}
+.review-opportunity-card{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:14px 16px;border-radius:8px;
+  background:rgba(212,166,74,0.06);
+  border:1px solid rgba(212,166,74,0.30);
+}
+.review-opportunity-icon{
+  width:36px;height:36px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(212,166,74,0.18);
+  border:1px solid rgba(212,166,74,0.35);
+  color:var(--gold-2);
+}
+.review-opportunity-icon .lucide{width:18px;height:18px;}
+.review-opportunity-body{flex:1;min-width:0;}
+.review-opportunity-title{
+  font-size:13px;font-weight:600;color:#fff;line-height:1.35;
+}
+.review-opportunity-detail{
+  font-size:11px;color:rgba(255,255,255,0.65);margin-top:4px;line-height:1.45;
+}
+.review-opportunity-meta{
+  font-family:'Space Mono',monospace;
+  font-size:10px;color:var(--muted);letter-spacing:0.04em;margin-top:6px;
+}
+
+/* ── Section 5 — Backend Highlights ─────────────────────────────────── */
+.review-highlights-list{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:14px;
+}
+@media (max-width:640px){.review-highlights-list{grid-template-columns:1fr;}}
+.review-highlight-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:14px 16px;border-radius:8px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);
+}
+.review-highlight-icon{
+  width:32px;height:32px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(52,211,153,0.18);
+  border:1px solid rgba(52,211,153,0.35);
+  color:var(--grn);
+}
+.review-highlight-icon.is-blue{background:rgba(96,165,250,0.18);border-color:rgba(96,165,250,0.35);color:var(--blu);}
+.review-highlight-icon.is-teal{background:rgba(45,212,191,0.18);border-color:rgba(45,212,191,0.40);color:var(--teal-2);}
+.review-highlight-icon.is-muted{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);color:var(--muted);}
+.review-highlight-icon .lucide{width:18px;height:18px;}
+.review-highlight-body{flex:1;min-width:0;}
+.review-highlight-title{
+  font-size:12px;font-weight:600;color:#fff;line-height:1.3;
+  text-transform:uppercase;letter-spacing:0.04em;
+}
+.review-highlight-detail{
+  font-size:11px;color:rgba(255,255,255,0.65);margin-top:4px;line-height:1.45;
+}
+
+/* ── Section 6 — What Changed ───────────────────────────────────────── */
+.review-changes-empty{
+  font-size:13px;color:rgba(255,255,255,0.65);font-style:italic;line-height:1.55;
+}
+.review-changes-list{display:flex;flex-direction:column;}
+.review-change-item{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.review-change-item:first-child{padding-top:4px;}
+.review-change-item:last-child{border-bottom:none;padding-bottom:4px;}
+.review-change-accent{
+  width:3px;height:40px;border-radius:2px;flex-shrink:0;background:#60a5fa;
+}
+.review-change-accent.is-purple{background:#a78bfa;box-shadow:0 0 6px rgba(167,139,250,0.45);}
+.review-change-accent.is-green {background:#34d399;box-shadow:0 0 6px rgba(52,211,153,0.45);}
+.review-change-accent.is-blue  {background:#60a5fa;box-shadow:0 0 6px rgba(96,165,250,0.45);}
+.review-change-accent.is-amber {background:#f59e0b;box-shadow:0 0 6px rgba(245,158,11,0.45);}
+.review-change-accent.is-red   {background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,0.45);}
+.review-change-art{
+  width:52px;height:52px;border-radius:8px;
+  object-fit:cover;flex-shrink:0;display:block;
+  background:rgba(255,255,255,0.04);
+  box-shadow:0 4px 12px rgba(0,0,0,0.30), 0 0 0 1px rgba(255,255,255,0.05);
+}
+.review-change-fallback{
+  width:52px;height:52px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;
+  background:rgba(96,165,250,0.40);border:1px solid rgba(96,165,250,0.55);
+  box-shadow:0 4px 12px rgba(0,0,0,0.30);
+}
+.review-change-fallback.is-purple{background:rgba(138,92,255,0.40);border-color:rgba(138,92,255,0.55);}
+.review-change-fallback.is-green {background:rgba(52,211,153,0.40); border-color:rgba(52,211,153,0.55);}
+.review-change-fallback.is-blue  {background:rgba(96,165,250,0.40); border-color:rgba(96,165,250,0.55);}
+.review-change-fallback.is-amber {background:rgba(245,158,11,0.40); border-color:rgba(245,158,11,0.55);}
+.review-change-fallback.is-red   {background:rgba(239,68,68,0.40);  border-color:rgba(239,68,68,0.55);}
+.review-change-fallback .lucide{width:24px;height:24px;stroke-width:1.75;}
+.review-change-body{flex:1;min-width:0;}
+.review-change-track{
+  font-size:13px;font-weight:700;color:#fff;
+  text-transform:uppercase;letter-spacing:0.05em;line-height:1.25;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.review-change-event{font-size:12px;color:rgba(255,255,255,0.72);line-height:1.3;margin-top:3px;}
+.review-change-meta{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted-2);letter-spacing:0.04em;margin-top:3px;}
+
+/* ── Section 7 — Actions Required ───────────────────────────────────── */
+.review-actions-empty{
+  display:flex;align-items:center;gap:14px;
+  padding:18px 20px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(52,211,153,0.16),rgba(52,211,153,0.05));
+  border:1px solid rgba(52,211,153,0.40);
+}
+.review-actions-empty-dot{
+  width:10px;height:10px;border-radius:50%;background:#34d399;
+  box-shadow:0 0 10px rgba(52,211,153,0.70);
+  animation:tb-status-pulse 2.4s infinite;
+}
+.review-actions-empty-label{
+  font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:0.14em;
+  color:#34d399;
+}
+.review-actions-list{display:flex;flex-direction:column;gap:10px;}
+.review-action-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:14px 16px;border-radius:8px;
+  background:rgba(239,68,68,0.05);
+  border-left:3px solid var(--red);
+}
+.review-action-priority{
+  font-family:'Space Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--red);flex-shrink:0;
+  padding:3px 8px;border-radius:4px;
+  background:rgba(239,68,68,0.15);
+  margin-top:2px;
+}
+.review-action-body{flex:1;min-width:0;}
+.review-action-title{font-size:13px;font-weight:600;color:#fff;line-height:1.35;}
+.review-action-detail{font-size:11px;color:rgba(255,255,255,0.70);margin-top:5px;line-height:1.5;}
+
+/* ── Section 8 — Monitoring Status ──────────────────────────────────── */
+.review-monitoring-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:11px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.review-monitoring-row:last-child{border-bottom:none;}
+.review-monitoring-k{
+  font-family:'Space Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;
+  color:var(--muted-2);
+}
+.review-monitoring-v{font-size:13px;color:#fff;font-weight:600;}
+.review-monitoring-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 10px;border-radius:999px;
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;
+}
+.review-monitoring-pill.is-on{
+  background:rgba(45,212,191,0.14);color:var(--teal-2);
+  border:1px solid rgba(45,212,191,0.40);
+}
+.review-monitoring-pill.is-off{
+  background:rgba(245,158,11,0.14);color:var(--amb);
+  border:1px solid rgba(245,158,11,0.40);
+}
+
+/* iOS install hint dialog (shared with dashboard) */
+.mc-install-hint{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.70);z-index:9999;align-items:center;justify-content:center;padding:20px;}
+.mc-install-hint.is-open{display:flex;}
+.mc-install-hint-inner{max-width:360px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.50);}
+.mc-install-hint-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:10px;line-height:1.3;}
+.mc-install-hint-body{font-size:13px;color:var(--text-2);line-height:1.5;margin-bottom:16px;}
+.mc-install-hint-body strong{color:#fff;font-weight:600;}
+.mc-install-hint-close{padding:8px 18px;border-radius:8px;background:var(--pur);color:#fff;border:none;font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;font-family:inherit;}
+.mc-install-hint-close:hover{background:var(--pur-2);}
+
+/* Lucide sizing */
+.lucide{width:1em;height:1em;display:inline-block;vertical-align:middle;stroke-width:2;}
+.sb-nav-item .lucide{width:18px;height:18px;}
+.sb-fa-hd .lucide{width:12px;height:12px;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ─── TOP BAR ─────────────────────────────────────────────────── -->
+  <header class="topbar" id="mc-topbar">
+    <div class="topbar-left">
+      <div class="tb-artist-name" id="tb-artist-name">—</div>
+      <div class="tb-status">
+        <span class="mc-live-dot">● LIVE</span>
+        <span class="tb-status-dot" id="tb-status-dot"></span>
+        <span class="tb-status-label" id="tb-status-label">—</span>
+      </div>
+      <div class="tb-stats" id="tb-stats">
+        <span class="tb-stat">Health Score: <span class="tb-stat-v" id="tb-stat-health">—</span></span>
+        <span class="tb-stat-sep">·</span>
+        <span class="tb-stat">Monitoring: <span class="tb-stat-v" id="tb-stat-monitoring">—</span></span>
+        <span class="tb-stat-sep">·</span>
+        <span class="tb-stat">Changes Detected: <span class="tb-stat-v" id="tb-stat-changes">—</span></span>
+        <span class="tb-stat-sep">·</span>
+        <span class="tb-stat">Confidence: <span class="tb-stat-v" id="tb-stat-confidence">—</span></span>
+        <span class="tb-stat-sep">·</span>
+        <span class="tb-stat"><span class="tb-stat-lbl is-gold">Opportunity Signals:</span> <span class="tb-stat-v is-gold" id="tb-stat-revenue">0</span></span>
+      </div>
+      <div class="tb-last-scan-line">Last Scan: <span id="tb-last-scan">—</span></div>
+    </div>
+    <div class="topbar-right">
+      <button type="button" class="tb-install-btn" id="mc-install-btn">
+        <i data-lucide="download"></i>
+        Install App
+      </button>
+      <a href="/" class="tb-scan-btn">
+        <i data-lucide="play"></i>
+        Run New Scan
+      </a>
+    </div>
+  </header>
+
+  <div class="grid-row">
+
+    <!-- ─── SIDEBAR ─────────────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sb-logo">
+        <div class="sb-logo-mark">ROYALT<span class="em">Ē</span></div>
+        <div class="sb-logo-tag">Mission Control</div>
+      </div>
+      <nav class="sb-nav">
+        <a class="sb-nav-item" data-nav="mission-control" href="/dashboard.html">
+          <i data-lucide="layout-dashboard"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Mission Control</div>
+            <div class="sb-nav-sub">Overview &amp; Health</div>
+          </div>
+        </a>
+        <a class="sb-nav-item" data-nav="action-center" href="/dashboard.html#card-action">
+          <i data-lucide="shield-alert"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Action Center</div>
+            <div class="sb-nav-sub">Tasks &amp; Alerts</div>
+          </div>
+        </a>
+        <a class="sb-nav-item" data-nav="catalog" href="/dashboard.html#card-catalog">
+          <i data-lucide="disc-3"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Catalog</div>
+            <div class="sb-nav-sub">Your Music Map</div>
+          </div>
+        </a>
+        <a class="sb-nav-item is-active" data-nav="reviews" href="/review.html">
+          <i data-lucide="file-text"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Reviews</div>
+            <div class="sb-nav-sub">Baseline &amp; History</div>
+          </div>
+        </a>
+        <a class="sb-nav-item" data-nav="intelligence-network" href="/dashboard.html#intelligence-network">
+          <i data-lucide="database"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Intelligence Network</div>
+            <div class="sb-nav-sub">Verification &amp; Coverage</div>
+          </div>
+        </a>
+        <a class="sb-nav-item" data-nav="settings" href="/dashboard.html#settings">
+          <i data-lucide="settings"></i>
+          <div class="sb-nav-text">
+            <div class="sb-nav-label">Settings</div>
+            <div class="sb-nav-sub">Account &amp; Preferences</div>
+          </div>
+        </a>
+      </nav>
+      <div class="sb-spacer"></div>
+      <div class="sb-fa" id="sb-fa" style="display:none;">
+        <div class="sb-fa-hd">
+          <i data-lucide="badge-check"></i>
+          <span class="sb-fa-eyebrow">Founding Artist</span>
+          <span class="sb-fa-num" id="sb-fa-num"></span>
+        </div>
+        <div class="sb-fa-line1">Lifetime Access</div>
+        <div class="sb-fa-line2" id="sb-fa-since">Member Since —</div>
+      </div>
+      <div class="sb-foot">
+        <span id="sb-version" title="Mission Control build version">MC v—</span>
+        <button type="button" id="sign-out-btn">Sign out</button>
+      </div>
+    </aside>
+
+    <!-- ─── MAIN ─────────────────────────────────────────────────── -->
+    <main class="main">
+      <div class="review-main">
+
+        <!-- Breadcrumb -->
+        <div class="review-crumbs">
+          <a href="/dashboard.html">Mission Control</a>
+          <span class="review-crumbs-sep">/</span>
+          <span class="review-crumbs-current">Royaltē Review</span>
+        </div>
+
+        <!-- SECTION 1 — Header -->
+        <section class="review-section">
+          <div class="review-card review-header" id="review-header">
+            <div class="review-header-artist" id="review-artist">—</div>
+            <div class="review-header-meta">
+              <span>Health Score: <span class="review-header-score" id="review-score">—</span></span>
+              <span class="review-header-meta-sep">·</span>
+              <span>Status: <span class="review-header-band" id="review-band">—</span></span>
+              <span class="review-header-meta-sep">·</span>
+              <span>Last Review: <span class="review-header-last" id="review-last">—</span></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION 2 — Royaltē Assessment -->
+        <section class="review-section">
+          <div class="review-section-title">Royaltē Assessment</div>
+          <div class="review-card">
+            <p class="review-assessment-body" id="review-assessment">—</p>
+          </div>
+        </section>
+
+        <!-- SECTION 3 — Royaltē Confidence -->
+        <section class="review-section">
+          <div class="review-section-title">Royaltē Confidence</div>
+          <div class="review-card">
+            <div class="review-confidence">
+              <div class="review-confidence-headline">
+                <div class="review-confidence-level" id="review-conf-level">—</div>
+                <div class="review-confidence-sub" id="review-conf-sub">Confidence Level</div>
+              </div>
+              <div class="review-confidence-list" id="review-conf-list">
+                <!-- populated by review.js -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION 4 — Opportunity Signals -->
+        <section class="review-section">
+          <div class="review-section-title">Opportunity Signals</div>
+          <div class="review-card" id="review-opportunity">
+            <p class="review-opportunity-empty">Loading…</p>
+          </div>
+        </section>
+
+        <!-- SECTION 5 — Backend Highlights -->
+        <section class="review-section">
+          <div class="review-section-title">Backend Highlights</div>
+          <div class="review-card">
+            <div class="review-highlights-list" id="review-highlights"></div>
+          </div>
+        </section>
+
+        <!-- SECTION 6 — What Changed -->
+        <section class="review-section">
+          <div class="review-section-title">Since Your Last Review</div>
+          <div class="review-card" id="review-changes">
+            <p class="review-changes-empty">Loading…</p>
+          </div>
+        </section>
+
+        <!-- SECTION 7 — Actions Required -->
+        <section class="review-section">
+          <div class="review-section-title">Actions Required</div>
+          <div class="review-card" id="review-actions">
+            <!-- populated by review.js -->
+          </div>
+        </section>
+
+        <!-- SECTION 8 — Monitoring Status -->
+        <section class="review-section">
+          <div class="review-section-title">Monitoring Status</div>
+          <div class="review-card">
+            <div class="review-monitoring-row">
+              <span class="review-monitoring-k">Monitoring</span>
+              <span class="review-monitoring-pill is-on" id="review-mon-pill">Active</span>
+            </div>
+            <div class="review-monitoring-row">
+              <span class="review-monitoring-k">Last Scan</span>
+              <span class="review-monitoring-v" id="review-mon-last">—</span>
+            </div>
+            <div class="review-monitoring-row">
+              <span class="review-monitoring-k">Next Review</span>
+              <span class="review-monitoring-v" id="review-mon-next">—</span>
+            </div>
+            <div class="review-monitoring-row">
+              <span class="review-monitoring-k">Days Protected</span>
+              <span class="review-monitoring-v" id="review-mon-days">—</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script type="module" src="/js/review.js"></script>
+<script>if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();</script>
+<script src="/js/pwa-install.js"></script>
+</body>
+</html>
