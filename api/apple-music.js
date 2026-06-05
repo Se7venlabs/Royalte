@@ -142,13 +142,18 @@ async function searchTrack(trackName, artistName) {
       return { found: false, trackName, artistName };
     }
 
-    // Try to find exact or close match
-    const match =
-      songs.find(
-        (s) =>
-          s.attributes?.name?.toLowerCase() === trackName.toLowerCase() &&
-          s.attributes?.artistName?.toLowerCase().includes(artistName.toLowerCase())
-      ) || songs[0];
+    // 2026-06-05 identity-lock — strict exact-match only. Previously
+    // `|| songs[0]` would substitute the top Apple search result if no
+    // exact match existed, returning a different track's ISRC/album/etc.
+    const match = songs.find(
+      (s) =>
+        s.attributes?.name?.toLowerCase() === trackName.toLowerCase() &&
+        s.attributes?.artistName?.toLowerCase().includes(artistName.toLowerCase())
+    ) || null;
+    if (!match) {
+      console.log(`[identity] Apple searchTrack: ${songs.length} candidates for "${trackName}" by "${artistName}" but no exact match — skipping`);
+      return { found: false, trackName, artistName, reason: 'no_exact_match' };
+    }
 
     return {
       found: true,
