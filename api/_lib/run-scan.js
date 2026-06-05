@@ -83,6 +83,7 @@ export async function runScan(url) {
   if (!resolved.artistId) {
     let appleAlbums = [];
     let appleEarliestYear = null;
+    let appleStorefrontAvailability = null;
     if (resolved.appleArtistId) {
       try {
         appleAlbums = await getArtistAlbums(resolved.appleArtistId, resolved.appleStorefront || 'us');
@@ -91,6 +92,23 @@ export async function runScan(url) {
           .filter(y => /^\d{4}$/.test(y))
           .map(y => parseInt(y, 10));
         if (years.length) appleEarliestYear = Math.min(...years);
+
+        // 2026-06-05 — same BIG-8 storefront probe the happy path does
+        // (run-scan.js:719). Without this, MC's Global Presence card
+        // renders 0/8 for Apple-only artists even when their catalog is
+        // available across multiple regions. Failure is non-fatal: leave
+        // storefrontAvailability null and let the card render the empty
+        // state.
+        const albumIds = appleAlbums.map(a => a.id).filter(Boolean);
+        if (albumIds.length) {
+          try {
+            const appleToken = generateAppleToken();
+            const headers = { Authorization: `Bearer ${appleToken}` };
+            appleStorefrontAvailability = await checkStorefrontAvailability(albumIds, headers);
+          } catch (sfErr) {
+            console.warn(`[apple-degraded] checkStorefrontAvailability failed: ${sfErr.message}`);
+          }
+        }
       } catch (err) {
         console.warn(`[apple-degraded] getArtistAlbums failed for ${resolved.appleArtistId}: ${err.message}`);
       }
@@ -151,7 +169,7 @@ export async function runScan(url) {
         genres:     [],
         albumCount: appleAlbums.length,
         albums:     appleAlbums,
-        storefrontAvailability: null,
+        storefrontAvailability: appleStorefrontAvailability,
         isrcLookup: null,
         catalogComparison: null,
       },

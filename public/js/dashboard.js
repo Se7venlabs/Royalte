@@ -28,7 +28,7 @@ import { getSupabase } from '/js/supabase-client.js';
 // they're running. Bump on every deploy that should force installed
 // PWAs to update (the SW_VERSION in /sw.js should be bumped in lock-
 // step so the controllerchange auto-reload fires on next open).
-const MC_VERSION = '1.0.3';
+const MC_VERSION = '1.0.4';
 
 /* ─────────────────────────────────────────────
    HELPERS
@@ -275,27 +275,75 @@ function _titleCase(s) {
    LOADERS — preserved + new
    ───────────────────────────────────────────── */
 
+// 2026-06-05 fresh-data-source — Mission Control now returns whichever
+// of the user's most recent scan_snapshots OR audit_scans row is newer.
+//
+// Previously the function preferred ANY scan_snapshots row over audit_scans
+// with no timestamp comparison, which made post-PR-#104 Apple-only scans
+// invisible: those scans write to audit_scans (V1) but cannot write to
+// scan_snapshots (V2) because persistOSScanSnapshot requires a Spotify
+// artist_id. Any stale snapshot from a prior scan therefore shadowed the
+// fresh V1 row.
+//
+// New behavior: query both tables in parallel, compare timestamps, return
+// whichever was most recently captured. V1 audit_scans rows are normalized
+// into the V2 snapshot shape via _auditScanAsSnapshot so renderers stay
+// unaware of the source. loadScanHistory is unchanged (still V2-only) —
+// historical chart / Days Protected continue to reflect the monitoring
+// timeline, while "latest scan" reflects what the user actually most
+// recently ran.
 async function loadLatestScan(supabase, userId) {
-  const { data: snapshots, error } = await supabase
-    .from('scan_snapshots')
-    .select('id, payload, created_at, sequence_number, health_score, score_breakdown, scanned_at, artist_id, artist_name')
-    .eq('user_id', userId)
-    .order('sequence_number', { ascending: false })
-    .limit(1);
-  if (error) console.error('[mc] snapshot fetch failed', error);
-  if (snapshots && snapshots.length) return snapshots[0];
+  const [snapsResp, scansResp] = await Promise.all([
+    supabase
+      .from('scan_snapshots')
+      .select('id, payload, created_at, sequence_number, health_score, score_breakdown, scanned_at, artist_id, artist_name')
+      .eq('user_id', userId)
+      .order('scanned_at', { ascending: false })
+      .limit(1),
+    supabase
+      .from('audit_scans')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1),
+  ]);
 
-  const { data: scans, error: scanErr } = await supabase
-    .from('audit_scans')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(1);
-  if (scanErr) {
-    console.error('[mc] scan fetch failed', scanErr);
-    return null;
-  }
-  return (scans && scans.length) ? scans[0] : null;
+  if (snapsResp.error) console.error('[mc] snapshot fetch failed', snapsResp.error);
+  if (scansResp.error) console.error('[mc] scan fetch failed', scansResp.error);
+
+  const snap = (snapsResp.data && snapsResp.data[0]) || null;
+  const scan = (scansResp.data && scansResp.data[0]) || null;
+
+  if (!snap && !scan) return null;
+  if (!snap) return _auditScanAsSnapshot(scan);
+  if (!scan) return snap;
+
+  const snapTime = new Date(snap.scanned_at || snap.created_at || 0).getTime();
+  const scanTime = new Date(scan.created_at || 0).getTime();
+  return snapTime >= scanTime ? snap : _auditScanAsSnapshot(scan);
+}
+
+// Normalize a V1 audit_scans row to the V2 scan_snapshots-shape the
+// renderers expect. health_score / score_breakdown / sequence_number are
+// null because V1 has no equivalent columns; downstream resolvers handle
+// null gracefully (_resolveHealthScoreFromSnapshot falls back to
+// payload.overallScore at dashboard.js:103). artist_id prefers Spotify ID
+// (the V2 canonical key) and falls back to Apple ID for Apple-only scans —
+// this means alert-feed queries scoped to that artist_id will return empty
+// for Apple-only scans, which is correct: no monitoring records exist yet.
+function _auditScanAsSnapshot(s) {
+  if (!s) return null;
+  return {
+    id:              s.id,
+    payload:         s.payload || null,
+    created_at:      s.created_at || null,
+    scanned_at:      s.created_at || null,
+    sequence_number: null,
+    health_score:    null,
+    score_breakdown: null,
+    artist_id:       s.spotify_artist_id || s.apple_artist_id || (s.payload && s.payload.subject && s.payload.subject.artistId) || null,
+    artist_name:     s.artist_name || (s.payload && s.payload.subject && s.payload.subject.artistName) || null,
+  };
 }
 
 async function loadProfile(supabase, userId) {
