@@ -28,7 +28,7 @@ import { getSupabase } from '/js/supabase-client.js';
 // they're running. Bump on every deploy that should force installed
 // PWAs to update (the SW_VERSION in /sw.js should be bumped in lock-
 // step so the controllerchange auto-reload fires on next open).
-const MC_VERSION = '1.0.4';
+const MC_VERSION = '1.0.5';
 
 /* ─────────────────────────────────────────────
    HELPERS
@@ -92,13 +92,43 @@ function relativeTimeShort(iso) {
   return `${Math.floor(ms / (30 * 864e5))}mo`;
 }
 
+// 2026-06-06 truthful-degraded-display — Apple-only scans (resolved by
+// run-scan.js's degraded path when no Spotify exact match exists) carry
+// truthful Apple catalog data but cannot be scored, monitored, or
+// cross-verified across platforms. Mission Control's renderers were
+// originally built assuming every scan was a Spotify-resolved V2
+// monitoring artifact; this helper lets each renderer branch into a
+// truthful "Unavailable / Apple-only" treatment instead of synthesizing
+// fake "Verified / 100 / Active" values from the V1 fallbacks.
+//
+// Canonical signal: appleMusic VERIFIED but spotify not. Robust across
+// both V1 audit_scans payloads (normalized canonical) and V2
+// scan_snapshots payloads. Returns false for legacy/Spotify-driven
+// scans so existing behavior is preserved.
+function _isDegradedScan(s) {
+  if (!s) return false;
+  const plats = s.payload && s.payload.platforms;
+  if (!plats) return false;
+  const appleOk = plats.appleMusic && plats.appleMusic.availability === 'VERIFIED';
+  const spotOk  = plats.spotify    && plats.spotify.availability    === 'VERIFIED';
+  return appleOk && !spotOk;
+}
+
 // Brief 015a Fix 1+2 — legacy-data graceful degradation. Prefers the
 // stored V2 health_score; falls back to (100 - V1 risk) for snapshots
 // that predate Brief 012a's V2 write path. Returns null (not 0) when
 // no usable signal exists — caller renders "—".
+//
+// 2026-06-06 truthful-degraded-display — also returns null for Apple-only
+// scans. The V1 fallback (100 - overallScore) previously synthesized
+// "100 Excellent" from the degraded path's overallScore=0, which is
+// mathematically the inversion but semantically misleading (Apple-only
+// scans cannot be scored because the scoring modules require Spotify
+// enrichment to run).
 function _resolveHealthScoreFromSnapshot(s) {
   if (!s) return null;
   if (typeof s.health_score === 'number') return s.health_score;
+  if (_isDegradedScan(s)) return null;
   const p = s.payload || {};
   if (typeof p.overallScore === 'number') {
     return clamp(100 - p.overallScore, 0, 100);
@@ -538,24 +568,45 @@ async function _loadBaselineTimes(supabase, userId, artistId) {
   } catch (e) { console.error('[mc] baseline times fetch failed', e); return []; }
 }
 
-async function loadMonitoringActive(supabase, userId) {
+// 2026-06-06 — artist-scoped. Previously this loader returned `active`
+// from ANY row on the user, which meant Card 2's "Monitoring Active"
+// tile + Card 6's Catalog Monitoring row showed green for the displayed
+// artist even when monitoring was only activated for a DIFFERENT artist
+// on the same account (e.g. the founder's demo-seed Black Alternative
+// subscription would light up regardless of what Mission Control was
+// currently displaying). Now requires both user_id AND artist_id to
+// match; returns false when artistId is null (Apple-only synthesized
+// snapshots whose artist_id is the Apple ID won't find a row keyed by
+// Spotify ID, which is correct — monitoring is not activated for them).
+async function loadMonitoringActive(supabase, userId, artistId) {
+  if (!artistId) return false;
   try {
     const { data, error } = await supabase
       .from('monitoring_subscriptions')
       .select('active')
       .eq('user_id', userId)
+      .eq('artist_id', artistId)
       .limit(1);
     if (error || !data || !data.length) return false;
     return data[0].active === true;
   } catch (e) { console.error('[mc] monitoring active fetch failed', e); return false; }
 }
 
-async function loadBaselinePdf(supabase, baselineSnapshot) {
-  if (!baselineSnapshot) return null;
+// 2026-06-06 — user + artist scoped. Previously this loader returned
+// the first ready PDF in audit_scans GLOBALLY (no user_id, no artist
+// filter), which under the no-RLS audit_scans configuration could
+// surface a different user's PDF or a different artist's PDF. Now
+// requires user_id match + scan-derived artist match. Uses
+// apple_artist_id for degraded scans, spotify_artist_id otherwise.
+async function loadBaselinePdf(supabase, userId, scan) {
+  if (!userId || !scan || !scan.artist_id) return null;
+  const idCol = _isDegradedScan(scan) ? 'apple_artist_id' : 'spotify_artist_id';
   try {
     const { data } = await supabase
       .from('audit_scans')
       .select('pdf_url, pdf_status, created_at')
+      .eq('user_id', userId)
+      .eq(idCol, scan.artist_id)
       .eq('pdf_status', 'ready')
       .order('created_at', { ascending: true })
       .limit(1);
@@ -647,6 +698,7 @@ function renderMcSidebar(profile) {
 // Card 9 in the same score family.
 function renderMcHealth(scan, history) {
   const current        = _resolveHealthScoreFromSnapshot(scan);
+  const degraded       = _isDegradedScan(scan);
   const baselineStored = (history && history.length > 0 && typeof history[0].health_score === 'number')
     ? history[0].health_score : null;
   const delta = (current != null && baselineStored != null) ? (current - baselineStored) : null;
@@ -657,9 +709,14 @@ function renderMcHealth(scan, history) {
   const descEl   = document.getElementById('mc-score-desc');
   const deltaEl  = document.getElementById('mc-score-delta');
   if (current == null) {
+    // 2026-06-06 — distinguish "Apple-only scan, cannot be scored" from
+    // "no scan yet". Health Score requires cross-platform enrichment that
+    // run-scan.js's degraded path doesn't run.
     if (numEl)  numEl.textContent = '—';
-    if (bandEl) bandEl.textContent = 'Awaiting first scan';
-    if (descEl) descEl.textContent = 'Your Health Score appears after your first scan.';
+    if (bandEl) bandEl.textContent = degraded ? 'Score unavailable' : 'Awaiting first scan';
+    if (descEl) descEl.textContent = degraded
+      ? 'Health Score requires cross-platform enrichment. This artist is on Apple Music only.'
+      : 'Your Health Score appears after your first scan.';
     if (deltaEl) { deltaEl.innerHTML = '<i data-lucide="minus"></i><span>—</span>'; _renderLucide(); }
     return;
   }
@@ -691,7 +748,9 @@ function renderMcHealth(scan, history) {
     bandEl.textContent = '';
     bandEl.classList.remove('band-excellent','band-strong','band-moderate','band-review');
   }
-  if (descEl) descEl.textContent = 'Your music business backend health, computed from verified sources.';
+  if (descEl) descEl.textContent = degraded
+    ? 'Apple Music–only scan. Cross-platform health monitoring requires Spotify enrichment.'
+    : 'Your music business backend health, computed from verified sources.';
 
   // Start the meter — the sweep + settle + infusion will eventually
   // call revealScore() and the deferred values land.
@@ -780,7 +839,7 @@ function renderMcBackendStatus({ monitoringActive, criticalCount, opportunitiesC
 //   [56×56 artwork OR fallback chip] | TRACK NAME (uppercase)
 //                                    | Event description
 //                                    | Context • Age
-function renderMcFeed(alertsRaw, baselineTimes, albums, currentArtistId) {
+function renderMcFeed(alertsRaw, baselineTimes, albums, currentArtistId, scan) {
   const list = document.getElementById('mc-feed-list');
   if (!list) return;
   // Defensive render-layer scope: even if a query returns alerts for a
@@ -793,7 +852,14 @@ function renderMcFeed(alertsRaw, baselineTimes, albums, currentArtistId) {
   const alerts = _filterBaselineArtifacts(scoped, baselineTimes).slice(0, 5);
 
   if (alerts.length === 0) {
-    list.innerHTML = `<div class="mc-feed-empty">Your backend is being watched. Royaltē will surface activity here as it's detected.</div>`;
+    // 2026-06-06 — Apple-only scans don't have active monitoring (the
+    // delta engine writes monitoring_alerts only when persistOSScanSnapshot
+    // succeeds, which requires a Spotify ID). The original copy implied
+    // active surveillance.
+    const emptyMsg = _isDegradedScan(scan)
+      ? 'Apple Music–only scan. Backend monitoring activates when this artist is matched on Spotify.'
+      : 'Your backend is being watched. Royaltē will surface activity here as it\'s detected.';
+    list.innerHTML = `<div class="mc-feed-empty">${escapeHtml(emptyMsg)}</div>`;
     return;
   }
   list.innerHTML = alerts.map((a) => {
@@ -836,6 +902,7 @@ function renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes) {
   const p = scan?.payload?.platforms || {};
   const sources = ['appleMusic','spotify','youtube','musicbrainz','discogs','lastfm']
     .filter(k => p[k]?.availability === 'VERIFIED').length;
+  const degraded = _isDegradedScan(scan);
   // Brief 015a-rev3 Fix 4 — baselineTimes passed in; exclude baseline
   // artifacts AND the baseline marker itself.
   const lastChangeAt = _lastGenuineChangeAt(feedAlerts, baselineTimes);
@@ -846,20 +913,29 @@ function renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes) {
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
   set('mc-cat-tracks',   tracks);
   set('mc-cat-releases', releases);
-  set('mc-cat-isrc',     isrcVerified ? 'Verified' : 'Pending verification');
+  // 2026-06-06 — degraded scans don't probe ISRC (lookupByISRC is gated on
+  // Spotify track context); show "Unavailable" instead of "Pending
+  // verification" which implies the probe is in flight.
+  set('mc-cat-isrc',     isrcVerified
+    ? 'Verified'
+    : (degraded ? 'Unavailable' : 'Pending verification'));
   set('mc-cat-sources',  `${sources} / 6`);
   set('mc-cat-last',     lastChange);
 
   // Brief 015m — gold accent on opportunity values. ISRC pending verification
   // and incomplete source coverage both represent revenue/opportunity
   // signals Royaltē surfaces to artists.
+  //
+  // 2026-06-06 — suppress the gold opportunity accent for degraded scans.
+  // For Apple-only artists these aren't actionable opportunities (the user
+  // can't make the scan less degraded); they're inherent to the scan type.
   const setOpportunity = (id, isOpp) => {
     const el = document.getElementById(id);
     if (!el) return;
     el.classList.toggle('is-opportunity', !!isOpp);
   };
-  setOpportunity('mc-cat-isrc',    !isrcVerified);
-  setOpportunity('mc-cat-sources', sources < 6);
+  setOpportunity('mc-cat-isrc',    !isrcVerified && !degraded);
+  setOpportunity('mc-cat-sources', sources < 6     && !degraded);
 }
 
 // CARD 5 — Action Center
@@ -915,26 +991,29 @@ function renderMcActionCenter({ items, totalCount }) {
 // intelligence outcomes, not implementation details. The internal
 // derivation from scan.payload.platforms.* is the only place the
 // source-to-outcome mapping lives.
-function renderMcIntelligenceConfidence(scan, profile) {
+function renderMcIntelligenceConfidence(scan, profile, monitoringActive) {
   const p = (scan && scan.payload && scan.payload.platforms) || {};
   const v = (k) => p[k]?.availability === 'VERIFIED';
   const conf = _confidenceLabelForScan(scan);
   const pct = (conf.count / conf.total) * 100;
+  const degraded = _isDegradedScan(scan);
 
   // Six outcome signals — what the artist cares about, not which APIs
   // power them. Each maps to one or more underlying VERIFIED platforms.
-  const streamingPresence    = (v('appleMusic') || v('spotify'))       ? 'verified' : 'pending';
-  const metadataVerification = (v('appleMusic') && v('spotify'))       ? 'verified' : 'pending';
-  const artistIdentity       = v('musicbrainz')                         ? 'verified' : 'pending';
-  const authoritySignals     = (v('discogs') || v('lastfm'))           ? 'verified' : 'pending';
+  const streamingVerified    = v('appleMusic') || v('spotify');
+  const metadataVerified     = v('appleMusic') && v('spotify');
+  const artistIdentityOk     = v('musicbrainz');
+  const authoritySignalsOk   = v('discogs') || v('lastfm');
 
   // Podcast Intelligence is subscription-gated. Founding artists +
   // paid tier qualify as monitoring subscribers; everyone else sees
-  // the upgrade nudge. Catalog Monitoring is always Active for any
-  // user reaching Mission Control (free tier already gets a scan).
+  // the upgrade nudge.
   const isMonitoring = !!(profile && (profile.founding_artist === true || profile.tier === 'paid'));
   const podcastIntelligence = isMonitoring ? 'active'  : 'locked';
-  const catalogMonitoring   = 'active';
+  // 2026-06-06 — Catalog Monitoring is now data-driven from
+  // loadMonitoringActive (artist-scoped). Was previously hardcoded
+  // 'active' regardless of actual monitoring state.
+  const catalogMonitoringActive = monitoringActive === true;
 
   const donut   = document.getElementById('mc-donut');
   const labelEl = document.getElementById('mc-donut-label');
@@ -950,13 +1029,27 @@ function renderMcIntelligenceConfidence(scan, profile) {
     el.textContent = label;
     el.className = `mc-intel-v is-${status}`;
   };
-  setRow('mc-intel-streaming', streamingPresence,    streamingPresence    === 'verified' ? 'Verified' : 'Pending');
-  setRow('mc-intel-metadata',  metadataVerification, metadataVerification === 'verified' ? 'Verified' : 'Pending');
-  setRow('mc-intel-identity',  artistIdentity,       artistIdentity       === 'verified' ? 'Verified' : 'Pending');
-  setRow('mc-intel-authority', authoritySignals,     authoritySignals     === 'verified' ? 'Verified' : 'Pending');
+  // 2026-06-06 — degraded-aware. "Pending" implies "will be filled in
+  // later"; for Apple-only artists the cross-platform probes were never
+  // run and never will be (until Phase 4). Show "Unavailable" instead.
+  const renderRow = (id, verified) => {
+    if (verified) {
+      setRow(id, 'verified', 'Verified');
+    } else {
+      setRow(id, 'pending', degraded ? 'Unavailable' : 'Pending');
+    }
+  };
+  renderRow('mc-intel-streaming', streamingVerified);
+  renderRow('mc-intel-metadata',  metadataVerified);
+  renderRow('mc-intel-identity',  artistIdentityOk);
+  renderRow('mc-intel-authority', authoritySignalsOk);
   setRow('mc-intel-podcast',   podcastIntelligence,
          podcastIntelligence === 'active' ? 'Active' : 'Monitoring Plan Required');
-  setRow('mc-intel-catalog',   catalogMonitoring,    'Active');
+  if (catalogMonitoringActive) {
+    setRow('mc-intel-catalog', 'active',  'Active');
+  } else {
+    setRow('mc-intel-catalog', 'pending', degraded ? 'Unavailable' : 'Pending');
+  }
 }
 
 // CARD 7 — Global Presence
@@ -1006,20 +1099,24 @@ function renderMcGlobalPresence(scan) {
 // The third cell now shows criticalCount (action-needed alerts) instead
 // of resolved count — matches the new "Actions Required" label
 // semantically (counting what NEEDS attention, not what's been done).
-function renderMcMonitoringOverview({ history, alertOverview, criticalCount }) {
+function renderMcMonitoringOverview({ history, alertOverview, criticalCount, scan }) {
   const daysEl     = document.getElementById('mc-ovr-days');
   const changesEl  = document.getElementById('mc-ovr-changes');
   const resolvedEl = document.getElementById('mc-ovr-resolved');
   if (!daysEl) return;
 
+  // 2026-06-06 — Apple-only scans have no V2 history (persistOSScanSnapshot
+  // gates writes on Spotify ID). Showing "Days Protected: 0" implies an
+  // outage; the truthful state is "monitoring not active for this artist."
+  const degraded = _isDegradedScan(scan);
   let days = 0;
   if (history && history.length > 0 && history[0].scanned_at) {
     const start = new Date(history[0].scanned_at).getTime();
     days = Math.max(1, Math.floor((Date.now() - start) / 864e5) + 1);
   }
-  daysEl.textContent = String(days);
-  if (changesEl)  changesEl.textContent  = String(alertOverview.total || 0);
-  if (resolvedEl) resolvedEl.textContent = String(criticalCount || 0);
+  daysEl.textContent = (degraded && days === 0) ? '—' : String(days);
+  if (changesEl)  changesEl.textContent  = (degraded && (alertOverview.total || 0) === 0) ? '—' : String(alertOverview.total || 0);
+  if (resolvedEl) resolvedEl.textContent = (degraded && (criticalCount    || 0) === 0) ? '—' : String(criticalCount    || 0);
 }
 
 // CARD 9 — Your Royaltē Review (Brief 015a Change 3, swapped to position 9)
@@ -1294,7 +1391,7 @@ async function init() {
 
   const [history, monitoringActive, baselineTimes] = await Promise.all([
     loadScanHistory(supabase, session.user.id, currentArtistId),
-    loadMonitoringActive(supabase, session.user.id),
+    loadMonitoringActive(supabase, session.user.id, currentArtistId),
     _loadBaselineTimes(supabase, session.user.id, currentArtistId),
   ]);
 
@@ -1320,7 +1417,7 @@ async function init() {
   // cover art per item; falls through to the colored-chip fallback
   // when no match exists (or no albums in the scan payload).
   const albums = scan?.payload?.platforms?.appleMusic?.details?.albums || [];
-  renderMcFeed(feedAlerts, baselineTimes, albums, currentArtistId);
+  renderMcFeed(feedAlerts, baselineTimes, albums, currentArtistId, scan);
 
   // Card 4 — Catalog Intelligence (uses scan + latest GENUINE change)
   renderMcCatalogIntelligence(scan, feedAlerts, baselineTimes);
@@ -1329,19 +1426,19 @@ async function init() {
   const actionItems = await loadActionItems(supabase, session.user.id, currentArtistId, 3);
   renderMcActionCenter({ items: actionItems, totalCount: criticalCount + opportunitiesCount });
 
-  // Card 6 — Intelligence Confidence
-  renderMcIntelligenceConfidence(scan, profile);
+  // Card 6 — Intelligence Confidence (monitoringActive drives Catalog Monitoring row)
+  renderMcIntelligenceConfidence(scan, profile, monitoringActive);
 
   // Card 7 — Global Presence
   renderMcGlobalPresence(scan);
 
   // Card 8 — Monitoring Overview (moved up per Brief 015a Change 4)
   const alertOverview = await loadAlertOverview(supabase, session.user.id, currentArtistId);
-  renderMcMonitoringOverview({ history, alertOverview, criticalCount });
+  renderMcMonitoringOverview({ history, alertOverview, criticalCount, scan });
 
   // Card 9 — Your Royaltē Review (moved down, renamed per Brief 015a Change 3 + 4)
   const baseline = (history && history.length > 0) ? history[0] : null;
-  const baselinePdfUrl = await loadBaselinePdf(supabase, baseline);
+  const baselinePdfUrl = await loadBaselinePdf(supabase, session.user.id, scan);
   const confidence = _confidenceLabelForScan(baseline || scan);
   renderMcYourReview({ baseline, currentScan: scan, pdfUrl: baselinePdfUrl, confidenceLabel: confidence.label });
 
