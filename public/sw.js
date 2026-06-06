@@ -20,7 +20,7 @@
 // the moment a user opens the installed app after a deploy.
 // ─────────────────────────────────────────────────────────────────────────
 
-const SW_VERSION = '1.0.4';
+const SW_VERSION = '1.0.5';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
