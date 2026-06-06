@@ -95,7 +95,28 @@ export async function runScan(url) {
   // populating resolved.artistId when cross-discovery succeeds.
   if (!resolved.artistId && resolved.trackIsrc) {
     const discovered = await discoverSpotifyByIsrc(resolved.trackIsrc, token);
-    if (discovered) resolved.artistId = discovered;
+    if (discovered) {
+      // Name-verification gate — closes the featured-artist /
+      // collaboration-order / duplicate-ISRC edge cases where
+      // track.artists[0] from the ISRC lookup could be a co-credit
+      // rather than the artist Apple resolved. Preserves PR #103's
+      // "wrong artist never allowed" rule along this new pathway:
+      // require the discovered Spotify artist's name to normalize-match
+      // Apple's canonical. On mismatch (or any error fetching the
+      // verification artist), fall through to the existing degraded
+      // path with Apple identity preserved.
+      try {
+        const verifyArtist = await getSpotifyArtist(discovered, token);
+        const norm = s => (s || '').toLowerCase().trim();
+        if (verifyArtist && norm(verifyArtist.name) === norm(resolved.artistName)) {
+          resolved.artistId = discovered;
+        } else {
+          console.log(`[scan] ISRC discovery name verification FAILED — Apple="${resolved.artistName}" vs Spotify="${verifyArtist?.name || '?'}". Falling through to degraded path.`);
+        }
+      } catch (verifyErr) {
+        console.warn(`[scan] ISRC discovery verification fetch threw: ${verifyErr.message}`);
+      }
+    }
   }
 
   // ── DEGRADED PATH: Apple input with no Spotify match ────
