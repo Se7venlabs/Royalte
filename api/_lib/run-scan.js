@@ -68,6 +68,36 @@ export async function runScan(url) {
     throw e;
   }
 
+  // 2026-06-06 scan-engine-converge — single divergence fix.
+  //
+  // The Apple-input degraded path below was the entire architectural
+  // divergence between Apple URL and Spotify URL scans. It fires when
+  // resolveToArtist couldn't find a Spotify match for the Apple-resolved
+  // artist name (strict exact-match from PR #103), causing the entire
+  // universal enrichment pipeline to be skipped.
+  //
+  // Fix: before the short-circuit, attempt ISRC-based Spotify discovery.
+  // ISRC is a globally-unique track identifier; every Apple song URL
+  // carries one. Querying Spotify with q=isrc:XYZ returns the exact
+  // corresponding Spotify track, whose artists[0].id is the same artist
+  // with bit-perfect cross-platform identity guarantee.
+  //
+  // For artists like "Black Alternative" whose Spotify search ranking
+  // doesn't surface them in top-5 for a generic-sounding query, ISRC
+  // lookup succeeds where name search fails. Path A (full enrichment)
+  // then runs identically to the Spotify URL pipeline.
+  //
+  // For genuinely Apple-only artists (no Spotify entry → ISRC search
+  // returns no track), discovery returns null, the short-circuit fires
+  // exactly as today, and PR #104/#105's Apple-only path stands.
+  //
+  // NO existing code path changes. The minimum-surface intervention is
+  // populating resolved.artistId when cross-discovery succeeds.
+  if (!resolved.artistId && resolved.trackIsrc) {
+    const discovered = await discoverSpotifyByIsrc(resolved.trackIsrc, token);
+    if (discovered) resolved.artistId = discovered;
+  }
+
   // ── DEGRADED PATH: Apple input with no Spotify match ────
   // Per spec: DO NOT fail the scan. Return a success payload with artistName
   // from Apple and followers = -1 so the UI shows "Fans on streaming
@@ -559,6 +589,36 @@ async function getSpotifyAlbum(id, token) {
   });
   if (!resp.ok) throw new Error(`Spotify album fetch failed: ${resp.status}`);
   return resp.json();
+}
+
+// 2026-06-06 scan-engine-converge — cross-platform identifier discovery
+// via ISRC. ISRC is a globally unique track identifier; every Apple Music
+// song URL carries one. Querying Spotify with q=isrc:XYZ returns the
+// exact corresponding Spotify track → track.artists[0].id is the artist
+// on Spotify with bit-perfect cross-platform identity guarantee. This is
+// the reliable bridge that succeeds where strict name search fails for
+// artists whose Spotify search ranking doesn't surface them in top-5.
+// Returns null on any failure — caller falls through to the existing
+// Apple-only degraded path, no behavior change for true Apple-only artists.
+async function discoverSpotifyByIsrc(isrc, token) {
+  if (!isrc) return null;
+  try {
+    const resp = await fetch(
+      `https://api.spotify.com/v1/search?q=isrc:${encodeURIComponent(isrc)}&type=track&limit=1`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const track = data?.tracks?.items?.[0];
+    const artistId = track?.artists?.[0]?.id || null;
+    if (artistId) {
+      console.log(`[scan] discovered Spotify artist ${artistId} via ISRC ${isrc} (track: "${track.name}")`);
+    }
+    return artistId;
+  } catch (e) {
+    console.warn(`[scan] discoverSpotifyByIsrc threw for ${isrc}: ${e.message}`);
+    return null;
+  }
 }
 
 // 2026-06-05 identity-lock — strict exact match only. If no Spotify artist
