@@ -1531,11 +1531,11 @@ body.menu-locked {
 .audit-result-pointer{display:none;padding:12px 16px;background:rgba(64,240,160,0.06);border:1px solid rgba(64,240,160,0.25);border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--grn);text-align:center;font-weight:600;margin-top:18px;letter-spacing:0.02em;}
 .audit-result-pointer.is-shown{display:block;}
 
-.vs-result-section{background:var(--bg);padding:48px 24px 64px;border-top:1px solid var(--border2);}
-.vs-result-inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:24px;}
+.vs-result-section{background:var(--bg);padding:64px 24px 80px;border-top:1px solid var(--border2);}
+.vs-result-inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:32px;}
 
 /* Result hero card */
-.vs-result-hero{display:grid;grid-template-columns:260px 1fr;gap:28px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:24px;align-items:stretch;}
+.vs-result-hero{display:grid;grid-template-columns:220px 1fr;gap:28px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:24px;align-items:stretch;}
 .vs-result-art{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:linear-gradient(135deg,#3a1a5a 0%,#1a0f30 100%);display:flex;align-items:center;justify-content:center;}
 .vs-result-art img{width:100%;height:100%;object-fit:cover;display:none;}
 .vs-result-art img.is-loaded{display:block;}
@@ -1550,12 +1550,12 @@ body.menu-locked {
 .vs-result-line{font-size:14px;color:var(--text2);line-height:1.55;margin:0;}
 .vs-result-line strong{color:var(--text);font-weight:600;}
 .vs-divider{height:1px;background:var(--border2);}
-.vs-health{display:flex;flex-direction:column;gap:12px;}
+.vs-health{display:flex;flex-direction:column;gap:18px;}
 .vs-health-label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase;}
-.vs-health-row{display:grid;grid-template-columns:140px 1fr;gap:24px;align-items:center;}
+.vs-health-row{display:grid;grid-template-columns:160px 1fr;gap:32px;align-items:center;}
 .vs-health-num-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:2px;}
-.vs-health-num{font-family:'Rajdhani',sans-serif;font-size:64px;font-weight:700;line-height:1;color:var(--grn);}
-.vs-health-band{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;color:var(--grn);text-transform:uppercase;}
+.vs-health-num{font-family:'Rajdhani',sans-serif;font-size:80px;font-weight:700;line-height:1;color:var(--grn);}
+.vs-health-band{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.15em;color:var(--grn);text-transform:uppercase;margin-top:4px;}
 .vs-health-num.is-warning,.vs-health-band.is-warning{color:var(--amb);}
 .vs-health-num.is-atrisk,.vs-health-band.is-atrisk{color:#e08858;}
 .vs-health-num.is-danger,.vs-health-band.is-danger{color:var(--red);}
@@ -1568,7 +1568,7 @@ body.menu-locked {
 
 /* Two-card row */
 .vs-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-.vs-card{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:22px 24px;display:flex;flex-direction:column;gap:14px;}
+.vs-card{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:14px;}
 .vs-card-hd{display:flex;align-items:center;gap:10px;}
 .vs-card-icon{width:30px;height:30px;border-radius:7px;background:rgba(138,92,255,0.12);border:1px solid rgba(138,92,255,0.30);display:flex;align-items:center;justify-content:center;color:var(--pur);font-size:14px;}
 .vs-card h3{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--text);letter-spacing:0.10em;text-transform:uppercase;margin:0;}
@@ -1598,7 +1598,7 @@ body.menu-locked {
 .vs-card-link:hover{color:var(--text);}
 
 /* Save Your Scan */
-.vs-save{position:relative;background:linear-gradient(135deg,rgba(138,92,255,0.06) 0%,rgba(224,64,200,0.04) 100%);border:1px solid rgba(138,92,255,0.30);border-radius:12px;padding:32px;display:grid;grid-template-columns:120px 1fr 1fr;gap:24px;align-items:start;}
+.vs-save{position:relative;background:linear-gradient(135deg,rgba(138,92,255,0.06) 0%,rgba(224,64,200,0.04) 100%);border:1px solid rgba(138,92,255,0.30);border-radius:12px;padding:40px;display:grid;grid-template-columns:120px 1fr 1fr;gap:24px;align-items:start;}
 .vs-save-lock{position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center;color:var(--pur);}
 .vs-lock-glow{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(138,92,255,0.18) 0%,transparent 70%);border:1px solid rgba(138,92,255,0.35);}
 .vs-save-lock svg{position:relative;z-index:1;width:38px;height:38px;}
@@ -1850,7 +1850,7 @@ body.menu-locked {
       </defs>
       <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
       <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
-      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC BACKEND INTELLIGENCE™</text>
     </svg>
     <svg class="nav-logo nav-logo-mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
       <text x="20" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
@@ -2094,7 +2094,7 @@ body.menu-locked {
               </div>
             </div>
           </div>
-          <p class="vs-health-desc">Royaltē verified your music business across our music ecosystems and identified opportunities to strengthen your backend infrastructure.</p>
+          <p class="vs-health-desc">Royaltē analyzed your public music infrastructure and identified opportunities to strengthen your Music Backend Intelligence™.</p>
         </div>
       </div>
     </div>
@@ -2162,8 +2162,8 @@ body.menu-locked {
       </div>
       <div class="vs-save-body">
         <h3>Save Your Scan</h3>
-        <p class="vs-save-lead">This scan only shows part of the picture.</p>
-        <p class="vs-save-lead-2">Unlock your FREE Executive Brief™ and continue inside your personal Mission Control™.</p>
+        <p class="vs-save-lead">Royaltē found additional Music Backend Intelligence™ for your catalog.</p>
+        <p class="vs-save-lead-2">Save your scan to unlock it.</p>
       </div>
       <div class="vs-save-unlock">
         <p class="vs-unlock-hd">Unlock:</p>
