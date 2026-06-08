@@ -1522,6 +1522,123 @@ body.menu-locked {
 .os-cta-card .os-fa-counter-value{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;}
 .bi-os-cta:disabled{opacity:0.5;cursor:not-allowed;}
 
+/* ═══════════════════════════════════════════════════════════════════
+   V1 SCAN EXPERIENCE — locked layout (2026-06-08)
+   Source of truth: approved Front Scan mockup.
+   Replaces the post-scan Royaltē OS / Founding Artist conversion block.
+   Render flow: scan → Executive Brief → magic link → Mission Control.
+   ═══════════════════════════════════════════════════════════════════ */
+.audit-result-pointer{display:none;padding:12px 16px;background:rgba(64,240,160,0.06);border:1px solid rgba(64,240,160,0.25);border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--grn);text-align:center;font-weight:600;margin-top:18px;letter-spacing:0.02em;}
+.audit-result-pointer.is-shown{display:block;}
+
+.vs-result-section{background:var(--bg);padding:48px 24px 64px;border-top:1px solid var(--border2);}
+.vs-result-inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:24px;}
+
+/* Result hero card */
+.vs-result-hero{display:grid;grid-template-columns:260px 1fr;gap:28px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:24px;align-items:stretch;}
+.vs-result-art{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:linear-gradient(135deg,#3a1a5a 0%,#1a0f30 100%);display:flex;align-items:center;justify-content:center;}
+.vs-result-art img{width:100%;height:100%;object-fit:cover;display:none;}
+.vs-result-art img.is-loaded{display:block;}
+.vs-result-art #vs-art-fallback{font-family:'Rajdhani',sans-serif;font-size:64px;font-weight:700;color:rgba(255,255,255,0.4);}
+.vs-result-art #vs-art-fallback.is-hidden{display:none;}
+.vs-result-body{display:flex;flex-direction:column;gap:14px;min-width:0;}
+.vs-result-top{display:flex;flex-direction:column;gap:6px;}
+.vs-pill-complete{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.12em;color:var(--grn);background:rgba(64,240,160,0.08);border:1px solid rgba(64,240,160,0.35);padding:4px 10px;border-radius:4px;text-transform:uppercase;}
+.vs-pill-complete::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--grn);box-shadow:0 0 8px var(--grn);}
+.vs-result-artist{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;color:var(--text);letter-spacing:0.02em;line-height:1.1;margin:6px 0 0;text-transform:uppercase;}
+.vs-result-genre{font-family:'Space Mono',monospace;font-size:11px;color:var(--pur);letter-spacing:0.08em;margin:0;text-transform:uppercase;}
+.vs-result-line{font-size:14px;color:var(--text2);line-height:1.55;margin:0;}
+.vs-result-line strong{color:var(--text);font-weight:600;}
+.vs-divider{height:1px;background:var(--border2);}
+.vs-health{display:flex;flex-direction:column;gap:12px;}
+.vs-health-label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase;}
+.vs-health-row{display:grid;grid-template-columns:140px 1fr;gap:24px;align-items:center;}
+.vs-health-num-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:2px;}
+.vs-health-num{font-family:'Rajdhani',sans-serif;font-size:64px;font-weight:700;line-height:1;color:var(--grn);}
+.vs-health-band{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;color:var(--grn);text-transform:uppercase;}
+.vs-health-num.is-warning,.vs-health-band.is-warning{color:var(--amb);}
+.vs-health-num.is-atrisk,.vs-health-band.is-atrisk{color:#e08858;}
+.vs-health-num.is-danger,.vs-health-band.is-danger{color:var(--red);}
+.vs-health-bar-wrap{display:flex;flex-direction:column;gap:6px;}
+.vs-health-bar{position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,#f05060 0%,#f0c040 35%,#a8d040 60%,#40f0a0 100%);overflow:visible;}
+.vs-health-bar-track{position:absolute;inset:0;border-radius:4px;background:rgba(255,255,255,0.06);}
+.vs-health-marker{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--bg);box-shadow:0 0 0 1px rgba(255,255,255,0.45);transform:translate(-50%,-50%);transition:left 0.8s ease;}
+.vs-health-bar-scale{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.04em;padding:0 2px;}
+.vs-health-desc{font-size:13px;color:var(--text2);line-height:1.55;margin:4px 0 0;}
+
+/* Two-card row */
+.vs-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.vs-card{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:22px 24px;display:flex;flex-direction:column;gap:14px;}
+.vs-card-hd{display:flex;align-items:center;gap:10px;}
+.vs-card-icon{width:30px;height:30px;border-radius:7px;background:rgba(138,92,255,0.12);border:1px solid rgba(138,92,255,0.30);display:flex;align-items:center;justify-content:center;color:var(--pur);font-size:14px;}
+.vs-card h3{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--text);letter-spacing:0.10em;text-transform:uppercase;margin:0;}
+
+/* Findings card */
+.vs-findings-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.vs-finding{display:grid;grid-template-columns:32px 1fr 16px;gap:12px;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;}
+.vs-finding-icon{width:32px;height:32px;border-radius:50%;background:rgba(138,92,255,0.10);border:1px solid rgba(138,92,255,0.30);display:flex;align-items:center;justify-content:center;color:var(--pur);}
+.vs-finding-icon svg{width:14px;height:14px;}
+.vs-finding-body{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.vs-finding-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin:0;line-height:1.3;}
+.vs-finding-sub{font-size:11px;color:var(--muted2);margin:0;line-height:1.4;}
+.vs-finding-chev{color:var(--muted);}
+.vs-finding-chev svg{width:14px;height:14px;}
+.vs-finding-empty{padding:18px 14px;text-align:center;font-size:13px;color:var(--text2);background:rgba(64,240,160,0.04);border:1px solid rgba(64,240,160,0.18);border-radius:8px;}
+
+/* Footprint card */
+.vs-footprint-card{align-items:stretch;}
+.vs-map{width:100%;height:160px;display:flex;align-items:center;justify-content:center;}
+.vs-map svg{width:100%;height:100%;}
+.vs-footprint-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-top:8px;border-top:1px solid var(--border2);}
+.vs-fp-stat{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.vs-fp-num{font-family:'Rajdhani',sans-serif;font-size:42px;font-weight:700;color:var(--text);line-height:1;}
+.vs-fp-lbl{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase;}
+
+.vs-card-link{font-family:'Space Mono',monospace;font-size:11px;color:var(--pur);font-weight:600;letter-spacing:0.04em;text-decoration:none;align-self:flex-start;}
+.vs-card-link:hover{color:var(--text);}
+
+/* Save Your Scan */
+.vs-save{position:relative;background:linear-gradient(135deg,rgba(138,92,255,0.06) 0%,rgba(224,64,200,0.04) 100%);border:1px solid rgba(138,92,255,0.30);border-radius:12px;padding:32px;display:grid;grid-template-columns:120px 1fr 1fr;gap:24px;align-items:start;}
+.vs-save-lock{position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center;color:var(--pur);}
+.vs-lock-glow{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(138,92,255,0.18) 0%,transparent 70%);border:1px solid rgba(138,92,255,0.35);}
+.vs-save-lock svg{position:relative;z-index:1;width:38px;height:38px;}
+.vs-save-body{display:flex;flex-direction:column;gap:10px;grid-column:2 / -1;}
+.vs-save h3{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);letter-spacing:0.06em;text-transform:uppercase;margin:0;}
+.vs-save-lead{font-size:14px;color:var(--text2);line-height:1.55;margin:0;}
+.vs-save-lead-2{font-size:14px;color:var(--text);line-height:1.55;margin:0;}
+.vs-save-unlock{grid-column:2 / -1;margin-top:6px;}
+.vs-unlock-hd{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.10em;color:var(--text);text-transform:uppercase;margin:0 0 8px;}
+.vs-unlock-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:8px 18px;}
+.vs-unlock-list li{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;}
+.vs-unlock-list li::before{content:"✓";color:var(--grn);font-weight:700;}
+.vs-unlock-list li.has-tick::before{content:"";}
+.vs-form{display:flex;gap:8px;grid-column:2 / -1;margin-top:6px;}
+.vs-email{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:12px 14px;font-family:'Space Grotesk',sans-serif;font-size:14px;}
+.vs-email:focus{outline:none;border-color:var(--pur);}
+.vs-email::placeholder{color:var(--muted);}
+.vs-cta{background:var(--grad);color:#fff;border:none;border-radius:6px;padding:12px 22px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;}
+.vs-cta:hover{filter:brightness(1.08);}
+.vs-cta:disabled{opacity:0.5;cursor:not-allowed;}
+.vs-no-cc{grid-column:2 / -1;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.06em;text-align:center;margin:0;}
+.vs-status{grid-column:1 / -1;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.04em;text-align:center;min-height:18px;}
+.vs-status.success{color:var(--grn);}
+.vs-status.error{color:var(--red);}
+
+/* Responsive */
+@media (max-width:780px){
+  .vs-result-section{padding:32px 16px 48px;}
+  .vs-result-hero{grid-template-columns:1fr;gap:20px;padding:18px;}
+  .vs-result-art{aspect-ratio:1/1;max-width:280px;margin:0 auto;}
+  .vs-result-artist{font-size:26px;}
+  .vs-health-row{grid-template-columns:1fr;gap:14px;}
+  .vs-grid-2{grid-template-columns:1fr;}
+  .vs-save{grid-template-columns:1fr;padding:24px 20px;text-align:center;}
+  .vs-save-lock{margin:0 auto;width:80px;height:80px;}
+  .vs-save-body,.vs-save-unlock,.vs-form,.vs-no-cc,.vs-status{grid-column:1;}
+  .vs-unlock-list{grid-template-columns:1fr;text-align:left;}
+  .vs-form{flex-direction:column;}
+  .vs-fp-num{font-size:34px;}
+}
 </style>
 </head>
 <body class="tier-free">
@@ -1547,7 +1664,7 @@ body.menu-locked {
       You can't <span class="gt-block" style="display:inline;">collect</span><br>what you can't see.
     </h1>
     <p class="nh-tagline">
-      Every stream, sync, and performance earns you royalties. <span class="nh-tagline-emphasis">Royaltē shows you what's broken between the music and the money.</span>
+      Every stream, sync, and performance flows through your music backend. <span class="nh-tagline-emphasis">Royaltē shows you where that backend has gaps.</span>
     </p>
     <p class="nh-desc">
       We diagnose the infrastructure problems your distributor, PRO, and publisher don't catch. Founding Artist Beta — 1,000 spots, lifetime 30% off Pro Monitoring locked in for everyone who claims one.
@@ -1574,7 +1691,7 @@ body.menu-locked {
       <div class="nh-find-row">
         <div class="nh-find-marker"></div>
         <div class="nh-find-content">
-          <div class="nh-find-title">Unclaimed YouTube / UGC revenue</div>
+          <div class="nh-find-title">Unverified YouTube / UGC presence</div>
           <div class="nh-find-sub">Content ID matches, sync opportunities</div>
         </div>
       </div>
@@ -1796,11 +1913,11 @@ body.menu-locked {
     <div class="stakes-copy">
       <div class="stakes-eyebrow">// the reality</div>
       <h2 class="stakes-h">You're leaving money <span class="gt">on the table.</span></h2>
-      <p class="stakes-sub">Every year, artists miss out on royalties they've already earned. Splits go unregistered. Metadata gets lost between platforms. YouTube Content ID matches go unclaimed. The money exists — it just never reaches you.</p>
+      <p class="stakes-sub">Every year, artists lose visibility into their own music backend. Splits go unregistered. Metadata gets lost between platforms. YouTube Content ID matches go unverified. The infrastructure exists — it just isn't audited.</p>
       <div class="stakes-stats">
         <div class="stakes-stat">
           <div class="stakes-stat-num">$500M+</div>
-          <div class="stakes-stat-label">in royalties sit in the global black box</div>
+          <div class="stakes-stat-label">of backend signals sit unverified in the global music ecosystem</div>
           <div class="stakes-stat-label">Metadata gaps, missing registrations, and bad data keep money from reaching the right artists.</div>
         </div>
         <div class="stakes-stat">
@@ -1809,7 +1926,7 @@ body.menu-locked {
         </div>
         <div class="stakes-stat">
           <div class="stakes-stat-num">Royaltē scans 6 core data sources</div>
-          <div class="stakes-stat-label">to uncover where your catalog may be leaking revenue</div>
+          <div class="stakes-stat-label">to uncover where your catalog has unverified backend gaps</div>
         </div>
       </div>
     </div>
@@ -1830,7 +1947,7 @@ body.menu-locked {
     <div class="built-copy">
       <div class="built-eyebrow">// built by artists</div>
       <h2 class="built-h">Built by artists<br><span class="gt">for artists.</span></h2>
-      <p class="built-sub">We've been in the room. We know what it feels like to leave money on the table because the system wasn't built for you. Royaltē was.</p>
+      <p class="built-sub">We've been in the room. We know what it feels like to operate without visibility into your music backend because the system wasn't built for you. Royaltē was.</p>
     </div>
   </div>
 </section>
@@ -1926,88 +2043,145 @@ body.menu-locked {
           </div>
         </div>
         <div id="audit-results" style="display:none;">
-        <!-- 1. Health Score banner — same .d-score-tag style as V1 -->
-        <div class="d-score-tag" id="hero-score-tag">
-          <div class="d-score-tag-num" id="hero-score-tag-num">—</div>
-          <div class="d-score-tag-lbl" id="hero-score-tag-lbl">Health Score</div>
-        </div>
-        <div class="d-score-helper" id="hero-score-helper" style="display:none;">
-          Higher is healthier — Royaltē reviews catalog presence, identifier coverage, and platform availability.
-          <div class="d-score-helper-tooltip">
-            <div class="tt-row healthy"><span class="tt-dot"></span><strong>90–100</strong> · Excellent</div>
-            <div class="tt-row warning"><span class="tt-dot"></span><strong>75–89</strong> · Strong</div>
-            <div class="tt-row atrisk"><span class="tt-dot"></span><strong>60–74</strong> · Moderate</div>
-            <div class="tt-row danger"><span class="tt-dot"></span><strong>&lt; 60</strong> · Review recommended</div>
-          </div>
-        </div>
-
-        <!-- Score drivers (Brief 012a) — populated + shown/hidden by
-             renderV2Section2 per the locked display rule:
-               score ≥ 90        → hidden
-               75–89 + drivers>0 → shown
-               75–89 + drivers=0 → hidden
-               < 75 + drivers>0  → shown (REQUIRED by brief)
-             Subtle amber styling — "factors", not "issues". -->
-        <div class="os-score-drivers" id="os-score-drivers">
-          <p class="os-drivers-label">What influenced your Health Score</p>
-          <ul class="os-drivers-list" id="os-drivers-list"></ul>
-        </div>
-
-        <!-- 2. Top Findings + What Royaltē Found — same .d-modules / .d-mod
-             card style as V1, with V2 content populated by JS. -->
-        <div class="d-modules">
-          <div class="d-mod" id="os-findings-card">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Top findings</div></div>
-            <div class="os-findings-list" id="os-findings"><!-- populated by renderV2Findings() --></div>
-          </div>
-          <div class="d-mod" id="os-found-card">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">What Royaltē found</div></div>
-            <div class="os-found-grid" id="os-found-grid"><!-- populated by renderV2Found() --></div>
-          </div>
-        </div>
-
-        <!-- 3. Bridge line + CTA — replaces V1 .gbe-card position. -->
-        <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
-        <div class="d-mod os-cta-card">
-          <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Royaltē OS Is Monitoring Signals This Scan Doesn't Show</div></div>
-          <p class="os-cta-statement">One Scan Shows A Snapshot.<br>Royaltē OS Watches What Changes.</p>
-          <ul class="os-cta-features">
-            <li>Catalog Change Detection</li>
-            <li>Health Score Tracking</li>
-            <li>Backend Protection</li>
-            <li>Action Center</li>
-            <li>Continuous Monitoring</li>
-            <li>Territory Changes</li>
-            <li>Identifier Changes</li>
-            <li>Metadata Coverage</li>
-            <li>YouTube Presence</li>
-          </ul>
-          <p class="os-cta-body">Royaltē OS continuously monitors your music business backend and alerts you when meaningful changes are detected.</p>
-          <!-- Founding Artist subsection (Brief 012a follow-up) — counter
-               populated by loadFoundingArtistCount() against
-               /api/founding-artist-count. Closed-state swap is innerHTML-
-               replaced and the submit button is disabled in place. -->
-          <div class="os-fa-section" id="os-fa-section">
-            <h3 class="os-fa-heading">Become A Founding Artist</h3>
-            <p class="os-fa-sub">The first 1,000 artists can secure lifetime Founding Artist access and unlock Royaltē OS before the program closes.</p>
-            <div class="os-fa-counter">
-              <div class="os-fa-counter-label">Founding Artist Program</div>
-              <div class="os-fa-counter-value" id="os-fa-counter-value">— of 1,000 spots claimed</div>
-            </div>
-          </div>
-          <!-- bi-os-form IDs preserved → sendMagicLink behavior unchanged.
-               Button text renamed per Brief 012a; submit handler at line ~3349
-               still calls sendMagicLink(email, 'homepage_scan'). -->
-          <form class="bi-os-form" id="bi-os-form" novalidate>
-            <input type="email" class="bi-os-email" id="bi-os-email" placeholder="your@email.com" autocomplete="email" required>
-            <button type="submit" class="bi-os-cta" data-cta="enter-os">Become A Founding Artist</button>
-          </form>
-          <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
+        <!-- V1 Scan Experience (2026-06-08): full result lives in
+             #vs-result-section below the hero. This inline pointer
+             confirms scan completion inside the laptop preview. -->
+        <div class="audit-result-pointer" id="audit-result-pointer">
+          ✓ Scan complete — your full results are below ↓
         </div>
         </div>
       </div>
     </div>
     <div class="scan-conversion" id="scan-conversion" style="display:none;"></div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────────────
+     V1 SCAN EXPERIENCE — full result section (locked 2026-06-08)
+     Replaces the post-scan Royaltē OS / Founding Artist conversion block.
+     Populated by showRealResults() after /api/audit completes.
+     Magic-link redirect → /dashboard.html (Mission Control).
+     ───────────────────────────────────────────────────────────────── -->
+<section class="vs-result-section" id="vs-result-section" style="display:none;">
+  <div class="vs-result-inner">
+
+    <!-- Result hero: artist artwork + scan-complete + Health Score -->
+    <div class="vs-result-hero">
+      <div class="vs-result-art">
+        <img id="vs-art-img" alt="" />
+        <span id="vs-art-fallback">—</span>
+      </div>
+      <div class="vs-result-body">
+        <div class="vs-result-top">
+          <span class="vs-pill-complete">Scan complete</span>
+          <h3 class="vs-result-artist" id="vs-result-artist">—</h3>
+          <p class="vs-result-genre" id="vs-result-genre"></p>
+        </div>
+        <div class="vs-divider"></div>
+        <div class="vs-health">
+          <div class="vs-health-hd">
+            <span class="vs-health-label">Health Score™</span>
+          </div>
+          <div class="vs-health-row">
+            <div class="vs-health-num-wrap">
+              <div class="vs-health-num" id="vs-health-num">—</div>
+              <div class="vs-health-band" id="vs-health-band">—</div>
+            </div>
+            <div class="vs-health-bar-wrap">
+              <div class="vs-health-bar"><div class="vs-health-marker" id="vs-health-marker" style="left:0;"></div></div>
+              <div class="vs-health-bar-scale">
+                <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+              </div>
+            </div>
+          </div>
+          <p class="vs-health-desc">Royaltē verified your music business across our music ecosystems and identified opportunities to strengthen your backend infrastructure.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Findings + Global Music Footprint -->
+    <div class="vs-grid-2">
+      <div class="vs-card vs-findings-card">
+        <div class="vs-card-hd">
+          <div class="vs-card-icon">⚠</div>
+          <h3>Top Findings</h3>
+        </div>
+        <ul class="vs-findings-list" id="vs-findings"></ul>
+        <a class="vs-card-link" href="#vs-save">View full results →</a>
+      </div>
+      <div class="vs-card vs-footprint-card">
+        <h3>Global Music Footprint™</h3>
+        <div class="vs-map" aria-hidden="true">
+          <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="vs-map-dots" width="9" height="9" patternUnits="userSpaceOnUse">
+                <circle cx="4.5" cy="4.5" r="1.4" fill="#8a5cff" opacity="0.85"/>
+              </pattern>
+            </defs>
+            <!-- North America -->
+            <path d="M50,55 Q130,40 215,75 L215,130 Q175,165 100,155 Q55,135 50,100 Z" fill="url(#vs-map-dots)"/>
+            <!-- Central America -->
+            <path d="M150,150 Q170,150 175,170 L155,180 Q140,170 150,150 Z" fill="url(#vs-map-dots)"/>
+            <!-- South America -->
+            <path d="M170,180 Q210,185 210,225 L185,270 Q150,265 145,225 Z" fill="url(#vs-map-dots)"/>
+            <!-- Europe -->
+            <path d="M280,55 Q335,50 360,80 L350,115 Q300,120 280,90 Z" fill="url(#vs-map-dots)"/>
+            <!-- Africa -->
+            <path d="M295,125 Q360,120 375,180 L345,235 Q295,230 285,180 Z" fill="url(#vs-map-dots)"/>
+            <!-- Middle East -->
+            <path d="M365,115 Q395,110 400,135 L380,150 Q360,140 365,115 Z" fill="url(#vs-map-dots)"/>
+            <!-- Asia -->
+            <path d="M395,55 Q500,45 545,90 L530,140 Q455,155 400,125 Z" fill="url(#vs-map-dots)"/>
+            <!-- India -->
+            <path d="M415,135 Q445,135 445,170 L425,180 Q405,170 415,135 Z" fill="url(#vs-map-dots)"/>
+            <!-- SE Asia / Indonesia -->
+            <path d="M460,170 Q515,165 520,195 L475,205 Q450,195 460,170 Z" fill="url(#vs-map-dots)"/>
+            <!-- Australia -->
+            <path d="M490,215 Q545,210 555,235 L530,255 Q495,250 490,225 Z" fill="url(#vs-map-dots)"/>
+          </svg>
+        </div>
+        <div class="vs-footprint-stats">
+          <div class="vs-fp-stat">
+            <div class="vs-fp-num" id="vs-fp-platforms">—</div>
+            <div class="vs-fp-lbl">Platforms</div>
+          </div>
+          <div class="vs-fp-stat">
+            <div class="vs-fp-num" id="vs-fp-countries">—</div>
+            <div class="vs-fp-lbl">Countries</div>
+          </div>
+        </div>
+        <a class="vs-card-link" href="#vs-save">View full map →</a>
+      </div>
+    </div>
+
+    <!-- Save Your Scan — Executive Brief™ → Magic Link → Mission Control™ -->
+    <div class="vs-save" id="vs-save">
+      <div class="vs-save-lock">
+        <div class="vs-lock-glow"></div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
+      <div class="vs-save-body">
+        <h3>Save Your Scan</h3>
+        <p class="vs-save-lead">This scan only shows part of the picture.</p>
+        <p class="vs-save-lead-2">Unlock your FREE Executive Brief™ and continue inside your personal Mission Control™.</p>
+      </div>
+      <div class="vs-save-unlock">
+        <p class="vs-unlock-hd">Unlock:</p>
+        <ul class="vs-unlock-list">
+          <li>FREE Executive Brief™</li>
+          <li>Personal Mission Control™</li>
+          <li>Health Score History™</li>
+          <li>Personalized Action Center™</li>
+        </ul>
+      </div>
+      <form class="vs-form" id="vs-form" novalidate>
+        <input class="vs-email" id="vs-email" type="email" placeholder="Enter your email address" autocomplete="email" required>
+        <button type="submit" class="vs-cta" id="vs-cta">Unlock my FREE Executive Brief™</button>
+      </form>
+      <p class="vs-no-cc">No credit card required.</p>
+      <div class="vs-status" id="vs-status" role="status" aria-live="polite"></div>
+    </div>
+
   </div>
 </section>
 
@@ -2868,43 +3042,28 @@ function showRealResults(data) {
     }
   }
 
-  // ── Health Score chip (V1 .d-score-tag, V2 content) ──
-  // Brief 012a: score computed from V2 verified signals only — NOT
-  // inverted from the V1 risk engine's overallScore. The V1 score was
-  // built on retired philosophy (Wikipedia absence, AudioDB, etc.)
-  // which we filter out of Findings, so inverting it produced a
-  // 25/100 "Review Recommended" that contradicted "No findings."
-  // _computeV2HealthScore reads the same signals the V2 surfaces
-  // already render: catalog depth, platform presence, BIG 6 territory
-  // coverage, ISRC presence.
-  const scoreTagEl  = document.getElementById('hero-score-tag');
-  const scoreNumEl  = document.getElementById('hero-score-tag-num');
-  const scoreLblEl  = document.getElementById('hero-score-tag-lbl');
-  const scoreHelpEl = document.getElementById('hero-score-helper');
-  const driversEl   = document.getElementById('os-score-drivers');
-  const driversList = document.getElementById('os-drivers-list');
-  if (scoreTagEl && scoreNumEl) {
+  // ── V1 Scan Experience Health Score (2026-06-08) ──
+  // Health Score model unchanged: _computeV2HealthScore reads verified
+  // signals (catalog depth, platform presence, BIG 6 territory coverage,
+  // ISRC presence). Drivers UI is gone — defensible counts in the
+  // result line + footprint carry the truth claim now.
+  const healthNumEl   = document.getElementById('vs-health-num');
+  const healthBandEl  = document.getElementById('vs-health-band');
+  const healthMarkEl  = document.getElementById('vs-health-marker');
+  if (healthNumEl) {
     const result = _computeV2HealthScore(data);
     if (result != null) {
-      const { score: health, drivers } = result;
+      const { score: health } = result;
       const band = _getHealthBand(health);
-      scoreNumEl.textContent = health;
-      if (scoreLblEl) scoreLblEl.textContent = `Health Score · ${band.label}`;
-      scoreTagEl.classList.remove('band-healthy','band-warning','band-atrisk','band-danger');
-      scoreTagEl.classList.add(band.className);
-      scoreTagEl.classList.add('is-shown');
-      if (scoreHelpEl) scoreHelpEl.style.display = '';
-
-      // Brief 012b — drivers always shown. Empty list gets a neutral line.
-      if (driversEl && driversList) {
-        driversEl.hidden = false;
-        if (drivers.length > 0) {
-          driversList.innerHTML = drivers.map(
-            (d) => `<li>⚠ ${_osEscape(d.text)}</li>`
-          ).join('');
-        } else {
-          driversList.innerHTML = '<li class="os-driver-empty">Your score is not currently being lowered by any observed factors.</li>';
-        }
+      const bandClass = band.className.replace('band-','');
+      healthNumEl.textContent = health;
+      healthNumEl.className = 'vs-health-num is-' + bandClass;
+      if (healthBandEl) {
+        healthBandEl.textContent = band.label.toUpperCase();
+        healthBandEl.className = 'vs-health-band is-' + bandClass;
+      }
+      if (healthMarkEl) {
+        healthMarkEl.style.left = Math.max(0, Math.min(100, health)) + '%';
       }
     }
   }
@@ -2939,9 +3098,12 @@ function showRealResults(data) {
     matchedNote.style.display = pillText ? 'inline-block' : 'none';
   }
 
-  // ── V2 content blocks ──
-  _renderV2Findings(flagsArr);
-  _renderV2Found(data);
+  // ── V1 Scan Experience: populate full result section ──
+  _renderVsResultSection(data, artistName, flagsArr);
+
+  // Inline "scan complete" pointer inside the laptop frame
+  const pointer = document.getElementById('audit-result-pointer');
+  if (pointer) pointer.classList.add('is-shown');
 
   // ── Audit-request modal form-lock unlock (V1, preserved) ──
   const fSpotify = document.getElementById('f-spotify');
@@ -3052,113 +3214,171 @@ function _computeV2HealthScore(data) {
   };
 }
 
-function _renderV2Findings(flagsArr) {
-  const findingsEl = document.getElementById('os-findings');
-  if (!findingsEl) return;
+// ─────────────────────────────────────────────────────────────────────
+// V1 Scan Experience renderers (2026-06-08)
+// Top Findings: data-driven evidence-based labels (no hardcoded fakes).
+// Empty state per founder rule: "No critical issues detected during
+// this scan." Platform / country counts derive from real scan data;
+// no placeholder values ever shown.
+// ─────────────────────────────────────────────────────────────────────
 
-  // Filter V1 platform-presence noise (Wikipedia / AudioDB / Discogs / SoundCloud)
+function _vsCategoryFor(f) {
+  const t = ((f && f.description) || '') + ' ' + ((f && f.module) || '');
+  const s = t.toLowerCase();
+  if (/territory|storefront|country|region/.test(s)) return 'territory';
+  if (/metadata|genre|tag/.test(s))                  return 'metadata';
+  return 'catalog';
+}
+
+function _vsFindingCopyFor(category) {
+  if (category === 'territory') {
+    return {
+      title: 'Territory Availability Review Recommended',
+      sub:   'Availability could not be confirmed across all reviewed regions.',
+    };
+  }
+  if (category === 'metadata') {
+    return {
+      title: 'Metadata Review Recommended',
+      sub:   'Metadata visibility could not be confirmed across reviewed sources.',
+    };
+  }
+  return {
+    title: 'Catalog Consistency Review Recommended',
+    sub:   'Additional catalog verification may be beneficial across reviewed releases.',
+  };
+}
+
+function _renderV2Findings(flagsArr) {
+  const el = document.getElementById('vs-findings');
+  if (!el) return;
+
+  // Filter retired platform-presence noise so it never surfaces as a finding
   const v2Flags = (flagsArr || []).filter((f) => {
     const text = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
     return !/\b(wikipedia|audiodb|discogs|soundcloud|musicbrainz)\b/.test(text);
   });
+
   if (v2Flags.length === 0) {
-    findingsEl.innerHTML = '<div class="os-finding-empty">Your catalog looks clean. Royaltē OS is monitoring for changes and will alert you if anything needs attention.</div>';
+    el.innerHTML =
+      '<li class="vs-finding-empty">✓ No critical issues detected during this scan.</li>';
     return;
   }
 
-  // Strip trailing "— … risk" suffixes from V1 descriptions
-  const clean = (s) => (s || '').replace(/\s+[—-]\s+[\w\s]*\brisk\s*$/i, '').trim();
-  const titleFor = (f) => {
-    const t = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
-    if (/\bisrc\b/.test(t))                     return 'Identifier coverage review';
-    if (/territory|storefront|country/.test(t)) return 'Territory availability review';
-    if (/youtube|ugc|video/.test(t))            return 'Limited visibility observed in reviewed sources';
-    if (/duplicate|collision|fragment/.test(t)) return 'Catalog consistency review';
-    if (/metadata|genre/.test(t))               return 'Metadata completeness review';
-    return                                              'Catalog consistency review';
-  };
-
-  findingsEl.innerHTML = v2Flags.slice(0, 3).map((f) => `
-    <div class="os-finding">
-      <div class="os-finding-icon">!</div>
-      <div class="os-finding-body">
-        <p class="os-finding-title">${_osEscape(titleFor(f))}</p>
-        <p class="os-finding-desc">${_osEscape(clean(f.description))}</p>
-      </div>
-    </div>`).join('');
-}
-
-function _renderV2Found(data) {
-  const gridEl = document.getElementById('os-found-grid');
-  if (!gridEl) return;
-  // Raw shape vs canonical: data.appleMusic is the raw root object;
-  // data.platforms.appleMusic.details is the canonical-nested form.
-  const am = data.appleMusic || (data.platforms && data.platforms.appleMusic && data.platforms.appleMusic.details) || {};
-  const cc = am.catalogComparison || null;
-
-  // Brief 008 — classify each release from appleMusic.albums[] by track
-  // count: 1 → Single · 2–6 → EP · 7+ → Album. Tracks = sum of trackCount
-  // across all surfaced albums. Falls back to legacy paths when the
-  // albums[] list isn't present (older snapshots / non-Apple-resolved).
-  const albumsList = Array.isArray(am.albums) ? am.albums : [];
-  let cAlbums = 0, cEps = 0, cSingles = 0, cTracks = 0, anyTrackCount = false;
-  for (const a of albumsList) {
-    const tc = (a && typeof a.trackCount === 'number') ? a.trackCount : null;
-    if (tc != null) { anyTrackCount = true; cTracks += tc; }
-    if (tc === 1)        cSingles++;
-    else if (tc != null && tc <= 6) cEps++;
-    else                 cAlbums++;
+  // Collapse flags to evidence-based categories, dedupe, cap at 3.
+  const seen = new Set();
+  const items = [];
+  for (const f of v2Flags) {
+    const cat = _vsCategoryFor(f);
+    if (seen.has(cat)) continue;
+    seen.add(cat);
+    items.push(_vsFindingCopyFor(cat));
+    if (items.length >= 3) break;
   }
 
-  // Albums display — prefer the classified count from albums[]; fall back
-  // to appleMusic.albumCount or catalog.totalReleases when no albums[].
-  const albumsValue = albumsList.length > 0 ? cAlbums
-                    : (typeof am.albumCount === 'number') ? am.albumCount
-                    : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
-                       ? data.catalog.totalReleases : null);
+  const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+  const icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
 
-  const epsValue     = albumsList.length > 0 ? cEps     : null;
-  const singlesValue = albumsList.length > 0 ? cSingles : null;
+  el.innerHTML = items.map((it) => `
+    <li class="vs-finding">
+      <div class="vs-finding-icon">${icon}</div>
+      <div class="vs-finding-body">
+        <p class="vs-finding-title">${_osEscape(it.title)}</p>
+        <p class="vs-finding-sub">${_osEscape(it.sub)}</p>
+      </div>
+      <div class="vs-finding-chev">${chev}</div>
+    </li>`).join('');
+}
 
-  // Tracks — sum across surfaced releases when track counts are present;
-  // else use catalogComparison.tracksChecked (track-URL scans) or 1 for a
-  // single-track input.
-  const tracksValue = anyTrackCount ? cTracks
-                    : (cc && typeof cc.tracksChecked === 'number') ? cc.tracksChecked
-                    : (data.trackTitle ? 1 : null);
-
-  const isrcCoverage = (() => {
-    if (cc && typeof cc.matchRate === 'number') {
-      if (cc.matchRate >= 95) return 'Complete';
-      if (cc.matchRate >= 50) return 'Partial';
-      if (cc.matchRate >= 1)  return 'Limited';
-      return 'Limited';
+// Platform count — verified ecosystems from data.platforms.
+function _vsCountPlatforms(data) {
+  const p = (data && data.platforms) || {};
+  let n = 0;
+  for (const k of Object.keys(p)) {
+    const v = p[k];
+    if (v === true) n++;
+    else if (v && typeof v === 'object') {
+      if (v.found === true || v.availability === 'VERIFIED') n++;
     }
-    return data.trackIsrc ? 'Complete' : 'Unknown';
-  })();
-  const catalogAvail = (() => {
-    const p = data.platforms || {};
-    const verifAM = (p.appleMusic === true) || (am.found === true);
-    const verifSP = (p.spotify === true)    || (data.spotifyMatched === true);
-    const v = (verifAM ? 1 : 0) + (verifSP ? 1 : 0);
-    if (v >= 2)  return 'Strong';
-    if (v === 1) return 'Moderate';
-    return 'Unknown';
-  })();
+  }
+  return n;
+}
 
-  const rows = [
-    { label: 'Albums',                value: albumsValue  != null ? albumsValue  : '—' },
-    { label: 'EPs',                   value: epsValue     != null ? epsValue     : '—' },
-    { label: 'Singles',               value: singlesValue != null ? singlesValue : '—' },
-    { label: 'Tracks',                value: tracksValue  != null ? tracksValue  : '—' },
-    { label: 'ISRC coverage',         value: isrcCoverage },
-    { label: 'Catalog availability',  value: catalogAvail },
-  ];
-  gridEl.innerHTML = rows.map((r) => `
-    <div class="os-found-row">
-      <div class="os-found-label">${_osEscape(r.label)}</div>
-      <div class="os-found-value">${_osEscape(r.value)}</div>
-    </div>`).join('');
+// Country count — storefronts with at least one verified album,
+// derived from appleMusic.storefrontAvailability (BIG6 subset).
+function _vsCountCountries(data) {
+  const am = (data && data.appleMusic) ||
+             (data && data.platforms && data.platforms.appleMusic && data.platforms.appleMusic.details) ||
+             {};
+  const sa = am.storefrontAvailability || null;
+  if (!sa || typeof sa !== 'object') return 0;
+  let n = 0;
+  for (const sf of Object.keys(sa)) {
+    const row = sa[sf];
+    if (row && Array.isArray(row.available) && row.available.length > 0) n++;
+  }
+  return n;
+}
+
+// Genre line — Apple genres preferred, Spotify fallback.
+function _vsGenreLine(data) {
+  const am = (data && data.appleMusic) || {};
+  if (Array.isArray(am.genres) && am.genres.length) {
+    return am.genres.slice(0, 2).join(' · ');
+  }
+  if (Array.isArray(data && data.genres) && data.genres.length) {
+    return data.genres.slice(0, 2).join(' · ');
+  }
+  return '';
+}
+
+function _renderVsResultSection(data, artistName, flagsArr) {
+  const section = document.getElementById('vs-result-section');
+  if (!section) return;
+
+  // Artist artwork
+  const imgEl = document.getElementById('vs-art-img');
+  const fbEl  = document.getElementById('vs-art-fallback');
+  const src   = (data && (data.imageUrl || data.artistImageUrl || data.albumImageUrl)) || '';
+  const initials = (artistName || '—').trim().charAt(0).toUpperCase() || '—';
+  if (imgEl && fbEl) {
+    if (src) {
+      imgEl.onerror = function() { imgEl.classList.remove('is-loaded'); fbEl.textContent = initials; fbEl.classList.remove('is-hidden'); };
+      imgEl.onload  = function() { imgEl.classList.add('is-loaded');    fbEl.classList.add('is-hidden'); };
+      imgEl.src = src;
+    } else {
+      imgEl.classList.remove('is-loaded');
+      fbEl.textContent = initials;
+      fbEl.classList.remove('is-hidden');
+    }
+  }
+
+  // Artist name + genre line
+  const artistEl = document.getElementById('vs-result-artist');
+  if (artistEl) artistEl.textContent = (artistName || '—').toUpperCase();
+  const genreEl = document.getElementById('vs-result-genre');
+  if (genreEl) {
+    const g = _vsGenreLine(data);
+    genreEl.textContent = g;
+    genreEl.style.display = g ? '' : 'none';
+  }
+
+  // Platform / country counts — analytics live in the Global Music
+  // Footprint™ card. Hero stays focused on identity → Health Score →
+  // intrigue (founder direction 2026-06-08).
+  const pEl = document.getElementById('vs-fp-platforms');
+  const cEl = document.getElementById('vs-fp-countries');
+  if (pEl) pEl.textContent = _vsCountPlatforms(data);
+  if (cEl) cEl.textContent = _vsCountCountries(data);
+
+  // Findings (dynamic, evidence-based)
+  _renderV2Findings(flagsArr);
+
+  // Reveal + scroll
+  section.style.display = '';
+  setTimeout(() => {
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 200);
 }
 
 // ── SHOW DEMO RESULTS ─────────────────────────────────────
@@ -3285,8 +3505,8 @@ function scrollToForm() {
 function requestFullAuditFromNav() {
   const scanId = window.__royalteScan?.scanId;
   if (typeof scanId === 'string' && scanId.length > 0) {
-    document.getElementById('bi-os-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => document.getElementById('bi-os-email')?.focus(), 600);
+    document.getElementById('vs-save')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => document.getElementById('vs-email')?.focus(), 600);
     return;
   }
   document.getElementById('scan-tool')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3358,27 +3578,27 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
 })();
 </script>
 
-<!-- ── V5 magic-link signup wiring ─────────────────────────────────
-     The V5 continuation CTA sends a Supabase magic link instead of
-     opening the audit modal. Module script — uses ESM imports. -->
+<!-- ── V1 Scan Experience magic-link wiring (2026-06-08) ──────────
+     Scan → Executive Brief → Magic Link → Mission Control.
+     Magic-link redirect lands on /dashboard.html via /auth/callback. -->
 <script type="module">
 import { getSupabase, getOrCreateSessionId } from '/js/supabase-client.js';
 
-const biOsForm   = document.getElementById('bi-os-form');
-const biOsEmail  = document.getElementById('bi-os-email');
-const biOsBtn    = biOsForm ? biOsForm.querySelector('.bi-os-cta') : null;
-const biOsStatus = document.getElementById('bi-os-status');
+const vsForm    = document.getElementById('vs-form');
+const vsEmail   = document.getElementById('vs-email');
+const vsBtn     = document.getElementById('vs-cta');
+const vsStatus  = document.getElementById('vs-status');
 
 function setStatus(msg, kind) {
-  if (!biOsStatus) return;
-  biOsStatus.textContent = msg || '';
-  biOsStatus.className = 'bi-os-status' + (kind ? ' ' + kind : '');
+  if (!vsStatus) return;
+  vsStatus.textContent = msg || '';
+  vsStatus.className = 'vs-status' + (kind ? ' ' + kind : '');
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Shared magic-link sender — used by the Backend Intelligence OS form and
-// the OS login modal so the two never drift. Returns { ok, kind }.
+// Shared magic-link sender — also used by the OS login modal so the
+// two never drift. Returns { ok, kind }.
 async function sendMagicLink(email, source) {
   const supabase = getSupabase();
   if (!supabase) return { ok: false, kind: 'unavailable' };
@@ -3394,7 +3614,7 @@ async function sendMagicLink(email, source) {
       email,
       options: {
         emailRedirectTo: redirectUrl.toString(),
-        data: { session_id: sessionId, source: source || 'homepage_scan' },
+        data: { session_id: sessionId, source: source || 'executive_brief' },
       },
     });
     if (error) {
@@ -3408,18 +3628,16 @@ async function sendMagicLink(email, source) {
   }
 }
 
-async function handleBiOsSubmit() {
-  const email = (biOsEmail?.value || '').trim();
+async function handleVsSubmit() {
+  const email = (vsEmail?.value || '').trim();
   if (!EMAIL_RE.test(email)) {
     setStatus('Please enter a valid email address.', 'error');
-    biOsEmail?.focus();
+    vsEmail?.focus();
     return;
   }
 
-  // Capture lead regardless of magic-link completion (Brief 012a). Non-
-  // blocking — rate-limit or transient failure never blocks signup. The
-  // artistName field is intentionally empty; the homepage does not collect
-  // it at this step, and reserve.js silently ignores extra body fields.
+  // Lead capture is non-blocking. Magic-link delivery is the user-visible
+  // step; rate-limit or transient capture failure never blocks signup.
   try {
     await fetch('/api/founding-artist/reserve', {
       method: 'POST',
@@ -3431,9 +3649,9 @@ async function handleBiOsSubmit() {
   }
 
   setStatus('Sending your secure link…', '');
-  if (biOsBtn) biOsBtn.disabled = true;
-  const res = await sendMagicLink(email, 'homepage_scan');
-  if (biOsBtn) biOsBtn.disabled = false;
+  if (vsBtn) vsBtn.disabled = true;
+  const res = await sendMagicLink(email, 'executive_brief');
+  if (vsBtn) vsBtn.disabled = false;
 
   if (!res.ok) {
     setStatus(res.kind === 'unavailable'
@@ -3442,48 +3660,15 @@ async function handleBiOsSubmit() {
     return;
   }
 
-  setStatus('Check your inbox — your Royaltē OS access link is on the way.', 'success');
+  setStatus('Check your inbox — your Executive Brief™ and Mission Control™ access link is on the way.', 'success');
 }
 
-if (biOsForm) {
-  biOsForm.addEventListener('submit', (e) => {
+if (vsForm) {
+  vsForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    handleBiOsSubmit();
+    handleVsSubmit();
   });
 }
-
-// ── Founding Artist counter (Brief 012a follow-up) ──
-// Reads /api/founding-artist-count on page load and updates the Section 5
-// counter. On closed state (count >= 1000), swaps the subsection content
-// and disables the submit button in place. Network failures leave the
-// placeholder visible — no broken UX, just no live number.
-async function loadFoundingArtistCount() {
-  const valueEl   = document.getElementById('os-fa-counter-value');
-  const sectionEl = document.getElementById('os-fa-section');
-  const buttonEl  = biOsForm ? biOsForm.querySelector('.bi-os-cta') : null;
-  if (!valueEl || !sectionEl) return;
-  try {
-    const resp = await fetch('/api/founding-artist-count');
-    if (!resp.ok) return;
-    const data = await resp.json();
-    const count = typeof data.count === 'number' ? data.count : null;
-    const cap   = typeof data.cap   === 'number' ? data.cap   : 1000;
-    if (data.closed) {
-      sectionEl.innerHTML =
-        '<h3 class="os-fa-heading">Founding Artist Program Closed</h3>' +
-        '<p class="os-fa-sub">The first 1,000 artists successfully secured Founding Artist access. Join the waitlist for standard membership.</p>';
-      if (buttonEl) {
-        buttonEl.textContent = 'Founding Artist Program Closed';
-        buttonEl.disabled = true;
-      }
-    } else if (count != null) {
-      valueEl.textContent = count + ' of ' + cap + ' spots claimed';
-    }
-  } catch (e) {
-    console.warn('[founding-artist-count] fetch failed', e);
-  }
-}
-loadFoundingArtistCount();
 
 // ── Royaltē OS login modal (Block F) ────────────────────────────
 // Returning-user entry. NOT an admin gate — any valid sign-in is let
