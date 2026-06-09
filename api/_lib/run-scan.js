@@ -14,7 +14,7 @@
 // the inline handler used before this extraction.
 
 import { generateAppleToken } from '../apple-token.js';
-import { lookupByISRC, checkStorefrontAvailability, getArtistAlbums } from '../apple-music.js';
+import { lookupByISRC, checkStorefrontAvailability, getArtistAlbums, getArtistSongs } from '../apple-music.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -401,6 +401,40 @@ async function resolveToArtist(inputUrl, token) {
       const cleaned = cleanArtistName(appleArtistName);
       if (cleaned && cleaned !== appleArtistName) {
         spotifyArtist = await searchSpotifyArtistByName(cleaned, token);
+      }
+    }
+    // 2026-06-09 ISRC-bridge fallback for Apple ARTIST URLs.
+    // Spotify search ranks by popularity-weighted relevance — artists with
+    // common-noun names ("Black Alternative") are buried below higher-ranked
+    // results and never surface in the top-5 the strict matcher inspects.
+    // Apple song URLs already cover this via resolved.trackIsrc + the bridge
+    // at the top of resolveToArtist; ARTIST URLs have no trackIsrc, so we
+    // pull the artist's full song list from Apple and walk every ISRC until
+    // one resolves to a Spotify track whose artist name verifies against
+    // the Apple canonical. Strict-exact-match-or-null preserved end-to-end.
+    if (!spotifyArtist && appleArtistId) {
+      try {
+        const songs = await getArtistSongs(appleArtistId, appleStorefront, 25);
+        const norm  = (s) => (s || '').toLowerCase().trim();
+        for (const song of songs) {
+          const candidateSpotifyId = await discoverSpotifyByIsrc(song.isrc, token);
+          if (!candidateSpotifyId) continue;
+          try {
+            const verifyArtist = await getSpotifyArtist(candidateSpotifyId, token);
+            if (verifyArtist && norm(verifyArtist.name) === norm(appleArtistName)) {
+              spotifyArtist = verifyArtist;
+              console.log(`[scan] Apple→Spotify ISRC bridge resolved "${appleArtistName}" via ISRC ${song.isrc}`);
+              break;
+            }
+          } catch {
+            continue;
+          }
+        }
+        if (!spotifyArtist) {
+          console.log(`[scan] Apple→Spotify ISRC bridge exhausted ${songs.length} ISRC candidates without verified match for "${appleArtistName}"`);
+        }
+      } catch (bridgeErr) {
+        console.warn(`[scan] Apple→Spotify ISRC bridge threw: ${bridgeErr.message}`);
       }
     }
     if (spotifyArtist) {

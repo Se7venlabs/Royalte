@@ -90,6 +90,33 @@ async function getArtistAlbums(appleArtistId, storefront = STOREFRONT) {
 }
 
 /**
+ * Fetch an artist's songs (with ISRCs) directly via Apple Music.
+ * Used by the Apple→Spotify ISRC-bridge fallback in run-scan.js for
+ * artist-URL inputs whose Spotify name-search misses (e.g. "Black
+ * Alternative" doesn't surface in Spotify's top-5 generic search).
+ * Returns only songs whose ISRC is populated, capped at `limit`.
+ */
+async function getArtistSongs(appleArtistId, storefront = STOREFRONT, limit = 25) {
+  try {
+    const data = await appleRequest(
+      `/catalog/${storefront}/artists/${appleArtistId}/songs?limit=${limit}`
+    );
+    const songs = data?.data || [];
+    return songs
+      .map((s) => ({
+        id:        s.id,
+        name:      s.attributes?.name,
+        isrc:      s.attributes?.isrc || null,
+        albumName: s.attributes?.albumName,
+      }))
+      .filter((s) => s.isrc);
+  } catch (err) {
+    console.error('Apple Music getArtistSongs error:', err.message);
+    return [];
+  }
+}
+
+/**
  * Look up a track by ISRC
  * Returns Apple Music catalog entry if found
  */
@@ -274,6 +301,7 @@ async function checkStorefrontAvailability(albumIds, headers) {
 export {
   searchArtist,
   getArtistAlbums,
+  getArtistSongs,
   lookupByISRC,
   searchTrack,
   compareSpotifyToApple,
