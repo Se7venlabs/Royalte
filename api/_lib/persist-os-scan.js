@@ -21,6 +21,7 @@
 // returned without monitoring", never to a 5xx.
 
 import { computeDelta } from './delta-engine.js';
+import { computeV2HealthScore, getHealthBand } from '../lib/health-score.js';
 
 const RESCAN_INTERVAL_DAYS = 7;
 
@@ -190,110 +191,15 @@ export function buildCanonicalDataV2(canonical) {
   };
 }
 
-// Brief 012a (follow-up) — V2 verified-signal Health Score.
-// Reads only signals the V2 surfaces actually display: catalog depth,
-// BIG 6 territory availability, platform presence, ISRC coverage.
-// Returns { score, drivers, breakdown }:
-//   score:     0–100 (signal-driven, not change-driven)
-//   drivers:   top 4 explanatory strings, sorted by impact desc
-//   breakdown: per-bucket points for the dashboard breakdown grid
-// Driver tone follows the locked trust rule: never speculate, never
-// accuse — phrase every gap as "not available from reviewed sources".
-export function computeV2HealthScore(canonical) {
-  const am      = (canonical && canonical.platforms && canonical.platforms.appleMusic && canonical.platforms.appleMusic.details) || {};
-  const apple   = (canonical && canonical.platforms && canonical.platforms.appleMusic) || {};
-  const spotify = (canonical && canonical.platforms && canonical.platforms.spotify)    || {};
-  const youtube = (canonical && canonical.platforms && canonical.platforms.youtube)    || {};
-
-  let catalogPoints   = 0; // bucket: catalog_verification (max 40)
-  let backendPoints   = 0; // bucket: backend_health       (Apple + Spotify, max 20)
-  let youtubePoints   = 0; // bucket: youtube_presence     (YouTube, max 10)
-  let territoryPoints = 0; // bucket: big6_coverage        (max 20)
-  let isrcPoints      = 0; // not bucketed; contributes to total only (max 10)
-  const drivers       = [];
-
-  // ── Catalog depth (max 40) ──────────────────────────────────────────────
-  const albums     = Array.isArray(am.albums) ? am.albums : [];
-  const albumCount = albums.length || am.albumCount || 0;
-  if (albums.length >= 1) catalogPoints += 20;
-  if (albumCount >= 4)    catalogPoints += 10;
-  if (albumCount >= 10)   catalogPoints += 10;
-  if (albumCount === 0) {
-    drivers.push({ text: 'Catalog depth could not be determined from reviewed sources', weight: 40 });
-  } else if (albumCount < 4) {
-    drivers.push({ text: 'Catalog depth was below the typical range in reviewed sources', weight: 20 });
-  }
-
-  // ── Platform presence — Apple/Spotify → backend_health (max 20); YouTube → youtube_presence (max 10) ──
-  if (apple.availability   === 'VERIFIED') backendPoints += 10;
-  else drivers.push({ text: 'Apple Music presence was not available from reviewed sources', weight: 10 });
-  if (spotify.availability === 'VERIFIED') backendPoints += 10;
-  else drivers.push({ text: 'Spotify presence was not available from reviewed sources',     weight: 10 });
-  if (youtube.availability === 'VERIFIED') youtubePoints += 10;
-  else drivers.push({ text: 'YouTube presence was not available from reviewed sources',     weight: 10 });
-
-  // ── Territory availability (max 20) ─────────────────────────────────────
-  const sfa = am.storefrontAvailability;
-  if (!sfa || typeof sfa !== 'object') {
-    drivers.push({ text: 'Territory availability was not yet verified in this scan', weight: 20 });
-  } else {
-    territoryPoints += 10;
-    const keys = ['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au', 'br'];
-    let fullCount = 0;
-    for (const sf of keys) {
-      const ent = sfa[sf];
-      if (!ent || ent.error) continue;
-      const avail = Array.isArray(ent.available) ? ent.available.length : 0;
-      if (avail > 0) fullCount++;
-    }
-    if (fullCount === keys.length) {
-      territoryPoints += 10;
-    } else if (fullCount >= 5) {
-      territoryPoints += 5;
-      drivers.push({ text: 'Availability was not yet verified across all reviewed territories', weight: 10 });
-    } else {
-      drivers.push({ text: 'Availability was not yet verified across all reviewed territories', weight: 10 });
-    }
-  }
-
-  // ── ISRC coverage (max 10) ──────────────────────────────────────────────
-  // 2026-06-09 Canonical Payload V2 Phase 1, Question #1: engine becomes the
-  // single source of truth for ISRC detection. Broadened from single-source
-  // (am.isrcLookup.isrc only) to the 3-source check the UI previously ran:
-  //   1) canonical.subject.trackIsrc  — present on track-input scans
-  //   2) am.isrcLookup.isrc           — Apple Music ISRC endpoint result
-  //   3) am.catalogComparison.matched > 0 — Apple↔Spotify cross-match
-  // Any ONE source confirms ISRC presence. Score gain ≤10 per scan;
-  // track-URL scans that previously missed the +10 (no isrcLookup but
-  // trackIsrc populated) now gain those points consistently.
-  const isrcLookup       = am.isrcLookup;
-  const catalogMatched   = am.catalogComparison && typeof am.catalogComparison.matched === 'number'
-                             ? am.catalogComparison.matched : 0;
-  const trackIsrcPresent = canonical && canonical.subject && canonical.subject.trackIsrc;
-  const hasIsrc = !!(trackIsrcPresent
-                     || (isrcLookup && isrcLookup.isrc)
-                     || catalogMatched > 0);
-  if (hasIsrc) {
-    isrcPoints += 10;
-  } else {
-    drivers.push({ text: 'ISRC information was not available from reviewed sources', weight: 10 });
-  }
-
-  const total = catalogPoints + backendPoints + youtubePoints + territoryPoints + isrcPoints;
-  const score = Math.max(0, Math.min(100, total));
-
-  drivers.sort((a, b) => b.weight - a.weight);
-  return {
-    score,
-    drivers: drivers.slice(0, 4).map((d) => d.text),
-    breakdown: {
-      catalog_verification: catalogPoints,
-      big6_coverage:        territoryPoints,
-      backend_health:       backendPoints,
-      youtube_presence:     youtubePoints,
-    },
-  };
-}
+// V2 Health Score — implementation extracted 2026-06-09 to
+// api/lib/health-score.js (Canonical Payload V2 Phase 1: Health
+// Object Migration). Both this persist path and the normalize path
+// import from there per Constitutional rule "Compute Once. Consume
+// Everywhere." Existing call site below is preserved; no behavior
+// change. Re-export here so downstream tests/consumers that previously
+// imported from this module continue working unchanged through the
+// migration window.
+export { computeV2HealthScore, getHealthBand };
 
 export async function persistOSScanSnapshot({
   canonical,
