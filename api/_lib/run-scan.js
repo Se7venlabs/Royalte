@@ -1,3 +1,11 @@
+// ─────────────────────────────────────────────────────────────────────────
+// ROYALTÉ ENGINEERING PRINCIPLE (Constitutional)
+// Royaltē verifies intelligence.
+// Royaltē does not estimate intelligence.
+// If a provider cannot be verified: UNVERIFIED.
+// Every number must be traceable and defensible.
+// ─────────────────────────────────────────────────────────────────────────
+//
 // Royaltē scan engine — pure scan logic, no HTTP / rate-limit / persistence.
 //
 // Extracted from api/audit.js (Block D) so the scan pipeline can be called
@@ -24,6 +32,13 @@ const LASTFM_SAMPLING_MULTIPLIER = 10;    // Last.fm scrobbles ≈ 10% of total 
 const PER_STREAM_RATE            = 0.003; // USD per stream — industry-average premium-tier rate
 const LOW_GAP_RATIO              = 0.05;  // minimum realistic share of royalties left unclaimed
 const HIGH_GAP_RATIO             = 0.30;  // maximum realistic share of royalties left unclaimed
+
+// ── Constitutional verification gates ───────────────────────────────────────
+// Named constants here are the constitutional rule's residence. Every gate
+// site (estimateRoyaltyGap, computeGapBasedExposure, future surfaces)
+// references the constant by name — never inline. Toggle the constant to
+// false ONLY through a formal Constitutional Board Review.
+const YOUTUBE_REVENUE_REQUIRES_VERIFIED_CHANNEL = true;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // runScan — the scan orchestrator.
@@ -978,105 +993,72 @@ async function getYouTube(artistName) {
     }
 
     const query = encodeURIComponent(artistName);
-
-    // Search for official channel
     const channelResp = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=channel&maxResults=5&key=${apiKey}`
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=channel&maxResults=10&key=${apiKey}`
     );
     if (!channelResp.ok) return { found: false, reason: `YouTube API error: ${channelResp.status}` };
     const channelData = await channelResp.json();
-
-    // Find best channel match
-    const norm = s => s.toLowerCase().trim();
     const channels = channelData.items || [];
-    const officialChannel = channels.find(c =>
-      norm(c.snippet.channelTitle) === norm(artistName) ||
-      norm(c.snippet.channelTitle).includes(norm(artistName)) ||
-      c.snippet.description?.toLowerCase().includes('official')
-    ) || channels[0];
 
-    let channelStats = null;
-    let officialVideoCount = 0;
-    let officialViewCount = 0;
-    let subscriberCount = 0;
+    // ────────────────────────────────────────────────────────────────────
+    // YOUTUBE CHANNEL MATCHING — Constitutional Rule
+    // Current: strict exact channel name match only
+    // Future: Verified Alias Table (curated per artist)
+    // Future: Royaltē Alias Registry
+    // Future: ContentID API integration
+    // Until those exist: UNVERIFIED is correct behavior
+    // Never guess. Silence > wrong data.
+    // ────────────────────────────────────────────────────────────────────
+    const norm = (s) => (s || '').toLowerCase().trim();
+    const officialChannel = channels.find(
+      (c) => norm(c.snippet.channelTitle) === norm(artistName)
+    ) || null;
 
-    if (officialChannel) {
-      const channelId = officialChannel.snippet.channelId || officialChannel.id?.channelId;
-      if (channelId) {
-        const statsResp = await fetch(
-          `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelId}&key=${apiKey}`
-        );
-        if (statsResp.ok) {
-          const statsData = await statsResp.json();
-          const stats = statsData.items?.[0]?.statistics;
-          if (stats) {
-            channelStats = stats;
-            officialVideoCount = parseInt(stats.videoCount || 0);
-            officialViewCount = parseInt(stats.viewCount || 0);
-            subscriberCount = parseInt(stats.subscriberCount || 0);
-          }
-        }
-      }
+    if (!officialChannel) {
+      return {
+        found: false,
+        availability: 'UNVERIFIED',
+        reason: 'no_canonical_channel_match',
+      };
     }
 
-    // Search for UGC / user-uploaded content (not from official channel)
-    const ugcResp = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=video&maxResults=10&key=${apiKey}`
+    const channelId = officialChannel.snippet.channelId || officialChannel.id?.channelId;
+    if (!channelId) {
+      return {
+        found: false,
+        availability: 'UNVERIFIED',
+        reason: 'no_canonical_channel_id',
+      };
+    }
+
+    // Verified channel — fetch stats. Free-text UGC keyword search removed
+    // (would contaminate estimatedViews with unrelated keyword-matched
+    // content; see PR #103 contamination class). UGC reintroduction
+    // requires Verified Alias Table or ContentID API per Constitutional Rule.
+    const statsResp = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelId}&key=${apiKey}`
     );
-    let ugcVideoCount = 0;
-    let ugcEstimatedViews = 0;
-    let topUgcVideos = [];
-
-    if (ugcResp.ok) {
-      const ugcData = await ugcResp.json();
-      const ugcVideos = (ugcData.items || []).filter(v => {
-        const channelTitle = v.snippet?.channelTitle?.toLowerCase() || '';
-        return !channelTitle.includes(norm(artistName)) && !channelTitle.includes('vevo');
-      });
-
-      ugcVideoCount = ugcVideos.length;
-      topUgcVideos = ugcVideos.slice(0, 3).map(v => ({
-        title: v.snippet.title,
-        channel: v.snippet.channelTitle,
-        videoId: v.id.videoId,
-      }));
-
-      if (ugcVideos.length > 0) {
-        const videoIds = ugcVideos.map(v => v.id.videoId).filter(Boolean).join(',');
-        if (videoIds) {
-          const videoStatsResp = await fetch(
-            `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoIds}&key=${apiKey}`
-          );
-          if (videoStatsResp.ok) {
-            const videoStatsData = await videoStatsResp.json();
-            ugcEstimatedViews = (videoStatsData.items || []).reduce((sum, v) => {
-              return sum + parseInt(v.statistics?.viewCount || 0);
-            }, 0);
-          }
-        }
+    let subscriberCount = 0, officialViewCount = 0, officialVideoCount = 0;
+    if (statsResp.ok) {
+      const stats = (await statsResp.json()).items?.[0]?.statistics;
+      if (stats) {
+        subscriberCount    = parseInt(stats.subscriberCount || 0);
+        officialViewCount  = parseInt(stats.viewCount       || 0);
+        officialVideoCount = parseInt(stats.videoCount      || 0);
       }
     }
-
-    const hasOfficialChannel = !!officialChannel;
-    const hasUgcRisk = ugcVideoCount > 0;
-    const contentIdRisk = hasUgcRisk && !hasOfficialChannel;
 
     return {
       found: true,
-      officialChannel: hasOfficialChannel ? {
-        title: officialChannel.snippet.channelTitle,
-        channelId: officialChannel.snippet.channelId || officialChannel.id?.channelId,
+      availability: 'VERIFIED',
+      officialChannel: {
+        title:       officialChannel.snippet.channelTitle,
+        channelId,
         subscribers: subscriberCount,
-        totalViews: officialViewCount,
-        videoCount: officialVideoCount,
-      } : null,
-      ugc: {
-        videoCount: ugcVideoCount,
-        estimatedViews: ugcEstimatedViews,
-        topVideos: topUgcVideos,
-        contentIdRisk,
+        totalViews:  officialViewCount,
+        videoCount:  officialVideoCount,
       },
-      contentIdVerified: hasOfficialChannel && officialViewCount > 0,
+      contentIdVerified:  officialViewCount > 0,
       subscriberCount,
       totalOfficialViews: officialViewCount,
     };
@@ -1141,7 +1123,15 @@ function estimateRoyaltyGap(catalog, lastfm, youtube) {
   const potentialGapLow  = Math.round(estTotalRoyalties * LOW_GAP_RATIO);
   const potentialGapHigh = Math.round(estTotalRoyalties * HIGH_GAP_RATIO);
 
-  const ugcViews = youtube?.ugc?.estimatedViews || 0;
+  // Constitutional gate (YOUTUBE_REVENUE_REQUIRES_VERIFIED_CHANNEL).
+  // UGC dollar/view metrics are emittable only from a VERIFIED YouTube
+  // channel. Otherwise: 0. With UGC discovery removed from getYouTube,
+  // even verified channels produce 0 today — these fields will only
+  // populate once a Verified Alias / ContentID pathway lands.
+  const youtubeVerified = !!(youtube && youtube.found === true && youtube.availability === 'VERIFIED');
+  const ugcViews = (YOUTUBE_REVENUE_REQUIRES_VERIFIED_CHANNEL && !youtubeVerified)
+    ? 0
+    : (youtube?.ugc?.estimatedViews || 0);
   const ugcUnmonetisedEst = Math.round(ugcViews * 0.0015);
 
   return {
@@ -1190,15 +1180,18 @@ function computeGapBasedExposure({ catalog, track, youtube, appleMusic, mb, flag
     });
   }
 
-  // Indicator 2 — Content ID gap: unmonetized UGC views. Gated on the engine's
-  // own UGC-risk flag (youtube.ugc.contentIdRisk), which is true only when UGC
-  // exists AND no official channel claims it. When an official channel is
-  // present the content is already treated as covered — and getYouTube's raw
-  // keyword search is unreliable for generic-name artists (name-collision view
-  // inflation), so a raw view sum must not drive this indicator on its own.
-  const ugcRisk  = !!(youtube && youtube.ugc && youtube.ugc.contentIdRisk);
-  const ugcViews = Math.max(0, Math.round(Number(youtube && youtube.ugc && youtube.ugc.estimatedViews) || 0));
-  if (ugcRisk && ugcViews > 100) {
+  // Indicator 2 — Content ID gap: unmonetized UGC views.
+  // Constitutional gate (YOUTUBE_REVENUE_REQUIRES_VERIFIED_CHANNEL):
+  // requires VERIFIED youtube channel AND the engine's own contentIdRisk
+  // flag. UNVERIFIED youtube → indicator never fires. With UGC discovery
+  // removed from getYouTube, this never fires today; it will only fire
+  // once a Verified Alias / ContentID pathway repopulates the ugc block.
+  const youtubeVerifiedExp = !!(youtube && youtube.found === true && youtube.availability === 'VERIFIED');
+  const ugcRisk  = youtubeVerifiedExp && !!(youtube.ugc && youtube.ugc.contentIdRisk);
+  const ugcViews = youtubeVerifiedExp
+    ? Math.max(0, Math.round(Number(youtube?.ugc?.estimatedViews) || 0))
+    : 0;
+  if (YOUTUBE_REVENUE_REQUIRES_VERIFIED_CHANNEL && ugcRisk && ugcViews > 100) {
     indicators.push({
       id: 'content-id-gap', severity: 'HIGH',
       title: 'Unmonetized content activity detected',
