@@ -257,8 +257,23 @@ export function computeV2HealthScore(canonical) {
   }
 
   // ── ISRC coverage (max 10) ──────────────────────────────────────────────
-  const isrcLookup = am.isrcLookup;
-  if (isrcLookup && isrcLookup.isrc) {
+  // 2026-06-09 Canonical Payload V2 Phase 1, Question #1: engine becomes the
+  // single source of truth for ISRC detection. Broadened from single-source
+  // (am.isrcLookup.isrc only) to the 3-source check the UI previously ran:
+  //   1) canonical.subject.trackIsrc  — present on track-input scans
+  //   2) am.isrcLookup.isrc           — Apple Music ISRC endpoint result
+  //   3) am.catalogComparison.matched > 0 — Apple↔Spotify cross-match
+  // Any ONE source confirms ISRC presence. Score gain ≤10 per scan;
+  // track-URL scans that previously missed the +10 (no isrcLookup but
+  // trackIsrc populated) now gain those points consistently.
+  const isrcLookup       = am.isrcLookup;
+  const catalogMatched   = am.catalogComparison && typeof am.catalogComparison.matched === 'number'
+                             ? am.catalogComparison.matched : 0;
+  const trackIsrcPresent = canonical && canonical.subject && canonical.subject.trackIsrc;
+  const hasIsrc = !!(trackIsrcPresent
+                     || (isrcLookup && isrcLookup.isrc)
+                     || catalogMatched > 0);
+  if (hasIsrc) {
     isrcPoints += 10;
   } else {
     drivers.push({ text: 'ISRC information was not available from reviewed sources', weight: 10 });
