@@ -2872,11 +2872,11 @@ function showRealResults(data) {
   // Brief 012a: score computed from V2 verified signals only — NOT
   // inverted from the V1 risk engine's overallScore. The V1 score was
   // built on retired philosophy (Wikipedia absence, AudioDB, etc.)
-  // which we filter out of Findings, so inverting it produced a
-  // 25/100 "Review Recommended" that contradicted "No findings."
-  // _computeV2HealthScore reads the same signals the V2 surfaces
-  // already render: catalog depth, platform presence, BIG 6 territory
-  // coverage, ISRC presence.
+  // Canonical Payload V2 Phase 5/6 (2026-06-09): UI consumes the
+  // engine-computed Health Object from data.canonical.health.*.
+  // The local _computeV2HealthScore() + _getHealthBand() functions
+  // have been deleted — the engine in api/lib/health-score.js is
+  // the SOLE source of truth. UI is a pure presentation layer.
   const scoreTagEl  = document.getElementById('hero-score-tag');
   const scoreNumEl  = document.getElementById('hero-score-tag-num');
   const scoreLblEl  = document.getElementById('hero-score-tag-lbl');
@@ -2884,23 +2884,23 @@ function showRealResults(data) {
   const driversEl   = document.getElementById('os-score-drivers');
   const driversList = document.getElementById('os-drivers-list');
   if (scoreTagEl && scoreNumEl) {
-    const result = _computeV2HealthScore(data);
-    if (result != null) {
-      const { score: health, drivers } = result;
-      const band = _getHealthBand(health);
+    const result = data && data.canonical && data.canonical.health;
+    if (result && typeof result.score === 'number') {
+      const { score: health, grade, drivers } = result;
+      const className = GRADE_TO_CLASS[grade] || 'band-danger';
       scoreNumEl.textContent = health;
-      if (scoreLblEl) scoreLblEl.textContent = `Health Score · ${band.label}`;
+      if (scoreLblEl) scoreLblEl.textContent = `Health Score · ${grade}`;
       scoreTagEl.classList.remove('band-healthy','band-warning','band-atrisk','band-danger');
-      scoreTagEl.classList.add(band.className);
+      scoreTagEl.classList.add(className);
       scoreTagEl.classList.add('is-shown');
       if (scoreHelpEl) scoreHelpEl.style.display = '';
 
       // Brief 012b — drivers always shown. Empty list gets a neutral line.
       if (driversEl && driversList) {
         driversEl.hidden = false;
-        if (drivers.length > 0) {
+        if (Array.isArray(drivers) && drivers.length > 0) {
           driversList.innerHTML = drivers.map(
-            (d) => `<li>⚠ ${_osEscape(d.text)}</li>`
+            (d) => `<li>⚠ ${_osEscape(d)}</li>`
           ).join('');
         } else {
           driversList.innerHTML = '<li class="os-driver-empty">Your score is not currently being lowered by any observed factors.</li>';
@@ -2957,100 +2957,26 @@ function _osEscape(s) {
   if (s == null) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
-function _getHealthBand(health) {
-  if (health >= 90) return { className: 'band-healthy', label: 'Excellent' };
-  if (health >= 75) return { className: 'band-warning', label: 'Strong' };
-  if (health >= 60) return { className: 'band-atrisk',  label: 'Moderate' };
-  return                   { className: 'band-danger',  label: 'Review recommended' };
-}
-
-// ── Brief 012a (follow-up): V2 verified-signal Health Score ──
-// Mirrors api/_lib/persist-os-scan.js computeV2HealthScore exactly.
-// Logic, weights, and driver tone are locked there — keep this in sync.
-// Client reads both the raw flat response shape (what /api/audit
-// returns to the browser pre-persist) and the canonical-nested shape.
-// Returns { score, drivers } where drivers are objects with .text
-// (so renderV2Section2 can iterate). Returns null when no data exists.
-function _computeV2HealthScore(data) {
-  if (!data) return null;
-
-  // Raw response (flat) vs canonical (nested under .details). Read both.
-  const am = (data.appleMusic && (data.appleMusic.albums || data.appleMusic.albumCount != null || data.appleMusic.storefrontAvailability != null))
-             ? data.appleMusic
-             : (data.platforms && data.platforms.appleMusic && data.platforms.appleMusic.details) || {};
-  const p = data.platforms || {};
-
-  let catalogPoints   = 0;
-  let backendPoints   = 0;
-  let youtubePoints   = 0;
-  let territoryPoints = 0;
-  let isrcPoints      = 0;
-  const drivers       = [];
-
-  // Catalog depth (max 40)
-  const albums     = Array.isArray(am.albums) ? am.albums : [];
-  const albumCount = albums.length || (typeof am.albumCount === 'number' ? am.albumCount : 0);
-  if (albums.length >= 1) catalogPoints += 20;
-  if (albumCount >= 4)    catalogPoints += 10;
-  if (albumCount >= 10)   catalogPoints += 10;
-  if (albumCount === 0) {
-    drivers.push({ text: 'Catalog depth could not be determined from reviewed sources', weight: 40 });
-  } else if (albumCount < 4) {
-    drivers.push({ text: 'Catalog depth was below the typical range in reviewed sources', weight: 20 });
-  }
-
-  // Platform presence — Apple+Spotify → backend_health (max 20), YouTube → youtube_presence (max 10).
-  // Reads multiple shapes: raw booleans + .found flag + canonical .availability.
-  const verified = (k) => p[k] === true
-    || (p[k] && p[k].availability === 'VERIFIED')
-    || (k === 'spotify' && data.spotifyMatched === true)
-    || (k === 'appleMusic' && data.appleMusic && data.appleMusic.found === true);
-  if (verified('appleMusic')) backendPoints += 10;
-  else drivers.push({ text: 'Apple Music presence was not available from reviewed sources', weight: 10 });
-  if (verified('spotify'))    backendPoints += 10;
-  else drivers.push({ text: 'Spotify presence was not available from reviewed sources',     weight: 10 });
-  if (verified('youtube'))    youtubePoints += 10;
-  else drivers.push({ text: 'YouTube presence was not available from reviewed sources',     weight: 10 });
-
-  // Territory availability (max 20)
-  const sfa = am.storefrontAvailability || null;
-  if (!sfa || typeof sfa !== 'object') {
-    drivers.push({ text: 'Territory availability was not yet verified in this scan', weight: 20 });
-  } else {
-    territoryPoints += 10;
-    const keys = ['us','ca','gb','de','fr','jp','au','br'];
-    let fullCount = 0;
-    for (const sf of keys) {
-      const ent = sfa[sf];
-      if (!ent || ent.error) continue;
-      const avail = Array.isArray(ent.available) ? ent.available.length : 0;
-      if (avail > 0) fullCount++;
-    }
-    if (fullCount === keys.length) {
-      territoryPoints += 10;
-    } else if (fullCount >= 5) {
-      territoryPoints += 5;
-      drivers.push({ text: 'Availability was not yet verified across all reviewed territories', weight: 10 });
-    } else {
-      drivers.push({ text: 'Availability was not yet verified across all reviewed territories', weight: 10 });
-    }
-  }
-
-  // ISRC coverage (max 10) — client also recognizes raw .trackIsrc.
-  const lookup = am.isrcLookup || null;
-  const hasIsrc = !!(data.trackIsrc
-                    || (lookup && lookup.isrc)
-                    || (am.catalogComparison && typeof am.catalogComparison.matched === 'number' && am.catalogComparison.matched > 0));
-  if (hasIsrc) isrcPoints += 10;
-  else drivers.push({ text: 'ISRC information was not available from reviewed sources', weight: 10 });
-
-  const total = catalogPoints + backendPoints + youtubePoints + territoryPoints + isrcPoints;
-  drivers.sort((a, b) => b.weight - a.weight);
-  return {
-    score:   Math.max(0, Math.min(100, total)),
-    drivers: drivers.slice(0, 4),
-  };
-}
+// ── Canonical Payload V2 Phase 5/6 (2026-06-09) ─────────────────────────
+// Health Score is engine-computed (api/lib/health-score.js). The UI is a
+// pure presentation layer. The former _computeV2HealthScore() and
+// _getHealthBand() functions have been deleted — UI now reads
+// data.canonical.health.{score, grade, drivers, breakdown} directly.
+//
+// GRADE_TO_CLASS is a presentation-only mapping: it carries NO business
+// logic and NO score thresholds. The engine emits the semantic grade
+// label; the UI picks its own CSS class for that label. Mission Control
+// and Royaltē Review own equivalent (but possibly different-named)
+// mappings — that is correct per One Truth · One Engine · One Platform:
+// the grade is canonical; the className is presentation.
+//
+// Generate Once. Normalize Once. Compute Once. Consume Everywhere.
+const GRADE_TO_CLASS = {
+  'Excellent':          'band-healthy',
+  'Strong':             'band-warning',
+  'Moderate':           'band-atrisk',
+  'Review Recommended': 'band-danger',
+};
 
 function _renderV2Findings(flagsArr) {
   const findingsEl = document.getElementById('os-findings');
