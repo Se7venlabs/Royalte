@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "scanId": "00000000-0000-0000-0000-000000000001",
   "scannedAt": "2026-01-01T00:00:00.000Z",
   "source": {
@@ -278,6 +278,19 @@
     "riskSummary": "Moderate risk — some gaps detected. Top concerns: Catalog active for 33 years; 234,567,890 Last.fm plays detected.",
     "moduleAverage": 69,
     "ownershipImpact": -4
+  },
+  "health": {
+    "score": 60,
+    "grade": "Moderate",
+    "drivers": [
+      "Territory availability was not yet verified in this scan"
+    ],
+    "breakdown": {
+      "catalog_verification": 20,
+      "big6_coverage": 0,
+      "backend_health": 20,
+      "youtube_presence": 10
+    }
   },
   "royaltyGap": {
     "estAnnualStreams": 65614404,

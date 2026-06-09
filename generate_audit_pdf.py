@@ -47,7 +47,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 
-SCHEMA_VERSION = "1.1.0"
+SCHEMA_VERSION = "1.2.0"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -183,6 +183,23 @@ class Score(BaseModel):
     ownershipImpact: int
 
 
+class HealthBreakdown(BaseModel):
+    catalog_verification: int
+    big6_coverage: int
+    backend_health: int
+    youtube_presence: int
+
+
+class Health(BaseModel):
+    """Canonical Health Object (v1.2.0). Engine-owned. UI never recomputes.
+    Grade is Board-locked: Excellent | Strong | Moderate | Review Recommended.
+    """
+    score: int
+    grade: str
+    drivers: list[str]
+    breakdown: HealthBreakdown
+
+
 class RoyaltyGap(BaseModel):
     estAnnualStreams: int
     estLifetimeStreams: int
@@ -244,6 +261,7 @@ class AuditResponse(BaseModel):
     modules: Modules
     issues: list[Issue]
     score: Score
+    health: Health
     royaltyGap: RoyaltyGap
     gapBasedExposure: GapBasedExposure
     proGuide: ProGuide

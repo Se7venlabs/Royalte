@@ -5,7 +5,7 @@
 // Any change to this file is a breaking change — bump AUDIT_RESPONSE_VERSION.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const AUDIT_RESPONSE_VERSION = '1.1.0';
+export const AUDIT_RESPONSE_VERSION = '1.2.0';
 
 // ── Enums ────────────────────────────────────────────────────────────────────
 export const PLATFORM_AVAILABILITY = Object.freeze({
@@ -190,6 +190,29 @@ export const AUDIT_RESPONSE_SCHEMA = {
       riskSummary:     { type: 'string', required: true },
       moduleAverage:   { type: 'number', required: true, min: 0, max: 100 },
       ownershipImpact: { type: 'number', required: true },
+    },
+  },
+
+  // Canonical Health Object (v1.2.0, 2026-06-09) — Royaltē Intelligence Object
+  // #2 from CANONICAL_PAYLOAD_V2.md. Engine-owned. UI never recomputes.
+  // Generated once in normalizeAuditResponse via computeV2HealthScore;
+  // consumed by every Royaltē surface (Scan Results, Mission Control,
+  // Royaltē Review, Monitoring, future API). Grade enum is Board-locked
+  // — any spelling/casing change requires Constitutional Board Review.
+  health: {
+    type: 'object', required: true,
+    shape: {
+      score:    { type: 'number', required: true, min: 0, max: 100 },
+      grade:    { type: 'string', required: true,
+                  enum: ['Excellent', 'Strong', 'Moderate', 'Review Recommended'] },
+      drivers:  { type: 'array',  required: true, itemType: 'string' },
+      breakdown:{ type: 'object', required: true,
+                  shape: {
+                    catalog_verification: { type: 'number', required: true, min: 0, max: 40 },
+                    big6_coverage:        { type: 'number', required: true, min: 0, max: 20 },
+                    backend_health:       { type: 'number', required: true, min: 0, max: 20 },
+                    youtube_presence:     { type: 'number', required: true, min: 0, max: 10 },
+                  } },
     },
   },
 
