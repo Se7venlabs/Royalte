@@ -295,7 +295,13 @@ export default async function handler(req, res) {
       result.rawResponse.warnings = result.warnings;
     }
 
-    return res.status(200).json({ ...result.rawResponse, scanId });
+    // Canonical Payload V2 Phase 1.5 — Board Option B (2026-06-09).
+    // Wire shape: legacy raw fields at root (back-compat for every
+    // existing browser consumer) + the full Canonical Payload™ under
+    // `canonical`. Consumers migrate one Royaltē Intelligence Object
+    // at a time by reading `data.canonical.<object>.<field>`.
+    // Required to unblock Canonical Health Object Phase 5/6.
+    return res.status(200).json({ ...result.rawResponse, scanId, canonical });
 
   } catch (err) {
     console.error('Audit error:', err);
