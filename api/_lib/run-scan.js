@@ -23,6 +23,7 @@
 
 import { generateAppleToken } from '../apple-token.js';
 import { lookupByISRC, checkStorefrontAvailability, getArtistAlbums, getArtistSongs } from '../apple-music.js';
+import { lookupYouTubeChannelId } from './identity-graph.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -992,71 +993,84 @@ async function getYouTube(artistName) {
       return { found: false, reason: 'API key not configured' };
     }
 
-    const query = encodeURIComponent(artistName);
-    const channelResp = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=channel&maxResults=10&key=${apiKey}`
-    );
-    if (!channelResp.ok) return { found: false, reason: `YouTube API error: ${channelResp.status}` };
-    const channelData = await channelResp.json();
-    const channels = channelData.items || [];
+    const norm = (s) => (s || '').toLowerCase().trim();
 
     // ────────────────────────────────────────────────────────────────────
     // YOUTUBE CHANNEL MATCHING — Constitutional Rule
-    // Current: strict exact channel name match only
-    // Future: Verified Alias Table (curated per artist)
-    // Future: Royaltē Alias Registry
-    // Future: ContentID API integration
-    // Until those exist: UNVERIFIED is correct behavior
-    // Never guess. Silence > wrong data.
+    // Identity resolution is delegated to api/_lib/identity-graph.js
+    // (Royaltē Identity Graph™). The engine reads from the Graph; the
+    // engine never owns artist-specific records. Adding a verified
+    // artist is a pure Identity Graph change — no engine code change.
+    //   Step 1: Royaltē Identity Graph™ lookup (read-only).
+    //   Step 2: Strict exact channel-title match (fallback for artists
+    //           not in the Graph whose channel title verbatim equals
+    //           their canonical name).
+    // No substring, no description heuristic, no `|| channels[0]`.
+    // Unknown identity + no exact match → UNVERIFIED. Silence > wrong data.
+    // Future: ContentID API integration for UGC monetization signals.
     // ────────────────────────────────────────────────────────────────────
-    const norm = (s) => (s || '').toLowerCase().trim();
-    const officialChannel = channels.find(
-      (c) => norm(c.snippet.channelTitle) === norm(artistName)
-    ) || null;
 
-    if (!officialChannel) {
-      return {
-        found: false,
-        availability: 'UNVERIFIED',
-        reason: 'no_canonical_channel_match',
-      };
-    }
+    // (1) Royaltē Identity Graph™ read.
+    let channelId     = lookupYouTubeChannelId(artistName);
+    let channelTitle  = null;
+    let channelSource = channelId ? 'royalte_identity_graph' : null;
 
-    const channelId = officialChannel.snippet.channelId || officialChannel.id?.channelId;
+    // (2) Fallback — strict exact channel-title match via YouTube search.
     if (!channelId) {
-      return {
-        found: false,
-        availability: 'UNVERIFIED',
-        reason: 'no_canonical_channel_id',
-      };
+      const query = encodeURIComponent(artistName);
+      const channelResp = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=channel&maxResults=10&key=${apiKey}`
+      );
+      if (!channelResp.ok) return { found: false, reason: `YouTube API error: ${channelResp.status}` };
+      const channelData = await channelResp.json();
+      const channels = channelData.items || [];
+      const officialChannel = channels.find(
+        (c) => norm(c.snippet.channelTitle) === norm(artistName)
+      ) || null;
+      if (!officialChannel) {
+        return { found: false, availability: 'UNVERIFIED', reason: 'no_canonical_channel_match' };
+      }
+      channelId     = officialChannel.snippet.channelId || officialChannel.id?.channelId;
+      channelTitle  = officialChannel.snippet.channelTitle;
+      channelSource = 'strict_name_match';
+    }
+    if (!channelId) {
+      return { found: false, availability: 'UNVERIFIED', reason: 'no_canonical_channel_id' };
     }
 
-    // Verified channel — fetch stats. Free-text UGC keyword search removed
-    // (would contaminate estimatedViews with unrelated keyword-matched
-    // content; see PR #103 contamination class). UGC reintroduction
-    // requires Verified Alias Table or ContentID API per Constitutional Rule.
+    // (3) Channel stats fetch — by channelId, identical for both paths.
+    // Free-text UGC keyword search remains removed (contamination class
+    // banned by PR #103). UGC reintroduction requires ContentID API per
+    // Constitutional Rule.
     const statsResp = await fetch(
       `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelId}&key=${apiKey}`
     );
     let subscriberCount = 0, officialViewCount = 0, officialVideoCount = 0;
     if (statsResp.ok) {
-      const stats = (await statsResp.json()).items?.[0]?.statistics;
+      const data = await statsResp.json();
+      const item = data.items?.[0];
+      const stats = item?.statistics;
       if (stats) {
         subscriberCount    = parseInt(stats.subscriberCount || 0);
         officialViewCount  = parseInt(stats.viewCount       || 0);
         officialVideoCount = parseInt(stats.videoCount      || 0);
       }
+      // Identity-Graph path doesn't know the title until we ask YouTube
+      // — fetched authoritatively here so the Graph never stores a name
+      // that can rot when YouTube renames the channel.
+      if (!channelTitle && item?.snippet?.title) channelTitle = item.snippet.title;
     }
 
     return {
       found: true,
       availability: 'VERIFIED',
       officialChannel: {
-        title:       officialChannel.snippet.channelTitle,
+        title:       channelTitle,
         channelId,
         subscribers: subscriberCount,
         totalViews:  officialViewCount,
         videoCount:  officialVideoCount,
+        verifiedVia: channelSource,
       },
       contentIdVerified:  officialViewCount > 0,
       subscriberCount,
