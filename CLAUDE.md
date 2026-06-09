@@ -2,6 +2,33 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ROYALTÉ OS™ — SESSION INITIALIZATION
+
+Before any implementation work in this repo, Claude Code must:
+
+1. Read `CLAUDE.md` fully.
+2. Treat **Royalté OS™** as the governing architecture (Royalté Master Constitution + Canonical Payload V2 + Governance Directive + Identity Graph separation).
+3. Verify constitutional compliance **before** any implementation.
+
+Before writing any code, verify:
+
+1. Does this feature map to a Canonical Intelligence Object? (the 12 ratified objects — see `constitution/CANONICAL_PAYLOAD_V2.md`)
+2. Is this a presentation layer only (no business logic)?
+3. Does intelligence generate **once** and consume **everywhere**?
+4. Does this eliminate or avoid duplicate logic?
+5. Does this reinforce Music Backend Intelligence™?
+
+If any answer is unclear: **STOP** and review the Constitution before continuing. The governing docs live at:
+
+- `constitution/ROYALTE_MASTER_CONSTITUTION_v1.md` — supreme governing document
+- `constitution/CANONICAL_PAYLOAD_V2.md` — the 12-object intelligence model every surface consumes
+
+**Constitutional Priority:** Royalté OS™ > existing code > previous prompts > convenience.
+
+When a previous prompt conflicts with Royalté OS™, the Constitution wins — flag the conflict to the founder and hold work until reconciled.
+
+---
+
 **Active task list:** See `LAUNCH_CHECKLIST.md` at repo root. Read it at the start of every session — it's the source of truth for what's on deck and what's left before the June 1, 2026 beta launch.
 
 **Scan scoring model — V1 audit display (locked 2026-05-14, PR #24; PDF surface released 2026-05-30, Brief 014):** The audit engine returns raw risk scores (higher = more risk). The V1 frontend audit display surfaces — `public/audit.html` and the audit-report dashboard view — display these values directly with no inversion. Score bands: 0-30 Low Risk, 31-60 Moderate Risk, 61-80 At Risk, 81-100 Critical Risk. Section numbers render as "+N risk" to communicate risk contribution. DO NOT reintroduce health-score framing or invert the displayed values on those V1 surfaces — that was the source of artist confusion before v4. **The artist-emailed PDF (`lib/audit-report-template.html` + `lib/render-audit-pdf.js`) was promoted to V2 framing by Brief 014 — it is now the "Royaltē Review" and uses the V2 Health Score model below.**
