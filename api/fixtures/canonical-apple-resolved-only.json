@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "scanId": "00000000-0000-0000-0000-000000000002",
   "scannedAt": "2026-01-01T00:00:00.000Z",
   "source": {
@@ -181,6 +181,22 @@
     "riskSummary": "High risk — multiple issues need attention.",
     "moduleAverage": 53,
     "ownershipImpact": 0
+  },
+  "health": {
+    "score": 20,
+    "grade": "Review Recommended",
+    "drivers": [
+      "Catalog depth was below the typical range in reviewed sources",
+      "Territory availability was not yet verified in this scan",
+      "YouTube presence was not available from reviewed sources",
+      "ISRC information was not available from reviewed sources"
+    ],
+    "breakdown": {
+      "catalog_verification": 0,
+      "big6_coverage": 0,
+      "backend_health": 20,
+      "youtube_presence": 0
+    }
   },
   "royaltyGap": {
     "estAnnualStreams": 0,
