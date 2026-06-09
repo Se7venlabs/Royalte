@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Royaltē — Founding Artist Beta · Music Audit Intelligence · Se7ven Labs LLC</title>
+<title>Royaltē — Founding Artist Beta · Music Backend Intelligence™ · Se7ven Labs LLC</title>
 <!-- Open Graph / Facebook / iMessage / LinkedIn -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://royalte.ai/">
-<meta property="og:title" content="Royaltē — Music Audit Intelligence">
+<meta property="og:title" content="Royaltē — Music Backend Intelligence™">
 <meta property="og:description" content="Royaltē — the music royalty audit layer that surfaces metadata gaps, registration issues, and platform coverage problems for artists and rights holders.">
 <meta property="og:image" content="https://royalte.ai/og-image.jpg">
 <meta property="og:image:width" content="1200">
@@ -16,7 +16,7 @@
 
 <!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Royaltē — Music Audit Intelligence">
+<meta name="twitter:title" content="Royaltē — Music Backend Intelligence™">
 <meta name="twitter:description" content="Royaltē — the music royalty audit layer that surfaces metadata gaps, registration issues, and platform coverage problems for artists and rights holders.">
 <meta name="twitter:image" content="https://royalte.ai/og-image.jpg">
 
@@ -1535,13 +1535,13 @@ body.menu-locked {
 .vs-result-inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:32px;}
 
 /* Result hero card */
-.vs-result-hero{display:grid;grid-template-columns:220px 1fr;gap:28px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:24px;align-items:stretch;}
+.vs-result-hero{display:grid;grid-template-columns:160px 1fr;gap:28px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:20px;align-items:stretch;}
 .vs-result-art{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:linear-gradient(135deg,#3a1a5a 0%,#1a0f30 100%);display:flex;align-items:center;justify-content:center;}
 .vs-result-art img{width:100%;height:100%;object-fit:cover;display:none;}
 .vs-result-art img.is-loaded{display:block;}
 .vs-result-art #vs-art-fallback{font-family:'Rajdhani',sans-serif;font-size:64px;font-weight:700;color:rgba(255,255,255,0.4);}
 .vs-result-art #vs-art-fallback.is-hidden{display:none;}
-.vs-result-body{display:flex;flex-direction:column;gap:14px;min-width:0;}
+.vs-result-body{display:flex;flex-direction:column;gap:10px;min-width:0;}
 .vs-result-top{display:flex;flex-direction:column;gap:6px;}
 .vs-pill-complete{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.12em;color:var(--grn);background:rgba(64,240,160,0.08);border:1px solid rgba(64,240,160,0.35);padding:4px 10px;border-radius:4px;text-transform:uppercase;}
 .vs-pill-complete::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--grn);box-shadow:0 0 8px var(--grn);}
@@ -1549,13 +1549,13 @@ body.menu-locked {
 .vs-result-genre{font-family:'Space Mono',monospace;font-size:11px;color:var(--pur);letter-spacing:0.08em;margin:0;text-transform:uppercase;}
 .vs-result-line{font-size:14px;color:var(--text2);line-height:1.55;margin:0;}
 .vs-result-line strong{color:var(--text);font-weight:600;}
-.vs-divider{height:1px;background:var(--border2);}
+.vs-divider{height:1px;background:var(--border2);margin:4px 0;}
 .vs-health{display:flex;flex-direction:column;gap:18px;}
-.vs-health-label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase;}
-.vs-health-row{display:grid;grid-template-columns:160px 1fr;gap:32px;align-items:center;}
+.vs-health-label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+.vs-health-row{display:grid;grid-template-columns:180px 1fr;gap:32px;align-items:center;}
 .vs-health-num-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:2px;}
-.vs-health-num{font-family:'Rajdhani',sans-serif;font-size:80px;font-weight:700;line-height:1;color:var(--grn);}
-.vs-health-band{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.15em;color:var(--grn);text-transform:uppercase;margin-top:4px;}
+.vs-health-num{font-family:'Rajdhani',sans-serif;font-size:96px;font-weight:700;line-height:1;color:var(--grn);}
+.vs-health-band{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.18em;color:var(--grn);text-transform:uppercase;margin-top:4px;}
 .vs-health-num.is-warning,.vs-health-band.is-warning{color:var(--amb);}
 .vs-health-num.is-atrisk,.vs-health-band.is-atrisk{color:#e08858;}
 .vs-health-num.is-danger,.vs-health-band.is-danger{color:var(--red);}
@@ -1574,13 +1574,13 @@ body.menu-locked {
 .vs-card h3{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--text);letter-spacing:0.10em;text-transform:uppercase;margin:0;}
 
 /* Findings card */
-.vs-findings-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
-.vs-finding{display:grid;grid-template-columns:32px 1fr 16px;gap:12px;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;}
+.vs-findings-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+.vs-finding{display:grid;grid-template-columns:32px 1fr 16px;gap:12px;align-items:center;padding:14px 16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;}
 .vs-finding-icon{width:32px;height:32px;border-radius:50%;background:rgba(138,92,255,0.10);border:1px solid rgba(138,92,255,0.30);display:flex;align-items:center;justify-content:center;color:var(--pur);}
 .vs-finding-icon svg{width:14px;height:14px;}
 .vs-finding-body{display:flex;flex-direction:column;gap:3px;min-width:0;}
-.vs-finding-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin:0;line-height:1.3;}
-.vs-finding-sub{font-size:11px;color:var(--muted2);margin:0;line-height:1.4;}
+.vs-finding-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin:0;line-height:1.3;}
+.vs-finding-sub{font-size:12px;color:var(--muted2);margin:0;line-height:1.4;}
 .vs-finding-chev{color:var(--muted);}
 .vs-finding-chev svg{width:14px;height:14px;}
 .vs-finding-empty{padding:18px 14px;text-align:center;font-size:13px;color:var(--text2);background:rgba(64,240,160,0.04);border:1px solid rgba(64,240,160,0.18);border-radius:8px;}
@@ -2094,7 +2094,7 @@ body.menu-locked {
               </div>
             </div>
           </div>
-          <p class="vs-health-desc">Royaltē analyzed your public music infrastructure and identified opportunities to strengthen your Music Backend Intelligence™.</p>
+          <p class="vs-health-desc">Royaltē analyzed your Music Backend Intelligence™ profile and identified opportunities to strengthen your catalog infrastructure.</p>
         </div>
       </div>
     </div>
@@ -2162,8 +2162,8 @@ body.menu-locked {
       </div>
       <div class="vs-save-body">
         <h3>Save Your Scan</h3>
-        <p class="vs-save-lead">Royaltē found additional Music Backend Intelligence™ for your catalog.</p>
-        <p class="vs-save-lead-2">Save your scan to unlock it.</p>
+        <p class="vs-save-lead">Royaltē discovered additional Music Backend Intelligence™ that isn't shown in this preview.</p>
+        <p class="vs-save-lead-2">Unlock your Executive Brief™ and continue inside your personal Mission Control™.</p>
       </div>
       <div class="vs-save-unlock">
         <p class="vs-unlock-hd">Unlock:</p>
@@ -2296,7 +2296,7 @@ body.menu-locked {
       </defs>
       <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#f-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#f-egrad)">Ē</tspan></text>
       <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#f-purpink)" stroke-width="1.5" opacity="0.6"/>
-      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC BACKEND INTELLIGENCE™</text>
     </svg>
     <svg class="f-logo f-logo-mobile" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
       <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>

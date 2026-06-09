@@ -66,7 +66,7 @@ const wrap = ({ preview, body, footerNote }) => `<!DOCTYPE html>
 <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.5px;color:#ffffff;">
 ROYALT<span style="background:linear-gradient(135deg,#8a5cff,#e040c8);-webkit-background-clip:text;background-clip:text;color:#e040c8;">Ē</span>
 </div>
-<div style="font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;color:#7a7598;text-transform:uppercase;margin-top:4px;">Music Audit Intelligence</div>
+<div style="font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;color:#7a7598;text-transform:uppercase;margin-top:4px;">Music Backend Intelligence™</div>
 </td>
 </tr>
 <tr>
