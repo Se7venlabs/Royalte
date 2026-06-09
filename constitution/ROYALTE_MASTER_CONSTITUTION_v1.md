@@ -1,8 +1,11 @@
----
-STATUS: LOCKED — BOARD APPROVED
-AUTHORITY: Supreme governing document for all Royalté development. Supersedes all previous briefs.
-Amendments require Board Review only.
-Constitutional Motto: Clarity Creates Control. Intelligence Creates Value.
+# ROYALTÉ MASTER CONSTITUTION v1.0
+
+**STATUS:** LOCKED
+
+**Authority:** Supreme governing document for the Royalté platform.
+
+All products, AI agents, engineering decisions, audits, monitoring, Executive Briefs™, Mission Control™, Knowledge Library assets, APIs, and future platform modules shall inherit this Constitution unless formally amended through Constitutional Board Review.
+
 ---
 
 ## SECTION 1 — COMPANY PHILOSOPHY
