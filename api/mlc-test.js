@@ -38,10 +38,21 @@
 //   Optional:
 //     MLC_API_URL     override the documented base URL (rare)
 //
-// Optional query-string override for follow-up probes:
-//   ?title=<song title>   — default "Shape of You" (returns Ed Sheeran
-//                            in the writers array; use ?title=Retrograde
-//                            for James Blake)
+// Optional query-string overrides for follow-up probes:
+//   ?title=<song title>    — default "Shape of You" (returns Ed Sheeran
+//                             in the writers array; use ?title=Retrograde
+//                             for James Blake)
+//   ?bearer=id|access      — which JWT from /oauth/token to send as the
+//                             Authorization: Bearer ... value on the
+//                             search call. Default 'id' (idToken). The
+//                             OpenAPI spec returns BOTH accessToken and
+//                             idToken without stating which to use; the
+//                             response shape matches AWS Cognito + API
+//                             Gateway, where authorizers almost always
+//                             validate the idToken. Empirical: 'access'
+//                             returned HTTP 401 from /search/songcode
+//                             with a valid /oauth/token exchange, so the
+//                             default flipped to 'id'.
 //
 // Security: this endpoint never echoes the password, refresh token,
 // access token, or id token in its response. On the token-exchange
@@ -136,14 +147,17 @@ export default async function handler(req, res) {
     });
   }
 
-  const accessToken = tokenJson?.accessToken;
-  if (!accessToken || typeof accessToken !== 'string') {
+  const bearerChoice = (req.query.bearer || 'id').toString().toLowerCase();
+  const bearerField  = bearerChoice === 'access' ? 'accessToken' : 'idToken';
+  const bearer       = tokenJson?.[bearerField];
+  if (!bearer || typeof bearer !== 'string') {
     return res.status(200).json({
       ok: false,
       stage: 'token_extract',
-      error: 'no_access_token_in_response',
+      error: `no_${bearerField}_in_response`,
       tokenEndpoint,
       tokenMode,
+      bearerField,
       tokenResponseKeys:
         tokenJson && typeof tokenJson === 'object' ? Object.keys(tokenJson) : null,
     });
@@ -157,7 +171,7 @@ export default async function handler(req, res) {
     searchResp = await fetch(searchEndpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        'Authorization': `Bearer ${bearer}`,
         'Content-Type':  'application/json',
         'Accept':        'application/json',
         'User-Agent':    'Royalte/1.0 (mlc-test)',
@@ -171,6 +185,7 @@ export default async function handler(req, res) {
       error: 'fetch_failed',
       message: e?.message || String(e),
       searchEndpoint,
+      bearerField,
     });
   }
 
@@ -191,6 +206,7 @@ export default async function handler(req, res) {
     search: {
       endpoint:    searchEndpoint,
       method:      'POST',
+      bearerField,
       requestBody: searchBody,
       status:      searchResp.status,
       statusText:  searchResp.statusText,
