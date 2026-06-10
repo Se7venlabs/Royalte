@@ -71,3 +71,338 @@ export function getYouTubeChannelEntry(artistName) {
   const key = (artistName || '').toLowerCase().trim();
   return VERIFIED_YOUTUBE_CHANNELS[key] || null;
 }
+
+// ─────────────────────────────────────────
+// Royaltē Identity Graph™ — Publishing Layer
+// Constitutional Architecture:
+// The graph models relationships, not providers.
+// CompositionNode is provider-agnostic.
+// Recording ≠ Composition. ISRC ≠ ISWC.
+// sources[] is append-only. Never destroy evidence.
+// confidence = 'UNKNOWN' until Intelligence phase.
+// No downstream module queries MLC directly.
+// ─────────────────────────────────────────
+//
+// Phase 3 (Board-ratified 2026-06-10) — accretive graph layer that
+// consumes Royaltē-canonical PublishingWork objects from the
+// lib/publishing/*-adapter.js family and projects them into the
+// provider-agnostic CompositionNode schema.
+//
+// Implementation rules (Board amendments A–H, locked):
+//   A. In-memory only — no Supabase. Per-process state.
+//   B. Same file — never split. YouTube exports above untouched.
+//   C. providerIds map: mlc · socan · ascap · bmi · cisac · musicbrainz
+//   D. Merge by providerIds (or ISWC) ONLY — never by title.
+//      "Duplicate intelligence > incorrect intelligence."
+//   E. Caller supplies artistName — graph never infers from writer names.
+//   F. sources[] is append-only — every observation adds an entry.
+//   G. Automated ingestion only via verified adapters (validatePublishingWork
+//      gates the entry; manual identity overrides go through the YouTube
+//      seed pattern above, not through this layer).
+//   H. CompositionNode.confidence is ALWAYS 'UNKNOWN'. Provider-level
+//      confidence is preserved on each sources[] entry and on each
+//      writers[].providerConfidence. The graph does not aggregate.
+//
+// Consumers: future Royaltē intelligence modules read CompositionNode
+// objects via the lookup helpers; no module ever queries MLC fields
+// directly. The lib/publishing/mlc-adapter.js layer (v1.0, locked) is
+// the only place MLC field names appear in the codebase.
+
+// NB: this layer does NOT import validatePublishingWork from the MLC
+// adapter. That validator hardcodes `source === 'mlc'` to assert that an
+// MLC-adapter output is well-formed; the graph must accept PublishingWork
+// from ANY future verified adapter (Board rule C — provider-agnostic).
+// Each adapter remains responsible for its own provider-specific
+// validation; the graph applies a structural floor below (Board rule G).
+
+const PROVIDER_IDS_SCHEMA = Object.freeze([
+  'mlc', 'socan', 'ascap', 'bmi', 'cisac', 'musicbrainz',
+]);
+const GRAPH_CONFIDENCE = 'UNKNOWN';
+
+// ─── Private state (per-process, in-memory) ────────────────────────
+
+const compositionsByArtist     = new Map(); // normalizedArtistKey → CompositionNode[]
+const compositionByIswc        = new Map(); // iswc                → CompositionNode
+const compositionByMlcSongCode = new Map(); // mlcSongCode         → CompositionNode
+const writersByIPI             = new Map(); // writerIPI           → WriterNode
+const recordingToCompositions  = new Map(); // ISRC                → Set<ISWC>
+const compositionToRecordings  = new Map(); // ISWC                → Set<ISRC>
+
+// ─── Internal helpers ──────────────────────────────────────────────
+
+function normalizeArtistKey(name) {
+  return (name || '').toLowerCase().trim();
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function emptyProviderIds() {
+  const out = {};
+  for (const p of PROVIDER_IDS_SCHEMA) out[p] = null;
+  return out;
+}
+
+// Project a PublishingWork writer entry into the CompositionNode writers[]
+// shape. Preserves provider-level confidence per-writer per Board rule H.
+function buildCompositionWriter(writer, providerConfidence) {
+  return {
+    writerIPI:          writer.writerIPI ?? null,
+    firstName:          writer.firstName ?? null,
+    lastName:           writer.lastName  ?? null,
+    fullName:           writer.fullName  ?? null,
+    role:               writer.role      ?? null,
+    providerConfidence: providerConfidence ?? GRAPH_CONFIDENCE,
+  };
+}
+
+// Structural validation gate for incoming PublishingWork — provider-
+// agnostic (accepts any source in PROVIDER_IDS_SCHEMA). Verifies the
+// adapter-output shape Phase 3 depends on; each adapter remains
+// responsible for its own deeper, provider-specific validation.
+function isAcceptablePublishingWork(work) {
+  if (!work || typeof work !== 'object' || Array.isArray(work)) return false;
+  if (typeof work.title       !== 'string' || work.title       === '') return false;
+  if (typeof work.mlcSongCode !== 'string' || work.mlcSongCode === '') return false;
+  if (!Array.isArray(work.writers) || work.writers.length === 0) return false;
+  if (!Array.isArray(work.publishers)) return false;
+  if (typeof work.source !== 'string' || !PROVIDER_IDS_SCHEMA.includes(work.source)) return false;
+  return true;
+}
+
+// Canonical WriterNode — keyed by writerIPI. Does NOT carry provider-
+// specific fields like providerConfidence; that information lives on the
+// composition writer entry and on the per-source attribution.
+function buildWriterNode(writer) {
+  return {
+    writerIPI: writer.writerIPI,
+    firstName: writer.firstName ?? null,
+    lastName:  writer.lastName  ?? null,
+    fullName:  writer.fullName  ?? null,
+    role:      writer.role      ?? null,
+  };
+}
+
+// ─── Graph operations ──────────────────────────────────────────────
+
+/**
+ * Add a Phase 2 PublishingWork into the Identity Graph under the given
+ * artist key. Idempotent — merges into an existing CompositionNode when
+ * one is found by providerIds (Board rule D); creates a new node otherwise.
+ *
+ * NEVER throws. Returns null on invalid input. Returns the (possibly
+ * merged) CompositionNode on success.
+ *
+ * Board rules enforced here:
+ *   D. Match by providerIds (preferred) or ISWC — never by title.
+ *   E. Caller supplies artistName.
+ *   F. sources[] always appends — even for duplicate observations.
+ *   G. Validation gate (validatePublishingWork) blocks malformed input.
+ *   H. node.confidence stays 'UNKNOWN' regardless of provider value.
+ */
+export function addPublishingWork(artistName, publishingWork) {
+  // G. Verified-adapter gate — structural floor; provider-agnostic
+  if (!isAcceptablePublishingWork(publishingWork)) return null;
+
+  // E. Caller-supplied artistName
+  const artistKey = normalizeArtistKey(artistName);
+  if (!artistKey) return null;
+
+  const providerName = publishingWork.source;
+
+  const now = nowIso();
+  const sourceEntry = {
+    provider:    providerName,
+    confidence:  publishingWork.confidence,         // preserved per rule H
+    attribution: publishingWork.rawMlcResponse,     // raw provider data
+    observedAt:  publishingWork.lastUpdated || now,
+  };
+
+  // D. Find existing composition by providerIds (canonical only — never title)
+  let existing = null;
+  if (publishingWork.iswc && compositionByIswc.has(publishingWork.iswc)) {
+    existing = compositionByIswc.get(publishingWork.iswc);
+  } else if (publishingWork.mlcSongCode && compositionByMlcSongCode.has(publishingWork.mlcSongCode)) {
+    existing = compositionByMlcSongCode.get(publishingWork.mlcSongCode);
+  }
+
+  if (existing) {
+    // ── MERGE PATH ──────────────────────────────────────────────
+    // F. Always append a source entry — never overwrite earlier evidence
+    existing.sources.push(sourceEntry);
+    existing.lastObservedAt = now;
+
+    // Fill null providerIds slot — never overwrite an existing value
+    if (existing.providerIds[providerName] === null && publishingWork.mlcSongCode) {
+      existing.providerIds[providerName] = publishingWork.mlcSongCode;
+    }
+    // Always index ALL observed MLC codes to this node so reverse lookup
+    // works for any historically-seen code, even if providerIds.mlc holds
+    // only the first-observed value.
+    if (providerName === 'mlc' && publishingWork.mlcSongCode) {
+      compositionByMlcSongCode.set(publishingWork.mlcSongCode, existing);
+    }
+    if (existing.iswc === null && publishingWork.iswc) {
+      existing.iswc = publishingWork.iswc;
+      compositionByIswc.set(publishingWork.iswc, existing);
+      // Backfill recordings[] from the recording↔composition Map
+      const linkedIsrcs = compositionToRecordings.get(publishingWork.iswc);
+      if (linkedIsrcs) {
+        for (const isrc of linkedIsrcs) {
+          if (!existing.recordings.includes(isrc)) existing.recordings.push(isrc);
+        }
+      }
+    }
+
+    // Merge writers — by writerIPI only (Board rule). Writers without an
+    // IPI are appended (caller's responsibility for cleanup).
+    for (const w of publishingWork.writers) {
+      const projected = buildCompositionWriter(w, publishingWork.confidence);
+      if (w.writerIPI) {
+        const alreadyPresent = existing.writers.some((x) => x.writerIPI === w.writerIPI);
+        if (!alreadyPresent) existing.writers.push(projected);
+      } else {
+        existing.writers.push(projected);
+      }
+      // Always index in global writers map when IPI is present
+      if (w.writerIPI && !writersByIPI.has(w.writerIPI)) {
+        writersByIPI.set(w.writerIPI, buildWriterNode(w));
+      }
+    }
+
+    // Merge publishers (always [] from the Phase 2 MLC adapter today —
+    // future providers may carry publisher data)
+    if (Array.isArray(publishingWork.publishers)) {
+      for (const p of publishingWork.publishers) existing.publishers.push(p);
+    }
+
+    return existing;
+  }
+
+  // ── CREATE PATH ────────────────────────────────────────────────
+  const node = {
+    providerIds:    emptyProviderIds(),
+    iswc:           publishingWork.iswc ?? null,
+    title:          publishingWork.title,
+    canonicalTitle: publishingWork.canonicalTitle,
+    writers:        publishingWork.writers.map((w) =>
+                      buildCompositionWriter(w, publishingWork.confidence)),
+    publishers:     Array.isArray(publishingWork.publishers) ? [...publishingWork.publishers] : [],
+    recordings:     [],
+    sources:        [sourceEntry],
+    addedAt:        now,
+    lastObservedAt: now,
+    confidence:     GRAPH_CONFIDENCE, // Board rule H — always 'UNKNOWN'
+  };
+
+  if (publishingWork.mlcSongCode) {
+    node.providerIds[providerName] = publishingWork.mlcSongCode;
+  }
+
+  // Seed recordings[] from the link Map if this composition's ISWC was
+  // pre-linked to any ISRCs
+  if (node.iswc && compositionToRecordings.has(node.iswc)) {
+    node.recordings = [...compositionToRecordings.get(node.iswc)];
+  }
+
+  // Index
+  if (!compositionsByArtist.has(artistKey)) compositionsByArtist.set(artistKey, []);
+  compositionsByArtist.get(artistKey).push(node);
+  if (node.iswc)               compositionByIswc.set(node.iswc, node);
+  if (node.providerIds.mlc)    compositionByMlcSongCode.set(node.providerIds.mlc, node);
+
+  for (const w of publishingWork.writers) {
+    if (w.writerIPI && !writersByIPI.has(w.writerIPI)) {
+      writersByIPI.set(w.writerIPI, buildWriterNode(w));
+    }
+  }
+
+  return node;
+}
+
+/**
+ * Read all CompositionNodes for an artist key (normalized lower-case-trim).
+ * Pure read — never throws, returns [] for unknown artists.
+ */
+export function getPublishingWorks(artistName) {
+  const key = normalizeArtistKey(artistName);
+  if (!key) return [];
+  const list = compositionsByArtist.get(key);
+  return list ? [...list] : [];
+}
+
+/**
+ * Reverse lookup by canonical ISWC.
+ */
+export function getCompositionByISWC(iswc) {
+  if (!iswc || typeof iswc !== 'string') return null;
+  return compositionByIswc.get(iswc) || null;
+}
+
+/**
+ * Reverse lookup by MLC song code (sugar over providerIds.mlc index).
+ */
+export function getCompositionByMLCSongCode(mlcCode) {
+  if (!mlcCode || typeof mlcCode !== 'string') return null;
+  return compositionByMlcSongCode.get(mlcCode) || null;
+}
+
+/**
+ * Global writer lookup by canonical IPI. Returns a WriterNode (identity
+ * shape — name + IPI + first-observed role), or null if no writer with
+ * this IPI has ever been observed across any composition.
+ */
+export function getWriterByIPI(ipi) {
+  if (!ipi || typeof ipi !== 'string') return null;
+  return writersByIPI.get(ipi) || null;
+}
+
+// ─── Recording ↔ Composition (constitutional separation) ──────────
+//
+// ISRC ≠ ISWC. The relationships are intentionally many-to-many.
+//   - One ISRC can belong to many compositions (mashups, medleys).
+//   - One ISWC can have many recordings (covers, remixes, live versions).
+// The link Maps below are the source of truth; CompositionNode.recordings[]
+// is kept in sync when nodes exist, but the Map relationship survives
+// regardless of whether a CompositionNode has been added yet.
+
+/**
+ * Record that an ISRC and an ISWC are connected. Idempotent.
+ * No side effects beyond updating the two Maps and (if a matching
+ * CompositionNode exists) appending the ISRC to its recordings[].
+ */
+export function linkRecordingToComposition(isrc, iswc) {
+  if (!isrc || !iswc || typeof isrc !== 'string' || typeof iswc !== 'string') return;
+
+  if (!recordingToCompositions.has(isrc)) recordingToCompositions.set(isrc, new Set());
+  recordingToCompositions.get(isrc).add(iswc);
+
+  if (!compositionToRecordings.has(iswc)) compositionToRecordings.set(iswc, new Set());
+  compositionToRecordings.get(iswc).add(isrc);
+
+  // If a composition with this ISWC already exists, sync its recordings[]
+  const node = compositionByIswc.get(iswc);
+  if (node && !node.recordings.includes(isrc)) node.recordings.push(isrc);
+}
+
+/**
+ * Reverse lookup: which compositions does this recording belong to?
+ * Returns an array of ISWC strings (possibly empty), never null.
+ */
+export function getCompositionsForRecording(isrc) {
+  if (!isrc || typeof isrc !== 'string') return [];
+  const set = recordingToCompositions.get(isrc);
+  return set ? [...set] : [];
+}
+
+/**
+ * Forward lookup: which recordings exist for this composition?
+ * Returns an array of ISRC strings (possibly empty), never null.
+ */
+export function getRecordingsForComposition(iswc) {
+  if (!iswc || typeof iswc !== 'string') return [];
+  const set = compositionToRecordings.get(iswc);
+  return set ? [...set] : [];
+}
