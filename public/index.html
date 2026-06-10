@@ -2138,7 +2138,7 @@ body.menu-locked {
         </div>
 
         <!-- 3. Bridge line + CTA — replaces V1 .gbe-card position. -->
-        <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
+        <div class="os-bridge">This Scan Is A Snapshot.<br>Royaltē OS™ provides continuous Music Backend Intelligence™.</div>
         <div class="d-mod os-cta-card">
           <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">UNLOCK YOUR COMPLIMENTARY<br>EXECUTIVE BRIEF™</div></div>
           <p class="os-cta-statement">This Scan Is A Snapshot.<br>Your complimentary Royaltē Executive Brief™ reveals additional Music Backend Intelligence™ discovered during your scan.</p>
@@ -3560,10 +3560,10 @@ async function loadFoundingArtistCount() {
     const cap   = typeof data.cap   === 'number' ? data.cap   : 1000;
     if (data.closed) {
       sectionEl.innerHTML =
-        '<h3 class="os-fa-heading">Founding Artist Program Closed</h3>' +
-        '<p class="os-fa-sub">The first 1,000 artists successfully secured Founding Artist access. Join the waitlist for standard membership.</p>';
+        '<h3 class="os-fa-heading">Complimentary Executive Brief™ Offer Has Ended</h3>' +
+        '<p class="os-fa-sub">The complimentary Executive Brief™ offer has now concluded.<br>You can still access Royaltē OS™ and future Music Backend Intelligence™ services through available membership options.</p>';
       if (buttonEl) {
-        buttonEl.textContent = 'Founding Artist Program Closed';
+        buttonEl.textContent = 'Complimentary Executive Brief™ Offer Has Ended';
         buttonEl.disabled = true;
       }
     } else if (count != null) {
