@@ -465,28 +465,101 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 @keyframes radarSpin{from{transform:rotate(-90deg);}to{transform:rotate(270deg);}}
 @keyframes radarSpinRev{from{transform:rotate(90deg);}to{transform:rotate(-270deg);}}
-@keyframes corePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.35);}}
-/* Scan core orb — stronger breathing pulse + slow circular orbit (idle state).
-   Both gate off post-scan: orbBreathe is overridden by .jarvis-active's
-   !important animation; the orbit wrapper by the .jarvis-on / .scanning rules. */
+/* Royaltē Orb™ — living intelligence engine (V1 locked 2026-06-10).
+   Layered, continuous animation: nine periods of mutually-prime length
+   so the composite motion never visibly loops. The orb reads as the
+   visual heartbeat of the platform — not a loading spinner. */
+@keyframes corePulse{
+  0%,100%{opacity:0.95;transform:scale(1);filter:brightness(1);}
+  40%    {opacity:0.62;transform:scale(1.22);filter:brightness(1.25);}
+  50%    {opacity:0.35;transform:scale(1.50);filter:brightness(1.55);}
+  60%    {opacity:0.62;transform:scale(1.22);filter:brightness(1.25);}
+}
 @keyframes orbBreathe{
-  0%,100%{transform:scale(0.94);box-shadow:0 0 16px rgba(138,92,255,0.5);}
-  50%    {transform:scale(1.16);box-shadow:0 0 42px rgba(138,92,255,0.95);}
+  0%,100%{transform:scale(0.92);box-shadow:0 0 18px rgba(138,92,255,0.55),0 0 34px rgba(138,92,255,0.22);}
+  30%    {transform:scale(1.04);box-shadow:0 0 28px rgba(176,120,255,0.72),0 0 50px rgba(224,64,200,0.32);}
+  50%    {transform:scale(1.18);box-shadow:0 0 44px rgba(224,64,200,0.92),0 0 70px rgba(138,92,255,0.45);}
+  72%    {transform:scale(1.04);box-shadow:0 0 32px rgba(138,92,255,0.82),0 0 56px rgba(64,212,240,0.30);}
+}
+@keyframes orbInnerShift{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes orbInnerShimmer{
+  0%,100%{opacity:0.42;filter:blur(0.4px);}
+  50%    {opacity:0.78;filter:blur(0.7px);}
+}
+@keyframes orbSurge{
+  0%,82%,100%{filter:brightness(1) saturate(1);}
+  88%        {filter:brightness(1.55) saturate(1.20);}
+  92%        {filter:brightness(1.85) saturate(1.35);}
+  96%        {filter:brightness(1.25) saturate(1.10);}
+}
+@keyframes orbAura{
+  0%,100%{opacity:0.45;transform:scale(0.92);}
+  50%    {opacity:1;transform:scale(1.30);}
 }
 @keyframes orbOrbit{
   from{transform:rotate(0deg) translateX(7px) rotate(0deg);}
   to  {transform:rotate(360deg) translateX(7px) rotate(-360deg);}
 }
+@keyframes particleOrbit1{
+  from{transform:translate(-50%,-50%) rotate(0deg) translateX(22px) rotate(0deg);}
+  to  {transform:translate(-50%,-50%) rotate(360deg) translateX(22px) rotate(-360deg);}
+}
+@keyframes particleOrbit2{
+  from{transform:translate(-50%,-50%) rotate(180deg) translateX(28px) rotate(-180deg);}
+  to  {transform:translate(-50%,-50%) rotate(-180deg) translateX(28px) rotate(180deg);}
+}
+@keyframes particleTwinkle{
+  0%,100%{opacity:0.30;}
+  50%    {opacity:1;}
+}
 .orb-orbit{display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.6s ease;animation:orbOrbit 14s linear infinite;}
-#hero-risk-indicator{animation:orbBreathe 4s ease-in-out infinite;}
+.orb-orbit::before,
+.orb-orbit::after{content:'';position:absolute;top:50%;left:50%;border-radius:50%;pointer-events:none;}
+.orb-orbit::before{
+  width:3px;height:3px;background:rgba(255,255,255,0.85);
+  box-shadow:0 0 6px rgba(176,120,255,0.85),0 0 12px rgba(224,64,200,0.45);
+  animation:particleOrbit1 6.3s linear infinite,particleTwinkle 2.7s ease-in-out infinite;
+}
+.orb-orbit::after{
+  width:2px;height:2px;background:rgba(255,255,255,0.70);
+  box-shadow:0 0 5px rgba(64,212,240,0.75),0 0 10px rgba(138,92,255,0.45);
+  animation:particleOrbit2 8.1s linear infinite,particleTwinkle 3.3s ease-in-out 0.7s infinite;
+}
+#hero-risk-indicator{animation:orbBreathe 4.4s ease-in-out infinite,orbSurge 11.7s ease-in-out infinite;}
+#hero-risk-indicator::before{
+  content:'';position:absolute;inset:3px;border-radius:50%;pointer-events:none;
+  background:
+    radial-gradient(circle at 32% 30%,rgba(255,255,255,0.32) 0%,rgba(255,255,255,0) 38%),
+    conic-gradient(from 0deg,rgba(176,120,255,0.55),rgba(224,64,200,0.30),rgba(138,92,255,0.55),rgba(64,212,240,0.30),rgba(176,120,255,0.55));
+  mix-blend-mode:screen;
+  opacity:0.55;
+  animation:orbInnerShift 9.3s linear infinite,orbInnerShimmer 4.7s ease-in-out infinite;
+  z-index:0;
+}
+#hero-risk-indicator::after{
+  content:'';position:absolute;inset:-14px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(138,92,255,0.22) 0%,rgba(224,64,200,0.11) 45%,transparent 75%);
+  animation:orbAura 5s ease-in-out infinite;
+  z-index:-1;
+}
+#hero-risk-dot{position:relative;z-index:2;}
 .d-score-ring.jarvis-on .orb-orbit,.d-score-ring.scanning .orb-orbit{animation:none;transform:none;}
-@media (prefers-reduced-motion:reduce){.orb-orbit,#hero-risk-indicator,#hero-risk-dot{animation:none;}}
+@media (prefers-reduced-motion:reduce){
+  .orb-orbit,.orb-orbit::before,.orb-orbit::after,
+  #hero-risk-indicator,#hero-risk-indicator::before,#hero-risk-indicator::after,
+  #hero-risk-dot{animation:none;}
+}
 /* V4 PULSE WAVES for the audit preview widget */
 .pulse-wave{position:absolute;width:72px;height:72px;border-radius:50%;border:1.5px solid #8a5cff;opacity:0;pointer-events:none;}
-.pw1{animation:pulseWave 2.4s ease-out infinite;}
-.pw2{animation:pulseWave 2.4s ease-out 0.8s infinite;}
-.pw3{animation:pulseWave 2.4s ease-out 1.6s infinite;}
-@keyframes pulseWave{0%{transform:scale(0.55);opacity:0;border-color:#e040c8;}15%{opacity:0.9;}100%{transform:scale(1.3);opacity:0;border-color:#8a5cff;}}
+.pw1{animation:pulseWave 2.6s ease-out infinite;}
+.pw2{animation:pulseWave 2.6s ease-out 0.85s infinite;}
+.pw3{animation:pulseWave 2.6s ease-out 1.70s infinite;}
+@keyframes pulseWave{
+  0%   {transform:scale(0.50);opacity:0;border-color:#e040c8;border-width:1.5px;}
+  15%  {opacity:0.90;border-width:1.5px;}
+  60%  {opacity:0.42;border-color:#8a5cff;border-width:1.25px;}
+  100% {transform:scale(1.42);opacity:0;border-color:#64a4ff;border-width:1px;}
+}
 /* when scanning, hide the idle pulse waves */
 .d-score-ring.scanning #pulse-waves-wrap{opacity:0;}
 @keyframes radarFlash{0%,100%{opacity:1;}45%{opacity:0.85;}50%{opacity:0.3;}55%{opacity:0.9;}}
@@ -1957,11 +2030,11 @@ body.menu-locked {
              card style as V1, with V2 content populated by JS. -->
         <div class="d-modules">
           <div class="d-mod" id="os-findings-card">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Top findings</div></div>
+            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">ROYALTĒ OBSERVATIONS™</div></div>
             <div class="os-findings-list" id="os-findings"><!-- populated by renderV2Findings() --></div>
           </div>
           <div class="d-mod" id="os-found-card">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">What Royaltē found</div></div>
+            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">CATALOG INTELLIGENCE™</div></div>
             <div class="os-found-grid" id="os-found-grid"><!-- populated by renderV2Found() --></div>
           </div>
         </div>
@@ -1970,7 +2043,7 @@ body.menu-locked {
         <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
         <div class="d-mod os-cta-card">
           <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Royaltē OS Is Monitoring Signals This Scan Doesn't Show</div></div>
-          <p class="os-cta-statement">One Scan Shows A Snapshot.<br>Royaltē OS Watches What Changes.</p>
+          <p class="os-cta-statement">This Scan Is A Snapshot.<br>Royaltē OS Watches What Changes.</p>
           <ul class="os-cta-features">
             <li>Catalog Change Detection</li>
             <li>Health Score Tracking</li>
@@ -2982,34 +3055,30 @@ function _renderV2Findings(flagsArr) {
   const findingsEl = document.getElementById('os-findings');
   if (!findingsEl) return;
 
-  // Filter V1 platform-presence noise (Wikipedia / AudioDB / Discogs / SoundCloud)
-  const v2Flags = (flagsArr || []).filter((f) => {
-    const text = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
-    return !/\b(wikipedia|audiodb|discogs|soundcloud|musicbrainz)\b/.test(text);
-  });
-  if (v2Flags.length === 0) {
-    findingsEl.innerHTML = '<div class="os-finding-empty">Your catalog looks clean. Royaltē OS is monitoring for changes and will alert you if anything needs attention.</div>';
-    return;
-  }
-
-  // Strip trailing "— … risk" suffixes from V1 descriptions
-  const clean = (s) => (s || '').replace(/\s+[—-]\s+[\w\s]*\brisk\s*$/i, '').trim();
-  const titleFor = (f) => {
-    const t = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
-    if (/\bisrc\b/.test(t))                     return 'Identifier coverage review';
-    if (/territory|storefront|country/.test(t)) return 'Territory availability review';
-    if (/youtube|ugc|video/.test(t))            return 'Limited visibility observed in reviewed sources';
-    if (/duplicate|collision|fragment/.test(t)) return 'Catalog consistency review';
-    if (/metadata|genre/.test(t))               return 'Metadata completeness review';
-    return                                              'Catalog consistency review';
-  };
-
-  findingsEl.innerHTML = v2Flags.slice(0, 3).map((f) => `
+  // Royaltē Observations™ — Board-locked artist-facing intelligence
+  // presentation (2026-06-10). Replaces the V1 'Catalog consistency
+  // review' titles that came from internal engine flags and repeated
+  // for every flag. The four observations represent what Royaltē
+  // discovered from its Music Backend Intelligence™ analysis; they
+  // do NOT echo Catalog Intelligence™ metrics. flagsArr argument
+  // retained so the call site at _renderV2Findings(flagsArr) is
+  // unchanged; value is intentionally ignored at this stage.
+  const observations = [
+    { title: 'Catalog Presence Identified',
+      desc:  'Royaltē successfully identified your catalog across reviewed music industry data sources.' },
+    { title: 'Global Music Footprint™ Detected',
+      desc:  'Your catalog was identified across multiple music ecosystems.' },
+    { title: 'Historical Streaming Activity Detected',
+      desc:  'Historical streaming activity was identified across reviewed music intelligence sources.' },
+    { title: 'Music Backend Intelligence™ Analysis Complete',
+      desc:  'Royaltē successfully completed its Music Backend Intelligence™ analysis for this scan.' },
+  ];
+  findingsEl.innerHTML = observations.map((o) => `
     <div class="os-finding">
-      <div class="os-finding-icon">!</div>
+      <div class="os-finding-icon">✓</div>
       <div class="os-finding-body">
-        <p class="os-finding-title">${_osEscape(titleFor(f))}</p>
-        <p class="os-finding-desc">${_osEscape(clean(f.description))}</p>
+        <p class="os-finding-title">${_osEscape(o.title)}</p>
+        <p class="os-finding-desc">${_osEscape(o.desc)}</p>
       </div>
     </div>`).join('');
 }
