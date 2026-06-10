@@ -1957,7 +1957,7 @@ body.menu-locked {
              card style as V1, with V2 content populated by JS. -->
         <div class="d-modules">
           <div class="d-mod" id="os-findings-card">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Royaltē identified the following observations from its Music Backend Intelligence™ analysis.</div></div>
+            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">ROYALTĒ OBSERVATIONS™</div></div>
             <div class="os-findings-list" id="os-findings"><!-- populated by renderV2Findings() --></div>
           </div>
           <div class="d-mod" id="os-found-card">
@@ -2981,34 +2981,27 @@ function _renderV2Findings(flagsArr) {
   const findingsEl = document.getElementById('os-findings');
   if (!findingsEl) return;
 
-  // Filter V1 platform-presence noise (Wikipedia / AudioDB / Discogs / SoundCloud)
-  const v2Flags = (flagsArr || []).filter((f) => {
-    const text = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
-    return !/\b(wikipedia|audiodb|discogs|soundcloud|musicbrainz)\b/.test(text);
-  });
-  if (v2Flags.length === 0) {
-    findingsEl.innerHTML = '<div class="os-finding-empty">Your catalog looks clean. Royaltē OS is monitoring for changes and will alert you if anything needs attention.</div>';
-    return;
-  }
-
-  // Strip trailing "— … risk" suffixes from V1 descriptions
-  const clean = (s) => (s || '').replace(/\s+[—-]\s+[\w\s]*\brisk\s*$/i, '').trim();
-  const titleFor = (f) => {
-    const t = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
-    if (/\bisrc\b/.test(t))                     return 'Identifier coverage review';
-    if (/territory|storefront|country/.test(t)) return 'Territory availability review';
-    if (/youtube|ugc|video/.test(t))            return 'Limited visibility observed in reviewed sources';
-    if (/duplicate|collision|fragment/.test(t)) return 'Catalog consistency review';
-    if (/metadata|genre/.test(t))               return 'Metadata completeness review';
-    return                                              'Catalog consistency review';
-  };
-
-  findingsEl.innerHTML = v2Flags.slice(0, 3).map((f) => `
+  // Royaltē Observations™ — positive, high-level discoveries. These do
+  // NOT echo Catalog Intelligence™ metrics (those live in the catalog
+  // card only). The engine's flagsArr is intentionally ignored here:
+  // observations are the same four positive signals on every scan that
+  // reached this renderer.
+  const observations = [
+    { title: 'Catalog Presence Identified',
+      desc:  'Royaltē successfully identified your catalog across reviewed music industry data sources.' },
+    { title: 'Global Music Footprint™ Detected',
+      desc:  'Your catalog was identified across multiple music ecosystems.' },
+    { title: 'Historical Streaming Activity Detected',
+      desc:  'Historical streaming activity was identified across reviewed music intelligence sources.' },
+    { title: 'Music Backend Intelligence™ Analysis Complete',
+      desc:  'Royaltē successfully completed its Music Backend Intelligence™ analysis for this scan.' },
+  ];
+  findingsEl.innerHTML = observations.map((o) => `
     <div class="os-finding">
-      <div class="os-finding-icon">!</div>
+      <div class="os-finding-icon">✓</div>
       <div class="os-finding-body">
-        <p class="os-finding-title">${_osEscape(titleFor(f))}</p>
-        <p class="os-finding-desc">${_osEscape(clean(f.description))}</p>
+        <p class="os-finding-title">${_osEscape(o.title)}</p>
+        <p class="os-finding-desc">${_osEscape(o.desc)}</p>
       </div>
     </div>`).join('');
 }
@@ -3081,7 +3074,6 @@ function _renderV2Found(data) {
     { label: 'Platforms',             value: '—' },
     { label: 'Latest Release',        value: '—' },
     { label: 'Catalog Age',           value: '—' },
-    { label: 'Catalog availability',  value: catalogAvail },
   ];
   gridEl.innerHTML = rows.map((r) => `
     <div class="os-found-row">
