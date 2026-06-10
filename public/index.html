@@ -1584,8 +1584,45 @@ body.menu-locked {
 .os-bridge{font-family:'Space Grotesk',sans-serif;font-style:italic;text-align:center;font-size:12px;color:var(--muted2);padding:14px 8px;border-top:1px solid var(--border3);border-bottom:1px solid var(--border3);margin:10px 0;line-height:1.55;}
 .os-cta-card .os-cta-statement{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;line-height:1.3;letter-spacing:0.005em;margin:6px 0 14px;}
 .os-cta-features{list-style:none;padding:0;margin:0 0 12px;display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;}
-.os-cta-features li{position:relative;padding-left:16px;font-size:11px;color:var(--text2);line-height:1.55;}
-.os-cta-features li::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--grn);}
+.os-cta-features li{
+  position:relative;padding-left:16px;font-size:11px;color:var(--text2);line-height:1.55;
+  transition:color 180ms ease;
+}
+.os-cta-features li::before{
+  /* Royaltē Intelligence Indicator™ — small glowing purple orb in
+     place of the prior task-list checkmark. Continuous gentle
+     breathing + a stronger pulse moment baked into the same cycle.
+     Per-row animation-delays (below) stagger the rhythm so rows
+     don't pulse together. Honors prefers-reduced-motion. */
+  content:'';position:absolute;left:0;top:6px;width:8px;height:8px;border-radius:50%;
+  background:
+    radial-gradient(circle at 32% 30%,rgba(255,255,255,0.55) 0%,rgba(255,255,255,0) 38%),
+    radial-gradient(circle,#b08aff 0%,#8a5cff 55%,#6a3cd8 100%);
+  box-shadow:0 0 6px rgba(138,92,255,0.55),0 0 12px rgba(138,92,255,0.25);
+  animation:miniOrbBreathe 2.7s ease-in-out infinite;
+  transition:box-shadow 180ms ease;
+}
+.os-cta-features li:nth-child(1)::before{animation-delay:0s;}
+.os-cta-features li:nth-child(2)::before{animation-delay:0.43s;}
+.os-cta-features li:nth-child(3)::before{animation-delay:0.91s;}
+.os-cta-features li:nth-child(4)::before{animation-delay:1.47s;}
+.os-cta-features li:nth-child(5)::before{animation-delay:2.06s;}
+.os-cta-features li:nth-child(6)::before{animation-delay:2.49s;}
+.os-cta-features li:hover{color:#ffffff;}
+.os-cta-features li:hover::before{
+  box-shadow:0 0 10px rgba(176,120,255,0.90),0 0 22px rgba(138,92,255,0.50);
+}
+@keyframes miniOrbBreathe{
+  0%,100%{transform:scale(0.94);filter:brightness(0.92);}
+  50%    {transform:scale(1.08);filter:brightness(1.10);}
+  86%    {transform:scale(1.00);filter:brightness(0.95);}
+  92%    {transform:scale(1.18);filter:brightness(1.50);}
+  96%    {transform:scale(1.06);filter:brightness(1.18);}
+}
+@media (prefers-reduced-motion:reduce){
+  .os-cta-features li,
+  .os-cta-features li::before{animation:none;transition:none;}
+}
 .os-cta-card .os-cta-body{font-size:12px;color:var(--muted2);line-height:1.55;margin:0 0 12px;}
 .os-cta-card .os-fa-section{background:rgba(138,92,255,0.06);border:1px solid rgba(138,92,255,0.18);border-radius:8px;padding:14px 16px;margin:0 0 14px;}
 .os-cta-card .os-fa-heading{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#fff;letter-spacing:0.02em;text-transform:uppercase;margin:0 0 6px;}
@@ -2042,18 +2079,15 @@ body.menu-locked {
         <!-- 3. Bridge line + CTA — replaces V1 .gbe-card position. -->
         <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
         <div class="d-mod os-cta-card">
-          <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Royaltē OS Is Monitoring Signals This Scan Doesn't Show</div></div>
-          <p class="os-cta-statement">This Scan Is A Snapshot.<br>Royaltē OS Watches What Changes.</p>
+          <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">UNLOCK YOUR COMPLIMENTARY<br>EXECUTIVE BRIEF™</div></div>
+          <p class="os-cta-statement">This Scan Is A Snapshot.<br>Your complimentary Royaltē Executive Brief™ reveals additional Music Backend Intelligence™ discovered during your scan.</p>
           <ul class="os-cta-features">
-            <li>Catalog Change Detection</li>
-            <li>Health Score Tracking</li>
-            <li>Backend Protection</li>
-            <li>Action Center</li>
-            <li>Continuous Monitoring</li>
-            <li>Territory Changes</li>
-            <li>Identifier Changes</li>
-            <li>Metadata Coverage</li>
-            <li>YouTube Presence</li>
+            <li>Music Backend Health™ Summary</li>
+            <li>Global Music Footprint™ Overview</li>
+            <li>Catalog Intelligence™ Breakdown</li>
+            <li>Metadata &amp; Identifier Review</li>
+            <li>Personalized Royaltē Recommendations™</li>
+            <li>Royaltē OS™ Monitoring Preview</li>
           </ul>
           <p class="os-cta-body">Royaltē OS continuously monitors your music business backend and alerts you when meaningful changes are detected.</p>
           <!-- Founding Artist subsection (Brief 012a follow-up) — counter
@@ -2061,8 +2095,8 @@ body.menu-locked {
                /api/founding-artist-count. Closed-state swap is innerHTML-
                replaced and the submit button is disabled in place. -->
           <div class="os-fa-section" id="os-fa-section">
-            <h3 class="os-fa-heading">Become A Founding Artist</h3>
-            <p class="os-fa-sub">The first 1,000 artists can secure lifetime Founding Artist access and unlock Royaltē OS before the program closes.</p>
+            <h3 class="os-fa-heading">🎁 CONGRATULATIONS!</h3>
+            <p class="os-fa-sub">You're eligible to receive a complimentary Royaltē Executive Brief™ as part of the Founding Artist Program. Available to the first 1,000 artists.</p>
             <div class="os-fa-counter">
               <div class="os-fa-counter-label">Founding Artist Program</div>
               <div class="os-fa-counter-value" id="os-fa-counter-value">— of 1,000 spots claimed</div>
@@ -2073,7 +2107,7 @@ body.menu-locked {
                still calls sendMagicLink(email, 'homepage_scan'). -->
           <form class="bi-os-form" id="bi-os-form" novalidate>
             <input type="email" class="bi-os-email" id="bi-os-email" placeholder="your@email.com" autocomplete="email" required>
-            <button type="submit" class="bi-os-cta" data-cta="enter-os">Become A Founding Artist</button>
+            <button type="submit" class="bi-os-cta" data-cta="enter-os">GET MY COMPLIMENTARY<br>EXECUTIVE BRIEF™</button>
           </form>
           <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
         </div>
