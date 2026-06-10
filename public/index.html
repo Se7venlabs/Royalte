@@ -1550,7 +1550,68 @@ body.menu-locked {
    shapes (findings rows, what-found grid, bridge line, CTA list/form). */
 .os-findings-list{display:flex;flex-direction:column;gap:8px;}
 .os-finding{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:flex-start;padding:8px 0;}
-.os-finding-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:rgba(240,192,64,0.12);color:var(--amb);border:1px solid rgba(240,192,64,0.25);font-size:13px;}
+/* Royaltē Intelligence Ping™ — signature design-system indicator.
+   Replaces the prior amber chip + ✓ on Royaltē Observations™. Two
+   layers per row:
+     ::before  the purple intelligence core (8px, soft glow, gentle
+               breathing)
+     ::after   the expanding radar wave (8px → ~24px scale + fade)
+   Per-row .os-finding:nth-child() rules assign each observation a
+   different wave duration (3.0s / 4.4s / 3.7s / 4.9s — all inside
+   the brief's 2.5-5s interval window) and a different delay so the
+   pings never synchronize. Wave idle phase is baked into the cycle
+   (visible for ~50% then idle until next ping). Reusable wherever
+   Royaltē surfaces intelligence (Mission Control, Executive Brief,
+   Royaltē OS™). prefers-reduced-motion fully disables animation. */
+.os-finding-icon{
+  width:24px;height:24px;border-radius:50%;
+  background:transparent;border:none;color:transparent;font-size:0;
+  display:block;position:relative;
+}
+.os-finding-icon::before{
+  content:'';position:absolute;top:50%;left:50%;
+  width:8px;height:8px;border-radius:50%;
+  background:
+    radial-gradient(circle at 32% 30%,rgba(255,255,255,0.55) 0%,rgba(255,255,255,0) 38%),
+    radial-gradient(circle,#b08aff 0%,#8a5cff 55%,#6a3cd8 100%);
+  box-shadow:0 0 6px rgba(138,92,255,0.70),0 0 12px rgba(138,92,255,0.35);
+  transform:translate(-50%,-50%);
+  animation:pingCore 3.4s ease-in-out infinite;
+  z-index:1;
+}
+.os-finding-icon::after{
+  content:'';position:absolute;top:50%;left:50%;
+  width:8px;height:8px;border-radius:50%;
+  border:1.5px solid rgba(176,120,255,0.85);
+  transform:translate(-50%,-50%) scale(1);
+  opacity:0;
+  animation:pingWave 4s cubic-bezier(0.2,0.6,0.2,1) infinite;
+  z-index:0;
+}
+.os-finding:nth-child(1) .os-finding-icon::before{animation-delay:0s;}
+.os-finding:nth-child(2) .os-finding-icon::before{animation-delay:0.6s;}
+.os-finding:nth-child(3) .os-finding-icon::before{animation-delay:1.2s;}
+.os-finding:nth-child(4) .os-finding-icon::before{animation-delay:1.8s;}
+.os-finding:nth-child(1) .os-finding-icon::after{animation-duration:3.0s;animation-delay:0s;}
+.os-finding:nth-child(2) .os-finding-icon::after{animation-duration:4.4s;animation-delay:1.2s;}
+.os-finding:nth-child(3) .os-finding-icon::after{animation-duration:3.7s;animation-delay:0.5s;}
+.os-finding:nth-child(4) .os-finding-icon::after{animation-duration:4.9s;animation-delay:2.1s;}
+@keyframes pingCore{
+  0%,100%{opacity:0.92;filter:brightness(0.95);}
+  50%    {opacity:1;filter:brightness(1.18);}
+}
+@keyframes pingWave{
+  0%   {opacity:0;transform:translate(-50%,-50%) scale(0.5);border-width:1.5px;}
+  4%   {opacity:0;transform:translate(-50%,-50%) scale(0.5);border-width:1.5px;}
+  10%  {opacity:0.90;transform:translate(-50%,-50%) scale(1);border-width:1.5px;}
+  35%  {opacity:0.55;border-width:1.25px;}
+  60%  {opacity:0;transform:translate(-50%,-50%) scale(3.0);border-width:0.5px;}
+  100% {opacity:0;transform:translate(-50%,-50%) scale(0.5);}
+}
+@media (prefers-reduced-motion:reduce){
+  .os-finding-icon::before,
+  .os-finding-icon::after{animation:none;}
+}
 .os-finding-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:var(--text);margin:0 0 2px;line-height:1.3;}
 .os-finding-desc{font-size:11px;color:var(--muted2);line-height:1.5;margin:0;}
 .os-finding-empty{font-size:12px;color:var(--muted2);line-height:1.55;padding:6px 0;}
@@ -3109,7 +3170,7 @@ function _renderV2Findings(flagsArr) {
   ];
   findingsEl.innerHTML = observations.map((o) => `
     <div class="os-finding">
-      <div class="os-finding-icon">✓</div>
+      <div class="os-finding-icon" aria-hidden="true"></div>
       <div class="os-finding-body">
         <p class="os-finding-title">${_osEscape(o.title)}</p>
         <p class="os-finding-desc">${_osEscape(o.desc)}</p>
