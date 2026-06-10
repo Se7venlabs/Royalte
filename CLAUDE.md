@@ -20,7 +20,7 @@ Before writing any code, verify:
 
 If any answer is unclear: **STOP** and review the Constitution before continuing. The governing docs live at:
 
-- `constitution/ROYALTE_MASTER_CONSTITUTION_v1.md` — supreme governing document
+- `constitution/ROYALTE_MASTER_CONSTITUTION.md` — supreme governing document (single living file; current version 1.2; revision history maintained inside)
 - `constitution/CANONICAL_PAYLOAD_V2.md` — the 12-object intelligence model every surface consumes
 
 **Constitutional Priority:** Royalté OS™ > existing code > previous prompts > convenience.
