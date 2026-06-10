@@ -164,7 +164,26 @@ export default async function handler(req, res) {
   }
 
   // ─── Step 2 — call the authenticated search endpoint with the JWT ──
-  const searchBody = { title };
+  // Body shape per the OpenAPI SearchWork schema. Even though neither
+  // `title` nor `writers` is in a required[] array, MLC's API Gateway
+  // request validator rejected `{ title }` alone with an empty 400.
+  // Sending writers as an empty array (or populated via ?writers=ed
+  // for a known Ed Sheeran probe) usually satisfies AWS API Gateway
+  // schema validators that demand all declared properties be present.
+  const writersChoice = (req.query.writers || 'empty').toString().toLowerCase();
+  let writers;
+  switch (writersChoice) {
+    case 'ed':
+      writers = [{ writerFirstName: 'Ed', writerLastName: 'Sheeran' }];
+      break;
+    case 'omit':
+      writers = undefined;
+      break;
+    case 'empty':
+    default:
+      writers = [];
+  }
+  const searchBody = (writers === undefined) ? { title } : { title, writers };
 
   let searchResp;
   try {
