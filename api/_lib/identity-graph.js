@@ -88,20 +88,33 @@ export function getYouTubeChannelEntry(artistName) {
 // lib/publishing/*-adapter.js family and projects them into the
 // provider-agnostic CompositionNode schema.
 //
-// Implementation rules (Board amendments A–H, locked):
+// Implementation rules (Board amendments A–H + Phase 3 cleanup, locked):
 //   A. In-memory only — no Supabase. Per-process state.
 //   B. Same file — never split. YouTube exports above untouched.
-//   C. providerIds map: mlc · socan · ascap · bmi · cisac · musicbrainz
-//   D. Merge by providerIds (or ISWC) ONLY — never by title.
+//   C. externalIds map: mlc · socan · ascap · bmi · cisac · musicbrainz
+//      (renamed from providerIds in the Phase 3 cleanup pass; reflects
+//      that these are external provider IDs alongside Royaltē's own
+//      canonical royalteId).
+//   D. Merge by externalIds (or ISWC) ONLY — never by title.
 //      "Duplicate intelligence > incorrect intelligence."
 //   E. Caller supplies artistName — graph never infers from writer names.
 //   F. sources[] is append-only — every observation adds an entry.
-//   G. Automated ingestion only via verified adapters (validatePublishingWork
-//      gates the entry; manual identity overrides go through the YouTube
-//      seed pattern above, not through this layer).
+//   G. Automated ingestion only via verified adapters (isAcceptable-
+//      PublishingWork gates the entry; manual identity overrides go
+//      through the YouTube seed pattern above, not through this layer).
 //   H. CompositionNode.confidence is ALWAYS 'UNKNOWN'. Provider-level
 //      confidence is preserved on each sources[] entry and on each
 //      writers[].providerConfidence. The graph does not aggregate.
+//
+//   royalteId — every CompositionNode carries a Royaltē canonical
+//   identity ('rc_' + crypto.randomUUID()) generated once at creation,
+//   never regenerated, never overwritten on merge. This is the internal
+//   reference all future Royaltē Intelligence phases hold against; the
+//   external IDs are observational evidence pointing at it.
+//
+//   PUBLIC API IS PROVIDER-NEUTRAL — no exported function name references
+//   a specific provider. getCompositionByProviderId(provider, id)
+//   replaces the prior getCompositionByMLCSongCode.
 //
 // Consumers: future Royaltē intelligence modules read CompositionNode
 // objects via the lookup helpers; no module ever queries MLC fields
@@ -115,19 +128,22 @@ export function getYouTubeChannelEntry(artistName) {
 // Each adapter remains responsible for its own provider-specific
 // validation; the graph applies a structural floor below (Board rule G).
 
-const PROVIDER_IDS_SCHEMA = Object.freeze([
+import { randomUUID } from 'node:crypto';
+
+const EXTERNAL_ID_PROVIDERS = Object.freeze([
   'mlc', 'socan', 'ascap', 'bmi', 'cisac', 'musicbrainz',
 ]);
-const GRAPH_CONFIDENCE = 'UNKNOWN';
+const GRAPH_CONFIDENCE      = 'UNKNOWN';
+const ROYALTE_ID_PREFIX     = 'rc_';
 
 // ─── Private state (per-process, in-memory) ────────────────────────
 
-const compositionsByArtist     = new Map(); // normalizedArtistKey → CompositionNode[]
-const compositionByIswc        = new Map(); // iswc                → CompositionNode
-const compositionByMlcSongCode = new Map(); // mlcSongCode         → CompositionNode
-const writersByIPI             = new Map(); // writerIPI           → WriterNode
-const recordingToCompositions  = new Map(); // ISRC                → Set<ISWC>
-const compositionToRecordings  = new Map(); // ISWC                → Set<ISRC>
+const compositionsByArtist    = new Map(); // normalizedArtistKey → CompositionNode[]
+const compositionByIswc       = new Map(); // iswc                → CompositionNode
+const compositionByExternalId = new Map(); // `${provider}:${id}` → CompositionNode
+const writersByIPI            = new Map(); // writerIPI           → WriterNode
+const recordingToCompositions = new Map(); // ISRC                → Set<ISWC>
+const compositionToRecordings = new Map(); // ISWC                → Set<ISRC>
 
 // ─── Internal helpers ──────────────────────────────────────────────
 
@@ -139,10 +155,18 @@ function nowIso() {
   return new Date().toISOString();
 }
 
-function emptyProviderIds() {
+function emptyExternalIds() {
   const out = {};
-  for (const p of PROVIDER_IDS_SCHEMA) out[p] = null;
+  for (const p of EXTERNAL_ID_PROVIDERS) out[p] = null;
   return out;
+}
+
+function newRoyalteId() {
+  return ROYALTE_ID_PREFIX + randomUUID();
+}
+
+function externalIdKey(provider, id) {
+  return `${provider}:${id}`;
 }
 
 // Project a PublishingWork writer entry into the CompositionNode writers[]
@@ -168,7 +192,7 @@ function isAcceptablePublishingWork(work) {
   if (typeof work.mlcSongCode !== 'string' || work.mlcSongCode === '') return false;
   if (!Array.isArray(work.writers) || work.writers.length === 0) return false;
   if (!Array.isArray(work.publishers)) return false;
-  if (typeof work.source !== 'string' || !PROVIDER_IDS_SCHEMA.includes(work.source)) return false;
+  if (typeof work.source !== 'string' || !EXTERNAL_ID_PROVIDERS.includes(work.source)) return false;
   return true;
 }
 
@@ -190,13 +214,13 @@ function buildWriterNode(writer) {
 /**
  * Add a Phase 2 PublishingWork into the Identity Graph under the given
  * artist key. Idempotent — merges into an existing CompositionNode when
- * one is found by providerIds (Board rule D); creates a new node otherwise.
+ * one is found by externalIds (Board rule D); creates a new node otherwise.
  *
  * NEVER throws. Returns null on invalid input. Returns the (possibly
  * merged) CompositionNode on success.
  *
  * Board rules enforced here:
- *   D. Match by providerIds (preferred) or ISWC — never by title.
+ *   D. Match by externalIds (preferred) or ISWC — never by title.
  *   E. Caller supplies artistName.
  *   F. sources[] always appends — even for duplicate observations.
  *   G. Validation gate (validatePublishingWork) blocks malformed input.
@@ -220,12 +244,17 @@ export function addPublishingWork(artistName, publishingWork) {
     observedAt:  publishingWork.lastUpdated || now,
   };
 
-  // D. Find existing composition by providerIds (canonical only — never title)
+  // D. Find existing composition by canonical identity — never by title.
+  // Lookup priority: ISWC → any externalId (provider:id) on the incoming
+  // PublishingWork.
   let existing = null;
   if (publishingWork.iswc && compositionByIswc.has(publishingWork.iswc)) {
     existing = compositionByIswc.get(publishingWork.iswc);
-  } else if (publishingWork.mlcSongCode && compositionByMlcSongCode.has(publishingWork.mlcSongCode)) {
-    existing = compositionByMlcSongCode.get(publishingWork.mlcSongCode);
+  } else if (publishingWork.mlcSongCode) {
+    const key = externalIdKey(providerName, publishingWork.mlcSongCode);
+    if (compositionByExternalId.has(key)) {
+      existing = compositionByExternalId.get(key);
+    }
   }
 
   if (existing) {
@@ -234,15 +263,19 @@ export function addPublishingWork(artistName, publishingWork) {
     existing.sources.push(sourceEntry);
     existing.lastObservedAt = now;
 
-    // Fill null providerIds slot — never overwrite an existing value
-    if (existing.providerIds[providerName] === null && publishingWork.mlcSongCode) {
-      existing.providerIds[providerName] = publishingWork.mlcSongCode;
+    // Fill null externalIds slot for this provider — never overwrite an
+    // existing value (preserves first-observed evidence)
+    if (existing.externalIds[providerName] === null && publishingWork.mlcSongCode) {
+      existing.externalIds[providerName] = publishingWork.mlcSongCode;
     }
-    // Always index ALL observed MLC codes to this node so reverse lookup
-    // works for any historically-seen code, even if providerIds.mlc holds
-    // only the first-observed value.
-    if (providerName === 'mlc' && publishingWork.mlcSongCode) {
-      compositionByMlcSongCode.set(publishingWork.mlcSongCode, existing);
+    // Always index ALL observed (provider, id) pairs to this node so
+    // reverse lookup works for any historically-seen code, even if the
+    // node's externalIds[provider] slot holds only the first-observed value.
+    if (publishingWork.mlcSongCode) {
+      compositionByExternalId.set(
+        externalIdKey(providerName, publishingWork.mlcSongCode),
+        existing,
+      );
     }
     if (existing.iswc === null && publishingWork.iswc) {
       existing.iswc = publishingWork.iswc;
@@ -255,6 +288,9 @@ export function addPublishingWork(artistName, publishingWork) {
         }
       }
     }
+
+    // royalteId is NEVER touched on merge (Board rule — Royaltē canonical
+    // identity is stable for the lifetime of the node).
 
     // Merge writers — by writerIPI only (Board rule). Writers without an
     // IPI are appended (caller's responsibility for cleanup).
@@ -283,7 +319,8 @@ export function addPublishingWork(artistName, publishingWork) {
 
   // ── CREATE PATH ────────────────────────────────────────────────
   const node = {
-    providerIds:    emptyProviderIds(),
+    royalteId:      newRoyalteId(),                  // canonical Royaltē identity
+    externalIds:    emptyExternalIds(),
     iswc:           publishingWork.iswc ?? null,
     title:          publishingWork.title,
     canonicalTitle: publishingWork.canonicalTitle,
@@ -298,7 +335,7 @@ export function addPublishingWork(artistName, publishingWork) {
   };
 
   if (publishingWork.mlcSongCode) {
-    node.providerIds[providerName] = publishingWork.mlcSongCode;
+    node.externalIds[providerName] = publishingWork.mlcSongCode;
   }
 
   // Seed recordings[] from the link Map if this composition's ISWC was
@@ -310,8 +347,13 @@ export function addPublishingWork(artistName, publishingWork) {
   // Index
   if (!compositionsByArtist.has(artistKey)) compositionsByArtist.set(artistKey, []);
   compositionsByArtist.get(artistKey).push(node);
-  if (node.iswc)               compositionByIswc.set(node.iswc, node);
-  if (node.providerIds.mlc)    compositionByMlcSongCode.set(node.providerIds.mlc, node);
+  if (node.iswc) compositionByIswc.set(node.iswc, node);
+  if (publishingWork.mlcSongCode) {
+    compositionByExternalId.set(
+      externalIdKey(providerName, publishingWork.mlcSongCode),
+      node,
+    );
+  }
 
   for (const w of publishingWork.writers) {
     if (w.writerIPI && !writersByIPI.has(w.writerIPI)) {
@@ -342,11 +384,21 @@ export function getCompositionByISWC(iswc) {
 }
 
 /**
- * Reverse lookup by MLC song code (sugar over providerIds.mlc index).
+ * Provider-neutral reverse lookup by external identifier. Works for any
+ * provider in EXTERNAL_ID_PROVIDERS — the graph's public API never names
+ * a provider in its function signatures.
+ *
+ *   getCompositionByProviderId('mlc',   'EA082P')
+ *   getCompositionByProviderId('socan', '12345')
+ *   getCompositionByProviderId('ascap', '67890')
+ *
+ * Returns the CompositionNode if any observation has linked the given
+ * (provider, id) pair to it; null otherwise.
  */
-export function getCompositionByMLCSongCode(mlcCode) {
-  if (!mlcCode || typeof mlcCode !== 'string') return null;
-  return compositionByMlcSongCode.get(mlcCode) || null;
+export function getCompositionByProviderId(provider, id) {
+  if (!provider || typeof provider !== 'string') return null;
+  if (!id       || typeof id       !== 'string') return null;
+  return compositionByExternalId.get(externalIdKey(provider, id)) || null;
 }
 
 /**

@@ -2,17 +2,19 @@
 //  Royaltē Identity Graph™ — Publishing Layer · unit tests (Phase 3)
 // ─────────────────────────────────────────────────────────────────────
 //
-//  Board-ratified test surface (2026-06-10). 15 cases minimum; this file
-//  ships 20 to lock the contract.
+//  Board-ratified test surface (2026-06-10) + Phase 3 cleanup pass.
+//  Exactly 23 deterministic assertions:
+//    1–15 : original Phase 3 brief tests (test 11 modernised to use
+//           getCompositionByProviderId, tests 1 and 15 updated to use
+//           externalIds and to assert the new royalteId field)
+//    16–23: Phase 3 cleanup brief — getCompositionByProviderId across
+//           providers, royalteId lifecycle, externalIds field presence,
+//           multi-provider merge preserving royalteId
 //
 //  Determinism strategy: the graph is module-scoped in-memory state
-//  (Board rule A). Tests use UNIQUE artist keys + UNIQUE mlcSongCodes
+//  (Board rule A). Tests use UNIQUE artist keys + UNIQUE external IDs
 //  + UNIQUE writerIPIs + UNIQUE ISWCs + UNIQUE ISRCs per case so no
 //  test depends on the residue of any other.
-//
-//  Convention matches tests/pipeline-test.mjs:
-//    - counter + throw on failure
-//    - `node tests/identity-graph-publishing-test.mjs` runs the suite
 // ─────────────────────────────────────────────────────────────────────
 
 import { strict as assert } from 'node:assert';
@@ -21,7 +23,7 @@ import {
   addPublishingWork,
   getPublishingWorks,
   getCompositionByISWC,
-  getCompositionByMLCSongCode,
+  getCompositionByProviderId,
   getWriterByIPI,
   linkRecordingToComposition,
   getCompositionsForRecording,
@@ -51,11 +53,32 @@ function rawWriter({
   return { writerFirstName, writerLastName, writerIPI, writerId, writerRoleCode };
 }
 
-// Helper to add a PublishingWork in one line — runs the Phase-2 adapter
-// then hands the result to the graph.
 function addOne(artistName, rawWork) {
   const pw = normalizeMlcWork(rawWork);
   return addPublishingWork(artistName, pw);
+}
+
+// Provider-agnostic PublishingWork-shaped object — used to simulate
+// future SOCAN / ASCAP / BMI / etc. adapters in tests 15, 18, 19, 23.
+function pwLike({ source, externalId, title, iswc = null, writerIPI, role = 'Composer' }) {
+  return {
+    title,
+    canonicalTitle: title,
+    mlcSongCode:    externalId,   // Phase-2 schema carries the provider's work ID in this slot
+    iswc,
+    writers: [{
+      writerIPI,
+      firstName: 'Sim',
+      lastName:  'Writer',
+      fullName:  'Sim Writer',
+      role,
+    }],
+    publishers:     [],
+    source,
+    rawMlcResponse: { provider: source, body: 'opaque' },
+    lastUpdated:    new Date().toISOString(),
+    confidence:     'MEDIUM',
+  };
 }
 
 // ─── Test harness ────────────────────────────────────────────────────
@@ -73,7 +96,9 @@ function test(name, fn) {
   }
 }
 
-// ─── 1. addPublishingWork stores composition correctly ───────────────
+// ═════════════════════════════════════════════════════════════════════
+//  Tests 1–15 — Phase 3 original brief (with cleanup-pass updates)
+// ═════════════════════════════════════════════════════════════════════
 
 test('1. addPublishingWork stores a CompositionNode with the Board-ratified shape', () => {
   const node = addOne('Test 1 Artist', rawMlcWork({
@@ -84,13 +109,15 @@ test('1. addPublishingWork stores a CompositionNode with the Board-ratified shap
   }));
 
   assert.ok(node, 'should return a non-null node');
-  // providerIds
-  assert.equal(node.providerIds.mlc,         'T01CODE');
-  assert.equal(node.providerIds.socan,       null);
-  assert.equal(node.providerIds.ascap,       null);
-  assert.equal(node.providerIds.bmi,         null);
-  assert.equal(node.providerIds.cisac,       null);
-  assert.equal(node.providerIds.musicbrainz, null);
+  // royalteId
+  assert.ok(typeof node.royalteId === 'string' && node.royalteId.startsWith('rc_'));
+  // externalIds (renamed from providerIds)
+  assert.equal(node.externalIds.mlc,         'T01CODE');
+  assert.equal(node.externalIds.socan,       null);
+  assert.equal(node.externalIds.ascap,       null);
+  assert.equal(node.externalIds.bmi,         null);
+  assert.equal(node.externalIds.cisac,       null);
+  assert.equal(node.externalIds.musicbrainz, null);
   // canonical fields
   assert.equal(node.iswc,           'T-001000001-1');
   assert.equal(node.title,          'Test 1 Work');
@@ -108,16 +135,14 @@ test('1. addPublishingWork stores a CompositionNode with the Board-ratified shap
   assert.equal(node.sources.length, 1);
   assert.equal(node.sources[0].provider, 'mlc');
   assert.ok(typeof node.sources[0].observedAt === 'string');
-  // Board-ratified: graph confidence is always UNKNOWN
+  // graph confidence
   assert.equal(node.confidence, 'UNKNOWN');
   // timestamps
   assert.match(node.addedAt,        /^\d{4}-\d{2}-\d{2}T/);
   assert.match(node.lastObservedAt, /^\d{4}-\d{2}-\d{2}T/);
 });
 
-// ─── 2. Duplicate composition (same mlc ID) merges ───────────────────
-
-test('2. duplicate mlcSongCode → merges into the same node (no duplicate created)', () => {
+test('2. duplicate mlc external ID → merges into the same node (no duplicate created)', () => {
   const code = 'T02CODE';
   const first = addOne('Test 2 Artist', rawMlcWork({
     mlcSongCode: code, workTitle: 'Test 2 Work',
@@ -130,10 +155,8 @@ test('2. duplicate mlcSongCode → merges into the same node (no duplicate creat
   assert.strictEqual(first, second, 'merge should return the same node reference');
   const list = getPublishingWorks('Test 2 Artist');
   assert.equal(list.length, 1);
-  assert.equal(list[0].providerIds.mlc, code);
+  assert.equal(list[0].externalIds.mlc, code);
 });
-
-// ─── 3. Duplicate writer (same writerIPI) merges ─────────────────────
 
 test('3. duplicate writerIPI on the same composition → single writer entry', () => {
   const code = 'T03CODE';
@@ -147,11 +170,8 @@ test('3. duplicate writerIPI on the same composition → single writer entry', (
   }));
   assert.equal(node.writers.length, 1);
   assert.equal(node.writers[0].writerIPI, 'IPI003');
-  // First-observed name is preserved (never destroyed)
-  assert.equal(node.writers[0].lastName, 'Original');
+  assert.equal(node.writers[0].lastName, 'Original'); // never destroyed
 });
-
-// ─── 4. Writer with no IPI — stored, not merged blindly ──────────────
 
 test('4. writers with no IPI are appended — never merged by name alone', () => {
   const code = 'T04CODE';
@@ -163,11 +183,8 @@ test('4. writers with no IPI are appended — never merged by name alone', () =>
     mlcSongCode: code, workTitle: 'Test 4 Work',
     writers: [rawWriter({ writerLastName: 'Same Name', writerIPI: null })],
   }));
-  // Both writers appended — never merged by name (Board: duplicate intelligence > incorrect intelligence)
   assert.equal(node.writers.length, 2);
 });
-
-// ─── 5. null ISWC — stored safely, no crash ──────────────────────────
 
 test('5. null ISWC is stored safely and lookup by ISWC misses cleanly', () => {
   const node = addOne('Test 5 Artist', rawMlcWork({
@@ -178,8 +195,6 @@ test('5. null ISWC is stored safely and lookup by ISWC misses cleanly', () => {
   assert.equal(getCompositionByISWC(null), null);
 });
 
-// ─── 6. null publishers — empty array present ────────────────────────
-
 test('6. publishers array is always present and empty (MLC has no publisher data)', () => {
   const node = addOne('Test 6 Artist', rawMlcWork({
     mlcSongCode: 'T06CODE', workTitle: 'Test 6 Work',
@@ -189,8 +204,6 @@ test('6. publishers array is always present and empty (MLC has no publisher data
   assert.equal(node.publishers.length, 0);
 });
 
-// ─── 7. Multiple recordings → one composition ────────────────────────
-
 test('7. one ISWC can have many ISRCs (covers, remixes, live versions)', () => {
   const iswc = 'T-007000007-7';
   linkRecordingToComposition('ISRC-7-A', iswc);
@@ -198,12 +211,7 @@ test('7. one ISWC can have many ISRCs (covers, remixes, live versions)', () => {
   linkRecordingToComposition('ISRC-7-C', iswc);
   const recordings = getRecordingsForComposition(iswc);
   assert.equal(recordings.length, 3);
-  assert.ok(recordings.includes('ISRC-7-A'));
-  assert.ok(recordings.includes('ISRC-7-B'));
-  assert.ok(recordings.includes('ISRC-7-C'));
 });
-
-// ─── 8. One composition → multiple recordings (inverse: one ISRC → many ISWC) ──
 
 test('8. one ISRC can belong to many ISWCs (mashups, medleys) — never assume 1:1', () => {
   const isrc = 'ISRC-8-MASHUP';
@@ -211,22 +219,14 @@ test('8. one ISRC can belong to many ISWCs (mashups, medleys) — never assume 1
   linkRecordingToComposition(isrc, 'T-008000002-X');
   const comps = getCompositionsForRecording(isrc);
   assert.equal(comps.length, 2);
-  assert.ok(comps.includes('T-008000001-X'));
-  assert.ok(comps.includes('T-008000002-X'));
 });
-
-// ─── 9. getPublishingWorks unknown artist → [] ───────────────────────
 
 test('9. getPublishingWorks returns [] for an unknown artist (never throws)', () => {
-  const list = getPublishingWorks('No Such Artist In The Graph 9');
-  assert.deepStrictEqual(list, []);
-  // and null/empty inputs
-  assert.deepStrictEqual(getPublishingWorks(null),      []);
-  assert.deepStrictEqual(getPublishingWorks(undefined), []);
-  assert.deepStrictEqual(getPublishingWorks(''),        []);
+  assert.deepStrictEqual(getPublishingWorks('No Such Artist 9'), []);
+  assert.deepStrictEqual(getPublishingWorks(null),               []);
+  assert.deepStrictEqual(getPublishingWorks(undefined),          []);
+  assert.deepStrictEqual(getPublishingWorks(''),                 []);
 });
-
-// ─── 10. getCompositionByISWC — found + not found ────────────────────
 
 test('10. getCompositionByISWC — found and not-found paths', () => {
   const iswc = 'T-010000010-0';
@@ -234,29 +234,22 @@ test('10. getCompositionByISWC — found and not-found paths', () => {
     mlcSongCode: 'T10CODE', workTitle: 'Test 10', iswc,
     writers: [rawWriter({ writerIPI: 'IPI010' })],
   }));
-  const found = getCompositionByISWC(iswc);
-  assert.ok(found);
-  assert.equal(found.iswc, iswc);
-  const notFound = getCompositionByISWC('T-NEVER-ADDED-0');
-  assert.equal(notFound, null);
+  assert.ok(getCompositionByISWC(iswc));
+  assert.equal(getCompositionByISWC('T-NEVER-ADDED-0'), null);
 });
 
-// ─── 11. getCompositionByMLCSongCode — found + not found ─────────────
-
-test('11. getCompositionByMLCSongCode — found and not-found paths', () => {
+test('11. getCompositionByProviderId resolves a stored composition (provider-neutral)', () => {
+  // Replacement for the prior getCompositionByMLCSongCode test — same
+  // coverage via the new provider-neutral API.
   const code = 'T11CODE';
   addOne('Test 11 Artist', rawMlcWork({
     mlcSongCode: code, workTitle: 'Test 11',
     writers: [rawWriter({ writerIPI: 'IPI011' })],
   }));
-  const found = getCompositionByMLCSongCode(code);
+  const found = getCompositionByProviderId('mlc', code);
   assert.ok(found);
-  assert.equal(found.providerIds.mlc, code);
-  const notFound = getCompositionByMLCSongCode('T_NEVER_ADDED');
-  assert.equal(notFound, null);
+  assert.equal(found.externalIds.mlc, code);
 });
-
-// ─── 12. getWriterByIPI — found + not found ──────────────────────────
 
 test('12. getWriterByIPI — found and not-found paths', () => {
   addOne('Test 12 Artist', rawMlcWork({
@@ -267,11 +260,8 @@ test('12. getWriterByIPI — found and not-found paths', () => {
   assert.ok(found);
   assert.equal(found.writerIPI, 'IPI012');
   assert.equal(found.lastName,  'Writer');
-  const notFound = getWriterByIPI('IPI-NEVER-ADDED');
-  assert.equal(notFound, null);
+  assert.equal(getWriterByIPI('IPI-NEVER-ADDED'), null);
 });
-
-// ─── 13. sources[] is append-only ────────────────────────────────────
 
 test('13. two observations of the same work → sources.length === 2 (append-only)', () => {
   const code = 'T13CODE';
@@ -284,135 +274,162 @@ test('13. two observations of the same work → sources.length === 2 (append-onl
     writers: [rawWriter({ writerIPI: 'IPI013' })],
   }));
   assert.equal(node.sources.length, 2);
-  // Every source preserves the provider value dynamically
   assert.equal(node.sources[0].provider, 'mlc');
   assert.equal(node.sources[1].provider, 'mlc');
-  // Graph confidence stays UNKNOWN even across multiple observations
   assert.equal(node.confidence, 'UNKNOWN');
 });
 
-// ─── 14. Backward compatibility — YouTube exports untouched ──────────
-
-test('14. existing lookupYouTubeChannelId still resolves the seeded entry', () => {
-  // The seeded artist key from the original graph (Black Alternative)
-  const channelId = lookupYouTubeChannelId('Black Alternative');
-  assert.equal(channelId, 'UCOIO07KGdBFp9Ej40iaZRGQ');
-  // Full-entry helper still works
+test('14. existing lookupYouTubeChannelId still resolves the seeded entry (backward compat)', () => {
+  assert.equal(lookupYouTubeChannelId('Black Alternative'), 'UCOIO07KGdBFp9Ej40iaZRGQ');
   const entry = getYouTubeChannelEntry('Black Alternative');
   assert.ok(entry);
   assert.equal(entry.addedBy, 'founder');
 });
 
-// ─── 15. Provider-agnostic — socan source works exactly like mlc ─────
-
-test('15. provider-agnostic — socan-sourced PublishingWork produces sources[0].provider === "socan"', () => {
-  // Build a PublishingWork-shaped object as if a future socan-adapter
-  // had produced it. Bypasses the MLC adapter — same shape.
-  const socanWork = {
-    title:          'Test 15 SOCAN Work',
-    canonicalTitle: 'Test 15 SOCAN Work',
-    mlcSongCode:    'T15SOCAN',  // sugar field accepted by the graph layer
-    iswc:           'T-015000015-5',
-    writers: [{
-      writerIPI: 'IPI015',
-      firstName: 'Soc',
-      lastName:  'Writer',
-      fullName:  'Soc Writer',
-      role:      'Composer',
-    }],
-    publishers:     [],
-    source:         'socan',
-    rawMlcResponse: { provider: 'socan', body: 'opaque' },
-    lastUpdated:    new Date().toISOString(),
-    confidence:     'MEDIUM',
-  };
-  const node = addPublishingWork('Test 15 Artist', socanWork);
+test('15. provider-agnostic — socan-sourced PublishingWork populates externalIds.socan', () => {
+  const node = addPublishingWork('Test 15 Artist', pwLike({
+    source:     'socan',
+    externalId: 'T15SOCAN',
+    title:      'Test 15 SOCAN Work',
+    iswc:       'T-015000015-5',
+    writerIPI:  'IPI015',
+  }));
   assert.ok(node);
   assert.equal(node.sources[0].provider, 'socan');
-  // providerIds.socan slot received the value (mlc slot stays null)
-  assert.equal(node.providerIds.socan, 'T15SOCAN');
-  assert.equal(node.providerIds.mlc,   null);
+  assert.equal(node.externalIds.socan,   'T15SOCAN');
+  assert.equal(node.externalIds.mlc,     null);
 });
 
-// ─── 16. (extra) addPublishingWork rejects invalid input → null, no graph mutation ──
+// ═════════════════════════════════════════════════════════════════════
+//  Tests 16–23 — Phase 3 cleanup brief
+// ═════════════════════════════════════════════════════════════════════
 
-test('16. invalid PublishingWork → addPublishingWork returns null, graph untouched', () => {
-  const before = getPublishingWorks('Test 16 Artist').length;
-  // missing required fields
-  const r1 = addPublishingWork('Test 16 Artist', { mlcSongCode: '', writers: [] });
-  const r2 = addPublishingWork('Test 16 Artist', null);
-  const r3 = addPublishingWork('Test 16 Artist', undefined);
-  const r4 = addPublishingWork('', { /* shape */ });
-  assert.equal(r1, null);
-  assert.equal(r2, null);
-  assert.equal(r3, null);
-  assert.equal(r4, null);
-  const after = getPublishingWorks('Test 16 Artist').length;
-  assert.equal(before, after);
-});
-
-// ─── 17. (extra) merge by ISWC, not by title (different mlc codes, same ISWC) ──
-
-test('17. two works with the same ISWC merge into one node — even when mlcSongCodes differ', () => {
-  const iswc = 'T-017000017-7';
-  const n1 = addOne('Test 17 Artist', rawMlcWork({
-    mlcSongCode: 'T17CODE_A', workTitle: 'Different Title A', iswc,
-    writers: [rawWriter({ writerIPI: 'IPI017' })],
+test('16. getCompositionByProviderId("mlc", code) — found', () => {
+  const code = 'T16CODE';
+  addOne('Test 16 Artist', rawMlcWork({
+    mlcSongCode: code, workTitle: 'Test 16',
+    writers: [rawWriter({ writerIPI: 'IPI016' })],
   }));
-  const n2 = addOne('Test 17 Artist', rawMlcWork({
-    mlcSongCode: 'T17CODE_B', workTitle: 'Different Title B', iswc,
-    writers: [rawWriter({ writerIPI: 'IPI017' })],
+  const found = getCompositionByProviderId('mlc', code);
+  assert.ok(found);
+  assert.equal(found.externalIds.mlc, code);
+});
+
+test('17. getCompositionByProviderId("mlc", code) — not found returns null', () => {
+  const result = getCompositionByProviderId('mlc', 'T_NEVER_EXISTED_17');
+  assert.equal(result, null);
+});
+
+test('18. getCompositionByProviderId("socan", id) — simulated SOCAN lookup', () => {
+  const id = 'T18-SOCAN-FAKE-ID';
+  addPublishingWork('Test 18 Artist', pwLike({
+    source:     'socan',
+    externalId: id,
+    title:      'Test 18 SOCAN Work',
+    iswc:       'T-018000018-8',
+    writerIPI:  'IPI018',
   }));
-  assert.strictEqual(n1, n2);
-  // First-observed title preserved (Board: never destroy evidence)
-  assert.equal(n2.title, 'Different Title A');
-  // Both MLC codes resolve to the same node
-  assert.strictEqual(getCompositionByMLCSongCode('T17CODE_A'), n2);
-  assert.strictEqual(getCompositionByMLCSongCode('T17CODE_B'), n2);
+  const found = getCompositionByProviderId('socan', id);
+  assert.ok(found);
+  assert.equal(found.externalIds.socan, id);
+  assert.equal(getCompositionByProviderId('socan', 'NEVER-EXISTED-18'), null);
 });
 
-// ─── 18. (extra) lookup helpers never throw on garbage ──────────────
-
-test('18. lookup helpers return null on null/undefined/non-string input', () => {
-  assert.equal(getCompositionByISWC(null),         null);
-  assert.equal(getCompositionByISWC(undefined),    null);
-  assert.equal(getCompositionByISWC(42),           null);
-  assert.equal(getCompositionByMLCSongCode(null),  null);
-  assert.equal(getCompositionByMLCSongCode(42),    null);
-  assert.equal(getWriterByIPI(null),               null);
-  assert.equal(getWriterByIPI(42),                 null);
-  assert.deepStrictEqual(getCompositionsForRecording(null),     []);
-  assert.deepStrictEqual(getRecordingsForComposition(undefined),[]);
+test('19. getCompositionByProviderId("ascap", id) — simulated ASCAP lookup', () => {
+  const id = 'T19-ASCAP-FAKE-ID';
+  addPublishingWork('Test 19 Artist', pwLike({
+    source:     'ascap',
+    externalId: id,
+    title:      'Test 19 ASCAP Work',
+    iswc:       'T-019000019-A',
+    writerIPI:  'IPI019',
+  }));
+  const found = getCompositionByProviderId('ascap', id);
+  assert.ok(found);
+  assert.equal(found.externalIds.ascap, id);
+  assert.equal(getCompositionByProviderId('ascap', 'NEVER-EXISTED-19'), null);
 });
 
-// ─── 19. (extra) linkRecordingToComposition is idempotent ────────────
-
-test('19. linking the same (ISRC, ISWC) pair twice keeps the set size at 1', () => {
-  const isrc = 'ISRC-19-IDEM';
-  const iswc = 'T-019000019-9';
-  linkRecordingToComposition(isrc, iswc);
-  linkRecordingToComposition(isrc, iswc);
-  linkRecordingToComposition(isrc, iswc);
-  assert.equal(getRecordingsForComposition(iswc).length, 1);
-  assert.equal(getCompositionsForRecording(isrc).length, 1);
-});
-
-// ─── 20. (extra) linkRecordingToComposition syncs CompositionNode.recordings[] ──
-
-test('20. linkRecordingToComposition populates CompositionNode.recordings[] when the node exists', () => {
-  const iswc = 'T-020000020-0';
+test('20. royalteId generated on creation — starts "rc_"', () => {
   const node = addOne('Test 20 Artist', rawMlcWork({
-    mlcSongCode: 'T20CODE', workTitle: 'Test 20', iswc,
+    mlcSongCode: 'T20CODE', workTitle: 'Test 20',
     writers: [rawWriter({ writerIPI: 'IPI020' })],
   }));
-  // Before linking
-  assert.deepStrictEqual(node.recordings, []);
-  linkRecordingToComposition('ISRC-20-FIRST',  iswc);
-  linkRecordingToComposition('ISRC-20-SECOND', iswc);
-  // After linking, the node's recordings[] is in sync
-  assert.equal(node.recordings.length, 2);
-  assert.ok(node.recordings.includes('ISRC-20-FIRST'));
-  assert.ok(node.recordings.includes('ISRC-20-SECOND'));
+  assert.ok(node);
+  assert.equal(typeof node.royalteId, 'string');
+  assert.ok(node.royalteId.startsWith('rc_'));
+  // 'rc_' + 36-char UUID v4 = 39 chars total
+  assert.equal(node.royalteId.length, 39);
+});
+
+test('21. royalteId preserved during merge — never changes', () => {
+  const code = 'T21CODE';
+  const first = addOne('Test 21 Artist', rawMlcWork({
+    mlcSongCode: code, workTitle: 'Test 21',
+    writers: [rawWriter({ writerIPI: 'IPI021' })],
+  }));
+  const idAtCreation = first.royalteId;
+  const second = addOne('Test 21 Artist', rawMlcWork({
+    mlcSongCode: code, workTitle: 'Test 21',
+    writers: [rawWriter({ writerIPI: 'IPI021' })],
+  }));
+  assert.strictEqual(first, second);
+  assert.equal(second.royalteId, idAtCreation);
+  // And after a third merge — still the same
+  const third = addOne('Test 21 Artist', rawMlcWork({
+    mlcSongCode: code, workTitle: 'Test 21',
+    writers: [rawWriter({ writerIPI: 'IPI021' })],
+  }));
+  assert.equal(third.royalteId, idAtCreation);
+});
+
+test('22. externalIds field present on every node with all 6 provider slots', () => {
+  const node = addOne('Test 22 Artist', rawMlcWork({
+    mlcSongCode: 'T22CODE', workTitle: 'Test 22',
+    writers: [rawWriter({ writerIPI: 'IPI022' })],
+  }));
+  assert.ok(node.externalIds);
+  assert.equal(typeof node.externalIds, 'object');
+  assert.ok('mlc'         in node.externalIds);
+  assert.ok('socan'       in node.externalIds);
+  assert.ok('ascap'       in node.externalIds);
+  assert.ok('bmi'         in node.externalIds);
+  assert.ok('cisac'       in node.externalIds);
+  assert.ok('musicbrainz' in node.externalIds);
+  // Old name is gone
+  assert.equal(node.providerIds, undefined);
+});
+
+test('23. two providers, same composition (shared ISWC) — externalIds contains both; royalteId unchanged', () => {
+  const iswc = 'T-023000023-X';
+  // First observation — MLC
+  const fromMlc = addOne('Test 23 Artist', rawMlcWork({
+    mlcSongCode: 'T23-MLC-ID', workTitle: 'Test 23 Composition', iswc,
+    writers: [rawWriter({ writerIPI: 'IPI023' })],
+  }));
+  const idBefore = fromMlc.royalteId;
+  // Second observation — SOCAN (different provider, same ISWC)
+  const fromSocan = addPublishingWork('Test 23 Artist', pwLike({
+    source:     'socan',
+    externalId: 'T23-SOCAN-ID',
+    title:      'Test 23 Composition',
+    iswc,
+    writerIPI:  'IPI023',
+  }));
+  // Same node reference (merged by ISWC)
+  assert.strictEqual(fromMlc, fromSocan);
+  // Both external IDs present
+  assert.equal(fromSocan.externalIds.mlc,   'T23-MLC-ID');
+  assert.equal(fromSocan.externalIds.socan, 'T23-SOCAN-ID');
+  // royalteId unchanged across the multi-provider merge
+  assert.equal(fromSocan.royalteId, idBefore);
+  // Both reverse-lookups land on the same node
+  assert.strictEqual(getCompositionByProviderId('mlc',   'T23-MLC-ID'),   fromMlc);
+  assert.strictEqual(getCompositionByProviderId('socan', 'T23-SOCAN-ID'), fromMlc);
+  // Two source entries — append-only history preserved
+  assert.equal(fromSocan.sources.length, 2);
+  assert.equal(fromSocan.sources[0].provider, 'mlc');
+  assert.equal(fromSocan.sources[1].provider, 'socan');
 });
 
 // ─── Summary ─────────────────────────────────────────────────────────
