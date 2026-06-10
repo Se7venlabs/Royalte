@@ -1957,39 +1957,38 @@ body.menu-locked {
              card style as V1, with V2 content populated by JS. -->
         <div class="d-modules">
           <div class="d-mod" id="os-findings-card">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Top findings</div></div>
+            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Royaltē identified the following observations from its Music Backend Intelligence™ analysis.</div></div>
             <div class="os-findings-list" id="os-findings"><!-- populated by renderV2Findings() --></div>
           </div>
           <div class="d-mod" id="os-found-card">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">What Royaltē found</div></div>
+            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">CATALOG INTELLIGENCE™</div></div>
             <div class="os-found-grid" id="os-found-grid"><!-- populated by renderV2Found() --></div>
           </div>
         </div>
 
         <!-- 3. Bridge line + CTA — replaces V1 .gbe-card position. -->
-        <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
+        <div class="os-bridge">This scan is a snapshot. Royaltē OS™ provides continuous Music Backend Intelligence™.</div>
         <div class="d-mod os-cta-card">
-          <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Royaltē OS Is Monitoring Signals This Scan Doesn't Show</div></div>
-          <p class="os-cta-statement">One Scan Shows A Snapshot.<br>Royaltē OS Watches What Changes.</p>
+          <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">YOUR EXECUTIVE BRIEF™ INCLUDES ADDITIONAL MUSIC BACKEND INTELLIGENCE™</div></div>
+          <p class="os-cta-statement">Your free scan is only the beginning.<br>Your Executive Brief™ reveals deeper Music Backend Intelligence™.</p>
           <ul class="os-cta-features">
-            <li>Catalog Change Detection</li>
-            <li>Health Score Tracking</li>
-            <li>Backend Protection</li>
-            <li>Action Center</li>
-            <li>Continuous Monitoring</li>
-            <li>Territory Changes</li>
-            <li>Identifier Changes</li>
-            <li>Metadata Coverage</li>
-            <li>YouTube Presence</li>
+            <li>Metadata Intelligence™</li>
+            <li>Catalog Identity Analysis™</li>
+            <li>Publishing Infrastructure Review™</li>
+            <li>Global Music Footprint™</li>
+            <li>Platform Intelligence™</li>
+            <li>Personalized Royaltē Recommendations™</li>
+            <li>Music Backend Health™ Breakdown</li>
+            <li>Executive Summary™</li>
           </ul>
-          <p class="os-cta-body">Royaltē OS continuously monitors your music business backend and alerts you when meaningful changes are detected.</p>
+          <p class="os-cta-body">Your Executive Brief™ expands on this scan with additional Music Backend Intelligence™ and actionable insights designed to strengthen your catalog infrastructure.</p>
           <!-- Founding Artist subsection (Brief 012a follow-up) — counter
                populated by loadFoundingArtistCount() against
                /api/founding-artist-count. Closed-state swap is innerHTML-
                replaced and the submit button is disabled in place. -->
           <div class="os-fa-section" id="os-fa-section">
-            <h3 class="os-fa-heading">Become A Founding Artist</h3>
-            <p class="os-fa-sub">The first 1,000 artists can secure lifetime Founding Artist access and unlock Royaltē OS before the program closes.</p>
+            <h3 class="os-fa-heading">UNLOCK YOUR FREE EXECUTIVE BRIEF™</h3>
+            <p class="os-fa-sub">🎁 Congratulations! You're eligible to receive a complimentary Royaltē Executive Brief™ as part of the Founding Artist Program. Available to the first 1,000 artists.</p>
             <div class="os-fa-counter">
               <div class="os-fa-counter-label">Founding Artist Program</div>
               <div class="os-fa-counter-value" id="os-fa-counter-value">— of 1,000 spots claimed</div>
@@ -1999,8 +1998,8 @@ body.menu-locked {
                Button text renamed per Brief 012a; submit handler at line ~3349
                still calls sendMagicLink(email, 'homepage_scan'). -->
           <form class="bi-os-form" id="bi-os-form" novalidate>
-            <input type="email" class="bi-os-email" id="bi-os-email" placeholder="your@email.com" autocomplete="email" required>
-            <button type="submit" class="bi-os-cta" data-cta="enter-os">Become A Founding Artist</button>
+            <input type="email" class="bi-os-email" id="bi-os-email" placeholder="Enter your email to unlock your Executive Brief™" autocomplete="email" required>
+            <button type="submit" class="bi-os-cta" data-cta="enter-os">UNLOCK MY FREE EXECUTIVE BRIEF™</button>
           </form>
           <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
         </div>
@@ -3077,7 +3076,11 @@ function _renderV2Found(data) {
     { label: 'EPs',                   value: epsValue     != null ? epsValue     : '—' },
     { label: 'Singles',               value: singlesValue != null ? singlesValue : '—' },
     { label: 'Tracks',                value: tracksValue  != null ? tracksValue  : '—' },
-    { label: 'ISRC coverage',         value: isrcCoverage },
+    { label: 'ISRC Coverage',         value: isrcCoverage },
+    { label: 'Release Years',         value: '—' },
+    { label: 'Platforms',             value: '—' },
+    { label: 'Latest Release',        value: '—' },
+    { label: 'Catalog Age',           value: '—' },
     { label: 'Catalog availability',  value: catalogAvail },
   ];
   gridEl.innerHTML = rows.map((r) => `
