@@ -465,28 +465,55 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 @keyframes radarSpin{from{transform:rotate(-90deg);}to{transform:rotate(270deg);}}
 @keyframes radarSpinRev{from{transform:rotate(90deg);}to{transform:rotate(-270deg);}}
-@keyframes corePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.35);}}
-/* Scan core orb — stronger breathing pulse + slow circular orbit (idle state).
-   Both gate off post-scan: orbBreathe is overridden by .jarvis-active's
-   !important animation; the orbit wrapper by the .jarvis-on / .scanning rules. */
+/* Royaltē Orb™ — premium AI intelligence aesthetic (refined 2026-06-10).
+   Layered, continuous energy: pulsating inner core (corePulse) inside a
+   color-cycling breathing glow (orbBreathe) wrapped by a soft outer aura
+   (orbAura) and expanding pulse rings (pulseWave) over a slow orbital
+   sweep (orbOrbit). Honors existing .jarvis-on / .scanning gates and the
+   prefers-reduced-motion guard. No markup change. */
+@keyframes corePulse{
+  0%,100%{opacity:0.95;transform:scale(1);filter:brightness(1);}
+  40%    {opacity:0.62;transform:scale(1.22);filter:brightness(1.25);}
+  50%    {opacity:0.35;transform:scale(1.50);filter:brightness(1.55);}
+  60%    {opacity:0.62;transform:scale(1.22);filter:brightness(1.25);}
+}
 @keyframes orbBreathe{
-  0%,100%{transform:scale(0.94);box-shadow:0 0 16px rgba(138,92,255,0.5);}
-  50%    {transform:scale(1.16);box-shadow:0 0 42px rgba(138,92,255,0.95);}
+  0%,100%{transform:scale(0.92);box-shadow:0 0 18px rgba(138,92,255,0.55),0 0 34px rgba(138,92,255,0.22);}
+  30%    {transform:scale(1.04);box-shadow:0 0 28px rgba(176,120,255,0.72),0 0 50px rgba(224,64,200,0.32);}
+  50%    {transform:scale(1.18);box-shadow:0 0 44px rgba(224,64,200,0.92),0 0 70px rgba(138,92,255,0.45);}
+  72%    {transform:scale(1.04);box-shadow:0 0 32px rgba(138,92,255,0.82),0 0 56px rgba(64,212,240,0.30);}
+}
+@keyframes orbAura{
+  0%,100%{opacity:0.45;transform:scale(0.92);}
+  50%    {opacity:1;transform:scale(1.30);}
 }
 @keyframes orbOrbit{
   from{transform:rotate(0deg) translateX(7px) rotate(0deg);}
   to  {transform:rotate(360deg) translateX(7px) rotate(-360deg);}
 }
 .orb-orbit{display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:transform 0.6s ease;animation:orbOrbit 14s linear infinite;}
-#hero-risk-indicator{animation:orbBreathe 4s ease-in-out infinite;}
+#hero-risk-indicator{animation:orbBreathe 4.4s ease-in-out infinite;}
+#hero-risk-indicator::after{
+  content:'';position:absolute;inset:-14px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(138,92,255,0.22) 0%,rgba(224,64,200,0.11) 45%,transparent 75%);
+  animation:orbAura 5s ease-in-out infinite;
+  z-index:-1;
+}
 .d-score-ring.jarvis-on .orb-orbit,.d-score-ring.scanning .orb-orbit{animation:none;transform:none;}
-@media (prefers-reduced-motion:reduce){.orb-orbit,#hero-risk-indicator,#hero-risk-dot{animation:none;}}
+@media (prefers-reduced-motion:reduce){
+  .orb-orbit,#hero-risk-indicator,#hero-risk-indicator::after,#hero-risk-dot{animation:none;}
+}
 /* V4 PULSE WAVES for the audit preview widget */
 .pulse-wave{position:absolute;width:72px;height:72px;border-radius:50%;border:1.5px solid #8a5cff;opacity:0;pointer-events:none;}
-.pw1{animation:pulseWave 2.4s ease-out infinite;}
-.pw2{animation:pulseWave 2.4s ease-out 0.8s infinite;}
-.pw3{animation:pulseWave 2.4s ease-out 1.6s infinite;}
-@keyframes pulseWave{0%{transform:scale(0.55);opacity:0;border-color:#e040c8;}15%{opacity:0.9;}100%{transform:scale(1.3);opacity:0;border-color:#8a5cff;}}
+.pw1{animation:pulseWave 2.6s ease-out infinite;}
+.pw2{animation:pulseWave 2.6s ease-out 0.85s infinite;}
+.pw3{animation:pulseWave 2.6s ease-out 1.70s infinite;}
+@keyframes pulseWave{
+  0%   {transform:scale(0.50);opacity:0;border-color:#e040c8;border-width:1.5px;}
+  15%  {opacity:0.90;border-width:1.5px;}
+  60%  {opacity:0.42;border-color:#8a5cff;border-width:1.25px;}
+  100% {transform:scale(1.42);opacity:0;border-color:#64a4ff;border-width:1px;}
+}
 /* when scanning, hide the idle pulse waves */
 .d-score-ring.scanning #pulse-waves-wrap{opacity:0;}
 @keyframes radarFlash{0%,100%{opacity:1;}45%{opacity:0.85;}50%{opacity:0.3;}55%{opacity:0.9;}}
@@ -683,7 +710,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 /* Artist image — sits between orb and text block.
    Source priority handled in JS: imageUrl > artistImageUrl > albumImageUrl > initials fallback */
 .d-score-img-wrap{
-  width:104px;height:104px;flex-shrink:0;border-radius:50%;overflow:hidden;
+  width:110px;height:110px;flex-shrink:0;border-radius:14px;overflow:hidden;
   border:2px solid rgba(138,92,255,0.45);
   box-shadow:0 0 32px rgba(138,92,255,0.30),0 0 16px rgba(64,212,240,0.20);
   background:linear-gradient(135deg,#2a1a4a,#3a2a5a);
