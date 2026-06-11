@@ -28,13 +28,13 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently locked phase | **Phase 6.5 — Royaltē Golden Fixture Library™ + Phase 5 polarity amendment** |
-| Locked at | `52b1750` |
+| Most recently locked phase | **Phase 7 — Royaltē Health Engine™** |
+| Locked at | (set on merge) |
 | Tag | — |
 | Effective | 2026-06-11 |
-| Next anticipated phase | **Phase 7 — Royaltē Health Engine™** (Board directive 2026-06-11; brief pending) |
+| Next anticipated phase | **Phase 8 — Engine Wiring** (wire Intelligence + Health into `/api/audit`; no brief authorised yet) |
 
-Phase 6 lock point: `a23788b` / tag `intelligence-engine-v1.0`.
+Phase 6 lock point: `a23788b` / tag `intelligence-engine-v1.0`. Phase 6.5 lock point: `52b1750`.
 
 The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`.
 
@@ -100,8 +100,11 @@ Royaltē verifies intelligence; Royaltē does not estimate intelligence. Every n
 | Phase 5 — Rule Library | `api/rules/*` | `8907bd6` (+ Phase 6.5 polarity amendment — see below) |
 | Phase 6 — Intelligence Engine | `api/_lib/intelligence-engine.js` + `api/schema/intelligence.js` | `intelligence-engine-v1.0` (`a23788b`) |
 | Phase 6.5 — Golden Fixture Library | `tests/fixtures/*` + `tests/golden-fixture-test.mjs` | `52b1750` |
+| Phase 7 — Health Engine | `api/_lib/health-engine.js` + `api/schema/health.js` | (set on merge) |
 
-Test suites (11, all deterministic) live under `tests/`. Pipeline regression is enforced by GitHub Actions on every PR.
+Test suites (12, all deterministic) live under `tests/`. Pipeline regression is enforced by GitHub Actions on every PR.
+
+**Health Engine ≠ legacy V2 health score.** `api/_lib/persist-os-scan.js::computeV2HealthScore` is the locked V2-surface health score derived from raw scan signals at persist time (Brief 012a, 2026-05-29). The new Phase 7 Health Engine at `api/_lib/health-engine.js` scores Intelligence Reports (Phase 6 output) — different inputs, different consumers, different surfaces. They coexist; the V2 score is not deprecated. Future consolidation is a future Board decision.
 
 **Phase 5 rule format addendum (Phase 6.5):** rules may carry an optional `polarity: 'positive'` field. When present, the rule's observation is routed to `engineOutput.strengths[]` by the Phase 6 engine (in addition to `observations[]`). Currently applied to `publishing.strong-coverage` and `catalog.complete-delivery-verified`. Backward compatible — rules without `polarity` behave exactly as before.
 
