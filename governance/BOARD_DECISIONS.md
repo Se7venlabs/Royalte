@@ -19,9 +19,9 @@ Entries are listed **newest first** for ease of catching up; chronological order
 | **Decision** | Create `tests/fixtures/` with 7 canonical CIO reference fixtures (`artist-empty`, `artist-perfect`, `artist-duplicate-profiles`, `artist-missing-publishing`, `artist-orphan-recordings`, `artist-fragmented-catalog`, `artist-metadata-conflicts`) + `fixture-loader.mjs` (`loadFixture`, `listFixtures`) + `golden-fixture-test.mjs` (30 deterministic assertions). Each fixture is versioned and named; fixtures are immutable — versioned forward, never overwritten. **Amend Phase 5** by adding the optional `polarity: 'positive'` field to `publishing.strong-coverage` and `catalog.complete-delivery-verified` so strength rules flow correctly into `engineOutput.strengths[]` under the Phase 6 contract. |
 | **Reason** | Without the polarity amendment, the Phase 5 Rule Library's two semantically-positive INFO rules fire correctly into `observations[]` but never reach `strengths[]` (Phase 6 routes by explicit `polarity:'positive'`). The amendment closes the constitutional gap between Phase 5's declarative rule format and Phase 6's strengths routing, making the Golden Fixture Library's `artist-perfect` scenario meaningful. |
 | **Impact** | (a) Phase 6.5 establishes a canonical regression surface for future architectural change — any locked-stack alteration that breaks fixture-driven engine output is caught immediately. (b) Phase 5 rule format now formally permits an optional `polarity` field on positive-framing rules. Backward compatible — rules without `polarity` continue to behave exactly as before. (c) Fixture versioning rule (`_fixtureVersion`) becomes the constitutional precedent for evolving golden references: never overwrite, always version forward. |
-| **Vote** | Board Approved (Option A) |
-| **PR Number** | (this PR) |
-| **Commit SHA** | (set on merge) |
+| **Vote** | Board Approved (Option A) — UNANIMOUS |
+| **PR Number** | #135 |
+| **Commit SHA** | `52b1750` |
 | **Constitution update required** | No — the Phase 5 amendment is additive and the fixture library is a test surface. Future formal Constitution amendment may record the fixture-versioning rule as a sub-section of § 8B. |
 
 ---

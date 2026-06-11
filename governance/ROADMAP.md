@@ -20,7 +20,7 @@ When this roadmap and the Constitution disagree, **the Constitution wins.**
 | 4 | Canonical Intelligence Assembly Engine™ | ✅ Complete | `a3c78d7` | — |
 | 5 | Royaltē Rule Library™ | ✅ Complete | `8907bd6` | — |
 | 6 | Royaltē Intelligence Engine™ | ✅ Complete | `a23788b` | `intelligence-engine-v1.0` |
-| 6.5 | Royaltē Golden Fixture Library™ + Phase 5 polarity amendment | ✅ Complete | (set on merge) | — |
+| 6.5 | Royaltē Golden Fixture Library™ + Phase 5 polarity amendment | ✅ Complete | `52b1750` | — |
 | 7 | Engine Wiring → `/api/audit` | ⬜ Pending Brief | — | — |
 | 8+ | (per future Board directives) | ⬜ | — | — |
 
