@@ -23,8 +23,8 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 | | |
 |---|---|
-| **PR** | (this PR) |
-| **Commit SHA** | (set on merge) |
+| **PR** | #137 |
+| **Commit SHA** | `ec57481` (Phase 7 code at `0c10fb4`; roadmap amendment at `ec57481`) |
 | **Constitution Version** | v1.3 |
 | **Added** | `api/schema/health.js` (constants + `emptyHealthReport()` factory; `HEALTH_VERSION='1.0.0'`, `CATEGORY_WEIGHTS`, `GRADE_THRESHOLDS`). `api/_lib/health-engine.js` (sole export: `computeHealthScore(intelligenceReport)`; pure, deterministic, never throws, deep-freezes output). `tests/health-engine-test.mjs` (35 deterministic assertions: input tolerance, fixture-driven category scores, all six grade bands, determinism, immutability, no-mutation, invariants). |
 | **Changed** | none |
