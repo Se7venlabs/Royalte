@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-06-11 — Repository Governance Layer™ established
+
+| | |
+|---|---|
+| **PR** | #133 |
+| **Commit SHA** | `60e76ef` |
+| **Constitution Version** | v1.3 |
+| **Added** | `governance/AGENT_MEMORY.md`, `governance/BOARD_DECISIONS.md`, `governance/ROADMAP.md`, `governance/CHANGELOG.md` (this file), `governance/EXECUTIVE_BOARD.md`. New constitutional rule recorded in `AGENT_MEMORY.md` § 9 binding every future architectural Phase merge to governance updates. AI Startup Order documented. Executive Board roster captured with first-draft titles pending Board confirmation. |
+| **Changed** | none |
+| **Removed** | none |
+
+---
+
 ## 2026-06-11 — Constitution v1.3 + Engineering Stack documentation
 
 | | |
