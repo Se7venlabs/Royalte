@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-06-11 — Phase 7: Royaltē Health Engine™
+
+| | |
+|---|---|
+| **PR** | (this PR) |
+| **Commit SHA** | (set on merge) |
+| **Constitution Version** | v1.3 |
+| **Added** | `api/schema/health.js` (constants + `emptyHealthReport()` factory; `HEALTH_VERSION='1.0.0'`, `CATEGORY_WEIGHTS`, `GRADE_THRESHOLDS`). `api/_lib/health-engine.js` (sole export: `computeHealthScore(intelligenceReport)`; pure, deterministic, never throws, deep-freezes output). `tests/health-engine-test.mjs` (35 deterministic assertions: input tolerance, fixture-driven category scores, all six grade bands, determinism, immutability, no-mutation, invariants). |
+| **Changed** | none |
+| **Removed** | none |
+
+---
+
 ## 2026-06-11 — Phase 6.5: Golden Fixture Library™ + Phase 5 polarity amendment
 
 | | |
