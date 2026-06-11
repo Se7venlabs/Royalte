@@ -1,0 +1,72 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-fragmented-catalog",
+  "_description": "Artist whose catalog state is fragmented across providers: byProvider counts differ (Spotify 10 vs. Apple 8), 2 duplicate recording pairs detected, 2 Spotify profiles, and 1 release conflict in metadata. Models a real-world signal cluster where multiple low-severity issues compound.",
+  "_expectedBehavior": "Engine fires catalog.count-mismatch-across-providers (MEDIUM, HIGH confidence) and identity.duplicate-dsp-profiles (MEDIUM, HIGH confidence). One CATALOG observation and one IDENTITY observation in observations[]. Two entries in opportunities[] (both MEDIUM). Recommendations[] reflects the MEDIUM observations. The forward-shape fields catalog.duplicates[] and metadata.releaseConflicts[] are present for documentation but do not yet drive any Phase-5 rule.",
+
+  "cioVersion":  "1.0.0",
+  "generatedAt": "2026-06-11T00:00:00.000Z",
+  "confidence":  "UNKNOWN",
+
+  "identity": {
+    "canonicalArtistName": "Fragmented Catalog Test Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "frag-spotify-A", "verified": true },
+      { "provider": "spotify", "profileId": "frag-spotify-B", "verified": true },
+      { "provider": "apple",   "profileId": "frag-apple-1",   "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+
+  "publishing": {
+    "worksCount":           6,
+    "workRoyalteIds":       ["rc_frag_001", "rc_frag_002", "rc_frag_003"],
+    "writerCount":          3,
+    "writerIPIs":           ["IPI_FRAG_1", "IPI_FRAG_2", "IPI_FRAG_3"],
+    "publisherCount":       2,
+    "publishingConfidence": "MEDIUM",
+    "publishingCoverage":   85
+  },
+
+  "catalog": {
+    "releasesCount":     10,
+    "catalogAgeYears":   6,
+    "catalogConfidence": "MEDIUM",
+    "recordings": [
+      { "isrc": "USFR10000001", "title": "Frag Recording 1" },
+      { "isrc": "USFR10000002", "title": "Frag Recording 2" },
+      { "isrc": "USFR10000003", "title": "Frag Recording 3" },
+      { "isrc": "USFR10000004", "title": "Frag Recording 4" },
+      { "isrc": "USFR10000005", "title": "Frag Recording 5" },
+      { "isrc": "USFR10000006", "title": "Frag Recording 6" },
+      { "isrc": "USFR10000007", "title": "Frag Recording 7" },
+      { "isrc": "USFR10000008", "title": "Frag Recording 8" },
+      { "isrc": "USFR10000009", "title": "Frag Recording 9" },
+      { "isrc": "USFR10000010", "title": "Frag Recording 10" }
+    ],
+    "orphanRecordings": [],
+    "byProvider": {
+      "spotify": 10,
+      "apple":   8
+    },
+    "duplicates": [
+      ["USFR10000001", "USFR10000002"],
+      ["USFR10000003", "USFR10000004"]
+    ]
+  },
+
+  "metadata": {
+    "flagCount":            1,
+    "metadataConfidence":   "MEDIUM",
+    "missingCredits":       [],
+    "duplicateReleases":    [],
+    "inconsistentMetadata": [],
+    "releaseConflicts": [
+      { "releaseId": "RELEASE-FRAG-X", "conflict": "title mismatch across providers" }
+    ]
+  },
+
+  "sources":    { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue":    { "reserved": true }
+}

@@ -1,0 +1,52 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-duplicate-profiles",
+  "_description": "Artist whose Identity Graph carries duplicate DSP profiles across Spotify, Apple, and YouTube — two distinct profileIds per provider. Models a fragmented-identity scenario where the same artist is split across multiple distribution profiles on each platform.",
+  "_expectedBehavior": "Engine fires identity.duplicate-dsp-profiles (MEDIUM, HIGH confidence). One IDENTITY observation appears in observations[]. One opportunity in opportunities[] (MEDIUM severity routes through opportunities). One recommendation in recommendations[].",
+
+  "cioVersion":  "1.0.0",
+  "generatedAt": "2026-06-11T00:00:00.000Z",
+  "confidence":  "UNKNOWN",
+
+  "identity": {
+    "canonicalArtistName": "Duplicate Profiles Test Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "dup-spotify-A", "verified": true },
+      { "provider": "spotify", "profileId": "dup-spotify-B", "verified": true },
+      { "provider": "apple",   "profileId": "dup-apple-A",   "verified": true },
+      { "provider": "apple",   "profileId": "dup-apple-B",   "verified": true },
+      { "provider": "youtube", "profileId": "dup-youtube-A", "verified": true },
+      { "provider": "youtube", "profileId": "dup-youtube-B", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+
+  "publishing": {
+    "worksCount":           0,
+    "workRoyalteIds":       [],
+    "writerCount":          0,
+    "writerIPIs":           [],
+    "publisherCount":       0,
+    "publishingConfidence": "UNKNOWN"
+  },
+
+  "catalog": {
+    "releasesCount":     null,
+    "catalogAgeYears":   null,
+    "catalogConfidence": "UNKNOWN",
+    "recordings":        [],
+    "orphanRecordings":  []
+  },
+
+  "metadata": {
+    "flagCount":            0,
+    "metadataConfidence":   "UNKNOWN",
+    "missingCredits":       [],
+    "duplicateReleases":    [],
+    "inconsistentMetadata": []
+  },
+
+  "sources":    { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue":    { "reserved": true }
+}

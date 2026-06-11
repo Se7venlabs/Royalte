@@ -95,6 +95,7 @@ export const publishingRules = Object.freeze([
     confidence:      'HIGH',
     recommendation:  'Maintain current registration discipline.',
     providerSources: [],
+    polarity:        'positive',
     condition(cio) {
       const pub = safePublishing(cio);
       if (!pub) return false;

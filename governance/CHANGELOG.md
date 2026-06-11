@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-06-11 — Phase 6.5: Golden Fixture Library™ + Phase 5 polarity amendment
+
+| | |
+|---|---|
+| **PR** | (this PR) |
+| **Commit SHA** | (set on merge) |
+| **Constitution Version** | v1.3 |
+| **Added** | `tests/fixtures/artist-empty.json`, `tests/fixtures/artist-perfect.json`, `tests/fixtures/artist-duplicate-profiles.json`, `tests/fixtures/artist-missing-publishing.json`, `tests/fixtures/artist-orphan-recordings.json`, `tests/fixtures/artist-fragmented-catalog.json`, `tests/fixtures/artist-metadata-conflicts.json` — each carrying `_fixtureVersion`, `_fixtureName`, `_description`, `_expectedBehavior`. Plus `tests/fixtures/fixture-loader.mjs` (exports `loadFixture`, `listFixtures` only) and `tests/golden-fixture-test.mjs` (30 deterministic assertions). |
+| **Changed** | `api/rules/publishing-rules.js` — added `polarity: 'positive'` to `publishing.strong-coverage` (1 line). `api/rules/catalog-rules.js` — added `polarity: 'positive'` to `catalog.complete-delivery-verified` (1 line). Additive Phase 5 amendment; existing rule-library tests stay 29/29 green. |
+| **Removed** | none |
+
+---
+
 ## 2026-06-11 — Repository Governance Layer™ established
 
 | | |

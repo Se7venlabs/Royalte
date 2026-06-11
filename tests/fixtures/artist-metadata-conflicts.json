@@ -1,0 +1,59 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-metadata-conflicts",
+  "_description": "Artist with multiple metadata-quality issues: 3 missing credits, 2 duplicate releases, 4 inconsistent-metadata flags across reviewed sources. Identity is resolved, catalog is empty, publishing is empty — the test focuses purely on metadata-rule firing.",
+  "_expectedBehavior": "Engine fires three METADATA observations: metadata.missing-credits (LOW), metadata.duplicate-releases (MEDIUM), metadata.inconsistent-fields (LOW). Recommendations[] carries the MEDIUM-severity entry; opportunities[] carries the MEDIUM entry; risks[] is empty. No publishing rule fires because both worksCount and recordingsCount are 0.",
+
+  "cioVersion":  "1.0.0",
+  "generatedAt": "2026-06-11T00:00:00.000Z",
+  "confidence":  "UNKNOWN",
+
+  "identity": {
+    "canonicalArtistName": "Metadata Conflicts Test Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "mc-spotify-1", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+
+  "publishing": {
+    "worksCount":           0,
+    "workRoyalteIds":       [],
+    "writerCount":          0,
+    "writerIPIs":           [],
+    "publisherCount":       0,
+    "publishingConfidence": "UNKNOWN"
+  },
+
+  "catalog": {
+    "releasesCount":     null,
+    "catalogAgeYears":   null,
+    "catalogConfidence": "UNKNOWN",
+    "recordings":        [],
+    "orphanRecordings":  []
+  },
+
+  "metadata": {
+    "flagCount":          9,
+    "metadataConfidence": "LOW",
+    "missingCredits": [
+      { "isrc": "USMC10000001", "field": "composer"  },
+      { "isrc": "USMC10000002", "field": "producer"  },
+      { "isrc": "USMC10000003", "field": "publisher" }
+    ],
+    "duplicateReleases": [
+      { "title": "Conflicted Song A", "releaseIds": ["RA-1", "RA-2"] },
+      { "title": "Conflicted Song B", "releaseIds": ["RB-1", "RB-2"] }
+    ],
+    "inconsistentMetadata": [
+      { "field": "genre",  "observed": ["pop",         "rock"]                 },
+      { "field": "year",   "observed": ["2019",        "2020"]                 },
+      { "field": "artist", "observed": ["Artist Long", "Artist Short"]         },
+      { "field": "label",  "observed": ["Label A",     "Label B"]              }
+    ]
+  },
+
+  "sources":    { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue":    { "reserved": true }
+}

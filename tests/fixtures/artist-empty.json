@@ -1,0 +1,47 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-empty",
+  "_description": "New artist. Nothing known. All sections empty, all arrays empty, all coverage / confidence aggregates null. Represents an artist who has just been observed for the first time and against whom no signals have yet been gathered.",
+  "_expectedBehavior": "Engine returns a valid output with zero observations, zero risks, zero strengths, zero recommendations, zero opportunities. Engine never throws. Coverage[] is present with one entry per CIO section (every status EMPTY or RESERVED).",
+
+  "cioVersion":  "1.0.0",
+  "generatedAt": "2026-06-11T00:00:00.000Z",
+  "confidence":  "UNKNOWN",
+
+  "identity": {
+    "canonicalArtistName": "Empty Test Artist",
+    "externalProfiles":    [],
+    "artistConfidence":    null
+  },
+
+  "publishing": {
+    "worksCount":           0,
+    "workRoyalteIds":       [],
+    "writerCount":          0,
+    "writerIPIs":           [],
+    "publisherCount":       0,
+    "publishingConfidence": "UNKNOWN"
+  },
+
+  "catalog": {
+    "releasesCount":     null,
+    "catalogAgeYears":   null,
+    "catalogConfidence": "UNKNOWN",
+    "recordings":        [],
+    "orphanRecordings":  [],
+    "duplicates":        []
+  },
+
+  "metadata": {
+    "flagCount":            0,
+    "metadataConfidence":   "UNKNOWN",
+    "missingCredits":       [],
+    "duplicateReleases":    [],
+    "inconsistentMetadata": [],
+    "releaseConflicts":     []
+  },
+
+  "sources":    { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue":    { "reserved": true }
+}

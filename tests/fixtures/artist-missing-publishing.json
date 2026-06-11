@@ -1,0 +1,52 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-missing-publishing",
+  "_description": "Artist with 3 recordings but no publishing registrations. publishing.worksCount is 0 yet catalog has recordings. Models an artist whose distribution is in motion but whose compositions have not yet been registered with a publishing administrator or PRO.",
+  "_expectedBehavior": "Engine fires publishing.no-registrations-with-recordings (HIGH, HIGH confidence). One PUBLISHING observation in observations[] with severity HIGH. One entry in risks[] (HIGH severity routes through risks). One recommendation in recommendations[] ('Register compositions with a performance rights organization to claim publishing revenue.').",
+
+  "cioVersion":  "1.0.0",
+  "generatedAt": "2026-06-11T00:00:00.000Z",
+  "confidence":  "UNKNOWN",
+
+  "identity": {
+    "canonicalArtistName": "Missing Publishing Test Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "mp-spotify-1", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+
+  "publishing": {
+    "worksCount":           0,
+    "workRoyalteIds":       [],
+    "writerCount":          0,
+    "writerIPIs":           [],
+    "publisherCount":       0,
+    "publishingConfidence": "UNKNOWN",
+    "publishingCoverage":   0
+  },
+
+  "catalog": {
+    "releasesCount":     3,
+    "catalogAgeYears":   2,
+    "catalogConfidence": "MEDIUM",
+    "recordings": [
+      { "isrc": "USMP10000001", "title": "Track One" },
+      { "isrc": "USMP10000002", "title": "Track Two" },
+      { "isrc": "USMP10000003", "title": "Track Three" }
+    ],
+    "orphanRecordings": []
+  },
+
+  "metadata": {
+    "flagCount":            0,
+    "metadataConfidence":   "UNKNOWN",
+    "missingCredits":       [],
+    "duplicateReleases":    [],
+    "inconsistentMetadata": []
+  },
+
+  "sources":    { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue":    { "reserved": true }
+}

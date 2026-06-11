@@ -20,6 +20,7 @@ When this roadmap and the Constitution disagree, **the Constitution wins.**
 | 4 | Canonical Intelligence Assembly Engine™ | ✅ Complete | `a3c78d7` | — |
 | 5 | Royaltē Rule Library™ | ✅ Complete | `8907bd6` | — |
 | 6 | Royaltē Intelligence Engine™ | ✅ Complete | `a23788b` | `intelligence-engine-v1.0` |
+| 6.5 | Royaltē Golden Fixture Library™ + Phase 5 polarity amendment | ✅ Complete | (set on merge) | — |
 | 7 | Engine Wiring → `/api/audit` | ⬜ Pending Brief | — | — |
 | 8+ | (per future Board directives) | ⬜ | — | — |
 
@@ -27,9 +28,10 @@ When this roadmap and the Constitution disagree, **the Constitution wins.**
 
 ## What's Live in `main` Today
 
-- **Phases 1–6 are merged and locked.** The full Engineering Stack (Section 8B of the Constitution) is in place at the file paths documented in `docs/ROYALTE_ENGINEERING_STACK.md`.
+- **Phases 1–6 + 6.5 are merged and locked.** The full Engineering Stack (Section 8B of the Constitution) is in place at the file paths documented in `docs/ROYALTE_ENGINEERING_STACK.md`. The Golden Fixture Library™ at `tests/fixtures/` provides 7 canonical CIO reference states + a 30-assertion regression surface.
 - **Royaltē Scan Experience V1 is DESIGN FROZEN.** PR #122 remains open and is held until intelligence wiring is complete. No layout / spacing / typography / color / animation / UX changes are authorised in the meantime.
 - **Constitution at v1.3** (effective 2026-06-11) ratifies the seven-layer Engineering Stack.
+- **Phase 5 rule format now permits** the optional `polarity: 'positive'` field on positive-framing rules — applied to `publishing.strong-coverage` and `catalog.complete-delivery-verified`.
 
 ## What's Not Live Yet
 
