@@ -20,8 +20,8 @@ Entries are listed **newest first** for ease of catching up; chronological order
 | **Reason** | The repository must become the single source of truth for institutional memory, accessible to AI agents, engineers, contractors, and future employees. |
 | **Impact** | Every Phase 7+ merge must update governance files before merge. AI agents now have a standardized startup sequence. |
 | **Vote** | Board Approved · Priority HIGH |
-| **PR Number** | (this PR) |
-| **Commit SHA** | (set on merge) |
+| **PR Number** | #133 |
+| **Commit SHA** | `60e76ef` |
 | **Constitution update required** | No — recorded in `AGENT_MEMORY.md` § 9; future Constitution amendment may formally enshrine. |
 
 ---
