@@ -29,7 +29,7 @@ Prior versions are **not** preserved as separate files; their substance lives in
 | | |
 |---|---|
 | Most recently locked phase | **Phase 7 — Royaltē Health Engine™** |
-| Locked at | (set on merge) |
+| Locked at | `ec57481` |
 | Tag | — |
 | Effective | 2026-06-11 |
 | Next anticipated phase | per future Board directives (no brief authorised yet) |
@@ -100,7 +100,7 @@ Royaltē verifies intelligence; Royaltē does not estimate intelligence. Every n
 | Phase 5 — Rule Library | `api/rules/*` | `8907bd6` (+ Phase 6.5 polarity amendment — see below) |
 | Phase 6 — Intelligence Engine | `api/_lib/intelligence-engine.js` + `api/schema/intelligence.js` | `intelligence-engine-v1.0` (`a23788b`) |
 | Phase 6.5 — Golden Fixture Library | `tests/fixtures/*` + `tests/golden-fixture-test.mjs` | `52b1750` |
-| Phase 7 — Health Engine | `api/_lib/health-engine.js` + `api/schema/health.js` | (set on merge) |
+| Phase 7 — Health Engine | `api/_lib/health-engine.js` + `api/schema/health.js` | `ec57481` |
 
 Test suites (12, all deterministic) live under `tests/`. Pipeline regression is enforced by GitHub Actions on every PR.
 

@@ -21,7 +21,7 @@ When this roadmap and the Constitution disagree, **the Constitution wins.**
 | 5 | Royaltē Rule Library™ | ✅ Complete | `8907bd6` | — |
 | 6 | Royaltē Intelligence Engine™ | ✅ Complete | `a23788b` | `intelligence-engine-v1.0` |
 | 6.5 | Royaltē Golden Fixture Library™ + Phase 5 polarity amendment | ✅ Complete | `52b1750` | — |
-| 7 | Royaltē Health Engine™ | ✅ Complete | (set on merge) | — |
+| 7 | Royaltē Health Engine™ | ✅ Complete | `ec57481` | — |
 | 8+ | (per future Board directives) | ⬜ | — | — |
 
 ---
