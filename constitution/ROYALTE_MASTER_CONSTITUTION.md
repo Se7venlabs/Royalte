@@ -1,9 +1,9 @@
 # ROYALTÉ MASTER CONSTITUTION
 
-**Version:** 1.2
+**Version:** 1.3
 **Status:** LOCKED — BOARD APPROVED
-**Effective:** 2026-06-10
-**Supersedes:** v1.0 (2026-06-09)
+**Effective:** 2026-06-11
+**Supersedes:** v1.2 (2026-06-10)
 
 **Authority:** Supreme governing document for the Royalté platform.
 
@@ -17,7 +17,8 @@ This is the **single living constitutional document** for Royalté. Prior versio
 
 | Version | Effective | Summary |
 |---|---|---|
-| **1.2** | **2026-06-10** | Adds **Section 7A — Art Direction Lock™** (Constitutional Declaration · Execution Not Interpretation · Source of Truth · Pixel Fidelity · No Creative Drift · Design QA · Principle). Establishes the approved artboard as supreme over prior mockups, screenshots, implementations, opinions, and engineering preference. Formalizes the three-second Design QA test. |
+| **1.3** | **2026-06-11** | Adds **Section 8B — Royaltē Engineering Stack™**, ratifying the seven-layer architecture built across Phases 1–6 of the Intelligence-Wiring Sprint: Providers → Normalization Adapters → Royaltē Identity Graph™ → Canonical Intelligence Assembly Engine™ → Canonical Intelligence Object™ → Royaltē Rule Library™ → Royaltē Intelligence Engine™ → Consumers. Locks the constitutional separation *knowledge / execution / presentation* and records the Board-ratified lock points: `mlc-publishing-adapter-v1.0` (Phase 2) · Phase 3 at `bf12b5a` · Phase 4 at `a3c78d7` · Phase 5 at `8907bd6` · `intelligence-engine-v1.0` (Phase 6 at `a23788b`). |
+| 1.2 | 2026-06-10 | Adds **Section 7A — Art Direction Lock™** (Constitutional Declaration · Execution Not Interpretation · Source of Truth · Pixel Fidelity · No Creative Drift · Design QA · Principle). Establishes the approved artboard as supreme over prior mockups, screenshots, implementations, opinions, and engineering preference. Formalizes the three-second Design QA test. |
 | 1.0 | 2026-06-09 | Initial Board-ratified Constitution. Sections 1-14 + Appendices: Company Philosophy · Music Backend Intelligence™ Category Definition · Product Architecture · Design System · UX Standards · Engineering Rules · Executive Brief™ · Mission Control™ · Monitoring™ · Knowledge Library · Constitutional Declaration · Definitions Appendix. Constitutional Motto: *Clarity Creates Control. Intelligence Creates Value.* |
 
 **Amendments require formal Constitutional Board Review only.** No autonomous loosening, no implicit overrides, no convenience-driven reinterpretation.
@@ -2045,3 +2046,95 @@ Engineering may solve technical problems but may not make creative decisions.
 If a side-by-side comparison reveals obvious visual differences within three seconds, the implementation fails Design QA.
 7A.6 Principle
 Design tells the story. The story creates emotion. Emotion creates trust. Trust creates conversion. Art direction is product strategy made visible.
+
+## SECTION 8B — ROYALTĒ ENGINEERING STACK™
+
+🔒 LOCKED — BOARD APPROVED · v1.3 · 2026-06-11
+
+### 8B.0 Constitutional Declaration
+
+The Royaltē Engineering Stack™ is the seven-layer constitutional architecture of the platform, finalized across the Intelligence-Wiring Sprint (Phases 1–6, 2026-06-10 through 2026-06-11). Every Royaltē product — Mission Control™, Royaltē Review, Health™, Executive Brief™, Monitoring™, Royaltē OS™, future agents, future APIs — inherits this stack. No product owns it. No product short-circuits it. No product replaces a layer with provider-specific logic.
+
+### 8B.1 The Seven Layers
+
+```
+1.  Providers                              (Spotify · Apple Music · MusicBrainz ·
+                                            Discogs · YouTube · MLC · etc.)
+        ↓
+2.  Normalization Adapters                 lib/publishing/*-adapter.js
+        ↓
+3.  Royaltē Identity Graph™                api/_lib/identity-graph.js
+        ↓
+4.  Canonical Intelligence Assembly Engine™ api/_lib/cio-assembler.js
+        ↓
+5.  Canonical Intelligence Object™ (CIO)   (deep-frozen artifact)
+        ↓
+6.  Royaltē Rule Library™                  api/rules/*
+        ↓
+7.  Royaltē Intelligence Engine™           api/_lib/intelligence-engine.js
+        ↓
+    Observations · Recommendations · Risks · Strengths · Opportunities · Coverage
+        ↓
+8.  Consumers                              Mission Control™ · Executive Brief™ ·
+                                            Health™ · Monitoring™ · Revenue Signals™ ·
+                                            APIs · AI Agents
+```
+
+### 8B.2 Layer Ownership
+
+| # | Layer | Owns | Locked At |
+|---|---|---|---|
+| 1 | **Providers** | Raw third-party responses | (external) |
+| 2 | **Normalization Adapters** | Translation of one provider's responses into Royaltē-canonical objects. No business logic. | `mlc-publishing-adapter-v1.0` (Phase 2, 2026-06-10) |
+| 3 | **Royaltē Identity Graph™** | Cross-platform relationships: artists, compositions, writers, recordings, link maps. The graph is the sole owner of relationship state. | Phase 3 (`bf12b5a`, 2026-06-10) |
+| 4 | **Canonical Intelligence Assembly Engine™** | Deterministic projection of (graph + adapter outputs + scan payload) into the CIO. Pure function. No I/O. No domain reasoning. | Phase 4 (`a3c78d7`, 2026-06-10) |
+| 5 | **Canonical Intelligence Object™ (CIO)** | The deeply-frozen artifact representing Royaltē's current understanding of an artist. Summarizes — never duplicates graph storage. References (royalteId, writerIPI) only. | (data shape — locked with Phase 4) |
+| 6 | **Royaltē Rule Library™** | Declarative business knowledge — pure-data rule objects with `(cio) → boolean` conditions. Never executes. Never imports provider field names. | Phase 5 (`8907bd6`, 2026-06-11) |
+| 7 | **Royaltē Intelligence Engine™** | Generic, deterministic execution: evaluates every rule against the CIO and projects firing rules into observations, recommendations, risks, strengths, opportunities, and coverage. No category switches. | `intelligence-engine-v1.0` (Phase 6, `a23788b`, 2026-06-11) |
+| 8 | **Consumers** | Presentation. Each consumer reads the engine's frozen output and renders it for its surface. No consumer recomputes intelligence. | (per-surface) |
+
+### 8B.3 Constitutional Separation
+
+Three responsibilities, three layers, never mixed:
+
+- **Knowledge** belongs in the Rule Library.
+- **Execution** belongs in the Intelligence Engine.
+- **Presentation** belongs in consumers.
+
+Any future PR that mixes these — embedding rules inside the engine, computing intelligence inside a consumer, surfacing presentation strings inside a rule — is constitutionally rejected.
+
+### 8B.4 Immutability and Determinism
+
+Layers 4 through 7 are pure functions whose outputs are deeply frozen at the boundary:
+
+- The CIO is frozen the moment the Assembly Engine returns it.
+- The Rule Library's `ALL_RULES` and every rule object within it are frozen at module load.
+- The Intelligence Engine's output is frozen before return.
+
+Given identical inputs (artist name + sources for the CIO; CIO + rule library for the engine), every layer produces byte-identical output across runs. No randomness. No LLM. No network in the reasoning path.
+
+### 8B.5 Generic Iteration
+
+The Intelligence Engine knows nothing about specific categories, providers, or domains. There is no `switch (category)`, no `if (provider === 'mlc')`, no per-category branch anywhere in the engine. Rules drive everything. Adding a new category, provider, or domain happens only in the Rule Library; the engine doesn't change.
+
+### 8B.6 Engineering Doctrine
+
+- One Adapter per provider. No second normalizer.
+- One Identity Graph for the platform. No parallel relationship stores.
+- One CIO per scan moment. No alternative aggregations.
+- One Rule Library. No engine-side rule duplication.
+- One Intelligence Engine. No consumer-side reasoning.
+
+### 8B.7 Future Layers
+
+Reserved sections of the CIO (`monitoring`, `revenue`) and reserved Rule Library categories (`MONITORING`, `REVENUE`, `GENERAL`) carry empty arrays today. Phase 7+ may populate them. When that happens, the change lands in the existing files of layers 5 and 6 — no new layer is added without explicit Board ratification of this Constitution.
+
+### 8B.8 Principle
+
+The Royaltē Engineering Stack™ is what allows Royaltē's intelligence to evolve organically for decades without rewriting the engine. Each layer is replaceable in isolation. Each layer is testable in isolation. Each layer is constitutionally responsible for one thing, and one thing only.
+
+**One Adapter. One Graph. One CIO. One Library. One Engine. One Platform.**
+
+### 8B.9 Companion Reference
+
+Long-form engineering documentation lives at `docs/ROYALTE_ENGINEERING_STACK.md`. The Constitution governs principles; the companion document records the implementation map (file paths, tag names, test suites, deliverable checklists per phase). Where the two disagree, the Constitution wins.
