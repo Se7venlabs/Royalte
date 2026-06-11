@@ -32,7 +32,7 @@ Prior versions are **not** preserved as separate files; their substance lives in
 | Locked at | (set on merge) |
 | Tag | — |
 | Effective | 2026-06-11 |
-| Next anticipated phase | **Phase 8 — Engine Wiring** (wire Intelligence + Health into `/api/audit`; no brief authorised yet) |
+| Next anticipated phase | per future Board directives (no brief authorised yet) |
 
 Phase 6 lock point: `a23788b` / tag `intelligence-engine-v1.0`. Phase 6.5 lock point: `52b1750`.
 
