@@ -28,11 +28,13 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently locked phase | **Phase 6 — Royaltē Intelligence Engine™** |
-| Locked at | `a23788b` |
-| Tag | `intelligence-engine-v1.0` |
+| Most recently locked phase | **Phase 6.5 — Royaltē Golden Fixture Library™ + Phase 5 polarity amendment** |
+| Locked at | (set on merge) |
+| Tag | — |
 | Effective | 2026-06-11 |
 | Next anticipated phase | **Phase 7 — Engine wiring** (no brief authorised yet) |
+
+Phase 6 lock point: `a23788b` / tag `intelligence-engine-v1.0`.
 
 The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`.
 
@@ -95,10 +97,15 @@ Royaltē verifies intelligence; Royaltē does not estimate intelligence. Every n
 | Phase 2 — Publishing Adapter | `lib/publishing/mlc-adapter.js` | `mlc-publishing-adapter-v1.0` (`bca9e68`) |
 | Phase 3 — Identity Graph | `api/_lib/identity-graph.js` | `bf12b5a` |
 | Phase 4 — CIO Assembler | `api/_lib/cio-assembler.js` + `api/schema/cio.js` | `a3c78d7` |
-| Phase 5 — Rule Library | `api/rules/*` | `8907bd6` |
+| Phase 5 — Rule Library | `api/rules/*` | `8907bd6` (+ Phase 6.5 polarity amendment — see below) |
 | Phase 6 — Intelligence Engine | `api/_lib/intelligence-engine.js` + `api/schema/intelligence.js` | `intelligence-engine-v1.0` (`a23788b`) |
+| Phase 6.5 — Golden Fixture Library | `tests/fixtures/*` + `tests/golden-fixture-test.mjs` | (set on merge) |
 
-Test suites (10, all deterministic) live under `tests/`. Pipeline regression is enforced by GitHub Actions on every PR.
+Test suites (11, all deterministic) live under `tests/`. Pipeline regression is enforced by GitHub Actions on every PR.
+
+**Phase 5 rule format addendum (Phase 6.5):** rules may carry an optional `polarity: 'positive'` field. When present, the rule's observation is routed to `engineOutput.strengths[]` by the Phase 6 engine (in addition to `observations[]`). Currently applied to `publishing.strong-coverage` and `catalog.complete-delivery-verified`. Backward compatible — rules without `polarity` behave exactly as before.
+
+**Golden Fixture rule:** Fixtures under `tests/fixtures/` are immutable. They carry `_fixtureVersion` and are versioned forward; never overwritten. New canonical states are added as new files; evolving an existing one means adding `-v2.json` alongside the original.
 
 ---
 

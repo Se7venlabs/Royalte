@@ -1,0 +1,54 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-orphan-recordings",
+  "_description": "Artist whose catalog includes 5 recordings, of which 3 are flagged as orphans — ISRCs present in reviewed sources without corresponding release linkage. Publishing data is otherwise healthy so the orphan signal is the dominant catalog risk.",
+  "_expectedBehavior": "Engine fires catalog.orphan-recordings-detected (HIGH, HIGH confidence). One CATALOG observation with severity HIGH in observations[]. One entry in risks[]. One recommendation in recommendations[] ('Verify catalog delivery and confirm release linkage for the affected recordings.'). publishing.strong-coverage may also fire as a strength because worksCount>0 and publishingCoverage>=80; that is acceptable per Phase 6 rules.",
+
+  "cioVersion":  "1.0.0",
+  "generatedAt": "2026-06-11T00:00:00.000Z",
+  "confidence":  "UNKNOWN",
+
+  "identity": {
+    "canonicalArtistName": "Orphan Recordings Test Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "or-spotify-1", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+
+  "publishing": {
+    "worksCount":           5,
+    "workRoyalteIds":       ["rc_or_001", "rc_or_002", "rc_or_003", "rc_or_004", "rc_or_005"],
+    "writerCount":          3,
+    "writerIPIs":           ["IPI_OR_1", "IPI_OR_2", "IPI_OR_3"],
+    "publisherCount":       2,
+    "publishingConfidence": "MEDIUM",
+    "publishingCoverage":   90
+  },
+
+  "catalog": {
+    "releasesCount":     5,
+    "catalogAgeYears":   4,
+    "catalogConfidence": "MEDIUM",
+    "recordings": [
+      { "isrc": "USOR10000001", "title": "Recording One" },
+      { "isrc": "USOR10000002", "title": "Recording Two" },
+      { "isrc": "USOR10000003", "title": "Recording Three" },
+      { "isrc": "USOR10000004", "title": "Recording Four" },
+      { "isrc": "USOR10000005", "title": "Recording Five" }
+    ],
+    "orphanRecordings": ["USOR10000003", "USOR10000004", "USOR10000005"]
+  },
+
+  "metadata": {
+    "flagCount":            0,
+    "metadataConfidence":   "UNKNOWN",
+    "missingCredits":       [],
+    "duplicateReleases":    [],
+    "inconsistentMetadata": []
+  },
+
+  "sources":    { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue":    { "reserved": true }
+}

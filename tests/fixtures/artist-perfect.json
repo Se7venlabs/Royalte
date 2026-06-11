@@ -1,0 +1,70 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-perfect",
+  "_description": "Perfect catalog. Perfect publishing. Perfect identity. Every signal is populated, every coverage value is at-or-above the strong-coverage threshold, no duplicates of any kind, no metadata conflicts. Represents a Royaltē artist whose data is in ideal shape.",
+  "_expectedBehavior": "Engine fires only positive (polarity='positive', severity='INFO') strength rules: publishing.strong-coverage AND catalog.complete-delivery-verified. No risks. No MEDIUM or HIGH observations. No recommendations (recommendations only come from MEDIUM+). No opportunities. Strengths[] has two entries.",
+
+  "cioVersion":  "1.0.0",
+  "generatedAt": "2026-06-11T00:00:00.000Z",
+  "confidence":  "UNKNOWN",
+
+  "identity": {
+    "canonicalArtistName": "Perfect Test Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "perfect-spotify-1", "verified": true },
+      { "provider": "apple",   "profileId": "perfect-apple-1",   "verified": true },
+      { "provider": "youtube", "profileId": "perfect-youtube-1", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+
+  "publishing": {
+    "worksCount":           12,
+    "workRoyalteIds":       ["rc_perfect_001", "rc_perfect_002", "rc_perfect_003", "rc_perfect_004", "rc_perfect_005"],
+    "writerCount":          5,
+    "writerIPIs":           ["IPI_PERFECT_1", "IPI_PERFECT_2", "IPI_PERFECT_3", "IPI_PERFECT_4", "IPI_PERFECT_5"],
+    "publisherCount":       3,
+    "publishingConfidence": "HIGH",
+    "publishingCoverage":   100,
+    "publishingWorks": [
+      { "iswc": "T-100000001-1", "title": "Perfect Track A" },
+      { "iswc": "T-100000002-2", "title": "Perfect Track B" },
+      { "iswc": "T-100000003-3", "title": "Perfect Track C" }
+    ]
+  },
+
+  "catalog": {
+    "releasesCount":     10,
+    "catalogAgeYears":   8,
+    "catalogConfidence": "HIGH",
+    "recordings": [
+      { "isrc": "USRC10000001", "title": "Perfect Track A" },
+      { "isrc": "USRC10000002", "title": "Perfect Track B" },
+      { "isrc": "USRC10000003", "title": "Perfect Track C" },
+      { "isrc": "USRC10000004", "title": "Perfect Track D" },
+      { "isrc": "USRC10000005", "title": "Perfect Track E" },
+      { "isrc": "USRC10000006", "title": "Perfect Track F" },
+      { "isrc": "USRC10000007", "title": "Perfect Track G" },
+      { "isrc": "USRC10000008", "title": "Perfect Track H" },
+      { "isrc": "USRC10000009", "title": "Perfect Track I" },
+      { "isrc": "USRC10000010", "title": "Perfect Track J" }
+    ],
+    "orphanRecordings": [],
+    "duplicates":       [],
+    "iswcCoverage":     100,
+    "byProvider":       { "spotify": 10, "apple": 10 }
+  },
+
+  "metadata": {
+    "flagCount":            0,
+    "metadataConfidence":   "HIGH",
+    "missingCredits":       [],
+    "duplicateReleases":    [],
+    "inconsistentMetadata": [],
+    "releaseConflicts":     []
+  },
+
+  "sources":    { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue":    { "reserved": true }
+}

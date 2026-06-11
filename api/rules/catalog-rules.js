@@ -72,6 +72,7 @@ export const catalogRules = Object.freeze([
     confidence:      'HIGH',
     recommendation:  'Continue current catalog delivery practices.',
     providerSources: [],
+    polarity:        'positive',
     condition(cio) {
       const recs = recordingsCount(cio);
       if (recs <= 0) return false;
