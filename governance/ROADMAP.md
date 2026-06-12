@@ -23,7 +23,7 @@ When this roadmap and the Constitution disagree, **the Constitution wins.**
 | 6.5 | Royaltē Golden Fixture Library™ + Phase 5 polarity amendment | ✅ Complete | `52b1750` | — |
 | 7 | Royaltē Health Engine™ | ✅ Complete | `ec57481` | — |
 | 7.5 | Se7ven Labs Intellectual Property Vault™ | ✅ Complete | `38ec3be` | — |
-| 8 | Royaltē Executive Brief Engine™ | ✅ Complete | (set on merge) | — |
+| 8 | Royaltē Executive Brief Engine™ | ✅ Complete | `8f00014` | — |
 | 9+ | (per future Board directives) | ⬜ | — | — |
 
 ---
