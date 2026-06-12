@@ -11,22 +11,6 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
-### 2026-06-12 — Phase 9: Royaltē Mission Control Shell™ (UI architecture only)
-
-| | |
-|---|---|
-| **Date** | 2026-06-12 |
-| **Decision** | Add the **Royaltē Mission Control Shell™** at `public/mission-control.html` — a single self-contained UI shell file matching the codebase convention (consistent with `public/index.html`, `public/dashboard.html`, `public/audit.html`). The shell is the permanent visual architecture of the Royaltē AI Operating System™: 3-column executive command-center layout (left nav rail · main intelligence grid · right insights/review rail), Board-locked design system (black surface, purple accent, green/orange status, executive whitespace, minimal animation), 7 intelligence module containers (Health · Identity · Publishing · Catalog · Revenue · Monitoring · Global Footprint), AI Insights™ panel, Royaltē Review™ panel, Founder Access™ block, hero status panel with radar + pulse line, bottom status row, full responsive behaviour (1440 / 1280 / 1024 / 720 breakpoints). Placeholder data only; no engine integration; no business logic. Per the Board's reference image and brief: pixel-to-pixel fidelity to the approved design language; no redesign, no reinterpretation. |
-| **Reason** | Mission Control™ is the flagship interface of the Royaltē AI Operating System™. Until Phase 9, the platform had a V1 Mission Control (`public/dashboard.html`, design-frozen 2026-06-04) but no canonical executive-grade shell that future intelligence layers (Phase 7 Health Engine + Phase 8 Executive Brief Engine + future engines) could populate without contention over layout. The Phase 9 Shell establishes that stable contract: structure now, intelligence later. |
-| **Impact** | (a) `public/mission-control.html` is a **new top-level surface** at `/mission-control.html` via Vercel's catch-all route. **`public/dashboard.html` (V1 freeze 2026-06-04) remains untouched and live for V2 Royaltē OS dashboard usage.** Sunsetting V1 is a separate future Board decision. (b) The Phase 9 Shell becomes the canonical visual reference for any future Mission Control work — its layout, hierarchy, spacing, proportions, and design tokens are constitutional. Future briefs that touch Mission Control must extend this shell rather than redesign it. (c) The shell is **shell only** — no engine wiring, no API calls, no provider integrations, no persistence. Future phases (Health Engine wiring, Executive Brief Engine wiring, Mission Control Engine, real-time scan injection) populate the shell's DOM positions; the shell is the contract. (d) The `feat/scan-v1-final-lock` (PR #122) Scan Experience V1 freeze is **unaffected** — different surface (`public/index.html` scan section), different lock. |
-| **Vote** | Board Approved · CRITICAL priority |
-| **PR Number** | (this PR) |
-| **Commit SHA** | (set on merge) |
-| **Note on V1 MC freeze (2026-06-04)** | The Phase 9 Shell does **not** modify `public/dashboard.html`. The V1 MC freeze stays in force; the new shell is a parallel surface that future work can migrate to. Any future Board decision to retire V1 MC must be recorded as a separate Board Decision entry. |
-| **Constitution update required** | Likely yes at the next Constitution amendment cycle — Section 8B (Engineering Stack) may formally enshrine the Mission Control Shell™ as the canonical Consumer-layer surface for the Royaltē AI Operating System™. Not blocked on it for merge. |
-
----
-
 ### 2026-06-12 — Phase 8: Royaltē Executive Brief Engine™
 
 | | |
