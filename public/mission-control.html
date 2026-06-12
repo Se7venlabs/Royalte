@@ -1183,15 +1183,19 @@ body {
 
 .mc-status-card--horizon {
   /* Board-approved canonical artwork: purple sphere + planet horizon.
-     Dark gradient on the left hides the artwork's embedded duplicate
-     text so the live HTML copy reads as the canonical layer. */
+     Dark gradient on the left FULLY hides the artwork's embedded
+     duplicate text (was partially bleeding through at the 86-95%
+     opacity tail and producing a faint double-vision halo behind
+     the live HTML copy). The opaque band is now wide enough that
+     the embedded text is completely occluded; transparency only
+     begins past the text region, before the planet artwork. */
   background:
     linear-gradient(90deg,
-      rgba(5, 5, 7, 1.00) 0%,
-      rgba(5, 5, 7, 0.95) 42%,
-      rgba(5, 5, 7, 0.55) 62%,
-      rgba(5, 5, 7, 0.10) 78%,
-      transparent 92%),
+      rgba(5, 5, 7, 1.00)  0%,
+      rgba(5, 5, 7, 1.00) 55%,
+      rgba(5, 5, 7, 0.45) 70%,
+      rgba(5, 5, 7, 0.12) 82%,
+      transparent         92%),
     url('/img/royalte-never-sleeps.png') center / cover no-repeat,
     var(--mc-surface-1);
   background-blend-mode: normal, normal, normal;
