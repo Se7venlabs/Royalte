@@ -22,6 +22,12 @@ The Intellectual Property Vault™ is the authoritative internal corporate recor
 
 ---
 
+## Permanence
+
+**The Intellectual Property Vault™ is intended to survive every product lifecycle and shall remain the permanent intellectual property registry of Se7ven Labs LLC regardless of future products, subsidiaries, acquisitions, mergers, divestitures, restructurings, or corporate reorganizations. It serves as the enduring institutional record of ownership, invention history, first-use evidence, strategic intellectual assets, licensing history, and commercialization activity across the entire Se7ven Labs ecosystem.**
+
+---
+
 ## Legal disclaimer
 
 > Nothing contained within this repository constitutes legal registration or legal filing. This repository is the authoritative internal corporate record of Se7ven Labs LLC intellectual property, ownership history, invention history, and strategic assets.
