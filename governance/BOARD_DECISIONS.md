@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-06-12 — Phase 7.5: Se7ven Labs Intellectual Property Vault™ + Permanence Amendment
+
+| | |
+|---|---|
+| **Date** | 2026-06-12 |
+| **Decision** | Establish the **Se7ven Labs Intellectual Property Vault™** at `/ip/`. Documentation-only addition of 24 markdown files (2,547 lines total) capturing trademarks (36 PLANNED marks), patents (9 candidate methodologies + register), copyrights (13 asset categories), trade secrets (9 methodology registers; CONFIDENTIAL), product registry, invention log, founder notes, IP roadmap, licensing posture, AI Executive registry, ADR log, domain registry, brand guidelines, press register, valuation framework, competitor analysis, investor due diligence, acquisition data room, and open-source posture. Executive Sponsor: Victoria Sterling. Mid-PR Permanence Amendment ratifies the Vault as a permanent corporate asset that survives every product lifecycle, subsidiary, merger, acquisition, restructuring, or reorganization. |
+| **Reason** | The platform's IP — engineering stack, marks, methodologies, brand, contractual posture, strategic assets — needs one canonical internal corporate record before any of it is exposed to counsel, investors, acquirers, or partners. Until now the IP record was scattered across `governance/`, `docs/`, in-code comments, and the founder's memory. The Vault is the single source of truth. The Permanence Amendment formalises that the Vault outlives any single product. |
+| **Impact** | (a) `/ip/` is a new top-level directory. Documentation only; no runtime / governance / constitutional impact. (b) Three append-only files inside the Vault — `FIRST_USE_LOG.md`, `PATENTS.md`, `INVENTION_LOG.md`, `FOUNDER_NOTES.md`, `ARCHITECTURE_DECISIONS.md` — establish the constitutional precedent that IP evidence is never edited in place. (c) Two confidential files — `TRADE_SECRETS.md`, `VALUATION.md` — carry restricted-access headers. (d) Vault's `BRAND_GUIDELINES.md` § 9.1 codifies the locked Royaltē spelling rule (ē, U+0113) as a permanent IP-defence artefact. (e) Phase 7.5 sets precedent that documentation-only phases may carry brief-level "No governance modifications" scope while still being recorded in governance post-merge via the standing protocol. |
+| **Vote** | Board RATIFIED · UNANIMOUS (including Permanence Amendment) |
+| **PR Number** | #139 |
+| **Commit SHA** | `38ec3be` (Vault establishment at `7a72e77`; Permanence Amendment at `38ec3be`) |
+| **Constitution update required** | No. The Vault is internal corporate record; it does not amend the Master Constitution. Future amendment may formally reference the Vault as the canonical IP register. |
+
+---
+
 ### 2026-06-11 — Phase 7: Royaltē Health Engine™
 
 | | |

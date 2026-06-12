@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-06-12 — Phase 7.5: Se7ven Labs Intellectual Property Vault™
+
+| | |
+|---|---|
+| **PR** | #139 |
+| **Commit SHA** | `38ec3be` (Vault establishment at `7a72e77`; Permanence Amendment at `38ec3be`) |
+| **Constitution Version** | v1.3 |
+| **Added** | `/ip/` directory with 24 markdown files (2,547 lines): `README.md` (Vault index, Purpose, Permanence, Legal disclaimer, Ownership Block), `TRADEMARKS.md`, `TRADEMARK_USAGE.md`, `FIRST_USE_LOG.md`, `PATENTS.md`, `PRIOR_ART.md`, `DEFENSIVE_PUBLICATIONS.md`, `COPYRIGHTS.md`, `TRADE_SECRETS.md` (CONFIDENTIAL), `PRODUCT_REGISTRY.md`, `INVENTION_LOG.md`, `FOUNDER_NOTES.md`, `IP_ROADMAP.md`, `LICENSING.md`, `AI_MODELS.md`, `ARCHITECTURE_DECISIONS.md`, `DOMAIN_REGISTRY.md`, `BRAND_GUIDELINES.md`, `PRESS.md`, `VALUATION.md` (PRIVATE), `COMPETITOR_ANALYSIS.md`, `INVESTOR_DUE_DILIGENCE.md`, `ACQUISITION_DATA_ROOM.md`, `OPEN_SOURCE.md`. Documentation-only; no runtime / governance / constitutional impact. |
+| **Changed** | none |
+| **Removed** | none |
+
+---
+
 ## 2026-06-11 — Phase 7: Royaltē Health Engine™
 
 | | |
