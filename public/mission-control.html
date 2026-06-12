@@ -536,22 +536,22 @@ body {
 .mc-card--health     { --card-glow: rgba(45, 212, 191, 0.08); }
 .mc-card--identity   { --card-glow: rgba(56, 189, 248, 0.07); }
 .mc-card--publishing {
-  --card-glow: rgba(182, 109, 255, 0.10);
+  --card-glow: rgba(199, 133, 255, 0.075);
   border-radius: 20px;
-  border-color: rgba(91, 46, 255, 0.13);
+  border-color: rgba(91, 46, 255, 0.11);
   box-shadow:
-    0 0 28px rgba(182, 109, 255, 0.05),
-    inset 0 0 30px rgba(91, 46, 255, 0.04);
-  animation: mc-pub-breath 6.5s ease-in-out infinite;
+    0 0 32px rgba(199, 133, 255, 0.04),
+    inset 0 0 32px rgba(91, 46, 255, 0.03);
+  animation: mc-pub-breath 7.5s ease-in-out infinite;
 }
 
 @keyframes mc-pub-breath {
   0%, 100% { box-shadow:
-    0 0 26px rgba(182, 109, 255, 0.05),
-    inset 0 0 28px rgba(91, 46, 255, 0.03); }
+    0 0 30px rgba(199, 133, 255, 0.038),
+    inset 0 0 30px rgba(91, 46, 255, 0.022); }
   50%      { box-shadow:
-    0 0 38px rgba(182, 109, 255, 0.10),
-    inset 0 0 34px rgba(91, 46, 255, 0.06); }
+    0 0 46px rgba(199, 133, 255, 0.075),
+    inset 0 0 38px rgba(91, 46, 255, 0.045); }
 }
 .mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
 .mc-card--revenue    { --card-glow: rgba(251, 146, 60, 0.07); }
@@ -882,29 +882,29 @@ body {
 .mc-card--publishing .mc-ring { width: 96px; height: 96px; }
 
 .mc-pub-ring .mc-ring-track {
-  stroke: rgba(168, 85, 247, 0.13);
-  stroke-width: 8;
+  stroke: rgba(181, 108, 255, 0.11);
+  stroke-width: 6.5;
 }
 .mc-pub-ring .mc-ring-progress {
-  stroke: #A35CFF;
-  stroke-width: 8;
+  stroke: #B56CFF;                          /* primary purple — matches numbers */
+  stroke-width: 6.5;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 12px rgba(182, 109, 255, 0.55));
-  animation: mc-pub-ring-pulse 5.4s ease-in-out infinite;
+  filter: drop-shadow(0 0 16px rgba(199, 133, 255, 0.40));
+  animation: mc-pub-ring-pulse 6.4s ease-in-out infinite;
 }
 
 @keyframes mc-pub-ring-pulse {
-  0%, 100% { opacity: 0.88; filter: drop-shadow(0 0 12px rgba(182, 109, 255, 0.42)); }
-  50%      { opacity: 1;    filter: drop-shadow(0 0 18px rgba(182, 109, 255, 0.62)); }
+  0%, 100% { opacity: 0.90; filter: drop-shadow(0 0 14px rgba(199, 133, 255, 0.30)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 22px rgba(199, 133, 255, 0.46)); }
 }
 
-.mc-pub-ring .mc-ring-icon { color: #B66DFF; filter: drop-shadow(0 0 10px rgba(182, 109, 255, 0.45)); }
-.mc-pub-ring .mc-ring-icon svg { width: 30px; height: 30px; }
+.mc-pub-ring .mc-ring-icon { color: #C785FF; filter: drop-shadow(0 0 14px rgba(199, 133, 255, 0.38)); }
+.mc-pub-ring .mc-ring-icon svg { width: 32px; height: 32px; }
 
 .mc-pub-stats {
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-2);
+  gap: 13px;                                /* +breathing room per Board */
 }
 .mc-pub-stat {
   display: flex;
@@ -914,16 +914,16 @@ body {
 .mc-pub-stat-val {
   font-size: 22px;
   font-weight: 700;
-  color: #B66DFF;
-  text-shadow: 0 0 12px rgba(182, 109, 255, 0.32);
+  color: #B56CFF;                           /* matches ring primary exactly */
+  text-shadow: 0 0 14px rgba(199, 133, 255, 0.22);
   letter-spacing: 0.005em;
   line-height: 1.1;
   min-width: 46px;
   font-variant-numeric: tabular-nums;
 }
 .mc-pub-stat-label {
-  font-size: 12px;
-  color: #A7A7B5;
+  font-size: 12.5px;
+  color: #C4C4D0;                           /* slightly brighter per Board */
   letter-spacing: 0.02em;
 }
 
@@ -1842,9 +1842,9 @@ body {
         <div class="mc-pub-body">
           <div class="mc-ring mc-pub-ring" aria-hidden="true">
             <svg viewBox="0 0 80 80">
-              <circle class="mc-ring-track"    cx="40" cy="40" r="32" fill="none"/>
-              <circle class="mc-ring-progress" cx="40" cy="40" r="32" fill="none"
-                stroke-dasharray="185 201"/>
+              <circle class="mc-ring-track"    cx="40" cy="40" r="33" fill="none"/>
+              <circle class="mc-ring-progress" cx="40" cy="40" r="33" fill="none"
+                stroke-dasharray="191 207"/>
             </svg>
             <div class="mc-ring-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
