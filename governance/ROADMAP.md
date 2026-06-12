@@ -24,13 +24,14 @@ When this roadmap and the Constitution disagree, **the Constitution wins.**
 | 7 | Royaltē Health Engine™ | ✅ Complete | `ec57481` | — |
 | 7.5 | Se7ven Labs Intellectual Property Vault™ | ✅ Complete | `38ec3be` | — |
 | 8 | Royaltē Executive Brief Engine™ | ✅ Complete | `8f00014` | — |
-| 9+ | (per future Board directives) | ⬜ | — | — |
+| 9 | Royaltē Mission Control Shell™ (UI architecture only) | ✅ Complete | (set on merge) | — |
+| 10+ | (per future Board directives) | ⬜ | — | — |
 
 ---
 
 ## What's Live in `main` Today
 
-- **Phases 1–8 (incl. 6.5 + 7.5) are merged and locked.** The full Engineering Stack (Section 8B of the Constitution) is in place at the file paths documented in `docs/ROYALTE_ENGINEERING_STACK.md`. The Golden Fixture Library™ at `tests/fixtures/` provides 7 canonical CIO reference states + a 30-assertion regression surface. The Health Engine™ at `api/_lib/health-engine.js` projects Intelligence Reports into a 0-100 score + A+/A/B/C/D/F grade with Board-locked category weights. The **Executive Brief Engine™** at `api/_lib/executive-brief-engine.js` projects Health Reports into a locked-format executive briefing (headline · summary · narrative · top-5 strengths/risks/opportunities/priority-actions · confidence statement · next step · AI executive insight) with Board-locked vocabulary. The **Se7ven Labs Intellectual Property Vault™** at `/ip/` is the authoritative internal corporate record of all Se7ven Labs LLC IP, ratified as permanent across every product lifecycle, subsidiary, merger, or restructuring.
+- **Phases 1–9 (incl. 6.5 + 7.5) are merged and locked.** The full Engineering Stack (Section 8B of the Constitution) is in place at the file paths documented in `docs/ROYALTE_ENGINEERING_STACK.md`. The Golden Fixture Library™ at `tests/fixtures/` provides 7 canonical CIO reference states + a 30-assertion regression surface. The Health Engine™ at `api/_lib/health-engine.js` projects Intelligence Reports into a 0-100 score + A+/A/B/C/D/F grade with Board-locked category weights. The **Executive Brief Engine™** at `api/_lib/executive-brief-engine.js` projects Health Reports into a locked-format executive briefing (headline · summary · narrative · top-5 strengths/risks/opportunities/priority-actions · confidence statement · next step · AI executive insight) with Board-locked vocabulary. The **Se7ven Labs Intellectual Property Vault™** at `/ip/` is the authoritative internal corporate record of all Se7ven Labs LLC IP, ratified as permanent across every product lifecycle, subsidiary, merger, or restructuring.
 - **Royaltē Scan Experience V1 is DESIGN FROZEN.** PR #122 remains open and is held until intelligence wiring is complete. No layout / spacing / typography / color / animation / UX changes are authorised in the meantime.
 - **Constitution at v1.3** (effective 2026-06-11) ratifies the seven-layer Engineering Stack.
 - **Phase 5 rule format now permits** the optional `polarity: 'positive'` field on positive-framing rules — applied to `publishing.strong-coverage` and `catalog.complete-delivery-verified`.

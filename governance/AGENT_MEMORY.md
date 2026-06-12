@@ -28,13 +28,13 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently locked phase | **Phase 8 — Royaltē Executive Brief Engine™** |
-| Locked at | `8f00014` |
+| Most recently locked phase | **Phase 9 — Royaltē Mission Control Shell™** |
+| Locked at | (set on merge) |
 | Tag | — |
 | Effective | 2026-06-12 |
 | Next anticipated phase | per future Board directives (no brief authorised yet) |
 
-Phase 6 lock point: `a23788b` / tag `intelligence-engine-v1.0`. Phase 6.5 lock point: `52b1750`. Phase 7 lock point: `ec57481`. Phase 7.5 lock point: `38ec3be`.
+Phase 6 lock point: `a23788b` / tag `intelligence-engine-v1.0`. Phase 6.5 lock point: `52b1750`. Phase 7 lock point: `ec57481`. Phase 7.5 lock point: `38ec3be`. Phase 8 lock point: `8f00014`.
 
 The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`.
 
@@ -103,8 +103,11 @@ Royaltē verifies intelligence; Royaltē does not estimate intelligence. Every n
 | Phase 7 — Health Engine | `api/_lib/health-engine.js` + `api/schema/health.js` | `ec57481` |
 | Phase 7.5 — Intellectual Property Vault™ | `/ip/` (24 markdown files) | `38ec3be` |
 | Phase 8 — Executive Brief Engine | `api/_lib/executive-brief-engine.js` + `api/schema/executive-brief.js` | `8f00014` |
+| Phase 9 — Mission Control Shell™ | `public/mission-control.html` (UI shell only) | (set on merge) |
 
 Test suites (13, all deterministic) live under `tests/`. Pipeline regression is enforced by GitHub Actions on every PR.
+
+**Phase 9 / Mission Control Shell™ location.** `public/mission-control.html` — single self-contained 1,920-line UI shell. The Board declared the layout, hierarchy, spacing, proportions, and visual language **constitutional assets** (Board Decision 2026-06-12). Pixel-to-pixel fidelity to the approved design language; no redesign, no reinterpretation. **The V1 MC freeze (`public/dashboard.html`, locked 2026-06-04) is unaffected** — Phase 9 is a parallel new surface, not a replacement. Future Mission Control briefs *extend* this shell (inject intelligence into the existing DOM positions); they do not redesign it.
 
 **Phase 8 input-shape contract.** The Executive Brief Engine reads `strengths/risks/opportunities/recommendations/observations` arrays defensively off the input HealthReport. Phase 7's HealthReport carries only the *counts*; callers pass an *enriched* HealthReport bundled with the upstream Phase 6 arrays (`{...healthReport, strengths, risks, opportunities, recommendations, observations}`). When arrays are absent, top-N sections fall through to empty and the engine still produces a valid brief from the HealthReport scalar fields. The engine NEVER invents an entry not present in the upstream arrays.
 

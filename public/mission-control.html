@@ -1,0 +1,1920 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Mission Control — Royaltē</title>
+  <link rel="icon" href="/favicon.ico">
+  <style>
+
+/* ──────────────────────────────────────────────────────────────────────
+   Royaltē Mission Control Shell™ — Phase 9
+   Design system + structural shell. Placeholder data only.
+   No business logic. No engine integration. No data fetching.
+   ────────────────────────────────────────────────────────────────────── */
+
+/* ─── design tokens ──────────────────────────────────────────────── */
+
+:root {
+  /* surface palette */
+  --mc-bg:           #050507;
+  --mc-surface-1:    #0c0c11;
+  --mc-surface-2:    #111118;
+  --mc-surface-3:    #161620;
+  --mc-surface-4:    #1c1c28;
+  --mc-border:       rgba(255, 255, 255, 0.06);
+  --mc-border-soft:  rgba(255, 255, 255, 0.04);
+  --mc-border-warm:  rgba(168, 85, 247, 0.18);
+  --mc-divider:      rgba(255, 255, 255, 0.05);
+
+  /* text */
+  --mc-text:         #ffffff;
+  --mc-text-soft:    #cbd5e1;
+  --mc-text-muted:   #8a8da1;
+  --mc-text-faint:   #5b5e72;
+
+  /* accents */
+  --mc-purple:       #a855f7;
+  --mc-purple-soft:  rgba(168, 85, 247, 0.16);
+  --mc-purple-glow:  rgba(168, 85, 247, 0.32);
+  --mc-purple-deep:  #6d28d9;
+
+  --mc-green:        #2dd4bf;
+  --mc-green-bright: #34f5b0;
+  --mc-green-soft:   rgba(45, 212, 191, 0.14);
+  --mc-green-glow:   rgba(52, 245, 176, 0.32);
+
+  --mc-orange:       #fb923c;
+  --mc-orange-soft:  rgba(251, 146, 60, 0.14);
+  --mc-orange-glow:  rgba(251, 146, 60, 0.30);
+
+  --mc-blue:         #38bdf8;
+  --mc-blue-soft:    rgba(56, 189, 248, 0.14);
+
+  /* spacing */
+  --mc-s-1: 4px;
+  --mc-s-2: 8px;
+  --mc-s-3: 12px;
+  --mc-s-4: 16px;
+  --mc-s-5: 20px;
+  --mc-s-6: 24px;
+  --mc-s-7: 32px;
+  --mc-s-8: 40px;
+  --mc-s-9: 56px;
+
+  /* radius */
+  --mc-r-1: 6px;
+  --mc-r-2: 10px;
+  --mc-r-3: 14px;
+  --mc-r-4: 18px;
+  --mc-r-5: 24px;
+
+  /* typography */
+  --mc-font: ui-sans-serif, system-ui, -apple-system, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
+
+  /* layout */
+  --mc-rail-l: 256px;
+  --mc-rail-r: 360px;
+  --mc-pad:    var(--mc-s-7);
+}
+
+/* ─── reset ──────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; padding: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+img { display: block; max-width: 100%; }
+
+body {
+  background: var(--mc-bg);
+  color: var(--mc-text);
+  font-family: var(--mc-font);
+  font-size: 13.5px;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(1100px 600px at 18% -8%, rgba(168, 85, 247, 0.06), transparent 65%),
+    radial-gradient(900px 600px at 100% 100%, rgba(45, 212, 191, 0.04), transparent 60%);
+}
+
+/* ─── shell layout ───────────────────────────────────────────────── */
+
+.mc-shell {
+  display: grid;
+  grid-template-columns: var(--mc-rail-l) 1fr var(--mc-rail-r);
+  min-height: 100vh;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+.mc-rail-left,
+.mc-rail-right {
+  padding: var(--mc-s-7) var(--mc-s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-6);
+}
+
+.mc-rail-left {
+  border-right: 1px solid var(--mc-border);
+  background: linear-gradient(180deg, rgba(168, 85, 247, 0.03), transparent 30%);
+}
+
+.mc-rail-right {
+  border-left: 1px solid var(--mc-border);
+  gap: var(--mc-s-5);
+}
+
+.mc-main {
+  padding: var(--mc-s-7) var(--mc-pad) var(--mc-s-9);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-6);
+  min-width: 0;
+}
+
+/* ─── brand block ────────────────────────────────────────────────── */
+
+.mc-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-s-3);
+  padding-bottom: var(--mc-s-2);
+}
+
+.mc-brand-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--mc-font);
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--mc-purple);
+  background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.18), transparent 70%);
+  border: 1px solid var(--mc-border-warm);
+  position: relative;
+}
+
+.mc-brand-mark::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  pointer-events: none;
+}
+
+.mc-brand-text {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.mc-brand-sub {
+  font-size: 9.5px;
+  letter-spacing: 0.32em;
+  color: var(--mc-text-muted);
+  margin-top: 2px;
+}
+
+/* ─── nav ────────────────────────────────────────────────────────── */
+
+.mc-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-1);
+  flex: 1;
+}
+
+.mc-nav-item {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: center;
+  gap: var(--mc-s-3);
+  padding: var(--mc-s-3) var(--mc-s-3);
+  border-radius: var(--mc-r-2);
+  color: var(--mc-text-soft);
+  transition: background 160ms ease, color 160ms ease;
+  position: relative;
+}
+
+.mc-nav-item:hover {
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--mc-text);
+}
+
+.mc-nav-item--active {
+  background: rgba(168, 85, 247, 0.10);
+  color: var(--mc-text);
+  border: 1px solid var(--mc-border-warm);
+}
+
+.mc-nav-item--active::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 60%;
+  background: var(--mc-purple);
+  border-radius: 1px;
+  box-shadow: 0 0 8px var(--mc-purple-glow);
+}
+
+.mc-nav-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--mc-r-1);
+  background: var(--mc-surface-2);
+  display: grid;
+  place-items: center;
+  color: var(--mc-text-soft);
+  border: 1px solid var(--mc-border);
+}
+
+.mc-nav-item--active .mc-nav-icon {
+  color: var(--mc-purple);
+  background: var(--mc-purple-soft);
+  border-color: var(--mc-border-warm);
+}
+
+.mc-nav-icon svg { width: 16px; height: 16px; }
+
+.mc-nav-label  { font-size: 13.5px; font-weight: 500; }
+.mc-nav-sub    { font-size: 11px;   color: var(--mc-text-muted); margin-top: 1px; letter-spacing: 0.02em; }
+
+/* ─── founder access card ───────────────────────────────────────── */
+
+.mc-founder {
+  margin-top: auto;
+  padding: var(--mc-s-4);
+  border-radius: var(--mc-r-3);
+  background: linear-gradient(165deg, rgba(168, 85, 247, 0.10), rgba(168, 85, 247, 0.02) 70%);
+  border: 1px solid var(--mc-border-warm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+}
+
+.mc-founder-row {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-s-3);
+}
+
+.mc-founder-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--mc-purple);
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid var(--mc-border-warm);
+}
+
+.mc-founder-label {
+  font-size: 9.5px;
+  letter-spacing: 0.28em;
+  color: var(--mc-text-muted);
+}
+
+.mc-founder-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.mc-founder-tier {
+  font-size: 12px;
+  color: var(--mc-purple);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.mc-founder-meta {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  line-height: 1.6;
+}
+
+/* ─── version footer ────────────────────────────────────────────── */
+
+.mc-version {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.1em;
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid var(--mc-divider);
+}
+
+.mc-version-sign {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mc-version-sign svg { width: 12px; height: 12px; }
+
+/* ─── page header ───────────────────────────────────────────────── */
+
+.mc-page-head { margin: 0; }
+.mc-page-title {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+  margin: 0;
+}
+.mc-page-sub {
+  margin: var(--mc-s-2) 0 0;
+  font-size: 13.5px;
+  color: var(--mc-text-muted);
+}
+
+/* ─── hero panel ────────────────────────────────────────────────── */
+
+.mc-hero {
+  display: grid;
+  grid-template-columns: 168px 1fr 220px 220px;
+  align-items: center;
+  gap: var(--mc-s-6);
+  padding: var(--mc-s-5) var(--mc-s-6);
+  border-radius: var(--mc-r-4);
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.04), rgba(0, 0, 0, 0) 60%), var(--mc-surface-1);
+  border: 1px solid rgba(45, 212, 191, 0.16);
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(600px 200px at 0% 0%, rgba(45, 212, 191, 0.08), transparent 60%);
+  pointer-events: none;
+}
+
+.mc-radar {
+  position: relative;
+  width: 130px;
+  height: 130px;
+}
+
+.mc-radar svg { width: 100%; height: 100%; }
+
+.mc-radar-sweep {
+  transform-origin: 50% 50%;
+  animation: mc-sweep 6s linear infinite;
+}
+
+@keyframes mc-sweep {
+  to { transform: rotate(360deg); }
+}
+
+.mc-hero-block { display: flex; flex-direction: column; gap: var(--mc-s-1); }
+
+.mc-hero-label {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--mc-green);
+  font-weight: 600;
+}
+
+.mc-hero-title {
+  font-size: 30px;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.mc-hero-meta {
+  font-size: 12.5px;
+  color: var(--mc-text-muted);
+  margin-top: var(--mc-s-2);
+}
+
+.mc-hero-meta b { color: var(--mc-text-soft); font-weight: 500; }
+
+.mc-pulse-line { width: 100%; height: 56px; }
+
+.mc-pulse-line path {
+  stroke: var(--mc-green);
+  stroke-width: 1.6;
+  fill: none;
+  filter: drop-shadow(0 0 6px var(--mc-green-glow));
+}
+
+.mc-hero-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--mc-s-1);
+}
+
+.mc-hero-action-label {
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  color: var(--mc-text-soft);
+  font-weight: 600;
+}
+
+.mc-hero-action-good {
+  font-size: 12.5px;
+  color: var(--mc-green);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ─── section title ─────────────────────────────────────────────── */
+
+.mc-section-title {
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  color: var(--mc-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin: var(--mc-s-3) 0 0;
+}
+
+/* ─── card grid ─────────────────────────────────────────────────── */
+
+.mc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--mc-s-5);
+}
+
+.mc-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: var(--mc-s-5);
+}
+
+/* ─── card base ─────────────────────────────────────────────────── */
+
+.mc-card {
+  background: var(--mc-surface-1);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-r-3);
+  padding: var(--mc-s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-4);
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.mc-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(220px 120px at 0% 0%, var(--card-glow, transparent), transparent 60%);
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.mc-card--health     { --card-glow: rgba(45, 212, 191, 0.08); }
+.mc-card--identity   { --card-glow: rgba(45, 212, 191, 0.07); }
+.mc-card--publishing { --card-glow: rgba(168, 85, 247, 0.07); }
+.mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
+.mc-card--revenue    { --card-glow: rgba(251, 146, 60, 0.07); }
+.mc-card--monitoring { --card-glow: rgba(56, 189, 248, 0.07); }
+.mc-card--footprint  { --card-glow: rgba(56, 189, 248, 0.06); }
+
+.mc-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-s-3);
+}
+
+.mc-card-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--mc-r-1);
+  display: grid;
+  place-items: center;
+  background: var(--mc-surface-3);
+  border: 1px solid var(--mc-border);
+}
+
+.mc-card--health     .mc-card-mark { color: var(--mc-green);  background: var(--mc-green-soft);  border-color: rgba(45, 212, 191, 0.22); }
+.mc-card--identity   .mc-card-mark { color: var(--mc-green);  background: var(--mc-green-soft);  border-color: rgba(45, 212, 191, 0.22); }
+.mc-card--publishing .mc-card-mark { color: var(--mc-purple); background: var(--mc-purple-soft); border-color: var(--mc-border-warm); }
+.mc-card--catalog    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
+.mc-card--revenue    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
+.mc-card--monitoring .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
+.mc-card--footprint  .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
+
+.mc-card-mark svg { width: 16px; height: 16px; }
+
+.mc-card-title {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  font-weight: 600;
+  color: var(--mc-text);
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+
+.mc-card-foot {
+  margin-top: auto;
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  line-height: 1.55;
+}
+
+/* ─── health card ───────────────────────────────────────────────── */
+
+.mc-health-body {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  align-items: center;
+  gap: var(--mc-s-4);
+}
+
+.mc-ring {
+  position: relative;
+  width: 88px;
+  height: 88px;
+}
+
+.mc-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+.mc-ring-track  { stroke: rgba(45, 212, 191, 0.10); }
+.mc-ring-progress {
+  stroke: var(--mc-green-bright);
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px var(--mc-green-glow));
+}
+
+.mc-ring-icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--mc-green-bright);
+}
+.mc-ring-icon svg { width: 28px; height: 28px; }
+
+.mc-metric { display: flex; flex-direction: column; gap: 4px; }
+.mc-metric-value {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.mc-metric-value small {
+  font-size: 13px;
+  color: var(--mc-text-muted);
+  font-weight: 500;
+}
+.mc-metric-status {
+  font-size: 13px;
+  color: var(--mc-green);
+  font-weight: 600;
+}
+.mc-metric-delta {
+  font-size: 11.5px;
+  color: var(--mc-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mc-metric-delta svg { width: 11px; height: 11px; color: var(--mc-green-bright); }
+
+.mc-spark {
+  width: 100%;
+  height: 28px;
+  margin-top: var(--mc-s-3);
+}
+.mc-spark path {
+  stroke: var(--mc-green-bright);
+  stroke-width: 1.4;
+  fill: none;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 4px var(--mc-green-glow));
+}
+
+/* ─── identity card ─────────────────────────────────────────────── */
+
+.mc-source-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+}
+
+.mc-source {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: center;
+  gap: var(--mc-s-3);
+  padding: var(--mc-s-2) 0;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-source:last-child { border-bottom: 0; }
+
+.mc-source-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+.mc-source-mark--apple   { background: #1a1a1a; color: #fff; }
+.mc-source-mark--spotify { background: #1db954; }
+.mc-source-mark--youtube { background: #ff0033; }
+.mc-source-mark--amazon  { background: #0084ff; }
+
+.mc-source-name { font-size: 12.5px; color: var(--mc-text-soft); }
+
+.mc-pill {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.mc-pill--claimed   { background: rgba(45, 212, 191, 0.14); color: var(--mc-green); }
+.mc-pill--unclaimed { background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
+.mc-pill--missing   { background: rgba(244, 63, 94, 0.12);  color: #f97373; }
+
+/* ─── publishing card ───────────────────────────────────────────── */
+
+.mc-pub-body {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  align-items: center;
+  gap: var(--mc-s-4);
+}
+
+.mc-pub-ring .mc-ring-progress { stroke: var(--mc-purple); filter: drop-shadow(0 0 8px var(--mc-purple-glow)); }
+.mc-pub-ring .mc-ring-track    { stroke: rgba(168, 85, 247, 0.10); }
+.mc-pub-ring .mc-ring-icon     { color: var(--mc-purple); }
+
+.mc-pub-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+}
+.mc-pub-stat {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mc-s-2);
+}
+.mc-pub-stat-val {
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--mc-text);
+  min-width: 38px;
+  font-variant-numeric: tabular-nums;
+}
+.mc-pub-stat-label {
+  font-size: 11.5px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.mc-pub-coverage {
+  margin-top: var(--mc-s-2);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--mc-purple);
+}
+.mc-pub-coverage small {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  margin-left: 6px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* ─── catalog card ──────────────────────────────────────────────── */
+
+.mc-catalog-body {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: var(--mc-s-4);
+  align-items: center;
+}
+
+.mc-stack {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  color: var(--mc-orange);
+}
+.mc-stack svg { width: 60px; height: 60px; filter: drop-shadow(0 0 6px var(--mc-orange-glow)); }
+
+.mc-catalog-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mc-catalog-value {
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--mc-orange);
+}
+.mc-catalog-label {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+}
+
+.mc-catalog-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--mc-s-1) var(--mc-s-3);
+  font-size: 11.5px;
+  margin-top: var(--mc-s-1);
+}
+.mc-catalog-grid .lbl { color: var(--mc-text-muted); }
+.mc-catalog-grid .val { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.mc-catalog-grid .val--stable   { color: var(--mc-green); }
+.mc-catalog-grid .val--verified { color: var(--mc-green); }
+
+/* ─── revenue card ──────────────────────────────────────────────── */
+
+.mc-rev-body {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: var(--mc-s-4);
+  align-items: center;
+}
+
+.mc-rev-mark {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--mc-orange);
+  background: var(--mc-orange-soft);
+  border: 1px solid rgba(251, 146, 60, 0.22);
+}
+.mc-rev-mark svg { width: 32px; height: 32px; }
+
+.mc-rev-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mc-green);
+  letter-spacing: 0.01em;
+}
+.mc-rev-sub {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  margin-top: 2px;
+}
+
+.mc-rev-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-1);
+  border-top: 1px solid var(--mc-divider);
+  padding-top: var(--mc-s-3);
+  margin-top: var(--mc-s-2);
+}
+.mc-rev-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 2px 0;
+}
+.mc-rev-row span:first-child { color: var(--mc-text-muted); }
+.mc-rev-row span:last-child  { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ─── monitoring card ───────────────────────────────────────────── */
+
+.mc-mon-body {
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: var(--mc-s-4);
+  align-items: center;
+}
+
+.mc-mon-mark {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--mc-blue);
+  background: var(--mc-blue-soft);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  position: relative;
+}
+.mc-mon-mark::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(56, 189, 248, 0.20);
+  animation: mc-pulse-ring 3s ease-out infinite;
+}
+@keyframes mc-pulse-ring {
+  0%   { transform: scale(1);    opacity: 0.6; }
+  100% { transform: scale(1.18); opacity: 0;   }
+}
+.mc-mon-mark svg { width: 36px; height: 36px; }
+
+.mc-mon-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--mc-blue);
+  line-height: 1;
+}
+.mc-mon-cap {
+  font-size: 11.5px;
+  color: var(--mc-text-muted);
+  margin-top: var(--mc-s-1);
+}
+
+.mc-mon-list { margin-top: var(--mc-s-3); display: flex; flex-direction: column; gap: var(--mc-s-1); }
+.mc-mon-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 2px 0;
+  border-top: 1px solid var(--mc-divider);
+}
+.mc-mon-row:first-child { border-top: 0; padding-top: 0; }
+.mc-mon-row span:first-child { color: var(--mc-text-muted); }
+.mc-mon-row span:last-child  { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ─── footprint card ────────────────────────────────────────────── */
+
+.mc-card--footprint { padding-bottom: var(--mc-s-4); }
+
+.mc-globe {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: var(--mc-r-2);
+  overflow: hidden;
+  background: radial-gradient(420px 220px at 50% 80%, rgba(56, 189, 248, 0.10), transparent 65%);
+}
+
+.mc-globe svg { width: 100%; height: 100%; }
+
+.mc-foot-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--mc-s-4);
+  margin-top: var(--mc-s-2);
+}
+
+.mc-foot-blurb {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  max-width: 60%;
+  line-height: 1.55;
+}
+
+.mc-foot-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--mc-r-2);
+  color: var(--mc-purple);
+  background: var(--mc-purple-soft);
+  border: 1px solid var(--mc-border-warm);
+}
+.mc-foot-cta svg { width: 12px; height: 12px; }
+
+/* ─── bottom status row ─────────────────────────────────────────── */
+
+.mc-status-row {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1.6fr;
+  gap: var(--mc-s-5);
+}
+
+.mc-status-card {
+  padding: var(--mc-s-4) var(--mc-s-5);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--mc-s-4);
+  align-items: center;
+  background: var(--mc-surface-1);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-r-3);
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-status-label {
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  color: var(--mc-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.mc-status-value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.05;
+  margin-top: 2px;
+}
+.mc-status-value--green { color: var(--mc-green); }
+.mc-status-value--alt   { color: var(--mc-text); font-size: 18px; letter-spacing: 0.03em; }
+.mc-status-cap {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  margin-top: 4px;
+}
+
+.mc-status-radar {
+  width: 56px;
+  height: 56px;
+}
+
+.mc-status-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--mc-s-3);
+}
+.mc-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mc-green);
+  box-shadow: 0 0 6px var(--mc-green-glow);
+  opacity: 0.85;
+}
+
+.mc-status-card--horizon {
+  background:
+    radial-gradient(280px 200px at 110% 110%, rgba(168, 85, 247, 0.18), transparent 60%),
+    var(--mc-surface-1);
+}
+
+.mc-status-horizon-art {
+  width: 80px;
+  height: 56px;
+  position: relative;
+}
+.mc-status-horizon-art::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  bottom: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.35), transparent 65%);
+  filter: blur(0.5px);
+}
+
+/* ─── right rail panels ─────────────────────────────────────────── */
+
+.mc-panel {
+  background: var(--mc-surface-1);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-r-4);
+  padding: var(--mc-s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-4);
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-s-3);
+}
+
+.mc-panel-head-left {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-s-2);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--mc-purple);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mc-panel-meta {
+  font-size: 11px;
+  color: var(--mc-purple);
+  opacity: 0.85;
+  letter-spacing: 0.04em;
+}
+
+/* AI Insights */
+
+.mc-insights-art {
+  display: grid;
+  place-items: center;
+  height: 120px;
+  position: relative;
+}
+.mc-insights-art::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  background: radial-gradient(circle at 50% 60%, rgba(168, 85, 247, 0.30), transparent 60%);
+  filter: blur(8px);
+}
+.mc-insights-art svg {
+  width: 80px;
+  height: 80px;
+  color: var(--mc-purple);
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 16px var(--mc-purple-glow));
+}
+
+.mc-insights-title {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.mc-insights-body {
+  font-size: 13px;
+  color: var(--mc-text-soft);
+  line-height: 1.6;
+}
+
+.mc-takeaways {
+  margin-top: var(--mc-s-2);
+  border-top: 1px solid var(--mc-divider);
+  padding-top: var(--mc-s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+}
+.mc-takeaways-title {
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  color: var(--mc-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.mc-takeaways-list { display: flex; flex-direction: column; gap: var(--mc-s-2); margin-top: var(--mc-s-1); }
+.mc-takeaway {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: var(--mc-s-2);
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--mc-text-soft);
+}
+.mc-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--mc-green);
+  background: var(--mc-green-soft);
+}
+.mc-check svg { width: 10px; height: 10px; }
+
+.mc-info-note {
+  margin-top: var(--mc-s-3);
+  padding: var(--mc-s-3) var(--mc-s-4);
+  border-radius: var(--mc-r-2);
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px solid var(--mc-border-warm);
+}
+.mc-info-note-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mc-purple);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mc-info-note-body {
+  font-size: 11.5px;
+  color: var(--mc-text-soft);
+  margin-top: 4px;
+  line-height: 1.55;
+}
+
+/* Royaltē Review */
+
+.mc-review-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mc-review-title {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--mc-text);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.mc-review-meta {
+  font-size: 11px;
+  color: var(--mc-purple);
+  letter-spacing: 0.04em;
+}
+
+.mc-review-score {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: var(--mc-s-4);
+}
+
+.mc-review-ring { width: 110px; height: 110px; position: relative; }
+.mc-review-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.mc-review-ring .mc-ring-track    { stroke: rgba(168, 85, 247, 0.10); }
+.mc-review-ring .mc-ring-progress { stroke: var(--mc-purple); filter: drop-shadow(0 0 10px var(--mc-purple-glow)); }
+.mc-review-ring-text {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  flex-direction: column;
+  color: var(--mc-text);
+  text-align: center;
+}
+.mc-review-ring-num {
+  font-size: 28px;
+  font-weight: 700;
+}
+.mc-review-ring-tot {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  margin-top: -2px;
+}
+
+.mc-review-label {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--mc-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.mc-review-conf {
+  font-size: 15px;
+  color: var(--mc-purple);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+
+.mc-review-checks { display: flex; flex-direction: column; gap: var(--mc-s-2); margin-top: var(--mc-s-2); }
+
+.mc-review-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 18px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(109, 40, 217, 0.50));
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  border-radius: var(--mc-r-2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 22px rgba(168, 85, 247, 0.18) inset;
+  transition: filter 160ms ease, transform 160ms ease;
+}
+.mc-review-cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.mc-review-cta svg { width: 14px; height: 14px; }
+
+.mc-review-download {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 14px;
+  font-size: 12.5px;
+  color: var(--mc-purple);
+  border-radius: var(--mc-r-2);
+}
+.mc-review-download:hover { background: var(--mc-purple-soft); }
+.mc-review-download svg { width: 13px; height: 13px; }
+
+/* ─── responsive ─────────────────────────────────────────────────── */
+
+@media (max-width: 1440px) {
+  :root { --mc-rail-r: 332px; }
+  .mc-page-title { font-size: 32px; }
+}
+
+@media (max-width: 1280px) {
+  :root { --mc-rail-l: 230px; --mc-rail-r: 304px; --mc-pad: var(--mc-s-6); }
+  .mc-hero { grid-template-columns: 132px 1fr 180px 180px; }
+  .mc-grid { grid-template-columns: repeat(2, 1fr); }
+  .mc-row-3 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 1024px) {
+  .mc-shell {
+    grid-template-columns: 1fr;
+  }
+  .mc-rail-left,
+  .mc-rail-right {
+    border: 0;
+    padding: var(--mc-s-5);
+  }
+  .mc-rail-left {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mc-s-4);
+    padding-bottom: var(--mc-s-3);
+  }
+  .mc-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    width: 100%;
+    padding-bottom: var(--mc-s-2);
+  }
+  .mc-nav-item { flex: 0 0 auto; padding: var(--mc-s-2) var(--mc-s-3); }
+  .mc-nav-sub { display: none; }
+  .mc-founder { margin: 0; max-width: 320px; flex: 1; }
+  .mc-version { width: 100%; }
+  .mc-hero {
+    grid-template-columns: 96px 1fr;
+    grid-template-areas:
+      "radar title"
+      "radar meta"
+      "pulse pulse"
+      "action action";
+    row-gap: var(--mc-s-3);
+  }
+  .mc-radar         { grid-area: radar; width: 96px; height: 96px; }
+  .mc-hero-block    { grid-area: title; }
+  .mc-pulse-line    { grid-area: pulse; }
+  .mc-hero-action   { grid-area: action; flex-direction: row; align-items: center; justify-content: space-between; }
+  .mc-rail-right {
+    border-top: 1px solid var(--mc-border);
+  }
+}
+
+@media (max-width: 720px) {
+  :root { --mc-pad: var(--mc-s-5); }
+  .mc-page-title { font-size: 26px; }
+  .mc-hero { padding: var(--mc-s-4); }
+  .mc-hero-title { font-size: 22px; }
+  .mc-grid { grid-template-columns: 1fr; gap: var(--mc-s-4); }
+  .mc-row-3 { grid-template-columns: 1fr; gap: var(--mc-s-4); }
+  .mc-status-row { grid-template-columns: 1fr; gap: var(--mc-s-4); }
+  .mc-rail-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .mc-nav { gap: var(--mc-s-1); }
+  .mc-founder { max-width: none; }
+  .mc-review-score { grid-template-columns: 96px 1fr; }
+  .mc-review-ring  { width: 96px; height: 96px; }
+}
+
+/* loading skeleton (placeholder; engines inject real values later) */
+.mc-skeleton {
+  display: inline-block;
+  height: 1em;
+  background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+  background-size: 200% 100%;
+  animation: mc-shimmer 1.4s linear infinite;
+  border-radius: 4px;
+}
+@keyframes mc-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+  </style>
+</head>
+<body>
+
+<!-- ──────────────────────────────────────────────────────────────────
+     Royaltē Mission Control Shell™ — Phase 9
+     All values below are PLACEHOLDERS. Future phases inject real
+     intelligence into the same DOM positions; the shell is the
+     stable contract.
+     ────────────────────────────────────────────────────────────── -->
+
+<div class="mc-shell">
+
+  <!-- ────────── LEFT RAIL ────────── -->
+  <aside class="mc-rail-left" role="navigation" aria-label="Mission Control navigation">
+
+    <div class="mc-brand">
+      <div class="mc-brand-mark" aria-hidden="true">ē</div>
+      <div>
+        <div class="mc-brand-text">ROYALTĒ</div>
+        <div class="mc-brand-sub">MISSION CONTROL</div>
+      </div>
+    </div>
+
+    <nav class="mc-nav">
+      <a class="mc-nav-item mc-nav-item--active" href="#executive-overview" aria-current="page">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Mission Control</span>
+          <div class="mc-nav-sub">Executive Overview</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#health-intelligence">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Health Intelligence</span>
+          <div class="mc-nav-sub">System Status</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#identity-intelligence">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Identity Intelligence</span>
+          <div class="mc-nav-sub">Who You Are</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#publishing-intelligence">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Publishing Intelligence</span>
+          <div class="mc-nav-sub">Your Works</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#catalog-intelligence">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Catalog Intelligence</span>
+          <div class="mc-nav-sub">Your Releases</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#global-footprint">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Global Music Footprint™</span>
+          <div class="mc-nav-sub">Where Your Music Exists</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#ai-insights">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">AI Insights</span>
+          <div class="mc-nav-sub">Intelligence Brief</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#monitoring-intelligence">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12c2.5-4 5.5-6 9-6s6.5 2 9 6c-2.5 4-5.5 6-9 6s-6.5-2-9-6z"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Monitoring Intelligence</span>
+          <div class="mc-nav-sub">Always Watching</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#settings">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .4 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.4 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.4l-.1.1A2 2 0 1 1 4.1 17l.1-.1a1.7 1.7 0 0 0 .4-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1.1 1.7 1.7 0 0 0-.4-1.9l-.1-.1A2 2 0 1 1 7 4.1l.1.1a1.7 1.7 0 0 0 1.9.4H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.4l.1-.1A2 2 0 1 1 19.9 7l-.1.1a1.7 1.7 0 0 0-.4 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Settings</span>
+          <div class="mc-nav-sub">Account &amp; Preferences</div>
+        </span>
+      </a>
+    </nav>
+
+    <!-- Founder Access™ -->
+    <div class="mc-founder" aria-label="Founder Access">
+      <div class="mc-founder-row">
+        <div class="mc-founder-mark" aria-hidden="true">ē</div>
+        <div class="mc-founder-label">FOUNDER ACCESS</div>
+      </div>
+      <div class="mc-founder-name">BLACK ALTERNATIVE</div>
+      <div class="mc-founder-tier">Lifetime Founder</div>
+      <div class="mc-founder-meta">Member #000001<br>Since May 2026</div>
+    </div>
+
+    <div class="mc-version">
+      <span>v0.5.0</span>
+      <span class="mc-version-sign">SIGN OUT
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H8"/><path d="M14 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8"/></svg>
+      </span>
+    </div>
+
+  </aside>
+
+  <!-- ────────── MAIN ────────── -->
+  <main class="mc-main" id="executive-overview">
+
+    <header class="mc-page-head">
+      <h1 class="mc-page-title">BLACK ALTERNATIVE</h1>
+      <p class="mc-page-sub">Royaltē has been monitoring your music business 24/7.</p>
+    </header>
+
+    <!-- HERO STATUS PANEL -->
+    <section class="mc-hero" aria-label="Royaltē Intelligence Engine status">
+
+      <div class="mc-radar" aria-hidden="true">
+        <svg viewBox="0 0 130 130">
+          <defs>
+            <radialGradient id="mc-radar-fill" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stop-color="#2dd4bf" stop-opacity="0.10"/>
+              <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="mc-radar-sweep-fill" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#34f5b0" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#34f5b0" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <circle cx="65" cy="65" r="62" fill="url(#mc-radar-fill)" stroke="rgba(45,212,191,0.20)"/>
+          <circle cx="65" cy="65" r="44" fill="none" stroke="rgba(45,212,191,0.18)"/>
+          <circle cx="65" cy="65" r="26" fill="none" stroke="rgba(45,212,191,0.20)"/>
+          <circle cx="65" cy="65" r="10" fill="none" stroke="rgba(45,212,191,0.25)"/>
+          <line x1="65" y1="3"  x2="65" y2="127" stroke="rgba(45,212,191,0.10)"/>
+          <line x1="3"  y1="65" x2="127" y2="65" stroke="rgba(45,212,191,0.10)"/>
+          <g class="mc-radar-sweep">
+            <path d="M65 65 L65 3 A62 62 0 0 1 117 39 Z" fill="url(#mc-radar-sweep-fill)"/>
+          </g>
+          <circle cx="65" cy="65" r="3" fill="#34f5b0"/>
+        </svg>
+      </div>
+
+      <div class="mc-hero-block">
+        <div class="mc-hero-label">ROYALTĒ INTELLIGENCE ENGINE™</div>
+        <div class="mc-hero-title">ALL SYSTEMS NORMAL</div>
+        <div class="mc-hero-meta">Monitoring <b>24/7</b> &nbsp;•&nbsp; Last Analysis: <b>12 minutes ago</b></div>
+      </div>
+
+      <svg class="mc-pulse-line" viewBox="0 0 220 56" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 28 L40 28 L48 28 L54 16 L60 40 L66 12 L72 44 L80 28 L110 28 L116 22 L122 34 L128 28 L160 28 L166 18 L172 38 L178 28 L220 28"/>
+      </svg>
+
+      <div class="mc-hero-action">
+        <span class="mc-hero-action-label">NO ACTION REQUIRED</span>
+        <span class="mc-hero-action-good">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+          Everything is good.
+        </span>
+      </div>
+
+    </section>
+
+    <div class="mc-section-title">YOUR INTELLIGENCE AT A GLANCE</div>
+
+    <!-- INTELLIGENCE CARD GRID -->
+    <div class="mc-grid">
+
+      <!-- Health Intelligence™ -->
+      <article class="mc-card mc-card--health" id="health-intelligence" aria-label="Health Intelligence">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+          </div>
+          <div class="mc-card-title">HEALTH INTELLIGENCE™</div>
+        </div>
+        <div class="mc-health-body">
+          <div class="mc-ring" aria-hidden="true">
+            <svg viewBox="0 0 80 80">
+              <circle class="mc-ring-track"    cx="40" cy="40" r="34" fill="none" stroke-width="6"/>
+              <circle class="mc-ring-progress" cx="40" cy="40" r="34" fill="none" stroke-width="6"
+                stroke-dasharray="167 214"/>
+            </svg>
+            <div class="mc-ring-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10z"/></svg>
+            </div>
+          </div>
+          <div class="mc-metric">
+            <div class="mc-metric-value">78 <small>/100</small></div>
+            <div class="mc-metric-status">Backend Improving</div>
+            <div class="mc-metric-delta">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7-7 7 7"/></svg>
+              Since yesterday
+            </div>
+          </div>
+        </div>
+        <svg class="mc-spark" viewBox="0 0 220 28" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 22 L20 20 L40 21 L60 18 L80 16 L100 17 L120 14 L140 12 L160 10 L180 9 L200 7 L220 5"/>
+        </svg>
+        <div class="mc-card-foot">No issues requiring action.<br>Monitoring continues.</div>
+      </article>
+
+      <!-- Identity Intelligence™ -->
+      <article class="mc-card mc-card--identity" id="identity-intelligence" aria-label="Identity Intelligence">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          </div>
+          <div class="mc-card-title">IDENTITY INTELLIGENCE™</div>
+        </div>
+        <div class="mc-source-list">
+          <div class="mc-source">
+            <div class="mc-source-mark mc-source-mark--apple"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.7 17a8 8 0 0 1-1.7 2.5c-1 1-2 1.5-3 1.5-1 0-1.5-.4-2.5-.4-1 0-1.5.4-2.5.4-1 0-2-.5-3-1.5C5 17.5 4 14 4 11c0-3 1.7-5 4-5 1.2 0 2 .5 2.5.5.6 0 1.5-.6 3-.6 1 0 2.6.4 3.5 1.6-3 1.7-2.7 5.7 1.7 6.5-.5 2-1 3-1 3zM14.7 4c.4-1 .3-2.2-.2-3-1 0-2.3.6-3 1.6-.4.9-.4 2 .2 3 1.2 0 2.4-.6 3-1.6z"/></svg></div>
+            <div class="mc-source-name">Apple Music for Artists</div>
+            <span class="mc-pill mc-pill--claimed">Claimed</span>
+          </div>
+          <div class="mc-source">
+            <div class="mc-source-mark mc-source-mark--spotify"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path fill="#1db954" d="M8 14c2-1 5-1 8 .5M7 11c3-1 7-1 10 1M7 8c4-1 9-1 12 1.5" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="mc-source-name">Spotify for Artists</div>
+            <span class="mc-pill mc-pill--claimed">Claimed</span>
+          </div>
+          <div class="mc-source">
+            <div class="mc-source-mark mc-source-mark--youtube"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M22 8.5a2.5 2.5 0 0 0-1.8-1.8C18.5 6.3 12 6.3 12 6.3s-6.5 0-8.2.4A2.5 2.5 0 0 0 2 8.5C1.6 10.2 1.6 12 1.6 12s0 1.8.4 3.5a2.5 2.5 0 0 0 1.8 1.8c1.7.4 8.2.4 8.2.4s6.5 0 8.2-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.7.4-3.5.4-3.5s0-1.8-.4-3.5z"/><polygon points="10,9 16,12 10,15" fill="#fff"/></svg></div>
+            <div class="mc-source-name">YouTube Official Artist Channel</div>
+            <span class="mc-pill mc-pill--missing">Not Linked</span>
+          </div>
+          <div class="mc-source">
+            <div class="mc-source-mark mc-source-mark--amazon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17c3 3 12 4 18 0M5 19l1 2m12-2l-1 2M8 6h8M9 6v6h6V6"/></svg></div>
+            <div class="mc-source-name">Amazon Music for Artists</div>
+            <span class="mc-pill mc-pill--unclaimed">Unclaimed</span>
+          </div>
+        </div>
+        <div class="mc-card-foot">Keep your identities claimed<br>so you never miss out.</div>
+      </article>
+
+      <!-- Publishing Intelligence™ -->
+      <article class="mc-card mc-card--publishing" id="publishing-intelligence" aria-label="Publishing Intelligence">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+          </div>
+          <div class="mc-card-title">PUBLISHING<br>INTELLIGENCE™</div>
+        </div>
+        <div class="mc-pub-body">
+          <div class="mc-ring mc-pub-ring" aria-hidden="true">
+            <svg viewBox="0 0 80 80">
+              <circle class="mc-ring-track"    cx="40" cy="40" r="34" fill="none" stroke-width="6"/>
+              <circle class="mc-ring-progress" cx="40" cy="40" r="34" fill="none" stroke-width="6"
+                stroke-dasharray="196 214"/>
+            </svg>
+            <div class="mc-ring-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
+            </div>
+          </div>
+          <div class="mc-pub-stats">
+            <div class="mc-pub-stat"><span class="mc-pub-stat-val">124</span><span class="mc-pub-stat-label">Works Found</span></div>
+            <div class="mc-pub-stat"><span class="mc-pub-stat-val">86</span><span class="mc-pub-stat-label">Writers Found</span></div>
+            <div class="mc-pub-stat"><span class="mc-pub-stat-val">12</span><span class="mc-pub-stat-label">Publishers Found</span></div>
+          </div>
+        </div>
+        <div class="mc-pub-coverage">92%<small>ISWC Coverage</small></div>
+        <div class="mc-card-foot">Publishing verification is<br>active and ongoing.</div>
+      </article>
+
+      <!-- Catalog Intelligence™ -->
+      <article class="mc-card mc-card--catalog" id="catalog-intelligence" aria-label="Catalog Intelligence">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
+          </div>
+          <div class="mc-card-title">CATALOG INTELLIGENCE™</div>
+        </div>
+        <div class="mc-catalog-body">
+          <div class="mc-stack">
+            <svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="30" cy="14" rx="20" ry="6" fill="rgba(251,146,60,0.15)"/>
+              <path d="M10 14v10c0 3.3 9 6 20 6s20-2.7 20-6V14"/>
+              <path d="M10 26v10c0 3.3 9 6 20 6s20-2.7 20-6V26"/>
+              <path d="M10 38v8c0 3.3 9 6 20 6s20-2.7 20-6v-8"/>
+            </svg>
+          </div>
+          <div class="mc-catalog-summary">
+            <div class="mc-catalog-value">27</div>
+            <div class="mc-catalog-label">Catalog Assets</div>
+            <div class="mc-catalog-grid">
+              <span class="lbl">Singles</span>  <span class="val">4</span>
+              <span class="lbl">Metadata</span> <span class="val val--stable">Stable</span>
+              <span class="lbl">EPs</span>      <span class="val">2</span>
+              <span class="lbl">Catalog</span>  <span class="val val--stable">Stable</span>
+              <span class="lbl">Albums</span>   <span class="val">3</span>
+              <span class="lbl">Verified</span> <span class="val val--verified">Verified</span>
+              <span class="lbl">Features</span> <span class="val">18</span>
+            </div>
+          </div>
+        </div>
+        <div class="mc-card-foot">Your catalog is healthy<br>and up to date.</div>
+      </article>
+
+      <!-- Revenue Watch™ -->
+      <article class="mc-card mc-card--revenue" aria-label="Revenue Watch">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 14h4.5a1.5 1.5 0 0 0 0-3h-3a1.5 1.5 0 0 1 0-3H15M12 7v2M12 15v2"/></svg>
+          </div>
+          <div class="mc-card-title">REVENUE WATCH™</div>
+        </div>
+        <div class="mc-rev-body">
+          <div class="mc-rev-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 14h4.5a1.5 1.5 0 0 0 0-3h-3a1.5 1.5 0 0 1 0-3H15M12 7v2M12 15v2"/></svg></div>
+          <div>
+            <div class="mc-rev-title">All Clear</div>
+            <div class="mc-rev-sub">No Revenue Risks</div>
+          </div>
+        </div>
+        <div class="mc-rev-list">
+          <div class="mc-rev-row"><span>Anomalies Detected</span><span>0</span></div>
+          <div class="mc-rev-row"><span>Unmatched Earnings</span><span>0</span></div>
+          <div class="mc-rev-row"><span>Opportunities</span><span>0</span></div>
+        </div>
+        <div class="mc-card-foot">No royalty leaks or anomalies detected.<br>Monitoring continues.</div>
+      </article>
+
+      <!-- Monitoring Intelligence™ -->
+      <article class="mc-card mc-card--monitoring" id="monitoring-intelligence" aria-label="Monitoring Intelligence">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7-3 2v7H6v-7z"/><path d="M9 18v-5h6v5"/></svg>
+          </div>
+          <div class="mc-card-title">MONITORING INTELLIGENCE™</div>
+        </div>
+        <div class="mc-mon-body">
+          <div class="mc-mon-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5"/><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 12a10 10 0 0 1 20 0"/></svg></div>
+          <div>
+            <div class="mc-mon-value">100%</div>
+            <div class="mc-mon-cap">Monitoring Uptime<br>Last 30 Days</div>
+          </div>
+        </div>
+        <div class="mc-mon-list">
+          <div class="mc-mon-row"><span>Sources Monitored</span>      <span>12</span></div>
+          <div class="mc-mon-row"><span>Updates Processed</span>      <span>1,842</span></div>
+          <div class="mc-mon-row"><span>Last Scan</span>              <span>12 min ago</span></div>
+        </div>
+        <div class="mc-card-foot">We are constantly scanning<br>and analyzing your data.</div>
+      </article>
+
+      <!-- Global Music Footprint™ -->
+      <article class="mc-card mc-card--footprint" id="global-footprint" style="grid-column: span 2;" aria-label="Global Music Footprint">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+          </div>
+          <div class="mc-card-title">GLOBAL MUSIC FOOTPRINT™</div>
+        </div>
+        <div class="mc-globe" aria-hidden="true">
+          <svg viewBox="0 0 800 320" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <pattern id="mc-dot-grid" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1" fill="rgba(56,189,248,0.18)"/>
+              </pattern>
+            </defs>
+            <!-- north america -->
+            <path d="M80 90 L160 80 L220 110 L240 150 L210 180 L170 200 L130 195 L100 170 L80 130 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
+            <!-- south america -->
+            <path d="M200 200 L240 200 L260 240 L250 280 L220 295 L200 270 L195 230 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
+            <!-- europe -->
+            <path d="M360 90 L440 75 L470 100 L460 140 L420 150 L370 130 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
+            <!-- africa -->
+            <path d="M380 150 L450 145 L470 200 L450 250 L410 270 L380 230 L370 190 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
+            <!-- asia -->
+            <path d="M470 90 L600 75 L680 110 L700 150 L650 175 L580 165 L510 150 L470 130 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
+            <!-- india/se asia -->
+            <path d="M540 165 L610 175 L640 210 L600 235 L560 220 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
+            <!-- oceania -->
+            <path d="M650 230 L720 220 L745 250 L720 280 L675 275 L655 250 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
+            <!-- presence dots -->
+            <g fill="#38bdf8">
+              <circle cx="130" cy="120" r="3"/><circle cx="170" cy="135" r="3.5"/><circle cx="200" cy="160" r="3"/>
+              <circle cx="225" cy="230" r="3.5"/><circle cx="220" cy="260" r="3"/>
+              <circle cx="395" cy="105" r="4"/><circle cx="425" cy="125" r="3"/><circle cx="450" cy="110" r="3.5"/>
+              <circle cx="410" cy="190" r="3"/><circle cx="430" cy="230" r="3"/>
+              <circle cx="520" cy="115" r="3"/><circle cx="585" cy="125" r="4"/><circle cx="620" cy="105" r="3"/>
+              <circle cx="650" cy="140" r="3.5"/><circle cx="575" cy="195" r="3"/>
+              <circle cx="700" cy="250" r="3"/><circle cx="690" cy="265" r="3"/>
+              <circle cx="148" cy="100" r="2.5" opacity="0.7"/>
+              <circle cx="250" cy="170" r="2.5" opacity="0.7"/>
+              <circle cx="375" cy="115" r="2.5" opacity="0.7"/>
+              <circle cx="600" cy="195" r="2.5" opacity="0.7"/>
+            </g>
+            <!-- soft glow markers -->
+            <g fill="rgba(56,189,248,0.22)">
+              <circle cx="130" cy="120" r="9"/><circle cx="395" cy="105" r="10"/>
+              <circle cx="585" cy="125" r="10"/><circle cx="225" cy="230" r="8"/>
+              <circle cx="700" cy="250" r="8"/>
+            </g>
+          </svg>
+        </div>
+        <div class="mc-foot-footer">
+          <div class="mc-foot-blurb">Royaltē identified music<br>presence across global DSPs.</div>
+          <a class="mc-foot-cta" href="#global-footprint-full">
+            View Full Map
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- BOTTOM STATUS ROW -->
+    <div class="mc-status-row">
+
+      <article class="mc-status-card" aria-label="Next Scheduled Scan">
+        <div>
+          <div class="mc-status-label">NEXT SCHEDULED SCAN</div>
+          <div class="mc-status-value">18 <small style="font-size:14px;color:var(--mc-text-muted);font-weight:500">min</small></div>
+        </div>
+        <svg class="mc-status-radar" viewBox="0 0 56 56" aria-hidden="true">
+          <circle cx="28" cy="28" r="26" fill="none" stroke="rgba(45,212,191,0.18)"/>
+          <circle cx="28" cy="28" r="18" fill="none" stroke="rgba(45,212,191,0.20)"/>
+          <circle cx="28" cy="28" r="10" fill="none" stroke="rgba(45,212,191,0.22)"/>
+          <line x1="28" y1="2" x2="28" y2="54" stroke="rgba(45,212,191,0.12)"/>
+          <line x1="2" y1="28" x2="54" y2="28" stroke="rgba(45,212,191,0.12)"/>
+          <circle cx="28" cy="28" r="2.4" fill="#34f5b0"/>
+        </svg>
+      </article>
+
+      <article class="mc-status-card" aria-label="Intelligence Engine Status">
+        <div>
+          <div class="mc-status-label">INTELLIGENCE ENGINE STATUS</div>
+          <div class="mc-status-value mc-status-value--green">All Systems Operational</div>
+          <div class="mc-status-cap">Every module is functioning normally.</div>
+          <div class="mc-status-dots">
+            <span class="mc-status-dot"></span><span class="mc-status-dot"></span><span class="mc-status-dot"></span>
+            <span class="mc-status-dot"></span><span class="mc-status-dot"></span><span class="mc-status-dot"></span>
+            <span class="mc-status-dot"></span><span class="mc-status-dot"></span>
+          </div>
+        </div>
+        <span></span>
+      </article>
+
+      <article class="mc-status-card mc-status-card--horizon" aria-label="Royaltē never sleeps">
+        <div>
+          <div class="mc-status-label" style="color:var(--mc-purple);">WE WORK WHILE YOU CREATE</div>
+          <div class="mc-status-value mc-status-value--alt">Royaltē never sleeps.</div>
+          <div class="mc-status-cap">Your music business is always protected.</div>
+        </div>
+        <div class="mc-status-horizon-art" aria-hidden="true"></div>
+      </article>
+
+    </div>
+
+  </main>
+
+  <!-- ────────── RIGHT RAIL ────────── -->
+  <aside class="mc-rail-right" id="ai-insights" aria-label="AI Insights and Royaltē Review">
+
+    <!-- AI Insights™ -->
+    <section class="mc-panel" aria-label="AI Insights">
+      <div class="mc-panel-head">
+        <div class="mc-panel-head-left">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
+          AI INSIGHTS™
+        </div>
+        <div class="mc-panel-meta">Generated 8 min ago</div>
+      </div>
+
+      <div class="mc-insights-art" aria-hidden="true">
+        <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M28 60h24"/>
+          <path d="M30 52h20"/>
+          <path d="M40 4a22 22 0 0 0-15 38c3 3 4 7 4 10h22c0-3 1-7 4-10A22 22 0 0 0 40 4z"/>
+          <path d="M40 16a14 14 0 0 0-10 24"/>
+        </svg>
+      </div>
+
+      <h2 class="mc-insights-title">Publishing verification has improved.</h2>
+      <p class="mc-insights-body">Your recent catalog updates have strengthened your publishing coverage and metadata accuracy. All systems are aligned and performing optimally.</p>
+
+      <div class="mc-takeaways">
+        <div class="mc-takeaways-title">KEY TAKEAWAYS</div>
+        <ul class="mc-takeaways-list">
+          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Metadata is clean and consistent</li>
+          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Identities are verified</li>
+          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Publishing coverage is strong</li>
+          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Systems are operating normally</li>
+          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Monitoring is continuous</li>
+        </ul>
+      </div>
+
+      <div class="mc-info-note">
+        <div class="mc-info-note-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          No action is required at this time.
+        </div>
+        <div class="mc-info-note-body">We'll continue monitoring and alert you if anything needs your attention.</div>
+      </div>
+    </section>
+
+    <!-- Royaltē Review™ -->
+    <section class="mc-panel" aria-label="Royaltē Review">
+      <div class="mc-review-head">
+        <div class="mc-review-title">ROYALTĒ REVIEW™</div>
+        <div class="mc-review-meta">Generated Today</div>
+      </div>
+
+      <div class="mc-review-score">
+        <div class="mc-review-ring" aria-hidden="true">
+          <svg viewBox="0 0 110 110">
+            <circle class="mc-ring-track"    cx="55" cy="55" r="46" fill="none" stroke-width="6"/>
+            <circle class="mc-ring-progress" cx="55" cy="55" r="46" fill="none" stroke-width="6"
+              stroke-dasharray="240 289"/>
+          </svg>
+          <div class="mc-review-ring-text">
+            <div>
+              <div class="mc-review-ring-num">83</div>
+              <div class="mc-review-ring-tot">/100</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="mc-review-label">HEALTH SCORE</div>
+          <div class="mc-review-conf">HIGH CONFIDENCE</div>
+        </div>
+      </div>
+
+      <ul class="mc-review-checks">
+        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> No immediate risks</li>
+        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Metadata stable</li>
+        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Identities verified</li>
+        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Publishing coverage strong</li>
+      </ul>
+
+      <button class="mc-review-cta" type="button">
+        View Executive Brief
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+      </button>
+
+      <a class="mc-review-download" href="#download-pdf">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="M5 11l7 7 7-7"/><path d="M4 20h16"/></svg>
+        Download PDF
+      </a>
+    </section>
+
+  </aside>
+
+</div>
+
+<script>
+  // Mission Control Shell™ — minimal interactivity.
+  // No business logic, no data fetching, no engine integration.
+  // The shell is purely structural; engines inject data later.
+
+  (function () {
+    const navItems = document.querySelectorAll('.mc-nav-item');
+    navItems.forEach((item) => {
+      item.addEventListener('click', (evt) => {
+        // shell-only active state toggle; routing is a future phase
+        if (item.getAttribute('href') === '#executive-overview' ||
+            item.getAttribute('href').startsWith('#')) {
+          navItems.forEach((n) => n.classList.remove('mc-nav-item--active'));
+          item.classList.add('mc-nav-item--active');
+        }
+      });
+    });
+
+    // No-op handlers for placeholder CTAs so the shell does not throw.
+    const review = document.querySelector('.mc-review-cta');
+    if (review) review.addEventListener('click', (e) => e.preventDefault());
+
+    const download = document.querySelector('.mc-review-download');
+    if (download) download.addEventListener('click', (e) => e.preventDefault());
+
+    const signout = document.querySelector('.mc-version-sign');
+    if (signout) signout.addEventListener('click', (e) => e.preventDefault());
+  })();
+</script>
+
+</body>
+</html>
