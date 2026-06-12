@@ -1182,9 +1182,19 @@ body {
 }
 
 .mc-status-card--horizon {
+  /* Board-approved canonical artwork: purple sphere + planet horizon.
+     Dark gradient on the left hides the artwork's embedded duplicate
+     text so the live HTML copy reads as the canonical layer. */
   background:
-    radial-gradient(280px 200px at 110% 110%, rgba(168, 85, 247, 0.18), transparent 60%),
+    linear-gradient(90deg,
+      rgba(5, 5, 7, 1.00) 0%,
+      rgba(5, 5, 7, 0.95) 42%,
+      rgba(5, 5, 7, 0.55) 62%,
+      rgba(5, 5, 7, 0.10) 78%,
+      transparent 92%),
+    url('/img/royalte-never-sleeps.png') center / cover no-repeat,
     var(--mc-surface-1);
+  background-blend-mode: normal, normal, normal;
 }
 
 .mc-status-horizon-art {
@@ -1192,17 +1202,8 @@ body {
   height: 56px;
   position: relative;
 }
-.mc-status-horizon-art::after {
-  content: "";
-  position: absolute;
-  right: -2px;
-  bottom: 0;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.35), transparent 65%);
-  filter: blur(0.5px);
-}
+/* Old CSS-drawn faux planet retired — the artwork now carries the
+   real planet/sphere imagery. */
 
 /* ─── right rail panels ─────────────────────────────────────────── */
 
@@ -1987,7 +1988,7 @@ body {
         <div>
           <div class="mc-status-label" style="color:var(--mc-purple);">WE WORK WHILE YOU CREATE</div>
           <div class="mc-status-value mc-status-value--alt">Royaltē never sleeps.</div>
-          <div class="mc-status-cap">Your music business is always protected.</div>
+          <div class="mc-status-cap">Your Music Business Should Always Be Protected.</div>
         </div>
         <div class="mc-status-horizon-art" aria-hidden="true"></div>
       </article>
