@@ -1195,31 +1195,47 @@ body {
     url('/img/royalte-never-sleeps.png') center / cover no-repeat,
     var(--mc-surface-1);
   background-blend-mode: normal, normal, normal;
-  /* one-col grid so text fills the card and the planet overlay floats
-     absolute in the lower-right without contending for a grid cell */
-  grid-template-columns: 1fr;
+  /* establishes a clean stacking context so the star-field layer
+     sits behind text without leaking out of the card */
+  isolation: isolate;
 }
 
-/* Rotating bronze planet overlay — extremely slow drift, one rotation
-   per ~105 s (Board target 90-120 s). Linear timing so there is no
-   accel/decel cue. The cropped planet PNG sits on top of the static
-   one in the background; both are at the same screen location, so
-   the user sees the surface details quietly turning. */
-.mc-status-horizon-art {
-  position: absolute;
-  right: -50px;
-  bottom: -50px;
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  background: url('/img/royalte-planet.png') center / cover no-repeat;
-  animation: mc-planet-drift 105s linear infinite;
-  pointer-events: none;
+/* Text content sits ABOVE the ambient star-field overlay. */
+.mc-status-card--horizon > div:first-child {
+  position: relative;
   z-index: 1;
 }
 
-@keyframes mc-planet-drift {
-  to { transform: rotate(360deg); }
+/* Ambient star-field — repurposes the prior placeholder div into a
+   full-card drifting starfield. The pattern tiles (background-size
+   matches the keyframe translate) so the animation loop is seamless
+   — the user never catches a snap-back. */
+.mc-status-horizon-art {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(0.7px 0.7px at 13% 28%, rgba(255, 255, 255, 0.55), transparent 60%),
+    radial-gradient(0.5px 0.5px at 31% 64%, rgba(255, 255, 255, 0.40), transparent 60%),
+    radial-gradient(0.4px 0.4px at 47% 18%, rgba(255, 255, 255, 0.32), transparent 60%),
+    radial-gradient(0.6px 0.6px at 62% 78%, rgba(255, 255, 255, 0.42), transparent 60%),
+    radial-gradient(0.4px 0.4px at 78% 36%, rgba(255, 255, 255, 0.30), transparent 60%),
+    radial-gradient(0.5px 0.5px at 88% 12%, rgba(255, 255, 255, 0.38), transparent 60%),
+    radial-gradient(0.6px 0.6px at 22% 88%, rgba(255, 255, 255, 0.45), transparent 60%),
+    radial-gradient(0.4px 0.4px at 53% 48%, rgba(255, 255, 255, 0.28), transparent 60%);
+  background-size: 720px 320px;
+  background-repeat: repeat;
+  animation: mc-starfield-drift 220s linear infinite;
+}
+
+@keyframes mc-starfield-drift {
+  /* one full tile width per cycle → seamless loop */
+  from { background-position: 0 0; }
+  to   { background-position: -720px 0; }
 }
 
 /* ─── right rail panels ─────────────────────────────────────────── */
