@@ -951,8 +951,28 @@ body {
   display: grid;
   place-items: center;
   color: var(--mc-orange);
+  animation: mc-catalog-ambient 5.6s ease-in-out infinite;
 }
 .mc-stack svg { width: 60px; height: 60px; filter: drop-shadow(0 0 6px var(--mc-orange-glow)); }
+
+/* Soft scanning glow — each shelf brightens in cascade, top → bottom,
+   producing a quiet "indexing" feel without any rotation or motion. */
+.mc-stack svg > * {
+  animation: mc-catalog-scan 4.8s ease-in-out infinite;
+}
+.mc-stack svg > *:nth-child(1) { animation-delay: 0s;   }
+.mc-stack svg > *:nth-child(2) { animation-delay: 0.4s; }
+.mc-stack svg > *:nth-child(3) { animation-delay: 0.8s; }
+.mc-stack svg > *:nth-child(4) { animation-delay: 1.2s; }
+
+@keyframes mc-catalog-ambient {
+  0%, 100% { filter: drop-shadow(0 0 6px  rgba(251, 146, 60, 0.18)); }
+  50%      { filter: drop-shadow(0 0 16px rgba(251, 146, 60, 0.30)); }
+}
+@keyframes mc-catalog-scan {
+  0%, 35%, 100% { opacity: 0.75; }
+  15%           { opacity: 1;    }
+}
 
 .mc-catalog-summary {
   display: flex;
@@ -960,27 +980,36 @@ body {
   gap: 2px;
 }
 .mc-catalog-value {
-  font-size: 30px;
-  font-weight: 600;
+  font-size: 38px;                              /* primary visual anchor */
+  font-weight: 700;
   line-height: 1;
+  letter-spacing: -0.01em;
   color: var(--mc-orange);
+  text-shadow: 0 0 14px rgba(251, 146, 60, 0.24);
 }
 .mc-catalog-label {
   font-size: 12px;
   color: var(--mc-text-muted);
+  letter-spacing: 0.04em;
 }
 
 .mc-catalog-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--mc-s-1) var(--mc-s-3);
-  font-size: 11.5px;
-  margin-top: var(--mc-s-1);
+  grid-template-columns: 1fr auto;               /* values right-aligned for executive scan */
+  gap: 8px var(--mc-s-3);                        /* +breathing room between rows */
+  font-size: 12.5px;
+  margin-top: var(--mc-s-2);
 }
-.mc-catalog-grid .lbl { color: var(--mc-text-muted); }
-.mc-catalog-grid .val { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.mc-catalog-grid .lbl { color: #b8b8c4; letter-spacing: 0.02em; }
+.mc-catalog-grid .val { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
 .mc-catalog-grid .val--stable   { color: var(--mc-green); }
 .mc-catalog-grid .val--verified { color: var(--mc-green); }
+.mc-catalog-grid .mc-catalog-divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  margin: 2px 0;
+}
 
 /* ─── revenue card ──────────────────────────────────────────────── */
 
@@ -1891,17 +1920,18 @@ body {
             <div class="mc-catalog-value">27</div>
             <div class="mc-catalog-label">Catalog Assets</div>
             <div class="mc-catalog-grid">
-              <span class="lbl">Singles</span>  <span class="val">4</span>
-              <span class="lbl">Metadata</span> <span class="val val--stable">Stable</span>
-              <span class="lbl">EPs</span>      <span class="val">2</span>
-              <span class="lbl">Catalog</span>  <span class="val val--stable">Stable</span>
               <span class="lbl">Albums</span>   <span class="val">3</span>
-              <span class="lbl">Verified</span> <span class="val val--verified">Verified</span>
+              <span class="lbl">EPs</span>      <span class="val">2</span>
+              <span class="lbl">Singles</span>  <span class="val">4</span>
               <span class="lbl">Features</span> <span class="val">18</span>
+              <div class="mc-catalog-divider" aria-hidden="true"></div>
+              <span class="lbl">Metadata</span> <span class="val val--stable">Stable</span>
+              <span class="lbl">Catalog</span>  <span class="val val--stable">Stable</span>
+              <span class="lbl">Verified</span> <span class="val val--verified">Verified</span>
             </div>
           </div>
         </div>
-        <div class="mc-card-foot">Your catalog is healthy<br>and up to date.</div>
+        <div class="mc-card-foot">Your catalog infrastructure is synchronized<br>and actively monitored.</div>
       </article>
 
       <!-- Revenue Watch™ -->
