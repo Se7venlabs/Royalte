@@ -529,7 +529,50 @@ body {
     inset 0 0 38px rgba(200, 122, 240, 0.050); }
 }
 .mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
-.mc-card--monitoring { --card-glow: rgba(56, 189, 248, 0.07); }
+.mc-card--monitoring {
+  --card-glow: rgba(56, 189, 248, 0.07);
+  /* Board-approved canonical radar artwork. Dark left-side gradient
+     hides the embedded duplicate text in the source so the live HTML
+     content reads as the canonical layer; the satellite dish remains
+     the dominant element on the right. */
+  background:
+    linear-gradient(90deg,
+      rgba(7, 9, 14, 0.95)  0%,
+      rgba(7, 9, 14, 0.92) 45%,
+      rgba(7, 9, 14, 0.45) 65%,
+      rgba(7, 9, 14, 0.12) 82%,
+      transparent          95%),
+    url('/img/monitoring-intelligence.png') center / cover no-repeat,
+    var(--mc-surface-1);
+  isolation: isolate;
+}
+
+/* Text content sits above the radar-pulse layer */
+.mc-card--monitoring > * { position: relative; z-index: 1; }
+
+/* Subtle radar pulse — soft white ring emanating from the dish every
+   ~7 s. Soft, faint, military-station cadence; never showy. */
+.mc-card--monitoring::after {
+  content: "";
+  position: absolute;
+  right: 30%;
+  top: 40%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  background: transparent;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  animation: mc-mon-radar 7.2s ease-out infinite;
+}
+
+@keyframes mc-mon-radar {
+  0%   { transform: scale(1);  opacity: 0;    border-width: 1.5px; }
+  6%   { opacity: 0.55; }
+  100% { transform: scale(38); opacity: 0;    border-width: 0.4px; }
+}
 .mc-card--footprint  { --card-glow: rgba(56, 189, 248, 0.06); }
 
 .mc-card-head {
