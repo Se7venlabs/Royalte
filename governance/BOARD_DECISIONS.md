@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-06-12 — Phase 8: Royaltē Executive Brief Engine™
+
+| | |
+|---|---|
+| **Date** | 2026-06-12 |
+| **Decision** | Add a new constitutional layer at `api/_lib/executive-brief-engine.js` + `api/schema/executive-brief.js`: the **Royaltē Executive Brief Engine™** — sole authority for projecting a Royaltē Health Report (Phase 7 output) into a Royaltē Executive Brief (locked-format founder-facing intelligence briefing). Pure function: `generateExecutiveBrief(healthReport)`. Never throws, never mutates input, fully deterministic, deeply-frozen output. Board-locked `HEALTH_HEADLINES` (6 grade-keyed headlines) and `RECOMMENDED_NEXT_STEPS` (6 category-keyed next-steps + `default`). 40-assertion test suite at `tests/executive-brief-engine-test.mjs`. Total: 3 new files (895 lines). |
+| **Reason** | The Intelligence Engine identifies; the Health Engine quantifies; the Executive Brief Engine **explains in executive language**. Constitutional separation continues: Knowledge (Rule Library) → Execution (Intelligence Engine) → Scoring (Health Engine) → **Language (Executive Brief Engine)** → Presentation (consumers). The engine owns language; it never owns presentation, layout, or design. It never invents intelligence — every top-N entry is sourced verbatim from the upstream arrays the caller provides. |
+| **Impact** | (a) The Engineering Stack gains a new constitutional layer between the Health Engine (Phase 7) and the consumer surfaces — *Language*. (b) Future consumers reading executive-brief output — Mission Control intelligence-feed cards, the Royaltē Review PDF, future automated email briefs — read from the Executive Brief Engine, never recompute language. (c) Input-shape contract: the engine reads `strengths/risks/opportunities/recommendations/observations` arrays defensively from the input HealthReport, allowing callers to pass an *enriched* HealthReport (Phase 7 output bundled with the upstream Phase 6 arrays). When absent, top-N sections default to empty; the engine never invents. (d) Board-locked vocabulary tables (`HEALTH_HEADLINES`, `RECOMMENDED_NEXT_STEPS`) become the canonical Royaltē executive vocabulary; future edits require Board ratification. |
+| **Vote** | Board Approved |
+| **PR Number** | (this PR) |
+| **Commit SHA** | (set on merge) |
+| **Constitution update required** | Likely yes at the next Constitution amendment cycle (formal Section 8B extension to ratify the new layer alongside the Health Engine extension). Not blocked on it for merge. |
+
+---
+
 ### 2026-06-12 — Phase 7.5: Se7ven Labs Intellectual Property Vault™ + Permanence Amendment
 
 | | |

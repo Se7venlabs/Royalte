@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-06-12 — Phase 8: Royaltē Executive Brief Engine™
+
+| | |
+|---|---|
+| **PR** | (this PR) |
+| **Commit SHA** | (set on merge) |
+| **Constitution Version** | v1.3 |
+| **Added** | `api/schema/executive-brief.js` (constants + `emptyBrief()` factory; `BRIEF_VERSION='1.0.0'`, `HEALTH_HEADLINES`, `RECOMMENDED_NEXT_STEPS`). `api/_lib/executive-brief-engine.js` (sole export: `generateExecutiveBrief(healthReport)`; pure, deterministic, never throws, deep-freezes output; reads upstream `strengths/risks/opportunities/recommendations/observations` arrays defensively). `tests/executive-brief-engine-test.mjs` (40 deterministic assertions: input tolerance, grade-derived headlines, summary/narrative word caps, top-N capped at 5, severity-ordered risks, never-invent invariant for priorityActions, confidence-statement templates, determinism, immutability, no-mutation, schema invariants). |
+| **Changed** | none |
+| **Removed** | none |
+
+---
+
 ## 2026-06-12 — Phase 7.5: Se7ven Labs Intellectual Property Vault™
 
 | | |
