@@ -554,7 +554,6 @@ body {
     inset 0 0 38px rgba(200, 122, 240, 0.050); }
 }
 .mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
-.mc-card--revenue    { --card-glow: rgba(251, 146, 60, 0.07); }
 .mc-card--monitoring { --card-glow: rgba(56, 189, 248, 0.07); }
 .mc-card--footprint  { --card-glow: rgba(56, 189, 248, 0.06); }
 
@@ -578,7 +577,6 @@ body {
 .mc-card--identity   .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
 .mc-card--publishing .mc-card-mark { color: var(--mc-purple); background: var(--mc-purple-soft); border-color: var(--mc-border-warm); }
 .mc-card--catalog    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
-.mc-card--revenue    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
 .mc-card--monitoring .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
 .mc-card--footprint  .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
 
@@ -1010,56 +1008,6 @@ body {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
   margin: 2px 0;
 }
-
-/* ─── revenue card ──────────────────────────────────────────────── */
-
-.mc-rev-body {
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: var(--mc-s-4);
-  align-items: center;
-}
-
-.mc-rev-mark {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: var(--mc-orange);
-  background: var(--mc-orange-soft);
-  border: 1px solid rgba(251, 146, 60, 0.22);
-}
-.mc-rev-mark svg { width: 32px; height: 32px; }
-
-.mc-rev-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--mc-green);
-  letter-spacing: 0.01em;
-}
-.mc-rev-sub {
-  font-size: 12px;
-  color: var(--mc-text-muted);
-  margin-top: 2px;
-}
-
-.mc-rev-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-1);
-  border-top: 1px solid var(--mc-divider);
-  padding-top: var(--mc-s-3);
-  margin-top: var(--mc-s-2);
-}
-.mc-rev-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  padding: 2px 0;
-}
-.mc-rev-row span:first-child { color: var(--mc-text-muted); }
-.mc-rev-row span:last-child  { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 /* ─── monitoring card ───────────────────────────────────────────── */
 
@@ -1958,29 +1906,6 @@ body {
         <div class="mc-card-foot">Your catalog infrastructure is synchronized<br>and actively monitored.</div>
       </article>
 
-      <!-- Revenue Watch™ -->
-      <article class="mc-card mc-card--revenue" aria-label="Revenue Watch">
-        <div class="mc-card-head">
-          <div class="mc-card-mark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 14h4.5a1.5 1.5 0 0 0 0-3h-3a1.5 1.5 0 0 1 0-3H15M12 7v2M12 15v2"/></svg>
-          </div>
-          <div class="mc-card-title">REVENUE WATCH™</div>
-        </div>
-        <div class="mc-rev-body">
-          <div class="mc-rev-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 14h4.5a1.5 1.5 0 0 0 0-3h-3a1.5 1.5 0 0 1 0-3H15M12 7v2M12 15v2"/></svg></div>
-          <div>
-            <div class="mc-rev-title">All Clear</div>
-            <div class="mc-rev-sub">No Revenue Risks</div>
-          </div>
-        </div>
-        <div class="mc-rev-list">
-          <div class="mc-rev-row"><span>Anomalies Detected</span><span>0</span></div>
-          <div class="mc-rev-row"><span>Unmatched Earnings</span><span>0</span></div>
-          <div class="mc-rev-row"><span>Opportunities</span><span>0</span></div>
-        </div>
-        <div class="mc-card-foot">No royalty leaks or anomalies detected.<br>Monitoring continues.</div>
-      </article>
-
       <!-- Monitoring Intelligence™ -->
       <article class="mc-card mc-card--monitoring" id="monitoring-intelligence" aria-label="Monitoring Intelligence">
         <div class="mc-card-head">
@@ -2005,7 +1930,7 @@ body {
       </article>
 
       <!-- Global Music Footprint™ -->
-      <article class="mc-card mc-card--footprint" id="global-footprint" style="grid-column: span 2;" aria-label="Global Music Footprint">
+      <article class="mc-card mc-card--footprint" id="global-footprint" style="grid-column: span 3;" aria-label="Global Music Footprint">
         <div class="mc-card-head">
           <div class="mc-card-mark">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
