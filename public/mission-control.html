@@ -531,23 +531,19 @@ body {
 .mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
 .mc-card--monitoring {
   --card-glow: rgba(56, 189, 248, 0.07);
-  /* Visual-balance pass: dish reduced ≈30 % and pushed further into
-     the background so the executive metrics lead. The cropped artwork
-     stays unmodified — only the background-size and the dark wash
-     change. background-size: 70 % auto sets the displayed width to
-     70 % of the card (height auto-scales by aspect, then vertically
-     centred); background-position: right center tucks the dish along
-     the right edge so the left ≈30 % of the card sits on the solid
-     dark base, giving the 100 % ring and supporting copy clean
-     contrast. */
+  /* Match Board-approved reference: dish reduced further (now ≈50 %
+     of card width) and pushed deeper into shadow so the executive
+     metrics dominate the read. Cropped artwork file unchanged; only
+     background-size and the dark wash change. */
   background:
     linear-gradient(90deg,
-      rgba(7, 9, 14, 0.55) 0%,
-      rgba(7, 9, 14, 0.40) 55%,
-      rgba(7, 9, 14, 0.20) 75%,
-      rgba(7, 9, 14, 0.10) 88%,
+      rgba(7, 9, 14, 0.70) 0%,
+      rgba(7, 9, 14, 0.55) 45%,
+      rgba(7, 9, 14, 0.35) 65%,
+      rgba(7, 9, 14, 0.18) 82%,
+      rgba(7, 9, 14, 0.08) 94%,
       transparent          100%),
-    url('/img/monitoring-intelligence.png') right center / 70% auto no-repeat,
+    url('/img/monitoring-intelligence.png') right center / 50% auto no-repeat,
     var(--mc-surface-1);
   isolation: isolate;
 }
@@ -1050,7 +1046,7 @@ body {
   stroke-dasharray: 38 200;
   filter: drop-shadow(0 0 6px rgba(125, 211, 252, 0.55));
   transform-origin: 50% 50%;
-  animation: mc-mon-arc-travel 3.6s linear infinite;
+  animation: mc-mon-arc-travel 7.5s linear infinite;
 }
 
 @keyframes mc-mon-arc-travel {
@@ -1977,6 +1973,9 @@ body {
       <!-- Monitoring Intelligence™ -->
       <article class="mc-card mc-card--monitoring" id="monitoring-intelligence" aria-label="Monitoring Intelligence">
         <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5"/><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 12a10 10 0 0 1 20 0"/></svg>
+          </div>
           <div class="mc-card-title">MONITORING INTELLIGENCE™</div>
         </div>
         <div class="mc-mon-body">
