@@ -118,10 +118,10 @@ body {
 
 .mc-rail-left,
 .mc-rail-right {
-  padding: var(--mc-s-5) var(--mc-s-5);
+  padding: var(--mc-s-4) var(--mc-s-5);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-5);
+  gap: var(--mc-s-4);
 }
 
 .mc-rail-left {
@@ -135,10 +135,10 @@ body {
 }
 
 .mc-main {
-  padding: var(--mc-s-4) var(--mc-pad) var(--mc-s-5);
+  padding: var(--mc-s-3) var(--mc-pad) var(--mc-s-4);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-4);
+  gap: var(--mc-s-3);
   min-width: 0;
 }
 
@@ -327,10 +327,10 @@ body {
 
 .mc-hero {
   display: grid;
-  grid-template-columns: 138px 1fr 200px 200px;
+  grid-template-columns: 124px 1fr 188px 188px;
   align-items: center;
-  gap: var(--mc-s-5);
-  padding: var(--mc-s-4) var(--mc-s-5);
+  gap: var(--mc-s-4);
+  padding: var(--mc-s-3) var(--mc-s-4);
   border-radius: var(--mc-r-4);
   background: linear-gradient(135deg, rgba(45, 212, 191, 0.04), rgba(0, 0, 0, 0) 60%), var(--mc-surface-1);
   border: 1px solid rgba(45, 212, 191, 0.16);
@@ -475,13 +475,13 @@ body {
 .mc-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--mc-s-4);
+  gap: var(--mc-s-3);
 }
 
 .mc-row-3 {
   display: grid;
   grid-template-columns: 1fr 1fr 2fr;
-  gap: var(--mc-s-4);
+  gap: var(--mc-s-3);
 }
 
 /* ─── card base ─────────────────────────────────────────────────── */
@@ -490,10 +490,10 @@ body {
   background: var(--mc-surface-1);
   border: 1px solid var(--mc-border);
   border-radius: var(--mc-r-3);
-  padding: var(--mc-s-4);
+  padding: var(--mc-s-3);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-3);
+  gap: var(--mc-s-2);
   position: relative;
   overflow: hidden;
   min-width: 0;
@@ -511,22 +511,8 @@ body {
 .mc-card--health     { --card-glow: rgba(45, 212, 191, 0.08); }
 .mc-card--identity   { --card-glow: rgba(56, 189, 248, 0.07); }
 .mc-card--publishing {
-  --card-glow: rgba(236, 170, 245, 0.075);
-  border-radius: 20px;
-  border-color: rgba(200, 122, 240, 0.13);
-  box-shadow:
-    0 0 32px rgba(236, 170, 245, 0.04),
-    inset 0 0 32px rgba(200, 122, 240, 0.035);
-  animation: mc-pub-breath 7.5s ease-in-out infinite;
-}
-
-@keyframes mc-pub-breath {
-  0%, 100% { box-shadow:
-    0 0 30px rgba(236, 170, 245, 0.038),
-    inset 0 0 30px rgba(200, 122, 240, 0.025); }
-  50%      { box-shadow:
-    0 0 46px rgba(236, 170, 245, 0.075),
-    inset 0 0 38px rgba(200, 122, 240, 0.050); }
+  --card-glow: rgba(236, 170, 245, 0.060);
+  border-color: rgba(200, 122, 240, 0.11);
 }
 .mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
 .mc-card--monitoring {
@@ -1135,14 +1121,14 @@ body {
 .mc-status-row {
   display: grid;
   grid-template-columns: 1fr 1.4fr 1.6fr;
-  gap: var(--mc-s-4);
+  gap: var(--mc-s-3);
 }
 
 .mc-status-card {
-  padding: var(--mc-s-3) var(--mc-s-4);
+  padding: var(--mc-s-2) var(--mc-s-3);
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: var(--mc-s-4);
+  gap: var(--mc-s-3);
   align-items: center;
   background: var(--mc-surface-1);
   border: 1px solid var(--mc-border);
