@@ -1012,41 +1012,40 @@ body {
   align-items: center;
 }
 
+/* Large monitoring ring — 100 % sits INSIDE; the visible blue ring
+   comes from the SVG track, and a brighter arc segment quietly
+   travels around it. No CSS background / border on the wrapper —
+   the ring IS the SVG. */
 .mc-mon-mark {
   width: 78px;
   height: 78px;
-  border-radius: 50%;
+  position: relative;
   display: grid;
   place-items: center;
-  color: var(--mc-blue);
-  background: var(--mc-blue-soft);
-  border: 1px solid rgba(56, 189, 248, 0.22);
-  position: relative;
 }
-.mc-mon-mark > svg:first-of-type { width: 36px; height: 36px; }
 
-/* Quiet intelligence — a single bright arc segment travels around the
-   ring at the speed of a slow heartbeat. One full revolution per 3.6 s
-   (Board target 3-4 s). Linear so there is no accel/decel cue. The
-   stroke-linecap: round + drop-shadow glow make the segment fade
-   naturally back into the existing ring at its leading and trailing
-   ends. No flash, no pulse, no sweep — just a soft signal moving. */
 .mc-mon-arc-svg {
   position: absolute;
-  inset: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% + 4px);
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  transform-origin: 50% 50%;
-  animation: mc-mon-arc-travel 3.6s linear infinite;
 }
+
+.mc-mon-arc-track {
+  stroke: rgba(56, 189, 248, 0.32);
+  stroke-width: 2.4;
+}
+
 .mc-mon-arc {
   stroke: rgba(125, 211, 252, 0.95);
-  stroke-width: 1.8;
+  stroke-width: 2.4;
   stroke-linecap: round;
   /* visible arc ≈ 38 px out of 238 px circumference ≈ 60° wedge */
   stroke-dasharray: 38 200;
   filter: drop-shadow(0 0 6px rgba(125, 211, 252, 0.55));
+  transform-origin: 50% 50%;
+  animation: mc-mon-arc-travel 3.6s linear infinite;
 }
 
 @keyframes mc-mon-arc-travel {
@@ -1977,11 +1976,13 @@ body {
         </div>
         <div class="mc-mon-body">
           <div class="mc-mon-mark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5"/><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 12a10 10 0 0 1 20 0"/></svg>
-            <svg class="mc-mon-arc-svg" viewBox="0 0 80 80" aria-hidden="true"><circle class="mc-mon-arc" cx="40" cy="40" r="38" fill="none"/></svg>
+            <svg class="mc-mon-arc-svg" viewBox="0 0 80 80" aria-hidden="true">
+              <circle class="mc-mon-arc-track" cx="40" cy="40" r="38" fill="none"/>
+              <circle class="mc-mon-arc"       cx="40" cy="40" r="38" fill="none"/>
+            </svg>
+            <div class="mc-mon-value">100%</div>
           </div>
           <div>
-            <div class="mc-mon-value">100%</div>
             <div class="mc-mon-cap">Monitoring Uptime<br>Last 30 Days</div>
           </div>
         </div>
