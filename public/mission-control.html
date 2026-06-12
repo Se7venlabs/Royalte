@@ -6,6 +6,8 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Mission Control — Royaltē</title>
   <link rel="icon" href="/favicon.ico">
+  <!-- Canonical Royaltē fonts so the standardised header renders identically to royalte.ai -->
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
 
 /* ──────────────────────────────────────────────────────────────────────
@@ -116,10 +118,10 @@ body {
 
 .mc-rail-left,
 .mc-rail-right {
-  padding: var(--mc-s-7) var(--mc-s-6);
+  padding: var(--mc-s-5) var(--mc-s-5);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-6);
+  gap: var(--mc-s-5);
 }
 
 .mc-rail-left {
@@ -133,58 +135,31 @@ body {
 }
 
 .mc-main {
-  padding: var(--mc-s-7) var(--mc-pad) var(--mc-s-9);
+  padding: var(--mc-s-4) var(--mc-pad) var(--mc-s-5);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-6);
+  gap: var(--mc-s-4);
   min-width: 0;
 }
 
-/* ─── brand block ────────────────────────────────────────────────── */
+/* ─── brand block — canonical Royaltē header, copied from royalte.ai ── */
 
-.mc-brand {
-  display: flex;
-  align-items: center;
-  gap: var(--mc-s-3);
+.mc-brand-link {
+  display: block;
+  text-decoration: none;
+  line-height: 0;
   padding-bottom: var(--mc-s-2);
 }
 
-.mc-brand-mark {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-family: var(--mc-font);
-  font-size: 22px;
-  font-weight: 300;
-  color: var(--mc-purple);
-  background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.18), transparent 70%);
-  border: 1px solid var(--mc-border-warm);
-  position: relative;
+.mc-brand-logo {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  display: block;
+  transition: opacity 0.2s;
 }
 
-.mc-brand-mark::after {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  border: 1px solid rgba(168, 85, 247, 0.22);
-  pointer-events: none;
-}
-
-.mc-brand-text {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-}
-
-.mc-brand-sub {
-  font-size: 9.5px;
-  letter-spacing: 0.32em;
-  color: var(--mc-text-muted);
-  margin-top: 2px;
-}
+.mc-brand-link:hover .mc-brand-logo { opacity: 0.85; }
 
 /* ─── nav ────────────────────────────────────────────────────────── */
 
@@ -343,7 +318,7 @@ body {
   margin: 0;
 }
 .mc-page-sub {
-  margin: var(--mc-s-2) 0 0;
+  margin: var(--mc-s-1) 0 0;
   font-size: 13.5px;
   color: var(--mc-text-muted);
 }
@@ -352,10 +327,10 @@ body {
 
 .mc-hero {
   display: grid;
-  grid-template-columns: 168px 1fr 220px 220px;
+  grid-template-columns: 138px 1fr 200px 200px;
   align-items: center;
-  gap: var(--mc-s-6);
-  padding: var(--mc-s-5) var(--mc-s-6);
+  gap: var(--mc-s-5);
+  padding: var(--mc-s-4) var(--mc-s-5);
   border-radius: var(--mc-r-4);
   background: linear-gradient(135deg, rgba(45, 212, 191, 0.04), rgba(0, 0, 0, 0) 60%), var(--mc-surface-1);
   border: 1px solid rgba(45, 212, 191, 0.16);
@@ -427,7 +402,7 @@ body {
 .mc-hero-meta {
   font-size: 12.5px;
   color: var(--mc-text-muted);
-  margin-top: var(--mc-s-2);
+  margin-top: var(--mc-s-1);
 }
 
 .mc-hero-meta b { color: var(--mc-text-soft); font-weight: 500; }
@@ -492,7 +467,7 @@ body {
   color: var(--mc-text-muted);
   text-transform: uppercase;
   font-weight: 600;
-  margin: var(--mc-s-3) 0 0;
+  margin: 0;
 }
 
 /* ─── card grid ─────────────────────────────────────────────────── */
@@ -500,13 +475,13 @@ body {
 .mc-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--mc-s-5);
+  gap: var(--mc-s-4);
 }
 
 .mc-row-3 {
   display: grid;
   grid-template-columns: 1fr 1fr 2fr;
-  gap: var(--mc-s-5);
+  gap: var(--mc-s-4);
 }
 
 /* ─── card base ─────────────────────────────────────────────────── */
@@ -515,10 +490,10 @@ body {
   background: var(--mc-surface-1);
   border: 1px solid var(--mc-border);
   border-radius: var(--mc-r-3);
-  padding: var(--mc-s-5);
+  padding: var(--mc-s-4);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-4);
+  gap: var(--mc-s-3);
   position: relative;
   overflow: hidden;
   min-width: 0;
@@ -1125,11 +1100,11 @@ body {
 .mc-status-row {
   display: grid;
   grid-template-columns: 1fr 1.4fr 1.6fr;
-  gap: var(--mc-s-5);
+  gap: var(--mc-s-4);
 }
 
 .mc-status-card {
-  padding: var(--mc-s-4) var(--mc-s-5);
+  padding: var(--mc-s-3) var(--mc-s-4);
   display: grid;
   grid-template-columns: auto 1fr;
   gap: var(--mc-s-4);
@@ -1605,13 +1580,29 @@ body {
   <!-- ────────── LEFT RAIL ────────── -->
   <aside class="mc-rail-left" role="navigation" aria-label="Mission Control navigation">
 
-    <div class="mc-brand">
-      <div class="mc-brand-mark" aria-hidden="true">ē</div>
-      <div>
-        <div class="mc-brand-text">ROYALTĒ</div>
-        <div class="mc-brand-sub">MISSION CONTROL</div>
-      </div>
-    </div>
+    <a href="/" class="mc-brand-link" aria-label="Royaltē home">
+      <svg class="mc-brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <defs>
+          <linearGradient id="mc-nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+            <stop offset="0%" stop-color="#8a5cff"/>
+            <stop offset="100%" stop-color="#e040c8"/>
+          </linearGradient>
+          <linearGradient id="mc-nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+            <stop offset="0%" stop-color="#b963ec"/>
+            <stop offset="60%" stop-color="#8a5cff"/>
+            <stop offset="100%" stop-color="#e040c8"/>
+          </linearGradient>
+          <linearGradient id="mc-nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="82%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#b963ec"/>
+          </linearGradient>
+        </defs>
+        <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#mc-nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#mc-nav-egrad)">Ē</tspan></text>
+        <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#mc-nav-purpink)" stroke-width="1.5" opacity="0.6"/>
+        <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+      </svg>
+    </a>
 
     <nav class="mc-nav">
       <a class="mc-nav-item mc-nav-item--active" href="#executive-overview" aria-current="page">
