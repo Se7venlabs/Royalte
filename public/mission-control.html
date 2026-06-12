@@ -1097,7 +1097,7 @@ body {
 .mc-globe {
   position: relative;
   width: 100%;
-  height: 180px;
+  height: 220px;                        /* +22% from prior 180px so the full map fits with comfortable padding */
   border-radius: var(--mc-r-2);
   overflow: hidden;
   background: #050b18;
@@ -1108,15 +1108,10 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 45%;          /* focus on the equatorial band of the map */
+  object-fit: contain;                  /* 100% of the world map visible; letterbox provides the breathing room */
+  object-position: center center;
   pointer-events: none;
   display: block;
-  /* Soft top + bottom fade so the map dissolves into the card
-     background without a visible horizontal seam. Board target:
-     "softly blend into the card background without hard edges." */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
-          mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
 }
 
 .mc-foot-footer {
