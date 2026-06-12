@@ -1195,15 +1195,32 @@ body {
     url('/img/royalte-never-sleeps.png') center / cover no-repeat,
     var(--mc-surface-1);
   background-blend-mode: normal, normal, normal;
+  /* one-col grid so text fills the card and the planet overlay floats
+     absolute in the lower-right without contending for a grid cell */
+  grid-template-columns: 1fr;
 }
 
+/* Rotating bronze planet overlay — extremely slow drift, one rotation
+   per ~105 s (Board target 90-120 s). Linear timing so there is no
+   accel/decel cue. The cropped planet PNG sits on top of the static
+   one in the background; both are at the same screen location, so
+   the user sees the surface details quietly turning. */
 .mc-status-horizon-art {
-  width: 80px;
-  height: 56px;
-  position: relative;
+  position: absolute;
+  right: -50px;
+  bottom: -50px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: url('/img/royalte-planet.png') center / cover no-repeat;
+  animation: mc-planet-drift 105s linear infinite;
+  pointer-events: none;
+  z-index: 1;
 }
-/* Old CSS-drawn faux planet retired — the artwork now carries the
-   real planet/sphere imagery. */
+
+@keyframes mc-planet-drift {
+  to { transform: rotate(360deg); }
+}
 
 /* ─── right rail panels ─────────────────────────────────────────── */
 
