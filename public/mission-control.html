@@ -547,32 +547,8 @@ body {
   isolation: isolate;
 }
 
-/* Text content sits above the radar-pulse layer */
+/* Text content sits above any decorative pseudo layer */
 .mc-card--monitoring > * { position: relative; z-index: 1; }
-
-/* Subtle radar pulse — soft white ring emanating from the dish every
-   ~7 s. Soft, faint, military-station cadence; never showy. */
-.mc-card--monitoring::after {
-  content: "";
-  position: absolute;
-  right: 30%;
-  top: 40%;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.85);
-  background: transparent;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0;
-  animation: mc-mon-radar 7.2s ease-out infinite;
-}
-
-@keyframes mc-mon-radar {
-  0%   { transform: scale(1);  opacity: 0;    border-width: 1.5px; }
-  6%   { opacity: 0.55; }
-  100% { transform: scale(38); opacity: 0;    border-width: 0.4px; }
-}
 .mc-card--footprint  { --card-glow: rgba(56, 189, 248, 0.06); }
 
 .mc-card-head {
@@ -1047,19 +1023,35 @@ body {
   border: 1px solid rgba(56, 189, 248, 0.22);
   position: relative;
 }
-.mc-mon-mark::after {
-  content: "";
+.mc-mon-mark > svg:first-of-type { width: 36px; height: 36px; }
+
+/* Quiet intelligence — a single bright arc segment travels around the
+   ring at the speed of a slow heartbeat. One full revolution per 3.6 s
+   (Board target 3-4 s). Linear so there is no accel/decel cue. The
+   stroke-linecap: round + drop-shadow glow make the segment fade
+   naturally back into the existing ring at its leading and trailing
+   ends. No flash, no pulse, no sweep — just a soft signal moving. */
+.mc-mon-arc-svg {
   position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px solid rgba(56, 189, 248, 0.20);
-  animation: mc-pulse-ring 3s ease-out infinite;
+  inset: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  animation: mc-mon-arc-travel 3.6s linear infinite;
 }
-@keyframes mc-pulse-ring {
-  0%   { transform: scale(1);    opacity: 0.6; }
-  100% { transform: scale(1.18); opacity: 0;   }
+.mc-mon-arc {
+  stroke: rgba(125, 211, 252, 0.95);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  /* visible arc ≈ 38 px out of 238 px circumference ≈ 60° wedge */
+  stroke-dasharray: 38 200;
+  filter: drop-shadow(0 0 6px rgba(125, 211, 252, 0.55));
 }
-.mc-mon-mark svg { width: 36px; height: 36px; }
+
+@keyframes mc-mon-arc-travel {
+  to { transform: rotate(360deg); }
+}
 
 .mc-mon-value {
   font-size: 26px;
@@ -1981,13 +1973,13 @@ body {
       <!-- Monitoring Intelligence™ -->
       <article class="mc-card mc-card--monitoring" id="monitoring-intelligence" aria-label="Monitoring Intelligence">
         <div class="mc-card-head">
-          <div class="mc-card-mark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7-3 2v7H6v-7z"/><path d="M9 18v-5h6v5"/></svg>
-          </div>
           <div class="mc-card-title">MONITORING INTELLIGENCE™</div>
         </div>
         <div class="mc-mon-body">
-          <div class="mc-mon-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5"/><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 12a10 10 0 0 1 20 0"/></svg></div>
+          <div class="mc-mon-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5"/><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 12a10 10 0 0 1 20 0"/></svg>
+            <svg class="mc-mon-arc-svg" viewBox="0 0 80 80" aria-hidden="true"><circle class="mc-mon-arc" cx="40" cy="40" r="38" fill="none"/></svg>
+          </div>
           <div>
             <div class="mc-mon-value">100%</div>
             <div class="mc-mon-cap">Monitoring Uptime<br>Last 30 Days</div>
