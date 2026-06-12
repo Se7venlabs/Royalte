@@ -536,22 +536,22 @@ body {
 .mc-card--health     { --card-glow: rgba(45, 212, 191, 0.08); }
 .mc-card--identity   { --card-glow: rgba(56, 189, 248, 0.07); }
 .mc-card--publishing {
-  --card-glow: rgba(199, 133, 255, 0.075);
+  --card-glow: rgba(228, 168, 255, 0.075);
   border-radius: 20px;
-  border-color: rgba(91, 46, 255, 0.11);
+  border-color: rgba(183, 116, 255, 0.13);
   box-shadow:
-    0 0 32px rgba(199, 133, 255, 0.04),
-    inset 0 0 32px rgba(91, 46, 255, 0.03);
+    0 0 32px rgba(228, 168, 255, 0.04),
+    inset 0 0 32px rgba(183, 116, 255, 0.035);
   animation: mc-pub-breath 7.5s ease-in-out infinite;
 }
 
 @keyframes mc-pub-breath {
   0%, 100% { box-shadow:
-    0 0 30px rgba(199, 133, 255, 0.038),
-    inset 0 0 30px rgba(91, 46, 255, 0.022); }
+    0 0 30px rgba(228, 168, 255, 0.038),
+    inset 0 0 30px rgba(183, 116, 255, 0.025); }
   50%      { box-shadow:
-    0 0 46px rgba(199, 133, 255, 0.075),
-    inset 0 0 38px rgba(91, 46, 255, 0.045); }
+    0 0 46px rgba(228, 168, 255, 0.075),
+    inset 0 0 38px rgba(183, 116, 255, 0.050); }
 }
 .mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
 .mc-card--revenue    { --card-glow: rgba(251, 146, 60, 0.07); }
@@ -882,23 +882,23 @@ body {
 .mc-card--publishing .mc-ring { width: 96px; height: 96px; }
 
 .mc-pub-ring .mc-ring-track {
-  stroke: rgba(181, 108, 255, 0.11);
+  stroke: rgba(216, 140, 255, 0.11);
   stroke-width: 6.5;
 }
 .mc-pub-ring .mc-ring-progress {
-  stroke: #B56CFF;                          /* primary purple — matches numbers */
+  stroke: #C86BFF;                          /* orchid primary — matches numbers */
   stroke-width: 6.5;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 16px rgba(199, 133, 255, 0.40));
+  filter: drop-shadow(0 0 16px rgba(228, 168, 255, 0.40));
   animation: mc-pub-ring-pulse 6.4s ease-in-out infinite;
 }
 
 @keyframes mc-pub-ring-pulse {
-  0%, 100% { opacity: 0.90; filter: drop-shadow(0 0 14px rgba(199, 133, 255, 0.30)); }
-  50%      { opacity: 1;    filter: drop-shadow(0 0 22px rgba(199, 133, 255, 0.46)); }
+  0%, 100% { opacity: 0.90; filter: drop-shadow(0 0 14px rgba(228, 168, 255, 0.30)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 22px rgba(228, 168, 255, 0.46)); }
 }
 
-.mc-pub-ring .mc-ring-icon { color: #C785FF; filter: drop-shadow(0 0 14px rgba(199, 133, 255, 0.38)); }
+.mc-pub-ring .mc-ring-icon { color: #D88CFF; filter: drop-shadow(0 0 14px rgba(228, 168, 255, 0.38)); }
 .mc-pub-ring .mc-ring-icon svg { width: 32px; height: 32px; }
 
 .mc-pub-stats {
@@ -914,8 +914,8 @@ body {
 .mc-pub-stat-val {
   font-size: 22px;
   font-weight: 700;
-  color: #B56CFF;                           /* matches ring primary exactly */
-  text-shadow: 0 0 14px rgba(199, 133, 255, 0.22);
+  color: #C86BFF;                           /* orchid primary — matches ring exactly */
+  text-shadow: 0 0 14px rgba(228, 168, 255, 0.22);
   letter-spacing: 0.005em;
   line-height: 1.1;
   min-width: 46px;
