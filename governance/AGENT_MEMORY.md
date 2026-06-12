@@ -29,7 +29,7 @@ Prior versions are **not** preserved as separate files; their substance lives in
 | | |
 |---|---|
 | Most recently locked phase | **Phase 8 — Royaltē Executive Brief Engine™** |
-| Locked at | (set on merge) |
+| Locked at | `8f00014` |
 | Tag | — |
 | Effective | 2026-06-12 |
 | Next anticipated phase | per future Board directives (no brief authorised yet) |
@@ -102,11 +102,13 @@ Royaltē verifies intelligence; Royaltē does not estimate intelligence. Every n
 | Phase 6.5 — Golden Fixture Library | `tests/fixtures/*` + `tests/golden-fixture-test.mjs` | `52b1750` |
 | Phase 7 — Health Engine | `api/_lib/health-engine.js` + `api/schema/health.js` | `ec57481` |
 | Phase 7.5 — Intellectual Property Vault™ | `/ip/` (24 markdown files) | `38ec3be` |
-| Phase 8 — Executive Brief Engine | `api/_lib/executive-brief-engine.js` + `api/schema/executive-brief.js` | (set on merge) |
+| Phase 8 — Executive Brief Engine | `api/_lib/executive-brief-engine.js` + `api/schema/executive-brief.js` | `8f00014` |
 
 Test suites (13, all deterministic) live under `tests/`. Pipeline regression is enforced by GitHub Actions on every PR.
 
 **Phase 8 input-shape contract.** The Executive Brief Engine reads `strengths/risks/opportunities/recommendations/observations` arrays defensively off the input HealthReport. Phase 7's HealthReport carries only the *counts*; callers pass an *enriched* HealthReport bundled with the upstream Phase 6 arrays (`{...healthReport, strengths, risks, opportunities, recommendations, observations}`). When arrays are absent, top-N sections fall through to empty and the engine still produces a valid brief from the HealthReport scalar fields. The engine NEVER invents an entry not present in the upstream arrays.
+
+**Board ruling 2026-06-12 (PR #141 ratification):** the enriched-HealthReport contract is **accepted as an interim architectural solution** and shall remain documented until superseded by a future **Canonical Runtime Object™** phase. Treat any brief that touches the Phase 8 input shape as constrained by this ruling — preserve the contract until Canonical Runtime Object™ is briefed.
 
 **Phase 7.5 / IP Vault location.** The Vault is the authoritative internal corporate record of every Se7ven Labs LLC intellectual-property claim — trademarks, patents, copyrights, trade secrets, inventions, brand, domains, licensing, valuation, acquisition data room. It is permanent across product lifecycles and corporate evolution (Board ratification 2026-06-12). When a future brief involves IP, the Vault is the primary reference and the place updates land. Five files inside the Vault are append-only (`FIRST_USE_LOG.md`, `PATENTS.md`, `INVENTION_LOG.md`, `FOUNDER_NOTES.md`, `ARCHITECTURE_DECISIONS.md`). Two are confidential (`TRADE_SECRETS.md`, `VALUATION.md`).
 
