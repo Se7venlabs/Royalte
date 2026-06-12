@@ -534,7 +534,7 @@ body {
 }
 
 .mc-card--health     { --card-glow: rgba(45, 212, 191, 0.08); }
-.mc-card--identity   { --card-glow: rgba(45, 212, 191, 0.07); }
+.mc-card--identity   { --card-glow: rgba(56, 189, 248, 0.07); }
 .mc-card--publishing { --card-glow: rgba(168, 85, 247, 0.07); }
 .mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
 .mc-card--revenue    { --card-glow: rgba(251, 146, 60, 0.07); }
@@ -558,7 +558,7 @@ body {
 }
 
 .mc-card--health     .mc-card-mark { color: var(--mc-green);  background: var(--mc-green-soft);  border-color: rgba(45, 212, 191, 0.22); }
-.mc-card--identity   .mc-card-mark { color: var(--mc-green);  background: var(--mc-green-soft);  border-color: rgba(45, 212, 191, 0.22); }
+.mc-card--identity   .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
 .mc-card--publishing .mc-card-mark { color: var(--mc-purple); background: var(--mc-purple-soft); border-color: var(--mc-border-warm); }
 .mc-card--catalog    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
 .mc-card--revenue    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
@@ -658,6 +658,40 @@ body {
   filter: drop-shadow(0 0 4px var(--mc-green-glow));
 }
 
+/* Health card — heartbeat visualization (Board-approved original) */
+.mc-card--health .mc-ring { width: 96px; height: 96px; }
+.mc-card--health .mc-health-body { grid-template-columns: 100px 1fr; }
+.mc-card--health .mc-ring-icon svg {
+  width: 34px;
+  height: 34px;
+  animation: mc-heartbeat 1.35s ease-in-out infinite;
+  transform-origin: 50% 55%;
+  filter: drop-shadow(0 0 8px var(--mc-green-glow));
+}
+
+@keyframes mc-heartbeat {
+  /* lub-dub-rest pattern with natural variation */
+  0%   { transform: scale(1);     filter: drop-shadow(0 0 6px  var(--mc-green-glow)); }
+  6%   { transform: scale(1.16);  filter: drop-shadow(0 0 16px var(--mc-green-glow)); }
+  12%  { transform: scale(0.98);  filter: drop-shadow(0 0 5px  var(--mc-green-glow)); }
+  20%  { transform: scale(1.08);  filter: drop-shadow(0 0 11px var(--mc-green-glow)); }
+  28%  { transform: scale(1);     filter: drop-shadow(0 0 5px  var(--mc-green-glow)); }
+  100% { transform: scale(1);     filter: drop-shadow(0 0 5px  var(--mc-green-glow)); }
+}
+
+.mc-heart-rings circle {
+  fill: none;
+  stroke: rgba(45, 212, 191, 0.20);
+}
+.mc-heart-rings .ring-outer { animation: mc-heart-ring-fade 4.2s ease-in-out infinite;        }
+.mc-heart-rings .ring-mid   { animation: mc-heart-ring-fade 4.2s ease-in-out 0.6s infinite;   }
+.mc-heart-rings .ring-inner { animation: mc-heart-ring-fade 4.2s ease-in-out 1.2s infinite;   }
+
+@keyframes mc-heart-ring-fade {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.95; }
+}
+
 /* ─── identity card ─────────────────────────────────────────────── */
 
 .mc-source-list {
@@ -702,8 +736,105 @@ body {
   text-transform: capitalize;
 }
 .mc-pill--claimed   { background: rgba(45, 212, 191, 0.14); color: var(--mc-green); }
+.mc-pill--verified  { background: rgba(45, 212, 191, 0.14); color: var(--mc-green); }
 .mc-pill--unclaimed { background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
+.mc-pill--pending   { background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
 .mc-pill--missing   { background: rgba(244, 63, 94, 0.12);  color: #f97373; }
+
+/* Identity card — fingerprint scanner visualization (Board-approved original) */
+.mc-identity-body {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+  gap: var(--mc-s-4);
+}
+
+.mc-fp-scope {
+  position: relative;
+  width: 96px;
+  height: 96px;
+}
+
+.mc-fp-scope svg { width: 100%; height: 100%; }
+
+.mc-fp-ring-track {
+  fill: none;
+  stroke: rgba(56, 189, 248, 0.14);
+  stroke-width: 3;
+}
+
+.mc-fp-ring {
+  fill: none;
+  stroke: var(--mc-blue);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 80 220;
+  transform-origin: 48px 48px;
+  animation: mc-fp-scope-spin 6.5s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.45));
+}
+
+@keyframes mc-fp-scope-spin {
+  to { transform: rotate(360deg); }
+}
+
+.mc-fp-icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--mc-blue);
+}
+.mc-fp-icon svg {
+  width: 36px;
+  height: 36px;
+  animation: mc-fp-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes mc-fp-pulse {
+  0%, 100% { opacity: 0.78; filter: drop-shadow(0 0 6px  rgba(56, 189, 248, 0.30)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.55)); }
+}
+
+.mc-identity-header { display: flex; flex-direction: column; gap: 4px; }
+.mc-identity-value {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--mc-text);
+}
+.mc-identity-value small {
+  font-size: 13px;
+  color: var(--mc-text-muted);
+  font-weight: 500;
+}
+.mc-identity-label {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  margin-top: 2px;
+}
+
+.mc-identity-checks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+  border-top: 1px solid var(--mc-divider);
+  padding-top: var(--mc-s-3);
+  margin-top: var(--mc-s-1);
+}
+
+.mc-identity-check {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: var(--mc-s-3);
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--mc-text-soft);
+}
 
 /* ─── publishing card ───────────────────────────────────────────── */
 
@@ -1562,8 +1693,13 @@ body {
         <div class="mc-health-body">
           <div class="mc-ring" aria-hidden="true">
             <svg viewBox="0 0 80 80">
-              <circle class="mc-ring-track"    cx="40" cy="40" r="34" fill="none" stroke-width="6"/>
-              <circle class="mc-ring-progress" cx="40" cy="40" r="34" fill="none" stroke-width="6"
+              <g class="mc-heart-rings">
+                <circle class="ring-outer" cx="40" cy="40" r="37" stroke-width="0.8"/>
+                <circle class="ring-mid"   cx="40" cy="40" r="30" stroke-width="0.8"/>
+                <circle class="ring-inner" cx="40" cy="40" r="22" stroke-width="0.8"/>
+              </g>
+              <circle class="mc-ring-track"    cx="40" cy="40" r="34" fill="none" stroke-width="2.4"/>
+              <circle class="mc-ring-progress" cx="40" cy="40" r="34" fill="none" stroke-width="2.4"
                 stroke-dasharray="167 214"/>
             </svg>
             <div class="mc-ring-icon">
@@ -1572,10 +1708,10 @@ body {
           </div>
           <div class="mc-metric">
             <div class="mc-metric-value">78 <small>/100</small></div>
-            <div class="mc-metric-status">Backend Improving</div>
+            <div class="mc-metric-status">Health Improving</div>
             <div class="mc-metric-delta">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7-7 7 7"/></svg>
-              Since yesterday
+              4 since yesterday
             </div>
           </div>
         </div>
@@ -1589,33 +1725,49 @@ body {
       <article class="mc-card mc-card--identity" id="identity-intelligence" aria-label="Identity Intelligence">
         <div class="mc-card-head">
           <div class="mc-card-mark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .4 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.4 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.4l-.1.1A2 2 0 1 1 4.1 17l.1-.1a1.7 1.7 0 0 0 .4-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1.1 1.7 1.7 0 0 0-.4-1.9l-.1-.1A2 2 0 1 1 7 4.1l.1.1a1.7 1.7 0 0 0 1.9.4H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.4l.1-.1A2 2 0 1 1 19.9 7l-.1.1a1.7 1.7 0 0 0-.4 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
           </div>
           <div class="mc-card-title">IDENTITY INTELLIGENCE™</div>
         </div>
-        <div class="mc-source-list">
-          <div class="mc-source">
-            <div class="mc-source-mark mc-source-mark--apple"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.7 17a8 8 0 0 1-1.7 2.5c-1 1-2 1.5-3 1.5-1 0-1.5-.4-2.5-.4-1 0-1.5.4-2.5.4-1 0-2-.5-3-1.5C5 17.5 4 14 4 11c0-3 1.7-5 4-5 1.2 0 2 .5 2.5.5.6 0 1.5-.6 3-.6 1 0 2.6.4 3.5 1.6-3 1.7-2.7 5.7 1.7 6.5-.5 2-1 3-1 3zM14.7 4c.4-1 .3-2.2-.2-3-1 0-2.3.6-3 1.6-.4.9-.4 2 .2 3 1.2 0 2.4-.6 3-1.6z"/></svg></div>
-            <div class="mc-source-name">Apple Music for Artists</div>
-            <span class="mc-pill mc-pill--claimed">Claimed</span>
+        <div class="mc-identity-body">
+          <div class="mc-fp-scope" aria-hidden="true">
+            <svg viewBox="0 0 96 96">
+              <circle class="mc-fp-ring-track" cx="48" cy="48" r="42"/>
+              <circle class="mc-fp-ring"       cx="48" cy="48" r="42"/>
+            </svg>
+            <div class="mc-fp-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12a7 7 0 0 1 14 0"/>
+                <path d="M5 16c0-3.5 3-6 7-6s7 2.5 7 6"/>
+                <path d="M8 19c0-2 2-3 4-3s4 1 4 3"/>
+                <path d="M12 13v8"/>
+                <path d="M9 21h6"/>
+              </svg>
+            </div>
           </div>
-          <div class="mc-source">
-            <div class="mc-source-mark mc-source-mark--spotify"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path fill="#1db954" d="M8 14c2-1 5-1 8 .5M7 11c3-1 7-1 10 1M7 8c4-1 9-1 12 1.5" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
-            <div class="mc-source-name">Spotify for Artists</div>
-            <span class="mc-pill mc-pill--claimed">Claimed</span>
-          </div>
-          <div class="mc-source">
-            <div class="mc-source-mark mc-source-mark--youtube"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M22 8.5a2.5 2.5 0 0 0-1.8-1.8C18.5 6.3 12 6.3 12 6.3s-6.5 0-8.2.4A2.5 2.5 0 0 0 2 8.5C1.6 10.2 1.6 12 1.6 12s0 1.8.4 3.5a2.5 2.5 0 0 0 1.8 1.8c1.7.4 8.2.4 8.2.4s6.5 0 8.2-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.7.4-3.5.4-3.5s0-1.8-.4-3.5z"/><polygon points="10,9 16,12 10,15" fill="#fff"/></svg></div>
-            <div class="mc-source-name">YouTube Official Artist Channel</div>
-            <span class="mc-pill mc-pill--missing">Not Linked</span>
-          </div>
-          <div class="mc-source">
-            <div class="mc-source-mark mc-source-mark--amazon"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17c3 3 12 4 18 0M5 19l1 2m12-2l-1 2M8 6h8M9 6v6h6V6"/></svg></div>
-            <div class="mc-source-name">Amazon Music for Artists</div>
-            <span class="mc-pill mc-pill--unclaimed">Unclaimed</span>
+          <div class="mc-identity-header">
+            <div class="mc-identity-value">72<small>%</small></div>
+            <div class="mc-identity-label">Identity Confidence</div>
           </div>
         </div>
-        <div class="mc-card-foot">Keep your identities claimed<br>so you never miss out.</div>
+        <div class="mc-identity-checks">
+          <div class="mc-identity-check">
+            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
+            Apple Music
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </div>
+          <div class="mc-identity-check">
+            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
+            Spotify
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </div>
+          <div class="mc-identity-check">
+            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
+            2 External Identities
+            <span class="mc-pill mc-pill--pending">Pending</span>
+          </div>
+        </div>
+        <div class="mc-card-foot">Royaltē continues to confirm<br>your official artist identities.</div>
       </article>
 
       <!-- Publishing Intelligence™ -->
