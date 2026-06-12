@@ -1100,7 +1100,12 @@ body {
   height: 180px;
   border-radius: var(--mc-r-2);
   overflow: hidden;
-  background: radial-gradient(420px 220px at 50% 80%, rgba(56, 189, 248, 0.10), transparent 65%);
+  background:
+    radial-gradient(640px 320px at 50% 50%,   rgba(56, 189, 248, 0.20), transparent 62%),
+    radial-gradient(820px 260px at 50% 95%,   rgba(56, 189, 248, 0.10), transparent 70%),
+    radial-gradient(380px 280px at 0% 0%,     rgba(0, 0, 0, 0.55), transparent 70%),
+    radial-gradient(380px 280px at 100% 100%, rgba(0, 0, 0, 0.55), transparent 70%),
+    #050b18;
 }
 
 .mc-globe svg { width: 100%; height: 100%; }
@@ -1952,43 +1957,88 @@ body {
         <div class="mc-globe" aria-hidden="true">
           <svg viewBox="0 0 800 320" preserveAspectRatio="xMidYMid meet">
             <defs>
-              <pattern id="mc-dot-grid" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1" fill="rgba(56,189,248,0.18)"/>
+              <pattern id="mc-dot-grid" x="0" y="0" width="13" height="13" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1.15" fill="rgba(96,205,255,0.42)"/>
               </pattern>
+              <radialGradient id="mc-land-bloom" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"   stop-color="#38bdf8" stop-opacity="0.32"/>
+                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="mc-halo-soft" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"   stop-color="#7dd3fc" stop-opacity="0.50"/>
+                <stop offset="100%" stop-color="#7dd3fc" stop-opacity="0"/>
+              </radialGradient>
             </defs>
-            <!-- north america -->
-            <path d="M80 90 L160 80 L220 110 L240 150 L210 180 L170 200 L130 195 L100 170 L80 130 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
-            <!-- south america -->
-            <path d="M200 200 L240 200 L260 240 L250 280 L220 295 L200 270 L195 230 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
-            <!-- europe -->
-            <path d="M360 90 L440 75 L470 100 L460 140 L420 150 L370 130 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
-            <!-- africa -->
-            <path d="M380 150 L450 145 L470 200 L450 250 L410 270 L380 230 L370 190 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
-            <!-- asia -->
-            <path d="M470 90 L600 75 L680 110 L700 150 L650 175 L580 165 L510 150 L470 130 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
-            <!-- india/se asia -->
-            <path d="M540 165 L610 175 L640 210 L600 235 L560 220 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
-            <!-- oceania -->
-            <path d="M650 230 L720 220 L745 250 L720 280 L675 275 L655 250 Z" fill="url(#mc-dot-grid)" opacity="0.7"/>
-            <!-- presence dots -->
-            <g fill="#38bdf8">
-              <circle cx="130" cy="120" r="3"/><circle cx="170" cy="135" r="3.5"/><circle cx="200" cy="160" r="3"/>
-              <circle cx="225" cy="230" r="3.5"/><circle cx="220" cy="260" r="3"/>
-              <circle cx="395" cy="105" r="4"/><circle cx="425" cy="125" r="3"/><circle cx="450" cy="110" r="3.5"/>
-              <circle cx="410" cy="190" r="3"/><circle cx="430" cy="230" r="3"/>
-              <circle cx="520" cy="115" r="3"/><circle cx="585" cy="125" r="4"/><circle cx="620" cy="105" r="3"/>
-              <circle cx="650" cy="140" r="3.5"/><circle cx="575" cy="195" r="3"/>
-              <circle cx="700" cy="250" r="3"/><circle cx="690" cy="265" r="3"/>
-              <circle cx="148" cy="100" r="2.5" opacity="0.7"/>
-              <circle cx="250" cy="170" r="2.5" opacity="0.7"/>
-              <circle cx="375" cy="115" r="2.5" opacity="0.7"/>
-              <circle cx="600" cy="195" r="2.5" opacity="0.7"/>
+
+            <!-- ambient blue bloom underneath each continent — softly floating in the darkness -->
+            <g class="mc-globe-land-bloom">
+              <ellipse cx="155" cy="140" rx="110" ry="60" fill="url(#mc-land-bloom)"/>
+              <ellipse cx="225" cy="245" rx="50"  ry="55" fill="url(#mc-land-bloom)"/>
+              <ellipse cx="415" cy="115" rx="65"  ry="42" fill="url(#mc-land-bloom)"/>
+              <ellipse cx="420" cy="210" rx="55"  ry="65" fill="url(#mc-land-bloom)"/>
+              <ellipse cx="580" cy="120" rx="120" ry="55" fill="url(#mc-land-bloom)"/>
+              <ellipse cx="595" cy="205" rx="55"  ry="42" fill="url(#mc-land-bloom)"/>
+              <ellipse cx="700" cy="250" rx="55"  ry="38" fill="url(#mc-land-bloom)"/>
             </g>
-            <!-- soft glow markers -->
-            <g fill="rgba(56,189,248,0.22)">
-              <circle cx="130" cy="120" r="9"/><circle cx="395" cy="105" r="10"/>
-              <circle cx="585" cy="125" r="10"/><circle cx="225" cy="230" r="8"/>
+
+            <!-- continents (brighter dot grid for definition) -->
+            <path d="M80 90 L160 80 L220 110 L240 150 L210 180 L170 200 L130 195 L100 170 L80 130 Z" fill="url(#mc-dot-grid)" opacity="0.92"/>
+            <path d="M200 200 L240 200 L260 240 L250 280 L220 295 L200 270 L195 230 Z" fill="url(#mc-dot-grid)" opacity="0.92"/>
+            <path d="M360 90 L440 75 L470 100 L460 140 L420 150 L370 130 Z" fill="url(#mc-dot-grid)" opacity="0.92"/>
+            <path d="M380 150 L450 145 L470 200 L450 250 L410 270 L380 230 L370 190 Z" fill="url(#mc-dot-grid)" opacity="0.92"/>
+            <path d="M470 90 L600 75 L680 110 L700 150 L650 175 L580 165 L510 150 L470 130 Z" fill="url(#mc-dot-grid)" opacity="0.92"/>
+            <path d="M540 165 L610 175 L640 210 L600 235 L560 220 Z" fill="url(#mc-dot-grid)" opacity="0.92"/>
+            <path d="M650 230 L720 220 L745 250 L720 280 L675 275 L655 250 Z" fill="url(#mc-dot-grid)" opacity="0.92"/>
+
+            <!-- outer soft halo behind marquee activity points (radial-gradient circles) -->
+            <g class="mc-globe-halos-outer">
+              <circle cx="130" cy="120" r="22" fill="url(#mc-halo-soft)"/>
+              <circle cx="170" cy="135" r="20" fill="url(#mc-halo-soft)"/>
+              <circle cx="225" cy="230" r="22" fill="url(#mc-halo-soft)"/>
+              <circle cx="395" cy="105" r="24" fill="url(#mc-halo-soft)"/>
+              <circle cx="450" cy="110" r="22" fill="url(#mc-halo-soft)"/>
+              <circle cx="585" cy="125" r="24" fill="url(#mc-halo-soft)"/>
+              <circle cx="650" cy="140" r="22" fill="url(#mc-halo-soft)"/>
+              <circle cx="700" cy="250" r="20" fill="url(#mc-halo-soft)"/>
+            </g>
+
+            <!-- mid halo (inner glow band) -->
+            <g fill="rgba(56,189,248,0.36)">
+              <circle cx="130" cy="120" r="9"/>
+              <circle cx="170" cy="135" r="8"/>
+              <circle cx="225" cy="230" r="9"/>
+              <circle cx="395" cy="105" r="10"/>
+              <circle cx="450" cy="110" r="9"/>
+              <circle cx="585" cy="125" r="10"/>
+              <circle cx="650" cy="140" r="9"/>
               <circle cx="700" cy="250" r="8"/>
+            </g>
+
+            <!-- presence dots (slightly larger, brighter) -->
+            <g fill="#38bdf8">
+              <circle cx="130" cy="120" r="3.4"/><circle cx="170" cy="135" r="3.8"/><circle cx="200" cy="160" r="3.2"/>
+              <circle cx="225" cy="230" r="3.8"/><circle cx="220" cy="260" r="3"/>
+              <circle cx="395" cy="105" r="4.2"/><circle cx="425" cy="125" r="3.2"/><circle cx="450" cy="110" r="3.8"/>
+              <circle cx="410" cy="190" r="3"/><circle cx="430" cy="230" r="3"/>
+              <circle cx="520" cy="115" r="3.2"/><circle cx="585" cy="125" r="4.2"/><circle cx="620" cy="105" r="3.2"/>
+              <circle cx="650" cy="140" r="3.8"/><circle cx="575" cy="195" r="3"/>
+              <circle cx="700" cy="250" r="3.4"/><circle cx="690" cy="265" r="3"/>
+              <circle cx="148" cy="100" r="2.6" opacity="0.78"/>
+              <circle cx="250" cy="170" r="2.6" opacity="0.78"/>
+              <circle cx="375" cy="115" r="2.6" opacity="0.78"/>
+              <circle cx="600" cy="195" r="2.6" opacity="0.78"/>
+            </g>
+
+            <!-- OLED-bright inner cores on marquee activity points -->
+            <g fill="#e6f6ff">
+              <circle cx="130" cy="120" r="1.4"/>
+              <circle cx="170" cy="135" r="1.6"/>
+              <circle cx="225" cy="230" r="1.6"/>
+              <circle cx="395" cy="105" r="1.8"/>
+              <circle cx="450" cy="110" r="1.6"/>
+              <circle cx="585" cy="125" r="1.8"/>
+              <circle cx="650" cy="140" r="1.6"/>
+              <circle cx="700" cy="250" r="1.4"/>
             </g>
           </svg>
         </div>
