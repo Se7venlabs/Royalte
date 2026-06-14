@@ -508,19 +508,16 @@ body {
 .mc-card--ai {
   --card-glow: rgba(168, 85, 247, 0.10);
   border-color: rgba(168, 85, 247, 0.15);
-  /* Cinematic background v4.0 (Executive Composition Refinement).
-     Sizing changed from `cover` to `85% auto` so the bulb scales
-     down ~15% and the concentric intelligence rings fit fully
-     within the card's vertical bounds (cover overflowed by 80px
-     at the top, clipping the upper rings). Anchored `left bottom`
-     so the bulb shifts slightly further left and the purple wave
-     sits flush with the card's bottom edge. The remaining ~15% of
-     card width on the right is filled by the cosmic fallback,
-     colour-matched (#010012, sampled from the supplied PNG's
-     far-right cosmic strip averaging RGB(1, 0, 18)) so the
-     transition reads as a seamless continuation of the artwork
-     rather than a visible seam. */
-  background: url('/img/royalte-ai-hero.png') left bottom / 85% auto no-repeat, #010012;
+  /* Board-supplied cinematic hero (Background Replacement Pass v1.0).
+     Single full-bleed image — the new artwork replaces ALL prior
+     background composition logic. No separate bulb / wave layers,
+     no multi-image stack, no radial-gradient overlays, no positioning
+     band-aids. Cosmic fallback #04040E matches the PNG's deep cosmic
+     so any sliver beyond cover-crop is a seamless continuation.
+     Anchored `center bottom` so the purple intelligence wave at the
+     bottom of the source is never clipped; the small amount of
+     cosmic clipped at the top is empty space above the bulb. */
+  background: url('/img/royalte-ai-hero.png') center bottom / cover no-repeat, #04040E;
   isolation: isolate;
 }
 
@@ -1498,73 +1495,15 @@ body {
   text-shadow: 0 1px 8px rgba(7, 5, 18, 0.75);
 }
 
-/* HUD overlay container (Board Executive Composition v4.0) —
-   vertically stacks hero (top) + activity (bottom) on the right
-   side of the card, with the bulb taking the left zone via the
-   background image. justify-content: space-between pins hero to
-   the upper-right (the CTA quadrant reserved by Board) and pushes
-   activity to the lower-right; align-items: flex-end right-aligns
-   both blocks so they share a clean right edge. Padding-left 35%
-   clears the bulb halo on the left at the new background sizing
-   (85% auto) so the hero text never overlaps the focal artwork. */
-.mc-ai-hud-overlay {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: var(--mc-s-5);
-  padding: var(--mc-s-3) 0 var(--mc-s-3) 35%;
-}
-
-/* Hero messaging — pure HUD typography, no container. Stacks
-   overlabel + headline + body with consistent vertical rhythm.
-   max-width caps the block so the headline wraps naturally to
-   two lines per Board v1.0 (a 1-line headline at the full hud
-   width feels under-anchored next to the activity stack below). */
-.mc-ai-hero {
-  width: 100%;
-  max-width: 380px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-2);
-}
-.mc-ai-hero-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--mc-purple);
-  margin: 0;
-  text-shadow: 0 1px 8px rgba(7, 5, 18, 0.85);
-}
-.mc-ai-hero-headline {
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.005em;
-  color: var(--mc-text);
-  margin: 0;
-  text-shadow: 0 1px 12px rgba(7, 5, 18, 0.9),
-               0 0 18px rgba(7, 5, 18, 0.55);
-}
-.mc-ai-hero-body {
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.7);    /* ~70% opacity per Board */
-  margin: 0;
-  text-shadow: 0 1px 8px rgba(7, 5, 18, 0.85);
-}
-
-/* AI Analysis Activity — pure HUD overlay. No panel, no container,
-   no border, no glass, no shadow, no blur. Just typography floating
-   directly over the cinematic backdrop. Sits as the bottom child of
-   .mc-ai-hud-overlay (v4.0); max-width widened 240→320 now that the
-   activity has its own vertical row (no longer sharing a row with
-   the hero). */
+/* AI Analysis Activity — pure HUD overlay (Board HUD v1.0). No
+   panel, no container, no border, no glass, no shadow, no blur.
+   Just typography floating directly over the cinematic backdrop,
+   right-aligned via margin-left: auto and vertically centred via
+   margin-top/bottom: auto inside the card's flex-column layout. */
 .mc-ai-activity {
+  margin: auto 0 auto auto;
   width: 100%;
-  max-width: 320px;
+  max-width: 340px;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -2571,61 +2510,54 @@ body {
           </div>
         </div>
 
-        <!-- HUD overlay (Board Floating CTA v1.0): hero messaging
-             floats over the cinematic backdrop on the left of the
-             telemetry zone; AI Analysis Activity feed floats on
-             the right. No panels, no surfaces — pure typography. -->
-        <div class="mc-ai-hud-overlay">
-          <div class="mc-ai-hero">
-            <div class="mc-ai-hero-label">ROYALTĒ AI™</div>
-            <h2 class="mc-ai-hero-headline">Because What You Can't See Can Cost You.</h2>
-            <p class="mc-ai-hero-body">Your music earns money in more places than you think. Royaltē AI™ continuously monitors the business behind your music—helping protect your catalog and maximize what you're owed.</p>
-          </div>
-
-          <aside class="mc-ai-activity" aria-label="AI Analysis Activity">
-            <header class="mc-ai-activity-head">
-              <span>AI Analysis Activity</span>
-              <span class="mc-ai-activity-pulse">Live</span>
-            </header>
-            <ul class="mc-ai-activity-list">
-              <li>
-                <span>
-                  <span class="mc-ai-activity-item-title">Reviewing Publishing Infrastructure…</span>
-                  <span class="mc-ai-activity-item-sub">Checking rights data and publisher connections</span>
-                </span>
-                <span class="mc-ai-activity-time">00:02</span>
-              </li>
-              <li>
-                <span>
-                  <span class="mc-ai-activity-item-title">Verifying Artist Identities…</span>
-                  <span class="mc-ai-activity-item-sub">Cross-referencing artist and ownership records</span>
-                </span>
-                <span class="mc-ai-activity-time">00:18</span>
-              </li>
-              <li>
-                <span>
-                  <span class="mc-ai-activity-item-title">Scanning Metadata Consistency…</span>
-                  <span class="mc-ai-activity-item-sub">Checking ISRC, UPC, ISWC and release data</span>
-                </span>
-                <span class="mc-ai-activity-time">00:34</span>
-              </li>
-              <li>
-                <span>
-                  <span class="mc-ai-activity-item-title">Checking DSP Availability…</span>
-                  <span class="mc-ai-activity-item-sub">Monitoring global distribution and store presence</span>
-                </span>
-                <span class="mc-ai-activity-time">00:50</span>
-              </li>
-              <li class="is-resolved">
-                <span>
-                  <span class="mc-ai-activity-item-title">No New Issues Detected</span>
-                  <span class="mc-ai-activity-item-sub">All systems healthy</span>
-                </span>
-                <span class="mc-ai-activity-time">01:12</span>
-              </li>
-            </ul>
-          </aside>
-        </div>
+        <!-- HUD overlay (Board v1.0): AI Analysis Activity feed
+             floats directly over the cinematic backdrop. No panel,
+             no container, no border, no glass, no shadow. Headline
+             and supporting paragraph remain removed pending future
+             Executive Composition pass. -->
+        <aside class="mc-ai-activity" aria-label="AI Analysis Activity">
+          <header class="mc-ai-activity-head">
+            <span>AI Analysis Activity</span>
+            <span class="mc-ai-activity-pulse">Live</span>
+          </header>
+          <ul class="mc-ai-activity-list">
+            <li>
+              <span>
+                <span class="mc-ai-activity-item-title">Reviewing Publishing Infrastructure…</span>
+                <span class="mc-ai-activity-item-sub">Checking rights data and publisher connections</span>
+              </span>
+              <span class="mc-ai-activity-time">00:02</span>
+            </li>
+            <li>
+              <span>
+                <span class="mc-ai-activity-item-title">Verifying Artist Identities…</span>
+                <span class="mc-ai-activity-item-sub">Cross-referencing artist and ownership records</span>
+              </span>
+              <span class="mc-ai-activity-time">00:18</span>
+            </li>
+            <li>
+              <span>
+                <span class="mc-ai-activity-item-title">Scanning Metadata Consistency…</span>
+                <span class="mc-ai-activity-item-sub">Checking ISRC, UPC, ISWC and release data</span>
+              </span>
+              <span class="mc-ai-activity-time">00:34</span>
+            </li>
+            <li>
+              <span>
+                <span class="mc-ai-activity-item-title">Checking DSP Availability…</span>
+                <span class="mc-ai-activity-item-sub">Monitoring global distribution and store presence</span>
+              </span>
+              <span class="mc-ai-activity-time">00:50</span>
+            </li>
+            <li class="is-resolved">
+              <span>
+                <span class="mc-ai-activity-item-title">No New Issues Detected</span>
+                <span class="mc-ai-activity-item-sub">All systems healthy</span>
+              </span>
+              <span class="mc-ai-activity-time">01:12</span>
+            </li>
+          </ul>
+        </aside>
       </article>
 
     </div>
