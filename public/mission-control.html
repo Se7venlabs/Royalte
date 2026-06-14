@@ -508,24 +508,39 @@ body {
 .mc-card--ai {
   --card-glow: rgba(168, 85, 247, 0.10);
   border-color: rgba(168, 85, 247, 0.15);
-  /* Cinematic three-zone composition (Board v2.0). The earlier
-     unified royalte-ai-bg.png was a 1770×889 derivative of the
-     source artwork; its `auto 100%` sizing meant that whenever the
-     card aspect didn't match the source's 1.99 aspect the right
-     edge of the wave got clipped (52px slice on a 744-wide card).
-     Switched to two clean derivative layers so each element
-     occupies its own visual territory:
-       1) Wave  — bottom band, 100% card width, never clipped.
-       2) Bulb  — left zone, sized to 80% of card height, fully
-                  visible, slight 2% inset from the card edge.
-     Wave layer is listed first so the particle dots overlay the
-     bulb glow where the two regions intersect (cinematic depth).
-     FALLBACK — solid #04040E matches the cosmic-backdrop colour
-     painted into both derivative PNGs; any sliver of card surface
-     beyond the layers is a seamless continuation of the artwork. */
+  /* Cinematic intelligence landscape (Board v3.0). The module is one
+     continuous artwork — no zones, no rectangular composition slices.
+     Layer stack (top → bottom):
+       1) Right-half intelligence field — soft violet radial that
+          fills the cosmic void on the right + upper areas where the
+          cleaned bg PNG would otherwise read as flat cosmic. Sized
+          and positioned to avoid the bulb zone.
+       2) Bulb aura — soft violet halo extends the painted bulb's
+          glow slightly past its PNG edge so the bulb feels suspended
+          within a wider intelligence field.
+       3) royalte-ai-bg.png — cleaned derivative of the source
+          artwork carrying bulb + concentric halo rings + ambient
+          particle wave + cosmic backdrop. Text/UI regions removed
+          via tight feathered cosmic-fill (12px Gaussian); the
+          gradients above this layer paint the intelligence-field
+          glow over the erased regions so they read as continuous
+          cinematic landscape, not flat black zones.
+          Sized `100% auto` anchored bottom so the wave runs the
+          FULL card width without any side clipping. Top sliver
+          (~26px on a 744×400 card) is covered by the cosmic
+          fallback below.
+       4) Cosmic fallback #04040E — matches the bg PNG's cosmic
+          backdrop colour exactly; the top letterbox sliver is a
+          seamless extension of the artwork rather than a seam. */
   background:
-    url('/img/royalte-ai-wave.png') center bottom / 100% auto no-repeat,
-    url('/img/royalte-ai-bulb.png') 2% center / auto 80% no-repeat,
+    radial-gradient(ellipse 70% 80% at 65% 45%,
+      rgba(168, 85, 247, 0.12) 0%,
+      rgba(168, 85, 247, 0.04) 45%,
+      transparent 85%),
+    radial-gradient(ellipse 38% 55% at 22% 50%,
+      rgba(168, 85, 247, 0.08) 0%,
+      transparent 75%),
+    url('/img/royalte-ai-bg.png') center bottom / 100% auto no-repeat,
     #04040E;
   isolation: isolate;
 }
