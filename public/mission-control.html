@@ -1495,18 +1495,17 @@ body {
   text-shadow: 0 1px 8px rgba(7, 5, 18, 0.75);
 }
 
-/* AI Analysis Activity (Zone 3) — text on the unified card
-   background, no rectangular box (per the earlier directive that
-   killed the dark glass surface). A single hairline on the LEFT
-   edge integrates the panel into the cinematic composition —
-   subtle "this is the AI's column" signal without recreating the
-   dark rectangle the Board flagged previously. */
+/* AI Analysis Activity — pure HUD overlay (Board HUD v1.0). No
+   panel, no container, no border, no glass, no shadow, no blur.
+   Just typography floating directly over the cinematic backdrop,
+   right-aligned via margin-left: auto and vertically centred via
+   margin-top/bottom: auto inside the card's flex-column layout. */
 .mc-ai-activity {
-  padding: 0 0 0 var(--mc-s-4);
-  border-left: 1px solid rgba(168, 85, 247, 0.22);
-  border-right: 0;
-  border-top: 0;
-  border-bottom: 0;
+  margin: auto 0 auto auto;
+  width: 100%;
+  max-width: 340px;
+  padding: 0;
+  border: 0;
   border-radius: 0;
   background: none;
   backdrop-filter: none;
@@ -1573,19 +1572,22 @@ body {
   box-shadow: 0 0 6px rgba(168, 85, 247, 0.6);
 }
 .mc-ai-activity-list li.is-resolved::before {
-  background: var(--mc-green);
-  box-shadow: 0 0 6px rgba(45, 212, 191, 0.7);
+  background: var(--mc-blue);
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.7);
 }
+/* Item title — primary text per Board HUD palette: WHITE. Cyan
+   final-success colour switched from var(--mc-green) → var(--mc-blue)
+   per directive 'Final success state: Royaltē Cyan'. */
 .mc-ai-activity-item-title {
   display: block;
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--mc-purple);
+  color: var(--mc-text);
   line-height: 1.25;
   text-shadow: 0 1px 8px rgba(7, 5, 18, 0.9),
                0 0 14px rgba(7, 5, 18, 0.5);
 }
-.mc-ai-activity-list li.is-resolved .mc-ai-activity-item-title { color: var(--mc-green); }
+.mc-ai-activity-list li.is-resolved .mc-ai-activity-item-title { color: var(--mc-blue); }
 .mc-ai-activity-item-sub {
   display: block;
   margin-top: 2px;
@@ -1594,10 +1596,14 @@ body {
   line-height: 1.4;
   text-shadow: 0 1px 6px rgba(7, 5, 18, 0.85);
 }
+/* Timer — soft white per Board ('Timers: Soft white'). UI-only
+   placeholder telemetry per Board: timer values are NOT
+   payload-driven; they become looping animated counters in the
+   forthcoming Animation Pass. */
 .mc-ai-activity-time {
   font-size: 11px;
   letter-spacing: 0.06em;
-  color: var(--mc-text-muted);
+  color: rgba(255, 255, 255, 0.78);
   white-space: nowrap;
   padding-top: 1px;
   text-shadow: 0 1px 6px rgba(7, 5, 18, 0.85);
@@ -2504,11 +2510,54 @@ body {
           </div>
         </div>
 
-        <!-- Overlay content (headline, supporting paragraph, AI
-             Analysis Activity panel) temporarily removed per Board
-             Background Replacement Pass v1.0 so the Board can
-             evaluate the supplied cinematic hero artwork on its own.
-             Returns in the next Executive Composition pass. -->
+        <!-- HUD overlay (Board v1.0): AI Analysis Activity feed
+             floats directly over the cinematic backdrop. No panel,
+             no container, no border, no glass, no shadow. Headline
+             and supporting paragraph remain removed pending future
+             Executive Composition pass. -->
+        <aside class="mc-ai-activity" aria-label="AI Analysis Activity">
+          <header class="mc-ai-activity-head">
+            <span>AI Analysis Activity</span>
+            <span class="mc-ai-activity-pulse">Live</span>
+          </header>
+          <ul class="mc-ai-activity-list">
+            <li>
+              <span>
+                <span class="mc-ai-activity-item-title">Reviewing Publishing Infrastructure…</span>
+                <span class="mc-ai-activity-item-sub">Checking rights data and publisher connections</span>
+              </span>
+              <span class="mc-ai-activity-time">00:02</span>
+            </li>
+            <li>
+              <span>
+                <span class="mc-ai-activity-item-title">Verifying Artist Identities…</span>
+                <span class="mc-ai-activity-item-sub">Cross-referencing artist and ownership records</span>
+              </span>
+              <span class="mc-ai-activity-time">00:18</span>
+            </li>
+            <li>
+              <span>
+                <span class="mc-ai-activity-item-title">Scanning Metadata Consistency…</span>
+                <span class="mc-ai-activity-item-sub">Checking ISRC, UPC, ISWC and release data</span>
+              </span>
+              <span class="mc-ai-activity-time">00:34</span>
+            </li>
+            <li>
+              <span>
+                <span class="mc-ai-activity-item-title">Checking DSP Availability…</span>
+                <span class="mc-ai-activity-item-sub">Monitoring global distribution and store presence</span>
+              </span>
+              <span class="mc-ai-activity-time">00:50</span>
+            </li>
+            <li class="is-resolved">
+              <span>
+                <span class="mc-ai-activity-item-title">No New Issues Detected</span>
+                <span class="mc-ai-activity-item-sub">All systems healthy</span>
+              </span>
+              <span class="mc-ai-activity-time">01:12</span>
+            </li>
+          </ul>
+        </aside>
       </article>
 
     </div>
