@@ -1096,125 +1096,11 @@ body {
 
 /* ─── bottom status row ─────────────────────────────────────────── */
 
-.mc-status-row {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr 1.6fr;
-  gap: var(--mc-s-3);
-}
-
-.mc-status-card {
-  padding: var(--mc-s-2) var(--mc-s-3);
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--mc-s-3);
-  align-items: center;
-  background: var(--mc-surface-1);
-  border: 1px solid var(--mc-border);
-  border-radius: var(--mc-r-3);
-  position: relative;
-  overflow: hidden;
-}
-
-.mc-status-label {
-  font-size: 10.5px;
-  letter-spacing: 0.24em;
-  color: var(--mc-text-muted);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-.mc-status-value {
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1.05;
-  margin-top: 2px;
-}
-.mc-status-value--green { color: var(--mc-green); }
-.mc-status-value--alt   { color: var(--mc-text); font-size: 18px; letter-spacing: 0.03em; }
-.mc-status-cap {
-  font-size: 12px;
-  color: var(--mc-text-muted);
-  margin-top: 4px;
-}
-
-.mc-status-radar {
-  width: 56px;
-  height: 56px;
-}
-
-.mc-status-dots {
-  display: flex;
-  gap: 6px;
-  margin-top: var(--mc-s-3);
-}
-.mc-status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--mc-green);
-  box-shadow: 0 0 6px var(--mc-green-glow);
-  opacity: 0.85;
-}
-
-.mc-status-card--horizon {
-  /* Board-approved canonical artwork: purple sphere + planet horizon.
-     Dark gradient on the left FULLY hides the artwork's embedded
-     duplicate text (was partially bleeding through at the 86-95%
-     opacity tail and producing a faint double-vision halo behind
-     the live HTML copy). The opaque band is now wide enough that
-     the embedded text is completely occluded; transparency only
-     begins past the text region, before the planet artwork. */
-  background:
-    linear-gradient(90deg,
-      rgba(5, 5, 7, 1.00)  0%,
-      rgba(5, 5, 7, 1.00) 55%,
-      rgba(5, 5, 7, 0.45) 70%,
-      rgba(5, 5, 7, 0.12) 82%,
-      transparent         92%),
-    url('/img/royalte-never-sleeps.png') center / cover no-repeat,
-    var(--mc-surface-1);
-  background-blend-mode: normal, normal, normal;
-  /* establishes a clean stacking context so the star-field layer
-     sits behind text without leaking out of the card */
-  isolation: isolate;
-}
-
-/* Text content sits ABOVE the ambient star-field overlay. */
-.mc-status-card--horizon > div:first-child {
-  position: relative;
-  z-index: 1;
-}
-
-/* Ambient star-field — repurposes the prior placeholder div into a
-   full-card drifting starfield. The pattern tiles (background-size
-   matches the keyframe translate) so the animation loop is seamless
-   — the user never catches a snap-back. */
-.mc-status-horizon-art {
-  position: absolute;
-  inset: 0;
-  width: auto;
-  height: auto;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.55;
-  background-image:
-    radial-gradient(0.7px 0.7px at 13% 28%, rgba(255, 255, 255, 0.55), transparent 60%),
-    radial-gradient(0.5px 0.5px at 31% 64%, rgba(255, 255, 255, 0.40), transparent 60%),
-    radial-gradient(0.4px 0.4px at 47% 18%, rgba(255, 255, 255, 0.32), transparent 60%),
-    radial-gradient(0.6px 0.6px at 62% 78%, rgba(255, 255, 255, 0.42), transparent 60%),
-    radial-gradient(0.4px 0.4px at 78% 36%, rgba(255, 255, 255, 0.30), transparent 60%),
-    radial-gradient(0.5px 0.5px at 88% 12%, rgba(255, 255, 255, 0.38), transparent 60%),
-    radial-gradient(0.6px 0.6px at 22% 88%, rgba(255, 255, 255, 0.45), transparent 60%),
-    radial-gradient(0.4px 0.4px at 53% 48%, rgba(255, 255, 255, 0.28), transparent 60%);
-  background-size: 720px 320px;
-  background-repeat: repeat;
-  animation: mc-starfield-drift 220s linear infinite;
-}
-
-@keyframes mc-starfield-drift {
-  /* one full tile width per cycle → seamless loop */
-  from { background-position: 0 0; }
-  to   { background-position: -720px 0; }
-}
+/* Bottom status-row CSS removed per Board simplification pass:
+   .mc-status-row / .mc-status-card / .mc-status-label / .mc-status-value
+   (+ green / alt variants) / .mc-status-cap / .mc-status-radar /
+   .mc-status-dots / .mc-status-dot / .mc-status-card--horizon (and its
+   horizon-art star-field) / @keyframes mc-starfield-drift — all gone. */
 
 /* ─── right rail panels ─────────────────────────────────────────── */
 
@@ -1538,7 +1424,6 @@ body {
   .mc-hero-title { font-size: 22px; }
   .mc-grid { grid-template-columns: 1fr; gap: var(--mc-s-4); }
   .mc-row-3 { grid-template-columns: 1fr; gap: var(--mc-s-4); }
-  .mc-status-row { grid-template-columns: 1fr; gap: var(--mc-s-4); }
   .mc-rail-left {
     flex-direction: column;
     align-items: stretch;
@@ -1658,15 +1543,6 @@ body {
           <div class="mc-nav-sub">Where Your Music Exists</div>
         </span>
       </a>
-      <a class="mc-nav-item" href="#ai-insights">
-        <span class="mc-nav-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
-        </span>
-        <span>
-          <span class="mc-nav-label">AI Insights</span>
-          <div class="mc-nav-sub">Intelligence Brief</div>
-        </span>
-      </a>
       <a class="mc-nav-item" href="#royalte-ai">
         <span class="mc-nav-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
@@ -1746,7 +1622,7 @@ body {
       <div class="mc-hero-block">
         <div class="mc-hero-label">ROYALTĒ INTELLIGENCE ENGINE™</div>
         <div class="mc-hero-title">ALL SYSTEMS NORMAL</div>
-        <div class="mc-hero-meta">Monitoring <b>24/7</b> &nbsp;•&nbsp; Last Scan: <b>12 minutes ago</b></div>
+        <div class="mc-hero-meta">Monitoring <b>24/7</b> &nbsp;•&nbsp; Last Scan: <b>12 minutes ago</b> &nbsp;•&nbsp; Next Cycle: <b>18 min</b></div>
       </div>
 
       <svg class="mc-pulse-line" viewBox="0 0 220 56" preserveAspectRatio="none" aria-hidden="true">
@@ -1973,48 +1849,12 @@ body {
 
     </div>
 
-    <!-- BOTTOM STATUS ROW -->
-    <div class="mc-status-row">
+    <!-- Bottom status row removed per Board simplification pass:
+         - "Next Scheduled Scan" — moved into the ALL SYSTEMS NORMAL hero meta line
+         - "All Systems Operational" — duplicated the hero ALL SYSTEMS NORMAL message
+         - "We Work While You Create / Royaltē never sleeps" — duplicated the Royaltē AI™ value
+         The reclaimed vertical space lets the remaining executive layout breathe. -->
 
-      <article class="mc-status-card" aria-label="Next Scheduled Scan">
-        <div>
-          <div class="mc-status-label">NEXT SCHEDULED SCAN</div>
-          <div class="mc-status-value">18 <small style="font-size:14px;color:var(--mc-text-muted);font-weight:500">min</small></div>
-        </div>
-        <svg class="mc-status-radar" viewBox="0 0 56 56" aria-hidden="true">
-          <circle cx="28" cy="28" r="26" fill="none" stroke="rgba(45,212,191,0.18)"/>
-          <circle cx="28" cy="28" r="18" fill="none" stroke="rgba(45,212,191,0.20)"/>
-          <circle cx="28" cy="28" r="10" fill="none" stroke="rgba(45,212,191,0.22)"/>
-          <line x1="28" y1="2" x2="28" y2="54" stroke="rgba(45,212,191,0.12)"/>
-          <line x1="2" y1="28" x2="54" y2="28" stroke="rgba(45,212,191,0.12)"/>
-          <circle cx="28" cy="28" r="2.4" fill="#34f5b0"/>
-        </svg>
-      </article>
-
-      <article class="mc-status-card" aria-label="Intelligence Engine Status">
-        <div>
-          <div class="mc-status-label">INTELLIGENCE ENGINE STATUS</div>
-          <div class="mc-status-value mc-status-value--green">All Systems Operational</div>
-          <div class="mc-status-cap">Every module is functioning normally.</div>
-          <div class="mc-status-dots">
-            <span class="mc-status-dot"></span><span class="mc-status-dot"></span><span class="mc-status-dot"></span>
-            <span class="mc-status-dot"></span><span class="mc-status-dot"></span><span class="mc-status-dot"></span>
-            <span class="mc-status-dot"></span><span class="mc-status-dot"></span>
-          </div>
-        </div>
-        <span></span>
-      </article>
-
-      <article class="mc-status-card mc-status-card--horizon" aria-label="Royaltē never sleeps">
-        <div>
-          <div class="mc-status-label" style="color:var(--mc-purple);">WE WORK WHILE YOU CREATE</div>
-          <div class="mc-status-value mc-status-value--alt">Royaltē never sleeps.</div>
-          <div class="mc-status-cap">Your Music Business Should Always Be Protected.</div>
-        </div>
-        <div class="mc-status-horizon-art" aria-hidden="true"></div>
-      </article>
-
-    </div>
 
   </main>
 
