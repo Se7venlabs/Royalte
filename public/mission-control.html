@@ -508,21 +508,24 @@ body {
 .mc-card--ai {
   --card-glow: rgba(168, 85, 247, 0.10);
   border-color: rgba(168, 85, 247, 0.15);
-  /* Per Board directive: one unified background composition. The
-     approved artwork (bulb + concentric halo rings + ambient particle
-     wave + cosmic backdrop) is the FULL background of the module
-     and extends underneath the headline, body and AI Analysis
-     Activity panel.
-     SIZING — `auto 100% left center` keeps the bulb fully visible at
-     its native scale on the left while the image stretches across
-     the full card width (wave spans left to right). The earlier
-     `cover` sizing clipped the bulb's left halo and the wave's right
-     edge; this sizing clips nothing inside the visible canvas.
-     FALLBACK — solid #04040E exactly matches the cosmic-backdrop
-     colour painted into the bg PNG, so any sliver of card surface
-     beyond the image is a seamless continuation of the artwork. */
+  /* Cinematic three-zone composition (Board v2.0). The earlier
+     unified royalte-ai-bg.png was a 1770×889 derivative of the
+     source artwork; its `auto 100%` sizing meant that whenever the
+     card aspect didn't match the source's 1.99 aspect the right
+     edge of the wave got clipped (52px slice on a 744-wide card).
+     Switched to two clean derivative layers so each element
+     occupies its own visual territory:
+       1) Wave  — bottom band, 100% card width, never clipped.
+       2) Bulb  — left zone, sized to 80% of card height, fully
+                  visible, slight 2% inset from the card edge.
+     Wave layer is listed first so the particle dots overlay the
+     bulb glow where the two regions intersect (cinematic depth).
+     FALLBACK — solid #04040E matches the cosmic-backdrop colour
+     painted into both derivative PNGs; any sliver of card surface
+     beyond the layers is a seamless continuation of the artwork. */
   background:
-    url('/img/royalte-ai-bg.png') left center / auto 100% no-repeat,
+    url('/img/royalte-ai-wave.png') center bottom / 100% auto no-repeat,
+    url('/img/royalte-ai-bulb.png') 2% center / auto 80% no-repeat,
     #04040E;
   isolation: isolate;
 }
@@ -1452,25 +1455,33 @@ body {
 .mc-ai-body-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(180px, 22%) minmax(0, 1.5fr) minmax(280px, 1fr);
+  /* True three-zone cinematic layout (Board v2.0). Explicit column
+     widths so each zone occupies its own visual territory:
+       - Zone 1 (bulb spacer): 230px reserved for the background bulb
+         layer (.mc-card--ai bg). Empty by design — the bulb breathes
+         in this lane and content never overlaps it.
+       - Zone 2 (content): flexes — gets all remaining width minus
+         zones 1 and 3 (~262px on a 744-wide card). Holds the
+         headline and supporting paragraph.
+       - Zone 3 (activity): compact ~190px lane on the right edge
+         for the AI Analysis Activity panel. */
+  grid-template-columns: 230px minmax(0, 1fr) minmax(180px, 210px);
   gap: var(--mc-s-5);
   align-items: stretch;
   padding-top: var(--mc-s-3);
 }
 .mc-ai-bulb-spacer {
-  /* Reserves the visual lane where the background bulb lives. Empty
-     by design — the unified card background paints this region. */
+  /* Reserves Zone 1 — the background bulb layer paints this region.
+     Empty by design. */
 }
 .mc-ai-content {
   display: flex;
   flex-direction: column;
   gap: var(--mc-s-3);
   justify-content: center;
-  /* Top padding bumped by +20px (vertical centring → content shifts
-     ~10px lower per Board). Left padding 28px gives the bulb the
-     breathing room called out in change #1 — the bulb introduces
-     the content rather than competing with it. */
-  padding: calc(var(--mc-s-2) + 20px) 0 var(--mc-s-2) 28px;
+  /* No band-aid paddings (the prior +20px / +28px micro-shifts are
+     gone). The grid columns themselves now create clean separation
+     between the bulb (Zone 1) and the activity panel (Zone 3). */
 }
 
 .mc-ai-headline {
@@ -1493,15 +1504,20 @@ body {
   text-shadow: 0 1px 8px rgba(7, 5, 18, 0.75);
 }
 
-/* AI Analysis Activity — text-only panel per Board directive. NO
-   dark rectangular content block: no fill, no border, no backdrop
-   blur, no drop shadow. The unified card background extends
-   underneath; contrast comes from text-shadow on each element. */
+/* AI Analysis Activity (Zone 3) — text on the unified card
+   background, no rectangular box (per the earlier directive that
+   killed the dark glass surface). A single hairline on the LEFT
+   edge integrates the panel into the cinematic composition —
+   subtle "this is the AI's column" signal without recreating the
+   dark rectangle the Board flagged previously. */
 .mc-ai-activity {
-  padding: var(--mc-s-2) 0 0 0;
-  background: none;
-  border: 0;
+  padding: 0 0 0 var(--mc-s-4);
+  border-left: 1px solid rgba(168, 85, 247, 0.22);
+  border-right: 0;
+  border-top: 0;
+  border-bottom: 0;
   border-radius: 0;
+  background: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
@@ -2498,9 +2514,9 @@ body {
         </div>
 
         <div class="mc-ai-body-grid">
-          <!-- Bulb spacer: the bulb + halo rings live in the unified
-               card background (royalte-ai-bg.png) and bleed naturally
-               into this lane. Empty by design. -->
+          <!-- Bulb spacer (Zone 1): the bulb layer of the card
+               background (royalte-ai-bulb.png at auto 80% / 2% center)
+               renders into this lane. Empty by design. -->
           <div class="mc-ai-bulb-spacer" aria-hidden="true"></div>
 
           <div class="mc-ai-content">
