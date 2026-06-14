@@ -605,6 +605,12 @@ body {
 .mc-ring-icon svg { width: 28px; height: 28px; }
 
 .mc-metric { display: flex; flex-direction: column; gap: 4px; }
+.mc-metric-sublabel {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--mc-text-muted);
+}
 .mc-metric-value {
   font-size: 30px;
   font-weight: 600;
@@ -619,11 +625,6 @@ body {
   color: var(--mc-text-muted);
   font-weight: 500;
 }
-.mc-metric-status {
-  font-size: 13px;
-  color: var(--mc-green);
-  font-weight: 600;
-}
 .mc-metric-delta {
   font-size: 11.5px;
   color: var(--mc-text-muted);
@@ -632,19 +633,6 @@ body {
   gap: 4px;
 }
 .mc-metric-delta svg { width: 11px; height: 11px; color: var(--mc-green-bright); }
-
-.mc-spark {
-  width: 100%;
-  height: 28px;
-  margin-top: var(--mc-s-3);
-}
-.mc-spark path {
-  stroke: var(--mc-green-bright);
-  stroke-width: 1.4;
-  fill: none;
-  opacity: 0.85;
-  filter: drop-shadow(0 0 4px var(--mc-green-glow));
-}
 
 /* Health card — heartbeat visualization (Board-approved original) */
 .mc-card--health .mc-ring { width: 96px; height: 96px; }
@@ -680,11 +668,91 @@ body {
   50%      { opacity: 0.95; }
 }
 
-/* AI Health Summary — executive interpretation of the Health Score
-   that anchors the lower section of the card. Calm / confident /
-   simple per Board: the only question it answers is "Am I okay?".
-   margin-top: auto pushes it to the bottom of the card so the
-   spark trend line stays paired with the ring + score above. */
+/* Royaltē Health Score™ breakdown — the executive summary surface
+   that explains the headline score. Each row is a Mission Control™
+   intelligence module + its current sub-score; the sub-bar gives
+   instant visual scanning of which modules are strongest / weakest.
+   Values are static at this pass; will become payload-driven during
+   Wiring. */
+.mc-health-breakdown {
+  margin-top: var(--mc-s-3);
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid rgba(45, 212, 191, 0.10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+}
+.mc-health-breakdown-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mc-s-2);
+}
+.mc-health-breakdown-title {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-green);
+  font-weight: 600;
+}
+.mc-health-breakdown-source {
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  font-weight: 500;
+}
+.mc-health-modules {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mc-health-modules li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) 56px 26px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.mc-health-mod-icon {
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+}
+.mc-health-mod-label {
+  color: var(--mc-text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mc-health-mod-bar {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(45, 212, 191, 0.12);
+  overflow: hidden;
+}
+.mc-health-mod-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--mc-green);
+  box-shadow: 0 0 4px var(--mc-green-glow);
+  border-radius: inherit;
+}
+.mc-health-mod-value {
+  text-align: right;
+  font-weight: 600;
+  color: var(--mc-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* AI Summary — executive interpretation of the breakdown above.
+   Calm / confident / simple per Board: the only question it answers
+   is "Am I okay?". margin-top: auto anchors it to the bottom of the
+   card so the headline + breakdown above breathe naturally. */
 .mc-health-ai-summary {
   margin-top: auto;
   padding-top: var(--mc-s-3);
@@ -1613,24 +1681,61 @@ body {
             </div>
           </div>
           <div class="mc-metric">
+            <div class="mc-metric-sublabel">Royaltē Health Score™</div>
             <div class="mc-metric-value">78 <small>/100</small></div>
-            <div class="mc-metric-status">Health Improving</div>
             <div class="mc-metric-delta">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7-7 7 7"/></svg>
-              4 since yesterday
+              +4 Since Last Scan
             </div>
           </div>
         </div>
-        <svg class="mc-spark" viewBox="0 0 220 28" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0 22 L20 20 L40 21 L60 18 L80 16 L100 17 L120 14 L140 12 L160 10 L180 9 L200 7 L220 5"/>
-        </svg>
-        <section class="mc-health-ai-summary" aria-label="AI Health Summary">
+
+        <section class="mc-health-breakdown" aria-label="Health Score Breakdown">
+          <header class="mc-health-breakdown-head">
+            <span class="mc-health-breakdown-title">Calculated From</span>
+            <span class="mc-health-breakdown-source">Royaltē Health Engine™</span>
+          </header>
+          <ul class="mc-health-modules">
+            <li>
+              <span class="mc-health-mod-icon" aria-hidden="true">👤</span>
+              <span class="mc-health-mod-label">Identity</span>
+              <span class="mc-health-mod-bar"><span style="width:92%"></span></span>
+              <span class="mc-health-mod-value">92</span>
+            </li>
+            <li>
+              <span class="mc-health-mod-icon" aria-hidden="true">📚</span>
+              <span class="mc-health-mod-label">Publishing</span>
+              <span class="mc-health-mod-bar"><span style="width:71%"></span></span>
+              <span class="mc-health-mod-value">71</span>
+            </li>
+            <li>
+              <span class="mc-health-mod-icon" aria-hidden="true">💿</span>
+              <span class="mc-health-mod-label">Catalog</span>
+              <span class="mc-health-mod-bar"><span style="width:84%"></span></span>
+              <span class="mc-health-mod-value">84</span>
+            </li>
+            <li>
+              <span class="mc-health-mod-icon" aria-hidden="true">🌎</span>
+              <span class="mc-health-mod-label">Global Footprint</span>
+              <span class="mc-health-mod-bar"><span style="width:58%"></span></span>
+              <span class="mc-health-mod-value">58</span>
+            </li>
+            <li>
+              <span class="mc-health-mod-icon" aria-hidden="true">🤖</span>
+              <span class="mc-health-mod-label">Monitoring</span>
+              <span class="mc-health-mod-bar"><span style="width:100%"></span></span>
+              <span class="mc-health-mod-value">100</span>
+            </li>
+          </ul>
+        </section>
+
+        <section class="mc-health-ai-summary" aria-label="AI Summary">
           <div class="mc-health-ai-label">
             <span class="mc-health-ai-emoji" aria-hidden="true">🤖</span>
-            AI Health Summary
+            AI Summary
           </div>
-          <div class="mc-health-ai-headline">No issues requiring your attention.</div>
-          <div class="mc-health-ai-body">Royaltē AI™ will continue monitoring your music business.</div>
+          <div class="mc-health-ai-headline">Your music business remains healthy.</div>
+          <div class="mc-health-ai-body">No action recommended.</div>
         </section>
       </article>
 
