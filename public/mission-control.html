@@ -1594,54 +1594,183 @@ body {
 
 .mc-card--footprint { padding-bottom: var(--mc-s-4); }
 
+/* Global Presence Score™ block — compact sublabel + value pair
+   sitting above the world map. Reuses .mc-metric-sublabel +
+   .mc-metric-value for design-language parity with Health /
+   Identity / Publishing / Catalog. */
+.mc-foot-score {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* World-map container: flex-centers an aspect-locked .mc-globe-canvas
+   so the cyan intelligence dots can be positioned at lat/lon
+   percentages without compensating for object-fit letterboxing. */
 .mc-globe {
   position: relative;
   width: 100%;
-  height: 220px;                        /* +22% from prior 180px so the full map fits with comfortable padding */
+  height: 220px;
   border-radius: var(--mc-r-2);
   overflow: hidden;
   background: #050b18;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
+.mc-globe-canvas {
+  position: relative;
+  height: 100%;
+  aspect-ratio: 1380 / 620;             /* matches the source PNG exactly */
+  max-width: 100%;
+}
 .mc-globe-map {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;                  /* 100% of the world map visible; letterbox provides the breathing room */
+  object-fit: cover;                    /* canvas aspect == map aspect → no clip */
   object-position: center center;
   pointer-events: none;
   display: block;
 }
 
-.mc-foot-footer {
+/* Intelligence dot — small cyan glowing marker per Major Music
+   Market™. Subtle pulse + outer aura, single colour per Board
+   ('Royaltē Electric Cyan'). UI-only placeholder; becomes payload-
+   driven during Wiring (verified / monitoring / missing states). */
+.mc-globe-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38BDF8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.85),
+              0 0 14px rgba(56, 189, 248, 0.45);
+  transform: translate(-50%, -50%);
+  animation: mc-globe-dot-pulse 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+.mc-globe-dot::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(56, 189, 248, 0.30) 0%,
+    transparent 70%);
+  animation: mc-globe-dot-aura 2.6s ease-in-out infinite;
+}
+/* Stagger half the dots so the aggregate pulse never reads
+   synchronised across the map. */
+.mc-globe-dot:nth-child(2n) {
+  animation-delay: -1.3s;
+}
+.mc-globe-dot:nth-child(2n)::before {
+  animation-delay: -1.3s;
+}
+@keyframes mc-globe-dot-pulse {
+  0%, 100% {
+    opacity: 0.85;
+    box-shadow: 0 0 6px  rgba(56, 189, 248, 0.75),
+                0 0 12px rgba(56, 189, 248, 0.4);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.95),
+                0 0 20px rgba(56, 189, 248, 0.6);
+  }
+}
+@keyframes mc-globe-dot-aura {
+  0%, 100% { transform: scale(0.85); opacity: 0.45; }
+  50%      { transform: scale(1.20); opacity: 0.85; }
+}
+
+/* Major Music Markets™ — two-column executive country list,
+   Americas on the left, Europe / Asia-Pacific on the right. */
+.mc-foot-markets {
+  margin-top: var(--mc-s-3);
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid rgba(56, 189, 248, 0.10);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--mc-s-4) var(--mc-s-5);
+}
+.mc-foot-markets-col {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: var(--mc-s-4);
-  margin-top: var(--mc-s-2);
+  flex-direction: column;
+  gap: var(--mc-s-2);
 }
-
-.mc-foot-blurb {
-  font-size: 12px;
-  color: var(--mc-text-muted);
-  max-width: 60%;
-  line-height: 1.55;
-}
-
-.mc-foot-cta {
-  display: inline-flex;
+.mc-foot-markets-head {
+  display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
-  border-radius: var(--mc-r-2);
-  color: var(--mc-purple);
-  background: var(--mc-purple-soft);
-  border: 1px solid var(--mc-border-warm);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-blue);
 }
-.mc-foot-cta svg { width: 12px; height: 12px; }
+.mc-foot-markets-head-emoji { font-size: 12px; line-height: 1; }
+.mc-foot-markets-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mc-foot-markets-list li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.mc-foot-market-flag {
+  font-size: 16px;
+  line-height: 1;
+  text-align: center;
+}
+.mc-foot-market-name {
+  color: var(--mc-text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* AI Summary — blue palette variant matching the established
+   executive pattern from Health / Identity / Publishing / Catalog. */
+.mc-foot-ai-summary {
+  margin-top: auto;
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid rgba(56, 189, 248, 0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mc-foot-ai-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-blue);
+}
+.mc-foot-ai-emoji { font-size: 12px; line-height: 1; }
+.mc-foot-ai-headline {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mc-text);
+  line-height: 1.4;
+}
+.mc-foot-ai-body {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  line-height: 1.5;
+}
 
 /* ─── bottom status row ─────────────────────────────────────────── */
 
@@ -2266,16 +2395,84 @@ body {
           </div>
           <div class="mc-card-title">GLOBAL MUSIC FOOTPRINT™</div>
         </div>
+
+        <div class="mc-foot-score">
+          <div class="mc-metric-sublabel">Global Presence Score™</div>
+          <div class="mc-metric-value">58 <small>/100</small></div>
+        </div>
+
         <div class="mc-globe" aria-hidden="true">
-          <img class="mc-globe-map" src="/img/mission-control-world-map.png" alt="">
+          <div class="mc-globe-canvas">
+            <img class="mc-globe-map" src="/img/mission-control-world-map.png" alt="">
+            <!-- 16 intelligence dots, one per Major Music Market™.
+                 Positions are equirectangular lat/lon → % of canvas
+                 (canvas aspect locked to map PNG aspect).
+                 Latitude formula tuned to the supplied map's vertical
+                 range (~+85° to -55°, Antarctica clipped). -->
+            <!-- Americas (left list) -->
+            <span class="mc-globe-dot" style="left:22.2%; top:32.9%"></span><!-- United States -->
+            <span class="mc-globe-dot" style="left:23.6%; top:17.9%"></span><!-- Canada -->
+            <span class="mc-globe-dot" style="left:34.7%; top:67.9%"></span><!-- Brazil -->
+            <span class="mc-globe-dot" style="left:21.7%; top:44.3%"></span><!-- Mexico -->
+            <span class="mc-globe-dot" style="left:32.2%; top:85.0%"></span><!-- Argentina -->
+            <span class="mc-globe-dot" style="left:29.4%; top:57.9%"></span><!-- Colombia -->
+            <span class="mc-globe-dot" style="left:30.3%; top:82.1%"></span><!-- Chile -->
+            <span class="mc-globe-dot" style="left:29.2%; top:67.1%"></span><!-- Peru -->
+            <!-- Europe / Asia-Pacific (right list) -->
+            <span class="mc-globe-dot" style="left:49.4%; top:22.9%"></span><!-- United Kingdom -->
+            <span class="mc-globe-dot" style="left:52.8%; top:24.3%"></span><!-- Germany -->
+            <span class="mc-globe-dot" style="left:50.6%; top:27.1%"></span><!-- France -->
+            <span class="mc-globe-dot" style="left:55.0%; top:17.9%"></span><!-- Sweden -->
+            <span class="mc-globe-dot" style="left:53.3%; top:30.7%"></span><!-- Italy -->
+            <span class="mc-globe-dot" style="left:88.3%; top:35.0%"></span><!-- Japan -->
+            <span class="mc-globe-dot" style="left:85.6%; top:34.3%"></span><!-- South Korea -->
+            <span class="mc-globe-dot" style="left:71.7%; top:46.4%"></span><!-- India -->
+          </div>
         </div>
-        <div class="mc-foot-footer">
-          <div class="mc-foot-blurb">Royaltē identified music<br>presence across global DSPs.</div>
-          <a class="mc-foot-cta" href="#global-footprint-full">
-            View Full Map
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
-          </a>
-        </div>
+
+        <section class="mc-foot-markets" aria-label="Major Music Markets">
+          <div class="mc-foot-markets-col">
+            <header class="mc-foot-markets-head">
+              <span class="mc-foot-markets-head-emoji" aria-hidden="true">🌎</span>
+              Americas
+            </header>
+            <ul class="mc-foot-markets-list">
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇺🇸</span><span class="mc-foot-market-name">United States</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇨🇦</span><span class="mc-foot-market-name">Canada</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇧🇷</span><span class="mc-foot-market-name">Brazil</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇲🇽</span><span class="mc-foot-market-name">Mexico</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇦🇷</span><span class="mc-foot-market-name">Argentina</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇨🇴</span><span class="mc-foot-market-name">Colombia</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇨🇱</span><span class="mc-foot-market-name">Chile</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇵🇪</span><span class="mc-foot-market-name">Peru</span></li>
+            </ul>
+          </div>
+          <div class="mc-foot-markets-col">
+            <header class="mc-foot-markets-head">
+              <span class="mc-foot-markets-head-emoji" aria-hidden="true">🌏</span>
+              Europe / Asia-Pacific
+            </header>
+            <ul class="mc-foot-markets-list">
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇬🇧</span><span class="mc-foot-market-name">United Kingdom</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇩🇪</span><span class="mc-foot-market-name">Germany</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇫🇷</span><span class="mc-foot-market-name">France</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇸🇪</span><span class="mc-foot-market-name">Sweden</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇮🇹</span><span class="mc-foot-market-name">Italy</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇯🇵</span><span class="mc-foot-market-name">Japan</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇰🇷</span><span class="mc-foot-market-name">South Korea</span></li>
+              <li><span class="mc-foot-market-flag" aria-hidden="true">🇮🇳</span><span class="mc-foot-market-name">India</span></li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="mc-foot-ai-summary" aria-label="AI Summary">
+          <div class="mc-foot-ai-label">
+            <span class="mc-foot-ai-emoji" aria-hidden="true">🤖</span>
+            AI Summary
+          </div>
+          <div class="mc-foot-ai-headline">Royaltē AI™ continues monitoring your global distribution.</div>
+          <div class="mc-foot-ai-body">No availability gaps requiring immediate attention were detected.</div>
+        </section>
       </article>
 
       <!-- Royaltē AI™ -->
