@@ -680,6 +680,42 @@ body {
   50%      { opacity: 0.95; }
 }
 
+/* AI Health Summary — executive interpretation of the Health Score
+   that anchors the lower section of the card. Calm / confident /
+   simple per Board: the only question it answers is "Am I okay?".
+   margin-top: auto pushes it to the bottom of the card so the
+   spark trend line stays paired with the ring + score above. */
+.mc-health-ai-summary {
+  margin-top: auto;
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid rgba(45, 212, 191, 0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mc-health-ai-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-green);
+}
+.mc-health-ai-emoji { font-size: 12px; line-height: 1; }
+.mc-health-ai-headline {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mc-text);
+  line-height: 1.4;
+}
+.mc-health-ai-body {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  line-height: 1.5;
+}
+
 /* ─── identity card ─────────────────────────────────────────────── */
 
 .mc-source-list {
@@ -1588,7 +1624,14 @@ body {
         <svg class="mc-spark" viewBox="0 0 220 28" preserveAspectRatio="none" aria-hidden="true">
           <path d="M0 22 L20 20 L40 21 L60 18 L80 16 L100 17 L120 14 L140 12 L160 10 L180 9 L200 7 L220 5"/>
         </svg>
-        <div class="mc-card-foot">No issues requiring action.<br>Monitoring continues.</div>
+        <section class="mc-health-ai-summary" aria-label="AI Health Summary">
+          <div class="mc-health-ai-label">
+            <span class="mc-health-ai-emoji" aria-hidden="true">🤖</span>
+            AI Health Summary
+          </div>
+          <div class="mc-health-ai-headline">No issues requiring your attention.</div>
+          <div class="mc-health-ai-body">Royaltē AI™ will continue monitoring your music business.</div>
+        </section>
       </article>
 
       <!-- Identity Intelligence™ -->
