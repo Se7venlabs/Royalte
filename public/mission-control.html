@@ -508,40 +508,16 @@ body {
 .mc-card--ai {
   --card-glow: rgba(168, 85, 247, 0.10);
   border-color: rgba(168, 85, 247, 0.15);
-  /* Cinematic intelligence landscape (Board v3.0). The module is one
-     continuous artwork — no zones, no rectangular composition slices.
-     Layer stack (top → bottom):
-       1) Right-half intelligence field — soft violet radial that
-          fills the cosmic void on the right + upper areas where the
-          cleaned bg PNG would otherwise read as flat cosmic. Sized
-          and positioned to avoid the bulb zone.
-       2) Bulb aura — soft violet halo extends the painted bulb's
-          glow slightly past its PNG edge so the bulb feels suspended
-          within a wider intelligence field.
-       3) royalte-ai-bg.png — cleaned derivative of the source
-          artwork carrying bulb + concentric halo rings + ambient
-          particle wave + cosmic backdrop. Text/UI regions removed
-          via tight feathered cosmic-fill (12px Gaussian); the
-          gradients above this layer paint the intelligence-field
-          glow over the erased regions so they read as continuous
-          cinematic landscape, not flat black zones.
-          Sized `100% auto` anchored bottom so the wave runs the
-          FULL card width without any side clipping. Top sliver
-          (~26px on a 744×400 card) is covered by the cosmic
-          fallback below.
-       4) Cosmic fallback #04040E — matches the bg PNG's cosmic
-          backdrop colour exactly; the top letterbox sliver is a
-          seamless extension of the artwork rather than a seam. */
-  background:
-    radial-gradient(ellipse 70% 80% at 65% 45%,
-      rgba(168, 85, 247, 0.12) 0%,
-      rgba(168, 85, 247, 0.04) 45%,
-      transparent 85%),
-    radial-gradient(ellipse 38% 55% at 22% 50%,
-      rgba(168, 85, 247, 0.08) 0%,
-      transparent 75%),
-    url('/img/royalte-ai-bg.png') center bottom / 100% auto no-repeat,
-    #04040E;
+  /* Board-supplied cinematic hero (Background Replacement Pass v1.0).
+     Single full-bleed image — the new artwork replaces ALL prior
+     background composition logic. No separate bulb / wave layers,
+     no multi-image stack, no radial-gradient overlays, no positioning
+     band-aids. Cosmic fallback #04040E matches the PNG's deep cosmic
+     so any sliver beyond cover-crop is a seamless continuation.
+     Anchored `center bottom` so the purple intelligence wave at the
+     bottom of the source is never clipped; the small amount of
+     cosmic clipped at the top is empty space above the bulb. */
+  background: url('/img/royalte-ai-hero.png') center bottom / cover no-repeat, #04040E;
   isolation: isolate;
 }
 
@@ -2528,61 +2504,11 @@ body {
           </div>
         </div>
 
-        <div class="mc-ai-body-grid">
-          <!-- Bulb spacer (Zone 1): the bulb layer of the card
-               background (royalte-ai-bulb.png at auto 80% / 2% center)
-               renders into this lane. Empty by design. -->
-          <div class="mc-ai-bulb-spacer" aria-hidden="true"></div>
-
-          <div class="mc-ai-content">
-            <h2 class="mc-ai-headline">Because What You Can't See Can Cost You.</h2>
-            <p class="mc-ai-body">Your music earns money in more places than you think. Royaltē AI™ monitors the business behind your music—helping protect your catalog and helping you get paid what you're owed.</p>
-          </div>
-
-          <aside class="mc-ai-activity" aria-label="AI Analysis Activity">
-            <header class="mc-ai-activity-head">
-              <span>AI Analysis Activity</span>
-              <span class="mc-ai-activity-pulse">Live</span>
-            </header>
-            <ul class="mc-ai-activity-list">
-              <li>
-                <span>
-                  <span class="mc-ai-activity-item-title">Reviewing Publishing</span>
-                  <span class="mc-ai-activity-item-sub">Checking rights data and publisher connections</span>
-                </span>
-                <span class="mc-ai-activity-time">00:02</span>
-              </li>
-              <li>
-                <span>
-                  <span class="mc-ai-activity-item-title">Verifying Identity</span>
-                  <span class="mc-ai-activity-item-sub">Cross-referencing artist and ownership records</span>
-                </span>
-                <span class="mc-ai-activity-time">00:18</span>
-              </li>
-              <li>
-                <span>
-                  <span class="mc-ai-activity-item-title">Scanning Metadata</span>
-                  <span class="mc-ai-activity-item-sub">Checking ISRC, UPC, ISWC and release data</span>
-                </span>
-                <span class="mc-ai-activity-time">00:34</span>
-              </li>
-              <li>
-                <span>
-                  <span class="mc-ai-activity-item-title">Checking Global Availability</span>
-                  <span class="mc-ai-activity-item-sub">Monitoring global distribution and store presence</span>
-                </span>
-                <span class="mc-ai-activity-time">00:50</span>
-              </li>
-              <li class="is-resolved">
-                <span>
-                  <span class="mc-ai-activity-item-title">No New Issues Detected</span>
-                  <span class="mc-ai-activity-item-sub">All systems healthy</span>
-                </span>
-                <span class="mc-ai-activity-time">01:12</span>
-              </li>
-            </ul>
-          </aside>
-        </div>
+        <!-- Overlay content (headline, supporting paragraph, AI
+             Analysis Activity panel) temporarily removed per Board
+             Background Replacement Pass v1.0 so the Board can
+             evaluate the supplied cinematic hero artwork on its own.
+             Returns in the next Executive Composition pass. -->
       </article>
 
     </div>
