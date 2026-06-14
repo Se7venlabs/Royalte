@@ -1232,38 +1232,153 @@ body {
 .mc-catalog-summary {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
-.mc-catalog-value {
-  font-size: 38px;                              /* primary visual anchor */
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.01em;
-  color: var(--mc-orange);
-  text-shadow: 0 0 14px rgba(251, 146, 60, 0.24);
-}
-.mc-catalog-label {
-  font-size: 12px;
-  color: var(--mc-text-muted);
-  letter-spacing: 0.04em;
+  gap: 4px;
 }
 
+/* Asset counts (Albums / EPs / Singles / Tracks). Two-column grid:
+   label (left) + value (right-aligned, tabular). Per Board:
+   'Tracks replaces Features. Features are intentionally retired
+   because they cannot be verified with sufficient consistency
+   across all data sources.' */
 .mc-catalog-grid {
   display: grid;
-  grid-template-columns: 1fr auto;               /* values right-aligned for executive scan */
-  gap: 8px var(--mc-s-3);                        /* +breathing room between rows */
-  font-size: 12.5px;
+  grid-template-columns: 1fr auto;
+  gap: 6px var(--mc-s-3);
+  font-size: 12px;
   margin-top: var(--mc-s-2);
 }
-.mc-catalog-grid .lbl { color: #b8b8c4; letter-spacing: 0.02em; }
-.mc-catalog-grid .val { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
-.mc-catalog-grid .val--stable   { color: var(--mc-green); }
-.mc-catalog-grid .val--verified { color: var(--mc-green); }
-.mc-catalog-grid .mc-catalog-divider {
-  grid-column: 1 / -1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
-  margin: 2px 0;
+.mc-catalog-grid .lbl { color: var(--mc-text-muted); letter-spacing: 0.02em; }
+.mc-catalog-grid .val {
+  color: var(--mc-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Catalog Score™ breakdown — 5 constitutional pillars feeding the
+   Royaltē Catalog Scoring Engine. Mirrors the Health / Identity /
+   Publishing breakdown pattern in the Catalog card's locked orange
+   palette (var(--mc-orange)). */
+.mc-cat-breakdown {
+  margin-top: var(--mc-s-3);
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid rgba(251, 146, 60, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+}
+.mc-cat-breakdown-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mc-s-2);
+}
+.mc-cat-breakdown-title {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-orange);
+  font-weight: 600;
+}
+.mc-cat-breakdown-source {
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  font-weight: 500;
+}
+.mc-cat-pillars {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mc-cat-pillars li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 90px;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+.mc-cat-pillar-icon {
+  font-size: 17px;
+  line-height: 1;
+  text-align: center;
+}
+.mc-cat-pillar-label {
+  color: var(--mc-text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Status badge — duplicate of .mc-identity-status / .mc-pub-status
+   with --cat naming for self-contained per-card scoping. A future
+   cleanup pass can extract a shared .mc-status-badge primitive
+   once Global Footprint also adopts it. */
+.mc-cat-status {
+  box-sizing: border-box;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 22px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.mc-cat-status--verified {
+  color: var(--mc-green);
+  background: rgba(45, 212, 191, 0.10);
+  border: 1px solid rgba(45, 212, 191, 0.28);
+}
+.mc-cat-status--monitoring {
+  color: var(--mc-orange);
+  background: rgba(251, 146, 60, 0.10);
+  border: 1px solid rgba(251, 146, 60, 0.30);
+}
+.mc-cat-status--action {
+  color: #f87171;
+  background: rgba(244, 63, 94, 0.10);
+  border: 1px solid rgba(244, 63, 94, 0.32);
+}
+
+/* AI Summary — orange palette variant. */
+.mc-cat-ai-summary {
+  margin-top: auto;
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid rgba(251, 146, 60, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mc-cat-ai-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-orange);
+}
+.mc-cat-ai-emoji { font-size: 12px; line-height: 1; }
+.mc-cat-ai-headline {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mc-text);
+  line-height: 1.4;
+}
+.mc-cat-ai-body {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  line-height: 1.5;
 }
 
 /* ─── ROYALTĒ AI™ card (replaces Monitoring Intelligence™) ───────── */
@@ -2088,21 +2203,59 @@ body {
             </svg>
           </div>
           <div class="mc-catalog-summary">
-            <div class="mc-catalog-value">27</div>
-            <div class="mc-catalog-label">Catalog Assets</div>
+            <div class="mc-metric-sublabel">Catalog Score™</div>
+            <div class="mc-metric-value">84 <small>/100</small></div>
             <div class="mc-catalog-grid">
-              <span class="lbl">Albums</span>   <span class="val">3</span>
-              <span class="lbl">EPs</span>      <span class="val">2</span>
-              <span class="lbl">Singles</span>  <span class="val">4</span>
-              <span class="lbl">Features</span> <span class="val">18</span>
-              <div class="mc-catalog-divider" aria-hidden="true"></div>
-              <span class="lbl">Metadata</span> <span class="val val--stable">Stable</span>
-              <span class="lbl">Catalog</span>  <span class="val val--stable">Stable</span>
-              <span class="lbl">Verified</span> <span class="val val--verified">Verified</span>
+              <span class="lbl">Albums</span>  <span class="val">3</span>
+              <span class="lbl">EPs</span>     <span class="val">2</span>
+              <span class="lbl">Singles</span> <span class="val">4</span>
+              <span class="lbl">Tracks</span>  <span class="val">27</span>
             </div>
           </div>
         </div>
-        <div class="mc-card-foot">Your catalog infrastructure is synchronized<br>and actively monitored.</div>
+
+        <section class="mc-cat-breakdown" aria-label="Catalog Score Breakdown">
+          <header class="mc-cat-breakdown-head">
+            <span class="mc-cat-breakdown-title">Calculated From</span>
+            <span class="mc-cat-breakdown-source">Royaltē Catalog Scoring Engine</span>
+          </header>
+          <ul class="mc-cat-pillars">
+            <li>
+              <span class="mc-cat-pillar-icon" aria-hidden="true">🏷</span>
+              <span class="mc-cat-pillar-label">Metadata Integrity</span>
+              <span class="mc-cat-status mc-cat-status--verified">Verified</span>
+            </li>
+            <li>
+              <span class="mc-cat-pillar-icon" aria-hidden="true">🎼</span>
+              <span class="mc-cat-pillar-label">ISRC Integrity</span>
+              <span class="mc-cat-status mc-cat-status--verified">Verified</span>
+            </li>
+            <li>
+              <span class="mc-cat-pillar-icon" aria-hidden="true">📦</span>
+              <span class="mc-cat-pillar-label">UPC Consistency</span>
+              <span class="mc-cat-status mc-cat-status--verified">Verified</span>
+            </li>
+            <li>
+              <span class="mc-cat-pillar-icon" aria-hidden="true">👥</span>
+              <span class="mc-cat-pillar-label">Contributor Credits</span>
+              <span class="mc-cat-status mc-cat-status--action">Action</span>
+            </li>
+            <li>
+              <span class="mc-cat-pillar-icon" aria-hidden="true">🔄</span>
+              <span class="mc-cat-pillar-label">Catalog Synchronization</span>
+              <span class="mc-cat-status mc-cat-status--verified">Verified</span>
+            </li>
+          </ul>
+        </section>
+
+        <section class="mc-cat-ai-summary" aria-label="AI Summary">
+          <div class="mc-cat-ai-label">
+            <span class="mc-cat-ai-emoji" aria-hidden="true">🤖</span>
+            AI Summary
+          </div>
+          <div class="mc-cat-ai-headline">Royaltē AI™ continues monitoring your catalog infrastructure across the global music ecosystem.</div>
+          <div class="mc-cat-ai-body">No catalog issues requiring immediate attention were detected.</div>
+        </section>
       </article>
 
       <!-- Global Music Footprint™ -->
