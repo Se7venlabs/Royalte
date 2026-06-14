@@ -508,46 +508,17 @@ body {
 .mc-card--ai {
   --card-glow: rgba(168, 85, 247, 0.10);
   border-color: rgba(168, 85, 247, 0.15);
-  /* Board cleanup pass — the canonical artwork (bulb + particle wave)
-     is composited into the module via two masked pseudo-layers below,
-     not pasted in as a single rectangular image. Card itself just
-     carries the violet surface tint + border. */
-  background: var(--mc-surface-1);
+  /* Per Board directive: one unified background composition. The
+     approved artwork (bulb + concentric halo rings + ambient particle
+     wave + cosmic backdrop) is delivered as a single full-card
+     background — no left/right split, no rectangular slice. The bg
+     PNG (royalte-ai-bg.png) is a derivative of the source artwork
+     with every embedded text + UI element surgically removed so the
+     live DOM can render the approved copy on top without ghosting. */
+  background:
+    url('/img/royalte-ai-bg.png') center / cover no-repeat,
+    var(--mc-surface-1);
   isolation: isolate;
-}
-
-/* Bulb art — sources royalte-ai-bulb.png, which is a clean crop of
-   the bulb + concentric-ring halo from the original Board-approved
-   artwork. The crop contains zero embedded typography, so this mask
-   only feathers the right edge of the image into the surrounding
-   surface; there is no longer any need to isolate the bulb from
-   competing copy painted into the source. */
-.mc-card--ai::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url('/img/royalte-ai-bulb.png') 2% center / auto 88% no-repeat;
-  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 50%, transparent 92%);
-          mask-image: linear-gradient(90deg, #000 0%, #000 50%, transparent 92%);
-  opacity: 0.98;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Particle wave — sources royalte-ai-wave.png, a clean crop of just
-   the ambient particle band from the bottom of the source artwork.
-   No check-icons, no "All systems healthy" line, no AI Analysis copy.
-   Sized to a generous bottom band that fades upward into the body. */
-.mc-card--ai::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url('/img/royalte-ai-wave.png') center bottom / auto 30% no-repeat;
-  -webkit-mask-image: linear-gradient(to top, #000 40%, transparent 100%);
-          mask-image: linear-gradient(to top, #000 40%, transparent 100%);
-  opacity: 0.88;
-  pointer-events: none;
-  z-index: 0;
 }
 
 .mc-card--ai > * { position: relative; z-index: 1; }
@@ -1060,62 +1031,51 @@ body {
   white-space: nowrap;
 }
 
-/* Body composition: bulb art occupies the left third (delivered by
-   ::before mask); live DOM text + AI Analysis Activity panel occupy
-   the right two-thirds where the ::after gradient guarantees contrast. */
+/* Body composition: 3-column grid keeps a bulb spacer on the left
+   (artwork is the card background — column reserves the visual lane
+   so headline + body don't overlap the bulb glyph), live text in the
+   middle, AI Analysis Activity panel on the right. No background
+   shields on any column — the unified card background carries the
+   visual; the typography sits directly on it with strong contrast
+   from text-shadow + the AI Activity glass panel. */
 .mc-ai-body-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(190px, 1fr) minmax(0, 1.65fr);
+  grid-template-columns: minmax(180px, 22%) minmax(0, 1.5fr) minmax(280px, 1fr);
   gap: var(--mc-s-5);
   align-items: stretch;
   padding-top: var(--mc-s-3);
 }
 .mc-ai-bulb-spacer {
-  /* Reserves the left column for the bulb artwork rendered by ::before.
-     Empty by design — the artwork bleeds into this region naturally. */
-  min-height: 240px;
+  /* Reserves the visual lane where the background bulb lives. Empty
+     by design — the unified card background paints this region. */
 }
 .mc-ai-content {
   display: flex;
   flex-direction: column;
   gap: var(--mc-s-3);
+  justify-content: center;
+  padding: var(--mc-s-2) 0;
 }
-
-/* Inline text-contrast shield — sits behind the right column only so
-   the bulb on the left stays untouched while the headline / body / AI
-   Activity panel read against a strengthened dark backdrop. */
-.mc-ai-content::before {
-  content: "";
-  position: absolute;
-  inset: calc(var(--mc-s-3) * -1) calc(var(--mc-s-3) * -1)
-         calc(var(--mc-s-3) * -1) calc(var(--mc-s-4) * -1);
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(7, 5, 18, 0.42) 18%,
-    rgba(7, 5, 18, 0.66) 50%,
-    rgba(7, 5, 18, 0.62) 100%);
-  border-radius: var(--mc-r-2);
-  pointer-events: none;
-  z-index: -1;
-}
-.mc-ai-content { position: relative; }
 
 .mc-ai-headline {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
-  line-height: 1.22;
-  letter-spacing: 0.01em;
+  line-height: 1.18;
+  letter-spacing: 0.005em;
   color: var(--mc-text);
   margin: 0;
-  text-shadow: 0 1px 12px rgba(7, 5, 18, 0.6);
+  text-shadow:
+    0 1px 14px rgba(7, 5, 18, 0.85),
+    0 0 24px rgba(7, 5, 18, 0.55);
 }
 
 .mc-ai-body {
   font-size: 13px;
   color: var(--mc-text-soft);
-  line-height: 1.6;
+  line-height: 1.62;
   margin: 0;
+  text-shadow: 0 1px 8px rgba(7, 5, 18, 0.75);
 }
 
 /* AI Analysis Activity — its own floating intelligence panel. Glass
@@ -1167,24 +1127,51 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--mc-text-soft);
-  line-height: 1.45;
+  gap: var(--mc-s-3);
 }
 .mc-ai-activity-list li {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 8px 1fr auto;
+  align-items: start;
   gap: 10px;
+  font-size: 12px;
+  color: var(--mc-text-soft);
+  line-height: 1.4;
 }
 .mc-ai-activity-list li::before {
   content: "";
-  flex: 0 0 auto;
-  width: 5px;
-  height: 5px;
+  margin-top: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: rgba(168, 85, 247, 0.85);
-  box-shadow: 0 0 5px rgba(168, 85, 247, 0.55);
+  background: rgba(168, 85, 247, 0.9);
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.6);
+}
+.mc-ai-activity-list li.is-resolved::before {
+  background: var(--mc-green);
+  box-shadow: 0 0 6px rgba(45, 212, 191, 0.7);
+}
+.mc-ai-activity-item-title {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--mc-purple);
+  line-height: 1.25;
+}
+.mc-ai-activity-list li.is-resolved .mc-ai-activity-item-title { color: var(--mc-green); }
+.mc-ai-activity-item-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--mc-text-muted);
+  line-height: 1.4;
+}
+.mc-ai-activity-time {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--mc-text-muted);
+  white-space: nowrap;
+  padding-top: 1px;
 }
 
 /* ─── footprint card ────────────────────────────────────────────── */
@@ -1743,36 +1730,66 @@ body {
           <div class="mc-ai-head-end">
             <div class="mc-ai-status">
               <span class="mc-ai-status-dot" aria-hidden="true"></span>
-              AI Active
+              AI Status: Active
             </div>
             <div class="mc-ai-refresh">Last Intelligence Refresh: 8 min ago</div>
           </div>
         </div>
 
         <div class="mc-ai-body-grid">
-          <!-- Bulb art occupies this column via the .mc-card--ai::before
-               radial-masked layer. Intentionally empty markup: the
-               artwork bleeds into the surrounding surface, no hard
-               rectangle. -->
+          <!-- Bulb spacer: the bulb + halo rings live in the unified
+               card background (royalte-ai-bg.png) and bleed naturally
+               into this lane. Empty by design. -->
           <div class="mc-ai-bulb-spacer" aria-hidden="true"></div>
 
           <div class="mc-ai-content">
-            <h2 class="mc-ai-headline">Royaltē Intelligence is actively monitoring your music backend.</h2>
-            <p class="mc-ai-body">Royaltē AI™ continuously analyses identity, publishing, catalog and global distribution signals — surfacing the few things that need your attention and quietly handling the rest.</p>
-
-            <section class="mc-ai-activity" aria-label="AI Analysis Activity">
-              <header class="mc-ai-activity-head">
-                <span>AI Analysis Activity</span>
-                <span class="mc-ai-activity-pulse">Live</span>
-              </header>
-              <ul class="mc-ai-activity-list">
-                <li>Reviewing publishing splits across 14 active works</li>
-                <li>Cross-referencing identity verification on Apple and Spotify</li>
-                <li>Scanning global distribution for catalog drift</li>
-                <li>Watching backend health across monitored sources</li>
-              </ul>
-            </section>
+            <h2 class="mc-ai-headline">Because What You Can't See Can Cost You.</h2>
+            <p class="mc-ai-body">Royaltē AI™ continuously monitors the business behind your music, helping you stay informed as your catalog, identities, publishing, metadata and global availability evolve over time — so you can protect and maximize the long-term value of everything you've created.</p>
           </div>
+
+          <aside class="mc-ai-activity" aria-label="AI Analysis Activity">
+            <header class="mc-ai-activity-head">
+              <span>AI Analysis Activity</span>
+              <span class="mc-ai-activity-pulse">Live</span>
+            </header>
+            <ul class="mc-ai-activity-list">
+              <li>
+                <span>
+                  <span class="mc-ai-activity-item-title">Reviewing Publishing Infrastructure…</span>
+                  <span class="mc-ai-activity-item-sub">Checking rights data and publisher connections</span>
+                </span>
+                <span class="mc-ai-activity-time">00:02</span>
+              </li>
+              <li>
+                <span>
+                  <span class="mc-ai-activity-item-title">Verifying Artist Identities…</span>
+                  <span class="mc-ai-activity-item-sub">Cross-referencing artist and ownership records</span>
+                </span>
+                <span class="mc-ai-activity-time">00:18</span>
+              </li>
+              <li>
+                <span>
+                  <span class="mc-ai-activity-item-title">Scanning Metadata Consistency…</span>
+                  <span class="mc-ai-activity-item-sub">Checking ISRC, UPC, ISWC and release data</span>
+                </span>
+                <span class="mc-ai-activity-time">00:34</span>
+              </li>
+              <li>
+                <span>
+                  <span class="mc-ai-activity-item-title">Checking DSP Availability…</span>
+                  <span class="mc-ai-activity-item-sub">Monitoring global distribution and store presence</span>
+                </span>
+                <span class="mc-ai-activity-time">00:50</span>
+              </li>
+              <li class="is-resolved">
+                <span>
+                  <span class="mc-ai-activity-item-title">No New Issues Detected</span>
+                  <span class="mc-ai-activity-item-sub">All systems healthy</span>
+                </span>
+                <span class="mc-ai-activity-time">01:12</span>
+              </li>
+            </ul>
+          </aside>
         </div>
       </article>
 
