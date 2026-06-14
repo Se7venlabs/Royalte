@@ -935,7 +935,7 @@ body {
 }
 .mc-identity-platforms li {
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr);
+  grid-template-columns: 18px minmax(0, 1fr) 90px;
   align-items: center;
   gap: 12px;
   font-size: 12px;
@@ -954,6 +954,39 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Status badge — premium pill matching the .mc-ai-status treatment
+   used in the ROYALTĒ AI™ card header. Fixed 90px width per Board
+   spec; right-aligned in its grid column; vertically centered. */
+.mc-identity-status {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 22px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.mc-identity-status--verified {
+  color: var(--mc-green);
+  background: rgba(45, 212, 191, 0.10);
+  border: 1px solid rgba(45, 212, 191, 0.28);
+}
+.mc-identity-status--monitoring {
+  color: var(--mc-orange);
+  background: rgba(251, 146, 60, 0.10);
+  border: 1px solid rgba(251, 146, 60, 0.30);
+}
+.mc-identity-status--action {
+  color: #f87171;
+  background: rgba(244, 63, 94, 0.10);
+  border: 1px solid rgba(244, 63, 94, 0.32);
 }
 
 /* AI Summary — executive interpretation anchored to the bottom of
@@ -1820,22 +1853,27 @@ body {
             <li>
               <img class="mc-identity-platform-icon" src="/img/icon-apple-music.png" alt="" aria-hidden="true">
               <span class="mc-identity-platform-label">Apple Music for Artists</span>
+              <span class="mc-identity-status mc-identity-status--verified">Verified</span>
             </li>
             <li>
               <img class="mc-identity-platform-icon" src="/img/icon-spotify.png" alt="" aria-hidden="true">
               <span class="mc-identity-platform-label">Spotify for Artists</span>
+              <span class="mc-identity-status mc-identity-status--verified">Verified</span>
             </li>
             <li>
               <img class="mc-identity-platform-icon" src="/img/icon-youtube.png" alt="" aria-hidden="true">
               <span class="mc-identity-platform-label">YouTube Official Artist Channel</span>
+              <span class="mc-identity-status mc-identity-status--action">Action</span>
             </li>
             <li>
               <img class="mc-identity-platform-icon" src="/img/icon-musicbrainz.png" alt="" aria-hidden="true">
               <span class="mc-identity-platform-label">MusicBrainz</span>
+              <span class="mc-identity-status mc-identity-status--verified">Verified</span>
             </li>
             <li>
               <img class="mc-identity-platform-icon" src="/img/icon-discogs.png" alt="" aria-hidden="true">
               <span class="mc-identity-platform-label">Discogs</span>
+              <span class="mc-identity-status mc-identity-status--verified">Verified</span>
             </li>
           </ul>
         </section>
