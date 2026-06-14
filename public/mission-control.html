@@ -819,20 +819,6 @@ body {
 
 .mc-source-name { font-size: 12.5px; color: var(--mc-text-soft); }
 
-.mc-pill {
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  padding: 3px 9px;
-  border-radius: 999px;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-.mc-pill--claimed   { background: rgba(45, 212, 191, 0.14); color: var(--mc-green); }
-.mc-pill--verified  { background: rgba(45, 212, 191, 0.14); color: var(--mc-green); }
-.mc-pill--unclaimed { background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
-.mc-pill--pending   { background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
-.mc-pill--missing   { background: rgba(244, 63, 94, 0.12);  color: #f97373; }
-
 /* Identity card — fingerprint scanner visualization (Board-approved original) */
 .mc-identity-body {
   display: grid;
@@ -906,43 +892,101 @@ body {
 }
 
 .mc-identity-header { display: flex; flex-direction: column; gap: 4px; }
-.mc-identity-value {
-  font-size: 30px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  color: var(--mc-text);
-}
-.mc-identity-value small {
-  font-size: 13px;
-  color: var(--mc-text-muted);
-  font-weight: 500;
-}
-.mc-identity-label {
-  font-size: 12px;
-  color: var(--mc-text-muted);
-  margin-top: 2px;
-}
 
-.mc-identity-checks {
+/* Identity Score™ breakdown — executive list of the 5 official
+   platforms feeding the Royaltē Identity Scoring Engine. Mirrors
+   the Health Intelligence™ breakdown pattern but uses the
+   --mc-blue palette (Identity card's locked color family). */
+.mc-identity-breakdown {
+  margin-top: var(--mc-s-3);
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid rgba(56, 189, 248, 0.10);
   display: flex;
   flex-direction: column;
   gap: var(--mc-s-2);
-  border-top: 1px solid var(--mc-divider);
-  padding-top: var(--mc-s-3);
-  margin-top: var(--mc-s-1);
+}
+.mc-identity-breakdown-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mc-s-2);
+}
+.mc-identity-breakdown-title {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-blue);
+  font-weight: 600;
+}
+.mc-identity-breakdown-source {
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  font-weight: 500;
+}
+.mc-identity-platforms {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mc-identity-platforms li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+/* Official Founder-supplied platform PNGs. 18px square per Board
+   spec (20px max). object-fit: contain so each icon's native
+   aspect renders without distortion regardless of source dimensions. */
+.mc-identity-platform-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+.mc-identity-platform-label {
+  color: var(--mc-text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.mc-identity-check {
-  display: grid;
-  grid-template-columns: 16px 1fr auto;
-  gap: var(--mc-s-3);
+/* AI Summary — executive interpretation anchored to the bottom of
+   the card. Mirrors .mc-health-ai-summary but in the blue palette. */
+.mc-identity-ai-summary {
+  margin-top: auto;
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid rgba(56, 189, 248, 0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mc-identity-ai-label {
+  display: flex;
   align-items: center;
-  font-size: 12.5px;
-  color: var(--mc-text-soft);
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-blue);
+}
+.mc-identity-ai-emoji { font-size: 12px; line-height: 1; }
+.mc-identity-ai-headline {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mc-text);
+  line-height: 1.4;
+}
+.mc-identity-ai-body {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  line-height: 1.5;
 }
 
 /* ─── publishing card ─── Board-approved premium executive design ── */
@@ -1364,20 +1408,6 @@ body {
    destination and the Royaltē Review™ surface lives in the
    Executive Brief™ flow. */
 
-/* .mc-check survives the right-rail purge — still consumed by the
-   Identity Intelligence™ card (.mc-identity-check rows in the
-   main grid). */
-.mc-check {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: var(--mc-green);
-  background: var(--mc-green-soft);
-}
-.mc-check svg { width: 10px; height: 10px; }
-
 /* ─── responsive ─────────────────────────────────────────────────── */
 
 @media (max-width: 1440px) {
@@ -1776,28 +1806,48 @@ body {
             </div>
           </div>
           <div class="mc-identity-header">
-            <div class="mc-identity-value">72<small>%</small></div>
-            <div class="mc-identity-label">Identity Confidence</div>
+            <div class="mc-metric-sublabel">Identity Score™</div>
+            <div class="mc-metric-value">72 <small>/100</small></div>
           </div>
         </div>
-        <div class="mc-identity-checks">
-          <div class="mc-identity-check">
-            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
-            Apple Music
-            <span class="mc-pill mc-pill--verified">Verified</span>
+
+        <section class="mc-identity-breakdown" aria-label="Identity Score Breakdown">
+          <header class="mc-identity-breakdown-head">
+            <span class="mc-identity-breakdown-title">Calculated From</span>
+            <span class="mc-identity-breakdown-source">Royaltē Identity Scoring Engine</span>
+          </header>
+          <ul class="mc-identity-platforms">
+            <li>
+              <img class="mc-identity-platform-icon" src="/img/icon-apple-music.png" alt="" aria-hidden="true">
+              <span class="mc-identity-platform-label">Apple Music for Artists</span>
+            </li>
+            <li>
+              <img class="mc-identity-platform-icon" src="/img/icon-spotify.png" alt="" aria-hidden="true">
+              <span class="mc-identity-platform-label">Spotify for Artists</span>
+            </li>
+            <li>
+              <img class="mc-identity-platform-icon" src="/img/icon-youtube.png" alt="" aria-hidden="true">
+              <span class="mc-identity-platform-label">YouTube Official Artist Channel</span>
+            </li>
+            <li>
+              <img class="mc-identity-platform-icon" src="/img/icon-musicbrainz.png" alt="" aria-hidden="true">
+              <span class="mc-identity-platform-label">MusicBrainz</span>
+            </li>
+            <li>
+              <img class="mc-identity-platform-icon" src="/img/icon-discogs.png" alt="" aria-hidden="true">
+              <span class="mc-identity-platform-label">Discogs</span>
+            </li>
+          </ul>
+        </section>
+
+        <section class="mc-identity-ai-summary" aria-label="AI Summary">
+          <div class="mc-identity-ai-label">
+            <span class="mc-identity-ai-emoji" aria-hidden="true">🤖</span>
+            AI Summary
           </div>
-          <div class="mc-identity-check">
-            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
-            Spotify
-            <span class="mc-pill mc-pill--verified">Verified</span>
-          </div>
-          <div class="mc-identity-check">
-            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
-            2 External Identities
-            <span class="mc-pill mc-pill--pending">Pending</span>
-          </div>
-        </div>
-        <div class="mc-card-foot">Royaltē continues to confirm<br>your official artist identities.</div>
+          <div class="mc-identity-ai-headline">Royaltē AI™ continues monitoring your artist identity across the global music ecosystem.</div>
+          <div class="mc-identity-ai-body">No identity conflicts requiring attention were detected.</div>
+        </section>
       </article>
 
       <!-- Publishing Intelligence™ -->
