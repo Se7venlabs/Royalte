@@ -1058,39 +1058,137 @@ body {
 .mc-pub-ring .mc-ring-icon { color: #E095FF; filter: drop-shadow(0 0 14px rgba(236, 170, 245, 0.38)); }
 .mc-pub-ring .mc-ring-icon svg { width: 32px; height: 32px; }
 
-.mc-pub-stats {
+.mc-pub-header {
   display: flex;
   flex-direction: column;
-  gap: 13px;                                /* +breathing room per Board */
+  gap: 4px;
 }
-.mc-pub-stat {
+
+/* Publishing Score™ breakdown — 7 constitutional pillars feeding
+   the Royaltē Publishing Scoring Engine. Mirrors the Health and
+   Identity breakdown patterns but uses the Publishing card's
+   locked pink-orchid palette (#D56BFF). */
+.mc-pub-breakdown {
+  margin-top: var(--mc-s-3);
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid rgba(213, 107, 255, 0.12);
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
   gap: var(--mc-s-2);
 }
-.mc-pub-stat-val {
-  font-size: 22px;
-  font-weight: 700;
-  color: #D56BFF;                           /* pink-orchid primary — matches ring exactly */
-  text-shadow: 0 0 14px rgba(236, 170, 245, 0.22);
-  letter-spacing: 0.005em;
-  line-height: 1.1;
-  min-width: 46px;
-  font-variant-numeric: tabular-nums;
+.mc-pub-breakdown-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mc-s-2);
 }
-.mc-pub-stat-label {
-  font-size: 12.5px;
-  color: #C4C4D0;                           /* slightly brighter per Board */
-  letter-spacing: 0.02em;
+.mc-pub-breakdown-title {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #D56BFF;
+  font-weight: 600;
+}
+.mc-pub-breakdown-source {
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  font-weight: 500;
+}
+.mc-pub-pillars {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mc-pub-pillars li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 90px;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+.mc-pub-pillar-icon {
+  font-size: 17px;
+  line-height: 1;
+  text-align: center;
+}
+.mc-pub-pillar-label {
+  color: var(--mc-text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.mc-pub-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 30%, rgba(255, 255, 255, 0.08) 70%, transparent);
-  margin: var(--mc-s-2) 0 var(--mc-s-1);
+/* Status badge — duplicate of .mc-identity-status scoped with
+   --pub naming so the Publishing card stays self-contained. A
+   future cleanup pass can extract a shared .mc-status-badge
+   primitive once Catalog and Global Footprint also adopt it. */
+.mc-pub-status {
+  box-sizing: border-box;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 22px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.mc-pub-status--verified {
+  color: var(--mc-green);
+  background: rgba(45, 212, 191, 0.10);
+  border: 1px solid rgba(45, 212, 191, 0.28);
+}
+.mc-pub-status--monitoring {
+  color: var(--mc-orange);
+  background: rgba(251, 146, 60, 0.10);
+  border: 1px solid rgba(251, 146, 60, 0.30);
+}
+.mc-pub-status--action {
+  color: #f87171;
+  background: rgba(244, 63, 94, 0.10);
+  border: 1px solid rgba(244, 63, 94, 0.32);
 }
 
-.mc-card--publishing .mc-card-foot { color: #F5F5F7; font-size: 12.5px; line-height: 1.55; }
+/* AI Summary — pink-orchid palette variant. */
+.mc-pub-ai-summary {
+  margin-top: auto;
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid rgba(213, 107, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mc-pub-ai-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #D56BFF;
+}
+.mc-pub-ai-emoji { font-size: 12px; line-height: 1; }
+.mc-pub-ai-headline {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mc-text);
+  line-height: 1.4;
+}
+.mc-pub-ai-body {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  line-height: 1.5;
+}
 
 /* ─── catalog card ──────────────────────────────────────────────── */
 
@@ -1906,21 +2004,70 @@ body {
             <svg viewBox="0 0 80 80">
               <circle class="mc-ring-track"    cx="40" cy="40" r="33" fill="none"/>
               <circle class="mc-ring-progress" cx="40" cy="40" r="33" fill="none"
-                stroke-dasharray="191 207"/>
+                stroke-dasharray="178 207"/>
             </svg>
             <div class="mc-ring-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
             </div>
           </div>
-          <div class="mc-pub-stats">
-            <div class="mc-pub-stat"><span class="mc-pub-stat-val">124</span><span class="mc-pub-stat-label">Works Found</span></div>
-            <div class="mc-pub-stat"><span class="mc-pub-stat-val">86</span><span class="mc-pub-stat-label">Writers Found</span></div>
-            <div class="mc-pub-stat"><span class="mc-pub-stat-val">12</span><span class="mc-pub-stat-label">Publishers Found</span></div>
-            <div class="mc-pub-stat"><span class="mc-pub-stat-val">92%</span><span class="mc-pub-stat-label">ISWC Coverage</span></div>
+          <div class="mc-pub-header">
+            <div class="mc-metric-sublabel">Publishing Score™</div>
+            <div class="mc-metric-value">86 <small>/100</small></div>
           </div>
         </div>
-        <div class="mc-pub-divider"></div>
-        <div class="mc-card-foot">Publishing verification is<br>active and ongoing.</div>
+
+        <section class="mc-pub-breakdown" aria-label="Publishing Score Breakdown">
+          <header class="mc-pub-breakdown-head">
+            <span class="mc-pub-breakdown-title">Calculated From</span>
+            <span class="mc-pub-breakdown-source">Royaltē Publishing Scoring Engine</span>
+          </header>
+          <ul class="mc-pub-pillars">
+            <li>
+              <span class="mc-pub-pillar-icon" aria-hidden="true">🏛</span>
+              <span class="mc-pub-pillar-label">MLC Registration</span>
+              <span class="mc-pub-status mc-pub-status--verified">Verified</span>
+            </li>
+            <li>
+              <span class="mc-pub-pillar-icon" aria-hidden="true">🎼</span>
+              <span class="mc-pub-pillar-label">ISWC Coverage</span>
+              <span class="mc-pub-status mc-pub-status--verified">Verified</span>
+            </li>
+            <li>
+              <span class="mc-pub-pillar-icon" aria-hidden="true">✍️</span>
+              <span class="mc-pub-pillar-label">Writer Credits</span>
+              <span class="mc-pub-status mc-pub-status--verified">Verified</span>
+            </li>
+            <li>
+              <span class="mc-pub-pillar-icon" aria-hidden="true">📚</span>
+              <span class="mc-pub-pillar-label">Publisher Information</span>
+              <span class="mc-pub-status mc-pub-status--action">Action</span>
+            </li>
+            <li>
+              <span class="mc-pub-pillar-icon" aria-hidden="true">🧠</span>
+              <span class="mc-pub-pillar-label">MusicBrainz Publishing Metadata</span>
+              <span class="mc-pub-status mc-pub-status--verified">Verified</span>
+            </li>
+            <li>
+              <span class="mc-pub-pillar-icon" aria-hidden="true">🎵</span>
+              <span class="mc-pub-pillar-label">Composition Metadata Integrity</span>
+              <span class="mc-pub-status mc-pub-status--verified">Verified</span>
+            </li>
+            <li>
+              <span class="mc-pub-pillar-icon" aria-hidden="true">🌍</span>
+              <span class="mc-pub-pillar-label">Publishing Territory Coverage</span>
+              <span class="mc-pub-status mc-pub-status--monitoring">Monitoring</span>
+            </li>
+          </ul>
+        </section>
+
+        <section class="mc-pub-ai-summary" aria-label="AI Summary">
+          <div class="mc-pub-ai-label">
+            <span class="mc-pub-ai-emoji" aria-hidden="true">🤖</span>
+            AI Summary
+          </div>
+          <div class="mc-pub-ai-headline">Royaltē AI™ continues monitoring your publishing infrastructure across the global music ecosystem.</div>
+          <div class="mc-pub-ai-body">No publishing issues requiring immediate attention were detected.</div>
+        </section>
       </article>
 
       <!-- Catalog Intelligence™ -->
