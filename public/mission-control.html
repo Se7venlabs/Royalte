@@ -516,32 +516,36 @@ body {
   isolation: isolate;
 }
 
-/* Bulb art — left-third radial mask feathers the artwork into the
-   module so there are no hard image boundaries. */
+/* Bulb art — sources royalte-ai-bulb.png, which is a clean crop of
+   the bulb + concentric-ring halo from the original Board-approved
+   artwork. The crop contains zero embedded typography, so this mask
+   only feathers the right edge of the image into the surrounding
+   surface; there is no longer any need to isolate the bulb from
+   competing copy painted into the source. */
 .mc-card--ai::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: url('/img/royalte-ai.png') left center / auto 118% no-repeat;
-  -webkit-mask-image: radial-gradient(ellipse 42% 78% at 18% 50%, #000 32%, transparent 76%);
-          mask-image: radial-gradient(ellipse 42% 78% at 18% 50%, #000 32%, transparent 76%);
-  opacity: 0.96;
+  background: url('/img/royalte-ai-bulb.png') 2% center / auto 88% no-repeat;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 50%, transparent 92%);
+          mask-image: linear-gradient(90deg, #000 0%, #000 50%, transparent 92%);
+  opacity: 0.98;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Particle wave — same source PNG, masked to the bottom band so the
-   ambient wave flows the full width of the module beneath the
-   content. Top of the image (including any embedded copy) is fully
-   transparent so it can never compete with the typography. */
+/* Particle wave — sources royalte-ai-wave.png, a clean crop of just
+   the ambient particle band from the bottom of the source artwork.
+   No check-icons, no "All systems healthy" line, no AI Analysis copy.
+   Sized to a generous bottom band that fades upward into the body. */
 .mc-card--ai::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: url('/img/royalte-ai.png') center bottom / 112% auto no-repeat;
-  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 14%, transparent 36%);
-          mask-image: linear-gradient(to top, #000 0%, #000 14%, transparent 36%);
-  opacity: 0.78;
+  background: url('/img/royalte-ai-wave.png') center bottom / auto 30% no-repeat;
+  -webkit-mask-image: linear-gradient(to top, #000 40%, transparent 100%);
+          mask-image: linear-gradient(to top, #000 40%, transparent 100%);
+  opacity: 0.88;
   pointer-events: none;
   z-index: 0;
 }
