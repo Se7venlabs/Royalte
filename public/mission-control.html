@@ -1061,7 +1061,11 @@ body {
   flex-direction: column;
   gap: var(--mc-s-3);
   justify-content: center;
-  padding: var(--mc-s-2) 0;
+  /* Top padding bumped by +20px (vertical centring → content shifts
+     ~10px lower per Board). Left padding 28px gives the bulb the
+     breathing room called out in change #1 — the bulb introduces
+     the content rather than competing with it. */
+  padding: calc(var(--mc-s-2) + 20px) 0 var(--mc-s-2) 28px;
 }
 
 .mc-ai-headline {
@@ -1757,7 +1761,7 @@ body {
 
           <div class="mc-ai-content">
             <h2 class="mc-ai-headline">Because What You Can't See Can Cost You.</h2>
-            <p class="mc-ai-body">Royaltē AI™ continuously monitors the business behind your music, helping you stay informed as your catalog, identities, publishing, metadata and global availability evolve over time — so you can protect and maximize the long-term value of everything you've created.</p>
+            <p class="mc-ai-body">Your music earns money in more places than you think. Royaltē AI™ continuously monitors the business behind your music—helping you protect your catalog and get paid what you're owed.</p>
           </div>
 
           <aside class="mc-ai-activity" aria-label="AI Analysis Activity">
@@ -1768,28 +1772,28 @@ body {
             <ul class="mc-ai-activity-list">
               <li>
                 <span>
-                  <span class="mc-ai-activity-item-title">Reviewing Publishing Infrastructure…</span>
+                  <span class="mc-ai-activity-item-title">Reviewing Publishing</span>
                   <span class="mc-ai-activity-item-sub">Checking rights data and publisher connections</span>
                 </span>
                 <span class="mc-ai-activity-time">00:02</span>
               </li>
               <li>
                 <span>
-                  <span class="mc-ai-activity-item-title">Verifying Artist Identities…</span>
+                  <span class="mc-ai-activity-item-title">Verifying Identity</span>
                   <span class="mc-ai-activity-item-sub">Cross-referencing artist and ownership records</span>
                 </span>
                 <span class="mc-ai-activity-time">00:18</span>
               </li>
               <li>
                 <span>
-                  <span class="mc-ai-activity-item-title">Scanning Metadata Consistency…</span>
+                  <span class="mc-ai-activity-item-title">Scanning Metadata</span>
                   <span class="mc-ai-activity-item-sub">Checking ISRC, UPC, ISWC and release data</span>
                 </span>
                 <span class="mc-ai-activity-time">00:34</span>
               </li>
               <li>
                 <span>
-                  <span class="mc-ai-activity-item-title">Checking DSP Availability…</span>
+                  <span class="mc-ai-activity-item-title">Checking Global Availability</span>
                   <span class="mc-ai-activity-item-sub">Monitoring global distribution and store presence</span>
                 </span>
                 <span class="mc-ai-activity-time">00:50</span>
