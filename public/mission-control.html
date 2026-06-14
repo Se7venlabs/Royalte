@@ -515,7 +515,27 @@ body {
   border-color: rgba(200, 122, 240, 0.11);
 }
 .mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
-.mc-card--ai         { --card-glow: rgba(168, 85, 247, 0.08); border-color: rgba(168, 85, 247, 0.12); }
+.mc-card--ai {
+  --card-glow: rgba(168, 85, 247, 0.10);
+  border-color: rgba(168, 85, 247, 0.15);
+  /* Board-approved canonical artwork: glowing bulb + concentric
+     rings + particle wave at the bottom. Vertical overlay keeps the
+     bulb visible at top, darkens the middle band so headline / body /
+     note read cleanly, and clears at the bottom so the particle wave
+     reads through. */
+  background:
+    linear-gradient(180deg,
+      transparent              0%,
+      rgba(7, 5, 18, 0.32)    22%,
+      rgba(7, 5, 18, 0.82)    40%,
+      rgba(7, 5, 18, 0.86)    78%,
+      rgba(7, 5, 18, 0.45)    92%,
+      transparent            100%),
+    url('/img/royalte-ai.png') left top / auto 100% no-repeat,
+    var(--mc-surface-1);
+  isolation: isolate;
+}
+.mc-card--ai > * { position: relative; z-index: 1; }
 .mc-card--footprint  { --card-glow: rgba(56, 189, 248, 0.06); }
 
 .mc-card-head {
@@ -983,31 +1003,10 @@ body {
   white-space: nowrap;
 }
 
-.mc-ai-art {
-  display: grid;
-  place-items: center;
-  position: relative;
-  height: 96px;
-  margin-top: var(--mc-s-1);
-}
-.mc-ai-art::before {
-  content: "";
-  position: absolute;
-  inset: 8px;
-  background: radial-gradient(circle at 50% 60%, rgba(168, 85, 247, 0.30), transparent 60%);
-  filter: blur(8px);
-}
-.mc-ai-art svg {
-  width: 80px;
-  height: 80px;
-  color: var(--mc-purple);
-  position: relative;
-  z-index: 1;
-  filter: drop-shadow(0 0 16px var(--mc-purple-glow));
-}
-
-/* Static Edison bulb on the main-grid card — no animation this pass */
-.mc-card--ai .mc-bulb-filament { animation: none; opacity: 0.85; }
+/* Reserve top headroom inside the .mc-card--ai content stack so the
+   background artwork's illuminated bulb has clean breathing room
+   above the headline without changing the overall card structure. */
+.mc-card--ai .mc-ai-headline { margin-top: 88px; }
 
 .mc-ai-headline {
   font-size: 21px;
@@ -1970,19 +1969,9 @@ body {
           <div class="mc-ai-refresh">Last Intelligence Refresh: 8 min ago</div>
         </div>
 
-        <div class="mc-ai-art" aria-hidden="true">
-          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path class="mc-bulb-glass" d="M40 4 C 24 4, 14 14, 14 28 C 14 38, 20 46, 28 52 L 32 52 L 32 56 L 48 56 L 48 52 C 56 46, 62 38, 62 28 C 62 14, 56 4, 40 4 Z"/>
-            <path class="mc-bulb-shine" d="M22 14 Q 18 20 18 28" stroke-width="1"/>
-            <line class="mc-bulb-wire" x1="32" y1="52" x2="32" y2="38" stroke-width="0.9"/>
-            <line class="mc-bulb-wire" x1="48" y1="52" x2="48" y2="38" stroke-width="0.9"/>
-            <path class="mc-bulb-filament" d="M32 38 L36 26 L40 38 L44 26 L48 38"/>
-            <rect class="mc-bulb-base" x="32" y="56" width="16" height="3" rx="0.5" stroke-width="1"/>
-            <rect class="mc-bulb-base" x="33" y="59" width="14" height="3" rx="0.5" stroke-width="1"/>
-            <rect class="mc-bulb-base" x="34" y="62" width="12" height="3" rx="0.5" stroke-width="1"/>
-            <ellipse class="mc-bulb-tip" cx="40" cy="67" rx="3" ry="1.5" stroke-width="1"/>
-          </svg>
-        </div>
+        <!-- Bulb art removed: the Board-approved background artwork on
+             .mc-card--ai now provides the illuminated AI bulb,
+             concentric rings, and particle wave directly. -->
 
         <h2 class="mc-ai-headline">Backend Health Continues to Improve</h2>
 
