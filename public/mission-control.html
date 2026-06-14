@@ -1094,11 +1094,25 @@ body {
 
 /* Right-rail panels (AI Insights™ + Royaltē Review™) and all
    associated subclasses (mc-panel, mc-insights-*, mc-bulb-*,
-   mc-takeaway/.mc-check, mc-info-note*, mc-review-*) plus
+   mc-takeaway, mc-info-note*, mc-review-*) plus
    @keyframes mc-bulb-think removed in the Board simplification
    pass. Both modules retired; ROYALTĒ AI™ is now the single AI
    destination and the Royaltē Review™ surface lives in the
    Executive Brief™ flow. */
+
+/* .mc-check survives the right-rail purge — still consumed by the
+   Identity Intelligence™ card (.mc-identity-check rows in the
+   main grid). */
+.mc-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--mc-green);
+  background: var(--mc-green-soft);
+}
+.mc-check svg { width: 10px; height: 10px; }
 
 /* ─── responsive ─────────────────────────────────────────────────── */
 
@@ -1165,8 +1179,6 @@ body {
   }
   .mc-nav { gap: var(--mc-s-1); }
   .mc-founder { max-width: none; }
-  .mc-review-score { grid-template-columns: 96px 1fr; }
-  .mc-review-ring  { width: 96px; height: 96px; }
 }
 
 /* loading skeleton (placeholder; engines inject real values later) */
@@ -1619,12 +1631,8 @@ body {
     });
 
     // No-op handlers for placeholder CTAs so the shell does not throw.
-    const review = document.querySelector('.mc-review-cta');
-    if (review) review.addEventListener('click', (e) => e.preventDefault());
-
-    const download = document.querySelector('.mc-review-download');
-    if (download) download.addEventListener('click', (e) => e.preventDefault());
-
+    // (Royaltē Review™ CTA + Download PDF handlers retired with the
+    //  right-rail purge — those selectors no longer exist in markup.)
     const signout = document.querySelector('.mc-version-sign');
     if (signout) signout.addEventListener('click', (e) => e.preventDefault());
   })();
