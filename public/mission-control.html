@@ -77,7 +77,6 @@
 
   /* layout */
   --mc-rail-l: 256px;
-  --mc-rail-r: 360px;
   --mc-pad:    var(--mc-s-7);
 }
 
@@ -110,28 +109,19 @@ body {
 
 .mc-shell {
   display: grid;
-  grid-template-columns: var(--mc-rail-l) 1fr var(--mc-rail-r);
+  grid-template-columns: var(--mc-rail-l) 1fr;
   min-height: 100vh;
   max-width: 1920px;
   margin: 0 auto;
 }
 
-.mc-rail-left,
-.mc-rail-right {
+.mc-rail-left {
   padding: var(--mc-s-4) var(--mc-s-5);
   display: flex;
   flex-direction: column;
   gap: var(--mc-s-4);
-}
-
-.mc-rail-left {
   border-right: 1px solid var(--mc-border);
   background: linear-gradient(180deg, rgba(168, 85, 247, 0.03), transparent 30%);
-}
-
-.mc-rail-right {
-  border-left: 1px solid var(--mc-border);
-  gap: var(--mc-s-5);
 }
 
 .mc-main {
@@ -1102,271 +1092,22 @@ body {
    .mc-status-dots / .mc-status-dot / .mc-status-card--horizon (and its
    horizon-art star-field) / @keyframes mc-starfield-drift — all gone. */
 
-/* ─── right rail panels ─────────────────────────────────────────── */
-
-.mc-panel {
-  background: var(--mc-surface-1);
-  border: 1px solid var(--mc-border);
-  border-radius: var(--mc-r-4);
-  padding: var(--mc-s-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-4);
-  position: relative;
-  overflow: hidden;
-}
-
-.mc-panel-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--mc-s-3);
-}
-
-.mc-panel-head-left {
-  display: flex;
-  align-items: center;
-  gap: var(--mc-s-2);
-  font-size: 11px;
-  letter-spacing: 0.24em;
-  color: var(--mc-purple);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.mc-panel-meta {
-  font-size: 11px;
-  color: var(--mc-purple);
-  opacity: 0.85;
-  letter-spacing: 0.04em;
-}
-
-/* AI Insights */
-
-.mc-insights-art {
-  display: grid;
-  place-items: center;
-  height: 120px;
-  position: relative;
-}
-.mc-insights-art::before {
-  content: "";
-  position: absolute;
-  inset: 8px;
-  background: radial-gradient(circle at 50% 60%, rgba(168, 85, 247, 0.30), transparent 60%);
-  filter: blur(8px);
-}
-.mc-insights-art svg {
-  width: 80px;
-  height: 80px;
-  color: var(--mc-purple);
-  position: relative;
-  z-index: 1;
-  filter: drop-shadow(0 0 16px var(--mc-purple-glow));
-}
-
-/* Vintage Edison bulb — purple glass, pink-purple filament coil
-   that softly pulses to imply the AI is "thinking". */
-.mc-bulb-glass    { stroke: currentColor;            opacity: 0.85; }
-.mc-bulb-shine    { stroke: #d88cff;                 opacity: 0.55; }
-.mc-bulb-wire     { stroke: rgba(168, 85, 247, 0.55); }
-.mc-bulb-base     { stroke: currentColor;            opacity: 0.80; fill: rgba(168, 85, 247, 0.08); }
-.mc-bulb-tip      { stroke: currentColor;            opacity: 0.80; fill: rgba(168, 85, 247, 0.12); }
-
-.mc-bulb-filament {
-  stroke: #d88cff;
-  stroke-width: 1.4;
-  fill: none;
-  filter: drop-shadow(0 0 5px rgba(216, 140, 255, 0.55));
-  animation: mc-bulb-think 4.2s ease-in-out infinite;
-}
-
-/* Three-phase organic pulse — extremely slow, no harsh glow,
-   no flashing; the filament breathes the way thought feels. */
-@keyframes mc-bulb-think {
-  0%, 100% { opacity: 0.55; filter: drop-shadow(0 0  3px rgba(216, 140, 255, 0.40)); stroke: #c785ff; }
-  35%      { opacity: 1;    filter: drop-shadow(0 0 12px rgba(232, 165, 255, 0.85)); stroke: #ecaaff; }
-  60%      { opacity: 0.78; filter: drop-shadow(0 0  6px rgba(216, 140, 255, 0.55)); stroke: #d88cff; }
-}
-
-.mc-insights-title {
-  font-size: 21px;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.01em;
-}
-
-.mc-insights-body {
-  font-size: 13px;
-  color: var(--mc-text-soft);
-  line-height: 1.6;
-}
-
-.mc-takeaways {
-  margin-top: var(--mc-s-2);
-  border-top: 1px solid var(--mc-divider);
-  padding-top: var(--mc-s-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-2);
-}
-.mc-takeaways-title {
-  font-size: 10.5px;
-  letter-spacing: 0.24em;
-  color: var(--mc-text-muted);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-.mc-takeaways-list { display: flex; flex-direction: column; gap: var(--mc-s-2); margin-top: var(--mc-s-1); }
-.mc-takeaway {
-  display: grid;
-  grid-template-columns: 16px 1fr;
-  gap: var(--mc-s-2);
-  align-items: center;
-  font-size: 12.5px;
-  color: var(--mc-text-soft);
-}
-.mc-check {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: var(--mc-green);
-  background: var(--mc-green-soft);
-}
-.mc-check svg { width: 10px; height: 10px; }
-
-.mc-info-note {
-  margin-top: var(--mc-s-3);
-  padding: var(--mc-s-3) var(--mc-s-4);
-  border-radius: var(--mc-r-2);
-  background: rgba(168, 85, 247, 0.08);
-  border: 1px solid var(--mc-border-warm);
-}
-.mc-info-note-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--mc-purple);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.mc-info-note-body {
-  font-size: 11.5px;
-  color: var(--mc-text-soft);
-  margin-top: 4px;
-  line-height: 1.55;
-}
-
-/* Royaltē Review */
-
-.mc-review-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.mc-review-title {
-  font-size: 11px;
-  letter-spacing: 0.24em;
-  color: var(--mc-text);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-.mc-review-meta {
-  font-size: 11px;
-  color: var(--mc-purple);
-  letter-spacing: 0.04em;
-}
-
-.mc-review-score {
-  display: grid;
-  grid-template-columns: 110px 1fr;
-  align-items: center;
-  gap: var(--mc-s-4);
-}
-
-.mc-review-ring { width: 110px; height: 110px; position: relative; }
-.mc-review-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.mc-review-ring .mc-ring-track    { stroke: rgba(168, 85, 247, 0.10); }
-.mc-review-ring .mc-ring-progress { stroke: var(--mc-purple); filter: drop-shadow(0 0 10px var(--mc-purple-glow)); }
-.mc-review-ring-text {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  flex-direction: column;
-  color: var(--mc-text);
-  text-align: center;
-}
-.mc-review-ring-num {
-  font-size: 28px;
-  font-weight: 700;
-}
-.mc-review-ring-tot {
-  font-size: 11px;
-  color: var(--mc-text-muted);
-  margin-top: -2px;
-}
-
-.mc-review-label {
-  font-size: 11px;
-  letter-spacing: 0.24em;
-  color: var(--mc-text-muted);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-.mc-review-conf {
-  font-size: 15px;
-  color: var(--mc-purple);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  margin-top: 4px;
-}
-
-.mc-review-checks { display: flex; flex-direction: column; gap: var(--mc-s-2); margin-top: var(--mc-s-2); }
-
-.mc-review-cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 13px 18px;
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(109, 40, 217, 0.50));
-  border: 1px solid rgba(168, 85, 247, 0.45);
-  border-radius: var(--mc-r-2);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  box-shadow: 0 0 22px rgba(168, 85, 247, 0.18) inset;
-  transition: filter 160ms ease, transform 160ms ease;
-}
-.mc-review-cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
-.mc-review-cta svg { width: 14px; height: 14px; }
-
-.mc-review-download {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 11px 14px;
-  font-size: 12.5px;
-  color: var(--mc-purple);
-  border-radius: var(--mc-r-2);
-}
-.mc-review-download:hover { background: var(--mc-purple-soft); }
-.mc-review-download svg { width: 13px; height: 13px; }
+/* Right-rail panels (AI Insights™ + Royaltē Review™) and all
+   associated subclasses (mc-panel, mc-insights-*, mc-bulb-*,
+   mc-takeaway/.mc-check, mc-info-note*, mc-review-*) plus
+   @keyframes mc-bulb-think removed in the Board simplification
+   pass. Both modules retired; ROYALTĒ AI™ is now the single AI
+   destination and the Royaltē Review™ surface lives in the
+   Executive Brief™ flow. */
 
 /* ─── responsive ─────────────────────────────────────────────────── */
 
 @media (max-width: 1440px) {
-  :root { --mc-rail-r: 332px; }
   .mc-page-title { font-size: 32px; }
 }
 
 @media (max-width: 1280px) {
-  :root { --mc-rail-l: 230px; --mc-rail-r: 304px; --mc-pad: var(--mc-s-6); }
+  :root { --mc-rail-l: 230px; --mc-pad: var(--mc-s-6); }
   .mc-hero { grid-template-columns: 132px 1fr 180px 180px; }
   .mc-grid { grid-template-columns: repeat(2, 1fr); }
   .mc-row-3 { grid-template-columns: 1fr 1fr; }
@@ -1376,12 +1117,9 @@ body {
   .mc-shell {
     grid-template-columns: 1fr;
   }
-  .mc-rail-left,
-  .mc-rail-right {
+  .mc-rail-left {
     border: 0;
     padding: var(--mc-s-5);
-  }
-  .mc-rail-left {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
@@ -1412,9 +1150,6 @@ body {
   .mc-hero-block    { grid-area: title; }
   .mc-pulse-line    { grid-area: pulse; }
   .mc-hero-action   { grid-area: action; flex-direction: column; align-items: flex-start; gap: 2px; }
-  .mc-rail-right {
-    border-top: 1px solid var(--mc-border);
-  }
 }
 
 @media (max-width: 720px) {
@@ -1858,108 +1593,10 @@ body {
 
   </main>
 
-  <!-- ────────── RIGHT RAIL ────────── -->
-  <aside class="mc-rail-right" id="ai-insights" aria-label="AI Insights and Royaltē Review">
-
-    <!-- AI Insights™ -->
-    <section class="mc-panel" aria-label="AI Insights">
-      <div class="mc-panel-head">
-        <div class="mc-panel-head-left">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
-          AI INSIGHTS™
-        </div>
-        <div class="mc-panel-meta">Last Intelligence Refresh: 8 min ago</div>
-      </div>
-
-      <div class="mc-insights-art" aria-hidden="true">
-        <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <!-- pear-shaped glass envelope with short neck -->
-          <path class="mc-bulb-glass" d="M40 4 C 24 4, 14 14, 14 28 C 14 38, 20 46, 28 52 L 32 52 L 32 56 L 48 56 L 48 52 C 56 46, 62 38, 62 28 C 62 14, 56 4, 40 4 Z"/>
-          <!-- subtle upper-left glass highlight -->
-          <path class="mc-bulb-shine" d="M22 14 Q 18 20 18 28" stroke-width="1"/>
-          <!-- filament support wires from neck up to coil endpoints -->
-          <line class="mc-bulb-wire" x1="32" y1="52" x2="32" y2="38" stroke-width="0.9"/>
-          <line class="mc-bulb-wire" x1="48" y1="52" x2="48" y2="38" stroke-width="0.9"/>
-          <!-- Edison-style hairpin filament coil -->
-          <path class="mc-bulb-filament" d="M32 38 L36 26 L40 38 L44 26 L48 38"/>
-          <!-- brass screw base (three thread bands) -->
-          <rect class="mc-bulb-base" x="32" y="56" width="16" height="3" rx="0.5" stroke-width="1"/>
-          <rect class="mc-bulb-base" x="33" y="59" width="14" height="3" rx="0.5" stroke-width="1"/>
-          <rect class="mc-bulb-base" x="34" y="62" width="12" height="3" rx="0.5" stroke-width="1"/>
-          <!-- contact tip -->
-          <ellipse class="mc-bulb-tip" cx="40" cy="67" rx="3" ry="1.5" stroke-width="1"/>
-        </svg>
-      </div>
-
-      <h2 class="mc-insights-title">Backend Health Continues to Improve</h2>
-      <p class="mc-insights-body">Royaltē Intelligence™ has detected measurable improvements across your music infrastructure. Publishing governance and metadata integrity continue to strengthen, while monitoring indicates stable backend health. No immediate intervention is recommended at this time.</p>
-
-      <div class="mc-takeaways">
-        <div class="mc-takeaways-title">KEY TAKEAWAYS</div>
-        <ul class="mc-takeaways-list">
-          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Metadata is clean and consistent</li>
-          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Identities are verified</li>
-          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Publishing coverage is strong</li>
-          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Systems are operating normally</li>
-          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Monitoring is continuous</li>
-        </ul>
-      </div>
-
-      <div class="mc-info-note">
-        <div class="mc-info-note-title">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
-          No action is required at this time.
-        </div>
-        <div class="mc-info-note-body">We'll continue monitoring and alert you if anything needs your attention.</div>
-      </div>
-    </section>
-
-    <!-- Royaltē Review™ -->
-    <section class="mc-panel" aria-label="Royaltē Review">
-      <div class="mc-review-head">
-        <div class="mc-review-title">ROYALTĒ REVIEW™</div>
-        <div class="mc-review-meta">Generated Today</div>
-      </div>
-
-      <div class="mc-review-score">
-        <div class="mc-review-ring" aria-hidden="true">
-          <svg viewBox="0 0 110 110">
-            <circle class="mc-ring-track"    cx="55" cy="55" r="46" fill="none" stroke-width="6"/>
-            <circle class="mc-ring-progress" cx="55" cy="55" r="46" fill="none" stroke-width="6"
-              stroke-dasharray="240 289"/>
-          </svg>
-          <div class="mc-review-ring-text">
-            <div>
-              <div class="mc-review-ring-num">83</div>
-              <div class="mc-review-ring-tot">/100</div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="mc-review-label">HEALTH SCORE</div>
-          <div class="mc-review-conf">HIGH CONFIDENCE</div>
-        </div>
-      </div>
-
-      <ul class="mc-review-checks">
-        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> No immediate risks</li>
-        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Metadata stable</li>
-        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Identities verified</li>
-        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Publishing coverage strong</li>
-      </ul>
-
-      <button class="mc-review-cta" type="button">
-        View Executive Brief
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
-      </button>
-
-      <a class="mc-review-download" href="#download-pdf">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="M5 11l7 7 7-7"/><path d="M4 20h16"/></svg>
-        Download PDF
-      </a>
-    </section>
-
-  </aside>
+  <!-- Right rail removed in the Board simplification pass:
+       both AI Insights™ and Royaltē Review™ panels retired. ROYALTĒ AI™
+       in the main grid is now the single AI destination; Royaltē
+       Review™ surface lives in the Executive Brief™ flow. -->
 
 </div>
 
