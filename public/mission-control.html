@@ -935,18 +935,19 @@ body {
 }
 .mc-identity-platforms li {
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr) 90px;
+  grid-template-columns: 22px minmax(0, 1fr) 90px;
   align-items: center;
   gap: 12px;
   font-size: 12px;
 }
-/* Official Founder-supplied platform PNGs. 18px square per Board
-   spec (20px max). object-fit: contain so each icon's native
-   aspect renders without distortion regardless of source dimensions. */
+/* Official Founder-supplied platform PNGs. 22px square per Board
+   refinement pass v1.2 — larger visual anchor for each row.
+   object-fit: contain so each icon's native aspect renders
+   without distortion regardless of source dimensions. */
 .mc-identity-platform-icon {
   display: block;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
 }
 .mc-identity-platform-label {
@@ -958,8 +959,12 @@ body {
 
 /* Status badge — premium pill matching the .mc-ai-status treatment
    used in the ROYALTĒ AI™ card header. Fixed 90px width per Board
-   spec; right-aligned in its grid column; vertically centered. */
+   spec; right-aligned in its grid column; vertically centered.
+   box-sizing: border-box makes 90px the explicit outer width
+   regardless of the 1px border, so all three state variants land
+   mathematically identical (per Board refinement v1.2). */
 .mc-identity-status {
+  box-sizing: border-box;
   justify-self: end;
   display: inline-flex;
   align-items: center;
