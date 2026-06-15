@@ -1602,44 +1602,53 @@ body {
 .mc-card--ai.is-igniting .mc-ai-core-shade { opacity: 0; }
 .mc-card--ai.is-igniting .mc-ai-core-glow  { opacity: 1; }
 
-/* Intelligence Energy Wave — Royaltē AI™ Animation Phase 2.
-   Soft violet overlay across the bottom band of the card that
-   slowly pans left → right (11s per tile cycle) to give the wave
-   in royalte-ai-hero.png a continuously-flowing 'fiber optic'
-   feel. The repeating gradient has alpha 0 at both tile edges
-   so the seam where two tiles meet is invisible — no looping
-   artefacts. mix-blend-mode is intentionally NOT used; brightness
-   composites additively over the existing violet wave in the bg
-   image. Independent JS IIFE (MutationObserver on .mc-card--ai)
-   watches for .is-igniting being REMOVED — that's when the bright
-   phase completes — and schedules a wave brightness pulse 200ms
-   later per Board, lasting ~600ms before returning to idle. */
-.mc-card--ai .mc-ai-wave-flow {
+/* Stem Energy Transfer — Royaltē AI™ Animation Phase 2.
+   When the bulb completes its bright phase and begins to exhale,
+   a soft violet pulse leaves the bulb area and traverses the
+   stem region left → right over ~1500ms. The pulse is a blurred
+   radial gradient that brightens the underlying stems in the bg
+   image as it passes (mix-blend-mode: screen so the violet
+   composites additively into the existing stems instead of
+   sitting flat on top of them).
+   The pulse fires ONCE per ignition cycle, triggered by the
+   MutationObserver IIFE at the bottom of the file when
+   .is-igniting is removed from .mc-card--ai (= bulb peak just
+   ended). Idle state: off-left + opacity 0; the .is-stem-
+   transferring class on .mc-card--ai runs the keyframe once
+   forwards, leaving the pulse off-right + opacity 0 — then the
+   class is removed and the element snaps invisibly back to
+   idle for the next cycle. */
+.mc-card--ai .mc-ai-stem-pulse {
   position: absolute;
-  left: 0;
-  right: 0;
   bottom: 0;
+  left: 0;
+  width: 50%;
   height: 180px;
   pointer-events: none;
   z-index: 0;
-  background-image: linear-gradient(90deg,
-    rgba(168, 85, 247, 0.00)  0%,
-    rgba(168, 85, 247, 0.10) 30%,
-    rgba(168, 85, 247, 0.18) 50%,
+  background: radial-gradient(ellipse 55% 85% at 50% 55%,
+    rgba(186, 110, 255, 0.55) 0%,    /* brilliant peak — 25-35% boost when screen-blended */
+    rgba(168, 85, 247, 0.28) 40%,
     rgba(168, 85, 247, 0.10) 70%,
-    rgba(168, 85, 247, 0.00) 100%);
-  background-size: 600px 100%;
-  background-repeat: repeat;
-  filter: blur(25px) brightness(1);
-  transition: filter 400ms ease-out;
-  animation: mc-ai-wave-pan 11s linear infinite;
+    transparent 100%);
+  filter: blur(22px);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transform: translateX(-100%);          /* idle: just off-left, hidden */
 }
-.mc-card--ai .mc-ai-wave-flow.is-pulse {
-  filter: blur(25px) brightness(1.15);   /* +15% luminance per Board */
+.mc-card--ai.is-stem-transferring .mc-ai-stem-pulse {
+  animation: mc-ai-stem-transfer 1500ms ease-in-out forwards;
 }
-@keyframes mc-ai-wave-pan {
-  from { background-position-x: 0;     }
-  to   { background-position-x: 600px; }
+@keyframes mc-ai-stem-transfer {
+  /* 1500ms total — Board's 1200-1800ms. Element starts off-left
+     (translateX -100% of its 50% card-width = -50% of card),
+     fades in as it enters, holds full opacity across the
+     stem region, fades out as it exits right (translateX
+     +200% = +100% of card, fully off-right). */
+  0%   { transform: translateX(-100%); opacity: 0; }
+  10%  { transform: translateX(-60%);  opacity: 1; }   /* faded in, just entered */
+  90%  { transform: translateX(160%);  opacity: 1; }   /* about to exit right */
+  100% { transform: translateX(200%);  opacity: 0; }   /* fully off-right, hidden */
 }
 
 /* AI Analysis Activity — pure HUD overlay (Board HUD v1.0). No
@@ -2790,10 +2799,14 @@ body {
              article every 8-10s for the 4-state power cycle. -->
         <div class="mc-ai-core-shade" aria-hidden="true"></div>
         <div class="mc-ai-core-glow"  aria-hidden="true"></div>
-        <!-- Intelligence Energy Wave overlay (Animation Phase 2).
-             Continuous left-to-right pan; +15% luminance pulse
-             200ms after each ignition bright phase completes. -->
-        <div class="mc-ai-wave-flow"  aria-hidden="true"></div>
+        <!-- Stem Energy Transfer overlay (Animation Phase 2).
+             Soft violet pulse that traverses the stem region
+             left → right once per ignition cycle, triggered by
+             the MutationObserver when the bulb's bright phase
+             ends. mix-blend-mode: screen so the pulse brightens
+             the underlying stems rather than sitting flat over
+             them. -->
+        <div class="mc-ai-stem-pulse" aria-hidden="true"></div>
         <div class="mc-card-head">
           <div class="mc-card-mark">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
@@ -3093,27 +3106,29 @@ body {
     setTimeout(ignite, 3500 + Math.random() * 1500);
   })();
 
-  // Royaltē AI™ — Intelligence Energy Wave luminance response
+  // Royaltē AI™ — Stem Energy Transfer trigger
   // (Animation Phase 2 of 5). Decoupled from Phase 1's ignite()
   // function — uses a MutationObserver to watch .mc-card--ai's
-  // class attribute. When .is-igniting is REMOVED (= bright phase
-  // has just completed), schedule a wave pulse 200ms later for
-  // ~600ms. The continuous left → right pan is pure CSS
-  // (mc-ai-wave-pan keyframe, 11s linear infinite) and needs
-  // no JS — runs the moment the page loads.
+  // class attribute. When .is-igniting is REMOVED (= bulb just
+  // reached peak and is beginning to exhale) the observer adds
+  // .is-stem-transferring to the card, which runs the
+  // mc-ai-stem-transfer keyframe once on .mc-ai-stem-pulse.
+  // After 1500ms the class is removed; the pulse element snaps
+  // invisibly back to its idle off-left state (opacity 0).
   (function () {
     const card = document.querySelector('.mc-card--ai');
-    const wave = document.querySelector('.mc-ai-wave-flow');
-    if (!card || !wave) return;
+    if (!card) return;
 
     let wasIgniting = false;
     const observer = new MutationObserver(() => {
       const isIgniting = card.classList.contains('is-igniting');
       if (wasIgniting && !isIgniting) {
-        // Bright phase just completed — schedule the wave pulse
-        // 200ms later per Board. Hold for ~600ms, then return.
-        setTimeout(() => wave.classList.add('is-pulse'),    200);
-        setTimeout(() => wave.classList.remove('is-pulse'), 800);
+        // Bright phase just ended → fire the stem energy
+        // transfer immediately per Board ('immediately after
+        // the bulb reaches peak brightness and begins
+        // returning to idle').
+        card.classList.add('is-stem-transferring');
+        setTimeout(() => card.classList.remove('is-stem-transferring'), 1500);
       }
       wasIgniting = isIgniting;
     });
