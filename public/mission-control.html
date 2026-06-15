@@ -1724,8 +1724,15 @@ body {
   box-shadow: 0 0 8px rgba(56, 189, 248, 0.85),
               0 0 14px rgba(56, 189, 248, 0.45);
   transform: translate(-50%, -50%);
-  animation: mc-globe-dot-pulse 2.6s ease-in-out infinite;
   pointer-events: none;
+  /* Territory Intelligence Pulses (Animation Phase 1). Each of the
+     16 dots gets a unique --pulse-dur (4-8s) and --pulse-delay via
+     :nth-child() rules below — no two dots ever share both, so the
+     map never reads synchronised. Custom properties cascade to the
+     ::before aura so the dot and its halo always stay in phase
+     with each other while differing from every neighbour. */
+  animation: mc-globe-dot-pulse var(--pulse-dur, 5s) ease-in-out infinite;
+  animation-delay: var(--pulse-delay, 0s);
 }
 .mc-globe-dot::before {
   content: "";
@@ -1735,16 +1742,30 @@ body {
   background: radial-gradient(circle,
     rgba(56, 189, 248, 0.30) 0%,
     transparent 70%);
-  animation: mc-globe-dot-aura 2.6s ease-in-out infinite;
+  animation: mc-globe-dot-aura var(--pulse-dur, 5s) ease-in-out infinite;
+  animation-delay: var(--pulse-delay, 0s);
 }
-/* Stagger half the dots so the aggregate pulse never reads
-   synchronised across the map. */
-.mc-globe-dot:nth-child(2n) {
-  animation-delay: -1.3s;
-}
-.mc-globe-dot:nth-child(2n)::before {
-  animation-delay: -1.3s;
-}
+
+/* Per-dot pulse timing — 16 unique (duration, delay) pairs in the
+   Board-specified 4-8s range. Durations chosen to avoid any common
+   multiples so dots drift naturally relative to one another. */
+.mc-globe-dot:nth-child(1)  { --pulse-dur: 4.2s; --pulse-delay: -0.8s; }
+.mc-globe-dot:nth-child(2)  { --pulse-dur: 5.7s; --pulse-delay: -2.3s; }
+.mc-globe-dot:nth-child(3)  { --pulse-dur: 6.5s; --pulse-delay: -1.1s; }
+.mc-globe-dot:nth-child(4)  { --pulse-dur: 4.9s; --pulse-delay: -3.4s; }
+.mc-globe-dot:nth-child(5)  { --pulse-dur: 7.3s; --pulse-delay: -0.5s; }
+.mc-globe-dot:nth-child(6)  { --pulse-dur: 5.1s; --pulse-delay: -2.8s; }
+.mc-globe-dot:nth-child(7)  { --pulse-dur: 6.8s; --pulse-delay: -1.7s; }
+.mc-globe-dot:nth-child(8)  { --pulse-dur: 4.5s; --pulse-delay: -3.1s; }
+.mc-globe-dot:nth-child(9)  { --pulse-dur: 7.6s; --pulse-delay: -0.9s; }
+.mc-globe-dot:nth-child(10) { --pulse-dur: 5.4s; --pulse-delay: -2.5s; }
+.mc-globe-dot:nth-child(11) { --pulse-dur: 6.2s; --pulse-delay: -1.4s; }
+.mc-globe-dot:nth-child(12) { --pulse-dur: 4.7s; --pulse-delay: -3.7s; }
+.mc-globe-dot:nth-child(13) { --pulse-dur: 7.9s; --pulse-delay: -0.3s; }
+.mc-globe-dot:nth-child(14) { --pulse-dur: 5.9s; --pulse-delay: -2.0s; }
+.mc-globe-dot:nth-child(15) { --pulse-dur: 6.6s; --pulse-delay: -0.6s; }
+.mc-globe-dot:nth-child(16) { --pulse-dur: 4.1s; --pulse-delay: -3.0s; }
+
 @keyframes mc-globe-dot-pulse {
   0%, 100% {
     opacity: 0.85;
@@ -1758,8 +1779,11 @@ body {
   }
 }
 @keyframes mc-globe-dot-aura {
-  0%, 100% { transform: scale(0.85); opacity: 0.45; }
-  50%      { transform: scale(1.20); opacity: 0.85; }
+  /* Scale tightened to within Board's 5-8% per Phase 1: peak 1.07
+     = 7% growth from 1.0; trough 0.97 keeps the halo gentle. The
+     soft fade (opacity 0.4 → 0.8) does most of the visual work. */
+  0%, 100% { transform: scale(0.97); opacity: 0.40; }
+  50%      { transform: scale(1.07); opacity: 0.80; }
 }
 
 /* Executive KPI blocks (Board v3.0) — 4 equal-width centred
