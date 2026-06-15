@@ -1757,17 +1757,32 @@ body {
   line-height: 1.4;
 }
 .mc-ai-activity-list li::before {
+  /* Royaltē AI™ Animation Phase 4 default: hollow white
+     status indicator. Transparent background + 1px white
+     stroke. Soft 350ms transitions on background / border /
+     box-shadow so the swap between idle (hollow) and active
+     (solid + glow) feels like a fade rather than a flash. */
   content: "";
   margin-top: 5px;
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: rgba(168, 85, 247, 0.9);
-  box-shadow: 0 0 6px rgba(168, 85, 247, 0.6);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: none;
+  transition: background    350ms ease-out,
+              border-color  350ms ease-out,
+              box-shadow    350ms ease-out;
 }
-.mc-ai-activity-list li.is-resolved::before {
-  background: var(--mc-blue);
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.7);
+.mc-ai-activity-list li.is-active::before {
+  /* Royaltē AI™ Animation Phase 4 active state: solid white
+     dot with a ≤2px soft glow per Board ('No glow larger than
+     approximately 2px'). Only one row carries .is-active at
+     any moment — enforced by the JS rotator at the bottom of
+     the file. */
+  background: #ffffff;
+  border-color: #ffffff;
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.70);
 }
 /* Item title — primary text per Board HUD palette: WHITE. Cyan
    final-success colour switched from var(--mc-green) → var(--mc-blue)
@@ -3214,6 +3229,65 @@ body {
       wasIgniting = isIgniting;
     });
     observer.observe(card, { attributes: true, attributeFilter: ['class'] });
+  })();
+
+  // Royaltē AI™ — AI Analysis Activity rotation
+  // (Animation Phase 4 of 5). Every 3s, picks a random row in
+  // the activity feed (never the same row twice in a row) and
+  // sets .is-active on it. The previous row's class is removed
+  // so only one row is ever active. CSS handles the fade.
+  (function () {
+    const items = document.querySelectorAll('.mc-ai-activity-list > li');
+    if (items.length < 2) return;
+
+    let lastIdx = -1;
+    function pickNext() {
+      let idx;
+      do { idx = Math.floor(Math.random() * items.length); }
+      while (idx === lastIdx);
+      items.forEach((li) => li.classList.remove('is-active'));
+      items[idx].classList.add('is-active');
+      lastIdx = idx;
+      setTimeout(pickNext, 3000);
+    }
+
+    // Small initial delay so the first selection doesn't fire
+    // the instant the page loads.
+    setTimeout(pickNext, 1500);
+  })();
+
+  // Royaltē AI™ — AI Analysis Activity timer countdowns
+  // (Animation Phase 4 of 5). Each .mc-ai-activity-time element
+  // ticks down by 1 second every second. When a timer reaches
+  // 0:00 it resets to a fresh random value in the 60-180s range
+  // so the telemetry keeps moving. Purely decorative — the
+  // numbers don't represent any backend state.
+  (function () {
+    const timeEls = document.querySelectorAll('.mc-ai-activity-time');
+    if (!timeEls.length) return;
+
+    const fmt = (n) => String(n).padStart(2, '0');
+    const timers = Array.from(timeEls).map((el) => {
+      const parts = el.textContent.trim().split(':').map((s) => parseInt(s, 10));
+      const seconds = (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1]))
+        ? parts[0] * 60 + parts[1]
+        : 30 + Math.floor(Math.random() * 120);
+      return { el, seconds };
+    });
+
+    function tick() {
+      timers.forEach((t) => {
+        if (t.seconds <= 0) {
+          // Reset to a new random 60-180s value so the
+          // countdown can keep ticking.
+          t.seconds = 60 + Math.floor(Math.random() * 120);
+        } else {
+          t.seconds -= 1;
+        }
+        t.el.textContent = fmt(Math.floor(t.seconds / 60)) + ':' + fmt(t.seconds % 60);
+      });
+    }
+    setInterval(tick, 1000);
   })();
 </script>
 
