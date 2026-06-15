@@ -1551,37 +1551,56 @@ body {
   text-shadow: 0 1px 8px rgba(7, 5, 18, 0.85);
 }
 
-/* AI Core Pulse — Royaltē AI™ Animation Phase 1.
+/* AI Core Ignition — Royaltē AI™ Animation Phase 1.
    The bulb + concentric rings are baked into royalte-ai-hero.png
-   so they can't be brightened independently via filter. Instead a
-   soft violet radial-gradient overlay sits over the bulb's
-   position in the card; opacity fades 0 → 1 → 0 on a 4-6s
-   randomised cadence driven by the JS IIFE at the bottom of the
-   file. Brightest at the bulb centre (~12% alpha), fading to a
-   subtler outer halo (~4% alpha) at the ring radius — so the
-   single overlay delivers both the 'bulb softly brightens' and
-   'concentric rings respond' effects from one element. */
-.mc-card--ai .mc-ai-core-pulse {
+   and can't be filtered independently. Two overlay <div>s sit over
+   the bulb's position in the card and animate against each other:
+     .mc-ai-core-shade — dark cosmic mask, opacity 1 at idle so the
+                         bulb reads at ~65% brightness; opacity 0
+                         at ignition so the bulb reads at 100%.
+     .mc-ai-core-glow  — violet boost, opacity 0 at idle; opacity 1
+                         at ignition so the glow visibly expands
+                         beyond the glass per Board.
+   JS toggles .is-igniting on .mc-card--ai for 1700ms each cycle
+   (1350ms build + 350ms peak hold). Both overlays share a 1350ms
+   ease-in-out transition, matching Board's 1200-1500ms build /
+   return timing. Result: idle (65%) → power build → ignition peak
+   (100% + expanded glow) → return to standby. No keyframes —
+   pure CSS transitions driven by class toggling. */
+.mc-card--ai .mc-ai-core-shade,
+.mc-card--ai .mc-ai-core-glow {
   position: absolute;
   left: 27%;                              /* bulb centre at typical card aspect */
   top: 47%;
-  width: 360px;
-  height: 360px;
-  transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 0;                             /* below content (z-index 1) but above bg */
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 1350ms ease-in-out;
+}
+.mc-card--ai .mc-ai-core-shade {
+  width: 400px;
+  height: 400px;
   background: radial-gradient(circle,
-    rgba(168, 85, 247, 0.12) 0%,          /* bulb centre — ~12% glow boost (mid 8-12) */
-    rgba(168, 85, 247, 0.07) 30%,
-    rgba(168, 85, 247, 0.04) 60%,         /* outer rings — ~4% boost (~ Board's 5%) */
+    rgba(4, 4, 14, 0.35) 0%,              /* matches cosmic fallback; dims bulb to ~65% */
+    rgba(4, 4, 14, 0.20) 35%,
+    transparent 70%);
+  filter: blur(25px);
+  opacity: 1;                             /* DEFAULT idle: bulb appears dimmed */
+}
+.mc-card--ai .mc-ai-core-glow {
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(circle,
+    rgba(186, 110, 255, 0.55) 0%,         /* brilliant centre at ignition peak */
+    rgba(168, 85, 247, 0.30) 25%,
+    rgba(168, 85, 247, 0.10) 55%,         /* expanded outer halo */
     transparent 85%);
-  filter: blur(20px);
-  opacity: 0;
-  transition: opacity 350ms ease-in-out;
+  filter: blur(22px);
+  opacity: 0;                             /* DEFAULT idle: no boost */
 }
-.mc-card--ai .mc-ai-core-pulse.is-active {
-  opacity: 1;
-}
+.mc-card--ai.is-igniting .mc-ai-core-shade { opacity: 0; }
+.mc-card--ai.is-igniting .mc-ai-core-glow  { opacity: 1; }
 
 /* AI Analysis Activity — pure HUD overlay (Board HUD v1.0). No
    panel, no container, no border, no glass, no shadow, no blur.
@@ -2725,10 +2744,12 @@ body {
 
       <!-- Royaltē AI™ -->
       <article class="mc-card mc-card--ai" id="royalte-ai" style="grid-column: span 2;" aria-label="Royaltē AI">
-        <!-- AI Core Pulse overlay (Animation Phase 1). Soft violet
-             radial gradient over the bulb's position; JS toggles
-             .is-active every 4-6s for the heartbeat fade. -->
-        <div class="mc-ai-core-pulse" aria-hidden="true"></div>
+        <!-- AI Core Ignition overlays (Animation Phase 1). Shade
+             dims the bulb to ~65% at idle; glow boosts it past
+             100% at ignition peak. JS toggles .is-igniting on the
+             article every 8-10s for the 4-state power cycle. -->
+        <div class="mc-ai-core-shade" aria-hidden="true"></div>
+        <div class="mc-ai-core-glow"  aria-hidden="true"></div>
         <div class="mc-card-head">
           <div class="mc-card-mark">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
@@ -2993,29 +3014,39 @@ body {
     setTimeout(ambientPulse, 6000 + Math.random() * 4000);
   })();
 
-  // Royaltē AI™ — AI Core Pulse (Animation Phase 1 of 5).
-  // Adds .is-active to the .mc-ai-core-pulse overlay div every
-  // 4-6s (randomised) for a 150-300ms hold. The CSS transition
-  // (opacity 350ms ease-in-out) handles the fade-in and fade-
-  // out. Total pulse duration ~850-1000ms — Board's 700-1000ms.
+  // Royaltē AI™ — AI Core Ignition (Animation Phase 1 of 5).
+  // 4-state power cycle (Idle → Power Build → Ignition →
+  // Return → Idle) driven by toggling .is-igniting on the
+  // .mc-card--ai article. CSS transitions on the two overlay
+  // <div>s handle the build (1350ms ease-in-out shade out +
+  // glow in), the peak (350ms class-hold), and the return
+  // (1350ms shade back in + glow back out).
+  //
+  // Total per cycle:
+  //   build   1350ms (CSS transition)
+  //   peak     350ms (class-hold via setTimeout)
+  //   return  1350ms (CSS transition)
+  //   idle    ~5-7s  (setTimeout to next ignite, randomised)
+  //   --------------
+  //   total   ~8-10s  (within Board's 8-12s repeat window)
   (function () {
-    const pulse = document.querySelector('.mc-card--ai .mc-ai-core-pulse');
-    if (!pulse) return;
+    const card = document.querySelector('.mc-card--ai');
+    if (!card) return;
 
-    function pulseCore() {
-      pulse.classList.add('is-active');
-      // 150-300ms hold at peak; with the 350ms transition either
-      // side the total perceived pulse is ~850-1000ms.
-      const hold = 150 + Math.random() * 150;
-      setTimeout(() => pulse.classList.remove('is-active'), hold);
-      // Next pulse in 4-6s, randomised so the heartbeat never
-      // reads as a metronome.
-      setTimeout(pulseCore, 4000 + Math.random() * 2000);
+    function ignite() {
+      card.classList.add('is-igniting');
+      // Hold the class through power build (1350ms) + ignition
+      // peak (350ms). Removing the class triggers the return
+      // transition back to idle.
+      setTimeout(() => card.classList.remove('is-igniting'), 1700);
+      // Schedule next ignition. 8050-10050ms total cycle:
+      // 3050ms animation + 5000-7000ms randomised idle hold.
+      setTimeout(ignite, 8050 + Math.random() * 2000);
     }
 
-    // Initial delay so the first heartbeat doesn't fire the
-    // instant the page loads.
-    setTimeout(pulseCore, 2500 + Math.random() * 1500);
+    // Initial delay before the first ignition so the page can
+    // settle into its idle state first.
+    setTimeout(ignite, 3500 + Math.random() * 1500);
   })();
 </script>
 
