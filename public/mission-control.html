@@ -1551,6 +1551,38 @@ body {
   text-shadow: 0 1px 8px rgba(7, 5, 18, 0.85);
 }
 
+/* AI Core Pulse — Royaltē AI™ Animation Phase 1.
+   The bulb + concentric rings are baked into royalte-ai-hero.png
+   so they can't be brightened independently via filter. Instead a
+   soft violet radial-gradient overlay sits over the bulb's
+   position in the card; opacity fades 0 → 1 → 0 on a 4-6s
+   randomised cadence driven by the JS IIFE at the bottom of the
+   file. Brightest at the bulb centre (~12% alpha), fading to a
+   subtler outer halo (~4% alpha) at the ring radius — so the
+   single overlay delivers both the 'bulb softly brightens' and
+   'concentric rings respond' effects from one element. */
+.mc-card--ai .mc-ai-core-pulse {
+  position: absolute;
+  left: 27%;                              /* bulb centre at typical card aspect */
+  top: 47%;
+  width: 360px;
+  height: 360px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;                             /* below content (z-index 1) but above bg */
+  background: radial-gradient(circle,
+    rgba(168, 85, 247, 0.12) 0%,          /* bulb centre — ~12% glow boost (mid 8-12) */
+    rgba(168, 85, 247, 0.07) 30%,
+    rgba(168, 85, 247, 0.04) 60%,         /* outer rings — ~4% boost (~ Board's 5%) */
+    transparent 85%);
+  filter: blur(20px);
+  opacity: 0;
+  transition: opacity 350ms ease-in-out;
+}
+.mc-card--ai .mc-ai-core-pulse.is-active {
+  opacity: 1;
+}
+
 /* AI Analysis Activity — pure HUD overlay (Board HUD v1.0). No
    panel, no container, no border, no glass, no shadow, no blur.
    Just typography floating directly over the cinematic backdrop,
@@ -2693,6 +2725,10 @@ body {
 
       <!-- Royaltē AI™ -->
       <article class="mc-card mc-card--ai" id="royalte-ai" style="grid-column: span 2;" aria-label="Royaltē AI">
+        <!-- AI Core Pulse overlay (Animation Phase 1). Soft violet
+             radial gradient over the bulb's position; JS toggles
+             .is-active every 4-6s for the heartbeat fade. -->
+        <div class="mc-ai-core-pulse" aria-hidden="true"></div>
         <div class="mc-card-head">
           <div class="mc-card-mark">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
@@ -2955,6 +2991,31 @@ body {
     // Initial delay before the first ambient pulse so the page
     // settles first.
     setTimeout(ambientPulse, 6000 + Math.random() * 4000);
+  })();
+
+  // Royaltē AI™ — AI Core Pulse (Animation Phase 1 of 5).
+  // Adds .is-active to the .mc-ai-core-pulse overlay div every
+  // 4-6s (randomised) for a 150-300ms hold. The CSS transition
+  // (opacity 350ms ease-in-out) handles the fade-in and fade-
+  // out. Total pulse duration ~850-1000ms — Board's 700-1000ms.
+  (function () {
+    const pulse = document.querySelector('.mc-card--ai .mc-ai-core-pulse');
+    if (!pulse) return;
+
+    function pulseCore() {
+      pulse.classList.add('is-active');
+      // 150-300ms hold at peak; with the 350ms transition either
+      // side the total perceived pulse is ~850-1000ms.
+      const hold = 150 + Math.random() * 150;
+      setTimeout(() => pulse.classList.remove('is-active'), hold);
+      // Next pulse in 4-6s, randomised so the heartbeat never
+      // reads as a metronome.
+      setTimeout(pulseCore, 4000 + Math.random() * 2000);
+    }
+
+    // Initial delay so the first heartbeat doesn't fire the
+    // instant the page loads.
+    setTimeout(pulseCore, 2500 + Math.random() * 1500);
   })();
 </script>
 
