@@ -1858,6 +1858,15 @@ body {
   font-variant-numeric: tabular-nums;
   line-height: 1;
   letter-spacing: 0.005em;
+  /* Animation Phase 3 — soft glow fade for KPI Intelligence Refresh.
+     The transition handles the smooth brightness in/out; the JS at
+     the bottom of the file toggles the .is-refreshing class on the
+     active KPI every 20-30s. */
+  transition: text-shadow 280ms ease-out;
+}
+.mc-foot-kpi-value.is-refreshing {
+  text-shadow: 0 0 14px rgba(56, 189, 248, 0.55),
+               0 0 26px rgba(56, 189, 248, 0.28);
 }
 .mc-foot-kpi-label {
   font-size: 11px;
@@ -2721,6 +2730,73 @@ body {
     //  right-rail purge — those selectors no longer exist in markup.)
     const signout = document.querySelector('.mc-version-sign');
     if (signout) signout.addEventListener('click', (e) => e.preventDefault());
+  })();
+
+  // Global Music Footprint™ — Executive KPI Intelligence Refresh
+  // (Animation Phase 3 of 5). Cycles through the four KPI values
+  // every 20-30s. Each refresh:
+  //   1. adds .is-refreshing → soft cyan text-shadow glow fades in
+  //      over 280ms (CSS transition handles this);
+  //   2. runs a count-up animation from (target - 3) up to target
+  //      over 550-700ms via requestAnimationFrame + easeOut;
+  //   3. removes .is-refreshing → glow fades back to idle.
+  // UI-only — no backend, no payload. Values are static reference
+  // numbers from the original Board spec.
+  (function () {
+    const valueEls = document.querySelectorAll('.mc-foot-kpi-value');
+    if (!valueEls.length) return;
+
+    // Build KPI state — first child of each value span is the
+    // numeric Text node (Countries also carries a trailing space
+    // before the <small>Countries</small> suffix; preserved via
+    // the regex capture group below).
+    const kpis = Array.from(valueEls).map((el) => {
+      const lead = el.firstChild;
+      if (!lead || lead.nodeType !== Node.TEXT_NODE) return null;
+      const match = lead.textContent.match(/^(\d+)(\D*)$/);
+      if (!match) return null;
+      return {
+        el:     el,
+        lead:   lead,
+        target: parseInt(match[1], 10),
+        suffix: match[2],
+      };
+    }).filter(Boolean);
+
+    if (!kpis.length) return;
+
+    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+    function animateCount(kpi, durationMs) {
+      const start = Math.max(0, kpi.target - 3);
+      const t0 = performance.now();
+      function tick(now) {
+        const p = Math.min((now - t0) / durationMs, 1);
+        const val = Math.round(start + (kpi.target - start) * easeOut(p));
+        kpi.lead.textContent = val + kpi.suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    let idx = 0;
+    function refreshNext() {
+      const kpi = kpis[idx];
+      idx = (idx + 1) % kpis.length;
+
+      kpi.el.classList.add('is-refreshing');
+      const duration = 550 + Math.random() * 150;       // 550-700ms
+      animateCount(kpi, duration);
+      setTimeout(() => kpi.el.classList.remove('is-refreshing'), duration + 350);
+
+      // Next refresh in 20-30s (randomised so the cadence never
+      // pattern-matches between KPIs).
+      setTimeout(refreshNext, 20000 + Math.random() * 10000);
+    }
+
+    // Initial delay before the first refresh so the animation
+    // doesn't fire the instant the page loads.
+    setTimeout(refreshNext, 8000 + Math.random() * 4000);
   })();
 </script>
 
