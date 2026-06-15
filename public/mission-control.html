@@ -1824,6 +1824,48 @@ body {
   100%  { left: 100%; opacity: 0; }    /* hold off-right, hidden, ~49.5s quiet */
 }
 
+/* Live Intelligence Connections (Animation Phase 4). A single
+   faint cyan telemetry line appears from a random territory every
+   15-25s, traces toward the map centre, and dissolves before
+   reaching it. Only one line exists at a time — the JS at the
+   bottom of the file repoints the shared <line> element's
+   coordinates each cycle and toggles .is-firing to re-run the
+   stroke-dashoffset trace animation. Percentage coordinates in
+   the SVG viewBox (0-100) align directly with the dot positions
+   (which use left/top % on the canvas). */
+.mc-globe-connection-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+.mc-globe-connection {
+  stroke: #38BDF8;
+  stroke-width: 0.4;
+  stroke-linecap: round;
+  fill: none;
+  opacity: 0;
+  filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.6));
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+.mc-globe-connection.is-firing {
+  animation: mc-globe-connection-trace 1000ms ease-out forwards;
+}
+@keyframes mc-globe-connection-trace {
+  /* 1000ms total. stroke-dashoffset shrinks from 100 → 0 so the
+     line traces from origin toward the centre; opacity ramps in
+     then fades BEFORE the trace completes, giving the
+     'dissolve before reaching the centre' effect. */
+  0%   { opacity: 0;   stroke-dashoffset: 100; }
+  20%  { opacity: 0.9; stroke-dashoffset: 80;  }
+  55%  { opacity: 1;   stroke-dashoffset: 30;  }
+  75%  { opacity: 0.6; stroke-dashoffset: 0;   }
+  100% { opacity: 0;   stroke-dashoffset: 0;   }
+}
+
 /* Executive KPI blocks (Board v3.0) — 4 equal-width centred
    stacks beneath the map. Each KPI is a centred icon + large
    bold number + small muted label. The numbers are the focal
@@ -2576,6 +2618,16 @@ body {
                  child of the canvas so it stacks on top of the
                  dots and naturally tints them as it passes. -->
             <div class="mc-globe-sweep" aria-hidden="true"></div>
+            <!-- Live Intelligence Connections (Animation Phase 4):
+                 SVG overlay carrying a single reusable <line>. JS
+                 picks a random dot every 15-25s, repoints the
+                 line endpoints, and toggles .is-firing on it.
+                 viewBox 0-100 with preserveAspectRatio="none" so
+                 percentages align directly with .mc-globe-dot
+                 left/top values. -->
+            <svg class="mc-globe-connection-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <line class="mc-globe-connection" pathLength="100" x1="0" y1="0" x2="0" y2="0"/>
+            </svg>
           </div>
         </div>
 
@@ -2797,6 +2849,57 @@ body {
     // Initial delay before the first refresh so the animation
     // doesn't fire the instant the page loads.
     setTimeout(refreshNext, 8000 + Math.random() * 4000);
+  })();
+
+  // Global Music Footprint™ — Live Intelligence Connections
+  // (Animation Phase 4 of 5). Every 15-25s, fire one faint cyan
+  // telemetry line from a random territory toward the map centre.
+  // Only one line exists at a time — re-uses a single SVG <line>
+  // element by re-pointing its endpoints each cycle.
+  (function () {
+    const canvas = document.querySelector('.mc-globe-canvas');
+    if (!canvas) return;
+    const line = canvas.querySelector('.mc-globe-connection');
+    const dots = canvas.querySelectorAll('.mc-globe-dot');
+    if (!line || !dots.length) return;
+
+    function fireConnection() {
+      const dot = dots[Math.floor(Math.random() * dots.length)];
+      const left = parseFloat(dot.style.left);
+      const top  = parseFloat(dot.style.top);
+      if (isNaN(left) || isNaN(top)) {
+        setTimeout(fireConnection, 15000 + Math.random() * 10000);
+        return;
+      }
+
+      // Map centre at ~50%, 50% of the SVG viewBox (0-100).
+      // Travel 65-80% of the dot→centre distance so the line
+      // never actually reaches the centre — that's where the
+      // "dissolve before reaching the centre" effect lives,
+      // combined with the opacity fade in the keyframes.
+      const fraction = 0.65 + Math.random() * 0.15;
+      const endX = left + (50 - left) * fraction;
+      const endY = top  + (50 - top)  * fraction;
+
+      line.setAttribute('x1', left);
+      line.setAttribute('y1', top);
+      line.setAttribute('x2', endX);
+      line.setAttribute('y2', endY);
+
+      // Restart the trace by removing + re-adding .is-firing
+      // with a reflow in between so the CSS engine picks up the
+      // class change as a new animation instance.
+      line.classList.remove('is-firing');
+      void line.getBoundingClientRect();
+      line.classList.add('is-firing');
+
+      // Schedule the next connection in 15-25s.
+      setTimeout(fireConnection, 15000 + Math.random() * 10000);
+    }
+
+    // Initial delay so the first line doesn't fire immediately
+    // on page load.
+    setTimeout(fireConnection, 9000 + Math.random() * 4000);
   })();
 </script>
 
