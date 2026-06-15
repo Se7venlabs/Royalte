@@ -506,7 +506,7 @@ body {
      Anchored `center bottom` so the purple intelligence wave at the
      bottom of the source is never clipped; the small amount of
      cosmic clipped at the top is empty space above the bulb. */
-  background: url('/img/royalte-ai-hero.png') left bottom / cover no-repeat, #04040E;
+  background: url('/img/royalte-ai-hero.png') 59px bottom / auto 75% no-repeat, #04040E;
   isolation: isolate;
 }
 
@@ -1753,14 +1753,14 @@ body {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: var(--mc-s-1);
+  gap: var(--mc-s-2);                  /* Board refinement: 4 → 8 (more breathing room) */
 }
 .mc-foot-kpi-icon {
-  font-size: 20px;
+  font-size: 14px;                     /* Board refinement: 20 → 14 (30% reduction) */
   line-height: 1;
 }
 .mc-foot-kpi-value {
-  font-size: 28px;
+  font-size: 22px;                     /* Board refinement: 28 → 22 (~21% reduction) */
   font-weight: 700;
   color: var(--mc-text);
   font-variant-numeric: tabular-nums;
