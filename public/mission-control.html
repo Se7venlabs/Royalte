@@ -1786,6 +1786,44 @@ body {
   50%      { transform: scale(1.07); opacity: 0.80; }
 }
 
+/* Global Availability Sweep (Animation Phase 2). A soft cyan
+   atmospheric wave that traverses the map left → right once every
+   51s, lasting ~1.5s on canvas. Sits ON TOP of the dots in DOM
+   order (no z-index needed — sweep is the last child of
+   .mc-globe-canvas) so it naturally tints each dot it passes
+   over, giving the "territory dots briefly brighten" effect
+   without any separate per-dot animation. Phase 1 timings are
+   untouched. */
+.mc-globe-sweep {
+  position: absolute;
+  top: -5%;
+  bottom: -5%;
+  width: 24%;
+  left: -25%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(56, 189, 248, 0)    25%,
+    rgba(56, 189, 248, 0.18) 50%,
+    rgba(56, 189, 248, 0)    75%,
+    transparent 100%);
+  filter: blur(8px);
+  pointer-events: none;
+  opacity: 0;
+  animation: mc-globe-sweep-pass 51s linear infinite;
+}
+
+@keyframes mc-globe-sweep-pass {
+  /* Visible window 0% → 3% of the 51s cycle ≈ 1.53s. The remaining
+     97% holds the element off-right at opacity 0 — the cycle
+     never visibly resets. Soft fade-in/out at the canvas edges
+     so the entrance and exit feel atmospheric, not abrupt. */
+  0%    { left: -25%; opacity: 0; }
+  0.3%  { left: -22%; opacity: 1; }    /* fade in just as right edge enters canvas */
+  2.7%  { left: 97%;  opacity: 1; }    /* swept across, left edge nearing canvas right */
+  3.0%  { left: 100%; opacity: 0; }    /* fade out as left edge exits */
+  100%  { left: 100%; opacity: 0; }    /* hold off-right, hidden, ~49.5s quiet */
+}
+
 /* Executive KPI blocks (Board v3.0) — 4 equal-width centred
    stacks beneath the map. Each KPI is a centred icon + large
    bold number + small muted label. The numbers are the focal
@@ -2523,6 +2561,12 @@ body {
             <span class="mc-globe-dot" style="left:88.3%; top:35.0%"></span><!-- Japan -->
             <span class="mc-globe-dot" style="left:85.6%; top:34.3%"></span><!-- South Korea -->
             <span class="mc-globe-dot" style="left:71.7%; top:46.4%"></span><!-- India -->
+            <!-- Global Availability Sweep (Animation Phase 2):
+                 soft cyan atmospheric wave that traverses the map
+                 left → right once every 51s, lasting ~1.5s. Last
+                 child of the canvas so it stacks on top of the
+                 dots and naturally tints them as it passes. -->
+            <div class="mc-globe-sweep" aria-hidden="true"></div>
           </div>
         </div>
 
