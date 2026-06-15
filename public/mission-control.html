@@ -1651,6 +1651,43 @@ body {
   100% { transform: translateX(200%);  opacity: 0; }   /* fully off-right, hidden */
 }
 
+/* Intelligence Propagation — Royaltē AI™ Animation Phase 3.
+   8 small purple nodes scattered across the network area
+   (4 in the wave region, 4 higher in the cosmic field). When
+   .is-propagating is on .mc-card--ai each node runs the
+   mc-ai-net-awaken keyframe with its own animation-delay
+   sourced from the --d CSS custom property carried inline on
+   each node. The result is a ripple from the energy-arrival
+   point on the right toward the far left.
+   No scaling, no blinking — only soft opacity transitions per
+   Board ('soft purple halo', 'no flashing'). */
+.mc-card--ai .mc-ai-net-node {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ba6eff;
+  box-shadow: 0 0 8px  rgba(186, 110, 255, 0.70),
+              0 0 16px rgba(168, 85, 247, 0.40);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+}
+.mc-card--ai.is-propagating .mc-ai-net-node {
+  animation: mc-ai-net-awaken 500ms ease-in-out forwards;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes mc-ai-net-awaken {
+  /* 500ms per node: soft fade-in, brief hold, natural fade-out. */
+  0%   { opacity: 0; }
+  30%  { opacity: 1; }
+  60%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 /* AI Analysis Activity — pure HUD overlay (Board HUD v1.0). No
    panel, no container, no border, no glass, no shadow, no blur.
    Just typography floating directly over the cinematic backdrop,
@@ -2807,6 +2844,22 @@ body {
              the underlying stems rather than sitting flat over
              them. -->
         <div class="mc-ai-stem-pulse" aria-hidden="true"></div>
+        <!-- Intelligence Propagation nodes (Animation Phase 3).
+             8 soft purple dots that ripple from the right
+             arrival point outward across the network when
+             .is-propagating is on the card. --x / --y / --d
+             custom properties carry per-node position and
+             delay so the propagation reads as near → mid → far.
+             Positioned to avoid the bulb area on the left
+             (where the Phase 1 shade / glow overlays live). -->
+        <div class="mc-ai-net-node" aria-hidden="true" style="--x:92%; --y:75%; --d:0ms;"></div>
+        <div class="mc-ai-net-node" aria-hidden="true" style="--x:80%; --y:60%; --d:100ms;"></div>
+        <div class="mc-ai-net-node" aria-hidden="true" style="--x:70%; --y:80%; --d:200ms;"></div>
+        <div class="mc-ai-net-node" aria-hidden="true" style="--x:55%; --y:50%; --d:300ms;"></div>
+        <div class="mc-ai-net-node" aria-hidden="true" style="--x:60%; --y:78%; --d:400ms;"></div>
+        <div class="mc-ai-net-node" aria-hidden="true" style="--x:38%; --y:60%; --d:550ms;"></div>
+        <div class="mc-ai-net-node" aria-hidden="true" style="--x:30%; --y:78%; --d:700ms;"></div>
+        <div class="mc-ai-net-node" aria-hidden="true" style="--x:12%; --y:82%; --d:850ms;"></div>
         <div class="mc-card-head">
           <div class="mc-card-mark">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
@@ -3129,6 +3182,34 @@ body {
         // returning to idle').
         card.classList.add('is-stem-transferring');
         setTimeout(() => card.classList.remove('is-stem-transferring'), 1500);
+      }
+      wasIgniting = isIgniting;
+    });
+    observer.observe(card, { attributes: true, attributeFilter: ['class'] });
+  })();
+
+  // Royaltē AI™ — Intelligence Propagation trigger
+  // (Animation Phase 3 of 5). Separate observer from Phase 2 to
+  // keep concerns decoupled. Same trigger source (.is-igniting
+  // removed = bulb bright phase complete), but the
+  // .is-propagating class is added at +1300ms — when the Phase 2
+  // stem pulse is exiting the right edge of the card (keyframe
+  // at 90% of 1500ms = arrival point). Hold for 1500ms so the
+  // last node (--d 850ms + 500ms keyframe = 1350ms) finishes its
+  // fade before the class is removed.
+  (function () {
+    const card = document.querySelector('.mc-card--ai');
+    if (!card) return;
+
+    let wasIgniting = false;
+    const observer = new MutationObserver(() => {
+      const isIgniting = card.classList.contains('is-igniting');
+      if (wasIgniting && !isIgniting) {
+        // Phase 3 starts as Phase 2's stem energy reaches the
+        // far right — propagates outward across the network for
+        // ~1350ms (last node finishes), then everything settles.
+        setTimeout(() => card.classList.add('is-propagating'),    1300);
+        setTimeout(() => card.classList.remove('is-propagating'), 1300 + 1500);
       }
       wasIgniting = isIgniting;
     });
