@@ -372,6 +372,35 @@ body {
   50%      { opacity: 0.7;  transform: scale(1.18); }
 }
 
+/* Radar sonar-detection pings (Animation Pass #1). Four dots placed
+   INSIDE the rotating .mc-radar-sweep group so each ping is always
+   physically within the active sonar wedge — no JS sync needed
+   between the 10s sweep and the 18s ping cadence. Each ping has its
+   own delay matching the Board cadence (3s, 5s, 4s, 6s = 18s total
+   cycle). Lifetime ~400ms per Board: quick fade-in (~60ms), brief
+   hold (~80ms), smooth fade-out (~260ms). Glow only, no scaling. */
+.mc-radar-ping {
+  fill: #34f5b0;
+  opacity: 0;
+  transform-origin: 65px 65px;
+  filter:
+    drop-shadow(0 0 3px rgba(52, 245, 176, 0.95))
+    drop-shadow(0 0 6px rgba(52, 245, 176, 0.55));
+  animation: mc-radar-ping-fade 18s ease-in-out infinite;
+}
+.mc-radar-ping--1 { animation-delay: 3s;  }   /* fires at t = 3 / 21 / 39 / ... */
+.mc-radar-ping--2 { animation-delay: 8s;  }   /* fires at t = 8 / 26 / 44 / ... */
+.mc-radar-ping--3 { animation-delay: 12s; }   /* fires at t = 12 / 30 / 48 / ... */
+.mc-radar-ping--4 { animation-delay: 18s; }   /* fires at t = 18 / 36 / 54 / ... */
+
+@keyframes mc-radar-ping-fade {
+  0%       { opacity: 0; }
+  0.33%    { opacity: 1; }    /* ≈60ms: quick fade-in */
+  0.78%    { opacity: 1; }    /* ≈80ms: brief hold */
+  2.22%    { opacity: 0; }    /* ≈260ms: smooth fade-out (total visible ≈400ms) */
+  100%     { opacity: 0; }    /* invisible for the remainder of the 18s cycle */
+}
+
 .mc-hero-block { display: flex; flex-direction: column; gap: var(--mc-s-1); }
 
 .mc-hero-label {
@@ -2070,6 +2099,16 @@ body {
           <line x1="3"  y1="65" x2="127" y2="65" stroke="rgba(45,212,191,0.10)"/>
           <g class="mc-radar-sweep">
             <path d="M65 65 L65 3 A62 62 0 0 1 117 39 Z" fill="url(#mc-radar-sweep-fill)"/>
+            <!-- Sonar detection pings — children of the sweep group
+                 so they rotate with it; only become visible when
+                 their staggered animation delay fires. Each ping
+                 sits at a random distance from centre (28, 35, 42,
+                 50 px) inside the 62 px radar, at an angle inside
+                 the sweep's 63° wedge so it's always lit. -->
+            <circle class="mc-radar-ping mc-radar-ping--1" cx="86"    cy="28.6" r="1.5"/>
+            <circle class="mc-radar-ping mc-radar-ping--2" cx="74.6"  cy="38.7" r="1.5"/>
+            <circle class="mc-radar-ping mc-radar-ping--3" cx="100.4" cy="29.6" r="1.5"/>
+            <circle class="mc-radar-ping mc-radar-ping--4" cx="85.1"  cy="36.3" r="1.5"/>
           </g>
           <circle class="mc-radar-center" cx="65" cy="65" r="3" fill="#34f5b0"/>
         </svg>
