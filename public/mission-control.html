@@ -1732,57 +1732,55 @@ body {
   50%      { transform: scale(1.20); opacity: 0.85; }
 }
 
-/* Major Music Markets™ — two-column executive country list,
-   Americas on the left, Europe / Asia-Pacific on the right. */
-.mc-foot-markets {
+/* Executive metrics — 4-row briefing summary that replaces the
+   prior country lists. Per Board v2.0: the map is the hero, the
+   metrics support the map, the country lists do not belong on
+   Mission Control™. Each row: emoji icon + small label + large
+   executive value with optional unit suffix. The numbers are the
+   focal point. */
+.mc-foot-metrics {
   margin-top: var(--mc-s-3);
   padding-top: var(--mc-s-3);
   border-top: 1px solid rgba(56, 189, 248, 0.10);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--mc-s-4) var(--mc-s-5);
-}
-.mc-foot-markets-col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-2);
-}
-.mc-foot-markets-head {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--mc-blue);
-}
-.mc-foot-markets-head-emoji { font-size: 12px; line-height: 1; }
-.mc-foot-markets-list {
   list-style: none;
-  padding: 0;
-  margin: 0;
+  padding-left: 0;
+  margin-left: 0;
+  margin-right: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;                              /* matches Publishing reference */
+  gap: var(--mc-s-3);                  /* generous spacing per Board */
 }
-.mc-foot-markets-list li {
+.mc-foot-metrics li {
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 12px;
 }
-.mc-foot-market-flag {
-  font-size: 16px;
+.mc-foot-metric-icon {
+  font-size: 17px;
   line-height: 1;
   text-align: center;
 }
-.mc-foot-market-name {
+.mc-foot-metric-label {
+  font-size: 12.5px;
   color: var(--mc-text-soft);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+.mc-foot-metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mc-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.mc-foot-metric-value small {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.04em;
 }
 
 /* AI Summary — blue palette variant matching the established
@@ -2474,40 +2472,28 @@ body {
           </div>
         </div>
 
-        <section class="mc-foot-markets" aria-label="Major Music Markets">
-          <div class="mc-foot-markets-col">
-            <header class="mc-foot-markets-head">
-              <span class="mc-foot-markets-head-emoji" aria-hidden="true">🌎</span>
-              Americas
-            </header>
-            <ul class="mc-foot-markets-list">
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇺🇸</span><span class="mc-foot-market-name">United States</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇨🇦</span><span class="mc-foot-market-name">Canada</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇧🇷</span><span class="mc-foot-market-name">Brazil</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇲🇽</span><span class="mc-foot-market-name">Mexico</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇦🇷</span><span class="mc-foot-market-name">Argentina</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇨🇴</span><span class="mc-foot-market-name">Colombia</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇨🇱</span><span class="mc-foot-market-name">Chile</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇵🇪</span><span class="mc-foot-market-name">Peru</span></li>
-            </ul>
-          </div>
-          <div class="mc-foot-markets-col">
-            <header class="mc-foot-markets-head">
-              <span class="mc-foot-markets-head-emoji" aria-hidden="true">🌏</span>
-              Europe / Asia-Pacific
-            </header>
-            <ul class="mc-foot-markets-list">
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇬🇧</span><span class="mc-foot-market-name">United Kingdom</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇩🇪</span><span class="mc-foot-market-name">Germany</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇫🇷</span><span class="mc-foot-market-name">France</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇸🇪</span><span class="mc-foot-market-name">Sweden</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇮🇹</span><span class="mc-foot-market-name">Italy</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇯🇵</span><span class="mc-foot-market-name">Japan</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇰🇷</span><span class="mc-foot-market-name">South Korea</span></li>
-              <li><span class="mc-foot-market-flag" aria-hidden="true">🇮🇳</span><span class="mc-foot-market-name">India</span></li>
-            </ul>
-          </div>
-        </section>
+        <ul class="mc-foot-metrics" aria-label="Global Music Metrics">
+          <li>
+            <span class="mc-foot-metric-icon" aria-hidden="true">🌎</span>
+            <span class="mc-foot-metric-label">Global Presence</span>
+            <span class="mc-foot-metric-value">142 <small>Countries</small></span>
+          </li>
+          <li>
+            <span class="mc-foot-metric-icon" aria-hidden="true">🏪</span>
+            <span class="mc-foot-metric-label">DSPs Detected</span>
+            <span class="mc-foot-metric-value">6</span>
+          </li>
+          <li>
+            <span class="mc-foot-metric-icon" aria-hidden="true">📀</span>
+            <span class="mc-foot-metric-label">Releases Available</span>
+            <span class="mc-foot-metric-value">27</span>
+          </li>
+          <li>
+            <span class="mc-foot-metric-icon" aria-hidden="true">🌍</span>
+            <span class="mc-foot-metric-label">Territories Missing</span>
+            <span class="mc-foot-metric-value">12</span>
+          </li>
+        </ul>
 
         <section class="mc-foot-ai-summary" aria-label="AI Summary">
           <div class="mc-foot-ai-label">
