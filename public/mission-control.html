@@ -1602,6 +1602,46 @@ body {
 .mc-card--ai.is-igniting .mc-ai-core-shade { opacity: 0; }
 .mc-card--ai.is-igniting .mc-ai-core-glow  { opacity: 1; }
 
+/* Intelligence Energy Wave — Royaltē AI™ Animation Phase 2.
+   Soft violet overlay across the bottom band of the card that
+   slowly pans left → right (11s per tile cycle) to give the wave
+   in royalte-ai-hero.png a continuously-flowing 'fiber optic'
+   feel. The repeating gradient has alpha 0 at both tile edges
+   so the seam where two tiles meet is invisible — no looping
+   artefacts. mix-blend-mode is intentionally NOT used; brightness
+   composites additively over the existing violet wave in the bg
+   image. Independent JS IIFE (MutationObserver on .mc-card--ai)
+   watches for .is-igniting being REMOVED — that's when the bright
+   phase completes — and schedules a wave brightness pulse 200ms
+   later per Board, lasting ~600ms before returning to idle. */
+.mc-card--ai .mc-ai-wave-flow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 180px;
+  pointer-events: none;
+  z-index: 0;
+  background-image: linear-gradient(90deg,
+    rgba(168, 85, 247, 0.00)  0%,
+    rgba(168, 85, 247, 0.10) 30%,
+    rgba(168, 85, 247, 0.18) 50%,
+    rgba(168, 85, 247, 0.10) 70%,
+    rgba(168, 85, 247, 0.00) 100%);
+  background-size: 600px 100%;
+  background-repeat: repeat;
+  filter: blur(25px) brightness(1);
+  transition: filter 400ms ease-out;
+  animation: mc-ai-wave-pan 11s linear infinite;
+}
+.mc-card--ai .mc-ai-wave-flow.is-pulse {
+  filter: blur(25px) brightness(1.15);   /* +15% luminance per Board */
+}
+@keyframes mc-ai-wave-pan {
+  from { background-position-x: 0;     }
+  to   { background-position-x: 600px; }
+}
+
 /* AI Analysis Activity — pure HUD overlay (Board HUD v1.0). No
    panel, no container, no border, no glass, no shadow, no blur.
    Just typography floating directly over the cinematic backdrop,
@@ -2750,6 +2790,10 @@ body {
              article every 8-10s for the 4-state power cycle. -->
         <div class="mc-ai-core-shade" aria-hidden="true"></div>
         <div class="mc-ai-core-glow"  aria-hidden="true"></div>
+        <!-- Intelligence Energy Wave overlay (Animation Phase 2).
+             Continuous left-to-right pan; +15% luminance pulse
+             200ms after each ignition bright phase completes. -->
+        <div class="mc-ai-wave-flow"  aria-hidden="true"></div>
         <div class="mc-card-head">
           <div class="mc-card-mark">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
@@ -3047,6 +3091,33 @@ body {
     // Initial delay before the first ignition so the page can
     // settle into its idle state first.
     setTimeout(ignite, 3500 + Math.random() * 1500);
+  })();
+
+  // Royaltē AI™ — Intelligence Energy Wave luminance response
+  // (Animation Phase 2 of 5). Decoupled from Phase 1's ignite()
+  // function — uses a MutationObserver to watch .mc-card--ai's
+  // class attribute. When .is-igniting is REMOVED (= bright phase
+  // has just completed), schedule a wave pulse 200ms later for
+  // ~600ms. The continuous left → right pan is pure CSS
+  // (mc-ai-wave-pan keyframe, 11s linear infinite) and needs
+  // no JS — runs the moment the page loads.
+  (function () {
+    const card = document.querySelector('.mc-card--ai');
+    const wave = document.querySelector('.mc-ai-wave-flow');
+    if (!card || !wave) return;
+
+    let wasIgniting = false;
+    const observer = new MutationObserver(() => {
+      const isIgniting = card.classList.contains('is-igniting');
+      if (wasIgniting && !isIgniting) {
+        // Bright phase just completed — schedule the wave pulse
+        // 200ms later per Board. Hold for ~600ms, then return.
+        setTimeout(() => wave.classList.add('is-pulse'),    200);
+        setTimeout(() => wave.classList.remove('is-pulse'), 800);
+      }
+      wasIgniting = isIgniting;
+    });
+    observer.observe(card, { attributes: true, attributeFilter: ['class'] });
   })();
 </script>
 
