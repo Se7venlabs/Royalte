@@ -1495,6 +1495,53 @@ body {
   text-shadow: 0 1px 8px rgba(7, 5, 18, 0.75);
 }
 
+/* ROYALTĒ AI™ CTA — absolutely overlaid on the cinematic backdrop
+   per Board CTA Position Clarification. Does NOT participate in
+   the card's flex flow, does NOT reserve layout space, does NOT
+   shift the artwork — pure holographic projection. The
+   .mc-card--ai .mc-ai-hero selector (specificity 0,2,0) overrides
+   the .mc-card--ai > * rule (specificity 0,1,0) that puts every
+   direct card child at position: relative. No container, no
+   background, no border, no shadow, no glass — only typography
+   floating over the artwork, same philosophy as the activity
+   feed below. */
+.mc-card--ai .mc-ai-hero {
+  position: absolute;
+  top: 80px;
+  right: var(--mc-s-3);
+  width: 380px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+}
+.mc-ai-hero-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mc-purple);
+  margin: 0;
+  text-shadow: 0 1px 8px rgba(7, 5, 18, 0.85);
+}
+.mc-ai-hero-headline {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.005em;
+  color: var(--mc-text);
+  margin: 0;
+  text-shadow: 0 1px 12px rgba(7, 5, 18, 0.9),
+               0 0 18px rgba(7, 5, 18, 0.55);
+}
+.mc-ai-hero-body {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.7);    /* ~70% opacity per Board */
+  margin: 0;
+  text-shadow: 0 1px 8px rgba(7, 5, 18, 0.85);
+}
+
 /* AI Analysis Activity — pure HUD overlay (Board HUD v1.0). No
    panel, no container, no border, no glass, no shadow, no blur.
    Just typography floating directly over the cinematic backdrop,
@@ -2510,11 +2557,23 @@ body {
           </div>
         </div>
 
+        <!-- CTA — absolutely overlaid floating typography. Does
+             NOT participate in the flex flow, does NOT reserve
+             layout space, does NOT shift the artwork. Pure
+             holographic projection over the cinematic backdrop
+             per Board CTA Position Clarification. -->
+        <div class="mc-ai-hero">
+          <div class="mc-ai-hero-label">ROYALTĒ AI™</div>
+          <h2 class="mc-ai-hero-headline">Because What You Can't See Can Cost You.</h2>
+          <p class="mc-ai-hero-body">Your music earns money in more places than you think. Royaltē AI™ continuously monitors the business behind your music—helping protect your catalog and maximize what you're owed.</p>
+        </div>
+
         <!-- HUD overlay (Board v1.0): AI Analysis Activity feed
              floats directly over the cinematic backdrop. No panel,
-             no container, no border, no glass, no shadow. Headline
-             and supporting paragraph remain removed pending future
-             Executive Composition pass. -->
+             no container, no border, no glass, no shadow. Position
+             and styling unchanged from the Board-approved HUD
+             v1.0 — the CTA above floats independently and does not
+             affect this block. -->
         <aside class="mc-ai-activity" aria-label="AI Analysis Activity">
           <header class="mc-ai-activity-head">
             <span>AI Analysis Activity</span>
