@@ -1866,6 +1866,30 @@ body {
   100% { opacity: 0;   stroke-dashoffset: 0;   }
 }
 
+/* Executive Ambient Intelligence (Animation Phase 5). One driver
+   — JS toggles .is-ambient-pulse on .mc-card--footprint every
+   12-18s for ~1.5s. CSS transitions on the three target elements
+   handle the synchronised soft luminance shift; no new keyframes.
+   Phase 1-4 animations are untouched — Phase 5 uses orthogonal
+   properties (filter on the map, color on KPI values, text-shadow
+   on the AI emoji) so it composites cleanly even when one of the
+   other phases is firing at the same moment. */
+.mc-globe-map {
+  transition: filter 1200ms ease-in-out;
+}
+.mc-card--footprint.is-ambient-pulse .mc-globe-map {
+  filter: brightness(1.025);                /* 2.5% — mid of Board's 2-3% */
+}
+.mc-card--footprint.is-ambient-pulse .mc-foot-kpi-value {
+  color: #ffffff;                           /* ~4% brighter than var(--mc-text) — Board 3-5% */
+}
+.mc-foot-ai-emoji {
+  transition: text-shadow 1200ms ease-in-out;
+}
+.mc-card--footprint.is-ambient-pulse .mc-foot-ai-emoji {
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.60);
+}
+
 /* Executive KPI blocks (Board v3.0) — 4 equal-width centred
    stacks beneath the map. Each KPI is a centred icon + large
    bold number + small muted label. The numbers are the focal
@@ -1900,11 +1924,14 @@ body {
   font-variant-numeric: tabular-nums;
   line-height: 1;
   letter-spacing: 0.005em;
-  /* Animation Phase 3 — soft glow fade for KPI Intelligence Refresh.
-     The transition handles the smooth brightness in/out; the JS at
-     the bottom of the file toggles the .is-refreshing class on the
-     active KPI every 20-30s. */
-  transition: text-shadow 280ms ease-out;
+  /* Animation Phase 3 — text-shadow 280ms drives the KPI refresh
+     glow (.is-refreshing class). Animation Phase 5 — color
+     1200ms drives the ambient luminance shift toward pure white
+     during .is-ambient-pulse. The two properties are independent
+     so Phase 3 and Phase 5 can coexist on the same element
+     without overriding each other. */
+  transition: text-shadow 280ms ease-out,
+              color       1200ms ease-in-out;
 }
 .mc-foot-kpi-value.is-refreshing {
   text-shadow: 0 0 14px rgba(56, 189, 248, 0.55),
@@ -2900,6 +2927,34 @@ body {
     // Initial delay so the first line doesn't fire immediately
     // on page load.
     setTimeout(fireConnection, 9000 + Math.random() * 4000);
+  })();
+
+  // Global Music Footprint™ — Executive Ambient Intelligence
+  // (Animation Phase 5 of 5). One driver toggles .is-ambient-pulse
+  // on the .mc-card--footprint root every 12-18s (randomised) for
+  // ~1.5s. The CSS transitions on three target elements (map,
+  // KPI values, AI emoji) handle the synchronised soft luminance
+  // shift. UI-only — no payload, no backend.
+  (function () {
+    const card = document.querySelector('.mc-card--footprint');
+    if (!card) return;
+
+    function ambientPulse() {
+      card.classList.add('is-ambient-pulse');
+      // Hold ~1.5s so the 1200ms transitions reach their peak
+      // and breathe at the top briefly before fading back.
+      setTimeout(() => card.classList.remove('is-ambient-pulse'), 1500);
+      // Next pulse in 12-18s. The random offset means the
+      // ambient cadence drifts independently of Phase 2's 51s
+      // sweep, Phase 3's 20-30s KPI refresh, and Phase 4's
+      // 15-25s telemetry lines — so the module never appears
+      // synchronised across phases.
+      setTimeout(ambientPulse, 12000 + Math.random() * 6000);
+    }
+
+    // Initial delay before the first ambient pulse so the page
+    // settles first.
+    setTimeout(ambientPulse, 6000 + Math.random() * 4000);
   })();
 </script>
 
