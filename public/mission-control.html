@@ -1205,14 +1205,42 @@ body {
 }
 .mc-cd-ring-2 {
   transform-origin: 50% 50%;
-  animation: mc-cd-ring-2 8s linear infinite;
+  /* Animation Refinement v1.0 — was a continuous 8s linear spin.
+     Now a 64 s phase cycle that feels like an AI scanner deliberately
+     changing direction rather than a mechanical spinner. Per-keyframe
+     timing-functions are documented inline below; the cycle is:
+       Phase 1   0 →  33 s  · CW cruise @30 deg/s (linear)
+       Phase 2  33 → 34 s   · ease-out CW decel (+10 deg)
+       Pause    34 → 34.5 s
+       Phase 3a 34.5 → 35.5 s · ease-in CCW accel (-17 deg)
+       Phase 3b 35.5 → 61.5 s · CCW cruise (linear, -966 deg)
+       Phase 4  61.5 → 62.5 s · ease-out CCW decel (-17 deg)
+       Pause    62.5 → 64 s
+     Net rotation per cycle = 0 deg → loop is seamless (no angle snap
+     across the loop boundary). */
+  animation: mc-cd-ring-2 64s infinite;
 }
 @keyframes mc-cd-ring-1 {
   0%, 100% { opacity: 0.55; transform: scale(1); }
   50%      { opacity: 1;    transform: scale(1.06); }
 }
 @keyframes mc-cd-ring-2 {
-  to { transform: rotate(360deg); }
+  /* Phase 1 — CW linear cruise, 33 s, 990 deg */
+  0%      { transform: rotate(0deg);    animation-timing-function: linear; }
+  /* Phase 2 — ease-out CW decel, 1 s, +10 deg */
+  51.56%  { transform: rotate(990deg);  animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+  /* Pause at peak, 0.5 s */
+  53.13%  { transform: rotate(1000deg); animation-timing-function: linear; }
+  /* Phase 3a — ease-in CCW accel, 1 s, -17 deg */
+  53.91%  { transform: rotate(1000deg); animation-timing-function: cubic-bezier(0.32, 0, 0.67, 0); }
+  /* Phase 3b — CCW linear cruise, 26 s, -966 deg */
+  55.47%  { transform: rotate(983deg);  animation-timing-function: linear; }
+  /* Phase 4 — ease-out CCW decel, 1 s, -17 deg */
+  96.09%  { transform: rotate(17deg);   animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+  /* Pause at rest, 1.5 s — closes the loop at the exact start angle
+     so the seam is invisible. */
+  97.66%  { transform: rotate(0deg);    animation-timing-function: linear; }
+  100%    { transform: rotate(0deg); }
 }
 
 .mc-cd-bolt {
