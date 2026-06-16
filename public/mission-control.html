@@ -1787,6 +1787,25 @@ body {
   box-shadow: 0 0 4px rgba(168, 85, 247, 0.90),
               0 0 8px rgba(168, 85, 247, 0.45);
 }
+.mc-ai-activity-list li.is-resolved.is-active::before {
+  /* Royaltē AI™ Animation Phase 4 success state (Executive
+     Refinement). When the activity rotator lands on the
+     'No New Issues Detected' row (.is-resolved) the indicator
+     switches from purple ping → bright Royaltē-green
+     confirmation light. Specificity (0,3,1) overrides the
+     standard .is-active::before rule (0,2,1) above; the same
+     350ms ease-out transition declared on the base ::before
+     handles the smooth fade between purple and green when the
+     active row changes.
+     Glow tuned slightly stronger than the purple ping per
+     Board ('noticeably brighter than the standard purple
+     activity indicator'): inner shadow 5px at 0.95 alpha,
+     outer shadow 12px at 0.55 alpha. */
+  background: #34f5b0;
+  border-color: #34f5b0;
+  box-shadow: 0 0 5px  rgba(52, 245, 176, 0.95),
+              0 0 12px rgba(45, 212, 191, 0.55);
+}
 /* Item title — primary text per Board HUD palette: WHITE. Cyan
    final-success colour switched from var(--mc-green) → var(--mc-blue)
    per directive 'Final success state: Royaltē Cyan'. */
@@ -3251,7 +3270,13 @@ body {
       items.forEach((li) => li.classList.remove('is-active'));
       items[idx].classList.add('is-active');
       lastIdx = idx;
-      setTimeout(pickNext, 3000);
+      // Phase 4 Executive Refinement: the .is-resolved
+      // ('No New Issues Detected') row holds 500ms longer so the
+      // green confirmation light lingers per Board ('slightly
+      // longer than the normal activity cycle to reinforce that
+      // the AI has completed its review').
+      const dwell = items[idx].classList.contains('is-resolved') ? 3500 : 3000;
+      setTimeout(pickNext, dwell);
     }
 
     // Small initial delay so the first selection doesn't fire
