@@ -860,8 +860,12 @@ body {
 
 .mc-metric { display: flex; flex-direction: column; gap: 4px; }
 .mc-metric-value {
-  font-size: 30px;
-  font-weight: 600;
+  /* Score Typography Standardization v1.0: 30 / 600 → 22 / 700 to
+     match the Change Detection™ (.mc-cd-sum-value) and Backend
+     Intelligence™ (.mc-bi-sum-value) reference standard. Color /
+     letter-spacing / line-height / flex layout preserved. */
+  font-size: 22px;
+  font-weight: 700;
   letter-spacing: 0.02em;
   line-height: 1;
   display: flex;
@@ -1056,8 +1060,10 @@ body {
 
 .mc-identity-header { display: flex; flex-direction: column; gap: 4px; }
 .mc-identity-value {
-  font-size: 30px;
-  font-weight: 600;
+  /* Score Typography Standardization v1.0: 30 / 600 → 22 / 700 to
+     match the Change Detection™ + Backend Intelligence™ reference. */
+  font-size: 22px;
+  font-weight: 700;
   letter-spacing: 0.02em;
   line-height: 1;
   display: flex;
@@ -1246,7 +1252,10 @@ body {
   gap: 2px;
 }
 .mc-catalog-value {
-  font-size: 38px;                              /* primary visual anchor */
+  /* Score Typography Standardization v1.0: 38 → 22 to match the
+     Change Detection™ + Backend Intelligence™ reference. Catalog
+     identity color (orange) preserved per directive. */
+  font-size: 22px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.01em;
