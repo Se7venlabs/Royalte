@@ -1077,17 +1077,23 @@ body {
   line-height: 1.2;
 }
 
-/* Centered lightning-bolt visualization — narrow-card adaptation of the
-   Board reference's large radial bolt. Rings pulse, outer dashed ring
-   rotates, central bolt SVG breathes with a slow purple glow. Subtle
-   per the directive.
-   Icon Normalization Pass v1.0: container 72 → 96 to match the
-   executive icon footprint shared by Health Intelligence™
-   (.mc-card--health .mc-ring), Identity Intelligence™
-   (.mc-fp-scope), and Publishing Intelligence™
-   (.mc-card--publishing .mc-ring) — all 96 × 96. */
+/* Body row — icon LEFT + summary RIGHT — matches the executive
+   template used by Health (.mc-health-body), Identity
+   (.mc-identity-body), Publishing (.mc-pub-body), and Catalog
+   (.mc-catalog-body). Alignment & Size Normalization v1.0:
+   restructured from a stacked art-only row to this 2-column body so
+   the icon sits at the same Y baseline as the other intelligence
+   modules. */
+.mc-cd-body {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--mc-s-3);
+  align-items: center;
+}
+
 .mc-cd-art {
   position: relative;
+  width: 96px;
   height: 96px;
   display: grid;
   place-items: center;
@@ -1095,6 +1101,36 @@ body {
 .mc-cd-rings {
   width: 96px;
   height: 96px;
+}
+
+/* Body summary — sits RIGHT of the icon at the same vertical anchor,
+   mirroring Health's metric block. Content is non-duplicative — does
+   not repeat any single event already listed in the feed below. */
+.mc-cd-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mc-cd-sum-label {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--mc-purple);
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.mc-cd-sum-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+}
+.mc-cd-sum-meta {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.02em;
 }
 .mc-cd-ring-1 {
   transform-origin: 50% 50%;
@@ -2036,24 +2072,30 @@ body {
               <path d="M13 2L4.5 13h6L11 22l8.5-11h-6z"/>
             </svg>
           </div>
-          <div class="mc-cd-head-text">
-            <div class="mc-card-title">CHANGE DETECTION™</div>
-            <div class="mc-cd-sublabel">Continuous Intelligence</div>
-          </div>
+          <div class="mc-card-title">CHANGE DETECTION™</div>
+          <!-- Alignment & Size Normalization v1.0: "CONTINUOUS INTELLIGENCE"
+               sublabel relocated to the .mc-cd-summary block below so the
+               card-head contains only [mark + title] — exactly matching the
+               structure of Health, Identity, Publishing, and Catalog cards.
+               Branding text preserved verbatim, color/style preserved. -->
         </div>
 
-        <div class="mc-cd-art" aria-hidden="true">
-          <svg class="mc-cd-rings" viewBox="0 0 100 100">
-            <!-- Icon Normalization Pass v1.0: ring stroke widths bumped
-                 1.2/0.8/0.8 → 1.6/1.0/1.0 so the executive border weight
-                 matches the other intelligence cards' ring weight. -->
-            <circle class="mc-cd-ring-1" cx="50" cy="50" r="40" fill="none" stroke="rgba(168,85,247,0.32)" stroke-width="1.6"/>
-            <circle class="mc-cd-ring-2" cx="50" cy="50" r="32" fill="none" stroke="rgba(168,85,247,0.22)" stroke-width="1"   stroke-dasharray="3 4"/>
-            <circle cx="50" cy="50" r="22" fill="none" stroke="rgba(168,85,247,0.15)" stroke-width="1"/>
-          </svg>
-          <svg class="mc-cd-bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M13 2L4.5 13h6L11 22l8.5-11h-6z"/>
-          </svg>
+        <div class="mc-cd-body">
+          <div class="mc-cd-art" aria-hidden="true">
+            <svg class="mc-cd-rings" viewBox="0 0 100 100">
+              <circle class="mc-cd-ring-1" cx="50" cy="50" r="40" fill="none" stroke="rgba(168,85,247,0.32)" stroke-width="1.6"/>
+              <circle class="mc-cd-ring-2" cx="50" cy="50" r="32" fill="none" stroke="rgba(168,85,247,0.22)" stroke-width="1"   stroke-dasharray="3 4"/>
+              <circle cx="50" cy="50" r="22" fill="none" stroke="rgba(168,85,247,0.15)" stroke-width="1"/>
+            </svg>
+            <svg class="mc-cd-bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M13 2L4.5 13h6L11 22l8.5-11h-6z"/>
+            </svg>
+          </div>
+          <div class="mc-cd-summary">
+            <div class="mc-cd-sum-label">Continuous Intelligence</div>
+            <div class="mc-cd-sum-value">4 New</div>
+            <div class="mc-cd-sum-meta">This Week</div>
+          </div>
         </div>
 
         <ul class="mc-cd-feed">
