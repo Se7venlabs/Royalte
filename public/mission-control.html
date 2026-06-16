@@ -2154,32 +2154,108 @@ body {
   color: var(--mc-text);
   text-align: center;
 }
-.mc-review-ring-num {
-  font-size: 28px;
-  font-weight: 700;
-}
-.mc-review-ring-tot {
-  font-size: 11px;
-  color: var(--mc-text-muted);
-  margin-top: -2px;
+/* Priority Actions Refinement v2.0: Royaltē Review™ is reframed as
+   the Priority Actions™ executive action center. The 83/100 Health
+   Score visualization (.mc-review-ring-num / -ring-tot) and the
+   HEALTH SCORE / HIGH CONFIDENCE labels (.mc-review-label /
+   .mc-review-conf) and the 4-check takeaways list (.mc-review-checks)
+   are all retired in favor of the .mc-pa-* classes below. The ring
+   itself, .mc-review-head / -title / -meta / -score / -ring /
+   -ring-text containers, and both buttons stay verbatim. */
+
+.mc-pa-hero-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--mc-purple);
+  filter: drop-shadow(0 0 10px var(--mc-purple-glow));
 }
 
-.mc-review-label {
-  font-size: 11px;
-  letter-spacing: 0.24em;
-  color: var(--mc-text-muted);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-.mc-review-conf {
-  font-size: 15px;
-  color: var(--mc-purple);
+.mc-pa-title {
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.06em;
+  color: var(--mc-purple);
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+.mc-pa-sub {
+  font-size: 11.5px;
+  color: var(--mc-text-soft);
+  line-height: 1.45;
   margin-top: 4px;
 }
 
-.mc-review-checks { display: flex; flex-direction: column; gap: var(--mc-s-1); margin-top: var(--mc-s-1); }  /* Executive Compression v1.0: tighter check list */
+.mc-pa-section {
+  margin-top: var(--mc-s-2);
+  padding-top: var(--mc-s-2);
+  border-top: 1px solid var(--mc-divider);
+}
+.mc-pa-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.mc-pa-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.20em;
+  color: var(--mc-orange);
+  text-transform: uppercase;
+}
+.mc-pa-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mc-orange);
+  background: var(--mc-orange-soft);
+  border: 1px solid rgba(251, 146, 60, 0.32);
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-pa-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.mc-pa-item {
+  display: grid;
+  grid-template-columns: 28px 1fr 14px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 12px;
+  color: var(--mc-text);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.mc-pa-item:last-child { border-bottom: 0; }
+.mc-pa-item-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  color: var(--mc-orange);
+  background: var(--mc-orange-soft);
+  border: 1px solid rgba(251, 146, 60, 0.30);
+  filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.25));
+}
+.mc-pa-item-icon svg { width: 14px; height: 14px; }
+.mc-pa-item-label {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+}
+.mc-pa-item-arrow {
+  width: 14px;
+  height: 14px;
+  color: var(--mc-text-muted);
+}
 
 .mc-review-cta {
   display: flex;
@@ -3092,6 +3168,11 @@ body {
         <div class="mc-review-meta">Generated Today</div>
       </div>
 
+      <!-- Priority Actions Refinement v2.0: ring kept (purple
+           progress stroke preserved — Royaltē styling intact), but
+           the centre now holds a clipboard / warning glyph instead
+           of the prior 83 / 100 score. Right column carries the new
+           PRIORITY ACTIONS title + subtitle. -->
       <div class="mc-review-score">
         <div class="mc-review-ring" aria-hidden="true">
           <svg viewBox="0 0 110 110">
@@ -3100,24 +3181,55 @@ body {
               stroke-dasharray="240 289"/>
           </svg>
           <div class="mc-review-ring-text">
-            <div>
-              <div class="mc-review-ring-num">83</div>
-              <div class="mc-review-ring-tot">/100</div>
-            </div>
+            <svg class="mc-pa-hero-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <!-- Clipboard with checklist + warning badge -->
+              <path d="M9 4h6a1 1 0 0 1 1 1v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3"/>
+              <path d="M14 6H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h4"/>
+              <path d="M9 11h6M9 14h3"/>
+              <!-- Warning triangle in the bottom-right corner -->
+              <path d="M14 16l4 6h-8z"/>
+              <path d="M16 19v-1M16 20.5v.01"/>
+            </svg>
           </div>
         </div>
         <div>
-          <div class="mc-review-label">HEALTH SCORE</div>
-          <div class="mc-review-conf">HIGH CONFIDENCE</div>
+          <div class="mc-pa-title">Priority Actions</div>
+          <div class="mc-pa-sub">Royaltē AI™ has identified the highest-impact actions to strengthen your music infrastructure.</div>
         </div>
       </div>
 
-      <ul class="mc-review-checks">
-        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> No immediate risks</li>
-        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Metadata stable</li>
-        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Identities verified</li>
-        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Publishing coverage strong</li>
-      </ul>
+      <!-- Priority Actions Refinement v2.0: replaces the 4-check
+           takeaways list. Section label + count badge above an
+           orange-warning-icon list of recommended actions. -->
+      <div class="mc-pa-section">
+        <div class="mc-pa-section-head">
+          <span class="mc-pa-section-label">Actions Required</span>
+          <span class="mc-pa-count">3</span>
+        </div>
+        <ul class="mc-pa-list">
+          <li class="mc-pa-item">
+            <span class="mc-pa-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg>
+            </span>
+            <span class="mc-pa-item-label">Verify Amazon Music for Artists</span>
+            <svg class="mc-pa-item-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+          </li>
+          <li class="mc-pa-item">
+            <span class="mc-pa-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg>
+            </span>
+            <span class="mc-pa-item-label">Add Publisher Information</span>
+            <svg class="mc-pa-item-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+          </li>
+          <li class="mc-pa-item">
+            <span class="mc-pa-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg>
+            </span>
+            <span class="mc-pa-item-label">Claim YouTube Official Artist Channel</span>
+            <svg class="mc-pa-item-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+          </li>
+        </ul>
+      </div>
 
       <button class="mc-review-cta" type="button">
         View Executive Brief
