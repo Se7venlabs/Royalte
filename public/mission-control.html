@@ -441,56 +441,87 @@ body {
   filter: drop-shadow(0 0 4px var(--mc-green-glow));
 }
 
-/* ─── Sonar AI Detection Pulse v1.0 ───────────────────────────────
-   Adds a subtle "discovery" effect to the Intelligence Engine™
-   sonar. Five small detection pings appear at varied fixed positions
-   inside the sonar on irregular intervals (start delays
-   4 / 11 / 18 / 26 / 34 s × cycle durations 37 / 41 / 43 / 47 / 53 s —
-   prime-ish so the pings drift relative to one another and never
-   re-sync on a perceptible pattern). Each ping is a synchronised
-   pair: a bright white dot + an expanding teal echo ring. The visible
-   sequence completes in ~1 s; the ping is invisible for the remaining
-   ~97 % of its cycle. Independent of the rotating sweep wedge
-   (they're SVG siblings of the .mc-radar-sweep group, not children). */
+/* ─── Sonar AI Detection Pulse v2.0 ───────────────────────────────
+   Refined per Board v2.0: brighter, more visible discovery pings.
+   Each ping is now a synchronised triad — bright 6-px white core
+   dot + TWO concentric teal echo rings — so the user clearly
+   notices the detection event.
+
+   Five pings at fixed positions, on prime-ish cycles 41/47/43/53/37 s
+   with staggered start delays 2/12/22/32/41 s → average inter-ping
+   interval ≈ 9 s (within the directive's 8–14 s target band) and
+   the prime durations ensure the pings drift continuously without
+   re-syncing on a perceptible pattern. Independent of the rotating
+   sweep wedge — and rendered after .mc-radar-center / .mc-radar-sweep
+   in the SVG so they always paint ABOVE the sweep beam (never
+   occluded). */
+
 .mc-radar-detect-dot {
+  /* v2.0: 6-px diameter (r=3) pure-white core. Stacked drop-shadows
+     create the white inner bloom + soft teal outer glow per spec. */
   fill: #ffffff;
   opacity: 0;
-  filter: drop-shadow(0 0 4px var(--mc-green-glow));
+  filter:
+    drop-shadow(0 0 5px  rgba(255, 255, 255, 0.95))
+    drop-shadow(0 0 11px rgba(45, 212, 191, 0.78));
   animation-name: mc-radar-detect-dot;
   animation-iteration-count: infinite;
   animation-timing-function: ease-out;
 }
+
+/* v2.0: two echo-ring variants per ping. Ring 1 starts at the bloom
+   peak; Ring 2 starts ~80 ms later for the concentric radiating
+   effect. Both expand outward over ~1.2 s and fade naturally. */
 .mc-radar-detect-echo {
   fill: none;
-  stroke: var(--mc-green-bright);
-  stroke-width: 0.8;
   opacity: 0;
-  filter: drop-shadow(0 0 3px var(--mc-green-glow));
-  animation-name: mc-radar-detect-echo;
   animation-iteration-count: infinite;
   animation-timing-function: ease-out;
 }
-.mc-radar-detect-dot--1, .mc-radar-detect-echo--1 { animation-delay:  4s; animation-duration: 37s; }
-.mc-radar-detect-dot--2, .mc-radar-detect-echo--2 { animation-delay: 11s; animation-duration: 41s; }
-.mc-radar-detect-dot--3, .mc-radar-detect-echo--3 { animation-delay: 18s; animation-duration: 43s; }
-.mc-radar-detect-dot--4, .mc-radar-detect-echo--4 { animation-delay: 26s; animation-duration: 47s; }
-.mc-radar-detect-dot--5, .mc-radar-detect-echo--5 { animation-delay: 34s; animation-duration: 53s; }
+.mc-radar-detect-echo--ring1 {
+  stroke: var(--mc-green-bright);
+  stroke-width: 1.1;
+  filter: drop-shadow(0 0 4px var(--mc-green-glow));
+  animation-name: mc-radar-detect-echo-1;
+}
+.mc-radar-detect-echo--ring2 {
+  stroke: var(--mc-green-bright);
+  stroke-width: 0.8;
+  filter: drop-shadow(0 0 3px var(--mc-green-glow));
+  animation-name: mc-radar-detect-echo-2;
+}
+
+/* Per-ping delay + duration. Prime-ish cycles, staggered delays. */
+.mc-radar-detect-dot--1, .mc-radar-detect-echo--1 { animation-delay:  2s; animation-duration: 41s; }
+.mc-radar-detect-dot--2, .mc-radar-detect-echo--2 { animation-delay: 12s; animation-duration: 47s; }
+.mc-radar-detect-dot--3, .mc-radar-detect-echo--3 { animation-delay: 22s; animation-duration: 43s; }
+.mc-radar-detect-dot--4, .mc-radar-detect-echo--4 { animation-delay: 32s; animation-duration: 53s; }
+.mc-radar-detect-dot--5, .mc-radar-detect-echo--5 { animation-delay: 41s; animation-duration: 37s; }
 
 @keyframes mc-radar-detect-dot {
-  /* Invisible for ~97.4 % of the cycle, then a brief bright flash
-     that quickly fades to soft glow then to invisible — total
-     visible window ~1 s across the 37–53 s cycle range. */
-  0%, 97.4% { opacity: 0; }
-  97.6%     { opacity: 0.85; }
-  98.4%     { opacity: 0.55; }
+  /* Idle for ~97 % of the cycle.
+     97.0 → 97.4 % ≈ 150-200 ms quick bloom to peak opacity 1.0.
+     97.4 → 97.8 % ≈ 200 ms hold at full brightness.
+     97.8 → 100  % ≈ 0.9 s soft fade out as the echo rings radiate. */
+  0%, 96.9% { opacity: 0; }
+  97.4%     { opacity: 1; }
+  97.8%     { opacity: 1; }
   100%      { opacity: 0; }
 }
-@keyframes mc-radar-detect-echo {
-  /* Synchronised with the dot. r expands from 2 → 14 px while opacity
-     fades — soft expanding ripple that dissipates as it grows. */
-  0%, 97.4% { opacity: 0;   r: 2; }
-  97.6%     { opacity: 0.5; r: 2; }
-  100%      { opacity: 0;   r: 14; }
+@keyframes mc-radar-detect-echo-1 {
+  /* First echo ring — fires together with the bloom peak. r 3 → 18
+     over ~1.2 s while opacity fades from 0.75 → 0. */
+  0%, 97.0% { opacity: 0;    r: 3; }
+  97.4%     { opacity: 0.75; r: 3; }
+  100%      { opacity: 0;    r: 18; }
+}
+@keyframes mc-radar-detect-echo-2 {
+  /* Second echo ring — starts ~80 ms after ring 1 for the concentric
+     "double echo" radiating effect. Reaches a slightly smaller peak
+     radius (16) so the trailing ring stays inside the leading one. */
+  0%, 97.2% { opacity: 0;    r: 3; }
+  97.6%     { opacity: 0.55; r: 3; }
+  100%      { opacity: 0;    r: 16; }
 }
 
 @keyframes mc-center-pulse {
@@ -2199,19 +2230,27 @@ body {
             <path d="M65 65 L65 3 A62 62 0 0 1 117 39 Z" fill="url(#mc-radar-sweep-fill)"/>
           </g>
           <circle class="mc-radar-center" cx="65" cy="65" r="3" fill="#34f5b0"/>
-          <!-- Sonar AI Detection Pulse v1.0 — five fixed-position
-               detection pings outside the rotating sweep group. Each
-               flashes irregularly (see .mc-radar-detect-* CSS). -->
-          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--1"  cx="95" cy="50" r="2.2"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--1" cx="95" cy="50" r="2"/>
-          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--2"  cx="35" cy="80" r="2.2"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--2" cx="35" cy="80" r="2"/>
-          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--3"  cx="85" cy="95" r="2.2"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--3" cx="85" cy="95" r="2"/>
-          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--4"  cx="40" cy="35" r="2.2"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--4" cx="40" cy="35" r="2"/>
-          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--5"  cx="75" cy="25" r="2.2"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--5" cx="75" cy="25" r="2"/>
+          <!-- Sonar AI Detection Pulse v2.0 — five fixed-position
+               detection triads (1 white-core dot + 2 concentric teal
+               echo rings each). Render order is AFTER the sweep group
+               and center, so pings always paint above the rotating
+               beam (never occluded). See .mc-radar-detect-* CSS for
+               per-ping irregular timing. -->
+          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--1"                                cx="95" cy="50" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--1"   cx="95" cy="50" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--1"   cx="95" cy="50" r="3"/>
+          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--2"                                cx="35" cy="80" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--2"   cx="35" cy="80" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--2"   cx="35" cy="80" r="3"/>
+          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--3"                                cx="85" cy="95" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--3"   cx="85" cy="95" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--3"   cx="85" cy="95" r="3"/>
+          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--4"                                cx="40" cy="35" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--4"   cx="40" cy="35" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--4"   cx="40" cy="35" r="3"/>
+          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--5"                                cx="75" cy="25" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--5"   cx="75" cy="25" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--5"   cx="75" cy="25" r="3"/>
         </svg>
       </div>
 
