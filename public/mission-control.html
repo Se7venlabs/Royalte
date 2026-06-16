@@ -1757,32 +1757,35 @@ body {
   line-height: 1.4;
 }
 .mc-ai-activity-list li::before {
-  /* Royaltē AI™ Animation Phase 4 default: hollow white
-     status indicator. Transparent background + 1px white
-     stroke. Soft 350ms transitions on background / border /
-     box-shadow so the swap between idle (hollow) and active
-     (solid + glow) feels like a fade rather than a flash. */
+  /* Royaltē AI™ Animation Phase 4 default: hollow purple
+     status indicator (Refinement). Transparent background +
+     1px Royaltē-purple stroke at low luminance. Soft 350ms
+     transitions on background / border / box-shadow so the
+     swap between idle (hollow) and active (solid + glow)
+     feels like a fade rather than a flash. */
   content: "";
   margin-top: 5px;
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(168, 85, 247, 0.55);
   box-shadow: none;
   transition: background    350ms ease-out,
               border-color  350ms ease-out,
               box-shadow    350ms ease-out;
 }
 .mc-ai-activity-list li.is-active::before {
-  /* Royaltē AI™ Animation Phase 4 active state: solid white
-     dot with a ≤2px soft glow per Board ('No glow larger than
-     approximately 2px'). Only one row carries .is-active at
-     any moment — enforced by the JS rotator at the bottom of
-     the file. */
-  background: #ffffff;
-  border-color: #ffffff;
-  box-shadow: 0 0 2px rgba(255, 255, 255, 0.70);
+  /* Royaltē AI™ Animation Phase 4 active state (Refinement):
+     bright Royaltē-purple ping with a two-layer 3-4px glow.
+     Inner shadow 4px bright, outer shadow 8px soft — the
+     'radar ping' radial-falloff Board called for. Only one row
+     carries .is-active at any moment — enforced by the JS
+     rotator at the bottom of the file. */
+  background: #a855f7;
+  border-color: #a855f7;
+  box-shadow: 0 0 4px rgba(168, 85, 247, 0.90),
+              0 0 8px rgba(168, 85, 247, 0.45);
 }
 /* Item title — primary text per Board HUD palette: WHITE. Cyan
    final-success colour switched from var(--mc-green) → var(--mc-blue)
