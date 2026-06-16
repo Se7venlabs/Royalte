@@ -317,10 +317,29 @@ body {
 
 .mc-hero {
   display: grid;
-  grid-template-columns: 124px 1fr 188px 188px;
+  /* Executive Header Optimization v1.0: was `124px 1fr 188px 188px`.
+     The elastic 1fr in column 2 stretched the title block across all
+     remaining width, manufacturing the dead center the Board flagged.
+     Columns now size to content and `justify-content: start` anchors
+     the assembly to the brand corner so it reads as a single tight
+     executive console (left-anchored — not centered, per directive). */
+  grid-template-columns: auto auto auto auto;
+  justify-content: start;
   align-items: center;
-  gap: var(--mc-s-4);
+  column-gap: var(--mc-s-5);
+  row-gap: var(--mc-s-4);
   padding: var(--mc-s-2) var(--mc-s-4);          /* compression: vertical 12 → 8 */
+  /* Executive Header Optimization v2.0: shrink the panel to fit its
+     intrinsic assembly width (sonar + title block + heartbeat + status
+     + 3×20px gaps + 2×16px h-padding). Per Board directive, every
+     internal element (sonar/typography/heartbeat/status/animations/
+     approved internal spacing) is locked, so `max-content` is the
+     maximum compression possible without violating those constraints —
+     and is what makes this read as a self-contained executive status
+     panel instead of a full-width hero. `max-width: 100%` keeps it from
+     overflowing narrower viewports. */
+  width: max-content;
+  max-width: 100%;
   border-radius: var(--mc-r-4);
   background: linear-gradient(135deg, rgba(45, 212, 191, 0.04), rgba(0, 0, 0, 0) 60%), var(--mc-surface-1);
   border: 1px solid rgba(45, 212, 191, 0.16);
@@ -426,7 +445,7 @@ body {
 
 .mc-hero-meta b { color: var(--mc-text-soft); font-weight: 500; }
 
-.mc-pulse-line { width: 100%; height: 56px; }
+.mc-pulse-line { width: 188px; height: 56px; }  /* Executive Header Optimization v1.0: explicit width (was 100%) — grid cell is now auto-sized; preserve heartbeat at current 188px render width */
 
 .mc-pulse-line path {
   stroke: var(--mc-green);
@@ -444,7 +463,10 @@ body {
 .mc-hero-action {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  /* Executive Header Optimization v1.0: flex-end → flex-start.
+     Column is no longer 188px elastic-right; it's auto-sized and
+     packs against the heartbeat, so children left-align cleanly. */
+  align-items: flex-start;
   gap: 2px;
 }
 
@@ -2174,7 +2196,7 @@ body {
 
 @media (max-width: 1280px) {
   :root { --mc-rail-l: 230px; --mc-pad: var(--mc-s-6); }
-  .mc-hero { grid-template-columns: 132px 1fr 180px 180px; }
+  .mc-hero { grid-template-columns: auto auto auto auto; }  /* Executive Header Optimization v1.0: match the desktop content-sized template at 1280px */
   .mc-grid { grid-template-columns: repeat(2, 1fr); }
   .mc-row-3 { grid-template-columns: 1fr 1fr; }
 }
@@ -2211,6 +2233,7 @@ body {
       "pulse pulse"
       "action action";
     row-gap: var(--mc-s-3);
+    width: auto;                       /* Header v2.0: reset content-width constraint; stacked layout reclaims full main column */
   }
   .mc-radar         { grid-area: radar; width: 96px; height: 96px; }
   .mc-hero-block    { grid-area: title; }
