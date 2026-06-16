@@ -1197,90 +1197,12 @@ body {
 }
 .mc-foot-cta svg { width: 12px; height: 12px; }
 
-/* ─── bottom status row ─────────────────────────────────────────── */
-
-.mc-status-row {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr 1.6fr;
-  gap: var(--mc-s-5);
-}
-
-.mc-status-card {
-  /* Executive Compression v1.0 (second iteration): status-card padding 16/20 → 8/12. */
-  padding: var(--mc-s-2) var(--mc-s-3);
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--mc-s-3);
-  align-items: center;
-  background: var(--mc-surface-1);
-  border: 1px solid var(--mc-border);
-  border-radius: var(--mc-r-3);
-  position: relative;
-  overflow: hidden;
-}
-
-.mc-status-label {
-  font-size: 10.5px;
-  letter-spacing: 0.24em;
-  color: var(--mc-text-muted);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-.mc-status-value {
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1.05;
-  margin-top: 2px;
-}
-.mc-status-value--green { color: var(--mc-green); }
-.mc-status-value--alt   { color: var(--mc-text); font-size: 18px; letter-spacing: 0.03em; }
-.mc-status-cap {
-  font-size: 12px;
-  color: var(--mc-text-muted);
-  margin-top: 4px;
-}
-
-.mc-status-radar {
-  width: 56px;
-  height: 56px;
-}
-
-.mc-status-dots {
-  display: flex;
-  gap: 6px;
-  margin-top: var(--mc-s-1);                   /* Executive Compression v1.0: 12 → 4 above operational dots */
-}
-.mc-status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--mc-green);
-  box-shadow: 0 0 6px var(--mc-green-glow);
-  opacity: 0.85;
-}
-
-.mc-status-card--horizon {
-  background:
-    radial-gradient(280px 200px at 110% 110%, rgba(168, 85, 247, 0.18), transparent 60%),
-    var(--mc-surface-1);
-}
-
-.mc-status-horizon-art {
-  width: 80px;
-  height: 56px;
-  position: relative;
-}
-.mc-status-horizon-art::after {
-  content: "";
-  position: absolute;
-  right: -2px;
-  bottom: 0;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.35), transparent 65%);
-  filter: blur(0.5px);
-}
+/* Executive Compression v3.0: bottom status row + all its supporting
+   classes (.mc-status-row / .mc-status-card / .mc-status-card--horizon
+   / .mc-status-label / .mc-status-value(+--green/--alt) / .mc-status-cap
+   / .mc-status-radar / .mc-status-dots / .mc-status-dot
+   / .mc-status-horizon-art) deleted — the row was redundant with the
+   hero meta and brand messaging. */
 
 /* ─── right rail panels ─────────────────────────────────────────── */
 
@@ -1581,7 +1503,6 @@ body {
   .mc-hero-title { font-size: 22px; }
   .mc-grid { grid-template-columns: 1fr; gap: var(--mc-s-4); }
   .mc-row-3 { grid-template-columns: 1fr; gap: var(--mc-s-4); }
-  .mc-status-row { grid-template-columns: 1fr; gap: var(--mc-s-4); }
   .mc-rail-left {
     flex-direction: column;
     align-items: stretch;
@@ -2030,48 +1951,11 @@ body {
 
     </div>
 
-    <!-- BOTTOM STATUS ROW -->
-    <div class="mc-status-row">
-
-      <article class="mc-status-card" aria-label="Next Scheduled Scan">
-        <div>
-          <div class="mc-status-label">NEXT SCHEDULED SCAN</div>
-          <div class="mc-status-value">18 <small style="font-size:14px;color:var(--mc-text-muted);font-weight:500">min</small></div>
-        </div>
-        <svg class="mc-status-radar" viewBox="0 0 56 56" aria-hidden="true">
-          <circle cx="28" cy="28" r="26" fill="none" stroke="rgba(45,212,191,0.18)"/>
-          <circle cx="28" cy="28" r="18" fill="none" stroke="rgba(45,212,191,0.20)"/>
-          <circle cx="28" cy="28" r="10" fill="none" stroke="rgba(45,212,191,0.22)"/>
-          <line x1="28" y1="2" x2="28" y2="54" stroke="rgba(45,212,191,0.12)"/>
-          <line x1="2" y1="28" x2="54" y2="28" stroke="rgba(45,212,191,0.12)"/>
-          <circle cx="28" cy="28" r="2.4" fill="#34f5b0"/>
-        </svg>
-      </article>
-
-      <article class="mc-status-card" aria-label="Intelligence Engine Status">
-        <div>
-          <div class="mc-status-label">INTELLIGENCE ENGINE STATUS</div>
-          <div class="mc-status-value mc-status-value--green">All Systems Operational</div>
-          <div class="mc-status-cap">Every module is functioning normally.</div>
-          <div class="mc-status-dots">
-            <span class="mc-status-dot"></span><span class="mc-status-dot"></span><span class="mc-status-dot"></span>
-            <span class="mc-status-dot"></span><span class="mc-status-dot"></span><span class="mc-status-dot"></span>
-            <span class="mc-status-dot"></span><span class="mc-status-dot"></span>
-          </div>
-        </div>
-        <span></span>
-      </article>
-
-      <article class="mc-status-card mc-status-card--horizon" aria-label="Royaltē never sleeps">
-        <div>
-          <div class="mc-status-label" style="color:var(--mc-purple);">WE WORK WHILE YOU CREATE</div>
-          <div class="mc-status-value mc-status-value--alt">Royaltē never sleeps.</div>
-          <div class="mc-status-cap">Your music business is always protected.</div>
-        </div>
-        <div class="mc-status-horizon-art" aria-hidden="true"></div>
-      </article>
-
-    </div>
+    <!-- Executive Compression v3.0: bottom status row removed per Board
+         directive. NEXT SCHEDULED SCAN is already in the hero meta;
+         INTELLIGENCE ENGINE STATUS is already communicated by the hero's
+         ALL SYSTEMS NORMAL + SYSTEM STATUS: OPERATIONAL; WE WORK WHILE YOU
+         CREATE is duplicative brand messaging. -->
 
   </main>
 
