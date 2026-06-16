@@ -52,16 +52,25 @@
   --mc-blue:         #38bdf8;
   --mc-blue-soft:    rgba(56, 189, 248, 0.14);
 
-  /* spacing */
-  --mc-s-1: 4px;
-  --mc-s-2: 8px;
-  --mc-s-3: 12px;
-  --mc-s-4: 16px;
-  --mc-s-5: 20px;
-  --mc-s-6: 24px;
-  --mc-s-7: 32px;
-  --mc-s-8: 40px;
-  --mc-s-9: 56px;
+  /* spacing — Executive Grid Normalization v1.0.
+     Single 10px grid: every layout gap, padding, and margin lands on a
+     multiple of the grid unit. Token names preserved for compatibility
+     with every call site already wired to them; the values are now
+     mathematically clamped to {0, 10, 20, 30} per Board directive
+     ("Apple / Bloomberg / Tesla / Ferrari" rhythm). Multiples were
+     chosen to bias toward the lower step where it preserves density,
+     and the higher step where the original spacing meaningfully
+     separated sections. */
+  --mc-grid: 10px;
+  --mc-s-1: 10px;   /* tight grid unit  (was 4)  */
+  --mc-s-2: 10px;   /* default gap      (was 8)  */
+  --mc-s-3: 10px;   /* card padding     (was 12) */
+  --mc-s-4: 10px;   /* section padding  (was 16) */
+  --mc-s-5: 20px;   /* hero h-padding   (was 20) */
+  --mc-s-6: 20px;   /* rail h-padding   (was 24) */
+  --mc-s-7: 30px;   /* legacy           (was 32) */
+  --mc-s-8: 30px;   /* legacy           (was 40) */
+  --mc-s-9: 30px;   /* legacy           (was 56) */
 
   /* radius */
   --mc-r-1: 6px;
@@ -76,7 +85,7 @@
   /* layout */
   --mc-rail-l: 256px;
   --mc-rail-r: 360px;
-  --mc-pad:    var(--mc-s-7);
+  --mc-pad:    var(--mc-s-6);    /* Executive Grid Normalization v1.0: main h-padding 30 → 20 to match rail h-padding; gutter rhythm aligns across columns. */
 }
 
 /* ─── reset ──────────────────────────────────────────────────────── */
@@ -145,7 +154,7 @@ body {
   padding: var(--mc-s-2) var(--mc-pad) var(--mc-s-2);
   display: flex;
   flex-direction: column;
-  gap: 0;                                        /* Executive Compression v2.0: chassis-level flex-gap at the floor — sections sit flush; each section's own padding/border provides separation. */
+  gap: var(--mc-grid);                           /* Executive Grid Normalization v1.0: chassis-level flex-gap on the 10px grid — page-head / hero / grid all separated by one grid unit. */
   min-width: 0;
 }
 
@@ -354,10 +363,10 @@ body {
   margin: 0;
 }
 .mc-page-sub {
-  margin: var(--mc-s-1) 0 var(--mc-s-2);       /* Executive Compression v2.0: subtitle→hero gap now hosted on the page-sub bottom margin (8px) since main flex-gap = 0 */
+  margin: var(--mc-s-1) 0 0;                   /* Executive Grid Normalization v1.0: 10px above the sub-title; main flex-gap (10) now hosts subtitle→hero gap */
   font-size: 13.5px;
   color: var(--mc-text-muted);
-  line-height: 1.3;                            /* Executive Compression v2.0: 1.5 → 1.3 (font unchanged) */
+  line-height: 1.3;
 }
 
 /* ─── hero panel ────────────────────────────────────────────────── */
@@ -517,7 +526,7 @@ body {
 .mc-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--mc-s-1) var(--mc-s-5);             /* Executive Compression v2.0: row-gap 12 → 4 between row 1 / row 2; column gap preserved */
+  gap: var(--mc-grid);                          /* Executive Grid Normalization v1.0: row AND column gap both 10px — equal gutters throughout per directive */
 }
 
 .mc-row-3 {
@@ -1187,7 +1196,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: var(--mc-grid) var(--mc-s-5);       /* Executive Grid Normalization v1.0: 8/14 → 10/20 */
   font-size: 12px;
   font-weight: 600;
   border-radius: var(--mc-r-2);
@@ -1410,7 +1419,7 @@ body {
   justify-content: center;
   gap: 8px;
   /* Executive Compression v1.0: CTA vertical padding 13 → 9; typography untouched. */
-  padding: 9px 18px;
+  padding: var(--mc-grid) var(--mc-s-5);       /* Executive Grid Normalization v1.0: 9/18 → 10/20 */
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(109, 40, 217, 0.50));
   border: 1px solid rgba(168, 85, 247, 0.45);
   border-radius: var(--mc-r-2);
@@ -1429,7 +1438,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 7px 14px;                           /* Executive Compression v1.0: 11 → 7 vertical */
+  padding: var(--mc-grid) var(--mc-s-5);       /* Executive Grid Normalization v1.0: 7/14 → 10/20 */
   font-size: 12.5px;
   color: var(--mc-purple);
   border-radius: var(--mc-r-2);
