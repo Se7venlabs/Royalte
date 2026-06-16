@@ -977,6 +977,10 @@ body {
    --missing; new modifier name aligns with the Board-approved
    VERIFIED / ACTION two-state vocabulary for Identity Intelligence™. */
 .mc-pill--action    { background: rgba(244, 63, 94, 0.12);  color: #f97373; }
+/* Publishing Refinement v2.0: MONITORING badge — amber treatment
+   aliasing the existing --pending styling so the visual vocabulary
+   stays consistent across Identity / Publishing / future modules. */
+.mc-pill--monitoring{ background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
 
 /* Identity card — fingerprint scanner visualization (Board-approved original) */
 .mc-identity-body {
@@ -1134,36 +1138,65 @@ body {
 .mc-pub-ring .mc-ring-icon { color: #E095FF; filter: drop-shadow(0 0 14px rgba(236, 170, 245, 0.38)); }
 .mc-pub-ring .mc-ring-icon svg { width: 32px; height: 32px; }
 
-.mc-pub-stats {
+/* Publishing Refinement v2.0: legacy .mc-pub-stats / .mc-pub-stat /
+   .mc-pub-stat-val / .mc-pub-stat-label / .mc-pub-divider removed —
+   the old 4-numeric-stats column is replaced with a 7-metric
+   check-list (icon + label + status badge) that mirrors the
+   Identity Intelligence™ pattern. */
+
+/* Body summary block — sits RIGHT of the ring; mirrors the
+   .mc-cd-summary / .mc-bi-summary pattern from sibling cards. */
+.mc-pub-summary {
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-2);                       /* Executive Compression v1.0: 13 → 8 between Publishing stats */
+  gap: 2px;
+  min-width: 0;
 }
-.mc-pub-stat {
-  display: flex;
-  align-items: baseline;
-  gap: var(--mc-s-2);
+.mc-pub-sum-label {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: #D56BFF;
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1.2;
 }
-.mc-pub-stat-val {
+.mc-pub-sum-value {
   font-size: 22px;
   font-weight: 700;
-  color: #D56BFF;                           /* pink-orchid primary — matches ring exactly */
-  text-shadow: 0 0 14px rgba(236, 170, 245, 0.22);
-  letter-spacing: 0.005em;
-  line-height: 1.1;
-  min-width: 46px;
-  font-variant-numeric: tabular-nums;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.05;
 }
-.mc-pub-stat-label {
-  font-size: 12px;                          /* Typography Standardization v1.0: 12.5 → 12 */
-  color: #C4C4D0;                           /* slightly brighter per Board */
+.mc-pub-sum-meta {
+  font-size: 11px;
+  color: var(--mc-text-muted);
   letter-spacing: 0.02em;
 }
 
-.mc-pub-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 30%, rgba(255, 255, 255, 0.08) 70%, transparent);
-  margin: var(--mc-s-1) 0 0;                  /* Executive Compression v1.0: 8/4 → 4/0 around publishing divider */
+/* 7-metric check-list — same row pattern as .mc-identity-check.
+   Divider above replaces the old .mc-pub-divider strip. */
+.mc-pub-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: var(--mc-s-1);
+  padding-top: var(--mc-s-1);
+  border-top: 1px solid var(--mc-divider);
+}
+.mc-pub-check {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--mc-text-soft);
+  line-height: 1.3;
+}
+.mc-pub-check-icon {
+  width: 16px;
+  height: 16px;
+  color: #D56BFF;                            /* publishing pink-orchid identity */
+  flex-shrink: 0;
 }
 
 .mc-card--publishing .mc-card-foot { color: #F5F5F7; font-size: 12.5px; line-height: 1.55; }
@@ -2441,14 +2474,57 @@ body {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
             </div>
           </div>
-          <div class="mc-pub-stats">
-            <div class="mc-pub-stat"><span class="mc-pub-stat-val">124</span><span class="mc-pub-stat-label">Works Found</span></div>
-            <div class="mc-pub-stat"><span class="mc-pub-stat-val">86</span><span class="mc-pub-stat-label">Writers Found</span></div>
-            <div class="mc-pub-stat"><span class="mc-pub-stat-val">12</span><span class="mc-pub-stat-label">Publishers Found</span></div>
-            <div class="mc-pub-stat"><span class="mc-pub-stat-val">92%</span><span class="mc-pub-stat-label">ISWC Coverage</span></div>
+          <div class="mc-pub-summary">
+            <div class="mc-pub-sum-label">Coverage</div>
+            <div class="mc-pub-sum-value">6 / 7</div>
+            <div class="mc-pub-sum-meta">Verified</div>
           </div>
         </div>
-        <div class="mc-pub-divider"></div>
+
+        <!-- Publishing Refinement v2.0: seven publishing-infrastructure
+             metrics, each with an icon glyph and a status badge. Sample
+             mix exercises all three Royaltē status types: 5 VERIFIED +
+             1 ACTION + 1 MONITORING. No reference image was attached
+             with the directive — using consistent inline SVG glyphs
+             so the visual treatment matches across rows. -->
+        <ul class="mc-pub-checks">
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M3 10l9-7 9 7z"/></svg>
+            MLC Registration
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            ISWC Coverage
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3l5 5L8 21H3v-5z"/><path d="M14 5l5 5"/></svg>
+            Writer Credits
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v17H6a2 2 0 0 0-2 2"/><path d="M8 8h8M8 12h8"/></svg>
+            Publisher Information
+            <span class="mc-pill mc-pill--action">Action</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v3l-2 2 2 2v3a3 3 0 0 0 3 3"/><path d="M15 4a3 3 0 0 1 3 3v3l2 2-2 2v3a3 3 0 0 1-3 3"/><path d="M12 4v16"/></svg>
+            MusicBrainz Publishing Metadata
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/><circle cx="6" cy="7" r="1" fill="currentColor"/><circle cx="11" cy="12" r="1" fill="currentColor"/><circle cx="17" cy="17" r="1" fill="currentColor"/></svg>
+            Composition Metadata Integrity
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+            Publishing Territory Coverage
+            <span class="mc-pill mc-pill--monitoring">Monitoring</span>
+          </li>
+        </ul>
+
         <div class="mc-card-foot"></div>
       </article>
 
