@@ -52,6 +52,14 @@
   --mc-blue:         #38bdf8;
   --mc-blue-soft:    rgba(56, 189, 248, 0.14);
 
+  /* Backend Intelligence™ — premium gold/amber executive identity,
+     distinct from Catalog (orange) and the other module families. */
+  --mc-gold:         #f5b952;
+  --mc-gold-bright:  #ffd166;
+  --mc-gold-glow:    rgba(245, 185, 82, 0.45);
+  --mc-gold-soft:    rgba(245, 185, 82, 0.14);
+  --mc-border-gold:  rgba(245, 185, 82, 0.22);
+
   /* spacing — Executive Grid Normalization v1.0.
      Single 10px grid: every layout gap, padding, and margin lands on a
      multiple of the grid unit. Token names preserved for compatibility
@@ -596,7 +604,7 @@ body {
 }
 .mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
 .mc-card--change     { --card-glow: rgba(168, 85, 247, 0.10); }   /* Change Detection™ — premium violet intelligence signature */
-.mc-card--monitoring { --card-glow: rgba(56, 189, 248, 0.07); }
+.mc-card--backend    { --card-glow: rgba(245, 185, 82, 0.10); }   /* Backend Intelligence™ — gold/amber executive signature */
 .mc-card--footprint  { --card-glow: rgba(56, 189, 248, 0.06); }
 
 .mc-card-head {
@@ -620,7 +628,7 @@ body {
 .mc-card--publishing .mc-card-mark { color: var(--mc-purple); background: var(--mc-purple-soft); border-color: var(--mc-border-warm); }
 .mc-card--catalog    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
 .mc-card--change     .mc-card-mark { color: var(--mc-purple); background: var(--mc-purple-soft); border-color: var(--mc-border-warm); }
-.mc-card--monitoring .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
+.mc-card--backend    .mc-card-mark { color: var(--mc-gold);   background: var(--mc-gold-soft);   border-color: var(--mc-border-gold); }
 .mc-card--footprint  .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
 
 .mc-card-mark svg { width: 16px; height: 16px; }
@@ -1259,63 +1267,190 @@ body {
   opacity: 0.7;
 }
 
-/* ─── monitoring card ───────────────────────────────────────────── */
+/* ─── Backend Intelligence™ card (replaces Monitoring Intelligence™ — Board directive) ─
 
-.mc-mon-body {
+   Backend Intelligence™ visualizes Royaltē's connection into the deep
+   music ecosystem infrastructure (MusicBrainz, Discogs, MLC, Listen
+   Notes) rather than displaying generic monitoring metrics. Premium
+   gold/amber identity differentiates it from Health (green), Identity
+   (blue), Publishing (pink-orchid), Catalog (orange), and Change
+   Detection (violet). Layout follows the executive template:
+   [head: mark + title] · [body: icon LEFT + summary RIGHT] · [service
+   list] · [foot]. */
+
+.mc-bi-body {
   display: grid;
-  grid-template-columns: 78px 1fr;
-  gap: var(--mc-s-4);
+  grid-template-columns: 96px 1fr;
+  gap: var(--mc-s-3);
   align-items: center;
 }
 
-.mc-mon-mark {
-  width: 78px;
-  height: 78px;
+/* Stylized globe + concentric gold rings — narrow-card adaptation of
+   the Board reference's hero artwork. Outer ring breathes, inner
+   dashed ring slowly rotates, central globe icon glows gold. */
+.mc-bi-art {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+}
+.mc-bi-rings {
+  width: 96px;
+  height: 96px;
+  filter: drop-shadow(0 0 8px rgba(245, 185, 82, 0.30));
+}
+.mc-bi-ring-1 {
+  transform-origin: 50% 50%;
+  animation: mc-bi-ring-1 4.6s ease-in-out infinite;
+}
+.mc-bi-ring-2 {
+  transform-origin: 50% 50%;
+  animation: mc-bi-ring-2 9s linear infinite;
+}
+@keyframes mc-bi-ring-1 {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.06); }
+}
+@keyframes mc-bi-ring-2 {
+  to { transform: rotate(360deg); }
+}
+.mc-bi-globe {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  color: var(--mc-gold-bright);
+  filter: drop-shadow(0 0 10px var(--mc-gold-glow));
+  animation: mc-bi-globe-pulse 3.2s ease-in-out infinite;
+}
+@keyframes mc-bi-globe-pulse {
+  0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 6px  rgba(245, 185, 82, 0.45)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 16px rgba(245, 185, 82, 0.85)); }
+}
+
+/* Body summary — sublabel relocated from the card-head into the label
+   slot so the head stays at the 32-px executive baseline. */
+.mc-bi-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mc-bi-sum-label {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--mc-gold);
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.mc-bi-sum-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+}
+.mc-bi-sum-meta {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* Service connection list */
+.mc-bi-services {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+
+.mc-bi-service {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(245, 185, 82, 0.05);
+  border: 1px solid rgba(245, 185, 82, 0.12);
+  border-radius: var(--mc-r-2);
+}
+
+.mc-bi-service-icon {
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: var(--mc-blue);
-  background: var(--mc-blue-soft);
-  border: 1px solid rgba(56, 189, 248, 0.22);
-  position: relative;
+  color: var(--mc-gold);
+  background: var(--mc-gold-soft);
+  border: 1px solid var(--mc-border-gold);
 }
-.mc-mon-mark::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px solid rgba(56, 189, 248, 0.20);
-  animation: mc-pulse-ring 3s ease-out infinite;
-}
-@keyframes mc-pulse-ring {
-  0%   { transform: scale(1);    opacity: 0.6; }
-  100% { transform: scale(1.18); opacity: 0;   }
-}
-.mc-mon-mark svg { width: 36px; height: 36px; }
+.mc-bi-service-icon svg { width: 12px; height: 12px; }
 
-.mc-mon-value {
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--mc-blue);
-  line-height: 1;
-}
-.mc-mon-cap {
-  font-size: 11.5px;
-  color: var(--mc-text-muted);
-  margin-top: var(--mc-s-1);
-}
-
-.mc-mon-list { margin-top: var(--mc-s-1); display: flex; flex-direction: column; gap: var(--mc-s-1); }  /* Executive Compression v1.0: 12 → 4 */
-.mc-mon-row {
+.mc-bi-service-body {
   display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  padding: 2px 0;
-  border-top: 1px solid var(--mc-divider);
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
 }
-.mc-mon-row:first-child { border-top: 0; padding-top: 0; }
-.mc-mon-row span:first-child { color: var(--mc-text-muted); }
-.mc-mon-row span:last-child  { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.mc-bi-service-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+.mc-bi-service-sub {
+  font-size: 9.5px;
+  color: var(--mc-gold);
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+.mc-bi-service-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--mc-green);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.mc-bi-service-status::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--mc-green);
+  box-shadow: 0 0 5px var(--mc-green-glow);
+}
+
+/* Foot: shield-check + status line in the Backend Intelligence palette
+   (gold label / green status verb to mirror the reference image's
+   gold-and-cyan dual-color treatment). */
+.mc-bi-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 9px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.mc-bi-foot-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--mc-gold);
+  filter: drop-shadow(0 0 4px var(--mc-gold-glow));
+  flex: 0 0 12px;
+}
+.mc-bi-foot-label { color: var(--mc-gold); }
+.mc-bi-foot-state { color: var(--mc-green); }
 
 /* ─── footprint card ────────────────────────────────────────────── */
 
@@ -1795,13 +1930,14 @@ body {
           <div class="mc-nav-sub">Intelligence Brief</div>
         </span>
       </a>
-      <a class="mc-nav-item" href="#monitoring-intelligence">
+      <a class="mc-nav-item" href="#backend-intelligence">
         <span class="mc-nav-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12c2.5-4 5.5-6 9-6s6.5 2 9 6c-2.5 4-5.5 6-9 6s-6.5-2-9-6z"/></svg>
+          <!-- 3-node network mark matches the Backend Intelligence™ card's mark -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8 11l8-4M8 13l8 4"/></svg>
         </span>
         <span>
-          <span class="mc-nav-label">Monitoring Intelligence</span>
-          <div class="mc-nav-sub">Always Watching</div>
+          <span class="mc-nav-label">Backend Intelligence</span>
+          <div class="mc-nav-sub">Infrastructure Connected</div>
         </span>
       </a>
       <a class="mc-nav-item" href="#settings">
@@ -2148,27 +2284,100 @@ body {
         </div>
       </article>
 
-      <!-- Monitoring Intelligence™ -->
-      <article class="mc-card mc-card--monitoring" id="monitoring-intelligence" aria-label="Monitoring Intelligence">
+      <!-- Backend Intelligence™ — replaces Monitoring Intelligence™ per Board directive.
+           Visualizes Royaltē's connection into the deep music ecosystem
+           infrastructure (MusicBrainz, Discogs, MLC, Listen Notes). -->
+      <article class="mc-card mc-card--backend" id="backend-intelligence" aria-label="Backend Intelligence">
         <div class="mc-card-head">
           <div class="mc-card-mark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7-3 2v7H6v-7z"/><path d="M9 18v-5h6v5"/></svg>
+            <!-- 3-node network mark matching the reference header icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="6"  cy="12" r="2.4"/>
+              <circle cx="18" cy="6"  r="2.4"/>
+              <circle cx="18" cy="18" r="2.4"/>
+              <path d="M8 11l8-4M8 13l8 4"/>
+            </svg>
           </div>
-          <div class="mc-card-title">MONITORING INTELLIGENCE™</div>
+          <div class="mc-card-title">BACKEND INTELLIGENCE™</div>
         </div>
-        <div class="mc-mon-body">
-          <div class="mc-mon-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5"/><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 12a10 10 0 0 1 20 0"/></svg></div>
-          <div>
-            <div class="mc-mon-value">100%</div>
-            <div class="mc-mon-cap">Monitoring Uptime<br>Last 30 Days</div>
+
+        <div class="mc-bi-body">
+          <div class="mc-bi-art" aria-hidden="true">
+            <svg class="mc-bi-rings" viewBox="0 0 100 100">
+              <circle class="mc-bi-ring-1" cx="50" cy="50" r="40" fill="none" stroke="rgba(245,185,82,0.34)" stroke-width="1.6"/>
+              <circle class="mc-bi-ring-2" cx="50" cy="50" r="32" fill="none" stroke="rgba(245,185,82,0.24)" stroke-width="1"   stroke-dasharray="3 4"/>
+              <circle cx="50" cy="50" r="22" fill="none" stroke="rgba(245,185,82,0.17)" stroke-width="1"/>
+            </svg>
+            <!-- Globe glyph: meridian + equator inside a circle, gold filament glow -->
+            <svg class="mc-bi-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M3 12h18"/>
+              <path d="M12 3a14 14 0 0 1 0 18"/>
+              <path d="M12 3a14 14 0 0 0 0 18"/>
+            </svg>
+          </div>
+          <div class="mc-bi-summary">
+            <div class="mc-bi-sum-label">Infrastructure Connected</div>
+            <div class="mc-bi-sum-value">4 / 4</div>
+            <div class="mc-bi-sum-meta">All Verified</div>
           </div>
         </div>
-        <div class="mc-mon-list">
-          <div class="mc-mon-row"><span>Sources Monitored</span>      <span>12</span></div>
-          <div class="mc-mon-row"><span>Updates Processed</span>      <span>1,842</span></div>
-          <div class="mc-mon-row"><span>Last Scan</span>              <span>12 min ago</span></div>
+
+        <ul class="mc-bi-services">
+          <li class="mc-bi-service">
+            <span class="mc-bi-service-icon">
+              <!-- network nodes -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
+            </span>
+            <div class="mc-bi-service-body">
+              <div class="mc-bi-service-name">MusicBrainz</div>
+              <div class="mc-bi-service-sub">Connected</div>
+            </div>
+            <span class="mc-bi-service-status">Verified</span>
+          </li>
+          <li class="mc-bi-service">
+            <span class="mc-bi-service-icon">
+              <!-- vinyl disc -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.4"/></svg>
+            </span>
+            <div class="mc-bi-service-body">
+              <div class="mc-bi-service-name">Discogs</div>
+              <div class="mc-bi-service-sub">Connected</div>
+            </div>
+            <span class="mc-bi-service-status">Verified</span>
+          </li>
+          <li class="mc-bi-service">
+            <span class="mc-bi-service-icon">
+              <!-- MLC document -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+            </span>
+            <div class="mc-bi-service-body">
+              <div class="mc-bi-service-name">MLC</div>
+              <div class="mc-bi-service-sub">Registered</div>
+            </div>
+            <span class="mc-bi-service-status">Connected</span>
+          </li>
+          <li class="mc-bi-service">
+            <span class="mc-bi-service-icon">
+              <!-- mic -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>
+            </span>
+            <div class="mc-bi-service-body">
+              <div class="mc-bi-service-name">Listen Notes</div>
+              <div class="mc-bi-service-sub">Tracking</div>
+            </div>
+            <span class="mc-bi-service-status">Monitoring</span>
+          </li>
+        </ul>
+
+        <div class="mc-bi-foot">
+          <svg class="mc-bi-foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          <span class="mc-bi-foot-label">Backend Infrastructure:</span>
+          <span class="mc-bi-foot-state">Healthy</span>
         </div>
-        <div class="mc-card-foot">We are constantly scanning<br>and analyzing your data.</div>
       </article>
 
       <!-- Global Music Footprint™ -->
