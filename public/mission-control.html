@@ -1791,10 +1791,159 @@ body {
   display: block;
 }
 
+/* ─── Global Music Footprint™ Refinement v5.0 ────────────────────
+   Transforms the map into a living visualization of Royaltē
+   continuously validating worldwide music availability.
+
+   • 40-second master cycle.
+   • Idle: 15 purple presence markers gently twinkle independently
+     (star-field effect, phase-shifted by per-marker animation-delay).
+   • Active sweep: 80–99 % of cycle, ~7.6 s of cinematic teal sweep
+     travelling west → east across the globe.
+   • Each marker briefly disappears → reignites in a bright purple
+     bloom as the sweep crosses its longitude (animation-delay
+     proportional to marker left % so flashes follow the sweep path).
+   • ROYALTĒ LIVE™ status pill: green dot flashes at sweep start,
+     stays bright through the sweep, fades to dim idle afterward. */
+
+.mc-globe-sweep {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -8%;
+  width: 8%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(45, 212, 191, 0.45) 50%,
+    transparent 100%);
+  filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: mc-globe-sweep 40s linear infinite;
+}
+@keyframes mc-globe-sweep {
+  0%, 79.9% { opacity: 0;   transform: translateX(0); }
+  80%       { opacity: 0.9; transform: translateX(0); }
+  98.9%     { opacity: 0.9; transform: translateX(1400%); }
+  99.1%     { opacity: 0;   transform: translateX(1400%); }
+  100%      { opacity: 0;   transform: translateX(1400%); }
+}
+
+/* Presence markers — bright neon purple dots over major music
+   territories. Radial gradient gives the white-core / purple-bloom
+   effect; stacked drop-shadows provide the large glow bloom per spec. */
+.mc-globe-marker {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    #ffffff 0%,
+    #c785ff 32%,
+    #a855f7 72%,
+    transparent 100%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0.65;
+  filter:
+    drop-shadow(0 0 5px  rgba(168, 85, 247, 0.85))
+    drop-shadow(0 0 11px rgba(168, 85, 247, 0.55));
+  animation-name: mc-globe-marker;
+  animation-duration: 40s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+@keyframes mc-globe-marker {
+  /* Idle twinkle from 0 % → ~80 % — two slow swells per cycle so
+     independent per-marker phase offsets create the star-field feel
+     ("never feels static"). */
+  0%   { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
+  18%  { opacity: 0.85; transform: translate(-50%, -50%) scale(1.06); }
+  35%  { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
+  55%  { opacity: 0.85; transform: translate(-50%, -50%) scale(1.06); }
+  78%  { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
+  /* Briefly disappear right before the sweep arrives. */
+  80%  { opacity: 0.15; transform: translate(-50%, -50%) scale(0.55); }
+  /* Bright purple bloom flash as the sweep passes. */
+  82%  { opacity: 1;    transform: translate(-50%, -50%) scale(1.8);
+         filter: drop-shadow(0 0 10px rgba(168, 85, 247, 1))
+                 drop-shadow(0 0 22px rgba(168, 85, 247, 0.85)); }
+  /* Settle into steady illuminated state. */
+  87%  { opacity: 1;    transform: translate(-50%, -50%) scale(1);
+         filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.95))
+                 drop-shadow(0 0 14px rgba(168, 85, 247, 0.65)); }
+  /* Hold bright through the rest of the sweep window. */
+  99%  { opacity: 0.95; transform: translate(-50%, -50%) scale(1); }
+  /* Drift back to dim idle as the next cycle begins. */
+  100% { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ROYALTĒ LIVE™ status pill — replaces the prior .mc-foot-blurb
+   placeholder slot. Premium glass-style appearance. */
+.mc-globe-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 9px;
+  background: rgba(45, 212, 191, 0.10);
+  border: 1px solid rgba(45, 212, 191, 0.30);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.mc-globe-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mc-green-bright);
+  box-shadow:
+    0 0 6px  rgba(52, 245, 176, 1),
+    0 0 14px rgba(52, 245, 176, 0.55);
+  flex-shrink: 0;
+  animation: mc-globe-status-dot 40s ease-out infinite;
+}
+@keyframes mc-globe-status-dot {
+  /* Idle dim from 0 → 79 % */
+  0%, 79%   { opacity: 0.40;
+              box-shadow: 0 0 4px  rgba(52, 245, 176, 0.45); }
+  /* Flash bright as the scan starts */
+  80%       { opacity: 1;
+              box-shadow: 0 0 10px rgba(52, 245, 176, 1),
+                          0 0 20px rgba(52, 245, 176, 0.85); }
+  /* Stay bright through the sweep window */
+  99%       { opacity: 1;
+              box-shadow: 0 0 10px rgba(52, 245, 176, 1),
+                          0 0 20px rgba(52, 245, 176, 0.85); }
+  /* Fade to dim idle as the cycle resets */
+  100%      { opacity: 0.40;
+              box-shadow: 0 0 4px  rgba(52, 245, 176, 0.45); }
+}
+.mc-globe-status-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.mc-globe-status-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--mc-text);
+  text-transform: uppercase;
+}
+.mc-globe-status-sub {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--mc-text-muted);
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
 .mc-foot-footer {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;                           /* v5.0: center-align the pill + secondary CTA */
   gap: var(--mc-s-4);
   margin-top: var(--mc-s-1);                    /* Executive Compression v1.0: 8 → 4 */
 }
@@ -1806,19 +1955,24 @@ body {
   line-height: 1.55;
 }
 
+/* v5.0: CTA reduced to a small secondary action — visual emphasis
+   shifts to the new ROYALTĒ LIVE™ pill on the opposite side. */
 .mc-foot-cta {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: var(--mc-grid) var(--mc-s-5);       /* Executive Grid Normalization v1.0: 8/14 → 10/20 */
-  font-size: 12px;
+  gap: 4px;
+  padding: 4px 8px;
+  font-size: 10px;
   font-weight: 600;
+  letter-spacing: 0.02em;
   border-radius: var(--mc-r-2);
   color: var(--mc-purple);
-  background: var(--mc-purple-soft);
-  border: 1px solid var(--mc-border-warm);
+  background: transparent;
+  border: 1px solid rgba(168, 85, 247, 0.18);
+  opacity: 0.78;
 }
-.mc-foot-cta svg { width: 12px; height: 12px; }
+.mc-foot-cta:hover { opacity: 1; background: rgba(168, 85, 247, 0.06); }
+.mc-foot-cta svg { width: 10px; height: 10px; }
 
 /* Executive Compression v3.0: bottom status row + all its supporting
    classes (.mc-status-row / .mc-status-card / .mc-status-card--horizon
@@ -2837,14 +2991,43 @@ body {
         </div>
         <div class="mc-globe" aria-hidden="true">
           <img class="mc-globe-map" src="/img/mission-control-world-map.png" alt="">
+          <!-- Footprint Refinement v5.0: 15 presence markers across
+               major music territories. Each marker's animation-delay is
+               proportional to its left% so they reignite one-by-one
+               following the sweep path (delay = left × 0.056 s for the
+               14 %-wide sweep window in the 40 s cycle). Idle twinkle
+               is embedded in the same keyframe — phase offsets create
+               the star-field effect between sweeps. -->
+          <span class="mc-globe-marker" style="left:18%; top:38%; animation-delay:1.01s;"></span>
+          <span class="mc-globe-marker" style="left:24%; top:40%; animation-delay:1.34s;"></span>
+          <span class="mc-globe-marker" style="left:22%; top:50%; animation-delay:1.23s;"></span>
+          <span class="mc-globe-marker" style="left:36%; top:65%; animation-delay:2.02s;"></span>
+          <span class="mc-globe-marker" style="left:47%; top:30%; animation-delay:2.63s;"></span>
+          <span class="mc-globe-marker" style="left:52%; top:32%; animation-delay:2.91s;"></span>
+          <span class="mc-globe-marker" style="left:49%; top:38%; animation-delay:2.74s;"></span>
+          <span class="mc-globe-marker" style="left:52%; top:56%; animation-delay:2.91s;"></span>
+          <span class="mc-globe-marker" style="left:56%; top:75%; animation-delay:3.14s;"></span>
+          <span class="mc-globe-marker" style="left:60%; top:45%; animation-delay:3.36s;"></span>
+          <span class="mc-globe-marker" style="left:70%; top:50%; animation-delay:3.92s;"></span>
+          <span class="mc-globe-marker" style="left:78%; top:42%; animation-delay:4.37s;"></span>
+          <span class="mc-globe-marker" style="left:86%; top:40%; animation-delay:4.82s;"></span>
+          <span class="mc-globe-marker" style="left:84%; top:72%; animation-delay:4.70s;"></span>
+          <span class="mc-globe-marker" style="left:92%; top:78%; animation-delay:5.15s;"></span>
+          <!-- Scanning sweep — single teal vertical band that travels
+               west → east during 80–99 % of the master 40 s cycle. -->
+          <div class="mc-globe-sweep" aria-hidden="true"></div>
         </div>
         <div class="mc-foot-footer">
-          <!-- Module Footer Cleanup v1.0: static "Royaltē identified
-               music presence…" copy removed. The "View Full Map" CTA is
-               retained because it is an actionable element, not static
-               placeholder copy. The empty .mc-foot-blurb preserves the
-               grid layout column so the CTA remains right-aligned. -->
-          <div class="mc-foot-blurb"></div>
+          <!-- Footprint Refinement v5.0: ROYALTĒ LIVE™ pill is the new
+               primary visual focal point; the "View Full Map" CTA is
+               reduced to a secondary action. -->
+          <div class="mc-globe-status" aria-label="Royaltē Live — scanning global distribution">
+            <span class="mc-globe-status-dot" aria-hidden="true"></span>
+            <span class="mc-globe-status-text">
+              <span class="mc-globe-status-title">Royaltē Live™</span>
+              <span class="mc-globe-status-sub">Scanning Global Distribution</span>
+            </span>
+          </div>
           <a class="mc-foot-cta" href="#global-footprint-full">
             View Full Map
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
