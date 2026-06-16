@@ -684,13 +684,15 @@ body {
   gap: 2px;
 }
 .mc-health-breakdown-list li {
-  /* Refinement v2.0: right-side numeric values removed per directive
-     ("module composition, not duplicate scoring"). Row is now a clean
-     icon + label only. */
+  /* Refinement v2.0: clean icon + label only (right-side numeric
+     values removed). Typography Refinement v1.0: font-size 10.5 → 11.5
+     px per Board directive — single-property micro-adjustment for
+     readability; family / weight / letter-spacing / line-height /
+     alignment / icon-spacing all preserved. */
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 10.5px;
+  font-size: 11.5px;
   color: var(--mc-text-soft);
   line-height: 1.4;
   letter-spacing: 0.01em;
