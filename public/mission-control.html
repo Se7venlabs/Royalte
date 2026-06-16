@@ -1386,22 +1386,11 @@ body {
   line-height: 1.6;
 }
 
-.mc-takeaways {
-  margin-top: var(--mc-s-1);                   /* Executive Compression v1.0: 8 → 4 */
-  border-top: 1px solid var(--mc-divider);
-  padding-top: var(--mc-s-2);                  /* Executive Compression v1.0: 16 → 8 */
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-1);                          /* Executive Compression v1.0: 8 → 4 */
-}
-.mc-takeaways-title {
-  font-size: 10.5px;
-  letter-spacing: 0.24em;
-  color: var(--mc-text-muted);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-.mc-takeaways-list { display: flex; flex-direction: column; gap: var(--mc-s-1); margin-top: 0; }  /* Executive Compression v1.0: tighter takeaway list */
+/* Right Rail Compression v1.0: .mc-takeaways / .mc-takeaways-title /
+   .mc-takeaways-list wrappers removed — the KEY TAKEAWAYS block was
+   deleted from the AI Insights panel per Board directive.
+   .mc-takeaway is retained because Royaltē Review reuses it as the
+   reusable check-list-item style (icon + label rows). */
 .mc-takeaway {
   display: grid;
   grid-template-columns: 16px 1fr;
@@ -1410,6 +1399,7 @@ body {
   font-size: 12.5px;
   color: var(--mc-text-soft);
 }
+
 .mc-check {
   width: 16px;
   height: 16px;
@@ -1421,27 +1411,9 @@ body {
 }
 .mc-check svg { width: 10px; height: 10px; }
 
-.mc-info-note {
-  margin-top: var(--mc-s-2);                   /* Executive Compression v1.0: 12 → 8 */
-  padding: var(--mc-s-2) var(--mc-s-3);        /* Executive Compression v1.0: 12/16 → 8/12 */
-  border-radius: var(--mc-r-2);
-  background: rgba(168, 85, 247, 0.08);
-  border: 1px solid var(--mc-border-warm);
-}
-.mc-info-note-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--mc-purple);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.mc-info-note-body {
-  font-size: 11.5px;
-  color: var(--mc-text-soft);
-  margin-top: 4px;
-  line-height: 1.55;
-}
+/* Right Rail Compression v1.0: .mc-info-note + children removed — the
+   "No action is required at this time" info panel was deleted from the
+   AI Insights panel per Board directive. */
 
 /* Royaltē Review */
 
@@ -2138,25 +2110,9 @@ body {
 
       <h2 class="mc-insights-title">Backend Health Continues to Improve</h2>
       <p class="mc-insights-body">Royaltē Intelligence™ has detected measurable improvements across your music infrastructure. Publishing governance and metadata integrity continue to strengthen, while monitoring indicates stable backend health. No immediate intervention is recommended at this time.</p>
-
-      <div class="mc-takeaways">
-        <div class="mc-takeaways-title">KEY TAKEAWAYS</div>
-        <ul class="mc-takeaways-list">
-          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Metadata is clean and consistent</li>
-          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Identities are verified</li>
-          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Publishing coverage is strong</li>
-          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Systems are operating normally</li>
-          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Monitoring is continuous</li>
-        </ul>
-      </div>
-
-      <div class="mc-info-note">
-        <div class="mc-info-note-title">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
-          No action is required at this time.
-        </div>
-        <div class="mc-info-note-body">We'll continue monitoring and alert you if anything needs your attention.</div>
-      </div>
+      <!-- Right Rail Compression v1.0: KEY TAKEAWAYS list and "No action is
+           required" info-note both removed per Board directive. The module
+           ends after the executive narrative — one idea per module. -->
     </section>
 
     <!-- Royaltē Review™ -->
