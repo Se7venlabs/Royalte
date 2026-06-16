@@ -2239,7 +2239,11 @@ body {
           </div>
         </div>
 
-        <div class="mc-card-foot">Your music business remains healthy.<br>No action recommended.</div>
+        <!-- Module Footer Cleanup v1.0: static placeholder copy removed.
+             The slot is preserved (empty .mc-card-foot keeps the
+             margin-top: auto anchor) so Royaltē AI can inject real
+             insights / warnings / recommendations when they exist. -->
+        <div class="mc-card-foot"></div>
       </article>
 
       <!-- Identity Intelligence™ -->
@@ -2311,7 +2315,7 @@ body {
             <span class="mc-pill mc-pill--verified">Verified</span>
           </div>
         </div>
-        <div class="mc-card-foot">Royaltē continues to confirm<br>your official artist identities.</div>
+        <div class="mc-card-foot"></div>
       </article>
 
       <!-- Publishing Intelligence™ -->
@@ -2341,7 +2345,7 @@ body {
           </div>
         </div>
         <div class="mc-pub-divider"></div>
-        <div class="mc-card-foot">Publishing verification is<br>active and ongoing.</div>
+        <div class="mc-card-foot"></div>
       </article>
 
       <!-- Catalog Intelligence™ -->
@@ -2376,7 +2380,7 @@ body {
             </div>
           </div>
         </div>
-        <div class="mc-card-foot">Your catalog infrastructure is synchronized<br>and actively monitored.</div>
+        <div class="mc-card-foot"></div>
       </article>
 
       <!-- Change Detection™ — replaces Revenue Watch™ per Board directive.
@@ -2453,15 +2457,11 @@ body {
           </li>
         </ul>
 
-        <div class="mc-cd-foot">
-          <svg class="mc-cd-pulse" viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M0 6 L10 6 L13 2 L16 10 L19 4 L22 8 L25 6 L40 6"/>
-          </svg>
-          Monitoring Active
-          <svg class="mc-cd-pulse" viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M0 6 L15 6 L18 2 L21 10 L24 4 L27 8 L30 6 L40 6"/>
-          </svg>
-        </div>
+        <!-- Module Footer Cleanup v1.0: "Monitoring Active" + pulse
+             waves removed (passive system indicator, not earned speech).
+             Empty .mc-cd-foot preserved as a slot for future AI
+             insights. -->
+        <div class="mc-cd-foot"></div>
       </article>
 
       <!-- Backend Intelligence™ — replaces Monitoring Intelligence™ per Board directive.
@@ -2553,14 +2553,11 @@ body {
           </li>
         </ul>
 
-        <div class="mc-bi-foot">
-          <svg class="mc-bi-foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4z"/>
-            <path d="M9 12l2 2 4-4"/>
-          </svg>
-          <span class="mc-bi-foot-label">Backend Infrastructure:</span>
-          <span class="mc-bi-foot-state">Healthy</span>
-        </div>
+        <!-- Module Footer Cleanup v1.0: "Backend Infrastructure: Healthy"
+             status line removed (passive system indicator, not earned
+             speech). Empty .mc-bi-foot preserved as a slot for future
+             AI insights. -->
+        <div class="mc-bi-foot"></div>
       </article>
 
       <!-- Global Music Footprint™ -->
@@ -2575,7 +2572,12 @@ body {
           <img class="mc-globe-map" src="/img/mission-control-world-map.png" alt="">
         </div>
         <div class="mc-foot-footer">
-          <div class="mc-foot-blurb">Royaltē identified music<br>presence across global DSPs.</div>
+          <!-- Module Footer Cleanup v1.0: static "Royaltē identified
+               music presence…" copy removed. The "View Full Map" CTA is
+               retained because it is an actionable element, not static
+               placeholder copy. The empty .mc-foot-blurb preserves the
+               grid layout column so the CTA remains right-aligned. -->
+          <div class="mc-foot-blurb"></div>
           <a class="mc-foot-cta" href="#global-footprint-full">
             View Full Map
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
