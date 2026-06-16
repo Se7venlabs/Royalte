@@ -526,7 +526,17 @@ body {
 .mc-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--mc-grid);                          /* Executive Grid Normalization v1.0: row AND column gap both 10px — equal gutters throughout per directive */
+  /* Executive Visual Balance v1.0: both intelligence rows are forced to
+     the same track height. The row-1 four-card content (Health, Identity,
+     Publishing, Catalog) is naturally taller than row 2 (Revenue,
+     Monitoring, Footprint span 2); with `grid-auto-rows: 1fr` both
+     implicit rows resolve to the same height = the taller row's
+     content. The row-2 cards then gain ~88 px of breathing room each,
+     which the existing flex-column layout distributes naturally via
+     `.mc-card-foot { margin-top: auto }`. No width, no column span, no
+     horizontal spacing changes. */
+  grid-auto-rows: 1fr;
+  gap: var(--mc-grid);
 }
 
 .mc-row-3 {
@@ -1160,7 +1170,14 @@ body {
 .mc-globe {
   position: relative;
   width: 100%;
-  height: 180px;                        /* Executive Compression v1.0: 220 → 180; map letterboxes within (object-fit:contain), so aspect ratio is preserved */
+  /* Executive Visual Balance v1.0: globe expands to consume the row-2
+     extra height the visual-balance pass added. Width unchanged; the
+     map uses `object-fit: contain` so the world-map aspect ratio is
+     preserved as the container grows. Min-height keeps the original
+     180-px floor in case grid-auto-rows: 1fr ever yields a smaller
+     allocation. */
+  flex: 1;
+  min-height: 180px;
   border-radius: var(--mc-r-2);
   overflow: hidden;
   background: #050b18;
