@@ -595,7 +595,7 @@ body {
     inset 0 0 38px rgba(200, 122, 240, 0.050); }
 }
 .mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
-.mc-card--revenue    { --card-glow: rgba(251, 146, 60, 0.07); }
+.mc-card--change     { --card-glow: rgba(168, 85, 247, 0.10); }   /* Change Detection™ — premium violet intelligence signature */
 .mc-card--monitoring { --card-glow: rgba(56, 189, 248, 0.07); }
 .mc-card--footprint  { --card-glow: rgba(56, 189, 248, 0.06); }
 
@@ -619,7 +619,7 @@ body {
 .mc-card--identity   .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
 .mc-card--publishing .mc-card-mark { color: var(--mc-purple); background: var(--mc-purple-soft); border-color: var(--mc-border-warm); }
 .mc-card--catalog    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
-.mc-card--revenue    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
+.mc-card--change     .mc-card-mark { color: var(--mc-purple); background: var(--mc-purple-soft); border-color: var(--mc-border-warm); }
 .mc-card--monitoring .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
 .mc-card--footprint  .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
 
@@ -1054,56 +1054,165 @@ body {
   margin: 2px 0;
 }
 
-/* ─── revenue card ──────────────────────────────────────────────── */
+/* ─── Change Detection™ card (replaces Revenue Watch™ — Board directive) ─
 
-.mc-rev-body {
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: var(--mc-s-4);
-  align-items: center;
+   Change Detection™ is a live intelligence feed answering
+   "What changed since my last scan?" It is NOT revenue / earnings /
+   royalties / AI Insights. The card sits in the row-2 slot the
+   retired Revenue Watch™ module occupied; width, grid position and
+   column allocation are unchanged. */
+
+.mc-cd-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mc-cd-sublabel {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--mc-purple);
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1.2;
 }
 
-.mc-rev-mark {
-  width: 64px;
-  height: 64px;
+/* Centered lightning-bolt visualization — narrow-card adaptation of the
+   Board reference's large radial bolt. Rings pulse, outer dashed ring
+   rotates, central bolt SVG breathes with a slow purple glow. Subtle
+   per the directive. */
+.mc-cd-art {
+  position: relative;
+  height: 72px;
+  display: grid;
+  place-items: center;
+}
+.mc-cd-rings {
+  width: 72px;
+  height: 72px;
+}
+.mc-cd-ring-1 {
+  transform-origin: 50% 50%;
+  animation: mc-cd-ring-1 4.2s ease-in-out infinite;
+}
+.mc-cd-ring-2 {
+  transform-origin: 50% 50%;
+  animation: mc-cd-ring-2 8s linear infinite;
+}
+@keyframes mc-cd-ring-1 {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.06); }
+}
+@keyframes mc-cd-ring-2 {
+  to { transform: rotate(360deg); }
+}
+
+.mc-cd-bolt {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  color: #c785ff;
+  filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.65));
+  animation: mc-cd-bolt-pulse 2.4s ease-in-out infinite;
+}
+@keyframes mc-cd-bolt-pulse {
+  0%, 100% { opacity: 0.80; filter: drop-shadow(0 0 6px  rgba(168, 85, 247, 0.45)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.85)); }
+}
+
+/* Event timeline */
+.mc-cd-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+
+.mc-cd-event {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(168, 85, 247, 0.05);
+  border: 1px solid rgba(168, 85, 247, 0.12);
+  border-radius: var(--mc-r-2);
+  /* Subtle per-event highlight pulse — each event takes its turn in a
+     continuous 8-second loop, staggered by 2s. Fade-in / hold / fade-out
+     per directive ("Events rotate: Fade In, Hold, Fade Out, Next event").
+     Animation is decorative only; all four events remain visible at all
+     times so the feed reads as a live intelligence timeline. */
+  animation: mc-cd-event-pulse 8s ease-in-out infinite;
+}
+.mc-cd-event--1 { animation-delay: 0s; }
+.mc-cd-event--2 { animation-delay: 2s; }
+.mc-cd-event--3 { animation-delay: 4s; }
+.mc-cd-event--4 { animation-delay: 6s; }
+
+@keyframes mc-cd-event-pulse {
+  0%, 100%   { background: rgba(168, 85, 247, 0.05); border-color: rgba(168, 85, 247, 0.12); }
+  5%         { background: rgba(168, 85, 247, 0.14); border-color: rgba(168, 85, 247, 0.34); }
+  20%        { background: rgba(168, 85, 247, 0.08); border-color: rgba(168, 85, 247, 0.20); }
+  30%        { background: rgba(168, 85, 247, 0.05); border-color: rgba(168, 85, 247, 0.12); }
+}
+
+.mc-cd-icon {
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: var(--mc-orange);
-  background: var(--mc-orange-soft);
-  border: 1px solid rgba(251, 146, 60, 0.22);
+  color: var(--mc-purple);
+  background: var(--mc-purple-soft);
+  border: 1px solid var(--mc-border-warm);
 }
-.mc-rev-mark svg { width: 32px; height: 32px; }
+.mc-cd-icon svg { width: 12px; height: 12px; }
 
-.mc-rev-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--mc-green);
-  letter-spacing: 0.01em;
-}
-.mc-rev-sub {
-  font-size: 12px;
-  color: var(--mc-text-muted);
-  margin-top: 2px;
-}
-
-.mc-rev-list {
+.mc-cd-event-body {
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-1);
-  border-top: 1px solid var(--mc-divider);
-  /* Executive Compression v1.0: rev-list padding-top 12 → 4, margin-top 8 → 0 */
-  padding-top: var(--mc-s-1);
-  margin-top: 0;
+  gap: 1px;
+  min-width: 0;
 }
-.mc-rev-row {
+.mc-cd-event-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+.mc-cd-event-meta {
+  font-size: 10px;
+  color: var(--mc-purple);
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+.mc-cd-foot {
+  margin-top: auto;
   display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  padding: 2px 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: var(--mc-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
 }
-.mc-rev-row span:first-child { color: var(--mc-text-muted); }
-.mc-rev-row span:last-child  { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.mc-cd-pulse {
+  width: 22px;
+  height: 8px;
+  flex: 0 0 22px;
+}
+.mc-cd-pulse path {
+  stroke: var(--mc-purple);
+  stroke-width: 0.8;
+  fill: none;
+  filter: drop-shadow(0 0 3px var(--mc-purple-glow));
+  opacity: 0.7;
+}
 
 /* ─── monitoring card ───────────────────────────────────────────── */
 
@@ -1909,27 +2018,80 @@ body {
         <div class="mc-card-foot">Your catalog infrastructure is synchronized<br>and actively monitored.</div>
       </article>
 
-      <!-- Revenue Watch™ -->
-      <article class="mc-card mc-card--revenue" aria-label="Revenue Watch">
+      <!-- Change Detection™ — replaces Revenue Watch™ per Board directive.
+           Live intelligence feed: "What changed since my last scan?" -->
+      <article class="mc-card mc-card--change" id="change-detection" aria-label="Change Detection">
         <div class="mc-card-head">
           <div class="mc-card-mark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 14h4.5a1.5 1.5 0 0 0 0-3h-3a1.5 1.5 0 0 1 0-3H15M12 7v2M12 15v2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M13 2L4.5 13h6L11 22l8.5-11h-6z"/>
+            </svg>
           </div>
-          <div class="mc-card-title">REVENUE WATCH™</div>
-        </div>
-        <div class="mc-rev-body">
-          <div class="mc-rev-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 14h4.5a1.5 1.5 0 0 0 0-3h-3a1.5 1.5 0 0 1 0-3H15M12 7v2M12 15v2"/></svg></div>
-          <div>
-            <div class="mc-rev-title">All Clear</div>
-            <div class="mc-rev-sub">No Revenue Risks</div>
+          <div class="mc-cd-head-text">
+            <div class="mc-card-title">CHANGE DETECTION™</div>
+            <div class="mc-cd-sublabel">Continuous Intelligence</div>
           </div>
         </div>
-        <div class="mc-rev-list">
-          <div class="mc-rev-row"><span>Anomalies Detected</span><span>0</span></div>
-          <div class="mc-rev-row"><span>Unmatched Earnings</span><span>0</span></div>
-          <div class="mc-rev-row"><span>Opportunities</span><span>0</span></div>
+
+        <div class="mc-cd-art" aria-hidden="true">
+          <svg class="mc-cd-rings" viewBox="0 0 100 100">
+            <circle class="mc-cd-ring-1" cx="50" cy="50" r="36" fill="none" stroke="rgba(168,85,247,0.32)" stroke-width="1.2"/>
+            <circle class="mc-cd-ring-2" cx="50" cy="50" r="28" fill="none" stroke="rgba(168,85,247,0.22)" stroke-width="0.8" stroke-dasharray="3 4"/>
+            <circle cx="50" cy="50" r="18" fill="none" stroke="rgba(168,85,247,0.15)" stroke-width="0.8"/>
+          </svg>
+          <svg class="mc-cd-bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M13 2L4.5 13h6L11 22l8.5-11h-6z"/>
+          </svg>
         </div>
-        <div class="mc-card-foot">No royalty leaks or anomalies detected.<br>Monitoring continues.</div>
+
+        <ul class="mc-cd-feed">
+          <li class="mc-cd-event mc-cd-event--1">
+            <span class="mc-cd-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </span>
+            <div class="mc-cd-event-body">
+              <div class="mc-cd-event-title">New Release Detected</div>
+              <div class="mc-cd-event-meta">Today · 10:42 AM</div>
+            </div>
+          </li>
+          <li class="mc-cd-event mc-cd-event--2">
+            <span class="mc-cd-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+            </span>
+            <div class="mc-cd-event-body">
+              <div class="mc-cd-event-title">Official Artist Verified</div>
+              <div class="mc-cd-event-meta">Yesterday</div>
+            </div>
+          </li>
+          <li class="mc-cd-event mc-cd-event--3">
+            <span class="mc-cd-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+            </span>
+            <div class="mc-cd-event-body">
+              <div class="mc-cd-event-title">Publishing Updated</div>
+              <div class="mc-cd-event-meta">3 Days Ago</div>
+            </div>
+          </li>
+          <li class="mc-cd-event mc-cd-event--4">
+            <span class="mc-cd-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>
+            </span>
+            <div class="mc-cd-event-body">
+              <div class="mc-cd-event-title">Podcast Mention</div>
+              <div class="mc-cd-event-meta">This Week</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="mc-cd-foot">
+          <svg class="mc-cd-pulse" viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 6 L10 6 L13 2 L16 10 L19 4 L22 8 L25 6 L40 6"/>
+          </svg>
+          Monitoring Active
+          <svg class="mc-cd-pulse" viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 6 L15 6 L18 2 L21 10 L24 4 L27 8 L30 6 L40 6"/>
+          </svg>
+        </div>
       </article>
 
       <!-- Monitoring Intelligence™ -->
