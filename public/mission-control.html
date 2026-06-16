@@ -116,10 +116,11 @@ body {
 
 .mc-rail-left,
 .mc-rail-right {
-  padding: var(--mc-s-7) var(--mc-s-6);
+  /* Executive Compression v1.0: rail vertical padding 32 → 20, gap 24 → 20. */
+  padding: var(--mc-s-5) var(--mc-s-6);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-6);
+  gap: var(--mc-s-5);
 }
 
 .mc-rail-left {
@@ -129,14 +130,20 @@ body {
 
 .mc-rail-right {
   border-left: 1px solid var(--mc-border);
-  gap: var(--mc-s-5);
+  gap: var(--mc-s-4);                          /* Executive Compression v1.0: 20 → 16 between right-rail panels */
 }
 
 .mc-main {
-  padding: var(--mc-s-7) var(--mc-pad) var(--mc-s-9);
+  /* Executive Compression v1.0:
+       - page top padding 32 → 16  (var(--mc-s-7) → var(--mc-s-4))
+       - page bottom padding 56 → 16 (var(--mc-s-9) → var(--mc-s-4))
+       - inter-section flex gap 24 → 12 (var(--mc-s-6) → var(--mc-s-3))
+     Every section interior (hero, card grid, status row, etc.) is tightened
+     individually below; this rule controls the chassis-level rhythm only. */
+  padding: var(--mc-s-4) var(--mc-pad) var(--mc-s-4);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-6);
+  gap: var(--mc-s-3);
   min-width: 0;
 }
 
@@ -200,7 +207,9 @@ body {
   grid-template-columns: 36px 1fr;
   align-items: center;
   gap: var(--mc-s-3);
-  padding: var(--mc-s-3) var(--mc-s-3);
+  /* Executive Compression v1.0: nav vertical padding 12 → 8; icon and
+     typography untouched per directive. */
+  padding: var(--mc-s-2) var(--mc-s-3);
   border-radius: var(--mc-r-2);
   color: var(--mc-text-soft);
   transition: background 160ms ease, color 160ms ease;
@@ -343,7 +352,7 @@ body {
   margin: 0;
 }
 .mc-page-sub {
-  margin: var(--mc-s-2) 0 0;
+  margin: var(--mc-s-1) 0 0;                   /* Executive Compression v1.0: title→sub gap 8 → 4 */
   font-size: 13.5px;
   color: var(--mc-text-muted);
 }
@@ -352,10 +361,20 @@ body {
 
 .mc-hero {
   display: grid;
-  grid-template-columns: 168px 1fr 220px 220px;
+  /* Executive Compression v1.0:
+       - radar cell 168 → 130 (matches the 130×130 SVG exactly; removes 38px
+         of horizontal dead space; sonar size unchanged)
+       - action cell 220 → 180 (right-aligned status copy still fits; slot
+         only)
+     Title cell (1fr) gains 78px, so the label / ALL SYSTEMS NORMAL /
+     monitoring-meta lines wrap less, collapsing hero height. */
+  grid-template-columns: 130px 1fr 220px 150px;  /* Executive Compression v1.0 iter 2: action cell 180 → 150 (text fits, gives title cell ~30px more) */
   align-items: center;
-  gap: var(--mc-s-6);
-  padding: var(--mc-s-5) var(--mc-s-6);
+  /* Executive Compression v1.0: hero inter-column spacing 24 → 12 widens the
+     1fr title cell by ~36px and lets the Monitoring meta line wrap to fewer
+     lines, collapsing hero height. Sonar/heartbeat/typography untouched. */
+  gap: var(--mc-s-3);
+  padding: var(--mc-s-3) var(--mc-s-5);        /* hero v-padding 20 → 12, h-padding 24 → 20 */
   border-radius: var(--mc-r-4);
   background: linear-gradient(135deg, rgba(45, 212, 191, 0.04), rgba(0, 0, 0, 0) 60%), var(--mc-surface-1);
   border: 1px solid rgba(45, 212, 191, 0.16);
@@ -427,7 +446,7 @@ body {
 .mc-hero-meta {
   font-size: 12.5px;
   color: var(--mc-text-muted);
-  margin-top: var(--mc-s-2);
+  margin-top: var(--mc-s-1);                   /* Executive Compression v1.0: 8 → 4 above meta */
 }
 
 .mc-hero-meta b { color: var(--mc-text-soft); font-weight: 500; }
@@ -492,7 +511,7 @@ body {
   color: var(--mc-text-muted);
   text-transform: uppercase;
   font-weight: 600;
-  margin: var(--mc-s-3) 0 0;
+  margin: 0;                                    /* Executive Compression v1.0: top margin 12 → 0; main flex-gap handles section rhythm */
 }
 
 /* ─── card grid ─────────────────────────────────────────────────── */
@@ -500,7 +519,7 @@ body {
 .mc-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--mc-s-5);
+  gap: var(--mc-s-3) var(--mc-s-5);             /* Executive Compression v1.0: row-gap 20 → 12; column gap preserved */
 }
 
 .mc-row-3 {
@@ -515,10 +534,15 @@ body {
   background: var(--mc-surface-1);
   border: 1px solid var(--mc-border);
   border-radius: var(--mc-r-3);
-  padding: var(--mc-s-5);
+  /* Executive Compression v1.0 (second iteration):
+       - card padding 20 → 12 all sides
+       - card internal flex-gap 16 → 8
+     Module typography / icons / proportions untouched; only the dead
+     whitespace between a card's internal blocks is reduced. */
+  padding: var(--mc-s-3);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-4);
+  gap: var(--mc-s-2);
   position: relative;
   overflow: hidden;
   min-width: 0;
@@ -665,7 +689,7 @@ body {
 .mc-spark {
   width: 100%;
   height: 28px;
-  margin-top: var(--mc-s-3);
+  margin-top: var(--mc-s-1);                   /* Executive Compression v1.0: 12 → 4 */
 }
 .mc-spark path {
   stroke: var(--mc-green-bright);
@@ -857,8 +881,9 @@ body {
   flex-direction: column;
   gap: var(--mc-s-2);
   border-top: 1px solid var(--mc-divider);
-  padding-top: var(--mc-s-3);
-  margin-top: var(--mc-s-1);
+  /* Executive Compression v1.0: identity-checks padding-top 12 → 4, margin-top 4 → 0 */
+  padding-top: var(--mc-s-1);
+  margin-top: 0;
 }
 
 .mc-identity-check {
@@ -904,7 +929,7 @@ body {
 .mc-pub-stats {
   display: flex;
   flex-direction: column;
-  gap: 13px;                                /* +breathing room per Board */
+  gap: var(--mc-s-2);                       /* Executive Compression v1.0: 13 → 8 between Publishing stats */
 }
 .mc-pub-stat {
   display: flex;
@@ -930,7 +955,7 @@ body {
 .mc-pub-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 30%, rgba(255, 255, 255, 0.08) 70%, transparent);
-  margin: var(--mc-s-2) 0 var(--mc-s-1);
+  margin: var(--mc-s-1) 0 0;                  /* Executive Compression v1.0: 8/4 → 4/0 around publishing divider */
 }
 
 .mc-card--publishing .mc-card-foot { color: #F5F5F7; font-size: 12.5px; line-height: 1.55; }
@@ -993,12 +1018,13 @@ body {
   letter-spacing: 0.04em;
 }
 
+/* Executive Compression v1.0: catalog grid sits flush against label/value above */
 .mc-catalog-grid {
   display: grid;
   grid-template-columns: 1fr auto;               /* values right-aligned for executive scan */
-  gap: 8px var(--mc-s-3);                        /* +breathing room between rows */
+  gap: var(--mc-s-1) var(--mc-s-3);              /* Executive Compression v1.0: row gap 8 → 4 */
   font-size: 12.5px;
-  margin-top: var(--mc-s-2);
+  margin-top: 0;                                 /* Executive Compression v1.0: 8 → 0 */
 }
 .mc-catalog-grid .lbl { color: #b8b8c4; letter-spacing: 0.02em; }
 .mc-catalog-grid .val { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
@@ -1049,8 +1075,9 @@ body {
   flex-direction: column;
   gap: var(--mc-s-1);
   border-top: 1px solid var(--mc-divider);
-  padding-top: var(--mc-s-3);
-  margin-top: var(--mc-s-2);
+  /* Executive Compression v1.0: rev-list padding-top 12 → 4, margin-top 8 → 0 */
+  padding-top: var(--mc-s-1);
+  margin-top: 0;
 }
 .mc-rev-row {
   display: flex;
@@ -1107,7 +1134,7 @@ body {
   margin-top: var(--mc-s-1);
 }
 
-.mc-mon-list { margin-top: var(--mc-s-3); display: flex; flex-direction: column; gap: var(--mc-s-1); }
+.mc-mon-list { margin-top: var(--mc-s-1); display: flex; flex-direction: column; gap: var(--mc-s-1); }  /* Executive Compression v1.0: 12 → 4 */
 .mc-mon-row {
   display: flex;
   justify-content: space-between;
@@ -1121,12 +1148,12 @@ body {
 
 /* ─── footprint card ────────────────────────────────────────────── */
 
-.mc-card--footprint { padding-bottom: var(--mc-s-4); }
+.mc-card--footprint { padding-bottom: var(--mc-s-2); }  /* Executive Compression v1.0: 16 → 8 */
 
 .mc-globe {
   position: relative;
   width: 100%;
-  height: 220px;                        /* +22% from prior 180px so the full map fits with comfortable padding */
+  height: 180px;                        /* Executive Compression v1.0: 220 → 180; map letterboxes within (object-fit:contain), so aspect ratio is preserved */
   border-radius: var(--mc-r-2);
   overflow: hidden;
   background: #050b18;
@@ -1148,7 +1175,7 @@ body {
   justify-content: space-between;
   align-items: flex-end;
   gap: var(--mc-s-4);
-  margin-top: var(--mc-s-2);
+  margin-top: var(--mc-s-1);                    /* Executive Compression v1.0: 8 → 4 */
 }
 
 .mc-foot-blurb {
@@ -1181,10 +1208,11 @@ body {
 }
 
 .mc-status-card {
-  padding: var(--mc-s-4) var(--mc-s-5);
+  /* Executive Compression v1.0 (second iteration): status-card padding 16/20 → 8/12. */
+  padding: var(--mc-s-2) var(--mc-s-3);
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: var(--mc-s-4);
+  gap: var(--mc-s-3);
   align-items: center;
   background: var(--mc-surface-1);
   border: 1px solid var(--mc-border);
@@ -1222,7 +1250,7 @@ body {
 .mc-status-dots {
   display: flex;
   gap: 6px;
-  margin-top: var(--mc-s-3);
+  margin-top: var(--mc-s-1);                   /* Executive Compression v1.0: 12 → 4 above operational dots */
 }
 .mc-status-dot {
   width: 7px;
@@ -1262,10 +1290,12 @@ body {
   background: var(--mc-surface-1);
   border: 1px solid var(--mc-border);
   border-radius: var(--mc-r-4);
-  padding: var(--mc-s-5);
+  /* Executive Compression v1.0: right-rail panel padding 20 → 12,
+     internal flex-gap 16 → 8. Typography / icons / ring untouched. */
+  padding: var(--mc-s-3);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-4);
+  gap: var(--mc-s-2);
   position: relative;
   overflow: hidden;
 }
@@ -1300,7 +1330,9 @@ body {
 .mc-insights-art {
   display: grid;
   place-items: center;
-  height: 120px;
+  /* Executive Compression v1.0: 120 → 96. The 80×80 bulb SVG is unchanged;
+     this trims the dead-space surround around the icon, not the icon itself. */
+  height: 96px;
   position: relative;
 }
 .mc-insights-art::before {
@@ -1357,12 +1389,12 @@ body {
 }
 
 .mc-takeaways {
-  margin-top: var(--mc-s-2);
+  margin-top: var(--mc-s-1);                   /* Executive Compression v1.0: 8 → 4 */
   border-top: 1px solid var(--mc-divider);
-  padding-top: var(--mc-s-4);
+  padding-top: var(--mc-s-2);                  /* Executive Compression v1.0: 16 → 8 */
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-2);
+  gap: var(--mc-s-1);                          /* Executive Compression v1.0: 8 → 4 */
 }
 .mc-takeaways-title {
   font-size: 10.5px;
@@ -1371,7 +1403,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
 }
-.mc-takeaways-list { display: flex; flex-direction: column; gap: var(--mc-s-2); margin-top: var(--mc-s-1); }
+.mc-takeaways-list { display: flex; flex-direction: column; gap: var(--mc-s-1); margin-top: 0; }  /* Executive Compression v1.0: tighter takeaway list */
 .mc-takeaway {
   display: grid;
   grid-template-columns: 16px 1fr;
@@ -1392,8 +1424,8 @@ body {
 .mc-check svg { width: 10px; height: 10px; }
 
 .mc-info-note {
-  margin-top: var(--mc-s-3);
-  padding: var(--mc-s-3) var(--mc-s-4);
+  margin-top: var(--mc-s-2);                   /* Executive Compression v1.0: 12 → 8 */
+  padding: var(--mc-s-2) var(--mc-s-3);        /* Executive Compression v1.0: 12/16 → 8/12 */
   border-radius: var(--mc-r-2);
   background: rgba(168, 85, 247, 0.08);
   border: 1px solid var(--mc-border-warm);
@@ -1478,14 +1510,15 @@ body {
   margin-top: 4px;
 }
 
-.mc-review-checks { display: flex; flex-direction: column; gap: var(--mc-s-2); margin-top: var(--mc-s-2); }
+.mc-review-checks { display: flex; flex-direction: column; gap: var(--mc-s-1); margin-top: var(--mc-s-1); }  /* Executive Compression v1.0: tighter check list */
 
 .mc-review-cta {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 13px 18px;
+  /* Executive Compression v1.0: CTA vertical padding 13 → 9; typography untouched. */
+  padding: 9px 18px;
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(109, 40, 217, 0.50));
   border: 1px solid rgba(168, 85, 247, 0.45);
   border-radius: var(--mc-r-2);
@@ -1504,7 +1537,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 14px;
+  padding: 7px 14px;                           /* Executive Compression v1.0: 11 → 7 vertical */
   font-size: 12.5px;
   color: var(--mc-purple);
   border-radius: var(--mc-r-2);
