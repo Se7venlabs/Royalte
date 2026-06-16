@@ -6,8 +6,6 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Mission Control — Royaltē</title>
   <link rel="icon" href="/favicon.ico">
-  <!-- Canonical Royaltē fonts so the standardised header renders identically to royalte.ai -->
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
 
 /* ──────────────────────────────────────────────────────────────────────
@@ -77,6 +75,7 @@
 
   /* layout */
   --mc-rail-l: 256px;
+  --mc-rail-r: 360px;
   --mc-pad:    var(--mc-s-7);
 }
 
@@ -109,47 +108,83 @@ body {
 
 .mc-shell {
   display: grid;
-  grid-template-columns: var(--mc-rail-l) 1fr;
+  grid-template-columns: var(--mc-rail-l) 1fr var(--mc-rail-r);
   min-height: 100vh;
   max-width: 1920px;
   margin: 0 auto;
 }
 
-.mc-rail-left {
-  padding: var(--mc-s-3) var(--mc-s-5);          /* compression pass: vertical 16 → 12 */
+.mc-rail-left,
+.mc-rail-right {
+  padding: var(--mc-s-7) var(--mc-s-6);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-3);                            /* compression pass: 16 → 12 */
+  gap: var(--mc-s-6);
+}
+
+.mc-rail-left {
   border-right: 1px solid var(--mc-border);
   background: linear-gradient(180deg, rgba(168, 85, 247, 0.03), transparent 30%);
 }
 
+.mc-rail-right {
+  border-left: 1px solid var(--mc-border);
+  gap: var(--mc-s-5);
+}
+
 .mc-main {
-  padding: var(--mc-s-2) var(--mc-pad) var(--mc-s-3);  /* compression: top 12→8, bot 16→12 */
+  padding: var(--mc-s-7) var(--mc-pad) var(--mc-s-9);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-2);                                  /* compression: 12 → 8 */
+  gap: var(--mc-s-6);
   min-width: 0;
 }
 
-/* ─── brand block — canonical Royaltē header, copied from royalte.ai ── */
+/* ─── brand block ────────────────────────────────────────────────── */
 
-.mc-brand-link {
-  display: block;
-  text-decoration: none;
-  line-height: 0;
+.mc-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-s-3);
   padding-bottom: var(--mc-s-2);
 }
 
-.mc-brand-logo {
-  width: 100%;
-  max-width: 200px;
-  height: auto;
-  display: block;
-  transition: opacity 0.2s;
+.mc-brand-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--mc-font);
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--mc-purple);
+  background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.18), transparent 70%);
+  border: 1px solid var(--mc-border-warm);
+  position: relative;
 }
 
-.mc-brand-link:hover .mc-brand-logo { opacity: 0.85; }
+.mc-brand-mark::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  pointer-events: none;
+}
+
+.mc-brand-text {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.mc-brand-sub {
+  font-size: 9.5px;
+  letter-spacing: 0.32em;
+  color: var(--mc-text-muted);
+  margin-top: 2px;
+}
 
 /* ─── nav ────────────────────────────────────────────────────────── */
 
@@ -165,7 +200,7 @@ body {
   grid-template-columns: 36px 1fr;
   align-items: center;
   gap: var(--mc-s-3);
-  padding: var(--mc-s-2) var(--mc-s-3);          /* compression: vertical 12 → 8 */
+  padding: var(--mc-s-3) var(--mc-s-3);
   border-radius: var(--mc-r-2);
   color: var(--mc-text-soft);
   transition: background 160ms ease, color 160ms ease;
@@ -308,7 +343,7 @@ body {
   margin: 0;
 }
 .mc-page-sub {
-  margin: var(--mc-s-1) 0 0;
+  margin: var(--mc-s-2) 0 0;
   font-size: 13.5px;
   color: var(--mc-text-muted);
 }
@@ -317,10 +352,10 @@ body {
 
 .mc-hero {
   display: grid;
-  grid-template-columns: 124px 1fr 188px 188px;
+  grid-template-columns: 168px 1fr 220px 220px;
   align-items: center;
-  gap: var(--mc-s-4);
-  padding: var(--mc-s-2) var(--mc-s-4);          /* compression: vertical 12 → 8 */
+  gap: var(--mc-s-6);
+  padding: var(--mc-s-5) var(--mc-s-6);
   border-radius: var(--mc-r-4);
   background: linear-gradient(135deg, rgba(45, 212, 191, 0.04), rgba(0, 0, 0, 0) 60%), var(--mc-surface-1);
   border: 1px solid rgba(45, 212, 191, 0.16);
@@ -372,35 +407,6 @@ body {
   50%      { opacity: 0.7;  transform: scale(1.18); }
 }
 
-/* Radar sonar-detection pings (Animation Pass #1). Four dots placed
-   INSIDE the rotating .mc-radar-sweep group so each ping is always
-   physically within the active sonar wedge — no JS sync needed
-   between the 10s sweep and the 18s ping cadence. Each ping has its
-   own delay matching the Board cadence (3s, 5s, 4s, 6s = 18s total
-   cycle). Lifetime ~400ms per Board: quick fade-in (~60ms), brief
-   hold (~80ms), smooth fade-out (~260ms). Glow only, no scaling. */
-.mc-radar-ping {
-  fill: #34f5b0;
-  opacity: 0;
-  transform-origin: 65px 65px;
-  filter:
-    drop-shadow(0 0 3px rgba(52, 245, 176, 0.95))
-    drop-shadow(0 0 6px rgba(52, 245, 176, 0.55));
-  animation: mc-radar-ping-fade 18s ease-in-out infinite;
-}
-.mc-radar-ping--1 { animation-delay: 3s;  }   /* fires at t = 3 / 21 / 39 / ... */
-.mc-radar-ping--2 { animation-delay: 8s;  }   /* fires at t = 8 / 26 / 44 / ... */
-.mc-radar-ping--3 { animation-delay: 12s; }   /* fires at t = 12 / 30 / 48 / ... */
-.mc-radar-ping--4 { animation-delay: 18s; }   /* fires at t = 18 / 36 / 54 / ... */
-
-@keyframes mc-radar-ping-fade {
-  0%       { opacity: 0; }
-  0.33%    { opacity: 1; }    /* ≈60ms: quick fade-in */
-  0.78%    { opacity: 1; }    /* ≈80ms: brief hold */
-  2.22%    { opacity: 0; }    /* ≈260ms: smooth fade-out (total visible ≈400ms) */
-  100%     { opacity: 0; }    /* invisible for the remainder of the 18s cycle */
-}
-
 .mc-hero-block { display: flex; flex-direction: column; gap: var(--mc-s-1); }
 
 .mc-hero-label {
@@ -421,7 +427,7 @@ body {
 .mc-hero-meta {
   font-size: 12.5px;
   color: var(--mc-text-muted);
-  margin-top: var(--mc-s-1);
+  margin-top: var(--mc-s-2);
 }
 
 .mc-hero-meta b { color: var(--mc-text-soft); font-weight: 500; }
@@ -478,18 +484,29 @@ body {
 
 .mc-hero-action-good svg { color: var(--mc-green); }
 
+/* ─── section title ─────────────────────────────────────────────── */
+
+.mc-section-title {
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  color: var(--mc-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin: var(--mc-s-3) 0 0;
+}
+
 /* ─── card grid ─────────────────────────────────────────────────── */
 
 .mc-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--mc-s-2) var(--mc-s-3);              /* compression: row 12→8, col 12 retained */
+  gap: var(--mc-s-5);
 }
 
 .mc-row-3 {
   display: grid;
   grid-template-columns: 1fr 1fr 2fr;
-  gap: var(--mc-s-3);
+  gap: var(--mc-s-5);
 }
 
 /* ─── card base ─────────────────────────────────────────────────── */
@@ -498,10 +515,10 @@ body {
   background: var(--mc-surface-1);
   border: 1px solid var(--mc-border);
   border-radius: var(--mc-r-3);
-  padding: var(--mc-s-2) var(--mc-s-3);          /* compression: vertical 12 → 8 */
+  padding: var(--mc-s-5);
   display: flex;
   flex-direction: column;
-  gap: var(--mc-s-2);
+  gap: var(--mc-s-4);
   position: relative;
   overflow: hidden;
   min-width: 0;
@@ -519,27 +536,26 @@ body {
 .mc-card--health     { --card-glow: rgba(45, 212, 191, 0.08); }
 .mc-card--identity   { --card-glow: rgba(56, 189, 248, 0.07); }
 .mc-card--publishing {
-  --card-glow: rgba(236, 170, 245, 0.060);
-  border-color: rgba(200, 122, 240, 0.11);
-}
-.mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
-.mc-card--ai {
-  --card-glow: rgba(168, 85, 247, 0.10);
-  border-color: rgba(168, 85, 247, 0.15);
-  /* Board-supplied cinematic hero (Background Replacement Pass v1.0).
-     Single full-bleed image — the new artwork replaces ALL prior
-     background composition logic. No separate bulb / wave layers,
-     no multi-image stack, no radial-gradient overlays, no positioning
-     band-aids. Cosmic fallback #04040E matches the PNG's deep cosmic
-     so any sliver beyond cover-crop is a seamless continuation.
-     Anchored `center bottom` so the purple intelligence wave at the
-     bottom of the source is never clipped; the small amount of
-     cosmic clipped at the top is empty space above the bulb. */
-  background: url('/img/royalte-ai-hero.png') left bottom / auto 87% no-repeat, #04040E;
-  isolation: isolate;
+  --card-glow: rgba(236, 170, 245, 0.075);
+  border-radius: 20px;
+  border-color: rgba(200, 122, 240, 0.13);
+  box-shadow:
+    0 0 32px rgba(236, 170, 245, 0.04),
+    inset 0 0 32px rgba(200, 122, 240, 0.035);
+  animation: mc-pub-breath 7.5s ease-in-out infinite;
 }
 
-.mc-card--ai > * { position: relative; z-index: 1; }
+@keyframes mc-pub-breath {
+  0%, 100% { box-shadow:
+    0 0 30px rgba(236, 170, 245, 0.038),
+    inset 0 0 30px rgba(200, 122, 240, 0.025); }
+  50%      { box-shadow:
+    0 0 46px rgba(236, 170, 245, 0.075),
+    inset 0 0 38px rgba(200, 122, 240, 0.050); }
+}
+.mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
+.mc-card--revenue    { --card-glow: rgba(251, 146, 60, 0.07); }
+.mc-card--monitoring { --card-glow: rgba(56, 189, 248, 0.07); }
 .mc-card--footprint  { --card-glow: rgba(56, 189, 248, 0.06); }
 
 .mc-card-head {
@@ -562,7 +578,8 @@ body {
 .mc-card--identity   .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
 .mc-card--publishing .mc-card-mark { color: var(--mc-purple); background: var(--mc-purple-soft); border-color: var(--mc-border-warm); }
 .mc-card--catalog    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
-.mc-card--ai         .mc-card-mark { color: var(--mc-purple); background: var(--mc-purple-soft); border-color: var(--mc-border-warm); }
+.mc-card--revenue    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
+.mc-card--monitoring .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
 .mc-card--footprint  .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
 
 .mc-card-mark svg { width: 16px; height: 16px; }
@@ -617,12 +634,6 @@ body {
 .mc-ring-icon svg { width: 28px; height: 28px; }
 
 .mc-metric { display: flex; flex-direction: column; gap: 4px; }
-.mc-metric-sublabel {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  color: var(--mc-text-muted);
-}
 .mc-metric-value {
   font-size: 30px;
   font-weight: 600;
@@ -637,6 +648,11 @@ body {
   color: var(--mc-text-muted);
   font-weight: 500;
 }
+.mc-metric-status {
+  font-size: 13px;
+  color: var(--mc-green);
+  font-weight: 600;
+}
 .mc-metric-delta {
   font-size: 11.5px;
   color: var(--mc-text-muted);
@@ -645,6 +661,19 @@ body {
   gap: 4px;
 }
 .mc-metric-delta svg { width: 11px; height: 11px; color: var(--mc-green-bright); }
+
+.mc-spark {
+  width: 100%;
+  height: 28px;
+  margin-top: var(--mc-s-3);
+}
+.mc-spark path {
+  stroke: var(--mc-green-bright);
+  stroke-width: 1.4;
+  fill: none;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 4px var(--mc-green-glow));
+}
 
 /* Health card — heartbeat visualization (Board-approved original) */
 .mc-card--health .mc-ring { width: 96px; height: 96px; }
@@ -678,128 +707,6 @@ body {
 @keyframes mc-heart-ring-fade {
   0%, 100% { opacity: 0.35; }
   50%      { opacity: 0.95; }
-}
-
-/* Royaltē Health Score™ breakdown — the executive summary surface
-   that explains the headline score. Each row is a Mission Control™
-   intelligence module + its current sub-score; the sub-bar gives
-   instant visual scanning of which modules are strongest / weakest.
-   Values are static at this pass; will become payload-driven during
-   Wiring. */
-.mc-health-breakdown {
-  margin-top: var(--mc-s-3);
-  padding-top: var(--mc-s-3);
-  border-top: 1px solid rgba(45, 212, 191, 0.10);
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-2);
-}
-.mc-health-breakdown-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--mc-s-2);
-}
-.mc-health-breakdown-title {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--mc-green);
-  font-weight: 600;
-}
-.mc-health-breakdown-source {
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--mc-text-muted);
-  font-weight: 500;
-}
-.mc-health-modules {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;                              /* matches Publishing reference */
-}
-.mc-health-modules li {
-  display: grid;
-  grid-template-columns: 16px minmax(0, 1fr) 56px 26px;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  min-height: 22px;                      /* matches the 22px badge row
-                                            rhythm in Publishing /
-                                            Identity / Catalog so the
-                                            Health rows occupy the same
-                                            vertical band even without
-                                            a status badge. */
-}
-.mc-health-mod-icon {
-  font-size: 12px;
-  line-height: 1;
-  text-align: center;
-}
-.mc-health-mod-label {
-  color: var(--mc-text-soft);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.mc-health-mod-bar {
-  display: block;
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(45, 212, 191, 0.12);
-  overflow: hidden;
-}
-.mc-health-mod-bar > span {
-  display: block;
-  height: 100%;
-  background: var(--mc-green);
-  box-shadow: 0 0 4px var(--mc-green-glow);
-  border-radius: inherit;
-}
-.mc-health-mod-value {
-  text-align: right;
-  font-weight: 600;
-  color: var(--mc-text);
-  font-variant-numeric: tabular-nums;
-}
-
-/* AI Summary — executive interpretation of the breakdown above.
-   Calm / confident / simple per Board: the only question it answers
-   is "Am I okay?". margin-top: auto anchors it to the bottom of the
-   card so the headline + breakdown above breathe naturally. */
-.mc-health-ai-summary {
-  margin-top: auto;
-  padding-top: var(--mc-s-3);
-  border-top: 1px solid rgba(45, 212, 191, 0.10);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.mc-health-ai-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--mc-green);
-}
-.mc-health-ai-emoji { font-size: 12px; line-height: 1; }
-.mc-health-ai-headline {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--mc-text);
-  line-height: 1.4;
-}
-.mc-health-ai-body {
-  font-size: 12px;
-  color: var(--mc-text-muted);
-  line-height: 1.5;
 }
 
 /* ─── identity card ─────────────────────────────────────────────── */
@@ -836,6 +743,20 @@ body {
 .mc-source-mark--amazon  { background: #0084ff; }
 
 .mc-source-name { font-size: 12.5px; color: var(--mc-text-soft); }
+
+.mc-pill {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.mc-pill--claimed   { background: rgba(45, 212, 191, 0.14); color: var(--mc-green); }
+.mc-pill--verified  { background: rgba(45, 212, 191, 0.14); color: var(--mc-green); }
+.mc-pill--unclaimed { background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
+.mc-pill--pending   { background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
+.mc-pill--missing   { background: rgba(244, 63, 94, 0.12);  color: #f97373; }
 
 /* Identity card — fingerprint scanner visualization (Board-approved original) */
 .mc-identity-body {
@@ -910,139 +831,43 @@ body {
 }
 
 .mc-identity-header { display: flex; flex-direction: column; gap: 4px; }
-
-/* Identity Score™ breakdown — executive list of the 5 official
-   platforms feeding the Royaltē Identity Scoring Engine. Mirrors
-   the Health Intelligence™ breakdown pattern but uses the
-   --mc-blue palette (Identity card's locked color family). */
-.mc-identity-breakdown {
-  margin-top: var(--mc-s-3);
-  padding-top: var(--mc-s-3);
-  border-top: 1px solid rgba(56, 189, 248, 0.10);
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-2);
-}
-.mc-identity-breakdown-head {
+.mc-identity-value {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: var(--mc-s-2);
+  gap: 4px;
+  color: var(--mc-text);
 }
-.mc-identity-breakdown-title {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--mc-blue);
-  font-weight: 600;
-}
-.mc-identity-breakdown-source {
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.mc-identity-value small {
+  font-size: 13px;
   color: var(--mc-text-muted);
   font-weight: 500;
 }
-.mc-identity-platforms {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.mc-identity-platforms li {
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) 90px;
-  align-items: center;
-  gap: 12px;
-  font-size: 12px;
-}
-/* Official Founder-supplied platform PNGs. 22px square per Board
-   refinement pass v1.2 — larger visual anchor for each row.
-   object-fit: contain so each icon's native aspect renders
-   without distortion regardless of source dimensions. */
-.mc-identity-platform-icon {
-  display: block;
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-}
-.mc-identity-platform-label {
-  color: var(--mc-text-soft);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Status badge — premium pill matching the .mc-ai-status treatment
-   used in the ROYALTĒ AI™ card header. Fixed 90px width per Board
-   spec; right-aligned in its grid column; vertically centered.
-   box-sizing: border-box makes 90px the explicit outer width
-   regardless of the 1px border, so all three state variants land
-   mathematically identical (per Board refinement v1.2). */
-.mc-identity-status {
-  box-sizing: border-box;
-  justify-self: end;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 90px;
-  height: 22px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-.mc-identity-status--verified {
-  color: var(--mc-green);
-  background: rgba(45, 212, 191, 0.10);
-  border: 1px solid rgba(45, 212, 191, 0.28);
-}
-.mc-identity-status--monitoring {
-  color: var(--mc-orange);
-  background: rgba(251, 146, 60, 0.10);
-  border: 1px solid rgba(251, 146, 60, 0.30);
-}
-.mc-identity-status--action {
-  color: #f87171;
-  background: rgba(244, 63, 94, 0.10);
-  border: 1px solid rgba(244, 63, 94, 0.32);
-}
-
-/* AI Summary — executive interpretation anchored to the bottom of
-   the card. Mirrors .mc-health-ai-summary but in the blue palette. */
-.mc-identity-ai-summary {
-  margin-top: auto;
-  padding-top: var(--mc-s-3);
-  border-top: 1px solid rgba(56, 189, 248, 0.10);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.mc-identity-ai-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--mc-blue);
-}
-.mc-identity-ai-emoji { font-size: 12px; line-height: 1; }
-.mc-identity-ai-headline {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--mc-text);
-  line-height: 1.4;
-}
-.mc-identity-ai-body {
+.mc-identity-label {
   font-size: 12px;
   color: var(--mc-text-muted);
-  line-height: 1.5;
+  margin-top: 2px;
+}
+
+.mc-identity-checks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+  border-top: 1px solid var(--mc-divider);
+  padding-top: var(--mc-s-3);
+  margin-top: var(--mc-s-1);
+}
+
+.mc-identity-check {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: var(--mc-s-3);
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--mc-text-soft);
 }
 
 /* ─── publishing card ─── Board-approved premium executive design ── */
@@ -1076,137 +901,39 @@ body {
 .mc-pub-ring .mc-ring-icon { color: #E095FF; filter: drop-shadow(0 0 14px rgba(236, 170, 245, 0.38)); }
 .mc-pub-ring .mc-ring-icon svg { width: 32px; height: 32px; }
 
-.mc-pub-header {
+.mc-pub-stats {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 13px;                                /* +breathing room per Board */
 }
-
-/* Publishing Score™ breakdown — 7 constitutional pillars feeding
-   the Royaltē Publishing Scoring Engine. Mirrors the Health and
-   Identity breakdown patterns but uses the Publishing card's
-   locked pink-orchid palette (#D56BFF). */
-.mc-pub-breakdown {
-  margin-top: var(--mc-s-3);
-  padding-top: var(--mc-s-3);
-  border-top: 1px solid rgba(213, 107, 255, 0.12);
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-2);
-}
-.mc-pub-breakdown-head {
+.mc-pub-stat {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
   gap: var(--mc-s-2);
 }
-.mc-pub-breakdown-title {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #D56BFF;
-  font-weight: 600;
+.mc-pub-stat-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: #D56BFF;                           /* pink-orchid primary — matches ring exactly */
+  text-shadow: 0 0 14px rgba(236, 170, 245, 0.22);
+  letter-spacing: 0.005em;
+  line-height: 1.1;
+  min-width: 46px;
+  font-variant-numeric: tabular-nums;
 }
-.mc-pub-breakdown-source {
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--mc-text-muted);
-  font-weight: 500;
-}
-.mc-pub-pillars {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.mc-pub-pillars li {
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) 90px;
-  align-items: center;
-  gap: 12px;
-  font-size: 12px;
-}
-.mc-pub-pillar-icon {
-  font-size: 17px;
-  line-height: 1;
-  text-align: center;
-}
-.mc-pub-pillar-label {
-  color: var(--mc-text-soft);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.mc-pub-stat-label {
+  font-size: 12.5px;
+  color: #C4C4D0;                           /* slightly brighter per Board */
+  letter-spacing: 0.02em;
 }
 
-/* Status badge — duplicate of .mc-identity-status scoped with
-   --pub naming so the Publishing card stays self-contained. A
-   future cleanup pass can extract a shared .mc-status-badge
-   primitive once Catalog and Global Footprint also adopt it. */
-.mc-pub-status {
-  box-sizing: border-box;
-  justify-self: end;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 90px;
-  height: 22px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-.mc-pub-status--verified {
-  color: var(--mc-green);
-  background: rgba(45, 212, 191, 0.10);
-  border: 1px solid rgba(45, 212, 191, 0.28);
-}
-.mc-pub-status--monitoring {
-  color: var(--mc-orange);
-  background: rgba(251, 146, 60, 0.10);
-  border: 1px solid rgba(251, 146, 60, 0.30);
-}
-.mc-pub-status--action {
-  color: #f87171;
-  background: rgba(244, 63, 94, 0.10);
-  border: 1px solid rgba(244, 63, 94, 0.32);
+.mc-pub-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 30%, rgba(255, 255, 255, 0.08) 70%, transparent);
+  margin: var(--mc-s-2) 0 var(--mc-s-1);
 }
 
-/* AI Summary — pink-orchid palette variant. */
-.mc-pub-ai-summary {
-  margin-top: auto;
-  padding-top: var(--mc-s-3);
-  border-top: 1px solid rgba(213, 107, 255, 0.12);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.mc-pub-ai-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #D56BFF;
-}
-.mc-pub-ai-emoji { font-size: 12px; line-height: 1; }
-.mc-pub-ai-headline {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--mc-text);
-  line-height: 1.4;
-}
-.mc-pub-ai-body {
-  font-size: 12px;
-  color: var(--mc-text-muted);
-  line-height: 1.5;
-}
+.mc-card--publishing .mc-card-foot { color: #F5F5F7; font-size: 12.5px; line-height: 1.55; }
 
 /* ─── catalog card ──────────────────────────────────────────────── */
 
@@ -1250,930 +977,550 @@ body {
 .mc-catalog-summary {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+}
+.mc-catalog-value {
+  font-size: 38px;                              /* primary visual anchor */
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--mc-orange);
+  text-shadow: 0 0 14px rgba(251, 146, 60, 0.24);
+}
+.mc-catalog-label {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.04em;
 }
 
-/* Asset counts (Albums / EPs / Singles / Tracks). Two-column grid:
-   label (left) + value (right-aligned, tabular). Per Board:
-   'Tracks replaces Features. Features are intentionally retired
-   because they cannot be verified with sufficient consistency
-   across all data sources.' */
 .mc-catalog-grid {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 6px var(--mc-s-3);
-  font-size: 12px;
+  grid-template-columns: 1fr auto;               /* values right-aligned for executive scan */
+  gap: 8px var(--mc-s-3);                        /* +breathing room between rows */
+  font-size: 12.5px;
   margin-top: var(--mc-s-2);
 }
-.mc-catalog-grid .lbl { color: var(--mc-text-muted); letter-spacing: 0.02em; }
-.mc-catalog-grid .val {
-  color: var(--mc-text);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
+.mc-catalog-grid .lbl { color: #b8b8c4; letter-spacing: 0.02em; }
+.mc-catalog-grid .val { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.mc-catalog-grid .val--stable   { color: var(--mc-green); }
+.mc-catalog-grid .val--verified { color: var(--mc-green); }
+.mc-catalog-grid .mc-catalog-divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  margin: 2px 0;
 }
 
-/* Catalog Score™ breakdown — 5 constitutional pillars feeding the
-   Royaltē Catalog Scoring Engine. Mirrors the Health / Identity /
-   Publishing breakdown pattern in the Catalog card's locked orange
-   palette (var(--mc-orange)). */
-.mc-cat-breakdown {
-  margin-top: var(--mc-s-3);
-  padding-top: var(--mc-s-3);
-  border-top: 1px solid rgba(251, 146, 60, 0.12);
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-2);
-}
-.mc-cat-breakdown-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--mc-s-2);
-}
-.mc-cat-breakdown-title {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--mc-orange);
-  font-weight: 600;
-}
-.mc-cat-breakdown-source {
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--mc-text-muted);
-  font-weight: 500;
-}
-.mc-cat-pillars {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.mc-cat-pillars li {
+/* ─── revenue card ──────────────────────────────────────────────── */
+
+.mc-rev-body {
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) 90px;
+  grid-template-columns: 64px 1fr;
+  gap: var(--mc-s-4);
   align-items: center;
-  gap: 12px;
-  font-size: 12px;
-}
-.mc-cat-pillar-icon {
-  font-size: 17px;
-  line-height: 1;
-  text-align: center;
-}
-.mc-cat-pillar-label {
-  color: var(--mc-text-soft);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* Status badge — duplicate of .mc-identity-status / .mc-pub-status
-   with --cat naming for self-contained per-card scoping. A future
-   cleanup pass can extract a shared .mc-status-badge primitive
-   once Global Footprint also adopts it. */
-.mc-cat-status {
-  box-sizing: border-box;
-  justify-self: end;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 90px;
-  height: 22px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-.mc-cat-status--verified {
-  color: var(--mc-green);
-  background: rgba(45, 212, 191, 0.10);
-  border: 1px solid rgba(45, 212, 191, 0.28);
-}
-.mc-cat-status--monitoring {
-  color: var(--mc-orange);
-  background: rgba(251, 146, 60, 0.10);
-  border: 1px solid rgba(251, 146, 60, 0.30);
-}
-.mc-cat-status--action {
-  color: #f87171;
-  background: rgba(244, 63, 94, 0.10);
-  border: 1px solid rgba(244, 63, 94, 0.32);
-}
-
-/* AI Summary — orange palette variant. */
-.mc-cat-ai-summary {
-  margin-top: auto;
-  padding-top: var(--mc-s-3);
-  border-top: 1px solid rgba(251, 146, 60, 0.12);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.mc-cat-ai-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--mc-orange);
-}
-.mc-cat-ai-emoji { font-size: 12px; line-height: 1; }
-.mc-cat-ai-headline {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--mc-text);
-  line-height: 1.4;
-}
-.mc-cat-ai-body {
-  font-size: 12px;
-  color: var(--mc-text-muted);
-  line-height: 1.5;
-}
-
-/* ─── ROYALTĒ AI™ card (replaces Monitoring Intelligence™) ───────── */
-
-.mc-card--ai .mc-card-head {
-  align-items: center;
-  gap: var(--mc-s-3);
-  padding-bottom: var(--mc-s-2);
-  border-bottom: 1px solid rgba(168, 85, 247, 0.10);
-}
-
-/* Right-aligned cluster: AI ACTIVE pill + refresh meta share one
-   anchor so they never overlap the title block as the card resizes. */
-.mc-ai-head-end {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: var(--mc-s-3);
-  flex-wrap: nowrap;
-}
-
-.mc-ai-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--mc-green);
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(45, 212, 191, 0.10);
-  border: 1px solid rgba(45, 212, 191, 0.28);
-  white-space: nowrap;
-}
-.mc-ai-status-dot {
-  width: 6px;
-  height: 6px;
+.mc-rev-mark {
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: var(--mc-green);
-  box-shadow: 0 0 6px rgba(45, 212, 191, 0.85);
-  animation: mc-ai-pulse 2.2s ease-in-out infinite;
-}
-@keyframes mc-ai-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.55; transform: scale(0.78); }
-}
-
-.mc-ai-refresh {
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--mc-purple);
-  opacity: 0.88;
-  white-space: nowrap;
-}
-
-/* Body composition: 3-column grid keeps a bulb spacer on the left
-   (artwork is the card background — column reserves the visual lane
-   so headline + body don't overlap the bulb glyph), live text in the
-   middle, AI Analysis Activity panel on the right. No background
-   shields on any column — the unified card background carries the
-   visual; the typography sits directly on it with strong contrast
-   from text-shadow + the AI Activity glass panel. */
-.mc-ai-body-grid {
-  flex: 1;
   display: grid;
-  /* True three-zone cinematic layout (Board v2.0). Explicit column
-     widths so each zone occupies its own visual territory:
-       - Zone 1 (bulb spacer): 230px reserved for the background bulb
-         layer (.mc-card--ai bg). Empty by design — the bulb breathes
-         in this lane and content never overlaps it.
-       - Zone 2 (content): flexes — gets all remaining width minus
-         zones 1 and 3 (~262px on a 744-wide card). Holds the
-         headline and supporting paragraph.
-       - Zone 3 (activity): compact ~190px lane on the right edge
-         for the AI Analysis Activity panel. */
-  grid-template-columns: 230px minmax(0, 1fr) minmax(180px, 210px);
-  gap: var(--mc-s-5);
-  align-items: stretch;
-  padding-top: var(--mc-s-3);
+  place-items: center;
+  color: var(--mc-orange);
+  background: var(--mc-orange-soft);
+  border: 1px solid rgba(251, 146, 60, 0.22);
 }
-.mc-ai-bulb-spacer {
-  /* Reserves Zone 1 — the background bulb layer paints this region.
-     Empty by design. */
-}
-.mc-ai-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-3);
-  justify-content: center;
-  /* No band-aid paddings (the prior +20px / +28px micro-shifts are
-     gone). The grid columns themselves now create clean separation
-     between the bulb (Zone 1) and the activity panel (Zone 3). */
-}
+.mc-rev-mark svg { width: 32px; height: 32px; }
 
-.mc-ai-headline {
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.18;
-  letter-spacing: 0.005em;
-  color: var(--mc-text);
-  margin: 0;
-  text-shadow:
-    0 1px 14px rgba(7, 5, 18, 0.85),
-    0 0 24px rgba(7, 5, 18, 0.55);
-}
-
-.mc-ai-body {
-  font-size: 13px;
-  color: var(--mc-text-soft);
-  line-height: 1.62;
-  margin: 0;
-  text-shadow: 0 1px 8px rgba(7, 5, 18, 0.75);
-}
-
-/* ROYALTĒ AI™ CTA — absolutely overlaid on the cinematic backdrop
-   per Board CTA Position Clarification. Does NOT participate in
-   the card's flex flow, does NOT reserve layout space, does NOT
-   shift the artwork — pure holographic projection. The
-   .mc-card--ai .mc-ai-hero selector (specificity 0,2,0) overrides
-   the .mc-card--ai > * rule (specificity 0,1,0) that puts every
-   direct card child at position: relative. No container, no
-   background, no border, no shadow, no glass — only typography
-   floating over the artwork, same philosophy as the activity
-   feed below. */
-.mc-card--ai .mc-ai-hero {
-  position: absolute;
-  top: 80px;
-  right: var(--mc-s-3);
-  width: 380px;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-2);
-}
-.mc-ai-hero-headline {
+.mc-rev-title {
   font-size: 22px;
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.005em;
-  color: var(--mc-text);
-  margin: 0;
-  text-shadow: 0 1px 12px rgba(7, 5, 18, 0.9),
-               0 0 18px rgba(7, 5, 18, 0.55);
+  color: var(--mc-green);
+  letter-spacing: 0.01em;
 }
-.mc-ai-hero-body {
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.7);    /* ~70% opacity per Board */
-  margin: 0;
-  text-shadow: 0 1px 8px rgba(7, 5, 18, 0.85);
-}
-
-/* AI Core Ignition — Royaltē AI™ Animation Phase 1.
-   The bulb + concentric rings are baked into royalte-ai-hero.png
-   and can't be filtered independently. Two overlay <div>s sit over
-   the bulb's position in the card and animate against each other:
-     .mc-ai-core-shade — dark cosmic mask, opacity 1 at idle so the
-                         bulb reads at ~65% brightness; opacity 0
-                         at ignition so the bulb reads at 100%.
-     .mc-ai-core-glow  — violet boost, opacity 0 at idle; opacity 1
-                         at ignition so the glow visibly expands
-                         beyond the glass per Board.
-   JS toggles .is-igniting on .mc-card--ai for 1700ms each cycle
-   (1350ms build + 350ms peak hold). Both overlays share a 1350ms
-   ease-in-out transition, matching Board's 1200-1500ms build /
-   return timing. Result: idle (65%) → power build → ignition peak
-   (100% + expanded glow) → return to standby. No keyframes —
-   pure CSS transitions driven by class toggling. */
-.mc-card--ai .mc-ai-core-shade,
-.mc-card--ai .mc-ai-core-glow {
-  position: absolute;
-  left: 27%;                              /* bulb centre at typical card aspect */
-  top: 47%;
-  pointer-events: none;
-  z-index: 0;                             /* below content (z-index 1) but above bg */
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: opacity 1350ms ease-in-out;
-}
-.mc-card--ai .mc-ai-core-shade {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle,
-    rgba(4, 4, 14, 0.35) 0%,              /* matches cosmic fallback; dims bulb to ~65% */
-    rgba(4, 4, 14, 0.20) 35%,
-    transparent 70%);
-  filter: blur(25px);
-  opacity: 1;                             /* DEFAULT idle: bulb appears dimmed */
-}
-.mc-card--ai .mc-ai-core-glow {
-  width: 460px;
-  height: 460px;
-  background: radial-gradient(circle,
-    rgba(186, 110, 255, 0.55) 0%,         /* brilliant centre at ignition peak */
-    rgba(168, 85, 247, 0.30) 25%,
-    rgba(168, 85, 247, 0.10) 55%,         /* expanded outer halo */
-    transparent 85%);
-  filter: blur(22px);
-  opacity: 0;                             /* DEFAULT idle: no boost */
-}
-.mc-card--ai.is-igniting .mc-ai-core-shade { opacity: 0; }
-.mc-card--ai.is-igniting .mc-ai-core-glow  { opacity: 1; }
-
-/* Stem Energy Transfer — Royaltē AI™ Animation Phase 2.
-   When the bulb completes its bright phase and begins to exhale,
-   a soft violet pulse leaves the bulb area and traverses the
-   stem region left → right over ~1500ms. The pulse is a blurred
-   radial gradient that brightens the underlying stems in the bg
-   image as it passes (mix-blend-mode: screen so the violet
-   composites additively into the existing stems instead of
-   sitting flat on top of them).
-   The pulse fires ONCE per ignition cycle, triggered by the
-   MutationObserver IIFE at the bottom of the file when
-   .is-igniting is removed from .mc-card--ai (= bulb peak just
-   ended). Idle state: off-left + opacity 0; the .is-stem-
-   transferring class on .mc-card--ai runs the keyframe once
-   forwards, leaving the pulse off-right + opacity 0 — then the
-   class is removed and the element snaps invisibly back to
-   idle for the next cycle. */
-.mc-card--ai .mc-ai-stem-pulse {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 50%;
-  height: 180px;
-  pointer-events: none;
-  z-index: 0;
-  background: radial-gradient(ellipse 55% 85% at 50% 55%,
-    rgba(186, 110, 255, 0.55) 0%,    /* brilliant peak — 25-35% boost when screen-blended */
-    rgba(168, 85, 247, 0.28) 40%,
-    rgba(168, 85, 247, 0.10) 70%,
-    transparent 100%);
-  filter: blur(22px);
-  mix-blend-mode: screen;
-  opacity: 0;
-  transform: translateX(-100%);          /* idle: just off-left, hidden */
-}
-.mc-card--ai.is-stem-transferring .mc-ai-stem-pulse {
-  animation: mc-ai-stem-transfer 1500ms ease-in-out forwards;
-}
-@keyframes mc-ai-stem-transfer {
-  /* 1500ms total — Board's 1200-1800ms. Element starts off-left
-     (translateX -100% of its 50% card-width = -50% of card),
-     fades in as it enters, holds full opacity across the
-     stem region, fades out as it exits right (translateX
-     +200% = +100% of card, fully off-right). */
-  0%   { transform: translateX(-100%); opacity: 0; }
-  10%  { transform: translateX(-60%);  opacity: 1; }   /* faded in, just entered */
-  90%  { transform: translateX(160%);  opacity: 1; }   /* about to exit right */
-  100% { transform: translateX(200%);  opacity: 0; }   /* fully off-right, hidden */
-}
-
-/* Intelligence Propagation — Royaltē AI™ Animation Phase 3.
-   8 small purple nodes scattered across the network area
-   (4 in the wave region, 4 higher in the cosmic field). When
-   .is-propagating is on .mc-card--ai each node runs the
-   mc-ai-net-awaken keyframe with its own animation-delay
-   sourced from the --d CSS custom property carried inline on
-   each node. The result is a ripple from the energy-arrival
-   point on the right toward the far left.
-   No scaling, no blinking — only soft opacity transitions per
-   Board ('soft purple halo', 'no flashing'). */
-.mc-card--ai .mc-ai-net-node {
-  position: absolute;
-  left: var(--x);
-  top: var(--y);
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #ba6eff;
-  box-shadow: 0 0 8px  rgba(186, 110, 255, 0.70),
-              0 0 16px rgba(168, 85, 247, 0.40);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0;
-}
-.mc-card--ai.is-propagating .mc-ai-net-node {
-  animation: mc-ai-net-awaken 500ms ease-in-out forwards;
-  animation-delay: var(--d, 0ms);
-}
-@keyframes mc-ai-net-awaken {
-  /* 500ms per node: soft fade-in, brief hold, natural fade-out. */
-  0%   { opacity: 0; }
-  30%  { opacity: 1; }
-  60%  { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-/* AI Analysis Activity — pure HUD overlay (Board HUD v1.0). No
-   panel, no container, no border, no glass, no shadow, no blur.
-   Just typography floating directly over the cinematic backdrop,
-   right-aligned via margin-left: auto and vertically centred via
-   margin-top/bottom: auto inside the card's flex-column layout. */
-.mc-ai-activity {
-  margin: auto 0 auto auto;
-  width: 100%;
-  max-width: 340px;
-  transform: translateY(95px);                   /* Board micro #7 — additional +25px (was 70, now 95) for clear hero/activity separation */
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-3);
-}
-.mc-ai-activity-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.20em;
-  text-transform: uppercase;
-  color: var(--mc-purple);
-  text-shadow: 0 1px 8px rgba(7, 5, 18, 0.9),
-               0 0 18px rgba(7, 5, 18, 0.55);
-}
-.mc-ai-activity-pulse {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  color: var(--mc-text-muted);
-  text-shadow: 0 1px 6px rgba(7, 5, 18, 0.85);
-}
-.mc-ai-activity-pulse::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--mc-purple);
-  box-shadow: 0 0 6px rgba(168, 85, 247, 0.85);
-  animation: mc-ai-pulse 2.2s ease-in-out infinite;
-}
-.mc-ai-activity-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-s-3);
-}
-.mc-ai-activity-list li {
-  display: grid;
-  grid-template-columns: 8px 1fr auto;
-  align-items: start;
-  gap: 10px;
+.mc-rev-sub {
   font-size: 12px;
-  color: var(--mc-text-soft);
-  line-height: 1.4;
-}
-.mc-ai-activity-list li::before {
-  /* Royaltē AI™ Animation Phase 4 default: hollow purple
-     status indicator (Refinement). Transparent background +
-     1px Royaltē-purple stroke at low luminance. Soft 350ms
-     transitions on background / border / box-shadow so the
-     swap between idle (hollow) and active (solid + glow)
-     feels like a fade rather than a flash. */
-  content: "";
-  margin-top: 5px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: transparent;
-  border: 1px solid rgba(168, 85, 247, 0.55);
-  box-shadow: none;
-  transition: background    350ms ease-out,
-              border-color  350ms ease-out,
-              box-shadow    350ms ease-out;
-}
-.mc-ai-activity-list li.is-active::before {
-  /* Royaltē AI™ Animation Phase 4 active state (Refinement):
-     bright Royaltē-purple ping with a two-layer 3-4px glow.
-     Inner shadow 4px bright, outer shadow 8px soft — the
-     'radar ping' radial-falloff Board called for. Only one row
-     carries .is-active at any moment — enforced by the JS
-     rotator at the bottom of the file. */
-  background: #a855f7;
-  border-color: #a855f7;
-  box-shadow: 0 0 4px rgba(168, 85, 247, 0.90),
-              0 0 8px rgba(168, 85, 247, 0.45);
-}
-.mc-ai-activity-list li.is-resolved.is-active::before {
-  /* Royaltē AI™ Animation Phase 4 success state (Executive
-     Refinement). When the activity rotator lands on the
-     'No New Issues Detected' row (.is-resolved) the indicator
-     switches from purple ping → bright Royaltē-green
-     confirmation light. Specificity (0,3,1) overrides the
-     standard .is-active::before rule (0,2,1) above; the same
-     350ms ease-out transition declared on the base ::before
-     handles the smooth fade between purple and green when the
-     active row changes.
-     Glow tuned slightly stronger than the purple ping per
-     Board ('noticeably brighter than the standard purple
-     activity indicator'): inner shadow 5px at 0.95 alpha,
-     outer shadow 12px at 0.55 alpha. */
-  background: #34f5b0;
-  border-color: #34f5b0;
-  box-shadow: 0 0 5px  rgba(52, 245, 176, 0.95),
-              0 0 12px rgba(45, 212, 191, 0.55);
-}
-/* Item title — primary text per Board HUD palette: WHITE. Cyan
-   final-success colour switched from var(--mc-green) → var(--mc-blue)
-   per directive 'Final success state: Royaltē Cyan'. */
-.mc-ai-activity-item-title {
-  display: block;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--mc-text);
-  line-height: 1.25;
-  text-shadow: 0 1px 8px rgba(7, 5, 18, 0.9),
-               0 0 14px rgba(7, 5, 18, 0.5);
-}
-.mc-ai-activity-list li.is-resolved .mc-ai-activity-item-title { color: var(--mc-blue); }
-.mc-ai-activity-item-sub {
-  display: block;
+  color: var(--mc-text-muted);
   margin-top: 2px;
+}
+
+.mc-rev-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-1);
+  border-top: 1px solid var(--mc-divider);
+  padding-top: var(--mc-s-3);
+  margin-top: var(--mc-s-2);
+}
+.mc-rev-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 2px 0;
+}
+.mc-rev-row span:first-child { color: var(--mc-text-muted); }
+.mc-rev-row span:last-child  { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ─── monitoring card ───────────────────────────────────────────── */
+
+.mc-mon-body {
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: var(--mc-s-4);
+  align-items: center;
+}
+
+.mc-mon-mark {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--mc-blue);
+  background: var(--mc-blue-soft);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  position: relative;
+}
+.mc-mon-mark::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(56, 189, 248, 0.20);
+  animation: mc-pulse-ring 3s ease-out infinite;
+}
+@keyframes mc-pulse-ring {
+  0%   { transform: scale(1);    opacity: 0.6; }
+  100% { transform: scale(1.18); opacity: 0;   }
+}
+.mc-mon-mark svg { width: 36px; height: 36px; }
+
+.mc-mon-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--mc-blue);
+  line-height: 1;
+}
+.mc-mon-cap {
   font-size: 11.5px;
   color: var(--mc-text-muted);
-  line-height: 1.4;
-  text-shadow: 0 1px 6px rgba(7, 5, 18, 0.85);
+  margin-top: var(--mc-s-1);
 }
-/* Timer — soft white per Board ('Timers: Soft white'). UI-only
-   placeholder telemetry per Board: timer values are NOT
-   payload-driven; they become looping animated counters in the
-   forthcoming Animation Pass. */
-.mc-ai-activity-time {
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.78);
-  white-space: nowrap;
-  padding-top: 1px;
-  text-shadow: 0 1px 6px rgba(7, 5, 18, 0.85);
+
+.mc-mon-list { margin-top: var(--mc-s-3); display: flex; flex-direction: column; gap: var(--mc-s-1); }
+.mc-mon-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 2px 0;
+  border-top: 1px solid var(--mc-divider);
 }
+.mc-mon-row:first-child { border-top: 0; padding-top: 0; }
+.mc-mon-row span:first-child { color: var(--mc-text-muted); }
+.mc-mon-row span:last-child  { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 /* ─── footprint card ────────────────────────────────────────────── */
 
-.mc-card--footprint { padding-bottom: var(--mc-s-2); }  /* compression: 16 → 8 */
+.mc-card--footprint { padding-bottom: var(--mc-s-4); }
 
-/* Global Presence Score™ block — compact sublabel + value pair
-   sitting above the world map. Reuses .mc-metric-sublabel +
-   .mc-metric-value for design-language parity with Health /
-   Identity / Publishing / Catalog. */
-.mc-foot-score {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-/* World-map container: flex-centers an aspect-locked .mc-globe-canvas
-   so the cyan intelligence dots can be positioned at lat/lon
-   percentages without compensating for object-fit letterboxing. */
 .mc-globe {
   position: relative;
   width: 100%;
-  height: 250px;                       /* Board v3.0: 220 → 250 (~13.6%) */
+  height: 220px;                        /* +22% from prior 180px so the full map fits with comfortable padding */
   border-radius: var(--mc-r-2);
   overflow: hidden;
   background: #050b18;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
-.mc-globe-canvas {
-  position: relative;
-  height: 100%;
-  aspect-ratio: 1380 / 620;             /* matches the source PNG exactly */
-  max-width: 100%;
-}
+
 .mc-globe-map {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;                    /* canvas aspect == map aspect → no clip */
+  object-fit: contain;                  /* 100% of the world map visible; letterbox provides the breathing room */
   object-position: center center;
   pointer-events: none;
   display: block;
 }
 
-/* Intelligence dot — small cyan glowing marker per Major Music
-   Market™. Subtle pulse + outer aura, single colour per Board
-   ('Royaltē Electric Cyan'). UI-only placeholder; becomes payload-
-   driven during Wiring (verified / monitoring / missing states). */
-.mc-globe-dot {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #38BDF8;
-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.85),
-              0 0 14px rgba(56, 189, 248, 0.45);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  /* Territory Intelligence Pulses (Animation Phase 1). Each of the
-     16 dots gets a unique --pulse-dur (4-8s) and --pulse-delay via
-     :nth-child() rules below — no two dots ever share both, so the
-     map never reads synchronised. Custom properties cascade to the
-     ::before aura so the dot and its halo always stay in phase
-     with each other while differing from every neighbour. */
-  animation: mc-globe-dot-pulse var(--pulse-dur, 5s) ease-in-out infinite;
-  animation-delay: var(--pulse-delay, 0s);
-}
-.mc-globe-dot::before {
-  content: "";
-  position: absolute;
-  inset: -5px;
-  border-radius: 50%;
-  background: radial-gradient(circle,
-    rgba(56, 189, 248, 0.30) 0%,
-    transparent 70%);
-  animation: mc-globe-dot-aura var(--pulse-dur, 5s) ease-in-out infinite;
-  animation-delay: var(--pulse-delay, 0s);
-}
-
-/* Per-dot pulse timing — 16 unique (duration, delay) pairs in the
-   Board-specified 4-8s range. Durations chosen to avoid any common
-   multiples so dots drift naturally relative to one another. */
-.mc-globe-dot:nth-child(1)  { --pulse-dur: 4.2s; --pulse-delay: -0.8s; }
-.mc-globe-dot:nth-child(2)  { --pulse-dur: 5.7s; --pulse-delay: -2.3s; }
-.mc-globe-dot:nth-child(3)  { --pulse-dur: 6.5s; --pulse-delay: -1.1s; }
-.mc-globe-dot:nth-child(4)  { --pulse-dur: 4.9s; --pulse-delay: -3.4s; }
-.mc-globe-dot:nth-child(5)  { --pulse-dur: 7.3s; --pulse-delay: -0.5s; }
-.mc-globe-dot:nth-child(6)  { --pulse-dur: 5.1s; --pulse-delay: -2.8s; }
-.mc-globe-dot:nth-child(7)  { --pulse-dur: 6.8s; --pulse-delay: -1.7s; }
-.mc-globe-dot:nth-child(8)  { --pulse-dur: 4.5s; --pulse-delay: -3.1s; }
-.mc-globe-dot:nth-child(9)  { --pulse-dur: 7.6s; --pulse-delay: -0.9s; }
-.mc-globe-dot:nth-child(10) { --pulse-dur: 5.4s; --pulse-delay: -2.5s; }
-.mc-globe-dot:nth-child(11) { --pulse-dur: 6.2s; --pulse-delay: -1.4s; }
-.mc-globe-dot:nth-child(12) { --pulse-dur: 4.7s; --pulse-delay: -3.7s; }
-.mc-globe-dot:nth-child(13) { --pulse-dur: 7.9s; --pulse-delay: -0.3s; }
-.mc-globe-dot:nth-child(14) { --pulse-dur: 5.9s; --pulse-delay: -2.0s; }
-.mc-globe-dot:nth-child(15) { --pulse-dur: 6.6s; --pulse-delay: -0.6s; }
-.mc-globe-dot:nth-child(16) { --pulse-dur: 4.1s; --pulse-delay: -3.0s; }
-
-@keyframes mc-globe-dot-pulse {
-  0%, 100% {
-    opacity: 0.85;
-    box-shadow: 0 0 6px  rgba(56, 189, 248, 0.75),
-                0 0 12px rgba(56, 189, 248, 0.4);
-  }
-  50% {
-    opacity: 1;
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.95),
-                0 0 20px rgba(56, 189, 248, 0.6);
-  }
-}
-@keyframes mc-globe-dot-aura {
-  /* Scale tightened to within Board's 5-8% per Phase 1: peak 1.07
-     = 7% growth from 1.0; trough 0.97 keeps the halo gentle. The
-     soft fade (opacity 0.4 → 0.8) does most of the visual work. */
-  0%, 100% { transform: scale(0.97); opacity: 0.40; }
-  50%      { transform: scale(1.07); opacity: 0.80; }
-}
-
-/* Global Availability Sweep (Animation Phase 2). A soft cyan
-   atmospheric wave that traverses the map left → right once every
-   51s, lasting ~1.5s on canvas. Sits ON TOP of the dots in DOM
-   order (no z-index needed — sweep is the last child of
-   .mc-globe-canvas) so it naturally tints each dot it passes
-   over, giving the "territory dots briefly brighten" effect
-   without any separate per-dot animation. Phase 1 timings are
-   untouched. */
-.mc-globe-sweep {
-  position: absolute;
-  top: -5%;
-  bottom: -5%;
-  width: 24%;
-  left: -25%;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(56, 189, 248, 0)    25%,
-    rgba(56, 189, 248, 0.18) 50%,
-    rgba(56, 189, 248, 0)    75%,
-    transparent 100%);
-  filter: blur(8px);
-  pointer-events: none;
-  opacity: 0;
-  animation: mc-globe-sweep-pass 51s linear infinite;
-}
-
-@keyframes mc-globe-sweep-pass {
-  /* Visible window 0% → 3% of the 51s cycle ≈ 1.53s. The remaining
-     97% holds the element off-right at opacity 0 — the cycle
-     never visibly resets. Soft fade-in/out at the canvas edges
-     so the entrance and exit feel atmospheric, not abrupt. */
-  0%    { left: -25%; opacity: 0; }
-  0.3%  { left: -22%; opacity: 1; }    /* fade in just as right edge enters canvas */
-  2.7%  { left: 97%;  opacity: 1; }    /* swept across, left edge nearing canvas right */
-  3.0%  { left: 100%; opacity: 0; }    /* fade out as left edge exits */
-  100%  { left: 100%; opacity: 0; }    /* hold off-right, hidden, ~49.5s quiet */
-}
-
-/* Live Intelligence Connections (Animation Phase 4). A single
-   faint cyan telemetry line appears from a random territory every
-   15-25s, traces toward the map centre, and dissolves before
-   reaching it. Only one line exists at a time — the JS at the
-   bottom of the file repoints the shared <line> element's
-   coordinates each cycle and toggles .is-firing to re-run the
-   stroke-dashoffset trace animation. Percentage coordinates in
-   the SVG viewBox (0-100) align directly with the dot positions
-   (which use left/top % on the canvas). */
-.mc-globe-connection-layer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: visible;
-}
-.mc-globe-connection {
-  stroke: #38BDF8;
-  stroke-width: 0.4;
-  stroke-linecap: round;
-  fill: none;
-  opacity: 0;
-  filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.6));
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-}
-.mc-globe-connection.is-firing {
-  animation: mc-globe-connection-trace 1000ms ease-out forwards;
-}
-@keyframes mc-globe-connection-trace {
-  /* 1000ms total. stroke-dashoffset shrinks from 100 → 0 so the
-     line traces from origin toward the centre; opacity ramps in
-     then fades BEFORE the trace completes, giving the
-     'dissolve before reaching the centre' effect. */
-  0%   { opacity: 0;   stroke-dashoffset: 100; }
-  20%  { opacity: 0.9; stroke-dashoffset: 80;  }
-  55%  { opacity: 1;   stroke-dashoffset: 30;  }
-  75%  { opacity: 0.6; stroke-dashoffset: 0;   }
-  100% { opacity: 0;   stroke-dashoffset: 0;   }
-}
-
-/* Executive Ambient Intelligence (Animation Phase 5). One driver
-   — JS toggles .is-ambient-pulse on .mc-card--footprint every
-   12-18s for ~1.5s. CSS transitions on the three target elements
-   handle the synchronised soft luminance shift; no new keyframes.
-   Phase 1-4 animations are untouched — Phase 5 uses orthogonal
-   properties (filter on the map, color on KPI values, text-shadow
-   on the AI emoji) so it composites cleanly even when one of the
-   other phases is firing at the same moment. */
-.mc-globe-map {
-  transition: filter 1200ms ease-in-out;
-}
-.mc-card--footprint.is-ambient-pulse .mc-globe-map {
-  filter: brightness(1.025);                /* 2.5% — mid of Board's 2-3% */
-}
-.mc-card--footprint.is-ambient-pulse .mc-foot-kpi-value {
-  color: #ffffff;                           /* ~4% brighter than var(--mc-text) — Board 3-5% */
-}
-.mc-foot-ai-emoji {
-  transition: text-shadow 1200ms ease-in-out;
-}
-.mc-card--footprint.is-ambient-pulse .mc-foot-ai-emoji {
-  text-shadow: 0 0 8px rgba(56, 189, 248, 0.60);
-}
-
-/* Executive KPI blocks (Board v3.0) — 4 equal-width centred
-   stacks beneath the map. Each KPI is a centred icon + large
-   bold number + small muted label. The numbers are the focal
-   point per Board; the map remains the visual hero above. */
-.mc-foot-kpis {
-  margin-top: var(--mc-s-3);
-  padding-top: var(--mc-s-3);
-  border-top: 1px solid rgba(56, 189, 248, 0.10);
-  list-style: none;
-  padding-left: 0;
-  margin-left: 0;
-  margin-right: 0;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);   /* 4 equal columns, 25% each */
-  gap: var(--mc-s-3);
-}
-.mc-foot-kpis li {
+.mc-foot-footer {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: var(--mc-s-2);                  /* Board refinement: 4 → 8 (more breathing room) */
-}
-.mc-foot-kpi-icon {
-  font-size: 14px;                     /* Board refinement: 20 → 14 (30% reduction) */
-  line-height: 1;
-}
-.mc-foot-kpi-value {
-  font-size: 22px;                     /* Board refinement: 28 → 22 (~21% reduction) */
-  font-weight: 700;
-  color: var(--mc-text);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  letter-spacing: 0.005em;
-  /* Animation Phase 3 — text-shadow 280ms drives the KPI refresh
-     glow (.is-refreshing class). Animation Phase 5 — color
-     1200ms drives the ambient luminance shift toward pure white
-     during .is-ambient-pulse. The two properties are independent
-     so Phase 3 and Phase 5 can coexist on the same element
-     without overriding each other. */
-  transition: text-shadow 280ms ease-out,
-              color       1200ms ease-in-out;
-}
-.mc-foot-kpi-value.is-refreshing {
-  text-shadow: 0 0 14px rgba(56, 189, 248, 0.55),
-               0 0 26px rgba(56, 189, 248, 0.28);
-}
-.mc-foot-kpi-label {
-  font-size: 11px;
-  color: var(--mc-text-muted);
-  letter-spacing: 0.04em;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--mc-s-4);
+  margin-top: var(--mc-s-2);
 }
 
-/* AI Summary — blue palette variant matching the established
-   executive pattern from Health / Identity / Publishing / Catalog. */
-.mc-foot-ai-summary {
-  margin-top: auto;
-  padding-top: var(--mc-s-3);
-  border-top: 1px solid rgba(56, 189, 248, 0.10);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.mc-foot-ai-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--mc-blue);
-}
-.mc-foot-ai-emoji { font-size: 12px; line-height: 1; }
-.mc-foot-ai-headline {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--mc-text);
-  line-height: 1.4;
-}
-.mc-foot-ai-body {
+.mc-foot-blurb {
   font-size: 12px;
   color: var(--mc-text-muted);
-  line-height: 1.5;
+  max-width: 60%;
+  line-height: 1.55;
 }
+
+.mc-foot-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--mc-r-2);
+  color: var(--mc-purple);
+  background: var(--mc-purple-soft);
+  border: 1px solid var(--mc-border-warm);
+}
+.mc-foot-cta svg { width: 12px; height: 12px; }
 
 /* ─── bottom status row ─────────────────────────────────────────── */
 
-/* Bottom status-row CSS removed per Board simplification pass:
-   .mc-status-row / .mc-status-card / .mc-status-label / .mc-status-value
-   (+ green / alt variants) / .mc-status-cap / .mc-status-radar /
-   .mc-status-dots / .mc-status-dot / .mc-status-card--horizon (and its
-   horizon-art star-field) / @keyframes mc-starfield-drift — all gone. */
+.mc-status-row {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1.6fr;
+  gap: var(--mc-s-5);
+}
 
-/* Right-rail panels (AI Insights™ + Royaltē Review™) and all
-   associated subclasses (mc-panel, mc-insights-*, mc-bulb-*,
-   mc-takeaway, mc-info-note*, mc-review-*) plus
-   @keyframes mc-bulb-think removed in the Board simplification
-   pass. Both modules retired; ROYALTĒ AI™ is now the single AI
-   destination and the Royaltē Review™ surface lives in the
-   Executive Brief™ flow. */
+.mc-status-card {
+  padding: var(--mc-s-4) var(--mc-s-5);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--mc-s-4);
+  align-items: center;
+  background: var(--mc-surface-1);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-r-3);
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-status-label {
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  color: var(--mc-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.mc-status-value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.05;
+  margin-top: 2px;
+}
+.mc-status-value--green { color: var(--mc-green); }
+.mc-status-value--alt   { color: var(--mc-text); font-size: 18px; letter-spacing: 0.03em; }
+.mc-status-cap {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  margin-top: 4px;
+}
+
+.mc-status-radar {
+  width: 56px;
+  height: 56px;
+}
+
+.mc-status-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--mc-s-3);
+}
+.mc-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mc-green);
+  box-shadow: 0 0 6px var(--mc-green-glow);
+  opacity: 0.85;
+}
+
+.mc-status-card--horizon {
+  background:
+    radial-gradient(280px 200px at 110% 110%, rgba(168, 85, 247, 0.18), transparent 60%),
+    var(--mc-surface-1);
+}
+
+.mc-status-horizon-art {
+  width: 80px;
+  height: 56px;
+  position: relative;
+}
+.mc-status-horizon-art::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  bottom: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.35), transparent 65%);
+  filter: blur(0.5px);
+}
+
+/* ─── right rail panels ─────────────────────────────────────────── */
+
+.mc-panel {
+  background: var(--mc-surface-1);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-r-4);
+  padding: var(--mc-s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-4);
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-s-3);
+}
+
+.mc-panel-head-left {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-s-2);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--mc-purple);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mc-panel-meta {
+  font-size: 11px;
+  color: var(--mc-purple);
+  opacity: 0.85;
+  letter-spacing: 0.04em;
+}
+
+/* AI Insights */
+
+.mc-insights-art {
+  display: grid;
+  place-items: center;
+  height: 120px;
+  position: relative;
+}
+.mc-insights-art::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  background: radial-gradient(circle at 50% 60%, rgba(168, 85, 247, 0.30), transparent 60%);
+  filter: blur(8px);
+}
+.mc-insights-art svg {
+  width: 80px;
+  height: 80px;
+  color: var(--mc-purple);
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 16px var(--mc-purple-glow));
+}
+
+/* Vintage Edison bulb — purple glass, pink-purple filament coil
+   that softly pulses to imply the AI is "thinking". */
+.mc-bulb-glass    { stroke: currentColor;            opacity: 0.85; }
+.mc-bulb-shine    { stroke: #d88cff;                 opacity: 0.55; }
+.mc-bulb-wire     { stroke: rgba(168, 85, 247, 0.55); }
+.mc-bulb-base     { stroke: currentColor;            opacity: 0.80; fill: rgba(168, 85, 247, 0.08); }
+.mc-bulb-tip      { stroke: currentColor;            opacity: 0.80; fill: rgba(168, 85, 247, 0.12); }
+
+.mc-bulb-filament {
+  stroke: #d88cff;
+  stroke-width: 1.4;
+  fill: none;
+  filter: drop-shadow(0 0 5px rgba(216, 140, 255, 0.55));
+  animation: mc-bulb-think 4.2s ease-in-out infinite;
+}
+
+/* Three-phase organic pulse — extremely slow, no harsh glow,
+   no flashing; the filament breathes the way thought feels. */
+@keyframes mc-bulb-think {
+  0%, 100% { opacity: 0.55; filter: drop-shadow(0 0  3px rgba(216, 140, 255, 0.40)); stroke: #c785ff; }
+  35%      { opacity: 1;    filter: drop-shadow(0 0 12px rgba(232, 165, 255, 0.85)); stroke: #ecaaff; }
+  60%      { opacity: 0.78; filter: drop-shadow(0 0  6px rgba(216, 140, 255, 0.55)); stroke: #d88cff; }
+}
+
+.mc-insights-title {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.mc-insights-body {
+  font-size: 13px;
+  color: var(--mc-text-soft);
+  line-height: 1.6;
+}
+
+.mc-takeaways {
+  margin-top: var(--mc-s-2);
+  border-top: 1px solid var(--mc-divider);
+  padding-top: var(--mc-s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+}
+.mc-takeaways-title {
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  color: var(--mc-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.mc-takeaways-list { display: flex; flex-direction: column; gap: var(--mc-s-2); margin-top: var(--mc-s-1); }
+.mc-takeaway {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: var(--mc-s-2);
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--mc-text-soft);
+}
+.mc-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--mc-green);
+  background: var(--mc-green-soft);
+}
+.mc-check svg { width: 10px; height: 10px; }
+
+.mc-info-note {
+  margin-top: var(--mc-s-3);
+  padding: var(--mc-s-3) var(--mc-s-4);
+  border-radius: var(--mc-r-2);
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px solid var(--mc-border-warm);
+}
+.mc-info-note-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mc-purple);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mc-info-note-body {
+  font-size: 11.5px;
+  color: var(--mc-text-soft);
+  margin-top: 4px;
+  line-height: 1.55;
+}
+
+/* Royaltē Review */
+
+.mc-review-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mc-review-title {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--mc-text);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.mc-review-meta {
+  font-size: 11px;
+  color: var(--mc-purple);
+  letter-spacing: 0.04em;
+}
+
+.mc-review-score {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: var(--mc-s-4);
+}
+
+.mc-review-ring { width: 110px; height: 110px; position: relative; }
+.mc-review-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.mc-review-ring .mc-ring-track    { stroke: rgba(168, 85, 247, 0.10); }
+.mc-review-ring .mc-ring-progress { stroke: var(--mc-purple); filter: drop-shadow(0 0 10px var(--mc-purple-glow)); }
+.mc-review-ring-text {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  flex-direction: column;
+  color: var(--mc-text);
+  text-align: center;
+}
+.mc-review-ring-num {
+  font-size: 28px;
+  font-weight: 700;
+}
+.mc-review-ring-tot {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  margin-top: -2px;
+}
+
+.mc-review-label {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--mc-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.mc-review-conf {
+  font-size: 15px;
+  color: var(--mc-purple);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+
+.mc-review-checks { display: flex; flex-direction: column; gap: var(--mc-s-2); margin-top: var(--mc-s-2); }
+
+.mc-review-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 18px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(109, 40, 217, 0.50));
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  border-radius: var(--mc-r-2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 22px rgba(168, 85, 247, 0.18) inset;
+  transition: filter 160ms ease, transform 160ms ease;
+}
+.mc-review-cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.mc-review-cta svg { width: 14px; height: 14px; }
+
+.mc-review-download {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 14px;
+  font-size: 12.5px;
+  color: var(--mc-purple);
+  border-radius: var(--mc-r-2);
+}
+.mc-review-download:hover { background: var(--mc-purple-soft); }
+.mc-review-download svg { width: 13px; height: 13px; }
 
 /* ─── responsive ─────────────────────────────────────────────────── */
 
 @media (max-width: 1440px) {
+  :root { --mc-rail-r: 332px; }
   .mc-page-title { font-size: 32px; }
 }
 
 @media (max-width: 1280px) {
-  :root { --mc-rail-l: 230px; --mc-pad: var(--mc-s-6); }
+  :root { --mc-rail-l: 230px; --mc-rail-r: 304px; --mc-pad: var(--mc-s-6); }
   .mc-hero { grid-template-columns: 132px 1fr 180px 180px; }
   .mc-grid { grid-template-columns: repeat(2, 1fr); }
   .mc-row-3 { grid-template-columns: 1fr 1fr; }
@@ -2183,9 +1530,12 @@ body {
   .mc-shell {
     grid-template-columns: 1fr;
   }
-  .mc-rail-left {
+  .mc-rail-left,
+  .mc-rail-right {
     border: 0;
     padding: var(--mc-s-5);
+  }
+  .mc-rail-left {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
@@ -2216,6 +1566,9 @@ body {
   .mc-hero-block    { grid-area: title; }
   .mc-pulse-line    { grid-area: pulse; }
   .mc-hero-action   { grid-area: action; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .mc-rail-right {
+    border-top: 1px solid var(--mc-border);
+  }
 }
 
 @media (max-width: 720px) {
@@ -2225,12 +1578,15 @@ body {
   .mc-hero-title { font-size: 22px; }
   .mc-grid { grid-template-columns: 1fr; gap: var(--mc-s-4); }
   .mc-row-3 { grid-template-columns: 1fr; gap: var(--mc-s-4); }
+  .mc-status-row { grid-template-columns: 1fr; gap: var(--mc-s-4); }
   .mc-rail-left {
     flex-direction: column;
     align-items: stretch;
   }
   .mc-nav { gap: var(--mc-s-1); }
   .mc-founder { max-width: none; }
+  .mc-review-score { grid-template-columns: 96px 1fr; }
+  .mc-review-ring  { width: 96px; height: 96px; }
 }
 
 /* loading skeleton (placeholder; engines inject real values later) */
@@ -2263,29 +1619,13 @@ body {
   <!-- ────────── LEFT RAIL ────────── -->
   <aside class="mc-rail-left" role="navigation" aria-label="Mission Control navigation">
 
-    <a href="/" class="mc-brand-link" aria-label="Royaltē home">
-      <svg class="mc-brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        <defs>
-          <linearGradient id="mc-nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
-            <stop offset="0%" stop-color="#8a5cff"/>
-            <stop offset="100%" stop-color="#e040c8"/>
-          </linearGradient>
-          <linearGradient id="mc-nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
-            <stop offset="0%" stop-color="#b963ec"/>
-            <stop offset="60%" stop-color="#8a5cff"/>
-            <stop offset="100%" stop-color="#e040c8"/>
-          </linearGradient>
-          <linearGradient id="mc-nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
-            <stop offset="0%" stop-color="#ffffff"/>
-            <stop offset="82%" stop-color="#ffffff"/>
-            <stop offset="100%" stop-color="#b963ec"/>
-          </linearGradient>
-        </defs>
-        <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#mc-nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#mc-nav-egrad)">Ē</tspan></text>
-        <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#mc-nav-purpink)" stroke-width="1.5" opacity="0.6"/>
-        <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
-      </svg>
-    </a>
+    <div class="mc-brand">
+      <div class="mc-brand-mark" aria-hidden="true">ē</div>
+      <div>
+        <div class="mc-brand-text">ROYALTĒ</div>
+        <div class="mc-brand-sub">MISSION CONTROL</div>
+      </div>
+    </div>
 
     <nav class="mc-nav">
       <a class="mc-nav-item mc-nav-item--active" href="#executive-overview" aria-current="page">
@@ -2342,13 +1682,22 @@ body {
           <div class="mc-nav-sub">Where Your Music Exists</div>
         </span>
       </a>
-      <a class="mc-nav-item" href="#royalte-ai">
+      <a class="mc-nav-item" href="#ai-insights">
         <span class="mc-nav-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
         </span>
         <span>
-          <span class="mc-nav-label">Royaltē AI</span>
-          <div class="mc-nav-sub">Intelligence Narrative</div>
+          <span class="mc-nav-label">AI Insights</span>
+          <div class="mc-nav-sub">Intelligence Brief</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#monitoring-intelligence">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12c2.5-4 5.5-6 9-6s6.5 2 9 6c-2.5 4-5.5 6-9 6s-6.5-2-9-6z"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Monitoring Intelligence</span>
+          <div class="mc-nav-sub">Always Watching</div>
         </span>
       </a>
       <a class="mc-nav-item" href="#settings">
@@ -2413,16 +1762,6 @@ body {
           <line x1="3"  y1="65" x2="127" y2="65" stroke="rgba(45,212,191,0.10)"/>
           <g class="mc-radar-sweep">
             <path d="M65 65 L65 3 A62 62 0 0 1 117 39 Z" fill="url(#mc-radar-sweep-fill)"/>
-            <!-- Sonar detection pings — children of the sweep group
-                 so they rotate with it; only become visible when
-                 their staggered animation delay fires. Each ping
-                 sits at a random distance from centre (28, 35, 42,
-                 50 px) inside the 62 px radar, at an angle inside
-                 the sweep's 63° wedge so it's always lit. -->
-            <circle class="mc-radar-ping mc-radar-ping--1" cx="86"    cy="28.6" r="1.5"/>
-            <circle class="mc-radar-ping mc-radar-ping--2" cx="74.6"  cy="38.7" r="1.5"/>
-            <circle class="mc-radar-ping mc-radar-ping--3" cx="100.4" cy="29.6" r="1.5"/>
-            <circle class="mc-radar-ping mc-radar-ping--4" cx="85.1"  cy="36.3" r="1.5"/>
           </g>
           <circle class="mc-radar-center" cx="65" cy="65" r="3" fill="#34f5b0"/>
         </svg>
@@ -2431,7 +1770,7 @@ body {
       <div class="mc-hero-block">
         <div class="mc-hero-label">ROYALTĒ INTELLIGENCE ENGINE™</div>
         <div class="mc-hero-title">ALL SYSTEMS NORMAL</div>
-        <div class="mc-hero-meta">Monitoring <b>24/7</b> &nbsp;•&nbsp; Last Scan: <b>12 minutes ago</b> &nbsp;•&nbsp; Next Cycle: <b>18 min</b></div>
+        <div class="mc-hero-meta">Monitoring <b>24/7</b> &nbsp;•&nbsp; Last Scan: <b>12 minutes ago</b></div>
       </div>
 
       <svg class="mc-pulse-line" viewBox="0 0 220 56" preserveAspectRatio="none" aria-hidden="true">
@@ -2448,6 +1787,8 @@ body {
       </div>
 
     </section>
+
+    <div class="mc-section-title">YOUR INTELLIGENCE AT A GLANCE</div>
 
     <!-- INTELLIGENCE CARD GRID -->
     <div class="mc-grid">
@@ -2477,62 +1818,18 @@ body {
             </div>
           </div>
           <div class="mc-metric">
-            <div class="mc-metric-sublabel">Royaltē Health Score™</div>
             <div class="mc-metric-value">78 <small>/100</small></div>
+            <div class="mc-metric-status">Health Improving</div>
             <div class="mc-metric-delta">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7-7 7 7"/></svg>
-              +4 Since Last Scan
+              4 since yesterday
             </div>
           </div>
         </div>
-
-        <section class="mc-health-breakdown" aria-label="Health Score Breakdown">
-          <header class="mc-health-breakdown-head">
-            <span class="mc-health-breakdown-title">Calculated From</span>
-            <span class="mc-health-breakdown-source">Royaltē Health Engine™</span>
-          </header>
-          <ul class="mc-health-modules">
-            <li>
-              <span class="mc-health-mod-icon" aria-hidden="true">👤</span>
-              <span class="mc-health-mod-label">Identity</span>
-              <span class="mc-health-mod-bar"><span style="width:92%"></span></span>
-              <span class="mc-health-mod-value">92</span>
-            </li>
-            <li>
-              <span class="mc-health-mod-icon" aria-hidden="true">📚</span>
-              <span class="mc-health-mod-label">Publishing</span>
-              <span class="mc-health-mod-bar"><span style="width:71%"></span></span>
-              <span class="mc-health-mod-value">71</span>
-            </li>
-            <li>
-              <span class="mc-health-mod-icon" aria-hidden="true">💿</span>
-              <span class="mc-health-mod-label">Catalog</span>
-              <span class="mc-health-mod-bar"><span style="width:84%"></span></span>
-              <span class="mc-health-mod-value">84</span>
-            </li>
-            <li>
-              <span class="mc-health-mod-icon" aria-hidden="true">🌎</span>
-              <span class="mc-health-mod-label">Global Footprint</span>
-              <span class="mc-health-mod-bar"><span style="width:58%"></span></span>
-              <span class="mc-health-mod-value">58</span>
-            </li>
-            <li>
-              <span class="mc-health-mod-icon" aria-hidden="true">🤖</span>
-              <span class="mc-health-mod-label">Monitoring</span>
-              <span class="mc-health-mod-bar"><span style="width:100%"></span></span>
-              <span class="mc-health-mod-value">100</span>
-            </li>
-          </ul>
-        </section>
-
-        <section class="mc-health-ai-summary" aria-label="AI Summary">
-          <div class="mc-health-ai-label">
-            <span class="mc-health-ai-emoji" aria-hidden="true">🤖</span>
-            AI Summary
-          </div>
-          <div class="mc-health-ai-headline">Your music business remains healthy.</div>
-          <div class="mc-health-ai-body">No action recommended.</div>
-        </section>
+        <svg class="mc-spark" viewBox="0 0 220 28" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 22 L20 20 L40 21 L60 18 L80 16 L100 17 L120 14 L140 12 L160 10 L180 9 L200 7 L220 5"/>
+        </svg>
+        <div class="mc-card-foot">No issues requiring action.<br>Monitoring continues.</div>
       </article>
 
       <!-- Identity Intelligence™ -->
@@ -2572,53 +1869,28 @@ body {
             </div>
           </div>
           <div class="mc-identity-header">
-            <div class="mc-metric-sublabel">Identity Score™</div>
-            <div class="mc-metric-value">72 <small>/100</small></div>
+            <div class="mc-identity-value">72<small>%</small></div>
+            <div class="mc-identity-label">Identity Confidence</div>
           </div>
         </div>
-
-        <section class="mc-identity-breakdown" aria-label="Identity Score Breakdown">
-          <header class="mc-identity-breakdown-head">
-            <span class="mc-identity-breakdown-title">Calculated From</span>
-            <span class="mc-identity-breakdown-source">Royaltē Identity Scoring Engine</span>
-          </header>
-          <ul class="mc-identity-platforms">
-            <li>
-              <img class="mc-identity-platform-icon" src="/img/icon-apple-music.png" alt="" aria-hidden="true">
-              <span class="mc-identity-platform-label">Apple Music for Artists</span>
-              <span class="mc-identity-status mc-identity-status--verified">Verified</span>
-            </li>
-            <li>
-              <img class="mc-identity-platform-icon" src="/img/icon-spotify.png" alt="" aria-hidden="true">
-              <span class="mc-identity-platform-label">Spotify for Artists</span>
-              <span class="mc-identity-status mc-identity-status--verified">Verified</span>
-            </li>
-            <li>
-              <img class="mc-identity-platform-icon" src="/img/icon-youtube.png" alt="" aria-hidden="true">
-              <span class="mc-identity-platform-label">YouTube Official Artist Channel</span>
-              <span class="mc-identity-status mc-identity-status--action">Action</span>
-            </li>
-            <li>
-              <img class="mc-identity-platform-icon" src="/img/icon-musicbrainz.png" alt="" aria-hidden="true">
-              <span class="mc-identity-platform-label">MusicBrainz</span>
-              <span class="mc-identity-status mc-identity-status--verified">Verified</span>
-            </li>
-            <li>
-              <img class="mc-identity-platform-icon" src="/img/icon-discogs.png" alt="" aria-hidden="true">
-              <span class="mc-identity-platform-label">Discogs</span>
-              <span class="mc-identity-status mc-identity-status--verified">Verified</span>
-            </li>
-          </ul>
-        </section>
-
-        <section class="mc-identity-ai-summary" aria-label="AI Summary">
-          <div class="mc-identity-ai-label">
-            <span class="mc-identity-ai-emoji" aria-hidden="true">🤖</span>
-            AI Summary
+        <div class="mc-identity-checks">
+          <div class="mc-identity-check">
+            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
+            Apple Music
+            <span class="mc-pill mc-pill--verified">Verified</span>
           </div>
-          <div class="mc-identity-ai-headline">Royaltē AI™ continues monitoring your artist identity across the global music ecosystem.</div>
-          <div class="mc-identity-ai-body">No identity conflicts requiring attention were detected.</div>
-        </section>
+          <div class="mc-identity-check">
+            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
+            Spotify
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </div>
+          <div class="mc-identity-check">
+            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
+            2 External Identities
+            <span class="mc-pill mc-pill--pending">Pending</span>
+          </div>
+        </div>
+        <div class="mc-card-foot">Royaltē continues to confirm<br>your official artist identities.</div>
       </article>
 
       <!-- Publishing Intelligence™ -->
@@ -2634,70 +1906,21 @@ body {
             <svg viewBox="0 0 80 80">
               <circle class="mc-ring-track"    cx="40" cy="40" r="33" fill="none"/>
               <circle class="mc-ring-progress" cx="40" cy="40" r="33" fill="none"
-                stroke-dasharray="178 207"/>
+                stroke-dasharray="191 207"/>
             </svg>
             <div class="mc-ring-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
             </div>
           </div>
-          <div class="mc-pub-header">
-            <div class="mc-metric-sublabel">Publishing Score™</div>
-            <div class="mc-metric-value">86 <small>/100</small></div>
+          <div class="mc-pub-stats">
+            <div class="mc-pub-stat"><span class="mc-pub-stat-val">124</span><span class="mc-pub-stat-label">Works Found</span></div>
+            <div class="mc-pub-stat"><span class="mc-pub-stat-val">86</span><span class="mc-pub-stat-label">Writers Found</span></div>
+            <div class="mc-pub-stat"><span class="mc-pub-stat-val">12</span><span class="mc-pub-stat-label">Publishers Found</span></div>
+            <div class="mc-pub-stat"><span class="mc-pub-stat-val">92%</span><span class="mc-pub-stat-label">ISWC Coverage</span></div>
           </div>
         </div>
-
-        <section class="mc-pub-breakdown" aria-label="Publishing Score Breakdown">
-          <header class="mc-pub-breakdown-head">
-            <span class="mc-pub-breakdown-title">Calculated From</span>
-            <span class="mc-pub-breakdown-source">Royaltē Publishing Scoring Engine</span>
-          </header>
-          <ul class="mc-pub-pillars">
-            <li>
-              <span class="mc-pub-pillar-icon" aria-hidden="true">🏛</span>
-              <span class="mc-pub-pillar-label">MLC Registration</span>
-              <span class="mc-pub-status mc-pub-status--verified">Verified</span>
-            </li>
-            <li>
-              <span class="mc-pub-pillar-icon" aria-hidden="true">🎼</span>
-              <span class="mc-pub-pillar-label">ISWC Coverage</span>
-              <span class="mc-pub-status mc-pub-status--verified">Verified</span>
-            </li>
-            <li>
-              <span class="mc-pub-pillar-icon" aria-hidden="true">✍️</span>
-              <span class="mc-pub-pillar-label">Writer Credits</span>
-              <span class="mc-pub-status mc-pub-status--verified">Verified</span>
-            </li>
-            <li>
-              <span class="mc-pub-pillar-icon" aria-hidden="true">📚</span>
-              <span class="mc-pub-pillar-label">Publisher Information</span>
-              <span class="mc-pub-status mc-pub-status--action">Action</span>
-            </li>
-            <li>
-              <span class="mc-pub-pillar-icon" aria-hidden="true">🧠</span>
-              <span class="mc-pub-pillar-label">MusicBrainz Publishing Metadata</span>
-              <span class="mc-pub-status mc-pub-status--verified">Verified</span>
-            </li>
-            <li>
-              <span class="mc-pub-pillar-icon" aria-hidden="true">🎵</span>
-              <span class="mc-pub-pillar-label">Composition Metadata Integrity</span>
-              <span class="mc-pub-status mc-pub-status--verified">Verified</span>
-            </li>
-            <li>
-              <span class="mc-pub-pillar-icon" aria-hidden="true">🌍</span>
-              <span class="mc-pub-pillar-label">Publishing Territory Coverage</span>
-              <span class="mc-pub-status mc-pub-status--monitoring">Monitoring</span>
-            </li>
-          </ul>
-        </section>
-
-        <section class="mc-pub-ai-summary" aria-label="AI Summary">
-          <div class="mc-pub-ai-label">
-            <span class="mc-pub-ai-emoji" aria-hidden="true">🤖</span>
-            AI Summary
-          </div>
-          <div class="mc-pub-ai-headline">Royaltē AI™ continues monitoring your publishing infrastructure across the global music ecosystem.</div>
-          <div class="mc-pub-ai-body">No publishing issues requiring immediate attention were detected.</div>
-        </section>
+        <div class="mc-pub-divider"></div>
+        <div class="mc-card-foot">Publishing verification is<br>active and ongoing.</div>
       </article>
 
       <!-- Catalog Intelligence™ -->
@@ -2718,59 +1941,67 @@ body {
             </svg>
           </div>
           <div class="mc-catalog-summary">
-            <div class="mc-metric-sublabel">Catalog Score™</div>
-            <div class="mc-metric-value">84 <small>/100</small></div>
+            <div class="mc-catalog-value">27</div>
+            <div class="mc-catalog-label">Catalog Assets</div>
             <div class="mc-catalog-grid">
-              <span class="lbl">Albums</span>  <span class="val">3</span>
-              <span class="lbl">EPs</span>     <span class="val">2</span>
-              <span class="lbl">Singles</span> <span class="val">4</span>
-              <span class="lbl">Tracks</span>  <span class="val">27</span>
+              <span class="lbl">Albums</span>   <span class="val">3</span>
+              <span class="lbl">EPs</span>      <span class="val">2</span>
+              <span class="lbl">Singles</span>  <span class="val">4</span>
+              <span class="lbl">Features</span> <span class="val">18</span>
+              <div class="mc-catalog-divider" aria-hidden="true"></div>
+              <span class="lbl">Metadata</span> <span class="val val--stable">Stable</span>
+              <span class="lbl">Catalog</span>  <span class="val val--stable">Stable</span>
+              <span class="lbl">Verified</span> <span class="val val--verified">Verified</span>
             </div>
           </div>
         </div>
+        <div class="mc-card-foot">Your catalog infrastructure is synchronized<br>and actively monitored.</div>
+      </article>
 
-        <section class="mc-cat-breakdown" aria-label="Catalog Score Breakdown">
-          <header class="mc-cat-breakdown-head">
-            <span class="mc-cat-breakdown-title">Calculated From</span>
-            <span class="mc-cat-breakdown-source">Royaltē Catalog Scoring Engine</span>
-          </header>
-          <ul class="mc-cat-pillars">
-            <li>
-              <span class="mc-cat-pillar-icon" aria-hidden="true">🏷</span>
-              <span class="mc-cat-pillar-label">Metadata Integrity</span>
-              <span class="mc-cat-status mc-cat-status--verified">Verified</span>
-            </li>
-            <li>
-              <span class="mc-cat-pillar-icon" aria-hidden="true">🎼</span>
-              <span class="mc-cat-pillar-label">ISRC Integrity</span>
-              <span class="mc-cat-status mc-cat-status--verified">Verified</span>
-            </li>
-            <li>
-              <span class="mc-cat-pillar-icon" aria-hidden="true">📦</span>
-              <span class="mc-cat-pillar-label">UPC Consistency</span>
-              <span class="mc-cat-status mc-cat-status--verified">Verified</span>
-            </li>
-            <li>
-              <span class="mc-cat-pillar-icon" aria-hidden="true">👥</span>
-              <span class="mc-cat-pillar-label">Contributor Credits</span>
-              <span class="mc-cat-status mc-cat-status--action">Action</span>
-            </li>
-            <li>
-              <span class="mc-cat-pillar-icon" aria-hidden="true">🔄</span>
-              <span class="mc-cat-pillar-label">Catalog Synchronization</span>
-              <span class="mc-cat-status mc-cat-status--verified">Verified</span>
-            </li>
-          </ul>
-        </section>
-
-        <section class="mc-cat-ai-summary" aria-label="AI Summary">
-          <div class="mc-cat-ai-label">
-            <span class="mc-cat-ai-emoji" aria-hidden="true">🤖</span>
-            AI Summary
+      <!-- Revenue Watch™ -->
+      <article class="mc-card mc-card--revenue" aria-label="Revenue Watch">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 14h4.5a1.5 1.5 0 0 0 0-3h-3a1.5 1.5 0 0 1 0-3H15M12 7v2M12 15v2"/></svg>
           </div>
-          <div class="mc-cat-ai-headline">Royaltē AI™ continues monitoring your catalog infrastructure.</div>
-          <div class="mc-cat-ai-body">No issues requiring immediate attention were detected.</div>
-        </section>
+          <div class="mc-card-title">REVENUE WATCH™</div>
+        </div>
+        <div class="mc-rev-body">
+          <div class="mc-rev-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 14h4.5a1.5 1.5 0 0 0 0-3h-3a1.5 1.5 0 0 1 0-3H15M12 7v2M12 15v2"/></svg></div>
+          <div>
+            <div class="mc-rev-title">All Clear</div>
+            <div class="mc-rev-sub">No Revenue Risks</div>
+          </div>
+        </div>
+        <div class="mc-rev-list">
+          <div class="mc-rev-row"><span>Anomalies Detected</span><span>0</span></div>
+          <div class="mc-rev-row"><span>Unmatched Earnings</span><span>0</span></div>
+          <div class="mc-rev-row"><span>Opportunities</span><span>0</span></div>
+        </div>
+        <div class="mc-card-foot">No royalty leaks or anomalies detected.<br>Monitoring continues.</div>
+      </article>
+
+      <!-- Monitoring Intelligence™ -->
+      <article class="mc-card mc-card--monitoring" id="monitoring-intelligence" aria-label="Monitoring Intelligence">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7-3 2v7H6v-7z"/><path d="M9 18v-5h6v5"/></svg>
+          </div>
+          <div class="mc-card-title">MONITORING INTELLIGENCE™</div>
+        </div>
+        <div class="mc-mon-body">
+          <div class="mc-mon-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5"/><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 12a10 10 0 0 1 20 0"/></svg></div>
+          <div>
+            <div class="mc-mon-value">100%</div>
+            <div class="mc-mon-cap">Monitoring Uptime<br>Last 30 Days</div>
+          </div>
+        </div>
+        <div class="mc-mon-list">
+          <div class="mc-mon-row"><span>Sources Monitored</span>      <span>12</span></div>
+          <div class="mc-mon-row"><span>Updates Processed</span>      <span>1,842</span></div>
+          <div class="mc-mon-row"><span>Last Scan</span>              <span>12 min ago</span></div>
+        </div>
+        <div class="mc-card-foot">We are constantly scanning<br>and analyzing your data.</div>
       </article>
 
       <!-- Global Music Footprint™ -->
@@ -2781,212 +2012,167 @@ body {
           </div>
           <div class="mc-card-title">GLOBAL MUSIC FOOTPRINT™</div>
         </div>
-
-        <div class="mc-foot-score">
-          <div class="mc-metric-sublabel">Global Presence Score™</div>
-          <div class="mc-metric-value">58 <small>/100</small></div>
-        </div>
-
         <div class="mc-globe" aria-hidden="true">
-          <div class="mc-globe-canvas">
-            <img class="mc-globe-map" src="/img/mission-control-world-map.png" alt="">
-            <!-- 16 intelligence dots, one per Major Music Market™.
-                 Positions are equirectangular lat/lon → % of canvas
-                 (canvas aspect locked to map PNG aspect).
-                 Latitude formula tuned to the supplied map's vertical
-                 range (~+85° to -55°, Antarctica clipped). -->
-            <!-- Americas (left list) -->
-            <span class="mc-globe-dot" style="left:22.2%; top:32.9%"></span><!-- United States -->
-            <span class="mc-globe-dot" style="left:23.6%; top:17.9%"></span><!-- Canada -->
-            <span class="mc-globe-dot" style="left:34.7%; top:67.9%"></span><!-- Brazil -->
-            <span class="mc-globe-dot" style="left:21.7%; top:44.3%"></span><!-- Mexico -->
-            <span class="mc-globe-dot" style="left:32.2%; top:85.0%"></span><!-- Argentina -->
-            <span class="mc-globe-dot" style="left:29.4%; top:57.9%"></span><!-- Colombia -->
-            <span class="mc-globe-dot" style="left:30.3%; top:82.1%"></span><!-- Chile -->
-            <span class="mc-globe-dot" style="left:29.2%; top:67.1%"></span><!-- Peru -->
-            <!-- Europe / Asia-Pacific (right list) -->
-            <span class="mc-globe-dot" style="left:49.4%; top:22.9%"></span><!-- United Kingdom -->
-            <span class="mc-globe-dot" style="left:52.8%; top:24.3%"></span><!-- Germany -->
-            <span class="mc-globe-dot" style="left:50.6%; top:27.1%"></span><!-- France -->
-            <span class="mc-globe-dot" style="left:55.0%; top:17.9%"></span><!-- Sweden -->
-            <span class="mc-globe-dot" style="left:53.3%; top:30.7%"></span><!-- Italy -->
-            <span class="mc-globe-dot" style="left:88.3%; top:35.0%"></span><!-- Japan -->
-            <span class="mc-globe-dot" style="left:85.6%; top:34.3%"></span><!-- South Korea -->
-            <span class="mc-globe-dot" style="left:71.7%; top:46.4%"></span><!-- India -->
-            <!-- Global Availability Sweep (Animation Phase 2):
-                 soft cyan atmospheric wave that traverses the map
-                 left → right once every 51s, lasting ~1.5s. Last
-                 child of the canvas so it stacks on top of the
-                 dots and naturally tints them as it passes. -->
-            <div class="mc-globe-sweep" aria-hidden="true"></div>
-            <!-- Live Intelligence Connections (Animation Phase 4):
-                 SVG overlay carrying a single reusable <line>. JS
-                 picks a random dot every 15-25s, repoints the
-                 line endpoints, and toggles .is-firing on it.
-                 viewBox 0-100 with preserveAspectRatio="none" so
-                 percentages align directly with .mc-globe-dot
-                 left/top values. -->
-            <svg class="mc-globe-connection-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <line class="mc-globe-connection" pathLength="100" x1="0" y1="0" x2="0" y2="0"/>
-            </svg>
-          </div>
+          <img class="mc-globe-map" src="/img/mission-control-world-map.png" alt="">
         </div>
-
-        <ul class="mc-foot-kpis" aria-label="Global Music KPIs">
-          <li>
-            <span class="mc-foot-kpi-icon" aria-hidden="true">🌎</span>
-            <span class="mc-foot-kpi-value">142</span>
-            <span class="mc-foot-kpi-label">Countries</span>
-          </li>
-          <li>
-            <span class="mc-foot-kpi-icon" aria-hidden="true">🏪</span>
-            <span class="mc-foot-kpi-value">6</span>
-            <span class="mc-foot-kpi-label">DSPs</span>
-          </li>
-          <li>
-            <span class="mc-foot-kpi-icon" aria-hidden="true">📀</span>
-            <span class="mc-foot-kpi-value">27</span>
-            <span class="mc-foot-kpi-label">Releases</span>
-          </li>
-          <li>
-            <span class="mc-foot-kpi-icon" aria-hidden="true">🌍</span>
-            <span class="mc-foot-kpi-value">12</span>
-            <span class="mc-foot-kpi-label">Missing</span>
-          </li>
-        </ul>
-
-        <section class="mc-foot-ai-summary" aria-label="AI Summary">
-          <div class="mc-foot-ai-label">
-            <span class="mc-foot-ai-emoji" aria-hidden="true">🤖</span>
-            AI Summary
-          </div>
-          <div class="mc-foot-ai-headline">Royaltē AI™ continues monitoring your global distribution.</div>
-          <div class="mc-foot-ai-body">No availability gaps requiring immediate attention were detected.</div>
-        </section>
-      </article>
-
-      <!-- Royaltē AI™ -->
-      <article class="mc-card mc-card--ai" id="royalte-ai" style="grid-column: span 2;" aria-label="Royaltē AI">
-        <!-- AI Core Ignition overlays (Animation Phase 1). Shade
-             dims the bulb to ~65% at idle; glow boosts it past
-             100% at ignition peak. JS toggles .is-igniting on the
-             article every 8-10s for the 4-state power cycle. -->
-        <div class="mc-ai-core-shade" aria-hidden="true"></div>
-        <div class="mc-ai-core-glow"  aria-hidden="true"></div>
-        <!-- Stem Energy Transfer overlay (Animation Phase 2).
-             Soft violet pulse that traverses the stem region
-             left → right once per ignition cycle, triggered by
-             the MutationObserver when the bulb's bright phase
-             ends. mix-blend-mode: screen so the pulse brightens
-             the underlying stems rather than sitting flat over
-             them. -->
-        <div class="mc-ai-stem-pulse" aria-hidden="true"></div>
-        <!-- Intelligence Propagation nodes (Animation Phase 3).
-             8 soft purple dots that ripple from the right
-             arrival point outward across the network when
-             .is-propagating is on the card. --x / --y / --d
-             custom properties carry per-node position and
-             delay so the propagation reads as near → mid → far.
-             Positioned to avoid the bulb area on the left
-             (where the Phase 1 shade / glow overlays live). -->
-        <div class="mc-ai-net-node" aria-hidden="true" style="--x:92%; --y:75%; --d:0ms;"></div>
-        <div class="mc-ai-net-node" aria-hidden="true" style="--x:80%; --y:60%; --d:100ms;"></div>
-        <div class="mc-ai-net-node" aria-hidden="true" style="--x:70%; --y:80%; --d:200ms;"></div>
-        <div class="mc-ai-net-node" aria-hidden="true" style="--x:55%; --y:50%; --d:300ms;"></div>
-        <div class="mc-ai-net-node" aria-hidden="true" style="--x:60%; --y:78%; --d:400ms;"></div>
-        <div class="mc-ai-net-node" aria-hidden="true" style="--x:38%; --y:60%; --d:550ms;"></div>
-        <div class="mc-ai-net-node" aria-hidden="true" style="--x:30%; --y:78%; --d:700ms;"></div>
-        <div class="mc-ai-net-node" aria-hidden="true" style="--x:12%; --y:82%; --d:850ms;"></div>
-        <div class="mc-card-head">
-          <div class="mc-card-mark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
-          </div>
-          <div class="mc-card-title">ROYALTĒ AI™</div>
-          <div class="mc-ai-head-end">
-            <div class="mc-ai-status">
-              <span class="mc-ai-status-dot" aria-hidden="true"></span>
-              AI Status: Active
-            </div>
-            <div class="mc-ai-refresh">Last Intelligence Refresh: 8 min ago</div>
-          </div>
+        <div class="mc-foot-footer">
+          <div class="mc-foot-blurb">Royaltē identified music<br>presence across global DSPs.</div>
+          <a class="mc-foot-cta" href="#global-footprint-full">
+            View Full Map
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+          </a>
         </div>
-
-        <!-- CTA — absolutely overlaid floating typography. Does
-             NOT participate in the flex flow, does NOT reserve
-             layout space, does NOT shift the artwork. Pure
-             holographic projection over the cinematic backdrop
-             per Board CTA Position Clarification. -->
-        <div class="mc-ai-hero">
-          <h2 class="mc-ai-hero-headline">Because What You Can't See Can Cost You.</h2>
-          <p class="mc-ai-hero-body">Your music earns money in more places than you think. Royaltē AI™ continuously monitors the business behind your music—helping protect your catalog and maximize what you're owed.</p>
-        </div>
-
-        <!-- HUD overlay (Board v1.0): AI Analysis Activity feed
-             floats directly over the cinematic backdrop. No panel,
-             no container, no border, no glass, no shadow. Position
-             and styling unchanged from the Board-approved HUD
-             v1.0 — the CTA above floats independently and does not
-             affect this block. -->
-        <aside class="mc-ai-activity" aria-label="AI Analysis Activity">
-          <header class="mc-ai-activity-head">
-            <span>AI Analysis Activity</span>
-            <span class="mc-ai-activity-pulse">Live</span>
-          </header>
-          <ul class="mc-ai-activity-list">
-            <li>
-              <span>
-                <span class="mc-ai-activity-item-title">Reviewing Publishing Infrastructure…</span>
-                <span class="mc-ai-activity-item-sub">Checking rights data and publisher connections</span>
-              </span>
-              <span class="mc-ai-activity-time">00:02</span>
-            </li>
-            <li>
-              <span>
-                <span class="mc-ai-activity-item-title">Verifying Artist Identities…</span>
-                <span class="mc-ai-activity-item-sub">Cross-referencing artist and ownership records</span>
-              </span>
-              <span class="mc-ai-activity-time">00:18</span>
-            </li>
-            <li>
-              <span>
-                <span class="mc-ai-activity-item-title">Scanning Metadata Consistency…</span>
-                <span class="mc-ai-activity-item-sub">Checking ISRC, UPC, ISWC and release data</span>
-              </span>
-              <span class="mc-ai-activity-time">00:34</span>
-            </li>
-            <li>
-              <span>
-                <span class="mc-ai-activity-item-title">Checking DSP Availability…</span>
-                <span class="mc-ai-activity-item-sub">Monitoring global distribution and store presence</span>
-              </span>
-              <span class="mc-ai-activity-time">00:50</span>
-            </li>
-            <li class="is-resolved">
-              <span>
-                <span class="mc-ai-activity-item-title">No New Issues Detected</span>
-                <span class="mc-ai-activity-item-sub">All systems healthy</span>
-              </span>
-              <span class="mc-ai-activity-time">01:12</span>
-            </li>
-          </ul>
-        </aside>
       </article>
 
     </div>
 
-    <!-- Bottom status row removed per Board simplification pass:
-         - "Next Scheduled Scan" — moved into the ALL SYSTEMS NORMAL hero meta line
-         - "All Systems Operational" — duplicated the hero ALL SYSTEMS NORMAL message
-         - "We Work While You Create / Royaltē never sleeps" — duplicated the Royaltē AI™ value
-         The reclaimed vertical space lets the remaining executive layout breathe. -->
+    <!-- BOTTOM STATUS ROW -->
+    <div class="mc-status-row">
 
+      <article class="mc-status-card" aria-label="Next Scheduled Scan">
+        <div>
+          <div class="mc-status-label">NEXT SCHEDULED SCAN</div>
+          <div class="mc-status-value">18 <small style="font-size:14px;color:var(--mc-text-muted);font-weight:500">min</small></div>
+        </div>
+        <svg class="mc-status-radar" viewBox="0 0 56 56" aria-hidden="true">
+          <circle cx="28" cy="28" r="26" fill="none" stroke="rgba(45,212,191,0.18)"/>
+          <circle cx="28" cy="28" r="18" fill="none" stroke="rgba(45,212,191,0.20)"/>
+          <circle cx="28" cy="28" r="10" fill="none" stroke="rgba(45,212,191,0.22)"/>
+          <line x1="28" y1="2" x2="28" y2="54" stroke="rgba(45,212,191,0.12)"/>
+          <line x1="2" y1="28" x2="54" y2="28" stroke="rgba(45,212,191,0.12)"/>
+          <circle cx="28" cy="28" r="2.4" fill="#34f5b0"/>
+        </svg>
+      </article>
+
+      <article class="mc-status-card" aria-label="Intelligence Engine Status">
+        <div>
+          <div class="mc-status-label">INTELLIGENCE ENGINE STATUS</div>
+          <div class="mc-status-value mc-status-value--green">All Systems Operational</div>
+          <div class="mc-status-cap">Every module is functioning normally.</div>
+          <div class="mc-status-dots">
+            <span class="mc-status-dot"></span><span class="mc-status-dot"></span><span class="mc-status-dot"></span>
+            <span class="mc-status-dot"></span><span class="mc-status-dot"></span><span class="mc-status-dot"></span>
+            <span class="mc-status-dot"></span><span class="mc-status-dot"></span>
+          </div>
+        </div>
+        <span></span>
+      </article>
+
+      <article class="mc-status-card mc-status-card--horizon" aria-label="Royaltē never sleeps">
+        <div>
+          <div class="mc-status-label" style="color:var(--mc-purple);">WE WORK WHILE YOU CREATE</div>
+          <div class="mc-status-value mc-status-value--alt">Royaltē never sleeps.</div>
+          <div class="mc-status-cap">Your music business is always protected.</div>
+        </div>
+        <div class="mc-status-horizon-art" aria-hidden="true"></div>
+      </article>
+
+    </div>
 
   </main>
 
-  <!-- Right rail removed in the Board simplification pass:
-       both AI Insights™ and Royaltē Review™ panels retired. ROYALTĒ AI™
-       in the main grid is now the single AI destination; Royaltē
-       Review™ surface lives in the Executive Brief™ flow. -->
+  <!-- ────────── RIGHT RAIL ────────── -->
+  <aside class="mc-rail-right" id="ai-insights" aria-label="AI Insights and Royaltē Review">
+
+    <!-- AI Insights™ -->
+    <section class="mc-panel" aria-label="AI Insights">
+      <div class="mc-panel-head">
+        <div class="mc-panel-head-left">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
+          AI INSIGHTS™
+        </div>
+        <div class="mc-panel-meta">Last Intelligence Refresh: 8 min ago</div>
+      </div>
+
+      <div class="mc-insights-art" aria-hidden="true">
+        <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- pear-shaped glass envelope with short neck -->
+          <path class="mc-bulb-glass" d="M40 4 C 24 4, 14 14, 14 28 C 14 38, 20 46, 28 52 L 32 52 L 32 56 L 48 56 L 48 52 C 56 46, 62 38, 62 28 C 62 14, 56 4, 40 4 Z"/>
+          <!-- subtle upper-left glass highlight -->
+          <path class="mc-bulb-shine" d="M22 14 Q 18 20 18 28" stroke-width="1"/>
+          <!-- filament support wires from neck up to coil endpoints -->
+          <line class="mc-bulb-wire" x1="32" y1="52" x2="32" y2="38" stroke-width="0.9"/>
+          <line class="mc-bulb-wire" x1="48" y1="52" x2="48" y2="38" stroke-width="0.9"/>
+          <!-- Edison-style hairpin filament coil -->
+          <path class="mc-bulb-filament" d="M32 38 L36 26 L40 38 L44 26 L48 38"/>
+          <!-- brass screw base (three thread bands) -->
+          <rect class="mc-bulb-base" x="32" y="56" width="16" height="3" rx="0.5" stroke-width="1"/>
+          <rect class="mc-bulb-base" x="33" y="59" width="14" height="3" rx="0.5" stroke-width="1"/>
+          <rect class="mc-bulb-base" x="34" y="62" width="12" height="3" rx="0.5" stroke-width="1"/>
+          <!-- contact tip -->
+          <ellipse class="mc-bulb-tip" cx="40" cy="67" rx="3" ry="1.5" stroke-width="1"/>
+        </svg>
+      </div>
+
+      <h2 class="mc-insights-title">Backend Health Continues to Improve</h2>
+      <p class="mc-insights-body">Royaltē Intelligence™ has detected measurable improvements across your music infrastructure. Publishing governance and metadata integrity continue to strengthen, while monitoring indicates stable backend health. No immediate intervention is recommended at this time.</p>
+
+      <div class="mc-takeaways">
+        <div class="mc-takeaways-title">KEY TAKEAWAYS</div>
+        <ul class="mc-takeaways-list">
+          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Metadata is clean and consistent</li>
+          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Identities are verified</li>
+          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Publishing coverage is strong</li>
+          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Systems are operating normally</li>
+          <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Monitoring is continuous</li>
+        </ul>
+      </div>
+
+      <div class="mc-info-note">
+        <div class="mc-info-note-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          No action is required at this time.
+        </div>
+        <div class="mc-info-note-body">We'll continue monitoring and alert you if anything needs your attention.</div>
+      </div>
+    </section>
+
+    <!-- Royaltē Review™ -->
+    <section class="mc-panel" aria-label="Royaltē Review">
+      <div class="mc-review-head">
+        <div class="mc-review-title">ROYALTĒ REVIEW™</div>
+        <div class="mc-review-meta">Generated Today</div>
+      </div>
+
+      <div class="mc-review-score">
+        <div class="mc-review-ring" aria-hidden="true">
+          <svg viewBox="0 0 110 110">
+            <circle class="mc-ring-track"    cx="55" cy="55" r="46" fill="none" stroke-width="6"/>
+            <circle class="mc-ring-progress" cx="55" cy="55" r="46" fill="none" stroke-width="6"
+              stroke-dasharray="240 289"/>
+          </svg>
+          <div class="mc-review-ring-text">
+            <div>
+              <div class="mc-review-ring-num">83</div>
+              <div class="mc-review-ring-tot">/100</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="mc-review-label">HEALTH SCORE</div>
+          <div class="mc-review-conf">HIGH CONFIDENCE</div>
+        </div>
+      </div>
+
+      <ul class="mc-review-checks">
+        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> No immediate risks</li>
+        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Metadata stable</li>
+        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Identities verified</li>
+        <li class="mc-takeaway"><span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span> Publishing coverage strong</li>
+      </ul>
+
+      <button class="mc-review-cta" type="button">
+        View Executive Brief
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+      </button>
+
+      <a class="mc-review-download" href="#download-pdf">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="M5 11l7 7 7-7"/><path d="M4 20h16"/></svg>
+        Download PDF
+      </a>
+    </section>
+
+  </aside>
 
 </div>
 
@@ -3009,313 +2195,14 @@ body {
     });
 
     // No-op handlers for placeholder CTAs so the shell does not throw.
-    // (Royaltē Review™ CTA + Download PDF handlers retired with the
-    //  right-rail purge — those selectors no longer exist in markup.)
+    const review = document.querySelector('.mc-review-cta');
+    if (review) review.addEventListener('click', (e) => e.preventDefault());
+
+    const download = document.querySelector('.mc-review-download');
+    if (download) download.addEventListener('click', (e) => e.preventDefault());
+
     const signout = document.querySelector('.mc-version-sign');
     if (signout) signout.addEventListener('click', (e) => e.preventDefault());
-  })();
-
-  // Global Music Footprint™ — Executive KPI Intelligence Refresh
-  // (Animation Phase 3 of 5). Cycles through the four KPI values
-  // every 20-30s. Each refresh:
-  //   1. adds .is-refreshing → soft cyan text-shadow glow fades in
-  //      over 280ms (CSS transition handles this);
-  //   2. runs a count-up animation from (target - 3) up to target
-  //      over 550-700ms via requestAnimationFrame + easeOut;
-  //   3. removes .is-refreshing → glow fades back to idle.
-  // UI-only — no backend, no payload. Values are static reference
-  // numbers from the original Board spec.
-  (function () {
-    const valueEls = document.querySelectorAll('.mc-foot-kpi-value');
-    if (!valueEls.length) return;
-
-    // Build KPI state — first child of each value span is the
-    // numeric Text node (Countries also carries a trailing space
-    // before the <small>Countries</small> suffix; preserved via
-    // the regex capture group below).
-    const kpis = Array.from(valueEls).map((el) => {
-      const lead = el.firstChild;
-      if (!lead || lead.nodeType !== Node.TEXT_NODE) return null;
-      const match = lead.textContent.match(/^(\d+)(\D*)$/);
-      if (!match) return null;
-      return {
-        el:     el,
-        lead:   lead,
-        target: parseInt(match[1], 10),
-        suffix: match[2],
-      };
-    }).filter(Boolean);
-
-    if (!kpis.length) return;
-
-    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
-
-    function animateCount(kpi, durationMs) {
-      const start = Math.max(0, kpi.target - 3);
-      const t0 = performance.now();
-      function tick(now) {
-        const p = Math.min((now - t0) / durationMs, 1);
-        const val = Math.round(start + (kpi.target - start) * easeOut(p));
-        kpi.lead.textContent = val + kpi.suffix;
-        if (p < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    }
-
-    let idx = 0;
-    function refreshNext() {
-      const kpi = kpis[idx];
-      idx = (idx + 1) % kpis.length;
-
-      kpi.el.classList.add('is-refreshing');
-      const duration = 550 + Math.random() * 150;       // 550-700ms
-      animateCount(kpi, duration);
-      setTimeout(() => kpi.el.classList.remove('is-refreshing'), duration + 350);
-
-      // Next refresh in 20-30s (randomised so the cadence never
-      // pattern-matches between KPIs).
-      setTimeout(refreshNext, 20000 + Math.random() * 10000);
-    }
-
-    // Initial delay before the first refresh so the animation
-    // doesn't fire the instant the page loads.
-    setTimeout(refreshNext, 8000 + Math.random() * 4000);
-  })();
-
-  // Global Music Footprint™ — Live Intelligence Connections
-  // (Animation Phase 4 of 5). Every 15-25s, fire one faint cyan
-  // telemetry line from a random territory toward the map centre.
-  // Only one line exists at a time — re-uses a single SVG <line>
-  // element by re-pointing its endpoints each cycle.
-  (function () {
-    const canvas = document.querySelector('.mc-globe-canvas');
-    if (!canvas) return;
-    const line = canvas.querySelector('.mc-globe-connection');
-    const dots = canvas.querySelectorAll('.mc-globe-dot');
-    if (!line || !dots.length) return;
-
-    function fireConnection() {
-      const dot = dots[Math.floor(Math.random() * dots.length)];
-      const left = parseFloat(dot.style.left);
-      const top  = parseFloat(dot.style.top);
-      if (isNaN(left) || isNaN(top)) {
-        setTimeout(fireConnection, 15000 + Math.random() * 10000);
-        return;
-      }
-
-      // Map centre at ~50%, 50% of the SVG viewBox (0-100).
-      // Travel 65-80% of the dot→centre distance so the line
-      // never actually reaches the centre — that's where the
-      // "dissolve before reaching the centre" effect lives,
-      // combined with the opacity fade in the keyframes.
-      const fraction = 0.65 + Math.random() * 0.15;
-      const endX = left + (50 - left) * fraction;
-      const endY = top  + (50 - top)  * fraction;
-
-      line.setAttribute('x1', left);
-      line.setAttribute('y1', top);
-      line.setAttribute('x2', endX);
-      line.setAttribute('y2', endY);
-
-      // Restart the trace by removing + re-adding .is-firing
-      // with a reflow in between so the CSS engine picks up the
-      // class change as a new animation instance.
-      line.classList.remove('is-firing');
-      void line.getBoundingClientRect();
-      line.classList.add('is-firing');
-
-      // Schedule the next connection in 15-25s.
-      setTimeout(fireConnection, 15000 + Math.random() * 10000);
-    }
-
-    // Initial delay so the first line doesn't fire immediately
-    // on page load.
-    setTimeout(fireConnection, 9000 + Math.random() * 4000);
-  })();
-
-  // Global Music Footprint™ — Executive Ambient Intelligence
-  // (Animation Phase 5 of 5). One driver toggles .is-ambient-pulse
-  // on the .mc-card--footprint root every 12-18s (randomised) for
-  // ~1.5s. The CSS transitions on three target elements (map,
-  // KPI values, AI emoji) handle the synchronised soft luminance
-  // shift. UI-only — no payload, no backend.
-  (function () {
-    const card = document.querySelector('.mc-card--footprint');
-    if (!card) return;
-
-    function ambientPulse() {
-      card.classList.add('is-ambient-pulse');
-      // Hold ~1.5s so the 1200ms transitions reach their peak
-      // and breathe at the top briefly before fading back.
-      setTimeout(() => card.classList.remove('is-ambient-pulse'), 1500);
-      // Next pulse in 12-18s. The random offset means the
-      // ambient cadence drifts independently of Phase 2's 51s
-      // sweep, Phase 3's 20-30s KPI refresh, and Phase 4's
-      // 15-25s telemetry lines — so the module never appears
-      // synchronised across phases.
-      setTimeout(ambientPulse, 12000 + Math.random() * 6000);
-    }
-
-    // Initial delay before the first ambient pulse so the page
-    // settles first.
-    setTimeout(ambientPulse, 6000 + Math.random() * 4000);
-  })();
-
-  // Royaltē AI™ — AI Core Ignition (Animation Phase 1 of 5).
-  // 4-state power cycle (Idle → Power Build → Ignition →
-  // Return → Idle) driven by toggling .is-igniting on the
-  // .mc-card--ai article. CSS transitions on the two overlay
-  // <div>s handle the build (1350ms ease-in-out shade out +
-  // glow in), the peak (350ms class-hold), and the return
-  // (1350ms shade back in + glow back out).
-  //
-  // Total per cycle:
-  //   build   1350ms (CSS transition)
-  //   peak     350ms (class-hold via setTimeout)
-  //   return  1350ms (CSS transition)
-  //   idle    ~5-7s  (setTimeout to next ignite, randomised)
-  //   --------------
-  //   total   ~8-10s  (within Board's 8-12s repeat window)
-  (function () {
-    const card = document.querySelector('.mc-card--ai');
-    if (!card) return;
-
-    function ignite() {
-      card.classList.add('is-igniting');
-      // Hold the class through power build (1350ms) + ignition
-      // peak (350ms). Removing the class triggers the return
-      // transition back to idle.
-      setTimeout(() => card.classList.remove('is-igniting'), 1700);
-      // Schedule next ignition. 8050-10050ms total cycle:
-      // 3050ms animation + 5000-7000ms randomised idle hold.
-      setTimeout(ignite, 8050 + Math.random() * 2000);
-    }
-
-    // Initial delay before the first ignition so the page can
-    // settle into its idle state first.
-    setTimeout(ignite, 3500 + Math.random() * 1500);
-  })();
-
-  // Royaltē AI™ — Stem Energy Transfer trigger
-  // (Animation Phase 2 of 5). Decoupled from Phase 1's ignite()
-  // function — uses a MutationObserver to watch .mc-card--ai's
-  // class attribute. When .is-igniting is REMOVED (= bulb just
-  // reached peak and is beginning to exhale) the observer adds
-  // .is-stem-transferring to the card, which runs the
-  // mc-ai-stem-transfer keyframe once on .mc-ai-stem-pulse.
-  // After 1500ms the class is removed; the pulse element snaps
-  // invisibly back to its idle off-left state (opacity 0).
-  (function () {
-    const card = document.querySelector('.mc-card--ai');
-    if (!card) return;
-
-    let wasIgniting = false;
-    const observer = new MutationObserver(() => {
-      const isIgniting = card.classList.contains('is-igniting');
-      if (wasIgniting && !isIgniting) {
-        // Bright phase just ended → fire the stem energy
-        // transfer immediately per Board ('immediately after
-        // the bulb reaches peak brightness and begins
-        // returning to idle').
-        card.classList.add('is-stem-transferring');
-        setTimeout(() => card.classList.remove('is-stem-transferring'), 1500);
-      }
-      wasIgniting = isIgniting;
-    });
-    observer.observe(card, { attributes: true, attributeFilter: ['class'] });
-  })();
-
-  // Royaltē AI™ — Intelligence Propagation trigger
-  // (Animation Phase 3 of 5). Separate observer from Phase 2 to
-  // keep concerns decoupled. Same trigger source (.is-igniting
-  // removed = bulb bright phase complete), but the
-  // .is-propagating class is added at +1300ms — when the Phase 2
-  // stem pulse is exiting the right edge of the card (keyframe
-  // at 90% of 1500ms = arrival point). Hold for 1500ms so the
-  // last node (--d 850ms + 500ms keyframe = 1350ms) finishes its
-  // fade before the class is removed.
-  (function () {
-    const card = document.querySelector('.mc-card--ai');
-    if (!card) return;
-
-    let wasIgniting = false;
-    const observer = new MutationObserver(() => {
-      const isIgniting = card.classList.contains('is-igniting');
-      if (wasIgniting && !isIgniting) {
-        // Phase 3 starts as Phase 2's stem energy reaches the
-        // far right — propagates outward across the network for
-        // ~1350ms (last node finishes), then everything settles.
-        setTimeout(() => card.classList.add('is-propagating'),    1300);
-        setTimeout(() => card.classList.remove('is-propagating'), 1300 + 1500);
-      }
-      wasIgniting = isIgniting;
-    });
-    observer.observe(card, { attributes: true, attributeFilter: ['class'] });
-  })();
-
-  // Royaltē AI™ — AI Analysis Activity rotation
-  // (Animation Phase 4 of 5). Every 3s, picks a random row in
-  // the activity feed (never the same row twice in a row) and
-  // sets .is-active on it. The previous row's class is removed
-  // so only one row is ever active. CSS handles the fade.
-  (function () {
-    const items = document.querySelectorAll('.mc-ai-activity-list > li');
-    if (items.length < 2) return;
-
-    let lastIdx = -1;
-    function pickNext() {
-      let idx;
-      do { idx = Math.floor(Math.random() * items.length); }
-      while (idx === lastIdx);
-      items.forEach((li) => li.classList.remove('is-active'));
-      items[idx].classList.add('is-active');
-      lastIdx = idx;
-      // Phase 4 Executive Refinement: the .is-resolved
-      // ('No New Issues Detected') row holds 500ms longer so the
-      // green confirmation light lingers per Board ('slightly
-      // longer than the normal activity cycle to reinforce that
-      // the AI has completed its review').
-      const dwell = items[idx].classList.contains('is-resolved') ? 3500 : 3000;
-      setTimeout(pickNext, dwell);
-    }
-
-    // Small initial delay so the first selection doesn't fire
-    // the instant the page loads.
-    setTimeout(pickNext, 1500);
-  })();
-
-  // Royaltē AI™ — AI Analysis Activity timer countdowns
-  // (Animation Phase 4 of 5). Each .mc-ai-activity-time element
-  // ticks down by 1 second every second. When a timer reaches
-  // 0:00 it resets to a fresh random value in the 60-180s range
-  // so the telemetry keeps moving. Purely decorative — the
-  // numbers don't represent any backend state.
-  (function () {
-    const timeEls = document.querySelectorAll('.mc-ai-activity-time');
-    if (!timeEls.length) return;
-
-    const fmt = (n) => String(n).padStart(2, '0');
-    const timers = Array.from(timeEls).map((el) => {
-      const parts = el.textContent.trim().split(':').map((s) => parseInt(s, 10));
-      const seconds = (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1]))
-        ? parts[0] * 60 + parts[1]
-        : 30 + Math.floor(Math.random() * 120);
-      return { el, seconds };
-    });
-
-    function tick() {
-      timers.forEach((t) => {
-        if (t.seconds <= 0) {
-          // Reset to a new random 60-180s value so the
-          // countdown can keep ticking.
-          t.seconds = 60 + Math.floor(Math.random() * 120);
-        } else {
-          t.seconds -= 1;
-        }
-        t.el.textContent = fmt(Math.floor(t.seconds / 60)) + ':' + fmt(t.seconds % 60);
-      });
-    }
-    setInterval(tick, 1000);
   })();
 </script>
 
