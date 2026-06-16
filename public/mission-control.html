@@ -329,6 +329,17 @@ body {
   column-gap: var(--mc-s-5);
   row-gap: var(--mc-s-4);
   padding: var(--mc-s-2) var(--mc-s-4);          /* compression: vertical 12 → 8 */
+  /* Executive Header Optimization v2.0: shrink the panel to fit its
+     intrinsic assembly width (sonar + title block + heartbeat + status
+     + 3×20px gaps + 2×16px h-padding). Per Board directive, every
+     internal element (sonar/typography/heartbeat/status/animations/
+     approved internal spacing) is locked, so `max-content` is the
+     maximum compression possible without violating those constraints —
+     and is what makes this read as a self-contained executive status
+     panel instead of a full-width hero. `max-width: 100%` keeps it from
+     overflowing narrower viewports. */
+  width: max-content;
+  max-width: 100%;
   border-radius: var(--mc-r-4);
   background: linear-gradient(135deg, rgba(45, 212, 191, 0.04), rgba(0, 0, 0, 0) 60%), var(--mc-surface-1);
   border: 1px solid rgba(45, 212, 191, 0.16);
@@ -2222,6 +2233,7 @@ body {
       "pulse pulse"
       "action action";
     row-gap: var(--mc-s-3);
+    width: auto;                       /* Header v2.0: reset content-width constraint; stacked layout reclaims full main column */
   }
   .mc-radar         { grid-area: radar; width: 96px; height: 96px; }
   .mc-hero-block    { grid-area: title; }
