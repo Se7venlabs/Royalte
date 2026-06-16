@@ -684,36 +684,34 @@ body {
   gap: 2px;
 }
 .mc-health-breakdown-list li {
-  /* Refinement v2.0: clean icon + label only (right-side numeric
-     values removed). Typography Refinement v1.0: font-size 10.5 → 11.5
-     px per Board directive — single-property micro-adjustment for
-     readability; family / weight / letter-spacing / line-height /
-     alignment / icon-spacing all preserved. */
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11.5px;
+  /* Refinement v3.0:
+       • Right-side numeric scores restored (1fr/auto grid: label
+         left, value right) — reads as an executive scorecard.
+       • Micro-icons removed per directive ("No additional icons").
+       • Typography +0.5 px (11.5 → 12) for scanability.
+       Family / weight / letter-spacing / line-height / padding /
+       left alignment all preserved. */
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 12px;
   color: var(--mc-text-soft);
   line-height: 1.4;
   letter-spacing: 0.01em;
+}
+.mc-health-breakdown-list .lbl {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
 }
-.mc-bd-icon {
-  width: 11px;
-  height: 11px;
-  flex: 0 0 11px;
+.mc-health-breakdown-list .val {
+  color: var(--mc-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
 }
-/* Each row's micro-icon picks up the contributing module's identity
-   color so the breakdown reads as a visual provenance trail. */
-.mc-bd-icon--identity   { color: var(--mc-blue); }
-.mc-bd-icon--publishing { color: var(--mc-purple); }
-.mc-bd-icon--catalog    { color: var(--mc-orange); }
-.mc-bd-icon--footprint  { color: var(--mc-blue); }
-.mc-bd-icon--change     { color: var(--mc-purple); }
-.mc-bd-icon--backend    { color: var(--mc-gold); }
 
 /* ─── health card ───────────────────────────────────────────────── */
 
@@ -2148,31 +2146,15 @@ body {
              contributing module's own score. -->
         <div class="mc-health-breakdown" aria-label="Health Contributors">
           <div class="mc-health-breakdown-title">Health Contributors™</div>
+          <!-- Refinement v3.0: clean executive scorecard — label LEFT,
+               score RIGHT, no icons / bars / graphs / decoration. -->
           <ul class="mc-health-breakdown-list">
-            <li>
-              <svg class="mc-bd-icon mc-bd-icon--identity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12a7 7 0 0 1 14 0v1"/><path d="M8 12a4 4 0 0 1 8 0v4"/><path d="M11 12a1 1 0 0 1 2 0v6"/></svg>
-              Identity Intelligence™
-            </li>
-            <li>
-              <svg class="mc-bd-icon mc-bd-icon--publishing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-              Publishing Intelligence™
-            </li>
-            <li>
-              <svg class="mc-bd-icon mc-bd-icon--catalog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
-              Catalog Intelligence™
-            </li>
-            <li>
-              <svg class="mc-bd-icon mc-bd-icon--footprint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-              Global Music Footprint™
-            </li>
-            <li>
-              <svg class="mc-bd-icon mc-bd-icon--change" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4.5 13h6L11 22l8.5-11h-6z"/></svg>
-              Change Detection™
-            </li>
-            <li>
-              <svg class="mc-bd-icon mc-bd-icon--backend" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
-              Backend Intelligence™
-            </li>
+            <li><span class="lbl">Identity Intelligence™</span>     <span class="val">72</span></li>
+            <li><span class="lbl">Publishing Intelligence™</span>   <span class="val">86</span></li>
+            <li><span class="lbl">Catalog Intelligence™</span>      <span class="val">84</span></li>
+            <li><span class="lbl">Global Music Footprint™</span>    <span class="val">58</span></li>
+            <li><span class="lbl">Change Detection™</span>          <span class="val">95</span></li>
+            <li><span class="lbl">Backend Intelligence™</span>      <span class="val">100</span></li>
           </ul>
         </div>
 
