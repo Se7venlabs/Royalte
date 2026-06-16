@@ -865,6 +865,10 @@ body {
 .mc-pill--unclaimed { background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
 .mc-pill--pending   { background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
 .mc-pill--missing   { background: rgba(244, 63, 94, 0.12);  color: #f97373; }
+/* Identity Refinement v2.0: ACTION badge — same red treatment as
+   --missing; new modifier name aligns with the Board-approved
+   VERIFIED / ACTION two-state vocabulary for Identity Intelligence™. */
+.mc-pill--action    { background: rgba(244, 63, 94, 0.12);  color: #f97373; }
 
 /* Identity card — fingerprint scanner visualization (Board-approved original) */
 .mc-identity-body {
@@ -977,6 +981,18 @@ body {
   align-items: center;
   font-size: 12px;                              /* Typography Standardization v1.0: 12.5 → 12 */
   color: var(--mc-text-soft);
+}
+
+/* Identity Refinement v2.0: official DSP platform-icon thumbnails
+   replace the prior generic green-checkmark badge in each row. The
+   16-px slot in .mc-identity-check is preserved unchanged. */
+.mc-identity-platform {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
 }
 
 /* ─── publishing card ─── Board-approved premium executive design ── */
@@ -2234,21 +2250,32 @@ body {
             <div class="mc-identity-label">Identity Confidence</div>
           </div>
         </div>
+        <!-- Identity Refinement v2.0: official Royaltē identity
+             verification sources only. External Identities /
+             MusicBrainz / Discogs / placeholders removed; the four
+             major DSP ecosystems now drive this module. Each row may
+             render in one of two Board-approved states: VERIFIED or
+             ACTION. Sample mix below demonstrates both. -->
         <div class="mc-identity-checks">
           <div class="mc-identity-check">
-            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
-            Apple Music
+            <img class="mc-identity-platform" src="/img/identity/apple.png" alt="">
+            Apple Music for Artists
             <span class="mc-pill mc-pill--verified">Verified</span>
           </div>
           <div class="mc-identity-check">
-            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
-            Spotify
+            <img class="mc-identity-platform" src="/img/identity/spotify.png" alt="">
+            Spotify for Artists
             <span class="mc-pill mc-pill--verified">Verified</span>
           </div>
           <div class="mc-identity-check">
-            <span class="mc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
-            2 External Identities
-            <span class="mc-pill mc-pill--pending">Pending</span>
+            <img class="mc-identity-platform" src="/img/identity/amazon.png" alt="">
+            Amazon Music for Artists
+            <span class="mc-pill mc-pill--action">Action</span>
+          </div>
+          <div class="mc-identity-check">
+            <img class="mc-identity-platform" src="/img/identity/youtube.png" alt="">
+            YouTube Official Artist Channel
+            <span class="mc-pill mc-pill--verified">Verified</span>
           </div>
         </div>
         <div class="mc-card-foot">Royaltē continues to confirm<br>your official artist identities.</div>
