@@ -3132,10 +3132,20 @@ body {
   </main>
 
   <!-- ────────── RIGHT RAIL ────────── -->
+  <!-- AI Insights Height Expansion v1.0 — see inline notes on the
+       AI Insights panel below for the min-height rationale. -->
   <aside class="mc-rail-right" id="ai-insights" aria-label="AI Insights and Royaltē Review">
 
-    <!-- AI Insights™ -->
-    <section class="mc-panel" aria-label="AI Insights">
+    <!-- AI Insights™ — Height Expansion v1.0:
+         min-height: 759px makes the panel terminate at Y = 769 (= row 1
+         intelligence-card bottom, given main padding-top 10 + page-head
+         61 + main flex-gap 10 + hero 188 + main flex-gap 10 + row-1
+         card height 490 = 769; minus rail padding-top 10 = 759 panel
+         height). The existing flex column keeps content (panel-head /
+         art / title / body) anchored at the top — the freed bottom
+         space is the runway reserved for future AI-generated insights
+         per directive. -->
+    <section class="mc-panel" aria-label="AI Insights" style="min-height: 759px;">
       <div class="mc-panel-head">
         <div class="mc-panel-head-left">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
