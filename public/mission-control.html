@@ -1466,6 +1466,75 @@ body {
   50%      { opacity: 1;    filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.85)); }
 }
 
+/* Lightning Animation v1.0 — randomized energy pulses and occasional
+   surges. Classes toggled by JS to overlay on the idle bolt-pulse:
+   .mc-cd-art.is-pulsing  → 700-800 ms energy pulse + ripple ring
+   .mc-cd-art.is-flashing → 1200 ms larger surge (bright bolt + ring
+                            illumination + larger ripple) */
+
+/* Expanding ripple ring (lives inside the .mc-cd-rings SVG; invisible
+   at idle, animated via the event classes). */
+.mc-cd-ripple {
+  opacity: 0;
+  fill: none;
+  stroke: rgba(199, 133, 255, 0.6);
+  stroke-width: 1.4;
+  filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.5));
+}
+
+/* Energy pulse (8-15 s randomized via JS). Bolt brightens with a
+   bigger bloom, ring ripples outward, then both settle back. */
+.mc-cd-art.is-pulsing .mc-cd-bolt   { animation: mc-cd-bolt-event-pulse 800ms ease-out; }
+.mc-cd-art.is-pulsing .mc-cd-ripple { animation: mc-cd-ripple-pulse     900ms ease-out; }
+
+@keyframes mc-cd-bolt-event-pulse {
+  0%   { transform: scale(1);
+         filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.45)); }
+  35%  { transform: scale(1.22);
+         filter: drop-shadow(0 0 12px rgba(199, 133, 255, 1))
+                 drop-shadow(0 0 26px rgba(168, 85, 247, 0.85)); }
+  100% { transform: scale(1);
+         filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.45)); }
+}
+@keyframes mc-cd-ripple-pulse {
+  0%   { r: 8;  opacity: 0;   stroke-width: 1.6; }
+  10%  { r: 10; opacity: 0.7;  stroke-width: 1.5; }
+  100% { r: 34; opacity: 0;    stroke-width: 0.4; }
+}
+
+/* Occasional flash (30-45 s randomized via JS). Larger surge —
+   bolt momentarily flashes white-purple, the outer ring briefly
+   illuminates, and a larger ripple radiates further. */
+.mc-cd-art.is-flashing .mc-cd-bolt   { animation: mc-cd-bolt-flash   1200ms ease-out; }
+.mc-cd-art.is-flashing .mc-cd-ring-1 { animation: mc-cd-ring-flash   1200ms ease-out; }
+.mc-cd-art.is-flashing .mc-cd-ripple { animation: mc-cd-ripple-flash 1200ms ease-out; }
+
+@keyframes mc-cd-bolt-flash {
+  0%   { transform: scale(1);    color: #c785ff;
+         filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.45)); }
+  18%  { transform: scale(1.42); color: #ffffff;
+         filter: drop-shadow(0 0 8px  rgba(255, 255, 255, 1))
+                 drop-shadow(0 0 22px rgba(199, 133, 255, 1))
+                 drop-shadow(0 0 42px rgba(168, 85, 247, 0.85)); }
+  55%  { transform: scale(1.10); color: #c785ff;
+         filter: drop-shadow(0 0 14px rgba(168, 85, 247, 0.85)); }
+  100% { transform: scale(1);    color: #c785ff;
+         filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.45)); }
+}
+@keyframes mc-cd-ring-flash {
+  /* Briefly brighten the outer ring (was rgba(168,85,247,0.32))
+     toward white-purple, then back. */
+  0%   { stroke: rgba(168, 85, 247, 0.32); }
+  20%  { stroke: rgba(255, 255, 255, 0.85); }
+  55%  { stroke: rgba(199, 133, 255, 0.55); }
+  100% { stroke: rgba(168, 85, 247, 0.32); }
+}
+@keyframes mc-cd-ripple-flash {
+  0%   { r: 8;  opacity: 0;   stroke-width: 1.8; }
+  8%   { r: 10; opacity: 0.9; stroke-width: 1.6; }
+  100% { r: 42; opacity: 0;   stroke-width: 0.4; }
+}
+
 /* Event timeline */
 .mc-cd-feed {
   display: flex;
@@ -3023,6 +3092,10 @@ body {
               <circle class="mc-cd-ring-1" cx="50" cy="50" r="40" fill="none" stroke="rgba(168,85,247,0.32)" stroke-width="1.6"/>
               <circle class="mc-cd-ring-2" cx="50" cy="50" r="32" fill="none" stroke="rgba(168,85,247,0.22)" stroke-width="1"   stroke-dasharray="3 4"/>
               <circle cx="50" cy="50" r="22" fill="none" stroke="rgba(168,85,247,0.15)" stroke-width="1"/>
+              <!-- Ripple ring (invisible at idle; JS-toggled .is-pulsing /
+                   .is-flashing classes on the parent .mc-cd-art animate
+                   r + opacity outward for the energy-pulse + flash events). -->
+              <circle class="mc-cd-ripple" cx="50" cy="50" r="8"/>
             </svg>
             <svg class="mc-cd-bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M13 2L4.5 13h6L11 22l8.5-11h-6z"/>
@@ -3452,6 +3525,38 @@ body {
 
     const signout = document.querySelector('.mc-version-sign');
     if (signout) signout.addEventListener('click', (e) => e.preventDefault());
+  })();
+
+  /* Change Detection™ Lightning Animation v1.0 — randomized intervals
+     so the bolt never feels repetitive. Pulse 8–15 s; flash 30–45 s.
+     Adds a class for the animation duration, then removes it so the
+     idle mc-cd-bolt-pulse breathing resumes between events. */
+  (function () {
+    const art = document.querySelector('.mc-cd-art');
+    if (!art) return;
+
+    function rand(min, max) { return min + Math.random() * (max - min); }
+
+    function schedulePulse() {
+      const delayMs = rand(8, 15) * 1000;
+      setTimeout(() => {
+        art.classList.add('is-pulsing');
+        setTimeout(() => art.classList.remove('is-pulsing'), 900);
+        schedulePulse();
+      }, delayMs);
+    }
+
+    function scheduleFlash() {
+      const delayMs = rand(30, 45) * 1000;
+      setTimeout(() => {
+        art.classList.add('is-flashing');
+        setTimeout(() => art.classList.remove('is-flashing'), 1300);
+        scheduleFlash();
+      }, delayMs);
+    }
+
+    schedulePulse();
+    scheduleFlash();
   })();
 
   /* AI Analysis Activity™ Randomized Parallel Animation — v3.0.
