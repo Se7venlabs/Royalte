@@ -379,19 +379,39 @@ test('21b. Coverage — ACTION_REQUIRED does NOT count as verified', () => {
   assert.equal(out.coverage,         67);
 });
 
-test('22. Output shape — exact keys, NO score field, deep-frozen', () => {
+test('22. Output shape LOCKED v1.0 (Board R1) — exact keys, NO score field, deep-frozen', () => {
   const cio = cioFor({ providers: { apple: { availability: 'VERIFIED', details: { artwork: 'https://x/a.jpg' } } } });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
   assert.deepStrictEqual(Object.keys(out).sort(),
-    ['coverage', 'issues', 'providers', 'recommendations', 'strengths', 'totalProviders', 'verifiedProviders']);
+    ['coverage', 'issues', 'providers', 'recommendations', 'strengths', 'supportedProviders', 'totalProviders', 'verifiedProviders']);
   assert.deepStrictEqual(Object.keys(out.providers).sort(),
     ['apple', 'spotify', 'youtube']);
   assert.ok(!('score' in out), 'score must not exist (Board amendment 2026-06-17)');
   assert.ok(Object.isFrozen(out));
   assert.ok(Object.isFrozen(out.providers));
+  assert.ok(Object.isFrozen(out.supportedProviders));
   assert.ok(Object.isFrozen(out.strengths));
   assert.ok(Object.isFrozen(out.issues));
   assert.ok(Object.isFrozen(out.recommendations));
+});
+
+test('22b. supportedProviders (Board R2) — exact canonical Phase-3 list, frozen, matches totalProviders', () => {
+  const cio = cioFor({ providers: { apple: { availability: 'VERIFIED', details: { artwork: 'https://x/a.jpg' } } } });
+  const out = assembleIdentityIntelligence(reportFor(cio), cio);
+  assert.ok(Array.isArray(out.supportedProviders));
+  assert.deepStrictEqual(Array.from(out.supportedProviders), ['apple', 'spotify', 'youtube']);
+  assert.ok(Object.isFrozen(out.supportedProviders),
+    'supportedProviders must be frozen so Mission Control cannot mutate it');
+  assert.equal(out.supportedProviders.length, out.totalProviders,
+    'supportedProviders.length must equal totalProviders — no drift between capability and denominator');
+});
+
+test('22c. supportedProviders does NOT include unsupported providers (Board R3 + R4)', () => {
+  const out = assembleIdentityIntelligence(null, null);
+  for (const unsupported of ['amazon', 'amazonMusic', 'deezer', 'tidal', 'soundcloud', 'musicbrainz', 'discogs']) {
+    assert.ok(!out.supportedProviders.includes(unsupported),
+      `unsupported provider "${unsupported}" must not appear in supportedProviders until a first-class adapter exists`);
+  }
 });
 
 test('23. Determinism — two consecutive runs produce JSON-identical output', () => {

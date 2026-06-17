@@ -48,7 +48,8 @@
 //  then Spotify resolves only to VERIFIED / NOT_FOUND / UNABLE_TO_CONFIRM.
 //
 // ─────────────────────────────────────────────────────────────────────
-//  Output object shape (deep-frozen):
+//  Output object shape (LOCKED v1.0 — Board Final Lock 2026-06-17,
+//  Recommendations 1 + 2; new fields require explicit Board approval):
 //
 //    {
 //      providers: {
@@ -56,9 +57,12 @@
 //        spotify: IDENTITY_STATE,
 //        youtube: IDENTITY_STATE,
 //      },
-//      verifiedProviders: number,   // count of providers in VERIFIED state
-//      totalProviders:    number,   // count of providers covered by this phase
-//      coverage:          number,   // round(verifiedProviders / totalProviders * 100)
+//      supportedProviders: string[],  // Board R2 — Mission Control reads
+//                                      // this to self-describe platform
+//                                      // capability; no hardcoded UI lists
+//      verifiedProviders: number,     // count of providers in VERIFIED state
+//      totalProviders:    number,     // count of providers covered by this phase
+//      coverage:          number,     // round(verifiedProviders / totalProviders * 100)
 //      strengths:       Array<{ provider, label }>,
 //      issues:          Array<{ provider, label, ruleId, title, severity }>,
 //      recommendations: Array<{ provider, label, ruleId, recommendation }>,
@@ -95,6 +99,27 @@
 //    - Never throws on any input (null / undefined / malformed).
 //    - Never mutates inputs.
 //    - Output is deep-frozen.
+//
+// ─────────────────────────────────────────────────────────────────────
+//  Constitutional Rule  (Board Final Lock 2026-06-17, Recommendation 4)
+//
+//    Royaltē never renders intelligence for a provider that has not
+//    been scanned.
+//
+//        Missing adapter  ≠  Not Found
+//        Missing adapter  ≠  Unable To Confirm
+//
+//    Unsupported providers are excluded entirely until a first-class
+//    adapter exists. Future adapters extend:
+//
+//        cio.observations.providers
+//
+//    without modifying Mission Control™ or downstream intelligence
+//    consumers. Adding the new provider key to IDENTITY_PROVIDERS in
+//    this module — and writing its rules in api/rules/identity-rules.js
+//    — is the only code change required at this layer. The new
+//    provider then flows through Mission Control™ via supportedProviders
+//    without any UI rewrite.
 // ─────────────────────────────────────────────────────────────────────
 
 export const IDENTITY_INTELLIGENCE_VERSION = '1.0.0';
@@ -252,6 +277,11 @@ export function assembleIdentityIntelligence(intelligenceReport, cio) {
       spotify: states.spotify,
       youtube: states.youtube,
     },
+    // supportedProviders (Board R2) — Mission Control reads this to
+    // self-describe platform capability. When a future adapter lands
+    // (e.g. Amazon), extend IDENTITY_PROVIDERS and this list grows
+    // automatically without any Mission Control rewrite.
+    supportedProviders: IDENTITY_PROVIDERS,
     verifiedProviders,
     totalProviders,
     coverage,

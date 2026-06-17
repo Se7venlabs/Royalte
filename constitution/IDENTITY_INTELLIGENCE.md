@@ -1,6 +1,6 @@
 # Royaltē Identity Intelligence™ — Pointer
 
-**Status:** Phase 3B (added 2026-06-17)
+**Status:** Phase 3B LOCKED v1.0 (Board Final Lock 2026-06-17)
 
 **Source of truth: `api/_lib/identity-intelligence.js`.**
 
@@ -51,6 +51,21 @@ Object → Many Consumers.
    D4: "Do NOT invent Action Required conditions until richer
    Spotify observations exist." Future phases may add Spotify rules.
 
+6. **Royaltē never renders intelligence for a provider that has not
+   been scanned (Board R4).** Missing adapter ≠ Not Found. Missing
+   adapter ≠ Unable To Confirm. Unsupported providers are excluded
+   entirely until a first-class adapter exists.
+
+7. **Output shape is LOCKED v1.0 (Board R1).** No new fields without
+   explicit Board approval. The locked keys are: `providers`,
+   `supportedProviders`, `verifiedProviders`, `totalProviders`,
+   `coverage`, `strengths`, `issues`, `recommendations`.
+
+8. **`supportedProviders` (Board R2) is the platform-capability
+   self-description.** Mission Control reads it instead of hardcoding
+   a provider list. When a new adapter lands, extending
+   `IDENTITY_PROVIDERS` propagates automatically — no UI rewrite.
+
 ## Identity Intelligence™ vs Royaltē Health™ (Board Final Lock, 2026-06-17)
 
 Identity Intelligence™ answers:
@@ -88,6 +103,28 @@ Any weighted average of provider states (e.g. `VERIFIED = 100`,
 `ACTION_REQUIRED = 50`, `NOT_FOUND = 0`) is hereby deprecated and
 MUST NOT be reintroduced. Score-class computation belongs exclusively
 to the future Royaltē Health™ Engine.
+
+## Future provider expansion (Board R5 + R9)
+
+```
+New Adapter
+   ↓
+Scan Engine
+   ↓
+cio.observations.providers.<newProvider>   ← only schema change required
+   ↓
+Rule Library                                ← optional new rules
+   ↓
+Identity Intelligence                       ← extend IDENTITY_PROVIDERS only
+   ↓
+Mission Control / Royaltē AI / Executive Brief / Priority Actions
+   (no rewrite required — they consume the locked shape)
+```
+
+The pipeline accepts any number of future providers (Amazon, Deezer,
+Tidal, SoundCloud, MusicBrainz, Discogs, …) without architectural
+redesign. Mission Control reads `supportedProviders` to discover
+capability — it never hardcodes a provider list.
 
 ## Why this file does not list field shapes
 
