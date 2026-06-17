@@ -52,6 +52,7 @@
       "details": {
         "artistId": "657515",
         "artistUrl": "https://music.apple.com/us/artist/radiohead/657515",
+        "artwork": null,
         "albumCount": 15,
         "albums": [],
         "storefrontAvailability": null,

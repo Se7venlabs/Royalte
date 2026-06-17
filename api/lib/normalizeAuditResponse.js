@@ -157,6 +157,10 @@ function _normalizePlatforms(r) {
     details: p.appleMusic ? {
       artistId:                appleMusicDetails.artistId || null,
       artistUrl:               appleMusicDetails.artistUrl || null,
+      // Apple-canonical artwork URL (600x600). Sourced from the Apple
+      // Adapter via run-scan's top-level appleArtworkUrl. Consumed by
+      // the CIO Assembly Engine to populate cio.identity.artwork.
+      artwork:                 r.appleArtworkUrl || null,
       albumCount:              _num(appleMusicDetails.albumCount),
       albums:                  Array.isArray(appleMusicDetails.albums) ? appleMusicDetails.albums : [],
       storefrontAvailability:  appleMusicDetails.storefrontAvailability || null,
