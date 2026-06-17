@@ -357,10 +357,13 @@ test('15. NO PROVIDER-SPECIFIC TOP-LEVEL KEYS in the assembled CIO', () => {
   for (const providerName of ['mlc', 'spotify', 'apple', 'youtube', 'musicbrainz', 'discogs', 'deezer', 'soundcloud', 'lastfm', 'tidal']) {
     assert.ok(!topKeys.includes(providerName), `${providerName} must not be a top-level CIO key`);
   }
-  // Approved Phase 4 top-level keys only
+  // Approved Phase 4 top-level keys + Phase 3B `observations` section
+  // (Board D2, 2026-06-17): per-provider scan observations live in a
+  // sibling section to keep cio.identity lean and locked.
   const approved = new Set([
     'cioVersion', 'generatedAt', 'confidence',
     'identity', 'publishing', 'catalog', 'metadata', 'sources',
+    'observations',
     'monitoring', 'revenue',
   ]);
   for (const k of topKeys) {

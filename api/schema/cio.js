@@ -80,14 +80,80 @@
 //    3. APPLE IS CANONICAL — when conflicts arise between Apple and
 //       Spotify on identity fields, Apple wins.
 //
-//  STAGE 3 FLAG — externalProfiles[].verified is currently hardcoded
-//    to `true` in api/_lib/cio-assembler.js (buildExternalProfileFromScan).
-//    The real 4-state mapping (Verified / Action Required / Not Found /
-//    Unable to Confirm — where AUTH_UNAVAILABLE → Unable to Confirm,
-//    never Not Found) lives in Phase 5 rules under
-//    api/rules/identity-rules.js. Stage 3 of Phase 1 wires the real
-//    verification status through. Until then, treat verified=true as
-//    "this provider returned data," not "the artist confirmed ownership."
+//  STAGE 3 NOTE — externalProfiles[].verified is hardcoded `true` in
+//    api/_lib/cio-assembler.js (buildExternalProfileFromScan). It
+//    represents profile existence only — provider returned data,
+//    not artist-confirmed ownership. The true four-state mapping
+//    (Verified / Action Required / Not Found / Unable to Confirm —
+//    where AUTH_UNAVAILABLE → Unable to Confirm, never Not Found)
+//    is NOT computed here. It lives in:
+//      • api/rules/identity-rules.js   — provider-specific rules
+//      • api/_lib/identity-intelligence.js — Identity Intelligence™
+//                                            assembler (Phase 3B)
+//    and reads from cio.observations.providers (NOT cio.identity).
+//
+// ─────────────────────────────────────────────────────────────────────
+//  Royaltē CIO Observations™ — provider-availability section
+//    (cio.observations sub-object — Phase 3B addition)
+// ─────────────────────────────────────────────────────────────────────
+//
+//  Identity remains identity. Observations remain observations.
+//
+//  Constitutional ruling (Board, 2026-06-17, Phase 3 D2): provider
+//  availability does NOT belong on cio.identity. The Identity Object
+//  was locked LEAN in Phase 2B and stays that way. Per-provider scan
+//  results live in a separate sibling section so the Rule Library and
+//  the Identity Intelligence™ assembler can read them without
+//  conflating identity-the-record with observations-of-providers.
+//
+//  Shape:
+//
+//    observations: {
+//      providers: {
+//        apple:   { availability, details } | null,
+//        spotify: { availability, details } | null,
+//        youtube: { availability, details } | null,
+//      },
+//    }
+//
+//  Field reference:
+//
+//    providers.<key>.availability : string
+//      Mirrors PLATFORM_AVAILABILITY from api/schema/auditResponse.js:
+//        'VERIFIED'         — provider returned a confirmed result
+//        'NOT_FOUND'        — provider looked, found nothing
+//        'AUTH_UNAVAILABLE' — provider API key/auth not available
+//        'ERROR'            — provider call threw
+//      MUST never be substituted (AUTH_UNAVAILABLE is never NOT_FOUND).
+//
+//    providers.<key>.details : object | null
+//      Provider-specific normalised detail payload, mirrored from
+//      scanPayload.platforms.<key>.details. Shape varies by provider
+//      and is governed by api/schema/auditResponse.js — the CIO
+//      schema does NOT redefine provider detail shapes.
+//
+//    providers.<key> = null
+//      Means "no observation present in the scan payload." The
+//      Identity Intelligence™ assembler treats this as
+//      ⏳ Unable to Confirm — NEVER ❌ Not Found.
+//
+//  Reserved provider keys: only 'apple', 'spotify', 'youtube' are
+//  populated in Phase 3. Amazon Music is deferred per Board D1 and
+//  is intentionally NOT a key here — adding it now would imply a
+//  scan ran when none did. Future Adapter Expansion Phase introduces
+//  it; until then Amazon must not appear in this object.
+//
+//  Invariants:
+//    1. The CIO Assembly Engine populates these entries by COPYING
+//       from scanPayload.platforms.<key>; it never invents or
+//       synthesises availability values.
+//    2. Provider observations are independent of cio.identity. Rules
+//       never read cio.identity.<provider-specific-field> as a proxy
+//       for availability.
+//    3. AUTH_UNAVAILABLE and ERROR resolve downstream to "Unable to
+//       Confirm." They MUST NOT collapse to "Not Found." This is a
+//       constitutional rule, enforced by the Identity Intelligence™
+//       assembler and its test suite.
 //
 //  Constitutional anchors:
 //    - Canonical Payload V2 (constitution/CANONICAL_PAYLOAD_V2.md)
@@ -181,6 +247,19 @@ export function emptyCio(artistName) {
     // ── sources (append-only attribution; every observation logged) ─
     sources: {
       sources: [],                   // [{ provider, confidence, observedAt, rawReference }]
+    },
+
+    // ── observations (per-provider availability; Board D2, Phase 3B) ─
+    //    See doc-block at top of file. Populated by the Assembly Engine
+    //    by COPYING scanPayload.platforms.<key>. null = no observation
+    //    present in the scan → downstream resolves to Unable to Confirm,
+    //    NEVER Not Found.
+    observations: {
+      providers: {
+        apple:   null,                // { availability, details } | null
+        spotify: null,                // { availability, details } | null
+        youtube: null,                // { availability, details } | null
+      },
     },
 
     // ── Reserved sections (Phase 4 placeholders, no implementation) ─
