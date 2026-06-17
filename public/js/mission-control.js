@@ -34,9 +34,7 @@
 
 import { getSupabase } from '/js/supabase-client.js';
 import {
-  buildProviderRenderPlan,
-  buildCoveragePlan,
-  buildRecommendationsPlan,
+  renderIdentity,
   safeIdentityIntelligence,
 } from '/js/mission-control-renderers.js';
 
@@ -82,9 +80,15 @@ async function fetchIdentityIntelligence() {
 }
 
 // ─── DOM application — locked surface, data-attribute-targeted ────
+//
+// Each apply* helper takes one slot of a render plan (NOT the raw
+// intelligence object) and applies it to the locked Mission Control
+// DOM. The plan is produced by renderIdentity(intelligence) in the
+// Intelligence Rendering Layer. The boot module never inspects the
+// intelligence object itself — that would be a back-door for
+// business logic to leak in here.
 
-function applyCoverage(intelligence) {
-  const plan = buildCoveragePlan(intelligence);
+function applyCoveragePlan(plan) {
   if (!plan) return;
   const valueEl   = document.querySelector('[data-mc-identity-coverage-value]');
   const labelEl   = document.querySelector('[data-mc-identity-coverage-label]');
@@ -98,9 +102,8 @@ function applyCoverage(intelligence) {
   if (summaryEl) summaryEl.textContent = plan.summary;
 }
 
-function applyProviderCards(intelligence) {
-  const plan = buildProviderRenderPlan(intelligence);
-  if (plan.length === 0) return;
+function applyProvidersPlan(plan) {
+  if (!Array.isArray(plan) || plan.length === 0) return;
   for (const entry of plan) {
     const card = document.querySelector(`[data-mc-identity-provider="${entry.provider}"]`);
     if (!card) continue;
@@ -111,8 +114,7 @@ function applyProviderCards(intelligence) {
   }
 }
 
-function applyRecommendations(intelligence) {
-  const plan = buildRecommendationsPlan(intelligence);
+function applyRecommendationsPlan(plan) {
   if (plan === null) return; // no intelligence → leave the locked sample HTML
   const list  = document.querySelector('[data-mc-priority-actions]');
   const count = document.querySelector('[data-mc-priority-actions-count]');
@@ -153,9 +155,15 @@ function escapeAttr(s) {
 async function initMissionControl() {
   const intelligence = await fetchIdentityIntelligence();
   if (!intelligence) return; // graceful fallback: locked sample HTML stays
-  applyCoverage(intelligence);
-  applyProviderCards(intelligence);
-  applyRecommendations(intelligence);
+
+  // Dispatch through the canonical Intelligence Rendering Layer entry
+  // point. Future intelligence domains (Publishing, Catalog, Backend,
+  // Health, Priority Actions) land alongside identityPlan via their
+  // own render* functions — same boot pattern, no special-casing.
+  const identityPlan = renderIdentity(intelligence);
+  applyCoveragePlan(identityPlan.coverage);
+  applyProvidersPlan(identityPlan.providers);
+  applyRecommendationsPlan(identityPlan.recommendations);
 }
 
 if (typeof document !== 'undefined') {

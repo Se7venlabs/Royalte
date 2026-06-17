@@ -1,43 +1,87 @@
 // ─────────────────────────────────────────────────────────────────────
-//  Royaltē Mission Control™ — pure render helpers (Phase 4B-3)
+//  Royaltē Mission Control™ — Intelligence Rendering Layer (Phase 4B-3)
 // ─────────────────────────────────────────────────────────────────────
 //
-//  This module is PURE. Zero DOM access. Zero network. Zero side
-//  effects. Every export is a deterministic function of its input.
+//  This is the GENERIC rendering layer Mission Control uses to
+//  consume Royaltē intelligence objects. Identity Intelligence™ is
+//  the first implementation per the Stage 4B-3 brief; the same
+//  module will house the renderer for each future intelligence
+//  domain. No domain receives special treatment.
 //
+//  Canonical surface (Board Concerns 3 + 6, 2026-06-17):
+//
+//      renderIdentity(intelligence)         ← Stage 4B-3 — implemented
+//      renderPublishing(intelligence)       ← future stage (stub below)
+//      renderCatalog(intelligence)          ← future stage (stub below)
+//      renderBackend(intelligence)          ← future stage (stub below)
+//      renderHealth(intelligence)           ← future stage (stub below)
+//      renderPriorityActions(intelligence)  ← future stage (stub below)
+//
+//  Each renderer takes a deep-frozen intelligence object produced by
+//  its respective assembler and returns a deterministic, pure render
+//  plan. The boot module (public/js/mission-control.js) applies the
+//  plans to the locked Mission Control DOM. The Mission Control
+//  surface itself never grows special-case branches per domain —
+//  it dispatches to a renderer and renders.
+//
+//  This file is PURE. Zero DOM access. Zero network. Zero side
+//  effects. Every export is a deterministic function of its input.
 //  Two reasons it exists separately from the boot module:
-//    1. Constitutional separation — the Board rule for Mission
+//
+//    1. Constitutional separation. The Board rule for Mission
 //       Control™ is "zero business logic." Keeping the input → output
 //       transformations in their own pure module makes that
 //       inspectable; if a future commit drifts toward computing,
 //       inferring, or filtering anything, this file is the first
 //       place a reviewer looks.
-//    2. Testability — Node ES modules can import this file directly.
-//       No DOM, no Supabase, no /js/ root-relative imports.
+//    2. Testability. Node ES modules can import this file directly.
+//       No DOM, no Supabase, no /js/ root-relative imports. The test
+//       suite tests/mission-control-wiring-test.mjs verifies every
+//       renderer in isolation.
 //
-//  Constitutional invariants (Stage 4B-3 brief, 2026-06-17):
-//    - Mission Control reads from Identity Intelligence™ ONLY.
-//    - Mission Control never calls assembleCio, runIntelligenceEngine,
-//      or assembleIdentityIntelligence.
+//  Constitutional invariants (Stage 4B-3 Board Final Review,
+//  2026-06-17):
+//
+//    - Mission Control reads pre-assembled intelligence ONLY.
+//    - Mission Control never calls a domain assembler (assembleCio,
+//      runIntelligenceEngine, assembleIdentityIntelligence, or any
+//      future equivalent).
+//    - Mission Control never calls a provider adapter.
+//    - Mission Control never evaluates Rule Library logic.
 //    - Mission Control never mutates the input object.
-//    - Mission Control never re-computes per-provider state, coverage,
-//      or recommendations.
-//    - Mission Control never labels coverage as "Score / Health /
-//      Rating" — coverage is informational provider coverage only.
-//    - Amazon Music is intentionally absent from supportedProviders
-//      and from every render plan; the Amazon UI is static "Coming
-//      Soon" informational HTML outside the iterated render path.
+//    - Mission Control never recomputes any value the intelligence
+//      object already carries.
+//    - Mission Control never derives recommendations.
+//    - Mission Control never infers provider state.
+//    - Mission Control never calculates Health, Score, or Rating
+//      values. Royaltē Health™ owns executive scoring; Identity
+//      Intelligence™ owns identity status + coverage. The Mission
+//      Control coverage indicator is labelled "Identity Coverage"
+//      and NEVER "Score", "Health", or "Rating".
+//
+//  Provider iteration (Board Concerns 2 + 6):
+//
+//    The render plan iterates whatever `supportedProviders` carries.
+//    This module contains NO hardcoded provider list and NO
+//    provider-keyed map. A future supported provider (Amazon,
+//    Deezer, Tidal, SoundCloud, etc.) appears automatically once
+//    the corresponding adapter publishes it into IDENTITY_PROVIDERS
+//    upstream. Mission Control requires no JavaScript change at
+//    that point — only an HTML card with the matching
+//    `data-mc-identity-provider="<key>"` attribute needs to exist
+//    in public/mission-control.html for the iteration target.
+//
+//  Amazon Music (Board Concern 5):
+//
+//    Amazon is intentionally ABSENT from the Identity Intelligence
+//    output (no provider observations exist). It therefore never
+//    appears in supportedProviders, never appears in any render
+//    plan, and never contributes to coverage / verifiedProviders /
+//    totalProviders. The Amazon visual card in Mission Control is
+//    static "Coming Soon / Official Integration Pending" HTML
+//    outside the iterated render path — never an intelligence
+//    state, never produced from data.
 // ─────────────────────────────────────────────────────────────────────
-
-// Display labels for each provider (used by issues / recommendations).
-// Mission Control NEVER infers a label — it reads from this constant
-// or, when present, from the `label` field on issues / recommendations
-// produced by the Identity Intelligence assembler.
-export const PROVIDER_LABELS = Object.freeze({
-  apple:   'Apple Music for Artists',
-  spotify: 'Spotify for Artists',
-  youtube: 'YouTube Official Artist Channel',
-});
 
 // Per-state pill CSS class. Mirrors the locked Mission Control CSS in
 // public/mission-control.html (mc-pill / mc-pill--verified /
@@ -73,15 +117,25 @@ export function safeIdentityIntelligence(ii) {
 // buildProviderRenderPlan(intelligence)
 //
 // One render plan entry per supported provider, IN THE ORDER the
-// assembler produced them (supportedProviders is canonical). Returns
-// an empty array on any malformed input.
+// assembler produced them. `supportedProviders` is the canonical
+// source of truth — this function contains NO hardcoded provider
+// list (Board Concern 2, 2026-06-17). Returns [] on any malformed
+// input; never throws.
 //
 // Output shape:
-//   [{ provider, state, pillClass, pillText, providerLabel }]
+//   [{ provider, state, pillClass, pillText }]
 //
-// This is what the boot module iterates over to update each
-// [data-mc-identity-provider="<key>"] DOM card. The number of entries
-// is dynamic — the row never assumes a fixed count (Board R7 + R8).
+// `provider` is the canonical key (e.g. 'apple'). The boot module
+// uses it to find the matching [data-mc-identity-provider="<key>"]
+// card in the locked HTML. Per-provider display labels (e.g. "Apple
+// Music for Artists") live in the static HTML alongside the data
+// attribute, not in this module — Mission Control never assumes a
+// label mapping, so a future provider added to supportedProviders
+// upstream picks up its label from whatever HTML card declares its
+// data attribute.
+//
+// The number of entries is dynamic — the row never assumes a fixed
+// count (Board R7 + R8 + Concern 2).
 export function buildProviderRenderPlan(intelligence) {
   const ii = safeIdentityIntelligence(intelligence);
   if (!ii) return [];
@@ -92,9 +146,8 @@ export function buildProviderRenderPlan(intelligence) {
     return {
       provider,
       state,
-      pillClass:     STATE_PILL_CLASS[state] || 'mc-pill',
-      pillText:      STATE_PILL_TEXT[state]  || 'Unknown',
-      providerLabel: PROVIDER_LABELS[provider] || provider,
+      pillClass: STATE_PILL_CLASS[state] || 'mc-pill',
+      pillText:  STATE_PILL_TEXT[state]  || 'Unknown',
     };
   });
 }
@@ -149,3 +202,69 @@ export function buildRecommendationsPlan(intelligence) {
     label:         (r && typeof r.recommendation === 'string') ? r.recommendation : '',
   }));
 }
+
+// ─────────────────────────────────────────────────────────────────────
+//  Canonical render entry points (Board Concerns 3 + 6, 2026-06-17)
+//
+//  These are the public API every future intelligence domain will
+//  conform to. The boot module dispatches to `renderIdentity(...)`
+//  today; the placeholder stubs below document the contract future
+//  domains must satisfy — same input shape (deep-frozen intelligence
+//  object from the assembler), same return shape (a domain render
+//  plan), same purity guarantees (no DOM, no network, no mutation,
+//  no business logic).
+//
+//  Each placeholder throws a deliberate "not yet implemented" error
+//  so production code accidentally calling a future stub fails loudly
+//  rather than rendering nothing.
+// ─────────────────────────────────────────────────────────────────────
+
+// renderIdentity(intelligence)
+//
+// CANONICAL entry point for the Identity Intelligence™ domain. Composes
+// the three plan builders above into a single render-plan object the
+// boot module can apply against the locked Mission Control DOM.
+//
+// Output:
+//   {
+//     coverage:        { value, label, summary } | null,
+//     providers:       [{ provider, state, pillClass, pillText }, …],
+//     recommendations: [{ ruleId, provider, providerLabel, label }, …] | null,
+//   }
+//
+// `null` on coverage / recommendations means "intelligence absent —
+// leave the locked sample HTML in place." The boot module honors that.
+export function renderIdentity(intelligence) {
+  return {
+    coverage:        buildCoveragePlan(intelligence),
+    providers:       buildProviderRenderPlan(intelligence),
+    recommendations: buildRecommendationsPlan(intelligence),
+  };
+}
+
+// ─── Future stages (Board Concern 6) — placeholder stubs ─────────────
+//
+// When each future intelligence domain is delivered, replace the body
+// of the matching stub with a renderer implementation that follows
+// the same contract: pure, deterministic, deep-frozen-safe, never
+// computing the intelligence it renders, never reaching into the
+// scan engine, the Rule Library, or a provider adapter.
+//
+// Until then, calling any of these throws — preventing accidental
+// "silent render nothing" bugs in production.
+
+function _unimplemented(domain) {
+  return () => {
+    throw new Error(
+      `[mc-renderers] render${domain}() is not yet implemented. ` +
+      `Future stage will land it; until then Mission Control must ` +
+      `not invoke this entry point.`
+    );
+  };
+}
+
+export const renderPublishing      = _unimplemented('Publishing');
+export const renderCatalog         = _unimplemented('Catalog');
+export const renderBackend         = _unimplemented('Backend');
+export const renderHealth          = _unimplemented('Health');
+export const renderPriorityActions = _unimplemented('PriorityActions');

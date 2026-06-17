@@ -21,13 +21,21 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import { strict as assert } from 'node:assert';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import {
+  renderIdentity,
+  renderPublishing,
+  renderCatalog,
+  renderBackend,
+  renderHealth,
+  renderPriorityActions,
   buildProviderRenderPlan,
   buildCoveragePlan,
   buildRecommendationsPlan,
   safeIdentityIntelligence,
-  PROVIDER_LABELS,
   STATE_PILL_CLASS,
   STATE_PILL_TEXT,
 } from '../public/js/mission-control-renderers.js';
@@ -36,6 +44,10 @@ import { assembleCio } from '../api/_lib/cio-assembler.js';
 import { runIntelligenceEngine } from '../api/_lib/intelligence-engine.js';
 import { ALL_RULES } from '../api/rules/index.js';
 import { assembleIdentityIntelligence } from '../api/_lib/identity-intelligence.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const MC_RENDERERS_SRC = readFileSync(join(__dirname, '..', 'public', 'js', 'mission-control-renderers.js'), 'utf8');
+const MC_BOOT_SRC      = readFileSync(join(__dirname, '..', 'public', 'js', 'mission-control.js'),           'utf8');
 
 // ─── Helpers ──────────────────────────────────────────────────────
 
@@ -76,9 +88,21 @@ function test(name, fn) {
 //  1–4 — Constants are correct + frozen.
 // ═════════════════════════════════════════════════════════════════════
 
-test('1. PROVIDER_LABELS is frozen and covers the canonical Phase-3 set only', () => {
-  assert.ok(Object.isFrozen(PROVIDER_LABELS));
-  assert.deepStrictEqual(Object.keys(PROVIDER_LABELS).sort(), ['apple', 'spotify', 'youtube']);
+test('1. Renderer module contains NO hardcoded provider array — iteration is data-driven only (Board Concern 2)', () => {
+  // The renderer module must never list provider keys as a literal.
+  // Forbidden literal-array patterns the boot module / renderer
+  // would resort to if it tried to hardcode the supported set.
+  const forbiddenPatterns = [
+    /\[\s*['"`]apple['"`]\s*,\s*['"`]spotify['"`]/i,
+    /\[\s*['"`]spotify['"`]\s*,\s*['"`]apple['"`]/i,
+    /\[\s*['"`]apple['"`]\s*,\s*['"`]youtube['"`]/i,
+  ];
+  for (const p of forbiddenPatterns) {
+    assert.ok(!p.test(MC_RENDERERS_SRC),
+      `mission-control-renderers.js must not contain a hardcoded provider list (Board Concern 2); pattern matched: ${p}`);
+    assert.ok(!p.test(MC_BOOT_SRC),
+      `mission-control.js must not contain a hardcoded provider list (Board Concern 2); pattern matched: ${p}`);
+  }
 });
 
 test('2. STATE_PILL_CLASS covers all four locked states (Board D4)', () => {
@@ -308,6 +332,112 @@ test('22. CONSTITUTIONAL — no render plan exposes a `score` field (Royaltē He
   for (const r of recs) {
     assert.ok(!('score' in r),
       'recommendation plan entry must not have a score field');
+  }
+});
+
+// ═════════════════════════════════════════════════════════════════════
+//  23–27 — Board Final Review concerns (2026-06-17)
+// ═════════════════════════════════════════════════════════════════════
+
+test('23. CONCERN 1 (HEP) — neither MC file produces a user-facing "Score" / "Health" / "Rating" string from data', () => {
+  // The renderer module + boot module must never assign one of these
+  // forbidden labels to ANY user-facing string. Allowed: comments
+  // explaining that the label is forbidden, source identifiers (variable
+  // names like "Royaltē Health™" referenced in doc-blocks are
+  // documentation, not user-facing rendering).
+  //
+  // We grep for an assignment / interpolation / object-literal value
+  // that would route a forbidden label to the DOM.
+  const forbiddenAsValue = [
+    /label\s*[:=]\s*['"`]Identity Score['"`]/i,
+    /label\s*[:=]\s*['"`]Health['"`]/i,
+    /label\s*[:=]\s*['"`]Health Score['"`]/i,
+    /label\s*[:=]\s*['"`]Identity Rating['"`]/i,
+    /label\s*[:=]\s*['"`]Artist Rating['"`]/i,
+    /label\s*[:=]\s*['"`]Coverage Score['"`]/i,
+  ];
+  for (const p of forbiddenAsValue) {
+    assert.ok(!p.test(MC_RENDERERS_SRC),
+      `renderer assigns forbidden label "${p}" — Royaltē Health™ owns executive scoring (Board Concern 1)`);
+    assert.ok(!p.test(MC_BOOT_SRC),
+      `boot module assigns forbidden label "${p}" — Royaltē Health™ owns executive scoring (Board Concern 1)`);
+  }
+});
+
+test('24. CONCERN 4 (MC boundary) — neither MC file imports any api/_lib/ or api/rules/ module', () => {
+  // Mission Control must never reach into the scan engine, Rule
+  // Library, CIO assembler, or Identity Intelligence assembler. The
+  // boot module + renderer module are CLIENT code; importing from
+  // api/ would break the constitutional separation.
+  const forbiddenImportPatterns = [
+    /from\s+['"`].*api\/_lib\//,
+    /from\s+['"`].*api\/rules\//,
+    /from\s+['"`].*api\/schema\//,
+    /from\s+['"`].*api\/lib\//,
+    /import\s*\(\s*['"`].*api\/_lib\//,
+    /import\s*\(\s*['"`].*api\/rules\//,
+  ];
+  for (const p of forbiddenImportPatterns) {
+    assert.ok(!p.test(MC_RENDERERS_SRC),
+      `mission-control-renderers.js must not import from api/ — Mission Control is presentation-only (Board Concern 4)`);
+    assert.ok(!p.test(MC_BOOT_SRC),
+      `mission-control.js must not import from api/ — Mission Control is presentation-only (Board Concern 4)`);
+  }
+});
+
+test('25. CONCERN 3 — renderIdentity(intelligence) composes the three plan builders into a single canonical entry point', () => {
+  const ii = makeIntelligence({
+    platforms: {
+      appleMusic: { availability: 'VERIFIED', details: { artwork: null } },
+      spotify:    { availability: 'VERIFIED', details: null },
+      youtube:    { availability: 'NOT_FOUND', details: null },
+    },
+  });
+  const plan = renderIdentity(ii);
+  assert.deepStrictEqual(Object.keys(plan).sort(),
+    ['coverage', 'providers', 'recommendations']);
+  // Each slot matches the individual builder's output (composition is
+  // pass-through, no extra transformation)
+  assert.deepStrictEqual(plan.coverage,        buildCoveragePlan(ii));
+  assert.deepStrictEqual(plan.providers,       buildProviderRenderPlan(ii));
+  assert.deepStrictEqual(plan.recommendations, buildRecommendationsPlan(ii));
+});
+
+test('26. CONCERN 6 — future-stage renderers are exported as deliberate "not yet implemented" stubs', () => {
+  // Each placeholder must exist as a callable export AND must throw
+  // a clear error when invoked. This prevents silent-render-nothing
+  // bugs if a future commit accidentally invokes them before the
+  // implementation lands.
+  for (const [name, fn] of [
+    ['renderPublishing',      renderPublishing],
+    ['renderCatalog',         renderCatalog],
+    ['renderBackend',         renderBackend],
+    ['renderHealth',          renderHealth],
+    ['renderPriorityActions', renderPriorityActions],
+  ]) {
+    assert.equal(typeof fn, 'function', `${name} must be exported as a function`);
+    assert.throws(() => fn({}),
+      /not yet implemented/i,
+      `${name} stub must throw a "not yet implemented" error until its future stage lands`);
+  }
+});
+
+test('27. CONCERN 1 (HEP) — Identity Intelligence + Royaltē Health remain separated; coverage carries no scoring fields', () => {
+  // The intelligence object the renderer consumes must not carry a
+  // `score` / `health` / `rating` field. If a future commit silently
+  // adds one to the assembler, this test catches it BEFORE Mission
+  // Control accidentally renders it as an executive metric.
+  const ii = makeIntelligence();
+  const forbiddenKeys = ['score', 'health', 'rating', 'healthScore', 'identityScore', 'artistRating'];
+  for (const k of forbiddenKeys) {
+    assert.ok(!(k in ii),
+      `Identity Intelligence object must not expose "${k}" — Royaltē Health™ owns executive scoring (Board Concern 1)`);
+  }
+  // And the renderer's coverage plan must not synthesize one either
+  const coverage = buildCoveragePlan(ii);
+  for (const k of forbiddenKeys) {
+    assert.ok(!(k in coverage),
+      `Coverage plan must not expose "${k}" — Royaltē Health™ owns executive scoring (Board Concern 1)`);
   }
 });
 
