@@ -2118,24 +2118,11 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--mc-green-bright);
-  box-shadow: 0 0 5px var(--mc-green-glow);
-  /* Animation Refinement v2.0: dim during rows 1-5 (0–80 % of the
-     25-s cycle), flashes bright at 80 % when all 5 rows have run,
-     then holds bright through the rest of the cycle. */
-  animation: mc-ai-live 25s linear infinite;
-}
-@keyframes mc-ai-live {
-  0%, 79%  { background: rgba(52, 245, 176, 0.32);
-              box-shadow: 0 0 3px rgba(52, 245, 176, 0.30); }
-  80%      { background: var(--mc-green-bright);
-              box-shadow: 0 0 12px rgba(52, 245, 176, 1),
-                          0 0 22px rgba(52, 245, 176, 0.55); }
-  85%, 99% { background: var(--mc-green-bright);
-              box-shadow: 0 0 8px rgba(52, 245, 176, 0.85),
-                          0 0 16px rgba(52, 245, 176, 0.4); }
-  100%     { background: rgba(52, 245, 176, 0.32);
-              box-shadow: 0 0 3px rgba(52, 245, 176, 0.30); }
+  /* Initial state is "dim idle"; JS flashes it bright at the end of
+     each analysis cycle and holds bright for ~3.5 s. */
+  background: rgba(52, 245, 176, 0.32);
+  box-shadow: 0 0 3px rgba(52, 245, 176, 0.30);
+  transition: background-color 220ms ease-out, box-shadow 220ms ease-out;
 }
 .mc-ai-activity-list { display: flex; flex-direction: column; }
 .mc-ai-activity-item {
@@ -2154,53 +2141,10 @@ body {
   background: transparent;
   box-sizing: border-box;
   align-self: center;
-  /* Animation Refinement v2.0: pure-CSS pink fill cycle. White
-     stroke stays constant; only the inner fill + glow animates.
-     Per-row keyframe assignments below. 25 s master cycle. */
-  animation-duration: 25s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-}
-.mc-ai-activity-list > li:nth-child(1) .mc-ai-activity-dot { animation-name: mc-ai-dot-1; }
-.mc-ai-activity-list > li:nth-child(2) .mc-ai-activity-dot { animation-name: mc-ai-dot-2; }
-.mc-ai-activity-list > li:nth-child(3) .mc-ai-activity-dot { animation-name: mc-ai-dot-3; }
-.mc-ai-activity-list > li:nth-child(4) .mc-ai-activity-dot { animation-name: mc-ai-dot-4; }
-.mc-ai-activity-list > li:nth-child(5) .mc-ai-activity-dot { animation-name: mc-ai-dot-5; }
-
-/* Each row's active window = 4 s (16% of the 25-s cycle). One row
-   "lights pink" at a time, in sequence. Pink: #ff3da0 (neon).
-   Within each row's window: quick fade-in (0.5s), hold ~3s,
-   quick fade-out (0.5s) → smooth handoff to the next row. */
-@keyframes mc-ai-dot-1 {
-  0%, 16%, 100% { background: transparent;
-                   box-shadow: none; }
-  2%, 14%       { background: #ff3da0;
-                   box-shadow: 0 0 8px rgba(255, 61, 160, 0.85),
-                               0 0 14px rgba(255, 61, 160, 0.45); }
-}
-@keyframes mc-ai-dot-2 {
-  0%, 16%, 32%, 100% { background: transparent; box-shadow: none; }
-  18%, 30%           { background: #ff3da0;
-                        box-shadow: 0 0 8px rgba(255, 61, 160, 0.85),
-                                    0 0 14px rgba(255, 61, 160, 0.45); }
-}
-@keyframes mc-ai-dot-3 {
-  0%, 32%, 48%, 100% { background: transparent; box-shadow: none; }
-  34%, 46%           { background: #ff3da0;
-                        box-shadow: 0 0 8px rgba(255, 61, 160, 0.85),
-                                    0 0 14px rgba(255, 61, 160, 0.45); }
-}
-@keyframes mc-ai-dot-4 {
-  0%, 48%, 64%, 100% { background: transparent; box-shadow: none; }
-  50%, 62%           { background: #ff3da0;
-                        box-shadow: 0 0 8px rgba(255, 61, 160, 0.85),
-                                    0 0 14px rgba(255, 61, 160, 0.45); }
-}
-@keyframes mc-ai-dot-5 {
-  0%, 64%, 80%, 100% { background: transparent; box-shadow: none; }
-  66%, 78%           { background: #ff3da0;
-                        box-shadow: 0 0 8px rgba(255, 61, 160, 0.85),
-                                    0 0 14px rgba(255, 61, 160, 0.45); }
+  /* Animation Refinement v3.0: dot fill + glow are driven by JS
+     (randomized parallel activity model). White stroke stays
+     constant; only the inner fill is mutated by the script. */
+  transition: background-color 220ms ease-out, box-shadow 220ms ease-out;
 }
 .mc-ai-activity-item:last-child { border-bottom: 0; }
 .mc-ai-activity-text { min-width: 0; }
@@ -3351,11 +3295,11 @@ body {
             </div>
             <div class="mc-ai-activity-time">00:50</div>
           </li>
-          <li class="mc-ai-activity-item mc-ai-activity-item--ok">
+          <li class="mc-ai-activity-item">
             <span class="mc-ai-activity-dot" aria-hidden="true"></span>
             <div class="mc-ai-activity-text">
-              <div class="mc-ai-activity-title">No New Issues Detected</div>
-              <div class="mc-ai-activity-sub">All systems healthy</div>
+              <div class="mc-ai-activity-title">Monitoring Backend Intelligence…</div>
+              <div class="mc-ai-activity-sub">Watching infrastructure health and connectivity</div>
             </div>
             <div class="mc-ai-activity-time">01:44</div>
           </li>
@@ -3477,48 +3421,122 @@ body {
     if (signout) signout.addEventListener('click', (e) => e.preventDefault());
   })();
 
-  /* AI Analysis Activity™ timestamp animation — Refinement v2.0.
-     Pure-presentation UI per Board directive. While each row is in
-     its 4-second "active" window, its timestamp rapidly counts up
-     with sin-wave jitter so the values feel like live processing.
-     Outside the active window the value freezes on the last frame
-     until the next cycle. CSS handles the dot fill colour; JS only
-     touches the .mc-ai-activity-time text. */
+  /* AI Analysis Activity™ Randomized Parallel Animation — v3.0.
+     Pure-presentation UI per Board directive (does not represent
+     real processing). Every row is an independent AI worker with
+     its own counter speed; counters run in parallel and never
+     match. A single pink "active" indicator jumps randomly between
+     rows. At the end of each analysis period the green LIVE dot
+     flashes bright for ~3.5 s, then all counters reset and the
+     next cycle starts with fresh random ordering / speeds /
+     duration. CSS holds the dot stroke / base style; JS mutates
+     the inner fill + glow + counter text. */
   (function () {
     const list = document.querySelector('.mc-ai-activity-list');
     if (!list) return;
     const rows = Array.from(list.children);
     if (rows.length === 0) return;
 
-    const CYCLE_MS = 25000;
-    const ROW_MS   = 4000;
-    const start = performance.now();
+    const dots     = rows.map(r => r.querySelector('.mc-ai-activity-dot'));
+    const times    = rows.map(r => r.querySelector('.mc-ai-activity-time'));
+    const liveDot  = document.querySelector('.mc-ai-activity-live-dot');
 
-    function fmt(seconds) {
-      seconds = Math.max(0, Math.floor(seconds));
-      const m = Math.floor(seconds / 60);
-      const s = seconds % 60;
+    const PINK_FILL    = '#ff3da0';
+    const PINK_GLOW    = '0 0 8px rgba(255, 61, 160, 0.85),'
+                       + ' 0 0 14px rgba(255, 61, 160, 0.45)';
+    const LIVE_DIM_BG  = 'rgba(52, 245, 176, 0.32)';
+    const LIVE_DIM_SH  = '0 0 3px rgba(52, 245, 176, 0.30)';
+    const LIVE_BRT_BG  = '#34f5b0';
+    const LIVE_BRT_SH  = '0 0 12px rgba(52, 245, 176, 1),'
+                       + ' 0 0 22px rgba(52, 245, 176, 0.55)';
+
+    function fmt(sec) {
+      sec = Math.max(0, Math.floor(sec));
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
       return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
     }
 
-    function tick() {
-      const elapsed = (performance.now() - start) % CYCLE_MS;
-      rows.forEach((row, idx) => {
-        const time = row.querySelector('.mc-ai-activity-time');
-        if (!time) return;
-        const rowStart = idx * ROW_MS;
-        if (elapsed >= rowStart && elapsed < rowStart + ROW_MS) {
-          // 0-4 seconds within active window.
-          const t = (elapsed - rowStart) / 1000;
-          // Climb from ~0 toward ~100 seconds with jittery randomness
-          // so the digits look like live activity, not a smooth ramp.
-          const climb  = t * 27;
-          const jitter = Math.sin(t * 9.7) * 4 + Math.sin(t * 17.3 + idx) * 2;
-          time.textContent = fmt(climb + jitter);
+    function setDot(idx, active) {
+      const d = dots[idx]; if (!d) return;
+      d.style.background = active ? PINK_FILL : 'transparent';
+      d.style.boxShadow  = active ? PINK_GLOW  : 'none';
+    }
+    function setLive(active) {
+      if (!liveDot) return;
+      liveDot.style.background = active ? LIVE_BRT_BG : LIVE_DIM_BG;
+      liveDot.style.boxShadow  = active ? LIVE_BRT_SH : LIVE_DIM_SH;
+    }
+    function clearAllDots() { for (let i = 0; i < dots.length; i++) setDot(i, false); }
+    function pickRow(exclude) {
+      let i;
+      do { i = Math.floor(Math.random() * rows.length); } while (i === exclude && rows.length > 1);
+      return i;
+    }
+
+    // Phase state
+    let phase = 'analyzing';        // 'analyzing' | 'completing'
+    let phaseStart = 0;
+    let analysisDuration = 0;       // ms (randomized per cycle, 18–25 s)
+    let completingDuration = 3500;  // ms (LIVE bright hold)
+    let activeRow = -1;
+    let nextSwitchAt = 0;
+    let counters = rows.map(() => 0);
+    let speeds   = rows.map(() => 1);
+    let lastFrame = 0;
+    let cycleSeed = 0;
+
+    function startCycle(now) {
+      cycleSeed++;
+      counters = rows.map(() => Math.random() * 0.5);  // tiny random start offset
+      // Each row gets a different speed (0.65×–1.45×) so no two counters
+      // ever match; shuffled per cycle so progression differs each time.
+      speeds = rows.map(() => 0.65 + Math.random() * 0.80);
+      analysisDuration = (18 + Math.random() * 7) * 1000;  // 18–25 s
+      phase = 'analyzing';
+      phaseStart = now;
+      activeRow = pickRow(-1);
+      setDot(activeRow, true);
+      nextSwitchAt = now + 900 + Math.random() * 1700;  // 0.9–2.6 s
+      setLive(false);
+    }
+
+    function tick(now) {
+      const dt = (now - lastFrame) / 1000;
+      lastFrame = now;
+
+      if (phase === 'analyzing') {
+        // Independent parallel counters.
+        for (let i = 0; i < rows.length; i++) {
+          counters[i] += dt * speeds[i];
+          if (times[i]) times[i].textContent = fmt(counters[i]);
         }
-      });
+        // Randomized active-dot jump.
+        if (now >= nextSwitchAt) {
+          setDot(activeRow, false);
+          activeRow = pickRow(activeRow);
+          setDot(activeRow, true);
+          nextSwitchAt = now + 900 + Math.random() * 1700;
+        }
+        // End of analysis → freeze + LIVE flash.
+        if (now - phaseStart >= analysisDuration) {
+          clearAllDots();
+          activeRow = -1;
+          phase = 'completing';
+          phaseStart = now;
+          setLive(true);
+        }
+      } else if (phase === 'completing') {
+        // Counters frozen, LIVE bright, then reset and re-cycle.
+        if (now - phaseStart >= completingDuration) {
+          startCycle(now);
+        }
+      }
       requestAnimationFrame(tick);
     }
+
+    lastFrame = performance.now();
+    startCycle(lastFrame);
     requestAnimationFrame(tick);
   })();
 </script>
