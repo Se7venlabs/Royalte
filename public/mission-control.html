@@ -3136,15 +3136,18 @@ body {
        AI Insights panel below for the min-height rationale. -->
   <aside class="mc-rail-right" id="ai-insights" aria-label="AI Insights and Royaltē Review">
 
-    <!-- AI Insights™ — inline min-height removed (was 759/802 in prior
-         passes). The card was being padded out by that min-height,
-         not just sized by it. With no min-height, the panel collapses
-         to its natural content height (lightbulb + headline + body).
-         Royaltē Review™ stays anchored at the rail bottom via its own
-         margin-top: auto — independent of this card's height. The
-         intentional empty space between the two panels is the runway
-         the next Board directive will address. -->
-    <section class="mc-panel" aria-label="AI Insights">
+    <!-- AI Insights™ — fixed min-height so the bottom edge lands at
+         the blue reference line (= row-1 intelligence-card baseline
+         Y = 769 at 1440×900). The extra vertical space inside the
+         card is intentional headroom for additional text the Board
+         will add in a future brief. The gap between the bottom edge
+         (Y = 769) and Royaltē Review™ (top Y = 822) stays empty by
+         design.
+
+         Royaltē Review™ is anchored independently via its own
+         margin-top: auto — changing this card's height does NOT
+         move it. -->
+    <section class="mc-panel" aria-label="AI Insights" style="min-height: 759px;">
       <div class="mc-panel-head">
         <div class="mc-panel-head-left">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
