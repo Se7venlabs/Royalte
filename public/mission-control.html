@@ -3136,15 +3136,9 @@ body {
        AI Insights panel below for the min-height rationale. -->
   <aside class="mc-rail-right" id="ai-insights" aria-label="AI Insights and Royaltē Review">
 
-    <!-- AI Insights™ — inline min-height removed (was 759/802 in prior
-         passes). The card was being padded out by that min-height,
-         not just sized by it. With no min-height, the panel collapses
-         to its natural content height (lightbulb + headline + body).
-         Royaltē Review™ stays anchored at the rail bottom via its own
-         margin-top: auto — independent of this card's height. The
-         intentional empty space between the two panels is the runway
-         the next Board directive will address. -->
-    <section class="mc-panel" aria-label="AI Insights">
+    <!-- AI Insights™ — min-height: 759 → bottom edge sits flush with
+         Catalog Intelligence™ bottom (row-1 baseline Y = 769). -->
+    <section class="mc-panel" aria-label="AI Insights" style="min-height: 759px;">
       <div class="mc-panel-head">
         <div class="mc-panel-head-left">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
@@ -3181,11 +3175,11 @@ body {
     </section>
 
     <!-- Royaltē Review™ -->
-    <!-- Right Rail Fix v2.0: margin-top: auto restored. Royaltē
-         Review™ stays anchored at the bottom of the rail (flush with
-         Footprint at Y = 1269); AI Insights™ above now extends down
-         to meet it with the standard 10-px rail gutter. -->
-    <section class="mc-panel" aria-label="Royaltē Review" style="margin-top: auto;">
+    <!-- Royaltē Review™ — margin-top: auto removed. Panel sits in
+         natural flex flow after AI Insights™ with the rail's 10-px
+         gap, so its TOP edge (Y = 779) lines up with the Global
+         Music Footprint™ TOP edge in the main column (row-2 top). -->
+    <section class="mc-panel" aria-label="Royaltē Review">
       <div class="mc-review-head">
         <div class="mc-review-title">ROYALTĒ REVIEW™</div>
         <div class="mc-review-meta">Generated Today</div>
