@@ -3010,38 +3010,48 @@ body {
             </div>
           </div>
           <div class="mc-pub-summary">
-            <div class="mc-pub-sum-label">Coverage</div>
-            <div class="mc-pub-sum-value">6 / 7</div>
-            <div class="mc-pub-sum-meta">Verified</div>
+            <!-- Phase 5B: coverage indicator. Value + label + summary
+                 are populated at runtime by /js/mission-control.js from
+                 audit_scans.payload.publishingIntelligence. Coverage is
+                 INFORMATIONAL provider coverage (Board D4) — never a
+                 Health Score. Royaltē Health™ owns executive scoring. -->
+            <div class="mc-pub-sum-label" data-mc-publishing-coverage-label>Publishing Coverage</div>
+            <div class="mc-pub-sum-value" data-mc-publishing-coverage-value>0<small>%</small></div>
+            <div class="mc-pub-sum-meta"  data-mc-publishing-coverage-summary>0 of 4 verified</div>
           </div>
         </div>
 
-        <!-- Publishing Refinement v2.0: seven publishing-infrastructure
-             metrics, each with an icon glyph and a status badge. Sample
-             mix exercises all three Royaltē status types: 5 VERIFIED +
-             1 ACTION + 1 MONITORING. No reference image was attached
-             with the directive — using consistent inline SVG glyphs
-             so the visual treatment matches across rows. -->
+        <!-- Phase 5B Board D7 — Publishing metrics.
+             Four rows carry data-mc-publishing-metric="<key>" and are
+             iterated at runtime by /js/mission-control.js using the
+             locked Publishing Intelligence™ object's `registrations`
+             map. Row count is data-driven (Object.keys(registrations))
+             — Mission Control never assumes a fixed metric count.
+             The remaining three rows are STATIC placeholders for
+             intelligence domains that do not yet exist (Board D7:
+             "shall remain static until future intelligence domains
+             exist"). They must not be wired to Publishing Intelligence
+             until those domains ship. -->
         <ul class="mc-pub-checks">
-          <li class="mc-pub-check">
+          <li class="mc-pub-check" data-mc-publishing-metric="mlcRegistration">
             <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M3 10l9-7 9 7z"/></svg>
             MLC Registration
-            <span class="mc-pill mc-pill--verified">Verified</span>
+            <span class="mc-pill mc-pill--verified" data-mc-publishing-pill>Verified</span>
           </li>
-          <li class="mc-pub-check">
+          <li class="mc-pub-check" data-mc-publishing-metric="iswcCoverage">
             <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
             ISWC Coverage
-            <span class="mc-pill mc-pill--verified">Verified</span>
+            <span class="mc-pill mc-pill--verified" data-mc-publishing-pill>Verified</span>
           </li>
-          <li class="mc-pub-check">
+          <li class="mc-pub-check" data-mc-publishing-metric="writerCredits">
             <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3l5 5L8 21H3v-5z"/><path d="M14 5l5 5"/></svg>
             Writer Credits
-            <span class="mc-pill mc-pill--verified">Verified</span>
+            <span class="mc-pill mc-pill--verified" data-mc-publishing-pill>Verified</span>
           </li>
-          <li class="mc-pub-check">
+          <li class="mc-pub-check" data-mc-publishing-metric="publisherInformation">
             <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v17H6a2 2 0 0 0-2 2"/><path d="M8 8h8M8 12h8"/></svg>
             Publisher Information
-            <span class="mc-pill mc-pill--action">Action</span>
+            <span class="mc-pill mc-pill--action" data-mc-publishing-pill>Action</span>
           </li>
           <li class="mc-pub-check">
             <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v3l-2 2 2 2v3a3 3 0 0 0 3 3"/><path d="M15 4a3 3 0 0 1 3 3v3l2 2-2 2v3a3 3 0 0 1-3 3"/><path d="M12 4v16"/></svg>

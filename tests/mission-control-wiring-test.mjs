@@ -404,12 +404,11 @@ test('25. CONCERN 3 — renderIdentity(intelligence) composes the three plan bui
 });
 
 test('26. CONCERN 6 — future-stage renderers are exported as deliberate "not yet implemented" stubs', () => {
-  // Each placeholder must exist as a callable export AND must throw
-  // a clear error when invoked. This prevents silent-render-nothing
-  // bugs if a future commit accidentally invokes them before the
-  // implementation lands.
+  // Each remaining placeholder must exist as a callable export AND
+  // must throw a clear error when invoked. renderPublishing is no
+  // longer in this list — Phase 5B promoted it to a real
+  // implementation (see test 26b below).
   for (const [name, fn] of [
-    ['renderPublishing',      renderPublishing],
     ['renderCatalog',         renderCatalog],
     ['renderBackend',         renderBackend],
     ['renderHealth',          renderHealth],
@@ -420,6 +419,36 @@ test('26. CONCERN 6 — future-stage renderers are exported as deliberate "not y
       /not yet implemented/i,
       `${name} stub must throw a "not yet implemented" error until its future stage lands`);
   }
+});
+
+test('26b. CONCERN 3 + 6 (Phase 5B) — renderPublishing is implemented and conforms to the canonical entry-point contract', () => {
+  // Phase 5B replaced the not-yet-implemented stub with a real
+  // renderer. It must (a) be a function, (b) NOT throw on a
+  // well-formed publishingIntelligence input, (c) return the same
+  // shape every domain renderer follows.
+  assert.equal(typeof renderPublishing, 'function');
+  const pi = {
+    registrations: {
+      mlcRegistration:      'VERIFIED',
+      iswcCoverage:         'VERIFIED',
+      writerCredits:        'VERIFIED',
+      publisherInformation: 'NOT_FOUND',
+    },
+    supportedSources: Object.freeze(['mlc']),
+    registeredCount: 3,
+    totalChecked:    4,
+    coverage:        75,
+    strengths: [], issues: [], recommendations: [],
+  };
+  const plan = renderPublishing(pi);
+  assert.deepStrictEqual(Object.keys(plan).sort(), ['coverage', 'registrations']);
+  assert.equal(plan.coverage.label, 'Publishing Coverage',
+    'Publishing Intelligence coverage label must be "Publishing Coverage" — never Score/Health/Rating (Board D9)');
+  assert.equal(plan.registrations.length, 4);
+  // Iteration order matches the registrations map (data-driven, no
+  // hardcoded metric list in MC — Board D7 + Phase 5B Concern 2 parity).
+  assert.deepStrictEqual(plan.registrations.map((r) => r.metric),
+    ['mlcRegistration', 'iswcCoverage', 'writerCredits', 'publisherInformation']);
 });
 
 test('27. CONCERN 1 (HEP) — Identity Intelligence + Royaltē Health remain separated; coverage carries no scoring fields', () => {

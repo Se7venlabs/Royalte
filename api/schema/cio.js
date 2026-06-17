@@ -249,16 +249,32 @@ export function emptyCio(artistName) {
       sources: [],                   // [{ provider, confidence, observedAt, rawReference }]
     },
 
-    // ── observations (per-provider availability; Board D2, Phase 3B) ─
+    // ── observations (per-provider availability; Board D2, Phase 3B
+    //    + Phase 5B D3 publishingSources sibling) ─────────────────────
     //    See doc-block at top of file. Populated by the Assembly Engine
-    //    by COPYING scanPayload.platforms.<key>. null = no observation
-    //    present in the scan → downstream resolves to Unable to Confirm,
-    //    NEVER Not Found.
+    //    by COPYING scanPayload.platforms.<key> (identity providers) and
+    //    publishingSourceObservations (publishing data sources). null =
+    //    no observation present → downstream resolves to Unable to
+    //    Confirm, NEVER Not Found.
+    //
+    //    Per Phase 5B Board D3: provider observations live OUTSIDE
+    //    cio.publishing (which stays lean — counts + references only).
+    //    Publishing-source observations are recorded here as a sibling
+    //    of providers so the constitutional separation is the same as
+    //    Identity Intelligence™.
     observations: {
       providers: {
         apple:   null,                // { availability, details } | null
         spotify: null,                // { availability, details } | null
         youtube: null,                // { availability, details } | null
+      },
+      // Publishing source observations (Phase 5B Board D3). One entry
+      // per publishing data backend that participated in this scan.
+      // For v1.0 (Board D1) the only source is MLC. Future SOCAN /
+      // ASCAP / BMI / CISAC / MusicBrainz Publishing adapters slot in
+      // alongside without disturbing this shape.
+      publishingSources: {
+        mlc: null,                    // { availability, details } | null
       },
     },
 
