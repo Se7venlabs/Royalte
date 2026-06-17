@@ -3182,14 +3182,12 @@ body {
     </section>
 
     <!-- Royaltē Review™ -->
-    <!-- Right Rail Spacing Refinement v1.0: margin-top: auto pushes
-         the panel to the bottom of the right rail (flex column). Rail
-         padding-bottom (10 px, --mc-s-3) equals main padding-bottom
-         (10 px, --mc-s-2), so the panel's bottom edge sits flush with
-         the Global Music Footprint™ card's bottom edge in the main
-         column. The freed vertical space above this panel is reserved
-         for future AI Insights™ expansion. -->
-    <section class="mc-panel" aria-label="Royaltē Review" style="margin-top: auto;">
+    <!-- Right Rail Alignment Correction v1.1: previous margin-top: auto
+         (pushed-to-bottom) reverted. The panel now sits directly under
+         AI Insights™ with the standard rail gap (.mc-rail-right
+         gap: var(--mc-s-2) = 10 px — same gutter used throughout
+         Mission Control™). Natural flex flow restored. -->
+    <section class="mc-panel" aria-label="Royaltē Review">
       <div class="mc-review-head">
         <div class="mc-review-title">ROYALTĒ REVIEW™</div>
         <div class="mc-review-meta">Generated Today</div>
