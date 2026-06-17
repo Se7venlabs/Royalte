@@ -3253,10 +3253,6 @@ body {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
       </button>
 
-      <a class="mc-review-download" href="#download-pdf">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="M5 11l7 7 7-7"/><path d="M4 20h16"/></svg>
-        Download PDF
-      </a>
     </section>
 
   </aside>
@@ -3284,9 +3280,6 @@ body {
     // No-op handlers for placeholder CTAs so the shell does not throw.
     const review = document.querySelector('.mc-review-cta');
     if (review) review.addEventListener('click', (e) => e.preventDefault());
-
-    const download = document.querySelector('.mc-review-download');
-    if (download) download.addEventListener('click', (e) => e.preventDefault());
 
     const signout = document.querySelector('.mc-version-sign');
     if (signout) signout.addEventListener('click', (e) => e.preventDefault());
