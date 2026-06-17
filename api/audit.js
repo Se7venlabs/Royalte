@@ -10,6 +10,17 @@ import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib
 import { runScan } from './_lib/run-scan.js';
 import { persistOSScanSnapshot, resolveUserIdFromAuthHeader } from './_lib/persist-os-scan.js';
 
+// ─── Phase 4B-2: Identity Intelligence™ eager-assembly imports ─────────────
+//   Per Board R5 + R10 (2026-06-17) — Identity Intelligence is assembled
+//   exactly once during the scan lifecycle, persisted into
+//   audit_scans.payload.identityIntelligence, and reused by every
+//   downstream consumer (Mission Control™, Royaltē AI™, Executive
+//   Brief™, Priority Actions™). No consumer recomputes.
+import { assembleCio } from './_lib/cio-assembler.js';
+import { runIntelligenceEngine } from './_lib/intelligence-engine.js';
+import { ALL_RULES } from './rules/index.js';
+import { assembleIdentityIntelligence } from './_lib/identity-intelligence.js';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // AUDIT_SCANS PERSISTENCE
 //
@@ -95,18 +106,39 @@ async function handleSchemaViolation({ scanId, canonical, err }) {
   }
 }
 
-export async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId, sessionId = null) {
+export async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId, sessionId = null, enrichmentFn = null) {
   const supabase = getAuditScansSupabase();
   if (!supabase) {
     throw new Error('audit_scans persistence unavailable: Supabase not configured');
   }
 
   // Pass handler-generated scanId in so canonical.scanId === scanId.
-  const canonical = normalizeAuditResponse({ ...rawResponse, scanId, _originalUrl: originalUrl });
+  let canonical = normalizeAuditResponse({ ...rawResponse, scanId, _originalUrl: originalUrl });
+
+  // Phase 4B-2 enrichment hook (Board R5 + R10, 2026-06-17). The handler
+  // passes a callback that folds Identity Intelligence™ (and, in future
+  // phases, additional intelligence objects) into the canonical payload
+  // BEFORE validate + insert. Enrichment failures are non-blocking:
+  // the original canonical persists and the scan succeeds. The enrichment
+  // contract requires a sync function returning an object; any throw or
+  // non-object return is logged and discarded.
+  if (typeof enrichmentFn === 'function') {
+    try {
+      const enriched = enrichmentFn(canonical);
+      if (enriched && typeof enriched === 'object' && !Array.isArray(enriched)) {
+        canonical = enriched;
+      }
+    } catch (enrichErr) {
+      console.error('[audit] canonical enrichment failed (non-blocking):', enrichErr.message);
+    }
+  }
 
   // VALIDATION GATE — fires before any DB write. handleSchemaViolation either
   // logs + persists to schema_violations and returns (prod/preview), or
   // re-throws the AuditSchemaError (dev/test/CI). See helper for env policy.
+  // Enrichment fields (e.g. identityIntelligence) are forward-compat extras:
+  // validateAuditResponse warns on unknown root keys but does not throw,
+  // so the enriched payload passes the gate. No AUDIT_RESPONSE_VERSION bump.
   try {
     validateAuditResponse(canonical);
   } catch (err) {
@@ -250,10 +282,40 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Audit failed. Please check the link and try again.', detail: m });
     }
 
-    // ── PERSIST ──
+    // ── PERSIST + EAGER IDENTITY INTELLIGENCE™ ASSEMBLY ──
+    // Phase 4B-2 (Board R5 + R10, 2026-06-17). Identity Intelligence is
+    // assembled exactly once here during the scan lifecycle and folded
+    // into the persisted canonical payload at
+    //   audit_scans.payload.identityIntelligence
+    // Mission Control™ / Royaltē AI™ / Executive Brief™ / Priority
+    // Actions™ all read the same persisted object; none of them
+    // recompute. Per the failure-mode brief: if assembly throws, the
+    // scan succeeds without identityIntelligence — never blocks an audit.
+    const assembleIdentityIntelligenceForScan = (canonicalForEnrichment) => {
+      try {
+        const cio = assembleCio(
+          canonicalForEnrichment.subject?.artistName,
+          { scanPayload: canonicalForEnrichment }
+        );
+        const report = runIntelligenceEngine(cio, ALL_RULES);
+        const identityIntelligence = assembleIdentityIntelligence(report, cio);
+        return { ...canonicalForEnrichment, identityIntelligence };
+      } catch (assemblyErr) {
+        console.error('[audit] Identity Intelligence™ assembly failed (non-blocking):', assemblyErr.message);
+        return canonicalForEnrichment;
+      }
+    };
+
     let canonical = null;
     try {
-      const persisted = await persistCanonicalScan(result.rawResponse, url, result.urlType, scanId, sessionId);
+      const persisted = await persistCanonicalScan(
+        result.rawResponse,
+        url,
+        result.urlType,
+        scanId,
+        sessionId,
+        assembleIdentityIntelligenceForScan
+      );
       canonical = persisted.canonical;
     } catch (persistErr) {
       console.error('[audit] persistence failed:', persistErr.message);
@@ -301,7 +363,45 @@ export default async function handler(req, res) {
     // `canonical`. Consumers migrate one Royaltē Intelligence Object
     // at a time by reading `data.canonical.<object>.<field>`.
     // Required to unblock Canonical Health Object Phase 5/6.
-    return res.status(200).json({ ...result.rawResponse, scanId, canonical });
+    //
+    // ─── Identity Intelligence™ alias rule (Board Final Amendment,
+    //     2026-06-17) ───────────────────────────────────────────────
+    //
+    // CONSTITUTIONAL INVARIANT:
+    //
+    //   response.identityIntelligence  ===  response.canonical.identityIntelligence
+    //
+    // One assembly. One object. Two access paths.
+    //
+    // `canonical.identityIntelligence` is the SOLE source of truth.
+    // The top-level `identityIntelligence` is a CONVENIENCE MIRROR —
+    // it shares the SAME object reference (not a copy, not a clone,
+    // not a re-frozen rebuild). Both paths read the same immutable,
+    // deep-frozen Identity Intelligence™ object.
+    //
+    // FAILURE-MODE ASYMMETRY (by Board design, Stage 4B-2 brief):
+    //   success →  canonical.identityIntelligence: {...}
+    //              identityIntelligence:           same reference
+    //   failure →  canonical.identityIntelligence: OMITTED (key absent)
+    //              identityIntelligence:           null   (surfaced so the
+    //                                                      client can distinguish
+    //                                                      "tried and failed"
+    //                                                      from "did not try")
+    //
+    // Implementation note: do NOT replace the read below with a
+    // structuredClone / JSON round-trip / Object.freeze rebuild — any
+    // of those would break the invariant by producing a separate
+    // object. The invariant test in tests/identity-wiring-test.mjs
+    // guards against that drift.
+    const identityIntelligence = (canonical && canonical.identityIntelligence)
+      ? canonical.identityIntelligence   // same reference — alias, not copy
+      : null;
+    return res.status(200).json({
+      ...result.rawResponse,
+      scanId,
+      canonical,
+      identityIntelligence,
+    });
 
   } catch (err) {
     console.error('Audit error:', err);

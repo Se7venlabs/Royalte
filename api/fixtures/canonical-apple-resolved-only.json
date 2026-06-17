@@ -47,6 +47,7 @@
       "details": {
         "artistId": "1234567890",
         "artistUrl": "https://music.apple.com/us/artist/test-apple-only-artist/1234567890",
+        "artwork": null,
         "albumCount": 3,
         "albums": [],
         "storefrontAvailability": null,
