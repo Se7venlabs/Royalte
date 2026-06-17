@@ -2085,6 +2085,75 @@ body {
   line-height: 1.6;
 }
 
+/* AI Analysis Activity — Stage 2 list below the body paragraph. */
+.mc-ai-activity {
+  margin-top: var(--mc-s-2);
+  padding-top: var(--mc-s-2);
+  border-top: 1px solid var(--mc-divider);
+}
+.mc-ai-activity-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.mc-ai-activity-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--mc-text-muted);
+  text-transform: uppercase;
+}
+.mc-ai-activity-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--mc-green-bright);
+  text-transform: uppercase;
+}
+.mc-ai-activity-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mc-green-bright);
+  box-shadow: 0 0 5px var(--mc-green-glow);
+}
+.mc-ai-activity-list { display: flex; flex-direction: column; }
+.mc-ai-activity-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.mc-ai-activity-item:last-child { border-bottom: 0; }
+.mc-ai-activity-text { min-width: 0; }
+.mc-ai-activity-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+}
+.mc-ai-activity-sub {
+  font-size: 10px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  margin-top: 1px;
+}
+.mc-ai-activity-time {
+  font-size: 10px;
+  color: var(--mc-text-muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.mc-ai-activity-item--ok .mc-ai-activity-title { color: var(--mc-green-bright); }
+
 /* Right Rail Compression v1.0: .mc-takeaways / .mc-takeaways-title /
    .mc-takeaways-list wrappers removed — the KEY TAKEAWAYS block was
    deleted from the AI Insights panel per Board directive.
@@ -3169,6 +3238,53 @@ body {
 
       <h2 class="mc-insights-title">Because What You Can't See Can Cost You.</h2>
       <p class="mc-insights-body">Your music earns money in more places than you think. Royaltē AI™ continuously monitors the business behind your music — helping protect your catalog and maximize what you're owed.</p>
+
+      <div class="mc-ai-activity">
+        <div class="mc-ai-activity-head">
+          <span class="mc-ai-activity-label">AI Analysis Activity</span>
+          <span class="mc-ai-activity-live">
+            <span class="mc-ai-activity-live-dot" aria-hidden="true"></span>
+            Live
+          </span>
+        </div>
+        <ul class="mc-ai-activity-list">
+          <li class="mc-ai-activity-item">
+            <div class="mc-ai-activity-text">
+              <div class="mc-ai-activity-title">Reviewing Publishing Infrastructure…</div>
+              <div class="mc-ai-activity-sub">Checking rights data and publisher connections</div>
+            </div>
+            <div class="mc-ai-activity-time">01:31</div>
+          </li>
+          <li class="mc-ai-activity-item">
+            <div class="mc-ai-activity-text">
+              <div class="mc-ai-activity-title">Verifying Artist Identities…</div>
+              <div class="mc-ai-activity-sub">Cross-referencing artist and ownership records</div>
+            </div>
+            <div class="mc-ai-activity-time">00:05</div>
+          </li>
+          <li class="mc-ai-activity-item">
+            <div class="mc-ai-activity-text">
+              <div class="mc-ai-activity-title">Scanning Metadata Consistency…</div>
+              <div class="mc-ai-activity-sub">Checking ISRC / UPC / ISWC and release data</div>
+            </div>
+            <div class="mc-ai-activity-time">01:30</div>
+          </li>
+          <li class="mc-ai-activity-item">
+            <div class="mc-ai-activity-text">
+              <div class="mc-ai-activity-title">Checking DSP Availability…</div>
+              <div class="mc-ai-activity-sub">Monitoring global distribution and store presence</div>
+            </div>
+            <div class="mc-ai-activity-time">00:50</div>
+          </li>
+          <li class="mc-ai-activity-item mc-ai-activity-item--ok">
+            <div class="mc-ai-activity-text">
+              <div class="mc-ai-activity-title">No New Issues Detected</div>
+              <div class="mc-ai-activity-sub">All systems healthy</div>
+            </div>
+            <div class="mc-ai-activity-time">01:44</div>
+          </li>
+        </ul>
+      </div>
       <!-- Right Rail Compression v1.0: KEY TAKEAWAYS list and "No action is
            required" info-note both removed per Board directive. The module
            ends after the executive narrative — one idea per module. -->
