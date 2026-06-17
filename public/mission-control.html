@@ -2049,24 +2049,48 @@ body {
   line-height: 1.55;
 }
 
-/* v5.0: CTA reduced to a small secondary action — visual emphasis
-   shifts to the new ROYALTĒ LIVE™ pill on the opposite side. */
-.mc-foot-cta {
+/* Live Territory Counter v1.0: replaces the prior .mc-foot-cta
+   "View Full Map" button. Premium glass-style information pill —
+   matches the ROYALTĒ LIVE™ pill's visual language on the opposite
+   side of the foot row. Label sits above a large bold count. */
+.mc-globe-territories {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 5px 14px 6px;
+  background: rgba(168, 85, 247, 0.10);
+  border: 1px solid rgba(168, 85, 247, 0.30);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  line-height: 1.05;
+}
+.mc-globe-territories-label {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  border-radius: var(--mc-r-2);
+  gap: 5px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
   color: var(--mc-purple);
-  background: transparent;
-  border: 1px solid rgba(168, 85, 247, 0.18);
-  opacity: 0.78;
+  font-weight: 700;
+  text-transform: uppercase;
 }
-.mc-foot-cta:hover { opacity: 1; background: rgba(168, 85, 247, 0.06); }
-.mc-foot-cta svg { width: 10px; height: 10px; }
+.mc-globe-territories-icon {
+  width: 11px;
+  height: 11px;
+  color: var(--mc-purple);
+  filter: drop-shadow(0 0 3px var(--mc-purple-glow));
+  flex-shrink: 0;
+}
+.mc-globe-territories-count {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--mc-text);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
 
 /* Executive Compression v3.0: bottom status row + all its supporting
    classes (.mc-status-row / .mc-status-card / .mc-status-card--horizon
@@ -3305,10 +3329,20 @@ body {
               <span class="mc-globe-status-sub">Scanning Global Distribution</span>
             </span>
           </div>
-          <a class="mc-foot-cta" href="#global-footprint-full">
-            View Full Map
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
-          </a>
+          <!-- Live Territory Counter v1.0: replaces the "View Full Map"
+               button. Counter syncs with the .mc-globe-sweep cycle —
+               resets to 0 when each sweep begins (80 % of the 40-s
+               master cycle) and climbs to the API target by the time
+               the sweep finishes (99 %). See the
+               getTerritoryCount() function below for the wiring
+               injection point. -->
+          <div class="mc-globe-territories" aria-label="Territories verified by Royaltē Global Distribution">
+            <span class="mc-globe-territories-label">
+              <svg class="mc-globe-territories-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+              Territories Verified™
+            </span>
+            <span class="mc-globe-territories-count">0</span>
+          </div>
         </div>
       </article>
 
@@ -3525,6 +3559,69 @@ body {
 
     const signout = document.querySelector('.mc-version-sign');
     if (signout) signout.addEventListener('click', (e) => e.preventDefault());
+  })();
+
+  /* Global Music Footprint™ Live Territory Counter v1.0.
+     Syncs with the .mc-globe-sweep CSS animation (40 s master cycle,
+     sweep active 80–99 % = ~7.6 s). When the sweep begins the counter
+     resets to 0 and climbs (ease-out + sin-wave jitter for the
+     "organic randomized acceleration" the directive calls for),
+     reaching the API-supplied target as the sweep finishes. Between
+     sweeps the counter holds at the target until the next reset. */
+  (function () {
+    const el = document.querySelector('.mc-globe-territories-count');
+    if (!el) return;
+
+    /* ─── Royaltē Global Distribution API integration point ──────
+       Wiring stage TODO: replace this stub with the live count
+       fetched from the Royaltē Global Distribution engine (e.g.
+       `return window.RoyalteGlobal?.territoryCount ?? 0;` or an
+       async cache). Every other line in this animator reads the
+       function — swapping in real data is a localized change. */
+    function getTerritoryCount() {
+      return 183; // Board directive's example value, pending wiring.
+    }
+
+    const CYCLE_MS         = 40000;
+    const SWEEP_START_MS   = CYCLE_MS * 0.80;
+    const SWEEP_END_MS     = CYCLE_MS * 0.99;
+    const SWEEP_DURATION   = SWEEP_END_MS - SWEEP_START_MS;
+    const start            = performance.now();
+    let   lastDisplayed    = 0;
+    let   wasInSweep       = false;
+
+    function tick(now) {
+      const elapsed = (now - start) % CYCLE_MS;
+      const inSweep = elapsed >= SWEEP_START_MS && elapsed < SWEEP_END_MS;
+
+      // Transition into a new sweep window → snap reset 0 (Board:
+      // "Reset: 183 ↓ 0, then immediately begin counting upward").
+      if (inSweep && !wasInSweep) lastDisplayed = 0;
+      wasInSweep = inSweep;
+
+      const target = getTerritoryCount();
+
+      if (inSweep) {
+        const t      = (elapsed - SWEEP_START_MS) / SWEEP_DURATION;
+        const eased  = 1 - Math.pow(1 - t, 2);     // ease-out quadratic
+        const jitter = (Math.sin(t * 11.7) + Math.sin(t * 17.3)) * target * 0.012;
+        let v = Math.floor(eased * target + jitter);
+        v = Math.max(lastDisplayed, Math.min(target, v));
+        lastDisplayed = v;
+        el.textContent = String(v);
+      } else if (elapsed >= SWEEP_END_MS) {
+        // Sweep finished → lock on the API value.
+        lastDisplayed  = target;
+        el.textContent = String(target);
+      } else {
+        // Before the first sweep / between sweeps → hold last value.
+        el.textContent = String(lastDisplayed);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    el.textContent = '0';   // initial state per directive
+    requestAnimationFrame(tick);
   })();
 
   /* Change Detection™ Lightning Animation v1.0 — randomized intervals
