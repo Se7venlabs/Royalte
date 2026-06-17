@@ -985,6 +985,17 @@ body {
    aliasing the existing --pending styling so the visual vocabulary
    stays consistent across Identity / Publishing / future modules. */
 .mc-pill--monitoring{ background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
+/* Phase 4B-3 — four-state Identity Intelligence™ pill treatments.
+   NOT_FOUND uses the same urgent rose treatment as ACTION_REQUIRED
+   intentionally — both indicate an issue worth surfacing. UNABLE_TO_CONFIRM
+   is muted slate (we did not / could not look — DO NOT confuse with
+   NOT_FOUND, per the Board constitutional rule). COMING_SOON is for
+   the static Amazon Music informational card only and is NEVER produced
+   from data — Mission Control renders it as locked HTML, not from
+   Identity Intelligence. */
+.mc-pill--notfound  { background: rgba(244, 63, 94, 0.12);  color: #f97373; }
+.mc-pill--unable    { background: rgba(148, 163, 184, 0.16); color: #cbd5e1; }
+.mc-pill--coming-soon { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
 
 /* Identity card — fingerprint scanner visualization (Board-approved original) */
 .mc-identity-body {
@@ -1080,6 +1091,16 @@ body {
   font-size: 12px;
   color: var(--mc-text-muted);
   margin-top: 2px;
+}
+/* Phase 4B-3 — coverage summary subtitle ("X of Y providers verified").
+   Smaller + dimmer than the label so the hierarchy reads as
+   value → label → summary at a glance. */
+.mc-identity-sub {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  opacity: 0.75;
+  margin-top: 2px;
+  letter-spacing: 0.02em;
 }
 
 .mc-identity-checks {
@@ -2912,36 +2933,58 @@ body {
             </div>
           </div>
           <div class="mc-identity-header">
-            <div class="mc-identity-value">72<small>%</small></div>
-            <div class="mc-identity-label">Identity Confidence</div>
+            <!-- Phase 4B-3: coverage indicator. Value + label + summary
+                 are populated at runtime by /js/mission-control.js from
+                 audit_scans.payload.identityIntelligence. Coverage is
+                 INFORMATIONAL provider coverage (Board R) — never a
+                 Health Score. Royaltē Health™ owns executive scoring. -->
+            <div class="mc-identity-value" data-mc-identity-coverage-value>72<small>%</small></div>
+            <div class="mc-identity-label" data-mc-identity-coverage-label>Identity Coverage</div>
+            <div class="mc-identity-sub"   data-mc-identity-coverage-summary>3 of 4 providers verified</div>
           </div>
         </div>
-        <!-- Identity Refinement v2.0: official Royaltē identity
-             verification sources only. External Identities /
-             MusicBrainz / Discogs / placeholders removed; the four
-             major DSP ecosystems now drive this module. Each row may
-             render in one of two Board-approved states: VERIFIED or
-             ACTION. Sample mix below demonstrates both. -->
+        <!-- Phase 4B-3 — Identity provider row.
+
+             Each card carrying [data-mc-identity-provider="<key>"] is
+             iterated at runtime by /js/mission-control.js using the
+             locked Identity Intelligence™ object's `supportedProviders`
+             array. Card count is dynamic — Mission Control never
+             assumes 3 or 4 providers (Board R7 + R8). When a future
+             provider is added to IDENTITY_PROVIDERS upstream, a new
+             card with the matching data-mc-identity-provider attribute
+             is the only HTML edit required here.
+
+             The Amazon Music card sits OUTSIDE the iterated set per
+             Board R2 + R3 + Constitutional Rule R4: no adapter exists,
+             so Amazon is NOT in supportedProviders, and Mission Control
+             must never render an intelligence state for it. The card
+             stays visually present as static "Coming Soon" informational
+             UI — never an intelligence state badge.
+             -->
         <div class="mc-identity-checks">
-          <div class="mc-identity-check">
+          <div class="mc-identity-check" data-mc-identity-provider="apple">
             <img class="mc-identity-platform" src="/img/identity/apple.png" alt="">
             Apple Music for Artists
-            <span class="mc-pill mc-pill--verified">Verified</span>
+            <span class="mc-pill mc-pill--verified" data-mc-identity-pill>Verified</span>
           </div>
-          <div class="mc-identity-check">
+          <div class="mc-identity-check" data-mc-identity-provider="spotify">
             <img class="mc-identity-platform" src="/img/identity/spotify.png" alt="">
             Spotify for Artists
-            <span class="mc-pill mc-pill--verified">Verified</span>
+            <span class="mc-pill mc-pill--verified" data-mc-identity-pill>Verified</span>
           </div>
-          <div class="mc-identity-check">
-            <img class="mc-identity-platform" src="/img/identity/amazon.png" alt="">
-            Amazon Music for Artists
-            <span class="mc-pill mc-pill--action">Action</span>
-          </div>
-          <div class="mc-identity-check">
+          <div class="mc-identity-check" data-mc-identity-provider="youtube">
             <img class="mc-identity-platform" src="/img/identity/youtube.png" alt="">
             YouTube Official Artist Channel
-            <span class="mc-pill mc-pill--verified">Verified</span>
+            <span class="mc-pill mc-pill--verified" data-mc-identity-pill>Verified</span>
+          </div>
+          <!-- Amazon Music — INFORMATIONAL ONLY. Not in supportedProviders.
+               Not iterated by /js/mission-control.js. The pill is a static
+               "Coming Soon" label and must never be replaced by a four-state
+               intelligence badge until a first-class Amazon adapter exists. -->
+          <div class="mc-identity-check" data-mc-identity-coming-soon="amazon">
+            <img class="mc-identity-platform" src="/img/identity/amazon.png" alt="">
+            Amazon Music for Artists
+            <span class="mc-pill mc-pill--coming-soon">Coming Soon</span>
           </div>
         </div>
         <div class="mc-card-foot"></div>
@@ -3491,22 +3534,26 @@ body {
         </div>
       </div>
 
-      <!-- Priority Actions Refinement v2.0: replaces the 4-check
-           takeaways list. Section label + count badge above an
-           orange-warning-icon list of recommended actions. -->
+      <!-- Phase 4B-3 — Priority Actions™.
+
+           At runtime /js/mission-control.js replaces the entire
+           <ul data-mc-priority-actions> body with one <li> per
+           identityIntelligence.recommendations[] entry (Board R:
+           consume directly, never create, never filter, never reorder).
+           The count badge mirrors the rendered list length.
+
+           The static fallback list below (rendered only when no
+           Identity Intelligence object is available) intentionally
+           does NOT include "Verify Amazon Music for Artists" — Board
+           Ruling 3, 2026-06-17. Until a first-class Amazon adapter
+           exists, Mission Control must never recommend actions based
+           on unsupported providers. -->
       <div class="mc-pa-section">
         <div class="mc-pa-section-head">
           <span class="mc-pa-section-label">Actions Required</span>
-          <span class="mc-pa-count">3</span>
+          <span class="mc-pa-count" data-mc-priority-actions-count>2</span>
         </div>
-        <ul class="mc-pa-list">
-          <li class="mc-pa-item">
-            <span class="mc-pa-item-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg>
-            </span>
-            <span class="mc-pa-item-label">Verify Amazon Music for Artists</span>
-            <svg class="mc-pa-item-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
-          </li>
+        <ul class="mc-pa-list" data-mc-priority-actions>
           <li class="mc-pa-item">
             <span class="mc-pa-item-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg>
@@ -3775,6 +3822,14 @@ body {
     requestAnimationFrame(tick);
   })();
 </script>
+
+<!-- Phase 4B-3 — Mission Control™ runtime data wiring.
+     Reads audit_scans.payload.identityIntelligence via the existing
+     Supabase anon client (RLS-scoped to the authenticated user) and
+     renders into the locked Mission Control surface. Pure consumer:
+     zero business logic, zero provider calls, zero recomputation.
+     Failure is silent — the locked sample HTML stays in place. -->
+<script type="module" src="/js/mission-control.js"></script>
 
 </body>
 </html>
