@@ -138,6 +138,28 @@ export function assembleCio(artistName, sources, options) {
     }
     const profile = buildExternalProfileFromScan(scanPayload);
     if (profile) cio.identity.externalProfiles.push(profile);
+
+    // Apple-canonical identity fields (Stage 2B). Sourced from the
+    // Apple Adapter's output as it lands in the canonical scan
+    // response. Apple is canonical for artwork + Apple URL regardless
+    // of whether the scan started from Spotify or Apple — these
+    // values are populated whenever the adapter found the artist.
+    const appleDetails = scanPayload.platforms
+                      && scanPayload.platforms.appleMusic
+                      && scanPayload.platforms.appleMusic.details;
+    if (appleDetails && typeof appleDetails === 'object') {
+      if (typeof appleDetails.artistUrl === 'string' && appleDetails.artistUrl !== '') {
+        cio.identity.appleUrl = appleDetails.artistUrl;
+      }
+      if (typeof appleDetails.artwork === 'string' && appleDetails.artwork !== '') {
+        cio.identity.artwork = appleDetails.artwork;
+      }
+    }
+    if (scanPayload.source
+        && typeof scanPayload.source.storefront === 'string'
+        && scanPayload.source.storefront !== '') {
+      cio.identity.storefront = scanPayload.source.storefront;
+    }
   }
 
   // ── catalog (from scanPayload.catalog) ──────────────────────────

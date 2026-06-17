@@ -6,6 +6,89 @@
 //  of external state. The Assembly Engine lives at
 //  api/_lib/cio-assembler.js.
 //
+// ─────────────────────────────────────────────────────────────────────
+//  Royaltē Canonical Identity Object™ — authoritative schema
+//    (cio.identity sub-object) — Source of Truth
+// ─────────────────────────────────────────────────────────────────────
+//
+//  The Canonical Identity Object is the SINGLE place where Royaltē
+//  records what is known about an artist's identity. Every downstream
+//  surface — Intelligence Engine rules, Health Engine, Mission Control,
+//  Executive Brief — reads identity FROM HERE, never from a provider
+//  adapter directly. This sub-object IS the Royaltē Identity Object
+//  referenced by the Constitution; constitution/CANONICAL_IDENTITY_OBJECT.md
+//  is a pointer to this file.
+//
+//  Field reference (current Phase 1 / Stage 2B shape):
+//
+//    canonicalArtistName : string | null
+//      Display-canonical artist name. Apple-resolved name wins when
+//      input was an Apple URL (identity-lock 2026-06-05); otherwise
+//      caller-provided or Spotify-derived. Set by the Assembly Engine.
+//
+//    externalProfiles : Array<{ provider, profileId, verified }>
+//      Authoritative DSP profile references. One entry per provider
+//      per profile ID. Today populated only from the scan's source
+//      platform; future adapters APPEND, they never replace prior
+//      entries (enrich-don't-replace rule).
+//        provider  : 'spotify' | 'apple' | 'youtube' | ...
+//        profileId : string  (Spotify/Apple/YouTube artist ID)
+//        verified  : boolean  (see STAGE 3 FLAG below)
+//
+//    artistConfidence : 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN'
+//      Confidence in the identity record as a whole. Default 'UNKNOWN'.
+//      Real values arrive when the Phase 5 rule library promotes them.
+//
+//    appleUrl : string | null
+//      Apple Music artist URL. Populated by the Assembly Engine from
+//      scanPayload.platforms.appleMusic.details.artistUrl when the
+//      Apple Adapter (api/_lib/identity/apple.js) found the artist —
+//      regardless of whether the scan started from Spotify or Apple.
+//
+//    artwork : string | null
+//      Apple Music artist artwork URL (600×600). Populated by the
+//      Assembly Engine from scanPayload.platforms.appleMusic.details.artwork,
+//      which is sourced from the Apple Adapter's artworkUrl. Apple is
+//      the canonical artwork source.
+//
+//    storefront : string | null
+//      Apple regional storefront code (e.g. 'us', 'gb', 'jp') the
+//      Apple Adapter resolved against. Populated by the Assembly
+//      Engine from scanPayload.source.storefront. Used by future
+//      Apple lookups to maintain regional consistency.
+//
+//  Provider ownership (which adapter populates which field):
+//    Apple Adapter (api/_lib/identity/apple.js):
+//      → canonicalArtistName (when input is Apple)
+//      → externalProfiles[provider='apple']
+//      → appleUrl, artwork, storefront
+//    Spotify resolution (in api/_lib/run-scan.js):
+//      → canonicalArtistName (when input is Spotify)
+//      → externalProfiles[provider='spotify']
+//    Future YouTube / SoundCloud / etc. adapters:
+//      → APPEND additional externalProfiles entries
+//      → MAY add provider-specific fields in a future schema bump,
+//        BUT MUST coexist with Apple fields, not replace them
+//
+//  Invariants (load-bearing — do not break):
+//    1. ENRICH-DON'T-REPLACE — new provider data appends to
+//       externalProfiles; never overwrites a prior entry.
+//    2. SEPARATION — identity holds identity ONLY. No catalog data
+//       (releasesCount, catalogAgeYears) and no publishing data
+//       (worksCount, ISRC, IPI, royalteId) lives here. Those have
+//       their own sections (cio.catalog, cio.publishing).
+//    3. APPLE IS CANONICAL — when conflicts arise between Apple and
+//       Spotify on identity fields, Apple wins.
+//
+//  STAGE 3 FLAG — externalProfiles[].verified is currently hardcoded
+//    to `true` in api/_lib/cio-assembler.js (buildExternalProfileFromScan).
+//    The real 4-state mapping (Verified / Action Required / Not Found /
+//    Unable to Confirm — where AUTH_UNAVAILABLE → Unable to Confirm,
+//    never Not Found) lives in Phase 5 rules under
+//    api/rules/identity-rules.js. Stage 3 of Phase 1 wires the real
+//    verification status through. Until then, treat verified=true as
+//    "this provider returned data," not "the artist confirmed ownership."
+//
 //  Constitutional anchors:
 //    - Canonical Payload V2 (constitution/CANONICAL_PAYLOAD_V2.md)
 //      remains the wire format every external product consumes.
@@ -57,11 +140,17 @@ export function emptyCio(artistName) {
     generatedAt: new Date().toISOString(),
     confidence:  CIO_CONFIDENCE,
 
-    // ── identity (summary — what Royaltē knows about who this is) ──
+    // ── identity (Royaltē Canonical Identity Object — see header) ──
     identity: {
       canonicalArtistName,
       externalProfiles: [],          // [{ provider, profileId, verified }]
       artistConfidence: CIO_ARTIST_CONFIDENCE,
+      // Apple-canonical identity fields. Populated by the Assembly
+      // Engine from the scan payload when the Apple Adapter resolved
+      // the artist. null when Apple data is unavailable.
+      appleUrl:   null,              // string | null  — Apple artist page URL
+      artwork:    null,              // string | null  — 600x600 artwork URL
+      storefront: null,              // string | null  — Apple regional storefront code
     },
 
     // ── publishing (summary — COUNTS + REFERENCES; never embedded
