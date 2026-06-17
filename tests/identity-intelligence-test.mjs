@@ -86,7 +86,7 @@ test('1.  Apple VERIFIED — availability VERIFIED + artwork present + no provid
   assert.equal(cio.identity.artwork, 'https://example.com/art.jpg');
   const report = reportFor(cio);
   const out = assembleIdentityIntelligence(report, cio);
-  assert.equal(out.apple, IDENTITY_STATE.VERIFIED);
+  assert.equal(out.providers.apple, IDENTITY_STATE.VERIFIED);
 });
 
 test('2.  Spotify VERIFIED — availability VERIFIED, no rules ever promote it to ACTION_REQUIRED', () => {
@@ -95,7 +95,7 @@ test('2.  Spotify VERIFIED — availability VERIFIED, no rules ever promote it t
     source:    { platform: 'spotify', urlType: 'artist' },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.spotify, IDENTITY_STATE.VERIFIED);
+  assert.equal(out.providers.spotify, IDENTITY_STATE.VERIFIED);
 });
 
 test('3.  YouTube VERIFIED — availability VERIFIED + officialChannel present + Content ID verified', () => {
@@ -108,10 +108,10 @@ test('3.  YouTube VERIFIED — availability VERIFIED + officialChannel present +
     },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.youtube, IDENTITY_STATE.VERIFIED);
+  assert.equal(out.providers.youtube, IDENTITY_STATE.VERIFIED);
 });
 
-test('4.  All three VERIFIED — every provider resolves cleanly, no issues, score 100', () => {
+test('4.  All three VERIFIED — every provider resolves cleanly, no issues, full coverage', () => {
   const cio = cioFor({
     providers: {
       apple:   { availability: 'VERIFIED', details: { artwork: 'https://x/a.jpg' } },
@@ -120,12 +120,27 @@ test('4.  All three VERIFIED — every provider resolves cleanly, no issues, sco
     },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.apple,   IDENTITY_STATE.VERIFIED);
-  assert.equal(out.spotify, IDENTITY_STATE.VERIFIED);
-  assert.equal(out.youtube, IDENTITY_STATE.VERIFIED);
-  assert.equal(out.score, 100);
+  assert.equal(out.providers.apple,   IDENTITY_STATE.VERIFIED);
+  assert.equal(out.providers.spotify, IDENTITY_STATE.VERIFIED);
+  assert.equal(out.providers.youtube, IDENTITY_STATE.VERIFIED);
+  assert.equal(out.verifiedProviders, 3);
+  assert.equal(out.totalProviders,    3);
+  assert.equal(out.coverage,        100);
   assert.equal(out.issues.length, 0);
   assert.equal(out.strengths.length, 3);
+});
+
+test('4b. Identity Intelligence MUST NOT expose a `score` field — that belongs to Royaltē Health™', () => {
+  const cio = cioFor({
+    providers: {
+      apple:   { availability: 'VERIFIED', details: { artwork: 'https://x/a.jpg' } },
+      spotify: { availability: 'VERIFIED', details: null },
+      youtube: { availability: 'NOT_FOUND', details: null },
+    },
+  });
+  const out = assembleIdentityIntelligence(reportFor(cio), cio);
+  assert.ok(!('score' in out),
+    'score must not exist on Identity Intelligence (Board amendment 2026-06-17)');
 });
 
 // ═════════════════════════════════════════════════════════════════════
@@ -144,7 +159,7 @@ test('5.  Apple ACTION_REQUIRED — VERIFIED but artwork missing fires identity.
   const fired = report.observations.filter((o) => o.ruleId === 'identity.apple.artwork-missing');
   assert.equal(fired.length, 1, 'identity.apple.artwork-missing should fire');
   const out = assembleIdentityIntelligence(report, cio);
-  assert.equal(out.apple, IDENTITY_STATE.ACTION_REQUIRED);
+  assert.equal(out.providers.apple, IDENTITY_STATE.ACTION_REQUIRED);
   assert.ok(out.issues.some((i) => i.ruleId === 'identity.apple.artwork-missing'));
   assert.ok(out.recommendations.some((r) => r.ruleId === 'identity.apple.artwork-missing'));
 });
@@ -167,7 +182,7 @@ test('7.  YouTube ACTION_REQUIRED — channel exists but is not Official Artist 
   const fired = report.observations.filter((o) => o.ruleId === 'identity.youtube.no-official-channel');
   assert.equal(fired.length, 1, 'identity.youtube.no-official-channel should fire');
   const out = assembleIdentityIntelligence(report, cio);
-  assert.equal(out.youtube, IDENTITY_STATE.ACTION_REQUIRED);
+  assert.equal(out.providers.youtube, IDENTITY_STATE.ACTION_REQUIRED);
 });
 
 test('8.  YouTube ACTION_REQUIRED — Official Artist Channel present but Content ID unverified', () => {
@@ -183,7 +198,7 @@ test('8.  YouTube ACTION_REQUIRED — Official Artist Channel present but Conten
   const noChannel = report.observations.filter((o) => o.ruleId === 'identity.youtube.no-official-channel');
   assert.equal(noChannel.length, 0);
   const out = assembleIdentityIntelligence(report, cio);
-  assert.equal(out.youtube, IDENTITY_STATE.ACTION_REQUIRED);
+  assert.equal(out.providers.youtube, IDENTITY_STATE.ACTION_REQUIRED);
 });
 
 test('9.  Apple VERIFIED + artwork null + apple availability NOT VERIFIED — artwork rule does NOT fire', () => {
@@ -208,7 +223,7 @@ test('10. Apple NOT_FOUND — availability NOT_FOUND maps directly', () => {
     source:    { platform: 'spotify', urlType: 'artist' },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.apple, IDENTITY_STATE.NOT_FOUND);
+  assert.equal(out.providers.apple, IDENTITY_STATE.NOT_FOUND);
 });
 
 test('11. Spotify NOT_FOUND maps directly', () => {
@@ -217,7 +232,7 @@ test('11. Spotify NOT_FOUND maps directly', () => {
     source:    { platform: 'apple_music', urlType: 'artist', storefront: 'us' },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.spotify, IDENTITY_STATE.NOT_FOUND);
+  assert.equal(out.providers.spotify, IDENTITY_STATE.NOT_FOUND);
 });
 
 test('12. YouTube NOT_FOUND maps directly', () => {
@@ -225,7 +240,7 @@ test('12. YouTube NOT_FOUND maps directly', () => {
     providers: { youtube: { availability: 'NOT_FOUND', details: null } },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.youtube, IDENTITY_STATE.NOT_FOUND);
+  assert.equal(out.providers.youtube, IDENTITY_STATE.NOT_FOUND);
 });
 
 test('13. NOT_FOUND emits an issue entry for that provider', () => {
@@ -254,8 +269,8 @@ test('14. CRITICAL: AUTH_UNAVAILABLE → UNABLE_TO_CONFIRM, NEVER NOT_FOUND (app
     source:    { platform: 'spotify', urlType: 'artist' },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.apple, IDENTITY_STATE.UNABLE_TO_CONFIRM);
-  assert.notEqual(out.apple, IDENTITY_STATE.NOT_FOUND);
+  assert.equal(out.providers.apple, IDENTITY_STATE.UNABLE_TO_CONFIRM);
+  assert.notEqual(out.providers.apple, IDENTITY_STATE.NOT_FOUND);
 });
 
 test('15. CRITICAL: ERROR → UNABLE_TO_CONFIRM, NEVER NOT_FOUND (youtube)', () => {
@@ -263,8 +278,8 @@ test('15. CRITICAL: ERROR → UNABLE_TO_CONFIRM, NEVER NOT_FOUND (youtube)', () 
     providers: { youtube: { availability: 'ERROR', details: null } },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.youtube, IDENTITY_STATE.UNABLE_TO_CONFIRM);
-  assert.notEqual(out.youtube, IDENTITY_STATE.NOT_FOUND);
+  assert.equal(out.providers.youtube, IDENTITY_STATE.UNABLE_TO_CONFIRM);
+  assert.notEqual(out.providers.youtube, IDENTITY_STATE.NOT_FOUND);
 });
 
 test('16. Missing provider observation entry → UNABLE_TO_CONFIRM (apple)', () => {
@@ -275,7 +290,7 @@ test('16. Missing provider observation entry → UNABLE_TO_CONFIRM (apple)', () 
   // cio.observations.providers.apple is null
   assert.equal(cio.observations.providers.apple, null);
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.apple, IDENTITY_STATE.UNABLE_TO_CONFIRM);
+  assert.equal(out.providers.apple, IDENTITY_STATE.UNABLE_TO_CONFIRM);
 });
 
 test('17. UNABLE_TO_CONFIRM emits NO issue and NO strength', () => {
@@ -296,10 +311,10 @@ test('18. Garbage availability value → UNABLE_TO_CONFIRM, never NOT_FOUND', ()
     source:    { platform: 'spotify', urlType: 'artist' },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.apple, IDENTITY_STATE.UNABLE_TO_CONFIRM);
+  assert.equal(out.providers.apple, IDENTITY_STATE.UNABLE_TO_CONFIRM);
 });
 
-test('19. All three UNABLE_TO_CONFIRM → score is null (no signal to evaluate)', () => {
+test('19. All three UNABLE_TO_CONFIRM → coverage 0 (no verified providers)', () => {
   const cio = cioFor({
     providers: {
       apple:   { availability: 'AUTH_UNAVAILABLE', details: null },
@@ -308,29 +323,34 @@ test('19. All three UNABLE_TO_CONFIRM → score is null (no signal to evaluate)'
     },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.score, null);
+  assert.equal(out.verifiedProviders, 0);
+  assert.equal(out.totalProviders,    3);
+  assert.equal(out.coverage,          0);
 });
 
 // ═════════════════════════════════════════════════════════════════════
-//  20–24 — Score arithmetic & shape
+//  20–24 — Coverage arithmetic & output shape
+//  (Board amendment 2026-06-17 — replaces prior score-formula tests)
 // ═════════════════════════════════════════════════════════════════════
 
-test('20. Score formula — VERIFIED+VERIFIED+ACTION_REQUIRED = round((100+100+50)/3) = 83', () => {
+test('20. Coverage — 2 VERIFIED of 3 (one NOT_FOUND) → coverage 67 — matches Board example', () => {
   const cio = cioFor({
     providers: {
       apple:   { availability: 'VERIFIED', details: { artwork: 'https://x/a.jpg' } },
       spotify: { availability: 'VERIFIED', details: null },
-      youtube: { availability: 'VERIFIED', details: { officialChannel: { channelId: 'UC' }, contentIdVerified: false } },
+      youtube: { availability: 'NOT_FOUND', details: null },
     },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.apple,   IDENTITY_STATE.VERIFIED);
-  assert.equal(out.spotify, IDENTITY_STATE.VERIFIED);
-  assert.equal(out.youtube, IDENTITY_STATE.ACTION_REQUIRED);
-  assert.equal(out.score, 83);
+  assert.equal(out.providers.apple,   IDENTITY_STATE.VERIFIED);
+  assert.equal(out.providers.spotify, IDENTITY_STATE.VERIFIED);
+  assert.equal(out.providers.youtube, IDENTITY_STATE.NOT_FOUND);
+  assert.equal(out.verifiedProviders, 2);
+  assert.equal(out.totalProviders,    3);
+  assert.equal(out.coverage,         67);
 });
 
-test('21. Score formula — UNABLE_TO_CONFIRM excluded from numerator AND denominator', () => {
+test('21. Coverage — UNABLE_TO_CONFIRM counts toward totalProviders, NOT toward verifiedProviders', () => {
   const cio = cioFor({
     providers: {
       apple:   { availability: 'VERIFIED', details: { artwork: 'https://x/a.jpg' } },
@@ -339,16 +359,36 @@ test('21. Score formula — UNABLE_TO_CONFIRM excluded from numerator AND denomi
     },
   });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
-  assert.equal(out.spotify, IDENTITY_STATE.UNABLE_TO_CONFIRM);
-  assert.equal(out.score, 100, 'two VERIFIED with one UNABLE_TO_CONFIRM should average to 100');
+  assert.equal(out.providers.spotify,  IDENTITY_STATE.UNABLE_TO_CONFIRM);
+  assert.equal(out.verifiedProviders, 2);
+  assert.equal(out.totalProviders,    3);
+  assert.equal(out.coverage,         67);
 });
 
-test('22. Output shape — exact keys, deep-frozen', () => {
+test('21b. Coverage — ACTION_REQUIRED does NOT count as verified', () => {
+  const cio = cioFor({
+    providers: {
+      apple:   { availability: 'VERIFIED', details: { artwork: null } },  // → ACTION_REQUIRED
+      spotify: { availability: 'VERIFIED', details: null },
+      youtube: { availability: 'VERIFIED', details: { officialChannel: { channelId: 'UC' }, contentIdVerified: true } },
+    },
+  });
+  const out = assembleIdentityIntelligence(reportFor(cio), cio);
+  assert.equal(out.providers.apple, IDENTITY_STATE.ACTION_REQUIRED);
+  assert.equal(out.verifiedProviders, 2);
+  assert.equal(out.coverage,         67);
+});
+
+test('22. Output shape — exact keys, NO score field, deep-frozen', () => {
   const cio = cioFor({ providers: { apple: { availability: 'VERIFIED', details: { artwork: 'https://x/a.jpg' } } } });
   const out = assembleIdentityIntelligence(reportFor(cio), cio);
   assert.deepStrictEqual(Object.keys(out).sort(),
-    ['apple', 'issues', 'recommendations', 'score', 'spotify', 'strengths', 'youtube']);
+    ['coverage', 'issues', 'providers', 'recommendations', 'strengths', 'totalProviders', 'verifiedProviders']);
+  assert.deepStrictEqual(Object.keys(out.providers).sort(),
+    ['apple', 'spotify', 'youtube']);
+  assert.ok(!('score' in out), 'score must not exist (Board amendment 2026-06-17)');
   assert.ok(Object.isFrozen(out));
+  assert.ok(Object.isFrozen(out.providers));
   assert.ok(Object.isFrozen(out.strengths));
   assert.ok(Object.isFrozen(out.issues));
   assert.ok(Object.isFrozen(out.recommendations));
@@ -384,31 +424,38 @@ test('24. Purity — assembler never mutates inputs', () => {
 //  25–28 — Defensive / never-throws contract
 // ═════════════════════════════════════════════════════════════════════
 
-test('25. null inputs do not throw and produce all-UNABLE_TO_CONFIRM', () => {
+test('25. null inputs do not throw and produce all-UNABLE_TO_CONFIRM, coverage 0', () => {
   const out = assembleIdentityIntelligence(null, null);
-  assert.equal(out.apple,   IDENTITY_STATE.UNABLE_TO_CONFIRM);
-  assert.equal(out.spotify, IDENTITY_STATE.UNABLE_TO_CONFIRM);
-  assert.equal(out.youtube, IDENTITY_STATE.UNABLE_TO_CONFIRM);
-  assert.equal(out.score, null);
+  assert.equal(out.providers.apple,   IDENTITY_STATE.UNABLE_TO_CONFIRM);
+  assert.equal(out.providers.spotify, IDENTITY_STATE.UNABLE_TO_CONFIRM);
+  assert.equal(out.providers.youtube, IDENTITY_STATE.UNABLE_TO_CONFIRM);
+  assert.equal(out.verifiedProviders, 0);
+  assert.equal(out.totalProviders,    3);
+  assert.equal(out.coverage,          0);
 });
 
 test('26. undefined inputs do not throw', () => {
   const out = assembleIdentityIntelligence(undefined, undefined);
   assert.ok(out);
-  assert.equal(out.apple, IDENTITY_STATE.UNABLE_TO_CONFIRM);
+  assert.equal(out.providers.apple, IDENTITY_STATE.UNABLE_TO_CONFIRM);
 });
 
 test('27. Empty cio + empty report do not throw', () => {
   const out = assembleIdentityIntelligence({ observations: [] }, {});
   assert.ok(out);
-  assert.equal(out.apple, IDENTITY_STATE.UNABLE_TO_CONFIRM);
+  assert.equal(out.providers.apple, IDENTITY_STATE.UNABLE_TO_CONFIRM);
 });
 
 test('28. Amazon Music is intentionally absent from the output object (Board D1)', () => {
   const out = assembleIdentityIntelligence(null, null);
-  assert.ok(!('amazon' in out),       'Amazon key must not appear (Phase 3 deferred per Board D1)');
-  assert.ok(!('amazonMusic' in out),  'Amazon key must not appear (Phase 3 deferred per Board D1)');
+  assert.ok(!('amazon' in out.providers),
+    'Amazon key must not appear on providers (Phase 3 deferred per Board D1)');
+  assert.ok(!('amazonMusic' in out.providers),
+    'Amazon key must not appear on providers (Phase 3 deferred per Board D1)');
   assert.ok(!IDENTITY_PROVIDERS.includes('amazon'));
+  // totalProviders covers ONLY Phase-3 providers, not unsupported ones
+  assert.equal(out.totalProviders, 3,
+    'totalProviders must reflect the Phase-3 provider set (3), not include unsupported providers');
 });
 
 // ═════════════════════════════════════════════════════════════════════

@@ -5,7 +5,7 @@
 **Source of truth: `api/_lib/identity-intelligence.js`.**
 
 This file is a pointer, not a duplicate. The authoritative algorithm,
-output shape, score formula, and state-mapping rules live in the
+output shape, coverage formula, and state-mapping rules live in the
 doc-comment block at the top of `api/_lib/identity-intelligence.js`.
 
 Read the source: [`api/_lib/identity-intelligence.js`](../api/_lib/identity-intelligence.js).
@@ -51,20 +51,43 @@ Object → Many Consumers.
    D4: "Do NOT invent Action Required conditions until richer
    Spotify observations exist." Future phases may add Spotify rules.
 
-## Stage 3B v1.0 score formula (flagged for Board ratification)
+## Identity Intelligence™ vs Royaltē Health™ (Board Final Lock, 2026-06-17)
 
-The current `score` formula is:
+Identity Intelligence™ answers:
 
-- VERIFIED          = 100 points
-- ACTION_REQUIRED   = 50 points
-- NOT_FOUND         = 0 points
-- UNABLE_TO_CONFIRM = excluded from numerator AND denominator
-- score = round(sum / count of evaluated providers)
-- All-UNABLE_TO_CONFIRM → score = `null`
+> "Is my artist identity healthy across supported providers?"
 
-This formula was not explicitly locked in the Phase 3 brief and is
-held for Board ratification or amendment before Mission Control™
-wiring.
+Royaltē Health™ answers:
+
+> "How healthy is my entire backend ecosystem?"
+
+Those are different questions and must remain separate intelligence
+domains. Identity Intelligence owns identity STATUS and provider
+COVERAGE. It does NOT compute an executive Health Score.
+
+The future Royaltē Health™ Engine will consume Identity Intelligence
+alongside Publishing / Catalog / Backend / Metadata / DSP / Collection
+/ Revenue intelligence and produce a single executive Health Score.
+
+## Coverage (informational only)
+
+```
+coverage = round(verifiedProviders / totalProviders * 100)
+```
+
+- `verifiedProviders` — count of providers whose state is `VERIFIED`.
+  `ACTION_REQUIRED`, `NOT_FOUND`, and `UNABLE_TO_CONFIRM` do NOT count.
+- `totalProviders` — count of providers in the Phase-3 set
+  (`IDENTITY_PROVIDERS.length`, currently 3: apple · spotify · youtube).
+
+Coverage is INFORMATIONAL ONLY. It is NOT a Health Score. Mission
+Control MUST render it as a provider-coverage indicator — never as
+an executive score.
+
+Any weighted average of provider states (e.g. `VERIFIED = 100`,
+`ACTION_REQUIRED = 50`, `NOT_FOUND = 0`) is hereby deprecated and
+MUST NOT be reintroduced. Score-class computation belongs exclusively
+to the future Royaltē Health™ Engine.
 
 ## Why this file does not list field shapes
 

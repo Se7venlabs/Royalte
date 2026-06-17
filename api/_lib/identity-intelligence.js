@@ -51,22 +51,44 @@
 //  Output object shape (deep-frozen):
 //
 //    {
-//      apple:           IDENTITY_STATE,
-//      spotify:         IDENTITY_STATE,
-//      youtube:         IDENTITY_STATE,
-//      score:           number 0-100 | null,
+//      providers: {
+//        apple:   IDENTITY_STATE,
+//        spotify: IDENTITY_STATE,
+//        youtube: IDENTITY_STATE,
+//      },
+//      verifiedProviders: number,   // count of providers in VERIFIED state
+//      totalProviders:    number,   // count of providers covered by this phase
+//      coverage:          number,   // round(verifiedProviders / totalProviders * 100)
 //      strengths:       Array<{ provider, label }>,
 //      issues:          Array<{ provider, label, ruleId, title, severity }>,
 //      recommendations: Array<{ provider, label, ruleId, recommendation }>,
 //    }
 //
-//  SCORE FORMULA (Stage 3B v1.0 — flagged for Board ratification):
-//    VERIFIED          = 100 points
-//    ACTION_REQUIRED   =  50 points
-//    NOT_FOUND         =   0 points
-//    UNABLE_TO_CONFIRM = excluded from numerator AND denominator
-//    score = round(sum / count of evaluated providers)
-//    All-UNABLE_TO_CONFIRM → score = null
+//  COVERAGE (Board Final Lock, 2026-06-17 amendment):
+//
+//    Identity Intelligence™ owns identity STATUS only. It does NOT
+//    compute an executive Health Score. That responsibility belongs
+//    to the future Royaltē Health™ Engine, which will consume this
+//    object alongside Publishing / Catalog / Backend / Metadata / DSP
+//    / Collection / Revenue intelligence and produce ONE overall
+//    Health Score for the entire backend ecosystem.
+//
+//    The `coverage` field exposed here is INFORMATIONAL ONLY:
+//
+//      coverage = round(verifiedProviders / totalProviders * 100)
+//
+//    UNABLE_TO_CONFIRM, NOT_FOUND, and ACTION_REQUIRED do NOT count as
+//    verified — only IDENTITY_STATE.VERIFIED does. The denominator is
+//    the full Phase-3 provider set (IDENTITY_PROVIDERS.length = 3).
+//
+//    Coverage answers: "Is my artist identity healthy across supported
+//    providers?" It is NOT a Health Score. Mission Control™ MUST NOT
+//    render this as an executive score — only as a provider-coverage
+//    indicator alongside the per-provider state badges.
+//
+//    Any future weighted scoring across identity providers — or across
+//    identity and other intelligence domains — is the exclusive
+//    responsibility of the Royaltē Health™ Engine.
 //
 //  Determinism & purity:
 //    - Pure function of (intelligenceReport, cio).
@@ -90,12 +112,6 @@ export const IDENTITY_PROVIDER_LABELS = Object.freeze({
   apple:   'Apple Music',
   spotify: 'Spotify',
   youtube: 'YouTube',
-});
-
-const SCORE_POINTS = Object.freeze({
-  [IDENTITY_STATE.VERIFIED]:        100,
-  [IDENTITY_STATE.ACTION_REQUIRED]:  50,
-  [IDENTITY_STATE.NOT_FOUND]:         0,
 });
 
 function deepFreeze(obj) {
@@ -143,18 +159,22 @@ function deriveState(cio, report, provider) {
   return fired.length > 0 ? IDENTITY_STATE.ACTION_REQUIRED : IDENTITY_STATE.VERIFIED;
 }
 
-function computeScore(states) {
-  let total = 0;
-  let counted = 0;
+// computeCoverage(states)
+//
+// Provider-coverage percentage. Informational only — NOT a Health Score.
+// Score-class computation belongs exclusively to the future Royaltē
+// Health™ Engine; Identity Intelligence™ does not weight or grade.
+function computeCoverage(states) {
+  let verified = 0;
+  const total = IDENTITY_PROVIDERS.length;
   for (const p of IDENTITY_PROVIDERS) {
-    const s = states[p];
-    if (s === IDENTITY_STATE.UNABLE_TO_CONFIRM) continue;
-    const points = SCORE_POINTS[s];
-    if (typeof points !== 'number') continue;
-    total   += points;
-    counted += 1;
+    if (states[p] === IDENTITY_STATE.VERIFIED) verified += 1;
   }
-  return counted === 0 ? null : Math.round(total / counted);
+  return {
+    verifiedProviders: verified,
+    totalProviders:    total,
+    coverage:          total === 0 ? 0 : Math.round((verified / total) * 100),
+  };
 }
 
 // assembleIdentityIntelligence(intelligenceReport, cio)
@@ -224,11 +244,17 @@ export function assembleIdentityIntelligence(intelligenceReport, cio) {
     // We do not know — say nothing executive about it.
   }
 
+  const { verifiedProviders, totalProviders, coverage } = computeCoverage(states);
+
   return deepFreeze({
-    apple:   states.apple,
-    spotify: states.spotify,
-    youtube: states.youtube,
-    score:   computeScore(states),
+    providers: {
+      apple:   states.apple,
+      spotify: states.spotify,
+      youtube: states.youtube,
+    },
+    verifiedProviders,
+    totalProviders,
+    coverage,
     strengths,
     issues,
     recommendations,
