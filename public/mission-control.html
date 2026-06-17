@@ -2124,11 +2124,20 @@ body {
 .mc-ai-activity-list { display: flex; flex-direction: column; }
 .mc-ai-activity-item {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr auto;
   gap: 8px;
   align-items: baseline;
   padding: 5px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.mc-ai-activity-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid #ffffff;
+  background: transparent;
+  box-sizing: border-box;
+  align-self: center;
 }
 .mc-ai-activity-item:last-child { border-bottom: 0; }
 .mc-ai-activity-text { min-width: 0; }
@@ -3248,6 +3257,7 @@ body {
         </div>
         <ul class="mc-ai-activity-list">
           <li class="mc-ai-activity-item">
+            <span class="mc-ai-activity-dot" aria-hidden="true"></span>
             <div class="mc-ai-activity-text">
               <div class="mc-ai-activity-title">Reviewing Publishing Infrastructure…</div>
               <div class="mc-ai-activity-sub">Checking rights data and publisher connections</div>
@@ -3255,6 +3265,7 @@ body {
             <div class="mc-ai-activity-time">01:31</div>
           </li>
           <li class="mc-ai-activity-item">
+            <span class="mc-ai-activity-dot" aria-hidden="true"></span>
             <div class="mc-ai-activity-text">
               <div class="mc-ai-activity-title">Verifying Artist Identities…</div>
               <div class="mc-ai-activity-sub">Cross-referencing artist and ownership records</div>
@@ -3262,6 +3273,7 @@ body {
             <div class="mc-ai-activity-time">00:05</div>
           </li>
           <li class="mc-ai-activity-item">
+            <span class="mc-ai-activity-dot" aria-hidden="true"></span>
             <div class="mc-ai-activity-text">
               <div class="mc-ai-activity-title">Scanning Metadata Consistency…</div>
               <div class="mc-ai-activity-sub">Checking ISRC / UPC / ISWC and release data</div>
@@ -3269,6 +3281,7 @@ body {
             <div class="mc-ai-activity-time">01:30</div>
           </li>
           <li class="mc-ai-activity-item">
+            <span class="mc-ai-activity-dot" aria-hidden="true"></span>
             <div class="mc-ai-activity-text">
               <div class="mc-ai-activity-title">Checking DSP Availability…</div>
               <div class="mc-ai-activity-sub">Monitoring global distribution and store presence</div>
@@ -3276,6 +3289,7 @@ body {
             <div class="mc-ai-activity-time">00:50</div>
           </li>
           <li class="mc-ai-activity-item mc-ai-activity-item--ok">
+            <span class="mc-ai-activity-dot" aria-hidden="true"></span>
             <div class="mc-ai-activity-text">
               <div class="mc-ai-activity-title">No New Issues Detected</div>
               <div class="mc-ai-activity-sub">All systems healthy</div>
