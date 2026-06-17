@@ -3136,24 +3136,24 @@ body {
        AI Insights panel below for the min-height rationale. -->
   <aside class="mc-rail-right" id="ai-insights" aria-label="AI Insights and Royaltē Review">
 
-    <!-- AI Insights™ — Right Rail Fix v2.0:
-         min-height now 802 px (was 759). Royaltē Review™ stays
-         anchored at the bottom of the rail (flush with Footprint at
-         Y = 1269); AI Insights™ extends downward to meet it with the
-         standard 10-px rail gutter.
+    <!-- AI Insights™ — Position Correction v3.0:
+         min-height restored to 759 px (v2.0's 802 extension reverted
+         per Board directive). Panel bottom returns to Y = 769 — the
+         row-1 intelligence-card baseline. Royaltē Review™ stays
+         anchored at the rail bottom; the resulting 53-px gap below
+         this panel is the intentional runway reserved for the next
+         Board design pass.
 
          Math at 1440 × 900:
-           Royaltē Review top  = 1269 (rail inner bottom)
-                                 − 447 (panel height) = 822
-           AI Insights bottom  = 822 − 10 (standard rail gutter) = 812
-           AI Insights top     = 10 (rail padding-top)
-           AI Insights height  = 812 − 10 = 802
-
-         The existing flex column keeps content (panel-head / art /
-         title / body) anchored at the top — the freed bottom space
-         is the runway reserved for future AI-generated insights per
-         directive. -->
-    <section class="mc-panel" aria-label="AI Insights" style="min-height: 802px;">
+           AI Insights top    = 10  (rail padding-top)
+           AI Insights height = 759
+           AI Insights bottom = 769  (= Health/Identity/Publishing
+                                       /Catalog row-1 bottom)
+           Empty gap          = 53 px  (intentional, awaiting next
+                                        directive)
+           Royaltē Review top = 822 (margin-top: auto anchors)
+           Royaltē Review bot = 1269 (= Footprint bottom) -->
+    <section class="mc-panel" aria-label="AI Insights" style="min-height: 759px;">
       <div class="mc-panel-head">
         <div class="mc-panel-head-left">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
