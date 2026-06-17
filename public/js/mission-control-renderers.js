@@ -263,8 +263,117 @@ function _unimplemented(domain) {
   };
 }
 
-export const renderPublishing      = _unimplemented('Publishing');
 export const renderCatalog         = _unimplemented('Catalog');
 export const renderBackend         = _unimplemented('Backend');
 export const renderHealth          = _unimplemented('Health');
 export const renderPriorityActions = _unimplemented('PriorityActions');
+
+// ─────────────────────────────────────────────────────────────────────
+//  Publishing Intelligence™ renderers  (Phase 5B Board D6 + D7)
+// ─────────────────────────────────────────────────────────────────────
+//
+//  Mirror of renderIdentity. The boot module dispatches identityPlan +
+//  publishingPlan through the same apply* pattern; nothing about MC's
+//  surface is special-cased per domain.
+//
+//  Mission Control:
+//    - never assumes a fixed number of registration metrics (iterates
+//      whatever `registrations` carries)
+//    - never labels coverage as Score / Health / Rating
+//    - never recomputes per-metric state, coverage, or recommendations
+//    - never reaches into the MLC adapter / Rule Library / CIO
+//
+//  Display labels for the four metrics live in the locked MC HTML
+//  alongside each row's `data-mc-publishing-metric` attribute — this
+//  module is label-agnostic.
+
+const PUBLISHING_STATE_PILL_CLASS = Object.freeze({
+  VERIFIED:          'mc-pill mc-pill--verified',
+  ACTION_REQUIRED:   'mc-pill mc-pill--action',
+  NOT_FOUND:         'mc-pill mc-pill--notfound',
+  UNABLE_TO_CONFIRM: 'mc-pill mc-pill--unable',
+});
+
+const PUBLISHING_STATE_PILL_TEXT = Object.freeze({
+  VERIFIED:          'Verified',
+  ACTION_REQUIRED:   'Action Required',
+  NOT_FOUND:         'Not Found',
+  UNABLE_TO_CONFIRM: 'Unable to Confirm',
+});
+
+export { PUBLISHING_STATE_PILL_CLASS, PUBLISHING_STATE_PILL_TEXT };
+
+function safePublishingIntelligence(pi) {
+  if (!pi || typeof pi !== 'object' || Array.isArray(pi)) return null;
+  return pi;
+}
+
+export { safePublishingIntelligence };
+
+// buildPublishingRegistrationPlan(intelligence)
+//
+// One render plan entry per `registrations` key, IN ITERATION ORDER
+// the assembler produced them. This function contains NO hardcoded
+// metric list — `Object.keys(intelligence.registrations)` is the
+// canonical source. Returns [] on any malformed input.
+//
+// Output shape:
+//   [{ metric, state, pillClass, pillText }]
+//
+// `metric` is the canonical key (e.g. 'mlcRegistration'). The boot
+// module uses it to find the matching [data-mc-publishing-metric="<key>"]
+// row in the locked HTML.
+export function buildPublishingRegistrationPlan(intelligence) {
+  const pi = safePublishingIntelligence(intelligence);
+  if (!pi) return [];
+  const regs = (pi.registrations && typeof pi.registrations === 'object' && !Array.isArray(pi.registrations))
+    ? pi.registrations
+    : null;
+  if (!regs) return [];
+  return Object.keys(regs).map((metric) => {
+    const state = regs[metric] || 'UNABLE_TO_CONFIRM';
+    return {
+      metric,
+      state,
+      pillClass: PUBLISHING_STATE_PILL_CLASS[state] || 'mc-pill',
+      pillText:  PUBLISHING_STATE_PILL_TEXT[state]  || 'Unknown',
+    };
+  });
+}
+
+// buildPublishingCoveragePlan(intelligence)
+//
+// Same contract as Identity Intelligence's coverage plan. Label is
+// 'Publishing Coverage' — never 'Score / Health / Rating' (Board D9).
+// Returns null on missing intelligence so the boot module can leave
+// the locked sample HTML in place.
+export function buildPublishingCoveragePlan(intelligence) {
+  const pi = safePublishingIntelligence(intelligence);
+  if (!pi) return null;
+  if (typeof pi.coverage !== 'number') return null;
+  return {
+    value:   pi.coverage,
+    label:   'Publishing Coverage',
+    summary: `${pi.registeredCount ?? 0} of ${pi.totalChecked ?? 0} verified`,
+  };
+}
+
+// renderPublishing(intelligence) — canonical entry point for the
+// Publishing Intelligence™ domain. Composes the per-metric plan +
+// coverage plan into a single render-plan object the boot module
+// applies against the locked Mission Control DOM.
+//
+// Output:
+//   {
+//     coverage:      { value, label, summary } | null,
+//     registrations: [{ metric, state, pillClass, pillText }, …],
+//   }
+//
+// `null` on coverage means "intelligence absent — leave the locked
+// sample HTML in place."
+export function renderPublishing(intelligence) {
+  return {
+    coverage:      buildPublishingCoveragePlan(intelligence),
+    registrations: buildPublishingRegistrationPlan(intelligence),
+  };
+}

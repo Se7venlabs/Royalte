@@ -24,9 +24,10 @@
 //  SUMMARISING — never duplicating — graph + adapter + scan state.
 //
 //    sources = {
-//      identityGraph:   { compositions?, … } | null,
-//      publishingWorks: PublishingWork[]      | null,
-//      scanPayload:     CanonicalAuditResponse | null,
+//      identityGraph:                { compositions?, … } | null,
+//      publishingWorks:              PublishingWork[]      | null,
+//      publishingSourceObservations: { mlc?, … }           | null,  // Phase 5B Board D3
+//      scanPayload:                  CanonicalAuditResponse | null,
 //    }
 //
 //  Section ownership (Board rule):
@@ -120,9 +121,10 @@ export function assembleCio(artistName, sources, options) {
   const now         = (typeof opts.now === 'function') ? opts.now : defaultNow;
   const safeSources = (sources && typeof sources === 'object' && !Array.isArray(sources)) ? sources : {};
 
-  const identityGraph   = safeSources.identityGraph;
-  const publishingWorks = safeSources.publishingWorks;
-  const scanPayload     = safeSources.scanPayload;
+  const identityGraph                = safeSources.identityGraph;
+  const publishingWorks              = safeSources.publishingWorks;
+  const publishingSourceObservations = safeSources.publishingSourceObservations;
+  const scanPayload                  = safeSources.scanPayload;
 
   // ── Empty shell + envelope timestamp ────────────────────────────
   const cio = emptyCio(artistName);
@@ -186,6 +188,24 @@ export function assembleCio(artistName, sources, options) {
       cio.observations.providers.youtube = {
         availability: typeof p.youtube.availability === 'string' ? p.youtube.availability : null,
         details:      (p.youtube.details && typeof p.youtube.details === 'object') ? p.youtube.details : null,
+      };
+    }
+  }
+
+  // ── observations.publishingSources (Phase 5B Board D3) ──────────
+  //  COPY publishingSourceObservations.<source> into
+  //  cio.observations.publishingSources.<source>. Same shape contract
+  //  as identity providers: { availability, details }. null left in
+  //  place when no observation was supplied — downstream resolves to
+  //  Unable to Confirm, never Not Found (Board D5 4-state model).
+  if (publishingSourceObservations
+      && typeof publishingSourceObservations === 'object'
+      && !Array.isArray(publishingSourceObservations)) {
+    const psObs = publishingSourceObservations;
+    if (psObs.mlc && typeof psObs.mlc === 'object' && !Array.isArray(psObs.mlc)) {
+      cio.observations.publishingSources.mlc = {
+        availability: typeof psObs.mlc.availability === 'string' ? psObs.mlc.availability : null,
+        details:      (psObs.mlc.details && typeof psObs.mlc.details === 'object') ? psObs.mlc.details : null,
       };
     }
   }

@@ -35,10 +35,18 @@
 import { getSupabase } from '/js/supabase-client.js';
 import {
   renderIdentity,
+  renderPublishing,
   safeIdentityIntelligence,
+  safePublishingIntelligence,
 } from '/js/mission-control-renderers.js';
 
-// ─── Identity Intelligence™ fetch ──────────────────────────────────
+// ─── Persisted payload fetch (Phase 4B-3 + Phase 5B) ──────────────
+//
+// One Supabase read per scan, returning the full payload (which
+// carries every intelligence object). Identity + Publishing both
+// share the same row so the boot module never makes a second round
+// trip per intelligence domain. Future intelligence objects ride
+// the same payload.
 
 function getScanIdFromUrl() {
   try {
@@ -48,7 +56,7 @@ function getScanIdFromUrl() {
   }
 }
 
-async function fetchIdentityIntelligence() {
+async function fetchScanPayload() {
   const supabase = getSupabase();
   if (!supabase) return null;
 
@@ -72,7 +80,7 @@ async function fetchIdentityIntelligence() {
     }
     const row = (data && data[0]) || null;
     if (!row || !row.payload) return null;
-    return safeIdentityIntelligence(row.payload.identityIntelligence);
+    return row.payload;
   } catch (err) {
     console.warn('[mc] audit_scans read threw:', err?.message || err);
     return null;
@@ -108,6 +116,30 @@ function applyProvidersPlan(plan) {
     const card = document.querySelector(`[data-mc-identity-provider="${entry.provider}"]`);
     if (!card) continue;
     const pill = card.querySelector('[data-mc-identity-pill]') || card.querySelector('.mc-pill');
+    if (!pill) continue;
+    pill.className   = entry.pillClass;
+    pill.textContent = entry.pillText;
+  }
+}
+
+// ─── Publishing Intelligence™ apply helpers (Phase 5B Board D6 + D7) ─
+
+function applyPublishingCoveragePlan(plan) {
+  if (!plan) return;
+  const valueEl   = document.querySelector('[data-mc-publishing-coverage-value]');
+  const labelEl   = document.querySelector('[data-mc-publishing-coverage-label]');
+  const summaryEl = document.querySelector('[data-mc-publishing-coverage-summary]');
+  if (valueEl)   valueEl.innerHTML   = `${plan.value}<small>%</small>`;
+  if (labelEl)   labelEl.textContent = plan.label;
+  if (summaryEl) summaryEl.textContent = plan.summary;
+}
+
+function applyPublishingRegistrationsPlan(plan) {
+  if (!Array.isArray(plan) || plan.length === 0) return;
+  for (const entry of plan) {
+    const row = document.querySelector(`[data-mc-publishing-metric="${entry.metric}"]`);
+    if (!row) continue;
+    const pill = row.querySelector('[data-mc-publishing-pill]') || row.querySelector('.mc-pill');
     if (!pill) continue;
     pill.className   = entry.pillClass;
     pill.textContent = entry.pillText;
@@ -153,17 +185,28 @@ function escapeAttr(s) {
 // ─── Boot ──────────────────────────────────────────────────────────
 
 async function initMissionControl() {
-  const intelligence = await fetchIdentityIntelligence();
-  if (!intelligence) return; // graceful fallback: locked sample HTML stays
+  const payload = await fetchScanPayload();
+  if (!payload) return; // graceful fallback: locked sample HTML stays
 
-  // Dispatch through the canonical Intelligence Rendering Layer entry
-  // point. Future intelligence domains (Publishing, Catalog, Backend,
-  // Health, Priority Actions) land alongside identityPlan via their
-  // own render* functions — same boot pattern, no special-casing.
-  const identityPlan = renderIdentity(intelligence);
-  applyCoveragePlan(identityPlan.coverage);
-  applyProvidersPlan(identityPlan.providers);
-  applyRecommendationsPlan(identityPlan.recommendations);
+  // Identity Intelligence™ (Phase 4B-3)
+  const identityIntelligence = safeIdentityIntelligence(payload.identityIntelligence);
+  if (identityIntelligence) {
+    const identityPlan = renderIdentity(identityIntelligence);
+    applyCoveragePlan(identityPlan.coverage);
+    applyProvidersPlan(identityPlan.providers);
+    applyRecommendationsPlan(identityPlan.recommendations);
+  }
+
+  // Publishing Intelligence™ (Phase 5B Board D6 + D7)
+  // Same boot pattern, no special-casing per domain. Future intelligence
+  // domains (Catalog, Backend, Health, Priority Actions) land alongside
+  // these calls via their own renderXxx + applyXxx pairs.
+  const publishingIntelligence = safePublishingIntelligence(payload.publishingIntelligence);
+  if (publishingIntelligence) {
+    const publishingPlan = renderPublishing(publishingIntelligence);
+    applyPublishingCoveragePlan(publishingPlan.coverage);
+    applyPublishingRegistrationsPlan(publishingPlan.registrations);
+  }
 }
 
 if (typeof document !== 'undefined') {

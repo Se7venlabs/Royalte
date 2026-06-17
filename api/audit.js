@@ -10,16 +10,24 @@ import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib
 import { runScan } from './_lib/run-scan.js';
 import { persistOSScanSnapshot, resolveUserIdFromAuthHeader } from './_lib/persist-os-scan.js';
 
-// ─── Phase 4B-2: Identity Intelligence™ eager-assembly imports ─────────────
-//   Per Board R5 + R10 (2026-06-17) — Identity Intelligence is assembled
-//   exactly once during the scan lifecycle, persisted into
-//   audit_scans.payload.identityIntelligence, and reused by every
-//   downstream consumer (Mission Control™, Royaltē AI™, Executive
-//   Brief™, Priority Actions™). No consumer recomputes.
+// ─── Phase 4B-2 + Phase 5B: eager-assembly imports ─────────────────
+//   Identity Intelligence™ (Phase 4B-2) AND Publishing Intelligence™
+//   (Phase 5B Board D2 2026-06-17) are assembled exactly once during
+//   the scan lifecycle, persisted alongside the canonical payload,
+//   and reused by every downstream consumer. No consumer recomputes.
+//
+//   Per Phase 5B "orchestration over new infrastructure" — the
+//   publishing pipeline uses the EXISTING MLC adapter (locked),
+//   EXISTING Identity Graph publishing layer (locked), and EXISTING
+//   CIO Assembler publishingWorks slot (locked) to feed the new
+//   Publishing Intelligence™ assembler.
 import { assembleCio } from './_lib/cio-assembler.js';
 import { runIntelligenceEngine } from './_lib/intelligence-engine.js';
 import { ALL_RULES } from './rules/index.js';
 import { assembleIdentityIntelligence } from './_lib/identity-intelligence.js';
+import { assemblePublishingIntelligence } from './_lib/publishing-intelligence.js';
+import { fetchMlcWorksByArtist } from '../lib/publishing/mlc-client.js';
+import { normalizeMlcWorks } from '../lib/publishing/mlc-adapter.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AUDIT_SCANS PERSISTENCE
@@ -115,16 +123,18 @@ export async function persistCanonicalScan(rawResponse, originalUrl, urlType, sc
   // Pass handler-generated scanId in so canonical.scanId === scanId.
   let canonical = normalizeAuditResponse({ ...rawResponse, scanId, _originalUrl: originalUrl });
 
-  // Phase 4B-2 enrichment hook (Board R5 + R10, 2026-06-17). The handler
-  // passes a callback that folds Identity Intelligence™ (and, in future
-  // phases, additional intelligence objects) into the canonical payload
-  // BEFORE validate + insert. Enrichment failures are non-blocking:
-  // the original canonical persists and the scan succeeds. The enrichment
-  // contract requires a sync function returning an object; any throw or
-  // non-object return is logged and discarded.
+  // Phase 4B-2 + Phase 5B enrichment hook (Board R5 + R10 + D2). The
+  // handler passes a callback that folds Identity Intelligence™ and
+  // Publishing Intelligence™ (and, in future phases, additional
+  // intelligence objects) into the canonical payload BEFORE validate
+  // + insert. Enrichment failures are non-blocking: the original
+  // canonical persists and the scan succeeds. The enrichment contract
+  // accepts both sync and async functions; `await` resolves the
+  // sync case transparently to the same value. Any throw or non-object
+  // return is logged and discarded.
   if (typeof enrichmentFn === 'function') {
     try {
-      const enriched = enrichmentFn(canonical);
+      const enriched = await enrichmentFn(canonical);
       if (enriched && typeof enriched === 'object' && !Array.isArray(enriched)) {
         canonical = enriched;
       }
@@ -282,28 +292,99 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Audit failed. Please check the link and try again.', detail: m });
     }
 
-    // ── PERSIST + EAGER IDENTITY INTELLIGENCE™ ASSEMBLY ──
-    // Phase 4B-2 (Board R5 + R10, 2026-06-17). Identity Intelligence is
-    // assembled exactly once here during the scan lifecycle and folded
-    // into the persisted canonical payload at
+    // ── PERSIST + EAGER INTELLIGENCE ASSEMBLY ──
+    // Phase 4B-2 (Identity Intelligence™) + Phase 5B (Publishing
+    // Intelligence™) + Phase 5B Board Architectural Review (2026-06-17,
+    // "One Scan → One CIO → Many Consumers").
+    //
+    // CONSTITUTIONAL INVARIANT:
+    //
+    //   exactly ONE assembleCio() call per scan
+    //   exactly ONE runIntelligenceEngine() call per scan
+    //   every intelligence domain consumes the SAME (cio, report)
+    //
+    // The CIO is the kernel of the platform; multiple assemblies for
+    // the same scan would create divergent kernels and violate the
+    // single-source-of-truth principle. The runtime sequence is:
+    //
+    //   1. Fetch every external-source dataset BEFORE CIO assembly
+    //      (today: MLC via fetchMlcWorksByArtist; future: SOCAN,
+    //      ASCAP, BMI, MusicBrainz Publishing, …).
+    //   2. Assemble the ONE CIO with ALL source inputs at once.
+    //   3. Run the Intelligence Engine ONCE against that CIO.
+    //   4. Each domain assembler reads from the SAME (cio, report).
+    //
+    // Failure-mode contract (inherited from Phase 4B-2):
+    //   - If an external source (e.g. MLC) is unavailable, its
+    //     observation surfaces AUTH_UNAVAILABLE/ERROR/NOT_FOUND and
+    //     downstream resolves to UNABLE_TO_CONFIRM, never NOT_FOUND.
+    //   - If CIO assembly or engine evaluation throws, the scan
+    //     succeeds with NO intelligence objects — never blocks an audit.
+    //   - If a per-domain assembler throws, the OTHER domain's
+    //     intelligence still ships.
+    //
+    // The persisted canonical at audit_scans.payload carries:
     //   audit_scans.payload.identityIntelligence
+    //   audit_scans.payload.publishingIntelligence
     // Mission Control™ / Royaltē AI™ / Executive Brief™ / Priority
-    // Actions™ all read the same persisted object; none of them
-    // recompute. Per the failure-mode brief: if assembly throws, the
-    // scan succeeds without identityIntelligence — never blocks an audit.
-    const assembleIdentityIntelligenceForScan = (canonicalForEnrichment) => {
+    // Actions™ all read the same persisted objects; none recompute.
+    const assembleIntelligenceForScan = async (canonicalForEnrichment) => {
+      const artistName = canonicalForEnrichment.subject?.artistName;
+
+      // ── 1. Fetch external publishing sources BEFORE CIO assembly ──
+      // MLC client is documented never-throws. On any failure the
+      // observation surfaces availability='AUTH_UNAVAILABLE'/'ERROR'/
+      // 'NOT_FOUND' and rawWorks = []; the CIO assembly succeeds and
+      // downstream metrics resolve to UNABLE_TO_CONFIRM (per Board D5
+      // four-state invariant).
+      let publishingSourceObservations = null;
+      let publishingWorks              = null;
       try {
-        const cio = assembleCio(
-          canonicalForEnrichment.subject?.artistName,
-          { scanPayload: canonicalForEnrichment }
-        );
-        const report = runIntelligenceEngine(cio, ALL_RULES);
-        const identityIntelligence = assembleIdentityIntelligence(report, cio);
-        return { ...canonicalForEnrichment, identityIntelligence };
-      } catch (assemblyErr) {
-        console.error('[audit] Identity Intelligence™ assembly failed (non-blocking):', assemblyErr.message);
+        const mlcResult              = await fetchMlcWorksByArtist(artistName);
+        publishingSourceObservations = { mlc: mlcResult.observation };
+        publishingWorks              = normalizeMlcWorks(mlcResult.rawWorks);
+      } catch (mlcErr) {
+        // Defensive — the client contract is never-throws; this catch
+        // is belt-and-suspenders.
+        console.error('[audit] MLC source fetch failed (non-blocking):', mlcErr.message);
+      }
+
+      // ── 2 + 3. Assemble THE ONE CIO and run the engine ONCE ──
+      let cio    = null;
+      let report = null;
+      try {
+        cio = assembleCio(artistName, {
+          scanPayload:                  canonicalForEnrichment,
+          publishingWorks,
+          publishingSourceObservations,
+        });
+        report = runIntelligenceEngine(cio, ALL_RULES);
+      } catch (kernelErr) {
+        console.error('[audit] CIO / Intelligence Engine failed (non-blocking):', kernelErr.message);
         return canonicalForEnrichment;
       }
+
+      // ── 4. Each domain consumes the SAME (cio, report). One CIO,
+      //       many consumers. Domain failures are isolated — Identity
+      //       failure does not block Publishing and vice versa. ──
+      let identityIntelligence = null;
+      try {
+        identityIntelligence = assembleIdentityIntelligence(report, cio);
+      } catch (assemblyErr) {
+        console.error('[audit] Identity Intelligence™ assembly failed (non-blocking):', assemblyErr.message);
+      }
+
+      let publishingIntelligence = null;
+      try {
+        publishingIntelligence = assemblePublishingIntelligence(report, cio);
+      } catch (assemblyErr) {
+        console.error('[audit] Publishing Intelligence™ assembly failed (non-blocking):', assemblyErr.message);
+      }
+
+      const enriched = { ...canonicalForEnrichment };
+      if (identityIntelligence)   enriched.identityIntelligence   = identityIntelligence;
+      if (publishingIntelligence) enriched.publishingIntelligence = publishingIntelligence;
+      return enriched;
     };
 
     let canonical = null;
@@ -314,7 +395,7 @@ export default async function handler(req, res) {
         result.urlType,
         scanId,
         sessionId,
-        assembleIdentityIntelligenceForScan
+        assembleIntelligenceForScan
       );
       canonical = persisted.canonical;
     } catch (persistErr) {
@@ -364,43 +445,46 @@ export default async function handler(req, res) {
     // at a time by reading `data.canonical.<object>.<field>`.
     // Required to unblock Canonical Health Object Phase 5/6.
     //
-    // ─── Identity Intelligence™ alias rule (Board Final Amendment,
-    //     2026-06-17) ───────────────────────────────────────────────
+    // ─── Intelligence alias rule (Board Final Amendments,
+    //     Stage 4B-2 + Phase 5B 2026-06-17) ─────────────────────────
     //
-    // CONSTITUTIONAL INVARIANT:
+    // CONSTITUTIONAL INVARIANT — applies to EVERY intelligence
+    // domain Mission Control consumes:
     //
-    //   response.identityIntelligence  ===  response.canonical.identityIntelligence
+    //   response.identityIntelligence    === response.canonical.identityIntelligence
+    //   response.publishingIntelligence  === response.canonical.publishingIntelligence
     //
-    // One assembly. One object. Two access paths.
+    // One assembly per domain. One object per domain. Two access
+    // paths. `canonical.<x>Intelligence` is the SOLE source of truth.
+    // The top-level field is a CONVENIENCE MIRROR — same reference,
+    // not a copy, not a clone, not a re-frozen rebuild.
     //
-    // `canonical.identityIntelligence` is the SOLE source of truth.
-    // The top-level `identityIntelligence` is a CONVENIENCE MIRROR —
-    // it shares the SAME object reference (not a copy, not a clone,
-    // not a re-frozen rebuild). Both paths read the same immutable,
-    // deep-frozen Identity Intelligence™ object.
+    // FAILURE-MODE ASYMMETRY (Board design):
+    //   success →  canonical.<x>Intelligence: {...}
+    //              <x>Intelligence:           same reference
+    //   failure →  canonical.<x>Intelligence: OMITTED (key absent)
+    //              <x>Intelligence:           null   (client can
+    //                                                  distinguish "tried
+    //                                                  and failed" from
+    //                                                  "did not try")
     //
-    // FAILURE-MODE ASYMMETRY (by Board design, Stage 4B-2 brief):
-    //   success →  canonical.identityIntelligence: {...}
-    //              identityIntelligence:           same reference
-    //   failure →  canonical.identityIntelligence: OMITTED (key absent)
-    //              identityIntelligence:           null   (surfaced so the
-    //                                                      client can distinguish
-    //                                                      "tried and failed"
-    //                                                      from "did not try")
-    //
-    // Implementation note: do NOT replace the read below with a
-    // structuredClone / JSON round-trip / Object.freeze rebuild — any
-    // of those would break the invariant by producing a separate
-    // object. The invariant test in tests/identity-wiring-test.mjs
-    // guards against that drift.
+    // Do NOT replace these reads with structuredClone / JSON round-trip
+    // / Object.freeze rebuild — any of those would break the invariant
+    // by producing a separate object. The wiring tests in
+    // tests/identity-wiring-test.mjs and tests/publishing-wiring-test.mjs
+    // guard against that drift.
     const identityIntelligence = (canonical && canonical.identityIntelligence)
       ? canonical.identityIntelligence   // same reference — alias, not copy
+      : null;
+    const publishingIntelligence = (canonical && canonical.publishingIntelligence)
+      ? canonical.publishingIntelligence // same reference — alias, not copy
       : null;
     return res.status(200).json({
       ...result.rawResponse,
       scanId,
       canonical,
       identityIntelligence,
+      publishingIntelligence,
     });
 
   } catch (err) {
