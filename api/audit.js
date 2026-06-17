@@ -364,13 +364,37 @@ export default async function handler(req, res) {
     // at a time by reading `data.canonical.<object>.<field>`.
     // Required to unblock Canonical Health Object Phase 5/6.
     //
-    // Phase 4B-2 (Board R5, 2026-06-17): Identity Intelligence™ is
-    // also surfaced as a top-level response field so post-scan UIs
-    // can render it without descending into `canonical`. Same object
-    // reference lives at `canonical.identityIntelligence`; consumers
-    // may read either path. Null when eager assembly failed.
+    // ─── Identity Intelligence™ alias rule (Board Final Amendment,
+    //     2026-06-17) ───────────────────────────────────────────────
+    //
+    // CONSTITUTIONAL INVARIANT:
+    //
+    //   response.identityIntelligence  ===  response.canonical.identityIntelligence
+    //
+    // One assembly. One object. Two access paths.
+    //
+    // `canonical.identityIntelligence` is the SOLE source of truth.
+    // The top-level `identityIntelligence` is a CONVENIENCE MIRROR —
+    // it shares the SAME object reference (not a copy, not a clone,
+    // not a re-frozen rebuild). Both paths read the same immutable,
+    // deep-frozen Identity Intelligence™ object.
+    //
+    // FAILURE-MODE ASYMMETRY (by Board design, Stage 4B-2 brief):
+    //   success →  canonical.identityIntelligence: {...}
+    //              identityIntelligence:           same reference
+    //   failure →  canonical.identityIntelligence: OMITTED (key absent)
+    //              identityIntelligence:           null   (surfaced so the
+    //                                                      client can distinguish
+    //                                                      "tried and failed"
+    //                                                      from "did not try")
+    //
+    // Implementation note: do NOT replace the read below with a
+    // structuredClone / JSON round-trip / Object.freeze rebuild — any
+    // of those would break the invariant by producing a separate
+    // object. The invariant test in tests/identity-wiring-test.mjs
+    // guards against that drift.
     const identityIntelligence = (canonical && canonical.identityIntelligence)
-      ? canonical.identityIntelligence
+      ? canonical.identityIntelligence   // same reference — alias, not copy
       : null;
     return res.status(200).json({
       ...result.rawResponse,

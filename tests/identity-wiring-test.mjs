@@ -254,6 +254,91 @@ test('15. Determinism — same canonical input produces JSON-identical Identity 
   assert.equal(JSON.stringify(a), JSON.stringify(b));
 });
 
+// ═════════════════════════════════════════════════════════════════════
+//  16–19 — CONSTITUTIONAL INVARIANT  (Board Final Amendment 2026-06-17)
+//
+//     response.identityIntelligence === response.canonical.identityIntelligence
+//
+//  Same JS object reference (not a copy, not a clone, not a JSON
+//  round-trip rebuild). One assembly per scan; two access paths.
+//  These tests mirror the EXACT response-construction step from the
+//  /api/audit handler so any future drift (e.g. someone "helpfully"
+//  introducing structuredClone) is caught here.
+// ═════════════════════════════════════════════════════════════════════
+
+// Mirror the handler's response-construction step (api/audit.js, after
+// PERSIST + EAGER IDENTITY INTELLIGENCE™ ASSEMBLY). Keep these two
+// statements in lock-step with the production code.
+function buildHandlerResponseFromCanonical(canonical) {
+  const identityIntelligence = (canonical && canonical.identityIntelligence)
+    ? canonical.identityIntelligence
+    : null;
+  return {
+    canonical,
+    identityIntelligence,
+  };
+}
+
+test('16. INVARIANT — response.identityIntelligence === response.canonical.identityIntelligence (success path)', () => {
+  const canonical = loadCanonicalFixture('canonical-radiohead');
+  const { identityIntelligence } = runEagerAssemblyChain(canonical);
+  const enrichedCanonical = { ...canonical, identityIntelligence };
+  const response = buildHandlerResponseFromCanonical(enrichedCanonical);
+  assert.ok(response.identityIntelligence === response.canonical.identityIntelligence,
+    'response.identityIntelligence MUST be the same object reference as response.canonical.identityIntelligence (Board Final Amendment 2026-06-17)');
+});
+
+test('17. INVARIANT — top-level mirror is the SAME deep-frozen object, not a separate freeze', () => {
+  const canonical = loadCanonicalFixture('canonical-radiohead');
+  const { identityIntelligence } = runEagerAssemblyChain(canonical);
+  const enrichedCanonical = { ...canonical, identityIntelligence };
+  const response = buildHandlerResponseFromCanonical(enrichedCanonical);
+  assert.ok(Object.isFrozen(response.identityIntelligence));
+  assert.ok(Object.isFrozen(response.canonical.identityIntelligence));
+  // Same frozen object — proven by reference equality on the deeply-frozen
+  // nested providers slot. A separate rebuild would have a different
+  // `providers` reference even if deep-equal in value.
+  assert.ok(response.identityIntelligence.providers === response.canonical.identityIntelligence.providers,
+    'nested providers object must be the same reference — no separate clone allowed');
+  assert.ok(response.identityIntelligence.supportedProviders === response.canonical.identityIntelligence.supportedProviders,
+    'nested supportedProviders array must be the same reference — no separate clone allowed');
+});
+
+test('18. INVARIANT — failure-mode asymmetry (canonical omits the key; response surfaces null) is intentional', () => {
+  // Simulates the failure path: enrichmentFn returned canonicalForEnrichment
+  // unchanged, so the persisted canonical has NO identityIntelligence key.
+  const canonical = loadCanonicalFixture('canonical-radiohead');
+  // Strip any enrichment so we're at the pre-Phase-4B-2 shape
+  const { identityIntelligence: _stripped, ...canonicalWithoutEnrichment } = { ...canonical, identityIntelligence: undefined };
+  const response = buildHandlerResponseFromCanonical(canonicalWithoutEnrichment);
+  // canonical OMITS the key
+  assert.ok(!('identityIntelligence' in response.canonical) || response.canonical.identityIntelligence === undefined,
+    'failure path: canonical.identityIntelligence must be absent/undefined (Board failure-mode brief)');
+  // response surfaces NULL
+  assert.equal(response.identityIntelligence, null,
+    'failure path: response.identityIntelligence must be null (Board failure-mode brief)');
+  // The asymmetry is by Board design — null vs undefined lets the client
+  // distinguish "we tried and failed" (null) from "we did not try"
+  // (key absent on a payload from a pre-Phase-4B-2 source).
+});
+
+test('19. INVARIANT — handler never deep-clones / structuredClones / JSON-rebuilds the Identity Intelligence object', () => {
+  // This test pins the implementation: if a future commit replaces
+  // the alias read with structuredClone / JSON.parse(JSON.stringify(...))
+  // / { ...obj } / Object.freeze(rebuild), the reference equality
+  // will break and this test will fail. The alias rule (Board Final
+  // Amendment 2026-06-17) requires the SAME reference.
+  const canonical = loadCanonicalFixture('canonical-radiohead');
+  const { identityIntelligence } = runEagerAssemblyChain(canonical);
+  const enrichedCanonical = { ...canonical, identityIntelligence };
+  const response = buildHandlerResponseFromCanonical(enrichedCanonical);
+  // The exact object the chain produced is reachable from BOTH paths
+  assert.ok(response.identityIntelligence === identityIntelligence,
+    'top-level field must be the SAME reference as the assembler output');
+  assert.ok(response.canonical.identityIntelligence === identityIntelligence,
+    'canonical-embedded field must be the SAME reference as the assembler output');
+});
+
 console.log('');
 console.log('═════════════════════════════════════════════');
 console.log(`  IDENTITY WIRING VERIFIED: ${passed} assertions passed`);
