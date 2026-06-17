@@ -1,0 +1,3780 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Mission Control — Royaltē</title>
+  <link rel="icon" href="/favicon.ico">
+  <style>
+
+/* ──────────────────────────────────────────────────────────────────────
+   Royaltē Mission Control Shell™ — Phase 9
+   Design system + structural shell. Placeholder data only.
+   No business logic. No engine integration. No data fetching.
+   ────────────────────────────────────────────────────────────────────── */
+
+/* ─── design tokens ──────────────────────────────────────────────── */
+
+:root {
+  /* surface palette */
+  --mc-bg:           #050507;
+  --mc-surface-1:    #0c0c11;
+  --mc-surface-2:    #111118;
+  --mc-surface-3:    #161620;
+  --mc-surface-4:    #1c1c28;
+  --mc-border:       rgba(255, 255, 255, 0.06);
+  --mc-border-soft:  rgba(255, 255, 255, 0.04);
+  --mc-border-warm:  rgba(168, 85, 247, 0.18);
+  --mc-divider:      rgba(255, 255, 255, 0.05);
+
+  /* text */
+  --mc-text:         #ffffff;
+  --mc-text-soft:    #cbd5e1;
+  --mc-text-muted:   #8a8da1;
+  --mc-text-faint:   #5b5e72;
+
+  /* accents */
+  --mc-purple:       #a855f7;
+  --mc-purple-soft:  rgba(168, 85, 247, 0.16);
+  --mc-purple-glow:  rgba(168, 85, 247, 0.32);
+  --mc-purple-deep:  #6d28d9;
+
+  --mc-green:        #2dd4bf;
+  --mc-green-bright: #34f5b0;
+  --mc-green-soft:   rgba(45, 212, 191, 0.14);
+  --mc-green-glow:   rgba(52, 245, 176, 0.32);
+
+  --mc-orange:       #fb923c;
+  --mc-orange-soft:  rgba(251, 146, 60, 0.14);
+  --mc-orange-glow:  rgba(251, 146, 60, 0.30);
+
+  --mc-blue:         #38bdf8;
+  --mc-blue-soft:    rgba(56, 189, 248, 0.14);
+
+  /* Backend Intelligence™ — Color Refinement Pass v1.0.
+     Bright amber replaced with a softer brushed-champagne / brass
+     palette so the module reads as "luxury hardware" rather than a
+     warning accent, and stops competing with Catalog Intelligence™'s
+     orange. Primary / secondary / glow / accent / border values
+     taken verbatim from the Board directive. */
+  --mc-gold:           #C6A86A;          /* champagne primary */
+  --mc-gold-secondary: #B9965A;          /* brushed brass */
+  --mc-gold-bright:    #D9C08A;          /* satin accent text */
+  --mc-gold-glow:      rgba(198, 168, 106, 0.18);
+  --mc-gold-soft:      rgba(198, 168, 106, 0.10);
+  --mc-border-gold:    rgba(198, 168, 106, 0.28);
+
+  /* spacing — Executive Grid Normalization v1.0.
+     Single 10px grid: every layout gap, padding, and margin lands on a
+     multiple of the grid unit. Token names preserved for compatibility
+     with every call site already wired to them; the values are now
+     mathematically clamped to {0, 10, 20, 30} per Board directive
+     ("Apple / Bloomberg / Tesla / Ferrari" rhythm). Multiples were
+     chosen to bias toward the lower step where it preserves density,
+     and the higher step where the original spacing meaningfully
+     separated sections. */
+  --mc-grid: 10px;
+  --mc-s-1: 10px;   /* tight grid unit  (was 4)  */
+  --mc-s-2: 10px;   /* default gap      (was 8)  */
+  --mc-s-3: 10px;   /* card padding     (was 12) */
+  --mc-s-4: 10px;   /* section padding  (was 16) */
+  --mc-s-5: 20px;   /* hero h-padding   (was 20) */
+  --mc-s-6: 20px;   /* rail h-padding   (was 24) */
+  --mc-s-7: 30px;   /* legacy           (was 32) */
+  --mc-s-8: 30px;   /* legacy           (was 40) */
+  --mc-s-9: 30px;   /* legacy           (was 56) */
+
+  /* radius */
+  --mc-r-1: 6px;
+  --mc-r-2: 10px;
+  --mc-r-3: 14px;
+  --mc-r-4: 18px;
+  --mc-r-5: 24px;
+
+  /* typography */
+  --mc-font: ui-sans-serif, system-ui, -apple-system, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
+
+  /* layout */
+  --mc-rail-l: 256px;
+  --mc-rail-r: 360px;
+  --mc-pad:    var(--mc-s-6);    /* Executive Grid Normalization v1.0: main h-padding 30 → 20 to match rail h-padding; gutter rhythm aligns across columns. */
+}
+
+/* ─── reset ──────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; padding: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+img { display: block; max-width: 100%; }
+
+body {
+  background: var(--mc-bg);
+  color: var(--mc-text);
+  font-family: var(--mc-font);
+  font-size: 13.5px;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(1100px 600px at 18% -8%, rgba(168, 85, 247, 0.06), transparent 65%),
+    radial-gradient(900px 600px at 100% 100%, rgba(45, 212, 191, 0.04), transparent 60%);
+}
+
+/* ─── shell layout ───────────────────────────────────────────────── */
+
+.mc-shell {
+  display: grid;
+  grid-template-columns: var(--mc-rail-l) 1fr var(--mc-rail-r);
+  min-height: 100vh;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+.mc-rail-left,
+.mc-rail-right {
+  /* Executive Compression v2.0: rail vertical padding 20 → 12. */
+  padding: var(--mc-s-3) var(--mc-s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-4);                            /* Executive Compression v2.0: rail section gap 20 → 16 */
+}
+
+.mc-rail-left {
+  border-right: 1px solid var(--mc-border);
+  background: linear-gradient(180deg, rgba(168, 85, 247, 0.03), transparent 30%);
+}
+
+.mc-rail-right {
+  border-left: 1px solid var(--mc-border);
+  gap: var(--mc-s-2);                          /* Executive Compression v2.0: 16 → 8 between AI Insights and Royaltē Review */
+}
+
+.mc-main {
+  /* Executive Compression v2.0 (Bloomberg / Ferrari directive):
+       - page top padding 16 → 8
+       - page bottom padding 16 → 8
+       - inter-section flex gap 12 → 4 (page-head → hero → grid → status-row
+         all sit tight; "YOUR INTELLIGENCE AT A GLANCE" section heading was
+         removed entirely so the grid follows the hero directly).
+     Every interior section is tightened individually below; this rule
+     controls only the chassis-level rhythm. */
+  padding: var(--mc-s-2) var(--mc-pad) var(--mc-s-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-grid);                           /* Executive Grid Normalization v1.0: chassis-level flex-gap on the 10px grid — page-head / hero / grid all separated by one grid unit. */
+  min-width: 0;
+}
+
+/* ─── brand block ────────────────────────────────────────────────── */
+
+.mc-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-s-3);
+  padding-bottom: var(--mc-s-2);
+}
+
+.mc-brand-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--mc-font);
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--mc-purple);
+  background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.18), transparent 70%);
+  border: 1px solid var(--mc-border-warm);
+  position: relative;
+}
+
+.mc-brand-mark::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  pointer-events: none;
+}
+
+.mc-brand-text {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.mc-brand-sub {
+  font-size: 9.5px;
+  letter-spacing: 0.32em;
+  color: var(--mc-text-muted);
+  margin-top: 2px;
+}
+
+/* ─── nav ────────────────────────────────────────────────────────── */
+
+.mc-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;                                    /* Executive Compression v2.0: nav inter-item gap 4 → 2 */
+  flex: 1;
+}
+
+.mc-nav-item {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: center;
+  gap: var(--mc-s-3);
+  /* Executive Compression v2.0: nav vertical padding 8 → 4; icon and
+     typography unchanged per directive. */
+  padding: var(--mc-s-1) var(--mc-s-3);
+  border-radius: var(--mc-r-2);
+  color: var(--mc-text-soft);
+  transition: background 160ms ease, color 160ms ease;
+  position: relative;
+}
+
+.mc-nav-item:hover {
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--mc-text);
+}
+
+.mc-nav-item--active {
+  background: rgba(168, 85, 247, 0.10);
+  color: var(--mc-text);
+  border: 1px solid var(--mc-border-warm);
+}
+
+.mc-nav-item--active::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 60%;
+  background: var(--mc-purple);
+  border-radius: 1px;
+  box-shadow: 0 0 8px var(--mc-purple-glow);
+}
+
+.mc-nav-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--mc-r-1);
+  background: var(--mc-surface-2);
+  display: grid;
+  place-items: center;
+  color: var(--mc-text-soft);
+  border: 1px solid var(--mc-border);
+}
+
+.mc-nav-item--active .mc-nav-icon {
+  color: var(--mc-purple);
+  background: var(--mc-purple-soft);
+  border-color: var(--mc-border-warm);
+}
+
+.mc-nav-icon svg { width: 16px; height: 16px; }
+
+.mc-nav-label  { font-size: 13.5px; font-weight: 500; }
+.mc-nav-sub    { font-size: 11px;   color: var(--mc-text-muted); margin-top: 1px; letter-spacing: 0.02em; }
+
+/* ─── founder access card ───────────────────────────────────────── */
+
+.mc-founder {
+  margin-top: auto;
+  padding: var(--mc-s-4);
+  border-radius: var(--mc-r-3);
+  background: linear-gradient(165deg, rgba(168, 85, 247, 0.10), rgba(168, 85, 247, 0.02) 70%);
+  border: 1px solid var(--mc-border-warm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+}
+
+.mc-founder-row {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-s-3);
+}
+
+.mc-founder-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--mc-purple);
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid var(--mc-border-warm);
+}
+
+.mc-founder-label {
+  font-size: 9.5px;
+  letter-spacing: 0.28em;
+  color: var(--mc-text-muted);
+}
+
+.mc-founder-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.mc-founder-tier {
+  font-size: 12px;
+  color: var(--mc-purple);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.mc-founder-meta {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  line-height: 1.6;
+}
+
+/* ─── version footer ────────────────────────────────────────────── */
+
+.mc-version {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.1em;
+  padding-top: var(--mc-s-3);
+  border-top: 1px solid var(--mc-divider);
+}
+
+.mc-version-sign {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mc-version-sign svg { width: 12px; height: 12px; }
+
+/* ─── page header ───────────────────────────────────────────────── */
+
+.mc-page-head { margin: 0; }
+.mc-page-title {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+  margin: 0;
+}
+.mc-page-sub {
+  margin: var(--mc-s-1) 0 0;                   /* Executive Grid Normalization v1.0: 10px above the sub-title; main flex-gap (10) now hosts subtitle→hero gap */
+  font-size: 13.5px;
+  color: var(--mc-text-muted);
+  line-height: 1.3;
+}
+
+/* ─── hero panel ────────────────────────────────────────────────── */
+
+.mc-hero {
+  display: grid;
+  /* Executive Compression v1.0 + v2.0:
+       - radar cell 168 → 130 (matches the 130×130 sonar SVG exactly)
+       - action cell 220 → 150 (status text still fits)
+     Title cell (1fr) widens, so label / ALL SYSTEMS NORMAL / monitoring
+     meta lines wrap less. */
+  grid-template-columns: 130px 1fr 220px 150px;
+  align-items: center;
+  gap: var(--mc-s-3);
+  padding: var(--mc-s-1) var(--mc-s-5);        /* Executive Compression v2.0 (floor): hero v-padding 8 → 4 */
+  border-radius: var(--mc-r-4);
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.04), rgba(0, 0, 0, 0) 60%), var(--mc-surface-1);
+  border: 1px solid rgba(45, 212, 191, 0.16);
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(520px 280px at 28% 50%, rgba(45, 212, 191, 0.13), transparent 62%),
+    radial-gradient(820px 320px at 0% 0%,   rgba(45, 212, 191, 0.07), transparent 60%);
+  pointer-events: none;
+  animation: mc-ambient 8s ease-in-out infinite;
+}
+
+@keyframes mc-ambient {
+  0%, 100% { opacity: 0.92; }
+  50%      { opacity: 1.00; }
+}
+
+.mc-radar {
+  position: relative;
+  width: 130px;
+  height: 130px;
+}
+
+.mc-radar svg { width: 100%; height: 100%; }
+
+.mc-radar-sweep {
+  transform-origin: 50% 50%;
+  animation: mc-sweep 10s linear infinite;
+}
+
+@keyframes mc-sweep {
+  to { transform: rotate(360deg); }
+}
+
+.mc-radar-center {
+  transform-origin: 65px 65px;
+  animation: mc-center-pulse 3.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px var(--mc-green-glow));
+}
+
+/* ─── Sonar AI Detection Pulse v2.0 ───────────────────────────────
+   Refined per Board v2.0: brighter, more visible discovery pings.
+   Each ping is now a synchronised triad — bright 6-px white core
+   dot + TWO concentric teal echo rings — so the user clearly
+   notices the detection event.
+
+   Five pings at fixed positions, on prime-ish cycles 41/47/43/53/37 s
+   with staggered start delays 2/12/22/32/41 s → average inter-ping
+   interval ≈ 9 s (within the directive's 8–14 s target band) and
+   the prime durations ensure the pings drift continuously without
+   re-syncing on a perceptible pattern. Independent of the rotating
+   sweep wedge — and rendered after .mc-radar-center / .mc-radar-sweep
+   in the SVG so they always paint ABOVE the sweep beam (never
+   occluded). */
+
+.mc-radar-detect-dot {
+  /* v2.0: 6-px diameter (r=3) pure-white core. Stacked drop-shadows
+     create the white inner bloom + soft teal outer glow per spec. */
+  fill: #ffffff;
+  opacity: 0;
+  filter:
+    drop-shadow(0 0 5px  rgba(255, 255, 255, 0.95))
+    drop-shadow(0 0 11px rgba(45, 212, 191, 0.78));
+  animation-name: mc-radar-detect-dot;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-out;
+}
+
+/* v2.0: two echo-ring variants per ping. Ring 1 starts at the bloom
+   peak; Ring 2 starts ~80 ms later for the concentric radiating
+   effect. Both expand outward over ~1.2 s and fade naturally. */
+.mc-radar-detect-echo {
+  fill: none;
+  opacity: 0;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-out;
+}
+.mc-radar-detect-echo--ring1 {
+  stroke: var(--mc-green-bright);
+  stroke-width: 1.1;
+  filter: drop-shadow(0 0 4px var(--mc-green-glow));
+  animation-name: mc-radar-detect-echo-1;
+}
+.mc-radar-detect-echo--ring2 {
+  stroke: var(--mc-green-bright);
+  stroke-width: 0.8;
+  filter: drop-shadow(0 0 3px var(--mc-green-glow));
+  animation-name: mc-radar-detect-echo-2;
+}
+
+/* Per-ping delay + duration. Prime-ish cycles, staggered delays. */
+.mc-radar-detect-dot--1, .mc-radar-detect-echo--1 { animation-delay:  2s; animation-duration: 41s; }
+.mc-radar-detect-dot--2, .mc-radar-detect-echo--2 { animation-delay: 12s; animation-duration: 47s; }
+.mc-radar-detect-dot--3, .mc-radar-detect-echo--3 { animation-delay: 22s; animation-duration: 43s; }
+.mc-radar-detect-dot--4, .mc-radar-detect-echo--4 { animation-delay: 32s; animation-duration: 53s; }
+.mc-radar-detect-dot--5, .mc-radar-detect-echo--5 { animation-delay: 41s; animation-duration: 37s; }
+
+@keyframes mc-radar-detect-dot {
+  /* Idle for ~97 % of the cycle.
+     97.0 → 97.4 % ≈ 150-200 ms quick bloom to peak opacity 1.0.
+     97.4 → 97.8 % ≈ 200 ms hold at full brightness.
+     97.8 → 100  % ≈ 0.9 s soft fade out as the echo rings radiate. */
+  0%, 96.9% { opacity: 0; }
+  97.4%     { opacity: 1; }
+  97.8%     { opacity: 1; }
+  100%      { opacity: 0; }
+}
+@keyframes mc-radar-detect-echo-1 {
+  /* First echo ring — fires together with the bloom peak. r 3 → 18
+     over ~1.2 s while opacity fades from 0.75 → 0. */
+  0%, 97.0% { opacity: 0;    r: 3; }
+  97.4%     { opacity: 0.75; r: 3; }
+  100%      { opacity: 0;    r: 18; }
+}
+@keyframes mc-radar-detect-echo-2 {
+  /* Second echo ring — starts ~80 ms after ring 1 for the concentric
+     "double echo" radiating effect. Reaches a slightly smaller peak
+     radius (16) so the trailing ring stays inside the leading one. */
+  0%, 97.2% { opacity: 0;    r: 3; }
+  97.6%     { opacity: 0.55; r: 3; }
+  100%      { opacity: 0;    r: 16; }
+}
+
+@keyframes mc-center-pulse {
+  0%, 100% { opacity: 1;    transform: scale(1); }
+  50%      { opacity: 0.7;  transform: scale(1.18); }
+}
+
+.mc-hero-block { display: flex; flex-direction: column; gap: var(--mc-s-1); }
+
+.mc-hero-label {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--mc-green);
+  font-weight: 600;
+}
+
+.mc-hero-title {
+  font-size: 31px;          /* Board Rev 2 — fine balance against composition */
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  line-height: 1.05;
+  text-shadow: 0 0 18px rgba(52, 245, 176, 0.10);
+}
+
+.mc-hero-meta {
+  font-size: 12.5px;
+  color: var(--mc-text-muted);
+  margin-top: var(--mc-s-1);                   /* Executive Compression v1.0: 8 → 4 above meta */
+}
+
+.mc-hero-meta b { color: var(--mc-text-soft); font-weight: 500; }
+
+.mc-pulse-line { width: 100%; height: 56px; }
+
+.mc-pulse-line path {
+  stroke: var(--mc-green);
+  stroke-width: 1.6;
+  fill: none;
+  filter: drop-shadow(0 0 6px var(--mc-green-glow));
+  animation: mc-ecg-glow 5.2s ease-in-out infinite;
+}
+
+@keyframes mc-ecg-glow {
+  0%, 100% { filter: drop-shadow(0 0 5px  var(--mc-green-glow)); opacity: 0.92; }
+  50%      { filter: drop-shadow(0 0 11px var(--mc-green-glow)); opacity: 1;    }
+}
+
+.mc-hero-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.mc-hero-action-label {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--mc-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mc-hero-action-value {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--mc-green-bright);
+  text-shadow: 0 0 14px rgba(52, 245, 176, 0.28);
+  margin-top: 2px;
+  line-height: 1.1;
+}
+
+.mc-hero-action-good {
+  font-size: 12px;
+  color: var(--mc-text-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+}
+
+.mc-hero-action-good svg { color: var(--mc-green); }
+
+/* ─── section title ─────────────────────────────────────────────── */
+
+.mc-section-title {
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  color: var(--mc-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin: 0;                                    /* Executive Compression v1.0: top margin 12 → 0; main flex-gap handles section rhythm */
+}
+
+/* ─── card grid ─────────────────────────────────────────────────── */
+
+.mc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  /* Executive Visual Balance v1.0: both intelligence rows are forced to
+     the same track height. The row-1 four-card content (Health, Identity,
+     Publishing, Catalog) is naturally taller than row 2 (Revenue,
+     Monitoring, Footprint span 2); with `grid-auto-rows: 1fr` both
+     implicit rows resolve to the same height = the taller row's
+     content. The row-2 cards then gain ~88 px of breathing room each,
+     which the existing flex-column layout distributes naturally via
+     `.mc-card-foot { margin-top: auto }`. No width, no column span, no
+     horizontal spacing changes. */
+  grid-auto-rows: 1fr;
+  gap: var(--mc-grid);
+}
+
+.mc-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: var(--mc-s-5);
+}
+
+/* ─── card base ─────────────────────────────────────────────────── */
+
+.mc-card {
+  background: var(--mc-surface-1);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-r-3);
+  /* Executive Compression v1.0 (second iteration):
+       - card padding 20 → 12 all sides
+       - card internal flex-gap 16 → 8
+     Module typography / icons / proportions untouched; only the dead
+     whitespace between a card's internal blocks is reduced. */
+  padding: var(--mc-s-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.mc-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(220px 120px at 0% 0%, var(--card-glow, transparent), transparent 60%);
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.mc-card--health     { --card-glow: rgba(45, 212, 191, 0.08); }
+.mc-card--identity   { --card-glow: rgba(56, 189, 248, 0.07); }
+.mc-card--publishing {
+  --card-glow: rgba(236, 170, 245, 0.075);
+  border-radius: 20px;
+  border-color: rgba(200, 122, 240, 0.13);
+  box-shadow:
+    0 0 32px rgba(236, 170, 245, 0.04),
+    inset 0 0 32px rgba(200, 122, 240, 0.035);
+  animation: mc-pub-breath 7.5s ease-in-out infinite;
+}
+
+@keyframes mc-pub-breath {
+  0%, 100% { box-shadow:
+    0 0 30px rgba(236, 170, 245, 0.038),
+    inset 0 0 30px rgba(200, 122, 240, 0.025); }
+  50%      { box-shadow:
+    0 0 46px rgba(236, 170, 245, 0.075),
+    inset 0 0 38px rgba(200, 122, 240, 0.050); }
+}
+.mc-card--catalog    { --card-glow: rgba(251, 146, 60, 0.07); }
+.mc-card--change     { --card-glow: rgba(168, 85, 247, 0.10); }   /* Change Detection™ — premium violet intelligence signature */
+.mc-card--backend    { --card-glow: rgba(198, 168, 106, 0.08); }   /* Backend Intelligence™ — brushed champagne / brass executive signature */
+.mc-card--footprint  { --card-glow: rgba(56, 189, 248, 0.06); }
+
+.mc-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-s-3);
+}
+
+.mc-card-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--mc-r-1);
+  display: grid;
+  place-items: center;
+  background: var(--mc-surface-3);
+  border: 1px solid var(--mc-border);
+}
+
+.mc-card--health     .mc-card-mark { color: var(--mc-green);  background: var(--mc-green-soft);  border-color: rgba(45, 212, 191, 0.22); }
+.mc-card--identity   .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
+.mc-card--publishing .mc-card-mark { color: var(--mc-purple); background: var(--mc-purple-soft); border-color: var(--mc-border-warm); }
+.mc-card--catalog    .mc-card-mark { color: var(--mc-orange); background: var(--mc-orange-soft); border-color: rgba(251, 146, 60, 0.22); }
+.mc-card--change     .mc-card-mark { color: var(--mc-purple); background: var(--mc-purple-soft); border-color: var(--mc-border-warm); }
+.mc-card--backend    .mc-card-mark { color: var(--mc-gold);   background: var(--mc-gold-soft);   border-color: var(--mc-border-gold); }
+.mc-card--footprint  .mc-card-mark { color: var(--mc-blue);   background: var(--mc-blue-soft);   border-color: rgba(56, 189, 248, 0.22); }
+
+.mc-card-mark svg { width: 16px; height: 16px; }
+
+.mc-card-title {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  font-weight: 600;
+  color: var(--mc-text);
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+
+.mc-card-foot {
+  margin-top: auto;
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  line-height: 1.55;
+}
+
+/* ─── Health Intelligence™ — "Calculated From" breakdown (Refinement v1.0) ─
+
+   The Royaltē Health Score™ is a composite calculated from the other
+   intelligence modules — Identity, Publishing, Catalog, Footprint,
+   Change Detection, Backend. The breakdown sits inside the existing
+   Health card between the sparkline and the foot, with the existing
+   ring + score "78" preserved as the headline. Layout follows the
+   `.mc-catalog-grid` pattern (left-aligned label, right-aligned
+   tabular value, dim divider) so it reads as a natural extension of
+   the Health card's existing data style. */
+
+.mc-health-breakdown {
+  margin-top: var(--mc-s-1);
+  padding-top: var(--mc-s-1);
+  border-top: 1px solid var(--mc-divider);
+}
+.mc-health-breakdown-title {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--mc-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.mc-health-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mc-health-breakdown-list li {
+  /* Refinement v3.0:
+       • Right-side numeric scores restored (1fr/auto grid: label
+         left, value right) — reads as an executive scorecard.
+       • Micro-icons removed per directive ("No additional icons").
+       • Typography +0.5 px (11.5 → 12) for scanability.
+       Family / weight / letter-spacing / line-height / padding /
+       left alignment all preserved. */
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 12px;
+  color: var(--mc-text-soft);
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+.mc-health-breakdown-list .lbl {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.mc-health-breakdown-list .val {
+  /* Final Polish v1.0: contributor scores adopt the Royaltē teal
+     (--mc-green) already used throughout the Health card — ring,
+     ring-icon, score "78". Visually connects each contributor score
+     to the overall Royaltē Health Score™. */
+  color: var(--mc-green);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Final Refinement v4.0: composite average summary row that closes
+   the Health Contributors™ list. Same typography style as the rows
+   above (12 px, teal value), distinguished only by a subtle divider
+   line on top. Not visually dominant — a quiet confirmation that the
+   Royaltē Health Score™ aggregates the six contributing engines. */
+.mc-health-breakdown-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 12px;
+  color: var(--mc-text-soft);
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--mc-divider);
+}
+.mc-health-breakdown-summary .val {
+  color: var(--mc-green);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ─── health card ───────────────────────────────────────────────── */
+
+.mc-health-body {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  align-items: center;
+  gap: var(--mc-s-4);
+}
+
+.mc-ring {
+  position: relative;
+  width: 88px;
+  height: 88px;
+}
+
+.mc-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+.mc-ring-track  { stroke: rgba(45, 212, 191, 0.10); }
+.mc-ring-progress {
+  stroke: var(--mc-green-bright);
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px var(--mc-green-glow));
+}
+
+.mc-ring-icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--mc-green-bright);
+}
+.mc-ring-icon svg { width: 28px; height: 28px; }
+
+.mc-metric { display: flex; flex-direction: column; gap: 4px; }
+.mc-metric-value {
+  /* Score Typography Standardization v1.0: 30 / 600 → 22 / 700 to
+     match the Change Detection™ (.mc-cd-sum-value) and Backend
+     Intelligence™ (.mc-bi-sum-value) reference standard. Color /
+     letter-spacing / line-height / flex layout preserved. */
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.mc-metric-value small {
+  font-size: 13px;
+  color: var(--mc-text-muted);
+  font-weight: 500;
+}
+.mc-metric-status {
+  font-size: 13px;
+  color: var(--mc-green);
+  font-weight: 600;
+}
+.mc-metric-delta {
+  font-size: 11.5px;
+  color: var(--mc-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mc-metric-delta svg { width: 11px; height: 11px; color: var(--mc-green-bright); }
+
+/* Health Intelligence™ Refinement v2.0: .mc-spark sparkline removed —
+   the trend line provided no actionable intelligence and added visual
+   noise. Health-only selector; no other consumers in the file. */
+
+/* Health card — heartbeat visualization (Board-approved original) */
+.mc-card--health .mc-ring { width: 96px; height: 96px; }
+.mc-card--health .mc-health-body { grid-template-columns: 100px 1fr; }
+.mc-card--health .mc-ring-icon svg {
+  width: 34px;
+  height: 34px;
+  animation: mc-heartbeat 1.35s ease-in-out infinite;
+  transform-origin: 50% 55%;
+  filter: drop-shadow(0 0 8px var(--mc-green-glow));
+}
+
+@keyframes mc-heartbeat {
+  /* lub-dub-rest pattern with natural variation */
+  0%   { transform: scale(1);     filter: drop-shadow(0 0 6px  var(--mc-green-glow)); }
+  6%   { transform: scale(1.16);  filter: drop-shadow(0 0 16px var(--mc-green-glow)); }
+  12%  { transform: scale(0.98);  filter: drop-shadow(0 0 5px  var(--mc-green-glow)); }
+  20%  { transform: scale(1.08);  filter: drop-shadow(0 0 11px var(--mc-green-glow)); }
+  28%  { transform: scale(1);     filter: drop-shadow(0 0 5px  var(--mc-green-glow)); }
+  100% { transform: scale(1);     filter: drop-shadow(0 0 5px  var(--mc-green-glow)); }
+}
+
+.mc-heart-rings circle {
+  fill: none;
+  stroke: rgba(45, 212, 191, 0.20);
+}
+.mc-heart-rings .ring-outer { animation: mc-heart-ring-fade 4.2s ease-in-out infinite;        }
+.mc-heart-rings .ring-mid   { animation: mc-heart-ring-fade 4.2s ease-in-out 0.6s infinite;   }
+.mc-heart-rings .ring-inner { animation: mc-heart-ring-fade 4.2s ease-in-out 1.2s infinite;   }
+
+@keyframes mc-heart-ring-fade {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.95; }
+}
+
+/* ─── identity card ─────────────────────────────────────────────── */
+
+.mc-source-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+}
+
+.mc-source {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: center;
+  gap: var(--mc-s-3);
+  padding: var(--mc-s-2) 0;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-source:last-child { border-bottom: 0; }
+
+.mc-source-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+.mc-source-mark--apple   { background: #1a1a1a; color: #fff; }
+.mc-source-mark--spotify { background: #1db954; }
+.mc-source-mark--youtube { background: #ff0033; }
+.mc-source-mark--amazon  { background: #0084ff; }
+
+.mc-source-name { font-size: 12.5px; color: var(--mc-text-soft); }
+
+.mc-pill {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.mc-pill--claimed   { background: rgba(45, 212, 191, 0.14); color: var(--mc-green); }
+.mc-pill--verified  { background: rgba(45, 212, 191, 0.14); color: var(--mc-green); }
+.mc-pill--unclaimed { background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
+.mc-pill--pending   { background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
+.mc-pill--missing   { background: rgba(244, 63, 94, 0.12);  color: #f97373; }
+/* Identity Refinement v2.0: ACTION badge — same red treatment as
+   --missing; new modifier name aligns with the Board-approved
+   VERIFIED / ACTION two-state vocabulary for Identity Intelligence™. */
+.mc-pill--action    { background: rgba(244, 63, 94, 0.12);  color: #f97373; }
+/* Publishing Refinement v2.0: MONITORING badge — amber treatment
+   aliasing the existing --pending styling so the visual vocabulary
+   stays consistent across Identity / Publishing / future modules. */
+.mc-pill--monitoring{ background: rgba(251, 146, 60, 0.14); color: var(--mc-orange); }
+
+/* Identity card — fingerprint scanner visualization (Board-approved original) */
+.mc-identity-body {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+  gap: var(--mc-s-4);
+}
+
+.mc-fp-scope {
+  position: relative;
+  width: 96px;
+  height: 96px;
+}
+
+.mc-fp-scope svg { width: 100%; height: 100%; }
+
+.mc-fp-ring-track {
+  fill: none;
+  stroke: rgba(56, 189, 248, 0.16);
+  stroke-width: 2.5;
+}
+
+.mc-fp-ring {
+  fill: none;
+  stroke: var(--mc-blue);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.42));
+  animation: mc-fp-ring-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes mc-fp-ring-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1;    }
+}
+
+/* Soft expanding pulse rings — radar-style continuous-validation cue.
+   Two staggered emanations, no rotation, no spin. */
+.mc-fp-pulse-1,
+.mc-fp-pulse-2 {
+  fill: none;
+  stroke: var(--mc-blue);
+  stroke-width: 1.4;
+  transform-origin: 48px 48px;
+  opacity: 0;
+}
+.mc-fp-pulse-1 { animation: mc-fp-emanate 3.4s ease-out infinite;       }
+.mc-fp-pulse-2 { animation: mc-fp-emanate 3.4s ease-out 1.7s infinite;  }
+
+@keyframes mc-fp-emanate {
+  0%   { transform: scale(0.45); opacity: 0;    }
+  25%  { opacity: 0.55; }
+  100% { transform: scale(1.06); opacity: 0;    }
+}
+
+.mc-fp-icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--mc-blue);
+}
+.mc-fp-icon svg {
+  width: 48px;       /* fingerprint is the primary visual element */
+  height: 48px;
+  animation: mc-fp-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes mc-fp-pulse {
+  0%, 100% { opacity: 0.78; filter: drop-shadow(0 0 6px  rgba(56, 189, 248, 0.32)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.60)); }
+}
+
+.mc-identity-header { display: flex; flex-direction: column; gap: 4px; }
+.mc-identity-value {
+  /* Score Typography Standardization v1.0: 30 / 600 → 22 / 700 to
+     match the Change Detection™ + Backend Intelligence™ reference. */
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--mc-text);
+}
+.mc-identity-value small {
+  font-size: 13px;
+  color: var(--mc-text-muted);
+  font-weight: 500;
+}
+.mc-identity-label {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  margin-top: 2px;
+}
+
+.mc-identity-checks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+  border-top: 1px solid var(--mc-divider);
+  /* Executive Compression v1.0: identity-checks padding-top 12 → 4, margin-top 4 → 0 */
+  padding-top: var(--mc-s-1);
+  margin-top: 0;
+}
+
+.mc-identity-check {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: var(--mc-s-3);
+  align-items: center;
+  font-size: 12px;                              /* Typography Standardization v1.0: 12.5 → 12 */
+  color: var(--mc-text-soft);
+}
+
+/* Identity Refinement v2.0: official DSP platform-icon thumbnails
+   replace the prior generic green-checkmark badge in each row. The
+   16-px slot in .mc-identity-check is preserved unchanged. */
+.mc-identity-platform {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ─── publishing card ─── Board-approved premium executive design ── */
+
+.mc-pub-body {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+  gap: var(--mc-s-4);
+}
+
+.mc-card--publishing .mc-ring { width: 96px; height: 96px; }
+
+.mc-pub-ring .mc-ring-track {
+  stroke: rgba(220, 145, 250, 0.11);
+  stroke-width: 6.5;
+}
+.mc-pub-ring .mc-ring-progress {
+  stroke: #D56BFF;                          /* pink-orchid primary — matches numbers */
+  stroke-width: 6.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 16px rgba(236, 170, 245, 0.40));
+  animation: mc-pub-ring-pulse 6.4s ease-in-out infinite;
+}
+
+@keyframes mc-pub-ring-pulse {
+  0%, 100% { opacity: 0.90; filter: drop-shadow(0 0 14px rgba(236, 170, 245, 0.30)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 22px rgba(236, 170, 245, 0.46)); }
+}
+
+.mc-pub-ring .mc-ring-icon { color: #E095FF; filter: drop-shadow(0 0 14px rgba(236, 170, 245, 0.38)); }
+.mc-pub-ring .mc-ring-icon svg { width: 32px; height: 32px; }
+
+/* Publishing Refinement v2.0: legacy .mc-pub-stats / .mc-pub-stat /
+   .mc-pub-stat-val / .mc-pub-stat-label / .mc-pub-divider removed —
+   the old 4-numeric-stats column is replaced with a 7-metric
+   check-list (icon + label + status badge) that mirrors the
+   Identity Intelligence™ pattern. */
+
+/* Body summary block — sits RIGHT of the ring; mirrors the
+   .mc-cd-summary / .mc-bi-summary pattern from sibling cards. */
+.mc-pub-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mc-pub-sum-label {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: #D56BFF;
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.mc-pub-sum-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+}
+.mc-pub-sum-meta {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* 7-metric check-list — same row pattern as .mc-identity-check.
+   Divider above replaces the old .mc-pub-divider strip. */
+.mc-pub-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: var(--mc-s-1);
+  padding-top: var(--mc-s-1);
+  border-top: 1px solid var(--mc-divider);
+}
+.mc-pub-check {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--mc-text-soft);
+  line-height: 1.3;
+}
+.mc-pub-check-icon {
+  width: 16px;
+  height: 16px;
+  color: #D56BFF;                            /* publishing pink-orchid identity */
+  flex-shrink: 0;
+}
+
+.mc-card--publishing .mc-card-foot { color: #F5F5F7; font-size: 12.5px; line-height: 1.55; }
+
+/* ─── catalog card ──────────────────────────────────────────────── */
+
+.mc-catalog-body {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: var(--mc-s-4);
+  align-items: center;
+}
+
+.mc-stack {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  color: var(--mc-orange);
+  animation: mc-catalog-ambient 5.6s ease-in-out infinite;
+}
+.mc-stack svg { width: 60px; height: 60px; filter: drop-shadow(0 0 6px var(--mc-orange-glow)); }
+
+/* Soft scanning glow — each shelf brightens in cascade, top → bottom,
+   producing a quiet "indexing" feel without any rotation or motion. */
+.mc-stack svg > * {
+  animation: mc-catalog-scan 4.8s ease-in-out infinite;
+}
+.mc-stack svg > *:nth-child(1) { animation-delay: 0s;   }
+.mc-stack svg > *:nth-child(2) { animation-delay: 0.4s; }
+.mc-stack svg > *:nth-child(3) { animation-delay: 0.8s; }
+.mc-stack svg > *:nth-child(4) { animation-delay: 1.2s; }
+
+@keyframes mc-catalog-ambient {
+  0%, 100% { filter: drop-shadow(0 0 6px  rgba(251, 146, 60, 0.18)); }
+  50%      { filter: drop-shadow(0 0 16px rgba(251, 146, 60, 0.30)); }
+}
+@keyframes mc-catalog-scan {
+  0%, 35%, 100% { opacity: 0.75; }
+  15%           { opacity: 1;    }
+}
+
+.mc-catalog-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mc-catalog-value {
+  /* Score Typography Standardization v1.0: 38 → 22 to match the
+     Change Detection™ + Backend Intelligence™ reference. Catalog
+     identity color (orange) preserved per directive. */
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--mc-orange);
+  text-shadow: 0 0 14px rgba(251, 146, 60, 0.24);
+}
+.mc-catalog-label {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* Executive Compression v1.0: catalog grid sits flush against label/value above */
+.mc-catalog-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;               /* values right-aligned for executive scan */
+  gap: var(--mc-s-1) var(--mc-s-3);              /* Executive Compression v1.0: row gap 8 → 4 */
+  font-size: 12px;                               /* Typography Standardization v1.0: 12.5 → 12 (labels + values) */
+  margin-top: 0;                                 /* Executive Compression v1.0: 8 → 0 */
+}
+.mc-catalog-grid .lbl { color: #b8b8c4; letter-spacing: 0.02em; }
+.mc-catalog-grid .val { color: var(--mc-text); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.mc-catalog-grid .val--stable   { color: var(--mc-green); }
+.mc-catalog-grid .val--verified { color: var(--mc-green); }
+.mc-catalog-grid .mc-catalog-divider {
+  /* Catalog Refinement v2.0: in-grid divider unused now that the
+     Metadata / Catalog / Verified status rows moved out into the
+     new .mc-catalog-checks block. Selector retained for backward
+     compatibility with any future grid styling experiments. */
+  grid-column: 1 / -1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  margin: 2px 0;
+}
+
+/* Catalog Refinement v2.0: "Calculated From" check-list — mirrors the
+   .mc-pub-checks pattern used in Publishing. Each row: catalog-orange
+   icon + label + status badge. Divider above replaces the inline
+   .mc-catalog-divider strip the old status rows used. */
+.mc-catalog-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: var(--mc-s-1);
+  padding-top: var(--mc-s-1);
+  border-top: 1px solid var(--mc-divider);
+}
+.mc-catalog-checks-title {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--mc-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.mc-catalog-check {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--mc-text-soft);
+  line-height: 1.3;
+}
+.mc-catalog-check-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--mc-orange);       /* catalog identity */
+  flex-shrink: 0;
+}
+
+/* ─── Change Detection™ card (replaces Revenue Watch™ — Board directive) ─
+
+   Change Detection™ is a live intelligence feed answering
+   "What changed since my last scan?" It is NOT revenue / earnings /
+   royalties / AI Insights. The card sits in the row-2 slot the
+   retired Revenue Watch™ module occupied; width, grid position and
+   column allocation are unchanged. */
+
+.mc-cd-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mc-cd-sublabel {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--mc-purple);
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+/* Body row — icon LEFT + summary RIGHT — matches the executive
+   template used by Health (.mc-health-body), Identity
+   (.mc-identity-body), Publishing (.mc-pub-body), and Catalog
+   (.mc-catalog-body). Alignment & Size Normalization v1.0:
+   restructured from a stacked art-only row to this 2-column body so
+   the icon sits at the same Y baseline as the other intelligence
+   modules. */
+.mc-cd-body {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--mc-s-3);
+  align-items: center;
+}
+
+.mc-cd-art {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+}
+.mc-cd-rings {
+  width: 96px;
+  height: 96px;
+}
+
+/* Body summary — sits RIGHT of the icon at the same vertical anchor,
+   mirroring Health's metric block. Content is non-duplicative — does
+   not repeat any single event already listed in the feed below. */
+.mc-cd-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mc-cd-sum-label {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--mc-purple);
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.mc-cd-sum-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+}
+.mc-cd-sum-meta {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.02em;
+}
+.mc-cd-ring-1 {
+  transform-origin: 50% 50%;
+  animation: mc-cd-ring-1 4.2s ease-in-out infinite;
+}
+.mc-cd-ring-2 {
+  transform-origin: 50% 50%;
+  /* Animation Refinement v1.0 — was a continuous 8s linear spin.
+     Now a 64 s phase cycle that feels like an AI scanner deliberately
+     changing direction rather than a mechanical spinner. Per-keyframe
+     timing-functions are documented inline below; the cycle is:
+       Phase 1   0 →  33 s  · CW cruise @30 deg/s (linear)
+       Phase 2  33 → 34 s   · ease-out CW decel (+10 deg)
+       Pause    34 → 34.5 s
+       Phase 3a 34.5 → 35.5 s · ease-in CCW accel (-17 deg)
+       Phase 3b 35.5 → 61.5 s · CCW cruise (linear, -966 deg)
+       Phase 4  61.5 → 62.5 s · ease-out CCW decel (-17 deg)
+       Pause    62.5 → 64 s
+     Net rotation per cycle = 0 deg → loop is seamless (no angle snap
+     across the loop boundary). */
+  animation: mc-cd-ring-2 64s infinite;
+}
+@keyframes mc-cd-ring-1 {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.06); }
+}
+@keyframes mc-cd-ring-2 {
+  /* Phase 1 — CW linear cruise, 33 s, 990 deg */
+  0%      { transform: rotate(0deg);    animation-timing-function: linear; }
+  /* Phase 2 — ease-out CW decel, 1 s, +10 deg */
+  51.56%  { transform: rotate(990deg);  animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+  /* Pause at peak, 0.5 s */
+  53.13%  { transform: rotate(1000deg); animation-timing-function: linear; }
+  /* Phase 3a — ease-in CCW accel, 1 s, -17 deg */
+  53.91%  { transform: rotate(1000deg); animation-timing-function: cubic-bezier(0.32, 0, 0.67, 0); }
+  /* Phase 3b — CCW linear cruise, 26 s, -966 deg */
+  55.47%  { transform: rotate(983deg);  animation-timing-function: linear; }
+  /* Phase 4 — ease-out CCW decel, 1 s, -17 deg */
+  96.09%  { transform: rotate(17deg);   animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+  /* Pause at rest, 1.5 s — closes the loop at the exact start angle
+     so the seam is invisible. */
+  97.66%  { transform: rotate(0deg);    animation-timing-function: linear; }
+  100%    { transform: rotate(0deg); }
+}
+
+.mc-cd-bolt {
+  position: absolute;
+  /* Icon Normalization Pass v1.0: 32 → 40 to match the inner-icon scale
+     of the Health card's 34-px heart and the Publishing card's 32-px
+     ring icon at executive presence. Purple identity, glow, and stroke
+     unchanged per directive. */
+  width: 40px;
+  height: 40px;
+  color: #c785ff;
+  filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.65));
+  animation: mc-cd-bolt-pulse 2.4s ease-in-out infinite;
+}
+@keyframes mc-cd-bolt-pulse {
+  0%, 100% { opacity: 0.80; filter: drop-shadow(0 0 6px  rgba(168, 85, 247, 0.45)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.85)); }
+}
+
+/* Lightning Animation v1.0 — randomized energy pulses and occasional
+   surges. Classes toggled by JS to overlay on the idle bolt-pulse:
+   .mc-cd-art.is-pulsing  → 700-800 ms energy pulse + ripple ring
+   .mc-cd-art.is-flashing → 1200 ms larger surge (bright bolt + ring
+                            illumination + larger ripple) */
+
+/* Expanding ripple ring (lives inside the .mc-cd-rings SVG; invisible
+   at idle, animated via the event classes). */
+.mc-cd-ripple {
+  opacity: 0;
+  fill: none;
+  stroke: rgba(199, 133, 255, 0.6);
+  stroke-width: 1.4;
+  filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.5));
+}
+
+/* Energy pulse (8-15 s randomized via JS). Bolt brightens with a
+   bigger bloom, ring ripples outward, then both settle back. */
+.mc-cd-art.is-pulsing .mc-cd-bolt   { animation: mc-cd-bolt-event-pulse 800ms ease-out; }
+.mc-cd-art.is-pulsing .mc-cd-ripple { animation: mc-cd-ripple-pulse     900ms ease-out; }
+
+@keyframes mc-cd-bolt-event-pulse {
+  0%   { transform: scale(1);
+         filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.45)); }
+  35%  { transform: scale(1.22);
+         filter: drop-shadow(0 0 12px rgba(199, 133, 255, 1))
+                 drop-shadow(0 0 26px rgba(168, 85, 247, 0.85)); }
+  100% { transform: scale(1);
+         filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.45)); }
+}
+@keyframes mc-cd-ripple-pulse {
+  0%   { r: 8;  opacity: 0;   stroke-width: 1.6; }
+  10%  { r: 10; opacity: 0.7;  stroke-width: 1.5; }
+  100% { r: 34; opacity: 0;    stroke-width: 0.4; }
+}
+
+/* Occasional flash (30-45 s randomized via JS). Larger surge —
+   bolt momentarily flashes white-purple, the outer ring briefly
+   illuminates, and a larger ripple radiates further. */
+.mc-cd-art.is-flashing .mc-cd-bolt   { animation: mc-cd-bolt-flash   1200ms ease-out; }
+.mc-cd-art.is-flashing .mc-cd-ring-1 { animation: mc-cd-ring-flash   1200ms ease-out; }
+.mc-cd-art.is-flashing .mc-cd-ripple { animation: mc-cd-ripple-flash 1200ms ease-out; }
+
+@keyframes mc-cd-bolt-flash {
+  0%   { transform: scale(1);    color: #c785ff;
+         filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.45)); }
+  18%  { transform: scale(1.42); color: #ffffff;
+         filter: drop-shadow(0 0 8px  rgba(255, 255, 255, 1))
+                 drop-shadow(0 0 22px rgba(199, 133, 255, 1))
+                 drop-shadow(0 0 42px rgba(168, 85, 247, 0.85)); }
+  55%  { transform: scale(1.10); color: #c785ff;
+         filter: drop-shadow(0 0 14px rgba(168, 85, 247, 0.85)); }
+  100% { transform: scale(1);    color: #c785ff;
+         filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.45)); }
+}
+@keyframes mc-cd-ring-flash {
+  /* Briefly brighten the outer ring (was rgba(168,85,247,0.32))
+     toward white-purple, then back. */
+  0%   { stroke: rgba(168, 85, 247, 0.32); }
+  20%  { stroke: rgba(255, 255, 255, 0.85); }
+  55%  { stroke: rgba(199, 133, 255, 0.55); }
+  100% { stroke: rgba(168, 85, 247, 0.32); }
+}
+@keyframes mc-cd-ripple-flash {
+  0%   { r: 8;  opacity: 0;   stroke-width: 1.8; }
+  8%   { r: 10; opacity: 0.9; stroke-width: 1.6; }
+  100% { r: 42; opacity: 0;   stroke-width: 0.4; }
+}
+
+/* Event timeline */
+.mc-cd-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+
+.mc-cd-event {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(168, 85, 247, 0.05);
+  border: 1px solid rgba(168, 85, 247, 0.12);
+  border-radius: var(--mc-r-2);
+  /* Subtle per-event highlight pulse — each event takes its turn in a
+     continuous 8-second loop, staggered by 2s. Fade-in / hold / fade-out
+     per directive ("Events rotate: Fade In, Hold, Fade Out, Next event").
+     Animation is decorative only; all four events remain visible at all
+     times so the feed reads as a live intelligence timeline. */
+  animation: mc-cd-event-pulse 8s ease-in-out infinite;
+}
+.mc-cd-event--1 { animation-delay: 0s; }
+.mc-cd-event--2 { animation-delay: 2s; }
+.mc-cd-event--3 { animation-delay: 4s; }
+.mc-cd-event--4 { animation-delay: 6s; }
+
+@keyframes mc-cd-event-pulse {
+  0%, 100%   { background: rgba(168, 85, 247, 0.05); border-color: rgba(168, 85, 247, 0.12); }
+  5%         { background: rgba(168, 85, 247, 0.14); border-color: rgba(168, 85, 247, 0.34); }
+  20%        { background: rgba(168, 85, 247, 0.08); border-color: rgba(168, 85, 247, 0.20); }
+  30%        { background: rgba(168, 85, 247, 0.05); border-color: rgba(168, 85, 247, 0.12); }
+}
+
+.mc-cd-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--mc-purple);
+  background: var(--mc-purple-soft);
+  border: 1px solid var(--mc-border-warm);
+}
+.mc-cd-icon svg { width: 12px; height: 12px; }
+
+.mc-cd-event-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.mc-cd-event-title {
+  font-size: 12px;                              /* Typography Standardization v1.0: 11.5 → 12 */
+  font-weight: 600;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+.mc-cd-event-meta {
+  font-size: 10px;
+  color: var(--mc-purple);
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+.mc-cd-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: var(--mc-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.mc-cd-pulse {
+  width: 22px;
+  height: 8px;
+  flex: 0 0 22px;
+}
+.mc-cd-pulse path {
+  stroke: var(--mc-purple);
+  stroke-width: 0.8;
+  fill: none;
+  filter: drop-shadow(0 0 3px var(--mc-purple-glow));
+  opacity: 0.7;
+}
+
+/* ─── Backend Intelligence™ card (replaces Monitoring Intelligence™ — Board directive) ─
+
+   Backend Intelligence™ visualizes Royaltē's connection into the deep
+   music ecosystem infrastructure (MusicBrainz, Discogs, MLC, Listen
+   Notes) rather than displaying generic monitoring metrics. Premium
+   gold/amber identity differentiates it from Health (green), Identity
+   (blue), Publishing (pink-orchid), Catalog (orange), and Change
+   Detection (violet). Layout follows the executive template:
+   [head: mark + title] · [body: icon LEFT + summary RIGHT] · [service
+   list] · [foot]. */
+
+.mc-bi-body {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--mc-s-3);
+  align-items: center;
+}
+
+/* Stylized globe + concentric gold rings — narrow-card adaptation of
+   the Board reference's hero artwork. Outer ring breathes, inner
+   dashed ring slowly rotates, central globe icon glows gold. */
+.mc-bi-art {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+}
+.mc-bi-rings {
+  width: 96px;
+  height: 96px;
+  /* Color Refinement v1.0: glow opacity 0.30 → 0.18 per Board (luxury
+     hardware, not warning accent). */
+  filter: drop-shadow(0 0 8px var(--mc-gold-glow));
+}
+.mc-bi-ring-1 {
+  transform-origin: 50% 50%;
+  animation: mc-bi-ring-1 4.6s ease-in-out infinite;
+}
+.mc-bi-ring-2 {
+  transform-origin: 50% 50%;
+  animation: mc-bi-ring-2 9s linear infinite;
+}
+@keyframes mc-bi-ring-1 {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.06); }
+}
+@keyframes mc-bi-ring-2 {
+  to { transform: rotate(360deg); }
+}
+.mc-bi-globe {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  /* Color Refinement v1.0: champagne accent text replaces the prior
+     bright amber. The globe glyph now reads as a softly-lit brushed
+     metal element rather than an energetic light source. */
+  color: var(--mc-gold-bright);
+  filter: drop-shadow(0 0 10px var(--mc-gold-glow));
+  animation: mc-bi-globe-pulse 3.2s ease-in-out infinite;
+}
+@keyframes mc-bi-globe-pulse {
+  /* Color Refinement v1.0: pulse glow eased from 0.45 / 0.85 →
+     0.18 / 0.32 — subtle breathing, no warning energy. */
+  0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 6px  rgba(198, 168, 106, 0.18)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 14px rgba(198, 168, 106, 0.32)); }
+}
+
+/* Body summary — sublabel relocated from the card-head into the label
+   slot so the head stays at the 32-px executive baseline. */
+.mc-bi-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mc-bi-sum-label {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--mc-gold);
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.mc-bi-sum-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+}
+.mc-bi-sum-meta {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* Service connection list */
+.mc-bi-services {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+
+.mc-bi-service {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  /* Color Refinement v1.0: champagne fill + champagne border, both
+     softened from the prior amber tones. */
+  background: rgba(198, 168, 106, 0.05);
+  border: 1px solid rgba(198, 168, 106, 0.14);
+  border-radius: var(--mc-r-2);
+}
+
+.mc-bi-service-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--mc-gold);
+  background: var(--mc-gold-soft);
+  border: 1px solid var(--mc-border-gold);
+}
+.mc-bi-service-icon svg { width: 12px; height: 12px; }
+
+.mc-bi-service-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.mc-bi-service-name {
+  font-size: 12px;                              /* Typography Standardization v1.0: 11.5 → 12 */
+  font-weight: 600;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+.mc-bi-service-sub {
+  font-size: 9.5px;
+  color: var(--mc-gold);
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+.mc-bi-service-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  /* Color Refinement v1.0: status verbs and dots in champagne to keep
+     the module monochromatic luxury-metal across every element. */
+  color: var(--mc-gold-bright);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.mc-bi-service-status::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--mc-gold);
+  box-shadow: 0 0 5px var(--mc-gold-glow);
+}
+
+/* Foot: shield-check + status line in the Backend Intelligence palette
+   (gold label / green status verb to mirror the reference image's
+   gold-and-cyan dual-color treatment). */
+.mc-bi-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 9px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.mc-bi-foot-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--mc-gold);
+  filter: drop-shadow(0 0 4px var(--mc-gold-glow));
+  flex: 0 0 12px;
+}
+/* Color Refinement v1.0: foot label and state verb now share the
+   champagne family — primary tone for the label, brighter accent for
+   the state verb. The shield-check icon (.mc-bi-foot-icon) inherits
+   its colour from --mc-gold. */
+.mc-bi-foot-label { color: var(--mc-gold); }
+.mc-bi-foot-state { color: var(--mc-gold-bright); }
+
+/* ─── footprint card ────────────────────────────────────────────── */
+
+.mc-card--footprint { padding-bottom: var(--mc-s-2); }  /* Executive Compression v1.0: 16 → 8 */
+
+.mc-globe {
+  position: relative;
+  width: 100%;
+  /* Executive Visual Balance v1.0: globe expands to consume the row-2
+     extra height the visual-balance pass added. Width unchanged; the
+     map uses `object-fit: contain` so the world-map aspect ratio is
+     preserved as the container grows. Min-height keeps the original
+     180-px floor in case grid-auto-rows: 1fr ever yields a smaller
+     allocation. */
+  flex: 1;
+  min-height: 180px;
+  border-radius: var(--mc-r-2);
+  overflow: hidden;
+  background: #050b18;
+}
+
+.mc-globe-map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;                  /* 100% of the world map visible; letterbox provides the breathing room */
+  object-position: center center;
+  pointer-events: none;
+  display: block;
+}
+
+/* ─── Global Music Footprint™ Refinement v5.0 ────────────────────
+   Transforms the map into a living visualization of Royaltē
+   continuously validating worldwide music availability.
+
+   • 40-second master cycle.
+   • Idle: 15 purple presence markers gently twinkle independently
+     (star-field effect, phase-shifted by per-marker animation-delay).
+   • Active sweep: 80–99 % of cycle, ~7.6 s of cinematic teal sweep
+     travelling west → east across the globe.
+   • Each marker briefly disappears → reignites in a bright purple
+     bloom as the sweep crosses its longitude (animation-delay
+     proportional to marker left % so flashes follow the sweep path).
+   • ROYALTĒ LIVE™ status pill: green dot flashes at sweep start,
+     stays bright through the sweep, fades to dim idle afterward. */
+
+.mc-globe-sweep {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -8%;
+  width: 8%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(45, 212, 191, 0.45) 50%,
+    transparent 100%);
+  filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: mc-globe-sweep 40s linear infinite;
+}
+@keyframes mc-globe-sweep {
+  0%, 79.9% { opacity: 0;   transform: translateX(0); }
+  80%       { opacity: 0.9; transform: translateX(0); }
+  98.9%     { opacity: 0.9; transform: translateX(1400%); }
+  99.1%     { opacity: 0;   transform: translateX(1400%); }
+  100%      { opacity: 0;   transform: translateX(1400%); }
+}
+
+/* Presence markers — bright neon purple dots over major music
+   territories. Radial gradient gives the white-core / purple-bloom
+   effect; stacked drop-shadows provide the large glow bloom per spec. */
+.mc-globe-marker {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    #ffffff 0%,
+    #c785ff 32%,
+    #a855f7 72%,
+    transparent 100%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0.65;
+  filter:
+    drop-shadow(0 0 5px  rgba(168, 85, 247, 0.85))
+    drop-shadow(0 0 11px rgba(168, 85, 247, 0.55));
+  animation-name: mc-globe-marker;
+  animation-duration: 40s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+@keyframes mc-globe-marker {
+  /* New Territory Animation v1.0 — 5-stage cinematic discovery
+     sequence inside each marker's per-cycle window of the 40 s
+     master scan. Idle twinkle continues 0–77 % (star-field
+     feel); the new sparkle → bloom → contract → settle stages
+     run 78 → 82 % (≈1.6 s of cinematic ignition) then breathe
+     to the next cycle. */
+
+  /* Idle twinkle — two slow swells per cycle; per-marker delay
+     offsets phase-shift them so the field shimmers. */
+  0%      { opacity: 0.55; transform: translate(-50%, -50%) scale(1);
+             filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.5)); }
+  18%     { opacity: 0.85; transform: translate(-50%, -50%) scale(1.06); }
+  35%     { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
+  55%     { opacity: 0.85; transform: translate(-50%, -50%) scale(1.06); }
+  77%     { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
+
+  /* STAGE 1 — invisible reset before discovery. */
+  78%     { opacity: 0;    transform: translate(-50%, -50%) scale(0);
+             filter: none; }
+
+  /* STAGE 2 — tiny white sparkle appears (~200 ms). */
+  78.6%   { opacity: 1;    transform: translate(-50%, -50%) scale(0.35);
+             filter: drop-shadow(0 0 4px rgba(255, 255, 255, 1))
+                     drop-shadow(0 0 8px rgba(255, 255, 255, 0.65)); }
+
+  /* STAGE 3 — erupts into bright neon-purple bloom (~400 ms). */
+  79.6%   { opacity: 1;    transform: translate(-50%, -50%) scale(2.6);
+             filter: drop-shadow(0 0 14px rgba(168, 85, 247, 1))
+                     drop-shadow(0 0 32px rgba(168, 85, 247, 0.85))
+                     drop-shadow(0 0 48px rgba(168, 85, 247, 0.5)); }
+
+  /* STAGE 4 — bloom contracts into the settled marker (~400 ms). */
+  80.6%   { opacity: 1;    transform: translate(-50%, -50%) scale(1.3);
+             filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.95))
+                     drop-shadow(0 0 20px rgba(168, 85, 247, 0.65)); }
+  81.6%   { opacity: 1;    transform: translate(-50%, -50%) scale(1);
+             filter: drop-shadow(0 0 7px  rgba(168, 85, 247, 0.95))
+                     drop-shadow(0 0 14px rgba(168, 85, 247, 0.6)); }
+
+  /* STAGE 5 — settled marker breathes through the remainder of the
+     cycle, then drifts back to the dim idle state ready for the
+     next discovery. */
+  92%     { opacity: 1;    transform: translate(-50%, -50%) scale(1.04);
+             filter: drop-shadow(0 0 8px  rgba(168, 85, 247, 0.85))
+                     drop-shadow(0 0 16px rgba(168, 85, 247, 0.5)); }
+  100%    { opacity: 0.55; transform: translate(-50%, -50%) scale(1);
+             filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.5)); }
+}
+
+/* ROYALTĒ LIVE™ status pill — replaces the prior .mc-foot-blurb
+   placeholder slot. Premium glass-style appearance. */
+.mc-globe-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 9px;
+  background: rgba(45, 212, 191, 0.10);
+  border: 1px solid rgba(45, 212, 191, 0.30);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.mc-globe-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mc-green-bright);
+  box-shadow:
+    0 0 6px  rgba(52, 245, 176, 1),
+    0 0 14px rgba(52, 245, 176, 0.55);
+  flex-shrink: 0;
+  animation: mc-globe-status-dot 40s ease-out infinite;
+}
+@keyframes mc-globe-status-dot {
+  /* Idle dim from 0 → 79 % */
+  0%, 79%   { opacity: 0.40;
+              box-shadow: 0 0 4px  rgba(52, 245, 176, 0.45); }
+  /* Flash bright as the scan starts */
+  80%       { opacity: 1;
+              box-shadow: 0 0 10px rgba(52, 245, 176, 1),
+                          0 0 20px rgba(52, 245, 176, 0.85); }
+  /* Stay bright through the sweep window */
+  99%       { opacity: 1;
+              box-shadow: 0 0 10px rgba(52, 245, 176, 1),
+                          0 0 20px rgba(52, 245, 176, 0.85); }
+  /* Fade to dim idle as the cycle resets */
+  100%      { opacity: 0.40;
+              box-shadow: 0 0 4px  rgba(52, 245, 176, 0.45); }
+}
+.mc-globe-status-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.mc-globe-status-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--mc-text);
+  text-transform: uppercase;
+}
+.mc-globe-status-sub {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--mc-text-muted);
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.mc-foot-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;                           /* v5.0: center-align the pill + secondary CTA */
+  gap: var(--mc-s-4);
+  margin-top: var(--mc-s-1);                    /* Executive Compression v1.0: 8 → 4 */
+}
+
+.mc-foot-blurb {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  max-width: 60%;
+  line-height: 1.55;
+}
+
+/* Live Territory Counter v1.0: replaces the prior .mc-foot-cta
+   "View Full Map" button. Premium glass-style information pill —
+   matches the ROYALTĒ LIVE™ pill's visual language on the opposite
+   side of the foot row. Label sits above a large bold count. */
+.mc-globe-territories {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 5px 14px 6px;
+  background: rgba(168, 85, 247, 0.10);
+  border: 1px solid rgba(168, 85, 247, 0.30);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  line-height: 1.05;
+}
+.mc-globe-territories-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--mc-purple);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.mc-globe-territories-icon {
+  width: 11px;
+  height: 11px;
+  color: var(--mc-purple);
+  filter: drop-shadow(0 0 3px var(--mc-purple-glow));
+  flex-shrink: 0;
+}
+.mc-globe-territories-count {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--mc-text);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+/* Executive Compression v3.0: bottom status row + all its supporting
+   classes (.mc-status-row / .mc-status-card / .mc-status-card--horizon
+   / .mc-status-label / .mc-status-value(+--green/--alt) / .mc-status-cap
+   / .mc-status-radar / .mc-status-dots / .mc-status-dot
+   / .mc-status-horizon-art) deleted — the row was redundant with the
+   hero meta and brand messaging. */
+
+/* ─── right rail panels ─────────────────────────────────────────── */
+
+.mc-panel {
+  background: var(--mc-surface-1);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-r-4);
+  /* Executive Compression v1.0: right-rail panel padding 20 → 12,
+     internal flex-gap 16 → 8. Typography / icons / ring untouched. */
+  padding: var(--mc-s-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-s-2);
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-s-3);
+}
+
+.mc-panel-head-left {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-s-2);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--mc-purple);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mc-panel-meta {
+  font-size: 11px;
+  color: var(--mc-purple);
+  opacity: 0.85;
+  letter-spacing: 0.04em;
+}
+
+/* AI Insights */
+
+.mc-insights-art {
+  display: grid;
+  place-items: center;
+  /* Executive Compression v1.0: 120 → 96. The 80×80 bulb SVG is unchanged;
+     this trims the dead-space surround around the icon, not the icon itself. */
+  height: 96px;
+  position: relative;
+}
+.mc-insights-art::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  background: radial-gradient(circle at 50% 60%, rgba(168, 85, 247, 0.30), transparent 60%);
+  filter: blur(8px);
+}
+.mc-insights-art svg {
+  width: 80px;
+  height: 80px;
+  color: var(--mc-purple);
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 16px var(--mc-purple-glow));
+}
+
+/* Vintage Edison bulb — purple glass, pink-purple filament coil
+   that softly pulses to imply the AI is "thinking". */
+.mc-bulb-glass    { stroke: currentColor;            opacity: 0.85; }
+.mc-bulb-shine    { stroke: #d88cff;                 opacity: 0.55; }
+.mc-bulb-wire     { stroke: rgba(168, 85, 247, 0.55); }
+.mc-bulb-base     { stroke: currentColor;            opacity: 0.80; fill: rgba(168, 85, 247, 0.08); }
+.mc-bulb-tip      { stroke: currentColor;            opacity: 0.80; fill: rgba(168, 85, 247, 0.12); }
+
+.mc-bulb-filament {
+  stroke: #d88cff;
+  stroke-width: 1.4;
+  fill: none;
+  filter: drop-shadow(0 0 5px rgba(216, 140, 255, 0.55));
+  animation: mc-bulb-think 4.2s ease-in-out infinite;
+}
+
+/* Three-phase organic pulse — extremely slow, no harsh glow,
+   no flashing; the filament breathes the way thought feels. */
+@keyframes mc-bulb-think {
+  0%, 100% { opacity: 0.55; filter: drop-shadow(0 0  3px rgba(216, 140, 255, 0.40)); stroke: #c785ff; }
+  35%      { opacity: 1;    filter: drop-shadow(0 0 12px rgba(232, 165, 255, 0.85)); stroke: #ecaaff; }
+  60%      { opacity: 0.78; filter: drop-shadow(0 0  6px rgba(216, 140, 255, 0.55)); stroke: #d88cff; }
+}
+
+.mc-insights-title {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.mc-insights-body {
+  font-size: 13px;
+  color: var(--mc-text-soft);
+  line-height: 1.6;
+}
+
+/* AI Analysis Activity — Stage 2 list below the body paragraph. */
+.mc-ai-activity {
+  margin-top: var(--mc-s-2);
+  padding-top: var(--mc-s-2);
+  border-top: 1px solid var(--mc-divider);
+}
+.mc-ai-activity-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.mc-ai-activity-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--mc-text-muted);
+  text-transform: uppercase;
+}
+.mc-ai-activity-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--mc-green-bright);
+  text-transform: uppercase;
+}
+.mc-ai-activity-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  /* Initial state is "dim idle"; JS flashes it bright at the end of
+     each analysis cycle and holds bright for ~3.5 s. */
+  background: rgba(52, 245, 176, 0.32);
+  box-shadow: 0 0 3px rgba(52, 245, 176, 0.30);
+  transition: background-color 220ms ease-out, box-shadow 220ms ease-out;
+}
+.mc-ai-activity-list { display: flex; flex-direction: column; }
+.mc-ai-activity-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.mc-ai-activity-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid #ffffff;
+  background: transparent;
+  box-sizing: border-box;
+  align-self: center;
+  /* Animation Refinement v3.0: dot fill + glow are driven by JS
+     (randomized parallel activity model). White stroke stays
+     constant; only the inner fill is mutated by the script. */
+  transition: background-color 220ms ease-out, box-shadow 220ms ease-out;
+}
+.mc-ai-activity-item:last-child { border-bottom: 0; }
+.mc-ai-activity-text { min-width: 0; }
+.mc-ai-activity-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--mc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+}
+.mc-ai-activity-sub {
+  font-size: 10px;
+  color: var(--mc-text-muted);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  margin-top: 1px;
+}
+.mc-ai-activity-time {
+  font-size: 10px;
+  color: var(--mc-text-muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.mc-ai-activity-item--ok .mc-ai-activity-title { color: var(--mc-green-bright); }
+
+/* Right Rail Compression v1.0: .mc-takeaways / .mc-takeaways-title /
+   .mc-takeaways-list wrappers removed — the KEY TAKEAWAYS block was
+   deleted from the AI Insights panel per Board directive.
+   .mc-takeaway is retained because Royaltē Review reuses it as the
+   reusable check-list-item style (icon + label rows). */
+.mc-takeaway {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: var(--mc-s-2);
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--mc-text-soft);
+}
+
+.mc-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--mc-green);
+  background: var(--mc-green-soft);
+}
+.mc-check svg { width: 10px; height: 10px; }
+
+/* Right Rail Compression v1.0: .mc-info-note + children removed — the
+   "No action is required at this time" info panel was deleted from the
+   AI Insights panel per Board directive. */
+
+/* Royaltē Review */
+
+.mc-review-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mc-review-title {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--mc-text);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.mc-review-meta {
+  font-size: 11px;
+  color: var(--mc-purple);
+  letter-spacing: 0.04em;
+}
+
+.mc-review-score {
+  display: grid;
+  /* Right Rail Spacing Refinement v1.0: ring column 110 → 96 to match
+     the standard executive icon footprint shared by every other
+     intelligence module. */
+  grid-template-columns: 96px 1fr;
+  align-items: center;
+  gap: var(--mc-s-4);
+}
+
+.mc-review-ring {
+  /* Right Rail Spacing Refinement v1.0: 110 × 110 → 96 × 96. SVG
+     viewBox stays 0 0 110 110 so the existing geometry (track + 83 %
+     progress arc) scales proportionally — no redesign, just sizing. */
+  width: 96px;
+  height: 96px;
+  position: relative;
+}
+.mc-review-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.mc-review-ring .mc-ring-track    { stroke: rgba(168, 85, 247, 0.10); }
+.mc-review-ring .mc-ring-progress { stroke: var(--mc-purple); filter: drop-shadow(0 0 10px var(--mc-purple-glow)); }
+.mc-review-ring-text {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  flex-direction: column;
+  color: var(--mc-text);
+  text-align: center;
+}
+/* Priority Actions Refinement v2.0: Royaltē Review™ is reframed as
+   the Priority Actions™ executive action center. The 83/100 Health
+   Score visualization (.mc-review-ring-num / -ring-tot) and the
+   HEALTH SCORE / HIGH CONFIDENCE labels (.mc-review-label /
+   .mc-review-conf) and the 4-check takeaways list (.mc-review-checks)
+   are all retired in favor of the .mc-pa-* classes below. The ring
+   itself, .mc-review-head / -title / -meta / -score / -ring /
+   -ring-text containers, and both buttons stay verbatim. */
+
+.mc-pa-hero-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--mc-purple);
+  filter: drop-shadow(0 0 10px var(--mc-purple-glow));
+}
+
+.mc-pa-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--mc-purple);
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+.mc-pa-sub {
+  font-size: 11.5px;
+  color: var(--mc-text-soft);
+  line-height: 1.45;
+  margin-top: 4px;
+}
+
+.mc-pa-section {
+  margin-top: var(--mc-s-2);
+  padding-top: var(--mc-s-2);
+  border-top: 1px solid var(--mc-divider);
+}
+.mc-pa-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.mc-pa-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.20em;
+  color: var(--mc-orange);
+  text-transform: uppercase;
+}
+.mc-pa-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mc-orange);
+  background: var(--mc-orange-soft);
+  border: 1px solid rgba(251, 146, 60, 0.32);
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-pa-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.mc-pa-item {
+  display: grid;
+  grid-template-columns: 28px 1fr 14px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 12px;
+  color: var(--mc-text);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.mc-pa-item:last-child { border-bottom: 0; }
+.mc-pa-item-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  color: var(--mc-orange);
+  background: var(--mc-orange-soft);
+  border: 1px solid rgba(251, 146, 60, 0.30);
+  filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.25));
+}
+.mc-pa-item-icon svg { width: 14px; height: 14px; }
+.mc-pa-item-label {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+}
+.mc-pa-item-arrow {
+  width: 14px;
+  height: 14px;
+  color: var(--mc-text-muted);
+}
+
+.mc-review-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* Executive Compression v1.0: CTA vertical padding 13 → 9; typography untouched. */
+  padding: var(--mc-grid) var(--mc-s-5);       /* Executive Grid Normalization v1.0: 9/18 → 10/20 */
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(109, 40, 217, 0.50));
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  border-radius: var(--mc-r-2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 22px rgba(168, 85, 247, 0.18) inset;
+  transition: filter 160ms ease, transform 160ms ease;
+}
+.mc-review-cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.mc-review-cta svg { width: 14px; height: 14px; }
+
+.mc-review-download {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: var(--mc-grid) var(--mc-s-5);       /* Executive Grid Normalization v1.0: 7/14 → 10/20 */
+  font-size: 12.5px;
+  color: var(--mc-purple);
+  border-radius: var(--mc-r-2);
+}
+.mc-review-download:hover { background: var(--mc-purple-soft); }
+.mc-review-download svg { width: 13px; height: 13px; }
+
+/* ─── responsive ─────────────────────────────────────────────────── */
+
+@media (max-width: 1440px) {
+  :root { --mc-rail-r: 332px; }
+  .mc-page-title { font-size: 32px; }
+}
+
+@media (max-width: 1280px) {
+  :root { --mc-rail-l: 230px; --mc-rail-r: 304px; --mc-pad: var(--mc-s-6); }
+  .mc-hero { grid-template-columns: 132px 1fr 180px 180px; }
+  .mc-grid { grid-template-columns: repeat(2, 1fr); }
+  .mc-row-3 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 1024px) {
+  .mc-shell {
+    grid-template-columns: 1fr;
+  }
+  .mc-rail-left,
+  .mc-rail-right {
+    border: 0;
+    padding: var(--mc-s-5);
+  }
+  .mc-rail-left {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mc-s-4);
+    padding-bottom: var(--mc-s-3);
+  }
+  .mc-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    width: 100%;
+    padding-bottom: var(--mc-s-2);
+  }
+  .mc-nav-item { flex: 0 0 auto; padding: var(--mc-s-2) var(--mc-s-3); }
+  .mc-nav-sub { display: none; }
+  .mc-founder { margin: 0; max-width: 320px; flex: 1; }
+  .mc-version { width: 100%; }
+  .mc-hero {
+    grid-template-columns: 96px 1fr;
+    grid-template-areas:
+      "radar title"
+      "radar meta"
+      "pulse pulse"
+      "action action";
+    row-gap: var(--mc-s-3);
+  }
+  .mc-radar         { grid-area: radar; width: 96px; height: 96px; }
+  .mc-hero-block    { grid-area: title; }
+  .mc-pulse-line    { grid-area: pulse; }
+  .mc-hero-action   { grid-area: action; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .mc-rail-right {
+    border-top: 1px solid var(--mc-border);
+  }
+}
+
+@media (max-width: 720px) {
+  :root { --mc-pad: var(--mc-s-5); }
+  .mc-page-title { font-size: 26px; }
+  .mc-hero { padding: var(--mc-s-4); }
+  .mc-hero-title { font-size: 22px; }
+  .mc-grid { grid-template-columns: 1fr; gap: var(--mc-s-4); }
+  .mc-row-3 { grid-template-columns: 1fr; gap: var(--mc-s-4); }
+  .mc-rail-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .mc-nav { gap: var(--mc-s-1); }
+  .mc-founder { max-width: none; }
+  .mc-review-score { grid-template-columns: 96px 1fr; }
+  .mc-review-ring  { width: 96px; height: 96px; }
+}
+
+/* loading skeleton (placeholder; engines inject real values later) */
+.mc-skeleton {
+  display: inline-block;
+  height: 1em;
+  background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+  background-size: 200% 100%;
+  animation: mc-shimmer 1.4s linear infinite;
+  border-radius: 4px;
+}
+@keyframes mc-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+  </style>
+</head>
+<body>
+
+<!-- ──────────────────────────────────────────────────────────────────
+     Royaltē Mission Control Shell™ — Phase 9
+     All values below are PLACEHOLDERS. Future phases inject real
+     intelligence into the same DOM positions; the shell is the
+     stable contract.
+     ────────────────────────────────────────────────────────────── -->
+
+<div class="mc-shell">
+
+  <!-- ────────── LEFT RAIL ────────── -->
+  <aside class="mc-rail-left" role="navigation" aria-label="Mission Control navigation">
+
+    <div class="mc-brand">
+      <div class="mc-brand-mark" aria-hidden="true">ē</div>
+      <div>
+        <div class="mc-brand-text">ROYALTĒ</div>
+        <div class="mc-brand-sub">MISSION CONTROL</div>
+      </div>
+    </div>
+
+    <nav class="mc-nav">
+      <a class="mc-nav-item mc-nav-item--active" href="#executive-overview" aria-current="page">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Mission Control</span>
+          <div class="mc-nav-sub">Executive Overview</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#health-intelligence">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Health Intelligence</span>
+          <div class="mc-nav-sub">System Status</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#identity-intelligence">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Identity Intelligence</span>
+          <div class="mc-nav-sub">Who You Are</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#publishing-intelligence">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Publishing Intelligence</span>
+          <div class="mc-nav-sub">Your Works</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#catalog-intelligence">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Catalog Intelligence</span>
+          <div class="mc-nav-sub">Your Releases</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#global-footprint">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Global Music Footprint™</span>
+          <div class="mc-nav-sub">Where Your Music Exists</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#ai-insights">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">AI Insights</span>
+          <div class="mc-nav-sub">Intelligence Brief</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#backend-intelligence">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <!-- 3-node network mark matches the Backend Intelligence™ card's mark -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8 11l8-4M8 13l8 4"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Backend Intelligence</span>
+          <div class="mc-nav-sub">Infrastructure Connected</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="#settings">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .4 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.4 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.4l-.1.1A2 2 0 1 1 4.1 17l.1-.1a1.7 1.7 0 0 0 .4-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1.1 1.7 1.7 0 0 0-.4-1.9l-.1-.1A2 2 0 1 1 7 4.1l.1.1a1.7 1.7 0 0 0 1.9.4H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.4l.1-.1A2 2 0 1 1 19.9 7l-.1.1a1.7 1.7 0 0 0-.4 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Settings</span>
+          <div class="mc-nav-sub">Account &amp; Preferences</div>
+        </span>
+      </a>
+    </nav>
+
+    <!-- Founder Access™ -->
+    <div class="mc-founder" aria-label="Founder Access">
+      <div class="mc-founder-row">
+        <div class="mc-founder-mark" aria-hidden="true">ē</div>
+        <div class="mc-founder-label">FOUNDER ACCESS</div>
+      </div>
+      <div class="mc-founder-name">BLACK ALTERNATIVE</div>
+      <div class="mc-founder-tier">Lifetime Founder</div>
+      <div class="mc-founder-meta">Member #000001<br>Since May 2026</div>
+    </div>
+
+    <div class="mc-version">
+      <span>v0.5.0</span>
+      <span class="mc-version-sign">SIGN OUT
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H8"/><path d="M14 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8"/></svg>
+      </span>
+    </div>
+
+  </aside>
+
+  <!-- ────────── MAIN ────────── -->
+  <main class="mc-main" id="executive-overview">
+
+    <header class="mc-page-head">
+      <h1 class="mc-page-title">BLACK ALTERNATIVE</h1>
+      <p class="mc-page-sub">Royaltē has been monitoring your music business 24/7.</p>
+    </header>
+
+    <!-- HERO STATUS PANEL -->
+    <section class="mc-hero" aria-label="Royaltē Intelligence Engine status">
+
+      <div class="mc-radar" aria-hidden="true">
+        <svg viewBox="0 0 130 130">
+          <defs>
+            <radialGradient id="mc-radar-fill" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stop-color="#2dd4bf" stop-opacity="0.10"/>
+              <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="mc-radar-sweep-fill" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#34f5b0" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#34f5b0" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <circle cx="65" cy="65" r="62" fill="url(#mc-radar-fill)" stroke="rgba(45,212,191,0.20)"/>
+          <circle cx="65" cy="65" r="44" fill="none" stroke="rgba(45,212,191,0.18)"/>
+          <circle cx="65" cy="65" r="26" fill="none" stroke="rgba(45,212,191,0.20)"/>
+          <circle cx="65" cy="65" r="10" fill="none" stroke="rgba(45,212,191,0.25)"/>
+          <line x1="65" y1="3"  x2="65" y2="127" stroke="rgba(45,212,191,0.10)"/>
+          <line x1="3"  y1="65" x2="127" y2="65" stroke="rgba(45,212,191,0.10)"/>
+          <g class="mc-radar-sweep">
+            <path d="M65 65 L65 3 A62 62 0 0 1 117 39 Z" fill="url(#mc-radar-sweep-fill)"/>
+          </g>
+          <circle class="mc-radar-center" cx="65" cy="65" r="3" fill="#34f5b0"/>
+          <!-- Sonar AI Detection Pulse v2.0 — five fixed-position
+               detection triads (1 white-core dot + 2 concentric teal
+               echo rings each). Render order is AFTER the sweep group
+               and center, so pings always paint above the rotating
+               beam (never occluded). See .mc-radar-detect-* CSS for
+               per-ping irregular timing. -->
+          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--1"                                cx="95" cy="50" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--1"   cx="95" cy="50" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--1"   cx="95" cy="50" r="3"/>
+          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--2"                                cx="35" cy="80" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--2"   cx="35" cy="80" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--2"   cx="35" cy="80" r="3"/>
+          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--3"                                cx="85" cy="95" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--3"   cx="85" cy="95" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--3"   cx="85" cy="95" r="3"/>
+          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--4"                                cx="40" cy="35" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--4"   cx="40" cy="35" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--4"   cx="40" cy="35" r="3"/>
+          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--5"                                cx="75" cy="25" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--5"   cx="75" cy="25" r="3"/>
+          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--5"   cx="75" cy="25" r="3"/>
+        </svg>
+      </div>
+
+      <div class="mc-hero-block">
+        <div class="mc-hero-label">ROYALTĒ INTELLIGENCE ENGINE™</div>
+        <div class="mc-hero-title">ALL SYSTEMS NORMAL</div>
+        <div class="mc-hero-meta">Monitoring <b>24/7</b> &nbsp;•&nbsp; Last Scan: <b>12 minutes ago</b></div>
+      </div>
+
+      <svg class="mc-pulse-line" viewBox="0 0 220 56" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 28 L40 28 L48 28 L54 16 L60 40 L66 12 L72 44 L80 28 L110 28 L116 22 L122 34 L128 28 L160 28 L166 18 L172 38 L178 28 L220 28"/>
+      </svg>
+
+      <div class="mc-hero-action">
+        <span class="mc-hero-action-label">SYSTEM STATUS</span>
+        <span class="mc-hero-action-value">Operational</span>
+        <span class="mc-hero-action-good">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+          Monitoring Active
+        </span>
+      </div>
+
+    </section>
+
+    <!-- INTELLIGENCE CARD GRID -->
+    <!-- Executive Compression v2.0: "YOUR INTELLIGENCE AT A GLANCE" section
+         header removed per Board directive — the modules communicate the
+         section themselves. -->
+    <div class="mc-grid">
+
+      <!-- Health Intelligence™ -->
+      <article class="mc-card mc-card--health" id="health-intelligence" aria-label="Health Intelligence">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+          </div>
+          <div class="mc-card-title">HEALTH INTELLIGENCE™</div>
+        </div>
+        <div class="mc-health-body">
+          <div class="mc-ring" aria-hidden="true">
+            <svg viewBox="0 0 80 80">
+              <g class="mc-heart-rings">
+                <circle class="ring-outer" cx="40" cy="40" r="37" stroke-width="0.8"/>
+                <circle class="ring-mid"   cx="40" cy="40" r="30" stroke-width="0.8"/>
+                <circle class="ring-inner" cx="40" cy="40" r="22" stroke-width="0.8"/>
+              </g>
+              <circle class="mc-ring-track"    cx="40" cy="40" r="34" fill="none" stroke-width="2.4"/>
+              <circle class="mc-ring-progress" cx="40" cy="40" r="34" fill="none" stroke-width="2.4"
+                stroke-dasharray="167 214"/>
+            </svg>
+            <div class="mc-ring-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10z"/></svg>
+            </div>
+          </div>
+          <div class="mc-metric">
+            <div class="mc-metric-value">78 <small>/100</small></div>
+            <!-- Refinement v1.0: status + delta texts re-labelled to
+                 reflect the composite/derived nature of the score.
+                 Typography, color, and structural classes preserved. -->
+            <div class="mc-metric-status">Royaltē Health Score™</div>
+            <div class="mc-metric-delta">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7-7 7 7"/></svg>
+              Powered by 6 Intelligence Engines™
+            </div>
+          </div>
+        </div>
+        <!-- Refinement v2.0: trend-line (.mc-spark) removed; the
+             "Health Contributors™" list communicates the score's
+             derivation without right-side numeric duplicates of each
+             contributing module's own score. -->
+        <div class="mc-health-breakdown" aria-label="Health Contributors">
+          <div class="mc-health-breakdown-title">Health Contributors™</div>
+          <!-- Refinement v3.0: clean executive scorecard — label LEFT,
+               score RIGHT, no icons / bars / graphs / decoration. -->
+          <ul class="mc-health-breakdown-list">
+            <li><span class="lbl">Identity Intelligence™</span>     <span class="val">72</span></li>
+            <li><span class="lbl">Publishing Intelligence™</span>   <span class="val">86</span></li>
+            <li><span class="lbl">Catalog Intelligence™</span>      <span class="val">84</span></li>
+            <li><span class="lbl">Global Music Footprint™</span>    <span class="val">58</span></li>
+            <li><span class="lbl">Change Detection™</span>          <span class="val">95</span></li>
+            <li><span class="lbl">Backend Intelligence™</span>      <span class="val">100</span></li>
+          </ul>
+          <!-- Refinement v4.0: composite average summary — closes the
+               contributor list with the aggregate the Health Score™
+               is calculated from. (72+86+84+58+95+100)/6 ≈ 82.5 → 83.
+               The math is intentionally not displayed per directive. -->
+          <div class="mc-health-breakdown-summary">
+            <span class="lbl">Composite Average</span>
+            <span class="val">83</span>
+          </div>
+        </div>
+
+        <!-- Module Footer Cleanup v1.0: static placeholder copy removed.
+             The slot is preserved (empty .mc-card-foot keeps the
+             margin-top: auto anchor) so Royaltē AI can inject real
+             insights / warnings / recommendations when they exist. -->
+        <div class="mc-card-foot"></div>
+      </article>
+
+      <!-- Identity Intelligence™ -->
+      <article class="mc-card mc-card--identity" id="identity-intelligence" aria-label="Identity Intelligence">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12a7 7 0 0 1 14 0v1"/>
+              <path d="M8 12a4 4 0 0 1 8 0v4"/>
+              <path d="M11 12a1 1 0 0 1 2 0v6"/>
+              <path d="M12 14v6"/>
+            </svg>
+          </div>
+          <div class="mc-card-title">IDENTITY INTELLIGENCE™</div>
+        </div>
+        <div class="mc-identity-body">
+          <div class="mc-fp-scope" aria-hidden="true">
+            <svg viewBox="0 0 96 96">
+              <circle class="mc-fp-pulse-1"    cx="48" cy="48" r="42"/>
+              <circle class="mc-fp-pulse-2"    cx="48" cy="48" r="42"/>
+              <circle class="mc-fp-ring-track" cx="48" cy="48" r="42"/>
+              <circle class="mc-fp-ring"       cx="48" cy="48" r="42"/>
+            </svg>
+            <div class="mc-fp-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12a8 8 0 0 1 16 0v1"/>
+                <path d="M7 12a5 5 0 0 1 10 0v3.5"/>
+                <path d="M10 12a2 2 0 0 1 4 0v5.5"/>
+                <path d="M12 14v6.5"/>
+                <path d="M4.5 16c.5 2 1.6 3.8 3 5"/>
+                <path d="M19.5 16c-.5 2-1.6 3.8-3 5"/>
+                <path d="M9 17.5v2.5"/>
+                <path d="M15 17.5v2.5"/>
+                <path d="M6.5 14.5c.2-1 .5-2 1-3"/>
+                <path d="M17.5 14.5c-.2-1-.5-2-1-3"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mc-identity-header">
+            <div class="mc-identity-value">72<small>%</small></div>
+            <div class="mc-identity-label">Identity Confidence</div>
+          </div>
+        </div>
+        <!-- Identity Refinement v2.0: official Royaltē identity
+             verification sources only. External Identities /
+             MusicBrainz / Discogs / placeholders removed; the four
+             major DSP ecosystems now drive this module. Each row may
+             render in one of two Board-approved states: VERIFIED or
+             ACTION. Sample mix below demonstrates both. -->
+        <div class="mc-identity-checks">
+          <div class="mc-identity-check">
+            <img class="mc-identity-platform" src="/img/identity/apple.png" alt="">
+            Apple Music for Artists
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </div>
+          <div class="mc-identity-check">
+            <img class="mc-identity-platform" src="/img/identity/spotify.png" alt="">
+            Spotify for Artists
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </div>
+          <div class="mc-identity-check">
+            <img class="mc-identity-platform" src="/img/identity/amazon.png" alt="">
+            Amazon Music for Artists
+            <span class="mc-pill mc-pill--action">Action</span>
+          </div>
+          <div class="mc-identity-check">
+            <img class="mc-identity-platform" src="/img/identity/youtube.png" alt="">
+            YouTube Official Artist Channel
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </div>
+        </div>
+        <div class="mc-card-foot"></div>
+      </article>
+
+      <!-- Publishing Intelligence™ -->
+      <article class="mc-card mc-card--publishing" id="publishing-intelligence" aria-label="Publishing Intelligence">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+          </div>
+          <div class="mc-card-title">PUBLISHING<br>INTELLIGENCE™</div>
+        </div>
+        <div class="mc-pub-body">
+          <div class="mc-ring mc-pub-ring" aria-hidden="true">
+            <svg viewBox="0 0 80 80">
+              <circle class="mc-ring-track"    cx="40" cy="40" r="33" fill="none"/>
+              <circle class="mc-ring-progress" cx="40" cy="40" r="33" fill="none"
+                stroke-dasharray="191 207"/>
+            </svg>
+            <div class="mc-ring-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
+            </div>
+          </div>
+          <div class="mc-pub-summary">
+            <div class="mc-pub-sum-label">Coverage</div>
+            <div class="mc-pub-sum-value">6 / 7</div>
+            <div class="mc-pub-sum-meta">Verified</div>
+          </div>
+        </div>
+
+        <!-- Publishing Refinement v2.0: seven publishing-infrastructure
+             metrics, each with an icon glyph and a status badge. Sample
+             mix exercises all three Royaltē status types: 5 VERIFIED +
+             1 ACTION + 1 MONITORING. No reference image was attached
+             with the directive — using consistent inline SVG glyphs
+             so the visual treatment matches across rows. -->
+        <ul class="mc-pub-checks">
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M3 10l9-7 9 7z"/></svg>
+            MLC Registration
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            ISWC Coverage
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3l5 5L8 21H3v-5z"/><path d="M14 5l5 5"/></svg>
+            Writer Credits
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v17H6a2 2 0 0 0-2 2"/><path d="M8 8h8M8 12h8"/></svg>
+            Publisher Information
+            <span class="mc-pill mc-pill--action">Action</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4a3 3 0 0 0-3 3v3l-2 2 2 2v3a3 3 0 0 0 3 3"/><path d="M15 4a3 3 0 0 1 3 3v3l2 2-2 2v3a3 3 0 0 1-3 3"/><path d="M12 4v16"/></svg>
+            MusicBrainz Publishing Metadata
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/><circle cx="6" cy="7" r="1" fill="currentColor"/><circle cx="11" cy="12" r="1" fill="currentColor"/><circle cx="17" cy="17" r="1" fill="currentColor"/></svg>
+            Composition Metadata Integrity
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </li>
+          <li class="mc-pub-check">
+            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+            Publishing Territory Coverage
+            <span class="mc-pill mc-pill--monitoring">Monitoring</span>
+          </li>
+        </ul>
+
+        <div class="mc-card-foot"></div>
+      </article>
+
+      <!-- Catalog Intelligence™ -->
+      <article class="mc-card mc-card--catalog" id="catalog-intelligence" aria-label="Catalog Intelligence">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
+          </div>
+          <div class="mc-card-title">CATALOG INTELLIGENCE™</div>
+        </div>
+        <div class="mc-catalog-body">
+          <div class="mc-stack">
+            <svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="30" cy="14" rx="20" ry="6" fill="rgba(251,146,60,0.15)"/>
+              <path d="M10 14v10c0 3.3 9 6 20 6s20-2.7 20-6V14"/>
+              <path d="M10 26v10c0 3.3 9 6 20 6s20-2.7 20-6V26"/>
+              <path d="M10 38v8c0 3.3 9 6 20 6s20-2.7 20-6v-8"/>
+            </svg>
+          </div>
+          <div class="mc-catalog-summary">
+            <!-- Catalog Refinement v2.0: "27 Catalog Assets" replaced
+                 with Catalog Score™ 84 / 100; the in-grid
+                 Metadata/Catalog/Verified status rows moved to the
+                 new .mc-catalog-checks block below; "Features" row
+                 renamed "Tracks" per directive. -->
+            <div class="mc-catalog-value">84 <small>/100</small></div>
+            <div class="mc-catalog-label">Catalog Score™</div>
+            <div class="mc-catalog-grid">
+              <span class="lbl">Albums</span>   <span class="val">3</span>
+              <span class="lbl">EPs</span>      <span class="val">2</span>
+              <span class="lbl">Singles</span>  <span class="val">4</span>
+              <span class="lbl">Tracks</span>   <span class="val">18</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Catalog Refinement v2.0: "Calculated From" — five Royaltē
+             catalog-infrastructure metrics. Sample mix exercises two
+             status types (4 Verified + 1 Action); inline SVG glyphs
+             tinted catalog-orange. No reference image was attached
+             with the directive — using consistent inline glyphs so
+             the visual treatment matches the row pattern Board approved
+             for the Publishing module. -->
+        <div class="mc-catalog-checks" aria-label="Calculated from">
+          <div class="mc-catalog-checks-title">Calculated From</div>
+          <div class="mc-catalog-check">
+            <svg class="mc-catalog-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            Metadata Integrity
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </div>
+          <div class="mc-catalog-check">
+            <svg class="mc-catalog-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="1"/><path d="M6 9v6M9 9v6M12 9v6M15 9v6M18 9v6"/></svg>
+            ISRC Integrity
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </div>
+          <div class="mc-catalog-check">
+            <svg class="mc-catalog-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M7 8v8M10 8v8M13 8v8M17 8v8"/></svg>
+            UPC Consistency
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </div>
+          <div class="mc-catalog-check">
+            <svg class="mc-catalog-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="9" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a5 5 0 0 1 10 0M14 20a4 4 0 0 1 7 0"/></svg>
+            Contributor Credits
+            <span class="mc-pill mc-pill--action">Action</span>
+          </div>
+          <div class="mc-catalog-check">
+            <svg class="mc-catalog-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5l3-3v6h-6"/><path d="M20 12a8 8 0 0 1-14 5l-3 3v-6h6"/></svg>
+            Catalog Synchronization
+            <span class="mc-pill mc-pill--verified">Verified</span>
+          </div>
+        </div>
+
+        <div class="mc-card-foot"></div>
+      </article>
+
+      <!-- Change Detection™ — replaces Revenue Watch™ per Board directive.
+           Live intelligence feed: "What changed since my last scan?" -->
+      <article class="mc-card mc-card--change" id="change-detection" aria-label="Change Detection">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M13 2L4.5 13h6L11 22l8.5-11h-6z"/>
+            </svg>
+          </div>
+          <div class="mc-card-title">CHANGE DETECTION™</div>
+          <!-- Alignment & Size Normalization v1.0: "CONTINUOUS INTELLIGENCE"
+               sublabel relocated to the .mc-cd-summary block below so the
+               card-head contains only [mark + title] — exactly matching the
+               structure of Health, Identity, Publishing, and Catalog cards.
+               Branding text preserved verbatim, color/style preserved. -->
+        </div>
+
+        <div class="mc-cd-body">
+          <div class="mc-cd-art" aria-hidden="true">
+            <svg class="mc-cd-rings" viewBox="0 0 100 100">
+              <circle class="mc-cd-ring-1" cx="50" cy="50" r="40" fill="none" stroke="rgba(168,85,247,0.32)" stroke-width="1.6"/>
+              <circle class="mc-cd-ring-2" cx="50" cy="50" r="32" fill="none" stroke="rgba(168,85,247,0.22)" stroke-width="1"   stroke-dasharray="3 4"/>
+              <circle cx="50" cy="50" r="22" fill="none" stroke="rgba(168,85,247,0.15)" stroke-width="1"/>
+              <!-- Ripple ring (invisible at idle; JS-toggled .is-pulsing /
+                   .is-flashing classes on the parent .mc-cd-art animate
+                   r + opacity outward for the energy-pulse + flash events). -->
+              <circle class="mc-cd-ripple" cx="50" cy="50" r="8"/>
+            </svg>
+            <svg class="mc-cd-bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M13 2L4.5 13h6L11 22l8.5-11h-6z"/>
+            </svg>
+          </div>
+          <div class="mc-cd-summary">
+            <div class="mc-cd-sum-label">Continuous Intelligence</div>
+            <div class="mc-cd-sum-value">4 New</div>
+            <div class="mc-cd-sum-meta">This Week</div>
+          </div>
+        </div>
+
+        <ul class="mc-cd-feed">
+          <li class="mc-cd-event mc-cd-event--1">
+            <span class="mc-cd-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </span>
+            <div class="mc-cd-event-body">
+              <div class="mc-cd-event-title">New Release Detected</div>
+              <div class="mc-cd-event-meta">Today · 10:42 AM</div>
+            </div>
+          </li>
+          <li class="mc-cd-event mc-cd-event--2">
+            <span class="mc-cd-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+            </span>
+            <div class="mc-cd-event-body">
+              <div class="mc-cd-event-title">Official Artist Verified</div>
+              <div class="mc-cd-event-meta">Yesterday</div>
+            </div>
+          </li>
+          <li class="mc-cd-event mc-cd-event--3">
+            <span class="mc-cd-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+            </span>
+            <div class="mc-cd-event-body">
+              <div class="mc-cd-event-title">Publishing Updated</div>
+              <div class="mc-cd-event-meta">3 Days Ago</div>
+            </div>
+          </li>
+          <li class="mc-cd-event mc-cd-event--4">
+            <span class="mc-cd-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>
+            </span>
+            <div class="mc-cd-event-body">
+              <div class="mc-cd-event-title">Podcast Mention</div>
+              <div class="mc-cd-event-meta">This Week</div>
+            </div>
+          </li>
+        </ul>
+
+        <!-- Module Footer Cleanup v1.0: "Monitoring Active" + pulse
+             waves removed (passive system indicator, not earned speech).
+             Empty .mc-cd-foot preserved as a slot for future AI
+             insights. -->
+        <div class="mc-cd-foot"></div>
+      </article>
+
+      <!-- Backend Intelligence™ — replaces Monitoring Intelligence™ per Board directive.
+           Visualizes Royaltē's connection into the deep music ecosystem
+           infrastructure (MusicBrainz, Discogs, MLC, Listen Notes). -->
+      <article class="mc-card mc-card--backend" id="backend-intelligence" aria-label="Backend Intelligence">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <!-- 3-node network mark matching the reference header icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="6"  cy="12" r="2.4"/>
+              <circle cx="18" cy="6"  r="2.4"/>
+              <circle cx="18" cy="18" r="2.4"/>
+              <path d="M8 11l8-4M8 13l8 4"/>
+            </svg>
+          </div>
+          <div class="mc-card-title">BACKEND INTELLIGENCE™</div>
+        </div>
+
+        <div class="mc-bi-body">
+          <div class="mc-bi-art" aria-hidden="true">
+            <svg class="mc-bi-rings" viewBox="0 0 100 100">
+              <!-- Color Refinement v1.0: ring strokes converted from amber
+                   (245,185,82) to champagne (198,168,106). Stroke widths
+                   unchanged. -->
+              <circle class="mc-bi-ring-1" cx="50" cy="50" r="40" fill="none" stroke="rgba(198,168,106,0.34)" stroke-width="1.6"/>
+              <circle class="mc-bi-ring-2" cx="50" cy="50" r="32" fill="none" stroke="rgba(198,168,106,0.24)" stroke-width="1"   stroke-dasharray="3 4"/>
+              <circle cx="50" cy="50" r="22" fill="none" stroke="rgba(198,168,106,0.17)" stroke-width="1"/>
+            </svg>
+            <!-- Globe glyph: meridian + equator inside a circle, gold filament glow -->
+            <svg class="mc-bi-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M3 12h18"/>
+              <path d="M12 3a14 14 0 0 1 0 18"/>
+              <path d="M12 3a14 14 0 0 0 0 18"/>
+            </svg>
+          </div>
+          <div class="mc-bi-summary">
+            <div class="mc-bi-sum-label">Infrastructure Connected</div>
+            <div class="mc-bi-sum-value">4 / 4</div>
+            <div class="mc-bi-sum-meta">All Verified</div>
+          </div>
+        </div>
+
+        <ul class="mc-bi-services">
+          <li class="mc-bi-service">
+            <span class="mc-bi-service-icon">
+              <!-- network nodes -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
+            </span>
+            <div class="mc-bi-service-body">
+              <div class="mc-bi-service-name">MusicBrainz</div>
+              <div class="mc-bi-service-sub">Connected</div>
+            </div>
+            <span class="mc-bi-service-status">Verified</span>
+          </li>
+          <li class="mc-bi-service">
+            <span class="mc-bi-service-icon">
+              <!-- vinyl disc -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.4"/></svg>
+            </span>
+            <div class="mc-bi-service-body">
+              <div class="mc-bi-service-name">Discogs</div>
+              <div class="mc-bi-service-sub">Connected</div>
+            </div>
+            <span class="mc-bi-service-status">Verified</span>
+          </li>
+          <li class="mc-bi-service">
+            <span class="mc-bi-service-icon">
+              <!-- MLC document -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+            </span>
+            <div class="mc-bi-service-body">
+              <div class="mc-bi-service-name">MLC</div>
+              <div class="mc-bi-service-sub">Registered</div>
+            </div>
+            <span class="mc-bi-service-status">Connected</span>
+          </li>
+          <li class="mc-bi-service">
+            <span class="mc-bi-service-icon">
+              <!-- mic -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>
+            </span>
+            <div class="mc-bi-service-body">
+              <div class="mc-bi-service-name">Listen Notes</div>
+              <div class="mc-bi-service-sub">Tracking</div>
+            </div>
+            <span class="mc-bi-service-status">Monitoring</span>
+          </li>
+        </ul>
+
+        <!-- Module Footer Cleanup v1.0: "Backend Infrastructure: Healthy"
+             status line removed (passive system indicator, not earned
+             speech). Empty .mc-bi-foot preserved as a slot for future
+             AI insights. -->
+        <div class="mc-bi-foot"></div>
+      </article>
+
+      <!-- Global Music Footprint™ -->
+      <article class="mc-card mc-card--footprint" id="global-footprint" style="grid-column: span 2;" aria-label="Global Music Footprint">
+        <div class="mc-card-head">
+          <div class="mc-card-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+          </div>
+          <div class="mc-card-title">GLOBAL MUSIC FOOTPRINT™</div>
+        </div>
+        <div class="mc-globe" aria-hidden="true">
+          <img class="mc-globe-map" src="/img/mission-control-world-map.png" alt="">
+          <!-- Footprint Validation v1.2: every marker repositioned to
+               its major-music-market landmass (equirectangular
+               approximation: left% = (180 + lon)/3.6, top% =
+               (90 − lat)/1.8). Per-marker animation-delay re-derived
+               from the established left × 0.056 s sweep-arrival
+               formula so each marker still flashes when the scan
+               beam crosses its longitude. New Zealand dropped to
+               make room for the previously-missing Canada marker
+               (15 total preserved). -->
+          <span class="mc-globe-marker" style="left:27%; top:27%; animation-delay:1.51s;"></span><!-- Canada — Toronto / S. Ontario -->
+          <span class="mc-globe-marker" style="left:16%; top:33%; animation-delay:0.90s;"></span><!-- USA West — Los Angeles -->
+          <span class="mc-globe-marker" style="left:31%; top:30%; animation-delay:1.74s;"></span><!-- USA East — New York -->
+          <span class="mc-globe-marker" style="left:22%; top:40%; animation-delay:1.23s;"></span><!-- Mexico — Mexico City -->
+          <span class="mc-globe-marker" style="left:27%; top:65%; animation-delay:1.51s;"></span><!-- Brazil — v1.3: moved to central Brazil interior per Board reference image (blue circle) -->
+
+
+          <span class="mc-globe-marker" style="left:49%; top:21%; animation-delay:2.74s;"></span><!-- UK — London -->
+          <span class="mc-globe-marker" style="left:55%; top:22%; animation-delay:3.08s;"></span><!-- Germany — Berlin -->
+          <span class="mc-globe-marker" style="left:48%; top:29%; animation-delay:2.69s;"></span><!-- Spain — Madrid -->
+          <span class="mc-globe-marker" style="left:51%; top:48%; animation-delay:2.86s;"></span><!-- Nigeria — Lagos -->
+          <span class="mc-globe-marker" style="left:55%; top:66%; animation-delay:3.08s;"></span><!-- South Africa — Johannesburg / Cape Town -->
+          <span class="mc-globe-marker" style="left:64%; top:38%; animation-delay:3.58s;"></span><!-- UAE / Middle East — Dubai -->
+          <span class="mc-globe-marker" style="left:71%; top:38%; animation-delay:3.98s;"></span><!-- India — Mumbai -->
+          <span class="mc-globe-marker" style="left:80%; top:30%; animation-delay:4.48s;"></span><!-- China — Beijing -->
+          <span class="mc-globe-marker" style="left:88%; top:32%; animation-delay:4.93s;"></span><!-- Japan — Tokyo -->
+          <span class="mc-globe-marker" style="left:86%; top:84%; animation-delay:4.82s;"></span><!-- Australia — nudge 2: top 80→84 (further down onto continent) -->
+
+
+
+
+          <!-- Scanning sweep — single teal vertical band that travels
+               west → east during 80–99 % of the master 40 s cycle. -->
+          <div class="mc-globe-sweep" aria-hidden="true"></div>
+        </div>
+        <div class="mc-foot-footer">
+          <!-- Footprint Refinement v5.0: ROYALTĒ LIVE™ pill is the new
+               primary visual focal point; the "View Full Map" CTA is
+               reduced to a secondary action. -->
+          <div class="mc-globe-status" aria-label="Royaltē Live — scanning global distribution">
+            <span class="mc-globe-status-dot" aria-hidden="true"></span>
+            <span class="mc-globe-status-text">
+              <span class="mc-globe-status-title">Royaltē Live™</span>
+              <span class="mc-globe-status-sub">Scanning Global Distribution</span>
+            </span>
+          </div>
+          <!-- Live Territory Counter v1.0: replaces the "View Full Map"
+               button. Counter syncs with the .mc-globe-sweep cycle —
+               resets to 0 when each sweep begins (80 % of the 40-s
+               master cycle) and climbs to the API target by the time
+               the sweep finishes (99 %). See the
+               getTerritoryCount() function below for the wiring
+               injection point. -->
+          <div class="mc-globe-territories" aria-label="Territories verified by Royaltē Global Distribution">
+            <span class="mc-globe-territories-label">
+              <svg class="mc-globe-territories-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+              Territories Verified™
+            </span>
+            <span class="mc-globe-territories-count">0</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Executive Compression v3.0: bottom status row removed per Board
+         directive. NEXT SCHEDULED SCAN is already in the hero meta;
+         INTELLIGENCE ENGINE STATUS is already communicated by the hero's
+         ALL SYSTEMS NORMAL + SYSTEM STATUS: OPERATIONAL; WE WORK WHILE YOU
+         CREATE is duplicative brand messaging. -->
+
+  </main>
+
+  <!-- ────────── RIGHT RAIL ────────── -->
+  <!-- AI Insights Height Expansion v1.0 — see inline notes on the
+       AI Insights panel below for the min-height rationale. -->
+  <aside class="mc-rail-right" id="ai-insights" aria-label="AI Insights and Royaltē Review">
+
+    <!-- AI Insights™ — min-height: 759 → bottom edge sits flush with
+         Catalog Intelligence™ bottom (row-1 baseline Y = 769). -->
+    <section class="mc-panel" aria-label="AI Insights" style="min-height: 620px;">
+      <div class="mc-panel-head">
+        <div class="mc-panel-head-left">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
+          Royaltē AI
+        </div>
+      </div>
+
+      <div class="mc-insights-art" aria-hidden="true">
+        <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- pear-shaped glass envelope with short neck -->
+          <path class="mc-bulb-glass" d="M40 4 C 24 4, 14 14, 14 28 C 14 38, 20 46, 28 52 L 32 52 L 32 56 L 48 56 L 48 52 C 56 46, 62 38, 62 28 C 62 14, 56 4, 40 4 Z"/>
+          <!-- subtle upper-left glass highlight -->
+          <path class="mc-bulb-shine" d="M22 14 Q 18 20 18 28" stroke-width="1"/>
+          <!-- filament support wires from neck up to coil endpoints -->
+          <line class="mc-bulb-wire" x1="32" y1="52" x2="32" y2="38" stroke-width="0.9"/>
+          <line class="mc-bulb-wire" x1="48" y1="52" x2="48" y2="38" stroke-width="0.9"/>
+          <!-- Edison-style hairpin filament coil -->
+          <path class="mc-bulb-filament" d="M32 38 L36 26 L40 38 L44 26 L48 38"/>
+          <!-- brass screw base (three thread bands) -->
+          <rect class="mc-bulb-base" x="32" y="56" width="16" height="3" rx="0.5" stroke-width="1"/>
+          <rect class="mc-bulb-base" x="33" y="59" width="14" height="3" rx="0.5" stroke-width="1"/>
+          <rect class="mc-bulb-base" x="34" y="62" width="12" height="3" rx="0.5" stroke-width="1"/>
+          <!-- contact tip -->
+          <ellipse class="mc-bulb-tip" cx="40" cy="67" rx="3" ry="1.5" stroke-width="1"/>
+        </svg>
+      </div>
+
+      <h2 class="mc-insights-title">Because What You Can't See Can Cost You.</h2>
+      <p class="mc-insights-body">Your music earns money in more places than you think. Royaltē AI™ continuously monitors the business behind your music — helping protect your catalog and maximize what you're owed.</p>
+
+      <div class="mc-ai-activity">
+        <div class="mc-ai-activity-head">
+          <span class="mc-ai-activity-label">AI Analysis Activity</span>
+          <span class="mc-ai-activity-live">
+            <span class="mc-ai-activity-live-dot" aria-hidden="true"></span>
+            Live
+          </span>
+        </div>
+        <ul class="mc-ai-activity-list">
+          <li class="mc-ai-activity-item">
+            <span class="mc-ai-activity-dot" aria-hidden="true"></span>
+            <div class="mc-ai-activity-text">
+              <div class="mc-ai-activity-title">Reviewing Publishing Infrastructure…</div>
+              <div class="mc-ai-activity-sub">Checking rights data and publisher connections</div>
+            </div>
+            <div class="mc-ai-activity-time">01:31</div>
+          </li>
+          <li class="mc-ai-activity-item">
+            <span class="mc-ai-activity-dot" aria-hidden="true"></span>
+            <div class="mc-ai-activity-text">
+              <div class="mc-ai-activity-title">Verifying Artist Identities…</div>
+              <div class="mc-ai-activity-sub">Cross-referencing artist and ownership records</div>
+            </div>
+            <div class="mc-ai-activity-time">00:05</div>
+          </li>
+          <li class="mc-ai-activity-item">
+            <span class="mc-ai-activity-dot" aria-hidden="true"></span>
+            <div class="mc-ai-activity-text">
+              <div class="mc-ai-activity-title">Scanning Metadata Consistency…</div>
+              <div class="mc-ai-activity-sub">Checking ISRC / UPC / ISWC and release data</div>
+            </div>
+            <div class="mc-ai-activity-time">01:30</div>
+          </li>
+          <li class="mc-ai-activity-item">
+            <span class="mc-ai-activity-dot" aria-hidden="true"></span>
+            <div class="mc-ai-activity-text">
+              <div class="mc-ai-activity-title">Checking DSP Availability…</div>
+              <div class="mc-ai-activity-sub">Monitoring global distribution and store presence</div>
+            </div>
+            <div class="mc-ai-activity-time">00:50</div>
+          </li>
+          <li class="mc-ai-activity-item">
+            <span class="mc-ai-activity-dot" aria-hidden="true"></span>
+            <div class="mc-ai-activity-text">
+              <div class="mc-ai-activity-title">Monitoring Backend Intelligence…</div>
+              <div class="mc-ai-activity-sub">Watching infrastructure health and connectivity</div>
+            </div>
+            <div class="mc-ai-activity-time">01:44</div>
+          </li>
+        </ul>
+      </div>
+      <!-- Right Rail Compression v1.0: KEY TAKEAWAYS list and "No action is
+           required" info-note both removed per Board directive. The module
+           ends after the executive narrative — one idea per module. -->
+    </section>
+
+    <!-- Royaltē Review™ -->
+    <!-- Royaltē Review™ — margin-top: auto removed. Panel sits in
+         natural flex flow after AI Insights™ with the rail's 10-px
+         gap, so its TOP edge (Y = 779) lines up with the Global
+         Music Footprint™ TOP edge in the main column (row-2 top). -->
+    <section class="mc-panel" aria-label="Royaltē Review">
+      <div class="mc-review-head">
+        <div class="mc-review-title">ROYALTĒ REVIEW™</div>
+        <div class="mc-review-meta">Generated Today</div>
+      </div>
+
+      <!-- Priority Actions Refinement v2.0: ring kept (purple
+           progress stroke preserved — Royaltē styling intact), but
+           the centre now holds a clipboard / warning glyph instead
+           of the prior 83 / 100 score. Right column carries the new
+           PRIORITY ACTIONS title + subtitle. -->
+      <div class="mc-review-score">
+        <div class="mc-review-ring" aria-hidden="true">
+          <svg viewBox="0 0 110 110">
+            <circle class="mc-ring-track"    cx="55" cy="55" r="46" fill="none" stroke-width="6"/>
+            <circle class="mc-ring-progress" cx="55" cy="55" r="46" fill="none" stroke-width="6"
+              stroke-dasharray="240 289"/>
+          </svg>
+          <div class="mc-review-ring-text">
+            <svg class="mc-pa-hero-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <!-- Clipboard with checklist + warning badge -->
+              <path d="M9 4h6a1 1 0 0 1 1 1v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3"/>
+              <path d="M14 6H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h4"/>
+              <path d="M9 11h6M9 14h3"/>
+              <!-- Warning triangle in the bottom-right corner -->
+              <path d="M14 16l4 6h-8z"/>
+              <path d="M16 19v-1M16 20.5v.01"/>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="mc-pa-title">Priority Actions</div>
+          <div class="mc-pa-sub">Royaltē AI™ has identified the highest-impact actions to strengthen your music infrastructure.</div>
+        </div>
+      </div>
+
+      <!-- Priority Actions Refinement v2.0: replaces the 4-check
+           takeaways list. Section label + count badge above an
+           orange-warning-icon list of recommended actions. -->
+      <div class="mc-pa-section">
+        <div class="mc-pa-section-head">
+          <span class="mc-pa-section-label">Actions Required</span>
+          <span class="mc-pa-count">3</span>
+        </div>
+        <ul class="mc-pa-list">
+          <li class="mc-pa-item">
+            <span class="mc-pa-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg>
+            </span>
+            <span class="mc-pa-item-label">Verify Amazon Music for Artists</span>
+            <svg class="mc-pa-item-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+          </li>
+          <li class="mc-pa-item">
+            <span class="mc-pa-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg>
+            </span>
+            <span class="mc-pa-item-label">Add Publisher Information</span>
+            <svg class="mc-pa-item-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+          </li>
+          <li class="mc-pa-item">
+            <span class="mc-pa-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg>
+            </span>
+            <span class="mc-pa-item-label">Claim YouTube Official Artist Channel</span>
+            <svg class="mc-pa-item-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+          </li>
+        </ul>
+      </div>
+
+      <button class="mc-review-cta" type="button">
+        View Executive Brief
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+      </button>
+
+    </section>
+
+  </aside>
+
+</div>
+
+<script>
+  // Mission Control Shell™ — minimal interactivity.
+  // No business logic, no data fetching, no engine integration.
+  // The shell is purely structural; engines inject data later.
+
+  (function () {
+    const navItems = document.querySelectorAll('.mc-nav-item');
+    navItems.forEach((item) => {
+      item.addEventListener('click', (evt) => {
+        // shell-only active state toggle; routing is a future phase
+        if (item.getAttribute('href') === '#executive-overview' ||
+            item.getAttribute('href').startsWith('#')) {
+          navItems.forEach((n) => n.classList.remove('mc-nav-item--active'));
+          item.classList.add('mc-nav-item--active');
+        }
+      });
+    });
+
+    // No-op handlers for placeholder CTAs so the shell does not throw.
+    const review = document.querySelector('.mc-review-cta');
+    if (review) review.addEventListener('click', (e) => e.preventDefault());
+
+    const signout = document.querySelector('.mc-version-sign');
+    if (signout) signout.addEventListener('click', (e) => e.preventDefault());
+  })();
+
+  /* Global Music Footprint™ Live Territory Counter v1.0.
+     Syncs with the .mc-globe-sweep CSS animation (40 s master cycle,
+     sweep active 80–99 % = ~7.6 s). When the sweep begins the counter
+     resets to 0 and climbs (ease-out + sin-wave jitter for the
+     "organic randomized acceleration" the directive calls for),
+     reaching the API-supplied target as the sweep finishes. Between
+     sweeps the counter holds at the target until the next reset. */
+  (function () {
+    const el = document.querySelector('.mc-globe-territories-count');
+    if (!el) return;
+
+    /* ─── Royaltē Global Distribution API integration point ──────
+       Wiring stage TODO: replace this stub with the live count
+       fetched from the Royaltē Global Distribution engine (e.g.
+       `return window.RoyalteGlobal?.territoryCount ?? 0;` or an
+       async cache). Every other line in this animator reads the
+       function — swapping in real data is a localized change. */
+    function getTerritoryCount() {
+      return 183; // Board directive's example value, pending wiring.
+    }
+
+    const CYCLE_MS         = 40000;
+    const SWEEP_START_MS   = CYCLE_MS * 0.80;
+    const SWEEP_END_MS     = CYCLE_MS * 0.99;
+    const SWEEP_DURATION   = SWEEP_END_MS - SWEEP_START_MS;
+    const start            = performance.now();
+    let   lastDisplayed    = 0;
+    let   wasInSweep       = false;
+
+    function tick(now) {
+      const elapsed = (now - start) % CYCLE_MS;
+      const inSweep = elapsed >= SWEEP_START_MS && elapsed < SWEEP_END_MS;
+
+      // Transition into a new sweep window → snap reset 0 (Board:
+      // "Reset: 183 ↓ 0, then immediately begin counting upward").
+      if (inSweep && !wasInSweep) lastDisplayed = 0;
+      wasInSweep = inSweep;
+
+      const target = getTerritoryCount();
+
+      if (inSweep) {
+        const t      = (elapsed - SWEEP_START_MS) / SWEEP_DURATION;
+        const eased  = 1 - Math.pow(1 - t, 2);     // ease-out quadratic
+        const jitter = (Math.sin(t * 11.7) + Math.sin(t * 17.3)) * target * 0.012;
+        let v = Math.floor(eased * target + jitter);
+        v = Math.max(lastDisplayed, Math.min(target, v));
+        lastDisplayed = v;
+        el.textContent = String(v);
+      } else if (elapsed >= SWEEP_END_MS) {
+        // Sweep finished → lock on the API value.
+        lastDisplayed  = target;
+        el.textContent = String(target);
+      } else {
+        // Before the first sweep / between sweeps → hold last value.
+        el.textContent = String(lastDisplayed);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    el.textContent = '0';   // initial state per directive
+    requestAnimationFrame(tick);
+  })();
+
+  /* Change Detection™ Lightning Animation v1.0 — randomized intervals
+     so the bolt never feels repetitive. Pulse 8–15 s; flash 30–45 s.
+     Adds a class for the animation duration, then removes it so the
+     idle mc-cd-bolt-pulse breathing resumes between events. */
+  (function () {
+    const art = document.querySelector('.mc-cd-art');
+    if (!art) return;
+
+    function rand(min, max) { return min + Math.random() * (max - min); }
+
+    function schedulePulse() {
+      const delayMs = rand(8, 15) * 1000;
+      setTimeout(() => {
+        art.classList.add('is-pulsing');
+        setTimeout(() => art.classList.remove('is-pulsing'), 900);
+        schedulePulse();
+      }, delayMs);
+    }
+
+    function scheduleFlash() {
+      const delayMs = rand(30, 45) * 1000;
+      setTimeout(() => {
+        art.classList.add('is-flashing');
+        setTimeout(() => art.classList.remove('is-flashing'), 1300);
+        scheduleFlash();
+      }, delayMs);
+    }
+
+    schedulePulse();
+    scheduleFlash();
+  })();
+
+  /* AI Analysis Activity™ Randomized Parallel Animation — v3.0.
+     Pure-presentation UI per Board directive (does not represent
+     real processing). Every row is an independent AI worker with
+     its own counter speed; counters run in parallel and never
+     match. A single pink "active" indicator jumps randomly between
+     rows. At the end of each analysis period the green LIVE dot
+     flashes bright for ~3.5 s, then all counters reset and the
+     next cycle starts with fresh random ordering / speeds /
+     duration. CSS holds the dot stroke / base style; JS mutates
+     the inner fill + glow + counter text. */
+  (function () {
+    const list = document.querySelector('.mc-ai-activity-list');
+    if (!list) return;
+    const rows = Array.from(list.children);
+    if (rows.length === 0) return;
+
+    const dots     = rows.map(r => r.querySelector('.mc-ai-activity-dot'));
+    const times    = rows.map(r => r.querySelector('.mc-ai-activity-time'));
+    const liveDot  = document.querySelector('.mc-ai-activity-live-dot');
+
+    const PINK_FILL    = '#ff3da0';
+    const PINK_GLOW    = '0 0 8px rgba(255, 61, 160, 0.85),'
+                       + ' 0 0 14px rgba(255, 61, 160, 0.45)';
+    const LIVE_DIM_BG  = 'rgba(52, 245, 176, 0.32)';
+    const LIVE_DIM_SH  = '0 0 3px rgba(52, 245, 176, 0.30)';
+    const LIVE_BRT_BG  = '#34f5b0';
+    const LIVE_BRT_SH  = '0 0 12px rgba(52, 245, 176, 1),'
+                       + ' 0 0 22px rgba(52, 245, 176, 0.55)';
+
+    function fmt(sec) {
+      sec = Math.max(0, Math.floor(sec));
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    function setDot(idx, active) {
+      const d = dots[idx]; if (!d) return;
+      d.style.background = active ? PINK_FILL : 'transparent';
+      d.style.boxShadow  = active ? PINK_GLOW  : 'none';
+    }
+    function setLive(active) {
+      if (!liveDot) return;
+      liveDot.style.background = active ? LIVE_BRT_BG : LIVE_DIM_BG;
+      liveDot.style.boxShadow  = active ? LIVE_BRT_SH : LIVE_DIM_SH;
+    }
+    function clearAllDots() { for (let i = 0; i < dots.length; i++) setDot(i, false); }
+    function pickRow(exclude) {
+      let i;
+      do { i = Math.floor(Math.random() * rows.length); } while (i === exclude && rows.length > 1);
+      return i;
+    }
+
+    // Phase state
+    let phase = 'analyzing';        // 'analyzing' | 'completing'
+    let phaseStart = 0;
+    let analysisDuration = 0;       // ms (randomized per cycle, 18–25 s)
+    let completingDuration = 3500;  // ms (LIVE bright hold)
+    let activeRow = -1;
+    let nextSwitchAt = 0;
+    let counters = rows.map(() => 0);
+    let speeds   = rows.map(() => 1);
+    let lastFrame = 0;
+    let cycleSeed = 0;
+
+    function startCycle(now) {
+      cycleSeed++;
+      counters = rows.map(() => Math.random() * 0.5);  // tiny random start offset
+      // Each row gets a different speed (0.65×–1.45×) so no two counters
+      // ever match; shuffled per cycle so progression differs each time.
+      speeds = rows.map(() => 0.65 + Math.random() * 0.80);
+      analysisDuration = (18 + Math.random() * 7) * 1000;  // 18–25 s
+      phase = 'analyzing';
+      phaseStart = now;
+      activeRow = pickRow(-1);
+      setDot(activeRow, true);
+      nextSwitchAt = now + 900 + Math.random() * 1700;  // 0.9–2.6 s
+      setLive(false);
+    }
+
+    function tick(now) {
+      const dt = (now - lastFrame) / 1000;
+      lastFrame = now;
+
+      if (phase === 'analyzing') {
+        // Independent parallel counters.
+        for (let i = 0; i < rows.length; i++) {
+          counters[i] += dt * speeds[i];
+          if (times[i]) times[i].textContent = fmt(counters[i]);
+        }
+        // Randomized active-dot jump.
+        if (now >= nextSwitchAt) {
+          setDot(activeRow, false);
+          activeRow = pickRow(activeRow);
+          setDot(activeRow, true);
+          nextSwitchAt = now + 900 + Math.random() * 1700;
+        }
+        // End of analysis → freeze + LIVE flash.
+        if (now - phaseStart >= analysisDuration) {
+          clearAllDots();
+          activeRow = -1;
+          phase = 'completing';
+          phaseStart = now;
+          setLive(true);
+        }
+      } else if (phase === 'completing') {
+        // Counters frozen, LIVE bright, then reset and re-cycle.
+        if (now - phaseStart >= completingDuration) {
+          startCycle(now);
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    lastFrame = performance.now();
+    startCycle(lastFrame);
+    requestAnimationFrame(tick);
+  })();
+</script>
+
+</body>
+</html>
