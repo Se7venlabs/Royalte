@@ -19,6 +19,20 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-06-20 — Phase 8: Scan Pipeline Wiring — Health & Executive Brief
+
+| | |
+|---|---|
+| **PR** | #155 |
+| **Commit SHA** | `17f462f` |
+| **Tag** | `phase-8-scan-pipeline-wiring-v1.0` |
+| **Constitution Version** | v1.3 |
+| **Added** | nothing new — integration only |
+| **Changed** | `api/audit.js` — step 5 added to `assembleIntelligenceForScan()`: `computeHealthScore(report)` [once] → `generateHealthReport(cio, report)` → `generateExecutiveBrief(cio, report, healthReport, healthScore)`; `healthScore`, `healthReport`, `executiveBrief` persisted in enriched payload. `api/_lib/executive-brief-engine.js` — signature updated from `generateExecutiveBrief(healthReport)` to `generateExecutiveBrief(cio, intelligenceReport, healthReport, canonicalHealth)`; strict layer ownership enforced; fail-closed on absent `canonicalHealth` or `intelligenceReport`. `tests/executive-brief-engine-test.mjs` — migrated to 4-arg signature (40 → 40 assertions, zero coverage lost). |
+| **Removed** | none |
+
+---
+
 ## 2026-06-12 — Phase 8: Royaltē Executive Brief Engine™
 
 | | |

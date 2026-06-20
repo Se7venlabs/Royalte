@@ -11,6 +11,22 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-06-20 — Phase 8: Scan Pipeline Wiring — Health & Executive Brief
+
+| | |
+|---|---|
+| **Date** | 2026-06-20 |
+| **Decision** | Wire `computeHealthScore()`, `generateHealthReport()`, and `generateExecutiveBrief()` into the production scan pipeline in `api/audit.js` as step 5 of `assembleIntelligenceForScan()`. `computeHealthScore()` is called exactly once per scan; the canonical result is passed downstream to `generateHealthReport()` and `generateExecutiveBrief()` — never re-derived by consumers. `generateExecutiveBrief()` signature updated to the Board-approved 4-argument form: `(cio, intelligenceReport, healthReport, canonicalHealth)`. Layer ownership enforced: `canonicalHealth` owns all scores/grades; `intelligenceReport` owns all arrays; `healthReport` owns `generatedAt`. `healthScore`, `healthReport`, and `executiveBrief` persisted in the enriched scan payload. `executive-brief-engine-test.mjs` migrated to the new 4-arg signature (40 → 40 assertions, zero coverage lost). |
+| **Reason** | All intelligence layers existed independently but were not connected into the scan execution path. Phase 8 closes the loop: every production scan now produces a full constitutional intelligence pipeline output. |
+| **Impact** | Every scan now produces: CIO → Intelligence Report → Health Score → Health Report → Executive Brief. All five outputs persisted for downstream consumers. `computeHealthScore()` is the single canonical scoring authority per scan — called once, passed everywhere. |
+| **Vote** | Board Approved Unanimous |
+| **PR Number** | #155 |
+| **Commit SHA** | `17f462f` |
+| **Tag** | `phase-8-scan-pipeline-wiring-v1.0` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-06-20 — Roadmap Governance Correction
 
 | | |
