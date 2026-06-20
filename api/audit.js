@@ -28,6 +28,8 @@ import { assembleIdentityIntelligence } from './_lib/identity-intelligence.js';
 import { assemblePublishingIntelligence } from './_lib/publishing-intelligence.js';
 import { fetchMlcWorksByArtist } from '../lib/publishing/mlc-client.js';
 import { normalizeMlcWorks } from '../lib/publishing/mlc-adapter.js';
+import { computeHealthScore, generateHealthReport } from './_lib/health-engine.js';
+import { generateExecutiveBrief } from './_lib/executive-brief-engine.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AUDIT_SCANS PERSISTENCE
@@ -326,6 +328,9 @@ export default async function handler(req, res) {
     // The persisted canonical at audit_scans.payload carries:
     //   audit_scans.payload.identityIntelligence
     //   audit_scans.payload.publishingIntelligence
+    //   audit_scans.payload.healthScore      (computeHealthScore output)
+    //   audit_scans.payload.healthReport     (generateHealthReport output)
+    //   audit_scans.payload.executiveBrief   (generateExecutiveBrief output)
     // Mission Control™ / Royaltē AI™ / Executive Brief™ / Priority
     // Actions™ all read the same persisted objects; none recompute.
     const assembleIntelligenceForScan = async (canonicalForEnrichment) => {
@@ -381,9 +386,27 @@ export default async function handler(req, res) {
         console.error('[audit] Publishing Intelligence™ assembly failed (non-blocking):', assemblyErr.message);
       }
 
+      // ── 5. Health & Executive Brief pipeline ──
+      // computeHealthScore() called exactly once; result passed to both
+      // generateHealthReport() and generateExecutiveBrief() so the
+      // canonical Health object is computed only once per scan.
+      let healthScore    = null;
+      let healthReport   = null;
+      let executiveBrief = null;
+      try {
+        healthScore    = computeHealthScore(report);
+        healthReport   = generateHealthReport(cio, report);
+        executiveBrief = generateExecutiveBrief(cio, report, healthReport, healthScore);
+      } catch (healthErr) {
+        console.error('[audit] Health / Executive Brief pipeline failed (non-blocking):', healthErr.message);
+      }
+
       const enriched = { ...canonicalForEnrichment };
       if (identityIntelligence)   enriched.identityIntelligence   = identityIntelligence;
       if (publishingIntelligence) enriched.publishingIntelligence = publishingIntelligence;
+      if (healthScore)            enriched.healthScore            = healthScore;
+      if (healthReport)           enriched.healthReport           = healthReport;
+      if (executiveBrief)         enriched.executiveBrief         = executiveBrief;
       return enriched;
     };
 
