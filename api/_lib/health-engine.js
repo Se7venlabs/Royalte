@@ -273,5 +273,94 @@ export function computeHealthScore(intelligenceReport) {
   return deepFreeze(report);
 }
 
+// ─── generateHealthReport ──────────────────────────────────────────
+//
+//  Phase 7 public API — projection wrapper only.
+//
+//  generateHealthReport(cio, engineOutput) is a packaging layer.
+//  It does NOT contain a scoring algorithm. All scoring is delegated
+//  to computeHealthScore() — the single constitutional authority.
+//
+//  Constitutional position:
+//    computeHealthScore()   ← single scoring authority
+//    generateHealthReport() ← projection wrapper (reads score, grade;
+//                              packages canonical output shape)
+//
+//  cio         — Canonical Intelligence Object. Available for future
+//                phases; not scored here — the engine never owns facts.
+//  engineOutput — Intelligence Engine output. Passed directly to
+//                computeHealthScore() for score + grade derivation.
+//
+//  Trend defaults to "Unknown" until the Monitoring Engine (future
+//  phase) supplies historical scan data.
+
+function emptyReport7() {
+  return deepFreeze({
+    score:         0,
+    grade:         'F',
+    trend:         'Unknown',
+    strengths:     [],
+    risks:         [],
+    opportunities: [],
+    drivers:       [],
+    confidence:    '',
+    engineVersion: HEALTH_VERSION,
+    generatedAt:   '',
+  });
+}
+
+/**
+ * generateHealthReport — project Intelligence Engine output into a
+ * Royaltē Health Report (Constitutional Engineering Brief v1.0).
+ *
+ * Always returns a deeply-frozen, structurally-valid report.
+ * Never throws. Pure: no I/O, no LLM, no randomness.
+ * Inherits generatedAt from engineOutput when present so identical
+ * input produces identical output.
+ */
+export function generateHealthReport(cio, engineOutput) {
+  try {
+    // Garbage-input guard — return empty report; never throw.
+    if (!engineOutput || typeof engineOutput !== 'object' || Array.isArray(engineOutput)) {
+      return emptyReport7();
+    }
+
+    // Delegate scoring to the single canonical authority.
+    const canonical = computeHealthScore(engineOutput);
+
+    const risks         = safeArray(engineOutput.risks);
+    const opportunities = safeArray(engineOutput.opportunities);
+    const strengths     = safeArray(engineOutput.strengths);
+
+    // Drivers: titles of risks (negative) then strengths (positive).
+    // Explanatory only — never influence scoring.
+    const drivers = [
+      ...risks.map(    (r) => (r && typeof r.title === 'string') ? r.title : null),
+      ...strengths.map((s) => (s && typeof s.title === 'string') ? s.title : null),
+    ].filter(Boolean);
+
+    // Inherit generatedAt from Intelligence Engine output for determinism.
+    // Never invent a timestamp — same input must produce same output.
+    const generatedAt = typeof engineOutput.generatedAt === 'string'
+      ? engineOutput.generatedAt
+      : '';
+
+    return deepFreeze({
+      score:         canonical.overallScore,
+      grade:         canonical.overallGrade,
+      trend:         'Unknown',
+      strengths,
+      risks,
+      opportunities,
+      drivers,
+      confidence:    typeof engineOutput.confidence === 'string' ? engineOutput.confidence : '',
+      engineVersion: HEALTH_VERSION,
+      generatedAt,
+    });
+  } catch (_e) {
+    return emptyReport7();
+  }
+}
+
 // Re-export schema constants for consumer convenience.
 export { HEALTH_VERSION, CATEGORY_WEIGHTS, GRADE_THRESHOLDS, emptyHealthReport };
