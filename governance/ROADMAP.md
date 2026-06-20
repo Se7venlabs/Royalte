@@ -23,28 +23,27 @@ When this roadmap and the Constitution disagree, **the Constitution wins.**
 | 6.5 | Royaltē Golden Fixture Library™ + Phase 5 polarity amendment | ✅ Complete | `52b1750` | — |
 | 6C | Canonical Catalog Model™ Composer | ✅ Complete | `9259220` | — |
 | 6D | Catalog Rule Library Migration Layer | ✅ Complete | `2979410` | `phase-6d-catalog-rule-migration-v1.0` |
-| 7 | Royaltē Health Engine™ | ⬜ Planned | — | — |
-| 7.5 | (per Board directive) | ⬜ Planned | — | — |
-| 8 | (per Board directive) | ⬜ Planned | — | — |
+| 7 | Royaltē Health Engine™ | ✅ Complete | `ec57481` | — |
+| 7.5 | Se7ven Labs IP Vault™ | ✅ Complete | `38ec3be` | — |
+| 8 | Scan Pipeline Wiring — Health & Executive Brief | ✅ Complete | `17f462f` | `phase-8-scan-pipeline-wiring-v1.0` |
 | 9+ | (per future Board directives) | ⬜ Planned | — | — |
 
 ---
 
 ## What's Live in `main` Today
 
-- **Phases 1–6D are merged and locked.** The Intelligence Stack provides:
+- **Phases 1–8 are merged and locked.** The full Intelligence Stack is wired into production:
   - **Rule Library** at `api/rules/` — declarative pure-data rules with `(cio) => boolean` conditions; polarity-aware; category-indexed
   - **Intelligence Engine** at `api/_lib/intelligence-engine.js` — `runIntelligenceEngine(cio, ruleLibrary)` sole entrypoint; generic iteration; deeply frozen output
   - **Golden Fixture Library** at `tests/fixtures/` — 7 canonical CIO reference states; 30-assertion regression surface; append-only
   - **Canonical Catalog Model™ Composer** at `api/_lib/catalog-model-composer.js` — sole owner of `catalogModel` assembly; pure composition; never evaluates rules
   - **Catalog Rule Migration Layer** in `api/rules/catalog-rules.js` — Phase 6D dual-read layer connecting the Rule Library to the Canonical Catalog Model™
-- **Phase 6D migration layer details:**
-  - `catalogField(cio, fieldName)` — reads `cio.catalog.catalogModel` first, falls back to legacy `cio.catalog` fields; `hasOwnProperty.call()` for prototype safety
-  - CIO-scoped immutable cache via nested WeakMap — one cache shard per scan evaluation, eligible for GC when the CIO graph becomes unreachable
-  - `deepFreeze()` with WeakSet cycle guard — prevents infinite recursion on circular graphs; recursively freezes all nested objects and arrays
-  - Orphan detection derived from `releaseIds[]` semantics — empty `releaseIds[]` on a recording is a canonical fact; the Rule Library decides what it means
-  - 139/139 regression assertions passing across 6 test suites
-  - Tagged `phase-6d-catalog-rule-migration-v1.0` at `2979410`
+  - **Royaltē Health Engine™** at `api/_lib/health-engine.js` — `computeHealthScore(intelligenceReport)` sole scoring authority; Board-locked weights and grade thresholds; pure, deterministic, deeply frozen output
+  - **Royaltē Executive Brief Engine™** at `api/_lib/executive-brief-engine.js` — `generateExecutiveBrief(cio, intelligenceReport, healthReport, canonicalHealth)` sole entrypoint; presentation layer only; never scores, never invents
+  - **Se7ven Labs IP Vault™** at `/ip/` — permanent internal corporate IP register (24 markdown files); survives product lifecycles, mergers, acquisitions
+- **Phase 8 scan pipeline wiring** (`api/audit.js`): every scan now runs the full constitutional pipeline end-to-end:
+  - `runIntelligenceEngine(cio, ALL_RULES)` → `computeHealthScore(report)` [once] → `generateHealthReport(cio, report)` → `generateExecutiveBrief(cio, report, healthReport, healthScore)` → persists `healthScore`, `healthReport`, `executiveBrief` in the enriched scan payload
+  - `computeHealthScore()` called exactly once per scan; canonical result passed downstream, never re-derived
 - **Royaltē Scan Experience V1 is DESIGN FROZEN.** PR #122 remains open and is held until intelligence wiring is complete. No layout / spacing / typography / color / animation / UX changes are authorised in the meantime.
 - **Constitution at v1.3** (effective 2026-06-11) ratifies the seven-layer Engineering Stack.
 - **Phase 5 rule format** permits the optional `polarity: 'positive'` field on positive-framing rules — applied to `publishing.strong-coverage` and `catalog.complete-delivery-verified`.
@@ -53,21 +52,15 @@ When this roadmap and the Constitution disagree, **the Constitution wins.**
 
 ## What's Not Live Yet
 
-- **The Intelligence Engine is not yet wired into the production audit pipeline.** `runIntelligenceEngine(cio, ALL_RULES)` exists and tests green, but `api/audit.js` does not yet call it.
-- **No UI currently consumes engine output.** Phase 7+ will introduce the first consumers under the Constitutional separation rule.
-- **Monitoring and Revenue reserved sections remain placeholders.** `MONITORING`, `REVENUE`, and `GENERAL` in the Rule Library carry empty arrays; `monitoring` and `revenue` CIO sections ship `{ reserved: true }`. Phase 7+ may begin populating them.
+- **No UI currently consumes Phase 8 engine output.** `healthScore`, `healthReport`, and `executiveBrief` are now persisted in every scan payload but are not yet surfaced in Mission Control or the scan UI.
+- **Monitoring and Revenue reserved sections remain placeholders.** `MONITORING`, `REVENUE`, and `GENERAL` in the Rule Library carry empty arrays; `monitoring` and `revenue` in reserved sections ship `null`. Phase 9+ may begin populating them.
 - **All future work is Board-authorized only.** No phase begins until the Board issues a formal brief.
 
 ---
 
 ## Next Engineering Target
 
-**Phase 7 has been designated by the Board as the next engineering target. No implementation brief has been issued. No engineering work has commenced.**
-
-When the Board authorises Phase 7 — Royaltē Health Engine™ — the expected scope is:
-- Use the Canonical Catalog Model™, Publishing Graph™, Identity Graph™, Metadata Graph™, and Rule Library™ to generate deterministic Health Intelligence
-- Deliver: Royaltē Health Score™, Health Drivers, Risk Factors, Backend Improvement Tracking, Executive Brief™, Mission Control™
-- Wire health intelligence as the first artist-facing output layer
+**Phase 9+ is pending a Board brief.** The Intelligence Stack is fully wired. Next targets are expected to include Mission Control™ data wiring and scan UI intelligence display.
 
 ---
 
