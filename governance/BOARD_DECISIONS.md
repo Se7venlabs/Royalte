@@ -11,6 +11,36 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-06-20 — Roadmap Governance Correction
+
+| | |
+|---|---|
+| **Date** | 2026-06-20 |
+| **Decision** | Correct `governance/ROADMAP.md` to reflect constitutional truth. Add Phase 6C and Phase 6D rows as ✅ Complete. Revert Phases 7, 7.5, 8, and 9+ from ✅ Complete to ⬜ Planned. Rewrite "What's Live in main Today" to describe only code present on `main`. Rename "Anticipated Phase 7" to "Next Engineering Target" with Board-mandated prefix. |
+| **Reason** | The roadmap had incorrectly listed Phases 7, 7.5, and 8 as Complete. The Board principle is "Roadmap = Truth" — the roadmap must only reflect phases that have completed the full constitutional governance process. Phases 6C and 6D were missing from the table entirely. |
+| **Impact** | Roadmap now accurately reflects the current constitutional state of the platform: Phases 1–6D complete; Phase 7+ planned. No code changes. No Constitution amendment required. |
+| **Vote** | Board APPROVED |
+| **PR Number** | (governance backfill — same PR as Phase 6D SHA backfill) |
+| **Constitution update required** | No |
+
+---
+
+### 2026-06-20 — Phase 6D: Catalog Rule Library Migration Layer
+
+| | |
+|---|---|
+| **Date** | 2026-06-20 |
+| **Decision** | Add a dual-read migration layer to `api/rules/catalog-rules.js` connecting the Rule Library to the Canonical Catalog Model™ (`cio.catalog.catalogModel`). Introduces `catalogField(cio, fieldName)` as the single migration helper (reads `catalogModel` first, falls back to legacy `cio.catalog` fields; `hasOwnProperty.call()` for prototype safety), `readonlyCatalogValue(cio, value)` (deep-frozen `structuredClone()` with per-scan WeakMap cache keyed by CIO object), cycle-safe `deepFreeze()` with WeakSet guard, and orphan detection derived from `releaseIds[]` semantics on `catalogModel.recordings`. Full backward compatibility with legacy CIO shapes. 139/139 regression assertions passing across 6 test suites. |
+| **Reason** | The Canonical Catalog Model™ (Phase 6C) introduced a new facts source that the Rule Library must consume without breaking legacy consumers. Phase 6D is the governed migration: catalog rules become authoritative consumers of `catalogModel` while the legacy fallback ensures zero behavioral change for scans without a catalog model. Immutability is constitutional — rules consume facts, never own or mutate them. |
+| **Impact** | Rule Library catalog rules now derive facts from the Canonical Catalog Model™. `catalogField()` is the single read path. Orphan detection is derived from `releaseIds[]` semantics rather than a legacy `orphanRecordings[]` array. The per-scan WeakMap cache prevents repeated `structuredClone()` on the same catalog object within one evaluation cycle. |
+| **Vote** | Board APPROVED UNANIMOUS |
+| **PR Number** | #152 |
+| **Commit SHA** | `2979410` |
+| **Tag** | `phase-6d-catalog-rule-migration-v1.0` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-06-12 — Phase 8: Royaltē Executive Brief Engine™
 
 | | |
