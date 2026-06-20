@@ -133,6 +133,13 @@ function _normalizeCatalog(r) {
     catalogAgeYears:        _num(c.catalogAgeYears),
     estimatedAnnualStreams: _num(c.estimatedAnnualStreams),
     recentActivity:         Boolean(c.recentActivity),
+    // Phase 6C — Canonical Catalog Model™ nested sub-object. Passed through
+    // as-is; structural validation is the composer's responsibility. null when
+    // the scan engine did not produce a catalog model (older scans, degraded
+    // paths, or pre-Phase-6C payloads).
+    catalogModel: (c.catalogModel && typeof c.catalogModel === 'object' && !Array.isArray(c.catalogModel))
+      ? c.catalogModel
+      : null,
   };
 }
 

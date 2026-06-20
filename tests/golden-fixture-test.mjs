@@ -41,6 +41,7 @@ const FIXTURE_NAMES = [
   'artist-orphan-recordings',
   'artist-fragmented-catalog',
   'artist-metadata-conflicts',
+  'catalog-well-structured',   // Phase 6C — Canonical Catalog Model™ v1.0 shape
 ];
 
 function rawJson(name) {
@@ -135,10 +136,10 @@ test('9.  loadFixture("nonexistent") returns null', () => {
   assert.equal(loadFixture('subdir/something'),    null);
 });
 
-test('10. listFixtures() returns the 7 fixture names, sorted', () => {
+test('10. listFixtures() returns the 8 fixture names, sorted', () => {
   const names = listFixtures();
   assert.deepStrictEqual(names, [...FIXTURE_NAMES].sort());
-  assert.equal(names.length, 7);
+  assert.equal(names.length, 8);
 });
 
 // ═════════════════════════════════════════════════════════════════════
@@ -289,6 +290,52 @@ test('30. loadFixture returns a deep clone — mutating the result does not affe
   assert.deepStrictEqual(second, onDisk);
   assert.notDeepStrictEqual(second, first);
 });
+
+// ═════════════════════════════════════════════════════════════════════
+//  Phase 6C — catalog-well-structured fixture (31–35)
+// ═════════════════════════════════════════════════════════════════════
+
+test('31. catalog-well-structured loads successfully', () => {
+  const cio = loadFixture('catalog-well-structured');
+  assert.ok(cio);
+  assert.equal(cio._fixtureName, 'catalog-well-structured');
+});
+
+test('32. catalog-well-structured — catalogModel has the locked v1.0 shape', () => {
+  const cio = loadFixture('catalog-well-structured');
+  const cm  = cio.catalog.catalogModel;
+  assert.ok(cm, 'catalogModel must be present');
+  assert.equal(cm.modelVersion,      '1.0.0');
+  assert.equal(cm.catalogVersion,    null,  'catalogVersion must be null (RESERVED)');
+  assert.equal(cm.releases.length,   3,     'three releases');
+  assert.equal(cm.recordings.length, 5,     'five recordings');
+  assert.equal(cm.releasesCount,     3,     'releasesCount matches releases.length');
+  assert.equal(cm.byProvider.apple,   3,    'byProvider.apple = 3');
+  assert.equal(cm.byProvider.spotify, 3,    'byProvider.spotify = 3');
+  assert.equal(cm.upcCoverage,     null,    'upcCoverage must be null');
+  assert.equal(cm.contributorData, null,    'contributorData must be null');
+});
+
+test('33. catalog-well-structured — all releases confirmed on both Apple and Spotify', () => {
+  const cio      = loadFixture('catalog-well-structured');
+  const releases = cio.catalog.catalogModel.releases;
+  for (const r of releases) {
+    assert.ok(r.externalIds.apple,             `release "${r.title}" must have an Apple ID`);
+    assert.ok(r.externalIds.spotify,           `release "${r.title}" must have a Spotify ID`);
+    assert.ok(r.providers.includes('apple'),   `release "${r.title}" must list apple in providers`);
+    assert.ok(r.providers.includes('spotify'), `release "${r.title}" must list spotify in providers`);
+  }
+});
+
+test('34. catalog-well-structured — engine produces CATALOG strength via catalog.complete-delivery-verified', () => {
+  const out             = runIntelligenceEngine(loadFixture('catalog-well-structured'), ALL_RULES);
+  const catalogStrength = out.strengths.find((s) => s.category === 'CATALOG');
+  assert.ok(catalogStrength, 'expected at least one CATALOG strength observation');
+  // Bind to the stable Rule Library identifier, not mutable UX title copy
+  assert.equal(catalogStrength.ruleId, 'catalog.complete-delivery-verified');
+});
+
+test('35. catalog-well-structured → deterministic', () => assertDeterministic('catalog-well-structured'));
 
 // ─── Summary ─────────────────────────────────────────────────────────
 

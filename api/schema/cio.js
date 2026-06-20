@@ -188,6 +188,9 @@ export const CIO_ARTIST_CONFIDENCE     = 'UNKNOWN';
 export const CIO_PUBLISHING_CONFIDENCE = 'UNKNOWN';
 export const CIO_CATALOG_CONFIDENCE    = 'UNKNOWN';
 export const CIO_METADATA_CONFIDENCE   = 'UNKNOWN';
+// Phase 6C — Canonical Catalog Model™ version constant. All consumers that
+// need to verify the catalog model shape they're reading import this.
+export const CIO_CATALOG_MODEL_VERSION = '1.0.0';
 
 // emptyCio: returns a freshly-constructed blank CIO shell with every
 // required section present and every field at its locked Phase 4
@@ -231,11 +234,19 @@ export function emptyCio(artistName) {
       publishingConfidence: CIO_PUBLISHING_CONFIDENCE,
     },
 
-    // ── catalog (summary — top-level counts derived from the scan) ──
+    // ── catalog ──────────────────────────────────────────────────────
+    // Phase 4 legacy summary fields (preserved for backward compatibility):
+    //   releasesCount, catalogAgeYears, catalogConfidence
+    //
+    // Phase 6C addition: a single reference to the Canonical Catalog Model™.
+    // The CIO references catalog facts; it never duplicates them.
+    // All new consumers read catalog facts from catalogModel directly.
+    // "One Truth → Many Consumers" (Board directive 2026-06-20).
     catalog: {
       releasesCount:     null,
       catalogAgeYears:   null,
       catalogConfidence: CIO_CATALOG_CONFIDENCE,
+      catalogModel:      null,              // Canonical Catalog Model™ reference | null
     },
 
     // ── metadata (summary — flag count only in Phase 4) ────────────

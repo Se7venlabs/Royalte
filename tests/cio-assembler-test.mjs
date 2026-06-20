@@ -407,6 +407,129 @@ test('17. CALLER-OMITTED artistName falls back to scanPayload.subject.artistName
   assert.equal(cio.identity.canonicalArtistName, 'Scan Derived Artist');
 });
 
+// ═════════════════════════════════════════════════════════════════════
+//  Phase 6C — Canonical Catalog Model™ reference (tests 18–22)
+// ═════════════════════════════════════════════════════════════════════
+//
+//  These tests enforce the "CIO references the Catalog Model; it never
+//  duplicates it" architectural invariant (Board directive 2026-06-20).
+
+const SAMPLE_CATALOG_MODEL = Object.freeze({
+  modelVersion:       '1.0.0',
+  catalogVersion:     null,
+  releases:           Object.freeze([Object.freeze({ releaseId: 'rl_abc123', title: 'Album One', providers: Object.freeze(['apple']) })]),
+  recordings:         Object.freeze([Object.freeze({ isrc: 'USTEST00001', title: 'Track One', releaseIds: Object.freeze(['rl_abc123']), providers: Object.freeze(['apple']) })]),
+  byProvider:         Object.freeze({ apple: 1, spotify: null }),
+  releasesCount:      1,
+  earliestYear:       2021,
+  latestYear:         2021,
+  catalogAgeYears:    5,
+  recentActivity:     false,
+  catalogSync:        null,
+  storefrontCoverage: null,
+  upcCoverage:        null,
+  contributorData:    null,
+});
+
+test('18. CATALOG MODEL — catalogModel reference stored when present in scan payload', () => {
+  const cio = assembleCio('Artist 18', {
+    scanPayload: {
+      scanId:    'scan-18',
+      scannedAt: '2026-06-20T00:00:00.000Z',
+      source:    { platform: 'apple_music', urlType: 'artist' },
+      subject:   { artistName: 'Artist 18', artistId: 'art_18' },
+      catalog:   { totalReleases: 1, catalogAgeYears: 5, catalogModel: SAMPLE_CATALOG_MODEL },
+    },
+  }, OPTS);
+  assert.ok(cio.catalog.catalogModel,                              'catalogModel must be present');
+  assert.equal(cio.catalog.catalogModel.modelVersion,  '1.0.0',   'modelVersion must be 1.0.0');
+  assert.equal(cio.catalog.catalogModel.releasesCount, 1,         'releasesCount must be 1');
+  assert.equal(cio.catalog.catalogModel.releases.length,   1,     'releases must have 1 entry');
+  assert.equal(cio.catalog.catalogModel.recordings.length, 1,     'recordings must have 1 entry');
+  assert.equal(cio.catalog.catalogModel.byProvider.apple,   1,    'byProvider.apple must be 1');
+  assert.equal(cio.catalog.catalogModel.byProvider.spotify, null, 'byProvider.spotify must be null');
+  assert.equal(cio.catalog.catalogModel.catalogVersion, null,     'catalogVersion must remain null (RESERVED)');
+});
+
+test('19. CATALOG MODEL — catalogModel is null when absent from scan payload', () => {
+  const cio = assembleCio('Artist 19', {
+    scanPayload: {
+      scanId:    'scan-19',
+      scannedAt: '2026-06-20T00:00:00.000Z',
+      source:    { platform: 'spotify', urlType: 'artist' },
+      subject:   { artistName: 'Artist 19', artistId: 'art_19' },
+      catalog:   { totalReleases: 5, catalogAgeYears: 3 },
+    },
+  }, OPTS);
+  assert.equal(cio.catalog.catalogModel, null, 'catalogModel must be null when absent');
+  assert.equal(cio.catalog.releasesCount,   5, 'legacy releasesCount still populated');
+  assert.equal(cio.catalog.catalogAgeYears, 3, 'legacy catalogAgeYears still populated');
+});
+
+test('20. CATALOG MODEL — CIO references catalogModel; no flat field duplication on cio.catalog', () => {
+  const cio = assembleCio('Artist 20', {
+    scanPayload: {
+      scanId:    'scan-20',
+      scannedAt: '2026-06-20T00:00:00.000Z',
+      source:    { platform: 'apple_music', urlType: 'artist' },
+      subject:   { artistName: 'Artist 20', artistId: 'art_20' },
+      catalog:   { totalReleases: 1, catalogAgeYears: 5, catalogModel: SAMPLE_CATALOG_MODEL },
+    },
+  }, OPTS);
+  // One truth → many consumers. Catalog Model fields must NOT be flattened
+  // onto cio.catalog — they live exclusively inside cio.catalog.catalogModel.
+  assert.equal(cio.catalog.releases,           undefined, 'releases must NOT be a direct field on cio.catalog');
+  assert.equal(cio.catalog.recordings,         undefined, 'recordings must NOT be a direct field on cio.catalog');
+  assert.equal(cio.catalog.byProvider,         undefined, 'byProvider must NOT be a direct field on cio.catalog');
+  assert.equal(cio.catalog.catalogSync,        undefined, 'catalogSync must NOT be a direct field on cio.catalog');
+  assert.equal(cio.catalog.storefrontCoverage, undefined, 'storefrontCoverage must NOT be a direct field on cio.catalog');
+  assert.equal(cio.catalog.earliestYear,       undefined, 'earliestYear must NOT be a direct field on cio.catalog');
+  assert.equal(cio.catalog.latestYear,         undefined, 'latestYear must NOT be a direct field on cio.catalog');
+  assert.equal(cio.catalog.recentActivity,     undefined, 'recentActivity must NOT be a direct field on cio.catalog');
+});
+
+test('21. CATALOG MODEL — legacy fields still populated independently of catalogModel', () => {
+  const cio = assembleCio('Artist 21', {
+    scanPayload: {
+      scanId:    'scan-21',
+      scannedAt: '2026-06-20T00:00:00.000Z',
+      source:    { platform: 'spotify', urlType: 'artist' },
+      subject:   { artistName: 'Artist 21', artistId: 'art_21' },
+      catalog:   { totalReleases: 12, catalogAgeYears: 8 },
+    },
+  }, OPTS);
+  assert.equal(cio.catalog.releasesCount,   12);
+  assert.equal(cio.catalog.catalogAgeYears,  8);
+  assert.equal(cio.catalog.catalogModel,  null);
+});
+
+test('22. CATALOG MODEL — structural integrity and CIO immutability contract preserved', () => {
+  const cio = assembleCio('Artist 22', {
+    scanPayload: {
+      scanId:    'scan-22',
+      scannedAt: '2026-06-20T00:00:00.000Z',
+      source:    { platform: 'apple_music', urlType: 'artist' },
+      subject:   { artistName: 'Artist 22', artistId: 'art_22' },
+      catalog:   { totalReleases: 1, catalogAgeYears: 5, catalogModel: SAMPLE_CATALOG_MODEL },
+    },
+  }, OPTS);
+  // CIO immutability contract — constitutional (not an implementation detail)
+  assert.ok(Object.isFrozen(cio),         'assembled CIO must be frozen');
+  assert.ok(Object.isFrozen(cio.catalog), 'cio.catalog must be frozen');
+  // Structural integrity of the catalogModel reference
+  assert.ok(cio.catalog.catalogModel,                                   'catalogModel must be present');
+  assert.equal(cio.catalog.catalogModel.modelVersion,  '1.0.0');
+  assert.equal(cio.catalog.catalogModel.releases.length,   1,           'releases accessible via catalogModel');
+  assert.equal(cio.catalog.catalogModel.recordings.length, 1,           'recordings accessible via catalogModel');
+  assert.equal(cio.catalog.catalogModel.releasesCount,     1,           'releasesCount in model matches releases.length');
+  assert.equal(cio.catalog.catalogModel.catalogVersion,    null,        'catalogVersion RESERVED — must remain null');
+  // Architectural invariant: releases accessible and carry the correct shape
+  const firstRelease = cio.catalog.catalogModel.releases[0];
+  assert.equal(firstRelease.releaseId, 'rl_abc123',  'releaseId preserved through assembler');
+  assert.equal(firstRelease.title,     'Album One',  'title preserved through assembler');
+  assert.ok(firstRelease.providers.includes('apple'), 'providers preserved through assembler');
+});
+
 // ─── Summary ─────────────────────────────────────────────────────────
 
 console.log('');
