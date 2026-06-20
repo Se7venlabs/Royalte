@@ -18,15 +18,14 @@ function safeCatalog(cio) {
   return c;
 }
 
-function deepFreeze(obj) {
-  if (!obj || typeof obj !== 'object') return obj;
+function deepFreeze(obj, seen = new WeakSet()) {
+  if (!obj || typeof obj !== 'object' || seen.has(obj)) return obj;
 
+  seen.add(obj);
   Object.freeze(obj);
 
   for (const value of Object.values(obj)) {
-    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
-      deepFreeze(value);
-    }
+    deepFreeze(value, seen);
   }
 
   return obj;
