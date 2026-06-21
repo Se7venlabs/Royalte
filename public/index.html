@@ -1589,7 +1589,7 @@ body.cinema-mode .hero-right{visibility:hidden;}
 .iv-term-cursor{display:inline-block;width:8px;height:0.9em;background:#e040c8;vertical-align:text-bottom;margin-left:2px;animation:iv-blink 0.7s step-end infinite;box-shadow:0 0 6px rgba(224,64,200,0.55);}
 @keyframes iv-blink{0%,100%{opacity:1;}50%{opacity:0;}}
 /* Access authorization overlay */
-#iv-auth{position:fixed;inset:0;z-index:9800;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 0.7s ease;}
+#iv-auth{position:fixed;inset:0;z-index:9800;background:rgba(0,0,0,0.62);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 0.7s ease;}
 #iv-auth.active{visibility:visible;opacity:1;pointer-events:all;}
 .iva-title{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#fff;text-align:center;margin:0 0 10px;}
 .iva-sub{font-family:'Space Grotesk',sans-serif;font-size:13px;color:rgba(255,255,255,0.5);text-align:center;line-height:1.65;margin:0 0 36px;max-width:300px;}
@@ -3837,17 +3837,14 @@ function _ivTerminal(cb) {
 }
 
 function _ivShowAuth() {
-  var vault = document.getElementById('intel-vault');
-  if (vault) { vault.style.transition = 'opacity 0.5s ease'; vault.style.opacity = '0'; }
+  // Vault stays visible — auth form emerges within the vault environment
+  var auth = document.getElementById('iv-auth');
+  if (auth) { auth.setAttribute('aria-hidden', 'false'); auth.classList.add('active'); }
+  _playAuthTone();
   setTimeout(function() {
-    var auth = document.getElementById('iv-auth');
-    if (auth) { auth.setAttribute('aria-hidden', 'false'); auth.classList.add('active'); }
-    _playAuthTone();
-    setTimeout(function() {
-      var emailEl = document.getElementById('iva-email');
-      if (emailEl) emailEl.focus();
-    }, 400);
-  }, 560);
+    var emailEl = document.getElementById('iva-email');
+    if (emailEl) emailEl.focus();
+  }, 700);
 }
 
 function _bootRoyalteOS() {
