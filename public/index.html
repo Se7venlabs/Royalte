@@ -1562,15 +1562,32 @@ body.menu-locked {
 .sh-trust span:first-child::before{display:none;}
 .sh-machinery{position:absolute;top:-9999px;left:-9999px;visibility:hidden;pointer-events:none;}
 .scan-hero .paste-hint{display:none;}
-/* ── Scan Confirmed State ────────────────────────────────────────────── */
-/* Hides scan form + results while Identity Confirmed overlay is shown.  */
-/* Applies before cinema-mode; cinema-mode then takes over hero-right.   */
-body.scan-confirmed .hero-right{visibility:hidden;}
-#sc-confirm{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity 0.7s ease;z-index:5;background:var(--bg,#070714);}
-body.scan-confirmed #sc-confirm{opacity:1;}
-.sc-eyebrow{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(138,92,255,0.85);margin-bottom:18px;}
-.sc-title{font-family:'Rajdhani',sans-serif;font-size:clamp(32px,5vw,56px);font-weight:700;color:rgba(255,255,255,0.95);letter-spacing:0.01em;line-height:1.05;margin-bottom:14px;}
-.sc-sub{font-family:'Space Grotesk',sans-serif;font-size:15px;color:rgba(138,92,255,0.65);letter-spacing:0.06em;}
+/* ── TV Static / Instability Canvas ─────────────────────────────────── */
+/* z-index 8500 during instability; raised to 9510 during emergence      */
+#iv-instability{position:fixed;inset:0;z-index:8500;pointer-events:none;opacity:0;image-rendering:pixelated;width:100%;height:100%;}
+
+/* ── Intelligence Terminal ───────────────────────────────────────────── */
+#iv-terminal{position:absolute;inset:0;z-index:15;display:flex;flex-direction:column;justify-content:center;padding:8% 10%;opacity:0;transition:opacity 0.7s ease;pointer-events:none;}
+#iv-terminal.active{opacity:1;}
+.ivt-line{font-family:'Space Mono',monospace;font-size:13px;color:rgba(255,255,255,0.88);letter-spacing:0.05em;margin-bottom:14px;min-height:22px;display:flex;align-items:center;}
+.ivt-cursor{display:inline-block;width:8px;height:14px;background:rgba(255,255,255,0.88);margin-left:2px;vertical-align:text-bottom;animation:ivt-blink 1s step-end infinite;}
+@keyframes ivt-blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* ── OS Access Authorization Panel ──────────────────────────────────── */
+#iv-auth{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;opacity:0;pointer-events:none;transition:opacity 0.8s ease;background:rgba(5,5,7,0.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
+#iv-auth.active{opacity:1;pointer-events:all;}
+.iva-tag{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(138,92,255,0.75);margin-bottom:12px;}
+.iva-title{font-family:'Rajdhani',sans-serif;font-size:clamp(22px,3.5vw,34px);font-weight:700;color:#fff;letter-spacing:0.07em;text-transform:uppercase;text-align:center;margin-bottom:8px;}
+.iva-body{font-family:'Space Grotesk',sans-serif;font-size:13px;color:rgba(255,255,255,0.5);text-align:center;max-width:340px;line-height:1.65;margin-bottom:24px;}
+.iva-form{display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px;}
+.iva-input{width:100%;padding:11px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(138,92,255,0.22);border-radius:7px;font-family:'Space Grotesk',sans-serif;font-size:14px;color:#fff;outline:none;box-sizing:border-box;transition:border-color 0.2s;}
+.iva-input:focus{border-color:rgba(138,92,255,0.55);}
+.iva-input::placeholder{color:rgba(255,255,255,0.28);}
+.iva-btn{width:100%;padding:13px;background:linear-gradient(90deg,#8a5cff 0%,#e040c8 100%);border:none;border-radius:7px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;cursor:pointer;margin-top:4px;transition:opacity 0.2s;}
+.iva-btn:hover{opacity:0.9;}
+.iva-btn:disabled{opacity:0.45;cursor:not-allowed;}
+.iva-status{font-family:'Space Mono',monospace;font-size:10px;text-align:center;margin-top:10px;min-height:16px;color:rgba(138,92,255,0.7);letter-spacing:0.06em;}
+.iva-status.error{color:rgba(255,75,75,0.85);}
 
 /* ── CRT Residual Center Dot ─────────────────────────────────────────── */
 #iv-crt-dot{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:3px;height:3px;border-radius:50%;background:#fff;box-shadow:0 0 6px 3px rgba(255,255,255,0.95),0 0 18px 6px rgba(255,255,255,0.4);z-index:9700;opacity:0;pointer-events:none;}
@@ -2007,12 +2024,6 @@ body.cinema-mode .hero-right{visibility:hidden;}
         <div class="sh-feat-title">Verified Industry Data</div>
         <div class="sh-feat-desc">Powered by real music industry sources and platform data.</div>
       </div>
-    </div>
-    <!-- Identity Confirmed state — overlays hero-left after scan success -->
-    <div id="sc-confirm" aria-hidden="true">
-      <p class="sc-eyebrow">// Scan Complete</p>
-      <p class="sc-title">Identity<br>Confirmed&#x2122;</p>
-      <p class="sc-sub">Launching Royalt&#x113; OS&#x2122;</p>
     </div>
     <!-- Hidden machinery — IDs required by runAudit() wiring -->
     <div class="sh-machinery">
@@ -3430,15 +3441,22 @@ async function runScan() {
   await runAudit();
 
   if (window.__lastAuditOk) {
-    // Success — website experience ends here.
-    // Show Identity Confirmed state; never return to scan form.
-    document.body.classList.add('scan-confirmed');
-    var confirmEl = document.getElementById('sc-confirm');
-    if (confirmEl) confirmEl.setAttribute('aria-hidden', 'false');
-    // Hold 3.5s while artist reads confirmation, then begin cinematic sequence
-    setTimeout(function() { showIntelVault(); }, 3500);
+    // Hide results panel immediately — cinematic takes over
+    document.body.classList.add('cinema-mode');
+
+    // Returning artist: bypass cinematic, go directly to Mission Control
+    var _sess = await _getSession();
+    if (_sess) {
+      var _scanId = (window.__royalteScan && window.__royalteScan.scanId) || '';
+      window.location.href = '/mission-control.html?boot=1' + (_scanId ? '&scanId=' + encodeURIComponent(_scanId) : '');
+      return;
+    }
+
+    // First-time artist: Stage 1 — 4-second hold
+    // Scan form remains visible. Artist believes results are loading.
+    setTimeout(startInstabilitySequence, 4000);
   } else {
-    // Failure only — re-enable button so artist can retry
+    // Failure only — re-enable for retry
     if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
   }
 }
@@ -3579,6 +3597,359 @@ function showIntelVault() {
       }, 1200);
     });
   });
+}
+
+// ── First-Time Artist Activation — Stage Functions ────────────────────
+
+async function _getSession() {
+  try {
+    if (typeof window.getSupabase === 'function') {
+      var sb = window.getSupabase();
+      if (!sb) return null;
+      var result = await sb.auth.getSession();
+      return (result && result.data && result.data.session) ? result.data.session : null;
+    }
+  } catch(e) {}
+  return null;
+}
+
+// Stage 2: System Instability — 5 seconds of escalating canvas static + CSS effects
+var _instabilityRaf = null;
+
+function startInstabilitySequence() {
+  var canvas = document.getElementById('iv-instability');
+  if (!canvas) { startCollapseSequence(); return; }
+
+  var ctx = canvas.getContext('2d');
+  var W = 96, H = 54;  // low-res for blocky TV static feel
+  canvas.style.width  = '100%';
+  canvas.style.height = '100%';
+  canvas.width  = W;
+  canvas.height = H;
+
+  var html = document.documentElement;
+  var startTime = performance.now();
+  var DURATION  = 5000;
+  var lastTear  = 0;
+  var lastBright = 0;
+
+  function tick(now) {
+    var elapsed  = now - startTime;
+    var progress = Math.min(1, elapsed / DURATION);
+    var intensity = progress;
+
+    // Static noise — density escalates
+    var imgData = ctx.createImageData(W, H);
+    var d = imgData.data;
+    for (var i = 0; i < d.length; i += 4) {
+      if (Math.random() < intensity * 0.35) {
+        var v = Math.random() * 255 | 0;
+        d[i] = d[i+1] = d[i+2] = v;
+        d[i+3] = 80 + (Math.random() * 100 | 0);
+      } else { d[i+3] = 0; }
+    }
+    ctx.putImageData(imgData, 0, 0);
+    canvas.style.opacity = intensity * 0.55;
+
+    // Brightness / saturation fluctuations — escalating amplitude
+    if (now - lastBright > 90 - intensity * 55) {
+      lastBright = now;
+      var b = 1 + (Math.random() * 2 - 1) * intensity * 0.65;
+      var s = 1 - intensity * 0.55;
+      html.style.filter = 'brightness(' + b.toFixed(2) + ') saturate(' + s.toFixed(2) + ')';
+    }
+
+    // Horizontal tearing — begins at ~40% through instability
+    if (intensity > 0.38 && now - lastTear > 160 - intensity * 100) {
+      lastTear = now;
+      var shift = (Math.random() * 8 - 4) * intensity;
+      html.style.transform = 'translateX(' + shift.toFixed(1) + 'px)';
+      setTimeout(function() { html.style.transform = ''; }, 55 + Math.random() * 50 | 0);
+    }
+
+    if (elapsed < DURATION) {
+      _instabilityRaf = requestAnimationFrame(tick);
+    } else {
+      // Reset css tweaks before handing off to CRT collapse
+      html.style.filter    = '';
+      html.style.transform = '';
+      canvas.style.opacity = '0';
+      startCollapseSequence();
+    }
+  }
+
+  _instabilityRaf = requestAnimationFrame(tick);
+}
+
+// Stage 3: System Collapse — CRT flicker then inward collapse
+function startCollapseSequence() {
+  _ivFlicker(function() {
+    _ivCollapse(function() {
+      // Stage 3b: black screen hold (1.2s), then emergence
+      setTimeout(function() {
+        startEmergenceSequence(function() {
+          // Stage 5: Vault appears (3s absorption dwell), Stage 6: terminal begins
+          var vault = document.getElementById('intel-vault');
+          if (vault) { vault.setAttribute('aria-hidden', 'false'); vault.classList.add('active'); }
+          setTimeout(function() {
+            startTerminalSequence(function() {
+              showAuthPanel();
+            });
+          }, 3000);
+        });
+      }, 1200);
+    });
+  });
+}
+
+// Stage 4: OS Emergence — static resolves as Royaltē OS rebuilds on black screen
+function startEmergenceSequence(cb) {
+  var canvas = document.getElementById('iv-instability');
+  if (!canvas) { if (cb) cb(); return; }
+
+  // Raise above iv-black (9500) so emergence is visible on black
+  canvas.style.zIndex = '9510';
+
+  var ctx = canvas.getContext('2d');
+  var W = 96, H = 54;
+  canvas.width = W; canvas.height = H;
+
+  var black = document.getElementById('iv-black');
+  var startTime = performance.now();
+  var DURATION  = 2400;
+
+  // iv-black fades out during emergence revealing vault beneath
+  if (black) {
+    black.style.transition = 'opacity ' + (DURATION * 0.9 / 1000).toFixed(1) + 's ease';
+    black.style.opacity = '0';
+    setTimeout(function() {
+      black.classList.remove('active');
+      black.style.transition = '';
+      black.style.opacity = '';
+    }, DURATION + 300);
+  }
+
+  function tick(now) {
+    var elapsed  = now - startTime;
+    var progress = Math.min(1, elapsed / DURATION);
+    var intensity = 1 - progress;  // decreasing: system stabilizing
+
+    var imgData = ctx.createImageData(W, H);
+    var d = imgData.data;
+    for (var i = 0; i < d.length; i += 4) {
+      if (Math.random() < intensity * 0.45) {
+        var v = Math.random() * 255 | 0;
+        d[i] = d[i+1] = d[i+2] = v;
+        d[i+3] = 90 + (Math.random() * 80 | 0);
+      } else { d[i+3] = 0; }
+    }
+    ctx.putImageData(imgData, 0, 0);
+    canvas.style.opacity = intensity * 0.7;
+
+    if (elapsed < DURATION) {
+      requestAnimationFrame(tick);
+    } else {
+      canvas.style.opacity = '0';
+      canvas.style.zIndex  = '8500';
+      if (cb) cb();
+    }
+  }
+
+  requestAnimationFrame(tick);
+}
+
+// ── Terminal Audio — Web Audio API synthesis (no external files) ──────
+
+var _audioCtx    = null;
+var _crtHumNode  = null;
+var _crtHumGain  = null;
+
+function _getAudioCtx() {
+  if (!_audioCtx) {
+    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return _audioCtx;
+}
+
+function playKeyClick() {
+  var ctx = _getAudioCtx();
+  if (!ctx) return;
+  try {
+    var len = ctx.sampleRate * 0.011 | 0;
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len) * 0.55;
+    var src = ctx.createBufferSource();
+    src.buffer = buf;
+    var gain = ctx.createGain();
+    gain.gain.value = 0.14;
+    src.connect(gain);
+    gain.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function playRelayClick() {
+  var ctx = _getAudioCtx();
+  if (!ctx) return;
+  try {
+    var len = ctx.sampleRate * 0.028 | 0;
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    var d = buf.getChannelData(0);
+    var mid = len * 0.25;
+    for (var i = 0; i < len; i++) {
+      var env = i < mid ? i / mid : (1 - (i - mid) / (len - mid));
+      d[i] = (Math.random() * 2 - 1) * env * 0.7;
+    }
+    var src = ctx.createBufferSource();
+    src.buffer = buf;
+    var gain = ctx.createGain();
+    gain.gain.value = 0.22;
+    src.connect(gain);
+    gain.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function startCrtHum() {
+  var ctx = _getAudioCtx();
+  if (!ctx || _crtHumNode) return;
+  try {
+    _crtHumNode = ctx.createOscillator();
+    _crtHumNode.type = 'sawtooth';
+    _crtHumNode.frequency.value = 60;
+    _crtHumGain = ctx.createGain();
+    _crtHumGain.gain.value = 0.035;
+    _crtHumNode.connect(_crtHumGain);
+    _crtHumGain.connect(ctx.destination);
+    _crtHumNode.start();
+  } catch(e) {}
+}
+
+function stopCrtHum() {
+  if (_crtHumNode) {
+    try { _crtHumNode.stop(); } catch(e) {}
+    _crtHumNode = null;
+    _crtHumGain = null;
+  }
+}
+
+// Stage 6: Intelligence Terminal — typewriter with blinking cursor
+var _terminalLines = [
+  '> ARTIST RECORD LOCATED',
+  '> IDENTITY VERIFIED',
+  '> PLATFORM PRESENCE CONFIRMED',
+  '> MUSIC ECOSYSTEM VALIDATED',
+  '> INTELLIGENCE SESSION ESTABLISHED',
+  '> PLEASE STAND BY',
+];
+var _CHAR_SPEED = 34;  // ms per character typed
+// Per-line pauses: 1.5s for first 5 lines, 2.0s for "PLEASE STAND BY"
+var _LINE_PAUSE      = 1500;
+var _LAST_LINE_PAUSE = 2000;
+
+function startTerminalSequence(cb) {
+  var terminal = document.getElementById('iv-terminal');
+  if (!terminal) { if (cb) setTimeout(cb, 100); return; }
+
+  terminal.innerHTML = '';
+  terminal.setAttribute('aria-hidden', 'false');
+  terminal.classList.add('active');
+  startCrtHum();
+
+  var cursor = document.createElement('span');
+  cursor.className = 'ivt-cursor';
+
+  var lineIdx = 0;
+  function nextLine() {
+    if (lineIdx >= _terminalLines.length) {
+      // All lines typed — should not reach here (last line calls cb directly)
+      if (cb) cb();
+      return;
+    }
+    var isLast = lineIdx === _terminalLines.length - 1;
+    var lineEl = document.createElement('div');
+    lineEl.className = 'ivt-line';
+    lineEl.appendChild(cursor);
+    terminal.appendChild(lineEl);
+
+    var text    = _terminalLines[lineIdx++];
+    var charIdx = 0;
+    (function type() {
+      if (charIdx >= text.length) {
+        // Line complete — relay click; pause then next line (or auth for last)
+        playRelayClick();
+        var pause = isLast ? _LAST_LINE_PAUSE : _LINE_PAUSE;
+        setTimeout(isLast ? function() { if (cb) cb(); } : nextLine, pause);
+        return;
+      }
+      playKeyClick();
+      lineEl.insertBefore(document.createTextNode(text[charIdx++]), cursor);
+      setTimeout(type, _CHAR_SPEED);
+    })();
+  }
+
+  nextLine();
+}
+
+// Stage 7: OS Access Authorization — credential creation on vault
+function showAuthPanel() {
+  stopCrtHum();
+  var auth = document.getElementById('iv-auth');
+  if (!auth) return;
+  auth.setAttribute('aria-hidden', 'false');
+  auth.classList.add('active');
+
+  var emailEl  = document.getElementById('iva-email');
+  var passEl   = document.getElementById('iva-pass');
+  var btnEl    = document.getElementById('iva-btn');
+  var statusEl = document.getElementById('iva-status');
+  var form     = document.getElementById('iva-form');
+
+  // Focus email after panel fades in
+  setTimeout(function() { if (emailEl) emailEl.focus(); }, 850);
+
+  async function handleActivate(e) {
+    if (e) e.preventDefault();
+    var email = (emailEl && emailEl.value.trim()) || '';
+    var pass  = (passEl  && passEl.value.trim())  || '';
+
+    if (!email || !pass) {
+      if (statusEl) { statusEl.textContent = 'Email and password required.'; statusEl.className = 'iva-status error'; }
+      return;
+    }
+    if (pass.length < 6) {
+      if (statusEl) { statusEl.textContent = 'Password must be at least 6 characters.'; statusEl.className = 'iva-status error'; }
+      return;
+    }
+
+    if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Activating…'; }
+    if (statusEl) { statusEl.textContent = 'Establishing credentials…'; statusEl.className = 'iva-status'; }
+
+    try {
+      if (typeof window.getSupabase !== 'function') throw new Error('Authentication unavailable');
+      var sb = window.getSupabase();
+      if (!sb) throw new Error('Authentication unavailable');
+
+      var result = await sb.auth.signUp({ email: email, password: pass });
+      var err = result.error;
+      if (err) throw err;
+
+      if (statusEl) { statusEl.textContent = 'Access granted. Initializing Royaltē OS™…'; statusEl.className = 'iva-status'; }
+
+      var scanId = (window.__royalteScan && window.__royalteScan.scanId) || '';
+      setTimeout(function() {
+        window.location.href = '/mission-control.html?boot=1' + (scanId ? '&scanId=' + encodeURIComponent(scanId) : '');
+      }, 1600);
+
+    } catch(err) {
+      var msg = (err && err.message) ? err.message : 'Activation failed. Please try again.';
+      if (statusEl) { statusEl.textContent = msg; statusEl.className = 'iva-status error'; }
+      if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+    }
+  }
+
+  if (form) form.addEventListener('submit', handleActivate);
 }
 
 // Enter key support for all Scan Hero V3 inputs
@@ -3950,13 +4321,29 @@ wireOSEntry();
 </script>
 
 <!-- ═══ INTELLIGENCE VAULT SEQUENCE ═══ -->
+<canvas id="iv-instability" aria-hidden="true"></canvas>
 <div id="iv-crt-dot" aria-hidden="true"></div>
 <div id="iv-black" aria-hidden="true"></div>
 <div id="intel-vault" aria-hidden="true">
   <div class="iv-dark"></div>
+  <!-- Terminal: displayed over vault environment during Stage 6 -->
+  <div id="iv-terminal" aria-hidden="true" aria-live="polite"></div>
+  <!-- Auth: activation panel displayed after terminal completes -->
+  <div id="iv-auth" aria-hidden="true" role="dialog" aria-label="Royalt&#x113; OS Access Authorization">
+    <div class="iva-tag">Royalt&#x113; OS &#x2014; Access Granted</div>
+    <div class="iva-title">Royalt&#x113; OS</div>
+    <p class="iva-body">Your Artist Profile has been created.<br>Set your Royalt&#x113; OS credentials to continue.</p>
+    <form class="iva-form" id="iva-form" novalidate>
+      <input class="iva-input" id="iva-email" type="email" placeholder="Email Address" autocomplete="email">
+      <input class="iva-input" id="iva-pass" type="password" placeholder="Password" autocomplete="new-password">
+      <button class="iva-btn" id="iva-btn" type="submit">Activate Royalt&#x113; OS</button>
+    </form>
+    <div class="iva-status" id="iva-status" role="status"></div>
+  </div>
+  <!-- Dormant message area (legacy; kept for non-first-time paths) -->
   <div class="iv-msg-area">
     <div class="iv-wordmark">Royalt&#x113; Intelligence Engine&#x2122;</div>
-    <div id="iv-msg" role="status" aria-live="polite"></div>
+    <div id="iv-msg" aria-live="polite"></div>
   </div>
 </div>
 <div id="iv-os-reveal" aria-hidden="true">
