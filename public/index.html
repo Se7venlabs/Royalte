@@ -1562,6 +1562,18 @@ body.menu-locked {
 .sh-trust span:first-child::before{display:none;}
 .sh-machinery{position:absolute;top:-9999px;left:-9999px;visibility:hidden;pointer-events:none;}
 .scan-hero .paste-hint{display:none;}
+/* ── Cinema Hold Screen ──────────────────────────────────────────────── */
+#cinema-hold{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 1s ease;}
+#cinema-hold.active{opacity:1;pointer-events:all;}
+body.cinema-mode .hero-right{visibility:hidden;}
+.ch-bg{position:absolute;inset:0;background:url('/studio-hold.png') center center/cover no-repeat;}
+.ch-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.56);}
+.ch-content{position:relative;z-index:2;text-align:center;max-width:520px;padding:0 32px;}
+.ch-wordmark{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(138,92,255,0.85);margin-bottom:52px;}
+#ch-msg-display{font-family:'Space Grotesk',sans-serif;font-size:18px;color:rgba(255,255,255,0.8);line-height:1.55;min-height:28px;opacity:0;transition:opacity 0.8s ease;}
+#ch-standby{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(138,92,255,0.7);opacity:0;transition:opacity 0.8s ease;margin-top:36px;}
+#ch-standby.visible{opacity:1;}
+@media(max-width:768px){#ch-msg-display{font-size:15px;}.ch-wordmark{font-size:9px;margin-bottom:36px;}}
 .sh-features{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;margin-top:24px;}
 .sh-feat{padding:16px 14px;display:flex;flex-direction:column;gap:6px;position:relative;}
 .sh-feat+.sh-feat::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:1px;background:rgba(255,255,255,0.05);}
@@ -3392,9 +3404,47 @@ async function runScan() {
   if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Scanning…'; }
   try {
     await runAudit();
+    showCinemaHold();
   } finally {
     if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
   }
+}
+
+var _cinemaMessages = [
+  'Analyzing artist identity…',
+  'Reviewing catalog intelligence…',
+  'Verifying platform presence…',
+  'Building monitoring environment…',
+  'Preparing Royaltē OS…',
+];
+
+function showCinemaHold() {
+  document.body.classList.add('cinema-mode');
+  var hold = document.getElementById('cinema-hold');
+  if (!hold) return;
+  hold.setAttribute('aria-hidden', 'false');
+  hold.classList.add('active');
+  var display = document.getElementById('ch-msg-display');
+  if (!display) return;
+  var i = 0;
+  function nextMsg() {
+    if (i >= _cinemaMessages.length) {
+      display.style.opacity = '0';
+      setTimeout(function() {
+        var sb = document.getElementById('ch-standby');
+        if (sb) sb.classList.add('visible');
+      }, 900);
+      return;
+    }
+    display.style.opacity = '0';
+    setTimeout(function() {
+      display.textContent = _cinemaMessages[i++];
+      display.style.opacity = '1';
+      setTimeout(nextMsg, 3200);
+    }, 850);
+  }
+  // Brief pause so the cinema fade-in completes before messages begin
+  setTimeout(nextMsg, 1000);
 }
 
 // Enter key support for all Scan Hero V3 inputs
@@ -3764,6 +3814,17 @@ async function wireOSEntry() {
 
 wireOSEntry();
 </script>
+
+<!-- ═══ CINEMA HOLD SCREEN ═══ -->
+<div id="cinema-hold" aria-hidden="true" role="status" aria-live="polite">
+  <div class="ch-bg"></div>
+  <div class="ch-overlay"></div>
+  <div class="ch-content">
+    <div class="ch-wordmark">Royalt&#x113; Intelligence Engine&#x2122;</div>
+    <div id="ch-msg-display"></div>
+    <div id="ch-standby">Please stand by.</div>
+  </div>
+</div>
 
 </body>
 </html>
