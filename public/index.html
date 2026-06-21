@@ -1574,7 +1574,8 @@ body.cinema-mode .hero-right{visibility:hidden;}
 #iv-msg{font-family:'Space Grotesk',sans-serif;font-size:20px;color:rgba(255,255,255,0.88);opacity:0;transition:opacity 0.35s ease;line-height:1.5;min-height:30px;}
 #iv-os-reveal{position:fixed;inset:0;z-index:9600;background:#000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.6s ease;}
 #iv-os-reveal.active{opacity:1;pointer-events:all;}
-.iv-os-text{font-family:'Rajdhani',sans-serif;font-size:clamp(42px,7vw,80px);font-weight:700;color:#fff;letter-spacing:0.18em;text-transform:uppercase;}
+/* MC is the destination — text suppressed; overlay serves as clean black beat */
+.iv-os-text{display:none;}
 @media(max-width:768px){#iv-msg{font-size:16px;}.iv-wordmark{font-size:9px;}.iv-os-text{font-size:40px;}}
 .sh-features{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;margin-top:24px;}
 .sh-feat{padding:16px 14px;display:flex;flex-direction:column;gap:6px;position:relative;}
@@ -3478,11 +3479,11 @@ function _ivMessages(cb) {
 function _ivOSActivation() {
   var vault = document.getElementById('intel-vault');
   var os    = document.getElementById('iv-os-reveal');
-  if (vault) { vault.style.transition = 'opacity 0.4s ease'; vault.style.opacity = '0'; }
-  setTimeout(function() {
-    if (os) { os.setAttribute('aria-hidden', 'false'); os.classList.add('active'); }
-    setTimeout(_bootRoyalteOS, 1600);
-  }, 450);
+  // Fade vault out; raise the black screen behind it
+  if (vault) { vault.style.transition = 'opacity 0.5s ease'; vault.style.opacity = '0'; }
+  if (os) { os.setAttribute('aria-hidden', 'false'); os.classList.add('active'); }
+  // Clean black beat — no text, no announcement; Mission Control is the destination
+  setTimeout(_bootRoyalteOS, 1500);
 }
 
 function _bootRoyalteOS() {
