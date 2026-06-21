@@ -1551,17 +1551,24 @@ body.menu-locked {
 .sh-verify{font-family:'Space Grotesk',sans-serif;font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.4;}
 .sh-example{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.06em;margin:8px 0 0;}
 .sh-scan-error{font-family:'Space Grotesk',sans-serif;font-size:12px;color:#f05060;margin:10px 0 0;min-height:0;line-height:1.5;}
-.sh-run-btn{width:100%;margin-top:16px;padding:14px 24px;background:var(--accent);border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;cursor:pointer;transition:opacity 0.2s ease,transform 0.15s ease;display:block;}
-.sh-run-btn:hover{opacity:0.9;transform:translateY(-1px);}
-.sh-run-btn:active{transform:translateY(0);}
-.sh-run-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-.sh-trust{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 12px;margin-top:14px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
-.sh-trust span{display:flex;align-items:center;gap:5px;}
-.sh-trust span::before{content:'·';opacity:0.4;}
+.sh-run-btn{width:100%;margin-top:16px;padding:15px 24px;background:linear-gradient(90deg,#8a5cff 0%,#e040c8 100%);border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;cursor:pointer;box-shadow:0 0 28px rgba(138,92,255,0.4),0 0 80px rgba(138,92,255,0.14),0 0 100px rgba(224,64,200,0.08);transition:box-shadow 0.4s ease,transform 0.15s ease;animation:sh-btn-pulse 4s ease-in-out infinite;display:block;}
+.sh-run-btn:hover{box-shadow:0 0 36px rgba(138,92,255,0.55),0 0 100px rgba(138,92,255,0.22),0 0 140px rgba(224,64,200,0.14);transform:translateY(-2px);animation:none;}
+.sh-run-btn:active{box-shadow:0 0 18px rgba(138,92,255,0.35),0 0 50px rgba(138,92,255,0.1);transform:translateY(0);}
+.sh-run-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;animation:none;}
+@keyframes sh-btn-pulse{0%,100%{box-shadow:0 0 28px rgba(138,92,255,0.4),0 0 80px rgba(138,92,255,0.14),0 0 100px rgba(224,64,200,0.08);}50%{box-shadow:0 0 36px rgba(138,92,255,0.5),0 0 110px rgba(138,92,255,0.2),0 0 140px rgba(224,64,200,0.12);}}
+.sh-trust{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 10px;margin-top:10px;font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:0.02em;color:var(--text2);}
+.sh-trust span{display:flex;align-items:center;}
+.sh-trust span::before{content:'·';margin-right:10px;opacity:0.5;}
 .sh-trust span:first-child::before{display:none;}
 .sh-machinery{position:absolute;top:-9999px;left:-9999px;visibility:hidden;pointer-events:none;}
 .scan-hero .paste-hint{display:none;}
-@media(max-width:768px){.sh-headline{font-size:28px;}.sh-run-btn{font-size:15px;padding:13px 20px;}}
+.sh-features{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;margin-top:24px;}
+.sh-feat{padding:16px 14px;display:flex;flex-direction:column;gap:6px;position:relative;}
+.sh-feat+.sh-feat::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:1px;background:rgba(255,255,255,0.05);}
+.sh-feat-icon{line-height:1;filter:drop-shadow(0 0 8px rgba(138,92,255,0.6));}
+.sh-feat-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:#fff;line-height:1.3;}
+.sh-feat-desc{font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--muted2);line-height:1.5;}
+@media(max-width:768px){.sh-headline{font-size:28px;}.sh-run-btn{font-size:15px;padding:13px 20px;}.sh-features{grid-template-columns:repeat(2,1fr);}.sh-feat:nth-child(3)::before{display:none;}}
 
 </style>
 </head>
@@ -1942,6 +1949,36 @@ body.menu-locked {
       <span>100% Free</span>
       <span>No Credit Card Required</span>
       <span>Results In Seconds</span>
+    </div>
+    <div class="sh-features">
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="2" y="14" width="4" height="8" rx="1" fill="#8a5cff"/><rect x="10" y="8" width="4" height="14" rx="1" fill="#8a5cff"/><rect x="18" y="4" width="4" height="18" rx="1" fill="#8a5cff"/></svg>
+        </div>
+        <div class="sh-feat-title">Artist Intelligence&#x2122;</div>
+        <div class="sh-feat-desc">Discover verified gaps and opportunities across your music business.</div>
+      </div>
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#8a5cff" stroke-width="2.5"/><path d="M16.5 16.5L21 21" stroke="#8a5cff" stroke-width="2.5" stroke-linecap="round"/><path d="M9 11h4M11 9v4" stroke="#8a5cff" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="sh-feat-title">Metadata Analysis&#x2122;</div>
+        <div class="sh-feat-desc">Identify missing registrations, metadata issues and catalog risks.</div>
+      </div>
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z" fill="#8a5cff"/></svg>
+        </div>
+        <div class="sh-feat-title">Instant Scan Results</div>
+        <div class="sh-feat-desc">Receive your intelligence report in seconds.</div>
+      </div>
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6l-8-4z" fill="#8a5cff"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="sh-feat-title">Verified Industry Data</div>
+        <div class="sh-feat-desc">Powered by real music industry sources and platform data.</div>
+      </div>
     </div>
     <!-- Hidden machinery — IDs required by runAudit() wiring -->
     <div class="sh-machinery">
