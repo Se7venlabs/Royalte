@@ -3394,6 +3394,12 @@ function selectScanMethod(method) {
   document.getElementById('sh-scan-error').textContent = '';
 }
 
+// CINEMATIC_V2 = false  →  stable scan path: results display, then original
+//                           CRT → vault → MC. Use until V2 is Vercel-verified.
+// CINEMATIC_V2 = true   →  First-Time Artist Activation (Stages 1-7).
+//                           Enable only after Board approves Vercel preview.
+var CINEMATIC_V2 = false;
+
 async function runScan() {
   var activeCard = document.querySelector('.sh-card.active');
   if (!activeCard) return;
@@ -3440,23 +3446,32 @@ async function runScan() {
   window.__lastAuditOk = false;
   await runAudit();
 
-  if (window.__lastAuditOk) {
-    // Hide results panel immediately — cinematic takes over
-    document.body.classList.add('cinema-mode');
+  if (!CINEMATIC_V2) {
+    // ── STABLE PATH (CINEMATIC_V2 = false) ──────────────────────────────
+    // Verified working: scan results display, then CRT → vault → MC.
+    // All V2 cinematic code is preserved below but gated off.
+    if (window.__lastAuditOk) {
+      showIntelVault();
+    } else {
+      if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
+    }
+    return;
+  }
 
-    // Returning artist: bypass cinematic, go directly to Mission Control
+  // ── CINEMATIC V2 PATH (CINEMATIC_V2 = true) ──────────────────────────
+  // First-time artist activation experience.
+  // Enable only after full Vercel verification of all stages.
+  if (window.__lastAuditOk) {
+    document.body.classList.add('cinema-mode');
     var _sess = await _getSession();
     if (_sess) {
       var _scanId = (window.__royalteScan && window.__royalteScan.scanId) || '';
       window.location.href = '/mission-control.html?boot=1' + (_scanId ? '&scanId=' + encodeURIComponent(_scanId) : '');
       return;
     }
-
-    // First-time artist: Stage 1 — 4-second hold
-    // Scan form remains visible. Artist believes results are loading.
+    // Stage 1: 4-second hold. Scan form visible. Artist believes results are loading.
     setTimeout(startInstabilitySequence, 4000);
   } else {
-    // Failure only — re-enable for retry
     if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
   }
 }
