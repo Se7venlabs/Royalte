@@ -2889,7 +2889,7 @@ function renderGapBasedExposure(gbe) {
     body.innerHTML =
       '<div class="gbe-empty"><div class="gbe-empty-check">✓</div>'
       + '<div class="gbe-empty-title">No revenue-relevant backend gaps detected</div>'
-      + '<p class="gbe-empty-body">Your music’s backend infrastructure shows complete '
+      + '<p class="gbe-empty-body">Your music's backend infrastructure shows complete '
       + 'verification across the detected ecosystem signals. Continue monitoring with '
       + 'Royaltē OS to track changes and emerging gaps over time.</p></div>';
     return;
@@ -3331,39 +3331,39 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
 // Scan Hero V3 — method selection + scan bridge
 // ─────────────────────────────────────────────
 async function runScan() {
-  var urlInput = document.getElementById(‘hero-url’);
-  var errEl    = document.getElementById(‘sh-scan-error’);
-  var visBtn   = document.getElementById(‘sh-run-btn’);
-  if (errEl) errEl.textContent = ‘’;
+  var urlInput = document.getElementById('hero-url');
+  var errEl    = document.getElementById('sh-scan-error');
+  var visBtn   = document.getElementById('sh-run-btn');
+  if (errEl) errEl.textContent = '';
 
-  var pastedUrl  = (document.getElementById(‘url-input’)?.value || ‘’).trim();
-  var artistName = (document.getElementById(‘artist-name-input’)?.value || ‘’).trim();
-  var songTitle  = (document.getElementById(‘song-title-input’)?.value || ‘’).trim();
+  var pastedUrl  = (document.getElementById('url-input')?.value || '').trim();
+  var artistName = (document.getElementById('artist-name-input')?.value || '').trim();
+  var songTitle  = (document.getElementById('song-title-input')?.value || '').trim();
 
   if (pastedUrl) {
     // Method 1: Apple Music or Spotify URL — audit engine auto-detects platform
     urlInput.value = pastedUrl;
   } else if (artistName) {
     // Method 2: Resolve artist name + song via /api/resolve-artist
-    if (visBtn) { visBtn.disabled = true; visBtn.textContent = ‘Finding Artist…’; }
+    if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Finding Artist…'; }
     try {
       var qs = new URLSearchParams({ name: artistName });
-      if (songTitle) qs.set(‘song’, songTitle);
-      var resp = await fetch(‘/api/resolve-artist?’ + qs.toString());
+      if (songTitle) qs.set('song', songTitle);
+      var resp = await fetch('/api/resolve-artist?' + qs.toString());
       var data = await resp.json();
       if (!resp.ok || !data.url) {
-        if (errEl) errEl.textContent = ‘We couldn’t safely verify that artist. Please use an Apple Music or Spotify URL.’;
-        if (visBtn) { visBtn.disabled = false; visBtn.textContent = ‘Run My Scan →’; }
+        if (errEl) errEl.textContent = "We couldn't safely verify that artist. Please use an Apple Music or Spotify URL.";
+        if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
         return;
       }
       urlInput.value = data.url;
     } catch (_e) {
-      if (errEl) errEl.textContent = ‘We couldn’t safely verify that artist. Please use an Apple Music or Spotify URL.’;
-      if (visBtn) { visBtn.disabled = false; visBtn.textContent = ‘Run My Scan →’; }
+      if (errEl) errEl.textContent = "We couldn't safely verify that artist. Please use an Apple Music or Spotify URL.";
+      if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
       return;
     }
   } else {
-    document.getElementById(‘url-input’)?.focus();
+    document.getElementById('url-input')?.focus();
     return;
   }
 
