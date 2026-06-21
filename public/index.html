@@ -1562,6 +1562,19 @@ body.menu-locked {
 .sh-trust span:first-child::before{display:none;}
 .sh-machinery{position:absolute;top:-9999px;left:-9999px;visibility:hidden;pointer-events:none;}
 .scan-hero .paste-hint{display:none;}
+/* ── Scan Confirmed State ────────────────────────────────────────────── */
+/* Hides scan form + results while Identity Confirmed overlay is shown.  */
+/* Applies before cinema-mode; cinema-mode then takes over hero-right.   */
+body.scan-confirmed .hero-right{visibility:hidden;}
+#sc-confirm{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity 0.7s ease;z-index:5;background:var(--bg,#070714);}
+body.scan-confirmed #sc-confirm{opacity:1;}
+.sc-eyebrow{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(138,92,255,0.85);margin-bottom:18px;}
+.sc-title{font-family:'Rajdhani',sans-serif;font-size:clamp(32px,5vw,56px);font-weight:700;color:rgba(255,255,255,0.95);letter-spacing:0.01em;line-height:1.05;margin-bottom:14px;}
+.sc-sub{font-family:'Space Grotesk',sans-serif;font-size:15px;color:rgba(138,92,255,0.65);letter-spacing:0.06em;}
+
+/* ── CRT Residual Center Dot ─────────────────────────────────────────── */
+#iv-crt-dot{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:3px;height:3px;border-radius:50%;background:#fff;box-shadow:0 0 6px 3px rgba(255,255,255,0.95),0 0 18px 6px rgba(255,255,255,0.4);z-index:9700;opacity:0;pointer-events:none;}
+
 /* ── Intelligence Vault Cinematic Sequence ───────────────────────────── */
 body.cinema-mode .hero-right{visibility:hidden;}
 #iv-black{position:fixed;inset:0;z-index:9500;background:#000;opacity:0;pointer-events:none;transition:opacity 0.8s ease;}
@@ -1994,6 +2007,12 @@ body.cinema-mode .hero-right{visibility:hidden;}
         <div class="sh-feat-title">Verified Industry Data</div>
         <div class="sh-feat-desc">Powered by real music industry sources and platform data.</div>
       </div>
+    </div>
+    <!-- Identity Confirmed state — overlays hero-left after scan success -->
+    <div id="sc-confirm" aria-hidden="true">
+      <p class="sc-eyebrow">// Scan Complete</p>
+      <p class="sc-title">Identity<br>Confirmed&#x2122;</p>
+      <p class="sc-sub">Launching Royalt&#x113; OS&#x2122;</p>
     </div>
     <!-- Hidden machinery — IDs required by runAudit() wiring -->
     <div class="sh-machinery">
@@ -2622,6 +2641,8 @@ async function runAudit() {
   const apiOk = auditData && !auditData.__error && auditData.success;
 
   if (apiOk) {
+    // Signal success to runScan() — lets it take over post-scan UX
+    window.__lastAuditOk = true;
     // Stop the looping processing sound and fire success chime
     stopProcessingSound();
     playSuccessChime();
@@ -3405,10 +3426,19 @@ async function runScan() {
 
   // URL is set — run the scan
   if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Scanning…'; }
-  try {
-    await runAudit();
-    showIntelVault();
-  } finally {
+  window.__lastAuditOk = false;
+  await runAudit();
+
+  if (window.__lastAuditOk) {
+    // Success — website experience ends here.
+    // Show Identity Confirmed state; never return to scan form.
+    document.body.classList.add('scan-confirmed');
+    var confirmEl = document.getElementById('sc-confirm');
+    if (confirmEl) confirmEl.setAttribute('aria-hidden', 'false');
+    // Hold 3.5s while artist reads confirmation, then begin cinematic sequence
+    setTimeout(function() { showIntelVault(); }, 3500);
+  } else {
+    // Failure only — re-enable button so artist can retry
     if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
   }
 }
@@ -3424,12 +3454,13 @@ var _ivMsgs = [
 
 function _ivFlicker(cb) {
   var html = document.documentElement;
-  var bright = [1.6, 0.4, 2.0, 0.3, 1.5, 0.7];
-  var dur    = [65, 55, 50, 70, 60, 60];
+  // Longer, more deliberate flicker — ~950ms total before collapse
+  var bright = [1.3, 0.8, 1.7, 0.5, 1.9, 0.4, 1.5, 0.7, 1.2, 0.6];
+  var dur    = [90,  80,  75,  85,  70,  90,  75,  80,  75,  80 ];
   var i = 0;
   (function tick() {
     if (i >= bright.length) { html.style.filter = ''; if (cb) cb(); return; }
-    html.style.filter = 'brightness(' + bright[i] + ') saturate(0.15) contrast(1.2)';
+    html.style.filter = 'brightness(' + bright[i] + ') saturate(0.12) contrast(1.15)';
     setTimeout(tick, dur[i++]);
   })();
 }
@@ -3437,14 +3468,18 @@ function _ivFlicker(cb) {
 function _ivCollapse(cb) {
   var html = document.documentElement;
   html.style.transformOrigin = '50% 50%';
-  html.style.transition = 'transform 0.65s cubic-bezier(0.55,0,1,0.45), filter 0.5s ease';
+  // Slow, deliberate collapse — 1.8s. The world closes around the artist.
+  html.style.transition = 'transform 1.8s cubic-bezier(0.4,0,0.85,1), filter 1.4s ease-in';
   html.style.transform = 'scaleY(0.003)';
-  html.style.filter = 'brightness(6) contrast(4) saturate(0)';
+  html.style.filter = 'brightness(5) contrast(3.5) saturate(0)';
+
   setTimeout(function() {
+    // World collapsed — raise black cover and restore html behind it
     html.style.transition = 'none';
     html.style.opacity = '0';
     var black = document.getElementById('iv-black');
     if (black) black.classList.add('active');
+
     requestAnimationFrame(function() {
       requestAnimationFrame(function() {
         html.style.transform = '';
@@ -3452,10 +3487,25 @@ function _ivCollapse(cb) {
         html.style.transformOrigin = '';
         html.style.opacity = '';
         html.style.transition = '';
-        if (cb) cb();
+
+        // Residual center point — authentic CRT phosphor persistence
+        var dot = document.getElementById('iv-crt-dot');
+        if (dot) dot.style.opacity = '1';
+
+        // Hold dot for 0.5s, then fade it out and proceed
+        setTimeout(function() {
+          if (dot) {
+            dot.style.transition = 'opacity 0.35s ease';
+            dot.style.opacity = '0';
+          }
+          setTimeout(function() {
+            if (dot) { dot.style.transition = ''; }
+            if (cb) cb();
+          }, 380);
+        }, 500);
       });
     });
-  }, 680);
+  }, 1850);
 }
 
 function _ivMessages(cb) {
@@ -3501,38 +3551,34 @@ function _bootRoyalteOS() {
 function showIntelVault() {
   document.body.classList.add('cinema-mode');
 
-  // Phase 1: 500ms pause — let the scan completion land
-  setTimeout(function() {
+  // No initial pause — Identity Confirmed state already held for 3.5s.
+  // CRT begins immediately.
 
-    // Phase 2: CRT flicker (~420ms)
-    _ivFlicker(function() {
+  // Phase 1: CRT flicker (~950ms)
+  _ivFlicker(function() {
 
-      // Phase 2b: CRT collapse (~800ms)
-      _ivCollapse(function() {
+    // Phase 2: CRT collapse (1.8s) + residual dot (0.5s) + dot fade (0.35s)
+    _ivCollapse(function() {
 
-        // Phase 3: Black screen — 1 second
+      // Phase 3: Black screen — 1.2 seconds
+      setTimeout(function() {
+
+        // Phase 4: Intelligence Vault fades in
+        var vault = document.getElementById('intel-vault');
+        var black = document.getElementById('iv-black');
+        if (vault) { vault.setAttribute('aria-hidden', 'false'); vault.classList.add('active'); }
+        setTimeout(function() { if (black) black.classList.remove('active'); }, 500);
+
+        // Phase 5: Message sequence (after vault fade-in ~1.5s)
         setTimeout(function() {
+          _ivMessages(function() {
+            _ivOSActivation();
+          });
+        }, 1500);
 
-          // Phase 4: Intelligence Vault fades in
-          var vault = document.getElementById('intel-vault');
-          var black = document.getElementById('iv-black');
-          if (vault) { vault.setAttribute('aria-hidden', 'false'); vault.classList.add('active'); }
-          // Fade black layer out once vault is visible
-          setTimeout(function() { if (black) black.classList.remove('active'); }, 500);
-
-          // Phase 5: Message sequence begins after vault fade-in (~1.5s)
-          setTimeout(function() {
-            _ivMessages(function() {
-              // Phase 8: OS activation
-              _ivOSActivation();
-            });
-          }, 1500);
-
-        }, 1000);
-      });
+      }, 1200);
     });
-
-  }, 500);
+  });
 }
 
 // Enter key support for all Scan Hero V3 inputs
@@ -3904,6 +3950,7 @@ wireOSEntry();
 </script>
 
 <!-- ═══ INTELLIGENCE VAULT SEQUENCE ═══ -->
+<div id="iv-crt-dot" aria-hidden="true"></div>
 <div id="iv-black" aria-hidden="true"></div>
 <div id="intel-vault" aria-hidden="true">
   <div class="iv-dark"></div>
