@@ -1580,7 +1580,27 @@ body.cinema-mode .hero-right{visibility:hidden;}
 #iv-os-reveal.active{opacity:1;pointer-events:all;}
 /* MC is the destination — text suppressed; overlay serves as clean black beat */
 .iv-os-text{display:none;}
-@media(max-width:768px){#iv-msg{font-size:16px;}.iv-wordmark{font-size:9px;}.iv-os-text{font-size:40px;}}
+/* Terminal typed sequence — appears inside #intel-vault after message cycle */
+#iv-terminal{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 40px 14vh;z-index:3;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
+#iv-terminal.active{opacity:1;}
+.iv-term-line{font-family:'Space Mono',monospace;font-size:12px;color:rgba(138,92,255,0.9);letter-spacing:0.14em;line-height:1.9;white-space:pre;}
+.iv-term-cursor{display:inline-block;width:8px;height:0.9em;background:rgba(138,92,255,0.9);vertical-align:text-bottom;margin-left:2px;animation:iv-blink 0.7s step-end infinite;}
+@keyframes iv-blink{0%,100%{opacity:1;}50%{opacity:0;}}
+/* Access authorization overlay */
+#iv-auth{position:fixed;inset:0;z-index:9800;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 0.7s ease;}
+#iv-auth.active{visibility:visible;opacity:1;pointer-events:all;}
+.iva-title{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#fff;text-align:center;margin:0 0 10px;}
+.iva-sub{font-family:'Space Grotesk',sans-serif;font-size:13px;color:rgba(255,255,255,0.5);text-align:center;line-height:1.65;margin:0 0 36px;max-width:300px;}
+.iva-form{width:100%;max-width:300px;display:flex;flex-direction:column;gap:10px;}
+.iva-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:12px 16px;font-family:'Space Grotesk',sans-serif;font-size:14px;color:#fff;outline:none;box-sizing:border-box;transition:border-color 0.2s ease;}
+.iva-input::placeholder{color:rgba(255,255,255,0.28);}
+.iva-input:focus{border-color:rgba(138,92,255,0.55);}
+.iva-btn{width:100%;margin-top:6px;padding:14px 24px;background:linear-gradient(90deg,#8a5cff 0%,#e040c8 100%);border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;cursor:pointer;transition:opacity 0.2s ease,box-shadow 0.3s ease;box-shadow:0 0 24px rgba(138,92,255,0.35);}
+.iva-btn:hover{opacity:0.88;}
+.iva-btn:disabled{opacity:0.45;cursor:not-allowed;}
+.iva-status{font-family:'Space Grotesk',sans-serif;font-size:12px;color:rgba(255,255,255,0.45);text-align:center;margin-top:14px;min-height:18px;line-height:1.5;}
+.iva-status.error{color:#f05060;}
+@media(max-width:768px){#iv-msg{font-size:16px;}.iv-wordmark{font-size:9px;}.iv-os-text{font-size:40px;}#iv-terminal{padding:0 24px 16vh;}.iv-term-line{font-size:11px;}.iva-title{font-size:22px;}}
 .sh-features{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;margin-top:24px;}
 .sh-feat{padding:16px 14px;display:flex;flex-direction:column;gap:6px;position:relative;}
 .sh-feat+.sh-feat::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:1px;background:rgba(255,255,255,0.05);}
@@ -3387,6 +3407,18 @@ async function runScan() {
 }
 
 // ── Intelligence Vault Cinematic Sequence ─────────────────────────────
+var _terminalLines = [
+  '> ARTIST RECORD LOCATED',
+  '> IDENTITY VERIFIED',
+  '> PLATFORM PRESENCE CONFIRMED',
+  '> MUSIC ECOSYSTEM VALIDATED',
+  '> INTELLIGENCE SESSION ESTABLISHED',
+  '> PLEASE STAND BY',
+];
+var _CHAR_SPEED      = 34;
+var _LINE_PAUSE      = 2500;
+var _LAST_LINE_PAUSE = 3000;
+
 var _ivMsgs = [
   'Analyzing artist identity…',
   'Verifying catalog intelligence…',
@@ -3479,6 +3511,63 @@ function _ivOSActivation() {
   setTimeout(_bootRoyalteOS, 1500);
 }
 
+function _ivTerminal(cb) {
+  var term = document.getElementById('iv-terminal');
+  if (!term) { if (cb) cb(); return; }
+  term.innerHTML = '';
+  term.setAttribute('aria-hidden', 'false');
+  term.classList.add('active');
+  var lineIdx = 0;
+  function typeLine() {
+    if (lineIdx >= _terminalLines.length) { if (cb) setTimeout(cb, 400); return; }
+    var text   = _terminalLines[lineIdx];
+    var isLast = lineIdx === _terminalLines.length - 1;
+    lineIdx++;
+    var lineEl = document.createElement('div');
+    lineEl.className = 'iv-term-line';
+    term.appendChild(lineEl);
+    var charIdx = 0;
+    function typeChar() {
+      if (charIdx < text.length) {
+        lineEl.textContent = text.slice(0, ++charIdx);
+        setTimeout(typeChar, _CHAR_SPEED);
+      } else if (isLast) {
+        var cursor = document.createElement('span');
+        cursor.className = 'iv-term-cursor';
+        lineEl.appendChild(cursor);
+        setTimeout(function() {
+          cursor.remove();
+          term.style.transition = 'opacity 0.6s ease';
+          term.style.opacity = '0';
+          setTimeout(function() {
+            term.style.opacity = '';
+            term.style.transition = '';
+            term.classList.remove('active');
+            if (cb) cb();
+          }, 640);
+        }, _LAST_LINE_PAUSE);
+      } else {
+        setTimeout(typeLine, _LINE_PAUSE);
+      }
+    }
+    typeChar();
+  }
+  typeLine();
+}
+
+function _ivShowAuth() {
+  var vault = document.getElementById('intel-vault');
+  if (vault) { vault.style.transition = 'opacity 0.5s ease'; vault.style.opacity = '0'; }
+  setTimeout(function() {
+    var auth = document.getElementById('iv-auth');
+    if (auth) { auth.setAttribute('aria-hidden', 'false'); auth.classList.add('active'); }
+    setTimeout(function() {
+      var emailEl = document.getElementById('iva-email');
+      if (emailEl) emailEl.focus();
+    }, 400);
+  }, 560);
+}
+
 function _bootRoyalteOS() {
   var os = document.getElementById('iv-os-reveal');
   if (os) { os.style.transition = 'opacity 0.5s ease'; os.style.opacity = '0'; }
@@ -3515,7 +3604,9 @@ function showIntelVault() {
         // Phase 5: Message sequence (after vault fade-in ~1.5s)
         setTimeout(function() {
           _ivMessages(function() {
-            _ivOSActivation();
+            _ivTerminal(function() {
+              _ivShowAuth();
+            });
           });
         }, 1500);
 
@@ -3523,6 +3614,50 @@ function showIntelVault() {
     });
   });
 }
+
+// ── Access Authorization form wiring ────────────────────────────────
+(function() {
+  function wireAuthForm() {
+    var form = document.getElementById('iva-form');
+    if (!form) return;
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var emailEl  = document.getElementById('iva-email');
+      var passEl   = document.getElementById('iva-pass');
+      var btnEl    = document.getElementById('iva-btn');
+      var statusEl = document.getElementById('iva-status');
+      var email    = (emailEl ? emailEl.value : '').trim();
+      var password = passEl ? passEl.value : '';
+      if (!email || !password) {
+        if (statusEl) { statusEl.textContent = 'Please enter your email and password.'; statusEl.className = 'iva-status error'; }
+        return;
+      }
+      if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Activating…'; }
+      if (statusEl) { statusEl.textContent = ''; statusEl.className = 'iva-status'; }
+      try {
+        var sb = window.getSupabase ? window.getSupabase() : null;
+        if (!sb) throw new Error('unavailable');
+        var result = await sb.auth.signUp({ email: email, password: password });
+        if (result.error) {
+          if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+          if (statusEl) { statusEl.textContent = result.error.message || 'Activation failed. Please try again.'; statusEl.className = 'iva-status error'; }
+          return;
+        }
+        if (btnEl) { btnEl.textContent = 'Access Granted'; }
+        if (statusEl) { statusEl.textContent = 'Launching Royaltē OS…'; statusEl.className = 'iva-status'; }
+        setTimeout(_bootRoyalteOS, 1200);
+      } catch (err) {
+        if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+        if (statusEl) { statusEl.textContent = 'Activation failed. Please try again.'; statusEl.className = 'iva-status error'; }
+      }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wireAuthForm);
+  } else {
+    wireAuthForm();
+  }
+})();
 
 // Enter key support for all Scan Hero V3 inputs
 ['url-input', 'artist-name-input', 'song-title-input'].forEach(function(id) {
@@ -3897,6 +4032,7 @@ wireOSEntry();
 <div id="iv-black" aria-hidden="true"></div>
 <div id="intel-vault" aria-hidden="true">
   <div class="iv-dark"></div>
+  <div id="iv-terminal" aria-hidden="true" aria-live="polite"></div>
   <div class="iv-msg-area">
     <div class="iv-wordmark">Royalt&#x113; Intelligence Engine&#x2122;</div>
     <div id="iv-msg" role="status" aria-live="polite"></div>
@@ -3904,6 +4040,16 @@ wireOSEntry();
 </div>
 <div id="iv-os-reveal" aria-hidden="true">
   <div class="iv-os-text">Royalt&#x113; OS</div>
+</div>
+<div id="iv-auth" aria-hidden="true" role="dialog" aria-labelledby="iva-title">
+  <p class="iva-title" id="iva-title">Royalt&#x113; OS<br>Access Granted</p>
+  <p class="iva-sub">Your Artist Profile is complete. Create your Royalt&#x113; OS credentials to continue with free access.</p>
+  <form class="iva-form" id="iva-form" novalidate>
+    <input class="iva-input" id="iva-email" type="email" placeholder="Email Address" autocomplete="email" spellcheck="false">
+    <input class="iva-input" id="iva-pass" type="password" placeholder="Password" autocomplete="new-password">
+    <button class="iva-btn" id="iva-btn" type="submit">Activate Royalt&#x113; OS</button>
+  </form>
+  <div class="iva-status" id="iva-status"></div>
 </div>
 
 </body>
