@@ -4,6 +4,9 @@
     "api/audit.js": {
       "includeFiles": "api/apple-token.js"
     },
+    "api/resolve-artist.js": {
+      "includeFiles": "api/apple-token.js"
+    },
     "api/submit-audit.js": {
       "maxDuration": 60
     },
@@ -36,6 +39,10 @@
     {
       "src": "/api/audit",
       "dest": "/api/audit.js"
+    },
+    {
+      "src": "/api/resolve-artist",
+      "dest": "/api/resolve-artist.js"
     },
     {
       "src": "/api/submit-audit",

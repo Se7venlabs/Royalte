@@ -2614,9 +2614,53 @@ body {
   100% { background-position: -200% 0; }
 }
 
+/* ── Mission Control Boot Sequence ────────────────────────────────────
+   Activated only when the page is reached with ?boot=1 (post-cinematic
+   handoff from the Intelligence Vault sequence). Cards begin offline
+   (dimmed, grayscale) and are illuminated one-by-one by the boot JS.
+   ──────────────────────────────────────────────────────────────────── */
+#mc-boot-cover{position:fixed;inset:0;z-index:9999;background:#000;pointer-events:none;}
+#mc-boot-cover.mc-cover-fade{transition:opacity 0.7s ease;opacity:0;}
+
+/* Offline state: all cards, hero, and right rail are dormant */
+body.mc-booting .mc-card,
+body.mc-booting .mc-rail-right,
+body.mc-booting .mc-hero{opacity:0.06;filter:grayscale(1) brightness(0.2);transition:opacity 0.9s ease,filter 0.9s ease;pointer-events:none;}
+body.mc-booting .mc-card::before{opacity:0;transition:opacity 0.9s ease;}
+body.mc-booting .mc-card--publishing{animation:none;}
+body.mc-booting .mc-radar-sweep{animation:none;}
+body.mc-booting .mc-pulse-line{opacity:0;}
+
+/* Module online: restore full visibility */
+body.mc-booting .mc-card.mc-online,
+body.mc-booting .mc-rail-right.mc-online{opacity:1;filter:none;pointer-events:auto;}
+body.mc-booting .mc-card.mc-online::before{opacity:0.9;}
+body.mc-booting .mc-card--publishing.mc-online{animation:mc-pub-breath 7.5s ease-in-out infinite;}
+/* Hero comes online as a unit with first module */
+body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
+
+/* ── System Reactor™ — left-rail permanent power status widget ────── */
+/* margin-top:auto anchors widget + founder + version as a bottom unit */
+.mc-reactor{margin-top:auto;padding:16px;border-radius:var(--mc-r-3);background:rgba(168,85,247,0.04);border:1px solid rgba(168,85,247,0.12);display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;overflow:hidden;}
+.mc-reactor::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(168,85,247,0.07),transparent 65%);pointer-events:none;}
+.mc-reactor-label{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:0.24em;text-transform:uppercase;color:rgba(168,85,247,0.55);position:relative;}
+.mc-reactor-pct{font-family:'Rajdhani',sans-serif;font-size:38px;font-weight:600;color:rgba(255,255,255,0.92);letter-spacing:0.02em;line-height:1;position:relative;}
+.mc-reactor-dots{display:flex;gap:5px;align-items:center;position:relative;}
+.mc-reactor-dot{width:7px;height:7px;border-radius:50%;background:rgba(168,85,247,0.10);border:1px solid rgba(168,85,247,0.20);transition:background 0.5s ease,box-shadow 0.5s ease,border-color 0.5s ease;}
+.mc-reactor-dot.lit{background:rgba(168,85,247,0.78);border-color:rgba(168,85,247,0.88);box-shadow:0 0 5px rgba(168,85,247,0.55),0 0 10px rgba(168,85,247,0.18);}
+.mc-reactor-status{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(168,85,247,0.42);position:relative;text-align:center;transition:color 0.6s ease;}
+.mc-reactor-status.mc-rs-booting{color:rgba(168,85,247,0.68);}
+.mc-reactor-status.mc-rs-online{color:rgba(168,85,247,0.88);}
+/* Founder no longer owns the auto margin — reactor does */
+.mc-founder{margin-top:0;}
+
   </style>
 </head>
 <body>
+
+<!-- Boot cover: black overlay, removed once offline state is revealed -->
+<div id="mc-boot-cover" aria-hidden="true"></div>
+
 
 <!-- ──────────────────────────────────────────────────────────────────
      Royaltē Mission Control Shell™ — Phase 9
@@ -2722,6 +2766,25 @@ body {
         </span>
       </a>
     </nav>
+
+    <!-- System Reactor™ — permanent power level status widget -->
+    <!-- Default state: 100% / all dots lit / ROYALTĒ OS ONLINE
+         Boot sequence resets to 0% then increments per module. -->
+    <div class="mc-reactor" id="mc-reactor" aria-label="System Power Level" aria-live="polite">
+      <div class="mc-reactor-label">Power Level</div>
+      <div class="mc-reactor-pct" id="mc-reactor-pct">100%</div>
+      <div class="mc-reactor-dots" aria-hidden="true">
+        <span class="mc-reactor-dot lit" data-rx="0"></span>
+        <span class="mc-reactor-dot lit" data-rx="1"></span>
+        <span class="mc-reactor-dot lit" data-rx="2"></span>
+        <span class="mc-reactor-dot lit" data-rx="3"></span>
+        <span class="mc-reactor-dot lit" data-rx="4"></span>
+        <span class="mc-reactor-dot lit" data-rx="5"></span>
+        <span class="mc-reactor-dot lit" data-rx="6"></span>
+        <span class="mc-reactor-dot lit" data-rx="7"></span>
+      </div>
+      <div class="mc-reactor-status mc-rs-online" id="mc-reactor-status">Royalt&#x113; OS Online</div>
+    </div>
 
     <!-- Founder Access™ -->
     <div class="mc-founder" aria-label="Founder Access">
@@ -3831,6 +3894,152 @@ body {
     startCycle(lastFrame);
     requestAnimationFrame(tick);
   })();
+</script>
+
+<!-- ── Mission Control Boot Sequence ──────────────────────────────────
+     Activated when the page receives ?boot=1 (post-cinematic handoff).
+     Independent of data wiring — runs as a pure presentation overlay.
+     Never modifies intelligence data or any wiring logic.
+     ─────────────────────────────────────────────────────────────── -->
+<script>
+(function() {
+  var boot = false;
+  try { boot = new URL(window.location.href).searchParams.get('boot') === '1'; } catch(e) {}
+  if (!boot) {
+    // Not a boot entry — hide the cover immediately so normal visits
+    // are unaffected. (Cover is position:fixed but transparent=invisible
+    // once removed.)
+    var c = document.getElementById('mc-boot-cover');
+    if (c) c.style.display = 'none';
+    return;
+  }
+
+  // Engage offline state before any content paints.
+  document.body.classList.add('mc-booting');
+
+  // Mechanical activation click via Web Audio API.
+  function playMechClick() {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var dur = Math.floor(ctx.sampleRate * 0.055);
+      var buf = ctx.createBuffer(1, dur, ctx.sampleRate);
+      var d   = buf.getChannelData(0);
+      for (var i = 0; i < dur; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (dur * 0.10));
+      }
+      var src  = ctx.createBufferSource();
+      src.buffer = buf;
+      var hp   = ctx.createBiquadFilter();
+      hp.type  = 'highpass';
+      hp.frequency.value = 1600;
+      var gain = ctx.createGain();
+      gain.gain.value = 0.38;
+      src.connect(hp);
+      hp.connect(gain);
+      gain.connect(ctx.destination);
+      src.start();
+      setTimeout(function() { try { ctx.close(); } catch(e) {} }, 400);
+    } catch(e) {}
+  }
+
+  // Activation order: left-to-right, top-to-bottom.
+  var MODULE_ORDER = [
+    'health-intelligence',
+    'identity-intelligence',
+    'publishing-intelligence',
+    'catalog-intelligence',
+    'change-detection',
+    'backend-intelligence',
+    'global-footprint',
+    'ai-insights',
+  ];
+
+  // Reactor percentage per step: 0%, 12%, 25%, 37%, 50%, 62%, 75%, 87%, 100%
+  var REACTOR_PCTS = [0, 12, 25, 37, 50, 62, 75, 87, 100];
+
+  function setReactor(step) {
+    var pctEl    = document.getElementById('mc-reactor-pct');
+    var statusEl = document.getElementById('mc-reactor-status');
+    var dots     = document.querySelectorAll('.mc-reactor-dot');
+    var pct      = REACTOR_PCTS[Math.min(step, REACTOR_PCTS.length - 1)];
+
+    if (pctEl)    pctEl.textContent = pct + '%';
+    dots.forEach(function(d, idx) {
+      if (idx < step) { d.classList.add('lit'); } else { d.classList.remove('lit'); }
+    });
+    if (statusEl) {
+      if (step === 0) {
+        statusEl.textContent = 'System Offline';
+        statusEl.className   = 'mc-reactor-status';
+      } else if (step < MODULE_ORDER.length) {
+        statusEl.textContent = 'System Booting';
+        statusEl.className   = 'mc-reactor-status mc-rs-booting';
+      } else {
+        statusEl.textContent = 'Royaltē OS Online';
+        statusEl.className   = 'mc-reactor-status mc-rs-online';
+      }
+    }
+  }
+
+  function activateModule(id, step) {
+    var el = document.getElementById(id);
+    if (el) el.classList.add('mc-online');
+    setReactor(step);
+  }
+
+  function runActivationSequence() {
+    // Hero section comes online with the first module
+    var hero = document.querySelector('.mc-hero');
+    if (hero) hero.classList.add('mc-online');
+
+    var i = 0;
+    (function next() {
+      if (i >= MODULE_ORDER.length) {
+        setReactor(MODULE_ORDER.length); // 100% / Royaltē OS Online
+        setTimeout(function() { document.body.classList.remove('mc-booting'); }, 600);
+        return;
+      }
+      activateModule(MODULE_ORDER[i], i + 1);
+      i++;
+      setTimeout(next, 850);
+    })();
+  }
+
+  function startBootSequence() {
+    var cover = document.getElementById('mc-boot-cover');
+
+    // Reset reactor to offline state before cover lifts
+    setReactor(0);
+
+    // Hold black cover for 1800ms (data wiring + initial paint),
+    // then fade to reveal the dormant offline state.
+    setTimeout(function() {
+      if (cover) {
+        cover.classList.add('mc-cover-fade');
+        setTimeout(function() { if (cover) cover.style.display = 'none'; }, 800);
+      }
+
+      // Cover fades (700ms) + 1000ms offline dwell → click → modules activate
+      setTimeout(function() {
+        playMechClick();
+        // Reactor shows "System Booting" on click, modules follow 200ms later
+        var statusEl = document.getElementById('mc-reactor-status');
+        if (statusEl) {
+          statusEl.textContent = 'System Booting';
+          statusEl.className   = 'mc-reactor-status mc-rs-booting';
+        }
+        setTimeout(runActivationSequence, 400);
+      }, 1700);
+
+    }, 1800);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startBootSequence);
+  } else {
+    startBootSequence();
+  }
+})();
 </script>
 
 <!-- Phase 4B-3 — Mission Control™ runtime data wiring.

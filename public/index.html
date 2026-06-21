@@ -1521,6 +1521,99 @@ body.menu-locked {
 .os-cta-card .os-fa-counter-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
 .os-cta-card .os-fa-counter-value{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;}
 .bi-os-cta:disabled{opacity:0.5;cursor:not-allowed;}
+/* ── Scan Hero V3 ─────────────────────────────────────────────────────── */
+.scan-hero .hero-left{display:flex;flex-direction:column;justify-content:flex-start;padding-top:0;gap:0;}
+.scan-hero .orb1{opacity:0.5;}
+.scan-hero .orb2{opacity:0.5;}
+.sh-badge{display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(138,92,255,0.3);border-radius:20px;padding:5px 12px;margin:0 0 20px;width:fit-content;}
+.sh-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:corePulse 3s ease-in-out infinite;}
+.sh-headline{font-family:'Rajdhani',sans-serif;font-size:clamp(32px,4.5vw,52px);font-weight:700;color:#fff;letter-spacing:0.01em;text-transform:uppercase;line-height:1.08;margin:0 0 14px;}
+.sh-sub{font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--text2);line-height:1.5;margin:0 0 6px;}
+.sh-attr{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px;}
+.sh-body{font-family:'Space Grotesk',sans-serif;font-size:14px;color:var(--muted2);line-height:1.6;margin:0 0 28px;}
+.sh-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin:0 0 16px;}
+.sh-methods{display:flex;flex-direction:column;gap:8px;margin:0 0 6px;}
+.sh-card{border:1px solid var(--border3);border-radius:10px;padding:14px 16px;cursor:pointer;transition:border-color 0.2s ease,background 0.2s ease;background:rgba(255,255,255,0.02);}
+.sh-card:hover{border-color:rgba(138,92,255,0.4);background:rgba(138,92,255,0.04);}
+.sh-card.active{border-color:rgba(138,92,255,0.6);background:rgba(138,92,255,0.07);}
+.sh-card-hd{display:flex;align-items:center;gap:10px;}
+.sh-card-radio{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted);flex-shrink:0;transition:border-color 0.2s ease,background 0.2s ease;}
+.sh-card.active .sh-card-radio{border-color:var(--accent);background:var(--accent);}
+.sh-card-icon{font-size:14px;line-height:1;}
+.sh-card-label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text2);}
+.sh-card.active .sh-card-label{color:#fff;}
+.sh-card-body{display:none;margin-top:12px;}
+.sh-card.active .sh-card-body{display:block;}
+.sh-inputs{display:flex;flex-direction:column;gap:8px;}
+.sh-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border3);border-radius:7px;padding:10px 14px;font-family:'Space Grotesk',sans-serif;font-size:13px;color:#fff;outline:none;box-sizing:border-box;transition:border-color 0.2s ease;}
+.sh-input::placeholder{color:var(--muted);}
+.sh-input:focus{border-color:rgba(138,92,255,0.5);}
+.sh-verify{font-family:'Space Grotesk',sans-serif;font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.4;}
+.sh-example{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.06em;margin:8px 0 0;}
+.sh-scan-error{font-family:'Space Grotesk',sans-serif;font-size:12px;color:#f05060;margin:10px 0 0;min-height:0;line-height:1.5;}
+.sh-run-btn{width:100%;margin-top:16px;padding:15px 24px;background:linear-gradient(90deg,#8a5cff 0%,#e040c8 100%);border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;cursor:pointer;box-shadow:0 0 28px rgba(138,92,255,0.4),0 0 80px rgba(138,92,255,0.14),0 0 100px rgba(224,64,200,0.08);transition:box-shadow 0.4s ease,transform 0.15s ease;animation:sh-btn-pulse 4s ease-in-out infinite;display:block;}
+.sh-run-btn:hover{box-shadow:0 0 36px rgba(138,92,255,0.55),0 0 100px rgba(138,92,255,0.22),0 0 140px rgba(224,64,200,0.14);transform:translateY(-2px);animation:none;}
+.sh-run-btn:active{box-shadow:0 0 18px rgba(138,92,255,0.35),0 0 50px rgba(138,92,255,0.1);transform:translateY(0);}
+.sh-run-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;animation:none;}
+@keyframes sh-btn-pulse{0%,100%{box-shadow:0 0 28px rgba(138,92,255,0.4),0 0 80px rgba(138,92,255,0.14),0 0 100px rgba(224,64,200,0.08);}50%{box-shadow:0 0 36px rgba(138,92,255,0.5),0 0 110px rgba(138,92,255,0.2),0 0 140px rgba(224,64,200,0.12);}}
+.sh-trust{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 10px;margin-top:10px;font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:0.02em;color:var(--text2);}
+.sh-trust span{display:flex;align-items:center;}
+.sh-trust span::before{content:'·';margin-right:10px;opacity:0.5;}
+.sh-trust span:first-child::before{display:none;}
+.sh-machinery{position:absolute;top:-9999px;left:-9999px;visibility:hidden;pointer-events:none;}
+.scan-hero .paste-hint{display:none;}
+/* ── TV Static / Instability Canvas ─────────────────────────────────── */
+/* z-index 8500 during instability; raised to 9510 during emergence      */
+#iv-instability{position:fixed;inset:0;z-index:8500;pointer-events:none;opacity:0;image-rendering:pixelated;width:100%;height:100%;}
+
+/* ── Intelligence Terminal ───────────────────────────────────────────── */
+#iv-terminal{position:absolute;inset:0;z-index:15;display:flex;flex-direction:column;justify-content:center;padding:8% 10%;opacity:0;transition:opacity 0.7s ease;pointer-events:none;}
+#iv-terminal.active{opacity:1;}
+.ivt-line{font-family:'Space Mono',monospace;font-size:13px;color:rgba(255,255,255,0.88);letter-spacing:0.05em;margin-bottom:14px;min-height:22px;display:flex;align-items:center;}
+.ivt-cursor{display:inline-block;width:8px;height:14px;background:rgba(255,255,255,0.88);margin-left:2px;vertical-align:text-bottom;animation:ivt-blink 1s step-end infinite;}
+@keyframes ivt-blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* ── OS Access Authorization Panel ──────────────────────────────────── */
+#iv-auth{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;opacity:0;pointer-events:none;visibility:hidden;transition:opacity 0.8s ease;background:rgba(5,5,7,0.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
+#iv-auth.active{opacity:1;pointer-events:all;visibility:visible;}
+.iva-tag{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(138,92,255,0.75);margin-bottom:12px;}
+.iva-title{font-family:'Rajdhani',sans-serif;font-size:clamp(22px,3.5vw,34px);font-weight:700;color:#fff;letter-spacing:0.07em;text-transform:uppercase;text-align:center;margin-bottom:8px;}
+.iva-body{font-family:'Space Grotesk',sans-serif;font-size:13px;color:rgba(255,255,255,0.5);text-align:center;max-width:340px;line-height:1.65;margin-bottom:24px;}
+.iva-form{display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px;}
+.iva-input{width:100%;padding:11px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(138,92,255,0.22);border-radius:7px;font-family:'Space Grotesk',sans-serif;font-size:14px;color:#fff;outline:none;box-sizing:border-box;transition:border-color 0.2s;}
+.iva-input:focus{border-color:rgba(138,92,255,0.55);}
+.iva-input::placeholder{color:rgba(255,255,255,0.28);}
+.iva-btn{width:100%;padding:13px;background:linear-gradient(90deg,#8a5cff 0%,#e040c8 100%);border:none;border-radius:7px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;cursor:pointer;margin-top:4px;transition:opacity 0.2s;}
+.iva-btn:hover{opacity:0.9;}
+.iva-btn:disabled{opacity:0.45;cursor:not-allowed;}
+.iva-status{font-family:'Space Mono',monospace;font-size:10px;text-align:center;margin-top:10px;min-height:16px;color:rgba(138,92,255,0.7);letter-spacing:0.06em;}
+.iva-status.error{color:rgba(255,75,75,0.85);}
+
+/* ── CRT Residual Center Dot ─────────────────────────────────────────── */
+#iv-crt-dot{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:3px;height:3px;border-radius:50%;background:#fff;box-shadow:0 0 6px 3px rgba(255,255,255,0.95),0 0 18px 6px rgba(255,255,255,0.4);z-index:9700;opacity:0;pointer-events:none;}
+
+/* ── Intelligence Vault Cinematic Sequence ───────────────────────────── */
+body.cinema-mode .hero-right{visibility:hidden;}
+#iv-black{position:fixed;inset:0;z-index:9500;background:#000;opacity:0;pointer-events:none;transition:opacity 0.8s ease;}
+#iv-black.active{opacity:1;pointer-events:all;}
+#intel-vault{position:fixed;inset:0;z-index:9000;background:url('/intel-vault.png') center center/cover no-repeat;opacity:0;pointer-events:none;transition:opacity 1.4s ease;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:12vh;}
+#intel-vault.active{opacity:1;pointer-events:all;}
+.iv-dark{position:absolute;inset:0;background:rgba(0,0,0,0.5);pointer-events:none;}
+.iv-msg-area{position:relative;z-index:2;text-align:center;padding:0 24px;pointer-events:none;}
+.iv-wordmark{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.26em;text-transform:uppercase;color:rgba(138,92,255,0.85);margin-bottom:28px;pointer-events:none;}
+#iv-msg{font-family:'Space Grotesk',sans-serif;font-size:20px;color:rgba(255,255,255,0.88);opacity:0;transition:opacity 0.35s ease;line-height:1.5;min-height:30px;pointer-events:none;}
+#iv-os-reveal{position:fixed;inset:0;z-index:9600;background:#000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.6s ease;}
+#iv-os-reveal.active{opacity:1;pointer-events:all;}
+/* MC is the destination — text suppressed; overlay serves as clean black beat */
+.iv-os-text{display:none;}
+@media(max-width:768px){#iv-msg{font-size:16px;}.iv-wordmark{font-size:9px;}.iv-os-text{font-size:40px;}}
+.sh-features{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;margin-top:24px;}
+.sh-feat{padding:16px 14px;display:flex;flex-direction:column;gap:6px;position:relative;}
+.sh-feat+.sh-feat::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:1px;background:rgba(255,255,255,0.05);}
+.sh-feat-icon{line-height:1;filter:drop-shadow(0 0 8px rgba(138,92,255,0.6));}
+.sh-feat-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:#fff;line-height:1.3;}
+.sh-feat-desc{font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--muted2);line-height:1.5;}
+@media(max-width:768px){.sh-headline{font-size:28px;}.sh-run-btn{font-size:15px;padding:13px 20px;}.sh-features{grid-template-columns:repeat(2,1fr);}.sh-feat:nth-child(3)::before{display:none;}}
 
 </style>
 </head>
@@ -1835,41 +1928,109 @@ body.menu-locked {
   </div>
 </section>
 
-<section class="hero" id="scan-tool">
+<section class="hero scan-hero" id="scan-tool">
   <div class="orb1"></div><div class="orb2"></div>
   <div class="hero-scan"></div>
   <div class="hero-left">
-    <h3 class="hero-h1">Paste your link. See your gaps in <span class="gt">seconds.</span></h3>
-    <p class="hero-desc">Royaltē scans your profile and shows you verified gaps — no estimates, no guesswork.</p>
-    <div class="hero-paste">
-      <div class="paste-box">
-        <input class="paste-input" id="hero-url" type="text" placeholder="open.spotify.com/artist/... or music.apple.com/us/album/...">
-        <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Scan →</button>
+    <div class="sh-badge">Music Intelligence OS</div>
+    <h1 class="sh-headline">Discover what your<br>music is missing.</h1>
+    <p class="sh-sub">Your music has data. We make sense of it.</p>
+    <p class="sh-attr">Built by artists, for artists.</p>
+    <p class="sh-body">Most artists only see part of the picture.<br>Royalt&#x113; shows you the rest.</p>
+    <p class="sh-label">// Choose how Royalt&#x113; finds you</p>
+    <div class="sh-methods">
+      <!-- Card 1: Apple Music URL (default active) -->
+      <div class="sh-card active" data-method="apple" onclick="selectScanMethod('apple')">
+        <div class="sh-card-hd">
+          <div class="sh-card-radio"></div>
+          <span class="sh-card-icon">&#9834;</span>
+          <span class="sh-card-label">Apple Music URL</span>
+        </div>
+        <div class="sh-card-body">
+          <div class="sh-inputs">
+            <input class="sh-input" id="apple-url-input" type="text" placeholder="music.apple.com/us/artist/..." autocomplete="off" spellcheck="false">
+          </div>
+        </div>
       </div>
+      <!-- Card 2: Spotify URL -->
+      <div class="sh-card" data-method="spotify" onclick="selectScanMethod('spotify')">
+        <div class="sh-card-hd">
+          <div class="sh-card-radio"></div>
+          <span class="sh-card-icon">&#9835;</span>
+          <span class="sh-card-label">Spotify URL</span>
+        </div>
+        <div class="sh-card-body">
+          <div class="sh-inputs">
+            <input class="sh-input" id="spotify-url-input" type="text" placeholder="open.spotify.com/artist/..." autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+      </div>
+      <!-- Card 3: Artist Name + One Of Your Songs -->
+      <div class="sh-card" data-method="name" onclick="selectScanMethod('name')">
+        <div class="sh-card-hd">
+          <div class="sh-card-radio"></div>
+          <span class="sh-card-icon">&#127908;</span>
+          <span class="sh-card-label">Artist Name + One Of Your Songs</span>
+        </div>
+        <div class="sh-card-body">
+          <div class="sh-inputs">
+            <input class="sh-input" id="artist-name-input" type="text" placeholder="Black Alternative" autocomplete="off" spellcheck="false">
+            <input class="sh-input" id="song-title-input" type="text" placeholder="Everything Is Over" autocomplete="off" spellcheck="false">
+          </div>
+          <p class="sh-verify">We&#x2019;ll verify the correct artist before scanning.</p>
+          <p class="sh-example">// Black Alternative &bull; Everything Is Over</p>
+        </div>
+      </div>
+    </div>
+    <div class="scan-progress" id="scan-progress">
+      <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
+      <div class="sp-label" id="sp-label">Scanning...</div>
+    </div>
+    <!-- paste-hint must remain in visible DOM so showUrlError() injection is visible -->
+    <div class="paste-hint"></div>
+    <div class="sh-scan-error" id="sh-scan-error"></div>
+    <button class="sh-run-btn" id="sh-run-btn" onclick="runScan()">Run My Scan &#x2192;</button>
+    <div class="sh-trust">
+      <span>100% Free</span>
+      <span>No Credit Card Required</span>
+      <span>Results In Seconds</span>
+    </div>
+    <div class="sh-features">
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="2" y="14" width="4" height="8" rx="1" fill="#8a5cff"/><rect x="10" y="8" width="4" height="14" rx="1" fill="#8a5cff"/><rect x="18" y="4" width="4" height="18" rx="1" fill="#8a5cff"/></svg>
+        </div>
+        <div class="sh-feat-title">Artist Intelligence&#x2122;</div>
+        <div class="sh-feat-desc">Discover verified gaps and opportunities across your music business.</div>
+      </div>
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#8a5cff" stroke-width="2.5"/><path d="M16.5 16.5L21 21" stroke="#8a5cff" stroke-width="2.5" stroke-linecap="round"/><path d="M9 11h4M11 9v4" stroke="#8a5cff" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="sh-feat-title">Metadata Analysis&#x2122;</div>
+        <div class="sh-feat-desc">Identify missing registrations, metadata issues and catalog risks.</div>
+      </div>
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z" fill="#8a5cff"/></svg>
+        </div>
+        <div class="sh-feat-title">Instant Scan Results</div>
+        <div class="sh-feat-desc">Receive your intelligence report in seconds.</div>
+      </div>
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6l-8-4z" fill="#8a5cff"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="sh-feat-title">Verified Industry Data</div>
+        <div class="sh-feat-desc">Powered by real music industry sources and platform data.</div>
+      </div>
+    </div>
+    <!-- Hidden machinery — IDs required by runAudit() wiring -->
+    <div class="sh-machinery">
+      <input id="hero-url" type="text" tabindex="-1" aria-hidden="true">
+      <button id="hero-btn" onclick="runAudit()" tabindex="-1" aria-hidden="true">Run Free Scan</button>
       <div id="url-type-chip" class="url-type-chip"></div>
-      <div class="paste-hint">// Supports Spotify &amp; Apple Music · artist, album, track, or song links</div>
-      <div class="scan-progress" id="scan-progress">
-        <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
-        <div class="sp-label" id="sp-label">Scanning...</div>
-      </div>
     </div>
-    <div class="hero-stats">
-      <div class="hstat"><span class="hstat-n">6</span><span class="hstat-l">Audit modules</span></div>
-      <div class="hstat"><span class="hstat-n">Verified</span><span class="hstat-l">Data only</span></div>
-      <div class="hstat"><span class="hstat-n">Instant</span><span class="hstat-l">Full audit delivery</span></div>
-    </div>
-    <div class="scan-decoder" aria-label="Understanding your Health Score">
-      <div class="scan-decoder-hd">Understanding your Health Score</div>
-      <div class="scan-decoder-body">Higher scores indicate a healthier music business backend. Royaltē reviews catalog presence, identifier coverage, and platform availability across verified public sources to compute the Health Score.<br><br>Score is based on verified data only — no estimates or assumptions.</div>
-      <div class="scan-decoder-legend">
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot low"></span><span class="scan-decoder-range">90–100</span>Excellent</div>
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot moderate"></span><span class="scan-decoder-range">75–89</span>Strong</div>
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot atrisk"></span><span class="scan-decoder-range">60–74</span>Moderate</div>
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot critical"></span><span class="scan-decoder-range">&lt; 60</span>Review recommended</div>
-      </div>
-      <div class="scan-decoder-foot">Score is not a royalty estimate, revenue prediction, or popularity score. It reflects what Royaltē can verify from public catalog data.</div>
-    </div>
-    <div class="hero-visual" aria-hidden="true"></div>
   </div>
   <div class="hero-right">
     <div class="dash-badge db1"><div class="dbadge-val">Beta</div><div class="dbadge-lbl">Live now</div></div>
@@ -2491,6 +2652,8 @@ async function runAudit() {
   const apiOk = auditData && !auditData.__error && auditData.success;
 
   if (apiOk) {
+    // Signal success to runScan() — lets it take over post-scan UX
+    window.__lastAuditOk = true;
     // Stop the looping processing sound and fire success chime
     stopProcessingSound();
     playSuccessChime();
@@ -3222,6 +3385,595 @@ function requestFullAuditFromNav() {
 document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
 
 // ─────────────────────────────────────────────
+// Scan Hero V3 — method selection + scan bridge
+// ─────────────────────────────────────────────
+function selectScanMethod(method) {
+  document.querySelectorAll('.sh-card').forEach(function(card) {
+    card.classList.toggle('active', card.dataset.method === method);
+  });
+  document.getElementById('sh-scan-error').textContent = '';
+}
+
+// CINEMATIC_V2 = false  →  stable scan path: results display, then original
+//                           CRT → vault → MC. Use until V2 is Vercel-verified.
+// CINEMATIC_V2 = true   →  First-Time Artist Activation (Stages 1-7).
+//                           Enable only after Board approves Vercel preview.
+var CINEMATIC_V2 = false;
+
+async function runScan() {
+  var activeCard = document.querySelector('.sh-card.active');
+  if (!activeCard) return;
+  var method   = activeCard.dataset.method;
+  var urlInput = document.getElementById('hero-url');
+  var errEl    = document.getElementById('sh-scan-error');
+  var visBtn   = document.getElementById('sh-run-btn');
+  if (errEl) errEl.textContent = '';
+
+  // Resolve the canonical URL from the active scan method
+  if (method === 'apple') {
+    var val = (document.getElementById('apple-url-input')?.value || '').trim();
+    if (!val) { document.getElementById('apple-url-input')?.focus(); return; }
+    urlInput.value = val;
+  } else if (method === 'spotify') {
+    var val = (document.getElementById('spotify-url-input')?.value || '').trim();
+    if (!val) { document.getElementById('spotify-url-input')?.focus(); return; }
+    urlInput.value = val;
+  } else if (method === 'name') {
+    var name = (document.getElementById('artist-name-input')?.value || '').trim();
+    var song = (document.getElementById('song-title-input')?.value || '').trim();
+    if (!name) { document.getElementById('artist-name-input')?.focus(); return; }
+    if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Finding Artist…'; }
+    try {
+      var qs = new URLSearchParams({ name: name });
+      if (song) qs.set('song', song);
+      var resp = await fetch('/api/resolve-artist?' + qs.toString());
+      var data = await resp.json();
+      if (!resp.ok || !data.url) {
+        if (errEl) errEl.textContent = 'We couldn’t safely verify that artist. Please use an Apple Music or Spotify URL.';
+        if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
+        return;
+      }
+      urlInput.value = data.url;
+    } catch (_e) {
+      if (errEl) errEl.textContent = 'We couldn’t safely verify that artist. Please use an Apple Music or Spotify URL.';
+      if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
+      return;
+    }
+  }
+
+  // URL is set — run the scan
+  if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Scanning…'; }
+  window.__lastAuditOk = false;
+  await runAudit();
+
+  if (!CINEMATIC_V2) {
+    // ── STABLE PATH (CINEMATIC_V2 = false) ──────────────────────────────
+    // Verified working: scan results display, then CRT → vault → MC.
+    // All V2 cinematic code is preserved below but gated off.
+    if (window.__lastAuditOk) {
+      showIntelVault();
+    } else {
+      if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
+    }
+    return;
+  }
+
+  // ── CINEMATIC V2 PATH (CINEMATIC_V2 = true) ──────────────────────────
+  // First-time artist activation experience.
+  // Enable only after full Vercel verification of all stages.
+  if (window.__lastAuditOk) {
+    document.body.classList.add('cinema-mode');
+    var _sess = await _getSession();
+    if (_sess) {
+      var _scanId = (window.__royalteScan && window.__royalteScan.scanId) || '';
+      window.location.href = '/mission-control.html?boot=1' + (_scanId ? '&scanId=' + encodeURIComponent(_scanId) : '');
+      return;
+    }
+    // Stage 1: 4-second hold. Scan form visible. Artist believes results are loading.
+    setTimeout(startInstabilitySequence, 4000);
+  } else {
+    if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
+  }
+}
+
+// ── Intelligence Vault Cinematic Sequence ─────────────────────────────
+var _ivMsgs = [
+  'Analyzing artist identity…',
+  'Verifying catalog intelligence…',
+  'Cross-referencing industry sources…',
+  'Building Artist Intelligence™…',
+  'Preparing Royaltē OS…',
+];
+
+function _ivFlicker(cb) {
+  var html = document.documentElement;
+  // Longer, more deliberate flicker — ~950ms total before collapse
+  var bright = [1.3, 0.8, 1.7, 0.5, 1.9, 0.4, 1.5, 0.7, 1.2, 0.6];
+  var dur    = [90,  80,  75,  85,  70,  90,  75,  80,  75,  80 ];
+  var i = 0;
+  (function tick() {
+    if (i >= bright.length) { html.style.filter = ''; if (cb) cb(); return; }
+    html.style.filter = 'brightness(' + bright[i] + ') saturate(0.12) contrast(1.15)';
+    setTimeout(tick, dur[i++]);
+  })();
+}
+
+function _ivCollapse(cb) {
+  var html = document.documentElement;
+  html.style.transformOrigin = '50% 50%';
+  // Slow, deliberate collapse — 1.8s. The world closes around the artist.
+  html.style.transition = 'transform 1.8s cubic-bezier(0.4,0,0.85,1), filter 1.4s ease-in';
+  html.style.transform = 'scaleY(0.003)';
+  html.style.filter = 'brightness(5) contrast(3.5) saturate(0)';
+
+  setTimeout(function() {
+    // World collapsed — raise black cover and restore html behind it
+    html.style.transition = 'none';
+    html.style.opacity = '0';
+    var black = document.getElementById('iv-black');
+    if (black) black.classList.add('active');
+
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        html.style.transform = '';
+        html.style.filter = '';
+        html.style.transformOrigin = '';
+        html.style.opacity = '';
+        html.style.transition = '';
+
+        // Residual center point — authentic CRT phosphor persistence
+        var dot = document.getElementById('iv-crt-dot');
+        if (dot) dot.style.opacity = '1';
+
+        // Hold dot for 0.5s, then fade it out and proceed
+        setTimeout(function() {
+          if (dot) {
+            dot.style.transition = 'opacity 0.35s ease';
+            dot.style.opacity = '0';
+          }
+          setTimeout(function() {
+            if (dot) { dot.style.transition = ''; }
+            if (cb) cb();
+          }, 380);
+        }, 500);
+      });
+    });
+  }, 1850);
+}
+
+function _ivMessages(cb) {
+  var el = document.getElementById('iv-msg');
+  if (!el) { if (cb) cb(); return; }
+  el.style.transition = 'opacity 0.35s ease';
+  var i = 0;
+  (function step() {
+    if (i >= _ivMsgs.length) { el.style.opacity = '0'; if (cb) setTimeout(cb, 400); return; }
+    el.style.opacity = '0';
+    el.textContent = _ivMsgs[i++];
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        el.style.opacity = '1';
+        setTimeout(function() { el.style.opacity = '0'; setTimeout(step, 380); }, 820);
+      });
+    });
+  })();
+}
+
+function _ivOSActivation() {
+  var vault = document.getElementById('intel-vault');
+  var os    = document.getElementById('iv-os-reveal');
+  // Fade vault out; raise the black screen behind it
+  if (vault) { vault.style.transition = 'opacity 0.5s ease'; vault.style.opacity = '0'; }
+  if (os) { os.setAttribute('aria-hidden', 'false'); os.classList.add('active'); }
+  // Clean black beat — no text, no announcement; Mission Control is the destination
+  setTimeout(_bootRoyalteOS, 1500);
+}
+
+function _bootRoyalteOS() {
+  var os = document.getElementById('iv-os-reveal');
+  if (os) { os.style.transition = 'opacity 0.5s ease'; os.style.opacity = '0'; }
+  setTimeout(function() {
+    // Hand off to Mission Control with boot sequence active.
+    // ?boot=1 tells MC to start in offline state and run sequential activation.
+    var scanId = (window.__royalteScan && window.__royalteScan.scanId) ? window.__royalteScan.scanId : '';
+    var dest = '/mission-control.html?boot=1' + (scanId ? '&scanId=' + encodeURIComponent(scanId) : '');
+    window.location.href = dest;
+  }, 550);
+}
+
+function showIntelVault() {
+  document.body.classList.add('cinema-mode');
+
+  // No initial pause — Identity Confirmed state already held for 3.5s.
+  // CRT begins immediately.
+
+  // Phase 1: CRT flicker (~950ms)
+  _ivFlicker(function() {
+
+    // Phase 2: CRT collapse (1.8s) + residual dot (0.5s) + dot fade (0.35s)
+    _ivCollapse(function() {
+
+      // Phase 3: Black screen — 1.2 seconds
+      setTimeout(function() {
+
+        // Phase 4: Intelligence Vault fades in
+        var vault = document.getElementById('intel-vault');
+        var black = document.getElementById('iv-black');
+        if (vault) { vault.setAttribute('aria-hidden', 'false'); vault.classList.add('active'); }
+        setTimeout(function() { if (black) black.classList.remove('active'); }, 500);
+
+        // Phase 5: Message sequence (after vault fade-in ~1.5s)
+        setTimeout(function() {
+          _ivMessages(function() {
+            _ivOSActivation();
+          });
+        }, 1500);
+
+      }, 1200);
+    });
+  });
+}
+
+// ── First-Time Artist Activation — Stage Functions ────────────────────
+
+async function _getSession() {
+  try {
+    if (typeof window.getSupabase === 'function') {
+      var sb = window.getSupabase();
+      if (!sb) return null;
+      var result = await sb.auth.getSession();
+      return (result && result.data && result.data.session) ? result.data.session : null;
+    }
+  } catch(e) {}
+  return null;
+}
+
+// Stage 2: System Instability — 5 seconds of escalating canvas static + CSS effects
+var _instabilityRaf = null;
+
+function startInstabilitySequence() {
+  var canvas = document.getElementById('iv-instability');
+  if (!canvas) { startCollapseSequence(); return; }
+
+  var ctx = canvas.getContext('2d');
+  var W = 96, H = 54;  // low-res for blocky TV static feel
+  canvas.style.width  = '100%';
+  canvas.style.height = '100%';
+  canvas.width  = W;
+  canvas.height = H;
+
+  var html = document.documentElement;
+  var startTime = performance.now();
+  var DURATION  = 5000;
+  var lastTear  = 0;
+  var lastBright = 0;
+
+  function tick(now) {
+    var elapsed  = now - startTime;
+    var progress = Math.min(1, elapsed / DURATION);
+    var intensity = progress;
+
+    // Static noise — density escalates
+    var imgData = ctx.createImageData(W, H);
+    var d = imgData.data;
+    for (var i = 0; i < d.length; i += 4) {
+      if (Math.random() < intensity * 0.35) {
+        var v = Math.random() * 255 | 0;
+        d[i] = d[i+1] = d[i+2] = v;
+        d[i+3] = 80 + (Math.random() * 100 | 0);
+      } else { d[i+3] = 0; }
+    }
+    ctx.putImageData(imgData, 0, 0);
+    canvas.style.opacity = intensity * 0.55;
+
+    // Brightness / saturation fluctuations — escalating amplitude
+    if (now - lastBright > 90 - intensity * 55) {
+      lastBright = now;
+      var b = 1 + (Math.random() * 2 - 1) * intensity * 0.65;
+      var s = 1 - intensity * 0.55;
+      html.style.filter = 'brightness(' + b.toFixed(2) + ') saturate(' + s.toFixed(2) + ')';
+    }
+
+    // Horizontal tearing — begins at ~40% through instability
+    if (intensity > 0.38 && now - lastTear > 160 - intensity * 100) {
+      lastTear = now;
+      var shift = (Math.random() * 8 - 4) * intensity;
+      html.style.transform = 'translateX(' + shift.toFixed(1) + 'px)';
+      setTimeout(function() { html.style.transform = ''; }, 55 + Math.random() * 50 | 0);
+    }
+
+    if (elapsed < DURATION) {
+      _instabilityRaf = requestAnimationFrame(tick);
+    } else {
+      // Reset css tweaks before handing off to CRT collapse
+      html.style.filter    = '';
+      html.style.transform = '';
+      canvas.style.opacity = '0';
+      startCollapseSequence();
+    }
+  }
+
+  _instabilityRaf = requestAnimationFrame(tick);
+}
+
+// Stage 3: System Collapse — CRT flicker then inward collapse
+function startCollapseSequence() {
+  _ivFlicker(function() {
+    _ivCollapse(function() {
+      // Stage 3b: black screen hold (1.2s), then emergence
+      setTimeout(function() {
+        startEmergenceSequence(function() {
+          // Stage 5: Vault appears (3s absorption dwell), Stage 6: terminal begins
+          var vault = document.getElementById('intel-vault');
+          if (vault) { vault.setAttribute('aria-hidden', 'false'); vault.classList.add('active'); }
+          setTimeout(function() {
+            startTerminalSequence(function() {
+              showAuthPanel();
+            });
+          }, 3000);
+        });
+      }, 1200);
+    });
+  });
+}
+
+// Stage 4: OS Emergence — static resolves as Royaltē OS rebuilds on black screen
+function startEmergenceSequence(cb) {
+  var canvas = document.getElementById('iv-instability');
+  if (!canvas) { if (cb) cb(); return; }
+
+  // Raise above iv-black (9500) so emergence is visible on black
+  canvas.style.zIndex = '9510';
+
+  var ctx = canvas.getContext('2d');
+  var W = 96, H = 54;
+  canvas.width = W; canvas.height = H;
+
+  var black = document.getElementById('iv-black');
+  var startTime = performance.now();
+  var DURATION  = 2400;
+
+  // iv-black fades out during emergence revealing vault beneath
+  if (black) {
+    black.style.transition = 'opacity ' + (DURATION * 0.9 / 1000).toFixed(1) + 's ease';
+    black.style.opacity = '0';
+    setTimeout(function() {
+      black.classList.remove('active');
+      black.style.transition = '';
+      black.style.opacity = '';
+    }, DURATION + 300);
+  }
+
+  function tick(now) {
+    var elapsed  = now - startTime;
+    var progress = Math.min(1, elapsed / DURATION);
+    var intensity = 1 - progress;  // decreasing: system stabilizing
+
+    var imgData = ctx.createImageData(W, H);
+    var d = imgData.data;
+    for (var i = 0; i < d.length; i += 4) {
+      if (Math.random() < intensity * 0.45) {
+        var v = Math.random() * 255 | 0;
+        d[i] = d[i+1] = d[i+2] = v;
+        d[i+3] = 90 + (Math.random() * 80 | 0);
+      } else { d[i+3] = 0; }
+    }
+    ctx.putImageData(imgData, 0, 0);
+    canvas.style.opacity = intensity * 0.7;
+
+    if (elapsed < DURATION) {
+      requestAnimationFrame(tick);
+    } else {
+      canvas.style.opacity = '0';
+      canvas.style.zIndex  = '8500';
+      if (cb) cb();
+    }
+  }
+
+  requestAnimationFrame(tick);
+}
+
+// ── Terminal Audio — Web Audio API synthesis (no external files) ──────
+
+var _audioCtx    = null;
+var _crtHumNode  = null;
+var _crtHumGain  = null;
+
+function _getAudioCtx() {
+  if (!_audioCtx) {
+    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return _audioCtx;
+}
+
+function playKeyClick() {
+  var ctx = _getAudioCtx();
+  if (!ctx) return;
+  try {
+    var len = ctx.sampleRate * 0.011 | 0;
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len) * 0.55;
+    var src = ctx.createBufferSource();
+    src.buffer = buf;
+    var gain = ctx.createGain();
+    gain.gain.value = 0.14;
+    src.connect(gain);
+    gain.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function playRelayClick() {
+  var ctx = _getAudioCtx();
+  if (!ctx) return;
+  try {
+    var len = ctx.sampleRate * 0.028 | 0;
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    var d = buf.getChannelData(0);
+    var mid = len * 0.25;
+    for (var i = 0; i < len; i++) {
+      var env = i < mid ? i / mid : (1 - (i - mid) / (len - mid));
+      d[i] = (Math.random() * 2 - 1) * env * 0.7;
+    }
+    var src = ctx.createBufferSource();
+    src.buffer = buf;
+    var gain = ctx.createGain();
+    gain.gain.value = 0.22;
+    src.connect(gain);
+    gain.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function startCrtHum() {
+  var ctx = _getAudioCtx();
+  if (!ctx || _crtHumNode) return;
+  try {
+    _crtHumNode = ctx.createOscillator();
+    _crtHumNode.type = 'sawtooth';
+    _crtHumNode.frequency.value = 60;
+    _crtHumGain = ctx.createGain();
+    _crtHumGain.gain.value = 0.035;
+    _crtHumNode.connect(_crtHumGain);
+    _crtHumGain.connect(ctx.destination);
+    _crtHumNode.start();
+  } catch(e) {}
+}
+
+function stopCrtHum() {
+  if (_crtHumNode) {
+    try { _crtHumNode.stop(); } catch(e) {}
+    _crtHumNode = null;
+    _crtHumGain = null;
+  }
+}
+
+// Stage 6: Intelligence Terminal — typewriter with blinking cursor
+var _terminalLines = [
+  '> ARTIST RECORD LOCATED',
+  '> IDENTITY VERIFIED',
+  '> PLATFORM PRESENCE CONFIRMED',
+  '> MUSIC ECOSYSTEM VALIDATED',
+  '> INTELLIGENCE SESSION ESTABLISHED',
+  '> PLEASE STAND BY',
+];
+var _CHAR_SPEED = 34;  // ms per character typed
+// Per-line pauses: 1.5s for first 5 lines, 2.0s for "PLEASE STAND BY"
+var _LINE_PAUSE      = 2500;
+var _LAST_LINE_PAUSE = 3000;
+
+function startTerminalSequence(cb) {
+  var terminal = document.getElementById('iv-terminal');
+  if (!terminal) { if (cb) setTimeout(cb, 100); return; }
+
+  terminal.innerHTML = '';
+  terminal.setAttribute('aria-hidden', 'false');
+  terminal.classList.add('active');
+  startCrtHum();
+
+  var cursor = document.createElement('span');
+  cursor.className = 'ivt-cursor';
+
+  var lineIdx = 0;
+  function nextLine() {
+    if (lineIdx >= _terminalLines.length) {
+      // All lines typed — should not reach here (last line calls cb directly)
+      if (cb) cb();
+      return;
+    }
+    var isLast = lineIdx === _terminalLines.length - 1;
+    var lineEl = document.createElement('div');
+    lineEl.className = 'ivt-line';
+    lineEl.appendChild(cursor);
+    terminal.appendChild(lineEl);
+
+    var text    = _terminalLines[lineIdx++];
+    var charIdx = 0;
+    (function type() {
+      if (charIdx >= text.length) {
+        // Line complete — relay click; pause then next line (or auth for last)
+        playRelayClick();
+        var pause = isLast ? _LAST_LINE_PAUSE : _LINE_PAUSE;
+        setTimeout(isLast ? function() { if (cb) cb(); } : nextLine, pause);
+        return;
+      }
+      playKeyClick();
+      lineEl.insertBefore(document.createTextNode(text[charIdx++]), cursor);
+      setTimeout(type, _CHAR_SPEED);
+    })();
+  }
+
+  nextLine();
+}
+
+// Stage 7: OS Access Authorization — credential creation on vault
+function showAuthPanel() {
+  stopCrtHum();
+  var auth = document.getElementById('iv-auth');
+  if (!auth) return;
+  auth.setAttribute('aria-hidden', 'false');
+  auth.classList.add('active');
+
+  var emailEl  = document.getElementById('iva-email');
+  var passEl   = document.getElementById('iva-pass');
+  var btnEl    = document.getElementById('iva-btn');
+  var statusEl = document.getElementById('iva-status');
+  var form     = document.getElementById('iva-form');
+
+  // Focus email after panel fades in
+  setTimeout(function() { if (emailEl) emailEl.focus(); }, 850);
+
+  async function handleActivate(e) {
+    if (e) e.preventDefault();
+    var email = (emailEl && emailEl.value.trim()) || '';
+    var pass  = (passEl  && passEl.value.trim())  || '';
+
+    if (!email || !pass) {
+      if (statusEl) { statusEl.textContent = 'Email and password required.'; statusEl.className = 'iva-status error'; }
+      return;
+    }
+    if (pass.length < 6) {
+      if (statusEl) { statusEl.textContent = 'Password must be at least 6 characters.'; statusEl.className = 'iva-status error'; }
+      return;
+    }
+
+    if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Activating…'; }
+    if (statusEl) { statusEl.textContent = 'Establishing credentials…'; statusEl.className = 'iva-status'; }
+
+    try {
+      if (typeof window.getSupabase !== 'function') throw new Error('Authentication unavailable');
+      var sb = window.getSupabase();
+      if (!sb) throw new Error('Authentication unavailable');
+
+      var result = await sb.auth.signUp({ email: email, password: pass });
+      var err = result.error;
+      if (err) throw err;
+
+      if (statusEl) { statusEl.textContent = 'Access granted. Initializing Royaltē OS™…'; statusEl.className = 'iva-status'; }
+
+      var scanId = (window.__royalteScan && window.__royalteScan.scanId) || '';
+      setTimeout(function() {
+        window.location.href = '/mission-control.html?boot=1' + (scanId ? '&scanId=' + encodeURIComponent(scanId) : '');
+      }, 1600);
+
+    } catch(err) {
+      var msg = (err && err.message) ? err.message : 'Activation failed. Please try again.';
+      if (statusEl) { statusEl.textContent = msg; statusEl.className = 'iva-status error'; }
+      if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+    }
+  }
+
+  if (form) form.addEventListener('submit', handleActivate);
+}
+
+// Enter key support for all Scan Hero V3 inputs
+['apple-url-input', 'spotify-url-input', 'artist-name-input', 'song-title-input'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('keydown', function(e) { if (e.key === 'Enter') runScan(); });
+});
+
+// ─────────────────────────────────────────────
 // Mobile menu drawer
 // ─────────────────────────────────────────────
 (function() {
@@ -3582,6 +4334,36 @@ async function wireOSEntry() {
 
 wireOSEntry();
 </script>
+
+<!-- ═══ INTELLIGENCE VAULT SEQUENCE ═══ -->
+<canvas id="iv-instability" aria-hidden="true"></canvas>
+<div id="iv-crt-dot" aria-hidden="true"></div>
+<div id="iv-black" aria-hidden="true"></div>
+<div id="intel-vault" aria-hidden="true">
+  <div class="iv-dark"></div>
+  <!-- Terminal: displayed over vault environment during Stage 6 -->
+  <div id="iv-terminal" aria-hidden="true" aria-live="polite"></div>
+  <!-- Auth: activation panel displayed after terminal completes -->
+  <div id="iv-auth" aria-hidden="true" role="dialog" aria-label="Royalt&#x113; OS Access Authorization">
+    <div class="iva-tag">Royalt&#x113; OS &#x2014; Access Granted</div>
+    <div class="iva-title">Royalt&#x113; OS</div>
+    <p class="iva-body">Your Artist Profile has been created.<br>Set your Royalt&#x113; OS credentials to continue.</p>
+    <form class="iva-form" id="iva-form" novalidate>
+      <input class="iva-input" id="iva-email" type="email" placeholder="Email Address" autocomplete="email">
+      <input class="iva-input" id="iva-pass" type="password" placeholder="Password" autocomplete="new-password">
+      <button class="iva-btn" id="iva-btn" type="submit">Activate Royalt&#x113; OS</button>
+    </form>
+    <div class="iva-status" id="iva-status" role="status"></div>
+  </div>
+  <!-- Dormant message area (legacy; kept for non-first-time paths) -->
+  <div class="iv-msg-area">
+    <div class="iv-wordmark">Royalt&#x113; Intelligence Engine&#x2122;</div>
+    <div id="iv-msg" aria-live="polite"></div>
+  </div>
+</div>
+<div id="iv-os-reveal" aria-hidden="true">
+  <div class="iv-os-text">Royalt&#x113; OS</div>
+</div>
 
 </body>
 </html>
