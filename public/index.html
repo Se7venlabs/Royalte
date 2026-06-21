@@ -1580,6 +1580,8 @@ body.cinema-mode .hero-right{visibility:hidden;}
 #iv-os-reveal.active{opacity:1;pointer-events:all;}
 /* MC is the destination — text suppressed; overlay serves as clean black beat */
 .iv-os-text{display:none;}
+/* Instability scanline overlay — visible during tension stages before vault */
+#iv-scanline-overlay{position:fixed;inset:0;z-index:8900;background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,0.18) 2px,rgba(0,0,0,0.18) 4px);opacity:0;pointer-events:none;transition:opacity 0.3s ease;}
 /* Terminal typed sequence — appears inside #intel-vault after message cycle */
 #iv-terminal{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 40px 14vh;z-index:3;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
 #iv-terminal.active{opacity:1;}
@@ -2454,6 +2456,139 @@ async function playSuccessChime() {
 
 // Legacy alias — called from runAudit, now starts processing loop
 async function playSweep() { startProcessingSound(); }
+
+// ── Cinematic audio synthesis (Web Audio API, no external files) ──────────
+function _noiseBuffer(ctx, dur) {
+  var len = Math.floor(ctx.sampleRate * dur);
+  var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  var d = buf.getChannelData(0);
+  for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  return buf;
+}
+
+function _playSignalCrackle(vol) {
+  try {
+    var ctx = getAudioCtx();
+    var src = ctx.createBufferSource();
+    src.buffer = _noiseBuffer(ctx, 0.07);
+    var bpf = ctx.createBiquadFilter();
+    bpf.type = 'bandpass'; bpf.frequency.value = 3400; bpf.Q.value = 0.6;
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(vol || 0.04, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.07);
+    src.connect(bpf); bpf.connect(g); g.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function _playStaticBurst(vol) {
+  try {
+    var ctx = getAudioCtx();
+    var src = ctx.createBufferSource();
+    src.buffer = _noiseBuffer(ctx, 0.14);
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.linearRampToValueAtTime(vol || 0.08, ctx.currentTime + 0.018);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.14);
+    src.connect(g); g.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function _playCollapseSound() {
+  try {
+    var ctx = getAudioCtx();
+    var osc = ctx.createOscillator();
+    var og  = ctx.createGain();
+    osc.frequency.setValueAtTime(200, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(38, ctx.currentTime + 0.55);
+    og.gain.setValueAtTime(0.18, ctx.currentTime);
+    og.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.65);
+    osc.connect(og); og.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 0.7);
+    _playStaticBurst(0.14);
+  } catch(e) {}
+}
+
+function _playVaultLock() {
+  try {
+    var ctx = getAudioCtx();
+    [880, 660].forEach(function(freq, i) {
+      var osc = ctx.createOscillator();
+      var g   = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.value = freq;
+      var t = ctx.currentTime + i * 0.14;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.1, t + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.42);
+    });
+  } catch(e) {}
+}
+
+function _playKeyClick() {
+  try {
+    var ctx = getAudioCtx();
+    var src = ctx.createBufferSource();
+    src.buffer = _noiseBuffer(ctx, 0.022);
+    var lpf = ctx.createBiquadFilter();
+    lpf.type = 'lowpass'; lpf.frequency.value = 1800;
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.18, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.022);
+    src.connect(lpf); lpf.connect(g); g.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function _playRelayClick() {
+  try {
+    var ctx = getAudioCtx();
+    var src = ctx.createBufferSource();
+    src.buffer = _noiseBuffer(ctx, 0.045);
+    var lpf = ctx.createBiquadFilter();
+    lpf.type = 'lowpass'; lpf.frequency.value = 1200;
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.22, ctx.currentTime + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.045);
+    src.connect(lpf); lpf.connect(g); g.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function _playAuthTone() {
+  try {
+    var ctx = getAudioCtx();
+    [[330, 0], [495, 0.09]].forEach(function(pair) {
+      var osc = ctx.createOscillator();
+      var g   = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.value = pair[0];
+      var t = ctx.currentTime + pair[1];
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.08, t + 0.1);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.72);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.75);
+    });
+  } catch(e) {}
+}
+
+function _playSwitchSound() {
+  try {
+    var ctx = getAudioCtx();
+    var src = ctx.createBufferSource();
+    src.buffer = _noiseBuffer(ctx, 0.038);
+    var hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 1200;
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.22, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.038);
+    src.connect(hpf); hpf.connect(g); g.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
 
 
 function animateScan(isApple) {
@@ -3393,17 +3528,161 @@ async function runScan() {
   await runAudit();
 
   if (window.__lastAuditOk) {
-    // Success — website experience ends here.
-    // Show Identity Confirmed state; never return to scan form.
-    document.body.classList.add('scan-confirmed');
-    var confirmEl = document.getElementById('sc-confirm');
-    if (confirmEl) confirmEl.setAttribute('aria-hidden', 'false');
-    // Hold 3.5s while artist reads confirmation, then begin cinematic sequence
-    setTimeout(function() { showIntelVault(); }, 3500);
+    // Scan results stay visible — 1s hold, then suspicion → instability → escalation → collapse
+    setTimeout(function() {
+      _startCinematicTension(function() {
+        showIntelVault();
+      });
+    }, 1000);
   } else {
     // Failure only — re-enable button so artist can retry
     if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
   }
+}
+
+// ── Cinematic Tension Stages (before CRT collapse) ────────────────────────
+
+function _stageOneSuspicion(cb) {
+  var html = document.documentElement;
+  // Tiny flicker at 900ms
+  setTimeout(function() {
+    html.style.transition = 'none';
+    html.style.filter = 'brightness(1.06)';
+    _playSignalCrackle(0.03);
+    setTimeout(function() { html.style.filter = ''; }, 90);
+  }, 900);
+  // Hairline horizontal tear at 1700ms
+  setTimeout(function() {
+    html.style.transition = 'none';
+    html.style.transform = 'translateX(2px)';
+    setTimeout(function() { html.style.transform = ''; }, 110);
+  }, 1700);
+  // Brief contrast blip at 2500ms
+  setTimeout(function() {
+    html.style.filter = 'brightness(0.87) contrast(1.12)';
+    _playSignalCrackle(0.03);
+    setTimeout(function() { html.style.filter = ''; }, 95);
+  }, 2500);
+  // Tiny flicker again at 3100ms
+  setTimeout(function() {
+    html.style.filter = 'brightness(1.09)';
+    setTimeout(function() { html.style.filter = ''; }, 70);
+  }, 3100);
+  setTimeout(cb, 3600);
+}
+
+function _stageTwoInstability(cb) {
+  var html = document.documentElement;
+  var sl = document.getElementById('iv-scanline-overlay');
+  // Wave 1 (t=300ms) — light scanlines + brightness dip
+  setTimeout(function() {
+    if (sl) sl.style.opacity = '0.07';
+    html.style.transition = 'none';
+    html.style.filter = 'contrast(1.14) brightness(0.93)';
+    _playStaticBurst(0.05);
+    setTimeout(function() { if (sl) sl.style.opacity = '0'; html.style.filter = ''; }, 550);
+  }, 300);
+  // Wave 2 (t=1300ms) — stronger, slight lateral shift
+  setTimeout(function() {
+    if (sl) sl.style.opacity = '0.13';
+    html.style.filter = 'brightness(1.14) contrast(1.22) saturate(0.65)';
+    html.style.transform = 'translateX(-2px)';
+    _playStaticBurst(0.07);
+    setTimeout(function() { if (sl) sl.style.opacity = '0'; html.style.filter = ''; html.style.transform = ''; }, 480);
+  }, 1300);
+  // Wave 3 (t=2300ms) — skew + deeper desaturation
+  setTimeout(function() {
+    if (sl) sl.style.opacity = '0.19';
+    html.style.filter = 'brightness(0.83) contrast(1.32) saturate(0.28)';
+    html.style.transform = 'skewY(0.25deg) translateX(3px)';
+    _playStaticBurst(0.09);
+    setTimeout(function() { if (sl) sl.style.opacity = '0'; html.style.filter = ''; html.style.transform = ''; }, 620);
+  }, 2300);
+  // Wave 4 (t=3500ms) — widest wave so far
+  setTimeout(function() {
+    if (sl) sl.style.opacity = '0.24';
+    html.style.filter = 'brightness(1.2) contrast(1.42) saturate(0.18)';
+    html.style.transform = 'translateX(-4px) skewY(-0.3deg)';
+    _playStaticBurst(0.11);
+    setTimeout(function() { if (sl) sl.style.opacity = '0'; html.style.filter = ''; html.style.transform = ''; }, 580);
+  }, 3500);
+  setTimeout(cb, 4600);
+}
+
+function _stageThreeEscalation(cb) {
+  var html = document.documentElement;
+  var sl = document.getElementById('iv-scanline-overlay');
+  var steps = [
+    { t: 0,    f: 'brightness(0.68) contrast(1.55) saturate(0)',  x: 'translateX(5px)',          dur: 160, vol: 0.09 },
+    { t: 420,  f: 'brightness(1.35) contrast(1.65) saturate(0)',  x: 'skewY(0.5deg) translateX(-5px)', dur: 200, vol: 0.11 },
+    { t: 950,  f: 'brightness(0.48) contrast(2.05) saturate(0)',  x: 'translateX(8px) skewY(-0.7deg)', dur: 240, vol: 0.13 },
+    { t: 1650, f: 'brightness(1.55) contrast(2.45) saturate(0)',  x: 'skewY(0.9deg) translateX(-7px)', dur: 280, vol: 0.15 },
+  ];
+  steps.forEach(function(s) {
+    setTimeout(function() {
+      if (sl) sl.style.opacity = '0.32';
+      html.style.transition = 'none';
+      html.style.filter = s.f;
+      html.style.transform = s.x;
+      _playStaticBurst(s.vol);
+      setTimeout(function() { if (sl) sl.style.opacity = '0'; html.style.filter = ''; html.style.transform = ''; }, s.dur);
+    }, s.t);
+  });
+  setTimeout(cb, 2550);
+}
+
+function _startCinematicTension(cb) {
+  _stageOneSuspicion(function() {
+    _stageTwoInstability(function() {
+      _stageThreeEscalation(function() {
+        if (cb) cb();
+      });
+    });
+  });
+}
+
+function _ivCollapseHard(cb) {
+  var html = document.documentElement;
+  var sl   = document.getElementById('iv-scanline-overlay');
+  // Final scanline flash before collapse
+  if (sl) { sl.style.opacity = '0.45'; sl.style.transition = 'opacity 0.05s'; }
+  html.style.transition = 'none';
+  html.style.filter = 'brightness(2.5) contrast(4) saturate(0)';
+  setTimeout(function() {
+    if (sl) { sl.style.opacity = '0'; sl.style.transition = ''; }
+    html.style.transition = 'none';
+    html.style.filter = '';
+    // Hard vertical collapse — 0.75s
+    html.style.transformOrigin = '50% 50%';
+    html.style.transition = 'transform 0.75s cubic-bezier(0.55,0,0.95,1), filter 0.55s ease-in';
+    html.style.transform = 'scaleY(0.002)';
+    html.style.filter = 'brightness(6) contrast(5) saturate(0)';
+    setTimeout(function() {
+      html.style.transition = 'none';
+      html.style.opacity = '0';
+      var black = document.getElementById('iv-black');
+      if (black) black.classList.add('active');
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          html.style.transform = '';
+          html.style.filter = '';
+          html.style.transformOrigin = '';
+          html.style.opacity = '';
+          html.style.transition = '';
+          // Residual phosphor dot
+          var dot = document.getElementById('iv-crt-dot');
+          if (dot) dot.style.opacity = '1';
+          setTimeout(function() {
+            if (dot) { dot.style.transition = 'opacity 0.28s ease'; dot.style.opacity = '0'; }
+            setTimeout(function() {
+              if (dot) { dot.style.transition = ''; }
+              if (cb) cb();
+            }, 300);
+          }, 320);
+        });
+      });
+    }, 780);
+  }, 60);
 }
 
 // ── Intelligence Vault Cinematic Sequence ─────────────────────────────
@@ -3532,6 +3811,7 @@ function _ivTerminal(cb) {
         lineEl.textContent = text.slice(0, ++charIdx);
         setTimeout(typeChar, _CHAR_SPEED);
       } else if (isLast) {
+        _playRelayClick();
         var cursor = document.createElement('span');
         cursor.className = 'iv-term-cursor';
         lineEl.appendChild(cursor);
@@ -3547,6 +3827,7 @@ function _ivTerminal(cb) {
           }, 640);
         }, _LAST_LINE_PAUSE);
       } else {
+        _playRelayClick();
         setTimeout(typeLine, _LINE_PAUSE);
       }
     }
@@ -3561,6 +3842,7 @@ function _ivShowAuth() {
   setTimeout(function() {
     var auth = document.getElementById('iv-auth');
     if (auth) { auth.setAttribute('aria-hidden', 'false'); auth.classList.add('active'); }
+    _playAuthTone();
     setTimeout(function() {
       var emailEl = document.getElementById('iva-email');
       if (emailEl) emailEl.focus();
@@ -3583,35 +3865,32 @@ function _bootRoyalteOS() {
 function showIntelVault() {
   document.body.classList.add('cinema-mode');
 
-  // No initial pause — Identity Confirmed state already held for 3.5s.
-  // CRT begins immediately.
+  // Stage 4: Hard CRT collapse — tension stages already ran
+  _playCollapseSound();
+  _ivCollapseHard(function() {
 
-  // Phase 1: CRT flicker (~950ms)
-  _ivFlicker(function() {
+    // Black screen — 1.2 seconds
+    setTimeout(function() {
 
-    // Phase 2: CRT collapse (1.8s) + residual dot (0.5s) + dot fade (0.35s)
-    _ivCollapse(function() {
+      // Intelligence Vault fades in
+      var vault = document.getElementById('intel-vault');
+      var black = document.getElementById('iv-black');
+      if (vault) { vault.setAttribute('aria-hidden', 'false'); vault.classList.add('active'); }
+      setTimeout(function() { if (black) black.classList.remove('active'); }, 500);
 
-      // Phase 3: Black screen — 1.2 seconds
+      // Signal lock tone as vault reconstructs
+      setTimeout(function() { _playVaultLock(); }, 320);
+
+      // Message sequence (after vault fade-in ~1.5s)
       setTimeout(function() {
-
-        // Phase 4: Intelligence Vault fades in
-        var vault = document.getElementById('intel-vault');
-        var black = document.getElementById('iv-black');
-        if (vault) { vault.setAttribute('aria-hidden', 'false'); vault.classList.add('active'); }
-        setTimeout(function() { if (black) black.classList.remove('active'); }, 500);
-
-        // Phase 5: Message sequence (after vault fade-in ~1.5s)
-        setTimeout(function() {
-          _ivMessages(function() {
-            _ivTerminal(function() {
-              _ivShowAuth();
-            });
+        _ivMessages(function() {
+          _ivTerminal(function() {
+            _ivShowAuth();
           });
-        }, 1500);
+        });
+      }, 1500);
 
-      }, 1200);
-    });
+    }, 1200);
   });
 }
 
@@ -3634,6 +3913,7 @@ function showIntelVault() {
       }
       if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Activating…'; }
       if (statusEl) { statusEl.textContent = ''; statusEl.className = 'iva-status'; }
+      _playSwitchSound();
       try {
         var sb = window.getSupabase ? window.getSupabase() : null;
         if (!sb) throw new Error('unavailable');
@@ -4028,6 +4308,7 @@ wireOSEntry();
 </script>
 
 <!-- ═══ INTELLIGENCE VAULT SEQUENCE ═══ -->
+<div id="iv-scanline-overlay" aria-hidden="true"></div>
 <div id="iv-crt-dot" aria-hidden="true"></div>
 <div id="iv-black" aria-hidden="true"></div>
 <div id="intel-vault" aria-hidden="true">
