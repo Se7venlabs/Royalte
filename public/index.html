@@ -1521,6 +1521,47 @@ body.menu-locked {
 .os-cta-card .os-fa-counter-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
 .os-cta-card .os-fa-counter-value{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;}
 .bi-os-cta:disabled{opacity:0.5;cursor:not-allowed;}
+/* ── Scan Hero V3 ─────────────────────────────────────────────────────── */
+.scan-hero .hero-left{display:flex;flex-direction:column;justify-content:flex-start;padding-top:0;gap:0;}
+.scan-hero .orb1{opacity:0.5;}
+.scan-hero .orb2{opacity:0.5;}
+.sh-badge{display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(138,92,255,0.3);border-radius:20px;padding:5px 12px;margin:0 0 20px;width:fit-content;}
+.sh-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:corePulse 3s ease-in-out infinite;}
+.sh-headline{font-family:'Rajdhani',sans-serif;font-size:clamp(32px,4.5vw,52px);font-weight:700;color:#fff;letter-spacing:0.01em;text-transform:uppercase;line-height:1.08;margin:0 0 14px;}
+.sh-sub{font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--text2);line-height:1.5;margin:0 0 6px;}
+.sh-attr{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px;}
+.sh-body{font-family:'Space Grotesk',sans-serif;font-size:14px;color:var(--muted2);line-height:1.6;margin:0 0 28px;}
+.sh-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin:0 0 16px;}
+.sh-methods{display:flex;flex-direction:column;gap:8px;margin:0 0 6px;}
+.sh-card{border:1px solid var(--border3);border-radius:10px;padding:14px 16px;cursor:pointer;transition:border-color 0.2s ease,background 0.2s ease;background:rgba(255,255,255,0.02);}
+.sh-card:hover{border-color:rgba(138,92,255,0.4);background:rgba(138,92,255,0.04);}
+.sh-card.active{border-color:rgba(138,92,255,0.6);background:rgba(138,92,255,0.07);}
+.sh-card-hd{display:flex;align-items:center;gap:10px;}
+.sh-card-radio{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted);flex-shrink:0;transition:border-color 0.2s ease,background 0.2s ease;}
+.sh-card.active .sh-card-radio{border-color:var(--accent);background:var(--accent);}
+.sh-card-icon{font-size:14px;line-height:1;}
+.sh-card-label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text2);}
+.sh-card.active .sh-card-label{color:#fff;}
+.sh-card-body{display:none;margin-top:12px;}
+.sh-card.active .sh-card-body{display:block;}
+.sh-inputs{display:flex;flex-direction:column;gap:8px;}
+.sh-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border3);border-radius:7px;padding:10px 14px;font-family:'Space Grotesk',sans-serif;font-size:13px;color:#fff;outline:none;box-sizing:border-box;transition:border-color 0.2s ease;}
+.sh-input::placeholder{color:var(--muted);}
+.sh-input:focus{border-color:rgba(138,92,255,0.5);}
+.sh-verify{font-family:'Space Grotesk',sans-serif;font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.4;}
+.sh-example{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.06em;margin:8px 0 0;}
+.sh-scan-error{font-family:'Space Grotesk',sans-serif;font-size:12px;color:#f05060;margin:10px 0 0;min-height:0;line-height:1.5;}
+.sh-run-btn{width:100%;margin-top:16px;padding:14px 24px;background:var(--accent);border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;cursor:pointer;transition:opacity 0.2s ease,transform 0.15s ease;display:block;}
+.sh-run-btn:hover{opacity:0.9;transform:translateY(-1px);}
+.sh-run-btn:active{transform:translateY(0);}
+.sh-run-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.sh-trust{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 12px;margin-top:14px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+.sh-trust span{display:flex;align-items:center;gap:5px;}
+.sh-trust span::before{content:'·';opacity:0.4;}
+.sh-trust span:first-child::before{display:none;}
+.sh-machinery{position:absolute;top:-9999px;left:-9999px;visibility:hidden;pointer-events:none;}
+.scan-hero .paste-hint{display:none;}
+@media(max-width:768px){.sh-headline{font-size:28px;}.sh-run-btn{font-size:15px;padding:13px 20px;}}
 
 </style>
 </head>
@@ -1835,41 +1876,79 @@ body.menu-locked {
   </div>
 </section>
 
-<section class="hero" id="scan-tool">
+<section class="hero scan-hero" id="scan-tool">
   <div class="orb1"></div><div class="orb2"></div>
   <div class="hero-scan"></div>
   <div class="hero-left">
-    <h3 class="hero-h1">Paste your link. See your gaps in <span class="gt">seconds.</span></h3>
-    <p class="hero-desc">Royaltē scans your profile and shows you verified gaps — no estimates, no guesswork.</p>
-    <div class="hero-paste">
-      <div class="paste-box">
-        <input class="paste-input" id="hero-url" type="text" placeholder="open.spotify.com/artist/... or music.apple.com/us/album/...">
-        <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Scan →</button>
+    <div class="sh-badge">Music Intelligence OS</div>
+    <h1 class="sh-headline">Discover what your<br>music is missing.</h1>
+    <p class="sh-sub">Your music has data. We make sense of it.</p>
+    <p class="sh-attr">Built by artists, for artists.</p>
+    <p class="sh-body">Most artists only see part of the picture.<br>Royalt&#x113; shows you the rest.</p>
+    <p class="sh-label">// Choose how Royalt&#x113; finds you</p>
+    <div class="sh-methods">
+      <!-- Card 1: Apple Music URL (default active) -->
+      <div class="sh-card active" data-method="apple" onclick="selectScanMethod('apple')">
+        <div class="sh-card-hd">
+          <div class="sh-card-radio"></div>
+          <span class="sh-card-icon">&#9834;</span>
+          <span class="sh-card-label">Apple Music URL</span>
+        </div>
+        <div class="sh-card-body">
+          <div class="sh-inputs">
+            <input class="sh-input" id="apple-url-input" type="text" placeholder="music.apple.com/us/artist/..." autocomplete="off" spellcheck="false">
+          </div>
+        </div>
       </div>
+      <!-- Card 2: Spotify URL -->
+      <div class="sh-card" data-method="spotify" onclick="selectScanMethod('spotify')">
+        <div class="sh-card-hd">
+          <div class="sh-card-radio"></div>
+          <span class="sh-card-icon">&#9835;</span>
+          <span class="sh-card-label">Spotify URL</span>
+        </div>
+        <div class="sh-card-body">
+          <div class="sh-inputs">
+            <input class="sh-input" id="spotify-url-input" type="text" placeholder="open.spotify.com/artist/..." autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+      </div>
+      <!-- Card 3: Artist Name + One Of Your Songs -->
+      <div class="sh-card" data-method="name" onclick="selectScanMethod('name')">
+        <div class="sh-card-hd">
+          <div class="sh-card-radio"></div>
+          <span class="sh-card-icon">&#127908;</span>
+          <span class="sh-card-label">Artist Name + One Of Your Songs</span>
+        </div>
+        <div class="sh-card-body">
+          <div class="sh-inputs">
+            <input class="sh-input" id="artist-name-input" type="text" placeholder="Black Alternative" autocomplete="off" spellcheck="false">
+            <input class="sh-input" id="song-title-input" type="text" placeholder="Everything Is Over" autocomplete="off" spellcheck="false">
+          </div>
+          <p class="sh-verify">We&#x2019;ll verify the correct artist before scanning.</p>
+          <p class="sh-example">// Black Alternative &bull; Everything Is Over</p>
+        </div>
+      </div>
+    </div>
+    <div class="scan-progress" id="scan-progress">
+      <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
+      <div class="sp-label" id="sp-label">Scanning...</div>
+    </div>
+    <!-- paste-hint must remain in visible DOM so showUrlError() injection is visible -->
+    <div class="paste-hint"></div>
+    <div class="sh-scan-error" id="sh-scan-error"></div>
+    <button class="sh-run-btn" id="sh-run-btn" onclick="runScan()">Run My Scan &#x2192;</button>
+    <div class="sh-trust">
+      <span>100% Free</span>
+      <span>No Credit Card Required</span>
+      <span>Results In Seconds</span>
+    </div>
+    <!-- Hidden machinery — IDs required by runAudit() wiring -->
+    <div class="sh-machinery">
+      <input id="hero-url" type="text" tabindex="-1" aria-hidden="true">
+      <button id="hero-btn" onclick="runAudit()" tabindex="-1" aria-hidden="true">Run Free Scan</button>
       <div id="url-type-chip" class="url-type-chip"></div>
-      <div class="paste-hint">// Supports Spotify &amp; Apple Music · artist, album, track, or song links</div>
-      <div class="scan-progress" id="scan-progress">
-        <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
-        <div class="sp-label" id="sp-label">Scanning...</div>
-      </div>
     </div>
-    <div class="hero-stats">
-      <div class="hstat"><span class="hstat-n">6</span><span class="hstat-l">Audit modules</span></div>
-      <div class="hstat"><span class="hstat-n">Verified</span><span class="hstat-l">Data only</span></div>
-      <div class="hstat"><span class="hstat-n">Instant</span><span class="hstat-l">Full audit delivery</span></div>
-    </div>
-    <div class="scan-decoder" aria-label="Understanding your Health Score">
-      <div class="scan-decoder-hd">Understanding your Health Score</div>
-      <div class="scan-decoder-body">Higher scores indicate a healthier music business backend. Royaltē reviews catalog presence, identifier coverage, and platform availability across verified public sources to compute the Health Score.<br><br>Score is based on verified data only — no estimates or assumptions.</div>
-      <div class="scan-decoder-legend">
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot low"></span><span class="scan-decoder-range">90–100</span>Excellent</div>
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot moderate"></span><span class="scan-decoder-range">75–89</span>Strong</div>
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot atrisk"></span><span class="scan-decoder-range">60–74</span>Moderate</div>
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot critical"></span><span class="scan-decoder-range">&lt; 60</span>Review recommended</div>
-      </div>
-      <div class="scan-decoder-foot">Score is not a royalty estimate, revenue prediction, or popularity score. It reflects what Royaltē can verify from public catalog data.</div>
-    </div>
-    <div class="hero-visual" aria-hidden="true"></div>
   </div>
   <div class="hero-right">
     <div class="dash-badge db1"><div class="dbadge-val">Beta</div><div class="dbadge-lbl">Live now</div></div>
@@ -3220,6 +3299,72 @@ function requestFullAuditFromNav() {
 }
 
 document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
+
+// ─────────────────────────────────────────────
+// Scan Hero V3 — method selection + scan bridge
+// ─────────────────────────────────────────────
+function selectScanMethod(method) {
+  document.querySelectorAll('.sh-card').forEach(function(card) {
+    card.classList.toggle('active', card.dataset.method === method);
+  });
+  document.getElementById('sh-scan-error').textContent = '';
+}
+
+async function runScan() {
+  var activeCard = document.querySelector('.sh-card.active');
+  if (!activeCard) return;
+  var method   = activeCard.dataset.method;
+  var urlInput = document.getElementById('hero-url');
+  var errEl    = document.getElementById('sh-scan-error');
+  var visBtn   = document.getElementById('sh-run-btn');
+  if (errEl) errEl.textContent = '';
+
+  // Resolve the canonical URL from the active scan method
+  if (method === 'apple') {
+    var val = (document.getElementById('apple-url-input')?.value || '').trim();
+    if (!val) { document.getElementById('apple-url-input')?.focus(); return; }
+    urlInput.value = val;
+  } else if (method === 'spotify') {
+    var val = (document.getElementById('spotify-url-input')?.value || '').trim();
+    if (!val) { document.getElementById('spotify-url-input')?.focus(); return; }
+    urlInput.value = val;
+  } else if (method === 'name') {
+    var name = (document.getElementById('artist-name-input')?.value || '').trim();
+    var song = (document.getElementById('song-title-input')?.value || '').trim();
+    if (!name) { document.getElementById('artist-name-input')?.focus(); return; }
+    if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Finding Artist…'; }
+    try {
+      var qs = new URLSearchParams({ name: name });
+      if (song) qs.set('song', song);
+      var resp = await fetch('/api/resolve-artist?' + qs.toString());
+      var data = await resp.json();
+      if (!resp.ok || !data.url) {
+        if (errEl) errEl.textContent = 'We couldn’t safely verify that artist. Please use an Apple Music or Spotify URL.';
+        if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
+        return;
+      }
+      urlInput.value = data.url;
+    } catch (_e) {
+      if (errEl) errEl.textContent = 'We couldn’t safely verify that artist. Please use an Apple Music or Spotify URL.';
+      if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
+      return;
+    }
+  }
+
+  // URL is set — run the scan
+  if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Scanning…'; }
+  try {
+    await runAudit();
+  } finally {
+    if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
+  }
+}
+
+// Enter key support for all Scan Hero V3 inputs
+['apple-url-input', 'spotify-url-input', 'artist-name-input', 'song-title-input'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('keydown', function(e) { if (e.key === 'Enter') runScan(); });
+});
 
 // ─────────────────────────────────────────────
 // Mobile menu drawer
