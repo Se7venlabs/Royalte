@@ -1585,8 +1585,8 @@ body.cinema-mode .hero-right{visibility:hidden;}
 /* Terminal typed sequence — appears inside #intel-vault after message cycle */
 #iv-terminal{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 40px 14vh;z-index:3;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
 #iv-terminal.active{opacity:1;}
-.iv-term-line{font-family:'Space Mono',monospace;font-size:12px;color:rgba(138,92,255,0.9);letter-spacing:0.14em;line-height:1.9;white-space:pre;}
-.iv-term-cursor{display:inline-block;width:8px;height:0.9em;background:rgba(138,92,255,0.9);vertical-align:text-bottom;margin-left:2px;animation:iv-blink 0.7s step-end infinite;}
+.iv-term-line{font-family:'Space Mono',monospace;font-size:12px;color:#e040c8;letter-spacing:0.14em;line-height:1.9;white-space:pre;text-shadow:0 0 8px rgba(224,64,200,0.45);}
+.iv-term-cursor{display:inline-block;width:8px;height:0.9em;background:#e040c8;vertical-align:text-bottom;margin-left:2px;animation:iv-blink 0.7s step-end infinite;box-shadow:0 0 6px rgba(224,64,200,0.55);}
 @keyframes iv-blink{0%,100%{opacity:1;}50%{opacity:0;}}
 /* Access authorization overlay */
 #iv-auth{position:fixed;inset:0;z-index:9800;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 0.7s ease;}
@@ -3528,12 +3528,12 @@ async function runScan() {
   await runAudit();
 
   if (window.__lastAuditOk) {
-    // Scan results stay visible — 1s hold, then suspicion → instability → escalation → collapse
+    // Scan results stay visible — brief hold, then suspicion → instability → escalation → collapse
     setTimeout(function() {
       _startCinematicTension(function() {
         showIntelVault();
       });
-    }, 1000);
+    }, 200);
   } else {
     // Failure only — re-enable button so artist can retry
     if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
@@ -3544,31 +3544,31 @@ async function runScan() {
 
 function _stageOneSuspicion(cb) {
   var html = document.documentElement;
-  // Tiny flicker at 900ms
+  // Tiny flicker at 200ms
   setTimeout(function() {
     html.style.transition = 'none';
     html.style.filter = 'brightness(1.06)';
     _playSignalCrackle(0.03);
     setTimeout(function() { html.style.filter = ''; }, 90);
-  }, 900);
-  // Hairline horizontal tear at 1700ms
+  }, 200);
+  // Hairline horizontal tear at 700ms
   setTimeout(function() {
     html.style.transition = 'none';
     html.style.transform = 'translateX(2px)';
     setTimeout(function() { html.style.transform = ''; }, 110);
-  }, 1700);
-  // Brief contrast blip at 2500ms
+  }, 700);
+  // Brief contrast blip at 1200ms
   setTimeout(function() {
     html.style.filter = 'brightness(0.87) contrast(1.12)';
     _playSignalCrackle(0.03);
     setTimeout(function() { html.style.filter = ''; }, 95);
-  }, 2500);
-  // Tiny flicker again at 3100ms
+  }, 1200);
+  // Tiny flicker again at 1700ms
   setTimeout(function() {
     html.style.filter = 'brightness(1.09)';
     setTimeout(function() { html.style.filter = ''; }, 70);
-  }, 3100);
-  setTimeout(cb, 3600);
+  }, 1700);
+  setTimeout(cb, 2200);
 }
 
 function _stageTwoInstability(cb) {
@@ -3695,8 +3695,8 @@ var _terminalLines = [
   '> PLEASE STAND BY',
 ];
 var _CHAR_SPEED      = 34;
-var _LINE_PAUSE      = 2500;
-var _LAST_LINE_PAUSE = 3000;
+var _LINE_PAUSE      = 2000;
+var _LAST_LINE_PAUSE = 2500;
 
 var _ivMsgs = [
   'Analyzing artist identity…',
@@ -3869,7 +3869,7 @@ function showIntelVault() {
   _playCollapseSound();
   _ivCollapseHard(function() {
 
-    // Black screen — 1.2 seconds
+    // Black screen — 0.6 seconds
     setTimeout(function() {
 
       // Intelligence Vault fades in
@@ -3881,14 +3881,14 @@ function showIntelVault() {
       // Signal lock tone as vault reconstructs
       setTimeout(function() { _playVaultLock(); }, 320);
 
-      // Message sequence (after vault fade-in ~1.5s)
+      // Message sequence (after vault fade-in ~0.8s)
       setTimeout(function() {
         _ivMessages(function() {
           _ivTerminal(function() {
             _ivShowAuth();
           });
         });
-      }, 1500);
+      }, 800);
 
     }, 1200);
   });
