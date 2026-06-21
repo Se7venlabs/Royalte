@@ -1562,18 +1562,20 @@ body.menu-locked {
 .sh-trust span:first-child::before{display:none;}
 .sh-machinery{position:absolute;top:-9999px;left:-9999px;visibility:hidden;pointer-events:none;}
 .scan-hero .paste-hint{display:none;}
-/* ── Cinema Hold Screen ──────────────────────────────────────────────── */
-#cinema-hold{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 1s ease;}
-#cinema-hold.active{opacity:1;pointer-events:all;}
+/* ── Intelligence Vault Cinematic Sequence ───────────────────────────── */
 body.cinema-mode .hero-right{visibility:hidden;}
-.ch-bg{position:absolute;inset:0;background:url('/studio-hold.png') center center/cover no-repeat;}
-.ch-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.56);}
-.ch-content{position:relative;z-index:2;text-align:center;max-width:520px;padding:0 32px;}
-.ch-wordmark{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(138,92,255,0.85);margin-bottom:52px;}
-#ch-msg-display{font-family:'Space Grotesk',sans-serif;font-size:18px;color:rgba(255,255,255,0.8);line-height:1.55;min-height:28px;opacity:0;transition:opacity 0.8s ease;}
-#ch-standby{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(138,92,255,0.7);opacity:0;transition:opacity 0.8s ease;margin-top:36px;}
-#ch-standby.visible{opacity:1;}
-@media(max-width:768px){#ch-msg-display{font-size:15px;}.ch-wordmark{font-size:9px;margin-bottom:36px;}}
+#iv-black{position:fixed;inset:0;z-index:9500;background:#000;opacity:0;pointer-events:none;transition:opacity 0.8s ease;}
+#iv-black.active{opacity:1;pointer-events:all;}
+#intel-vault{position:fixed;inset:0;z-index:9000;background:url('/intel-vault.png') center center/cover no-repeat;opacity:0;pointer-events:none;transition:opacity 1.4s ease;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:12vh;}
+#intel-vault.active{opacity:1;pointer-events:all;}
+.iv-dark{position:absolute;inset:0;background:rgba(0,0,0,0.5);}
+.iv-msg-area{position:relative;z-index:2;text-align:center;padding:0 24px;}
+.iv-wordmark{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.26em;text-transform:uppercase;color:rgba(138,92,255,0.85);margin-bottom:28px;}
+#iv-msg{font-family:'Space Grotesk',sans-serif;font-size:20px;color:rgba(255,255,255,0.88);opacity:0;transition:opacity 0.35s ease;line-height:1.5;min-height:30px;}
+#iv-os-reveal{position:fixed;inset:0;z-index:9600;background:#000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.6s ease;}
+#iv-os-reveal.active{opacity:1;pointer-events:all;}
+.iv-os-text{font-family:'Rajdhani',sans-serif;font-size:clamp(42px,7vw,80px);font-weight:700;color:#fff;letter-spacing:0.18em;text-transform:uppercase;}
+@media(max-width:768px){#iv-msg{font-size:16px;}.iv-wordmark{font-size:9px;}.iv-os-text{font-size:40px;}}
 .sh-features{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;margin-top:24px;}
 .sh-feat{padding:16px 14px;display:flex;flex-direction:column;gap:6px;position:relative;}
 .sh-feat+.sh-feat::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:1px;background:rgba(255,255,255,0.05);}
@@ -3404,47 +3406,132 @@ async function runScan() {
   if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Scanning…'; }
   try {
     await runAudit();
-    showCinemaHold();
+    showIntelVault();
   } finally {
     if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
   }
 }
 
-var _cinemaMessages = [
+// ── Intelligence Vault Cinematic Sequence ─────────────────────────────
+var _ivMsgs = [
   'Analyzing artist identity…',
-  'Reviewing catalog intelligence…',
-  'Verifying platform presence…',
-  'Building monitoring environment…',
+  'Verifying catalog intelligence…',
+  'Cross-referencing industry sources…',
+  'Building Artist Intelligence™…',
   'Preparing Royaltē OS…',
 ];
 
-function showCinemaHold() {
-  document.body.classList.add('cinema-mode');
-  var hold = document.getElementById('cinema-hold');
-  if (!hold) return;
-  hold.setAttribute('aria-hidden', 'false');
-  hold.classList.add('active');
-  var display = document.getElementById('ch-msg-display');
-  if (!display) return;
+function _ivFlicker(cb) {
+  var html = document.documentElement;
+  var bright = [1.6, 0.4, 2.0, 0.3, 1.5, 0.7];
+  var dur    = [65, 55, 50, 70, 60, 60];
   var i = 0;
-  function nextMsg() {
-    if (i >= _cinemaMessages.length) {
-      display.style.opacity = '0';
-      setTimeout(function() {
-        var sb = document.getElementById('ch-standby');
-        if (sb) sb.classList.add('visible');
-      }, 900);
-      return;
-    }
-    display.style.opacity = '0';
-    setTimeout(function() {
-      display.textContent = _cinemaMessages[i++];
-      display.style.opacity = '1';
-      setTimeout(nextMsg, 3200);
-    }, 850);
-  }
-  // Brief pause so the cinema fade-in completes before messages begin
-  setTimeout(nextMsg, 1000);
+  (function tick() {
+    if (i >= bright.length) { html.style.filter = ''; if (cb) cb(); return; }
+    html.style.filter = 'brightness(' + bright[i] + ') saturate(0.15) contrast(1.2)';
+    setTimeout(tick, dur[i++]);
+  })();
+}
+
+function _ivCollapse(cb) {
+  var html = document.documentElement;
+  html.style.transformOrigin = '50% 50%';
+  html.style.transition = 'transform 0.65s cubic-bezier(0.55,0,1,0.45), filter 0.5s ease';
+  html.style.transform = 'scaleY(0.003)';
+  html.style.filter = 'brightness(6) contrast(4) saturate(0)';
+  setTimeout(function() {
+    html.style.transition = 'none';
+    html.style.opacity = '0';
+    var black = document.getElementById('iv-black');
+    if (black) black.classList.add('active');
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        html.style.transform = '';
+        html.style.filter = '';
+        html.style.transformOrigin = '';
+        html.style.opacity = '';
+        html.style.transition = '';
+        if (cb) cb();
+      });
+    });
+  }, 680);
+}
+
+function _ivMessages(cb) {
+  var el = document.getElementById('iv-msg');
+  if (!el) { if (cb) cb(); return; }
+  el.style.transition = 'opacity 0.35s ease';
+  var i = 0;
+  (function step() {
+    if (i >= _ivMsgs.length) { el.style.opacity = '0'; if (cb) setTimeout(cb, 400); return; }
+    el.style.opacity = '0';
+    el.textContent = _ivMsgs[i++];
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        el.style.opacity = '1';
+        setTimeout(function() { el.style.opacity = '0'; setTimeout(step, 380); }, 820);
+      });
+    });
+  })();
+}
+
+function _ivOSActivation() {
+  var vault = document.getElementById('intel-vault');
+  var os    = document.getElementById('iv-os-reveal');
+  if (vault) { vault.style.transition = 'opacity 0.4s ease'; vault.style.opacity = '0'; }
+  setTimeout(function() {
+    if (os) { os.setAttribute('aria-hidden', 'false'); os.classList.add('active'); }
+    setTimeout(_bootRoyalteOS, 1600);
+  }, 450);
+}
+
+function _bootRoyalteOS() {
+  var os = document.getElementById('iv-os-reveal');
+  if (os) { os.style.transition = 'opacity 0.5s ease'; os.style.opacity = '0'; }
+  setTimeout(function() {
+    if (os) { os.classList.remove('active'); os.style.opacity = ''; os.style.transition = ''; os.setAttribute('aria-hidden', 'true'); }
+    var vault = document.getElementById('intel-vault');
+    if (vault) { vault.classList.remove('active'); vault.style.opacity = ''; vault.style.transition = ''; vault.setAttribute('aria-hidden', 'true'); }
+    document.body.classList.remove('cinema-mode');
+    // Next brief: full OS boot sequence wired here
+  }, 550);
+}
+
+function showIntelVault() {
+  document.body.classList.add('cinema-mode');
+
+  // Phase 1: 500ms pause — let the scan completion land
+  setTimeout(function() {
+
+    // Phase 2: CRT flicker (~420ms)
+    _ivFlicker(function() {
+
+      // Phase 2b: CRT collapse (~800ms)
+      _ivCollapse(function() {
+
+        // Phase 3: Black screen — 1 second
+        setTimeout(function() {
+
+          // Phase 4: Intelligence Vault fades in
+          var vault = document.getElementById('intel-vault');
+          var black = document.getElementById('iv-black');
+          if (vault) { vault.setAttribute('aria-hidden', 'false'); vault.classList.add('active'); }
+          // Fade black layer out once vault is visible
+          setTimeout(function() { if (black) black.classList.remove('active'); }, 500);
+
+          // Phase 5: Message sequence begins after vault fade-in (~1.5s)
+          setTimeout(function() {
+            _ivMessages(function() {
+              // Phase 8: OS activation
+              _ivOSActivation();
+            });
+          }, 1500);
+
+        }, 1000);
+      });
+    });
+
+  }, 500);
 }
 
 // Enter key support for all Scan Hero V3 inputs
@@ -3815,15 +3902,17 @@ async function wireOSEntry() {
 wireOSEntry();
 </script>
 
-<!-- ═══ CINEMA HOLD SCREEN ═══ -->
-<div id="cinema-hold" aria-hidden="true" role="status" aria-live="polite">
-  <div class="ch-bg"></div>
-  <div class="ch-overlay"></div>
-  <div class="ch-content">
-    <div class="ch-wordmark">Royalt&#x113; Intelligence Engine&#x2122;</div>
-    <div id="ch-msg-display"></div>
-    <div id="ch-standby">Please stand by.</div>
+<!-- ═══ INTELLIGENCE VAULT SEQUENCE ═══ -->
+<div id="iv-black" aria-hidden="true"></div>
+<div id="intel-vault" aria-hidden="true">
+  <div class="iv-dark"></div>
+  <div class="iv-msg-area">
+    <div class="iv-wordmark">Royalt&#x113; Intelligence Engine&#x2122;</div>
+    <div id="iv-msg" role="status" aria-live="polite"></div>
   </div>
+</div>
+<div id="iv-os-reveal" aria-hidden="true">
+  <div class="iv-os-text">Royalt&#x113; OS</div>
 </div>
 
 </body>
