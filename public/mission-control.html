@@ -2622,17 +2622,31 @@ body {
 #mc-boot-cover{position:fixed;inset:0;z-index:9999;background:#000;pointer-events:none;}
 #mc-boot-cover.mc-cover-fade{transition:opacity 0.7s ease;opacity:0;}
 
-/* Offline state: all cards and right rail are dormant */
+/* Offline state: all cards, hero, and right rail are dormant */
 body.mc-booting .mc-card,
-body.mc-booting .mc-rail-right{opacity:0.06;filter:grayscale(1) brightness(0.2);transition:opacity 1.0s ease,filter 1.0s ease;pointer-events:none;}
-body.mc-booting .mc-card::before{opacity:0;transition:opacity 1.0s ease;}
+body.mc-booting .mc-rail-right,
+body.mc-booting .mc-hero{opacity:0.06;filter:grayscale(1) brightness(0.2);transition:opacity 0.9s ease,filter 0.9s ease;pointer-events:none;}
+body.mc-booting .mc-card::before{opacity:0;transition:opacity 0.9s ease;}
 body.mc-booting .mc-card--publishing{animation:none;}
+body.mc-booting .mc-radar-sweep{animation:none;}
+body.mc-booting .mc-pulse-line{opacity:0;}
 
 /* Module online: restore full visibility */
 body.mc-booting .mc-card.mc-online,
 body.mc-booting .mc-rail-right.mc-online{opacity:1;filter:none;pointer-events:auto;}
 body.mc-booting .mc-card.mc-online::before{opacity:0.9;}
 body.mc-booting .mc-card--publishing.mc-online{animation:mc-pub-breath 7.5s ease-in-out infinite;}
+/* Hero comes online as a unit with first module */
+body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
+
+/* ── Power Level Indicator — boot mode only ───────────────────────── */
+#mc-power-level{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);width:min(420px,calc(100vw - 48px));z-index:9800;opacity:0;transition:opacity 0.3s ease;padding:14px 20px 16px;background:rgba(5,5,7,0.92);border:1px solid rgba(45,212,191,0.14);border-radius:6px;backdrop-filter:blur(10px);}
+#mc-power-level.mc-pl-visible{opacity:1;}
+.mc-pl-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.mc-pl-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(45,212,191,0.6);}
+.mc-pl-pct{font-family:'Space Mono',monospace;font-size:11px;color:rgba(45,212,191,0.9);letter-spacing:0.06em;min-width:38px;text-align:right;}
+.mc-pl-track{height:2px;background:rgba(45,212,191,0.10);border-radius:2px;overflow:hidden;}
+.mc-pl-fill{height:100%;width:0%;background:#2dd4bf;border-radius:2px;box-shadow:0 0 8px rgba(45,212,191,0.55);transition:width 2.2s cubic-bezier(0.05,0.9,0.25,1);}
 
   </style>
 </head>
@@ -2640,6 +2654,15 @@ body.mc-booting .mc-card--publishing.mc-online{animation:mc-pub-breath 7.5s ease
 
 <!-- Boot cover: black overlay, removed once offline state is revealed -->
 <div id="mc-boot-cover" aria-hidden="true"></div>
+
+<!-- Power Level Indicator — visible only during boot sequence -->
+<div id="mc-power-level" aria-hidden="true" role="status">
+  <div class="mc-pl-header">
+    <span class="mc-pl-label">System Power Level</span>
+    <span class="mc-pl-pct" id="mc-pl-pct">0%</span>
+  </div>
+  <div class="mc-pl-track"><div class="mc-pl-fill" id="mc-pl-fill"></div></div>
+</div>
 
 <!-- ──────────────────────────────────────────────────────────────────
      Royaltē Mission Control Shell™ — Phase 9
@@ -3903,6 +3926,7 @@ body.mc-booting .mc-card--publishing.mc-online{animation:mc-pub-breath 7.5s ease
   }
 
   // Activation order: left-to-right, top-to-bottom.
+  // Hero section comes online with the first module (Health Intelligence).
   var MODULE_ORDER = [
     'health-intelligence',
     'identity-intelligence',
@@ -3919,38 +3943,79 @@ body.mc-booting .mc-card--publishing.mc-online{animation:mc-pub-breath 7.5s ease
     if (el) el.classList.add('mc-online');
   }
 
+  function showPowerLevel(cb) {
+    var pl   = document.getElementById('mc-power-level');
+    var fill = document.getElementById('mc-pl-fill');
+    var pct  = document.getElementById('mc-pl-pct');
+    if (!pl || !fill) { if (cb) cb(); return; }
+
+    pl.setAttribute('aria-hidden', 'false');
+    pl.classList.add('mc-pl-visible');
+
+    // Count pct up in sync with the CSS fill transition (2.2s)
+    var start = performance.now();
+    var dur   = 2200;
+    (function tick(now) {
+      var p   = Math.min(1, (now - start) / dur);
+      var val = Math.round((1 - Math.pow(1 - p, 2.5)) * 100); // ease-out feel
+      if (pct) pct.textContent = val + '%';
+      if (p < 1) { requestAnimationFrame(tick); }
+    })(start);
+
+    // Trigger fill animation on next frame so transition fires
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        fill.style.width = '100%';
+      });
+    });
+
+    // After fill completes + 400ms hold → fade out, call cb
+    setTimeout(function() {
+      pl.style.transition = 'opacity 0.35s ease';
+      pl.style.opacity = '0';
+      setTimeout(function() {
+        pl.style.display = 'none';
+        if (cb) cb();
+      }, 380);
+    }, dur + 400);
+  }
+
   function runActivationSequence() {
+    // Hero comes online with the first module — the whole system wakes together
+    var hero = document.querySelector('.mc-hero');
+    if (hero) hero.classList.add('mc-online');
+
     var i = 0;
     (function next() {
       if (i >= MODULE_ORDER.length) {
-        // All modules online — strip boot class so normal MC resumes.
-        setTimeout(function() {
-          document.body.classList.remove('mc-booting');
-        }, 600);
+        setTimeout(function() { document.body.classList.remove('mc-booting'); }, 600);
         return;
       }
       activateModule(MODULE_ORDER[i++]);
-      setTimeout(next, 2000);
+      setTimeout(next, 850);  // BAM BAM BAM — 850ms between each module
     })();
   }
 
   function startBootSequence() {
     var cover = document.getElementById('mc-boot-cover');
 
-    // Hold black cover for 1800ms (covers data wiring + initial paint),
+    // Hold black cover for 1800ms (data wiring + initial paint),
     // then fade to reveal the dormant offline state.
     setTimeout(function() {
       if (cover) {
         cover.classList.add('mc-cover-fade');
-        setTimeout(function() {
-          if (cover) cover.style.display = 'none';
-        }, 800);
+        setTimeout(function() { if (cover) cover.style.display = 'none'; }, 800);
       }
 
-      // After cover fades (700ms) + 1000ms offline dwell → click + activate.
+      // Cover fades (700ms) + 1000ms offline dwell → click → power level → modules
       setTimeout(function() {
         playMechClick();
-        setTimeout(runActivationSequence, 200);
+        // Power level rises immediately after click
+        setTimeout(function() {
+          showPowerLevel(function() {
+            runActivationSequence();
+          });
+        }, 150);
       }, 1700);
 
     }, 1800);
