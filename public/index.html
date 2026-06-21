@@ -3331,6 +3331,7 @@ document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key
 // Scan Hero V3 — method selection + scan bridge
 // ─────────────────────────────────────────────
 async function runScan() {
+  console.log('RUNSCAN START');
   var urlInput = document.getElementById('hero-url');
   var errEl    = document.getElementById('sh-scan-error');
   var visBtn   = document.getElementById('sh-run-btn');
@@ -3343,6 +3344,8 @@ async function runScan() {
   if (pastedUrl) {
     // Method 1: Apple Music or Spotify URL — audit engine auto-detects platform
     urlInput.value = pastedUrl;
+    console.log('PASTED URL', pastedUrl);
+    console.log('HERO URL', urlInput.value);
   } else if (artistName) {
     // Method 2: Resolve artist name + song via /api/resolve-artist
     if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Finding Artist…'; }
@@ -3368,6 +3371,7 @@ async function runScan() {
   }
 
   // URL is set — run the scan
+  console.log('STARTING AUDIT');
   if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Scanning…'; }
   window.__lastAuditOk = false;
   await runAudit();
