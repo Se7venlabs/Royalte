@@ -30,6 +30,7 @@ import {
   renderPublishing,
   renderCatalog,
   renderGlobalMusicFootprint,
+  renderRoyalteAI,
   renderBackend,
   renderHealth,
   renderPriorityActions,
@@ -37,6 +38,7 @@ import {
   buildCoveragePlan,
   buildRecommendationsPlan,
   safeIdentityIntelligence,
+  ROYALTE_AI_ACTIVITY_LABELS,
   STATE_PILL_CLASS,
   STATE_PILL_TEXT,
 } from '../public/js/mission-control-renderers.js';
@@ -515,6 +517,56 @@ test('26d. CONCERN 3 + 6 (GMF Phase v1.0) — renderGlobalMusicFootprint is impl
   assert.equal(renderGlobalMusicFootprint(null),      null);
   assert.equal(renderGlobalMusicFootprint(undefined), null);
   assert.equal(renderGlobalMusicFootprint('string'),  null);
+});
+
+test('26e. CONCERN 3 + 6 (Royaltē AI v1.0) — renderRoyalteAI is implemented and conforms to the canonical entry-point contract', () => {
+  // Royaltē AI Phase v1.0 replaced the not-yet-implemented slot with
+  // a real renderer. Verifies: (a) function export, (b) correct output
+  // shape on valid input, (c) null-safe on absent intelligence, (d) HEP
+  // boundary — never exposes a score / health field.
+  assert.equal(typeof renderRoyalteAI, 'function', 'renderRoyalteAI must be exported as a function');
+
+  const ai = Object.freeze({
+    observation:    'Your catalog is verified globally across all 167 Apple Music territories. Your catalog includes 4 singles.',
+    priority:       'Publisher Information not confirmed in reviewed sources.',
+    positiveSignal: 'Verified global distribution across all 167 Apple Music territories.',
+    nextAction:     'Register with a music publisher or establish self-publishing to confirm publisher information.',
+    confidence:     'high',
+    generatedBy:    'engine_template',
+    generatedAt:    '2026-06-21T00:00:00.000Z',
+    generatedFrom:  ['identityIntelligence', 'publishingIntelligence', 'catalogIntelligence', 'globalMusicFootprint'],
+  });
+
+  const plan = renderRoyalteAI(ai);
+
+  assert.ok(plan !== null, 'renderRoyalteAI must return a non-null plan for valid input');
+  assert.equal(typeof plan.observation, 'string', 'plan must carry observation string');
+  assert.ok(Array.isArray(plan.activities), 'plan must carry activities array');
+  assert.equal(plan.activities.length, 3,
+    'activities must have exactly 3 entries (Priority Issue, Positive Signal, Next Action)');
+  assert.deepStrictEqual(
+    plan.activities.map((a) => a.label),
+    [
+      ROYALTE_AI_ACTIVITY_LABELS.PRIORITY,
+      ROYALTE_AI_ACTIVITY_LABELS.POSITIVE_SIGNAL,
+      ROYALTE_AI_ACTIVITY_LABELS.NEXT_ACTION,
+    ],
+    'activity labels must match the Board-locked ROYALTE_AI_ACTIVITY_LABELS vocabulary'
+  );
+  assert.equal(plan.activities[0].text, ai.priority,       'activity[0].text must be the priority field');
+  assert.equal(plan.activities[1].text, ai.positiveSignal, 'activity[1].text must be the positiveSignal field');
+  assert.equal(plan.activities[2].text, ai.nextAction,     'activity[2].text must be the nextAction field');
+
+  // Graceful null handling — boot module leaves locked sample HTML in place
+  assert.strictEqual(renderRoyalteAI(null),      null, 'null input must return null');
+  assert.strictEqual(renderRoyalteAI(undefined), null, 'undefined input must return null');
+
+  // HEP boundary — Royaltē Health™ owns scoring; AI renderer must never expose it
+  const forbidden = ['score', 'health', 'grade', 'healthScore', 'overallScore'];
+  for (const key of forbidden) {
+    assert.ok(!(key in plan),
+      `plan must not expose '${key}' — Royaltē Health™ owns executive scoring (HEP boundary)`);
+  }
 });
 
 test('27. CONCERN 1 (HEP) — Identity Intelligence + Royaltē Health remain separated; coverage carries no scoring fields', () => {

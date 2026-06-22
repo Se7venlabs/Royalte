@@ -14,6 +14,7 @@
 //      renderPublishing(intelligence)           ← Phase 5B — implemented
 //      renderCatalog(intelligence)              ← Catalog Phase v1.0 — implemented
 //      renderGlobalMusicFootprint(intelligence) ← GMF Phase v1.0 — implemented
+//      renderRoyalteAI(intelligence)            ← Royaltē AI Phase v1.0 — implemented
 //      renderBackend(intelligence)              ← future stage (stub below)
 //      renderHealth(intelligence)               ← future stage (stub below)
 //      renderPriorityActions(intelligence)      ← future stage (stub below)
@@ -467,5 +468,61 @@ export function renderPublishing(intelligence) {
   return {
     coverage:      buildPublishingCoveragePlan(intelligence),
     registrations: buildPublishingRegistrationPlan(intelligence),
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  Royaltē AI™ renderers  (Phase Royaltē AI v1.0)
+// ─────────────────────────────────────────────────────────────────────
+//
+//  Reads audit_scans.payload.royalteAI (assembled once by
+//  assembleRoyalteAI in api/_lib/royalte-ai-assembler.js) and
+//  produces a deterministic render plan the boot module applies to
+//  the locked MC right-rail AI card.
+//
+//  Mission Control:
+//    - never recomputes observation, priority, positiveSignal, nextAction
+//    - never calls an LLM, never generates text client-side
+//    - reads the pre-assembled royalteAI object from audit_scans.payload
+//
+//  Return shape:
+//    {
+//      observation:  string,
+//      activities:   [{ label, text }, ...],  // 3 entries: Priority, Signal, Action
+//      confidence:   string,
+//      generatedBy:  string,
+//    }
+//  or null when intelligence is absent (boot module leaves locked sample HTML).
+
+// Board-locked activity labels — change only through formal Board directive.
+export const ROYALTE_AI_ACTIVITY_LABELS = Object.freeze({
+  PRIORITY:        'Priority Issue',
+  POSITIVE_SIGNAL: 'Positive Signal',
+  NEXT_ACTION:     'Next Action',
+});
+
+const UNABLE = 'Unable to generate insight from reviewed sources.';
+
+export function safeRoyalteAI(ai) {
+  if (!ai || typeof ai !== 'object' || Array.isArray(ai)) return null;
+  return ai;
+}
+
+// renderRoyalteAI(intelligence) — canonical entry point for the
+// Royaltē AI™ domain. Returns null on absent / malformed intelligence
+// so the boot module leaves the locked sample HTML in place.
+export function renderRoyalteAI(intelligence) {
+  const ai = safeRoyalteAI(intelligence);
+  if (!ai) return null;
+  const str = (x) => (typeof x === 'string' && x.trim() !== '') ? x.trim() : UNABLE;
+  return {
+    observation: str(ai.observation),
+    activities: [
+      { label: ROYALTE_AI_ACTIVITY_LABELS.PRIORITY,        text: str(ai.priority)       },
+      { label: ROYALTE_AI_ACTIVITY_LABELS.POSITIVE_SIGNAL, text: str(ai.positiveSignal) },
+      { label: ROYALTE_AI_ACTIVITY_LABELS.NEXT_ACTION,     text: str(ai.nextAction)     },
+    ],
+    confidence:  typeof ai.confidence  === 'string' ? ai.confidence  : 'low',
+    generatedBy: typeof ai.generatedBy === 'string' ? ai.generatedBy : 'engine_template',
   };
 }
