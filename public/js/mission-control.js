@@ -41,6 +41,7 @@ import {
   renderRoyalteAI,
   renderBackend,
   renderChangeDetection,
+  renderHealth,
   safeIdentityIntelligence,
   safePublishingIntelligence,
   safeCatalogIntelligence,
@@ -48,6 +49,7 @@ import {
   safeRoyalteAI,
   safeBackendIntelligence,
   safeMonitoringIntelligence,
+  safeHealthIntelligence,
 } from '/js/mission-control-renderers.js';
 
 // ─── Persisted payload fetch (Phase 4B-3 + Phase 5B) ──────────────
@@ -324,6 +326,75 @@ function applyChangeDetectionPlan(plan) {
     </li>`).join('');
 }
 
+// ─── Health Intelligence™ apply helper (Health Intelligence v1.0) ───
+//
+// Updates the ring progress, score, status, confidence, per-domain
+// contributor scores, composite average, and the strengths/concerns
+// insights foot. Leaves locked sample HTML untouched when plan is null.
+
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function applyHealthPlan(plan) {
+  if (!plan) return;
+
+  // Ring progress arc (SVG stroke-dasharray)
+  const ringEl = document.querySelector('[data-mc-health-ring-progress]');
+  if (ringEl) ringEl.setAttribute('stroke-dasharray', plan.ringDasharray);
+
+  // Score + status + confidence
+  const scoreEl = document.querySelector('[data-mc-health-score]');
+  if (scoreEl) scoreEl.innerHTML = `${plan.score} <small>/100</small>`;
+
+  const statusEl = document.querySelector('[data-mc-health-status]');
+  if (statusEl) statusEl.textContent = plan.status;
+
+  const confEl = document.querySelector('[data-mc-health-confidence]');
+  if (confEl) confEl.textContent = `${plan.confidence} Confidence`;
+
+  // Per-domain contributor scores
+  const domainMap = {
+    identity:   plan.domainScores.identity,
+    publishing: plan.domainScores.publishing,
+    catalog:    plan.domainScores.catalog,
+    footprint:  plan.domainScores.footprint,
+    monitoring: plan.domainScores.monitoring,
+    backend:    plan.domainScores.backend,
+  };
+  for (const [domain, score] of Object.entries(domainMap)) {
+    const row = document.querySelector(`[data-mc-health-domain="${domain}"]`);
+    if (!row) continue;
+    const valEl = row.querySelector('.val');
+    if (valEl) valEl.textContent = score;
+  }
+
+  // Composite average
+  const compositeEl = document.querySelector('[data-mc-health-composite]');
+  if (compositeEl) compositeEl.textContent = plan.composite;
+
+  // Strengths / concerns in the foot slot
+  const foot = document.querySelector('[data-mc-health-insights]');
+  if (!foot) return;
+
+  const hasStrengths = plan.strengths.length > 0;
+  const hasConcerns  = plan.concerns.length  > 0;
+  if (!hasStrengths && !hasConcerns) return;
+
+  const strengthsHTML = hasStrengths
+    ? `<ul class="mc-health-breakdown-list">${plan.strengths.map((s) => `<li><span class="lbl">&#x2713; ${escapeHTML(s)}</span></li>`).join('')}</ul>`
+    : '';
+  const concernsHTML = hasConcerns
+    ? `<ul class="mc-health-breakdown-list">${plan.concerns.map((c) => `<li><span class="lbl">&#x26A0; ${escapeHTML(c)}</span></li>`).join('')}</ul>`
+    : '';
+
+  foot.innerHTML = strengthsHTML + concernsHTML;
+}
+
 // ─── Backend Intelligence™ apply helpers (Backend Intelligence Phase v1.0) ──
 //
 // Writes connectedCount and summaryLabel into the summary row, then
@@ -408,6 +479,16 @@ async function initMissionControl() {
   if (monitoringIntelligence) {
     const cdPlan = renderChangeDetection(monitoringIntelligence);
     applyChangeDetectionPlan(cdPlan);
+  }
+
+  // Health Intelligence™ (Health Intelligence v1.0)
+  // Reads pre-assembled healthIntelligence from audit_scans.payload.
+  // The two-phase OS write re-assembles with real monitoringIntelligence
+  // before this boot module reads it, so the score reflects all 6 domains.
+  const healthIntelligence = safeHealthIntelligence(payload.healthIntelligence);
+  if (healthIntelligence) {
+    const healthPlan = renderHealth(healthIntelligence);
+    applyHealthPlan(healthPlan);
   }
 }
 

@@ -2908,21 +2908,21 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
               </g>
               <circle class="mc-ring-track"    cx="40" cy="40" r="34" fill="none" stroke-width="2.4"/>
               <circle class="mc-ring-progress" cx="40" cy="40" r="34" fill="none" stroke-width="2.4"
-                stroke-dasharray="167 214"/>
+                stroke-dasharray="167 214" data-mc-health-ring-progress/>
             </svg>
             <div class="mc-ring-icon">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10z"/></svg>
             </div>
           </div>
           <div class="mc-metric">
-            <div class="mc-metric-value">78 <small>/100</small></div>
+            <div class="mc-metric-value" data-mc-health-score>78 <small>/100</small></div>
             <!-- Refinement v1.0: status + delta texts re-labelled to
                  reflect the composite/derived nature of the score.
                  Typography, color, and structural classes preserved. -->
-            <div class="mc-metric-status">Royaltē Health Score™</div>
+            <div class="mc-metric-status" data-mc-health-status>Royaltē Health Score™</div>
             <div class="mc-metric-delta">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7-7 7 7"/></svg>
-              Powered by 6 Intelligence Engines™
+              <span data-mc-health-confidence>Powered by 6 Intelligence Engines™</span>
             </div>
           </div>
         </div>
@@ -2935,12 +2935,12 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
           <!-- Refinement v3.0: clean executive scorecard — label LEFT,
                score RIGHT, no icons / bars / graphs / decoration. -->
           <ul class="mc-health-breakdown-list">
-            <li><span class="lbl">Identity Intelligence™</span>     <span class="val">72</span></li>
-            <li><span class="lbl">Publishing Intelligence™</span>   <span class="val">86</span></li>
-            <li><span class="lbl">Catalog Intelligence™</span>      <span class="val">84</span></li>
-            <li><span class="lbl">Global Music Footprint™</span>    <span class="val">58</span></li>
-            <li><span class="lbl">Change Detection™</span>          <span class="val">95</span></li>
-            <li><span class="lbl">Backend Intelligence™</span>      <span class="val">100</span></li>
+            <li data-mc-health-domain="identity"><span class="lbl">Identity Intelligence™</span>     <span class="val">72</span></li>
+            <li data-mc-health-domain="publishing"><span class="lbl">Publishing Intelligence™</span>   <span class="val">86</span></li>
+            <li data-mc-health-domain="catalog"><span class="lbl">Catalog Intelligence™</span>      <span class="val">84</span></li>
+            <li data-mc-health-domain="footprint"><span class="lbl">Global Music Footprint™</span>    <span class="val">58</span></li>
+            <li data-mc-health-domain="monitoring"><span class="lbl">Change Detection™</span>          <span class="val">95</span></li>
+            <li data-mc-health-domain="backend"><span class="lbl">Backend Intelligence™</span>      <span class="val">100</span></li>
           </ul>
           <!-- Refinement v4.0: composite average summary — closes the
                contributor list with the aggregate the Health Score™
@@ -2948,15 +2948,14 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
                The math is intentionally not displayed per directive. -->
           <div class="mc-health-breakdown-summary">
             <span class="lbl">Composite Average</span>
-            <span class="val">83</span>
+            <span class="val" data-mc-health-composite>83</span>
           </div>
         </div>
 
-        <!-- Module Footer Cleanup v1.0: static placeholder copy removed.
-             The slot is preserved (empty .mc-card-foot keeps the
-             margin-top: auto anchor) so Royaltē AI can inject real
-             insights / warnings / recommendations when they exist. -->
-        <div class="mc-card-foot"></div>
+        <!-- Health Intelligence™ Insights — strengths and concerns injected
+             at runtime by /js/mission-control.js from
+             audit_scans.payload.healthIntelligence. Slot reserved. -->
+        <div class="mc-card-foot" data-mc-health-insights></div>
       </article>
 
       <!-- Identity Intelligence™ -->

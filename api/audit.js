@@ -31,6 +31,7 @@ import { assembleGlobalMusicFootprint } from './_lib/global-music-footprint.js';
 import { assembleRoyalteAI } from './_lib/royalte-ai-assembler.js';
 import { assembleBackendIntelligence } from './_lib/backend-intelligence.js';
 import { assembleMonitoringIntelligence } from './_lib/monitoring-intelligence.js';
+import { assembleHealthIntelligence } from './_lib/health-intelligence.js';
 import { fetchMlcWorksByArtist } from '../lib/publishing/mlc-client.js';
 import { normalizeMlcWorks } from '../lib/publishing/mlc-adapter.js';
 import { computeHealthScore, generateHealthReport } from './_lib/health-engine.js';
@@ -431,7 +432,28 @@ export default async function handler(req, res) {
         console.error('[audit] Royaltē AI™ assembly failed (non-blocking):', assemblyErr.message);
       }
 
-      // ── 7. Health & Executive Brief pipeline ──
+      // ── 7. Health Intelligence™ — reads all 6 assembled domain objects ──
+      // monitoringIntelligence is not yet available at this point (it is
+      // assembled in the two-phase OS write path below). Pass null; the
+      // assembler returns a neutral monitoringScore and the two-phase
+      // patch below re-assembles and overwrites with the final value once
+      // monitoringIntelligence is known.
+      let healthIntelligence = null;
+      try {
+        healthIntelligence = assembleHealthIntelligence(
+          identityIntelligence,
+          publishingIntelligence,
+          catalogIntelligence,
+          globalMusicFootprint,
+          backendIntelligence,
+          null, // monitoringIntelligence — patched in two-phase OS write
+          royalteAI,
+        );
+      } catch (hiErr) {
+        console.error('[audit] Health Intelligence™ assembly failed (non-blocking):', hiErr.message);
+      }
+
+      // ── 8. Health & Executive Brief pipeline ──
       // computeHealthScore() called exactly once; result passed to both
       // generateHealthReport() and generateExecutiveBrief() so the
       // canonical Health object is computed only once per scan.
@@ -453,6 +475,7 @@ export default async function handler(req, res) {
       if (globalMusicFootprint)   enriched.globalMusicFootprint   = globalMusicFootprint;
       if (backendIntelligence)    enriched.backendIntelligence    = backendIntelligence;
       if (royalteAI)              enriched.royalteAI              = royalteAI;
+      if (healthIntelligence)     enriched.healthIntelligence     = healthIntelligence;
       if (healthScore)            enriched.healthScore            = healthScore;
       if (healthReport)           enriched.healthReport           = healthReport;
       if (executiveBrief)         enriched.executiveBrief         = executiveBrief;
@@ -503,7 +526,10 @@ export default async function handler(req, res) {
             warnings: result.warnings,
           });
 
-          // ── Monitoring Intelligence™ — two-phase payload patch ──
+          // ── Monitoring + Health Intelligence™ — two-phase payload patch ──
+          // Both objects are (re-)assembled here now that monitoringIntelligence
+          // is known. Health Intelligence is re-assembled with real monitoring
+          // data so the final persisted payload has the complete score.
           if (osResult && osResult.written) {
             try {
               const monitoringIntelligence = assembleMonitoringIntelligence({
@@ -512,12 +538,29 @@ export default async function handler(req, res) {
               });
               if (monitoringIntelligence && canonical) {
                 canonical.monitoringIntelligence = monitoringIntelligence;
+                // Re-assemble Health Intelligence™ with real monitoringIntelligence
+                try {
+                  const finalHealthIntelligence = assembleHealthIntelligence(
+                    canonical.identityIntelligence   || null,
+                    canonical.publishingIntelligence || null,
+                    canonical.catalogIntelligence    || null,
+                    canonical.globalMusicFootprint   || null,
+                    canonical.backendIntelligence    || null,
+                    monitoringIntelligence,
+                    canonical.royalteAI              || null,
+                  );
+                  if (finalHealthIntelligence) {
+                    canonical.healthIntelligence = finalHealthIntelligence;
+                  }
+                } catch (hiPatchErr) {
+                  console.error('[audit] health intelligence re-assembly failed (non-blocking):', hiPatchErr.message);
+                }
                 const { error: miPatchErr } = await supabaseForOS
                   .from('audit_scans')
                   .update({ payload: canonical })
                   .eq('id', scanId);
                 if (miPatchErr) {
-                  console.error('[audit] monitoring intelligence patch failed (non-blocking):', miPatchErr.message);
+                  console.error('[audit] monitoring+health intelligence patch failed (non-blocking):', miPatchErr.message);
                 }
               }
             } catch (miErr) {
