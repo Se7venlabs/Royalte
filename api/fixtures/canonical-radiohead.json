@@ -36,6 +36,11 @@
   },
   "catalog": {
     "totalReleases": 47,
+    "totalTracks": 0,
+    "singlesCount": 0,
+    "epsCount": 0,
+    "albumsCount": 0,
+    "featuresCount": 0,
     "earliestYear": 1993,
     "latestYear": 2023,
     "catalogAgeYears": 33,
@@ -56,6 +61,7 @@
         "albumCount": 15,
         "albums": [],
         "storefrontAvailability": null,
+        "globalStorefrontAvailability": null,
         "catalogComparison": {
           "tracksChecked": 10,
           "matched": 9,

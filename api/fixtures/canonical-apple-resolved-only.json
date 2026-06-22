@@ -31,6 +31,11 @@
   },
   "catalog": {
     "totalReleases": 3,
+    "totalTracks": 0,
+    "singlesCount": 0,
+    "epsCount": 0,
+    "albumsCount": 0,
+    "featuresCount": 0,
     "earliestYear": 2022,
     "latestYear": 2024,
     "catalogAgeYears": 2,
@@ -51,6 +56,7 @@
         "albumCount": 3,
         "albums": [],
         "storefrontAvailability": null,
+        "globalStorefrontAvailability": null,
         "catalogComparison": null,
         "isrcLookup": null
       }

@@ -2,7 +2,8 @@
   "version": 2,
   "functions": {
     "api/audit.js": {
-      "includeFiles": "api/apple-token.js"
+      "includeFiles": "api/apple-token.js",
+      "maxDuration": 30
     },
     "api/resolve-artist.js": {
       "includeFiles": "api/apple-token.js"
