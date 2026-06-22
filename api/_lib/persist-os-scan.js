@@ -303,10 +303,11 @@ export async function persistOSScanSnapshot({
   }
 
   // ── Delta engine — non-blocking per Brief 003 ──────────────────────────
-  let alertCount = 0;
+  let alertCount      = 0;
+  let generatedAlerts = [];
   try {
-    const alerts = await computeDelta(inserted, previousSnapshot, supabase);
-    alertCount = Array.isArray(alerts) ? alerts.length : 0;
+    generatedAlerts = await computeDelta(inserted, previousSnapshot, supabase);
+    alertCount = Array.isArray(generatedAlerts) ? generatedAlerts.length : 0;
     console.log(`[delta] ${alertCount} alerts emitted for ${artistName}`);
   } catch (deltaErr) {
     console.error('[delta] computeDelta failed (non-blocking):', deltaErr.message);
@@ -345,6 +346,7 @@ export async function persistOSScanSnapshot({
     snapshotId: inserted.id,
     scanNumber,
     alertCount,
+    alerts:     Array.isArray(generatedAlerts) ? generatedAlerts : [],
   };
 }
 

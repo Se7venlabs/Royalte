@@ -40,12 +40,14 @@ import {
   renderGlobalMusicFootprint,
   renderRoyalteAI,
   renderBackend,
+  renderChangeDetection,
   safeIdentityIntelligence,
   safePublishingIntelligence,
   safeCatalogIntelligence,
   safeGlobalMusicFootprintIntelligence,
   safeRoyalteAI,
   safeBackendIntelligence,
+  safeMonitoringIntelligence,
 } from '/js/mission-control-renderers.js';
 
 // ─── Persisted payload fetch (Phase 4B-3 + Phase 5B) ──────────────
@@ -254,6 +256,74 @@ function applyRoyalteAIPlan(plan) {
   `).join('');
 }
 
+// ─── Change Detection™ apply helpers (Monitoring Intelligence Phase v1.0) ────
+//
+// Maps the monitoringIntelligence render plan to the Change Detection™ card.
+// Summary counters are set via data attribute selectors; the event feed is
+// replaced wholesale using the same innerHTML-replacement pattern as
+// applyRoyalteAIPlan. Static SVG icons are keyed to change_type so each
+// event class (territory, release, ISRC, baseline, video, podcast) uses the
+// appropriate glyph. Leaves the locked sample HTML untouched when plan is null.
+
+const CHANGE_TYPE_ICON_SVG = Object.freeze({
+  // Shield + check — first scan / baseline
+  baseline_established: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>`,
+  // Music note — release events
+  release_added:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+  release_removed:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+  // Globe — territory events
+  territory_gain:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg>`,
+  territory_loss:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg>`,
+  // Fingerprint/hash — ISRC events
+  isrc_added:           `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3"/><path d="M7 8v8M12 8v8M17 8v8"/></svg>`,
+  isrc_dropped:         `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3"/><path d="M7 8v8M12 8v8M17 8v8"/></svg>`,
+  isrc_mismatch:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3"/><path d="M7 8v8M12 8v8M17 8v8"/></svg>`,
+  // Play — YouTube video events
+  video_added:          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+  video_removed:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+  // Mic — podcast
+  podcast_appearance:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>`,
+  // Default bolt
+  _default:             `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4.5 13h6L11 22l8.5-11h-6z"/></svg>`,
+});
+
+function iconForChangeType(changeType) {
+  return CHANGE_TYPE_ICON_SVG[changeType] || CHANGE_TYPE_ICON_SVG._default;
+}
+
+function applyChangeDetectionPlan(plan) {
+  if (!plan) return;
+  const sumValueEl = document.querySelector('[data-mc-cd-sum-value]');
+  const sumMetaEl  = document.querySelector('[data-mc-cd-sum-meta]');
+  if (sumValueEl) sumValueEl.textContent = plan.sumValue;
+  if (sumMetaEl)  sumMetaEl.textContent  = plan.sumMeta;
+
+  const feed = document.querySelector('[data-mc-cd-feed]');
+  if (!feed) return;
+
+  if (plan.events.length === 0) {
+    // No delta events — show a single "all clear" row
+    feed.innerHTML = `
+      <li class="mc-cd-event">
+        <span class="mc-cd-icon" aria-hidden="true">${iconForChangeType('baseline_established')}</span>
+        <div class="mc-cd-event-body">
+          <div class="mc-cd-event-title">No changes detected this scan</div>
+          <div class="mc-cd-event-meta">This Scan</div>
+        </div>
+      </li>`;
+    return;
+  }
+
+  feed.innerHTML = plan.events.map((e) => `
+    <li class="mc-cd-event">
+      <span class="mc-cd-icon" aria-hidden="true">${iconForChangeType(e.changeType)}</span>
+      <div class="mc-cd-event-body">
+        <div class="mc-cd-event-title">${escapeText(e.title)}</div>
+        <div class="mc-cd-event-meta">This Scan</div>
+      </div>
+    </li>`).join('');
+}
+
 // ─── Backend Intelligence™ apply helpers (Backend Intelligence Phase v1.0) ──
 //
 // Writes connectedCount and summaryLabel into the summary row, then
@@ -329,6 +399,15 @@ async function initMissionControl() {
   if (backendIntelligence) {
     const backendPlan = renderBackend(backendIntelligence);
     applyBackendPlan(backendPlan);
+  }
+
+  // Monitoring Intelligence™ — Change Detection™ card (Monitoring Phase v1.0)
+  // Per-scan delta only (Option A). Absent for unauthenticated scans;
+  // locked sample HTML stays when monitoringIntelligence is null.
+  const monitoringIntelligence = safeMonitoringIntelligence(payload.monitoringIntelligence);
+  if (monitoringIntelligence) {
+    const cdPlan = renderChangeDetection(monitoringIntelligence);
+    applyChangeDetectionPlan(cdPlan);
   }
 }
 

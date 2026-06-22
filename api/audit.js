@@ -30,6 +30,7 @@ import { assembleCatalogIntelligence } from './_lib/catalog-intelligence.js';
 import { assembleGlobalMusicFootprint } from './_lib/global-music-footprint.js';
 import { assembleRoyalteAI } from './_lib/royalte-ai-assembler.js';
 import { assembleBackendIntelligence } from './_lib/backend-intelligence.js';
+import { assembleMonitoringIntelligence } from './_lib/monitoring-intelligence.js';
 import { fetchMlcWorksByArtist } from '../lib/publishing/mlc-client.js';
 import { normalizeMlcWorks } from '../lib/publishing/mlc-adapter.js';
 import { computeHealthScore, generateHealthReport } from './_lib/health-engine.js';
@@ -482,18 +483,47 @@ export default async function handler(req, res) {
     // monitoring_subscriptions upsert. Anonymous callers (no Bearer token)
     // skip this entirely. Failures here are logged and swallowed — the
     // user-facing scan response must NEVER depend on V2 monitoring work.
+    //
+    // Monitoring Intelligence™ (Phase Monitoring v1.0 — Option A):
+    //   After persistOSScanSnapshot returns its generatedAlerts, assemble
+    //   monitoringIntelligence and PATCH audit_scans.payload to include it.
+    //   Two-phase write is required because the delta runs AFTER the initial
+    //   payload is persisted. Non-blocking — a patch failure never aborts
+    //   the scan response.
     try {
       const supabaseForOS = getAuditScansSupabase();
       if (supabaseForOS && canonical) {
         const userId = await resolveUserIdFromAuthHeader(req, supabaseForOS);
         if (userId) {
-          await persistOSScanSnapshot({
+          const osResult = await persistOSScanSnapshot({
             canonical,
             urlType: result.urlType,
             userId,
             supabase: supabaseForOS,
             warnings: result.warnings,
           });
+
+          // ── Monitoring Intelligence™ — two-phase payload patch ──
+          if (osResult && osResult.written) {
+            try {
+              const monitoringIntelligence = assembleMonitoringIntelligence({
+                scanNumber: osResult.scanNumber,
+                alerts:     osResult.alerts || [],
+              });
+              if (monitoringIntelligence && canonical) {
+                canonical.monitoringIntelligence = monitoringIntelligence;
+                const { error: miPatchErr } = await supabaseForOS
+                  .from('audit_scans')
+                  .update({ payload: canonical })
+                  .eq('id', scanId);
+                if (miPatchErr) {
+                  console.error('[audit] monitoring intelligence patch failed (non-blocking):', miPatchErr.message);
+                }
+              }
+            } catch (miErr) {
+              console.error('[audit] monitoring intelligence assembly/patch failed (non-blocking):', miErr.message);
+            }
+          }
         }
       }
     } catch (osErr) {

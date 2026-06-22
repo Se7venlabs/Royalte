@@ -16,6 +16,7 @@
 //      renderGlobalMusicFootprint(intelligence) ← GMF Phase v1.0 — implemented
 //      renderRoyalteAI(intelligence)            ← Royaltē AI Phase v1.0 — implemented
 //      renderBackend(intelligence)              ← Backend Intelligence Phase v1.0 — implemented
+//      renderChangeDetection(intelligence)      ← Monitoring Intelligence Phase v1.0 — implemented
 //      renderHealth(intelligence)               ← future stage (stub below)
 //      renderPriorityActions(intelligence)      ← future stage (stub below)
 //
@@ -578,4 +579,71 @@ export function renderRoyalteAI(intelligence) {
     confidence:  typeof ai.confidence  === 'string' ? ai.confidence  : 'low',
     generatedBy: typeof ai.generatedBy === 'string' ? ai.generatedBy : 'engine_template',
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  Monitoring Intelligence™ renderers  (Monitoring Intelligence Phase v1.0)
+// ─────────────────────────────────────────────────────────────────────
+//
+//  Renders per-scan delta events into the Change Detection™ card feed.
+//  Source: audit_scans.payload.monitoringIntelligence (Option A — per-scan
+//  delta only; assembled after computeDelta runs for authenticated scans).
+//
+//  When monitoringIntelligence is absent (unauthenticated scan, or patch
+//  failed), renderChangeDetection returns null and the boot module leaves
+//  the locked sample HTML in place — 4 hardcoded marketing events visible.
+//
+//  Summary vocabulary:
+//    baseline:   "1 New" / "Baseline Set"
+//    active:     "N New" / "This Scan"
+//    no_changes: "All Clear" / "This Scan"
+//
+//  HEP boundary: never exposes score / health / grade.
+//
+//  Return shape:
+//    {
+//      sumValue: string,    // e.g. "3 New", "All Clear", "1 New"
+//      sumMeta:  string,    // e.g. "This Scan", "Baseline Set"
+//      events:   EventPlan[],
+//    }
+//
+//    EventPlan = { changeType: string, title: string, severity: string }
+
+export function safeMonitoringIntelligence(mi) {
+  if (!mi || typeof mi !== 'object' || Array.isArray(mi)) return null;
+  if (typeof mi.status !== 'string') return null;
+  return mi;
+}
+
+export function renderChangeDetection(intelligence) {
+  const mi = safeMonitoringIntelligence(intelligence);
+  if (!mi) return null;
+
+  const str     = (x) => (typeof x === 'string' && x.trim() !== '') ? x.trim() : '';
+  const status  = str(mi.status) || 'no_changes';
+  const count   = typeof mi.newThisScan === 'number' ? mi.newThisScan : 0;
+
+  let sumValue;
+  let sumMeta;
+  if (status === 'baseline') {
+    sumValue = '1 New';
+    sumMeta  = 'Baseline Set';
+  } else if (status === 'no_changes' || count === 0) {
+    sumValue = 'All Clear';
+    sumMeta  = 'This Scan';
+  } else {
+    sumValue = `${count} New`;
+    sumMeta  = 'This Scan';
+  }
+
+  const rawEvents = Array.isArray(mi.events) ? mi.events : [];
+  const events = rawEvents
+    .filter((e) => e && typeof e === 'object')
+    .map((e) => ({
+      changeType: str(e.changeType) || 'unknown',
+      title:      str(e.title)      || 'Change detected',
+      severity:   str(e.severity)   || 'informational',
+    }));
+
+  return { sumValue, sumMeta, events };
 }
