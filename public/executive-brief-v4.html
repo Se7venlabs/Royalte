@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royaltē Executive Brief™ v4</title>
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ROYALTĒ V4 DESIGN TOKENS
+   Constitutional authority: V4 palette wins over mockup colors.
+   No blue / cyan / teal / orange / neon.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Backgrounds */
+  --bg-white:       #FFFFFF;
+  --bg-light:       #F8F7FC;    /* soft off-white page bg */
+  --bg-dark:        #0B0B14;    /* near-black (cover left panel) */
+  --bg-dark-mid:    #13121F;    /* slightly lighter dark surface */
+  --bg-lavender:    #EDE9FE;    /* pale violet surface / tag bg */
+
+  /* Brand */
+  --purple:         #6B32A0;    /* Royaltē primary purple */
+  --purple-light:   #8E52C0;    /* hover / accent purple */
+  --purple-pale:    #C4A8E8;    /* muted purple for dark-surface text */
+
+  /* Text */
+  --text-dark:      #111827;    /* near-black body text */
+  --text-mid:       #374151;    /* secondary body text */
+  --text-light:     #6B7280;    /* captions, labels */
+  --text-xlight:    #9CA3AF;    /* tertiary / placeholders */
+  --text-white:     #FFFFFF;
+  --text-on-dark:   #E5E7EB;    /* readable text on --bg-dark */
+
+  /* Semantic status */
+  --green-bg:       #D1FAE5;
+  --green-text:     #065F46;
+  --amber-bg:       #FEF3C7;
+  --amber-text:     #92400E;
+  --red-bg:         #FEE2E2;
+  --red-text:       #991B1B;
+  --gray-bg:        #F3F4F6;
+  --gray-text:      #374151;
+
+  /* Champagne (premium accent) */
+  --champagne:      #F5E6C8;
+  --champagne-text: #78532A;
+
+  /* Borders */
+  --border:         #E5E7EB;
+  --border-mid:     #D1D5DB;
+
+  /* Score bar */
+  --bar-track:      #E5E7EB;
+  --bar-fill:       #6B32A0;
+
+  /* Typography */
+  --font:           'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:      'IBM Plex Mono', 'Fira Mono', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRINT / PDFSHIFT CONFORMANCE
+   PDFShift is called with: { source: html, use_print: true, format: 'Letter' }
+   Every .page must be exactly 8.5in × 11in with overflow hidden.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: var(--font);
+  font-size: 10pt;
+  background: var(--bg-white);
+  color: var(--text-dark);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+@page {
+  size: letter;
+  margin: 0;
+}
+
+.page {
+  width: 8.5in;
+  height: 11in;
+  overflow: hidden;
+  position: relative;
+  page-break-after: always;
+  break-after: page;
+  background: var(--bg-white);
+}
+
+.page:last-child {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PLACEHOLDER — filled with page content in subsequent steps
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.page-scaffold-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 13pt;
+  font-weight: 700;
+  color: var(--text-xlight);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 1 — EXECUTIVE SUMMARY™
+     Sources: executiveBrief, healthScore, healthIntelligence,
+              royalteAI.positiveSignal, platforms.appleMusic.details.artwork
+     ════════════════════════════════════════════════════════ -->
+<section class="page" aria-label="Executive Summary" data-page="1">
+  <div class="page-scaffold-label">Page 1 — Executive Summary™</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 2 — MUSIC BACKEND HEALTH™
+     Sources: healthScore (all 7 category scores),
+              healthIntelligence (monitoringScore, publishingScore),
+              catalogIntelligence, globalMusicFootprint, publishingIntelligence
+     ════════════════════════════════════════════════════════ -->
+<section class="page" aria-label="Music Backend Health" data-page="2">
+  <div class="page-scaffold-label">Page 2 — Music Backend Health™</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 3 — BACKEND INTELLIGENCE™
+     Sources: identityIntelligence, publishingIntelligence,
+              catalogIntelligence, globalMusicFootprint, backendIntelligence,
+              monitoringIntelligence (ABSENT → fallback),
+              royalteAI.observation, healthScore (per-domain scores)
+     ════════════════════════════════════════════════════════ -->
+<section class="page" aria-label="Backend Intelligence" data-page="3">
+  <div class="page-scaffold-label">Page 3 — Backend Intelligence™</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 4 — CATALOG INTELLIGENCE™
+     Sources: catalogIntelligence, globalMusicFootprint,
+              publishingIntelligence, platforms.appleMusic.details.albums
+     ════════════════════════════════════════════════════════ -->
+<section class="page" aria-label="Catalog Intelligence" data-page="4">
+  <div class="page-scaffold-label">Page 4 — Catalog Intelligence™</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 5 — ROYALTĒ AI™
+     Sources: royalteAI (priority, nextAction, positiveSignal, confidence),
+              executiveBrief (executiveNarrative, recommendedNextStep,
+              confidenceStatement), healthIntelligence.concerns
+     ════════════════════════════════════════════════════════ -->
+<section class="page" aria-label="Royalte AI" data-page="5">
+  <div class="page-scaffold-label">Page 5 — Royaltē AI™</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 6 — EXECUTIVE ACTION PLAN™
+     Sources: executiveBrief.priorityActions (category derived from
+              topRisks/topStrengths by matching ruleId),
+              executiveBrief.topRisks (category field present),
+              executiveBrief.topStrengths (category field present)
+     ════════════════════════════════════════════════════════ -->
+<section class="page" aria-label="Executive Action Plan" data-page="6">
+  <div class="page-scaffold-label">Page 6 — Executive Action Plan™</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE 7 — MISSION CONTROL™
+     Sources: healthScore, executiveBrief (recommendedNextStep,
+              confidenceStatement), backendIntelligence, identityIntelligence,
+              publishingIntelligence, catalogIntelligence,
+              monitoringIntelligence (ABSENT → fallback), royalteAI
+     ════════════════════════════════════════════════════════ -->
+<section class="page" aria-label="Mission Control" data-page="7">
+  <div class="page-scaffold-label">Page 7 — Mission Control™</div>
+</section>
+
+</body>
+</html>
