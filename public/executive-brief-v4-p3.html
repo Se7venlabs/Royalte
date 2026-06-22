@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Royaltē Executive Brief™ v4 — Page 03</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@page { size: letter; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  background: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ── PAGE SHELL ─────────────────────────────────── */
+.page {
+  width: 8.5in;
+  height: 11in;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 0.36in 0.44in 0.3in;
+}
+
+/* ── HEADER ─────────────────────────────────────── */
+.hdr {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: 0.09in;
+  border-bottom: 0.75px solid #D1D5DB;
+  flex-shrink: 0;
+}
+.hdr-logo-name {
+  font-size: 15pt;
+  font-weight: 900;
+  letter-spacing: -0.015em;
+  color: #111827;
+  line-height: 1;
+}
+.hdr-logo-sub {
+  font-size: 5.5pt;
+  font-weight: 700;
+  color: #6B21A8;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.hdr-center {
+  font-size: 7pt;
+  font-weight: 500;
+  color: #9CA3AF;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.hdr-page {
+  font-size: 7pt;
+  font-weight: 500;
+  color: #9CA3AF;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── BODY ───────────────────────────────────────── */
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2in;
+  padding-top: 0.2in;
+  overflow: hidden;
+}
+
+/* ── HERO ROW ───────────────────────────────────── */
+.hero-row {
+  display: flex;
+  gap: 0.3in;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+
+.hero-left {
+  flex: 1;
+}
+
+.title-1 {
+  font-size: 36pt;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #111827;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+.title-2 {
+  font-size: 36pt;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #6B21A8;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+.title-sub {
+  font-size: 6.5pt;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.03em;
+  line-height: 1.55;
+  margin-top: 0.1in;
+  padding-left: 0.01in;
+  border-left: 2px solid #6B21A8;
+  padding-left: 0.09in;
+}
+
+/* ── SCORE SUMMARY CARD ─────────────────────────── */
+.score-summary {
+  width: 2.85in;
+  flex-shrink: 0;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 0.15in 0.18in 0.14in;
+  background: #fff;
+}
+
+.ss-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.055in 0;
+  border-bottom: 0.75px solid #F3F4F6;
+}
+.ss-row:last-of-type { border-bottom: none; }
+
+.ss-label {
+  font-size: 6pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #6B21A8;
+  text-transform: uppercase;
+}
+.ss-value {
+  font-size: 11pt;
+  font-weight: 900;
+  color: #6B21A8;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.ss-value .ss-denom {
+  font-size: 8pt;
+  font-weight: 400;
+  color: #9CA3AF;
+}
+.ss-value .ss-band {
+  font-size: 7pt;
+  font-weight: 600;
+  color: #6B7280;
+  margin-left: 4px;
+}
+.ss-projected {
+  font-size: 12pt;
+  font-weight: 900;
+  color: #059669;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.ss-divider {
+  height: 1px;
+  background: #E5E7EB;
+  margin: 0.09in 0 0.08in;
+}
+.ss-copy {
+  font-size: 7pt;
+  font-weight: 400;
+  color: #6B7280;
+  line-height: 1.5;
+}
+
+/* ── ACTION COLUMNS ─────────────────────────────── */
+.action-row {
+  display: flex;
+  gap: 0.22in;
+  flex: 1;
+}
+
+.action-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.action-col-lbl {
+  font-size: 7.5pt;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #6B21A8;
+  text-transform: uppercase;
+  padding-bottom: 0.065in;
+  border-bottom: 1.5px solid #6B21A8;
+  margin-bottom: 0.13in;
+  flex-shrink: 0;
+}
+
+.action-num {
+  font-size: 7.5pt;
+  font-weight: 700;
+  color: #6B21A8;
+  letter-spacing: 0.02em;
+  margin-bottom: 2px;
+}
+
+.action-title {
+  font-size: 9.5pt;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin-bottom: 0.09in;
+}
+
+.impact-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #FEF3C7;
+  border: 1px solid #FCD34D;
+  border-radius: 4px;
+  padding: 2px 7px;
+  margin-bottom: 0.1in;
+}
+.impact-label {
+  font-size: 5.5pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #92400E;
+  text-transform: uppercase;
+}
+.impact-value {
+  font-size: 6pt;
+  font-weight: 800;
+  color: #D97706;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bullet-list {
+  list-style: none;
+  margin-bottom: 0.1in;
+  flex: 1;
+}
+.bullet-list li {
+  font-size: 7.5pt;
+  font-weight: 400;
+  color: #374151;
+  line-height: 1.5;
+  padding-left: 0.12in;
+  position: relative;
+  margin-bottom: 2px;
+}
+.bullet-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.37em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #6B21A8;
+}
+
+.outcome-label {
+  font-size: 6pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #6B21A8;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.outcome-text {
+  font-size: 7.5pt;
+  font-weight: 400;
+  color: #6B7280;
+  line-height: 1.45;
+  font-style: italic;
+}
+
+/* ── BOTTOM ROW ─────────────────────────────────── */
+.bottom-row {
+  display: flex;
+  gap: 0.22in;
+  flex-shrink: 0;
+}
+
+/* AI Recommendation card */
+.ai-rec-card {
+  flex: 0 0 3.1in;
+  background: #F5F3FF;
+  border: 1px solid #EDE9FE;
+  border-radius: 10px;
+  padding: 0.14in 0.17in;
+  display: flex;
+  flex-direction: column;
+  gap: 0.07in;
+}
+
+.ai-rec-header {
+  display: flex;
+  align-items: center;
+  gap: 0.08in;
+  flex-shrink: 0;
+}
+
+.ai-rec-brain {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #6B21A8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ai-rec-brain svg { width: 12px; height: 12px; }
+
+.ai-rec-title {
+  font-size: 7pt;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  color: #111827;
+  text-transform: uppercase;
+}
+
+.ai-rec-rule {
+  height: 1px;
+  background: #DDD6FE;
+  flex-shrink: 0;
+}
+
+.ai-rec-body {
+  font-size: 7.5pt;
+  font-weight: 400;
+  color: #374151;
+  line-height: 1.52;
+  flex: 1;
+}
+
+.ai-rec-support {
+  font-size: 7pt;
+  font-weight: 600;
+  color: #6B21A8;
+  line-height: 1.45;
+  font-style: italic;
+}
+
+/* 90-Day Roadmap */
+.roadmap-card {
+  flex: 1;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 0.14in 0.17in;
+  display: flex;
+  flex-direction: column;
+  gap: 0.09in;
+}
+
+.roadmap-title {
+  font-size: 7.5pt;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  color: #111827;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.roadmap-track {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  padding-top: 0.06in;
+  flex: 1;
+}
+
+/* connecting line */
+.roadmap-track::before {
+  content: '';
+  position: absolute;
+  top: 0.27in;
+  left: 10px;
+  right: 10px;
+  height: 2px;
+  background: linear-gradient(to right, #6B21A8 0%, #A78BFA 100%);
+  z-index: 0;
+}
+
+.milestone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.ms-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #6B21A8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 0.07in;
+}
+.ms-dot-inner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.ms-time {
+  font-size: 6pt;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  color: #6B21A8;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 3px;
+}
+
+.ms-action {
+  font-size: 6.5pt;
+  font-weight: 500;
+  color: #374151;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ── FOOTER ─────────────────────────────────────── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.09in;
+  border-top: 0.75px solid #E5E7EB;
+  flex-shrink: 0;
+  margin-top: 0.09in;
+}
+.footer-left {
+  font-size: 6pt;
+  font-weight: 700;
+  color: #6B21A8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+.footer-center {
+  font-size: 7pt;
+  font-weight: 400;
+  color: #9CA3AF;
+}
+.footer-right {
+  font-size: 8pt;
+  font-weight: 800;
+  color: #6B21A8;
+  letter-spacing: -0.01em;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div>
+      <div class="hdr-logo-name">ROYALT&#274;</div>
+      <div class="hdr-logo-sub">Music Backend Intelligence™</div>
+    </div>
+    <div class="hdr-center">Royalt&#274; Executive Briefing</div>
+    <div class="hdr-page">Page 03</div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- HERO ROW: title left, score summary right -->
+    <div class="hero-row">
+      <div class="hero-left">
+        <div class="title-1">Executive</div>
+        <div class="title-2">Action Plan™</div>
+        <div class="title-sub">
+          Prioritized recommendations to improve Music Backend Health™,
+          increase royalty capture, and strengthen long-term catalog value.
+        </div>
+      </div>
+
+      <div class="score-summary">
+        <div class="ss-row">
+          <span class="ss-label">Current Score</span>
+          <span class="ss-value">{{health_score}}<span class="ss-denom"> / 100</span><span class="ss-band">{{health_band_label}}</span></span>
+        </div>
+        <div class="ss-row">
+          <span class="ss-label">Target Score</span>
+          <span class="ss-value">{{p3_target}}<span class="ss-denom"> / 100</span><span class="ss-band">{{p3_target_band}}</span></span>
+        </div>
+        <div class="ss-row">
+          <span class="ss-label">Projected Improvement</span>
+          <span class="ss-projected">{{p3_projected}}</span>
+        </div>
+        <div class="ss-divider"></div>
+        <div class="ss-copy">The recommendations below represent the highest-impact opportunities identified during the current assessment.</div>
+      </div>
+    </div>
+
+    <!-- THREE-COLUMN ACTION PLAN -->
+    <div class="action-row">
+
+      <!-- Column 1: Immediate Actions -->
+      <div class="action-col">
+        <div class="action-col-lbl">Immediate Actions</div>
+        <div class="action-num">01 —</div>
+        <div class="action-title">{{p3_action1_title}}</div>
+        <div class="impact-badge">
+          <span class="impact-label">Impact:</span>
+          <span class="impact-value">High</span>
+        </div>
+        <ul class="bullet-list">{{p3_action1_bullets}}</ul>
+        <div class="outcome-label">Expected Outcome</div>
+        <div class="outcome-text">{{p3_action1_outcome}}</div>
+      </div>
+
+      <!-- Column 2: 30-Day Priorities -->
+      <div class="action-col">
+        <div class="action-col-lbl">30-Day Priorities</div>
+        <div class="action-num">02 —</div>
+        <div class="action-title">{{p3_action2_title}}</div>
+        <div class="impact-badge">
+          <span class="impact-label">Impact:</span>
+          <span class="impact-value">High</span>
+        </div>
+        <ul class="bullet-list">{{p3_action2_bullets}}</ul>
+        <div class="outcome-label">Expected Outcome</div>
+        <div class="outcome-text">{{p3_action2_outcome}}</div>
+      </div>
+
+      <!-- Column 3: Long-Term Protection -->
+      <div class="action-col">
+        <div class="action-col-lbl">Long-Term Protection</div>
+        <div class="action-num">03 —</div>
+        <div class="action-title">{{p3_action3_title}}</div>
+        <div class="impact-badge">
+          <span class="impact-label">Impact:</span>
+          <span class="impact-value">High</span>
+        </div>
+        <ul class="bullet-list">{{p3_action3_bullets}}</ul>
+        <div class="outcome-label">Expected Outcome</div>
+        <div class="outcome-text">{{p3_action3_outcome}}</div>
+      </div>
+
+    </div><!-- /action-row -->
+
+    <!-- BOTTOM ROW: AI Recommendation + 90-Day Roadmap -->
+    <div class="bottom-row">
+
+      <!-- AI Recommendation card -->
+      <div class="ai-rec-card">
+        <div class="ai-rec-header">
+          <div class="ai-rec-brain">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="2.5"/>
+              <circle cx="5" cy="7.5" r="1.8"/>
+              <circle cx="19" cy="7.5" r="1.8"/>
+              <circle cx="5" cy="16.5" r="1.8"/>
+              <circle cx="19" cy="16.5" r="1.8"/>
+              <line x1="6.7" y1="8.4" x2="10" y2="11"/>
+              <line x1="17.3" y1="8.4" x2="14" y2="11"/>
+              <line x1="6.7" y1="15.6" x2="10" y2="13"/>
+              <line x1="17.3" y1="15.6" x2="14" y2="13"/>
+            </svg>
+          </div>
+          <div class="ai-rec-title">Royalt&#274; AI Recommendation™</div>
+        </div>
+        <div class="ai-rec-rule"></div>
+        <div class="ai-rec-body">{{p3_ai_rec}}</div>
+        <div class="ai-rec-support">{{p3_ai_support}}</div>
+      </div>
+
+      <!-- 90-Day Execution Roadmap -->
+      <div class="roadmap-card">
+        <div class="roadmap-title">90-Day Execution Roadmap™</div>
+        <div class="roadmap-track">
+
+          <div class="milestone">
+            <div class="ms-dot"><div class="ms-dot-inner"></div></div>
+            <div class="ms-time">Now</div>
+            <div class="ms-action">{{p3_ms1}}</div>
+          </div>
+
+          <div class="milestone">
+            <div class="ms-dot"><div class="ms-dot-inner"></div></div>
+            <div class="ms-time">30 Days</div>
+            <div class="ms-action">{{p3_ms2}}</div>
+          </div>
+
+          <div class="milestone">
+            <div class="ms-dot"><div class="ms-dot-inner"></div></div>
+            <div class="ms-time">60 Days</div>
+            <div class="ms-action">{{p3_ms3}}</div>
+          </div>
+
+          <div class="milestone">
+            <div class="ms-dot"><div class="ms-dot-inner"></div></div>
+            <div class="ms-time">90 Days</div>
+            <div class="ms-action">{{p3_ms4}}</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /bottom-row -->
+
+  </div><!-- /body -->
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">Confidential<br>For Artist Use Only</div>
+    <div class="footer-center">Built by artists, for artists.</div>
+    <div class="footer-right">royalte.ai</div>
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>
