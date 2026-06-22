@@ -10,10 +10,9 @@
 <style>
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ROYALTĒ EXECUTIVE BRIEF™ v4 — LOCKED V5
+   ROYALTĒ EXECUTIVE BRIEF™ v4
    Philosophy: The Audit is a Photograph. Monitoring is a Security Camera.
-   Design: White-first. Purple accents. Premium consulting feel.
-   No large black/dark background sections.
+   Reference: James Blake V3-P1 layout.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,39 +42,31 @@ html, body {
   break-after: avoid;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   DESIGN TOKENS
-   ═══════════════════════════════════════════════════════════════════════════ */
-
 :root {
-  --white:          #FFFFFF;
-  --bg-light:       #F8F7FC;
-  --bg-sidebar:     #F5F3FF;
-  --bg-lavender:    #EDE9FE;
-  --bg-gray:        #F3F4F6;
-
-  --purple:         #6B32A0;
-  --purple-light:   #8E52C0;
-  --purple-pale:    #C4A8E8;
-
-  --text-dark:      #111827;
-  --text-mid:       #374151;
-  --text-light:     #6B7280;
-  --text-xlight:    #9CA3AF;
-
-  --green-bg:       #D1FAE5;
-  --green-text:     #065F46;
-  --amber-bg:       #FEF3C7;
-  --amber-text:     #92400E;
-  --red-bg:         #FEE2E2;
-  --red-text:       #991B1B;
-
-  --border:         #E5E7EB;
-  --border-mid:     #D1D5DB;
+  --dark:         #0B0B14;
+  --dark-mid:     #13121F;
+  --dark-card:    #1C1B2C;
+  --white:        #FFFFFF;
+  --bg-light:     #F8F7FC;
+  --bg-lavender:  #EDE9FE;
+  --purple:       #6B32A0;
+  --purple-light: #8E52C0;
+  --purple-pale:  #C4A8E8;
+  --text-dark:    #111827;
+  --text-mid:     #374151;
+  --text-light:   #6B7280;
+  --text-xlight:  #9CA3AF;
+  --green-bg:     #D1FAE5;
+  --green-text:   #065F46;
+  --green-dot:    #10B981;
+  --amber-dot:    #F59E0B;
+  --border:       #E5E7EB;
+  --border-mid:   #D1D5DB;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   PAGE 1 — EXECUTIVE SUMMARY™  (LOCKED V5)
+   PAGE 1 — EXECUTIVE SUMMARY™
+   Structure: dark header bar | dark left col + white right col | dark nav strip
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .p1-outer {
@@ -84,242 +75,327 @@ html, body {
   height: 100%;
 }
 
-/* ── HEADER BAR ──────────────────────────────────────────────────────────── */
-.p1-bar {
+/* ── TOP HEADER BAR (full width, dark) ───────────────────────────────────── */
+.p1-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 0.28in;
-  height: 0.38in;
-  background: var(--white);
-  border-bottom: 1.5px solid var(--border);
+  height: 0.34in;
+  background: var(--dark);
   flex-shrink: 0;
 }
 
-.p1-bar-logo {
+.p1-logo {
   font-size: 11pt;
   font-weight: 800;
-  color: var(--purple);
+  color: #FFFFFF;
   letter-spacing: -0.02em;
 }
 
-.p1-bar-doc {
-  font-size: 7pt;
-  color: var(--text-light);
-  letter-spacing: 0.04em;
+.p1-logo-dot { color: var(--purple-pale); }
+
+.p1-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.p1-bar-pg {
-  font-size: 7pt;
+.p1-brief-tag {
+  font-size: 6pt;
   font-weight: 600;
-  color: var(--text-xlight);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(196,168,232,0.6);
+  background: rgba(107,50,160,0.3);
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
-/* ── BODY ────────────────────────────────────────────────────────────────── */
+.p1-pg-num {
+  font-size: 6.5pt;
+  font-weight: 600;
+  color: rgba(255,255,255,0.25);
+}
+
+/* ── BODY: left + right ──────────────────────────────────────────────────── */
 .p1-body {
   display: flex;
   flex: 1;
   overflow: hidden;
 }
 
-/* ── LEFT COLUMN ─────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   LEFT COLUMN — dark, cinematic
+   ═══════════════════════════════════════════════════════════════════════════ */
 .p1-left {
-  width: 2.9in;
+  width: 3.0in;
   flex-shrink: 0;
+  background: var(--dark);
   display: flex;
   flex-direction: column;
-  background: var(--bg-sidebar);
-  border-right: 1px solid var(--border-mid);
   overflow: hidden;
+  position: relative;
 }
 
-/* Artwork — only major image in the report */
-.p1-art-wrap {
-  width: 100%;
-  height: 2.95in;
+/* Subtle purple gradient on dark bg */
+.p1-left::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 20% 10%, rgba(107,50,160,0.22) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Editorial brand copy — top of left column */
+.p1-tagline {
+  padding: 0.18in 0.22in 0.14in;
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
-  overflow: hidden;
-  background: var(--bg-lavender);
 }
 
-.p1-art {
+.p1-tagline-main {
+  font-size: 10.5pt;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin-bottom: 5px;
+}
+
+.p1-tagline-accent { color: var(--purple-pale); }
+
+.p1-tagline-sub {
+  font-size: 7.5pt;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.45;
+  font-weight: 400;
+}
+
+/* Artist photo — fills available space */
+.p1-photo-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 2.8in;
+  z-index: 1;
+}
+
+.p1-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
   display: block;
 }
 
-/* Left content below artwork */
-.p1-left-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 0.18in 0.2in 0.15in;
+/* Gradient from bottom — fades photo into dark for identity overlay */
+.p1-photo-fade {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 70%;
+  background: linear-gradient(
+    to top,
+    #0B0B14 0%,
+    rgba(11,11,20,0.85) 35%,
+    rgba(11,11,20,0.3) 65%,
+    transparent 100%
+  );
+}
+
+/* Artist name + score overlaid at bottom of photo */
+.p1-identity {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 0.1in 0.22in 0.14in;
+  z-index: 2;
 }
 
 .p1-artist-name {
-  font-size: 13.5pt;
+  font-size: 13pt;
   font-weight: 900;
-  letter-spacing: -0.03em;
-  color: var(--text-dark);
-  line-height: 1.1;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
-  margin-bottom: 0.13in;
+  color: #FFFFFF;
+  line-height: 1.05;
+  margin-bottom: 5px;
 }
 
-.p1-score-block {
-  margin-bottom: 0.1in;
+.p1-health-tag {
+  font-size: 5.5pt;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(196,168,232,0.65);
+  margin-bottom: 5px;
 }
 
 .p1-score-row {
   display: flex;
   align-items: flex-end;
-  gap: 5px;
-  margin-bottom: 7px;
+  gap: 4px;
+  margin-bottom: 6px;
 }
 
-.p1-score-num {
+.p1-score {
   font-size: 30pt;
   font-weight: 900;
-  letter-spacing: -0.04em;
-  color: var(--purple);
+  color: #FFFFFF;
   line-height: 1;
+  letter-spacing: -0.04em;
 }
 
-.p1-score-denom {
-  font-size: 10pt;
-  font-weight: 400;
-  color: var(--text-xlight);
+.p1-score-of {
+  font-size: 9.5pt;
+  color: rgba(255,255,255,0.45);
   padding-bottom: 3px;
+  font-weight: 400;
 }
 
-.p1-grade-pill {
+.p1-grade {
   display: inline-block;
-  font-size: 6.5pt;
+  font-size: 5.5pt;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   padding: 3px 9px;
   border-radius: 20px;
+  margin-bottom: 0;
 }
-.p1-grade-pill.excellent { background: var(--green-bg);    color: var(--green-text); }
-.p1-grade-pill.strong    { background: var(--green-bg);    color: var(--green-text); }
-.p1-grade-pill.good      { background: var(--bg-lavender); color: var(--purple); }
-.p1-grade-pill.attention { background: var(--amber-bg);    color: var(--amber-text); }
-.p1-grade-pill.critical  { background: var(--red-bg);      color: var(--red-text); }
-
-.p1-divider {
-  height: 1px;
-  background: var(--border-mid);
-  margin: 0.13in 0;
-  flex-shrink: 0;
-}
+.p1-grade.excellent { background: var(--green-bg);    color: var(--green-text); }
+.p1-grade.strong    { background: var(--green-bg);    color: var(--green-text); }
+.p1-grade.good      { background: var(--bg-lavender); color: var(--purple); }
+.p1-grade.attention { background: #FEF3C7; color: #92400E; }
+.p1-grade.critical  { background: #FEE2E2; color: #991B1B; }
 
 /* Monitoring Status™ */
 .p1-monitoring {
-  flex: 1;
+  padding: 0.1in 0.22in 0.1in;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  position: relative;
+  z-index: 1;
 }
 
-.p1-monitoring-head {
-  font-size: 6.5pt;
+.p1-monitoring-title {
+  font-size: 5.5pt;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-light);
-  margin-bottom: 9px;
+  color: rgba(196,168,232,0.55);
+  margin-bottom: 7px;
 }
 
-.p1-mrow {
+.p1-status-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 5.5px 0;
-  border-bottom: 1px solid var(--border);
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.p1-status-row:last-child { margin-bottom: 0; }
+
+.p1-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-green { background: var(--green-dot);  box-shadow: 0 0 5px rgba(16,185,129,0.65); }
+.dot-amber { background: var(--amber-dot);  box-shadow: 0 0 5px rgba(245,158,11,0.55); }
+
+.p1-status-text {
+  font-size: 7.5pt;
+  font-weight: 600;
+  color: rgba(255,255,255,0.82);
 }
 
-.p1-mrow:last-child { border-bottom: none; }
+.p1-status-date {
+  font-size: 6.5pt;
+  color: rgba(255,255,255,0.35);
+  margin-left: auto;
+}
 
-.p1-mkey { font-size: 7.5pt; color: var(--text-light); }
-.p1-mval { font-size: 7.5pt; font-weight: 600; color: var(--text-dark); }
-.p1-mval-ok       { color: var(--green-text); }
-.p1-mval-inactive { color: var(--amber-text); }
+/* Attribution */
+.p1-attrib {
+  padding: 0.08in 0.22in 0.1in;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  position: relative;
+  z-index: 1;
+}
 
-/* ── RIGHT COLUMN ────────────────────────────────────────────────────────── */
+.p1-attrib-line {
+  font-size: 5.5pt;
+  color: rgba(255,255,255,0.25);
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RIGHT COLUMN — white, executive content
+   ═══════════════════════════════════════════════════════════════════════════ */
 .p1-right {
   flex: 1;
   display: flex;
   flex-direction: column;
   background: var(--white);
-  padding: 0.22in 0.28in 0.18in;
-  gap: 0.15in;
+  padding: 0.25in 0.28in 0.2in;
+  gap: 0.14in;
   overflow: hidden;
 }
 
-.p1-section-label {
-  font-size: 7pt;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--purple);
-  margin-bottom: 7px;
-}
-
-/* 1. Executive Summary™ */
-.p1-summary-text {
-  font-size: 9pt;
-  line-height: 1.7;
-  color: var(--text-mid);
-}
-
-/* 2. Royaltē AI Observation™ */
-.p1-ai-card {
-  background: var(--bg-lavender);
-  border-left: 3px solid var(--purple);
-  border-radius: 0 7px 7px 0;
-  padding: 0.14in 0.17in;
+/* 1. Executive Summary block (heading + text) */
+.p1-es-block {
   flex-shrink: 0;
 }
 
-.p1-ai-card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.p1-es-eyebrow {
+  font-size: 5.5pt;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 5px;
+}
+
+.p1-es-heading {
+  font-size: 38pt;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--text-dark);
+  line-height: 0.92;
+  text-transform: uppercase;
   margin-bottom: 8px;
 }
 
-.p1-ai-brand {
-  font-size: 7pt;
-  font-weight: 700;
+.p1-es-subhead {
+  font-size: 6pt;
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--purple);
+  color: var(--text-xlight);
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 9px;
 }
 
-.p1-ai-conf {
-  font-size: 6pt;
-  font-weight: 500;
-  color: var(--purple-light);
-  background: rgba(107,50,160,0.1);
-  padding: 2px 7px;
-  border-radius: 10px;
-}
-
-.p1-ai-text {
+.p1-es-text {
   font-size: 8.5pt;
-  line-height: 1.68;
+  line-height: 1.72;
   color: var(--text-mid);
 }
 
-/* 3 + 4. Strengths / Opportunities */
+/* 2. Top Strengths + Top Opportunities (two-column) */
 .p1-intel-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.18in;
+  gap: 0.16in;
   flex-shrink: 0;
 }
 
-.p1-intel-head {
-  font-size: 6.5pt;
+.p1-intel-col-head {
+  font-size: 6pt;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -332,93 +408,183 @@ html, body {
 .p1-intel-item {
   display: flex;
   align-items: flex-start;
-  gap: 7px;
-  padding: 3px 0;
+  gap: 6px;
+  padding: 2.5px 0;
 }
 
 .p1-intel-marker {
   font-size: 9pt;
-  font-weight: 700;
+  font-weight: 800;
   flex-shrink: 0;
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
-.p1-intel-strengths .p1-intel-marker { color: var(--green-text); }
-.p1-intel-opps      .p1-intel-marker { color: var(--purple); }
+.p1-col-strengths .p1-intel-marker { color: var(--green-dot); }
+.p1-col-opps      .p1-intel-marker { color: var(--purple); }
 
 .p1-intel-label {
-  font-size: 8pt;
+  font-size: 7.5pt;
   font-weight: 600;
   color: var(--text-dark);
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
-/* 5. Recommended Action™ */
-.p1-action-card {
-  background: var(--bg-light);
+/* 3. Infrastructure Status™ */
+.p1-infra-card {
   border: 1px solid var(--border);
-  border-radius: 7px;
-  padding: 0.13in 0.16in;
+  border-top: 2.5px solid var(--purple);
+  border-radius: 0 0 7px 7px;
+  padding: 0.12in 0.16in 0.13in;
+  background: var(--bg-light);
   flex-shrink: 0;
 }
 
-.p1-action-head {
-  font-size: 7pt;
+.p1-infra-title {
+  font-size: 5.5pt;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--purple);
-  margin-bottom: 9px;
+  margin-bottom: 8px;
 }
 
-.p1-action-item {
+.p1-infra-statements {
   display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  margin-bottom: 6px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+  flex-wrap: nowrap;
 }
 
-.p1-action-item:last-child { margin-bottom: 0; }
-
-.p1-action-num {
-  font-size: 7.5pt;
-  font-weight: 800;
-  color: var(--purple);
-  flex-shrink: 0;
-  min-width: 14px;
-}
-
-.p1-action-text {
+.p1-infra-phrase {
   font-size: 8pt;
-  color: var(--text-mid);
-  line-height: 1.5;
+  font-weight: 800;
+  color: var(--text-dark);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
-/* ── FOOTER ──────────────────────────────────────────────────────────────── */
-.p1-footer {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.3in;
-  padding: 0.1in 0.28in 0.09in;
-  border-top: 1px solid var(--border);
+.p1-infra-bull {
+  color: var(--purple-pale);
+  font-size: 8pt;
   flex-shrink: 0;
-  background: var(--white);
 }
 
-.p1-footer-mandate {
-  font-size: 6.5pt;
-  line-height: 1.55;
+.p1-infra-body {
+  font-size: 7pt;
+  line-height: 1.6;
   color: var(--text-light);
+}
+
+/* 4. Royaltē AI Insight™ — hero section */
+.p1-ai-card {
+  background: var(--dark);
+  border-radius: 8px;
+  padding: 0.15in 0.2in 0.16in;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  min-height: 1.1in;
+}
+
+/* Purple glow radial in corner */
+.p1-ai-card::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 70%;
+  height: 150%;
+  background: radial-gradient(ellipse at center, rgba(107,50,160,0.4) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.p1-ai-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.p1-ai-brand {
+  font-size: 6.5pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--purple-pale);
+}
+
+.p1-ai-conf {
+  font-size: 5.5pt;
+  font-weight: 500;
+  color: rgba(196,168,232,0.6);
+  background: rgba(107,50,160,0.25);
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.p1-ai-text {
+  font-size: 9pt;
+  line-height: 1.72;
+  color: rgba(255,255,255,0.82);
+  position: relative;
+  z-index: 1;
   flex: 1;
 }
 
-.p1-footer-brand {
-  font-size: 6pt;
-  color: var(--text-xlight);
-  white-space: nowrap;
-  padding-top: 1px;
+/* ── BOTTOM PAGE-NAV STRIP (full width, dark) ────────────────────────────── */
+.p1-nav-strip {
+  height: 0.55in;
+  background: var(--dark);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  padding: 0 0.22in;
+  gap: 0.07in;
+  flex-shrink: 0;
 }
+
+.p1-nav-thumb {
+  flex: 1;
+  height: 0.4in;
+  background: var(--dark-mid);
+  border-radius: 4px;
+  border: 1px solid rgba(196,168,232,0.1);
+  padding: 4px 5px 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5px;
+  overflow: hidden;
+}
+
+.p1-nav-label {
+  font-size: 4pt;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(196,168,232,0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.p1-nav-line {
+  height: 1.5px;
+  border-radius: 1px;
+  background: rgba(255,255,255,0.08);
+}
+.p1-nav-line.w80 { width: 80%; }
+.p1-nav-line.w60 { width: 60%; }
+.p1-nav-line.w40 { width: 40%; }
+.p1-nav-line.w90 { width: 90%; }
+.p1-nav-line.accent { background: rgba(107,50,160,0.5); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    PAGES 2–7 SCAFFOLD
@@ -444,124 +610,143 @@ html, body {
 <body>
 
 <!-- ════════════════════════════════════════════════════════════════════════
-     PAGE 1 — EXECUTIVE SUMMARY™  (LOCKED V5)
+     PAGE 1 — EXECUTIVE SUMMARY™
      Philosophy: The Audit is a Photograph. Monitoring is a Security Camera.
+     Reference: James Blake V3-P1 layout.
 
      Placeholder map:
-       {{artist_name}}             → subject.artistName
-       {{artist_image_url}}        → platforms.appleMusic.details.artwork
-       {{health_score}}            → healthScore.overallScore
-       {{health_band_label}}       → GRADE_THRESHOLDS.label (constitutional, never bare letter)
-       {{health_band_cls}}         → CSS class derived from label
-       {{scan_date}}               → healthScore.generatedAt (formatted Month D, YYYY)
-       {{executive_summary}}       → executiveBrief.executiveSummary (4–5 sentences)
-       {{ai_observation}}          → royalteAI.observation
-       {{ai_confidence_label}}     → derived from royalteAI.confidence
-       {{top_strengths_html}}      → max 3 short-label strength items
-       {{top_opps_html}}           → max 3 short-label opportunity items
-       {{recommended_actions_html}}→ max 3 numbered action items
+       {{artist_name}}          → subject.artistName
+       {{artist_image_url}}     → platforms.appleMusic.details.artwork
+       {{health_score}}         → healthScore.overallScore
+       {{health_band_label}}    → GRADE_THRESHOLDS.label (never bare letter)
+       {{health_band_cls}}      → CSS class derived from label
+       {{scan_date}}            → healthScore.generatedAt (formatted)
+       {{executive_summary}}    → executiveBrief.executiveSummary (4–5 sentences)
+       {{top_strengths_html}}   → max 3 short-label strength items
+       {{top_opps_html}}        → max 3 short-label opportunity items
+       {{ai_insight_block}}     → royalteAI.observation + priority + nextAction combined
+       {{ai_confidence_label}}  → derived from royalteAI.confidence
      ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Executive Summary" data-page="1">
 <div class="p1-outer">
 
-  <!-- HEADER BAR -->
-  <header class="p1-bar">
-    <span class="p1-bar-logo">Royalt&#x113;&#x2122;</span>
-    <span class="p1-bar-doc">Executive Brief&#x2122; &middot; Confidential</span>
-    <span class="p1-bar-pg">01 / 07</span>
+  <!-- TOP HEADER BAR -->
+  <header class="p1-header">
+    <span class="p1-logo">Royalt&#x113;<span class="p1-logo-dot">&#x2122;</span></span>
+    <div class="p1-header-right">
+      <span class="p1-brief-tag">Executive Brief&#x2122;</span>
+      <span class="p1-pg-num">01 / 07</span>
+    </div>
   </header>
 
-  <!-- BODY: left + right -->
+  <!-- BODY -->
   <div class="p1-body">
 
-    <!-- LEFT COLUMN -->
+    <!-- ═══ LEFT COLUMN ═══════════════════════════════════════════════════ -->
     <div class="p1-left">
 
-      <!-- Artwork: only major image in the report. No stock. No AI imagery. -->
-      <div class="p1-art-wrap">
-        <img class="p1-art"
+      <!-- Editorial brand copy -->
+      <div class="p1-tagline">
+        <div class="p1-tagline-main">
+          Your fans hear music.<br>
+          The music industry hears <span class="p1-tagline-accent">data.</span>
+        </div>
+        <div class="p1-tagline-sub">
+          Royalt&#x113; reveals the invisible infrastructure behind every release.
+        </div>
+      </div>
+
+      <!-- Artist photo: fills available space via flex:1 -->
+      <div class="p1-photo-wrap">
+        <img class="p1-photo"
              src="{{artist_image_url}}"
              alt="{{artist_name}}"
-             onerror="this.parentElement.style.background='#EDE9FE'">
-      </div>
+             onerror="this.style.opacity='0'">
+        <div class="p1-photo-fade"></div>
 
-      <div class="p1-left-content">
-
-        <div class="p1-artist-name">{{artist_name}}</div>
-
-        <!-- Overall Health Score™ + Health Grade -->
-        <div class="p1-score-block">
+        <!-- Identity overlay at photo bottom -->
+        <div class="p1-identity">
+          <div class="p1-artist-name">{{artist_name}}</div>
+          <div class="p1-health-tag">Music Backend Health&#x2122;</div>
           <div class="p1-score-row">
-            <span class="p1-score-num">{{health_score}}</span>
-            <span class="p1-score-denom">/ 100</span>
+            <span class="p1-score">{{health_score}}</span>
+            <span class="p1-score-of">&thinsp;/&thinsp;100</span>
           </div>
-          <span class="p1-grade-pill {{health_band_cls}}">{{health_band_label}}</span>
+          <span class="p1-grade {{health_band_cls}}">{{health_band_label}}</span>
         </div>
-
-        <div class="p1-divider"></div>
-
-        <!-- Monitoring Status™: facts only, no sales language -->
-        <div class="p1-monitoring">
-          <div class="p1-monitoring-head">Monitoring Status&#x2122;</div>
-          <div class="p1-mrow">
-            <span class="p1-mkey">Audit Date</span>
-            <span class="p1-mval">{{scan_date}}</span>
-          </div>
-          <div class="p1-mrow">
-            <span class="p1-mkey">Status</span>
-            <span class="p1-mval p1-mval-ok">Snapshot Complete</span>
-          </div>
-          <div class="p1-mrow">
-            <span class="p1-mkey">Monitoring</span>
-            <span class="p1-mval p1-mval-inactive">Inactive</span>
-          </div>
-          <div class="p1-mrow">
-            <span class="p1-mkey">Last Review</span>
-            <span class="p1-mval">Today</span>
-          </div>
-        </div>
-
       </div>
+
+      <!-- Monitoring Status™ (below photo, outside photo-wrap) -->
+      <div class="p1-monitoring">
+        <div class="p1-monitoring-title">Monitoring Status&#x2122;</div>
+        <div class="p1-status-row">
+          <div class="p1-status-dot dot-green"></div>
+          <span class="p1-status-text">Snapshot Complete</span>
+          <span class="p1-status-date">{{scan_date}}</span>
+        </div>
+        <div class="p1-status-row">
+          <div class="p1-status-dot dot-amber"></div>
+          <span class="p1-status-text">Monitoring Inactive</span>
+        </div>
+      </div>
+
+      <!-- Attribution -->
+      <div class="p1-attrib">
+        <div class="p1-attrib-line">Analyzed by Royalt&#x113; Intelligence&#x2122;</div>
+        <div class="p1-attrib-line">Built in partnership with the artist.</div>
+      </div>
+
     </div>
     <!-- /LEFT COLUMN -->
 
-    <!-- RIGHT COLUMN -->
+    <!-- ═══ RIGHT COLUMN ══════════════════════════════════════════════════ -->
     <div class="p1-right">
 
       <!-- 1. Executive Summary™ -->
-      <div class="p1-summary-block">
-        <div class="p1-section-label">Executive Summary&#x2122;</div>
-        <p class="p1-summary-text">{{executive_summary}}</p>
+      <div class="p1-es-block">
+        <div class="p1-es-eyebrow">Executive Summary&#x2122;</div>
+        <h1 class="p1-es-heading">Executive<br>Summary</h1>
+        <div class="p1-es-subhead">Full Backstage Intelligence &middot; Plain Language Insights</div>
+        <p class="p1-es-text">{{executive_summary}}</p>
       </div>
 
-      <!-- 2. Royaltē AI Observation™ — most important intelligence block on Page 1 -->
-      <div class="p1-ai-card">
-        <div class="p1-ai-card-head">
-          <span class="p1-ai-brand">Royalt&#x113; AI Observation&#x2122;</span>
-          <span class="p1-ai-conf">{{ai_confidence_label}}</span>
-        </div>
-        <p class="p1-ai-text">{{ai_observation}}</p>
-      </div>
-
-      <!-- 3 + 4. Top Strengths™ + Top Opportunities™ -->
+      <!-- 2. Top Strengths™ + Top Opportunities™ -->
       <div class="p1-intel-grid">
 
-        <div class="p1-intel-strengths">
-          <div class="p1-intel-head">Top Strengths&#x2122;</div>
+        <div class="p1-col-strengths">
+          <div class="p1-intel-col-head">Top Strengths&#x2122;</div>
           {{top_strengths_html}}
         </div>
 
-        <div class="p1-intel-opps">
-          <div class="p1-intel-head">Top Opportunities&#x2122;</div>
+        <div class="p1-col-opps">
+          <div class="p1-intel-col-head">Top Opportunities&#x2122;</div>
           {{top_opps_html}}
         </div>
 
       </div>
 
-      <!-- 5. Recommended Action™ — action-oriented, not promotional -->
-      <div class="p1-action-card">
-        <div class="p1-action-head">Recommended Action&#x2122;</div>
-        {{recommended_actions_html}}
+      <!-- 3. Infrastructure Status™ -->
+      <div class="p1-infra-card">
+        <div class="p1-infra-title">Infrastructure Status&#x2122;</div>
+        <div class="p1-infra-statements">
+          <span class="p1-infra-phrase">The Audit is a Photograph.</span>
+          <span class="p1-infra-bull">&middot;</span>
+          <span class="p1-infra-phrase">Monitoring is a Security Camera.</span>
+        </div>
+        <p class="p1-infra-body">
+          This report reflects your music infrastructure as it existed on {{scan_date}}.
+          Future changes to identity, publishing, metadata, catalog availability, territory
+          coverage, and platform presence are not currently being monitored.
+        </p>
+      </div>
+
+      <!-- 4. Royaltē AI Insight™ — hero section -->
+      <div class="p1-ai-card">
+        <div class="p1-ai-head">
+          <span class="p1-ai-brand">Royalt&#x113; AI Insight&#x2122;</span>
+          <span class="p1-ai-conf">{{ai_confidence_label}}</span>
+        </div>
+        <p class="p1-ai-text">{{ai_insight_block}}</p>
       </div>
 
     </div>
@@ -570,68 +755,75 @@ html, body {
   </div>
   <!-- /BODY -->
 
-  <!-- FOOTER: mandatory monitoring positioning statement (locked) -->
-  <footer class="p1-footer">
-    <span class="p1-footer-mandate">This report reflects your catalog infrastructure as it existed on the audit date shown above. Future changes to identity, publishing, metadata, catalog availability, registrations, platform presence, and territory coverage are not currently being monitored.</span>
-    <span class="p1-footer-brand">Generated by Royalt&#x113; Intelligence&#x2122; &bull; Music Backend Intelligence&#x2122;</span>
-  </footer>
+  <!-- BOTTOM PAGE-NAV STRIP -->
+  <div class="p1-nav-strip">
+    <div class="p1-nav-thumb">
+      <div class="p1-nav-label">Music Backend Health&#x2122;</div>
+      <div class="p1-nav-line accent w80"></div>
+      <div class="p1-nav-line w60"></div>
+      <div class="p1-nav-line w40"></div>
+    </div>
+    <div class="p1-nav-thumb">
+      <div class="p1-nav-label">Backend Intelligence&#x2122;</div>
+      <div class="p1-nav-line w90"></div>
+      <div class="p1-nav-line w60"></div>
+      <div class="p1-nav-line w40"></div>
+    </div>
+    <div class="p1-nav-thumb">
+      <div class="p1-nav-label">Catalog Intelligence&#x2122;</div>
+      <div class="p1-nav-line w60"></div>
+      <div class="p1-nav-line w80"></div>
+      <div class="p1-nav-line w40"></div>
+    </div>
+    <div class="p1-nav-thumb">
+      <div class="p1-nav-label">Publishing Intelligence&#x2122;</div>
+      <div class="p1-nav-line w80"></div>
+      <div class="p1-nav-line w40"></div>
+      <div class="p1-nav-line w60"></div>
+    </div>
+    <div class="p1-nav-thumb">
+      <div class="p1-nav-label">Executive Action Plan&#x2122;</div>
+      <div class="p1-nav-line w60"></div>
+      <div class="p1-nav-line w90"></div>
+      <div class="p1-nav-line w40"></div>
+    </div>
+    <div class="p1-nav-thumb">
+      <div class="p1-nav-label">Mission Control&#x2122;</div>
+      <div class="p1-nav-line w80"></div>
+      <div class="p1-nav-line w60"></div>
+      <div class="p1-nav-line accent w90"></div>
+    </div>
+  </div>
 
 </div>
 </section>
 
 
 <!-- ════════════════════════════════════════════════════════════════════════
-     PAGE 2 — MUSIC BACKEND HEALTH™  (scaffold)
+     PAGES 2–7 SCAFFOLD
      ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Music Backend Health" data-page="2">
-  <div class="page-scaffold">
-    <span class="page-scaffold-label">Page 2 — Music Backend Health&#x2122;</span>
-  </div>
+  <div class="page-scaffold"><span class="page-scaffold-label">Page 2 — Music Backend Health&#x2122;</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════════════════
-     PAGE 3 — BACKEND INTELLIGENCE™  (scaffold)
-     ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Backend Intelligence" data-page="3">
-  <div class="page-scaffold">
-    <span class="page-scaffold-label">Page 3 — Backend Intelligence&#x2122;</span>
-  </div>
+  <div class="page-scaffold"><span class="page-scaffold-label">Page 3 — Backend Intelligence&#x2122;</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════════════════
-     PAGE 4 — CATALOG INTELLIGENCE™  (scaffold)
-     ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Catalog Intelligence" data-page="4">
-  <div class="page-scaffold">
-    <span class="page-scaffold-label">Page 4 — Catalog Intelligence&#x2122;</span>
-  </div>
+  <div class="page-scaffold"><span class="page-scaffold-label">Page 4 — Catalog Intelligence&#x2122;</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════════════════
-     PAGE 5 — ROYALTĒ AI™  (scaffold)
-     ════════════════════════════════════════════════════════════════════════ -->
-<section class="page" aria-label="Royalte AI" data-page="5">
-  <div class="page-scaffold">
-    <span class="page-scaffold-label">Page 5 — Royalt&#x113; AI&#x2122;</span>
-  </div>
+<section class="page" aria-label="Publishing Intelligence" data-page="5">
+  <div class="page-scaffold"><span class="page-scaffold-label">Page 5 — Publishing Intelligence&#x2122;</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════════════════
-     PAGE 6 — EXECUTIVE ACTION PLAN™  (scaffold)
-     ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Executive Action Plan" data-page="6">
-  <div class="page-scaffold">
-    <span class="page-scaffold-label">Page 6 — Executive Action Plan&#x2122;</span>
-  </div>
+  <div class="page-scaffold"><span class="page-scaffold-label">Page 6 — Executive Action Plan&#x2122;</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════════════════
-     PAGE 7 — MISSION CONTROL™  (scaffold)
-     ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Mission Control" data-page="7">
-  <div class="page-scaffold">
-    <span class="page-scaffold-label">Page 7 — Mission Control&#x2122;</span>
-  </div>
+  <div class="page-scaffold"><span class="page-scaffold-label">Page 7 — Mission Control&#x2122;</span></div>
 </section>
 
 </body>
