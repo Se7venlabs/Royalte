@@ -32,6 +32,7 @@ import {
   renderGlobalMusicFootprint,
   renderRoyalteAI,
   renderBackend,
+  renderChangeDetection,
   renderHealth,
   renderPriorityActions,
   buildProviderRenderPlan,
@@ -39,6 +40,7 @@ import {
   buildRecommendationsPlan,
   safeIdentityIntelligence,
   safeBackendIntelligence,
+  safeMonitoringIntelligence,
   ROYALTE_AI_ACTIVITY_LABELS,
   STATE_PILL_CLASS,
   STATE_PILL_TEXT,
@@ -410,9 +412,9 @@ test('25. CONCERN 3 — renderIdentity(intelligence) composes the three plan bui
 test('26. CONCERN 6 — future-stage renderers are exported as deliberate "not yet implemented" stubs', () => {
   // Each remaining placeholder must exist as a callable export AND
   // must throw a clear error when invoked. renderPublishing, renderCatalog,
-  // renderGlobalMusicFootprint, renderRoyalteAI, and renderBackend are no
-  // longer in this list — each has been promoted to a real implementation
-  // (see tests 26b, 26c, 26d, 26e, 26f below).
+  // renderGlobalMusicFootprint, renderRoyalteAI, renderBackend, and
+  // renderChangeDetection are no longer in this list — each has been promoted
+  // to a real implementation (see tests 26b, 26c, 26d, 26e, 26f, 26g below).
   for (const [name, fn] of [
     ['renderHealth',          renderHealth],
     ['renderPriorityActions', renderPriorityActions],
@@ -629,6 +631,72 @@ test('26f. CONCERN 3 + 6 (Backend Intelligence v1.0) — renderBackend is implem
   const forbidden = ['score', 'health', 'grade', 'healthScore', 'overallScore', 'rating'];
   for (const key of forbidden) {
     assert.ok(!(key in plan),
+      `plan must not expose '${key}' — Royaltē Health™ owns executive scoring (HEP boundary)`);
+  }
+});
+
+test('26g. CONCERN 3 + 6 (Monitoring Intelligence v1.0) — renderChangeDetection is implemented and conforms to the canonical entry-point contract', () => {
+  // Monitoring Intelligence Phase v1.0 (Option A — per-scan delta only).
+  // Verifies: (a) function export, (b) output shape on active/baseline/no_changes
+  // inputs, (c) null-safe on absent intelligence, (d) HEP boundary.
+  assert.equal(typeof renderChangeDetection, 'function', 'renderChangeDetection must be exported as a function');
+  assert.equal(typeof safeMonitoringIntelligence, 'function', 'safeMonitoringIntelligence must be exported');
+
+  // ── active state: N events this scan ────────────────────────────────
+  const activeInput = Object.freeze({
+    status:      'active',
+    scanNumber:  3,
+    newThisScan: 2,
+    events: Object.freeze([
+      Object.freeze({ changeType: 'territory_gain',  title: 'Territory added: JP', severity: 'positive'      }),
+      Object.freeze({ changeType: 'release_added',   title: 'New release detected', severity: 'informational' }),
+    ]),
+  });
+  const activePlan = renderChangeDetection(activeInput);
+  assert.ok(activePlan !== null, 'renderChangeDetection must return a non-null plan for active input');
+  assert.equal(activePlan.sumValue, '2 New',    'active state: sumValue must reflect newThisScan count');
+  assert.equal(activePlan.sumMeta,  'This Scan', 'active state: sumMeta must be "This Scan"');
+  assert.ok(Array.isArray(activePlan.events),   'plan must carry events array');
+  assert.equal(activePlan.events.length, 2,     'events length must match input');
+  assert.equal(activePlan.events[0].changeType, 'territory_gain');
+  assert.equal(activePlan.events[0].title,      'Territory added: JP');
+
+  // ── baseline state: first scan ──────────────────────────────────────
+  const baselineInput = Object.freeze({
+    status:      'baseline',
+    scanNumber:  1,
+    newThisScan: 1,
+    events: Object.freeze([
+      Object.freeze({ changeType: 'baseline_established', title: 'Baseline established — monitoring now active', severity: 'informational' }),
+    ]),
+  });
+  const baselinePlan = renderChangeDetection(baselineInput);
+  assert.ok(baselinePlan !== null, 'renderChangeDetection must return a plan for baseline input');
+  assert.equal(baselinePlan.sumValue, '1 New',       'baseline: sumValue must be "1 New"');
+  assert.equal(baselinePlan.sumMeta,  'Baseline Set', 'baseline: sumMeta must be "Baseline Set"');
+
+  // ── no_changes state: repeat scan, nothing changed ──────────────────
+  const noChangesInput = Object.freeze({
+    status:      'no_changes',
+    scanNumber:  5,
+    newThisScan: 0,
+    events:      Object.freeze([]),
+  });
+  const noChangesPlan = renderChangeDetection(noChangesInput);
+  assert.ok(noChangesPlan !== null,   'renderChangeDetection must return a plan for no_changes input');
+  assert.equal(noChangesPlan.sumValue, 'All Clear', 'no_changes: sumValue must be "All Clear"');
+  assert.equal(noChangesPlan.sumMeta,  'This Scan', 'no_changes: sumMeta must be "This Scan"');
+  assert.ok(Array.isArray(noChangesPlan.events) && noChangesPlan.events.length === 0, 'no_changes events must be empty');
+
+  // ── null-safe ────────────────────────────────────────────────────────
+  assert.strictEqual(renderChangeDetection(null),      null, 'null input must return null');
+  assert.strictEqual(renderChangeDetection(undefined), null, 'undefined input must return null');
+  assert.strictEqual(renderChangeDetection({}),        null, 'missing status field must return null');
+
+  // ── HEP boundary ─────────────────────────────────────────────────────
+  const forbidden = ['score', 'health', 'grade', 'healthScore', 'overallScore', 'rating'];
+  for (const key of forbidden) {
+    assert.ok(!(key in activePlan),
       `plan must not expose '${key}' — Royaltē Health™ owns executive scoring (HEP boundary)`);
   }
 });
