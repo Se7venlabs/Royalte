@@ -2,829 +2,635 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Royaltē Executive Brief™ v4</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   ROYALTĒ EXECUTIVE BRIEF™ v4
-   Philosophy: The Audit is a Photograph. Monitoring is a Security Camera.
-   Reference: James Blake V3-P1 layout.
-   ═══════════════════════════════════════════════════════════════════════════ */
+@page { size: letter; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: #FFFFFF;
-  color: #111827;
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  background: #fff;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
 
-@page { size: letter; margin: 0; }
-
+/* ══════════════════════════════════════════════
+   PAGE SHELL
+══════════════════════════════════════════════ */
 .page {
   width: 8.5in;
   height: 11in;
   overflow: hidden;
-  position: relative;
-  page-break-after: always;
-  break-after: page;
-  background: #FFFFFF;
-}
-
-.page:last-child {
-  page-break-after: avoid;
-  break-after: avoid;
-}
-
-:root {
-  --dark:         #0B0B14;
-  --dark-mid:     #13121F;
-  --dark-card:    #1C1B2C;
-  --white:        #FFFFFF;
-  --bg-light:     #F8F7FC;
-  --bg-lavender:  #EDE9FE;
-  --purple:       #6B32A0;
-  --purple-light: #8E52C0;
-  --purple-pale:  #C4A8E8;
-  --text-dark:    #111827;
-  --text-mid:     #374151;
-  --text-light:   #6B7280;
-  --text-xlight:  #9CA3AF;
-  --green-bg:     #D1FAE5;
-  --green-text:   #065F46;
-  --green-dot:    #10B981;
-  --amber-dot:    #F59E0B;
-  --border:       #E5E7EB;
-  --border-mid:   #D1D5DB;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   PAGE 1 — EXECUTIVE SUMMARY™
-   Structure: dark header bar | dark left col + white right col | dark nav strip
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-.p1-outer {
+  background: #fff;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  padding: 0.36in 0.44in 0.3in;
 }
 
-/* ── TOP HEADER BAR (full width, dark) ───────────────────────────────────── */
-.p1-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 0.28in;
-  height: 0.34in;
-  background: var(--dark);
-  flex-shrink: 0;
-}
-
-.p1-logo {
-  font-size: 11pt;
-  font-weight: 800;
-  color: #FFFFFF;
-  letter-spacing: -0.02em;
-}
-
-.p1-logo-dot { color: var(--purple-pale); }
-
-.p1-header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.p1-brief-tag {
-  font-size: 6pt;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(196,168,232,0.6);
-  background: rgba(107,50,160,0.3);
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-
-.p1-pg-num {
-  font-size: 6.5pt;
-  font-weight: 600;
-  color: rgba(255,255,255,0.25);
-}
-
-/* ── BODY: left + right ──────────────────────────────────────────────────── */
-.p1-body {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   LEFT COLUMN — dark, cinematic
-   ═══════════════════════════════════════════════════════════════════════════ */
-.p1-left {
-  width: 3.0in;
-  flex-shrink: 0;
-  background: var(--dark);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-}
-
-/* Subtle purple gradient on dark bg */
-.p1-left::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(ellipse at 20% 10%, rgba(107,50,160,0.22) 0%, transparent 60%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Editorial brand copy — top of left column */
-.p1-tagline {
-  padding: 0.18in 0.22in 0.14in;
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-}
-
-.p1-tagline-main {
-  font-size: 10.5pt;
-  font-weight: 800;
-  color: #FFFFFF;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
-  margin-bottom: 5px;
-}
-
-.p1-tagline-accent { color: var(--purple-pale); }
-
-.p1-tagline-sub {
-  font-size: 7.5pt;
-  color: rgba(255,255,255,0.4);
-  line-height: 1.45;
-  font-weight: 400;
-}
-
-/* Artist photo — fills available space */
-.p1-photo-wrap {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  min-height: 2.8in;
-  z-index: 1;
-}
-
-.p1-photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-  display: block;
-}
-
-/* Gradient from bottom — fades photo into dark for identity overlay */
-.p1-photo-fade {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 70%;
-  background: linear-gradient(
-    to top,
-    #0B0B14 0%,
-    rgba(11,11,20,0.85) 35%,
-    rgba(11,11,20,0.3) 65%,
-    transparent 100%
-  );
-}
-
-/* Artist name + score overlaid at bottom of photo */
-.p1-identity {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  padding: 0.1in 0.22in 0.14in;
-  z-index: 2;
-}
-
-.p1-artist-name {
-  font-size: 13pt;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  color: #FFFFFF;
-  line-height: 1.05;
-  margin-bottom: 5px;
-}
-
-.p1-health-tag {
-  font-size: 5.5pt;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(196,168,232,0.65);
-  margin-bottom: 5px;
-}
-
-.p1-score-row {
+/* ══════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════ */
+.hdr {
   display: flex;
   align-items: flex-end;
-  gap: 4px;
-  margin-bottom: 6px;
+  justify-content: space-between;
+  padding-bottom: 0.09in;
+  border-bottom: 0.75px solid #D1D5DB;
+  flex-shrink: 0;
 }
 
-.p1-score {
-  font-size: 30pt;
+.hdr-logo-name {
+  font-size: 15pt;
   font-weight: 900;
-  color: #FFFFFF;
+  letter-spacing: -0.015em;
+  color: #111827;
   line-height: 1;
-  letter-spacing: -0.04em;
 }
 
-.p1-score-of {
-  font-size: 9.5pt;
-  color: rgba(255,255,255,0.45);
-  padding-bottom: 3px;
-  font-weight: 400;
-}
-
-.p1-grade {
-  display: inline-block;
+.hdr-logo-sub {
   font-size: 5.5pt;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  color: #6B21A8;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 3px 9px;
-  border-radius: 20px;
-  margin-bottom: 0;
-}
-.p1-grade.excellent { background: var(--green-bg);    color: var(--green-text); }
-.p1-grade.strong    { background: var(--green-bg);    color: var(--green-text); }
-.p1-grade.good      { background: var(--bg-lavender); color: var(--purple); }
-.p1-grade.attention { background: #FEF3C7; color: #92400E; }
-.p1-grade.critical  { background: #FEE2E2; color: #991B1B; }
-
-/* Monitoring Status™ */
-.p1-monitoring {
-  padding: 0.1in 0.22in 0.1in;
-  flex-shrink: 0;
-  border-top: 1px solid rgba(255,255,255,0.07);
-  position: relative;
-  z-index: 1;
+  margin-top: 3px;
 }
 
-.p1-monitoring-title {
-  font-size: 5.5pt;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+.hdr-center {
+  font-size: 7pt;
+  font-weight: 500;
+  color: #9CA3AF;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: rgba(196,168,232,0.55);
-  margin-bottom: 7px;
 }
 
-.p1-status-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 5px;
-}
-.p1-status-row:last-child { margin-bottom: 0; }
-
-.p1-status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.dot-green { background: var(--green-dot);  box-shadow: 0 0 5px rgba(16,185,129,0.65); }
-.dot-amber { background: var(--amber-dot);  box-shadow: 0 0 5px rgba(245,158,11,0.55); }
-
-.p1-status-text {
-  font-size: 7.5pt;
-  font-weight: 600;
-  color: rgba(255,255,255,0.82);
+.hdr-page {
+  font-size: 7pt;
+  font-weight: 500;
+  color: #9CA3AF;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.p1-status-date {
-  font-size: 6.5pt;
-  color: rgba(255,255,255,0.35);
-  margin-left: auto;
-}
-
-/* Attribution */
-.p1-attrib {
-  padding: 0.08in 0.22in 0.1in;
-  flex-shrink: 0;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  position: relative;
-  z-index: 1;
-}
-
-.p1-attrib-line {
-  font-size: 5.5pt;
-  color: rgba(255,255,255,0.25);
-  line-height: 1.6;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   RIGHT COLUMN — white, executive content
-   ═══════════════════════════════════════════════════════════════════════════ */
-.p1-right {
+/* ══════════════════════════════════════════════
+   BODY
+══════════════════════════════════════════════ */
+.body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--white);
-  padding: 0.25in 0.28in 0.2in;
-  gap: 0.14in;
+  gap: 0.18in;
+  padding-top: 0.2in;
   overflow: hidden;
 }
 
-/* 1. Executive Summary block (heading + text) */
-.p1-es-block {
+/* ══════════════════════════════════════════════
+   HERO ROW
+══════════════════════════════════════════════ */
+.hero-row {
+  display: flex;
+  gap: 0.26in;
   flex-shrink: 0;
 }
 
-.p1-es-eyebrow {
-  font-size: 5.5pt;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--purple);
-  margin-bottom: 5px;
+/* Left column: title + score card */
+.hero-left {
+  width: 2.82in;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.p1-es-heading {
+.title-1 {
   font-size: 38pt;
   font-weight: 900;
   letter-spacing: -0.04em;
-  color: var(--text-dark);
-  line-height: 0.92;
+  color: #111827;
+  line-height: 0.93;
   text-transform: uppercase;
-  margin-bottom: 8px;
 }
 
-.p1-es-subhead {
-  font-size: 6pt;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+.title-2 {
+  font-size: 47pt;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #6B21A8;
+  line-height: 0.93;
   text-transform: uppercase;
-  color: var(--text-xlight);
-  padding-bottom: 9px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 9px;
 }
 
-.p1-es-text {
-  font-size: 8.5pt;
-  line-height: 1.72;
-  color: var(--text-mid);
-}
-
-/* 2. Top Strengths + Top Opportunities (two-column) */
-.p1-intel-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.16in;
-  flex-shrink: 0;
-}
-
-.p1-intel-col-head {
-  font-size: 6pt;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-light);
-  padding-bottom: 5px;
-  border-bottom: 1.5px solid var(--border);
-  margin-bottom: 7px;
-}
-
-.p1-intel-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 2.5px 0;
-}
-
-.p1-intel-marker {
-  font-size: 9pt;
-  font-weight: 800;
-  flex-shrink: 0;
-  line-height: 1.2;
-}
-
-.p1-col-strengths .p1-intel-marker { color: var(--green-dot); }
-.p1-col-opps      .p1-intel-marker { color: var(--purple); }
-
-.p1-intel-label {
-  font-size: 7.5pt;
-  font-weight: 600;
-  color: var(--text-dark);
-  line-height: 1.35;
-}
-
-/* 3. Infrastructure Status™ */
-.p1-infra-card {
-  border: 1px solid var(--border);
-  border-top: 2.5px solid var(--purple);
-  border-radius: 0 0 7px 7px;
-  padding: 0.12in 0.16in 0.13in;
-  background: var(--bg-light);
-  flex-shrink: 0;
-}
-
-.p1-infra-title {
-  font-size: 5.5pt;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--purple);
-  margin-bottom: 8px;
-}
-
-.p1-infra-statements {
+.tagline {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 7px;
-  flex-wrap: nowrap;
-}
-
-.p1-infra-phrase {
-  font-size: 8pt;
-  font-weight: 800;
-  color: var(--text-dark);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-}
-
-.p1-infra-bull {
-  color: var(--purple-pale);
-  font-size: 8pt;
-  flex-shrink: 0;
-}
-
-.p1-infra-body {
-  font-size: 7pt;
-  line-height: 1.6;
-  color: var(--text-light);
-}
-
-/* 4. Royaltē AI Insight™ — hero section */
-.p1-ai-card {
-  background: var(--dark);
-  border-radius: 8px;
-  padding: 0.15in 0.2in 0.16in;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-  min-height: 1.1in;
-}
-
-/* Purple glow radial in corner */
-.p1-ai-card::before {
-  content: '';
-  position: absolute;
-  top: -20%;
-  right: -10%;
-  width: 70%;
-  height: 150%;
-  background: radial-gradient(ellipse at center, rgba(107,50,160,0.4) 0%, transparent 65%);
-  pointer-events: none;
-}
-
-.p1-ai-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-}
-
-.p1-ai-brand {
+  gap: 7px;
+  margin-top: 0.13in;
   font-size: 6.5pt;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.07em;
+  color: #374151;
   text-transform: uppercase;
-  color: var(--purple-pale);
 }
 
-.p1-ai-conf {
-  font-size: 5.5pt;
-  font-weight: 500;
-  color: rgba(196,168,232,0.6);
-  background: rgba(107,50,160,0.25);
-  padding: 2px 7px;
-  border-radius: 10px;
-}
-
-.p1-ai-text {
-  font-size: 9pt;
-  line-height: 1.72;
-  color: rgba(255,255,255,0.82);
-  position: relative;
-  z-index: 1;
-  flex: 1;
-}
-
-/* ── BOTTOM PAGE-NAV STRIP (full width, dark) ────────────────────────────── */
-.p1-nav-strip {
-  height: 0.55in;
-  background: var(--dark);
-  border-top: 1px solid rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  padding: 0 0.22in;
-  gap: 0.07in;
+.tagline-dash {
+  display: block;
+  width: 14px;
+  height: 2px;
+  background: #6B21A8;
+  border-radius: 1px;
   flex-shrink: 0;
 }
 
-.p1-nav-thumb {
+.score-card {
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 0.15in 0.17in 0.14in;
+  margin-top: 0.17in;
+  background: #fff;
+}
+
+.score-label {
+  font-size: 6.5pt;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: #6B21A8;
+  text-transform: uppercase;
+  margin-bottom: 0.06in;
+}
+
+.score-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.score-num {
+  font-size: 56pt;
+  font-weight: 900;
+  color: #6B21A8;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.score-denom {
+  font-size: 17pt;
+  font-weight: 400;
+  color: #9CA3AF;
+  line-height: 1;
+}
+
+.score-band {
+  font-size: 12pt;
+  font-weight: 800;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin-top: 0.04in;
+}
+
+.score-bar-track {
+  height: 5px;
+  background: #E5E7EB;
+  border-radius: 3px;
+  margin-top: 0.09in;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  background: #6B21A8;
+  border-radius: 3px;
+}
+
+/* Right column: artwork + summary */
+.hero-right {
   flex: 1;
-  height: 0.4in;
-  background: var(--dark-mid);
-  border-radius: 4px;
-  border: 1px solid rgba(196,168,232,0.1);
-  padding: 4px 5px 3px;
   display: flex;
   flex-direction: column;
-  gap: 2.5px;
+  gap: 0.11in;
   overflow: hidden;
 }
 
-.p1-nav-label {
-  font-size: 4pt;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: rgba(196,168,232,0.45);
-  white-space: nowrap;
+.artwork-card {
+  flex-shrink: 0;
+  height: 2.14in;
+  border-radius: 10px;
   overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
+  background: #0D0D18;
+  position: relative;
+}
+
+.artwork-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.9;
+}
+
+.artwork-overlay {
+  position: absolute;
+  bottom: 0.14in;
+  right: 0.17in;
+  text-align: right;
+}
+
+.artwork-artist {
+  font-size: 13pt;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+  line-height: 1.1;
+}
+
+.artwork-scan-lbl {
+  font-size: 7pt;
+  font-weight: 400;
+  color: rgba(255,255,255,0.75);
+  margin-top: 3px;
+  line-height: 1.3;
+}
+
+.artwork-scan-date {
+  font-size: 7.5pt;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.summary-head {
+  font-size: 8pt;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  color: #6B21A8;
+  text-transform: uppercase;
+}
+
+.summary-text {
+  font-size: 8.5pt;
+  font-weight: 400;
+  color: #374151;
+  line-height: 1.56;
+}
+
+/* ══════════════════════════════════════════════
+   INTEL ROW — Strengths + Opportunities
+══════════════════════════════════════════════ */
+.intel-row {
+  display: flex;
+  gap: 0.3in;
   flex-shrink: 0;
 }
 
-.p1-nav-line {
-  height: 1.5px;
-  border-radius: 1px;
-  background: rgba(255,255,255,0.08);
+.intel-col { flex: 1; }
+
+.intel-head {
+  font-size: 8pt;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #6B21A8;
+  text-transform: uppercase;
+  padding-bottom: 0.065in;
+  border-bottom: 1.5px solid #6B21A8;
+  margin-bottom: 0.13in;
 }
-.p1-nav-line.w80 { width: 80%; }
-.p1-nav-line.w60 { width: 60%; }
-.p1-nav-line.w40 { width: 40%; }
-.p1-nav-line.w90 { width: 90%; }
-.p1-nav-line.accent { background: rgba(107,50,160,0.5); }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   PAGES 2–7 SCAFFOLD
-   ═══════════════════════════════════════════════════════════════════════════ */
+.intel-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.1in;
+  margin-bottom: 0.115in;
+}
+.intel-item:last-child { margin-bottom: 0; }
 
-.page-scaffold {
+.intel-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
-.page-scaffold-label {
-  font-size: 13pt;
-  font-weight: 700;
-  color: var(--border);
-  letter-spacing: 0.08em;
+.intel-icon.str { background: #6B21A8; }
+.intel-icon.opp { background: #D97706; }
+.intel-icon svg { width: 15px; height: 15px; }
+
+.intel-text { flex: 1; }
+
+.intel-title {
+  font-size: 7pt;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #111827;
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+
+.intel-desc {
+  font-size: 7.5pt;
+  font-weight: 400;
+  color: #6B7280;
+  line-height: 1.45;
+  margin-top: 2px;
+}
+
+/* ══════════════════════════════════════════════
+   AI INSIGHT CARD
+══════════════════════════════════════════════ */
+.ai-card {
+  flex: 1;
+  background: #F5F3FF;
+  border: 1px solid #EDE9FE;
+  border-radius: 10px;
+  padding: 0.13in 0.17in 0.13in;
+  display: flex;
+  flex-direction: column;
+  gap: 0.09in;
+  overflow: hidden;
+}
+
+.ai-header {
+  display: flex;
+  align-items: center;
+  gap: 0.09in;
+  flex-shrink: 0;
+}
+
+.ai-brain {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #6B21A8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ai-brain svg { width: 14px; height: 14px; }
+
+.ai-title {
+  font-size: 7.5pt;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  color: #111827;
   text-transform: uppercase;
 }
 
+.ai-cols {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.ai-col {
+  flex: 1;
+  padding: 0 0.14in;
+  border-left: 1px dashed #C4B5FD;
+  display: flex;
+  flex-direction: column;
+  gap: 0.04in;
+  overflow: hidden;
+}
+
+.ai-col:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.ai-col-lbl {
+  font-size: 6pt;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #6B21A8;
+  text-transform: uppercase;
+  padding-bottom: 0.05in;
+  border-bottom: 1px dashed #C4B5FD;
+  margin-bottom: 0.04in;
+  flex-shrink: 0;
+}
+
+.ai-col-text {
+  font-size: 7.5pt;
+  font-weight: 400;
+  color: #374151;
+  line-height: 1.48;
+}
+
+.ai-priority-val {
+  font-size: 19pt;
+  font-weight: 900;
+  color: #6B21A8;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  flex-shrink: 0;
+}
+
+.ai-dots {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.ai-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.ai-dot.on  { background: #6B21A8; }
+.ai-dot.off { background: #D1D5DB; }
+
+.ai-target {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #6B21A8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  align-self: flex-end;
+  flex-shrink: 0;
+}
+
+.ai-target svg { width: 14px; height: 14px; }
+
+/* ══════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════ */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.09in;
+  border-top: 0.75px solid #E5E7EB;
+  flex-shrink: 0;
+  margin-top: 0.09in;
+}
+
+.footer-left {
+  font-size: 6pt;
+  font-weight: 700;
+  color: #6B21A8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+
+.footer-center {
+  font-size: 7pt;
+  font-weight: 400;
+  color: #9CA3AF;
+}
+
+.footer-right {
+  font-size: 8pt;
+  font-weight: 800;
+  color: #6B21A8;
+  letter-spacing: -0.01em;
+}
 </style>
 </head>
 <body>
+<div class="page">
 
-<!-- ════════════════════════════════════════════════════════════════════════
-     PAGE 1 — EXECUTIVE SUMMARY™
-     Philosophy: The Audit is a Photograph. Monitoring is a Security Camera.
-     Reference: James Blake V3-P1 layout.
-
-     Placeholder map:
-       {{artist_name}}          → subject.artistName
-       {{artist_image_url}}     → platforms.appleMusic.details.artwork
-       {{health_score}}         → healthScore.overallScore
-       {{health_band_label}}    → GRADE_THRESHOLDS.label (never bare letter)
-       {{health_band_cls}}      → CSS class derived from label
-       {{scan_date}}            → healthScore.generatedAt (formatted)
-       {{executive_summary}}    → executiveBrief.executiveSummary (4–5 sentences)
-       {{top_strengths_html}}   → max 3 short-label strength items
-       {{top_opps_html}}        → max 3 short-label opportunity items
-       {{ai_insight_block}}     → royalteAI.observation + priority + nextAction combined
-       {{ai_confidence_label}}  → derived from royalteAI.confidence
-     ════════════════════════════════════════════════════════════════════════ -->
-<section class="page" aria-label="Executive Summary" data-page="1">
-<div class="p1-outer">
-
-  <!-- TOP HEADER BAR -->
-  <header class="p1-header">
-    <span class="p1-logo">Royalt&#x113;<span class="p1-logo-dot">&#x2122;</span></span>
-    <div class="p1-header-right">
-      <span class="p1-brief-tag">Executive Brief&#x2122;</span>
-      <span class="p1-pg-num">01 / 07</span>
+  <!-- HEADER -->
+  <div class="hdr">
+    <div>
+      <div class="hdr-logo-name">ROYALT&#274;</div>
+      <div class="hdr-logo-sub">Music Backend Intelligence™</div>
     </div>
-  </header>
+    <div class="hdr-center">Royalt&#274; Executive Briefing</div>
+    <div class="hdr-page">Page 01</div>
+  </div>
 
   <!-- BODY -->
-  <div class="p1-body">
+  <div class="body">
 
-    <!-- ═══ LEFT COLUMN ═══════════════════════════════════════════════════ -->
-    <div class="p1-left">
+    <!-- HERO ROW -->
+    <div class="hero-row">
 
-      <!-- Editorial brand copy -->
-      <div class="p1-tagline">
-        <div class="p1-tagline-main">
-          Your fans hear music.<br>
-          The music industry hears <span class="p1-tagline-accent">data.</span>
-        </div>
-        <div class="p1-tagline-sub">
-          Royalt&#x113; reveals the invisible infrastructure behind every release.
-        </div>
-      </div>
-
-      <!-- Artist photo: fills available space via flex:1 -->
-      <div class="p1-photo-wrap">
-        <img class="p1-photo"
-             src="{{artist_image_url}}"
-             alt="{{artist_name}}"
-             onerror="this.style.opacity='0'">
-        <div class="p1-photo-fade"></div>
-
-        <!-- Identity overlay at photo bottom -->
-        <div class="p1-identity">
-          <div class="p1-artist-name">{{artist_name}}</div>
-          <div class="p1-health-tag">Music Backend Health&#x2122;</div>
-          <div class="p1-score-row">
-            <span class="p1-score">{{health_score}}</span>
-            <span class="p1-score-of">&thinsp;/&thinsp;100</span>
+      <!-- Left: display title + health score -->
+      <div class="hero-left">
+        <div>
+          <div class="title-1">Executive</div>
+          <div class="title-2">Summary</div>
+          <div class="tagline">
+            <span class="tagline-dash"></span>
+            Your Backend. Our Intelligence. Your Advantage.
           </div>
-          <span class="p1-grade {{health_band_cls}}">{{health_band_label}}</span>
+        </div>
+        <div class="score-card">
+          <div class="score-label">Overall Health Score™</div>
+          <div class="score-row">
+            <span class="score-num">{{health_score}}</span>
+            <span class="score-denom">/ 100</span>
+          </div>
+          <div class="score-band">{{health_band_label}}</div>
+          <div class="score-bar-track">
+            <div class="score-bar-fill" style="width: {{health_score}}%"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Monitoring Status™ (below photo, outside photo-wrap) -->
-      <div class="p1-monitoring">
-        <div class="p1-monitoring-title">Monitoring Status&#x2122;</div>
-        <div class="p1-status-row">
-          <div class="p1-status-dot dot-green"></div>
-          <span class="p1-status-text">Snapshot Complete</span>
-          <span class="p1-status-date">{{scan_date}}</span>
+      <!-- Right: artwork card + executive summary -->
+      <div class="hero-right">
+        <div class="artwork-card">
+          <img class="artwork-img" src="{{artist_image_url}}" alt="{{artist_name}}" />
+          <div class="artwork-overlay">
+            <div class="artwork-artist">{{artist_name}}</div>
+            <div class="artwork-scan-lbl">Scan Date:</div>
+            <div class="artwork-scan-date">{{scan_date}}</div>
+          </div>
         </div>
-        <div class="p1-status-row">
-          <div class="p1-status-dot dot-amber"></div>
-          <span class="p1-status-text">Monitoring Inactive</span>
-        </div>
+        <div class="summary-head">Executive Summary</div>
+        <div class="summary-text">{{executive_summary}}</div>
       </div>
 
-      <!-- Attribution -->
-      <div class="p1-attrib">
-        <div class="p1-attrib-line">Analyzed by Royalt&#x113; Intelligence&#x2122;</div>
-        <div class="p1-attrib-line">Built in partnership with the artist.</div>
+    </div><!-- /hero-row -->
+
+    <!-- INTEL ROW -->
+    <div class="intel-row">
+
+      <div class="intel-col">
+        <div class="intel-head">Top Strengths</div>
+        {{top_strengths_html}}
       </div>
 
-    </div>
-    <!-- /LEFT COLUMN -->
-
-    <!-- ═══ RIGHT COLUMN ══════════════════════════════════════════════════ -->
-    <div class="p1-right">
-
-      <!-- 1. Executive Summary™ -->
-      <div class="p1-es-block">
-        <div class="p1-es-eyebrow">Executive Summary&#x2122;</div>
-        <h1 class="p1-es-heading">Executive<br>Summary</h1>
-        <div class="p1-es-subhead">Full Backstage Intelligence &middot; Plain Language Insights</div>
-        <p class="p1-es-text">{{executive_summary}}</p>
+      <div class="intel-col">
+        <div class="intel-head">Top Opportunities</div>
+        {{top_opps_html}}
       </div>
 
-      <!-- 2. Top Strengths™ + Top Opportunities™ -->
-      <div class="p1-intel-grid">
+    </div><!-- /intel-row -->
 
-        <div class="p1-col-strengths">
-          <div class="p1-intel-col-head">Top Strengths&#x2122;</div>
-          {{top_strengths_html}}
+    <!-- AI INSIGHT CARD -->
+    <div class="ai-card">
+
+      <div class="ai-header">
+        <div class="ai-brain">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="2.5"/>
+            <circle cx="5" cy="7.5" r="1.8"/>
+            <circle cx="19" cy="7.5" r="1.8"/>
+            <circle cx="5" cy="16.5" r="1.8"/>
+            <circle cx="19" cy="16.5" r="1.8"/>
+            <line x1="6.7" y1="8.4" x2="10" y2="11"/>
+            <line x1="17.3" y1="8.4" x2="14" y2="11"/>
+            <line x1="6.7" y1="15.6" x2="10" y2="13"/>
+            <line x1="17.3" y1="15.6" x2="14" y2="13"/>
+          </svg>
+        </div>
+        <div class="ai-title">Royalt&#274; AI Insight™</div>
+      </div>
+
+      <div class="ai-cols">
+
+        <div class="ai-col">
+          <div class="ai-col-lbl">Observation</div>
+          <div class="ai-col-text">{{ai_observation}}</div>
         </div>
 
-        <div class="p1-col-opps">
-          <div class="p1-intel-col-head">Top Opportunities&#x2122;</div>
-          {{top_opps_html}}
+        <div class="ai-col">
+          <div class="ai-col-lbl">Priority</div>
+          <div class="ai-priority-val">{{ai_priority_label}}</div>
+          <div class="ai-dots">{{ai_priority_dots}}</div>
+          <div class="ai-col-text">{{ai_priority_text}}</div>
         </div>
 
-      </div>
-
-      <!-- 3. Infrastructure Status™ -->
-      <div class="p1-infra-card">
-        <div class="p1-infra-title">Infrastructure Status&#x2122;</div>
-        <div class="p1-infra-statements">
-          <span class="p1-infra-phrase">The Audit is a Photograph.</span>
-          <span class="p1-infra-bull">&middot;</span>
-          <span class="p1-infra-phrase">Monitoring is a Security Camera.</span>
+        <div class="ai-col">
+          <div class="ai-col-lbl">Recommended Action</div>
+          <div class="ai-col-text">{{ai_next_action}}</div>
+          <div class="ai-target">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <circle cx="12" cy="12" r="5.5"/>
+              <circle cx="12" cy="12" r="2" fill="white" stroke="none"/>
+            </svg>
+          </div>
         </div>
-        <p class="p1-infra-body">
-          This report reflects your music infrastructure as it existed on {{scan_date}}.
-          Future changes to identity, publishing, metadata, catalog availability, territory
-          coverage, and platform presence are not currently being monitored.
-        </p>
-      </div>
 
-      <!-- 4. Royaltē AI Insight™ — hero section -->
-      <div class="p1-ai-card">
-        <div class="p1-ai-head">
-          <span class="p1-ai-brand">Royalt&#x113; AI Insight&#x2122;</span>
-          <span class="p1-ai-conf">{{ai_confidence_label}}</span>
-        </div>
-        <p class="p1-ai-text">{{ai_insight_block}}</p>
-      </div>
+      </div><!-- /ai-cols -->
 
-    </div>
-    <!-- /RIGHT COLUMN -->
+    </div><!-- /ai-card -->
 
-  </div>
-  <!-- /BODY -->
+  </div><!-- /body -->
 
-  <!-- BOTTOM PAGE-NAV STRIP -->
-  <div class="p1-nav-strip">
-    <div class="p1-nav-thumb">
-      <div class="p1-nav-label">Music Backend Health&#x2122;</div>
-      <div class="p1-nav-line accent w80"></div>
-      <div class="p1-nav-line w60"></div>
-      <div class="p1-nav-line w40"></div>
-    </div>
-    <div class="p1-nav-thumb">
-      <div class="p1-nav-label">Backend Intelligence&#x2122;</div>
-      <div class="p1-nav-line w90"></div>
-      <div class="p1-nav-line w60"></div>
-      <div class="p1-nav-line w40"></div>
-    </div>
-    <div class="p1-nav-thumb">
-      <div class="p1-nav-label">Catalog Intelligence&#x2122;</div>
-      <div class="p1-nav-line w60"></div>
-      <div class="p1-nav-line w80"></div>
-      <div class="p1-nav-line w40"></div>
-    </div>
-    <div class="p1-nav-thumb">
-      <div class="p1-nav-label">Publishing Intelligence&#x2122;</div>
-      <div class="p1-nav-line w80"></div>
-      <div class="p1-nav-line w40"></div>
-      <div class="p1-nav-line w60"></div>
-    </div>
-    <div class="p1-nav-thumb">
-      <div class="p1-nav-label">Executive Action Plan&#x2122;</div>
-      <div class="p1-nav-line w60"></div>
-      <div class="p1-nav-line w90"></div>
-      <div class="p1-nav-line w40"></div>
-    </div>
-    <div class="p1-nav-thumb">
-      <div class="p1-nav-label">Mission Control&#x2122;</div>
-      <div class="p1-nav-line w80"></div>
-      <div class="p1-nav-line w60"></div>
-      <div class="p1-nav-line accent w90"></div>
-    </div>
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">Confidential<br>For Artist Use Only</div>
+    <div class="footer-center">Built by artists, for artists.</div>
+    <div class="footer-right">royalte.ai</div>
   </div>
 
-</div>
-</section>
-
-
-<!-- ════════════════════════════════════════════════════════════════════════
-     PAGES 2–7 SCAFFOLD
-     ════════════════════════════════════════════════════════════════════════ -->
-<section class="page" aria-label="Music Backend Health" data-page="2">
-  <div class="page-scaffold"><span class="page-scaffold-label">Page 2 — Music Backend Health&#x2122;</span></div>
-</section>
-
-<section class="page" aria-label="Backend Intelligence" data-page="3">
-  <div class="page-scaffold"><span class="page-scaffold-label">Page 3 — Backend Intelligence&#x2122;</span></div>
-</section>
-
-<section class="page" aria-label="Catalog Intelligence" data-page="4">
-  <div class="page-scaffold"><span class="page-scaffold-label">Page 4 — Catalog Intelligence&#x2122;</span></div>
-</section>
-
-<section class="page" aria-label="Publishing Intelligence" data-page="5">
-  <div class="page-scaffold"><span class="page-scaffold-label">Page 5 — Publishing Intelligence&#x2122;</span></div>
-</section>
-
-<section class="page" aria-label="Executive Action Plan" data-page="6">
-  <div class="page-scaffold"><span class="page-scaffold-label">Page 6 — Executive Action Plan&#x2122;</span></div>
-</section>
-
-<section class="page" aria-label="Mission Control" data-page="7">
-  <div class="page-scaffold"><span class="page-scaffold-label">Page 7 — Mission Control&#x2122;</span></div>
-</section>
-
+</div><!-- /page -->
 </body>
 </html>
