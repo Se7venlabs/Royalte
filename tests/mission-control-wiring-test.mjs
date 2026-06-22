@@ -51,6 +51,7 @@ import { assembleCio } from '../api/_lib/cio-assembler.js';
 import { runIntelligenceEngine } from '../api/_lib/intelligence-engine.js';
 import { ALL_RULES } from '../api/rules/index.js';
 import { assembleIdentityIntelligence } from '../api/_lib/identity-intelligence.js';
+import { assembleHealthIntelligence } from '../api/_lib/health-intelligence.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MC_RENDERERS_SRC = readFileSync(join(__dirname, '..', 'public', 'js', 'mission-control-renderers.js'), 'utf8');
@@ -702,15 +703,14 @@ test('26g. CONCERN 3 + 6 (Monitoring Intelligence v1.0) — renderChangeDetectio
 });
 
 test('26h. CONCERN 3 + 6 (Health Intelligence v1.0) — renderHealth is implemented and conforms to the canonical entry-point contract', () => {
-  // Health Intelligence v1.0 promoted renderHealth from stub to real
-  // implementation. Validates: function exported, null-safe, correct
-  // output shape (score 0-100, status vocab, confidence vocab, 6 domain
-  // scores, ringDasharray, strengths/concerns arrays).
+  // Health Intelligence v1.0 is an interpretation layer: score comes from
+  // the canonical healthScore.overallScore, never from independent calculation.
+  // Validates: function exported, null-safe, correct output shape.
 
-  assert.equal(typeof renderHealth,          'function', 'renderHealth must be exported as a function');
-  assert.equal(typeof safeHealthIntelligence,'function', 'safeHealthIntelligence must be exported');
+  assert.equal(typeof renderHealth,           'function', 'renderHealth must be exported as a function');
+  assert.equal(typeof safeHealthIntelligence, 'function', 'safeHealthIntelligence must be exported');
 
-  // ── Well-formed input (representative health intelligence object) ─────
+  // ── Well-formed input — simulates assembleHealthIntelligence output ───
   const hi = {
     score:           78,
     status:          'Strong',
@@ -729,17 +729,20 @@ test('26h. CONCERN 3 + 6 (Health Intelligence v1.0) — renderHealth is implemen
   const plan = renderHealth(hi);
   assert.ok(plan !== null, 'renderHealth must return a non-null plan for valid input');
 
-  // ── Score and status ─────────────────────────────────────────────────
-  assert.equal(plan.score,      78,       'score must pass through as-is');
+  // ── Score passes through verbatim (canonical — not recomputed) ────────
+  assert.equal(plan.score,      78,       'score must pass through as-is from the canonical health score');
   assert.equal(plan.status,     'Strong', 'status must pass through');
   assert.equal(plan.confidence, 'Partial','confidence must pass through');
-  assert.equal(plan.composite,  78,       'composite must equal score');
+
+  // ── composite field must NOT exist — one score in the system ─────────
+  assert.ok(!('composite' in plan),
+    'plan must not expose a composite field — there is one canonical health score');
 
   // ── Ring dasharray ────────────────────────────────────────────────────
   assert.ok(typeof plan.ringDasharray === 'string' && plan.ringDasharray.includes(' '),
     'ringDasharray must be a two-value SVG string');
 
-  // ── Domain scores ─────────────────────────────────────────────────────
+  // ── Domain scores (informational contributor rows) ────────────────────
   assert.ok(plan.domainScores && typeof plan.domainScores === 'object', 'domainScores must be an object');
   assert.equal(plan.domainScores.identity,   72,  'identityScore');
   assert.equal(plan.domainScores.publishing, 86,  'publishingScore');
@@ -763,6 +766,44 @@ test('26h. CONCERN 3 + 6 (Health Intelligence v1.0) — renderHealth is implemen
   const validStatuses = ['Excellent', 'Strong', 'Moderate', 'Needs Review'];
   assert.ok(validStatuses.includes(plan.status),
     `status must be one of ${validStatuses.join(' | ')}`);
+});
+
+test('26i. CONSTITUTIONAL — assembleHealthIntelligence score === canonical healthScore.overallScore (one score in the system)', () => {
+  // This test enforces the Board directive: Health Intelligence™ is an
+  // interpretation layer only. payload.healthIntelligence.score must
+  // equal payload.healthScore.overallScore — no independent calculation.
+
+  const canonicalHealthScore = { overallScore: 83, overallGrade: 'A' };
+
+  // Minimal domain intelligence stubs (non-null to exercise the path)
+  const hi = assembleHealthIntelligence(
+    canonicalHealthScore,
+    { coverage: 72, verified: 3, total: 4, supportedProviders: [] },
+    { coverage: 86, registrations: {} },
+    { confidence: 'Verified', totalTracks: 120 },
+    { coveragePercent: 58 },
+    { services: [{ state: 'VERIFIED' }, { state: 'VERIFIED' }, { state: 'VERIFIED' }, { state: 'AUTH_UNAVAILABLE' }] },
+    { status: 'no_changes' },
+    null,
+  );
+
+  // Primary invariant
+  assert.equal(hi.score, canonicalHealthScore.overallScore,
+    'assembleHealthIntelligence.score must equal healthScore.overallScore — one canonical score');
+
+  // Output shape sanity
+  assert.ok(typeof hi.status     === 'string', 'status must be a string');
+  assert.ok(typeof hi.confidence === 'string', 'confidence must be a string');
+  assert.ok(Array.isArray(hi.strengths), 'strengths must be an array');
+  assert.ok(Array.isArray(hi.concerns),  'concerns must be an array');
+
+  // No independent calculation field
+  assert.ok(!('composite'     in hi), 'no composite field — one score only');
+  assert.ok(!('weightedScore' in hi), 'no weightedScore field');
+
+  // Guard: missing healthScore returns empty shell (score = 0), not a fabricated value
+  const empty = assembleHealthIntelligence(null, null, null, null, null, null, null, null);
+  assert.equal(empty.score, 0, 'null healthScore must return empty shell with score 0, not a fabricated score');
 });
 
 test('27. CONCERN 1 (HEP) — Identity Intelligence + Royaltē Health remain separated; coverage carries no scoring fields', () => {

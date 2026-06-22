@@ -331,23 +331,25 @@ export function renderCatalog(intelligence) {
 //
 //  Return shape:
 //    {
-//      score:          number,       // 0–100
+//      score:          number,       // 0–100 canonical Royaltē Health Score™
 //      status:         string,       // Excellent | Strong | Moderate | Needs Review
 //      confidence:     string,       // Verified | Partial | Limited
 //      ringDasharray:  string,       // SVG stroke-dasharray value
 //      domainScores: {
-//        identity:    number,
+//        identity:    number,        // informational contributor rows only
 //        publishing:  number,
 //        catalog:     number,
 //        footprint:   number,
 //        monitoring:  number,
 //        backend:     number,
 //      },
-//      composite:      number,       // same as score (displayed in summary row)
 //      strengths:      string[],     // up to 5
 //      concerns:       string[],     // up to 5
 //    }
 //  or null when intelligence is absent.
+//
+//  Note: composite was removed — there is one score in the system and it
+//  comes from computeHealthScore(). The summary row displays plan.score.
 
 const RING_CIRCUMFERENCE = 213.628;
 
@@ -381,7 +383,6 @@ export function renderHealth(intelligence) {
       monitoring: n(hi.monitoringScore),
       backend:    n(hi.backendScore),
     },
-    composite:  score,
     strengths:  Array.isArray(hi.strengths) ? hi.strengths.filter((x) => typeof x === 'string' && x.trim()) : [],
     concerns:   Array.isArray(hi.concerns)  ? hi.concerns.filter((x)  => typeof x === 'string' && x.trim()) : [],
   };

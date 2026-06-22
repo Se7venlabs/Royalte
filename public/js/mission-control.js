@@ -373,9 +373,9 @@ function applyHealthPlan(plan) {
     if (valEl) valEl.textContent = score;
   }
 
-  // Composite average
+  // Composite average row — displays the canonical health score (one score in the system)
   const compositeEl = document.querySelector('[data-mc-health-composite]');
-  if (compositeEl) compositeEl.textContent = plan.composite;
+  if (compositeEl) compositeEl.textContent = plan.score;
 
   // Strengths / concerns in the foot slot
   const foot = document.querySelector('[data-mc-health-insights]');
