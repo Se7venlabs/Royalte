@@ -2,46 +2,38 @@
 //
 // Royaltē Health Intelligence™ v1.0
 //
-// Assembles a single HealthIntelligence object from the 7 assembled
-// domain intelligence objects. Reads; never fetches; never scores
-// business logic (that is Royaltē Health Engine™ territory).
+// Interpretation layer over the canonical Royaltē Health Score™.
+// Reads; never calculates a health score. Never fetches.
 //
-// This surface is the executive health summary MC renders — composite
-// score, per-domain sub-scores, strengths, and concerns — derived
-// strictly from already-assembled intelligence.
+// computeHealthScore() in api/_lib/health-engine.js is the sole
+// constitutional authority for Royaltē Health Scores™. This module
+// reads that output and adds:
+//   - Status vocabulary (Excellent / Strong / Moderate / Needs Review)
+//   - Per-domain contributor scores (informational display only —
+//     these do NOT drive the overall score)
+//   - Confidence (derived from domain data coverage)
+//   - Strengths[] and Concerns[] (derived from domain thresholds)
 //
-// Called once per scan from api/audit.js; output persisted to
-// audit_scans.payload.healthIntelligence. MC reads it only from there.
+// Called once per scan from api/audit.js AFTER computeHealthScore()
+// runs. Output persisted to audit_scans.payload.healthIntelligence.
+// MC reads it only from there.
 //
-// Constitutional invariants honoured here:
-//   - Pure function: no I/O, no clock (generatedAt passed in or stamped).
-//   - Never throws (outer try/catch; returns empty shell on failure).
-//   - Output is deeply frozen.
-//   - AUTH_UNAVAILABLE ≠ NOT_FOUND (never penalised as zero).
-//   - Intelligence generated once; consumed everywhere.
+// Invariant enforced here:
+//   payload.healthIntelligence.score === payload.healthScore.overallScore
 //
 // ─────────────────────────────────────────────────────────────────────
 
 export const HEALTH_INTELLIGENCE_VERSION = '1.0.0';
 
-// ── Scoring bands (Board-locked) ──────────────────────────────────────
-// Vocabulary: Excellent / Strong / Moderate / Needs Review
+// ── Status vocabulary bands ───────────────────────────────────────────
+// Maps the canonical overallScore (0-100) to a display status string.
+// Vocabulary is Board-locked: Excellent / Strong / Moderate / Needs Review.
 const STATUS_BANDS = [
-  { min: 90, max: 100, status: 'Excellent' },
-  { min: 75, max:  89, status: 'Strong'    },
-  { min: 60, max:  74, status: 'Moderate'  },
+  { min: 90, max: 100, status: 'Excellent'    },
+  { min: 75, max:  89, status: 'Strong'       },
+  { min: 60, max:  74, status: 'Moderate'     },
   { min:  0, max:  59, status: 'Needs Review' },
 ];
-
-// ── Domain weights — must sum to 1.0 ─────────────────────────────────
-const DOMAIN_WEIGHTS = Object.freeze({
-  identity:    0.20,
-  publishing:  0.20,
-  catalog:     0.15,
-  footprint:   0.20,
-  backend:     0.15,
-  monitoring:  0.10,
-});
 
 // ── Internal helpers ──────────────────────────────────────────────────
 
@@ -66,13 +58,15 @@ function statusForScore(score) {
   return 'Needs Review';
 }
 
-// ── Per-domain score derivations ──────────────────────────────────────
+// ── Per-domain contributor score derivations ──────────────────────────
+// These are informational display values for the Health Contributors™
+// card rows. They do NOT feed the overall score — computeHealthScore()
+// owns that calculation exclusively.
 
 function deriveIdentityScore(ii) {
   if (!ii || typeof ii !== 'object') return 0;
   const cov = ii.coverage;
   if (typeof cov === 'number' && Number.isFinite(cov)) return clamp(cov);
-  // Fallback: (verified / total) * 100
   const verified = typeof ii.verified === 'number' ? ii.verified : 0;
   const total    = typeof ii.total    === 'number' ? ii.total    : 0;
   if (total > 0) return clamp((verified / total) * 100);
@@ -80,10 +74,9 @@ function deriveIdentityScore(ii) {
 }
 
 function derivePublishingScore(pi) {
-  if (!pi || typeof pi !== 'object') return 50; // neutral when no publishing intelligence
+  if (!pi || typeof pi !== 'object') return 50;
   const cov = pi.coverage;
   if (typeof cov === 'number' && Number.isFinite(cov)) return clamp(cov);
-  // AUTH_UNAVAILABLE MLC → neutral 50 (not a gap)
   const reg = pi.registrations;
   if (reg && typeof reg === 'object') {
     const mlc = reg.mlcRegistration;
@@ -98,7 +91,6 @@ function deriveCatalogScore(ci) {
   if (conf === 'Verified')          return 100;
   if (conf === 'Partial')           return 65;
   if (conf === 'Unable to Confirm') return 30;
-  // Fallback: use totalTracks as a signal
   const tt = ci.totalTracks;
   if (typeof tt === 'number' && tt > 0) return 65;
   return 30;
@@ -115,9 +107,9 @@ function deriveBackendScore(bi) {
   if (!bi || typeof bi !== 'object') return 50;
   const services = bi.services;
   if (!Array.isArray(services) || services.length === 0) return 50;
-  // Score = VERIFIED count / non-AUTH_UNAVAILABLE count × 100
-  // AUTH_UNAVAILABLE services are excluded from both numerator and denominator
-  // (they are not coverage gaps — monitoring-plan gated per Brief 015o).
+  // VERIFIED / non-AUTH_UNAVAILABLE ratio. AUTH_UNAVAILABLE services
+  // (monitoring-plan gated per Brief 015o) are excluded from both numerator
+  // and denominator — they are not coverage gaps.
   let verifiable = 0;
   let verified   = 0;
   for (const svc of services) {
@@ -127,12 +119,12 @@ function deriveBackendScore(bi) {
     verifiable += 1;
     if (st === 'VERIFIED') verified += 1;
   }
-  if (verifiable === 0) return 50; // all AUTH_UNAVAILABLE → neutral
+  if (verifiable === 0) return 50;
   return clamp((verified / verifiable) * 100);
 }
 
 function deriveMonitoringScore(mi) {
-  if (!mi || typeof mi !== 'object') return 50; // no monitoring data → neutral
+  if (!mi || typeof mi !== 'object') return 50;
   const st = mi.status;
   if (st === 'active')     return 100;
   if (st === 'no_changes') return 90;
@@ -141,19 +133,17 @@ function deriveMonitoringScore(mi) {
 }
 
 // ── Confidence derivation ─────────────────────────────────────────────
-// Counts domains with real (non-neutral) data. AUTH_UNAVAILABLE is
-// "neutral" — monitoring-plan gated services don't count against confidence.
+// Counts domains with real (non-neutral) data present. AUTH_UNAVAILABLE
+// services contribute neutral values and do not raise or lower confidence.
 
-function deriveConfidence(scores) {
-  // Count domains with a score that's meaningfully above the neutral floor (50)
-  // OR below it (i.e., a real signal exists, positive or negative).
+function deriveConfidence(domainScores) {
   const meaningful = [
-    scores.identity    !== 0,
-    scores.publishing  !== 50,
-    scores.catalog     !== 30,
-    scores.footprint   !== 0,
-    scores.backend     !== 50,
-    scores.monitoring  !== 50,
+    domainScores.identity   !== 0,
+    domainScores.publishing !== 50,
+    domainScores.catalog    !== 30,
+    domainScores.footprint  !== 0,
+    domainScores.backend    !== 50,
+    domainScores.monitoring !== 50,
   ].filter(Boolean).length;
 
   if (meaningful >= 5) return 'Verified';
@@ -163,22 +153,19 @@ function deriveConfidence(scores) {
 
 // ── Strengths extraction (max 5) ──────────────────────────────────────
 
-function extractStrengths(scores, ii, pi, ci, gmf, bi, mi, ai) {
+function extractStrengths(domainScores, ii, pi, ci, gmf, bi, mi, ai) {
   const s = [];
 
-  if (scores.identity >= 80)   s.push('Identity verified across reviewed platforms');
-  if (scores.publishing >= 75) s.push('Publishing registration confirmed');
-  if (scores.footprint >= 75)  s.push('Global distribution verified');
-  if (scores.backend >= 90)    s.push('Backend infrastructure fully connected');
-  if (scores.monitoring >= 85) s.push('Active monitoring and change detection');
-  if (scores.catalog >= 80)    s.push('Catalog verified with confidence');
+  if (domainScores.identity   >= 80) s.push('Identity verified across reviewed platforms');
+  if (domainScores.publishing >= 75) s.push('Publishing registration confirmed');
+  if (domainScores.footprint  >= 75) s.push('Global distribution verified');
+  if (domainScores.backend    >= 90) s.push('Backend infrastructure fully connected');
+  if (domainScores.monitoring >= 85) s.push('Active monitoring and change detection');
+  if (domainScores.catalog    >= 80) s.push('Catalog verified with confidence');
 
-  // Royaltē AI insight: if AI found positive signal and we haven't hit 5 yet
   if (s.length < 5 && ai && Array.isArray(ai.strengths) && ai.strengths.length > 0) {
     const aiStrength = ai.strengths[0];
-    if (typeof aiStrength === 'string' && aiStrength.trim()) {
-      s.push(aiStrength.trim());
-    }
+    if (typeof aiStrength === 'string' && aiStrength.trim()) s.push(aiStrength.trim());
   }
 
   return s.slice(0, 5);
@@ -186,65 +173,63 @@ function extractStrengths(scores, ii, pi, ci, gmf, bi, mi, ai) {
 
 // ── Concerns extraction (max 5) ───────────────────────────────────────
 
-function extractConcerns(scores, ii, pi, ci, gmf, bi, mi, ai) {
+function extractConcerns(domainScores, ii, pi, ci, gmf, bi, mi, ai) {
   const c = [];
 
-  if (scores.publishing < 50) c.push('Publishing registration requires review');
-  if (scores.footprint  < 60) c.push('Territory coverage may be limited');
-  if (scores.identity   < 60) c.push('Identity verification incomplete');
-  if (scores.backend    < 50) c.push('Backend infrastructure connectivity issues');
-  if (scores.catalog    < 40) c.push('Catalog data could not be verified');
-  if (!mi || scores.monitoring === 50) c.push('Monitoring not active for this scan');
+  if (domainScores.publishing < 50) c.push('Publishing registration requires review');
+  if (domainScores.footprint  < 60) c.push('Territory coverage may be limited');
+  if (domainScores.identity   < 60) c.push('Identity verification incomplete');
+  if (domainScores.backend    < 50) c.push('Backend infrastructure connectivity issues');
+  if (domainScores.catalog    < 40) c.push('Catalog data could not be verified');
+  if (!mi || domainScores.monitoring === 50) c.push('Monitoring not active for this scan');
 
-  // Royaltē AI concern: if AI found issues and we haven't hit 5 yet
   if (c.length < 5 && ai && Array.isArray(ai.issues) && ai.issues.length > 0) {
     const aiIssue = ai.issues[0];
-    if (typeof aiIssue === 'string' && aiIssue.trim()) {
-      c.push(aiIssue.trim());
-    }
+    if (typeof aiIssue === 'string' && aiIssue.trim()) c.push(aiIssue.trim());
   }
 
   return c.slice(0, 5);
 }
 
-// ── Empty shell — returned on assembly failure ─────────────────────────
+// ── Empty shell — returned on assembly failure ────────────────────────
 
 function emptyHealthIntelligence() {
   return {
-    version:          HEALTH_INTELLIGENCE_VERSION,
-    score:            0,
-    status:           'Needs Review',
-    confidence:       'Limited',
-    identityScore:    0,
-    publishingScore:  0,
-    catalogScore:     0,
-    footprintScore:   0,
-    backendScore:     0,
-    monitoringScore:  0,
-    strengths:        [],
-    concerns:         [],
-    generatedAt:      new Date().toISOString(),
+    version:         HEALTH_INTELLIGENCE_VERSION,
+    score:           0,
+    status:          'Needs Review',
+    confidence:      'Limited',
+    identityScore:   0,
+    publishingScore: 0,
+    catalogScore:    0,
+    footprintScore:  0,
+    backendScore:    0,
+    monitoringScore: 0,
+    strengths:       [],
+    concerns:        [],
+    generatedAt:     new Date().toISOString(),
   };
 }
 
 // ── Public API ────────────────────────────────────────────────────────
 
 /**
- * assembleHealthIntelligence — produce the executive health summary.
+ * assembleHealthIntelligence — interpretation layer over the canonical score.
  *
- * Reads from all 7 assembled domain intelligence objects.
- * Never fetches data. Never computes business rules. Never throws.
- * Output is deeply frozen.
+ * score is always sourced from healthScore.overallScore (computeHealthScore output).
+ * No independent health score is calculated here.
  *
+ * @param {object} healthScore             — output of computeHealthScore(); provides overallScore
  * @param {object} identityIntelligence    — from assembleIdentityIntelligence
  * @param {object} publishingIntelligence  — from assemblePublishingIntelligence
  * @param {object} catalogIntelligence     — from assembleCatalogIntelligence
  * @param {object} globalMusicFootprint    — from assembleGlobalMusicFootprint
  * @param {object} backendIntelligence     — from assembleBackendIntelligence
- * @param {object} monitoringIntelligence  — from assembleMonitoringIntelligence (may be null on first write)
+ * @param {object} monitoringIntelligence  — from assembleMonitoringIntelligence (null on first write)
  * @param {object} royalteAI               — from assembleRoyalteAI
  */
 export function assembleHealthIntelligence(
+  healthScore,
   identityIntelligence,
   publishingIntelligence,
   catalogIntelligence,
@@ -254,6 +239,21 @@ export function assembleHealthIntelligence(
   royalteAI,
 ) {
   try {
+    // healthScore is required — it is the canonical authority for the score.
+    // Absent or malformed input returns an empty shell rather than fabricating a score.
+    if (!healthScore || typeof healthScore !== 'object'
+        || typeof healthScore.overallScore !== 'number') {
+      console.error('[health-intelligence] healthScore missing or malformed — returning empty shell');
+      return deepFreeze(emptyHealthIntelligence());
+    }
+
+    // score is the canonical Royaltē Health Score™ — sourced verbatim from
+    // computeHealthScore(). This module does not recompute it.
+    const score  = clamp(healthScore.overallScore);
+    const status = statusForScore(score);
+
+    // Per-domain contributor scores — informational display for the Health
+    // Contributors™ card rows. They do NOT feed the overall score.
     const identityScore   = deriveIdentityScore(identityIntelligence);
     const publishingScore = derivePublishingScore(publishingIntelligence);
     const catalogScore    = deriveCatalogScore(catalogIntelligence);
@@ -261,28 +261,24 @@ export function assembleHealthIntelligence(
     const backendScore    = deriveBackendScore(backendIntelligence);
     const monitoringScore = deriveMonitoringScore(monitoringIntelligence);
 
-    const scores = { identity: identityScore, publishing: publishingScore, catalog: catalogScore, footprint: footprintScore, backend: backendScore, monitoring: monitoringScore };
+    const domainScores = {
+      identity:   identityScore,
+      publishing: publishingScore,
+      catalog:    catalogScore,
+      footprint:  footprintScore,
+      backend:    backendScore,
+      monitoring: monitoringScore,
+    };
 
-    const composite =
-        identityScore   * DOMAIN_WEIGHTS.identity
-      + publishingScore * DOMAIN_WEIGHTS.publishing
-      + catalogScore    * DOMAIN_WEIGHTS.catalog
-      + footprintScore  * DOMAIN_WEIGHTS.footprint
-      + backendScore    * DOMAIN_WEIGHTS.backend
-      + monitoringScore * DOMAIN_WEIGHTS.monitoring;
-
-    const score      = clamp(composite);
-    const status     = statusForScore(score);
-    const confidence = deriveConfidence(scores);
-
-    const strengths = extractStrengths(scores, identityIntelligence, publishingIntelligence, catalogIntelligence, globalMusicFootprint, backendIntelligence, monitoringIntelligence, royalteAI);
-    const concerns  = extractConcerns(scores, identityIntelligence, publishingIntelligence, catalogIntelligence, globalMusicFootprint, backendIntelligence, monitoringIntelligence, royalteAI);
+    const confidence = deriveConfidence(domainScores);
+    const strengths  = extractStrengths(domainScores, identityIntelligence, publishingIntelligence, catalogIntelligence, globalMusicFootprint, backendIntelligence, monitoringIntelligence, royalteAI);
+    const concerns   = extractConcerns(domainScores, identityIntelligence, publishingIntelligence, catalogIntelligence, globalMusicFootprint, backendIntelligence, monitoringIntelligence, royalteAI);
 
     return deepFreeze({
       version:         HEALTH_INTELLIGENCE_VERSION,
-      score,
-      status,
-      confidence,
+      score,           // canonical — sourced from computeHealthScore().overallScore
+      status,          // Excellent | Strong | Moderate | Needs Review
+      confidence,      // Verified | Partial | Limited
       identityScore,
       publishingScore,
       catalogScore,

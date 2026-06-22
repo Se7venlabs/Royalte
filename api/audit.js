@@ -432,15 +432,31 @@ export default async function handler(req, res) {
         console.error('[audit] Royaltē AI™ assembly failed (non-blocking):', assemblyErr.message);
       }
 
-      // ── 7. Health Intelligence™ — reads all 6 assembled domain objects ──
-      // monitoringIntelligence is not yet available at this point (it is
-      // assembled in the two-phase OS write path below). Pass null; the
-      // assembler returns a neutral monitoringScore and the two-phase
-      // patch below re-assembles and overwrites with the final value once
-      // monitoringIntelligence is known.
+      // ── 7. Health & Executive Brief pipeline ──
+      // computeHealthScore() runs first — it is the sole constitutional
+      // authority for the Royaltē Health Score™. Result is passed to
+      // generateHealthReport(), generateExecutiveBrief(), and then to
+      // assembleHealthIntelligence() below so the canonical score flows
+      // through exactly once.
+      let healthScore    = null;
+      let healthReport   = null;
+      let executiveBrief = null;
+      try {
+        healthScore    = computeHealthScore(report);
+        healthReport   = generateHealthReport(cio, report);
+        executiveBrief = generateExecutiveBrief(cio, report, healthReport, healthScore);
+      } catch (healthErr) {
+        console.error('[audit] Health / Executive Brief pipeline failed (non-blocking):', healthErr.message);
+      }
+
+      // ── 8. Health Intelligence™ — interpretation layer over the canonical score ──
+      // Reads healthScore.overallScore as the canonical score. Never recomputes it.
+      // monitoringIntelligence is not yet available (assembled in the two-phase OS
+      // write below). The two-phase patch re-assembles with the real value.
       let healthIntelligence = null;
       try {
         healthIntelligence = assembleHealthIntelligence(
+          healthScore,
           identityIntelligence,
           publishingIntelligence,
           catalogIntelligence,
@@ -451,21 +467,6 @@ export default async function handler(req, res) {
         );
       } catch (hiErr) {
         console.error('[audit] Health Intelligence™ assembly failed (non-blocking):', hiErr.message);
-      }
-
-      // ── 8. Health & Executive Brief pipeline ──
-      // computeHealthScore() called exactly once; result passed to both
-      // generateHealthReport() and generateExecutiveBrief() so the
-      // canonical Health object is computed only once per scan.
-      let healthScore    = null;
-      let healthReport   = null;
-      let executiveBrief = null;
-      try {
-        healthScore    = computeHealthScore(report);
-        healthReport   = generateHealthReport(cio, report);
-        executiveBrief = generateExecutiveBrief(cio, report, healthReport, healthScore);
-      } catch (healthErr) {
-        console.error('[audit] Health / Executive Brief pipeline failed (non-blocking):', healthErr.message);
       }
 
       const enriched = { ...canonicalForEnrichment };
@@ -538,9 +539,11 @@ export default async function handler(req, res) {
               });
               if (monitoringIntelligence && canonical) {
                 canonical.monitoringIntelligence = monitoringIntelligence;
-                // Re-assemble Health Intelligence™ with real monitoringIntelligence
+                // Re-assemble Health Intelligence™ with real monitoringIntelligence.
+                // canonical.healthScore is the canonical authority — passed verbatim.
                 try {
                   const finalHealthIntelligence = assembleHealthIntelligence(
+                    canonical.healthScore            || null,
                     canonical.identityIntelligence   || null,
                     canonical.publishingIntelligence || null,
                     canonical.catalogIntelligence    || null,
