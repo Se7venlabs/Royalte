@@ -41,6 +41,7 @@ import {
   safeIdentityIntelligence,
   safeBackendIntelligence,
   safeMonitoringIntelligence,
+  safeHealthIntelligence,
   ROYALTE_AI_ACTIVITY_LABELS,
   STATE_PILL_CLASS,
   STATE_PILL_TEXT,
@@ -412,11 +413,10 @@ test('25. CONCERN 3 — renderIdentity(intelligence) composes the three plan bui
 test('26. CONCERN 6 — future-stage renderers are exported as deliberate "not yet implemented" stubs', () => {
   // Each remaining placeholder must exist as a callable export AND
   // must throw a clear error when invoked. renderPublishing, renderCatalog,
-  // renderGlobalMusicFootprint, renderRoyalteAI, renderBackend, and
-  // renderChangeDetection are no longer in this list — each has been promoted
-  // to a real implementation (see tests 26b, 26c, 26d, 26e, 26f, 26g below).
+  // renderGlobalMusicFootprint, renderRoyalteAI, renderBackend,
+  // renderChangeDetection, and renderHealth are no longer in this list —
+  // each has been promoted to a real implementation (see tests 26b–26h below).
   for (const [name, fn] of [
-    ['renderHealth',          renderHealth],
     ['renderPriorityActions', renderPriorityActions],
   ]) {
     assert.equal(typeof fn, 'function', `${name} must be exported as a function`);
@@ -699,6 +699,70 @@ test('26g. CONCERN 3 + 6 (Monitoring Intelligence v1.0) — renderChangeDetectio
     assert.ok(!(key in activePlan),
       `plan must not expose '${key}' — Royaltē Health™ owns executive scoring (HEP boundary)`);
   }
+});
+
+test('26h. CONCERN 3 + 6 (Health Intelligence v1.0) — renderHealth is implemented and conforms to the canonical entry-point contract', () => {
+  // Health Intelligence v1.0 promoted renderHealth from stub to real
+  // implementation. Validates: function exported, null-safe, correct
+  // output shape (score 0-100, status vocab, confidence vocab, 6 domain
+  // scores, ringDasharray, strengths/concerns arrays).
+
+  assert.equal(typeof renderHealth,          'function', 'renderHealth must be exported as a function');
+  assert.equal(typeof safeHealthIntelligence,'function', 'safeHealthIntelligence must be exported');
+
+  // ── Well-formed input (representative health intelligence object) ─────
+  const hi = {
+    score:           78,
+    status:          'Strong',
+    confidence:      'Partial',
+    identityScore:   72,
+    publishingScore: 86,
+    catalogScore:    84,
+    footprintScore:  58,
+    monitoringScore: 90,
+    backendScore:    100,
+    strengths:       ['Identity verified across reviewed platforms', 'Backend infrastructure fully connected'],
+    concerns:        ['Territory coverage may be limited'],
+    generatedAt:     new Date().toISOString(),
+  };
+
+  const plan = renderHealth(hi);
+  assert.ok(plan !== null, 'renderHealth must return a non-null plan for valid input');
+
+  // ── Score and status ─────────────────────────────────────────────────
+  assert.equal(plan.score,      78,       'score must pass through as-is');
+  assert.equal(plan.status,     'Strong', 'status must pass through');
+  assert.equal(plan.confidence, 'Partial','confidence must pass through');
+  assert.equal(plan.composite,  78,       'composite must equal score');
+
+  // ── Ring dasharray ────────────────────────────────────────────────────
+  assert.ok(typeof plan.ringDasharray === 'string' && plan.ringDasharray.includes(' '),
+    'ringDasharray must be a two-value SVG string');
+
+  // ── Domain scores ─────────────────────────────────────────────────────
+  assert.ok(plan.domainScores && typeof plan.domainScores === 'object', 'domainScores must be an object');
+  assert.equal(plan.domainScores.identity,   72,  'identityScore');
+  assert.equal(plan.domainScores.publishing, 86,  'publishingScore');
+  assert.equal(plan.domainScores.catalog,    84,  'catalogScore');
+  assert.equal(plan.domainScores.footprint,  58,  'footprintScore');
+  assert.equal(plan.domainScores.monitoring, 90,  'monitoringScore');
+  assert.equal(plan.domainScores.backend,    100, 'backendScore');
+
+  // ── Strengths / concerns ─────────────────────────────────────────────
+  assert.ok(Array.isArray(plan.strengths), 'strengths must be an array');
+  assert.ok(Array.isArray(plan.concerns),  'concerns must be an array');
+  assert.equal(plan.strengths.length, 2, 'strengths count must match input');
+  assert.equal(plan.concerns.length,  1, 'concerns count must match input');
+
+  // ── Null-safe ────────────────────────────────────────────────────────
+  assert.strictEqual(renderHealth(null),      null, 'null input must return null');
+  assert.strictEqual(renderHealth(undefined), null, 'undefined input must return null');
+  assert.strictEqual(renderHealth({}),        null, 'object missing score field must return null');
+
+  // ── Status vocabulary enforced ────────────────────────────────────────
+  const validStatuses = ['Excellent', 'Strong', 'Moderate', 'Needs Review'];
+  assert.ok(validStatuses.includes(plan.status),
+    `status must be one of ${validStatuses.join(' | ')}`);
 });
 
 test('27. CONCERN 1 (HEP) — Identity Intelligence + Royaltē Health remain separated; coverage carries no scoring fields', () => {

@@ -17,7 +17,7 @@
 //      renderRoyalteAI(intelligence)            ← Royaltē AI Phase v1.0 — implemented
 //      renderBackend(intelligence)              ← Backend Intelligence Phase v1.0 — implemented
 //      renderChangeDetection(intelligence)      ← Monitoring Intelligence Phase v1.0 — implemented
-//      renderHealth(intelligence)               ← future stage (stub below)
+//      renderHealth(intelligence)               ← Health Intelligence v1.0 — implemented
 //      renderPriorityActions(intelligence)      ← future stage (stub below)
 //
 //  Each renderer takes a deep-frozen intelligence object produced by
@@ -315,7 +315,78 @@ export function renderCatalog(intelligence) {
     confidence:    typeof ci.confidence    === 'string' ? ci.confidence    : 'Unable to Confirm',
   };
 }
-export const renderHealth          = _unimplemented('Health');
+// ─────────────────────────────────────────────────────────────────────
+//  Health Intelligence™ renderers  (Health Intelligence v1.0)
+// ─────────────────────────────────────────────────────────────────────
+//
+//  Renders the executive health summary from a pre-assembled
+//  healthIntelligence object. The boot module applies the plan via
+//  applyHealthPlan. Mission Control never recomputes scores.
+//
+//  HEP boundary: this renderer reads scores that assembleHealthIntelligence
+//  already produced. It never computes or modifies a health score.
+//
+//  Ring circumference for r=34: 2π × 34 ≈ 213.628.
+//  stroke-dasharray = "{score/100 * 213.628} 213.628"
+//
+//  Return shape:
+//    {
+//      score:          number,       // 0–100
+//      status:         string,       // Excellent | Strong | Moderate | Needs Review
+//      confidence:     string,       // Verified | Partial | Limited
+//      ringDasharray:  string,       // SVG stroke-dasharray value
+//      domainScores: {
+//        identity:    number,
+//        publishing:  number,
+//        catalog:     number,
+//        footprint:   number,
+//        monitoring:  number,
+//        backend:     number,
+//      },
+//      composite:      number,       // same as score (displayed in summary row)
+//      strengths:      string[],     // up to 5
+//      concerns:       string[],     // up to 5
+//    }
+//  or null when intelligence is absent.
+
+const RING_CIRCUMFERENCE = 213.628;
+
+export function safeHealthIntelligence(hi) {
+  if (!hi || typeof hi !== 'object' || Array.isArray(hi)) return null;
+  if (typeof hi.score  !== 'number') return null;
+  if (typeof hi.status !== 'string') return null;
+  return hi;
+}
+
+export function renderHealth(intelligence) {
+  const hi = safeHealthIntelligence(intelligence);
+  if (!hi) return null;
+
+  const n = (v, fb = 0) => (typeof v === 'number' && Number.isFinite(v) ? Math.max(0, Math.min(100, Math.round(v))) : fb);
+  const s = (v, fb = '') => (typeof v === 'string' && v.trim() !== '' ? v.trim() : fb);
+
+  const score = n(hi.score);
+  const dash  = `${((score / 100) * RING_CIRCUMFERENCE).toFixed(1)} ${RING_CIRCUMFERENCE.toFixed(1)}`;
+
+  return {
+    score,
+    status:        s(hi.status,     'Needs Review'),
+    confidence:    s(hi.confidence, 'Limited'),
+    ringDasharray: dash,
+    domainScores: {
+      identity:   n(hi.identityScore),
+      publishing: n(hi.publishingScore),
+      catalog:    n(hi.catalogScore),
+      footprint:  n(hi.footprintScore),
+      monitoring: n(hi.monitoringScore),
+      backend:    n(hi.backendScore),
+    },
+    composite:  score,
+    strengths:  Array.isArray(hi.strengths) ? hi.strengths.filter((x) => typeof x === 'string' && x.trim()) : [],
+    concerns:   Array.isArray(hi.concerns)  ? hi.concerns.filter((x)  => typeof x === 'string' && x.trim()) : [],
+  };
+}
+
 export const renderPriorityActions = _unimplemented('PriorityActions');
 
 // ─────────────────────────────────────────────────────────────────────
