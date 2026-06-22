@@ -38,10 +38,12 @@ import {
   renderPublishing,
   renderCatalog,
   renderGlobalMusicFootprint,
+  renderRoyalteAI,
   safeIdentityIntelligence,
   safePublishingIntelligence,
   safeCatalogIntelligence,
   safeGlobalMusicFootprintIntelligence,
+  safeRoyalteAI,
 } from '/js/mission-control-renderers.js';
 
 // ─── Persisted payload fetch (Phase 4B-3 + Phase 5B) ──────────────
@@ -227,6 +229,29 @@ function escapeAttr(s) {
     .replace(/>/g, '&gt;');
 }
 
+// ─── Royaltē AI™ apply helpers (Phase Royaltē AI v1.0) ───────────────
+//
+// Writes observation to [data-mc-ai-observation] and replaces the
+// [data-mc-ai-activity-list] contents with 3 real intelligence items.
+// Leaves the locked sample HTML untouched when plan is null.
+
+function applyRoyalteAIPlan(plan) {
+  if (!plan) return;
+  const bodyEl = document.querySelector('[data-mc-ai-observation]');
+  if (bodyEl) bodyEl.textContent = plan.observation;
+  const list = document.querySelector('[data-mc-ai-activity-list]');
+  if (!list) return;
+  list.innerHTML = plan.activities.map((item) => `
+    <li class="mc-ai-activity-item">
+      <span class="mc-ai-activity-dot" aria-hidden="true"></span>
+      <div class="mc-ai-activity-text">
+        <div class="mc-ai-activity-title">${escapeText(item.label)}</div>
+        <div class="mc-ai-activity-sub">${escapeText(item.text)}</div>
+      </div>
+    </li>
+  `).join('');
+}
+
 // ─── Boot ──────────────────────────────────────────────────────────
 
 async function initMissionControl() {
@@ -265,6 +290,13 @@ async function initMissionControl() {
   if (globalMusicFootprint) {
     const footprintPlan = renderGlobalMusicFootprint(globalMusicFootprint);
     applyFootprintPlan(footprintPlan);
+  }
+
+  // Royaltē AI™ (Phase Royaltē AI v1.0)
+  const royalteAI = safeRoyalteAI(payload.royalteAI);
+  if (royalteAI) {
+    const aiPlan = renderRoyalteAI(royalteAI);
+    applyRoyalteAIPlan(aiPlan);
   }
 }
 
