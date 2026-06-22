@@ -29,6 +29,7 @@ import {
   renderIdentity,
   renderPublishing,
   renderCatalog,
+  renderGlobalMusicFootprint,
   renderBackend,
   renderHealth,
   renderPriorityActions,
@@ -480,6 +481,40 @@ test('26c. CONCERN 3 + 6 (Catalog Phase v1.0) — renderCatalog is implemented a
   assert.equal(renderCatalog(null), null);
   assert.equal(renderCatalog(undefined), null);
   assert.equal(renderCatalog('string'), null);
+});
+
+test('26d. CONCERN 3 + 6 (GMF Phase v1.0) — renderGlobalMusicFootprint is implemented and conforms to the canonical entry-point contract', () => {
+  // GMF Phase v1.0 replaced the not-yet-implemented placeholder with a
+  // real renderer. It must (a) be a function, (b) NOT throw on a
+  // well-formed globalMusicFootprint input, (c) return the five expected
+  // keys exactly matching the BIG6 territory intelligence shape.
+  assert.equal(typeof renderGlobalMusicFootprint, 'function');
+  const gmf = Object.freeze({
+    territoriesAvailable:   8,
+    territoriesUnavailable: 0,
+    coveragePercent:        100,
+    status:                 'Global',
+    confidence:             'Verified',
+  });
+  const plan = renderGlobalMusicFootprint(gmf);
+  assert.ok(plan !== null, 'renderGlobalMusicFootprint must return a plan object, not null');
+  assert.deepStrictEqual(
+    Object.keys(plan).sort(),
+    ['confidence', 'coveragePercent', 'status', 'territoriesAvailable', 'territoriesUnavailable'],
+    'renderGlobalMusicFootprint plan must carry exactly the five Global Music Footprint™ v1.0 fields'
+  );
+  assert.equal(plan.territoriesAvailable,   8);
+  assert.equal(plan.territoriesUnavailable, 0);
+  assert.equal(plan.coveragePercent,        100);
+  assert.equal(plan.status,                 'Global');
+  assert.equal(plan.confidence,             'Verified');
+  // HEP boundary — plan must not carry score/health/rating
+  assert.ok(!('score'  in plan), 'renderGlobalMusicFootprint must not expose a score field');
+  assert.ok(!('health' in plan), 'renderGlobalMusicFootprint must not expose a health field');
+  // renderGlobalMusicFootprint must return null on absent / malformed intelligence
+  assert.equal(renderGlobalMusicFootprint(null),      null);
+  assert.equal(renderGlobalMusicFootprint(undefined), null);
+  assert.equal(renderGlobalMusicFootprint('string'),  null);
 });
 
 test('27. CONCERN 1 (HEP) — Identity Intelligence + Royaltē Health remain separated; coverage carries no scoring fields', () => {

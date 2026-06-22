@@ -3691,14 +3691,16 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
     const el = document.querySelector('.mc-globe-territories-count');
     if (!el) return;
 
-    /* ─── Royaltē Global Distribution API integration point ──────
-       Wiring stage TODO: replace this stub with the live count
-       fetched from the Royaltē Global Distribution engine (e.g.
-       `return window.RoyalteGlobal?.territoryCount ?? 0;` or an
-       async cache). Every other line in this animator reads the
-       function — swapping in real data is a localized change. */
+    /* ─── GMF Phase v1.0 wiring ───────────────────────────────────
+       mission-control.js (boot module) sets
+       el.dataset.mcFootprintTerritories = territoriesAvailable
+       after reading audit_scans.payload.globalMusicFootprint.
+       getTerritoryCount() is called on every rAF tick so the
+       first sweep after boot fires uses the real value.
+       Returns 0 (no sweep visible) until boot completes. */
     function getTerritoryCount() {
-      return 183; // Board directive's example value, pending wiring.
+      const n = parseInt(el.dataset.mcFootprintTerritories || '0', 10);
+      return isNaN(n) ? 0 : n;
     }
 
     const CYCLE_MS         = 40000;

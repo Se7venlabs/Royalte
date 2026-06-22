@@ -37,9 +37,11 @@ import {
   renderIdentity,
   renderPublishing,
   renderCatalog,
+  renderGlobalMusicFootprint,
   safeIdentityIntelligence,
   safePublishingIntelligence,
   safeCatalogIntelligence,
+  safeGlobalMusicFootprintIntelligence,
 } from '/js/mission-control-renderers.js';
 
 // ─── Persisted payload fetch (Phase 4B-3 + Phase 5B) ──────────────
@@ -170,6 +172,29 @@ function applyRecommendationsPlan(plan) {
   if (count) count.textContent = String(plan.length);
 }
 
+// ─── Global Music Footprint™ apply helpers (GMF Phase v1.0) ──────────
+//
+// Wires the territory count into the existing animated counter by
+// setting data-mc-footprint-territories on .mc-globe-territories-count.
+// The IIFE animation in mission-control.html reads that attribute via
+// getTerritoryCount() on every requestAnimationFrame tick, so the
+// first sweep after boot fires will use the real value.
+//
+// Coverage, status, and confidence are stored as data attributes on
+// #global-footprint for future UI wiring (not currently visible per
+// MC Executive OS lock — no layout/visual changes without Board directive).
+
+function applyFootprintPlan(plan) {
+  if (!plan) return;
+  const countEl = document.querySelector('.mc-globe-territories-count');
+  if (countEl) countEl.dataset.mcFootprintTerritories = String(plan.territoriesAvailable);
+  const card = document.querySelector('#global-footprint');
+  if (!card) return;
+  card.dataset.mcFootprintCoverage   = String(plan.coveragePercent);
+  card.dataset.mcFootprintStatus     = plan.status;
+  card.dataset.mcFootprintConfidence = plan.confidence;
+}
+
 // ─── Catalog Intelligence™ apply helpers (Catalog Phase v1.0) ────────
 
 function applyCatalogPlan(plan) {
@@ -233,6 +258,13 @@ async function initMissionControl() {
   if (catalogIntelligence) {
     const catalogPlan = renderCatalog(catalogIntelligence);
     applyCatalogPlan(catalogPlan);
+  }
+
+  // Global Music Footprint™ (GMF Phase v1.0)
+  const globalMusicFootprint = safeGlobalMusicFootprintIntelligence(payload.globalMusicFootprint);
+  if (globalMusicFootprint) {
+    const footprintPlan = renderGlobalMusicFootprint(globalMusicFootprint);
+    applyFootprintPlan(footprintPlan);
   }
 }
 
