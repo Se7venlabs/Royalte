@@ -4,83 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Royaltē Executive Brief™ v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ROYALTĒ V4 DESIGN TOKENS
-   Constitutional authority: V4 palette wins over mockup colors.
-   No blue / cyan / teal / orange / neon.
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-:root {
-  /* Backgrounds */
-  --bg-white:       #FFFFFF;
-  --bg-light:       #F8F7FC;    /* soft off-white page bg */
-  --bg-dark:        #0B0B14;    /* near-black (cover left panel) */
-  --bg-dark-mid:    #13121F;    /* slightly lighter dark surface */
-  --bg-lavender:    #EDE9FE;    /* pale violet surface / tag bg */
-
-  /* Brand */
-  --purple:         #6B32A0;    /* Royaltē primary purple */
-  --purple-light:   #8E52C0;    /* hover / accent purple */
-  --purple-pale:    #C4A8E8;    /* muted purple for dark-surface text */
-
-  /* Text */
-  --text-dark:      #111827;    /* near-black body text */
-  --text-mid:       #374151;    /* secondary body text */
-  --text-light:     #6B7280;    /* captions, labels */
-  --text-xlight:    #9CA3AF;    /* tertiary / placeholders */
-  --text-white:     #FFFFFF;
-  --text-on-dark:   #E5E7EB;    /* readable text on --bg-dark */
-
-  /* Semantic status */
-  --green-bg:       #D1FAE5;
-  --green-text:     #065F46;
-  --amber-bg:       #FEF3C7;
-  --amber-text:     #92400E;
-  --red-bg:         #FEE2E2;
-  --red-text:       #991B1B;
-  --gray-bg:        #F3F4F6;
-  --gray-text:      #374151;
-
-  /* Champagne (premium accent) */
-  --champagne:      #F5E6C8;
-  --champagne-text: #78532A;
-
-  /* Borders */
-  --border:         #E5E7EB;
-  --border-mid:     #D1D5DB;
-
-  /* Score bar */
-  --bar-track:      #E5E7EB;
-  --bar-fill:       #6B32A0;
-
-  /* Typography */
-  --font:           'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono:      'IBM Plex Mono', 'Fira Mono', monospace;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   PRINT / PDFSHIFT CONFORMANCE
-   PDFShift is called with: { source: html, use_print: true, format: 'Letter' }
-   Every .page must be exactly 8.5in × 11in with overflow hidden.
+   ROYALTĒ EXECUTIVE BRIEF™ v4 — LOCKED V5
+   Philosophy: The Audit is a Photograph. Monitoring is a Security Camera.
+   Design: White-first. Purple accents. Premium consulting feel.
+   No large black/dark background sections.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  font-family: var(--font);
-  font-size: 10pt;
-  background: var(--bg-white);
-  color: var(--text-dark);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #FFFFFF;
+  color: #111827;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
 
-@page {
-  size: letter;
-  margin: 0;
-}
+@page { size: letter; margin: 0; }
 
 .page {
   width: 8.5in;
@@ -89,7 +35,7 @@ html, body {
   position: relative;
   page-break-after: always;
   break-after: page;
-  background: var(--bg-white);
+  background: #FFFFFF;
 }
 
 .page:last-child {
@@ -98,95 +44,594 @@ html, body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   PLACEHOLDER — filled with page content in subsequent steps
+   DESIGN TOKENS
    ═══════════════════════════════════════════════════════════════════════════ */
 
+:root {
+  --white:          #FFFFFF;
+  --bg-light:       #F8F7FC;
+  --bg-sidebar:     #F5F3FF;
+  --bg-lavender:    #EDE9FE;
+  --bg-gray:        #F3F4F6;
+
+  --purple:         #6B32A0;
+  --purple-light:   #8E52C0;
+  --purple-pale:    #C4A8E8;
+
+  --text-dark:      #111827;
+  --text-mid:       #374151;
+  --text-light:     #6B7280;
+  --text-xlight:    #9CA3AF;
+
+  --green-bg:       #D1FAE5;
+  --green-text:     #065F46;
+  --amber-bg:       #FEF3C7;
+  --amber-text:     #92400E;
+  --red-bg:         #FEE2E2;
+  --red-text:       #991B1B;
+
+  --border:         #E5E7EB;
+  --border-mid:     #D1D5DB;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PAGE 1 — EXECUTIVE SUMMARY™  (LOCKED V5)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.p1-outer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ── HEADER BAR ──────────────────────────────────────────────────────────── */
+.p1-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.28in;
+  height: 0.38in;
+  background: var(--white);
+  border-bottom: 1.5px solid var(--border);
+  flex-shrink: 0;
+}
+
+.p1-bar-logo {
+  font-size: 11pt;
+  font-weight: 800;
+  color: var(--purple);
+  letter-spacing: -0.02em;
+}
+
+.p1-bar-doc {
+  font-size: 7pt;
+  color: var(--text-light);
+  letter-spacing: 0.04em;
+}
+
+.p1-bar-pg {
+  font-size: 7pt;
+  font-weight: 600;
+  color: var(--text-xlight);
+}
+
+/* ── BODY ────────────────────────────────────────────────────────────────── */
+.p1-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── LEFT COLUMN ─────────────────────────────────────────────────────────── */
+.p1-left {
+  width: 2.9in;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-mid);
+  overflow: hidden;
+}
+
+/* Artwork — only major image in the report */
+.p1-art-wrap {
+  width: 100%;
+  height: 2.95in;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--bg-lavender);
+}
+
+.p1-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Left content below artwork */
+.p1-left-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0.18in 0.2in 0.15in;
+}
+
+.p1-artist-name {
+  font-size: 13.5pt;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--text-dark);
+  line-height: 1.1;
+  text-transform: uppercase;
+  margin-bottom: 0.13in;
+}
+
+.p1-score-block {
+  margin-bottom: 0.1in;
+}
+
+.p1-score-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  margin-bottom: 7px;
+}
+
+.p1-score-num {
+  font-size: 30pt;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--purple);
+  line-height: 1;
+}
+
+.p1-score-denom {
+  font-size: 10pt;
+  font-weight: 400;
+  color: var(--text-xlight);
+  padding-bottom: 3px;
+}
+
+.p1-grade-pill {
+  display: inline-block;
+  font-size: 6.5pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+.p1-grade-pill.excellent { background: var(--green-bg);    color: var(--green-text); }
+.p1-grade-pill.strong    { background: var(--green-bg);    color: var(--green-text); }
+.p1-grade-pill.good      { background: var(--bg-lavender); color: var(--purple); }
+.p1-grade-pill.attention { background: var(--amber-bg);    color: var(--amber-text); }
+.p1-grade-pill.critical  { background: var(--red-bg);      color: var(--red-text); }
+
+.p1-divider {
+  height: 1px;
+  background: var(--border-mid);
+  margin: 0.13in 0;
+  flex-shrink: 0;
+}
+
+/* Monitoring Status™ */
+.p1-monitoring {
+  flex: 1;
+}
+
+.p1-monitoring-head {
+  font-size: 6.5pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin-bottom: 9px;
+}
+
+.p1-mrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5.5px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.p1-mrow:last-child { border-bottom: none; }
+
+.p1-mkey { font-size: 7.5pt; color: var(--text-light); }
+.p1-mval { font-size: 7.5pt; font-weight: 600; color: var(--text-dark); }
+.p1-mval-ok       { color: var(--green-text); }
+.p1-mval-inactive { color: var(--amber-text); }
+
+/* ── RIGHT COLUMN ────────────────────────────────────────────────────────── */
+.p1-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  padding: 0.22in 0.28in 0.18in;
+  gap: 0.15in;
+  overflow: hidden;
+}
+
+.p1-section-label {
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 7px;
+}
+
+/* 1. Executive Summary™ */
+.p1-summary-text {
+  font-size: 9pt;
+  line-height: 1.7;
+  color: var(--text-mid);
+}
+
+/* 2. Royaltē AI Observation™ */
+.p1-ai-card {
+  background: var(--bg-lavender);
+  border-left: 3px solid var(--purple);
+  border-radius: 0 7px 7px 0;
+  padding: 0.14in 0.17in;
+  flex-shrink: 0;
+}
+
+.p1-ai-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.p1-ai-brand {
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+
+.p1-ai-conf {
+  font-size: 6pt;
+  font-weight: 500;
+  color: var(--purple-light);
+  background: rgba(107,50,160,0.1);
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.p1-ai-text {
+  font-size: 8.5pt;
+  line-height: 1.68;
+  color: var(--text-mid);
+}
+
+/* 3 + 4. Strengths / Opportunities */
+.p1-intel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.18in;
+  flex-shrink: 0;
+}
+
+.p1-intel-head {
+  font-size: 6.5pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  padding-bottom: 5px;
+  border-bottom: 1.5px solid var(--border);
+  margin-bottom: 7px;
+}
+
+.p1-intel-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 3px 0;
+}
+
+.p1-intel-marker {
+  font-size: 9pt;
+  font-weight: 700;
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+
+.p1-intel-strengths .p1-intel-marker { color: var(--green-text); }
+.p1-intel-opps      .p1-intel-marker { color: var(--purple); }
+
+.p1-intel-label {
+  font-size: 8pt;
+  font-weight: 600;
+  color: var(--text-dark);
+  line-height: 1.4;
+}
+
+/* 5. Recommended Action™ */
+.p1-action-card {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0.13in 0.16in;
+  flex-shrink: 0;
+}
+
+.p1-action-head {
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 9px;
+}
+
+.p1-action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-bottom: 6px;
+}
+
+.p1-action-item:last-child { margin-bottom: 0; }
+
+.p1-action-num {
+  font-size: 7.5pt;
+  font-weight: 800;
+  color: var(--purple);
+  flex-shrink: 0;
+  min-width: 14px;
+}
+
+.p1-action-text {
+  font-size: 8pt;
+  color: var(--text-mid);
+  line-height: 1.5;
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────────────────── */
+.p1-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.3in;
+  padding: 0.1in 0.28in 0.09in;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--white);
+}
+
+.p1-footer-mandate {
+  font-size: 6.5pt;
+  line-height: 1.55;
+  color: var(--text-light);
+  flex: 1;
+}
+
+.p1-footer-brand {
+  font-size: 6pt;
+  color: var(--text-xlight);
+  white-space: nowrap;
+  padding-top: 1px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PAGES 2–7 SCAFFOLD
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.page-scaffold {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
 .page-scaffold-label {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   font-size: 13pt;
   font-weight: 700;
-  color: var(--text-xlight);
+  color: var(--border);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  pointer-events: none;
 }
 
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════════════
-     PAGE 1 — EXECUTIVE SUMMARY™
-     Sources: executiveBrief, healthScore, healthIntelligence,
-              royalteAI.positiveSignal, platforms.appleMusic.details.artwork
-     ════════════════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════════════════════════════════════
+     PAGE 1 — EXECUTIVE SUMMARY™  (LOCKED V5)
+     Philosophy: The Audit is a Photograph. Monitoring is a Security Camera.
+
+     Placeholder map:
+       {{artist_name}}             → subject.artistName
+       {{artist_image_url}}        → platforms.appleMusic.details.artwork
+       {{health_score}}            → healthScore.overallScore
+       {{health_band_label}}       → GRADE_THRESHOLDS.label (constitutional, never bare letter)
+       {{health_band_cls}}         → CSS class derived from label
+       {{scan_date}}               → healthScore.generatedAt (formatted Month D, YYYY)
+       {{executive_summary}}       → executiveBrief.executiveSummary (4–5 sentences)
+       {{ai_observation}}          → royalteAI.observation
+       {{ai_confidence_label}}     → derived from royalteAI.confidence
+       {{top_strengths_html}}      → max 3 short-label strength items
+       {{top_opps_html}}           → max 3 short-label opportunity items
+       {{recommended_actions_html}}→ max 3 numbered action items
+     ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Executive Summary" data-page="1">
-  <div class="page-scaffold-label">Page 1 — Executive Summary™</div>
+<div class="p1-outer">
+
+  <!-- HEADER BAR -->
+  <header class="p1-bar">
+    <span class="p1-bar-logo">Royalt&#x113;&#x2122;</span>
+    <span class="p1-bar-doc">Executive Brief&#x2122; &middot; Confidential</span>
+    <span class="p1-bar-pg">01 / 07</span>
+  </header>
+
+  <!-- BODY: left + right -->
+  <div class="p1-body">
+
+    <!-- LEFT COLUMN -->
+    <div class="p1-left">
+
+      <!-- Artwork: only major image in the report. No stock. No AI imagery. -->
+      <div class="p1-art-wrap">
+        <img class="p1-art"
+             src="{{artist_image_url}}"
+             alt="{{artist_name}}"
+             onerror="this.parentElement.style.background='#EDE9FE'">
+      </div>
+
+      <div class="p1-left-content">
+
+        <div class="p1-artist-name">{{artist_name}}</div>
+
+        <!-- Overall Health Score™ + Health Grade -->
+        <div class="p1-score-block">
+          <div class="p1-score-row">
+            <span class="p1-score-num">{{health_score}}</span>
+            <span class="p1-score-denom">/ 100</span>
+          </div>
+          <span class="p1-grade-pill {{health_band_cls}}">{{health_band_label}}</span>
+        </div>
+
+        <div class="p1-divider"></div>
+
+        <!-- Monitoring Status™: facts only, no sales language -->
+        <div class="p1-monitoring">
+          <div class="p1-monitoring-head">Monitoring Status&#x2122;</div>
+          <div class="p1-mrow">
+            <span class="p1-mkey">Audit Date</span>
+            <span class="p1-mval">{{scan_date}}</span>
+          </div>
+          <div class="p1-mrow">
+            <span class="p1-mkey">Status</span>
+            <span class="p1-mval p1-mval-ok">Snapshot Complete</span>
+          </div>
+          <div class="p1-mrow">
+            <span class="p1-mkey">Monitoring</span>
+            <span class="p1-mval p1-mval-inactive">Inactive</span>
+          </div>
+          <div class="p1-mrow">
+            <span class="p1-mkey">Last Review</span>
+            <span class="p1-mval">Today</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- /LEFT COLUMN -->
+
+    <!-- RIGHT COLUMN -->
+    <div class="p1-right">
+
+      <!-- 1. Executive Summary™ -->
+      <div class="p1-summary-block">
+        <div class="p1-section-label">Executive Summary&#x2122;</div>
+        <p class="p1-summary-text">{{executive_summary}}</p>
+      </div>
+
+      <!-- 2. Royaltē AI Observation™ — most important intelligence block on Page 1 -->
+      <div class="p1-ai-card">
+        <div class="p1-ai-card-head">
+          <span class="p1-ai-brand">Royalt&#x113; AI Observation&#x2122;</span>
+          <span class="p1-ai-conf">{{ai_confidence_label}}</span>
+        </div>
+        <p class="p1-ai-text">{{ai_observation}}</p>
+      </div>
+
+      <!-- 3 + 4. Top Strengths™ + Top Opportunities™ -->
+      <div class="p1-intel-grid">
+
+        <div class="p1-intel-strengths">
+          <div class="p1-intel-head">Top Strengths&#x2122;</div>
+          {{top_strengths_html}}
+        </div>
+
+        <div class="p1-intel-opps">
+          <div class="p1-intel-head">Top Opportunities&#x2122;</div>
+          {{top_opps_html}}
+        </div>
+
+      </div>
+
+      <!-- 5. Recommended Action™ — action-oriented, not promotional -->
+      <div class="p1-action-card">
+        <div class="p1-action-head">Recommended Action&#x2122;</div>
+        {{recommended_actions_html}}
+      </div>
+
+    </div>
+    <!-- /RIGHT COLUMN -->
+
+  </div>
+  <!-- /BODY -->
+
+  <!-- FOOTER: mandatory monitoring positioning statement (locked) -->
+  <footer class="p1-footer">
+    <span class="p1-footer-mandate">This report reflects your catalog infrastructure as it existed on the audit date shown above. Future changes to identity, publishing, metadata, catalog availability, registrations, platform presence, and territory coverage are not currently being monitored.</span>
+    <span class="p1-footer-brand">Generated by Royalt&#x113; Intelligence&#x2122; &bull; Music Backend Intelligence&#x2122;</span>
+  </footer>
+
+</div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════
-     PAGE 2 — MUSIC BACKEND HEALTH™
-     Sources: healthScore (all 7 category scores),
-              healthIntelligence (monitoringScore, publishingScore),
-              catalogIntelligence, globalMusicFootprint, publishingIntelligence
-     ════════════════════════════════════════════════════════ -->
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     PAGE 2 — MUSIC BACKEND HEALTH™  (scaffold)
+     ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Music Backend Health" data-page="2">
-  <div class="page-scaffold-label">Page 2 — Music Backend Health™</div>
+  <div class="page-scaffold">
+    <span class="page-scaffold-label">Page 2 — Music Backend Health&#x2122;</span>
+  </div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════
-     PAGE 3 — BACKEND INTELLIGENCE™
-     Sources: identityIntelligence, publishingIntelligence,
-              catalogIntelligence, globalMusicFootprint, backendIntelligence,
-              monitoringIntelligence (ABSENT → fallback),
-              royalteAI.observation, healthScore (per-domain scores)
-     ════════════════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════════════════════════════════════
+     PAGE 3 — BACKEND INTELLIGENCE™  (scaffold)
+     ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Backend Intelligence" data-page="3">
-  <div class="page-scaffold-label">Page 3 — Backend Intelligence™</div>
+  <div class="page-scaffold">
+    <span class="page-scaffold-label">Page 3 — Backend Intelligence&#x2122;</span>
+  </div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════
-     PAGE 4 — CATALOG INTELLIGENCE™
-     Sources: catalogIntelligence, globalMusicFootprint,
-              publishingIntelligence, platforms.appleMusic.details.albums
-     ════════════════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════════════════════════════════════
+     PAGE 4 — CATALOG INTELLIGENCE™  (scaffold)
+     ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Catalog Intelligence" data-page="4">
-  <div class="page-scaffold-label">Page 4 — Catalog Intelligence™</div>
+  <div class="page-scaffold">
+    <span class="page-scaffold-label">Page 4 — Catalog Intelligence&#x2122;</span>
+  </div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════
-     PAGE 5 — ROYALTĒ AI™
-     Sources: royalteAI (priority, nextAction, positiveSignal, confidence),
-              executiveBrief (executiveNarrative, recommendedNextStep,
-              confidenceStatement), healthIntelligence.concerns
-     ════════════════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════════════════════════════════════
+     PAGE 5 — ROYALTĒ AI™  (scaffold)
+     ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Royalte AI" data-page="5">
-  <div class="page-scaffold-label">Page 5 — Royaltē AI™</div>
+  <div class="page-scaffold">
+    <span class="page-scaffold-label">Page 5 — Royalt&#x113; AI&#x2122;</span>
+  </div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════
-     PAGE 6 — EXECUTIVE ACTION PLAN™
-     Sources: executiveBrief.priorityActions (category derived from
-              topRisks/topStrengths by matching ruleId),
-              executiveBrief.topRisks (category field present),
-              executiveBrief.topStrengths (category field present)
-     ════════════════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════════════════════════════════════
+     PAGE 6 — EXECUTIVE ACTION PLAN™  (scaffold)
+     ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Executive Action Plan" data-page="6">
-  <div class="page-scaffold-label">Page 6 — Executive Action Plan™</div>
+  <div class="page-scaffold">
+    <span class="page-scaffold-label">Page 6 — Executive Action Plan&#x2122;</span>
+  </div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════
-     PAGE 7 — MISSION CONTROL™
-     Sources: healthScore, executiveBrief (recommendedNextStep,
-              confidenceStatement), backendIntelligence, identityIntelligence,
-              publishingIntelligence, catalogIntelligence,
-              monitoringIntelligence (ABSENT → fallback), royalteAI
-     ════════════════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════════════════════════════════════
+     PAGE 7 — MISSION CONTROL™  (scaffold)
+     ════════════════════════════════════════════════════════════════════════ -->
 <section class="page" aria-label="Mission Control" data-page="7">
-  <div class="page-scaffold-label">Page 7 — Mission Control™</div>
+  <div class="page-scaffold">
+    <span class="page-scaffold-label">Page 7 — Mission Control&#x2122;</span>
+  </div>
 </section>
 
 </body>
