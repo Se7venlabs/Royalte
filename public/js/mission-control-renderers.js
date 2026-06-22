@@ -263,7 +263,53 @@ function _unimplemented(domain) {
   };
 }
 
-export const renderCatalog         = _unimplemented('Catalog');
+// ─────────────────────────────────────────────────────────────────────
+//  Catalog Intelligence™ renderers  (Catalog Phase v1.0)
+// ─────────────────────────────────────────────────────────────────────
+//
+//  Mirror of renderIdentity / renderPublishing. The boot module
+//  dispatches catalogPlan through the same applyXxx pattern; nothing
+//  about MC's surface is special-cased per domain.
+//
+//  Mission Control:
+//    - never recomputes singles/eps/albums/features/totalTracks
+//    - never re-derives catalogStatus or confidence
+//    - reads pre-assembled catalogIntelligence from audit_scans.payload
+//
+//  Return shape:
+//    {
+//      singles:       number,
+//      eps:           number,
+//      albums:        number,
+//      features:      number,
+//      totalTracks:   number,
+//      catalogStatus: string,
+//      confidence:    string,
+//    }
+//  or null when intelligence is absent (boot module leaves locked sample HTML).
+
+export function safeCatalogIntelligence(ci) {
+  if (!ci || typeof ci !== 'object' || Array.isArray(ci)) return null;
+  return ci;
+}
+
+// renderCatalog(intelligence) — canonical entry point for the Catalog
+// Intelligence™ domain. Passes through the frozen intelligence object
+// as a plain render plan the boot module applies against the locked
+// Mission Control DOM. Returns null on absent / malformed intelligence.
+export function renderCatalog(intelligence) {
+  const ci = safeCatalogIntelligence(intelligence);
+  if (!ci) return null;
+  return {
+    singles:       typeof ci.singles       === 'number' ? ci.singles       : 0,
+    eps:           typeof ci.eps           === 'number' ? ci.eps           : 0,
+    albums:        typeof ci.albums        === 'number' ? ci.albums        : 0,
+    features:      typeof ci.features      === 'number' ? ci.features      : 0,
+    totalTracks:   typeof ci.totalTracks   === 'number' ? ci.totalTracks   : 0,
+    catalogStatus: typeof ci.catalogStatus === 'string' ? ci.catalogStatus : 'Unknown',
+    confidence:    typeof ci.confidence    === 'string' ? ci.confidence    : 'Unable to Confirm',
+  };
+}
 export const renderBackend         = _unimplemented('Backend');
 export const renderHealth          = _unimplemented('Health');
 export const renderPriorityActions = _unimplemented('PriorityActions');

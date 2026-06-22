@@ -112,6 +112,11 @@ export const AUDIT_RESPONSE_SCHEMA = {
     type: 'object', required: true,
     shape: {
       totalReleases:          { type: 'number',  required: true },
+      totalTracks:            { type: 'number',  required: false },
+      singlesCount:           { type: 'number',  required: false },
+      epsCount:               { type: 'number',  required: false },
+      albumsCount:            { type: 'number',  required: false },
+      featuresCount:          { type: 'number',  required: false },
       earliestYear:           { type: 'number',  required: false, nullable: true },
       latestYear:             { type: 'number',  required: false, nullable: true },
       catalogAgeYears:        { type: 'number',  required: true },

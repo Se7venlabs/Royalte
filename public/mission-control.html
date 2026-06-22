@@ -3154,18 +3154,18 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
             </svg>
           </div>
           <div class="mc-catalog-summary">
-            <!-- Catalog Refinement v2.0: "27 Catalog Assets" replaced
-                 with Catalog Score™ 84 / 100; the in-grid
-                 Metadata/Catalog/Verified status rows moved to the
-                 new .mc-catalog-checks block below; "Features" row
-                 renamed "Tracks" per directive. -->
-            <div class="mc-catalog-value">84 <small>/100</small></div>
-            <div class="mc-catalog-label">Catalog Score™</div>
+            <!-- Catalog Intelligence™ v1.0: wired to real scan data via
+                 data-mc-catalog-* attributes. JS renderer overwrites
+                 status value + label; fallback sample values preserved
+                 for graceful degradation when intelligence is absent. -->
+            <div class="mc-catalog-value" data-mc-catalog-status>Stable</div>
+            <div class="mc-catalog-label" data-mc-catalog-status-label>Catalog Status™</div>
             <div class="mc-catalog-grid">
-              <span class="lbl">Albums</span>   <span class="val">3</span>
-              <span class="lbl">EPs</span>      <span class="val">2</span>
-              <span class="lbl">Singles</span>  <span class="val">4</span>
-              <span class="lbl">Tracks</span>   <span class="val">18</span>
+              <span class="lbl">Singles</span>  <span class="val" data-mc-catalog-singles>4</span>
+              <span class="lbl">EPs</span>      <span class="val" data-mc-catalog-eps>0</span>
+              <span class="lbl">Albums</span>   <span class="val" data-mc-catalog-albums>0</span>
+              <span class="lbl">Features</span> <span class="val" data-mc-catalog-features>18</span>
+              <span class="lbl">Tracks</span>   <span class="val" data-mc-catalog-tracks>4</span>
             </div>
           </div>
         </div>
