@@ -39,11 +39,13 @@ import {
   renderCatalog,
   renderGlobalMusicFootprint,
   renderRoyalteAI,
+  renderBackend,
   safeIdentityIntelligence,
   safePublishingIntelligence,
   safeCatalogIntelligence,
   safeGlobalMusicFootprintIntelligence,
   safeRoyalteAI,
+  safeBackendIntelligence,
 } from '/js/mission-control-renderers.js';
 
 // ─── Persisted payload fetch (Phase 4B-3 + Phase 5B) ──────────────
@@ -252,6 +254,29 @@ function applyRoyalteAIPlan(plan) {
   `).join('');
 }
 
+// ─── Backend Intelligence™ apply helpers (Backend Intelligence Phase v1.0) ──
+//
+// Writes connectedCount and summaryLabel into the summary row, then
+// updates each service's sub/status text via [data-mc-backend-service]
+// attribute targeting. Leaves the locked sample HTML untouched when
+// plan is null.
+
+function applyBackendPlan(plan) {
+  if (!plan) return;
+  const countEl   = document.querySelector('[data-mc-backend-connected-count]');
+  const summaryEl = document.querySelector('[data-mc-backend-summary]');
+  if (countEl)   countEl.textContent   = `${plan.connectedCount} / ${plan.totalCount}`;
+  if (summaryEl) summaryEl.textContent = plan.summaryLabel;
+  for (const svc of plan.services) {
+    const row = document.querySelector(`[data-mc-backend-service="${svc.key}"]`);
+    if (!row) continue;
+    const subEl    = row.querySelector('.mc-bi-service-sub');
+    const statusEl = row.querySelector('.mc-bi-service-status');
+    if (subEl)    subEl.textContent    = svc.subLabel;
+    if (statusEl) statusEl.textContent = svc.statusLabel;
+  }
+}
+
 // ─── Boot ──────────────────────────────────────────────────────────
 
 async function initMissionControl() {
@@ -297,6 +322,13 @@ async function initMissionControl() {
   if (royalteAI) {
     const aiPlan = renderRoyalteAI(royalteAI);
     applyRoyalteAIPlan(aiPlan);
+  }
+
+  // Backend Intelligence™ (Backend Intelligence Phase v1.0)
+  const backendIntelligence = safeBackendIntelligence(payload.backendIntelligence);
+  if (backendIntelligence) {
+    const backendPlan = renderBackend(backendIntelligence);
+    applyBackendPlan(backendPlan);
   }
 }
 

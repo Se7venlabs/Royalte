@@ -38,6 +38,7 @@ import {
   buildCoveragePlan,
   buildRecommendationsPlan,
   safeIdentityIntelligence,
+  safeBackendIntelligence,
   ROYALTE_AI_ACTIVITY_LABELS,
   STATE_PILL_CLASS,
   STATE_PILL_TEXT,
@@ -408,12 +409,11 @@ test('25. CONCERN 3 — renderIdentity(intelligence) composes the three plan bui
 
 test('26. CONCERN 6 — future-stage renderers are exported as deliberate "not yet implemented" stubs', () => {
   // Each remaining placeholder must exist as a callable export AND
-  // must throw a clear error when invoked. renderPublishing and
-  // renderCatalog are no longer in this list — Phase 5B promoted
-  // renderPublishing and Catalog Phase v1.0 promoted renderCatalog
-  // to real implementations (see test 26b and 26c below).
+  // must throw a clear error when invoked. renderPublishing, renderCatalog,
+  // renderGlobalMusicFootprint, renderRoyalteAI, and renderBackend are no
+  // longer in this list — each has been promoted to a real implementation
+  // (see tests 26b, 26c, 26d, 26e, 26f below).
   for (const [name, fn] of [
-    ['renderBackend',         renderBackend],
     ['renderHealth',          renderHealth],
     ['renderPriorityActions', renderPriorityActions],
   ]) {
@@ -563,6 +563,70 @@ test('26e. CONCERN 3 + 6 (Royaltē AI v1.0) — renderRoyalteAI is implemented a
 
   // HEP boundary — Royaltē Health™ owns scoring; AI renderer must never expose it
   const forbidden = ['score', 'health', 'grade', 'healthScore', 'overallScore'];
+  for (const key of forbidden) {
+    assert.ok(!(key in plan),
+      `plan must not expose '${key}' — Royaltē Health™ owns executive scoring (HEP boundary)`);
+  }
+});
+
+test('26f. CONCERN 3 + 6 (Backend Intelligence v1.0) — renderBackend is implemented and conforms to the canonical entry-point contract', () => {
+  // Backend Intelligence Phase v1.0 replaced the not-yet-implemented slot with
+  // a real renderer. Verifies: (a) function export, (b) correct output shape
+  // on valid input, (c) null-safe on absent intelligence, (d) HEP boundary —
+  // never exposes a health score or overall rating.
+  assert.equal(typeof renderBackend, 'function', 'renderBackend must be exported as a function');
+  assert.equal(typeof safeBackendIntelligence, 'function', 'safeBackendIntelligence must be exported');
+
+  const bi = Object.freeze({
+    services: Object.freeze([
+      Object.freeze({ key: 'musicbrainz', name: 'MusicBrainz', state: 'VERIFIED',         subLabel: 'Connected',           statusLabel: 'Verified'    }),
+      Object.freeze({ key: 'discogs',     name: 'Discogs',     state: 'VERIFIED',         subLabel: 'Connected',           statusLabel: 'Verified'    }),
+      Object.freeze({ key: 'mlc',         name: 'MLC',         state: 'VERIFIED',         subLabel: 'Registered',          statusLabel: 'Connected'   }),
+      Object.freeze({ key: 'listenNotes', name: 'Listen Notes', state: 'AUTH_UNAVAILABLE', subLabel: 'Monitoring Required', statusLabel: 'Monitoring'  }),
+    ]),
+    connectedCount: 3,
+    totalCount:     4,
+    summaryLabel:   '3 of 4 Connected',
+  });
+
+  const plan = renderBackend(bi);
+
+  assert.ok(plan !== null, 'renderBackend must return a non-null plan for valid input');
+  assert.ok(Array.isArray(plan.services), 'plan must carry services array');
+  assert.equal(plan.services.length, 4, 'plan must carry exactly 4 service entries (v1.0 lock)');
+
+  // Service key vocabulary is locked — must match in order
+  assert.deepStrictEqual(
+    plan.services.map((s) => s.key),
+    ['musicbrainz', 'discogs', 'mlc', 'listenNotes'],
+    'service keys must match the v1.0 lock order: musicbrainz, discogs, mlc, listenNotes'
+  );
+
+  // Each service plan must carry name, subLabel, statusLabel
+  for (const svc of plan.services) {
+    assert.equal(typeof svc.name,        'string', `${svc.key} plan must carry name string`);
+    assert.equal(typeof svc.subLabel,    'string', `${svc.key} plan must carry subLabel string`);
+    assert.equal(typeof svc.statusLabel, 'string', `${svc.key} plan must carry statusLabel string`);
+  }
+
+  // connectedCount + totalCount + summaryLabel
+  assert.equal(typeof plan.connectedCount, 'number', 'plan must carry connectedCount');
+  assert.equal(typeof plan.totalCount,     'number', 'plan must carry totalCount');
+  assert.equal(typeof plan.summaryLabel,   'string', 'plan must carry summaryLabel');
+
+  // Listen Notes is AUTH_UNAVAILABLE on standard scans — confirmed in the plan
+  const listenNotesPlan = plan.services.find((s) => s.key === 'listenNotes');
+  assert.ok(listenNotesPlan, 'listenNotes service must be present in plan');
+  assert.notEqual(listenNotesPlan.subLabel, 'Unavailable',
+    'Listen Notes subLabel must use monitoring vocabulary, not generic Unavailable');
+
+  // Graceful null handling — boot module leaves locked sample HTML in place
+  assert.strictEqual(renderBackend(null),      null, 'null input must return null');
+  assert.strictEqual(renderBackend(undefined), null, 'undefined input must return null');
+  assert.strictEqual(renderBackend({ services: [] }), null, 'empty services array must return null');
+
+  // HEP boundary — Royaltē Health™ owns scoring; backend renderer must never expose it
+  const forbidden = ['score', 'health', 'grade', 'healthScore', 'overallScore', 'rating'];
   for (const key of forbidden) {
     assert.ok(!(key in plan),
       `plan must not expose '${key}' — Royaltē Health™ owns executive scoring (HEP boundary)`);
