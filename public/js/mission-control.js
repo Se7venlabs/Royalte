@@ -181,7 +181,6 @@ function applyCatalogPlan(plan) {
   set('[data-mc-catalog-singles]',  plan.singles);
   set('[data-mc-catalog-eps]',      plan.eps);
   set('[data-mc-catalog-albums]',   plan.albums);
-  set('[data-mc-catalog-features]', plan.features);
   set('[data-mc-catalog-tracks]',   plan.totalTracks);
   set('[data-mc-catalog-status]',   plan.catalogStatus);
   // Update the label in place so "Catalog Score™" reads "Catalog Status™"
