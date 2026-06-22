@@ -1887,7 +1887,7 @@ body.cinema-mode .hero-right{visibility:hidden;}
       <a href="/blog.html">Learn</a>
     </div>
     <span class="nav-beta">// Beta</span>
-    <a href="/dashboard.html" class="nav-os-entry" id="enter-os-btn">Enter Royaltē OS →</a>
+    <a href="/mission-control.html" class="nav-os-entry" id="enter-os-btn">Enter Royaltē OS →</a>
     <button class="nav-cta nav-cta-pulse" type="button" onclick="requestFullAuditFromNav()">Get Your Royaltē Review</button>
     <button class="nav-hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu-drawer">
       <span class="hamburger-line"></span>
@@ -4280,7 +4280,7 @@ if (osModalForm) {
         osSubmitBtn.textContent = original;
         return;
       }
-      window.location.href = '/dashboard.html';
+      window.location.href = '/mission-control.html';
     } catch (err) {
       console.error('[os-login] signInWithPassword threw', err);
       osStatus('Sign in failed. Please try again.', 'error');
@@ -4370,7 +4370,11 @@ async function wireOSEntry() {
   } catch (e) {
     console.error('[enter-os] getSession failed', e);
   }
-  if (session) return; // logged in — native href to /dashboard.html
+  if (session) {
+    // Returning user — skip landing, go directly to Mission Control
+    window.location.replace('/mission-control.html');
+    return;
+  }
 
   btn.addEventListener('click', (e) => {
     e.preventDefault();
