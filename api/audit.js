@@ -27,6 +27,7 @@ import { ALL_RULES } from './rules/index.js';
 import { assembleIdentityIntelligence } from './_lib/identity-intelligence.js';
 import { assemblePublishingIntelligence } from './_lib/publishing-intelligence.js';
 import { assembleCatalogIntelligence } from './_lib/catalog-intelligence.js';
+import { assembleGlobalMusicFootprint } from './_lib/global-music-footprint.js';
 import { fetchMlcWorksByArtist } from '../lib/publishing/mlc-client.js';
 import { normalizeMlcWorks } from '../lib/publishing/mlc-adapter.js';
 import { computeHealthScore, generateHealthReport } from './_lib/health-engine.js';
@@ -394,6 +395,13 @@ export default async function handler(req, res) {
         console.error('[audit] Catalog Intelligence™ assembly failed (non-blocking):', assemblyErr.message);
       }
 
+      let globalMusicFootprint = null;
+      try {
+        globalMusicFootprint = assembleGlobalMusicFootprint(report, cio, canonicalForEnrichment);
+      } catch (assemblyErr) {
+        console.error('[audit] Global Music Footprint™ assembly failed (non-blocking):', assemblyErr.message);
+      }
+
       // ── 5. Health & Executive Brief pipeline ──
       // computeHealthScore() called exactly once; result passed to both
       // generateHealthReport() and generateExecutiveBrief() so the
@@ -413,6 +421,7 @@ export default async function handler(req, res) {
       if (identityIntelligence)   enriched.identityIntelligence   = identityIntelligence;
       if (publishingIntelligence) enriched.publishingIntelligence = publishingIntelligence;
       if (catalogIntelligence)    enriched.catalogIntelligence    = catalogIntelligence;
+      if (globalMusicFootprint)   enriched.globalMusicFootprint   = globalMusicFootprint;
       if (healthScore)            enriched.healthScore            = healthScore;
       if (healthReport)           enriched.healthReport           = healthReport;
       if (executiveBrief)         enriched.executiveBrief         = executiveBrief;

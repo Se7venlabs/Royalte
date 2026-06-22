@@ -10,12 +10,13 @@
 //
 //  Canonical surface (Board Concerns 3 + 6, 2026-06-17):
 //
-//      renderIdentity(intelligence)         ← Stage 4B-3 — implemented
-//      renderPublishing(intelligence)       ← future stage (stub below)
-//      renderCatalog(intelligence)          ← future stage (stub below)
-//      renderBackend(intelligence)          ← future stage (stub below)
-//      renderHealth(intelligence)           ← future stage (stub below)
-//      renderPriorityActions(intelligence)  ← future stage (stub below)
+//      renderIdentity(intelligence)             ← Stage 4B-3 — implemented
+//      renderPublishing(intelligence)           ← Phase 5B — implemented
+//      renderCatalog(intelligence)              ← Catalog Phase v1.0 — implemented
+//      renderGlobalMusicFootprint(intelligence) ← GMF Phase v1.0 — implemented
+//      renderBackend(intelligence)              ← future stage (stub below)
+//      renderHealth(intelligence)               ← future stage (stub below)
+//      renderPriorityActions(intelligence)      ← future stage (stub below)
 //
 //  Each renderer takes a deep-frozen intelligence object produced by
 //  its respective assembler and returns a deterministic, pure render
@@ -315,6 +316,49 @@ export function renderCatalog(intelligence) {
 export const renderBackend         = _unimplemented('Backend');
 export const renderHealth          = _unimplemented('Health');
 export const renderPriorityActions = _unimplemented('PriorityActions');
+
+// ─────────────────────────────────────────────────────────────────────
+//  Global Music Footprint™ renderers  (GMF Phase v1.0)
+// ─────────────────────────────────────────────────────────────────────
+//
+//  Mirror of renderIdentity / renderPublishing / renderCatalog.
+//  The boot module dispatches footprintPlan through applyFootprintPlan;
+//  nothing about MC's surface is special-cased per domain.
+//
+//  Mission Control:
+//    - never recomputes territory counts or coverage
+//    - never re-derives status or confidence
+//    - reads pre-assembled globalMusicFootprint from audit_scans.payload
+//
+//  Return shape:
+//    {
+//      territoriesAvailable:   number,
+//      territoriesUnavailable: number,
+//      coveragePercent:        number,
+//      status:                 string,  // 'Global'|'Strong'|'Regional'|'Limited'
+//      confidence:             string,
+//    }
+//  or null when intelligence is absent (boot module leaves locked HTML).
+//
+//  v1.0 scope: territoriesAvailable reflects the 8 BIG6 markets checked
+//  per scan. Full global territory expansion is Phase 2.
+
+export function safeGlobalMusicFootprintIntelligence(gmf) {
+  if (!gmf || typeof gmf !== 'object' || Array.isArray(gmf)) return null;
+  return gmf;
+}
+
+export function renderGlobalMusicFootprint(intelligence) {
+  const gmf = safeGlobalMusicFootprintIntelligence(intelligence);
+  if (!gmf) return null;
+  return {
+    territoriesAvailable:   typeof gmf.territoriesAvailable   === 'number' ? gmf.territoriesAvailable   : 0,
+    territoriesUnavailable: typeof gmf.territoriesUnavailable === 'number' ? gmf.territoriesUnavailable : 0,
+    coveragePercent:        typeof gmf.coveragePercent        === 'number' ? gmf.coveragePercent        : 0,
+    status:                 typeof gmf.status                 === 'string' ? gmf.status                 : 'Unknown',
+    confidence:             typeof gmf.confidence             === 'string' ? gmf.confidence             : 'Unable to Confirm',
+  };
+}
 
 // ─────────────────────────────────────────────────────────────────────
 //  Publishing Intelligence™ renderers  (Phase 5B Board D6 + D7)
