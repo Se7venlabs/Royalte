@@ -29,6 +29,7 @@ import { assemblePublishingIntelligence } from './_lib/publishing-intelligence.j
 import { assembleCatalogIntelligence } from './_lib/catalog-intelligence.js';
 import { assembleGlobalMusicFootprint } from './_lib/global-music-footprint.js';
 import { assembleRoyalteAI } from './_lib/royalte-ai-assembler.js';
+import { assembleBackendIntelligence } from './_lib/backend-intelligence.js';
 import { fetchMlcWorksByArtist } from '../lib/publishing/mlc-client.js';
 import { normalizeMlcWorks } from '../lib/publishing/mlc-adapter.js';
 import { computeHealthScore, generateHealthReport } from './_lib/health-engine.js';
@@ -403,7 +404,18 @@ export default async function handler(req, res) {
         console.error('[audit] Global Music Footprint™ assembly failed (non-blocking):', assemblyErr.message);
       }
 
-      // ── 5. Royaltē AI™ — reads the four assembled domain objects ──
+      // ── 5. Backend Intelligence™ — reads canonical.platforms + publishingIntelligence ──
+      // MusicBrainz and Discogs availability read from canonical.platforms.*;
+      // MLC state read from assemblePublishingIntelligence output.
+      // Listen Notes is AUTH_UNAVAILABLE on the standard scan path (monitoring-only per Brief 015o).
+      let backendIntelligence = null;
+      try {
+        backendIntelligence = assembleBackendIntelligence(canonicalForEnrichment, publishingIntelligence);
+      } catch (assemblyErr) {
+        console.error('[audit] Backend Intelligence™ assembly failed (non-blocking):', assemblyErr.message);
+      }
+
+      // ── 6. Royaltē AI™ — reads the four assembled domain objects ──
       // Must run AFTER all four domain assemblers (Identity, Publishing,
       // Catalog, GMF) so it can read their outputs. Fail-isolated.
       let royalteAI = null;
@@ -418,7 +430,7 @@ export default async function handler(req, res) {
         console.error('[audit] Royaltē AI™ assembly failed (non-blocking):', assemblyErr.message);
       }
 
-      // ── 6. Health & Executive Brief pipeline ──
+      // ── 7. Health & Executive Brief pipeline ──
       // computeHealthScore() called exactly once; result passed to both
       // generateHealthReport() and generateExecutiveBrief() so the
       // canonical Health object is computed only once per scan.
@@ -438,6 +450,7 @@ export default async function handler(req, res) {
       if (publishingIntelligence) enriched.publishingIntelligence = publishingIntelligence;
       if (catalogIntelligence)    enriched.catalogIntelligence    = catalogIntelligence;
       if (globalMusicFootprint)   enriched.globalMusicFootprint   = globalMusicFootprint;
+      if (backendIntelligence)    enriched.backendIntelligence    = backendIntelligence;
       if (royalteAI)              enriched.royalteAI              = royalteAI;
       if (healthScore)            enriched.healthScore            = healthScore;
       if (healthReport)           enriched.healthReport           = healthReport;

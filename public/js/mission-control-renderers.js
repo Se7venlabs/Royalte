@@ -15,7 +15,7 @@
 //      renderCatalog(intelligence)              ← Catalog Phase v1.0 — implemented
 //      renderGlobalMusicFootprint(intelligence) ← GMF Phase v1.0 — implemented
 //      renderRoyalteAI(intelligence)            ← Royaltē AI Phase v1.0 — implemented
-//      renderBackend(intelligence)              ← future stage (stub below)
+//      renderBackend(intelligence)              ← Backend Intelligence Phase v1.0 — implemented
 //      renderHealth(intelligence)               ← future stage (stub below)
 //      renderPriorityActions(intelligence)      ← future stage (stub below)
 //
@@ -314,9 +314,62 @@ export function renderCatalog(intelligence) {
     confidence:    typeof ci.confidence    === 'string' ? ci.confidence    : 'Unable to Confirm',
   };
 }
-export const renderBackend         = _unimplemented('Backend');
 export const renderHealth          = _unimplemented('Health');
 export const renderPriorityActions = _unimplemented('PriorityActions');
+
+// ─────────────────────────────────────────────────────────────────────
+//  Backend Intelligence™ renderers  (Backend Intelligence Phase v1.0)
+// ─────────────────────────────────────────────────────────────────────
+//
+//  Renders the 4 backend infrastructure services (MusicBrainz, Discogs,
+//  MLC, Listen Notes) from a pre-assembled backendIntelligence object.
+//  The boot module applies the plan via applyBackendPlan; the card
+//  surface itself never recomputes availability or labels.
+//
+//  HEP boundary: this renderer never computes or exposes a health score.
+//  Backend connectivity is surface-level intelligence; scoring belongs
+//  to Royaltē Health™ exclusively.
+//
+//  Return shape:
+//    {
+//      services:      ServicePlan[],  // one entry per infrastructure service
+//      connectedCount: number,
+//      totalCount:    number,
+//      summaryLabel:  string,
+//    }
+//
+//    ServicePlan = {
+//      key:         string,  // 'musicbrainz' | 'discogs' | 'mlc' | 'listenNotes'
+//      name:        string,
+//      subLabel:    string,
+//      statusLabel: string,
+//    }
+
+export function safeBackendIntelligence(bi) {
+  if (!bi || typeof bi !== 'object' || Array.isArray(bi)) return null;
+  if (!Array.isArray(bi.services) || bi.services.length === 0) return null;
+  return bi;
+}
+
+export function renderBackend(intelligence) {
+  const bi = safeBackendIntelligence(intelligence);
+  if (!bi) return null;
+
+  const str = (x) => (typeof x === 'string' && x.trim() !== '') ? x.trim() : 'Unavailable';
+  const services = bi.services.map((s) => ({
+    key:         str(s.key),
+    name:        str(s.name),
+    subLabel:    str(s.subLabel),
+    statusLabel: str(s.statusLabel),
+  }));
+
+  return {
+    services,
+    connectedCount: typeof bi.connectedCount === 'number' ? bi.connectedCount : 0,
+    totalCount:     typeof bi.totalCount     === 'number' ? bi.totalCount     : services.length,
+    summaryLabel:   str(bi.summaryLabel),
+  };
+}
 
 // ─────────────────────────────────────────────────────────────────────
 //  Global Music Footprint™ renderers  (GMF Phase v1.0)
