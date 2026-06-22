@@ -42,7 +42,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { generateAppleToken } from '../../apple-token.js';
-import { lookupByISRC, checkStorefrontAvailability } from '../../apple-music.js';
+import { lookupByISRC, checkStorefrontAvailability, checkGlobalStorefrontAvailability } from '../../apple-music.js';
 
 // ────────────────────────────────────────────────────────
 // APPLE MUSIC RESOLUTION (input → artist name)
@@ -255,25 +255,30 @@ export async function getAppleMusic(artistName, isrc, spotifyTopTracks = [], opt
       }
     }
 
-    // Brief 011 — BIG 6 storefront availability. Reuses the same JWT
-    // (single shared `headers` object) for 7 parallel `/catalog/{sf}/
-    // albums?ids=...` calls. Failure on any one storefront is isolated
-    // to that storefront's entry; others continue. Skipped entirely on
-    // an artist with no Apple Music albums.
-    let storefrontAvailability = null;
+    // Storefront availability — two parallel checks from the same JWT.
+    //
+    // BIG6 (storefrontAvailability): 8 key markets, album-list probe.
+    // Preserved for backward compatibility with downstream consumers.
+    //
+    // Global (globalStorefrontAvailability): all 167 Apple Music storefronts,
+    // single-album probe, batched in waves of 50 via Promise.allSettled.
+    // Consumed by Global Music Footprint™. Runs in parallel with BIG6
+    // so the combined wall time equals the slower of the two (~600ms).
+    //
+    // Both skipped when the artist has no Apple Music albums.
+    let storefrontAvailability       = null;
+    let globalStorefrontAvailability = null;
     if (appleAlbums.length > 0) {
-      const albumIds = appleAlbums.map((a) => a.id).filter(Boolean);
-      if (albumIds.length > 0) {
-        try {
-          storefrontAvailability = await checkStorefrontAvailability(albumIds, headers);
-        } catch (sfErr) {
-          // checkStorefrontAvailability already isolates per-storefront
-          // errors; a top-level throw here means the whole Promise.all
-          // failed (e.g. headers / network catastrophe). Leave the field
-          // null so the dashboard renders the "—" empty state.
-          console.error('Apple Music storefront availability failed:', sfErr.message);
-        }
-      }
+      const albumIds  = appleAlbums.map((a) => a.id).filter(Boolean);
+      const probeId   = albumIds[0] || null; // first album as global probe
+      const [sfResult, globalSfResult] = await Promise.allSettled([
+        albumIds.length > 0 ? checkStorefrontAvailability(albumIds, headers) : Promise.resolve(null),
+        probeId            ? checkGlobalStorefrontAvailability(probeId, headers) : Promise.resolve(null),
+      ]);
+      storefrontAvailability       = sfResult.status       === 'fulfilled' ? sfResult.value       : null;
+      globalStorefrontAvailability = globalSfResult.status === 'fulfilled' ? globalSfResult.value : null;
+      if (sfResult.status       !== 'fulfilled') console.error('Apple Music BIG6 storefront check failed:', sfResult.reason?.message);
+      if (globalSfResult.status !== 'fulfilled') console.error('Apple Music global storefront check failed:', globalSfResult.reason?.message);
     }
 
     // 2. ISRC lookup for the specific track (if track scan)
@@ -346,6 +351,7 @@ export async function getAppleMusic(artistName, isrc, spotifyTopTracks = [], opt
       albumCount: appleAlbumCount,
       albums: appleAlbums,
       storefrontAvailability,
+      globalStorefrontAvailability,
       isrcLookup: isrcResult,
       catalogComparison,
     };

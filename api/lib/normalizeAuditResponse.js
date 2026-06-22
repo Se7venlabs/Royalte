@@ -168,9 +168,10 @@ function _normalizePlatforms(r) {
       artwork:                 r.appleArtworkUrl || null,
       albumCount:              _num(appleMusicDetails.albumCount),
       albums:                  Array.isArray(appleMusicDetails.albums) ? appleMusicDetails.albums : [],
-      storefrontAvailability:  appleMusicDetails.storefrontAvailability || null,
-      catalogComparison:       appleMusicDetails.catalogComparison || null,
-      isrcLookup:              appleMusicDetails.isrcLookup || null,
+      storefrontAvailability:       appleMusicDetails.storefrontAvailability       || null,
+      globalStorefrontAvailability: appleMusicDetails.globalStorefrontAvailability || null,
+      catalogComparison:            appleMusicDetails.catalogComparison            || null,
+      isrcLookup:                   appleMusicDetails.isrcLookup                   || null,
     } : null,
   };
 

@@ -13,15 +13,14 @@
 //    Mission Control™ · Global Music Footprint Card
 //
 //  Data source (Apple is canonical per Board directive):
-//    Primary:  canonical.platforms.appleMusic.details.storefrontAvailability
-//              BIG6 storefront availability check — 8 markets verified
-//              per scan (us, ca, gb, de, fr, jp, au, br).
-//              Populated by checkStorefrontAvailability() in apple-music.js.
+//    Primary:  canonical.platforms.appleMusic.details.globalStorefrontAvailability
+//              Full Apple Music storefront universe — 167 markets verified
+//              per scan via checkGlobalStorefrontAvailability() in apple-music.js.
+//              Uses a single probe album ID checked across all storefronts
+//              in batched waves of 50 (Promise.allSettled, isolated failures).
 //
-//  v1.0 scope note: territoriesAvailable reflects the 8 BIG6 markets
-//  checked per scan, not the full Apple Music territory list (~167).
-//  Full global territory checking (one API call per storefront) is
-//  deferred to a Phase 2 expansion.
+//  Scope note: Global Music Footprint™ uses Apple Music storefront availability
+//  as the canonical global availability signal for v1.0.
 //
 //  Purity invariants:
 //    - Pure function of (intelligenceReport, cio, canonical).
@@ -33,8 +32,8 @@
 //  Output shape (v1.0):
 //
 //    {
-//      territoriesAvailable:   number,  // BIG6 markets where artist's music found
-//      territoriesUnavailable: number,  // BIG6 markets where artist's music absent
+//      territoriesAvailable:   number,  // Apple Music storefronts where probe album found
+//      territoriesUnavailable: number,  // Apple Music storefronts where probe album absent
 //      coveragePercent:        number,  // (available / total) × 100, rounded
 //      status:                 string,  // 'Global' | 'Strong' | 'Regional' | 'Limited'
 //      confidence:             string,  // 'Verified' | 'Partial' | 'Unable to Confirm' | 'Not Found'
@@ -85,9 +84,11 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical)
 
     const appleDetails      = safeCanonical?.platforms?.appleMusic?.details;
     const appleAvailability = safeCanonical?.platforms?.appleMusic?.availability ?? 'NOT_FOUND';
-    const storefrontData    = appleDetails?.storefrontAvailability;
+    // Primary: full 167-storefront global check.
+    // Shape: { available: string[], unavailable: string[], errors: Array<{sf,error}>, total: number }
+    const globalSfData = appleDetails?.globalStorefrontAvailability;
 
-    if (!storefrontData || typeof storefrontData !== 'object' || Array.isArray(storefrontData)) {
+    if (!globalSfData || typeof globalSfData !== 'object' || Array.isArray(globalSfData)) {
       return deepFreeze({
         territoriesAvailable:   0,
         territoriesUnavailable: 0,
@@ -97,22 +98,13 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical)
       });
     }
 
-    // Count BIG6 markets: available = at least one album present in that market.
-    let available   = 0;
-    let unavailable = 0;
-    for (const sfData of Object.values(storefrontData)) {
-      if (sfData && typeof sfData === 'object' &&
-          Array.isArray(sfData.available) && sfData.available.length > 0) {
-        available++;
-      } else {
-        unavailable++;
-      }
-    }
+    const available   = Array.isArray(globalSfData.available)   ? globalSfData.available.length   : 0;
+    const unavailable = Array.isArray(globalSfData.unavailable) ? globalSfData.unavailable.length : 0;
+    const total       = typeof globalSfData.total === 'number'  ? globalSfData.total              : available + unavailable;
 
-    const total           = available + unavailable;
     const coveragePercent = total > 0 ? Math.round((available / total) * 100) : 0;
     const status          = deriveStatus(coveragePercent);
-    const confidence      = deriveConfidence(appleAvailability, storefrontData);
+    const confidence      = deriveConfidence(appleAvailability, globalSfData);
 
     return deepFreeze({
       territoriesAvailable:   available,
