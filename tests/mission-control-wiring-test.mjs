@@ -457,23 +457,24 @@ test('26c. CONCERN 3 + 6 (Catalog Phase v1.0) — renderCatalog is implemented a
   // catalogIntelligence input, (c) return all six expected keys.
   assert.equal(typeof renderCatalog, 'function');
   const ci = Object.freeze({
-    singles: 4, eps: 0, albums: 0, features: 18,
+    singles: 4, eps: 0, albums: 0,
     totalTracks: 4, catalogStatus: 'Stable', confidence: 'Verified',
   });
   const plan = renderCatalog(ci);
   assert.ok(plan !== null, 'renderCatalog must return a plan object, not null');
   assert.deepStrictEqual(
     Object.keys(plan).sort(),
-    ['albums', 'catalogStatus', 'confidence', 'eps', 'features', 'singles', 'totalTracks'],
-    'renderCatalog plan must carry exactly the seven Catalog Intelligence fields'
+    ['albums', 'catalogStatus', 'confidence', 'eps', 'singles', 'totalTracks'],
+    'renderCatalog plan must carry exactly the six Catalog Intelligence™ v1.0 fields (features removed)'
   );
   assert.equal(plan.singles, 4);
   assert.equal(plan.eps, 0);
   assert.equal(plan.albums, 0);
-  assert.equal(plan.features, 18);
   assert.equal(plan.totalTracks, 4);
   assert.equal(plan.catalogStatus, 'Stable');
   assert.equal(plan.confidence, 'Verified');
+  // features must NOT appear in the plan (deferred to Featured Appearance Intelligence™)
+  assert.ok(!('features' in plan), 'features must not appear in Catalog Intelligence™ v1.0 plan');
   // renderCatalog must return null on absent / malformed intelligence
   // (boot module leaves the locked sample HTML in place).
   assert.equal(renderCatalog(null), null);

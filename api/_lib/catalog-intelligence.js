@@ -139,11 +139,12 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
       totalTracks = typeof cat.totalTracks  === 'number' ? cat.totalTracks  : 0;
     }
 
-    // Secondary: Spotify appears_on → features count
-    const catSection = safeCanonical.catalog || {};
-    const features = typeof catSection.featuresCount === 'number' ? catSection.featuresCount : 0;
+    // Note: featuresCount (Spotify appears_on) is intentionally excluded
+    // from Catalog Intelligence™ v1.0. Cannot prove canonical ownership
+    // of appearances without identity-locking them. Deferred to a
+    // dedicated Featured Appearance Intelligence™ domain.
 
-    const ownedCount   = singles + eps + albums;
+    const ownedCount    = singles + eps + albums;
     const catalogStatus = deriveCatalogStatus(ownedCount);
     const confidence    = deriveConfidence(safeCanonical);
 
@@ -151,7 +152,6 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
       singles,
       eps,
       albums,
-      features,
       totalTracks,
       catalogStatus,
       confidence,
@@ -160,7 +160,7 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
     // Belt-and-suspenders: assemble a safe empty shell on any unexpected throw.
     console.error('[catalog-intelligence] assembly threw (returning empty shell):', err?.message || err);
     return deepFreeze({
-      singles: 0, eps: 0, albums: 0, features: 0, totalTracks: 0,
+      singles: 0, eps: 0, albums: 0, totalTracks: 0,
       catalogStatus: 'Limited Catalog',
       confidence: 'Unable to Confirm',
     });

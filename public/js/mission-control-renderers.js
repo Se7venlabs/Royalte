@@ -272,7 +272,7 @@ function _unimplemented(domain) {
 //  about MC's surface is special-cased per domain.
 //
 //  Mission Control:
-//    - never recomputes singles/eps/albums/features/totalTracks
+//    - never recomputes singles/eps/albums/totalTracks
 //    - never re-derives catalogStatus or confidence
 //    - reads pre-assembled catalogIntelligence from audit_scans.payload
 //
@@ -281,12 +281,15 @@ function _unimplemented(domain) {
 //      singles:       number,
 //      eps:           number,
 //      albums:        number,
-//      features:      number,
 //      totalTracks:   number,
 //      catalogStatus: string,
 //      confidence:    string,
 //    }
 //  or null when intelligence is absent (boot module leaves locked sample HTML).
+//
+//  Note: features (Spotify appears_on count) was removed from v1.0.
+//  Cannot prove canonical ownership of appearances without identity-locking
+//  them. Deferred to Featured Appearance Intelligence™ domain.
 
 export function safeCatalogIntelligence(ci) {
   if (!ci || typeof ci !== 'object' || Array.isArray(ci)) return null;
@@ -304,7 +307,6 @@ export function renderCatalog(intelligence) {
     singles:       typeof ci.singles       === 'number' ? ci.singles       : 0,
     eps:           typeof ci.eps           === 'number' ? ci.eps           : 0,
     albums:        typeof ci.albums        === 'number' ? ci.albums        : 0,
-    features:      typeof ci.features      === 'number' ? ci.features      : 0,
     totalTracks:   typeof ci.totalTracks   === 'number' ? ci.totalTracks   : 0,
     catalogStatus: typeof ci.catalogStatus === 'string' ? ci.catalogStatus : 'Unknown',
     confidence:    typeof ci.confidence    === 'string' ? ci.confidence    : 'Unable to Confirm',
