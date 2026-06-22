@@ -36,8 +36,10 @@ import { getSupabase } from '/js/supabase-client.js';
 import {
   renderIdentity,
   renderPublishing,
+  renderCatalog,
   safeIdentityIntelligence,
   safePublishingIntelligence,
+  safeCatalogIntelligence,
 } from '/js/mission-control-renderers.js';
 
 // ─── Persisted payload fetch (Phase 4B-3 + Phase 5B) ──────────────
@@ -168,6 +170,25 @@ function applyRecommendationsPlan(plan) {
   if (count) count.textContent = String(plan.length);
 }
 
+// ─── Catalog Intelligence™ apply helpers (Catalog Phase v1.0) ────────
+
+function applyCatalogPlan(plan) {
+  if (!plan) return;
+  const set = (selector, value) => {
+    const el = document.querySelector(selector);
+    if (el) el.textContent = String(value);
+  };
+  set('[data-mc-catalog-singles]',  plan.singles);
+  set('[data-mc-catalog-eps]',      plan.eps);
+  set('[data-mc-catalog-albums]',   plan.albums);
+  set('[data-mc-catalog-features]', plan.features);
+  set('[data-mc-catalog-tracks]',   plan.totalTracks);
+  set('[data-mc-catalog-status]',   plan.catalogStatus);
+  // Update the label in place so "Catalog Score™" reads "Catalog Status™"
+  const labelEl = document.querySelector('[data-mc-catalog-status-label]');
+  if (labelEl) labelEl.textContent = 'Catalog Status™';
+}
+
 function escapeText(s) {
   return String(s)
     .replace(/&/g, '&amp;')
@@ -199,13 +220,20 @@ async function initMissionControl() {
 
   // Publishing Intelligence™ (Phase 5B Board D6 + D7)
   // Same boot pattern, no special-casing per domain. Future intelligence
-  // domains (Catalog, Backend, Health, Priority Actions) land alongside
+  // domains (Backend, Health, Priority Actions) land alongside
   // these calls via their own renderXxx + applyXxx pairs.
   const publishingIntelligence = safePublishingIntelligence(payload.publishingIntelligence);
   if (publishingIntelligence) {
     const publishingPlan = renderPublishing(publishingIntelligence);
     applyPublishingCoveragePlan(publishingPlan.coverage);
     applyPublishingRegistrationsPlan(publishingPlan.registrations);
+  }
+
+  // Catalog Intelligence™ (Catalog Phase v1.0)
+  const catalogIntelligence = safeCatalogIntelligence(payload.catalogIntelligence);
+  if (catalogIntelligence) {
+    const catalogPlan = renderCatalog(catalogIntelligence);
+    applyCatalogPlan(catalogPlan);
   }
 }
 

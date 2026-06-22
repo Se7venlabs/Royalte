@@ -236,9 +236,21 @@ export async function runScan(url) {
     const years = appleAlbums.map(a => parseInt(String(a.releaseDate || '').slice(0, 4), 10)).filter(y => !isNaN(y) && y > 1950);
     const earliestYear = years.length ? Math.min(...years) : null;
     const currentYear  = new Date().getUTCFullYear();
+    let appleSingles = 0, appleEps = 0, appleAlbumCount = 0, appleTotalTracks = 0;
+    for (const a of appleAlbums) {
+      const tc = typeof a.trackCount === 'number' ? a.trackCount : 7;
+      appleTotalTracks += tc;
+      if (tc === 1) appleSingles++;
+      else if (tc <= 6) appleEps++;
+      else appleAlbumCount++;
+    }
     catalogData = {
-      totalReleases: appleAlbums.length,
-      totalTracks:   appleAlbums.reduce((n, a) => n + (typeof a.trackCount === 'number' ? a.trackCount : 0), 0),
+      totalReleases:   appleAlbums.length,
+      singlesCount:    appleSingles,
+      epsCount:        appleEps,
+      albumsCount:     appleAlbumCount,
+      featuresCount:   0,    // Apple Music doesn't surface appears_on
+      totalTracks:     appleTotalTracks,
       earliestYear,
       latestYear:    years.length ? Math.max(...years) : null,
       catalogAgeYears: earliestYear ? (currentYear - earliestYear) : 0,
@@ -656,7 +668,7 @@ async function searchSpotifyArtistByName(name, token) {
 async function getSpotifyAlbums(artistId, token) {
   try {
     const resp = await fetch(
-      `https://api.spotify.com/v1/artists/${artistId}/albums?limit=50&include_groups=album,single`,
+      `https://api.spotify.com/v1/artists/${artistId}/albums?limit=50&include_groups=album,single,appears_on`,
       { headers: { 'Authorization': `Bearer ${token}` } }
     );
     if (!resp.ok) return { items: [] };
@@ -794,9 +806,26 @@ async function getYouTube(artistName) {
 // ────────────────────────────────────────────────────────
 function analyzeCatalog(albumsData) {
   const albums = albumsData.items || [];
-  if (!albums.length) return { totalReleases: 0, earliestYear: null, catalogAgeYears: 0, estimatedAnnualStreams: 0 };
+  if (!albums.length) return { totalReleases: 0, singlesCount: 0, epsCount: 0, albumsCount: 0, featuresCount: 0, totalTracks: 0, earliestYear: null, catalogAgeYears: 0, estimatedAnnualStreams: 0 };
 
-  const years = albums
+  // Separate owned releases from appearances (appears_on).
+  // album_group is the artist-relative classification; album_type is the
+  // release's inherent type. Use album_group as the primary signal since
+  // it distinguishes "artist's own album" from "featured on".
+  let singlesCount = 0, epsCount = 0, albumsCount = 0, featuresCount = 0, totalTracks = 0;
+  const ownedAlbums = [];
+  for (const a of albums) {
+    const group = (a.album_group || '').toLowerCase();
+    if (group === 'appears_on') { featuresCount++; continue; }
+    ownedAlbums.push(a);
+    const tc = typeof a.total_tracks === 'number' ? a.total_tracks : 1;
+    totalTracks += tc;
+    if (tc === 1) singlesCount++;
+    else if (tc <= 6) epsCount++;
+    else albumsCount++;
+  }
+
+  const years = ownedAlbums
     .map(a => parseInt(a.release_date?.substring(0, 4)))
     .filter(y => !isNaN(y) && y > 1950);
 
@@ -805,7 +834,12 @@ function analyzeCatalog(albumsData) {
   const catalogAgeYears = earliestYear ? currentYear - earliestYear : 0;
 
   return {
-    totalReleases: albums.length,
+    totalReleases: ownedAlbums.length,
+    singlesCount,
+    epsCount,
+    albumsCount,
+    featuresCount,
+    totalTracks,
     earliestYear,
     latestYear: years.length ? Math.max(...years) : null,
     catalogAgeYears,

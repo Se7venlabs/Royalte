@@ -405,11 +405,11 @@ test('25. CONCERN 3 — renderIdentity(intelligence) composes the three plan bui
 
 test('26. CONCERN 6 — future-stage renderers are exported as deliberate "not yet implemented" stubs', () => {
   // Each remaining placeholder must exist as a callable export AND
-  // must throw a clear error when invoked. renderPublishing is no
-  // longer in this list — Phase 5B promoted it to a real
-  // implementation (see test 26b below).
+  // must throw a clear error when invoked. renderPublishing and
+  // renderCatalog are no longer in this list — Phase 5B promoted
+  // renderPublishing and Catalog Phase v1.0 promoted renderCatalog
+  // to real implementations (see test 26b and 26c below).
   for (const [name, fn] of [
-    ['renderCatalog',         renderCatalog],
     ['renderBackend',         renderBackend],
     ['renderHealth',          renderHealth],
     ['renderPriorityActions', renderPriorityActions],
@@ -449,6 +449,36 @@ test('26b. CONCERN 3 + 6 (Phase 5B) — renderPublishing is implemented and conf
   // hardcoded metric list in MC — Board D7 + Phase 5B Concern 2 parity).
   assert.deepStrictEqual(plan.registrations.map((r) => r.metric),
     ['mlcRegistration', 'iswcCoverage', 'writerCredits', 'publisherInformation']);
+});
+
+test('26c. CONCERN 3 + 6 (Catalog Phase v1.0) — renderCatalog is implemented and conforms to the canonical entry-point contract', () => {
+  // Catalog Phase v1.0 replaced the not-yet-implemented stub with a real
+  // renderer. It must (a) be a function, (b) NOT throw on a well-formed
+  // catalogIntelligence input, (c) return all six expected keys.
+  assert.equal(typeof renderCatalog, 'function');
+  const ci = Object.freeze({
+    singles: 4, eps: 0, albums: 0, features: 18,
+    totalTracks: 4, catalogStatus: 'Stable', confidence: 'Verified',
+  });
+  const plan = renderCatalog(ci);
+  assert.ok(plan !== null, 'renderCatalog must return a plan object, not null');
+  assert.deepStrictEqual(
+    Object.keys(plan).sort(),
+    ['albums', 'catalogStatus', 'confidence', 'eps', 'features', 'singles', 'totalTracks'],
+    'renderCatalog plan must carry exactly the seven Catalog Intelligence fields'
+  );
+  assert.equal(plan.singles, 4);
+  assert.equal(plan.eps, 0);
+  assert.equal(plan.albums, 0);
+  assert.equal(plan.features, 18);
+  assert.equal(plan.totalTracks, 4);
+  assert.equal(plan.catalogStatus, 'Stable');
+  assert.equal(plan.confidence, 'Verified');
+  // renderCatalog must return null on absent / malformed intelligence
+  // (boot module leaves the locked sample HTML in place).
+  assert.equal(renderCatalog(null), null);
+  assert.equal(renderCatalog(undefined), null);
+  assert.equal(renderCatalog('string'), null);
 });
 
 test('27. CONCERN 1 (HEP) — Identity Intelligence + Royaltē Health remain separated; coverage carries no scoring fields', () => {

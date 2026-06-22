@@ -128,6 +128,11 @@ function _normalizeCatalog(r) {
   const c = r.catalog || {};
   return {
     totalReleases:          _num(c.totalReleases),
+    totalTracks:            _num(c.totalTracks),
+    singlesCount:           _num(c.singlesCount),
+    epsCount:               _num(c.epsCount),
+    albumsCount:            _num(c.albumsCount),
+    featuresCount:          _num(c.featuresCount),
     earliestYear:           c.earliestYear ?? null,
     latestYear:             c.latestYear ?? null,
     catalogAgeYears:        _num(c.catalogAgeYears),
