@@ -453,3 +453,81 @@
   font-size: 14px;
   color: var(--muted);
 }
+
+/* ── TABLE PRIMITIVE ────────────────────────────────────────────────────────── */
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0 32px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.article-body thead th {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pur);
+  background: rgba(138,92,255,0.06);
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border2);
+  white-space: nowrap;
+}
+.article-body tbody td {
+  padding: 11px 14px;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border3);
+  vertical-align: top;
+}
+.article-body tbody td:first-child {
+  font-weight: 600;
+  color: var(--text);
+}
+.article-body tbody tr:last-child td {
+  border-bottom: none;
+}
+.article-body tbody tr:hover td {
+  background: rgba(138,92,255,0.03);
+  transition: background 0.15s;
+}
+@media (max-width: 640px) {
+  .article-body table {
+    font-size: 13px;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .article-body thead th {
+    white-space: nowrap;
+  }
+  .article-body thead th,
+  .article-body tbody td {
+    padding: 9px 10px;
+  }
+}
+
+/* ── BLOCKQUOTE PRIMITIVE ───────────────────────────────────────────────────── */
+.article-intro blockquote,
+.article-body blockquote {
+  margin: 24px 0;
+  padding: 14px 18px 14px 20px;
+  border-left: 3px solid rgba(138,92,255,0.45);
+  background: rgba(138,92,255,0.05);
+  border-radius: 0 6px 6px 0;
+  color: var(--muted2);
+  font-size: 15.5px;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+/* ── H4 PRIMITIVE ───────────────────────────────────────────────────────────── */
+.article-body h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 22px 0 8px;
+  letter-spacing: 0.01em;
+}
