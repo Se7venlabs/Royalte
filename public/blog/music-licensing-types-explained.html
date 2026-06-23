@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<!--
+  ──────────────────────────────────────────────────────────────────────────
+  Royaltē Knowledge Hub — article template.
+
+  DO NOT publish this file. DO NOT link to it.
+  It exists only as the source pattern for new articles.
+
+  To publish a new article:
+    1. Copy this file to /public/blog/<slug>.html
+    2. Find-and-replace every {{TOKEN}} below with the article's content
+    3. Prepend a matching entry to /public/js/blog-posts.js
+    4. Add a mirroring <article> block to /public/blog.html
+    5. Commit and push to main
+
+  Tokens used in this file:
+    {{ARTICLE_TITLE}}        e.g. "Songtrust vs TuneCore Publishing: What Artists Need to Know"
+    {{ARTICLE_DESCRIPTION}}  meta description, OG description, Twitter description (one sentence)
+    {{ARTICLE_SLUG}}         filename minus .html, e.g. "songtrust-vs-tunecore-publishing"
+    {{ARTICLE_CATEGORY}}     must match a category in blog-posts.js (Publishing, Metadata, MLC, etc.)
+    {{ARTICLE_DATE}}         ISO date, e.g. "2026-05-11"
+    {{ARTICLE_READ_TIME}}    e.g. "7 min read"
+    {{ARTICLE_INTRO}}        intro HTML — 1–3 <p> blocks, 200–300 words total
+    {{ARTICLE_BODY}}         main body HTML — <h2>/<h3>/<p>/<ul> blocks
+
+  The mid-article CTA and final CTA are intentionally baked in.
+  Do not edit them per article — they are part of the Knowledge Hub voice.
+  ──────────────────────────────────────────────────────────────────────────
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sync License vs Sample vs Beat License vs Cover Song vs Interpolation vs Parody: What's the Difference? — Royaltē Knowledge Hub</title>
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://royalte.ai/blog/music-licensing-types-explained.html">
+<meta property="og:title" content="Sync License vs Sample vs Beat License vs Cover Song vs Interpolation vs Parody: What's the Difference? — Royaltē Knowledge Hub">
+<meta property="og:description" content="A practical breakdown of six music licensing types — sync licenses, samples, beat licenses, cover songs, interpolations, and parody — including which copyrights are involved and what permissions artists need.">
+<meta property="og:image" content="https://royalte.ai/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Royaltē">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sync License vs Sample vs Beat License vs Cover Song vs Interpolation vs Parody: What's the Difference? — Royaltē Knowledge Hub">
+<meta name="twitter:description" content="A practical breakdown of six music licensing types — sync licenses, samples, beat licenses, cover songs, interpolations, and parody — including which copyrights are involved and what permissions artists need.">
+<meta name="twitter:image" content="https://royalte.ai/og-image.jpg">
+
+<meta name="description" content="A practical breakdown of six music licensing types — sync licenses, samples, beat licenses, cover songs, interpolations, and parody — including which copyrights are involved and what permissions artists need.">
+
+<link rel="canonical" href="https://royalte.ai/blog/music-licensing-types-explained.html">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#8A5CFF">
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── ROOT TOKENS (mirrors index.html / blog.html — do not redefine in blog.css) ── */
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
+--pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.2);
+}
+
+/* ── BASE (matches index.html) ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
+
+/* ── NAV (matches index.html) ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
+.nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
+.nav-logo-mobile{display:none;}
+.nav-brand-link:hover .nav-logo{opacity:0.85;}
+.nav-right{display:flex;align-items:center;gap:28px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── FOOTER (matches index.html) ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-logo{height:72px;width:auto;display:block;margin-bottom:8px;}
+.f-logo-mobile{display:none;}
+.f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+/* ── MOBILE NAV / FOOTER (matches index.html) ── */
+@media (max-width:900px){
+  nav{padding:0 18px;height:64px;}
+  .nav-logo-full{display:none;}
+  .nav-logo-mobile{display:block;height:32px;}
+  .nav-links{display:none;}
+  .nav-beta{display:none;}
+  .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
+  .nav-right{gap:0;}
+  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+  .f-logo-full{display:none;}
+  .f-logo-mobile{display:block;height:48px;margin:0 auto 6px auto;}
+  .f-links{justify-content:center;}
+}
+</style>
+
+<link rel="stylesheet" href="/css/blog.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand-link" aria-label="Royaltē home">
+    <svg class="nav-logo nav-logo-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="nav-logo nav-logo-mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+      <text x="20" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/contact.html">Contact</a>
+      <a href="/faq.html">FAQ</a>
+      <a href="/blog.html" class="active">Learn</a>
+    </div>
+    <span class="nav-beta">// Beta</span>
+  </div>
+</nav>
+
+<main class="article-main">
+
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <span class="article-category">Publishing</span>
+      <h1 class="article-title">Sync License vs Sample vs Beat License vs Cover Song vs Interpolation vs Parody: What's the Difference?</h1>
+      <div class="article-meta">2026-06-23 · 8 min read</div>
+    </header>
+
+    <img class="article-hero-image" src="/blog/images/music-licensing-types-explained-hero.png" alt="Sync License vs Sample vs Beat License vs Cover Song vs Interpolation vs Parody: What's the Difference?" loading="eager">
+
+    <div class="article-intro">
+      <p><strong>TL;DR:</strong> What an audience <em>hears</em> doesn't determine the rights involved. What matters is which copyrights — the recording, the composition, or both — are actually being used, and who controls them. That distinction decides who gets paid and which licenses you need.</p>
+
+      <blockquote>This article is educational and not legal advice. Rights and licensing rules vary by jurisdiction and by the specific terms of any agreement. For decisions affecting a release, consult a qualified music attorney.</blockquote>
+
+      <p>The music industry uses a lot of licensing terminology, and many creators unknowingly use the wrong term when discussing rights, permissions, or ownership.</p>
+
+      <p>For example, an artist may say they "licensed a beat" when they actually sampled a copyrighted recording. Another creator may think recording a cover song requires permission from the original artist, while someone creating an interpolation may not realize they need publishing clearance.</p>
+
+      <p>These distinctions matter because each type of use involves different rights, different permissions, and different copyright considerations. Understanding the difference can help artists avoid copyright disputes, revenue interruptions, content takedowns, and ownership conflicts.</p>
+    </div>
+
+    <!-- Mid-article CTA — baked in, do not edit per article -->
+    <aside class="mid-cta" aria-label="Run a free Royaltē scan">
+      <div class="mid-cta-headline">Think your royalties might be leaking because of metadata, publishing, or missing registrations?</div>
+      <a class="mid-cta-btn" href="/#scan-tool">Run Your Free Royaltē Scan →</a>
+    </aside>
+
+    <div class="article-body">
+
+      <h2>The Quick Comparison</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Uses Original Recording?</th>
+            <th>Uses Original Composition?</th>
+            <th>Permission Required?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sync License</td>
+            <td>Sometimes</td>
+            <td>Yes</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Sample</td>
+            <td>Yes</td>
+            <td>Usually</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Beat License</td>
+            <td>Usually No</td>
+            <td>Depends</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Cover Song</td>
+            <td>No</td>
+            <td>Yes</td>
+            <td>Mechanical License</td>
+          </tr>
+          <tr>
+            <td>Interpolation</td>
+            <td>No</td>
+            <td>Yes</td>
+            <td>Publisher Permission</td>
+          </tr>
+          <tr>
+            <td>Parody</td>
+            <td>Sometimes</td>
+            <td>Sometimes</td>
+            <td>Depends on Jurisdiction</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>Let's break down each one.</p>
+
+      <h2>What Is a Sync License?</h2>
+
+      <p>A sync license (short for synchronization license) allows music to be synchronized with visual content.</p>
+
+      <p>Common examples include:</p>
+
+      <ul>
+        <li>Movies</li>
+        <li>TV shows</li>
+        <li>Commercials</li>
+        <li>Video games</li>
+        <li>YouTube videos</li>
+        <li>Social media advertisements</li>
+        <li>Documentaries</li>
+      </ul>
+
+      <p>The key concept is simple: if music is being paired with moving images, sync rights are typically involved.</p>
+
+      <h3>Example</h3>
+
+      <p>A filmmaker wants to use a popular song during a movie scene. They must obtain permission from the composition owner (publisher) and permission from the sound recording owner (master owner). Without both permissions, the use is generally unauthorized.</p>
+
+      <h3>Why Sync Matters</h3>
+
+      <p>Many artists assume uploading music to streaming platforms automatically allows others to use it in videos. It does not. Sync licensing is a separate rights category that often generates significant revenue opportunities for songwriters and rights holders.</p>
+
+      <h2>What Is a Sample?</h2>
+
+      <p>A sample occurs when part of an existing sound recording is copied and reused inside a new recording.</p>
+
+      <p>This could be:</p>
+
+      <ul>
+        <li>A drum break</li>
+        <li>A vocal phrase</li>
+        <li>A guitar riff</li>
+        <li>A melody</li>
+        <li>A sound effect from an existing recording</li>
+      </ul>
+
+      <h3>Example</h3>
+
+      <p>If a producer takes three seconds from an existing recording and places it inside a new song, they are using a sample. Because both copyrights are usually involved, sample clearance typically requires permission from the master recording owner and the composition owner.</p>
+
+      <h3>Why Sample Clearance Matters</h3>
+
+      <p>Even very small portions of recordings can trigger copyright claims. Many artists incorrectly believe changing the pitch, speed, or length removes the need for clearance. In most cases, it does not.</p>
+
+      <h2>What Is a Beat License?</h2>
+
+      <p>A beat license is permission to use a music instrumental created by another producer. Beat licensing has become common through online marketplaces and direct producer sales.</p>
+
+      <h3>Example</h3>
+
+      <p>A producer uploads an instrumental to a marketplace. An artist purchases a non-exclusive license allowing them to record vocals, release a song, and monetize the recording. The exact rights depend on the license agreement.</p>
+
+      <h3>Types of Beat Licenses</h3>
+
+      <h4>Non-Exclusive License</h4>
+
+      <p>Multiple artists can license the same beat. Lower cost. Limited rights.</p>
+
+      <h4>Exclusive License</h4>
+
+      <p>The buyer receives exclusive usage rights according to the agreement. Higher cost. Greater control.</p>
+
+      <h3>Important Note</h3>
+
+      <p>Buying a beat does not automatically transfer copyright ownership. Many artists misunderstand this distinction. The license agreement determines exactly what rights have been granted.</p>
+
+      <h2>What Is a Cover Song?</h2>
+
+      <p>A cover song is a new recording of an existing composition. The original melody and lyrics remain substantially the same. However, the original sound recording is not used.</p>
+
+      <h3>Example</h3>
+
+      <p>An artist records their own version of a famous song using entirely new vocals and instrumentation. That is a cover.</p>
+
+      <h3>Permissions Required</h3>
+
+      <p>In many jurisdictions, a mechanical license allows artists to legally distribute cover recordings without directly negotiating with the original songwriter. However, the songwriter and publisher still receive royalties from the composition.</p>
+
+      <h3>What Cover Songs Do Not Allow</h3>
+
+      <p>A cover license generally does not permit:</p>
+
+      <ul>
+        <li>Changing lyrics significantly</li>
+        <li>Altering fundamental composition elements</li>
+        <li>Using the original recording</li>
+      </ul>
+
+      <p>Those situations may require additional permissions.</p>
+
+      <h2>What Is an Interpolation?</h2>
+
+      <p>An interpolation recreates part of an existing composition without copying the original recording. Unlike sampling, the artist performs or re-records the material themselves.</p>
+
+      <h3>Example</h3>
+
+      <p>A producer replays a famous melody using new instruments instead of copying the original recording. That is an interpolation.</p>
+
+      <h3>Key Difference From Sampling</h3>
+
+      <p>Sampling uses the original recording. Interpolation recreates the composition. Because no original recording is used, master clearance is generally not required. However, permission from the composition owner is typically still necessary.</p>
+
+      <h3>Why Artists Confuse the Two</h3>
+
+      <p>To listeners, a sample and interpolation can sound nearly identical. Legally, they involve very different rights.</p>
+
+      <h2>What Is a Parody?</h2>
+
+      <p>A parody uses an existing work to comment on, criticize, or humorously reference the original work. Parody is often misunderstood because people assume it automatically grants copyright immunity. It does not.</p>
+
+      <h3>Example</h3>
+
+      <p>A comedic artist rewrites lyrics to make fun of a well-known song. Depending on the jurisdiction and circumstances, the work may qualify for parody protection.</p>
+
+      <h3>Important Warning</h3>
+
+      <p>Parody protections vary significantly between countries. Factors often include:</p>
+
+      <ul>
+        <li>Transformative purpose</li>
+        <li>Amount of original material used</li>
+        <li>Commercial nature of the work</li>
+        <li>Market impact on the original work</li>
+      </ul>
+
+      <p>Because parody law is highly fact-specific, creators should not assume protection automatically applies.</p>
+
+      <h2>The Biggest Mistake Artists Make</h2>
+
+      <p>Many creators focus only on what audiences hear. Copyright law focuses on what rights are being used. Two songs may sound similar yet require completely different permissions depending on whether the creator:</p>
+
+      <ul>
+        <li>Used the original recording</li>
+        <li>Re-recorded the composition</li>
+        <li>Licensed a beat</li>
+        <li>Created a cover</li>
+        <li>Used a parody exception</li>
+        <li>Synchronized music with video</li>
+      </ul>
+
+      <p>The distinction determines:</p>
+
+      <ul>
+        <li>Who owns what</li>
+        <li>Who gets paid</li>
+        <li>Which licenses are required</li>
+        <li>Whether a release can be legally distributed</li>
+      </ul>
+
+      <h2>Music Backend Intelligence&#8482; Perspective</h2>
+
+      <p>From a Music Backend Intelligence&#8482; perspective, licensing confusion is often an infrastructure problem rather than a creative problem.</p>
+
+      <p>When creators fail to properly identify whether a work is a sample, interpolation, cover, beat license, sync use, or parody, downstream issues can appear across:</p>
+
+      <ul>
+        <li>Rights ownership records</li>
+        <li>Metadata systems</li>
+        <li>Publishing registrations</li>
+        <li>Royalty administration</li>
+        <li>Content identification systems</li>
+        <li>Revenue collection processes</li>
+      </ul>
+
+      <p>Understanding the underlying rights structure before release can help creators avoid costly corrections later. The earlier rights are identified correctly, the healthier the long-term infrastructure supporting the catalog becomes.</p>
+
+      <h2>Final Thoughts</h2>
+
+      <p>Sync licenses, samples, beat licenses, cover songs, interpolations, and parody all involve different rights and different permission requirements. The biggest difference is not what the audience hears — it's which copyrights are being used and who controls those rights.</p>
+
+      <p>For creators, understanding these distinctions is one of the simplest ways to reduce risk, improve catalog health, and make more informed business decisions throughout the lifecycle of a release.</p>
+
+      <p>Music creation generates value. Understanding the infrastructure behind that value helps protect it.</p>
+
+    </div>
+
+    <!-- Final CTA — Founding Artist Beta framing, baked in, do not edit per article -->
+    <aside class="final-cta" aria-label="Claim a Founding Artist Beta spot">
+      <h2 class="final-cta-headline">Your music may not be the problem. Your backend might be broken.</h2>
+      <p class="final-cta-body">Founding Artist Beta is now open. Royaltē helps artists and rights holders identify metadata gaps, registration issues, platform coverage problems, and royalty risk signals before more money slips through the cracks.</p>
+      <a class="final-cta-btn" href="/#scan-tool">Claim One Of 1,000 Founding Artist Spots →</a>
+    </aside>
+
+  </article>
+
+  <section class="related-articles" aria-label="Related articles">
+    <h3 class="related-h3">Related Articles</h3>
+    <div id="related-grid" class="related-grid"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <svg class="f-logo f-logo-full" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <defs>
+        <linearGradient id="f-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#f-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#f-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#f-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="f-logo f-logo-mobile" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </div>
+  <div class="f-copy">© 2026 Royaltē. Powered by Se7ven Labs LLC. · info@royalte.ai</div>
+  <div class="f-links">
+    <a href="/contact.html">Contact</a>
+    <a href="/faq.html">FAQ</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+  </div>
+</footer>
+
+<!-- Render related articles from the canonical registry, excluding the current article. -->
+<script src="/js/blog-posts.js"></script>
+<script>
+(function(){
+  var currentSlug = 'music-licensing-types-explained';
+  var grid = document.getElementById('related-grid');
+  if (!grid || !Array.isArray(window.blogPosts)) return;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  var others = window.blogPosts.filter(function(p){ return p.slug !== currentSlug; }).slice(0, 4);
+  if (others.length === 0) { grid.parentNode.style.display = 'none'; return; }
+
+  grid.innerHTML = others.map(function(post){
+    var isLive = post.status === 'live';
+    var cls = 'related-card' + (isLive ? '' : ' coming-soon');
+    var disabled = isLive ? '' : ' aria-disabled="true"';
+    var catLabel = isLive ? post.category : (post.category + ' · Coming soon');
+    return '<a class="' + cls + '" href="' + esc(post.url) + '"' + disabled + '>' +
+             '<span class="related-cat">' + esc(catLabel) + '</span>' +
+             '<div class="related-title">' + esc(post.title) + '</div>' +
+           '</a>';
+  }).join('');
+})();
+</script>
+
+</body>
+</html>
