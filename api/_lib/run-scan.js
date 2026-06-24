@@ -34,6 +34,10 @@ import {
   resolveAppleArtistName,
   getAppleMusic,
 } from './identity/apple.js';
+// Phase 6C — Catalog Model Composer™ is the sole owner of Canonical Catalog
+// Model assembly. The Scan Engine orchestrates (calls adapters + composer);
+// it does not own the composition logic itself.
+import { buildCatalogModel } from './catalog-model-composer.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -50,6 +54,14 @@ const HIGH_GAP_RATIO             = 0.30;  // maximum realistic share of royaltie
 // references the constant by name — never inline. Toggle the constant to
 // false ONLY through a formal Constitutional Board Review.
 const YOUTUBE_REVENUE_REQUIRES_VERIFIED_CHANNEL = true;
+
+// Phase 6C — Catalog recording scan cap.
+// Apple's songs endpoint supports up to 100 results per page. This constant
+// is the Scan Engine's declared limit — the adapter accepts it as a parameter
+// so the adapter never decides catalog completeness. Raise this constant or
+// replace with a paginated implementation (following Apple's `next` cursor)
+// when the Board authorizes full-catalog recording coverage.
+const CATALOG_SONGS_SCAN_LIMIT = 100;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // runScan — the scan orchestrator.
@@ -260,6 +272,34 @@ export async function runScan(url) {
   }
   const royaltyGap = estimateRoyaltyGap(catalogData, lastfmData, youtubeData);
   catalogData.estimatedAnnualStreams = royaltyGap.estAnnualStreams;
+
+  // ── Phase 6C: Canonical Catalog Model™ orchestration ────────────────────
+  // The Scan Engine orchestrates; the Catalog Model Composer™ assembles.
+  // getArtistSongs() is called here directly (Board HEP 2026-06-20: adapters
+  // are data providers; the Scan Engine decides how that data flows).
+  // Songs are fetched after the main fan-out so the confirmed Apple artist ID
+  // is available from appleMusicData. catalogData.catalogModel is an explicit
+  // nested field (Board HEP Concern 2: no Object.assign(), no flat merge).
+  const appleArtistIdForSongs = (appleMusicData.found && appleMusicData.artistId)
+    ? appleMusicData.artistId
+    : (resolved.appleArtistId || null);
+  const appleStorefrontForSongs = resolved.appleStorefront || 'us';
+
+  let appleSongs = [];
+  if (appleArtistIdForSongs) {
+    try {
+      appleSongs = await getArtistSongs(
+        appleArtistIdForSongs,
+        appleStorefrontForSongs,
+        CATALOG_SONGS_SCAN_LIMIT,
+      );
+    } catch {
+      appleSongs = [];
+    }
+  }
+
+  catalogData.catalogModel = buildCatalogModel(albumsData, appleMusicData, appleSongs, artistName);
+
   const country = audioDbData.country || wikidataData.country || null;
   const proGuide = getPROGuide(country);
 

@@ -213,8 +213,16 @@ export function assembleCio(artistName, sources, options) {
   // ── catalog (from scanPayload.catalog) ──────────────────────────
   if (scanPayload && scanPayload.catalog && typeof scanPayload.catalog === 'object') {
     const c = scanPayload.catalog;
+
+    // Phase 4 legacy summary fields — preserved for backward compatibility
     if (typeof c.totalReleases   === 'number') cio.catalog.releasesCount   = c.totalReleases;
     if (typeof c.catalogAgeYears === 'number') cio.catalog.catalogAgeYears = c.catalogAgeYears;
+
+    // Phase 6C — single reference assignment (Board directive 2026-06-20).
+    // The CIO references the Canonical Catalog Model™; it never duplicates it.
+    // All new consumers read catalog facts from cio.catalog.catalogModel.
+    // null on pre-Phase-6C scans — all downstream consumers must guard.
+    cio.catalog.catalogModel = c.catalogModel ?? null;
   }
 
   // ── metadata (flag count only in Phase 4) ───────────────────────

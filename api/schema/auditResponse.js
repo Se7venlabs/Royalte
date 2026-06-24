@@ -122,6 +122,9 @@ export const AUDIT_RESPONSE_SCHEMA = {
       catalogAgeYears:        { type: 'number',  required: true },
       estimatedAnnualStreams: { type: 'number',  required: true },
       recentActivity:         { type: 'boolean', required: true },
+      // Phase 6C — Canonical Catalog Model™ sub-object. Optional and nullable
+      // for backward compatibility with pre-Phase-6C scans and degraded paths.
+      catalogModel:           { type: 'any',     required: false, nullable: true },
     },
   },
 

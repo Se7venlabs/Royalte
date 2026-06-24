@@ -1,0 +1,121 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "catalog-well-structured",
+  "_description": "Artist with a fully synchronized, well-structured catalog. Three releases (2 albums + 1 EP) confirmed on both Apple Music and Spotify. Five recordings each with confirmed release linkage via releaseIds[]. Catalog sync at 100%. All Big-6 storefronts available. Demonstrates the locked Canonical Catalog Model v1.0 shape inside cio.catalog.catalogModel with a fully cross-provider inventory.",
+  "_expectedBehavior": "catalog.complete-delivery-verified fires as a strength (cio.catalog.releasesCount=3 > 0 and no cio.catalog.orphanRecordings field present on the catalog section). catalog.count-mismatch-across-providers does not fire (that rule reads cio.catalog.byProvider directly; byProvider data on this fixture lives at cio.catalog.catalogModel.byProvider, which catalog-aware consumers read). Engine produces one CATALOG strength observation. NOTE: providers[] on each Release represents which music services confirmed the release (Apple Music and Spotify); storefrontCoverage.available[] represents geographic distribution within those services. Provider coverage and storefront coverage are distinct concepts and must never be conflated.",
+
+  "cioVersion":  "1.0.0",
+  "generatedAt": "2026-06-20T00:00:00.000Z",
+  "confidence":  "UNKNOWN",
+
+  "identity": {
+    "canonicalArtistName": "Well Structured Artist",
+    "externalProfiles": [
+      { "provider": "apple",   "profileId": "ws-apple-1",   "verified": true },
+      { "provider": "spotify", "profileId": "ws-spotify-1", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+
+  "publishing": {
+    "worksCount":           3,
+    "workRoyalteIds":       ["rc_ws_001", "rc_ws_002", "rc_ws_003"],
+    "writerCount":          2,
+    "writerIPIs":           ["IPI_WS_1", "IPI_WS_2"],
+    "publisherCount":       1,
+    "publishingConfidence": "HIGH"
+  },
+
+  "catalog": {
+    "releasesCount":     3,
+    "catalogAgeYears":   5,
+    "catalogConfidence": "HIGH",
+
+    "catalogModel": {
+      "modelVersion":   "1.0.0",
+      "catalogVersion": null,
+
+      "releases": [
+        {
+          "releaseId":   "rl_a1b2c3d4e5f6",
+          "externalIds": { "apple": "ws-apple-album-1", "spotify": "ws-spotify-album-1" },
+          "title":       "First Album",
+          "releaseType": "ALBUM",
+          "releaseDate": "2021-03-15",
+          "trackCount":  10,
+          "artwork":     "https://example.com/art1.jpg",
+          "upc":         null,
+          "providers":   ["apple", "spotify"]
+        },
+        {
+          "releaseId":   "rl_b2c3d4e5f6a1",
+          "externalIds": { "apple": "ws-apple-album-2", "spotify": "ws-spotify-album-2" },
+          "title":       "Second Album",
+          "releaseType": "ALBUM",
+          "releaseDate": "2022-06-01",
+          "trackCount":  12,
+          "artwork":     "https://example.com/art2.jpg",
+          "upc":         null,
+          "providers":   ["apple", "spotify"]
+        },
+        {
+          "releaseId":   "rl_c3d4e5f6a1b2",
+          "externalIds": { "apple": "ws-apple-ep-1", "spotify": "ws-spotify-ep-1" },
+          "title":       "The EP",
+          "releaseType": "EP",
+          "releaseDate": "2023-11-10",
+          "trackCount":  4,
+          "artwork":     "https://example.com/art3.jpg",
+          "upc":         null,
+          "providers":   ["apple", "spotify"]
+        }
+      ],
+
+      "recordings": [
+        { "isrc": "USWS10000001", "title": "Track One",    "albumName": "First Album",  "releaseIds": ["rl_a1b2c3d4e5f6"], "providers": ["apple"] },
+        { "isrc": "USWS10000002", "title": "Track Two",    "albumName": "First Album",  "releaseIds": ["rl_a1b2c3d4e5f6"], "providers": ["apple"] },
+        { "isrc": "USWS10000003", "title": "Track Three",  "albumName": "Second Album", "releaseIds": ["rl_b2c3d4e5f6a1"], "providers": ["apple"] },
+        { "isrc": "USWS10000004", "title": "Track Four",   "albumName": "Second Album", "releaseIds": ["rl_b2c3d4e5f6a1"], "providers": ["apple"] },
+        { "isrc": "USWS10000005", "title": "EP Track One", "albumName": "The EP",       "releaseIds": ["rl_c3d4e5f6a1b2"], "providers": ["apple"] }
+      ],
+
+      "byProvider":     { "apple": 3, "spotify": 3 },
+      "releasesCount":  3,
+      "earliestYear":   2021,
+      "latestYear":     2023,
+      "catalogAgeYears": 5,
+      "recentActivity": true,
+
+      "catalogSync": {
+        "tracksChecked": 5,
+        "matched":       5,
+        "notFound":      [],
+        "matchRate":     100,
+        "source":        "spotify-top-tracks-vs-apple"
+      },
+
+      "storefrontCoverage": {
+        "checked":      ["us", "gb", "de", "jp", "au", "ca"],
+        "available":    ["us", "gb", "de", "jp", "au", "ca"],
+        "unavailable":  [],
+        "coverageRate": 100
+      },
+
+      "upcCoverage":     null,
+      "contributorData": null
+    }
+  },
+
+  "metadata": {
+    "flagCount":            0,
+    "metadataConfidence":   "HIGH",
+    "missingCredits":       [],
+    "duplicateReleases":    [],
+    "inconsistentMetadata": [],
+    "releaseConflicts":     []
+  },
+
+  "sources":    { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue":    { "reserved": true }
+}

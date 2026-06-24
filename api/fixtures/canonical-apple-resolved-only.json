@@ -40,7 +40,8 @@
     "latestYear": 2024,
     "catalogAgeYears": 2,
     "estimatedAnnualStreams": 50000,
-    "recentActivity": true
+    "recentActivity": true,
+    "catalogModel": null
   },
   "platforms": {
     "spotify": {
