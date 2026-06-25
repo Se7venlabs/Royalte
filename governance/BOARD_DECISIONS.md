@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-06-25 — Mission Control Module Freeze Directive
+
+| | |
+|---|---|
+| **Date** | 2026-06-25 |
+| **Decision** | All Mission Control™ modules are frozen. Only the module currently designated as the active Build Pass target may receive any changes. No other module's layout, wiring, data, copy, styling, or behavior may be modified while it is frozen. The freeze lifts for a module only when the Board explicitly opens a Build Pass for it. |
+| **Reason** | Concurrent edits across multiple modules during Board review create ambiguity about what is being approved. Isolating changes to one module at a time ensures the Board is approving a known, stable surface. |
+| **Impact** | Any PR touching a frozen module must be blocked until the Board opens that module. Engineers must confirm the target module before beginning any Build Pass work. Currently frozen: Identity Intelligence™, Publishing Intelligence™, Backend Intelligence™ (Build Pass 3 complete — now frozen), Catalog Intelligence™, Global Music Footprint™, Royaltē AI™, Health Intelligence™, Monitoring Intelligence™. |
+| **Vote** | Board Approved |
+| **PR Number** | — |
+| **Commit SHA** | 62dbed5 (last merge, Build Pass 3 completion) |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-06-20 — Phase 8: Scan Pipeline Wiring — Health & Executive Brief
 
 | | |
