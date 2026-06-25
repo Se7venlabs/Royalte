@@ -528,10 +528,7 @@ async function initMissionControl() {
   // these calls via their own renderXxx + applyXxx pairs.
   const publishingIntelligence = safePublishingIntelligence(payload.publishingIntelligence);
   if (publishingIntelligence) {
-    const catalogTotal = (payload?.catalog && typeof payload.catalog.totalTracks === 'number')
-      ? payload.catalog.totalTracks
-      : 0;
-    const publishingPlan = renderPublishing(publishingIntelligence, catalogTotal);
+    const publishingPlan = renderPublishing(publishingIntelligence);
     applyPublishingCoveragePlan(publishingPlan.coverage);
     applyPublishingRegistrationsPlan(publishingPlan.registrations);
   }
