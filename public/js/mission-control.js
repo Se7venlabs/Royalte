@@ -154,9 +154,17 @@ function applyDeezerStatus(payload) {
   if (!card) return;
   const pill = card.querySelector('[data-mc-identity-pill]');
   if (!pill) return;
-  const avail = payload?.platforms?.deezer?.availability;
-  if (!avail) return;
-  const { cls, text } = _platformPill(avail);
+  const deezer = payload?.platforms?.deezer;
+  if (!deezer) return;
+  // details is only non-null when the Deezer lookup succeeded (same lookup
+  // that drives the Top Track row). Use it as the authoritative VERIFIED
+  // signal. Fall back to the stored availability string for older payloads
+  // (pre-Build-Pass-1 normalization) where details was not yet persisted.
+  // Always apply a state — never silently leave the pill at "—".
+  const state = (deezer.details != null)
+    ? 'VERIFIED'
+    : (deezer.availability || 'UNABLE_TO_CONFIRM');
+  const { cls, text } = _platformPill(state);
   pill.className   = cls;
   pill.textContent = text;
 }
@@ -166,8 +174,10 @@ function applyTidalStatus(payload) {
   if (!card) return;
   const pill = card.querySelector('[data-mc-identity-pill]');
   if (!pill) return;
-  const avail = payload?.platforms?.tidal?.availability;
-  if (!avail) return;
+  // Always apply a state — never silently leave the pill at "—".
+  // TIDAL has no active scan integration yet; the platform entry is always
+  // NOT_FOUND. Defaults to UNABLE_TO_CONFIRM if the key is absent entirely.
+  const avail = payload?.platforms?.tidal?.availability || 'UNABLE_TO_CONFIRM';
   const { cls, text } = _platformPill(avail);
   pill.className   = cls;
   pill.textContent = text;
