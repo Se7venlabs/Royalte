@@ -575,37 +575,36 @@ test('26e. CONCERN 3 + 6 (Royaltē AI v1.0) — renderRoyalteAI is implemented a
   }
 });
 
-test('26f. CONCERN 3 + 6 (Backend Intelligence v1.0) — renderBackend is implemented and conforms to the canonical entry-point contract', () => {
-  // Backend Intelligence Phase v1.0 replaced the not-yet-implemented slot with
-  // a real renderer. Verifies: (a) function export, (b) correct output shape
-  // on valid input, (c) null-safe on absent intelligence, (d) HEP boundary —
-  // never exposes a health score or overall rating.
+test('26f. CONCERN 3 + 6 (Backend Intelligence v2.0 Build Pass 3) — renderBackend conforms to the updated contract', () => {
+  // Build Pass 3 Board directive: Discogs + Listen Notes removed from display;
+  // MLC subLabel changed from 'Registered' → 'Connected'; added apisResponding
+  // and lastSync fields. Renderer must expose apisRespondingLabel + lastSyncLabel.
   assert.equal(typeof renderBackend, 'function', 'renderBackend must be exported as a function');
   assert.equal(typeof safeBackendIntelligence, 'function', 'safeBackendIntelligence must be exported');
 
   const bi = Object.freeze({
     services: Object.freeze([
-      Object.freeze({ key: 'musicbrainz', name: 'MusicBrainz', state: 'VERIFIED',         subLabel: 'Connected',           statusLabel: 'Verified'    }),
-      Object.freeze({ key: 'discogs',     name: 'Discogs',     state: 'VERIFIED',         subLabel: 'Connected',           statusLabel: 'Verified'    }),
-      Object.freeze({ key: 'mlc',         name: 'MLC',         state: 'VERIFIED',         subLabel: 'Registered',          statusLabel: 'Connected'   }),
-      Object.freeze({ key: 'listenNotes', name: 'Listen Notes', state: 'AUTH_UNAVAILABLE', subLabel: 'Monitoring Required', statusLabel: 'Monitoring'  }),
+      Object.freeze({ key: 'musicbrainz', name: 'MusicBrainz', state: 'VERIFIED', subLabel: 'Connected', statusLabel: 'Verified' }),
+      Object.freeze({ key: 'mlc',         name: 'MLC',         state: 'VERIFIED', subLabel: 'Connected', statusLabel: 'Verified' }),
     ]),
-    connectedCount: 3,
-    totalCount:     4,
-    summaryLabel:   '3 of 4 Connected',
+    connectedCount:  2,
+    totalCount:      2,
+    summaryLabel:    'All Verified',
+    apisResponding:  Object.freeze({ responded: 4, total: 4 }),
+    lastSync:        '2026-06-25T08:42:00.000Z',
   });
 
   const plan = renderBackend(bi);
 
   assert.ok(plan !== null, 'renderBackend must return a non-null plan for valid input');
   assert.ok(Array.isArray(plan.services), 'plan must carry services array');
-  assert.equal(plan.services.length, 4, 'plan must carry exactly 4 service entries (v1.0 lock)');
+  assert.equal(plan.services.length, 2, 'plan must carry exactly 2 displayed service entries (Build Pass 3)');
 
-  // Service key vocabulary is locked — must match in order
+  // Service key vocabulary — v2.0 lock: musicbrainz + mlc only
   assert.deepStrictEqual(
     plan.services.map((s) => s.key),
-    ['musicbrainz', 'discogs', 'mlc', 'listenNotes'],
-    'service keys must match the v1.0 lock order: musicbrainz, discogs, mlc, listenNotes'
+    ['musicbrainz', 'mlc'],
+    'service keys must match Build Pass 3 lock order: musicbrainz, mlc'
   );
 
   // Each service plan must carry name, subLabel, statusLabel
@@ -615,16 +614,25 @@ test('26f. CONCERN 3 + 6 (Backend Intelligence v1.0) — renderBackend is implem
     assert.equal(typeof svc.statusLabel, 'string', `${svc.key} plan must carry statusLabel string`);
   }
 
-  // connectedCount + totalCount + summaryLabel
+  // MLC must show infrastructure status only — 'Registered' is Publishing Intelligence vocabulary
+  const mlcPlan = plan.services.find((s) => s.key === 'mlc');
+  assert.ok(mlcPlan, 'mlc service must be present in plan');
+  assert.notEqual(mlcPlan.subLabel,    'Registered', 'MLC subLabel must not use "Registered" — that belongs to Publishing Intelligence™');
+  assert.equal   (mlcPlan.subLabel,    'Connected',  'MLC subLabel must be Connected');
+  assert.equal   (mlcPlan.statusLabel, 'Verified',   'MLC statusLabel must be Verified');
+
+  // APIs Responding label — new in Build Pass 3
+  assert.equal(typeof plan.apisRespondingLabel, 'string', 'plan must carry apisRespondingLabel');
+  assert.equal(plan.apisRespondingLabel, '4 / 4', 'apisRespondingLabel must be "4 / 4" for 4/4 responded');
+
+  // Last Sync label — new in Build Pass 3
+  assert.equal(typeof plan.lastSyncLabel, 'string', 'plan must carry lastSyncLabel');
+  assert.ok(plan.lastSyncLabel.length > 0, 'lastSyncLabel must be non-empty');
+
+  // connectedCount + totalCount + summaryLabel preserved for backward compat
   assert.equal(typeof plan.connectedCount, 'number', 'plan must carry connectedCount');
   assert.equal(typeof plan.totalCount,     'number', 'plan must carry totalCount');
   assert.equal(typeof plan.summaryLabel,   'string', 'plan must carry summaryLabel');
-
-  // Listen Notes is AUTH_UNAVAILABLE on standard scans — confirmed in the plan
-  const listenNotesPlan = plan.services.find((s) => s.key === 'listenNotes');
-  assert.ok(listenNotesPlan, 'listenNotes service must be present in plan');
-  assert.notEqual(listenNotesPlan.subLabel, 'Unavailable',
-    'Listen Notes subLabel must use monitoring vocabulary, not generic Unavailable');
 
   // Graceful null handling — boot module leaves locked sample HTML in place
   assert.strictEqual(renderBackend(null),      null, 'null input must return null');
@@ -637,6 +645,20 @@ test('26f. CONCERN 3 + 6 (Backend Intelligence v1.0) — renderBackend is implem
     assert.ok(!(key in plan),
       `plan must not expose '${key}' — Royaltē Health™ owns executive scoring (HEP boundary)`);
   }
+
+  // Stale payload backward compat: no apisResponding field → falls back to connectedCount/totalCount
+  const staleBI = Object.freeze({
+    services: Object.freeze([
+      Object.freeze({ key: 'musicbrainz', name: 'MusicBrainz', state: 'VERIFIED', subLabel: 'Connected', statusLabel: 'Verified' }),
+    ]),
+    connectedCount: 1,
+    totalCount:     1,
+    summaryLabel:   'All Verified',
+  });
+  const stalePlan = renderBackend(staleBI);
+  assert.ok(stalePlan !== null, 'stale payload must still render');
+  assert.equal(stalePlan.apisRespondingLabel, '1 / 1', 'stale payload falls back to connectedCount/totalCount');
+  assert.equal(stalePlan.lastSyncLabel, 'Unknown', 'stale payload with no lastSync renders Unknown');
 });
 
 test('26g. CONCERN 3 + 6 (Monitoring Intelligence v1.0) — renderChangeDetection is implemented and conforms to the canonical entry-point contract', () => {

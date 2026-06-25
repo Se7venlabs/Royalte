@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────
-//  Backend Intelligence™ — Assembler (Phase Backend v1.0)
+//  Backend Intelligence™ — Assembler (Build Pass 3 v2.0)
 // ─────────────────────────────────────────────────────────────────────
 //
 //  Constitutional position:
@@ -14,12 +14,18 @@
 //        ↓
 //    Mission Control™ · Backend Intelligence card
 //
-//  Monitored services (v1.0):
+//  Displayed services (Build Pass 3 — Board directive):
 //    MusicBrainz   — canonical.platforms.musicbrainz.availability
-//    Discogs        — canonical.platforms.discogs.availability
 //    MLC            — publishingIntelligence.registrations.mlcRegistration
-//    Listen Notes   — AUTH_UNAVAILABLE (monitoring-plan-only; never called
-//                     from the standard audit.js scan path per Brief 015o)
+//
+//  APIs Responding metric — 4 always-called backend services:
+//    MusicBrainz, Discogs, Last.fm, MLC
+//    "Responded" = VERIFIED or NOT_FOUND (service returned a valid response).
+//    AUTH_UNAVAILABLE / ERROR = not responded (gated or threw).
+//
+//  Removed from display (Build Pass 3):
+//    Discogs      — still integrated; counted in apisResponding, not displayed
+//    Listen Notes — monitoring-plan-only; AUTH_UNAVAILABLE on standard scans
 //
 //  Availability state vocabulary (shared across all Royaltē™ modules):
 //    VERIFIED         — confirmed present
@@ -32,33 +38,31 @@
 //    - Never mutates inputs.
 //    - Output is deep-frozen.
 //    - AUTH_UNAVAILABLE ≠ NOT_FOUND (never conflated, never scored as zero).
-//    - Listen Notes is permanently AUTH_UNAVAILABLE on the standard scan
-//      path — this is an architectural fact, not a data gap.
 //
 // ─────────────────────────────────────────────────────────────────────
-//  Output shape (v1.0):
+//  Output shape (v2.0):
 //
 //    {
-//      services: ServiceEntry[],  // 4 entries, one per backend service
-//      connectedCount: number,    // count of VERIFIED services
-//      totalCount:     number,    // always 4 for v1.0
-//      summaryLabel:   string,    // 'All Verified' | 'N of 4 Connected' | …
+//      services:       ServiceEntry[],  // 2 displayed services
+//      connectedCount: number,          // VERIFIED count among displayed services
+//      totalCount:     number,          // always 2 for Build Pass 3
+//      apisResponding: { responded: number, total: number },  // 4-service metric
+//      lastSync:       string,          // ISO timestamp from canonical.scannedAt
+//      summaryLabel:   string,          // backward-compat
 //    }
 //
 //    ServiceEntry = {
-//      key:         string,  // 'musicbrainz' | 'discogs' | 'mlc' | 'listenNotes'
+//      key:         string,  // 'musicbrainz' | 'mlc'
 //      name:        string,  // display name
 //      state:       string,  // availability state constant
-//      subLabel:    string,  // secondary row label (e.g. 'Connected', 'Registered')
-//      statusLabel: string,  // badge label (e.g. 'Verified', 'Monitoring')
+//      subLabel:    string,  // 'Connected' for VERIFIED states
+//      statusLabel: string,  // 'Verified' for VERIFIED states
 //    }
 //
 // ─────────────────────────────────────────────────────────────────────
 
-export const BACKEND_INTELLIGENCE_VERSION = '1.0.0';
+export const BACKEND_INTELLIGENCE_VERSION = '2.0.0';
 
-// Availability state constants — mirror the 4-state model used across
-// all Royaltē™ modules. Never add intermediate states.
 export const BACKEND_STATE = Object.freeze({
   VERIFIED:         'VERIFIED',
   NOT_FOUND:        'NOT_FOUND',
@@ -66,13 +70,21 @@ export const BACKEND_STATE = Object.freeze({
   ERROR:            'ERROR',
 });
 
-// Service registry — ordered as they appear in the MC card (v1.0 lock order).
+// Displayed services — MusicBrainz + MLC only (Build Pass 3 Board directive).
 const SERVICES = Object.freeze([
   Object.freeze({ key: 'musicbrainz', name: 'MusicBrainz' }),
-  Object.freeze({ key: 'discogs',     name: 'Discogs'     }),
   Object.freeze({ key: 'mlc',         name: 'MLC'         }),
-  Object.freeze({ key: 'listenNotes', name: 'Listen Notes' }),
 ]);
+
+// APIs Responding — 4 backend services always called on the standard scan path.
+// Discogs and Last.fm remain integrated (not displayed) and counted here.
+const APIS_MONITORED = Object.freeze(['musicbrainz', 'discogs', 'lastfm', 'mlc']);
+
+// States that represent a successful API response (service is up and returned data).
+const RESPONDED_STATES = Object.freeze(new Set([
+  BACKEND_STATE.VERIFIED,
+  BACKEND_STATE.NOT_FOUND,
+]));
 
 function deepFreeze(obj) {
   if (obj === null || typeof obj !== 'object') return obj;
@@ -92,10 +104,6 @@ function safeStr(x) {
 }
 
 // ─── State resolution ─────────────────────────────────────────────────
-//
-// Validates the incoming availability string against the 4-state model.
-// Unknown strings degrade to AUTH_UNAVAILABLE (not NOT_FOUND) so
-// unknown ≠ absence.
 
 function resolveState(raw) {
   const s = safeStr(raw).toUpperCase();
@@ -104,37 +112,21 @@ function resolveState(raw) {
 }
 
 // ─── Service label derivation ─────────────────────────────────────────
-//
-// Returns { subLabel, statusLabel } for a given service key + state.
-// Labels match the locked Mission Control™ card vocabulary.
 
 const SERVICE_LABELS = Object.freeze({
   musicbrainz: Object.freeze({
-    VERIFIED:         Object.freeze({ subLabel: 'Connected',  statusLabel: 'Verified'   }),
-    NOT_FOUND:        Object.freeze({ subLabel: 'Not Found',  statusLabel: 'Not Found'  }),
-    AUTH_UNAVAILABLE: Object.freeze({ subLabel: 'Unavailable', statusLabel: 'Unavailable' }),
-    ERROR:            Object.freeze({ subLabel: 'Error',      statusLabel: 'Unavailable' }),
+    VERIFIED:         Object.freeze({ subLabel: 'Connected',   statusLabel: 'Verified'     }),
+    NOT_FOUND:        Object.freeze({ subLabel: 'Not Found',   statusLabel: 'Not Found'    }),
+    AUTH_UNAVAILABLE: Object.freeze({ subLabel: 'Unavailable', statusLabel: 'Unavailable'  }),
+    ERROR:            Object.freeze({ subLabel: 'Error',       statusLabel: 'Unavailable'  }),
   }),
-  discogs: Object.freeze({
-    VERIFIED:         Object.freeze({ subLabel: 'Connected',  statusLabel: 'Verified'   }),
-    NOT_FOUND:        Object.freeze({ subLabel: 'Not Found',  statusLabel: 'Not Found'  }),
-    AUTH_UNAVAILABLE: Object.freeze({ subLabel: 'Unavailable', statusLabel: 'Unavailable' }),
-    ERROR:            Object.freeze({ subLabel: 'Error',      statusLabel: 'Unavailable' }),
-  }),
+  // MLC: Backend Intelligence shows infrastructure status only.
+  // Registration status lives exclusively in Publishing Intelligence™.
   mlc: Object.freeze({
-    VERIFIED:         Object.freeze({ subLabel: 'Registered', statusLabel: 'Connected'  }),
-    NOT_FOUND:        Object.freeze({ subLabel: 'Not Registered', statusLabel: 'Not Found' }),
-    AUTH_UNAVAILABLE: Object.freeze({ subLabel: 'Unavailable', statusLabel: 'Unavailable' }),
-    ERROR:            Object.freeze({ subLabel: 'Error',      statusLabel: 'Unavailable' }),
-  }),
-  // Listen Notes is monitoring-plan-only. In standard scans the state
-  // is always AUTH_UNAVAILABLE; label vocabulary retained from the locked
-  // MC card. Future phases may supply VERIFIED state for monitoring subscribers.
-  listenNotes: Object.freeze({
-    VERIFIED:         Object.freeze({ subLabel: 'Tracking',   statusLabel: 'Monitoring' }),
-    NOT_FOUND:        Object.freeze({ subLabel: 'Not Found',  statusLabel: 'Not Found'  }),
-    AUTH_UNAVAILABLE: Object.freeze({ subLabel: 'Monitoring Required', statusLabel: 'Monitoring' }),
-    ERROR:            Object.freeze({ subLabel: 'Error',      statusLabel: 'Unavailable' }),
+    VERIFIED:         Object.freeze({ subLabel: 'Connected',   statusLabel: 'Verified'     }),
+    NOT_FOUND:        Object.freeze({ subLabel: 'Not Found',   statusLabel: 'Not Found'    }),
+    AUTH_UNAVAILABLE: Object.freeze({ subLabel: 'Unavailable', statusLabel: 'Unavailable'  }),
+    ERROR:            Object.freeze({ subLabel: 'Error',       statusLabel: 'Unavailable'  }),
   }),
 });
 
@@ -144,8 +136,6 @@ function labelsFor(key, state) {
   return svcLabels[state] || { subLabel: 'Unavailable', statusLabel: 'Unavailable' };
 }
 
-// ─── Summary label ─────────────────────────────────────────────────────
-
 function deriveSummaryLabel(connectedCount, totalCount) {
   if (connectedCount === totalCount) return 'All Verified';
   if (connectedCount === 0) return 'Checking connections...';
@@ -153,16 +143,11 @@ function deriveSummaryLabel(connectedCount, totalCount) {
 }
 
 // ─── Raw availability reads ─────────────────────────────────────────────
-//
-// Each function reads one service's raw availability from its canonical
-// source and returns the 4-state constant.
 
 function readMusicBrainzState(canonical) {
   const c = safeObj(canonical);
   if (!c) return BACKEND_STATE.AUTH_UNAVAILABLE;
-  const platforms = safeObj(c.platforms);
-  if (!platforms) return BACKEND_STATE.AUTH_UNAVAILABLE;
-  const mb = safeObj(platforms.musicbrainz);
+  const mb = safeObj(safeObj(c.platforms)?.musicbrainz);
   if (!mb) return BACKEND_STATE.AUTH_UNAVAILABLE;
   return resolveState(mb.availability);
 }
@@ -170,11 +155,17 @@ function readMusicBrainzState(canonical) {
 function readDiscogsState(canonical) {
   const c = safeObj(canonical);
   if (!c) return BACKEND_STATE.AUTH_UNAVAILABLE;
-  const platforms = safeObj(c.platforms);
-  if (!platforms) return BACKEND_STATE.AUTH_UNAVAILABLE;
-  const dc = safeObj(platforms.discogs);
+  const dc = safeObj(safeObj(c.platforms)?.discogs);
   if (!dc) return BACKEND_STATE.AUTH_UNAVAILABLE;
   return resolveState(dc.availability);
+}
+
+function readLastFmState(canonical) {
+  const c = safeObj(canonical);
+  if (!c) return BACKEND_STATE.AUTH_UNAVAILABLE;
+  const lf = safeObj(safeObj(c.platforms)?.lastfm);
+  if (!lf) return BACKEND_STATE.AUTH_UNAVAILABLE;
+  return resolveState(lf.availability);
 }
 
 function readMlcState(publishingIntelligence) {
@@ -191,16 +182,13 @@ function readMlcState(publishingIntelligence) {
 
 export function assembleBackendIntelligence(canonical, publishingIntelligence) {
   try {
-    const states = {
+    const displayedStates = {
       musicbrainz: readMusicBrainzState(canonical),
-      discogs:     readDiscogsState(canonical),
       mlc:         readMlcState(publishingIntelligence),
-      // Listen Notes: monitoring-plan-only; AUTH_UNAVAILABLE on standard scan path.
-      listenNotes: BACKEND_STATE.AUTH_UNAVAILABLE,
     };
 
     const services = SERVICES.map(({ key, name }) => {
-      const state = states[key];
+      const state = displayedStates[key];
       const { subLabel, statusLabel } = labelsFor(key, state);
       return Object.freeze({ key, name, state, subLabel, statusLabel });
     });
@@ -208,10 +196,26 @@ export function assembleBackendIntelligence(canonical, publishingIntelligence) {
     const connectedCount = services.filter((s) => s.state === BACKEND_STATE.VERIFIED).length;
     const totalCount = SERVICES.length;
 
+    // APIs Responding — counts all 4 monitored backend services
+    const monitoredStates = [
+      readMusicBrainzState(canonical),
+      readDiscogsState(canonical),
+      readLastFmState(canonical),
+      readMlcState(publishingIntelligence),
+    ];
+    const responded = monitoredStates.filter((s) => RESPONDED_STATES.has(s)).length;
+    const apisResponding = Object.freeze({ responded, total: APIS_MONITORED.length });
+
+    // Last Sync — scan completion timestamp from canonical
+    const c = safeObj(canonical);
+    const lastSync = (c && typeof c.scannedAt === 'string') ? c.scannedAt : null;
+
     return deepFreeze({
       services,
       connectedCount,
       totalCount,
+      apisResponding,
+      lastSync,
       summaryLabel: deriveSummaryLabel(connectedCount, totalCount),
     });
   } catch (err) {
@@ -224,10 +228,12 @@ export function assembleBackendIntelligence(canonical, publishingIntelligence) {
       statusLabel: 'Unavailable',
     }));
     return deepFreeze({
-      services:      fallbackServices,
+      services:       fallbackServices,
       connectedCount: 0,
-      totalCount:    SERVICES.length,
-      summaryLabel:  'Checking connections...',
+      totalCount:     SERVICES.length,
+      apisResponding: Object.freeze({ responded: 0, total: APIS_MONITORED.length }),
+      lastSync:       null,
+      summaryLabel:   'Checking connections...',
     });
   }
 }

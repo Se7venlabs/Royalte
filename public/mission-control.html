@@ -3317,9 +3317,9 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
         <div class="mc-cd-foot"></div>
       </article>
 
-      <!-- Backend Intelligence™ — replaces Monitoring Intelligence™ per Board directive.
-           Visualizes Royaltē's connection into the deep music ecosystem
-           infrastructure (MusicBrainz, Discogs, MLC, Listen Notes). -->
+      <!-- Backend Intelligence™ — Build Pass 3 (2026-06-25).
+           Displays: APIs Responding (4-service metric), Last Sync, MusicBrainz, MLC.
+           Discogs and Listen Notes remain integrated; counted in APIs Responding only. -->
       <article class="mc-card mc-card--backend" id="backend-intelligence" aria-label="Backend Intelligence">
         <div class="mc-card-head">
           <div class="mc-card-mark">
@@ -3353,13 +3353,15 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
             </svg>
           </div>
           <div class="mc-bi-summary">
-            <div class="mc-bi-sum-label">Infrastructure Connected</div>
+            <div class="mc-bi-sum-label">APIs Responding</div>
             <div class="mc-bi-sum-value" data-mc-backend-connected-count>4 / 4</div>
             <div class="mc-bi-sum-meta" data-mc-backend-summary>All Verified</div>
           </div>
         </div>
 
         <ul class="mc-bi-services">
+          <!-- Build Pass 3: Discogs and Listen Notes removed from display.
+               Both remain integrated and counted in APIs Responding metric. -->
           <li class="mc-bi-service" data-mc-backend-service="musicbrainz">
             <span class="mc-bi-service-icon">
               <!-- network nodes -->
@@ -3371,17 +3373,6 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
             </div>
             <span class="mc-bi-service-status">Verified</span>
           </li>
-          <li class="mc-bi-service" data-mc-backend-service="discogs">
-            <span class="mc-bi-service-icon">
-              <!-- vinyl disc -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.4"/></svg>
-            </span>
-            <div class="mc-bi-service-body">
-              <div class="mc-bi-service-name">Discogs</div>
-              <div class="mc-bi-service-sub">Connected</div>
-            </div>
-            <span class="mc-bi-service-status">Verified</span>
-          </li>
           <li class="mc-bi-service" data-mc-backend-service="mlc">
             <span class="mc-bi-service-icon">
               <!-- MLC document -->
@@ -3389,20 +3380,9 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
             </span>
             <div class="mc-bi-service-body">
               <div class="mc-bi-service-name">MLC</div>
-              <div class="mc-bi-service-sub">Registered</div>
+              <div class="mc-bi-service-sub">Connected</div>
             </div>
-            <span class="mc-bi-service-status">Connected</span>
-          </li>
-          <li class="mc-bi-service" data-mc-backend-service="listenNotes">
-            <span class="mc-bi-service-icon">
-              <!-- mic -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>
-            </span>
-            <div class="mc-bi-service-body">
-              <div class="mc-bi-service-name">Listen Notes</div>
-              <div class="mc-bi-service-sub">Tracking</div>
-            </div>
-            <span class="mc-bi-service-status">Monitoring</span>
+            <span class="mc-bi-service-status">Verified</span>
           </li>
         </ul>
 

@@ -474,8 +474,9 @@ function applyBackendPlan(plan) {
   if (!plan) return;
   const countEl   = document.querySelector('[data-mc-backend-connected-count]');
   const summaryEl = document.querySelector('[data-mc-backend-summary]');
-  if (countEl)   countEl.textContent   = `${plan.connectedCount} / ${plan.totalCount}`;
-  if (summaryEl) summaryEl.textContent = plan.summaryLabel;
+  // Build Pass 3: countEl shows APIs Responding "N / 4"; summaryEl shows Last Sync.
+  if (countEl)   countEl.textContent   = plan.apisRespondingLabel;
+  if (summaryEl) summaryEl.textContent = plan.lastSyncLabel;
   for (const svc of plan.services) {
     const row = document.querySelector(`[data-mc-backend-service="${svc.key}"]`);
     if (!row) continue;
