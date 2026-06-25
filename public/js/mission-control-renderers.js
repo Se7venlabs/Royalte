@@ -529,34 +529,64 @@ function safePublishingIntelligence(pi) {
 
 export { safePublishingIntelligence };
 
-// buildPublishingRegistrationPlan(intelligence)
+// buildPublishingRegistrationPlan(intelligence, catalogTotal)
 //
 // One render plan entry per `registrations` key, IN ITERATION ORDER
-// the assembler produced them. This function contains NO hardcoded
-// metric list — `Object.keys(intelligence.registrations)` is the
-// canonical source. Returns [] on any malformed input.
+// the assembler produced them. Returns [] on any malformed input.
 //
 // Output shape:
 //   [{ metric, state, pillClass, pillText }]
 //
-// `metric` is the canonical key (e.g. 'mlcRegistration'). The boot
-// module uses it to find the matching [data-mc-publishing-metric="<key>"]
-// row in the locked HTML.
-export function buildPublishingRegistrationPlan(intelligence) {
+// Ratio metrics (registeredWorks, iswcCoverage, writerIpi,
+// compositionMatch) produce "X / Y" pillText instead of a state label.
+// catalogTotal is payload.catalog.totalTracks — used as the right-side
+// denominator for registeredWorks and compositionMatch.
+export function buildPublishingRegistrationPlan(intelligence, catalogTotal = 0) {
   const pi = safePublishingIntelligence(intelligence);
   if (!pi) return [];
   const regs = (pi.registrations && typeof pi.registrations === 'object' && !Array.isArray(pi.registrations))
     ? pi.registrations
     : null;
   if (!regs) return [];
+
+  const m = (pi.metrics && typeof pi.metrics === 'object') ? pi.metrics : {};
+  const worksCount     = typeof m.mlcWorksCount     === 'number' ? m.mlcWorksCount     : 0;
+  const iswcCount      = typeof m.mlcIswcCount      === 'number' ? m.mlcIswcCount      : 0;
+  const writerCount    = typeof m.mlcWriterCount     === 'number' ? m.mlcWriterCount    : 0;
+  const writerIpiCount = typeof m.mlcWriterIpiCount  === 'number' ? m.mlcWriterIpiCount : 0;
+  const catTotal       = typeof catalogTotal         === 'number' ? catalogTotal        : 0;
+
   return Object.keys(regs).map((metric) => {
     const state = regs[metric] || 'UNABLE_TO_CONFIRM';
-    return {
-      metric,
-      state,
-      pillClass: PUBLISHING_STATE_PILL_CLASS[state] || 'mc-pill',
-      pillText:  PUBLISHING_STATE_PILL_TEXT[state]  || 'Unknown',
-    };
+    const pillClass = PUBLISHING_STATE_PILL_CLASS[state] || 'mc-pill mc-pill--unable';
+    let pillText;
+
+    switch (metric) {
+      case 'mlcRegistration':
+        pillText = state === 'VERIFIED'   ? 'Yes'
+                 : state === 'NOT_FOUND'  ? 'No'
+                 : '—';
+        break;
+      case 'registeredWorks':
+      case 'compositionMatch': {
+        const right = catTotal > 0 ? catTotal : '?';
+        pillText = `${worksCount} / ${right}`;
+        break;
+      }
+      case 'iswcCoverage':
+        pillText = `${iswcCount} / ${worksCount > 0 ? worksCount : '?'}`;
+        break;
+      case 'registeredSongwriters':
+        pillText = String(writerCount);
+        break;
+      case 'writerIpi':
+        pillText = `${writerIpiCount} / ${writerCount}`;
+        break;
+      default:
+        pillText = PUBLISHING_STATE_PILL_TEXT[state] || '—';
+    }
+
+    return { metric, state, pillClass, pillText };
   });
 }
 
@@ -590,10 +620,10 @@ export function buildPublishingCoveragePlan(intelligence) {
 //
 // `null` on coverage means "intelligence absent — leave the locked
 // sample HTML in place."
-export function renderPublishing(intelligence) {
+export function renderPublishing(intelligence, catalogTotal = 0) {
   return {
     coverage:      buildPublishingCoveragePlan(intelligence),
-    registrations: buildPublishingRegistrationPlan(intelligence),
+    registrations: buildPublishingRegistrationPlan(intelligence, catalogTotal),
   };
 }
 

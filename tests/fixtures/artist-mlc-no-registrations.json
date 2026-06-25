@@ -1,0 +1,69 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName":    "artist-mlc-no-registrations",
+  "_description":    "Artist with 3 recordings; MLC was queried and returned 0 composition registrations. Verified absence in the MLC database — not evidence of absent PRO membership (artist may be registered with SOCAN, PRS, ASCAP, or others).",
+  "_expectedBehavior": "Engine fires publishing.no-registrations-with-recordings (MEDIUM severity) because cio.observations.publishingSources.mlc.availability is VERIFIED and worksCount is 0 with recordings present. Rule is scoped to reviewed publishing sources only and carries MEDIUM (not HIGH) severity per Board Directive v2.0.",
+
+  "cioVersion":  "1.0.0",
+  "generatedAt": "2026-06-24T00:00:00.000Z",
+  "confidence":  "UNKNOWN",
+
+  "identity": {
+    "canonicalArtistName": "MLC No Registrations Test Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "mlcnr-spotify-1", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+
+  "publishing": {
+    "worksCount":           0,
+    "workRoyalteIds":       [],
+    "writerCount":          0,
+    "writerIPIs":           [],
+    "publisherCount":       0,
+    "publishingConfidence": "UNKNOWN"
+  },
+
+  "catalog": {
+    "releasesCount":     3,
+    "catalogAgeYears":   2,
+    "catalogConfidence": "MEDIUM",
+    "recordings": [
+      { "isrc": "USMLC0000001", "title": "Track One"   },
+      { "isrc": "USMLC0000002", "title": "Track Two"   },
+      { "isrc": "USMLC0000003", "title": "Track Three" }
+    ],
+    "orphanRecordings": []
+  },
+
+  "metadata": {
+    "flagCount":            0,
+    "metadataConfidence":   "UNKNOWN",
+    "missingCredits":       [],
+    "duplicateReleases":    [],
+    "inconsistentMetadata": []
+  },
+
+  "observations": {
+    "providers": {
+      "apple":   null,
+      "spotify": null,
+      "youtube": null
+    },
+    "publishingSources": {
+      "mlc": {
+        "availability": "VERIFIED",
+        "details": {
+          "worksCount":  0,
+          "iswcCount":   0,
+          "writerCount": 0
+        }
+      }
+    }
+  },
+
+  "sources":    { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue":    { "reserved": true }
+}

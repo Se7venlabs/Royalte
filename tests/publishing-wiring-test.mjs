@@ -176,7 +176,7 @@ test('4. Eager chain — one CIO, two intelligence objects, both valid', () => {
   assert.equal(cio.observations.publishingSources.mlc.availability, 'VERIFIED');
 });
 
-test('5. Eager chain — Publishing Intelligence resolves all four metrics from the shared CIO', () => {
+test('5. Eager chain — Publishing Intelligence resolves all six metrics from the shared CIO', () => {
   const { publishingIntelligence } = runOneCioAssemblyChain({
     scanPayload:     SCAN,
     publishingWorks: [MLC_WORK],
@@ -184,12 +184,14 @@ test('5. Eager chain — Publishing Intelligence resolves all four metrics from 
       mlc: { availability: 'VERIFIED', details: { worksCount: 1, iswcCount: 1, writerCount: 1 } },
     },
   });
-  assert.equal(publishingIntelligence.registrations.mlcRegistration,      PUBLISHING_STATE.VERIFIED);
-  assert.equal(publishingIntelligence.registrations.iswcCoverage,         PUBLISHING_STATE.VERIFIED);
-  assert.equal(publishingIntelligence.registrations.writerCredits,        PUBLISHING_STATE.VERIFIED);
-  assert.equal(publishingIntelligence.registrations.publisherInformation, PUBLISHING_STATE.NOT_FOUND);
-  assert.equal(publishingIntelligence.registeredCount, 3);
-  assert.equal(publishingIntelligence.coverage,        75);
+  assert.equal(publishingIntelligence.registrations.mlcRegistration,       PUBLISHING_STATE.VERIFIED);
+  assert.equal(publishingIntelligence.registrations.registeredWorks,       PUBLISHING_STATE.VERIFIED);
+  assert.equal(publishingIntelligence.registrations.iswcCoverage,          PUBLISHING_STATE.VERIFIED);
+  assert.equal(publishingIntelligence.registrations.registeredSongwriters, PUBLISHING_STATE.VERIFIED);
+  assert.equal(publishingIntelligence.registrations.writerIpi,             PUBLISHING_STATE.VERIFIED);
+  assert.equal(publishingIntelligence.registrations.compositionMatch,      PUBLISHING_STATE.VERIFIED);
+  assert.equal(publishingIntelligence.registeredCount, 6);
+  assert.equal(publishingIntelligence.coverage,        100);
 });
 
 test('6. Eager chain — chain on totally-malformed inputs does not throw', () => {
@@ -206,7 +208,7 @@ test('7. Eager chain — MLC AUTH_UNAVAILABLE yields publishingIntelligence with
     publishingWorks: null,
     publishingSourceObservations: { mlc: { availability: 'AUTH_UNAVAILABLE', details: null } },
   });
-  for (const metric of ['mlcRegistration', 'iswcCoverage', 'writerCredits', 'publisherInformation']) {
+  for (const metric of ['mlcRegistration', 'registeredWorks', 'iswcCoverage', 'registeredSongwriters', 'writerIpi', 'compositionMatch']) {
     assert.equal(publishingIntelligence.registrations[metric], PUBLISHING_STATE.UNABLE_TO_CONFIRM,
       `${metric} must be UNABLE_TO_CONFIRM, NEVER NOT_FOUND, when MLC was AUTH_UNAVAILABLE (Board D5 invariant)`);
   }

@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────
-//  Royaltē Publishing Intelligence™ — Assembler  (Phase 5B)
+//  Royaltē Publishing Intelligence™ — Assembler  (Phase 5B + Build Pass 2)
 // ─────────────────────────────────────────────────────────────────────
 //
 //  Constitutional position:
@@ -40,13 +40,12 @@
 //                NEVER to NOT_FOUND. Royaltē maintains one universal
 //                executive state vocabulary across intelligence domains.
 //
-//    D7 — Phase 5B card metrics: MLC Registration, ISWC Coverage,
-//                Writer Credits, Publisher Information. (MusicBrainz
-//                Publishing Metadata / Composition Metadata Integrity /
-//                Publishing Territory Coverage stay as static MC HTML
-//                until their own intelligence domains exist.)
+//    D7 — Build Pass 2 (2026-06-25): Board-approved six metrics replace
+//                Phase 5B's four. Metrics that required publisher data
+//                (publisherInformation, writerCredits) removed; six
+//                data-backed metrics sourced exclusively from MLC.
 //
-//    D8 — Output shape (the four shape keys above, plus
+//    D8 — Output shape (six metrics + raw counts in `metrics`, plus
 //                supportedSources / registeredCount / totalChecked /
 //                coverage / strengths / issues / recommendations).
 //
@@ -55,17 +54,24 @@
 //                module NEVER computes an executive score.
 //
 // ─────────────────────────────────────────────────────────────────────
-//  Output object shape (LOCKED v1.0 — new fields require Board approval):
+//  Output object shape (Board Build Pass 2 — 2026-06-25):
 //
 //    {
 //      registrations: {
-//        mlcRegistration:      PUBLISHING_STATE,
-//        iswcCoverage:         PUBLISHING_STATE,
-//        writerCredits:        PUBLISHING_STATE,
-//        publisherInformation: PUBLISHING_STATE,
+//        mlcRegistration:       PUBLISHING_STATE,
+//        registeredWorks:       PUBLISHING_STATE,
+//        iswcCoverage:          PUBLISHING_STATE,
+//        registeredSongwriters: PUBLISHING_STATE,
+//        writerIpi:             PUBLISHING_STATE,
+//        compositionMatch:      PUBLISHING_STATE,
 //      },
-//      supportedSources:     string[],    // ['mlc'] for v1.0; future
-//                                          // adapters append.
+//      metrics: {
+//        mlcWorksCount:     number,  // total works from MLC scan
+//        mlcIswcCount:      number,  // works with ISWC
+//        mlcWriterCount:    number,  // raw writer entries across all works
+//        mlcWriterIpiCount: number,  // unique IPI-holding writers in CIO
+//      },
+//      supportedSources:     string[],    // ['mlc'] for v1.0
 //      registeredCount:      number,      // count where state === VERIFIED
 //      totalChecked:         number,      // Object.keys(registrations).length
 //      coverage:             number,      // round(registered / total * 100)
@@ -73,6 +79,9 @@
 //      issues:          Array<{ metric, label, ruleId, title, severity }>,
 //      recommendations: Array<{ metric, label, ruleId, recommendation }>,
 //    }
+//
+//    catalogTotalWorks (right side of ratio displays) is NOT in this
+//    object — it comes from payload.catalog.totalTracks at display time.
 //
 //  COVERAGE (informational, per Board D4 + D9):
 //
@@ -105,23 +114,24 @@ export const PUBLISHING_STATE = Object.freeze({
 
 export const SUPPORTED_SOURCES = Object.freeze(['mlc']);
 
-// The four per-MC-card-row metrics wired in Phase 5B Board D7. Each
-// metric is a deterministic function of the underlying CIO publishing
-// summary + observed source availability. Iteration order matches the
-// Mission Control card so the renderer can iterate without a hardcoded
-// list of its own.
+// The six Board-approved data-backed metrics (Build Pass 2, 2026-06-25).
+// Iteration order matches the Mission Control card rows.
 export const REGISTRATION_METRICS = Object.freeze([
   'mlcRegistration',
+  'registeredWorks',
   'iswcCoverage',
-  'writerCredits',
-  'publisherInformation',
+  'registeredSongwriters',
+  'writerIpi',
+  'compositionMatch',
 ]);
 
 export const METRIC_LABELS = Object.freeze({
-  mlcRegistration:      'MLC Registration',
-  iswcCoverage:         'ISWC Coverage',
-  writerCredits:        'Writer Credits',
-  publisherInformation: 'Publisher Information',
+  mlcRegistration:       'MLC Registration',
+  registeredWorks:       'Registered Works',
+  iswcCoverage:          'ISWC Coverage',
+  registeredSongwriters: 'Registered Songwriters',
+  writerIpi:             'Writer IPI',
+  compositionMatch:      'Composition Match',
 });
 
 function deepFreeze(obj) {
@@ -176,7 +186,20 @@ function deriveMlcRegistration(mlcObs, summary) {
   }
   if (a === 'NOT_FOUND') return PUBLISHING_STATE.NOT_FOUND;
   if (a !== 'VERIFIED')  return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
-  // VERIFIED upstream — confirm at least one work made it into the CIO
+  if (!summary || typeof summary.worksCount !== 'number' || summary.worksCount <= 0) {
+    return PUBLISHING_STATE.NOT_FOUND;
+  }
+  return PUBLISHING_STATE.VERIFIED;
+}
+
+function deriveRegisteredWorks(mlcObs, summary) {
+  if (!mlcObs) return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
+  const a = mlcObs.availability;
+  if (a === 'AUTH_UNAVAILABLE' || a === 'ERROR' || a == null) {
+    return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
+  }
+  if (a === 'NOT_FOUND') return PUBLISHING_STATE.NOT_FOUND;
+  if (a !== 'VERIFIED')  return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
   if (!summary || typeof summary.worksCount !== 'number' || summary.worksCount <= 0) {
     return PUBLISHING_STATE.NOT_FOUND;
   }
@@ -192,18 +215,16 @@ function deriveIswcCoverage(mlcObs, summary) {
   if (!summary || typeof summary.worksCount !== 'number' || summary.worksCount <= 0) {
     return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
   }
-  // The MLC observation may carry per-source details with iswcCount.
-  // When present, derive directly; when absent we cannot judge.
   const d = mlcObs.details;
   if (!d || typeof d !== 'object' || typeof d.iswcCount !== 'number') {
     return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
   }
-  if (d.iswcCount === 0)                  return PUBLISHING_STATE.NOT_FOUND;
-  if (d.iswcCount < summary.worksCount)   return PUBLISHING_STATE.ACTION_REQUIRED;
+  if (d.iswcCount === 0)                return PUBLISHING_STATE.NOT_FOUND;
+  if (d.iswcCount < summary.worksCount) return PUBLISHING_STATE.ACTION_REQUIRED;
   return PUBLISHING_STATE.VERIFIED;
 }
 
-function deriveWriterCredits(mlcObs, summary) {
+function deriveRegisteredSongwriters(mlcObs, summary) {
   if (!mlcObs) return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
   const a = mlcObs.availability;
   if (a === 'AUTH_UNAVAILABLE' || a === 'ERROR' || a == null) {
@@ -212,17 +233,14 @@ function deriveWriterCredits(mlcObs, summary) {
   if (!summary || typeof summary.worksCount !== 'number' || summary.worksCount <= 0) {
     return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
   }
-  // Use cio.publishing.writerCount + cio.publishing.writerIPIs to judge.
-  const writerCount = typeof summary.writerCount === 'number' ? summary.writerCount : 0;
-  const iPIs        = Array.isArray(summary.writerIPIs) ? summary.writerIPIs.length : 0;
-  if (writerCount === 0) return PUBLISHING_STATE.NOT_FOUND;
-  // Writers present but none carry an IPI → action: complete writer
-  // attribution. (Mirrors the locked Phase 5 publishing rule shape.)
-  if (iPIs === 0) return PUBLISHING_STATE.ACTION_REQUIRED;
-  return PUBLISHING_STATE.VERIFIED;
+  const d = mlcObs.details;
+  if (!d || typeof d !== 'object' || typeof d.writerCount !== 'number') {
+    return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
+  }
+  return d.writerCount > 0 ? PUBLISHING_STATE.VERIFIED : PUBLISHING_STATE.NOT_FOUND;
 }
 
-function derivePublisherInformation(mlcObs, summary) {
+function deriveWriterIpi(mlcObs, summary) {
   if (!mlcObs) return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
   const a = mlcObs.availability;
   if (a === 'AUTH_UNAVAILABLE' || a === 'ERROR' || a == null) {
@@ -231,19 +249,42 @@ function derivePublisherInformation(mlcObs, summary) {
   if (!summary || typeof summary.worksCount !== 'number' || summary.worksCount <= 0) {
     return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
   }
-  // MLC adapter is documented to emit publishers: [] (MLC has no
-  // publisher data). So when MLC is the only source, this metric
-  // resolves to NOT_FOUND for any verified scan. When a future
-  // adapter starts populating publisherCount, this flips to VERIFIED.
-  const publisherCount = typeof summary.publisherCount === 'number' ? summary.publisherCount : 0;
-  return publisherCount > 0 ? PUBLISHING_STATE.VERIFIED : PUBLISHING_STATE.NOT_FOUND;
+  const d = mlcObs.details;
+  if (!d || typeof d !== 'object' || typeof d.writerCount !== 'number') {
+    return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
+  }
+  const totalWriters = d.writerCount;
+  if (totalWriters === 0) return PUBLISHING_STATE.NOT_FOUND;
+  const ipiCount = Array.isArray(summary.writerIPIs) ? summary.writerIPIs.length : 0;
+  if (ipiCount === 0)             return PUBLISHING_STATE.NOT_FOUND;
+  if (ipiCount < totalWriters)    return PUBLISHING_STATE.ACTION_REQUIRED;
+  return PUBLISHING_STATE.VERIFIED;
+}
+
+function deriveCompositionMatch(mlcObs, summary) {
+  // State is derived from MLC availability + worksCount.
+  // The full catalog-vs-MLC ratio (X / catalogTotalTracks) is
+  // computed at display time using payload.catalog.totalTracks.
+  if (!mlcObs) return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
+  const a = mlcObs.availability;
+  if (a === 'AUTH_UNAVAILABLE' || a === 'ERROR' || a == null) {
+    return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
+  }
+  if (a === 'NOT_FOUND') return PUBLISHING_STATE.NOT_FOUND;
+  if (a !== 'VERIFIED')  return PUBLISHING_STATE.UNABLE_TO_CONFIRM;
+  if (!summary || typeof summary.worksCount !== 'number' || summary.worksCount <= 0) {
+    return PUBLISHING_STATE.NOT_FOUND;
+  }
+  return PUBLISHING_STATE.VERIFIED;
 }
 
 const METRIC_DERIVERS = Object.freeze({
-  mlcRegistration:      deriveMlcRegistration,
-  iswcCoverage:         deriveIswcCoverage,
-  writerCredits:        deriveWriterCredits,
-  publisherInformation: derivePublisherInformation,
+  mlcRegistration:       deriveMlcRegistration,
+  registeredWorks:       deriveRegisteredWorks,
+  iswcCoverage:          deriveIswcCoverage,
+  registeredSongwriters: deriveRegisteredSongwriters,
+  writerIpi:             deriveWriterIpi,
+  compositionMatch:      deriveCompositionMatch,
 });
 
 function computeCoverage(registrations) {
@@ -343,13 +384,23 @@ export function assemblePublishingIntelligence(intelligenceReport, cio) {
 
   const { registeredCount, totalChecked, coverage } = computeCoverage(registrations);
 
+  const metrics = {
+    mlcWorksCount:     (summary && typeof summary.worksCount === 'number') ? summary.worksCount : 0,
+    mlcIswcCount:      (mlcObs?.details && typeof mlcObs.details.iswcCount === 'number') ? mlcObs.details.iswcCount : 0,
+    mlcWriterCount:    (mlcObs?.details && typeof mlcObs.details.writerCount === 'number') ? mlcObs.details.writerCount : 0,
+    mlcWriterIpiCount: (summary && Array.isArray(summary.writerIPIs)) ? summary.writerIPIs.length : 0,
+  };
+
   return deepFreeze({
     registrations: {
-      mlcRegistration:      registrations.mlcRegistration,
-      iswcCoverage:         registrations.iswcCoverage,
-      writerCredits:        registrations.writerCredits,
-      publisherInformation: registrations.publisherInformation,
+      mlcRegistration:       registrations.mlcRegistration,
+      registeredWorks:       registrations.registeredWorks,
+      iswcCoverage:          registrations.iswcCoverage,
+      registeredSongwriters: registrations.registeredSongwriters,
+      writerIpi:             registrations.writerIpi,
+      compositionMatch:      registrations.compositionMatch,
     },
+    metrics,
     supportedSources: SUPPORTED_SOURCES,
     registeredCount,
     totalChecked,

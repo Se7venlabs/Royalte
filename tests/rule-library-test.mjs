@@ -340,18 +340,63 @@ test('23. identity.duplicate-dsp-profiles fires when two profiles share a provid
   assert.equal(rule.condition(cio), false);
 });
 
-test('24. publishing.no-registrations-with-recordings fires for the documented case', () => {
+test('24. publishing.no-registrations-with-recordings — Board Directive v2.0 gating', () => {
   const rule = ALL_RULES.find((r) => r.id === 'publishing.no-registrations-with-recordings');
   assert.ok(rule);
-  const cio = {
+  assert.equal(rule.severity, 'MEDIUM', 'severity must be MEDIUM per Board Directive v2.0 (was HIGH)');
+
+  // Without a verified MLC observation → Unable to Confirm → no deduction (must NOT fire).
+  const cioNoObs = {
     ...emptyCio(),
     publishing: { ...emptyCio().publishing, worksCount: 0 },
     catalog:    { ...emptyCio().catalog, releasesCount: 5 },
   };
-  assert.equal(rule.condition(cio), true);
-  // And NOT when there are works
-  cio.publishing.worksCount = 3;
-  assert.equal(rule.condition(cio), false);
+  assert.equal(rule.condition(cioNoObs), false, 'must not fire without verified MLC observation');
+
+  // With MLC VERIFIED + worksCount 0 + recordings → SHOULD fire.
+  const cioWithObs = {
+    ...emptyCio(),
+    publishing:   { ...emptyCio().publishing, worksCount: 0 },
+    catalog:      { ...emptyCio().catalog, releasesCount: 5 },
+    observations: {
+      providers:        { apple: null, spotify: null, youtube: null },
+      publishingSources: { mlc: { availability: 'VERIFIED', details: { worksCount: 0, iswcCount: 0 } } },
+    },
+  };
+  assert.equal(rule.condition(cioWithObs), true, 'must fire when MLC is VERIFIED and worksCount is 0');
+
+  // And NOT when there are works.
+  cioWithObs.publishing.worksCount = 3;
+  assert.equal(rule.condition(cioWithObs), false, 'must not fire when worksCount > 0');
+});
+
+test('24b. publishing.iswc-verified fires only when MLC VERIFIED and iswcCount > 0', () => {
+  const rule = ALL_RULES.find((r) => r.id === 'publishing.iswc-verified');
+  assert.ok(rule, 'publishing.iswc-verified must exist');
+  assert.equal(rule.polarity, 'positive');
+
+  // No MLC observation → must not fire.
+  assert.equal(rule.condition(emptyCio()), false);
+
+  // MLC VERIFIED + iswcCount 0 → must not fire.
+  const cioNoIswc = {
+    ...emptyCio(),
+    observations: {
+      providers:        { apple: null, spotify: null, youtube: null },
+      publishingSources: { mlc: { availability: 'VERIFIED', details: { worksCount: 1, iswcCount: 0 } } },
+    },
+  };
+  assert.equal(rule.condition(cioNoIswc), false);
+
+  // MLC VERIFIED + iswcCount > 0 → must fire.
+  const cioWithIswc = {
+    ...emptyCio(),
+    observations: {
+      providers:        { apple: null, spotify: null, youtube: null },
+      publishingSources: { mlc: { availability: 'VERIFIED', details: { worksCount: 2, iswcCount: 2 } } },
+    },
+  };
+  assert.equal(rule.condition(cioWithIswc), true);
 });
 
 test('25. catalog.orphan-recordings-detected fires only when orphans > 0', () => {

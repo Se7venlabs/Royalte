@@ -134,7 +134,7 @@ function derivePriority(identity, publishing, catalog, gmf) {
     const issue = publishing.issues[0];
     const label = safeStr(issue.label || issue.title).toLowerCase();
     if (label.includes('iswc') || label.includes('registration') || label.includes('pro')) {
-      return 'Unregistered compositions cannot collect performance royalties regardless of streaming or placement activity.';
+      return 'Composition registrations could not be confirmed in reviewed sources — compositions not confirmed in active publishing systems may be unable to collect performance royalties.';
     }
     if (label.includes('mlc') || label.includes('mechanical')) {
       return 'Mechanical royalties require active registration to be captured — streaming revenue accrues without collection when this is absent.';
@@ -162,6 +162,39 @@ function derivePriority(identity, publishing, catalog, gmf) {
 
   // No critical gaps found — reframe around the monitoring risk
   return 'With core infrastructure verified, the most significant risk is change over time — gaps that emerge silently as the catalog evolves.';
+}
+
+// ─── Priority Label ───────────────────────────────────────────────────
+//
+// Short 2-3 word label mirroring derivePriority's branching exactly.
+// Used by the Executive Assessment™ to label the priority area without
+// embedding a full sentence in the display.
+
+function derivePriorityLabel(identity, publishing, catalog, gmf) {
+  if (publishing && Array.isArray(publishing.issues) && publishing.issues.length > 0) {
+    const issue = publishing.issues[0];
+    const label = safeStr(issue.label || issue.title).toLowerCase();
+    if (label.includes('iswc') || label.includes('registration') || label.includes('pro')) {
+      return 'Rights Registration';
+    }
+    if (label.includes('mlc') || label.includes('mechanical')) {
+      return 'Mechanical Royalties';
+    }
+    if (label.includes('publisher') || label.includes('ownership')) {
+      return 'Publishing Ownership';
+    }
+    return 'Publishing Governance';
+  }
+  if (gmf && (safeStr(gmf.status) === 'Limited' || safeStr(gmf.status) === 'Regional')) {
+    return 'Territory Reach';
+  }
+  if (identity && Array.isArray(identity.issues) && identity.issues.length > 0) {
+    return 'Identity Consistency';
+  }
+  if (catalog && safeStr(catalog.confidence) === 'Unable to Confirm') {
+    return 'Catalog Confirmation';
+  }
+  return 'Infrastructure Review';
 }
 
 // ─── Positive Signal ──────────────────────────────────────────────────
@@ -359,6 +392,7 @@ export function assembleRoyalteAI(
     return deepFreeze({
       observation:      deriveObservation(identity, publishing, catalog, gmf),
       priority:         derivePriority(identity, publishing, catalog, gmf),
+      priorityLabel:    derivePriorityLabel(identity, publishing, catalog, gmf),
       positiveSignal:   derivePositiveSignal(identity, publishing, catalog, gmf),
       nextAction:       deriveNextAction(identity, publishing, catalog, gmf),
       executiveInsight: deriveExecutiveInsight(identity, publishing, catalog, gmf),

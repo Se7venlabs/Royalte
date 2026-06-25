@@ -93,10 +93,10 @@ test('1. PUBLISHING_INTELLIGENCE_VERSION is exported as a semver string', () => 
   assert.ok(/^\d+\.\d+\.\d+$/.test(PUBLISHING_INTELLIGENCE_VERSION));
 });
 
-test('2. REGISTRATION_METRICS is the locked Board D7 set, in canonical order', () => {
+test('2. REGISTRATION_METRICS is the Board Build Pass 2 set, in canonical order', () => {
   assert.ok(Object.isFrozen(REGISTRATION_METRICS));
   assert.deepStrictEqual(Array.from(REGISTRATION_METRICS),
-    ['mlcRegistration', 'iswcCoverage', 'writerCredits', 'publisherInformation']);
+    ['mlcRegistration', 'registeredWorks', 'iswcCoverage', 'registeredSongwriters', 'writerIpi', 'compositionMatch']);
 });
 
 test('3. SUPPORTED_SOURCES is the locked Phase 5B set (Board D1 — MLC only)', () => {
@@ -125,23 +125,19 @@ test('6. iswcCoverage VERIFIED — every work in details has an ISWC', () => {
   assert.equal(pi.registrations.iswcCoverage, PUBLISHING_STATE.VERIFIED);
 });
 
-test('7. writerCredits VERIFIED — at least one writer carries an IPI', () => {
+test('7. registeredSongwriters VERIFIED — MLC returns at least one writer entry', () => {
   const { pi } = buildScenario();
-  assert.equal(pi.registrations.writerCredits, PUBLISHING_STATE.VERIFIED);
+  assert.equal(pi.registrations.registeredSongwriters, PUBLISHING_STATE.VERIFIED);
 });
 
-test('8. publisherInformation NOT_FOUND — MLC publishers[] always empty (adapter doc)', () => {
+test('8. writerIpi VERIFIED — all writer entries carry an IPI', () => {
   const { pi } = buildScenario();
-  assert.equal(pi.registrations.publisherInformation, PUBLISHING_STATE.NOT_FOUND,
-    'When MLC is the only source, publisherInformation is NOT_FOUND because MLC carries no publisher data');
+  assert.equal(pi.registrations.writerIpi, PUBLISHING_STATE.VERIFIED);
 });
 
-test('9. all-VERIFIED scenario (hypothetical publishers) → coverage 100', () => {
-  // Synthesise a CIO with publishers present so the publisher metric
-  // can flip VERIFIED. Use the assembler entrypoint directly with a
-  // synthetic CIO to skip the MLC-only constraint of the helper.
+test('9. all-VERIFIED scenario — all 6 metrics VERIFIED → coverage 100', () => {
   const cio = {
-    publishing: { worksCount: 1, writerCount: 1, writerIPIs: ['IPI_A'], publisherCount: 1 },
+    publishing: { worksCount: 1, writerCount: 1, writerIPIs: ['IPI_A'], publisherCount: 0 },
     observations: {
       publishingSources: {
         mlc: { availability: 'VERIFIED', details: { worksCount: 1, iswcCount: 1, writerCount: 1 } },
@@ -150,10 +146,13 @@ test('9. all-VERIFIED scenario (hypothetical publishers) → coverage 100', () =
   };
   const report = { observations: [] };
   const pi = assemblePublishingIntelligence(report, cio);
-  assert.equal(pi.registrations.mlcRegistration,      PUBLISHING_STATE.VERIFIED);
-  assert.equal(pi.registrations.iswcCoverage,         PUBLISHING_STATE.VERIFIED);
-  assert.equal(pi.registrations.writerCredits,        PUBLISHING_STATE.VERIFIED);
-  assert.equal(pi.registrations.publisherInformation, PUBLISHING_STATE.VERIFIED);
+  assert.equal(pi.registrations.mlcRegistration,       PUBLISHING_STATE.VERIFIED);
+  assert.equal(pi.registrations.registeredWorks,       PUBLISHING_STATE.VERIFIED);
+  assert.equal(pi.registrations.iswcCoverage,          PUBLISHING_STATE.VERIFIED);
+  assert.equal(pi.registrations.registeredSongwriters, PUBLISHING_STATE.VERIFIED);
+  assert.equal(pi.registrations.writerIpi,             PUBLISHING_STATE.VERIFIED);
+  assert.equal(pi.registrations.compositionMatch,      PUBLISHING_STATE.VERIFIED);
+  assert.equal(pi.registeredCount, 6);
   assert.equal(pi.coverage, 100);
 });
 
@@ -194,9 +193,18 @@ test('12. iswcCount 0 → iswcCoverage NOT_FOUND', () => {
   assert.equal(pi.registrations.iswcCoverage, PUBLISHING_STATE.NOT_FOUND);
 });
 
-test('13. publisherInformation NOT_FOUND emits an issue', () => {
-  const { pi } = buildScenario();
-  assert.ok(pi.issues.some((i) => i.metric === 'publisherInformation'));
+test('13. registeredSongwriters NOT_FOUND — MLC verified but 0 writer entries → emits issue', () => {
+  const cio = {
+    publishing: { worksCount: 1, writerCount: 0, writerIPIs: [], publisherCount: 0 },
+    observations: {
+      publishingSources: {
+        mlc: { availability: 'VERIFIED', details: { worksCount: 1, iswcCount: 1, writerCount: 0 } },
+      },
+    },
+  };
+  const pi = assemblePublishingIntelligence({ observations: [] }, cio);
+  assert.equal(pi.registrations.registeredSongwriters, PUBLISHING_STATE.NOT_FOUND);
+  assert.ok(pi.issues.some((i) => i.metric === 'registeredSongwriters'));
 });
 
 test('14. NOT_FOUND emits issue but never throws', () => {
@@ -248,7 +256,7 @@ test('18. UNABLE_TO_CONFIRM emits NO issue and NO strength', () => {
 test('19. All-UNABLE_TO_CONFIRM → coverage 0 (no verified registrations)', () => {
   const { pi } = buildScenario({ mlcAvailability: 'AUTH_UNAVAILABLE', works: [], details: null });
   assert.equal(pi.registeredCount, 0);
-  assert.equal(pi.totalChecked,    4);
+  assert.equal(pi.totalChecked,    6);
   assert.equal(pi.coverage,        0);
 });
 
@@ -256,9 +264,9 @@ test('19. All-UNABLE_TO_CONFIRM → coverage 0 (no verified registrations)', () 
 //  20–23 — Coverage arithmetic + locked output shape
 // ═════════════════════════════════════════════════════════════════════
 
-test('20. Coverage formula — 3 of 4 verified → 75', () => {
+test('20. Coverage formula — 5 of 6 verified → 83 (iswcCoverage NOT_FOUND)', () => {
   const cio = {
-    publishing: { worksCount: 1, writerCount: 1, writerIPIs: ['IPI_A'], publisherCount: 1 },
+    publishing: { worksCount: 1, writerCount: 1, writerIPIs: ['IPI_A'], publisherCount: 0 },
     observations: {
       publishingSources: {
         mlc: { availability: 'VERIFIED', details: { worksCount: 1, iswcCount: 0, writerCount: 1 } },
@@ -266,15 +274,15 @@ test('20. Coverage formula — 3 of 4 verified → 75', () => {
     },
   };
   const pi = assemblePublishingIntelligence({ observations: [] }, cio);
-  // mlcRegistration VERIFIED + iswcCoverage NOT_FOUND + writerCredits VERIFIED + publisherInformation VERIFIED
-  assert.equal(pi.registeredCount, 3);
-  assert.equal(pi.coverage, 75);
+  // mlcRegistration VERIFIED + registeredWorks VERIFIED + iswcCoverage NOT_FOUND
+  // + registeredSongwriters VERIFIED + writerIpi VERIFIED + compositionMatch VERIFIED
+  assert.equal(pi.registeredCount, 5);
+  assert.equal(pi.coverage, 83);
 });
 
 test('21. UNABLE_TO_CONFIRM never counts toward registeredCount (Board D9)', () => {
-  // Mixed: one VERIFIED, others UNABLE_TO_CONFIRM (missing observation)
   const cio = {
-    publishing: { worksCount: 1, writerCount: 1, writerIPIs: ['IPI_A'], publisherCount: 1 },
+    publishing: { worksCount: 1, writerCount: 1, writerIPIs: ['IPI_A'], publisherCount: 0 },
     observations: {
       publishingSources: {
         mlc: { availability: 'AUTH_UNAVAILABLE', details: null },
@@ -283,16 +291,18 @@ test('21. UNABLE_TO_CONFIRM never counts toward registeredCount (Board D9)', () 
   };
   const pi = assemblePublishingIntelligence({ observations: [] }, cio);
   assert.equal(pi.registeredCount, 0);
-  assert.equal(pi.totalChecked,    4);
+  assert.equal(pi.totalChecked,    6);
   assert.equal(pi.coverage,        0);
 });
 
-test('22. Output shape LOCKED v1.0 — exact keys, deep-frozen, NO score field', () => {
+test('22. Output shape Build Pass 2 — exact keys, deep-frozen, NO score field', () => {
   const { pi } = buildScenario();
   assert.deepStrictEqual(Object.keys(pi).sort(),
-    ['coverage', 'issues', 'recommendations', 'registeredCount', 'registrations', 'strengths', 'supportedSources', 'totalChecked']);
+    ['coverage', 'issues', 'metrics', 'recommendations', 'registeredCount', 'registrations', 'strengths', 'supportedSources', 'totalChecked']);
   assert.deepStrictEqual(Object.keys(pi.registrations).sort(),
-    ['iswcCoverage', 'mlcRegistration', 'publisherInformation', 'writerCredits']);
+    ['compositionMatch', 'iswcCoverage', 'mlcRegistration', 'registeredSongwriters', 'registeredWorks', 'writerIpi']);
+  assert.deepStrictEqual(Object.keys(pi.metrics).sort(),
+    ['mlcIswcCount', 'mlcWorksCount', 'mlcWriterCount', 'mlcWriterIpiCount']);
   assert.ok(!('score' in pi), 'score must not exist on Publishing Intelligence (Royaltē Health™ owns scoring — Board D9)');
   assert.ok(Object.isFrozen(pi));
   assert.ok(Object.isFrozen(pi.registrations));
