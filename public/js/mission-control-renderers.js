@@ -545,8 +545,8 @@ const PUBLISHING_STATE_PILL_CLASS = Object.freeze({
 const PUBLISHING_STATE_PILL_TEXT = Object.freeze({
   VERIFIED:          'Verified',
   ACTION_REQUIRED:   'Action Required',
-  NOT_FOUND:         'Not Found',
-  UNABLE_TO_CONFIRM: 'Unable to Confirm',
+  NOT_FOUND:         'Unavailable',
+  UNABLE_TO_CONFIRM: 'Unavailable',
 });
 
 export { PUBLISHING_STATE_PILL_CLASS, PUBLISHING_STATE_PILL_TEXT };
@@ -570,7 +570,7 @@ export { safePublishingIntelligence };
 // compositionMatch) produce "X / Y" pillText instead of a state label.
 // catalogTotal is payload.catalog.totalTracks — used as the right-side
 // denominator for registeredWorks and compositionMatch.
-export function buildPublishingRegistrationPlan(intelligence, catalogTotal = 0) {
+export function buildPublishingRegistrationPlan(intelligence) {
   const pi = safePublishingIntelligence(intelligence);
   if (!pi) return [];
   const regs = (pi.registrations && typeof pi.registrations === 'object' && !Array.isArray(pi.registrations))
@@ -578,43 +578,10 @@ export function buildPublishingRegistrationPlan(intelligence, catalogTotal = 0) 
     : null;
   if (!regs) return [];
 
-  const m = (pi.metrics && typeof pi.metrics === 'object') ? pi.metrics : {};
-  const worksCount     = typeof m.mlcWorksCount     === 'number' ? m.mlcWorksCount     : 0;
-  const iswcCount      = typeof m.mlcIswcCount      === 'number' ? m.mlcIswcCount      : 0;
-  const writerCount    = typeof m.mlcWriterCount     === 'number' ? m.mlcWriterCount    : 0;
-  const writerIpiCount = typeof m.mlcWriterIpiCount  === 'number' ? m.mlcWriterIpiCount : 0;
-  const catTotal       = typeof catalogTotal         === 'number' ? catalogTotal        : 0;
-
   return Object.keys(regs).map((metric) => {
-    const state = regs[metric] || 'UNABLE_TO_CONFIRM';
+    const state     = regs[metric] || 'UNABLE_TO_CONFIRM';
     const pillClass = PUBLISHING_STATE_PILL_CLASS[state] || 'mc-pill mc-pill--unable';
-    let pillText;
-
-    switch (metric) {
-      case 'mlcRegistration':
-        pillText = state === 'VERIFIED'   ? 'Yes'
-                 : state === 'NOT_FOUND'  ? 'No'
-                 : '—';
-        break;
-      case 'registeredWorks':
-      case 'compositionMatch': {
-        const right = catTotal > 0 ? catTotal : '?';
-        pillText = `${worksCount} / ${right}`;
-        break;
-      }
-      case 'iswcCoverage':
-        pillText = `${iswcCount} / ${worksCount > 0 ? worksCount : '?'}`;
-        break;
-      case 'registeredSongwriters':
-        pillText = String(writerCount);
-        break;
-      case 'writerIpi':
-        pillText = `${writerIpiCount} / ${writerCount}`;
-        break;
-      default:
-        pillText = PUBLISHING_STATE_PILL_TEXT[state] || '—';
-    }
-
+    const pillText  = PUBLISHING_STATE_PILL_TEXT[state]  || 'Unavailable';
     return { metric, state, pillClass, pillText };
   });
 }
@@ -660,10 +627,10 @@ export function buildPublishingCoveragePlan(intelligence) {
 //
 // `null` on coverage means "intelligence absent — leave the locked
 // sample HTML in place."
-export function renderPublishing(intelligence, catalogTotal = 0) {
+export function renderPublishing(intelligence) {
   return {
     coverage:      buildPublishingCoveragePlan(intelligence),
-    registrations: buildPublishingRegistrationPlan(intelligence, catalogTotal),
+    registrations: buildPublishingRegistrationPlan(intelligence),
   };
 }
 
