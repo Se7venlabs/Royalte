@@ -69,6 +69,18 @@ function getScanIdFromUrl() {
 }
 
 async function fetchScanPayload() {
+  // Preview mode: load bundled fixture payload — no Supabase call.
+  // Activated when the page is served at the /mission-control-preview path.
+  if (typeof window !== 'undefined' && window.location.pathname.includes('mission-control-preview')) {
+    try {
+      const { MC_PREVIEW_PAYLOAD } = await import('/js/mc-preview-payload.js');
+      return MC_PREVIEW_PAYLOAD;
+    } catch (err) {
+      console.warn('[mc] preview payload load failed:', err?.message || err);
+      return null;
+    }
+  }
+
   const supabase = getSupabase();
   if (!supabase) return null;
 
