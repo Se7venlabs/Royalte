@@ -99,7 +99,8 @@
     },
     {
       "src": "/mission-control-preview",
-      "dest": "/public/mission-control.html"
+      "status": 307,
+      "headers": { "Location": "/mission-control.html?preview=1" }
     },
     {
       "src": "/",

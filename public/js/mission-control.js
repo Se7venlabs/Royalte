@@ -70,8 +70,13 @@ function getScanIdFromUrl() {
 
 async function fetchScanPayload() {
   // Preview mode: load bundled fixture payload — no Supabase call.
-  // Activated when the page is served at the /mission-control-preview path.
-  if (typeof window !== 'undefined' && window.location.pathname.includes('mission-control-preview')) {
+  // Activated by ?preview=1 query param (redirect from /mission-control-preview)
+  // or by being served directly at a path containing 'mission-control-preview'.
+  const _isPreview = typeof window !== 'undefined' && (
+    new URL(window.location.href).searchParams.has('preview') ||
+    window.location.pathname.includes('mission-control-preview')
+  );
+  if (_isPreview) {
     try {
       const { MC_PREVIEW_PAYLOAD } = await import('/js/mc-preview-payload.js');
       return MC_PREVIEW_PAYLOAD;
