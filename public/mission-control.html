@@ -989,10 +989,7 @@ body {
    NOT_FOUND uses the same urgent rose treatment as ACTION_REQUIRED
    intentionally — both indicate an issue worth surfacing. UNABLE_TO_CONFIRM
    is muted slate (we did not / could not look — DO NOT confuse with
-   NOT_FOUND, per the Board constitutional rule). COMING_SOON is for
-   the static Amazon Music informational card only and is NEVER produced
-   from data — Mission Control renders it as locked HTML, not from
-   Identity Intelligence. */
+   NOT_FOUND, per the Board constitutional rule). */
 .mc-pill--notfound  { background: rgba(244, 63, 94, 0.12);  color: #f97373; }
 .mc-pill--unable    { background: rgba(148, 163, 184, 0.16); color: #cbd5e1; }
 .mc-pill--coming-soon { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
@@ -1132,6 +1129,32 @@ body {
   object-fit: contain;
   display: block;
   flex-shrink: 0;
+}
+
+/* Build Pass 1 — Top Track (Deezer) row. Uses the same grid as
+   .mc-identity-check (16px icon | 1fr meta | auto). The meta column
+   stacks three lines: row label, track title, ISRC. No new layout
+   primitives — only text styling within the existing row pattern. */
+.mc-identity-check--track { align-items: flex-start; padding-top: 2px; }
+.mc-identity-track-meta   { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.mc-identity-track-row-label {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--mc-text-muted, #64748b);
+  text-transform: uppercase;
+}
+.mc-identity-track-title {
+  font-size: 12px;
+  color: var(--mc-text);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mc-identity-track-isrc {
+  font-size: 10px;
+  color: var(--mc-text-muted, #64748b);
+  letter-spacing: 0.04em;
 }
 
 /* ─── publishing card ─── Board-approved premium executive design ── */
@@ -3039,14 +3062,26 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
             YouTube Official Artist Channel
             <span class="mc-pill mc-pill--verified" data-mc-identity-pill>Verified</span>
           </div>
-          <!-- Amazon Music — INFORMATIONAL ONLY. Not in supportedProviders.
-               Not iterated by /js/mission-control.js. The pill is a static
-               "Coming Soon" label and must never be replaced by a four-state
-               intelligence badge until a first-class Amazon adapter exists. -->
-          <div class="mc-identity-check" data-mc-identity-coming-soon="amazon">
-            <img class="mc-identity-platform" src="/img/identity/amazon.png" alt="">
-            Amazon Music for Artists
-            <span class="mc-pill mc-pill--coming-soon">Coming Soon</span>
+          <div class="mc-identity-check" data-mc-identity-provider="deezer">
+            <img class="mc-identity-platform" src="/img/identity/deezer.webp" alt="">
+            Deezer
+            <span class="mc-pill mc-pill--verified" data-mc-identity-pill>Verified</span>
+          </div>
+          <div class="mc-identity-check" data-mc-identity-provider="tidal">
+            <img class="mc-identity-platform" src="/img/identity/tidal.jpg" alt="">
+            TIDAL
+            <span class="mc-pill mc-pill--unable" data-mc-identity-pill>Unable to Confirm</span>
+          </div>
+          <!-- Top Track (Deezer) — populated at runtime from
+               platforms.deezer.details.topTracks[0] by mission-control.js.
+               Falls back to sample values when no scan data is present. -->
+          <div class="mc-identity-check mc-identity-check--track" data-mc-identity-top-track>
+            <img class="mc-identity-platform" src="/img/identity/deezer.webp" alt="">
+            <span class="mc-identity-track-meta">
+              <span class="mc-identity-track-row-label">Top Track (Deezer)</span>
+              <span class="mc-identity-track-title" data-mc-identity-top-track-title>Everything Is Over</span>
+              <span class="mc-identity-track-isrc">ISRC: <span data-mc-identity-top-track-isrc>QZTB42642113</span></span>
+            </span>
           </div>
         </div>
         <div class="mc-card-foot"></div>
