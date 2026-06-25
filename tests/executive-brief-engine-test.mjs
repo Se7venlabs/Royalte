@@ -416,8 +416,11 @@ it('35 perfect artist → topRisks empty', () => {
   assert.equal(b.topRisks.length, 0);
 });
 
-it('36 missing publishing → recommendedNextStep routes to publishing', () => {
-  const { cio, ir, hr, ch } = pipelineFor('artist-missing-publishing');
+it('36 publishing opportunity → recommendedNextStep routes to publishing', () => {
+  // Board Directive v2.0: the publishing rule fires as MEDIUM (opportunity).
+  // recommendedNextStepFor falls back to topOpportunitiesList when risks empty,
+  // so publishing opportunities still route the brief to the publishing step.
+  const { cio, ir, hr, ch } = pipelineFor('artist-mlc-no-registrations');
   const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.equal(b.recommendedNextStep, RECOMMENDED_NEXT_STEPS.publishing,
     'got: ' + b.recommendedNextStep);

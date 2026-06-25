@@ -319,6 +319,7 @@ export async function runScan(url) {
     wikipediaUrl:    wikidataData.wikipediaUrl || null,
     deezerFans:      deezerData.fans || 0,
     discogsReleases: discogsData.releases || 0,
+    deezer:          deezerData,
     youtube:         youtubeData,
     appleMusic:      appleMusicData,
     overallScore,
@@ -1120,6 +1121,8 @@ async function getMusicBrainz(artistName) {
 
 // ────────────────────────────────────────────────────────
 // DEEZER
+// Board Directive 2026-06-24: full enrichment — artist detail,
+// complete album list, top tracks (ISRCs + previews), all artwork.
 // ────────────────────────────────────────────────────────
 async function getDeezer(artistName) {
   try {
@@ -1135,8 +1138,61 @@ async function getDeezer(artistName) {
       console.log(`[identity] Deezer returned ${data.data.length} candidates for "${artistName}" but no exact match — skipping enrichment`);
       return { found: false, fans: 0 };
     }
-    const detail = await fetch(`https://api.deezer.com/artist/${artist.id}`).then(r => r.ok ? r.json() : artist);
-    return { found: true, fans: detail.nb_fan || 0, artistId: artist.id, name: artist.name, albums: detail.nb_album || 0 };
+
+    // Fetch artist detail, full album list, and top tracks in parallel.
+    const [detailRes, albumsRes, topRes] = await Promise.allSettled([
+      fetch(`https://api.deezer.com/artist/${artist.id}`),
+      fetch(`https://api.deezer.com/artist/${artist.id}/albums?limit=50`),
+      fetch(`https://api.deezer.com/artist/${artist.id}/top?limit=50`),
+    ]);
+
+    const detail = detailRes.status === 'fulfilled' && detailRes.value.ok
+      ? await detailRes.value.json().catch(() => artist)
+      : artist;
+
+    const albumsBody = albumsRes.status === 'fulfilled' && albumsRes.value.ok
+      ? await albumsRes.value.json().catch(() => null)
+      : null;
+
+    const topBody = topRes.status === 'fulfilled' && topRes.value.ok
+      ? await topRes.value.json().catch(() => null)
+      : null;
+
+    const albums    = Array.isArray(albumsBody?.data) ? albumsBody.data : [];
+    const topTracks = Array.isArray(topBody?.data)    ? topBody.data    : [];
+
+    // Collect unique genres from album genre tags.
+    const genreSet = new Set();
+    for (const album of albums) {
+      if (Array.isArray(album.genres?.data)) {
+        for (const g of album.genres.data) { if (g.name) genreSet.add(g.name); }
+      }
+    }
+
+    return {
+      found: true,
+      // Identity
+      artistId:       detail.id       ?? artist.id,
+      name:           detail.name     ?? artist.name,
+      link:           detail.link     ?? null,
+      share:          detail.share    ?? null,
+      // Artwork — all sizes Deezer exposes
+      picture:        detail.picture        ?? null,
+      picture_small:  detail.picture_small  ?? null,
+      picture_medium: detail.picture_medium ?? null,
+      picture_big:    detail.picture_big    ?? null,
+      picture_xl:     detail.picture_xl     ?? null,
+      // Metrics
+      fans:      detail.nb_fan   ?? artist.nb_fan   ?? 0,
+      nb_album:  detail.nb_album ?? artist.nb_album ?? 0,
+      radio:     !!detail.radio,
+      tracklist: detail.tracklist ?? null,
+      type:      detail.type     ?? 'artist',
+      // Enriched catalog
+      albums,
+      topTracks,
+      genres: [...genreSet],
+    };
   } catch { return { found: false, fans: 0 }; }
 }
 

@@ -41,6 +41,7 @@ const FIXTURE_NAMES = [
   'artist-orphan-recordings',
   'artist-fragmented-catalog',
   'artist-metadata-conflicts',
+  'artist-mlc-no-registrations',
 ];
 
 function rawJson(name) {
@@ -135,10 +136,10 @@ test('9.  loadFixture("nonexistent") returns null', () => {
   assert.equal(loadFixture('subdir/something'),    null);
 });
 
-test('10. listFixtures() returns the 7 fixture names, sorted', () => {
+test('10. listFixtures() returns the 8 fixture names, sorted', () => {
   const names = listFixtures();
   assert.deepStrictEqual(names, [...FIXTURE_NAMES].sort());
-  assert.equal(names.length, 7);
+  assert.equal(names.length, 8);
 });
 
 // ═════════════════════════════════════════════════════════════════════
@@ -180,15 +181,25 @@ test('14. artist-duplicate-profiles → engine produces an IDENTITY observation'
   assert.equal(obs.severity, SEVERITY.MEDIUM);
 });
 
-test('15. artist-missing-publishing → engine produces a PUBLISHING HIGH observation', () => {
+test('15. artist-missing-publishing → no HIGH PUBLISHING deduction without verified source (Board Directive v2.0)', () => {
+  // This fixture has no MLC observation. Per Board Directive v2.0, unable to
+  // confirm = no deduction. No PUBLISHING HIGH observation should fire.
   const out = runIntelligenceEngine(loadFixture('artist-missing-publishing'), ALL_RULES);
-  const obs = out.observations.find((o) => o.title === 'No publishing registrations found');
-  assert.ok(obs);
+  const hiPubObs = out.observations.filter((o) => o.category === 'PUBLISHING' && o.severity === SEVERITY.HIGH);
+  assert.equal(hiPubObs.length, 0, 'no HIGH-severity PUBLISHING deduction without a verified source observation');
+});
+
+test('15b. artist-mlc-no-registrations → engine produces PUBLISHING MEDIUM observation (Board Directive v2.0)', () => {
+  // This fixture has MLC VERIFIED + 0 works. Verified absence in MLC → MEDIUM deduction.
+  const out = runIntelligenceEngine(loadFixture('artist-mlc-no-registrations'), ALL_RULES);
+  const obs = out.observations.find((o) => o.ruleId === 'publishing.no-registrations-with-recordings');
+  assert.ok(obs, 'rule must fire when MLC is VERIFIED and worksCount is 0');
   assert.equal(obs.category, 'PUBLISHING');
-  assert.equal(obs.severity, SEVERITY.HIGH);
-  // And it shows up in risks[]
-  const inRisks = out.risks.find((r) => r.title === 'No publishing registrations found');
-  assert.ok(inRisks);
+  assert.equal(obs.severity, SEVERITY.MEDIUM);
+  assert.ok(!obs.title.toLowerCase().includes('pro'), 'rule title must not imply PRO absence');
+  // MEDIUM routes to opportunities[], not risks[]
+  const inOpportunities = out.opportunities.find((o) => o.ruleId === 'publishing.no-registrations-with-recordings');
+  assert.ok(inOpportunities, 'MEDIUM observation must appear in opportunities[]');
 });
 
 test('16. artist-orphan-recordings → engine produces a CATALOG HIGH observation', () => {

@@ -94,6 +94,7 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical)
         territoriesUnavailable: 0,
         coveragePercent:        0,
         status:                 'Limited',
+        reachNarrative:         'Territory availability could not be determined from reviewed sources.',
         confidence:             deriveConfidence(appleAvailability, null),
       });
     }
@@ -106,11 +107,16 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical)
     const status          = deriveStatus(coveragePercent);
     const confidence      = deriveConfidence(appleAvailability, globalSfData);
 
+    const reachNarrative = available > 0
+      ? `Available in ${available} ${available === 1 ? 'territory' : 'territories'} (${coveragePercent}% of global markets).`
+      : 'Catalog availability could not be confirmed across reviewed distribution territories.';
+
     return deepFreeze({
       territoriesAvailable:   available,
       territoriesUnavailable: unavailable,
       coveragePercent,
       status,
+      reachNarrative,
       confidence,
     });
   } catch (err) {
@@ -120,6 +126,7 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical)
       territoriesUnavailable: 0,
       coveragePercent:        0,
       status:                 'Limited',
+      reachNarrative:         'Territory availability could not be determined from reviewed sources.',
       confidence:             'Unable to Confirm',
     });
   }

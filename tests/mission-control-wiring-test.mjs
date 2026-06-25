@@ -435,26 +435,29 @@ test('26b. CONCERN 3 + 6 (Phase 5B) — renderPublishing is implemented and conf
   assert.equal(typeof renderPublishing, 'function');
   const pi = {
     registrations: {
-      mlcRegistration:      'VERIFIED',
-      iswcCoverage:         'VERIFIED',
-      writerCredits:        'VERIFIED',
-      publisherInformation: 'NOT_FOUND',
+      mlcRegistration:       'VERIFIED',
+      registeredWorks:       'VERIFIED',
+      iswcCoverage:          'VERIFIED',
+      registeredSongwriters: 'VERIFIED',
+      writerIpi:             'NOT_FOUND',
+      compositionMatch:      'VERIFIED',
     },
+    metrics: { mlcWorksCount: 3, mlcIswcCount: 3, mlcWriterCount: 4, mlcWriterIpiCount: 3 },
     supportedSources: Object.freeze(['mlc']),
-    registeredCount: 3,
-    totalChecked:    4,
-    coverage:        75,
+    registeredCount: 5,
+    totalChecked:    6,
+    coverage:        83,
     strengths: [], issues: [], recommendations: [],
   };
   const plan = renderPublishing(pi);
   assert.deepStrictEqual(Object.keys(plan).sort(), ['coverage', 'registrations']);
   assert.equal(plan.coverage.label, 'Publishing Coverage',
     'Publishing Intelligence coverage label must be "Publishing Coverage" — never Score/Health/Rating (Board D9)');
-  assert.equal(plan.registrations.length, 4);
+  assert.equal(plan.registrations.length, 6);
   // Iteration order matches the registrations map (data-driven, no
-  // hardcoded metric list in MC — Board D7 + Phase 5B Concern 2 parity).
+  // hardcoded metric list in MC — Board D7 + Build Pass 2 parity).
   assert.deepStrictEqual(plan.registrations.map((r) => r.metric),
-    ['mlcRegistration', 'iswcCoverage', 'writerCredits', 'publisherInformation']);
+    ['mlcRegistration', 'registeredWorks', 'iswcCoverage', 'registeredSongwriters', 'writerIpi', 'compositionMatch']);
 });
 
 test('26c. CONCERN 3 + 6 (Catalog Phase v1.0) — renderCatalog is implemented and conforms to the canonical entry-point contract', () => {

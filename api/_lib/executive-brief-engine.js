@@ -263,13 +263,20 @@ function buildConfidenceStatement(confidenceScore) {
   return 'Confidence level has not yet been determined for this assessment.';
 }
 
-// Recommended next step — deterministic lookup from RECOMMENDED_NEXT_STEPS
-// keyed on the top risk's category (lowercased). Falls back to 'default'
-// when no top risk is present or the category is unrecognised.
-function recommendedNextStepFor(topRisksList) {
-  if (topRisksList.length === 0) return RECOMMENDED_NEXT_STEPS.default;
-  const cat = safeString(topRisksList[0].category).toLowerCase();
-  return RECOMMENDED_NEXT_STEPS[cat] || RECOMMENDED_NEXT_STEPS.default;
+// Recommended next step — deterministic lookup from RECOMMENDED_NEXT_STEPS.
+// Checks topRisksList first (HIGH/CRITICAL), then falls back to the top
+// opportunity category (MEDIUM) before defaulting.
+function recommendedNextStepFor(topRisksList, topOpportunitiesList = []) {
+  if (topRisksList.length > 0) {
+    const cat = safeString(topRisksList[0].category).toLowerCase();
+    return RECOMMENDED_NEXT_STEPS[cat] || RECOMMENDED_NEXT_STEPS.default;
+  }
+  if (topOpportunitiesList.length > 0) {
+    const cat = safeString(topOpportunitiesList[0].category).toLowerCase();
+    const step = RECOMMENDED_NEXT_STEPS[cat];
+    if (step) return step;
+  }
+  return RECOMMENDED_NEXT_STEPS.default;
 }
 
 // AI executive insight — template-driven; max 120 words.
@@ -298,6 +305,42 @@ function buildAiExecutiveInsight(report, topStrengthsList, topRisksList, nextSte
     `Addressing "${nextStep}" would materially improve backend infrastructure health. ${outlook}.`;
 
   return truncateToWords(insight, 120);
+}
+
+// Recovery narrative — opportunity-scoped, max 80 words. No revenue figures.
+function buildRecoveryNarrative(topOpportunitiesList, overallScore) {
+  const count    = topOpportunitiesList.length;
+  const headroom = Math.max(0, 100 - safeNumber(overallScore));
+
+  if (count === 0) {
+    return 'No specific infrastructure improvement opportunities were identified from reviewed sources.';
+  }
+
+  const topOpp   = topOpportunitiesList[0];
+  const topCat   = safeString(topOpp.category).toLowerCase() || 'infrastructure';
+  const topTitle = safeString(topOpp.title);
+  const titleLc  = topTitle ? topTitle.replace(/\.+$/, '').toLowerCase() : 'an identified improvement area';
+
+  const countPhrase = count === 1 ? '1 infrastructure improvement' : `${count} infrastructure improvements`;
+
+  return truncateToWords(
+    `${countPhrase} ${count === 1 ? 'has' : 'have'} been identified that can strengthen overall catalog health. ` +
+    `The highest-opportunity area is ${topCat} — ${titleLc}. ` +
+    `Addressing identified gaps represents an estimated ${headroom}-point improvement opportunity across reviewed infrastructure categories.`,
+    80
+  );
+}
+
+// Score headroom apportioned by severity.
+const GAIN_WEIGHT = Object.freeze({
+  CRITICAL: 0.40, HIGH: 0.30, MEDIUM: 0.20, LOW: 0.10, INFO: 0.05,
+});
+
+function apportionScoreGain(action, overallScore) {
+  const headroom = Math.max(0, 100 - safeNumber(overallScore));
+  const severity = safeString(action.severity).toUpperCase();
+  const weight   = Object.prototype.hasOwnProperty.call(GAIN_WEIGHT, severity) ? GAIN_WEIGHT[severity] : 0.10;
+  return Math.round(headroom * weight);
 }
 
 // ─── Public API ────────────────────────────────────────────────────
@@ -353,10 +396,16 @@ export function generateExecutiveBrief(cio, intelligenceReport, healthReport, ca
     const observations    = safeArray(intelligenceReport.observations);
 
     // Top-N projections (sorted + capped at 5).
+    const overallScore         = safeNumber(canonicalHealth.overallScore);
     const topStrengthsList     = sortByCategoryThenTitle(strengths).slice(0, 5);
     const topRisksList         = sortRisks(risks).slice(0, 5);
     const topOpportunitiesList = sortByCategoryThenTitle(opportunities).slice(0, 5);
-    const priorityActionsList  = sortRecommendations(recommendations, observations).slice(0, 5);
+    const priorityActionsRaw   = sortRecommendations(recommendations, observations).slice(0, 5);
+    // Annotate each priority action with a headroom-apportioned score gain estimate.
+    const priorityActionsList  = priorityActionsRaw.map(a => ({
+      ...a,
+      potentialScoreGain: apportionScoreGain(a, overallScore),
+    }));
 
     // Build enriched object for internal language builders.
     // canonicalHealth provides all score fields; CIO supplies artistName.
@@ -374,8 +423,9 @@ export function generateExecutiveBrief(cio, intelligenceReport, healthReport, ca
     brief.topRisks            = topRisksList;
     brief.topOpportunities    = topOpportunitiesList;
     brief.priorityActions     = priorityActionsList;
+    brief.recoveryNarrative   = buildRecoveryNarrative(topOpportunitiesList, overallScore);
     brief.confidenceStatement = buildConfidenceStatement(canonicalHealth.confidenceScore);
-    brief.recommendedNextStep = recommendedNextStepFor(topRisksList);
+    brief.recommendedNextStep = recommendedNextStepFor(topRisksList, topOpportunitiesList);
     brief.aiExecutiveInsight  = buildAiExecutiveInsight(enrichedForBuilders, topStrengthsList, topRisksList, brief.recommendedNextStep);
 
     // Reserved sections remain null until future phases populate them.
