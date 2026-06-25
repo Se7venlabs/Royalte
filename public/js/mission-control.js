@@ -134,6 +134,21 @@ function applyProvidersPlan(plan) {
   }
 }
 
+// ─── Top Track (Deezer) — Build Pass 1 ───────────────────────────────
+// Reads platforms.deezer.details.topTracks[0] from the persisted payload.
+// Falls back silently — sample HTML values remain if no track is present.
+function applyDeezerTopTrack(payload) {
+  const titleEl = document.querySelector('[data-mc-identity-top-track-title]');
+  const isrcEl  = document.querySelector('[data-mc-identity-top-track-isrc]');
+  if (!titleEl || !isrcEl) return;
+  try {
+    const track = payload?.platforms?.deezer?.details?.topTracks?.[0];
+    if (!track) return;
+    if (track.title) titleEl.textContent = track.title;
+    if (track.isrc)  isrcEl.textContent  = track.isrc;
+  } catch { /* leave sample HTML */ }
+}
+
 // ─── Publishing Intelligence™ apply helpers (Phase 5B Board D6 + D7) ─
 
 function applyPublishingCoveragePlan(plan) {
@@ -424,7 +439,7 @@ async function initMissionControl() {
   const payload = await fetchScanPayload();
   if (!payload) return; // graceful fallback: locked sample HTML stays
 
-  // Identity Intelligence™ (Phase 4B-3)
+  // Identity Intelligence™ (Phase 4B-3) + Top Track (Build Pass 1)
   const identityIntelligence = safeIdentityIntelligence(payload.identityIntelligence);
   if (identityIntelligence) {
     const identityPlan = renderIdentity(identityIntelligence);
@@ -432,6 +447,7 @@ async function initMissionControl() {
     applyProvidersPlan(identityPlan.providers);
     applyRecommendationsPlan(identityPlan.recommendations);
   }
+  applyDeezerTopTrack(payload);
 
   // Publishing Intelligence™ (Phase 5B Board D6 + D7)
   // Same boot pattern, no special-casing per domain. Future intelligence
