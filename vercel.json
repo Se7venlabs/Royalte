@@ -98,6 +98,10 @@
       "dest": "/public/mission-control.webmanifest"
     },
     {
+      "src": "/mission-control-preview",
+      "dest": "/public/mission-control.html"
+    },
+    {
       "src": "/",
       "dest": "/public/index.html"
     },
