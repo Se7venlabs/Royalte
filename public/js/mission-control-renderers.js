@@ -391,32 +391,48 @@ export function renderHealth(intelligence) {
 export const renderPriorityActions = _unimplemented('PriorityActions');
 
 // ─────────────────────────────────────────────────────────────────────
-//  Backend Intelligence™ renderers  (Backend Intelligence Phase v1.0)
+//  Backend Intelligence™ renderers  (Build Pass 3 v2.0)
 // ─────────────────────────────────────────────────────────────────────
 //
-//  Renders the 4 backend infrastructure services (MusicBrainz, Discogs,
-//  MLC, Listen Notes) from a pre-assembled backendIntelligence object.
-//  The boot module applies the plan via applyBackendPlan; the card
-//  surface itself never recomputes availability or labels.
+//  Renders the 2 displayed backend services (MusicBrainz, MLC) plus
+//  the APIs Responding summary and Last Sync timestamp from a
+//  pre-assembled backendIntelligence object.
 //
 //  HEP boundary: this renderer never computes or exposes a health score.
 //  Backend connectivity is surface-level intelligence; scoring belongs
 //  to Royaltē Health™ exclusively.
 //
-//  Return shape:
+//  Return shape (v2.0):
 //    {
-//      services:      ServicePlan[],  // one entry per infrastructure service
-//      connectedCount: number,
-//      totalCount:    number,
-//      summaryLabel:  string,
+//      services:           ServicePlan[],  // 2 displayed services
+//      connectedCount:     number,
+//      totalCount:         number,
+//      summaryLabel:       string,         // backward-compat
+//      apisRespondingLabel: string,        // "N / 4" — for data-mc-backend-connected-count
+//      lastSyncLabel:      string,         // "N min ago" | "Mon DD • HH:MM AM/PM"
 //    }
-//
-//    ServicePlan = {
-//      key:         string,  // 'musicbrainz' | 'discogs' | 'mlc' | 'listenNotes'
-//      name:        string,
-//      subLabel:    string,
-//      statusLabel: string,
-//    }
+
+// Formats a scan ISO timestamp for display:
+//   < 1 min  → 'Just now'
+//   < 60 min → 'N min ago'
+//   ≥ 60 min → 'Jun 25 • 08:42 AM'
+function _formatLastSync(iso) {
+  if (!iso || typeof iso !== 'string') return 'Unknown';
+  try {
+    const date   = new Date(iso);
+    const diffMs = Date.now() - date.getTime();
+    if (Number.isNaN(diffMs)) return 'Unknown';
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1)  return 'Just now';
+    if (diffMin < 60) return `${diffMin} min ago`;
+    const mon  = date.toLocaleString('en-US', { month: 'short' });
+    const day  = date.getDate();
+    const time = date.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    return `${mon} ${day} • ${time}`;
+  } catch {
+    return 'Unknown';
+  }
+}
 
 export function safeBackendIntelligence(bi) {
   if (!bi || typeof bi !== 'object' || Array.isArray(bi)) return null;
@@ -436,11 +452,24 @@ export function renderBackend(intelligence) {
     statusLabel: str(s.statusLabel),
   }));
 
+  // APIs Responding label — new in v2.0; fall back to connectedCount/totalCount
+  // for scans stored before Build Pass 3 (stale payload backward compat).
+  let apisRespondingLabel;
+  if (bi.apisResponding && typeof bi.apisResponding.responded === 'number') {
+    apisRespondingLabel = `${bi.apisResponding.responded} / ${bi.apisResponding.total}`;
+  } else {
+    const cc = typeof bi.connectedCount === 'number' ? bi.connectedCount : 0;
+    const tc = typeof bi.totalCount     === 'number' ? bi.totalCount     : services.length;
+    apisRespondingLabel = `${cc} / ${tc}`;
+  }
+
   return {
     services,
-    connectedCount: typeof bi.connectedCount === 'number' ? bi.connectedCount : 0,
-    totalCount:     typeof bi.totalCount     === 'number' ? bi.totalCount     : services.length,
-    summaryLabel:   str(bi.summaryLabel),
+    connectedCount:      typeof bi.connectedCount === 'number' ? bi.connectedCount : 0,
+    totalCount:          typeof bi.totalCount     === 'number' ? bi.totalCount     : services.length,
+    summaryLabel:        str(bi.summaryLabel),
+    apisRespondingLabel,
+    lastSyncLabel:       _formatLastSync(bi.lastSync),
   };
 }
 
