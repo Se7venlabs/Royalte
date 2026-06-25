@@ -596,14 +596,25 @@ export function buildPublishingRegistrationPlan(intelligence, catalogTotal = 0) 
 // 'Publishing Coverage' — never 'Score / Health / Rating' (Board D9).
 // Returns null on missing intelligence so the boot module can leave
 // the locked sample HTML in place.
+//
+// Coverage is derived from the actual registrations object so the
+// display is always consistent with the metrics in the payload —
+// regardless of which version of the assembler wrote the stored scan.
 export function buildPublishingCoveragePlan(intelligence) {
   const pi = safePublishingIntelligence(intelligence);
   if (!pi) return null;
-  if (typeof pi.coverage !== 'number') return null;
+  const regs = (pi.registrations && typeof pi.registrations === 'object' && !Array.isArray(pi.registrations))
+    ? pi.registrations
+    : null;
+  if (!regs) return null;
+  const total    = Object.keys(regs).length;
+  if (total === 0) return null;
+  const verified = Object.values(regs).filter((s) => s === 'VERIFIED').length;
+  const value    = Math.round((verified / total) * 100);
   return {
-    value:   pi.coverage,
+    value,
     label:   'Publishing Coverage',
-    summary: `${pi.registeredCount ?? 0} of ${pi.totalChecked ?? 0} verified`,
+    summary: `${verified} of ${total} verified`,
   };
 }
 
