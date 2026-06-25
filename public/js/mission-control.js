@@ -134,19 +134,62 @@ function applyProvidersPlan(plan) {
   }
 }
 
-// ─── Top Track (Deezer) — Build Pass 1 ───────────────────────────────
-// Reads platforms.deezer.details.topTracks[0] from the persisted payload.
-// Falls back silently — sample HTML values remain if no track is present.
+// ─── Platform status helpers — Build Pass 1A ─────────────────────────
+// Maps a payload.platforms.*.availability string to a pill class + text.
+// Deezer and TIDAL are not in identityIntelligence.supportedProviders
+// (the assembler only covers apple/spotify/youtube in v1.0); their pill
+// states must be read directly from payload.platforms.*.availability.
+function _platformPill(availability) {
+  switch (availability) {
+    case 'VERIFIED':         return { cls: 'mc-pill mc-pill--verified', text: 'Verified' };
+    case 'NOT_FOUND':        return { cls: 'mc-pill mc-pill--notfound', text: 'Not Found' };
+    case 'AUTH_UNAVAILABLE':
+    case 'ERROR':
+    default:                 return { cls: 'mc-pill mc-pill--unable',   text: 'Unable to Confirm' };
+  }
+}
+
+function applyDeezerStatus(payload) {
+  const card = document.querySelector('[data-mc-identity-provider="deezer"]');
+  if (!card) return;
+  const pill = card.querySelector('[data-mc-identity-pill]');
+  if (!pill) return;
+  const avail = payload?.platforms?.deezer?.availability;
+  if (!avail) return;
+  const { cls, text } = _platformPill(avail);
+  pill.className   = cls;
+  pill.textContent = text;
+}
+
+function applyTidalStatus(payload) {
+  const card = document.querySelector('[data-mc-identity-provider="tidal"]');
+  if (!card) return;
+  const pill = card.querySelector('[data-mc-identity-pill]');
+  if (!pill) return;
+  const avail = payload?.platforms?.tidal?.availability;
+  if (!avail) return;
+  const { cls, text } = _platformPill(avail);
+  pill.className   = cls;
+  pill.textContent = text;
+}
+
+// applyDeezerTopTrack — always writes to the DOM when a payload is present.
+// No sample values are ever left in place after a live scan.
+//   - 1+ tracks → display first-ranked track title + ISRC
+//   - 0 tracks  → display "Not Available"
 function applyDeezerTopTrack(payload) {
   const titleEl = document.querySelector('[data-mc-identity-top-track-title]');
   const isrcEl  = document.querySelector('[data-mc-identity-top-track-isrc]');
   if (!titleEl || !isrcEl) return;
-  try {
-    const track = payload?.platforms?.deezer?.details?.topTracks?.[0];
-    if (!track) return;
-    if (track.title) titleEl.textContent = track.title;
-    if (track.isrc)  isrcEl.textContent  = track.isrc;
-  } catch { /* leave sample HTML */ }
+  const tracks = payload?.platforms?.deezer?.details?.topTracks;
+  const track  = Array.isArray(tracks) && tracks.length > 0 ? tracks[0] : null;
+  if (track) {
+    titleEl.textContent = track.title || 'Not Available';
+    isrcEl.textContent  = track.isrc  || '—';
+  } else {
+    titleEl.textContent = 'Not Available';
+    isrcEl.textContent  = '—';
+  }
 }
 
 // ─── Publishing Intelligence™ apply helpers (Phase 5B Board D6 + D7) ─
@@ -447,6 +490,8 @@ async function initMissionControl() {
     applyProvidersPlan(identityPlan.providers);
     applyRecommendationsPlan(identityPlan.recommendations);
   }
+  applyDeezerStatus(payload);
+  applyTidalStatus(payload);
   applyDeezerTopTrack(payload);
 
   // Publishing Intelligence™ (Phase 5B Board D6 + D7)
