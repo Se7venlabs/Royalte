@@ -122,7 +122,7 @@ async function handleSchemaViolation({ scanId, canonical, err }) {
   }
 }
 
-export async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId, sessionId = null, enrichmentFn = null) {
+export async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId, sessionId = null, enrichmentFn = null, userId = null) {
   const supabase = getAuditScansSupabase();
   if (!supabase) {
     throw new Error('audit_scans persistence unavailable: Supabase not configured');
@@ -177,6 +177,9 @@ export async function persistCanonicalScan(rawResponse, originalUrl, urlType, sc
     // Optional anonymous-session id — set when the browser passed one.
     // Bridges this scan to a user account via migrate_anonymous_scans.
     session_id:        sessionId || null,
+    // Authenticated user — resolved from Bearer token before this call.
+    // NULL for anonymous scans; claimed later via migrate_anonymous_scans.
+    user_id:           userId || null,
   };
 
   const MAX_ATTEMPTS = 3;
@@ -483,6 +486,17 @@ export default async function handler(req, res) {
       return enriched;
     };
 
+    // ── Resolve authenticated user before persistence ──
+    // userId must be known before persistCanonicalScan so that audit_scans
+    // rows are written with the correct user_id from creation. Anonymous
+    // callers (no Bearer token) get null; their rows are later claimed via
+    // migrate_anonymous_scans using the session_id. The Supabase client is
+    // created once here and reused for both the V1 insert and the V2 path.
+    const supabaseForOS = getAuditScansSupabase();
+    const authenticatedUserId = supabaseForOS
+      ? await resolveUserIdFromAuthHeader(req, supabaseForOS).catch(() => null)
+      : null;
+
     let canonical = null;
     try {
       const persisted = await persistCanonicalScan(
@@ -491,7 +505,8 @@ export default async function handler(req, res) {
         result.urlType,
         scanId,
         sessionId,
-        assembleIntelligenceForScan
+        assembleIntelligenceForScan,
+        authenticatedUserId
       );
       canonical = persisted.canonical;
     } catch (persistErr) {
@@ -515,9 +530,8 @@ export default async function handler(req, res) {
     //   payload is persisted. Non-blocking — a patch failure never aborts
     //   the scan response.
     try {
-      const supabaseForOS = getAuditScansSupabase();
       if (supabaseForOS && canonical) {
-        const userId = await resolveUserIdFromAuthHeader(req, supabaseForOS);
+        const userId = authenticatedUserId;
         if (userId) {
           const osResult = await persistOSScanSnapshot({
             canonical,
