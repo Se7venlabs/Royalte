@@ -4051,19 +4051,34 @@ function showIntelVault() {
         // continuation, no fallback artist. Failure is preferable to corrupted ownership.
 
         // Step 1: Claim the temporary scan onto this authenticated account.
-        if (_vaultSessionId && signUpResult.data.session.user) {
-          var _migrateResult = await sb.rpc('migrate_anonymous_scans', {
-            p_session_id: _vaultSessionId,
-            p_user_id:    signUpResult.data.session.user.id,
+        // Calling /api/claim-scan (server-side, service role) because the
+        // migrate_anonymous_scans function is only executable by service_role.
+        if (_vaultSessionId && signUpResult.data.session && signUpResult.data.session.access_token) {
+          var _claimRes = await fetch('/api/claim-scan', {
+            method:  'POST',
+            headers: {
+              'Content-Type':  'application/json',
+              'Authorization': 'Bearer ' + signUpResult.data.session.access_token,
+            },
+            body: JSON.stringify({ session_id: _vaultSessionId }),
           });
-          if (_migrateResult.error) {
-            console.error('[vault] migrate_anonymous_scans error:', _migrateResult.error);
+          if (!_claimRes.ok) {
+            var _claimErr = await _claimRes.json().catch(function() { return {}; });
+            console.error('[vault] claim-scan failed:', _claimErr);
             if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
             if (statusEl) {
               statusEl.textContent = 'Scan could not be claimed. Please try again.';
               statusEl.className = 'iva-status error';
             }
             return; // Vault stays locked
+          }
+          var _claimData = await _claimRes.json().catch(function() { return {}; });
+          // If the server returned a scanId, update the in-memory scan reference
+          // so the ownership check and MC boot use the correct id.
+          if (_claimData.scanId && window.__royalteScan) {
+            window.__royalteScan.scanId = _claimData.scanId;
+          } else if (_claimData.scanId) {
+            window.__royalteScan = { scanId: _claimData.scanId };
           }
         }
 
@@ -4374,19 +4389,32 @@ if (osModalForm) {
         osSubmitBtn.textContent = original;
         return;
       }
-      // Claim any anonymous scans. Errors lock Vault — no silent continuation.
-      const _loginSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
-      if (_loginSessionId && data.session.user) {
-        const { error: _migrateErr } = await supabase.rpc('migrate_anonymous_scans', {
-          p_session_id: _loginSessionId,
-          p_user_id:    data.session.user.id,
+      // Claim any anonymous scans via the server-side endpoint (service role required).
+      const _loginSessionId = getOrCreateSessionId();
+      if (_loginSessionId && data.session.access_token) {
+        const _claimRes = await fetch('/api/claim-scan', {
+          method:  'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': 'Bearer ' + data.session.access_token,
+          },
+          body: JSON.stringify({ session_id: _loginSessionId }),
         });
-        if (_migrateErr) {
-          console.error('[os-login] migrate_anonymous_scans error:', _migrateErr);
+        if (!_claimRes.ok) {
+          const _claimErr = await _claimRes.json().catch(() => ({}));
+          console.error('[os-login] claim-scan failed:', _claimErr);
           osStatus('Scan could not be claimed. Please try again.', 'error');
           osSubmitBtn.disabled = false;
           osSubmitBtn.textContent = original;
           return; // Vault stays locked
+        }
+        const _claimData = await _claimRes.json().catch(() => ({}));
+        // If the server returned a scanId, update the in-memory scan reference so
+        // the ownership check and MC boot use the correct id.
+        if (_claimData.scanId && window.__royalteScan) {
+          window.__royalteScan.scanId = _claimData.scanId;
+        } else if (_claimData.scanId) {
+          window.__royalteScan = { scanId: _claimData.scanId };
         }
       }
 

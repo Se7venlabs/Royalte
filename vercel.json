@@ -70,6 +70,10 @@
       "dest": "/api/auth/reset-password.js"
     },
     {
+      "src": "/api/claim-scan",
+      "dest": "/api/claim-scan.js"
+    },
+    {
       "src": "/demo.html",
       "dest": "/public/demo.html"
     },
