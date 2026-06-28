@@ -179,7 +179,18 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     }
 
     await sleep(600);
-    window.location.href = '/dashboard.html';
+    // Boot Mission Control. If the Vault activation flow stored a pending scan_id
+    // (email confirmation path), pass it so MC loads the exact claimed scan.
+    // Returning users (magic link) with no pending scan boot to the latest owned scan.
+    let _bootDest = '/mission-control.html?boot=1';
+    try {
+      const _pendingScanId = localStorage.getItem('royalte_pending_scan_id');
+      if (_pendingScanId) {
+        localStorage.removeItem('royalte_pending_scan_id');
+        _bootDest = '/mission-control.html?boot=1&scanId=' + encodeURIComponent(_pendingScanId);
+      }
+    } catch (_lsErr) { /* localStorage blocked — MC loads latest owned scan */ }
+    window.location.href = _bootDest;
   }
 
   // 10s watchdog — a stalled getSession() or migrate RPC must never strand the
