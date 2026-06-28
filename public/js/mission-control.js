@@ -76,22 +76,15 @@ async function fetchScanPayload() {
     new URL(window.location.href).searchParams.has('preview') ||
     window.location.pathname.includes('mission-control-preview')
   );
-  // DIAGNOSTIC — remove after Board confirms root cause
-  console.log('[mc-diag] Pathname:', window.location.pathname);
-  console.log('[mc-diag] Search:  ', window.location.search);
-  console.log('[mc-diag] Preview Mode:', _isPreview);
-  // END DIAGNOSTIC
   if (_isPreview) {
     try {
       const { MC_PREVIEW_PAYLOAD } = await import('/js/mc-preview-payload.js');
-      console.log('[mc-diag] Payload Source: Preview Payload'); // DIAGNOSTIC
       return MC_PREVIEW_PAYLOAD;
     } catch (err) {
       console.warn('[mc] preview payload load failed:', err?.message || err);
       return null;
     }
   }
-  console.log('[mc-diag] Payload Source: Supabase Latest Scan'); // DIAGNOSTIC
 
   const supabase = getSupabase();
   if (!supabase) return null;
