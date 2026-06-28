@@ -503,6 +503,24 @@ export default async function handler(req, res) {
     const _authHeader = req.headers && (req.headers['authorization'] || req.headers['Authorization']);
     console.log(`[audit-diag] auth resolution: header=${_authHeader ? 'PRESENT' : 'ABSENT'} userId=${authenticatedUserId || 'NULL'}`);
 
+    // ── Ownership gate: authenticated request with unresolvable token ────────
+    // An authenticated workflow must never silently downgrade to an anonymous
+    // scan. If a Bearer token was sent but the server cannot resolve a user_id
+    // from it (expired, invalid, or revoked), reject the request. The caller
+    // must re-authenticate before the scan proceeds.
+    //
+    // No audit_scans row is created — data integrity over silent failure.
+    //
+    // Note: requests with NO Authorization header are public scans and
+    // continue through the anonymous path below, unchanged.
+    if (_authHeader && !authenticatedUserId) {
+      return res.status(401).json({
+        error: 'Authentication required',
+        detail: 'Your session could not be verified. Please log in and try again.',
+        code: 'AUTH_INVALID',
+      });
+    }
+
     let canonical = null;
     try {
       const persisted = await persistCanonicalScan(
