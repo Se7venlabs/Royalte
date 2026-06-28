@@ -2775,6 +2775,10 @@ async function runAudit() {
   // header so /api/audit's V2 scan-write path can resolve user_id and
   // activate monitoring (scan_snapshots + delta engine + subscription
   // upsert). Anonymous visitors send no token → V2 path skipped server-side.
+  //
+  // If getSession() returns a valid session, this is a Vault scan. The server
+  // will reject (401) if the token cannot be validated — no silent anonymous
+  // downgrade. If getSession() returns null, user is anonymous; scan proceeds.
   const auditHeaders = {};
   try {
     if (window.getSupabase) {
@@ -2783,6 +2787,9 @@ async function runAudit() {
         const { data: { session } } = await sb.auth.getSession();
         if (session && session.access_token) {
           auditHeaders['Authorization'] = `Bearer ${session.access_token}`;
+          console.log('[audit-diag] pre-scan: authenticated uid=' + (session.user?.id || 'unknown') + ' bearer=ATTACHED');
+        } else {
+          console.log('[audit-diag] pre-scan: no session — anonymous scan');
         }
       }
     }
@@ -2791,7 +2798,10 @@ async function runAudit() {
   }
 
   const fetchPromise = fetch(`/api/audit${qs}`, { signal: controller.signal, headers: auditHeaders })
-    .then(r => r.json())
+    .then(async r => {
+      if (r.status === 401) return { __authError: true };
+      return r.json();
+    })
     .catch(err => ({ __error: err }));
 
   // Wait for BOTH the animation to reach 95% AND the API to return.
@@ -2836,7 +2846,11 @@ async function runAudit() {
   // Stop the audio loop so it doesn't keep playing; do NOT play the success chime.
   stopProcessingSound();
   let msg = 'Scan failed — please try again';
-  if (auditData && auditData.__error && auditData.__error.name === 'AbortError') {
+  if (auditData && auditData.__authError) {
+    msg = 'Session expired — please log in to continue.';
+    // Re-open the login modal so the user can authenticate immediately.
+    setTimeout(() => typeof openOSModal === 'function' && openOSModal(), 300);
+  } else if (auditData && auditData.__error && auditData.__error.name === 'AbortError') {
     msg = 'Scan timed out — please try again';
   } else if (auditData && auditData.error) {
     // Surface API `detail` (HTML-escaped) for beta debugging. Built-in
@@ -3991,15 +4005,126 @@ function showIntelVault() {
       try {
         var sb = window.getSupabase ? window.getSupabase() : null;
         if (!sb) throw new Error('unavailable');
-        var result = await sb.auth.signUp({ email: email, password: password });
-        if (result.error) {
-          if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
-          if (statusEl) { statusEl.textContent = result.error.message || 'Activation failed. Please try again.'; statusEl.className = 'iva-status error'; }
-          return;
+
+        // session_id rides in signup metadata AND the emailRedirectTo URL so the
+        // auth callback can claim the scan regardless of which channel it arrives on.
+        var _vaultSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
+        var _callbackUrl = window.location.origin + '/auth/callback'
+          + (_vaultSessionId ? '?session_id=' + encodeURIComponent(_vaultSessionId) : '');
+        var signUpResult = await sb.auth.signUp({
+          email:    email,
+          password: password,
+          options:  {
+            data: { session_id: _vaultSessionId || null, source: 'vault_activation' },
+            emailRedirectTo: _callbackUrl,
+          },
+        });
+
+        if (signUpResult.error) {
+          var _isAlreadyRegistered = (signUpResult.error.message || '').toLowerCase().includes('already registered');
+          if (_isAlreadyRegistered) {
+            // Returning user — sign in with the same credentials.
+            // The vault UX stays identical: no UI change, same claim → ownership → boot flow.
+            var _loginResult = await sb.auth.signInWithPassword({ email: email, password: password });
+            if (_loginResult.error || !_loginResult.data || !_loginResult.data.session) {
+              if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+              var _loginErrMsg = (_loginResult.error && (_loginResult.error.message || '').toLowerCase().includes('invalid'))
+                ? 'Incorrect password. Check your credentials and try again.'
+                : (_loginResult.error ? _loginResult.error.message : 'Activation failed. Please try again.');
+              if (statusEl) { statusEl.textContent = _loginErrMsg; statusEl.className = 'iva-status error'; }
+              return;
+            }
+            // Continue with the signed-in session — same path as a fresh signUp with a session.
+            signUpResult = _loginResult;
+          } else {
+            if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+            if (statusEl) { statusEl.textContent = signUpResult.error.message || 'Activation failed. Please try again.'; statusEl.className = 'iva-status error'; }
+            return;
+          }
         }
+
+        // ── State 1: email confirmation required ──────────────────────────
+        // session is null when Supabase requires email verification before
+        // granting an access token. Vault must remain locked — Mission Control
+        // must not open — until authentication is fully verified.
+        if (!signUpResult.data || !signUpResult.data.session) {
+          if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Verify Your Email'; }
+          if (statusEl) {
+            statusEl.textContent = 'Verification link sent to ' + email + '. Click it to activate your Royaltē OS account.';
+            statusEl.className = 'iva-status';
+          }
+          // Persist the scan_id so the auth callback can boot MC with the correct owned scan.
+          try {
+            var _pendingScanId = window.__royalteScan && window.__royalteScan.scanId;
+            if (_pendingScanId) localStorage.setItem('royalte_pending_scan_id', _pendingScanId);
+          } catch (_lsErr) { /* localStorage blocked — callback will use latest owned scan */ }
+          return; // Vault stays locked. Mission Control does not open.
+        }
+
+        // ── State 2: authentication complete ─────────────────────────────
+        // session exists — Supabase has verified the user.
+        // Every step below must succeed. Any failure locks Vault — no silent
+        // continuation, no fallback artist. Failure is preferable to corrupted ownership.
+
+        // Step 1: Claim the temporary scan onto this authenticated account.
+        // Calling /api/claim-scan (server-side, service role) because the
+        // migrate_anonymous_scans function is only executable by service_role.
+        if (_vaultSessionId && signUpResult.data.session && signUpResult.data.session.access_token) {
+          var _claimRes = await fetch('/api/claim-scan', {
+            method:  'POST',
+            headers: {
+              'Content-Type':  'application/json',
+              'Authorization': 'Bearer ' + signUpResult.data.session.access_token,
+            },
+            body: JSON.stringify({ session_id: _vaultSessionId }),
+          });
+          if (!_claimRes.ok) {
+            var _claimErr = await _claimRes.json().catch(function() { return {}; });
+            console.error('[vault] claim-scan failed:', _claimErr);
+            if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+            if (statusEl) {
+              statusEl.textContent = 'Scan could not be claimed. Please try again.';
+              statusEl.className = 'iva-status error';
+            }
+            return; // Vault stays locked
+          }
+          var _claimData = await _claimRes.json().catch(function() { return {}; });
+          // If the server returned a scanId, update the in-memory scan reference
+          // so the ownership check and MC boot use the correct id.
+          if (_claimData.scanId && window.__royalteScan) {
+            window.__royalteScan.scanId = _claimData.scanId;
+          } else if (_claimData.scanId) {
+            window.__royalteScan = { scanId: _claimData.scanId };
+          }
+        }
+
+        // Step 2: Verify ownership — query the scan using the authenticated session.
+        // RLS must return the row (user_id = auth user). If it does not, ownership
+        // is not established and Mission Control must not open.
+        var _scanIdToVerify = window.__royalteScan && window.__royalteScan.scanId;
+        if (_scanIdToVerify) {
+          var _ownerCheck = await sb
+            .from('audit_scans')
+            .select('id')
+            .eq('id', _scanIdToVerify)
+            .maybeSingle();
+          if (_ownerCheck.error || !_ownerCheck.data) {
+            console.error('[vault] ownership check failed:', _ownerCheck.error || 'RLS returned no row');
+            if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+            if (statusEl) {
+              statusEl.textContent = 'Ownership could not be confirmed. Please try again.';
+              statusEl.className = 'iva-status error';
+            }
+            return; // Vault stays locked
+          }
+        }
+
+        // All conditions confirmed — Vault unlocks.
+        _vaultAcknowledge(true);
         if (btnEl) { btnEl.textContent = 'Access Granted'; }
         if (statusEl) { statusEl.textContent = 'Launching Royaltē OS…'; statusEl.className = 'iva-status'; }
         setTimeout(_bootRoyalteOS, 1200);
+
       } catch (err) {
         if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
         if (statusEl) { statusEl.textContent = 'Activation failed. Please try again.'; statusEl.className = 'iva-status error'; }
@@ -4280,7 +4405,52 @@ if (osModalForm) {
         osSubmitBtn.textContent = original;
         return;
       }
-      window.location.href = '/mission-control.html';
+      // Claim any anonymous scans via the server-side endpoint (service role required).
+      const _loginSessionId = getOrCreateSessionId();
+      if (_loginSessionId && data.session.access_token) {
+        const _claimRes = await fetch('/api/claim-scan', {
+          method:  'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': 'Bearer ' + data.session.access_token,
+          },
+          body: JSON.stringify({ session_id: _loginSessionId }),
+        });
+        if (!_claimRes.ok) {
+          const _claimErr = await _claimRes.json().catch(() => ({}));
+          console.error('[os-login] claim-scan failed:', _claimErr);
+          osStatus('Scan could not be claimed. Please try again.', 'error');
+          osSubmitBtn.disabled = false;
+          osSubmitBtn.textContent = original;
+          return; // Vault stays locked
+        }
+        const _claimData = await _claimRes.json().catch(() => ({}));
+        // If the server returned a scanId, update the in-memory scan reference so
+        // the ownership check and MC boot use the correct id.
+        if (_claimData.scanId && window.__royalteScan) {
+          window.__royalteScan.scanId = _claimData.scanId;
+        } else if (_claimData.scanId) {
+          window.__royalteScan = { scanId: _claimData.scanId };
+        }
+      }
+
+      // Verify ownership of the current scan (if one was just run).
+      // If no scan was run this session, skip — MC loads the account's latest scan.
+      const _mcScanId = window.__royalteScan && window.__royalteScan.scanId;
+      if (_mcScanId) {
+        const { data: _ownData, error: _ownErr } = await supabase
+          .from('audit_scans').select('id').eq('id', _mcScanId).maybeSingle();
+        if (_ownErr || !_ownData) {
+          console.error('[os-login] ownership check failed:', _ownErr || 'RLS returned no row');
+          osStatus('Scan ownership could not be verified. Please try again.', 'error');
+          osSubmitBtn.disabled = false;
+          osSubmitBtn.textContent = original;
+          return; // Vault stays locked
+        }
+      }
+
+      // All conditions confirmed — boot Mission Control with the claimed scan.
+      window.location.href = '/mission-control.html' + (_mcScanId ? '?scanId=' + encodeURIComponent(_mcScanId) : '');
     } catch (err) {
       console.error('[os-login] signInWithPassword threw', err);
       osStatus('Sign in failed. Please try again.', 'error');
