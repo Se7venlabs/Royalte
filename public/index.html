@@ -4046,19 +4046,49 @@ function showIntelVault() {
         }
 
         // ── State 2: authentication complete ─────────────────────────────
-        // session exists — Supabase has verified the user. Claim the temporary
-        // scan before booting Mission Control. No ownership = no OS access.
+        // session exists — Supabase has verified the user.
+        // Every step below must succeed. Any failure locks Vault — no silent
+        // continuation, no fallback artist. Failure is preferable to corrupted ownership.
+
+        // Step 1: Claim the temporary scan onto this authenticated account.
         if (_vaultSessionId && signUpResult.data.session.user) {
-          try {
-            await sb.rpc('migrate_anonymous_scans', {
-              p_session_id: _vaultSessionId,
-              p_user_id:    signUpResult.data.session.user.id,
-            });
-          } catch (_migrateErr) {
-            console.warn('[vault] migrate_anonymous_scans failed (non-fatal):', _migrateErr);
+          var _migrateResult = await sb.rpc('migrate_anonymous_scans', {
+            p_session_id: _vaultSessionId,
+            p_user_id:    signUpResult.data.session.user.id,
+          });
+          if (_migrateResult.error) {
+            console.error('[vault] migrate_anonymous_scans error:', _migrateResult.error);
+            if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+            if (statusEl) {
+              statusEl.textContent = 'Scan could not be claimed. Please try again.';
+              statusEl.className = 'iva-status error';
+            }
+            return; // Vault stays locked
           }
         }
 
+        // Step 2: Verify ownership — query the scan using the authenticated session.
+        // RLS must return the row (user_id = auth user). If it does not, ownership
+        // is not established and Mission Control must not open.
+        var _scanIdToVerify = window.__royalteScan && window.__royalteScan.scanId;
+        if (_scanIdToVerify) {
+          var _ownerCheck = await sb
+            .from('audit_scans')
+            .select('id')
+            .eq('id', _scanIdToVerify)
+            .maybeSingle();
+          if (_ownerCheck.error || !_ownerCheck.data) {
+            console.error('[vault] ownership check failed:', _ownerCheck.error || 'RLS returned no row');
+            if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+            if (statusEl) {
+              statusEl.textContent = 'Ownership could not be confirmed. Please try again.';
+              statusEl.className = 'iva-status error';
+            }
+            return; // Vault stays locked
+          }
+        }
+
+        // All conditions confirmed — Vault unlocks.
         _vaultAcknowledge(true);
         if (btnEl) { btnEl.textContent = 'Access Granted'; }
         if (statusEl) { statusEl.textContent = 'Launching Royaltē OS…'; statusEl.className = 'iva-status'; }
@@ -4344,21 +4374,39 @@ if (osModalForm) {
         osSubmitBtn.textContent = original;
         return;
       }
-      // Claim any anonymous scans from this browser session onto the newly
-      // authenticated account. Mirrors the magic-link callback flow. Safe:
-      // only updates rows where session_id matches AND user_id IS NULL.
-      try {
-        const _loginSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
-        if (_loginSessionId && data.session.user) {
-          await supabase.rpc('migrate_anonymous_scans', {
-            p_session_id: _loginSessionId,
-            p_user_id:    data.session.user.id,
-          });
+      // Claim any anonymous scans. Errors lock Vault — no silent continuation.
+      const _loginSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
+      if (_loginSessionId && data.session.user) {
+        const { error: _migrateErr } = await supabase.rpc('migrate_anonymous_scans', {
+          p_session_id: _loginSessionId,
+          p_user_id:    data.session.user.id,
+        });
+        if (_migrateErr) {
+          console.error('[os-login] migrate_anonymous_scans error:', _migrateErr);
+          osStatus('Scan could not be claimed. Please try again.', 'error');
+          osSubmitBtn.disabled = false;
+          osSubmitBtn.textContent = original;
+          return; // Vault stays locked
         }
-      } catch (_migrateErr) {
-        console.warn('[os-login] migrate_anonymous_scans failed (non-fatal):', _migrateErr);
       }
-      window.location.href = '/mission-control.html';
+
+      // Verify ownership of the current scan (if one was just run).
+      // If no scan was run this session, skip — MC loads the account's latest scan.
+      const _mcScanId = window.__royalteScan && window.__royalteScan.scanId;
+      if (_mcScanId) {
+        const { data: _ownData, error: _ownErr } = await supabase
+          .from('audit_scans').select('id').eq('id', _mcScanId).maybeSingle();
+        if (_ownErr || !_ownData) {
+          console.error('[os-login] ownership check failed:', _ownErr || 'RLS returned no row');
+          osStatus('Scan ownership could not be verified. Please try again.', 'error');
+          osSubmitBtn.disabled = false;
+          osSubmitBtn.textContent = original;
+          return; // Vault stays locked
+        }
+      }
+
+      // All conditions confirmed — boot Mission Control with the claimed scan.
+      window.location.href = '/mission-control.html' + (_mcScanId ? '?scanId=' + encodeURIComponent(_mcScanId) : '');
     } catch (err) {
       console.error('[os-login] signInWithPassword threw', err);
       osStatus('Sign in failed. Please try again.', 'error');
