@@ -4006,25 +4006,41 @@ function showIntelVault() {
         var sb = window.getSupabase ? window.getSupabase() : null;
         if (!sb) throw new Error('unavailable');
 
-        // session_id rides in signup metadata so the auth callback can claim
-        // the scan if email confirmation is required and the user clicks their link later.
+        // session_id rides in signup metadata AND the emailRedirectTo URL so the
+        // auth callback can claim the scan regardless of which channel it arrives on.
         var _vaultSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
+        var _callbackUrl = window.location.origin + '/auth/callback'
+          + (_vaultSessionId ? '?session_id=' + encodeURIComponent(_vaultSessionId) : '');
         var signUpResult = await sb.auth.signUp({
           email:    email,
           password: password,
           options:  {
             data: { session_id: _vaultSessionId || null, source: 'vault_activation' },
+            emailRedirectTo: _callbackUrl,
           },
         });
 
         if (signUpResult.error) {
-          if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
-          // Surface a more useful message for the "already registered" case.
-          var _errMsg = (signUpResult.error.message || '').toLowerCase().includes('already registered')
-            ? 'Account already exists. Use the Sign In option or send a Magic Link below.'
-            : (signUpResult.error.message || 'Activation failed. Please try again.');
-          if (statusEl) { statusEl.textContent = _errMsg; statusEl.className = 'iva-status error'; }
-          return;
+          var _isAlreadyRegistered = (signUpResult.error.message || '').toLowerCase().includes('already registered');
+          if (_isAlreadyRegistered) {
+            // Returning user — sign in with the same credentials.
+            // The vault UX stays identical: no UI change, same claim → ownership → boot flow.
+            var _loginResult = await sb.auth.signInWithPassword({ email: email, password: password });
+            if (_loginResult.error || !_loginResult.data || !_loginResult.data.session) {
+              if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+              var _loginErrMsg = (_loginResult.error && (_loginResult.error.message || '').toLowerCase().includes('invalid'))
+                ? 'Incorrect password. Check your credentials and try again.'
+                : (_loginResult.error ? _loginResult.error.message : 'Activation failed. Please try again.');
+              if (statusEl) { statusEl.textContent = _loginErrMsg; statusEl.className = 'iva-status error'; }
+              return;
+            }
+            // Continue with the signed-in session — same path as a fresh signUp with a session.
+            signUpResult = _loginResult;
+          } else {
+            if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
+            if (statusEl) { statusEl.textContent = signUpResult.error.message || 'Activation failed. Please try again.'; statusEl.className = 'iva-status error'; }
+            return;
+          }
         }
 
         // ── State 1: email confirmation required ──────────────────────────
