@@ -4005,15 +4005,65 @@ function showIntelVault() {
       try {
         var sb = window.getSupabase ? window.getSupabase() : null;
         if (!sb) throw new Error('unavailable');
-        var result = await sb.auth.signUp({ email: email, password: password });
-        if (result.error) {
+
+        // session_id rides in signup metadata so the auth callback can claim
+        // the scan if email confirmation is required and the user clicks their link later.
+        var _vaultSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
+        var signUpResult = await sb.auth.signUp({
+          email:    email,
+          password: password,
+          options:  {
+            data: { session_id: _vaultSessionId || null, source: 'vault_activation' },
+          },
+        });
+
+        if (signUpResult.error) {
           if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
-          if (statusEl) { statusEl.textContent = result.error.message || 'Activation failed. Please try again.'; statusEl.className = 'iva-status error'; }
+          // Surface a more useful message for the "already registered" case.
+          var _errMsg = (signUpResult.error.message || '').toLowerCase().includes('already registered')
+            ? 'Account already exists. Use the Sign In option or send a Magic Link below.'
+            : (signUpResult.error.message || 'Activation failed. Please try again.');
+          if (statusEl) { statusEl.textContent = _errMsg; statusEl.className = 'iva-status error'; }
           return;
         }
+
+        // ── State 1: email confirmation required ──────────────────────────
+        // session is null when Supabase requires email verification before
+        // granting an access token. Vault must remain locked — Mission Control
+        // must not open — until authentication is fully verified.
+        if (!signUpResult.data || !signUpResult.data.session) {
+          if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Verify Your Email'; }
+          if (statusEl) {
+            statusEl.textContent = 'Verification link sent to ' + email + '. Click it to activate your Royaltē OS account.';
+            statusEl.className = 'iva-status';
+          }
+          // Persist the scan_id so the auth callback can boot MC with the correct owned scan.
+          try {
+            var _pendingScanId = window.__royalteScan && window.__royalteScan.scanId;
+            if (_pendingScanId) localStorage.setItem('royalte_pending_scan_id', _pendingScanId);
+          } catch (_lsErr) { /* localStorage blocked — callback will use latest owned scan */ }
+          return; // Vault stays locked. Mission Control does not open.
+        }
+
+        // ── State 2: authentication complete ─────────────────────────────
+        // session exists — Supabase has verified the user. Claim the temporary
+        // scan before booting Mission Control. No ownership = no OS access.
+        if (_vaultSessionId && signUpResult.data.session.user) {
+          try {
+            await sb.rpc('migrate_anonymous_scans', {
+              p_session_id: _vaultSessionId,
+              p_user_id:    signUpResult.data.session.user.id,
+            });
+          } catch (_migrateErr) {
+            console.warn('[vault] migrate_anonymous_scans failed (non-fatal):', _migrateErr);
+          }
+        }
+
+        _vaultAcknowledge(true);
         if (btnEl) { btnEl.textContent = 'Access Granted'; }
         if (statusEl) { statusEl.textContent = 'Launching Royaltē OS…'; statusEl.className = 'iva-status'; }
         setTimeout(_bootRoyalteOS, 1200);
+
       } catch (err) {
         if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
         if (statusEl) { statusEl.textContent = 'Activation failed. Please try again.'; statusEl.className = 'iva-status error'; }
