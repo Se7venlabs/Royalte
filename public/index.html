@@ -2775,6 +2775,10 @@ async function runAudit() {
   // header so /api/audit's V2 scan-write path can resolve user_id and
   // activate monitoring (scan_snapshots + delta engine + subscription
   // upsert). Anonymous visitors send no token → V2 path skipped server-side.
+  //
+  // If getSession() returns a valid session, this is a Vault scan. The server
+  // will reject (401) if the token cannot be validated — no silent anonymous
+  // downgrade. If getSession() returns null, user is anonymous; scan proceeds.
   const auditHeaders = {};
   try {
     if (window.getSupabase) {
@@ -2783,6 +2787,9 @@ async function runAudit() {
         const { data: { session } } = await sb.auth.getSession();
         if (session && session.access_token) {
           auditHeaders['Authorization'] = `Bearer ${session.access_token}`;
+          console.log('[audit-diag] pre-scan: authenticated uid=' + (session.user?.id || 'unknown') + ' bearer=ATTACHED');
+        } else {
+          console.log('[audit-diag] pre-scan: no session — anonymous scan');
         }
       }
     }
@@ -2791,7 +2798,10 @@ async function runAudit() {
   }
 
   const fetchPromise = fetch(`/api/audit${qs}`, { signal: controller.signal, headers: auditHeaders })
-    .then(r => r.json())
+    .then(async r => {
+      if (r.status === 401) return { __authError: true };
+      return r.json();
+    })
     .catch(err => ({ __error: err }));
 
   // Wait for BOTH the animation to reach 95% AND the API to return.
@@ -2836,7 +2846,11 @@ async function runAudit() {
   // Stop the audio loop so it doesn't keep playing; do NOT play the success chime.
   stopProcessingSound();
   let msg = 'Scan failed — please try again';
-  if (auditData && auditData.__error && auditData.__error.name === 'AbortError') {
+  if (auditData && auditData.__authError) {
+    msg = 'Session expired — please log in to continue.';
+    // Re-open the login modal so the user can authenticate immediately.
+    setTimeout(() => typeof openOSModal === 'function' && openOSModal(), 300);
+  } else if (auditData && auditData.__error && auditData.__error.name === 'AbortError') {
     msg = 'Scan timed out — please try again';
   } else if (auditData && auditData.error) {
     // Surface API `detail` (HTML-escaped) for beta debugging. Built-in
@@ -4279,6 +4293,20 @@ if (osModalForm) {
         osSubmitBtn.disabled = false;
         osSubmitBtn.textContent = original;
         return;
+      }
+      // Claim any anonymous scans from this browser session onto the newly
+      // authenticated account. Mirrors the magic-link callback flow. Safe:
+      // only updates rows where session_id matches AND user_id IS NULL.
+      try {
+        const _loginSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
+        if (_loginSessionId && data.session.user) {
+          await supabase.rpc('migrate_anonymous_scans', {
+            p_session_id: _loginSessionId,
+            p_user_id:    data.session.user.id,
+          });
+        }
+      } catch (_migrateErr) {
+        console.warn('[os-login] migrate_anonymous_scans failed (non-fatal):', _migrateErr);
       }
       window.location.href = '/mission-control.html';
     } catch (err) {
