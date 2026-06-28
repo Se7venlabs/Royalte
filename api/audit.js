@@ -166,6 +166,9 @@ export async function persistCanonicalScan(rawResponse, originalUrl, urlType, sc
   const spotifyArtistId = rawResponse.artistId || null;
   const appleArtistId   = rawResponse.appleMusic?.artistId || null;
 
+  // DIAGNOSTIC — remove after ownership trace confirmed
+  console.log(`[audit-diag] insert scanId=${scanId} artist="${canonical.subject?.artistName}" userId=${userId || 'NULL'} sessionId=${sessionId || 'NULL'}`);
+
   const insertRow = {
     id:                scanId,
     source_url:        originalUrl,
@@ -496,6 +499,9 @@ export default async function handler(req, res) {
     const authenticatedUserId = supabaseForOS
       ? await resolveUserIdFromAuthHeader(req, supabaseForOS).catch(() => null)
       : null;
+    // DIAGNOSTIC — remove after ownership trace confirmed
+    const _authHeader = req.headers && (req.headers['authorization'] || req.headers['Authorization']);
+    console.log(`[audit-diag] auth resolution: header=${_authHeader ? 'PRESENT' : 'ABSENT'} userId=${authenticatedUserId || 'NULL'}`);
 
     let canonical = null;
     try {

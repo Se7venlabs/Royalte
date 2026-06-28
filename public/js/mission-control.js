@@ -89,7 +89,18 @@ async function fetchScanPayload() {
   const supabase = getSupabase();
   if (!supabase) return null;
 
+  // DIAGNOSTIC — remove after ownership trace confirmed
+  let diagUserId = null;
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    diagUserId = user ? user.id : null;
+    console.log('[mc-diag] auth.getUser:', diagUserId ? `authenticated uid=${diagUserId}` : 'ANONYMOUS (no session)');
+  } catch (diagErr) {
+    console.log('[mc-diag] auth.getUser threw:', diagErr?.message);
+  }
+
   const scanId = getScanIdFromUrl();
+  console.log('[mc-diag] scanId from URL:', scanId || 'none — querying latest');
   try {
     const query = scanId
       ? supabase
@@ -108,6 +119,9 @@ async function fetchScanPayload() {
       return null;
     }
     const row = (data && data[0]) || null;
+    console.log('[mc-diag] query returned:', row
+      ? `artist="${row.payload?.subject?.artistName}" scanId=${row.payload?.scanId}`
+      : 'NO ROWS (RLS returned empty set)');
     if (!row || !row.payload) return null;
     return row.payload;
   } catch (err) {
