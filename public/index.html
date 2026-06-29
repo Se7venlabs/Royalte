@@ -3972,7 +3972,14 @@ function showIntelVault() {
       setTimeout(function() {
         _ivMessages(function() {
           _ivTerminal(function() {
-            _ivShowAuth();
+            // Phase 3: Vault lives on mission-control.html.
+            // Redirect here so MC loads in Sentinel State with Vault on top.
+            var _sid  = window.getOrCreateSessionId ? window.getOrCreateSessionId() : '';
+            var _scan = window.__royalteScan && window.__royalteScan.scanId ? window.__royalteScan.scanId : '';
+            var _dest = '/mission-control.html?vault=1'
+              + (_sid  ? '&session_id=' + encodeURIComponent(_sid)  : '')
+              + (_scan ? '&scanId='     + encodeURIComponent(_scan) : '');
+            window.location.href = _dest;
           });
         });
       }, 800);
