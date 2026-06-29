@@ -391,6 +391,14 @@ async function _handleUnlock(email, password, sessionId, scanId) {
     await _claimScan(token, sessionId);
   }
 
+  // ── Pre-fetch intelligence data while cards are still invisible ────────
+  // Supabase session is now active; RLS allows reading the claimed scan.
+  // All DOM values are populated before the signature transition begins so
+  // the activation sequence reveals real data rather than waiting for APIs.
+  if (typeof window.__mcPopulate === 'function') {
+    await window.__mcPopulate();
+  }
+
   // ── Signature transition ───────────────────────────────────────────────
   await _signatureTransition();
 }
@@ -427,7 +435,13 @@ async function _signatureTransition() {
   // through the silence — no flash of full brightness.
   document.body.classList.add('mc-booting');
   document.body.classList.remove('mc-sentinel');
-  window.__mcBoot?.setReactor?.(0);
+
+  // Reset reactor dots to 0 (Sentinel left them at step 2 / 25%).
+  // Percentage text stays at 25% — _triggerBoot animates it continuously
+  // to 100% so the artist sees a smooth rise, never a reset to zero.
+  document.querySelectorAll('.mc-reactor-dot').forEach(d => d.classList.remove('lit'));
+  const _rxStatus = document.getElementById('mc-reactor-status');
+  if (_rxStatus) { _rxStatus.textContent = 'System Offline'; _rxStatus.className = 'mc-reactor-status'; }
 
   // Half-second silence — the defining pause before activation.
   await sleep(500);
@@ -441,7 +455,66 @@ async function _signatureTransition() {
 }
 
 function _triggerBoot() {
-  window.__mcBoot?.runActivationSequence?.();
+  const boot = window.__mcBoot;
+  if (!boot?.runActivationSequence) return;
+
+  const pctEl = document.getElementById('mc-reactor-pct');
+
+  // Patch setReactor so it updates dots and status text but not the
+  // percentage display. The pct is driven by _animateReactorPct which
+  // rises continuously from Sentinel's 25% to 100% across the full
+  // activation sequence — giving the Board's "slowly and continuously
+  // rise" feel without step-wise jumps.
+  let reactorAnimating = true;
+  const origSetReactor  = boot.setReactor.bind(boot);
+  boot.setReactor = function (step) {
+    if (!reactorAnimating || !pctEl) { origSetReactor(step); return; }
+    const saved = pctEl.textContent;
+    origSetReactor(step);
+    pctEl.textContent = saved;
+  };
+
+  // Animate reactor pct 25% → 100% over the full 8-module sequence.
+  _animateReactorPct(25, 100, 8 * 850 + 200);
+
+  // Watch for each module getting mc-online and trigger per-module reveals.
+  _watchModuleActivation();
+
+  boot.runActivationSequence();
+
+  // Restore original setReactor after sequence + grace window.
+  setTimeout(() => {
+    reactorAnimating = false;
+    boot.setReactor   = origSetReactor;
+  }, 8 * 850 + 1200);
+}
+
+function _animateReactorPct(from, to, duration) {
+  const pctEl = document.getElementById('mc-reactor-pct');
+  if (!pctEl) return;
+  const t0 = performance.now();
+  (function frame(now) {
+    const t      = Math.min((now - t0) / duration, 1);
+    const eased  = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+    pctEl.textContent = Math.round(from + (to - from) * eased) + '%';
+    if (t < 1) requestAnimationFrame(frame);
+    else pctEl.textContent = to + '%';
+  })(t0);
+}
+
+function _watchModuleActivation() {
+  if (typeof window.__mcRevealModule !== 'function') return;
+  const obs = new MutationObserver(mutations => {
+    for (const m of mutations) {
+      if (m.type !== 'attributes' || m.attributeName !== 'class') continue;
+      const el = m.target;
+      if (!el.classList.contains('mc-online')) continue;
+      window.__mcRevealModule(el.id);
+    }
+  });
+  obs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+  // Auto-disconnect when the full sequence is confirmed complete.
+  setTimeout(() => obs.disconnect(), 8 * 850 + 2000);
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────
