@@ -602,3 +602,153 @@ if (typeof document !== 'undefined') {
     initMissionControl();
   }
 }
+
+// ─── Phase 4 vault activation hooks ────────────────────────────────────
+//
+// Called by vault-auth.js after the artist authenticates:
+//
+//   window.__mcPopulate()       — pre-fetches the scan payload (now with
+//                                 an authenticated Supabase session) and
+//                                 populates all DOM elements while cards
+//                                 are still invisible under mc-booting.
+//                                 Health score display + all rings stay
+//                                 at 0 — their animations fire when each
+//                                 module gets mc-online.
+//
+//   window.__mcRevealModule(id) — called per-module the moment mc-online
+//                                 is set; triggers ring fill transitions
+//                                 and the health score count-up.
+
+let _vaultPlans = {};
+
+if (typeof window !== 'undefined') {
+  window.__mcPopulate = async function () {
+    const payload = await fetchScanPayload();
+    if (!payload) return;
+
+    // Identity Intelligence
+    const ii = safeIdentityIntelligence(payload.identityIntelligence);
+    if (ii) {
+      const plan = renderIdentity(ii);
+      applyCoveragePlan(plan.coverage);
+      applyProvidersPlan(plan.providers);
+      applyRecommendationsPlan(plan.recommendations);
+    }
+    applyDeezerStatus(payload);
+    applyTidalStatus(payload);
+    applyDeezerTopTrack(payload);
+
+    // Publishing Intelligence
+    const pi = safePublishingIntelligence(payload.publishingIntelligence);
+    if (pi) {
+      const plan = renderPublishing(pi);
+      applyPublishingCoveragePlan(plan.coverage);
+      applyPublishingRegistrationsPlan(plan.registrations);
+      _vaultPlans.publishingCoverage = plan.coverage?.value ?? null;
+    }
+
+    // Catalog Intelligence
+    const ci = safeCatalogIntelligence(payload.catalogIntelligence);
+    if (ci) applyCatalogPlan(renderCatalog(ci));
+
+    // Global Music Footprint
+    const gmf = safeGlobalMusicFootprintIntelligence(payload.globalMusicFootprint);
+    if (gmf) applyFootprintPlan(renderGlobalMusicFootprint(gmf));
+
+    // Royaltē AI
+    const ai = safeRoyalteAI(payload.royalteAI);
+    if (ai) applyRoyalteAIPlan(renderRoyalteAI(ai));
+
+    // Backend Intelligence
+    const bi = safeBackendIntelligence(payload.backendIntelligence);
+    if (bi) applyBackendPlan(renderBackend(bi));
+
+    // Monitoring / Change Detection
+    const mi = safeMonitoringIntelligence(payload.monitoringIntelligence);
+    if (mi) applyChangeDetectionPlan(renderChangeDetection(mi));
+
+    // Health Intelligence — populate status, confidence, domain scores,
+    // and insights now. Score display stays at 0 and ring stays at 0 214
+    // so the count-up and fill transition both start on module activation.
+    const hi = safeHealthIntelligence(payload.healthIntelligence);
+    if (hi) {
+      const plan = renderHealth(hi);
+      _vaultPlans.healthPlan = plan;
+
+      const statusEl = document.querySelector('[data-mc-health-status]');
+      if (statusEl) statusEl.textContent = plan.status;
+      const confEl = document.querySelector('[data-mc-health-confidence]');
+      if (confEl) confEl.textContent = `${plan.confidence} Confidence`;
+      const domainMap = {
+        identity:   plan.domainScores.identity,
+        publishing: plan.domainScores.publishing,
+        catalog:    plan.domainScores.catalog,
+        footprint:  plan.domainScores.footprint,
+        monitoring: plan.domainScores.monitoring,
+        backend:    plan.domainScores.backend,
+      };
+      for (const [domain, score] of Object.entries(domainMap)) {
+        const row = document.querySelector(`[data-mc-health-domain="${domain}"]`);
+        if (!row) continue;
+        const valEl = row.querySelector('.val');
+        if (valEl) valEl.textContent = score;
+      }
+      const compositeEl = document.querySelector('[data-mc-health-composite]');
+      if (compositeEl) compositeEl.textContent = plan.score;
+      const foot = document.querySelector('[data-mc-health-insights]');
+      if (foot) {
+        const sHTML = plan.strengths.length
+          ? `<ul class="mc-health-breakdown-list">${plan.strengths.map(s => `<li><span class="lbl">&#x2713; ${escapeHTML(s)}</span></li>`).join('')}</ul>` : '';
+        const cHTML = plan.concerns.length
+          ? `<ul class="mc-health-breakdown-list">${plan.concerns.map(c => `<li><span class="lbl">&#x26A0; ${escapeHTML(c)}</span></li>`).join('')}</ul>` : '';
+        if (sHTML || cHTML) foot.innerHTML = sHTML + cHTML;
+      }
+    }
+  };
+
+  window.__mcRevealModule = function (id) {
+    if (id === 'health-intelligence') {
+      const plan = _vaultPlans.healthPlan;
+      if (!plan) return;
+
+      // Score count-up: 0 → plan.score over 1500ms (ease-in-out cubic)
+      const scoreEl = document.querySelector('[data-mc-health-score]');
+      if (scoreEl) {
+        const target = plan.score;
+        const dur    = 1500;
+        const t0     = performance.now();
+        (function countUp(now) {
+          const t      = Math.min((now - t0) / dur, 1);
+          const eased  = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+          scoreEl.innerHTML = `${Math.round(target * eased)} <small>/100</small>`;
+          if (t < 1) requestAnimationFrame(countUp);
+          else scoreEl.innerHTML = `${target} <small>/100</small>`;
+        })(performance.now());
+      }
+
+      // Ring fill — CSS transition (stroke-dasharray 1.4s) handles the animation
+      const ringEl = document.querySelector('[data-mc-health-ring-progress]');
+      if (ringEl) ringEl.setAttribute('stroke-dasharray', plan.ringDasharray);
+
+    } else if (id === 'identity-intelligence') {
+      // Remove sentinel's stroke-dasharray so the CSS pulse animation resumes
+      const fpRing = document.querySelector('#identity-intelligence .mc-fp-ring');
+      if (fpRing) fpRing.removeAttribute('stroke-dasharray');
+
+    } else if (id === 'publishing-intelligence') {
+      // Fill ring proportional to coverage (r=33, circumference ≈ 207)
+      const coverage = _vaultPlans.publishingCoverage;
+      const dash = (coverage !== null && coverage !== undefined)
+        ? Math.round(coverage / 100 * 207) : 191;
+      const ring = document.querySelector('#publishing-intelligence .mc-ring-progress');
+      if (ring) ring.setAttribute('stroke-dasharray', `${dash} 207`);
+
+    } else if (id === 'ai-insights') {
+      // Review ring — fill based on health score (r=46, circumference ≈ 289)
+      const score = _vaultPlans.healthPlan?.score ?? null;
+      const dash  = (score !== null) ? Math.round(score / 100 * 289) : 240;
+      const ring  = document.querySelector('.mc-review-ring .mc-ring-progress');
+      if (ring) ring.setAttribute('stroke-dasharray', `${dash} 289`);
+    }
+  };
+}
