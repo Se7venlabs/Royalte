@@ -2697,9 +2697,12 @@ body.mc-sentinel .mc-pulse-line{opacity:0.28;filter:grayscale(0.45) brightness(0
 /* Radar: not in the hero opacity cascade — directly controlled */
 body.mc-sentinel .mc-radar{opacity:0.60;transition:opacity 1.2s ease;}
 body.mc-sentinel .mc-radar-sweep{animation-duration:4s;opacity:0.62;}
-/* CSS dot animations suppressed; vault-auth.js fires two timed blips */
+/* CSS dot animations suppressed; vault-auth.js fires two timed blips.
+   animation-delay:0s overrides the per-index class delays (2s–41s). */
 body.mc-sentinel .mc-radar-detect-dot,
-body.mc-sentinel .mc-radar-detect-echo{animation-name:none;opacity:0;}
+body.mc-sentinel .mc-radar-detect-echo{animation-name:none;opacity:0;animation-delay:0s;}
+/* Echo rings: transform-box + origin so scale() expands from the circle center */
+body.mc-sentinel .mc-radar-detect-echo{transform-box:fill-box;transform-origin:center center;}
 /* Progress rings: zero fill gives genuine empty state (set in sync by vault-auth.js) */
 body.mc-sentinel .mc-card .mc-ring-progress{stroke-dasharray:0 214 !important;}
 body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
@@ -2708,15 +2711,24 @@ body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
    vault-auth.js fires exactly two blips — one per radar sweep —
    at guaranteed-different positions. animation-fill-mode:forwards
    keeps each dot at opacity:0 after completion.
+   Echo rings use transform:scale() — cross-browser safe (r: not
+   animatable via CSS keyframes in all engines).
    ─────────────────────────────────────────────────────────────────── */
 @keyframes mc-sentinel-blip-dot{
-  0%{opacity:0;}18%{opacity:0.88;}40%{opacity:0.88;}100%{opacity:0;}
+  0%  {opacity:0;}
+  12% {opacity:1;}
+  38% {opacity:0.95;}
+  100%{opacity:0;}
 }
 @keyframes mc-sentinel-blip-echo-1{
-  0%{opacity:0;r:3;}18%{opacity:0.62;r:3;}100%{opacity:0;r:18;}
+  0%  {opacity:0;transform:scale(1);}
+  15% {opacity:0.70;transform:scale(1);}
+  100%{opacity:0;transform:scale(5);}
 }
 @keyframes mc-sentinel-blip-echo-2{
-  0%{opacity:0;r:3;}22%{opacity:0.44;r:3;}100%{opacity:0;r:16;}
+  0%  {opacity:0;transform:scale(1);}
+  20% {opacity:0.50;transform:scale(1);}
+  100%{opacity:0;transform:scale(4);}
 }
 
 /* ── Intelligence Vault™ (Phase 3) ──────────────────────────────────
