@@ -3941,10 +3941,9 @@ function _bootRoyalteOS() {
   var os = document.getElementById('iv-os-reveal');
   if (os) { os.style.transition = 'opacity 0.5s ease'; os.style.opacity = '0'; }
   setTimeout(function() {
-    // Hand off to Mission Control with boot sequence active.
-    // ?boot=1 tells MC to start in offline state and run sequential activation.
+    // Phase 4.1: all MC access goes through the Intelligence Vault.
     var scanId = (window.__royalteScan && window.__royalteScan.scanId) ? window.__royalteScan.scanId : '';
-    var dest = '/mission-control.html?boot=1' + (scanId ? '&scanId=' + encodeURIComponent(scanId) : '');
+    var dest = '/mission-control.html?vault=1' + (scanId ? '&scanId=' + encodeURIComponent(scanId) : '');
     window.location.href = dest;
   }, 550);
 }

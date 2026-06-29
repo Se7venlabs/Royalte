@@ -1,20 +1,21 @@
 // ─────────────────────────────────────────────────────────────────────────
-//  Royaltē Intelligence Vault™ — Authentication Module (Phase 3)
+//  Royaltē Intelligence Vault™ — Authentication Module (Phase 4.1)
 // ─────────────────────────────────────────────────────────────────────────
 //
-//  Manages the complete Vault lifecycle on mission-control.html:
+//  The Intelligence Vault is the only entrance to Mission Control.
+//  One path. Every artist. Every visit. Every device. No exceptions.
 //
-//    1. Check session — skip Vault entirely if authenticated
-//    2. Show Sentinel State + Vault overlay if auth is required
-//    3. Authenticate — signIn first, signUp fallback
+//  Vault lifecycle on mission-control.html:
+//
+//    1. Show Sentinel State + Vault overlay (always — no session shortcuts)
+//    2. Authenticate — signIn first, signUp fallback
 //       The artist never knows which path executed.
-//    4. Claim scan ownership via /api/claim-scan (non-fatal)
-//    5. Trigger signature transition:
+//    3. Claim scan ownership via /api/claim-scan (non-fatal)
+//    4. Trigger signature transition:
 //         Vault fades (0.5s) → silence (0.5s) → system click
 //         → Sentinel deactivates → boot sequence
 //
-//  One path visible to the artist. One button. Royaltē determines
-//  everything else invisibly.
+//  One button. One Vault. Royaltē determines everything else invisibly.
 // ─────────────────────────────────────────────────────────────────────────
 
 import { getSupabase } from '/js/supabase-client.js';
@@ -33,96 +34,28 @@ export async function initVault() {
   const supabase = getSupabase();
   if (!supabase) return;
 
+  // Preview mode — vault-auth.js does not interfere; MC renders from fixture data.
+  const isPreview = param('preview') === '1' ||
+    window.location.pathname.includes('mission-control-preview');
+  if (isPreview) return;
+
   const needsVault = param('vault') === '1';
   const sessionId  = param('session_id');
   const scanId     = param('scanId') || _pendingScanId();
 
-  let session = null;
-  try {
-    ({ data: { session } } = await supabase.auth.getSession());
-  } catch {}
-
-  if (session && needsVault) {
-    // Authenticated artist entering MC intentionally (Phase 4.1) or returning
-    // after a new scan. Show the authenticated vault — email recognized, one
-    // intentional unlock action required. No auto-entry into Mission Control.
-    _showAuthenticatedVault(session, sessionId, scanId);
+  // Phase 4.1 Board lock: the Intelligence Vault is the only entrance to MC.
+  // Any URL without ?vault=1 is an illegal direct-entry path — redirect to vault.
+  // Covers bookmarks, old ?boot=1 links, and any direct mission-control.html access.
+  if (!needsVault) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('vault', '1');
+    url.searchParams.delete('boot');
+    window.location.replace(url.toString());
     return;
   }
 
-  if (session && !needsVault) {
-    // Returning artist with valid session — MC shows immediately.
-    // The boot sequence IIFE handles ?boot=1 directly; vault-auth.js
-    // does not interfere with that path.
-    return;
-  }
-
-  // No session — activate Sentinel State and show the Vault.
+  // Every artist authenticates every time. No session shortcuts. No auto-entry.
   _showVault(sessionId, scanId);
-}
-
-// ── Authenticated Vault (Phase 4.1) ───────────────────────────────────
-//
-//  The artist is already authenticated but intentionally chose to enter
-//  Mission Control via the website nav. The Vault shows with the email
-//  pre-recognised and a single "Unlock Mission Control" action.
-//  No password entry. No auto-entry. One deliberate unlock.
-
-function _showAuthenticatedVault(session, sessionId, scanId) {
-  // Sentinel State — MC visible, zero data, radar passive.
-  document.body.classList.add('mc-sentinel');
-  _blankSentinelData();
-
-  // Fade boot cover promptly — artist is authenticated, no blip timing needed.
-  const cover    = document.getElementById('mc-boot-cover');
-  const hasCover = cover && cover.style.display !== 'none';
-  if (hasCover) {
-    setTimeout(() => {
-      cover.style.transition = 'opacity 0.7s ease';
-      cover.style.opacity    = '0';
-      setTimeout(() => { cover.style.display = 'none'; }, 700);
-    }, 600);
-  }
-
-  // Same vault panel — mc-vault-panel--auth hides password + forgot,
-  // dims the pre-filled email, and reveals the "Account recognized" label.
-  // Headline, body, layout, branding, and motion remain identical.
-  const panel = document.querySelector('.mc-vault-panel');
-  if (panel) panel.classList.add('mc-vault-panel--auth');
-
-  const emailEl = document.getElementById('mc-vault-email');
-  if (emailEl) {
-    emailEl.value    = session.user?.email || '';
-    emailEl.readOnly = true;
-  }
-
-  // Show vault after cover has faded.
-  setTimeout(() => {
-    const vault = document.getElementById('mc-vault');
-    if (vault) {
-      vault.removeAttribute('aria-hidden');
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        vault.classList.add('mc-vault--visible');
-      }));
-    }
-    setTimeout(() => {
-      const cta = document.getElementById('mc-vault-cta');
-      if (cta) cta.focus();
-    }, 700);
-  }, hasCover ? 1400 : 200);
-
-  // Wire unlock — session is already valid, no credential check needed.
-  const form = document.getElementById('mc-vault-form');
-  if (form) {
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      _setCta('Unlocking…', true);
-      _setStatus('', '');
-      if (sessionId) await _claimScan(session.access_token, sessionId);
-      if (typeof window.__mcPopulate === 'function') await window.__mcPopulate();
-      await _signatureTransition();
-    });
-  }
 }
 
 // ── Sentinel State ─────────────────────────────────────────────────────
