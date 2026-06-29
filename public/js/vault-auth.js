@@ -69,12 +69,11 @@ export async function initVault() {
 //  No password entry. No auto-entry. One deliberate unlock.
 
 function _showAuthenticatedVault(session, sessionId, scanId) {
-  // Activate Sentinel State — MC visible, zero data, radar passive.
-  // No blip timing sequence needed; Vault appears promptly.
+  // Sentinel State — MC visible, zero data, radar passive.
   document.body.classList.add('mc-sentinel');
   _blankSentinelData();
 
-  // Fade boot cover quickly — artist is authenticated, no suspense delay.
+  // Fade boot cover promptly — artist is authenticated, no blip timing needed.
   const cover    = document.getElementById('mc-boot-cover');
   const hasCover = cover && cover.style.display !== 'none';
   if (hasCover) {
@@ -85,21 +84,17 @@ function _showAuthenticatedVault(session, sessionId, scanId) {
     }, 600);
   }
 
-  // Switch vault panel to authenticated mode.
+  // Same vault panel — mc-vault-panel--auth hides password + forgot,
+  // dims the pre-filled email, and reveals the "Account recognized" label.
+  // Headline, body, layout, branding, and motion remain identical.
   const panel = document.querySelector('.mc-vault-panel');
   if (panel) panel.classList.add('mc-vault-panel--auth');
 
   const emailEl = document.getElementById('mc-vault-email');
-  if (emailEl) emailEl.value = session.user?.email || '';
-
-  const recognizedEl = document.getElementById('mc-vault-email-recognized');
-  if (recognizedEl) recognizedEl.textContent = session.user?.email || '';
-
-  const headline = document.querySelector('.mc-vault-headline');
-  if (headline) headline.textContent = 'Welcome back.';
-
-  const body = document.querySelector('.mc-vault-body');
-  if (body) body.textContent = 'Select Unlock Mission Control to open your operating system.';
+  if (emailEl) {
+    emailEl.value    = session.user?.email || '';
+    emailEl.readOnly = true;
+  }
 
   // Show vault after cover has faded.
   setTimeout(() => {
