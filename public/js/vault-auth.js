@@ -74,18 +74,24 @@ export async function initVault() {
 //  The artist sees MC asleep with radar sweeping for ~3.7s before
 //  the blip, then the Vault fades in immediately after.
 
+let _lastBlipIdx = -1;
+
 function _showVault(sessionId, scanId) {
   document.body.classList.add('mc-sentinel');
 
-  const cover   = document.getElementById('mc-boot-cover');
+  const cover    = document.getElementById('mc-boot-cover');
   const hasCover = cover && cover.style.display !== 'none';
 
-  const COVER_FADE   = 1200;  // cover fade duration
-  const ONE_SWEEP_MS = 3720;  // slightly under 4s so blip feels like the sweep "found" something
-  // Absolute ms from when _showVault is called:
-  const BLIP_AT    = hasCover ? (80 + COVER_FADE + ONE_SWEEP_MS) : ONE_SWEEP_MS;
-  const VAULT_AT   = BLIP_AT + 600;  // Vault fades in while blip is still visible
-  const FOCUS_AT   = VAULT_AT + 800; // Focus after Vault has faded in
+  const COVER_FADE = 1200;  // boot cover fade duration
+  const ONE_SWEEP  = 4000;  // radar animation-duration in Sentinel State
+
+  // Blips fire just before each sweep completes so detection feels
+  // triggered by the sweep arm passing that position.
+  const base     = hasCover ? (80 + COVER_FADE) : 0;
+  const BLIP1_AT = base + ONE_SWEEP - 200;  // end of first sweep
+  const BLIP2_AT = BLIP1_AT + ONE_SWEEP;   // end of second sweep
+  const VAULT_AT = BLIP2_AT + 600;         // vault fades in after second blip
+  const FOCUS_AT = VAULT_AT + 800;         // email focus after vault is visible
 
   if (hasCover) {
     setTimeout(() => {
@@ -95,10 +101,11 @@ function _showVault(sessionId, scanId) {
     }, 80);
   }
 
-  // One Sentinel blip — JS-controlled, single random dot
-  setTimeout(_fireOneSentinelBlip, BLIP_AT);
+  // Two Sentinel blips — one per radar sweep, guaranteed different positions.
+  setTimeout(_fireOneSentinelBlip, BLIP1_AT);
+  setTimeout(_fireOneSentinelBlip, BLIP2_AT);
 
-  // Vault fades in
+  // Vault fades in after second blip
   setTimeout(() => {
     const vault = document.getElementById('mc-vault');
     if (vault) {
@@ -119,16 +126,17 @@ function _showVault(sessionId, scanId) {
 }
 
 function _fireOneSentinelBlip() {
-  // Pick one of the five detection positions at random.
-  const idx = 1 + Math.floor(Math.random() * 5);
-  const BL_DUR = '1500ms';
+  // Pick from the five detection positions, excluding the last one fired.
+  // Guarantees consecutive blips always appear at different locations.
+  const pool = [1, 2, 3, 4, 5].filter(i => i !== _lastBlipIdx);
+  const idx  = pool[Math.floor(Math.random() * pool.length)];
+  _lastBlipIdx = idx;
 
+  const BL_DUR = '1500ms';
   const dot    = document.querySelector(`.mc-radar-detect-dot--${idx}`);
   const echoes = document.querySelectorAll(`.mc-radar-detect-echo--${idx}`);
   if (!dot) return;
 
-  // Apply one-shot keyframe animation. fill-mode:forwards keeps opacity:0
-  // after completion so the element does not flash back to a CSS rule value.
   dot.style.animationName            = 'mc-sentinel-blip-dot';
   dot.style.animationDuration        = BL_DUR;
   dot.style.animationTimingFunction  = 'ease-out';

@@ -2687,27 +2687,31 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
    opacity cascade so it remains clearly visible.
    ─────────────────────────────────────────────────────────────────── */
 body.mc-sentinel .mc-card,
-body.mc-sentinel .mc-rail-right{opacity:0.33;filter:grayscale(0.35) brightness(0.60);pointer-events:none;transition:opacity 1.2s ease,filter 1.2s ease;}
+body.mc-sentinel .mc-rail-right{opacity:0.28;filter:grayscale(0.45) brightness(0.55);pointer-events:none;transition:opacity 1.2s ease,filter 1.2s ease;}
 body.mc-sentinel .mc-card::before{opacity:0;transition:opacity 1.2s ease;}
 body.mc-sentinel .mc-hero{pointer-events:none;}
-/* Blank all data inside card and rail shells */
-body.mc-sentinel .mc-card > *,
-body.mc-sentinel .mc-rail-right > *{opacity:0;transition:opacity 0.6s ease;}
-/* Blank hero data content — radar handled at element level below */
+/* Hero content dimmed alongside cards — radar excluded below */
 body.mc-sentinel .mc-hero-block,
 body.mc-sentinel .mc-hero-action,
-body.mc-sentinel .mc-pulse-line{opacity:0;transition:opacity 0.6s ease;}
-/* Radar: not in the hero opacity cascade — directly visible */
-body.mc-sentinel .mc-radar{opacity:0.58;transition:opacity 1.2s ease;}
-body.mc-sentinel .mc-radar-sweep{animation-duration:4s;opacity:0.55;}
-/* CSS dot animations suppressed in Sentinel; vault-auth.js fires one timed blip */
+body.mc-sentinel .mc-pulse-line{opacity:0.28;filter:grayscale(0.45) brightness(0.55);transition:opacity 1.2s ease,filter 1.2s ease;}
+/* Radar: not in the hero opacity cascade — directly controlled */
+body.mc-sentinel .mc-radar{opacity:0.60;transition:opacity 1.2s ease;}
+body.mc-sentinel .mc-radar-sweep{animation-duration:4s;opacity:0.62;}
+/* CSS dot animations suppressed; vault-auth.js fires two timed blips */
 body.mc-sentinel .mc-radar-detect-dot,
 body.mc-sentinel .mc-radar-detect-echo{animation-name:none;opacity:0;}
+/* Data blank: text transparent so card layout is visible but values read as empty */
+body.mc-sentinel .mc-card *{color:transparent !important;}
+body.mc-sentinel .mc-card .mc-card-title{color:rgba(255,255,255,0.22) !important;}
+body.mc-sentinel .mc-rail-right *{color:transparent !important;}
+/* Progress rings: zero dasharray so ring structure visible but no data fill */
+body.mc-sentinel .mc-card .mc-ring-progress{stroke-dasharray:0 214 !important;}
+body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
 
-/* ── Sentinel Blip™ keyframes (one-shot, JS-triggered) ─────────────
-   vault-auth.js picks a random dot and applies these once.
-   animation-fill-mode:forwards keeps the dot at opacity:0 after
-   the animation completes so it does not flash back.
+/* ── Sentinel Blip™ keyframes (two one-shot, JS-triggered) ─────────
+   vault-auth.js fires exactly two blips — one per radar sweep —
+   at guaranteed-different positions. animation-fill-mode:forwards
+   keeps each dot at opacity:0 after completion.
    ─────────────────────────────────────────────────────────────────── */
 @keyframes mc-sentinel-blip-dot{
   0%{opacity:0;}18%{opacity:0.88;}40%{opacity:0.88;}100%{opacity:0;}
@@ -2723,7 +2727,7 @@ body.mc-sentinel .mc-radar-detect-echo{animation-name:none;opacity:0;}
    Fixed overlay on mission-control.html. Hidden by default (aria-hidden).
    vault-auth.js owns all show/hide/transition logic.
    ─────────────────────────────────────────────────────────────────── */
-#mc-vault{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(5,5,7,0.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity 0.7s ease;}
+#mc-vault{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(5,5,7,0.38);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity 0.7s ease;}
 #mc-vault.mc-vault--visible{opacity:1;pointer-events:auto;}
 #mc-vault.mc-vault--leaving{opacity:0 !important;transition:opacity 0.5s ease-in !important;pointer-events:none !important;}
 .mc-vault-panel{width:100%;max-width:420px;background:rgba(10,10,15,0.97);border:1px solid rgba(168,85,247,0.14);border-radius:12px;padding:48px 40px;display:flex;flex-direction:column;}
