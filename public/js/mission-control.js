@@ -107,9 +107,16 @@ async function fetchScanPayload() {
     if (_stored) {
       sessionStorage.removeItem('royalte_scan_payload');
       const _parsed = JSON.parse(_stored);
-      if (_parsed && typeof _parsed === 'object') return _parsed;
+      if (_parsed && typeof _parsed === 'object') {
+        console.log('[mc-diag] sessionStorage HIT — artist:', _parsed.subject?.artistName || '(no subject.artistName)', '| top-level keys:', Object.keys(_parsed).join(','));
+        return _parsed;
+      }
+    } else {
+      console.log('[mc-diag] sessionStorage MISS — falling to Supabase path. _isPreactivate:', _isPreactivate, '| scanId:', getScanIdFromUrl() || 'none');
     }
-  } catch (_ssErr) {}
+  } catch (_ssErr) {
+    console.warn('[mc-diag] sessionStorage read/parse threw:', _ssErr?.message || _ssErr);
+  }
 
   // Preactivate path with no scanId: refuse to query. A "latest owned"
   // query here would display another artist's intelligence before
@@ -665,6 +672,8 @@ if (typeof window !== 'undefined') {
   window.__mcPopulate = async function () {
     const payload = await fetchScanPayload();
     if (!payload) return;
+
+    console.log('[mc-diag] __mcPopulate payload source — subject.artistName:', payload.subject?.artistName || '(none)', '| intelligence keys present:', ['identityIntelligence','publishingIntelligence','healthIntelligence','royalteAI','catalogIntelligence','globalMusicFootprint','backendIntelligence','monitoringIntelligence'].filter(k => payload[k] != null).join(',') || 'NONE');
 
     // Identity
     const ii = safeIdentityIntelligence(payload.identityIntelligence);

@@ -2960,9 +2960,25 @@ function showRealResults(data) {
     };
   } catch(e) { /* non-blocking */ }
 
-  // Phase 4.3: bridge full scan payload for MC preactivate path.
+  // Phase 4.3: bridge scan payload for MC preactivate path.
+  // Store data.canonical — the flat canonical shape that audit_scans.payload carries and
+  // that __mcPopulate() was written to read. The raw API response wraps canonical in a
+  // nested key and only surfaces identityIntelligence / publishingIntelligence as top-level
+  // aliases, leaving royalteAI, healthIntelligence, catalogIntelligence, globalMusicFootprint,
+  // and backendIntelligence undefined at the top level — causing __mcPopulate() to build
+  // null plans for those domains and fall through to the Supabase "latest owned" path.
+  // canonical spreads rawResponse so canonical.platforms.deezer etc. still work.
   // sessionStorage cleared by fetchScanPayload() in mission-control.js after reading.
-  try { sessionStorage.setItem('royalte_scan_payload', JSON.stringify(data)); } catch (_ssErr) {}
+  try {
+    if (data && data.canonical) {
+      console.log('[hp-diag] storing canonical for artist:', data.canonical.subject?.artistName || data.artistName, '| keys:', Object.keys(data.canonical).join(','));
+      sessionStorage.setItem('royalte_scan_payload', JSON.stringify(data.canonical));
+    } else {
+      console.warn('[hp-diag] data.canonical missing — sessionStorage bridge skipped; MC will fall to Supabase');
+    }
+  } catch (_ssErr) {
+    console.warn('[hp-diag] sessionStorage.setItem threw (QuotaExceededError?):', _ssErr?.message || _ssErr);
+  }
 
   // ── Hero (above audit-results) — name + sub-line, no risk colour ──
   const subText = getEcosystemSignal(data);
