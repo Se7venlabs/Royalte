@@ -254,7 +254,7 @@ function _showVault(sessionId, scanId) {
 // ── Phase 4.3 — Preactivate sequence ───────────────────────────────────
 // Called when ?preactivate=1 is in the URL (OPEN MISSION CONTROL path).
 // Runs the full OS activation experience first — Sentinel radar sweeps,
-// then each module illuminates one at a time at 3-second intervals —
+// then each module illuminates one at a time at 2.5-second intervals —
 // then raises the Intelligence Vault for authentication.
 //
 // Rule 8 compliant: mc-booting is never used on the vault path.
@@ -287,14 +287,14 @@ function _showPreactivateSequence(sessionId, scanId) {
   setTimeout(_fireOneSentinelBlip, BLIP1_AT);
   setTimeout(_fireOneSentinelBlip, BLIP2_AT);
 
-  // After two sweeps: activate modules one at a time at 3-second intervals.
+  // After two sweeps: activate modules one at a time at 2.5-second intervals.
   const ACTIVATE_AT = BLIP2_AT + 600;
   const MODULE_ORDER = [
     'health-intelligence', 'identity-intelligence', 'publishing-intelligence',
     'catalog-intelligence', 'change-detection', 'backend-intelligence',
     'global-footprint', 'ai-insights',
   ];
-  const INTERVAL = 3000; // Board directive: ~3 seconds per module
+  const INTERVAL = 2500; // Board directive: ~2.5 seconds per module
   const TOTAL    = MODULE_ORDER.length * INTERVAL;
 
   setTimeout(async () => {
