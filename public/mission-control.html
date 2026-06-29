@@ -2700,11 +2700,7 @@ body.mc-sentinel .mc-radar-sweep{animation-duration:4s;opacity:0.62;}
 /* CSS dot animations suppressed; vault-auth.js fires two timed blips */
 body.mc-sentinel .mc-radar-detect-dot,
 body.mc-sentinel .mc-radar-detect-echo{animation-name:none;opacity:0;}
-/* Data blank: text transparent so card layout is visible but values read as empty */
-body.mc-sentinel .mc-card *{color:transparent !important;}
-body.mc-sentinel .mc-card .mc-card-title{color:rgba(255,255,255,0.22) !important;}
-body.mc-sentinel .mc-rail-right *{color:transparent !important;}
-/* Progress rings: zero dasharray so ring structure visible but no data fill */
+/* Progress rings: zero fill gives genuine empty state (set in sync by vault-auth.js) */
 body.mc-sentinel .mc-card .mc-ring-progress{stroke-dasharray:0 214 !important;}
 body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
 

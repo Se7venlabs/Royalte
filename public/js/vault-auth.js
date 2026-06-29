@@ -74,10 +74,102 @@ export async function initVault() {
 //  The artist sees MC asleep with radar sweeping for ~3.7s before
 //  the blip, then the Vault fades in immediately after.
 
+// ── Sentinel Empty State™ ──────────────────────────────────────────────
+//
+//  Sets every MC module to its initialized-but-unpopulated state.
+//  Called before the Vault appears so the artist sees an OS that is
+//  awake but has not yet received intelligence — not hidden values.
+//
+//  CSS ring overrides (stroke-dasharray:0) are a failsafe; this JS
+//  ensures every text value is genuinely blank, not merely invisible.
+
+function _blankSentinelData() {
+  const q  = s => document.querySelector(s);
+  const qa = s => document.querySelectorAll(s);
+
+  // Health Intelligence
+  const hs = q('[data-mc-health-score]');
+  if (hs) hs.innerHTML = '0 <small>/100</small>';
+  const hst = q('[data-mc-health-status]');
+  if (hst) hst.textContent = 'Waiting for Intelligence';
+  const hc = q('[data-mc-health-confidence]');
+  if (hc) hc.textContent = '—';
+  const hcp = q('[data-mc-health-composite]');
+  if (hcp) hcp.textContent = '—';
+  const hi = q('[data-mc-health-insights]');
+  if (hi) hi.innerHTML = '';
+  qa('[data-mc-health-domain] .val').forEach(el => { el.textContent = '—'; });
+  const hr = q('[data-mc-health-ring-progress]');
+  if (hr) hr.setAttribute('stroke-dasharray', '0 214');
+
+  // Identity Intelligence
+  const ic = q('[data-mc-identity-coverage-value]');
+  if (ic) ic.innerHTML = '0<small>%</small>';
+  const is = q('[data-mc-identity-coverage-summary]');
+  if (is) is.textContent = 'No providers verified';
+  qa('[data-mc-identity-pill]').forEach(el => {
+    el.textContent = '—';
+    el.className = 'mc-pill mc-pill--unable';
+  });
+  const itt = q('[data-mc-identity-top-track-title]');
+  if (itt) itt.textContent = '—';
+  const iti = q('[data-mc-identity-top-track-isrc]');
+  if (iti) iti.textContent = '—';
+  const ir = q('#identity-intelligence .mc-fp-ring');
+  if (ir) ir.setAttribute('stroke-dasharray', '0 264');
+
+  // Publishing Intelligence
+  const pc = q('[data-mc-publishing-coverage-value]');
+  if (pc) pc.innerHTML = '0<small>%</small>';
+  const ps = q('[data-mc-publishing-coverage-summary]');
+  if (ps) ps.textContent = '0 of 4 verified';
+  const pr = q('#publishing-intelligence .mc-ring-progress');
+  if (pr) pr.setAttribute('stroke-dasharray', '0 208');
+
+  // Catalog Intelligence
+  const cs = q('[data-mc-catalog-status]');
+  if (cs) cs.textContent = '—';
+  ['singles', 'eps', 'albums', 'tracks'].forEach(k => {
+    const el = q(`[data-mc-catalog-${k}]`);
+    if (el) el.textContent = '0';
+  });
+
+  // Change Detection
+  const cv = q('[data-mc-cd-sum-value]');
+  if (cv) cv.textContent = '—';
+  const cm = q('[data-mc-cd-sum-meta]');
+  if (cm) cm.textContent = 'Waiting for Intelligence';
+  const cf = q('[data-mc-cd-feed]');
+  if (cf) cf.innerHTML = '';
+
+  // Backend Intelligence
+  const bc = q('[data-mc-backend-connected-count]');
+  if (bc) bc.textContent = '0 / 4';
+  const bm = q('[data-mc-backend-summary]');
+  if (bm) bm.textContent = 'Initializing';
+  qa('.mc-bi-service-status').forEach(el => { el.textContent = '—'; });
+  qa('.mc-bi-service-sub').forEach(el    => { el.textContent = 'Connecting'; });
+
+  // AI Insights (right rail)
+  const ao = q('[data-mc-ai-observation]');
+  if (ao) ao.textContent = 'Waiting for Intelligence';
+  const al = q('[data-mc-ai-activity-list]');
+  if (al) al.innerHTML = '';
+
+  // Royaltē Review (right rail)
+  const pac = q('[data-mc-priority-actions-count]');
+  if (pac) pac.textContent = '0';
+  const pal = q('[data-mc-priority-actions]');
+  if (pal) pal.innerHTML = '';
+  const rr = q('.mc-review-ring .mc-ring-progress');
+  if (rr) rr.setAttribute('stroke-dasharray', '0 289');
+}
+
 let _lastBlipIdx = -1;
 
 function _showVault(sessionId, scanId) {
   document.body.classList.add('mc-sentinel');
+  _blankSentinelData();
 
   const cover    = document.getElementById('mc-boot-cover');
   const hasCover = cover && cover.style.display !== 'none';
