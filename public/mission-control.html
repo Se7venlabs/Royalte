@@ -825,6 +825,71 @@ body {
   text-align: right;
 }
 
+/* ─── Health Signals (Phase 4.4) ────────────────────────────────── */
+
+.mc-health-signal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.mc-health-signal {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.mc-signal-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--mc-divider);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.mc-signal-dot[data-tier="good"]  { background: var(--mc-green);  box-shadow: 0 0 5px rgba(45,212,191,0.45); }
+.mc-signal-dot[data-tier="warn"]  { background: #c9b44a;           box-shadow: 0 0 5px rgba(201,180,74,0.45); }
+.mc-signal-dot[data-tier="alert"] { background: #e05060;           box-shadow: 0 0 5px rgba(224,80,96,0.45); }
+.mc-signal-name {
+  flex: 1;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--mc-text-soft);
+  letter-spacing: 0.02em;
+}
+.mc-signal-status {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s ease;
+}
+.mc-signal-dot[data-tier="good"]  ~ .mc-signal-status { color: var(--mc-green); }
+.mc-signal-dot[data-tier="warn"]  ~ .mc-signal-status { color: #c9b44a; }
+.mc-signal-dot[data-tier="alert"] ~ .mc-signal-status { color: #e05060; }
+
+/* ─── AI Health Summary (Phase 4.4) ─────────────────────────────── */
+
+.mc-health-ai-summary {
+  border-top: 1px solid var(--mc-divider);
+  padding-top: var(--mc-s-3);
+  margin-top: var(--mc-s-3);
+}
+.mc-health-ai-summary-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  margin-bottom: 5px;
+}
+.mc-health-ai-summary-text {
+  font-size: 11.5px;
+  color: var(--mc-text-soft);
+  line-height: 1.65;
+  margin: 0;
+}
+
 /* ─── health card ───────────────────────────────────────────────── */
 
 .mc-health-body {
@@ -3036,33 +3101,55 @@ body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
             </div>
           </div>
         </div>
-        <!-- Refinement v2.0: trend-line (.mc-spark) removed; the
-             "Health Contributors™" list communicates the score's
-             derivation without right-side numeric duplicates of each
-             contributing module's own score. -->
-        <div class="mc-health-breakdown" aria-label="Health Contributors">
-          <div class="mc-health-breakdown-title">Health Contributors™</div>
-          <!-- Refinement v3.0: clean executive scorecard — label LEFT,
-               score RIGHT, no icons / bars / graphs / decoration. -->
-          <ul class="mc-health-breakdown-list">
-            <li data-mc-health-domain="identity"><span class="lbl">Identity Intelligence™</span>     <span class="val">72</span></li>
-            <li data-mc-health-domain="publishing"><span class="lbl">Publishing Intelligence™</span>   <span class="val">86</span></li>
-            <li data-mc-health-domain="catalog"><span class="lbl">Catalog Intelligence™</span>      <span class="val">84</span></li>
-            <li data-mc-health-domain="footprint"><span class="lbl">Global Music Footprint™</span>    <span class="val">58</span></li>
-            <li data-mc-health-domain="monitoring"><span class="lbl">Change Detection™</span>          <span class="val">95</span></li>
-            <li data-mc-health-domain="backend"><span class="lbl">Backend Intelligence™</span>      <span class="val">100</span></li>
+        <!-- Phase 4.4 — Health Signals: status-based intelligence signals.
+             Labels are artist-facing; dot tier (good/warn/alert) is set by
+             __mcRevealModule. Numbers removed — signals are not weighted
+             contributors to the Health Score. -->
+        <div class="mc-health-breakdown" aria-label="Health Signals">
+          <div class="mc-health-breakdown-title">Health Signals</div>
+          <ul class="mc-health-signal-list">
+            <li class="mc-health-signal" data-mc-health-signal="identity">
+              <span class="mc-signal-dot" data-mc-signal-dot="identity"></span>
+              <span class="mc-signal-name">Identity</span>
+              <span class="mc-signal-status" data-mc-signal-status="identity">—</span>
+            </li>
+            <li class="mc-health-signal" data-mc-health-signal="publishing">
+              <span class="mc-signal-dot" data-mc-signal-dot="publishing"></span>
+              <span class="mc-signal-name">Publishing</span>
+              <span class="mc-signal-status" data-mc-signal-status="publishing">—</span>
+            </li>
+            <li class="mc-health-signal" data-mc-health-signal="catalog">
+              <span class="mc-signal-dot" data-mc-signal-dot="catalog"></span>
+              <span class="mc-signal-name">Catalog</span>
+              <span class="mc-signal-status" data-mc-signal-status="catalog">—</span>
+            </li>
+            <li class="mc-health-signal" data-mc-health-signal="footprint">
+              <span class="mc-signal-dot" data-mc-signal-dot="footprint"></span>
+              <span class="mc-signal-name">Global Presence</span>
+              <span class="mc-signal-status" data-mc-signal-status="footprint">—</span>
+            </li>
+            <li class="mc-health-signal" data-mc-health-signal="monitoring">
+              <span class="mc-signal-dot" data-mc-signal-dot="monitoring"></span>
+              <span class="mc-signal-name">Monitoring</span>
+              <span class="mc-signal-status" data-mc-signal-status="monitoring">—</span>
+            </li>
+            <li class="mc-health-signal" data-mc-health-signal="backend">
+              <span class="mc-signal-dot" data-mc-signal-dot="backend"></span>
+              <span class="mc-signal-name">Backend</span>
+              <span class="mc-signal-status" data-mc-signal-status="backend">—</span>
+            </li>
           </ul>
-          <!-- Refinement v4.1 (Phase 4.4 certification): label corrected to
-               "Overall Health Score" — the value is computeHealthScore().overallScore,
-               the Phase 7 Health Engine™ output. It is NOT an arithmetic average of
-               the domain rows above (those are informational display-layer derivations
-               independent of the scoring model). Phase 7 scores via weighted
-               Intelligence Engine observations; domain rows derive from provider
-               coverage signals. Both read the same scan; neither feeds the other. -->
           <div class="mc-health-breakdown-summary">
             <span class="lbl">Overall Health Score</span>
             <span class="val" data-mc-health-composite>83</span>
           </div>
+        </div>
+
+        <!-- AI Health Summary — sourced from healthReport.summary (Health Engine
+             grade-based narrative). Injected by __mcRevealModule at activation. -->
+        <div class="mc-health-ai-summary">
+          <div class="mc-health-ai-summary-label">AI Health Summary</div>
+          <p class="mc-health-ai-summary-text" data-mc-health-summary></p>
         </div>
 
         <!-- Health Intelligence™ Insights — strengths and concerns injected

@@ -114,7 +114,10 @@ function _blankSentinelData() {
   if (hcp) hcp.textContent = '—';
   const hi = q('[data-mc-health-insights]');
   if (hi) hi.innerHTML = '';
-  qa('[data-mc-health-domain] .val').forEach(el => { el.textContent = '—'; });
+  qa('[data-mc-signal-dot]').forEach(el => el.removeAttribute('data-tier'));
+  qa('[data-mc-signal-status]').forEach(el => { el.textContent = '—'; });
+  const hsum = q('[data-mc-health-summary]');
+  if (hsum) hsum.textContent = '';
   const hr = q('[data-mc-health-ring-progress]');
   if (hr) hr.setAttribute('stroke-dasharray', '0 214');
 
