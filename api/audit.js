@@ -168,6 +168,8 @@ export async function persistCanonicalScan(rawResponse, originalUrl, urlType, sc
 
   // DIAGNOSTIC — remove after ownership trace confirmed
   console.log(`[audit-diag] insert scanId=${scanId} artist="${canonical.subject?.artistName}" userId=${userId || 'NULL'} sessionId=${sessionId || 'NULL'}`);
+  // Phase 4.4 health trace — Stage 3: score enters audit_scans.payload.
+  console.log('[health-diag] Stage 3 — audit_scans.payload: healthIntelligence.score=', canonical.healthIntelligence?.score ?? 'NULL', 'healthScore.overallScore=', canonical.healthScore?.overallScore ?? 'NULL', '| match=', canonical.healthIntelligence?.score === canonical.healthScore?.overallScore);
 
   const insertRow = {
     id:                scanId,
@@ -454,6 +456,8 @@ export default async function handler(req, res) {
       } catch (healthErr) {
         console.error('[audit] Health / Executive Brief pipeline failed (non-blocking):', healthErr.message);
       }
+      // Phase 4.4 health trace — Stage 1: score leaves the Health Engine.
+      console.log('[health-diag] Stage 1 — computeHealthScore: overallScore=', healthScore?.overallScore ?? 'NULL', 'grade=', healthScore?.overallGrade ?? 'NULL');
 
       // ── 8. Health Intelligence™ — interpretation layer over the canonical score ──
       // Reads healthScore.overallScore as the canonical score. Never recomputes it.
@@ -474,6 +478,8 @@ export default async function handler(req, res) {
       } catch (hiErr) {
         console.error('[audit] Health Intelligence™ assembly failed (non-blocking):', hiErr.message);
       }
+      // Phase 4.4 health trace — Stage 2: score enters healthIntelligence.
+      console.log('[health-diag] Stage 2 — assembleHealthIntelligence: score=', healthIntelligence?.score ?? 'NULL', 'status=', healthIntelligence?.status ?? 'NULL', '| match=', healthScore?.overallScore === healthIntelligence?.score);
 
       const enriched = { ...canonicalForEnrichment };
       if (identityIntelligence)   enriched.identityIntelligence   = identityIntelligence;
@@ -592,6 +598,8 @@ export default async function handler(req, res) {
                   );
                   if (finalHealthIntelligence) {
                     canonical.healthIntelligence = finalHealthIntelligence;
+                    // Phase 4.4 health trace — Stage 4: two-phase patch score.
+                    console.log('[health-diag] Stage 4 — two-phase patch: finalHealthIntelligence.score=', finalHealthIntelligence.score ?? 'NULL', '| match Stage 1=', finalHealthIntelligence.score === canonical.healthScore?.overallScore);
                   }
                 } catch (hiPatchErr) {
                   console.error('[audit] health intelligence re-assembly failed (non-blocking):', hiPatchErr.message);

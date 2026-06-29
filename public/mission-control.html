@@ -3052,12 +3052,15 @@ body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
             <li data-mc-health-domain="monitoring"><span class="lbl">Change Detection™</span>          <span class="val">95</span></li>
             <li data-mc-health-domain="backend"><span class="lbl">Backend Intelligence™</span>      <span class="val">100</span></li>
           </ul>
-          <!-- Refinement v4.0: composite average summary — closes the
-               contributor list with the aggregate the Health Score™
-               is calculated from. (72+86+84+58+95+100)/6 ≈ 82.5 → 83.
-               The math is intentionally not displayed per directive. -->
+          <!-- Refinement v4.1 (Phase 4.4 certification): label corrected to
+               "Overall Health Score" — the value is computeHealthScore().overallScore,
+               the Phase 7 Health Engine™ output. It is NOT an arithmetic average of
+               the domain rows above (those are informational display-layer derivations
+               independent of the scoring model). Phase 7 scores via weighted
+               Intelligence Engine observations; domain rows derive from provider
+               coverage signals. Both read the same scan; neither feeds the other. -->
           <div class="mc-health-breakdown-summary">
-            <span class="lbl">Composite Average</span>
+            <span class="lbl">Overall Health Score</span>
             <span class="val" data-mc-health-composite>83</span>
           </div>
         </div>

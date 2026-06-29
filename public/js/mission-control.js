@@ -719,7 +719,10 @@ if (typeof window !== 'undefined') {
 
     // Health
     const hi = safeHealthIntelligence(payload.healthIntelligence);
+    // Phase 4.4 health trace — Stage 5: score arrives in __mcPopulate.
+    console.log('[health-diag] Stage 5 — __mcPopulate: payload.healthIntelligence.score=', hi?.score ?? 'NULL', '| payload.healthScore.overallScore=', payload.healthScore?.overallScore ?? 'NULL', '| match=', hi?.score === payload.healthScore?.overallScore);
     if (hi) _vaultPlans.healthPlan = renderHealth(hi);
+    console.log('[health-diag] Stage 5b — renderHealth plan.score=', _vaultPlans.healthPlan?.score ?? 'NULL');
   };
 
   window.__mcRevealModule = function (id) {
@@ -727,6 +730,8 @@ if (typeof window !== 'undefined') {
       case 'health-intelligence': {
         const plan = _vaultPlans.healthPlan;
         if (!plan) break;
+        // Phase 4.4 health trace — Stage 6: score rendered to DOM.
+        console.log('[health-diag] Stage 6 — __mcRevealModule(health-intelligence): plan.score=', plan.score, '| status=', plan.status, '| confidence=', plan.confidence, '| ringDasharray=', plan.ringDasharray);
         // applyHealthPlan writes status, confidence, domain scores, insights,
         // and sets the ring stroke-dasharray — CSS transition (1.4s) fires
         // because _blankSentinelData left the ring at 0 214.
