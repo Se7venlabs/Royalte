@@ -39,9 +39,10 @@ export async function initVault() {
     window.location.pathname.includes('mission-control-preview');
   if (isPreview) return;
 
-  const needsVault = param('vault') === '1';
-  const sessionId  = param('session_id');
-  const scanId     = param('scanId') || _pendingScanId();
+  const needsVault    = param('vault') === '1';
+  const isPreactivate = param('preactivate') === '1';
+  const sessionId     = param('session_id');
+  const scanId        = param('scanId') || _pendingScanId();
 
   // Phase 4.1 Board lock: the Intelligence Vault is the only entrance to MC.
   // Any URL without ?vault=1 is an illegal direct-entry path — redirect to vault.
@@ -51,6 +52,12 @@ export async function initVault() {
     url.searchParams.set('vault', '1');
     url.searchParams.delete('boot');
     window.location.replace(url.toString());
+    return;
+  }
+
+  // Phase 4.3: preactivate path — OS activates first, vault rises after.
+  if (isPreactivate) {
+    _showPreactivateSequence(sessionId, scanId);
     return;
   }
 
@@ -236,6 +243,125 @@ function _showVault(sessionId, scanId) {
   _wireForm(sessionId, scanId);
 }
 
+// ── Phase 4.3 — Preactivate sequence ───────────────────────────────────
+// Called when ?preactivate=1 is in the URL (OPEN MISSION CONTROL path).
+// Runs the full OS activation experience first — Sentinel radar sweeps,
+// then each module illuminates one at a time at 3-second intervals —
+// then raises the Intelligence Vault for authentication.
+//
+// Rule 8 compliant: mc-booting is never used on the vault path.
+// The "activation" effect is data appearing via __mcRevealModule, not
+// opacity transitions (those require mc-booting which is cold-start only).
+function _showPreactivateSequence(sessionId, scanId) {
+  document.body.classList.add('mc-sentinel');
+  _blankSentinelData();
+
+  const cover    = document.getElementById('mc-boot-cover');
+  const hasCover = cover && cover.style.display !== 'none';
+  const COVER_FADE = 1200;
+  const ONE_SWEEP  = 4000;
+  const base       = hasCover ? (80 + COVER_FADE) : 0;
+  const BLIP1_AT   = base + ONE_SWEEP - 200;
+  const BLIP2_AT   = BLIP1_AT + ONE_SWEEP;
+  const SWEEP1_MID = base + ONE_SWEEP / 2;
+  const SWEEP2_MID = (BLIP1_AT + BLIP2_AT) / 2;
+
+  if (hasCover) {
+    setTimeout(() => {
+      cover.style.transition = 'opacity 1.2s ease';
+      cover.style.opacity = '0';
+      setTimeout(() => { cover.style.display = 'none'; }, COVER_FADE);
+    }, 80);
+  }
+
+  setTimeout(() => _setSentinelReactor(1), SWEEP1_MID);
+  setTimeout(() => _setSentinelReactor(2), SWEEP2_MID);
+  setTimeout(_fireOneSentinelBlip, BLIP1_AT);
+  setTimeout(_fireOneSentinelBlip, BLIP2_AT);
+
+  // After two sweeps: activate modules one at a time at 3-second intervals.
+  const ACTIVATE_AT = BLIP2_AT + 600;
+  const MODULE_ORDER = [
+    'health-intelligence', 'identity-intelligence', 'publishing-intelligence',
+    'catalog-intelligence', 'change-detection', 'backend-intelligence',
+    'global-footprint', 'ai-insights',
+  ];
+  const INTERVAL = 3000; // Board directive: ~3 seconds per module
+  const TOTAL    = MODULE_ORDER.length * INTERVAL;
+
+  setTimeout(async () => {
+    // Populate MC from bridged sessionStorage payload (no auth required —
+    // data was stored by the homepage scan before navigation).
+    if (typeof window.__mcPopulate === 'function') await window.__mcPopulate();
+
+    // Remove Sentinel — modules are fully visible with blanked data from here.
+    // Inline stroke-dasharray attributes set by _blankSentinelData() hold rings
+    // at zero until __mcRevealModule updates them with transitions.
+    document.body.classList.remove('mc-sentinel');
+
+    const reactorStatus = document.getElementById('mc-reactor-status');
+    if (reactorStatus) {
+      reactorStatus.textContent = 'System Booting';
+      reactorStatus.className   = 'mc-reactor-status mc-rs-booting';
+    }
+
+    const hero = document.querySelector('.mc-hero');
+    if (hero) hero.classList.add('mc-online');
+
+    // Animate reactor percentage 25% → 100% continuously over the full activation.
+    _animateReactorPct(25, 100, TOTAL);
+
+    const boot  = window.__mcBoot;
+    const pctEl = document.getElementById('mc-reactor-pct');
+
+    MODULE_ORDER.forEach((id, i) => {
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('mc-online');
+        if (typeof window.__mcRevealModule === 'function') window.__mcRevealModule(id);
+        // Step reactor dots without overwriting the animated percentage.
+        if (boot?.setReactor) {
+          const saved = pctEl?.textContent;
+          boot.setReactor(i + 1);
+          if (pctEl && saved) pctEl.textContent = saved;
+        }
+      }, (i + 1) * INTERVAL);
+    });
+
+    // After last module: finalize reactor state, brief pause, raise vault.
+    setTimeout(() => {
+      if (pctEl) pctEl.textContent = '100%';
+      if (reactorStatus) {
+        reactorStatus.textContent = 'Royaltē OS Online';
+        reactorStatus.className   = 'mc-reactor-status mc-rs-online';
+      }
+      if (boot?.setReactor) {
+        const saved = pctEl?.textContent;
+        boot.setReactor(MODULE_ORDER.length);
+        if (pctEl && saved) pctEl.textContent = saved;
+      }
+
+      // 2-second pause — entire OS is alive — then Intelligence Vault rises.
+      setTimeout(() => {
+        // Flag so _handleUnlock skips re-running the boot sequence after auth.
+        window.__royaltePreactivated = true;
+        const vault = document.getElementById('mc-vault');
+        if (vault) {
+          vault.removeAttribute('aria-hidden');
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            vault.classList.add('mc-vault--visible');
+          }));
+        }
+        setTimeout(() => {
+          const emailEl = document.getElementById('mc-vault-email');
+          if (emailEl) emailEl.focus();
+        }, 800);
+        _wireForm(sessionId, scanId);
+      }, 2000);
+    }, TOTAL + 500);
+  }, ACTIVATE_AT);
+}
+
 function _fireOneSentinelBlip() {
   // Pick from the five detection positions, excluding the last one fired.
   // Guarantees consecutive blips always appear at different locations.
@@ -389,10 +515,29 @@ async function _handleUnlock(email, password, sessionId, scanId) {
     await _claimScan(token, sessionId);
   }
 
-  // ── Pre-fetch intelligence data while cards are still invisible ────────
-  // Supabase session is now active; RLS allows reading the claimed scan.
-  // All DOM values are populated before the signature transition begins so
-  // the activation sequence reveals real data rather than waiting for APIs.
+  if (window.__royaltePreactivated) {
+    // Preactivate path: OS is already fully active. Re-populate with the
+    // auth-scoped Supabase payload, refresh each module, then fade vault.
+    if (typeof window.__mcPopulate === 'function') await window.__mcPopulate();
+    const _PA_MODULES = [
+      'health-intelligence', 'identity-intelligence', 'publishing-intelligence',
+      'catalog-intelligence', 'change-detection', 'backend-intelligence',
+      'global-footprint', 'ai-insights',
+    ];
+    if (typeof window.__mcRevealModule === 'function') {
+      _PA_MODULES.forEach(id => window.__mcRevealModule(id));
+    }
+    const _vault = document.getElementById('mc-vault');
+    if (_vault) {
+      _vault.classList.remove('mc-vault--visible');
+      await sleep(800);
+      _vault.setAttribute('aria-hidden', 'true');
+    }
+    return;
+  }
+
+  // Normal vault path: populate cards while they are still invisible behind
+  // the vault overlay, then run the signature transition into the boot sequence.
   if (typeof window.__mcPopulate === 'function') {
     await window.__mcPopulate();
   }

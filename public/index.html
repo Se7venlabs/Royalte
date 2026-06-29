@@ -1190,6 +1190,24 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 }
 .bi-os-status.success{color:var(--grn);}
 .bi-os-status.error{color:var(--red);}
+.open-mc-btn{
+  display:block;width:100%;
+  background:var(--grad);color:#fff;
+  padding:18px 40px;border-radius:4px;
+  font-size:14px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+  transition:all 0.25s;
+  animation:ctaGlow 2.4s ease-in-out 1s infinite;
+  position:relative;margin:0;
+}
+.open-mc-btn:hover{
+  opacity:0.92;
+  box-shadow:0 0 80px 14px rgba(138,92,255,0.9),0 0 120px 24px rgba(224,64,200,0.6);
+  transform:translateY(-1px) scale(1.04);
+  animation-play-state:paused;
+}
+.open-mc-btn:disabled{opacity:0.35;cursor:not-allowed;animation:none;}
+.open-mc-ready{font-size:12px;color:var(--muted);letter-spacing:0.02em;margin:10px 0 0;text-align:center;}
 .bi-os-access{
   text-align:center;
   margin:0;
@@ -2022,26 +2040,11 @@ body.scan-confirmed #sc-confirm{opacity:1;}
             <li>YouTube Presence</li>
           </ul>
           <p class="os-cta-body">Royaltē OS continuously monitors your music business backend and alerts you when meaningful changes are detected.</p>
-          <!-- Founding Artist subsection (Brief 012a follow-up) — counter
-               populated by loadFoundingArtistCount() against
-               /api/founding-artist-count. Closed-state swap is innerHTML-
-               replaced and the submit button is disabled in place. -->
-          <div class="os-fa-section" id="os-fa-section">
-            <h3 class="os-fa-heading">Become A Founding Artist</h3>
-            <p class="os-fa-sub">The first 1,000 artists can secure lifetime Founding Artist access and unlock Royaltē OS before the program closes.</p>
-            <div class="os-fa-counter">
-              <div class="os-fa-counter-label">Founding Artist Program</div>
-              <div class="os-fa-counter-value" id="os-fa-counter-value">— of 1,000 spots claimed</div>
-            </div>
-          </div>
-          <!-- bi-os-form IDs preserved → sendMagicLink behavior unchanged.
-               Button text renamed per Brief 012a; submit handler at line ~3349
-               still calls sendMagicLink(email, 'homepage_scan'). -->
-          <form class="bi-os-form" id="bi-os-form" novalidate>
-            <input type="email" class="bi-os-email" id="bi-os-email" placeholder="your@email.com" autocomplete="email" required>
-            <button type="submit" class="bi-os-cta" data-cta="enter-os">Become A Founding Artist</button>
-          </form>
-          <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
+          <!-- Phase 4.3: Mission Control entry. Enabled after scan success;
+               click stores scan payload to sessionStorage and navigates to
+               MC preactivate path (OS boot first, vault second). -->
+          <button id="open-mc-btn" class="open-mc-btn" disabled>Open Mission Control</button>
+          <p class="open-mc-ready">Your Royaltē OS is ready.</p>
         </div>
         </div>
       </div>
@@ -2957,6 +2960,10 @@ function showRealResults(data) {
     };
   } catch(e) { /* non-blocking */ }
 
+  // Phase 4.3: bridge full scan payload for MC preactivate path.
+  // sessionStorage cleared by fetchScanPayload() in mission-control.js after reading.
+  try { sessionStorage.setItem('royalte_scan_payload', JSON.stringify(data)); } catch (_ssErr) {}
+
   // ── Hero (above audit-results) — name + sub-line, no risk colour ──
   const subText = getEcosystemSignal(data);
   if (typeof updateHeroDashboard === 'function') updateHeroDashboard(artistName, subText, null, null);
@@ -3322,8 +3329,11 @@ function scrollToForm() {
 function requestFullAuditFromNav() {
   const scanId = window.__royalteScan?.scanId;
   if (typeof scanId === 'string' && scanId.length > 0) {
-    document.getElementById('bi-os-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => document.getElementById('bi-os-email')?.focus(), 600);
+    const openMcBtn = document.getElementById('open-mc-btn');
+    if (openMcBtn) {
+      openMcBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => openMcBtn.focus(), 600);
+    }
     return;
   }
   document.getElementById('scan-tool')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3380,8 +3390,10 @@ async function runScan() {
   // Phase 4.2: scan is the endpoint — artist stays on results page.
   // Re-enable the scan button in all cases so the artist can re-scan.
   if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
-  if (!window.__lastAuditOk) {
-    // Failure — error messaging already rendered by runAudit()
+  if (window.__lastAuditOk) {
+    // Phase 4.3: scan succeeded — unlock the MC entry button.
+    const openMcBtn = document.getElementById('open-mc-btn');
+    if (openMcBtn) openMcBtn.disabled = false;
   }
 }
 
@@ -3549,6 +3561,22 @@ if (biOsForm) {
     handleBiOsSubmit();
   });
 }
+
+// Phase 4.3: Open Mission Control — preactivate entry point.
+// Stores full scan payload in sessionStorage so MC can populate
+// before the artist authenticates, then navigates to the preactivate path.
+(function() {
+  const openMcBtn = document.getElementById('open-mc-btn');
+  if (!openMcBtn) return;
+  openMcBtn.addEventListener('click', function() {
+    const scanId    = window.__royalteScan?.scanId || '';
+    const sessionId = (typeof getOrCreateSessionId === 'function') ? getOrCreateSessionId() : '';
+    let dest = '/mission-control.html?vault=1&preactivate=1';
+    if (scanId)    dest += '&scanId='     + encodeURIComponent(scanId);
+    if (sessionId) dest += '&session_id=' + encodeURIComponent(sessionId);
+    window.location.href = dest;
+  });
+})();
 
 // ── Founding Artist counter (Brief 012a follow-up) ──
 // Reads /api/founding-artist-count on page load and updates the Section 5

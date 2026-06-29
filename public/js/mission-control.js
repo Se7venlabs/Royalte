@@ -86,6 +86,18 @@ async function fetchScanPayload() {
     }
   }
 
+  // Phase 4.3: Pre-bridged payload — stored in sessionStorage by the homepage
+  // when the artist presses OPEN MISSION CONTROL (preactivate path).
+  // Cleared immediately after reading so stale data never persists on return visits.
+  try {
+    const _stored = sessionStorage.getItem('royalte_scan_payload');
+    if (_stored) {
+      sessionStorage.removeItem('royalte_scan_payload');
+      const _parsed = JSON.parse(_stored);
+      if (_parsed && typeof _parsed === 'object') return _parsed;
+    }
+  } catch (_ssErr) {}
+
   const supabase = getSupabase();
   if (!supabase) return null;
 
