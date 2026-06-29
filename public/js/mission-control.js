@@ -675,6 +675,10 @@ if (typeof window !== 'undefined') {
 
     console.log('[mc-diag] __mcPopulate payload source — subject.artistName:', payload.subject?.artistName || '(none)', '| intelligence keys present:', ['identityIntelligence','publishingIntelligence','healthIntelligence','royalteAI','catalogIntelligence','globalMusicFootprint','backendIntelligence','monitoringIntelligence'].filter(k => payload[k] != null).join(',') || 'NONE');
 
+    // Store artist name — sole source of truth for what subject MC is displaying.
+    // Consumed by __mcRevealHero() to write [data-mc-page-title].
+    _vaultPlans.artistName = payload.subject?.artistName || payload.artistName || null;
+
     // Identity
     const ii = safeIdentityIntelligence(payload.identityIntelligence);
     if (ii) {
@@ -797,5 +801,27 @@ if (typeof window !== 'undefined') {
         break;
       }
     }
+  };
+
+  // window.__mcRevealHero — writes the scanned artist's name to the page
+  // title element. Called by vault-auth.js immediately after __mcPopulate()
+  // resolves, before any module activates, so the page title reflects the
+  // current scan's subject on the first visible frame of Mission Control.
+  //
+  // Diagnostic: logs the exact value being written and its source so the
+  // Board can confirm which artist is being displayed and where it came from.
+  window.__mcRevealHero = function () {
+    const name    = _vaultPlans.artistName || null;
+    const titleEl = document.querySelector('[data-mc-page-title]');
+    const nameEl  = document.querySelector('[data-mc-founder-name]');
+    const prev    = titleEl ? titleEl.textContent : '(element not found)';
+    console.log(
+      '[mc-diag] __mcRevealHero called\n' +
+      '  Payload artist (source: _vaultPlans.artistName): ' + (name || '(none)') + '\n' +
+      '  Current page title text: "' + prev + '"\n' +
+      '  Will render: ' + (name ? name.toUpperCase() : '(no update — name absent)')
+    );
+    if (titleEl && name) titleEl.textContent = name.toUpperCase();
+    if (nameEl  && name) nameEl.textContent  = name.toUpperCase();
   };
 }

@@ -180,6 +180,14 @@ function _blankSentinelData() {
   const rr = q('.mc-review-ring .mc-ring-progress');
   if (rr) rr.setAttribute('stroke-dasharray', '0 289');
 
+  // Page title + founder name — hardcoded seed values must not show until the
+  // scan's artist is confirmed from the payload. __mcRevealHero() writes the
+  // real name after __mcPopulate() resolves.
+  const pt = q('[data-mc-page-title]');
+  if (pt) pt.textContent = '';
+  const fn = q('[data-mc-founder-name]');
+  if (fn) fn.textContent = '';
+
   // Reactor: start at 0% / Standby. Will rise to 25% over the two sweeps.
   _setSentinelReactor(0);
 }
@@ -293,6 +301,11 @@ function _showPreactivateSequence(sessionId, scanId) {
     // Populate MC from bridged sessionStorage payload (no auth required —
     // data was stored by the homepage scan before navigation).
     if (typeof window.__mcPopulate === 'function') await window.__mcPopulate();
+
+    // Write the artist name to the page title immediately after the payload
+    // resolves — before sentinel is removed and modules activate — so the
+    // first visible frame of MC shows the correct subject, not the seed value.
+    if (typeof window.__mcRevealHero === 'function') window.__mcRevealHero();
 
     // Remove Sentinel — modules are fully visible with blanked data from here.
     // Inline stroke-dasharray attributes set by _blankSentinelData() hold rings
@@ -573,6 +586,11 @@ async function _signatureTransition() {
   // restores pointer-events and stops the Sentinel radar timing.
   // No dots reset, no status change: power rises from 25% in _triggerBoot.
   document.body.classList.remove('mc-sentinel');
+
+  // Page title: write the scanned artist name now that MC is visible.
+  // __mcPopulate() already ran and stored the name; this is the first
+  // visible frame of MC on the normal vault path.
+  if (typeof window.__mcRevealHero === 'function') window.__mcRevealHero();
 
   // Half-second silence — the defining pause before activation.
   await sleep(500);
