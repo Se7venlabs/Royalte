@@ -2678,24 +2678,52 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
 .mc-founder{margin-top:0;}
 
 /* ── Sentinel State™ (Phase 3) ──────────────────────────────────────
-   MC is visible but dormant while the Intelligence Vault is active.
-   Content dimming uses the same cascade as mc-booting; radar is kept
-   running at slow-sweep to signal the system is aware, not operational.
+   MC structure visible, all data blanked. Radar is the only active
+   element — system is aware, not yet operational.
+
+   Cards and right rail show as empty shells (borders/backgrounds at
+   33% opacity). All direct children — values, charts, counters — are
+   hidden. Hero text and actions hidden. Radar isolated from the hero
+   opacity cascade so it remains clearly visible.
    ─────────────────────────────────────────────────────────────────── */
 body.mc-sentinel .mc-card,
-body.mc-sentinel .mc-rail-right,
-body.mc-sentinel .mc-hero{opacity:0.33;filter:grayscale(0.35) brightness(0.60);pointer-events:none;transition:opacity 1.2s ease,filter 1.2s ease;}
+body.mc-sentinel .mc-rail-right{opacity:0.33;filter:grayscale(0.35) brightness(0.60);pointer-events:none;transition:opacity 1.2s ease,filter 1.2s ease;}
 body.mc-sentinel .mc-card::before{opacity:0;transition:opacity 1.2s ease;}
-body.mc-sentinel .mc-pulse-line{opacity:0;}
-/* Radar stays active in Sentinel — slow sweep, visible blips, unmistakably watching */
-body.mc-sentinel .mc-radar-sweep{animation-duration:4s;opacity:0.45;}
-body.mc-sentinel .mc-radar-detect-dot{opacity:0.32;}
+body.mc-sentinel .mc-hero{pointer-events:none;}
+/* Blank all data inside card and rail shells */
+body.mc-sentinel .mc-card > *,
+body.mc-sentinel .mc-rail-right > *{opacity:0;transition:opacity 0.6s ease;}
+/* Blank hero data content — radar handled at element level below */
+body.mc-sentinel .mc-hero-block,
+body.mc-sentinel .mc-hero-action,
+body.mc-sentinel .mc-pulse-line{opacity:0;transition:opacity 0.6s ease;}
+/* Radar: not in the hero opacity cascade — directly visible */
+body.mc-sentinel .mc-radar{opacity:0.58;transition:opacity 1.2s ease;}
+body.mc-sentinel .mc-radar-sweep{animation-duration:4s;opacity:0.55;}
+/* CSS dot animations suppressed in Sentinel; vault-auth.js fires one timed blip */
+body.mc-sentinel .mc-radar-detect-dot,
+body.mc-sentinel .mc-radar-detect-echo{animation-name:none;opacity:0;}
+
+/* ── Sentinel Blip™ keyframes (one-shot, JS-triggered) ─────────────
+   vault-auth.js picks a random dot and applies these once.
+   animation-fill-mode:forwards keeps the dot at opacity:0 after
+   the animation completes so it does not flash back.
+   ─────────────────────────────────────────────────────────────────── */
+@keyframes mc-sentinel-blip-dot{
+  0%{opacity:0;}18%{opacity:0.88;}40%{opacity:0.88;}100%{opacity:0;}
+}
+@keyframes mc-sentinel-blip-echo-1{
+  0%{opacity:0;r:3;}18%{opacity:0.62;r:3;}100%{opacity:0;r:18;}
+}
+@keyframes mc-sentinel-blip-echo-2{
+  0%{opacity:0;r:3;}22%{opacity:0.44;r:3;}100%{opacity:0;r:16;}
+}
 
 /* ── Intelligence Vault™ (Phase 3) ──────────────────────────────────
    Fixed overlay on mission-control.html. Hidden by default (aria-hidden).
    vault-auth.js owns all show/hide/transition logic.
    ─────────────────────────────────────────────────────────────────── */
-#mc-vault{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(5,5,7,0.84);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity 0.7s ease;}
+#mc-vault{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(5,5,7,0.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity 0.7s ease;}
 #mc-vault.mc-vault--visible{opacity:1;pointer-events:auto;}
 #mc-vault.mc-vault--leaving{opacity:0 !important;transition:opacity 0.5s ease-in !important;pointer-events:none !important;}
 .mc-vault-panel{width:100%;max-width:420px;background:rgba(10,10,15,0.97);border:1px solid rgba(168,85,247,0.14);border-radius:12px;padding:48px 40px;display:flex;flex-direction:column;}

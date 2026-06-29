@@ -61,25 +61,33 @@ export async function initVault() {
 }
 
 // ── Sentinel State ─────────────────────────────────────────────────────
+//
+//  Sequence (cover path — arriving via ?vault=1 from index.html):
+//
+//    t =   0ms  mc-sentinel added; radar speeds to 4s/rev
+//    t =  80ms  boot cover begins fading (1.2s ease)
+//    t =1280ms  cover fully transparent → MC visible in Sentinel
+//    t =5000ms  one Sentinel blip fires (≈ end of first radar sweep)
+//    t =5600ms  Vault begins fading in (0.7s ease)
+//    t =6300ms  Vault fully visible; email field focuses
+//
+//  The artist sees MC asleep with radar sweeping for ~3.7s before
+//  the blip, then the Vault fades in immediately after.
 
 function _showVault(sessionId, scanId) {
-  // Apply Sentinel State before the cover is removed — MC is already in
-  // its dimmed state when the artist first sees it.
   document.body.classList.add('mc-sentinel');
 
-  // Sequence:
-  //   1. Fade cover away → MC materialises in Sentinel State   (~1.2s)
-  //   2. Sentinel dwell — artist sees the radar, the modules    (~1.8s)
-  //   3. Vault fades in                                         (~0.7s)
-  const cover = document.getElementById('mc-boot-cover');
-  const COVER_FADE = 1200;   // ms for cover to fade
-  const SENTINEL_DWELL = 1800; // ms artist experiences Sentinel before Vault
-
+  const cover   = document.getElementById('mc-boot-cover');
   const hasCover = cover && cover.style.display !== 'none';
 
+  const COVER_FADE   = 1200;  // cover fade duration
+  const ONE_SWEEP_MS = 3720;  // slightly under 4s so blip feels like the sweep "found" something
+  // Absolute ms from when _showVault is called:
+  const BLIP_AT    = hasCover ? (80 + COVER_FADE + ONE_SWEEP_MS) : ONE_SWEEP_MS;
+  const VAULT_AT   = BLIP_AT + 600;  // Vault fades in while blip is still visible
+  const FOCUS_AT   = VAULT_AT + 800; // Focus after Vault has faded in
+
   if (hasCover) {
-    // Cover is still up (left visible by the boot IIFE for vault entries).
-    // Fade it out to reveal MC in Sentinel State.
     setTimeout(() => {
       cover.style.transition = 'opacity 1.2s ease';
       cover.style.opacity = '0';
@@ -87,28 +95,54 @@ function _showVault(sessionId, scanId) {
     }, 80);
   }
 
-  // When cover was present: wait for it to fade + Sentinel dwell.
-  // When no cover (direct nav): just the Sentinel dwell — mc-sentinel
-  // transition (1.2s) is already playing when the page loads.
-  const vaultDelay = hasCover ? (80 + COVER_FADE + SENTINEL_DWELL) : SENTINEL_DWELL;
+  // One Sentinel blip — JS-controlled, single random dot
+  setTimeout(_fireOneSentinelBlip, BLIP_AT);
+
+  // Vault fades in
   setTimeout(() => {
     const vault = document.getElementById('mc-vault');
     if (vault) {
       vault.removeAttribute('aria-hidden');
-      // Two rAFs ensure the opacity transition fires after the class is painted.
       requestAnimationFrame(() => requestAnimationFrame(() => {
         vault.classList.add('mc-vault--visible');
       }));
     }
-  }, vaultDelay);
+  }, VAULT_AT);
 
-  // Focus email field once the Vault has faded in (fade is 0.7s).
+  // Focus email field after Vault is visible
   setTimeout(() => {
     const el = document.getElementById('mc-vault-email');
     if (el) el.focus();
-  }, vaultDelay + 800);
+  }, FOCUS_AT);
 
   _wireForm(sessionId, scanId);
+}
+
+function _fireOneSentinelBlip() {
+  // Pick one of the five detection positions at random.
+  const idx = 1 + Math.floor(Math.random() * 5);
+  const BL_DUR = '1500ms';
+
+  const dot    = document.querySelector(`.mc-radar-detect-dot--${idx}`);
+  const echoes = document.querySelectorAll(`.mc-radar-detect-echo--${idx}`);
+  if (!dot) return;
+
+  // Apply one-shot keyframe animation. fill-mode:forwards keeps opacity:0
+  // after completion so the element does not flash back to a CSS rule value.
+  dot.style.animationName            = 'mc-sentinel-blip-dot';
+  dot.style.animationDuration        = BL_DUR;
+  dot.style.animationTimingFunction  = 'ease-out';
+  dot.style.animationIterationCount  = '1';
+  dot.style.animationFillMode        = 'forwards';
+
+  echoes.forEach(e => {
+    const isRing2 = e.classList.contains('mc-radar-detect-echo--ring2');
+    e.style.animationName            = isRing2 ? 'mc-sentinel-blip-echo-2' : 'mc-sentinel-blip-echo-1';
+    e.style.animationDuration        = BL_DUR;
+    e.style.animationTimingFunction  = 'ease-out';
+    e.style.animationIterationCount  = '1';
+    e.style.animationFillMode        = 'forwards';
+  });
 }
 
 // ── Form wiring ────────────────────────────────────────────────────────
