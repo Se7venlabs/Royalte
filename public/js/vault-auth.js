@@ -83,6 +83,17 @@ export async function initVault() {
 //  CSS ring overrides (stroke-dasharray:0) are a failsafe; this JS
 //  ensures every text value is genuinely blank, not merely invisible.
 
+// Sets reactor step + overrides status text for Sentinel (passive, not booting).
+function _setSentinelReactor(step) {
+  const boot = window.__mcBoot;
+  if (boot && boot.setReactor) boot.setReactor(step);
+  const statusEl = document.getElementById('mc-reactor-status');
+  if (statusEl) {
+    statusEl.textContent = step === 0 ? 'Standby' : 'Passive Monitoring';
+    statusEl.className   = step === 0 ? 'mc-reactor-status' : 'mc-reactor-status mc-rs-booting';
+  }
+}
+
 function _blankSentinelData() {
   const q  = s => document.querySelector(s);
   const qa = s => document.querySelectorAll(s);
@@ -163,6 +174,9 @@ function _blankSentinelData() {
   if (pal) pal.innerHTML = '';
   const rr = q('.mc-review-ring .mc-ring-progress');
   if (rr) rr.setAttribute('stroke-dasharray', '0 289');
+
+  // Reactor: start at 0% / Standby. Will rise to 25% over the two sweeps.
+  _setSentinelReactor(0);
 }
 
 let _lastBlipIdx = -1;
@@ -179,11 +193,14 @@ function _showVault(sessionId, scanId) {
 
   // Blips fire just before each sweep completes so detection feels
   // triggered by the sweep arm passing that position.
-  const base     = hasCover ? (80 + COVER_FADE) : 0;
-  const BLIP1_AT = base + ONE_SWEEP - 200;  // end of first sweep
-  const BLIP2_AT = BLIP1_AT + ONE_SWEEP;   // end of second sweep
-  const VAULT_AT = BLIP2_AT + 600;         // vault fades in after second blip
-  const FOCUS_AT = VAULT_AT + 800;         // email focus after vault is visible
+  const base       = hasCover ? (80 + COVER_FADE) : 0;
+  const BLIP1_AT   = base + ONE_SWEEP - 200;        // end of first sweep
+  const BLIP2_AT   = BLIP1_AT + ONE_SWEEP;          // end of second sweep
+  const VAULT_AT   = BLIP2_AT + 600;                // vault fades in after second blip
+  const FOCUS_AT   = VAULT_AT + 800;                // email focus after vault is visible
+  // Power rises gradually over the two sweeps: 0% → 12% → 25%
+  const SWEEP1_MID = base + ONE_SWEEP / 2;          // midway through sweep 1 → 12%
+  const SWEEP2_MID = (BLIP1_AT + BLIP2_AT) / 2;    // midway through sweep 2 → 25%
 
   if (hasCover) {
     setTimeout(() => {
@@ -192,6 +209,10 @@ function _showVault(sessionId, scanId) {
       setTimeout(() => { cover.style.display = 'none'; }, COVER_FADE);
     }, 80);
   }
+
+  // Power rises over the two sweeps: 0% (on load) → 12% (mid sweep 1) → 25% (mid sweep 2)
+  setTimeout(() => _setSentinelReactor(1), SWEEP1_MID);
+  setTimeout(() => _setSentinelReactor(2), SWEEP2_MID);
 
   // Two Sentinel blips — one per radar sweep, guaranteed different positions.
   setTimeout(_fireOneSentinelBlip, BLIP1_AT);
@@ -229,8 +250,12 @@ function _fireOneSentinelBlip() {
   const echoes = document.querySelectorAll(`.mc-radar-detect-echo--${idx}`);
   if (!dot) return;
 
+  // animationDelay MUST be set to '0s' here — the per-index class CSS
+  // has animation-delay values of 2s–41s that would otherwise delay
+  // the blip from appearing until long after it was scheduled.
   dot.style.animationName            = 'mc-sentinel-blip-dot';
   dot.style.animationDuration        = BL_DUR;
+  dot.style.animationDelay           = '0s';
   dot.style.animationTimingFunction  = 'ease-out';
   dot.style.animationIterationCount  = '1';
   dot.style.animationFillMode        = 'forwards';
@@ -239,6 +264,7 @@ function _fireOneSentinelBlip() {
     const isRing2 = e.classList.contains('mc-radar-detect-echo--ring2');
     e.style.animationName            = isRing2 ? 'mc-sentinel-blip-echo-2' : 'mc-sentinel-blip-echo-1';
     e.style.animationDuration        = BL_DUR;
+    e.style.animationDelay           = '0s';
     e.style.animationTimingFunction  = 'ease-out';
     e.style.animationIterationCount  = '1';
     e.style.animationFillMode        = 'forwards';
