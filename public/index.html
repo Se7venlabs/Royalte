@@ -1560,20 +1560,6 @@ body.cinema-mode .hero-right{visibility:hidden;}
 .iv-term-line{font-family:'Space Mono',monospace;font-size:12px;color:#e040c8;letter-spacing:0.14em;line-height:1.9;white-space:pre;text-shadow:0 0 8px rgba(224,64,200,0.45);}
 .iv-term-cursor{display:inline-block;width:8px;height:0.9em;background:#e040c8;vertical-align:text-bottom;margin-left:2px;animation:iv-blink 0.7s step-end infinite;box-shadow:0 0 6px rgba(224,64,200,0.55);}
 @keyframes iv-blink{0%,100%{opacity:1;}50%{opacity:0;}}
-/* Access authorization overlay */
-#iv-auth{position:fixed;inset:0;z-index:9800;background:transparent;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:0 40px 12vh;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 0.7s ease;}
-#iv-auth.active{visibility:visible;opacity:1;pointer-events:all;}
-.iva-title{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#e040c8;text-shadow:0 0 8px rgba(224,64,200,0.45);text-align:left;margin:0 0 6px;line-height:1.9;}
-.iva-sub{font-family:'Space Mono',monospace;font-size:10px;color:rgba(255,255,255,0.38);letter-spacing:0.07em;text-align:left;line-height:1.6;margin:0 0 18px;max-width:none;}
-.iva-form{width:100%;max-width:340px;display:flex;flex-direction:column;gap:8px;}
-.iva-input{width:100%;background:rgba(0,0,0,0.38);border:1px solid rgba(224,64,200,0.22);border-radius:3px;padding:10px 14px;font-family:'Space Mono',monospace;font-size:11px;color:#fff;outline:none;box-sizing:border-box;transition:border-color 0.2s ease;letter-spacing:0.05em;}
-.iva-input::placeholder{color:rgba(255,255,255,0.24);}
-.iva-input:focus{border-color:rgba(224,64,200,0.52);}
-.iva-btn{width:100%;margin-top:6px;padding:14px 24px;background:linear-gradient(90deg,#8a5cff 0%,#e040c8 100%);border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;cursor:pointer;transition:opacity 0.2s ease,box-shadow 0.3s ease;box-shadow:0 0 24px rgba(138,92,255,0.35);}
-.iva-btn:hover{opacity:0.88;box-shadow:0 0 34px rgba(138,92,255,0.55),0 0 64px rgba(224,64,200,0.2);}
-.iva-btn:disabled{opacity:0.45;cursor:not-allowed;}
-.iva-status{font-family:'Space Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);text-align:left;margin-top:10px;min-height:16px;line-height:1.5;letter-spacing:0.05em;}
-.iva-status.error{color:#f05060;}
 /* ── Vault Activation System™ ────────────────────────────────────── */
 @keyframes iv-vault-breathe{0%,100%{filter:brightness(1);}50%{filter:brightness(1.022);}}
 @keyframes iv-core-beat{0%,100%{opacity:0.45;}48%,52%{opacity:0.82;}}
@@ -1620,13 +1606,7 @@ body.cinema-mode .hero-right{visibility:hidden;}
 #intel-vault.active #iv-fb-3{animation:iv-floor-glow 11s 3.5s ease-in-out infinite;}
 #intel-vault.active #iv-fb-4{animation:iv-floor-glow 22s 9.6s ease-in-out infinite;}
 #intel-vault.active #iv-fb-5{animation:iv-floor-glow 16s 1.8s ease-in-out infinite;}
-/* Auth materialization — staggered reveal */
-.iva-title,.iva-sub,.iva-form,.iva-status{opacity:0;}
-#iv-auth.active .iva-title{animation:iv-element-in 0.6s 0.15s ease both;}
-#iv-auth.active .iva-sub{animation:iv-element-in 0.6s 0.35s ease both;}
-#iv-auth.active .iva-form{animation:iv-element-in 0.7s 0.58s ease both;}
-#iv-auth.active .iva-status{animation:iv-element-in 0.5s 0.75s ease both;}
-@media(max-width:768px){#iv-msg{font-size:16px;}.iv-wordmark{font-size:9px;}.iv-os-text{font-size:40px;}#iv-terminal{padding:0 24px 16vh;}.iv-term-line{font-size:11px;}#iv-auth{padding:0 24px 16vh;}}
+@media(max-width:768px){#iv-msg{font-size:16px;}.iv-wordmark{font-size:9px;}.iv-os-text{font-size:40px;}#iv-terminal{padding:0 24px 16vh;}.iv-term-line{font-size:11px;}}
 .sh-features{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;margin-top:24px;}
 .sh-feat{padding:16px 14px;display:flex;flex-direction:column;gap:6px;position:relative;}
 .sh-feat+.sh-feat::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:1px;background:rgba(255,255,255,0.05);}
@@ -3820,15 +3800,6 @@ function _ivMessages(cb) {
   })();
 }
 
-function _ivOSActivation() {
-  var vault = document.getElementById('intel-vault');
-  var os    = document.getElementById('iv-os-reveal');
-  // Fade vault out; raise the black screen behind it
-  if (vault) { vault.style.transition = 'opacity 0.5s ease'; vault.style.opacity = '0'; }
-  if (os) { os.setAttribute('aria-hidden', 'false'); os.classList.add('active'); }
-  // Clean black beat — no text, no announcement; Mission Control is the destination
-  setTimeout(_bootRoyalteOS, 1500);
-}
 
 function _ivTerminal(cb) {
   var term = document.getElementById('iv-terminal');
@@ -3876,28 +3847,6 @@ function _ivTerminal(cb) {
   typeLine();
 }
 
-function _ivShowAuth() {
-  // Vault stays visible — auth form emerges within the vault environment
-  var auth = document.getElementById('iv-auth');
-  if (auth) { auth.setAttribute('aria-hidden', 'false'); auth.classList.add('active'); }
-  _playAuthTone();
-  _vaultAcknowledge(true);
-  setTimeout(function() {
-    var emailEl = document.getElementById('iva-email');
-    if (emailEl) emailEl.focus();
-  }, 700);
-}
-
-function _bootRoyalteOS() {
-  var os = document.getElementById('iv-os-reveal');
-  if (os) { os.style.transition = 'opacity 0.5s ease'; os.style.opacity = '0'; }
-  setTimeout(function() {
-    // Phase 4.1: all MC access goes through the Intelligence Vault.
-    var scanId = (window.__royalteScan && window.__royalteScan.scanId) ? window.__royalteScan.scanId : '';
-    var dest = '/mission-control.html?vault=1' + (scanId ? '&scanId=' + encodeURIComponent(scanId) : '');
-    window.location.href = dest;
-  }, 550);
-}
 
 function showIntelVault() {
   document.body.classList.add('cinema-mode');
@@ -3938,162 +3887,6 @@ function showIntelVault() {
   });
 }
 
-// ── Access Authorization form wiring ────────────────────────────────
-(function() {
-  function wireAuthForm() {
-    var form = document.getElementById('iva-form');
-    if (!form) return;
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var emailEl  = document.getElementById('iva-email');
-      var passEl   = document.getElementById('iva-pass');
-      var btnEl    = document.getElementById('iva-btn');
-      var statusEl = document.getElementById('iva-status');
-      var email    = (emailEl ? emailEl.value : '').trim();
-      var password = passEl ? passEl.value : '';
-      if (!email || !password) {
-        if (statusEl) { statusEl.textContent = 'Please enter your email and password.'; statusEl.className = 'iva-status error'; }
-        return;
-      }
-      if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Activating…'; }
-      if (statusEl) { statusEl.textContent = ''; statusEl.className = 'iva-status'; }
-      _playSwitchSound();
-      _vaultAcknowledge();
-      try {
-        var sb = window.getSupabase ? window.getSupabase() : null;
-        if (!sb) throw new Error('unavailable');
-
-        // session_id rides in signup metadata AND the emailRedirectTo URL so the
-        // auth callback can claim the scan regardless of which channel it arrives on.
-        var _vaultSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
-        var _callbackUrl = window.location.origin + '/auth/callback'
-          + (_vaultSessionId ? '?session_id=' + encodeURIComponent(_vaultSessionId) : '');
-        var signUpResult = await sb.auth.signUp({
-          email:    email,
-          password: password,
-          options:  {
-            data: { session_id: _vaultSessionId || null, source: 'vault_activation' },
-            emailRedirectTo: _callbackUrl,
-          },
-        });
-
-        if (signUpResult.error) {
-          var _isAlreadyRegistered = (signUpResult.error.message || '').toLowerCase().includes('already registered');
-          if (_isAlreadyRegistered) {
-            // Returning user — sign in with the same credentials.
-            // The vault UX stays identical: no UI change, same claim → ownership → boot flow.
-            var _loginResult = await sb.auth.signInWithPassword({ email: email, password: password });
-            if (_loginResult.error || !_loginResult.data || !_loginResult.data.session) {
-              if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
-              var _loginErrMsg = (_loginResult.error && (_loginResult.error.message || '').toLowerCase().includes('invalid'))
-                ? 'Incorrect password. Check your credentials and try again.'
-                : (_loginResult.error ? _loginResult.error.message : 'Activation failed. Please try again.');
-              if (statusEl) { statusEl.textContent = _loginErrMsg; statusEl.className = 'iva-status error'; }
-              return;
-            }
-            // Continue with the signed-in session — same path as a fresh signUp with a session.
-            signUpResult = _loginResult;
-          } else {
-            if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
-            if (statusEl) { statusEl.textContent = signUpResult.error.message || 'Activation failed. Please try again.'; statusEl.className = 'iva-status error'; }
-            return;
-          }
-        }
-
-        // ── State 1: email confirmation required ──────────────────────────
-        // session is null when Supabase requires email verification before
-        // granting an access token. Vault must remain locked — Mission Control
-        // must not open — until authentication is fully verified.
-        if (!signUpResult.data || !signUpResult.data.session) {
-          if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Verify Your Email'; }
-          if (statusEl) {
-            statusEl.textContent = 'Verification link sent to ' + email + '. Click it to activate your Royaltē OS account.';
-            statusEl.className = 'iva-status';
-          }
-          // Persist the scan_id so the auth callback can boot MC with the correct owned scan.
-          try {
-            var _pendingScanId = window.__royalteScan && window.__royalteScan.scanId;
-            if (_pendingScanId) localStorage.setItem('royalte_pending_scan_id', _pendingScanId);
-          } catch (_lsErr) { /* localStorage blocked — callback will use latest owned scan */ }
-          return; // Vault stays locked. Mission Control does not open.
-        }
-
-        // ── State 2: authentication complete ─────────────────────────────
-        // session exists — Supabase has verified the user.
-        // Every step below must succeed. Any failure locks Vault — no silent
-        // continuation, no fallback artist. Failure is preferable to corrupted ownership.
-
-        // Step 1: Claim the temporary scan onto this authenticated account.
-        // Calling /api/claim-scan (server-side, service role) because the
-        // migrate_anonymous_scans function is only executable by service_role.
-        if (_vaultSessionId && signUpResult.data.session && signUpResult.data.session.access_token) {
-          var _claimRes = await fetch('/api/claim-scan', {
-            method:  'POST',
-            headers: {
-              'Content-Type':  'application/json',
-              'Authorization': 'Bearer ' + signUpResult.data.session.access_token,
-            },
-            body: JSON.stringify({ session_id: _vaultSessionId }),
-          });
-          if (!_claimRes.ok) {
-            var _claimErr = await _claimRes.json().catch(function() { return {}; });
-            console.error('[vault] claim-scan failed:', _claimErr);
-            if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
-            if (statusEl) {
-              statusEl.textContent = 'Scan could not be claimed. Please try again.';
-              statusEl.className = 'iva-status error';
-            }
-            return; // Vault stays locked
-          }
-          var _claimData = await _claimRes.json().catch(function() { return {}; });
-          // If the server returned a scanId, update the in-memory scan reference
-          // so the ownership check and MC boot use the correct id.
-          if (_claimData.scanId && window.__royalteScan) {
-            window.__royalteScan.scanId = _claimData.scanId;
-          } else if (_claimData.scanId) {
-            window.__royalteScan = { scanId: _claimData.scanId };
-          }
-        }
-
-        // Step 2: Verify ownership — query the scan using the authenticated session.
-        // RLS must return the row (user_id = auth user). If it does not, ownership
-        // is not established and Mission Control must not open.
-        var _scanIdToVerify = window.__royalteScan && window.__royalteScan.scanId;
-        if (_scanIdToVerify) {
-          var _ownerCheck = await sb
-            .from('audit_scans')
-            .select('id')
-            .eq('id', _scanIdToVerify)
-            .maybeSingle();
-          if (_ownerCheck.error || !_ownerCheck.data) {
-            console.error('[vault] ownership check failed:', _ownerCheck.error || 'RLS returned no row');
-            if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
-            if (statusEl) {
-              statusEl.textContent = 'Ownership could not be confirmed. Please try again.';
-              statusEl.className = 'iva-status error';
-            }
-            return; // Vault stays locked
-          }
-        }
-
-        // All conditions confirmed — Vault unlocks.
-        _vaultAcknowledge(true);
-        if (btnEl) { btnEl.textContent = 'Access Granted'; }
-        if (statusEl) { statusEl.textContent = 'Launching Royaltē OS…'; statusEl.className = 'iva-status'; }
-        setTimeout(_bootRoyalteOS, 1200);
-
-      } catch (err) {
-        if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Activate Royaltē OS'; }
-        if (statusEl) { statusEl.textContent = 'Activation failed. Please try again.'; statusEl.className = 'iva-status error'; }
-      }
-    });
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', wireAuthForm);
-  } else {
-    wireAuthForm();
-  }
-})();
 
 // Enter key support for all Scan Hero V3 inputs
 ['url-input', 'artist-name-input', 'song-title-input'].forEach(function(id) {
@@ -4330,16 +4123,6 @@ loadFoundingArtistCount();
 </div>
 <div id="iv-os-reveal" aria-hidden="true">
   <div class="iv-os-text">Royalt&#x113; OS</div>
-</div>
-<div id="iv-auth" aria-hidden="true" role="dialog" aria-labelledby="iva-title">
-  <p class="iva-title" id="iva-title">ROYALT&#x113; OS ACCESS GRANTED</p>
-  <p class="iva-sub">Create your Royalt&#x113; OS credentials to continue.</p>
-  <form class="iva-form" id="iva-form" novalidate>
-    <input class="iva-input" id="iva-email" type="email" placeholder="Email Address" autocomplete="email" spellcheck="false">
-    <input class="iva-input" id="iva-pass" type="password" placeholder="Password" autocomplete="new-password">
-    <button class="iva-btn" id="iva-btn" type="submit">Activate Royalt&#x113; OS</button>
-  </form>
-  <div class="iva-status" id="iva-status"></div>
 </div>
 
 </body>
