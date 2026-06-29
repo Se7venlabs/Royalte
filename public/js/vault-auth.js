@@ -430,20 +430,11 @@ async function _signatureTransition() {
     vault.style.display = 'none';
   }
 
-  // Remove Sentinel State. The Sentinel CSS had opacity 0.28 + grayscale on
-  // all cards and its own transition: opacity 1.2s ease — removing the class
-  // triggers that transition, smoothly brightening MC to full opacity as the
-  // vault disappears. No mc-booting is added here: that class was designed
-  // for the ?boot=1 cold-start path and dims cards to 0.06, which is the
-  // wrong direction for an already-visible MC waking up from Sentinel State.
+  // Remove Sentinel State. MC was always at full brightness — the vault
+  // overlay was the sole visual element over it. Removing mc-sentinel
+  // restores pointer-events and stops the Sentinel radar timing.
+  // No dots reset, no status change: power rises from 25% in _triggerBoot.
   document.body.classList.remove('mc-sentinel');
-
-  // Reset reactor dots to 0 (Sentinel left them at step 2 / 25%).
-  // Percentage text stays at 25% — _triggerBoot animates it continuously
-  // to 100% so the artist sees a smooth rise, never a reset to zero.
-  document.querySelectorAll('.mc-reactor-dot').forEach(d => d.classList.remove('lit'));
-  const _rxStatus = document.getElementById('mc-reactor-status');
-  if (_rxStatus) { _rxStatus.textContent = 'System Offline'; _rxStatus.className = 'mc-reactor-status'; }
 
   // Half-second silence — the defining pause before activation.
   await sleep(500);
@@ -462,6 +453,19 @@ function _triggerBoot() {
 
   const pctEl = document.getElementById('mc-reactor-pct');
 
+  // Sentinel left the reactor at 25% (2 dots lit). Capture that baseline
+  // so the activation sequence never decreases the dot count — power only
+  // rises from here. setReactor calls below that baseline are skipped.
+  const sentinelDotCount = document.querySelectorAll('.mc-reactor-dot.lit').length;
+
+  // Transition reactor status from Sentinel's "Passive Monitoring" to
+  // "System Booting" the moment activation begins.
+  const reactorStatus = document.getElementById('mc-reactor-status');
+  if (reactorStatus) {
+    reactorStatus.textContent = 'System Booting';
+    reactorStatus.className   = 'mc-reactor-status mc-rs-booting';
+  }
+
   // Patch setReactor so it updates dots and status text but not the
   // percentage display. The pct is driven by _animateReactorPct which
   // rises continuously from Sentinel's 25% to 100% across the full
@@ -470,6 +474,8 @@ function _triggerBoot() {
   let reactorAnimating = true;
   const origSetReactor  = boot.setReactor.bind(boot);
   boot.setReactor = function (step) {
+    // Skip any step that would decrease dots below the Sentinel baseline.
+    if (reactorAnimating && step < sentinelDotCount) return;
     if (!reactorAnimating || !pctEl) { origSetReactor(step); return; }
     const saved = pctEl.textContent;
     origSetReactor(step);
