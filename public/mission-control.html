@@ -2687,15 +2687,17 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
    hidden. Hero text and actions hidden. Radar isolated from the hero
    opacity cascade so it remains clearly visible.
    ─────────────────────────────────────────────────────────────────── */
+/* MC is always at full brightness — the vault overlay is the only
+   visual element over MC during Sentinel State. Pointer-events are
+   disabled so the artist interacts only with the vault form above. */
 body.mc-sentinel .mc-card,
-body.mc-sentinel .mc-rail-right{opacity:0.28;filter:grayscale(0.45) brightness(0.55);pointer-events:none;transition:opacity 1.2s ease,filter 1.2s ease;}
-body.mc-sentinel .mc-card::before{opacity:0;transition:opacity 1.2s ease;}
-body.mc-sentinel .mc-hero{pointer-events:none;}
-/* Hero content dimmed alongside cards — radar excluded below */
+body.mc-sentinel .mc-rail-right,
+body.mc-sentinel .mc-hero,
 body.mc-sentinel .mc-hero-block,
 body.mc-sentinel .mc-hero-action,
-body.mc-sentinel .mc-pulse-line{opacity:0.28;filter:grayscale(0.45) brightness(0.55);transition:opacity 1.2s ease,filter 1.2s ease;}
-/* Radar: not in the hero opacity cascade — directly controlled */
+body.mc-sentinel .mc-pulse-line{pointer-events:none;}
+/* Radar: passive monitoring mode — slightly subdued to communicate
+   standby, distinct from the fully active post-unlock state */
 body.mc-sentinel .mc-radar{opacity:0.60;transition:opacity 1.2s ease;}
 body.mc-sentinel .mc-radar-sweep{animation-duration:4s;opacity:0.62;}
 /* CSS dot animations suppressed; vault-auth.js fires two timed blips.
