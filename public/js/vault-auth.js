@@ -430,10 +430,12 @@ async function _signatureTransition() {
     vault.style.display = 'none';
   }
 
-  // Transition from Sentinel State into the boot-offline state.
-  // Adding mc-booting BEFORE removing mc-sentinel keeps the MC dimmed
-  // through the silence — no flash of full brightness.
-  document.body.classList.add('mc-booting');
+  // Remove Sentinel State. The Sentinel CSS had opacity 0.28 + grayscale on
+  // all cards and its own transition: opacity 1.2s ease — removing the class
+  // triggers that transition, smoothly brightening MC to full opacity as the
+  // vault disappears. No mc-booting is added here: that class was designed
+  // for the ?boot=1 cold-start path and dims cards to 0.06, which is the
+  // wrong direction for an already-visible MC waking up from Sentinel State.
   document.body.classList.remove('mc-sentinel');
 
   // Reset reactor dots to 0 (Sentinel left them at step 2 / 25%).
