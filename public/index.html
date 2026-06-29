@@ -72,33 +72,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;d
 .nav-cta:hover{opacity:0.85;}
 .nav-os-entry{display:inline-block;text-decoration:none;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);background:rgba(138,92,255,0.06);border:1px solid var(--border2);padding:9px 20px;border-radius:4px;white-space:nowrap;transition:background 0.2s,border-color 0.2s,color 0.2s;}
 .nav-os-entry:hover{background:rgba(138,92,255,0.12);border-color:var(--pur);color:#fff;}
-/* ─── Royaltē OS login modal (Block F) ─── */
-.os-modal-overlay{position:fixed;inset:0;background:rgba(3,3,10,0.8);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);z-index:200;opacity:0;pointer-events:none;transition:opacity 0.2s;}
-.os-modal-overlay[aria-hidden="false"]{opacity:1;pointer-events:auto;}
-.os-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%);z-index:201;width:calc(100% - 40px);max-width:400px;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:30px 28px;opacity:0;pointer-events:none;transition:opacity 0.2s,transform 0.2s;}
-.os-modal[aria-hidden="false"]{opacity:1;pointer-events:auto;transform:translate(-50%,-50%);}
-.os-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);border-radius:14px 14px 0 0;}
-.os-modal-close{position:absolute;top:12px;right:15px;background:none;border:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer;padding:4px;transition:color 0.2s;}
-.os-modal-close:hover{color:var(--text);}
-.os-modal-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:#fff;margin:0 0 4px;}
-.os-modal-sub{font-size:13px;color:var(--muted2);margin:0 0 18px;}
-.os-modal-label{display:block;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px;}
-.os-modal-input{width:100%;padding:11px 13px;background:var(--bg);color:var(--text);border:1px solid var(--border2);border-radius:6px;font-family:'Space Grotesk',sans-serif;font-size:14px;}
-.os-modal-input:focus{outline:none;border-color:var(--pur);}
-.os-modal-forgot{display:block;width:100%;margin:8px 0 0;padding:0;background:none;border:none;cursor:pointer;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.06em;color:var(--muted);text-align:right;}
-.os-modal-forgot:hover{color:var(--pur);}
-.os-modal-forgot:disabled{opacity:0.5;cursor:default;}
-.os-modal-btn{width:100%;margin-top:18px;padding:12px;background:var(--grad);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;transition:opacity 0.2s;}
-.os-modal-btn:hover{opacity:0.9;}
-.os-modal-btn:disabled{opacity:0.55;cursor:not-allowed;}
-.os-modal-btn-secondary{margin-top:0;background:transparent;border:1px solid var(--border2);color:var(--text);}
-.os-modal-btn-secondary:hover{background:rgba(138,92,255,0.08);border-color:var(--pur);opacity:1;}
-.os-modal-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;}
-.os-modal-divider::before,.os-modal-divider::after{content:'';flex:1;height:1px;background:var(--border2);}
-.os-modal-status{margin:14px 0 0;font-size:12.5px;line-height:1.5;}
-.os-modal-status.success{color:var(--grn);}
-.os-modal-status.error{color:var(--red);}
-body.os-modal-open{overflow:hidden;}
 /* HERO */
 .hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:124px 56px 60px;position:relative;overflow:hidden;gap:56px;}
 #scan-tool{min-height:auto;padding:124px 56px 32px;align-items:start;}
@@ -1249,8 +1222,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   /* I-C4 + I-C5 + I-C6 — prevent iOS auto-zoom on input focus
      (Safari zooms in when input font-size < 16px) */
   .form-input,
-  .bi-os-email,
-  .os-modal-input{font-size:16px;}
+  .bi-os-email{font-size:16px;}
 
   /* I-H1 + I-H2 — tap targets ≥44px (WCAG / iOS HIG) */
   .nav-hamburger,
@@ -1909,25 +1881,6 @@ body.cinema-mode .hero-right{visibility:hidden;}
   </nav>
 </aside>
 
-<!-- Royaltē OS login modal — returning-user entry from the "Enter Royaltē OS"
-     nav button (Block F). Password sign-in OR magic link; one shared email. -->
-<div class="os-modal-overlay" id="os-login-overlay" aria-hidden="true"></div>
-<div class="os-modal" id="os-login-modal" role="dialog" aria-modal="true" aria-labelledby="os-login-title" aria-hidden="true">
-  <button class="os-modal-close" id="os-login-close" type="button" aria-label="Close">&times;</button>
-  <h2 class="os-modal-title" id="os-login-title">Enter Royaltē OS</h2>
-  <p class="os-modal-sub">Sign in to your dashboard.</p>
-  <form id="os-login-form" novalidate>
-    <label class="os-modal-label" for="os-login-email">Email</label>
-    <input class="os-modal-input" id="os-login-email" type="email" autocomplete="username" required>
-    <label class="os-modal-label" for="os-login-password">Password</label>
-    <input class="os-modal-input" id="os-login-password" type="password" autocomplete="current-password">
-    <button class="os-modal-forgot" id="os-forgot-btn" type="button">Forgot password?</button>
-    <button class="os-modal-btn" id="os-login-submit" type="submit">Sign In</button>
-  </form>
-  <div class="os-modal-divider"><span>or</span></div>
-  <button class="os-modal-btn os-modal-btn-secondary" id="os-magic-btn" type="button">Send Magic Link</button>
-  <p class="os-modal-status" id="os-login-status" role="status" aria-live="polite"></p>
-</div>
 
 
 
@@ -2847,9 +2800,7 @@ async function runAudit() {
   stopProcessingSound();
   let msg = 'Scan failed — please try again';
   if (auditData && auditData.__authError) {
-    msg = 'Session expired — please log in to continue.';
-    // Re-open the login modal so the user can authenticate immediately.
-    setTimeout(() => typeof openOSModal === 'function' && openOSModal(), 300);
+    msg = 'Session expired — select Enter Royaltē OS to sign in and continue.';
   } else if (auditData && auditData.__error && auditData.__error.name === 'AbortError') {
     msg = 'Scan timed out — please try again';
   } else if (auditData && auditData.error) {
@@ -4339,195 +4290,6 @@ async function loadFoundingArtistCount() {
   }
 }
 loadFoundingArtistCount();
-
-// ── Royaltē OS login modal (Block F) ────────────────────────────
-// Returning-user entry. NOT an admin gate — any valid sign-in is let
-// through; admin powers are gated later inside dashboard.js.
-const osModal      = document.getElementById('os-login-modal');
-const osOverlay    = document.getElementById('os-login-overlay');
-const osModalForm  = document.getElementById('os-login-form');
-const osModalEmail = document.getElementById('os-login-email');
-const osModalPass  = document.getElementById('os-login-password');
-const osSubmitBtn  = document.getElementById('os-login-submit');
-const osMagicBtn   = document.getElementById('os-magic-btn');
-const osForgotBtn  = document.getElementById('os-forgot-btn');
-const osStatusEl   = document.getElementById('os-login-status');
-const osCloseBtn   = document.getElementById('os-login-close');
-
-function osStatus(msg, kind) {
-  if (!osStatusEl) return;
-  osStatusEl.textContent = msg || '';
-  osStatusEl.className = 'os-modal-status' + (kind ? ' ' + kind : '');
-}
-
-function openOSModal() {
-  if (!osModal) return;
-  osStatus('', '');
-  osModal.setAttribute('aria-hidden', 'false');
-  if (osOverlay) osOverlay.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('os-modal-open');
-  setTimeout(() => osModalEmail && osModalEmail.focus(), 80);
-}
-
-function closeOSModal() {
-  if (!osModal) return;
-  osModal.setAttribute('aria-hidden', 'true');
-  if (osOverlay) osOverlay.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('os-modal-open');
-}
-
-if (osCloseBtn) osCloseBtn.addEventListener('click', closeOSModal);
-if (osOverlay) osOverlay.addEventListener('click', closeOSModal);
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && osModal && osModal.getAttribute('aria-hidden') === 'false') {
-    closeOSModal();
-  }
-});
-
-// Password sign-in — any valid Supabase account is let through. No admin
-// allowlist check here; that moves to dashboard.js render-time.
-if (osModalForm) {
-  osModalForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = (osModalEmail && osModalEmail.value || '').trim();
-    const password = (osModalPass && osModalPass.value) || '';
-    if (!EMAIL_RE.test(email) || !password) {
-      osStatus('Enter your email and password.', 'error');
-      return;
-    }
-    const supabase = getSupabase();
-    if (!supabase) { osStatus('Sign in failed. Please try again.', 'error'); return; }
-
-    const original = osSubmitBtn.textContent;
-    osSubmitBtn.disabled = true;
-    osSubmitBtn.textContent = 'Signing in…';
-    osStatus('', '');
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error || !data || !data.session) {
-        osStatus("Invalid email or password. If you don't have an account yet, "
-          + 'use Send Magic Link below or run a scan to get started.', 'error');
-        osSubmitBtn.disabled = false;
-        osSubmitBtn.textContent = original;
-        return;
-      }
-      // Claim any anonymous scans via the server-side endpoint (service role required).
-      const _loginSessionId = getOrCreateSessionId();
-      if (_loginSessionId && data.session.access_token) {
-        const _claimRes = await fetch('/api/claim-scan', {
-          method:  'POST',
-          headers: {
-            'Content-Type':  'application/json',
-            'Authorization': 'Bearer ' + data.session.access_token,
-          },
-          body: JSON.stringify({ session_id: _loginSessionId }),
-        });
-        if (!_claimRes.ok) {
-          const _claimErr = await _claimRes.json().catch(() => ({}));
-          console.error('[os-login] claim-scan failed:', _claimErr);
-          osStatus('Scan could not be claimed. Please try again.', 'error');
-          osSubmitBtn.disabled = false;
-          osSubmitBtn.textContent = original;
-          return; // Vault stays locked
-        }
-        const _claimData = await _claimRes.json().catch(() => ({}));
-        // If the server returned a scanId, update the in-memory scan reference so
-        // the ownership check and MC boot use the correct id.
-        if (_claimData.scanId && window.__royalteScan) {
-          window.__royalteScan.scanId = _claimData.scanId;
-        } else if (_claimData.scanId) {
-          window.__royalteScan = { scanId: _claimData.scanId };
-        }
-      }
-
-      // Verify ownership of the current scan (if one was just run).
-      // If no scan was run this session, skip — MC loads the account's latest scan.
-      const _mcScanId = window.__royalteScan && window.__royalteScan.scanId;
-      if (_mcScanId) {
-        const { data: _ownData, error: _ownErr } = await supabase
-          .from('audit_scans').select('id').eq('id', _mcScanId).maybeSingle();
-        if (_ownErr || !_ownData) {
-          console.error('[os-login] ownership check failed:', _ownErr || 'RLS returned no row');
-          osStatus('Scan ownership could not be verified. Please try again.', 'error');
-          osSubmitBtn.disabled = false;
-          osSubmitBtn.textContent = original;
-          return; // Vault stays locked
-        }
-      }
-
-      // All conditions confirmed — boot Mission Control with the claimed scan.
-      window.location.href = '/mission-control.html' + (_mcScanId ? '?scanId=' + encodeURIComponent(_mcScanId) : '');
-    } catch (err) {
-      console.error('[os-login] signInWithPassword threw', err);
-      osStatus('Sign in failed. Please try again.', 'error');
-      osSubmitBtn.disabled = false;
-      osSubmitBtn.textContent = original;
-    }
-  });
-}
-
-// Forgot-password path — sends a Supabase recovery email. redirectTo is
-// computed from window.location.origin so it resolves on production, preview,
-// and localhost. Status renders inline in the modal — the login form is not
-// dismissed (the user stays oriented while they go check their inbox).
-if (osForgotBtn) {
-  osForgotBtn.addEventListener('click', async () => {
-    const email = (osModalEmail && osModalEmail.value || '').trim();
-    if (!EMAIL_RE.test(email)) {
-      osStatus('Enter your email above, then tap Forgot password.', 'error');
-      if (osModalEmail) osModalEmail.focus();
-      return;
-    }
-    const supabase = getSupabase();
-    if (!supabase) { osStatus('Could not send reset link — please try again.', 'error'); return; }
-
-    const original = osForgotBtn.textContent;
-    osForgotBtn.disabled = true;
-    osForgotBtn.textContent = 'Sending…';
-    osStatus('', '');
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/auth/reset-password',
-      });
-      osForgotBtn.disabled = false;
-      osForgotBtn.textContent = original;
-      if (error) {
-        console.error('[os-login] resetPasswordForEmail error', error);
-        osStatus('Could not send reset link — please try again.', 'error');
-        return;
-      }
-      osStatus('Check your email for a password reset link.', 'success');
-    } catch (err) {
-      console.error('[os-login] resetPasswordForEmail threw', err);
-      osForgotBtn.disabled = false;
-      osForgotBtn.textContent = original;
-      osStatus('Could not send reset link — please try again.', 'error');
-    }
-  });
-}
-
-// Magic-link path — shares the modal's email field.
-if (osMagicBtn) {
-  osMagicBtn.addEventListener('click', async () => {
-    const email = (osModalEmail && osModalEmail.value || '').trim();
-    if (!EMAIL_RE.test(email)) {
-      osStatus('Please enter a valid email address.', 'error');
-      if (osModalEmail) osModalEmail.focus();
-      return;
-    }
-    const original = osMagicBtn.textContent;
-    osMagicBtn.disabled = true;
-    osMagicBtn.textContent = 'Sending…';
-    osStatus('Sending your secure link…', '');
-    const res = await sendMagicLink(email, 'os_login');
-    osMagicBtn.disabled = false;
-    osMagicBtn.textContent = original;
-    osStatus(res.ok
-      ? 'Check your inbox — your Royaltē OS access link is on the way.'
-      : 'Sign in failed. Please try again.', res.ok ? 'success' : 'error');
-  });
-}
-
 
 // ── "Enter Royaltē OS" nav button ────────────────────────────────
 // Phase 4.1: website is always public — no auto-redirect into Mission Control.
