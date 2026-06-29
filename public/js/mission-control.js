@@ -605,19 +605,20 @@ if (typeof document !== 'undefined') {
 
 // ─── Phase 4 vault activation hooks ────────────────────────────────────
 //
-// Called by vault-auth.js after the artist authenticates:
+// Engineering rule (Board directive 2026-06-29):
+//   The operating system exists first. The intelligence exists second.
 //
-//   window.__mcPopulate()       — pre-fetches the scan payload (now with
-//                                 an authenticated Supabase session) and
-//                                 populates all DOM elements while cards
-//                                 are still invisible under mc-booting.
-//                                 Health score display + all rings stay
-//                                 at 0 — their animations fire when each
-//                                 module gets mc-online.
+//   window.__mcPopulate()       — fetches the authenticated payload,
+//                                 runs all renderers, stores every plan
+//                                 in _vaultPlans. Writes NOTHING to the
+//                                 DOM. MC stays in its true zero-data
+//                                 state until each module activates.
 //
-//   window.__mcRevealModule(id) — called per-module the moment mc-online
-//                                 is set; triggers ring fill transitions
-//                                 and the health score count-up.
+//   window.__mcRevealModule(id) — sole writer of intelligence to the DOM.
+//                                 Called per-module the moment mc-online
+//                                 is set. Reads the stored plan and
+//                                 applies it — rings fill, counts rise,
+//                                 text appears for that module only.
 
 let _vaultPlans = {};
 
@@ -626,129 +627,127 @@ if (typeof window !== 'undefined') {
     const payload = await fetchScanPayload();
     if (!payload) return;
 
-    // Identity Intelligence
+    // Identity
     const ii = safeIdentityIntelligence(payload.identityIntelligence);
     if (ii) {
       const plan = renderIdentity(ii);
-      applyCoveragePlan(plan.coverage);
-      applyProvidersPlan(plan.providers);
-      applyRecommendationsPlan(plan.recommendations);
+      _vaultPlans.identityCoverage        = plan.coverage;
+      _vaultPlans.identityProviders       = plan.providers;
+      _vaultPlans.identityRecommendations = plan.recommendations;
     }
-    applyDeezerStatus(payload);
-    applyTidalStatus(payload);
-    applyDeezerTopTrack(payload);
+    _vaultPlans.payload = payload; // Deezer / Tidal / top-track need the full payload
 
-    // Publishing Intelligence
+    // Publishing
     const pi = safePublishingIntelligence(payload.publishingIntelligence);
     if (pi) {
       const plan = renderPublishing(pi);
-      applyPublishingCoveragePlan(plan.coverage);
-      applyPublishingRegistrationsPlan(plan.registrations);
-      _vaultPlans.publishingCoverage = plan.coverage?.value ?? null;
+      _vaultPlans.publishingCoverage      = plan.coverage;
+      _vaultPlans.publishingRegistrations = plan.registrations;
     }
 
-    // Catalog Intelligence
+    // Catalog
     const ci = safeCatalogIntelligence(payload.catalogIntelligence);
-    if (ci) applyCatalogPlan(renderCatalog(ci));
+    if (ci) _vaultPlans.catalogPlan = renderCatalog(ci);
 
     // Global Music Footprint
     const gmf = safeGlobalMusicFootprintIntelligence(payload.globalMusicFootprint);
-    if (gmf) applyFootprintPlan(renderGlobalMusicFootprint(gmf));
+    if (gmf) _vaultPlans.footprintPlan = renderGlobalMusicFootprint(gmf);
 
     // Royaltē AI
     const ai = safeRoyalteAI(payload.royalteAI);
-    if (ai) applyRoyalteAIPlan(renderRoyalteAI(ai));
+    if (ai) _vaultPlans.aiPlan = renderRoyalteAI(ai);
 
-    // Backend Intelligence
+    // Backend
     const bi = safeBackendIntelligence(payload.backendIntelligence);
-    if (bi) applyBackendPlan(renderBackend(bi));
+    if (bi) _vaultPlans.backendPlan = renderBackend(bi);
 
     // Monitoring / Change Detection
     const mi = safeMonitoringIntelligence(payload.monitoringIntelligence);
-    if (mi) applyChangeDetectionPlan(renderChangeDetection(mi));
+    if (mi) _vaultPlans.cdPlan = renderChangeDetection(mi);
 
-    // Health Intelligence — populate status, confidence, domain scores,
-    // and insights now. Score display stays at 0 and ring stays at 0 214
-    // so the count-up and fill transition both start on module activation.
+    // Health
     const hi = safeHealthIntelligence(payload.healthIntelligence);
-    if (hi) {
-      const plan = renderHealth(hi);
-      _vaultPlans.healthPlan = plan;
-
-      const statusEl = document.querySelector('[data-mc-health-status]');
-      if (statusEl) statusEl.textContent = plan.status;
-      const confEl = document.querySelector('[data-mc-health-confidence]');
-      if (confEl) confEl.textContent = `${plan.confidence} Confidence`;
-      const domainMap = {
-        identity:   plan.domainScores.identity,
-        publishing: plan.domainScores.publishing,
-        catalog:    plan.domainScores.catalog,
-        footprint:  plan.domainScores.footprint,
-        monitoring: plan.domainScores.monitoring,
-        backend:    plan.domainScores.backend,
-      };
-      for (const [domain, score] of Object.entries(domainMap)) {
-        const row = document.querySelector(`[data-mc-health-domain="${domain}"]`);
-        if (!row) continue;
-        const valEl = row.querySelector('.val');
-        if (valEl) valEl.textContent = score;
-      }
-      const compositeEl = document.querySelector('[data-mc-health-composite]');
-      if (compositeEl) compositeEl.textContent = plan.score;
-      const foot = document.querySelector('[data-mc-health-insights]');
-      if (foot) {
-        const sHTML = plan.strengths.length
-          ? `<ul class="mc-health-breakdown-list">${plan.strengths.map(s => `<li><span class="lbl">&#x2713; ${escapeHTML(s)}</span></li>`).join('')}</ul>` : '';
-        const cHTML = plan.concerns.length
-          ? `<ul class="mc-health-breakdown-list">${plan.concerns.map(c => `<li><span class="lbl">&#x26A0; ${escapeHTML(c)}</span></li>`).join('')}</ul>` : '';
-        if (sHTML || cHTML) foot.innerHTML = sHTML + cHTML;
-      }
-    }
+    if (hi) _vaultPlans.healthPlan = renderHealth(hi);
   };
 
   window.__mcRevealModule = function (id) {
-    if (id === 'health-intelligence') {
-      const plan = _vaultPlans.healthPlan;
-      if (!plan) return;
-
-      // Score count-up: 0 → plan.score over 1500ms (ease-in-out cubic)
-      const scoreEl = document.querySelector('[data-mc-health-score]');
-      if (scoreEl) {
-        const target = plan.score;
-        const dur    = 1500;
-        const t0     = performance.now();
-        (function countUp(now) {
-          const t      = Math.min((now - t0) / dur, 1);
-          const eased  = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
-          scoreEl.innerHTML = `${Math.round(target * eased)} <small>/100</small>`;
-          if (t < 1) requestAnimationFrame(countUp);
-          else scoreEl.innerHTML = `${target} <small>/100</small>`;
-        })(performance.now());
+    switch (id) {
+      case 'health-intelligence': {
+        const plan = _vaultPlans.healthPlan;
+        if (!plan) break;
+        // applyHealthPlan writes status, confidence, domain scores, insights,
+        // and sets the ring stroke-dasharray — CSS transition (1.4s) fires
+        // because _blankSentinelData left the ring at 0 214.
+        applyHealthPlan(plan);
+        // Count-up overrides the score applyHealthPlan just wrote.
+        // Starts synchronously so the browser never renders the pre-animation value.
+        const scoreEl = document.querySelector('[data-mc-health-score]');
+        if (scoreEl) {
+          const target = plan.score;
+          const dur    = 1500;
+          const t0     = performance.now();
+          (function countUp(now) {
+            const t     = Math.min((now - t0) / dur, 1);
+            const eased = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+            scoreEl.innerHTML = `${Math.round(target * eased)} <small>/100</small>`;
+            if (t < 1) requestAnimationFrame(countUp);
+            else scoreEl.innerHTML = `${target} <small>/100</small>`;
+          })(performance.now());
+        }
+        break;
       }
-
-      // Ring fill — CSS transition (stroke-dasharray 1.4s) handles the animation
-      const ringEl = document.querySelector('[data-mc-health-ring-progress]');
-      if (ringEl) ringEl.setAttribute('stroke-dasharray', plan.ringDasharray);
-
-    } else if (id === 'identity-intelligence') {
-      // Remove sentinel's stroke-dasharray so the CSS pulse animation resumes
-      const fpRing = document.querySelector('#identity-intelligence .mc-fp-ring');
-      if (fpRing) fpRing.removeAttribute('stroke-dasharray');
-
-    } else if (id === 'publishing-intelligence') {
-      // Fill ring proportional to coverage (r=33, circumference ≈ 207)
-      const coverage = _vaultPlans.publishingCoverage;
-      const dash = (coverage !== null && coverage !== undefined)
-        ? Math.round(coverage / 100 * 207) : 191;
-      const ring = document.querySelector('#publishing-intelligence .mc-ring-progress');
-      if (ring) ring.setAttribute('stroke-dasharray', `${dash} 207`);
-
-    } else if (id === 'ai-insights') {
-      // Review ring — fill based on health score (r=46, circumference ≈ 289)
-      const score = _vaultPlans.healthPlan?.score ?? null;
-      const dash  = (score !== null) ? Math.round(score / 100 * 289) : 240;
-      const ring  = document.querySelector('.mc-review-ring .mc-ring-progress');
-      if (ring) ring.setAttribute('stroke-dasharray', `${dash} 289`);
+      case 'identity-intelligence': {
+        const { identityCoverage, identityProviders, payload } = _vaultPlans;
+        if (identityCoverage)  applyCoveragePlan(identityCoverage);
+        if (identityProviders) applyProvidersPlan(identityProviders);
+        if (payload) {
+          applyDeezerStatus(payload);
+          applyTidalStatus(payload);
+          applyDeezerTopTrack(payload);
+        }
+        // _blankSentinelData set stroke-dasharray="0 264" via JS attribute;
+        // removing it restores the CSS pulse animation.
+        const fpRing = document.querySelector('#identity-intelligence .mc-fp-ring');
+        if (fpRing) fpRing.removeAttribute('stroke-dasharray');
+        break;
+      }
+      case 'publishing-intelligence': {
+        const { publishingCoverage, publishingRegistrations } = _vaultPlans;
+        if (publishingCoverage)      applyPublishingCoveragePlan(publishingCoverage);
+        if (publishingRegistrations) applyPublishingRegistrationsPlan(publishingRegistrations);
+        // Ring fill — r=33, circumference ≈ 207; CSS transition fires from 0
+        const cov  = publishingCoverage?.value ?? null;
+        const dash = cov !== null ? Math.round(cov / 100 * 207) : 191;
+        const ring = document.querySelector('#publishing-intelligence .mc-ring-progress');
+        if (ring) ring.setAttribute('stroke-dasharray', `${dash} 207`);
+        break;
+      }
+      case 'catalog-intelligence': {
+        if (_vaultPlans.catalogPlan) applyCatalogPlan(_vaultPlans.catalogPlan);
+        break;
+      }
+      case 'change-detection': {
+        if (_vaultPlans.cdPlan) applyChangeDetectionPlan(_vaultPlans.cdPlan);
+        break;
+      }
+      case 'backend-intelligence': {
+        if (_vaultPlans.backendPlan) applyBackendPlan(_vaultPlans.backendPlan);
+        break;
+      }
+      case 'global-footprint': {
+        if (_vaultPlans.footprintPlan) applyFootprintPlan(_vaultPlans.footprintPlan);
+        break;
+      }
+      case 'ai-insights': {
+        if (_vaultPlans.aiPlan)                  applyRoyalteAIPlan(_vaultPlans.aiPlan);
+        if (_vaultPlans.identityRecommendations) applyRecommendationsPlan(_vaultPlans.identityRecommendations);
+        // Review ring — r=46, circumference ≈ 289; CSS transition fires from 0
+        const score = _vaultPlans.healthPlan?.score ?? null;
+        const dash  = score !== null ? Math.round(score / 100 * 289) : 240;
+        const ring  = document.querySelector('.mc-review-ring .mc-ring-progress');
+        if (ring) ring.setAttribute('stroke-dasharray', `${dash} 289`);
+        break;
+      }
     }
   };
 }
