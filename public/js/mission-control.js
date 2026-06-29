@@ -521,6 +521,15 @@ function applyBackendPlan(plan) {
 // ─── Boot ──────────────────────────────────────────────────────────
 
 async function initMissionControl() {
+  // Phase 4.1: all production MC access goes through ?vault=1.
+  // Intelligence is wired post-authentication via __mcPopulate() + __mcRevealModule().
+  // initMissionControl() only runs in preview mode (fixture data, no vault).
+  const _mcUrl     = typeof window !== 'undefined' ? new URL(window.location.href) : null;
+  const _isVault   = _mcUrl?.searchParams.has('vault');
+  const _isPreview = _mcUrl?.searchParams.has('preview') ||
+    (typeof window !== 'undefined' && window.location.pathname.includes('mission-control-preview'));
+  if (_isVault && !_isPreview) return;
+
   const payload = await fetchScanPayload();
   if (!payload) return; // graceful fallback: locked sample HTML stays
 
