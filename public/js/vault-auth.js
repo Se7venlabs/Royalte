@@ -43,9 +43,10 @@ export async function initVault() {
   } catch {}
 
   if (session && needsVault) {
-    // Authenticated artist landing on MC with ?vault=1 (e.g. a new scan
-    // while already logged in). Claim the scan; MC is already visible.
-    if (sessionId) await _claimScan(session.access_token, sessionId);
+    // Authenticated artist entering MC intentionally (Phase 4.1) or returning
+    // after a new scan. Show the authenticated vault — email recognized, one
+    // intentional unlock action required. No auto-entry into Mission Control.
+    _showAuthenticatedVault(session, sessionId, scanId);
     return;
   }
 
@@ -58,6 +59,75 @@ export async function initVault() {
 
   // No session — activate Sentinel State and show the Vault.
   _showVault(sessionId, scanId);
+}
+
+// ── Authenticated Vault (Phase 4.1) ───────────────────────────────────
+//
+//  The artist is already authenticated but intentionally chose to enter
+//  Mission Control via the website nav. The Vault shows with the email
+//  pre-recognised and a single "Unlock Mission Control" action.
+//  No password entry. No auto-entry. One deliberate unlock.
+
+function _showAuthenticatedVault(session, sessionId, scanId) {
+  // Activate Sentinel State — MC visible, zero data, radar passive.
+  // No blip timing sequence needed; Vault appears promptly.
+  document.body.classList.add('mc-sentinel');
+  _blankSentinelData();
+
+  // Fade boot cover quickly — artist is authenticated, no suspense delay.
+  const cover    = document.getElementById('mc-boot-cover');
+  const hasCover = cover && cover.style.display !== 'none';
+  if (hasCover) {
+    setTimeout(() => {
+      cover.style.transition = 'opacity 0.7s ease';
+      cover.style.opacity    = '0';
+      setTimeout(() => { cover.style.display = 'none'; }, 700);
+    }, 600);
+  }
+
+  // Switch vault panel to authenticated mode.
+  const panel = document.querySelector('.mc-vault-panel');
+  if (panel) panel.classList.add('mc-vault-panel--auth');
+
+  const emailEl = document.getElementById('mc-vault-email');
+  if (emailEl) emailEl.value = session.user?.email || '';
+
+  const recognizedEl = document.getElementById('mc-vault-email-recognized');
+  if (recognizedEl) recognizedEl.textContent = session.user?.email || '';
+
+  const headline = document.querySelector('.mc-vault-headline');
+  if (headline) headline.textContent = 'Welcome back.';
+
+  const body = document.querySelector('.mc-vault-body');
+  if (body) body.textContent = 'Select Unlock Mission Control to open your operating system.';
+
+  // Show vault after cover has faded.
+  setTimeout(() => {
+    const vault = document.getElementById('mc-vault');
+    if (vault) {
+      vault.removeAttribute('aria-hidden');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        vault.classList.add('mc-vault--visible');
+      }));
+    }
+    setTimeout(() => {
+      const cta = document.getElementById('mc-vault-cta');
+      if (cta) cta.focus();
+    }, 700);
+  }, hasCover ? 1400 : 200);
+
+  // Wire unlock — session is already valid, no credential check needed.
+  const form = document.getElementById('mc-vault-form');
+  if (form) {
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      _setCta('Unlocking…', true);
+      _setStatus('', '');
+      if (sessionId) await _claimScan(session.access_token, sessionId);
+      if (typeof window.__mcPopulate === 'function') await window.__mcPopulate();
+      await _signatureTransition();
+    });
+  }
 }
 
 // ── Sentinel State ─────────────────────────────────────────────────────

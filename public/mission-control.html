@@ -2763,6 +2763,12 @@ body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
 .mc-vault-forgot{background:none;border:none;padding:0;margin-top:18px;font-family:'Space Grotesk',sans-serif;font-size:12px;color:rgba(255,255,255,0.25);cursor:pointer;text-align:center;width:100%;transition:color 0.15s ease;}
 .mc-vault-forgot:hover{color:rgba(255,255,255,0.52);}
 @media(max-width:480px){.mc-vault-panel{padding:32px 22px;}.mc-vault-input{font-size:16px;padding:14px 16px;}.mc-vault-input--pass{padding-right:46px;}.mc-vault-cta{padding:15px 24px;}}
+/* Authenticated vault mode — session recognized, one-click unlock */
+.mc-vault-email-recognized{display:none;font-family:'Space Grotesk',sans-serif;font-size:13px;color:rgba(255,255,255,0.55);padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:6px;align-items:center;gap:8px;margin-bottom:2px;}
+.mc-vault-panel--auth #mc-vault-email{display:none;}
+.mc-vault-panel--auth .mc-vault-input-wrap{display:none;}
+.mc-vault-panel--auth .mc-vault-forgot{display:none;}
+.mc-vault-panel--auth .mc-vault-email-recognized{display:flex;}
 
   </style>
 </head>
@@ -4176,6 +4182,7 @@ body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
     <p class="mc-vault-body">Unlock Mission Control to protect your artist intelligence and continue monitoring your music business.</p>
     <form class="mc-vault-form" id="mc-vault-form" novalidate autocomplete="on">
       <input class="mc-vault-input" id="mc-vault-email" type="email" placeholder="Email Address" autocomplete="email" spellcheck="false" inputmode="email">
+      <div class="mc-vault-email-recognized" id="mc-vault-email-recognized" aria-live="polite"></div>
       <div class="mc-vault-input-wrap">
         <input class="mc-vault-input mc-vault-input--pass" id="mc-vault-pass" type="password" placeholder="Password" autocomplete="current-password">
         <button type="button" class="mc-vault-show-pass" id="mc-vault-show-pass" aria-label="Show password" tabindex="-1">
