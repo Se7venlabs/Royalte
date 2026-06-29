@@ -86,9 +86,22 @@ async function fetchScanPayload() {
     }
   }
 
-  // Phase 4.3: Pre-bridged payload — stored in sessionStorage by the homepage
-  // when the artist presses OPEN MISSION CONTROL (preactivate path).
-  // Cleared immediately after reading so stale data never persists on return visits.
+  // Architecture boundary (Phase 4.3): pre-authentication state must be
+  // sourced exclusively from the scan that triggered this navigation.
+  //
+  // Two hard rules on the preactivate path (?preactivate=1):
+  //   1. If the bridged sessionStorage payload is present → use it and return.
+  //   2. If sessionStorage was already consumed AND no scanId is in the URL →
+  //      return null. Never fall back to a "latest owned" Supabase query,
+  //      which could surface a different artist's intelligence.
+  //
+  // Only after authentication can MC query owned scans. Until then, the
+  // only permissible source is the specific scan the artist just completed.
+  const _isPreactivate = (() => {
+    try { return new URL(window.location.href).searchParams.get('preactivate') === '1'; }
+    catch { return false; }
+  })();
+
   try {
     const _stored = sessionStorage.getItem('royalte_scan_payload');
     if (_stored) {
@@ -97,6 +110,11 @@ async function fetchScanPayload() {
       if (_parsed && typeof _parsed === 'object') return _parsed;
     }
   } catch (_ssErr) {}
+
+  // Preactivate path with no scanId: refuse to query. A "latest owned"
+  // query here would display another artist's intelligence before
+  // authentication is established — violating the ownership boundary.
+  if (_isPreactivate && !getScanIdFromUrl()) return null;
 
   const supabase = getSupabase();
   if (!supabase) return null;

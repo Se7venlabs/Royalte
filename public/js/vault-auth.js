@@ -516,17 +516,12 @@ async function _handleUnlock(email, password, sessionId, scanId) {
   }
 
   if (window.__royaltePreactivated) {
-    // Preactivate path: OS is already fully active. Re-populate with the
-    // auth-scoped Supabase payload, refresh each module, then fade vault.
-    if (typeof window.__mcPopulate === 'function') await window.__mcPopulate();
-    const _PA_MODULES = [
-      'health-intelligence', 'identity-intelligence', 'publishing-intelligence',
-      'catalog-intelligence', 'change-detection', 'backend-intelligence',
-      'global-footprint', 'ai-insights',
-    ];
-    if (typeof window.__mcRevealModule === 'function') {
-      _PA_MODULES.forEach(id => window.__mcRevealModule(id));
-    }
+    // Preactivate path: Mission Control is already displaying the current scan's
+    // intelligence. The scan claim above establishes ownership. No re-population
+    // is performed — the anonymous scan payload and the authenticated scan payload
+    // are identical for this scan. Querying Supabase post-auth could return a
+    // different artist's owned data, violating the authentication boundary.
+    // The vault dissolves; the OS remains active with the correct scan displayed.
     const _vault = document.getElementById('mc-vault');
     if (_vault) {
       _vault.classList.remove('mc-vault--visible');
