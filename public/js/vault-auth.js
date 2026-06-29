@@ -63,22 +63,50 @@ export async function initVault() {
 // ── Sentinel State ─────────────────────────────────────────────────────
 
 function _showVault(sessionId, scanId) {
+  // Apply Sentinel State before the cover is removed — MC is already in
+  // its dimmed state when the artist first sees it.
   document.body.classList.add('mc-sentinel');
 
-  const vault = document.getElementById('mc-vault');
-  if (vault) {
-    vault.removeAttribute('aria-hidden');
-    // Single rAF ensures the opacity transition fires after display change.
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      vault.classList.add('mc-vault--visible');
-    }));
+  // Sequence:
+  //   1. Fade cover away → MC materialises in Sentinel State   (~1.2s)
+  //   2. Sentinel dwell — artist sees the radar, the modules    (~1.8s)
+  //   3. Vault fades in                                         (~0.7s)
+  const cover = document.getElementById('mc-boot-cover');
+  const COVER_FADE = 1200;   // ms for cover to fade
+  const SENTINEL_DWELL = 1800; // ms artist experiences Sentinel before Vault
+
+  const hasCover = cover && cover.style.display !== 'none';
+
+  if (hasCover) {
+    // Cover is still up (left visible by the boot IIFE for vault entries).
+    // Fade it out to reveal MC in Sentinel State.
+    setTimeout(() => {
+      cover.style.transition = 'opacity 1.2s ease';
+      cover.style.opacity = '0';
+      setTimeout(() => { cover.style.display = 'none'; }, COVER_FADE);
+    }, 80);
   }
 
-  // Focus email field once the Vault has faded in.
+  // When cover was present: wait for it to fade + Sentinel dwell.
+  // When no cover (direct nav): just the Sentinel dwell — mc-sentinel
+  // transition (1.2s) is already playing when the page loads.
+  const vaultDelay = hasCover ? (80 + COVER_FADE + SENTINEL_DWELL) : SENTINEL_DWELL;
+  setTimeout(() => {
+    const vault = document.getElementById('mc-vault');
+    if (vault) {
+      vault.removeAttribute('aria-hidden');
+      // Two rAFs ensure the opacity transition fires after the class is painted.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        vault.classList.add('mc-vault--visible');
+      }));
+    }
+  }, vaultDelay);
+
+  // Focus email field once the Vault has faded in (fade is 0.7s).
   setTimeout(() => {
     const el = document.getElementById('mc-vault-email');
     if (el) el.focus();
-  }, 800);
+  }, vaultDelay + 800);
 
   _wireForm(sessionId, scanId);
 }

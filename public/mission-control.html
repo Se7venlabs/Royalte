@@ -2684,11 +2684,12 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
    ─────────────────────────────────────────────────────────────────── */
 body.mc-sentinel .mc-card,
 body.mc-sentinel .mc-rail-right,
-body.mc-sentinel .mc-hero{opacity:0.28;filter:grayscale(0.4) brightness(0.55);pointer-events:none;transition:opacity 1.1s ease,filter 1.1s ease;}
-body.mc-sentinel .mc-card::before{opacity:0;transition:opacity 1.1s ease;}
+body.mc-sentinel .mc-hero{opacity:0.33;filter:grayscale(0.35) brightness(0.60);pointer-events:none;transition:opacity 1.2s ease,filter 1.2s ease;}
+body.mc-sentinel .mc-card::before{opacity:0;transition:opacity 1.2s ease;}
 body.mc-sentinel .mc-pulse-line{opacity:0;}
-body.mc-sentinel .mc-radar-sweep{animation-duration:4s;opacity:0.22;}
-body.mc-sentinel .mc-radar-detect-dot{opacity:0.10;}
+/* Radar stays active in Sentinel — slow sweep, visible blips, unmistakably watching */
+body.mc-sentinel .mc-radar-sweep{animation-duration:4s;opacity:0.45;}
+body.mc-sentinel .mc-radar-detect-dot{opacity:0.32;}
 
 /* ── Intelligence Vault™ (Phase 3) ──────────────────────────────────
    Fixed overlay on mission-control.html. Hidden by default (aria-hidden).
@@ -3955,12 +3956,17 @@ body.mc-sentinel .mc-radar-detect-dot{opacity:0.10;}
   var boot = false;
   try { boot = new URL(window.location.href).searchParams.get('boot') === '1'; } catch(e) {}
   if (!boot) {
-    // Not a boot entry — hide the cover immediately so normal visits
-    // are unaffected. (Cover is position:fixed; display:none removes it.)
-    // Do NOT return — functions must be defined and exposed on window.__mcBoot
-    // so vault-auth.js can call them after the Vault signature transition.
-    var c = document.getElementById('mc-boot-cover');
-    if (c) c.style.display = 'none';
+    // Non-boot entry — check if the Vault will control the reveal.
+    // When ?vault=1 is present, vault-auth.js fades the cover out as part of
+    // the Sentinel State entrance. Leave it visible so it can do that.
+    // For all other visits, hide it immediately.
+    // Do NOT return — functions must be defined and exposed on window.__mcBoot.
+    var _isVaultEntry = false;
+    try { _isVaultEntry = new URL(window.location.href).searchParams.get('vault') === '1'; } catch(e) {}
+    if (!_isVaultEntry) {
+      var c = document.getElementById('mc-boot-cover');
+      if (c) c.style.display = 'none';
+    }
   }
 
   if (boot) {
