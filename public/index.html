@@ -3002,15 +3002,12 @@ function showRealResults(data) {
     }
   }
 
-  // ── Health Score chip (V1 .d-score-tag, V2 content) ──
-  // Brief 012a: score computed from V2 verified signals only — NOT
-  // inverted from the V1 risk engine's overallScore. The V1 score was
-  // built on retired philosophy (Wikipedia absence, AudioDB, etc.)
-  // Canonical Payload V2 Phase 5/6 (2026-06-09): UI consumes the
-  // engine-computed Health Object from data.canonical.health.*.
-  // The local _computeV2HealthScore() + _getHealthBand() functions
-  // have been deleted — the engine in api/lib/health-score.js is
-  // the SOLE source of truth. UI is a pure presentation layer.
+  // ── Health Score chip — Phase 7 Health Engine™ authority ──
+  // Board Decision 2026-06-29 (Path A): Phase 7 Health Engine™ is the
+  // sole constitutional authority for Royaltē Health Scores™. Source:
+  // data.canonical.healthIntelligence.* — the same object Mission
+  // Control reads from audit_scans.payload.healthIntelligence.*
+  // One scan. One payload. One Health Score. One Truth.
   const scoreTagEl  = document.getElementById('hero-score-tag');
   const scoreNumEl  = document.getElementById('hero-score-tag-num');
   const scoreLblEl  = document.getElementById('hero-score-tag-lbl');
@@ -3018,22 +3015,22 @@ function showRealResults(data) {
   const driversEl   = document.getElementById('os-score-drivers');
   const driversList = document.getElementById('os-drivers-list');
   if (scoreTagEl && scoreNumEl) {
-    const result = data && data.canonical && data.canonical.health;
+    const result = data && data.canonical && data.canonical.healthIntelligence;
     if (result && typeof result.score === 'number') {
-      const { score: health, grade, drivers } = result;
-      const className = GRADE_TO_CLASS[grade] || 'band-danger';
+      const { score: health, status, concerns } = result;
+      const className = GRADE_TO_CLASS[status] || 'band-danger';
       scoreNumEl.textContent = health;
-      if (scoreLblEl) scoreLblEl.textContent = `Health Score · ${grade}`;
+      if (scoreLblEl) scoreLblEl.textContent = `Health Score · ${status}`;
       scoreTagEl.classList.remove('band-healthy','band-warning','band-atrisk','band-danger');
       scoreTagEl.classList.add(className);
       scoreTagEl.classList.add('is-shown');
       if (scoreHelpEl) scoreHelpEl.style.display = '';
 
-      // Brief 012b — drivers always shown. Empty list gets a neutral line.
+      // Concerns sourced from Phase 7 healthIntelligence.concerns (domain-based signal gaps).
       if (driversEl && driversList) {
         driversEl.hidden = false;
-        if (Array.isArray(drivers) && drivers.length > 0) {
-          driversList.innerHTML = drivers.map(
+        if (Array.isArray(concerns) && concerns.length > 0) {
+          driversList.innerHTML = concerns.map(
             (d) => `<li>⚠ ${_osEscape(d)}</li>`
           ).join('');
         } else {
@@ -3109,6 +3106,7 @@ const GRADE_TO_CLASS = {
   'Excellent':          'band-healthy',
   'Strong':             'band-warning',
   'Moderate':           'band-atrisk',
+  'Needs Review':       'band-danger',
   'Review Recommended': 'band-danger',
 };
 
