@@ -56,76 +56,9 @@ export default async function handler(req, res) {
     return res.status(200).json(trace);
   }
 
-  // ─── Stage 1 — Recording discovery (no auth) ─────────────────────
-  // POST /search/recordings { artist: artistName }
-  const recordingsEndpoint = `${baseUrl}${RECORDINGS_PATH}`;
-  let recordingsStatus, recordingsOk, recordingsCount, songCodes, recordingsError, recordingsSample;
-
-  try {
-    const recordingsResp = await fetch(recordingsEndpoint, {
-      method:  'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept':       'application/json',
-        'User-Agent':   'Royalte/1.0 (publishing-trace)',
-      },
-      body: JSON.stringify({ artist: artistName }),
-    });
-
-    recordingsStatus = recordingsResp.status;
-    recordingsOk     = recordingsResp.ok;
-
-    let recordingsJson;
-    try { recordingsJson = await recordingsResp.json(); } catch { recordingsJson = null; }
-
-    const recordings = Array.isArray(recordingsJson) ? recordingsJson : [];
-    recordingsCount  = recordings.length;
-    recordingsSample = recordings.slice(0, 2);
-
-    const songCodeSet = new Set();
-    for (const rec of recordings) {
-      if (!rec || typeof rec !== 'object') continue;
-      const code = rec.mlcSongCode || rec.mlcsongCode;
-      if (typeof code === 'string' && code.trim() !== '') {
-        songCodeSet.add(code.trim());
-        if (songCodeSet.size >= cap) break;
-      }
-    }
-    songCodes = Array.from(songCodeSet);
-
-    if (!recordingsOk) {
-      let rawBody;
-      try { rawBody = JSON.stringify(recordingsJson); } catch { rawBody = null; }
-      recordingsError = { httpStatus: recordingsStatus, rawBody };
-    }
-  } catch (err) {
-    recordingsStatus = null;
-    recordingsOk     = false;
-    recordingsError  = { transportError: err?.message || String(err) };
-    songCodes        = [];
-    recordingsCount  = 0;
-  }
-
-  trace.stages.recordingDiscovery = {
-    endpoint:          recordingsEndpoint,
-    requestBody:       { artist: artistName },
-    httpStatus:        recordingsStatus,
-    ok:                recordingsOk,
-    recordingsCount,
-    songCodesExtracted: songCodes.length,
-    songCodes,
-    sample:            recordingsSample,
-    error:             recordingsError ?? null,
-  };
-
-  if (!recordingsOk || songCodes.length === 0) {
-    trace.failedAt = recordingsOk
-      ? 'recordingDiscovery:noSongCodes'
-      : 'recordingDiscovery:httpError';
-    return res.status(200).json(trace);
-  }
-
-  // ─── Stage 1.5 — Token exchange ───────────────────────────────────
+  // ─── Stage 1.5 — Token exchange (needed before any MLC call) ────────
+  // All MLC endpoints require auth — /search/recordings returns 401
+  // without a bearer token despite API docs indicating otherwise.
   const tokenEndpoint = `${baseUrl}${TOKEN_PATH}`;
   const tokenBody     = hasPwdCreds ? { username, password } : { refreshToken };
   const tokenMode     = hasPwdCreds ? 'username+password' : 'refreshToken';
@@ -184,6 +117,78 @@ export default async function handler(req, res) {
 
   if (!tokenOk || !bearer) {
     trace.failedAt = 'tokenExchange';
+    return res.status(200).json(trace);
+  }
+
+  // ─── Stage 1 — Recording discovery (bearer required) ─────────────
+  // POST /search/recordings { artist: artistName }
+  // Note: MLC API docs say no auth required, but live endpoint returns
+  // 401 without bearer (confirmed 2026-06-30). Bearer sent on all calls.
+  const recordingsEndpoint = `${baseUrl}${RECORDINGS_PATH}`;
+  let recordingsStatus, recordingsOk, recordingsCount, songCodes, recordingsError, recordingsSample;
+
+  try {
+    const recordingsResp = await fetch(recordingsEndpoint, {
+      method:  'POST',
+      headers: {
+        'Authorization': `Bearer ${bearer}`,
+        'Content-Type':  'application/json',
+        'Accept':        'application/json',
+        'User-Agent':    'Royalte/1.0 (publishing-trace)',
+      },
+      body: JSON.stringify({ artist: artistName }),
+    });
+
+    recordingsStatus = recordingsResp.status;
+    recordingsOk     = recordingsResp.ok;
+
+    let recordingsJson;
+    try { recordingsJson = await recordingsResp.json(); } catch { recordingsJson = null; }
+
+    const recordings = Array.isArray(recordingsJson) ? recordingsJson : [];
+    recordingsCount  = recordings.length;
+    recordingsSample = recordings.slice(0, 2);
+
+    const songCodeSet = new Set();
+    for (const rec of recordings) {
+      if (!rec || typeof rec !== 'object') continue;
+      const code = rec.mlcSongCode || rec.mlcsongCode;
+      if (typeof code === 'string' && code.trim() !== '') {
+        songCodeSet.add(code.trim());
+        if (songCodeSet.size >= cap) break;
+      }
+    }
+    songCodes = Array.from(songCodeSet);
+
+    if (!recordingsOk) {
+      let rawBody;
+      try { rawBody = JSON.stringify(recordingsJson); } catch { rawBody = null; }
+      recordingsError = { httpStatus: recordingsStatus, rawBody };
+    }
+  } catch (err) {
+    recordingsStatus = null;
+    recordingsOk     = false;
+    recordingsError  = { transportError: err?.message || String(err) };
+    songCodes        = [];
+    recordingsCount  = 0;
+  }
+
+  trace.stages.recordingDiscovery = {
+    endpoint:          recordingsEndpoint,
+    requestBody:       { artist: artistName },
+    httpStatus:        recordingsStatus,
+    ok:                recordingsOk,
+    recordingsCount,
+    songCodesExtracted: songCodes.length,
+    songCodes,
+    sample:            recordingsSample,
+    error:             recordingsError ?? null,
+  };
+
+  if (!recordingsOk || songCodes.length === 0) {
+    trace.failedAt = recordingsOk
+      ? 'recordingDiscovery:noSongCodes'
+      : 'recordingDiscovery:httpError';
     return res.status(200).json(trace);
   }
 
