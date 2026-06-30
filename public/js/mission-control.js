@@ -259,12 +259,19 @@ function applyDeezerTopTrack(payload) {
   const titleEl = document.querySelector('[data-mc-identity-top-track-title]');
   const isrcEl  = document.querySelector('[data-mc-identity-top-track-isrc]');
   if (!titleEl || !isrcEl) return;
-  const tracks = payload?.platforms?.deezer?.details?.topTracks;
-  const track  = Array.isArray(tracks) && tracks.length > 0 ? tracks[0] : null;
+  const deezer  = payload?.platforms?.deezer;
+  const tracks  = deezer?.details?.topTracks;
+  const track   = Array.isArray(tracks) && tracks.length > 0 ? tracks[0] : null;
   if (track) {
-    titleEl.textContent = track.title || 'Not Available';
+    titleEl.textContent = track.title || 'No Ranked Top Track Returned';
     isrcEl.textContent  = track.isrc  || '—';
+  } else if (deezer?.details?.topTrackStatus === 'NO_RANKED_TRACK') {
+    // Artist IS on Deezer but /artist/{id}/top returned 0 ranked tracks.
+    // Distinct from "artist not found" — do not imply absence from the platform.
+    titleEl.textContent = 'No Ranked Top Track Returned';
+    isrcEl.textContent  = '—';
   } else {
+    // Artist not found on Deezer (details: null) or unknown state.
     titleEl.textContent = 'Not Available';
     isrcEl.textContent  = '—';
   }

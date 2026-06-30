@@ -233,6 +233,8 @@ assert(typeof canonical.platforms.deezer.details.topTracks[0].preview === 'strin
 assert(Array.isArray(canonical.platforms.deezer.details.topTracks[0].available_countries), 'platforms.deezer track territory info present');
 assert(Array.isArray(canonical.platforms.deezer.details.genres), 'platforms.deezer.details.genres is array');
 assert(canonical.platforms.deezer.details.genres.includes('Rock'), 'platforms.deezer.details.genres populated');
+// topTrackStatus — Board Phase 4.4: three distinct states
+assert(canonical.platforms.deezer.details.topTrackStatus === 'VERIFIED', 'platforms.deezer.details.topTrackStatus VERIFIED when tracks present');
 assert(canonical.metrics.deezerFans === 2345678, 'metrics.deezerFans still populated from root deezerFans field');
 
 // Coverage

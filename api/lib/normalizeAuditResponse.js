@@ -237,6 +237,14 @@ function _normalizeDeezerPlatform(r) {
       details: null,
     };
   }
+  const topTracks = Array.isArray(d.topTracks) ? d.topTracks : [];
+  // Three distinct top-track states (Board Phase 4.4):
+  //   VERIFIED        — artist found AND Deezer returned ≥1 ranked track
+  //   NO_RANKED_TRACK — artist found BUT Deezer's /artist/{id}/top returned
+  //                     0 tracks (insufficient streaming data for ranking;
+  //                     artist IS on Deezer, tracks exist via albums)
+  //   (null details)  — artist not found at all (availability: NOT_FOUND)
+  const topTrackStatus = topTracks.length > 0 ? 'VERIFIED' : 'NO_RANKED_TRACK';
   return {
     availability: PLATFORM_AVAILABILITY.VERIFIED,
     details: {
@@ -254,7 +262,8 @@ function _normalizeDeezerPlatform(r) {
       radio:          !!d.radio,
       tracklist:      d.tracklist     ?? null,
       albums:         Array.isArray(d.albums)    ? d.albums    : [],
-      topTracks:      Array.isArray(d.topTracks) ? d.topTracks : [],
+      topTracks,
+      topTrackStatus,
       genres:         Array.isArray(d.genres)    ? d.genres    : [],
     },
   };

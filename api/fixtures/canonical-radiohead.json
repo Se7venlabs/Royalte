@@ -195,6 +195,7 @@
             "type": "track"
           }
         ],
+        "topTrackStatus": "VERIFIED",
         "genres": [
           "Rock",
           "Alternative"

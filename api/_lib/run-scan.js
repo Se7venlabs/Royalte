@@ -487,7 +487,7 @@ async function resolveToArtist(inputUrl, token) {
     // the Apple canonical. Strict-exact-match-or-null preserved end-to-end.
     if (!spotifyArtist && appleArtistId) {
       try {
-        const songs = await getArtistSongs(appleArtistId, appleStorefront, 25);
+        const songs = await getArtistSongs(appleArtistId, appleStorefront, 20);
         const norm  = (s) => (s || '').toLowerCase().trim();
         for (const song of songs) {
           const candidateSpotifyId = await discoverSpotifyByIsrc(song.isrc, token);
