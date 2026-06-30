@@ -359,7 +359,7 @@ const RING_CIRCUMFERENCE = 213.628;
 function signalForScore(score, domain) {
   const v = typeof score === 'number' ? score : 0;
   if (domain === 'identity') {
-    if (v >= 75) return { label: 'Verified',        tier: 'good'  };
+    if (v >= 75) return { label: 'Healthy',          tier: 'good'  };
     if (v >= 50) return { label: 'Partial',          tier: 'warn'  };
     return              { label: 'Incomplete',        tier: 'alert' };
   }
@@ -370,7 +370,7 @@ function signalForScore(score, domain) {
   }
   if (domain === 'publishing') {
     if (v >= 75) return { label: 'Healthy',          tier: 'good'  };
-    if (v >= 50) return { label: 'Registered',       tier: 'warn'  };
+    if (v >= 50) return { label: 'Moderate',         tier: 'warn'  };
     return              { label: 'Needs Attention',  tier: 'alert' };
   }
   if (domain === 'footprint') {
