@@ -74,6 +74,14 @@
       "dest": "/api/claim-scan.js"
     },
     {
+      "src": "/api/publishing-trace",
+      "dest": "/api/publishing-trace.js"
+    },
+    {
+      "src": "/api/mlc-test",
+      "dest": "/api/mlc-test.js"
+    },
+    {
       "src": "/demo.html",
       "dest": "/public/demo.html"
     },
