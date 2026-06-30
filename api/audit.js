@@ -308,6 +308,35 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Audit failed. Please check the link and try again.', detail: m });
     }
 
+    // Extract song titles from a canonical scan payload for MLC /search/songcode.
+    // Tries three sources in priority order; deduplicates case-insensitively.
+    // Returns up to 5 titles — the client caps are enforced in mlc-client.js.
+    function extractSongTitlesForPublishingLookup(canonical) {
+      const seen   = new Set();
+      const titles = [];
+      function add(t) {
+        if (typeof t !== 'string') return;
+        const clean = t.trim();
+        if (clean && !seen.has(clean.toLowerCase())) {
+          seen.add(clean.toLowerCase());
+          titles.push(clean);
+        }
+      }
+      // Source 1: subject.trackTitle — Spotify top-track hoist, most reliable
+      add(canonical?.subject?.trackTitle);
+      // Source 2: Apple Music ISRC lookup name (often duplicates source 1)
+      add(canonical?.platforms?.appleMusic?.details?.isrcLookup?.name);
+      // Source 3: Deezer top tracks — richest source when Deezer is present
+      const deezerTracks = canonical?.platforms?.deezer?.details?.topTracks;
+      if (Array.isArray(deezerTracks)) {
+        for (const t of deezerTracks) {
+          if (titles.length >= 5) break;
+          add(t?.title);
+        }
+      }
+      return titles;
+    }
+
     // ── PERSIST + EAGER INTELLIGENCE ASSEMBLY ──
     // Phase 4B-2 (Identity Intelligence™) + Phase 5B (Publishing
     // Intelligence™) + Phase 5B Board Architectural Review (2026-06-17,
@@ -356,10 +385,17 @@ export default async function handler(req, res) {
       // 'NOT_FOUND' and rawWorks = []; the CIO assembly succeeds and
       // downstream metrics resolve to UNABLE_TO_CONFIRM (per Board D5
       // four-state invariant).
+      //
+      // Song titles sourced from the canonical payload drive MLC search
+      // via POST /search/songcode. Three sources in priority order:
+      //   1. subject.trackTitle          — Spotify top-track hoist (most reliable)
+      //   2. appleMusic.isrcLookup.name  — ISRC-resolved track name (may dup #1)
+      //   3. deezer.topTracks[*].title   — richest source when Deezer present
+      const songTitles = extractSongTitlesForPublishingLookup(canonicalForEnrichment);
       let publishingSourceObservations = null;
       let publishingWorks              = null;
       try {
-        const mlcResult              = await fetchMlcWorksByArtist(artistName);
+        const mlcResult              = await fetchMlcWorksByArtist(artistName, { songTitles });
         publishingSourceObservations = { mlc: mlcResult.observation };
         publishingWorks              = normalizeMlcWorks(mlcResult.rawWorks);
       } catch (mlcErr) {

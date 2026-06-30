@@ -1,39 +1,62 @@
-// Royaltē Publishing Intelligence — 6-Stage Live Trace
+// Royaltē Publishing Intelligence — Live Trace
 //
 // Diagnostic endpoint. Runs the complete Publishing Intelligence pipeline
-// for a single artist and returns every intermediate result inline so
-// the exact failure point can be identified without log access.
+// for a single artist + song list and returns every intermediate result
+// inline so failures can be identified without Vercel log access.
 //
-// Usage: GET /api/publishing-trace?artist=Ed+Sheeran
-//        GET /api/publishing-trace?artist=Taylor+Swift&cap=5
+// Usage:
+//   GET /api/publishing-trace?artist=Ed+Sheeran&songs=Shape+of+You,Perfect
+//   GET /api/publishing-trace?artist=Taylor+Swift
+//   GET /api/publishing-trace?artist=The+Weeknd&songs=Blinding+Lights
 //
-// Security: same rules as mlc-test.js
-//   - Credential values are NEVER echoed in the response
-//   - Tokens are NEVER echoed in the response
-//   - Presence booleans only
+//   artist  — artist name (default "Ed Sheeran")
+//   songs   — comma-separated song titles to search (default: "Shape of You")
 //
-// Never modifies production data. Pure read path, no DB writes.
+// Security:
+//   - Credential values NEVER echoed — presence booleans only
+//   - Bearer/id/access tokens NEVER echoed
+//   - No DB writes — pure diagnostic read path
 
 import { normalizeMlcWorks }             from '../lib/publishing/mlc-adapter.js';
 import { assemblePublishingIntelligence } from './_lib/publishing-intelligence.js';
 
 const MLC_BASE_URL_DEFAULT = 'https://public-api.themlc.com';
 const TOKEN_PATH           = '/oauth/token';
-const RECORDINGS_PATH      = '/search/recordings';
-const WORK_DETAIL_PATH     = '/work/id';
+const SEARCH_PATH          = '/search/songcode';
 const DEFAULT_ARTIST       = 'Ed Sheeran';
-const DEFAULT_CAP          = 5;
+const DEFAULT_SONGS        = 'Shape of You';
+const SONG_TITLE_CAP       = 5;
+const WORK_CAP             = 20;
+
+// Mirror of mlc-client.js buildWriterEntry — keep in sync if strategy changes.
+function buildWriterEntry(artistName) {
+  const trimmed   = artistName.trim();
+  const lastSpace = trimmed.lastIndexOf(' ');
+  if (lastSpace === -1) {
+    return { writerLastName: trimmed };
+  }
+  return {
+    writerFirstName: trimmed.slice(0, lastSpace),
+    writerLastName:  trimmed.slice(lastSpace + 1),
+  };
+}
 
 export default async function handler(req, res) {
   const artistName = (req.query.artist || DEFAULT_ARTIST).toString().trim();
-  const cap        = Math.min(20, Math.max(1, parseInt(req.query.cap || DEFAULT_CAP, 10) || DEFAULT_CAP));
+  const songsRaw   = (req.query.songs  || DEFAULT_SONGS).toString();
+  const songTitles = songsRaw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, SONG_TITLE_CAP);
+
   const baseUrl    = (process.env.MLC_API_URL || MLC_BASE_URL_DEFAULT).replace(/\/+$/, '');
 
   const trace = {
-    artist:  artistName,
-    cap,
-    baseUrl: baseUrl.replace(/\/\/.*@/, '//***@'), // sanitize any embedded creds
-    stages: {},
+    artist:     artistName,
+    songTitles,
+    strategy:   'POST /search/songcode per song — Board-approved 2026-06-30',
+    stages:     {},
   };
 
   // ─── Stage 0 — Credentials ────────────────────────────────────────
@@ -44,10 +67,10 @@ export default async function handler(req, res) {
   const hasRefresh   = !!refreshToken;
 
   trace.stages.credentials = {
-    hasMlcUsername:    !!username,
-    hasMlcPassword:    !!password,
+    hasMlcUsername:     !!username,
+    hasMlcPassword:     !!password,
     hasMlcRefreshToken: !!refreshToken,
-    mode: hasPwdCreds ? 'username+password' : hasRefresh ? 'refreshToken' : 'MISSING',
+    mode:       hasPwdCreds ? 'username+password' : hasRefresh ? 'refreshToken' : 'MISSING',
     canProceed: hasPwdCreds || hasRefresh,
   };
 
@@ -56,9 +79,7 @@ export default async function handler(req, res) {
     return res.status(200).json(trace);
   }
 
-  // ─── Stage 1.5 — Token exchange (needed before any MLC call) ────────
-  // All MLC endpoints require auth — /search/recordings returns 401
-  // without a bearer token despite API docs indicating otherwise.
+  // ─── Stage 1 — Token exchange ─────────────────────────────────────
   const tokenEndpoint = `${baseUrl}${TOKEN_PATH}`;
   const tokenBody     = hasPwdCreds ? { username, password } : { refreshToken };
   const tokenMode     = hasPwdCreds ? 'username+password' : 'refreshToken';
@@ -91,13 +112,24 @@ export default async function handler(req, res) {
           expiresIn: tokenJson?.expiresIn ?? null,
         };
         tokenOk = false;
+      } else {
+        // Surface only non-sensitive metadata
+        trace.stages.tokenExchange = {
+          endpoint:       tokenEndpoint,
+          mode:           tokenMode,
+          httpStatus:     tokenStatus,
+          ok:             true,
+          bearerAcquired: true,
+          tokenType:      tokenJson?.tokenType ?? null,
+          expiresIn:      tokenJson?.expiresIn ?? null,
+        };
       }
     } else {
       tokenError = {
-        httpStatus:        tokenStatus,
-        error:             tokenJson?.error ?? null,
-        errorDescription:  tokenJson?.errorDescription ?? null,
-        message:           tokenJson?.message ?? null,
+        httpStatus:       tokenStatus,
+        error:            tokenJson?.error            ?? null,
+        errorDescription: tokenJson?.errorDescription ?? null,
+        message:          tokenJson?.message          ?? null,
       };
     }
   } catch (err) {
@@ -106,198 +138,143 @@ export default async function handler(req, res) {
     tokenError  = { transportError: err?.message || String(err) };
   }
 
-  trace.stages.tokenExchange = {
-    endpoint:  tokenEndpoint,
-    mode:      tokenMode,
-    httpStatus: tokenStatus,
-    ok:        tokenOk,
-    bearerAcquired: typeof bearer === 'string' && bearer !== '',
-    error:     tokenError ?? null,
-  };
-
   if (!tokenOk || !bearer) {
+    trace.stages.tokenExchange = {
+      endpoint:   tokenEndpoint,
+      mode:       tokenMode,
+      httpStatus: tokenStatus,
+      ok:         false,
+      error:      tokenError ?? null,
+    };
     trace.failedAt = 'tokenExchange';
     return res.status(200).json(trace);
   }
 
-  // ─── Stage 1 — Recording discovery (bearer required) ─────────────
-  // POST /search/recordings { artist: artistName }
-  // Note: MLC API docs say no auth required, but live endpoint returns
-  // 401 without bearer (confirmed 2026-06-30). Bearer sent on all calls.
-  const recordingsEndpoint = `${baseUrl}${RECORDINGS_PATH}`;
-  let recordingsStatus, recordingsOk, recordingsCount, songCodes, recordingsError, recordingsSample;
+  // ─── Stage 2 — Per-song /search/songcode ──────────────────────────
+  // Mirrors mlc-client.js exactly (sequential, dedup by mlcSongCode).
+  const searchEndpoint = `${baseUrl}${SEARCH_PATH}`;
+  const writerEntry    = buildWriterEntry(artistName);
+  const songCodeSet    = new Set();
+  const rawWorks       = [];
+  const perSongResults = [];
 
-  try {
-    const recordingsResp = await fetch(recordingsEndpoint, {
-      method:  'POST',
-      headers: {
-        'Authorization': `Bearer ${bearer}`,
-        'Content-Type':  'application/json',
-        'Accept':        'application/json',
-        'User-Agent':    'Royalte/1.0 (publishing-trace)',
-      },
-      body: JSON.stringify({ artist: artistName }),
-    });
+  for (const songTitle of songTitles) {
+    if (songCodeSet.size >= WORK_CAP) break;
 
-    recordingsStatus = recordingsResp.status;
-    recordingsOk     = recordingsResp.ok;
-
-    let recordingsJson;
-    try { recordingsJson = await recordingsResp.json(); } catch { recordingsJson = null; }
-
-    const recordings = Array.isArray(recordingsJson) ? recordingsJson : [];
-    recordingsCount  = recordings.length;
-    recordingsSample = recordings.slice(0, 2);
-
-    const songCodeSet = new Set();
-    for (const rec of recordings) {
-      if (!rec || typeof rec !== 'object') continue;
-      const code = rec.mlcSongCode || rec.mlcsongCode;
-      if (typeof code === 'string' && code.trim() !== '') {
-        songCodeSet.add(code.trim());
-        if (songCodeSet.size >= cap) break;
-      }
-    }
-    songCodes = Array.from(songCodeSet);
-
-    if (!recordingsOk) {
-      let rawBody;
-      try { rawBody = JSON.stringify(recordingsJson); } catch { rawBody = null; }
-      // Capture rate-limit headers so the Board can see cooldown/limit info.
-      recordingsError = {
-        httpStatus:           recordingsStatus,
-        rawBody,
-        retryAfter:           recordingsResp.headers.get('retry-after')           ?? null,
-        xRateLimitLimit:      recordingsResp.headers.get('x-ratelimit-limit')      ?? null,
-        xRateLimitRemaining:  recordingsResp.headers.get('x-ratelimit-remaining')  ?? null,
-        xRateLimitReset:      recordingsResp.headers.get('x-ratelimit-reset')      ?? null,
-      };
-    }
-  } catch (err) {
-    recordingsStatus = null;
-    recordingsOk     = false;
-    recordingsError  = { transportError: err?.message || String(err) };
-    songCodes        = [];
-    recordingsCount  = 0;
-  }
-
-  trace.stages.recordingDiscovery = {
-    endpoint:          recordingsEndpoint,
-    requestBody:       { artist: artistName },
-    httpStatus:        recordingsStatus,
-    ok:                recordingsOk,
-    recordingsCount,
-    songCodesExtracted: songCodes.length,
-    songCodes,
-    sample:            recordingsSample,
-    error:             recordingsError ?? null,
-  };
-
-  if (!recordingsOk || songCodes.length === 0) {
-    trace.failedAt = recordingsOk
-      ? 'recordingDiscovery:noSongCodes'
-      : 'recordingDiscovery:httpError';
-    return res.status(200).json(trace);
-  }
-
-  // ─── Stage 2 — Work detail lookup ─────────────────────────────────
-  const workDetailBase = `${baseUrl}${WORK_DETAIL_PATH}`;
-  const workResults    = await Promise.allSettled(
-    songCodes.map(async (code) => {
-      const resp = await fetch(`${workDetailBase}/${encodeURIComponent(code)}`, {
-        method:  'GET',
+    const searchBody = { title: songTitle, writers: [writerEntry] };
+    let searchStatus, searchOk, searchError, worksReturned, newAdded, sample;
+    try {
+      const searchResp = await fetch(searchEndpoint, {
+        method:  'POST',
         headers: {
           'Authorization': `Bearer ${bearer}`,
+          'Content-Type':  'application/json',
           'Accept':        'application/json',
           'User-Agent':    'Royalte/1.0 (publishing-trace)',
         },
+        body: JSON.stringify(searchBody),
       });
-      const status = resp.status;
-      let body;
-      try { body = await resp.json(); } catch { body = null; }
-      return { code, httpStatus: status, ok: resp.ok, body };
-    })
-  );
 
-  const workDetailResults = workResults.map((r) => {
-    if (r.status === 'rejected') {
-      return { fulfilled: false, error: r.reason?.message || String(r.reason) };
+      searchStatus = searchResp.status;
+      searchOk     = searchResp.ok;
+
+      if (!searchOk) {
+        searchError = {
+          httpStatus:          searchStatus,
+          retryAfter:          searchResp.headers.get('retry-after')          ?? null,
+          xRateLimitLimit:     searchResp.headers.get('x-ratelimit-limit')    ?? null,
+          xRateLimitRemaining: searchResp.headers.get('x-ratelimit-remaining') ?? null,
+          xRateLimitReset:     searchResp.headers.get('x-ratelimit-reset')    ?? null,
+        };
+        worksReturned = 0;
+        newAdded      = 0;
+      } else {
+        let searchJson;
+        try { searchJson = await searchResp.json(); } catch { searchJson = null; }
+        const works = Array.isArray(searchJson) ? searchJson : [];
+        worksReturned = works.length;
+        newAdded      = 0;
+        sample        = works.slice(0, 2);
+        for (const work of works) {
+          if (songCodeSet.size >= WORK_CAP) break;
+          const code = work?.mlcSongCode;
+          if (typeof code === 'string' && code.trim() !== '' && !songCodeSet.has(code)) {
+            songCodeSet.add(code);
+            rawWorks.push(work);
+            newAdded++;
+          }
+        }
+      }
+    } catch (err) {
+      searchStatus  = null;
+      searchOk      = false;
+      searchError   = { transportError: err?.message || String(err) };
+      worksReturned = 0;
+      newAdded      = 0;
     }
-    const { code, httpStatus, ok, body } = r.value;
-    return {
-      fulfilled: true,
-      code,
-      httpStatus,
-      ok,
-      // Show full raw body for the first result; summarise the rest.
-      body: body,
-    };
-  });
 
-  const workDetailSuccessful = workDetailResults.filter((r) => r.fulfilled && r.ok);
-  const workDetailFailed     = workDetailResults.filter((r) => !r.fulfilled || !r.ok);
+    perSongResults.push({
+      songTitle,
+      requestBody:  searchBody,
+      httpStatus:   searchStatus,
+      ok:           searchOk,
+      worksReturned,
+      newAdded,
+      totalSoFar:   rawWorks.length,
+      sample:       sample ?? null,
+      error:        searchError ?? null,
+    });
+  }
 
-  trace.stages.workDetail = {
-    codesRequested:    songCodes.length,
-    successful:        workDetailSuccessful.length,
-    failed:            workDetailFailed.length,
-    results:           workDetailResults,
+  trace.stages.songSearch = {
+    endpoint:         searchEndpoint,
+    writerEntry,
+    songsSearched:    perSongResults.length,
+    uniqueWorksTotal: rawWorks.length,
+    perSong:          perSongResults,
   };
 
-  if (workDetailSuccessful.length === 0) {
-    trace.failedAt = 'workDetail:allFailed';
+  if (rawWorks.length === 0) {
+    trace.failedAt = perSongResults.every((r) => !r.ok)
+      ? 'songSearch:allFailed'
+      : 'songSearch:noResults';
     return res.status(200).json(trace);
   }
 
-  // ─── Stage 3 — normalizeMlcWorks ──────────────────────────────────
-  // Map /work/id response shape to adapter-expected shape (primaryTitle → workTitle).
-  const mappedForAdapter = workDetailSuccessful
-    .map((r) => {
-      const w = r.body;
-      if (!w || typeof w !== 'object') return null;
-      return {
-        workTitle:   typeof w.primaryTitle === 'string' ? w.primaryTitle
-                   : typeof w.workTitle    === 'string' ? w.workTitle
-                   : null,
-        mlcSongCode: w.mlcSongCode || w.mlcsongCode || null,
-        iswc:        typeof w.iswc === 'string' ? w.iswc : null,
-        writers:     Array.isArray(w.writers) ? w.writers : [],
-      };
-    })
-    .filter((w) => w !== null);
-
-  const normalizedWorks = normalizeMlcWorks(mappedForAdapter);
+  // ─── Stage 3 — normalizeMlcWorks ─────────────────────────────────
+  // /search/songcode returns workTitle, mlcSongCode, iswc, writers[]
+  // directly — the shape mlc-adapter.js normalizeMlcWorks() expects.
+  // No field mapping needed (unlike the /work/id path).
+  const normalizedWorks = normalizeMlcWorks(rawWorks);
 
   trace.stages.normalization = {
-    worksEntering:   mappedForAdapter.length,
-    worksLeaving:    normalizedWorks.length,
-    dropped:         mappedForAdapter.length - normalizedWorks.length,
-    mappedSamples:   mappedForAdapter.slice(0, 2).map((w) => ({
-      workTitle:   w.workTitle,
-      mlcSongCode: w.mlcSongCode,
-      iswc:        w.iswc,
-      writersCount: w.writers.length,
-      firstWriter:  w.writers[0] ?? null,
+    worksEntering:    rawWorks.length,
+    worksLeaving:     normalizedWorks.length,
+    dropped:          rawWorks.length - normalizedWorks.length,
+    rawSample:        rawWorks.slice(0, 2).map((w) => ({
+      workTitle:    w.workTitle,
+      mlcSongCode:  w.mlcSongCode,
+      iswc:         w.iswc,
+      writersCount: Array.isArray(w.writers) ? w.writers.length : 0,
+      firstWriter:  Array.isArray(w.writers) ? w.writers[0] ?? null : null,
     })),
     normalizedSample: normalizedWorks.slice(0, 2).map((w) => ({
-      title:       w.title,
-      mlcSongCode: w.mlcSongCode,
-      iswc:        w.iswc,
+      title:        w.title,
+      mlcSongCode:  w.mlcSongCode,
+      iswc:         w.iswc,
       writersCount: w.writers.length,
       firstWriter:  w.writers[0] ?? null,
       confidence:   w.confidence,
     })),
-    droppedReasons: mappedForAdapter
-      .filter((w, i) => normalizedWorks.findIndex((n) => n.mlcSongCode === w.mlcSongCode) === -1)
+    droppedWorks: rawWorks
+      .filter((w) => !normalizedWorks.find((n) => n.mlcSongCode === w.mlcSongCode))
       .map((w) => ({
         mlcSongCode: w.mlcSongCode,
         workTitle:   w.workTitle,
-        hasWriters:  w.writers.length > 0,
-        iswc:        w.iswc,
-        problem: !w.workTitle ? 'workTitle_null'
-               : !w.mlcSongCode ? 'mlcSongCode_null'
-               : w.writers.length === 0 ? 'writers_array_empty'
-               : 'unknown',
+        problem:     !w.workTitle    ? 'workTitle_null'
+                   : !w.mlcSongCode ? 'mlcSongCode_null'
+                   : (!Array.isArray(w.writers) || w.writers.length === 0) ? 'writers_empty'
+                   : 'unknown',
       })),
   };
 
@@ -307,10 +284,8 @@ export default async function handler(req, res) {
   }
 
   // ─── Stage 4 — Publishing Intelligence simulation ─────────────────
-  // Simulate what assembleCio() + assemblePublishingIntelligence()
-  // would do without running the full scan engine.
-  const worksCount = normalizedWorks.length;
-  const ipiSet     = new Set();
+  const worksCount  = normalizedWorks.length;
+  const ipiSet      = new Set();
   for (const work of normalizedWorks) {
     for (const writer of (work.writers || [])) {
       if (writer && typeof writer.writerIPI === 'string' && writer.writerIPI !== '') {
@@ -318,79 +293,48 @@ export default async function handler(req, res) {
       }
     }
   }
-  const writerIPIs   = Array.from(ipiSet);
-  const writerCount  = writerIPIs.length;
+  const writerIPIs  = Array.from(ipiSet);
+  const writerCount = writerIPIs.length;
 
-  // Simulate CIO.publishing + CIO.observations.publishingSources.mlc
   const simulatedObservation = {
     availability: 'VERIFIED',
     details: {
       worksCount,
-      iswcCount: normalizedWorks.filter((w) => typeof w.iswc === 'string' && w.iswc.trim() !== '').length,
+      iswcCount:   normalizedWorks.filter((w) => typeof w.iswc === 'string' && w.iswc.trim() !== '').length,
       writerCount: normalizedWorks.reduce((n, w) => n + (w.writers?.length ?? 0), 0),
     },
   };
-  const simulatedSummary = {
-    worksCount,
-    writerIPIs,
-    writerCount,
-    workRoyalteIds: [],
+  const simulatedCio = {
+    publishing: { worksCount, writerIPIs, writerCount, workRoyalteIds: [] },
+    observations: { publishingSources: { mlc: simulatedObservation } },
   };
 
   trace.stages.cioPrepare = {
-    simulatedCioPublishing: simulatedSummary,
-    simulatedMlcObservation: simulatedObservation,
-  };
-
-  // Run assemblePublishingIntelligence with a simulated CIO to verify
-  // the assembler would produce populated states.
-  const simulatedCio = {
-    publishing: simulatedSummary,
-    observations: {
-      publishingSources: {
-        mlc: simulatedObservation,
-      },
-    },
+    simulatedCioPublishing:   simulatedCio.publishing,
+    simulatedMlcObservation:  simulatedObservation,
   };
 
   const publishingIntelligence = assemblePublishingIntelligence(null, simulatedCio);
 
   trace.stages.publishingIntelligence = {
-    registrations:    publishingIntelligence.registrations,
-    metrics:          publishingIntelligence.metrics,
-    registeredCount:  publishingIntelligence.registeredCount,
-    totalChecked:     publishingIntelligence.totalChecked,
-    coverage:         publishingIntelligence.coverage,
-    strengthsCount:   publishingIntelligence.strengths.length,
-    issuesCount:      publishingIntelligence.issues.length,
-    strengths:        publishingIntelligence.strengths,
-    issues:           publishingIntelligence.issues,
-  };
-
-  // ─── Stage 5 — Payload storage note ──────────────────────────────
-  // Cannot verify audit_scans.payload without running a full scan.
-  // This trace proves the intelligence assembles correctly from live
-  // MLC data. A full scan with audit.js logs would prove the DB write.
-  trace.stages.payloadNote = {
-    note: 'This trace proves live MLC data flows through all pipeline stages correctly. To verify audit_scans.payload, run a full scan and check Vercel function logs for [mlc] Stage 7 — result: VERIFIED.',
-  };
-
-  // ─── Stage 6 — Mission Control renderer note ──────────────────────
-  trace.stages.missionControlNote = {
-    note: 'MC reads payload.publishingIntelligence.registrations.* and payload.publishingIntelligence.metrics.*. If all prior stages are green, MC should display populated values on next full scan.',
+    registrations:   publishingIntelligence.registrations,
+    metrics:         publishingIntelligence.metrics,
+    registeredCount: publishingIntelligence.registeredCount,
+    totalChecked:    publishingIntelligence.totalChecked,
+    coverage:        publishingIntelligence.coverage,
+    strengths:       publishingIntelligence.strengths,
+    issues:          publishingIntelligence.issues,
   };
 
   // ─── Summary ──────────────────────────────────────────────────────
   trace.summary = {
-    recordingsFound:        recordingsCount,
-    songCodesExtracted:     songCodes.length,
-    workDetailSuccessful:   workDetailSuccessful.length,
-    workDetailFailed:       workDetailFailed.length,
-    normalizedWorks:        normalizedWorks.length,
-    publishingCoverage:     publishingIntelligence.coverage,
-    registeredCount:        publishingIntelligence.registeredCount,
-    totalChecked:           publishingIntelligence.totalChecked,
-    allStagesGreen:         normalizedWorks.length > 0,
+    songsSearched:       perSongResults.length,
+    uniqueWorksCollected: rawWorks.length,
+    worksNormalized:     normalizedWorks.length,
+    publishingCoverage:  publishingIntelligence.coverage,
+    registeredCount:     publishingIntelligence.registeredCount,
+    allStagesGreen:      normalizedWorks.length > 0,
+    note: 'To verify audit_scans.payload, run a full scan and check Vercel function logs for: [mlc] Stage 7 — result: VERIFIED',
   };
 
   return res.status(200).json(trace);
