@@ -360,13 +360,13 @@ function signalForScore(score, domain) {
   const v = typeof score === 'number' ? score : 0;
   if (domain === 'identity') {
     if (v >= 75) return { label: 'Healthy',          tier: 'good'  };
-    if (v >= 50) return { label: 'Partial',          tier: 'warn'  };
-    return              { label: 'Incomplete',        tier: 'alert' };
+    if (v >= 50) return { label: 'Moderate',         tier: 'warn'  };
+    return              { label: 'Needs Attention',  tier: 'alert' };
   }
   if (domain === 'monitoring') {
     if (v >= 80) return { label: 'Active',           tier: 'good'  };
     if (v >= 50) return { label: 'Pending',          tier: 'warn'  };
-    return              { label: 'Not Active',        tier: 'alert' };
+    return              { label: 'Needs Attention',  tier: 'alert' };
   }
   if (domain === 'publishing') {
     if (v >= 75) return { label: 'Healthy',          tier: 'good'  };
@@ -376,11 +376,11 @@ function signalForScore(score, domain) {
   if (domain === 'footprint') {
     if (v >= 75) return { label: 'Healthy',          tier: 'good'  };
     if (v >= 50) return { label: 'Moderate',         tier: 'warn'  };
-    return              { label: 'Limited',           tier: 'alert' };
+    return              { label: 'Needs Attention',  tier: 'alert' };
   }
   if (domain === 'backend') {
     if (v >= 75) return { label: 'Connected',        tier: 'good'  };
-    if (v >= 50) return { label: 'Partial',          tier: 'warn'  };
+    if (v >= 50) return { label: 'Moderate',         tier: 'warn'  };
     return              { label: 'Needs Attention',  tier: 'alert' };
   }
   // catalog + generic fallback
