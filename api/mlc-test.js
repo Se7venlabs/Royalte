@@ -170,20 +170,46 @@ export default async function handler(req, res) {
   // Sending writers as an empty array (or populated via ?writers=ed
   // for a known Ed Sheeran probe) usually satisfies AWS API Gateway
   // schema validators that demand all declared properties be present.
+  // Research-phase query builder — supports arbitrary writer/title combos
+  // for strategy validation. Never reaches production mlc-client.js.
+  //   ?writers=ed            → [{ writerFirstName:'Ed', writerLastName:'Sheeran' }]
+  //   ?writers=empty         → [] (returns 400 — documented failure mode)
+  //   ?writers=omit          → field omitted entirely (returns 400 — documented)
+  //   ?writerFirst=X&writerLast=Y → [{ writerFirstName:X, writerLastName:Y }]
+  //   ?writerLast=Y          → [{ writerLastName:Y }] (last-name-only probe)
+  //   ?writerFirst=X         → [{ writerFirstName:X }] (first-name-only probe)
+  //   ?omitTitle=1           → omit title field (writer-only search)
+  const writerFirst  = req.query.writerFirst  ? String(req.query.writerFirst).trim()  : null;
+  const writerLast   = req.query.writerLast   ? String(req.query.writerLast).trim()   : null;
+  const omitTitle    = req.query.omitTitle === '1';
   const writersChoice = (req.query.writers || 'empty').toString().toLowerCase();
+
   let writers;
-  switch (writersChoice) {
-    case 'ed':
-      writers = [{ writerFirstName: 'Ed', writerLastName: 'Sheeran' }];
-      break;
-    case 'omit':
-      writers = undefined;
-      break;
-    case 'empty':
-    default:
-      writers = [];
+  if (writerFirst !== null || writerLast !== null) {
+    const entry = {};
+    if (writerFirst) entry.writerFirstName = writerFirst;
+    if (writerLast)  entry.writerLastName  = writerLast;
+    writers = [entry];
+  } else {
+    switch (writersChoice) {
+      case 'ed':
+        writers = [{ writerFirstName: 'Ed', writerLastName: 'Sheeran' }];
+        break;
+      case 'omit':
+        writers = undefined;
+        break;
+      case 'empty':
+      default:
+        writers = [];
+    }
   }
-  const searchBody = (writers === undefined) ? { title } : { title, writers };
+
+  let searchBody;
+  if (omitTitle) {
+    searchBody = writers === undefined ? {} : { writers };
+  } else {
+    searchBody = writers === undefined ? { title } : { title, writers };
+  }
 
   let searchResp;
   try {
