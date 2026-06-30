@@ -163,7 +163,15 @@ export default async function handler(req, res) {
     if (!recordingsOk) {
       let rawBody;
       try { rawBody = JSON.stringify(recordingsJson); } catch { rawBody = null; }
-      recordingsError = { httpStatus: recordingsStatus, rawBody };
+      // Capture rate-limit headers so the Board can see cooldown/limit info.
+      recordingsError = {
+        httpStatus:           recordingsStatus,
+        rawBody,
+        retryAfter:           recordingsResp.headers.get('retry-after')           ?? null,
+        xRateLimitLimit:      recordingsResp.headers.get('x-ratelimit-limit')      ?? null,
+        xRateLimitRemaining:  recordingsResp.headers.get('x-ratelimit-remaining')  ?? null,
+        xRateLimitReset:      recordingsResp.headers.get('x-ratelimit-reset')      ?? null,
+      };
     }
   } catch (err) {
     recordingsStatus = null;
