@@ -259,6 +259,25 @@ export async function runScan(url) {
     appleMusicCall,
   ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : { found: false }));
 
+  // Backfill Apple artwork for Spotify / Artist-Name inputs where appleArtworkUrl
+  // was not set during pre-fan-out resolution (those paths go through ISRC bridge
+  // or name-search — neither sets resolved.appleArtworkUrl). appleMusicData.artistId
+  // is now known from the fan-out; use it to fetch artwork so the canonical payload
+  // is consistent with Apple URL inputs for the same artist.
+  if (!resolved.appleArtworkUrl && appleMusicData?.found && appleMusicData.artistId) {
+    try {
+      const details = await resolveAppleArtist(
+        `https://music.apple.com/us/artist/artist/${appleMusicData.artistId}`
+      );
+      if (details?.artworkUrl) {
+        resolved.appleArtworkUrl = details.artworkUrl;
+        console.log(`[scan] Apple artwork backfilled for artist ${appleMusicData.artistId}`);
+      }
+    } catch {
+      // Non-fatal — artwork enrichment, not a scan blocker
+    }
+  }
+
   // ── Catalog: Spotify when available, Apple fallback ──
   // Same field shape in both cases so analyzeCatalog and downstream
   // consumers see one contract.
