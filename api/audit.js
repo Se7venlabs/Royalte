@@ -309,8 +309,16 @@ export default async function handler(req, res) {
     }
 
     // Extract song titles from a canonical scan payload for MLC /search/songcode.
-    // Tries three sources in priority order; deduplicates case-insensitively.
+    // Tries sources in priority order; deduplicates case-insensitively.
     // Returns up to 5 titles — the client caps are enforced in mlc-client.js.
+    //
+    // Source priority (Board architecture directive 2026-06-30):
+    //   1. Apple Music canonical catalog (single-track releases) — canonical path.
+    //      Apple Music is the identity authority; this drives Publishing Intelligence
+    //      from Royaltē's own catalog model rather than provider-specific widgets.
+    //   2. subject.trackTitle — Spotify top-track hoist (still useful when present)
+    //   3. Apple Music ISRC lookup name (may duplicate source 1)
+    //   4. Deezer top tracks (fallback when Deezer is present)
     function extractSongTitlesForPublishingLookup(canonical) {
       const seen   = new Set();
       const titles = [];
@@ -322,11 +330,28 @@ export default async function handler(req, res) {
           titles.push(clean);
         }
       }
-      // Source 1: subject.trackTitle — Spotify top-track hoist, most reliable
+      // Source 1 — Apple Music canonical catalog (Board architecture 2026-06-30).
+      // For single-track releases (trackCount === 1), the Apple album name IS the
+      // song title. Apple packages singles as "<Title> - Single"; strip that suffix
+      // to recover the bare title for MLC search.
+      const appleAlbums = canonical?.platforms?.appleMusic?.details?.albums;
+      if (Array.isArray(appleAlbums)) {
+        for (const album of appleAlbums) {
+          if (titles.length >= 5) break;
+          if (album?.trackCount !== 1) continue;
+          const rawName = typeof album?.name === 'string' ? album.name.trim() : null;
+          if (!rawName) continue;
+          const songTitle = rawName
+            .replace(/\s*[-–]\s*(Single|EP|Live)\s*$/i, '')
+            .trim();
+          add(songTitle || rawName);
+        }
+      }
+      // Source 2: subject.trackTitle — Spotify top-track hoist
       add(canonical?.subject?.trackTitle);
-      // Source 2: Apple Music ISRC lookup name (often duplicates source 1)
+      // Source 3: Apple Music ISRC lookup name (often duplicates source 1)
       add(canonical?.platforms?.appleMusic?.details?.isrcLookup?.name);
-      // Source 3: Deezer top tracks — richest source when Deezer is present
+      // Source 4: Deezer top tracks — fallback when Deezer is present
       const deezerTracks = canonical?.platforms?.deezer?.details?.topTracks;
       if (Array.isArray(deezerTracks)) {
         for (const t of deezerTracks) {
