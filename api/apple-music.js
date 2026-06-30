@@ -149,6 +149,56 @@ async function getArtistSongs(appleArtistId, storefront = STOREFRONT, limit = 25
 }
 
 /**
+ * Canonical Wiring Certification (2026-06-30) — Directive 1/2.
+ * Look up the Apple Music artist ID for a given ISRC, with optional
+ * name verification to prevent co-credit contamination.
+ *
+ * Used by the Spotify→Apple ISRC bridge in run-scan.js: when a Spotify
+ * URL scan resolves an artist and fetches top-track ISRCs, this bridge
+ * sets resolved.appleArtistId so the subsequent getAppleMusic() call uses
+ * the ID-direct path — identical to Apple URL inputs. All three scan
+ * entry paths converge to the same Apple Artist ID before enrichment.
+ *
+ * Returns the Apple Artist ID string, or null on any failure / mismatch.
+ */
+async function lookupAppleArtistIdByIsrc(isrc, canonicalArtistName) {
+  try {
+    const data = await appleRequest(
+      `/catalog/${STOREFRONT}/songs?filter[isrc]=${encodeURIComponent(isrc)}&include=artists`
+    );
+    const song = data?.data?.[0];
+    if (!song) return null;
+
+    if (canonicalArtistName) {
+      // Verify the canonical artist name appears at the start of the song's
+      // display artist string. Primary artists always lead; a leading match
+      // confirms the song belongs to the canonical artist rather than a
+      // featured co-credit. Strict enough to prevent contamination; lenient
+      // enough to pass "feat." and "&" variants.
+      const norm            = (s) => (s || '').toLowerCase().trim();
+      const songArtistLower = norm(song.attributes?.artistName);
+      const canonicalLower  = norm(canonicalArtistName);
+      const exactMatch      = songArtistLower === canonicalLower;
+      const leadingMatch    = songArtistLower.startsWith(canonicalLower + ' ')
+                           || songArtistLower.startsWith(canonicalLower + ',')
+                           || songArtistLower.startsWith(canonicalLower + '&')
+                           || songArtistLower.startsWith(canonicalLower + '+');
+      if (!exactMatch && !leadingMatch) {
+        console.log(`[apple] ISRC ${isrc}: artist mismatch — Apple="${song.attributes?.artistName}" vs canonical="${canonicalArtistName}" — skipping`);
+        return null;
+      }
+    }
+
+    // Artist ID lives in the included relationships array.
+    const artistId = song.relationships?.artists?.data?.[0]?.id || null;
+    return artistId;
+  } catch (err) {
+    console.error('Apple Music lookupAppleArtistIdByIsrc error:', err.message);
+    return null;
+  }
+}
+
+/**
  * Look up a track by ISRC
  * Returns Apple Music catalog entry if found
  */
@@ -399,6 +449,7 @@ export {
   getArtistAlbums,
   getArtistSongs,
   lookupByISRC,
+  lookupAppleArtistIdByIsrc,
   searchTrack,
   compareSpotifyToApple,
   checkStorefrontAvailability,

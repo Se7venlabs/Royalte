@@ -148,9 +148,13 @@ function _normalizeCatalog(r) {
 function _normalizePlatforms(r) {
   const p = r.platforms || {};
 
-  // spotify is always reachable at this point — getting past runAudit means it verified
+  // Spotify availability is conditional on whether the scan resolved a
+  // Spotify artist ID (rawResponse.platforms.spotify = !!resolved.artistId).
+  // Apple-only artists (no Spotify match) correctly show NOT_FOUND here;
+  // AUTH_UNAVAILABLE is NOT used — if Spotify was reachable and returned
+  // no match, that is a genuine NOT_FOUND, not an auth gap.
   const spotify = {
-    availability: PLATFORM_AVAILABILITY.VERIFIED,
+    availability: p.spotify ? PLATFORM_AVAILABILITY.VERIFIED : PLATFORM_AVAILABILITY.NOT_FOUND,
     details: null,
   };
 
@@ -212,7 +216,13 @@ function _normalizePlatforms(r) {
     lastfm:      simple(p.lastfm),
     wikipedia:   simple(p.wikipedia),
     youtube,
-    tidal:       simple(p.tidal),
+    // TIDAL: integration exists (tidal-token.js) but is not wired into the
+    // scan engine — the scan never calls it, so rawResponse.platforms.tidal
+    // is always false. Reporting NOT_FOUND is misleading: it implies Royaltē
+    // looked and found the artist absent, when in fact we never looked.
+    // AUTH_UNAVAILABLE is the truthful state: "integration not yet active."
+    // MC renders AUTH_UNAVAILABLE as "Unable to Confirm" — accurate.
+    tidal: { availability: PLATFORM_AVAILABILITY.AUTH_UNAVAILABLE, details: null },
   };
 }
 

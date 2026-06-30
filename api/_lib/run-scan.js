@@ -22,7 +22,7 @@
 // the inline handler used before this extraction.
 
 import { generateAppleToken } from '../apple-token.js';
-import { lookupByISRC, checkStorefrontAvailability, getArtistAlbums, getArtistSongs } from '../apple-music.js';
+import { lookupByISRC, lookupAppleArtistIdByIsrc, checkStorefrontAvailability, getArtistAlbums, getArtistSongs } from '../apple-music.js';
 import { lookupYouTubeChannelId } from './identity-graph.js';
 // Phase 1, Stage 1 — Apple identity resolution extracted to a named
 // adapter under api/_lib/identity/. Pure behavior-preserving refactor;
@@ -181,6 +181,40 @@ export async function runScan(url) {
     try { albumsData       = await getSpotifyAlbums(resolved.artistId, token); }    catch { albumsData = { items: [] }; }
     try { spotifyTopTracks = await getSpotifyTopTracks(resolved.artistId, token); } catch { spotifyTopTracks = []; }
   }
+
+  // Canonical Wiring Certification — Directive 1/2 (2026-06-30).
+  //
+  // Once Apple Artist ID is known it becomes the permanent canonical
+  // identity for this scan. Apple URL inputs set resolved.appleArtistId
+  // directly from the URL. Spotify URL and Artist Name inputs do not,
+  // so the ID-direct Apple enrichment path was never taken for them —
+  // the root cause of divergent Mission Control results for the same
+  // artist across input paths.
+  //
+  // Fix: use ISRCs from Spotify top tracks to discover the Apple Artist
+  // ID (via the /songs?filter[isrc]=...&include=artists endpoint). On
+  // success, resolved.appleArtistId is populated and the subsequent
+  // getAppleMusic() call uses ID-direct — identical to Apple URL inputs.
+  // On failure, the existing name-search path still runs (no regression).
+  if (!resolved.appleArtistId && spotifyTopTracks.length > 0) {
+    for (const track of spotifyTopTracks.slice(0, 3)) {
+      if (!track.isrc) continue;
+      try {
+        const discoveredAppleId = await lookupAppleArtistIdByIsrc(track.isrc, resolved.artistName);
+        if (discoveredAppleId) {
+          resolved.appleArtistId = discoveredAppleId;
+          console.log(`[scan] Spotify→Apple ISRC bridge: "${resolved.artistName}" → appleArtistId=${discoveredAppleId} via ISRC ${track.isrc}`);
+          break;
+        }
+      } catch (bridgeErr) {
+        console.warn(`[scan] Spotify→Apple ISRC bridge threw for ${track.isrc}: ${bridgeErr?.message || bridgeErr}`);
+      }
+    }
+    if (!resolved.appleArtistId) {
+      console.log(`[scan] Spotify→Apple ISRC bridge: no Apple ID found for "${resolved.artistName}" — falling back to name-search path`);
+    }
+  }
+
   // Stub when Spotify ID absent OR Spotify artist fetch failed. Same shape
   // getSpotifyArtist returns so runModules / buildFlags / rawResponse fields
   // see a uniform interface. followers=-1 is the existing "Spotify absent"
@@ -1127,7 +1161,9 @@ async function getMusicBrainz(artistName) {
 async function getDeezer(artistName) {
   try {
     const query = encodeURIComponent(artistName);
-    const resp = await fetch(`https://api.deezer.com/search/artist?q=${query}&limit=5`);
+    // limit=25: Deezer ranks by popularity — niche artists surface outside
+    // the top 5. Expanded to 25 without relaxing the strict exact-match gate.
+    const resp = await fetch(`https://api.deezer.com/search/artist?q=${query}&limit=25`);
     if (!resp.ok) return { found: false, fans: 0 };
     const data = await resp.json();
     if (!data.data?.length) return { found: false, fans: 0 };

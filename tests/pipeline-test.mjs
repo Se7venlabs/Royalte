@@ -444,7 +444,11 @@ assert(canonicalAppleOnly.source.platform === 'apple_music', 'apple source.platf
 assert(canonicalAppleOnly.source.resolvedFrom === 'artist', 'apple source.resolvedFrom is artist');
 assert(canonicalAppleOnly.platforms.appleMusic.details !== null, 'apple platforms.appleMusic.details populated');
 assert(['VERIFIED', 'NOT_FOUND', 'ERROR'].includes(canonicalAppleOnly.platforms.appleMusic.availability), 'apple platforms.appleMusic.availability is a valid non-AUTH_UNAVAILABLE enum');
-assert(!JSON.stringify(canonicalAppleOnly).includes('AUTH_UNAVAILABLE'), 'apple canonical contains no AUTH_UNAVAILABLE leakage');
+// TIDAL is intentionally AUTH_UNAVAILABLE on ALL scans (integration pending,
+// not wired into the scan engine). Verify TIDAL is correct and nothing else leaks.
+assert(canonicalAppleOnly.platforms.tidal.availability === 'AUTH_UNAVAILABLE', 'apple canonical: TIDAL is AUTH_UNAVAILABLE (integration pending — expected)');
+const withoutTidalApple = JSON.stringify({ ...canonicalAppleOnly, platforms: { ...canonicalAppleOnly.platforms, tidal: null } });
+assert(!withoutTidalApple.includes('AUTH_UNAVAILABLE'), 'apple canonical contains no unintended AUTH_UNAVAILABLE outside TIDAL');
 assert(canonicalAppleOnly.schemaVersion === AUDIT_RESPONSE_VERSION, `apple schemaVersion is ${AUDIT_RESPONSE_VERSION}`);
 assert(typeof canonicalAppleOnly.scanId === 'string' && canonicalAppleOnly.scanId.length > 0, 'apple scanId generated');
 assert(canonicalAppleOnly.subject.trackTitle === null, 'apple subject.trackTitle null for artist-URL scan');

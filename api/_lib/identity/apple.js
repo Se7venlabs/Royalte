@@ -194,9 +194,12 @@ export async function getAppleMusic(artistName, isrc, spotifyTopTracks = [], opt
       }
     } else {
       // Name-search path (Spotify URL inputs without a known Apple ID).
+      // limit=25: Apple search ranks by popularity — niche artists (e.g.
+      // "Black Alternative") surface outside the top 5. Expanding to 25
+      // resolves these without relaxing the strict exact-match gate below.
       const artistQuery = encodeURIComponent(artistName);
       const artistResp = await fetch(
-        `${BASE}/catalog/${STOREFRONT}/search?term=${artistQuery}&types=artists&limit=5`,
+        `${BASE}/catalog/${STOREFRONT}/search?term=${artistQuery}&types=artists&limit=25`,
         { headers }
       );
 

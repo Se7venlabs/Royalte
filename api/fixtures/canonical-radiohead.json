@@ -241,7 +241,7 @@
       }
     },
     "tidal": {
-      "availability": "VERIFIED",
+      "availability": "AUTH_UNAVAILABLE",
       "details": null
     }
   },
