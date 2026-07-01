@@ -134,6 +134,7 @@ export class ProviderAcquisitionLayer {
       }
     }
     this.#lifecycles.clear();
+    this.#registry = new ProviderRegistry(); // reset to clean state
     return errors;
   }
 
