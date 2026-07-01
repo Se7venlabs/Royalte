@@ -75,11 +75,11 @@ export async function appleGet(path, token, options = {}) {
           await sleep(jitteredBackoff(attempt));
           continue;
         }
-        return { ok: false, status: res.status, healthState: 'UNAVAILABLE', rawText: await safeText(res) };
+        return { ok: false, status: res.status, healthState: 'MAINTENANCE', rawText: await safeText(res) };
       }
 
       // Other 4xx — not retryable
-      return { ok: false, status: res.status, healthState: 'UNAVAILABLE', rawText: await safeText(res) };
+      return { ok: false, status: res.status, healthState: 'MAINTENANCE', rawText: await safeText(res) };
 
     } catch (err) {
       clearTimeout(timer);
@@ -91,11 +91,11 @@ export async function appleGet(path, token, options = {}) {
         await sleep(jitteredBackoff(attempt));
         continue;
       }
-      return { ok: false, healthState: 'UNAVAILABLE', error: err.message };
+      return { ok: false, healthState: 'MAINTENANCE', error: err.message };
     }
   }
 
-  return { ok: false, healthState: 'UNAVAILABLE', error: 'max retries exceeded' };
+  return { ok: false, healthState: 'MAINTENANCE', error: 'max retries exceeded' };
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -107,8 +107,8 @@ function jitteredBackoff(attempt) {
 
 function parseRetryAfter(res) {
   const val = res.headers?.get?.('Retry-After');
-  const n   = parseInt(val ?? '5', 10);
-  return Number.isFinite(n) && n > 0 ? n : 5;
+  const n   = parseInt(val ?? '', 10);
+  return Number.isFinite(n) && n >= 0 ? n : 5;
 }
 
 async function safeText(res) {

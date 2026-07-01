@@ -107,7 +107,7 @@ export class AppleMusicConnector extends ProviderConnector {
       return createHealthSignal({ state: HealthState.AVAILABLE, provider: PROVIDER_NAME });
     }
     return createHealthSignal({
-      state:    result.healthState ?? HealthState.UNAVAILABLE,
+      state:    result.healthState ?? HealthState.MAINTENANCE,
       provider: PROVIDER_NAME,
       detail:   result.error ?? `HTTP ${result.status}`,
     });
