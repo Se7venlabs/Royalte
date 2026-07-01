@@ -233,6 +233,8 @@ assert(typeof canonical.platforms.deezer.details.topTracks[0].preview === 'strin
 assert(Array.isArray(canonical.platforms.deezer.details.topTracks[0].available_countries), 'platforms.deezer track territory info present');
 assert(Array.isArray(canonical.platforms.deezer.details.genres), 'platforms.deezer.details.genres is array');
 assert(canonical.platforms.deezer.details.genres.includes('Rock'), 'platforms.deezer.details.genres populated');
+// topTrackStatus — Board Phase 4.4: three distinct states
+assert(canonical.platforms.deezer.details.topTrackStatus === 'VERIFIED', 'platforms.deezer.details.topTrackStatus VERIFIED when tracks present');
 assert(canonical.metrics.deezerFans === 2345678, 'metrics.deezerFans still populated from root deezerFans field');
 
 // Coverage
@@ -444,7 +446,11 @@ assert(canonicalAppleOnly.source.platform === 'apple_music', 'apple source.platf
 assert(canonicalAppleOnly.source.resolvedFrom === 'artist', 'apple source.resolvedFrom is artist');
 assert(canonicalAppleOnly.platforms.appleMusic.details !== null, 'apple platforms.appleMusic.details populated');
 assert(['VERIFIED', 'NOT_FOUND', 'ERROR'].includes(canonicalAppleOnly.platforms.appleMusic.availability), 'apple platforms.appleMusic.availability is a valid non-AUTH_UNAVAILABLE enum');
-assert(!JSON.stringify(canonicalAppleOnly).includes('AUTH_UNAVAILABLE'), 'apple canonical contains no AUTH_UNAVAILABLE leakage');
+// TIDAL is intentionally AUTH_UNAVAILABLE on ALL scans (integration pending,
+// not wired into the scan engine). Verify TIDAL is correct and nothing else leaks.
+assert(canonicalAppleOnly.platforms.tidal.availability === 'AUTH_UNAVAILABLE', 'apple canonical: TIDAL is AUTH_UNAVAILABLE (integration pending — expected)');
+const withoutTidalApple = JSON.stringify({ ...canonicalAppleOnly, platforms: { ...canonicalAppleOnly.platforms, tidal: null } });
+assert(!withoutTidalApple.includes('AUTH_UNAVAILABLE'), 'apple canonical contains no unintended AUTH_UNAVAILABLE outside TIDAL');
 assert(canonicalAppleOnly.schemaVersion === AUDIT_RESPONSE_VERSION, `apple schemaVersion is ${AUDIT_RESPONSE_VERSION}`);
 assert(typeof canonicalAppleOnly.scanId === 'string' && canonicalAppleOnly.scanId.length > 0, 'apple scanId generated');
 assert(canonicalAppleOnly.subject.trackTitle === null, 'apple subject.trackTitle null for artist-URL scan');

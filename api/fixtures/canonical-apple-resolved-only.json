@@ -44,7 +44,7 @@
   },
   "platforms": {
     "spotify": {
-      "availability": "VERIFIED",
+      "availability": "NOT_FOUND",
       "details": null
     },
     "appleMusic": {
@@ -94,7 +94,7 @@
       "details": null
     },
     "tidal": {
-      "availability": "NOT_FOUND",
+      "availability": "AUTH_UNAVAILABLE",
       "details": null
     }
   },
@@ -190,18 +190,18 @@
     "ownershipImpact": 0
   },
   "health": {
-    "score": 20,
+    "score": 10,
     "grade": "Review Recommended",
     "drivers": [
       "Catalog depth was below the typical range in reviewed sources",
       "Territory availability was not yet verified in this scan",
-      "YouTube presence was not available from reviewed sources",
-      "ISRC information was not available from reviewed sources"
+      "Spotify presence was not available from reviewed sources",
+      "YouTube presence was not available from reviewed sources"
     ],
     "breakdown": {
       "catalog_verification": 0,
       "big6_coverage": 0,
-      "backend_health": 20,
+      "backend_health": 10,
       "youtube_presence": 0
     }
   },

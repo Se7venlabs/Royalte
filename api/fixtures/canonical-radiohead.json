@@ -195,6 +195,7 @@
             "type": "track"
           }
         ],
+        "topTrackStatus": "VERIFIED",
         "genres": [
           "Rock",
           "Alternative"
@@ -241,7 +242,7 @@
       }
     },
     "tidal": {
-      "availability": "VERIFIED",
+      "availability": "AUTH_UNAVAILABLE",
       "details": null
     }
   },

@@ -353,6 +353,42 @@ export function renderCatalog(intelligence) {
 
 const RING_CIRCUMFERENCE = 213.628;
 
+// Map a domain score (0-100) to a signal status label + tier for the
+// Health Signals display. Tier drives the dot colour: good/warn/alert.
+// Labels are artist-facing (not technical); tiers are CSS class tokens.
+function signalForScore(score, domain) {
+  const v = typeof score === 'number' ? score : 0;
+  if (domain === 'identity') {
+    if (v >= 75) return { label: 'Healthy',          tier: 'good'  };
+    if (v >= 50) return { label: 'Moderate',         tier: 'warn'  };
+    return              { label: 'Needs Attention',  tier: 'alert' };
+  }
+  if (domain === 'monitoring') {
+    if (v >= 80) return { label: 'Active',           tier: 'good'  };
+    if (v >= 50) return { label: 'Pending',          tier: 'warn'  };
+    return              { label: 'Needs Attention',  tier: 'alert' };
+  }
+  if (domain === 'publishing') {
+    if (v >= 75) return { label: 'Healthy',          tier: 'good'  };
+    if (v >= 50) return { label: 'Moderate',         tier: 'warn'  };
+    return              { label: 'Needs Attention',  tier: 'alert' };
+  }
+  if (domain === 'footprint') {
+    if (v >= 75) return { label: 'Healthy',          tier: 'good'  };
+    if (v >= 50) return { label: 'Moderate',         tier: 'warn'  };
+    return              { label: 'Needs Attention',  tier: 'alert' };
+  }
+  if (domain === 'backend') {
+    if (v >= 75) return { label: 'Connected',        tier: 'good'  };
+    if (v >= 50) return { label: 'Moderate',         tier: 'warn'  };
+    return              { label: 'Needs Attention',  tier: 'alert' };
+  }
+  // catalog + generic fallback
+  if (v >= 75) return   { label: 'Healthy',          tier: 'good'  };
+  if (v >= 50) return   { label: 'Moderate',         tier: 'warn'  };
+  return                { label: 'Needs Attention',  tier: 'alert' };
+}
+
 export function safeHealthIntelligence(hi) {
   if (!hi || typeof hi !== 'object' || Array.isArray(hi)) return null;
   if (typeof hi.score  !== 'number') return null;
@@ -370,18 +406,33 @@ export function renderHealth(intelligence) {
   const score = n(hi.score);
   const dash  = `${((score / 100) * RING_CIRCUMFERENCE).toFixed(1)} ${RING_CIRCUMFERENCE.toFixed(1)}`;
 
+  const identityScore   = n(hi.identityScore);
+  const publishingScore = n(hi.publishingScore);
+  const catalogScore    = n(hi.catalogScore);
+  const footprintScore  = n(hi.footprintScore);
+  const monitoringScore = n(hi.monitoringScore);
+  const backendScore    = n(hi.backendScore);
+
   return {
     score,
     status:        s(hi.status,     'Needs Review'),
     confidence:    s(hi.confidence, 'Limited'),
     ringDasharray: dash,
     domainScores: {
-      identity:   n(hi.identityScore),
-      publishing: n(hi.publishingScore),
-      catalog:    n(hi.catalogScore),
-      footprint:  n(hi.footprintScore),
-      monitoring: n(hi.monitoringScore),
-      backend:    n(hi.backendScore),
+      identity:   identityScore,
+      publishing: publishingScore,
+      catalog:    catalogScore,
+      footprint:  footprintScore,
+      monitoring: monitoringScore,
+      backend:    backendScore,
+    },
+    signals: {
+      identity:   signalForScore(identityScore,   'identity'),
+      publishing: signalForScore(publishingScore,  'publishing'),
+      catalog:    signalForScore(catalogScore,     'catalog'),
+      footprint:  signalForScore(footprintScore,   'footprint'),
+      monitoring: signalForScore(monitoringScore,  'monitoring'),
+      backend:    signalForScore(backendScore,     'backend'),
     },
     strengths:  Array.isArray(hi.strengths) ? hi.strengths.filter((x) => typeof x === 'string' && x.trim()) : [],
     concerns:   Array.isArray(hi.concerns)  ? hi.concerns.filter((x)  => typeof x === 'string' && x.trim()) : [],

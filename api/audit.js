@@ -168,6 +168,8 @@ export async function persistCanonicalScan(rawResponse, originalUrl, urlType, sc
 
   // DIAGNOSTIC — remove after ownership trace confirmed
   console.log(`[audit-diag] insert scanId=${scanId} artist="${canonical.subject?.artistName}" userId=${userId || 'NULL'} sessionId=${sessionId || 'NULL'}`);
+  // Phase 4.4 health trace — Stage 3: score enters audit_scans.payload.
+  console.log('[health-diag] Stage 3 — audit_scans.payload: healthIntelligence.score=', canonical.healthIntelligence?.score ?? 'NULL', 'healthScore.overallScore=', canonical.healthScore?.overallScore ?? 'NULL', '| match=', canonical.healthIntelligence?.score === canonical.healthScore?.overallScore);
 
   const insertRow = {
     id:                scanId,
@@ -306,6 +308,60 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Audit failed. Please check the link and try again.', detail: m });
     }
 
+    // Extract song titles from a canonical scan payload for MLC /search/songcode.
+    // Tries sources in priority order; deduplicates case-insensitively.
+    // Returns up to 5 titles — the client caps are enforced in mlc-client.js.
+    //
+    // Source priority (Board architecture directive 2026-06-30):
+    //   1. Apple Music canonical catalog (single-track releases) — canonical path.
+    //      Apple Music is the identity authority; this drives Publishing Intelligence
+    //      from Royaltē's own catalog model rather than provider-specific widgets.
+    //   2. subject.trackTitle — Spotify top-track hoist (still useful when present)
+    //   3. Apple Music ISRC lookup name (may duplicate source 1)
+    //   4. Deezer top tracks (fallback when Deezer is present)
+    function extractSongTitlesForPublishingLookup(canonical) {
+      const seen   = new Set();
+      const titles = [];
+      function add(t) {
+        if (typeof t !== 'string') return;
+        const clean = t.trim();
+        if (clean && !seen.has(clean.toLowerCase())) {
+          seen.add(clean.toLowerCase());
+          titles.push(clean);
+        }
+      }
+      // Source 1 — Apple Music canonical catalog (Board architecture 2026-06-30).
+      // For single-track releases (trackCount === 1), the Apple album name IS the
+      // song title. Apple packages singles as "<Title> - Single"; strip that suffix
+      // to recover the bare title for MLC search.
+      const appleAlbums = canonical?.platforms?.appleMusic?.details?.albums;
+      if (Array.isArray(appleAlbums)) {
+        for (const album of appleAlbums) {
+          if (titles.length >= 5) break;
+          if (album?.trackCount !== 1) continue;
+          const rawName = typeof album?.name === 'string' ? album.name.trim() : null;
+          if (!rawName) continue;
+          const songTitle = rawName
+            .replace(/\s*[-–]\s*(Single|EP|Live)\s*$/i, '')
+            .trim();
+          add(songTitle || rawName);
+        }
+      }
+      // Source 2: subject.trackTitle — Spotify top-track hoist
+      add(canonical?.subject?.trackTitle);
+      // Source 3: Apple Music ISRC lookup name (often duplicates source 1)
+      add(canonical?.platforms?.appleMusic?.details?.isrcLookup?.name);
+      // Source 4: Deezer top tracks — fallback when Deezer is present
+      const deezerTracks = canonical?.platforms?.deezer?.details?.topTracks;
+      if (Array.isArray(deezerTracks)) {
+        for (const t of deezerTracks) {
+          if (titles.length >= 5) break;
+          add(t?.title);
+        }
+      }
+      return titles;
+    }
+
     // ── PERSIST + EAGER INTELLIGENCE ASSEMBLY ──
     // Phase 4B-2 (Identity Intelligence™) + Phase 5B (Publishing
     // Intelligence™) + Phase 5B Board Architectural Review (2026-06-17,
@@ -354,10 +410,17 @@ export default async function handler(req, res) {
       // 'NOT_FOUND' and rawWorks = []; the CIO assembly succeeds and
       // downstream metrics resolve to UNABLE_TO_CONFIRM (per Board D5
       // four-state invariant).
+      //
+      // Song titles sourced from the canonical payload drive MLC search
+      // via POST /search/songcode. Three sources in priority order:
+      //   1. subject.trackTitle          — Spotify top-track hoist (most reliable)
+      //   2. appleMusic.isrcLookup.name  — ISRC-resolved track name (may dup #1)
+      //   3. deezer.topTracks[*].title   — richest source when Deezer present
+      const songTitles = extractSongTitlesForPublishingLookup(canonicalForEnrichment);
       let publishingSourceObservations = null;
       let publishingWorks              = null;
       try {
-        const mlcResult              = await fetchMlcWorksByArtist(artistName);
+        const mlcResult              = await fetchMlcWorksByArtist(artistName, { songTitles });
         publishingSourceObservations = { mlc: mlcResult.observation };
         publishingWorks              = normalizeMlcWorks(mlcResult.rawWorks);
       } catch (mlcErr) {
@@ -454,6 +517,8 @@ export default async function handler(req, res) {
       } catch (healthErr) {
         console.error('[audit] Health / Executive Brief pipeline failed (non-blocking):', healthErr.message);
       }
+      // Phase 4.4 health trace — Stage 1: score leaves the Health Engine.
+      console.log('[health-diag] Stage 1 — computeHealthScore: overallScore=', healthScore?.overallScore ?? 'NULL', 'grade=', healthScore?.overallGrade ?? 'NULL');
 
       // ── 8. Health Intelligence™ — interpretation layer over the canonical score ──
       // Reads healthScore.overallScore as the canonical score. Never recomputes it.
@@ -474,6 +539,8 @@ export default async function handler(req, res) {
       } catch (hiErr) {
         console.error('[audit] Health Intelligence™ assembly failed (non-blocking):', hiErr.message);
       }
+      // Phase 4.4 health trace — Stage 2: score enters healthIntelligence.
+      console.log('[health-diag] Stage 2 — assembleHealthIntelligence: score=', healthIntelligence?.score ?? 'NULL', 'status=', healthIntelligence?.status ?? 'NULL', '| match=', healthScore?.overallScore === healthIntelligence?.score);
 
       const enriched = { ...canonicalForEnrichment };
       if (identityIntelligence)   enriched.identityIntelligence   = identityIntelligence;
@@ -592,6 +659,8 @@ export default async function handler(req, res) {
                   );
                   if (finalHealthIntelligence) {
                     canonical.healthIntelligence = finalHealthIntelligence;
+                    // Phase 4.4 health trace — Stage 4: two-phase patch score.
+                    console.log('[health-diag] Stage 4 — two-phase patch: finalHealthIntelligence.score=', finalHealthIntelligence.score ?? 'NULL', '| match Stage 1=', finalHealthIntelligence.score === canonical.healthScore?.overallScore);
                   }
                 } catch (hiPatchErr) {
                   console.error('[audit] health intelligence re-assembly failed (non-blocking):', hiPatchErr.message);

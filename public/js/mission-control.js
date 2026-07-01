@@ -259,12 +259,19 @@ function applyDeezerTopTrack(payload) {
   const titleEl = document.querySelector('[data-mc-identity-top-track-title]');
   const isrcEl  = document.querySelector('[data-mc-identity-top-track-isrc]');
   if (!titleEl || !isrcEl) return;
-  const tracks = payload?.platforms?.deezer?.details?.topTracks;
-  const track  = Array.isArray(tracks) && tracks.length > 0 ? tracks[0] : null;
+  const deezer  = payload?.platforms?.deezer;
+  const tracks  = deezer?.details?.topTracks;
+  const track   = Array.isArray(tracks) && tracks.length > 0 ? tracks[0] : null;
   if (track) {
-    titleEl.textContent = track.title || 'Not Available';
+    titleEl.textContent = track.title || 'No Ranked Top Track Returned';
     isrcEl.textContent  = track.isrc  || '—';
+  } else if (deezer?.details?.topTrackStatus === 'NO_RANKED_TRACK') {
+    // Artist IS on Deezer but /artist/{id}/top returned 0 ranked tracks.
+    // Distinct from "artist not found" — do not imply absence from the platform.
+    titleEl.textContent = 'No Ranked Top Track Returned';
+    isrcEl.textContent  = '—';
   } else {
+    // Artist not found on Deezer (details: null) or unknown state.
     titleEl.textContent = 'Not Available';
     isrcEl.textContent  = '—';
   }
@@ -493,25 +500,23 @@ function applyHealthPlan(plan) {
   const confEl = document.querySelector('[data-mc-health-confidence]');
   if (confEl) confEl.textContent = `${plan.confidence} Confidence`;
 
-  // Per-domain contributor scores
-  const domainMap = {
-    identity:   plan.domainScores.identity,
-    publishing: plan.domainScores.publishing,
-    catalog:    plan.domainScores.catalog,
-    footprint:  plan.domainScores.footprint,
-    monitoring: plan.domainScores.monitoring,
-    backend:    plan.domainScores.backend,
-  };
-  for (const [domain, score] of Object.entries(domainMap)) {
-    const row = document.querySelector(`[data-mc-health-domain="${domain}"]`);
-    if (!row) continue;
-    const valEl = row.querySelector('.val');
-    if (valEl) valEl.textContent = score;
+  // Health Signals — dot tier (colour) + status label per domain
+  if (plan.signals) {
+    for (const [domain, signal] of Object.entries(plan.signals)) {
+      const dotEl    = document.querySelector(`[data-mc-signal-dot="${domain}"]`);
+      const statusEl = document.querySelector(`[data-mc-signal-status="${domain}"]`);
+      if (dotEl)    dotEl.setAttribute('data-tier', signal.tier);
+      if (statusEl) statusEl.textContent = signal.label;
+    }
   }
 
-  // Composite average row — displays the canonical health score (one score in the system)
+  // Overall Health Score row — canonical score (one score in the system)
   const compositeEl = document.querySelector('[data-mc-health-composite]');
   if (compositeEl) compositeEl.textContent = plan.score;
+
+  // AI Health Summary — sourced from healthReport.summary; never rewritten here
+  const summaryEl = document.querySelector('[data-mc-health-summary]');
+  if (summaryEl && plan.summary) summaryEl.textContent = plan.summary;
 
   // Strengths / concerns in the foot slot
   const foot = document.querySelector('[data-mc-health-insights]');
@@ -719,7 +724,18 @@ if (typeof window !== 'undefined') {
 
     // Health
     const hi = safeHealthIntelligence(payload.healthIntelligence);
-    if (hi) _vaultPlans.healthPlan = renderHealth(hi);
+    // Phase 4.4 health trace — Stage 5: score arrives in __mcPopulate.
+    console.log('[health-diag] Stage 5 — __mcPopulate: payload.healthIntelligence.score=', hi?.score ?? 'NULL', '| payload.healthScore.overallScore=', payload.healthScore?.overallScore ?? 'NULL', '| match=', hi?.score === payload.healthScore?.overallScore);
+    if (hi) {
+      const plan = renderHealth(hi);
+      if (plan) {
+        // Attach healthReport.summary as the AI Health Summary narrative.
+        // Sourced from generateHealthReport() — grade-based text set by the
+        // Health Engine. Never rewritten or regenerated here.
+        _vaultPlans.healthPlan = { ...plan, summary: payload.healthReport?.summary || null };
+      }
+    }
+    console.log('[health-diag] Stage 5b — renderHealth plan.score=', _vaultPlans.healthPlan?.score ?? 'NULL', '| summary=', _vaultPlans.healthPlan?.summary ? '"' + _vaultPlans.healthPlan.summary.slice(0, 40) + '..."' : 'NULL');
   };
 
   window.__mcRevealModule = function (id) {
@@ -727,6 +743,8 @@ if (typeof window !== 'undefined') {
       case 'health-intelligence': {
         const plan = _vaultPlans.healthPlan;
         if (!plan) break;
+        // Phase 4.4 health trace — Stage 6: score rendered to DOM.
+        console.log('[health-diag] Stage 6 — __mcRevealModule(health-intelligence): plan.score=', plan.score, '| status=', plan.status, '| confidence=', plan.confidence, '| ringDasharray=', plan.ringDasharray);
         // applyHealthPlan writes status, confidence, domain scores, insights,
         // and sets the ring stroke-dasharray — CSS transition (1.4s) fires
         // because _blankSentinelData left the ring at 0 214.
