@@ -29,8 +29,25 @@ export const PROVIDER_NAME        = 'apple_music';
 export const CONNECTOR_VERSION    = '1.0';
 export const PROVIDER_API_VERSION = 'v1';
 
-// BIG6 storefronts — primary availability markets
+// BIG6 storefronts — primary availability markets (TERRITORIES evidence type)
 const BIG6_STOREFRONTS = Object.freeze(['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au', 'br']);
+
+// Global Music Footprint™ — complete 167-storefront universe (AVAILABILITY evidence type).
+// Mirror of ALL_APPLE_STOREFRONTS in api/apple-music.js. Change only via Board directive.
+const ALL_APPLE_STOREFRONTS = Object.freeze([
+  'ag','ai','bb','bm','bo','br','bs','bz','ca','cl','co','cr','dm','do','ec','gd','gt','gy','hn','jm',
+  'kn','ky','lc','mx','ni','pa','pe','py','sr','sv','tc','tt','us','uy','vc','vg',
+  'al','am','at','az','be','bg','by','ch','cy','cz','de','dk','ee','es','fi','fr','gb','gr','hr','hu',
+  'ie','is','it','kg','kz','lt','lu','lv','md','mk','mt','nl','no','pl','pt','ro','ru','se','si','sk',
+  'tj','tr','ua','uz',
+  'ae','ao','bf','bh','bj','bw','cd','cg','ci','cm','cv','dj','dz','eg','et','ga','gh','gm','gn','gq',
+  'gw','il','jo','ke','kw','lb','lr','ly','ma','mg','ml','mr','mu','mw','mz','na','ne','ng','om','qa',
+  'rw','sa','sc','sl','sn','st','sz','td','tn','tz','ug','ye','za','zm','zw',
+  'au','bt','cn','fj','fm','hk','id','in','jp','kh','kr','la','lk','mn','mo','mv','my','np','nr','nz',
+  'pg','ph','pw','sb','sg','th','tl','to','tw','vn','vu','ws',
+]);
+
+const GLOBAL_SF_WAVE_SIZE = 50;
 
 // Health probe — lightweight endpoint to verify API connectivity
 const HEALTH_PROBE_PATH = '/storefronts/us';
@@ -167,9 +184,11 @@ export class AppleMusicConnector extends ProviderConnector {
         return this.#fetchByISRC(subjectRef, sf);
 
       case Capability.AVAILABILITY:
-        return this.#fetchStorefrontAvailability(subjectRef, BIG6_STOREFRONTS);
+        // Global Music Footprint™ — all 167 storefronts, wave-based
+        return this.#fetchGlobalStorefrontAvailability(subjectRef);
 
       case Capability.TERRITORIES:
+        // BIG6 only — primary revenue markets
         return this.#fetchStorefrontAvailability(subjectRef, BIG6_STOREFRONTS);
 
       case Capability.ARTWORK:
@@ -257,6 +276,40 @@ export class AppleMusicConnector extends ProviderConnector {
     return {
       payload,
       rawText,
+      health:       createHealthSignal({ state: HealthState.AVAILABLE, provider: PROVIDER_NAME }),
+      completeness: 'full',
+    };
+  }
+
+  // Global Music Footprint™ availability — all 167 storefronts, wave-based fan-out.
+  // AVAILABILITY evidence type. EvidenceBridge reads storefronts shape via storefrontIsAvailable().
+  async #fetchGlobalStorefrontAvailability(subjectRef) {
+    if (!subjectRef.appleAlbumId) return this.#missingRef('appleAlbumId');
+
+    const idsParam = encodeURIComponent(subjectRef.appleAlbumId);
+    const byStorefront = {};
+
+    for (let i = 0; i < ALL_APPLE_STOREFRONTS.length; i += GLOBAL_SF_WAVE_SIZE) {
+      const wave = ALL_APPLE_STOREFRONTS.slice(i, i + GLOBAL_SF_WAVE_SIZE);
+      const settled = await Promise.allSettled(
+        wave.map(sf =>
+          appleGet(`/catalog/${sf}/albums?ids=${idsParam}`, this.#token, {
+            ...this.#fetchOpts, maxRetries: 1,
+          }).then(r => ({ sf, result: r }))
+        )
+      );
+      for (const s of settled) {
+        if (s.status === 'fulfilled') {
+          const { sf, result } = s.value;
+          byStorefront[sf] = result.ok ? result.data : { error: result.healthState };
+        }
+      }
+    }
+
+    const payload = { albumId: subjectRef.appleAlbumId, storefronts: byStorefront };
+    return {
+      payload,
+      rawText:      JSON.stringify(payload),
       health:       createHealthSignal({ state: HealthState.AVAILABLE, provider: PROVIDER_NAME }),
       completeness: 'full',
     };

@@ -350,6 +350,8 @@ export default async function handler(req, res) {
       try {
         cim = await runRIE({
           canonicalForEnrichment,
+          // Phase 3.3: Apple PAL evidence packages — hybrid merge in runRIE
+          evidencePackages: result.evidencePackages ?? null,
           publishingWorks,
           publishingSourceObservations,
         });
