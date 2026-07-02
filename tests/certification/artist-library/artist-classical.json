@@ -1,0 +1,61 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-classical",
+  "_description": "Classical music artist (solo pianist). Catalog consists of recordings of public-domain compositions — no original compositions to register. Writer and publisher are the original classical composers (Chopin, Debussy), not the artist. Publishing section intentionally reflects this unusual pattern: works exist in MLC/PRO context only as mechanical licenses, not original authorship. Tests publishing logic when the performing artist is not the writer.",
+  "_expectedBehavior": "No publishing authorship on the performer — worksCount=0 from artist perspective. Catalog recordings present but publishing registrations won't map to this artist. Engine handles this gracefully. No identity issues.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "MEDIUM",
+  "identity": {
+    "canonicalArtistName": "Cert Classical Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "cert-class-sp-001", "verified": true },
+      { "provider": "apple",   "profileId": "cert-class-am-001", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+  "publishing": {
+    "worksCount": 0,
+    "workRoyalteIds": [],
+    "writerCount": 0,
+    "writerIPIs": [],
+    "publisherCount": 0,
+    "publishingConfidence": "UNKNOWN",
+    "publishingCoverage": 0
+  },
+  "catalog": {
+    "releasesCount": 22,
+    "catalogAgeYears": 15,
+    "catalogConfidence": "HIGH",
+    "recordings": [
+      { "isrc": "DECLASS00001", "title": "Chopin: Nocturne Op.9 No.2 in E-flat major" },
+      { "isrc": "DECLASS00002", "title": "Debussy: Clair de lune (Suite bergamasque, L. 75)" },
+      { "isrc": "DECLASS00003", "title": "Bach: Goldberg Variations, BWV 988 - Aria" },
+      { "isrc": "DECLASS00004", "title": "Beethoven: Piano Sonata No. 14 'Moonlight'" },
+      { "isrc": "DECLASS00005", "title": "Schubert: Impromptu Op. 90, No. 2 in E-flat major" }
+    ],
+    "orphanRecordings": [],
+    "duplicates": []
+  },
+  "metadata": {
+    "flagCount": 0,
+    "metadataConfidence": "HIGH",
+    "missingCredits": [],
+    "duplicateReleases": [],
+    "inconsistentMetadata": [],
+    "releaseConflicts": []
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {
+    "providers": {
+      "spotify": { "availability": "VERIFIED" },
+      "apple":   { "availability": "VERIFIED" },
+      "youtube": { "availability": "NOT_FOUND" }
+    },
+    "publishingSources": {
+      "mlc": { "availability": "NOT_FOUND" }
+    }
+  }
+}

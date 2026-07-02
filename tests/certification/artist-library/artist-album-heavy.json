@@ -1,0 +1,72 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-album-heavy",
+  "_description": "Prolific artist with an exceptionally large album catalog — 72 studio albums spanning 40 years. All three major providers verified. Publishing extensive. Catalog well-documented with minimal orphans. Edge case: extremely high release count tests count-handling in all assemblers.",
+  "_expectedBehavior": "Very high release count handled without error. Health score elevated by large catalog signals. No overflow or truncation in any assembler output. Catalog status 'Large Catalog'.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "HIGH",
+  "identity": {
+    "canonicalArtistName": "Cert Prolific Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "cert-prolific-sp-001", "verified": true },
+      { "provider": "apple",   "profileId": "cert-prolific-am-001", "verified": true },
+      { "provider": "youtube", "profileId": "cert-prolific-yt-001", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+  "publishing": {
+    "worksCount": 1840,
+    "workRoyalteIds": [
+      "rc_pro_001", "rc_pro_002", "rc_pro_003", "rc_pro_004", "rc_pro_005",
+      "rc_pro_006", "rc_pro_007", "rc_pro_008", "rc_pro_009", "rc_pro_010"
+    ],
+    "writerCount": 4,
+    "writerIPIs": [ "IPI_PRO_1", "IPI_PRO_2", "IPI_PRO_3", "IPI_PRO_4" ],
+    "publisherCount": 5,
+    "publishingConfidence": "HIGH",
+    "publishingCoverage": 88
+  },
+  "catalog": {
+    "releasesCount": 72,
+    "catalogAgeYears": 40,
+    "catalogConfidence": "HIGH",
+    "recordings": [
+      { "isrc": "USPRO0000001", "title": "Classic Track 1" },
+      { "isrc": "USPRO0000002", "title": "Classic Track 2" },
+      { "isrc": "USPRO0000003", "title": "Classic Track 3" },
+      { "isrc": "USPRO0000004", "title": "Classic Track 4" },
+      { "isrc": "USPRO0000005", "title": "Classic Track 5" },
+      { "isrc": "USPRO0000006", "title": "Classic Track 6" },
+      { "isrc": "USPRO0000007", "title": "Classic Track 7" },
+      { "isrc": "USPRO0000008", "title": "Classic Track 8" },
+      { "isrc": "USPRO0000009", "title": "Classic Track 9" },
+      { "isrc": "USPRO0000010", "title": "Classic Track 10" }
+    ],
+    "orphanRecordings": [
+      { "isrc": "USPRO9990001", "title": "Orphaned Old Track" }
+    ],
+    "duplicates": []
+  },
+  "metadata": {
+    "flagCount": 1,
+    "metadataConfidence": "HIGH",
+    "missingCredits": [],
+    "duplicateReleases": [],
+    "inconsistentMetadata": [],
+    "releaseConflicts": []
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {
+    "providers": {
+      "spotify": { "availability": "VERIFIED" },
+      "apple":   { "availability": "VERIFIED" },
+      "youtube": { "availability": "VERIFIED" }
+    },
+    "publishingSources": {
+      "mlc": { "availability": "AUTH_UNAVAILABLE" }
+    }
+  }
+}

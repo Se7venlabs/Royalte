@@ -1,0 +1,69 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-multi-publisher",
+  "_description": "Artist with a complex publishing arrangement across 6 different publishers — represents a career where early works were signed to different labels, co-writes exist across multiple entities, and catalog has been partially acquired. High writer count (15 co-writers), high publisher count (6), large work count. Tests publishing assembler behavior with many simultaneous publishers.",
+  "_expectedBehavior": "Publishing intelligence handles multiple publishers cleanly. No errors from high writer/publisher counts. Coverage computed correctly across all publishers. No identity issues. High work count handled without truncation.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "HIGH",
+  "identity": {
+    "canonicalArtistName": "Cert Multi-Publisher Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "cert-multipub-sp-001", "verified": true },
+      { "provider": "apple",   "profileId": "cert-multipub-am-001", "verified": true },
+      { "provider": "youtube", "profileId": "cert-multipub-yt-001", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+  "publishing": {
+    "worksCount": 340,
+    "workRoyalteIds": [
+      "rc_mpb_001", "rc_mpb_002", "rc_mpb_003", "rc_mpb_004", "rc_mpb_005",
+      "rc_mpb_006", "rc_mpb_007", "rc_mpb_008", "rc_mpb_009", "rc_mpb_010"
+    ],
+    "writerCount": 15,
+    "writerIPIs": [
+      "IPI_MPB_01", "IPI_MPB_02", "IPI_MPB_03", "IPI_MPB_04", "IPI_MPB_05",
+      "IPI_MPB_06", "IPI_MPB_07", "IPI_MPB_08", "IPI_MPB_09", "IPI_MPB_10",
+      "IPI_MPB_11", "IPI_MPB_12", "IPI_MPB_13", "IPI_MPB_14", "IPI_MPB_15"
+    ],
+    "publisherCount": 6,
+    "publishingConfidence": "HIGH",
+    "publishingCoverage": 82
+  },
+  "catalog": {
+    "releasesCount": 28,
+    "catalogAgeYears": 18,
+    "catalogConfidence": "HIGH",
+    "recordings": [
+      { "isrc": "USMPB0000001", "title": "Co-Write Track 1 (3 writers)" },
+      { "isrc": "USMPB0000002", "title": "Co-Write Track 2 (2 writers)" },
+      { "isrc": "USMPB0000003", "title": "Solo Write Track" },
+      { "isrc": "USMPB0000004", "title": "Acquired Catalog Track" },
+      { "isrc": "USMPB0000005", "title": "Early Label Track" }
+    ],
+    "orphanRecordings": [],
+    "duplicates": []
+  },
+  "metadata": {
+    "flagCount": 0,
+    "metadataConfidence": "HIGH",
+    "missingCredits": [],
+    "duplicateReleases": [],
+    "inconsistentMetadata": [],
+    "releaseConflicts": []
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {
+    "providers": {
+      "spotify": { "availability": "VERIFIED" },
+      "apple":   { "availability": "VERIFIED" },
+      "youtube": { "availability": "VERIFIED" }
+    },
+    "publishingSources": {
+      "mlc": { "availability": "AUTH_UNAVAILABLE" }
+    }
+  }
+}

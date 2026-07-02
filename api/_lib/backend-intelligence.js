@@ -90,7 +90,7 @@ function deepFreeze(obj) {
   if (obj === null || typeof obj !== 'object') return obj;
   for (const k of Object.keys(obj)) {
     const v = obj[k];
-    if (v !== null && typeof v === 'object' && !Array.isArray(v) && !Object.isFrozen(v)) deepFreeze(v);
+    if (v !== null && typeof v === 'object' && !Object.isFrozen(v)) deepFreeze(v);
   }
   return Object.freeze(obj);
 }
