@@ -26,6 +26,8 @@ import { certifyISRCs }
   from '../../../lib/recording/isrc-certification.js';
 import { computeRecordingConfidence, computeOverallConfidence }
   from '../../../lib/recording/recording-confidence.js';
+import { RECORDING_CONFIDENCE_POLICY }
+  from '../../../lib/recording/recording-confidence-policy.js';
 import { assembleRecordingIntelligence }
   from '../../../lib/recording/recording-intelligence.js';
 import { runRIE }
@@ -455,6 +457,73 @@ function groupH() {
   return { label: 'H — Edge Cases', assertions };
 }
 
+function groupI() {
+  const assertions = [];
+  const policy = RECORDING_CONFIDENCE_POLICY;
+
+  assertions.push(check('RECORDING_CONFIDENCE_POLICY exports an object',
+    typeof policy === 'object' && policy !== null));
+
+  assertions.push(check('policy.weights exists',
+    typeof policy?.weights === 'object' && policy.weights !== null));
+
+  assertions.push(check('policy is frozen',
+    Object.isFrozen(policy)));
+
+  assertions.push(check('policy.weights is frozen',
+    Object.isFrozen(policy?.weights)));
+
+  const { isrc, provider, title, artist } = policy?.weights ?? {};
+
+  assertions.push(check('isrc weight is 0.55',
+    isrc === 0.55, `got ${isrc}`));
+
+  assertions.push(check('provider weight is 0.20',
+    provider === 0.20, `got ${provider}`));
+
+  assertions.push(check('title weight is 0.15',
+    title === 0.15, `got ${title}`));
+
+  assertions.push(check('artist weight is 0.10',
+    artist === 0.10, `got ${artist}`));
+
+  const total = (isrc ?? 0) + (provider ?? 0) + (title ?? 0) + (artist ?? 0);
+  assertions.push(check('weights sum to 1.00',
+    Math.round(total * 100) === 100,
+    `sum=${total}`));
+
+  // Algorithm consumes policy: VERIFIED 2-source score must match policy-derived value
+  const verifiedRec = {
+    certificationStatus: 'VERIFIED',
+    sourceEvidence: [
+      { source: 'apple',   title: 'Song', isrc: 'GBAHS1600463' },
+      { source: 'spotify', title: 'Song', isrc: 'GBAHS1600463' },
+    ],
+  };
+  const expectedVerified = Math.round(
+    (isrc + provider * 0.65 + title + artist) * 100
+  ) / 100;
+  const actualVerified = computeRecordingConfidence(verifiedRec);
+  assertions.push(check('algorithm uses policy ISRC weight for VERIFIED score',
+    actualVerified === expectedVerified,
+    `expected ${expectedVerified} got ${actualVerified}`));
+
+  // SINGLE_SOURCE score must also match policy-derived value
+  const singleRec = {
+    certificationStatus: 'SINGLE_SOURCE',
+    sourceEvidence: [{ source: 'spotify', title: 'Song', isrc: 'GBAHS1700543' }],
+  };
+  const expectedSingle = Math.round(
+    (isrc * 0.5 + provider * 0.30 + title * 0.50 + artist) * 100
+  ) / 100;
+  const actualSingle = computeRecordingConfidence(singleRec);
+  assertions.push(check('algorithm uses policy ISRC weight for SINGLE_SOURCE score',
+    actualSingle === expectedSingle,
+    `expected ${expectedSingle} got ${actualSingle}`));
+
+  return { label: 'I — Recording Confidence Policy (Board-ratified)', assertions };
+}
+
 // ── Suite runner ─────────────────────────────────────────────────
 
 export async function runRecordingIntelligence() {
@@ -469,6 +538,7 @@ export async function runRecordingIntelligence() {
     groupF(),
     await groupG(),
     groupH(),
+    groupI(),
   ];
 
   for (const { label, assertions } of groups) {
