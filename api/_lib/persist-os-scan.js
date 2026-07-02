@@ -21,7 +21,6 @@
 // returned without monitoring", never to a 5xx.
 
 import { computeDelta } from './delta-engine.js';
-import { computeV2HealthScore, getHealthBand } from '../lib/health-score.js';
 
 const RESCAN_INTERVAL_DAYS = 7;
 
@@ -191,15 +190,9 @@ export function buildCanonicalDataV2(canonical) {
   };
 }
 
-// V2 Health Score — implementation extracted 2026-06-09 to
-// api/lib/health-score.js (Canonical Payload V2 Phase 1: Health
-// Object Migration). Both this persist path and the normalize path
-// import from there per Constitutional rule "Compute Once. Consume
-// Everywhere." Existing call site below is preserved; no behavior
-// change. Re-export here so downstream tests/consumers that previously
-// imported from this module continue working unchanged through the
-// migration window.
-export { computeV2HealthScore, getHealthBand };
+// Board Directive (One Health Engine, 2026-07-02): V2 health engine retired.
+// health_score is now sourced from canonical.cim.health.score (Phase 7 RIE output).
+// computeV2HealthScore and getHealthBand are no longer imported or re-exported.
 
 export async function persistOSScanSnapshot({
   canonical,
@@ -250,11 +243,10 @@ export async function persistOSScanSnapshot({
   // seen — no V1 read-path change.
   const canonicalDataV2 = buildCanonicalDataV2(canonical);
 
-  // ── V2 health score (Brief 012a follow-up) ─────────────────────────────
-  //    Computed at insert time from verified signals only. The delta
-  //    engine no longer touches health_score; score reflects what is
-  //    verified now, not what changed since the last scan.
-  const v2 = computeV2HealthScore(canonical);
+  // ── CIM health score (One Health Engine directive, 2026-07-02) ───────────
+  //    Read directly from canonical.cim.health — the certified Phase 7 output.
+  //    The delta engine does not touch health_score.
+  const cimHealth = canonical.cim?.health ?? null;
 
   // ── Insert the snapshot ────────────────────────────────────────────────
   const insertRow = {
@@ -268,8 +260,8 @@ export async function persistOSScanSnapshot({
     payload:         canonical,
     source:          sourceFromUrlType(urlType),
     status:          warnings && warnings.length > 0 ? 'partial' : 'complete',
-    health_score:    v2.score,
-    score_breakdown: { ...v2.breakdown, drivers: v2.drivers },
+    health_score:    cimHealth?.score          ?? null,
+    score_breakdown: cimHealth?.categoryBreakdown ?? null,
   };
 
   const { data: inserted, error: insertErr } = await supabase

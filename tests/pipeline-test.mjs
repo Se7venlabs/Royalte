@@ -269,52 +269,12 @@ assert(canonical.ownership.render === null, 'ownership.render null when raw lack
 assert(canonical.territoryCoverage === null, 'territoryCoverage explicit null');
 assert(canonical.isrcValidation === null, 'isrcValidation explicit null');
 
-// ── Canonical Health Object (v1.2.0, Health Object Migration) ────────────
-// Engine computes once at normalize time. UI reads only.
-assert(typeof canonical.health === 'object' && canonical.health !== null,
-       'canonical.health is an object');
-assert(typeof canonical.health.score === 'number' && canonical.health.score >= 0 && canonical.health.score <= 100,
-       'canonical.health.score is a valid 0-100 number');
-assert(['Excellent', 'Strong', 'Moderate', 'Review Recommended'].includes(canonical.health.grade),
-       `canonical.health.grade is a valid Board-locked label (got "${canonical.health.grade}")`);
-assert(Array.isArray(canonical.health.drivers),
-       'canonical.health.drivers is an array');
-assert(canonical.health.drivers.every((d) => typeof d === 'string'),
-       'canonical.health.drivers contains only strings (semantic, not objects)');
-assert(canonical.health.drivers.length <= 4,
-       'canonical.health.drivers capped at 4');
-assert(typeof canonical.health.breakdown === 'object' && canonical.health.breakdown !== null,
-       'canonical.health.breakdown is an object');
-assert(typeof canonical.health.breakdown.catalog_verification === 'number' &&
-       canonical.health.breakdown.catalog_verification >= 0 &&
-       canonical.health.breakdown.catalog_verification <= 40,
-       'canonical.health.breakdown.catalog_verification within [0, 40]');
-assert(typeof canonical.health.breakdown.big6_coverage === 'number' &&
-       canonical.health.breakdown.big6_coverage >= 0 &&
-       canonical.health.breakdown.big6_coverage <= 20,
-       'canonical.health.breakdown.big6_coverage within [0, 20]');
-assert(typeof canonical.health.breakdown.backend_health === 'number' &&
-       canonical.health.breakdown.backend_health >= 0 &&
-       canonical.health.breakdown.backend_health <= 20,
-       'canonical.health.breakdown.backend_health within [0, 20]');
-assert(typeof canonical.health.breakdown.youtube_presence === 'number' &&
-       canonical.health.breakdown.youtube_presence >= 0 &&
-       canonical.health.breakdown.youtube_presence <= 10,
-       'canonical.health.breakdown.youtube_presence within [0, 10]');
-// Radiohead-specific: 15 albums (>=10), backend Apple+Spotify verified, YouTube verified,
-// no storefrontAvailability, catalogComparison.matched > 0 → 20+20+10+0+10 = 60 → Moderate (60-74).
-assert(canonical.health.score === 60,
-       `Radiohead fixture: health.score === 60 (got ${canonical.health.score})`);
-assert(canonical.health.grade === 'Moderate',
-       `Radiohead fixture: health.grade === 'Moderate' (got "${canonical.health.grade}")`);
-assert(canonical.health.breakdown.catalog_verification === 20,
-       'Radiohead fixture: catalog_verification === 20 (albumCount=15 via albumCount fallback, albums.length=0 → no albums>=1 bonus)');
-assert(canonical.health.breakdown.big6_coverage === 0,
-       'Radiohead fixture: big6_coverage === 0 (storefrontAvailability is null)');
-assert(canonical.health.breakdown.backend_health === 20,
-       'Radiohead fixture: backend_health === 20 (Apple + Spotify both VERIFIED)');
-assert(canonical.health.breakdown.youtube_presence === 10,
-       'Radiohead fixture: youtube_presence === 10 (YouTube VERIFIED)');
+// ── Canonical Health Object (v2.0.0, One Health Engine directive 2026-07-02) ──
+// Board Directive: V2 Health Engine retired. health is null from
+// normalizeAuditResponse — populated by RIE via CimAdapter after OS enrichment.
+// health assertions for score/grade/drivers live in scan-migration.test.js.
+assert(canonical.health === null,
+       'canonical.health is null from normalizeAuditResponse (populated by RIE after OS enrichment)');
 
 console.log('\n─────────────────────────────────────────────');
 console.log('✓ All assertions passed. Canonical shape:');
