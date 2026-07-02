@@ -21,19 +21,23 @@
 // the original message, so callers can reproduce the exact HTTP classification
 // the inline handler used before this extraction.
 
-import { generateAppleToken } from '../apple-token.js';
-import { lookupByISRC, checkStorefrontAvailability, getArtistAlbums, getArtistSongs } from '../apple-music.js';
+// [RETIRED CANDIDATE] generateAppleToken — no longer called directly in run-scan.js.
+// Kept in identity/apple.js for resolveAppleArtist. Remove when that module migrates to PAL.
+// import { generateAppleToken } from '../apple-token.js';
+// [RETIRED CANDIDATE] lookupByISRC, checkStorefrontAvailability, getArtistAlbums — no longer
+// called in run-scan.js body. Transitively used by identity/apple.js only.
+import { getArtistSongs } from '../apple-music.js';
 import { lookupYouTubeChannelId } from './identity-graph.js';
-// Phase 1, Stage 1 — Apple identity resolution extracted to a named
-// adapter under api/_lib/identity/. Pure behavior-preserving refactor;
-// the functions below are byte-identical to their previously-inlined
-// versions in this file (lines 673–983 before extract). Imports kept
-// at the top of the file with the other engine dependencies.
+// Phase 1, Stage 1 — Apple identity resolution extracted to a named adapter.
+// Phase 3.3 — getAppleMusic() retired; acquisition now routes through PAL.
 import {
   resolveAppleArtist,
   resolveAppleArtistName,
-  getAppleMusic,
+  // [RETIRED CANDIDATE] getAppleMusic — replaced by PAL acquisition below.
+  // Remove after PAL migration verified + Board approval.
 } from './identity/apple.js';
+// Phase 3.3 (Apple Production Migration) — PAL Apple acquisition
+import { acquireAppleEvidence, synthesizeAppleMusicCompat } from './apple-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -54,11 +58,11 @@ const YOUTUBE_REVENUE_REQUIRES_VERIFIED_CHANNEL = true;
 // ─────────────────────────────────────────────────────────────────────────────
 // runScan — the scan orchestrator.
 //
-// Returns { rawResponse, urlType, warnings }:
-//   - rawResponse — the raw legacy-shape audit payload
-//   - urlType     — detectInputType(url), or 'apple' for the Apple-only
-//                   degraded path (matches the pre-refactor persist args)
-//   - warnings    — non-fatal degradation notices (empty on the happy path)
+// Returns { rawResponse, urlType, warnings, evidencePackages }:
+//   - rawResponse      — raw legacy-shape audit payload (appleMusic = PAL-synthesized)
+//   - urlType          — detectInputType(url), or 'apple' for degraded path
+//   - warnings         — non-fatal degradation notices (empty on the happy path)
+//   - evidencePackages — Apple EvidencePackages from PAL (for runRIE hybrid merge)
 // ─────────────────────────────────────────────────────────────────────────────
 export async function runScan(url) {
   // Top-level input guard (was an inline 400 in the handler).
@@ -201,19 +205,18 @@ export async function runScan(url) {
   // every name-search-based enrichment source below.
   const artistName = resolved.artistName;
 
-  // ── Universal enrichment fan-out (always runs, independent per source) ──
-  // Apple Music uses ID-direct when appleArtistId known (Apple URL inputs)
-  // — avoids strict name-search failure for the same artist whose URL we
-  // just resolved. Other 8 providers name-search per PR #103 strict semantics.
+  // ── Universal enrichment fan-out ────────────────────────────────────────
+  // Phase 3.3: Apple acquisition routes through PAL (parallel with all other providers).
+  // PAL evidence flows into runRIE via the hybrid merge path; appleMusicData below
+  // is a backward-compat synthesis for the V1 module system only.
   const appleIsrc = resolved.trackIsrc || trackData?.external_ids?.isrc || null;
-  const appleMusicCall = resolved.appleArtistId
-    ? getAppleMusic(artistName, appleIsrc, spotifyTopTracks, {
-        appleArtistId: resolved.appleArtistId,
-        storefront:    resolved.appleStorefront || 'us',
-      })
-    : getAppleMusic(artistName, appleIsrc, spotifyTopTracks);
 
-  const [mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, youtubeData, appleMusicData] = await Promise.allSettled([
+  const [palSettled, mbSettled, deezerSettled, audioDbSettled, discogsSettled, soundcloudSettled, lastfmSettled, wikidataSettled, youtubeSettled] = await Promise.allSettled([
+    acquireAppleEvidence({
+      appleArtistId: resolved.appleArtistId ?? null,
+      artistName,
+      isrc: appleIsrc,
+    }),
     getMusicBrainz(artistName),
     getDeezer(artistName),
     getAudioDB(artistName),
@@ -222,8 +225,23 @@ export async function runScan(url) {
     getLastFm(artistName),
     getWikidata(artistName),
     getYouTube(artistName),
-    appleMusicCall,
-  ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : { found: false }));
+  ]);
+
+  const { evidencePackages = [], elapsedMs: palElapsedMs = 0 } =
+    palSettled.status === 'fulfilled' ? palSettled.value : {};
+
+  // [TRANSITIONAL] Legacy compat shape for V1 module system (runModules / buildFlags).
+  // Retires when those consumers migrate to RIE Rule Library.
+  const appleMusicData = synthesizeAppleMusicCompat(evidencePackages);
+
+  const mbData         = mbSettled.status         === 'fulfilled' ? mbSettled.value         : { found: false };
+  const deezerData     = deezerSettled.status     === 'fulfilled' ? deezerSettled.value     : { found: false };
+  const audioDbData    = audioDbSettled.status    === 'fulfilled' ? audioDbSettled.value    : { found: false };
+  const discogsData    = discogsSettled.status    === 'fulfilled' ? discogsSettled.value    : { found: false };
+  const soundcloudData = soundcloudSettled.status === 'fulfilled' ? soundcloudSettled.value : { found: false };
+  const lastfmData     = lastfmSettled.status     === 'fulfilled' ? lastfmSettled.value     : { found: false };
+  const wikidataData   = wikidataSettled.status   === 'fulfilled' ? wikidataSettled.value   : { found: false };
+  const youtubeData    = youtubeSettled.status    === 'fulfilled' ? youtubeSettled.value    : { found: false };
 
   // ── Catalog: Spotify when available, Apple fallback ──
   // Same field shape in both cases so analyzeCatalog and downstream
@@ -296,7 +314,9 @@ export async function runScan(url) {
     imageUrl:           resolved.artistImage || artistData.images?.[0]?.url || resolved.appleArtworkUrl || trackData?.album?.images?.[0]?.url || null,
     artistImageUrl:     resolved.artistImage || artistData.images?.[0]?.url || resolved.appleArtworkUrl || null,
     albumImageUrl:      trackData?.album?.images?.[0]?.url || null,
-    appleArtworkUrl:    resolved.appleArtworkUrl || null,
+    // Phase 3.3: PAL-synthesized artwork fills the gap for Spotify-URL inputs
+    // (resolveAppleArtist not called, so resolved.appleArtworkUrl is null).
+    appleArtworkUrl:    resolved.appleArtworkUrl || appleMusicData.artwork || null,
     platforms: {
       spotify:     !!resolved.artistId,
       musicbrainz: !!mbData.found,
@@ -330,7 +350,7 @@ export async function runScan(url) {
     scannedAt: new Date().toISOString(),
   };
 
-  return { rawResponse, urlType: inputType, warnings };
+  return { rawResponse, urlType: inputType, warnings, evidencePackages };
 }
 
 // ────────────────────────────────────────────────────────
