@@ -8,9 +8,15 @@ When this roadmap and the Constitution disagree, **the Constitution wins.**
 
 ---
 
-## Active Build — Intelligence-Wiring Sprint
+## Active Build — OS Migration Sprint
 
-### Phase Status
+The constitutional architecture is complete. The platform is now in its migration epoch:
+eliminating legacy provider acquisition one provider at a time using the proven blueprint
+from Apple Production Migration (PR #189, 2026-07-02).
+
+**Migration order** (Board authorizes each): Apple ✅ → Spotify (recommended next) → MusicBrainz / Deezer / YouTube / others.
+
+### Intelligence-Wiring Sprint (COMPLETE)
 
 | Phase | Title | Status | Locked at | Tag |
 |---|---|---|---|---|
@@ -26,7 +32,15 @@ When this roadmap and the Constitution disagree, **the Constitution wins.**
 | 7 | Royaltē Health Engine™ | ✅ Complete | `ec57481` | — |
 | 7.5 | Se7ven Labs IP Vault™ | ✅ Complete | `38ec3be` | — |
 | 8 | Scan Pipeline Wiring — Health & Executive Brief | ✅ Complete | `17f462f` | `phase-8-scan-pipeline-wiring-v1.0` |
-| 9+ | (per future Board directives) | ⬜ Planned | — | — |
+
+### OS Migration Sprint
+
+| Phase | Title | Status | Locked at | Tag |
+|---|---|---|---|---|
+| 3.1 | CimAdapter + scan-migration test suite | ✅ Complete | `77c827a` | — |
+| 3.2 | One Health Engine | ✅ Complete | `aca5571` | — |
+| 3.3 | Apple Production Migration | ✅ Complete | `584770d` | `apple-pal-production-migration-v1.0` |
+| 3.4 | Next provider migration | ⬜ Board authorization required | — | — |
 
 ---
 
