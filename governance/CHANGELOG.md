@@ -19,6 +19,36 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-02 — Phase 3.5 Governance Backfill — Royaltē OS v1.0 Certification
+
+| | |
+|---|---|
+| **PR** | #193 |
+| **Commit SHA** | (pending merge) |
+| **Tag** | — (documentation only) |
+| **Constitution Version** | v1.3 |
+| **Added** | `ARCHITECTURE.md` — four-layer OS architecture diagram, constitutional ownership map, certified provider status, determinism contract, performance baseline, key invariants. `CERTIFICATION.md` — permanent record of the Board Certification Harness™: suite architecture, artist library, determinism policy, performance baseline policy, certification gates, certified baseline record (`royalte-os-v1.0` at `65c5c16`, 308/308 assertions). `GOVERNANCE.md` — permanent engineering governance: constitutional priority chain, session init, pre-implementation checklist, certification gates, phase PR protocol, ownership rules, migration rules, intelligence integrity rules. `TESTING.md` — permanent testing reference: all 7 test suites with commands and assertion counts, full test file map, CI configuration, test governance rules. |
+| **Changed** | `governance/AGENT_MEMORY.md` § 2 — current build phase updated to Phase 3.5 complete, `royalte-os-v1.0` at `65c5c16` recorded. `governance/ROADMAP.md` — Phase 3.5 row updated to ✅; OS v1.0 milestone and certification framework added to What's Live. `governance/BOARD_DECISIONS.md` — Phase 3.5 ratification entry prepended. |
+| **Removed** | none |
+| **Impact** | Royaltē OS v1.0 certification is formally documented as permanent institutional record. Four root-level documents serve as the canonical orientation surface for all future engineering and AI sessions. |
+
+---
+
+## 2026-07-02 — Phase 3.5 — Royaltē OS v1.0 Board Certification Harness
+
+| | |
+|---|---|
+| **PR** | #192 |
+| **Commit SHA** | `65c5c16` |
+| **Tag** | `royalte-os-v1.0` |
+| **Constitution Version** | v1.3 |
+| **Added** | `tests/certification/harness.mjs` — permanent Board Certification Harness orchestrator; 5 suites; exit 0 = CERTIFIED. `tests/certification/suites/01-regression.mjs` — 8 golden fixtures through IE + Health; 73 assertions. `tests/certification/suites/02-determinism.mjs` — 20 fixtures × 10 IE runs + canonical-radiohead × 5 RIE runs with fixed clock; 21 assertions. `tests/certification/suites/03-artist-library.mjs` — 12 artist archetypes through IE, Health, Identity Intelligence, Publishing Intelligence; 177 assertions. `tests/certification/suites/04-cim-integrity.mjs` — full RIE → §8.2 CIM structure + deep-freeze verification; 36 assertions. `tests/certification/suites/05-performance.mjs` — stage timing baselines (20 samples); 500ms full-RIE p95 budget gate; 1 assertion. `tests/certification/reporters/board-report.mjs` — Board Certification Report formatter. `tests/certification/artist-library/*.json` — 12 certification archetypes: major, independent, single-only, album-heavy, no-publisher, legacy-catalog, duplicate-identity, international, classical, sparse-metadata, null-fields, multi-publisher. |
+| **Changed** | `api/_lib/backend-intelligence.js` line 93 — removed `!Array.isArray(v)` guard from `deepFreeze`; arrays now properly frozen. Production bug fix: `verification.services[]` was unfrozen in the CIM. |
+| **Removed** | none |
+| **Tests** | 308 assertions / 5 suites / 0 failures. BOARD VERDICT: CERTIFIED. |
+
+---
+
 ## 2026-07-02 — Product Consumption Cleanup (Phase 3.4)
 
 | | |
