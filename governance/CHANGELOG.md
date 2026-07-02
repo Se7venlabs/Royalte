@@ -19,6 +19,21 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-02 — Product Consumption Cleanup (Phase 3.4)
+
+| | |
+|---|---|
+| **PR** | #190 |
+| **Commit SHA** | `8a71df7` (pending merge) |
+| **Tag** | `phase-3-4-product-consumption-cleanup-v1.0` (pending) |
+| **Constitution Version** | v1.3 |
+| **Added** | `isrcCoverage` field in `api/_lib/catalog-intelligence.js` — constitutional ISRC Coverage intelligence (status/assessed/assessedCount/verifiedCount/coveragePercent). Board-pending `ISRC_THRESHOLDS` named constants (Complete ≥ 75 / Partial ≥ 25 / Limited ≥ 1 / Unknown). `renderCatalog` in `public/js/mission-control-renderers.js` extended with `isrcCoverage` in plan. |
+| **Changed** | `public/index.html` `_renderV2Found()` rewritten as a pure presentation layer — zero business logic. All six displayed fields now read from the Certified CIM (`data.canonical.catalogIntelligence` and `data.canonical.globalMusicFootprint`). Album classification loop, provider-count catalogAvail formula, and `trackIsrc` ISRC proxy removed. |
+| **Removed** | Renderer business logic: album classification (loop over `appleMusic.albums[]`), catalog availability provider-count formula (`verifAM + verifSP >= 2`), ISRC coverage proxy (`trackIsrc ? 'Complete' : 'Unknown'`). |
+| **Impact** | Website Scan is now a constitutional presentation layer. ISRC Coverage and Catalog Availability are certified by the RIE and produce identical results regardless of entry point. Vocabulary: Catalog Availability is now Global/Strong/Regional/Limited (from `globalMusicFootprint.status`); ISRC Coverage is Unknown/Limited/Partial/Complete (from `catalogIntelligence.isrcCoverage.status`). |
+
+---
+
 ## 2026-07-02 — Apple Production Migration (Phase 3.3)
 
 | | |
