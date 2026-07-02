@@ -6,14 +6,17 @@
 // Constitutional authority: Royaltē Master Constitution v1.3 §8
 // Board authorization: Phase 1 (2026-07-01)
 //
-// §8.2 defines twelve canonical intelligence objects. Every product reads
+// §8.2 defines the canonical intelligence objects. Every product reads
 // from this model. No product writes to it. No product re-derives it.
 //
 // "No Product Owns Intelligence." — RIE Operating System Rebuild Brief
+//
+// Phase 3.7 Board Extension: 'recording' added as §8.2.13 (2026-07-02).
 
 export const CIM_VERSION = '1.0.0';
 
-// The twelve §8.2 canonical intelligence objects (order is constitutional).
+// The §8.2 canonical intelligence objects (order is constitutional).
+// Phase 3.7 extended from 12 → 13 with Board authorization (2026-07-02).
 export const CIM_OBJECTS = Object.freeze([
   'identity',        // artist identity across all providers
   'health',          // Music Backend Health Score™ + grade + category breakdown
@@ -27,10 +30,11 @@ export const CIM_OBJECTS = Object.freeze([
   'aiInsight',       // Royaltē AI™ narrative and priority observation
   'revenueSignals',  // Revenue Signals™ — reserved for future module
   'scanAuthority',   // scan provenance: version, timestamp, anchor, subject
+  'recording',       // Recording Intelligence™ — ISRC certification, confidence, canonical recordings
 ]);
 
 // emptyCIM: factory for a blank CIM before the RIE populates it.
-// All twelve objects are present but null — certifyCIM will reject any
+// All §8.2 objects are present but null — certifyCIM will reject any
 // CIM where a required key is entirely absent.
 export function emptyCIM() {
   return {
@@ -47,6 +51,7 @@ export function emptyCIM() {
     aiInsight:       null,
     revenueSignals:  null,
     scanAuthority:   null,
+    recording:       null,  // §8.2.13 — Phase 3.7 Board Extension
   };
 }
 
