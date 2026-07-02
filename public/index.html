@@ -3020,10 +3020,11 @@ function showRealResults(data) {
   if (scoreTagEl && scoreNumEl) {
     const result = data && data.canonical && data.canonical.health;
     if (result && typeof result.score === 'number') {
-      const { score: health, grade, drivers } = result;
-      const className = GRADE_TO_CLASS[grade] || 'band-danger';
+      const { score: health, grade, status, drivers } = result;
+      const displayLabel = status || grade;
+      const className = GRADE_TO_CLASS[grade] || GRADE_TO_CLASS[status] || 'band-danger';
       scoreNumEl.textContent = health;
-      if (scoreLblEl) scoreLblEl.textContent = `Health Score · ${grade}`;
+      if (scoreLblEl) scoreLblEl.textContent = `Health Score · ${displayLabel}`;
       scoreTagEl.classList.remove('band-healthy','band-warning','band-atrisk','band-danger');
       scoreTagEl.classList.add(className);
       scoreTagEl.classList.add('is-shown');
@@ -3104,12 +3105,16 @@ function _osEscape(s) {
 // mappings — that is correct per One Truth · One Engine · One Platform:
 // the grade is canonical; the className is presentation.
 //
-// Generate Once. Normalize Once. Compute Once. Consume Everywhere.
+// Grade vocabulary: Health Intelligence status bands (Board-locked).
+//   Excellent | Strong | Moderate | Needs Review
+// 'Review Recommended' retained for backward compat with pre-migration
+// sessionStorage reads.
 const GRADE_TO_CLASS = {
   'Excellent':          'band-healthy',
   'Strong':             'band-warning',
   'Moderate':           'band-atrisk',
-  'Review Recommended': 'band-danger',
+  'Needs Review':       'band-danger',
+  'Review Recommended': 'band-danger',   // backward compat — pre-migration reads
 };
 
 function _renderV2Findings(flagsArr) {

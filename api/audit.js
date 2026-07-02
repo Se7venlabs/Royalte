@@ -10,32 +10,28 @@ import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib
 import { runScan } from './_lib/run-scan.js';
 import { persistOSScanSnapshot, resolveUserIdFromAuthHeader } from './_lib/persist-os-scan.js';
 
-// ─── Phase 4B-2 + Phase 5B: eager-assembly imports ─────────────────
-//   Identity Intelligence™ (Phase 4B-2) AND Publishing Intelligence™
-//   (Phase 5B Board D2 2026-06-17) are assembled exactly once during
-//   the scan lifecycle, persisted alongside the canonical payload,
-//   and reused by every downstream consumer. No consumer recomputes.
+// ─── Phase 3.1: OS intelligence pipeline ────────────────────────────
 //
-//   Per Phase 5B "orchestration over new infrastructure" — the
-//   publishing pipeline uses the EXISTING MLC adapter (locked),
-//   EXISTING Identity Graph publishing layer (locked), and EXISTING
-//   CIO Assembler publishingWorks slot (locked) to feed the new
-//   Publishing Intelligence™ assembler.
-import { assembleCio } from './_lib/cio-assembler.js';
-import { runIntelligenceEngine } from './_lib/intelligence-engine.js';
-import { ALL_RULES } from './rules/index.js';
-import { assembleIdentityIntelligence } from './_lib/identity-intelligence.js';
-import { assemblePublishingIntelligence } from './_lib/publishing-intelligence.js';
-import { assembleCatalogIntelligence } from './_lib/catalog-intelligence.js';
-import { assembleGlobalMusicFootprint } from './_lib/global-music-footprint.js';
-import { assembleRoyalteAI } from './_lib/royalte-ai-assembler.js';
-import { assembleBackendIntelligence } from './_lib/backend-intelligence.js';
+//   Website Scan is now a thin client of the Royaltē Operating System.
+//   Intelligence is requested from the OS — never computed here.
+//
+//   CONSTITUTIONAL INVARIANT (Phase 3.1):
+//     The Website Scan NEVER computes, reconciles, or interprets intelligence.
+//     It requests a Certified Canonical Intelligence Model from the OS and
+//     renders from it. runRIE() is the sole intelligence entrypoint.
+//
+//   runRIE()             — sole OS entrypoint; produces the certified CIM
+//   buildCimEnrichment() — maps CIM → canonical fields (migration bridge only)
+//   fetchMlcWorksByArtist — provider data collection; feeds the OS, not audit.js
+//
+//   Retained for two-phase monitoring write (post-scan, outside RIE boundary):
+//   assembleMonitoringIntelligence, assembleHealthIntelligence
+import { runRIE }            from '../lib/rie/index.js';
+import { buildCimEnrichment } from '../lib/rie/CimAdapter.js';
 import { assembleMonitoringIntelligence } from './_lib/monitoring-intelligence.js';
-import { assembleHealthIntelligence } from './_lib/health-intelligence.js';
-import { fetchMlcWorksByArtist } from '../lib/publishing/mlc-client.js';
-import { normalizeMlcWorks } from '../lib/publishing/mlc-adapter.js';
-import { computeHealthScore, generateHealthReport } from './_lib/health-engine.js';
-import { generateExecutiveBrief } from './_lib/executive-brief-engine.js';
+import { assembleHealthIntelligence }     from './_lib/health-intelligence.js';
+import { fetchMlcWorksByArtist }          from '../lib/publishing/mlc-client.js';
+import { normalizeMlcWorks }              from '../lib/publishing/mlc-adapter.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AUDIT_SCANS PERSISTENCE
@@ -306,54 +302,35 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Audit failed. Please check the link and try again.', detail: m });
     }
 
-    // ── PERSIST + EAGER INTELLIGENCE ASSEMBLY ──
-    // Phase 4B-2 (Identity Intelligence™) + Phase 5B (Publishing
-    // Intelligence™) + Phase 5B Board Architectural Review (2026-06-17,
-    // "One Scan → One CIO → Many Consumers").
+    // ── PERSIST + OS INTELLIGENCE REQUEST ──
     //
-    // CONSTITUTIONAL INVARIANT:
+    // Phase 3.1 — Website Scan is now a thin client of the Royaltē Operating System.
     //
-    //   exactly ONE assembleCio() call per scan
-    //   exactly ONE runIntelligenceEngine() call per scan
-    //   every intelligence domain consumes the SAME (cio, report)
+    // CONSTITUTIONAL INVARIANT (Phase 3.1):
+    //   The Website Scan NEVER computes intelligence.
+    //   It requests a Certified Canonical Intelligence Model from the OS.
+    //   runRIE() is the sole intelligence entrypoint — one call, one CIM,
+    //   all consumers read from it.
     //
-    // The CIO is the kernel of the platform; multiple assemblies for
-    // the same scan would create divergent kernels and violate the
-    // single-source-of-truth principle. The runtime sequence is:
+    // Execution sequence:
+    //   1. normalizeAuditResponse(rawResponse)  — inside persistCanonicalScan
+    //   2. OS enrichmentFn receives canonicalForEnrichment
+    //   3. MLC provider data collected  — feeds the OS, not audit.js
+    //   4. runRIE(canonicalForEnrichment + publishing data)  → certified CIM
+    //   5. buildCimEnrichment(cim)  — maps CIM → legacy fields (migration bridge)
+    //   6. canonical.cim = cim  — authoritative source for Phase 3.2 consumers
     //
-    //   1. Fetch every external-source dataset BEFORE CIO assembly
-    //      (today: MLC via fetchMlcWorksByArtist; future: SOCAN,
-    //      ASCAP, BMI, MusicBrainz Publishing, …).
-    //   2. Assemble the ONE CIO with ALL source inputs at once.
-    //   3. Run the Intelligence Engine ONCE against that CIO.
-    //   4. Each domain assembler reads from the SAME (cio, report).
-    //
-    // Failure-mode contract (inherited from Phase 4B-2):
-    //   - If an external source (e.g. MLC) is unavailable, its
-    //     observation surfaces AUTH_UNAVAILABLE/ERROR/NOT_FOUND and
-    //     downstream resolves to UNABLE_TO_CONFIRM, never NOT_FOUND.
-    //   - If CIO assembly or engine evaluation throws, the scan
-    //     succeeds with NO intelligence objects — never blocks an audit.
-    //   - If a per-domain assembler throws, the OTHER domain's
-    //     intelligence still ships.
-    //
-    // The persisted canonical at audit_scans.payload carries:
-    //   audit_scans.payload.identityIntelligence
-    //   audit_scans.payload.publishingIntelligence
-    //   audit_scans.payload.healthScore      (computeHealthScore output)
-    //   audit_scans.payload.healthReport     (generateHealthReport output)
-    //   audit_scans.payload.executiveBrief   (generateExecutiveBrief output)
-    // Mission Control™ / Royaltē AI™ / Executive Brief™ / Priority
-    // Actions™ all read the same persisted objects; none recompute.
-    const assembleIntelligenceForScan = async (canonicalForEnrichment) => {
+    // Monitoring Intelligence is assembled post-scan in the two-phase OS write
+    // below (it depends on scan_snapshots data unavailable until after step 6).
+    // The monitoring patch updates legacy fields only; canonical.cim is not
+    // re-certified in Phase 3.1 (addressed in Phase 3.2 Mission Control migration).
+    const osEnrichmentFn = async (canonicalForEnrichment) => {
       const artistName = canonicalForEnrichment.subject?.artistName;
 
-      // ── 1. Fetch external publishing sources BEFORE CIO assembly ──
-      // MLC client is documented never-throws. On any failure the
-      // observation surfaces availability='AUTH_UNAVAILABLE'/'ERROR'/
-      // 'NOT_FOUND' and rawWorks = []; the CIO assembly succeeds and
-      // downstream metrics resolve to UNABLE_TO_CONFIRM (per Board D5
-      // four-state invariant).
+      // ── Provider data collection: MLC publishing source ──
+      // MLC is a provider call that feeds evidence into the OS — audit.js
+      // collects it here and passes it to runRIE(). Intelligence is never
+      // computed from it directly in audit.js.
       let publishingSourceObservations = null;
       let publishingWorks              = null;
       try {
@@ -361,132 +338,36 @@ export default async function handler(req, res) {
         publishingSourceObservations = { mlc: mlcResult.observation };
         publishingWorks              = normalizeMlcWorks(mlcResult.rawWorks);
       } catch (mlcErr) {
-        // Defensive — the client contract is never-throws; this catch
-        // is belt-and-suspenders.
         console.error('[audit] MLC source fetch failed (non-blocking):', mlcErr.message);
       }
 
-      // ── 2 + 3. Assemble THE ONE CIO and run the engine ONCE ──
-      let cio    = null;
-      let report = null;
+      // ── Request the Certified Canonical Intelligence Model from the OS ──
+      // runRIE() is the sole OS entrypoint. It accepts canonicalForEnrichment
+      // via the Phase 1 (legacy evidence) path — the same path tested in
+      // Phase 1 certification. Never throws; assembly failures return an
+      // empty certified CIM.
+      let cim = null;
       try {
-        cio = assembleCio(artistName, {
-          scanPayload:                  canonicalForEnrichment,
+        cim = await runRIE({
+          canonicalForEnrichment,
           publishingWorks,
           publishingSourceObservations,
         });
-        report = runIntelligenceEngine(cio, ALL_RULES);
-      } catch (kernelErr) {
-        console.error('[audit] CIO / Intelligence Engine failed (non-blocking):', kernelErr.message);
+      } catch (osErr) {
+        // runRIE is documented never-throws; this is belt-and-suspenders.
+        console.error('[audit] OS intelligence request failed (non-blocking):', osErr.message);
         return canonicalForEnrichment;
       }
 
-      // ── 4. Each domain consumes the SAME (cio, report). One CIO,
-      //       many consumers. Domain failures are isolated — Identity
-      //       failure does not block Publishing and vice versa. ──
-      let identityIntelligence = null;
-      try {
-        identityIntelligence = assembleIdentityIntelligence(report, cio);
-      } catch (assemblyErr) {
-        console.error('[audit] Identity Intelligence™ assembly failed (non-blocking):', assemblyErr.message);
+      if (!cim || typeof cim !== 'object') {
+        return canonicalForEnrichment;
       }
 
-      let publishingIntelligence = null;
-      try {
-        publishingIntelligence = assemblePublishingIntelligence(report, cio);
-      } catch (assemblyErr) {
-        console.error('[audit] Publishing Intelligence™ assembly failed (non-blocking):', assemblyErr.message);
-      }
-
-      let catalogIntelligence = null;
-      try {
-        catalogIntelligence = assembleCatalogIntelligence(report, cio, canonicalForEnrichment);
-      } catch (assemblyErr) {
-        console.error('[audit] Catalog Intelligence™ assembly failed (non-blocking):', assemblyErr.message);
-      }
-
-      let globalMusicFootprint = null;
-      try {
-        globalMusicFootprint = assembleGlobalMusicFootprint(report, cio, canonicalForEnrichment);
-      } catch (assemblyErr) {
-        console.error('[audit] Global Music Footprint™ assembly failed (non-blocking):', assemblyErr.message);
-      }
-
-      // ── 5. Backend Intelligence™ — reads canonical.platforms + publishingIntelligence ──
-      // MusicBrainz and Discogs availability read from canonical.platforms.*;
-      // MLC state read from assemblePublishingIntelligence output.
-      // Listen Notes is AUTH_UNAVAILABLE on the standard scan path (monitoring-only per Brief 015o).
-      let backendIntelligence = null;
-      try {
-        backendIntelligence = assembleBackendIntelligence(canonicalForEnrichment, publishingIntelligence);
-      } catch (assemblyErr) {
-        console.error('[audit] Backend Intelligence™ assembly failed (non-blocking):', assemblyErr.message);
-      }
-
-      // ── 6. Royaltē AI™ — reads the four assembled domain objects ──
-      // Must run AFTER all four domain assemblers (Identity, Publishing,
-      // Catalog, GMF) so it can read their outputs. Fail-isolated.
-      let royalteAI = null;
-      try {
-        royalteAI = assembleRoyalteAI(
-          identityIntelligence,
-          publishingIntelligence,
-          catalogIntelligence,
-          globalMusicFootprint,
-        );
-      } catch (assemblyErr) {
-        console.error('[audit] Royaltē AI™ assembly failed (non-blocking):', assemblyErr.message);
-      }
-
-      // ── 7. Health & Executive Brief pipeline ──
-      // computeHealthScore() runs first — it is the sole constitutional
-      // authority for the Royaltē Health Score™. Result is passed to
-      // generateHealthReport(), generateExecutiveBrief(), and then to
-      // assembleHealthIntelligence() below so the canonical score flows
-      // through exactly once.
-      let healthScore    = null;
-      let healthReport   = null;
-      let executiveBrief = null;
-      try {
-        healthScore    = computeHealthScore(report);
-        healthReport   = generateHealthReport(cio, report);
-        executiveBrief = generateExecutiveBrief(cio, report, healthReport, healthScore);
-      } catch (healthErr) {
-        console.error('[audit] Health / Executive Brief pipeline failed (non-blocking):', healthErr.message);
-      }
-
-      // ── 8. Health Intelligence™ — interpretation layer over the canonical score ──
-      // Reads healthScore.overallScore as the canonical score. Never recomputes it.
-      // monitoringIntelligence is not yet available (assembled in the two-phase OS
-      // write below). The two-phase patch re-assembles with the real value.
-      let healthIntelligence = null;
-      try {
-        healthIntelligence = assembleHealthIntelligence(
-          healthScore,
-          identityIntelligence,
-          publishingIntelligence,
-          catalogIntelligence,
-          globalMusicFootprint,
-          backendIntelligence,
-          null, // monitoringIntelligence — patched in two-phase OS write
-          royalteAI,
-        );
-      } catch (hiErr) {
-        console.error('[audit] Health Intelligence™ assembly failed (non-blocking):', hiErr.message);
-      }
-
-      const enriched = { ...canonicalForEnrichment };
-      if (identityIntelligence)   enriched.identityIntelligence   = identityIntelligence;
-      if (publishingIntelligence) enriched.publishingIntelligence = publishingIntelligence;
-      if (catalogIntelligence)    enriched.catalogIntelligence    = catalogIntelligence;
-      if (globalMusicFootprint)   enriched.globalMusicFootprint   = globalMusicFootprint;
-      if (backendIntelligence)    enriched.backendIntelligence    = backendIntelligence;
-      if (royalteAI)              enriched.royalteAI              = royalteAI;
-      if (healthIntelligence)     enriched.healthIntelligence     = healthIntelligence;
-      if (healthScore)            enriched.healthScore            = healthScore;
-      if (healthReport)           enriched.healthReport           = healthReport;
-      if (executiveBrief)         enriched.executiveBrief         = executiveBrief;
-      return enriched;
+      // ── Map CIM → canonical enrichment fields (backward-compat bridge) ──
+      // CimAdapter maps each CIM domain object to its canonical legacy field.
+      // Intelligence sourced from CIM — no duplication, no re-computation.
+      // canonical.cim carries the full certified CIM for Phase 3.2 consumers.
+      return buildCimEnrichment(cim, canonicalForEnrichment);
     };
 
     // ── Resolve authenticated user before persistence ──
@@ -529,7 +410,7 @@ export default async function handler(req, res) {
         result.urlType,
         scanId,
         sessionId,
-        assembleIntelligenceForScan,
+        osEnrichmentFn,
         authenticatedUserId
       );
       canonical = persisted.canonical;
@@ -623,51 +504,26 @@ export default async function handler(req, res) {
       result.rawResponse.warnings = result.warnings;
     }
 
-    // Canonical Payload V2 Phase 1.5 — Board Option B (2026-06-09).
-    // Wire shape: legacy raw fields at root (back-compat for every
-    // existing browser consumer) + the full Canonical Payload™ under
-    // `canonical`. Consumers migrate one Royaltē Intelligence Object
-    // at a time by reading `data.canonical.<object>.<field>`.
-    // Required to unblock Canonical Health Object Phase 5/6.
+    // Phase 3.1 — Wire shape:
+    //   legacy raw fields (backward-compat for existing frontend)
+    //   + canonical  (AuditResponse + CIM-sourced intelligence fields)
+    //   + cim        (the Certified Canonical Intelligence Model — Phase 3.2+ reads from here)
+    //   + intelligence aliases (same reference as canonical.*Intelligence)
     //
-    // ─── Intelligence alias rule (Board Final Amendments,
-    //     Stage 4B-2 + Phase 5B 2026-06-17) ─────────────────────────
-    //
-    // CONSTITUTIONAL INVARIANT — applies to EVERY intelligence
-    // domain Mission Control consumes:
-    //
+    // CONSTITUTIONAL INVARIANT:
     //   response.identityIntelligence    === response.canonical.identityIntelligence
     //   response.publishingIntelligence  === response.canonical.publishingIntelligence
+    //   Both sourced from canonical.cim — one CIM, one computation, no duplication.
     //
-    // One assembly per domain. One object per domain. Two access
-    // paths. `canonical.<x>Intelligence` is the SOLE source of truth.
-    // The top-level field is a CONVENIENCE MIRROR — same reference,
-    // not a copy, not a clone, not a re-frozen rebuild.
-    //
-    // FAILURE-MODE ASYMMETRY (Board design):
-    //   success →  canonical.<x>Intelligence: {...}
-    //              <x>Intelligence:           same reference
-    //   failure →  canonical.<x>Intelligence: OMITTED (key absent)
-    //              <x>Intelligence:           null   (client can
-    //                                                  distinguish "tried
-    //                                                  and failed" from
-    //                                                  "did not try")
-    //
-    // Do NOT replace these reads with structuredClone / JSON round-trip
-    // / Object.freeze rebuild — any of those would break the invariant
-    // by producing a separate object. The wiring tests in
-    // tests/identity-wiring-test.mjs and tests/publishing-wiring-test.mjs
-    // guard against that drift.
-    const identityIntelligence = (canonical && canonical.identityIntelligence)
-      ? canonical.identityIntelligence   // same reference — alias, not copy
-      : null;
-    const publishingIntelligence = (canonical && canonical.publishingIntelligence)
-      ? canonical.publishingIntelligence // same reference — alias, not copy
-      : null;
+    // Phase 3.2 consumers: read from response.cim directly.
+    // Legacy consumers: read from response.canonical.*Intelligence (unchanged behavior).
+    const identityIntelligence   = canonical?.identityIntelligence   ?? null;
+    const publishingIntelligence = canonical?.publishingIntelligence ?? null;
     return res.status(200).json({
       ...result.rawResponse,
       scanId,
       canonical,
+      cim:                  canonical?.cim ?? null,
       identityIntelligence,
       publishingIntelligence,
     });

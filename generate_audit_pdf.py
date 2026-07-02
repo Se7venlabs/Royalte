@@ -184,20 +184,24 @@ class Score(BaseModel):
 
 
 class HealthBreakdown(BaseModel):
-    catalog_verification: int
-    big6_coverage: int
-    backend_health: int
-    youtube_presence: int
+    """DEPRECATED (V2 Health Engine). No longer emitted. Retained for backward compat."""
+    catalog_verification: Optional[int] = None
+    big6_coverage:        Optional[int] = None
+    backend_health:       Optional[int] = None
+    youtube_presence:     Optional[int] = None
 
 
 class Health(BaseModel):
-    """Canonical Health Object (v1.2.0). Engine-owned. UI never recomputes.
-    Grade is Board-locked: Excellent | Strong | Moderate | Review Recommended.
+    """Canonical Health Object (v2.0.0). Engine-owned. UI never recomputes.
+    Board Directive (One Health Engine, 2026-07-02): sourced from cim.health via RIE.
+    Grade vocabulary: Excellent | Strong | Moderate | Needs Review (Board-locked).
+    breakdown is DEPRECATED and optional (V2 Health Engine retired).
     """
-    score: int
-    grade: str
-    drivers: list[str]
-    breakdown: HealthBreakdown
+    score:     int
+    grade:     str
+    status:    Optional[str] = None
+    drivers:   list[str]
+    breakdown: Optional[HealthBreakdown] = None
 
 
 class RoyaltyGap(BaseModel):
