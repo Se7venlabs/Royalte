@@ -3156,68 +3156,24 @@ function _renderV2Findings(flagsArr) {
 function _renderV2Found(data) {
   const gridEl = document.getElementById('os-found-grid');
   if (!gridEl) return;
-  // Raw shape vs canonical: data.appleMusic is the raw root object;
-  // data.platforms.appleMusic.details is the canonical-nested form.
-  const am = data.appleMusic || (data.platforms && data.platforms.appleMusic && data.platforms.appleMusic.details) || {};
-  const cc = am.catalogComparison || null;
 
-  // Brief 008 — classify each release from appleMusic.albums[] by track
-  // count: 1 → Single · 2–6 → EP · 7+ → Album. Tracks = sum of trackCount
-  // across all surfaced albums. Falls back to legacy paths when the
-  // albums[] list isn't present (older snapshots / non-Apple-resolved).
-  const albumsList = Array.isArray(am.albums) ? am.albums : [];
-  let cAlbums = 0, cEps = 0, cSingles = 0, cTracks = 0, anyTrackCount = false;
-  for (const a of albumsList) {
-    const tc = (a && typeof a.trackCount === 'number') ? a.trackCount : null;
-    if (tc != null) { anyTrackCount = true; cTracks += tc; }
-    if (tc === 1)        cSingles++;
-    else if (tc != null && tc <= 6) cEps++;
-    else                 cAlbums++;
-  }
-
-  // Albums display — prefer the classified count from albums[]; fall back
-  // to appleMusic.albumCount or catalog.totalReleases when no albums[].
-  const albumsValue = albumsList.length > 0 ? cAlbums
-                    : (typeof am.albumCount === 'number') ? am.albumCount
-                    : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
-                       ? data.catalog.totalReleases : null);
-
-  const epsValue     = albumsList.length > 0 ? cEps     : null;
-  const singlesValue = albumsList.length > 0 ? cSingles : null;
-
-  // Tracks — sum across surfaced releases when track counts are present;
-  // else use catalogComparison.tracksChecked (track-URL scans) or 1 for a
-  // single-track input.
-  const tracksValue = anyTrackCount ? cTracks
-                    : (cc && typeof cc.tracksChecked === 'number') ? cc.tracksChecked
-                    : (data.trackTitle ? 1 : null);
-
-  const isrcCoverage = (() => {
-    if (cc && typeof cc.matchRate === 'number') {
-      if (cc.matchRate >= 95) return 'Complete';
-      if (cc.matchRate >= 50) return 'Partial';
-      if (cc.matchRate >= 1)  return 'Limited';
-      return 'Limited';
-    }
-    return data.trackIsrc ? 'Complete' : 'Unknown';
-  })();
-  const catalogAvail = (() => {
-    const p = data.platforms || {};
-    const verifAM = (p.appleMusic === true) || (am.found === true);
-    const verifSP = (p.spotify === true)    || (data.spotifyMatched === true);
-    const v = (verifAM ? 1 : 0) + (verifSP ? 1 : 0);
-    if (v >= 2)  return 'Strong';
-    if (v === 1) return 'Moderate';
-    return 'Unknown';
-  })();
+  // Phase 3.4 — Website Scan is a pure presentation layer.
+  // All intelligence is certified by the RIE and read from the Certified CIM.
+  // This function contains zero business logic.
+  //
+  // Sources:
+  //   Albums / EPs / Singles / Tracks / ISRC Coverage → data.canonical.catalogIntelligence
+  //   Catalog Availability                             → data.canonical.globalMusicFootprint
+  const ci  = data.canonical?.catalogIntelligence  ?? null;
+  const gmf = data.canonical?.globalMusicFootprint ?? null;
 
   const rows = [
-    { label: 'Albums',                value: albumsValue  != null ? albumsValue  : '—' },
-    { label: 'EPs',                   value: epsValue     != null ? epsValue     : '—' },
-    { label: 'Singles',               value: singlesValue != null ? singlesValue : '—' },
-    { label: 'Tracks',                value: tracksValue  != null ? tracksValue  : '—' },
-    { label: 'ISRC coverage',         value: isrcCoverage },
-    { label: 'Catalog availability',  value: catalogAvail },
+    { label: 'Albums',               value: ci != null ? ci.albums      : '—' },
+    { label: 'EPs',                  value: ci != null ? ci.eps         : '—' },
+    { label: 'Singles',              value: ci != null ? ci.singles     : '—' },
+    { label: 'Tracks',               value: ci != null ? ci.totalTracks : '—' },
+    { label: 'ISRC coverage',        value: ci?.isrcCoverage?.status   ?? 'Unknown' },
+    { label: 'Catalog availability', value: gmf?.status                ?? 'Unknown' },
   ];
   gridEl.innerHTML = rows.map((r) => `
     <div class="os-found-row">
