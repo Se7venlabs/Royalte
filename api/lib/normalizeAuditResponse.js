@@ -16,7 +16,6 @@ import {
 } from '../schema/auditResponse.js';
 
 import { randomUUID, createHash } from 'node:crypto';
-import { computeV2HealthScore } from './health-score.js';
 
 // ── Public API ───────────────────────────────────────────────────────────────
 export function normalizeAuditResponse(raw) {
@@ -42,16 +41,11 @@ export function normalizeAuditResponse(raw) {
   const gapBasedExposure = _normalizeGapBasedExposure(raw);
   const proGuide = _normalizeProGuide(raw);
 
-  // ── Canonical Health Object (V2 Phase 1, 2026-06-09) ────────────────────
-  // Engine computes once at normalize time so every Royaltē surface
-  // (Scan Results, Mission Control, Royaltē Review, Monitoring, future
-  // API) consumes the same { score, grade, drivers, breakdown }.
-  // computeV2HealthScore reads only canonical fields; the call must
-  // happen AFTER the rest of the canonical shape is built.
-  const canonicalForHealth = {
-    subject, platforms, catalog, modules,
-  };
-  const health = computeV2HealthScore(canonicalForHealth);
+  // ── Canonical Health Object ──────────────────────────────────────────────
+  // Board Directive (One Health Engine, 2026-07-02): health is populated by
+  // the RIE via CimAdapter.buildCimEnrichment after OS enrichment.
+  // V2 Health Engine (computeV2HealthScore) is retired.
+  // health: null here is the correct pre-enrichment state.
 
   return {
     schemaVersion: AUDIT_RESPONSE_VERSION,
@@ -67,7 +61,7 @@ export function normalizeAuditResponse(raw) {
     modules,
     issues,
     score,
-    health,
+    health:  null,   // populated by RIE via CimAdapter after OS enrichment
     royaltyGap,
     gapBasedExposure,
     proGuide,

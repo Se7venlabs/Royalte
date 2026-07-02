@@ -198,26 +198,26 @@ export const AUDIT_RESPONSE_SCHEMA = {
     },
   },
 
-  // Canonical Health Object (v1.2.0, 2026-06-09) — Royaltē Intelligence Object
+  // Canonical Health Object (v2.0.0, 2026-07-02) — Royaltē Intelligence Object
   // #2 from CANONICAL_PAYLOAD_V2.md. Engine-owned. UI never recomputes.
-  // Generated once in normalizeAuditResponse via computeV2HealthScore;
-  // consumed by every Royaltē surface (Scan Results, Mission Control,
-  // Royaltē Review, Monitoring, future API). Grade enum is Board-locked
-  // — any spelling/casing change requires Constitutional Board Review.
+  //
+  // Board Directive (One Health Engine, 2026-07-02):
+  //   health is populated by the RIE (cim.health) via CimAdapter after OS enrichment.
+  //   V2 Health Engine (computeV2HealthScore) is retired.
+  //   health is null from normalizeAuditResponse (nullable: true) and is always
+  //   populated before validateAuditResponse is called in the production path.
+  //   grade uses the Health Intelligence status vocabulary:
+  //     Excellent | Strong | Moderate | Needs Review (Board-locked).
+  //   breakdown is DEPRECATED (V2-specific; no longer emitted).
   health: {
-    type: 'object', required: true,
+    type: 'object', required: true, nullable: true,
     shape: {
       score:    { type: 'number', required: true, min: 0, max: 100 },
       grade:    { type: 'string', required: true,
-                  enum: ['Excellent', 'Strong', 'Moderate', 'Review Recommended'] },
+                  enum: ['Excellent', 'Strong', 'Moderate', 'Needs Review'] },
+      status:   { type: 'string', required: false, nullable: true },
       drivers:  { type: 'array',  required: true, itemType: 'string' },
-      breakdown:{ type: 'object', required: true,
-                  shape: {
-                    catalog_verification: { type: 'number', required: true, min: 0, max: 40 },
-                    big6_coverage:        { type: 'number', required: true, min: 0, max: 20 },
-                    backend_health:       { type: 'number', required: true, min: 0, max: 20 },
-                    youtube_presence:     { type: 'number', required: true, min: 0, max: 10 },
-                  } },
+      breakdown:{ type: 'object', required: false, nullable: true },
     },
   },
 
