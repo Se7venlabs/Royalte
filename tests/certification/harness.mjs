@@ -14,24 +14,26 @@
 //    node tests/certification/harness.mjs --quiet  — errors only
 //
 //  Suite inventory:
-//    01-regression     All 7 golden fixtures pass regression
-//    02-determinism    Same evidence → same CIM (N runs)
-//    03-artist-library Certification artist archetypes pass
-//    04-cim-integrity  CIM §8.2 structural contract verified
-//    05-performance    Pipeline timing baseline measured
+//    01-regression          All 7 golden fixtures pass regression
+//    02-determinism         Same evidence → same CIM (N runs)
+//    03-artist-library      Certification artist archetypes pass
+//    04-cim-integrity       CIM §8.2 structural contract verified
+//    05-performance         Pipeline timing baseline measured
+//    06-recording-intel     Recording Intelligence Foundation™ verified
 //
 //  This harness never throws. Any suite that throws is caught and reported
 //  as a failed suite. The exit code reflects the overall certification status.
 //
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { execSync }         from 'node:child_process';
-import { runRegression }    from './suites/01-regression.mjs';
-import { runDeterminism }   from './suites/02-determinism.mjs';
-import { runArtistLibrary } from './suites/03-artist-library.mjs';
-import { runCimIntegrity }  from './suites/04-cim-integrity.mjs';
-import { runPerformance }   from './suites/05-performance.mjs';
-import { printBoardReport } from './reporters/board-report.mjs';
+import { execSync }              from 'node:child_process';
+import { runRegression }         from './suites/01-regression.mjs';
+import { runDeterminism }        from './suites/02-determinism.mjs';
+import { runArtistLibrary }      from './suites/03-artist-library.mjs';
+import { runCimIntegrity }       from './suites/04-cim-integrity.mjs';
+import { runPerformance }        from './suites/05-performance.mjs';
+import { runRecordingIntelligence } from './suites/06-recording-intelligence.mjs';
+import { printBoardReport }      from './reporters/board-report.mjs';
 
 const QUIET = process.argv.includes('--quiet');
 
@@ -67,11 +69,12 @@ async function main() {
 
   const results = [];
 
-  results.push(await runSuite('01-regression',    runRegression));
-  results.push(await runSuite('02-determinism',   runDeterminism));
-  results.push(await runSuite('03-artist-library',runArtistLibrary));
-  results.push(await runSuite('04-cim-integrity', runCimIntegrity));
-  results.push(await runSuite('05-performance',   runPerformance));
+  results.push(await runSuite('01-regression',          runRegression));
+  results.push(await runSuite('02-determinism',         runDeterminism));
+  results.push(await runSuite('03-artist-library',      runArtistLibrary));
+  results.push(await runSuite('04-cim-integrity',       runCimIntegrity));
+  results.push(await runSuite('05-performance',         runPerformance));
+  results.push(await runSuite('06-recording-intel',     runRecordingIntelligence));
 
   const elapsed = Math.round(performance.now() - startMs);
   log('');
