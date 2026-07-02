@@ -287,17 +287,33 @@ const METRIC_DERIVERS = Object.freeze({
   compositionMatch:      deriveCompositionMatch,
 });
 
-function computeCoverage(registrations) {
+// deriveCoverageStatus — maps a coverage value to the constitutional vocabulary.
+// coverage: null  → 'Unavailable'  (verification was not possible — provider unreachable)
+// coverage: 0     → 'Not Found'    (provider was reached; nothing registered)
+// coverage: 1–39  → 'Limited'
+// coverage: 40–74 → 'Partial'
+// coverage: 75+   → 'Verified'
+// Thresholds owned here (assembler layer); renderers read, never classify.
+function deriveCoverageStatus(coverage) {
+  if (coverage === null) return 'Unavailable';
+  if (coverage === 0)   return 'Not Found';
+  if (coverage >= 75)   return 'Verified';
+  if (coverage >= 40)   return 'Partial';
+  return 'Limited';
+}
+
+// verificationAvailable: true when the provider was reachable (VERIFIED or NOT_FOUND
+// availability).  AUTH_UNAVAILABLE / ERROR / null → false → coverage: null.
+function computeCoverage(registrations, verificationAvailable) {
   let verified = 0;
   const total = REGISTRATION_METRICS.length;
   for (const metric of REGISTRATION_METRICS) {
     if (registrations[metric] === PUBLISHING_STATE.VERIFIED) verified += 1;
   }
-  return {
-    registeredCount: verified,
-    totalChecked:    total,
-    coverage:        total === 0 ? 0 : Math.round((verified / total) * 100),
-  };
+  const coverage = verificationAvailable
+    ? (total === 0 ? 0 : Math.round((verified / total) * 100))
+    : null;
+  return { registeredCount: verified, totalChecked: total, coverage };
 }
 
 // assemblePublishingIntelligence(intelligenceReport, cio)
@@ -382,7 +398,10 @@ export function assemblePublishingIntelligence(intelligenceReport, cio) {
     // We do not know — say nothing executive about it.
   }
 
-  const { registeredCount, totalChecked, coverage } = computeCoverage(registrations);
+  const mlcAvail = mlcObs?.availability;
+  const verificationAvailable = mlcAvail === 'VERIFIED' || mlcAvail === 'NOT_FOUND';
+  const { registeredCount, totalChecked, coverage } = computeCoverage(registrations, verificationAvailable);
+  const coverageStatus = deriveCoverageStatus(coverage);
 
   const metrics = {
     mlcWorksCount:     (summary && typeof summary.worksCount === 'number') ? summary.worksCount : 0,
@@ -405,6 +424,7 @@ export function assemblePublishingIntelligence(intelligenceReport, cio) {
     registeredCount,
     totalChecked,
     coverage,
+    coverageStatus,
     strengths,
     issues,
     recommendations,

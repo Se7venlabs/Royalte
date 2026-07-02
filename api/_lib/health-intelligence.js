@@ -191,6 +191,18 @@ function extractConcerns(domainScores, ii, pi, ci, gmf, bi, mi, ai) {
   return c.slice(0, 5);
 }
 
+// ── Empty domain-status shell (Needs Review for every domain) ────────────────
+const EMPTY_DOMAIN_STATUSES = Object.freeze({
+  identity:   'Needs Review',
+  publishing: 'Needs Review',
+  catalog:    'Needs Review',
+  footprint:  'Needs Review',
+  backend:    'Needs Review',
+  monitoring: 'Needs Review',
+  metadata:   'Needs Review',
+  coverage:   'Needs Review',
+});
+
 // ── Empty shell — returned on assembly failure ────────────────────────
 
 function emptyHealthIntelligence() {
@@ -205,6 +217,7 @@ function emptyHealthIntelligence() {
     footprintScore:  0,
     backendScore:    0,
     monitoringScore: 0,
+    domainStatuses:  EMPTY_DOMAIN_STATUSES,
     strengths:       [],
     concerns:        [],
     generatedAt:     new Date().toISOString(),
@@ -274,6 +287,22 @@ export function assembleHealthIntelligence(
     const strengths  = extractStrengths(domainScores, identityIntelligence, publishingIntelligence, catalogIntelligence, globalMusicFootprint, backendIntelligence, monitoringIntelligence, royalteAI);
     const concerns   = extractConcerns(domainScores, identityIntelligence, publishingIntelligence, catalogIntelligence, globalMusicFootprint, backendIntelligence, monitoringIntelligence, royalteAI);
 
+    // Per-domain status labels — constitutional source of truth for
+    // every renderer that needs to display "Excellent / Strong / Moderate /
+    // Needs Review" next to a domain.  Consumers read; never classify.
+    const domainStatuses = deepFreeze({
+      identity:   statusForScore(identityScore),
+      publishing: statusForScore(publishingScore),
+      catalog:    statusForScore(catalogScore),
+      footprint:  statusForScore(footprintScore),
+      backend:    statusForScore(backendScore),
+      monitoring: statusForScore(monitoringScore),
+      // Phase 7 Health Engine category scores projected through STATUS_BANDS.
+      // healthScore is the first parameter so these are always available.
+      metadata: statusForScore(typeof healthScore.metadataScore  === 'number' ? healthScore.metadataScore  : 0),
+      coverage: statusForScore(typeof healthScore.coverageScore  === 'number' ? healthScore.coverageScore  : 0),
+    });
+
     return deepFreeze({
       version:         HEALTH_INTELLIGENCE_VERSION,
       score,           // canonical — sourced from computeHealthScore().overallScore
@@ -285,6 +314,7 @@ export function assembleHealthIntelligence(
       footprintScore,
       backendScore,
       monitoringScore,
+      domainStatuses,  // per-domain status labels; renderers read, never classify
       strengths,
       concerns,
       generatedAt:     new Date().toISOString(),
