@@ -313,6 +313,9 @@ export function renderCatalog(intelligence) {
     totalTracks:   typeof ci.totalTracks   === 'number' ? ci.totalTracks   : 0,
     catalogStatus: typeof ci.catalogStatus === 'string' ? ci.catalogStatus : 'Unknown',
     confidence:    typeof ci.confidence    === 'string' ? ci.confidence    : 'Unable to Confirm',
+    isrcCoverage:  (ci.isrcCoverage && typeof ci.isrcCoverage === 'object')
+      ? ci.isrcCoverage
+      : { status: 'Unknown', assessed: false, assessedCount: 0, verifiedCount: 0, coveragePercent: null },
   };
 }
 // ─────────────────────────────────────────────────────────────────────

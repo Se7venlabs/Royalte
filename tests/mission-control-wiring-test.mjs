@@ -460,21 +460,22 @@ test('26b. CONCERN 3 + 6 (Phase 5B) — renderPublishing is implemented and conf
     ['mlcRegistration', 'registeredWorks', 'iswcCoverage', 'registeredSongwriters', 'writerIpi', 'compositionMatch']);
 });
 
-test('26c. CONCERN 3 + 6 (Catalog Phase v1.0) — renderCatalog is implemented and conforms to the canonical entry-point contract', () => {
-  // Catalog Phase v1.0 replaced the not-yet-implemented stub with a real
-  // renderer. It must (a) be a function, (b) NOT throw on a well-formed
-  // catalogIntelligence input, (c) return all six expected keys.
+test('26c. CONCERN 3 + 6 (Catalog Phase v1.1) — renderCatalog is implemented and conforms to the canonical entry-point contract', () => {
+  // Catalog Phase v1.1 (Phase 3.4) adds isrcCoverage as a constitutional field.
+  // The plan must carry all seven keys; features remain excluded.
   assert.equal(typeof renderCatalog, 'function');
+  const isrcCoverage = Object.freeze({ status: 'Complete', assessed: true, assessedCount: 4, verifiedCount: 4, coveragePercent: 100 });
   const ci = Object.freeze({
     singles: 4, eps: 0, albums: 0,
     totalTracks: 4, catalogStatus: 'Stable', confidence: 'Verified',
+    isrcCoverage,
   });
   const plan = renderCatalog(ci);
   assert.ok(plan !== null, 'renderCatalog must return a plan object, not null');
   assert.deepStrictEqual(
     Object.keys(plan).sort(),
-    ['albums', 'catalogStatus', 'confidence', 'eps', 'singles', 'totalTracks'],
-    'renderCatalog plan must carry exactly the six Catalog Intelligence™ v1.0 fields (features removed)'
+    ['albums', 'catalogStatus', 'confidence', 'eps', 'isrcCoverage', 'singles', 'totalTracks'],
+    'renderCatalog plan must carry exactly the seven Catalog Intelligence™ v1.1 fields'
   );
   assert.equal(plan.singles, 4);
   assert.equal(plan.eps, 0);
@@ -482,10 +483,17 @@ test('26c. CONCERN 3 + 6 (Catalog Phase v1.0) — renderCatalog is implemented a
   assert.equal(plan.totalTracks, 4);
   assert.equal(plan.catalogStatus, 'Stable');
   assert.equal(plan.confidence, 'Verified');
+  assert.equal(plan.isrcCoverage.status, 'Complete');
+  assert.equal(plan.isrcCoverage.assessed, true);
+  assert.equal(plan.isrcCoverage.verifiedCount, 4);
   // features must NOT appear in the plan (deferred to Featured Appearance Intelligence™)
-  assert.ok(!('features' in plan), 'features must not appear in Catalog Intelligence™ v1.0 plan');
+  assert.ok(!('features' in plan), 'features must not appear in Catalog Intelligence™ plan');
+  // When isrcCoverage is absent from input, plan must still carry a safe default
+  const ciNoIsrc = Object.freeze({ singles: 1, eps: 0, albums: 0, totalTracks: 1, catalogStatus: 'Stable', confidence: 'Verified' });
+  const planNoIsrc = renderCatalog(ciNoIsrc);
+  assert.ok(planNoIsrc !== null);
+  assert.equal(planNoIsrc.isrcCoverage.status, 'Unknown', 'missing isrcCoverage falls back to Unknown');
   // renderCatalog must return null on absent / malformed intelligence
-  // (boot module leaves the locked sample HTML in place).
   assert.equal(renderCatalog(null), null);
   assert.equal(renderCatalog(undefined), null);
   assert.equal(renderCatalog('string'), null);
