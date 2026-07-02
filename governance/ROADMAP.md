@@ -40,7 +40,8 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | 3.1 | CimAdapter + scan-migration test suite | ✅ Complete | `77c827a` | — |
 | 3.2 | One Health Engine | ✅ Complete | `aca5571` | — |
 | 3.3 | Apple Production Migration | ✅ Complete | `584770d` | `apple-pal-production-migration-v1.0` |
-| 3.4 | Next provider migration | ⬜ Board authorization required | — | — |
+| 3.4 | Product Consumption Cleanup | ✅ Complete | `8a71df7` (pending merge) | `phase-3-4-product-consumption-cleanup-v1.0` |
+| 3.5 | Next provider migration | ⬜ Board authorization required | — | — |
 
 ---
 

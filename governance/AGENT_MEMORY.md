@@ -28,16 +28,18 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **Phase 3.3 — Apple Production Migration** |
-| Merged at | `584770d` (PR #189, 2026-07-02) |
-| Tag | `apple-pal-production-migration-v1.0` |
-| Prior phase | Phase 3.2 — One Health Engine (`aca5571`, PR #188, 2026-07-02) |
+| Most recently completed phase | **Phase 3.4 — Product Consumption Cleanup** |
+| Merged at | `8a71df7` (PR #190, 2026-07-02, pending merge) |
+| Tag | `phase-3-4-product-consumption-cleanup-v1.0` |
+| Prior phase | Phase 3.3 — Apple Production Migration (`584770d`, PR #189, 2026-07-02) |
 | Active direction | Migration project — reduce legacy footprint per provider; no new architecture |
 | Next Board gate | Board authorizes next provider migration (Spotify recommended; Board decides) |
 
 **Migration epoch:** Royaltē is now in its OS Migration phase. The constitutional production architecture has been proven in production with Apple Music (PR #189). Every subsequent phase migrates one more legacy provider into the PAL → RIE → CIM pipeline. No new architecture is required — only repetition of the proven blueprint.
 
-Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`.
+**Phase 3.4 — Website Scan is a constitutional presentation layer.** All displayed intelligence reads from the Certified CIM. ISRC Coverage is a permanent RIE field (`isrcCoverage` in `catalogIntelligence`). Catalog Availability reads from `globalMusicFootprint.status`. Zero business logic remains in `_renderV2Found`. `trackIsrc` single-track sentinel permanently excluded as ISRC coverage proxy.
+
+Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`.
 
 The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`. The legacy retirement checklist lives in `governance/MIGRATION_RETIREMENT_REGISTER.md`.
 

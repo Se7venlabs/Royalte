@@ -70,12 +70,17 @@ If more than one component answers the same question, the migration is not compl
 | `checkGlobalStorefrontAvailability()` | `api/apple-music.js` | Yes — replaced by `AppleMusicConnector#fetchGlobalStorefrontAvailability` | Can delete after verifying no direct test or script callers |
 | `generateAppleToken` import in `run-scan.js` | `api/_lib/run-scan.js` line 24 | Yes — commented out | Remove the commented import line |
 | `lookupByISRC`, `checkStorefrontAvailability`, `getArtistAlbums` imports in `run-scan.js` | `api/_lib/run-scan.js` line 25 | Yes — commented out | Remove the commented import line |
+| Website Scan `am` / `cc` local variables | `public/index.html` `_renderV2Found` | Yes — removed by Phase 3.4 | Renderer now reads CIM only; raw `appleMusic` and `catalogComparison` shape no longer consulted by any renderer |
+| Website Scan album classification loop | `public/index.html` `_renderV2Found` | Yes — removed by Phase 3.4 | `assembleCatalogIntelligence` owns this logic; renderer reads `catalogIntelligence.albums/eps/singles` |
+| Website Scan `catalogAvail` formula | `public/index.html` `_renderV2Found` | Yes — removed by Phase 3.4 | `assembleGlobalMusicFootprint` owns this; renderer reads `globalMusicFootprint.status` |
+| Website Scan ISRC `trackIsrc` proxy | `public/index.html` `_renderV2Found` | Yes — permanently excluded by Phase 3.4 Board Directive | `assembleCatalogIntelligence.isrcCoverage` owns ISRC assessment |
 
 ### Retired (RETIRED — deleted from codebase)
 
 | Component | Deleted at | PR | Replacement |
 |-----------|-----------|-----|------------|
 | `computeV2HealthScore()` (direct callers) | 2026-07-02 | #188 | `cim.health.score` (One Health Engine) |
+| Renderer business logic: album loop, catalogAvail formula, ISRC proxy | 2026-07-02 | #190 | `data.canonical.catalogIntelligence` + `data.canonical.globalMusicFootprint` reads |
 
 ---
 

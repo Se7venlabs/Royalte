@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-02 — Phase 3.4 Product Consumption Cleanup — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Board ratifies Phase 3.4 — Product Consumption Cleanup. The Website Scan renderer is now a constitutional presentation layer: zero business logic, zero intelligence computation. All displayed fields read from the Certified CIM. ISRC Coverage is a permanent constitutional intelligence field owned by `assembleCatalogIntelligence` in the RIE. Catalog Availability reads from `globalMusicFootprint.status` (certified by the RIE from 167-storefront PAL evidence). |
+| **Directives adopted** | (1) Website Scan performs zero business intelligence — renderer reads only. (2) Certified CIM is the sole source of truth for all displayed values. (3) ISRC Coverage vocabulary locked: Unknown / Limited / Partial / Complete. ISRC_THRESHOLDS (75/25/1) pending formal Board ratification. (4) Catalog Availability vocabulary: Global / Strong / Regional / Limited (from globalMusicFootprint). (5) trackIsrc single-track sentinel PERMANENTLY EXCLUDED as proxy for catalog ISRC coverage. |
+| **Impact** | Parity gaps resolved — ISRC and Catalog Availability produce identical results regardless of entry point. Mission Control renderCatalog extended with isrcCoverage in plan (v1.1). |
+| **Vote** | Board Approved |
+| **PR Number** | #190 |
+| **Commit SHA** | `8a71df7` (pending merge) |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-02 — Engineering Rule: Every Migration Must Leave Less Legacy
 
 | | |
