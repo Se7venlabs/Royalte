@@ -1,0 +1,58 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-independent",
+  "_description": "Independent artist with limited distribution footprint. Spotify only (no Apple Music, no YouTube). Small 5-release catalog, minimal publishing (5 works, 1 writer, 1 publisher). Low provider coverage triggers identity gaps.",
+  "_expectedBehavior": "Identity coverage issue fires (only 1 of 3 expected providers). Catalog depth observation. Publishing score lower due to limited coverage. No orphan recordings.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "MEDIUM",
+  "identity": {
+    "canonicalArtistName": "Cert Independent Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "cert-indie-sp-001", "verified": true }
+    ],
+    "artistConfidence": "MEDIUM"
+  },
+  "publishing": {
+    "worksCount": 5,
+    "workRoyalteIds": [ "rc_ind_001", "rc_ind_002", "rc_ind_003" ],
+    "writerCount": 1,
+    "writerIPIs": [ "IPI_IND_1" ],
+    "publisherCount": 1,
+    "publishingConfidence": "MEDIUM",
+    "publishingCoverage": 40
+  },
+  "catalog": {
+    "releasesCount": 5,
+    "catalogAgeYears": 3,
+    "catalogConfidence": "MEDIUM",
+    "recordings": [
+      { "isrc": "USIND0000001", "title": "Indie Track 1" },
+      { "isrc": "USIND0000002", "title": "Indie Track 2" },
+      { "isrc": "USIND0000003", "title": "Indie Track 3" }
+    ],
+    "orphanRecordings": [],
+    "duplicates": []
+  },
+  "metadata": {
+    "flagCount": 1,
+    "metadataConfidence": "MEDIUM",
+    "missingCredits": [],
+    "duplicateReleases": [],
+    "inconsistentMetadata": [],
+    "releaseConflicts": []
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {
+    "providers": {
+      "spotify": { "availability": "VERIFIED" },
+      "apple":   { "availability": "NOT_FOUND" },
+      "youtube": { "availability": "NOT_FOUND" }
+    },
+    "publishingSources": {
+      "mlc": { "availability": "AUTH_UNAVAILABLE" }
+    }
+  }
+}

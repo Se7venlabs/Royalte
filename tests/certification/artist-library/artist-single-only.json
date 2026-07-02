@@ -1,0 +1,66 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-single-only",
+  "_description": "Artist whose entire catalog consists exclusively of singles — no albums, no EPs. 20 singles released over 4 years. Both Spotify and Apple verified. Publishing present but limited.",
+  "_expectedBehavior": "Identity coverage good (2 providers). Catalog depth observation expected (releases but no albums). No orphan recordings. Publishing present but coverage limited.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "MEDIUM",
+  "identity": {
+    "canonicalArtistName": "Cert Singles Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "cert-singles-sp-001", "verified": true },
+      { "provider": "apple",   "profileId": "cert-singles-am-001", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+  "publishing": {
+    "worksCount": 20,
+    "workRoyalteIds": [
+      "rc_sng_001", "rc_sng_002", "rc_sng_003", "rc_sng_004", "rc_sng_005"
+    ],
+    "writerCount": 2,
+    "writerIPIs": [ "IPI_SNG_1", "IPI_SNG_2" ],
+    "publisherCount": 1,
+    "publishingConfidence": "MEDIUM",
+    "publishingCoverage": 55
+  },
+  "catalog": {
+    "releasesCount": 20,
+    "catalogAgeYears": 4,
+    "catalogConfidence": "HIGH",
+    "recordings": [
+      { "isrc": "USSNG0000001", "title": "Single 1" },
+      { "isrc": "USSNG0000002", "title": "Single 2" },
+      { "isrc": "USSNG0000003", "title": "Single 3" },
+      { "isrc": "USSNG0000004", "title": "Single 4" },
+      { "isrc": "USSNG0000005", "title": "Single 5" },
+      { "isrc": "USSNG0000006", "title": "Single 6" },
+      { "isrc": "USSNG0000007", "title": "Single 7" },
+      { "isrc": "USSNG0000008", "title": "Single 8" }
+    ],
+    "orphanRecordings": [],
+    "duplicates": []
+  },
+  "metadata": {
+    "flagCount": 0,
+    "metadataConfidence": "HIGH",
+    "missingCredits": [],
+    "duplicateReleases": [],
+    "inconsistentMetadata": [],
+    "releaseConflicts": []
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {
+    "providers": {
+      "spotify": { "availability": "VERIFIED" },
+      "apple":   { "availability": "VERIFIED" },
+      "youtube": { "availability": "NOT_FOUND" }
+    },
+    "publishingSources": {
+      "mlc": { "availability": "AUTH_UNAVAILABLE" }
+    }
+  }
+}

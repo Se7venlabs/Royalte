@@ -1,0 +1,70 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-legacy-catalog",
+  "_description": "Artist with a 50+ year career. Catalog spans 1971–2024. Many recordings predate modern ISRC standards. Significant orphan recording count (pre-digital era releases not yet matched to modern registry). Publishing partially registered — some early works have no ISRC linkage.",
+  "_expectedBehavior": "Orphan recording rules fire (legacy pre-ISRC recordings). Large catalogAgeYears. Publishing coverage incomplete. Engine handles large year-range values without error. Catalog age signals positive strength.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "MEDIUM",
+  "identity": {
+    "canonicalArtistName": "Cert Legacy Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "cert-legacy-sp-001", "verified": true },
+      { "provider": "apple",   "profileId": "cert-legacy-am-001", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+  "publishing": {
+    "worksCount": 280,
+    "workRoyalteIds": [
+      "rc_leg_001", "rc_leg_002", "rc_leg_003", "rc_leg_004", "rc_leg_005"
+    ],
+    "writerCount": 2,
+    "writerIPIs": [ "IPI_LEG_1", "IPI_LEG_2" ],
+    "publisherCount": 4,
+    "publishingConfidence": "MEDIUM",
+    "publishingCoverage": 62
+  },
+  "catalog": {
+    "releasesCount": 48,
+    "catalogAgeYears": 53,
+    "catalogConfidence": "MEDIUM",
+    "recordings": [
+      { "isrc": "GBLEG0000001", "title": "Early Classic (1972)" },
+      { "isrc": "GBLEG0000002", "title": "Stadium Hit (1979)" },
+      { "isrc": "GBLEG0000003", "title": "Comeback Single (1988)" },
+      { "isrc": "GBLEG0000004", "title": "Reunion Track (2001)" },
+      { "isrc": "GBLEG0000005", "title": "Modern Release (2019)" }
+    ],
+    "orphanRecordings": [
+      { "isrc": null, "title": "Pre-ISRC Recording 1 (1971)" },
+      { "isrc": null, "title": "Pre-ISRC Recording 2 (1974)" },
+      { "isrc": null, "title": "Pre-ISRC Recording 3 (1976)" },
+      { "isrc": null, "title": "Pre-ISRC Recording 4 (1977)" },
+      { "isrc": null, "title": "Pre-ISRC Recording 5 (1980)" },
+      { "isrc": null, "title": "Pre-ISRC Recording 6 (1982)" }
+    ],
+    "duplicates": []
+  },
+  "metadata": {
+    "flagCount": 3,
+    "metadataConfidence": "MEDIUM",
+    "missingCredits": [ "Pre-ISRC Recording 1 (1971)", "Pre-ISRC Recording 2 (1974)" ],
+    "duplicateReleases": [],
+    "inconsistentMetadata": [ "Early Classic (1972)" ],
+    "releaseConflicts": []
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {
+    "providers": {
+      "spotify": { "availability": "VERIFIED" },
+      "apple":   { "availability": "VERIFIED" },
+      "youtube": { "availability": "VERIFIED" }
+    },
+    "publishingSources": {
+      "mlc": { "availability": "AUTH_UNAVAILABLE" }
+    }
+  }
+}

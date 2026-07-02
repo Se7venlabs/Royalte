@@ -1,0 +1,67 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-duplicate-identity",
+  "_description": "Artist with duplicate DSP profiles — two distinct Spotify artist pages and two Apple Music pages both attributed to the same artist. Common when an artist's distribution label splits catalog across multiple accounts, or during a rebrand with historical profiles retained. Tests identity consolidation rules.",
+  "_expectedBehavior": "identity.duplicate-dsp-profiles rule fires (MEDIUM). Identity intelligence reports issue. Health score penalized. Engine never throws on multi-profile input.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "MEDIUM",
+  "identity": {
+    "canonicalArtistName": "Cert Duplicate Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "cert-dup-sp-A",  "verified": true  },
+      { "provider": "spotify", "profileId": "cert-dup-sp-B",  "verified": false },
+      { "provider": "apple",   "profileId": "cert-dup-am-A",  "verified": true  },
+      { "provider": "apple",   "profileId": "cert-dup-am-B",  "verified": false },
+      { "provider": "youtube", "profileId": "cert-dup-yt-001","verified": true  }
+    ],
+    "artistConfidence": "MEDIUM"
+  },
+  "publishing": {
+    "worksCount": 35,
+    "workRoyalteIds": [
+      "rc_dup_001", "rc_dup_002", "rc_dup_003", "rc_dup_004", "rc_dup_005"
+    ],
+    "writerCount": 2,
+    "writerIPIs": [ "IPI_DUP_1", "IPI_DUP_2" ],
+    "publisherCount": 2,
+    "publishingConfidence": "MEDIUM",
+    "publishingCoverage": 70
+  },
+  "catalog": {
+    "releasesCount": 18,
+    "catalogAgeYears": 8,
+    "catalogConfidence": "MEDIUM",
+    "recordings": [
+      { "isrc": "USDUP0000001", "title": "Profile A Track 1" },
+      { "isrc": "USDUP0000002", "title": "Profile A Track 2" },
+      { "isrc": "USDUP0000003", "title": "Profile B Track 1" },
+      { "isrc": "USDUP0000004", "title": "Profile B Track 2" }
+    ],
+    "orphanRecordings": [],
+    "duplicates": [
+      { "isrc": "USDUP0000003", "title": "Profile B Track 1 (duplicate detected)" }
+    ]
+  },
+  "metadata": {
+    "flagCount": 2,
+    "metadataConfidence": "MEDIUM",
+    "missingCredits": [],
+    "duplicateReleases": [ "Profile B Track 1 (duplicate detected)" ],
+    "inconsistentMetadata": [],
+    "releaseConflicts": []
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {
+    "providers": {
+      "spotify": { "availability": "VERIFIED" },
+      "apple":   { "availability": "VERIFIED" },
+      "youtube": { "availability": "VERIFIED" }
+    },
+    "publishingSources": {
+      "mlc": { "availability": "AUTH_UNAVAILABLE" }
+    }
+  }
+}

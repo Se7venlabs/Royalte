@@ -1,0 +1,81 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-sparse-metadata",
+  "_description": "Artist with severely degraded metadata quality. High flagCount, many missing credits, duplicate releases, inconsistent metadata, and release conflicts. All other signals (identity, catalog presence) are intact. Tests metadata rules without contaminating other domain signals.",
+  "_expectedBehavior": "Metadata quality rules fire. flagCount high. Multiple catalog or metadata observations. Identity and catalog domains unaffected. Engine handles large missingCredits and inconsistentMetadata arrays without error.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "LOW",
+  "identity": {
+    "canonicalArtistName": "Cert Sparse Metadata Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "cert-sparse-sp-001", "verified": true },
+      { "provider": "apple",   "profileId": "cert-sparse-am-001", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+  "publishing": {
+    "worksCount": 28,
+    "workRoyalteIds": [
+      "rc_spm_001", "rc_spm_002", "rc_spm_003"
+    ],
+    "writerCount": 2,
+    "writerIPIs": [ "IPI_SPM_1", "IPI_SPM_2" ],
+    "publisherCount": 1,
+    "publishingConfidence": "MEDIUM",
+    "publishingCoverage": 45
+  },
+  "catalog": {
+    "releasesCount": 15,
+    "catalogAgeYears": 10,
+    "catalogConfidence": "MEDIUM",
+    "recordings": [
+      { "isrc": "USSPM0000001", "title": "Track With Missing Credits" },
+      { "isrc": "USSPM0000002", "title": "Track With Unclean Title" },
+      { "isrc": "USSPM0000003", "title": "Track Duplicate A" },
+      { "isrc": "USSPM0000003", "title": "Track Duplicate B Same ISRC" },
+      { "isrc": "USSPM0000004", "title": "Track Conflict Version 1" }
+    ],
+    "orphanRecordings": [
+      { "isrc": null, "title": "Unlabeled Recording" }
+    ],
+    "duplicates": [
+      { "isrc": "USSPM0000003", "title": "Track Duplicate B Same ISRC" }
+    ]
+  },
+  "metadata": {
+    "flagCount": 12,
+    "metadataConfidence": "LOW",
+    "missingCredits": [
+      "Track With Missing Credits",
+      "Track With Unclean Title",
+      "Unlabeled Recording",
+      "Track Conflict Version 1"
+    ],
+    "duplicateReleases": [
+      "Track Duplicate A",
+      "Track Duplicate B Same ISRC"
+    ],
+    "inconsistentMetadata": [
+      "Track With Unclean Title",
+      "Track Conflict Version 1",
+      "Track Conflict Version 2"
+    ],
+    "releaseConflicts": [
+      "Track Conflict Version 1 vs Version 2 different release dates"
+    ]
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {
+    "providers": {
+      "spotify": { "availability": "VERIFIED" },
+      "apple":   { "availability": "VERIFIED" },
+      "youtube": { "availability": "NOT_FOUND" }
+    },
+    "publishingSources": {
+      "mlc": { "availability": "AUTH_UNAVAILABLE" }
+    }
+  }
+}
