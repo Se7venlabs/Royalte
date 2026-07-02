@@ -38,6 +38,8 @@ import {
 } from './identity/apple.js';
 // Phase 3.3 (Apple Production Migration) — PAL Apple acquisition
 import { acquireAppleEvidence, synthesizeAppleMusicCompat } from './apple-pal-acquisition.js';
+// Phase 3.6 (Spotify PAL Migration) — PAL Spotify acquisition
+import { acquireSpotifyEvidence, synthesizeSpotifyCompat } from './spotify-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -62,7 +64,7 @@ const YOUTUBE_REVENUE_REQUIRES_VERIFIED_CHANNEL = true;
 //   - rawResponse      — raw legacy-shape audit payload (appleMusic = PAL-synthesized)
 //   - urlType          — detectInputType(url), or 'apple' for degraded path
 //   - warnings         — non-fatal degradation notices (empty on the happy path)
-//   - evidencePackages — Apple EvidencePackages from PAL (for runRIE hybrid merge)
+//   - evidencePackages — Apple + Spotify EvidencePackages from PAL (for runRIE hybrid merge)
 // ─────────────────────────────────────────────────────────────────────────────
 export async function runScan(url) {
   // Top-level input guard (was an inline 400 in the handler).
@@ -161,44 +163,13 @@ export async function runScan(url) {
   // ─────────────────────────────────────────────────────────────────────
   const warnings = [];
 
-  // ── Spotify-specific fetches (conditional on Spotify ID) ──
-  let artistData = null;
+  // ── Track data fetch (track URL inputs only — resolution enrichment, not general) ──
+  // [TRANSITIONAL]: getSpotifyTrack stays here; it is resolution infrastructure, not
+  // general enrichment. Track-input ISRC and album.images are needed for rawResponse.
   let trackData = null;
-  let albumsData = { items: [] };
-  let spotifyTopTracks = [];
-
-  if (resolved.artistId) {
-    try {
-      artistData = await getSpotifyArtist(resolved.artistId, token);
-    } catch (artistErr) {
-      console.warn('[run-scan] getSpotifyArtist failed — synthesizing stub:', artistErr.message);
-      warnings.push({
-        platform: 'spotify',
-        stage: 'artist_fetch',
-        reason: `Spotify artist fetch failed for ID ${resolved.artistId}: ${artistErr.message.replace(/^Spotify artist fetch failed:\s*/i, '')}`,
-      });
-    }
-    if (resolved.resolvedFromType === 'track' && resolved.spotifyTrackId) {
-      try { trackData = await getSpotifyTrack(resolved.spotifyTrackId, token); }
-      catch { trackData = null; }
-    }
-    try { albumsData       = await getSpotifyAlbums(resolved.artistId, token); }    catch { albumsData = { items: [] }; }
-    try { spotifyTopTracks = await getSpotifyTopTracks(resolved.artistId, token); } catch { spotifyTopTracks = []; }
-  }
-  // Stub when Spotify ID absent OR Spotify artist fetch failed. Same shape
-  // getSpotifyArtist returns so runModules / buildFlags / rawResponse fields
-  // see a uniform interface. followers=-1 is the existing "Spotify absent"
-  // sentinel.
-  if (!artistData) {
-    artistData = {
-      id: resolved.artistId || null,
-      name: resolved.artistName,
-      followers: { total: -1 },
-      popularity: 0,
-      genres: [],
-      images: resolved.artistImage ? [{ url: resolved.artistImage }] : [],
-      external_urls: resolved.artistUrl ? { spotify: resolved.artistUrl } : {},
-    };
+  if (resolved.artistId && resolved.resolvedFromType === 'track' && resolved.spotifyTrackId) {
+    try { trackData = await getSpotifyTrack(resolved.spotifyTrackId, token); }
+    catch { trackData = null; }
   }
 
   // Apple-locked canonical name (PR #103). Used as the query string for
@@ -207,15 +178,33 @@ export async function runScan(url) {
 
   // ── Universal enrichment fan-out ────────────────────────────────────────
   // Phase 3.3: Apple acquisition routes through PAL (parallel with all other providers).
-  // PAL evidence flows into runRIE via the hybrid merge path; appleMusicData below
-  // is a backward-compat synthesis for the V1 module system only.
+  // Phase 3.6: Spotify enrichment acquisition routes through PAL (replacing direct calls).
+  // Both PAL evidence packages flow into runRIE via the hybrid merge path.
+  // synthesizeAppleMusicCompat / synthesizeSpotifyCompat below are backward-compat
+  // synthesis for the V1 module system only.
   const appleIsrc = resolved.trackIsrc || trackData?.external_ids?.isrc || null;
 
-  const [palSettled, mbSettled, deezerSettled, audioDbSettled, discogsSettled, soundcloudSettled, lastfmSettled, wikidataSettled, youtubeSettled] = await Promise.allSettled([
+  const [
+    applePalSettled,
+    spotifyPalSettled,
+    mbSettled,
+    deezerSettled,
+    audioDbSettled,
+    discogsSettled,
+    soundcloudSettled,
+    lastfmSettled,
+    wikidataSettled,
+    youtubeSettled,
+  ] = await Promise.allSettled([
     acquireAppleEvidence({
       appleArtistId: resolved.appleArtistId ?? null,
       artistName,
       isrc: appleIsrc,
+    }),
+    // Phase 3.6: Spotify enrichment via PAL — replaces direct getSpotifyArtist/Albums/TopTracks calls
+    acquireSpotifyEvidence({
+      spotifyArtistId: resolved.artistId ?? null,
+      artistName,
     }),
     getMusicBrainz(artistName),
     getDeezer(artistName),
@@ -227,12 +216,28 @@ export async function runScan(url) {
     getYouTube(artistName),
   ]);
 
-  const { evidencePackages = [], elapsedMs: palElapsedMs = 0 } =
-    palSettled.status === 'fulfilled' ? palSettled.value : {};
+  const { evidencePackages: appleEvidencePackages = [] } =
+    applePalSettled.status === 'fulfilled' ? applePalSettled.value : {};
+  const { evidencePackages: spotifyEvidencePackages = [] } =
+    spotifyPalSettled.status === 'fulfilled' ? spotifyPalSettled.value : {};
 
-  // [TRANSITIONAL] Legacy compat shape for V1 module system (runModules / buildFlags).
+  // Combined evidence packages — both providers enter the RIE hybrid merge path.
+  const evidencePackages = [...appleEvidencePackages, ...spotifyEvidencePackages];
+
+  // [TRANSITIONAL] Legacy compat shapes for V1 module system (runModules / buildFlags).
   // Retires when those consumers migrate to RIE Rule Library.
-  const appleMusicData = synthesizeAppleMusicCompat(evidencePackages);
+  const appleMusicData = synthesizeAppleMusicCompat(appleEvidencePackages);
+
+  // Phase 3.6: Spotify compat synthesis replaces direct getSpotifyArtist/Albums/TopTracks.
+  // synthesizeSpotifyCompat returns the same shapes those functions returned.
+  const subjectHints = {
+    spotifyArtistId: resolved.artistId   ?? null,
+    artistName:      resolved.artistName ?? null,
+    artistImage:     resolved.artistImage ?? null,
+    artistUrl:       resolved.artistUrl  ?? null,
+  };
+  const { artistData, albumsData, spotifyTopTracks } =
+    synthesizeSpotifyCompat(spotifyEvidencePackages, subjectHints);
 
   const mbData         = mbSettled.status         === 'fulfilled' ? mbSettled.value         : { found: false };
   const deezerData     = deezerSettled.status     === 'fulfilled' ? deezerSettled.value     : { found: false };
@@ -242,6 +247,15 @@ export async function runScan(url) {
   const lastfmData     = lastfmSettled.status     === 'fulfilled' ? lastfmSettled.value     : { found: false };
   const wikidataData   = wikidataSettled.status   === 'fulfilled' ? wikidataSettled.value   : { found: false };
   const youtubeData    = youtubeSettled.status    === 'fulfilled' ? youtubeSettled.value    : { found: false };
+
+  // [RETIRED CANDIDATE] — Direct Spotify enrichment functions replaced by PAL in Phase 3.6.
+  // getSpotifyArtist (enrichment), getSpotifyAlbums, getSpotifyTopTracks are no longer
+  // called in the fan-out. The functions remain in this file for resolution use only:
+  //   getSpotifyArtist  — identity verification in resolveToArtist / ISRC cross-discovery
+  //   getSpotifyAlbum   — album input resolution
+  //   getSpotifyTrack   — track input resolution
+  //   searchSpotifyArtistByName — name-based artist identity discovery
+  //   discoverSpotifyByIsrc     — ISRC-based cross-provider discovery
 
   // ── Catalog: Spotify when available, Apple fallback ──
   // Same field shape in both cases so analyzeCatalog and downstream
@@ -686,6 +700,8 @@ async function searchSpotifyArtistByName(name, token) {
   } catch { return null; }
 }
 
+// [RETIRED CANDIDATE — Phase 3.6] getSpotifyAlbums: enrichment call replaced by PAL.
+// Kept only for potential resolution use. Remove when all callers confirmed retired.
 async function getSpotifyAlbums(artistId, token) {
   try {
     const resp = await fetch(
@@ -697,6 +713,8 @@ async function getSpotifyAlbums(artistId, token) {
   } catch { return { items: [] }; }
 }
 
+// [RETIRED CANDIDATE — Phase 3.6] getSpotifyTopTracks: enrichment call replaced by PAL.
+// Kept only for potential resolution use. Remove when all callers confirmed retired.
 async function getSpotifyTopTracks(artistId, token) {
   try {
     const resp = await fetch(
