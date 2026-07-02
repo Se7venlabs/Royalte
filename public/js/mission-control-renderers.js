@@ -596,24 +596,17 @@ export function buildPublishingRegistrationPlan(intelligence) {
 // Returns null on missing intelligence so the boot module can leave
 // the locked sample HTML in place.
 //
-// Coverage is derived from the actual registrations object so the
-// display is always consistent with the metrics in the payload —
-// regardless of which version of the assembler wrote the stored scan.
+// Phase 3.4: reads coverage, registeredCount, totalChecked directly from
+// the Certified CIM — assemblePublishingIntelligence already owns this
+// computation. No renderer-side counting or arithmetic.
 export function buildPublishingCoveragePlan(intelligence) {
   const pi = safePublishingIntelligence(intelligence);
   if (!pi) return null;
-  const regs = (pi.registrations && typeof pi.registrations === 'object' && !Array.isArray(pi.registrations))
-    ? pi.registrations
-    : null;
-  if (!regs) return null;
-  const total    = Object.keys(regs).length;
-  if (total === 0) return null;
-  const verified = Object.values(regs).filter((s) => s === 'VERIFIED').length;
-  const value    = Math.round((verified / total) * 100);
+  if (typeof pi.coverage !== 'number') return null;
   return {
-    value,
+    value:   pi.coverage,
     label:   'Publishing Coverage',
-    summary: `${verified} of ${total} verified`,
+    summary: `${pi.registeredCount ?? 0} of ${pi.totalChecked ?? 0} verified`,
   };
 }
 

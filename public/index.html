@@ -2861,16 +2861,14 @@ function formatFollowers(n) {
 }
 
 // ── ECOSYSTEM SIGNAL ──
-// Source-agnostic backend framing for the hero sub-line. Spotify and Apple
-// Music are input sources, not authority metrics — the scan result never
-// shows a follower / listener / fan count as the artist's identity. It
-// reports verified ecosystem presence instead, counted from data.platforms.
+// Phase 3.4: reads identity provider coverage from the Certified CIM.
+// Constitutional owner: Identity Intelligence assembler.
+// CIM path: data.canonical.identityIntelligence.verifiedProviders / totalProviders
 function getEcosystemSignal(data) {
-  const plats    = (data && data.platforms) || {};
-  const values   = Object.values(plats);
-  const total    = values.length;
-  const verified = values.filter(p => p === true || (p && p.found === true)).length;
-  if (total > 0) return `${verified} of ${total} ecosystems verified`;
+  const ii = data?.canonical?.identityIntelligence;
+  if (ii && typeof ii.verifiedProviders === 'number' && typeof ii.totalProviders === 'number') {
+    return `${ii.verifiedProviders} of ${ii.totalProviders} ecosystems verified`;
+  }
   return 'Backend signal verified';
 }
 
@@ -2945,7 +2943,8 @@ function showRealResults(data) {
   const artistName = data.artistName || 'Artist';
   const scanMode   = data.scanMode || data.type || 'artist';
   const isApple    = data.sourcePlatform === 'apple_music';
-  const flagsArr   = Array.isArray(data.flags) ? data.flags : [];
+  // data.flags[] (V1 TRANSITIONAL) retired by Phase 3.4 Board Directive.
+  // Findings now read from data.canonical.healthReport.risks[] (RIE-certified).
 
   // ── Modal snapshot (preserved) ──
   try {
@@ -2953,7 +2952,7 @@ function showRealResults(data) {
       artistName:  artistName,
       sourceUrl:   document.getElementById('hero-url')?.value?.trim() || '',
       score:       (data.royalteScore != null) ? data.royalteScore : (data.riskScore != null ? data.riskScore : null),
-      issuesCount: flagsArr.length,
+      issuesCount: (data.canonical?.healthReport?.risks ?? []).length,
       urlType:     detectUrlType(document.getElementById('hero-url')?.value?.trim() || '') || (isApple ? 'apple' : 'unknown'),
       scannedAt:   new Date().toISOString(),
       scanId:      data.scanId || null
@@ -3075,7 +3074,7 @@ function showRealResults(data) {
   }
 
   // ── V2 content blocks ──
-  _renderV2Findings(flagsArr);
+  _renderV2Findings(data);
   _renderV2Found(data);
 
   // ── Audit-request modal form-lock unlock (V1, preserved) ──
@@ -3117,38 +3116,26 @@ const GRADE_TO_CLASS = {
   'Review Recommended': 'band-danger',   // backward compat — pre-migration reads
 };
 
-function _renderV2Findings(flagsArr) {
+// Phase 3.4: reads from Certified CIM — data.canonical.healthReport.risks[]
+// Constitutional owner: Intelligence Engine (via Rule Library).
+// CIM path: data.canonical.healthReport.risks[].{ title, observation }
+// data.flags[] (V1 TRANSITIONAL) permanently retired.
+function _renderV2Findings(data) {
   const findingsEl = document.getElementById('os-findings');
   if (!findingsEl) return;
 
-  // Filter V1 platform-presence noise (Wikipedia / AudioDB / Discogs / SoundCloud)
-  const v2Flags = (flagsArr || []).filter((f) => {
-    const text = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
-    return !/\b(wikipedia|audiodb|discogs|soundcloud|musicbrainz)\b/.test(text);
-  });
-  if (v2Flags.length === 0) {
+  const risks = data?.canonical?.healthReport?.risks ?? [];
+  if (risks.length === 0) {
     findingsEl.innerHTML = '<div class="os-finding-empty">Your catalog looks clean. Royaltē OS is monitoring for changes and will alert you if anything needs attention.</div>';
     return;
   }
 
-  // Strip trailing "— … risk" suffixes from V1 descriptions
-  const clean = (s) => (s || '').replace(/\s+[—-]\s+[\w\s]*\brisk\s*$/i, '').trim();
-  const titleFor = (f) => {
-    const t = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
-    if (/\bisrc\b/.test(t))                     return 'Identifier coverage review';
-    if (/territory|storefront|country/.test(t)) return 'Territory availability review';
-    if (/youtube|ugc|video/.test(t))            return 'Limited visibility observed in reviewed sources';
-    if (/duplicate|collision|fragment/.test(t)) return 'Catalog consistency review';
-    if (/metadata|genre/.test(t))               return 'Metadata completeness review';
-    return                                              'Catalog consistency review';
-  };
-
-  findingsEl.innerHTML = v2Flags.slice(0, 3).map((f) => `
+  findingsEl.innerHTML = risks.slice(0, 3).map((r) => `
     <div class="os-finding">
       <div class="os-finding-icon">!</div>
       <div class="os-finding-body">
-        <p class="os-finding-title">${_osEscape(titleFor(f))}</p>
-        <p class="os-finding-desc">${_osEscape(clean(f.description))}</p>
+        <p class="os-finding-title">${_osEscape(r.title  ?? 'Finding')}</p>
+        <p class="os-finding-desc">${_osEscape(r.observation ?? '')}</p>
       </div>
     </div>`).join('');
 }
