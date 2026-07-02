@@ -154,6 +154,7 @@ test('9. all-VERIFIED scenario — all 6 metrics VERIFIED → coverage 100', () 
   assert.equal(pi.registrations.compositionMatch,      PUBLISHING_STATE.VERIFIED);
   assert.equal(pi.registeredCount, 6);
   assert.equal(pi.coverage, 100);
+  assert.equal(pi.coverageStatus, 'Verified', '100% coverage → coverageStatus Verified');
 });
 
 test('10. iswcCoverage ACTION_REQUIRED — some works without ISWC', () => {
@@ -253,11 +254,12 @@ test('18. UNABLE_TO_CONFIRM emits NO issue and NO strength', () => {
   }
 });
 
-test('19. All-UNABLE_TO_CONFIRM → coverage 0 (no verified registrations)', () => {
+test('19. All-UNABLE_TO_CONFIRM → coverage null (provider unreachable — not verified zero)', () => {
   const { pi } = buildScenario({ mlcAvailability: 'AUTH_UNAVAILABLE', works: [], details: null });
   assert.equal(pi.registeredCount, 0);
   assert.equal(pi.totalChecked,    6);
-  assert.equal(pi.coverage,        0);
+  assert.equal(pi.coverage,        null,        'AUTH_UNAVAILABLE → coverage must be null, never 0');
+  assert.equal(pi.coverageStatus, 'Unavailable', 'AUTH_UNAVAILABLE → coverageStatus must be Unavailable');
 });
 
 // ═════════════════════════════════════════════════════════════════════
@@ -278,9 +280,10 @@ test('20. Coverage formula — 5 of 6 verified → 83 (iswcCoverage NOT_FOUND)',
   // + registeredSongwriters VERIFIED + writerIpi VERIFIED + compositionMatch VERIFIED
   assert.equal(pi.registeredCount, 5);
   assert.equal(pi.coverage, 83);
+  assert.equal(pi.coverageStatus, 'Verified', '83% coverage → coverageStatus Verified');
 });
 
-test('21. UNABLE_TO_CONFIRM never counts toward registeredCount (Board D9)', () => {
+test('21. UNABLE_TO_CONFIRM never counts toward registeredCount; coverage null not 0 (Board D9)', () => {
   const cio = {
     publishing: { worksCount: 1, writerCount: 1, writerIPIs: ['IPI_A'], publisherCount: 0 },
     observations: {
@@ -292,13 +295,14 @@ test('21. UNABLE_TO_CONFIRM never counts toward registeredCount (Board D9)', () 
   const pi = assemblePublishingIntelligence({ observations: [] }, cio);
   assert.equal(pi.registeredCount, 0);
   assert.equal(pi.totalChecked,    6);
-  assert.equal(pi.coverage,        0);
+  assert.equal(pi.coverage,        null,        'AUTH_UNAVAILABLE → coverage must be null');
+  assert.equal(pi.coverageStatus,  'Unavailable', 'coverageStatus must distinguish unreachable from zero');
 });
 
 test('22. Output shape Build Pass 2 — exact keys, deep-frozen, NO score field', () => {
   const { pi } = buildScenario();
   assert.deepStrictEqual(Object.keys(pi).sort(),
-    ['coverage', 'issues', 'metrics', 'recommendations', 'registeredCount', 'registrations', 'strengths', 'supportedSources', 'totalChecked']);
+    ['coverage', 'coverageStatus', 'issues', 'metrics', 'recommendations', 'registeredCount', 'registrations', 'strengths', 'supportedSources', 'totalChecked']);
   assert.deepStrictEqual(Object.keys(pi.registrations).sort(),
     ['compositionMatch', 'iswcCoverage', 'mlcRegistration', 'registeredSongwriters', 'registeredWorks', 'writerIpi']);
   assert.deepStrictEqual(Object.keys(pi.metrics).sort(),

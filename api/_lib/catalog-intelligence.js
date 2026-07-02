@@ -137,6 +137,27 @@ function deriveIsrcStatus(pct) {
   return 'Limited';
 }
 
+// deriveYearRange — extracts firstReleaseYear / latestReleaseYear from
+// Apple Music album objects.  Pure presentational metadata; does not
+// classify or score anything.  Null when Apple albums are absent.
+function deriveYearRange(albums) {
+  if (!Array.isArray(albums) || !albums.length) {
+    return { firstReleaseYear: null, latestReleaseYear: null, catalogAgeYears: null };
+  }
+  const currentYear = new Date().getFullYear();
+  const years = albums
+    .map((a) => {
+      if (!a?.releaseDate) return null;
+      const y = new Date(a.releaseDate).getFullYear();
+      return (y > 1900 && y <= currentYear) ? y : null;
+    })
+    .filter((y) => y !== null);
+  if (!years.length) return { firstReleaseYear: null, latestReleaseYear: null, catalogAgeYears: null };
+  const first  = Math.min(...years);
+  const latest = Math.max(...years);
+  return { firstReleaseYear: first, latestReleaseYear: latest, catalogAgeYears: latest - first };
+}
+
 // assembleIsrcCoverage — derives ISRC Coverage from provider evidence.
 //
 // Primary source: platforms.appleMusic.details.catalogComparison
@@ -202,6 +223,8 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
     const catalogStatus = deriveCatalogStatus(ownedCount);
     const confidence    = deriveConfidence(safeCanonical);
     const isrcCoverage  = assembleIsrcCoverage(safeCanonical);
+    const { firstReleaseYear, latestReleaseYear, catalogAgeYears } =
+      deriveYearRange(Array.isArray(appleAlbums) ? appleAlbums : []);
 
     return deepFreeze({
       singles,
@@ -211,6 +234,9 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
       catalogStatus,
       confidence,
       isrcCoverage,
+      firstReleaseYear,
+      latestReleaseYear,
+      catalogAgeYears,
     });
   } catch (err) {
     console.error('[catalog-intelligence] assembly threw (returning empty shell):', err?.message || err);
@@ -219,6 +245,7 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
       catalogStatus: 'Limited Catalog',
       confidence: 'Unable to Confirm',
       isrcCoverage: ISRC_UNKNOWN,
+      firstReleaseYear: null, latestReleaseYear: null, catalogAgeYears: null,
     });
   }
 }
