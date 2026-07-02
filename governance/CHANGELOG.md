@@ -19,6 +19,35 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-02 — Apple Production Migration (Phase 3.3)
+
+| | |
+|---|---|
+| **PR** | #189 |
+| **Commit SHA** | `584770d` |
+| **Tag** | `apple-pal-production-migration-v1.0` |
+| **Constitution Version** | v1.3 |
+| **Added** | `api/_lib/apple-pal-acquisition.js` — PAL orchestration module; `acquireAppleEvidence()` (sequential ARTIST_IDENTITY → ALBUMS+ISRC → AVAILABILITY) + `synthesizeAppleMusicCompat()` (V1 module compat shim, TRANSITIONAL). `governance/MIGRATION_RETIREMENT_REGISTER.md` — Board's master legacy retirement checklist. |
+| **Changed** | `provider-acquisition/connectors/apple-music/AppleMusicConnector.js` — `AVAILABILITY` capability upgraded from BIG6 (8 storefronts) to global 167-storefront wave-based fan-out; `TERRITORIES` stays BIG6; `ALL_APPLE_STOREFRONTS` constant embedded. `lib/rie/index.js` — hybrid merge path added (`_mergeApplePalEvidence`, `_deepMerge`): when both `evidencePackages` and `canonicalForEnrichment` provided, PAL Apple evidence deep-merges into legacy canonical with PAL authoritative for `platforms.appleMusic.*`, `subject.*`, `source.*`. `api/_lib/run-scan.js` — Apple acquisition replaced by `acquireAppleEvidence()` running in parallel with all other providers via `Promise.allSettled`; `getAppleMusic()` removed from fan-out; legacy Apple imports marked `[RETIRED CANDIDATE]`; `evidencePackages` added to return value; `appleArtworkUrl` populated from PAL evidence for Spotify-URL inputs. `api/audit.js` — `evidencePackages: result.evidencePackages` threaded into `runRIE()`. |
+| **Removed** | Direct `getAppleMusic()` call from production scan path. |
+| **Tests** | pipeline-test 226/226, golden-fixture 31/31, rie-phase1 25/25, identity-wiring 19/19, publishing-intelligence 26/26, health-engine 36/36. |
+
+---
+
+## 2026-07-02 — One Health Engine (Phase 3.2)
+
+| | |
+|---|---|
+| **PR** | #188 |
+| **Commit SHA** | `aca5571` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `lib/rie/CimAdapter.js` — `buildCimEnrichment(cim, baseCanonical)` migration bridge; maps CIM → legacy canonical fields for backward-compat consumers. `lib/rie/__tests__/scan-migration.test.js` — 36-criterion test suite enforcing CimAdapter boundaries and One Health Engine invariants. |
+| **Changed** | `api/_lib/persist-os-scan.js` — health score sourced from `cim.health.score` (via CimAdapter output) instead of `computeV2HealthScore`. `api/audit.js` — OS enrichment path migrated to `buildCimEnrichment(cim, canonical)` pattern; `canonical.cim` carries full certified CIM for Phase 3.2+ consumers. `api/lib/normalizeAuditResponse.js`, `api/schema/auditResponse.js`, `generate_audit_pdf.py` — schema alignment updates. `lib/rie/index.js` — `runRIE()` updated to return certified CIM (Phase 2.4 PAL path activated). |
+| **Removed** | `computeV2HealthScore()` removed from production paths (zero consumers; V2 function body retired). |
+
+---
+
 ## 2026-06-20 — Phase 8: Scan Pipeline Wiring — Health & Executive Brief
 
 | | |

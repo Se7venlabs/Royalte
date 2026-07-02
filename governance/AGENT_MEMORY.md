@@ -28,15 +28,18 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently locked phase | **Phase 8 — Royaltē Executive Brief Engine™** |
-| Locked at | `8f00014` |
-| Tag | — |
-| Effective | 2026-06-12 |
-| Next anticipated phase | per future Board directives (no brief authorised yet) |
+| Most recently completed phase | **Phase 3.3 — Apple Production Migration** |
+| Merged at | `584770d` (PR #189, 2026-07-02) |
+| Tag | `apple-pal-production-migration-v1.0` |
+| Prior phase | Phase 3.2 — One Health Engine (`aca5571`, PR #188, 2026-07-02) |
+| Active direction | Migration project — reduce legacy footprint per provider; no new architecture |
+| Next Board gate | Board authorizes next provider migration (Spotify recommended; Board decides) |
 
-Phase 6 lock point: `a23788b` / tag `intelligence-engine-v1.0`. Phase 6.5 lock point: `52b1750`. Phase 7 lock point: `ec57481`. Phase 7.5 lock point: `38ec3be`.
+**Migration epoch:** Royaltē is now in its OS Migration phase. The constitutional production architecture has been proven in production with Apple Music (PR #189). Every subsequent phase migrates one more legacy provider into the PAL → RIE → CIM pipeline. No new architecture is required — only repetition of the proven blueprint.
 
-The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`.
+Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`.
+
+The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`. The legacy retirement checklist lives in `governance/MIGRATION_RETIREMENT_REGISTER.md`.
 
 ---
 
@@ -124,11 +127,13 @@ Test suites (13, all deterministic) live under `tests/`. Pipeline regression is 
 
 | | |
 |---|---|
-| Scan Experience V1 | **DESIGN FROZEN** (PR #122 held; will merge when intel wiring is complete) |
-| Intelligence-Wiring Sprint | Phases 1–6 **COMPLETE** |
-| Next | Phase 7 — wire `runIntelligenceEngine` into `/api/audit`. No brief authorised yet. |
-| Beta target | June 1, 2026 (per `LAUNCH_CHECKLIST.md`) |
-| Live intelligence sources to wire (per Board roadmap) | Spotify · Apple Music · MusicBrainz · Discogs · Listen Notes · YouTube · MLC Public API · MLC Bulk Data Feed |
+| Active direction | **OS Migration** — eliminate legacy provider acquisition one provider at a time |
+| Migration blueprint | Apple Production Migration (PR #189, 2026-07-02) — proven in production |
+| First migrated provider | **Apple Music** — fully constitutional (PAL → AppleMusicConnector → Evidence Contract → RIE → CIM) |
+| Next provider | Board-authorized only; Spotify recommended as highest impact |
+| Legacy retirement register | `governance/MIGRATION_RETIREMENT_REGISTER.md` — living Board checklist |
+| Engineering rule | Every migration must leave LESS legacy than it started with (Board Directive 2026-07-02) |
+| One Health Engine | `cim.health.score` is the sole authoritative health score (PR #188, 2026-07-02) |
 
 ---
 

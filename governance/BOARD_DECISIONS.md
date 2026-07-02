@@ -11,6 +11,52 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-02 — Engineering Rule: Every Migration Must Leave Less Legacy
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Effective immediately: every provider migration must reduce the legacy footprint — it must never increase it. Each migration must migrate ownership, reduce compatibility code, reduce duplicate logic, reduce duplicate provider calls, and reduce duplicate business rules. The Migration Retirement Register (`governance/MIGRATION_RETIREMENT_REGISTER.md`) is the Board's master checklist for tracking and retiring every transitional component. |
+| **Reason** | The Apple Production Migration established the blueprint. Future migrations must follow the same discipline and leave the codebase measurably smaller in legacy debt after each phase. |
+| **Impact** | All future migration briefs must include a legacy retirement delta (components moving from TRANSITIONAL → READY FOR RETIREMENT → RETIRED). The register is updated after every migration. |
+| **Vote** | Board Approved |
+| **PR Number** | #189 |
+| **Commit SHA** | `584770d` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-02 — Apple Production Migration (Phase 3.3) — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Apple Music is now the first production provider fully migrated into the Royaltē Operating System. All Apple acquisition routes exclusively through the Provider Acquisition Layer → AppleMusicConnector → Evidence Contract → Royaltē Intelligence Engine. `run-scan.js` no longer owns Apple acquisition logic. `getAppleMusic()` has zero production callers and is marked READY FOR RETIREMENT. The `AppleMusicConnector` gains global 167-storefront AVAILABILITY capability. The RIE gains a constitutional hybrid merge path for the transitional period while other providers migrate. |
+| **Reason** | The Board's migration directive required proving the constitutional production architecture can successfully replace the legacy production path while preserving all existing functionality. PR #189 achieves this objective and establishes the migration blueprint every subsequent provider will follow. |
+| **Impact** | Production architecture is now: Artist → run-scan → PAL → AppleMusicConnector → Evidence Contract → RIE → CIM → Products. This is the constitutional production blueprint. Future provider migrations (Spotify, MusicBrainz, Deezer, etc.) follow this exact pattern without inventing new architecture. |
+| **Vote** | Board Approved — full acceptance testing passed |
+| **PR Number** | #189 |
+| **Commit SHA** | `584770d` |
+| **Tag** | `apple-pal-production-migration-v1.0` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-02 — One Health Engine (Phase 3.2) — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | `cim.health.score` is now the sole authoritative health score in production. `computeV2HealthScore` is retired with zero production consumers. `persist-os-scan.js` reads health from `cim.health` (the Royaltē Health Engine™ output) exclusively. The CimAdapter carries `cim.health` forward as the backward-compat `canonical.health` field. |
+| **Reason** | Two health score sources created ambiguity. The V2 signal-driven score and the constitutional Health Engine score coexisted. One Health Engine eliminates this duplication — the CIM is the single source of truth for health, scores, grades, and drivers. |
+| **Impact** | Every health surface (Mission Control health card, audit health badge, executive brief, PDF) reads from one source: the constitutional Royaltē Health Engine™. `computeV2HealthScore` function retired and removed from production paths. |
+| **Vote** | Board Approved |
+| **PR Number** | #188 |
+| **Commit SHA** | `aca5571` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-06-25 — Mission Control Module Freeze Directive
 
 | | |
