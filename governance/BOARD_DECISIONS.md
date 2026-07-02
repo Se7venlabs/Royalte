@@ -11,6 +11,22 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-02 — Phase 3.5 — Royaltē OS v1.0 Board Certification — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Board ratifies Phase 3.5 — Royaltē OS v1.0 Certification Sprint. The Board Certification Harness (308 assertions, 5 suites, 0 failures) is accepted as the permanent certification infrastructure for the platform. `royalte-os-v1.0` is the official certified baseline. The `deepFreeze` bug in `backend-intelligence.js` (arrays skipped by `!Array.isArray(v)` guard) is accepted as fixed. The determinism policy (excluding provenance-only timestamps from comparison) is ratified. |
+| **Directives adopted** | (1) Intelligence Engine, Health Engine, Rule Library, and RIE changes require 100% harness pass before merge. (2) CIM schema changes require Suite 04 updates + 100% harness pass before merge. (3) No release tag may be created unless harness exits 0 and GitHub CI is green. (4) Certification Artist Library and Golden Fixture Library are append-only — existing fixtures never modified. (5) The certified OS v1.0 architecture is frozen for production. No changes to IE/Health/RIE without Board brief. |
+| **Impact** | Royaltē OS v1.0 is the certified production baseline. Phase 3.5 sprints A–F (dead code, ArtistNameAdapter, vocabulary, CimAdapter/Spotify, ISRC Coverage, Publishing expansion) remain Board-deferred until authorized individually. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Number** | #192 (harness) · #193 (governance backfill) |
+| **Commit SHA** | `65c5c16` (harness) |
+| **Tag** | `royalte-os-v1.0` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-02 — Phase 3.4 Product Consumption Cleanup — RATIFIED
 
 | | |

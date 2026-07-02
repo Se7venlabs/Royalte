@@ -40,8 +40,10 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | 3.1 | CimAdapter + scan-migration test suite | ✅ Complete | `77c827a` | — |
 | 3.2 | One Health Engine | ✅ Complete | `aca5571` | — |
 | 3.3 | Apple Production Migration | ✅ Complete | `584770d` | `apple-pal-production-migration-v1.0` |
-| 3.4 | Product Consumption Cleanup | ✅ Complete | `8a71df7` (pending merge) | `phase-3-4-product-consumption-cleanup-v1.0` |
-| 3.5 | Next provider migration | ⬜ Board authorization required | — | — |
+| 3.4 | Product Consumption Cleanup | ✅ Complete | `8a71df7` | `phase-3-4-product-consumption-cleanup-v1.0` |
+| 3.5 | Royaltē OS v1.0 Certification Sprint | ✅ Complete | `65c5c16` | `royalte-os-v1.0` |
+| 3.5-backfill | Phase 3.5 Governance Backfill | ✅ Complete | (pending merge) | — |
+| 3.6 | Next phase (Board authorization required) | ⬜ Board authorization required | — | — |
 
 ---
 
@@ -56,6 +58,13 @@ from Apple Production Migration (PR #189, 2026-07-02).
   - **Royaltē Health Engine™** at `api/_lib/health-engine.js` — `computeHealthScore(intelligenceReport)` sole scoring authority; Board-locked weights and grade thresholds; pure, deterministic, deeply frozen output
   - **Royaltē Executive Brief Engine™** at `api/_lib/executive-brief-engine.js` — `generateExecutiveBrief(cio, intelligenceReport, healthReport, canonicalHealth)` sole entrypoint; presentation layer only; never scores, never invents
   - **Se7ven Labs IP Vault™** at `/ip/` — permanent internal corporate IP register (24 markdown files); survives product lifecycles, mergers, acquisitions
+- **Royaltē OS v1.0 is the certified production baseline** (Phase 3.5, PR #192, tag `royalte-os-v1.0` at `65c5c16`, 2026-07-02):
+  - **Board Certification Harness™** at `tests/certification/harness.mjs` — 5 suites, 308 assertions, exit 0 = CERTIFIED; permanent certification gate
+  - **Certification Artist Library** at `tests/certification/artist-library/` — 12 archetypes covering full range of real-world edge cases; append-only
+  - **Determinism certified:** same evidence always produces the same CIM (verified 10 runs IE + 5 runs full RIE with fixed clock)
+  - **Performance baseline:** Full RIE pipeline p95 = 0.31ms (budget 500ms); Intelligence Engine p95 = 0.07ms
+  - **`deepFreeze` bug fixed** in `api/_lib/backend-intelligence.js` — arrays now properly frozen in the CIM
+  - **Certification gates locked:** IE, Health Engine, Rule Library, RIE changes require 100% harness pass before merge; release tags require harness + CI green
 - **Phase 8 scan pipeline wiring** (`api/audit.js`): every scan now runs the full constitutional pipeline end-to-end:
   - `runIntelligenceEngine(cio, ALL_RULES)` → `computeHealthScore(report)` [once] → `generateHealthReport(cio, report)` → `generateExecutiveBrief(cio, report, healthReport, healthScore)` → persists `healthScore`, `healthReport`, `executiveBrief` in the enriched scan payload
   - `computeHealthScore()` called exactly once per scan; canonical result passed downstream, never re-derived
@@ -75,7 +84,16 @@ from Apple Production Migration (PR #189, 2026-07-02).
 
 ## Next Engineering Target
 
-**Phase 9+ is pending a Board brief.** The Intelligence Stack is fully wired. Next targets are expected to include Mission Control™ data wiring and scan UI intelligence display.
+**Royaltē OS v1.0 is certified.** The next phase requires explicit Board authorization. Options pending Board direction:
+- **Phase 3.6 — Spotify PAL Migration** — migrate Spotify acquisition from legacy direct path to PAL → SpotifyConnector → Evidence Contract → RIE
+- **Phase 3.5 Sprint A** — dead code retirement (10 V1 stubs: `public/index.html`, `api/lib/health-score.js`, `v2-health-score-test.mjs`, `window.__royalteScan.score` field)
+- **Phase 3.5 Sprint B** — ArtistNameAdapter (normalize Spotify artist name vs Apple Music display name)
+- **Phase 3.5 Sprint C** — vocabulary alignment (Health status label convergence across products)
+- **Phase 3.5 Sprint D** — CimAdapter + Spotify PAL integration test
+- **Phase 3.5 Sprint E** — ISRC Coverage real-data validation against live tracks
+- **Phase 3.5 Sprint F** — Publishing expansion (ASCAP/BMI/SOCAN adapter)
+
+No sprint begins until the Board issues a formal brief.
 
 ---
 
