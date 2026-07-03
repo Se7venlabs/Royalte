@@ -1702,98 +1702,99 @@ body {
 }
 .mc-pi-system-name { color: var(--mc-text-soft); }
 
-/* Section 4 — Financial Impact (auto-placed left col on desktop) */
+/* Section 4 — Financial Impact — executive brief style (Amendment 2) */
 .mc-pi-impact {
   background: var(--mc-surface-2);
   border: 1px solid var(--mc-divider);
   border-radius: var(--mc-r-2);
-  padding: 8px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
-.mc-pi-impact .mc-hi-section-label { color: #D56BFF; margin-bottom: 4px; }
+.mc-pi-impact .mc-hi-section-label { color: #D56BFF; margin-bottom: 2px; }
 .mc-pi-impact-badge {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 3px 7px;
+  padding: 2px 6px;
   border-radius: 20px;
   display: inline-flex;
   align-self: flex-start;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .mc-pi-impact-badge--low    { background: rgba(34,197,94,0.15);  color: #4ade80; }
 .mc-pi-impact-badge--medium { background: rgba(251,146,60,0.15); color: var(--mc-orange); }
 .mc-pi-impact-badge--high   { background: rgba(248,113,113,0.15); color: #f87171; }
-.mc-pi-impact-royalty-label,
-.mc-pi-impact-resolution-label {
-  font-size: 8.5px;
-  letter-spacing: 0.12em;
+/* Labels recede — the explanation is the message */
+.mc-pi-impact-royalty-label {
+  font-size: 8px;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--mc-text-muted);
   font-weight: 600;
-  margin-top: 6px;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
+/* The explanation is the dominant text in this section */
 .mc-pi-impact-body {
-  font-size: 11px;
-  color: var(--mc-text-soft);
-  line-height: 1.45;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--mc-text);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+.mc-pi-impact-resolution-label {
+  font-size: 8px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  font-weight: 600;
+  margin-bottom: 2px;
 }
 .mc-pi-impact-resolution-val {
   font-size: 11px;
+  font-weight: 500;
   color: var(--mc-text-soft);
 }
 
-/* Section 5 — Biggest Publishing Risk (auto-placed right col on desktop) */
-.mc-pi-risk {
+/* Sections 5 + 6 — Risk + Win: support Financial Impact, don't compete */
+.mc-pi-risk,
+.mc-pi-win {
   background: var(--mc-surface-2);
   border: 1px solid var(--mc-divider);
   border-radius: var(--mc-r-2);
-  padding: 8px;
+  padding: 6px 8px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
-.mc-pi-risk .mc-hi-section-label { color: #f59e0b; margin-bottom: 4px; }
+.mc-pi-risk .mc-hi-section-label { color: #f59e0b; margin-bottom: 3px; }
+.mc-pi-win  .mc-hi-section-label { color: #D56BFF; margin-bottom: 3px; }
 .mc-pi-highlight-icon {
-  font-size: 13px;
+  font-size: 11px;
   line-height: 1;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
-.mc-pi-risk  .mc-pi-highlight-icon { color: #f59e0b; }
-.mc-pi-win   .mc-pi-highlight-icon { color: #D56BFF; }
+.mc-pi-risk .mc-pi-highlight-icon { color: #f59e0b; }
+.mc-pi-win  .mc-pi-highlight-icon { color: #D56BFF; }
 .mc-pi-highlight-title {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--mc-text);
   line-height: 1.35;
 }
 .mc-pi-highlight-meta {
-  font-size: 10.5px;
-  color: var(--mc-text-muted);
-  margin-top: 2px;
-}
-.mc-pi-resolution {
   font-size: 10px;
   color: var(--mc-text-muted);
-  margin-top: 3px;
+  margin-top: 1px;
+}
+.mc-pi-resolution {
+  font-size: 9.5px;
+  color: var(--mc-text-muted);
+  margin-top: 2px;
   font-style: italic;
 }
-
-/* Section 6 — Biggest Publishing Win */
-.mc-pi-win {
-  background: var(--mc-surface-2);
-  border: 1px solid var(--mc-divider);
-  border-radius: var(--mc-r-2);
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.mc-pi-win .mc-hi-section-label { color: #D56BFF; margin-bottom: 4px; }
 
 /* Section 7 — Recent Publishing Changes */
 .mc-pi-changes-list {
