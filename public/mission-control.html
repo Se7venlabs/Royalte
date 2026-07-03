@@ -1447,6 +1447,162 @@ body {
   letter-spacing: 0.04em;
 }
 
+/* ─── Identity Intelligence™ — Sprint 3.3 — 6-section executive passport ─ */
+
+.mc-id-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+/* Sections that span both columns */
+.mc-id-coverage-section,
+.mc-id-summary,
+.mc-id-providers-section,
+.mc-id-changes-section { grid-column: 1 / -1; }
+
+/* Section 1 — Identity Coverage */
+.mc-id-coverage-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-id-score-display { display: flex; align-items: baseline; gap: 3px; }
+.mc-id-score-num {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--mc-blue);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.mc-id-score-denom { font-size: 14px; color: var(--mc-text-muted); font-weight: 400; }
+.mc-id-coverage-grade { font-size: 13px; font-weight: 600; color: var(--mc-blue); }
+.mc-id-coverage-sub   { font-size: 11px; color: var(--mc-text-muted); margin-top: 2px; }
+
+/* Section 2 — Identity Summary counts */
+.mc-id-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-id-sum-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-divider);
+  border-radius: var(--mc-r-1);
+  padding: 6px 4px;
+}
+.mc-id-sum-count {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mc-blue);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.mc-id-sum-label {
+  font-size: 9px;
+  color: var(--mc-text-muted);
+  text-align: center;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+}
+.mc-id-sum-item--warn   .mc-id-sum-count { color: var(--mc-orange); }
+.mc-id-sum-item--danger .mc-id-sum-count { color: #f87171; }
+.mc-id-sum-item--muted  .mc-id-sum-count { color: var(--mc-text-muted); }
+
+/* Section 3 — Identity Providers */
+.mc-id-providers-section {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-id-provider-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mc-id-provider-row {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--mc-text-soft);
+}
+.mc-id-provider-name { color: var(--mc-text-soft); }
+
+/* Sections 4 + 5 — Biggest Win + Biggest Risk (auto-placed side-by-side) */
+.mc-id-win,
+.mc-id-risk {
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-divider);
+  border-radius: var(--mc-r-2);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mc-id-win  .mc-hi-section-label { color: var(--mc-blue); margin-bottom: 4px; }
+.mc-id-risk .mc-hi-section-label { color: #f59e0b;        margin-bottom: 4px; }
+.mc-id-highlight-icon {
+  font-size: 13px;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.mc-id-win  .mc-id-highlight-icon { color: var(--mc-blue); }
+.mc-id-risk .mc-id-highlight-icon { color: #f59e0b; }
+.mc-id-highlight-title {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--mc-text);
+  line-height: 1.35;
+}
+.mc-id-highlight-meta { font-size: 10.5px; color: var(--mc-text-muted); }
+
+/* Section 6 — Recent Changes */
+.mc-id-changes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mc-id-changes-list li {
+  font-size: 11.5px;
+  color: var(--mc-text-soft);
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.mc-id-changes-list li::before {
+  content: '·';
+  color: var(--mc-blue);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Mobile — priority order: Coverage → Risk → Summary → Providers → Win → Changes */
+@media (max-width: 540px) {
+  .mc-id-body              { grid-template-columns: 1fr; }
+  .mc-id-coverage-section  { order: 1; }
+  .mc-id-risk              { order: 2; }
+  .mc-id-summary           { order: 3; }
+  .mc-id-providers-section { order: 4; }
+  .mc-id-win               { order: 5; }
+  .mc-id-changes-section   { order: 6; }
+  .mc-id-summary           { grid-template-columns: repeat(2, 1fr); }
+}
+
 /* ─── publishing card ─── Board-approved premium executive design ── */
 
 .mc-pub-body {
@@ -3427,97 +3583,107 @@ body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
           </div>
           <div class="mc-card-title">IDENTITY INTELLIGENCE™</div>
         </div>
-        <div class="mc-identity-body">
-          <div class="mc-fp-scope" aria-hidden="true">
-            <svg viewBox="0 0 96 96">
-              <circle class="mc-fp-pulse-1"    cx="48" cy="48" r="42"/>
-              <circle class="mc-fp-pulse-2"    cx="48" cy="48" r="42"/>
-              <circle class="mc-fp-ring-track" cx="48" cy="48" r="42"/>
-              <circle class="mc-fp-ring"       cx="48" cy="48" r="42"/>
-            </svg>
-            <div class="mc-fp-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 12a8 8 0 0 1 16 0v1"/>
-                <path d="M7 12a5 5 0 0 1 10 0v3.5"/>
-                <path d="M10 12a2 2 0 0 1 4 0v5.5"/>
-                <path d="M12 14v6.5"/>
-                <path d="M4.5 16c.5 2 1.6 3.8 3 5"/>
-                <path d="M19.5 16c-.5 2-1.6 3.8-3 5"/>
-                <path d="M9 17.5v2.5"/>
-                <path d="M15 17.5v2.5"/>
-                <path d="M6.5 14.5c.2-1 .5-2 1-3"/>
-                <path d="M17.5 14.5c-.2-1-.5-2-1-3"/>
-              </svg>
+        <!-- Sprint 3.3: Identity Intelligence™ executive passport — 6 sections.
+             Constitutional owner for all values: Identity Intelligence Engine™.
+             Mission Control displays only. Never computes, scores, or verifies. -->
+        <div class="mc-id-body">
+
+          <!-- Section 1: Identity Coverage
+               Owner: Identity Intelligence Engine™ (ii.coverage / verifiedProviders / totalProviders) -->
+          <div class="mc-id-coverage-section">
+            <div class="mc-id-score-display">
+              <span class="mc-id-score-num" data-mc-id-coverage>—</span>
+              <span class="mc-id-score-denom">%</span>
+            </div>
+            <div class="mc-id-coverage-grade" data-mc-id-coverage-grade>—</div>
+            <div class="mc-id-coverage-sub"   data-mc-id-coverage-sub>— of — verified</div>
+          </div>
+
+          <!-- Section 2: Identity Summary counts
+               Owner: Identity Intelligence Engine™ (provider state map) -->
+          <div class="mc-id-summary">
+            <div class="mc-id-sum-item">
+              <span class="mc-id-sum-count" data-mc-id-sum-verified>—</span>
+              <span class="mc-id-sum-label">Verified</span>
+            </div>
+            <div class="mc-id-sum-item mc-id-sum-item--warn">
+              <span class="mc-id-sum-count" data-mc-id-sum-action>—</span>
+              <span class="mc-id-sum-label">Needs Attention</span>
+            </div>
+            <div class="mc-id-sum-item mc-id-sum-item--danger">
+              <span class="mc-id-sum-count" data-mc-id-sum-missing>—</span>
+              <span class="mc-id-sum-label">Not Found</span>
+            </div>
+            <div class="mc-id-sum-item mc-id-sum-item--muted">
+              <span class="mc-id-sum-count" data-mc-id-sum-unavailable>—</span>
+              <span class="mc-id-sum-label">Unavailable</span>
             </div>
           </div>
-          <div class="mc-identity-header">
-            <!-- Phase 4B-3: coverage indicator. Value + label + summary
-                 are populated at runtime by /js/mission-control.js from
-                 audit_scans.payload.identityIntelligence. Coverage is
-                 INFORMATIONAL provider coverage (Board R) — never a
-                 Health Score. Royaltē Health™ owns executive scoring. -->
-            <div class="mc-identity-value" data-mc-identity-coverage-value>72<small>%</small></div>
-            <div class="mc-identity-label" data-mc-identity-coverage-label>Identity Coverage</div>
-            <div class="mc-identity-sub"   data-mc-identity-coverage-summary>3 of 4 providers verified</div>
-          </div>
-        </div>
-        <!-- Phase 4B-3 — Identity provider row.
 
-             Each card carrying [data-mc-identity-provider="<key>"] is
-             iterated at runtime by /js/mission-control.js using the
-             locked Identity Intelligence™ object's `supportedProviders`
-             array. Card count is dynamic — Mission Control never
-             assumes 3 or 4 providers (Board R7 + R8). When a future
-             provider is added to IDENTITY_PROVIDERS upstream, a new
-             card with the matching data-mc-identity-provider attribute
-             is the only HTML edit required here.
+          <!-- Section 3: Identity Providers
+               Constitutional (apple/spotify/youtube): owner = Identity Intelligence Engine™.
+               Platform (deezer/tidal): owner = Evidence Bridge™ via payload.platforms.*.availability.
+               Future providers: add a row with data-mc-id-provider="<key>" — no JS rewrite needed. -->
+          <div class="mc-id-providers-section">
+            <div class="mc-hi-section-label">Identity Providers</div>
+            <div class="mc-id-provider-list">
+              <div class="mc-id-provider-row" data-mc-id-provider="apple">
+                <img class="mc-identity-platform" src="/img/identity/apple.png" alt="">
+                <span class="mc-id-provider-name">Apple Music for Artists</span>
+                <span class="mc-pill mc-pill--verified" data-mc-id-provider-pill>Verified</span>
+              </div>
+              <div class="mc-id-provider-row" data-mc-id-provider="spotify">
+                <img class="mc-identity-platform" src="/img/identity/spotify.png" alt="">
+                <span class="mc-id-provider-name">Spotify for Artists</span>
+                <span class="mc-pill mc-pill--verified" data-mc-id-provider-pill>Verified</span>
+              </div>
+              <div class="mc-id-provider-row" data-mc-id-provider="youtube">
+                <img class="mc-identity-platform" src="/img/identity/youtube.png" alt="">
+                <span class="mc-id-provider-name">YouTube OAC</span>
+                <span class="mc-pill mc-pill--verified" data-mc-id-provider-pill>Verified</span>
+              </div>
+              <div class="mc-id-provider-row" data-mc-id-provider="deezer">
+                <img class="mc-identity-platform" src="/img/identity/deezer.webp" alt="">
+                <span class="mc-id-provider-name">Deezer</span>
+                <span class="mc-pill mc-pill--unable" data-mc-id-provider-pill>—</span>
+              </div>
+              <div class="mc-id-provider-row" data-mc-id-provider="tidal">
+                <img class="mc-identity-platform" src="/img/identity/tidal.jpg" alt="">
+                <span class="mc-id-provider-name">TIDAL</span>
+                <span class="mc-pill mc-pill--unable" data-mc-id-provider-pill>—</span>
+              </div>
+            </div>
+          </div>
 
-             The Amazon Music card sits OUTSIDE the iterated set per
-             Board R2 + R3 + Constitutional Rule R4: no adapter exists,
-             so Amazon is NOT in supportedProviders, and Mission Control
-             must never render an intelligence state for it. The card
-             stays visually present as static "Coming Soon" informational
-             UI — never an intelligence state badge.
-             -->
-        <div class="mc-identity-checks">
-          <div class="mc-identity-check" data-mc-identity-provider="apple">
-            <img class="mc-identity-platform" src="/img/identity/apple.png" alt="">
-            Apple Music for Artists
-            <span class="mc-pill mc-pill--verified" data-mc-identity-pill>Verified</span>
+          <!-- Section 4: Biggest Identity Risk
+               Owner: Identity Intelligence Engine™ (ii.issues[0])
+               Placed before win in DOM so mobile order puts risk higher. -->
+          <div class="mc-id-risk">
+            <div class="mc-hi-section-label">Biggest Risk</div>
+            <div class="mc-id-highlight-icon" aria-hidden="true">⚠</div>
+            <div class="mc-id-highlight-title" data-mc-id-risk-title>—</div>
+            <div class="mc-id-highlight-meta"  data-mc-id-risk-meta></div>
           </div>
-          <div class="mc-identity-check" data-mc-identity-provider="spotify">
-            <img class="mc-identity-platform" src="/img/identity/spotify.png" alt="">
-            Spotify for Artists
-            <span class="mc-pill mc-pill--verified" data-mc-identity-pill>Verified</span>
+
+          <!-- Section 5: Biggest Identity Win
+               Owner: Evidence Events™ / Identity Intelligence™ (ii.strengths[0]) -->
+          <div class="mc-id-win">
+            <div class="mc-hi-section-label">Biggest Win</div>
+            <div class="mc-id-highlight-icon" aria-hidden="true">▲</div>
+            <div class="mc-id-highlight-title" data-mc-id-win-title>—</div>
+            <div class="mc-id-highlight-meta"  data-mc-id-win-meta></div>
           </div>
-          <div class="mc-identity-check" data-mc-identity-provider="youtube">
-            <img class="mc-identity-platform" src="/img/identity/youtube.png" alt="">
-            YouTube Official Artist Channel
-            <span class="mc-pill mc-pill--verified" data-mc-identity-pill>Verified</span>
+
+          <!-- Section 6: Recent Identity Changes
+               Owner: Evidence Events™ / Identity Intelligence™ (ii.strengths + ii.issues) -->
+          <div class="mc-id-changes-section">
+            <div class="mc-hi-section-label">Recent Changes</div>
+            <ul class="mc-id-changes-list" data-mc-id-changes>
+              <li>Identity data loading</li>
+            </ul>
           </div>
-          <div class="mc-identity-check" data-mc-identity-provider="deezer">
-            <img class="mc-identity-platform" src="/img/identity/deezer.webp" alt="">
-            Deezer
-            <span class="mc-pill mc-pill--unable" data-mc-identity-pill>—</span>
-          </div>
-          <div class="mc-identity-check" data-mc-identity-provider="tidal">
-            <img class="mc-identity-platform" src="/img/identity/tidal.jpg" alt="">
-            TIDAL
-            <span class="mc-pill mc-pill--unable" data-mc-identity-pill>—</span>
-          </div>
-          <!-- Top Track (Deezer) — populated at runtime from
-               platforms.deezer.details.topTracks[0] by mission-control.js.
-               Falls back to sample values when no scan data is present. -->
-          <div class="mc-identity-check mc-identity-check--track" data-mc-identity-top-track>
-            <img class="mc-identity-platform" src="/img/identity/deezer.webp" alt="">
-            <span class="mc-identity-track-meta">
-              <span class="mc-identity-track-row-label">Top Track (Deezer)</span>
-              <span class="mc-identity-track-title" data-mc-identity-top-track-title>Everything Is Over</span>
-              <span class="mc-identity-track-isrc">ISRC: <span data-mc-identity-top-track-isrc>QZTB42642113</span></span>
-            </span>
-          </div>
+
         </div>
-        <div class="mc-card-foot"></div>
       </article>
 
       <!-- Publishing Intelligence™ -->

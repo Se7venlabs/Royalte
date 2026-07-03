@@ -684,6 +684,154 @@ function _hiRecentChanges(hp, mi) {
   return changes.slice(0, 3);
 }
 
+// ─── Identity Intelligence™ plan builders — Sprint 3.3 ──────────────
+//
+// Constitutional Presentation Layer™. Reads ii.* from the locked
+// Identity Intelligence Engine™ output. Never computes, scores,
+// or verifies. All values sourced from the constitutional owner.
+
+const _ID_COVERAGE_GRADE = (pct) => {
+  if (pct >= 90) return 'Excellent Coverage';
+  if (pct >= 70) return 'Strong Coverage';
+  if (pct >= 50) return 'Good Coverage';
+  return 'Needs Attention';
+};
+
+const _ID_STATE_PILL = {
+  'VERIFIED':           { cls: 'mc-pill mc-pill--verified', text: 'Verified' },
+  'ACTION_REQUIRED':    { cls: 'mc-pill mc-pill--action',   text: 'Needs Attention' },
+  'NOT_FOUND':          { cls: 'mc-pill mc-pill--notfound', text: 'Not Found' },
+  'UNABLE_TO_CONFIRM':  { cls: 'mc-pill mc-pill--unable',   text: 'Unavailable' },
+};
+
+function _idPlatformPill(availability) {
+  if (availability === 'VERIFIED')  return _ID_STATE_PILL['VERIFIED'];
+  if (availability === 'NOT_FOUND') return _ID_STATE_PILL['NOT_FOUND'];
+  return _ID_STATE_PILL['UNABLE_TO_CONFIRM'];
+}
+
+function _idSeverityLabel(severity) {
+  if (!severity) return '';
+  const s = String(severity).toUpperCase();
+  if (s === 'HIGH')   return 'High Impact';
+  if (s === 'MEDIUM') return 'Medium Impact';
+  if (s === 'LOW')    return 'Low Impact';
+  return severity;
+}
+
+function buildIdentityIntelligencePlan(payload) {
+  const ii = safeIdentityIntelligence(payload?.identityIntelligence);
+
+  // Section 1 — Coverage
+  const coverage = (ii && typeof ii.coverage === 'number') ? ii.coverage : null;
+  const verifiedCount = ii?.verifiedProviders ?? 0;
+  const totalCount    = ii?.totalProviders    ?? 0;
+  const grade = coverage !== null ? _ID_COVERAGE_GRADE(coverage) : '—';
+  const sub   = totalCount > 0 ? `${verifiedCount} of ${totalCount} verified` : '— of — verified';
+
+  // Section 2 — Summary counts from the provider state map
+  let sumVerified = 0, sumAction = 0, sumMissing = 0, sumUnavailable = 0;
+  if (ii?.providers && typeof ii.providers === 'object') {
+    for (const state of Object.values(ii.providers)) {
+      if      (state === 'VERIFIED')          sumVerified++;
+      else if (state === 'ACTION_REQUIRED')   sumAction++;
+      else if (state === 'NOT_FOUND')         sumMissing++;
+      else                                    sumUnavailable++;
+    }
+  }
+
+  // Section 3 — Provider pills
+  // Constitutional (apple/spotify/youtube) from ii.providers
+  const allProviders = [];
+  if (ii?.supportedProviders && ii?.providers) {
+    for (const p of ii.supportedProviders) {
+      const state = ii.providers[p] || 'UNABLE_TO_CONFIRM';
+      const pill  = _ID_STATE_PILL[state] || _ID_STATE_PILL['UNABLE_TO_CONFIRM'];
+      allProviders.push({ provider: p, ...pill });
+    }
+  }
+  // Platform providers (deezer, tidal) read from payload.platforms
+  for (const p of ['deezer', 'tidal']) {
+    const avail = payload?.platforms?.[p]?.availability;
+    const pill  = _idPlatformPill(avail);
+    allProviders.push({ provider: p, ...pill });
+  }
+
+  // Section 4 — Biggest Risk: first issue
+  const riskIssue = Array.isArray(ii?.issues) ? ii.issues[0] : null;
+  const riskTitle = riskIssue?.label ?? (ii ? 'No critical identity issues' : '—');
+  const riskMeta  = riskIssue ? _idSeverityLabel(riskIssue.severity) : '';
+
+  // Section 5 — Biggest Win: first strength
+  const winStrength = Array.isArray(ii?.strengths) ? ii.strengths[0] : null;
+  const winTitle = winStrength?.label ?? (ii ? 'Identity loaded' : '—');
+  const winMeta  = '';
+
+  // Section 6 — Recent Changes: strengths first, then issues (up to 3)
+  const changes = [];
+  if (ii) {
+    for (const s of (Array.isArray(ii.strengths) ? ii.strengths : []).slice(0, 2)) {
+      if (s?.label) changes.push(s.label);
+    }
+    for (const issue of (Array.isArray(ii.issues) ? ii.issues : [])) {
+      if (changes.length >= 3) break;
+      if (issue?.label) changes.push(issue.label);
+    }
+  }
+  if (changes.length === 0) changes.push('Identity data loaded');
+
+  return { coverage, grade, sub, sumVerified, sumAction, sumMissing, sumUnavailable, allProviders, riskTitle, riskMeta, winTitle, winMeta, changes };
+}
+
+function applyIdentityIntelligencePlan(plan) {
+  if (!plan) return;
+  const q  = (s) => document.querySelector(s);
+  const qa = (s) => Array.from(document.querySelectorAll(s));
+
+  // Section 1 — Coverage
+  const scoreEl = q('[data-mc-id-coverage]');
+  if (scoreEl) scoreEl.textContent = plan.coverage !== null ? String(plan.coverage) : '—';
+  const gradeEl = q('[data-mc-id-coverage-grade]');
+  if (gradeEl) gradeEl.textContent = plan.grade;
+  const subEl = q('[data-mc-id-coverage-sub]');
+  if (subEl)   subEl.textContent   = plan.sub;
+
+  // Section 2 — Summary counts
+  const sv = q('[data-mc-id-sum-verified]');    if (sv) sv.textContent = String(plan.sumVerified);
+  const sa = q('[data-mc-id-sum-action]');      if (sa) sa.textContent = String(plan.sumAction);
+  const sm = q('[data-mc-id-sum-missing]');     if (sm) sm.textContent = String(plan.sumMissing);
+  const su = q('[data-mc-id-sum-unavailable]'); if (su) su.textContent = String(plan.sumUnavailable);
+
+  // Section 3 — Provider pills
+  for (const entry of plan.allProviders) {
+    const row  = q(`[data-mc-id-provider="${entry.provider}"]`);
+    if (!row) continue;
+    const pill = row.querySelector('[data-mc-id-provider-pill]') || row.querySelector('.mc-pill');
+    if (!pill) continue;
+    pill.className   = entry.cls;
+    pill.textContent = entry.text;
+  }
+
+  // Section 4 — Biggest Risk
+  const rt = q('[data-mc-id-risk-title]'); if (rt) rt.textContent = plan.riskTitle;
+  const rm = q('[data-mc-id-risk-meta]');  if (rm) rm.textContent = plan.riskMeta;
+
+  // Section 5 — Biggest Win
+  const wt = q('[data-mc-id-win-title]'); if (wt) wt.textContent = plan.winTitle;
+  const wm = q('[data-mc-id-win-meta]');  if (wm) wm.textContent = plan.winMeta;
+
+  // Section 6 — Recent Changes (textContent-safe DOM build)
+  const changesList = q('[data-mc-id-changes]');
+  if (changesList) {
+    changesList.innerHTML = '';
+    for (const c of plan.changes.slice(0, 3)) {
+      const li = document.createElement('li');
+      li.textContent = c;
+      changesList.appendChild(li);
+    }
+  }
+}
+
 function buildHealthIntelligencePlan(payload, plans) {
   const hp = plans.healthPlan;  // from renderHealth() — Health Intelligence Engine™
   const hr = payload?.healthReport;
@@ -1001,15 +1149,16 @@ if (typeof window !== 'undefined') {
     // Consumed by __mcRevealHero() to write [data-mc-page-title].
     _vaultPlans.artistName = payload.subject?.artistName || payload.artistName || null;
 
-    // Identity
+    // Identity — Sprint 3.3: executive plan (idPlan) replaces per-slice plans
     const ii = safeIdentityIntelligence(payload.identityIntelligence);
     if (ii) {
       const plan = renderIdentity(ii);
-      _vaultPlans.identityCoverage        = plan.coverage;
-      _vaultPlans.identityProviders       = plan.providers;
-      _vaultPlans.identityRecommendations = plan.recommendations;
+      _vaultPlans.identityCoverage        = plan.coverage;        // legacy
+      _vaultPlans.identityProviders       = plan.providers;       // legacy
+      _vaultPlans.identityRecommendations = plan.recommendations; // still used by ai-insights
     }
-    _vaultPlans.payload = payload; // Deezer / Tidal / top-track need the full payload
+    _vaultPlans.idPlan  = buildIdentityIntelligencePlan(payload);
+    _vaultPlans.payload = payload; // platform data (deezer/tidal) read by idPlan builder
 
     // Publishing
     const pi = safePublishingIntelligence(payload.publishingIntelligence);
@@ -1101,18 +1250,27 @@ if (typeof window !== 'undefined') {
         break;
       }
       case 'identity-intelligence': {
-        const { identityCoverage, identityProviders, payload } = _vaultPlans;
-        if (identityCoverage)  applyCoveragePlan(identityCoverage);
-        if (identityProviders) applyProvidersPlan(identityProviders);
-        if (payload) {
-          applyDeezerStatus(payload);
-          applyTidalStatus(payload);
-          applyDeezerTopTrack(payload);
+        // Sprint 3.3: applyIdentityIntelligencePlan writes all 6 sections.
+        // Count-up on [data-mc-id-coverage] provides the executive reveal.
+        const plan = _vaultPlans.idPlan;
+        if (plan) {
+          applyIdentityIntelligencePlan(plan);
+          if (plan.coverage !== null) {
+            const coverageEl = document.querySelector('[data-mc-id-coverage]');
+            if (coverageEl) {
+              const target = plan.coverage;
+              const dur    = 1200;
+              const t0     = performance.now();
+              (function countUp(now) {
+                const t     = Math.min((now - t0) / dur, 1);
+                const eased = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+                coverageEl.textContent = String(Math.round(target * eased));
+                if (t < 1) requestAnimationFrame(countUp);
+                else coverageEl.textContent = String(target);
+              })(performance.now());
+            }
+          }
         }
-        // _blankSentinelData set stroke-dasharray="0 264" via JS attribute;
-        // removing it restores the CSS pulse animation.
-        const fpRing = document.querySelector('#identity-intelligence .mc-fp-ring');
-        if (fpRing) fpRing.removeAttribute('stroke-dasharray');
         break;
       }
       case 'publishing-intelligence': {
