@@ -78,6 +78,10 @@
       "dest": "/public/demo.html"
     },
     {
+      "src": "/what-we-do",
+      "dest": "/public/what-we-do.html"
+    },
+    {
       "src": "/faq.html",
       "dest": "/public/faq.html"
     },

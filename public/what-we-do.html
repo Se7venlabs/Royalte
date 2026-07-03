@@ -7,7 +7,7 @@
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://royalte.ai/what-we-do.html">
+<meta property="og:url" content="https://royalte.ai/what-we-do">
 <meta property="og:title" content="What We Do — Royaltē Music Backend Intelligence™">
 <meta property="og:description" content="Royaltē continuously monitors your music across trusted industry authorities, detects meaningful changes, and alerts you before they impact your royalties, discoverability, or professional presence.">
 <meta property="og:image" content="https://royalte.ai/og-image.jpg">
@@ -22,6 +22,32 @@
 <meta name="twitter:image" content="https://royalte.ai/og-image.jpg">
 
 <meta name="description" content="Royaltē continuously monitors your music across trusted industry authorities, detects meaningful changes, and alerts you before they impact your royalties, discoverability, or professional presence.">
+
+<!-- Canonical URL (clean — no .html extension) -->
+<link rel="canonical" href="https://royalte.ai/what-we-do">
+
+<!-- Schema.org structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "What We Do — Royaltē Music Backend Intelligence™",
+  "description": "Royaltē continuously monitors your music across trusted industry authorities, detects meaningful changes, and alerts you before they impact your royalties, discoverability, or professional presence.",
+  "url": "https://royalte.ai/what-we-do",
+  "inLanguage": "en-US",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Royaltē",
+    "url": "https://royalte.ai"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Se7ven Labs LLC",
+    "url": "https://royalte.ai",
+    "description": "Royaltē is an independent Music Backend Intelligence™ platform."
+  }
+}
+</script>
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -92,9 +118,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;d
 @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
 .wwd-h1{font-family:'Rajdhani',sans-serif;font-size:clamp(38px,4.5vw,68px);font-weight:700;line-height:1.0;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:24px;}
 .wwd-h1 .accent{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.wwd-subhead{font-size:17px;color:var(--text2);line-height:1.75;margin-bottom:36px;max-width:520px;}
-.wwd-cta-primary{display:inline-flex;align-items:center;gap:10px;background:var(--grad);color:#fff;padding:16px 32px;border-radius:5px;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;transition:opacity 0.2s;width:fit-content;}
-.wwd-cta-primary:hover{opacity:0.88;}
+.wwd-subhead{font-size:17px;color:var(--text2);line-height:1.75;margin-bottom:36px;max-width:460px;}
+.wwd-cta-primary{display:inline-flex;align-items:center;gap:10px;background:var(--grad);color:#fff;padding:16px 32px;border-radius:5px;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;transition:opacity 0.2s,box-shadow 0.2s;width:fit-content;box-shadow:0 0 24px rgba(138,92,255,0.45),0 0 56px rgba(138,92,255,0.2);}
+.wwd-cta-primary:hover{opacity:0.92;box-shadow:0 0 36px rgba(138,92,255,0.65),0 0 80px rgba(138,92,255,0.3);}
 .wwd-cta-primary svg{flex-shrink:0;}
 
 /* ── HERO ARTWORK (CSS/SVG ecosystem visual) ── */
@@ -188,6 +214,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;d
 .brief-row-val.ok{color:var(--grn);}
 .brief-row-val.warn{color:var(--amb);}
 .brief-row-val.err{color:var(--red);}
+
+/* ── SECTION 5B: TRUSTED INDUSTRY AUTHORITIES ── */
+.auth-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:40px;}
+.auth-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:20px 22px;transition:border-color 0.2s;}
+.auth-card:hover{border-color:var(--border2);}
+.auth-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#fff;margin-bottom:5px;}
+.auth-desc{font-size:13px;color:var(--muted2);line-height:1.55;}
+.auth-disclaimer{margin-top:32px;padding:16px 20px;border:1px solid var(--border3);border-radius:4px;font-size:12px;color:var(--muted);line-height:1.6;font-family:'Space Mono',monospace;}
 
 /* ── SECTION 7: ROYALTĒ MONITORING ── */
 .monitoring-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:40px;}
@@ -640,6 +674,67 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
       </div>
 
     </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 5B: TRUSTED MUSIC INDUSTRY AUTHORITIES
+     ══════════════════════════════════════════════════════ -->
+<section class="wwd-section" aria-labelledby="authorities-heading">
+  <div class="wwd-inner">
+    <p class="section-eyebrow">Trusted Sources</p>
+    <h2 class="section-h2" id="authorities-heading">Trusted Music Industry <span class="accent">Authorities</span></h2>
+    <p class="section-lead">Royaltē monitors your music across verified, established industry authorities — not scraped aggregators or estimated data. Every finding is sourced from institutions the music industry itself relies on.</p>
+    <div class="auth-grid">
+
+      <div class="auth-card">
+        <div class="auth-name">Apple Music</div>
+        <p class="auth-desc">Streaming catalog presence and artist identity verification.</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-name">Spotify</div>
+        <p class="auth-desc">Streaming presence, profile verification, and listener data.</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-name">The MLC</div>
+        <p class="auth-desc">Publishing registrations, mechanical rights, and statutory licensing data.</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-name">MusicBrainz</div>
+        <p class="auth-desc">Canonical music metadata, artist identity, and release records.</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-name">Discogs</div>
+        <p class="auth-desc">Catalog history, release information, and label records.</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-name">YouTube</div>
+        <p class="auth-desc">Official Artist Channel status and professional digital presence.</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-name">Deezer</div>
+        <p class="auth-desc">Independent streaming verification and catalog coverage.</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-name">Last.fm</div>
+        <p class="auth-desc">Community listening data, discovery signals, and play history.</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-name">TheAudioDB</div>
+        <p class="auth-desc">Artist media, profile information, and discography records.</p>
+      </div>
+
+    </div>
+    <!-- Trademark disclaimer (Amendment 7) -->
+    <p class="auth-disclaimer">Apple Music, Spotify, YouTube, Discogs, MusicBrainz, Deezer, Last.fm, The MLC, and other trademarks are the property of their respective owners. Royaltē is an independent Music Backend Intelligence™ platform and is not affiliated with or endorsed by these organizations unless expressly stated.</p>
   </div>
 </section>
 
