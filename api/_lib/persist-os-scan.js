@@ -308,10 +308,13 @@ export async function persistOSScanSnapshot({
   // ── monitoring_subscriptions upsert — also non-blocking. Failure here
   //    means the user got their scan + alerts but the next-rescan schedule
   //    didn't update; the cron's own bookkeeping will catch up next pass.
+  //
+  // capturedAt / nextScanAt are hoisted outside the try so they can be
+  // returned to audit.js and threaded into Monitoring Intelligence™.
+  const capturedAt = new Date();
+  const nextScanDate = new Date(capturedAt);
+  nextScanDate.setDate(nextScanDate.getDate() + RESCAN_INTERVAL_DAYS);
   try {
-    const now = new Date();
-    const nextScan = new Date(now);
-    nextScan.setDate(nextScan.getDate() + RESCAN_INTERVAL_DAYS);
     const { error: subErr } = await supabase
       .from('monitoring_subscriptions')
       .upsert(
@@ -320,8 +323,8 @@ export async function persistOSScanSnapshot({
           artist_id:       artistId,
           artist_name:     artistName,
           scan_frequency:  'weekly',
-          last_scanned_at: now.toISOString(),
-          next_scan_at:    nextScan.toISOString(),
+          last_scanned_at: capturedAt.toISOString(),
+          next_scan_at:    nextScanDate.toISOString(),
           active:          true,
         },
         { onConflict: 'user_id,artist_id' },
@@ -334,11 +337,13 @@ export async function persistOSScanSnapshot({
   }
 
   return {
-    written:    true,
-    snapshotId: inserted.id,
+    written:     true,
+    snapshotId:  inserted.id,
     scanNumber,
     alertCount,
-    alerts:     Array.isArray(generatedAlerts) ? generatedAlerts : [],
+    alerts:      Array.isArray(generatedAlerts) ? generatedAlerts : [],
+    capturedAt:  capturedAt.toISOString(),   // Evidence Snapshot Store™ — last scan time
+    nextScanAt:  nextScanDate.toISOString(), // Monitoring Policy™ — next scheduled scan
   };
 }
 
