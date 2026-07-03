@@ -50,6 +50,8 @@ import { acquireYouTubeEvidence, synthesizeYouTubeCompat } from './youtube-pal-a
 import { acquireMLCEvidence } from './mlc-pal-acquisition.js';
 // Phase 3.6/Deezer (Deezer PAL — Streaming Verification Authority™) — replaces getDeezer()
 import { acquireDeezerEvidence, synthesizeDeezerCompat } from './deezer-pal-acquisition.js';
+// Phase 3.6/TheAudioDB (AudioDB PAL — Artist & Media Intelligence Authority™) — replaces getAudioDB()
+import { acquireAudioDbEvidence, synthesizeAudioDbCompat } from './audiodb-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -193,6 +195,8 @@ export async function runScan(url) {
   // Phase 3.6/Discogs: Discogs acquisition routes through PAL (replacing direct getDiscogs call).
   // Phase 3.6/YouTube: YouTube acquisition routes through PAL (replacing direct getYouTube call).
   // Phase 3.6/MLC: The MLC acquisition via PAL — first constitutional Publishing Authority.
+  // Phase 3.6/Deezer: Deezer via PAL — Streaming Verification Authority™.
+  // Phase 3.6/TheAudioDB: AudioDB via PAL — Artist & Media Intelligence Authority™; replaces getAudioDB().
   // All PAL evidence packages flow into runRIE via the hybrid merge path.
   // synthesize*Compat functions below are backward-compat synthesis for the V1 module system only.
   const appleIsrc = resolved.trackIsrc || trackData?.external_ids?.isrc || null;
@@ -205,7 +209,7 @@ export async function runScan(url) {
     youtubePalSettled,
     mlcPalSettled,
     deezerPalSettled,
-    audioDbSettled,
+    audioDbPalSettled,
     soundcloudSettled,
     lastfmSettled,
     wikidataSettled,
@@ -230,7 +234,8 @@ export async function runScan(url) {
     acquireMLCEvidence({ artistName }),
     // Phase 3.6/Deezer: Deezer via PAL — Streaming Verification Authority™; replaces getDeezer()
     acquireDeezerEvidence({ artistName }),
-    getAudioDB(artistName),
+    // Phase 3.6/TheAudioDB: AudioDB via PAL — Artist & Media Intelligence Authority™; replaces getAudioDB()
+    acquireAudioDbEvidence({ artistName }),
     getSoundCloud(artistName),
     getLastFm(artistName),
     getWikidata(artistName),
@@ -250,8 +255,10 @@ export async function runScan(url) {
     mlcPalSettled.status === 'fulfilled' ? mlcPalSettled.value : {};
   const { evidencePackages: deezerEvidencePackages = [] } =
     deezerPalSettled.status === 'fulfilled' ? deezerPalSettled.value : {};
+  const { evidencePackages: audioDbEvidencePackages = [] } =
+    audioDbPalSettled.status === 'fulfilled' ? audioDbPalSettled.value : {};
 
-  // Combined evidence packages — all seven PAL providers enter the RIE hybrid merge path.
+  // Combined evidence packages — all eight PAL providers enter the RIE hybrid merge path.
   const evidencePackages = [
     ...appleEvidencePackages,
     ...spotifyEvidencePackages,
@@ -260,6 +267,7 @@ export async function runScan(url) {
     ...youtubeEvidencePackages,
     ...mlcEvidencePackages,
     ...deezerEvidencePackages,
+    ...audioDbEvidencePackages,
   ];
 
   // [TRANSITIONAL] Legacy compat shapes for V1 module system (runModules / buildFlags).
@@ -286,8 +294,9 @@ export async function runScan(url) {
   const youtubeData = synthesizeYouTubeCompat(youtubeEvidencePackages, artistName);
 
   // Phase 3.6/Deezer: compat synthesis replaces direct getDeezer() call
-  const deezerData     = synthesizeDeezerCompat(deezerEvidencePackages, artistName);
-  const audioDbData    = audioDbSettled.status    === 'fulfilled' ? audioDbSettled.value    : { found: false };
+  const deezerData  = synthesizeDeezerCompat(deezerEvidencePackages, artistName);
+  // Phase 3.6/TheAudioDB: compat synthesis replaces direct getAudioDB() call
+  const audioDbData = synthesizeAudioDbCompat(audioDbEvidencePackages, artistName);
   const soundcloudData = soundcloudSettled.status === 'fulfilled' ? soundcloudSettled.value : { found: false };
   const lastfmData     = lastfmSettled.status     === 'fulfilled' ? lastfmSettled.value     : { found: false };
   const wikidataData   = wikidataSettled.status   === 'fulfilled' ? wikidataSettled.value   : { found: false };
@@ -1284,7 +1293,9 @@ async function getDeezer(artistName) {
 }
 
 // ────────────────────────────────────────────────────────
-// AUDIODB
+// AUDIODB — [RETIRED CANDIDATE — Phase 3.6/TheAudioDB]
+// Enrichment role superseded by acquireAudioDbEvidence in audiodb-pal-acquisition.js.
+// Function retained for reference only. Remove when no callers remain.
 // ────────────────────────────────────────────────────────
 async function getAudioDB(artistName) {
   try {
