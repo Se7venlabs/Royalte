@@ -2038,3 +2038,258 @@ svg { display: block; }
   .hi-category-grid { grid-template-columns: 1fr 1fr; }
   .hi-main { padding: 20px 18px 32px; gap: 20px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Health Intelligence™ Executive Polish Sprint™
+   Phase 4 Stage 4 Board Review — visual energy & emerald identity
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── Emerald workspace identity ─────────────────────────────────────── */
+
+.hi-breadcrumb-current { color: var(--mc-green) !important; }
+
+.hi-section-title {
+  padding-left: 8px;
+  border-left: 2px solid rgba(45, 212, 191, 0.45);
+}
+
+/* top-edge emerald accent on score card */
+.hi-kpi-card--score {
+  border-top: 2px solid rgba(45, 212, 191, 0.42);
+}
+
+/* ─── Card depth + hover elevation ───────────────────────────────────── */
+
+.hi-kpi-card {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.035);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: default;
+}
+
+.hi-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(45, 212, 191, 0.26);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 22px rgba(45,212,191,0.06),
+              inset 0 1px 0 rgba(255,255,255,0.045);
+}
+
+.hi-cat-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.hi-cat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(45, 212, 191, 0.3);
+  box-shadow: 0 6px 22px rgba(0,0,0,0.32), 0 0 14px rgba(45,212,191,0.05);
+}
+
+.hi-timeline-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* ─── Health Score ring ───────────────────────────────────────────────── */
+
+.hi-score-ring-wrap {
+  position: relative;
+  width: 116px;
+  height: 116px;
+  margin: 4px auto 6px;
+}
+
+.hi-score-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.hi-score-ring-track {
+  fill: none;
+  stroke: rgba(45, 212, 191, 0.09);
+  stroke-width: 5;
+}
+
+.hi-score-ring-progress {
+  fill: none;
+  stroke: var(--mc-green);
+  stroke-width: 5;
+  stroke-linecap: round;
+  /* r=40, circumference=2π×40=251.3, 89%=223.7 */
+  stroke-dasharray: 224 252;
+  filter: drop-shadow(0 0 6px rgba(45, 212, 191, 0.55));
+  animation: hi-ring-breathe 4s ease-in-out infinite;
+}
+
+@keyframes hi-ring-breathe {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(45,212,191,0.45)); }
+  50%       { filter: drop-shadow(0 0 14px rgba(45,212,191,0.82)); }
+}
+
+.hi-score-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.hi-score-ring-num {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--mc-green);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.hi-score-ring-sub {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+}
+
+.hi-score-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+/* ─── Executive Status Pills™ ────────────────────────────────────────── */
+
+.hi-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px 3px 7px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.hi-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+  animation: hi-status-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes hi-status-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.hi-status-pill--green {
+  background: rgba(45, 212, 191, 0.1);
+  color: var(--mc-green);
+  border: 1px solid rgba(45, 212, 191, 0.22);
+}
+
+.hi-status-pill--amber {
+  background: rgba(251, 146, 60, 0.1);
+  color: var(--mc-orange);
+  border: 1px solid rgba(251, 146, 60, 0.22);
+}
+
+.hi-status-pill--red {
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.22);
+}
+
+.hi-status-pill--purple {
+  background: rgba(168, 85, 247, 0.1);
+  color: var(--mc-purple);
+  border: 1px solid rgba(168, 85, 247, 0.22);
+}
+
+/* ─── Executive KPI icon containers ──────────────────────────────────── */
+
+.hi-kpi-icon-wrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: box-shadow 0.2s ease;
+}
+
+.hi-kpi-icon-wrap svg { width: 22px; height: 22px; }
+
+.hi-kpi-icon-wrap--green {
+  background: rgba(45, 212, 191, 0.1);
+  border: 1px solid rgba(45, 212, 191, 0.22);
+  color: var(--mc-green);
+}
+
+.hi-kpi-card--improvement:hover .hi-kpi-icon-wrap--green {
+  box-shadow: 0 0 16px rgba(45,212,191,0.28);
+}
+
+.hi-kpi-icon-wrap--orange {
+  background: rgba(251, 146, 60, 0.1);
+  border: 1px solid rgba(251, 146, 60, 0.22);
+  color: var(--mc-orange);
+}
+
+.hi-kpi-card--risk:hover .hi-kpi-icon-wrap--orange {
+  box-shadow: 0 0 16px rgba(251,146,60,0.28);
+}
+
+.hi-kpi-icon-wrap--purple {
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  color: var(--mc-purple);
+}
+
+.hi-kpi-card--ai:hover .hi-kpi-icon-wrap--purple {
+  box-shadow: 0 0 16px rgba(168,85,247,0.28);
+}
+
+/* ─── AI panel breathing animation ───────────────────────────────────── */
+
+.hi-panel-ai-logo {
+  animation: hi-ai-breathe 5s ease-in-out infinite;
+}
+
+@keyframes hi-ai-breathe {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(168,85,247,0.14);
+    border-color: rgba(168,85,247,0.22);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(168,85,247,0.34), 0 0 70px rgba(168,85,247,0.12);
+    border-color: rgba(168,85,247,0.44);
+  }
+}
+
+.hi-panel-ai-logo::after {
+  animation: hi-ai-ring-expand 5s ease-in-out infinite;
+}
+
+@keyframes hi-ai-ring-expand {
+  0%, 100% { transform: scale(1);    opacity: 0.12; }
+  50%       { transform: scale(1.07); opacity: 0.26; }
+}
+
+/* ─── Priority action CTA strengthened ───────────────────────────────── */
+
+.hi-panel-action-cta {
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 45%, #ea580c 100%);
+  box-shadow: 0 3px 14px rgba(234, 88, 12, 0.32);
+  transition: opacity 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.hi-panel-action-cta:hover {
+  opacity: 1;
+  box-shadow: 0 6px 22px rgba(234, 88, 12, 0.48);
+  transform: translateY(-1px);
+}
