@@ -51,6 +51,13 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | 3.6 MLC | The MLC Publishing Authority PAL Production Migration™ | ✅ Complete | `67d7fe8` (PR #199) | — |
 | 3.6 Deezer | Deezer Streaming Verification Authority™ PAL Production Migration™ | ✅ Complete | `ba66b26` (PR #201) | — |
 
+### MC Intelligence Sprint
+
+| Phase | Title | Status | Locked at | Tag |
+|---|---|---|---|---|
+| MC-3.2 | Health Intelligence™ Executive Assessment (6-section redesign) | ✅ Complete | `346a2d0` (PR #211) | — |
+| MC-3.2-ELO | Executive Layout Optimization™ v1.0 — desktop density pass | ✅ Complete | `83c8804` (PR #211) | — |
+
 ---
 
 ## What's Live in `main` Today
@@ -84,13 +91,14 @@ from Apple Production Migration (PR #189, 2026-07-02).
 - **Royaltē Scan Experience V1 is DESIGN FROZEN.** PR #122 remains open and is held until intelligence wiring is complete. No layout / spacing / typography / color / animation / UX changes are authorised in the meantime.
 - **Constitution at v1.3** (effective 2026-06-11) ratifies the seven-layer Engineering Stack.
 - **Phase 5 rule format** permits the optional `polarity: 'positive'` field on positive-framing rules — applied to `publishing.strong-coverage` and `catalog.complete-delivery-verified`.
+- **Mission Control™ Health Intelligence™ card redesigned** (PR #211, 2026-07-03): 6-section executive assessment fully wired to Health Engine output. `applyHealthIntelligencePlan` is the sole DOM writer; `buildHealthIntelligencePlan` is the sole plan builder. All values sourced constitutionally. Executive Layout Optimization™ v1.0 reduces desktop page height ~260px; final holistic pass deferred until all MC modules complete.
 
 ---
 
 ## What's Not Live Yet
 
-- **No UI currently consumes Phase 8 engine output.** `healthScore`, `healthReport`, and `executiveBrief` are now persisted in every scan payload but are not yet surfaced in Mission Control or the scan UI.
 - **Publishing Intelligence™ not yet built.** The MLC evidence (recordings + works) is acquired and preserved in the CIM. The intelligence layer that reads this evidence — Publishing Intelligence™, Rights Intelligence™, Revenue Intelligence™ — requires a separate Board brief.
+- **Health Trend sparkline (Section 5) shows current scan only.** Historical Health Snapshots™ wiring is deferred; positions 0–3 display "—" until a historical scan series exists.
 - **Monitoring and Revenue reserved sections remain placeholders.** `MONITORING`, `REVENUE`, and `GENERAL` in the Rule Library carry empty arrays; `monitoring` and `revenue` in reserved sections ship `null`. Phase 9+ may begin populating them.
 - **All future work is Board-authorized only.** No phase begins until the Board issues a formal brief.
 
