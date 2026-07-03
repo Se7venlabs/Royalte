@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Sprint 3.3 — Identity Intelligence™ Executive Passport — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve and merge Sprint 3.3 — Identity Intelligence™ executive passport redesign. Replaces the legacy fingerprint ring + provider checklist with a 6-section constitutional presentation layer: Identity Coverage (% + grade), Identity Summary (4-count cells), Identity Providers (constitutional + platform pills), Biggest Risk, Biggest Win, Recent Changes. |
+| **Reason** | The legacy identity card surfaced a fingerprint animation and a flat provider checklist with no executive context. The 6-section passport delivers the same intelligence as a structured executive readout aligned with the Health Intelligence™ card pattern established in Sprint 3.2. |
+| **Impact** | `public/mission-control.html`: old `mc-identity-body` + `mc-identity-checks` blocks replaced with `mc-id-body` 6-section grid. `public/js/mission-control.js`: `buildIdentityIntelligencePlan` + `applyIdentityIntelligencePlan` added; count-up animation on coverage reveal. `public/js/vault-auth.js`: sentinel blanking updated to `data-mc-id-*` targets. Legacy identity plans preserved for ai-insights module. |
+| **Vote** | Board Approved |
+| **PR Number** | #213 |
+| **Commit SHA** | `654eb52` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Executive Layout Optimization™ v1.0 — APPROVED
 
 | | |
