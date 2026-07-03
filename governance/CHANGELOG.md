@@ -19,6 +19,30 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Sprint 3.4 Amendment 2 — Publishing Intelligence™ Executive Layout Refinement (PR #216)
+
+| | |
+|---|---|
+| **PR** | #216 |
+| **Commit SHA** | `8400134` |
+| **Constitution Version** | v1.3 |
+| **Changed** | `public/mission-control.html` CSS only: `.mc-pi-impact` padding 8px → 10px/12px; `.mc-pi-impact-body` 11px → 12.5px weight-500 `var(--mc-text)` (explanation is dominant); royalty/resolution labels 8.5px → 8px fully muted; badge 10px → 9px with reduced padding; `.mc-pi-risk` / `.mc-pi-win` padding 8px → 6px/8px, icon 13px → 11px, title 11.5px → 11px, resolution 10px → 9.5px. |
+
+---
+
+## 2026-07-03 — Sprint 3.4 — Publishing Intelligence™ Executive Passport + Amendment (PR #215)
+
+| | |
+|---|---|
+| **PR** | #215 |
+| **Commit SHA** | `7f52f4f` (Sprint 3.4) · `2bb1af2` (Amendment) |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/mission-control.html` — `mc-pi-*` CSS (~175 lines); 7-section `mc-pi-body` HTML with `data-mc-pi-*` attributes; `mc-pi-impact-royalty-label` / `mc-pi-impact-resolution-label` / `mc-pi-impact-resolution-val` label styles (Amendment). `public/js/mission-control.js` — `_PI_COVERAGE_GRADE`, `_PI_STATE_PILL`, `_PI_RESOLUTION_TIME`, `_piFinancialImpact` helpers; `buildPublishingIntelligencePlan(payload)` and `applyPublishingIntelligencePlan(plan)`. |
+| **Changed** | `public/js/mission-control.js` — `__mcPopulate` stores `_vaultPlans.piPlan`; `__mcRevealModule 'publishing-intelligence'` calls `applyPublishingIntelligencePlan` + 1200ms count-up; ring code retired. `_piFinancialImpact` updated (Amendment) to return fuller body copy and `resolution` time. `applyPublishingIntelligencePlan` writes `data-mc-pi-impact-resolution`. `public/js/vault-auth.js` — `_blankSentinelData` updated to blank `data-mc-pi-*` + `data-mc-pi-impact-resolution` targets. |
+| **Removed** | Legacy `mc-pub-body` (ring + coverage summary), `mc-pub-checks` (flat metric list), `mc-card-foot` empty div, and associated JS ring-fill code in `__mcRevealModule`. |
+
+---
+
 ## 2026-07-03 — Sprint 3.3 — Identity Intelligence™ Executive Passport (PR #213)
 
 | | |
