@@ -28,14 +28,20 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™** |
-| Merged at | `ba66b26` (PR #201, 2026-07-03) |
+| Most recently completed phase | **Monitoring Intelligence Migration Sprint™** |
+| Merged at | `0235bc3` (PR #206, 2026-07-03) |
 | Tag | — |
-| Prior phase | Phase 3.6 MLC Publishing Authority (`67d7fe8`, PR #199, 2026-07-02) |
-| Active direction | Seven constitutional providers certified. Board has authorized Phase 3.6 Provider Expansion 08 — TheAudioDB Artist & Media Intelligence Authority™. |
-| Next Board gate | Merge PR for TheAudioDB + governance backfill |
+| Prior phase | Phase 3.6 Last.fm Community Intelligence Authority™ (`5a89801`, PR #205, 2026-07-03) |
+| Active direction | Nine constitutional providers certified. Constitutional Monitoring Foundation established. Board-signaled next priorities: Mission Control Activity Feed, Monitoring Timeline, Weekly Reports, Executive Brief Change History, Monitoring Alerts, Website Experience Sprint. |
+| Next Board gate | Explicit Board brief required before any next phase |
 
-**Seven constitutional providers, 740/740 certified, 11 suites.** Board Certification Harness is the permanent gate. No release tag may be created without harness exit 0 + GitHub CI green.
+**Nine constitutional providers, 1095/1095 certified, 14 suites.** Board Certification Harness is the permanent gate. No release tag may be created without harness exit 0 + GitHub CI green.
+
+**Monitoring Intelligence Migration Sprint™ (PR #206, `0235bc3`, 2026-07-03):** Constitutional monitoring foundation. Time is Royaltē's fourth constitutional dimension. Five constitutional objects: EvidenceSnapshot™ (+ Board Amendment: snapshotVersion + snapshotHash SHA-256), SnapshotStore™ (append-only), EvidenceDiffEngine™ (MAX_DIFF_DEPTH=8, arrays atomic), EvidenceEvent™ (13-field, UUID, Constitutional Explainability™), MonitoringIntelligence™ (`runMonitoringIntelligence(A, B, policy)` sole entrypoint). Supporting: MonitoringPolicy™ (Board-owned, pure data), EventSeverity™ (5 levels: CRITICAL/HIGH/MEDIUM/LOW/INFORMATIONAL). Suite 14 (172 assertions, 9 groups). Board verdict: 10.0/10 UNANIMOUS.
+
+**Phase 3.6 Last.fm (PR #205, `5a89801`, 2026-07-03):** Community Intelligence Authority™, trust 75. `getLastFm()` direct-call marked RETIRED CANDIDATE. Last.fm API v2 returns HTTP 200 for errors — connector parses body for `data?.error`. Soft identity-lock. Suite 13 (89 assertions). `platforms.lastfm.community` is the constitutional namespace for community evidence.
+
+**Phase 3.6 TheAudioDB (PR #203, `bd4464e`, 2026-07-03):** Artist & Media Intelligence Authority™, trust 70. No-credentials pattern (same as Deezer). Board Amendment 1–6: constitutional media namespace `platforms.audiodb.profile / media / discography / statistics`. Visual evidence is first-class. `getAudioDB()` direct-call marked RETIRED CANDIDATE. Suite 12 (94 assertions).
 
 **Phase 3.6 Deezer (PR #201, `ba66b26`, 2026-07-03):** Streaming Verification Authority™, trust 80. `getDeezer()` direct-call retired. All original streaming providers (Apple, Spotify, Deezer) now 100% migrated to PAL. Suite 11 (67 assertions). `platforms.deezer.isrcs[]` is the constitutional bridge for future Verification Intelligence™.
 
@@ -51,7 +57,7 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 **Phase 3.4 — Website Scan is a constitutional presentation layer.** All displayed intelligence reads from the Certified CIM. ISRC Coverage is a permanent RIE field (`isrcCoverage` in `catalogIntelligence`). Catalog Availability reads from `globalMusicFootprint.status`. Zero business logic remains in `_renderV2Found`.
 
-Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`.
+Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`. Phase 3.6 AudioDB `bd4464e`. Phase 3.6 Last.fm `5a89801`. Monitoring Sprint `0235bc3`.
 
 The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`. The legacy retirement checklist lives in `governance/MIGRATION_RETIREMENT_REGISTER.md`.
 
@@ -120,8 +126,15 @@ Royaltē verifies intelligence; Royaltē does not estimate intelligence. Every n
 | Phase 7 — Health Engine | `api/_lib/health-engine.js` + `api/schema/health.js` | `ec57481` |
 | Phase 7.5 — Intellectual Property Vault™ | `/ip/` (24 markdown files) | `38ec3be` |
 | Phase 8 — Executive Brief Engine | `api/_lib/executive-brief-engine.js` + `api/schema/executive-brief.js` | `8f00014` |
+| Monitoring Sprint — Policy | `monitoring/policy/MonitoringPolicy.js` | `0235bc3` |
+| Monitoring Sprint — EventSeverity | `monitoring/events/EventSeverity.js` | `0235bc3` |
+| Monitoring Sprint — EvidenceSnapshot | `monitoring/snapshot/EvidenceSnapshot.js` | `0235bc3` |
+| Monitoring Sprint — SnapshotStore | `monitoring/snapshot/SnapshotStore.js` | `0235bc3` |
+| Monitoring Sprint — EvidenceDiffEngine | `monitoring/diff/EvidenceDiffEngine.js` | `0235bc3` |
+| Monitoring Sprint — EvidenceEvent | `monitoring/events/EvidenceEvent.js` | `0235bc3` |
+| Monitoring Sprint — MonitoringIntelligence | `monitoring/intelligence/MonitoringIntelligence.js` | `0235bc3` |
 
-Test suites (13, all deterministic) live under `tests/`. Pipeline regression is enforced by GitHub Actions on every PR.
+Test suites (14, all deterministic) live under `tests/`. Pipeline regression is enforced by GitHub Actions on every PR.
 
 **Phase 8 input-shape contract.** The Executive Brief Engine reads `strengths/risks/opportunities/recommendations/observations` arrays defensively off the input HealthReport. Phase 7's HealthReport carries only the *counts*; callers pass an *enriched* HealthReport bundled with the upstream Phase 6 arrays (`{...healthReport, strengths, risks, opportunities, recommendations, observations}`). When arrays are absent, top-N sections fall through to empty and the engine still produces a valid brief from the HealthReport scalar fields. The engine NEVER invents an entry not present in the upstream arrays.
 

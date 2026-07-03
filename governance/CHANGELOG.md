@@ -19,6 +19,56 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Monitoring Intelligence Migration Sprint™ — Constitutional Foundation
+
+| | |
+|---|---|
+| **PR** | #206 |
+| **Commit SHA** | `0235bc3` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `monitoring/policy/MonitoringPolicy.js` — Board-owned policy module; all thresholds, severity rules, snapshot/event retention, and confidence bands declared as pure data; `resolveSeverity()` and `computeConfidence()` public helpers. `monitoring/events/EventSeverity.js` — five Board-ratified severity constants (CRITICAL / HIGH / MEDIUM / LOW / INFORMATIONAL); `isValidSeverity()`, `SEVERITY_ORDER`, `isAtLeast()`. `monitoring/snapshot/EvidenceSnapshot.js` — deep-frozen snapshot factory; `snapshotVersion` and `snapshotHash` (SHA-256 of serialised evidence — Board Amendment); `evidenceDiffers()` uses O(1) hash comparison when hashes present; `verifySnapshotIntegrity()` for tamper detection. `monitoring/snapshot/SnapshotStore.js` — append-only in-memory store; no-change guard (policy-gated); `getComparisonPair()` enables historical replay. `monitoring/diff/EvidenceDiffEngine.js` — pure, deterministic, bounded-depth diff (MAX_DIFF_DEPTH = 8); arrays treated as atomic at foundation layer; never throws; `filterByPath()`, `filterByChangeType()`, `extractProvider()`. `monitoring/events/EvidenceEvent.js` — immutable 13-field audit event; UUID; full validation; Constitutional Explainability™ required (whatChanged / whyDetected / whyItMatters). `monitoring/intelligence/MonitoringIntelligence.js` — `runMonitoringIntelligence(snapshotA, snapshotB, policy)` sole entrypoint; policy-driven severity and confidence; Constitutional Explainability™ generated per event; frozen MonitoringReport with summary (bySeverity / byProvider / byChangeType). `tests/certification/suites/14-monitoring.mjs` — 172-assertion certification suite (9 groups: A EventSeverity, B MonitoringPolicy, C EvidenceSnapshot, D SnapshotStore, E EvidenceDiffEngine, F EvidenceEvent, G MonitoringIntelligence, H Historical replay, I Edge cases). |
+| **Changed** | `tests/certification/harness.mjs` — Suite 14 wired. |
+| **Removed** | — |
+| **Board Amendment** | `snapshotVersion` + `snapshotHash` added to `EvidenceSnapshot™` per Board recommendation. `snapshotHash` is a deterministic SHA-256 hex digest of `JSON.stringify(canonicalEvidence)` enabling O(1) no-change detection, tamper verification, and long-term historical replay integrity. `snapshotVersion` independently versions the snapshot schema format. `evidenceDiffers()` uses hash comparison when available; falls back to JSON for pre-Amendment compatibility. |
+| **Impact** | Royaltē's fourth constitutional dimension — Time — is established. The platform can now observe, preserve, compare, explain, and report changes in artist evidence. Royaltē transitions from a static evidence platform to a historical intelligence platform. Constitutional pipeline: EvidenceBridge → Evidence Snapshot → SnapshotStore → EvidenceDiffEngine → Evidence Events → Monitoring Intelligence. Every future monitoring capability (Timeline Intelligence™, Alert Intelligence™, Weekly Reports™, Mission Control Activity Feed™, Historical Replay™, AI Monitoring Agents™) builds on this frozen constitutional foundation. |
+| **Tests** | 1095 / 1095 CERTIFIED (172 new assertions in Suite 14). |
+
+---
+
+## 2026-07-03 — Phase 3.6 Provider Expansion 09 — Last.fm Community Intelligence Authority™
+
+| | |
+|---|---|
+| **PR** | #205 |
+| **Commit SHA** | `5a89801` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/lastfm/lastfm-capabilities.js` — 6 capabilities (ARTIST_IDENTITY, PERFORMANCE_DATA, GENRES, ARTWORK, TRACKS, ALBUMS). `provider-acquisition/connectors/lastfm/lastfm-http.js` — GET-only HTTP client; Last.fm-specific 200-with-body-error detection (error code 6 = not found, 29 = rate limited); retry/backoff. `provider-acquisition/connectors/lastfm/LastFmConnector.js` — API key auth pattern (AUTH_FAILED if key absent — not a coverage gap); soft identity-lock (single-result endpoint, capitalization differences common; evidence preserved on mismatch); A→B(parallel) acquisition (artist.getinfo → gettoptracks + gettopalbums). `api/_lib/lastfm-pal-acquisition.js` — PAL orchestration; `synthesizeLastFmCompat` reproduces exact legacy `getLastFm()` output shape (bio HTML-stripped and truncated to 300 chars for V1 compat; full HTML bio preserved in EvidenceBridge). `tests/certification/suites/13-lastfm-connector.mjs` — 89-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — `translateLastFmArtistInfo`, `translateLastFmTopTracks`, `translateLastFmTopAlbums`; `platforms.lastfm` namespace: `profile` (name, url, mbid) / `community` (listeners, playcount, tags[], similarArtists[]) / `biography` (raw HTML preserved) / `media` (images[]) / `topTracks[]` / `topAlbums[]`. Community evidence constitutionally independent from commercial streaming counts. `api/_lib/run-scan.js` — Last.fm added as 9th PAL provider; `getLastFm()` direct-call marked RETIRED CANDIDATE. `tests/certification/harness.mjs` — Suite 13 wired. |
+| **Removed** | `getLastFm()` direct-call from the run-scan.js fan-out. All Last.fm acquisition now flows through PAL. |
+| **Impact** | Last.fm is Royaltē's Community Intelligence Authority™ (provider trust: 75). Community evidence (listener counts, play counts, community tags, similar artists, top tracks, top albums) is constitutionally distinct from commercial streaming. Preserved independently as the evidence foundation for future Community Intelligence™ and Discovery Intelligence™. Nine constitutional providers now acquire via PAL. |
+| **Tests** | 923 / 923 CERTIFIED (89 new assertions in Suite 13). |
+
+---
+
+## 2026-07-03 — Phase 3.6 Provider Expansion 08 — TheAudioDB Artist & Media Intelligence Authority™
+
+| | |
+|---|---|
+| **PR** | #203 |
+| **Commit SHA** | `bd4464e` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/audiodb/audiodb-capabilities.js` — 6 capabilities (ARTIST_IDENTITY, ARTWORK, GENRES, SOCIAL_LINKS, COLLECTION_DATA, VIDEOS). `provider-acquisition/connectors/audiodb/audiodb-http.js` — GET-only HTTP client; 429→RATE_LIMITED; 5xx→MAINTENANCE with backoff. `provider-acquisition/connectors/audiodb/AudioDBConnector.js` — no-credentials pattern (same as Deezer); `authenticate()` returns AVAILABLE without network call after `initialize()`; strict identity-lock on `strArtist`; A→B(parallel) dispatch (search → discography + videos using extracted `audiodbArtistId`). `api/_lib/audiodb-pal-acquisition.js` — PAL orchestration; `synthesizeAudioDbCompat` reproduces exact legacy `getAudioDB()` shape (biography truncated to 400 chars for V1 compat; full biography preserved in EvidenceBridge). `tests/certification/suites/12-audiodb-connector.mjs` — 94-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — Board Amendment 1–6 applied: `translateAudioDBArtistProfile`, `translateAudioDBDiscography`, `translateAudioDBVideos`; constitutional media namespace `platforms.audiodb.profile` (biography/full-text, country, formed, label, genre, style, mood) / `media` (thumbnails, logos, banners, fanArt, videos, social) / `discography` (albums[]) / `statistics` (reserved); each image type preserved independently rather than collapsed. `api/_lib/run-scan.js` — AudioDB added as 8th PAL provider; `getAudioDB()` direct-call marked RETIRED CANDIDATE. `tests/certification/harness.mjs` — Suite 12 wired. |
+| **Removed** | `getAudioDB()` direct-call from the run-scan.js fan-out. All AudioDB acquisition now flows through PAL. |
+| **Board Amendment 1–6** | Constitutional media namespace established (`profile / media / discography / statistics`). Visual evidence declared first-class constitutional evidence. Each image type (thumbnails, logos, clearart, wide-thumb, banners, fanArt ×4) preserved independently. Biography full-text preserved at bridge layer (compat synthesis truncates only). Reference model for future media-rich providers (Last.fm, SoundCloud, music video providers). |
+| **Impact** | TheAudioDB is Royaltē's Artist & Media Intelligence Authority™ (provider trust: 70). Rich media evidence (artwork, biography, discography, music videos, social links) preserved as independent constitutional evidence. Eight constitutional providers now acquire via PAL. |
+| **Tests** | 834 / 834 CERTIFIED (94 new assertions in Suite 12). |
+
+---
+
 ## 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™
 
 | | |
