@@ -142,7 +142,8 @@ function _blankSentinelData() {
   const piSa  = q('[data-mc-pi-sum-attention]');  if (piSa)  piSa.textContent  = '—';
   const piSm  = q('[data-mc-pi-sum-missing]');    if (piSm)  piSm.textContent  = '—';
   qa('[data-mc-pi-system-pill]').forEach(el => { el.textContent = '—'; el.className = 'mc-pill mc-pill--unable'; });
-  const piRt  = q('[data-mc-pi-risk-title]');      if (piRt) piRt.textContent = '—';
+  const piIr  = q('[data-mc-pi-impact-resolution]'); if (piIr) piIr.textContent = '—';
+  const piRt  = q('[data-mc-pi-risk-title]');        if (piRt) piRt.textContent = '—';
   const piWt  = q('[data-mc-pi-win-title]');       if (piWt) piWt.textContent  = '—';
   const piCh  = q('[data-mc-pi-changes]');         if (piCh) piCh.innerHTML    = '';
 
