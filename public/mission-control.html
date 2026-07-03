@@ -1603,6 +1603,220 @@ body {
   .mc-id-summary           { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* ─── Publishing Intelligence™ — Sprint 3.4 — 7-section executive passport ─ */
+
+.mc-pi-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+/* Sections that span both columns */
+.mc-pi-coverage-section,
+.mc-pi-summary,
+.mc-pi-systems-section,
+.mc-pi-win,
+.mc-pi-changes-section { grid-column: 1 / -1; }
+
+/* Section 1 — Publishing Coverage */
+.mc-pi-coverage-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-pi-score-display { display: flex; align-items: baseline; gap: 3px; }
+.mc-pi-score-num {
+  font-size: 32px;
+  font-weight: 700;
+  color: #D56BFF;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.mc-pi-score-denom { font-size: 14px; color: var(--mc-text-muted); font-weight: 400; }
+.mc-pi-coverage-grade { font-size: 13px; font-weight: 600; color: #D56BFF; }
+.mc-pi-coverage-sub   { font-size: 11px; color: var(--mc-text-muted); margin-top: 2px; }
+
+/* Section 2 — Publishing Summary counts */
+.mc-pi-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-pi-sum-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-divider);
+  border-radius: var(--mc-r-1);
+  padding: 6px 4px;
+}
+.mc-pi-sum-count {
+  font-size: 16px;
+  font-weight: 700;
+  color: #D56BFF;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.mc-pi-sum-label {
+  font-size: 9px;
+  color: var(--mc-text-muted);
+  text-align: center;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+}
+.mc-pi-sum-item--warn    .mc-pi-sum-count { color: var(--mc-orange); }
+.mc-pi-sum-item--danger  .mc-pi-sum-count { color: #f87171; }
+.mc-pi-sum-item--muted   .mc-pi-sum-count { color: var(--mc-text-muted); }
+
+/* Section 3 — Publishing Systems */
+.mc-pi-systems-section {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-pi-system-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mc-pi-system-row {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--mc-text-soft);
+}
+.mc-pi-system-icon {
+  width: 16px;
+  height: 16px;
+  color: #D56BFF;
+  flex-shrink: 0;
+}
+.mc-pi-system-name { color: var(--mc-text-soft); }
+
+/* Section 4 — Financial Impact (auto-placed left col on desktop) */
+.mc-pi-impact {
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-divider);
+  border-radius: var(--mc-r-2);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mc-pi-impact .mc-hi-section-label { color: #D56BFF; margin-bottom: 4px; }
+.mc-pi-impact-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-self: flex-start;
+  margin-bottom: 4px;
+}
+.mc-pi-impact-badge--low    { background: rgba(34,197,94,0.15);  color: #4ade80; }
+.mc-pi-impact-badge--medium { background: rgba(251,146,60,0.15); color: var(--mc-orange); }
+.mc-pi-impact-badge--high   { background: rgba(248,113,113,0.15); color: #f87171; }
+.mc-pi-impact-body {
+  font-size: 11px;
+  color: var(--mc-text-soft);
+  line-height: 1.45;
+}
+
+/* Section 5 — Biggest Publishing Risk (auto-placed right col on desktop) */
+.mc-pi-risk {
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-divider);
+  border-radius: var(--mc-r-2);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mc-pi-risk .mc-hi-section-label { color: #f59e0b; margin-bottom: 4px; }
+.mc-pi-highlight-icon {
+  font-size: 13px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.mc-pi-risk  .mc-pi-highlight-icon { color: #f59e0b; }
+.mc-pi-win   .mc-pi-highlight-icon { color: #D56BFF; }
+.mc-pi-highlight-title {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--mc-text);
+  line-height: 1.35;
+}
+.mc-pi-highlight-meta {
+  font-size: 10.5px;
+  color: var(--mc-text-muted);
+  margin-top: 2px;
+}
+.mc-pi-resolution {
+  font-size: 10px;
+  color: var(--mc-text-muted);
+  margin-top: 3px;
+  font-style: italic;
+}
+
+/* Section 6 — Biggest Publishing Win */
+.mc-pi-win {
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-divider);
+  border-radius: var(--mc-r-2);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mc-pi-win .mc-hi-section-label { color: #D56BFF; margin-bottom: 4px; }
+
+/* Section 7 — Recent Publishing Changes */
+.mc-pi-changes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mc-pi-changes-list li {
+  font-size: 11.5px;
+  color: var(--mc-text-soft);
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.mc-pi-changes-list li::before {
+  content: '·';
+  color: #D56BFF;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Mobile — priority order: Coverage → Financial Impact → Risk → Summary → Systems → Win → Changes */
+@media (max-width: 540px) {
+  .mc-pi-body              { grid-template-columns: 1fr; }
+  .mc-pi-coverage-section  { order: 1; }
+  .mc-pi-impact            { order: 2; }
+  .mc-pi-risk              { order: 3; }
+  .mc-pi-summary           { order: 4; grid-template-columns: repeat(2, 1fr); }
+  .mc-pi-systems-section   { order: 5; }
+  .mc-pi-win               { order: 6; }
+  .mc-pi-changes-section   { order: 7; }
+}
+
 /* ─── publishing card ─── Board-approved premium executive design ── */
 
 .mc-pub-body {
@@ -3694,69 +3908,125 @@ body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
           </div>
           <div class="mc-card-title">PUBLISHING<br>INTELLIGENCE™</div>
         </div>
-        <div class="mc-pub-body">
-          <div class="mc-ring mc-pub-ring" aria-hidden="true">
-            <svg viewBox="0 0 80 80">
-              <circle class="mc-ring-track"    cx="40" cy="40" r="33" fill="none"/>
-              <circle class="mc-ring-progress" cx="40" cy="40" r="33" fill="none"
-                stroke-dasharray="191 207"/>
-            </svg>
-            <div class="mc-ring-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
+        <!-- Sprint 3.4: Publishing Intelligence™ executive passport — 7 sections.
+             Constitutional Presentation Layer™. Displays only. Never computes,
+             never registers, never estimates money. All values sourced from the
+             Publishing Intelligence Engine™. -->
+        <div class="mc-pi-body">
+
+          <!-- Section 1: Publishing Coverage
+               Owner: Publishing Intelligence Engine™ (pi.coverage / registeredCount / totalChecked) -->
+          <div class="mc-pi-coverage-section">
+            <div class="mc-pi-score-display">
+              <span class="mc-pi-score-num" data-mc-pi-coverage>—</span>
+              <span class="mc-pi-score-denom">%</span>
+            </div>
+            <div class="mc-pi-coverage-grade" data-mc-pi-coverage-grade>—</div>
+            <div class="mc-pi-coverage-sub"   data-mc-pi-coverage-sub>— of — complete</div>
+          </div>
+
+          <!-- Section 2: Publishing Summary counts
+               Owner: Publishing Intelligence Engine™ (pi.registrations state map) -->
+          <div class="mc-pi-summary">
+            <div class="mc-pi-sum-item">
+              <span class="mc-pi-sum-count" data-mc-pi-sum-verified>—</span>
+              <span class="mc-pi-sum-label">Verified</span>
+            </div>
+            <div class="mc-pi-sum-item mc-pi-sum-item--muted">
+              <span class="mc-pi-sum-count" data-mc-pi-sum-connected>—</span>
+              <span class="mc-pi-sum-label">Connected</span>
+            </div>
+            <div class="mc-pi-sum-item mc-pi-sum-item--warn">
+              <span class="mc-pi-sum-count" data-mc-pi-sum-attention>—</span>
+              <span class="mc-pi-sum-label">Needs Attention</span>
+            </div>
+            <div class="mc-pi-sum-item mc-pi-sum-item--danger">
+              <span class="mc-pi-sum-count" data-mc-pi-sum-missing>—</span>
+              <span class="mc-pi-sum-label">Missing</span>
             </div>
           </div>
-          <div class="mc-pub-summary">
-            <!-- Phase 5B: coverage indicator. Value + label + summary
-                 are populated at runtime by /js/mission-control.js from
-                 audit_scans.payload.publishingIntelligence. Coverage is
-                 INFORMATIONAL provider coverage (Board D4) — never a
-                 Health Score. Royaltē Health™ owns executive scoring. -->
-            <div class="mc-pub-sum-label" data-mc-publishing-coverage-label>Publishing Coverage</div>
-            <div class="mc-pub-sum-value" data-mc-publishing-coverage-value>0<small>%</small></div>
-            <div class="mc-pub-sum-meta"  data-mc-publishing-coverage-summary>0 of 4 verified</div>
+
+          <!-- Section 3: Publishing Systems
+               Owner: Publishing Intelligence Engine™ (pi.registrations map).
+               Future: add a row with data-mc-pi-system="<key>" — no JS rewrite needed. -->
+          <div class="mc-pi-systems-section">
+            <div class="mc-hi-section-label">Publishing Systems</div>
+            <div class="mc-pi-system-list">
+              <div class="mc-pi-system-row" data-mc-pi-system="mlcRegistration">
+                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M3 10l9-7 9 7z"/></svg>
+                <span class="mc-pi-system-name">MLC Registration</span>
+                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+              </div>
+              <div class="mc-pi-system-row" data-mc-pi-system="registeredWorks">
+                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v17H6a2 2 0 0 0-2 2"/><path d="M8 8h8M8 12h8"/></svg>
+                <span class="mc-pi-system-name">Registered Works</span>
+                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+              </div>
+              <div class="mc-pi-system-row" data-mc-pi-system="iswcCoverage">
+                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                <span class="mc-pi-system-name">ISWC Coverage</span>
+                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+              </div>
+              <div class="mc-pi-system-row" data-mc-pi-system="registeredSongwriters">
+                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3l5 5L8 21H3v-5z"/><path d="M14 5l5 5"/></svg>
+                <span class="mc-pi-system-name">Registered Songwriters</span>
+                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+              </div>
+              <div class="mc-pi-system-row" data-mc-pi-system="writerIpi">
+                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span class="mc-pi-system-name">Writer IPI</span>
+                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+              </div>
+              <div class="mc-pi-system-row" data-mc-pi-system="compositionMatch">
+                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><path d="M6.5 10v4M17.5 10v4M3 17h18"/></svg>
+                <span class="mc-pi-system-name">Composition Match</span>
+                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+              </div>
+            </div>
           </div>
+
+          <!-- Section 4: Financial Impact™ (NEW)
+               Owner: Publishing Intelligence Engine™ (pi.issues severity).
+               Auto-placed left col on desktop; order 2 on mobile.
+               Constitutional rule: never estimate dollar amounts.
+               Display only: Low Risk / Medium Risk / High Risk. -->
+          <div class="mc-pi-impact">
+            <div class="mc-hi-section-label">Financial Impact</div>
+            <div class="mc-pi-impact-badge mc-pi-impact-badge--low" data-mc-pi-impact-badge>LOW RISK</div>
+            <div class="mc-pi-impact-body" data-mc-pi-impact-body>Publishing data loading</div>
+          </div>
+
+          <!-- Section 5: Biggest Publishing Risk
+               Owner: Publishing Intelligence Engine™ (pi.issues[0]).
+               Auto-placed right col on desktop; order 3 on mobile. -->
+          <div class="mc-pi-risk">
+            <div class="mc-hi-section-label">Biggest Risk</div>
+            <div class="mc-pi-highlight-icon" aria-hidden="true">⚠</div>
+            <div class="mc-pi-highlight-title" data-mc-pi-risk-title>—</div>
+            <div class="mc-pi-highlight-meta"  data-mc-pi-risk-meta></div>
+            <div class="mc-pi-resolution"      data-mc-pi-risk-resolution></div>
+          </div>
+
+          <!-- Section 6: Biggest Publishing Win
+               Owner: Evidence Events™ / Publishing Intelligence Engine™ (pi.strengths[0]).
+               Full width on desktop; order 6 on mobile. -->
+          <div class="mc-pi-win">
+            <div class="mc-hi-section-label">Biggest Win</div>
+            <div class="mc-pi-highlight-icon" aria-hidden="true">▲</div>
+            <div class="mc-pi-highlight-title" data-mc-pi-win-title>—</div>
+            <div class="mc-pi-highlight-meta"  data-mc-pi-win-meta></div>
+          </div>
+
+          <!-- Section 7: Recent Publishing Changes
+               Owner: Monitoring Intelligence™ / Evidence Events™ (pi.strengths + pi.issues) -->
+          <div class="mc-pi-changes-section">
+            <div class="mc-hi-section-label">Recent Changes</div>
+            <ul class="mc-pi-changes-list" data-mc-pi-changes>
+              <li>Publishing data loading</li>
+            </ul>
+          </div>
+
         </div>
-
-        <!-- Build Pass 2 (2026-06-25) — Six Board-approved data-backed
-             metrics replace the Phase 5B four. All six rows carry
-             data-mc-publishing-metric="<key>" and are iterated at
-             runtime by /js/mission-control.js using the Publishing
-             Intelligence™ object's `registrations` map. Row count is
-             data-driven — Mission Control never assumes a fixed count. -->
-        <ul class="mc-pub-checks">
-          <li class="mc-pub-check" data-mc-publishing-metric="mlcRegistration">
-            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M3 10l9-7 9 7z"/></svg>
-            MLC Registration
-            <span class="mc-pill mc-pill--unable" data-mc-publishing-pill>—</span>
-          </li>
-          <li class="mc-pub-check" data-mc-publishing-metric="registeredWorks">
-            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v17H6a2 2 0 0 0-2 2"/><path d="M8 8h8M8 12h8"/></svg>
-            Registered Works
-            <span class="mc-pill mc-pill--unable" data-mc-publishing-pill>—</span>
-          </li>
-          <li class="mc-pub-check" data-mc-publishing-metric="iswcCoverage">
-            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-            ISWC Coverage
-            <span class="mc-pill mc-pill--unable" data-mc-publishing-pill>—</span>
-          </li>
-          <li class="mc-pub-check" data-mc-publishing-metric="registeredSongwriters">
-            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3l5 5L8 21H3v-5z"/><path d="M14 5l5 5"/></svg>
-            Registered Songwriters
-            <span class="mc-pill mc-pill--unable" data-mc-publishing-pill>—</span>
-          </li>
-          <li class="mc-pub-check" data-mc-publishing-metric="writerIpi">
-            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Writer IPI
-            <span class="mc-pill mc-pill--unable" data-mc-publishing-pill>—</span>
-          </li>
-          <li class="mc-pub-check" data-mc-publishing-metric="compositionMatch">
-            <svg class="mc-pub-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><path d="M6.5 10v4M17.5 10v4M3 17h18"/></svg>
-            Composition Match
-            <span class="mc-pill mc-pill--unable" data-mc-publishing-pill>—</span>
-          </li>
-        </ul>
-
-        <div class="mc-card-foot"></div>
       </article>
 
       <!-- Catalog Intelligence™ -->

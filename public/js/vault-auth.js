@@ -133,13 +133,18 @@ function _blankSentinelData() {
   const idWt  = q('[data-mc-id-win-title]');  if (idWt) idWt.textContent  = '—';
   const idCh  = q('[data-mc-id-changes]');    if (idCh) idCh.innerHTML    = '';
 
-  // Publishing Intelligence
-  const pc = q('[data-mc-publishing-coverage-value]');
-  if (pc) pc.innerHTML = '0<small>%</small>';
-  const ps = q('[data-mc-publishing-coverage-summary]');
-  if (ps) ps.textContent = '0 of 4 verified';
-  const pr = q('#publishing-intelligence .mc-ring-progress');
-  if (pr) pr.setAttribute('stroke-dasharray', '0 208');
+  // Publishing Intelligence™ v3.4 (Sprint 3.4)
+  const piCov = q('[data-mc-pi-coverage]');       if (piCov) piCov.textContent = '—';
+  const piGrd = q('[data-mc-pi-coverage-grade]'); if (piGrd) piGrd.textContent = '—';
+  const piSub = q('[data-mc-pi-coverage-sub]');   if (piSub) piSub.textContent = '— of — complete';
+  const piSv  = q('[data-mc-pi-sum-verified]');   if (piSv)  piSv.textContent  = '—';
+  const piSc  = q('[data-mc-pi-sum-connected]');  if (piSc)  piSc.textContent  = '—';
+  const piSa  = q('[data-mc-pi-sum-attention]');  if (piSa)  piSa.textContent  = '—';
+  const piSm  = q('[data-mc-pi-sum-missing]');    if (piSm)  piSm.textContent  = '—';
+  qa('[data-mc-pi-system-pill]').forEach(el => { el.textContent = '—'; el.className = 'mc-pill mc-pill--unable'; });
+  const piRt  = q('[data-mc-pi-risk-title]');      if (piRt) piRt.textContent = '—';
+  const piWt  = q('[data-mc-pi-win-title]');       if (piWt) piWt.textContent  = '—';
+  const piCh  = q('[data-mc-pi-changes]');         if (piCh) piCh.innerHTML    = '';
 
   // Catalog Intelligence
   const cs = q('[data-mc-catalog-status]');
