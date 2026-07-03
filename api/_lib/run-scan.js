@@ -46,6 +46,8 @@ import { acquireMBEvidence, synthesizeMBCompat } from './mb-pal-acquisition.js';
 import { acquireDiscogsEvidence, synthesizeDiscogsCompat } from './discogs-pal-acquisition.js';
 // Phase 3.6/YouTube (YouTube PAL Migration) — PAL YouTube acquisition
 import { acquireYouTubeEvidence, synthesizeYouTubeCompat } from './youtube-pal-acquisition.js';
+// Phase 3.6/MLC (MLC PAL — Publishing Authority) — PAL MLC acquisition
+import { acquireMLCEvidence } from './mlc-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -188,6 +190,7 @@ export async function runScan(url) {
   // Phase 3.8: MusicBrainz acquisition routes through PAL (replacing direct getMusicBrainz call).
   // Phase 3.6/Discogs: Discogs acquisition routes through PAL (replacing direct getDiscogs call).
   // Phase 3.6/YouTube: YouTube acquisition routes through PAL (replacing direct getYouTube call).
+  // Phase 3.6/MLC: The MLC acquisition via PAL — first constitutional Publishing Authority.
   // All PAL evidence packages flow into runRIE via the hybrid merge path.
   // synthesize*Compat functions below are backward-compat synthesis for the V1 module system only.
   const appleIsrc = resolved.trackIsrc || trackData?.external_ids?.isrc || null;
@@ -198,6 +201,7 @@ export async function runScan(url) {
     mbPalSettled,
     discogsPalSettled,
     youtubePalSettled,
+    mlcPalSettled,
     deezerSettled,
     audioDbSettled,
     soundcloudSettled,
@@ -220,6 +224,8 @@ export async function runScan(url) {
     acquireDiscogsEvidence({ artistName }),
     // Phase 3.6/YouTube: YouTube via PAL — replaces direct getYouTube call
     acquireYouTubeEvidence({ artistName }),
+    // Phase 3.6/MLC: The MLC via PAL — constitutional Publishing Authority
+    acquireMLCEvidence({ artistName }),
     getDeezer(artistName),
     getAudioDB(artistName),
     getSoundCloud(artistName),
@@ -237,14 +243,17 @@ export async function runScan(url) {
     discogsPalSettled.status === 'fulfilled' ? discogsPalSettled.value : {};
   const { evidencePackages: youtubeEvidencePackages = [] } =
     youtubePalSettled.status === 'fulfilled' ? youtubePalSettled.value : {};
+  const { evidencePackages: mlcEvidencePackages = [] } =
+    mlcPalSettled.status === 'fulfilled' ? mlcPalSettled.value : {};
 
-  // Combined evidence packages — all five PAL providers enter the RIE hybrid merge path.
+  // Combined evidence packages — all six PAL providers enter the RIE hybrid merge path.
   const evidencePackages = [
     ...appleEvidencePackages,
     ...spotifyEvidencePackages,
     ...mbEvidencePackages,
     ...discogsEvidencePackages,
     ...youtubeEvidencePackages,
+    ...mlcEvidencePackages,
   ];
 
   // [TRANSITIONAL] Legacy compat shapes for V1 module system (runModules / buildFlags).
