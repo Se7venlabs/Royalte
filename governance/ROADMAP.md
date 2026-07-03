@@ -87,9 +87,15 @@ from Apple Production Migration (PR #189, 2026-07-02).
 
 ---
 
+## What's Live in Mission Control™ (as of 2026-07-03)
+
+- **Music Ecosystem Status™ (Sprint 3.1)** — 6-section executive summary banner. Health Score, Last Scan, Next Scan, Changes Detected, Priority Actions, Monitoring Status. First module revealed on every MC boot. Constitutional Presentation Layer™ — reads from Health Intelligence™, Evidence Snapshot Store™, Monitoring Policy™, Evidence Events™, Executive Brief™, Monitoring Intelligence™. Merged at `aab47ca` (PR #209 + amendment).
+
+---
+
 ## What's Not Live Yet
 
-- **No UI currently consumes Phase 8 engine output.** `healthScore`, `healthReport`, and `executiveBrief` are now persisted in every scan payload but are not yet surfaced in Mission Control or the scan UI.
+- **Mission Control modules 2–8** — Identity Intelligence, Publishing Intelligence, Catalog Intelligence, Change Detection, Backend Intelligence, Global Footprint, AI Insights all boot with locked sample HTML. Each requires its own Board implementation brief before wiring begins.
 - **Publishing Intelligence™ not yet built.** The MLC evidence (recordings + works) is acquired and preserved in the CIM. The intelligence layer that reads this evidence — Publishing Intelligence™, Rights Intelligence™, Revenue Intelligence™ — requires a separate Board brief.
 - **Monitoring and Revenue reserved sections remain placeholders.** `MONITORING`, `REVENUE`, and `GENERAL` in the Rule Library carry empty arrays; `monitoring` and `revenue` in reserved sections ship `null`. Phase 9+ may begin populating them.
 - **All future work is Board-authorized only.** No phase begins until the Board issues a formal brief.
@@ -98,13 +104,11 @@ from Apple Production Migration (PR #189, 2026-07-02).
 
 ## Next Engineering Target
 
-**Provider Expansion Sprint complete. Six constitutional authorities certified.** The next phase requires explicit Board authorization. Options pending Board direction:
-- **Publishing Intelligence™** — consume MLC + publishing evidence from CIM to generate constitutional publishing insight; requires Board brief
+**Sprint 3.1 (Music Ecosystem Status™) complete. MC Constitutional Presentation Layer™ established.** The next phase requires explicit Board authorization. Options pending Board direction:
+- **MC Sprint 3.2** — next Mission Control™ module wiring (Board brief required per module)
+- **Publishing Intelligence™** — consume MLC + publishing evidence from CIM; requires Board brief
 - **Rights Intelligence™** — consume publisher/writer/ISWC evidence to generate ownership insight; requires Board brief
-- **UI Wiring** — surface Phase 8 engine output (`healthScore`, `healthReport`, `executiveBrief`) in Mission Control and the scan UI; requires Board brief
-- **Phase 3.5 Sprint A** — dead code retirement (V1 stubs); deferred from Phase 3.5; requires Board authorization
-- **Phase 3.5 Sprint E** — ISRC Coverage real-data validation against live tracks
-- **Phase 3.5 Sprint F** — Publishing expansion (ASCAP/BMI/SOCAN adapter)
+- **Phase 3.5 Sprint A** — dead code retirement (V1 stubs); deferred; requires Board authorization
 
 No sprint begins until the Board issues a formal brief.
 

@@ -28,14 +28,18 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™** |
-| Merged at | `ba66b26` (PR #201, 2026-07-03) |
+| Most recently completed phase | **Sprint 3.1 — Music Ecosystem Status™ + Constitutional Wiring Amendment** |
+| Merged at | `aab47ca` (PR #209, 2026-07-03) |
 | Tag | — |
-| Prior phase | Phase 3.6 MLC Publishing Authority (`67d7fe8`, PR #199, 2026-07-02) |
-| Active direction | Seven constitutional providers certified. Board has authorized Phase 3.6 Provider Expansion 08 — TheAudioDB Artist & Media Intelligence Authority™. |
-| Next Board gate | Merge PR for TheAudioDB + governance backfill |
+| Prior phase | Phase 3.6 Deezer — Streaming Verification Authority™ (`ba66b26`, PR #201, 2026-07-03) |
+| Active direction | MC Sprint 3.1 complete. Mission Control is a Constitutional Presentation Layer™. Next MC module requires its own Board brief. |
+| Next Board gate | Board brief for next Mission Control™ module (Sprint 3.2 or equivalent) |
 
-**Seven constitutional providers, 740/740 certified, 11 suites.** Board Certification Harness is the permanent gate. No release tag may be created without harness exit 0 + GitHub CI green.
+**Mission Control™ is now a Constitutional Presentation Layer™.** Every value in Music Ecosystem Status™ has a documented constitutional owner. MC reads from intelligence engines; it never computes, calculates, or determines.
+
+**Sprint 3.1 — Music Ecosystem Status™ (PR #209, `2c81e88` + amendment `aab47ca`, 2026-07-03):** "All Systems Normal" banner replaced with 6-section Executive Intelligence Summary. Health Score, Last Scan, Next Scan, Changes Detected, Priority Actions, Monitoring Status. `ecosystem-status` is first module revealed on every boot. Constitutional Wiring Amendment formalizes ownership: Last Scan → Evidence Snapshot Store™ (`mi.capturedAt`); Next Scan → Monitoring Policy™ (`mi.nextScan`). `monitoring-intelligence.js` bumped to v1.1.
+
+**Board Implementation Brief Standard™ established (2026-07-03):** All future Phase 3 MC briefs must contain: Module Mission Statement, UI Requirements, UX Requirements, Wiring Specification™, Constitutional Guidance, Scope Lock, Success Criteria, Future Consumers.
 
 **Phase 3.6 Deezer (PR #201, `ba66b26`, 2026-07-03):** Streaming Verification Authority™, trust 80. `getDeezer()` direct-call retired. All original streaming providers (Apple, Spotify, Deezer) now 100% migrated to PAL. Suite 11 (67 assertions). `platforms.deezer.isrcs[]` is the constitutional bridge for future Verification Intelligence™.
 
@@ -51,7 +55,7 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 **Phase 3.4 — Website Scan is a constitutional presentation layer.** All displayed intelligence reads from the Certified CIM. ISRC Coverage is a permanent RIE field (`isrcCoverage` in `catalogIntelligence`). Catalog Availability reads from `globalMusicFootprint.status`. Zero business logic remains in `_renderV2Found`.
 
-Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`.
+Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`. MC Sprint 3.1 (Music Ecosystem Status™ + Constitutional Wiring Amendment) `aab47ca`.
 
 The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`. The legacy retirement checklist lives in `governance/MIGRATION_RETIREMENT_REGISTER.md`.
 
