@@ -19,6 +19,7 @@ import { DISCOGS_CAPABILITIES }       from '../../../provider-acquisition/connec
 import { Capability }                 from '../../../provider-acquisition/capability/capabilityVocabulary.js';
 import { createEvidenceContract }     from '../../../provider-acquisition/evidence/EvidenceContract.js';
 import { synthesizeDiscogsCompat }    from '../../../api/_lib/discogs-pal-acquisition.js';
+import { CATALOG_EVIDENCE_POLICY }    from '../../../api/_lib/catalog-evidence-policy.js';
 import { PROVIDER_NAME, CONNECTOR_VERSION }
   from '../../../provider-acquisition/connectors/discogs/DiscogsConnector.js';
 
@@ -444,6 +445,37 @@ function groupF() {
   return { label: 'F — Catalog Intelligence: Discogs Integration', assertions };
 }
 
+// ── Group F2 — Catalog Evidence Policy ───────────────────────────────────────
+
+function groupF2() {
+  const assertions = [];
+  const policy = CATALOG_EVIDENCE_POLICY;
+
+  assertions.push(check('CATALOG_EVIDENCE_POLICY exports an object',
+    typeof policy === 'object' && policy !== null));
+
+  assertions.push(check('policy is frozen',
+    Object.isFrozen(policy)));
+
+  assertions.push(check('policy.releaseChronology is frozen',
+    Object.isFrozen(policy?.releaseChronology)));
+
+  assertions.push(check('policy.releaseChronology is an array',
+    Array.isArray(policy?.releaseChronology)));
+
+  assertions.push(check('policy.releaseChronology[0] = "apple" (canonical primary)',
+    policy?.releaseChronology?.[0] === 'apple'));
+
+  assertions.push(check('policy.releaseChronology[1] = "discogs" (catalog authority fallback)',
+    policy?.releaseChronology?.[1] === 'discogs'));
+
+  assertions.push(check('policy.releaseChronology has exactly 2 providers',
+    policy?.releaseChronology?.length === 2,
+    `got ${policy?.releaseChronology?.length}`));
+
+  return { label: 'F2 — Catalog Evidence Policy (Board-ratified)', assertions };
+}
+
 // ── Group G — Edge cases ──────────────────────────────────────────────────────
 
 function groupG() {
@@ -502,6 +534,7 @@ export async function runDiscogsConnector() {
     groupD(),
     groupE(),
     groupF(),
+    groupF2(),
     groupG(),
   ];
 

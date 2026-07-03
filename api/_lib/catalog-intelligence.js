@@ -65,6 +65,8 @@
 
 export const CATALOG_INTELLIGENCE_VERSION = '1.1.0';
 
+import { CATALOG_EVIDENCE_POLICY } from './catalog-evidence-policy.js';
+
 // Board-locked release-count thresholds for catalogStatus.
 // Change only through a formal Board Review.
 const STATUS_THRESHOLDS = Object.freeze({
@@ -225,7 +227,8 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
     const isrcCoverage  = assembleIsrcCoverage(safeCanonical);
 
     // Discogs: physical release count and year range (Phase 3.6/Discogs)
-    // Discogs is the constitutional catalog authority for physical releases.
+    // Provider precedence for release chronology is owned by CATALOG_EVIDENCE_POLICY.
+    // Current order: CATALOG_EVIDENCE_POLICY.releaseChronology = ['apple', 'discogs']
     const discogsReleases = safeCanonical?.platforms?.discogs?.details?.releases;
     const physicalReleaseCount = typeof safeCanonical?.platforms?.discogs?.details?.totalReleases === 'number'
       ? safeCanonical.platforms.discogs.details.totalReleases
