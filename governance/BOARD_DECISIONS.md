@@ -11,6 +11,54 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Monitoring Intelligence Migration Sprint™ — Constitutional Monitoring Foundation — UNANIMOUSLY APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Board UNANIMOUSLY APPROVES the Monitoring Intelligence Migration Sprint™. Royaltē's fourth constitutional dimension — Time — is hereby established. The Board authorizes the constitutional foundation for monitoring: EvidenceSnapshot™, Evidence Snapshot Store™, Evidence Difference Engine™, Evidence Event™, and Monitoring Intelligence™. Board verdict: 10.0/10 — the highest score awarded in the OS Migration Sprint. |
+| **Directives adopted** | (1) Constitutional Monitoring Pipeline: EvidenceBridge → Evidence Snapshot → SnapshotStore → EvidenceDiffEngine → Evidence Events → Monitoring Intelligence. (2) `runMonitoringIntelligence(snapshotA, snapshotB, policy)` is the sole entrypoint for monitoring intelligence. (3) All thresholds, severity rules, retention periods, and confidence bands live in the Board-owned MonitoringPolicy™ module (pure data only — algorithms never define policy). (4) Constitutional Explainability™ is mandatory: every Evidence Event™ requires `whatChanged`, `whyDetected`, and `whyItMatters`. (5) Evidence Events are immutable (deep-frozen) with UUID `eventId` for auditability. (6) SnapshotStore is append-only; no snapshot is ever modified or deleted during normal operation. (7) EvidenceDiffEngine is bounded by MAX_DIFF_DEPTH=8; arrays are treated as atomic leaves at the foundation layer. (8) CRITICAL scope lock: no AI recommendations, no auto-repair, no provider updates, no rights automation, no reconciliation, no business rule engines, no workflow automation — evidence observation only. (9) Constitutional Event Severity™ has exactly 5 Board-ratified levels: CRITICAL / HIGH / MEDIUM / LOW / INFORMATIONAL — no others allowed. (10) `snapshotOnNoChange: false` is the default policy — a new snapshot is not stored when evidence is identical to the latest for the same artist. |
+| **Board Amendment** | `snapshotVersion` + `snapshotHash` added to `EvidenceSnapshot™`. `snapshotHash` is a deterministic SHA-256 hex digest of `JSON.stringify(canonicalEvidence)` enabling O(1) no-change detection, tamper verification via `verifySnapshotIntegrity()`, and long-term historical replay integrity without full evidence deserialisation. `snapshotVersion` independently versions the snapshot schema format (distinct from `schemaVersion`). `evidenceDiffers()` uses hash comparison when available; falls back to JSON for pre-Amendment compatibility. Applied before PR merge. |
+| **Constitutional principles adopted** | (1) Passive Monitoring — the monitoring layer observes; it never writes to provider systems. (2) Time is Constitutional — Evidence Snapshots are first-class constitutional objects alongside the CIO. (3) Immutable History — once stored, snapshots and events are permanent. (4) Evidence Before Intelligence — all diffs are neutral facts; severity and confidence are assigned by policy (Board-owned). (5) Provider Independence — the monitoring pipeline treats provider namespaces uniformly; no provider has special monitoring status. |
+| **Impact** | Royaltē transitions from a static evidence platform to a historical intelligence platform. Every future monitoring capability (Timeline Intelligence™, Alert Intelligence™, Weekly Reports™, MC Activity Feed™, Historical Replay™, AI Monitoring Agents™) builds on this frozen constitutional foundation. 1095/1095 certified across 14 suites (172 new assertions in Suite 14). |
+| **Next priorities (Board guidance)** | Mission Control Activity Feed, Monitoring Timeline, Weekly Reports, Executive Brief Change History, Monitoring Alerts, Website Experience & Messaging Sprint, "What We Do" Landing Page, Royaltē Monitoring subscription experience. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Number** | #206 |
+| **Commit SHA** | `0235bc3` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Phase 3.6 Provider Expansion 09 — Last.fm Community Intelligence Authority™ — UNANIMOUSLY APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Board UNANIMOUSLY APPROVES Phase 3.6 Provider Expansion 09 — Last.fm as Royaltē's Community Intelligence Authority™. Last.fm acquires community evidence (listener count, play count, community tags, similar artists, top tracks, top albums, artist biography, artist images). Community evidence is constitutionally distinct from commercial streaming evidence. Provider trust: 75 (community database — reliable but not commercial/official). |
+| **Directives adopted** | (1) Last.fm's constitutional role is Community Intelligence Authority™ — community evidence is preserved independently from commercial streaming; never compared, merged, or averaged with Apple/Spotify counts. (2) Last.fm API v2 returns HTTP 200 for all responses including application-level errors — the connector MUST parse the body and check for `data?.error` before treating a response as successful (error 6 = not found → PARTIAL_RESPONSE; error 29 = rate limited → RATE_LIMITED). (3) Soft identity-lock: Last.fm returns a single artist per request; capitalization differences are common; evidence is preserved on name mismatch with PARTIAL_RESPONSE health state (not discarded). (4) `HealthState.AUTH_FAILED` is the correct state for a missing API key — `AUTH_UNAVAILABLE` does not exist in the HealthState enum. (5) `platforms.lastfm.community.listeners` and `platforms.lastfm.community.playcount` are the constitutional fields for community audience evidence. (6) Raw HTML biography preserved in EvidenceBridge; compat synthesis strips HTML and truncates to 300 chars for V1 surface compatibility only. (7) Scope lock: no Community Intelligence, Discovery Intelligence, Recommendation Engine, popularity scoring, trend analysis, or audience estimation in this phase. |
+| **Impact** | Nine constitutional providers, 923/923 certified. Community evidence foundation established for future Community Intelligence™ and Discovery Intelligence™. `getLastFm()` direct-call marked RETIRED CANDIDATE; all Last.fm acquisition flows through PAL. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Number** | #205 |
+| **Commit SHA** | `5a89801` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Phase 3.6 Provider Expansion 08 — TheAudioDB Artist & Media Intelligence Authority™ — UNANIMOUSLY APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Board UNANIMOUSLY APPROVES Phase 3.6 Provider Expansion 08 — TheAudioDB as Royaltē's Artist & Media Intelligence Authority™. TheAudioDB acquires visual and editorial media evidence (artwork, biography, discography, music videos, social links). Provider trust: 70 (independent curated media database; reliable but lower confidence than official streaming APIs). |
+| **Directives adopted (Board Amendment 1–6)** | (1) Constitutional media namespace established: `platforms.audiodb.profile` / `media` / `discography` / `statistics`. (2) Visual evidence is first-class constitutional evidence — artwork and media assets are not decorative metadata. (3) Each image type (thumbnails, logos, clearart, wide-thumb, banner, fanArt ×4) preserved independently in `platforms.audiodb.media`; no collapsing or de-duplication at the bridge layer. (4) Biography full-text (`strBiographyEN`) preserved at the bridge layer; compat synthesis truncates to 400 chars for V1 surfaces only. (5) No-credentials pattern (same constitutional precedent as Deezer): `authenticate()` returns AVAILABLE after `initialize()` without any network call. (6) `statistics` sub-namespace reserved for future engagement and streaming metrics; ships empty in v1.0. AudioDB is the constitutional reference model for future media-rich providers. |
+| **Impact** | Eight constitutional providers, 834/834 certified. Media evidence foundation established for future Media Intelligence™. `getAudioDB()` direct-call marked RETIRED CANDIDATE; all AudioDB acquisition flows through PAL. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Number** | #203 |
+| **Commit SHA** | `bd4464e` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™ — UNANIMOUSLY APPROVED
 
 | | |
