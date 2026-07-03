@@ -466,9 +466,16 @@ function applyChangeDetectionPlan(plan) {
 //
 // buildEcosystemStatusPlan + applyEcosystemStatusPlan.
 //
-// Presentation layer only. Reads from existing render plans (healthPlan,
-// cdPlan) and the raw payload (for timestamps + executiveBrief).
-// Never computes scores. Never invents values.
+// Mission Control is a Constitutional Presentation Layer™.
+// It reads from constitutional intelligence engines. It never computes.
+//
+// Constitutional ownership for every displayed value:
+//   Health Score / Grade / Trend → Health Intelligence™
+//   Last Scan                    → Evidence Snapshot Store™ (monitoringIntelligence.capturedAt)
+//   Next Scheduled Scan          → Monitoring Policy™ (monitoringIntelligence.nextScan)
+//   Changes Detected             → Evidence Events™ (Change Detection render plan)
+//   Priority Actions             → Executive Brief™ (executiveBrief.priorityActions)
+//   Monitoring Status            → Monitoring Intelligence™ (monitoringIntelligence.status)
 
 function _esFormatTimeAgo(iso) {
   if (!iso || typeof iso !== 'string') return '—';
@@ -506,20 +513,21 @@ function buildEcosystemStatusPlan(payload, plans) {
   const mi = payload?.monitoringIntelligence;
   const eb = payload?.executiveBrief;
 
-  // Health — score + grade label from Health Intelligence™ plan
+  // Health Score + Grade — constitutional owner: Health Intelligence™
   const score = hp?.score ?? null;
   const grade = hp?.status ?? '—';
 
-  // Trend — from healthIntelligence.delta if the payload carries it;
-  // not yet in the standard payload so this gracefully returns null.
+  // Health Trend — constitutional owner: Health Intelligence™
   const delta = (typeof payload?.healthIntelligence?.delta === 'number')
     ? payload.healthIntelligence.delta : null;
 
-  // Timestamps — prefer payload.scannedAt, fall back to backendIntelligence.lastSync
-  const lastScanIso = payload?.scannedAt || payload?.backendIntelligence?.lastSync || null;
+  // Last Scan — constitutional owner: Evidence Snapshot Store™
+  // Source: monitoringIntelligence.capturedAt (EvidenceSnapshot.capturedAt field)
+  const lastScanIso = mi?.capturedAt ?? null;
   const lastScan    = _esFormatTimeAgo(lastScanIso);
 
-  // Next scan — from monitoringIntelligence.nextScan if present
+  // Next Scheduled Scan — constitutional owner: Monitoring Policy™
+  // Source: monitoringIntelligence.nextScan (derived from capturedAt + policy frequencyMs)
   const nextScanIso = mi?.nextScan ?? null;
   let nextScan = 'Scheduled', nextScanMeta = '';
   if (nextScanIso) {
@@ -530,15 +538,18 @@ function buildEcosystemStatusPlan(payload, plans) {
     } catch { /* keep defaults */ }
   }
 
-  // Changes — from Change Detection™ render plan
+  // Changes Detected — constitutional owner: Evidence Events™
+  // Source: Change Detection™ render plan (cdPlan)
   const changesValue = cd?.sumValue ?? '—';
   const changesMeta  = cd?.sumMeta  ?? '';
 
-  // Priority actions — from Executive Brief™
+  // Priority Actions — constitutional owner: Executive Brief™
+  // Source: executiveBrief.priorityActions
   const paList  = Array.isArray(eb?.priorityActions) ? eb.priorityActions : [];
   const paCount = paList.length;
 
-  // Monitoring status — from Monitoring Intelligence™
+  // Monitoring Status — constitutional owner: Monitoring Intelligence™
+  // Source: monitoringIntelligence.status → display label map
   const statusLabel   = _esMonitoringStatusLabel(mi?.status ?? null);
   const isOperational = statusLabel === 'Operational';
 

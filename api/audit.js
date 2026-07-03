@@ -457,6 +457,8 @@ export default async function handler(req, res) {
               const monitoringIntelligence = assembleMonitoringIntelligence({
                 scanNumber: osResult.scanNumber,
                 alerts:     osResult.alerts || [],
+                capturedAt: osResult.capturedAt,  // Evidence Snapshot Store™
+                nextScanAt: osResult.nextScanAt,   // Monitoring Policy™
               });
               if (monitoringIntelligence && canonical) {
                 canonical.monitoringIntelligence = monitoringIntelligence;

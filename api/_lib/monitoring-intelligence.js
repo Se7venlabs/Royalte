@@ -29,13 +29,15 @@
 //    - Events capped at MAX_EVENTS (MC card renders 4 rows).
 //
 // ─────────────────────────────────────────────────────────────────────
-//  Output shape (v1.0):
+//  Output shape (v1.1):
 //
 //    {
 //      status:      'baseline' | 'active' | 'no_changes',
 //      scanNumber:  number,
-//      newThisScan: number,   // count of events detected this scan
+//      newThisScan: number,        // count of events detected this scan
 //      events:      EventEntry[],
+//      capturedAt:  string | null, // Evidence Snapshot Store™ — ISO 8601 scan time
+//      nextScan:    string | null, // Monitoring Policy™ — ISO 8601 next scheduled scan
 //    }
 //
 //    EventEntry = {
@@ -46,7 +48,7 @@
 //
 // ─────────────────────────────────────────────────────────────────────
 
-export const MONITORING_INTELLIGENCE_VERSION = '1.0.0';
+export const MONITORING_INTELLIGENCE_VERSION = '1.1.0';
 
 const MAX_EVENTS = 4;
 
@@ -85,7 +87,7 @@ function normalizeEvent(raw) {
 
 // ─── Public API ──────────────────────────────────────────────────────
 
-export function assembleMonitoringIntelligence({ scanNumber, alerts } = {}) {
+export function assembleMonitoringIntelligence({ scanNumber, alerts, capturedAt, nextScanAt } = {}) {
   try {
     const num  = (typeof scanNumber === 'number' && Number.isFinite(scanNumber) && scanNumber >= 1)
       ? scanNumber
@@ -99,11 +101,18 @@ export function assembleMonitoringIntelligence({ scanNumber, alerts } = {}) {
 
     const status = deriveStatus(num, rawAlerts.length);
 
+    // capturedAt — constitutional owner: Evidence Snapshot Store™
+    // nextScan   — constitutional owner: Monitoring Policy™ (computed from capturedAt + schedule)
+    const capAt  = typeof capturedAt === 'string' ? capturedAt : null;
+    const nextAt = typeof nextScanAt === 'string' ? nextScanAt : null;
+
     return deepFreeze({
       status,
       scanNumber:  num,
       newThisScan: rawAlerts.length,
       events,
+      capturedAt:  capAt,
+      nextScan:    nextAt,
     });
   } catch (err) {
     console.error('[monitoring-intelligence] assembly threw (returning empty shell):', err?.message || err);
@@ -112,6 +121,8 @@ export function assembleMonitoringIntelligence({ scanNumber, alerts } = {}) {
       scanNumber:  1,
       newThisScan: 0,
       events:      [],
+      capturedAt:  null,
+      nextScan:    null,
     });
   }
 }
