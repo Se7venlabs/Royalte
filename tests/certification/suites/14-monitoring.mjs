@@ -17,7 +17,7 @@
 
 import { EventSeverity, isValidSeverity, SEVERITY_ORDER, isAtLeast } from '../../../monitoring/events/EventSeverity.js';
 import { DEFAULT_MONITORING_POLICY, resolveSeverity, computeConfidence, POLICY_VERSION } from '../../../monitoring/policy/MonitoringPolicy.js';
-import { createEvidenceSnapshot, evidenceDiffers, SNAPSHOT_SCHEMA_VERSION } from '../../../monitoring/snapshot/EvidenceSnapshot.js';
+import { createEvidenceSnapshot, evidenceDiffers, verifySnapshotIntegrity, SNAPSHOT_SCHEMA_VERSION, SNAPSHOT_VERSION } from '../../../monitoring/snapshot/EvidenceSnapshot.js';
 import { SnapshotStore } from '../../../monitoring/snapshot/SnapshotStore.js';
 import { compareSnapshots, compareEvidence, filterByPath, filterByChangeType, extractProvider } from '../../../monitoring/diff/EvidenceDiffEngine.js';
 import { createEvidenceEvent, EVENT_SCHEMA_VERSION } from '../../../monitoring/events/EvidenceEvent.js';
@@ -211,6 +211,40 @@ function groupC() {
     snap.metadata.platforms.includes('lastfm')));
   assertions.push(check('snapshot.metadata.platforms includes spotify',
     snap.metadata.platforms.includes('spotify')));
+
+  // Board Amendment: snapshotVersion + snapshotHash
+  assertions.push(check('snapshot.snapshotVersion is SNAPSHOT_VERSION',
+    snap.snapshotVersion === SNAPSHOT_VERSION));
+  assertions.push(check('snapshot.snapshotHash is a 64-char hex string (SHA-256)',
+    typeof snap.snapshotHash === 'string' && /^[0-9a-f]{64}$/.test(snap.snapshotHash),
+    `got: "${snap.snapshotHash?.slice(0, 20)}…"`));
+
+  // snapshotHash is deterministic: same evidence → same hash
+  const snap1b = createEvidenceSnapshot({ canonicalEvidence: EVIDENCE_V1, capturedAt: NOW_1 });
+  const snap1c = createEvidenceSnapshot({ canonicalEvidence: EVIDENCE_V1, capturedAt: NOW_1 });
+  assertions.push(check('same evidence → same snapshotHash (deterministic)',
+    snap1b.snapshotHash === snap1c.snapshotHash,
+    `hashes: ${snap1b.snapshotHash?.slice(0, 20)} vs ${snap1c.snapshotHash?.slice(0, 20)}`));
+
+  // Different evidence → different hash
+  const snapDiffHash = createEvidenceSnapshot({ canonicalEvidence: EVIDENCE_V2, capturedAt: NOW_1 });
+  assertions.push(check('different evidence → different snapshotHash',
+    snap.snapshotHash !== snapDiffHash.snapshotHash));
+
+  // verifySnapshotIntegrity passes on freshly created snapshot
+  assertions.push(check('verifySnapshotIntegrity returns true for valid snapshot',
+    verifySnapshotIntegrity(snap)));
+
+  // evidenceDiffers uses hash path (O(1)) when hashes present
+  const snapSameHash1 = createEvidenceSnapshot({ canonicalEvidence: EVIDENCE_V1, capturedAt: NOW_1 });
+  const snapSameHash2 = createEvidenceSnapshot({ canonicalEvidence: EVIDENCE_V1, capturedAt: NOW_2 });
+  assertions.push(check('evidenceDiffers uses hash: identical evidence → false',
+    !evidenceDiffers(snapSameHash1, snapSameHash2)));
+
+  const snapDiffHash1 = createEvidenceSnapshot({ canonicalEvidence: EVIDENCE_V1, capturedAt: NOW_1 });
+  const snapDiffHash2 = createEvidenceSnapshot({ canonicalEvidence: EVIDENCE_V2, capturedAt: NOW_2 });
+  assertions.push(check('evidenceDiffers uses hash: different evidence → true',
+    evidenceDiffers(snapDiffHash1, snapDiffHash2)));
 
   // Immutability — evidence is a deep copy; modifying the original does not affect snapshot
   const mutatingEvidence = JSON.parse(JSON.stringify(EVIDENCE_V1));
