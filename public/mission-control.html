@@ -384,17 +384,15 @@ body {
 
 /* ─── hero panel ────────────────────────────────────────────────── */
 
+/* ─── Music Ecosystem Status™ banner — Sprint 3.1 ───────────────────
+   Replaces the former "All Systems Normal" hero panel.
+   Layout: [radar 110px] [health auto] [5 stat cells 1fr each]
+   ─────────────────────────────────────────────────────────────────── */
 .mc-hero {
   display: grid;
-  /* Executive Compression v1.0 + v2.0:
-       - radar cell 168 → 130 (matches the 130×130 sonar SVG exactly)
-       - action cell 220 → 150 (status text still fits)
-     Title cell (1fr) widens, so label / ALL SYSTEMS NORMAL / monitoring
-     meta lines wrap less. */
-  grid-template-columns: 130px 1fr 220px 150px;
-  align-items: center;
-  gap: var(--mc-s-3);
-  padding: var(--mc-s-1) var(--mc-s-5);        /* Executive Compression v2.0 (floor): hero v-padding 8 → 4 */
+  grid-template-columns: 110px auto repeat(5, 1fr);
+  align-items: stretch;
+  gap: 0;
   border-radius: var(--mc-r-4);
   background: linear-gradient(135deg, rgba(45, 212, 191, 0.04), rgba(0, 0, 0, 0) 60%), var(--mc-surface-1);
   border: 1px solid rgba(45, 212, 191, 0.16);
@@ -529,82 +527,141 @@ body {
   50%      { opacity: 0.7;  transform: scale(1.18); }
 }
 
-.mc-hero-block { display: flex; flex-direction: column; gap: var(--mc-s-1); }
-
-.mc-hero-label {
-  font-size: 11px;
-  letter-spacing: 0.24em;
-  color: var(--mc-green);
-  font-weight: 600;
+/* ── Radar wrapper ───────────────────────────────────────────────── */
+.mc-es-radar-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 10px;
 }
 
-.mc-hero-title {
-  font-size: 31px;          /* Board Rev 2 — fine balance against composition */
-  letter-spacing: 0.06em;
-  font-weight: 700;
-  line-height: 1.05;
-  text-shadow: 0 0 18px rgba(52, 245, 176, 0.10);
-}
-
-.mc-hero-meta {
-  font-size: 12.5px;
-  color: var(--mc-text-muted);
-  margin-top: var(--mc-s-1);                   /* Executive Compression v1.0: 8 → 4 above meta */
-}
-
-.mc-hero-meta b { color: var(--mc-text-soft); font-weight: 500; }
-
-.mc-pulse-line { width: 100%; height: 56px; }
-
-.mc-pulse-line path {
-  stroke: var(--mc-green);
-  stroke-width: 1.6;
-  fill: none;
-  filter: drop-shadow(0 0 6px var(--mc-green-glow));
-  animation: mc-ecg-glow 5.2s ease-in-out infinite;
-}
-
-@keyframes mc-ecg-glow {
-  0%, 100% { filter: drop-shadow(0 0 5px  var(--mc-green-glow)); opacity: 0.92; }
-  50%      { filter: drop-shadow(0 0 11px var(--mc-green-glow)); opacity: 1;    }
-}
-
-.mc-hero-action {
+/* ── Health score cell (primary, wider) ─────────────────────────── */
+.mc-es-health {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
+  justify-content: center;
+  padding: 20px 28px;
+  border-right: 1px solid var(--mc-divider);
+  gap: 3px;
+  min-width: 160px;
 }
 
-.mc-hero-action-label {
-  font-size: 11px;
+.mc-es-section-label {
+  font-size: 10px;
   letter-spacing: 0.28em;
+  text-transform: uppercase;
   color: var(--mc-text-muted);
   font-weight: 600;
-  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 2px;
 }
 
-.mc-hero-action-value {
-  font-size: 19px;
+.mc-es-health-score {
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--mc-text);
+  line-height: 1;
+}
+
+.mc-es-health-score small {
+  font-size: 15px;
+  color: var(--mc-text-muted);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.mc-es-health-grade {
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.04em;
   color: var(--mc-green-bright);
-  text-shadow: 0 0 14px rgba(52, 245, 176, 0.28);
-  margin-top: 2px;
-  line-height: 1.1;
-}
-
-.mc-hero-action-good {
-  font-size: 12px;
-  color: var(--mc-text-soft);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
   letter-spacing: 0.02em;
 }
 
-.mc-hero-action-good svg { color: var(--mc-green); }
+.mc-es-health-trend {
+  font-size: 11.5px;
+  color: var(--mc-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 16px;
+}
+
+.mc-es-health-trend.up   { color: var(--mc-green); }
+.mc-es-health-trend.down { color: var(--mc-orange); }
+
+/* ── Secondary stat cells ────────────────────────────────────────── */
+.mc-es-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 18px;
+  border-left: 1px solid var(--mc-divider);
+  gap: 3px;
+}
+
+.mc-es-cell-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mc-text);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.mc-es-cell-value.mc-es-no-action {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--mc-green-bright);
+  letter-spacing: 0;
+}
+
+.mc-es-cell-meta {
+  font-size: 11.5px;
+  color: var(--mc-text-muted);
+  line-height: 1.3;
+}
+
+.mc-es-cell-active {
+  font-size: 11.5px;
+  color: var(--mc-green);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1.3;
+}
+
+.mc-es-cell-active svg { flex-shrink: 0; color: var(--mc-green); }
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .mc-hero {
+    /* Collapse to 2-col stat grid below wide breakpoint */
+    grid-template-columns: 1fr 1fr;
+  }
+  .mc-es-radar-wrap { display: none; }
+  .mc-es-health {
+    grid-column: span 2;
+    border-right: none;
+    border-bottom: 1px solid var(--mc-divider);
+    flex-direction: row;
+    align-items: center;
+    gap: 28px;
+    padding: 20px var(--mc-s-5);
+  }
+  .mc-es-cell { border-left: none; border-top: 1px solid var(--mc-divider); }
+  /* Board mobile priority: health > changes > priority > last scan > next scan > status */
+  .mc-es-cell--last-scan { order: 4; }
+  .mc-es-cell--next-scan { order: 5; }
+  .mc-es-cell--changes   { order: 2; }
+  .mc-es-cell--priority  { order: 3; }
+  .mc-es-cell--status    { order: 6; grid-column: span 2; }
+}
+
+@media (max-width: 540px) {
+  .mc-hero { grid-template-columns: 1fr; }
+  .mc-es-health { grid-column: 1; flex-direction: column; gap: 3px; }
+  .mc-es-cell--status { grid-column: 1; }
+}
 
 /* ─── section title ─────────────────────────────────────────────── */
 
@@ -2589,19 +2646,7 @@ body {
   .mc-nav-sub { display: none; }
   .mc-founder { margin: 0; max-width: 320px; flex: 1; }
   .mc-version { width: 100%; }
-  .mc-hero {
-    grid-template-columns: 96px 1fr;
-    grid-template-areas:
-      "radar title"
-      "radar meta"
-      "pulse pulse"
-      "action action";
-    row-gap: var(--mc-s-3);
-  }
-  .mc-radar         { grid-area: radar; width: 96px; height: 96px; }
-  .mc-hero-block    { grid-area: title; }
-  .mc-pulse-line    { grid-area: pulse; }
-  .mc-hero-action   { grid-area: action; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .mc-radar { width: 96px; height: 96px; }
   .mc-rail-right {
     border-top: 1px solid var(--mc-border);
   }
@@ -2611,7 +2656,7 @@ body {
   :root { --mc-pad: var(--mc-s-5); }
   .mc-page-title { font-size: 26px; }
   .mc-hero { padding: var(--mc-s-4); }
-  .mc-hero-title { font-size: 22px; }
+  .mc-es-health-score { font-size: 28px; }
   .mc-grid { grid-template-columns: 1fr; gap: var(--mc-s-4); }
   .mc-row-3 { grid-template-columns: 1fr; gap: var(--mc-s-4); }
   .mc-rail-left {
@@ -2653,8 +2698,6 @@ body.mc-booting .mc-hero{opacity:0.06;filter:grayscale(1) brightness(0.2);transi
 body.mc-booting .mc-card::before{opacity:0;transition:opacity 0.9s ease;}
 body.mc-booting .mc-card--publishing{animation:none;}
 body.mc-booting .mc-radar-sweep{animation:none;}
-body.mc-booting .mc-pulse-line{opacity:0;}
-
 /* Module online: restore full visibility */
 body.mc-booting .mc-card.mc-online,
 body.mc-booting .mc-rail-right.mc-online{opacity:1;filter:none;pointer-events:auto;}
@@ -2692,10 +2735,7 @@ body.mc-booting .mc-hero.mc-online{opacity:1;filter:none;}
    disabled so the artist interacts only with the vault form above. */
 body.mc-sentinel .mc-card,
 body.mc-sentinel .mc-rail-right,
-body.mc-sentinel .mc-hero,
-body.mc-sentinel .mc-hero-block,
-body.mc-sentinel .mc-hero-action,
-body.mc-sentinel .mc-pulse-line{pointer-events:none;}
+body.mc-sentinel .mc-hero{pointer-events:none;}
 /* Radar: passive monitoring mode — slightly subdued to communicate
    standby, distinct from the fully active post-unlock state */
 body.mc-sentinel .mc-radar{opacity:0.60;transition:opacity 1.2s ease;}
@@ -2924,70 +2964,99 @@ body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
       <p class="mc-page-sub" data-mc-page-sub>Royaltē has been monitoring your music business 24/7.</p>
     </header>
 
-    <!-- HERO STATUS PANEL -->
-    <section class="mc-hero" aria-label="Royaltē Intelligence Engine status">
+    <!-- MUSIC ECOSYSTEM STATUS™ — Sprint 3.1
+         Executive Intelligence Summary. Answers in one glance:
+         health · last scan · next scan · changes · priority actions · monitoring status
+         Data: populated via __mcRevealModule('ecosystem-status') from Monitoring,
+         Health, and Executive Brief intelligence. Never hard-coded. -->
+    <section class="mc-hero" id="ecosystem-status" aria-label="Music Ecosystem Status">
 
-      <div class="mc-radar" aria-hidden="true">
-        <svg viewBox="0 0 130 130">
-          <defs>
-            <radialGradient id="mc-radar-fill" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stop-color="#2dd4bf" stop-opacity="0.10"/>
-              <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
-            </radialGradient>
-            <linearGradient id="mc-radar-sweep-fill" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stop-color="#34f5b0" stop-opacity="0.5"/>
-              <stop offset="100%" stop-color="#34f5b0" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <circle cx="65" cy="65" r="62" fill="url(#mc-radar-fill)" stroke="rgba(45,212,191,0.20)"/>
-          <circle cx="65" cy="65" r="44" fill="none" stroke="rgba(45,212,191,0.18)"/>
-          <circle cx="65" cy="65" r="26" fill="none" stroke="rgba(45,212,191,0.20)"/>
-          <circle cx="65" cy="65" r="10" fill="none" stroke="rgba(45,212,191,0.25)"/>
-          <line x1="65" y1="3"  x2="65" y2="127" stroke="rgba(45,212,191,0.10)"/>
-          <line x1="3"  y1="65" x2="127" y2="65" stroke="rgba(45,212,191,0.10)"/>
-          <g class="mc-radar-sweep">
-            <path d="M65 65 L65 3 A62 62 0 0 1 117 39 Z" fill="url(#mc-radar-sweep-fill)"/>
-          </g>
-          <circle class="mc-radar-center" cx="65" cy="65" r="3" fill="#34f5b0"/>
-          <!-- Sonar AI Detection Pulse v2.0 — five fixed-position
-               detection triads (1 white-core dot + 2 concentric teal
-               echo rings each). Render order is AFTER the sweep group
-               and center, so pings always paint above the rotating
-               beam (never occluded). See .mc-radar-detect-* CSS for
-               per-ping irregular timing. -->
-          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--1"                                cx="95" cy="50" r="3"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--1"   cx="95" cy="50" r="3"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--1"   cx="95" cy="50" r="3"/>
-          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--2"                                cx="35" cy="80" r="3"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--2"   cx="35" cy="80" r="3"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--2"   cx="35" cy="80" r="3"/>
-          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--3"                                cx="85" cy="95" r="3"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--3"   cx="85" cy="95" r="3"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--3"   cx="85" cy="95" r="3"/>
-          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--4"                                cx="40" cy="35" r="3"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--4"   cx="40" cy="35" r="3"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--4"   cx="40" cy="35" r="3"/>
-          <circle class="mc-radar-detect-dot  mc-radar-detect-dot--5"                                cx="75" cy="25" r="3"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--5"   cx="75" cy="25" r="3"/>
-          <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--5"   cx="75" cy="25" r="3"/>
-        </svg>
+      <!-- Radar: locked monitoring animation (decorative signal of active intelligence) -->
+      <div class="mc-es-radar-wrap" aria-hidden="true">
+        <div class="mc-radar">
+          <svg viewBox="0 0 130 130">
+            <defs>
+              <radialGradient id="mc-radar-fill" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"   stop-color="#2dd4bf" stop-opacity="0.10"/>
+                <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="mc-radar-sweep-fill" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#34f5b0" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#34f5b0" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <circle cx="65" cy="65" r="62" fill="url(#mc-radar-fill)" stroke="rgba(45,212,191,0.20)"/>
+            <circle cx="65" cy="65" r="44" fill="none" stroke="rgba(45,212,191,0.18)"/>
+            <circle cx="65" cy="65" r="26" fill="none" stroke="rgba(45,212,191,0.20)"/>
+            <circle cx="65" cy="65" r="10" fill="none" stroke="rgba(45,212,191,0.25)"/>
+            <line x1="65" y1="3"  x2="65" y2="127" stroke="rgba(45,212,191,0.10)"/>
+            <line x1="3"  y1="65" x2="127" y2="65" stroke="rgba(45,212,191,0.10)"/>
+            <g class="mc-radar-sweep">
+              <path d="M65 65 L65 3 A62 62 0 0 1 117 39 Z" fill="url(#mc-radar-sweep-fill)"/>
+            </g>
+            <circle class="mc-radar-center" cx="65" cy="65" r="3" fill="#34f5b0"/>
+            <circle class="mc-radar-detect-dot  mc-radar-detect-dot--1"                                cx="95" cy="50" r="3"/>
+            <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--1"   cx="95" cy="50" r="3"/>
+            <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--1"   cx="95" cy="50" r="3"/>
+            <circle class="mc-radar-detect-dot  mc-radar-detect-dot--2"                                cx="35" cy="80" r="3"/>
+            <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--2"   cx="35" cy="80" r="3"/>
+            <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--2"   cx="35" cy="80" r="3"/>
+            <circle class="mc-radar-detect-dot  mc-radar-detect-dot--3"                                cx="85" cy="95" r="3"/>
+            <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--3"   cx="85" cy="95" r="3"/>
+            <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--3"   cx="85" cy="95" r="3"/>
+            <circle class="mc-radar-detect-dot  mc-radar-detect-dot--4"                                cx="40" cy="35" r="3"/>
+            <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--4"   cx="40" cy="35" r="3"/>
+            <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--4"   cx="40" cy="35" r="3"/>
+            <circle class="mc-radar-detect-dot  mc-radar-detect-dot--5"                                cx="75" cy="25" r="3"/>
+            <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring1 mc-radar-detect-echo--5"   cx="75" cy="25" r="3"/>
+            <circle class="mc-radar-detect-echo mc-radar-detect-echo--ring2 mc-radar-detect-echo--5"   cx="75" cy="25" r="3"/>
+          </svg>
+        </div>
       </div>
 
-      <div class="mc-hero-block">
-        <div class="mc-hero-label">ROYALTĒ INTELLIGENCE ENGINE™</div>
-        <div class="mc-hero-title">ALL SYSTEMS NORMAL</div>
-        <div class="mc-hero-meta">Monitoring <b>24/7</b> &nbsp;•&nbsp; Last Scan: <b>12 minutes ago</b></div>
+      <!-- Section 1: Overall Health Score — sourced from Health Intelligence™ -->
+      <div class="mc-es-health">
+        <span class="mc-es-section-label">Music Ecosystem Status™</span>
+        <div class="mc-es-health-score">
+          <span data-mc-es-health-score>—</span><small>/100</small>
+        </div>
+        <div class="mc-es-health-grade" data-mc-es-health-grade>—</div>
+        <div class="mc-es-health-trend" data-mc-es-health-trend></div>
       </div>
 
-      <svg class="mc-pulse-line" viewBox="0 0 220 56" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 28 L40 28 L48 28 L54 16 L60 40 L66 12 L72 44 L80 28 L110 28 L116 22 L122 34 L128 28 L160 28 L166 18 L172 38 L178 28 L220 28"/>
-      </svg>
+      <!-- Section 2: Last Scan — sourced from scan payload timestamp -->
+      <div class="mc-es-cell mc-es-cell--last-scan">
+        <span class="mc-es-section-label">Last Scan</span>
+        <span class="mc-es-cell-value" data-mc-es-last-scan>—</span>
+      </div>
 
-      <div class="mc-hero-action">
-        <span class="mc-hero-action-label">SYSTEM STATUS</span>
-        <span class="mc-hero-action-value">Operational</span>
-        <span class="mc-hero-action-good">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+      <!-- Section 3: Next Scheduled Scan — sourced from Monitoring Intelligence™ -->
+      <div class="mc-es-cell mc-es-cell--next-scan">
+        <span class="mc-es-section-label">Next Scan</span>
+        <span class="mc-es-cell-value" data-mc-es-next-scan>—</span>
+        <span class="mc-es-cell-meta" data-mc-es-next-scan-meta></span>
+      </div>
+
+      <!-- Section 4: Changes Detected — sourced from Monitoring Intelligence™ -->
+      <div class="mc-es-cell mc-es-cell--changes">
+        <span class="mc-es-section-label">Changes</span>
+        <span class="mc-es-cell-value" data-mc-es-changes-value>—</span>
+        <span class="mc-es-cell-meta" data-mc-es-changes-meta></span>
+      </div>
+
+      <!-- Section 5: Priority Actions — sourced from Executive Brief™ -->
+      <div class="mc-es-cell mc-es-cell--priority">
+        <span class="mc-es-section-label">Priority Actions</span>
+        <span class="mc-es-cell-value" data-mc-es-priority-value>—</span>
+        <span class="mc-es-cell-meta" data-mc-es-priority-meta></span>
+      </div>
+
+      <!-- Section 6: Monitoring Status — sourced from Monitoring Intelligence™ -->
+      <div class="mc-es-cell mc-es-cell--status">
+        <span class="mc-es-section-label">Monitoring Status</span>
+        <span class="mc-es-cell-value" data-mc-es-status-value>—</span>
+        <span class="mc-es-cell-active" data-mc-es-status-active>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
           Monitoring Active
         </span>
       </div>

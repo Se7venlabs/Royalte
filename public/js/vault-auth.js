@@ -290,6 +290,7 @@ function _showPreactivateSequence(sessionId, scanId) {
   // After two sweeps: activate modules one at a time at 2.5-second intervals.
   const ACTIVATE_AT = BLIP2_AT + 600;
   const MODULE_ORDER = [
+    'ecosystem-status',
     'health-intelligence', 'identity-intelligence', 'publishing-intelligence',
     'catalog-intelligence', 'change-detection', 'backend-intelligence',
     'global-footprint', 'ai-insights',
