@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Sprint 3.2 + Executive Layout Optimization™ v1.0 (PR #211)
+
+| | |
+|---|---|
+| **PR** | #211 |
+| **Commit SHA** | `83c8804` (Executive Layout Optimization™) · `346a2d0` (Sprint 3.2) |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/mission-control.html` — `mc-hi-*` CSS (~160 lines); 6-section Health Intelligence™ HTML with `data-mc-hi-*` attributes; `_HI_DOT_THRESHOLDS`, `_hiDotClass`, `_hiTrendDir`, `_hiTrendLabel`, `_hiBestImprovement`, `_hiBiggestRisk`, `_hiRecentChanges` helpers. `public/js/mission-control.js` — `buildHealthIntelligencePlan(payload, plans)` and `applyHealthIntelligencePlan(plan)`. |
+| **Changed** | `public/js/mission-control.js` — `__mcPopulate` stores `_vaultPlans.hiPlan`; `__mcRevealModule 'health-intelligence'` calls `applyHealthIntelligencePlan` + 1500ms count-up. `public/js/vault-auth.js` — `_blankSentinelData` updated to blank `data-mc-hi-*` targets. `public/mission-control.html` — Executive Layout Optimization™: title 36→24px, radar 130→90px, hero cell/health padding compressed, Health card body gap 14→8px, breakdown 2-col grid, sparkline inline flex, section padding-bottoms 14→8px, score num 40→32px. |
+| **Removed** | Old `applyHealthPlan` legacy (no-op comment). Old `data-mc-health-*` blank targets in vault-auth.js. |
+
+---
+
 ## 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™
 
 | | |

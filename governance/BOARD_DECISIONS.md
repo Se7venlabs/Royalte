@@ -11,6 +11,36 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Executive Layout Optimization™ v1.0 — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve and merge the Executive Layout Optimization™ CSS-only density pass on Mission Control™ targeting the 1920×1080 viewport. No content removed, no wiring changed, no business logic touched. Mobile/tablet responsiveness unchanged. Classified as Executive Layout Optimization™ Version 1; a final holistic pass is deferred until all MC modules are redesigned. |
+| **Reason** | At full desktop resolution the Executive Overview required vertical scrolling, reducing the immediate executive readout. Information density must match the ambition of the product. |
+| **Impact** | Page title 36→24px, hero banner ~40px shorter (radar 130→90px, cell padding compressed), Health Intelligence™ card ~170px shorter (breakdown 2-col grid, sparkline inline, section gaps tightened). Estimated 260px total reduction on main column. |
+| **Vote** | Board Approved |
+| **PR Number** | #211 |
+| **Commit SHA** | `83c8804` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Sprint 3.2 — Health Intelligence™ Executive Assessment — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve and merge Sprint 3.2: redesign of the Health Intelligence™ card into a 6-section executive assessment. Sections: (1) Overall Health Score + Grade + Trend, (2) Health Breakdown (6 categories, 2-col grid), (3) Biggest Improvement, (4) Biggest Risk, (5) Health Trend sparkline (current scan only; historical pending), (6) Recent Changes. Scope locked to the health-intelligence module only. All values sourced constitutionally from `renderHealth()` / `healthReport` / monitoring intelligence. |
+| **Reason** | The former Health card showed only the ring + single metric. The executive OS requires at minimum a category breakdown and risk/strength highlights at a glance. |
+| **Impact** | `public/mission-control.html` — new `mc-hi-*` CSS + HTML 6-section structure. `public/js/mission-control.js` — `buildHealthIntelligencePlan` + `applyHealthIntelligencePlan`. `public/js/vault-auth.js` — `_blankSentinelData` updated to new `data-mc-hi-*` targets. |
+| **Vote** | Board Approved |
+| **PR Number** | #211 |
+| **Commit SHA** | `346a2d0` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™ — UNANIMOUSLY APPROVED
 
 | | |
