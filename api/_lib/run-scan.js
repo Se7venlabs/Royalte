@@ -40,6 +40,8 @@ import {
 import { acquireAppleEvidence, synthesizeAppleMusicCompat } from './apple-pal-acquisition.js';
 // Phase 3.6 (Spotify PAL Migration) — PAL Spotify acquisition
 import { acquireSpotifyEvidence, synthesizeSpotifyCompat } from './spotify-pal-acquisition.js';
+// Phase 3.8 (MusicBrainz PAL Migration) — PAL MusicBrainz acquisition
+import { acquireMBEvidence, synthesizeMBCompat } from './mb-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -179,15 +181,15 @@ export async function runScan(url) {
   // ── Universal enrichment fan-out ────────────────────────────────────────
   // Phase 3.3: Apple acquisition routes through PAL (parallel with all other providers).
   // Phase 3.6: Spotify enrichment acquisition routes through PAL (replacing direct calls).
-  // Both PAL evidence packages flow into runRIE via the hybrid merge path.
-  // synthesizeAppleMusicCompat / synthesizeSpotifyCompat below are backward-compat
-  // synthesis for the V1 module system only.
+  // Phase 3.8: MusicBrainz acquisition routes through PAL (replacing direct getMusicBrainz call).
+  // All PAL evidence packages flow into runRIE via the hybrid merge path.
+  // synthesize*Compat functions below are backward-compat synthesis for the V1 module system only.
   const appleIsrc = resolved.trackIsrc || trackData?.external_ids?.isrc || null;
 
   const [
     applePalSettled,
     spotifyPalSettled,
-    mbSettled,
+    mbPalSettled,
     deezerSettled,
     audioDbSettled,
     discogsSettled,
@@ -206,7 +208,8 @@ export async function runScan(url) {
       spotifyArtistId: resolved.artistId ?? null,
       artistName,
     }),
-    getMusicBrainz(artistName),
+    // Phase 3.8: MusicBrainz via PAL — replaces direct getMusicBrainz call
+    acquireMBEvidence({ artistName }),
     getDeezer(artistName),
     getAudioDB(artistName),
     getDiscogs(artistName),
@@ -220,16 +223,17 @@ export async function runScan(url) {
     applePalSettled.status === 'fulfilled' ? applePalSettled.value : {};
   const { evidencePackages: spotifyEvidencePackages = [] } =
     spotifyPalSettled.status === 'fulfilled' ? spotifyPalSettled.value : {};
+  const { evidencePackages: mbEvidencePackages = [] } =
+    mbPalSettled.status === 'fulfilled' ? mbPalSettled.value : {};
 
-  // Combined evidence packages — both providers enter the RIE hybrid merge path.
-  const evidencePackages = [...appleEvidencePackages, ...spotifyEvidencePackages];
+  // Combined evidence packages — all three PAL providers enter the RIE hybrid merge path.
+  const evidencePackages = [...appleEvidencePackages, ...spotifyEvidencePackages, ...mbEvidencePackages];
 
   // [TRANSITIONAL] Legacy compat shapes for V1 module system (runModules / buildFlags).
   // Retires when those consumers migrate to RIE Rule Library.
   const appleMusicData = synthesizeAppleMusicCompat(appleEvidencePackages);
 
   // Phase 3.6: Spotify compat synthesis replaces direct getSpotifyArtist/Albums/TopTracks.
-  // synthesizeSpotifyCompat returns the same shapes those functions returned.
   const subjectHints = {
     spotifyArtistId: resolved.artistId   ?? null,
     artistName:      resolved.artistName ?? null,
@@ -239,7 +243,8 @@ export async function runScan(url) {
   const { artistData, albumsData, spotifyTopTracks } =
     synthesizeSpotifyCompat(spotifyEvidencePackages, subjectHints);
 
-  const mbData         = mbSettled.status         === 'fulfilled' ? mbSettled.value         : { found: false };
+  // Phase 3.8: MusicBrainz compat synthesis replaces direct getMusicBrainz call.
+  const mbData = synthesizeMBCompat(mbEvidencePackages, artistName);
   const deezerData     = deezerSettled.status     === 'fulfilled' ? deezerSettled.value     : { found: false };
   const audioDbData    = audioDbSettled.status    === 'fulfilled' ? audioDbSettled.value    : { found: false };
   const discogsData    = discogsSettled.status    === 'fulfilled' ? discogsSettled.value    : { found: false };
@@ -1133,7 +1138,10 @@ function getPROGuide(country) {
 }
 
 // ────────────────────────────────────────────────────────
-// MUSICBRAINZ
+// MUSICBRAINZ — [RETIRED CANDIDATE — Phase 3.8]
+// Enrichment role superseded by acquireMBEvidence in mb-pal-acquisition.js.
+// Function retained for any residual resolution uses only.
+// Remove when no callers remain.
 // ────────────────────────────────────────────────────────
 async function getMusicBrainz(artistName) {
   try {
