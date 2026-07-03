@@ -19,6 +19,22 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Phase 3.6 TheAudioDB — Artist & Media Intelligence Authority™ PAL Production Migration™
+
+| | |
+|---|---|
+| **PR** | #203 |
+| **Commit SHA** | `bd4464e` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/audiodb/AudioDBConnector.js` — 6 capabilities (ARTIST_IDENTITY, ARTWORK, GENRES, SOCIAL_LINKS, COLLECTION_DATA, VIDEOS); credential-free `authenticate()` pattern; identity-lock on `strArtist`. `provider-acquisition/connectors/audiodb/audiodb-http.js` — GET-only HTTP client; retry/backoff/timeout; User-Agent header. `provider-acquisition/connectors/audiodb/audiodb-capabilities.js` — frozen capability declaration. `api/_lib/audiodb-pal-acquisition.js` — sequential A→B(parallel) acquisition: ARTIST_IDENTITY → COLLECTION_DATA + VIDEOS; `synthesizeAudioDbCompat` reproduces retired `getAudioDB()` output (biography truncated to 400 chars for V1 compat). `tests/certification/suites/12-audiodb-connector.mjs` — 94-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — `translateAudioDBArtistProfile`, `translateAudioDBDiscography`, `translateAudioDBVideos`; constitutional `profile / media / discography / statistics` namespace per Board Amendment 1–6. `api/_lib/run-scan.js` — AudioDB added as 8th PAL provider; `getAudioDB()` marked RETIRED CANDIDATE. `tests/certification/harness.mjs` — Suite 12 wired; inventory comment updated. |
+| **Removed** | none — `getAudioDB()` marked RETIRED CANDIDATE; retires when V1 module consumers migrate |
+| **Impact** | TheAudioDB is Royaltē's Artist & Media Intelligence Authority™ (provider trust: 70). Board Amendment 1–6 establishes the constitutional `platforms.audiodb.profile / media / discography / statistics` namespace as the reference model for all future media-rich providers (Last.fm, SoundCloud, music video providers). Each image type preserved independently (logo, clearart, thumb, wideThumb, fanart×4, banner). Biography preserved in full at bridge layer. Eight constitutional providers operational. Visual evidence formally declared constitutional evidence (Amendment 3). |
+| **Tests** | 834 / 834 CERTIFIED (94 new assertions in Suite 12). |
+
+---
+
 ## 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™
 
 | | |
