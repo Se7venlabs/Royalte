@@ -28,14 +28,14 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **MC-3.3 — Identity Intelligence™ Executive Passport** |
-| Merged at | `654eb52` (PR #213, 2026-07-03) |
+| Most recently completed phase | **MC-3.4 — Publishing Intelligence™ Executive Passport + Amendment 1 + Amendment 2** |
+| Merged at | `8400134` (PR #216, 2026-07-03) |
 | Tag | — |
-| Prior phase | MC-3.2 — Health Intelligence™ Executive Assessment + Executive Layout Optimization™ v1.0 (`83c8804`, PR #211, 2026-07-03) |
-| Active direction | MC Intelligence Sprint active. Health + Identity Intelligence™ wired. Next MC module requires new Board brief. |
+| Prior phase | MC-3.3 — Identity Intelligence™ Executive Passport (`654eb52`, PR #213, 2026-07-03) |
+| Active direction | MC Intelligence Sprint active. Health + Identity + Publishing Intelligence™ wired. Next MC module requires new Board brief. |
 | Next Board gate | Board brief for next MC module or next OS phase |
 
-**MC Intelligence Sprint underway.** Two MC modules complete. Health Intelligence™ (PR #211) + Identity Intelligence™ (PR #213) are both constitutional presentation layers using the `build*Plan` / `apply*Plan` wiring pattern. Executive Layout Optimization™ v1.0 is the density baseline; final holistic pass deferred until all MC modules complete.
+**MC Intelligence Sprint underway.** Three MC modules complete. Health Intelligence™ (PR #211) + Identity Intelligence™ (PR #213) + Publishing Intelligence™ (PR #215) are all constitutional presentation layers using the `build*Plan` / `apply*Plan` wiring pattern. Publishing introduces Financial Impact™ (Section 4) — the first MC section to display a mini Executive Brief (risk badge + Potential Royalty Impact™ + Estimated Resolution). Financial Neutrality Rule™ governs all impact language. Executive Layout Optimization™ v1.0 is the density baseline; final holistic pass deferred until all MC modules complete.
 
 **Phase 3.6 Deezer (PR #201, `ba66b26`, 2026-07-03):** Streaming Verification Authority™, trust 80. `getDeezer()` direct-call retired. All original streaming providers (Apple, Spotify, Deezer) now 100% migrated to PAL. Suite 11 (67 assertions). `platforms.deezer.isrcs[]` is the constitutional bridge for future Verification Intelligence™.
 
@@ -51,7 +51,7 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 **Phase 3.4 — Website Scan is a constitutional presentation layer.** All displayed intelligence reads from the Certified CIM. ISRC Coverage is a permanent RIE field (`isrcCoverage` in `catalogIntelligence`). Catalog Availability reads from `globalMusicFootprint.status`. Zero business logic remains in `_renderV2Found`.
 
-Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`. MC-3.2 Health Intelligence™ Executive Assessment `346a2d0`. MC-3.2-ELO Executive Layout Optimization™ v1.0 `83c8804`. MC-3.3 Identity Intelligence™ Executive Passport `654eb52`.
+Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`. MC-3.2 Health Intelligence™ Executive Assessment `346a2d0`. MC-3.2-ELO Executive Layout Optimization™ v1.0 `83c8804`. MC-3.3 Identity Intelligence™ Executive Passport `654eb52`. MC-3.4 Publishing Intelligence™ Executive Passport + Amendment 1 `2bb1af2`. MC-3.4 Amendment 2 (executive brief typography) `8400134`.
 
 The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`. The legacy retirement checklist lives in `governance/MIGRATION_RETIREMENT_REGISTER.md`.
 

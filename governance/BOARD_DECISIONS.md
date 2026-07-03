@@ -11,6 +11,36 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Sprint 3.4 Amendment 2 — Publishing Intelligence™ Executive Layout Refinement — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve CSS-only typography refinement of Publishing Intelligence™. Financial Impact™ elevated to executive brief style; Biggest Risk and Biggest Win reduced to supporting cards. No HTML structure, JS, or data changes. |
+| **Reason** | Financial Impact™ was visually competing with smaller cards rather than leading the lower section. The explanation body — the artist's executive message — needed higher typographic weight. |
+| **Impact** | `public/mission-control.html` CSS only: impact body 11px → 12.5px weight-500 `var(--mc-text)`; labels recede to 8px muted; Risk + Win padding/icon/title compressed. |
+| **Vote** | Board Approved |
+| **PR Number** | #216 |
+| **Commit SHA** | `8400134` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Sprint 3.4 — Publishing Intelligence™ Executive Passport + Financial Impact Amendment — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve and merge Sprint 3.4 — Publishing Intelligence™ executive passport (7 sections) plus Board Amendment expanding Section 4 into a Financial Impact mini Executive Brief. |
+| **Reason** | The legacy publishing card (ring + flat checklist) provided no executive context. The 7-section passport delivers publishing completeness as a financial readiness dashboard. The Amendment adds Potential Royalty Impact™ explanation and Estimated Resolution to Section 4, giving artists a complete executive read within five seconds. Financial Neutrality Rule™ preserved throughout — no dollar amounts. |
+| **Impact** | `public/mission-control.html`: old `mc-pub-body` + `mc-pub-checks` replaced with `mc-pi-body` 7-section grid. Section 4 Financial Impact™ contains risk badge, Potential Royalty Impact™ explanation, and Estimated Resolution time. `public/js/mission-control.js`: `buildPublishingIntelligencePlan` + `applyPublishingIntelligencePlan` added; `_piFinancialImpact` returns fuller body copy + resolution time. `public/js/vault-auth.js`: sentinel updated to `data-mc-pi-*`. |
+| **Vote** | Board Approved (Sprint 3.4) + Board Approved (Amendment) |
+| **PR Number** | #215 |
+| **Commit SHA** | `7f52f4f` (Sprint 3.4) · `2bb1af2` (Amendment) |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Sprint 3.3 — Identity Intelligence™ Executive Passport — APPROVED
 
 | | |
