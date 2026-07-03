@@ -19,6 +19,36 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Sprint 3.1 Amendment — Constitutional Wiring Specification™
+
+| | |
+|---|---|
+| **PR** | #209 (amendment commit) |
+| **Commit SHA** | `aab47ca` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | none |
+| **Changed** | `api/_lib/monitoring-intelligence.js` — v1.0 → v1.1; `assembleMonitoringIntelligence` accepts `capturedAt` + `nextScanAt`; both fields included in output (`capturedAt`: Evidence Snapshot Store™ owner; `nextScan`: Monitoring Policy™ owner); error shell extended with null fields. `api/_lib/persist-os-scan.js` — `capturedAt` and `nextScanDate` hoisted out of monitoring_subscriptions try block; `capturedAt` + `nextScanAt` added to `osResult` return. `api/audit.js` — `osResult.capturedAt` and `osResult.nextScanAt` threaded into `assembleMonitoringIntelligence` call. `public/js/mission-control.js` — `buildEcosystemStatusPlan` reads `mi.capturedAt` (not `payload.scannedAt`) for Last Scan and `mi.nextScan` for Next Scheduled Scan; constitutional ownership comment block added for all 7 displayed values. |
+| **Removed** | `payload.scannedAt` fallback for Last Scan (non-constitutional; replaced by Evidence Snapshot Store™ source). |
+| **Impact** | Mission Control formally classified as a Constitutional Presentation Layer™. Every value in Music Ecosystem Status™ has a documented constitutional owner in source comments. Board Implementation Brief Standard™ established for all future Phase 3 modules. |
+
+---
+
+## 2026-07-03 — Sprint 3.1 — Music Ecosystem Status™
+
+| | |
+|---|---|
+| **PR** | #209 |
+| **Commit SHA** | `2c81e88` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `buildEcosystemStatusPlan(payload, plans)` — assembles render plan from Health Intelligence™, Change Detection™, Executive Brief™, and Monitoring Intelligence™ constitutional sources. `applyEcosystemStatusPlan(plan)` — DOM writer for all 12 `data-mc-es-*` attributes. `_esFormatTimeAgo(iso)` — presentation-layer time formatter. `_esMonitoringStatusLabel(rawStatus)` — constitutional label map for operational states. `case 'ecosystem-status'` block in `__mcRevealModule` with health score count-up animation. |
+| **Changed** | `public/mission-control.html` — `.mc-hero` CSS redesigned from 4-column grid to `110px auto repeat(5, 1fr)` 7-cell layout; old hero HTML (`.mc-hero-block`, `.mc-pulse-line`, `.mc-hero-action`) replaced with Music Ecosystem Status™ section (`id="ecosystem-status"`); 12 `data-mc-es-*` attributes exposed. `public/js/vault-auth.js` — `'ecosystem-status'` prepended to MODULE_ORDER as first module revealed on boot. |
+| **Removed** | "All Systems Normal" static banner. `.mc-hero-block`, `.mc-hero-label`, `.mc-hero-title`, `.mc-hero-meta`, `.mc-pulse-line`, `.mc-hero-action`, `.mc-hero-action-label`, `.mc-hero-action-value`, `.mc-hero-action-good` CSS and HTML. |
+| **Impact** | Mission Control™ hero banner transformed from static status label into a 6-section Executive Intelligence Summary. Artists see Health Score, Last Scan, Next Scan, Changes Detected, Priority Actions, and Monitoring Status as the first thing revealed on every boot. |
+
+---
+
 ## 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™
 
 | | |

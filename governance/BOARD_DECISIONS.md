@@ -11,6 +11,36 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Sprint 3.1 Amendment — Constitutional Wiring Specification™ — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Board APPROVES the Constitutional Wiring Specification™ Amendment for Sprint 3.1 — Music Ecosystem Status™. Mission Control is formally classified as a Constitutional Presentation Layer™. Every value displayed in the module now has a documented constitutional owner; MC reads, never computes. Last Scan sourced from Evidence Snapshot Store™ (capturedAt); Next Scheduled Scan sourced from Monitoring Policy™ (nextScan). |
+| **Directives adopted** | (1) Mission Control SHALL NEVER COMPUTE INTELLIGENCE — it is a presentation layer only. (2) Every Module displayed value must have a single constitutional owner documented in source comments. (3) `buildEcosystemStatusPlan` reads `monitoringIntelligence.capturedAt` for Last Scan and `monitoringIntelligence.nextScan` for Next Scheduled Scan. (4) Board Implementation Brief Standard™ established — all future Phase 3 briefs must contain: Module Mission Statement, UI Requirements, UX Requirements, Wiring Specification™, Constitutional Guidance, Scope Lock, Success Criteria, Future Consumers. |
+| **Impact** | `monitoring-intelligence.js` v1.0 → v1.1 (capturedAt + nextScan added); `persist-os-scan.js` exposes both timestamps in osResult; `audit.js` threads them through; `mission-control.js` reads constitutional sources with ownership comments. No UI changes. |
+| **Vote** | Board Approved |
+| **PR Number** | #209 (amendment commit) |
+| **Commit SHA** | `aab47ca` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Sprint 3.1 — Music Ecosystem Status™ — BOARD APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Board APPROVES Sprint 3.1 — Music Ecosystem Status™. The "All Systems Normal" hero banner in Mission Control™ is replaced with a 6-section Executive Intelligence Summary: Health Score, Last Scan, Next Scan, Changes Detected, Priority Actions, Monitoring Status. `ecosystem-status` is the first module revealed in the boot sequence. |
+| **Directives adopted** | (1) Music Ecosystem Status™ is the primary executive summary surface in Mission Control. (2) `ecosystem-status` prepended to MODULE_ORDER in vault-auth.js — always the first module revealed on boot. (3) All 12 `data-mc-es-*` attributes are populated by `applyEcosystemStatusPlan()` via `__mcRevealModule('ecosystem-status')`. (4) Radar animation retained from prior implementation. (5) Responsive: mobile reorders to health → changes → priority → last scan → next scan → status; radar hidden below 1024px. |
+| **Impact** | Three files changed: `mission-control.html` (CSS redesign + HTML banner), `mission-control.js` (4 new functions + wiring), `vault-auth.js` (MODULE_ORDER). Visual design replaces the single "All Systems Normal" banner with a 7-cell executive grid. |
+| **Vote** | Board Approved |
+| **PR Number** | #209 |
+| **Commit SHA** | `2c81e88` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™ — UNANIMOUSLY APPROVED
 
 | | |
