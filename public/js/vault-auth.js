@@ -120,21 +120,18 @@ function _blankSentinelData() {
   const hiChanges = q('[data-mc-hi-changes]');
   if (hiChanges) hiChanges.innerHTML = '';
 
-  // Identity Intelligence
-  const ic = q('[data-mc-identity-coverage-value]');
-  if (ic) ic.innerHTML = '0<small>%</small>';
-  const is = q('[data-mc-identity-coverage-summary]');
-  if (is) is.textContent = 'No providers verified';
-  qa('[data-mc-identity-pill]').forEach(el => {
-    el.textContent = '—';
-    el.className = 'mc-pill mc-pill--unable';
-  });
-  const itt = q('[data-mc-identity-top-track-title]');
-  if (itt) itt.textContent = '—';
-  const iti = q('[data-mc-identity-top-track-isrc]');
-  if (iti) iti.textContent = '—';
-  const ir = q('#identity-intelligence .mc-fp-ring');
-  if (ir) ir.setAttribute('stroke-dasharray', '0 264');
+  // Identity Intelligence™ v2.0 (Sprint 3.3)
+  const idCov = q('[data-mc-id-coverage]');    if (idCov) idCov.textContent = '—';
+  const idGrd = q('[data-mc-id-coverage-grade]'); if (idGrd) idGrd.textContent = '—';
+  const idSub = q('[data-mc-id-coverage-sub]');   if (idSub) idSub.textContent = '— of — verified';
+  const idSv  = q('[data-mc-id-sum-verified]');   if (idSv)  idSv.textContent  = '—';
+  const idSa  = q('[data-mc-id-sum-action]');     if (idSa)  idSa.textContent  = '—';
+  const idSm  = q('[data-mc-id-sum-missing]');    if (idSm)  idSm.textContent  = '—';
+  const idSu  = q('[data-mc-id-sum-unavailable]');if (idSu)  idSu.textContent  = '—';
+  qa('[data-mc-id-provider-pill]').forEach(el => { el.textContent = '—'; el.className = 'mc-pill mc-pill--unable'; });
+  const idRt  = q('[data-mc-id-risk-title]'); if (idRt) idRt.textContent = '—';
+  const idWt  = q('[data-mc-id-win-title]');  if (idWt) idWt.textContent  = '—';
+  const idCh  = q('[data-mc-id-changes]');    if (idCh) idCh.innerHTML    = '';
 
   // Publishing Intelligence
   const pc = q('[data-mc-publishing-coverage-value]');
