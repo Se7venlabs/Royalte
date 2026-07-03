@@ -27,6 +27,7 @@
 //    11-deezer              Deezer Streaming Verification Authority™ PAL connector certified
 //    12-audiodb             TheAudioDB Artist & Media Intelligence Authority™ PAL connector certified
 //    13-lastfm              Last.fm Community Intelligence Authority™ PAL connector certified
+//    14-monitoring          Monitoring Intelligence Migration Sprint™ constitutional foundation
 //
 //  This harness never throws. Any suite that throws is caught and reported
 //  as a failed suite. The exit code reflects the overall certification status.
@@ -47,6 +48,7 @@ import { runMLCConnector }          from './suites/10-mlc-connector.mjs';
 import { runDeezerConnector }       from './suites/11-deezer-connector.mjs';
 import { runAudioDbConnector }    from './suites/12-audiodb-connector.mjs';
 import { runLastFmConnector }     from './suites/13-lastfm-connector.mjs';
+import { runMonitoring }         from './suites/14-monitoring.mjs';
 import { printBoardReport }      from './reporters/board-report.mjs';
 
 const QUIET = process.argv.includes('--quiet');
@@ -96,6 +98,7 @@ async function main() {
   results.push(await runSuite('11-deezer',              runDeezerConnector));
   results.push(await runSuite('12-audiodb',             runAudioDbConnector));
   results.push(await runSuite('13-lastfm',              runLastFmConnector));
+  results.push(await runSuite('14-monitoring',          runMonitoring));
 
   const elapsed = Math.round(performance.now() - startMs);
   log('');
