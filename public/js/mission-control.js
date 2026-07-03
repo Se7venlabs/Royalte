@@ -619,11 +619,176 @@ function applyEcosystemStatusPlan(plan) {
   if (activeEl) activeEl.style.display = plan.isOperational ? 'flex' : 'none';
 }
 
+// ─── Health Intelligence™ v2.0 — Sprint 3.2 ────────────────────────
+//
+// Mission Control is a Constitutional Presentation Layer™.
+// Constitutional ownership for every displayed value:
+//   Overall Health Score / Grade / Trend / Breakdown → Health Intelligence Engine™
+//   Biggest Improvement                              → Evidence Events™
+//   Biggest Risk                                     → Health Intelligence Engine™
+//   Health Trend Sparkline                           → Historical Health Snapshots™ (pending)
+//   Recent Changes                                   → Evidence Events™ / Monitoring Intelligence™
+
+// Display-tier thresholds for status dots — presentation layer only,
+// never used for scoring. Determines color of status indicator per category.
+const _HI_DOT_THRESHOLDS = { green: 90, teal: 70, amber: 50 };
+
+function _hiDotClass(score) {
+  if (score >= _HI_DOT_THRESHOLDS.green)  return 'mc-hi-green';
+  if (score >= _HI_DOT_THRESHOLDS.teal)   return 'mc-hi-teal';
+  if (score >= _HI_DOT_THRESHOLDS.amber)  return 'mc-hi-amber';
+  return 'mc-hi-red';
+}
+
+// Constitutional owner: Health Intelligence Engine™ (via healthReport.trend)
+function _hiTrendDir(trendRaw) {
+  if (!trendRaw || typeof trendRaw !== 'string') return 'stable';
+  const t = trendRaw.toLowerCase();
+  if (t === 'up'   || t === 'improving') return 'up';
+  if (t === 'down' || t === 'declining') return 'down';
+  return 'stable';
+}
+
+function _hiTrendLabel(dir, delta) {
+  if (dir === 'up')   return typeof delta === 'number' ? `▲ +${delta} Since Last Scan` : '▲ Improving';
+  if (dir === 'down') return typeof delta === 'number' ? `▼ −${delta} Since Last Scan` : '▼ Declining';
+  return '— Stable';
+}
+
+// Constitutional owner: Evidence Events™ (strengths from Health Intelligence Engine™)
+function _hiBestImprovement(hp) {
+  const s = hp?.strengths;
+  if (!Array.isArray(s) || s.length === 0) return { title: 'No improvements recorded', meta: '' };
+  return { title: s[0], meta: '' };
+}
+
+// Constitutional owner: Health Intelligence Engine™ (concerns)
+function _hiBiggestRisk(hp) {
+  const c = hp?.concerns;
+  if (!Array.isArray(c) || c.length === 0) return { title: 'No risks identified', meta: '' };
+  return { title: c[0], meta: '' };
+}
+
+// Constitutional owner: Evidence Events™ / Monitoring Intelligence™
+function _hiRecentChanges(hp, mi) {
+  const changes = [];
+  if (Array.isArray(hp?.strengths)) {
+    for (const s of hp.strengths.slice(0, 2)) { if (s) changes.push(s); }
+  }
+  if (Array.isArray(mi?.events)) {
+    for (const e of mi.events.slice(0, 2)) { if (e?.title && changes.length < 3) changes.push(e.title); }
+  }
+  if (changes.length === 0 && Array.isArray(hp?.concerns)) {
+    for (const c of hp.concerns.slice(0, 2)) { if (c) changes.push(c); }
+  }
+  return changes.slice(0, 3);
+}
+
+function buildHealthIntelligencePlan(payload, plans) {
+  const hp = plans.healthPlan;  // from renderHealth() — Health Intelligence Engine™
+  const hr = payload?.healthReport;
+  const mi = payload?.monitoringIntelligence;
+
+  // Section 1: Overall Health Score — constitutional owner: Health Intelligence Engine™
+  const score = hp?.score ?? null;
+  const grade = hp?.status ?? '—';
+
+  // Health Trend — constitutional owner: Health Intelligence Engine™ (healthReport.trend)
+  const trendRaw = hr?.trend ?? null;
+  const dir      = _hiTrendDir(trendRaw);
+  const delta    = typeof payload?.healthIntelligence?.delta === 'number'
+    ? payload.healthIntelligence.delta : null;
+  const trendLabel = _hiTrendLabel(dir, delta);
+
+  // Section 2: Breakdown — constitutional owner: Health Intelligence Engine™
+  const domains = {
+    identity:   hp?.domainScores?.identity   ?? 0,
+    publishing: hp?.domainScores?.publishing ?? 0,
+    catalog:    hp?.domainScores?.catalog    ?? 0,
+    footprint:  hp?.domainScores?.footprint  ?? 0,
+    monitoring: hp?.domainScores?.monitoring ?? 0,
+    backend:    hp?.domainScores?.backend    ?? 0,
+  };
+
+  // Section 3: Biggest Improvement — constitutional owner: Evidence Events™
+  const best = _hiBestImprovement(hp);
+
+  // Section 4: Biggest Risk — constitutional owner: Health Intelligence Engine™
+  const risk = _hiBiggestRisk(hp);
+
+  // Section 5: Sparkline — current score as terminal point; historical pending
+  // Constitutional owner: Health Intelligence Engine™ / Historical Health Snapshots™
+  const sparkCurrent = score;
+
+  // Section 6: Recent Changes — constitutional owner: Evidence Events™ / Monitoring Intelligence™
+  const changes = _hiRecentChanges(hp, mi);
+
+  return { score, grade, trendDir: dir, trendLabel, domains, best, risk, sparkCurrent, changes };
+}
+
+function applyHealthIntelligencePlan(plan) {
+  if (!plan) return;
+  const q  = (sel)       => document.querySelector(sel);
+  const qq = (ctx, sel)  => ctx?.querySelector(sel) ?? null;
+
+  // Section 1 — Score (count-up handled in __mcRevealModule)
+  const gradeEl = q('[data-mc-hi-grade]');
+  if (gradeEl) gradeEl.textContent = plan.grade;
+
+  const trendRow = q('[data-mc-hi-trend-row]');
+  if (trendRow) {
+    trendRow.className = `mc-hi-trend-row mc-hi-${plan.trendDir}`;
+    const arrowEl = q('[data-mc-hi-trend-arrow]');
+    const textEl  = q('[data-mc-hi-trend-text]');
+    if (arrowEl) arrowEl.textContent = plan.trendDir === 'up' ? '▲' : plan.trendDir === 'down' ? '▼' : '—';
+    if (textEl)  textEl.textContent  = plan.trendLabel.replace(/^[▲▼—]\s*/, '');
+  }
+
+  // Section 2 — Breakdown
+  const DOMAIN_LABELS = {
+    identity: 'Identity', publishing: 'Publishing', catalog: 'Catalog',
+    footprint: 'Streaming', monitoring: 'Monitoring', backend: 'Backend',
+  };
+  for (const [key, score] of Object.entries(plan.domains)) {
+    const row = q(`[data-mc-hi-cat="${key}"]`);
+    if (!row) continue;
+    const scoreEl = qq(row, '[data-mc-hi-cat-score]');
+    const dotEl   = qq(row, '[data-mc-hi-cat-dot]');
+    if (scoreEl) scoreEl.textContent = String(score);
+    if (dotEl)   dotEl.className = `mc-hi-cat-dot ${_hiDotClass(score)}`;
+  }
+
+  // Section 3 — Biggest Improvement
+  const bestTitle = q('[data-mc-hi-best-title]');
+  const bestMeta  = q('[data-mc-hi-best-meta]');
+  if (bestTitle) bestTitle.textContent = plan.best.title;
+  if (bestMeta && plan.best.meta) bestMeta.textContent = plan.best.meta;
+
+  // Section 4 — Biggest Risk
+  const riskTitle = q('[data-mc-hi-risk-title]');
+  const riskMeta  = q('[data-mc-hi-risk-meta]');
+  if (riskTitle) riskTitle.textContent = plan.risk.title;
+  if (riskMeta && plan.risk.meta) riskMeta.textContent = plan.risk.meta;
+
+  // Section 5 — Sparkline: current score at position 4; history pending
+  const spark4 = q('[data-mc-hi-spark="4"]');
+  if (spark4 && plan.sparkCurrent !== null) spark4.textContent = String(plan.sparkCurrent);
+
+  // Section 6 — Recent Changes
+  const changesList = q('[data-mc-hi-changes]');
+  if (changesList && plan.changes.length > 0) {
+    changesList.innerHTML = plan.changes
+      .map((c) => `<li>${escapeHTML(c)}</li>`)
+      .join('');
+  }
+}
+
 // ─── Health Intelligence™ apply helper (Health Intelligence v1.0) ───
 //
-// Updates the ring progress, score, status, confidence, per-domain
-// contributor scores, composite average, and the strengths/concerns
-// insights foot. Leaves locked sample HTML untouched when plan is null.
+// Legacy helper — kept for backward-compat with preview mode (initMissionControl).
+// The vault path uses applyHealthIntelligencePlan / __mcRevealModule exclusively.
+// DOM targets from v1.0 ([data-mc-health-ring-progress], [data-mc-health-domain], etc.)
+// no longer exist in the HTML — these querySelector calls are graceful no-ops.
 
 function escapeHTML(str) {
   return String(str)
@@ -874,9 +1039,12 @@ if (typeof window !== 'undefined') {
     const mi = safeMonitoringIntelligence(payload.monitoringIntelligence);
     if (mi) _vaultPlans.cdPlan = renderChangeDetection(mi);
 
-    // Health
+    // Health Intelligence Engine™ render plan
     const hi = safeHealthIntelligence(payload.healthIntelligence);
     if (hi) _vaultPlans.healthPlan = renderHealth(hi);
+
+    // Health Intelligence™ v2.0 executive plan — built after healthPlan is stored
+    _vaultPlans.hiPlan = buildHealthIntelligencePlan(payload, _vaultPlans);
 
     // Ecosystem Status — built last so all plans are available
     _vaultPlans.ecosystemStatusPlan = buildEcosystemStatusPlan(payload, _vaultPlans);
@@ -907,26 +1075,28 @@ if (typeof window !== 'undefined') {
         break;
       }
       case 'health-intelligence': {
-        const plan = _vaultPlans.healthPlan;
+        // Sprint 3.2: applyHealthIntelligencePlan writes all 6 sections.
+        // Count-up on [data-mc-hi-score] runs immediately after.
+        const plan = _vaultPlans.hiPlan;
         if (!plan) break;
-        // applyHealthPlan writes status, confidence, domain scores, insights,
-        // and sets the ring stroke-dasharray — CSS transition (1.4s) fires
-        // because _blankSentinelData left the ring at 0 214.
-        applyHealthPlan(plan);
-        // Count-up overrides the score applyHealthPlan just wrote.
-        // Starts synchronously so the browser never renders the pre-animation value.
-        const scoreEl = document.querySelector('[data-mc-health-score]');
-        if (scoreEl) {
-          const target = plan.score;
-          const dur    = 1500;
-          const t0     = performance.now();
-          (function countUp(now) {
-            const t     = Math.min((now - t0) / dur, 1);
-            const eased = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
-            scoreEl.innerHTML = `${Math.round(target * eased)} <small>/100</small>`;
-            if (t < 1) requestAnimationFrame(countUp);
-            else scoreEl.innerHTML = `${target} <small>/100</small>`;
-          })(performance.now());
+        applyHealthIntelligencePlan(plan);
+        if (plan.score !== null) {
+          const scoreEl = document.querySelector('[data-mc-hi-score]');
+          if (scoreEl) {
+            const target = plan.score;
+            const dur    = 1500;
+            const t0     = performance.now();
+            (function countUp(now) {
+              const t     = Math.min((now - t0) / dur, 1);
+              const eased = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+              scoreEl.textContent = String(Math.round(target * eased));
+              if (t < 1) requestAnimationFrame(countUp);
+              else scoreEl.textContent = String(target);
+            })(performance.now());
+            // Mirror count-up to sparkline current point so they land together
+            const spark4 = document.querySelector('[data-mc-hi-spark="4"]');
+            if (spark4) spark4.textContent = String(target);
+          }
         }
         break;
       }

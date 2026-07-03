@@ -103,20 +103,22 @@ function _blankSentinelData() {
   const q  = s => document.querySelector(s);
   const qa = s => document.querySelectorAll(s);
 
-  // Health Intelligence
-  const hs = q('[data-mc-health-score]');
-  if (hs) hs.innerHTML = '0 <small>/100</small>';
-  const hst = q('[data-mc-health-status]');
-  if (hst) hst.textContent = 'Waiting for Intelligence';
-  const hc = q('[data-mc-health-confidence]');
-  if (hc) hc.textContent = '—';
-  const hcp = q('[data-mc-health-composite]');
-  if (hcp) hcp.textContent = '—';
-  const hi = q('[data-mc-health-insights]');
-  if (hi) hi.innerHTML = '';
-  qa('[data-mc-health-domain] .val').forEach(el => { el.textContent = '—'; });
-  const hr = q('[data-mc-health-ring-progress]');
-  if (hr) hr.setAttribute('stroke-dasharray', '0 214');
+  // Health Intelligence™ v2.0 (Sprint 3.2)
+  const hiScore = q('[data-mc-hi-score]');
+  if (hiScore) hiScore.textContent = '—';
+  const hiGrade = q('[data-mc-hi-grade]');
+  if (hiGrade) hiGrade.textContent = '—';
+  const hiTrendText = q('[data-mc-hi-trend-text]');
+  if (hiTrendText) hiTrendText.textContent = '—';
+  qa('[data-mc-hi-cat-score]').forEach(el => { el.textContent = '—'; });
+  const hiBestTitle = q('[data-mc-hi-best-title]');
+  if (hiBestTitle) hiBestTitle.textContent = '—';
+  const hiRiskTitle = q('[data-mc-hi-risk-title]');
+  if (hiRiskTitle) hiRiskTitle.textContent = '—';
+  const hiSpark4 = q('[data-mc-hi-spark="4"]');
+  if (hiSpark4) hiSpark4.textContent = '—';
+  const hiChanges = q('[data-mc-hi-changes]');
+  if (hiChanges) hiChanges.innerHTML = '';
 
   // Identity Intelligence
   const ic = q('[data-mc-identity-coverage-value]');
