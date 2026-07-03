@@ -224,10 +224,29 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;d
 .auth-disclaimer{margin-top:32px;padding:16px 20px;border:1px solid var(--border3);border-radius:4px;font-size:12px;color:var(--muted);line-height:1.6;font-family:'Space Mono',monospace;}
 
 /* ── SECTION 7: ROYALTĒ MONITORING ── */
-.monitoring-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:40px;}
-.monitoring-feature{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:24px;}
-.mf-title{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#fff;margin-bottom:8px;}
-.mf-desc{font-size:14px;color:var(--muted2);line-height:1.65;}
+.monitoring-intro{font-size:16px;color:var(--text2);line-height:1.85;max-width:760px;}
+.monitoring-intro p{margin-bottom:16px;}
+.monitoring-intro p:last-child{margin-bottom:0;}
+.monitoring-lead-statement{font-size:19px;font-weight:600;color:var(--text);line-height:1.6;max-width:680px;margin-bottom:24px;padding-left:20px;border-left:3px solid var(--pur);}
+.monitoring-divider{height:1px;background:var(--border);margin:44px 0;}
+.monitoring-how-h{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--pur);margin-bottom:16px;}
+.monitoring-how-body{font-size:16px;color:var(--text2);line-height:1.85;max-width:760px;}
+.monitoring-how-body p{margin-bottom:16px;}
+.monitoring-how-body p:last-child{margin-bottom:0;}
+/* Comparison table */
+.compare-wrap{overflow-x:auto;margin-top:44px;}
+.compare-table{width:100%;border-collapse:collapse;min-width:480px;}
+.compare-table th{padding:14px 20px;text-align:left;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;border-bottom:2px solid var(--border2);}
+.compare-table th:first-child{color:var(--muted2);}
+.compare-table th:last-child{color:var(--pur);}
+.compare-table td{padding:13px 20px;font-size:14px;color:var(--text2);border-bottom:1px solid var(--border3);line-height:1.5;vertical-align:top;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(138,92,255,0.03);}
+.compare-table td:last-child{color:var(--text);}
+/* Closing statement */
+.monitoring-closer{margin-top:44px;padding:28px 32px;background:rgba(138,92,255,0.05);border:1px solid var(--border2);border-radius:6px;}
+.monitoring-closer-headline{font-size:18px;font-weight:700;color:#fff;margin-bottom:10px;line-height:1.4;}
+.monitoring-closer-body{font-size:15px;color:var(--text2);line-height:1.75;}
 
 /* ── SECTION 8: MISSION CONTROL ── */
 .mc-layout{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;margin-top:40px;}
@@ -290,7 +309,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
 }
 @media(max-width:480px){
   .wwd-h1{font-size:36px;}
-  .how-steps,.monitor-grid,.monitoring-features,.why-grid{grid-template-columns:1fr;}
+  .how-steps,.monitor-grid,.auth-grid,.why-grid{grid-template-columns:1fr;}
   .cta-actions{flex-direction:column;align-items:center;}
 }
 </style>
@@ -798,27 +817,67 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
      ══════════════════════════════════════════════════════ -->
 <section class="wwd-section" aria-labelledby="monitoring-heading">
   <div class="wwd-inner">
-    <p class="section-eyebrow">Product</p>
+    <p class="section-eyebrow">Continuous Intelligence</p>
     <h2 class="section-h2" id="monitoring-heading">Royaltē <span class="accent">Monitoring™</span></h2>
-    <p class="section-lead">Royaltē Monitoring™ is continuous protection for your music infrastructure — automated scans on a recurring cadence, with alerts the moment something meaningful changes.</p>
-    <div class="monitoring-features">
-      <div class="monitoring-feature">
-        <div class="mf-title">Continuous Scanning</div>
-        <p class="mf-desc">Royaltē Monitoring™ rescans your music automatically on a regular cadence — not just when you remember to check. Changes are detected the moment they appear.</p>
-      </div>
-      <div class="monitoring-feature">
-        <div class="mf-title">Meaningful Alerts</div>
-        <p class="mf-desc">Not every change is equally important. Royaltē surfaces changes by severity — so you know the difference between a routine update and a gap that needs immediate action.</p>
-      </div>
-      <div class="monitoring-feature">
-        <div class="mf-title">Historical Intelligence</div>
-        <p class="mf-desc">Every scan builds your artist intelligence history. Royaltē maintains an immutable record of your music's backend state over time — evidence you can trace, verify, and act on.</p>
-      </div>
-      <div class="monitoring-feature">
-        <div class="mf-title">Verified Evidence</div>
-        <p class="mf-desc">Every finding is sourced from trusted industry authorities. Royaltē never estimates or infers. Every number is traceable and every finding is defensible.</p>
-      </div>
+
+    <!-- Introduction -->
+    <p class="monitoring-lead-statement">Your first scan tells you where your music stands today.<br>Royaltē Monitoring™ tells you when something changes tomorrow.</p>
+    <div class="monitoring-intro">
+      <p>Music never stands still. Metadata changes. Publishing registrations are updated. Artist profiles evolve. Catalogs grow. Community activity changes.</p>
+      <p>Royaltē continuously monitors your music ecosystem across trusted music industry authorities and alerts you when meaningful changes occur.</p>
+      <p>Instead of manually checking multiple platforms, Royaltē keeps watch for you. When something changes, you'll know.</p>
     </div>
+
+    <div class="monitoring-divider" aria-hidden="true"></div>
+
+    <!-- How It Works -->
+    <p class="monitoring-how-h">How It Works</p>
+    <div class="monitoring-how-body">
+      <p>Every Executive Brief™ provides a complete snapshot of your music ecosystem at a specific moment in time.</p>
+      <p>Royaltē Monitoring™ builds on that foundation by continuously checking trusted music industry authorities, comparing new evidence against previous snapshots, detecting meaningful changes, and presenting those updates through Mission Control™ and your ongoing monitoring reports.</p>
+      <p>The result is an intelligence platform that continues working long after your first scan is complete.</p>
+    </div>
+
+    <!-- Comparison table -->
+    <div class="compare-wrap">
+      <table class="compare-table" aria-label="Comparison: Executive Brief™ versus Royaltē Monitoring™">
+        <thead>
+          <tr>
+            <th scope="col">Executive Brief™</th>
+            <th scope="col">Royaltē Monitoring™</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>One-time scan</td>
+            <td>Continuous monitoring</td>
+          </tr>
+          <tr>
+            <td>Snapshot of today</td>
+            <td>Watches for future changes</td>
+          </tr>
+          <tr>
+            <td>Comprehensive Executive Brief™</td>
+            <td>Weekly monitoring and change detection</td>
+          </tr>
+          <tr>
+            <td>Point-in-time analysis</td>
+            <td>Historical intelligence</td>
+          </tr>
+          <tr>
+            <td>Immediate recommendations</td>
+            <td>Ongoing alerts and updates</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Closing -->
+    <div class="monitoring-closer">
+      <p class="monitoring-closer-headline">Because your music never stops changing, neither do we.</p>
+      <p class="monitoring-closer-body">Royaltē Monitoring™ continuously watches your music ecosystem so you can spend less time checking platforms and more time creating music.</p>
+    </div>
+
   </div>
 </section>
 
