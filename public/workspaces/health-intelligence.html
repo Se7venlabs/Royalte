@@ -113,7 +113,7 @@
       <span class="ws-breadcrumb-sep">/</span>
       <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
       <span class="ws-breadcrumb-sep">/</span>
-      <span class="ws-breadcrumb-current">Health Intelligence™</span>
+      <span class="ws-breadcrumb-current hi-breadcrumb-current">Health Intelligence™</span>
     </header>
 
     <div class="ws-body">
@@ -143,40 +143,47 @@
         <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
         <div class="hi-kpi-row">
 
-          <!-- Health Score -->
+          <!-- Health Score — Hero focal point with ring -->
           <div class="hi-kpi-card hi-kpi-card--score">
-            <div class="hi-kpi-label hi-kpi-label--purple">Health Score™</div>
-            <div class="hi-kpi-score-wrap">
-              <span class="hi-kpi-score-num">89</span>
-              <span class="hi-kpi-score-denom">/100</span>
+            <div class="hi-kpi-label hi-kpi-label--green">Health Score™</div>
+
+            <div class="hi-score-ring-wrap" aria-label="Health score: 89 out of 100">
+              <svg class="hi-score-ring-svg" viewBox="0 0 96 96" aria-hidden="true">
+                <circle class="hi-score-ring-track" cx="48" cy="48" r="40"/>
+                <circle class="hi-score-ring-progress" cx="48" cy="48" r="40"/>
+              </svg>
+              <div class="hi-score-ring-center">
+                <span class="hi-score-ring-num" data-target="89" aria-live="polite">0</span>
+                <span class="hi-score-ring-sub">/100</span>
+              </div>
             </div>
-            <div class="hi-kpi-grade">Strong</div>
-            <div class="hi-kpi-trend">— Trend Updating</div>
+
+            <div class="hi-score-meta-row">
+              <div class="hi-status-pill hi-status-pill--green">
+                <span class="hi-status-dot" aria-hidden="true"></span>Strong
+              </div>
+              <div class="hi-kpi-trend">— Trend Updating</div>
+            </div>
+
             <div class="hi-kpi-breakdown">
               <div class="hi-kpi-breakdown-title">Health Breakdown</div>
               <div class="hi-kpi-breakdown-row">
-                <span>Identity</span>
-                <span class="hi-kpi-breakdown-val">67</span>
+                <span>Identity</span><span class="hi-kpi-breakdown-val">67</span>
               </div>
               <div class="hi-kpi-breakdown-row">
-                <span>Publishing</span>
-                <span class="hi-kpi-breakdown-val">67</span>
+                <span>Publishing</span><span class="hi-kpi-breakdown-val">67</span>
               </div>
               <div class="hi-kpi-breakdown-row">
-                <span>Catalog</span>
-                <span class="hi-kpi-breakdown-val">100</span>
+                <span>Catalog</span><span class="hi-kpi-breakdown-val">100</span>
               </div>
               <div class="hi-kpi-breakdown-row">
-                <span>Streaming</span>
-                <span class="hi-kpi-breakdown-val">0</span>
+                <span>Streaming</span><span class="hi-kpi-breakdown-val">0</span>
               </div>
               <div class="hi-kpi-breakdown-row">
-                <span>Monitoring</span>
-                <span class="hi-kpi-breakdown-val">50</span>
+                <span>Monitoring</span><span class="hi-kpi-breakdown-val">50</span>
               </div>
               <div class="hi-kpi-breakdown-row">
-                <span>Backend</span>
-                <span class="hi-kpi-breakdown-val">100</span>
+                <span>Backend</span><span class="hi-kpi-breakdown-val">100</span>
               </div>
             </div>
           </div>
@@ -184,24 +191,33 @@
           <!-- Biggest Improvement -->
           <div class="hi-kpi-card hi-kpi-card--improvement">
             <div class="hi-kpi-label hi-kpi-label--green">Biggest Improvement™</div>
-            <div class="hi-kpi-icon" aria-hidden="true" style="color:var(--mc-green)">▲</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--green" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+            </div>
             <div class="hi-kpi-main-text">Backend fully connected</div>
-            <div class="hi-kpi-sub-text">Infrastructure confirmed active across all monitored endpoints. No degradation detected.</div>
+            <div class="hi-kpi-sub-text">All monitored backend services operational.</div>
           </div>
 
           <!-- Biggest Risk -->
           <div class="hi-kpi-card hi-kpi-card--risk">
             <div class="hi-kpi-label hi-kpi-label--orange">Biggest Risk™</div>
-            <div class="hi-kpi-icon" aria-hidden="true" style="color:var(--mc-orange)">⚠</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 21h20z"/><path d="M12 10v5"/><path d="M12 18v.01"/></svg>
+            </div>
             <div class="hi-kpi-main-text">Publishing review needed</div>
-            <div class="hi-kpi-sub-text">Publishing data could not be determined from reviewed sources. Action required.</div>
+            <div class="hi-kpi-sub-text">Publishing data not available from reviewed sources.</div>
             <div class="hi-kpi-badge hi-kpi-badge--orange">High Impact</div>
           </div>
 
           <!-- AI Monitoring Status -->
           <div class="hi-kpi-card hi-kpi-card--ai">
             <div class="hi-kpi-label hi-kpi-label--purple">AI Monitoring™</div>
-            <div class="hi-kpi-main-text" style="margin-top:4px">Monitoring Complete</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--purple" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
+            </div>
+            <div class="hi-status-pill hi-status-pill--green" style="align-self:flex-start">
+              <span class="hi-status-dot" aria-hidden="true"></span>Monitoring Complete
+            </div>
             <div class="hi-kpi-ai-checks">
               <div class="hi-kpi-ai-check">
                 <span class="hi-kpi-check-icon--green" aria-hidden="true">✓</span>
@@ -234,18 +250,26 @@
                 <span class="hi-cat-score-num hi-cat-score-num--purple">67</span>
                 <span class="hi-cat-score-denom">/100</span>
               </div>
-              <div class="hi-cat-status hi-cat-status--purple">Needs Attention</div>
-              <div class="hi-cat-sparkline" aria-label="Identity health trend sparkline">
+              <div class="hi-status-pill hi-status-pill--purple" style="align-self:flex-start">
+                <span class="hi-status-dot" aria-hidden="true"></span>Needs Attention
+              </div>
+              <div class="hi-cat-sparkline" aria-label="Identity health trend: declining">
                 <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="spark-fill-identity" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.18"/>
+                      <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,6 L16,9 L32,12 L48,15 L64,17 L80,20 L80,24 L0,24 Z"
+                    fill="url(#spark-fill-identity)"/>
                   <polyline points="0,6 16,9 32,12 48,15 64,17 80,20"
-                    fill="none" stroke="var(--mc-purple)" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
-                  <circle cx="80" cy="20" r="2.5" fill="var(--mc-purple)" opacity="0.9"/>
+                    fill="none" stroke="#a855f7" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="80" cy="20" r="2.5" fill="#a855f7"/>
                 </svg>
               </div>
-              <div class="hi-cat-movement hi-cat-movement--down" aria-label="Down 3% this week">
-                ▼ 3% this week
-              </div>
+              <div class="hi-cat-movement hi-cat-movement--down">▼ 3% this week</div>
             </div>
 
             <!-- Catalog Health -->
@@ -255,18 +279,26 @@
                 <span class="hi-cat-score-num hi-cat-score-num--green">100</span>
                 <span class="hi-cat-score-denom">/100</span>
               </div>
-              <div class="hi-cat-status hi-cat-status--green">Excellent</div>
-              <div class="hi-cat-sparkline" aria-label="Catalog health trend sparkline">
+              <div class="hi-status-pill hi-status-pill--green" style="align-self:flex-start">
+                <span class="hi-status-dot" aria-hidden="true"></span>Excellent
+              </div>
+              <div class="hi-cat-sparkline" aria-label="Catalog health trend: improving">
                 <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="spark-fill-catalog" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.2"/>
+                      <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,20 L16,16 L32,12 L48,8 L64,4 L80,2 L80,24 L0,24 Z"
+                    fill="url(#spark-fill-catalog)"/>
                   <polyline points="0,20 16,16 32,12 48,8 64,4 80,2"
-                    fill="none" stroke="var(--mc-green)" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
-                  <circle cx="80" cy="2" r="2.5" fill="var(--mc-green)" opacity="0.9"/>
+                    fill="none" stroke="#2dd4bf" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="80" cy="2" r="2.5" fill="#2dd4bf"/>
                 </svg>
               </div>
-              <div class="hi-cat-movement hi-cat-movement--up" aria-label="Up 8% this week">
-                ▲ 8% this week
-              </div>
+              <div class="hi-cat-movement hi-cat-movement--up">▲ 8% this week</div>
             </div>
 
             <!-- Publishing Health -->
@@ -276,18 +308,26 @@
                 <span class="hi-cat-score-num hi-cat-score-num--purple">67</span>
                 <span class="hi-cat-score-denom">/100</span>
               </div>
-              <div class="hi-cat-status hi-cat-status--purple">Needs Attention</div>
-              <div class="hi-cat-sparkline" aria-label="Publishing health trend sparkline">
+              <div class="hi-status-pill hi-status-pill--purple" style="align-self:flex-start">
+                <span class="hi-status-dot" aria-hidden="true"></span>Needs Attention
+              </div>
+              <div class="hi-cat-sparkline" aria-label="Publishing health trend: declining">
                 <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="spark-fill-publishing" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.16"/>
+                      <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,8 L16,10 L32,12 L48,15 L64,17 L80,19 L80,24 L0,24 Z"
+                    fill="url(#spark-fill-publishing)"/>
                   <polyline points="0,8 16,10 32,12 48,15 64,17 80,19"
-                    fill="none" stroke="var(--mc-purple)" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
-                  <circle cx="80" cy="19" r="2.5" fill="var(--mc-purple)" opacity="0.9"/>
+                    fill="none" stroke="#a855f7" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="80" cy="19" r="2.5" fill="#a855f7"/>
                 </svg>
               </div>
-              <div class="hi-cat-movement hi-cat-movement--down" aria-label="Down 2% this week">
-                ▼ 2% this week
-              </div>
+              <div class="hi-cat-movement hi-cat-movement--down">▼ 2% this week</div>
             </div>
 
             <!-- Streaming Health -->
@@ -297,18 +337,26 @@
                 <span class="hi-cat-score-num hi-cat-score-num--red">0</span>
                 <span class="hi-cat-score-denom">/100</span>
               </div>
-              <div class="hi-cat-status hi-cat-status--red">Critical</div>
-              <div class="hi-cat-sparkline" aria-label="Streaming health trend sparkline">
+              <div class="hi-status-pill hi-status-pill--red" style="align-self:flex-start">
+                <span class="hi-status-dot" aria-hidden="true"></span>Critical
+              </div>
+              <div class="hi-cat-sparkline" aria-label="Streaming health trend: flat">
                 <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
-                  <polyline points="0,22 16,22 32,21 48,22 64,22 80,22"
-                    fill="none" stroke="#f87171" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
-                  <circle cx="80" cy="22" r="2.5" fill="#f87171" opacity="0.8"/>
+                  <defs>
+                    <linearGradient id="spark-fill-streaming" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#f87171" stop-opacity="0.14"/>
+                      <stop offset="100%" stop-color="#f87171" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,21 L16,22 L32,21 L48,22 L64,21 L80,22 L80,24 L0,24 Z"
+                    fill="url(#spark-fill-streaming)"/>
+                  <polyline points="0,21 16,22 32,21 48,22 64,21 80,22"
+                    fill="none" stroke="#f87171" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="80" cy="22" r="2.5" fill="#f87171"/>
                 </svg>
               </div>
-              <div class="hi-cat-movement hi-cat-movement--flat" aria-label="No change this week">
-                — No change
-              </div>
+              <div class="hi-cat-movement hi-cat-movement--flat">— No change</div>
             </div>
 
             <!-- Backend Health -->
@@ -318,18 +366,26 @@
                 <span class="hi-cat-score-num hi-cat-score-num--green">100</span>
                 <span class="hi-cat-score-denom">/100</span>
               </div>
-              <div class="hi-cat-status hi-cat-status--green">Excellent</div>
-              <div class="hi-cat-sparkline" aria-label="Backend health trend sparkline">
+              <div class="hi-status-pill hi-status-pill--green" style="align-self:flex-start">
+                <span class="hi-status-dot" aria-hidden="true"></span>Excellent
+              </div>
+              <div class="hi-cat-sparkline" aria-label="Backend health trend: improving">
                 <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="spark-fill-backend" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.2"/>
+                      <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,18 L16,14 L32,10 L48,6 L64,3 L80,2 L80,24 L0,24 Z"
+                    fill="url(#spark-fill-backend)"/>
                   <polyline points="0,18 16,14 32,10 48,6 64,3 80,2"
-                    fill="none" stroke="var(--mc-green)" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
-                  <circle cx="80" cy="2" r="2.5" fill="var(--mc-green)" opacity="0.9"/>
+                    fill="none" stroke="#2dd4bf" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="80" cy="2" r="2.5" fill="#2dd4bf"/>
                 </svg>
               </div>
-              <div class="hi-cat-movement hi-cat-movement--up" aria-label="Up 5% this week">
-                ▲ 5% this week
-              </div>
+              <div class="hi-cat-movement hi-cat-movement--up">▲ 5% this week</div>
             </div>
 
           </div>
@@ -344,31 +400,31 @@
             <div class="hi-timeline-body">
               <div class="hi-timeline-ruler" role="list" aria-label="Health monitoring timeline Jun 27 – Jul 3">
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot hi-timeline-dot--event" aria-label="Event on Jun 27" title="Backend connected"></div>
+                  <div class="hi-timeline-dot hi-timeline-dot--event" title="Backend connected"></div>
                   <div class="hi-timeline-day-label">Jun 27</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot" aria-label="Jun 28"></div>
+                  <div class="hi-timeline-dot"></div>
                   <div class="hi-timeline-day-label">Jun 28</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot hi-timeline-dot--event" aria-label="Event on Jun 29" title="Catalog verified"></div>
+                  <div class="hi-timeline-dot hi-timeline-dot--event" title="Catalog verified"></div>
                   <div class="hi-timeline-day-label">Jun 29</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot" aria-label="Jun 30"></div>
+                  <div class="hi-timeline-dot"></div>
                   <div class="hi-timeline-day-label">Jun 30</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot" aria-label="Jul 1"></div>
+                  <div class="hi-timeline-dot"></div>
                   <div class="hi-timeline-day-label">Jul 1</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot" aria-label="Jul 2"></div>
+                  <div class="hi-timeline-dot"></div>
                   <div class="hi-timeline-day-label">Jul 2</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot hi-timeline-dot--active" aria-label="Today, Jul 3" title="Current scan"></div>
+                  <div class="hi-timeline-dot hi-timeline-dot--active" title="Current scan"></div>
                   <div class="hi-timeline-day-label">Jul 3</div>
                 </div>
               </div>
@@ -443,11 +499,11 @@
               </div>
               <div class="hi-panel-action-title">Claim YouTube Official Artist Channel</div>
             </div>
-            <div class="hi-panel-action-desc">Unlock additional monetization, audience insights, and verified status on YouTube.</div>
+            <div class="hi-panel-action-desc">Unlock monetization, insights, and verified status on YouTube.</div>
             <div class="hi-panel-action-meta">
               <div class="hi-panel-action-badge">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:9px;height:9px" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-                Est. 8 Minutes
+                Est. 8 Min
               </div>
               <div class="hi-panel-action-badge">Impact: High</div>
             </div>
@@ -490,5 +546,25 @@
   </div><!-- /ws-content -->
 
 </div><!-- /ws-shell -->
+
+<script>
+  /* Score count-up — 0 → 89 with ease-out cubic */
+  document.addEventListener('DOMContentLoaded', function () {
+    var el = document.querySelector('.hi-score-ring-num[data-target]');
+    if (!el) return;
+    var target = parseInt(el.dataset.target, 10);
+    var start = null;
+    var dur = 1400;
+    function tick(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(ease * target);
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = target;
+    }
+    requestAnimationFrame(tick);
+  });
+</script>
 </body>
 </html>
