@@ -832,6 +832,162 @@ function applyIdentityIntelligencePlan(plan) {
   }
 }
 
+// ─── Publishing Intelligence™ plan builders — Sprint 3.4 ─────────────
+//
+// Constitutional Presentation Layer™. Reads pi.* from the locked
+// Publishing Intelligence Engine™ output. Never computes, never
+// registers, never estimates dollar amounts.
+
+const _PI_COVERAGE_GRADE = (pct) => {
+  if (pct >= 90) return 'Excellent Coverage';
+  if (pct >= 70) return 'Good Coverage';
+  if (pct >= 50) return 'Fair Coverage';
+  return 'Needs Attention';
+};
+
+const _PI_STATE_PILL = {
+  'VERIFIED':          { cls: 'mc-pill mc-pill--verified', text: 'Verified' },
+  'ACTION_REQUIRED':   { cls: 'mc-pill mc-pill--action',   text: 'Needs Attention' },
+  'NOT_FOUND':         { cls: 'mc-pill mc-pill--notfound', text: 'Missing' },
+  'UNABLE_TO_CONFIRM': { cls: 'mc-pill mc-pill--unable',   text: 'Connected' },
+};
+
+// Resolution time lookup per metric (Board Brief § 6, Estimated Resolution Time).
+const _PI_RESOLUTION_TIME = {
+  writerIpi:             'Est. 5–10 min to resolve',
+  iswcCoverage:          'Est. 10–30 min to resolve',
+  compositionMatch:      'Est. 10–30 min to resolve',
+  mlcRegistration:       'Est. 15–30 min to resolve',
+  registeredWorks:       'Est. 15–45 min to resolve',
+  registeredSongwriters: 'Est. 15–45 min to resolve',
+};
+
+function _piFinancialImpact(issues) {
+  if (!Array.isArray(issues) || issues.length === 0) {
+    return { level: 'low', badge: 'LOW RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--low', body: 'No significant publishing gaps detected.' };
+  }
+  const severities = issues.map(i => String(i.severity || '').toUpperCase());
+  if (severities.includes('HIGH')) {
+    return { level: 'high', badge: 'HIGH RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--high', body: 'Multiple publishing registrations appear incomplete. Potential royalty collection may be affected.' };
+  }
+  if (severities.includes('MEDIUM')) {
+    return { level: 'medium', badge: 'MEDIUM RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--medium', body: 'One publishing registration requires attention.' };
+  }
+  return { level: 'low', badge: 'LOW RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--low', body: 'No significant publishing gaps detected.' };
+}
+
+function buildPublishingIntelligencePlan(payload) {
+  const pi = safePublishingIntelligence(payload?.publishingIntelligence);
+
+  // Section 1 — Coverage
+  const coverage = (pi && typeof pi.coverage === 'number') ? pi.coverage : null;
+  const regCount  = pi?.registeredCount ?? 0;
+  const totCount  = pi?.totalChecked    ?? 0;
+  const grade = coverage !== null ? _PI_COVERAGE_GRADE(coverage) : '—';
+  const sub   = totCount > 0 ? `${regCount} of ${totCount} complete` : '— of — complete';
+
+  // Section 2 — Summary counts from the registrations state map
+  let sumVerified = 0, sumConnected = 0, sumAttention = 0, sumMissing = 0;
+  if (pi?.registrations && typeof pi.registrations === 'object') {
+    for (const state of Object.values(pi.registrations)) {
+      if      (state === 'VERIFIED')          sumVerified++;
+      else if (state === 'ACTION_REQUIRED')   sumAttention++;
+      else if (state === 'NOT_FOUND')         sumMissing++;
+      else                                    sumConnected++;
+    }
+  }
+
+  // Section 3 — System pills
+  const systems = [];
+  const METRIC_ORDER = ['mlcRegistration','registeredWorks','iswcCoverage','registeredSongwriters','writerIpi','compositionMatch'];
+  for (const m of METRIC_ORDER) {
+    const state = pi?.registrations?.[m] || 'UNABLE_TO_CONFIRM';
+    const pill  = _PI_STATE_PILL[state] || _PI_STATE_PILL['UNABLE_TO_CONFIRM'];
+    systems.push({ metric: m, ...pill });
+  }
+
+  // Section 4 — Financial Impact (derived from issue severities — presentation lookup only)
+  const impact = _piFinancialImpact(pi?.issues || []);
+
+  // Section 5 — Biggest Risk
+  const riskIssue = Array.isArray(pi?.issues) ? pi.issues[0] : null;
+  const riskTitle = riskIssue?.label ?? (pi ? 'No critical publishing issues' : '—');
+  const riskMeta  = '';
+  const riskRes   = riskIssue ? (_PI_RESOLUTION_TIME[riskIssue.metric] || 'Est. 10–30 min to resolve') : '';
+
+  // Section 6 — Biggest Win
+  const winStrength = Array.isArray(pi?.strengths) ? pi.strengths[0] : null;
+  const winTitle = winStrength?.label ?? (pi ? 'Publishing data loaded' : '—');
+
+  // Section 7 — Recent Changes (strengths first, then issues, up to 3)
+  const changes = [];
+  if (pi) {
+    for (const s of (Array.isArray(pi.strengths) ? pi.strengths : []).slice(0, 2)) {
+      if (s?.label) changes.push(s.label);
+    }
+    for (const issue of (Array.isArray(pi.issues) ? pi.issues : [])) {
+      if (changes.length >= 3) break;
+      if (issue?.label) changes.push(issue.label);
+    }
+  }
+  if (changes.length === 0) changes.push('Publishing data loaded');
+
+  return { coverage, grade, sub, sumVerified, sumConnected, sumAttention, sumMissing, systems, impact, riskTitle, riskMeta, riskRes, winTitle, changes };
+}
+
+function applyPublishingIntelligencePlan(plan) {
+  if (!plan) return;
+  const q = (s) => document.querySelector(s);
+
+  // Section 1 — Coverage
+  const scoreEl = q('[data-mc-pi-coverage]');
+  if (scoreEl) scoreEl.textContent = plan.coverage !== null ? String(plan.coverage) : '—';
+  const gradeEl = q('[data-mc-pi-coverage-grade]'); if (gradeEl) gradeEl.textContent = plan.grade;
+  const subEl   = q('[data-mc-pi-coverage-sub]');   if (subEl)   subEl.textContent   = plan.sub;
+
+  // Section 2 — Summary counts
+  const sv = q('[data-mc-pi-sum-verified]');   if (sv) sv.textContent = String(plan.sumVerified);
+  const sc = q('[data-mc-pi-sum-connected]');  if (sc) sc.textContent = String(plan.sumConnected);
+  const sa = q('[data-mc-pi-sum-attention]');  if (sa) sa.textContent = String(plan.sumAttention);
+  const sm = q('[data-mc-pi-sum-missing]');    if (sm) sm.textContent = String(plan.sumMissing);
+
+  // Section 3 — System pills
+  for (const entry of plan.systems) {
+    const row  = q(`[data-mc-pi-system="${entry.metric}"]`);
+    if (!row) continue;
+    const pill = row.querySelector('[data-mc-pi-system-pill]') || row.querySelector('.mc-pill');
+    if (!pill) continue;
+    pill.className   = entry.cls;
+    pill.textContent = entry.text;
+  }
+
+  // Section 4 — Financial Impact
+  const badge = q('[data-mc-pi-impact-badge]');
+  if (badge) { badge.className = plan.impact.badgeCls; badge.textContent = plan.impact.badge; }
+  const body = q('[data-mc-pi-impact-body]');
+  if (body) body.textContent = plan.impact.body;
+
+  // Section 5 — Biggest Risk
+  const rt = q('[data-mc-pi-risk-title]');      if (rt) rt.textContent = plan.riskTitle;
+  const rm = q('[data-mc-pi-risk-meta]');        if (rm) rm.textContent = plan.riskMeta;
+  const rr = q('[data-mc-pi-risk-resolution]'); if (rr) rr.textContent = plan.riskRes;
+
+  // Section 6 — Biggest Win
+  const wt = q('[data-mc-pi-win-title]'); if (wt) wt.textContent = plan.winTitle;
+  const wm = q('[data-mc-pi-win-meta]');  if (wm) wm.textContent = '';
+
+  // Section 7 — Recent Changes (textContent-safe DOM build)
+  const changesList = q('[data-mc-pi-changes]');
+  if (changesList) {
+    changesList.innerHTML = '';
+    for (const c of plan.changes.slice(0, 3)) {
+      const li = document.createElement('li');
+      li.textContent = c;
+      changesList.appendChild(li);
+    }
+  }
+}
+
 function buildHealthIntelligencePlan(payload, plans) {
   const hp = plans.healthPlan;  // from renderHealth() — Health Intelligence Engine™
   const hr = payload?.healthReport;
@@ -1160,13 +1316,14 @@ if (typeof window !== 'undefined') {
     _vaultPlans.idPlan  = buildIdentityIntelligencePlan(payload);
     _vaultPlans.payload = payload; // platform data (deezer/tidal) read by idPlan builder
 
-    // Publishing
+    // Publishing — Sprint 3.4: executive plan (piPlan) replaces per-slice plans
     const pi = safePublishingIntelligence(payload.publishingIntelligence);
     if (pi) {
       const plan = renderPublishing(pi);
-      _vaultPlans.publishingCoverage      = plan.coverage;
-      _vaultPlans.publishingRegistrations = plan.registrations;
+      _vaultPlans.publishingCoverage      = plan.coverage;       // legacy (ai-insights)
+      _vaultPlans.publishingRegistrations = plan.registrations;  // legacy (ai-insights)
     }
+    _vaultPlans.piPlan = buildPublishingIntelligencePlan(payload);
 
     // Catalog
     const ci = safeCatalogIntelligence(payload.catalogIntelligence);
@@ -1274,14 +1431,27 @@ if (typeof window !== 'undefined') {
         break;
       }
       case 'publishing-intelligence': {
-        const { publishingCoverage, publishingRegistrations } = _vaultPlans;
-        if (publishingCoverage)      applyPublishingCoveragePlan(publishingCoverage);
-        if (publishingRegistrations) applyPublishingRegistrationsPlan(publishingRegistrations);
-        // Ring fill — r=33, circumference ≈ 207; CSS transition fires from 0
-        const cov  = publishingCoverage?.value ?? null;
-        const dash = cov !== null ? Math.round(cov / 100 * 207) : 191;
-        const ring = document.querySelector('#publishing-intelligence .mc-ring-progress');
-        if (ring) ring.setAttribute('stroke-dasharray', `${dash} 207`);
+        // Sprint 3.4: applyPublishingIntelligencePlan writes all 7 sections.
+        // Count-up on [data-mc-pi-coverage] provides the executive reveal.
+        const plan = _vaultPlans.piPlan;
+        if (plan) {
+          applyPublishingIntelligencePlan(plan);
+          if (plan.coverage !== null) {
+            const coverageEl = document.querySelector('[data-mc-pi-coverage]');
+            if (coverageEl) {
+              const target = plan.coverage;
+              const dur    = 1200;
+              const t0     = performance.now();
+              (function countUp(now) {
+                const t     = Math.min((now - t0) / dur, 1);
+                const eased = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+                coverageEl.textContent = String(Math.round(target * eased));
+                if (t < 1) requestAnimationFrame(countUp);
+                else coverageEl.textContent = String(target);
+              })(performance.now());
+            }
+          }
+        }
         break;
       }
       case 'catalog-intelligence': {
