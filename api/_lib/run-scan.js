@@ -42,6 +42,8 @@ import { acquireAppleEvidence, synthesizeAppleMusicCompat } from './apple-pal-ac
 import { acquireSpotifyEvidence, synthesizeSpotifyCompat } from './spotify-pal-acquisition.js';
 // Phase 3.8 (MusicBrainz PAL Migration) — PAL MusicBrainz acquisition
 import { acquireMBEvidence, synthesizeMBCompat } from './mb-pal-acquisition.js';
+// Phase 3.6/Discogs (Discogs PAL Migration) — PAL Discogs acquisition
+import { acquireDiscogsEvidence, synthesizeDiscogsCompat } from './discogs-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -182,6 +184,7 @@ export async function runScan(url) {
   // Phase 3.3: Apple acquisition routes through PAL (parallel with all other providers).
   // Phase 3.6: Spotify enrichment acquisition routes through PAL (replacing direct calls).
   // Phase 3.8: MusicBrainz acquisition routes through PAL (replacing direct getMusicBrainz call).
+  // Phase 3.6/Discogs: Discogs acquisition routes through PAL (replacing direct getDiscogs call).
   // All PAL evidence packages flow into runRIE via the hybrid merge path.
   // synthesize*Compat functions below are backward-compat synthesis for the V1 module system only.
   const appleIsrc = resolved.trackIsrc || trackData?.external_ids?.isrc || null;
@@ -190,9 +193,9 @@ export async function runScan(url) {
     applePalSettled,
     spotifyPalSettled,
     mbPalSettled,
+    discogsPalSettled,
     deezerSettled,
     audioDbSettled,
-    discogsSettled,
     soundcloudSettled,
     lastfmSettled,
     wikidataSettled,
@@ -203,16 +206,17 @@ export async function runScan(url) {
       artistName,
       isrc: appleIsrc,
     }),
-    // Phase 3.6: Spotify enrichment via PAL — replaces direct getSpotifyArtist/Albums/TopTracks calls
+    // Phase 3.6/Spotify: Spotify enrichment via PAL
     acquireSpotifyEvidence({
       spotifyArtistId: resolved.artistId ?? null,
       artistName,
     }),
-    // Phase 3.8: MusicBrainz via PAL — replaces direct getMusicBrainz call
+    // Phase 3.8: MusicBrainz via PAL
     acquireMBEvidence({ artistName }),
+    // Phase 3.6/Discogs: Discogs via PAL — replaces direct getDiscogs call
+    acquireDiscogsEvidence({ artistName }),
     getDeezer(artistName),
     getAudioDB(artistName),
-    getDiscogs(artistName),
     getSoundCloud(artistName),
     getLastFm(artistName),
     getWikidata(artistName),
@@ -225,15 +229,22 @@ export async function runScan(url) {
     spotifyPalSettled.status === 'fulfilled' ? spotifyPalSettled.value : {};
   const { evidencePackages: mbEvidencePackages = [] } =
     mbPalSettled.status === 'fulfilled' ? mbPalSettled.value : {};
+  const { evidencePackages: discogsEvidencePackages = [] } =
+    discogsPalSettled.status === 'fulfilled' ? discogsPalSettled.value : {};
 
-  // Combined evidence packages — all three PAL providers enter the RIE hybrid merge path.
-  const evidencePackages = [...appleEvidencePackages, ...spotifyEvidencePackages, ...mbEvidencePackages];
+  // Combined evidence packages — all four PAL providers enter the RIE hybrid merge path.
+  const evidencePackages = [
+    ...appleEvidencePackages,
+    ...spotifyEvidencePackages,
+    ...mbEvidencePackages,
+    ...discogsEvidencePackages,
+  ];
 
   // [TRANSITIONAL] Legacy compat shapes for V1 module system (runModules / buildFlags).
   // Retires when those consumers migrate to RIE Rule Library.
   const appleMusicData = synthesizeAppleMusicCompat(appleEvidencePackages);
 
-  // Phase 3.6: Spotify compat synthesis replaces direct getSpotifyArtist/Albums/TopTracks.
+  // Phase 3.6/Spotify: Spotify compat synthesis
   const subjectHints = {
     spotifyArtistId: resolved.artistId   ?? null,
     artistName:      resolved.artistName ?? null,
@@ -243,11 +254,13 @@ export async function runScan(url) {
   const { artistData, albumsData, spotifyTopTracks } =
     synthesizeSpotifyCompat(spotifyEvidencePackages, subjectHints);
 
-  // Phase 3.8: MusicBrainz compat synthesis replaces direct getMusicBrainz call.
+  // Phase 3.8: MusicBrainz compat synthesis
   const mbData = synthesizeMBCompat(mbEvidencePackages, artistName);
+
+  // Phase 3.6/Discogs: Discogs compat synthesis replaces direct getDiscogs call
+  const discogsData = synthesizeDiscogsCompat(discogsEvidencePackages, artistName);
   const deezerData     = deezerSettled.status     === 'fulfilled' ? deezerSettled.value     : { found: false };
   const audioDbData    = audioDbSettled.status    === 'fulfilled' ? audioDbSettled.value    : { found: false };
-  const discogsData    = discogsSettled.status    === 'fulfilled' ? discogsSettled.value    : { found: false };
   const soundcloudData = soundcloudSettled.status === 'fulfilled' ? soundcloudSettled.value : { found: false };
   const lastfmData     = lastfmSettled.status     === 'fulfilled' ? lastfmSettled.value     : { found: false };
   const wikidataData   = wikidataSettled.status   === 'fulfilled' ? wikidataSettled.value   : { found: false };
@@ -1273,7 +1286,9 @@ async function getAudioDB(artistName) {
 }
 
 // ────────────────────────────────────────────────────────
-// DISCOGS
+// DISCOGS — [RETIRED CANDIDATE — Phase 3.6/Discogs]
+// Enrichment role superseded by acquireDiscogsEvidence in discogs-pal-acquisition.js.
+// Function retained for reference only. Remove when no callers remain.
 // ────────────────────────────────────────────────────────
 async function getDiscogs(artistName) {
   try {

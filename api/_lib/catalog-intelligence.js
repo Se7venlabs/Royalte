@@ -223,8 +223,37 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
     const catalogStatus = deriveCatalogStatus(ownedCount);
     const confidence    = deriveConfidence(safeCanonical);
     const isrcCoverage  = assembleIsrcCoverage(safeCanonical);
-    const { firstReleaseYear, latestReleaseYear, catalogAgeYears } =
-      deriveYearRange(Array.isArray(appleAlbums) ? appleAlbums : []);
+
+    // Discogs: physical release count and year range (Phase 3.6/Discogs)
+    // Discogs is the constitutional catalog authority for physical releases.
+    const discogsReleases = safeCanonical?.platforms?.discogs?.details?.releases;
+    const physicalReleaseCount = typeof safeCanonical?.platforms?.discogs?.details?.totalReleases === 'number'
+      ? safeCanonical.platforms.discogs.details.totalReleases
+      : null;
+
+    // Year range: Apple is canonical. Discogs supplements when Apple is absent.
+    const appleAlbumsForYear = Array.isArray(appleAlbums) ? appleAlbums : [];
+    const { firstReleaseYear: appleFirst, latestReleaseYear: appleLast, catalogAgeYears: appleAge } =
+      deriveYearRange(appleAlbumsForYear);
+
+    let firstReleaseYear = appleFirst;
+    let latestReleaseYear = appleLast;
+    let catalogAgeYears  = appleAge;
+
+    // Fall back to Discogs year data when Apple albums are absent.
+    // Discogs releases carry a numeric `year` field — extract directly to avoid
+    // date-parsing timezone boundary issues from `new Date('YYYY-01-01').getFullYear()`.
+    if (firstReleaseYear === null && Array.isArray(discogsReleases) && discogsReleases.length > 0) {
+      const currentYear = new Date().getFullYear();
+      const dcYears = discogsReleases
+        .map(r => r.year)
+        .filter(y => typeof y === 'number' && y > 1900 && y <= currentYear);
+      if (dcYears.length > 0) {
+        firstReleaseYear  = Math.min(...dcYears);
+        latestReleaseYear = Math.max(...dcYears);
+        catalogAgeYears   = latestReleaseYear - firstReleaseYear;
+      }
+    }
 
     return deepFreeze({
       singles,
@@ -237,6 +266,7 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
       firstReleaseYear,
       latestReleaseYear,
       catalogAgeYears,
+      physicalReleaseCount,
     });
   } catch (err) {
     console.error('[catalog-intelligence] assembly threw (returning empty shell):', err?.message || err);
@@ -246,6 +276,7 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
       confidence: 'Unable to Confirm',
       isrcCoverage: ISRC_UNKNOWN,
       firstReleaseYear: null, latestReleaseYear: null, catalogAgeYears: null,
+      physicalReleaseCount: null,
     });
   }
 }
