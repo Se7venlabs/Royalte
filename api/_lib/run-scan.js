@@ -52,6 +52,8 @@ import { acquireMLCEvidence } from './mlc-pal-acquisition.js';
 import { acquireDeezerEvidence, synthesizeDeezerCompat } from './deezer-pal-acquisition.js';
 // Phase 3.6/TheAudioDB (AudioDB PAL — Artist & Media Intelligence Authority™) — replaces getAudioDB()
 import { acquireAudioDbEvidence, synthesizeAudioDbCompat } from './audiodb-pal-acquisition.js';
+// Phase 3.6/LastFm (Last.fm PAL — Community Intelligence Authority™) — replaces getLastFm()
+import { acquireLastFmEvidence, synthesizeLastFmCompat } from './lastfm-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -197,6 +199,7 @@ export async function runScan(url) {
   // Phase 3.6/MLC: The MLC acquisition via PAL — first constitutional Publishing Authority.
   // Phase 3.6/Deezer: Deezer via PAL — Streaming Verification Authority™.
   // Phase 3.6/TheAudioDB: AudioDB via PAL — Artist & Media Intelligence Authority™; replaces getAudioDB().
+  // Phase 3.6/LastFm: Last.fm via PAL — Community Intelligence Authority™; replaces getLastFm().
   // All PAL evidence packages flow into runRIE via the hybrid merge path.
   // synthesize*Compat functions below are backward-compat synthesis for the V1 module system only.
   const appleIsrc = resolved.trackIsrc || trackData?.external_ids?.isrc || null;
@@ -210,8 +213,8 @@ export async function runScan(url) {
     mlcPalSettled,
     deezerPalSettled,
     audioDbPalSettled,
+    lastfmPalSettled,
     soundcloudSettled,
-    lastfmSettled,
     wikidataSettled,
   ] = await Promise.allSettled([
     acquireAppleEvidence({
@@ -236,8 +239,9 @@ export async function runScan(url) {
     acquireDeezerEvidence({ artistName }),
     // Phase 3.6/TheAudioDB: AudioDB via PAL — Artist & Media Intelligence Authority™; replaces getAudioDB()
     acquireAudioDbEvidence({ artistName }),
+    // Phase 3.6/LastFm: Last.fm via PAL — Community Intelligence Authority™; replaces getLastFm()
+    acquireLastFmEvidence({ artistName }),
     getSoundCloud(artistName),
-    getLastFm(artistName),
     getWikidata(artistName),
   ]);
 
@@ -257,8 +261,10 @@ export async function runScan(url) {
     deezerPalSettled.status === 'fulfilled' ? deezerPalSettled.value : {};
   const { evidencePackages: audioDbEvidencePackages = [] } =
     audioDbPalSettled.status === 'fulfilled' ? audioDbPalSettled.value : {};
+  const { evidencePackages: lastfmEvidencePackages = [] } =
+    lastfmPalSettled.status === 'fulfilled' ? lastfmPalSettled.value : {};
 
-  // Combined evidence packages — all eight PAL providers enter the RIE hybrid merge path.
+  // Combined evidence packages — all nine PAL providers enter the RIE hybrid merge path.
   const evidencePackages = [
     ...appleEvidencePackages,
     ...spotifyEvidencePackages,
@@ -268,6 +274,7 @@ export async function runScan(url) {
     ...mlcEvidencePackages,
     ...deezerEvidencePackages,
     ...audioDbEvidencePackages,
+    ...lastfmEvidencePackages,
   ];
 
   // [TRANSITIONAL] Legacy compat shapes for V1 module system (runModules / buildFlags).
@@ -297,8 +304,9 @@ export async function runScan(url) {
   const deezerData  = synthesizeDeezerCompat(deezerEvidencePackages, artistName);
   // Phase 3.6/TheAudioDB: compat synthesis replaces direct getAudioDB() call
   const audioDbData = synthesizeAudioDbCompat(audioDbEvidencePackages, artistName);
+  // Phase 3.6/LastFm: compat synthesis replaces direct getLastFm() call
+  const lastfmData  = synthesizeLastFmCompat(lastfmEvidencePackages, artistName);
   const soundcloudData = soundcloudSettled.status === 'fulfilled' ? soundcloudSettled.value : { found: false };
-  const lastfmData     = lastfmSettled.status     === 'fulfilled' ? lastfmSettled.value     : { found: false };
   const wikidataData   = wikidataSettled.status   === 'fulfilled' ? wikidataSettled.value   : { found: false };
 
   // [RETIRED CANDIDATE] — Direct Spotify enrichment functions replaced by PAL in Phase 3.6.
@@ -1378,7 +1386,10 @@ async function getSoundCloud(artistName) {
 }
 
 // ────────────────────────────────────────────────────────
-// LAST.FM
+// LAST.FM — [RETIRED CANDIDATE — Phase 3.6/LastFm]
+// Replaced by acquireLastFmEvidence + synthesizeLastFmCompat (PAL).
+// This direct-call function is no longer invoked from the fan-out.
+// Retained here until V1 module system migration completes.
 // ────────────────────────────────────────────────────────
 async function getLastFm(artistName) {
   try {
