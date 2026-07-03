@@ -44,6 +44,8 @@ import { acquireSpotifyEvidence, synthesizeSpotifyCompat } from './spotify-pal-a
 import { acquireMBEvidence, synthesizeMBCompat } from './mb-pal-acquisition.js';
 // Phase 3.6/Discogs (Discogs PAL Migration) — PAL Discogs acquisition
 import { acquireDiscogsEvidence, synthesizeDiscogsCompat } from './discogs-pal-acquisition.js';
+// Phase 3.6/YouTube (YouTube PAL Migration) — PAL YouTube acquisition
+import { acquireYouTubeEvidence, synthesizeYouTubeCompat } from './youtube-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -185,6 +187,7 @@ export async function runScan(url) {
   // Phase 3.6: Spotify enrichment acquisition routes through PAL (replacing direct calls).
   // Phase 3.8: MusicBrainz acquisition routes through PAL (replacing direct getMusicBrainz call).
   // Phase 3.6/Discogs: Discogs acquisition routes through PAL (replacing direct getDiscogs call).
+  // Phase 3.6/YouTube: YouTube acquisition routes through PAL (replacing direct getYouTube call).
   // All PAL evidence packages flow into runRIE via the hybrid merge path.
   // synthesize*Compat functions below are backward-compat synthesis for the V1 module system only.
   const appleIsrc = resolved.trackIsrc || trackData?.external_ids?.isrc || null;
@@ -194,12 +197,12 @@ export async function runScan(url) {
     spotifyPalSettled,
     mbPalSettled,
     discogsPalSettled,
+    youtubePalSettled,
     deezerSettled,
     audioDbSettled,
     soundcloudSettled,
     lastfmSettled,
     wikidataSettled,
-    youtubeSettled,
   ] = await Promise.allSettled([
     acquireAppleEvidence({
       appleArtistId: resolved.appleArtistId ?? null,
@@ -215,12 +218,13 @@ export async function runScan(url) {
     acquireMBEvidence({ artistName }),
     // Phase 3.6/Discogs: Discogs via PAL — replaces direct getDiscogs call
     acquireDiscogsEvidence({ artistName }),
+    // Phase 3.6/YouTube: YouTube via PAL — replaces direct getYouTube call
+    acquireYouTubeEvidence({ artistName }),
     getDeezer(artistName),
     getAudioDB(artistName),
     getSoundCloud(artistName),
     getLastFm(artistName),
     getWikidata(artistName),
-    getYouTube(artistName),
   ]);
 
   const { evidencePackages: appleEvidencePackages = [] } =
@@ -231,13 +235,16 @@ export async function runScan(url) {
     mbPalSettled.status === 'fulfilled' ? mbPalSettled.value : {};
   const { evidencePackages: discogsEvidencePackages = [] } =
     discogsPalSettled.status === 'fulfilled' ? discogsPalSettled.value : {};
+  const { evidencePackages: youtubeEvidencePackages = [] } =
+    youtubePalSettled.status === 'fulfilled' ? youtubePalSettled.value : {};
 
-  // Combined evidence packages — all four PAL providers enter the RIE hybrid merge path.
+  // Combined evidence packages — all five PAL providers enter the RIE hybrid merge path.
   const evidencePackages = [
     ...appleEvidencePackages,
     ...spotifyEvidencePackages,
     ...mbEvidencePackages,
     ...discogsEvidencePackages,
+    ...youtubeEvidencePackages,
   ];
 
   // [TRANSITIONAL] Legacy compat shapes for V1 module system (runModules / buildFlags).
@@ -259,12 +266,15 @@ export async function runScan(url) {
 
   // Phase 3.6/Discogs: Discogs compat synthesis replaces direct getDiscogs call
   const discogsData = synthesizeDiscogsCompat(discogsEvidencePackages, artistName);
+
+  // Phase 3.6/YouTube: YouTube compat synthesis replaces direct getYouTube call
+  const youtubeData = synthesizeYouTubeCompat(youtubeEvidencePackages, artistName);
+
   const deezerData     = deezerSettled.status     === 'fulfilled' ? deezerSettled.value     : { found: false };
   const audioDbData    = audioDbSettled.status    === 'fulfilled' ? audioDbSettled.value    : { found: false };
   const soundcloudData = soundcloudSettled.status === 'fulfilled' ? soundcloudSettled.value : { found: false };
   const lastfmData     = lastfmSettled.status     === 'fulfilled' ? lastfmSettled.value     : { found: false };
   const wikidataData   = wikidataSettled.status   === 'fulfilled' ? wikidataSettled.value   : { found: false };
-  const youtubeData    = youtubeSettled.status    === 'fulfilled' ? youtubeSettled.value    : { found: false };
 
   // [RETIRED CANDIDATE] — Direct Spotify enrichment functions replaced by PAL in Phase 3.6.
   // getSpotifyArtist (enrichment), getSpotifyAlbums, getSpotifyTopTracks are no longer
@@ -760,6 +770,8 @@ async function getSpotifyTopTracks(artistId, token) {
 // ────────────────────────────────────────────────────────
 // YOUTUBE DATA API v3 — real channel + UGC detection
 // ────────────────────────────────────────────────────────
+// [RETIRED CANDIDATE — Phase 3.6/YouTube] Direct YouTube fetch replaced by PAL acquisition.
+// Retained for emergency fallback only. Remove after Board approval.
 async function getYouTube(artistName) {
   try {
     const apiKey = process.env.YOUTUBE_API_KEY;
