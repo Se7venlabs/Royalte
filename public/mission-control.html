@@ -369,15 +369,15 @@ body {
 
 .mc-page-head { margin: 0; }
 .mc-page-title {
-  font-size: 36px;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.05;
   margin: 0;
 }
 .mc-page-sub {
-  margin: var(--mc-s-1) 0 0;                   /* Executive Grid Normalization v1.0: 10px above the sub-title; main flex-gap (10) now hosts subtitle→hero gap */
-  font-size: 13.5px;
+  margin: 4px 0 0;
+  font-size: 12px;
   color: var(--mc-text-muted);
   line-height: 1.3;
 }
@@ -418,8 +418,8 @@ body {
 
 .mc-radar {
   position: relative;
-  width: 130px;
-  height: 130px;
+  width: 90px;
+  height: 90px;
 }
 
 .mc-radar svg { width: 100%; height: 100%; }
@@ -532,7 +532,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 10px;
+  padding: 10px 8px;
 }
 
 /* ── Health score cell (primary, wider) ─────────────────────────── */
@@ -540,10 +540,10 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 20px 28px;
+  padding: 12px 20px;
   border-right: 1px solid var(--mc-divider);
   gap: 3px;
-  min-width: 160px;
+  min-width: 140px;
 }
 
 .mc-es-section-label {
@@ -557,7 +557,7 @@ body {
 }
 
 .mc-es-health-score {
-  font-size: 38px;
+  font-size: 28px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--mc-text);
@@ -595,7 +595,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 16px 18px;
+  padding: 10px 14px;
   border-left: 1px solid var(--mc-divider);
   gap: 3px;
 }
@@ -1000,7 +1000,7 @@ body {
 .mc-hi-body {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
 }
 
 /* Section 1 — Overall Health Score */
@@ -1008,7 +1008,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding-bottom: 14px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--mc-divider);
 }
 .mc-hi-score-display {
@@ -1017,7 +1017,7 @@ body {
   gap: 4px;
 }
 .mc-hi-score-num {
-  font-size: 40px;
+  font-size: 32px;
   font-weight: 700;
   color: var(--mc-green-bright);
   font-variant-numeric: tabular-nums;
@@ -1062,21 +1062,21 @@ body {
   text-transform: uppercase;
   color: var(--mc-text-muted);
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 /* Section 2 — Health Breakdown */
 .mc-hi-breakdown {
-  padding-bottom: 14px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--mc-divider);
 }
 .mc-hi-cat-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
 }
 .mc-hi-cat {
   display: grid;
@@ -1110,7 +1110,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  padding-bottom: 14px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--mc-divider);
 }
 .mc-hi-best,
@@ -1118,7 +1118,7 @@ body {
   background: var(--mc-surface-2);
   border: 1px solid var(--mc-divider);
   border-radius: var(--mc-r-2);
-  padding: 10px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -1145,9 +1145,13 @@ body {
 
 /* Section 5 — Health Trend Sparkline */
 .mc-hi-sparkline-section {
-  padding-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--mc-divider);
 }
+.mc-hi-sparkline-section .mc-hi-section-label { margin-bottom: 0; flex-shrink: 0; }
 .mc-hi-sparkline {
   display: flex;
   align-items: flex-end;
@@ -1173,7 +1177,9 @@ body {
 .mc-hi-spark-meta {
   font-size: 10px;
   color: var(--mc-text-muted);
-  margin-top: 4px;
+  margin-top: 0;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 /* Section 6 — Recent Changes */
@@ -1206,6 +1212,7 @@ body {
   .mc-hi-highlights        { grid-template-columns: 1fr; }
   .mc-hi-sparkline-section { order: -1; }
   .mc-hi-breakdown         { order: 2; }
+  .mc-hi-cat-list          { display: flex; flex-direction: column; gap: 5px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2834,7 +2841,6 @@ body {
 
 @media (max-width: 1440px) {
   :root { --mc-rail-r: 332px; }
-  .mc-page-title { font-size: 32px; }
 }
 
 @media (max-width: 1280px) {
