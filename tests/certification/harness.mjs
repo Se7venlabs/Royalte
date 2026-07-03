@@ -20,6 +20,9 @@
 //    04-cim-integrity       CIM §8.2 structural contract verified
 //    05-performance         Pipeline timing baseline measured
 //    06-recording-intel     Recording Intelligence Foundation™ verified
+//    07-musicbrainz         MusicBrainz PAL connector certified
+//    08-discogs             Discogs PAL connector certified
+//    09-youtube             YouTube Official Artist Channel PAL connector certified
 //
 //  This harness never throws. Any suite that throws is caught and reported
 //  as a failed suite. The exit code reflects the overall certification status.
@@ -35,6 +38,7 @@ import { runPerformance }        from './suites/05-performance.mjs';
 import { runRecordingIntelligence } from './suites/06-recording-intelligence.mjs';
 import { runMusicBrainzConnector }  from './suites/07-musicbrainz-connector.mjs';
 import { runDiscogsConnector }      from './suites/08-discogs-connector.mjs';
+import { runYouTubeConnector }      from './suites/09-youtube-connector.mjs';
 import { printBoardReport }      from './reporters/board-report.mjs';
 
 const QUIET = process.argv.includes('--quiet');
@@ -79,6 +83,7 @@ async function main() {
   results.push(await runSuite('06-recording-intel',     runRecordingIntelligence));
   results.push(await runSuite('07-musicbrainz',         runMusicBrainzConnector));
   results.push(await runSuite('08-discogs',             runDiscogsConnector));
+  results.push(await runSuite('09-youtube',             runYouTubeConnector));
 
   const elapsed = Math.round(performance.now() - startMs);
   log('');
