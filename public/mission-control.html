@@ -987,6 +987,231 @@ body {
   50%      { opacity: 0.95; }
 }
 
+/* ── Health Intelligence™ v2.0 — Sprint 3.2 ────────────────────────
+   Constitutional Presentation Layer™.
+   Owner map:
+     Score / Grade / Trend / Breakdown → Health Intelligence Engine™
+     Biggest Improvement               → Evidence Events™
+     Biggest Risk                      → Health Intelligence Engine™
+     Sparkline                         → Historical Health Snapshots™
+     Recent Changes                    → Evidence Events™ / Monitoring Intelligence™
+   ──────────────────────────────────────────────────────────────── */
+
+.mc-hi-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Section 1 — Overall Health Score */
+.mc-hi-score-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-hi-score-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.mc-hi-score-num {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--mc-green-bright);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.mc-hi-score-denom {
+  font-size: 14px;
+  color: var(--mc-text-muted);
+  font-weight: 400;
+}
+.mc-hi-grade {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mc-green);
+}
+.mc-hi-trend-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  margin-top: 3px;
+}
+.mc-hi-trend-arrow { font-size: 10px; }
+.mc-hi-trend-row.mc-hi-up   .mc-hi-trend-arrow { color: var(--mc-green-bright); }
+.mc-hi-trend-row.mc-hi-down .mc-hi-trend-arrow { color: #f87171; }
+
+@keyframes mc-hi-trend-pulse {
+  0%, 100% { opacity: 1;    }
+  50%       { opacity: 0.5; }
+}
+.mc-hi-trend-row.mc-hi-up   .mc-hi-trend-arrow,
+.mc-hi-trend-row.mc-hi-down .mc-hi-trend-arrow {
+  animation: mc-hi-trend-pulse 2.4s ease-in-out infinite;
+}
+
+/* Shared section heading */
+.mc-hi-section-label {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Section 2 — Health Breakdown */
+.mc-hi-breakdown {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-hi-cat-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mc-hi-cat {
+  display: grid;
+  grid-template-columns: 1fr auto 10px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.mc-hi-cat-name  { color: var(--mc-text-soft); }
+.mc-hi-cat-score {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--mc-green);
+  min-width: 22px;
+  text-align: right;
+}
+.mc-hi-cat-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mc-text-muted);
+  opacity: 0.4;
+}
+.mc-hi-cat-dot.mc-hi-green  { background: var(--mc-green-bright); opacity: 1; }
+.mc-hi-cat-dot.mc-hi-teal   { background: var(--mc-green);        opacity: 1; }
+.mc-hi-cat-dot.mc-hi-amber  { background: #f59e0b;                opacity: 1; }
+.mc-hi-cat-dot.mc-hi-red    { background: #f87171;                opacity: 1; }
+
+/* Sections 3 + 4 — Biggest Improvement + Risk */
+.mc-hi-highlights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-hi-best,
+.mc-hi-risk-block {
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-divider);
+  border-radius: var(--mc-r-2);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mc-hi-best .mc-hi-section-label      { color: var(--mc-green);  margin-bottom: 4px; }
+.mc-hi-risk-block .mc-hi-section-label { color: #f59e0b;          margin-bottom: 4px; }
+.mc-hi-highlight-icon {
+  font-size: 13px;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.mc-hi-best .mc-hi-highlight-icon       { color: var(--mc-green-bright); }
+.mc-hi-risk-block .mc-hi-highlight-icon { color: #f59e0b; }
+.mc-hi-highlight-title {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--mc-text);
+  line-height: 1.35;
+}
+.mc-hi-highlight-meta {
+  font-size: 10.5px;
+  color: var(--mc-text-muted);
+}
+
+/* Section 5 — Health Trend Sparkline */
+.mc-hi-sparkline-section {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--mc-divider);
+}
+.mc-hi-sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.mc-hi-spark-dot {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mc-text-muted);
+  opacity: 0.35;
+}
+.mc-hi-spark-dot.mc-hi-spark-populated {
+  opacity: 0.85;
+  color: var(--mc-text-soft);
+}
+.mc-hi-spark-current {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--mc-green-bright);
+  opacity: 1;
+}
+.mc-hi-spark-meta {
+  font-size: 10px;
+  color: var(--mc-text-muted);
+  margin-top: 4px;
+}
+
+/* Section 6 — Recent Changes */
+.mc-hi-changes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mc-hi-changes-list li {
+  font-size: 11.5px;
+  color: var(--mc-text-soft);
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.mc-hi-changes-list li::before {
+  content: '·';
+  color: var(--mc-green);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Mobile — priority reorder per Board brief:
+   Score → Trend → Best → Risk → Breakdown → Changes */
+@media (max-width: 540px) {
+  .mc-hi-highlights        { grid-template-columns: 1fr; }
+  .mc-hi-sparkline-section { order: -1; }
+  .mc-hi-breakdown         { order: 2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-hi-trend-arrow { animation: none !important; }
+}
+
 /* ─── identity card ─────────────────────────────────────────────── */
 
 .mc-source-list {
@@ -3077,64 +3302,110 @@ body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
           </div>
           <div class="mc-card-title">HEALTH INTELLIGENCE™</div>
         </div>
-        <div class="mc-health-body">
-          <div class="mc-ring" aria-hidden="true">
-            <svg viewBox="0 0 80 80">
-              <g class="mc-heart-rings">
-                <circle class="ring-outer" cx="40" cy="40" r="37" stroke-width="0.8"/>
-                <circle class="ring-mid"   cx="40" cy="40" r="30" stroke-width="0.8"/>
-                <circle class="ring-inner" cx="40" cy="40" r="22" stroke-width="0.8"/>
-              </g>
-              <circle class="mc-ring-track"    cx="40" cy="40" r="34" fill="none" stroke-width="2.4"/>
-              <circle class="mc-ring-progress" cx="40" cy="40" r="34" fill="none" stroke-width="2.4"
-                stroke-dasharray="167 214" data-mc-health-ring-progress/>
-            </svg>
-            <div class="mc-ring-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10z"/></svg>
-            </div>
-          </div>
-          <div class="mc-metric">
-            <div class="mc-metric-value" data-mc-health-score>78 <small>/100</small></div>
-            <!-- Refinement v1.0: status + delta texts re-labelled to
-                 reflect the composite/derived nature of the score.
-                 Typography, color, and structural classes preserved. -->
-            <div class="mc-metric-status" data-mc-health-status>Royaltē Health Score™</div>
-            <div class="mc-metric-delta">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7-7 7 7"/></svg>
-              <span data-mc-health-confidence>Powered by 6 Intelligence Engines™</span>
-            </div>
-          </div>
-        </div>
-        <!-- Refinement v2.0: trend-line (.mc-spark) removed; the
-             "Health Contributors™" list communicates the score's
-             derivation without right-side numeric duplicates of each
-             contributing module's own score. -->
-        <div class="mc-health-breakdown" aria-label="Health Contributors">
-          <div class="mc-health-breakdown-title">Health Contributors™</div>
-          <!-- Refinement v3.0: clean executive scorecard — label LEFT,
-               score RIGHT, no icons / bars / graphs / decoration. -->
-          <ul class="mc-health-breakdown-list">
-            <li data-mc-health-domain="identity"><span class="lbl">Identity Intelligence™</span>     <span class="val">72</span></li>
-            <li data-mc-health-domain="publishing"><span class="lbl">Publishing Intelligence™</span>   <span class="val">86</span></li>
-            <li data-mc-health-domain="catalog"><span class="lbl">Catalog Intelligence™</span>      <span class="val">84</span></li>
-            <li data-mc-health-domain="footprint"><span class="lbl">Global Music Footprint™</span>    <span class="val">58</span></li>
-            <li data-mc-health-domain="monitoring"><span class="lbl">Change Detection™</span>          <span class="val">95</span></li>
-            <li data-mc-health-domain="backend"><span class="lbl">Backend Intelligence™</span>      <span class="val">100</span></li>
-          </ul>
-          <!-- Refinement v4.0: composite average summary — closes the
-               contributor list with the aggregate the Health Score™
-               is calculated from. (72+86+84+58+95+100)/6 ≈ 82.5 → 83.
-               The math is intentionally not displayed per directive. -->
-          <div class="mc-health-breakdown-summary">
-            <span class="lbl">Composite Average</span>
-            <span class="val" data-mc-health-composite>83</span>
-          </div>
-        </div>
+        <!-- Sprint 3.2: Health Intelligence™ executive assessment — 6 sections -->
+        <div class="mc-hi-body">
 
-        <!-- Health Intelligence™ Insights — strengths and concerns injected
-             at runtime by /js/mission-control.js from
-             audit_scans.payload.healthIntelligence. Slot reserved. -->
-        <div class="mc-card-foot" data-mc-health-insights></div>
+          <!-- Section 1: Overall Health Score
+               Constitutional owner: Health Intelligence Engine™ -->
+          <div class="mc-hi-score-section">
+            <div class="mc-hi-score-display">
+              <span class="mc-hi-score-num" data-mc-hi-score>89</span>
+              <span class="mc-hi-score-denom">/100</span>
+            </div>
+            <div class="mc-hi-grade" data-mc-hi-grade>Strong</div>
+            <div class="mc-hi-trend-row" data-mc-hi-trend-row>
+              <span class="mc-hi-trend-arrow" data-mc-hi-trend-arrow>—</span>
+              <span class="mc-hi-trend-text" data-mc-hi-trend-text>Trend Updating</span>
+            </div>
+          </div>
+
+          <!-- Section 2: Health Breakdown
+               Constitutional owner: Health Intelligence Engine™ -->
+          <div class="mc-hi-breakdown">
+            <div class="mc-hi-section-label">Health Breakdown</div>
+            <ul class="mc-hi-cat-list" aria-label="Health category scores">
+              <li class="mc-hi-cat" data-mc-hi-cat="identity">
+                <span class="mc-hi-cat-name">Identity</span>
+                <span class="mc-hi-cat-score" data-mc-hi-cat-score>67</span>
+                <span class="mc-hi-cat-dot" data-mc-hi-cat-dot></span>
+              </li>
+              <li class="mc-hi-cat" data-mc-hi-cat="publishing">
+                <span class="mc-hi-cat-name">Publishing</span>
+                <span class="mc-hi-cat-score" data-mc-hi-cat-score>0</span>
+                <span class="mc-hi-cat-dot" data-mc-hi-cat-dot></span>
+              </li>
+              <li class="mc-hi-cat" data-mc-hi-cat="catalog">
+                <span class="mc-hi-cat-name">Catalog</span>
+                <span class="mc-hi-cat-score" data-mc-hi-cat-score>100</span>
+                <span class="mc-hi-cat-dot mc-hi-green" data-mc-hi-cat-dot></span>
+              </li>
+              <li class="mc-hi-cat" data-mc-hi-cat="footprint">
+                <span class="mc-hi-cat-name">Streaming</span>
+                <span class="mc-hi-cat-score" data-mc-hi-cat-score>0</span>
+                <span class="mc-hi-cat-dot" data-mc-hi-cat-dot></span>
+              </li>
+              <li class="mc-hi-cat" data-mc-hi-cat="monitoring">
+                <span class="mc-hi-cat-name">Monitoring</span>
+                <span class="mc-hi-cat-score" data-mc-hi-cat-score>50</span>
+                <span class="mc-hi-cat-dot mc-hi-amber" data-mc-hi-cat-dot></span>
+              </li>
+              <li class="mc-hi-cat" data-mc-hi-cat="backend">
+                <span class="mc-hi-cat-name">Backend</span>
+                <span class="mc-hi-cat-score" data-mc-hi-cat-score>100</span>
+                <span class="mc-hi-cat-dot mc-hi-green" data-mc-hi-cat-dot></span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Sections 3 + 4: Biggest Improvement + Biggest Risk -->
+          <div class="mc-hi-highlights">
+
+            <!-- Section 3: Biggest Improvement
+                 Constitutional owner: Evidence Events™ -->
+            <div class="mc-hi-best">
+              <div class="mc-hi-section-label">Biggest Improvement</div>
+              <div class="mc-hi-highlight-icon" aria-hidden="true">▲</div>
+              <div class="mc-hi-highlight-title" data-mc-hi-best-title>Backend fully connected</div>
+              <div class="mc-hi-highlight-meta" data-mc-hi-best-meta></div>
+            </div>
+
+            <!-- Section 4: Biggest Risk
+                 Constitutional owner: Health Intelligence Engine™ -->
+            <div class="mc-hi-risk-block">
+              <div class="mc-hi-section-label">Biggest Risk</div>
+              <div class="mc-hi-highlight-icon" aria-hidden="true">⚠</div>
+              <div class="mc-hi-highlight-title" data-mc-hi-risk-title>Publishing review needed</div>
+              <div class="mc-hi-highlight-meta" data-mc-hi-risk-meta>High Impact</div>
+            </div>
+
+          </div>
+
+          <!-- Section 5: Health Trend
+               Constitutional owner: Health Intelligence Engine™
+               Source: Historical Health Snapshots™ (pending wiring) -->
+          <div class="mc-hi-sparkline-section">
+            <div class="mc-hi-section-label">Health Trend</div>
+            <div class="mc-hi-sparkline" aria-label="Historical health scores">
+              <span class="mc-hi-spark-dot" data-mc-hi-spark="0">—</span>
+              <span class="mc-hi-spark-dot" data-mc-hi-spark="1">—</span>
+              <span class="mc-hi-spark-dot" data-mc-hi-spark="2">—</span>
+              <span class="mc-hi-spark-dot" data-mc-hi-spark="3">—</span>
+              <span class="mc-hi-spark-dot mc-hi-spark-current" data-mc-hi-spark="4">89</span>
+            </div>
+            <div class="mc-hi-spark-meta" data-mc-hi-spark-meta>Current scan · Historical data pending</div>
+          </div>
+
+          <!-- Section 6: Recent Health Changes
+               Constitutional owner: Evidence Events™ / Monitoring Intelligence™ -->
+          <div class="mc-hi-changes-section">
+            <div class="mc-hi-section-label">Recent Changes</div>
+            <ul class="mc-hi-changes-list" data-mc-hi-changes>
+              <li>Backend infrastructure fully connected</li>
+              <li>Catalog verified with confidence</li>
+            </ul>
+          </div>
+
+        </div>
       </article>
 
       <!-- Identity Intelligence™ -->
