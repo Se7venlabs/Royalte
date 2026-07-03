@@ -49,6 +49,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | 3.6 Discogs | Discogs PAL Production Migration™ + Amendment 1 | ✅ Complete | `aea8095` (PR #197) | — |
 | 3.6 YouTube | YouTube Official Artist Channel PAL Production Migration™ | ✅ Complete | `fb44ef5` (PR #198) | — |
 | 3.6 MLC | The MLC Publishing Authority PAL Production Migration™ | ✅ Complete | `67d7fe8` (PR #199) | — |
+| 3.6 Deezer | Deezer Streaming Verification Authority™ PAL Production Migration™ | ✅ Complete | `ba66b26` (PR #201) | — |
 
 ---
 
@@ -63,11 +64,13 @@ from Apple Production Migration (PR #189, 2026-07-02).
   - **Royaltē Health Engine™** at `api/_lib/health-engine.js` — `computeHealthScore(intelligenceReport)` sole scoring authority; Board-locked weights and grade thresholds; pure, deterministic, deeply frozen output
   - **Royaltē Executive Brief Engine™** at `api/_lib/executive-brief-engine.js` — `generateExecutiveBrief(cio, intelligenceReport, healthReport, canonicalHealth)` sole entrypoint; presentation layer only; never scores, never invents
   - **Se7ven Labs IP Vault™** at `/ip/` — permanent internal corporate IP register (24 markdown files); survives product lifecycles, mergers, acquisitions
-- **Royaltē OS v1.0 Provider Expansion Sprint complete** (Phases 3.6–3.8, PRs #194–#199, 2026-07-02):
-  - **Six constitutional providers** — Apple Music (100), Spotify (90), MusicBrainz (80), Discogs (75), YouTube OAC (85), The MLC (95)
-  - **Recording Intelligence Foundation™** — `api/_lib/recording-intelligence.js`; Board-locked RECORDING_CONFIDENCE_WEIGHTS (ISRC 40 / MB 30 / Apple 20 / Spotify 10)
-  - **Board Certification Harness™** now at **673 assertions / 10 suites** — permanent gate for all future provider phases
-  - **Constitutional Publishing Authority** — The MLC; Recording → Song Code → Musical Work hierarchy preserved and certified; foundation for future Publishing / Rights / Revenue Intelligence
+- **Provider Expansion Sprint + Deezer complete** (PRs #194–#201, 2026-07-02/03):
+  - **Seven constitutional providers** — Apple Music (100), Spotify (90), MusicBrainz (80), Discogs (75), YouTube OAC (85), The MLC (95), Deezer (80)
+  - **Streaming Verification Authority™** — Deezer; independent evidence foundation for future Verification Intelligence™; `getDeezer()` direct-call retired
+  - **Recording Intelligence Foundation™** — Board-locked RECORDING_CONFIDENCE_WEIGHTS (ISRC 40 / MB 30 / Apple 20 / Spotify 10)
+  - **Board Certification Harness™** now at **740 assertions / 11 suites** — permanent gate for all future provider phases
+  - **Constitutional Publishing Authority** — The MLC; Recording → Song Code → Musical Work hierarchy preserved; foundation for future Publishing / Rights / Revenue Intelligence
+  - **All original streaming providers (Apple, Spotify, Deezer) now 100% migrated to PAL**
 - **Royaltē OS v1.0 is the certified production baseline** (Phase 3.5, PR #192, tag `royalte-os-v1.0` at `65c5c16`, 2026-07-02):
   - **Board Certification Harness™** at `tests/certification/harness.mjs` — 10 suites, 673 assertions, exit 0 = CERTIFIED; permanent certification gate
   - **Certification Artist Library** at `tests/certification/artist-library/` — 12 archetypes covering full range of real-world edge cases; append-only

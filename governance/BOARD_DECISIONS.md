@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™ — UNANIMOUSLY APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Board UNANIMOUSLY APPROVES Phase 3.6 Provider Expansion 07 — Deezer as Royaltē's first constitutional Streaming Verification Authority™. DeezerConnector acquires independent streaming evidence (ARTIST_IDENTITY, ALBUMS, TRACKS, ISRC, ARTWORK, GENRES) from the Deezer Public API without performing any comparison, conflict detection, or confidence scoring. Legacy `getDeezer()` direct-call retired. All Deezer acquisition now flows through PAL. |
+| **Directives adopted** | (1) Deezer's constitutional role is Streaming Verification Authority™ — it acquires evidence only; it never compares providers, detects conflicts, calculates confidence, or performs verification. (2) Future Verification Intelligence™ will consume Deezer evidence to determine agreement/disagreement with Apple Music and Spotify — this is a future phase, not this provider. (3) `platforms.deezer.isrcs[]` is the constitutional bridge for future Verification Intelligence. (4) Provider trust: 80 (independent streaming authority — governance decision, never computed). (5) Deezer public API requires no credentials; `authenticate()` returning AVAILABLE without a network call is the constitutional pattern for credential-free providers. |
+| **Impact** | Seven constitutional providers, 740/740 certified. The original three streaming providers (Apple, Spotify, Deezer) are now 100% migrated to PAL. Evidence foundation for Verification Intelligence™ is established. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Number** | #201 |
+| **Commit SHA** | `ba66b26` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-02 — Phase 3.6 MLC — The MLC Publishing Authority PAL Production Migration™ — UNANIMOUSLY APPROVED
 
 | | |

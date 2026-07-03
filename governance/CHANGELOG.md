@@ -19,6 +19,22 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™
+
+| | |
+|---|---|
+| **PR** | #201 |
+| **Commit SHA** | `ba66b26` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/deezer/DeezerConnector.js` — 6 capabilities; no credentials; `authenticate()` returns AVAILABLE after `initialize()` with no network call. `provider-acquisition/connectors/deezer/deezer-http.js` — GET-only HTTP client; Deezer-specific 200-with-body-error detection; 429/5xx retry/backoff. `provider-acquisition/connectors/deezer/deezer-capabilities.js` — frozen capability declaration (ARTIST_IDENTITY, ALBUMS, TRACKS, ISRC, ARTWORK, GENRES). `api/_lib/deezer-pal-acquisition.js` — sequential A→B acquisition; `synthesizeDeezerCompat` reproduces the exact legacy `getDeezer()` output shape. `tests/certification/suites/11-deezer-connector.mjs` — 67-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — `translateDeezerArtistIdentity`, `translateDeezerAlbums`, `translateDeezerTopTracks`; `platforms.deezer.isrcs[]` is the constitutional bridge for future Verification Intelligence™; genres aggregated at `platforms.deezer.genres[]`; raw genre objects preserved in `albums[].genres.data`. `api/_lib/run-scan.js` — Deezer added as 7th PAL provider; legacy `getDeezer()` direct-call retired. `tests/certification/harness.mjs` — Suite 11 wired. |
+| **Removed** | `getDeezer()` direct-call acquisition path from `run-scan.js` (lines ~1207–1277). All Deezer acquisition now flows through PAL. |
+| **Impact** | Deezer is Royaltē's Streaming Verification Authority™ (provider trust: 80). Independent streaming evidence preserved for future Verification Intelligence™ — cross-provider agreement, disagreement, and confidence detection against Apple Music and Spotify. All seven constitutional providers now acquire via PAL. The original streaming provider group (Apple, Spotify, Deezer) is now 100% migrated to PAL. |
+| **Tests** | 740 / 740 CERTIFIED (67 new assertions in Suite 11). |
+
+---
+
 ## 2026-07-02 — Phase 3.6 MLC — The MLC Publishing Authority PAL Production Migration™
 
 | | |
