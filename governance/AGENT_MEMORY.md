@@ -28,20 +28,28 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **Phase 3.5 — Royaltē OS v1.0 Certification Sprint** |
-| Merged at | `65c5c16` (PR #192, 2026-07-02) + governance backfill PR #193 |
-| Tag | `royalte-os-v1.0` at `65c5c16` |
-| Prior phase | Phase 3.4 — Product Consumption Cleanup (`8a71df7`, PR #190, 2026-07-02) |
-| Active direction | OS v1.0 is certified. Next: Board authorizes next provider migration (Spotify recommended) or Phase 3.5 Sprint A (dead code retirement) |
-| Next Board gate | Board authorizes next provider migration or individual Phase 3.5 sprint |
+| Most recently completed phase | **Phase 3.6 Provider Expansion Sprint — Six Constitutional Authorities Certified** |
+| Merged at | `67d7fe8` (PR #199 The MLC, 2026-07-02) — final merge of the Provider Expansion Sprint |
+| Tag | — (sprint; no single release tag) |
+| Prior phase | Phase 3.5 — Royaltē OS v1.0 Certification Sprint (`65c5c16`, PR #192, 2026-07-02) |
+| Active direction | Provider Expansion Sprint complete. Six constitutional providers certified. Next phase requires Board brief — candidates: Publishing Intelligence™, UI Wiring, Rights Intelligence™. |
+| Next Board gate | Board authorizes next intelligence domain (Publishing Intelligence™ recommended) |
 
-**Royaltē OS v1.0 is the certified production baseline.** The Board Certification Harness (308 assertions, 5 suites, 0 failures) is the permanent certification gate. No release tag may be created without harness exit 0 + GitHub CI green.
+**Royaltē OS v1.0 Provider Expansion Sprint is complete.** Six constitutional providers, 673/673 certified, 10 suites. Board Certification Harness is the permanent gate. No release tag may be created without harness exit 0 + GitHub CI green.
 
-**Phase 3.5 Certification Sprint (COMPLETE):** Board Certification Harness, Certification Artist Library (12 archetypes), Regression Suite, Determinism Suite, CIM Integrity Suite, Performance Baseline (Full RIE p95: 0.31ms), `deepFreeze` bug fix in `backend-intelligence.js`, `royalte-os-v1.0` tagged at `65c5c16`.
+**Provider Expansion Sprint (PRs #194–#199, COMPLETE, 2026-07-02):**
+- Phase 3.6 Spotify (PR #194, `ba4054d`) — Streaming Authority, trust 90, client-credentials OAuth
+- Phase 3.7 Recording Intelligence Foundation™ + Amendment (PR #195, `2057db6`) — Board-locked RECORDING_CONFIDENCE_WEIGHTS; Suite 06 (83 assertions)
+- Phase 3.8 MusicBrainz + Amendment 1 (PR #196, `b966881`) — Canonical Metadata Authority, trust 80; Suite 07 (73 assertions)
+- Phase 3.6 Discogs + Amendment 1 (PR #197, `aea8095`) — Catalog Authority, trust 75; Suite 08 (79 assertions)
+- Phase 3.6 YouTube OAC (PR #198, `fb44ef5`) — Digital Presence Authority, trust 85; Suite 09 (66 assertions)
+- Phase 3.6 The MLC (PR #199, `67d7fe8`) — Publishing Authority, trust 95; Suite 10 (63 assertions); Recording → Song Code → Musical Work hierarchy locked
+
+**Phase 3.5 Certification Sprint (COMPLETE):** Board Certification Harness, Certification Artist Library (12 archetypes), Regression Suite, Determinism Suite, CIM Integrity Suite, Performance Baseline (Full RIE p95: 0.33ms), `deepFreeze` bug fix in `backend-intelligence.js`, `royalte-os-v1.0` tagged at `65c5c16`.
 
 **Phase 3.4 — Website Scan is a constitutional presentation layer.** All displayed intelligence reads from the Certified CIM. ISRC Coverage is a permanent RIE field (`isrcCoverage` in `catalogIntelligence`). Catalog Availability reads from `globalMusicFootprint.status`. Zero business logic remains in `_renderV2Found`.
 
-Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`.
+Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`.
 
 The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`. The legacy retirement checklist lives in `governance/MIGRATION_RETIREMENT_REGISTER.md`.
 

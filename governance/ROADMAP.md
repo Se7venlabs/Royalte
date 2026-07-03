@@ -42,8 +42,13 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | 3.3 | Apple Production Migration | ✅ Complete | `584770d` | `apple-pal-production-migration-v1.0` |
 | 3.4 | Product Consumption Cleanup | ✅ Complete | `8a71df7` | `phase-3-4-product-consumption-cleanup-v1.0` |
 | 3.5 | Royaltē OS v1.0 Certification Sprint | ✅ Complete | `65c5c16` | `royalte-os-v1.0` |
-| 3.5-backfill | Phase 3.5 Governance Backfill | ✅ Complete | (pending merge) | — |
-| 3.6 | Next phase (Board authorization required) | ⬜ Board authorization required | — | — |
+| 3.5-backfill | Phase 3.5 Governance Backfill | ✅ Complete | `de312b1` (PR #193) | — |
+| 3.6 Spotify | Spotify PAL Production Migration | ✅ Complete | `ba4054d` (PR #194) | — |
+| 3.7 | Recording Intelligence Foundation™ + Amendment | ✅ Complete | `2057db6` (PR #195) | — |
+| 3.8 | MusicBrainz PAL Production Migration™ + Amendment 1 | ✅ Complete | `b966881` (PR #196) | — |
+| 3.6 Discogs | Discogs PAL Production Migration™ + Amendment 1 | ✅ Complete | `aea8095` (PR #197) | — |
+| 3.6 YouTube | YouTube Official Artist Channel PAL Production Migration™ | ✅ Complete | `fb44ef5` (PR #198) | — |
+| 3.6 MLC | The MLC Publishing Authority PAL Production Migration™ | ✅ Complete | `67d7fe8` (PR #199) | — |
 
 ---
 
@@ -58,11 +63,16 @@ from Apple Production Migration (PR #189, 2026-07-02).
   - **Royaltē Health Engine™** at `api/_lib/health-engine.js` — `computeHealthScore(intelligenceReport)` sole scoring authority; Board-locked weights and grade thresholds; pure, deterministic, deeply frozen output
   - **Royaltē Executive Brief Engine™** at `api/_lib/executive-brief-engine.js` — `generateExecutiveBrief(cio, intelligenceReport, healthReport, canonicalHealth)` sole entrypoint; presentation layer only; never scores, never invents
   - **Se7ven Labs IP Vault™** at `/ip/` — permanent internal corporate IP register (24 markdown files); survives product lifecycles, mergers, acquisitions
+- **Royaltē OS v1.0 Provider Expansion Sprint complete** (Phases 3.6–3.8, PRs #194–#199, 2026-07-02):
+  - **Six constitutional providers** — Apple Music (100), Spotify (90), MusicBrainz (80), Discogs (75), YouTube OAC (85), The MLC (95)
+  - **Recording Intelligence Foundation™** — `api/_lib/recording-intelligence.js`; Board-locked RECORDING_CONFIDENCE_WEIGHTS (ISRC 40 / MB 30 / Apple 20 / Spotify 10)
+  - **Board Certification Harness™** now at **673 assertions / 10 suites** — permanent gate for all future provider phases
+  - **Constitutional Publishing Authority** — The MLC; Recording → Song Code → Musical Work hierarchy preserved and certified; foundation for future Publishing / Rights / Revenue Intelligence
 - **Royaltē OS v1.0 is the certified production baseline** (Phase 3.5, PR #192, tag `royalte-os-v1.0` at `65c5c16`, 2026-07-02):
-  - **Board Certification Harness™** at `tests/certification/harness.mjs` — 5 suites, 308 assertions, exit 0 = CERTIFIED; permanent certification gate
+  - **Board Certification Harness™** at `tests/certification/harness.mjs` — 10 suites, 673 assertions, exit 0 = CERTIFIED; permanent certification gate
   - **Certification Artist Library** at `tests/certification/artist-library/` — 12 archetypes covering full range of real-world edge cases; append-only
   - **Determinism certified:** same evidence always produces the same CIM (verified 10 runs IE + 5 runs full RIE with fixed clock)
-  - **Performance baseline:** Full RIE pipeline p95 = 0.31ms (budget 500ms); Intelligence Engine p95 = 0.07ms
+  - **Performance baseline:** Full RIE pipeline p95 = 0.33ms (budget 500ms); Intelligence Engine p95 = 0.09ms
   - **`deepFreeze` bug fixed** in `api/_lib/backend-intelligence.js` — arrays now properly frozen in the CIM
   - **Certification gates locked:** IE, Health Engine, Rule Library, RIE changes require 100% harness pass before merge; release tags require harness + CI green
 - **Phase 8 scan pipeline wiring** (`api/audit.js`): every scan now runs the full constitutional pipeline end-to-end:
@@ -77,6 +87,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 ## What's Not Live Yet
 
 - **No UI currently consumes Phase 8 engine output.** `healthScore`, `healthReport`, and `executiveBrief` are now persisted in every scan payload but are not yet surfaced in Mission Control or the scan UI.
+- **Publishing Intelligence™ not yet built.** The MLC evidence (recordings + works) is acquired and preserved in the CIM. The intelligence layer that reads this evidence — Publishing Intelligence™, Rights Intelligence™, Revenue Intelligence™ — requires a separate Board brief.
 - **Monitoring and Revenue reserved sections remain placeholders.** `MONITORING`, `REVENUE`, and `GENERAL` in the Rule Library carry empty arrays; `monitoring` and `revenue` in reserved sections ship `null`. Phase 9+ may begin populating them.
 - **All future work is Board-authorized only.** No phase begins until the Board issues a formal brief.
 
@@ -84,12 +95,11 @@ from Apple Production Migration (PR #189, 2026-07-02).
 
 ## Next Engineering Target
 
-**Royaltē OS v1.0 is certified.** The next phase requires explicit Board authorization. Options pending Board direction:
-- **Phase 3.6 — Spotify PAL Migration** — migrate Spotify acquisition from legacy direct path to PAL → SpotifyConnector → Evidence Contract → RIE
-- **Phase 3.5 Sprint A** — dead code retirement (10 V1 stubs: `public/index.html`, `api/lib/health-score.js`, `v2-health-score-test.mjs`, `window.__royalteScan.score` field)
-- **Phase 3.5 Sprint B** — ArtistNameAdapter (normalize Spotify artist name vs Apple Music display name)
-- **Phase 3.5 Sprint C** — vocabulary alignment (Health status label convergence across products)
-- **Phase 3.5 Sprint D** — CimAdapter + Spotify PAL integration test
+**Provider Expansion Sprint complete. Six constitutional authorities certified.** The next phase requires explicit Board authorization. Options pending Board direction:
+- **Publishing Intelligence™** — consume MLC + publishing evidence from CIM to generate constitutional publishing insight; requires Board brief
+- **Rights Intelligence™** — consume publisher/writer/ISWC evidence to generate ownership insight; requires Board brief
+- **UI Wiring** — surface Phase 8 engine output (`healthScore`, `healthReport`, `executiveBrief`) in Mission Control and the scan UI; requires Board brief
+- **Phase 3.5 Sprint A** — dead code retirement (V1 stubs); deferred from Phase 3.5; requires Board authorization
 - **Phase 3.5 Sprint E** — ISRC Coverage real-data validation against live tracks
 - **Phase 3.5 Sprint F** — Publishing expansion (ASCAP/BMI/SOCAN adapter)
 

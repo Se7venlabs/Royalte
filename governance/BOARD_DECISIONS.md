@@ -11,6 +11,36 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-02 — Phase 3.6 MLC — The MLC Publishing Authority PAL Production Migration™ — UNANIMOUSLY APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Board UNANIMOUSLY APPROVES Phase 3.6 Provider Expansion 05 — The Mechanical Licensing Collective (The MLC) as Royaltē's first constitutional Publishing Authority. MLCConnector establishes the constitutional precedent for statutory-authority providers. Provider trust: 95 (The MLC is the statutory US mechanical licensing authority under the Music Modernization Act). Board Amendment applied: Recording ≠ Musical Work — hierarchy Recording → ISRC → MLC Song Code → Musical Work → Publishers / Songwriters / ISWC preserved as nested structure in EvidenceBridge; no flattening. |
+| **Directives adopted** | (1) No Publishing Intelligence, Rights Intelligence, or Revenue Intelligence built in this phase — evidence acquisition only. (2) EvidenceBridge translates and preserves; translation is encouraged; flattening is not. (3) `platforms.mlc.recordings[]` = Recording entities; `platforms.mlc.details.works[]` = Musical Work entities; `platforms.mlc.mlcSongCodes[]` = constitutional bridge. (4) MLC API field-casing inconsistency (`mlcsongCode` vs `mlcSongCode`) preserved raw — consumers handle the difference. (5) `authenticate()` may make a real network call for session-based OAuth providers — constitutional from this phase forward. |
+| **Impact** | The MLC completes Royaltē's first constitutional evidence ecosystem: 6 providers, 6 constitutional authorities, 673/673 certified. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Number** | #199 |
+| **Commit SHA** | `67d7fe8` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-02 — Phase 3.6 Provider Expansion Sprint — Constitutional Evidence Ecosystem Complete — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Board ratifies the Provider Expansion Sprint, completing Royaltē's first constitutional six-provider evidence ecosystem. Each provider follows the constitutional PAL → Evidence Contract → EvidenceBridge → CIM pipeline without exception. Certification harness grew from 308 assertions (Phase 3.5 baseline) to 673 assertions across 10 suites, 0 failures. |
+| **Directives adopted** | (1) Six constitutional providers and their trust values: Apple Music = 100, Spotify = 90, MusicBrainz = 80, Discogs = 75, YouTube OAC = 85, The MLC = 95. (2) Provider Expansion Sprint pattern is the constitutional reference for all future provider integrations. (3) The Recording → Song Code → Musical Work hierarchy is permanent and governs all future publishing-domain features. (4) Certification harness (673 assertions, Suite 10) is the permanent gate for all future Provider Expansion phases. |
+| **Impact** | Royaltē possesses a constitutionally certified, provider-agnostic, evidence-driven intelligence platform. All future modules read from CIM — never from provider-specific data directly. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Numbers** | #194 (Spotify) · #195 (Recording Intelligence + Amendment) · #196 (MusicBrainz + Amendment 1) · #197 (Discogs + Amendment 1) · #198 (YouTube) · #199 (The MLC) |
+| **Commit SHAs** | `ba4054d` · `2057db6` · `b966881` · `aea8095` · `fb44ef5` · `67d7fe8` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-02 — Phase 3.5 — Royaltē OS v1.0 Board Certification — RATIFIED
 
 | | |
