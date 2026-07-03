@@ -28,14 +28,16 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **MC-3.4 — Publishing Intelligence™ Executive Passport + Amendment 1 + Amendment 2** |
-| Merged at | `8400134` (PR #216, 2026-07-03) |
+| Most recently completed phase | **Phase 4 Stage 4 — Health Intelligence™ Workspace Expansion + Executive Polish Sprint™ + Amendments #001 + #002** |
+| Merged at | `4667596` (PR #220, 2026-07-03) |
 | Tag | — |
-| Prior phase | MC-3.3 — Identity Intelligence™ Executive Passport (`654eb52`, PR #213, 2026-07-03) |
-| Active direction | MC Intelligence Sprint active. Health + Identity + Publishing Intelligence™ wired. Next MC module requires new Board brief. |
-| Next Board gate | Board brief for next MC module or next OS phase |
+| Prior phase | Phase 4 Stage 2 — Navigation Integration™ (`21be306`, PR #219, 2026-07-03) |
+| Active direction | MC Intelligence Sprint active. Health + Identity + Publishing Intelligence™ wired on MC. Health Intelligence™ Workspace is the reference template for all workspace expansions. Next phase requires new Board brief. |
+| Next Board gate | Board brief for next workspace expansion or next MC module |
 
 **MC Intelligence Sprint underway.** Three MC modules complete. Health Intelligence™ (PR #211) + Identity Intelligence™ (PR #213) + Publishing Intelligence™ (PR #215) are all constitutional presentation layers using the `build*Plan` / `apply*Plan` wiring pattern. Publishing introduces Financial Impact™ (Section 4) — the first MC section to display a mini Executive Brief (risk badge + Potential Royalty Impact™ + Estimated Resolution). Financial Neutrality Rule™ governs all impact language. Executive Layout Optimization™ v1.0 is the density baseline; final holistic pass deferred until all MC modules complete.
+
+**Health Intelligence™ Workspace is the reference template** (PR #220, 2026-07-03). Three-column Executive Intelligence Workspace with animated score ring, 6-department navigation grid, KPI cards, Health Timeline™, and sticky executive panel. The `.hi-*` CSS namespace (~1150 lines in `public/css/royalte-workspace.css`) is the baseline aesthetic for all future workspace expansions. Six canonical Royaltē Intelligence Departments: Identity, Publishing, Catalog, Change Detection, Backend, Global Music Footprint.
 
 **Phase 3.6 Deezer (PR #201, `ba66b26`, 2026-07-03):** Streaming Verification Authority™, trust 80. `getDeezer()` direct-call retired. All original streaming providers (Apple, Spotify, Deezer) now 100% migrated to PAL. Suite 11 (67 assertions). `platforms.deezer.isrcs[]` is the constitutional bridge for future Verification Intelligence™.
 

@@ -11,6 +11,36 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Phase 4 Stage 4 — Health Intelligence™ Workspace Expansion + Executive Polish Sprint™ + Amendment #001 + Amendment #002 — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve Health Intelligence™ Workspace Expansion: transform `public/workspaces/health-intelligence.html` from single migrated card into full Executive Intelligence Workspace. Three-column shell (left nav + main + right executive panel). Four sections: Executive Header with Health Score ring, KPI Cards, Core Health Metrics™ (6-department navigation grid), Health Timeline™. Executive Polish Sprint™ adds emerald identity, animated score ring, gradient sparklines, status pills, icon containers, card depth/hover elevation, AI panel breathing, Priority Action CTA, count-up animation. Amendment #001 replaces Streaming Health™ with Change Detection™ and adopts six official Royaltē Intelligence Departments as navigation cards with animated progress bars; grid 5-col → 6-col. Amendment #002 animates the warning icon in Biggest Risk™ KPI card: soft amber glow + scale pulse every 3 seconds. |
+| **Reason** | Health Intelligence™ workspace required a premium Executive Intelligence Workspace treatment matching the Bloomberg Terminal / enterprise intelligence center aesthetic established by Mission Control™. The six canonical departments (Identity, Publishing, Catalog, Change Detection, Backend, Global Music Footprint) needed to be the primary navigation surface within the workspace. |
+| **Impact** | `public/workspaces/health-intelligence.html` — full rewrite (~530 lines); `public/css/royalte-workspace.css` — ~1150 lines of new CSS appended (Phase 4 Stage 4 section + Executive Polish Sprint section + Amendment #001 section + Amendment #002 section). No backend changes. No JS changes outside health-intelligence.html `<script>` tag. |
+| **Vote** | Board Approved |
+| **PR Number** | #220 |
+| **Commit SHA** | `4667596` (top) · `02d5649` · `18648ad` · `4fe0c4a` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Phase 4 Stage 2 — Navigation Integration™ — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve Navigation Integration™: wire all workspace pages into the unified left-rail navigation shell. All workspace HTML files updated to use the canonical `ws-shell` + `ws-rail` + `mc-nav` structure with consistent breadcrumbs and active-state markup. |
+| **Reason** | Workspace pages were isolated shells without the left-rail navigation. Phase 4 Stage 2 established consistent navigation across all workspace pages as a prerequisite for the Stage 4 Workspace Expansion. |
+| **Impact** | All `public/workspaces/*.html` files updated with unified navigation; no CSS or backend changes. |
+| **Vote** | Board Approved |
+| **PR Number** | #219 |
+| **Commit SHA** | `21be306` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Sprint 3.4 Amendment 2 — Publishing Intelligence™ Executive Layout Refinement — APPROVED
 
 | | |

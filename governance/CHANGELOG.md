@@ -19,6 +19,32 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Phase 4 Stage 4 — Health Intelligence™ Workspace Expansion + Executive Polish (PR #220)
+
+| | |
+|---|---|
+| **PR** | #220 |
+| **Commit SHA** | `4fe0c4a` (Workspace Expansion) · `18648ad` (Executive Polish Sprint™) · `02d5649` (Amendment #001) · `4667596` (Amendment #002) |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/workspaces/health-intelligence.html` — full Executive Intelligence Workspace: three-column layout (`ws-body` flex row), Executive Header with SVG score ring + count-up JS + status pills, 4 KPI cards (Health Score / Biggest Risk™ / Active Issues / Departments), Core Health Metrics™ 6-department navigation grid (`a.hi-cat-card` with animated progress bars), Health Timeline™ section, artist footer, sticky right executive panel (AI Insight™ / Priority Action™ / Health Summary). `public/css/royalte-workspace.css` — `.hi-*` CSS namespace (~1150 lines): workspace layout (`ws-body`, `hi-main`), executive header, KPI cards, score ring + `hi-ring-breathe` keyframe, status pills + `hi-status-pulse` keyframe, icon wraps, category grid + `hi-bar-fill` keyframe, timeline, artist footer, executive panel, AI breathing + `hi-ai-breathe` / `hi-ai-ring-expand` keyframes, Priority Action CTA gradient, Amendment #001 6-col grid override + `a.hi-cat-card` display override + progress fill colors, Amendment #002 risk icon `hi-risk-pulse` keyframe. |
+| **Changed** | `public/workspaces/health-intelligence.html` — previously a single migrated card stub; replaced with full workspace. |
+| **Removed** | Nothing retired. |
+
+---
+
+## 2026-07-03 — Phase 4 Stage 2 — Navigation Integration™ (PR #219)
+
+| | |
+|---|---|
+| **PR** | #219 |
+| **Commit SHA** | `21be306` |
+| **Constitution Version** | v1.3 |
+| **Added** | Nothing new. |
+| **Changed** | All `public/workspaces/*.html` files — unified left-rail navigation shell (`ws-shell` / `ws-rail` / `mc-nav`) with consistent breadcrumbs and `mc-nav-item--active` / `aria-current="page"` active-state markup applied to each page's corresponding nav item. |
+| **Removed** | Nothing retired. |
+
+---
+
 ## 2026-07-03 — Sprint 3.4 Amendment 2 — Publishing Intelligence™ Executive Layout Refinement (PR #216)
 
 | | |
