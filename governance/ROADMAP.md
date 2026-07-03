@@ -59,6 +59,8 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | MC-3.2-ELO | Executive Layout Optimization™ v1.0 — desktop density pass | ✅ Complete | `83c8804` (PR #211) | — |
 | MC-3.3 | Identity Intelligence™ Executive Passport (6-section redesign) | ✅ Complete | `654eb52` (PR #213) | — |
 | MC-3.4 | Publishing Intelligence™ Executive Passport (7-section + Amendment 1 + Amendment 2) | ✅ Complete | `8400134` (PR #216) | — |
+| Phase 4 Stage 2 | Navigation Integration™ — unified left-rail nav across all workspaces | ✅ Complete | `21be306` (PR #219) | — |
+| Phase 4 Stage 4 | Health Intelligence™ Workspace Expansion + Executive Polish Sprint™ + Amendment #001 + Amendment #002 | ✅ Complete | `4667596` (PR #220) | — |
 
 ---
 
