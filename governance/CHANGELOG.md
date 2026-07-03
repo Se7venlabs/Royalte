@@ -19,6 +19,102 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-02 — Phase 3.6 MLC — The MLC Publishing Authority PAL Production Migration™
+
+| | |
+|---|---|
+| **PR** | #199 |
+| **Commit SHA** | `67d7fe8` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/mlc/MLCConnector.js` — ISRC + PUBLISHING capabilities; `authenticate()` calls `POST /oauth/token` to obtain JWT Bearer token (network call, distinct from other connectors). `provider-acquisition/connectors/mlc/mlc-http.js` — POST-only HTTP client; JWT Bearer auth; 401/429/5xx retry/backoff. `provider-acquisition/connectors/mlc/mlc-capabilities.js` — frozen capability declaration (ISRC + PUBLISHING). `api/_lib/mlc-pal-acquisition.js` — sequential A→B acquisition: recordings → extract mlcSongCodes → works; no compat synthesis (MLC is new to the fan-out). `tests/certification/suites/10-mlc-connector.mjs` — 63-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — `translateMLCRecordings` and `translateMLCWorks` added; recordings at `platforms.mlc.recordings[]`, works at `platforms.mlc.details.works[]`, `mlcSongCodes[]` bridge array; Board Amendment applied — no flattening of publishers/ISWCs into aggregate arrays. `api/_lib/run-scan.js` — MLC added as 6th PAL provider in fan-out. `tests/certification/harness.mjs` — Suite 10 wired. |
+| **Removed** | none |
+| **Impact** | The MLC is Royaltē's first constitutional Publishing Authority. Provider trust: 95 (statutory US mechanical licensing authority under the Music Modernization Act). Recording → Song Code → Musical Work → Publishers / Songwriters / ISWC hierarchy preserved for future Publishing Intelligence™, Rights Intelligence™, and Revenue Intelligence™. MLC API field-casing inconsistency documented and preserved raw: `/search/recordings` uses `mlcsongCode` (lowercase s); `/works` uses `mlcSongCode` (uppercase S). Six constitutional provider ecosystem complete. |
+| **Tests** | 673 / 673 CERTIFIED (63 new assertions in Suite 10). |
+
+---
+
+## 2026-07-02 — Phase 3.6 YouTube — Official Artist Channel PAL Production Migration™
+
+| | |
+|---|---|
+| **PR** | #198 |
+| **Commit SHA** | `fb44ef5` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/youtube/YouTubeConnector.js` — ARTIST_IDENTITY + COLLECTION_DATA capabilities. `provider-acquisition/connectors/youtube/youtube-http.js` — GET-only HTTP client; appends API key as query param; 403/quotaExceeded → RATE_LIMITED. `provider-acquisition/connectors/youtube/youtube-capabilities.js` — frozen capability declaration. `api/_lib/youtube-pal-acquisition.js` — identity-lock on channelTitle (no partial matches); `acquireYouTubeEvidence` + `synthesizeYouTubeCompat`. `tests/certification/suites/09-youtube-connector.mjs` — 66-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — `translateYouTubeChannelIdentity` and `translateYouTubeChannelData` added. `api/_lib/run-scan.js` — YouTube added as 5th PAL provider in fan-out; legacy `getYouTubeData` retired from run-scan. `tests/certification/harness.mjs` — Suite 09 wired. |
+| **Removed** | Legacy `getYouTubeData` direct-call path from `run-scan.js`. |
+| **Impact** | YouTube Official Artist Channel is Royaltē's Digital Presence Authority (provider trust: 85). Identity-lock ensures only official artist channels are captured. |
+| **Tests** | 610 / 610 CERTIFIED (66 new assertions in Suite 09). |
+
+---
+
+## 2026-07-02 — Phase 3.6 — Discogs PAL Production Migration™ + Amendment 1
+
+| | |
+|---|---|
+| **PR** | #197 |
+| **Commit SHA** | `aea8095` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/discogs/DiscogsConnector.js` — CATALOG_DATA + ARTIST_IDENTITY capabilities. `provider-acquisition/connectors/discogs/discogs-http.js` — GET HTTP client with Discogs user-agent header. `provider-acquisition/connectors/discogs/discogs-capabilities.js` — frozen capability declaration. `api/_lib/discogs-pal-acquisition.js` — identity-lock on artist name; `acquireDiscogsEvidence` + `synthesizeDiscogsCompat`. `tests/certification/suites/08-discogs-connector.mjs` — 79-assertion certification suite (6 groups A–F2). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — Discogs catalog translations added. `api/_lib/run-scan.js` — Discogs added as 4th PAL provider; legacy `getDiscogsData` retired from run-scan. `tests/certification/harness.mjs` — Suite 08 wired. Amendment 1 (Catalog Evidence Policy): EvidenceBridge reads `catalog.releases` array from Discogs evidence; no flattening of catalog data into summary fields at bridge layer. |
+| **Removed** | Legacy `getDiscogsData` direct-call path from `run-scan.js`. |
+| **Impact** | Discogs is Royaltē's Catalog Authority (provider trust: 75). Catalog evidence — releases, formats, labels — preserved as structured array. |
+| **Tests** | 544 / 544 CERTIFIED (79 new assertions in Suite 08). |
+
+---
+
+## 2026-07-02 — Phase 3.8 — MusicBrainz PAL Production Migration™ + Amendment 1
+
+| | |
+|---|---|
+| **PR** | #196 |
+| **Commit SHA** | `b966881` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/musicbrainz/MusicBrainzConnector.js` — ARTIST_IDENTITY + CATALOG_DATA + ISRC capabilities. `provider-acquisition/connectors/musicbrainz/musicbrainz-http.js` — GET HTTP client; rate-limit compliant (1 req/s per MB policy); MusicBrainz User-Agent header. `provider-acquisition/connectors/musicbrainz/musicbrainz-capabilities.js` — frozen capability declaration. `api/_lib/musicbrainz-pal-acquisition.js` — identity-lock on artist name; `acquireMusicBrainzEvidence` + `synthesizeMusicBrainzCompat`. `tests/certification/suites/07-musicbrainz-connector.mjs` — 73-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — MusicBrainz translations added. `api/_lib/run-scan.js` — MusicBrainz added as 3rd PAL provider; legacy `getMusicBrainzData` retired from run-scan. `tests/certification/harness.mjs` — Suite 07 wired. Amendment 1 (provider normalization boundary): all MusicBrainz-specific field parsing terminates at the connector/bridge boundary; EvidenceBridge never maps internal MB tags to provider-specific business concepts. |
+| **Removed** | Legacy `getMusicBrainzData` direct-call path from `run-scan.js`. |
+| **Impact** | MusicBrainz is Royaltē's Canonical Metadata Authority (provider trust: 80). MBID-based identity confirmed; Recording ISRC cross-reference preserved. |
+| **Tests** | 478 / 478 CERTIFIED (73 new assertions in Suite 07). |
+
+---
+
+## 2026-07-02 — Phase 3.7 — Recording Intelligence Foundation™ + Amendment
+
+| | |
+|---|---|
+| **PR** | #195 |
+| **Commit SHA** | `2057db6` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `api/_lib/recording-intelligence.js` — `assembleRecordingIntelligence(cio)` sole entrypoint; pure, deterministic; Board-locked RECORDING_CONFIDENCE_WEIGHTS and CONFIDENCE_THRESHOLDS (High ≥ 80 / Moderate ≥ 50 / Low ≥ 0). `tests/certification/suites/06-recording-intelligence.mjs` — 83-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/RIE.js` — Recording Intelligence wired into the RIE pipeline. `tests/certification/harness.mjs` — Suite 06 wired. Amendment (Recording Confidence Policy): Board-locked weights ratified — ISRC 40, MusicBrainz 30, Apple 20, Spotify 10 (sum to 100). Confidence is normalized [0, 100]; weights are advisory signals, not hard gates. |
+| **Removed** | none |
+| **Impact** | Recording confidence is a first-class constitutional intelligence field. Every CIM now includes recording confidence with explicit rationale. Suite 06 enforces the confidence contract and prevents score regression. |
+| **Tests** | 405 / 405 CERTIFIED (83 new assertions in Suite 06). |
+
+---
+
+## 2026-07-02 — Phase 3.6 — Spotify PAL Production Migration
+
+| | |
+|---|---|
+| **PR** | #194 |
+| **Commit SHA** | `ba4054d` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/spotify/SpotifyConnector.js` — ARTIST_IDENTITY + CATALOG_DATA capabilities; client-credentials OAuth flow. `provider-acquisition/connectors/spotify/spotify-http.js` — GET HTTP client; Bearer token; 429 retry. `provider-acquisition/connectors/spotify/spotify-capabilities.js` — frozen capability declaration. `api/_lib/spotify-pal-acquisition.js` — `acquireSpotifyEvidence` + `synthesizeSpotifyCompat`. |
+| **Changed** | `lib/rie/EvidenceBridge.js` — Spotify translations added. `api/_lib/run-scan.js` — Spotify added as 2nd PAL provider; legacy `getSpotifyData` retired from run-scan. |
+| **Removed** | Legacy `getSpotifyData` direct-call path from `run-scan.js`. |
+| **Impact** | Spotify is the second constitutional PAL provider (provider trust: 90). Verification authority. Legacy Spotify direct path retired. |
+| **Tests** | 322 / 322 CERTIFIED. |
+
+---
+
 ## 2026-07-02 — Phase 3.5 Governance Backfill — Royaltē OS v1.0 Certification
 
 | | |
