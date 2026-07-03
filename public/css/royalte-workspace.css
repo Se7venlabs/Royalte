@@ -2362,3 +2362,30 @@ a.hi-cat-card {
 @media (max-width: 1280px) {
   .hi-category-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Health Intelligence™ Executive Polish Amendment #002
+   — Biggest Risk™ alert icon: soft amber pulse
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Pulse once every 3 s: 0–17% rise, 17–34% fall, 34–100% rest */
+.hi-risk-alert-icon {
+  animation: hi-risk-pulse 3s ease-in-out infinite;
+  transition: none;
+}
+
+@keyframes hi-risk-pulse {
+  0%, 34%, 100% {
+    transform: scale(1);
+    box-shadow: none;
+    background: rgba(251, 146, 60, 0.10);
+    border-color: rgba(251, 146, 60, 0.22);
+  }
+  17% {
+    transform: scale(1.06);
+    box-shadow: 0 0 14px rgba(251, 146, 60, 0.48),
+                0 0 28px rgba(251, 146, 60, 0.18);
+    background: rgba(251, 146, 60, 0.20);
+    border-color: rgba(251, 146, 60, 0.58);
+  }
+}
