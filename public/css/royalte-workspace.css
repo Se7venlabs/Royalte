@@ -2293,3 +2293,72 @@ svg { display: block; }
   box-shadow: 0 6px 22px rgba(234, 88, 12, 0.48);
   transform: translateY(-1px);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Health Intelligence™ Executive Polish Amendment #001
+   — Replace Streaming with Change Detection™
+   — 6 official departments, navigation cards, progress bars
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* 6-column department grid (overrides 5-column base) */
+.hi-category-grid {
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+/* Tighter card padding for 6-column layout */
+.hi-cat-card {
+  padding: 14px 12px;
+  gap: 7px;
+}
+
+/* Navigation card: <a> element as flex column */
+a.hi-cat-card {
+  display: flex;
+  flex-direction: column;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ─── Animated progress bars ─────────────────────────────────────────── */
+
+.hi-cat-progress {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.hi-cat-progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  animation: hi-bar-fill 1.2s ease-out 0.35s forwards;
+}
+
+@keyframes hi-bar-fill {
+  from { width: 0; }
+  to   { width: var(--pct, 0%); }
+}
+
+.hi-cat-progress-fill--green  { background: var(--mc-green); }
+.hi-cat-progress-fill--purple { background: var(--mc-purple); }
+.hi-cat-progress-fill--amber  { background: var(--mc-orange); }
+.hi-cat-progress-fill--red    { background: #f87171; }
+.hi-cat-progress-fill--blue   { background: var(--mc-blue); }
+
+/* ─── Change Detection™ color tokens ─────────────────────────────────── */
+
+.hi-cat-score-num--blue { color: var(--mc-blue); }
+
+.hi-status-pill--blue {
+  background: rgba(56, 189, 248, 0.1);
+  color: var(--mc-blue);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+}
+
+/* ─── Responsive: 6-col → 3-col at ≤1280px ──────────────────────────── */
+
+@media (max-width: 1280px) {
+  .hi-category-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+}
