@@ -116,123 +116,379 @@
       <span class="ws-breadcrumb-current">Health Intelligence™</span>
     </header>
 
-    <div class="ws-hero">
-      <div class="ws-hero-inner">
-        <div class="ws-hero-mark ws-hero-mark--health">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
-        </div>
-        <div class="ws-hero-text">
-          <h1 class="ws-hero-title">Health Intelligence™</h1>
-          <p class="ws-hero-desc">Executive health assessment for your entire music business backend. Score, breakdown, trends, and priority risk in one view.</p>
-        </div>
-      </div>
-    </div>
+    <div class="ws-body">
 
-    <main class="ws-main">
-      <div class="ws-module-wrap">
+      <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
+      <div class="hi-main">
 
-        <article class="mc-card mc-card--health" id="health-intelligence" aria-label="Health Intelligence">
-          <div class="mc-card-head">
-            <div class="mc-card-mark">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+        <!-- § 1 — EXECUTIVE HEADER ─────────────────────────────────── -->
+        <div class="hi-exec-header">
+          <div class="hi-exec-title-block">
+            <div class="hi-exec-eyebrow">Health Intelligence™</div>
+            <h1 class="hi-exec-heading">Music Backend Health Report</h1>
+            <div class="hi-exec-meta-row">
+              <div class="hi-exec-updated">
+                <div class="hi-exec-updated-dot" aria-hidden="true"></div>
+                Last Updated: Today, 8:42 AM
+              </div>
             </div>
-            <div class="mc-card-title">HEALTH INTELLIGENCE™</div>
+          </div>
+          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Jun 27 – Jul 3, 2026
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:11px;height:11px"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+
+        <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
+        <div class="hi-kpi-row">
+
+          <!-- Health Score -->
+          <div class="hi-kpi-card hi-kpi-card--score">
+            <div class="hi-kpi-label hi-kpi-label--purple">Health Score™</div>
+            <div class="hi-kpi-score-wrap">
+              <span class="hi-kpi-score-num">89</span>
+              <span class="hi-kpi-score-denom">/100</span>
+            </div>
+            <div class="hi-kpi-grade">Strong</div>
+            <div class="hi-kpi-trend">— Trend Updating</div>
+            <div class="hi-kpi-breakdown">
+              <div class="hi-kpi-breakdown-title">Health Breakdown</div>
+              <div class="hi-kpi-breakdown-row">
+                <span>Identity</span>
+                <span class="hi-kpi-breakdown-val">67</span>
+              </div>
+              <div class="hi-kpi-breakdown-row">
+                <span>Publishing</span>
+                <span class="hi-kpi-breakdown-val">67</span>
+              </div>
+              <div class="hi-kpi-breakdown-row">
+                <span>Catalog</span>
+                <span class="hi-kpi-breakdown-val">100</span>
+              </div>
+              <div class="hi-kpi-breakdown-row">
+                <span>Streaming</span>
+                <span class="hi-kpi-breakdown-val">0</span>
+              </div>
+              <div class="hi-kpi-breakdown-row">
+                <span>Monitoring</span>
+                <span class="hi-kpi-breakdown-val">50</span>
+              </div>
+              <div class="hi-kpi-breakdown-row">
+                <span>Backend</span>
+                <span class="hi-kpi-breakdown-val">100</span>
+              </div>
+            </div>
           </div>
 
-          <div class="mc-hi-body">
+          <!-- Biggest Improvement -->
+          <div class="hi-kpi-card hi-kpi-card--improvement">
+            <div class="hi-kpi-label hi-kpi-label--green">Biggest Improvement™</div>
+            <div class="hi-kpi-icon" aria-hidden="true" style="color:var(--mc-green)">▲</div>
+            <div class="hi-kpi-main-text">Backend fully connected</div>
+            <div class="hi-kpi-sub-text">Infrastructure confirmed active across all monitored endpoints. No degradation detected.</div>
+          </div>
 
-            <div class="mc-hi-score-section">
-              <div class="mc-hi-score-display">
-                <span class="mc-hi-score-num" data-mc-hi-score>89</span>
-                <span class="mc-hi-score-denom">/100</span>
+          <!-- Biggest Risk -->
+          <div class="hi-kpi-card hi-kpi-card--risk">
+            <div class="hi-kpi-label hi-kpi-label--orange">Biggest Risk™</div>
+            <div class="hi-kpi-icon" aria-hidden="true" style="color:var(--mc-orange)">⚠</div>
+            <div class="hi-kpi-main-text">Publishing review needed</div>
+            <div class="hi-kpi-sub-text">Publishing data could not be determined from reviewed sources. Action required.</div>
+            <div class="hi-kpi-badge hi-kpi-badge--orange">High Impact</div>
+          </div>
+
+          <!-- AI Monitoring Status -->
+          <div class="hi-kpi-card hi-kpi-card--ai">
+            <div class="hi-kpi-label hi-kpi-label--purple">AI Monitoring™</div>
+            <div class="hi-kpi-main-text" style="margin-top:4px">Monitoring Complete</div>
+            <div class="hi-kpi-ai-checks">
+              <div class="hi-kpi-ai-check">
+                <span class="hi-kpi-check-icon--green" aria-hidden="true">✓</span>
+                No critical issues detected
               </div>
-              <div class="mc-hi-grade" data-mc-hi-grade>Strong</div>
-              <div class="mc-hi-trend-row" data-mc-hi-trend-row>
-                <span class="mc-hi-trend-arrow" data-mc-hi-trend-arrow>—</span>
-                <span class="mc-hi-trend-text" data-mc-hi-trend-text>Trend Updating</span>
+              <div class="hi-kpi-ai-check">
+                <span class="hi-kpi-check-icon--green" aria-hidden="true">✓</span>
+                3 changes this week
+              </div>
+              <div class="hi-kpi-ai-check">
+                <span class="hi-kpi-check-icon--amber" aria-hidden="true">⚠</span>
+                1 action requires attention
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- § 3 — CORE HEALTH METRICS ──────────────────────────────── -->
+        <div>
+          <div class="hi-section-header">
+            <div class="hi-section-title">Core Health Metrics™</div>
+          </div>
+          <div class="hi-category-grid" style="margin-top:12px">
+
+            <!-- Identity Health -->
+            <div class="hi-cat-card">
+              <div class="hi-cat-label">Identity Health</div>
+              <div class="hi-cat-score-wrap">
+                <span class="hi-cat-score-num hi-cat-score-num--purple">67</span>
+                <span class="hi-cat-score-denom">/100</span>
+              </div>
+              <div class="hi-cat-status hi-cat-status--purple">Needs Attention</div>
+              <div class="hi-cat-sparkline" aria-label="Identity health trend sparkline">
+                <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,6 16,9 32,12 48,15 64,17 80,20"
+                    fill="none" stroke="var(--mc-purple)" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+                  <circle cx="80" cy="20" r="2.5" fill="var(--mc-purple)" opacity="0.9"/>
+                </svg>
+              </div>
+              <div class="hi-cat-movement hi-cat-movement--down" aria-label="Down 3% this week">
+                ▼ 3% this week
               </div>
             </div>
 
-            <div class="mc-hi-breakdown">
-              <div class="mc-hi-section-label">Health Breakdown</div>
-              <ul class="mc-hi-cat-list" aria-label="Health category scores">
-                <li class="mc-hi-cat" data-mc-hi-cat="identity">
-                  <span class="mc-hi-cat-name">Identity</span>
-                  <span class="mc-hi-cat-score" data-mc-hi-cat-score>67</span>
-                  <span class="mc-hi-cat-dot" data-mc-hi-cat-dot></span>
-                </li>
-                <li class="mc-hi-cat" data-mc-hi-cat="publishing">
-                  <span class="mc-hi-cat-name">Publishing</span>
-                  <span class="mc-hi-cat-score" data-mc-hi-cat-score>0</span>
-                  <span class="mc-hi-cat-dot" data-mc-hi-cat-dot></span>
-                </li>
-                <li class="mc-hi-cat" data-mc-hi-cat="catalog">
-                  <span class="mc-hi-cat-name">Catalog</span>
-                  <span class="mc-hi-cat-score" data-mc-hi-cat-score>100</span>
-                  <span class="mc-hi-cat-dot mc-hi-green" data-mc-hi-cat-dot></span>
-                </li>
-                <li class="mc-hi-cat" data-mc-hi-cat="footprint">
-                  <span class="mc-hi-cat-name">Streaming</span>
-                  <span class="mc-hi-cat-score" data-mc-hi-cat-score>0</span>
-                  <span class="mc-hi-cat-dot" data-mc-hi-cat-dot></span>
-                </li>
-                <li class="mc-hi-cat" data-mc-hi-cat="monitoring">
-                  <span class="mc-hi-cat-name">Monitoring</span>
-                  <span class="mc-hi-cat-score" data-mc-hi-cat-score>50</span>
-                  <span class="mc-hi-cat-dot mc-hi-amber" data-mc-hi-cat-dot></span>
-                </li>
-                <li class="mc-hi-cat" data-mc-hi-cat="backend">
-                  <span class="mc-hi-cat-name">Backend</span>
-                  <span class="mc-hi-cat-score" data-mc-hi-cat-score>100</span>
-                  <span class="mc-hi-cat-dot mc-hi-green" data-mc-hi-cat-dot></span>
-                </li>
-              </ul>
-            </div>
-
-            <div class="mc-hi-highlights">
-              <div class="mc-hi-best">
-                <div class="mc-hi-section-label">Biggest Improvement</div>
-                <div class="mc-hi-highlight-icon" aria-hidden="true">▲</div>
-                <div class="mc-hi-highlight-title" data-mc-hi-best-title>Backend fully connected</div>
-                <div class="mc-hi-highlight-meta" data-mc-hi-best-meta></div>
+            <!-- Catalog Health -->
+            <div class="hi-cat-card">
+              <div class="hi-cat-label">Catalog Health</div>
+              <div class="hi-cat-score-wrap">
+                <span class="hi-cat-score-num hi-cat-score-num--green">100</span>
+                <span class="hi-cat-score-denom">/100</span>
               </div>
-              <div class="mc-hi-risk-block">
-                <div class="mc-hi-section-label">Biggest Risk</div>
-                <div class="mc-hi-highlight-icon" aria-hidden="true">⚠</div>
-                <div class="mc-hi-highlight-title" data-mc-hi-risk-title>Publishing review needed</div>
-                <div class="mc-hi-highlight-meta" data-mc-hi-risk-meta>High Impact</div>
+              <div class="hi-cat-status hi-cat-status--green">Excellent</div>
+              <div class="hi-cat-sparkline" aria-label="Catalog health trend sparkline">
+                <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,20 16,16 32,12 48,8 64,4 80,2"
+                    fill="none" stroke="var(--mc-green)" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+                  <circle cx="80" cy="2" r="2.5" fill="var(--mc-green)" opacity="0.9"/>
+                </svg>
+              </div>
+              <div class="hi-cat-movement hi-cat-movement--up" aria-label="Up 8% this week">
+                ▲ 8% this week
               </div>
             </div>
 
-            <div class="mc-hi-sparkline-section">
-              <div class="mc-hi-section-label">Health Trend</div>
-              <div class="mc-hi-sparkline" aria-label="Historical health scores">
-                <span class="mc-hi-spark-dot" data-mc-hi-spark="0">—</span>
-                <span class="mc-hi-spark-dot" data-mc-hi-spark="1">—</span>
-                <span class="mc-hi-spark-dot" data-mc-hi-spark="2">—</span>
-                <span class="mc-hi-spark-dot" data-mc-hi-spark="3">—</span>
-                <span class="mc-hi-spark-dot mc-hi-spark-current" data-mc-hi-spark="4">89</span>
+            <!-- Publishing Health -->
+            <div class="hi-cat-card">
+              <div class="hi-cat-label">Publishing Health</div>
+              <div class="hi-cat-score-wrap">
+                <span class="hi-cat-score-num hi-cat-score-num--purple">67</span>
+                <span class="hi-cat-score-denom">/100</span>
               </div>
-              <div class="mc-hi-spark-meta" data-mc-hi-spark-meta>Current scan · Historical data pending</div>
+              <div class="hi-cat-status hi-cat-status--purple">Needs Attention</div>
+              <div class="hi-cat-sparkline" aria-label="Publishing health trend sparkline">
+                <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,8 16,10 32,12 48,15 64,17 80,19"
+                    fill="none" stroke="var(--mc-purple)" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+                  <circle cx="80" cy="19" r="2.5" fill="var(--mc-purple)" opacity="0.9"/>
+                </svg>
+              </div>
+              <div class="hi-cat-movement hi-cat-movement--down" aria-label="Down 2% this week">
+                ▼ 2% this week
+              </div>
             </div>
 
-            <div class="mc-hi-changes-section">
-              <div class="mc-hi-section-label">Recent Changes</div>
-              <ul class="mc-hi-changes-list" data-mc-hi-changes>
-                <li>Backend infrastructure fully connected</li>
-                <li>Catalog verified with confidence</li>
-              </ul>
+            <!-- Streaming Health -->
+            <div class="hi-cat-card">
+              <div class="hi-cat-label">Streaming Health</div>
+              <div class="hi-cat-score-wrap">
+                <span class="hi-cat-score-num hi-cat-score-num--red">0</span>
+                <span class="hi-cat-score-denom">/100</span>
+              </div>
+              <div class="hi-cat-status hi-cat-status--red">Critical</div>
+              <div class="hi-cat-sparkline" aria-label="Streaming health trend sparkline">
+                <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,22 16,22 32,21 48,22 64,22 80,22"
+                    fill="none" stroke="#f87171" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+                  <circle cx="80" cy="22" r="2.5" fill="#f87171" opacity="0.8"/>
+                </svg>
+              </div>
+              <div class="hi-cat-movement hi-cat-movement--flat" aria-label="No change this week">
+                — No change
+              </div>
+            </div>
+
+            <!-- Backend Health -->
+            <div class="hi-cat-card">
+              <div class="hi-cat-label">Backend Health</div>
+              <div class="hi-cat-score-wrap">
+                <span class="hi-cat-score-num hi-cat-score-num--green">100</span>
+                <span class="hi-cat-score-denom">/100</span>
+              </div>
+              <div class="hi-cat-status hi-cat-status--green">Excellent</div>
+              <div class="hi-cat-sparkline" aria-label="Backend health trend sparkline">
+                <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,18 16,14 32,10 48,6 64,3 80,2"
+                    fill="none" stroke="var(--mc-green)" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+                  <circle cx="80" cy="2" r="2.5" fill="var(--mc-green)" opacity="0.9"/>
+                </svg>
+              </div>
+              <div class="hi-cat-movement hi-cat-movement--up" aria-label="Up 5% this week">
+                ▲ 5% this week
+              </div>
             </div>
 
           </div>
-        </article>
+        </div>
 
-      </div>
-      <div class="ws-expansion"></div>
-    </main>
+        <!-- § 4 — HEALTH TIMELINE ──────────────────────────────────── -->
+        <div>
+          <div class="hi-section-header">
+            <div class="hi-section-title">Health Timeline™</div>
+          </div>
+          <div class="hi-timeline-card" style="margin-top:12px">
+            <div class="hi-timeline-body">
+              <div class="hi-timeline-ruler" role="list" aria-label="Health monitoring timeline Jun 27 – Jul 3">
+                <div class="hi-timeline-day" role="listitem">
+                  <div class="hi-timeline-dot hi-timeline-dot--event" aria-label="Event on Jun 27" title="Backend connected"></div>
+                  <div class="hi-timeline-day-label">Jun 27</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <div class="hi-timeline-dot" aria-label="Jun 28"></div>
+                  <div class="hi-timeline-day-label">Jun 28</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <div class="hi-timeline-dot hi-timeline-dot--event" aria-label="Event on Jun 29" title="Catalog verified"></div>
+                  <div class="hi-timeline-day-label">Jun 29</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <div class="hi-timeline-dot" aria-label="Jun 30"></div>
+                  <div class="hi-timeline-day-label">Jun 30</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <div class="hi-timeline-dot" aria-label="Jul 1"></div>
+                  <div class="hi-timeline-day-label">Jul 1</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <div class="hi-timeline-dot" aria-label="Jul 2"></div>
+                  <div class="hi-timeline-day-label">Jul 2</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <div class="hi-timeline-dot hi-timeline-dot--active" aria-label="Today, Jul 3" title="Current scan"></div>
+                  <div class="hi-timeline-day-label">Jul 3</div>
+                </div>
+              </div>
+            </div>
+            <div class="hi-timeline-footer">
+              <a class="hi-timeline-link" href="/workspaces/monitoring-timeline.html">View Full Timeline →</a>
+            </div>
+          </div>
+        </div>
 
-  </div>
+        <!-- Artist footer ───────────────────────────────────────────── -->
+        <div class="hi-artist-footer">
+          <div class="hi-artist-avatar" aria-hidden="true">GX</div>
+          <div class="hi-artist-info">
+            <div class="hi-artist-name">
+              GENTLEMEN X
+              <div class="hi-artist-verified" aria-label="Verified artist">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="hi-artist-actions">
+            <a class="hi-artist-action-link" href="/mission-control.html">View Profile</a>
+            <div class="hi-artist-sep" aria-hidden="true"></div>
+            <a class="hi-artist-action-link" href="/mission-control.html">Sign Out</a>
+          </div>
+        </div>
 
-</div>
+      </div><!-- /hi-main -->
+
+      <!-- ══ RIGHT EXECUTIVE PANEL ════════════════════════════════════ -->
+      <aside class="hi-exec-panel" aria-label="Executive Intelligence Panel">
+
+        <!-- Royaltē AI section -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-ai-header">
+            <div class="hi-panel-ai-title">Royaltē AI™</div>
+            <div class="hi-panel-live-badge">
+              <div class="hi-panel-live-dot" aria-hidden="true"></div>
+              LIVE
+            </div>
+          </div>
+          <div class="hi-panel-ai-logo" aria-hidden="true">ē</div>
+          <div class="hi-panel-ai-complete">AI Monitoring Complete</div>
+          <div class="hi-panel-ai-checks" role="list">
+            <div class="hi-panel-ai-check" role="listitem">
+              <span class="hi-panel-check-icon--green" aria-hidden="true">✓</span>
+              No critical issues detected
+            </div>
+            <div class="hi-panel-ai-check" role="listitem">
+              <span class="hi-panel-check-icon--green" aria-hidden="true">✓</span>
+              3 changes this week
+            </div>
+            <div class="hi-panel-ai-check" role="listitem">
+              <span class="hi-panel-check-icon--amber" aria-hidden="true">⚠</span>
+              1 action requires attention
+            </div>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/ai-insights.html">Open AI Insights →</a>
+        </div>
+
+        <!-- Top Priority Action -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-priority-header">
+            <div class="hi-panel-priority-label">Top Priority Action™</div>
+            <div class="hi-panel-high-badge">HIGH</div>
+          </div>
+          <div class="hi-panel-action-card">
+            <div class="hi-panel-action-icon-row">
+              <div class="hi-panel-action-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.97C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.97A29.5 29.5 0 0 0 1 12a29.5 29.5 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.97A29.5 29.5 0 0 0 23 12a29.5 29.5 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+              </div>
+              <div class="hi-panel-action-title">Claim YouTube Official Artist Channel</div>
+            </div>
+            <div class="hi-panel-action-desc">Unlock additional monetization, audience insights, and verified status on YouTube.</div>
+            <div class="hi-panel-action-meta">
+              <div class="hi-panel-action-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:9px;height:9px" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                Est. 8 Minutes
+              </div>
+              <div class="hi-panel-action-badge">Impact: High</div>
+            </div>
+            <a class="hi-panel-action-cta" href="/workspaces/priority-actions.html" role="button">Take Action Now</a>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/priority-actions.html">View All Actions →</a>
+        </div>
+
+        <!-- Health Summary -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-summary-header">
+            <div class="hi-panel-summary-label">Health Summary™</div>
+          </div>
+          <div class="hi-panel-summary-range">Jun 27 – Jul 3, 2026</div>
+          <div class="hi-panel-summary-grid">
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--purple">12</div>
+              <div class="hi-panel-stat-label">Changes Detected</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--green">3</div>
+              <div class="hi-panel-stat-label">Actions Completed</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--orange">1</div>
+              <div class="hi-panel-stat-label">Action Pending</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--green">$2.2K</div>
+              <div class="hi-panel-stat-label">Est. Royalties This Week</div>
+            </div>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/royalte-review.html">View Full Health Report →</a>
+        </div>
+
+      </aside>
+
+    </div><!-- /ws-body -->
+
+  </div><!-- /ws-content -->
+
+</div><!-- /ws-shell -->
 </body>
 </html>
