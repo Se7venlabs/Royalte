@@ -48,6 +48,8 @@ import { acquireDiscogsEvidence, synthesizeDiscogsCompat } from './discogs-pal-a
 import { acquireYouTubeEvidence, synthesizeYouTubeCompat } from './youtube-pal-acquisition.js';
 // Phase 3.6/MLC (MLC PAL — Publishing Authority) — PAL MLC acquisition
 import { acquireMLCEvidence } from './mlc-pal-acquisition.js';
+// Phase 3.6/Deezer (Deezer PAL — Streaming Verification Authority™) — replaces getDeezer()
+import { acquireDeezerEvidence, synthesizeDeezerCompat } from './deezer-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -202,7 +204,7 @@ export async function runScan(url) {
     discogsPalSettled,
     youtubePalSettled,
     mlcPalSettled,
-    deezerSettled,
+    deezerPalSettled,
     audioDbSettled,
     soundcloudSettled,
     lastfmSettled,
@@ -226,7 +228,8 @@ export async function runScan(url) {
     acquireYouTubeEvidence({ artistName }),
     // Phase 3.6/MLC: The MLC via PAL — constitutional Publishing Authority
     acquireMLCEvidence({ artistName }),
-    getDeezer(artistName),
+    // Phase 3.6/Deezer: Deezer via PAL — Streaming Verification Authority™; replaces getDeezer()
+    acquireDeezerEvidence({ artistName }),
     getAudioDB(artistName),
     getSoundCloud(artistName),
     getLastFm(artistName),
@@ -245,8 +248,10 @@ export async function runScan(url) {
     youtubePalSettled.status === 'fulfilled' ? youtubePalSettled.value : {};
   const { evidencePackages: mlcEvidencePackages = [] } =
     mlcPalSettled.status === 'fulfilled' ? mlcPalSettled.value : {};
+  const { evidencePackages: deezerEvidencePackages = [] } =
+    deezerPalSettled.status === 'fulfilled' ? deezerPalSettled.value : {};
 
-  // Combined evidence packages — all six PAL providers enter the RIE hybrid merge path.
+  // Combined evidence packages — all seven PAL providers enter the RIE hybrid merge path.
   const evidencePackages = [
     ...appleEvidencePackages,
     ...spotifyEvidencePackages,
@@ -254,6 +259,7 @@ export async function runScan(url) {
     ...discogsEvidencePackages,
     ...youtubeEvidencePackages,
     ...mlcEvidencePackages,
+    ...deezerEvidencePackages,
   ];
 
   // [TRANSITIONAL] Legacy compat shapes for V1 module system (runModules / buildFlags).
@@ -279,7 +285,8 @@ export async function runScan(url) {
   // Phase 3.6/YouTube: YouTube compat synthesis replaces direct getYouTube call
   const youtubeData = synthesizeYouTubeCompat(youtubeEvidencePackages, artistName);
 
-  const deezerData     = deezerSettled.status     === 'fulfilled' ? deezerSettled.value     : { found: false };
+  // Phase 3.6/Deezer: compat synthesis replaces direct getDeezer() call
+  const deezerData     = synthesizeDeezerCompat(deezerEvidencePackages, artistName);
   const audioDbData    = audioDbSettled.status    === 'fulfilled' ? audioDbSettled.value    : { found: false };
   const soundcloudData = soundcloudSettled.status === 'fulfilled' ? soundcloudSettled.value : { found: false };
   const lastfmData     = lastfmSettled.status     === 'fulfilled' ? lastfmSettled.value     : { found: false };
