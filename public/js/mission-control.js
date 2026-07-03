@@ -863,17 +863,38 @@ const _PI_RESOLUTION_TIME = {
 };
 
 function _piFinancialImpact(issues) {
-  if (!Array.isArray(issues) || issues.length === 0) {
-    return { level: 'low', badge: 'LOW RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--low', body: 'No significant publishing gaps detected.' };
+  const topIssue = Array.isArray(issues) ? issues[0] : null;
+  const resolution = topIssue
+    ? (_PI_RESOLUTION_TIME[topIssue.metric] || 'Est. 10–30 min to resolve')
+    : 'No action required';
+
+  if (!topIssue) {
+    return {
+      level: 'low', badge: 'LOW RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--low',
+      body: 'No significant publishing gaps detected.',
+      resolution,
+    };
   }
   const severities = issues.map(i => String(i.severity || '').toUpperCase());
   if (severities.includes('HIGH')) {
-    return { level: 'high', badge: 'HIGH RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--high', body: 'Multiple publishing registrations appear incomplete. Potential royalty collection may be affected.' };
+    return {
+      level: 'high', badge: 'HIGH RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--high',
+      body: 'Multiple publishing registrations appear incomplete. Some royalty collection opportunities may not be fully realized until these issues are resolved.',
+      resolution,
+    };
   }
   if (severities.includes('MEDIUM')) {
-    return { level: 'medium', badge: 'MEDIUM RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--medium', body: 'One publishing registration requires attention.' };
+    return {
+      level: 'medium', badge: 'MEDIUM RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--medium',
+      body: 'One publishing registration requires attention. Royalty collection may be affected until registration is completed.',
+      resolution,
+    };
   }
-  return { level: 'low', badge: 'LOW RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--low', body: 'No significant publishing gaps detected.' };
+  return {
+    level: 'low', badge: 'LOW RISK', badgeCls: 'mc-pi-impact-badge mc-pi-impact-badge--low',
+    body: 'No significant publishing gaps detected.',
+    resolution,
+  };
 }
 
 function buildPublishingIntelligencePlan(payload) {
@@ -966,6 +987,8 @@ function applyPublishingIntelligencePlan(plan) {
   if (badge) { badge.className = plan.impact.badgeCls; badge.textContent = plan.impact.badge; }
   const body = q('[data-mc-pi-impact-body]');
   if (body) body.textContent = plan.impact.body;
+  const res = q('[data-mc-pi-impact-resolution]');
+  if (res) res.textContent = plan.impact.resolution;
 
   // Section 5 — Biggest Risk
   const rt = q('[data-mc-pi-risk-title]');      if (rt) rt.textContent = plan.riskTitle;
