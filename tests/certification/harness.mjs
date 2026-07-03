@@ -33,6 +33,7 @@ import { runArtistLibrary }      from './suites/03-artist-library.mjs';
 import { runCimIntegrity }       from './suites/04-cim-integrity.mjs';
 import { runPerformance }        from './suites/05-performance.mjs';
 import { runRecordingIntelligence } from './suites/06-recording-intelligence.mjs';
+import { runMusicBrainzConnector }  from './suites/07-musicbrainz-connector.mjs';
 import { printBoardReport }      from './reporters/board-report.mjs';
 
 const QUIET = process.argv.includes('--quiet');
@@ -75,6 +76,7 @@ async function main() {
   results.push(await runSuite('04-cim-integrity',       runCimIntegrity));
   results.push(await runSuite('05-performance',         runPerformance));
   results.push(await runSuite('06-recording-intel',     runRecordingIntelligence));
+  results.push(await runSuite('07-musicbrainz',         runMusicBrainzConnector));
 
   const elapsed = Math.round(performance.now() - startMs);
   log('');
