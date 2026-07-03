@@ -462,6 +462,152 @@ function applyChangeDetectionPlan(plan) {
     </li>`).join('');
 }
 
+// ─── Music Ecosystem Status™ helpers — Sprint 3.1 ───────────────────
+//
+// buildEcosystemStatusPlan + applyEcosystemStatusPlan.
+//
+// Presentation layer only. Reads from existing render plans (healthPlan,
+// cdPlan) and the raw payload (for timestamps + executiveBrief).
+// Never computes scores. Never invents values.
+
+function _esFormatTimeAgo(iso) {
+  if (!iso || typeof iso !== 'string') return '—';
+  try {
+    const ms = Date.now() - new Date(iso).getTime();
+    if (isNaN(ms) || ms < 0) return '—';
+    const min = Math.floor(ms / 60000);
+    if (min < 1)  return 'Just now';
+    if (min < 60) return `${min} min ago`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24)  return `${hr}h ago`;
+    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch { return '—'; }
+}
+
+// Translates Monitoring Intelligence™ raw status codes to display labels.
+// This is a presentation-layer label map — no business logic.
+function _esMonitoringStatusLabel(rawStatus) {
+  const LABELS = {
+    'baseline':           'Operational',
+    'active':             'Operational',
+    'no_changes':         'Operational',
+    'scheduled':          'Scheduled',
+    'delayed':            'Delayed',
+    'maintenance':        'Maintenance',
+    'attention_required': 'Attention Required',
+    'attention':          'Attention Required',
+  };
+  return LABELS[rawStatus] || 'Operational';
+}
+
+function buildEcosystemStatusPlan(payload, plans) {
+  const hp = plans.healthPlan;
+  const cd = plans.cdPlan;
+  const mi = payload?.monitoringIntelligence;
+  const eb = payload?.executiveBrief;
+
+  // Health — score + grade label from Health Intelligence™ plan
+  const score = hp?.score ?? null;
+  const grade = hp?.status ?? '—';
+
+  // Trend — from healthIntelligence.delta if the payload carries it;
+  // not yet in the standard payload so this gracefully returns null.
+  const delta = (typeof payload?.healthIntelligence?.delta === 'number')
+    ? payload.healthIntelligence.delta : null;
+
+  // Timestamps — prefer payload.scannedAt, fall back to backendIntelligence.lastSync
+  const lastScanIso = payload?.scannedAt || payload?.backendIntelligence?.lastSync || null;
+  const lastScan    = _esFormatTimeAgo(lastScanIso);
+
+  // Next scan — from monitoringIntelligence.nextScan if present
+  const nextScanIso = mi?.nextScan ?? null;
+  let nextScan = 'Scheduled', nextScanMeta = '';
+  if (nextScanIso) {
+    try {
+      const d = new Date(nextScanIso);
+      nextScan     = d.toLocaleDateString('en-US', { weekday: 'long' });
+      nextScanMeta = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    } catch { /* keep defaults */ }
+  }
+
+  // Changes — from Change Detection™ render plan
+  const changesValue = cd?.sumValue ?? '—';
+  const changesMeta  = cd?.sumMeta  ?? '';
+
+  // Priority actions — from Executive Brief™
+  const paList  = Array.isArray(eb?.priorityActions) ? eb.priorityActions : [];
+  const paCount = paList.length;
+
+  // Monitoring status — from Monitoring Intelligence™
+  const statusLabel   = _esMonitoringStatusLabel(mi?.status ?? null);
+  const isOperational = statusLabel === 'Operational';
+
+  return { score, grade, delta, lastScan, nextScan, nextScanMeta,
+           changesValue, changesMeta, paCount, statusLabel, isOperational };
+}
+
+function applyEcosystemStatusPlan(plan) {
+  if (!plan) return;
+  const q = (sel) => document.querySelector(sel);
+
+  // Grade label (score written by count-up in __mcRevealModule)
+  const gradeEl = q('[data-mc-es-health-grade]');
+  if (gradeEl) gradeEl.textContent = plan.grade;
+
+  // Trend indicator
+  const trendEl = q('[data-mc-es-health-trend]');
+  if (trendEl) {
+    if (plan.delta !== null) {
+      const dir = plan.delta >= 0 ? '▲' : '▼';
+      const sgn = plan.delta > 0 ? '+' : '';
+      trendEl.textContent  = `${dir} ${sgn}${plan.delta} since last scan`;
+      trendEl.className    = `mc-es-health-trend ${plan.delta >= 0 ? 'up' : 'down'}`;
+    } else {
+      trendEl.textContent = '';
+    }
+  }
+
+  // Last scan
+  const lastEl = q('[data-mc-es-last-scan]');
+  if (lastEl) lastEl.textContent = plan.lastScan;
+
+  // Next scan
+  const nextEl = q('[data-mc-es-next-scan]');
+  if (nextEl) nextEl.textContent = plan.nextScan;
+  const nextMetaEl = q('[data-mc-es-next-scan-meta]');
+  if (nextMetaEl) nextMetaEl.textContent = plan.nextScanMeta;
+
+  // Changes
+  const chgValEl  = q('[data-mc-es-changes-value]');
+  const chgMetaEl = q('[data-mc-es-changes-meta]');
+  if (chgValEl)  chgValEl.textContent  = plan.changesValue;
+  if (chgMetaEl) chgMetaEl.textContent = plan.changesMeta;
+
+  // Priority actions
+  const paValEl  = q('[data-mc-es-priority-value]');
+  const paMetaEl = q('[data-mc-es-priority-meta]');
+  if (paValEl) {
+    if (plan.paCount === 0) {
+      paValEl.textContent = 'None';
+      paValEl.classList.add('mc-es-no-action');
+    } else {
+      paValEl.textContent = String(plan.paCount);
+      paValEl.classList.remove('mc-es-no-action');
+    }
+  }
+  if (paMetaEl) {
+    paMetaEl.textContent = plan.paCount === 0
+      ? 'No Action Required'
+      : plan.paCount === 1 ? 'High Priority' : 'Actions Required';
+  }
+
+  // Monitoring status
+  const statusEl = q('[data-mc-es-status-value]');
+  if (statusEl) statusEl.textContent = plan.statusLabel;
+  const activeEl = q('[data-mc-es-status-active]');
+  if (activeEl) activeEl.style.display = plan.isOperational ? 'flex' : 'none';
+}
+
 // ─── Health Intelligence™ apply helper (Health Intelligence v1.0) ───
 //
 // Updates the ring progress, score, status, confidence, per-domain
@@ -720,10 +866,35 @@ if (typeof window !== 'undefined') {
     // Health
     const hi = safeHealthIntelligence(payload.healthIntelligence);
     if (hi) _vaultPlans.healthPlan = renderHealth(hi);
+
+    // Ecosystem Status — built last so all plans are available
+    _vaultPlans.ecosystemStatusPlan = buildEcosystemStatusPlan(payload, _vaultPlans);
   };
 
   window.__mcRevealModule = function (id) {
     switch (id) {
+      case 'ecosystem-status': {
+        const plan = _vaultPlans.ecosystemStatusPlan;
+        if (!plan) break;
+        applyEcosystemStatusPlan(plan);
+        // Count-up on health score (mirrors health-intelligence card pattern)
+        if (plan.score !== null) {
+          const scoreEl = document.querySelector('[data-mc-es-health-score]');
+          if (scoreEl) {
+            const target = plan.score;
+            const dur    = 1200;
+            const t0     = performance.now();
+            (function countUp(now) {
+              const t     = Math.min((now - t0) / dur, 1);
+              const eased = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+              scoreEl.textContent = String(Math.round(target * eased));
+              if (t < 1) requestAnimationFrame(countUp);
+              else scoreEl.textContent = String(target);
+            })(performance.now());
+          }
+        }
+        break;
+      }
       case 'health-intelligence': {
         const plan = _vaultPlans.healthPlan;
         if (!plan) break;
