@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Phase 3.6 TheAudioDB — Artist & Media Intelligence Authority™ PAL Production Migration™ — UNANIMOUSLY APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Board UNANIMOUSLY APPROVES Phase 3.6 Provider Expansion 08 — TheAudioDB as Royaltē's Artist & Media Intelligence Authority™. AudioDBConnector acquires biography, artwork, logos, clear art, fan art, banners, discography, music videos, social links, and genre metadata from the TheAudioDB Public API (free tier, key embedded in path). No credentials required. Board Amendment 1–6 applied: constitutional `profile / media / discography / statistics` namespace established as the reference model for all future media-rich providers. |
+| **Directives adopted** | (1) TheAudioDB's constitutional role is Artist & Media Intelligence Authority™ — evidence acquisition only; no Artist Intelligence™, Brand Intelligence™, or Media scoring in this phase. (2) Constitutional media namespace: `platforms.audiodb.profile` (biography, country, genre, etc.) / `media` (thumbnails, logos, banners, fanArt, social, videos) / `discography` / `statistics`. (3) Each image type preserved independently — do not collapse (logo, clearart, thumb, wideThumb, fanart×4, banner). (4) Visual evidence is constitutional evidence — artwork and media are first-class evidence, not decoration. (5) Biography preserved in full at bridge layer; V1 compat synthesis truncates to 400 chars. (6) This namespace is the constitutional reference model for future media-rich providers (Last.fm, SoundCloud, etc.). (7) Provider trust: 70 (community-maintained media database). (8) No-credentials `authenticate()` pattern is constitutional for all credential-free providers. |
+| **Impact** | Eight constitutional providers, 834/834 certified. TheAudioDB completes Royaltē's first-generation evidence ecosystem. Evidence foundation for Artist Intelligence™ and Brand Intelligence™ established. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Number** | #203 |
+| **Commit SHA** | `bd4464e` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™ — UNANIMOUSLY APPROVED
 
 | | |
