@@ -10,140 +10,240 @@
 <body>
 <div class="ws-shell">
 
-  <header class="ws-topbar">
-    <a class="ws-topbar-back" href="/mission-control.html">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Mission Control
+  <aside class="ws-rail" role="navigation" aria-label="Royaltē OS navigation">
+
+    <a class="mc-brand" href="/mission-control.html">
+      <div class="mc-brand-mark" aria-hidden="true">ē</div>
+      <div>
+        <div class="mc-brand-text">ROYALTĒ</div>
+        <div class="mc-brand-sub">MISSION CONTROL</div>
+      </div>
     </a>
-    <div class="ws-topbar-brand">Royaltē OS™</div>
-  </header>
 
-  <div class="ws-hero">
-    <div class="ws-hero-inner">
-      <div class="ws-hero-mark ws-hero-mark--publishing">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-      </div>
-      <div class="ws-hero-text">
-        <h1 class="ws-hero-title">Publishing Intelligence™</h1>
-        <p class="ws-hero-desc">Publishing registration status, royalty collection coverage, and financial impact across MLC and all major systems.</p>
+    <nav class="mc-nav">
+      <a class="mc-nav-item" href="/mission-control.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Mission Control</span>
+          <div class="mc-nav-sub">Executive Overview</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/health-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Health Intelligence</span>
+          <div class="mc-nav-sub">System Status</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/identity-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Identity Intelligence</span>
+          <div class="mc-nav-sub">Who You Are</div>
+        </span>
+      </a>
+      <a class="mc-nav-item mc-nav-item--active" href="/workspaces/publishing-intelligence.html" aria-current="page">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Publishing Intelligence</span>
+          <div class="mc-nav-sub">Your Works</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/catalog-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Catalog Intelligence</span>
+          <div class="mc-nav-sub">Your Releases</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/global-music-footprint.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Global Music Footprint™</span>
+          <div class="mc-nav-sub">Where Your Music Exists</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/ai-insights.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">AI Insights</span>
+          <div class="mc-nav-sub">Intelligence Brief</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/backend-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8 11l8-4M8 13l8 4"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Backend Intelligence</span>
+          <div class="mc-nav-sub">Infrastructure Connected</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/mission-control.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .4 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.4 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.4l-.1.1A2 2 0 1 1 4.1 17l.1-.1a1.7 1.7 0 0 0 .4-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1.1 1.7 1.7 0 0 0-.4-1.9l-.1-.1A2 2 0 1 1 7 4.1l.1.1a1.7 1.7 0 0 0 1.9.4H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.4l.1-.1A2 2 0 1 1 19.9 7l-.1.1a1.7 1.7 0 0 0-.4 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Settings</span>
+          <div class="mc-nav-sub">Account &amp; Preferences</div>
+        </span>
+      </a>
+    </nav>
+
+  </aside>
+
+  <div class="ws-content">
+
+    <header class="ws-breadcrumb">
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Royaltē OS™</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <span class="ws-breadcrumb-current">Publishing Intelligence™</span>
+    </header>
+
+    <div class="ws-hero">
+      <div class="ws-hero-inner">
+        <div class="ws-hero-mark ws-hero-mark--publishing">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+        </div>
+        <div class="ws-hero-text">
+          <h1 class="ws-hero-title">Publishing Intelligence™</h1>
+          <p class="ws-hero-desc">Publishing registration status, royalty collection coverage, and financial impact across MLC and all major systems.</p>
+        </div>
       </div>
     </div>
+
+    <main class="ws-main">
+      <div class="ws-module-wrap">
+
+        <article class="mc-card mc-card--publishing" id="publishing-intelligence" aria-label="Publishing Intelligence">
+          <div class="mc-card-head">
+            <div class="mc-card-mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
+            </div>
+            <div class="mc-card-title">PUBLISHING<br>INTELLIGENCE™</div>
+          </div>
+
+          <div class="mc-pi-body">
+
+            <div class="mc-pi-coverage-section">
+              <div class="mc-pi-score-display">
+                <span class="mc-pi-score-num" data-mc-pi-coverage>—</span>
+                <span class="mc-pi-score-denom">%</span>
+              </div>
+              <div class="mc-pi-coverage-grade" data-mc-pi-coverage-grade>—</div>
+              <div class="mc-pi-coverage-sub"   data-mc-pi-coverage-sub>— of — complete</div>
+            </div>
+
+            <div class="mc-pi-summary">
+              <div class="mc-pi-sum-item">
+                <span class="mc-pi-sum-count" data-mc-pi-sum-verified>—</span>
+                <span class="mc-pi-sum-label">Verified</span>
+              </div>
+              <div class="mc-pi-sum-item mc-pi-sum-item--muted">
+                <span class="mc-pi-sum-count" data-mc-pi-sum-connected>—</span>
+                <span class="mc-pi-sum-label">Connected</span>
+              </div>
+              <div class="mc-pi-sum-item mc-pi-sum-item--warn">
+                <span class="mc-pi-sum-count" data-mc-pi-sum-attention>—</span>
+                <span class="mc-pi-sum-label">Needs Attention</span>
+              </div>
+              <div class="mc-pi-sum-item mc-pi-sum-item--danger">
+                <span class="mc-pi-sum-count" data-mc-pi-sum-missing>—</span>
+                <span class="mc-pi-sum-label">Missing</span>
+              </div>
+            </div>
+
+            <div class="mc-pi-systems-section">
+              <div class="mc-hi-section-label">Publishing Systems</div>
+              <div class="mc-pi-system-list">
+                <div class="mc-pi-system-row" data-mc-pi-system="mlcRegistration">
+                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M3 10l9-7 9 7z"/></svg>
+                  <span class="mc-pi-system-name">MLC Registration</span>
+                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+                </div>
+                <div class="mc-pi-system-row" data-mc-pi-system="registeredWorks">
+                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v17H6a2 2 0 0 0-2 2"/><path d="M8 8h8M8 12h8"/></svg>
+                  <span class="mc-pi-system-name">Registered Works</span>
+                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+                </div>
+                <div class="mc-pi-system-row" data-mc-pi-system="iswcCoverage">
+                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                  <span class="mc-pi-system-name">ISWC Coverage</span>
+                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+                </div>
+                <div class="mc-pi-system-row" data-mc-pi-system="registeredSongwriters">
+                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3l5 5L8 21H3v-5z"/><path d="M14 5l5 5"/></svg>
+                  <span class="mc-pi-system-name">Registered Songwriters</span>
+                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+                </div>
+                <div class="mc-pi-system-row" data-mc-pi-system="writerIpi">
+                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  <span class="mc-pi-system-name">Writer IPI</span>
+                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+                </div>
+                <div class="mc-pi-system-row" data-mc-pi-system="compositionMatch">
+                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><path d="M6.5 10v4M17.5 10v4M3 17h18"/></svg>
+                  <span class="mc-pi-system-name">Composition Match</span>
+                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mc-pi-impact">
+              <div class="mc-hi-section-label">Financial Impact</div>
+              <div class="mc-pi-impact-badge mc-pi-impact-badge--low" data-mc-pi-impact-badge>LOW RISK</div>
+              <div class="mc-pi-impact-royalty-label">Potential Royalty Impact™</div>
+              <div class="mc-pi-impact-body" data-mc-pi-impact-body>Publishing data loading</div>
+              <div class="mc-pi-impact-resolution-label">Estimated Resolution</div>
+              <div class="mc-pi-impact-resolution-val" data-mc-pi-impact-resolution>—</div>
+            </div>
+
+            <div class="mc-pi-risk">
+              <div class="mc-hi-section-label">Biggest Risk</div>
+              <div class="mc-pi-highlight-icon" aria-hidden="true">⚠</div>
+              <div class="mc-pi-highlight-title" data-mc-pi-risk-title>—</div>
+              <div class="mc-pi-highlight-meta"  data-mc-pi-risk-meta></div>
+              <div class="mc-pi-resolution"      data-mc-pi-risk-resolution></div>
+            </div>
+
+            <div class="mc-pi-win">
+              <div class="mc-hi-section-label">Biggest Win</div>
+              <div class="mc-pi-highlight-icon" aria-hidden="true">▲</div>
+              <div class="mc-pi-highlight-title" data-mc-pi-win-title>—</div>
+              <div class="mc-pi-highlight-meta"  data-mc-pi-win-meta></div>
+            </div>
+
+            <div class="mc-pi-changes-section">
+              <div class="mc-hi-section-label">Recent Changes</div>
+              <ul class="mc-pi-changes-list" data-mc-pi-changes>
+                <li>Publishing data loading</li>
+              </ul>
+            </div>
+
+          </div>
+        </article>
+
+      </div>
+      <div class="ws-expansion"></div>
+    </main>
+
   </div>
-
-  <main class="ws-main">
-    <div class="ws-module-wrap">
-
-      <article class="mc-card mc-card--publishing" id="publishing-intelligence" aria-label="Publishing Intelligence">
-        <div class="mc-card-head">
-          <div class="mc-card-mark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-          </div>
-          <div class="mc-card-title">PUBLISHING<br>INTELLIGENCE™</div>
-        </div>
-
-        <div class="mc-pi-body">
-
-          <div class="mc-pi-coverage-section">
-            <div class="mc-pi-score-display">
-              <span class="mc-pi-score-num" data-mc-pi-coverage>—</span>
-              <span class="mc-pi-score-denom">%</span>
-            </div>
-            <div class="mc-pi-coverage-grade" data-mc-pi-coverage-grade>—</div>
-            <div class="mc-pi-coverage-sub"   data-mc-pi-coverage-sub>— of — complete</div>
-          </div>
-
-          <div class="mc-pi-summary">
-            <div class="mc-pi-sum-item">
-              <span class="mc-pi-sum-count" data-mc-pi-sum-verified>—</span>
-              <span class="mc-pi-sum-label">Verified</span>
-            </div>
-            <div class="mc-pi-sum-item mc-pi-sum-item--muted">
-              <span class="mc-pi-sum-count" data-mc-pi-sum-connected>—</span>
-              <span class="mc-pi-sum-label">Connected</span>
-            </div>
-            <div class="mc-pi-sum-item mc-pi-sum-item--warn">
-              <span class="mc-pi-sum-count" data-mc-pi-sum-attention>—</span>
-              <span class="mc-pi-sum-label">Needs Attention</span>
-            </div>
-            <div class="mc-pi-sum-item mc-pi-sum-item--danger">
-              <span class="mc-pi-sum-count" data-mc-pi-sum-missing>—</span>
-              <span class="mc-pi-sum-label">Missing</span>
-            </div>
-          </div>
-
-          <div class="mc-pi-systems-section">
-            <div class="mc-hi-section-label">Publishing Systems</div>
-            <div class="mc-pi-system-list">
-              <div class="mc-pi-system-row" data-mc-pi-system="mlcRegistration">
-                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M3 10l9-7 9 7z"/></svg>
-                <span class="mc-pi-system-name">MLC Registration</span>
-                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-              </div>
-              <div class="mc-pi-system-row" data-mc-pi-system="registeredWorks">
-                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v17H6a2 2 0 0 0-2 2"/><path d="M8 8h8M8 12h8"/></svg>
-                <span class="mc-pi-system-name">Registered Works</span>
-                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-              </div>
-              <div class="mc-pi-system-row" data-mc-pi-system="iswcCoverage">
-                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                <span class="mc-pi-system-name">ISWC Coverage</span>
-                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-              </div>
-              <div class="mc-pi-system-row" data-mc-pi-system="registeredSongwriters">
-                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3l5 5L8 21H3v-5z"/><path d="M14 5l5 5"/></svg>
-                <span class="mc-pi-system-name">Registered Songwriters</span>
-                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-              </div>
-              <div class="mc-pi-system-row" data-mc-pi-system="writerIpi">
-                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                <span class="mc-pi-system-name">Writer IPI</span>
-                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-              </div>
-              <div class="mc-pi-system-row" data-mc-pi-system="compositionMatch">
-                <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><path d="M6.5 10v4M17.5 10v4M3 17h18"/></svg>
-                <span class="mc-pi-system-name">Composition Match</span>
-                <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mc-pi-impact">
-            <div class="mc-hi-section-label">Financial Impact</div>
-            <div class="mc-pi-impact-badge mc-pi-impact-badge--low" data-mc-pi-impact-badge>LOW RISK</div>
-            <div class="mc-pi-impact-royalty-label">Potential Royalty Impact™</div>
-            <div class="mc-pi-impact-body" data-mc-pi-impact-body>Publishing data loading</div>
-            <div class="mc-pi-impact-resolution-label">Estimated Resolution</div>
-            <div class="mc-pi-impact-resolution-val" data-mc-pi-impact-resolution>—</div>
-          </div>
-
-          <div class="mc-pi-risk">
-            <div class="mc-hi-section-label">Biggest Risk</div>
-            <div class="mc-pi-highlight-icon" aria-hidden="true">⚠</div>
-            <div class="mc-pi-highlight-title" data-mc-pi-risk-title>—</div>
-            <div class="mc-pi-highlight-meta"  data-mc-pi-risk-meta></div>
-            <div class="mc-pi-resolution"      data-mc-pi-risk-resolution></div>
-          </div>
-
-          <div class="mc-pi-win">
-            <div class="mc-hi-section-label">Biggest Win</div>
-            <div class="mc-pi-highlight-icon" aria-hidden="true">▲</div>
-            <div class="mc-pi-highlight-title" data-mc-pi-win-title>—</div>
-            <div class="mc-pi-highlight-meta"  data-mc-pi-win-meta></div>
-          </div>
-
-          <div class="mc-pi-changes-section">
-            <div class="mc-hi-section-label">Recent Changes</div>
-            <ul class="mc-pi-changes-list" data-mc-pi-changes>
-              <li>Publishing data loading</li>
-            </ul>
-          </div>
-
-        </div>
-      </article>
-
-    </div>
-    <div class="ws-expansion"></div>
-  </main>
 
 </div>
 </body>
