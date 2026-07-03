@@ -24,6 +24,7 @@
 //    08-discogs             Discogs PAL connector certified
 //    09-youtube             YouTube Official Artist Channel PAL connector certified
 //    10-mlc                 The MLC Publishing Authority PAL connector certified
+//    11-deezer              Deezer Streaming Verification Authority™ PAL connector certified
 //
 //  This harness never throws. Any suite that throws is caught and reported
 //  as a failed suite. The exit code reflects the overall certification status.
@@ -41,6 +42,7 @@ import { runMusicBrainzConnector }  from './suites/07-musicbrainz-connector.mjs'
 import { runDiscogsConnector }      from './suites/08-discogs-connector.mjs';
 import { runYouTubeConnector }      from './suites/09-youtube-connector.mjs';
 import { runMLCConnector }          from './suites/10-mlc-connector.mjs';
+import { runDeezerConnector }       from './suites/11-deezer-connector.mjs';
 import { printBoardReport }      from './reporters/board-report.mjs';
 
 const QUIET = process.argv.includes('--quiet');
@@ -87,6 +89,7 @@ async function main() {
   results.push(await runSuite('08-discogs',             runDiscogsConnector));
   results.push(await runSuite('09-youtube',             runYouTubeConnector));
   results.push(await runSuite('10-mlc',                 runMLCConnector));
+  results.push(await runSuite('11-deezer',              runDeezerConnector));
 
   const elapsed = Math.round(performance.now() - startMs);
   log('');
