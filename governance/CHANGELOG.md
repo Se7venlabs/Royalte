@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Sprint 3.3 — Identity Intelligence™ Executive Passport (PR #213)
+
+| | |
+|---|---|
+| **PR** | #213 |
+| **Commit SHA** | `654eb52` |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/mission-control.html` — `mc-id-*` CSS (~140 lines); 6-section `mc-id-body` HTML with `data-mc-id-*` attributes covering all 6 sections. `public/js/mission-control.js` — `_ID_COVERAGE_GRADE`, `_ID_STATE_PILL`, `_idPlatformPill`, `_idSeverityLabel` helpers; `buildIdentityIntelligencePlan(payload)` and `applyIdentityIntelligencePlan(plan)`. |
+| **Changed** | `public/js/mission-control.js` — `__mcPopulate` stores `_vaultPlans.idPlan`; `__mcRevealModule 'identity-intelligence'` calls `applyIdentityIntelligencePlan` + 1200ms count-up; fingerprint ring code retired. Legacy `identityCoverage`/`identityProviders` plans preserved for ai-insights. `public/js/vault-auth.js` — `_blankSentinelData` updated to blank `data-mc-id-*` targets; old `data-mc-identity-*` sentinel code retired. |
+| **Removed** | Legacy `mc-identity-body` (fingerprint ring), `mc-identity-checks` (provider checklist), `mc-card-foot` empty div, and associated JS calls (`applyCoveragePlan`, `applyProvidersPlan`, `applyDeezerStatus`, `applyTidalStatus`, `applyDeezerTopTrack` for the identity module reveal). |
+
+---
+
 ## 2026-07-03 — Sprint 3.2 + Executive Layout Optimization™ v1.0 (PR #211)
 
 | | |

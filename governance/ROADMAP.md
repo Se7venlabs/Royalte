@@ -57,6 +57,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 |---|---|---|---|---|
 | MC-3.2 | Health Intelligence™ Executive Assessment (6-section redesign) | ✅ Complete | `346a2d0` (PR #211) | — |
 | MC-3.2-ELO | Executive Layout Optimization™ v1.0 — desktop density pass | ✅ Complete | `83c8804` (PR #211) | — |
+| MC-3.3 | Identity Intelligence™ Executive Passport (6-section redesign) | ✅ Complete | `654eb52` (PR #213) | — |
 
 ---
 
@@ -92,6 +93,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 - **Constitution at v1.3** (effective 2026-06-11) ratifies the seven-layer Engineering Stack.
 - **Phase 5 rule format** permits the optional `polarity: 'positive'` field on positive-framing rules — applied to `publishing.strong-coverage` and `catalog.complete-delivery-verified`.
 - **Mission Control™ Health Intelligence™ card redesigned** (PR #211, 2026-07-03): 6-section executive assessment fully wired to Health Engine output. `applyHealthIntelligencePlan` is the sole DOM writer; `buildHealthIntelligencePlan` is the sole plan builder. All values sourced constitutionally. Executive Layout Optimization™ v1.0 reduces desktop page height ~260px; final holistic pass deferred until all MC modules complete.
+- **Mission Control™ Identity Intelligence™ card redesigned** (PR #213, 2026-07-03): 6-section executive passport replaces the fingerprint ring + provider checklist. Sections: Identity Coverage (% + grade), Identity Summary (4 counts), Identity Providers (constitutional + platform pills), Biggest Risk, Biggest Win, Recent Changes. `applyIdentityIntelligencePlan` is the sole DOM writer; `buildIdentityIntelligencePlan` is the sole plan builder. Deezer/TIDAL read from `payload.platforms.*` via Evidence Bridge™.
 
 ---
 
