@@ -68,6 +68,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | WS-4.1-AME | Ambient Module Elevation™ — ws-dept scoping system (Health + Identity) | ✅ Complete | `96a8dc5` (PR #222) | — |
 | WS-4.2 | Publishing Intelligence™ Workspace Build (pi-* namespace + Amendments #001/#002) | ✅ Complete | `cdd4fda` (PR #224) | — |
 | WS-4.2-RTZ | Reporting Time Zone™ — dynamic tz detection, MC System Status™ placement, DB migration | ✅ Complete | `6efd9e2` (PR #226) | — |
+| WS-4.x-IMG | Executive Image Service™ — platform-agnostic image selection + .royalte-exec-img standard | ✅ Complete | `7127bc0` (PR #228) | — |
 
 ---
 
