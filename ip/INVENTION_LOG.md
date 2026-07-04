@@ -54,4 +54,10 @@ Companion files: `PATENTS.md`, `PRIOR_ART.md`, `DEFENSIVE_PUBLICATIONS.md`, `TRA
 
 ---
 
+| 2026-07-04 | ATHENA™ Intelligence Engine | Intelligence layer sitting above every AI model — transforms verified Royaltē music intelligence into trusted executive recommendations. Artists interact only with ATHENA™; the underlying model is opaque. | Darryl West | Strategic | Board-locked architecture. `constitution/ATHENA_ARCHITECTURE.md`. |
+| 2026-07-04 | Smart Consensus™ | AI routing architecture: confidence-based model selection routes most requests to a single primary model; only low-confidence cases invoke a secondary model + Consensus Engine™. Dramatically reduces AI operating cost while maintaining enterprise-grade reasoning quality. | Darryl West | Strategic | Permanent architecture for ATHENA™. Board Decision 2026-07-04. |
+| 2026-07-04 | Confidence Engine™ | Per-recommendation confidence scoring system. Every ATHENA™ recommendation carries a confidence score; confidence below the Board-approved threshold automatically triggers Smart Consensus™. | Darryl West | High | Component of ATHENA™ pipeline. Threshold value is a Board-approved operational constant. |
+| 2026-07-04 | Business Rules Engine™ | Deterministic music industry rules that constrain AI reasoning before and after model invocation. Rules belong to Royaltē, not the AI. Examples: geo-aware PRO routing (Canada → SOCAN, not ASCAP); catalog-size-based priority escalation; trust-score-based risk cap. | Darryl West | Strategic | Owned by Royaltē. Independent of any AI provider. Component of ATHENA™ pipeline. |
+| 2026-07-04 | Artist Intelligence Profile™ | Structured per-artist intelligence context assembled from verified Royaltē CIO data and passed into the ATHENA™ pipeline as the reasoning substrate. | Darryl West | High | Input layer to ATHENA™. Built from the Royaltē Engineering Stack output. |
+
 *Owned by Se7ven Labs LLC. Internal corporate record; not a legal filing.*

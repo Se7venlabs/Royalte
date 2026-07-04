@@ -60,6 +60,12 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | MC-3.3 | Identity Intelligence™ Executive Passport (6-section redesign) | ✅ Complete | `654eb52` (PR #213) | — |
 | MC-3.4 | Publishing Intelligence™ Executive Passport (7-section + Amendment 1 + Amendment 2) | ✅ Complete | `8400134` (PR #216) | — |
 
+### ATHENA™ Architecture Sprint
+
+| Phase | Title | Status | Locked at | Tag |
+|---|---|---|---|---|
+| ATHENA-1 | ATHENA™ Intelligence Engine — Smart Consensus™ Architecture Lock | ✅ Complete | (PR on `feat/athena-architecture-lock`) | — |
+
 ### Executive Workspace Sprint
 
 | Phase | Title | Status | Locked at | Tag |
@@ -105,6 +111,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 - **Phase 5 rule format** permits the optional `polarity: 'positive'` field on positive-framing rules — applied to `publishing.strong-coverage` and `catalog.complete-delivery-verified`.
 - **Mission Control™ Health Intelligence™ card redesigned** (PR #211, 2026-07-03): 6-section executive assessment fully wired to Health Engine output. `applyHealthIntelligencePlan` is the sole DOM writer; `buildHealthIntelligencePlan` is the sole plan builder. All values sourced constitutionally. Executive Layout Optimization™ v1.0 reduces desktop page height ~260px; final holistic pass deferred until all MC modules complete.
 - **Mission Control™ Identity Intelligence™ card redesigned** (PR #213, 2026-07-03): 6-section executive passport replaces the fingerprint ring + provider checklist. Sections: Identity Coverage (% + grade), Identity Summary (4 counts), Identity Providers (constitutional + platform pills), Biggest Risk, Biggest Win, Recent Changes. `applyIdentityIntelligencePlan` is the sole DOM writer; `buildIdentityIntelligencePlan` is the sole plan builder. Deezer/TIDAL read from `payload.platforms.*` via Evidence Bridge™.
+- **ATHENA™ Intelligence Engine — Smart Consensus™ architecture locked** (Board-ratified 2026-07-04): ATHENA™ is Royaltē's permanent Intelligence layer. Smart Consensus™ is the permanent AI routing architecture — single primary model for high-confidence requests; secondary model + Consensus Engine™ for low-confidence only. Business Rules Engine™ is model-agnostic and owned entirely by Royaltē. Confidence Engine™ gates Smart Consensus™ activation. ATHENA™ Validation™ runs before every Executive Brief™. Full specification: `constitution/ATHENA_ARCHITECTURE.md`. IP Vault updated: Invention Log (5 entries), Trademarks (7 marks), Product Registry (ATHENA™ layer section).
 - **Mission Control™ Publishing Intelligence™ card redesigned** (PR #215, 2026-07-03): 7-section executive passport replaces the ring + flat checklist. Sections: Publishing Coverage (% + grade), Publishing Summary (4 counts), Publishing Systems (6 metric rows), Financial Impact™ (NEW — risk badge + Potential Royalty Impact™ + Estimated Resolution), Biggest Risk, Biggest Win, Recent Changes. Financial Neutrality Rule™ preserved. `applyPublishingIntelligencePlan` is the sole DOM writer; `buildPublishingIntelligencePlan` is the sole plan builder.
 
 ---
