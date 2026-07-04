@@ -458,16 +458,42 @@
 (function () {
   'use strict';
 
-  /* ── country data ─────────────────────────────────────────── */
+  /* ── Geographic Anchor System™ — 20 Board-approved countries ── */
+  var ANCHORS = {
+    'Canada':         { l: 19.0, t: 23.0, flag: '🇨🇦' },
+    'United States':  { l: 18.5, t: 31.0, flag: '🇺🇸' },
+    'Mexico':         { l: 15.5, t: 42.5, flag: '🇲🇽' },
+    'Brazil':         { l: 30.0, t: 63.5, flag: '🇧🇷' },
+    'Argentina':      { l: 26.0, t: 72.5, flag: '🇦🇷' },
+    'United Kingdom': { l: 46.0, t: 21.0, flag: '🇬🇧' },
+    'France':         { l: 48.5, t: 23.5, flag: '🇫🇷' },
+    'Germany':        { l: 50.5, t: 20.0, flag: '🇩🇪' },
+    'Spain':          { l: 47.0, t: 27.5, flag: '🇪🇸' },
+    'Italy':          { l: 51.0, t: 25.5, flag: '🇮🇹' },
+    'Sweden':         { l: 51.5, t: 16.5, flag: '🇸🇪' },
+    'Poland':         { l: 52.5, t: 20.5, flag: '🇵🇱' },
+    'South Africa':   { l: 52.0, t: 69.5, flag: '🇿🇦' },
+    'Egypt':          { l: 54.0, t: 33.0, flag: '🇪🇬' },
+    'India':          { l: 66.5, t: 40.0, flag: '🇮🇳' },
+    'China':          { l: 76.5, t: 28.5, flag: '🇨🇳' },
+    'Japan':          { l: 82.0, t: 29.5, flag: '🇯🇵' },
+    'South Korea':    { l: 79.5, t: 31.0, flag: '🇰🇷' },
+    'Australia':      { l: 84.0, t: 73.0, flag: '🇦🇺' },
+    'New Zealand':    { l: 88.5, t: 77.0, flag: '🇳🇿' },
+  };
+
+  /* ── country distribution data ─────────────────────────────── */
+  /* Anchor countries: name only (position read from ANCHORS)     */
+  /* Other countries: explicit l/t coordinates                    */
   var COUNTRIES = [
     // North America
-    { l:13.5, t:26,   name:'Canada',              p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
+    { name:'Canada',                p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
     { l:11,   t:31,   name:'United States (West)', p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
     { l:23,   t:29,   name:'United States (East)', p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
     { l:19.5, t:30,   name:'United States (Mid)',  p:['apple','spotify','deezer'],         d:'Jan 2024' },
     { l:17.5, t:35,   name:'United States (South)',p:['apple','spotify','deezer'],         d:'Jan 2024' },
-    { l:25,   t:22,   name:'Canada (East)',        p:['apple','spotify'],                  d:'Feb 2024' },
-    { l:16,   t:43,   name:'Mexico',               p:['apple','spotify'],                  d:'Mar 2024' },
+    { l:25,   t:22,   name:'Canada (East)',         p:['apple','spotify'],                  d:'Feb 2024' },
+    { name:'Mexico',                p:['apple','spotify'],                  d:'Mar 2024' },
     { l:21,   t:44,   name:'Cuba / Caribbean',     p:['apple','spotify'],                  d:'May 2024' },
     { l:23,   t:44,   name:'Dominican Republic',   p:['apple','spotify'],                  d:'May 2024' },
     { l:21,   t:47,   name:'Costa Rica',           p:['apple','spotify'],                  d:'Jun 2024' },
@@ -476,27 +502,27 @@
     { l:28,   t:52,   name:'Venezuela',            p:['apple','spotify'],                  d:'Apr 2024' },
     { l:28,   t:62,   name:'Brazil (North)',        p:['apple','spotify','deezer'],         d:'Feb 2024' },
     { l:31,   t:65,   name:'Brazil (South)',        p:['apple','spotify','deezer'],         d:'Jan 2024' },
-    { l:31,   t:72,   name:'Argentina',            p:['apple','spotify'],                  d:'Mar 2024' },
+    { name:'Argentina',             p:['apple','spotify'],                  d:'Mar 2024' },
     { l:27,   t:73,   name:'Chile',                p:['apple','spotify'],                  d:'May 2024' },
     { l:25,   t:70,   name:'Peru',                 p:['apple','spotify'],                  d:'Jun 2024' },
     // Europe
-    { l:46,   t:22,   name:'United Kingdom',       p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
+    { name:'United Kingdom',        p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
     { l:47.5, t:21.5, name:'Ireland',              p:['apple','spotify','deezer'],         d:'Jan 2024' },
-    { l:48.5, t:22.5, name:'France',               p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
+    { name:'France',                p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
     { l:49,   t:20.5, name:'Netherlands',          p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
-    { l:50,   t:20,   name:'Germany',              p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
-    { l:50.5, t:18,   name:'Sweden',               p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
+    { name:'Germany',               p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
+    { name:'Sweden',                p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
     { l:51,   t:15,   name:'Norway',               p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
     { l:52,   t:14,   name:'Finland',              p:['apple','spotify','deezer'],         d:'Feb 2024' },
     { l:50,   t:22.5, name:'Denmark',              p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
-    { l:47,   t:27,   name:'Spain',                p:['apple','spotify','deezer'],         d:'Jan 2024' },
+    { name:'Spain',                 p:['apple','spotify','deezer'],         d:'Jan 2024' },
     { l:45,   t:27,   name:'Portugal',             p:['apple','spotify'],                  d:'Feb 2024' },
-    { l:51,   t:26,   name:'Italy',                p:['apple','spotify','deezer'],         d:'Jan 2024' },
+    { name:'Italy',                 p:['apple','spotify','deezer'],         d:'Jan 2024' },
     { l:49,   t:23.5, name:'Switzerland',          p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
     { l:48.5, t:21,   name:'Belgium',              p:['apple','spotify','deezer'],         d:'Jan 2024' },
     { l:50,   t:23,   name:'Austria',              p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
     { l:50.5, t:24,   name:'Czech Republic',       p:['apple','spotify'],                  d:'Apr 2024' },
-    { l:52,   t:19,   name:'Poland',               p:['apple','spotify','deezer'],         d:'Mar 2024' },
+    { name:'Poland',                p:['apple','spotify','deezer'],         d:'Mar 2024' },
     { l:53,   t:26,   name:'Greece',               p:['apple','spotify'],                  d:'Apr 2024' },
     { l:51.5, t:22,   name:'Hungary',              p:['apple','spotify'],                  d:'May 2024' },
     { l:52.5, t:21,   name:'Romania',              p:['apple','spotify'],                  d:'May 2024' },
@@ -504,12 +530,12 @@
     { l:56,   t:17,   name:'Russia',               p:['apple','spotify'],                  d:'Mar 2024' },
     // Africa
     { l:47,   t:33,   name:'Morocco',              p:['apple','spotify','deezer'],         d:'Apr 2024' },
-    { l:52,   t:35,   name:'Egypt',                p:['apple','spotify'],                  d:'Mar 2024' },
+    { name:'Egypt',                 p:['apple','spotify'],                  d:'Mar 2024' },
     { l:49,   t:45,   name:'Nigeria',              p:['apple','spotify','deezer'],         d:'Apr 2024' },
     { l:47,   t:50,   name:'Ghana',                p:['apple','spotify'],                  d:'May 2024' },
     { l:55,   t:51,   name:'Kenya',                p:['apple','spotify'],                  d:'Jun 2024' },
     { l:53,   t:61,   name:'Tanzania',             p:['apple','spotify'],                  d:'Jun 2024' },
-    { l:51,   t:70,   name:'South Africa',         p:['apple','spotify','deezer'],         d:'Feb 2024' },
+    { name:'South Africa',          p:['apple','spotify','deezer'],         d:'Feb 2024' },
     { l:57,   t:47,   name:'Ethiopia',             p:['apple','spotify'],                  d:'Jun 2024' },
     { l:48,   t:55,   name:'DRC',                  p:['apple','spotify'],                  d:'Jun 2024' },
     // Middle East
@@ -528,7 +554,7 @@
     { l:75,   t:26.5, name:'China (North)',         p:['apple'],                            d:'Jan 2024' },
     { l:78,   t:32,   name:'China (East)',          p:['apple'],                            d:'Jan 2024' },
     { l:78,   t:39,   name:'China (South)',         p:['apple'],                            d:'Jan 2024' },
-    { l:80,   t:29,   name:'South Korea',           p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
+    { name:'South Korea',           p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
     { l:81,   t:30.5, name:'Japan (Tokyo)',         p:['apple','spotify','deezer','tidal'], d:'Jan 2024' },
     { l:81.5, t:33,   name:'Japan (Osaka)',         p:['apple','spotify','deezer'],         d:'Jan 2024' },
     { l:80,   t:37.5, name:'Taiwan',               p:['apple','spotify'],                  d:'Feb 2024' },
@@ -544,7 +570,7 @@
     { l:83,   t:69,   name:'Australia (North)',     p:['apple','spotify'],                  d:'Jan 2024' },
     { l:83.5, t:74,   name:'Australia (East)',      p:['apple','spotify','deezer'],         d:'Jan 2024' },
     { l:82.5, t:77,   name:'Australia (South)',     p:['apple','spotify'],                  d:'Jan 2024' },
-    { l:88,   t:77,   name:'New Zealand',          p:['apple','spotify'],                  d:'Feb 2024' },
+    { name:'New Zealand',           p:['apple','spotify'],                  d:'Feb 2024' },
   ];
 
   /* ── provider colors for popover dots ──────────────────────── */
@@ -552,19 +578,33 @@
   var P_NAME  = { apple: 'Apple Music', spotify: 'Spotify', deezer: 'Deezer', tidal: 'TIDAL' };
 
   /* ── per-provider dot offsets within a country cluster ─────── */
-  var P_OFF = { apple: [0, 0], spotify: [1.8, 1.0], deezer: [-1.8, 1.0], tidal: [0, -1.4] };
+  var P_OFF = { apple: [-1.0, -1.5], spotify: [1.1, -1.5], deezer: [-1.0, 1.5], tidal: [1.1, 1.5] };
 
   var mapInner = document.getElementById('gf-map-inner');
   var popover  = document.getElementById('gf-popover');
   var activeFilter = null;
 
+  /* ── render geographic anchor flags (z-index 4, behind markers) ── */
+  Object.keys(ANCHORS).forEach(function (country) {
+    var a  = ANCHORS[country];
+    var el = document.createElement('span');
+    el.className = 'gf-anchor';
+    el.style.left = a.l + '%';
+    el.style.top  = a.t + '%';
+    el.textContent = a.flag;
+    el.setAttribute('aria-hidden', 'true');
+    mapInner.appendChild(el);
+  });
+
   /* ── generate markers ─────────────────────────────────────── */
   COUNTRIES.forEach(function (c) {
+    var anchor = ANCHORS[c.name];
+    var base   = anchor ? { l: anchor.l, t: anchor.t } : { l: c.l, t: c.t };
     c.p.forEach(function (prov) {
       var off = P_OFF[prov] || [0, 0];
       var el  = document.createElement('span');
       el.className = 'gf-marker gf-marker--' + prov;
-      el.style.cssText = 'left:' + (c.l + off[0] * 0.45) + '%;top:' + (c.t + off[1] * 0.45) + '%;animation-delay:' + ((c.l / 100) * 4).toFixed(2) + 's';
+      el.style.cssText = 'left:' + (base.l + off[0]) + '%;top:' + (base.t + off[1]) + '%;animation-delay:' + ((base.l / 100) * 4).toFixed(2) + 's';
       el.dataset.country  = c.name;
       el.dataset.provider = prov;
       el.dataset.detected = c.d;
