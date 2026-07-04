@@ -5727,3 +5727,347 @@ a.ci-function-card:hover .ci-artwork-container {
 }
 .mc2-rail-user-name { font-size: 11px; font-weight: 700; color: var(--mc-text-soft); }
 .mc2-rail-user-role { font-size: 9px; color: var(--mc-text-faint); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Mission Control™ OS Frame — Navigation-first layout
+   mc2-os-* namespace | The operating system desktop
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.mc2-os-frame {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.mc2-os-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ─── OS header strip ────────────────────────────────────────────────── */
+.mc2-os-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 56px;
+  border-bottom: 1px solid var(--mc-border);
+  flex-shrink: 0;
+  gap: 20px;
+  background: rgba(168, 85, 247, 0.02);
+}
+.mc2-os-status-group {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.mc2-os-stat { display: flex; flex-direction: column; gap: 1px; }
+.mc2-os-stat-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mc-text-faint);
+}
+.mc2-os-stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.mc2-os-stat-value--green  { color: #4ade80; }
+.mc2-os-stat-value--purple { color: var(--mc-purple); }
+.mc2-os-stat-value--teal   { color: var(--ai-backend); }
+.mc2-os-stat-value--white  { color: var(--mc-text); }
+.mc2-os-stat-sub {
+  font-size: 8.5px;
+  color: var(--mc-text-faint);
+  margin-top: 1px;
+}
+.mc2-os-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--mc-border);
+  flex-shrink: 0;
+}
+.mc2-os-actions { display: flex; align-items: center; gap: 10px; }
+.mc2-os-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
+  background: rgba(168, 85, 247, 0.14);
+  border: 1px solid rgba(168, 85, 247, 0.36);
+  border-radius: 8px;
+  color: var(--mc-purple);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: var(--mc-font);
+  transition: background 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+}
+.mc2-os-cta:hover {
+  background: rgba(168, 85, 247, 0.22);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+}
+.mc2-os-cta-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  background: transparent;
+  border: 1px solid var(--mc-border);
+  border-radius: 8px;
+  color: var(--mc-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--mc-font);
+  transition: border-color 0.2s;
+  text-decoration: none;
+}
+.mc2-os-cta-ghost:hover { border-color: rgba(168, 85, 247, 0.22); }
+
+/* ─── Globe stage ────────────────────────────────────────────────────── */
+.mc2-globe-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+.mc2-globe-canvas {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mc2-globe-svg-wrap {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+.mc2-globe-svg {
+  width: 440px;
+  height: 440px;
+  overflow: visible;
+  filter: drop-shadow(0 0 40px rgba(109, 40, 217, 0.35)) drop-shadow(0 0 80px rgba(168, 85, 247, 0.15));
+  animation: mc2-fade-in 1.4s ease 0.2s both;
+}
+.mc2-globe-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+.mc2-globe-line {
+  stroke-dasharray: 5 5;
+  animation: mc2-line-flow 4s linear infinite;
+  stroke-width: 1;
+  fill: none;
+  opacity: 0;
+  transition: opacity 1s;
+}
+.mc2-globe-line.mc2-line--live { opacity: 1; }
+@keyframes mc2-line-flow { to { stroke-dashoffset: -40; } }
+.mc2-globe-line--health    { stroke: rgba(34,197,94,0.35); }
+.mc2-globe-line--identity  { stroke: rgba(56,189,248,0.35); }
+.mc2-globe-line--publishing { stroke: rgba(168,85,247,0.4); }
+.mc2-globe-line--global    { stroke: rgba(34,211,238,0.35); }
+.mc2-globe-line--review    { stroke: rgba(251,146,60,0.35); }
+.mc2-globe-line--ai        { stroke: rgba(200,205,216,0.3); }
+.mc2-globe-line--backend   { stroke: rgba(0,191,165,0.35); }
+.mc2-globe-line--catalog   { stroke: rgba(251,146,60,0.3); }
+
+/* ─── Workspace navigation nodes ────────────────────────────────────── */
+.mc2-ws-node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 13px 8px 10px;
+  background: rgba(8, 5, 22, 0.78);
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  border-radius: 12px;
+  text-decoration: none;
+  transform: translate(-50%, -50%);
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s, transform 0.2s;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  cursor: pointer;
+  min-width: 178px;
+  opacity: 0;
+  animation: mc2-node-appear 0.6s ease both;
+  z-index: 10;
+}
+.mc2-ws-node:hover {
+  border-color: rgba(168, 85, 247, 0.55);
+  background: rgba(25, 10, 55, 0.88);
+  box-shadow: 0 0 24px rgba(168, 85, 247, 0.18), 0 0 48px rgba(168, 85, 247, 0.08);
+  transform: translate(-50%, -50%) scale(1.03);
+}
+@keyframes mc2-node-appear {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.88); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.mc2-ws-node-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.mc2-ws-node-icon svg { width: 15px; height: 15px; }
+.mc2-ws-node-body { flex: 1; min-width: 0; }
+.mc2-ws-node-name {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--mc-text-soft);
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.mc2-ws-node-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 8.5px;
+  color: var(--mc-text-faint);
+  margin-top: 2px;
+}
+.mc2-ws-node-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.mc2-ws-node-dot--op  { background: #4ade80; }
+.mc2-ws-node-dot--act { background: var(--mc-orange); }
+.mc2-ws-node-dot--new { background: var(--mc-purple); animation: hi-live-pulse 2s ease-in-out infinite; }
+.mc2-ws-node-arrow {
+  font-size: 13px;
+  color: rgba(168, 85, 247, 0.6);
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+.mc2-ws-node:hover .mc2-ws-node-arrow { opacity: 1; color: var(--mc-purple); }
+
+/* Node domain icon backgrounds */
+.mc2-ws--health    .mc2-ws-node-icon { background: rgba(34,197,94,0.12);   color: var(--ai-health); }
+.mc2-ws--identity  .mc2-ws-node-icon { background: rgba(56,189,248,0.12);  color: var(--ai-identity); }
+.mc2-ws--publishing .mc2-ws-node-icon { background: rgba(168,85,247,0.12); color: var(--mc-purple); }
+.mc2-ws--global    .mc2-ws-node-icon { background: rgba(34,211,238,0.12);  color: var(--ai-global); }
+.mc2-ws--review    .mc2-ws-node-icon { background: rgba(251,146,60,0.12);  color: var(--mc-orange); }
+.mc2-ws--ai        .mc2-ws-node-icon { background: rgba(200,205,216,0.08); color: var(--mc-silver); }
+.mc2-ws--backend   .mc2-ws-node-icon { background: rgba(0,191,165,0.12);   color: var(--ai-backend); }
+.mc2-ws--catalog   .mc2-ws-node-icon { background: rgba(251,146,60,0.1);   color: var(--ai-catalog); }
+
+/* Node animation delays for sequential appearance */
+.mc2-ws-node:nth-child(1) { animation-delay: 0.8s; }
+.mc2-ws-node:nth-child(2) { animation-delay: 1.0s; }
+.mc2-ws-node:nth-child(3) { animation-delay: 1.2s; }
+.mc2-ws-node:nth-child(4) { animation-delay: 1.4s; }
+.mc2-ws-node:nth-child(5) { animation-delay: 1.6s; }
+.mc2-ws-node:nth-child(6) { animation-delay: 1.8s; }
+.mc2-ws-node:nth-child(7) { animation-delay: 2.0s; }
+.mc2-ws-node:nth-child(8) { animation-delay: 2.2s; }
+
+/* Glowing connection endpoint dot */
+.mc2-globe-endpt {
+  animation: mc2-endpt-pulse 3s ease-in-out infinite;
+}
+@keyframes mc2-endpt-pulse {
+  0%, 100% { opacity: 0.8; r: 2.5px; }
+  50%       { opacity: 0.4; r: 3.5px; }
+}
+
+/* ─── OS Dock ─────────────────────────────────────────────────────────── */
+.mc2-os-dock {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--mc-border);
+  flex-shrink: 0;
+  height: 70px;
+  background: rgba(168, 85, 247, 0.015);
+}
+.mc2-dock-col {
+  padding: 10px 18px;
+  border-right: 1px solid var(--mc-border);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+}
+.mc2-dock-col:last-child { border-right: none; }
+.mc2-dock-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mc-text-faint);
+  margin-bottom: 2px;
+}
+.mc2-dock-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10.5px;
+  color: var(--mc-text-muted);
+  overflow: hidden;
+}
+.mc2-dock-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.mc2-dock-dot--green  { background: #4ade80; }
+.mc2-dock-dot--orange { background: var(--mc-orange); }
+.mc2-dock-dot--purple { background: var(--mc-purple); }
+.mc2-dock-dot--teal   { background: var(--ai-backend); }
+.mc2-dock-dot--blue   { background: var(--ai-identity); }
+.mc2-dock-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mc2-dock-time {
+  font-size: 9px;
+  color: var(--mc-text-faint);
+  flex-shrink: 0;
+}
+
+/* ─── Globe surface text labels ──────────────────────────────────────── */
+.mc2-globe-brand {
+  font-family: var(--mc-font);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  fill: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 0 20px rgba(168,85,247,0.8);
+}
+.mc2-globe-sub {
+  font-family: var(--mc-font);
+  font-size: 6.5px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  fill: rgba(200, 205, 216, 0.55);
+}
+.mc2-globe-node-dot {
+  fill: rgba(168, 85, 247, 0.8);
+  filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.8));
+}
