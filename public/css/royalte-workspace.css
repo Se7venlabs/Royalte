@@ -2954,36 +2954,3 @@ a.pi-system-card:hover {
   box-shadow: -1px 0 40px rgba(124,58,237,0.04);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   Reporting Time Zone™ — System Status Panel
-   Ice Blue™: #7dd3fc — exclusive to Royaltē OS system indicators
-   Never reused for workspace accent colors
-   ═══════════════════════════════════════════════════════════════════════ */
-
-.hi-panel-section--system { padding-bottom: 2px; }
-
-.hi-sys-status-row {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 8px;
-}
-.hi-sys-op-pill {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
-  color: var(--mc-green); background: rgba(45,212,191,0.10);
-  border: 1px solid rgba(45,212,191,0.20); border-radius: 4px; padding: 2px 8px;
-}
-.hi-sys-monitor-check {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 11px; color: var(--mc-text-muted); margin-bottom: 10px;
-}
-.hi-sys-divider {
-  height: 1px; background: var(--mc-border-soft); margin: 0 0 10px;
-}
-.rtz-row { display: flex; align-items: center; gap: 9px; }
-.rtz-clock-icon { width: 16px; height: 16px; color: #7dd3fc; flex-shrink: 0; }
-.rtz-abbr {
-  font-size: 15px; font-weight: 700; color: #7dd3fc; letter-spacing: 0.03em; line-height: 1.1;
-}
-.rtz-label-text {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--mc-text-subtle); margin-top: 2px;
-}
