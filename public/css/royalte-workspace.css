@@ -2037,6 +2037,9 @@ svg { display: block; }
 .hi-panel-stat-num--green  { color: var(--mc-green); }
 .hi-panel-stat-num--purple { color: var(--mc-purple); }
 .hi-panel-stat-num--orange { color: var(--mc-orange); }
+.hi-panel-stat-num--muted  { color: var(--mc-text-muted); }
+/* Timestamp / text-valued stat — slightly smaller than numeric, still grid-balanced */
+.hi-panel-stat-num--meta   { font-size: 15px; font-weight: 600; color: var(--mc-text-soft); letter-spacing: 0; }
 
 .hi-panel-stat-label {
   font-size: 9.5px;
@@ -2525,6 +2528,14 @@ a.hi-cat-card {
 }
 
 .ii-coverage-ring-pct { font-size: 13px; font-weight: 600; color: var(--mc-text-muted); }
+
+/* KPI number + fraction row — shared across Identity, Publishing, Catalog cards */
+.ii-kpi-num-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin-top: 4px;
+}
 
 .ii-kpi-big-num {
   font-size: 44px; font-weight: 800; color: var(--mc-text);
