@@ -11,6 +11,36 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Ambient Module Elevation™ — Executive Workspace Design Language — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve Ambient Module Elevation™ system. Every Executive Workspace declares its department via `ws-dept--*` class on `ws-shell`. All card modules receive a workspace-scoped ambient glow (large blur, very low opacity, feathers outside card edges). Hover amplifies the glow. Health Intelligence™ (emerald) and Identity Intelligence™ (purple) are the first two implementations. Future workspaces extend the system by adding their own `ws-dept--*` scoped glow rules. |
+| **Reason** | Each workspace must feel like a distinct intelligence department without changing layout, navigation, or spacing. The ambient glow achieves atmospheric differentiation while maintaining OS consistency. |
+| **Impact** | `public/css/royalte-workspace.css` — `.ws-dept--health` and `.ws-dept--identity` scoped glow rules appended (~60 lines). `public/workspaces/health-intelligence.html` — `ws-dept--health` added to `ws-shell`. `public/workspaces/identity-intelligence.html` — `ws-dept--identity` added to `ws-shell`. |
+| **Vote** | Board Approved |
+| **PR Number** | #222 |
+| **Commit SHA** | `96a8dc5` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Phase 4 — Identity Intelligence™ Workspace Build — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve Identity Intelligence™ as the second Executive Intelligence Workspace, built on the Health Intelligence™ standard. Color identity: Purple. Reuses Health workspace components (`hi-main`, `hi-kpi-row/card`, `hi-status-pill`, `hi-exec-panel`, `hi-artist-*`). New `ii-*` namespace covers only Identity-specific components, organized in 5 logical CSS blocks per Board Amendment #001. Executive Signature™: Identity Coverage™ ring animates once on page load (0→92%), then stops permanently. |
+| **Reason** | Identity Intelligence™ answers the executive question "Does the music industry recognize me correctly?" It requires a dedicated workspace that inherits the Health Intelligence™ design language while expressing its own intelligence and visual identity (purple accent, artist avatar, platform cards, coverage ring). |
+| **Impact** | `public/workspaces/identity-intelligence.html` — full rewrite from MC card stub to complete Executive Workspace (~520 lines). `public/css/royalte-workspace.css` — `ii-*` CSS namespace appended in 5 blocks (~270 lines). |
+| **Vote** | Board Approved |
+| **PR Number** | #222 |
+| **Commit SHA** | `c43f431` (workspace) · `96a8dc5` (ambient glow) |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Sprint 3.4 Amendment 2 — Publishing Intelligence™ Executive Layout Refinement — APPROVED
 
 | | |

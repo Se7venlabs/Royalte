@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Ambient Module Elevation™ + Identity Intelligence™ Workspace (PR #222)
+
+| | |
+|---|---|
+| **PR** | #222 |
+| **Commit SHA** | `c43f431` (Identity workspace) · `96a8dc5` (Ambient Module Elevation™) |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/css/royalte-workspace.css` — `ii-*` CSS namespace in 5 blocks: exec header, coverage ring + KPI numbers, platform cards, Identity Snapshot™ + Activity™, responsive rules (~270 lines). Ambient Module Elevation™ system: `.ws-dept--health` (emerald, ~30 lines) + `.ws-dept--identity` (purple, ~30 lines) scoped glow rules. `public/workspaces/identity-intelligence.html` — full Executive Workspace: artist avatar header, Identity Coverage™ ring (one-time fill animation), 4 KPI cards, 6 platform navigation cards, Identity Snapshot™, Identity Activity™, right exec panel (AI Identity Summary™ + Top Priority™ + Identity Status™), count-up JS. |
+| **Changed** | `public/workspaces/health-intelligence.html` — `ws-dept--health` added to `ws-shell`. `public/workspaces/identity-intelligence.html` — `ws-dept--identity` added to `ws-shell`. |
+| **Removed** | Legacy MC card stub content in `identity-intelligence.html` (mc-card / mc-id-body / mc-id-* structure). |
+
+---
+
 ## 2026-07-03 — Sprint 3.4 Amendment 2 — Publishing Intelligence™ Executive Layout Refinement (PR #216)
 
 | | |
