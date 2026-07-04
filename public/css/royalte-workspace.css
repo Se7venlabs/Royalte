@@ -3301,3 +3301,61 @@ a.ci-function-card:hover .ci-artwork-container {
 .royalte-exec-img--artist  { border-radius: 50%; }
 .royalte-exec-img--artwork { border-radius: 6px; }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   Royaltē Executive Icon Registry™ — Phosphor Duotone
+   Board Standard: ONLY duotone style icons from royalte-icon-registry.svg.
+   IDs are Royaltē business functions (royalte-artwork, royalte-health, …)
+   — never raw Phosphor names. This file is the only coupling point.
+   Usage: <svg class="royalte-icon" fill="currentColor">
+            <use href="/icons/royalte-icon-registry.svg#royalte-[function]"></use>
+          </svg>
+   fill="currentColor" drives both the duotone tint (opacity shapes inherit
+   fill) and the outline stroke (explicit currentColor on stroke paths).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.royalte-icon {
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: middle;
+  fill: currentColor;
+  overflow: visible;
+}
+
+/* Navigation rail — 20×20 display */
+.mc-nav-icon .royalte-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Standard workspace icon — size modifier classes */
+.royalte-icon--xs { width: 11px; height: 11px; }
+.royalte-icon--sm { width: 18px; height: 18px; }
+.royalte-icon--md { width: 20px; height: 20px; }
+.royalte-icon--lg { width: 24px; height: 24px; }
+.royalte-icon--xl { width: 28px; height: 28px; }
+
+/* KPI card icon wrap */
+.hi-kpi-icon-wrap .royalte-icon,
+.ii-kpi-icon-wrap .royalte-icon {
+  width: 22px; height: 22px;
+}
+
+/* Function card icon wrap */
+.ci-function-icon-wrap .royalte-icon,
+.pi-function-icon-wrap .royalte-icon {
+  width: 18px; height: 18px;
+}
+
+/* Section header / card header icon */
+.ci-card-header-icon.royalte-icon,
+.pi-card-header-icon.royalte-icon,
+.ii-card-header-icon.royalte-icon {
+  width: 14px; height: 14px;
+}
+
+/* Date selector calendar icon */
+.hi-date-selector .royalte-icon { width: 14px; height: 14px; }
+
+/* Panel action icon */
+.hi-panel-action-icon .royalte-icon { width: 16px; height: 16px; }
+
