@@ -66,6 +66,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 |---|---|---|---|---|
 | WS-4.1 | Identity Intelligence™ Workspace Build (ii-* namespace + coverage ring) | ✅ Complete | `c43f431` (PR #222) | — |
 | WS-4.1-AME | Ambient Module Elevation™ — ws-dept scoping system (Health + Identity) | ✅ Complete | `96a8dc5` (PR #222) | — |
+| WS-4.2 | Publishing Intelligence™ Workspace Build (pi-* namespace, Royal Violet, Potential Royalty Impact™) + Amendment #001 + Amendment #002 | ✅ Complete | `cdd4fda` (PR #224) | — |
 
 ---
 
