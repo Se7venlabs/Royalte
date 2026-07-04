@@ -4098,6 +4098,7 @@ a.ci-function-card:hover .ci-artwork-container {
 .bi-module-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  align-items: start;
   gap: 16px;
   margin-bottom: 24px;
 }
