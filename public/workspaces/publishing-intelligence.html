@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/css/royalte-workspace.css">
 </head>
 <body>
-<div class="ws-shell">
+<div class="ws-shell ws-dept--publishing">
 
   <aside class="ws-rail" role="navigation" aria-label="Royaltē OS navigation">
 
@@ -113,138 +113,392 @@
       <span class="ws-breadcrumb-sep">/</span>
       <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
       <span class="ws-breadcrumb-sep">/</span>
-      <span class="ws-breadcrumb-current">Publishing Intelligence™</span>
+      <span class="ws-breadcrumb-current pi-breadcrumb-current">Publishing Intelligence™</span>
     </header>
 
-    <div class="ws-hero">
-      <div class="ws-hero-inner">
-        <div class="ws-hero-mark ws-hero-mark--publishing">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-        </div>
-        <div class="ws-hero-text">
-          <h1 class="ws-hero-title">Publishing Intelligence™</h1>
-          <p class="ws-hero-desc">Publishing registration status, royalty collection coverage, and financial impact across MLC and all major systems.</p>
-        </div>
-      </div>
-    </div>
+    <div class="ws-body">
 
-    <main class="ws-main">
-      <div class="ws-module-wrap">
+      <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
+      <div class="hi-main">
 
-        <article class="mc-card mc-card--publishing" id="publishing-intelligence" aria-label="Publishing Intelligence">
-          <div class="mc-card-head">
-            <div class="mc-card-mark">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
+        <!-- § 1 — EXECUTIVE HEADER (system-focused, no artist avatar) ─ -->
+        <div class="pi-exec-header">
+          <div class="pi-exec-title-block">
+            <div class="pi-exec-eyebrow">Publishing Intelligence™</div>
+            <h1 class="pi-exec-heading">Publishing &amp; Rights Overview</h1>
+            <div class="pi-exec-desc">Registration status, royalty collection coverage, and system health across all major publishing organizations.</div>
+            <div class="pi-exec-meta-row">
+              <div class="pi-exec-updated">
+                <div class="pi-exec-updated-dot" aria-hidden="true"></div>
+                Last Sync: Today, 9:15 AM
+              </div>
             </div>
-            <div class="mc-card-title">PUBLISHING<br>INTELLIGENCE™</div>
+          </div>
+          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Jun 27 – Jul 3, 2026
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:11px;height:11px"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+
+        <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
+        <div class="hi-kpi-row">
+
+          <!-- Potential Royalty Impact™ — Executive Signature™ -->
+          <div class="hi-kpi-card pi-kpi-card--impact">
+            <div class="hi-kpi-label hi-kpi-label--orange">Potential Royalty Impact™</div>
+
+            <div class="pi-risk-indicator" aria-label="Publishing risk level: Moderate">
+              <div class="pi-risk-step pi-risk-step--inactive">Low</div>
+              <div class="pi-risk-step pi-risk-step--active pi-risk-step--moderate" aria-current="true">Moderate</div>
+              <div class="pi-risk-step pi-risk-step--inactive">High</div>
+            </div>
+
+            <div class="pi-impact-risk-label pi-impact-risk-label--moderate">Moderate Risk</div>
+            <div class="pi-impact-desc">2 works require registration</div>
+
+            <div class="hi-score-meta-row">
+              <div class="hi-status-pill hi-status-pill--orange">
+                <span class="hi-status-dot" aria-hidden="true"></span>Needs Attention
+              </div>
+            </div>
           </div>
 
-          <div class="mc-pi-body">
+          <!-- Publishing Coverage™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--green">Publishing Coverage™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--green" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:2px;margin-top:4px">
+              <span class="ii-kpi-big-num">87</span>
+              <span class="ii-kpi-fraction">%</span>
+            </div>
+            <div class="ii-kpi-status-text ii-kpi-status-text--green">Strong</div>
+            <div class="ii-kpi-caption">Across 6 Publishing Systems</div>
+          </div>
 
-            <div class="mc-pi-coverage-section">
-              <div class="mc-pi-score-display">
-                <span class="mc-pi-score-num" data-mc-pi-coverage>—</span>
-                <span class="mc-pi-score-denom">%</span>
+          <!-- Registered Works™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label pi-kpi-label--violet">Registered Works™</div>
+            <div class="hi-kpi-icon-wrap" style="background:rgba(124,58,237,0.10);border-color:rgba(124,58,237,0.18);color:#7c3aed" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V6a2 2 0 0 1 2-2h13v17H6a2 2 0 0 0-2 2"/><path d="M8 8h8M8 12h8"/></svg>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:2px;margin-top:4px">
+              <span class="ii-kpi-big-num">18</span>
+              <span class="ii-kpi-fraction"> / 20</span>
+            </div>
+            <div class="ii-kpi-status-text" style="color:#7c3aed">2 Pending</div>
+            <div class="ii-kpi-caption">ISWC: 16 Assigned</div>
+          </div>
+
+          <!-- Collection Health™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--green">Collection Health™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--green" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <div style="margin-top:4px">
+              <span class="ii-kpi-big-num" style="font-size:20px">Strong</span>
+            </div>
+            <div class="ii-kpi-status-text ii-kpi-status-text--green">Active Collection</div>
+            <div class="ii-kpi-caption">SOCAN — Primary Society</div>
+          </div>
+
+        </div>
+
+        <!-- § 3 — CORE PUBLISHING SYSTEMS ─────────────────────────── -->
+        <div>
+          <div class="pi-section-header">
+            <div class="pi-section-title">Core Publishing Systems™</div>
+          </div>
+          <div class="pi-system-grid">
+
+            <!-- The MLC -->
+            <a class="pi-system-card" href="/workspaces/publishing-intelligence.html" aria-label="The MLC — Registered, Active">
+              <div class="pi-system-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M3 10l9-7 9 7z"/></svg>
               </div>
-              <div class="mc-pi-coverage-grade" data-mc-pi-coverage-grade>—</div>
-              <div class="mc-pi-coverage-sub"   data-mc-pi-coverage-sub>— of — complete</div>
-            </div>
+              <div class="pi-system-name">The MLC</div>
+              <div class="pi-system-sub">Mechanical Licensing Collective</div>
+              <div class="pi-system-badge pi-system-badge--active">Registered</div>
+              <div class="pi-system-works">18 of 20 works</div>
+            </a>
 
-            <div class="mc-pi-summary">
-              <div class="mc-pi-sum-item">
-                <span class="mc-pi-sum-count" data-mc-pi-sum-verified>—</span>
-                <span class="mc-pi-sum-label">Verified</span>
+            <!-- PRO -->
+            <a class="pi-system-card" href="/workspaces/publishing-intelligence.html" aria-label="PRO — SOCAN, Connected">
+              <div class="pi-system-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
               </div>
-              <div class="mc-pi-sum-item mc-pi-sum-item--muted">
-                <span class="mc-pi-sum-count" data-mc-pi-sum-connected>—</span>
-                <span class="mc-pi-sum-label">Connected</span>
+              <div class="pi-system-name">PRO</div>
+              <div class="pi-system-sub">SOCAN / ASCAP / BMI</div>
+              <div class="pi-system-badge pi-system-badge--active">Connected</div>
+              <div class="pi-system-works">SOCAN — Primary</div>
+            </a>
+
+            <!-- Songtrust -->
+            <a class="pi-system-card" href="/workspaces/publishing-intelligence.html" aria-label="Songtrust — Connected, Active">
+              <div class="pi-system-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
               </div>
-              <div class="mc-pi-sum-item mc-pi-sum-item--warn">
-                <span class="mc-pi-sum-count" data-mc-pi-sum-attention>—</span>
-                <span class="mc-pi-sum-label">Needs Attention</span>
+              <div class="pi-system-name">Songtrust</div>
+              <div class="pi-system-sub">Global Publishing Admin</div>
+              <div class="pi-system-badge pi-system-badge--active">Active</div>
+              <div class="pi-system-works">20 works enrolled</div>
+            </a>
+
+            <!-- Harry Fox Agency -->
+            <a class="pi-system-card" href="/workspaces/priority-actions.html" aria-label="Harry Fox Agency — Needs Attention">
+              <div class="pi-system-icon-wrap pi-system-icon-wrap--attention">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 21h20z"/><path d="M12 10v5"/><path d="M12 18v.01"/></svg>
               </div>
-              <div class="mc-pi-sum-item mc-pi-sum-item--danger">
-                <span class="mc-pi-sum-count" data-mc-pi-sum-missing>—</span>
-                <span class="mc-pi-sum-label">Missing</span>
+              <div class="pi-system-name">Harry Fox Agency</div>
+              <div class="pi-system-sub">Mechanical Rights Admin</div>
+              <div class="pi-system-badge pi-system-badge--attention">Needs Attention</div>
+              <div class="pi-system-works">2 works unregistered</div>
+            </a>
+
+            <!-- Music Reports -->
+            <a class="pi-system-card" href="/workspaces/publishing-intelligence.html" aria-label="Music Reports — Verified">
+              <div class="pi-system-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
               </div>
-            </div>
+              <div class="pi-system-name">Music Reports</div>
+              <div class="pi-system-sub">Royalty Tracking</div>
+              <div class="pi-system-badge pi-system-badge--verified">Verified</div>
+              <div class="pi-system-works">Collection active</div>
+            </a>
 
-            <div class="mc-pi-systems-section">
-              <div class="mc-hi-section-label">Publishing Systems</div>
-              <div class="mc-pi-system-list">
-                <div class="mc-pi-system-row" data-mc-pi-system="mlcRegistration">
-                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M3 10l9-7 9 7z"/></svg>
-                  <span class="mc-pi-system-name">MLC Registration</span>
-                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-                </div>
-                <div class="mc-pi-system-row" data-mc-pi-system="registeredWorks">
-                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v17H6a2 2 0 0 0-2 2"/><path d="M8 8h8M8 12h8"/></svg>
-                  <span class="mc-pi-system-name">Registered Works</span>
-                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-                </div>
-                <div class="mc-pi-system-row" data-mc-pi-system="iswcCoverage">
-                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                  <span class="mc-pi-system-name">ISWC Coverage</span>
-                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-                </div>
-                <div class="mc-pi-system-row" data-mc-pi-system="registeredSongwriters">
-                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3l5 5L8 21H3v-5z"/><path d="M14 5l5 5"/></svg>
-                  <span class="mc-pi-system-name">Registered Songwriters</span>
-                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-                </div>
-                <div class="mc-pi-system-row" data-mc-pi-system="writerIpi">
-                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  <span class="mc-pi-system-name">Writer IPI</span>
-                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-                </div>
-                <div class="mc-pi-system-row" data-mc-pi-system="compositionMatch">
-                  <svg class="mc-pi-system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><path d="M6.5 10v4M17.5 10v4M3 17h18"/></svg>
-                  <span class="mc-pi-system-name">Composition Match</span>
-                  <span class="mc-pill mc-pill--unable" data-mc-pi-system-pill>—</span>
-                </div>
+            <!-- Publisher -->
+            <a class="pi-system-card" href="/workspaces/publishing-intelligence.html" aria-label="Publisher — Interscope Publishing, Verified">
+              <div class="pi-system-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M9 8h1M14 8h1M9 12h1M14 12h1M9 16h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
               </div>
-            </div>
-
-            <div class="mc-pi-impact">
-              <div class="mc-hi-section-label">Financial Impact</div>
-              <div class="mc-pi-impact-badge mc-pi-impact-badge--low" data-mc-pi-impact-badge>LOW RISK</div>
-              <div class="mc-pi-impact-royalty-label">Potential Royalty Impact™</div>
-              <div class="mc-pi-impact-body" data-mc-pi-impact-body>Publishing data loading</div>
-              <div class="mc-pi-impact-resolution-label">Estimated Resolution</div>
-              <div class="mc-pi-impact-resolution-val" data-mc-pi-impact-resolution>—</div>
-            </div>
-
-            <div class="mc-pi-risk">
-              <div class="mc-hi-section-label">Biggest Risk</div>
-              <div class="mc-pi-highlight-icon" aria-hidden="true">⚠</div>
-              <div class="mc-pi-highlight-title" data-mc-pi-risk-title>—</div>
-              <div class="mc-pi-highlight-meta"  data-mc-pi-risk-meta></div>
-              <div class="mc-pi-resolution"      data-mc-pi-risk-resolution></div>
-            </div>
-
-            <div class="mc-pi-win">
-              <div class="mc-hi-section-label">Biggest Win</div>
-              <div class="mc-pi-highlight-icon" aria-hidden="true">▲</div>
-              <div class="mc-pi-highlight-title" data-mc-pi-win-title>—</div>
-              <div class="mc-pi-highlight-meta"  data-mc-pi-win-meta></div>
-            </div>
-
-            <div class="mc-pi-changes-section">
-              <div class="mc-hi-section-label">Recent Changes</div>
-              <ul class="mc-pi-changes-list" data-mc-pi-changes>
-                <li>Publishing data loading</li>
-              </ul>
-            </div>
+              <div class="pi-system-name">Publisher</div>
+              <div class="pi-system-sub">Interscope Publishing</div>
+              <div class="pi-system-badge pi-system-badge--verified">Verified</div>
+              <div class="pi-system-works">Admin publisher confirmed</div>
+            </a>
 
           </div>
-        </article>
+        </div>
 
-      </div>
-      <div class="ws-expansion"></div>
-    </main>
+        <!-- § 4 — PUBLISHING SNAPSHOT™ + PUBLISHING ACTIVITY™ ──────── -->
+        <div class="pi-bottom-row">
 
-  </div>
+          <!-- Publishing Snapshot™ -->
+          <div class="pi-snapshot-card">
+            <div class="pi-card-header">
+              <svg class="pi-card-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+              <div class="pi-card-header-title">Publishing Snapshot™</div>
+            </div>
+            <div class="pi-snapshot-table">
+              <div class="pi-snapshot-row">
+                <span class="pi-snapshot-key">Publisher</span>
+                <span class="pi-snapshot-val">Interscope Publishing</span>
+              </div>
+              <div class="pi-snapshot-row">
+                <span class="pi-snapshot-key">Collection Society</span>
+                <span class="pi-snapshot-val">SOCAN</span>
+              </div>
+              <div class="pi-snapshot-row">
+                <span class="pi-snapshot-key">Registered Works</span>
+                <span class="pi-snapshot-val">18 of 20</span>
+              </div>
+              <div class="pi-snapshot-row">
+                <span class="pi-snapshot-key">Missing Works</span>
+                <span class="pi-snapshot-val pi-snapshot-val--attention">2 — Action Required</span>
+              </div>
+              <div class="pi-snapshot-row">
+                <span class="pi-snapshot-key">ISWC Status</span>
+                <span class="pi-snapshot-val">16 Assigned / 2 Pending</span>
+              </div>
+              <div class="pi-snapshot-row">
+                <span class="pi-snapshot-key">Last Publishing Sync</span>
+                <span class="pi-snapshot-val">
+                  3 hours ago
+                  <span class="pi-sync-dot" aria-hidden="true"></span>
+                </span>
+              </div>
+            </div>
+          </div>
 
-</div>
+          <!-- Publishing Activity™ -->
+          <div class="pi-activity-card">
+            <div class="pi-card-header">
+              <svg class="pi-card-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              <div class="pi-card-header-title">Publishing Activity™</div>
+            </div>
+            <div class="pi-activity-body" role="list" aria-label="Recent publishing activity">
+
+              <div class="pi-activity-item" role="listitem">
+                <div class="pi-activity-dot-col">
+                  <div class="pi-activity-dot pi-activity-dot--green" aria-hidden="true"></div>
+                </div>
+                <div>
+                  <div class="pi-activity-text">Publishing registration confirmed</div>
+                  <div class="pi-activity-time">1 hour ago</div>
+                </div>
+              </div>
+
+              <div class="pi-activity-item" role="listitem">
+                <div class="pi-activity-dot-col">
+                  <div class="pi-activity-dot pi-activity-dot--violet" aria-hidden="true"></div>
+                </div>
+                <div>
+                  <div class="pi-activity-text">New work synchronized via The MLC</div>
+                  <div class="pi-activity-time">4 hours ago</div>
+                </div>
+              </div>
+
+              <div class="pi-activity-item" role="listitem">
+                <div class="pi-activity-dot-col">
+                  <div class="pi-activity-dot pi-activity-dot--green" aria-hidden="true"></div>
+                </div>
+                <div>
+                  <div class="pi-activity-text">ISWC assigned — "Everything Is Over"</div>
+                  <div class="pi-activity-time">1 day ago</div>
+                </div>
+              </div>
+
+              <div class="pi-activity-item" role="listitem">
+                <div class="pi-activity-dot-col">
+                  <div class="pi-activity-dot pi-activity-dot--violet" aria-hidden="true"></div>
+                </div>
+                <div>
+                  <div class="pi-activity-text">Song split updated via Songtrust</div>
+                  <div class="pi-activity-time">2 days ago</div>
+                </div>
+              </div>
+
+              <div class="pi-activity-item" role="listitem">
+                <div class="pi-activity-dot-col">
+                  <div class="pi-activity-dot pi-activity-dot--amber" aria-hidden="true"></div>
+                </div>
+                <div>
+                  <div class="pi-activity-text">Harry Fox Agency — attention required</div>
+                  <div class="pi-activity-time">3 days ago</div>
+                </div>
+              </div>
+
+            </div>
+            <div class="pi-activity-footer">
+              <a class="pi-activity-link" href="/workspaces/monitoring-timeline.html">View All Activity →</a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Artist footer ───────────────────────────────────────────── -->
+        <div class="hi-artist-footer">
+          <div class="hi-artist-avatar" aria-hidden="true">GX</div>
+          <div class="hi-artist-info">
+            <div class="hi-artist-name">
+              GENTLEMEN X
+              <div class="hi-artist-verified" aria-label="Verified artist">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="hi-artist-actions">
+            <a class="hi-artist-action-link" href="/mission-control.html">View Profile</a>
+            <div class="hi-artist-sep" aria-hidden="true"></div>
+            <a class="hi-artist-action-link" href="/mission-control.html">Sign Out</a>
+          </div>
+        </div>
+
+      </div><!-- /hi-main -->
+
+      <!-- ══ RIGHT EXECUTIVE PANEL ════════════════════════════════════ -->
+      <aside class="hi-exec-panel" aria-label="Executive Publishing Panel">
+
+        <!-- AI Publishing Summary™ -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-ai-header">
+            <div class="hi-panel-ai-title">AI Publishing Summary™</div>
+            <div class="hi-panel-live-badge">
+              <div class="hi-panel-live-dot" aria-hidden="true"></div>
+              LIVE
+            </div>
+          </div>
+          <div class="hi-panel-ai-logo" aria-hidden="true">ē</div>
+          <div class="hi-panel-ai-complete">AI Publishing Analysis Complete</div>
+          <div class="hi-panel-ai-checks" role="list">
+            <div class="hi-panel-ai-check" role="listitem">
+              <span class="hi-panel-check-icon--green" aria-hidden="true">✓</span>
+              18 of 20 registered works confirmed
+            </div>
+            <div class="hi-panel-ai-check" role="listitem">
+              <span class="hi-panel-check-icon--amber" aria-hidden="true">⚠</span>
+              2 publishing registrations require attention
+            </div>
+            <div class="hi-panel-ai-check" role="listitem">
+              <span class="hi-panel-check-icon--green" aria-hidden="true">✓</span>
+              Collection society connection active
+            </div>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/ai-insights.html">Open AI Insights →</a>
+        </div>
+
+        <!-- Top Priority™ -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-priority-header">
+            <div class="hi-panel-priority-label">Top Priority™</div>
+            <div class="hi-panel-high-badge">HIGH</div>
+          </div>
+          <div class="hi-panel-action-card">
+            <div class="hi-panel-action-icon-row">
+              <div class="hi-panel-action-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+              </div>
+              <div class="hi-panel-action-title">Register 2 Works with Harry Fox Agency</div>
+            </div>
+            <div class="hi-panel-action-desc">Complete mechanical rights registration to ensure royalty collection from digital platforms.</div>
+            <div class="hi-panel-action-meta">
+              <div class="hi-panel-action-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:9px;height:9px" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                Est. 15 Min
+              </div>
+              <div class="hi-panel-action-badge">Impact: High</div>
+            </div>
+            <a class="hi-panel-action-cta" href="/workspaces/priority-actions.html" role="button">Take Action Now</a>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/priority-actions.html">View All Actions →</a>
+        </div>
+
+        <!-- Publishing Status™ -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-summary-header">
+            <div class="hi-panel-summary-label">Publishing Status™</div>
+          </div>
+          <div class="hi-panel-summary-range">Jun 27 – Jul 3, 2026</div>
+          <div class="hi-panel-summary-grid">
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--green">18</div>
+              <div class="hi-panel-stat-label">Works Registered</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--orange">2</div>
+              <div class="hi-panel-stat-label">Need Registration</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--green">16</div>
+              <div class="hi-panel-stat-label">ISWC Assigned</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num" style="font-size:13px;font-weight:600;color:var(--mc-text)">3h ago</div>
+              <div class="hi-panel-stat-label">Last Publishing Sync</div>
+            </div>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/royalte-review.html">View Full Report →</a>
+        </div>
+
+      </aside>
+
+    </div><!-- /ws-body -->
+
+  </div><!-- /ws-content -->
+
+</div><!-- /ws-shell -->
 </body>
 </html>
