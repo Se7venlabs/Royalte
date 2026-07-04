@@ -597,25 +597,8 @@
     mapInner.appendChild(el);
   });
 
-  /* ── generate markers ─────────────────────────────────────── */
-  COUNTRIES.forEach(function (c) {
-    var anchor = ANCHORS[c.name];
-    var base   = anchor ? { l: anchor.l, t: anchor.t } : { l: c.l, t: c.t };
-    c.p.forEach(function (prov) {
-      var off = P_OFF[prov] || [0, 0];
-      var el  = document.createElement('span');
-      el.className = 'gf-marker gf-marker--' + prov;
-      el.style.cssText = 'left:' + (base.l + off[0]) + '%;top:' + (base.t + off[1]) + '%;animation-delay:' + ((base.l / 100) * 4).toFixed(2) + 's';
-      el.dataset.country  = c.name;
-      el.dataset.provider = prov;
-      el.dataset.detected = c.d;
-      el.dataset.allp     = c.p.join(',');
-      el.setAttribute('aria-label', c.name + ' — ' + P_NAME[prov]);
-      el.setAttribute('role', 'button');
-      el.setAttribute('tabindex', '0');
-      mapInner.appendChild(el);
-    });
-  });
+  /* ── provider markers — SUSPENDED: Geographic Anchor System™ Phase 2 flag review ── */
+  /* COUNTRIES.forEach(function (c) { ... }); — restored after Board approves flags */
 
   /* ── show popover ─────────────────────────────────────────── */
   function showPopover(el) {
