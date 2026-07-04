@@ -48,6 +48,7 @@ import { acquireDiscogsEvidence, synthesizeDiscogsCompat } from './discogs-pal-a
 import { acquireYouTubeEvidence, synthesizeYouTubeCompat } from './youtube-pal-acquisition.js';
 // Phase 3.6/MLC (MLC PAL — Publishing Authority) — PAL MLC acquisition
 import { acquireMLCEvidence } from './mlc-pal-acquisition.js';
+import { getBestVerifiedArtistImage, getBestVerifiedReleaseArtwork } from './image-service.js';
 // Phase 3.6/Deezer (Deezer PAL — Streaming Verification Authority™) — replaces getDeezer()
 import { acquireDeezerEvidence, synthesizeDeezerCompat } from './deezer-pal-acquisition.js';
 // Phase 3.6/TheAudioDB (AudioDB PAL — Artist & Media Intelligence Authority™) — replaces getAudioDB()
@@ -386,9 +387,14 @@ export async function runScan(url) {
     canonicalTarget:    'artist',
     spotifyMatched:     !!resolved.artistId,
     artistUrl:          resolved.artistUrl || artistData.external_urls?.spotify || null,
-    imageUrl:           resolved.artistImage || artistData.images?.[0]?.url || resolved.appleArtworkUrl || trackData?.album?.images?.[0]?.url || null,
-    artistImageUrl:     resolved.artistImage || artistData.images?.[0]?.url || resolved.appleArtworkUrl || null,
-    albumImageUrl:      trackData?.album?.images?.[0]?.url || null,
+    // Image Service — sole owner of platform-agnostic image selection.
+    // getBestVerifiedArtistImage / getBestVerifiedReleaseArtwork evaluate
+    // all available evidence and return the highest-quality verified URL.
+    // No workspace may reference Apple/Spotify/Deezer directly for images.
+    // (Board Directive: Executive Workspace Image Selection Standard™, 2026-07-03)
+    artistImageUrl:     getBestVerifiedArtistImage(resolved, artistData, appleMusicData),
+    albumImageUrl:      getBestVerifiedReleaseArtwork(trackData, resolved),
+    imageUrl:           getBestVerifiedArtistImage(resolved, artistData, appleMusicData) || getBestVerifiedReleaseArtwork(trackData, resolved) || null,
     // Phase 3.3: PAL-synthesized artwork fills the gap for Spotify-URL inputs
     // (resolveAppleArtist not called, so resolved.appleArtworkUrl is null).
     appleArtworkUrl:    resolved.appleArtworkUrl || appleMusicData.artwork || null,
@@ -581,7 +587,7 @@ async function resolveToArtist(inputUrl, token) {
       return {
         artistId:          spotifyArtist.id,
         artistName:        appleArtistName,
-        artistImage:       appleArtwork || spotifyArtist.images?.[0]?.url || null,
+        artistImage:       getBestVerifiedArtistImage({ appleArtworkUrl: appleArtwork }, spotifyArtist, {}),
         artistUrl:         spotifyArtist.external_urls?.spotify || null,
         spotifyMatched:    true,
         resolvedFrom:      'apple',
