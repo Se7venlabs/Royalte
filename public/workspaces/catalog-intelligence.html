@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/css/royalte-workspace.css">
 </head>
 <body>
-<div class="ws-shell">
+<div class="ws-shell ws-dept--catalog">
 
   <aside class="ws-rail" role="navigation" aria-label="Royaltē OS navigation">
 
@@ -113,91 +113,405 @@
       <span class="ws-breadcrumb-sep">/</span>
       <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
       <span class="ws-breadcrumb-sep">/</span>
-      <span class="ws-breadcrumb-current">Catalog Intelligence™</span>
+      <span class="ws-breadcrumb-current ci-breadcrumb-current">Catalog Intelligence™</span>
     </header>
 
-    <div class="ws-hero">
-      <div class="ws-hero-inner">
-        <div class="ws-hero-mark ws-hero-mark--catalog">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
-        </div>
-        <div class="ws-hero-text">
-          <h1 class="ws-hero-title">Catalog Intelligence™</h1>
-          <p class="ws-hero-desc">Catalog integrity, ISRC coverage, metadata health, and distribution status across your full music catalog.</p>
-        </div>
-      </div>
-    </div>
+    <div class="ws-body">
 
-    <main class="ws-main">
-      <div class="ws-module-wrap">
+      <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
+      <div class="hi-main">
 
-        <article class="mc-card mc-card--catalog" id="catalog-intelligence" aria-label="Catalog Intelligence">
-          <div class="mc-card-head">
-            <div class="mc-card-mark">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
+        <!-- § 1 — EXECUTIVE HEADER ─────────────────────────────────── -->
+        <div class="ci-exec-header">
+          <div class="ci-exec-title-block">
+            <div class="ci-exec-eyebrow">Catalog Intelligence™</div>
+            <h1 class="ci-exec-heading">Catalog Readiness Overview</h1>
+            <div class="ci-exec-desc">Artwork, lyrics, credits, ISRC coverage, UPC status, and metadata integrity across your complete release catalog.</div>
+            <div class="ci-exec-meta-row">
+              <div class="ci-exec-updated">
+                <div class="ci-exec-updated-dot" aria-hidden="true"></div>
+                Last Sync: Today, 9:15 AM
+              </div>
             </div>
-            <div class="mc-card-title">CATALOG INTELLIGENCE™</div>
           </div>
+          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Jun 27 – Jul 4, 2026
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:11px;height:11px"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
 
-          <div class="mc-catalog-body">
-            <div class="mc-stack">
-              <svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <ellipse cx="30" cy="14" rx="20" ry="6" fill="rgba(251,146,60,0.15)"/>
-                <path d="M10 14v10c0 3.3 9 6 20 6s20-2.7 20-6V14"/>
-                <path d="M10 26v10c0 3.3 9 6 20 6s20-2.7 20-6V26"/>
-                <path d="M10 38v8c0 3.3 9 6 20 6s20-2.7 20-6v-8"/>
+        <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
+        <div class="hi-kpi-row">
+
+          <!-- Catalog Readiness™ — Executive Signature™ -->
+          <div class="hi-kpi-card ci-kpi-card--readiness">
+            <div class="hi-kpi-label hi-kpi-label--orange">Catalog Readiness™</div>
+
+            <div class="ci-readiness-ring-wrap" aria-label="Catalog readiness: 96%">
+              <svg class="ci-readiness-ring-svg" viewBox="0 0 116 116">
+                <circle class="ci-readiness-ring-track" cx="58" cy="58" r="40"/>
+                <circle class="ci-readiness-ring-progress" cx="58" cy="58" r="40"/>
               </svg>
+              <div class="ci-readiness-ring-center">
+                <span class="ci-readiness-ring-num">96</span>
+                <span class="ci-readiness-ring-label">%</span>
+              </div>
             </div>
-            <div class="mc-catalog-summary">
-              <div class="mc-catalog-value" data-mc-catalog-status>Stable</div>
-              <div class="mc-catalog-label" data-mc-catalog-status-label>Catalog Status™</div>
-              <div class="mc-catalog-grid">
-                <span class="lbl">Singles</span>  <span class="val" data-mc-catalog-singles>4</span>
-                <span class="lbl">EPs</span>      <span class="val" data-mc-catalog-eps>0</span>
-                <span class="lbl">Albums</span>   <span class="val" data-mc-catalog-albums>0</span>
-                <span class="lbl">Tracks</span>   <span class="val" data-mc-catalog-tracks>4</span>
+
+            <div class="ci-readiness-label">Ready For Distribution</div>
+            <div class="ci-readiness-desc">1 attribute requires attention</div>
+
+            <div class="hi-score-meta-row">
+              <div class="hi-status-pill hi-status-pill--green">
+                <span class="hi-status-dot" aria-hidden="true"></span>Release Ready
               </div>
             </div>
           </div>
 
-          <div class="mc-catalog-checks" aria-label="Calculated from">
-            <div class="mc-catalog-checks-title">Calculated From</div>
-            <div class="mc-catalog-check">
-              <svg class="mc-catalog-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-              Metadata Integrity
-              <span class="mc-pill mc-pill--verified">Verified</span>
+          <!-- Total Tracks™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--orange">Total Tracks™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
             </div>
-            <div class="mc-catalog-check">
-              <svg class="mc-catalog-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="1"/><path d="M6 9v6M9 9v6M12 9v6M15 9v6M18 9v6"/></svg>
-              ISRC Integrity
-              <span class="mc-pill mc-pill--verified">Verified</span>
+            <div style="display:flex;align-items:baseline;gap:2px;margin-top:4px">
+              <span class="ii-kpi-big-num">20</span>
             </div>
-            <div class="mc-catalog-check">
-              <svg class="mc-catalog-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M7 8v8M10 8v8M13 8v8M17 8v8"/></svg>
-              UPC Consistency
-              <span class="mc-pill mc-pill--verified">Verified</span>
+            <div class="ii-kpi-status-text" style="color:var(--mc-orange)">Across 3 Projects</div>
+            <div class="ii-kpi-caption">2 Albums · 1 EP</div>
+          </div>
+
+          <!-- Metadata Completeness™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--green">Metadata Completeness™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--green" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
             </div>
-            <div class="mc-catalog-check">
-              <svg class="mc-catalog-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="9" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a5 5 0 0 1 10 0M14 20a4 4 0 0 1 7 0"/></svg>
-              Contributor Credits
-              <span class="mc-pill mc-pill--action">Action</span>
+            <div style="display:flex;align-items:baseline;gap:2px;margin-top:4px">
+              <span class="ii-kpi-big-num">94</span>
+              <span class="ii-kpi-fraction">%</span>
             </div>
-            <div class="mc-catalog-check">
-              <svg class="mc-catalog-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5l3-3v6h-6"/><path d="M20 12a8 8 0 0 1-14 5l-3 3v-6h6"/></svg>
-              Catalog Synchronization
-              <span class="mc-pill mc-pill--verified">Verified</span>
+            <div class="ii-kpi-status-text ii-kpi-status-text--green">Strong</div>
+            <div class="ii-kpi-caption">6 Attributes Verified</div>
+          </div>
+
+          <!-- ISRC Coverage™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--orange">ISRC Coverage™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:2px;margin-top:4px">
+              <span class="ii-kpi-big-num">19</span>
+              <span class="ii-kpi-fraction"> / 20</span>
+            </div>
+            <div class="ii-kpi-status-text" style="color:var(--mc-orange)">1 Pending</div>
+            <div class="ii-kpi-caption">1 Track Unresolved</div>
+          </div>
+
+        </div>
+
+        <!-- § 3 — CORE CATALOG INTELLIGENCE™ ───────────────────────── -->
+        <div>
+          <div class="ci-section-header">
+            <div class="ci-section-title">Core Catalog Intelligence™</div>
+          </div>
+          <div class="ci-function-grid">
+
+            <!-- Artwork™ -->
+            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="Artwork — Verified, All Covers Present">
+              <div class="ci-function-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+              </div>
+              <div class="ci-function-name">Artwork™</div>
+              <div class="ci-function-sub">Release Cover Status</div>
+              <div class="ci-function-badge ci-function-badge--verified">Verified</div>
+              <div class="ci-function-stat">All covers present</div>
+            </a>
+
+            <!-- Lyrics™ -->
+            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="Lyrics — Synced, 17 of 20 Tracks">
+              <div class="ci-function-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M3 10h18M3 14h12M3 18h8"/></svg>
+              </div>
+              <div class="ci-function-name">Lyrics™</div>
+              <div class="ci-function-sub">Lyric Sync Coverage</div>
+              <div class="ci-function-badge ci-function-badge--synced">Synced</div>
+              <div class="ci-function-stat">17 of 20 tracks</div>
+            </a>
+
+            <!-- Credits™ -->
+            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="Credits — Complete, All Producers Tagged">
+              <div class="ci-function-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="ci-function-name">Credits™</div>
+              <div class="ci-function-sub">Producer &amp; Writer Tags</div>
+              <div class="ci-function-badge ci-function-badge--verified">Complete</div>
+              <div class="ci-function-stat">All producers tagged</div>
+            </a>
+
+            <!-- ISRC™ -->
+            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="ISRC — 19 of 20, 1 Pending">
+              <div class="ci-function-icon-wrap ci-function-icon-wrap--attention">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>
+              </div>
+              <div class="ci-function-name">ISRC™</div>
+              <div class="ci-function-sub">Track Recording Codes</div>
+              <div class="ci-function-badge ci-function-badge--pending">1 Pending</div>
+              <div class="ci-function-stat">19 of 20 assigned</div>
+            </a>
+
+            <!-- UPC™ -->
+            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="UPC — Verified, Active Distribution">
+              <div class="ci-function-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h2v18H3zM7 3h1v18H7zM11 3h2v18h-2zM15 3h1v18h-1zM18 3h1v18h-1zM21 3h1v18h-1z"/></svg>
+              </div>
+              <div class="ci-function-name">UPC™</div>
+              <div class="ci-function-sub">Universal Product Codes</div>
+              <div class="ci-function-badge ci-function-badge--verified">Verified</div>
+              <div class="ci-function-stat">3 active · 0 missing</div>
+            </a>
+
+            <!-- Metadata Integrity™ -->
+            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="Metadata Integrity — Strong, 94% Complete">
+              <div class="ci-function-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              </div>
+              <div class="ci-function-name">Metadata Integrity™</div>
+              <div class="ci-function-sub">Field Completeness</div>
+              <div class="ci-function-badge ci-function-badge--strong">Strong</div>
+              <div class="ci-function-stat">94% complete</div>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- § 4 — CATALOG SNAPSHOT™ + CATALOG ACTIVITY™ ─────────────── -->
+        <div class="ci-bottom-row">
+
+          <!-- Catalog Snapshot™ -->
+          <div class="ci-snapshot-card">
+            <div class="ci-card-header">
+              <svg class="ci-card-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
+              <div class="ci-card-header-title">Catalog Snapshot™</div>
+            </div>
+            <div class="ci-snapshot-table">
+              <div class="ci-snapshot-row">
+                <span class="ci-snapshot-key">Total Tracks</span>
+                <span class="ci-snapshot-val">20</span>
+              </div>
+              <div class="ci-snapshot-row">
+                <span class="ci-snapshot-key">Projects</span>
+                <span class="ci-snapshot-val">3 — 2 Albums, 1 EP</span>
+              </div>
+              <div class="ci-snapshot-row">
+                <span class="ci-snapshot-key">ISRC Coverage</span>
+                <span class="ci-snapshot-val ci-snapshot-val--attention">19 of 20 — 1 Pending</span>
+              </div>
+              <div class="ci-snapshot-row">
+                <span class="ci-snapshot-key">UPC Status</span>
+                <span class="ci-snapshot-val ci-snapshot-val--green">3 Active</span>
+              </div>
+              <div class="ci-snapshot-row">
+                <span class="ci-snapshot-key">Artwork Status</span>
+                <span class="ci-snapshot-val">All Present</span>
+              </div>
+              <div class="ci-snapshot-row">
+                <span class="ci-snapshot-key">Lyrics Coverage</span>
+                <span class="ci-snapshot-val ci-snapshot-val--attention">17 of 20 Synced</span>
+              </div>
+              <div class="ci-snapshot-row">
+                <span class="ci-snapshot-key">Credits Status</span>
+                <span class="ci-snapshot-val ci-snapshot-val--green">All Tagged</span>
+              </div>
+              <div class="ci-snapshot-row">
+                <span class="ci-snapshot-key">Last Catalog Sync</span>
+                <span class="ci-snapshot-val">
+                  2 hours ago
+                  <span class="ci-sync-dot" aria-hidden="true"></span>
+                </span>
+              </div>
             </div>
           </div>
 
-          <div class="mc-card-foot"></div>
-        </article>
+          <!-- Catalog Activity™ -->
+          <div class="ci-activity-card">
+            <div class="ci-card-header">
+              <svg class="ci-card-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              <div class="ci-card-header-title">Catalog Activity™</div>
+            </div>
+            <div class="ci-activity-body" role="list" aria-label="Recent catalog activity">
 
-      </div>
-      <div class="ws-expansion"></div>
-    </main>
+              <div class="ci-activity-item" role="listitem">
+                <div class="ci-activity-dot-col">
+                  <div class="ci-activity-dot ci-activity-dot--green" aria-hidden="true"></div>
+                </div>
+                <div>
+                  <div class="ci-activity-text">ISRC assigned — "Midnight Protocols"</div>
+                  <div class="ci-activity-time">30 minutes ago</div>
+                </div>
+              </div>
 
-  </div>
+              <div class="ci-activity-item" role="listitem">
+                <div class="ci-activity-dot-col">
+                  <div class="ci-activity-dot ci-activity-dot--amber" aria-hidden="true"></div>
+                </div>
+                <div>
+                  <div class="ci-activity-text">Lyric sync pending — 3 tracks</div>
+                  <div class="ci-activity-time">2 hours ago</div>
+                </div>
+              </div>
 
-</div>
+              <div class="ci-activity-item" role="listitem">
+                <div class="ci-activity-dot-col">
+                  <div class="ci-activity-dot ci-activity-dot--green" aria-hidden="true"></div>
+                </div>
+                <div>
+                  <div class="ci-activity-text">Artwork verified — Album 2 complete</div>
+                  <div class="ci-activity-time">5 hours ago</div>
+                </div>
+              </div>
+
+              <div class="ci-activity-item" role="listitem">
+                <div class="ci-activity-dot-col">
+                  <div class="ci-activity-dot ci-activity-dot--amber" aria-hidden="true"></div>
+                </div>
+                <div>
+                  <div class="ci-activity-text">UPC renewal required — 1 release</div>
+                  <div class="ci-activity-time">1 day ago</div>
+                </div>
+              </div>
+
+              <div class="ci-activity-item" role="listitem">
+                <div class="ci-activity-dot-col">
+                  <div class="ci-activity-dot ci-activity-dot--green" aria-hidden="true"></div>
+                </div>
+                <div>
+                  <div class="ci-activity-text">Metadata integrity confirmed — EP complete</div>
+                  <div class="ci-activity-time">1 day ago</div>
+                </div>
+              </div>
+
+            </div>
+            <div class="ci-activity-footer">
+              <a class="ci-activity-link" href="/workspaces/monitoring-timeline.html">View All Activity →</a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Artist footer ───────────────────────────────────────────── -->
+        <div class="hi-artist-footer">
+          <div class="hi-artist-avatar" aria-hidden="true">GX</div>
+          <div class="hi-artist-info">
+            <div class="hi-artist-name">
+              GENTLEMEN X
+              <div class="hi-artist-verified" aria-label="Verified artist">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="hi-artist-actions">
+            <a class="hi-artist-action-link" href="/mission-control.html">View Profile</a>
+            <div class="hi-artist-sep" aria-hidden="true"></div>
+            <a class="hi-artist-action-link" href="/mission-control.html">Sign Out</a>
+          </div>
+        </div>
+
+      </div><!-- /hi-main -->
+
+      <!-- ══ RIGHT EXECUTIVE PANEL ════════════════════════════════════ -->
+      <aside class="hi-exec-panel" aria-label="Executive Catalog Panel">
+
+        <!-- AI Catalog Summary™ -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-ai-header">
+            <div class="hi-panel-ai-title">AI Catalog Summary™</div>
+            <div class="hi-panel-live-badge">
+              <div class="hi-panel-live-dot" aria-hidden="true"></div>
+              LIVE
+            </div>
+          </div>
+          <div class="hi-panel-ai-logo" aria-hidden="true">ē</div>
+          <div class="hi-panel-ai-complete">AI Catalog Analysis Complete</div>
+          <div class="hi-panel-ai-checks" role="list">
+            <div class="hi-panel-ai-check" role="listitem">
+              <span class="hi-panel-check-icon--green" aria-hidden="true">✓</span>
+              Catalog 96% ready for distribution
+            </div>
+            <div class="hi-panel-ai-check" role="listitem">
+              <span class="hi-panel-check-icon--amber" aria-hidden="true">⚠</span>
+              1 ISRC pending resolution
+            </div>
+            <div class="hi-panel-ai-check" role="listitem">
+              <span class="hi-panel-check-icon--amber" aria-hidden="true">⚠</span>
+              3 tracks missing lyric sync
+            </div>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/ai-insights.html">Open AI Insights →</a>
+        </div>
+
+        <!-- Top Priority™ -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-priority-header">
+            <div class="hi-panel-priority-label">Top Priority™</div>
+            <div class="hi-panel-high-badge">HIGH</div>
+          </div>
+          <div class="hi-panel-action-card">
+            <div class="hi-panel-action-icon-row">
+              <div class="hi-panel-action-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>
+              </div>
+              <div class="hi-panel-action-title">Resolve ISRC for 1 Remaining Track</div>
+            </div>
+            <div class="hi-panel-action-desc">Assign the missing ISRC to ensure proper royalty tracking and DSP ingestion for "Midnight Protocols."</div>
+            <div class="hi-panel-action-meta">
+              <div class="hi-panel-action-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:9px;height:9px" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                Est. 10 Min
+              </div>
+              <div class="hi-panel-action-badge">Impact: High</div>
+            </div>
+            <a class="hi-panel-action-cta" href="/workspaces/priority-actions.html" role="button">Take Action Now</a>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/priority-actions.html">View All Actions →</a>
+        </div>
+
+        <!-- Catalog Status™ -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-summary-header">
+            <div class="hi-panel-summary-label">Catalog Status™</div>
+          </div>
+          <div class="hi-panel-summary-range">Jun 27 – Jul 4, 2026</div>
+          <div class="hi-panel-summary-grid">
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--orange">20</div>
+              <div class="hi-panel-stat-label">Total Tracks</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--green">19</div>
+              <div class="hi-panel-stat-label">ISRCs Assigned</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--green">17</div>
+              <div class="hi-panel-stat-label">Lyrics Synced</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num" style="font-size:13px;font-weight:600;color:var(--mc-text)">2h ago</div>
+              <div class="hi-panel-stat-label">Last Catalog Sync</div>
+            </div>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/royalte-review.html">View Full Report →</a>
+        </div>
+
+      </aside>
+
+    </div><!-- /ws-body -->
+
+  </div><!-- /ws-content -->
+
+</div><!-- /ws-shell -->
 </body>
 </html>

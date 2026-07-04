@@ -2955,6 +2955,264 @@ a.pi-system-card:hover {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   Catalog Intelligence™ Workspace — ci-* namespace
+   Amber/Orange: var(--mc-orange) #fb923c
+   Reuses: hi-main, hi-kpi-row/card/label/icon-wrap, hi-status-pill,
+           hi-score-meta-row, hi-date-selector, hi-artist-*, hi-exec-panel,
+           hi-panel-*, hi-risk-alert-icon
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.ci-breadcrumb-current { color: var(--mc-orange) !important; }
+
+.ci-section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.ci-section-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--mc-text);
+  padding-left: 8px; border-left: 2px solid rgba(251,146,60,0.45);
+}
+
+/* Executive header — amber identity */
+.ci-exec-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(251,146,60,0.06), rgba(251,146,60,0.02));
+  border: 1px solid rgba(251,146,60,0.14);
+  border-top: 2px solid rgba(251,146,60,0.38);
+  border-radius: 10px; margin-bottom: 16px;
+}
+.ci-exec-title-block { flex: 1; }
+.ci-exec-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--mc-orange); margin-bottom: 4px;
+}
+.ci-exec-heading {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--mc-text); margin: 0 0 6px;
+  text-shadow: 0 0 30px rgba(251,146,60,0.18);
+}
+.ci-exec-desc { font-size: 13px; color: var(--mc-text-muted); margin-bottom: 8px; }
+.ci-exec-meta-row { display: flex; align-items: center; gap: 12px; }
+.ci-exec-updated {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--mc-text-muted);
+}
+.ci-exec-updated-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--mc-orange); opacity: 0.7; flex-shrink: 0;
+}
+
+/* Catalog Readiness™ ring — Executive Signature™ */
+.ci-readiness-ring-wrap {
+  position: relative; width: 116px; height: 116px; margin: 4px auto 6px;
+}
+.ci-readiness-ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ci-readiness-ring-track { fill: none; stroke: rgba(251,146,60,0.09); stroke-width: 5; }
+.ci-readiness-ring-progress {
+  fill: none; stroke: var(--mc-orange); stroke-width: 5; stroke-linecap: round;
+  stroke-dasharray: 0 252;
+  filter: drop-shadow(0 0 6px rgba(251,146,60,0.55));
+  animation: ci-ring-fill 1.4s cubic-bezier(0.22, 0.61, 0.36, 1) 0.15s forwards,
+             ci-ring-breathe 4s ease-in-out 1.55s infinite;
+}
+@keyframes ci-ring-fill    { to { stroke-dasharray: 242 252; } }
+@keyframes ci-ring-breathe {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(251,146,60,0.45)); }
+  50%      { filter: drop-shadow(0 0 14px rgba(251,146,60,0.82)); }
+}
+.ci-readiness-ring-center {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 1px;
+}
+.ci-readiness-ring-num {
+  font-size: 28px; font-weight: 700; color: var(--mc-orange);
+  line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.03em;
+}
+.ci-readiness-ring-label { font-size: 10px; font-weight: 600; color: var(--mc-text-muted); }
+
+/* Catalog Readiness™ hero KPI card */
+.ci-kpi-card--readiness {
+  background: linear-gradient(145deg, rgba(251,146,60,0.09), rgba(251,146,60,0.03));
+  border-color: rgba(251,146,60,0.22);
+  border-top: 2px solid rgba(251,146,60,0.48);
+}
+.ci-readiness-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; text-align: center; color: var(--mc-orange); margin: 4px 0 2px;
+}
+.ci-readiness-desc {
+  font-size: 10px; color: var(--mc-text-muted);
+  text-align: center; margin-bottom: 2px;
+}
+
+/* hi-status-pill--orange alias (reuse hi-status-pill base) */
+.hi-status-pill--orange {
+  background: rgba(251,146,60,0.1);
+  color: var(--mc-orange);
+  border: 1px solid rgba(251,146,60,0.22);
+}
+
+/* Core Catalog Intelligence™ function card grid */
+.ci-function-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin-top: 12px;
+}
+
+a.ci-function-card {
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 14px 14px 12px;
+  background: var(--mc-surface-1); border: 1px solid var(--mc-border-soft);
+  border-radius: 10px; text-decoration: none; cursor: pointer; color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.22);
+}
+a.ci-function-card:hover {
+  border-color: rgba(251,146,60,0.30); transform: translateY(-1px);
+}
+
+.ci-function-icon-wrap {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(251,146,60,0.10); border: 1px solid rgba(251,146,60,0.18);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--mc-orange); margin-bottom: 8px; flex-shrink: 0;
+}
+.ci-function-icon-wrap svg { width: 18px; height: 18px; }
+
+.ci-function-icon-wrap--attention {
+  background: rgba(248,113,113,0.10); border-color: rgba(248,113,113,0.22); color: #f87171;
+}
+
+.ci-function-name {
+  font-size: 12px; font-weight: 700; color: var(--mc-text);
+  letter-spacing: 0.01em; margin-bottom: 2px;
+}
+.ci-function-sub { font-size: 10px; color: var(--mc-text-muted); margin-bottom: 6px; }
+
+.ci-function-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 2px 6px; border-radius: 3px;
+}
+.ci-function-badge--verified {
+  background: rgba(45,212,191,0.12); color: var(--mc-green);
+  border: 1px solid rgba(45,212,191,0.20);
+}
+.ci-function-badge--active {
+  background: rgba(251,146,60,0.12); color: var(--mc-orange);
+  border: 1px solid rgba(251,146,60,0.20);
+}
+.ci-function-badge--pending {
+  background: rgba(251,146,60,0.12); color: var(--mc-orange);
+  border: 1px solid rgba(251,146,60,0.20);
+}
+.ci-function-badge--strong {
+  background: rgba(45,212,191,0.12); color: var(--mc-green);
+  border: 1px solid rgba(45,212,191,0.20);
+}
+.ci-function-badge--synced {
+  background: rgba(56,189,248,0.12); color: var(--mc-blue);
+  border: 1px solid rgba(56,189,248,0.20);
+}
+.ci-function-stat { font-size: 10px; color: var(--mc-text-muted); margin-top: 4px; }
+
+/* Bottom row — Catalog Snapshot™ + Catalog Activity™ */
+.ci-bottom-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-top: 12px;
+}
+.ci-card-header {
+  display: flex; align-items: center; gap: 7px;
+  padding: 12px 14px 10px; border-bottom: 1px solid var(--mc-border-soft);
+}
+.ci-card-header-icon { width: 14px; height: 14px; color: var(--mc-orange); flex-shrink: 0; }
+.ci-card-header-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--mc-text);
+}
+
+.ci-snapshot-card {
+  background: var(--mc-surface-1); border: 1px solid var(--mc-border-soft);
+  border-top: 2px solid rgba(251,146,60,0.30);
+  border-radius: 10px; overflow: hidden;
+}
+.ci-snapshot-table { padding: 8px 14px 12px; }
+.ci-snapshot-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 5px 0; border-bottom: 1px solid var(--mc-border-soft);
+}
+.ci-snapshot-row:last-child { border-bottom: none; }
+.ci-snapshot-key { font-size: 11px; color: var(--mc-text-muted); flex-shrink: 0; width: 48%; }
+.ci-snapshot-val { font-size: 11px; font-weight: 600; color: var(--mc-text); text-align: right; flex: 1; }
+.ci-snapshot-val--attention { color: var(--mc-orange); }
+.ci-snapshot-val--green { color: var(--mc-green); }
+.ci-sync-dot {
+  display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--mc-green); opacity: 0.8; margin-left: 4px; vertical-align: middle;
+}
+
+.ci-activity-card {
+  background: var(--mc-surface-1); border: 1px solid var(--mc-border-soft);
+  border-top: 2px solid rgba(251,146,60,0.30);
+  border-radius: 10px; overflow: hidden;
+}
+.ci-activity-body { padding: 8px 14px 2px; }
+.ci-activity-item {
+  display: flex; gap: 10px; align-items: flex-start; padding: 6px 0;
+  border-bottom: 1px solid var(--mc-border-soft);
+}
+.ci-activity-item:last-child { border-bottom: none; }
+.ci-activity-dot-col { padding-top: 3px; flex-shrink: 0; }
+.ci-activity-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.ci-activity-dot--green  { background: var(--mc-green); }
+.ci-activity-dot--amber  { background: var(--mc-orange); }
+.ci-activity-dot--blue   { background: var(--mc-blue); }
+.ci-activity-dot--muted  { background: var(--mc-border); }
+.ci-activity-text { font-size: 12px; color: var(--mc-text); line-height: 1.4; }
+.ci-activity-time { font-size: 10px; color: var(--mc-text-muted); margin-top: 1px; }
+.ci-activity-footer { padding: 8px 14px 10px; border-top: 1px solid var(--mc-border-soft); }
+.ci-activity-link {
+  font-size: 11px; color: var(--mc-orange); text-decoration: none; opacity: 0.85;
+  transition: opacity 0.15s;
+}
+.ci-activity-link:hover { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Ambient Module Elevation™ — Catalog Intelligence™
+   Dept class: .ws-dept--catalog  /  Accent: Amber (#fb923c)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.ws-dept--catalog .hi-kpi-card {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.28),
+              inset 0 1px 0 rgba(255,255,255,0.035),
+              0 0 44px rgba(251,146,60,0.07);
+}
+.ws-dept--catalog a.ci-function-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.24),
+              0 0 38px rgba(251,146,60,0.06);
+}
+.ws-dept--catalog .ci-snapshot-card,
+.ws-dept--catalog .ci-activity-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.22),
+              0 0 36px rgba(251,146,60,0.06);
+}
+.ws-dept--catalog .ci-exec-header {
+  box-shadow: 0 0 40px rgba(251,146,60,0.05);
+}
+.ws-dept--catalog .hi-kpi-card:hover {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.38),
+              0 0 60px rgba(251,146,60,0.13),
+              inset 0 1px 0 rgba(255,255,255,0.045);
+}
+.ws-dept--catalog a.ci-function-card:hover {
+  box-shadow: 0 6px 22px rgba(0,0,0,0.30),
+              0 0 52px rgba(251,146,60,0.12);
+}
+.ws-dept--catalog .hi-exec-panel {
+  box-shadow: -1px 0 40px rgba(251,146,60,0.04);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    Royaltē Executive Image Standard™
    80 × 80 px square format — applies to all images across Executive
    Workspaces: artist photos, album artwork, platform logos, publisher
