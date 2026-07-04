@@ -4472,7 +4472,7 @@ a.ci-function-card:hover .ci-artwork-container {
 .mc2-hero {
   display: grid;
   grid-template-columns: 360px 1fr;
-  min-height: 264px;
+  min-height: 380px;
   background: linear-gradient(135deg, rgba(109, 40, 217, 0.07) 0%, rgba(168, 85, 247, 0.03) 60%, transparent);
   border: 1px solid rgba(168, 85, 247, 0.12);
   border-radius: 14px;
@@ -6071,3 +6071,120 @@ a.ci-function-card:hover .ci-artwork-container {
   fill: rgba(168, 85, 247, 0.8);
   filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.8));
 }
+
+/* ─── Hero globe — purple network globe within mc2-hero right panel ────── */
+
+.mc2-globe-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  z-index: 1;
+}
+.mc2-hero-globe {
+  width: 280px;
+  height: 280px;
+  overflow: visible;
+  filter: drop-shadow(0 0 32px rgba(109,40,217,0.45)) drop-shadow(0 0 80px rgba(168,85,247,0.18));
+  animation: mc2-fade-in 1.2s ease 0.2s both;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+.mc2-hero-globe-lines {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow: visible;
+  pointer-events: none;
+  z-index: 1;
+  width: 340px;
+  height: 340px;
+}
+.mc2-hero-globe-line {
+  stroke-dasharray: 4 4;
+  animation: mc2-line-flow 3.5s linear infinite;
+  opacity: 0;
+  transition: opacity 1.4s;
+}
+.mc2-hero-globe-line.mc2-line--live { opacity: 1; }
+
+/* ─── Hero dept nodes — compact icon + label ──────────────────────────── */
+
+.mc2-hero-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 10;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+  animation: mc2-node-appear 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.mc2-hero-node:hover { transform: translate(-50%,-50%) scale(1.1); }
+.mc2-hn-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  transition: box-shadow 0.25s;
+}
+.mc2-hn-icon svg { width: 17px; height: 17px; }
+.mc2-hn-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--mc-text-soft);
+  text-align: center;
+  white-space: nowrap;
+}
+.mc2-hn-status {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 7.5px;
+  color: var(--mc-text-faint);
+  white-space: nowrap;
+  line-height: 1;
+}
+.mc2-hn-dot { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
+.mc2-hn-dot--op  { background: #4ade80; }
+.mc2-hn-dot--act { background: var(--mc-orange); }
+.mc2-hn-dot--new { background: var(--mc-purple); animation: hi-live-pulse 2s ease-in-out infinite; }
+
+/* Hero node domain colors */
+.mc2-hn--health    .mc2-hn-icon { background: rgba(34,197,94,0.15);   color: #4ade80; }
+.mc2-hn--health:hover    .mc2-hn-icon { box-shadow: 0 0 20px rgba(34,197,94,0.5); }
+.mc2-hn--identity  .mc2-hn-icon { background: rgba(56,189,248,0.15);  color: #38bdf8; }
+.mc2-hn--identity:hover  .mc2-hn-icon { box-shadow: 0 0 20px rgba(56,189,248,0.5); }
+.mc2-hn--publishing .mc2-hn-icon { background: rgba(168,85,247,0.15); color: #a855f7; }
+.mc2-hn--publishing:hover .mc2-hn-icon { box-shadow: 0 0 20px rgba(168,85,247,0.5); }
+.mc2-hn--catalog   .mc2-hn-icon { background: rgba(251,146,60,0.15);  color: #fb923c; }
+.mc2-hn--catalog:hover   .mc2-hn-icon { box-shadow: 0 0 20px rgba(251,146,60,0.5); }
+.mc2-hn--global    .mc2-hn-icon { background: rgba(34,211,238,0.15);  color: #22d3ee; }
+.mc2-hn--global:hover    .mc2-hn-icon { box-shadow: 0 0 20px rgba(34,211,238,0.5); }
+.mc2-hn--backend   .mc2-hn-icon { background: rgba(0,191,165,0.15);   color: #00BFA5; }
+.mc2-hn--backend:hover   .mc2-hn-icon { box-shadow: 0 0 20px rgba(0,191,165,0.5); }
+.mc2-hn--ai        .mc2-hn-icon { background: rgba(200,205,216,0.10); color: #C8CDD8; }
+.mc2-hn--ai:hover        .mc2-hn-icon { box-shadow: 0 0 18px rgba(200,205,216,0.35); }
+.mc2-hn--review    .mc2-hn-icon { background: rgba(251,146,60,0.12);  color: #fb923c; }
+.mc2-hn--review:hover    .mc2-hn-icon { box-shadow: 0 0 18px rgba(251,146,60,0.45); }
+
+/* Staggered entrance for hero nodes */
+.mc2-hero-node:nth-child(3) { animation-delay: 0.7s; }
+.mc2-hero-node:nth-child(4) { animation-delay: 0.9s; }
+.mc2-hero-node:nth-child(5) { animation-delay: 1.1s; }
+.mc2-hero-node:nth-child(6) { animation-delay: 1.3s; }
+.mc2-hero-node:nth-child(7) { animation-delay: 1.5s; }
+.mc2-hero-node:nth-child(8) { animation-delay: 1.7s; }
+.mc2-hero-node:nth-child(9) { animation-delay: 1.9s; }
+.mc2-hero-node:nth-child(10) { animation-delay: 2.1s; }

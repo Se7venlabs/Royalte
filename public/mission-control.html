@@ -109,14 +109,13 @@
 
   </aside>
 
-  <!-- ─── OS Frame ──────────────────────────────────────────────────── -->
+  <!-- ─── Main OS frame ────────────────────────────────────────────── -->
   <div class="mc2-os-frame">
 
-    <!-- Top bar -->
+    <!-- ─── Top bar ──────────────────────────────────────────────── -->
     <header class="mc2-topbar" role="banner">
-      <div style="display:flex;flex-direction:column;gap:1px;">
+      <div style="display:flex;align-items:center;gap:8px;">
         <div class="mc2-greeting-eyebrow">ROYALTĒ OS™</div>
-        <div style="font-size:13px;font-weight:700;color:var(--mc-text-soft);letter-spacing:-0.01em;" id="mc-greeting">Good morning, Darryl.</div>
       </div>
       <div class="mc2-topbar-center">
         <div class="mc2-topbar-title">MISSION CONTROL™</div>
@@ -126,537 +125,685 @@
         <div class="mc2-topbar-meta" id="mc-datetime" aria-live="polite"></div>
         <div class="mc2-live-badge" aria-label="Live Intelligence active">
           <div class="mc2-live-dot" aria-hidden="true"></div>
-          Live
+          Live Intelligence
         </div>
       </div>
     </header>
 
-    <!-- OS Main -->
-    <div class="mc2-os-main">
+    <!-- ─── Body: main + sidebar ─────────────────────────────────── -->
+    <div class="mc2-body">
 
-      <!-- ─── Status header strip ────────────────────────────────────── -->
-      <div class="mc2-os-header" role="region" aria-label="System status">
-        <div class="mc2-os-status-group">
+      <!-- ── Main column ────────────────────────────────────────── -->
+      <div class="mc2-main">
 
-          <div class="mc2-os-stat">
-            <div class="mc2-os-stat-label">Overall Health</div>
-            <div class="mc2-os-stat-value mc2-os-stat-value--green">98%</div>
-            <div class="mc2-os-stat-sub">Across 7 intelligence sources</div>
+        <!-- ─── Hero: status panel + purple network globe ───────── -->
+        <div class="mc2-hero">
+
+          <!-- Left: business status -->
+          <div class="mc2-status-panel">
+            <div>
+              <div class="mc2-greeting-eyebrow">ROYALTĒ OS™</div>
+              <div class="mc2-greeting" id="mc-greeting">Good morning, Darryl.</div>
+              <div class="mc2-greeting-sub">ATHENA™ has completed your overnight analysis.</div>
+            </div>
+
+            <div class="mc2-status-block">
+              <div class="mc2-status-block-label">OVERALL BUSINESS STATUS</div>
+              <div class="mc2-status-value-row">
+                <div class="mc2-status-value">Operational</div>
+                <div class="mc2-status-check" aria-hidden="true">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 5,9 10,3"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="mc2-meta-row">
+              <div class="mc2-meta-item">
+                <div class="mc2-meta-key">Last Scan</div>
+                <div class="mc2-meta-val">7:12 AM</div>
+              </div>
+              <div class="mc2-meta-item">
+                <div class="mc2-meta-key">Executive Confidence™</div>
+                <div class="mc2-meta-val mc2-meta-val--purple">98% Very High</div>
+              </div>
+            </div>
+
+            <a class="mc2-hero-cta" href="/workspaces/ai-insights.html">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              View Executive Brief
+            </a>
           </div>
 
-          <div class="mc2-os-divider" aria-hidden="true"></div>
+          <!-- Right: purple network globe + dept nodes -->
+          <div class="mc2-globe-hero" role="main" aria-label="Royaltē OS workspace navigation">
 
-          <div class="mc2-os-stat">
-            <div class="mc2-os-stat-label">Last Scan</div>
-            <div class="mc2-os-stat-value mc2-os-stat-value--white" style="font-size:14px;letter-spacing:0;line-height:1.3;">Today, 9:12 AM</div>
-            <div class="mc2-os-stat-sub" style="color:#4ade80;">All systems operational</div>
-          </div>
-
-          <div class="mc2-os-divider" aria-hidden="true"></div>
-
-          <div class="mc2-os-stat">
-            <div class="mc2-os-stat-label">Intelligence Sources</div>
-            <div class="mc2-os-stat-value mc2-os-stat-value--purple">7 / 7</div>
-            <div class="mc2-os-stat-sub">Active · Live</div>
-          </div>
-
-          <div class="mc2-os-divider" aria-hidden="true"></div>
-
-          <div class="mc2-os-stat">
-            <div class="mc2-os-stat-label">Business Confidence</div>
-            <div class="mc2-os-stat-value mc2-os-stat-value--teal">High</div>
-            <div class="mc2-os-stat-sub">Based on latest intelligence</div>
-          </div>
-
-        </div>
-        <div class="mc2-os-actions">
-          <a class="mc2-os-cta" href="/index.html" aria-label="Scan an artist">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            Scan Artist
-          </a>
-          <a class="mc2-os-cta-ghost" href="/workspaces/ai-insights.html">
-            AI Insights™
-          </a>
-        </div>
-      </div>
-
-      <!-- ─── Globe stage — The Centerpiece ─────────────────────────── -->
-      <div class="mc2-globe-stage" role="main" aria-label="Royaltē OS workspace navigation">
-
-        <!-- Ambient particle field -->
-        <div class="mc2-particles" aria-hidden="true">
-          <div class="mc2-p"></div><div class="mc2-p"></div><div class="mc2-p"></div>
-          <div class="mc2-p"></div><div class="mc2-p"></div><div class="mc2-p"></div>
-          <div class="mc2-p"></div><div class="mc2-p"></div><div class="mc2-p"></div>
-          <div class="mc2-p"></div><div class="mc2-p"></div><div class="mc2-p"></div>
-          <div class="mc2-p"></div><div class="mc2-p"></div><div class="mc2-p"></div>
-          <div class="mc2-p"></div><div class="mc2-p"></div><div class="mc2-p"></div>
-        </div>
-
-        <!-- Globe canvas (fills stage) -->
-        <div class="mc2-globe-canvas">
-
-          <!-- ─── 8 Workspace navigation nodes ─────────────────────── -->
-
-          <!-- Health Intelligence™ — top (0°) -->
-          <a class="mc2-ws-node mc2-ws--health"
-             href="/workspaces/health-intelligence.html"
-             style="left:50%;top:calc(50% - 280px);"
-             aria-label="Open Health Intelligence workspace">
-            <div class="mc2-ws-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <!-- Ambient particles -->
+            <div class="mc2-particles" aria-hidden="true">
+              <div class="mc2-p"></div><div class="mc2-p"></div><div class="mc2-p"></div>
+              <div class="mc2-p"></div><div class="mc2-p"></div><div class="mc2-p"></div>
+              <div class="mc2-p"></div><div class="mc2-p"></div><div class="mc2-p"></div>
+              <div class="mc2-p"></div><div class="mc2-p"></div><div class="mc2-p"></div>
             </div>
-            <div class="mc2-ws-node-body">
-              <div class="mc2-ws-node-name">Health Intelligence™</div>
-              <div class="mc2-ws-node-status">
-                <span class="mc2-ws-node-dot mc2-ws-node-dot--op" aria-hidden="true"></span>
-                Operational
+
+            <!-- Health Intelligence™ — top (0°) -->
+            <a class="mc2-hero-node mc2-hn--health" href="/workspaces/health-intelligence.html"
+               style="left:50%;top:calc(50% - 160px)" aria-label="Open Health Intelligence workspace">
+              <div class="mc2-hn-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
               </div>
-            </div>
-            <div class="mc2-ws-node-arrow" aria-hidden="true">›</div>
-          </a>
+              <div class="mc2-hn-label">Health™</div>
+              <div class="mc2-hn-status"><span class="mc2-hn-dot mc2-hn-dot--op" aria-hidden="true"></span>Operational</div>
+            </a>
 
-          <!-- Identity Intelligence™ — upper-right (45°) -->
-          <a class="mc2-ws-node mc2-ws--identity"
-             href="/workspaces/identity-intelligence.html"
-             style="left:calc(50% + 218px);top:calc(50% - 218px);"
-             aria-label="Open Identity Intelligence workspace">
-            <div class="mc2-ws-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <div class="mc2-ws-node-body">
-              <div class="mc2-ws-node-name">Identity Intelligence™</div>
-              <div class="mc2-ws-node-status">
-                <span class="mc2-ws-node-dot mc2-ws-node-dot--op" aria-hidden="true"></span>
-                Verified
+            <!-- Publishing Intelligence™ — upper-right (45°) -->
+            <a class="mc2-hero-node mc2-hn--publishing" href="/workspaces/publishing-intelligence.html"
+               style="left:calc(50% + 113px);top:calc(50% - 113px)" aria-label="Open Publishing Intelligence workspace">
+              <div class="mc2-hn-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               </div>
-            </div>
-            <div class="mc2-ws-node-arrow" aria-hidden="true">›</div>
-          </a>
+              <div class="mc2-hn-label">Publishing™</div>
+              <div class="mc2-hn-status"><span class="mc2-hn-dot mc2-hn-dot--act" aria-hidden="true"></span>Action Required</div>
+            </a>
 
-          <!-- Publishing Intelligence™ — right (90°) -->
-          <a class="mc2-ws-node mc2-ws--publishing"
-             href="/workspaces/publishing-intelligence.html"
-             style="left:calc(50% + 300px);top:50%;"
-             aria-label="Open Publishing Intelligence workspace">
-            <div class="mc2-ws-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            </div>
-            <div class="mc2-ws-node-body">
-              <div class="mc2-ws-node-name">Publishing Intelligence™</div>
-              <div class="mc2-ws-node-status">
-                <span class="mc2-ws-node-dot mc2-ws-node-dot--act" aria-hidden="true"></span>
-                Action Required
+            <!-- Catalog Intelligence™ — right (90°) -->
+            <a class="mc2-hero-node mc2-hn--catalog" href="/workspaces/catalog-intelligence.html"
+               style="left:calc(50% + 160px);top:50%" aria-label="Open Catalog Intelligence workspace">
+              <div class="mc2-hn-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
               </div>
-            </div>
-            <div class="mc2-ws-node-arrow" aria-hidden="true">›</div>
-          </a>
+              <div class="mc2-hn-label">Catalog™</div>
+              <div class="mc2-hn-status"><span class="mc2-hn-dot mc2-hn-dot--op" aria-hidden="true"></span>Operational</div>
+            </a>
 
-          <!-- Global Music Footprint™ — lower-right (135°) -->
-          <a class="mc2-ws-node mc2-ws--global"
-             href="/workspaces/global-music-footprint.html"
-             style="left:calc(50% + 218px);top:calc(50% + 218px);"
-             aria-label="Open Global Music Footprint workspace">
-            <div class="mc2-ws-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            </div>
-            <div class="mc2-ws-node-body">
-              <div class="mc2-ws-node-name">Global Music Footprint™</div>
-              <div class="mc2-ws-node-status">
-                <span class="mc2-ws-node-dot mc2-ws-node-dot--op" aria-hidden="true"></span>
-                48 Markets Active
+            <!-- AI Insights™ — lower-right (135°) -->
+            <a class="mc2-hero-node mc2-hn--ai" href="/workspaces/ai-insights.html"
+               style="left:calc(50% + 113px);top:calc(50% + 113px)" aria-label="Open AI Insights workspace">
+              <div class="mc2-hn-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               </div>
-            </div>
-            <div class="mc2-ws-node-arrow" aria-hidden="true">›</div>
-          </a>
+              <div class="mc2-hn-label">AI Insights™</div>
+              <div class="mc2-hn-status"><span class="mc2-hn-dot mc2-hn-dot--new" aria-hidden="true"></span>ATHENA™ Active</div>
+            </a>
 
-          <!-- Royaltē Review™ — bottom (180°) -->
-          <a class="mc2-ws-node mc2-ws--review"
-             href="/workspaces/royalte-review.html"
-             style="left:50%;top:calc(50% + 280px);"
-             aria-label="Open Royaltē Review workspace">
-            <div class="mc2-ws-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            </div>
-            <div class="mc2-ws-node-body">
-              <div class="mc2-ws-node-name">Royaltē Review™</div>
-              <div class="mc2-ws-node-status">
-                <span class="mc2-ws-node-dot mc2-ws-node-dot--op" aria-hidden="true"></span>
-                Ready to Generate
+            <!-- Royaltē Review™ — bottom (180°) -->
+            <a class="mc2-hero-node mc2-hn--review" href="/workspaces/royalte-review.html"
+               style="left:50%;top:calc(50% + 160px)" aria-label="Open Royaltē Review workspace">
+              <div class="mc2-hn-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
               </div>
-            </div>
-            <div class="mc2-ws-node-arrow" aria-hidden="true">›</div>
-          </a>
+              <div class="mc2-hn-label">Review™</div>
+              <div class="mc2-hn-status"><span class="mc2-hn-dot mc2-hn-dot--op" aria-hidden="true"></span>Ready</div>
+            </a>
 
-          <!-- AI Insights™ — lower-left (225°) -->
-          <a class="mc2-ws-node mc2-ws--ai"
-             href="/workspaces/ai-insights.html"
-             style="left:calc(50% - 218px);top:calc(50% + 218px);"
-             aria-label="Open AI Insights workspace">
-            <div class="mc2-ws-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            </div>
-            <div class="mc2-ws-node-body">
-              <div class="mc2-ws-node-name">AI Insights™</div>
-              <div class="mc2-ws-node-status">
-                <span class="mc2-ws-node-dot mc2-ws-node-dot--new" aria-hidden="true"></span>
-                ATHENA™ Active
+            <!-- Backend Intelligence™ — lower-left (225°) -->
+            <a class="mc2-hero-node mc2-hn--backend" href="/workspaces/backend-intelligence.html"
+               style="left:calc(50% - 113px);top:calc(50% + 113px)" aria-label="Open Backend Intelligence workspace">
+              <div class="mc2-hn-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
               </div>
-            </div>
-            <div class="mc2-ws-node-arrow" aria-hidden="true">›</div>
-          </a>
+              <div class="mc2-hn-label">Backend™</div>
+              <div class="mc2-hn-status"><span class="mc2-hn-dot mc2-hn-dot--op" aria-hidden="true"></span>Stable</div>
+            </a>
 
-          <!-- Backend Intelligence™ — left (270°) -->
-          <a class="mc2-ws-node mc2-ws--backend"
-             href="/workspaces/backend-intelligence.html"
-             style="left:calc(50% - 300px);top:50%;"
-             aria-label="Open Backend Intelligence workspace">
-            <div class="mc2-ws-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-            </div>
-            <div class="mc2-ws-node-body">
-              <div class="mc2-ws-node-name">Backend Intelligence™</div>
-              <div class="mc2-ws-node-status">
-                <span class="mc2-ws-node-dot mc2-ws-node-dot--op" aria-hidden="true"></span>
-                All Connected
+            <!-- Global Music Footprint™ — left (270°) -->
+            <a class="mc2-hero-node mc2-hn--global" href="/workspaces/global-music-footprint.html"
+               style="left:calc(50% - 160px);top:50%" aria-label="Open Global Music Footprint workspace">
+              <div class="mc2-hn-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </div>
-            </div>
-            <div class="mc2-ws-node-arrow" aria-hidden="true">›</div>
-          </a>
+              <div class="mc2-hn-label">Global™</div>
+              <div class="mc2-hn-status"><span class="mc2-hn-dot mc2-hn-dot--op" aria-hidden="true"></span>68 Markets</div>
+            </a>
 
-          <!-- Catalog Intelligence™ — upper-left (315°) -->
-          <a class="mc2-ws-node mc2-ws--catalog"
-             href="/workspaces/catalog-intelligence.html"
-             style="left:calc(50% - 218px);top:calc(50% - 218px);"
-             aria-label="Open Catalog Intelligence workspace">
-            <div class="mc2-ws-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>
-            </div>
-            <div class="mc2-ws-node-body">
-              <div class="mc2-ws-node-name">Catalog Intelligence™</div>
-              <div class="mc2-ws-node-status">
-                <span class="mc2-ws-node-dot mc2-ws-node-dot--op" aria-hidden="true"></span>
-                Analyzed
+            <!-- Identity Intelligence™ — upper-left (315°) -->
+            <a class="mc2-hero-node mc2-hn--identity" href="/workspaces/identity-intelligence.html"
+               style="left:calc(50% - 113px);top:calc(50% - 113px)" aria-label="Open Identity Intelligence workspace">
+              <div class="mc2-hn-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </div>
-            </div>
-            <div class="mc2-ws-node-arrow" aria-hidden="true">›</div>
-          </a>
+              <div class="mc2-hn-label">Identity™</div>
+              <div class="mc2-hn-status"><span class="mc2-hn-dot mc2-hn-dot--op" aria-hidden="true"></span>Verified</div>
+            </a>
 
-          <!-- ─── Connection lines SVG (centered on globe) ─────────── -->
-          <!-- viewBox centered at 0,0 = globe center; radius 161 = globe edge in CSS px; radius 300/218 = node offsets -->
-          <svg aria-hidden="true"
-               viewBox="-360 -360 720 720"
-               style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:720px;height:720px;overflow:visible;pointer-events:none;z-index:1;">
+            <!-- Connection lines SVG — behind globe (z-index:1) -->
+            <svg class="mc2-hero-globe-lines" viewBox="-170 -170 340 340" aria-hidden="true">
+              <line class="mc2-hero-globe-line" x1="0" y1="0" x2="0" y2="-160" stroke="rgba(74,222,128,0.4)" stroke-width="1"/>
+              <line class="mc2-hero-globe-line" x1="0" y1="0" x2="113" y2="-113" stroke="rgba(168,85,247,0.45)" stroke-width="1"/>
+              <line class="mc2-hero-globe-line" x1="0" y1="0" x2="160" y2="0" stroke="rgba(251,146,60,0.4)" stroke-width="1"/>
+              <line class="mc2-hero-globe-line" x1="0" y1="0" x2="113" y2="113" stroke="rgba(200,205,216,0.3)" stroke-width="1"/>
+              <line class="mc2-hero-globe-line" x1="0" y1="0" x2="0" y2="160" stroke="rgba(251,146,60,0.35)" stroke-width="1"/>
+              <line class="mc2-hero-globe-line" x1="0" y1="0" x2="-113" y2="113" stroke="rgba(0,191,165,0.45)" stroke-width="1"/>
+              <line class="mc2-hero-globe-line" x1="0" y1="0" x2="-160" y2="0" stroke="rgba(34,211,238,0.45)" stroke-width="1"/>
+              <line class="mc2-hero-globe-line" x1="0" y1="0" x2="-113" y2="-113" stroke="rgba(56,189,248,0.45)" stroke-width="1"/>
+            </svg>
 
-            <!-- Connection lines: globe surface → node center -->
-            <!-- Health (top) -->
-            <line class="mc2-globe-line mc2-globe-line--health mc2-line--live"
-                  x1="0" y1="-161" x2="0" y2="-280"/>
-            <!-- Identity (upper-right) -->
-            <line class="mc2-globe-line mc2-globe-line--identity mc2-line--live"
-                  x1="114" y1="-114" x2="218" y2="-218" style="animation-delay:0.4s"/>
-            <!-- Publishing (right) -->
-            <line class="mc2-globe-line mc2-globe-line--publishing mc2-line--live"
-                  x1="161" y1="0" x2="300" y2="0" style="animation-delay:0.8s"/>
-            <!-- Global (lower-right) -->
-            <line class="mc2-globe-line mc2-globe-line--global mc2-line--live"
-                  x1="114" y1="114" x2="218" y2="218" style="animation-delay:1.2s"/>
-            <!-- Review (bottom) -->
-            <line class="mc2-globe-line mc2-globe-line--review mc2-line--live"
-                  x1="0" y1="161" x2="0" y2="280" style="animation-delay:1.6s"/>
-            <!-- AI (lower-left) -->
-            <line class="mc2-globe-line mc2-globe-line--ai mc2-line--live"
-                  x1="-114" y1="114" x2="-218" y2="218" style="animation-delay:2.0s"/>
-            <!-- Backend (left) -->
-            <line class="mc2-globe-line mc2-globe-line--backend mc2-line--live"
-                  x1="-161" y1="0" x2="-300" y2="0" style="animation-delay:2.4s"/>
-            <!-- Catalog (upper-left) -->
-            <line class="mc2-globe-line mc2-globe-line--catalog mc2-line--live"
-                  x1="-114" y1="-114" x2="-218" y2="-218" style="animation-delay:2.8s"/>
-
-          </svg>
-
-          <!-- ─── The Royaltē OS Globe ───────────────────────────────── -->
-          <div class="mc2-globe-svg-wrap">
-            <svg class="mc2-globe-svg" viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <!-- Purple network globe SVG (z-index:2) -->
+            <svg class="mc2-hero-globe" viewBox="0 0 480 480" aria-label="Royaltē OS network globe">
               <defs>
-                <radialGradient id="mc2-globe-grad" cx="36%" cy="30%" r="68%">
-                  <stop offset="0%"   stop-color="#ede9fe"/>
-                  <stop offset="18%"  stop-color="#c084fc"/>
-                  <stop offset="48%"  stop-color="#7c3aed"/>
+                <radialGradient id="mc2-hg-grad" cx="40%" cy="35%" r="65%">
+                  <stop offset="0%"   stop-color="#ede9fe" stop-opacity="0.95"/>
+                  <stop offset="22%"  stop-color="#c084fc" stop-opacity="0.92"/>
+                  <stop offset="52%"  stop-color="#7c3aed"/>
                   <stop offset="80%"  stop-color="#4c1d95"/>
                   <stop offset="100%" stop-color="#0f0030"/>
                 </radialGradient>
-                <radialGradient id="mc2-globe-highlight" cx="38%" cy="28%" r="40%">
-                  <stop offset="0%"   stop-color="rgba(255,255,255,0.18)"/>
-                  <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+                <radialGradient id="mc2-hg-glow" cx="40%" cy="35%" r="55%">
+                  <stop offset="0%"   stop-color="rgba(221,214,254,0.30)"/>
+                  <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
                 </radialGradient>
-                <filter id="mc2-glow-sm" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="2.5" result="blur"/>
-                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-                <filter id="mc2-glow-md" x="-100%" y="-100%" width="300%" height="300%">
-                  <feGaussianBlur stdDeviation="7" result="blur"/>
-                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-                <clipPath id="mc2-globe-clip">
+                <clipPath id="mc2-hg-clip">
                   <circle cx="240" cy="240" r="175"/>
                 </clipPath>
               </defs>
 
-              <!-- Outer ambient glow rings -->
-              <circle class="mc2-ambient" cx="240" cy="240" r="220" fill="none"
-                      stroke="rgba(109,40,217,0.08)" stroke-width="1.5"/>
-              <circle class="mc2-ambient" cx="240" cy="240" r="200" fill="none"
-                      stroke="rgba(168,85,247,0.1)" stroke-width="1"
-                      style="animation-delay:3s"/>
+              <!-- Ambient glow rings -->
+              <circle cx="240" cy="240" r="198" fill="none" stroke="rgba(168,85,247,0.10)" stroke-width="1"/>
+              <circle cx="240" cy="240" r="215" fill="none" stroke="rgba(168,85,247,0.05)" stroke-width="1"/>
 
-              <!-- Pulse ring -->
-              <circle class="mc2-pulse-ring" cx="240" cy="240" r="178" fill="none"
-                      stroke="rgba(168,85,247,0.3)" stroke-width="1.5"/>
+              <!-- Globe surface -->
+              <circle cx="240" cy="240" r="175" fill="url(#mc2-hg-grad)"/>
 
-              <!-- Sphere base -->
-              <circle cx="240" cy="240" r="175" fill="url(#mc2-globe-grad)"/>
-
-              <!-- Globe surface content (clipped to sphere) -->
-              <g clip-path="url(#mc2-globe-clip)">
-
-                <!-- Latitude rings -->
-                <ellipse cx="240" cy="240" rx="175" ry="22" fill="none"
-                         stroke="rgba(220,210,255,0.08)" stroke-width="0.9"/>
-                <ellipse cx="240" cy="185" rx="160" ry="17" fill="none"
-                         stroke="rgba(220,210,255,0.07)" stroke-width="0.8"/>
-                <ellipse cx="240" cy="295" rx="160" ry="17" fill="none"
-                         stroke="rgba(220,210,255,0.07)" stroke-width="0.8"/>
-                <ellipse cx="240" cy="133" rx="122" ry="10" fill="none"
-                         stroke="rgba(220,210,255,0.05)" stroke-width="0.8"/>
-                <ellipse cx="240" cy="347" rx="122" ry="10" fill="none"
-                         stroke="rgba(220,210,255,0.05)" stroke-width="0.8"/>
-
-                <!-- Longitude meridians -->
-                <ellipse cx="240" cy="240" rx="22"  ry="175" fill="none"
-                         stroke="rgba(220,210,255,0.06)" stroke-width="0.8"/>
-                <ellipse cx="240" cy="240" rx="112" ry="175" fill="none"
-                         stroke="rgba(220,210,255,0.05)" stroke-width="0.8"/>
-
-                <!-- Outer ring connections -->
-                <line x1="240" y1="85"  x2="307" y2="100" stroke="rgba(168,85,247,0.22)" stroke-width="0.9"/>
-                <line x1="307" y1="100" x2="361" y2="143" stroke="rgba(168,85,247,0.22)" stroke-width="0.9"/>
-                <line x1="361" y1="143" x2="391" y2="205" stroke="rgba(168,85,247,0.2)"  stroke-width="0.9"/>
-                <line x1="391" y1="205" x2="391" y2="275" stroke="rgba(168,85,247,0.2)"  stroke-width="0.9"/>
-                <line x1="391" y1="275" x2="361" y2="337" stroke="rgba(168,85,247,0.2)"  stroke-width="0.9"/>
-                <line x1="361" y1="337" x2="307" y2="380" stroke="rgba(168,85,247,0.22)" stroke-width="0.9"/>
-                <line x1="307" y1="380" x2="240" y2="395" stroke="rgba(168,85,247,0.22)" stroke-width="0.9"/>
-                <line x1="240" y1="395" x2="173" y2="380" stroke="rgba(168,85,247,0.22)" stroke-width="0.9"/>
-                <line x1="173" y1="380" x2="119" y2="337" stroke="rgba(168,85,247,0.22)" stroke-width="0.9"/>
-                <line x1="119" y1="337" x2="89"  y2="275" stroke="rgba(168,85,247,0.2)"  stroke-width="0.9"/>
-                <line x1="89"  y1="275" x2="89"  y2="205" stroke="rgba(168,85,247,0.2)"  stroke-width="0.9"/>
-                <line x1="89"  y1="205" x2="119" y2="143" stroke="rgba(168,85,247,0.2)"  stroke-width="0.9"/>
-                <line x1="119" y1="143" x2="173" y2="100" stroke="rgba(168,85,247,0.22)" stroke-width="0.9"/>
-                <line x1="173" y1="100" x2="240" y2="85"  stroke="rgba(168,85,247,0.22)" stroke-width="0.9"/>
-
-                <!-- Mid ring connections -->
-                <line x1="240" y1="152" x2="293" y2="167" stroke="rgba(168,85,247,0.28)" stroke-width="0.9"/>
-                <line x1="293" y1="167" x2="326" y2="212" stroke="rgba(168,85,247,0.28)" stroke-width="0.9"/>
-                <line x1="326" y1="212" x2="326" y2="268" stroke="rgba(168,85,247,0.28)" stroke-width="0.9"/>
-                <line x1="326" y1="268" x2="293" y2="313" stroke="rgba(168,85,247,0.28)" stroke-width="0.9"/>
-                <line x1="293" y1="313" x2="240" y2="330" stroke="rgba(168,85,247,0.28)" stroke-width="0.9"/>
-                <line x1="240" y1="330" x2="187" y2="313" stroke="rgba(168,85,247,0.28)" stroke-width="0.9"/>
-                <line x1="187" y1="313" x2="154" y2="268" stroke="rgba(168,85,247,0.28)" stroke-width="0.9"/>
-                <line x1="154" y1="268" x2="154" y2="212" stroke="rgba(168,85,247,0.28)" stroke-width="0.9"/>
-                <line x1="154" y1="212" x2="187" y2="167" stroke="rgba(168,85,247,0.28)" stroke-width="0.9"/>
-                <line x1="187" y1="167" x2="240" y2="152" stroke="rgba(168,85,247,0.28)" stroke-width="0.9"/>
-
-                <!-- Cross connections: outer ring → mid ring -->
-                <line x1="240" y1="85"  x2="240" y2="152" stroke="rgba(168,85,247,0.16)" stroke-width="0.8"/>
-                <line x1="361" y1="143" x2="326" y2="212" stroke="rgba(168,85,247,0.16)" stroke-width="0.8"/>
-                <line x1="391" y1="275" x2="326" y2="268" stroke="rgba(168,85,247,0.14)" stroke-width="0.8"/>
-                <line x1="307" y1="380" x2="293" y2="313" stroke="rgba(168,85,247,0.16)" stroke-width="0.8"/>
-                <line x1="173" y1="380" x2="187" y2="313" stroke="rgba(168,85,247,0.16)" stroke-width="0.8"/>
-                <line x1="89"  y1="275" x2="154" y2="268" stroke="rgba(168,85,247,0.14)" stroke-width="0.8"/>
-                <line x1="89"  y1="205" x2="154" y2="212" stroke="rgba(168,85,247,0.14)" stroke-width="0.8"/>
-                <line x1="173" y1="100" x2="187" y2="167" stroke="rgba(168,85,247,0.16)" stroke-width="0.8"/>
-
-                <!-- Hub spokes: center → mid ring -->
-                <line x1="240" y1="240" x2="240" y2="152" stroke="rgba(210,190,255,0.22)" stroke-width="1"/>
-                <line x1="240" y1="240" x2="326" y2="212" stroke="rgba(210,190,255,0.22)" stroke-width="1"/>
-                <line x1="240" y1="240" x2="326" y2="268" stroke="rgba(210,190,255,0.22)" stroke-width="1"/>
-                <line x1="240" y1="240" x2="240" y2="330" stroke="rgba(210,190,255,0.22)" stroke-width="1"/>
-                <line x1="240" y1="240" x2="154" y2="268" stroke="rgba(210,190,255,0.22)" stroke-width="1"/>
-                <line x1="240" y1="240" x2="154" y2="212" stroke="rgba(210,190,255,0.22)" stroke-width="1"/>
-                <line x1="240" y1="240" x2="293" y2="167" stroke="rgba(210,190,255,0.18)" stroke-width="1"/>
-                <line x1="240" y1="240" x2="187" y2="167" stroke="rgba(210,190,255,0.18)" stroke-width="1"/>
-                <line x1="240" y1="240" x2="293" y2="313" stroke="rgba(210,190,255,0.18)" stroke-width="1"/>
-                <line x1="240" y1="240" x2="187" y2="313" stroke="rgba(210,190,255,0.18)" stroke-width="1"/>
-
-                <!-- Outer ring dots (domain-colored for visual richness) -->
-                <circle cx="240" cy="85"  r="2"   fill="rgba(255,255,255,0.45)"/>
-                <circle cx="307" cy="100" r="2.5" fill="rgba(34,197,94,0.8)"    filter="url(#mc2-glow-sm)"/>
-                <circle cx="361" cy="143" r="2"   fill="rgba(56,189,248,0.75)"  filter="url(#mc2-glow-sm)"/>
-                <circle cx="391" cy="205" r="2"   fill="rgba(168,85,247,0.85)"/>
-                <circle cx="391" cy="275" r="2.5" fill="rgba(168,85,247,0.8)"/>
-                <circle cx="361" cy="337" r="2"   fill="rgba(168,85,247,0.7)"/>
-                <circle cx="307" cy="380" r="2.5" fill="rgba(251,146,60,0.75)"  filter="url(#mc2-glow-sm)"/>
-                <circle cx="240" cy="395" r="2"   fill="rgba(255,255,255,0.35)"/>
-                <circle cx="173" cy="380" r="2"   fill="rgba(200,205,216,0.7)"  filter="url(#mc2-glow-sm)"/>
-                <circle cx="119" cy="337" r="2"   fill="rgba(168,85,247,0.7)"/>
-                <circle cx="89"  cy="275" r="2.5" fill="rgba(0,191,165,0.8)"    filter="url(#mc2-glow-sm)"/>
-                <circle cx="89"  cy="205" r="2"   fill="rgba(34,211,238,0.75)"  filter="url(#mc2-glow-sm)"/>
-                <circle cx="119" cy="143" r="2"   fill="rgba(168,85,247,0.7)"/>
-                <circle cx="173" cy="100" r="2.5" fill="rgba(251,146,60,0.7)"   filter="url(#mc2-glow-sm)"/>
-
-                <!-- Mid ring dots -->
-                <circle cx="240" cy="152" r="1.8" fill="rgba(168,85,247,0.75)"/>
-                <circle cx="293" cy="167" r="1.8" fill="rgba(168,85,247,0.7)"/>
-                <circle cx="326" cy="212" r="1.8" fill="rgba(168,85,247,0.7)"/>
-                <circle cx="326" cy="268" r="1.8" fill="rgba(168,85,247,0.7)"/>
-                <circle cx="293" cy="313" r="1.8" fill="rgba(168,85,247,0.7)"/>
-                <circle cx="240" cy="330" r="1.8" fill="rgba(168,85,247,0.65)"/>
-                <circle cx="187" cy="313" r="1.8" fill="rgba(168,85,247,0.7)"/>
-                <circle cx="154" cy="268" r="1.8" fill="rgba(168,85,247,0.7)"/>
-                <circle cx="154" cy="212" r="1.8" fill="rgba(168,85,247,0.7)"/>
-                <circle cx="187" cy="167" r="1.8" fill="rgba(168,85,247,0.7)"/>
-
-              </g><!-- /clip-path -->
-
-              <!-- Sphere rim highlight (3D depth) -->
-              <circle cx="240" cy="240" r="175" fill="none"
-                      stroke="rgba(228,210,255,0.18)" stroke-width="1"/>
-              <!-- Highlight specular -->
-              <ellipse cx="202" cy="182" rx="58" ry="40"
-                       fill="url(#mc2-globe-highlight)"
-                       style="transform:rotate(-18deg);transform-box:fill-box;transform-origin:center"/>
-
-              <!-- Connection endpoint dots on sphere surface (domain-colored) -->
-              <!-- Positions: center(240,240) + radius(175) × sin/cos for each 45° angle -->
-              <circle cx="240" cy="65"  r="3.5" fill="rgba(34,197,94,0.85)"   filter="url(#mc2-glow-sm)"/>
-              <circle cx="364" cy="116" r="3.5" fill="rgba(56,189,248,0.85)"  filter="url(#mc2-glow-sm)"/>
-              <circle cx="415" cy="240" r="3.5" fill="rgba(168,85,247,0.95)"  filter="url(#mc2-glow-sm)"/>
-              <circle cx="364" cy="364" r="3.5" fill="rgba(34,211,238,0.85)"  filter="url(#mc2-glow-sm)"/>
-              <circle cx="240" cy="415" r="3.5" fill="rgba(251,146,60,0.85)"  filter="url(#mc2-glow-sm)"/>
-              <circle cx="116" cy="364" r="3.5" fill="rgba(200,205,216,0.75)" filter="url(#mc2-glow-sm)"/>
-              <circle cx="65"  cy="240" r="3.5" fill="rgba(0,191,165,0.85)"   filter="url(#mc2-glow-sm)"/>
-              <circle cx="116" cy="116" r="3.5" fill="rgba(251,146,60,0.8)"   filter="url(#mc2-glow-sm)"/>
-
-              <!-- ROYALTĒ OS™ center label -->
-              <g class="mc2-core-group">
-                <text x="240" y="234"
-                      text-anchor="middle"
-                      class="mc2-globe-brand">ROYALTĒ</text>
-                <text x="240" y="252"
-                      text-anchor="middle"
-                      class="mc2-globe-sub">OS™ · MISSION CONTROL</text>
+              <!-- Network grid (clipped) -->
+              <g clip-path="url(#mc2-hg-clip)">
+                <ellipse cx="240" cy="157" rx="149" ry="22" fill="none" stroke="rgba(221,214,254,0.14)" stroke-width="0.8"/>
+                <ellipse cx="240" cy="200" rx="170" ry="28" fill="none" stroke="rgba(221,214,254,0.10)" stroke-width="0.8"/>
+                <ellipse cx="240" cy="240" rx="175" ry="36" fill="none" stroke="rgba(221,214,254,0.12)" stroke-width="0.8"/>
+                <ellipse cx="240" cy="280" rx="170" ry="28" fill="none" stroke="rgba(221,214,254,0.10)" stroke-width="0.8"/>
+                <ellipse cx="240" cy="323" rx="149" ry="22" fill="none" stroke="rgba(221,214,254,0.14)" stroke-width="0.8"/>
+                <ellipse cx="240" cy="240" rx="36"  ry="175" fill="none" stroke="rgba(221,214,254,0.09)" stroke-width="0.8"/>
+                <ellipse cx="240" cy="240" rx="100" ry="175" fill="none" stroke="rgba(221,214,254,0.07)" stroke-width="0.8"/>
               </g>
 
-              <!-- Center node (ROYALTĒ hub) -->
-              <circle cx="240" cy="240" r="5"
-                      fill="rgba(168,85,247,0.9)"
-                      filter="url(#mc2-glow-md)"/>
-              <circle cx="240" cy="240" r="3"
-                      fill="rgba(255,255,255,0.85)"/>
-
-              <!-- Slow-rotating orbit indicator -->
-              <g class="mc2-core-orbit">
-                <circle cx="240" cy="240" r="196" fill="none"
-                        stroke="rgba(168,85,247,0.06)" stroke-width="1"
-                        stroke-dasharray="2 10"/>
-                <circle cx="436" cy="240" r="3.5"
-                        fill="rgba(168,85,247,0.6)"
-                        filter="url(#mc2-glow-sm)"/>
+              <!-- Outer constellation ring (r≈190) -->
+              <g fill="rgba(196,181,253,0.40)">
+                <circle r="1.5" cx="240" cy="50"/><circle r="1.5" cx="335" cy="75"/>
+                <circle r="1.5" cx="405" cy="145"/><circle r="1.5" cx="430" cy="240"/>
+                <circle r="1.5" cx="405" cy="335"/><circle r="1.5" cx="335" cy="405"/>
+                <circle r="1.5" cx="240" cy="430"/><circle r="1.5" cx="145" cy="405"/>
+                <circle r="1.5" cx="75"  cy="335"/><circle r="1.5" cx="50"  cy="240"/>
+                <circle r="1.5" cx="75"  cy="145"/><circle r="1.5" cx="145" cy="75"/>
               </g>
 
+              <!-- Mid network ring (r≈90) -->
+              <g fill="rgba(216,180,254,0.55)">
+                <circle r="2" cx="240" cy="150"/><circle r="2" cx="304" cy="176"/>
+                <circle r="2" cx="330" cy="240"/><circle r="2" cx="304" cy="304"/>
+                <circle r="2" cx="240" cy="330"/><circle r="2" cx="176" cy="304"/>
+                <circle r="2" cx="150" cy="240"/><circle r="2" cx="176" cy="176"/>
+              </g>
+
+              <!-- Hub spokes center → mid ring -->
+              <g stroke="rgba(196,181,253,0.18)" stroke-width="0.7">
+                <line x1="240" y1="240" x2="240" y2="150"/>
+                <line x1="240" y1="240" x2="304" y2="176"/>
+                <line x1="240" y1="240" x2="330" y2="240"/>
+                <line x1="240" y1="240" x2="304" y2="304"/>
+                <line x1="240" y1="240" x2="240" y2="330"/>
+                <line x1="240" y1="240" x2="176" y2="304"/>
+                <line x1="240" y1="240" x2="150" y2="240"/>
+                <line x1="240" y1="240" x2="176" y2="176"/>
+              </g>
+
+              <!-- Cross connections outer → mid -->
+              <g stroke="rgba(196,181,253,0.10)" stroke-width="0.5">
+                <line x1="240" y1="50"  x2="240" y2="150"/>
+                <line x1="335" y1="75"  x2="304" y2="176"/>
+                <line x1="405" y1="145" x2="330" y2="240"/>
+                <line x1="430" y1="240" x2="330" y2="240"/>
+                <line x1="405" y1="335" x2="304" y2="304"/>
+                <line x1="335" y1="405" x2="240" y2="330"/>
+                <line x1="240" y1="430" x2="240" y2="330"/>
+                <line x1="145" y1="405" x2="176" y2="304"/>
+                <line x1="75"  y1="335" x2="150" y2="240"/>
+                <line x1="50"  y1="240" x2="150" y2="240"/>
+                <line x1="75"  y1="145" x2="176" y2="176"/>
+                <line x1="145" y1="75"  x2="240" y2="150"/>
+              </g>
+
+              <!-- Domain surface endpoint dots (at sphere edge, r=175) -->
+              <!-- Health  top       (240,65) -->
+              <circle cx="240" cy="65"  r="4.5" fill="#4ade80" style="filter:drop-shadow(0 0 5px rgba(74,222,128,0.9))"/>
+              <!-- Publishing upper-right (364,116) -->
+              <circle cx="364" cy="116" r="4.5" fill="#a855f7" style="filter:drop-shadow(0 0 5px rgba(168,85,247,0.9))"/>
+              <!-- Catalog right  (415,240) -->
+              <circle cx="415" cy="240" r="4.5" fill="#fb923c" style="filter:drop-shadow(0 0 5px rgba(251,146,60,0.9))"/>
+              <!-- AI lower-right (364,364) -->
+              <circle cx="364" cy="364" r="4.5" fill="#C8CDD8" style="filter:drop-shadow(0 0 4px rgba(200,205,216,0.8))"/>
+              <!-- Review bottom  (240,415) -->
+              <circle cx="240" cy="415" r="4.5" fill="#fb923c" style="filter:drop-shadow(0 0 5px rgba(251,146,60,0.8))"/>
+              <!-- Backend lower-left (116,364) -->
+              <circle cx="116" cy="364" r="4.5" fill="#00BFA5" style="filter:drop-shadow(0 0 5px rgba(0,191,165,0.9))"/>
+              <!-- Global left    (65,240) -->
+              <circle cx="65"  cy="240" r="4.5" fill="#22d3ee" style="filter:drop-shadow(0 0 5px rgba(34,211,238,0.9))"/>
+              <!-- Identity upper-left (116,116) -->
+              <circle cx="116" cy="116" r="4.5" fill="#38bdf8" style="filter:drop-shadow(0 0 5px rgba(56,189,248,0.9))"/>
+
+              <!-- Inner glow overlay -->
+              <circle cx="240" cy="240" r="175" fill="url(#mc2-hg-glow)" opacity="0.85"/>
+
+              <!-- Slow orbit ring -->
+              <circle class="mc2-core-orbit" cx="240" cy="240" r="193" fill="none"
+                      stroke="rgba(168,85,247,0.15)" stroke-width="0.8" stroke-dasharray="3 9"/>
+
+              <!-- Center label -->
+              <text class="mc2-globe-brand" x="240" y="236" text-anchor="middle">ROYALTĒ OS™</text>
+              <text class="mc2-globe-sub"   x="240" y="249" text-anchor="middle">MISSION CONTROL</text>
             </svg>
-          </div><!-- .mc2-globe-svg-wrap -->
 
-        </div><!-- .mc2-globe-canvas -->
-      </div><!-- .mc2-globe-stage -->
-
-      <!-- ─── Bottom dock ────────────────────────────────────────────── -->
-      <div class="mc2-os-dock" role="contentinfo" aria-label="System activity">
-
-        <div class="mc2-dock-col">
-          <div class="mc2-dock-label">Recent Activity</div>
-          <div class="mc2-dock-row">
-            <span class="mc2-dock-dot mc2-dock-dot--green" aria-hidden="true"></span>
-            <span class="mc2-dock-text">Identity scan completed</span>
-            <span class="mc2-dock-time">9:12 AM</span>
           </div>
-          <div class="mc2-dock-row">
-            <span class="mc2-dock-dot mc2-dock-dot--orange" aria-hidden="true"></span>
-            <span class="mc2-dock-text">Publishing alert detected</span>
-            <span class="mc2-dock-time">8:44 AM</span>
+        </div>
+        <!-- /mc2-hero -->
+
+        <!-- ─── Executive Snapshot™ — 6 KPI cards ───────────────── -->
+        <section class="mc2-snapshot" aria-label="Executive Snapshot">
+
+          <div class="mc2-snap-card mc2-snap-card--health">
+            <div class="mc2-snap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div class="mc2-snap-body">
+              <div class="mc2-snap-label">Health Score™</div>
+              <div class="mc2-snap-value">94/100</div>
+              <div class="mc2-snap-sub">Excellent</div>
+            </div>
+          </div>
+
+          <div class="mc2-snap-card mc2-snap-card--risk">
+            <div class="mc2-snap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="mc2-snap-body">
+              <div class="mc2-snap-label">Business Risk™</div>
+              <div class="mc2-snap-value">Low</div>
+              <div class="mc2-snap-sub">2 Issues</div>
+            </div>
+          </div>
+
+          <div class="mc2-snap-card mc2-snap-card--backend">
+            <div class="mc2-snap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/></svg>
+            </div>
+            <div class="mc2-snap-body">
+              <div class="mc2-snap-label">Backend Trust™</div>
+              <div class="mc2-snap-value">98%</div>
+              <div class="mc2-snap-sub">Excellent</div>
+            </div>
+          </div>
+
+          <div class="mc2-snap-card mc2-snap-card--global">
+            <div class="mc2-snap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <div class="mc2-snap-body">
+              <div class="mc2-snap-label">Global Reach™</div>
+              <div class="mc2-snap-value">68</div>
+              <div class="mc2-snap-sub">Countries</div>
+            </div>
+          </div>
+
+          <div class="mc2-snap-card mc2-snap-card--catalog">
+            <div class="mc2-snap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </div>
+            <div class="mc2-snap-body">
+              <div class="mc2-snap-label">Catalog Size™</div>
+              <div class="mc2-snap-value">1,247</div>
+              <div class="mc2-snap-sub">Tracks</div>
+            </div>
+          </div>
+
+          <div class="mc2-snap-card mc2-snap-card--issues">
+            <div class="mc2-snap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="mc2-snap-body">
+              <div class="mc2-snap-label">Critical Issues™</div>
+              <div class="mc2-snap-value">3</div>
+              <div class="mc2-snap-sub">Require Attention</div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ─── Command row — 3 panels ──────────────────────────── -->
+        <div class="mc2-command-row">
+
+          <!-- Panel 1: Today's Executive Brief™ -->
+          <div class="mc2-panel">
+            <div class="mc2-panel-header">
+              <div class="mc2-panel-title">Today's Executive Brief™</div>
+              <div class="mc2-panel-badge mc2-panel-badge--time">45 Seconds</div>
+            </div>
+            <div class="mc2-panel-body">
+              <p class="mc2-brief-text">Your music business is performing at an excellent level. A <span class="mc2-brief-strong">health score of 94/100</span> reflects strong catalog coverage, verified identity across all major platforms, and reliable backend infrastructure with 98% trust across monitored systems.</p>
+              <p class="mc2-brief-text"><span class="mc2-brief-strong">Publishing protection requires your attention.</span> Your administrator registration is missing from 3 systems, leaving composition royalties exposed. This should be resolved within 48 hours to secure your full revenue stream.</p>
+              <p class="mc2-brief-text">Seven optimization opportunities have been identified, led by claiming your YouTube Official Artist Channel — a low-effort action with high visibility and direct monetization impact estimated at 23% discovery improvement.</p>
+              <div class="mc2-brief-actions">
+                <a class="mc2-brief-cta" href="/workspaces/ai-insights.html">View Full Executive Brief →</a>
+                <a class="mc2-brief-cta-ghost" href="#">Download Report ↓</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 2: Department Status™ -->
+          <div class="mc2-panel">
+            <div class="mc2-panel-header">
+              <div class="mc2-panel-title">Department Status™</div>
+              <a href="/mission-control.html" class="mc2-dept-link" style="opacity:1;">View All →</a>
+            </div>
+            <div class="mc2-panel-body" style="padding-top:0;padding-bottom:0;">
+              <ul class="mc2-dept-list">
+                <li class="mc2-dept-row">
+                  <span class="mc2-dept-dot" style="background:#4ade80"></span>
+                  <span class="mc2-dept-name">Health Intelligence™</span>
+                  <span class="mc2-dept-status mc2-dept-status--op">Operational</span>
+                </li>
+                <li class="mc2-dept-row">
+                  <span class="mc2-dept-dot" style="background:#38bdf8"></span>
+                  <span class="mc2-dept-name">Identity Intelligence™</span>
+                  <span class="mc2-dept-status mc2-dept-status--ver">Verified</span>
+                </li>
+                <li class="mc2-dept-row">
+                  <span class="mc2-dept-dot" style="background:var(--mc-orange)"></span>
+                  <span class="mc2-dept-name">Publishing Intelligence™</span>
+                  <span class="mc2-dept-status mc2-dept-status--act">Action Required</span>
+                </li>
+                <li class="mc2-dept-row">
+                  <span class="mc2-dept-dot" style="background:#4ade80"></span>
+                  <span class="mc2-dept-name">Catalog Intelligence™</span>
+                  <span class="mc2-dept-status mc2-dept-status--op">Operational</span>
+                </li>
+                <li class="mc2-dept-row">
+                  <span class="mc2-dept-dot" style="background:#22d3ee"></span>
+                  <span class="mc2-dept-name">Global Music Footprint™</span>
+                  <span class="mc2-dept-status mc2-dept-status--op">Operational</span>
+                </li>
+                <li class="mc2-dept-row">
+                  <span class="mc2-dept-dot" style="background:#00BFA5"></span>
+                  <span class="mc2-dept-name">Backend Intelligence™</span>
+                  <span class="mc2-dept-status mc2-dept-status--stb">Stable</span>
+                </li>
+                <li class="mc2-dept-row">
+                  <span class="mc2-dept-dot" style="background:var(--mc-purple)"></span>
+                  <span class="mc2-dept-name">AI Insights™ (ATHENA™)</span>
+                  <span class="mc2-dept-status mc2-dept-status--new">New Brief Ready</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Panel 3: Executive Priority™ -->
+          <div class="mc2-panel">
+            <div class="mc2-panel-header">
+              <div class="mc2-panel-title">Executive Priority™</div>
+            </div>
+            <div class="mc2-panel-body">
+              <div class="mc2-priority-body">
+                <div class="mc2-priority-eyebrow">
+                  <span class="mc2-priority-eyebrow-dot"></span>
+                  1 HIGH IMPACT
+                </div>
+                <div class="mc2-priority-content">
+                  <div class="mc2-priority-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96C1 8.12 1 12 1 12s0 3.88.46 5.58a2.78 2.78 0 0 0 1.95 1.95C5.12 20 12 20 12 20s6.88 0 8.59-.47a2.78 2.78 0 0 0 1.95-1.95C23 15.88 23 12 23 12s0-3.88-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+                  </div>
+                  <div>
+                    <div class="mc2-priority-title">Claim YouTube Official Artist Channel</div>
+                    <div class="mc2-priority-desc">Increase authority, visibility and unlock artist-level monetization. Estimated 23% discovery improvement.</div>
+                    <div class="mc2-priority-chips">
+                      <span class="mc2-chip mc2-chip--pub">Impact: High</span>
+                      <span class="mc2-chip" style="color:var(--mc-green);background:rgba(45,212,191,0.08);border-color:rgba(45,212,191,0.22);">Difficulty: Low</span>
+                      <span class="mc2-chip" style="color:var(--mc-text-muted);border-color:var(--mc-border);">Est. 10 min</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="mc2-priority-cta" type="button">Take Action →</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /mc2-command-row -->
+
+        <!-- ─── Quick Access to Workspaces ───────────────────────── -->
+        <section class="mc2-quick-access" aria-label="Quick access to workspaces">
+          <div class="mc2-quick-label">QUICK ACCESS TO WORKSPACES · Jump Into Any Department</div>
+          <div class="mc2-quick-row">
+
+            <a class="mc2-quick-card mc2-qc--health" href="/workspaces/health-intelligence.html">
+              <div class="mc2-quick-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div class="mc2-quick-body">
+                <div class="mc2-quick-name">Health Intelligence™</div>
+                <div class="mc2-quick-sub">Score: 94/100</div>
+              </div>
+            </a>
+
+            <a class="mc2-quick-card mc2-qc--identity" href="/workspaces/identity-intelligence.html">
+              <div class="mc2-quick-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div class="mc2-quick-body">
+                <div class="mc2-quick-name">Identity Intelligence™</div>
+                <div class="mc2-quick-sub">6 of 7 Verified</div>
+              </div>
+            </a>
+
+            <a class="mc2-quick-card mc2-qc--pub" href="/workspaces/publishing-intelligence.html">
+              <div class="mc2-quick-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="mc2-quick-body">
+                <div class="mc2-quick-name">Publishing Intelligence™</div>
+                <div class="mc2-quick-sub">Action Required</div>
+              </div>
+            </a>
+
+            <a class="mc2-quick-card mc2-qc--catalog" href="/workspaces/catalog-intelligence.html">
+              <div class="mc2-quick-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              </div>
+              <div class="mc2-quick-body">
+                <div class="mc2-quick-name">Catalog Intelligence™</div>
+                <div class="mc2-quick-sub">1,247 Tracks</div>
+              </div>
+            </a>
+
+            <a class="mc2-quick-card mc2-qc--global" href="/workspaces/global-music-footprint.html">
+              <div class="mc2-quick-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+              <div class="mc2-quick-body">
+                <div class="mc2-quick-name">Global Footprint™</div>
+                <div class="mc2-quick-sub">68 Countries</div>
+              </div>
+            </a>
+
+            <a class="mc2-quick-card mc2-qc--backend" href="/workspaces/backend-intelligence.html">
+              <div class="mc2-quick-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/></svg>
+              </div>
+              <div class="mc2-quick-body">
+                <div class="mc2-quick-name">Backend Intelligence™</div>
+                <div class="mc2-quick-sub">Trust: 98%</div>
+              </div>
+            </a>
+
+            <a class="mc2-quick-card mc2-qc--ai" href="/workspaces/ai-insights.html">
+              <div class="mc2-quick-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <div class="mc2-quick-body">
+                <div class="mc2-quick-name">AI Insights™ (ATHENA™)</div>
+                <div class="mc2-quick-sub">New Brief Ready</div>
+              </div>
+            </a>
+
+          </div>
+        </section>
+
+      </div>
+      <!-- /mc2-main -->
+
+      <!-- ── Right sidebar ───────────────────────────────────────── -->
+      <div class="mc2-sidebar" role="complementary" aria-label="Executive sidebar">
+
+        <!-- Executive Summary™ -->
+        <div class="mc2-sidebar-section">
+          <div class="mc2-sidebar-title">Executive Summary™ <span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;color:var(--mc-text-faint);">AI Insights at a Glance</span></div>
+
+          <div class="mc2-conf-wrap">
+            <div class="mc2-conf-ring-wrap" aria-label="Executive Confidence 98%">
+              <svg class="mc2-conf-ring-svg" viewBox="0 0 68 68" aria-hidden="true">
+                <circle class="mc2-ring-track" cx="34" cy="34" r="28"/>
+                <circle class="mc2-ring-progress" cx="34" cy="34" r="28" transform="rotate(-90 34 34)"/>
+              </svg>
+              <div class="mc2-conf-center">
+                <div class="mc2-conf-num">98%</div>
+                <div class="mc2-conf-label-text">CONF.</div>
+              </div>
+            </div>
+            <div class="mc2-conf-info">
+              <div class="mc2-conf-headline">Very High Confidence</div>
+              <div class="mc2-conf-sub">ATHENA™ analysis complete. All 7 intelligence sources active.</div>
+            </div>
+          </div>
+
+          <p style="font-size:11.5px;color:var(--mc-text-soft);line-height:1.55;margin:0 0 10px;">
+            Your music business is performing well. 3 areas require your attention. 7 opportunities identified this week.
+          </p>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            <div class="mc2-exec-summary-stat">
+              <div style="font-size:16px;font-weight:800;color:#f87171;line-height:1;">3</div>
+              <div style="font-size:8.5px;color:var(--mc-text-faint);letter-spacing:0.1em;">ISSUES</div>
+            </div>
+            <div class="mc2-exec-summary-stat">
+              <div style="font-size:16px;font-weight:800;color:var(--mc-purple);line-height:1;">7</div>
+              <div style="font-size:8.5px;color:var(--mc-text-faint);letter-spacing:0.1em;">OPPS.</div>
+            </div>
+            <div class="mc2-exec-summary-stat">
+              <div style="font-size:16px;font-weight:800;color:#4ade80;line-height:1;">94</div>
+              <div style="font-size:8.5px;color:var(--mc-text-faint);letter-spacing:0.1em;">HEALTH</div>
+            </div>
           </div>
         </div>
 
-        <div class="mc2-dock-col">
-          <div class="mc2-dock-label">Recent Scans</div>
-          <div class="mc2-dock-row">
-            <span class="mc2-dock-dot mc2-dock-dot--purple" aria-hidden="true"></span>
-            <span class="mc2-dock-text">Darryl West · Full scan</span>
-            <span class="mc2-dock-time">Today</span>
+        <!-- Today's Top Priority -->
+        <div class="mc2-sidebar-section">
+          <div class="mc2-sidebar-title">Today's Top Priority</div>
+          <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:rgba(251,146,60,0.14);border:1px solid rgba(251,146,60,0.3);display:grid;place-items:center;flex-shrink:0;" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--mc-orange)" stroke-width="2.5" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--mc-text);margin-bottom:3px;">Publishing Administrator Missing</div>
+              <div style="font-size:10.5px;color:var(--mc-text-muted);line-height:1.5;">Your publishing is unprotected. This puts composition royalties at risk.</div>
+            </div>
           </div>
-          <div class="mc2-dock-row">
-            <span class="mc2-dock-dot mc2-dock-dot--teal" aria-hidden="true"></span>
-            <span class="mc2-dock-text">Backend health verified</span>
-            <span class="mc2-dock-time">Yesterday</span>
+          <button class="mc2-priority-cta" type="button" style="width:100%;justify-content:center;">Take Action →</button>
+        </div>
+
+        <!-- Business Timeline™ -->
+        <div class="mc2-sidebar-section" style="flex:1;">
+          <div class="mc2-sidebar-title">Business Timeline™ <span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;color:var(--mc-text-faint);">Changes Since Last Scan</span></div>
+          <div class="mc2-timeline">
+
+            <div class="mc2-tl-entry">
+              <div class="mc2-tl-icon" style="background:rgba(168,85,247,0.12);color:var(--mc-purple);" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <div class="mc2-tl-body">
+                <div class="mc2-tl-time">Today · 7:12 AM</div>
+                <div class="mc2-tl-title">Executive Brief Generated</div>
+                <div class="mc2-tl-desc">ATHENA™ overnight analysis complete</div>
+              </div>
+            </div>
+
+            <div class="mc2-tl-entry">
+              <div class="mc2-tl-icon" style="background:rgba(251,146,60,0.12);color:var(--mc-orange);" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <div class="mc2-tl-body">
+                <div class="mc2-tl-time">Today · 6:48 AM</div>
+                <div class="mc2-tl-title">Publishing Issue Detected</div>
+                <div class="mc2-tl-desc">Administrator registration missing from 3 systems</div>
+              </div>
+            </div>
+
+            <div class="mc2-tl-entry">
+              <div class="mc2-tl-icon" style="background:rgba(0,191,165,0.12);color:#00BFA5;" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+              <div class="mc2-tl-body">
+                <div class="mc2-tl-time">Yesterday · 9:15 PM</div>
+                <div class="mc2-tl-title">Backend Trust Increased</div>
+                <div class="mc2-tl-desc">Spotify + Apple — 98% trust score</div>
+              </div>
+            </div>
+
+            <div class="mc2-tl-entry">
+              <div class="mc2-tl-icon" style="background:rgba(56,189,248,0.12);color:#38bdf8;" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div class="mc2-tl-body">
+                <div class="mc2-tl-time">Yesterday · 6:22 PM</div>
+                <div class="mc2-tl-title">MusicBrainz Verified</div>
+                <div class="mc2-tl-desc">Identity confirmed across metadata registries</div>
+              </div>
+            </div>
+
+            <div class="mc2-tl-entry">
+              <div class="mc2-tl-icon" style="background:rgba(255,255,255,0.04);color:var(--mc-text-muted);" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96C1 8.12 1 12 1 12s0 3.88.46 5.58a2.78 2.78 0 0 0 1.95 1.95C5.12 20 12 20 12 20s6.88 0 8.59-.47a2.78 2.78 0 0 0 1.95-1.95C23 15.88 23 12 23 12s0-3.88-.46-5.58z"/></svg>
+              </div>
+              <div class="mc2-tl-body">
+                <div class="mc2-tl-time">Yesterday · 2:01 PM</div>
+                <div class="mc2-tl-title">YouTube Metadata Updated</div>
+                <div class="mc2-tl-desc">Channel description and links refreshed</div>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <div class="mc2-dock-col">
-          <div class="mc2-dock-label">Notifications</div>
-          <div class="mc2-dock-row">
-            <span class="mc2-dock-dot mc2-dock-dot--orange" aria-hidden="true"></span>
-            <span class="mc2-dock-text">Publishing admin missing</span>
-            <span class="mc2-dock-time">High</span>
-          </div>
-          <div class="mc2-dock-row">
-            <span class="mc2-dock-dot mc2-dock-dot--blue" aria-hidden="true"></span>
-            <span class="mc2-dock-text">New market detected: ES</span>
-            <span class="mc2-dock-time">Info</span>
-          </div>
-        </div>
+      </div>
+      <!-- /mc2-sidebar -->
 
-        <div class="mc2-dock-col">
-          <div class="mc2-dock-label">Live System Status</div>
-          <div class="mc2-dock-row">
-            <span class="mc2-dock-dot mc2-dock-dot--green" aria-hidden="true"></span>
-            <span class="mc2-dock-text">Apple Music · Connected</span>
-          </div>
-          <div class="mc2-dock-row">
-            <span class="mc2-dock-dot mc2-dock-dot--green" aria-hidden="true"></span>
-            <span class="mc2-dock-text">Spotify · Verified · 7 platforms live</span>
-          </div>
-        </div>
+    </div>
+    <!-- /mc2-body -->
 
-      </div><!-- .mc2-os-dock -->
+  </div>
+  <!-- /mc2-os-frame -->
 
-    </div><!-- .mc2-os-main -->
-  </div><!-- .mc2-os-frame -->
-
-</div><!-- .ws-shell -->
+</div>
+<!-- /ws-shell -->
 
 <script>
 (function () {
-  /* Live clock */
-  function updateClock() {
-    const now = new Date();
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const h = now.getHours();
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    const h12 = h % 12 || 12;
-    const el = document.getElementById('mc-datetime');
-    if (el) el.textContent = months[now.getMonth()] + ' ' + now.getDate() + ' · ' + h12 + ':' + m + ' ' + ampm;
-  }
-  updateClock();
-  setInterval(updateClock, 30000);
+  var h = new Date().getHours();
+  var g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  var el = document.getElementById('mc-greeting');
+  if (el) el.textContent = g + ', Darryl.';
 
-  /* Greeting */
-  const h = new Date().getHours();
-  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  const el = document.getElementById('mc-greeting');
-  if (el) el.textContent = greet + ', Darryl.';
+  function updateDatetime() {
+    var d = new Date();
+    var date = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    var time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    var dt = document.getElementById('mc-datetime');
+    if (dt) dt.textContent = date + ' · ' + time;
+  }
+  updateDatetime();
+  setInterval(updateDatetime, 60000);
+
+  setTimeout(function () {
+    document.querySelectorAll('.mc2-hero-globe-line').forEach(function (l) {
+      l.classList.add('mc2-line--live');
+    });
+  }, 1400);
 }());
 </script>
+
 </body>
 </html>
