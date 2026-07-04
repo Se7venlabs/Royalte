@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-04 — Publishing Intelligence™ Board Amendment #004 — Executive Card Refinement (PR #230)
+
+| | |
+|---|---|
+| **PR** | #230 |
+| **Commit SHA** | `05a640e` |
+| **Constitution Version** | v1.3 |
+| **Added** | Publishing Administration™ card (briefcase icon, Independent, No Administrator Assigned). Publishing Claims™ card (circle-check icon, Verified, 18 of 18 Works Claimed). |
+| **Changed** | `public/workspaces/publishing-intelligence.html` — Songtrust card removed; Music Reports → Royalty Collection™; Publisher → Publisher™; Rights Ownership™ card removed and replaced with Publishing Claims™. Canonical 6-card order locked: The MLC™ · Publishing Administration™ · Royalty Collection™ · Publisher™ · ISWC Coverage™ · Publishing Claims™. Stale Harry Fox Agency references removed from activity feed and Top Priority panel (Harry Fox retired in Amendment #001). |
+| **Removed** | Vendor-named Songtrust card. Rights Ownership™ card (duplicated Publisher intelligence). Stale Harry Fox Agency references. |
+
+---
+
 ## 2026-07-03 — Executive Image Service™ — Platform-Agnostic Image Selection (PR #228)
 
 | | |

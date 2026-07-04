@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-04 — Publishing Intelligence™ Board Amendment #004 — Executive Card Refinement — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-04 |
+| **Decision** | Replace vendor-named publishing cards with function-based Executive Cards. Remove Songtrust (vendor) and Rights Ownership™ (duplicates Publisher intelligence). Add Publishing Administration™ ("Do I have a publishing administrator?") and Publishing Claims™ ("Have my publishing rights been claimed?"). Rename Music Reports → Royalty Collection™ and Publisher → Publisher™. Canonical order locked: The MLC™ · Publishing Administration™ · Royalty Collection™ · Publisher™ · ISWC Coverage™ · Publishing Claims™. |
+| **Reason** | Executive Cards represent publishing functions, not vendors. No two cards should communicate the same intelligence. The interface must remain platform and vendor agnostic. Individual companies appear as intelligence values inside a card — never as the card title. |
+| **Impact** | `public/workspaces/publishing-intelligence.html` — 4 cards updated; stale Harry Fox Agency references in activity feed and Top Priority panel removed (Harry Fox was removed in Amendment #001). |
+| **Vote** | Board Approved |
+| **PR Number** | #230 |
+| **Commit SHA** | `05a640e` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Executive Workspace Image Selection Standard™ — Platform-Agnostic Architecture — APPROVED
 
 | | |

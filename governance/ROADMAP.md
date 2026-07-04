@@ -69,6 +69,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | WS-4.2 | Publishing Intelligence™ Workspace Build (pi-* namespace + Amendments #001/#002) | ✅ Complete | `cdd4fda` (PR #224) | — |
 | WS-4.2-RTZ | Reporting Time Zone™ — dynamic tz detection, MC System Status™ placement, DB migration | ✅ Complete | `6efd9e2` (PR #226) | — |
 | WS-4.x-IMG | Executive Image Service™ — platform-agnostic image selection + .royalte-exec-img standard | ✅ Complete | `7127bc0` (PR #228) | — |
+| WS-4.2-AMD4 | Publishing Intelligence™ Board Amendment #004 — vendor-neutral Executive Cards, canonical 6-card order | ✅ Complete | `05a640e` (PR #230) | — |
 
 ---
 

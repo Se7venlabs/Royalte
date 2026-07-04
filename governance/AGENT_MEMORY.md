@@ -28,18 +28,20 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **WS-4.2-RTZ — Reporting Time Zone™ + MC System Status™** |
-| Merged at | `6efd9e2` (PR #226, 2026-07-03) |
+| Most recently completed phase | **WS-4.2-AMD4 — Publishing Intelligence™ Board Amendment #004** |
+| Merged at | `05a640e` (PR #230, 2026-07-04) |
 | Tag | — |
-| Prior phase | WS-4.2 — Publishing Intelligence™ Workspace Build (`cdd4fda`, PR #224, 2026-07-03) |
-| Active direction | Executive Workspace Sprint active. Health + Identity + Publishing workspaces complete. Reporting Time Zone™ is a dynamic, profile-backed OS indicator on MC only. Settings → Preferences override surface deferred. Next workspace or MC module requires new Board brief. |
-| Next Board gate | Board brief for next Executive Workspace or next MC module |
+| Prior phase | WS-4.2-RTZ — Reporting Time Zone™ + MC System Status™ (`6efd9e2`, PR #226, 2026-07-03) |
+| Active direction | Executive Workspace Sprint active. Health + Identity + Publishing workspaces complete. Publishing Executive Cards are now vendor-neutral (function-based). Canonical 6-card order locked. Next workspace or MC module requires new Board brief. |
+| Next Board gate | Board brief for next Executive Workspace (Catalog Intelligence™) or next MC module |
 
 **Executive Workspace Sprint underway.** Three Executive Workspaces complete. Health Intelligence™ (PR #220, emerald), Identity Intelligence™ (PR #222, purple), and Publishing Intelligence™ (PR #224, Royal Violet) are the three active departments in the ws-dept scoping system. Ambient Module Elevation™ introduces workspace-scoped ambient card glows — each dept class owns its accent color; large blur, very low opacity, feathers outside card edges. Future workspaces add `ws-dept--*` scoping without touching existing workspace CSS.
 
 **Reporting Time Zone™ is now dynamic and profile-backed.** `royalte-tz.js` is the sole RTZ owner. Resolution: `profiles.reporting_timezone` → `localStorage` → browser `Intl.DateTimeFormat`. IANA zone stored on first detection; abbreviation derived live (DST-aware). Settings → Preferences override UI is deferred. RTZ lives exclusively on MC System Status™ — never in Executive Workspace panels.
 
 **Executive Image Service™ is now the sole owner of image selection.** No workspace may reference Apple, Spotify, Deezer, or any platform directly for image URLs. Backend: `api/_lib/image-service.js` (`getBestVerifiedArtistImage` / `getBestVerifiedReleaseArtwork`). Frontend: `public/js/royalte-image-service.js` (reads canonical payload fields only). CSS standard: `.royalte-exec-img` (80×80, `--artist` circular, `--artwork` 6px). `run-scan.js` inline platform chains replaced.
+
+**Publishing Intelligence™ Executive Cards are vendor-neutral (Amendment #004, PR #230).** Cards represent publishing functions, not companies. Canonical 6-card order: The MLC™ · Publishing Administration™ · Royalty Collection™ · Publisher™ · ISWC Coverage™ · Publishing Claims™. Company names appear as intelligence values inside cards — never as card titles. Songtrust and Rights Ownership™ cards retired.
 
 **MC Intelligence Sprint (MC cards on Mission Control) remains active.** Three MC modules complete. Health Intelligence™ (PR #211) + Identity Intelligence™ (PR #213) + Publishing Intelligence™ (PR #215) are constitutional presentation layers using the `build*Plan` / `apply*Plan` wiring pattern. Publishing introduces Financial Impact™ (Section 4). Financial Neutrality Rule™ governs all impact language. Executive Layout Optimization™ v1.0 is the density baseline; final holistic pass deferred until all MC modules complete.
 
