@@ -19,6 +19,32 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Reporting Time Zone™ — MC System Status™ + Dynamic tz Detection (PR #226)
+
+| | |
+|---|---|
+| **PR** | #226 |
+| **Commit SHA** | `6efd9e2` |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/js/royalte-tz.js` — sole owner of RTZ detection, storage, and DOM rendering. Resolution: `profiles.reporting_timezone` → `localStorage` → browser `Intl.DateTimeFormat` auto-detect. IANA zone persisted on first detection; abbreviation derived live (DST-aware). `supabase/migrations/20260703000000_reporting_timezone.sql` — `profiles.reporting_timezone text DEFAULT NULL`. MC `mc-es-rtz-*` CSS block (Ice Blue™ `#7dd3fc`) in inline style. RTZ HTML row (`data-mc-rtz-abbr`) in `mc-es-cell--status`. |
+| **Changed** | `public/mission-control.html` — Section 6 renamed from "Monitoring Status" to **System Status™**; RTZ divider + clock + abbreviation + "Reporting Time Zone™" + "System Time Synced ✓" appended. `public/js/mission-control.js` — imports `initRtz`; called on DOMContentLoaded independent of scan payload. |
+| **Removed** | Orphaned `hi-panel-section--system` + `hi-sys-*` + `rtz-*` CSS from `royalte-workspace.css`. System Status™ HTML block from `health-intelligence.html`, `identity-intelligence.html`, `publishing-intelligence.html` (Amendment #004 correction). |
+
+---
+
+## 2026-07-03 — Publishing Intelligence™ Workspace — Phase 1 + Amendments #001/#002 (PR #224)
+
+| | |
+|---|---|
+| **PR** | #224 |
+| **Commit SHA** | `cdd4fda` |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/workspaces/publishing-intelligence.html` — full Publishing Intelligence™ Executive Workspace: Royal Violet (`#7c3aed`), system-focused header (no artist avatar), Potential Royalty Impact™ Executive Signature™ (three-state amber-pulse risk indicator), 4 KPI cards, 6 Core Publishing System cards (The MLC / Songtrust / Music Reports / Publisher / ISWC Coverage™ / Rights Ownership™). `public/css/royalte-workspace.css` — `pi-*` CSS namespace (5 blocks, ~237 lines) + `ws-dept--publishing` ambient glow. |
+| **Changed** | `public/workspaces/publishing-intelligence.html` — Board Amendment #001: PRO + Harry Fox replaced with ISWC Coverage™ + Songwriter Splits™. Board Amendment #002: Songwriter Splits™ replaced by Rights Ownership™; canonical 6-card order locked. |
+| **Removed** | PRO and Harry Fox Agency cards (replaced by ISWC Coverage™ and Rights Ownership™ per Amendments #001/#002). |
+
+---
+
 ## 2026-07-03 — Ambient Module Elevation™ + Identity Intelligence™ Workspace (PR #222)
 
 | | |
