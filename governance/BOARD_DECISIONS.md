@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Executive Workspace Image Selection Standard™ — Platform-Agnostic Architecture — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Executive Workspaces must never reference a specific music platform for image selection. The UI requests only **Best Verified Artist Image™** or **Best Verified Release Artwork™** via `getBestVerifiedArtistImage()` / `getBestVerifiedReleaseArtwork()`. The backend intelligence layer owns source selection, quality evaluation, and future platform expansion. No workspace UI may read from `payload.platforms.apple.*`, `payload.platforms.spotify.*`, or any provider-specific path for images. |
+| **Reason** | Royaltē must not appear to favour any streaming platform. Hardcoding Apple or Spotify into UI image selection would require UI redesigns for every future provider integration. Architecture separation keeps workspaces platform-agnostic and future-proof. |
+| **Impact** | New `api/_lib/image-service.js` — sole backend owner. New `public/js/royalte-image-service.js` — sole frontend owner. `api/_lib/run-scan.js` inline platform chains replaced with service calls. `public/css/royalte-workspace.css` — `.royalte-exec-img` 80×80 standard class + `--artist` / `--artwork` variants. |
+| **Vote** | Board Approved |
+| **PR Number** | #228 |
+| **Commit SHA** | `7127bc0` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Reporting Time Zone™ Board Addendum — Dynamic tz detection + profile storage — APPROVED
 
 | | |
