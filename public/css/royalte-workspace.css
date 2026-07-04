@@ -2954,3 +2954,27 @@ a.pi-system-card:hover {
   box-shadow: -1px 0 40px rgba(124,58,237,0.04);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   Royaltē Executive Image Standard™
+   80 × 80 px square format — applies to all images across Executive
+   Workspaces: artist photos, album artwork, platform logos, publisher
+   logos. Board Directive: Executive Workspace Image Selection Standard™
+   (2026-07-03). Images are sourced via getBestVerifiedArtistImage() or
+   getBestVerifiedReleaseArtwork() — never from platform-specific paths.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.royalte-exec-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+/* Artist photos use a circular crop; release artwork uses a tighter radius */
+.royalte-exec-img--artist  { border-radius: 50%; }
+.royalte-exec-img--artwork { border-radius: 6px; }
+
