@@ -3420,6 +3420,17 @@ body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
 .mc-vault-forgot:hover{color:rgba(255,255,255,0.52);}
 @media(max-width:480px){.mc-vault-panel{padding:32px 22px;}.mc-vault-input{font-size:16px;padding:14px 16px;}.mc-vault-input--pass{padding-right:46px;}.mc-vault-cta{padding:15px 24px;}}
 
+/* System Status™ — mc-es-cell--status RTZ block
+   Ice Blue™ #7dd3fc is the exclusive Royaltē OS system indicator color */
+.mc-es-cell-value--status{font-size:14px;}
+.mc-es-rtz-divider{height:1px;background:rgba(255,255,255,0.07);margin:8px 0 7px;}
+.mc-es-rtz-row{display:flex;align-items:flex-start;gap:7px;}
+.mc-es-rtz-clock{width:14px;height:14px;color:#7dd3fc;flex-shrink:0;margin-top:1px;}
+.mc-es-rtz-info{display:flex;flex-direction:column;gap:1px;}
+.mc-es-rtz-abbr{font-size:13px;font-weight:700;color:#7dd3fc;letter-spacing:0.03em;line-height:1.1;}
+.mc-es-rtz-label{font-size:9px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:rgba(255,255,255,0.30);line-height:1.2;}
+.mc-es-rtz-synced{font-size:9px;color:rgba(255,255,255,0.28);line-height:1.2;margin-top:2px;}
+
   </style>
 </head>
 <body>
@@ -3667,14 +3678,23 @@ body.mc-sentinel .mc-card .mc-fp-ring{stroke-dasharray:0 264 !important;}
         <span class="mc-es-cell-meta" data-mc-es-priority-meta></span>
       </div>
 
-      <!-- Section 6: Monitoring Status — sourced from Monitoring Intelligence™ -->
+      <!-- Section 6: System Status™ — Monitoring Intelligence™ + Reporting Time Zone™ -->
       <div class="mc-es-cell mc-es-cell--status">
-        <span class="mc-es-section-label">Monitoring Status</span>
-        <span class="mc-es-cell-value" data-mc-es-status-value>—</span>
+        <span class="mc-es-section-label">System Status™</span>
+        <span class="mc-es-cell-value mc-es-cell-value--status" data-mc-es-status-value>—</span>
         <span class="mc-es-cell-active" data-mc-es-status-active>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
           Monitoring Active
         </span>
+        <div class="mc-es-rtz-divider" role="separator" aria-hidden="true"></div>
+        <div class="mc-es-rtz-row" aria-label="Reporting Time Zone">
+          <svg class="mc-es-rtz-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <div class="mc-es-rtz-info">
+            <span class="mc-es-rtz-abbr" data-mc-rtz-abbr>—</span>
+            <span class="mc-es-rtz-label">Reporting Time Zone™</span>
+            <span class="mc-es-rtz-synced">System Time Synced ✓</span>
+          </div>
+        </div>
       </div>
 
     </section>

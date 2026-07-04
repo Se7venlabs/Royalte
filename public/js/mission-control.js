@@ -33,6 +33,7 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import { getSupabase } from '/js/supabase-client.js';
+import { initRtz } from '/js/royalte-tz.js';
 import {
   renderIdentity,
   renderPublishing,
@@ -1292,9 +1293,13 @@ async function initMissionControl() {
 
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => { initMissionControl(); });
+    document.addEventListener('DOMContentLoaded', () => {
+      initMissionControl();
+      initRtz(); // Reporting Time Zone™ — independent of scan payload
+    });
   } else {
     initMissionControl();
+    initRtz();
   }
 }
 
