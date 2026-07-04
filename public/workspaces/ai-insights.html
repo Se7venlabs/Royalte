@@ -113,34 +113,448 @@
       <span class="ws-breadcrumb-sep">/</span>
       <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
       <span class="ws-breadcrumb-sep">/</span>
-      <span class="ws-breadcrumb-current">AI Insights™</span>
+      <span class="ws-breadcrumb-current ai-breadcrumb-current">AI Insights™</span>
     </header>
 
-    <div class="ws-hero">
-      <div class="ws-hero-inner">
-        <div class="ws-hero-mark ws-hero-mark--muted">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
-        </div>
-        <div class="ws-hero-text">
-          <h1 class="ws-hero-title">AI Insights™</h1>
-          <p class="ws-hero-desc">Royaltē AI™ — deep analysis, pattern recognition, and intelligence synthesis across your entire music business.</p>
-        </div>
-      </div>
-    </div>
+    <div class="ws-body">
 
-    <main class="ws-main">
-      <div class="ws-coming-soon">
-        <div class="ws-cs-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21h6"/><path d="M10 17h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.8 1 1.7 1 2.5h6c0-.8.3-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
+      <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
+      <div class="hi-main">
+
+        <!-- § 1 — EXECUTIVE HEADER ─────────────────────────────────── -->
+        <div class="ai-exec-header">
+
+          <!-- Confidence ring -->
+          <div class="ai-conf-ring-wrap" aria-label="ATHENA™ confidence: 96%">
+            <svg viewBox="0 0 90 90" aria-hidden="true">
+              <circle class="ai-ring-track" cx="45" cy="45" r="38"/>
+              <circle class="ai-ring-progress" cx="45" cy="45" r="38"/>
+            </svg>
+            <div class="ai-ring-center">
+              <span class="ai-ring-num" data-target="96" aria-live="polite">0</span>
+              <span class="ai-ring-pct">%</span>
+            </div>
+          </div>
+
+          <!-- Title block -->
+          <div class="ai-exec-title-block">
+            <div class="ai-exec-eyebrow">ATHENA™ Intelligence Engine</div>
+            <h1 class="ai-exec-heading">AI Insights™</h1>
+            <div class="ai-exec-desc">Smart Consensus™ is active. Business Rules Engine™ has applied 12 industry constraints. All pipelines verified — primary model handling with high confidence.</div>
+            <div class="ai-exec-status-row">
+              <span class="ai-status-chip ai-status-chip--active">
+                <span class="ai-status-dot" aria-hidden="true"></span>ATHENA™ Operational
+              </span>
+              <span class="ai-status-chip ai-status-chip--standby">Smart Consensus™ Standby</span>
+            </div>
+          </div>
+
+          <!-- Date selector -->
+          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
+            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
+            Jun 27 – Jul 3, 2026
+            <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down"></use></svg>
+          </div>
+
         </div>
-        <div class="ws-cs-eyebrow">Coming Soon</div>
-        <div class="ws-cs-title">AI Insights™</div>
-        <p class="ws-cs-desc">This workspace is being prepared. Check back after your next Board brief.</p>
-      </div>
-    </main>
 
-  </div>
+        <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
+        <div class="hi-kpi-row">
 
-</div>
+          <!-- Confidence Score™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--purple">Confidence Score™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--purple" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg>
+            </div>
+            <div class="ai-kpi-num-row">
+              <span class="ai-kpi-big-num ai-kpi-big-num--purple" id="ai-kpi-conf">96</span>
+              <span class="ai-kpi-fraction">%</span>
+            </div>
+            <div class="ai-kpi-status-text ai-kpi-status-text--purple">Excellent</div>
+            <div class="ai-kpi-caption">Avg Across All Recommendations</div>
+          </div>
+
+          <!-- Business Rules Active™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--green">Rules Active™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--green" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+            </div>
+            <div class="ai-kpi-num-row">
+              <span class="ai-kpi-big-num ai-kpi-big-num--green" id="ai-kpi-rules">12</span>
+            </div>
+            <div class="ai-kpi-status-text ai-kpi-status-text--green">Operational</div>
+            <div class="ai-kpi-caption">Business Rules Engine™</div>
+          </div>
+
+          <!-- Recommendations Generated™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--purple">Recommendations™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--purple" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
+            </div>
+            <div class="ai-kpi-num-row">
+              <span class="ai-kpi-big-num ai-kpi-big-num--purple" id="ai-kpi-recs">8</span>
+            </div>
+            <div class="ai-kpi-status-text ai-kpi-status-text--purple">Generated</div>
+            <div class="ai-kpi-caption">This Scan Session</div>
+          </div>
+
+          <!-- Model Status™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label">Model Status™</div>
+            <div class="hi-kpi-icon-wrap" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-backend"></use></svg>
+            </div>
+            <div class="ai-kpi-num-row">
+              <span class="ai-kpi-big-num" id="ai-kpi-models">1</span>
+              <span class="ai-kpi-fraction"> / 2</span>
+            </div>
+            <div class="ai-kpi-status-text">Primary Active</div>
+            <div class="ai-kpi-caption">Secondary on Standby</div>
+          </div>
+
+        </div>
+
+        <!-- § 3 — ATHENA™ INTELLIGENCE PIPELINE ────────────────────── -->
+        <div class="ai-pipeline-section">
+          <div class="ai-pipeline-title">ATHENA™ Intelligence Pipeline™</div>
+
+          <svg class="ai-pipeline-svg" viewBox="0 0 560 255" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="ATHENA™ Intelligence Pipeline diagram" role="img">
+
+            <!-- Connection lines -->
+            <!-- al-1: Intelligence Input → ATHENA™ hub -->
+            <line id="al-1" class="ai-conn" x1="280" y1="44" x2="280" y2="110"/>
+            <!-- al-2: Business Rules → ATHENA™ hub -->
+            <line id="al-2" class="ai-conn" x1="101" y1="102" x2="258" y2="128"/>
+            <!-- al-3: Confidence Engine → ATHENA™ hub -->
+            <line id="al-3" class="ai-conn" x1="459" y1="102" x2="302" y2="128"/>
+            <!-- al-4: ATHENA™ hub → Validation -->
+            <line id="al-4" class="ai-conn" x1="259" y1="140" x2="100" y2="199"/>
+            <!-- al-5: ATHENA™ hub → Executive Brief -->
+            <line id="al-5" class="ai-conn" x1="280" y1="154" x2="280" y2="225"/>
+            <!-- al-6: ATHENA™ hub → Smart Consensus -->
+            <line id="al-6" class="ai-conn" x1="301" y1="140" x2="460" y2="199"/>
+            <!-- al-7: Confidence Engine → Smart Consensus (low-confidence path, dashed) -->
+            <line id="al-7" class="ai-conn ai-conn--dashed" x1="472" y1="113" x2="472" y2="191"/>
+
+            <!-- ── Node: INTELLIGENCE INPUT ── (top center) -->
+            <g id="ai-node-intel" class="ai-pipeline-node">
+              <circle class="ai-node-glow" cx="280" cy="28" r="16"/>
+              <circle class="ai-node-ring" cx="280" cy="28" r="16"/>
+              <text class="ai-node-label" x="280" y="52">INTELLIGENCE</text>
+              <text class="ai-node-label" x="280" y="62" dy="0">INPUT</text>
+            </g>
+
+            <!-- ── Node: BUSINESS RULES ── (upper left) -->
+            <g id="ai-node-rules" class="ai-pipeline-node">
+              <circle class="ai-node-glow" cx="88" cy="100" r="13"/>
+              <circle class="ai-node-ring" cx="88" cy="100" r="13"/>
+              <text class="ai-node-label" x="88" y="120">BUSINESS</text>
+              <text class="ai-node-label" x="88" y="130">RULES™</text>
+            </g>
+
+            <!-- ── Node: CONFIDENCE ENGINE ── (upper right) -->
+            <g id="ai-node-conf" class="ai-pipeline-node">
+              <circle class="ai-node-glow" cx="472" cy="100" r="13"/>
+              <circle class="ai-node-ring" cx="472" cy="100" r="13"/>
+              <text class="ai-node-label" x="472" y="120">CONFIDENCE</text>
+              <text class="ai-node-label" x="472" y="130">ENGINE™</text>
+            </g>
+
+            <!-- ── Node: ATHENA™ HUB ── (center) -->
+            <g id="ai-node-hub" class="ai-pipeline-node ai-hub-node">
+              <circle class="ai-node-glow--hub" cx="280" cy="132" r="22"/>
+              <circle class="ai-node-ring--hub" cx="280" cy="132" r="22"/>
+              <text class="ai-node-label--hub" x="280" y="128">ATHENA™</text>
+              <text class="ai-node-label--hub" x="280" y="140" style="font-size:7px;letter-spacing:0.10em;fill:var(--mc-text-muted)">ENGINE</text>
+            </g>
+
+            <!-- ── Node: VALIDATION ── (lower left) -->
+            <g id="ai-node-valid" class="ai-pipeline-node">
+              <circle class="ai-node-glow" cx="88" cy="204" r="13"/>
+              <circle class="ai-node-ring" cx="88" cy="204" r="13"/>
+              <text class="ai-node-label" x="88" y="224">ATHENA™</text>
+              <text class="ai-node-label" x="88" y="234">VALIDATION™</text>
+            </g>
+
+            <!-- ── Node: EXECUTIVE BRIEF ── (bottom center) -->
+            <g id="ai-node-brief" class="ai-pipeline-node">
+              <circle class="ai-node-glow" cx="280" cy="240" r="15"/>
+              <circle class="ai-node-ring" cx="280" cy="240" r="15"/>
+              <text class="ai-node-label" x="280" y="254" dy="0">EXECUTIVE BRIEF™</text>
+            </g>
+
+            <!-- ── Node: SMART CONSENSUS ── (lower right, secondary path) -->
+            <g id="ai-node-smart" class="ai-pipeline-node ai-secondary-node">
+              <circle class="ai-node-glow--secondary" cx="472" cy="204" r="13"/>
+              <circle class="ai-node-ring--secondary" cx="472" cy="204" r="13"/>
+              <text class="ai-node-label ai-node-label--dim" x="472" y="224">SMART</text>
+              <text class="ai-node-label ai-node-label--dim" x="472" y="234">CONSENSUS™</text>
+            </g>
+
+          </svg>
+        </div>
+
+        <!-- § 4 — PIPELINE MODULE TILES ─────────────────────────────── -->
+        <div class="ai-module-grid">
+
+          <!-- Business Rules Engine™ -->
+          <div class="ai-module-card">
+            <div class="ai-tile-row">
+              <div class="ai-tile-icon ai-tile-icon--green" aria-hidden="true">
+                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+              </div>
+              <div class="ai-tile-content">
+                <div class="ai-tile-name ai-tile-name--green">Business Rules</div>
+                <div class="ai-tile-desc">12 industry constraints applied</div>
+              </div>
+              <span class="ai-tile-badge ai-tile-badge--online">Active</span>
+            </div>
+          </div>
+
+          <!-- Confidence Engine™ -->
+          <div class="ai-module-card">
+            <div class="ai-tile-row">
+              <div class="ai-tile-icon" aria-hidden="true">
+                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg>
+              </div>
+              <div class="ai-tile-content">
+                <div class="ai-tile-name">Confidence Engine™</div>
+                <div class="ai-tile-desc">96% avg — threshold met</div>
+              </div>
+              <span class="ai-tile-badge ai-tile-badge--active">Active</span>
+            </div>
+          </div>
+
+          <!-- Smart Consensus™ -->
+          <div class="ai-module-card">
+            <div class="ai-tile-row">
+              <div class="ai-tile-icon ai-tile-icon--muted" aria-hidden="true">
+                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-backend"></use></svg>
+              </div>
+              <div class="ai-tile-content">
+                <div class="ai-tile-name ai-tile-name--muted">Smart Consensus™</div>
+                <div class="ai-tile-desc">0 activations — not required</div>
+              </div>
+              <span class="ai-tile-badge ai-tile-badge--standby">Standby</span>
+            </div>
+          </div>
+
+          <!-- Primary Model -->
+          <div class="ai-module-card">
+            <div class="ai-tile-row">
+              <div class="ai-tile-icon ai-tile-icon--green" aria-hidden="true">
+                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+              </div>
+              <div class="ai-tile-content">
+                <div class="ai-tile-name ai-tile-name--green">Primary Model</div>
+                <div class="ai-tile-desc">GPT — handling all requests</div>
+              </div>
+              <span class="ai-tile-badge ai-tile-badge--online">Online</span>
+            </div>
+          </div>
+
+          <!-- ATHENA™ Validation™ -->
+          <div class="ai-module-card">
+            <div class="ai-tile-row">
+              <div class="ai-tile-icon" aria-hidden="true">
+                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+              </div>
+              <div class="ai-tile-content">
+                <div class="ai-tile-name">ATHENA™ Validation™</div>
+                <div class="ai-tile-desc">All output checks passing</div>
+              </div>
+              <span class="ai-tile-badge ai-tile-badge--active">Active</span>
+            </div>
+          </div>
+
+          <!-- Executive Brief™ -->
+          <div class="ai-module-card">
+            <div class="ai-tile-row">
+              <div class="ai-tile-icon" aria-hidden="true">
+                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-organization"></use></svg>
+              </div>
+              <div class="ai-tile-content">
+                <div class="ai-tile-name">Executive Brief™</div>
+                <div class="ai-tile-desc">8 recommendations generated</div>
+              </div>
+              <span class="ai-tile-badge ai-tile-badge--generated">Generated</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Artist footer ───────────────────────────────────────────── -->
+        <div class="hi-artist-footer">
+          <div class="hi-artist-avatar" aria-hidden="true">GX</div>
+          <div class="hi-artist-info">
+            <div class="hi-artist-name">
+              GENTLEMEN X
+              <div class="hi-artist-verified" aria-label="Verified artist">
+                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+              </div>
+            </div>
+          </div>
+          <div class="hi-artist-actions">
+            <a class="hi-artist-action-link" href="/mission-control.html">View Profile</a>
+            <div class="hi-artist-sep" aria-hidden="true"></div>
+            <a class="hi-artist-action-link" href="/mission-control.html">Sign Out</a>
+          </div>
+        </div>
+
+      </div><!-- /hi-main -->
+
+      <!-- ══ RIGHT EXECUTIVE PANEL ════════════════════════════════════ -->
+      <aside class="hi-exec-panel" aria-label="ATHENA™ AI Intelligence Panel">
+
+        <!-- AI Intelligence Summary™ -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-ai-header">
+            <div class="hi-panel-ai-title">AI Intelligence Summary™</div>
+            <div class="hi-panel-live-badge">
+              <div class="hi-panel-live-dot" aria-hidden="true"></div>
+              LIVE
+            </div>
+          </div>
+          <div class="hi-panel-ai-logo" aria-hidden="true">ē</div>
+          <div class="hi-panel-ai-complete">ATHENA™ Analysis Complete</div>
+          <div class="hi-panel-ai-checks" role="list">
+            <div class="hi-panel-ai-check" role="listitem">
+              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+              Business Rules Engine™ applied 12 constraints
+            </div>
+            <div class="hi-panel-ai-check" role="listitem">
+              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+              Primary model confidence above threshold
+            </div>
+            <div class="hi-panel-ai-check" role="listitem">
+              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--amber" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
+              Publishing administrator not registered
+            </div>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/publishing-intelligence.html">View Publishing →</a>
+        </div>
+
+        <!-- Top Priority™ -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-priority-header">
+            <div class="hi-panel-priority-label">Top Priority™</div>
+            <div class="hi-panel-medium-badge">MEDIUM</div>
+          </div>
+          <div class="hi-panel-action-card">
+            <div class="hi-panel-action-icon-row">
+              <div class="hi-panel-action-icon" aria-hidden="true">
+                <svg class="royalte-icon royalte-icon--lg" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
+              </div>
+              <div class="hi-panel-action-title">Register Publishing Administrator</div>
+            </div>
+            <div class="hi-panel-action-desc">ATHENA™ detected no publishing administrator on record. This affects royalty routing and collection efficiency.</div>
+            <div class="hi-panel-action-meta">
+              <div class="hi-panel-action-badge">
+                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
+                Est. 15 Min
+              </div>
+              <div class="hi-panel-action-badge">Impact: Medium</div>
+            </div>
+            <a class="hi-panel-action-cta" href="/workspaces/priority-actions.html" role="button">Take Action Now</a>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/priority-actions.html">View All Actions →</a>
+        </div>
+
+        <!-- ATHENA™ Pipeline Status™ -->
+        <div class="hi-panel-section">
+          <div class="hi-panel-summary-header">
+            <div class="hi-panel-summary-label">Pipeline Status™</div>
+          </div>
+          <div class="hi-panel-summary-range">Jun 27 – Jul 3, 2026</div>
+          <div class="hi-panel-summary-grid">
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--purple">96%</div>
+              <div class="hi-panel-stat-label">Avg Confidence</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--green">12</div>
+              <div class="hi-panel-stat-label">Rules Applied</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--muted">0</div>
+              <div class="hi-panel-stat-label">Consensus Events</div>
+            </div>
+            <div class="hi-panel-summary-stat">
+              <div class="hi-panel-stat-num hi-panel-stat-num--meta">Now</div>
+              <div class="hi-panel-stat-label">Last Analysis</div>
+            </div>
+          </div>
+          <a class="hi-panel-link" href="/workspaces/royalte-review.html">View Full Report →</a>
+        </div>
+
+      </aside>
+
+    </div><!-- /ws-body -->
+
+  </div><!-- /ws-content -->
+
+</div><!-- /ws-shell -->
+
+<script>
+(function () {
+  /* ── Confidence ring count-up ── */
+  var ringEl  = document.querySelector('.ai-ring-num[data-target]');
+  var ringPrg = document.querySelector('.ai-ring-progress');
+  if (ringEl && ringPrg) {
+    var target = parseInt(ringEl.dataset.target, 10);
+    var circ   = 2 * Math.PI * 38; /* r=38 */
+    var start  = null;
+    var dur    = 1400;
+    function tick(ts) {
+      if (!start) start = ts;
+      var p    = Math.min((ts - start) / dur, 1);
+      var ease = 1 - Math.pow(1 - p, 3);
+      var val  = Math.round(ease * target);
+      ringEl.textContent = val;
+      ringPrg.style.strokeDashoffset = circ - (val / 100) * circ;
+      if (p < 1) requestAnimationFrame(tick);
+      else { ringEl.textContent = target; ringPrg.style.strokeDashoffset = circ - (target / 100) * circ; }
+    }
+    ringPrg.style.strokeDasharray  = circ;
+    ringPrg.style.strokeDashoffset = circ;
+    requestAnimationFrame(tick);
+  }
+
+  /* ── Pipeline node illumination sequence ── */
+  var SEQUENCE = [
+    { nodeId: 'ai-node-intel', lineIds: [],           delay: 0    },
+    { nodeId: 'ai-node-rules', lineIds: ['al-2'],     delay: 380  },
+    { nodeId: 'ai-node-conf',  lineIds: ['al-3'],     delay: 760  },
+    { nodeId: 'ai-node-hub',   lineIds: ['al-1'],     delay: 1140 },
+    { nodeId: 'ai-node-valid', lineIds: ['al-4'],     delay: 1620 },
+    { nodeId: 'ai-node-brief', lineIds: ['al-5'],     delay: 2000 },
+    { nodeId: 'ai-node-smart', lineIds: ['al-6','al-7'], delay: 2380 },
+  ];
+
+  function illuminate(nodeId, lineIds) {
+    document.getElementById(nodeId)?.classList.add('ai-node-active');
+    lineIds.forEach(function (id) {
+      document.getElementById(id)?.classList.add('ai-conn--active');
+    });
+  }
+
+  SEQUENCE.forEach(function (step) {
+    setTimeout(function () { illuminate(step.nodeId, step.lineIds); }, step.delay);
+  });
+
+  /* ── Live pulse after sequence completes ── */
+  setTimeout(function () {
+    var hub = document.getElementById('ai-node-hub');
+    if (!hub) return;
+    setInterval(function () {
+      hub.classList.remove('ai-node-active');
+      setTimeout(function () { hub.classList.add('ai-node-active'); }, 200);
+    }, 3800);
+  }, 3000);
+})();
+</script>
 </body>
 </html>
