@@ -48,6 +48,12 @@
   --mc-gold-soft:      rgba(198, 168, 106, 0.10);
   --mc-border-gold:    rgba(198, 168, 106, 0.28);
 
+  /* Electric Teal™ — Backend Intelligence™ exclusive */
+  --mc-teal:           #00BFA5;
+  --mc-teal-soft:      rgba(0, 191, 165, 0.12);
+  --mc-teal-glow:      rgba(0, 191, 165, 0.22);
+  --mc-border-teal:    rgba(0, 191, 165, 0.28);
+
   --mc-s-1: 10px;
   --mc-s-2: 10px;
   --mc-s-3: 10px;
@@ -80,7 +86,7 @@
 .ws-dept--publishing { --ws-accent: #7c3aed;            --ws-accent-soft: rgba(124,58,237,0.12);          --ws-accent-border: rgba(124,58,237,0.28);   --ws-accent-glow: rgba(124,58,237,0.32); }
 .ws-dept--catalog    { --ws-accent: #e11d48;            --ws-accent-soft: rgba(225,29,72,0.12);           --ws-accent-border: rgba(225,29,72,0.28);    --ws-accent-glow: rgba(225,29,72,0.32); }
 .ws-dept--global     { --ws-accent: var(--mc-blue);    --ws-accent-soft: var(--mc-blue-soft);            --ws-accent-border: rgba(56,189,248,0.22);   --ws-accent-glow: rgba(56,189,248,0.32); }
-.ws-dept--backend    { --ws-accent: var(--mc-gold);    --ws-accent-soft: var(--mc-gold-soft);            --ws-accent-border: var(--mc-border-gold);   --ws-accent-glow: var(--mc-gold-glow); }
+.ws-dept--backend    { --ws-accent: var(--mc-teal);    --ws-accent-soft: var(--mc-teal-soft);            --ws-accent-border: var(--mc-border-teal);   --ws-accent-glow: var(--mc-teal-glow); }
 .ws-dept--ai-insights { --ws-accent: var(--mc-purple); --ws-accent-soft: var(--mc-purple-soft);          --ws-accent-border: var(--mc-border-warm);   --ws-accent-glow: var(--mc-purple-glow); }
 .ws-dept--monitoring  { --ws-accent: var(--mc-blue);   --ws-accent-soft: var(--mc-blue-soft);            --ws-accent-border: rgba(56,189,248,0.22);   --ws-accent-glow: rgba(56,189,248,0.32); }
 
@@ -3436,22 +3442,22 @@ a.ci-function-card:hover .ci-artwork-container {
 }
 
 /* ─── Dept ambient elevation — Backend Intelligence ─────────────── */
-/* Dept class: .ws-dept--backend  /  Accent: Gold (#C6A86A) */
+/* Dept class: .ws-dept--backend  /  Accent: Electric Teal™ (#00BFA5) */
 
 .ws-dept--backend .hi-kpi-card {
-  box-shadow: 0 0 0 1px rgba(198,168,106,0.07), 0 4px 16px rgba(198,168,106,0.04);
+  box-shadow: 0 0 0 1px rgba(0,191,165,0.07), 0 4px 16px rgba(0,191,165,0.04);
 }
 .ws-dept--backend .hi-exec-panel {
-  box-shadow: 0 0 0 1px rgba(198,168,106,0.08), 0 8px 24px rgba(198,168,106,0.06);
+  box-shadow: 0 0 0 1px rgba(0,191,165,0.08), 0 8px 24px rgba(0,191,165,0.06);
 }
 .ws-dept--backend .hi-kpi-card:hover {
-  box-shadow: 0 0 0 1px rgba(198,168,106,0.16), 0 6px 20px rgba(198,168,106,0.10);
+  box-shadow: 0 0 0 1px rgba(0,191,165,0.16), 0 6px 20px rgba(0,191,165,0.10);
 }
 .ws-dept--backend .ws-shell::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(198,168,106,0.04) 0%, transparent 70%);
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,191,165,0.05) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -3959,4 +3965,250 @@ a.ci-function-card:hover .ci-artwork-container {
   color: var(--mc-green);
   letter-spacing: 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Backend Intelligence™ Workspace — bi-* namespace
+   Dept: ws-dept--backend / Accent: Electric Teal™ (#00BFA5)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── teal color variants ─────────────────────────────────────────── */
+.bi-breadcrumb-current    { color: var(--mc-teal) !important; }
+.hi-kpi-label--teal       { color: var(--mc-teal); }
+.ii-kpi-status-text--teal { color: var(--mc-teal); }
+.hi-panel-stat-num--teal  { color: var(--mc-teal); }
+
+.hi-kpi-icon-wrap--teal {
+  background: var(--mc-teal-soft);
+  border: 1px solid var(--mc-border-teal);
+  color: var(--mc-teal);
+}
+.hi-status-pill--teal {
+  background: var(--mc-teal-soft);
+  border: 1px solid var(--mc-border-teal);
+  color: var(--mc-teal);
+}
+
+/* ─── Executive Signature ring ────────────────────────────────────── */
+.bi-ring-track    { fill: none; stroke: rgba(0,191,165,0.12); stroke-width: 6; }
+.bi-ring-progress { fill: none; stroke: var(--mc-teal); stroke-width: 6;
+                    stroke-linecap: round; stroke-dasharray: 251; stroke-dashoffset: 26;
+                    transform: rotate(-90deg); transform-origin: 50% 50%;
+                    filter: drop-shadow(0 0 6px var(--mc-teal-glow)); }
+
+/* ─── Digital Twin™ ──────────────────────────────────────────────── */
+.bi-twin-section {
+  background: rgba(0,0,0,0.20);
+  border: 1px solid rgba(0,191,165,0.12);
+  border-radius: 14px;
+  padding: 32px 24px 24px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.bi-twin-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,191,165,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+.bi-twin-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--mc-teal);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.bi-twin-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--mc-text);
+  margin-bottom: 24px;
+}
+.bi-twin-svg-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.bi-twin-svg { width: 100%; max-width: 600px; height: auto; overflow: visible; }
+
+/* SVG node styles */
+.bi-node-ring  { fill: none; stroke-width: 1.5; opacity: 0.35; }
+.bi-node-core  { }
+.bi-node-label { font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+                 text-anchor: middle; dominant-baseline: auto; }
+.bi-node-status { font-size: 8px; letter-spacing: 0.06em; text-anchor: middle;
+                  dominant-baseline: auto; opacity: 0.7; }
+.bi-conn-line  { fill: none; stroke-width: 1.2; stroke-linecap: round;
+                 stroke-dasharray: 500; stroke-dashoffset: 500; }
+
+/* Node color states */
+.bi-node--verified  .bi-node-ring { stroke: #00BFA5; }
+.bi-node--verified  .bi-node-core { fill: #00BFA5; }
+.bi-node--verified  .bi-node-label  { fill: #e2e8f0; }
+.bi-node--verified  .bi-node-status { fill: #00BFA5; }
+
+.bi-node--review    .bi-node-ring { stroke: #F59E0B; }
+.bi-node--review    .bi-node-core { fill: #F59E0B; }
+.bi-node--review    .bi-node-label  { fill: #e2e8f0; }
+.bi-node--review    .bi-node-status { fill: #F59E0B; }
+
+.bi-node--song      .bi-node-ring { stroke: #e2e8f0; }
+.bi-node--song      .bi-node-core { fill: #ffffff; }
+.bi-node--song      .bi-node-label  { fill: #ffffff; font-weight: 700; }
+.bi-node--song      .bi-node-status { fill: rgba(255,255,255,0.6); }
+
+.bi-node--hub       .bi-node-ring { stroke: #00BFA5; }
+.bi-node--hub       .bi-node-core { fill: #00BFA5; }
+.bi-node--hub       .bi-node-label  { fill: #ffffff; font-weight: 700; }
+.bi-node--hub       .bi-node-status { fill: rgba(255,255,255,0.75); }
+
+/* Connection line colors */
+.bi-conn--teal   { stroke: rgba(0,191,165,0.55); }
+.bi-conn--amber  { stroke: rgba(245,158,11,0.45); }
+
+/* Animation keyframes */
+@keyframes bi-line-draw {
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes bi-node-appear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes bi-hub-pulse {
+  0%, 100% { opacity: 0.25; r: 20; }
+  50%       { opacity: 0.50; r: 24; }
+}
+@keyframes bi-conn-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.80; }
+}
+
+/* Animated nodes / lines get these classes added by JS after draw */
+.bi-node--live .bi-node-ring {
+  animation: bi-hub-pulse 3s ease-in-out infinite;
+}
+.bi-conn--live {
+  stroke-dashoffset: 0;
+  animation: bi-conn-pulse 4s ease-in-out infinite;
+}
+
+/* ─── Executive module cards (bi-module-*) ────────────────────────── */
+.bi-module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (max-width: 1100px) { .bi-module-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.bi-module-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 18px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bi-module-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bi-module-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--mc-teal-soft);
+  border: 1px solid var(--mc-border-teal);
+  color: var(--mc-teal);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.bi-module-title {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--mc-teal);
+}
+.bi-module-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding-bottom: 6px; gap: 8px;
+}
+.bi-module-row:last-child { border-bottom: none; padding-bottom: 0; }
+.bi-module-key {
+  font-size: 10.5px; color: var(--mc-text-muted); flex-shrink: 0;
+}
+.bi-module-val {
+  font-size: 10.5px; color: var(--mc-text); text-align: right;
+  font-weight: 500; max-width: 55%;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bi-module-val--teal   { color: var(--mc-teal); }
+.bi-module-val--amber  { color: #F59E0B; }
+.bi-module-val--muted  { color: var(--mc-text-muted); font-style: italic; }
+
+/* ─── Business Risk™ card ──────────────────────────────────────────── */
+.bi-risk-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 20px 20px 18px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.bi-risk-badge {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+.bi-risk-badge--low    { background: rgba(0,191,165,0.12); color: #00BFA5; border: 1px solid rgba(0,191,165,0.25); }
+.bi-risk-badge--medium { background: rgba(245,158,11,0.12); color: #F59E0B; border: 1px solid rgba(245,158,11,0.25); }
+.bi-risk-badge--high   { background: rgba(239,68,68,0.12);  color: #EF4444; border: 1px solid rgba(239,68,68,0.25); }
+.bi-risk-title  { font-size: 13px; font-weight: 700; color: var(--mc-text); margin-bottom: 4px; }
+.bi-risk-desc   { font-size: 11.5px; color: var(--mc-text-muted); line-height: 1.6; }
+
+/* ─── AI Backend Summary™ ─────────────────────────────────────────── */
+.bi-ai-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(0,191,165,0.14);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.bi-ai-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.bi-ai-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+               text-transform: uppercase; color: var(--mc-teal); }
+.bi-ai-body  { font-size: 12px; color: var(--mc-text-muted); line-height: 1.75; }
+
+/* ─── exec header score ────────────────────────────────────────────── */
+.bi-exec-header {
+  background: rgba(0,0,0,0.20);
+  border: 1px solid rgba(0,191,165,0.12);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 20px;
+}
+.bi-exec-ring-wrap { position: relative; width: 90px; height: 90px; flex-shrink: 0; }
+.bi-exec-ring-svg  { width: 90px; height: 90px; }
+.bi-exec-ring-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.bi-exec-ring-num   { font-size: 22px; font-weight: 800; color: var(--mc-teal);
+                      letter-spacing: -0.03em; line-height: 1; }
+.bi-exec-ring-denom { font-size: 10px; color: var(--mc-text-muted); letter-spacing: 0.02em; }
+.bi-exec-meta { flex: 1; }
+.bi-exec-label { font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+                 text-transform: uppercase; color: var(--mc-teal); margin-bottom: 3px; }
+.bi-exec-score-title { font-size: 20px; font-weight: 800; color: var(--mc-text);
+                       letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 4px; }
+.bi-exec-score-sub   { font-size: 11.5px; color: var(--mc-text-muted); margin-bottom: 10px; }
 
