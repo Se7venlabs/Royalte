@@ -493,8 +493,18 @@
   var P_COLOR = { apple: '#FC3C44', spotify: '#1DB954', deezer: '#A238FF', tidal: '#00D5FF' };
   var P_NAME  = { apple: 'Apple Music', spotify: 'Spotify', deezer: 'Deezer', tidal: 'TIDAL' };
 
-  /* ── per-provider dot offsets within a cluster (% units) ───── */
-  var P_OFF = { apple: [-1.0, -1.5], spotify: [1.1, -1.5], deezer: [-1.0, 1.5], tidal: [1.1, 1.5] };
+  /* ── Provider Cluster™ offsets — diamond around anchor (% units) ── */
+  /* Layout:      Apple (top)                                          */
+  /*         Deezer   Spotify  (mid)                                  */
+  /*              ● anchor                                             */
+  /*              Tidal (bottom)                                       */
+  /* Future providers extend this registry — no map redesign needed.  */
+  var P_OFF = {
+    apple:   [ 0.0, -1.8],   /* top center   */
+    deezer:  [-1.6,  0.0],   /* mid left     */
+    spotify: [ 1.6,  0.0],   /* mid right    */
+    tidal:   [ 0.0,  1.8],   /* bottom center */
+  };
 
   var mapInner = document.getElementById('gf-map-inner');
   var popover  = document.getElementById('gf-popover');
