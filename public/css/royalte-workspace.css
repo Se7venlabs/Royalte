@@ -5052,6 +5052,57 @@ a.ci-function-card:hover .ci-artwork-container {
   .ai-hero-section { grid-template-columns: 1fr; }
   .ai-core-wrap { padding: 0 16px 16px; }
   .ai-rec-grid { grid-template-columns: 1fr; }
+  .ai-bottom-row { grid-template-columns: 1fr; }
   .ai-priorities-section,
   .ai-forecast-card { display: none; }
 }
+
+/* ─── Polish #001 — Single Screen Executive Layout (1920×1080) ───────── */
+/* Spacing-only pass: no font-size changes, no visual redesign.          */
+
+.ws-dept--ai-insights .hi-main {
+  padding: 13px 26px 18px;
+  gap: 12px;
+}
+
+/* Hero: reduce SVG to 340px so hero row stays under 360px tall */
+.ws-dept--ai-insights .ai-core-svg  { max-width: 340px; }
+.ws-dept--ai-insights .ai-core-wrap { padding: 8px 14px 8px 0; }
+.ws-dept--ai-insights .ai-hero-text { padding: 20px 18px 20px 22px; gap: 6px; }
+.ws-dept--ai-insights .ai-hero-cta  { padding: 7px 16px; margin-top: 4px; }
+
+/* KPI row */
+.ws-dept--ai-insights .hi-kpi-row  { gap: 10px; }
+.ws-dept--ai-insights .hi-kpi-card { padding: 13px; gap: 6px; }
+
+/* Recommendation cards */
+.ws-dept--ai-insights .ai-rec-section  { gap: 9px; }
+.ws-dept--ai-insights .ai-rec-grid     { gap: 8px; }
+.ws-dept--ai-insights .ai-rec-card     { padding: 10px 12px; gap: 5px; }
+.ws-dept--ai-insights .ai-rec-meta-row { padding-top: 4px; }
+
+/* Bottom 2-column: Priorities left, Forecast right */
+.ai-bottom-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+/* Business Priorities — desc hidden to save row height, title stays */
+.ws-dept--ai-insights .ai-priorities-section { gap: 8px; }
+.ws-dept--ai-insights .ai-priorities-list    { gap: 4px; }
+.ws-dept--ai-insights .ai-priority-row       { padding: 8px 12px; gap: 10px; }
+.ws-dept--ai-insights .ai-priority-desc      { display: none; }
+
+/* Executive Forecast */
+.ws-dept--ai-insights .ai-forecast-card     { padding: 12px 18px; gap: 8px; }
+.ws-dept--ai-insights .ai-forecast-insights { gap: 5px; }
+.ws-dept--ai-insights .ai-forecast-insight  { gap: 7px; }
+.ws-dept--ai-insights .ai-forecast-metrics  { gap: 8px; padding-top: 6px; }
+
+/* Right exec panel — tighter sections */
+.ws-dept--ai-insights .hi-panel-section { padding: 13px 15px; }
+
+/* Artist footer */
+.ws-dept--ai-insights .hi-artist-footer { padding-top: 8px; padding-bottom: 10px; }
