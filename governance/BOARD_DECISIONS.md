@@ -11,6 +11,96 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Reporting Time Zone™ Board Addendum — Dynamic tz detection + profile storage — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | RTZ must never be hardcoded. On first login the browser's `Intl.DateTimeFormat` detects the IANA zone automatically (e.g. `America/Toronto`). The zone is stored in `profiles.reporting_timezone` (authenticated) or `localStorage` (anonymous). The derived abbreviation (EDT, PST, GMT, etc.) is displayed throughout Royaltē OS via `[data-mc-rtz-abbr]`. The artist may override this value later from Settings → Preferences (deferred surface). IP-based fallback also deferred. |
+| **Reason** | A hardcoded "EDT" would break for every artist outside the US Eastern time zone. The Reporting Time Zone™ is a user-level reporting standard that governs scans, alerts, and Executive Brief™ reports — it must reflect the artist's actual locale. |
+| **Impact** | New `public/js/royalte-tz.js` — sole owner of RTZ detection, storage (`profiles.reporting_timezone` + `localStorage`), and DOM rendering (`[data-mc-rtz-abbr]`). New migration `supabase/migrations/20260703000000_reporting_timezone.sql` — `profiles.reporting_timezone text DEFAULT NULL`. `public/js/mission-control.js` — imports and calls `initRtz()` on DOMContentLoaded, independent of scan payload. |
+| **Vote** | Board Approved |
+| **PR Number** | #226 |
+| **Commit SHA** | `6efd9e2` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Reporting Time Zone™ Placement Amendment #004 — MC System Status™ only — CORRECTION
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Board correction of Amendment #003. RTZ removed from ALL Executive Workspace right panels (Health, Identity, Publishing). RTZ placed exclusively on Mission Control's existing system status section, renamed from "Monitoring Status" to **System Status™**. Approved hierarchy: System Status™ / Operational / ✓ Monitoring Active / divider / clock + abbreviation / Reporting Time Zone™ / System Time Synced ✓. Supersedes Amendment #003. |
+| **Reason** | Executive Workspaces are artist intelligence surfaces — system status is an OS-level concern, not a workspace-level concern. Mission Control is the correct home for OS infrastructure indicators. |
+| **Impact** | Orphaned `hi-sys-*` + `rtz-*` CSS removed from `royalte-workspace.css`. System Status™ HTML block removed from `health-intelligence.html`, `identity-intelligence.html`, `publishing-intelligence.html`. `mc-es-cell--status` renamed to System Status™; `mc-es-rtz-*` CSS + RTZ HTML block appended in MC inline style. |
+| **Vote** | Board Correction — Required |
+| **PR Number** | #226 |
+| **Commit SHA** | `6efd9e2` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Reporting Time Zone™ System Status Amendment #003 — SUPERSEDED by Amendment #004
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | ~~Add RTZ as a `hi-panel-section--system` at the bottom of the right exec panel in all three active Executive Workspaces.~~ **SUPERSEDED by Amendment #004 (above).** Entered governance record for completeness; implementation was reversed before production merge. |
+| **Reason** | Superseded — placement decision was corrected to MC System Status™ only. |
+| **Impact** | None (reversed in same PR #226 before merge). |
+| **Vote** | Board Approved then Corrected |
+| **PR Number** | #226 |
+| **Commit SHA** | `6efd9e2` (net result after #004 reversal) |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Publishing Intelligence™ Workspace — Board Amendment #002 — Rights Ownership™ — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Replace Songwriter Splits™ (from Amendment #001) with Rights Ownership™ (shield-check icon, 100% Independent). Canonical system card order locked: The MLC → Songtrust → Music Reports → Publisher (Interscope) → ISWC Coverage™ → Rights Ownership™. Supersedes the Songwriter Splits™ portion of Amendment #001. |
+| **Reason** | Rights Ownership™ conveys executive clarity — the artist has independent rights, the most valuable publishing position. Songwriter splits are a detail better suited to a future dedicated surface. |
+| **Impact** | Card 6 in `publishing-intelligence.html` updated. CSS `pi-system-badge--verified` applied. Canonical 6-card order locked for all future Publishing workspace iterations. |
+| **Vote** | Board Approved |
+| **PR Number** | #224 |
+| **Commit SHA** | `cdd4fda` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Publishing Intelligence™ Workspace — Board Amendment #001 — ISWC Coverage™ + Superseded — PARTIALLY SUPERSEDED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Remove PRO and Harry Fox Agency. Replace with ISWC Coverage™ (tag icon, 16 Assigned · 2 Pending) and Songwriter Splits™ (Amendment #001). Songwriter Splits™ subsequently superseded by Amendment #002 (Rights Ownership™). ISWC Coverage™ survives as card 5 in canonical order. |
+| **Reason** | PRO and Harry Fox Agency are generic industry names with no live data backing them in V1. ISWC Coverage™ is a concrete, data-backed signal. |
+| **Impact** | `publishing-intelligence.html` — cards 5 and 6 replaced. Amendment #002 subsequently locked the canonical order and replaced card 6 again. |
+| **Vote** | Board Approved |
+| **PR Number** | #224 |
+| **Commit SHA** | `cdd4fda` (net result after Amendment #002) |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Publishing Intelligence™ Workspace — Phase 1 Build — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve Publishing Intelligence™ as the third Executive Intelligence Workspace. Royal Violet (`#7c3aed`). System-focused (no artist avatar). 4 KPI cards (Potential Royalty Impact™ as Executive Signature™ with amber pulse, Publishing Coverage™, Registered Works™, Collection Health™). 6 Core Publishing System cards. `pi-*` CSS namespace. `ws-dept--publishing` ambient glow. |
+| **Reason** | Publishing and rights are the highest-leverage financial surface for independent artists. A dedicated publishing workspace surfaces royalty risk as an executive priority. |
+| **Impact** | `public/workspaces/publishing-intelligence.html` — full new workspace (~520 lines). `public/css/royalte-workspace.css` — `pi-*` namespace + `ws-dept--publishing` glow appended (~237 lines). |
+| **Vote** | Board Approved |
+| **PR Number** | #224 |
+| **Commit SHA** | `cdd4fda` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Ambient Module Elevation™ — Executive Workspace Design Language — APPROVED
 
 | | |
