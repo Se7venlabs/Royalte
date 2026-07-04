@@ -146,7 +146,7 @@
 
           <!-- Catalog Readiness™ — Executive Signature™ -->
           <div class="hi-kpi-card ci-kpi-card--readiness">
-            <div class="hi-kpi-label hi-kpi-label--orange">Catalog Readiness™</div>
+            <div class="hi-kpi-label hi-kpi-label--crimson">Catalog Readiness™</div>
 
             <div class="ci-readiness-ring-wrap" aria-label="Catalog readiness: 96%">
               <svg class="ci-readiness-ring-svg" viewBox="0 0 116 116">
@@ -154,7 +154,7 @@
                 <circle class="ci-readiness-ring-progress" cx="58" cy="58" r="40"/>
               </svg>
               <div class="ci-readiness-ring-center">
-                <span class="ci-readiness-ring-num">96</span>
+                <span class="ci-readiness-ring-num" id="ci-ring-num">0</span>
                 <span class="ci-readiness-ring-label">%</span>
               </div>
             </div>
@@ -171,14 +171,14 @@
 
           <!-- Total Tracks™ -->
           <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--orange">Total Tracks™</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
+            <div class="hi-kpi-label hi-kpi-label--crimson">Total Tracks™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--crimson" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
             </div>
             <div style="display:flex;align-items:baseline;gap:2px;margin-top:4px">
               <span class="ii-kpi-big-num">20</span>
             </div>
-            <div class="ii-kpi-status-text" style="color:var(--mc-orange)">Across 3 Projects</div>
+            <div class="ii-kpi-status-text" style="color:#e11d48">Across 3 Projects</div>
             <div class="ii-kpi-caption">2 Albums · 1 EP</div>
           </div>
 
@@ -198,15 +198,15 @@
 
           <!-- ISRC Coverage™ -->
           <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--orange">ISRC Coverage™</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>
+            <div class="hi-kpi-label hi-kpi-label--crimson">ISRC Coverage™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--crimson" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h16M4 14h8M4 18h6"/><circle cx="19" cy="16.5" r="3.5" stroke-width="2"/><path d="M19 14.5v2.5l1.5 1" stroke-width="2"/></svg>
             </div>
             <div style="display:flex;align-items:baseline;gap:2px;margin-top:4px">
               <span class="ii-kpi-big-num">19</span>
               <span class="ii-kpi-fraction"> / 20</span>
             </div>
-            <div class="ii-kpi-status-text" style="color:var(--mc-orange)">1 Pending</div>
+            <div class="ii-kpi-status-text" style="color:#e11d48">1 Pending</div>
             <div class="ii-kpi-caption">1 Track Unresolved</div>
           </div>
 
@@ -221,11 +221,11 @@
 
             <!-- Artwork™ -->
             <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="Artwork — Verified, All Covers Present">
-              <div class="ci-function-icon-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+              <div class="ci-artwork-container" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
               </div>
               <div class="ci-function-name">Artwork™</div>
-              <div class="ci-function-sub">Release Cover Status</div>
+              <div class="ci-function-sub">Best Verified Release Cover</div>
               <div class="ci-function-badge ci-function-badge--verified">Verified</div>
               <div class="ci-function-stat">All covers present</div>
             </a>
@@ -233,7 +233,7 @@
             <!-- Lyrics™ -->
             <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="Lyrics — Synced, 17 of 20 Tracks">
               <div class="ci-function-icon-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M3 10h18M3 14h12M3 18h8"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 19v3"/><path d="M9 22h6"/></svg>
               </div>
               <div class="ci-function-name">Lyrics™</div>
               <div class="ci-function-sub">Lyric Sync Coverage</div>
@@ -255,7 +255,7 @@
             <!-- ISRC™ -->
             <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="ISRC — 19 of 20, 1 Pending">
               <div class="ci-function-icon-wrap ci-function-icon-wrap--attention">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>
               </div>
               <div class="ci-function-name">ISRC™</div>
               <div class="ci-function-sub">Track Recording Codes</div>
@@ -297,40 +297,42 @@
               <svg class="ci-card-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
               <div class="ci-card-header-title">Catalog Snapshot™</div>
             </div>
-            <div class="ci-snapshot-table">
-              <div class="ci-snapshot-row">
-                <span class="ci-snapshot-key">Total Tracks</span>
-                <span class="ci-snapshot-val">20</span>
+
+            <div class="ci-snapshot-stats">
+              <div class="ci-snap-stat">
+                <span class="ci-snap-stat-num">18</span>
+                <span class="ci-snap-stat-label">Singles</span>
               </div>
-              <div class="ci-snapshot-row">
-                <span class="ci-snapshot-key">Projects</span>
-                <span class="ci-snapshot-val">3 — 2 Albums, 1 EP</span>
+              <div class="ci-snap-stat">
+                <span class="ci-snap-stat-num">2</span>
+                <span class="ci-snap-stat-label">Albums</span>
               </div>
-              <div class="ci-snapshot-row">
-                <span class="ci-snapshot-key">ISRC Coverage</span>
-                <span class="ci-snapshot-val ci-snapshot-val--attention">19 of 20 — 1 Pending</span>
+              <div class="ci-snap-stat">
+                <span class="ci-snap-stat-num">1</span>
+                <span class="ci-snap-stat-label">EPs</span>
               </div>
-              <div class="ci-snapshot-row">
-                <span class="ci-snapshot-key">UPC Status</span>
-                <span class="ci-snapshot-val ci-snapshot-val--green">3 Active</span>
+              <div class="ci-snap-stat">
+                <span class="ci-snap-stat-num">20</span>
+                <span class="ci-snap-stat-label">Total Tracks</span>
               </div>
-              <div class="ci-snapshot-row">
-                <span class="ci-snapshot-key">Artwork Status</span>
-                <span class="ci-snapshot-val">All Present</span>
+            </div>
+
+            <div class="ci-snap-divider"></div>
+
+            <div class="ci-snap-meta-list">
+              <div class="ci-snap-meta">
+                <span class="ci-snap-meta-label">Latest Release</span>
+                <span class="ci-snap-meta-val">Midnight Protocols — 2024</span>
               </div>
-              <div class="ci-snapshot-row">
-                <span class="ci-snapshot-key">Lyrics Coverage</span>
-                <span class="ci-snapshot-val ci-snapshot-val--attention">17 of 20 Synced</span>
+              <div class="ci-snap-meta">
+                <span class="ci-snap-meta-label">Primary Genre</span>
+                <span class="ci-snap-meta-val">Alternative R&amp;B</span>
               </div>
-              <div class="ci-snapshot-row">
-                <span class="ci-snapshot-key">Credits Status</span>
-                <span class="ci-snapshot-val ci-snapshot-val--green">All Tagged</span>
-              </div>
-              <div class="ci-snapshot-row">
-                <span class="ci-snapshot-key">Last Catalog Sync</span>
-                <span class="ci-snapshot-val">
+              <div class="ci-snap-meta">
+                <span class="ci-snap-meta-label">Last Catalog Sync</span>
+                <span class="ci-snap-meta-val">
                   2 hours ago
-                  <span class="ci-sync-dot" aria-hidden="true"></span>
+                  <span class="ci-snap-sync-check" aria-label="Sync healthy">✓</span>
                 </span>
               </div>
             </div>
@@ -356,7 +358,7 @@
 
               <div class="ci-activity-item" role="listitem">
                 <div class="ci-activity-dot-col">
-                  <div class="ci-activity-dot ci-activity-dot--amber" aria-hidden="true"></div>
+                  <div class="ci-activity-dot ci-activity-dot--crimson" aria-hidden="true"></div>
                 </div>
                 <div>
                   <div class="ci-activity-text">Lyric sync pending — 3 tracks</div>
@@ -376,7 +378,7 @@
 
               <div class="ci-activity-item" role="listitem">
                 <div class="ci-activity-dot-col">
-                  <div class="ci-activity-dot ci-activity-dot--amber" aria-hidden="true"></div>
+                  <div class="ci-activity-dot ci-activity-dot--crimson" aria-hidden="true"></div>
                 </div>
                 <div>
                   <div class="ci-activity-text">UPC renewal required — 1 release</div>
@@ -487,7 +489,7 @@
           <div class="hi-panel-summary-range">Jun 27 – Jul 4, 2026</div>
           <div class="hi-panel-summary-grid">
             <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--orange">20</div>
+              <div class="hi-panel-stat-num hi-panel-stat-num--crimson">20</div>
               <div class="hi-panel-stat-label">Total Tracks</div>
             </div>
             <div class="hi-panel-summary-stat">
@@ -513,5 +515,21 @@
   </div><!-- /ws-content -->
 
 </div><!-- /ws-shell -->
+<script>
+(function() {
+  var el = document.getElementById('ci-ring-num');
+  if (!el) return;
+  var target = 96, duration = 1400, start = null;
+  function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+  function step(ts) {
+    if (!start) start = ts;
+    var p = Math.min((ts - start) / duration, 1);
+    el.textContent = Math.round(ease(p) * target);
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = target;
+  }
+  requestAnimationFrame(step);
+})();
+</script>
 </body>
 </html>
