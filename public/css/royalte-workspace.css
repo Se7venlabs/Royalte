@@ -2628,3 +2628,91 @@ a.ii-platform-card:hover {
   .ii-exec-header   { flex-direction: column; }
   .ii-platform-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Ambient Module Elevation™ — Health Intelligence™
+   Dept class: .ws-dept--health  /  Accent: Emerald (#2dd4bf)
+   Glow: very low opacity, large blur, feathers outside the card edge.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Default card ambience */
+.ws-dept--health .hi-kpi-card {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.28),
+              inset 0 1px 0 rgba(255,255,255,0.035),
+              0 0 44px rgba(45,212,191,0.07);
+}
+
+.ws-dept--health .hi-cat-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.22),
+              0 0 38px rgba(45,212,191,0.06);
+}
+
+.ws-dept--health .hi-timeline-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.22),
+              0 0 36px rgba(45,212,191,0.05);
+}
+
+.ws-dept--health .hi-exec-header {
+  box-shadow: 0 0 40px rgba(45,212,191,0.05);
+}
+
+/* Hover — amplify glow, keep transform + border-color from base rule */
+.ws-dept--health .hi-kpi-card:hover {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.38),
+              0 0 60px rgba(45,212,191,0.13),
+              inset 0 1px 0 rgba(255,255,255,0.045);
+}
+
+.ws-dept--health .hi-cat-card:hover {
+  box-shadow: 0 6px 22px rgba(0,0,0,0.30),
+              0 0 52px rgba(45,212,191,0.12);
+}
+
+/* Right panel — very soft left-edge glow, reinforces the panel as floating */
+.ws-dept--health .hi-exec-panel {
+  box-shadow: -1px 0 40px rgba(45,212,191,0.04);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Ambient Module Elevation™ — Identity Intelligence™
+   Dept class: .ws-dept--identity  /  Accent: Purple (#a855f7)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Default card ambience */
+.ws-dept--identity .hi-kpi-card {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.28),
+              inset 0 1px 0 rgba(255,255,255,0.035),
+              0 0 44px rgba(168,85,247,0.07);
+}
+
+.ws-dept--identity a.ii-platform-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.24),
+              0 0 38px rgba(168,85,247,0.06);
+}
+
+.ws-dept--identity .ii-snapshot-card,
+.ws-dept--identity .ii-activity-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.22),
+              0 0 36px rgba(168,85,247,0.06);
+}
+
+.ws-dept--identity .ii-exec-header {
+  box-shadow: 0 0 40px rgba(168,85,247,0.05);
+}
+
+/* Hover — amplify glow */
+.ws-dept--identity .hi-kpi-card:hover {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.38),
+              0 0 60px rgba(168,85,247,0.13),
+              inset 0 1px 0 rgba(255,255,255,0.045);
+}
+
+.ws-dept--identity a.ii-platform-card:hover {
+  box-shadow: 0 6px 22px rgba(0,0,0,0.30),
+              0 0 52px rgba(168,85,247,0.12);
+}
+
+/* Right panel */
+.ws-dept--identity .hi-exec-panel {
+  box-shadow: -1px 0 40px rgba(168,85,247,0.04);
+}
