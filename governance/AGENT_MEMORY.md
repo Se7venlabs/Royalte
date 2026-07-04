@@ -28,12 +28,20 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **WS-4.2-RTZ — Reporting Time Zone™ + MC System Status™** |
-| Merged at | `6efd9e2` (PR #226, 2026-07-03) |
+| Most recently completed phase | **Royaltē OS v1.0 Design Baseline — Catalog Intelligence™ + Executive Icon System™ + Product Review Polish** |
+| Merged at | `7108f35` (PR #233, 2026-07-04) |
 | Tag | — |
-| Prior phase | WS-4.2 — Publishing Intelligence™ Workspace Build (`cdd4fda`, PR #224, 2026-07-03) |
-| Active direction | Executive Workspace Sprint active. Health + Identity + Publishing workspaces complete. Reporting Time Zone™ is a dynamic, profile-backed OS indicator on MC only. Settings → Preferences override surface deferred. Next workspace or MC module requires new Board brief. |
-| Next Board gate | Board brief for next Executive Workspace or next MC module |
+| Prior phase | WS-4.2-RTZ — Reporting Time Zone™ + MC System Status™ (`6efd9e2`, PR #226, 2026-07-03) |
+| Active direction | Royaltē OS v1.0 design baseline locked. All 4 full Executive Workspaces (Health, Identity, Publishing, Catalog) complete. Royaltē Executive Icon Registry™ active. Workspace Accent Color Token system active. Waiting for next Board brief. |
+| Next Board gate | Board brief required before any new Executive Workspace or MC module begins |
+
+**⚠ MANDATORY GATE — Executive Product Review Standard™ (2026-07-04)**
+Every Executive Workspace must pass the mandatory three-gate process before merge:
+1. Development Complete
+2. Product Review Complete — per `governance/EXECUTIVE_PRODUCT_REVIEW_STANDARD.md`
+3. Board Review Complete
+
+The Engineering Agent is responsible for the Product Review before opening a PR. No workspace may merge without completing all three gates. See full standard at `governance/EXECUTIVE_PRODUCT_REVIEW_STANDARD.md`.
 
 **Executive Workspace Sprint underway.** Three Executive Workspaces complete. Health Intelligence™ (PR #220, emerald), Identity Intelligence™ (PR #222, purple), and Publishing Intelligence™ (PR #224, Royal Violet) are the three active departments in the ws-dept scoping system. Ambient Module Elevation™ introduces workspace-scoped ambient card glows — each dept class owns its accent color; large blur, very low opacity, feathers outside card edges. Future workspaces add `ws-dept--*` scoping without touching existing workspace CSS.
 
