@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Publishing Intelligence™ Workspace + Amendment #001 + Amendment #002 (PR #224)
+
+| | |
+|---|---|
+| **PR** | #224 |
+| **Commit SHA** | `2c03829` (Phase 1) · `bec528d` (Amendment #001) · `cdd4fda` (Amendment #002) |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/css/royalte-workspace.css` — `pi-*` CSS namespace (237 lines in 5 blocks): breadcrumb/section headers/exec header/risk indicator keyframe; Potential Royalty Impact™ hero card; Core Publishing System cards; Publishing Snapshot™ + Activity™; `ws-dept--publishing` Ambient Module Elevation™ (Royal Violet). `public/workspaces/publishing-intelligence.html` — full Executive Workspace replacing stub: system-focused exec header (no artist avatar), Potential Royalty Impact™ Executive Signature™ (three-state risk indicator with amber pulse), 4 KPI cards, 6 Core Publishing System Cards, Publishing Snapshot™, Publishing Activity™, right exec panel (AI Publishing Summary™ + Top Priority™ + Publishing Status™). |
+| **Changed** | `public/workspaces/publishing-intelligence.html` — Amendment #001: removed PRO + Harry Fox Agency; added ISWC Coverage™ + Songwriter Splits™. Amendment #002: replaced Songwriter Splits™ with Rights Ownership™; reordered grid to canonical sequence (The MLC, Songtrust, Music Reports, Publisher, ISWC Coverage™, Rights Ownership™). |
+| **Removed** | Legacy `ws-hero` / `mc-card` / `mc-pi-body` stub structure from `publishing-intelligence.html`. PRO card, Harry Fox Agency card, Songwriter Splits™ card (all superseded across amendments). |
+
+---
+
 ## 2026-07-03 — Ambient Module Elevation™ + Identity Intelligence™ Workspace (PR #222)
 
 | | |

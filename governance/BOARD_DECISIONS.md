@@ -11,6 +11,51 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-03 — Publishing Intelligence™ Workspace — Board Amendment #002 — Rights Ownership™ — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Replace Songwriter Splits™ with Rights Ownership™ in the Core Publishing Systems™ grid. Reorder grid to Board canonical sequence: The MLC, Songtrust, Music Reports, Publisher, ISWC Coverage™, Rights Ownership™ — org cards first, intelligence cards last. Rights Ownership™ (shield-check icon, "100% — Independent") communicates publishing rights confidence and is universally applicable to all artist types. |
+| **Reason** | Songwriter Splits™ introduced by Amendment #001 was replaced before review. Rights Ownership™ more directly answers the workspace's core question: "Are there any conditions that could prevent royalty collection?" |
+| **Impact** | Final six-card grid set. Rights Ownership™ added to pi-* namespace HTML. Card order locked. |
+| **Vote** | Board Approved |
+| **PR Number** | #224 |
+| **Commit SHA** | `cdd4fda` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Publishing Intelligence™ Workspace — Board Amendment #001 — ISWC Coverage™ — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Remove PRO and Harry Fox Agency from Core Publishing Systems™ grid. Replace with ISWC Coverage™ (16 Assigned / 2 Pending / 0 Missing) and Songwriter Splits™ (20 Verified). Publishing workspace must focus on publishing intelligence, not a directory of publishing organizations. **Note:** Songwriter Splits™ subsequently superseded by Amendment #002 (Rights Ownership™, same PR). |
+| **Reason** | PRO and Harry Fox Agency are not universally applicable to all artists or territories. They should not occupy primary Executive Workspace real estate. |
+| **Impact** | PRO and Harry Fox Agency removed. ISWC Coverage™ added as a core publishing identifier. Songwriter Splits™ added then superseded by Amendment #002. |
+| **Vote** | Board Approved |
+| **PR Number** | #224 |
+| **Commit SHA** | `bec528d` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Publishing Intelligence™ Workspace — Executive Workspace Build Phase 1 — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve Publishing Intelligence™ Workspace (WS-4.2) — third Executive Workspace. Royal Violet (#7c3aed) color identity, distinct from Identity's purple (#a855f7). System-focused header (no artist avatar — publishing is system/rights-focused). Potential Royalty Impact™ is the Executive Signature™: three-state risk indicator (Low / Moderate / High) with amber pulse animation. 6 Core Publishing System Cards. Publishing Snapshot™ compact table. Publishing Activity™ timeline. Right panel: AI Publishing Summary™ + Top Priority™ + Publishing Status™. Ambient Module Elevation™ applied via ws-dept--publishing. pi-* CSS namespace. |
+| **Reason** | Third department in the Executive Workspace Sprint. Publishing rights and registration status is a core artist concern; the workspace answers "Is my publishing complete and are there any conditions that could prevent royalty collection?" |
+| **Impact** | public/workspaces/publishing-intelligence.html fully replaced (stub → Executive Workspace). 237 lines of pi-* CSS appended. ws-dept--publishing ambient glow added to royalte-workspace.css. |
+| **Vote** | Board Approved |
+| **PR Number** | #224 |
+| **Commit SHA** | `2c03829` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Ambient Module Elevation™ — Executive Workspace Design Language — APPROVED
 
 | | |

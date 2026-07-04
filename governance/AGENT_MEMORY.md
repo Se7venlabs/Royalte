@@ -28,14 +28,14 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **WS-4.1-AME — Ambient Module Elevation™ + Identity Intelligence™ Workspace** |
-| Merged at | `96a8dc5` (PR #222, 2026-07-03) |
+| Most recently completed phase | **WS-4.2 — Publishing Intelligence™ Workspace + Amendment #001 + Amendment #002** |
+| Merged at | `cdd4fda` (PR #224, 2026-07-03) |
 | Tag | — |
-| Prior phase | WS-4.1 — Identity Intelligence™ Workspace Build (`c43f431`, PR #222, 2026-07-03) |
-| Active direction | Executive Workspace Sprint active. Health + Identity workspaces complete. Ambient Module Elevation™ system established. Next workspace requires new Board brief. |
+| Prior phase | WS-4.1-AME — Ambient Module Elevation™ + Identity Intelligence™ Workspace (`96a8dc5`, PR #222, 2026-07-03) |
+| Active direction | Executive Workspace Sprint active. Health + Identity + Publishing workspaces complete. Next workspace requires new Board brief. |
 | Next Board gate | Board brief for next Executive Workspace or next MC module |
 
-**Executive Workspace Sprint underway.** Two Executive Workspaces complete. Health Intelligence™ (PR #220, emerald) and Identity Intelligence™ (PR #222, purple) are the first two departments in the ws-dept scoping system. Ambient Module Elevation™ introduces workspace-scoped ambient card glows — each dept class owns its accent color; large blur, very low opacity, feathers outside card edges. Future workspaces add `ws-dept--*` scoping without touching existing workspace CSS.
+**Executive Workspace Sprint underway.** Three Executive Workspaces complete. Health Intelligence™ (PR #220, emerald), Identity Intelligence™ (PR #222, purple), and Publishing Intelligence™ (PR #224, Royal Violet #7c3aed) are the three active departments in the ws-dept scoping system. Publishing workspace is system-focused (no artist avatar); Potential Royalty Impact™ is the Executive Signature™ (three-state risk indicator, amber pulse). Core Publishing Systems™ grid: The MLC, Songtrust, Music Reports, Publisher, ISWC Coverage™, Rights Ownership™. Ambient Module Elevation™ system extends to ws-dept--publishing.
 
 **MC Intelligence Sprint (MC cards on Mission Control) remains active.** Three MC modules complete. Health Intelligence™ (PR #211) + Identity Intelligence™ (PR #213) + Publishing Intelligence™ (PR #215) are constitutional presentation layers using the `build*Plan` / `apply*Plan` wiring pattern. Publishing introduces Financial Impact™ (Section 4). Financial Neutrality Rule™ governs all impact language. Executive Layout Optimization™ v1.0 is the density baseline; final holistic pass deferred until all MC modules complete.
 
