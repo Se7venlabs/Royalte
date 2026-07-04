@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-04 — Executive Product Review Standard™ — Mandatory Merge Gate — MANDATORY
+
+| | |
+|---|---|
+| **Date** | 2026-07-04 |
+| **Decision** | No Executive Workspace may be merged into main until it has passed all three mandatory gates: (1) Development Complete, (2) Product Review Complete per `governance/EXECUTIVE_PRODUCT_REVIEW_STANDARD.md`, (3) Board Review Complete. The Engineering Agent conducting development is responsible for completing the Product Review before opening a PR. The Board is responsible for the final approval before merge. Neither gate may be skipped. |
+| **Reason** | Feature complete ≠ product complete. The final 2–3% of quality — visual consistency, emotional impact, OS coherence — is only found by experiencing the product, not by reading code. Every workspace must feel like one operating system. The previous review passes (PRs #232, #233) confirmed that product reviews surface real issues that code review misses: unicode character inconsistencies, inline style violations, panel stat grid rhythm breaks. |
+| **Impact** | Mandatory pre-merge gate on all current and future Executive Workspaces. Standard documented at `governance/EXECUTIVE_PRODUCT_REVIEW_STANDARD.md`. Agent Memory updated. Session memory updated. |
+| **Vote** | MANDATORY — Board-issued standard, no vote required |
+| **PR Number** | #234 |
+| **Commit SHA** | pending |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-03 — Executive Workspace Image Selection Standard™ — Platform-Agnostic Architecture — APPROVED
 
 | | |
