@@ -6,22 +6,6 @@
   <title>Global Music Footprint™ — Royaltē OS</title>
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
-  <!-- ── Geographic Calibration Grid™ — DEV TOOL — REMOVE BEFORE SHIP ── -->
-  <style>
-    .gf-cal-overlay { position:absolute; inset:0; pointer-events:none; z-index:20; }
-    .gf-cal-vline   { position:absolute; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.10); }
-    .gf-cal-hline   { position:absolute; left:0; right:0; height:1px; background:rgba(255,255,255,0.10); }
-    .gf-cal-vline.gcg-major { background:rgba(0,213,255,0.30); }
-    .gf-cal-hline.gcg-major { background:rgba(0,213,255,0.30); }
-    .gf-cal-label   { position:absolute; font-size:8px; font-family:monospace; font-weight:700;
-                       color:#00d5ff; background:rgba(0,0,0,0.70); padding:1px 3px;
-                       border-radius:2px; white-space:nowrap; pointer-events:none; z-index:21; line-height:1.4; }
-    .gf-cal-cross   { position:absolute; font-size:7px; font-family:monospace;
-                       color:rgba(0,213,255,0.50); transform:translate(-50%,-50%);
-                       pointer-events:none; z-index:21; }
-    .gf-marker      { display:none; }
-  </style>
-  <!-- ── END Geographic Calibration Grid™ ─────────────────────────────── -->
 </head>
 <body>
 <div class="ws-shell ws-dept--global">
@@ -547,61 +531,6 @@
       mapInner.appendChild(el);
     });
   });
-
-  /* ── Geographic Calibration Grid™ — DEV TOOL — REMOVE BEFORE SHIP ── */
-  (function () {
-    var overlay = document.createElement('div');
-    overlay.className = 'gf-cal-overlay';
-    overlay.id = 'gf-cal-overlay';
-    mapInner.appendChild(overlay);
-
-    /* vertical lines + top labels  (L axis = left %) */
-    for (var lv = 0; lv <= 100; lv += 5) {
-      var vl = document.createElement('div');
-      vl.className = 'gf-cal-vline' + (lv % 10 === 0 ? ' gcg-major' : '');
-      vl.style.left = lv + '%';
-      overlay.appendChild(vl);
-      if (lv % 10 === 0) {
-        var tl = document.createElement('span');
-        tl.className = 'gf-cal-label';
-        tl.style.left = lv + '%';
-        tl.style.top  = '1px';
-        tl.style.transform = 'translateX(-50%)';
-        tl.textContent = 'L' + lv;
-        overlay.appendChild(tl);
-      }
-    }
-
-    /* horizontal lines + left labels (T axis = top %) */
-    for (var tv = 0; tv <= 100; tv += 5) {
-      var hl = document.createElement('div');
-      hl.className = 'gf-cal-hline' + (tv % 10 === 0 ? ' gcg-major' : '');
-      hl.style.top = tv + '%';
-      overlay.appendChild(hl);
-      if (tv % 10 === 0) {
-        var ll = document.createElement('span');
-        ll.className = 'gf-cal-label';
-        ll.style.top  = tv + '%';
-        ll.style.left = '1px';
-        ll.style.transform = 'translateY(-50%)';
-        ll.textContent = 'T' + tv;
-        overlay.appendChild(ll);
-      }
-    }
-
-    /* intersection labels at every 10×10 major cross */
-    for (var lx = 10; lx <= 90; lx += 10) {
-      for (var tx = 10; tx <= 90; tx += 10) {
-        var cx = document.createElement('span');
-        cx.className = 'gf-cal-cross';
-        cx.style.left = lx + '%';
-        cx.style.top  = tx + '%';
-        cx.textContent = lx + ',' + tx;
-        overlay.appendChild(cx);
-      }
-    }
-  })();
-  /* ── END Geographic Calibration Grid™ ─────────────────────────────── */
 
   /* ── show popover ─────────────────────────────────────────── */
   function showPopover(el) {
