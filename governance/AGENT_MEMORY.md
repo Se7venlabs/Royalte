@@ -28,14 +28,16 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **MC-3.4 — Publishing Intelligence™ Executive Passport + Amendment 1 + Amendment 2** |
-| Merged at | `8400134` (PR #216, 2026-07-03) |
+| Most recently completed phase | **WS-4.1-AME — Ambient Module Elevation™ + Identity Intelligence™ Workspace** |
+| Merged at | `96a8dc5` (PR #222, 2026-07-03) |
 | Tag | — |
-| Prior phase | MC-3.3 — Identity Intelligence™ Executive Passport (`654eb52`, PR #213, 2026-07-03) |
-| Active direction | MC Intelligence Sprint active. Health + Identity + Publishing Intelligence™ wired. Next MC module requires new Board brief. |
-| Next Board gate | Board brief for next MC module or next OS phase |
+| Prior phase | WS-4.1 — Identity Intelligence™ Workspace Build (`c43f431`, PR #222, 2026-07-03) |
+| Active direction | Executive Workspace Sprint active. Health + Identity workspaces complete. Ambient Module Elevation™ system established. Next workspace requires new Board brief. |
+| Next Board gate | Board brief for next Executive Workspace or next MC module |
 
-**MC Intelligence Sprint underway.** Three MC modules complete. Health Intelligence™ (PR #211) + Identity Intelligence™ (PR #213) + Publishing Intelligence™ (PR #215) are all constitutional presentation layers using the `build*Plan` / `apply*Plan` wiring pattern. Publishing introduces Financial Impact™ (Section 4) — the first MC section to display a mini Executive Brief (risk badge + Potential Royalty Impact™ + Estimated Resolution). Financial Neutrality Rule™ governs all impact language. Executive Layout Optimization™ v1.0 is the density baseline; final holistic pass deferred until all MC modules complete.
+**Executive Workspace Sprint underway.** Two Executive Workspaces complete. Health Intelligence™ (PR #220, emerald) and Identity Intelligence™ (PR #222, purple) are the first two departments in the ws-dept scoping system. Ambient Module Elevation™ introduces workspace-scoped ambient card glows — each dept class owns its accent color; large blur, very low opacity, feathers outside card edges. Future workspaces add `ws-dept--*` scoping without touching existing workspace CSS.
+
+**MC Intelligence Sprint (MC cards on Mission Control) remains active.** Three MC modules complete. Health Intelligence™ (PR #211) + Identity Intelligence™ (PR #213) + Publishing Intelligence™ (PR #215) are constitutional presentation layers using the `build*Plan` / `apply*Plan` wiring pattern. Publishing introduces Financial Impact™ (Section 4). Financial Neutrality Rule™ governs all impact language. Executive Layout Optimization™ v1.0 is the density baseline; final holistic pass deferred until all MC modules complete.
 
 **Phase 3.6 Deezer (PR #201, `ba66b26`, 2026-07-03):** Streaming Verification Authority™, trust 80. `getDeezer()` direct-call retired. All original streaming providers (Apple, Spotify, Deezer) now 100% migrated to PAL. Suite 11 (67 assertions). `platforms.deezer.isrcs[]` is the constitutional bridge for future Verification Intelligence™.
 

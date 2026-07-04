@@ -60,6 +60,13 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | MC-3.3 | Identity Intelligence™ Executive Passport (6-section redesign) | ✅ Complete | `654eb52` (PR #213) | — |
 | MC-3.4 | Publishing Intelligence™ Executive Passport (7-section + Amendment 1 + Amendment 2) | ✅ Complete | `8400134` (PR #216) | — |
 
+### Executive Workspace Sprint
+
+| Phase | Title | Status | Locked at | Tag |
+|---|---|---|---|---|
+| WS-4.1 | Identity Intelligence™ Workspace Build (ii-* namespace + coverage ring) | ✅ Complete | `c43f431` (PR #222) | — |
+| WS-4.1-AME | Ambient Module Elevation™ — ws-dept scoping system (Health + Identity) | ✅ Complete | `96a8dc5` (PR #222) | — |
+
 ---
 
 ## What's Live in `main` Today
