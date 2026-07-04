@@ -67,6 +67,23 @@
   --mc-font: ui-sans-serif, system-ui, -apple-system, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
 }
 
+/* ─── Workspace Accent Color Tokens™ ────────────────────────────── */
+/* Default: Mission Control / Identity (purple). Each ws-dept--* overrides. */
+:root {
+  --ws-accent:        var(--mc-purple);
+  --ws-accent-soft:   var(--mc-purple-soft);
+  --ws-accent-border: var(--mc-border-warm);
+  --ws-accent-glow:   var(--mc-purple-glow);
+}
+.ws-dept--health     { --ws-accent: var(--mc-green);   --ws-accent-soft: var(--mc-green-soft);           --ws-accent-border: rgba(45,212,191,0.22);   --ws-accent-glow: var(--mc-green-glow); }
+.ws-dept--identity   { --ws-accent: var(--mc-purple);  --ws-accent-soft: var(--mc-purple-soft);          --ws-accent-border: var(--mc-border-warm);   --ws-accent-glow: var(--mc-purple-glow); }
+.ws-dept--publishing { --ws-accent: #7c3aed;            --ws-accent-soft: rgba(124,58,237,0.12);          --ws-accent-border: rgba(124,58,237,0.28);   --ws-accent-glow: rgba(124,58,237,0.32); }
+.ws-dept--catalog    { --ws-accent: #e11d48;            --ws-accent-soft: rgba(225,29,72,0.12);           --ws-accent-border: rgba(225,29,72,0.28);    --ws-accent-glow: rgba(225,29,72,0.32); }
+.ws-dept--global     { --ws-accent: var(--mc-blue);    --ws-accent-soft: var(--mc-blue-soft);            --ws-accent-border: rgba(56,189,248,0.22);   --ws-accent-glow: rgba(56,189,248,0.32); }
+.ws-dept--backend    { --ws-accent: var(--mc-gold);    --ws-accent-soft: var(--mc-gold-soft);            --ws-accent-border: var(--mc-border-gold);   --ws-accent-glow: var(--mc-gold-glow); }
+.ws-dept--ai-insights { --ws-accent: var(--mc-purple); --ws-accent-soft: var(--mc-purple-soft);          --ws-accent-border: var(--mc-border-warm);   --ws-accent-glow: var(--mc-purple-glow); }
+.ws-dept--monitoring  { --ws-accent: var(--mc-blue);   --ws-accent-soft: var(--mc-blue-soft);            --ws-accent-border: rgba(56,189,248,0.22);   --ws-accent-glow: rgba(56,189,248,0.32); }
+
 /* ─── base reset ─────────────────────────────────────────────────── */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -191,9 +208,9 @@ svg { display: block; }
 }
 
 .mc-nav-item--active {
-  background: rgba(168, 85, 247, 0.10);
+  background: var(--ws-accent-soft);
   color: var(--mc-text);
-  border: 1px solid var(--mc-border-warm);
+  border: 1px solid var(--ws-accent-border);
 }
 
 .mc-nav-item--active::before {
@@ -204,9 +221,9 @@ svg { display: block; }
   transform: translateY(-50%);
   width: 2px;
   height: 60%;
-  background: var(--mc-purple);
+  background: var(--ws-accent);
   border-radius: 1px;
-  box-shadow: 0 0 8px var(--mc-purple-glow);
+  box-shadow: 0 0 8px var(--ws-accent-glow);
 }
 
 .mc-nav-icon {
@@ -218,15 +235,22 @@ svg { display: block; }
   place-items: center;
   color: var(--mc-text-soft);
   border: 1px solid var(--mc-border);
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.mc-nav-item:hover .mc-nav-icon {
+  color: var(--mc-text);
+  background: var(--mc-surface-3);
+  box-shadow: 0 0 10px var(--ws-accent-glow);
+  border-color: var(--ws-accent-border);
 }
 
 .mc-nav-item--active .mc-nav-icon {
-  color: var(--mc-purple);
-  background: var(--mc-purple-soft);
-  border-color: var(--mc-border-warm);
+  color: var(--ws-accent);
+  background: var(--ws-accent-soft);
+  border-color: var(--ws-accent-border);
+  box-shadow: 0 0 12px var(--ws-accent-glow);
 }
-
-.mc-nav-icon svg { width: 16px; height: 16px; }
 
 .mc-nav-label { font-size: 13.5px; font-weight: 500; }
 .mc-nav-sub   { font-size: 11px; color: var(--mc-text-muted); margin-top: 1px; letter-spacing: 0.02em; }
@@ -2825,11 +2849,16 @@ a.pi-system-card {
 a.pi-system-card:hover {
   border-color: rgba(124,58,237,0.30); transform: translateY(-1px);
 }
+a.pi-system-card:hover .pi-system-icon-wrap {
+  background: rgba(124,58,237,0.20);
+  box-shadow: 0 0 14px rgba(124,58,237,0.32);
+}
 .pi-system-icon-wrap {
   width: 36px; height: 36px; border-radius: 8px;
   background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.18);
   display: flex; align-items: center; justify-content: center;
   color: #7c3aed; margin-bottom: 8px; flex-shrink: 0;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 .pi-system-icon-wrap svg { width: 18px; height: 18px; }
 .pi-system-icon-wrap--attention {
@@ -2988,6 +3017,9 @@ a.pi-system-card:hover {
   background: rgba(225,29,72,0.10);
   border: 1px solid rgba(225,29,72,0.22);
   color: #e11d48;
+}
+.hi-kpi-card:hover .hi-kpi-icon-wrap--crimson {
+  box-shadow: 0 0 16px rgba(225,29,72,0.28);
 }
 
 .hi-panel-stat-num--crimson { color: #e11d48; }
@@ -3358,4 +3390,59 @@ a.ci-function-card:hover .ci-artwork-container {
 
 /* Panel action icon */
 .hi-panel-action-icon .royalte-icon { width: 16px; height: 16px; }
+
+/* ─── Dept ambient elevation — Global Music Footprint ───────────── */
+/* Dept class: .ws-dept--global  /  Accent: Sky Blue (#38bdf8) */
+
+.ws-dept--global .hi-kpi-card {
+  box-shadow: 0 0 0 1px rgba(56,189,248,0.07), 0 4px 16px rgba(56,189,248,0.04);
+}
+.ws-dept--global .hi-exec-panel {
+  box-shadow: 0 0 0 1px rgba(56,189,248,0.08), 0 8px 24px rgba(56,189,248,0.06);
+}
+.ws-dept--global .hi-kpi-card:hover {
+  box-shadow: 0 0 0 1px rgba(56,189,248,0.16), 0 6px 20px rgba(56,189,248,0.10);
+}
+.ws-dept--global .ws-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(56,189,248,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Dept ambient elevation — Backend Intelligence ─────────────── */
+/* Dept class: .ws-dept--backend  /  Accent: Gold (#C6A86A) */
+
+.ws-dept--backend .hi-kpi-card {
+  box-shadow: 0 0 0 1px rgba(198,168,106,0.07), 0 4px 16px rgba(198,168,106,0.04);
+}
+.ws-dept--backend .hi-exec-panel {
+  box-shadow: 0 0 0 1px rgba(198,168,106,0.08), 0 8px 24px rgba(198,168,106,0.06);
+}
+.ws-dept--backend .hi-kpi-card:hover {
+  box-shadow: 0 0 0 1px rgba(198,168,106,0.16), 0 6px 20px rgba(198,168,106,0.10);
+}
+.ws-dept--backend .ws-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(198,168,106,0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Dept ambient elevation — AI Insights ──────────────────────── */
+/* Dept class: .ws-dept--ai-insights  /  Accent: Purple (#a855f7) */
+
+.ws-dept--ai-insights .hi-kpi-card {
+  box-shadow: 0 0 0 1px rgba(168,85,247,0.07), 0 4px 16px rgba(168,85,247,0.04);
+}
+.ws-dept--ai-insights .hi-exec-panel {
+  box-shadow: 0 0 0 1px rgba(168,85,247,0.08), 0 8px 24px rgba(168,85,247,0.06);
+}
+.ws-dept--ai-insights .hi-kpi-card:hover {
+  box-shadow: 0 0 0 1px rgba(168,85,247,0.16), 0 6px 20px rgba(168,85,247,0.10);
+}
 
