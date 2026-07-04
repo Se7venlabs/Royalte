@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Executive Image Service™ — Platform-Agnostic Image Selection (PR #228)
+
+| | |
+|---|---|
+| **PR** | #228 |
+| **Commit SHA** | `7127bc0` |
+| **Constitution Version** | v1.3 |
+| **Added** | `api/_lib/image-service.js` — sole backend owner of image source selection. `getBestVerifiedArtistImage(resolved, artistData, appleMusicData)`: Apple-first per Canonical Identity Architecture; Spotify as verified fallback; extensible to future providers. `getBestVerifiedReleaseArtwork(trackData, resolved)`: album images first; Apple fallback. `public/js/royalte-image-service.js` — sole frontend owner. Reads canonical payload fields only (`cio.identity.artwork`, `albumImageUrl`, `subject.artistImageUrl`). `.royalte-exec-img` CSS standard class (80×80 px, `border-radius: 8px`, `object-fit: cover`) + `--artist` (circular) and `--artwork` (6px) variants. |
+| **Changed** | `api/_lib/run-scan.js` — `imageUrl`, `artistImageUrl`, `albumImageUrl` inline platform-specific chains replaced with `getBestVerifiedArtistImage` / `getBestVerifiedReleaseArtwork` calls. Apple-path `artistImage` in `resolveToArtist()` return replaced with image service call. `appleArtworkUrl` preserved as passthrough field. |
+| **Removed** | Inline platform-specific image selection logic from `run-scan.js` (three inline chains referencing `artistData.images`, `resolved.appleArtworkUrl`, `trackData.album.images` directly). |
+
+---
+
 ## 2026-07-03 — Reporting Time Zone™ — MC System Status™ + Dynamic tz Detection (PR #226)
 
 | | |
