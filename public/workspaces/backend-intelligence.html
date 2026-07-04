@@ -147,7 +147,6 @@
         <!-- § 2 — KPI CARDS ─────────────────────────────────────────── -->
         <div class="hi-kpi-row">
 
-          <!-- Verification Score™ -->
           <div class="hi-kpi-card">
             <div class="hi-kpi-label hi-kpi-label--teal">Verification Score™</div>
             <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--teal" aria-hidden="true">
@@ -161,7 +160,6 @@
             <div class="ii-kpi-caption">Data Integrity Confirmed</div>
           </div>
 
-          <!-- Connected Systems™ -->
           <div class="hi-kpi-card">
             <div class="hi-kpi-label hi-kpi-label--teal">Connected Systems™</div>
             <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--teal" aria-hidden="true">
@@ -175,7 +173,6 @@
             <div class="ii-kpi-caption">Infrastructure Active</div>
           </div>
 
-          <!-- Verified Records™ -->
           <div class="hi-kpi-card">
             <div class="hi-kpi-label hi-kpi-label--teal">Verified Records™</div>
             <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--teal" aria-hidden="true">
@@ -189,27 +186,26 @@
             <div class="ii-kpi-caption">Across All Systems</div>
           </div>
 
-          <!-- Business Risk™ -->
           <div class="hi-kpi-card">
             <div class="hi-kpi-label hi-kpi-label--teal">Business Risk™</div>
             <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--teal" aria-hidden="true">
               <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
             </div>
-            <div class="ii-kpi-num-row" style="padding-top:6px;">
-              <span class="ii-kpi-big-num" style="font-size:22px;color:#F59E0B;">MEDIUM</span>
+            <div class="ii-kpi-num-row" style="padding-top:4px;">
+              <span class="ii-kpi-big-num" style="font-size:20px;color:#F59E0B;">MEDIUM</span>
             </div>
             <div class="ii-kpi-status-text" style="color:#F59E0B;">2 Issues Detected</div>
             <div class="ii-kpi-caption">Rights · Registrations</div>
           </div>
 
-        </div><!-- /hi-kpi-row -->
+        </div>
 
         <!-- § 3 — MUSIC BACKEND DIGITAL TWIN™ ──────────────────────── -->
         <div class="bi-twin-section" aria-label="Music Backend Digital Twin — infrastructure network visualization">
           <div class="bi-twin-label">Music Backend Digital Twin™</div>
           <div class="bi-twin-title">Invisible Infrastructure Behind Your Music</div>
           <div class="bi-twin-svg-wrap">
-            <svg class="bi-twin-svg" viewBox="0 0 560 360" role="img" aria-hidden="true">
+            <svg class="bi-twin-svg" viewBox="0 0 560 272" role="img" aria-hidden="true">
               <defs>
                 <filter id="bi-glow-teal" x="-50%" y="-50%" width="200%" height="200%">
                   <feGaussianBlur stdDeviation="3" result="blur"/>
@@ -226,205 +222,159 @@
               </defs>
 
               <!-- Connection lines (behind nodes) -->
-              <line id="bl-1" class="bi-conn-line bi-conn--teal" x1="280" y1="52" x2="145" y2="148"/>
-              <line id="bl-2" class="bi-conn-line bi-conn--teal" x1="280" y1="52" x2="415" y2="148"/>
-              <line id="bl-3" class="bi-conn-line bi-conn--amber" x1="145" y1="162" x2="72" y2="238"/>
-              <line id="bl-4" class="bi-conn-line bi-conn--teal" x1="145" y1="162" x2="200" y2="258"/>
-              <line id="bl-5" class="bi-conn-line bi-conn--amber" x1="415" y1="162" x2="488" y2="238"/>
-              <line id="bl-6" class="bi-conn-line bi-conn--teal" x1="72" y1="252" x2="272" y2="318"/>
-              <line id="bl-7" class="bi-conn-line bi-conn--teal" x1="208" y1="268" x2="272" y2="318"/>
-              <line id="bl-8" class="bi-conn-line bi-conn--teal" x1="415" y1="162" x2="292" y2="318"/>
-              <line id="bl-9" class="bi-conn-line bi-conn--teal" x1="488" y1="252" x2="292" y2="318"/>
+              <line id="bl-1" class="bi-conn-line bi-conn--teal"  x1="280" y1="30"  x2="115" y2="102"/>
+              <line id="bl-2" class="bi-conn-line bi-conn--teal"  x1="280" y1="30"  x2="445" y2="102"/>
+              <line id="bl-3" class="bi-conn-line bi-conn--amber" x1="115" y1="102" x2="48"  y2="190"/>
+              <line id="bl-4" class="bi-conn-line bi-conn--teal"  x1="115" y1="102" x2="192" y2="190"/>
+              <line id="bl-5" class="bi-conn-line bi-conn--amber" x1="445" y1="102" x2="512" y2="190"/>
+              <line id="bl-6" class="bi-conn-line bi-conn--teal"  x1="48"  y1="190" x2="272" y2="232"/>
+              <line id="bl-7" class="bi-conn-line bi-conn--teal"  x1="192" y1="190" x2="274" y2="232"/>
+              <line id="bl-8" class="bi-conn-line bi-conn--teal"  x1="445" y1="102" x2="284" y2="232"/>
+              <line id="bl-9" class="bi-conn-line bi-conn--teal"  x1="512" y1="190" x2="288" y2="232"/>
 
-              <!-- SONG node (top center) -->
+              <!-- SONG node -->
               <g id="bn-song" class="bi-node bi-node--song" style="opacity:0">
-                <circle class="bi-node-ring" cx="280" cy="44" r="22" filter="url(#bi-glow-white)"/>
-                <circle class="bi-node-core" cx="280" cy="44" r="10" filter="url(#bi-glow-white)"/>
-                <text class="bi-node-label" x="280" y="24" style="font-size:11px;font-weight:700;text-anchor:middle;">SONG</text>
-                <text class="bi-node-status" x="280" y="73" style="font-size:8px;text-anchor:middle;">Entry Point</text>
+                <circle class="bi-node-ring" cx="280" cy="30" r="15" filter="url(#bi-glow-white)"/>
+                <circle class="bi-node-core" cx="280" cy="30" r="7"  filter="url(#bi-glow-white)"/>
+                <text class="bi-node-label" x="280" y="11" style="font-size:10px;font-weight:700;text-anchor:middle;">SONG</text>
+                <text class="bi-node-status" x="280" y="54" style="font-size:8px;text-anchor:middle;">Entry Point</text>
               </g>
 
-              <!-- METADATA node (upper left) -->
+              <!-- METADATA node -->
               <g id="bn-meta" class="bi-node bi-node--verified" style="opacity:0">
-                <circle class="bi-node-ring" cx="145" cy="155" r="20" filter="url(#bi-glow-teal)"/>
-                <circle class="bi-node-core" cx="145" cy="155" r="8"/>
-                <text class="bi-node-label" x="145" y="134" style="font-size:10px;font-weight:600;text-anchor:middle;">METADATA</text>
-                <text class="bi-node-status" x="145" y="182" style="font-size:8px;text-anchor:middle;">Verified</text>
+                <circle class="bi-node-ring" cx="115" cy="102" r="13" filter="url(#bi-glow-teal)"/>
+                <circle class="bi-node-core" cx="115" cy="102" r="6"/>
+                <text class="bi-node-label" x="115" y="82"  style="font-size:9px;font-weight:600;text-anchor:middle;">METADATA</text>
+                <text class="bi-node-status" x="115" y="123" style="font-size:8px;text-anchor:middle;">Verified</text>
               </g>
 
-              <!-- DISTRIBUTION node (upper right) -->
+              <!-- DISTRIBUTION node -->
               <g id="bn-dist" class="bi-node bi-node--verified" style="opacity:0">
-                <circle class="bi-node-ring" cx="415" cy="155" r="20" filter="url(#bi-glow-teal)"/>
-                <circle class="bi-node-core" cx="415" cy="155" r="8"/>
-                <text class="bi-node-label" x="415" y="134" style="font-size:10px;font-weight:600;text-anchor:middle;">DISTRIBUTION</text>
-                <text class="bi-node-status" x="415" y="182" style="font-size:8px;text-anchor:middle;">Verified</text>
+                <circle class="bi-node-ring" cx="445" cy="102" r="13" filter="url(#bi-glow-teal)"/>
+                <circle class="bi-node-core" cx="445" cy="102" r="6"/>
+                <text class="bi-node-label" x="445" y="82"  style="font-size:9px;font-weight:600;text-anchor:middle;">DISTRIBUTION</text>
+                <text class="bi-node-status" x="445" y="123" style="font-size:8px;text-anchor:middle;">Verified</text>
               </g>
 
-              <!-- RIGHTS OWNERSHIP node (lower left) -->
+              <!-- RIGHTS OWNERSHIP node -->
               <g id="bn-rights" class="bi-node bi-node--review" style="opacity:0">
-                <circle class="bi-node-ring" cx="72" cy="245" r="20" filter="url(#bi-glow-amber)"/>
-                <circle class="bi-node-core" cx="72" cy="245" r="8"/>
-                <text class="bi-node-label" x="72" y="212" style="font-size:9px;font-weight:600;text-anchor:middle;">
-                  <tspan x="72" dy="0">RIGHTS</tspan>
-                  <tspan x="72" dy="12">OWNERSHIP</tspan>
+                <circle class="bi-node-ring" cx="48" cy="190" r="13" filter="url(#bi-glow-amber)"/>
+                <circle class="bi-node-core" cx="48" cy="190" r="6"/>
+                <text class="bi-node-label" x="48" y="154" style="font-size:8.5px;font-weight:600;text-anchor:middle;">
+                  <tspan x="48" dy="0">RIGHTS</tspan>
+                  <tspan x="48" dy="12">OWNERSHIP</tspan>
                 </text>
-                <text class="bi-node-status" x="72" y="272" style="font-size:8px;text-anchor:middle;">Needs Review</text>
+                <text class="bi-node-status" x="48" y="211" style="font-size:8px;text-anchor:middle;">Needs Review</text>
               </g>
 
-              <!-- IDENTITY node (center left) -->
+              <!-- IDENTITY node -->
               <g id="bn-id" class="bi-node bi-node--verified" style="opacity:0">
-                <circle class="bi-node-ring" cx="200" cy="265" r="20" filter="url(#bi-glow-teal)"/>
-                <circle class="bi-node-core" cx="200" cy="265" r="8"/>
-                <text class="bi-node-label" x="200" y="244" style="font-size:10px;font-weight:600;text-anchor:middle;">IDENTITY</text>
-                <text class="bi-node-status" x="200" y="292" style="font-size:8px;text-anchor:middle;">Verified</text>
+                <circle class="bi-node-ring" cx="192" cy="190" r="13" filter="url(#bi-glow-teal)"/>
+                <circle class="bi-node-core" cx="192" cy="190" r="6"/>
+                <text class="bi-node-label" x="192" y="169" style="font-size:9px;font-weight:600;text-anchor:middle;">IDENTITY</text>
+                <text class="bi-node-status" x="192" y="211" style="font-size:8px;text-anchor:middle;">Verified</text>
               </g>
 
-              <!-- REGISTRATIONS node (lower right) -->
+              <!-- REGISTRATIONS node -->
               <g id="bn-reg" class="bi-node bi-node--review" style="opacity:0">
-                <circle class="bi-node-ring" cx="488" cy="245" r="20" filter="url(#bi-glow-amber)"/>
-                <circle class="bi-node-core" cx="488" cy="245" r="8"/>
-                <text class="bi-node-label" x="488" y="224" style="font-size:10px;font-weight:600;text-anchor:middle;">REGISTRATIONS</text>
-                <text class="bi-node-status" x="488" y="272" style="font-size:8px;text-anchor:middle;">Needs Review</text>
+                <circle class="bi-node-ring" cx="512" cy="190" r="13" filter="url(#bi-glow-amber)"/>
+                <circle class="bi-node-core" cx="512" cy="190" r="6"/>
+                <text class="bi-node-label" x="512" y="169" style="font-size:9px;font-weight:600;text-anchor:middle;">REGISTRATIONS</text>
+                <text class="bi-node-status" x="512" y="211" style="font-size:8px;text-anchor:middle;">Needs Review</text>
               </g>
 
-              <!-- ROYALTĒ INTELLIGENCE hub (bottom center) -->
+              <!-- ROYALTĒ INTELLIGENCE hub -->
               <g id="bn-hub" class="bi-node bi-node--hub" style="opacity:0">
-                <circle class="bi-node-ring" cx="282" cy="325" r="26" filter="url(#bi-glow-teal)"/>
-                <circle class="bi-node-core" cx="282" cy="325" r="12" filter="url(#bi-glow-teal)"/>
-                <text class="bi-node-label" x="282" y="348" style="font-size:9px;font-weight:700;text-anchor:middle;letter-spacing:0.06em;">ROYALTĒ INTELLIGENCE</text>
-                <text class="bi-node-status" x="282" y="358" style="font-size:8px;text-anchor:middle;">Operational</text>
+                <circle class="bi-node-ring" cx="280" cy="232" r="18" filter="url(#bi-glow-teal)"/>
+                <circle class="bi-node-core" cx="280" cy="232" r="10" filter="url(#bi-glow-teal)"/>
+                <text class="bi-node-label" x="280" y="261" style="font-size:8.5px;font-weight:700;text-anchor:middle;letter-spacing:0.06em;">ROYALTĒ INTELLIGENCE</text>
               </g>
 
             </svg>
           </div>
-        </div><!-- /bi-twin-section -->
+        </div>
 
-        <!-- § 4 — EXECUTIVE MODULES ─────────────────────────────────── -->
+        <!-- § 4 — CORE BACKEND MODULES ──────────────────────────────── -->
         <div class="bi-module-grid">
 
-          <!-- Metadata™ -->
-          <div class="bi-module-card">
-            <div class="bi-module-header">
+          <div class="bi-module-card bi-module-card--tile">
+            <div class="bi-tile-row">
               <div class="bi-module-icon" aria-hidden="true">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-catalog"></use></svg>
               </div>
-              <div class="bi-module-title">Metadata™</div>
+              <div class="bi-tile-content">
+                <div class="bi-tile-name">Metadata™</div>
+                <div class="bi-tile-desc">9 fields confirmed — ISRC, UPC, Copyright</div>
+              </div>
+              <div class="bi-tile-badge bi-tile-badge--verified">Verified</div>
             </div>
-            <div class="bi-module-row"><span class="bi-module-key">Song Title</span><span class="bi-module-val bi-module-val--teal">Novella</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Artist</span><span class="bi-module-val bi-module-val--teal">Gentlemen X</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Album</span><span class="bi-module-val bi-module-val--teal">Chapter One</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Record Label</span><span class="bi-module-val bi-module-val--teal">Independent</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Genre</span><span class="bi-module-val bi-module-val--teal">R&amp;B / Soul</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Release Date</span><span class="bi-module-val bi-module-val--teal">Jan 12, 2024</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">ISRC</span><span class="bi-module-val bi-module-val--teal">USRC12400142</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">UPC</span><span class="bi-module-val bi-module-val--teal">195497214076</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Copyright</span><span class="bi-module-val bi-module-val--teal">℗ 2024 Gentlemen X</span></div>
           </div>
 
-          <!-- Identity™ -->
-          <div class="bi-module-card">
-            <div class="bi-module-header">
+          <div class="bi-module-card bi-module-card--tile">
+            <div class="bi-tile-row">
               <div class="bi-module-icon" aria-hidden="true">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-identity"></use></svg>
               </div>
-              <div class="bi-module-title">Identity™</div>
+              <div class="bi-tile-content">
+                <div class="bi-tile-name">Identity™</div>
+                <div class="bi-tile-desc">4 IDs active · IPI / CAE not detected</div>
+              </div>
+              <div class="bi-tile-badge bi-tile-badge--verified">Verified</div>
             </div>
-            <div class="bi-module-row"><span class="bi-module-key">Apple Music ID</span><span class="bi-module-val bi-module-val--teal">1147168972</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Spotify ID</span><span class="bi-module-val bi-module-val--teal">3TVXtAsR1Inumwj472S1r</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">MusicBrainz ID</span><span class="bi-module-val bi-module-val--teal">mb-a9f1c2d4</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">ISNI</span><span class="bi-module-val bi-module-val--teal">0000 0001 2134 8764</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">IPI / CAE</span><span class="bi-module-val bi-module-val--amber">Not Detected</span></div>
           </div>
 
-          <!-- Rights Ownership™ -->
-          <div class="bi-module-card">
-            <div class="bi-module-header">
+          <div class="bi-module-card bi-module-card--tile">
+            <div class="bi-tile-row">
               <div class="bi-module-icon" aria-hidden="true">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
               </div>
-              <div class="bi-module-title">Rights Ownership™</div>
+              <div class="bi-tile-content">
+                <div class="bi-tile-name">Rights Ownership™</div>
+                <div class="bi-tile-desc">Master confirmed · Publisher unregistered</div>
+              </div>
+              <div class="bi-tile-badge bi-tile-badge--partial">Partial</div>
             </div>
-            <div class="bi-module-row"><span class="bi-module-key">Master Recording</span><span class="bi-module-val bi-module-val--teal">Gentlemen X</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Composition</span><span class="bi-module-val bi-module-val--amber">Unconfirmed</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Publisher</span><span class="bi-module-val bi-module-val--amber">Not Registered</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Pub. Administrator</span><span class="bi-module-val bi-module-val--muted">None on file</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Songwriter Credits</span><span class="bi-module-val bi-module-val--teal">Verified</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Ownership Status</span><span class="bi-module-val bi-module-val--amber">Partial</span></div>
           </div>
 
-          <!-- Distribution™ -->
-          <div class="bi-module-card">
-            <div class="bi-module-header">
+          <div class="bi-module-card bi-module-card--tile">
+            <div class="bi-tile-row">
               <div class="bi-module-icon" aria-hidden="true">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
               </div>
-              <div class="bi-module-title">Distribution™</div>
+              <div class="bi-tile-content">
+                <div class="bi-tile-name">Distribution™</div>
+                <div class="bi-tile-desc">4 providers · Apple, Spotify, Deezer, TIDAL</div>
+              </div>
+              <div class="bi-tile-badge bi-tile-badge--verified">Verified</div>
             </div>
-            <div class="bi-module-row"><span class="bi-module-key">Apple Music</span><span class="bi-module-val bi-module-val--teal">Verified</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Spotify</span><span class="bi-module-val bi-module-val--teal">Verified</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Deezer</span><span class="bi-module-val bi-module-val--teal">Verified</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">TIDAL</span><span class="bi-module-val bi-module-val--teal">Verified</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Future Providers</span><span class="bi-module-val bi-module-val--muted">Awaiting</span></div>
           </div>
 
-          <!-- Registrations™ -->
-          <div class="bi-module-card">
-            <div class="bi-module-header">
+          <div class="bi-module-card bi-module-card--tile">
+            <div class="bi-tile-row">
               <div class="bi-module-icon" aria-hidden="true">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
               </div>
-              <div class="bi-module-title">Registrations™</div>
+              <div class="bi-tile-content">
+                <div class="bi-tile-name">Registrations™</div>
+                <div class="bi-tile-desc">MLC registered · PRO &amp; SoundExchange absent</div>
+              </div>
+              <div class="bi-tile-badge bi-tile-badge--review">Review</div>
             </div>
-            <div class="bi-module-row"><span class="bi-module-key">The MLC</span><span class="bi-module-val bi-module-val--teal">Registered</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">PRO</span><span class="bi-module-val bi-module-val--amber">Not Detected</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">SoundExchange</span><span class="bi-module-val bi-module-val--amber">Not Detected</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Future Registrations</span><span class="bi-module-val bi-module-val--muted">Pending</span></div>
           </div>
 
-          <!-- Backend Trust™ -->
-          <div class="bi-module-card">
-            <div class="bi-module-header">
+          <div class="bi-module-card bi-module-card--tile">
+            <div class="bi-tile-row">
               <div class="bi-module-icon" aria-hidden="true">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg>
               </div>
-              <div class="bi-module-title">Backend Trust™</div>
-            </div>
-            <div class="bi-module-row"><span class="bi-module-key">Verification Confidence</span><span class="bi-module-val bi-module-val--teal">94%</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Data Integrity</span><span class="bi-module-val bi-module-val--teal">High</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Sync Status</span><span class="bi-module-val bi-module-val--teal">In Sync</span></div>
-            <div class="bi-module-row"><span class="bi-module-key">Overall Trust Score</span><span class="bi-module-val bi-module-val--teal">98 / 100</span></div>
-          </div>
-
-        </div><!-- /bi-module-grid -->
-
-        <!-- § 5 — BUSINESS RISK™ ──────────────────────────────────────── -->
-        <div class="bi-risk-card" role="region" aria-label="Business Risk Assessment">
-          <div class="bi-risk-title">Business Risk™</div>
-          <div class="bi-risk-badge bi-risk-badge--medium" style="display:inline-block;margin-bottom:10px;">MEDIUM</div>
-          <div class="bi-risk-desc">
-            Rights ownership is partially unconfirmed and PRO / SoundExchange registrations were not detected from reviewed sources.
-            Missing registrations may affect royalty collection reporting across performance and digital performance revenue streams.
-            No streaming metadata or delivery issues detected.
-          </div>
-        </div>
-
-        <!-- § 6 — AI BACKEND SUMMARY™ ───────────────────────────────── -->
-        <div class="bi-ai-card" role="region" aria-label="AI Backend Summary">
-          <div class="bi-ai-header">
-            <div class="bi-ai-title">AI Backend Summary™</div>
-            <div class="hi-panel-live-badge">
-              <div class="hi-panel-live-dot" aria-hidden="true"></div>
-              LIVE
+              <div class="bi-tile-content">
+                <div class="bi-tile-name">Backend Trust™</div>
+                <div class="bi-tile-desc">98/100 trust score · 7 sources queried</div>
+              </div>
+              <div class="bi-tile-badge bi-tile-badge--verified">Verified</div>
             </div>
           </div>
-          <div class="bi-ai-body">
-            Royaltē successfully verified the core infrastructure supporting your music.
-            Metadata, distribution and identity are confirmed across all supported services.
-            Composition ownership and publisher registration could not be determined from reviewed sources —
-            this may affect publishing royalty collection until resolved.
-            Two performance registration gaps (PRO, SoundExchange) require attention
-            before your music backend can be considered fully optimized.
-          </div>
+
         </div>
 
         <!-- Artist footer ───────────────────────────────────────────── -->
@@ -499,7 +449,7 @@
               </div>
               <div class="hi-panel-action-title">Register With PRO and SoundExchange</div>
             </div>
-            <div class="hi-panel-action-desc">Performance royalties and digital performance income cannot be collected without active PRO and SoundExchange registrations. This is the highest-impact backend action available.</div>
+            <div class="hi-panel-action-desc">Performance royalties and digital performance income cannot be collected without active PRO and SoundExchange registrations.</div>
             <div class="hi-panel-action-meta">
               <div class="hi-panel-action-badge">
                 <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
