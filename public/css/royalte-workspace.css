@@ -6091,22 +6091,10 @@ a.ci-function-card:hover .ci-artwork-container {
   position: relative;
   z-index: 2;
   flex-shrink: 0;
-  /* Screen blend dissolves the near-black background naturally into the MC surface.
-     Oversized ellipse (110% × 130%) centered at 40% vertical keeps the crown fully
-     opaque while the neck and all lateral edges dissolve into ambient glow. */
+  /* Canvas has transparent background — no masking required.
+     mix-blend-mode: screen brightens the purple wireframe dots
+     against the dark MC surface for a natural luminous emergence. */
   mix-blend-mode: screen;
-  mask-image: radial-gradient(ellipse 110% 130% at 50% 40%,
-    black 0%,
-    black 45%,
-    rgba(0,0,0,0.8) 63%,
-    rgba(0,0,0,0.3) 80%,
-    transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 110% 130% at 50% 40%,
-    black 0%,
-    black 45%,
-    rgba(0,0,0,0.8) 63%,
-    rgba(0,0,0,0.3) 80%,
-    transparent 100%);
 }
 .mc2-hero-globe-lines {
   position: absolute;
