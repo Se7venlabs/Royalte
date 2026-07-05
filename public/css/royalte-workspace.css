@@ -6083,7 +6083,7 @@ a.ci-function-card:hover .ci-artwork-container {
   z-index: 1;
 }
 .mc2-hero-globe {
-  height: 350px;
+  height: 312px;
   width: auto;
   overflow: visible;
   filter: drop-shadow(0 0 48px rgba(109,40,217,0.65)) drop-shadow(0 0 110px rgba(168,85,247,0.28));
@@ -6091,17 +6091,21 @@ a.ci-function-card:hover .ci-artwork-container {
   position: relative;
   z-index: 2;
   flex-shrink: 0;
-  /* Dark background dissolves via screen blend; vignette softens outer edges */
+  /* Screen blend dissolves the near-black background naturally into the MC surface.
+     Oversized ellipse (110% × 130%) centered at 40% vertical keeps the crown fully
+     opaque while the neck and all lateral edges dissolve into ambient glow. */
   mix-blend-mode: screen;
-  mask-image: radial-gradient(ellipse 88% 94% at 50% 50%,
-    black 55%,
-    rgba(0,0,0,0.7) 73%,
-    rgba(0,0,0,0.25) 88%,
+  mask-image: radial-gradient(ellipse 110% 130% at 50% 40%,
+    black 0%,
+    black 45%,
+    rgba(0,0,0,0.8) 63%,
+    rgba(0,0,0,0.3) 80%,
     transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 88% 94% at 50% 50%,
-    black 55%,
-    rgba(0,0,0,0.7) 73%,
-    rgba(0,0,0,0.25) 88%,
+  -webkit-mask-image: radial-gradient(ellipse 110% 130% at 50% 40%,
+    black 0%,
+    black 45%,
+    rgba(0,0,0,0.8) 63%,
+    rgba(0,0,0,0.3) 80%,
     transparent 100%);
 }
 .mc2-hero-globe-lines {
