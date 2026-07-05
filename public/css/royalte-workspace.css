@@ -2900,6 +2900,56 @@ a.hi-cat-card {
 
 
 
+/* Risk indicator — Potential Royalty Impact™ Executive Signature™ */
+.pi-risk-indicator {
+  display: flex; gap: 4px; align-items: stretch;
+  margin: 10px 0 6px; width: 100%;
+}
+.pi-risk-step {
+  flex: 1; padding: 8px 4px; text-align: center;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; border-radius: 5px;
+}
+.pi-risk-step--inactive {
+  background: var(--mc-surface-2); color: var(--mc-text-subtle);
+  border: 1px solid var(--mc-border-soft);
+}
+.pi-risk-step--active.pi-risk-step--moderate {
+  background: rgba(251,146,60,0.15); color: var(--mc-orange);
+  border: 1px solid rgba(251,146,60,0.35);
+  animation: pi-risk-pulse 2.5s ease-in-out infinite;
+}
+@keyframes pi-risk-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251,146,60,0); }
+  50% { box-shadow: 0 0 14px 3px rgba(251,146,60,0.28); }
+}
+
+/* Potential Royalty Impact™ hero card */
+.pi-kpi-card--impact {
+  background: linear-gradient(145deg, rgba(251,146,60,0.09), rgba(124,58,237,0.04));
+  border-color: rgba(251,146,60,0.22);
+  border-top: 2px solid rgba(251,146,60,0.48);
+}
+.pi-kpi-card--athena-trigger {
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.pi-kpi-card--athena-trigger:hover {
+  border-color: rgba(251,146,60,0.42);
+  box-shadow: 0 0 32px rgba(251,146,60,0.14);
+}
+.pi-impact-risk-label {
+  font-size: 16px; font-weight: 800; letter-spacing: 0.04em;
+  text-transform: uppercase; text-align: center; margin-top: 2px;
+}
+.pi-impact-risk-label--moderate { color: var(--mc-orange); }
+.pi-impact-risk-label--low { color: var(--mc-green); }
+.pi-impact-risk-label--high { color: #ef4444; }
+.pi-impact-desc {
+  font-size: 11px; color: var(--mc-text-muted);
+  text-align: center; margin: 4px 0;
+}
+
 /* Core Publishing Systems grid */
 .pi-system-grid {
   display: grid; grid-template-columns: repeat(3, 1fr);
@@ -2954,58 +3004,11 @@ a.hi-cat-card {
 }
 .pi-system-works { font-size: 10px; color: var(--mc-text-subtle); margin-top: 4px; }
 
-/* Electric Amber Attention State — #FFA000 — Publishing Issues & System Cards */
+/* Electric Amber Attention State — #FFA000 — Core Publishing System Cards */
 @keyframes pi-amber-surge {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255,160,0,0); border-color: rgba(255,160,0,0.22); }
   50%       { box-shadow: 0 0 14px 3px rgba(255,160,0,0.16); border-color: rgba(255,160,0,0.42); }
 }
-
-.pi-kpi-label--amber {
-  color: #FFA000;
-  background: rgba(255,160,0,0.10);
-  border-color: rgba(255,160,0,0.26);
-}
-
-.pi-kpi-card--issues {
-  background: linear-gradient(145deg, rgba(255,160,0,0.07), rgba(124,58,237,0.03));
-  border-color: rgba(255,160,0,0.22);
-  border-top: 2px solid rgba(255,160,0,0.50);
-  animation: pi-amber-surge 4s ease-in-out infinite;
-}
-.pi-issues-count {
-  font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
-  color: #FFA000; margin: 4px 0 2px;
-}
-.pi-issues-athena-brief {
-  font-size: 10.5px; line-height: 1.55; color: var(--mc-text-soft);
-  margin-bottom: 8px;
-}
-.pi-issues-works {
-  display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px;
-}
-.pi-issues-work-item {
-  font-size: 10.5px; font-weight: 600; color: var(--mc-text);
-  padding: 3px 8px; background: rgba(255,160,0,0.06);
-  border: 1px solid rgba(255,160,0,0.16); border-radius: 4px;
-}
-.pi-issues-rec {
-  font-size: 10px; color: var(--mc-text-muted); line-height: 1.5; margin-bottom: 10px;
-}
-.pi-issues-mlc-cta {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 7px 12px; background: rgba(255,160,0,0.08);
-  border: 1px solid rgba(255,160,0,0.30); border-radius: 6px;
-  font-size: 10px; font-weight: 700; color: #FFA000;
-  text-decoration: none; letter-spacing: 0.05em;
-  transition: background 0.15s, border-color 0.15s; align-self: flex-start;
-  margin-bottom: 6px;
-}
-.pi-issues-mlc-cta:hover { background: rgba(255,160,0,0.16); border-color: rgba(255,160,0,0.50); }
-.pi-issues-review-cta {
-  font-size: 10.5px; color: var(--mc-text-muted); text-decoration: none;
-  letter-spacing: 0.02em; transition: color 0.15s;
-}
-.pi-issues-review-cta:hover { color: #FFA000; }
 
 .pi-system-card--attention {
   border-color: rgba(255,160,0,0.22);
@@ -3100,8 +3103,89 @@ a.hi-cat-card {
               0 0 52px rgba(124,58,237,0.12);
 }
 /* .ws-dept--publishing .hi-exec-panel — removed (sidebar gone) */
-  box-shadow: -1px 0 40px rgba(124,58,237,0.04);
+
+/* ATHENA Publishing Intelligence™ Panel — modal overlay */
+.pi-athena-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.72); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
 }
+.pi-athena-overlay[hidden] { display: none; }
+.pi-athena-panel {
+  width: 100%; max-width: 460px;
+  background: var(--mc-surface-1);
+  border: 1px solid rgba(251,146,60,0.28);
+  border-top: 3px solid rgba(251,146,60,0.60);
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.60), 0 0 60px rgba(251,146,60,0.10);
+}
+.pi-athena-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--mc-border-soft);
+  background: linear-gradient(135deg, rgba(251,146,60,0.06), rgba(124,58,237,0.04));
+}
+.pi-athena-brand { display: flex; align-items: center; gap: 12px; }
+.pi-athena-logo {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: linear-gradient(135deg, rgba(251,146,60,0.18), rgba(124,58,237,0.14));
+  border: 1px solid rgba(251,146,60,0.30);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 800; color: var(--mc-orange);
+  letter-spacing: -0.02em;
+}
+.pi-athena-eyebrow {
+  font-size: 9px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--mc-orange); opacity: 0.9;
+}
+.pi-athena-wordmark {
+  font-size: 13px; font-weight: 700; color: var(--mc-text); letter-spacing: -0.01em;
+}
+.pi-athena-close {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--mc-surface-2); border: 1px solid var(--mc-border-soft);
+  color: var(--mc-text-muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.pi-athena-close:hover { background: var(--mc-surface-3); color: var(--mc-text); }
+.pi-athena-body { padding: 18px 18px 6px; display: flex; flex-direction: column; gap: 18px; }
+.pi-athena-rating-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; background: rgba(251,146,60,0.07);
+  border: 1px solid rgba(251,146,60,0.22); border-radius: 8px;
+}
+.pi-athena-rating-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mc-text-muted); }
+.pi-athena-rating-value { font-size: 13px; font-weight: 800; color: var(--mc-orange); }
+.pi-athena-section { display: flex; flex-direction: column; gap: 5px; }
+.pi-athena-section-label {
+  font-size: 9.5px; font-weight: 800; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--mc-text-subtle);
+}
+.pi-athena-section-body { font-size: 12px; line-height: 1.6; color: var(--mc-text-soft); }
+.pi-athena-works-list { display: flex; flex-direction: column; gap: 6px; }
+.pi-athena-work-row { display: flex; align-items: center; gap: 9px; }
+.pi-athena-work-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  background: var(--mc-orange); opacity: 0.7;
+}
+.pi-athena-work-name { font-size: 12px; font-weight: 600; color: var(--mc-text); }
+.pi-athena-footer {
+  padding: 16px 18px 18px;
+  border-top: 1px solid var(--mc-border-soft);
+  margin-top: 6px;
+}
+.pi-athena-action-cta {
+  display: flex; align-items: center; justify-content: center;
+  padding: 11px 18px; width: 100%;
+  background: rgba(251,146,60,0.10); border: 1px solid rgba(251,146,60,0.38);
+  border-radius: 8px; font-size: 12px; font-weight: 800;
+  letter-spacing: 0.04em; color: var(--mc-orange); text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+  box-sizing: border-box;
+}
+.pi-athena-action-cta:hover { background: rgba(251,146,60,0.18); border-color: rgba(251,146,60,0.55); }
 
 /* ═══════════════════════════════════════════════════════════════════════
    Catalog Intelligence™ Workspace — ci-* namespace

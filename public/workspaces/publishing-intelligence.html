@@ -144,18 +144,26 @@
         <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
         <div class="hi-kpi-row">
 
-          <!-- Publishing Issues™ — ATHENA Action Path™ -->
-          <div class="hi-kpi-card pi-kpi-card--issues">
-            <div class="hi-kpi-label pi-kpi-label--amber">Publishing Issues™</div>
-            <div class="pi-issues-count">2 Issues Detected</div>
-            <div class="pi-issues-athena-brief">ATHENA identified 2 works not yet registered with The MLC. Unregistered works risk uncollected mechanical royalties from streaming platforms.</div>
-            <div class="pi-issues-works">
-              <div class="pi-issues-work-item">Somewhere Alone</div>
-              <div class="pi-issues-work-item">Ghost in the City</div>
+          <!-- Potential Royalty Impact™ — Executive Signature™ -->
+          <div class="hi-kpi-card pi-kpi-card--impact pi-kpi-card--athena-trigger"
+               role="button" tabindex="0" aria-label="Open ATHENA Publishing Intelligence"
+               onclick="piOpenAthena()" onkeydown="if(event.key==='Enter'||event.key===' ')piOpenAthena()">
+            <div class="hi-kpi-label hi-kpi-label--orange">Potential Royalty Impact™</div>
+
+            <div class="pi-risk-indicator" aria-label="Publishing risk level: Moderate">
+              <div class="pi-risk-step pi-risk-step--inactive">Low</div>
+              <div class="pi-risk-step pi-risk-step--active pi-risk-step--moderate" aria-current="true">Moderate</div>
+              <div class="pi-risk-step pi-risk-step--inactive">High</div>
             </div>
-            <div class="pi-issues-rec">Register both works via The MLC to secure full mechanical royalty collection.</div>
-            <a class="pi-issues-mlc-cta" href="https://www.themlc.com" target="_blank" rel="noopener noreferrer">Open The MLC →</a>
-            <a class="pi-issues-review-cta" href="#">Review Issues →</a>
+
+            <div class="pi-impact-risk-label pi-impact-risk-label--moderate">Moderate Risk</div>
+            <div class="pi-impact-desc">2 works require registration</div>
+
+            <div class="hi-score-meta-row">
+              <div class="hi-status-pill hi-status-pill--orange">
+                <span class="hi-status-dot" aria-hidden="true"></span>Needs Attention
+              </div>
+            </div>
           </div>
 
           <!-- Publishing Coverage™ -->
@@ -352,5 +360,90 @@
   </div><!-- /ws-content -->
 
 </div><!-- /ws-shell -->
+
+<!-- ATHENA Publishing Intelligence™ Panel -->
+<div id="pi-athena-overlay" class="pi-athena-overlay" role="dialog" aria-modal="true" aria-labelledby="pi-athena-title" hidden>
+  <div class="pi-athena-panel" role="document">
+
+    <div class="pi-athena-header">
+      <div class="pi-athena-brand">
+        <div class="pi-athena-logo" aria-hidden="true">ē</div>
+        <div class="pi-athena-brand-text">
+          <div class="pi-athena-eyebrow">ATHENA</div>
+          <div class="pi-athena-wordmark">Publishing Intelligence™</div>
+        </div>
+      </div>
+      <button class="pi-athena-close" onclick="piCloseAthena()" aria-label="Close ATHENA panel">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="pi-athena-body">
+
+      <div class="pi-athena-rating-row">
+        <div class="pi-athena-rating-label">Current Rating</div>
+        <div class="pi-athena-rating-value">Moderate Risk</div>
+      </div>
+
+      <div class="pi-athena-section">
+        <div class="pi-athena-section-label">Why This Rating</div>
+        <div class="pi-athena-section-body">ATHENA detected 2 compositions in your catalog that are not registered with The MLC. Unregistered works cannot collect mechanical royalties from U.S. digital streaming platforms.</div>
+      </div>
+
+      <div class="pi-athena-section">
+        <div class="pi-athena-section-label">Affected Works</div>
+        <div class="pi-athena-works-list">
+          <div class="pi-athena-work-row">
+            <div class="pi-athena-work-dot" aria-hidden="true"></div>
+            <div class="pi-athena-work-name">Somewhere Alone</div>
+          </div>
+          <div class="pi-athena-work-row">
+            <div class="pi-athena-work-dot" aria-hidden="true"></div>
+            <div class="pi-athena-work-name">Ghost in the City</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pi-athena-section">
+        <div class="pi-athena-section-label">Why It Matters</div>
+        <div class="pi-athena-section-body">The MLC is the U.S. designated mechanical licensing collective. Every stream and download of these unregistered works generates royalties that The MLC cannot distribute without a registered claim. The royalties accumulate in an unclaimed pool.</div>
+      </div>
+
+      <div class="pi-athena-section">
+        <div class="pi-athena-section-label">Recommended Action</div>
+        <div class="pi-athena-section-body">Register both works directly with The MLC. The process requires ISRC codes, ISWC codes (if available), and publisher information. Estimated completion: 15 minutes per work.</div>
+      </div>
+
+    </div>
+
+    <div class="pi-athena-footer">
+      <a class="pi-athena-action-cta" href="https://www.themlc.com" target="_blank" rel="noopener noreferrer">Register with The MLC →</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function piOpenAthena() {
+  var overlay = document.getElementById('pi-athena-overlay');
+  overlay.hidden = false;
+  overlay.removeAttribute('hidden');
+  document.body.style.overflow = 'hidden';
+  overlay.querySelector('.pi-athena-close').focus();
+}
+function piCloseAthena() {
+  var overlay = document.getElementById('pi-athena-overlay');
+  overlay.hidden = true;
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') piCloseAthena();
+});
+document.getElementById('pi-athena-overlay').addEventListener('click', function(e) {
+  if (e.target === this) piCloseAthena();
+});
+</script>
 </body>
 </html>
