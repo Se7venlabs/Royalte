@@ -393,7 +393,9 @@
   /* ── GlobalMapViewport™ — component init ────────────────────── */
   /* All map logic (anchors, markers, legend, popover) lives in    */
   /* /js/global-map-viewport.js. This workspace only mounts it.   */
-  initGlobalMapViewport(document.getElementById('gf-map-viewport-host'));
+  initGlobalMapViewport(document.getElementById('gf-map-viewport-host'), {
+    calibrationMode: new URLSearchParams(location.search).has('calibrate')
+  });
 
   /* ── ring count-up ────────────────────────────────────────── */
   var ringNum = document.getElementById('gf-ring-num');

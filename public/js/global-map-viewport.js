@@ -169,6 +169,9 @@
       flagEl.style.top  = a.t + '%';
       flagEl.textContent = a.flag;
       flagEl.setAttribute('aria-hidden', 'true');
+      flagEl.dataset.country = country;
+      flagEl.dataset.anchorL = a.l;
+      flagEl.dataset.anchorT = a.t;
       mapInner.appendChild(flagEl);
 
       a.p.forEach(function (prov) {
@@ -180,6 +183,8 @@
         el.dataset.provider = prov;
         el.dataset.detected = a.d;
         el.dataset.allp     = a.p.join(',');
+        el.dataset.anchorL  = a.l;
+        el.dataset.anchorT  = a.t;
         el.setAttribute('aria-label', country + ' — ' + P_NAME[prov]);
         el.setAttribute('role', 'button');
         el.setAttribute('tabindex', '0');
@@ -310,8 +315,112 @@
       if (e.key === 'Escape') hidePopover();
     });
 
+    if (options.calibrationMode) enableCalibrationMode(mapInner);
+
     /* public API for workspace integration */
     return { hidePopover: hidePopover };
+  }
+
+  /* ── Calibration Mode (dev only — not shipped in production) ─────── */
+  function enableCalibrationMode(mapInner) {
+    /* styles — scoped to gmv-cal-* namespace */
+    var s = document.createElement('style');
+    s.textContent = [
+      '.gmv-cal-banner{position:absolute;top:0;left:0;right:0;z-index:50;background:rgba(250,204,21,.1);border-bottom:1px solid rgba(250,204,21,.35);padding:5px 10px;font:10px/1.4 monospace;color:#fde047;letter-spacing:.06em;text-align:center;pointer-events:none;}',
+      '.gmv-cal-grid{position:absolute;inset:0;z-index:12;pointer-events:none;}',
+      '.gmv-cal-vline{position:absolute;top:0;bottom:0;width:1px;background:rgba(56,189,248,.2);transform:translateX(-50%);}',
+      '.gmv-cal-hline{position:absolute;left:0;right:0;height:1px;background:rgba(56,189,248,.2);transform:translateY(-50%);}',
+      '.gmv-cal-vline.cal-edge,.gmv-cal-hline.cal-edge{background:rgba(56,189,248,.5);}',
+      '.gmv-cal-ll{position:absolute;top:22px;font:9px/1 monospace;color:rgba(56,189,248,.9);transform:translateX(-50%);background:rgba(5,11,24,.7);padding:1px 3px;border-radius:2px;pointer-events:none;}',
+      '.gmv-cal-tl{position:absolute;left:6px;font:9px/1 monospace;color:rgba(56,189,248,.9);transform:translateY(-50%);background:rgba(5,11,24,.7);padding:1px 3px;border-radius:2px;pointer-events:none;}',
+      '.gmv-cal-corner{position:absolute;font:9px/1 monospace;color:rgba(56,189,248,.75);background:rgba(5,11,24,.8);padding:2px 5px;border-radius:2px;pointer-events:none;}',
+      '.gmv-cal-readout{position:absolute;bottom:36px;right:8px;z-index:30;background:rgba(5,11,24,.92);border:1px solid rgba(56,189,248,.4);border-radius:5px;padding:8px 12px;font:11px/1.9 monospace;color:#e2e8f0;min-width:170px;}',
+      '.gmv-cal-readout .cr-val{color:#facc15;font-weight:bold;}',
+      '.gmv-cal-readout .cr-name{color:#38bdf8;font-size:12px;font-weight:bold;display:block;margin-bottom:2px;}',
+      '.gmv-cal-readout .cr-dim{color:#475569;font-size:10px;}',
+    ].join('');
+    document.head.appendChild(s);
+
+    /* banner */
+    var banner = document.createElement('div');
+    banner.className = 'gmv-cal-banner';
+    banner.textContent = '⚙ CALIBRATION MODE — click any marker to read anchor L / T';
+    mapInner.appendChild(banner);
+
+    /* grid lines + labels */
+    var grid = document.createElement('div');
+    grid.className = 'gmv-cal-grid';
+
+    for (var i = 0; i <= 100; i += 10) {
+      var edge = (i === 0 || i === 100) ? ' cal-edge' : '';
+
+      var vl = document.createElement('div');
+      vl.className = 'gmv-cal-vline' + edge;
+      vl.style.left = i + '%';
+      grid.appendChild(vl);
+
+      var ll = document.createElement('div');
+      ll.className = 'gmv-cal-ll';
+      ll.style.left = i + '%';
+      ll.textContent = 'L' + i;
+      grid.appendChild(ll);
+
+      var hl = document.createElement('div');
+      hl.className = 'gmv-cal-hline' + edge;
+      hl.style.top = i + '%';
+      grid.appendChild(hl);
+
+      var tl = document.createElement('div');
+      tl.className = 'gmv-cal-tl';
+      tl.style.top = i + '%';
+      tl.textContent = 'T' + i;
+      grid.appendChild(tl);
+    }
+
+    /* corner axis labels */
+    [
+      { style: 'top:14px;left:4px',    text: 'T=0  L=0'   },
+      { style: 'top:14px;right:4px',   text: 'T=0  L=100' },
+      { style: 'bottom:36px;left:4px', text: 'T=100 L=0'  },
+      { style: 'bottom:36px;right:4px',text: 'T=100 L=100'},
+    ].forEach(function (c) {
+      var el = document.createElement('div');
+      el.className = 'gmv-cal-corner';
+      el.setAttribute('style', c.style);
+      el.textContent = c.text;
+      grid.appendChild(el);
+    });
+
+    mapInner.appendChild(grid);
+
+    /* readout panel */
+    var readout = document.createElement('div');
+    readout.className = 'gmv-cal-readout';
+    readout.innerHTML = '<span class="cr-dim">click a marker</span><br><span id="gmv-cr-name" class="cr-name" style="display:none"></span>L: <span class="cr-val" id="gmv-cr-l">—</span><br>T: <span class="cr-val" id="gmv-cr-t">—</span>';
+    mapInner.appendChild(readout);
+
+    /* live mouse coordinates */
+    mapInner.addEventListener('mousemove', function (e) {
+      var r = mapInner.getBoundingClientRect();
+      var l = ((e.clientX - r.left) / r.width  * 100).toFixed(1);
+      var t = ((e.clientY - r.top)  / r.height * 100).toFixed(1);
+      var lEl = mapInner.querySelector('#gmv-cr-l');
+      var tEl = mapInner.querySelector('#gmv-cr-t');
+      if (lEl) lEl.textContent = l + '%';
+      if (tEl) tEl.textContent = t + '%';
+    });
+
+    /* marker / flag click → show anchor coordinates */
+    mapInner.addEventListener('click', function (e) {
+      var target = e.target.closest('.gf-marker') || e.target.closest('.gf-anchor');
+      if (!target || !target.dataset.anchorL) return;
+      var lEl    = mapInner.querySelector('#gmv-cr-l');
+      var tEl    = mapInner.querySelector('#gmv-cr-t');
+      var nameEl = mapInner.querySelector('#gmv-cr-name');
+      if (lEl)    lEl.textContent    = parseFloat(target.dataset.anchorL).toFixed(1) + '%';
+      if (tEl)    tEl.textContent    = parseFloat(target.dataset.anchorT).toFixed(1) + '%';
+      if (nameEl) { nameEl.textContent = target.dataset.country; nameEl.style.display = 'block'; }
+    });
   }
 
   /* ── Expose ──────────────────────────────────────────────────────── */
