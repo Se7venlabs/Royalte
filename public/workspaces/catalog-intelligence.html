@@ -25,15 +25,13 @@
       border-color: rgba(225,29,72,0.42);
       box-shadow: 0 0 32px rgba(225,29,72,0.14);
     }
-    .ci-athena-review-btn {
-      display: inline-block; margin-top: 10px;
-      font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
-      color: #e11d48; text-transform: uppercase;
-      background: none; border: none; padding: 0; cursor: pointer;
+    /* Reuse publishing amber action pill — pi-risk-step as standalone CTA */
+    .ws-dept--catalog .ci-kpi-card--readiness .pi-risk-step {
+      flex: none;
+      align-self: stretch;
+      margin-top: 12px;
+      cursor: pointer;
       font-family: inherit;
-    }
-    .ci-kpi-card--athena-trigger:hover .ci-athena-review-btn {
-      text-decoration: underline;
     }
     /* Non-clickable engine cards — div variant inherits a.ci-function-card styles */
     .ws-dept--catalog div.ci-function-card {
@@ -214,7 +212,7 @@
                 <span class="hi-status-dot" aria-hidden="true"></span>Release Ready
               </div>
             </div>
-            <button class="ci-athena-review-btn" onclick="event.stopPropagation();ciOpenAthena()" tabindex="-1">Review Catalog Readiness →</button>
+            <button class="pi-risk-step pi-risk-step--active pi-risk-step--moderate" onclick="event.stopPropagation();ciOpenAthena()" tabindex="-1">Review Catalog Readiness →</button>
           </div>
 
           <!-- Total Tracks™ -->
