@@ -3104,6 +3104,34 @@ a.hi-cat-card {
 }
 /* .ws-dept--publishing .hi-exec-panel — removed (sidebar gone) */
 
+/* Unknown state — document intelligence invitation */
+.pi-system-card--unknown {
+  border-color: rgba(148,163,184,0.18);
+  background: var(--mc-surface-1);
+}
+.pi-system-card--unknown:hover {
+  border-color: rgba(124,58,237,0.28);
+}
+.pi-system-icon-wrap--unknown {
+  background: rgba(148,163,184,0.08); border-color: rgba(148,163,184,0.18);
+  color: var(--mc-text-subtle);
+}
+.pi-system-badge--unknown {
+  background: rgba(148,163,184,0.08); color: var(--mc-text-subtle);
+  border: 1px solid rgba(148,163,184,0.20);
+}
+.pi-system-action-cta--connect {
+  background: rgba(124,58,237,0.07); border-color: rgba(124,58,237,0.22);
+  color: #7c3aed;
+}
+.pi-system-action-cta--connect:hover {
+  background: rgba(124,58,237,0.14); border-color: rgba(124,58,237,0.42);
+}
+
+/* Publishing dept typography — reduce oversized KPI numerics */
+.ws-dept--publishing .ii-kpi-big-num { font-size: 28px; letter-spacing: -0.03em; }
+.ws-dept--publishing .ii-kpi-fraction { font-size: 15px; }
+
 /* ATHENA Publishing Intelligence™ Panel — modal overlay */
 .pi-athena-overlay {
   position: fixed; inset: 0; z-index: 900;
