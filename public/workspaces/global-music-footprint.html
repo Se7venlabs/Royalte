@@ -371,28 +371,31 @@
 
   </div><!-- /ws-content -->
 
-  <!-- ══ ATHENA GLOBAL INTELLIGENCE OVERLAY ══════════════════════════════════ -->
-  <div class="pi-athena-overlay" id="gf-athena-overlay"
-       role="dialog" aria-modal="true" aria-label="ATHENA Global Intelligence" aria-hidden="true">
-    <div class="pi-athena-modal">
-      <div class="pi-athena-header">
-        <div class="pi-athena-brand">
-          <div class="pi-athena-brand-mark" aria-hidden="true">ē</div>
-          <div>
-            <div class="pi-athena-brand-name">ATHENA™</div>
-            <div class="pi-athena-brand-sub" id="gf-athena-context-sub">Global Intelligence</div>
-          </div>
+</div><!-- /ws-shell -->
+
+<!-- ATHENA Global Intelligence Panel -->
+<div id="gf-athena-overlay" class="pi-athena-overlay" role="dialog" aria-modal="true" aria-labelledby="gf-athena-title" hidden>
+  <div class="pi-athena-panel" role="document">
+    <div class="pi-athena-header">
+      <div class="pi-athena-brand">
+        <div class="pi-athena-logo" aria-hidden="true">ē</div>
+        <div class="pi-athena-brand-text">
+          <div class="pi-athena-eyebrow">ATHENA</div>
+          <div class="pi-athena-wordmark" id="gf-athena-title">Global Intelligence™</div>
         </div>
-        <button class="pi-athena-close" onclick="gfCloseAthena()" aria-label="Close ATHENA">✕</button>
       </div>
-      <div class="pi-athena-body" id="gf-athena-body"></div>
-      <div class="pi-athena-footer" id="gf-athena-footer" style="display:none;">
-        <a id="gf-athena-action" class="pi-athena-action-btn" href="#" target="_blank" rel="noopener"></a>
-      </div>
+      <button class="pi-athena-close" onclick="gfCloseAthena()" aria-label="Close ATHENA panel">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="pi-athena-body" id="gf-athena-body"></div>
+    <div class="pi-athena-footer" id="gf-athena-footer" style="display:none;">
+      <a id="gf-athena-action" class="pi-athena-action-cta" href="#" target="_blank" rel="noopener noreferrer"></a>
     </div>
   </div>
-
-</div><!-- /ws-shell -->
+</div>
 <script>
 (function () {
   'use strict';
@@ -444,102 +447,98 @@
   var activeFilter = null;
 
   /* ── ATHENA Global Intelligence content ─────────────────────── */
-  var GF_GLOBAL_ATHENA = {
-    contextSub: 'Global Intelligence',
-    title: 'Global Music Footprint™',
-    rating: 'Strong',
-    ratingColor: '#38bdf8',
-    html: [
-      '<div class="pi-athena-section">',
-        '<div class="pi-athena-section-heading">Global Presence</div>',
-        '<div class="pi-athena-section-body">Your music is verified across 142 territories worldwide, representing 72.8% of the global market. All four primary streaming providers are active and confirmed operationally.</div>',
+  var GF_GLOBAL_HTML = [
+    '<div class="pi-athena-rating-row">',
+      '<div class="pi-athena-rating-label">Global Presence</div>',
+      '<div class="pi-athena-rating-value" style="color:#38bdf8;">Strong — 94% Coverage</div>',
+    '</div>',
+    '<div class="pi-athena-section">',
+      '<div class="pi-athena-section-label">Global Overview</div>',
+      '<div class="pi-athena-section-body">Your music is verified across 142 territories worldwide, representing 72.8% of the global market. All four primary streaming providers are active and operationally confirmed.</div>',
+    '</div>',
+    '<div class="pi-athena-section">',
+      '<div class="pi-athena-section-label">Countries Verified</div>',
+      '<div class="pi-athena-section-body">142 countries confirmed. North America and Europe show complete coverage. Asia-Pacific verified in Japan, South Korea, Singapore, and Australia. 3 high-priority expansion markets identified.</div>',
+    '</div>',
+    '<div class="pi-athena-section">',
+      '<div class="pi-athena-section-label">Provider Coverage</div>',
+      '<div class="pi-athena-section-body">Apple Music and Spotify maintain the broadest global reach. Deezer active in 38 markets. TIDAL coverage extends across 22 markets. No distribution failures detected.</div>',
+    '</div>',
+    '<div class="pi-athena-section">',
+      '<div class="pi-athena-section-label">Markets Requiring Attention</div>',
+      '<div class="pi-athena-section-body" style="color:var(--mc-amber);">Indonesia, Nigeria, and Pakistan show incomplete provider coverage — combined reach of 650M+ people. Deezer and TIDAL expansion is the primary recommended action.</div>',
+    '</div>',
+    '<div class="pi-athena-section">',
+      '<div class="pi-athena-section-label">Recommended Actions</div>',
+      '<div class="pi-athena-works-list">',
+        '<div class="pi-athena-work-row"><div class="pi-athena-work-dot"></div><div class="pi-athena-work-name">Expand Deezer and TIDAL delivery to Indonesia</div></div>',
+        '<div class="pi-athena-work-row"><div class="pi-athena-work-dot"></div><div class="pi-athena-work-name">Add Nigeria to Spotify and TIDAL active distribution</div></div>',
+        '<div class="pi-athena-work-row"><div class="pi-athena-work-dot"></div><div class="pi-athena-work-name">Review Pakistan — Apple Music only, all other providers absent</div></div>',
       '</div>',
-      '<div class="pi-athena-section">',
-        '<div class="pi-athena-section-heading">Countries Verified</div>',
-        '<div class="pi-athena-section-body">142 countries confirmed. North America and Europe show complete coverage. Asia-Pacific has strong presence with full verification in Japan, South Korea, Singapore, and Australia. 3 high-priority expansion markets identified.</div>',
-      '</div>',
-      '<div class="pi-athena-section">',
-        '<div class="pi-athena-section-heading">Provider Coverage</div>',
-        '<div class="pi-athena-section-body">Apple Music and Spotify maintain the broadest global reach. Deezer active in 38 markets. TIDAL coverage extends across 22 markets. All providers operationally confirmed — no distribution failures detected.</div>',
-      '</div>',
-      '<div class="pi-athena-section">',
-        '<div class="pi-athena-section-heading">Markets Requiring Attention</div>',
-        '<div class="pi-athena-section-body pi-athena-section-body--attention">Indonesia, Nigeria, and Pakistan show incomplete provider coverage. These three markets represent a combined potential reach of 650M+ people. Deezer and TIDAL expansion is the primary recommended action.</div>',
-      '</div>',
-      '<div class="pi-athena-section">',
-        '<div class="pi-athena-section-heading">Recommended Actions</div>',
-        '<ul class="pi-athena-recs">',
-          '<li>Expand Deezer and TIDAL delivery to Indonesia</li>',
-          '<li>Add Nigeria to Spotify and TIDAL active distribution</li>',
-          '<li>Review Pakistan — Apple Music only, all other providers absent</li>',
-        '</ul>',
-      '</div>',
-    ].join('')
-  };
+    '</div>',
+  ].join('');
 
   /* ── ATHENA open / close ─────────────────────────────────────── */
   function gfOpenAthena(countryName) {
-    var overlay   = document.getElementById('gf-athena-overlay');
-    var body      = document.getElementById('gf-athena-body');
-    var footer    = document.getElementById('gf-athena-footer');
-    var contextSub = document.getElementById('gf-athena-context-sub');
+    var overlay  = document.getElementById('gf-athena-overlay');
+    var body     = document.getElementById('gf-athena-body');
+    var titleEl  = document.getElementById('gf-athena-title');
+    var footer   = document.getElementById('gf-athena-footer');
 
     hidePopover();
 
     if (countryName && ANCHORS[countryName]) {
       var a = ANCHORS[countryName];
-      var provList = a.p.map(function (p) { return P_NAME[p] || p; }).join(', ');
-      var fullCount = a.p.length === 4;
+      var provList   = a.p.map(function (p) { return P_NAME[p] || p; }).join(', ');
+      var fullCount  = a.p.length === 4;
       var statusColor = fullCount ? '#38bdf8' : '#f59e0b';
       var statusLabel = fullCount ? 'Full Coverage' : 'Partial Coverage';
+      var missing = ['apple','spotify','deezer','tidal'].filter(function (p) { return a.p.indexOf(p) < 0; });
 
-      contextSub.textContent = countryName;
+      titleEl.textContent = countryName;
       body.innerHTML = [
-        '<div class="pi-athena-section">',
-          '<div class="pi-athena-section-heading">Territory Overview</div>',
-          '<div class="pi-athena-section-body"><strong style="color:' + statusColor + '">' + statusLabel + '</strong> — ' + a.p.length + ' of 4 providers active. First detected: ' + a.d + '.</div>',
+        '<div class="pi-athena-rating-row">',
+          '<div class="pi-athena-rating-label">Territory Status</div>',
+          '<div class="pi-athena-rating-value" style="color:' + statusColor + ';">' + statusLabel + ' — ' + a.p.length + ' of 4 providers</div>',
         '</div>',
         '<div class="pi-athena-section">',
-          '<div class="pi-athena-section-heading">Active Platforms</div>',
+          '<div class="pi-athena-section-label">Active Platforms</div>',
           '<div class="pi-athena-section-body">' + provList + '</div>',
         '</div>',
         '<div class="pi-athena-section">',
-          '<div class="pi-athena-section-heading">Distribution Status</div>',
-          '<div class="pi-athena-section-body">All listed providers have active and confirmed delivery in this territory. No distribution failures detected in the last scan cycle.</div>',
+          '<div class="pi-athena-section-label">Distribution Status</div>',
+          '<div class="pi-athena-section-body">All listed providers confirmed active in this territory. No distribution failures detected in the last scan cycle. First detected: ' + a.d + '.</div>',
         '</div>',
-        a.p.length < 4 ? [
+        missing.length ? [
           '<div class="pi-athena-section">',
-            '<div class="pi-athena-section-heading">Missing Providers</div>',
-            '<div class="pi-athena-section-body pi-athena-section-body--attention">',
-              ['apple','spotify','deezer','tidal'].filter(function(p){ return a.p.indexOf(p)<0; }).map(function(p){ return P_NAME[p]; }).join(', '),
+            '<div class="pi-athena-section-label">Missing Providers</div>',
+            '<div class="pi-athena-section-body" style="color:var(--mc-amber);">',
+              missing.map(function (p) { return P_NAME[p]; }).join(', '),
               ' — not active in this territory.',
             '</div>',
           '</div>',
         ].join('') : '',
         '<div class="pi-athena-section">',
-          '<div class="pi-athena-section-heading">Territory Observation</div>',
+          '<div class="pi-athena-section-label">Territory Observation</div>',
           '<div class="pi-athena-section-body">' + a.obs + '</div>',
         '</div>',
       ].join('');
 
-      footer.style.display = 'none';
-
     } else {
-      /* global overview */
-      contextSub.textContent = GF_GLOBAL_ATHENA.contextSub;
-      body.innerHTML = GF_GLOBAL_ATHENA.html;
-      footer.style.display = 'none';
+      titleEl.textContent = 'Global Intelligence™';
+      body.innerHTML = GF_GLOBAL_HTML;
     }
 
-    overlay.classList.add('pi-athena-overlay--visible');
-    overlay.setAttribute('aria-hidden', 'false');
+    footer.style.display = 'none';
+    overlay.hidden = false;
+    overlay.removeAttribute('hidden');
     document.body.style.overflow = 'hidden';
+    overlay.querySelector('.pi-athena-close').focus();
   }
 
   function gfCloseAthena() {
     var overlay = document.getElementById('gf-athena-overlay');
-    overlay.classList.remove('pi-athena-overlay--visible');
-    overlay.setAttribute('aria-hidden', 'true');
+    overlay.hidden = true;
     document.body.style.overflow = '';
   }
 
