@@ -6,6 +6,37 @@
   <title>Mission Control™ — Royaltē OS</title>
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <style>
+/* ── Intelligence Vault™ — Authentication Wall ──────────────────────
+   Fixed overlay. Hidden by default (aria-hidden).
+   vault-auth.js owns all show/hide/transition/auth logic.
+   ─────────────────────────────────────────────────────────────────── */
+#mc-vault{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(5,5,7,0.38);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity 0.7s ease;}
+#mc-vault.mc-vault--visible{opacity:1;pointer-events:auto;}
+#mc-vault.mc-vault--leaving{opacity:0 !important;transition:opacity 0.5s ease-in !important;pointer-events:none !important;}
+.mc-vault-panel{width:100%;max-width:420px;background:rgba(10,10,15,0.97);border:1px solid rgba(168,85,247,0.14);border-radius:12px;padding:48px 40px;display:flex;flex-direction:column;}
+.mc-vault-tag{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:rgba(168,85,247,0.60);margin-bottom:18px;display:flex;align-items:center;gap:7px;}
+.mc-vault-tag-dot{width:5px;height:5px;border-radius:50%;background:rgba(168,85,247,0.55);flex-shrink:0;}
+.mc-vault-headline{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;letter-spacing:0.03em;color:#fff;margin:0 0 10px;line-height:1.15;}
+.mc-vault-trust{font-family:'Space Grotesk',sans-serif;font-size:11px;color:rgba(64,240,160,0.70);letter-spacing:0.04em;margin:0 0 22px;}
+.mc-vault-form{display:flex;flex-direction:column;gap:10px;}
+.mc-vault-input-wrap{position:relative;}
+.mc-vault-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:6px;padding:13px 16px;font-family:'Space Grotesk',sans-serif;font-size:14px;color:#fff;outline:none;box-sizing:border-box;transition:border-color 0.18s ease,background 0.18s ease;-webkit-appearance:none;}
+.mc-vault-input::placeholder{color:rgba(255,255,255,0.22);}
+.mc-vault-input:focus{border-color:rgba(168,85,247,0.42);background:rgba(255,255,255,0.06);}
+.mc-vault-input--pass{padding-right:46px;}
+.mc-vault-show-pass{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;padding:4px;cursor:pointer;color:rgba(255,255,255,0.25);display:flex;align-items:center;transition:color 0.15s ease;}
+.mc-vault-show-pass:hover{color:rgba(255,255,255,0.52);}
+.mc-vault-cta{width:100%;margin-top:6px;padding:14px 24px;background:linear-gradient(135deg,#6d28d9 0%,#a855f7 100%);border:none;border-radius:7px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#fff;cursor:pointer;transition:opacity 0.18s ease,box-shadow 0.22s ease;box-shadow:0 4px 22px rgba(109,40,217,0.30);}
+.mc-vault-cta:hover:not(:disabled){opacity:0.88;box-shadow:0 6px 30px rgba(109,40,217,0.44);}
+.mc-vault-cta:disabled{opacity:0.42;cursor:not-allowed;}
+.mc-vault-status{font-family:'Space Grotesk',sans-serif;font-size:12px;color:rgba(255,255,255,0.40);margin-top:12px;min-height:18px;line-height:1.55;}
+.mc-vault-status--error{color:#f87171;}
+.mc-vault-status--success{color:#34d399;}
+.mc-vault-forgot{background:none;border:none;padding:0;margin-top:18px;font-family:'Space Grotesk',sans-serif;font-size:12px;color:rgba(255,255,255,0.25);cursor:pointer;text-align:center;width:100%;transition:color 0.15s ease;}
+.mc-vault-forgot:hover{color:rgba(255,255,255,0.52);}
+@media(max-width:480px){.mc-vault-panel{padding:32px 22px;}.mc-vault-input{font-size:16px;padding:14px 16px;}.mc-vault-input--pass{padding-right:46px;}.mc-vault-cta{padding:15px 24px;}}
+  </style>
 </head>
 <body>
 <div class="ws-shell ws-dept--mission-control">
@@ -277,6 +308,33 @@
   }, 1400);
 }());
 </script>
+
+<!-- ── Intelligence Vault™ — Authentication Wall
+     Fixed overlay on mission-control.html. Hidden by default (aria-hidden).
+     vault-auth.js controls show/hide, auth flow, scan claim, and boot sequence. -->
+<div id="mc-vault" aria-hidden="true" role="dialog" aria-labelledby="mc-vault-headline">
+  <div class="mc-vault-panel">
+    <div class="mc-vault-tag">
+      <span class="mc-vault-tag-dot"></span>
+      Intelligence Vault
+    </div>
+    <h1 class="mc-vault-headline" id="mc-vault-headline">Claim your Executive Brief and unlock your complete Royaltē OS experience.</h1>
+    <p class="mc-vault-trust">&#10003; No Credit Card Required</p>
+    <form class="mc-vault-form" id="mc-vault-form" novalidate autocomplete="on">
+      <input class="mc-vault-input" id="mc-vault-email" type="email" placeholder="Email Address" autocomplete="email" spellcheck="false" inputmode="email">
+      <div class="mc-vault-input-wrap">
+        <input class="mc-vault-input mc-vault-input--pass" id="mc-vault-pass" type="password" placeholder="Password" autocomplete="current-password">
+        <button type="button" class="mc-vault-show-pass" id="mc-vault-show-pass" aria-label="Show password" tabindex="-1">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <button class="mc-vault-cta" id="mc-vault-cta" type="submit">INITIATE ROYALTĒ OS</button>
+    </form>
+    <div class="mc-vault-status" id="mc-vault-status" role="status" aria-live="polite"></div>
+    <button class="mc-vault-forgot" id="mc-vault-forgot" type="button">Forgot Password?</button>
+  </div>
+</div>
+<script type="module" src="/js/vault-auth.js"></script>
 
 </body>
 </html>

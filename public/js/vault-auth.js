@@ -500,7 +500,7 @@ async function _handleUnlock(email, password, sessionId, scanId) {
 
       if (signUp.error) {
         // Email already registered → the original signIn failure was wrong password.
-        _setCta('Unlock Mission Control', false);
+        _setCta('INITIATE ROYALTĒ OS', false);
         _setStatus('Incorrect email or password.', 'error');
         return;
       }
