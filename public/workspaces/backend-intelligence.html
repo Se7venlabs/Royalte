@@ -6,6 +6,63 @@
   <title>Backend Intelligence™ — Royaltē OS</title>
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <style>
+    /* Backend Intelligence™ — Architecture Pass 1 */
+    /* Executive typography standard */
+    .ws-dept--backend .ii-kpi-big-num { font-size: 28px; letter-spacing: -0.03em; }
+    .ws-dept--backend .ii-kpi-fraction { font-size: 15px; }
+    /* One Screen Rule™ spacing */
+    .ws-dept--backend .hi-main { padding: 18px 28px 28px; gap: 16px; }
+    .ws-dept--backend .hi-kpi-row { gap: 10px; }
+    .ws-dept--backend .bi-twin-section { margin-bottom: 0; padding: 24px 24px 20px; }
+    .ws-dept--backend .bi-twin-title { margin-bottom: 16px; }
+    /* Executive header ATHENA trigger */
+    .bi-exec-header--athena-trigger {
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .bi-exec-header--athena-trigger:hover {
+      border-color: rgba(0,191,165,0.38);
+      box-shadow: 0 0 32px rgba(0,191,165,0.12);
+    }
+    /* Teal action pill — reuse pi-risk-step, override amber → teal */
+    .ws-dept--backend .bi-exec-header .pi-risk-step {
+      flex: none;
+      align-self: stretch;
+      margin-top: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .ws-dept--backend .bi-exec-header .pi-risk-step--active {
+      background: rgba(0,191,165,0.15);
+      color: #00BFA5;
+      border-color: rgba(0,191,165,0.35);
+      animation: bi-status-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes bi-status-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,191,165,0); }
+      50%       { box-shadow: 0 0 14px 3px rgba(0,191,165,0.28); }
+    }
+    /* Interactive Digital Twin node styles */
+    .bi-node--interactive { cursor: pointer; }
+    .bi-node--interactive .bi-node-ring {
+      transition: stroke-width 0.2s ease, opacity 0.2s ease;
+    }
+    .bi-node--interactive:hover .bi-node-ring {
+      opacity: 0.65 !important;
+      stroke-width: 2.2;
+    }
+    .bi-node--selected .bi-node-ring {
+      opacity: 1 !important;
+      stroke-width: 2.8 !important;
+    }
+    .bi-conn--selected {
+      stroke-opacity: 1 !important;
+      stroke-width: 2 !important;
+    }
+    .bi-conn--teal.bi-conn--selected  { stroke: rgba(0,191,165,0.90) !important; }
+    .bi-conn--amber.bi-conn--selected { stroke: rgba(245,158,11,0.90) !important; }
+  </style>
 </head>
 <body>
 <div class="ws-shell ws-dept--backend">
@@ -121,8 +178,10 @@
       <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
       <div class="hi-main">
 
-        <!-- § 1 — EXECUTIVE SIGNATURE™ ─────────────────────────────── -->
-        <div class="bi-exec-header">
+        <!-- § 1 — EXECUTIVE SIGNATURE™ — ATHENA TRIGGER ───────────── -->
+        <div class="bi-exec-header bi-exec-header--athena-trigger"
+             role="button" tabindex="0" aria-label="Open ATHENA Backend Status"
+             onclick="biOpenAthena('status')" onkeydown="if(event.key==='Enter'||event.key===' ')biOpenAthena('status')">
           <div class="bi-exec-ring-wrap" aria-label="Backend Status score: 98 out of 100">
             <svg class="bi-exec-ring-svg" viewBox="0 0 90 90">
               <circle class="bi-ring-track"    cx="45" cy="45" r="36"/>
@@ -141,6 +200,7 @@
               <span class="hi-status-dot" aria-hidden="true"></span>
               Infrastructure Verified — 2 Areas Need Attention
             </div>
+            <button class="pi-risk-step pi-risk-step--active" onclick="event.stopPropagation();biOpenAthena('status')" tabindex="-1">Review Backend Status →</button>
           </div>
         </div>
 
@@ -200,12 +260,12 @@
 
         </div>
 
-        <!-- § 3 — MUSIC BACKEND DIGITAL TWIN™ ──────────────────────── -->
-        <div class="bi-twin-section" aria-label="Music Backend Digital Twin — infrastructure network visualization">
-          <div class="bi-twin-label">Music Backend Digital Twin™</div>
-          <div class="bi-twin-title">Invisible Infrastructure Behind Your Music</div>
+        <!-- § 3 — BACKEND INTELLIGENCE ENGINE™ — Interactive Digital Twin ─ -->
+        <div class="bi-twin-section" aria-label="Backend Intelligence Engine — interactive infrastructure network">
+          <div class="bi-twin-label">Backend Intelligence Engine™</div>
+          <div class="bi-twin-title">Click any node to open ATHENA intelligence</div>
           <div class="bi-twin-svg-wrap">
-            <svg class="bi-twin-svg" viewBox="0 0 560 272" role="img" aria-hidden="true">
+            <svg class="bi-twin-svg" viewBox="0 0 560 290" role="img" aria-label="Interactive music infrastructure network">
               <defs>
                 <filter id="bi-glow-teal" x="-50%" y="-50%" width="200%" height="200%">
                   <feGaussianBlur stdDeviation="3" result="blur"/>
@@ -227,13 +287,15 @@
               <line id="bl-3" class="bi-conn-line bi-conn--amber" x1="115" y1="102" x2="48"  y2="190"/>
               <line id="bl-4" class="bi-conn-line bi-conn--teal"  x1="115" y1="102" x2="192" y2="190"/>
               <line id="bl-5" class="bi-conn-line bi-conn--amber" x1="445" y1="102" x2="512" y2="190"/>
-              <line id="bl-6" class="bi-conn-line bi-conn--teal"  x1="48"  y1="190" x2="272" y2="232"/>
-              <line id="bl-7" class="bi-conn-line bi-conn--teal"  x1="192" y1="190" x2="274" y2="232"/>
-              <line id="bl-8" class="bi-conn-line bi-conn--teal"  x1="445" y1="102" x2="284" y2="232"/>
-              <line id="bl-9" class="bi-conn-line bi-conn--teal"  x1="512" y1="190" x2="288" y2="232"/>
+              <line id="bl-6" class="bi-conn-line bi-conn--teal"  x1="48"  y1="190" x2="272" y2="240"/>
+              <line id="bl-7" class="bi-conn-line bi-conn--teal"  x1="192" y1="190" x2="274" y2="240"/>
+              <line id="bl-8" class="bi-conn-line bi-conn--teal"  x1="445" y1="102" x2="284" y2="240"/>
+              <line id="bl-9" class="bi-conn-line bi-conn--teal"  x1="512" y1="190" x2="288" y2="240"/>
 
-              <!-- SONG node -->
-              <g id="bn-song" class="bi-node bi-node--song" style="opacity:0">
+              <!-- SONG node — opens Backend Status ATHENA -->
+              <g id="bn-song" class="bi-node bi-node--song bi-node--interactive" style="opacity:0"
+                 onclick="biSelectNode('bn-song',['bl-1','bl-2']); biOpenAthena('status')"
+                 role="button" tabindex="0" aria-label="Backend Status — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="280" cy="30" r="15" filter="url(#bi-glow-white)"/>
                 <circle class="bi-node-core" cx="280" cy="30" r="7"  filter="url(#bi-glow-white)"/>
                 <text class="bi-node-label" x="280" y="11" style="font-size:10px;font-weight:700;text-anchor:middle;">SONG</text>
@@ -241,7 +303,9 @@
               </g>
 
               <!-- METADATA node -->
-              <g id="bn-meta" class="bi-node bi-node--verified" style="opacity:0">
+              <g id="bn-meta" class="bi-node bi-node--verified bi-node--interactive" style="opacity:0"
+                 onclick="biSelectNode('bn-meta',['bl-1','bl-3','bl-4']); biOpenAthena('meta')"
+                 role="button" tabindex="0" aria-label="Metadata — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="115" cy="102" r="13" filter="url(#bi-glow-teal)"/>
                 <circle class="bi-node-core" cx="115" cy="102" r="6"/>
                 <text class="bi-node-label" x="115" y="82"  style="font-size:9px;font-weight:600;text-anchor:middle;">METADATA</text>
@@ -249,7 +313,9 @@
               </g>
 
               <!-- DISTRIBUTION node -->
-              <g id="bn-dist" class="bi-node bi-node--verified" style="opacity:0">
+              <g id="bn-dist" class="bi-node bi-node--verified bi-node--interactive" style="opacity:0"
+                 onclick="biSelectNode('bn-dist',['bl-2','bl-5','bl-8']); biOpenAthena('distribution')"
+                 role="button" tabindex="0" aria-label="Distribution — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="445" cy="102" r="13" filter="url(#bi-glow-teal)"/>
                 <circle class="bi-node-core" cx="445" cy="102" r="6"/>
                 <text class="bi-node-label" x="445" y="82"  style="font-size:9px;font-weight:600;text-anchor:middle;">DISTRIBUTION</text>
@@ -257,10 +323,12 @@
               </g>
 
               <!-- RIGHTS OWNERSHIP node -->
-              <g id="bn-rights" class="bi-node bi-node--review" style="opacity:0">
+              <g id="bn-rights" class="bi-node bi-node--review bi-node--interactive" style="opacity:0"
+                 onclick="biSelectNode('bn-rights',['bl-3','bl-6']); biOpenAthena('rights')"
+                 role="button" tabindex="0" aria-label="Rights Ownership — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="48" cy="190" r="13" filter="url(#bi-glow-amber)"/>
                 <circle class="bi-node-core" cx="48" cy="190" r="6"/>
-                <text class="bi-node-label" x="48" y="154" style="font-size:8.5px;font-weight:600;text-anchor:middle;">
+                <text class="bi-node-label" x="48" y="162" style="font-size:8.5px;font-weight:600;text-anchor:middle;">
                   <tspan x="48" dy="0">RIGHTS</tspan>
                   <tspan x="48" dy="12">OWNERSHIP</tspan>
                 </text>
@@ -268,7 +336,9 @@
               </g>
 
               <!-- IDENTITY node -->
-              <g id="bn-id" class="bi-node bi-node--verified" style="opacity:0">
+              <g id="bn-id" class="bi-node bi-node--verified bi-node--interactive" style="opacity:0"
+                 onclick="biSelectNode('bn-id',['bl-4','bl-7']); biOpenAthena('identity')"
+                 role="button" tabindex="0" aria-label="Identity — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="192" cy="190" r="13" filter="url(#bi-glow-teal)"/>
                 <circle class="bi-node-core" cx="192" cy="190" r="6"/>
                 <text class="bi-node-label" x="192" y="169" style="font-size:9px;font-weight:600;text-anchor:middle;">IDENTITY</text>
@@ -276,220 +346,29 @@
               </g>
 
               <!-- REGISTRATIONS node -->
-              <g id="bn-reg" class="bi-node bi-node--review" style="opacity:0">
+              <g id="bn-reg" class="bi-node bi-node--review bi-node--interactive" style="opacity:0"
+                 onclick="biSelectNode('bn-reg',['bl-5','bl-9']); biOpenAthena('registrations')"
+                 role="button" tabindex="0" aria-label="Registrations — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="512" cy="190" r="13" filter="url(#bi-glow-amber)"/>
                 <circle class="bi-node-core" cx="512" cy="190" r="6"/>
                 <text class="bi-node-label" x="512" y="169" style="font-size:9px;font-weight:600;text-anchor:middle;">REGISTRATIONS</text>
                 <text class="bi-node-status" x="512" y="211" style="font-size:8px;text-anchor:middle;">Needs Review</text>
               </g>
 
-              <!-- ROYALTĒ INTELLIGENCE hub -->
-              <g id="bn-hub" class="bi-node bi-node--hub" style="opacity:0">
-                <circle class="bi-node-ring" cx="280" cy="232" r="18" filter="url(#bi-glow-teal)"/>
-                <circle class="bi-node-core" cx="280" cy="232" r="10" filter="url(#bi-glow-teal)"/>
-                <text class="bi-node-label" x="280" y="261" style="font-size:8.5px;font-weight:700;text-anchor:middle;letter-spacing:0.06em;">ROYALTĒ INTELLIGENCE</text>
+              <!-- ROYALTĒ INTELLIGENCE hub — opens Backend Trust ATHENA -->
+              <g id="bn-hub" class="bi-node bi-node--hub bi-node--interactive" style="opacity:0"
+                 onclick="biSelectNode('bn-hub',['bl-6','bl-7','bl-8','bl-9']); biOpenAthena('trust')"
+                 role="button" tabindex="0" aria-label="Royaltē Intelligence Hub — click for ATHENA intelligence">
+                <circle class="bi-node-ring" cx="280" cy="240" r="18" filter="url(#bi-glow-teal)"/>
+                <circle class="bi-node-core" cx="280" cy="240" r="10" filter="url(#bi-glow-teal)"/>
+                <text class="bi-node-label" x="280" y="270" style="font-size:8.5px;font-weight:700;text-anchor:middle;letter-spacing:0.06em;">ROYALTĒ INTELLIGENCE</text>
               </g>
 
             </svg>
           </div>
         </div>
 
-        <!-- § 4 — CORE BACKEND MODULES ──────────────────────────────── -->
-        <div class="bi-module-grid">
-
-          <div class="bi-module-card bi-module-card--tile">
-            <div class="bi-tile-row">
-              <div class="bi-module-icon" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-catalog"></use></svg>
-              </div>
-              <div class="bi-tile-content">
-                <div class="bi-tile-name">Metadata™</div>
-                <div class="bi-tile-desc">9 fields confirmed — ISRC, UPC, Copyright</div>
-              </div>
-              <div class="bi-tile-badge bi-tile-badge--verified">Verified</div>
-            </div>
-          </div>
-
-          <div class="bi-module-card bi-module-card--tile">
-            <div class="bi-tile-row">
-              <div class="bi-module-icon" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-identity"></use></svg>
-              </div>
-              <div class="bi-tile-content">
-                <div class="bi-tile-name">Identity™</div>
-                <div class="bi-tile-desc">4 IDs active · IPI / CAE not detected</div>
-              </div>
-              <div class="bi-tile-badge bi-tile-badge--verified">Verified</div>
-            </div>
-          </div>
-
-          <div class="bi-module-card bi-module-card--tile">
-            <div class="bi-tile-row">
-              <div class="bi-module-icon" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
-              </div>
-              <div class="bi-tile-content">
-                <div class="bi-tile-name">Rights Ownership™</div>
-                <div class="bi-tile-desc">Master confirmed · Publisher unregistered</div>
-              </div>
-              <div class="bi-tile-badge bi-tile-badge--partial">Partial</div>
-            </div>
-          </div>
-
-          <div class="bi-module-card bi-module-card--tile">
-            <div class="bi-tile-row">
-              <div class="bi-module-icon" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
-              </div>
-              <div class="bi-tile-content">
-                <div class="bi-tile-name">Distribution™</div>
-                <div class="bi-tile-desc">4 providers · Apple, Spotify, Deezer, TIDAL</div>
-              </div>
-              <div class="bi-tile-badge bi-tile-badge--verified">Verified</div>
-            </div>
-          </div>
-
-          <div class="bi-module-card bi-module-card--tile">
-            <div class="bi-tile-row">
-              <div class="bi-module-icon" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              </div>
-              <div class="bi-tile-content">
-                <div class="bi-tile-name">Registrations™</div>
-                <div class="bi-tile-desc">MLC registered · PRO &amp; SoundExchange absent</div>
-              </div>
-              <div class="bi-tile-badge bi-tile-badge--review">Review</div>
-            </div>
-          </div>
-
-          <div class="bi-module-card bi-module-card--tile">
-            <div class="bi-tile-row">
-              <div class="bi-module-icon" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg>
-              </div>
-              <div class="bi-tile-content">
-                <div class="bi-tile-name">Backend Trust™</div>
-                <div class="bi-tile-desc">98/100 trust score · 7 sources queried</div>
-              </div>
-              <div class="bi-tile-badge bi-tile-badge--verified">Verified</div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Artist footer ───────────────────────────────────────────── -->
-        <div class="hi-artist-footer">
-          <div class="hi-artist-avatar" aria-hidden="true">GX</div>
-          <div class="hi-artist-info">
-            <div class="hi-artist-name">
-              GENTLEMEN X
-              <div class="hi-artist-verified" aria-label="Verified artist">
-                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              </div>
-            </div>
-          </div>
-          <div class="hi-artist-actions">
-            <a class="hi-artist-action-link" href="/mission-control.html">View Profile</a>
-            <div class="hi-artist-sep" aria-hidden="true"></div>
-            <a class="hi-artist-action-link" href="/mission-control.html">Sign Out</a>
-          </div>
-        </div>
-
       </div><!-- /hi-main -->
-
-      <!-- ══ RIGHT EXECUTIVE PANEL ════════════════════════════════════ -->
-      <aside class="hi-exec-panel" aria-label="Executive Backend Panel">
-
-        <!-- AI Backend Summary™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-ai-header">
-            <div class="hi-panel-ai-title">AI Backend Summary™</div>
-            <div class="hi-panel-live-badge">
-              <div class="hi-panel-live-dot" aria-hidden="true"></div>
-              LIVE
-            </div>
-          </div>
-          <div class="hi-panel-ai-logo" aria-hidden="true">ē</div>
-          <div class="hi-panel-ai-complete">Infrastructure Analysis Complete</div>
-          <div class="hi-panel-ai-checks" role="list">
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              Metadata verified across all providers
-            </div>
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              Distribution confirmed — 4 active providers
-            </div>
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              Identity verified — Apple, Spotify, MusicBrainz
-            </div>
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--amber" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
-              Rights ownership partially unconfirmed
-            </div>
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--amber" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
-              PRO and SoundExchange not detected
-            </div>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/ai-insights.html">Open AI Insights →</a>
-        </div>
-
-        <!-- Top Priority™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-priority-header">
-            <div class="hi-panel-priority-label">Top Priority™</div>
-            <div class="hi-panel-high-badge" style="color:#F59E0B;background:rgba(245,158,11,0.10);border-color:rgba(245,158,11,0.28);">MEDIUM</div>
-          </div>
-          <div class="hi-panel-action-card">
-            <div class="hi-panel-action-icon-row">
-              <div class="hi-panel-action-icon" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
-              </div>
-              <div class="hi-panel-action-title">Register With PRO and SoundExchange</div>
-            </div>
-            <div class="hi-panel-action-desc">Performance royalties and digital performance income cannot be collected without active PRO and SoundExchange registrations.</div>
-            <div class="hi-panel-action-meta">
-              <div class="hi-panel-action-badge">
-                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
-                Est. 1–2 Weeks
-              </div>
-              <div class="hi-panel-action-badge">Impact: High</div>
-            </div>
-            <a class="hi-panel-action-cta" href="/workspaces/priority-actions.html" role="button">Take Action Now</a>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/priority-actions.html">View All Actions →</a>
-        </div>
-
-        <!-- Infrastructure Summary™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-summary-header">
-            <div class="hi-panel-summary-label">Infrastructure Summary™</div>
-          </div>
-          <div class="hi-panel-summary-range">Royaltē OS — Jul 4, 2026</div>
-          <div class="hi-panel-summary-grid">
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--teal">98</div>
-              <div class="hi-panel-stat-label">Trust Score</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--teal">7</div>
-              <div class="hi-panel-stat-label">Systems Connected</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--teal">22</div>
-              <div class="hi-panel-stat-label">Records Verified</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num" style="font-size:20px;font-weight:800;line-height:1;color:#F59E0B;">2</div>
-              <div class="hi-panel-stat-label">Need Attention</div>
-            </div>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/royalte-review.html">View Full Report →</a>
-        </div>
-
-      </aside>
 
     </div><!-- /ws-body -->
 
@@ -497,11 +376,197 @@
 
 </div><!-- /ws-shell -->
 
+<!-- ATHENA Backend Intelligence™ Panel — dynamic content per node -->
+<div id="bi-athena-overlay" class="pi-athena-overlay" role="dialog" aria-modal="true" aria-labelledby="bi-athena-title" hidden>
+  <div class="pi-athena-panel" role="document">
+
+    <div class="pi-athena-header">
+      <div class="pi-athena-brand">
+        <div class="pi-athena-logo" aria-hidden="true">ē</div>
+        <div class="pi-athena-brand-text">
+          <div class="pi-athena-eyebrow">ATHENA</div>
+          <div class="pi-athena-wordmark" id="bi-athena-title">Backend Intelligence™</div>
+        </div>
+      </div>
+      <button class="pi-athena-close" onclick="biCloseAthena()" aria-label="Close ATHENA panel">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="pi-athena-body" id="bi-athena-body">
+      <!-- populated by biOpenAthena() -->
+    </div>
+
+    <div class="pi-athena-footer" id="bi-athena-footer" hidden>
+      <a class="pi-athena-action-cta" id="bi-athena-action" href="#" target="_blank" rel="noopener noreferrer"></a>
+    </div>
+
+  </div>
+</div>
+
 <script>
 (function () {
   'use strict';
 
-  /* Executive Signature™ ring counter */
+  /* ── ATHENA content library ──────────────────────────────────────── */
+  var BI_ATHENA = {
+    status: {
+      title: 'Backend Status™',
+      rating: '98 / 100 — Operational',
+      ratingColor: '#00BFA5',
+      sections: [
+        { label: 'Infrastructure Health',  body: '7 backend systems are connected and actively verified. Metadata, Identity, Distribution, and Backend Trust are all confirmed healthy.' },
+        { label: 'Business Risks Detected', body: '2 areas require attention — Rights Ownership (publisher unregistered) and Registrations (PRO and SoundExchange absent). These are revenue collection gaps, not infrastructure failures.' },
+        { label: 'Trust Score',             body: '98 / 100 trust score computed across 7 independent data sources: Spotify, Apple Music, MusicBrainz, Discogs, SoundCloud, Last.fm, and Wikidata.' },
+        { label: 'Recommended Actions',     body: 'Register with a performing rights organization (ASCAP, BMI, or SESAC) and SoundExchange to capture uncollected performance royalties. Confirm publisher registration to complete your rights chain.' },
+      ],
+      actionLabel: null, actionUrl: null,
+    },
+    meta: {
+      title: 'Metadata Intelligence™',
+      rating: 'Verified — 9 Fields Confirmed',
+      ratingColor: '#00BFA5',
+      sections: [
+        { label: 'Verified Fields',   body: 'ISRC, UPC, Copyright Year, Artist Name, Genre, Release Date, Label, Explicit Flag, Catalog Number — confirmed across all connected providers.' },
+        { label: 'Cross-Reference',   body: 'All critical metadata fields match across Apple Music, Spotify, and MusicBrainz. No discrepancies detected.' },
+        { label: 'Confidence',        body: 'High confidence. Zero metadata conflicts found across 9 verified fields and 3 independent sources.' },
+        { label: 'Recommendations',   body: 'Metadata is in strong shape. Apply the same field completeness standard to all future releases before distribution.' },
+      ],
+      actionLabel: null, actionUrl: null,
+    },
+    identity: {
+      title: 'Identity Systems™',
+      rating: 'Verified — 4 IDs Active',
+      ratingColor: '#00BFA5',
+      sections: [
+        { label: 'Connected Platforms', body: 'Apple Music, Spotify, MusicBrainz, Discogs — artist identity confirmed and cross-referenced across all four systems.' },
+        { label: 'IPI / CAE Status',    body: 'IPI and CAE identifiers were not detected in backend systems. These are required for publisher royalty collection and international performance tracking.' },
+        { label: 'Recommendations',     body: 'Register for an IPI number through your performing rights organization to unlock international mechanical and performance royalty eligibility.' },
+      ],
+      actionLabel: null, actionUrl: null,
+    },
+    distribution: {
+      title: 'Distribution Intelligence™',
+      rating: 'Verified — 4 Providers',
+      ratingColor: '#00BFA5',
+      sections: [
+        { label: 'Active Providers',    body: 'Apple Music, Spotify, Deezer, TIDAL — full catalog confirmed live across all four DSPs. All 20 tracks present on all connected platforms.' },
+        { label: 'Distribution Health', body: 'No catalog gaps detected. Track-level metadata matches distribution metadata across all providers.' },
+        { label: 'Missing Providers',   body: 'YouTube Music, Amazon Music, Pandora, and SoundCloud were not confirmed. These represent untapped streaming income channels.' },
+        { label: 'Recommendations',     body: 'Expand distribution to additional DSPs via your distributor to capture streaming income from currently unreached platforms.' },
+      ],
+      actionLabel: null, actionUrl: null,
+    },
+    rights: {
+      title: 'Rights Ownership™',
+      rating: 'Needs Review — Partial',
+      ratingColor: '#F59E0B',
+      sections: [
+        { label: 'Ownership Status',    body: 'Master rights (sound recording) confirmed. Publishing rights (composition) cannot be fully verified — no publisher of record detected in backend systems.' },
+        { label: 'Rights Verification', body: 'Sound recording ownership is confirmed through Apple Music and Spotify metadata. Composition ownership status is unresolved.' },
+        { label: 'Publisher Status',    body: 'No publisher of record found. Mechanical and synchronization royalties may not be collected or distributed correctly without a confirmed publisher.' },
+        { label: 'Recommended Action',  body: 'Register compositions with The MLC. If self-published, register as a self-published songwriter through your PRO. Estimated completion: 30 minutes.' },
+      ],
+      actionLabel: 'Register with The MLC →', actionUrl: 'https://www.themlc.com',
+    },
+    registrations: {
+      title: 'Registrations™',
+      rating: 'Needs Review — 2 Absent',
+      ratingColor: '#F59E0B',
+      sections: [
+        { label: 'MLC Status',          body: 'Registered and confirmed. Mechanical royalties from U.S. digital streaming platforms are being tracked.' },
+        { label: 'PRO Status',          body: 'No performing rights organization detected (ASCAP, BMI, or SESAC). Performance royalties from live, radio, and streaming cannot be collected without an active PRO registration.' },
+        { label: 'SoundExchange Status', body: 'Not registered. Digital performance royalties from Pandora, SiriusXM, and internet radio are uncollectable without SoundExchange registration.' },
+        { label: 'Recommended Action',  body: 'Register with a PRO immediately. Register with SoundExchange as both artist and rights owner. Estimated completion: 1–2 weeks.' },
+      ],
+      actionLabel: 'Register with SoundExchange →', actionUrl: 'https://www.soundexchange.com',
+    },
+    trust: {
+      title: 'Backend Trust™',
+      rating: '98 / 100 — High Confidence',
+      ratingColor: '#00BFA5',
+      sections: [
+        { label: 'Trust Calculation',     body: 'Trust score is computed by cross-referencing 7 independent data sources. Discrepancies between sources reduce the score. 98/100 indicates near-complete verification.' },
+        { label: 'Confidence Score',      body: '2 areas are partially unverified — Rights Ownership (publisher unregistered) and Registrations (PRO and SoundExchange absent). These account for the remaining 2 points.' },
+        { label: 'Connected Infrastructure', body: 'Spotify, Apple Music, MusicBrainz, Discogs, SoundCloud, Last.fm, and Wikidata are all queried and actively cross-validated.' },
+        { label: 'Validation Sources',    body: 'Primary: Apple Music (canonical). Verification: Spotify. Supporting: MusicBrainz, Discogs, AudioDB, Last.fm, Wikidata.' },
+      ],
+      actionLabel: null, actionUrl: null,
+    },
+  };
+
+  /* ── Node connection map ─────────────────────────────────────────── */
+  var _selectedNode = null;
+
+  window.biSelectNode = function (nodeId, lines) {
+    if (_selectedNode) {
+      var prev = document.getElementById(_selectedNode.nodeId);
+      if (prev) prev.classList.remove('bi-node--selected');
+      _selectedNode.lines.forEach(function (lid) {
+        var el = document.getElementById(lid);
+        if (el) el.classList.remove('bi-conn--selected');
+      });
+    }
+    var nodeEl = document.getElementById(nodeId);
+    if (nodeEl) nodeEl.classList.add('bi-node--selected');
+    lines.forEach(function (lid) {
+      var el = document.getElementById(lid);
+      if (el) el.classList.add('bi-conn--selected');
+    });
+    _selectedNode = { nodeId: nodeId, lines: lines };
+  };
+
+  /* ── ATHENA open / close ─────────────────────────────────────────── */
+  window.biOpenAthena = function (nodeId) {
+    var data = BI_ATHENA[nodeId];
+    if (!data) return;
+
+    document.getElementById('bi-athena-title').textContent = data.title;
+
+    var bodyHtml = '<div class="pi-athena-rating-row">'
+      + '<div class="pi-athena-rating-label">Status</div>'
+      + '<div class="pi-athena-rating-value" style="color:' + data.ratingColor + '">' + data.rating + '</div>'
+      + '</div>';
+    data.sections.forEach(function (s) {
+      bodyHtml += '<div class="pi-athena-section">'
+        + '<div class="pi-athena-section-label">' + s.label + '</div>'
+        + '<div class="pi-athena-section-body">'  + s.body  + '</div>'
+        + '</div>';
+    });
+    document.getElementById('bi-athena-body').innerHTML = bodyHtml;
+
+    var footer = document.getElementById('bi-athena-footer');
+    if (data.actionLabel) {
+      footer.hidden = false;
+      var act = document.getElementById('bi-athena-action');
+      act.textContent = data.actionLabel;
+      act.href        = data.actionUrl;
+    } else {
+      footer.hidden = true;
+    }
+
+    var overlay = document.getElementById('bi-athena-overlay');
+    overlay.hidden = false;
+    overlay.removeAttribute('hidden');
+    document.body.style.overflow = 'hidden';
+    overlay.querySelector('.pi-athena-close').focus();
+  };
+
+  window.biCloseAthena = function () {
+    document.getElementById('bi-athena-overlay').hidden = true;
+    document.body.style.overflow = '';
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') biCloseAthena();
+  });
+  document.getElementById('bi-athena-overlay').addEventListener('click', function (e) {
+    if (e.target === this) biCloseAthena();
+  });
+
+  /* ── Executive ring counter ──────────────────────────────────────── */
   var ringTarget = 98;
   var numEl = document.getElementById('bi-ring-num');
   var count = 0;
@@ -512,7 +577,7 @@
     if (count >= ringTarget) clearInterval(timer);
   }, 40);
 
-  /* KPI counters */
+  /* ── KPI counters ────────────────────────────────────────────────── */
   function animateCounter(id, target, duration) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -528,7 +593,7 @@
   setTimeout(function () { animateCounter('bi-systems-num',  7,  900); }, 350);
   setTimeout(function () { animateCounter('bi-records-num', 22, 1100); }, 500);
 
-  /* Music Backend Digital Twin™ — sequential animation ~3 seconds */
+  /* ── Digital Twin sequential reveal ─────────────────────────────── */
   var SEQUENCE = [
     { id: 'bn-song',   delay:    0 },
     { id: 'bl-1',      delay:  350, line: true },
@@ -548,22 +613,22 @@
     { id: 'bn-hub',    delay: 2400 },
   ];
 
-  SEQUENCE.forEach(function (step) {
+  SEQUENCE.forEach(function (seq) {
     setTimeout(function () {
-      var el = document.getElementById(step.id);
+      var el = document.getElementById(seq.id);
       if (!el) return;
-      if (step.line) {
-        el.style.transition = 'stroke-dashoffset 0.55s ease, opacity 0.3s ease';
-        el.style.opacity = '1';
+      if (seq.line) {
+        el.style.transition    = 'stroke-dashoffset 0.55s ease, opacity 0.3s ease';
+        el.style.opacity       = '1';
         el.style.strokeDashoffset = '0';
       } else {
         el.style.transition = 'opacity 0.45s ease';
-        el.style.opacity = '1';
+        el.style.opacity    = '1';
       }
-    }, step.delay);
+    }, seq.delay);
   });
 
-  /* After full draw, add live pulse to hub and teal lines */
+  /* After full draw — live pulse on hub and teal lines */
   setTimeout(function () {
     var hub = document.getElementById('bn-hub');
     if (hub) hub.classList.add('bi-node--live');
