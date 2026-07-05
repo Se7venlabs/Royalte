@@ -25,13 +25,23 @@
       border-color: rgba(225,29,72,0.42);
       box-shadow: 0 0 32px rgba(225,29,72,0.14);
     }
-    /* Reuse publishing amber action pill — pi-risk-step as standalone CTA */
+    /* Reuse publishing action pill structure — override amber → Catalog crimson */
     .ws-dept--catalog .ci-kpi-card--readiness .pi-risk-step {
       flex: none;
       align-self: stretch;
       margin-top: 12px;
       cursor: pointer;
       font-family: inherit;
+    }
+    .ws-dept--catalog .ci-kpi-card--readiness .pi-risk-step--active {
+      background: rgba(225,29,72,0.15);
+      color: #e11d48;
+      border-color: rgba(225,29,72,0.35);
+      animation: ci-readiness-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes ci-readiness-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(225,29,72,0); }
+      50%       { box-shadow: 0 0 14px 3px rgba(225,29,72,0.28); }
     }
     /* Non-clickable engine cards — div variant inherits a.ci-function-card styles */
     .ws-dept--catalog div.ci-function-card {
