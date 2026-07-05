@@ -2898,64 +2898,24 @@ a.hi-cat-card {
   width: 6px; height: 6px; border-radius: 50%; background: #7c3aed; opacity: 0.7;
 }
 
-/* Risk indicator — Potential Royalty Impact™ Executive Signature™ */
-.pi-risk-indicator {
-  display: flex; gap: 4px; align-items: stretch;
-  margin: 10px 0 6px; width: 100%;
-}
-.pi-risk-step {
-  flex: 1; padding: 8px 4px; text-align: center;
-  font-size: 9px; font-weight: 700; letter-spacing: 0.07em;
-  text-transform: uppercase; border-radius: 5px;
-}
-.pi-risk-step--inactive {
-  background: var(--mc-surface-2); color: var(--mc-text-subtle);
-  border: 1px solid var(--mc-border-soft);
-}
-.pi-risk-step--active.pi-risk-step--moderate {
-  background: rgba(251,146,60,0.15); color: var(--mc-orange);
-  border: 1px solid rgba(251,146,60,0.35);
-  animation: pi-risk-pulse 2.5s ease-in-out infinite;
-}
-@keyframes pi-risk-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(251,146,60,0); }
-  50% { box-shadow: 0 0 14px 3px rgba(251,146,60,0.28); }
-}
 
-/* Potential Royalty Impact™ hero card */
-.pi-kpi-card--impact {
-  background: linear-gradient(145deg, rgba(251,146,60,0.09), rgba(124,58,237,0.04));
-  border-color: rgba(251,146,60,0.22);
-  border-top: 2px solid rgba(251,146,60,0.48);
-}
-.pi-impact-risk-label {
-  font-size: 16px; font-weight: 800; letter-spacing: 0.04em;
-  text-transform: uppercase; text-align: center; margin-top: 2px;
-}
-.pi-impact-risk-label--moderate { color: var(--mc-orange); }
-.pi-impact-risk-label--low { color: var(--mc-green); }
-.pi-impact-risk-label--high { color: #ef4444; }
-.pi-impact-desc {
-  font-size: 11px; color: var(--mc-text-muted);
-  text-align: center; margin: 4px 0;
-}
 
 /* Core Publishing Systems grid */
 .pi-system-grid {
   display: grid; grid-template-columns: repeat(3, 1fr);
   gap: 10px; margin-top: 12px;
 }
-a.pi-system-card {
+.pi-system-card {
   display: flex; flex-direction: column; align-items: flex-start;
   padding: 14px 14px 12px;
   background: var(--mc-surface-1); border: 1px solid var(--mc-border-soft);
   border-radius: 10px; text-decoration: none; cursor: pointer;
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
-a.pi-system-card:hover {
+.pi-system-card:hover {
   border-color: rgba(124,58,237,0.30); transform: translateY(-1px);
 }
-a.pi-system-card:hover .pi-system-icon-wrap {
+.pi-system-card:hover .pi-system-icon-wrap {
   background: rgba(124,58,237,0.20);
   box-shadow: 0 0 14px rgba(124,58,237,0.32);
 }
@@ -2968,8 +2928,8 @@ a.pi-system-card:hover .pi-system-icon-wrap {
 }
 .pi-system-icon-wrap svg { width: 18px; height: 18px; }
 .pi-system-icon-wrap--attention {
-  background: rgba(251,146,60,0.10); border-color: rgba(251,146,60,0.22);
-  color: var(--mc-orange);
+  background: rgba(255,160,0,0.10); border-color: rgba(255,160,0,0.24);
+  color: #FFA000;
 }
 .pi-system-name {
   font-size: 12px; font-weight: 700; color: var(--mc-text);
@@ -2985,8 +2945,8 @@ a.pi-system-card:hover .pi-system-icon-wrap {
   border: 1px solid rgba(45,212,191,0.20);
 }
 .pi-system-badge--attention {
-  background: rgba(251,146,60,0.12); color: var(--mc-orange);
-  border: 1px solid rgba(251,146,60,0.20);
+  background: rgba(255,160,0,0.12); color: #FFA000;
+  border: 1px solid rgba(255,160,0,0.22);
 }
 .pi-system-badge--verified {
   background: rgba(124,58,237,0.10); color: #7c3aed;
@@ -2994,11 +2954,83 @@ a.pi-system-card:hover .pi-system-icon-wrap {
 }
 .pi-system-works { font-size: 10px; color: var(--mc-text-subtle); margin-top: 4px; }
 
-/* Bottom row — Publishing Snapshot™ + Publishing Activity™ */
-.pi-bottom-row {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 12px; margin-top: 12px;
+/* Electric Amber Attention State — #FFA000 — Publishing Issues & System Cards */
+@keyframes pi-amber-surge {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,160,0,0); border-color: rgba(255,160,0,0.22); }
+  50%       { box-shadow: 0 0 14px 3px rgba(255,160,0,0.16); border-color: rgba(255,160,0,0.42); }
 }
+
+.pi-kpi-label--amber {
+  color: #FFA000;
+  background: rgba(255,160,0,0.10);
+  border-color: rgba(255,160,0,0.26);
+}
+
+.pi-kpi-card--issues {
+  background: linear-gradient(145deg, rgba(255,160,0,0.07), rgba(124,58,237,0.03));
+  border-color: rgba(255,160,0,0.22);
+  border-top: 2px solid rgba(255,160,0,0.50);
+  animation: pi-amber-surge 4s ease-in-out infinite;
+}
+.pi-issues-count {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+  color: #FFA000; margin: 4px 0 2px;
+}
+.pi-issues-athena-brief {
+  font-size: 10.5px; line-height: 1.55; color: var(--mc-text-soft);
+  margin-bottom: 8px;
+}
+.pi-issues-works {
+  display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px;
+}
+.pi-issues-work-item {
+  font-size: 10.5px; font-weight: 600; color: var(--mc-text);
+  padding: 3px 8px; background: rgba(255,160,0,0.06);
+  border: 1px solid rgba(255,160,0,0.16); border-radius: 4px;
+}
+.pi-issues-rec {
+  font-size: 10px; color: var(--mc-text-muted); line-height: 1.5; margin-bottom: 10px;
+}
+.pi-issues-mlc-cta {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 12px; background: rgba(255,160,0,0.08);
+  border: 1px solid rgba(255,160,0,0.30); border-radius: 6px;
+  font-size: 10px; font-weight: 700; color: #FFA000;
+  text-decoration: none; letter-spacing: 0.05em;
+  transition: background 0.15s, border-color 0.15s; align-self: flex-start;
+  margin-bottom: 6px;
+}
+.pi-issues-mlc-cta:hover { background: rgba(255,160,0,0.16); border-color: rgba(255,160,0,0.50); }
+.pi-issues-review-cta {
+  font-size: 10.5px; color: var(--mc-text-muted); text-decoration: none;
+  letter-spacing: 0.02em; transition: color 0.15s;
+}
+.pi-issues-review-cta:hover { color: #FFA000; }
+
+.pi-system-card--attention {
+  border-color: rgba(255,160,0,0.22);
+  background: linear-gradient(145deg, rgba(255,160,0,0.04), var(--mc-surface-1));
+  animation: pi-amber-surge 4s ease-in-out infinite;
+}
+.pi-system-card--attention:hover .pi-system-icon-wrap {
+  background: rgba(255,160,0,0.18);
+  box-shadow: 0 0 14px rgba(255,160,0,0.28);
+}
+.pi-system-badge--amber {
+  background: rgba(255,160,0,0.10); color: #FFA000;
+  border: 1px solid rgba(255,160,0,0.24);
+}
+.pi-system-action-cta {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px 10px; background: rgba(255,160,0,0.07);
+  border: 1px solid rgba(255,160,0,0.26); border-radius: 5px;
+  font-size: 9.5px; font-weight: 700; color: #FFA000;
+  text-decoration: none; letter-spacing: 0.04em; margin-top: 8px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.pi-system-action-cta:hover { background: rgba(255,160,0,0.15); border-color: rgba(255,160,0,0.46); }
+
+
 .pi-card-header {
   display: flex; align-items: center; gap: 7px;
   padding: 12px 14px 10px; border-bottom: 1px solid var(--mc-border-soft);
@@ -3009,29 +3041,12 @@ a.pi-system-card:hover .pi-system-icon-wrap {
   text-transform: uppercase; color: var(--mc-text);
 }
 
-.pi-snapshot-card {
-  background: var(--mc-surface-1); border: 1px solid var(--mc-border-soft);
-  border-top: 2px solid rgba(124,58,237,0.30);
-  border-radius: 10px; overflow: hidden;
-}
-.pi-snapshot-table { padding: 8px 14px 12px; }
-.pi-snapshot-row {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  padding: 5px 0; border-bottom: 1px solid var(--mc-border-soft);
-}
-.pi-snapshot-row:last-child { border-bottom: none; }
-.pi-snapshot-key { font-size: 11px; color: var(--mc-text-subtle); flex-shrink: 0; width: 48%; }
-.pi-snapshot-val { font-size: 11px; font-weight: 600; color: var(--mc-text); text-align: right; flex: 1; }
-.pi-snapshot-val--attention { color: var(--mc-orange); }
-.pi-sync-dot {
-  display: inline-block; width: 5px; height: 5px; border-radius: 50%;
-  background: var(--mc-green); opacity: 0.8; margin-left: 4px; vertical-align: middle;
-}
+
 
 .pi-activity-card {
   background: var(--mc-surface-1); border: 1px solid var(--mc-border-soft);
   border-top: 2px solid rgba(124,58,237,0.30);
-  border-radius: 10px; overflow: hidden;
+  border-radius: 10px; overflow: hidden; margin-top: 12px;
 }
 .pi-activity-body { padding: 8px 14px 2px; }
 .pi-activity-item {
@@ -3064,11 +3079,10 @@ a.pi-system-card:hover .pi-system-icon-wrap {
               inset 0 1px 0 rgba(255,255,255,0.035),
               0 0 44px rgba(124,58,237,0.07);
 }
-.ws-dept--publishing a.pi-system-card {
+.ws-dept--publishing .pi-system-card {
   box-shadow: 0 1px 3px rgba(0,0,0,0.24),
               0 0 38px rgba(124,58,237,0.06);
 }
-.ws-dept--publishing .pi-snapshot-card,
 .ws-dept--publishing .pi-activity-card {
   box-shadow: 0 1px 3px rgba(0,0,0,0.22),
               0 0 36px rgba(124,58,237,0.06);
@@ -3081,11 +3095,11 @@ a.pi-system-card:hover .pi-system-icon-wrap {
               0 0 60px rgba(124,58,237,0.13),
               inset 0 1px 0 rgba(255,255,255,0.045);
 }
-.ws-dept--publishing a.pi-system-card:hover {
+.ws-dept--publishing .pi-system-card:hover {
   box-shadow: 0 6px 22px rgba(0,0,0,0.30),
               0 0 52px rgba(124,58,237,0.12);
 }
-.ws-dept--publishing .hi-exec-panel {
+/* .ws-dept--publishing .hi-exec-panel — removed (sidebar gone) */
   box-shadow: -1px 0 40px rgba(124,58,237,0.04);
 }
 
