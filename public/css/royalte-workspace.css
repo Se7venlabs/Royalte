@@ -4413,15 +4413,16 @@ a.ci-function-card:hover .ci-artwork-container {
   display: flex;
   flex: 1;
   min-height: 0;
-  align-items: flex-start;
+  align-items: stretch;
 }
 .mc2-main {
   flex: 1;
   min-width: 0;
-  padding: 14px 24px 16px;
+  padding: 40px 48px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  justify-content: center;
   position: relative;
 }
 
@@ -4471,12 +4472,11 @@ a.ci-function-card:hover .ci-artwork-container {
 
 .mc2-hero {
   display: grid;
-  grid-template-columns: 360px 1fr;
-  min-height: 380px;
-  margin-top: 25px;
+  grid-template-columns: 380px 1fr;
+  min-height: 480px;
   background: linear-gradient(135deg, rgba(109, 40, 217, 0.07) 0%, rgba(168, 85, 247, 0.03) 60%, transparent);
   border: 1px solid rgba(168, 85, 247, 0.12);
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   position: relative;
   z-index: 1;
@@ -4499,41 +4499,41 @@ a.ci-function-card:hover .ci-artwork-container {
 
 /* Status panel */
 .mc2-status-panel {
-  padding: 24px 24px 24px 28px;
+  padding: 44px 36px 44px 48px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 22px;
   border-right: 1px solid rgba(168, 85, 247, 0.08);
   position: relative;
   z-index: 1;
 }
 .mc2-greeting-eyebrow {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--mc-purple);
 }
 .mc2-greeting {
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--mc-text);
-  line-height: 1.1;
+  line-height: 1.05;
 }
 .mc2-greeting-sub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--mc-silver);
-  font-weight: 500;
-  opacity: 0.7;
-  margin-top: -8px;
+  font-weight: 400;
+  opacity: 0.75;
+  margin-top: -6px;
 }
 
 .mc2-status-block { display: flex; flex-direction: column; gap: 4px; }
 .mc2-status-block-label {
-  font-size: 8.5px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--mc-text-faint);
 }
@@ -4543,7 +4543,7 @@ a.ci-function-card:hover .ci-artwork-container {
   gap: 8px;
 }
 .mc2-status-value {
-  font-size: 21px;
+  font-size: 23px;
   font-weight: 800;
   color: #4ade80;
   letter-spacing: -0.02em;
@@ -4563,14 +4563,14 @@ a.ci-function-card:hover .ci-artwork-container {
 .mc2-meta-row { display: flex; gap: 20px; }
 .mc2-meta-item { display: flex; flex-direction: column; gap: 2px; }
 .mc2-meta-key {
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--mc-text-faint);
 }
 .mc2-meta-val {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--mc-text);
 }
@@ -4581,19 +4581,20 @@ a.ci-function-card:hover .ci-artwork-container {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 20px;
+  padding: 11px 26px;
   background: rgba(168, 85, 247, 0.14);
   border: 1px solid rgba(168, 85, 247, 0.36);
-  border-radius: 8px;
+  border-radius: 9px;
   color: var(--mc-purple);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
   font-family: var(--mc-font);
   transition: background 0.2s, box-shadow 0.2s;
   align-self: flex-start;
+  text-decoration: none;
 }
 .mc2-hero-cta:hover {
   background: rgba(168, 85, 247, 0.22);
