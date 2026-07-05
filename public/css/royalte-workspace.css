@@ -6083,8 +6083,8 @@ a.ci-function-card:hover .ci-artwork-container {
   z-index: 1;
 }
 .mc2-hero-globe {
-  width: 280px;
-  height: 280px;
+  height: 300px;
+  width: auto;
   overflow: visible;
   filter: drop-shadow(0 0 32px rgba(109,40,217,0.45)) drop-shadow(0 0 80px rgba(168,85,247,0.18));
   animation: mc2-fade-in 1.2s ease 0.2s both;
