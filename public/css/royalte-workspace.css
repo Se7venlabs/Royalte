@@ -1260,10 +1260,10 @@ svg { display: block; }
 .hi-main {
   flex: 1;
   min-width: 0;
-  padding: 28px 32px 40px;
+  padding: 28px 32px 56px;
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: 28px;
 }
 
 /* ─── section 1: executive header ───────────────────────────────────── */
@@ -2164,9 +2164,15 @@ svg { display: block; }
 
 .hi-score-ring-wrap {
   position: relative;
-  width: 116px;
-  height: 116px;
-  margin: 4px auto 6px;
+  width: 132px;
+  height: 132px;
+  margin: 6px auto 8px;
+  animation: hi-ring-heartbeat 5s ease-in-out infinite;
+}
+
+@keyframes hi-ring-heartbeat {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.018); }
 }
 
 .hi-score-ring-svg {
@@ -2184,17 +2190,17 @@ svg { display: block; }
 .hi-score-ring-progress {
   fill: none;
   stroke: var(--mc-green);
-  stroke-width: 5;
+  stroke-width: 5.5;
   stroke-linecap: round;
   /* r=40, circumference=2π×40=251.3, 89%=223.7 */
   stroke-dasharray: 224 252;
-  filter: drop-shadow(0 0 6px rgba(45, 212, 191, 0.55));
-  animation: hi-ring-breathe 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(45, 212, 191, 0.65));
+  animation: hi-ring-breathe 4.5s ease-in-out infinite;
 }
 
 @keyframes hi-ring-breathe {
-  0%, 100% { filter: drop-shadow(0 0 5px rgba(45,212,191,0.45)); }
-  50%       { filter: drop-shadow(0 0 14px rgba(45,212,191,0.82)); }
+  0%, 100% { filter: drop-shadow(0 0 7px rgba(45,212,191,0.52)); }
+  50%       { filter: drop-shadow(0 0 20px rgba(45,212,191,0.92)); }
 }
 
 .hi-score-ring-center {
@@ -2208,7 +2214,7 @@ svg { display: block; }
 }
 
 .hi-score-ring-num {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 700;
   color: var(--mc-green);
   line-height: 1;
@@ -2737,6 +2743,24 @@ a.ii-platform-card:hover {
   box-shadow: 0 1px 4px rgba(0,0,0,0.28),
               inset 0 1px 0 rgba(255,255,255,0.035),
               0 0 44px rgba(45,212,191,0.07);
+}
+
+/* Score card — elevated bloom so it commands the most attention */
+.ws-dept--health .hi-kpi-card--score {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.32),
+              inset 0 1px 0 rgba(255,255,255,0.05),
+              0 0 60px rgba(45,212,191,0.14),
+              0 0 120px rgba(45,212,191,0.06);
+  border-color: rgba(45,212,191,0.28);
+}
+
+/* ATHENA coverage — more secondary, muted */
+.ws-dept--health .hi-monitoring-coverage-title {
+  opacity: 0.65;
+}
+.ws-dept--health .hi-monitoring-coverage-item {
+  font-size: 10px;
+  opacity: 0.8;
 }
 
 .ws-dept--health .hi-cat-card {
