@@ -6083,7 +6083,7 @@ a.ci-function-card:hover .ci-artwork-container {
   z-index: 1;
 }
 .mc2-hero-globe {
-  height: 312px;
+  height: 300px;
   width: auto;
   overflow: visible;
   filter: drop-shadow(0 0 48px rgba(109,40,217,0.65)) drop-shadow(0 0 110px rgba(168,85,247,0.28));
@@ -6091,10 +6091,64 @@ a.ci-function-card:hover .ci-artwork-container {
   position: relative;
   z-index: 2;
   flex-shrink: 0;
-  /* Canvas has transparent background — no masking required.
-     mix-blend-mode: screen brightens the purple wireframe dots
-     against the dark MC surface for a natural luminous emergence. */
+  /* screen blend dissolves the near-black image background into the MC surface */
   mix-blend-mode: screen;
+  /* Radial mask: head is fully opaque at centre, dark rectangular
+     borders fade to transparent so no image edge is ever visible */
+  mask-image: radial-gradient(ellipse 80% 98% at 42% 46%,
+    black 0%,
+    black 44%,
+    rgba(0,0,0,0.88) 58%,
+    rgba(0,0,0,0.50) 73%,
+    rgba(0,0,0,0.14) 87%,
+    transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 98% at 42% 46%,
+    black 0%,
+    black 44%,
+    rgba(0,0,0,0.88) 58%,
+    rgba(0,0,0,0.50) 73%,
+    rgba(0,0,0,0.14) 87%,
+    transparent 100%);
+}
+
+/* ── ATHENA™ Eye Intelligence Pulse ───────────────────────────────────────── */
+/* Position: portrait eye is at ~21% from left, ~28% from top of the image.
+   At 240×300 px display, centred in globe-hero → offset from container 50%:
+   x: (0.21×240 = 50px from img-left) - (240/2 = 120px) = -70px from centre
+   y: (0.28×300 = 84px from img-top)  - (300/2 = 150px) = -66px from centre */
+.mc2-athena-eye {
+  position: absolute;
+  left: calc(50% - 70px);
+  top:  calc(50% - 66px);
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 6;
+  background: transparent;
+  box-shadow: 0 0 0 0 transparent;
+  animation: mc2-eye-pulse 14s ease-in-out infinite;
+}
+@keyframes mc2-eye-pulse {
+  /* Idle — invisible for ~13.3 s */
+  0%, 95% {
+    background: rgba(220,155,255,0);
+    box-shadow: 0 0 0 0 rgba(185,80,255,0),
+                0 0 0 0 rgba(145,40,220,0);
+  }
+  /* Peak — gentle brightening over 0.28 s */
+  97% {
+    background: rgba(248,215,255,0.88);
+    box-shadow: 0 0 5px 2px rgba(195,95,255,0.68),
+                0 0 16px 7px rgba(150,45,225,0.30);
+  }
+  /* Fade — dissolves over 0.42 s */
+  100% {
+    background: rgba(220,155,255,0);
+    box-shadow: 0 0 8px 5px rgba(185,80,255,0),
+                0 0 22px 12px rgba(145,40,220,0);
+  }
 }
 .mc2-hero-globe-lines {
   position: absolute;
