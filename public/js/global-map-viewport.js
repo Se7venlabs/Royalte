@@ -36,7 +36,7 @@
    * Next recalibration: single Board-directed pass after geometry is locked.
    */
   var ANCHORS = {
-    'Canada':         { l: 25.0, t: 20.0, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Canada':         { l: 16.0, t: 20.0, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
     'United States':  { l: 27.0, t: 35.0, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
     'Mexico':         { l: 26.0, t: 49.0, flag: '🇲🇽', p: ['apple','spotify'],                  d: 'Mar 2024' },
     'Brazil':         { l: 37.0, t: 75.0, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
