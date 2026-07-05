@@ -6,6 +6,51 @@
   <title>Catalog Intelligence™ — Royaltē OS</title>
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <style>
+    /* Catalog Intelligence™ — Architecture Pass 1 overrides */
+    /* Executive typography standard — matches publishing workspace */
+    .ws-dept--catalog .ii-kpi-big-num { font-size: 28px; letter-spacing: -0.03em; }
+    .ws-dept--catalog .ii-kpi-fraction { font-size: 15px; }
+    /* Tighten vertical rhythm for One Screen Rule™ */
+    .ws-dept--catalog .hi-main { padding: 20px 28px 32px; gap: 18px; }
+    .ws-dept--catalog .hi-kpi-row { gap: 10px; }
+    .ws-dept--catalog .ci-function-grid { margin-top: 8px; gap: 8px; }
+    .ws-dept--catalog .ci-bottom-row { gap: 10px; }
+    /* Catalog Readiness ATHENA trigger */
+    .ci-kpi-card--athena-trigger {
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .ci-kpi-card--athena-trigger:hover {
+      border-color: rgba(225,29,72,0.42);
+      box-shadow: 0 0 32px rgba(225,29,72,0.14);
+    }
+    .ci-athena-review-btn {
+      display: inline-block; margin-top: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+      color: #e11d48; text-transform: uppercase;
+      background: none; border: none; padding: 0; cursor: pointer;
+      font-family: inherit;
+    }
+    .ci-kpi-card--athena-trigger:hover .ci-athena-review-btn {
+      text-decoration: underline;
+    }
+    /* Non-clickable engine cards — div variant inherits a.ci-function-card styles */
+    .ws-dept--catalog div.ci-function-card {
+      display: flex; flex-direction: column; align-items: flex-start;
+      padding: 14px 14px 12px;
+      background: var(--mc-surface-1); border: 1px solid var(--mc-border-soft);
+      border-radius: 10px; color: inherit;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.24), 0 0 38px rgba(225,29,72,0.06);
+    }
+    /* ISRC action path */
+    .ci-function-action {
+      display: inline-block; margin-top: 8px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+      color: #f87171; text-decoration: none; text-transform: uppercase;
+    }
+    .ci-function-action:hover { text-decoration: underline; }
+  </style>
 </head>
 <body>
 <div class="ws-shell ws-dept--catalog">
@@ -144,8 +189,10 @@
         <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
         <div class="hi-kpi-row">
 
-          <!-- Catalog Readiness™ — Executive Signature™ -->
-          <div class="hi-kpi-card ci-kpi-card--readiness">
+          <!-- Catalog Readiness™ — ATHENA Trigger -->
+          <div class="hi-kpi-card ci-kpi-card--readiness ci-kpi-card--athena-trigger"
+               role="button" tabindex="0" aria-label="Open ATHENA Catalog Intelligence"
+               onclick="ciOpenAthena()" onkeydown="if(event.key==='Enter'||event.key===' ')ciOpenAthena()">
             <div class="hi-kpi-label hi-kpi-label--crimson">Catalog Readiness™</div>
 
             <div class="ci-readiness-ring-wrap" aria-label="Catalog readiness: 96%">
@@ -167,6 +214,7 @@
                 <span class="hi-status-dot" aria-hidden="true"></span>Release Ready
               </div>
             </div>
+            <button class="ci-athena-review-btn" onclick="event.stopPropagation();ciOpenAthena()" tabindex="-1">Review Catalog Readiness →</button>
           </div>
 
           <!-- Total Tracks™ -->
@@ -212,15 +260,15 @@
 
         </div>
 
-        <!-- § 3 — CORE CATALOG INTELLIGENCE™ ───────────────────────── -->
+        <!-- § 3 — CATALOG INTELLIGENCE ENGINE™ ────────────────────── -->
         <div>
           <div class="ci-section-header">
-            <div class="ci-section-title">Core Catalog Intelligence™</div>
+            <div class="ci-section-title">Catalog Intelligence Engine™</div>
           </div>
           <div class="ci-function-grid">
 
             <!-- Artwork™ -->
-            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="Artwork — Verified, All Covers Present">
+            <div class="ci-function-card">
               <div class="ci-artwork-container" aria-hidden="true">
                 <svg class="royalte-icon royalte-icon--lg" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-artwork"></use></svg>
               </div>
@@ -228,10 +276,10 @@
               <div class="ci-function-sub">Best Verified Release Cover</div>
               <div class="ci-function-badge ci-function-badge--verified">Verified</div>
               <div class="ci-function-stat">All covers present</div>
-            </a>
+            </div>
 
             <!-- Lyrics™ -->
-            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="Lyrics — Synced, 17 of 20 Tracks">
+            <div class="ci-function-card">
               <div class="ci-function-icon-wrap">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-lyrics"></use></svg>
               </div>
@@ -239,10 +287,10 @@
               <div class="ci-function-sub">Lyric Sync Coverage</div>
               <div class="ci-function-badge ci-function-badge--synced">Synced</div>
               <div class="ci-function-stat">17 of 20 tracks</div>
-            </a>
+            </div>
 
             <!-- Credits™ -->
-            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="Credits — Complete, All Producers Tagged">
+            <div class="ci-function-card">
               <div class="ci-function-icon-wrap">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-credits"></use></svg>
               </div>
@@ -250,10 +298,10 @@
               <div class="ci-function-sub">Producer &amp; Writer Tags</div>
               <div class="ci-function-badge ci-function-badge--verified">Complete</div>
               <div class="ci-function-stat">All producers tagged</div>
-            </a>
+            </div>
 
-            <!-- ISRC™ -->
-            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="ISRC — 19 of 20, 1 Pending">
+            <!-- ISRC™ — Action Path (1 Pending) -->
+            <div class="ci-function-card">
               <div class="ci-function-icon-wrap ci-function-icon-wrap--attention">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-isrc"></use></svg>
               </div>
@@ -261,10 +309,11 @@
               <div class="ci-function-sub">Track Recording Codes</div>
               <div class="ci-function-badge ci-function-badge--pending">1 Pending</div>
               <div class="ci-function-stat">19 of 20 assigned</div>
-            </a>
+              <a class="ci-function-action" href="/workspaces/catalog-intelligence.html">Resolve Missing ISRC →</a>
+            </div>
 
             <!-- UPC™ -->
-            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="UPC — Verified, Active Distribution">
+            <div class="ci-function-card">
               <div class="ci-function-icon-wrap">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-upc"></use></svg>
               </div>
@@ -272,10 +321,10 @@
               <div class="ci-function-sub">Universal Product Codes</div>
               <div class="ci-function-badge ci-function-badge--verified">Verified</div>
               <div class="ci-function-stat">3 active · 0 missing</div>
-            </a>
+            </div>
 
             <!-- Metadata Integrity™ -->
-            <a class="ci-function-card" href="/workspaces/catalog-intelligence.html" aria-label="Metadata Integrity — Strong, 94% Complete">
+            <div class="ci-function-card">
               <div class="ci-function-icon-wrap">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-metadata"></use></svg>
               </div>
@@ -283,7 +332,7 @@
               <div class="ci-function-sub">Field Completeness</div>
               <div class="ci-function-badge ci-function-badge--strong">Strong</div>
               <div class="ci-function-stat">94% complete</div>
-            </a>
+            </div>
 
           </div>
         </div>
@@ -404,117 +453,78 @@
 
         </div>
 
-        <!-- Artist footer ───────────────────────────────────────────── -->
-        <div class="hi-artist-footer">
-          <div class="hi-artist-avatar" aria-hidden="true">GX</div>
-          <div class="hi-artist-info">
-            <div class="hi-artist-name">
-              GENTLEMEN X
-              <div class="hi-artist-verified" aria-label="Verified artist">
-                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              </div>
-            </div>
-          </div>
-          <div class="hi-artist-actions">
-            <a class="hi-artist-action-link" href="/mission-control.html">View Profile</a>
-            <div class="hi-artist-sep" aria-hidden="true"></div>
-            <a class="hi-artist-action-link" href="/mission-control.html">Sign Out</a>
-          </div>
-        </div>
-
       </div><!-- /hi-main -->
-
-      <!-- ══ RIGHT EXECUTIVE PANEL ════════════════════════════════════ -->
-      <aside class="hi-exec-panel" aria-label="Executive Catalog Panel">
-
-        <!-- AI Catalog Summary™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-ai-header">
-            <div class="hi-panel-ai-title">AI Catalog Summary™</div>
-            <div class="hi-panel-live-badge">
-              <div class="hi-panel-live-dot" aria-hidden="true"></div>
-              LIVE
-            </div>
-          </div>
-          <div class="hi-panel-ai-logo" aria-hidden="true">ē</div>
-          <div class="hi-panel-ai-complete">AI Catalog Analysis Complete</div>
-          <div class="hi-panel-ai-checks" role="list">
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              Catalog 96% ready for distribution
-            </div>
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--amber" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
-              1 ISRC pending resolution
-            </div>
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--amber" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
-              3 tracks missing lyric sync
-            </div>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/ai-insights.html">Open AI Insights →</a>
-        </div>
-
-        <!-- Top Priority™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-priority-header">
-            <div class="hi-panel-priority-label">Top Priority™</div>
-            <div class="hi-panel-high-badge">HIGH</div>
-          </div>
-          <div class="hi-panel-action-card">
-            <div class="hi-panel-action-icon-row">
-              <div class="hi-panel-action-icon" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-isrc"></use></svg>
-              </div>
-              <div class="hi-panel-action-title">Resolve ISRC for 1 Remaining Track</div>
-            </div>
-            <div class="hi-panel-action-desc">Assign the missing ISRC to ensure proper royalty tracking and DSP ingestion for "Midnight Protocols."</div>
-            <div class="hi-panel-action-meta">
-              <div class="hi-panel-action-badge">
-                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
-                Est. 10 Min
-              </div>
-              <div class="hi-panel-action-badge">Impact: High</div>
-            </div>
-            <a class="hi-panel-action-cta" href="/workspaces/priority-actions.html" role="button">Take Action Now</a>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/priority-actions.html">View All Actions →</a>
-        </div>
-
-        <!-- Catalog Status™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-summary-header">
-            <div class="hi-panel-summary-label">Catalog Status™</div>
-          </div>
-          <div class="hi-panel-summary-range">Jun 27 – Jul 4, 2026</div>
-          <div class="hi-panel-summary-grid">
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--crimson">20</div>
-              <div class="hi-panel-stat-label">Total Tracks</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--green">19</div>
-              <div class="hi-panel-stat-label">ISRCs Assigned</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--green">17</div>
-              <div class="hi-panel-stat-label">Lyrics Synced</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--meta">2h ago</div>
-              <div class="hi-panel-stat-label">Last Catalog Sync</div>
-            </div>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/royalte-review.html">View Full Report →</a>
-        </div>
-
-      </aside>
 
     </div><!-- /ws-body -->
 
   </div><!-- /ws-content -->
 
 </div><!-- /ws-shell -->
+
+<!-- ATHENA Catalog Intelligence™ Panel -->
+<div id="ci-athena-overlay" class="pi-athena-overlay" role="dialog" aria-modal="true" aria-labelledby="ci-athena-title" hidden>
+  <div class="pi-athena-panel" role="document">
+
+    <div class="pi-athena-header">
+      <div class="pi-athena-brand">
+        <div class="pi-athena-logo" aria-hidden="true">ē</div>
+        <div class="pi-athena-brand-text">
+          <div class="pi-athena-eyebrow">ATHENA</div>
+          <div class="pi-athena-wordmark" id="ci-athena-title">Catalog Intelligence™</div>
+        </div>
+      </div>
+      <button class="pi-athena-close" onclick="ciCloseAthena()" aria-label="Close ATHENA panel">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="pi-athena-body">
+
+      <div class="pi-athena-rating-row">
+        <div class="pi-athena-rating-label">Catalog Readiness</div>
+        <div class="pi-athena-rating-value" style="color:var(--mc-green);">96% — Release Ready</div>
+      </div>
+
+      <div class="pi-athena-section">
+        <div class="pi-athena-section-label">How This Score Is Calculated</div>
+        <div class="pi-athena-section-body">ATHENA evaluates artwork completeness, lyric sync coverage, producer credits, ISRC assignments, UPC validity, and metadata field completeness across all 20 tracks in your catalog.</div>
+      </div>
+
+      <div class="pi-athena-section">
+        <div class="pi-athena-section-label">Active Issues</div>
+        <div class="pi-athena-works-list">
+          <div class="pi-athena-work-row">
+            <div class="pi-athena-work-dot" aria-hidden="true"></div>
+            <div class="pi-athena-work-name">1 track missing ISRC — "Midnight Protocols"</div>
+          </div>
+          <div class="pi-athena-work-row">
+            <div class="pi-athena-work-dot" aria-hidden="true"></div>
+            <div class="pi-athena-work-name">3 tracks pending lyric sync</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pi-athena-section">
+        <div class="pi-athena-section-label">Why ISRC Matters</div>
+        <div class="pi-athena-section-body">ISRC codes are the primary identifier for royalty tracking at DSPs. A track without an ISRC cannot be linked to its performance data, which creates gaps in both mechanical and performance royalty collection.</div>
+      </div>
+
+      <div class="pi-athena-section">
+        <div class="pi-athena-section-label">Recommended Action</div>
+        <div class="pi-athena-section-body">Assign the missing ISRC via your distributor or directly through ISRC.com. Estimated completion: 10 minutes. Once assigned, catalog readiness reaches 100%.</div>
+      </div>
+
+    </div>
+
+    <div class="pi-athena-footer">
+      <a class="pi-athena-action-cta" href="https://www.usisrc.org" target="_blank" rel="noopener noreferrer">Register ISRC →</a>
+    </div>
+
+  </div>
+</div>
+
 <script>
 (function() {
   var el = document.getElementById('ci-ring-num');
@@ -530,6 +540,24 @@
   }
   requestAnimationFrame(step);
 })();
+function ciOpenAthena() {
+  var overlay = document.getElementById('ci-athena-overlay');
+  overlay.hidden = false;
+  overlay.removeAttribute('hidden');
+  document.body.style.overflow = 'hidden';
+  overlay.querySelector('.pi-athena-close').focus();
+}
+function ciCloseAthena() {
+  var overlay = document.getElementById('ci-athena-overlay');
+  overlay.hidden = true;
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') ciCloseAthena();
+});
+document.getElementById('ci-athena-overlay').addEventListener('click', function(e) {
+  if (e.target === this) ciCloseAthena();
+});
 </script>
 </body>
 </html>
