@@ -7,16 +7,31 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
   <style>
-    /* Backend Intelligence™ — Architecture Pass 1 */
+    /* Backend Intelligence™ — Architecture Pass 1 + 2 */
+
     /* Executive typography standard */
     .ws-dept--backend .ii-kpi-big-num { font-size: 28px; letter-spacing: -0.03em; }
     .ws-dept--backend .ii-kpi-fraction { font-size: 15px; }
-    /* One Screen Rule™ spacing */
-    .ws-dept--backend .hi-main { padding: 18px 28px 28px; gap: 16px; }
-    .ws-dept--backend .hi-kpi-row { gap: 10px; }
-    .ws-dept--backend .bi-twin-section { margin-bottom: 0; padding: 24px 24px 20px; }
-    .ws-dept--backend .bi-twin-title { margin-bottom: 16px; }
-    /* Executive header ATHENA trigger */
+
+    /* ── Pass 2: Mission Control Header Standard — ~25% taller ─────── */
+    .ws-dept--backend .bi-exec-header { padding: 32px 28px; }
+
+    /* ── Pass 2: Layout breathing room ─────────────────────────────── */
+    .ws-dept--backend .hi-main { padding: 24px 28px 40px; gap: 20px; }
+
+    /* ── Pass 2: Executive Metric Cards — compact supporting metrics ── */
+    /* ~17% narrower (row has 8% side padding) + ~20% shorter (padding reduction) */
+    .ws-dept--backend .hi-kpi-row { gap: 8px; padding: 0 8%; }
+    .ws-dept--backend .hi-kpi-card { padding: 13px 14px 11px; }
+    .ws-dept--backend .hi-kpi-icon-wrap { width: 30px; height: 30px; border-radius: 7px; }
+    .ws-dept--backend .hi-kpi-icon-wrap svg { width: 15px; height: 15px; }
+
+    /* ── Pass 2: Backend Intelligence Engine™ — 30% larger, centered ─ */
+    .ws-dept--backend .bi-twin-section { margin-bottom: 0; padding: 28px 28px 24px; }
+    .ws-dept--backend .bi-twin-title { margin-bottom: 20px; }
+    .ws-dept--backend .bi-twin-svg { max-width: min(780px, 100%); margin: 0 auto; display: block; }
+
+    /* ── Pass 1: Executive header ATHENA trigger ────────────────────── */
     .bi-exec-header--athena-trigger {
       cursor: pointer;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -25,7 +40,8 @@
       border-color: rgba(0,191,165,0.38);
       box-shadow: 0 0 32px rgba(0,191,165,0.12);
     }
-    /* Teal action pill — reuse pi-risk-step, override amber → teal */
+
+    /* ── Pass 1: Teal action pill — pi-risk-step amber → teal ──────── */
     .ws-dept--backend .bi-exec-header .pi-risk-step {
       flex: none;
       align-self: stretch;
@@ -43,25 +59,36 @@
       0%, 100% { box-shadow: 0 0 0 0 rgba(0,191,165,0); }
       50%       { box-shadow: 0 0 14px 3px rgba(0,191,165,0.28); }
     }
-    /* Interactive Digital Twin node styles */
+
+    /* ── Pass 1: Interactive Digital Twin node styles ───────────────── */
     .bi-node--interactive { cursor: pointer; }
-    .bi-node--interactive .bi-node-ring {
-      transition: stroke-width 0.2s ease, opacity 0.2s ease;
-    }
-    .bi-node--interactive:hover .bi-node-ring {
-      opacity: 0.65 !important;
-      stroke-width: 2.2;
-    }
-    .bi-node--selected .bi-node-ring {
-      opacity: 1 !important;
-      stroke-width: 2.8 !important;
-    }
-    .bi-conn--selected {
-      stroke-opacity: 1 !important;
-      stroke-width: 2 !important;
-    }
+    .bi-node--interactive .bi-node-ring { transition: stroke-width 0.2s ease, opacity 0.2s ease; }
+    .bi-node--interactive:hover .bi-node-ring { opacity: 0.65 !important; stroke-width: 2.2; }
+    .bi-node--selected .bi-node-ring { opacity: 1 !important; stroke-width: 2.8 !important; }
+    .bi-conn--selected { stroke-opacity: 1 !important; stroke-width: 2 !important; }
     .bi-conn--teal.bi-conn--selected  { stroke: rgba(0,191,165,0.90) !important; }
     .bi-conn--amber.bi-conn--selected { stroke: rgba(245,158,11,0.90) !important; }
+
+    /* ── Pass 2: Responsive Foundation ─────────────────────────────── */
+    @media (max-width: 1280px) {
+      .ws-dept--backend .hi-kpi-row { padding: 0 4%; }
+      .ws-dept--backend .bi-twin-svg { max-width: min(640px, 100%); }
+    }
+    @media (max-width: 960px) {
+      .ws-dept--backend .hi-kpi-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        padding: 0;
+        gap: 8px;
+      }
+      .ws-dept--backend .bi-twin-svg { max-width: 100%; }
+      .ws-dept--backend .hi-main { padding: 18px 20px 28px; gap: 16px; }
+    }
+    @media (max-width: 640px) {
+      .ws-dept--backend .bi-exec-header { flex-direction: column; gap: 12px; padding: 20px 18px; }
+      .ws-dept--backend .hi-kpi-row { grid-template-columns: repeat(2, 1fr); }
+      .ws-dept--backend .hi-main { padding: 14px 14px 20px; gap: 12px; }
+    }
   </style>
 </head>
 <body>
