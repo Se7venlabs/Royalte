@@ -1376,6 +1376,11 @@ svg { display: block; }
   border-color: var(--mc-border-warm);
 }
 
+.ii-kpi-card--pending {
+  background: linear-gradient(145deg, rgba(248,113,113,0.05), transparent);
+  border-color: rgba(248,113,113,0.22);
+}
+
 .hi-kpi-label {
   font-size: 9px;
   font-weight: 700;
@@ -2639,8 +2644,56 @@ a.hi-cat-card {
   padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 700; letter-spacing: 0.04em;
 }
 
-.ii-platform-badge--verified { background: rgba(45,212,191,0.1); color: var(--mc-green); border: 1px solid rgba(45,212,191,0.22); }
-.ii-platform-badge--unclaimed { background: rgba(251,146,60,0.1); color: var(--mc-orange); border: 1px solid rgba(251,146,60,0.22); }
+.ii-platform-badge--verified        { background: rgba(45,212,191,0.1);  color: var(--mc-green);  border: 1px solid rgba(45,212,191,0.22);  }
+.ii-platform-badge--needs-attention { background: rgba(251,191,36,0.1);   color: #fbbf24;          border: 1px solid rgba(251,191,36,0.25);  }
+.ii-platform-badge--action-required { background: rgba(248,113,113,0.1);  color: #f87171;          border: 1px solid rgba(248,113,113,0.25); }
+.ii-platform-badge--unclaimed       { background: rgba(251,146,60,0.1);   color: var(--mc-orange); border: 1px solid rgba(251,146,60,0.22);  }
+
+/* ── Action Path™ — universal framework for identity resolution actions ── */
+
+.ii-action-path {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  padding-top: 4px;
+}
+
+.ii-action-path-platform {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--mc-text);
+  line-height: 1.3;
+}
+
+.ii-action-path-desc {
+  font-size: 10px;
+  color: var(--mc-text-muted);
+  line-height: 1.55;
+}
+
+.ii-action-path-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  background: rgba(248,113,113,0.08);
+  border: 1px solid rgba(248,113,113,0.28);
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #f87171;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: background 0.15s, border-color 0.15s;
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.ii-action-path-cta:hover {
+  background: rgba(248,113,113,0.15);
+  border-color: rgba(248,113,113,0.48);
+}
 
 .ii-platform-label { font-size: 8.5px; color: var(--mc-text-muted); }
 
