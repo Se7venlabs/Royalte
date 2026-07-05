@@ -4726,7 +4726,7 @@ a.ci-function-card:hover .ci-artwork-container {
 
 .mc2-command-row {
   display: grid;
-  grid-template-columns: 1fr 1.15fr 265px;
+  grid-template-columns: 1fr 265px;
   gap: 12px;
   position: relative;
   z-index: 1;
