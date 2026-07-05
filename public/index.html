@@ -1208,6 +1208,17 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 }
 .open-mc-btn:disabled{opacity:0.35;cursor:not-allowed;animation:none;}
 .open-mc-ready{font-size:12px;color:var(--muted);letter-spacing:0.02em;margin:10px 0 0;text-align:center;}
+/* ── SCAN COMPLETION SCREEN ── */
+.scan-complete-screen{display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px 22px 24px;}
+.scan-complete-badge{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.scan-complete-check{width:22px;height:22px;border-radius:50%;background:rgba(64,240,160,0.12);border:1px solid rgba(64,240,160,0.32);display:flex;align-items:center;justify-content:center;color:var(--grn);flex-shrink:0;}
+.scan-complete-label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--grn);}
+.scan-complete-headline{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text);margin-bottom:14px;}
+.scan-complete-rule{width:36px;height:1px;background:var(--border2);margin:0 auto 16px;}
+.scan-complete-unclaimed{font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--amb);margin-bottom:8px;}
+.scan-complete-desc{font-size:13px;color:var(--muted2);line-height:1.65;max-width:280px;margin:0 auto 20px;}
+.scan-complete-cta{padding:14px 20px;font-size:12.5px;letter-spacing:0.12em;}
+.scan-complete-trust{font-size:11px;color:var(--muted);margin-top:10px;letter-spacing:0.03em;}
 .bi-os-access{
   text-align:center;
   margin:0;
@@ -1985,68 +1996,23 @@ body.scan-confirmed #sc-confirm{opacity:1;}
           </div>
         </div>
         <div id="audit-results" style="display:none;">
-        <!-- 1. Health Score banner — same .d-score-tag style as V1 -->
-        <div class="d-score-tag" id="hero-score-tag">
-          <div class="d-score-tag-num" id="hero-score-tag-num">—</div>
-          <div class="d-score-tag-lbl" id="hero-score-tag-lbl">Health Score</div>
-        </div>
-        <div class="d-score-helper" id="hero-score-helper" style="display:none;">
-          Higher is healthier — Royaltē reviews catalog presence, identifier coverage, and platform availability.
-          <div class="d-score-helper-tooltip">
-            <div class="tt-row healthy"><span class="tt-dot"></span><strong>90–100</strong> · Excellent</div>
-            <div class="tt-row warning"><span class="tt-dot"></span><strong>75–89</strong> · Strong</div>
-            <div class="tt-row atrisk"><span class="tt-dot"></span><strong>60–74</strong> · Moderate</div>
-            <div class="tt-row danger"><span class="tt-dot"></span><strong>&lt; 60</strong> · Review recommended</div>
+        <!-- Scan completion screen — replaces data reveal. Intelligence lives in Royaltē OS. -->
+        <div class="scan-complete-screen">
+          <div class="scan-complete-badge">
+            <div class="scan-complete-check" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M2 7L5.5 10.5L12 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="scan-complete-label">SCAN COMPLETE</div>
           </div>
-        </div>
-
-        <!-- Score drivers (Brief 012a) — populated + shown/hidden by
-             renderV2Section2 per the locked display rule:
-               score ≥ 90        → hidden
-               75–89 + drivers>0 → shown
-               75–89 + drivers=0 → hidden
-               < 75 + drivers>0  → shown (REQUIRED by brief)
-             Subtle amber styling — "factors", not "issues". -->
-        <div class="os-score-drivers" id="os-score-drivers">
-          <p class="os-drivers-label">What influenced your Health Score</p>
-          <ul class="os-drivers-list" id="os-drivers-list"></ul>
-        </div>
-
-        <!-- 2. Top Findings + What Royaltē Found — same .d-modules / .d-mod
-             card style as V1, with V2 content populated by JS. -->
-        <div class="d-modules">
-          <div class="d-mod" id="os-findings-card">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Top findings</div></div>
-            <div class="os-findings-list" id="os-findings"><!-- populated by renderV2Findings() --></div>
-          </div>
-          <div class="d-mod" id="os-found-card">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">What Royaltē found</div></div>
-            <div class="os-found-grid" id="os-found-grid"><!-- populated by renderV2Found() --></div>
-          </div>
-        </div>
-
-        <!-- 3. Bridge line + CTA — replaces V1 .gbe-card position. -->
-        <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
-        <div class="d-mod os-cta-card">
-          <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Royaltē OS Is Monitoring Signals This Scan Doesn't Show</div></div>
-          <p class="os-cta-statement">One Scan Shows A Snapshot.<br>Royaltē OS Watches What Changes.</p>
-          <ul class="os-cta-features">
-            <li>Catalog Change Detection</li>
-            <li>Health Score Tracking</li>
-            <li>Backend Protection</li>
-            <li>Action Center</li>
-            <li>Continuous Monitoring</li>
-            <li>Territory Changes</li>
-            <li>Identifier Changes</li>
-            <li>Metadata Coverage</li>
-            <li>YouTube Presence</li>
-          </ul>
-          <p class="os-cta-body">Royaltē OS continuously monitors your music business backend and alerts you when meaningful changes are detected.</p>
-          <!-- Phase 4.3: Mission Control entry. Enabled after scan success;
-               click stores scan payload to sessionStorage and navigates to
-               MC preactivate path (OS boot first, vault second). -->
-          <button id="open-mc-btn" class="open-mc-btn" disabled>Open Mission Control</button>
-          <p class="open-mc-ready">Your Royaltē OS is ready.</p>
+          <div class="scan-complete-headline">Executive Audit Ready</div>
+          <div class="scan-complete-rule" aria-hidden="true"></div>
+          <p class="scan-complete-unclaimed">This scan has not yet been claimed.</p>
+          <p class="scan-complete-desc">Claim your scan to unlock Royaltē OS and access your complete music intelligence platform.</p>
+          <!-- Phase 4.3: MC entry — enabled after scan success; navigates to preactivate path. -->
+          <button id="open-mc-btn" class="open-mc-btn scan-complete-cta" disabled>CLAIM &amp; ENTER ROYALTĒ OS</button>
+          <p class="scan-complete-trust">Your intelligence is ready.</p>
         </div>
         </div>
       </div>
@@ -2449,7 +2415,7 @@ function animateScan(isApple) {
   // Run to 95%, then HOLD until the API caller resolves the animation.
   const animation = new Promise((animResolve) => {
     const iv = setInterval(() => {
-      pct = Math.min(pct + Math.random() * 3.5 + 1, 95);
+      pct = Math.min(pct + Math.random() * 5.5 + 2, 95);
       fill.style.width = pct + '%';
       if (pct > 25 && li < 1) { li = 1; label.textContent = labels[1]; }
       if (pct > 55 && li < 2) { li = 2; label.textContent = labels[2]; }
@@ -2460,7 +2426,7 @@ function animateScan(isApple) {
         label.textContent = 'Finalising results...';
         animResolve();
       }
-    }, 80);
+    }, 55);
   });
 
   return {
@@ -2623,7 +2589,7 @@ async function runAudit() {
     if (verifiedSubEl) verifiedSubEl.textContent = '';
     setTimeout(() => {
       showRealResults(auditData);
-    }, 400);
+    }, 150);
     btn.disabled = false;
     btn.textContent = 'Run Free Scan →';
     setTimeout(() => {
@@ -3057,7 +3023,7 @@ function showRealResults(data) {
     const indicator = document.getElementById('hero-risk-indicator');
     if (ring) ring.classList.add('jarvis-on');
     if (indicator) { indicator.classList.add('jarvis-active'); indicator.classList.add('jarvis-fade-in'); }
-  }, 500);
+  }, 200);
 
   // ── Resolved-from pill (V1, not risk-themed) ──
   const matchedNote = document.getElementById('results-matched-note');
