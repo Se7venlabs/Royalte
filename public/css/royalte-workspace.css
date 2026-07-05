@@ -4676,6 +4676,9 @@ a.ci-function-card:hover .ci-artwork-container {
   align-items: center;
   gap: 11px;
   transition: border-color 0.2s;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 .mc2-snap-card:hover { border-color: rgba(168, 85, 247, 0.16); }
 .mc2-snap-icon {
