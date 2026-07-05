@@ -5,6 +5,10 @@
       "includeFiles": "api/apple-token.js",
       "maxDuration": 30
     },
+    "api/identify.js": {
+      "includeFiles": "api/apple-token.js",
+      "maxDuration": 10
+    },
     "api/resolve-artist.js": {
       "includeFiles": "api/apple-token.js"
     },
@@ -40,6 +44,10 @@
     {
       "src": "/api/audit",
       "dest": "/api/audit.js"
+    },
+    {
+      "src": "/api/identify",
+      "dest": "/api/identify.js"
     },
     {
       "src": "/api/resolve-artist",

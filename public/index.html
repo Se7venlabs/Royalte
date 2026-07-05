@@ -2403,39 +2403,63 @@ function animateScan(isApple) {
   const fill  = document.getElementById('sp-fill');
   const label = document.getElementById('sp-label');
   prog.style.display = 'block';
-  // reset any prior error styling
   label.style.color = '';
-  const labels = isApple
-    ? ['Resolving Apple Music link...', 'Matching ISRC to Spotify...', 'Running verification modules...', 'Building verified report...']
-    : ['Scanning Spotify profile...', 'Resolving metadata...', 'Running verification modules...', 'Building verified report...'];
-  let pct = 0, li = 0;
 
-  // Run to 95%, then HOLD until the API caller resolves the animation.
-  const animation = new Promise((animResolve) => {
-    const iv = setInterval(() => {
-      pct = Math.min(pct + Math.random() * 5.5 + 2, 95);
-      fill.style.width = pct + '%';
-      if (pct > 25 && li < 1) { li = 1; label.textContent = labels[1]; }
-      if (pct > 55 && li < 2) { li = 2; label.textContent = labels[2]; }
-      if (pct > 80 && li < 3) { li = 3; label.textContent = labels[3]; }
-      if (pct >= 95) {
-        clearInterval(iv);
-        fill.style.width = '95%';
-        label.textContent = 'Finalising results...';
-        animResolve();
-      }
-    }, 55);
-  });
+  let pct         = 0;
+  let _verified   = false;
+  let _verifiedAt = 0;
+  let _iv         = null;
+
+  // Phase 1: identity resolution labels (before verification)
+  const p1Labels = isApple
+    ? ['Searching Apple Music...', 'Locating artist profile...', 'Verifying identity...']
+    : ['Searching Spotify...', 'Locating artist profile...', 'Verifying identity...'];
+  // Phase 2: intelligence processing labels (after verification, while full scan runs)
+  const p2Labels = [
+    'Building Catalog Intelligence...',
+    'Analyzing Identity Coverage...',
+    'Checking Publishing Records...',
+    'Verifying Backend Systems...',
+    'Computing Health Score...',
+    'Preparing Executive Brief...',
+  ];
+  let p1idx = 0;
+  label.textContent = p1Labels[0];
+
+  // Two-phase animation:
+  //   Phase 1 (0→~40%, ~3s): fast fill — identity resolution in progress
+  //   Phase 2 (40→95%, ~20s): slow fill — intelligence building in background
+  //   audit resolve: scan.complete() jumps to 100% via CSS transition
+  _iv = setInterval(() => {
+    if (_verified) {
+      // Phase 2: ~0.2%/100ms → fills 55% over ~27s (never blocks on audit)
+      pct = Math.min(pct + 0.12 + Math.random() * 0.28, 95);
+      const elapsed = Date.now() - _verifiedAt;
+      const p2idx   = Math.min(Math.floor(elapsed / 3500), p2Labels.length - 1);
+      label.textContent = p2Labels[p2idx];
+    } else {
+      // Phase 1: ~1.1%/100ms → reaches ~40% in ~3.5s
+      pct = Math.min(pct + 0.7 + Math.random() * 0.8, 40);
+      if (pct > 15 && p1idx < 1) { p1idx = 1; label.textContent = p1Labels[1]; }
+      if (pct > 30 && p1idx < 2) { p1idx = 2; label.textContent = p1Labels[2]; }
+    }
+    fill.style.width = pct + '%';
+  }, 100);
 
   return {
-    animation,
+    // setVerified: called when /api/identify returns successfully
+    setVerified() {
+      _verified   = true;
+      _verifiedAt = Date.now();
+    },
     complete() {
+      if (_iv) { clearInterval(_iv); _iv = null; }
       fill.style.width = '100%';
       label.textContent = 'Complete';
     },
     fail(message) {
+      if (_iv) { clearInterval(_iv); _iv = null; }
       label.textContent = message || 'Scan failed — please try again';
-      // inline error styling — no CSS edit
       label.style.color = 'var(--red)';
     }
   };
@@ -2507,33 +2531,24 @@ async function runAudit() {
     urlType === 'album'  ? 'Resolving artist profile…' :
                            'Fetching verified data...';
 
-  // Start the animation. It will run to 95% then HOLD with "Finalising results..."
-  // until scan.complete() or scan.fail() is called below.
+  // Two-phase animation — runs independently from both API calls.
+  // Phase 1 fills to ~40% during identity resolution (~3s).
+  // Phase 2 slowly fills 40→95% while intelligence builds in background.
+  // audit result is awaited directly (animation never blocks the scan result).
   const scan = animateScan(isApple);
 
-  // 30-second hard timeout on the API.
+  // 30-second hard timeout on the full audit.
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-  // Fire the API in parallel with the animation.
   const meta = getMusicInputMeta(val);
   let qs = meta
     ? `?url=${encodeURIComponent(val)}&platform=${encodeURIComponent(meta.platform)}&type=${encodeURIComponent(meta.type)}`
     : `?url=${encodeURIComponent(val)}`;
-  // Tag the scan with the anonymous session_id so it can be claimed onto a
-  // user account after sign-in (see migrate_anonymous_scans). Optional —
-  // the scan still runs if the id is unavailable.
   const auditSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
   if (auditSessionId) qs += `&session_id=${encodeURIComponent(auditSessionId)}`;
 
-  // V2 OS — when the visitor is logged in, attach an Authorization: Bearer
-  // header so /api/audit's V2 scan-write path can resolve user_id and
-  // activate monitoring (scan_snapshots + delta engine + subscription
-  // upsert). Anonymous visitors send no token → V2 path skipped server-side.
-  //
-  // If getSession() returns a valid session, this is a Vault scan. The server
-  // will reject (401) if the token cannot be validated — no silent anonymous
-  // downgrade. If getSession() returns null, user is anonymous; scan proceeds.
+  // Attach Bearer token for authenticated scans (V2 OS write path).
   const auditHeaders = {};
   try {
     if (window.getSupabase) {
@@ -2552,39 +2567,38 @@ async function runAudit() {
     console.warn('[audit] auth header lookup failed (non-fatal):', e);
   }
 
-  const fetchPromise = fetch(`/api/audit${qs}`, { signal: controller.signal, headers: auditHeaders })
+  // ── Phase 1: fire /api/identify in parallel — fast artist verification ──
+  // Non-blocking. When it resolves, update the hero and transition animation
+  // to Phase 2 (intelligence labels). If it fails, scan continues normally.
+  const identifyUrl = `/api/identify?url=${encodeURIComponent(val)}`;
+  fetch(identifyUrl)
+    .then(r => r.json())
+    .then(id => {
+      if (!id || !id.verified) return;
+      const nameEl = document.getElementById('hero-artist-name');
+      const subEl  = document.getElementById('hero-artist-sub');
+      if (nameEl) { nameEl.classList.remove('is-idle'); nameEl.textContent = id.artistName || 'Artist'; }
+      if (subEl)  subEl.textContent = '✓ Music Ecosystem Verified';
+      scan.setVerified();
+    })
+    .catch(() => { /* silent — audit continues regardless */ });
+
+  // ── Phase 2: await full scan — intelligence + persistence ──
+  const auditData = await fetch(`/api/audit${qs}`, { signal: controller.signal, headers: auditHeaders })
     .then(async r => {
       if (r.status === 401) return { __authError: true };
       return r.json();
     })
     .catch(err => ({ __error: err }));
-
-  // Wait for BOTH the animation to reach 95% AND the API to return.
-  // If the API is faster, we still wait for the animation. If slower, we hold at 95%.
-  const [_, auditData] = await Promise.all([scan.animation, fetchPromise]);
   clearTimeout(timeoutId);
 
   const apiOk = auditData && !auditData.__error && auditData.success;
 
   if (apiOk) {
-    // Signal success to runScan() — lets it take over post-scan UX
     window.__lastAuditOk = true;
-    // Stop the looping processing sound and fire success chime
     stopProcessingSound();
     playSuccessChime();
     scan.complete();
-    // ── 400ms "VERIFIED DATA FOUND" BEAT ──
-    // Brief moment between scan completion and full result reveal.
-    // Artist name slot reads "✓ Verified data found" so the user feels
-    // the system found something REAL before the score + flags hit them.
-    // #audit-results remains hidden — showRealResults reveals it after the pause.
-    const verifiedNameEl = document.getElementById('hero-artist-name');
-    const verifiedSubEl  = document.getElementById('hero-artist-sub');
-    if (verifiedNameEl) {
-      verifiedNameEl.classList.remove('is-idle');
-      verifiedNameEl.textContent = '✓ Verified data found';
-    }
-    if (verifiedSubEl) verifiedSubEl.textContent = '';
     setTimeout(() => {
       showRealResults(auditData);
     }, 150);
@@ -2593,7 +2607,6 @@ async function runAudit() {
     setTimeout(() => {
       document.getElementById('scan-progress').style.display = 'none';
     }, 600);
-    // No auto-scroll. User stays on the scan card to absorb the reveal moment.
     return;
   }
 
