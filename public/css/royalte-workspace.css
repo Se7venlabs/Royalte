@@ -6082,33 +6082,48 @@ a.ci-function-card:hover .ci-artwork-container {
   overflow: visible;
   z-index: 1;
 }
+/* ── ATHENA™ Executive Purple Atmosphere — Layer 3 ──────────────────────────
+   CSS-generated ambient bloom. Sits behind the portrait (z-index:2) and
+   extends ~70 px beyond the portrait in all directions for a natural glow
+   that belongs to Mission Control, not to the image asset.              */
+.mc2-athena-atmosphere {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(109, 40, 217, 0.42) 0%,
+    rgba(109, 40, 217, 0.22) 28%,
+    rgba(88,  28, 135, 0.10) 55%,
+    rgba(60,  10, 100, 0.03) 78%,
+    transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+  animation: mc2-atm-breathe 9s ease-in-out infinite;
+}
+@keyframes mc2-atm-breathe {
+  0%, 100% { opacity: 0.72; transform: translate(-50%, -50%) scale(1.00); }
+  50%       { opacity: 1.00; transform: translate(-50%, -50%) scale(1.10); }
+}
+
+/* ── Portrait — Layer 2 ─────────────────────────────────────────────────────
+   Transparent PNG: background removed via luminance extraction.
+   drop-shadow follows the actual wireframe silhouette (not a rectangle).
+   mix-blend-mode: screen amplifies the purple wireframe dots against the
+   purple atmosphere beneath them.                                        */
 .mc2-hero-globe {
   height: 300px;
   width: auto;
   overflow: visible;
-  filter: drop-shadow(0 0 48px rgba(109,40,217,0.65)) drop-shadow(0 0 110px rgba(168,85,247,0.28));
+  filter: drop-shadow(0 0 28px rgba(109,40,217,0.55)) drop-shadow(0 0 70px rgba(168,85,247,0.22));
   animation: mc2-fade-in 1.2s ease 0.2s both;
   position: relative;
-  z-index: 2;
+  z-index: 3;
   flex-shrink: 0;
-  /* screen blend dissolves the near-black image background into the MC surface */
   mix-blend-mode: screen;
-  /* Radial mask: head is fully opaque at centre, dark rectangular
-     borders fade to transparent so no image edge is ever visible */
-  mask-image: radial-gradient(ellipse 80% 98% at 42% 46%,
-    black 0%,
-    black 44%,
-    rgba(0,0,0,0.88) 58%,
-    rgba(0,0,0,0.50) 73%,
-    rgba(0,0,0,0.14) 87%,
-    transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 98% at 42% 46%,
-    black 0%,
-    black 44%,
-    rgba(0,0,0,0.88) 58%,
-    rgba(0,0,0,0.50) 73%,
-    rgba(0,0,0,0.14) 87%,
-    transparent 100%);
 }
 
 /* ── ATHENA™ Eye Intelligence Pulse ───────────────────────────────────────── */
