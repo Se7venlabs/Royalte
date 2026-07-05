@@ -6,6 +6,52 @@
   <title>Global Music Footprint™ — Royaltē OS</title>
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <style>
+    /* Global Music Footprint™ — Architecture Pass 1 */
+
+    /* Executive KPI typography standard */
+    .ws-dept--global .ii-kpi-big-num { font-size: 28px; letter-spacing: -0.03em; }
+    .ws-dept--global .ii-kpi-fraction { font-size: 15px; }
+
+    /* KPI row — equal columns, narrower */
+    .ws-dept--global .hi-kpi-row { grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 12%; }
+    .ws-dept--global .hi-kpi-card { padding: 13px 14px 11px; }
+    .ws-dept--global .hi-kpi-icon-wrap { width: 30px; height: 30px; border-radius: 7px; }
+    .ws-dept--global .hi-kpi-icon-wrap svg { width: 15px; height: 15px; }
+
+    /* Global Presence — ATHENA trigger */
+    .gf-presence-kpi--athena-trigger { cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+    .gf-presence-kpi--athena-trigger:hover { border-color: rgba(56,189,248,0.42); box-shadow: 0 0 32px rgba(56,189,248,0.14); }
+
+    /* Sky-blue action pill */
+    .ws-dept--global .gf-presence-kpi .pi-risk-step { flex: none; align-self: stretch; margin-top: 12px; cursor: pointer; font-family: inherit; }
+    .ws-dept--global .gf-presence-kpi .pi-risk-step--active {
+      background: rgba(56,189,248,0.15); color: #38bdf8;
+      border-color: rgba(56,189,248,0.35);
+      animation: gf-presence-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes gf-presence-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(56,189,248,0); }
+      50%       { box-shadow: 0 0 14px 3px rgba(56,189,248,0.28); }
+    }
+
+    /* Scan badge — repositioned inside map as bottom-left overlay */
+    /* gf-map-inner, gf-map-img, gf-anchor, gf-marker: untouched */
+    .ws-dept--global .gf-map-inner .gf-scan-badge {
+      position: absolute;
+      bottom: 12px;
+      left: 14px;
+      z-index: 10;
+    }
+
+    /* Responsive Foundation */
+    @media (max-width: 1024px) {
+      .ws-dept--global .hi-kpi-row { grid-template-columns: repeat(2, 1fr); padding: 0; gap: 8px; }
+    }
+    @media (max-width: 640px) {
+      .ws-dept--global .hi-kpi-row { grid-template-columns: 1fr; padding: 0; gap: 8px; }
+    }
+  </style>
 </head>
 <body>
 <div class="ws-shell ws-dept--global">
@@ -144,8 +190,10 @@
         <!-- § 2 — KPI CARDS ─────────────────────────────────────────── -->
         <div class="hi-kpi-row">
 
-          <!-- Global Presence™ — Executive Signature™ -->
-          <div class="hi-kpi-card gf-presence-kpi">
+          <!-- Global Presence™ — Executive Signature™ + ATHENA Trigger -->
+          <div class="hi-kpi-card gf-presence-kpi gf-presence-kpi--athena-trigger"
+               role="button" tabindex="0" aria-label="Open ATHENA Global Intelligence"
+               onclick="gfOpenAthena()" onkeydown="if(event.key==='Enter'||event.key===' ')gfOpenAthena()">
             <div class="hi-kpi-label hi-kpi-label--blue">Global Presence™</div>
 
             <div class="gf-presence-ring-wrap" aria-label="Global Presence score: 94 out of 100">
@@ -167,6 +215,8 @@
                 <span class="hi-status-dot" aria-hidden="true"></span>94% Global Coverage
               </div>
             </div>
+            <button class="pi-risk-step pi-risk-step--active pi-risk-step--moderate"
+                    onclick="event.stopPropagation();gfOpenAthena()" tabindex="-1">Review Global Footprint →</button>
           </div>
 
           <!-- Countries -->
@@ -266,188 +316,22 @@
               </div>
             </div>
 
-          </div><!-- /gf-map-inner -->
-
-          <!-- Map status bar -->
-          <div class="gf-map-status">
+            <!-- Scan status — bottom-left map overlay -->
             <div class="gf-scan-badge" aria-label="Global Scan — Active">
               <span class="gf-scan-dot" aria-hidden="true"></span>
               <span class="gf-scan-text">
                 <span class="gf-scan-title">Global Scan™</span>
-                <span class="gf-scan-sub">Scanning Global Distribution</span>
+                <span class="gf-scan-sub">Last Scan — 2 Minutes Ago</span>
               </span>
             </div>
-            <div class="gf-territories-badge" aria-label="142 territories verified">
-              <span class="gf-territories-label">Territories Verified™</span>
-              <span class="gf-territories-count">142</span>
-            </div>
-          </div>
+
+          </div><!-- /gf-map-inner -->
 
         </div><!-- /gf-map-section -->
 
-        <!-- § 4 — GLOBAL SUMMARY™ ──────────────────────────────────── -->
-        <div class="gf-summary" aria-label="Global Summary">
 
-          <div class="gf-summary-stat">
-            <div class="gf-summary-icon" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
-            </div>
-            <div class="gf-summary-body">
-              <div class="gf-summary-label">Countries</div>
-              <div class="gf-summary-num">142</div>
-              <div class="gf-summary-sub">72.8% of World</div>
-            </div>
-          </div>
-
-          <div class="gf-summary-divider" aria-hidden="true"></div>
-
-          <div class="gf-summary-stat">
-            <div class="gf-summary-icon" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-verified"></use></svg>
-            </div>
-            <div class="gf-summary-body">
-              <div class="gf-summary-label">Providers</div>
-              <div class="gf-summary-num">4</div>
-              <div class="gf-summary-sub">Apple · Spotify · Deezer · TIDAL</div>
-            </div>
-          </div>
-
-          <div class="gf-summary-divider" aria-hidden="true"></div>
-
-          <div class="gf-summary-stat">
-            <div class="gf-summary-icon" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-signal"></use></svg>
-            </div>
-            <div class="gf-summary-body">
-              <div class="gf-summary-label">Coverage</div>
-              <div class="gf-summary-num">94%</div>
-              <div class="gf-summary-sub">Global Provider Coverage</div>
-            </div>
-          </div>
-
-          <div class="gf-summary-divider" aria-hidden="true"></div>
-
-          <div class="gf-summary-stat gf-summary-stat--scan">
-            <div class="gf-summary-icon" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-monitoring"></use></svg>
-            </div>
-            <div class="gf-summary-body">
-              <div class="gf-summary-label">Last Global Scan</div>
-              <div class="gf-summary-num">2 Min Ago</div>
-              <div class="gf-summary-sub">
-                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-label="Scan healthy" style="color:var(--mc-green);vertical-align:-1px"><use href="/icons/royalte-icon-registry.svg#royalte-check-circle"></use></svg>
-                All Systems Operational
-              </div>
-            </div>
-          </div>
-
-        </div><!-- /gf-summary -->
-
-        <!-- Artist footer ───────────────────────────────────────────── -->
-        <div class="hi-artist-footer">
-          <div class="hi-artist-avatar" aria-hidden="true">GX</div>
-          <div class="hi-artist-info">
-            <div class="hi-artist-name">
-              GENTLEMEN X
-              <div class="hi-artist-verified" aria-label="Verified artist">
-                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              </div>
-            </div>
-          </div>
-          <div class="hi-artist-actions">
-            <a class="hi-artist-action-link" href="/mission-control.html">View Profile</a>
-            <div class="hi-artist-sep" aria-hidden="true"></div>
-            <a class="hi-artist-action-link" href="/mission-control.html">Sign Out</a>
-          </div>
-        </div>
 
       </div><!-- /hi-main -->
-
-      <!-- ══ RIGHT EXECUTIVE PANEL ════════════════════════════════════ -->
-      <aside class="hi-exec-panel" aria-label="Executive Global Panel">
-
-        <!-- AI Global Summary™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-ai-header">
-            <div class="hi-panel-ai-title">AI Global Summary™</div>
-            <div class="hi-panel-live-badge">
-              <div class="hi-panel-live-dot" aria-hidden="true"></div>
-              LIVE
-            </div>
-          </div>
-          <div class="hi-panel-ai-logo" aria-hidden="true">ē</div>
-          <div class="hi-panel-ai-complete">AI Distribution Analysis Complete</div>
-          <div class="hi-panel-ai-checks" role="list">
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              Music verified in 142 territories
-            </div>
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              All 4 providers active globally
-            </div>
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--amber" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
-              3 markets with limited coverage
-            </div>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/ai-insights.html">Open AI Insights →</a>
-        </div>
-
-        <!-- Top Priority™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-priority-header">
-            <div class="hi-panel-priority-label">Top Priority™</div>
-            <div class="hi-panel-high-badge">MEDIUM</div>
-          </div>
-          <div class="hi-panel-action-card">
-            <div class="hi-panel-action-icon-row">
-              <div class="hi-panel-action-icon" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
-              </div>
-              <div class="hi-panel-action-title">Expand Coverage to 3 Unverified Markets</div>
-            </div>
-            <div class="hi-panel-action-desc">Indonesia, Nigeria, and Pakistan show partial provider coverage. Ensuring full delivery to these markets could add approximately 53 countries' worth of reach.</div>
-            <div class="hi-panel-action-meta">
-              <div class="hi-panel-action-badge">
-                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
-                Est. 2–3 Days
-              </div>
-              <div class="hi-panel-action-badge">Impact: Medium</div>
-            </div>
-            <a class="hi-panel-action-cta" href="/workspaces/priority-actions.html" role="button">Take Action Now</a>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/priority-actions.html">View All Actions →</a>
-        </div>
-
-        <!-- Global Status™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-summary-header">
-            <div class="hi-panel-summary-label">Global Status™</div>
-          </div>
-          <div class="hi-panel-summary-range">Jun 27 – Jul 4, 2026</div>
-          <div class="hi-panel-summary-grid">
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--blue">142</div>
-              <div class="hi-panel-stat-label">Countries Verified</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--blue">4</div>
-              <div class="hi-panel-stat-label">Active Providers</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--blue">94%</div>
-              <div class="hi-panel-stat-label">Global Coverage</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--meta">2m ago</div>
-              <div class="hi-panel-stat-label">Last Global Scan</div>
-            </div>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/royalte-review.html">View Full Report →</a>
-        </div>
-
-      </aside>
 
     </div><!-- /ws-body -->
 
@@ -678,6 +562,85 @@
   requestAnimationFrame(countStep);
 
 }());
+</script>
+
+<!-- ATHENA Global Intelligence Panel -->
+<div id="gf-athena-overlay" class="pi-athena-overlay" role="dialog" aria-modal="true" aria-labelledby="gf-athena-title" hidden>
+  <div class="pi-athena-panel" role="document">
+    <div class="pi-athena-header">
+      <div class="pi-athena-brand">
+        <div class="pi-athena-logo" aria-hidden="true">ē</div>
+        <div class="pi-athena-brand-text">
+          <div class="pi-athena-eyebrow">ATHENA</div>
+          <div class="pi-athena-wordmark" id="gf-athena-title">Global Intelligence™</div>
+        </div>
+      </div>
+      <button class="pi-athena-close" onclick="gfCloseAthena()" aria-label="Close ATHENA panel">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="pi-athena-body" id="gf-athena-body"></div>
+    <div class="pi-athena-footer" id="gf-athena-footer" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+/* ── ATHENA Global Intelligence ──────────────────────────────────── */
+var P_NAME_GF = { apple: 'Apple Music', spotify: 'Spotify', deezer: 'Deezer', tidal: 'TIDAL' };
+
+var GF_GLOBAL_HTML = [
+  '<div class="pi-athena-rating-row">',
+    '<div class="pi-athena-rating-label">Global Presence</div>',
+    '<div class="pi-athena-rating-value" style="color:#38bdf8;">Strong — 94% Coverage</div>',
+  '</div>',
+  '<div class="pi-athena-section">',
+    '<div class="pi-athena-section-label">Global Overview</div>',
+    '<div class="pi-athena-section-body">Your music is verified across 142 territories worldwide, representing 72.8% of the global market. All four primary streaming providers are active and operationally confirmed.</div>',
+  '</div>',
+  '<div class="pi-athena-section">',
+    '<div class="pi-athena-section-label">Provider Coverage</div>',
+    '<div class="pi-athena-section-body">Apple Music and Spotify maintain the broadest global reach. Deezer active in 38 markets. TIDAL coverage extends across 22 markets. No distribution failures detected.</div>',
+  '</div>',
+  '<div class="pi-athena-section">',
+    '<div class="pi-athena-section-label">Markets Requiring Attention</div>',
+    '<div class="pi-athena-section-body" style="color:var(--mc-amber);">Indonesia, Nigeria, and Pakistan show incomplete provider coverage — combined potential reach of 650M+ people. Deezer and TIDAL expansion is the primary recommended action.</div>',
+  '</div>',
+  '<div class="pi-athena-section">',
+    '<div class="pi-athena-section-label">Recommended Actions</div>',
+    '<div class="pi-athena-works-list">',
+      '<div class="pi-athena-work-row"><div class="pi-athena-work-dot"></div><div class="pi-athena-work-name">Expand Deezer and TIDAL delivery to Indonesia</div></div>',
+      '<div class="pi-athena-work-row"><div class="pi-athena-work-dot"></div><div class="pi-athena-work-name">Add Nigeria to Spotify and TIDAL active distribution</div></div>',
+      '<div class="pi-athena-work-row"><div class="pi-athena-work-dot"></div><div class="pi-athena-work-name">Review Pakistan — Apple Music only, all other providers absent</div></div>',
+    '</div>',
+  '</div>',
+].join('');
+
+function gfOpenAthena() {
+  var overlay = document.getElementById('gf-athena-overlay');
+  var body    = document.getElementById('gf-athena-body');
+  var titleEl = document.getElementById('gf-athena-title');
+  titleEl.textContent = 'Global Intelligence™';
+  body.innerHTML = GF_GLOBAL_HTML;
+  document.getElementById('gf-athena-footer').style.display = 'none';
+  overlay.hidden = false;
+  overlay.removeAttribute('hidden');
+  document.body.style.overflow = 'hidden';
+  overlay.querySelector('.pi-athena-close').focus();
+}
+
+function gfCloseAthena() {
+  document.getElementById('gf-athena-overlay').hidden = true;
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') gfCloseAthena();
+});
+document.getElementById('gf-athena-overlay').addEventListener('click', function(e) {
+  if (e.target === this) gfCloseAthena();
+});
 </script>
 </body>
 </html>
