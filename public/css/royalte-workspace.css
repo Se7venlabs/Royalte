@@ -4473,6 +4473,7 @@ a.ci-function-card:hover .ci-artwork-container {
   display: grid;
   grid-template-columns: 360px 1fr;
   min-height: 380px;
+  margin-top: 25px;
   background: linear-gradient(135deg, rgba(109, 40, 217, 0.07) 0%, rgba(168, 85, 247, 0.03) 60%, transparent);
   border: 1px solid rgba(168, 85, 247, 0.12);
   border-radius: 14px;
@@ -4948,6 +4949,94 @@ a.ci-function-card:hover .ci-artwork-container {
 
 /* ─── Quick Access ────────────────────────────────────────────────────── */
 
+/* ─── Royaltē OS Activity™ — replaces Quick Access ───────────────────────── */
+.mc2-os-activity {
+  position: relative;
+  z-index: 1;
+}
+.mc2-osa-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.mc2-osa-live {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mc-green);
+}
+.mc2-osa-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.mc2-osa-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--mc-surface-1);
+  border: 1px solid var(--mc-border);
+  border-radius: 9px;
+  transition: border-color 0.18s;
+}
+.mc2-osa-row:hover { border-color: rgba(168, 85, 247, 0.18); }
+.mc2-osa-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.mc2-osa-icon svg { width: 11px; height: 11px; }
+.mc2-osa-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mc2-osa-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--mc-text-soft);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mc2-osa-time {
+  font-size: 8.5px;
+  color: var(--mc-text-faint);
+}
+.mc2-osa-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(74, 222, 128, 0.10);
+  border: 1px solid rgba(74, 222, 128, 0.28);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  font-size: 8px;
+  font-weight: 700;
+  color: #4ade80;
+  line-height: 1;
+}
+.mc2-osa--health  { background: rgba(74, 222, 128, 0.10); color: #4ade80; }
+.mc2-osa--backend { background: rgba(0, 191, 165, 0.10);  color: #00BFA5; }
+.mc2-osa--identity{ background: rgba(56, 189, 248, 0.10); color: #38bdf8; }
+.mc2-osa--publish { background: rgba(168, 85, 247, 0.12); color: var(--mc-purple); }
+.mc2-osa--catalog { background: rgba(34, 211, 238, 0.10); color: #22d3ee; }
+.mc2-osa--os      { background: rgba(168, 85, 247, 0.10); color: var(--mc-purple); }
+
+/* Legacy — kept for CSS completeness */
 .mc2-quick-access {
   position: relative;
   z-index: 1;
