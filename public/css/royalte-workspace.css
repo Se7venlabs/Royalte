@@ -1509,6 +1509,45 @@ svg { display: block; }
 .hi-kpi-check-icon--green { color: var(--mc-green); }
 .hi-kpi-check-icon--amber { color: var(--mc-orange); }
 
+.hi-kpi-athena-brief {
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--mc-text-soft);
+  margin-top: 2px;
+}
+
+.hi-monitoring-coverage {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.hi-monitoring-coverage-title {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+}
+
+.hi-monitoring-coverage-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hi-monitoring-coverage-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10.5px;
+  color: var(--mc-text-soft);
+}
+
 /* ─── section header ─────────────────────────────────────────────────── */
 
 .hi-section-header {
@@ -2687,6 +2726,11 @@ a.ii-platform-card:hover {
    Dept class: .ws-dept--health  /  Accent: Emerald (#2dd4bf)
    Glow: very low opacity, large blur, feathers outside the card edge.
    ═══════════════════════════════════════════════════════════════════════ */
+
+/* Two-card KPI row after removal of Improvement + Risk cards */
+.ws-dept--health .hi-kpi-row {
+  grid-template-columns: 1.2fr 1fr;
+}
 
 /* Default card ambience */
 .ws-dept--health .hi-kpi-card {
