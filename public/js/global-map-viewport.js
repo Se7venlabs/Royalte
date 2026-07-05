@@ -151,9 +151,11 @@
     /* render */
     hostEl.innerHTML = buildInnerHTML();
 
-    var mapInner     = hostEl.querySelector('.gf-map-inner');
-    var popover      = hostEl.querySelector('.gf-popover');
-    var activeFilter = null;
+    var mapInner          = hostEl.querySelector('.gf-map-inner');
+    var popover           = hostEl.querySelector('.gf-popover');
+    var legend            = hostEl.querySelector('.gf-legend');
+    var activeFilter      = null;
+    var filterResetTimer  = null;
 
     /* ── Geographic Anchor Engine™ ───────────────────────────────── */
     /* Single source of truth: anchor l/t drives flag and cluster.   */
@@ -219,6 +221,30 @@
       popover.setAttribute('aria-hidden', 'true');
     }
 
+    /* ── legend auto-reset after 15 s of inactivity ──────────────── */
+    function resetFilter() {
+      if (!activeFilter) return;
+      activeFilter = null;
+      legend.querySelectorAll('.gf-legend-item').forEach(function (li) {
+        li.classList.remove('gf-legend-item--active');
+        li.setAttribute('aria-pressed', 'false');
+      });
+      mapInner.querySelectorAll('.gf-marker').forEach(function (m) {
+        m.classList.remove('gf-marker--filtered');
+      });
+      hidePopover();
+    }
+
+    function scheduleFilterReset() {
+      clearTimeout(filterResetTimer);
+      filterResetTimer = setTimeout(resetFilter, 15000);
+    }
+
+    function cancelFilterReset() {
+      clearTimeout(filterResetTimer);
+      filterResetTimer = null;
+    }
+
     /* ── marker click ─────────────────────────────────────────────── */
     mapInner.addEventListener('click', function (e) {
       var marker = e.target.closest('.gf-marker');
@@ -245,13 +271,13 @@
     });
 
     /* ── legend filter ────────────────────────────────────────────── */
-    var legend = hostEl.querySelector('.gf-legend');
     legend.addEventListener('click', function (e) {
       var item = e.target.closest('.gf-legend-item');
       if (!item) return;
       var filter  = item.dataset.filter;
       var markers = mapInner.querySelectorAll('.gf-marker');
       if (activeFilter === filter) {
+        cancelFilterReset();
         activeFilter = null;
         item.classList.remove('gf-legend-item--active');
         item.setAttribute('aria-pressed', 'false');
@@ -267,6 +293,7 @@
         markers.forEach(function (m) {
           m.classList.toggle('gf-marker--filtered', m.dataset.provider !== filter);
         });
+        scheduleFilterReset();
       }
       hidePopover();
     });
