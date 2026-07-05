@@ -6,59 +6,6 @@
   <title>Catalog Intelligence™ — Royaltē OS</title>
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
-  <style>
-    /* Catalog Intelligence™ — Architecture Pass 1 overrides */
-    /* Executive typography standard — matches publishing workspace */
-    .ws-dept--catalog .ii-kpi-big-num { font-size: 28px; letter-spacing: -0.03em; }
-    .ws-dept--catalog .ii-kpi-fraction { font-size: 15px; }
-    /* Tighten vertical rhythm for One Screen Rule™ */
-    .ws-dept--catalog .hi-main { padding: 20px 28px 32px; gap: 18px; }
-    .ws-dept--catalog .hi-kpi-row { gap: 10px; }
-    .ws-dept--catalog .ci-function-grid { margin-top: 8px; gap: 8px; }
-    .ws-dept--catalog .ci-bottom-row { gap: 10px; }
-    /* Catalog Readiness ATHENA trigger */
-    .ci-kpi-card--athena-trigger {
-      cursor: pointer;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .ci-kpi-card--athena-trigger:hover {
-      border-color: rgba(225,29,72,0.42);
-      box-shadow: 0 0 32px rgba(225,29,72,0.14);
-    }
-    /* Reuse publishing action pill structure — override amber → Catalog crimson */
-    .ws-dept--catalog .ci-kpi-card--readiness .pi-risk-step {
-      flex: none;
-      align-self: stretch;
-      margin-top: 12px;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .ws-dept--catalog .ci-kpi-card--readiness .pi-risk-step--active {
-      background: rgba(225,29,72,0.15);
-      color: #e11d48;
-      border-color: rgba(225,29,72,0.35);
-      animation: ci-readiness-pulse 2.5s ease-in-out infinite;
-    }
-    @keyframes ci-readiness-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(225,29,72,0); }
-      50%       { box-shadow: 0 0 14px 3px rgba(225,29,72,0.28); }
-    }
-    /* Non-clickable engine cards — div variant inherits a.ci-function-card styles */
-    .ws-dept--catalog div.ci-function-card {
-      display: flex; flex-direction: column; align-items: flex-start;
-      padding: 14px 14px 12px;
-      background: var(--mc-surface-1); border: 1px solid var(--mc-border-soft);
-      border-radius: 10px; color: inherit;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.24), 0 0 38px rgba(225,29,72,0.06);
-    }
-    /* ISRC action path */
-    .ci-function-action {
-      display: inline-block; margin-top: 8px;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
-      color: #f87171; text-decoration: none; text-transform: uppercase;
-    }
-    .ci-function-action:hover { text-decoration: underline; }
-  </style>
 </head>
 <body>
 <div class="ws-shell ws-dept--catalog">
