@@ -21,7 +21,7 @@
 
     /* ── Pass 2: Executive Metric Cards — compact supporting metrics ── */
     /* ~17% narrower (row has 8% side padding) + ~20% shorter (padding reduction) */
-    .ws-dept--backend .hi-kpi-row { grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 8%; }
+    .ws-dept--backend .hi-kpi-row { grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 12%; }
     .ws-dept--backend .hi-kpi-card { padding: 13px 14px 11px; }
     .ws-dept--backend .hi-kpi-icon-wrap { width: 30px; height: 30px; border-radius: 7px; }
     .ws-dept--backend .hi-kpi-icon-wrap svg { width: 15px; height: 15px; }
@@ -70,24 +70,52 @@
     .bi-conn--amber.bi-conn--selected { stroke: rgba(245,158,11,0.90) !important; }
 
     /* ── Pass 2: Responsive Foundation ─────────────────────────────── */
-    @media (max-width: 1280px) {
-      .ws-dept--backend .hi-kpi-row { padding: 0 4%; }
-      .ws-dept--backend .bi-twin-svg { max-width: min(640px, 100%); }
-    }
-    @media (max-width: 960px) {
+    /* ── Pass 3: Node Status Standard ─────────────────────────────────── */
+    /* Verified = Teal (bi-node--verified, already defined in royalte-workspace.css) */
+    /* Attention = Amber (bi-node--review, already defined in royalte-workspace.css) */
+    .bi-node--critical .bi-node-ring   { stroke: #ef4444; }
+    .bi-node--critical .bi-node-core   { fill: #ef4444; }
+    .bi-node--critical .bi-node-label  { fill: #e2e8f0; }
+    .bi-node--critical .bi-node-status { fill: #ef4444; }
+    .bi-node--unknown  .bi-node-ring   { stroke: #7c3aed; }
+    .bi-node--unknown  .bi-node-core   { fill: #7c3aed; }
+    .bi-node--unknown  .bi-node-label  { fill: #e2e8f0; }
+    .bi-node--unknown  .bi-node-status { fill: #7c3aed; }
+    .bi-node--inactive .bi-node-ring   { stroke: rgba(148,163,184,0.45); }
+    .bi-node--inactive .bi-node-core   { fill: rgba(148,163,184,0.45); }
+    .bi-node--inactive .bi-node-label  { fill: #94a3b8; }
+    .bi-node--inactive .bi-node-status { fill: #94a3b8; }
+
+    /* ── Pass 3: Responsive Foundation ─────────────────────────────────── */
+    /* Touch target + pinch-zoom support */
+    .ws-dept--backend .bi-twin-svg { touch-action: none; user-select: none; }
+
+    /* Tablet — iPad (≤1024px): 2×2 KPI grid */
+    @media (max-width: 1024px) {
       .ws-dept--backend .hi-kpi-row {
-        display: grid;
         grid-template-columns: repeat(2, 1fr);
         padding: 0;
         gap: 8px;
       }
-      .ws-dept--backend .bi-twin-svg { max-width: 100%; }
-      .ws-dept--backend .hi-main { padding: 18px 20px 28px; gap: 16px; }
+      .ws-dept--backend .bi-twin-svg { max-width: min(640px, 100%); }
+      .ws-dept--backend .hi-main { padding: 20px 22px 32px; gap: 16px; }
+      .ws-dept--backend .bi-exec-header { padding: 24px 22px; }
     }
+    /* Phone (≤640px): fully stacked, touch-friendly */
     @media (max-width: 640px) {
-      .ws-dept--backend .bi-exec-header { flex-direction: column; gap: 12px; padding: 20px 18px; }
-      .ws-dept--backend .hi-kpi-row { grid-template-columns: repeat(2, 1fr); }
-      .ws-dept--backend .hi-main { padding: 14px 14px 20px; gap: 12px; }
+      .ws-dept--backend .bi-exec-header {
+        flex-direction: column; gap: 12px; padding: 18px 16px;
+      }
+      .ws-dept--backend .hi-kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 0; gap: 6px;
+      }
+      .ws-dept--backend .hi-kpi-card { padding: 12px 12px 10px; }
+      .ws-dept--backend .hi-main { padding: 12px 12px 20px; gap: 12px; }
+      .ws-dept--backend .bi-twin-svg { max-width: 100%; }
+      .ws-dept--backend .bi-twin-title { font-size: 12px; }
+      /* Touch-friendly node tap targets */
+      .bi-node--interactive circle { pointer-events: all; }
     }
   </style>
 </head>
@@ -290,9 +318,9 @@
         <!-- § 3 — BACKEND INTELLIGENCE ENGINE™ — Interactive Digital Twin ─ -->
         <div class="bi-twin-section" aria-label="Backend Intelligence Engine — interactive infrastructure network">
           <div class="bi-twin-label">Backend Intelligence Engine™</div>
-          <div class="bi-twin-title">Click any node to open ATHENA intelligence</div>
+          <div class="bi-twin-title">Explore your music infrastructure. Select any node to inspect your backend intelligence with ATHENA.</div>
           <div class="bi-twin-svg-wrap">
-            <svg class="bi-twin-svg" viewBox="0 0 560 290" role="img" aria-label="Interactive music infrastructure network">
+            <svg class="bi-twin-svg" viewBox="0 0 560 248" role="img" aria-label="Interactive music infrastructure network">
               <defs>
                 <filter id="bi-glow-teal" x="-50%" y="-50%" width="200%" height="200%">
                   <feGaussianBlur stdDeviation="3" result="blur"/>
@@ -309,15 +337,15 @@
               </defs>
 
               <!-- Connection lines (behind nodes) -->
-              <line id="bl-1" class="bi-conn-line bi-conn--teal"  x1="280" y1="30"  x2="115" y2="102"/>
-              <line id="bl-2" class="bi-conn-line bi-conn--teal"  x1="280" y1="30"  x2="445" y2="102"/>
-              <line id="bl-3" class="bi-conn-line bi-conn--amber" x1="115" y1="102" x2="48"  y2="190"/>
-              <line id="bl-4" class="bi-conn-line bi-conn--teal"  x1="115" y1="102" x2="192" y2="190"/>
-              <line id="bl-5" class="bi-conn-line bi-conn--amber" x1="445" y1="102" x2="512" y2="190"/>
-              <line id="bl-6" class="bi-conn-line bi-conn--teal"  x1="48"  y1="190" x2="272" y2="240"/>
-              <line id="bl-7" class="bi-conn-line bi-conn--teal"  x1="192" y1="190" x2="274" y2="240"/>
-              <line id="bl-8" class="bi-conn-line bi-conn--teal"  x1="445" y1="102" x2="284" y2="240"/>
-              <line id="bl-9" class="bi-conn-line bi-conn--teal"  x1="512" y1="190" x2="288" y2="240"/>
+              <line id="bl-1" class="bi-conn-line bi-conn--teal"  x1="280" y1="30"  x2="115" y2="84"/>
+              <line id="bl-2" class="bi-conn-line bi-conn--teal"  x1="280" y1="30"  x2="445" y2="84"/>
+              <line id="bl-3" class="bi-conn-line bi-conn--amber" x1="115" y1="84"  x2="48"  y2="164"/>
+              <line id="bl-4" class="bi-conn-line bi-conn--teal"  x1="115" y1="84"  x2="192" y2="164"/>
+              <line id="bl-5" class="bi-conn-line bi-conn--amber" x1="445" y1="84"  x2="512" y2="164"/>
+              <line id="bl-6" class="bi-conn-line bi-conn--teal"  x1="48"  y1="164" x2="272" y2="210"/>
+              <line id="bl-7" class="bi-conn-line bi-conn--teal"  x1="192" y1="164" x2="274" y2="210"/>
+              <line id="bl-8" class="bi-conn-line bi-conn--teal"  x1="445" y1="84"  x2="284" y2="210"/>
+              <line id="bl-9" class="bi-conn-line bi-conn--teal"  x1="512" y1="164" x2="288" y2="210"/>
 
               <!-- SONG node — opens Backend Status ATHENA -->
               <g id="bn-song" class="bi-node bi-node--song bi-node--interactive" style="opacity:0"
@@ -333,62 +361,62 @@
               <g id="bn-meta" class="bi-node bi-node--verified bi-node--interactive" style="opacity:0"
                  onclick="biSelectNode('bn-meta',['bl-1','bl-3','bl-4']); biOpenAthena('meta')"
                  role="button" tabindex="0" aria-label="Metadata — click for ATHENA intelligence">
-                <circle class="bi-node-ring" cx="115" cy="102" r="13" filter="url(#bi-glow-teal)"/>
-                <circle class="bi-node-core" cx="115" cy="102" r="6"/>
-                <text class="bi-node-label" x="115" y="82"  style="font-size:9px;font-weight:600;text-anchor:middle;">METADATA</text>
-                <text class="bi-node-status" x="115" y="123" style="font-size:8px;text-anchor:middle;">Verified</text>
+                <circle class="bi-node-ring" cx="115" cy="84"  r="13" filter="url(#bi-glow-teal)"/>
+                <circle class="bi-node-core" cx="115" cy="84"  r="6"/>
+                <text class="bi-node-label" x="115" y="64"  style="font-size:9px;font-weight:600;text-anchor:middle;">METADATA</text>
+                <text class="bi-node-status" x="115" y="104" style="font-size:8px;text-anchor:middle;">Verified</text>
               </g>
 
               <!-- DISTRIBUTION node -->
               <g id="bn-dist" class="bi-node bi-node--verified bi-node--interactive" style="opacity:0"
                  onclick="biSelectNode('bn-dist',['bl-2','bl-5','bl-8']); biOpenAthena('distribution')"
                  role="button" tabindex="0" aria-label="Distribution — click for ATHENA intelligence">
-                <circle class="bi-node-ring" cx="445" cy="102" r="13" filter="url(#bi-glow-teal)"/>
-                <circle class="bi-node-core" cx="445" cy="102" r="6"/>
-                <text class="bi-node-label" x="445" y="82"  style="font-size:9px;font-weight:600;text-anchor:middle;">DISTRIBUTION</text>
-                <text class="bi-node-status" x="445" y="123" style="font-size:8px;text-anchor:middle;">Verified</text>
+                <circle class="bi-node-ring" cx="445" cy="84"  r="13" filter="url(#bi-glow-teal)"/>
+                <circle class="bi-node-core" cx="445" cy="84"  r="6"/>
+                <text class="bi-node-label" x="445" y="64"  style="font-size:9px;font-weight:600;text-anchor:middle;">DISTRIBUTION</text>
+                <text class="bi-node-status" x="445" y="104" style="font-size:8px;text-anchor:middle;">Verified</text>
               </g>
 
               <!-- RIGHTS OWNERSHIP node -->
               <g id="bn-rights" class="bi-node bi-node--review bi-node--interactive" style="opacity:0"
                  onclick="biSelectNode('bn-rights',['bl-3','bl-6']); biOpenAthena('rights')"
                  role="button" tabindex="0" aria-label="Rights Ownership — click for ATHENA intelligence">
-                <circle class="bi-node-ring" cx="48" cy="190" r="13" filter="url(#bi-glow-amber)"/>
-                <circle class="bi-node-core" cx="48" cy="190" r="6"/>
-                <text class="bi-node-label" x="48" y="162" style="font-size:8.5px;font-weight:600;text-anchor:middle;">
+                <circle class="bi-node-ring" cx="48" cy="164" r="13" filter="url(#bi-glow-amber)"/>
+                <circle class="bi-node-core" cx="48" cy="164" r="6"/>
+                <text class="bi-node-label" x="48" y="136" style="font-size:8.5px;font-weight:600;text-anchor:middle;">
                   <tspan x="48" dy="0">RIGHTS</tspan>
                   <tspan x="48" dy="12">OWNERSHIP</tspan>
                 </text>
-                <text class="bi-node-status" x="48" y="211" style="font-size:8px;text-anchor:middle;">Needs Review</text>
+                <text class="bi-node-status" x="48" y="185" style="font-size:8px;text-anchor:middle;">Needs Review</text>
               </g>
 
               <!-- IDENTITY node -->
               <g id="bn-id" class="bi-node bi-node--verified bi-node--interactive" style="opacity:0"
                  onclick="biSelectNode('bn-id',['bl-4','bl-7']); biOpenAthena('identity')"
                  role="button" tabindex="0" aria-label="Identity — click for ATHENA intelligence">
-                <circle class="bi-node-ring" cx="192" cy="190" r="13" filter="url(#bi-glow-teal)"/>
-                <circle class="bi-node-core" cx="192" cy="190" r="6"/>
-                <text class="bi-node-label" x="192" y="169" style="font-size:9px;font-weight:600;text-anchor:middle;">IDENTITY</text>
-                <text class="bi-node-status" x="192" y="211" style="font-size:8px;text-anchor:middle;">Verified</text>
+                <circle class="bi-node-ring" cx="192" cy="164" r="13" filter="url(#bi-glow-teal)"/>
+                <circle class="bi-node-core" cx="192" cy="164" r="6"/>
+                <text class="bi-node-label" x="192" y="143" style="font-size:9px;font-weight:600;text-anchor:middle;">IDENTITY</text>
+                <text class="bi-node-status" x="192" y="185" style="font-size:8px;text-anchor:middle;">Verified</text>
               </g>
 
               <!-- REGISTRATIONS node -->
               <g id="bn-reg" class="bi-node bi-node--review bi-node--interactive" style="opacity:0"
                  onclick="biSelectNode('bn-reg',['bl-5','bl-9']); biOpenAthena('registrations')"
                  role="button" tabindex="0" aria-label="Registrations — click for ATHENA intelligence">
-                <circle class="bi-node-ring" cx="512" cy="190" r="13" filter="url(#bi-glow-amber)"/>
-                <circle class="bi-node-core" cx="512" cy="190" r="6"/>
-                <text class="bi-node-label" x="512" y="169" style="font-size:9px;font-weight:600;text-anchor:middle;">REGISTRATIONS</text>
-                <text class="bi-node-status" x="512" y="211" style="font-size:8px;text-anchor:middle;">Needs Review</text>
+                <circle class="bi-node-ring" cx="512" cy="164" r="13" filter="url(#bi-glow-amber)"/>
+                <circle class="bi-node-core" cx="512" cy="164" r="6"/>
+                <text class="bi-node-label" x="512" y="143" style="font-size:9px;font-weight:600;text-anchor:middle;">REGISTRATIONS</text>
+                <text class="bi-node-status" x="512" y="185" style="font-size:8px;text-anchor:middle;">Needs Review</text>
               </g>
 
               <!-- ROYALTĒ INTELLIGENCE hub — opens Backend Trust ATHENA -->
               <g id="bn-hub" class="bi-node bi-node--hub bi-node--interactive" style="opacity:0"
                  onclick="biSelectNode('bn-hub',['bl-6','bl-7','bl-8','bl-9']); biOpenAthena('trust')"
                  role="button" tabindex="0" aria-label="Royaltē Intelligence Hub — click for ATHENA intelligence">
-                <circle class="bi-node-ring" cx="280" cy="240" r="18" filter="url(#bi-glow-teal)"/>
-                <circle class="bi-node-core" cx="280" cy="240" r="10" filter="url(#bi-glow-teal)"/>
-                <text class="bi-node-label" x="280" y="270" style="font-size:8.5px;font-weight:700;text-anchor:middle;letter-spacing:0.06em;">ROYALTĒ INTELLIGENCE</text>
+                <circle class="bi-node-ring" cx="280" cy="210" r="18" filter="url(#bi-glow-teal)"/>
+                <circle class="bi-node-core" cx="280" cy="210" r="10" filter="url(#bi-glow-teal)"/>
+                <text class="bi-node-label" x="280" y="240" style="font-size:8.5px;font-weight:700;text-anchor:middle;letter-spacing:0.06em;">ROYALTĒ INTELLIGENCE</text>
               </g>
 
             </svg>
@@ -666,6 +694,58 @@
   }, 3200);
 
 }());
+
+  /* ── Pass 3: Touch pan / pinch-zoom for Digital Twin on mobile ───────── */
+  (function () {
+    var svg   = document.querySelector('.bi-twin-svg');
+    if (!svg) return;
+    var BASE  = { x: 0, y: 0, w: 560, h: 248 };
+    var vb    = { x: 0, y: 0, w: 560, h: 248 };
+    var last1 = null;
+    var lastD = 0;
+
+    svg.addEventListener('touchstart', function (e) {
+      if (e.touches.length === 1) {
+        last1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else if (e.touches.length === 2) {
+        lastD = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    svg.addEventListener('touchmove', function (e) {
+      e.preventDefault();
+      if (e.touches.length === 1 && last1) {
+        var dx = (e.touches[0].clientX - last1.x) / svg.clientWidth  * vb.w;
+        var dy = (e.touches[0].clientY - last1.y) / svg.clientHeight * vb.h;
+        vb.x -= dx; vb.y -= dy;
+        last1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        svg.setAttribute('viewBox', vb.x + ' ' + vb.y + ' ' + vb.w + ' ' + vb.h);
+      } else if (e.touches.length === 2) {
+        var d = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        var scale = lastD / d;
+        var mx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        var my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        var fx = vb.x + (mx / svg.clientWidth)  * vb.w;
+        var fy = vb.y + (my / svg.clientHeight) * vb.h;
+        vb.w = Math.min(Math.max(vb.w * scale, 160), 1120);
+        vb.h = Math.min(Math.max(vb.h * scale, 70),  496);
+        vb.x = fx - (mx / svg.clientWidth)  * vb.w;
+        vb.y = fy - (my / svg.clientHeight) * vb.h;
+        lastD = d;
+        svg.setAttribute('viewBox', vb.x + ' ' + vb.y + ' ' + vb.w + ' ' + vb.h);
+      }
+    }, { passive: false });
+
+    svg.addEventListener('touchend', function (e) {
+      if (e.touches.length === 0) last1 = null;
+    });
+  }());
 </script>
 </body>
 </html>
