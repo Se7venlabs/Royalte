@@ -125,8 +125,8 @@
         <div class="pi-exec-header">
           <div class="pi-exec-title-block">
             <div class="pi-exec-eyebrow">Publishing Intelligence™</div>
-            <h1 class="pi-exec-heading">Publishing &amp; Rights Overview</h1>
-            <div class="pi-exec-desc">Registration status, royalty collection coverage, and system health across all major publishing organizations.</div>
+            <h1 class="pi-exec-heading">Publishing Intelligence™</h1>
+            <div class="pi-exec-desc">Monitor your publishing registrations, royalty collection and rights management across your music business.</div>
             <div class="pi-exec-meta-row">
               <div class="pi-exec-updated">
                 <div class="pi-exec-updated-dot" aria-hidden="true"></div>
@@ -144,24 +144,18 @@
         <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
         <div class="hi-kpi-row">
 
-          <!-- Potential Royalty Impact™ — Executive Signature™ -->
-          <div class="hi-kpi-card pi-kpi-card--impact">
-            <div class="hi-kpi-label hi-kpi-label--orange">Potential Royalty Impact™</div>
-
-            <div class="pi-risk-indicator" aria-label="Publishing risk level: Moderate">
-              <div class="pi-risk-step pi-risk-step--inactive">Low</div>
-              <div class="pi-risk-step pi-risk-step--active pi-risk-step--moderate" aria-current="true">Moderate</div>
-              <div class="pi-risk-step pi-risk-step--inactive">High</div>
+          <!-- Publishing Issues™ — ATHENA Action Path™ -->
+          <div class="hi-kpi-card pi-kpi-card--issues">
+            <div class="hi-kpi-label pi-kpi-label--amber">Publishing Issues™</div>
+            <div class="pi-issues-count">2 Issues Detected</div>
+            <div class="pi-issues-athena-brief">ATHENA identified 2 works not yet registered with The MLC. Unregistered works risk uncollected mechanical royalties from streaming platforms.</div>
+            <div class="pi-issues-works">
+              <div class="pi-issues-work-item">Somewhere Alone</div>
+              <div class="pi-issues-work-item">Ghost in the City</div>
             </div>
-
-            <div class="pi-impact-risk-label pi-impact-risk-label--moderate">Moderate Risk</div>
-            <div class="pi-impact-desc">2 works require registration</div>
-
-            <div class="hi-score-meta-row">
-              <div class="hi-status-pill hi-status-pill--orange">
-                <span class="hi-status-dot" aria-hidden="true"></span>Needs Attention
-              </div>
-            </div>
+            <div class="pi-issues-rec">Register both works via The MLC to secure full mechanical royalty collection.</div>
+            <a class="pi-issues-mlc-cta" href="https://www.themlc.com" target="_blank" rel="noopener noreferrer">Open The MLC →</a>
+            <a class="pi-issues-review-cta" href="#">Review Issues →</a>
           </div>
 
           <!-- Publishing Coverage™ -->
@@ -215,29 +209,31 @@
           <div class="pi-system-grid">
 
             <!-- The MLC -->
-            <a class="pi-system-card" href="/workspaces/publishing-intelligence.html" aria-label="The MLC — Registered, Active">
-              <div class="pi-system-icon-wrap">
+            <div class="pi-system-card pi-system-card--attention" aria-label="The MLC — 2 Works Need Registration">
+              <div class="pi-system-icon-wrap pi-system-icon-wrap--attention">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-administration"></use></svg>
               </div>
               <div class="pi-system-name">The MLC</div>
               <div class="pi-system-sub">Mechanical Licensing Collective</div>
-              <div class="pi-system-badge pi-system-badge--active">Registered</div>
-              <div class="pi-system-works">18 of 20 works</div>
-            </a>
+              <div class="pi-system-badge pi-system-badge--amber">Needs Attention</div>
+              <div class="pi-system-works">18 of 20 works registered</div>
+              <a class="pi-system-action-cta" href="https://www.themlc.com" target="_blank" rel="noopener noreferrer">Register Remaining Works →</a>
+            </div>
 
             <!-- Publishing Administration™ -->
-            <a class="pi-system-card" href="/workspaces/publishing-intelligence.html" aria-label="Publishing Administration — Independent, No Administrator Assigned">
-              <div class="pi-system-icon-wrap">
+            <div class="pi-system-card pi-system-card--attention" aria-label="Publishing Administration — No Administrator Assigned">
+              <div class="pi-system-icon-wrap pi-system-icon-wrap--attention">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-compositions"></use></svg>
               </div>
               <div class="pi-system-name">Publishing Administration™</div>
               <div class="pi-system-sub">Publishing Admin Status</div>
-              <div class="pi-system-badge pi-system-badge--verified">Independent</div>
+              <div class="pi-system-badge pi-system-badge--amber">Needs Attention</div>
               <div class="pi-system-works">No Administrator Assigned</div>
-            </a>
+              <a class="pi-system-action-cta" href="#" target="_blank" rel="noopener noreferrer">Learn More →</a>
+            </div>
 
             <!-- Royalty Collection™ -->
-            <a class="pi-system-card" href="/workspaces/publishing-intelligence.html" aria-label="Royalty Collection — Verified, Collection Active">
+            <div class="pi-system-card" aria-label="Royalty Collection — Verified, Collection Active">
               <div class="pi-system-icon-wrap">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-collection"></use></svg>
               </div>
@@ -245,10 +241,10 @@
               <div class="pi-system-sub">Collection Services Status</div>
               <div class="pi-system-badge pi-system-badge--verified">Verified</div>
               <div class="pi-system-works">Collection active</div>
-            </a>
+            </div>
 
             <!-- Publisher™ -->
-            <a class="pi-system-card" href="/workspaces/publishing-intelligence.html" aria-label="Publisher — Interscope Publishing, Verified">
+            <div class="pi-system-card" aria-label="Publisher — Interscope Publishing, Verified">
               <div class="pi-system-icon-wrap">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publisher"></use></svg>
               </div>
@@ -256,21 +252,22 @@
               <div class="pi-system-sub">Interscope Publishing</div>
               <div class="pi-system-badge pi-system-badge--verified">Verified</div>
               <div class="pi-system-works">Admin publisher confirmed</div>
-            </a>
+            </div>
 
             <!-- ISWC Coverage™ -->
-            <a class="pi-system-card" href="/workspaces/publishing-intelligence.html" aria-label="ISWC Coverage — 16 Assigned">
-              <div class="pi-system-icon-wrap">
+            <div class="pi-system-card pi-system-card--attention" aria-label="ISWC Coverage — 2 Pending">
+              <div class="pi-system-icon-wrap pi-system-icon-wrap--attention">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-claims"></use></svg>
               </div>
               <div class="pi-system-name">ISWC Coverage™</div>
               <div class="pi-system-sub">International Work Codes</div>
-              <div class="pi-system-badge pi-system-badge--active">16 Assigned</div>
-              <div class="pi-system-works">2 Pending · 0 Missing</div>
-            </a>
+              <div class="pi-system-badge pi-system-badge--amber">2 Pending</div>
+              <div class="pi-system-works">16 Assigned · 2 Pending</div>
+              <a class="pi-system-action-cta" href="#" target="_blank" rel="noopener noreferrer">View Missing ISWCs →</a>
+            </div>
 
             <!-- Publishing Claims™ -->
-            <a class="pi-system-card" href="/workspaces/publishing-intelligence.html" aria-label="Publishing Claims — Verified, 18 of 18 Works Claimed">
+            <div class="pi-system-card" aria-label="Publishing Claims — Verified, 18 of 18 Works Claimed">
               <div class="pi-system-icon-wrap">
                 <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-verified"></use></svg>
               </div>
@@ -278,53 +275,13 @@
               <div class="pi-system-sub">Rights Claim Status</div>
               <div class="pi-system-badge pi-system-badge--verified">Verified</div>
               <div class="pi-system-works">18 of 18 Works Claimed</div>
-            </a>
+            </div>
 
           </div>
         </div>
 
-        <!-- § 4 — PUBLISHING SNAPSHOT™ + PUBLISHING ACTIVITY™ ──────── -->
-        <div class="pi-bottom-row">
-
-          <!-- Publishing Snapshot™ -->
-          <div class="pi-snapshot-card">
-            <div class="pi-card-header">
-              <svg class="pi-card-header-icon royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
-              <div class="pi-card-header-title">Publishing Snapshot™</div>
-            </div>
-            <div class="pi-snapshot-table">
-              <div class="pi-snapshot-row">
-                <span class="pi-snapshot-key">Publisher</span>
-                <span class="pi-snapshot-val">Interscope Publishing</span>
-              </div>
-              <div class="pi-snapshot-row">
-                <span class="pi-snapshot-key">Collection Society</span>
-                <span class="pi-snapshot-val">SOCAN</span>
-              </div>
-              <div class="pi-snapshot-row">
-                <span class="pi-snapshot-key">Registered Works</span>
-                <span class="pi-snapshot-val">18 of 20</span>
-              </div>
-              <div class="pi-snapshot-row">
-                <span class="pi-snapshot-key">Missing Works</span>
-                <span class="pi-snapshot-val pi-snapshot-val--attention">2 — Action Required</span>
-              </div>
-              <div class="pi-snapshot-row">
-                <span class="pi-snapshot-key">ISWC Status</span>
-                <span class="pi-snapshot-val">16 Assigned / 2 Pending</span>
-              </div>
-              <div class="pi-snapshot-row">
-                <span class="pi-snapshot-key">Last Publishing Sync</span>
-                <span class="pi-snapshot-val">
-                  3 hours ago
-                  <span class="pi-sync-dot" aria-hidden="true"></span>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Publishing Activity™ -->
-          <div class="pi-activity-card">
+        <!-- § 4 — PUBLISHING ACTIVITY™ ──────────────────────────────── -->
+        <div class="pi-activity-card">
             <div class="pi-card-header">
               <svg class="pi-card-header-icon royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
               <div class="pi-card-header-title">Publishing Activity™</div>
@@ -387,113 +344,8 @@
             </div>
           </div>
 
-        </div>
-
-        <!-- Artist footer ───────────────────────────────────────────── -->
-        <div class="hi-artist-footer">
-          <div class="hi-artist-avatar" aria-hidden="true">GX</div>
-          <div class="hi-artist-info">
-            <div class="hi-artist-name">
-              GENTLEMEN X
-              <div class="hi-artist-verified" aria-label="Verified artist">
-                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              </div>
-            </div>
-          </div>
-          <div class="hi-artist-actions">
-            <a class="hi-artist-action-link" href="/mission-control.html">View Profile</a>
-            <div class="hi-artist-sep" aria-hidden="true"></div>
-            <a class="hi-artist-action-link" href="/mission-control.html">Sign Out</a>
-          </div>
-        </div>
-
       </div><!-- /hi-main -->
 
-      <!-- ══ RIGHT EXECUTIVE PANEL ════════════════════════════════════ -->
-      <aside class="hi-exec-panel" aria-label="Executive Publishing Panel">
-
-        <!-- AI Publishing Summary™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-ai-header">
-            <div class="hi-panel-ai-title">AI Publishing Summary™</div>
-            <div class="hi-panel-live-badge">
-              <div class="hi-panel-live-dot" aria-hidden="true"></div>
-              LIVE
-            </div>
-          </div>
-          <div class="hi-panel-ai-logo" aria-hidden="true">ē</div>
-          <div class="hi-panel-ai-complete">AI Publishing Analysis Complete</div>
-          <div class="hi-panel-ai-checks" role="list">
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              18 of 20 registered works confirmed
-            </div>
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--amber" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
-              2 publishing registrations require attention
-            </div>
-            <div class="hi-panel-ai-check" role="listitem">
-              <svg class="royalte-icon royalte-icon--xs hi-panel-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-              Collection society connection active
-            </div>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/ai-insights.html">Open AI Insights →</a>
-        </div>
-
-        <!-- Top Priority™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-priority-header">
-            <div class="hi-panel-priority-label">Top Priority™</div>
-            <div class="hi-panel-high-badge">HIGH</div>
-          </div>
-          <div class="hi-panel-action-card">
-            <div class="hi-panel-action-icon-row">
-              <div class="hi-panel-action-icon" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
-              </div>
-              <div class="hi-panel-action-title">Complete Registration for 2 Remaining Works</div>
-            </div>
-            <div class="hi-panel-action-desc">Register remaining works with The MLC to ensure full mechanical rights coverage and royalty collection from digital platforms.</div>
-            <div class="hi-panel-action-meta">
-              <div class="hi-panel-action-badge">
-                <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
-                Est. 15 Min
-              </div>
-              <div class="hi-panel-action-badge">Impact: High</div>
-            </div>
-            <a class="hi-panel-action-cta" href="/workspaces/priority-actions.html" role="button">Take Action Now</a>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/priority-actions.html">View All Actions →</a>
-        </div>
-
-        <!-- Publishing Status™ -->
-        <div class="hi-panel-section">
-          <div class="hi-panel-summary-header">
-            <div class="hi-panel-summary-label">Publishing Status™</div>
-          </div>
-          <div class="hi-panel-summary-range">Jun 27 – Jul 3, 2026</div>
-          <div class="hi-panel-summary-grid">
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--green">18</div>
-              <div class="hi-panel-stat-label">Works Registered</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--orange">2</div>
-              <div class="hi-panel-stat-label">Need Registration</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--green">16</div>
-              <div class="hi-panel-stat-label">ISWC Assigned</div>
-            </div>
-            <div class="hi-panel-summary-stat">
-              <div class="hi-panel-stat-num hi-panel-stat-num--meta">3h ago</div>
-              <div class="hi-panel-stat-label">Last Publishing Sync</div>
-            </div>
-          </div>
-          <a class="hi-panel-link" href="/workspaces/royalte-review.html">View Full Report →</a>
-        </div>
-
-      </aside>
 
     </div><!-- /ws-body -->
 
