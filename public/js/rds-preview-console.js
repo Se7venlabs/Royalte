@@ -156,11 +156,14 @@
     var vp = VIEWPORTS.find(function (v) { return v.id === id; });
     if (!vp) return;
     if (active === id) {
-      /* toggle off */
+      /* toggle off — restore panel to bottom, expand */
       active = null;
+      collapsed = false;
       killSim();
     } else {
       active = id;
+      /* Auto-collapse + move panel to top so simulation fills the screen. */
+      collapsed = true;
       mountSim(vp);
     }
     render();
@@ -168,6 +171,7 @@
 
   function exitSim() {
     active = null;
+    collapsed = false;
     killSim();
     render();
   }
@@ -225,6 +229,14 @@
       '</div>'
     );
 
+    /* Move panel to top-right while simulating so it doesn't cover the
+       iframe. Restore to bottom-right in native view.                   */
+    if (active) {
+      panel.classList.add('rdc-panel--sim');
+    } else {
+      panel.classList.remove('rdc-panel--sim');
+    }
+
     panel.innerHTML =
       '<div id="rdc-header">' +
         '<span class="rdc-dot"></span>' +
@@ -251,12 +263,14 @@
   var style = document.createElement('style');
   style.textContent = [
 
-    /* Simulation overlay backdrop */
+    /* Simulation overlay backdrop.
+       padding-top: 64px clears the auto-collapsed panel at top:20px.   */
     '#rdc-overlay{',
       'position:fixed;inset:0;z-index:99998;',
       'background:rgba(4,2,12,0.82);',
       'display:flex;flex-direction:column;',
       'align-items:center;justify-content:center;gap:14px;',
+      'padding-top:64px;',
       'backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);',
     '}',
 
@@ -265,7 +279,7 @@
       'font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;',
     '}',
 
-    /* Console panel */
+    /* Console panel — native view: bottom-right; sim active: top-right  */
     '#rdc-panel{',
       'position:fixed;bottom:20px;right:20px;z-index:999999;',
       'background:rgba(7,4,14,0.97);',
@@ -276,6 +290,12 @@
       'backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);',
       'box-shadow:0 16px 48px rgba(0,0,0,0.85),0 0 0 1px rgba(168,85,247,0.06);',
       'user-select:none;',
+      'transition:top 0.2s ease,bottom 0.2s ease;',
+    '}',
+
+    /* Simulation active: move panel to top-right, clear of the iframe.  */
+    '#rdc-panel.rdc-panel--sim{',
+      'bottom:auto;top:20px;',
     '}',
 
     '#rdc-header{',
