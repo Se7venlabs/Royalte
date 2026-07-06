@@ -267,7 +267,7 @@ svg { display: block; }
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 28px;
+  padding: 16px 28px;
   font-size: 10.5px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
