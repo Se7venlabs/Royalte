@@ -3372,6 +3372,67 @@ a.hi-cat-card {
 .ws-dept--publishing .ii-kpi-big-num { font-size: 28px; letter-spacing: -0.03em; }
 .ws-dept--publishing .ii-kpi-fraction { font-size: 15px; }
 
+/* ── Publishing One-Screen Optimization™ ─────────────────────────── */
+
+/* Tighter main column: less padding, tighter section gaps */
+.ws-dept--publishing .hi-main {
+  padding: 14px 32px 20px;
+  gap: 14px;
+}
+
+/* Executive header: reduce padding, remove bottom margin (gap handles it) */
+.ws-dept--publishing .pi-exec-header {
+  padding: 12px 18px;
+  margin-bottom: 0;
+}
+
+/* KPI cards: reduce padding ~20% */
+.ws-dept--publishing .hi-kpi-card {
+  padding: 14px;
+  gap: 6px;
+}
+
+/* System grid: tighten gap */
+.ws-dept--publishing .pi-system-grid {
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Core Publishing System cards: reduce padding ~22% */
+.ws-dept--publishing .pi-system-card {
+  padding: 10px 12px 8px;
+}
+
+.ws-dept--publishing .pi-system-icon-wrap {
+  margin-bottom: 6px;
+}
+
+.ws-dept--publishing .pi-system-sub {
+  margin-bottom: 3px;
+}
+
+.ws-dept--publishing .pi-system-works {
+  margin-top: 2px;
+}
+
+.ws-dept--publishing .pi-system-action-cta {
+  margin-top: 6px;
+  padding: 4px 8px;
+}
+
+/* Bottom row: ISWC Coverage™ + Publishing Activity™ side by side */
+.pi-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Activity card: remove standalone margin-top (grid handles spacing) */
+.pi-bottom-row .pi-activity-card {
+  margin-top: 0;
+}
+
 /* ATHENA Publishing Intelligence™ Panel — modal overlay */
 .pi-athena-overlay {
   position: fixed; inset: 0; z-index: 900;
