@@ -6008,6 +6008,34 @@ a.ci-function-card:hover .ci-artwork-container {
                 0 0 22px 12px rgba(145,40,220,0);
   }
 }
+
+/* ── ATHENA™ Earring — purple light comet ─────────────────────────────────
+   Portrait anatomy (240×300 display): right ear (viewer's right) ≈ 80% x, 38% y
+   → x: 0.80×240=192, 192-120=+72px from center
+   → y: 0.38×300=114, 114-150=-36px from center
+   Circumference r=9: 2π×9 ≈ 56.5px. dasharray 5+51.5=56.5.               */
+.mc2-athena-earring {
+  position: absolute;
+  left: calc(50% + 72px);
+  top:  calc(50% - 36px);
+  width: 18px;
+  height: 18px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 5;
+  overflow: visible;
+  filter: drop-shadow(0 0 5px rgba(168,85,247,0.88))
+          drop-shadow(0 0 14px rgba(109,40,217,0.50));
+}
+.mc2-earring-comet {
+  transform-origin: 12px 12px;
+  animation: mc2-earring-spin 3.2s linear infinite;
+}
+@keyframes mc2-earring-spin {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -56.5; }
+}
+
 .mc2-hero-globe-lines {
   position: absolute;
   left: 50%;
