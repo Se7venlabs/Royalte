@@ -216,6 +216,130 @@
         <!-- Component renders all map internals. Do not add children here. -->
         <div class="gf-map-section" id="gf-map-viewport-host"></div>
 
+        <!-- § 4 — MOBILE EXECUTIVE BRIEFING™ ───────────────────────────── -->
+        <!-- Hidden on desktop (>640px). Shown on mobile in place of map    -->
+        <!-- markers. Territory data mirrors the 24 GlobalMapViewport™      -->
+        <!-- anchors; coverage total matches the KPI counter (142).         -->
+        <div class="gf-mobile-brief" aria-label="Territory briefing" role="region">
+
+          <div class="gf-mobile-brief-header">Available In</div>
+
+          <ul class="gf-territory-list" aria-label="Primary streaming territories">
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇨🇦</span>
+              <span class="gf-territory-name">Canada</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇺🇸</span>
+              <span class="gf-territory-name">United States</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇬🇧</span>
+              <span class="gf-territory-name">United Kingdom</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇩🇪</span>
+              <span class="gf-territory-name">Germany</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇦🇺</span>
+              <span class="gf-territory-name">Australia</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇯🇵</span>
+              <span class="gf-territory-name">Japan</span>
+            </li>
+          </ul>
+
+          <button class="gf-territory-more-btn" id="gf-territory-more-btn" aria-expanded="false" aria-controls="gf-territory-more">
+            +18 Additional Territories
+          </button>
+
+          <ul class="gf-territory-list gf-territory-list--hidden" id="gf-territory-more" aria-hidden="true" aria-label="Additional territories">
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇫🇷</span>
+              <span class="gf-territory-name">France</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇸🇪</span>
+              <span class="gf-territory-name">Sweden</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇳🇴</span>
+              <span class="gf-territory-name">Norway</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇸🇬</span>
+              <span class="gf-territory-name">Singapore</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇰🇷</span>
+              <span class="gf-territory-name">South Korea</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇪🇸</span>
+              <span class="gf-territory-name">Spain</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇮🇹</span>
+              <span class="gf-territory-name">Italy</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇵🇱</span>
+              <span class="gf-territory-name">Poland</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇧🇷</span>
+              <span class="gf-territory-name">Brazil</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇿🇦</span>
+              <span class="gf-territory-name">South Africa</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇲🇽</span>
+              <span class="gf-territory-name">Mexico</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇮🇳</span>
+              <span class="gf-territory-name">India</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇮🇩</span>
+              <span class="gf-territory-name">Indonesia</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇨🇳</span>
+              <span class="gf-territory-name">China</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇳🇿</span>
+              <span class="gf-territory-name">New Zealand</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇵🇪</span>
+              <span class="gf-territory-name">Peru</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇪🇬</span>
+              <span class="gf-territory-name">Egypt</span>
+            </li>
+            <li class="gf-territory-item">
+              <span class="gf-territory-flag">🇹🇷</span>
+              <span class="gf-territory-name">Türkiye</span>
+            </li>
+          </ul>
+
+          <div class="gf-mobile-summary">
+            <div class="gf-mobile-summary-eyebrow">Coverage Summary</div>
+            <div class="gf-mobile-summary-val">
+              <span class="gf-mobile-summary-num">142</span>
+              <span class="gf-mobile-summary-sublabel">Territories Worldwide</span>
+            </div>
+          </div>
+
+        </div><!-- /gf-mobile-brief -->
+
       </div><!-- /hi-main -->
 
     </div><!-- /ws-body -->
@@ -274,6 +398,26 @@
   }
 
   requestAnimationFrame(countStep);
+
+  /* ── Territory expand toggle ───────────────────────────────────── */
+  var moreBtn  = document.getElementById('gf-territory-more-btn');
+  var moreList = document.getElementById('gf-territory-more');
+  if (moreBtn && moreList) {
+    moreBtn.addEventListener('click', function () {
+      var expanded = moreBtn.getAttribute('aria-expanded') === 'true';
+      if (expanded) {
+        moreList.classList.add('gf-territory-list--hidden');
+        moreList.setAttribute('aria-hidden', 'true');
+        moreBtn.setAttribute('aria-expanded', 'false');
+        moreBtn.textContent = '+18 Additional Territories';
+      } else {
+        moreList.classList.remove('gf-territory-list--hidden');
+        moreList.setAttribute('aria-hidden', 'false');
+        moreBtn.setAttribute('aria-expanded', 'true');
+        moreBtn.textContent = 'Show Less';
+      }
+    });
+  }
 
 }());
 </script>
