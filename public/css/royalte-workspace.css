@@ -6148,17 +6148,57 @@ a.ci-function-card:hover .ci-artwork-container {
 
 /* ─── Responsive — phone ≤ 640px ────────────────────────────────────── */
 @media (max-width: 640px) {
-  .mc2-hero { grid-template-columns: 1fr; min-height: auto; }
+
+  /* ── Header: reflow 3 colliding items into a clean 2-row layout ────
+     Row 1: ROYALTĒ OS™ (left)        LIVE badge (right)
+     Row 2: MISSION CONTROL™          (centered)                    ── */
+  .mc2-topbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px 16px 8px;
+    gap: 4px;
+  }
+  /* Row 1 slot 1 — brand */
+  .mc2-topbar > div:first-child { order: 1; flex: 1; }
+  /* Row 1 slot 2 — LIVE badge; datetime hidden */
+  .mc2-topbar-right { order: 2; }
+  .mc2-topbar-meta  { display: none; }
+  /* Row 2 — title block; width:100% forces a new flex row */
+  .mc2-topbar-center {
+    order: 3;
+    width: 100%;
+    position: static;
+    transform: none;
+    text-align: center;
+    padding: 3px 0 4px;
+    pointer-events: auto;
+  }
+
+  /* ── Hero grid ─────────────────────────────────────────────────────
+     overflow:visible — lets orbit nodes at ±160px show without clip.
+     mc2-hero::before shimmer animation depends on overflow:hidden;
+     disable it on mobile so it doesn't bleed outside the card.    ── */
+  .mc2-hero { grid-template-columns: 1fr; min-height: auto; overflow: visible; }
+  .mc2-hero::before { display: none; }
+
+  /* ── Executive Summary — room to breathe ─────────────────────────── */
   .mc2-status-panel {
     border-right: none;
     border-bottom: 1px solid rgba(168, 85, 247, 0.08);
-    padding: 24px 20px;
-    gap: 16px;
+    padding: 28px 22px 24px;
+    gap: 18px;
   }
-  .mc2-globe-hero { min-height: 360px; overflow: visible; }
+  /* Full-width CTA on mobile — easier touch target */
+  .mc2-hero-cta { align-self: stretch; justify-content: center; }
+
+  /* ── ATHENA™ hub — ensure all 8 orbit nodes display fully ──────────
+     min-height 400px: center at 200px, bottom node at 200+160+35≈395px
+     overflow:visible on globe-hero lets node labels overflow safely. ── */
+  .mc2-globe-hero { min-height: 400px; overflow: visible; }
   .mc2-hero-globe { height: 200px; }
   .mc2-main { padding: 12px 14px; gap: 8px; }
   .mc2-hero-node .mc2-hn-status { font-size: 8px; }
+
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
