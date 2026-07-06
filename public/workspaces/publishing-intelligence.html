@@ -121,8 +121,13 @@
       <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
       <div class="hi-main">
 
-        <!-- § 1 — EXECUTIVE HEADER (system-focused, no artist avatar) ─ -->
+        <!-- § 1 — EXECUTIVE HEADER ─────────────────────────────────── -->
         <div class="pi-exec-header">
+          <div class="pi-exec-icon-block">
+            <div class="pi-exec-icon" aria-hidden="true">
+              <svg class="royalte-icon royalte-icon--md" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
+            </div>
+          </div>
           <div class="pi-exec-title-block">
             <div class="pi-exec-eyebrow">Publishing Intelligence™</div>
             <h1 class="pi-exec-heading">Publishing Intelligence™</h1>
@@ -272,64 +277,31 @@
             <!-- Publishing Activity™ -->
             <div class="pi-activity-card">
               <div class="pi-card-header">
-                <svg class="pi-card-header-icon royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
-                <div class="pi-card-header-title">Publishing Activity™</div>
+                <svg class="pi-card-header-icon royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg>
+                <div class="pi-card-header-meta">
+                  <div class="pi-card-header-title">Publishing Activity™</div>
+                  <div class="pi-card-header-sub">Recent Publishing Updates</div>
+                </div>
               </div>
-              <div class="pi-activity-body" role="list" aria-label="Recent publishing activity">
-
-                <div class="pi-activity-item" role="listitem">
-                  <div class="pi-activity-dot-col">
-                    <div class="pi-activity-dot pi-activity-dot--green" aria-hidden="true"></div>
-                  </div>
-                  <div>
-                    <div class="pi-activity-text">Publishing registration confirmed</div>
-                    <div class="pi-activity-time">1 hour ago</div>
-                  </div>
+              <div class="pi-activity-stats" role="list" aria-label="Publishing activity summary">
+                <div class="pi-activity-stat" role="listitem">
+                  <div class="pi-activity-stat-num">3</div>
+                  <div class="pi-activity-stat-label">Registrations</div>
+                  <div class="pi-activity-stat-sub">This Week</div>
                 </div>
-
-                <div class="pi-activity-item" role="listitem">
-                  <div class="pi-activity-dot-col">
-                    <div class="pi-activity-dot pi-activity-dot--violet" aria-hidden="true"></div>
-                  </div>
-                  <div>
-                    <div class="pi-activity-text">New work synchronized via The MLC</div>
-                    <div class="pi-activity-time">4 hours ago</div>
-                  </div>
+                <div class="pi-activity-stat" role="listitem">
+                  <div class="pi-activity-stat-num">1</div>
+                  <div class="pi-activity-stat-label">Updates</div>
+                  <div class="pi-activity-stat-sub">This Week</div>
                 </div>
-
-                <div class="pi-activity-item" role="listitem">
-                  <div class="pi-activity-dot-col">
-                    <div class="pi-activity-dot pi-activity-dot--green" aria-hidden="true"></div>
-                  </div>
-                  <div>
-                    <div class="pi-activity-text">ISWC assigned — "Everything Is Over"</div>
-                    <div class="pi-activity-time">1 day ago</div>
-                  </div>
+                <div class="pi-activity-stat" role="listitem">
+                  <div class="pi-activity-stat-num">0</div>
+                  <div class="pi-activity-stat-label">Disputes</div>
+                  <div class="pi-activity-stat-sub">This Week</div>
                 </div>
-
-                <div class="pi-activity-item" role="listitem">
-                  <div class="pi-activity-dot-col">
-                    <div class="pi-activity-dot pi-activity-dot--violet" aria-hidden="true"></div>
-                  </div>
-                  <div>
-                    <div class="pi-activity-text">Publishing administration status confirmed</div>
-                    <div class="pi-activity-time">2 days ago</div>
-                  </div>
-                </div>
-
-                <div class="pi-activity-item" role="listitem">
-                  <div class="pi-activity-dot-col">
-                    <div class="pi-activity-dot pi-activity-dot--amber" aria-hidden="true"></div>
-                  </div>
-                  <div>
-                    <div class="pi-activity-text">Publishing claims review initiated</div>
-                    <div class="pi-activity-time">3 days ago</div>
-                  </div>
-                </div>
-
               </div>
               <div class="pi-activity-footer">
-                <a class="pi-activity-link" href="/workspaces/monitoring-timeline.html">View All Activity →</a>
+                <a class="pi-activity-link" href="/workspaces/monitoring-timeline.html">View Activity →</a>
               </div>
             </div>
 
@@ -340,6 +312,14 @@
 
 
     </div><!-- /ws-body -->
+
+    <footer class="pi-footer">
+      <span class="pi-footer-left">
+        <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+        Secure • Private • Verified Data
+      </span>
+      <span class="pi-footer-right">All publishing data is encrypted and tokenized.</span>
+    </footer>
 
   </div><!-- /ws-content -->
 
