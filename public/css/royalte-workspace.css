@@ -6101,3 +6101,59 @@ a.ci-function-card:hover .ci-artwork-container {
 .mc2-hero-node:nth-child(8) { animation-delay: 1.7s; }
 .mc2-hero-node:nth-child(9) { animation-delay: 1.9s; }
 .mc2-hero-node:nth-child(10) { animation-delay: 2.1s; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Mission Control™ — Final Optimization Pass
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── Executive intelligence sentence ───────────────────────────────── */
+.mc2-intel-sentence {
+  font-size: 12px;
+  color: var(--mc-silver);
+  opacity: 0.82;
+  line-height: 1.5;
+  margin-top: -2px;
+}
+.mc2-intel-num         { font-weight: 700; }
+.mc2-intel-num--alert  { color: #f87171; }
+.mc2-intel-num--opport { color: #4ade80; }
+
+/* ─── Line hover — brightens on node mouseenter ─────────────────────── */
+.mc2-hero-globe-line.mc2-line--hovered {
+  opacity: 1 !important;
+  stroke-width: 2;
+  transition: stroke-width 0.18s ease, opacity 0.18s ease;
+}
+
+/* ─── Node hover — enhanced glow ────────────────────────────────────── */
+.mc2-hn--health:hover    .mc2-hn-icon { box-shadow: 0 0 28px rgba(34,197,94,0.72),   0 0 8px rgba(34,197,94,0.36); }
+.mc2-hn--identity:hover  .mc2-hn-icon { box-shadow: 0 0 28px rgba(56,189,248,0.72),  0 0 8px rgba(56,189,248,0.36); }
+.mc2-hn--publishing:hover .mc2-hn-icon { box-shadow: 0 0 28px rgba(168,85,247,0.72), 0 0 8px rgba(168,85,247,0.36); }
+.mc2-hn--catalog:hover   .mc2-hn-icon { box-shadow: 0 0 28px rgba(251,146,60,0.72),  0 0 8px rgba(251,146,60,0.36); }
+.mc2-hn--global:hover    .mc2-hn-icon { box-shadow: 0 0 28px rgba(34,211,238,0.72),  0 0 8px rgba(34,211,238,0.36); }
+.mc2-hn--backend:hover   .mc2-hn-icon { box-shadow: 0 0 28px rgba(0,191,165,0.72),   0 0 8px rgba(0,191,165,0.36); }
+.mc2-hn--ai:hover        .mc2-hn-icon { box-shadow: 0 0 24px rgba(200,205,216,0.52), 0 0 8px rgba(200,205,216,0.28); }
+.mc2-hn--review:hover    .mc2-hn-icon { box-shadow: 0 0 24px rgba(251,146,60,0.65),  0 0 8px rgba(251,146,60,0.32); }
+
+/* ─── Responsive — tablet ≤ 1024px ──────────────────────────────────── */
+@media (max-width: 1024px) {
+  .mc2-hero { grid-template-columns: 300px 1fr; min-height: 420px; }
+  .mc2-main { padding: 24px 28px; }
+  .mc2-status-panel { padding: 32px 20px 32px 28px; }
+  .mc2-hero-globe { height: 260px; }
+}
+
+/* ─── Responsive — phone ≤ 640px ────────────────────────────────────── */
+@media (max-width: 640px) {
+  .mc2-hero { grid-template-columns: 1fr; min-height: auto; }
+  .mc2-status-panel {
+    border-right: none;
+    border-bottom: 1px solid rgba(168, 85, 247, 0.08);
+    padding: 24px 20px;
+    gap: 16px;
+  }
+  .mc2-globe-hero { min-height: 360px; overflow: visible; }
+  .mc2-hero-globe { height: 200px; }
+  .mc2-main { padding: 12px 14px; gap: 8px; }
+  .mc2-hero-node .mc2-hn-status { font-size: 8px; }
+}
