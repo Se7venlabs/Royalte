@@ -1,0 +1,519 @@
+/* ============================================================
+ * ROYALTĒ OS™ — RESPONSIVE DESIGN SYSTEM (RDS)
+ * ============================================================
+ *
+ * VERSION:    1.0
+ * STATUS:     ACTIVE — Board-Ratified Foundation Architecture
+ * OWNERSHIP:  Royaltē Engineering / Executive Product
+ *
+ * PURPOSE
+ * -------
+ * Single source of truth for all responsive behavior across the
+ * Royaltē platform. Every current and future Royaltē interface
+ * inherits this system. No module may define its own responsive
+ * logic outside this file without explicit Board approval.
+ *
+ * ARCHITECTURAL SCOPE
+ * -------------------
+ * This file owns:
+ *   • Responsive layout framework
+ *   • Grid system (12 / 8 / 4 columns)
+ *   • Layout containers (shell, page, section, card)
+ *   • Responsive spacing tokens
+ *   • Breakpoint definitions
+ *   • Scroll architecture (desktop one-screen / mobile natural)
+ *   • Safe-area handling (Dynamic Island, notch, home indicator)
+ *   • Responsive transformations (visualization ↔ summary swaps)
+ *   • Typography scaling utilities
+ *   • Reduced-motion accessibility
+ *
+ * CANONICAL VIEWPORTS
+ * -------------------
+ *   Executive Desktop™    > 1024px   Multi-column, minimal scroll
+ *   Executive Tablet™    641–1024px  Adaptive, touch-first
+ *   Executive Mobile™     ≤ 640px   Single-column, natural scroll
+ *
+ * LOAD ORDER (per page)
+ * ----------------------
+ *   1. royalte-rds.css          ← this file (foundation)
+ *   2. royalte-workspace.css    ← workspace theming + components
+ *   3. workspace-specific css   ← page overrides if applicable
+ *
+ * CONFLICT POLICY
+ * ---------------
+ * Additive only. Never overrides --mc-* color tokens or existing
+ * workspace component classes. All tokens use --rds-* prefix.
+ * All utility classes use rds-* prefix.
+ *
+ * GOVERNANCE NOTICE
+ * -----------------
+ * Responsive behavior MUST NOT be implemented independently inside
+ * workspace stylesheets. All new responsive logic belongs here.
+ * Exceptions require an explicit Board engineering directive.
+ *
+ * SECTIONS
+ * --------
+ *   § 1  Design Tokens
+ *   § 2  Viewport Visibility Utilities
+ *   § 3  Layout Containers
+ *   § 4  Responsive Grid System
+ *   § 5  Responsive Pattern Utilities
+ *   § 6  Scroll Architecture
+ *   § 7  Safe Area Support
+ *   § 8  Typography Scaling Utilities
+ *   § 9  Reduced Motion
+ * ============================================================ */
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 1 — DESIGN TOKENS
+   CSS custom properties for spacing, sizing, and layout.
+   Use these values throughout the platform — never hard-code.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+
+  /* ── Canonical breakpoints (px) — for documentation and JS reads.
+     Media queries must use raw values; these exist for scripting.   */
+  --rds-bp-desktop-min:   1025;   /* Executive Desktop™  > 1024px  */
+  --rds-bp-tablet-max:    1024;   /* Executive Tablet™   ≤ 1024px  */
+  --rds-bp-tablet-min:     641;   /* Executive Tablet™   ≥ 641px   */
+  --rds-bp-mobile-max:     640;   /* Executive Mobile™   ≤ 640px   */
+
+  /* ── Page padding — outer page breathing room per viewport */
+  --rds-page-pad-desktop:  40px 48px;
+  --rds-page-pad-tablet:   24px 28px;
+  --rds-page-pad-mobile:   16px;
+
+  /* ── Section gap — vertical rhythm between major page sections */
+  --rds-section-gap-desktop: 20px;
+  --rds-section-gap-tablet:  16px;
+  --rds-section-gap-mobile:  14px;
+
+  /* ── Card padding — internal padding for information cards */
+  --rds-card-pad-desktop: 20px 24px;
+  --rds-card-pad-tablet:  16px 20px;
+  --rds-card-pad-mobile:  16px;
+
+  /* ── Card radius */
+  --rds-radius-lg:  16px;
+  --rds-radius-md:  14px;
+  --rds-radius-sm:  10px;
+  --rds-radius-xs:   8px;
+
+  /* ── Grid gap */
+  --rds-grid-gap-desktop: 16px;
+  --rds-grid-gap-tablet:  12px;
+  --rds-grid-gap-mobile:  10px;
+
+  /* ── Max widths */
+  --rds-max-width:       1440px;  /* outermost shell */
+  --rds-content-max:     1200px;  /* primary content column */
+  --rds-narrow-max:       760px;  /* reading / form contexts */
+
+  /* ── Component sizing */
+  --rds-header-height-desktop: 40px;
+  --rds-rail-width-desktop:    220px;
+  --rds-kpi-card-min-w:        160px;
+
+  /* ── Spacing scale — use for padding, margin, gap */
+  --rds-space-1:   4px;
+  --rds-space-2:   8px;
+  --rds-space-3:  12px;
+  --rds-space-4:  16px;
+  --rds-space-5:  20px;
+  --rds-space-6:  24px;
+  --rds-space-7:  32px;
+  --rds-space-8:  40px;
+  --rds-space-9:  48px;
+  --rds-space-10: 64px;
+
+  /* ── Safe area insets (resolved by the browser at runtime) */
+  --rds-safe-top:    env(safe-area-inset-top,    0px);
+  --rds-safe-right:  env(safe-area-inset-right,  0px);
+  --rds-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --rds-safe-left:   env(safe-area-inset-left,   0px);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 2 — VIEWPORT VISIBILITY UTILITIES
+   Show or hide elements by canonical viewport tier.
+   Never use display:none directly — use these classes instead.
+   ───────────────────────────────────────────────────────────── */
+
+/* Default: all visible */
+.rds-desktop-only { display: block; }
+.rds-tablet-only  { display: none;  }
+.rds-mobile-only  { display: none;  }
+
+/* Inline variants (for spans, anchors, flex items) */
+.rds-desktop-only--inline { display: inline; }
+.rds-tablet-only--inline  { display: none;   }
+.rds-mobile-only--inline  { display: none;   }
+
+@media (max-width: 1024px) {
+  .rds-desktop-only        { display: none;  }
+  .rds-desktop-only--inline{ display: none;  }
+  .rds-tablet-only         { display: block; }
+  .rds-tablet-only--inline { display: inline;}
+}
+
+@media (max-width: 640px) {
+  .rds-tablet-only         { display: none;  }
+  .rds-tablet-only--inline { display: none;  }
+  .rds-mobile-only         { display: block; }
+  .rds-mobile-only--inline { display: inline;}
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 3 — LAYOUT CONTAINERS
+   Shared structural containers every page inherits.
+   Hierarchy:  rds-shell → rds-page → rds-section → rds-card
+   ───────────────────────────────────────────────────────────── */
+
+/* Full-viewport shell */
+.rds-shell {
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic Viewport Height — respects mobile browser UI */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Page content container — centred, max-width constrained */
+.rds-page {
+  flex: 1;
+  width: 100%;
+  max-width: var(--rds-max-width);
+  margin: 0 auto;
+  padding: var(--rds-page-pad-desktop);
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .rds-page { padding: var(--rds-page-pad-tablet); }
+}
+
+@media (max-width: 640px) {
+  .rds-page { padding: var(--rds-page-pad-mobile); }
+}
+
+/* Vertical section container — stacks children with canonical gap */
+.rds-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rds-section-gap-desktop);
+}
+
+@media (max-width: 1024px) {
+  .rds-section { gap: var(--rds-section-gap-tablet); }
+}
+
+@media (max-width: 640px) {
+  .rds-section { gap: var(--rds-section-gap-mobile); }
+}
+
+/* Information card — base card shell, themed by workspace */
+.rds-card {
+  background: var(--mc-surface-1, #0c0c11);
+  border: 1px solid var(--mc-border-soft, rgba(255,255,255,0.04));
+  border-radius: var(--rds-radius-md);
+  padding: var(--rds-card-pad-desktop);
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .rds-card { padding: var(--rds-card-pad-tablet); }
+}
+
+@media (max-width: 640px) {
+  .rds-card { padding: var(--rds-card-pad-mobile); }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 4 — RESPONSIVE GRID SYSTEM
+   12-col (desktop) → 8-col (tablet) → 4-col (mobile)
+   Use rds-col-* span classes on children to control widths.
+   ───────────────────────────────────────────────────────────── */
+
+/* Base grid — 12 columns on desktop */
+.rds-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--rds-grid-gap-desktop);
+}
+
+@media (max-width: 1024px) {
+  .rds-grid {
+    grid-template-columns: repeat(8, 1fr);
+    gap: var(--rds-grid-gap-tablet);
+  }
+}
+
+@media (max-width: 640px) {
+  .rds-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--rds-grid-gap-mobile);
+  }
+}
+
+/* Column span helpers — desktop spans collapse proportionally */
+.rds-col-12 { grid-column: span 12; }
+.rds-col-8  { grid-column: span 8;  }
+.rds-col-6  { grid-column: span 6;  }
+.rds-col-4  { grid-column: span 4;  }
+.rds-col-3  { grid-column: span 3;  }
+
+@media (max-width: 1024px) {
+  .rds-col-12 { grid-column: span 8; }
+  .rds-col-8  { grid-column: span 8; }
+  .rds-col-6  { grid-column: span 4; }
+  .rds-col-4  { grid-column: span 4; }
+  .rds-col-3  { grid-column: span 2; }
+}
+
+@media (max-width: 640px) {
+  .rds-col-12,
+  .rds-col-8,
+  .rds-col-6,
+  .rds-col-4,
+  .rds-col-3 { grid-column: span 4; } /* full width on mobile */
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 5 — RESPONSIVE PATTERN UTILITIES
+   Semantic layout patterns used across Royaltē OS.
+   Each pattern has defined desktop and mobile behavior.
+   ───────────────────────────────────────────────────────────── */
+
+/* ── KPI grid: 4-col → 2-col → 2-col ─── */
+.rds-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--rds-grid-gap-desktop);
+}
+
+@media (max-width: 1024px) {
+  .rds-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .rds-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--rds-grid-gap-mobile);
+  }
+}
+
+/* ── Side-by-side panel: 2-col → 1-col ─── */
+/* Desktop: status panel (left) + visualization (right)
+   Mobile:  stacked sections, each with own card          */
+.rds-panel {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 0;
+}
+
+@media (max-width: 1024px) {
+  .rds-panel { grid-template-columns: 300px 1fr; }
+}
+
+@media (max-width: 640px) {
+  .rds-panel {
+    grid-template-columns: 1fr;
+    gap: var(--rds-section-gap-mobile);
+  }
+}
+
+/* ── Triple column: 3-col → 1-col ─── */
+.rds-triple {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--rds-grid-gap-desktop);
+}
+
+@media (max-width: 1024px) {
+  .rds-triple { grid-template-columns: 1fr; }
+}
+
+/* ── Stack: row on desktop, column on mobile ─── */
+.rds-stack {
+  display: flex;
+  flex-direction: row;
+  gap: var(--rds-grid-gap-desktop);
+  align-items: flex-start;
+}
+
+@media (max-width: 640px) {
+  .rds-stack {
+    flex-direction: column;
+    gap: var(--rds-section-gap-mobile);
+  }
+}
+
+/* ── Executive map: visualization on desktop, list on mobile ─── */
+/* Partner with rds-mobile-only / rds-desktop-only for content swap */
+.rds-map-viewport {
+  width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .rds-map-viewport { overflow: visible; }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 6 — SCROLL ARCHITECTURE
+   Platform-wide scroll philosophy by viewport.
+   Desktop: prefer one-screen  Tablet: moderate  Mobile: natural
+   ───────────────────────────────────────────────────────────── */
+
+/* Natural vertical scroll — use on mobile section containers */
+.rds-scroll-natural {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Horizontal scroll container (e.g. wide visualizations on mobile) */
+.rds-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/* Prevent body scroll when an overlay is open */
+body.rds-body--locked {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* One-screen preference helper — use on desktop-only full-viewport sections */
+.rds-one-screen {
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  /* Remove one-screen constraint on mobile — let content breathe */
+  .rds-one-screen {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 7 — SAFE AREA SUPPORT
+   Handles iPhone Dynamic Island, notch, home indicator, and
+   mobile browser chrome on all modern iOS and Android devices.
+   ───────────────────────────────────────────────────────────── */
+
+/* Apply safe-area padding to the outermost shell */
+.rds-safe-shell {
+  padding-top:    var(--rds-safe-top);
+  padding-right:  var(--rds-safe-right);
+  padding-bottom: var(--rds-safe-bottom);
+  padding-left:   var(--rds-safe-left);
+}
+
+/* Individual edge utilities */
+.rds-safe-top    { padding-top:    env(safe-area-inset-top,    0px); }
+.rds-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.rds-safe-sides  {
+  padding-left:  env(safe-area-inset-left,  0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Margin variants (for sticky/fixed elements) */
+.rds-safe-top--margin    { margin-top:    env(safe-area-inset-top,    0px); }
+.rds-safe-bottom--margin { margin-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* Full dynamic viewport height — accounts for mobile browser chrome
+   (Safari address bar, bottom toolbar). Use instead of 100vh on mobile. */
+.rds-dvh {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.rds-dvh--exact {
+  height: 100vh;
+  height: 100dvh;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 8 — TYPOGRAPHY SCALING UTILITIES
+   Fluid text for headings and display copy.
+   Body text is fixed — only display/hero sizes scale.
+   ───────────────────────────────────────────────────────────── */
+
+/* Executive display heading — scales from 30px to 22px */
+.rds-heading-display {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+@media (max-width: 1024px) {
+  .rds-heading-display { font-size: 26px; }
+}
+
+@media (max-width: 640px) {
+  .rds-heading-display { font-size: 22px; }
+}
+
+/* Section heading */
+.rds-heading-section {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+@media (max-width: 640px) {
+  .rds-heading-section { font-size: 16px; }
+}
+
+/* Eyebrow label — all-caps, tracked */
+.rds-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* KPI number */
+.rds-kpi-num {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 640px) {
+  .rds-kpi-num { font-size: 22px; }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 9 — REDUCED MOTION
+   All animations respect user OS preference.
+   ───────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:   0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration:  0.01ms !important;
+    scroll-behavior:      auto   !important;
+  }
+}
