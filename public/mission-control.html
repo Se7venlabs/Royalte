@@ -131,6 +131,7 @@
               <div class="mc2-greeting-eyebrow">CURRENTLY MONITORING</div>
               <div class="mc2-greeting" id="mc-greeting">BLACK ALTERNATIVE</div>
               <div class="mc2-greeting-sub">Royaltē OS is actively monitoring your music business.</div>
+              <div class="mc2-intel-sentence">ATHENA™ has detected <span class="mc2-intel-num mc2-intel-num--alert">3 items</span> requiring your attention and identified <span class="mc2-intel-num mc2-intel-num--opport">7 new opportunities</span> since your last review.</div>
             </div>
 
             <div class="mc2-status-block">
@@ -156,7 +157,7 @@
 
             <a class="mc2-hero-cta" href="/workspaces/ai-insights.html">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              View Executive Brief
+              View Today's Executive Brief →
             </a>
           </div>
 
@@ -306,6 +307,32 @@
       l.classList.add('mc2-line--live');
     });
   }, 1400);
+
+  /* ── Node hover → brighten connected line ─────────────────────── */
+  var NODE_LINE_MAP = {
+    'mc2-hn--health':     0,
+    'mc2-hn--publishing': 1,
+    'mc2-hn--catalog':    2,
+    'mc2-hn--ai':         3,
+    'mc2-hn--review':     4,
+    'mc2-hn--backend':    5,
+    'mc2-hn--global':     6,
+    'mc2-hn--identity':   7,
+  };
+  var globeLines = document.querySelectorAll('.mc2-hero-globe-line');
+  document.querySelectorAll('.mc2-hero-node').forEach(function (node) {
+    Object.keys(NODE_LINE_MAP).forEach(function (cls) {
+      if (!node.classList.contains(cls)) return;
+      var idx = NODE_LINE_MAP[cls];
+      node.addEventListener('mouseenter', function () {
+        if (globeLines[idx]) globeLines[idx].classList.add('mc2-line--hovered');
+      });
+      node.addEventListener('mouseleave', function () {
+        if (globeLines[idx]) globeLines[idx].classList.remove('mc2-line--hovered');
+      });
+    });
+  });
+
 }());
 </script>
 
