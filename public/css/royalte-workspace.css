@@ -2765,31 +2765,100 @@ a.hi-cat-card {
   border-color: rgba(248,113,113,0.22);
 }
 
-/* ── Identity Layout Refinement™ — ws-dept--identity overrides ──── */
+/* ── Identity Layout Refinement™ + One-Screen Optimization™ ─────── */
 
+/* Section column: tighter top/bottom padding, tighter gap between sections */
+.ws-dept--identity .hi-main {
+  padding: 14px 32px 20px;
+  gap: 14px;
+}
+
+/* Executive header: shorten internal padding, shrink avatar */
+.ws-dept--identity .ii-exec-header {
+  padding: 12px 18px;
+}
+
+.ws-dept--identity .ii-artist-avatar {
+  width: 56px;
+  height: 56px;
+  font-size: 17px;
+}
+
+/* KPI row: 3 equal columns, tighter card padding */
 .ws-dept--identity .hi-kpi-row {
   grid-template-columns: repeat(3, 1fr);
 }
 
+.ws-dept--identity .hi-kpi-card {
+  padding: 14px;
+  gap: 6px;
+}
+
+/* Identity Presence™ ring: 116px → 90px */
+.ws-dept--identity .ii-coverage-ring-wrap {
+  width: 90px;
+  height: 90px;
+  margin: 2px auto 4px;
+}
+
+.ws-dept--identity .ii-coverage-ring-num { font-size: 26px; }
+.ws-dept--identity .ii-coverage-ring-pct { font-size: 11px; }
+
+/* Verified Platforms™ big number */
+.ws-dept--identity .ii-kpi-big-num { font-size: 36px; }
+.ws-dept--identity .ii-kpi-fraction { font-size: 17px; }
+
+/* Section header — no extra margin needed; hi-main gap handles it */
+.ws-dept--identity .ii-section-header { margin-bottom: 0; }
+
+/* Platform grid: 3 columns, compressed card padding */
 .ws-dept--identity .ii-platform-grid {
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 10px;
 }
 
 .ws-dept--identity .ii-platform-card {
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 12px 14px;
 }
 
 .ws-dept--identity .ii-platform-icon {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
 }
 
 .ws-dept--identity .ii-platform-name {
   font-size: 12px;
+}
+
+.ws-dept--identity .ii-platform-card-stats {
+  margin-top: 7px;
+}
+
+.ws-dept--identity .ii-platform-cta {
+  margin-top: 8px;
+  padding: 5px 10px;
+}
+
+/* Identity Snapshot™ — compressed header + body */
+.ws-dept--identity .ii-card-header {
+  padding: 9px 14px 8px;
+}
+
+.ws-dept--identity .ii-snapshot-body {
+  padding: 10px 14px;
+  gap: 12px;
+}
+
+.ws-dept--identity .ii-snapshot-art {
+  width: 72px;
+  height: 72px;
+}
+
+.ws-dept--identity .ii-snapshot-table {
+  gap: 5px;
 }
 
 /* ── Block 4: Identity Snapshot™ ──────────────────────────────────── */
