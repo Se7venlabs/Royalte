@@ -5185,11 +5185,12 @@ a.ci-function-card:hover .ci-artwork-container {
   line-height: 1.05;
 }
 .mc2-greeting-sub {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--mc-silver);
   font-weight: 400;
   opacity: 0.75;
-  margin-top: -6px;
+  line-height: 1.6;
+  margin-top: 6px;
 }
 
 .mc2-status-block { display: flex; flex-direction: column; gap: 4px; }
@@ -5224,7 +5225,7 @@ a.ci-function-card:hover .ci-artwork-container {
 .mc2-status-check svg { width: 12px; height: 12px; color: #4ade80; }
 
 .mc2-meta-row { display: flex; gap: 20px; }
-.mc2-meta-item { display: flex; flex-direction: column; gap: 2px; }
+.mc2-meta-item { display: flex; flex-direction: column; gap: 4px; }
 .mc2-meta-key {
   font-size: 9px;
   font-weight: 700;
@@ -6141,9 +6142,9 @@ a.ci-function-card:hover .ci-artwork-container {
 .mc2-intel-sentence {
   font-size: 12px;
   color: var(--mc-silver);
-  opacity: 0.82;
-  line-height: 1.5;
-  margin-top: -2px;
+  opacity: 0.70;
+  line-height: 1.6;
+  margin-top: 6px;
 }
 .mc2-intel-num         { font-weight: 700; }
 .mc2-intel-num--alert  { color: #f87171; }
