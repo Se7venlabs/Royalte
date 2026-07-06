@@ -5806,35 +5806,35 @@ a.ci-function-card:hover .ci-artwork-container {
   .ai-forecast-card { display: none; }
 }
 
-/* ─── Executive Simplification Pass — expanded briefing layout ───────── */
-.ws-dept--ai-insights .hi-main { padding: 13px 26px 18px; gap: 14px; }
-.ws-dept--ai-insights .ai-core-svg  { max-width: 340px; }
-.ws-dept--ai-insights .ai-core-wrap { padding: 8px 14px 8px 0; }
-.ws-dept--ai-insights .ai-hero-text { padding: 20px 18px 20px 22px; gap: 6px; }
-.ws-dept--ai-insights .ai-hero-cta  { padding: 7px 16px; margin-top: 4px; }
-.ws-dept--ai-insights .ai-rec-section  { gap: 11px; }
-.ws-dept--ai-insights .ai-rec-grid     { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.ws-dept--ai-insights .ai-rec-card     { padding: 16px 18px; gap: 7px; }
-.ws-dept--ai-insights .ai-rec-title    { font-size: 14px; }
-.ws-dept--ai-insights .ai-rec-desc     { font-size: 12.5px; line-height: 1.5; }
-.ws-dept--ai-insights .ai-rec-meta-row { padding-top: 7px; }
+/* ─── One-Screen Optimization Pass ──────────────────────────────────── */
+.ws-dept--ai-insights .hi-main         { padding: 10px 26px 14px; gap: 10px; }
+.ws-dept--ai-insights .ai-hero-section { min-height: 260px; }
+.ws-dept--ai-insights .ai-core-svg     { max-width: 340px; }
+.ws-dept--ai-insights .ai-core-wrap    { padding: 8px 14px 8px 0; }
+.ws-dept--ai-insights .ai-hero-text    { padding: 16px 18px 16px 22px; gap: 5px; }
+.ws-dept--ai-insights .ai-hero-cta     { padding: 7px 16px; margin-top: 2px; }
+.ws-dept--ai-insights .ai-rec-section  { gap: 8px; }
+.ws-dept--ai-insights .ai-rec-grid     { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.ws-dept--ai-insights .ai-rec-card     { padding: 10px 14px; gap: 5px; }
+.ws-dept--ai-insights .ai-rec-title    { font-size: 13.5px; }
+.ws-dept--ai-insights .ai-rec-desc     { font-size: 11px; line-height: 1.35; }
+.ws-dept--ai-insights .ai-rec-meta-row { padding-top: 4px; }
 .ai-bottom-row {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
-  gap: 14px;
+  gap: 10px;
   align-items: start;
 }
-.ws-dept--ai-insights .ai-priorities-section { gap: 10px; }
-.ws-dept--ai-insights .ai-priorities-list    { gap: 6px; }
-.ws-dept--ai-insights .ai-priority-row       { padding: 10px 14px; gap: 12px; }
+.ws-dept--ai-insights .ai-priorities-section { gap: 8px; }
+.ws-dept--ai-insights .ai-priorities-list    { gap: 3px; }
+.ws-dept--ai-insights .ai-priority-row       { padding: 6px 12px; gap: 12px; }
 .ws-dept--ai-insights .ai-priority-desc      { display: block; }
-.ws-dept--ai-insights .ai-forecast-card      { padding: 16px 20px; gap: 10px; }
+.ws-dept--ai-insights .ai-forecast-card      { padding: 11px 16px; gap: 7px; }
 .ws-dept--ai-insights .ai-forecast-title     { font-size: 10.5px; color: var(--mc-text-soft); }
-.ws-dept--ai-insights .ai-forecast-insights  { gap: 8px; }
-.ws-dept--ai-insights .ai-forecast-insight   { font-size: 12px; gap: 9px; line-height: 1.45; }
-.ws-dept--ai-insights .ai-forecast-metrics   { gap: 10px; padding-top: 10px; }
-.ws-dept--ai-insights .ai-forecast-metric-val { font-size: 16px; }
-.ws-dept--ai-insights .hi-artist-footer { padding-top: 8px; padding-bottom: 10px; }
+.ws-dept--ai-insights .ai-forecast-insights  { gap: 5px; }
+.ws-dept--ai-insights .ai-forecast-insight   { font-size: 11.5px; gap: 6px; line-height: 1.4; }
+.ws-dept--ai-insights .ai-forecast-metrics   { gap: 7px; padding-top: 6px; }
+.ws-dept--ai-insights .ai-forecast-metric-val { font-size: 14px; }
 
 /* ─── Nav version footer ──────────────────────────────────────────────── */
 
