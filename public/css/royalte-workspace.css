@@ -6314,6 +6314,17 @@ a.ci-function-card:hover .ci-artwork-container {
   /* Timeline link — generous touch target inside footer */
   .ws-dept--health .hi-timeline-link { display: inline-block; padding: 8px 0; }
 
+  /* ── Category card mobile density — content efficiency first ───────────
+     Target: ~117px card height (down from ~144px) via tighter internals.
+     Addresses: score size, pill height, sparkline height, gap, padding.  ── */
+  .ws-dept--health .hi-cat-card        { padding: 10px 10px 8px; gap: 5px; }
+  .ws-dept--health .hi-cat-label       { letter-spacing: 0.12em; line-height: 1; }
+  .ws-dept--health .hi-cat-score-num   { font-size: 22px; }
+  .ws-dept--health .hi-cat-score-denom { font-size: 9px; }
+  .ws-dept--health .hi-cat-card .hi-status-pill { padding: 2px 7px 2px 6px; }
+  .ws-dept--health .hi-cat-sparkline   { height: 18px; }
+  .ws-dept--health .hi-cat-movement    { font-size: 9px; line-height: 1; }
+
   /* ── Identity Intelligence™ ────────────────────────────────────────
      Platform grid: 2-col (≤1024px rule) → 1-col                   ── */
   .ii-platform-grid { grid-template-columns: 1fr; }
