@@ -4101,6 +4101,9 @@ a.ci-function-card:hover .ci-artwork-container {
   min-height: 540px;
 }
 
+/* Mobile Executive Briefing — hidden until ≤640px breakpoint fires */
+.gf-mobile-brief { display: none; }
+
 /* ─── Dept ambient elevation — Backend Intelligence ─────────────── */
 /* Dept class: .ws-dept--backend  /  Accent: Electric Teal™ (#00BFA5) */
 
@@ -6203,9 +6206,100 @@ a.ci-function-card:hover .ci-artwork-container {
   .pi-system-grid { grid-template-columns: 1fr; }
   .pi-bottom-row { grid-template-columns: 1fr; }
 
-  /* ── Global Music Footprint™ ────────────────────────────────────────
-     Relax one-screen 540px min-height; map scrolls naturally        ── */
-  .ws-dept--global .gf-map-inner { min-height: 300px; }
+  /* ── Global Music Footprint™ — Executive Briefing Mode ─────────────
+     Map becomes contextual (flags hidden, height reduced).
+     Territory list + coverage summary become primary intelligence.   ── */
+  .ws-dept--global .gf-map-inner { min-height: 180px; }
+  .gf-anchor { display: none; }
+  .gf-marker { display: none; }
+  .gf-legend { display: none; }
+  .gf-map-status { display: none; }
+  .gf-mobile-brief {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .gf-mobile-brief-header {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mc-text-soft);
+  }
+  .gf-territory-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--mc-border-soft);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .gf-territory-list--hidden { display: none; }
+  .gf-territory-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    background: var(--mc-surface-1);
+    border-bottom: 1px solid var(--mc-border-soft);
+  }
+  .gf-territory-item:last-child { border-bottom: none; }
+  .gf-territory-flag { font-size: 18px; line-height: 1; flex-shrink: 0; }
+  .gf-territory-name { font-size: 14px; font-weight: 500; color: var(--mc-text); flex: 1; }
+  .gf-territory-more-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 16px;
+    background: transparent;
+    border: 1px solid var(--mc-border-soft);
+    border-radius: 8px;
+    color: var(--mc-blue);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .gf-territory-more-btn:hover {
+    background: rgba(59, 130, 246, 0.06);
+    border-color: rgba(59, 130, 246, 0.30);
+  }
+  .gf-mobile-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px;
+    background: var(--mc-surface-1);
+    border: 1px solid var(--mc-border-soft);
+    border-radius: 10px;
+    text-align: center;
+  }
+  .gf-mobile-summary-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mc-text-soft);
+  }
+  .gf-mobile-summary-val {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .gf-mobile-summary-num {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--mc-text);
+    line-height: 1;
+  }
+  .gf-mobile-summary-sublabel {
+    font-size: 13px;
+    color: var(--mc-text-soft);
+  }
 
   /* ── Backend Intelligence™ ─────────────────────────────────────────
      Digital Twin SVG: horizontal scroll instead of shrinking to
