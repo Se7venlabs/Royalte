@@ -1,151 +1,372 @@
 /**
- * RDS Preview Console™
- * ──────────────────────────────────────────────────────────────────────────
- * Internal developer tool for Royaltē OS™ responsive design validation.
+ * ROYALTĒ Developer Console™
+ * ─────────────────────────────────────────────────────────────────────────
+ * Internal responsive development and Board review tool.
+ * NEVER appears in production.
  *
- * ACTIVATION   : Add ?dev=1 to any MC URL
- * PURPOSE      : Live viewport tier indicator + one-click preview launchers
- * CANONICAL TIERS:
- *   Executive Desktop™    > 1024px
- *   Executive Tablet™    641–1024px
- *   Executive Mobile™     ≤ 640px
+ * ACTIVATION      : ?dev=1 in URL · auto-activates on localhost
+ * SIMULATION      : iframe at exact viewport width — real media queries,
+ *                   no page reload, JS state preserved between mode switches
+ * ARCHITECTURE    : extensible for device presets, grid/safe-area overlays,
+ *                   RDS diagnostics, and module certification (Phase 2+)
  *
- * ARCHITECTURE
- *   Phase 1 (v1.0)  : Live tier indicator + window-based preview launchers
- *   Phase 2 (future): Class-injection simulation (no new window required)
- *   Phase 3 (future): Live RDS diagnostics — grid overlay, token inspector
- * ──────────────────────────────────────────────────────────────────────────
+ * CANONICAL TIERS :
+ *   Executive Desktop™    > 1024px   1440 × 900    RDS 12-col
+ *   Executive Tablet™    641–1024px   768 × 1024   RDS  8-col
+ *   Executive Mobile™     ≤ 640px    390 × 844     RDS  4-col
+ * ─────────────────────────────────────────────────────────────────────────
  */
 (function () {
   'use strict';
 
-  if (new URLSearchParams(location.search).get('dev') !== '1') return;
+  /* ── Activation guard ───────────────────────────────────────────────── */
+  var params   = new URLSearchParams(location.search);
+  var devParam = params.get('dev') === '1';
+  var isLocal  = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (!devParam && !isLocal) return;
+  if (window !== window.top) return; /* never render inside the sim iframe  */
 
-  /* ── Canonical viewport tiers ─────────────────────────────────────────── */
-  var TIERS = [
-    { id: 'desktop', label: 'Executive Desktop™', short: 'Desktop', range: '> 1024px',   w: 1440, h: 900,  color: '#22c55e' },
-    { id: 'tablet',  label: 'Executive Tablet™',  short: 'Tablet',  range: '641–1024px', w: 768,  h: 1024, color: '#38bdf8' },
-    { id: 'mobile',  label: 'Executive Mobile™',  short: 'Mobile',  range: '≤ 640px',    w: 390,  h: 844,  color: '#a855f7' },
+  /* ── Viewport definitions ───────────────────────────────────────────── */
+  /* Phase 2: expand each entry with { presets: [...] } for device menu.  */
+  var VIEWPORTS = [
+    {
+      id: 'desktop', label: 'Executive Desktop™', short: 'Desktop', icon: '🖥',
+      w: 1440, h: 900,  color: '#22c55e', bp: 'Desktop', cols: 12,
+    },
+    {
+      id: 'tablet',  label: 'Executive Tablet™',  short: 'Tablet',  icon: '💻',
+      w: 768,  h: 1024, color: '#38bdf8', bp: 'Tablet',  cols: 8,
+    },
+    {
+      id: 'mobile',  label: 'Executive Mobile™',  short: 'Mobile',  icon: '📱',
+      w: 390,  h: 844,  color: '#a855f7', bp: 'Mobile',  cols: 4,
+    },
   ];
 
-  function activeTier() {
+  /* ── State ──────────────────────────────────────────────────────────── */
+  var active    = null;   /* active viewport id, or null = native            */
+  var collapsed = false;
+  var simEl     = null;   /* fixed overlay backdrop                          */
+  var frameEl   = null;   /* the simulation iframe                           */
+  var frameWrap = null;   /* scaled container around the iframe              */
+  var labelEl   = null;   /* device label above the frame                    */
+
+  /* ── Helpers ────────────────────────────────────────────────────────── */
+  function nativeVp() {
     var w = window.innerWidth;
-    if (w > 1024) return 'desktop';
-    if (w >= 641) return 'tablet';
-    return 'mobile';
+    if (w > 1024) return VIEWPORTS[0];
+    if (w >= 641) return VIEWPORTS[1];
+    return VIEWPORTS[2];
   }
 
-  /* ── Panel element ─────────────────────────────────────────────────────── */
+  /* Build sim URL: preserve ?dev=1 so the console guard passes,
+     but the iframe hits window !== window.top and self-exits.            */
+  function simUrl() {
+    var u = new URL(location.href);
+    u.searchParams.set('dev', '1');
+    return u.toString();
+  }
+
+  /* Compute scale factor to fit the viewport into the available screen,
+     leaving room for the console panel and device label.                */
+  function getScale(vp) {
+    var padH = 120; /* topbar + label + breathing room */
+    var padW = 60;  /* side margins                    */
+    var scaleW = (window.innerWidth  - padW) / vp.w;
+    var scaleH = (window.innerHeight - padH) / vp.h;
+    return Math.min(1, scaleW, scaleH);
+  }
+
+  /* ── Simulation lifecycle ───────────────────────────────────────────── */
+  function mountSim(vp) {
+    if (!simEl) {
+      /* Backdrop — blocks interaction with the real page during sim.    */
+      simEl = document.createElement('div');
+      simEl.id = 'rdc-overlay';
+
+      /* Device label */
+      labelEl = document.createElement('div');
+      labelEl.id = 'rdc-label';
+
+      /* Scaled container (visual dimensions) */
+      frameWrap = document.createElement('div');
+      frameWrap.id = 'rdc-frame-wrap';
+
+      /* Simulation iframe */
+      frameEl = document.createElement('iframe');
+      frameEl.id = 'rdc-iframe';
+      frameEl.src = simUrl();
+      frameEl.setAttribute('title', 'ROYALTĒ Developer Console™ — Viewport Simulation');
+
+      frameWrap.appendChild(frameEl);
+      simEl.appendChild(labelEl);
+      simEl.appendChild(frameWrap);
+      document.body.appendChild(simEl);
+    }
+    applySim(vp);
+  }
+
+  /* applySim: update iframe/container dimensions for the target viewport.
+     Changing iframe CSS width triggers real media query re-evaluation
+     inside the iframe — NO page reload, JS state preserved.            */
+  function applySim(vp) {
+    if (!frameEl) return;
+    var s = getScale(vp);
+    var sw = Math.round(vp.w * s);
+    var sh = Math.round(vp.h * s);
+
+    /* Container takes the scaled (visual) dimensions. */
+    frameWrap.style.cssText = [
+      'position:relative',
+      'overflow:hidden',
+      'width:'  + sw + 'px',
+      'height:' + sh + 'px',
+      'border-radius:16px',
+      'flex-shrink:0',
+      'box-shadow:0 0 0 1px rgba(255,255,255,0.10),0 32px 80px rgba(0,0,0,0.90)',
+    ].join(';');
+
+    /* Iframe renders at full device size; transform scales it visually.
+       Internal viewport = vp.w — media queries fire at the target tier. */
+    frameEl.style.cssText = [
+      'position:absolute',
+      'top:0',
+      'left:0',
+      'width:'  + vp.w + 'px',
+      'height:' + vp.h + 'px',
+      'border:none',
+      'background:#07050f',
+      'transform:scale(' + s.toFixed(4) + ')',
+      'transform-origin:top left',
+    ].join(';');
+
+    /* Label */
+    if (labelEl) {
+      labelEl.style.color = vp.color;
+      labelEl.textContent = vp.label + ' · ' + vp.w + ' \xD7 ' + vp.h + 'px · RDS ' + vp.cols + '-col';
+    }
+  }
+
+  function killSim() {
+    if (simEl) { simEl.remove(); simEl = null; frameEl = null; frameWrap = null; labelEl = null; }
+  }
+
+  /* ── Mode switching ─────────────────────────────────────────────────── */
+  function setViewport(id) {
+    var vp = VIEWPORTS.find(function (v) { return v.id === id; });
+    if (!vp) return;
+    if (active === id) {
+      /* toggle off */
+      active = null;
+      killSim();
+    } else {
+      active = id;
+      mountSim(vp);
+    }
+    render();
+  }
+
+  function exitSim() {
+    active = null;
+    killSim();
+    render();
+  }
+
+  /* ── Panel ──────────────────────────────────────────────────────────── */
   var panel = document.createElement('div');
-  panel.id = 'rds-preview-console';
+  panel.id = 'rdc-panel';
 
   function render() {
-    var tierId = activeTier();
-    var active = TIERS.find(function (t) { return t.id === tierId; });
-    var vw = window.innerWidth;
-    var vh = window.innerHeight;
+    var native = nativeVp();
+    var vp = active ? VIEWPORTS.find(function (v) { return v.id === active; }) : null;
+
+    /* Re-apply sim dimensions on render (handles window resize). */
+    if (vp) applySim(vp);
+
+    var bodyHtml = collapsed ? '' : (
+      '<div id="rdc-body">' +
+
+        /* Viewport info block */
+        '<div class="rdc-block">' +
+          '<div class="rdc-block-label">VIEWPORT' + (vp ? ' · SIMULATING' : '') + '</div>' +
+          '<div class="rdc-vp-name" style="color:' + (vp || native).color + '">' + (vp || native).label + '</div>' +
+          '<div class="rdc-vp-meta">' +
+            (vp
+              ? (vp.w + ' \xD7 ' + vp.h + 'px · ' + vp.bp + ' · RDS ' + vp.cols + '-col')
+              : (window.innerWidth + ' \xD7 ' + window.innerHeight + 'px · ' + native.bp + ' · Native')
+            ) +
+          '</div>' +
+        '</div>' +
+
+        /* Viewport switcher */
+        '<div class="rdc-block">' +
+          '<div class="rdc-block-label">SWITCH VIEWPORT</div>' +
+          '<div class="rdc-vp-row">' +
+            VIEWPORTS.map(function (v) {
+              var on = active === v.id;
+              var style = on ? ('--rdc-ac:' + v.color + ';color:' + v.color + ';background:' + v.color + '14;border-color:' + v.color + '44;font-weight:700') : '';
+              return '<button class="rdc-vp-btn' + (on ? ' on' : '') + '" data-id="' + v.id + '" style="' + style + '" title="' + v.label + ' — ' + v.w + '\xD7' + v.h + 'px">' +
+                '<span class="rdc-vp-icon">' + v.icon + '</span>' +
+                '<span class="rdc-vp-short">' + v.short + '</span>' +
+              '</button>';
+            }).join('') +
+          '</div>' +
+        '</div>' +
+
+        /* Status row */
+        (vp
+          ? '<div class="rdc-status-row">' +
+              '<span class="rdc-native-pill">Native: ' + native.label + ' · ' + window.innerWidth + 'px</span>' +
+              '<button id="rdc-exit-btn">Exit ✕</button>' +
+            '</div>'
+          : '<div class="rdc-hint">Select a viewport above to begin simulation</div>'
+        ) +
+
+      '</div>'
+    );
 
     panel.innerHTML =
-      '<div class="rds-pc-header">' +
-        '<div class="rds-pc-dot"></div>' +
-        '<span>RDS Preview Console™</span>' +
+      '<div id="rdc-header">' +
+        '<span class="rdc-dot"></span>' +
+        '<span class="rdc-title">Developer Console™</span>' +
+        '<button class="rdc-collapse" aria-label="' + (collapsed ? 'Expand' : 'Collapse') + '">' + (collapsed ? '&#9650;' : '&#9660;') + '</button>' +
       '</div>' +
-      '<div class="rds-pc-viewport">' +
-        '<div class="rds-pc-vp-label">Active Viewport</div>' +
-        '<div class="rds-pc-vp-tier" style="color:' + active.color + '">' + active.label + '</div>' +
-        '<div class="rds-pc-vp-size">' + vw + ' × ' + vh + 'px</div>' +
-      '</div>' +
-      '<div class="rds-pc-modes">' +
-        TIERS.map(function (t) {
-          var isActive = t.id === tierId;
-          var activeStyle = isActive
-            ? 'border-color:' + t.color + '33;color:' + t.color + ';background:' + t.color + '12;font-weight:700;'
-            : '';
-          return '<button class="rds-pc-btn" data-tier="' + t.id + '" data-w="' + t.w + '" data-h="' + t.h + '" style="' + activeStyle + '">' +
-            '<span>' + t.short + '</span>' +
-            '<span class="rds-pc-range">' + t.range + '</span>' +
-          '</button>';
-        }).join('') +
-      '</div>' +
-      '<div class="rds-pc-footer">RDS v1.0 · ?dev=1</div>';
+      bodyHtml;
 
-    panel.querySelectorAll('.rds-pc-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var w = parseInt(btn.dataset.w);
-        var h = parseInt(btn.dataset.h);
-        window.open(
-          location.href,
-          '_blank',
-          'width=' + w + ',height=' + h + ',menubar=no,toolbar=no,location=yes,scrollbars=yes,resizable=yes'
-        );
-      });
+    /* Wire events */
+    var hdr = panel.querySelector('#rdc-header');
+    hdr.addEventListener('click', function (e) {
+      if (e.target.closest('.rdc-collapse')) { collapsed = !collapsed; render(); }
     });
+
+    panel.querySelectorAll('.rdc-vp-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { setViewport(btn.dataset.id); });
+    });
+
+    var exitBtn = panel.querySelector('#rdc-exit-btn');
+    if (exitBtn) exitBtn.addEventListener('click', exitSim);
   }
 
-  /* ── Styles ────────────────────────────────────────────────────────────── */
+  /* ── Styles ─────────────────────────────────────────────────────────── */
   var style = document.createElement('style');
   style.textContent = [
-    '#rds-preview-console {',
-      'position: fixed; bottom: 20px; right: 20px; z-index: 999999;',
-      'background: rgba(8, 5, 18, 0.96);',
-      'border: 1px solid rgba(168, 85, 247, 0.28);',
-      'border-radius: 14px; padding: 14px 16px;',
-      'font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;',
-      'font-size: 11px; color: #c8cdd8; min-width: 212px;',
-      'backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);',
-      'box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(168,85,247,0.06);',
-      'user-select: none;',
-    '}',
-    '.rds-pc-header {',
-      'display: flex; align-items: center; gap: 8px;',
-      'margin-bottom: 10px; padding-bottom: 10px;',
-      'border-bottom: 1px solid rgba(168,85,247,0.10);',
-    '}',
-    '.rds-pc-header span {',
-      'font-size: 9px; font-weight: 700; letter-spacing: 0.18em;',
-      'text-transform: uppercase; color: #a855f7;',
-    '}',
-    '.rds-pc-dot {',
-      'width: 6px; height: 6px; border-radius: 50%;',
-      'background: #a855f7; box-shadow: 0 0 8px #a855f7;',
-      'animation: rds-pc-pulse 2s ease-in-out infinite; flex-shrink: 0;',
-    '}',
-    '@keyframes rds-pc-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }',
-    '.rds-pc-viewport { margin-bottom: 10px; }',
-    '.rds-pc-vp-label {',
-      'font-size: 9px; color: #4b5563; letter-spacing: 0.10em;',
-      'text-transform: uppercase; margin-bottom: 3px;',
-    '}',
-    '.rds-pc-vp-tier { font-size: 13px; font-weight: 600; line-height: 1.2; }',
-    '.rds-pc-vp-size { font-size: 10px; color: #6b7280; margin-top: 2px; font-variant-numeric: tabular-nums; }',
-    '.rds-pc-modes { display: flex; flex-direction: column; gap: 4px; }',
-    '.rds-pc-btn {',
-      'display: flex; align-items: center; justify-content: space-between;',
-      'padding: 8px 10px;',
-      'background: rgba(255,255,255,0.03);',
-      'border: 1px solid rgba(255,255,255,0.07);',
-      'border-radius: 8px; color: #6b7280;',
-      'font-size: 11px; font-weight: 500; cursor: pointer;',
-      'font-family: inherit; text-align: left;',
-      'transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;',
-    '}',
-    '.rds-pc-btn:hover {',
-      'background: rgba(168,85,247,0.07);',
-      'border-color: rgba(168,85,247,0.20);',
-      'color: #c8cdd8;',
-    '}',
-    '.rds-pc-range { font-size: 9px; opacity: 0.65; font-variant-numeric: tabular-nums; }',
-    '.rds-pc-footer {',
-      'margin-top: 10px; padding-top: 8px;',
-      'border-top: 1px solid rgba(168,85,247,0.07);',
-      'font-size: 9px; color: #374151; text-align: center;',
-      'letter-spacing: 0.06em;',
-    '}',
-  ].join(' ');
 
-  /* ── Mount ─────────────────────────────────────────────────────────────── */
+    /* Simulation overlay backdrop */
+    '#rdc-overlay{',
+      'position:fixed;inset:0;z-index:99998;',
+      'background:rgba(4,2,12,0.82);',
+      'display:flex;flex-direction:column;',
+      'align-items:center;justify-content:center;gap:14px;',
+      'backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);',
+    '}',
+
+    '#rdc-label{',
+      'font-family:-apple-system,BlinkMacSystemFont,"Inter",sans-serif;',
+      'font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;',
+    '}',
+
+    /* Console panel */
+    '#rdc-panel{',
+      'position:fixed;bottom:20px;right:20px;z-index:999999;',
+      'background:rgba(7,4,14,0.97);',
+      'border:1px solid rgba(168,85,247,0.28);',
+      'border-radius:14px;',
+      'font-family:-apple-system,BlinkMacSystemFont,"Inter",sans-serif;',
+      'font-size:11px;color:#c8cdd8;min-width:224px;',
+      'backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);',
+      'box-shadow:0 16px 48px rgba(0,0,0,0.85),0 0 0 1px rgba(168,85,247,0.06);',
+      'user-select:none;',
+    '}',
+
+    '#rdc-header{',
+      'display:flex;align-items:center;gap:8px;',
+      'padding:12px 14px;cursor:default;',
+    '}',
+
+    '.rdc-dot{',
+      'width:6px;height:6px;border-radius:50%;flex-shrink:0;',
+      'background:#a855f7;box-shadow:0 0 8px #a855f7;',
+      'animation:rdc-pulse 2s ease-in-out infinite;',
+    '}',
+    '@keyframes rdc-pulse{0%,100%{opacity:1}50%{opacity:0.4}}',
+
+    '.rdc-title{',
+      'flex:1;font-size:9px;font-weight:700;',
+      'letter-spacing:0.16em;text-transform:uppercase;color:#a855f7;',
+    '}',
+
+    '.rdc-collapse{',
+      'background:none;border:none;color:#4b5563;font-size:11px;',
+      'cursor:pointer;padding:0 2px;font-family:inherit;line-height:1;',
+      'transition:color 0.15s;',
+    '}',
+    '.rdc-collapse:hover{color:#a855f7;}',
+
+    '#rdc-body{padding:0 14px 14px;}',
+
+    '.rdc-block{',
+      'padding:10px 0;',
+      'border-top:1px solid rgba(255,255,255,0.05);',
+    '}',
+
+    '.rdc-block-label{',
+      'font-size:9px;font-weight:700;letter-spacing:0.12em;',
+      'text-transform:uppercase;color:#374151;margin-bottom:6px;',
+    '}',
+
+    '.rdc-vp-name{font-size:14px;font-weight:700;line-height:1.2;margin-bottom:3px;}',
+    '.rdc-vp-meta{font-size:10px;color:#6b7280;font-variant-numeric:tabular-nums;}',
+
+    /* Viewport switcher buttons */
+    '.rdc-vp-row{display:flex;gap:5px;}',
+
+    '.rdc-vp-btn{',
+      'flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;',
+      'padding:9px 4px 8px;',
+      'background:rgba(255,255,255,0.03);',
+      'border:1px solid rgba(255,255,255,0.07);',
+      'border-radius:9px;color:#6b7280;',
+      'cursor:pointer;font-family:inherit;',
+      'transition:all 0.15s ease;',
+    '}',
+    '.rdc-vp-btn:hover{',
+      'background:rgba(168,85,247,0.07);',
+      'border-color:rgba(168,85,247,0.22);',
+      'color:#c8cdd8;',
+    '}',
+
+    '.rdc-vp-icon{font-size:16px;line-height:1;}',
+    '.rdc-vp-short{font-size:9px;font-weight:600;letter-spacing:0.04em;}',
+
+    /* Status row */
+    '.rdc-status-row{',
+      'display:flex;align-items:center;justify-content:space-between;gap:8px;',
+      'padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);',
+    '}',
+
+    '.rdc-native-pill{font-size:10px;color:#374151;}',
+
+    '#rdc-exit-btn{',
+      'font-size:10px;font-weight:600;color:#a855f7;',
+      'background:rgba(168,85,247,0.08);',
+      'border:1px solid rgba(168,85,247,0.22);',
+      'border-radius:6px;padding:5px 10px;',
+      'cursor:pointer;font-family:inherit;white-space:nowrap;',
+      'transition:all 0.15s ease;',
+    '}',
+    '#rdc-exit-btn:hover{background:rgba(168,85,247,0.16);border-color:rgba(168,85,247,0.38);}',
+
+    '.rdc-hint{',
+      'padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);',
+      'font-size:10px;color:#374151;',
+    '}',
+
+  ].join('');
+
+  /* ── Mount ──────────────────────────────────────────────────────────── */
   document.head.appendChild(style);
   render();
   document.body.appendChild(panel);
   window.addEventListener('resize', render);
+
 })();
