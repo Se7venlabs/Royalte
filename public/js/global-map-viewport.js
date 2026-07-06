@@ -57,7 +57,7 @@
     'India':          { l: 64.0, t: 55.0, flag: '🇮🇳', p: ['apple','spotify'],                  d: 'Feb 2024' },
     'China':          { l: 67.0, t: 30.0, flag: '🇨🇳', p: ['apple'],                            d: 'Jan 2024' },
     'Japan':          { l: 75.0, t: 41.0, flag: '🇯🇵', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'South Korea':    { l: 73.0, t: 41.0, flag: '🇰🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'South Korea':    { l: 75.0, t: 41.0, flag: '🇰🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
     'Australia':      { l: 75.0, t: 85.0, flag: '🇦🇺', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
     'New Zealand':    { l: 77.0, t: 71.0, flag: '🇳🇿', p: ['apple','spotify'],                  d: 'Feb 2024' },
   };
