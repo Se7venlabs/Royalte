@@ -3368,9 +3368,12 @@ a.hi-cat-card {
   background: rgba(124,58,237,0.14); border-color: rgba(124,58,237,0.42);
 }
 
-/* Publishing dept typography — reduce oversized KPI numerics */
-.ws-dept--publishing .ii-kpi-big-num { font-size: 28px; letter-spacing: -0.03em; }
-.ws-dept--publishing .ii-kpi-fraction { font-size: 15px; }
+/* Publishing dept typography — KPI Typography Standardization™ */
+.ws-dept--publishing .ii-kpi-big-num   { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.ws-dept--publishing .ii-kpi-fraction  { font-size: 12px; font-weight: 600; }
+.ws-dept--publishing .ii-kpi-status-text { font-size: 10px; font-weight: 500; }
+.ws-dept--publishing .ii-kpi-caption   { font-size: 9.5px; }
+.ws-dept--publishing .pi-impact-risk-label { font-size: 13px; font-weight: 700; }
 
 /* ── Publishing One-Screen Optimization™ ─────────────────────────── */
 
