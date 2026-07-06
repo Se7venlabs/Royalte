@@ -2785,6 +2785,38 @@ a.hi-cat-card {
   opacity: 0.8;
 }
 
+/* ── Executive Summary Compression™ ────────────────────────────────────
+   Health Score™ + ATHENA Monitoring™ cards compressed ~30–35%.
+   All overrides scoped to .ws-dept--health — no other module affected.
+   ────────────────────────────────────────────────────────────────────── */
+
+/* Card padding + internal gap */
+.ws-dept--health .hi-kpi-card--score,
+.ws-dept--health .hi-kpi-card--ai {
+  padding: 14px;
+  gap: 5px;
+}
+
+/* Health Score™ ring: 132px → 100px (~24% reduction) */
+.ws-dept--health .hi-score-ring-wrap {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 2px;
+}
+.ws-dept--health .hi-score-ring-num  { font-size: 28px; }
+.ws-dept--health .hi-score-ring-sub  { font-size: 9.5px; }
+.ws-dept--health .hi-score-meta-row  { margin-top: 0; }
+
+/* Health Breakdown™ — tighter row spacing */
+.ws-dept--health .hi-kpi-breakdown        { gap: 1px; margin-top: 2px; padding-top: 6px; }
+.ws-dept--health .hi-kpi-breakdown-title  { margin-bottom: 1px; }
+.ws-dept--health .hi-kpi-breakdown-row    { font-size: 10px; }
+
+/* ATHENA Monitoring™ — tighter coverage list */
+.ws-dept--health .hi-kpi-athena-brief        { margin-top: 0; }
+.ws-dept--health .hi-monitoring-coverage     { gap: 2px; margin-top: 2px; }
+.ws-dept--health .hi-monitoring-coverage-list { gap: 2px; }
+
 .ws-dept--health .hi-cat-card {
   box-shadow: 0 1px 3px rgba(0,0,0,0.22),
               0 0 38px rgba(45,212,191,0.06);
