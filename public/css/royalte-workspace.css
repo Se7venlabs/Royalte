@@ -6157,3 +6157,75 @@ a.ci-function-card:hover .ci-artwork-container {
   .mc2-main { padding: 12px 14px; gap: 8px; }
   .mc2-hero-node .mc2-hn-status { font-size: 8px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ROYALTĒ OS™ — Mobile Executive Briefing Mode
+   All 8 MC workspaces: vertical scroll, content-driven heights,
+   comfortable touch-friendly spacing. Desktop & tablet unchanged.
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* ── hi-main: restore comfortable padding ──────────────────────────
+     Dept-specific rules compress padding for desktop one-screen fit.
+     Mobile scrolls, so compression is wrong — reset all depts here. ── */
+  .ws-dept--health .hi-main,
+  .ws-dept--identity .hi-main,
+  .ws-dept--publishing .hi-main,
+  .ws-dept--catalog .hi-main,
+  .ws-dept--global .hi-main { padding: 16px; gap: 16px; }
+
+  /* ── KPI row: 2×2 grid beats a 4-card vertical stack ─────────────── */
+  .hi-kpi-row { grid-template-columns: 1fr 1fr; }
+  .hi-kpi-card { padding: 12px 11px; }
+
+  /* ── Health Intelligence™ ──────────────────────────────────────────
+     Score card: ring + metadata stack vertically (not side-by-side)
+     Breakdown: 6 flex items → 3-per-row with wrap
+     ATHENA card: left/right columns stack vertically               ── */
+  .ws-dept--health .hi-score-body { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .ws-dept--health .hi-score-ring-wrap { align-self: center; }
+  .ws-dept--health .hi-kpi-breakdown-cols { flex-wrap: wrap; }
+  .ws-dept--health .hi-kpi-breakdown-col { flex: 0 0 33%; min-width: 0; }
+  .ws-dept--health .hi-kpi-card--ai { flex-direction: column; gap: 0; }
+  .ws-dept--health .hi-athena-right {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--mc-border);
+  }
+
+  /* ── Identity Intelligence™ ────────────────────────────────────────
+     Platform grid: 2-col (≤1024px rule) → 1-col                   ── */
+  .ii-platform-grid { grid-template-columns: 1fr; }
+
+  /* ── Publishing Intelligence™ ──────────────────────────────────────
+     System grid: 3-col → 1-col
+     Bottom row: side-by-side → vertical stack                      ── */
+  .pi-system-grid { grid-template-columns: 1fr; }
+  .pi-bottom-row { grid-template-columns: 1fr; }
+
+  /* ── Global Music Footprint™ ────────────────────────────────────────
+     Relax one-screen 540px min-height; map scrolls naturally        ── */
+  .ws-dept--global .gf-map-inner { min-height: 300px; }
+
+  /* ── Backend Intelligence™ ─────────────────────────────────────────
+     Digital Twin SVG: horizontal scroll instead of shrinking to
+     illegible size. bi-twin-svg-wrap becomes the scroll container.  ── */
+  .ws-dept--backend .bi-twin-svg-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+  }
+  .ws-dept--backend .bi-twin-svg { width: 500px; max-width: none; }
+
+  /* ── AI Insights™ (ATHENA™) ─────────────────────────────────────────
+     hi-main: override one-screen compression back to comfortable padding
+     Hero: relax one-screen 260px min-height (mobile scrolls)
+     Priorities + Forecast: restore from ≤768px display:none
+     Bottom row: ensure single column (already set at ≤768px, explicit) ─ */
+  .ws-dept--ai-insights .hi-main { padding: 16px; gap: 14px; }
+  .ws-dept--ai-insights .ai-hero-section { min-height: 220px; }
+  .ai-priorities-section { display: flex; }
+  .ai-forecast-card { display: flex; }
+  .ws-dept--ai-insights .ai-bottom-row { grid-template-columns: 1fr; gap: 14px; }
+
+}
