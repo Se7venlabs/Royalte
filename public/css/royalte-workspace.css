@@ -3420,10 +3420,81 @@ a.hi-cat-card {
   padding: 4px 8px;
 }
 
+/* Exec header: icon + title side by side */
+.pi-exec-icon-block {
+  flex-shrink: 0;
+}
+
+.pi-exec-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(124,58,237,0.22), rgba(124,58,237,0.10));
+  border: 1px solid rgba(124,58,237,0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7c3aed;
+  box-shadow: 0 0 20px rgba(124,58,237,0.18), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.pi-exec-icon svg { width: 28px; height: 28px; }
+
+/* Card header with sub-label */
+.pi-card-header-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pi-card-header-sub {
+  font-size: 10px;
+  color: var(--mc-text-muted);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Publishing Activity™ — stat columns */
+.pi-activity-stats {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding: 14px 14px 10px;
+  flex: 1;
+}
+
+.pi-activity-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.pi-activity-stat-num {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--mc-text);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.pi-activity-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mc-text-soft);
+}
+
+.pi-activity-stat-sub {
+  font-size: 9.5px;
+  color: var(--mc-text-muted);
+}
+
 /* Bottom row: ISWC Coverage™ + Publishing Activity™ side by side */
 .pi-bottom-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.2fr 1fr;
   gap: 8px;
   margin-top: 8px;
 }
@@ -3431,7 +3502,29 @@ a.hi-cat-card {
 /* Activity card: remove standalone margin-top (grid handles spacing) */
 .pi-bottom-row .pi-activity-card {
   margin-top: 0;
+  display: flex;
+  flex-direction: column;
 }
+
+/* Publishing footer */
+.pi-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 32px;
+  border-top: 1px solid var(--mc-border-soft);
+  font-size: 10px;
+  color: var(--mc-text-muted);
+  flex-shrink: 0;
+}
+
+.pi-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pi-footer-left svg { width: 11px; height: 11px; }
 
 /* ATHENA Publishing Intelligence™ Panel — modal overlay */
 .pi-athena-overlay {
