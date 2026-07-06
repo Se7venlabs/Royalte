@@ -5176,6 +5176,7 @@ a.ci-function-card:hover .ci-artwork-container {
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--mc-purple);
+  margin-bottom: 3px;
 }
 .mc2-greeting {
   font-size: 20px;
@@ -5189,11 +5190,11 @@ a.ci-function-card:hover .ci-artwork-container {
   color: var(--mc-silver);
   font-weight: 400;
   opacity: 0.75;
-  line-height: 1.6;
+  line-height: 1.8;
   margin-top: 6px;
 }
 
-.mc2-status-block { display: flex; flex-direction: column; gap: 4px; }
+.mc2-status-block { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
 .mc2-status-block-label {
   font-size: 9.5px;
   font-weight: 700;
@@ -5224,11 +5225,11 @@ a.ci-function-card:hover .ci-artwork-container {
 }
 .mc2-status-check svg { width: 12px; height: 12px; color: #4ade80; }
 
-.mc2-meta-row { display: flex; gap: 20px; }
+.mc2-meta-row { display: flex; gap: 28px; }
 .mc2-meta-item { display: flex; flex-direction: column; gap: 4px; }
 .mc2-meta-key {
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--mc-text-faint);
@@ -6143,7 +6144,7 @@ a.ci-function-card:hover .ci-artwork-container {
   font-size: 12px;
   color: var(--mc-silver);
   opacity: 0.70;
-  line-height: 1.6;
+  line-height: 1.8;
   margin-top: 6px;
 }
 .mc2-intel-num         { font-weight: 700; }
