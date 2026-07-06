@@ -9,27 +9,28 @@
   <style>
     /* Backend Intelligence™ — Architecture Pass 1 + 2 */
 
-    /* Executive typography standard */
-    .ws-dept--backend .ii-kpi-big-num { font-size: 28px; letter-spacing: -0.03em; }
-    .ws-dept--backend .ii-kpi-fraction { font-size: 15px; }
+    /* ── KPI Typography Standard — matches Health / Identity / Publishing ── */
+    .ws-dept--backend .ii-kpi-big-num    { font-size: 24px; letter-spacing: -0.03em; }
+    .ws-dept--backend .ii-kpi-fraction   { font-size: 13px; }
+    .ws-dept--backend .ii-kpi-status-text { font-size: 10px; font-weight: 500; }
+    .ws-dept--backend .ii-kpi-caption    { font-size: 9.5px; }
 
-    /* ── Pass 2: Mission Control Header Standard — ~25% taller ─────── */
-    .ws-dept--backend .bi-exec-header { padding: 32px 28px; }
+    /* ── Executive Header — tighter ─────────────────────────────────── */
+    .ws-dept--backend .bi-exec-header { padding: 22px 28px; }
 
-    /* ── Pass 2: Layout breathing room ─────────────────────────────── */
-    .ws-dept--backend .hi-main { padding: 24px 28px 40px; gap: 20px; }
+    /* ── Main column — one-screen standard ──────────────────────────── */
+    .ws-dept--backend .hi-main { padding: 14px 28px 20px; gap: 16px; }
 
-    /* ── Pass 2: Executive Metric Cards — compact supporting metrics ── */
-    /* ~17% narrower (row has 8% side padding) + ~20% shorter (padding reduction) */
+    /* ── Executive Metric Cards — compressed padding ─────────────────── */
     .ws-dept--backend .hi-kpi-row { grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 12%; }
-    .ws-dept--backend .hi-kpi-card { padding: 13px 14px 11px; }
+    .ws-dept--backend .hi-kpi-card { padding: 11px 12px 9px; }
     .ws-dept--backend .hi-kpi-icon-wrap { width: 30px; height: 30px; border-radius: 7px; }
     .ws-dept--backend .hi-kpi-icon-wrap svg { width: 15px; height: 15px; }
 
-    /* ── Pass 2: Backend Intelligence Engine™ — 30% larger, centered ─ */
-    .ws-dept--backend .bi-twin-section { margin-bottom: 0; padding: 28px 28px 24px; }
-    .ws-dept--backend .bi-twin-title { margin-bottom: 20px; }
-    .ws-dept--backend .bi-twin-svg { max-width: min(780px, 100%); margin: 0 auto; display: block; }
+    /* ── Digital Twin™ — hero prominence, ~10% scale increase ───────── */
+    .ws-dept--backend .bi-twin-section { margin-bottom: 0; padding: 18px 20px 14px; }
+    .ws-dept--backend .bi-twin-title { margin-bottom: 10px; font-size: 13px; }
+    .ws-dept--backend .bi-twin-svg { max-width: min(860px, 100%); margin: 0 auto; display: block; }
 
     /* ── Pass 1: Executive header ATHENA trigger ────────────────────── */
     .bi-exec-header--athena-trigger {
@@ -86,7 +87,46 @@
     .bi-node--inactive .bi-node-label  { fill: #94a3b8; }
     .bi-node--inactive .bi-node-status { fill: #94a3b8; }
 
-    /* ── Pass 3: Responsive Foundation ─────────────────────────────────── */
+    /* ── Polish Pass: Enhanced node states ──────────────────────────────── */
+
+    /* Verified nodes — brighter glow + subtle pulse */
+    .bi-node--verified .bi-node-ring {
+      opacity: 0.60;
+      filter: drop-shadow(0 0 5px rgba(0,191,165,0.70));
+      animation: bi-verified-pulse 4.5s ease-in-out infinite;
+    }
+    @keyframes bi-verified-pulse {
+      0%, 100% { opacity: 0.55; }
+      50%       { opacity: 0.78; }
+    }
+
+    /* Needs Review nodes — stronger amber glow */
+    .bi-node--review .bi-node-ring {
+      opacity: 0.70;
+      filter: drop-shadow(0 0 6px rgba(245,158,11,0.72));
+    }
+
+    /* Royaltē Intelligence hub — largest glow, slow ambient pulse */
+    .bi-node--hub .bi-node-ring {
+      opacity: 0.80;
+      filter: drop-shadow(0 0 12px rgba(0,191,165,0.85));
+    }
+    .bi-node--hub.bi-node--live .bi-node-ring {
+      animation: bi-hub-ambient 5s ease-in-out infinite;
+    }
+    @keyframes bi-hub-ambient {
+      0%, 100% { opacity: 0.65; filter: drop-shadow(0 0 10px rgba(0,191,165,0.70)); }
+      50%       { opacity: 0.95; filter: drop-shadow(0 0 18px rgba(0,191,165,1.00)); }
+    }
+
+    /* Hover — highlight connected paths */
+    .bi-conn--hover { stroke-opacity: 1 !important; stroke-width: 2.2 !important; }
+    .bi-conn--teal.bi-conn--hover  { stroke: rgba(0,191,165,0.92) !important; }
+    .bi-conn--amber.bi-conn--hover { stroke: rgba(245,158,11,0.88) !important; }
+    .bi-node--neighbor .bi-node-ring { opacity: 0.80 !important; }
+    .bi-node--neighbor .bi-node-core { filter: brightness(1.35); }
+
+    /* ── Polish Pass: Touch + responsive ────────────────────────────────── */
     /* Touch target + pinch-zoom support */
     .ws-dept--backend .bi-twin-svg { touch-action: none; user-select: none; }
 
@@ -307,7 +347,7 @@
               <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
             </div>
             <div class="ii-kpi-num-row" style="padding-top:4px;">
-              <span class="ii-kpi-big-num" style="font-size:20px;color:#F59E0B;">MEDIUM</span>
+              <span class="ii-kpi-big-num" style="font-size:17px;color:#F59E0B;">MEDIUM</span>
             </div>
             <div class="ii-kpi-status-text" style="color:#F59E0B;">2 Issues Detected</div>
             <div class="ii-kpi-caption">Rights · Registrations</div>
@@ -353,8 +393,8 @@
                  role="button" tabindex="0" aria-label="Backend Status — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="280" cy="30" r="15" filter="url(#bi-glow-white)"/>
                 <circle class="bi-node-core" cx="280" cy="30" r="7"  filter="url(#bi-glow-white)"/>
-                <text class="bi-node-label" x="280" y="11" style="font-size:10px;font-weight:700;text-anchor:middle;">SONG</text>
-                <text class="bi-node-status" x="280" y="54" style="font-size:8px;text-anchor:middle;">Entry Point</text>
+                <text class="bi-node-label" x="280" y="11" style="font-size:11px;font-weight:700;text-anchor:middle;">SONG</text>
+                <text class="bi-node-status" x="280" y="54" style="font-size:9px;text-anchor:middle;">Entry Point</text>
               </g>
 
               <!-- METADATA node -->
@@ -363,8 +403,8 @@
                  role="button" tabindex="0" aria-label="Metadata — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="115" cy="84"  r="13" filter="url(#bi-glow-teal)"/>
                 <circle class="bi-node-core" cx="115" cy="84"  r="6"/>
-                <text class="bi-node-label" x="115" y="64"  style="font-size:9px;font-weight:600;text-anchor:middle;">METADATA</text>
-                <text class="bi-node-status" x="115" y="104" style="font-size:8px;text-anchor:middle;">Verified</text>
+                <text class="bi-node-label" x="115" y="64"  style="font-size:10px;font-weight:600;text-anchor:middle;">METADATA</text>
+                <text class="bi-node-status" x="115" y="104" style="font-size:9px;text-anchor:middle;">Verified</text>
               </g>
 
               <!-- DISTRIBUTION node -->
@@ -373,8 +413,8 @@
                  role="button" tabindex="0" aria-label="Distribution — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="445" cy="84"  r="13" filter="url(#bi-glow-teal)"/>
                 <circle class="bi-node-core" cx="445" cy="84"  r="6"/>
-                <text class="bi-node-label" x="445" y="64"  style="font-size:9px;font-weight:600;text-anchor:middle;">DISTRIBUTION</text>
-                <text class="bi-node-status" x="445" y="104" style="font-size:8px;text-anchor:middle;">Verified</text>
+                <text class="bi-node-label" x="445" y="64"  style="font-size:10px;font-weight:600;text-anchor:middle;">DISTRIBUTION</text>
+                <text class="bi-node-status" x="445" y="104" style="font-size:9px;text-anchor:middle;">Verified</text>
               </g>
 
               <!-- RIGHTS OWNERSHIP node -->
@@ -383,11 +423,11 @@
                  role="button" tabindex="0" aria-label="Rights Ownership — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="48" cy="164" r="13" filter="url(#bi-glow-amber)"/>
                 <circle class="bi-node-core" cx="48" cy="164" r="6"/>
-                <text class="bi-node-label" x="48" y="136" style="font-size:8.5px;font-weight:600;text-anchor:middle;">
+                <text class="bi-node-label" x="48" y="136" style="font-size:9.5px;font-weight:600;text-anchor:middle;">
                   <tspan x="48" dy="0">RIGHTS</tspan>
                   <tspan x="48" dy="12">OWNERSHIP</tspan>
                 </text>
-                <text class="bi-node-status" x="48" y="185" style="font-size:8px;text-anchor:middle;">Needs Review</text>
+                <text class="bi-node-status" x="48" y="185" style="font-size:9px;text-anchor:middle;">Needs Review</text>
               </g>
 
               <!-- IDENTITY node -->
@@ -396,8 +436,8 @@
                  role="button" tabindex="0" aria-label="Identity — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="192" cy="164" r="13" filter="url(#bi-glow-teal)"/>
                 <circle class="bi-node-core" cx="192" cy="164" r="6"/>
-                <text class="bi-node-label" x="192" y="143" style="font-size:9px;font-weight:600;text-anchor:middle;">IDENTITY</text>
-                <text class="bi-node-status" x="192" y="185" style="font-size:8px;text-anchor:middle;">Verified</text>
+                <text class="bi-node-label" x="192" y="143" style="font-size:10px;font-weight:600;text-anchor:middle;">IDENTITY</text>
+                <text class="bi-node-status" x="192" y="185" style="font-size:9px;text-anchor:middle;">Verified</text>
               </g>
 
               <!-- REGISTRATIONS node -->
@@ -406,8 +446,8 @@
                  role="button" tabindex="0" aria-label="Registrations — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="512" cy="164" r="13" filter="url(#bi-glow-amber)"/>
                 <circle class="bi-node-core" cx="512" cy="164" r="6"/>
-                <text class="bi-node-label" x="512" y="143" style="font-size:9px;font-weight:600;text-anchor:middle;">REGISTRATIONS</text>
-                <text class="bi-node-status" x="512" y="185" style="font-size:8px;text-anchor:middle;">Needs Review</text>
+                <text class="bi-node-label" x="512" y="143" style="font-size:10px;font-weight:600;text-anchor:middle;">REGISTRATIONS</text>
+                <text class="bi-node-status" x="512" y="185" style="font-size:9px;text-anchor:middle;">Needs Review</text>
               </g>
 
               <!-- ROYALTĒ INTELLIGENCE hub — opens Backend Trust ATHENA -->
@@ -416,7 +456,7 @@
                  role="button" tabindex="0" aria-label="Royaltē Intelligence Hub — click for ATHENA intelligence">
                 <circle class="bi-node-ring" cx="280" cy="210" r="18" filter="url(#bi-glow-teal)"/>
                 <circle class="bi-node-core" cx="280" cy="210" r="10" filter="url(#bi-glow-teal)"/>
-                <text class="bi-node-label" x="280" y="240" style="font-size:8.5px;font-weight:700;text-anchor:middle;letter-spacing:0.06em;">ROYALTĒ INTELLIGENCE</text>
+                <text class="bi-node-label" x="280" y="240" style="font-size:9.5px;font-weight:700;text-anchor:middle;letter-spacing:0.06em;">ROYALTĒ INTELLIGENCE</text>
               </g>
 
             </svg>
@@ -692,6 +732,40 @@
       if (ln) ln.classList.add('bi-conn--live');
     });
   }, 3200);
+
+  /* ── Hover: highlight connected paths ───────────────────────────── */
+  var BI_HOVER_MAP = {
+    'bn-song':   { lines: ['bl-1','bl-2'],           neighbors: ['bn-meta','bn-dist'] },
+    'bn-meta':   { lines: ['bl-1','bl-3','bl-4'],    neighbors: ['bn-song','bn-rights','bn-id'] },
+    'bn-dist':   { lines: ['bl-2','bl-5','bl-8'],    neighbors: ['bn-song','bn-reg','bn-hub'] },
+    'bn-rights': { lines: ['bl-3','bl-6'],            neighbors: ['bn-meta','bn-hub'] },
+    'bn-id':     { lines: ['bl-4','bl-7'],            neighbors: ['bn-meta','bn-hub'] },
+    'bn-reg':    { lines: ['bl-5','bl-9'],            neighbors: ['bn-dist','bn-hub'] },
+    'bn-hub':    { lines: ['bl-6','bl-7','bl-8','bl-9'], neighbors: ['bn-rights','bn-id','bn-dist','bn-reg'] },
+  };
+
+  function biClearHover() {
+    document.querySelectorAll('.bi-conn--hover').forEach(function (el) { el.classList.remove('bi-conn--hover'); });
+    document.querySelectorAll('.bi-node--neighbor').forEach(function (el) { el.classList.remove('bi-node--neighbor'); });
+  }
+
+  Object.keys(BI_HOVER_MAP).forEach(function (nodeId) {
+    var nodeEl = document.getElementById(nodeId);
+    if (!nodeEl) return;
+    var map = BI_HOVER_MAP[nodeId];
+    nodeEl.addEventListener('mouseenter', function () {
+      biClearHover();
+      map.lines.forEach(function (lid) {
+        var el = document.getElementById(lid);
+        if (el) el.classList.add('bi-conn--hover');
+      });
+      map.neighbors.forEach(function (nid) {
+        var el = document.getElementById(nid);
+        if (el) el.classList.add('bi-node--neighbor');
+      });
+    });
+    nodeEl.addEventListener('mouseleave', biClearHover);
+  });
 
 }());
 
