@@ -1349,7 +1349,7 @@ svg { display: block; }
 .hi-kpi-card {
   background: var(--mc-surface-1);
   border: 1px solid var(--mc-border);
-  border-radius: var(--mc-r-3);
+  border-radius: var(--rds-radius-md, 14px);
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -1582,7 +1582,7 @@ svg { display: block; }
 .hi-cat-card {
   background: var(--mc-surface-1);
   border: 1px solid var(--mc-border);
-  border-radius: var(--mc-r-3);
+  border-radius: var(--rds-radius-sm, 10px);
   padding: 16px 14px;
   display: flex;
   flex-direction: column;
@@ -1661,7 +1661,7 @@ svg { display: block; }
 .hi-timeline-card {
   background: var(--mc-surface-1);
   border: 1px solid var(--mc-border);
-  border-radius: var(--mc-r-3);
+  border-radius: var(--rds-radius-md, 14px);
   padding: 20px 24px;
 }
 
@@ -2401,10 +2401,10 @@ svg { display: block; }
   gap: 10px;
 }
 
-/* Tighter card padding for 6-column layout */
+/* Tighter card padding for 6-column layout — Executive Intelligence Card™ density */
 .hi-cat-card {
-  padding: 14px 12px;
-  gap: 7px;
+  padding: 12px 10px 10px;
+  gap: 6px;
 }
 
 /* Navigation card: <a> element as flex column */
@@ -6252,7 +6252,7 @@ a.ci-function-card:hover .ci-artwork-container {
   .ws-dept--identity .hi-main,
   .ws-dept--publishing .hi-main,
   .ws-dept--catalog .hi-main,
-  .ws-dept--global .hi-main { padding: 16px; gap: 16px; }
+  .ws-dept--global .hi-main { padding: var(--rds-card-pad-mobile, 16px); gap: var(--rds-section-gap-mobile, 14px); }
 
   /* ── KPI row: 2×2 grid beats a 4-card vertical stack ─────────────── */
   .hi-kpi-row { grid-template-columns: 1fr 1fr; }
@@ -6272,6 +6272,25 @@ a.ci-function-card:hover .ci-artwork-container {
     border-left: none;
     border-top: 1px solid var(--mc-border);
   }
+
+  /* KPI row: full-width stack (2 executive summary cards need room to breathe) */
+  .ws-dept--health .hi-kpi-row { grid-template-columns: 1fr; }
+
+  /* Executive header: title stack + date selector below on narrow phone */
+  .ws-dept--health .hi-exec-header { flex-direction: column; gap: 10px; }
+
+  /* Date selector — 44px minimum touch target (Apple HIG) */
+  .ws-dept--health .hi-date-selector {
+    min-height: 44px;
+    align-self: flex-start;
+    padding: 10px 14px;
+  }
+
+  /* Timeline card — RDS mobile padding (recovers 12px vertical vs desktop 24px) */
+  .ws-dept--health .hi-timeline-card { padding: 14px 16px 16px; }
+
+  /* Timeline link — generous touch target inside footer */
+  .ws-dept--health .hi-timeline-link { display: inline-block; padding: 8px 0; }
 
   /* ── Identity Intelligence™ ────────────────────────────────────────
      Platform grid: 2-col (≤1024px rule) → 1-col                   ── */
