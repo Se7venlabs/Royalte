@@ -144,88 +144,82 @@
         <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
         <div class="hi-kpi-row">
 
-          <!-- Health Score — Hero focal point with ring -->
+          <!-- Health Score — ring left / meta right / breakdown horizontal -->
           <div class="hi-kpi-card hi-kpi-card--score">
             <div class="hi-kpi-label hi-kpi-label--green">Health Score™</div>
 
-            <div class="hi-score-ring-wrap" aria-label="Health score: 89 out of 100">
-              <svg class="hi-score-ring-svg" viewBox="0 0 96 96" aria-hidden="true">
-                <circle class="hi-score-ring-track" cx="48" cy="48" r="40"/>
-                <circle class="hi-score-ring-progress" cx="48" cy="48" r="40"/>
-              </svg>
-              <div class="hi-score-ring-center">
-                <span class="hi-score-ring-num" data-target="89" aria-live="polite">0</span>
-                <span class="hi-score-ring-sub">/100</span>
+            <div class="hi-score-body">
+              <div class="hi-score-ring-wrap" aria-label="Health score: 89 out of 100">
+                <svg class="hi-score-ring-svg" viewBox="0 0 96 96" aria-hidden="true">
+                  <circle class="hi-score-ring-track" cx="48" cy="48" r="40"/>
+                  <circle class="hi-score-ring-progress" cx="48" cy="48" r="40"/>
+                </svg>
+                <div class="hi-score-ring-center">
+                  <span class="hi-score-ring-num" data-target="89" aria-live="polite">0</span>
+                  <span class="hi-score-ring-sub">/100</span>
+                </div>
               </div>
-            </div>
-
-            <div class="hi-score-meta-row">
-              <div class="hi-status-pill hi-status-pill--green">
-                <span class="hi-status-dot" aria-hidden="true"></span>Strong
+              <div class="hi-score-meta-row">
+                <div class="hi-status-pill hi-status-pill--green">
+                  <span class="hi-status-dot" aria-hidden="true"></span>Strong
+                </div>
+                <div class="hi-kpi-trend">— Trend Updating</div>
               </div>
-              <div class="hi-kpi-trend">— Trend Updating</div>
             </div>
 
             <div class="hi-kpi-breakdown">
               <div class="hi-kpi-breakdown-title">Health Breakdown</div>
-              <div class="hi-kpi-breakdown-row">
-                <span>Identity</span><span class="hi-kpi-breakdown-val">67</span>
-              </div>
-              <div class="hi-kpi-breakdown-row">
-                <span>Publishing</span><span class="hi-kpi-breakdown-val">67</span>
-              </div>
-              <div class="hi-kpi-breakdown-row">
-                <span>Catalog</span><span class="hi-kpi-breakdown-val">100</span>
-              </div>
-              <div class="hi-kpi-breakdown-row">
-                <span>Change Det.</span><span class="hi-kpi-breakdown-val">75</span>
-              </div>
-              <div class="hi-kpi-breakdown-row">
-                <span>Footprint</span><span class="hi-kpi-breakdown-val">82</span>
-              </div>
-              <div class="hi-kpi-breakdown-row">
-                <span>Backend</span><span class="hi-kpi-breakdown-val">100</span>
+              <div class="hi-kpi-breakdown-cols">
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Identity</span><span class="hi-kpi-breakdown-val">67</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Publishing</span><span class="hi-kpi-breakdown-val">67</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Catalog</span><span class="hi-kpi-breakdown-val">100</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Change Det.</span><span class="hi-kpi-breakdown-val">75</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Footprint</span><span class="hi-kpi-breakdown-val">82</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Backend</span><span class="hi-kpi-breakdown-val">100</span></div>
               </div>
             </div>
           </div>
 
-          <!-- ATHENA Monitoring Status -->
+          <!-- ATHENA Monitoring — left content / right coverage panel -->
           <div class="hi-kpi-card hi-kpi-card--ai">
-            <div class="hi-kpi-label hi-kpi-label--purple">ATHENA Monitoring™</div>
-            <div class="hi-status-pill hi-status-pill--green" style="align-self:flex-start">
-              <span class="hi-status-dot" aria-hidden="true"></span>Monitoring Active
+            <div class="hi-athena-left">
+              <div class="hi-kpi-label hi-kpi-label--purple">ATHENA Monitoring™</div>
+              <div class="hi-status-pill hi-status-pill--green" style="align-self:flex-start">
+                <span class="hi-status-dot" aria-hidden="true"></span>Monitoring Active
+              </div>
+              <div class="hi-kpi-athena-brief">ATHENA is actively monitoring your music business.</div>
+              <div class="hi-kpi-athena-brief">This cycle is clean — one Publishing action requires your attention.</div>
             </div>
-            <div class="hi-kpi-athena-brief">
-              ATHENA is actively monitoring your music business. This cycle is clean — one Publishing action requires your attention.
-            </div>
-            <div class="hi-monitoring-coverage">
-              <div class="hi-monitoring-coverage-title">Monitoring Coverage</div>
-              <ul class="hi-monitoring-coverage-list" role="list">
-                <li class="hi-monitoring-coverage-item">
-                  <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-                  Apple Music
-                </li>
-                <li class="hi-monitoring-coverage-item">
-                  <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-                  Spotify
-                </li>
-                <li class="hi-monitoring-coverage-item">
-                  <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-                  YouTube
-                </li>
-                <li class="hi-monitoring-coverage-item">
-                  <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--amber" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
-                  Publishing
-                </li>
-                <li class="hi-monitoring-coverage-item">
-                  <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-                  Metadata
-                </li>
-                <li class="hi-monitoring-coverage-item">
-                  <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-                  Catalog
-                </li>
-              </ul>
+            <div class="hi-athena-right">
+              <div class="hi-monitoring-coverage">
+                <div class="hi-monitoring-coverage-title">Monitoring Coverage</div>
+                <ul class="hi-monitoring-coverage-list" role="list">
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+                    Apple Music
+                  </li>
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+                    Spotify
+                  </li>
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+                    YouTube
+                  </li>
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--amber" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
+                    Publishing
+                  </li>
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+                    Metadata
+                  </li>
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+                    Catalog
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
 
