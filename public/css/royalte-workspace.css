@@ -2704,6 +2704,94 @@ a.hi-cat-card {
 
 .ii-platform-sub { font-size: 9px; color: var(--mc-text-muted); }
 
+/* ── Enriched platform card layout ────────────────────────────────── */
+
+.ii-platform-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ii-platform-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ii-platform-card-stats {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.ii-platform-lastsync {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--mc-text-soft);
+  margin-top: 2px;
+}
+
+.ii-platform-cta {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 5px;
+  padding: 6px 12px;
+  transition: opacity 0.15s;
+  align-self: flex-start;
+}
+
+.ii-platform-cta--view {
+  color: var(--mc-purple);
+  background: rgba(168,85,247,0.08);
+  border: 1px solid rgba(168,85,247,0.2);
+}
+
+.ii-platform-cta--view:hover { opacity: 0.8; }
+
+.ii-platform-cta--action {
+  color: #f87171;
+  background: rgba(248,113,113,0.08);
+  border: 1px solid rgba(248,113,113,0.22);
+}
+
+.ii-platform-cta--action:hover { opacity: 0.8; }
+
+.ii-platform-card--alert {
+  border-color: rgba(248,113,113,0.22);
+}
+
+/* ── Identity Layout Refinement™ — ws-dept--identity overrides ──── */
+
+.ws-dept--identity .hi-kpi-row {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.ws-dept--identity .ii-platform-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.ws-dept--identity .ii-platform-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.ws-dept--identity .ii-platform-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.ws-dept--identity .ii-platform-name {
+  font-size: 12px;
+}
+
 /* ── Block 4: Identity Snapshot™ ──────────────────────────────────── */
 
 .ii-card-header { display: flex; align-items: center; gap: 8px; padding: 14px 18px 12px; border-bottom: 1px solid var(--mc-border-soft); }
