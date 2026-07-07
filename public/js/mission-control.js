@@ -1344,6 +1344,17 @@ if (typeof window !== 'undefined') {
     _vaultPlans.idPlan  = buildIdentityIntelligencePlan(payload);
     _vaultPlans.payload = payload; // platform data (deezer/tidal) read by idPlan builder
 
+    // Persist resolved image context for workspace pages (identity-intelligence, etc.).
+    // Uses a separate key that is never consumed/removed — survives navigation for the full session.
+    try {
+      sessionStorage.setItem('royalte_session_context', JSON.stringify({
+        artistImageUrl: payload.cio?.identity?.artwork ||
+                        payload.subject?.artistImageUrl ||
+                        payload.artistImageUrl || null,
+        albumImageUrl:  payload.albumImageUrl || null,
+      }));
+    } catch (_e) {}
+
     // Publishing — Sprint 3.4: executive plan (piPlan) replaces per-slice plans
     const pi = safePublishingIntelligence(payload.publishingIntelligence);
     if (pi) {

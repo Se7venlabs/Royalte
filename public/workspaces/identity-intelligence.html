@@ -442,14 +442,13 @@
 <script>
 (function () {
   'use strict';
-  function resolveArtistImage(p) {
-    if (!p) return null;
-    return (p.cio && p.cio.identity && p.cio.identity.artwork) ||
-           (p.subject && p.subject.artistImageUrl) ||
-           p.artistImageUrl || null;
-  }
-  function resolveReleaseArtwork(p) {
-    return (p && p.albumImageUrl) || resolveArtistImage(p);
+  function resolveFromPayload(p) {
+    return {
+      artistImageUrl: (p.cio && p.cio.identity && p.cio.identity.artwork) ||
+                      (p.subject && p.subject.artistImageUrl) ||
+                      p.artistImageUrl || null,
+      albumImageUrl:  p.albumImageUrl || null,
+    };
   }
   function applyImg(el, src, onLoad) {
     if (!el || !src) return;
@@ -458,11 +457,25 @@
     el.src = src;
   }
   try {
+    var artistSrc = null, releaseSrc = null;
+
+    // Primary: full payload present (direct navigation before MC consumes it)
     var raw = sessionStorage.getItem('royalte_scan_payload');
-    if (!raw) return;
-    var payload = JSON.parse(raw);
-    var artistSrc   = resolveArtistImage(payload);
-    var releaseSrc  = resolveReleaseArtwork(payload);
+    if (raw) {
+      var r = resolveFromPayload(JSON.parse(raw));
+      artistSrc  = r.artistImageUrl;
+      releaseSrc = r.albumImageUrl || r.artistImageUrl;
+    } else {
+      // Standard path: MC already consumed royalte_scan_payload and wrote
+      // the resolved image context to royalte_session_context (never removed).
+      var ctxRaw = sessionStorage.getItem('royalte_session_context');
+      if (ctxRaw) {
+        var ctx = JSON.parse(ctxRaw);
+        artistSrc  = ctx.artistImageUrl || null;
+        releaseSrc = ctx.albumImageUrl || ctx.artistImageUrl || null;
+      }
+    }
+
     applyImg(
       document.getElementById('ii-artist-img'),
       artistSrc,
