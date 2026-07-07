@@ -44,6 +44,13 @@ export function getBestVerifiedArtistImage(payload) {
   const scanImg = payload.subject?.artistImageUrl || payload.artistImageUrl || null;
   if (typeof scanImg === 'string' && scanImg) return scanImg;
 
+  // Platform fallback: artwork written to platforms.appleMusic.details.artwork
+  // by normalizeAuditResponse from appleArtworkUrl. The CIO assembly engine reads
+  // from this path to populate cio.identity.artwork; this fallback handles
+  // consumers that receive the canonical payload before CIO is surfaced on it.
+  const platformImg = payload.platforms?.appleMusic?.details?.artwork || null;
+  if (typeof platformImg === 'string' && platformImg) return platformImg;
+
   return null;
 }
 

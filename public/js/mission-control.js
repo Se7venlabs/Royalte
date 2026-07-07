@@ -34,6 +34,7 @@
 
 import { getSupabase } from '/js/supabase-client.js';
 import { initRtz } from '/js/royalte-tz.js';
+import { getBestVerifiedArtistImage, getBestVerifiedReleaseArtwork } from '/js/royalte-image-service.js';
 import {
   renderIdentity,
   renderPublishing,
@@ -1348,10 +1349,8 @@ if (typeof window !== 'undefined') {
     // Uses a separate key that is never consumed/removed — survives navigation for the full session.
     try {
       sessionStorage.setItem('royalte_session_context', JSON.stringify({
-        artistImageUrl: payload.cio?.identity?.artwork ||
-                        payload.subject?.artistImageUrl ||
-                        payload.artistImageUrl || null,
-        albumImageUrl:  payload.albumImageUrl || null,
+        artistImageUrl: getBestVerifiedArtistImage(payload),
+        albumImageUrl:  getBestVerifiedReleaseArtwork(payload),
       }));
     } catch (_e) {}
 
