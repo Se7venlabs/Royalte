@@ -125,7 +125,10 @@
         <!-- § 1 — EXECUTIVE HEADER ─────────────────────────────────── -->
         <div class="ii-exec-header">
           <div class="ii-exec-artist-block">
-            <div class="ii-artist-avatar" aria-hidden="true">GX</div>
+            <div class="ii-artist-avatar" id="ii-artist-avatar" aria-hidden="true">
+              <span class="ii-artist-initials">GX</span>
+              <img class="ii-artist-img" id="ii-artist-img" alt="GENTLEMEN X" draggable="false">
+            </div>
             <div class="ii-exec-title-block">
               <div class="ii-exec-eyebrow">Identity Intelligence™</div>
               <h1 class="ii-exec-heading">Gentlemen X</h1>
@@ -362,6 +365,7 @@
             </div>
             <div class="ii-snapshot-body">
               <div class="ii-snapshot-art" aria-hidden="true">
+                <img class="ii-snapshot-img" id="ii-snapshot-img" alt="" draggable="false">
                 <div class="ii-snapshot-art-text">Everything<br>Is Over</div>
               </div>
               <div class="ii-snapshot-table">
@@ -435,5 +439,41 @@
   });
 </script>
 <script src="/js/rds-preview-console.js" defer></script>
+<script>
+(function () {
+  'use strict';
+  function resolveArtistImage(p) {
+    if (!p) return null;
+    return (p.cio && p.cio.identity && p.cio.identity.artwork) ||
+           (p.subject && p.subject.artistImageUrl) ||
+           p.artistImageUrl || null;
+  }
+  function resolveReleaseArtwork(p) {
+    return (p && p.albumImageUrl) || resolveArtistImage(p);
+  }
+  function applyImg(el, src, onLoad) {
+    if (!el || !src) return;
+    el.onload  = function () { el.classList.add('ii--loaded'); if (onLoad) onLoad(); };
+    el.onerror = function () { el.removeAttribute('src'); };
+    el.src = src;
+  }
+  try {
+    var raw = sessionStorage.getItem('royalte_scan_payload');
+    if (!raw) return;
+    var payload = JSON.parse(raw);
+    var artistSrc   = resolveArtistImage(payload);
+    var releaseSrc  = resolveReleaseArtwork(payload);
+    applyImg(
+      document.getElementById('ii-artist-img'),
+      artistSrc,
+      function () {
+        var initials = document.querySelector('.ii-artist-initials');
+        if (initials) initials.style.display = 'none';
+      }
+    );
+    applyImg(document.getElementById('ii-snapshot-img'), releaseSrc);
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>
