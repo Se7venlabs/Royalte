@@ -27,15 +27,14 @@
 (function (root) {
   'use strict';
 
-  /* ── Geographic Anchor Engine™ — 24 Board-locked country anchors ───
+  /* ── Desktop Anchor Set™ — master coordinate reference ─────────────
    * Calibration formula: l = 43.0 + 0.271 * lon;  t = 52 - 0.60 * lat
    * l/t are % positions within gf-map-inner.
-   * These coordinates are the sole position authority for every country.
-   * No workspace page may read or override these values.
-   * Source of truth: this file only.
-   * Next recalibration: single Board-directed pass after geometry is locked.
+   * LOCKED after Board desktop calibration approval.
+   * Tablet and mobile calibration never modify this dataset.
+   * Source of truth: this file only. One dataset per viewport, no inheritance.
    */
-  var ANCHORS = {
+  var DESKTOP_ANCHORS = {
     'Canada':         { l: 25.0, t: 20.0, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
     'United States':  { l: 27.0, t: 35.0, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
     'Mexico':         { l: 26.0, t: 49.0, flag: '🇲🇽', p: ['apple','spotify'],                  d: 'Mar 2024' },
@@ -63,36 +62,68 @@
   };
 
   /* ── Tablet Anchor Set™ — independent coordinate layer for 641–1024px ──
-   * Owns all flag and marker positions on Executive Tablet™.
-   * Updated per Board calibration pass only — ANCHORS (desktop) untouched.
-   * Phase 1: mirrors desktop coordinates. Board provides adjustments.
-   * Phase 2: restore markers after Board approves tablet flag positions.
+   * Completely independent from DESKTOP_ANCHORS and MOBILE_ANCHORS.
+   * Calibrated only after Desktop is Board-approved and locked.
+   * Desktop calibration never modifies this dataset.
+   * Reset to desktop baseline — Board calibration begins from scratch.
    */
   var TABLET_ANCHORS = {
-    'Canada':         { l: 15.0, t: 32.0, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'United States':  { l: 20.0, t: 40.0, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Mexico':         { l: 18.0, t: 50.0, flag: '🇲🇽', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Brazil':         { l: 32.0, t: 65.0, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'Peru':           { l: 25.0, t: 62.0, flag: '🇵🇪', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'United Kingdom': { l: 47.0, t: 37.0, flag: '🇬🇧', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'France':         { l: 51.0, t: 39.0, flag: '🇫🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Germany':        { l: 53.0, t: 35.0, flag: '🇩🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Spain':          { l: 46.0, t: 42.0, flag: '🇪🇸', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'Italy':          { l: 51.0, t: 42.0, flag: '🇮🇹', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'Sweden':         { l: 55.0, t: 31.0, flag: '🇸🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Canada':         { l: 25.0, t: 20.0, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'United States':  { l: 27.0, t: 35.0, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Mexico':         { l: 26.0, t: 49.0, flag: '🇲🇽', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Brazil':         { l: 37.0, t: 75.0, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'Peru':           { l: 35.0, t: 85.0, flag: '🇵🇪', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'United Kingdom': { l: 48.0, t: 29.0, flag: '🇬🇧', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'France':         { l: 48.5, t: 33.0, flag: '🇫🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Germany':        { l: 50.0, t: 28.0, flag: '🇩🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Spain':          { l: 47.0, t: 39.0, flag: '🇪🇸', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'Italy':          { l: 51.0, t: 36.0, flag: '🇮🇹', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'Sweden':         { l: 53.0, t: 16.0, flag: '🇸🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
     'Poland':         { l: 51.0, t: 31.0, flag: '🇵🇱', p: ['apple','spotify','deezer'],          d: 'Mar 2024' },
-    'South Africa':   { l: 52.0, t: 70.0, flag: '🇿🇦', p: ['apple','spotify','deezer'],          d: 'Feb 2024' },
-    'Egypt':          { l: 55.0, t: 50.0, flag: '🇪🇬', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Norway':         { l: 50.0, t: 34.0, flag: '🇳🇴', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Türkiye':        { l: 58.0, t: 42.0, flag: '🇹🇷', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'South Africa':   { l: 52.0, t: 85.0, flag: '🇿🇦', p: ['apple','spotify','deezer'],          d: 'Feb 2024' },
+    'Egypt':          { l: 52.0, t: 50.0, flag: '🇪🇬', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Norway':         { l: 50.0, t: 21.0, flag: '🇳🇴', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Türkiye':        { l: 55.0, t: 36.0, flag: '🇹🇷', p: ['apple','spotify'],                  d: 'Mar 2024' },
     'Indonesia':      { l: 71.0, t: 71.0, flag: '🇮🇩', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Singapore':      { l: 75.0, t: 59.0, flag: '🇸🇬', p: ['apple','spotify','deezer','tidal'], d: 'Mar 2024' },
-    'India':          { l: 69.0, t: 51.0, flag: '🇮🇳', p: ['apple','spotify'],                  d: 'Feb 2024' },
-    'China':          { l: 75.0, t: 45.0, flag: '🇨🇳', p: ['apple'],                            d: 'Jan 2024' },
-    'Japan':          { l: 85.0, t: 45.0, flag: '🇯🇵', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'South Korea':    { l: 82.0, t: 45.0, flag: '🇰🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Australia':      { l: 85.0, t: 70.0, flag: '🇦🇺', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'New Zealand':    { l: 88.0, t: 62.0, flag: '🇳🇿', p: ['apple','spotify'],                  d: 'Feb 2024' },
+    'Singapore':      { l: 68.0, t: 65.0, flag: '🇸🇬', p: ['apple','spotify','deezer','tidal'], d: 'Mar 2024' },
+    'India':          { l: 64.0, t: 55.0, flag: '🇮🇳', p: ['apple','spotify'],                  d: 'Feb 2024' },
+    'China':          { l: 67.0, t: 30.0, flag: '🇨🇳', p: ['apple'],                            d: 'Jan 2024' },
+    'Japan':          { l: 77.0, t: 41.0, flag: '🇯🇵', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'South Korea':    { l: 74.0, t: 41.0, flag: '🇰🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Australia':      { l: 75.0, t: 85.0, flag: '🇦🇺', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'New Zealand':    { l: 77.0, t: 71.0, flag: '🇳🇿', p: ['apple','spotify'],                  d: 'Feb 2024' },
+  };
+
+  /* ── Mobile Anchor Set™ — independent coordinate layer for ≤640px ────
+   * Completely independent from DESKTOP_ANCHORS and TABLET_ANCHORS.
+   * Calibrated only after Desktop and Tablet are Board-approved and locked.
+   * Reset to desktop baseline — Board calibration begins from scratch.
+   */
+  var MOBILE_ANCHORS = {
+    'Canada':         { l: 25.0, t: 20.0, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'United States':  { l: 27.0, t: 35.0, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Mexico':         { l: 26.0, t: 49.0, flag: '🇲🇽', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Brazil':         { l: 37.0, t: 75.0, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'Peru':           { l: 35.0, t: 85.0, flag: '🇵🇪', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'United Kingdom': { l: 48.0, t: 29.0, flag: '🇬🇧', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'France':         { l: 48.5, t: 33.0, flag: '🇫🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Germany':        { l: 50.0, t: 28.0, flag: '🇩🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Spain':          { l: 47.0, t: 39.0, flag: '🇪🇸', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'Italy':          { l: 51.0, t: 36.0, flag: '🇮🇹', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'Sweden':         { l: 53.0, t: 16.0, flag: '🇸🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Poland':         { l: 51.0, t: 31.0, flag: '🇵🇱', p: ['apple','spotify','deezer'],          d: 'Mar 2024' },
+    'South Africa':   { l: 52.0, t: 85.0, flag: '🇿🇦', p: ['apple','spotify','deezer'],          d: 'Feb 2024' },
+    'Egypt':          { l: 52.0, t: 50.0, flag: '🇪🇬', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Norway':         { l: 50.0, t: 21.0, flag: '🇳🇴', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Türkiye':        { l: 55.0, t: 36.0, flag: '🇹🇷', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Indonesia':      { l: 71.0, t: 71.0, flag: '🇮🇩', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Singapore':      { l: 68.0, t: 65.0, flag: '🇸🇬', p: ['apple','spotify','deezer','tidal'], d: 'Mar 2024' },
+    'India':          { l: 64.0, t: 55.0, flag: '🇮🇳', p: ['apple','spotify'],                  d: 'Feb 2024' },
+    'China':          { l: 67.0, t: 30.0, flag: '🇨🇳', p: ['apple'],                            d: 'Jan 2024' },
+    'Japan':          { l: 77.0, t: 41.0, flag: '🇯🇵', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'South Korea':    { l: 74.0, t: 41.0, flag: '🇰🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Australia':      { l: 75.0, t: 85.0, flag: '🇦🇺', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'New Zealand':    { l: 77.0, t: 71.0, flag: '🇳🇿', p: ['apple','spotify'],                  d: 'Feb 2024' },
   };
 
   var P_COLOR = { apple: '#FC3C44', spotify: '#1DB954', deezer: '#A238FF', tidal: '#00D5FF' };
@@ -181,13 +212,19 @@
     if (!hostEl) { console.warn('GlobalMapViewport™: host element not found'); return {}; }
     options = options || {};
 
-    /* ── Viewport-aware anchor selection ──────────────────────────────
-     * Tablet (641–1024px) owns its own independent coordinate layer.
-     * Calibration mode (?calibrate=tablet) activates viewport-agnostically
-     * so the Board can review flag positions on any screen size.      */
-    var isTablet      = window.innerWidth >= 641 && window.innerWidth <= 1024;
-    var tabletCalMode = !!options.tabletCalibrationMode;
-    var activeAnchors = (isTablet || tabletCalMode) ? TABLET_ANCHORS : ANCHORS;
+    /* ── Three-tier coordinate selection — viewport-only, no URL override ─
+     * The URL param (calibrate=desktop|tablet|mobile) controls cal mode only.
+     * It never changes which anchor dataset is active — that is always
+     * determined purely by window.innerWidth. This guarantees that adjusting
+     * one viewport's dataset cannot affect any other viewport's rendering.  */
+    var _vw = window.innerWidth;
+    var activeAnchors = _vw <= 640  ? MOBILE_ANCHORS
+                      : _vw <= 1024 ? TABLET_ANCHORS
+                                    : DESKTOP_ANCHORS;
+    var _cal    = options.calibrationMode; /* 'desktop' | 'tablet' | 'mobile' | null */
+    var calMode = (_cal === 'desktop' && _vw > 1024)
+               || (_cal === 'tablet'  && _vw > 640 && _vw <= 1024)
+               || (_cal === 'mobile'  && _vw <= 640);
 
     /* render */
     hostEl.innerHTML = buildInnerHTML();
@@ -199,8 +236,8 @@
     var filterResetTimer  = null;
 
     /* ── Geographic Anchor Engine™ ───────────────────────────────── */
-    /* Viewport-selected anchors drive flag and cluster positions.    */
-    /* Desktop: ANCHORS (locked). Tablet: TABLET_ANCHORS.            */
+    /* activeAnchors is viewport-selected above. Each tier is fully  */
+    /* independent — modifying one dataset never affects the others. */
     Object.keys(activeAnchors).forEach(function (country) {
       var a = activeAnchors[country];
 
@@ -215,8 +252,8 @@
       flagEl.dataset.anchorT = a.t;
       mapInner.appendChild(flagEl);
 
-      /* Phase 2 / production: omit markers during tablet calibration pass */
-      if (!tabletCalMode) {
+      /* Calibration passes: flags only, dots suppressed until Phase 4 */
+      if (!calMode) {
         a.p.forEach(function (prov) {
           var off = P_OFF[prov] || [0, 0];
           var el  = document.createElement('span');
@@ -359,8 +396,20 @@
       if (e.key === 'Escape') hidePopover();
     });
 
-    if (options.calibrationMode) enableCalibrationMode(mapInner);
-    if (tabletCalMode)           enableCalibrationMode(mapInner, '⚙ TABLET CALIBRATION — Phase 1 — flags only · click a flag for L / T');
+    if (calMode) {
+      var _banners = {
+        desktop: '⚙ DESKTOP CALIBRATION — Phase 1 — flags only · click a flag for L / T',
+        tablet:  '⚙ TABLET CALIBRATION — Phase 2 — flags only · click a flag for L / T',
+        mobile:  '⚙ MOBILE CALIBRATION — Phase 3 — flags only · click a flag for L / T',
+      };
+      /* Mobile hides the map section via CSS; override it for calibration */
+      if (_cal === 'mobile') {
+        var _mcs = document.createElement('style');
+        _mcs.textContent = '.gf-map-section{display:block!important}';
+        document.head.appendChild(_mcs);
+      }
+      enableCalibrationMode(mapInner, _banners[_cal]);
+    }
 
     /* public API for workspace integration */
     return { hidePopover: hidePopover };
