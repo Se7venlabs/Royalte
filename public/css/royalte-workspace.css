@@ -6337,19 +6337,34 @@ a.ci-function-card:hover .ci-artwork-container {
   .pi-system-grid { grid-template-columns: 1fr; }
   .pi-bottom-row { grid-template-columns: 1fr; }
 
-  /* ── Global Music Footprint™ — Executive Briefing Mode ─────────────
-     Map becomes contextual (flags hidden, height reduced).
-     Territory list + coverage summary become primary intelligence.   ── */
-  .ws-dept--global .gf-map-inner { min-height: 180px; }
-  .gf-anchor { display: none; }
-  .gf-marker { display: none; }
-  .gf-legend { display: none; }
-  .gf-map-status { display: none; }
-  .gf-mobile-brief {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  /* ── Global Music Footprint™ — Executive Mobile™ Presentation ──────
+     Map section removed entirely — territory grid is the primary
+     intelligence surface. Desktop and tablet remain unaffected.      ── */
+  .gf-map-section  { display: none; }
+  .gf-mobile-brief { display: flex; flex-direction: column; gap: 14px; }
+
+  /* ── Big Six — 2×3 premium territory grid ──────────────────────────
+     Six primary markets presented as individual executive cards.
+     Additional territories (18) keep compact vertical list below.    ── */
+  .gf-territory-list--big6 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
   }
+  .gf-territory-list--big6 .gf-territory-item {
+    border-radius: var(--rds-radius-md, 14px);
+    border: 1px solid var(--mc-border-soft);
+    background: var(--mc-surface-1);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 14px 12px;
+  }
+  .gf-territory-list--big6 .gf-territory-flag { font-size: 26px; line-height: 1; }
+  .gf-territory-list--big6 .gf-territory-name { font-size: 12px; font-weight: 600; color: var(--mc-text); }
   .gf-mobile-brief-header {
     font-size: 10px;
     font-weight: 700;
