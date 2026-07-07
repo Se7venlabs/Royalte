@@ -5909,9 +5909,28 @@ a.ci-function-card:hover .ci-artwork-container {
   .ai-hero-section { grid-template-columns: 1fr; }
   .ai-core-wrap { padding: 0 16px 16px; }
   .ai-rec-grid { grid-template-columns: 1fr; }
-  .ai-bottom-row { grid-template-columns: 1fr; }
-  .ai-priorities-section,
-  .ai-forecast-card { display: none; }
+  .ai-bottom-row { grid-template-columns: 1fr; gap: 14px; }
+
+  /* Business Priorities™ — Executive Mobile™ card layout
+   * Each priority card stacks vertically; chips wrap to a second line.
+   * Keeps all intelligence visible without horizontal overflow. */
+  .ai-priorities-section { display: flex; }
+  .ai-priority-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px 12px;
+    padding: 12px 14px;
+  }
+  .ai-priority-meta {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* Executive Forecast™ — Executive Mobile™ layout
+   * Insight bullets already column-stacked; KPIs collapse to 2×2 grid. */
+  .ai-forecast-card { display: flex; }
+  .ai-forecast-metrics { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ─── One-Screen Optimization Pass ──────────────────────────────────── */
