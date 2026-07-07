@@ -217,6 +217,31 @@
         <!-- Component renders all map internals. Do not add children here. -->
         <div class="gf-map-section" id="gf-map-viewport-host"></div>
 
+        <!-- § 3.5 — STREAMING PLATFORMS LEGEND™ — Tablet + Mobile ────────── -->
+        <!-- Floating overlay (.gf-legend) is hidden at ≤1024px.            -->
+        <!-- This card replaces it in the document flow below the map.      -->
+        <div class="gf-legend-panel" role="region" aria-label="Streaming platforms">
+          <div class="gf-legend-panel-title">Streaming Platforms</div>
+          <div class="gf-legend-panel-items">
+            <div class="gf-legend-panel-item">
+              <span class="gf-legend-dot gf-legend-dot--apple" aria-hidden="true"></span>
+              <span class="gf-legend-panel-name">Apple Music</span>
+            </div>
+            <div class="gf-legend-panel-item">
+              <span class="gf-legend-dot gf-legend-dot--spotify" aria-hidden="true"></span>
+              <span class="gf-legend-panel-name">Spotify</span>
+            </div>
+            <div class="gf-legend-panel-item">
+              <span class="gf-legend-dot gf-legend-dot--deezer" aria-hidden="true"></span>
+              <span class="gf-legend-panel-name">Deezer</span>
+            </div>
+            <div class="gf-legend-panel-item">
+              <span class="gf-legend-dot gf-legend-dot--tidal" aria-hidden="true"></span>
+              <span class="gf-legend-panel-name">TIDAL</span>
+            </div>
+          </div>
+        </div>
+
         <!-- § 4 — ADDITIONAL TERRITORIES™ ──────────────────────────────── -->
         <!-- Mobile-only (≤640px). 14 secondary markets not on mobile map.  -->
         <!-- Shown via CSS; hidden on desktop and tablet.                   -->
