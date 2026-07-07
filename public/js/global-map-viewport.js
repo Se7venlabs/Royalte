@@ -69,11 +69,11 @@
    * Phase 2: restore markers after Board approves tablet flag positions.
    */
   var TABLET_ANCHORS = {
-    'Canada':         { l: 25.0, t: 20.0, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'United States':  { l: 27.0, t: 35.0, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Mexico':         { l: 26.0, t: 49.0, flag: '🇲🇽', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Brazil':         { l: 37.0, t: 75.0, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'Peru':           { l: 35.0, t: 85.0, flag: '🇵🇪', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Canada':         { l: 15.0, t: 32.0, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'United States':  { l: 20.0, t: 40.0, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Mexico':         { l: 18.0, t: 50.0, flag: '🇲🇽', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Brazil':         { l: 30.0, t: 65.0, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'Peru':           { l: 25.0, t: 62.0, flag: '🇵🇪', p: ['apple','spotify'],                  d: 'Mar 2024' },
     'United Kingdom': { l: 48.0, t: 29.0, flag: '🇬🇧', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
     'France':         { l: 48.5, t: 33.0, flag: '🇫🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
     'Germany':        { l: 50.0, t: 28.0, flag: '🇩🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
