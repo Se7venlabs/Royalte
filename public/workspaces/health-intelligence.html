@@ -431,52 +431,59 @@
             <div class="hi-timeline-body">
               <div class="hi-timeline-ruler" role="list" aria-label="Health monitoring timeline Jun 27 – Jul 3">
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot hi-timeline-dot--event ht-scan-dot"
-                       data-scan-idx="0" role="button" tabindex="0"
-                       aria-label="View scan from Jun 27 — Backend connected"
-                       title="Jun 27 · Backend connected"></div>
+                  <button class="ht-scan-btn" data-scan-idx="0" type="button"
+                          aria-label="View Jun 27 scan — Backend connected"
+                          title="Jun 27 · Backend connected">
+                    <div class="hi-timeline-dot hi-timeline-dot--event"></div>
+                  </button>
                   <div class="hi-timeline-day-label">Jun 27</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot ht-scan-dot"
-                       data-scan-idx="1" role="button" tabindex="0"
-                       aria-label="View scan from Jun 28"
-                       title="Jun 28"></div>
+                  <button class="ht-scan-btn" data-scan-idx="1" type="button"
+                          aria-label="View Jun 28 scan"
+                          title="Jun 28">
+                    <div class="hi-timeline-dot"></div>
+                  </button>
                   <div class="hi-timeline-day-label">Jun 28</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot hi-timeline-dot--event ht-scan-dot"
-                       data-scan-idx="2" role="button" tabindex="0"
-                       aria-label="View scan from Jun 29 — Catalog verified"
-                       title="Jun 29 · Catalog verified"></div>
+                  <button class="ht-scan-btn" data-scan-idx="2" type="button"
+                          aria-label="View Jun 29 scan — Catalog verified"
+                          title="Jun 29 · Catalog verified">
+                    <div class="hi-timeline-dot hi-timeline-dot--event"></div>
+                  </button>
                   <div class="hi-timeline-day-label">Jun 29</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot ht-scan-dot"
-                       data-scan-idx="3" role="button" tabindex="0"
-                       aria-label="View scan from Jun 30"
-                       title="Jun 30"></div>
+                  <button class="ht-scan-btn" data-scan-idx="3" type="button"
+                          aria-label="View Jun 30 scan"
+                          title="Jun 30">
+                    <div class="hi-timeline-dot"></div>
+                  </button>
                   <div class="hi-timeline-day-label">Jun 30</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot ht-scan-dot"
-                       data-scan-idx="4" role="button" tabindex="0"
-                       aria-label="View scan from Jul 1"
-                       title="Jul 1"></div>
+                  <button class="ht-scan-btn" data-scan-idx="4" type="button"
+                          aria-label="View Jul 1 scan"
+                          title="Jul 1">
+                    <div class="hi-timeline-dot"></div>
+                  </button>
                   <div class="hi-timeline-day-label">Jul 1</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot ht-scan-dot"
-                       data-scan-idx="5" role="button" tabindex="0"
-                       aria-label="View scan from Jul 2"
-                       title="Jul 2"></div>
+                  <button class="ht-scan-btn" data-scan-idx="5" type="button"
+                          aria-label="View Jul 2 scan"
+                          title="Jul 2">
+                    <div class="hi-timeline-dot"></div>
+                  </button>
                   <div class="hi-timeline-day-label">Jul 2</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot hi-timeline-dot--active ht-scan-dot"
-                       data-scan-idx="6" role="button" tabindex="0"
-                       aria-label="Current scan — Jul 3"
-                       title="Jul 3 · Current scan"></div>
+                  <button class="ht-scan-btn" data-scan-idx="6" type="button"
+                          aria-label="Current scan — Jul 3"
+                          title="Jul 3 · Current scan">
+                    <div class="hi-timeline-dot hi-timeline-dot--active"></div>
+                  </button>
                   <div class="hi-timeline-day-label">Jul 3</div>
                 </div>
               </div>
@@ -516,7 +523,7 @@
     requestAnimationFrame(tick);
   });
 </script>
-<script src="/js/health-timeline.js" defer></script>
+<script src="/js/health-timeline.js"></script>
 <script src="/js/rds-preview-console.js" defer></script>
 </body>
 </html>
