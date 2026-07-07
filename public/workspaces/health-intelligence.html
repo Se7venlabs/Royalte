@@ -120,7 +120,7 @@
     <div class="ws-body">
 
       <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
-      <div class="hi-main">
+      <div class="hi-main" id="ht-main">
 
         <!-- § 1 — EXECUTIVE HEADER ─────────────────────────────────── -->
         <div class="hi-exec-header">
@@ -131,7 +131,7 @@
             <div class="hi-exec-meta-row">
               <div class="hi-exec-updated">
                 <div class="hi-exec-updated-dot" aria-hidden="true"></div>
-                Last Sync: Today, 8:42 AM
+                Last Sync: <span id="ht-scan-date">Today, 8:42 AM</span>
               </div>
             </div>
           </div>
@@ -140,6 +140,18 @@
             Jun 27 – Jul 3, 2026
             <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down"></use></svg>
           </div>
+        </div>
+
+        <!-- § 2a — HISTORICAL SCAN BANNER ─────────────────────────── -->
+        <!-- Appears when viewing a historical scan. Hidden for current. -->
+        <div id="ht-history-banner" class="ht-history-banner" hidden aria-live="polite">
+          <div>
+            <span class="ht-history-banner-label">Historical View</span>
+            <span class="ht-history-banner-date" id="ht-history-banner-date"></span>
+          </div>
+          <button id="ht-history-return" class="ht-history-return-btn" type="button">
+            Return to Current →
+          </button>
         </div>
 
         <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
@@ -419,31 +431,52 @@
             <div class="hi-timeline-body">
               <div class="hi-timeline-ruler" role="list" aria-label="Health monitoring timeline Jun 27 – Jul 3">
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot hi-timeline-dot--event" title="Backend connected"></div>
+                  <div class="hi-timeline-dot hi-timeline-dot--event ht-scan-dot"
+                       data-scan-idx="0" role="button" tabindex="0"
+                       aria-label="View scan from Jun 27 — Backend connected"
+                       title="Jun 27 · Backend connected"></div>
                   <div class="hi-timeline-day-label">Jun 27</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot"></div>
+                  <div class="hi-timeline-dot ht-scan-dot"
+                       data-scan-idx="1" role="button" tabindex="0"
+                       aria-label="View scan from Jun 28"
+                       title="Jun 28"></div>
                   <div class="hi-timeline-day-label">Jun 28</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot hi-timeline-dot--event" title="Catalog verified"></div>
+                  <div class="hi-timeline-dot hi-timeline-dot--event ht-scan-dot"
+                       data-scan-idx="2" role="button" tabindex="0"
+                       aria-label="View scan from Jun 29 — Catalog verified"
+                       title="Jun 29 · Catalog verified"></div>
                   <div class="hi-timeline-day-label">Jun 29</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot"></div>
+                  <div class="hi-timeline-dot ht-scan-dot"
+                       data-scan-idx="3" role="button" tabindex="0"
+                       aria-label="View scan from Jun 30"
+                       title="Jun 30"></div>
                   <div class="hi-timeline-day-label">Jun 30</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot"></div>
+                  <div class="hi-timeline-dot ht-scan-dot"
+                       data-scan-idx="4" role="button" tabindex="0"
+                       aria-label="View scan from Jul 1"
+                       title="Jul 1"></div>
                   <div class="hi-timeline-day-label">Jul 1</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot"></div>
+                  <div class="hi-timeline-dot ht-scan-dot"
+                       data-scan-idx="5" role="button" tabindex="0"
+                       aria-label="View scan from Jul 2"
+                       title="Jul 2"></div>
                   <div class="hi-timeline-day-label">Jul 2</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
-                  <div class="hi-timeline-dot hi-timeline-dot--active" title="Current scan"></div>
+                  <div class="hi-timeline-dot hi-timeline-dot--active ht-scan-dot"
+                       data-scan-idx="6" role="button" tabindex="0"
+                       aria-label="Current scan — Jul 3"
+                       title="Jul 3 · Current scan"></div>
                   <div class="hi-timeline-day-label">Jul 3</div>
                 </div>
               </div>
@@ -483,6 +516,7 @@
     requestAnimationFrame(tick);
   });
 </script>
+<script src="/js/health-timeline.js" defer></script>
 <script src="/js/rds-preview-console.js" defer></script>
 </body>
 </html>
