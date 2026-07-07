@@ -4732,6 +4732,18 @@ a.ci-function-card:hover .ci-artwork-container {
 /* Hidden on desktop and tablet; revealed by mobile media query below. */
 .gf-additional-territories { display: none; }
 
+/* Streaming Platforms Legend™ panel — below-map card for tablet + mobile.
+ * Floating overlay (.gf-legend, position:absolute) is hidden at ≤1024px;
+ * this card replaces it in document flow. Hidden on desktop. */
+.gf-legend-panel          { display: none; }
+.gf-legend-panel-title    {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--mc-text-muted); flex-shrink: 0;
+}
+.gf-legend-panel-items    { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.gf-legend-panel-item     { display: flex; align-items: center; gap: 8px; }
+.gf-legend-panel-name     { font-size: 12px; font-weight: 600; color: var(--mc-text-soft); letter-spacing: 0.02em; }
+
 /* ═══════════════════════════════════════════════════════════════════════
    Backend Intelligence™ Workspace — bi-* namespace
    Dept: ws-dept--backend / Accent: Electric Teal™ (#00BFA5)
@@ -6388,6 +6400,24 @@ a.ci-function-card:hover .ci-artwork-container {
   .mc2-hero-globe { height: 200px; }
   .mc2-hero-node .mc2-hn-status { font-size: 8px; }
 
+}
+
+/* ─── Global Music Footprint™ — Tablet + Mobile Legend ──────────────── */
+/* ≤1024px: hide floating map overlay, show static card below map.
+ * Covers both tablet (641–1024px) and mobile (≤640px) in one rule.    */
+@media (max-width: 1024px) {
+  .ws-dept--global .gf-legend { display: none; }
+  .gf-legend-panel {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    background: var(--mc-surface-2);
+    border: 1px solid rgba(56,189,248,0.12);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
