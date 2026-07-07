@@ -388,8 +388,11 @@
   }
 
   function _updateDots(activeIdx) {
-    var dots = document.querySelectorAll('.ht-scan-dot');
-    dots.forEach(function (dot, i) {
+    /* Each ht-scan-btn contains one .hi-timeline-dot child */
+    var btns = document.querySelectorAll('.ht-scan-btn');
+    Array.prototype.forEach.call(btns, function (btn, i) {
+      var dot = btn.querySelector('.hi-timeline-dot');
+      if (!dot) return;
       dot.className = _dotOrigClass[i];
       if (i === activeIdx && i !== SCANS.length - 1) {
         dot.classList.remove('hi-timeline-dot--active', 'hi-timeline-dot--event');
@@ -399,15 +402,15 @@
   }
 
   function _init() {
-    var dots = document.querySelectorAll('.ht-scan-dot');
-    if (!dots.length) return;
+    var btns = document.querySelectorAll('.ht-scan-btn');
+    if (!btns.length) return;
 
-    dots.forEach(function (dot, idx) {
-      _dotOrigClass[idx] = dot.className;
-      dot.addEventListener('click', function () { htLoadScan(idx); });
-      dot.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); htLoadScan(idx); }
-      });
+    Array.prototype.forEach.call(btns, function (btn, idx) {
+      /* Store the inner dot's original class so _updateDots can restore it */
+      var dot = btn.querySelector('.hi-timeline-dot');
+      _dotOrigClass[idx] = dot ? dot.className : '';
+
+      btn.addEventListener('click', function () { htLoadScan(idx); });
     });
 
     /* Wire "Return to current" on the banner */
@@ -417,6 +420,7 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', _init);
+  /* Script is at bottom of <body> — DOM is ready. No DOMContentLoaded needed. */
+  _init();
 
 })();
