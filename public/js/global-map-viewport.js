@@ -421,6 +421,7 @@
     var s = document.createElement('style');
     s.textContent = [
       '.gmv-cal-banner{position:absolute;top:0;left:0;right:0;z-index:50;background:rgba(250,204,21,.1);border-bottom:1px solid rgba(250,204,21,.35);padding:5px 10px;font:10px/1.4 monospace;color:#fde047;letter-spacing:.06em;text-align:center;pointer-events:none;}',
+      '.gf-legend{display:none!important;}',
       '.gmv-cal-grid{position:absolute;inset:0;z-index:12;pointer-events:none;}',
       '.gmv-cal-vline{position:absolute;top:0;bottom:0;width:1px;background:rgba(56,189,248,.2);transform:translateX(-50%);}',
       '.gmv-cal-hline{position:absolute;left:0;right:0;height:1px;background:rgba(56,189,248,.2);transform:translateY(-50%);}',
