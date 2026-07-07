@@ -356,8 +356,10 @@
   /* ── GlobalMapViewport™ — component init ────────────────────── */
   /* All map logic (anchors, markers, legend, popover) lives in    */
   /* /js/global-map-viewport.js. This workspace only mounts it.   */
+  var calParam = new URLSearchParams(location.search).get('calibrate');
   initGlobalMapViewport(document.getElementById('gf-map-viewport-host'), {
-    calibrationMode: new URLSearchParams(location.search).has('calibrate')
+    calibrationMode:       calParam === '' || calParam === 'desktop',
+    tabletCalibrationMode: calParam === 'tablet',
   });
 
   /* ── ring count-up ────────────────────────────────────────── */
