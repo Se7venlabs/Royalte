@@ -2600,7 +2600,16 @@ svg { display: block; }
   display: grid; place-items: center;
   font-size: 22px; font-weight: 800; color: var(--mc-purple); letter-spacing: -0.03em;
   box-shadow: 0 0 22px rgba(168,85,247,0.16), inset 0 1px 0 rgba(255,255,255,0.06);
+  position: relative; overflow: hidden;
 }
+
+.ii-artist-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; border-radius: inherit;
+  opacity: 0; transition: opacity 0.35s ease;
+}
+
+.ii-artist-img.ii--loaded { opacity: 1; }
 
 .ii-exec-title-block { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 
@@ -2956,8 +2965,16 @@ svg { display: block; }
   width: 88px; height: 88px; border-radius: 8px; flex-shrink: 0;
   background: linear-gradient(145deg, rgba(168,85,247,0.28), rgba(20,6,50,0.9));
   display: flex; flex-direction: column; justify-content: flex-end;
-  padding: 7px 8px; overflow: hidden;
+  padding: 7px 8px; overflow: hidden; position: relative;
 }
+
+.ii-snapshot-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; border-radius: inherit;
+  opacity: 0; transition: opacity 0.35s ease;
+}
+
+.ii-snapshot-img.ii--loaded { opacity: 1; }
 
 .ii-snapshot-art-text { font-size: 7.5px; font-weight: 700; color: rgba(255,255,255,0.78); letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.4; }
 
