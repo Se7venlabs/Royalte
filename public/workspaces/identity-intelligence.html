@@ -443,12 +443,19 @@
 (function () {
   'use strict';
   function resolveFromPayload(p) {
-    return {
-      artistImageUrl: (p.cio && p.cio.identity && p.cio.identity.artwork) ||
-                      (p.subject && p.subject.artistImageUrl) ||
-                      p.artistImageUrl || null,
-      albumImageUrl:  p.albumImageUrl || null,
-    };
+    // Mirror getBestVerifiedArtistImage / getBestVerifiedReleaseArtwork from
+    // royalte-image-service.js. Cannot import (non-module script block).
+    var artistUrl =
+      (p.cio && p.cio.identity && p.cio.identity.artwork) ||
+      (p.subject && p.subject.artistImageUrl) ||
+      p.artistImageUrl ||
+      (p.platforms && p.platforms.appleMusic && p.platforms.appleMusic.details && p.platforms.appleMusic.details.artwork) ||
+      null;
+    var albumUrl =
+      p.albumImageUrl ||
+      (p.subject && p.subject.albumImageUrl) ||
+      artistUrl;
+    return { artistImageUrl: artistUrl, albumImageUrl: albumUrl };
   }
   function applyImg(el, src, onLoad) {
     if (!el || !src) return;
