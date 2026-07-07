@@ -4090,7 +4090,7 @@ a.ci-function-card:hover .ci-artwork-container {
   gap: 14px;
 }
 .ws-dept--global .gf-map-inner {
-  min-height: 540px;
+  /* min-height removed — aspect-ratio: 1380/620 controls height now */
 }
 
 /* Mobile Executive Briefing — hidden until ≤640px breakpoint fires */
@@ -4282,8 +4282,10 @@ a.ci-function-card:hover .ci-artwork-container {
 .gf-map-inner {
   position: relative;
   width: 100%;
-  min-height: 420px;
-  flex: 1;
+  /* aspect-ratio locks the container to the PNG's exact dimensions (1380×620).
+   * Without this, object-fit:contain letterboxes the image and L/T percentages
+   * reference empty space rather than the map — causing systematic flag drift. */
+  aspect-ratio: 1380 / 620;
   background: #050b18;
   overflow: hidden;
   cursor: crosshair;
@@ -4294,8 +4296,8 @@ a.ci-function-card:hover .ci-artwork-container {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center center;
+  /* Container ratio = image ratio, so object-fit:fill fills exactly with no distortion */
+  object-fit: fill;
   pointer-events: none;
   display: block;
   opacity: 0.88;
