@@ -225,7 +225,7 @@
 
           <div class="gf-mobile-brief-header">Available In</div>
 
-          <ul class="gf-territory-list" aria-label="Primary streaming territories">
+          <ul class="gf-territory-list gf-territory-list--big6" aria-label="Primary streaming territories">
             <li class="gf-territory-item">
               <span class="gf-territory-flag">🇨🇦</span>
               <span class="gf-territory-name">Canada</span>
@@ -356,8 +356,10 @@
   /* ── GlobalMapViewport™ — component init ────────────────────── */
   /* All map logic (anchors, markers, legend, popover) lives in    */
   /* /js/global-map-viewport.js. This workspace only mounts it.   */
+  /* calibrate=desktop|tablet|mobile activates cal grid + flags-only at that tier */
+  var calParam = new URLSearchParams(location.search).get('calibrate');
   initGlobalMapViewport(document.getElementById('gf-map-viewport-host'), {
-    calibrationMode: new URLSearchParams(location.search).has('calibrate')
+    calibrationMode: calParam,
   });
 
   /* ── ring count-up ────────────────────────────────────────── */
