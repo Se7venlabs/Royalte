@@ -62,6 +62,39 @@
     'New Zealand':    { l: 77.0, t: 71.0, flag: '🇳🇿', p: ['apple','spotify'],                  d: 'Feb 2024' },
   };
 
+  /* ── Tablet Anchor Set™ — independent coordinate layer for 641–1024px ──
+   * Owns all flag and marker positions on Executive Tablet™.
+   * Updated per Board calibration pass only — ANCHORS (desktop) untouched.
+   * Phase 1: mirrors desktop coordinates. Board provides adjustments.
+   * Phase 2: restore markers after Board approves tablet flag positions.
+   */
+  var TABLET_ANCHORS = {
+    'Canada':         { l: 25.0, t: 20.0, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'United States':  { l: 27.0, t: 35.0, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Mexico':         { l: 26.0, t: 49.0, flag: '🇲🇽', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Brazil':         { l: 37.0, t: 75.0, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'Peru':           { l: 35.0, t: 85.0, flag: '🇵🇪', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'United Kingdom': { l: 48.0, t: 29.0, flag: '🇬🇧', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'France':         { l: 48.5, t: 33.0, flag: '🇫🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Germany':        { l: 50.0, t: 28.0, flag: '🇩🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Spain':          { l: 47.0, t: 39.0, flag: '🇪🇸', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'Italy':          { l: 51.0, t: 36.0, flag: '🇮🇹', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'Sweden':         { l: 53.0, t: 16.0, flag: '🇸🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Poland':         { l: 51.0, t: 31.0, flag: '🇵🇱', p: ['apple','spotify','deezer'],          d: 'Mar 2024' },
+    'South Africa':   { l: 52.0, t: 85.0, flag: '🇿🇦', p: ['apple','spotify','deezer'],          d: 'Feb 2024' },
+    'Egypt':          { l: 52.0, t: 50.0, flag: '🇪🇬', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Norway':         { l: 50.0, t: 21.0, flag: '🇳🇴', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Türkiye':        { l: 55.0, t: 36.0, flag: '🇹🇷', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Indonesia':      { l: 71.0, t: 71.0, flag: '🇮🇩', p: ['apple','spotify'],                  d: 'Mar 2024' },
+    'Singapore':      { l: 68.0, t: 65.0, flag: '🇸🇬', p: ['apple','spotify','deezer','tidal'], d: 'Mar 2024' },
+    'India':          { l: 64.0, t: 55.0, flag: '🇮🇳', p: ['apple','spotify'],                  d: 'Feb 2024' },
+    'China':          { l: 67.0, t: 30.0, flag: '🇨🇳', p: ['apple'],                            d: 'Jan 2024' },
+    'Japan':          { l: 77.0, t: 41.0, flag: '🇯🇵', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'South Korea':    { l: 74.0, t: 41.0, flag: '🇰🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Australia':      { l: 75.0, t: 85.0, flag: '🇦🇺', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'New Zealand':    { l: 77.0, t: 71.0, flag: '🇳🇿', p: ['apple','spotify'],                  d: 'Feb 2024' },
+  };
+
   var P_COLOR = { apple: '#FC3C44', spotify: '#1DB954', deezer: '#A238FF', tidal: '#00D5FF' };
   var P_NAME  = { apple: 'Apple Music', spotify: 'Spotify', deezer: 'Deezer', tidal: 'TIDAL' };
 
@@ -148,6 +181,13 @@
     if (!hostEl) { console.warn('GlobalMapViewport™: host element not found'); return {}; }
     options = options || {};
 
+    /* ── Viewport-aware anchor selection ──────────────────────────────
+     * Tablet (641–1024px) owns its own independent coordinate layer.
+     * All other viewports use the Board-locked desktop ANCHORS.       */
+    var isTablet      = window.innerWidth >= 641 && window.innerWidth <= 1024;
+    var tabletCalMode = !!(options.tabletCalibrationMode && isTablet);
+    var activeAnchors = isTablet ? TABLET_ANCHORS : ANCHORS;
+
     /* render */
     hostEl.innerHTML = buildInnerHTML();
 
@@ -158,10 +198,10 @@
     var filterResetTimer  = null;
 
     /* ── Geographic Anchor Engine™ ───────────────────────────────── */
-    /* Single source of truth: anchor l/t drives flag and cluster.   */
-    /* No coordinate reads or writes from outside this function.     */
-    Object.keys(ANCHORS).forEach(function (country) {
-      var a = ANCHORS[country];
+    /* Viewport-selected anchors drive flag and cluster positions.    */
+    /* Desktop: ANCHORS (locked). Tablet: TABLET_ANCHORS.            */
+    Object.keys(activeAnchors).forEach(function (country) {
+      var a = activeAnchors[country];
 
       var flagEl = document.createElement('span');
       flagEl.className = 'gf-anchor';
@@ -174,22 +214,25 @@
       flagEl.dataset.anchorT = a.t;
       mapInner.appendChild(flagEl);
 
-      a.p.forEach(function (prov) {
-        var off = P_OFF[prov] || [0, 0];
-        var el  = document.createElement('span');
-        el.className = 'gf-marker gf-marker--' + prov;
-        el.style.cssText = 'left:' + (a.l + off[0]) + '%;top:' + (a.t + off[1]) + '%;animation-delay:' + ((a.l / 100) * 4).toFixed(2) + 's';
-        el.dataset.country  = country;
-        el.dataset.provider = prov;
-        el.dataset.detected = a.d;
-        el.dataset.allp     = a.p.join(',');
-        el.dataset.anchorL  = a.l;
-        el.dataset.anchorT  = a.t;
-        el.setAttribute('aria-label', country + ' — ' + P_NAME[prov]);
-        el.setAttribute('role', 'button');
-        el.setAttribute('tabindex', '0');
-        mapInner.appendChild(el);
-      });
+      /* Phase 2 / production: omit markers during tablet calibration pass */
+      if (!tabletCalMode) {
+        a.p.forEach(function (prov) {
+          var off = P_OFF[prov] || [0, 0];
+          var el  = document.createElement('span');
+          el.className = 'gf-marker gf-marker--' + prov;
+          el.style.cssText = 'left:' + (a.l + off[0]) + '%;top:' + (a.t + off[1]) + '%;animation-delay:' + ((a.l / 100) * 4).toFixed(2) + 's';
+          el.dataset.country  = country;
+          el.dataset.provider = prov;
+          el.dataset.detected = a.d;
+          el.dataset.allp     = a.p.join(',');
+          el.dataset.anchorL  = a.l;
+          el.dataset.anchorT  = a.t;
+          el.setAttribute('aria-label', country + ' — ' + P_NAME[prov]);
+          el.setAttribute('role', 'button');
+          el.setAttribute('tabindex', '0');
+          mapInner.appendChild(el);
+        });
+      }
     });
 
     /* ── popover ─────────────────────────────────────────────────── */
@@ -316,13 +359,14 @@
     });
 
     if (options.calibrationMode) enableCalibrationMode(mapInner);
+    if (tabletCalMode)           enableCalibrationMode(mapInner, '⚙ TABLET CALIBRATION — Phase 1 — flags only · click a flag for L / T');
 
     /* public API for workspace integration */
     return { hidePopover: hidePopover };
   }
 
   /* ── Calibration Mode (dev only — not shipped in production) ─────── */
-  function enableCalibrationMode(mapInner) {
+  function enableCalibrationMode(mapInner, bannerLabel) {
     /* styles — scoped to gmv-cal-* namespace */
     var s = document.createElement('style');
     s.textContent = [
@@ -344,7 +388,7 @@
     /* banner */
     var banner = document.createElement('div');
     banner.className = 'gmv-cal-banner';
-    banner.textContent = '⚙ CALIBRATION MODE — click any marker to read anchor L / T';
+    banner.textContent = bannerLabel || '⚙ CALIBRATION MODE — click any marker to read anchor L / T';
     mapInner.appendChild(banner);
 
     /* grid lines + labels */
