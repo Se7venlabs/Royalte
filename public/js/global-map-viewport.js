@@ -103,17 +103,21 @@
    * 14 additional territories listed below the map in gf-additional-territories.
    * Awaiting Board coordinate calibration at ≤640px viewport.
    */
+  /* MOBILE_ANCHORS — 10 primary markets only (Phase 3 calibration).
+   * 14 additional territories listed below the map in gf-additional-territories.
+   * Awaiting Board coordinate calibration at ≤640px viewport.
+   */
   var MOBILE_ANCHORS = {
-    'Canada':         { l: 25.0, t: 20.0, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'United States':  { l: 27.0, t: 35.0, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Brazil':         { l: 37.0, t: 75.0, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'United Kingdom': { l: 48.0, t: 29.0, flag: '🇬🇧', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Canada':         { l: 17.4, t: 22.2, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'United States':  { l: 20.0, t: 36.7, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'Brazil':         { l: 33.1, t: 75.2, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'United Kingdom': { l: 46.1, t: 26.7, flag: '🇬🇧', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
     'France':         { l: 48.5, t: 33.0, flag: '🇫🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
     'Germany':        { l: 50.0, t: 28.0, flag: '🇩🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Japan':          { l: 77.0, t: 41.0, flag: '🇯🇵', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'India':          { l: 64.0, t: 55.0, flag: '🇮🇳', p: ['apple','spotify'],                  d: 'Feb 2024' },
-    'Australia':      { l: 75.0, t: 85.0, flag: '🇦🇺', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'South Africa':   { l: 52.0, t: 85.0, flag: '🇿🇦', p: ['apple','spotify','deezer'],          d: 'Feb 2024' },
+    'Japan':          { l: 84.9, t: 42.7, flag: '🇯🇵', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
+    'India':          { l: 69.1, t: 50.2, flag: '🇮🇳', p: ['apple','spotify'],                  d: 'Feb 2024' },
+    'Australia':      { l: 84.6, t: 85.7, flag: '🇦🇺', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
+    'South Africa':   { l: 53.7, t: 88.2, flag: '🇿🇦', p: ['apple','spotify','deezer'],          d: 'Feb 2024' },
   };
 
   var P_COLOR = { apple: '#FC3C44', spotify: '#1DB954', deezer: '#A238FF', tidal: '#00D5FF' };
