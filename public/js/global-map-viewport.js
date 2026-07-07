@@ -183,10 +183,11 @@
 
     /* ── Viewport-aware anchor selection ──────────────────────────────
      * Tablet (641–1024px) owns its own independent coordinate layer.
-     * All other viewports use the Board-locked desktop ANCHORS.       */
+     * Calibration mode (?calibrate=tablet) activates viewport-agnostically
+     * so the Board can review flag positions on any screen size.      */
     var isTablet      = window.innerWidth >= 641 && window.innerWidth <= 1024;
-    var tabletCalMode = !!(options.tabletCalibrationMode && isTablet);
-    var activeAnchors = isTablet ? TABLET_ANCHORS : ANCHORS;
+    var tabletCalMode = !!options.tabletCalibrationMode;
+    var activeAnchors = (isTablet || tabletCalMode) ? TABLET_ANCHORS : ANCHORS;
 
     /* render */
     hostEl.innerHTML = buildInnerHTML();
