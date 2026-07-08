@@ -349,7 +349,10 @@ function applyCatalogPlan(plan) {
     const el = document.querySelector(selector);
     if (el) el.textContent = String(value);
   };
-  set('[data-mc-catalog-release-artist]', plan.artistName || '');
+  const bvr = plan.bestVerifiedRelease ?? null;
+  set('[data-mc-catalog-release-artist]', bvr?.artistName || plan.artistName || '');
+  set('[data-mc-catalog-release-title]',  bvr?.releaseTitle || '');
+  set('[data-mc-catalog-release-type]',   bvr?.releaseType || '');
   set('[data-mc-catalog-singles]',  plan.singles);
   set('[data-mc-catalog-eps]',      plan.eps);
   set('[data-mc-catalog-albums]',   plan.albums);
@@ -1248,7 +1251,10 @@ async function initMissionControl() {
   // Catalog Intelligence™ (Catalog Phase v1.0)
   const catalogIntelligence = safeCatalogIntelligence(payload.catalogIntelligence);
   if (catalogIntelligence) {
-    const catalogPlan = Object.assign(renderCatalog(catalogIntelligence), { artistName: payload.subject?.artistName ?? '' });
+    const catalogPlan = Object.assign(renderCatalog(catalogIntelligence), {
+      artistName:          payload.subject?.artistName ?? '',
+      bestVerifiedRelease: catalogIntelligence.bestVerifiedRelease ?? null,
+    });
     applyCatalogPlan(catalogPlan);
   }
 
@@ -1350,8 +1356,9 @@ if (typeof window !== 'undefined') {
     // Uses a separate key that is never consumed/removed — survives navigation for the full session.
     try {
       sessionStorage.setItem('royalte_session_context', JSON.stringify({
-        artistImageUrl: getBestVerifiedArtistImage(payload),
-        albumImageUrl:  getBestVerifiedReleaseArtwork(payload),
+        artistImageUrl:      getBestVerifiedArtistImage(payload),
+        albumImageUrl:       getBestVerifiedReleaseArtwork(payload),
+        bestVerifiedRelease: payload.catalogIntelligence?.bestVerifiedRelease ?? null,
       }));
     } catch (_e) {}
 
@@ -1366,7 +1373,10 @@ if (typeof window !== 'undefined') {
 
     // Catalog
     const ci = safeCatalogIntelligence(payload.catalogIntelligence);
-    if (ci) _vaultPlans.catalogPlan = Object.assign(renderCatalog(ci), { artistName: payload.subject?.artistName ?? '' });
+    if (ci) _vaultPlans.catalogPlan = Object.assign(renderCatalog(ci), {
+      artistName:          payload.subject?.artistName ?? '',
+      bestVerifiedRelease: ci.bestVerifiedRelease ?? null,
+    });
 
     // Global Music Footprint
     const gmf = safeGlobalMusicFootprintIntelligence(payload.globalMusicFootprint);

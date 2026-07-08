@@ -230,10 +230,9 @@
                 <img class="royalte-exec-img royalte-exec-img--artwork" id="ci-artwork-img" alt="" draggable="false">
               </div>
               <div class="ci-release-artist" data-mc-catalog-release-artist>GENTLEMEN X</div>
-              <div class="ci-function-name">Artwork™</div>
-              <div class="ci-function-sub">Best Verified Release Cover</div>
+              <div class="ci-function-name" data-mc-catalog-release-title>Midnight Protocols</div>
+              <div class="ci-function-sub" data-mc-catalog-release-type>Album</div>
               <div class="ci-function-badge ci-function-badge--verified">Verified</div>
-              <div class="ci-function-stat">All covers present</div>
             </div>
 
             <!-- Lyrics™ -->
@@ -487,13 +486,17 @@
 (function() {
   'use strict';
   try {
-    var src = null;
+    var src = null, bvr = null;
     var ctxRaw = sessionStorage.getItem('royalte_session_context');
     if (ctxRaw) {
       var ctx = JSON.parse(ctxRaw);
-      src = (ctx && ctx.albumImageUrl) || null;
+      bvr = (ctx && ctx.bestVerifiedRelease) || null;
+      // BVR artwork is the intelligence-selected release artwork (highest-scoring release).
+      // Fall back to albumImageUrl (scan-input artwork) when BVR is absent.
+      src = (bvr && bvr.artwork) || (ctx && ctx.albumImageUrl) || null;
     }
     if (!src) {
+      // Last resort: read from scan payload before MC consumed it.
       var raw = sessionStorage.getItem('royalte_scan_payload');
       if (raw) {
         var p = JSON.parse(raw);
@@ -502,6 +505,7 @@
               null;
       }
     }
+    // Inject artwork
     var img = document.getElementById('ci-artwork-img');
     if (img && src) {
       img.onload = function() {
@@ -511,6 +515,15 @@
       };
       img.onerror = function() { img.removeAttribute('src'); };
       img.src = src;
+    }
+    // Wire BVR text fields (artist name, release title, release type)
+    if (bvr) {
+      var artistEl = document.querySelector('[data-mc-catalog-release-artist]');
+      var titleEl  = document.querySelector('[data-mc-catalog-release-title]');
+      var typeEl   = document.querySelector('[data-mc-catalog-release-type]');
+      if (artistEl && bvr.artistName) artistEl.textContent = bvr.artistName;
+      if (titleEl  && bvr.releaseTitle) titleEl.textContent = bvr.releaseTitle;
+      if (typeEl   && bvr.releaseType)  typeEl.textContent  = bvr.releaseType;
     }
   } catch(e) {}
 })();

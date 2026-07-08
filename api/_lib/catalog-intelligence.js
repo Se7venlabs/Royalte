@@ -63,9 +63,10 @@
 //
 // ─────────────────────────────────────────────────────────────────────
 
-export const CATALOG_INTELLIGENCE_VERSION = '1.1.0';
+export const CATALOG_INTELLIGENCE_VERSION = '1.2.0';
 
 import { CATALOG_EVIDENCE_POLICY } from './catalog-evidence-policy.js';
+import { selectBestVerifiedRelease } from './best-verified-release.js';
 
 // Board-locked release-count thresholds for catalogStatus.
 // Change only through a formal Board Review.
@@ -258,6 +259,17 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
       }
     }
 
+    // Best Verified Release™ — intelligence-selected representative release.
+    // selectBestVerifiedRelease scores every eligible Apple Music album and
+    // returns the highest-ranked one. Never throws; returns null when no
+    // albums are available.
+    const artistName = (safeCanonical?.subject?.artistName) ||
+                       (safeCanonical?.cio?.identity?.name) || '';
+    const bestVerifiedRelease = selectBestVerifiedRelease(
+      Array.isArray(appleAlbums) ? appleAlbums : [],
+      artistName,
+    );
+
     return deepFreeze({
       singles,
       eps,
@@ -270,6 +282,7 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
       latestReleaseYear,
       catalogAgeYears,
       physicalReleaseCount,
+      bestVerifiedRelease,
     });
   } catch (err) {
     console.error('[catalog-intelligence] assembly threw (returning empty shell):', err?.message || err);
@@ -280,6 +293,7 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
       isrcCoverage: ISRC_UNKNOWN,
       firstReleaseYear: null, latestReleaseYear: null, catalogAgeYears: null,
       physicalReleaseCount: null,
+      bestVerifiedRelease: null,
     });
   }
 }
