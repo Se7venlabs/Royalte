@@ -2752,7 +2752,16 @@ function updateHeroDashboard(artistName, subText, score, riskLevel) {
   document.getElementById('hero-artist-sub').textContent = subText;
   // Reveal entire audit results container — score, alert, modules, issues, locked CTA
   const resultsEl = document.getElementById('audit-results');
-  if (resultsEl) resultsEl.style.display = 'block';
+  if (resultsEl) {
+    resultsEl.style.display = 'block';
+    // Executive Mobile™ only — guide the artist to their results.
+    // Desktop and Tablet scroll is not changed.
+    if (window.innerWidth <= 768) {
+      setTimeout(function() {
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 400);
+    }
+  }
   // Show risk level instead of score number
   const RISK_COLORS = { 'High': 'var(--red)', 'Moderate': 'var(--amb)', 'Low': 'var(--grn)' };
   const RISK_GLOW   = { 'High': '#f05060',    'Moderate': '#f0c040',    'Low': '#40f0a0'    };
