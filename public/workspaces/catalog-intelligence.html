@@ -226,7 +226,8 @@
             <!-- Artwork™ -->
             <div class="ci-function-card">
               <div class="ci-artwork-container" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--lg" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-artwork"></use></svg>
+                <svg class="royalte-icon royalte-icon--lg" id="ci-artwork-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-artwork"></use></svg>
+                <img class="royalte-exec-img royalte-exec-img--artwork" id="ci-artwork-img" alt="" draggable="false">
               </div>
               <div class="ci-release-artist" data-mc-catalog-release-artist>GENTLEMEN X</div>
               <div class="ci-function-name">Artwork™</div>
@@ -483,6 +484,36 @@
 </div>
 
 <script>
+(function() {
+  'use strict';
+  try {
+    var src = null;
+    var ctxRaw = sessionStorage.getItem('royalte_session_context');
+    if (ctxRaw) {
+      var ctx = JSON.parse(ctxRaw);
+      src = (ctx && ctx.albumImageUrl) || null;
+    }
+    if (!src) {
+      var raw = sessionStorage.getItem('royalte_scan_payload');
+      if (raw) {
+        var p = JSON.parse(raw);
+        src = p.albumImageUrl ||
+              (p.platforms && p.platforms.appleMusic && p.platforms.appleMusic.details && p.platforms.appleMusic.details.artwork) ||
+              null;
+      }
+    }
+    var img = document.getElementById('ci-artwork-img');
+    if (img && src) {
+      img.onload = function() {
+        img.classList.add('ci--artwork-loaded');
+        var icon = document.getElementById('ci-artwork-icon');
+        if (icon) icon.style.display = 'none';
+      };
+      img.onerror = function() { img.removeAttribute('src'); };
+      img.src = src;
+    }
+  } catch(e) {}
+})();
 (function() {
   var el = document.getElementById('ci-ring-num');
   if (!el) return;
