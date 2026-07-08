@@ -204,6 +204,10 @@
 .prds-mobile-only--flex    { display: none;   }
 .prds-not-mobile--flex     { display: flex;   }
 
+/* Not-desktop: hidden on desktop, visible on tablet + mobile */
+.prds-not-desktop          { display: none;   }
+.prds-not-desktop--flex    { display: none;   }
+
 @media (max-width: 1024px) {
   /* Executive Tablet™ */
   .prds-desktop-only         { display: none;   }
@@ -214,6 +218,8 @@
   .prds-not-mobile           { display: block;  }
   .prds-not-mobile--inline   { display: inline; }
   .prds-not-mobile--flex     { display: flex;   }
+  .prds-not-desktop          { display: block;  }
+  .prds-not-desktop--flex    { display: flex;   }
 }
 
 @media (max-width: 640px) {

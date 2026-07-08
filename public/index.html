@@ -469,7 +469,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 .reveal{opacity:0;transform:translateY(22px);transition:all 0.65s ease;}
 .reveal.visible{opacity:1;transform:translateY(0);}
 .d1{transition-delay:0.1s;}.d2{transition-delay:0.2s;}.d3{transition-delay:0.3s;}
-@media(max-width:900px){
+@media(max-width:1024px){
   nav{padding:0 14px;height:64px;}
   .nav-logo-full{display:none;}
   .nav-logo-mobile{display:block;height:32px;}
@@ -493,7 +493,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
      at narrow widths. */
   .dash-body{padding:14px;}
   #scan-tool{padding:60px 20px;}
-  section{padding:60px 20px;}.steps{grid-template-columns:1fr;}.beta-grid-2{grid-template-columns:1fr;}
+  .steps{grid-template-columns:1fr;}.beta-grid-2{grid-template-columns:1fr;}
   #beta{padding-top:30px;}
   #request{padding-top:30px;}
   .form-split{grid-template-columns:1fr;}.trust-grid{grid-template-columns:1fr 1fr;}
@@ -614,8 +614,8 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 .hero-scan-eyebrow-section .sec-h2{font-family:'Rajdhani',sans-serif;font-size:clamp(36px,5vw,62px);font-weight:700;line-height:1;letter-spacing:-0.01em;text-transform:uppercase;color:var(--text);max-width:780px;}
 .hero-scan-eyebrow-section .sec-h2 .gt{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
-@media(max-width:900px){
-  section{padding:88px 20px;}
+@media(max-width:1024px){
+  section{padding:var(--prds-section-pad-y) var(--prds-section-pad-x);}
   .new-hero{grid-template-columns:1fr;padding:40px 22px;gap:40px;min-height:calc(100vh - 64px);height:calc(100vh - 64px);margin-top:64px;align-items:center;}
   .nh-collage{grid-template-columns:repeat(2,1fr) !important;grid-template-rows:repeat(3,minmax(0,1fr)) !important;opacity:0.5;}
   .nh-mobile-hide{display:none !important;}
@@ -644,7 +644,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   .hero{padding:114px 20px 90px;}
 }
 
-@media(min-width:901px){
+@media(min-width:1025px){
   .nh-tagline{display:block !important;font-family:'Space Grotesk',sans-serif;font-size:19px;color:var(--text2);line-height:1.55;max-width:580px;margin:0 auto 36px;text-align:center;opacity:0;animation:fadeUp 0.7s ease 0.45s forwards;text-shadow:0 2px 16px rgba(3,3,10,0.8);}
   .nh-tagline .gt{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:600;}
   .nh-tagline-emphasis{color:#ffffff;font-weight:600;}
@@ -763,7 +763,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 .dash-body.is-revealed .d-locked-cta{animation:resultFadeUp 0.45s ease 0.86s both;}
 
 /* Mobile — stack image cleanly, keep CTA visible, no overflow */
-@media(max-width:900px){
+@media(max-width:1024px){
   .d-score-row{grid-template-columns:auto 1fr;gap:12px;}
   .d-score-img-wrap{width:80px;height:80px;grid-column:1;grid-row:2;}
   .d-score-ring{grid-column:1;grid-row:1;}
@@ -916,7 +916,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   0%,100%{box-shadow:0 6px 28px rgba(138,92,255,0.42);}
   50%    {box-shadow:0 6px 36px rgba(138,92,255,0.65),0 0 18px rgba(224,64,200,0.30);}
 }
-@media(max-width:900px){
+@media(max-width:1024px){
   .scan-conversion-section{padding:40px 20px 48px;}
   .scan-conversion-inner{padding:32px 22px;}
   .scan-conversion-headline{font-size:22px;}
@@ -974,7 +974,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   pointer-events:none;
 }
 
-@media(max-width:900px){
+@media(max-width:1024px){
   .hero-visual{min-height:180px;margin-top:24px;}
 }
 
@@ -1229,7 +1229,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   letter-spacing:0.08em;
   color:var(--muted);
 }
-@media (max-width:768px){
+@media (max-width:640px){
   .bi-os-preview{padding:22px 18px;margin-top:22px;}
   .bi-os-preview-intro br{display:none;}
   .bi-os-preview-features li{font-size:12.5px;}
@@ -1241,7 +1241,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
    Approved audit fixes. CSS-only, mobile-only. Desktop above 768px is
    byte-identical. Orbs reduced in visual weight (not removed) per founder
    modification. */
-@media (max-width:768px){
+@media (max-width:640px){
   /* I-C1 — territory rows stack vertically; status allowed to wrap */
   .territory-row{grid-template-columns:1fr;gap:4px;}
   .territory-status{white-space:normal;}
@@ -1572,7 +1572,7 @@ body.scan-confirmed #sc-confirm{opacity:1;}
 .sh-feat-icon{line-height:1;filter:drop-shadow(0 0 8px rgba(138,92,255,0.6));}
 .sh-feat-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:#fff;line-height:1.3;}
 .sh-feat-desc{font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--muted2);line-height:1.5;}
-@media(max-width:768px){.sh-headline{font-size:28px;}.sh-run-btn{font-size:15px;padding:13px 20px;}.sh-features{grid-template-columns:repeat(2,1fr);}.sh-feat:nth-child(3)::before{display:none;}}
+@media(max-width:640px){.sh-headline{font-size:28px;}.sh-run-btn{font-size:15px;padding:13px 20px;}.sh-features{grid-template-columns:repeat(2,1fr);}.sh-feat:nth-child(3)::before{display:none;}}
 
 </style>
 </head>
@@ -1607,7 +1607,7 @@ body.scan-confirmed #sc-confirm{opacity:1;}
     <p class="nh-desc-mobile">
       We diagnose the infrastructure problems your distributor, PRO, and publisher don't catch. Founding Artist Beta — limited to 1,000 artists.
     </p>
-    <button class="nh-cta-btn" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('hero-url').focus(),800);">Run Free Scan →</button>
+    <button class="nh-cta-btn prds-btn prds-btn--primary" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('hero-url').focus(),800);">Run Free Scan →</button>
     <div class="nh-finds">
       <div class="nh-find-row">
         <div class="nh-find-marker"></div>
@@ -1792,7 +1792,7 @@ body.scan-confirmed #sc-confirm{opacity:1;}
     </svg>
   </a>
   <div class="nav-right">
-    <div class="nav-links">
+    <div class="nav-links prds-desktop-only--flex">
       <a href="/contact.html">Contact</a>
       <a href="/what-we-do.html">What We Do</a>
       <a href="/faq.html">FAQ</a>
@@ -1894,7 +1894,7 @@ body.scan-confirmed #sc-confirm{opacity:1;}
     <!-- paste-hint must remain in visible DOM so showUrlError() injection is visible -->
     <div class="paste-hint"></div>
     <div class="sh-scan-error" id="sh-scan-error"></div>
-    <button class="sh-run-btn" id="sh-run-btn" onclick="runScan()">Run My Scan &#x2192;</button>
+    <button class="sh-run-btn prds-btn prds-btn--primary prds-btn--mobile-full" id="sh-run-btn" onclick="runScan()">Run My Scan &#x2192;</button>
     <div class="sh-trust">
       <span>100% Free</span>
       <span>No Credit Card Required</span>
