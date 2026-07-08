@@ -349,6 +349,7 @@ function applyCatalogPlan(plan) {
     const el = document.querySelector(selector);
     if (el) el.textContent = String(value);
   };
+  set('[data-mc-catalog-release-artist]', plan.artistName || '');
   set('[data-mc-catalog-singles]',  plan.singles);
   set('[data-mc-catalog-eps]',      plan.eps);
   set('[data-mc-catalog-albums]',   plan.albums);
@@ -1247,7 +1248,7 @@ async function initMissionControl() {
   // Catalog Intelligence™ (Catalog Phase v1.0)
   const catalogIntelligence = safeCatalogIntelligence(payload.catalogIntelligence);
   if (catalogIntelligence) {
-    const catalogPlan = renderCatalog(catalogIntelligence);
+    const catalogPlan = Object.assign(renderCatalog(catalogIntelligence), { artistName: payload.subject?.artistName ?? '' });
     applyCatalogPlan(catalogPlan);
   }
 
@@ -1365,7 +1366,7 @@ if (typeof window !== 'undefined') {
 
     // Catalog
     const ci = safeCatalogIntelligence(payload.catalogIntelligence);
-    if (ci) _vaultPlans.catalogPlan = renderCatalog(ci);
+    if (ci) _vaultPlans.catalogPlan = Object.assign(renderCatalog(ci), { artistName: payload.subject?.artistName ?? '' });
 
     // Global Music Footprint
     const gmf = safeGlobalMusicFootprintIntelligence(payload.globalMusicFootprint);
