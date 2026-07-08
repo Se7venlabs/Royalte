@@ -178,6 +178,98 @@ function buildReason(scored, candidateCount) {
   return `${scored.releaseType} — score ${scored.selectionScore}/100${detail}; evaluated ${candidateCount} candidate${candidateCount !== 1 ? 's' : ''}`;
 }
 
+// ── Debug / transparency entrypoint ──────────────────────────────────
+//
+// debugScoreReport(albums, artistName)
+//
+// Returns the full per-candidate scoring breakdown used internally by
+// selectBestVerifiedRelease(). Engineering / Board verification only;
+// never called from production paths.
+//
+// Return shape:
+//   {
+//     artistName:   string,
+//     candidateCount: number,
+//     eligibleCount:  number,
+//     selected: ScoredRelease | null,
+//     candidates: ScoredRelease[],   // sorted by selectionScore descending
+//   }
+//
+// ScoredRelease:
+//   {
+//     releaseTitle:      string,
+//     releaseType:       'Album'|'EP'|'Single',
+//     releaseDate:       string|null,
+//     artwork:           string|null,
+//     verificationScore: number,
+//     metadataScore:     number,
+//     artworkScore:      number,
+//     typeScore:         number,
+//     streamingScore:    number,
+//     recencyScore:      number,
+//     selectionScore:    number,
+//     status:            'SELECTED'|'NOT SELECTED',
+//     reasonNotSelected: string|null,
+//   }
+//
+export function debugScoreReport(albums, artistName) {
+  if (!Array.isArray(albums) || albums.length === 0) {
+    return { artistName: artistName || '', candidateCount: 0, eligibleCount: 0, selected: null, candidates: [] };
+  }
+
+  const currentYear = new Date().getFullYear();
+  const safe = typeof artistName === 'string' && artistName.trim() ? artistName.trim() : '';
+
+  const scored = albums
+    .map((a) => scoreAlbum(a, currentYear))
+    .filter(Boolean);
+
+  if (scored.length === 0) {
+    return { artistName: safe, candidateCount: albums.length, eligibleCount: 0, selected: null, candidates: [] };
+  }
+
+  scored.sort(compareScored);
+  const best = scored[0];
+
+  function toReport(s, idx) {
+    const isSelected = idx === 0;
+    let reasonNotSelected = null;
+    if (!isSelected) {
+      const reasons = [];
+      if (s.verificationScore < best.verificationScore) reasons.push('lower verification confidence');
+      if (s.metadataScore < best.metadataScore)         reasons.push('lower metadata completeness');
+      if (s.artworkScore < best.artworkScore)           reasons.push('artwork absent or lower quality');
+      if (s.typeScore < best.typeScore)                 reasons.push(`${s.releaseType} scored lower than ${best.releaseType}`);
+      if (s.recencyScore < best.recencyScore)           reasons.push('less recent than selected release');
+      if (s.selectionScore < best.selectionScore)       reasons.push(`total score ${s.selectionScore} < winner ${best.selectionScore}`);
+      reasonNotSelected = reasons.length ? reasons.join('; ') : 'lower total score (tiebreaker applied)';
+    }
+    return {
+      releaseTitle:      typeof s.album.name === 'string' ? s.album.name.trim() : '',
+      releaseType:       s.releaseType,
+      releaseDate:       typeof s.album.releaseDate === 'string' ? s.album.releaseDate : null,
+      artwork:           typeof s.album.artwork === 'string' && s.album.artwork ? s.album.artwork : null,
+      verificationScore: s.verificationScore,
+      metadataScore:     s.metadataScore,
+      artworkScore:      s.artworkScore,
+      typeScore:         s.typeScore,
+      streamingScore:    BVR_STREAMING_WEIGHT,
+      recencyScore:      s.recencyScore,
+      selectionScore:    s.selectionScore,
+      status:            isSelected ? 'SELECTED' : 'NOT SELECTED',
+      reasonNotSelected,
+    };
+  }
+
+  return {
+    artistName:     safe,
+    candidateCount: albums.length,
+    eligibleCount:  scored.length,
+    selected:       toReport(best, 0),
+    candidates:     scored.map((s, i) => toReport(s, i)),
+  };
+}
+
 // ── Public entrypoint ─────────────────────────────────────────────────
 //
 // selectBestVerifiedRelease(albums, artistName)
