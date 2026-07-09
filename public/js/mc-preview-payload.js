@@ -739,17 +739,45 @@ const _FIXTURE = {
   },
   "executiveBrief": {
     "briefVersion": "1.0.0",
-    "generatedAt": "",
-    "executiveSummary": "",
-    "healthHeadline": "",
-    "executiveNarrative": "",
-    "topStrengths": [],
+    "generatedAt": "2026-06-25T13:51:20.778Z",
+    "healthHeadline": "Infrastructure Requires Attention",
+    "executiveSummary": "Your music backend infrastructure scores 89 (Grade C). Core catalog delivery is verified and backend connectivity is strong. One identity gap — missing Apple Music artist artwork — has been identified and should be addressed to complete your canonical profile.",
+    "executiveNarrative": "ATHENA™ has analyzed your complete music backend and found your infrastructure is fundamentally sound. Your catalog delivery is fully verified and backend systems are connected. The primary action required is completing your Apple Music identity profile with artist artwork.",
+    "topStrengths": [
+      {
+        "id": "obs_58b1e7698abb9d91",
+        "ruleId": "catalog.complete-delivery-verified",
+        "category": "CATALOG",
+        "severity": "INFO",
+        "confidence": "HIGH",
+        "title": "Complete catalog delivery verified",
+        "description": "All identified recordings have corresponding release linkage in reviewed sources.",
+        "recommendation": "Continue current catalog delivery practices.",
+        "evidence": [],
+        "providerSources": []
+      }
+    ],
     "topRisks": [],
-    "topOpportunities": [],
-    "priorityActions": [],
-    "confidenceStatement": "",
-    "recommendedNextStep": "",
-    "aiExecutiveInsight": "",
+    "topOpportunities": [
+      {
+        "observationId": "obs_241f57d47619b6b7",
+        "ruleId": "identity.apple.artwork-missing",
+        "category": "IDENTITY",
+        "severity": "MEDIUM",
+        "title": "Canonical identity profile is missing artwork"
+      }
+    ],
+    "priorityActions": [
+      {
+        "observationId": "obs_241f57d47619b6b7",
+        "ruleId": "identity.apple.artwork-missing",
+        "recommendation": "Add high-quality artwork to your Apple Music artist profile to complete your canonical identity. This is required for full platform verification and improves discoverability across all reviewed sources.",
+        "potentialScoreGain": 3
+      }
+    ],
+    "confidenceStatement": "Analysis based on available data from 3 reviewed platforms. Coverage confidence is partial.",
+    "recommendedNextStep": "Complete your Apple Music artist profile",
+    "aiExecutiveInsight": "Your music backend infrastructure is fundamentally sound with complete catalog delivery and strong backend connectivity. The primary opportunity for improvement is addressing your Apple Music artist artwork gap — a quick action that completes your canonical identity profile and unlocks full platform verification. With one priority action to address, your score of 89 positions you well above average. Completing the artwork addition will move you toward Grade B and establish verified canonical identity across all reviewed platforms.",
     "reserved": {
       "monitoring": null,
       "revenue": null

@@ -1403,6 +1403,22 @@ if (typeof window !== 'undefined') {
 
     // Ecosystem Status — built last so all plans are available
     _vaultPlans.ecosystemStatusPlan = buildEcosystemStatusPlan(payload, _vaultPlans);
+
+    // Workspace bridge — write the intelligence subset workspace pages need.
+    // Uses a non-consumed key (never removed) so workspace pages can read it
+    // after navigating away from MC. Mirrors royalte_session_context pattern.
+    try {
+      sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+        artistName:           _vaultPlans.artistName                          ?? null,
+        subject:              payload.subject                                 ?? null,
+        executiveBrief:       payload.executiveBrief                          ?? null,
+        healthReport:         payload.healthReport                            ?? null,
+        healthIntelligence:   payload.healthIntelligence                     ?? null,
+        healthScore:          payload.healthScore                             ?? null,
+        royalteAI:            payload.royalteAI                               ?? null,
+        globalMusicFootprint: payload.globalMusicFootprint                   ?? null,
+      }));
+    } catch (_e) {}
   };
 
   window.__mcRevealModule = function (id) {
