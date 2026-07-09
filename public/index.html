@@ -654,6 +654,9 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
    does not recalculate hero height and shift layout below it. */
 @media(max-width:640px){
   .new-hero{height:auto;min-height:auto;}
+  /* Anchor collage images to top so heads/faces are not cropped.
+     !important overrides per-image inline object-position styles. */
+  .nh-collage img{object-position:center top !important;}
 }
 /* ═══════════════════════════════════════════════════════════
    SCAN RESULT CARD UPGRADES — visual/UX patch (additive only)
