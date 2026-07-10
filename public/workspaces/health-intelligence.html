@@ -505,6 +505,145 @@
 </div><!-- /ws-shell -->
 
 <script>
+/* Health Intelligence™ — Live Wiring
+ * Sources: healthIntelligence, monitoringIntelligence, scannedAt
+ *          (from royalte_workspace_context via __mcPopulate)
+ * Runs synchronously so data-target is set before count-up DOMContentLoaded fires.
+ * No data → static placeholder preserved unchanged.
+ */
+(function () {
+  'use strict';
+  var ctx = {};
+  try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+
+  var hi = ctx.healthIntelligence || null;
+  if (!hi) return;
+
+  var mi = ctx.monitoringIntelligence || null;
+
+  function scoreColor(s) {
+    if (s >= 80) return 'green';
+    if (s >= 60) return 'blue';
+    if (s >= 40) return 'orange';
+    return 'purple';
+  }
+  function scoreLabel(s) {
+    if (s === 100) return 'Excellent';
+    if (s >= 80)   return 'Strong';
+    if (s >= 60)   return 'Good';
+    if (s >= 40)   return 'Moderate';
+    if (s > 0)     return 'Needs Attention';
+    return 'Critical';
+  }
+  function setPill(el, score, labelOverride) {
+    if (!el) return;
+    var col = scoreColor(score);
+    var dot = el.querySelector('.hi-status-dot');
+    el.className = 'hi-status-pill hi-status-pill--' + col;
+    el.textContent = labelOverride || scoreLabel(score);
+    if (dot) el.prepend(dot);
+  }
+
+  // ── Main health score ring ─────────────────────────────────
+  var score = hi.score != null ? Math.round(hi.score) : null;
+  if (score !== null) {
+    var ringNumEl = document.querySelector('.hi-score-ring-num');
+    if (ringNumEl) { ringNumEl.dataset.target = String(score); ringNumEl.textContent = '0'; }
+    var ringArc = document.querySelector('.hi-score-ring-progress');
+    if (ringArc) ringArc.style.strokeDasharray = (score / 100 * 251.327).toFixed(1) + ' 252';
+    setPill(document.querySelector('.hi-score-meta-row .hi-status-pill'), score, hi.status || null);
+  }
+
+  // ── Breakdown cols ─────────────────────────────────────────
+  // HTML order: Identity, Publishing, Catalog, Change Det., Footprint, Backend
+  var BREAKDOWN = [
+    hi.identityScore, hi.publishingScore, hi.catalogScore,
+    hi.monitoringScore, hi.footprintScore, hi.backendScore
+  ];
+  var bVals = document.querySelectorAll('.hi-kpi-breakdown-val');
+  BREAKDOWN.forEach(function (s, i) {
+    if (bVals[i] && s != null) bVals[i].textContent = String(Math.round(s));
+  });
+
+  // ── Category cards ─────────────────────────────────────────
+  // HTML order: Identity, Publishing, Catalog, Change Detection, Backend, Footprint
+  // (Backend and Footprint are swapped vs breakdown col order above)
+  var CARD_SCORES = [
+    hi.identityScore, hi.publishingScore, hi.catalogScore,
+    hi.monitoringScore, hi.backendScore, hi.footprintScore
+  ];
+  var isFirstScan = mi && (mi.status === 'baseline' || mi.scanNumber <= 1);
+  var catCards = document.querySelectorAll('.hi-cat-card');
+  CARD_SCORES.forEach(function (s, i) {
+    var card = catCards[i];
+    if (!card || s == null) return;
+    var cs = Math.round(s);
+    var col = scoreColor(cs);
+
+    var numEl = card.querySelector('.hi-cat-score-num');
+    if (numEl) { numEl.textContent = String(cs); numEl.className = 'hi-cat-score-num hi-cat-score-num--' + col; }
+
+    var prog = card.querySelector('.hi-cat-progress');
+    if (prog) prog.setAttribute('aria-valuenow', String(cs));
+    var fill = card.querySelector('.hi-cat-progress-fill');
+    if (fill) { fill.style.setProperty('--pct', cs + '%'); fill.className = 'hi-cat-progress-fill hi-cat-progress-fill--' + col; }
+
+    setPill(card.querySelector('.hi-status-pill'), cs);
+
+    var mvEl = card.querySelector('.hi-cat-movement');
+    if (mvEl && isFirstScan) { mvEl.className = 'hi-cat-movement'; mvEl.textContent = '— First Scan'; }
+  });
+
+  // ── ATHENA monitoring card ─────────────────────────────────
+  var athPill = document.querySelector('.hi-kpi-card--ai .hi-status-pill');
+  if (athPill && mi) {
+    var mpDot = athPill.querySelector('.hi-status-dot');
+    if (mi.status === 'baseline' || mi.scanNumber <= 1) {
+      athPill.className = 'hi-status-pill hi-status-pill--blue';
+      athPill.textContent = 'Baseline Established';
+    } else if (mi.newThisScan > 0) {
+      athPill.className = 'hi-status-pill hi-status-pill--orange';
+      athPill.textContent = mi.newThisScan + ' Change' + (mi.newThisScan > 1 ? 's' : '') + ' Detected';
+    } else {
+      athPill.className = 'hi-status-pill hi-status-pill--green';
+      athPill.textContent = 'No Changes Detected';
+    }
+    if (mpDot) athPill.prepend(mpDot);
+  }
+
+  var briefs = document.querySelectorAll('.hi-kpi-athena-brief');
+  if (briefs[0] && hi.strengths && hi.strengths.length > 0) briefs[0].textContent = hi.strengths[0];
+  if (briefs[1]) {
+    if (hi.concerns && hi.concerns.length > 0) {
+      briefs[1].textContent = hi.concerns[0];
+    } else {
+      var lowNames = [];
+      [
+        { name: 'Publishing', val: hi.publishingScore },
+        { name: 'Footprint',  val: hi.footprintScore  },
+        { name: 'Identity',   val: hi.identityScore   },
+        { name: 'Monitoring', val: hi.monitoringScore  },
+      ].forEach(function (x) { if (x.val != null && x.val < 60) lowNames.push(x.name); });
+      if (lowNames.length > 0) briefs[1].textContent = lowNames.slice(0, 2).join(' and ') + ' require' + (lowNames.length === 1 ? 's' : '') + ' your attention.';
+    }
+  }
+
+  // ── Scan date ──────────────────────────────────────────────
+  if (ctx.scannedAt) {
+    try {
+      var sd = new Date(ctx.scannedAt);
+      var now = new Date();
+      var tStr = sd.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      var dateStr = sd.toDateString() === now.toDateString()
+        ? 'Today, ' + tStr
+        : sd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + tStr;
+      var sdEl = document.getElementById('ht-scan-date');
+      if (sdEl) sdEl.textContent = dateStr;
+    } catch (_) {}
+  }
+}());
+</script>
+<script>
   /* Score count-up — 0 → 89 with ease-out cubic */
   document.addEventListener('DOMContentLoaded', function () {
     var el = document.querySelector('.hi-score-ring-num[data-target]');
