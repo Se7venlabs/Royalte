@@ -396,55 +396,71 @@
 
   .ob-btn--start:active { transform: scale(0.98); }
 
-  /* ── Footer skip ── */
-  .ob-footer {
+  /* ── Completion screen ── */
+  .ob-complete {
     width: 100%;
     max-width: 560px;
     text-align: center;
-    margin-top: 20px;
+    padding: 60px 0 40px;
+    animation: ob-fade-in 0.35s ease both;
   }
 
-  .ob-skip {
-    background: none;
-    border: none;
-    color: var(--soft);
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 12px;
-    cursor: pointer;
-    padding: 6px 12px;
-    border-radius: 4px;
-    transition: color 0.2s ease;
-    letter-spacing: 0.04em;
-  }
-
-  .ob-skip:hover { color: var(--muted); }
-
-  /* ── Saving state ── */
-  .ob-saving {
-    width: 100%;
-    max-width: 560px;
-    text-align: center;
-    padding: 60px 0;
-    animation: ob-fade-in 0.3s ease both;
-  }
-
-  .ob-saving-spinner {
-    width: 36px;
-    height: 36px;
-    border: 2px solid var(--track);
-    border-top-color: var(--pur);
+  .ob-complete-icon {
+    font-size: 22px;
+    font-weight: 700;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
-    animation: ob-spin 0.8s linear infinite;
-    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    animation: ob-check-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
   }
 
-  .ob-saving-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+  .ob-complete-icon--check {
+    background: rgba(64,240,160,0.1);
+    border: 1.5px solid rgba(64,240,160,0.38);
+    color: var(--grn);
   }
+
+  .ob-complete-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    animation: ob-fade-in 0.4s ease 0.3s both;
+  }
+
+  .ob-complete-sub {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.65;
+    max-width: 360px;
+    margin: 0 auto 32px;
+    animation: ob-fade-in 0.4s ease 0.45s both;
+  }
+
+  .ob-complete-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    animation: ob-fade-in 0.4s ease 0.6s both;
+  }
+
+  .ob-complete-dots span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--pur);
+    animation: ob-dot-pulse 1.2s ease-in-out infinite;
+  }
+
+  .ob-complete-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .ob-complete-dots span:nth-child(3) { animation-delay: 0.4s; }
 
   /* ── Animations ── */
   @keyframes ob-fade-in {
@@ -452,8 +468,14 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  @keyframes ob-spin {
-    to { transform: rotate(360deg); }
+  @keyframes ob-check-in {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes ob-dot-pulse {
+    0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+    40%           { opacity: 1;   transform: scale(1); }
   }
 
   /* ── Mobile ── */
@@ -482,10 +504,6 @@
   <button class="ob-btn ob-btn--back" id="ob-back" type="button">← Back</button>
   <button class="ob-btn ob-btn--continue" id="ob-continue" type="button" disabled>Continue →</button>
 </div>
-
-<footer class="ob-footer" id="ob-footer">
-  <button class="ob-skip" id="ob-skip" type="button">Skip for Now — I'll complete this later</button>
-</footer>
 
 <script type="module">
 import { getSupabase } from '/js/supabase-client.js';
@@ -576,6 +594,7 @@ const SECTIONS = [
       { value: 'Signed',        label: 'Signed to a record label', badge: 'Label deal' },
       { value: 'Distribution',  label: 'Distribution deal only' },
       { value: 'Own Label',     label: 'I run my own label' },
+      { value: 'Other',         label: 'Other / Not sure' },
     ],
     conditionalPlaceholder: 'Label name (e.g. Columbia Records)',
   },
@@ -601,7 +620,7 @@ const SECTIONS = [
 ];
 
 // ── State ────────────────────────────────────────────────────────────────────
-let currentScreen = 'welcome'; // 'welcome' | 0..6 (section index) | 'saving'
+let currentScreen = 'welcome'; // 'welcome' | 0..6 (section index) | 'complete'
 const answers = {};            // key → value (+ conditionalKey → text if applicable)
 let supabase = null;
 let accessToken = null;
@@ -609,10 +628,8 @@ let accessToken = null;
 // ── DOM refs ─────────────────────────────────────────────────────────────────
 const content      = document.getElementById('ob-content');
 const nav          = document.getElementById('ob-nav');
-const footer       = document.getElementById('ob-footer');
 const backBtn      = document.getElementById('ob-back');
 const continueBtn  = document.getElementById('ob-continue');
-const skipBtn      = document.getElementById('ob-skip');
 const progressFill = document.getElementById('ob-progress-fill');
 const stepCounter  = document.getElementById('ob-step-counter');
 
@@ -750,21 +767,6 @@ function renderSection(idx) {
   }
 }
 
-function renderSaving() {
-  currentScreen = 'saving';
-  stepCounter.textContent = '';
-  setProgress(100);
-  nav.style.display = 'none';
-  footer.style.display = 'none';
-
-  content.innerHTML = `
-    <div class="ob-saving">
-      <div class="ob-saving-spinner"></div>
-      <div class="ob-saving-label">Saving your profile…</div>
-    </div>
-  `;
-}
-
 function esc(str) {
   if (typeof str !== 'string') return '';
   return str
@@ -784,7 +786,6 @@ function goToSection(idx) {
 function goToWelcome() {
   currentScreen = 'welcome';
   content.innerHTML = '';
-  footer.style.display = '';
   nav.style.display = 'none';
   renderWelcome();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -809,44 +810,75 @@ backBtn.addEventListener('click', () => {
   }
 });
 
-skipBtn.addEventListener('click', () => skipOnboarding());
-
-// ── Save / skip ──────────────────────────────────────────────────────────────
+// ── Save ─────────────────────────────────────────────────────────────────────
 async function saveProfile() {
-  renderSaving();
-  const body = { profile: { ...answers } };
-  await callSaveEndpoint(body);
+  // Show completion screen immediately — save happens in parallel.
+  // Redirect only after both the save and the minimum display time (1.8s) resolve.
+  renderComplete();
+  await Promise.all([
+    callSaveEndpoint({ profile: buildStructuredProfile(answers) }),
+    new Promise(r => setTimeout(r, 1800)),
+  ]);
+  redirectToMC();
 }
 
-async function skipOnboarding() {
-  renderSaving();
-  await callSaveEndpoint({ skipped: true });
+// Maps flat form answers into the canonical grouped profile structure.
+// Future intelligence groups (MLC, neighboring rights, sync, IPI/CAE) extend
+// this function without changing the API contract.
+function buildStructuredProfile(a) {
+  return {
+    performing_rights: {
+      pro:           a.pro           || null,
+      soundexchange: a.soundexchange || null,
+    },
+    publishing: {
+      publishing_admin: a.publishing_admin || null,
+      publisher:        a.publisher        || null,
+    },
+    distribution: {
+      distributor:       a.distribution       || null,
+      distributor_other: a.distribution_other || null,
+    },
+    recording: {
+      record_label: a.record_label || null,
+      label_name:   a.label_name   || null,
+    },
+    songwriter: {
+      songwriter_status: a.songwriter || null,
+    },
+  };
+}
+
+function renderComplete() {
+  currentScreen = 'complete';
+  stepCounter.textContent = '';
+  setProgress(100);
+  nav.style.display = 'none';
+
+  content.innerHTML = `
+    <div class="ob-complete">
+      <div class="ob-complete-icon ob-complete-icon--check">✓</div>
+      <div class="ob-complete-title">Music Rights Profile™ Saved</div>
+      <p class="ob-complete-sub">ATHENA™ is personalizing your intelligence…</p>
+      <div class="ob-complete-dots"><span></span><span></span><span></span></div>
+    </div>
+  `;
 }
 
 async function callSaveEndpoint(body) {
   try {
-    const headers = {
-      'Content-Type': 'application/json',
-    };
+    const headers = { 'Content-Type': 'application/json' };
     if (accessToken) headers['Authorization'] = 'Bearer ' + accessToken;
-
     const res = await fetch('/api/save-music-rights-profile', {
       method:  'POST',
       headers,
       body:    JSON.stringify(body),
     });
-
-    if (!res.ok) {
-      console.error('[onboarding] save failed:', res.status);
-      // Proceed anyway — don't strand the artist
-    }
+    if (!res.ok) console.error('[onboarding] save failed:', res.status);
   } catch (e) {
     console.error('[onboarding] save threw:', e.message);
-    // Proceed anyway
   }
-
-  // Always redirect to MC after save attempt
-  redirectToMC();
+  // Caller handles redirect — never call redirectToMC() here
 }
 
 function redirectToMC() {
