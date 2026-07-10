@@ -1335,6 +1335,30 @@ if (typeof window !== 'undefined') {
     const payload = await fetchScanPayload();
     if (!payload) return;
 
+    // Music Rights Profile™ — fetch from the authenticated user's Supabase profile.
+    // No workspace may query Supabase directly; MC is the sole intelligence bridge.
+    // Non-fatal: any auth/DB error leaves musicRightsProfile null and the workspace
+    // falls back to its static placeholder state.
+    let musicRightsProfile = null;
+    try {
+      const _mrpSb = getSupabase();
+      if (_mrpSb) {
+        const { data: { user: _mrpUser } } = await _mrpSb.auth.getUser();
+        if (_mrpUser?.id) {
+          const { data: _mrpRow } = await _mrpSb
+            .from('profiles')
+            .select('music_rights_profile')
+            .eq('id', _mrpUser.id)
+            .single();
+          musicRightsProfile = _mrpRow?.music_rights_profile ?? null;
+        }
+      }
+    } catch (_mrpErr) {}
+    // Preview fallback: use the profile bundled with the preview fixture payload.
+    if (!musicRightsProfile && payload.musicRightsProfile) {
+      musicRightsProfile = payload.musicRightsProfile;
+    }
+
     console.log('[mc-diag] __mcPopulate payload source — subject.artistName:', payload.subject?.artistName || '(none)', '| intelligence keys present:', ['identityIntelligence','publishingIntelligence','healthIntelligence','royalteAI','catalogIntelligence','globalMusicFootprint','backendIntelligence','monitoringIntelligence'].filter(k => payload[k] != null).join(',') || 'NONE');
 
     // Store artist name — sole source of truth for what subject MC is displaying.
@@ -1417,6 +1441,7 @@ if (typeof window !== 'undefined') {
         healthScore:          payload.healthScore                             ?? null,
         royalteAI:            payload.royalteAI                               ?? null,
         globalMusicFootprint: payload.globalMusicFootprint                   ?? null,
+        musicRightsProfile:   musicRightsProfile,
       }));
     } catch (_e) {}
   };

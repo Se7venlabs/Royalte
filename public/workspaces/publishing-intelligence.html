@@ -7,6 +7,127 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+<style>
+/* ── Music Rights Profile™ component ───────────────────────────────────────── */
+.pi-mrp-section {
+  background: linear-gradient(135deg, rgba(138,92,255,0.04) 0%, rgba(224,64,200,0.03) 100%);
+  border: 1px solid rgba(138,92,255,0.18);
+  border-radius: 12px;
+  padding: 22px 24px 18px;
+  margin-bottom: 24px;
+}
+.pi-mrp-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+.pi-mrp-title-block {}
+.pi-mrp-title {
+  font-family: var(--mc-font-brand, 'Rajdhani', sans-serif);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-text-primary, #e8e4f4);
+  margin-bottom: 3px;
+}
+.pi-mrp-tagline {
+  font-size: 11px;
+  color: rgba(132,128,168,0.7);
+  letter-spacing: 0.04em;
+}
+.pi-mrp-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.pi-mrp-health-block { text-align: right; }
+.pi-mrp-health-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: #40f0a0;
+  letter-spacing: -0.02em;
+}
+.pi-mrp-health-sub {
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(132,128,168,0.6);
+  margin-top: 3px;
+}
+.pi-mrp-status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.pi-mrp-status--optimized    { background: rgba(64,240,160,0.12); color: #40f0a0; border: 1px solid rgba(64,240,160,0.25); }
+.pi-mrp-status--partial      { background: rgba(255,192,64,0.12); color: #ffc040; border: 1px solid rgba(255,192,64,0.25); }
+.pi-mrp-status--needs        { background: rgba(240,80,96,0.12);  color: #f05060; border: 1px solid rgba(240,80,96,0.25); }
+.pi-mrp-status--unknown      { background: rgba(132,128,168,0.1); color: rgba(132,128,168,0.7); border: 1px solid rgba(132,128,168,0.2); }
+/* 6-field verification grid — 3 cols desktop, 2 tablet, 1 mobile */
+.pi-mrp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.pi-mrp-field {
+  background: rgba(10,9,20,0.55);
+  border: 1px solid rgba(138,92,255,0.12);
+  border-radius: 8px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+.pi-mrp-field-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(132,128,168,0.65);
+  margin-bottom: 5px;
+}
+.pi-mrp-field-value {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #e8e4f4;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pi-mrp-field-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.pi-mrp-badge--verified { background: rgba(64,240,160,0.1);  color: #40f0a0; }
+.pi-mrp-badge--none     { background: rgba(255,192,64,0.1);  color: #ffc040; }
+.pi-mrp-badge--missing  { background: rgba(240,80,96,0.1);   color: #f05060; }
+.pi-mrp-badge--unknown  { background: rgba(132,128,168,0.1); color: rgba(132,128,168,0.6); }
+.pi-mrp-footer {
+  border-top: 1px solid rgba(138,92,255,0.1);
+  padding-top: 11px;
+  font-size: 10.5px;
+  color: rgba(132,128,168,0.45);
+  letter-spacing: 0.03em;
+}
+@media (max-width: 960px) { .pi-mrp-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .pi-mrp-grid { grid-template-columns: 1fr; } .pi-mrp-header-row { flex-direction: column; } }
+</style>
 </head>
 <body>
 <div class="ws-shell ws-dept--publishing">
@@ -210,7 +331,71 @@
               <span class="ii-kpi-big-num">Strong</span>
             </div>
             <div class="ii-kpi-status-text ii-kpi-status-text--green">Active Collection</div>
-            <div class="ii-kpi-caption">SOCAN — Primary Society</div>
+            <div class="ii-kpi-caption" id="pi-kpi-pro-caption">SOCAN — Primary Society</div>
+          </div>
+
+        </div>
+
+        <!-- § Music Rights Profile™ ─────────────────────────────────── -->
+        <!-- Populated by the wiring script below from royalte_workspace_context -->
+        <div class="pi-mrp-section">
+
+          <div class="pi-mrp-header-row">
+            <div class="pi-mrp-title-block">
+              <div class="pi-mrp-title">Music Rights Profile™</div>
+              <div class="pi-mrp-tagline">Verified Artist Infrastructure · Private Intelligence Layer™</div>
+            </div>
+            <div class="pi-mrp-summary-right">
+              <div class="pi-mrp-health-block">
+                <div class="pi-mrp-health-score" id="pi-mrp-health-score">—</div>
+                <div class="pi-mrp-health-sub">Publishing Health™</div>
+              </div>
+              <div class="pi-mrp-status-badge pi-mrp-status--unknown" id="pi-mrp-status-badge">Not Configured</div>
+            </div>
+          </div>
+
+          <div class="pi-mrp-grid">
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Performing Rights</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-pro-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-pro-badge">Unknown</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Publishing Administrator</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-admin-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-admin-badge">Unknown</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Music Publisher</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-publisher-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-publisher-badge">Unknown</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Record Label</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-label-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-label-badge">Unknown</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Distributor</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-dist-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-dist-badge">Unknown</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">SoundExchange</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-sx-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-sx-badge">Unknown</div>
+            </div>
+
+          </div>
+
+          <div class="pi-mrp-footer" id="pi-mrp-footer">
+            Powered by Royaltē Private Intelligence Layer™
           </div>
 
         </div>
@@ -348,37 +533,38 @@
     <div class="pi-athena-body">
 
       <div class="pi-athena-rating-row">
-        <div class="pi-athena-rating-label">Current Rating</div>
-        <div class="pi-athena-rating-value">Moderate Risk</div>
+        <div class="pi-athena-rating-label">Publishing Health™</div>
+        <div class="pi-athena-rating-value" id="pi-athena-rating-value">Moderate Risk</div>
       </div>
 
       <div class="pi-athena-section">
-        <div class="pi-athena-section-label">Why This Rating</div>
-        <div class="pi-athena-section-body">ATHENA detected 2 compositions in your catalog that are not registered with The MLC. Unregistered works cannot collect mechanical royalties from U.S. digital streaming platforms.</div>
+        <div class="pi-athena-section-label">Your Infrastructure</div>
+        <div class="pi-athena-section-body" id="pi-athena-infra-body">Analyzing your verified publishing infrastructure…</div>
       </div>
 
       <div class="pi-athena-section">
-        <div class="pi-athena-section-label">Affected Works</div>
-        <div class="pi-athena-works-list">
+        <div class="pi-athena-section-label">Verified</div>
+        <div class="pi-athena-works-list" id="pi-athena-verified-list">
           <div class="pi-athena-work-row">
-            <div class="pi-athena-work-dot" aria-hidden="true"></div>
-            <div class="pi-athena-work-name">Somewhere Alone</div>
+            <div class="pi-athena-work-dot" aria-hidden="true" style="background:#40f0a0"></div>
+            <div class="pi-athena-work-name">Scanning profile…</div>
           </div>
+        </div>
+      </div>
+
+      <div class="pi-athena-section" id="pi-athena-gaps-section">
+        <div class="pi-athena-section-label">Gaps Identified</div>
+        <div class="pi-athena-works-list" id="pi-athena-gaps-list">
           <div class="pi-athena-work-row">
-            <div class="pi-athena-work-dot" aria-hidden="true"></div>
-            <div class="pi-athena-work-name">Ghost in the City</div>
+            <div class="pi-athena-work-dot" aria-hidden="true" style="background:#ffc040"></div>
+            <div class="pi-athena-work-name">Loading…</div>
           </div>
         </div>
       </div>
 
       <div class="pi-athena-section">
-        <div class="pi-athena-section-label">Why It Matters</div>
-        <div class="pi-athena-section-body">The MLC is the U.S. designated mechanical licensing collective. Every stream and download of these unregistered works generates royalties that The MLC cannot distribute without a registered claim. The royalties accumulate in an unclaimed pool.</div>
-      </div>
-
-      <div class="pi-athena-section">
         <div class="pi-athena-section-label">Recommended Action</div>
-        <div class="pi-athena-section-body">Register both works directly with The MLC. The process requires ISRC codes, ISWC codes (if available), and publisher information. Estimated completion: 15 minutes per work.</div>
+        <div class="pi-athena-section-body" id="pi-athena-action-body">Complete your Music Rights Profile™ to receive personalized recommendations.</div>
       </div>
 
     </div>
@@ -391,6 +577,262 @@
 </div>
 
 <script>
+// ── Publishing Intelligence™ — Music Rights Profile™ Wiring ─────────────────
+// Source: royalte_workspace_context.musicRightsProfile (written by MC)
+// Constitutional rule: this workspace NEVER queries Supabase directly.
+// MC is the sole intelligence bridge.
+(function () {
+  'use strict';
+
+  // ── Display name maps ──────────────────────────────────────────────────────
+  // Maps stored option values (from onboarding form) to human-readable labels.
+  var ADMIN_LABELS = {
+    'Songtrust':         'Songtrust',
+    'CD Baby Pro':       'CD Baby Pro Publishing',
+    'DistroKid Publish': 'DistroKid Publishing',
+    'TuneCore Pub':      'TuneCore Publishing',
+    'Sentric':           'Sentric Music',
+    'AWAL Pub':          'AWAL Publishing',
+    'Major Label':       'Through my label',
+    'Own Publisher':     'Self-administered',
+    'None':              'None',
+  };
+  var DIST_LABELS = {
+    'DistroKid':    'DistroKid',
+    'TuneCore':     'TuneCore',
+    'CD Baby':      'CD Baby',
+    'AWAL':         'AWAL',
+    'Amuse':        'Amuse',
+    'UnitedMasters': 'UnitedMasters',
+    'Major Label':  'Through my label',
+    'Other':        null, // use distributor_other
+  };
+  var LABEL_STATUS_LABELS = {
+    'Independent': 'Independent',
+    'Signed':      'Signed',
+    'Distribution': 'Distribution deal',
+    'Own Label':   'Independent Label',
+    'Other':       'Other',
+  };
+
+  // ── Publishing Health™ score ───────────────────────────────────────────────
+  // Weighted against 5 categories. Null = not configured = 0 pts.
+  // "None"/"No" = explicitly absent = 0 pts.
+  // Future: MLC, Neighboring Rights, Re:Sound, PPL, Sync add to the denominator.
+  function computeHealthScore(mrp) {
+    if (!mrp) return null;
+    var pr   = mrp.performing_rights || {};
+    var pub  = mrp.publishing        || {};
+    var dist = mrp.distribution      || {};
+    var score = 0;
+    // PRO (30 pts)
+    if (pr.pro && pr.pro !== 'None') score += 30;
+    // Publishing Admin (25 pts)
+    if (pub.publishing_admin && pub.publishing_admin !== 'None') score += 25;
+    // SoundExchange (20 pts, 5 for Unsure)
+    if (pr.soundexchange === 'Yes')    score += 20;
+    else if (pr.soundexchange === 'Unsure') score += 5;
+    // Distributor (15 pts)
+    if (dist.distributor) score += 15;
+    // Publisher entity (10 pts, 3 for Planned)
+    if (pub.publisher === 'Yes')      score += 10;
+    else if (pub.publisher === 'Planned') score += 3;
+    return Math.min(score, 100);
+  }
+
+  function healthStatus(score) {
+    if (score === null) return { label: 'Not Configured', cls: 'pi-mrp-status--unknown' };
+    if (score >= 80) return { label: 'Optimized',           cls: 'pi-mrp-status--optimized' };
+    if (score >= 50) return { label: 'Partially Optimized', cls: 'pi-mrp-status--partial' };
+    return             { label: 'Needs Attention',          cls: 'pi-mrp-status--needs' };
+  }
+
+  // ── Field resolution ───────────────────────────────────────────────────────
+  // Returns { display: string, badgeText: string, badgeCls: string }
+  function resolveField(value, noneValues) {
+    noneValues = noneValues || ['None', 'No'];
+    if (!value) {
+      return { display: '—', badgeText: 'Unknown', badgeCls: 'pi-mrp-badge--unknown' };
+    }
+    if (noneValues.indexOf(value) !== -1) {
+      return { display: value, badgeText: 'Not Set', badgeCls: 'pi-mrp-badge--none' };
+    }
+    return { display: value, badgeText: '✓ Verified', badgeCls: 'pi-mrp-badge--verified' };
+  }
+
+  function setText(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+  function setClass(el, cls) {
+    if (!el) return;
+    // Remove all pi-mrp-badge--* or pi-mrp-status--* classes then add new one
+    el.className = el.className.replace(/pi-mrp-(?:badge|status)--\S+/g, '').trim() + ' ' + cls;
+  }
+
+  // ── Main wiring ────────────────────────────────────────────────────────────
+  try {
+    var raw = sessionStorage.getItem('royalte_workspace_context');
+    if (!raw) return;
+    var ctx = JSON.parse(raw);
+    var mrp = ctx.musicRightsProfile;
+    if (!mrp) return;
+
+    var pr   = mrp.performing_rights || {};
+    var pub  = mrp.publishing        || {};
+    var dist = mrp.distribution      || {};
+    var rec  = mrp.recording         || {};
+
+    // ── Health score + status ──────────────────────────────────────────────
+    var score  = computeHealthScore(mrp);
+    var status = healthStatus(score);
+    setText('pi-mrp-health-score', score !== null ? String(score) : '—');
+    var statusEl = document.getElementById('pi-mrp-status-badge');
+    if (statusEl) {
+      statusEl.textContent = status.label;
+      statusEl.className = 'pi-mrp-status-badge ' + status.cls;
+    }
+
+    // ── PRO ────────────────────────────────────────────────────────────────
+    var proField = resolveField(pr.pro, ['None']);
+    setText('pi-mrp-pro-val', proField.display === '—' ? '—' : pr.pro);
+    var proBadgeEl = document.getElementById('pi-mrp-pro-badge');
+    if (proBadgeEl) { proBadgeEl.textContent = proField.badgeText; setClass(proBadgeEl, proField.badgeCls); }
+    // Wire Collection Health™ KPI caption
+    if (pr.pro && pr.pro !== 'None') {
+      setText('pi-kpi-pro-caption', pr.pro + ' — Primary Society');
+    }
+
+    // ── Publishing Admin ───────────────────────────────────────────────────
+    var adminVal = ADMIN_LABELS[pub.publishing_admin] || pub.publishing_admin || null;
+    var adminField = resolveField(adminVal, ['None']);
+    setText('pi-mrp-admin-val', adminField.display);
+    var adminBadgeEl = document.getElementById('pi-mrp-admin-badge');
+    if (adminBadgeEl) { adminBadgeEl.textContent = adminField.badgeText; setClass(adminBadgeEl, adminField.badgeCls); }
+
+    // ── Publisher entity ───────────────────────────────────────────────────
+    var publisherMap = { 'Yes': 'Publishing Company', 'No': 'No Entity', 'Planned': 'In Progress' };
+    var publisherVal = publisherMap[pub.publisher] || pub.publisher || null;
+    var publisherField = resolveField(publisherVal, ['No Entity']);
+    setText('pi-mrp-publisher-val', publisherField.display);
+    var publisherBadgeEl = document.getElementById('pi-mrp-publisher-badge');
+    if (publisherBadgeEl) { publisherBadgeEl.textContent = publisherField.badgeText; setClass(publisherBadgeEl, publisherField.badgeCls); }
+
+    // ── Record Label ───────────────────────────────────────────────────────
+    var labelDisplay = rec.label_name || LABEL_STATUS_LABELS[rec.record_label] || rec.record_label || null;
+    var labelField = resolveField(labelDisplay, ['Independent']);
+    setText('pi-mrp-label-val', labelField.display);
+    var labelBadgeEl = document.getElementById('pi-mrp-label-badge');
+    if (labelBadgeEl) {
+      // "Independent" is a valid confirmed state — show Verified not "Not Set"
+      var labelBadgeText = (rec.record_label && rec.record_label !== 'Other') ? '✓ Verified' : labelField.badgeText;
+      var labelBadgeCls  = (rec.record_label) ? 'pi-mrp-badge--verified' : labelField.badgeCls;
+      labelBadgeEl.textContent = labelBadgeText;
+      setClass(labelBadgeEl, labelBadgeCls);
+    }
+
+    // ── Distributor ────────────────────────────────────────────────────────
+    var distVal = dist.distributor === 'Other'
+      ? (dist.distributor_other || 'Other')
+      : (DIST_LABELS[dist.distributor] || dist.distributor || null);
+    var distField = resolveField(distVal, []);
+    setText('pi-mrp-dist-val', distField.display);
+    var distBadgeEl = document.getElementById('pi-mrp-dist-badge');
+    if (distBadgeEl) { distBadgeEl.textContent = distField.badgeText; setClass(distBadgeEl, distField.badgeCls); }
+
+    // ── SoundExchange ──────────────────────────────────────────────────────
+    var sxMap = { 'Yes': 'Registered', 'No': 'Not Registered', 'Unsure': 'Not Sure' };
+    var sxVal = sxMap[pr.soundexchange] || null;
+    var sxField = resolveField(sxVal, ['Not Registered']);
+    setText('pi-mrp-sx-val', sxField.display);
+    var sxBadgeEl = document.getElementById('pi-mrp-sx-badge');
+    if (sxBadgeEl) {
+      var sxBadgeText = pr.soundexchange === 'Unsure' ? '⚠ Not Sure' : sxField.badgeText;
+      var sxBadgeCls  = pr.soundexchange === 'Unsure' ? 'pi-mrp-badge--none' : sxField.badgeCls;
+      sxBadgeEl.textContent = sxBadgeText;
+      setClass(sxBadgeEl, sxBadgeCls);
+    }
+
+    // ── Footer ─────────────────────────────────────────────────────────────
+    var footerEl = document.getElementById('pi-mrp-footer');
+    if (footerEl && mrp.meta) {
+      var lastUpdated = mrp.meta.last_updated_at
+        ? new Date(mrp.meta.last_updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : null;
+      footerEl.textContent = lastUpdated
+        ? 'Powered by Royaltē Private Intelligence Layer™  ·  Last updated ' + lastUpdated
+        : 'Powered by Royaltē Private Intelligence Layer™';
+    }
+
+    // ── ATHENA™ panel wiring ───────────────────────────────────────────────
+    var verifiedItems = [];
+    var gapItems      = [];
+
+    if (pr.pro && pr.pro !== 'None')                       verifiedItems.push('Your ' + pr.pro + ' registration has been confirmed.');
+    else if (pr.pro === 'None')                            gapItems.push('No PRO registered — you may be missing public performance royalties.');
+    else                                                   gapItems.push('PRO registration status is unknown.');
+
+    if (pub.publishing_admin && pub.publishing_admin !== 'None')
+      verifiedItems.push("You're currently using " + (ADMIN_LABELS[pub.publishing_admin] || pub.publishing_admin) + ' for publishing administration.');
+    else                                                   gapItems.push('No publishing administrator detected — compositions may not be registered globally.');
+
+    if (pr.soundexchange === 'Yes')                        verifiedItems.push('SoundExchange registration confirmed — digital performance royalties are being collected.');
+    else if (pr.soundexchange === 'No')                    gapItems.push('SoundExchange not registered — non-interactive streaming royalties are unclaimed.');
+    else                                                   gapItems.push('SoundExchange status is unverified.');
+
+    if (dist.distributor)                                  verifiedItems.push('Distribution confirmed via ' + (DIST_LABELS[dist.distributor] || dist.distributor) + '.');
+    else                                                   gapItems.push('Distribution path is not configured in your profile.');
+
+    if (pub.publisher === 'Yes')                           verifiedItems.push('Publishing entity confirmed — works can be registered with The MLC.');
+    else if (pub.publisher === 'No')                       gapItems.push('No publishing entity — MLC self-registration requires a registered publisher.');
+    else if (pub.publisher === 'Planned')                  gapItems.push('Publishing entity in progress — complete setup to unlock MLC registration.');
+
+    // Rating
+    var ratingText = score !== null
+      ? (score >= 80 ? 'Optimized' : score >= 50 ? 'Partially Optimized' : 'Needs Attention') + ' (' + score + '/100)'
+      : 'Profile Incomplete';
+    setText('pi-athena-rating-value', ratingText);
+
+    // Infrastructure summary
+    var infraLines = [];
+    if (verifiedItems.length) infraLines.push(verifiedItems.length + ' of 5 infrastructure areas confirmed as active.');
+    if (gapItems.length)      infraLines.push(gapItems.length + ' area' + (gapItems.length > 1 ? 's' : '') + ' require attention to ensure full royalty collection.');
+    setText('pi-athena-infra-body', infraLines.join(' ') || 'Complete your Music Rights Profile™ for personalized analysis.');
+
+    // Verified list
+    var verifiedListEl = document.getElementById('pi-athena-verified-list');
+    if (verifiedListEl) {
+      if (verifiedItems.length) {
+        verifiedListEl.innerHTML = verifiedItems.map(function (v) {
+          return '<div class="pi-athena-work-row"><div class="pi-athena-work-dot" aria-hidden="true" style="background:#40f0a0"></div><div class="pi-athena-work-name">' + v + '</div></div>';
+        }).join('');
+      } else {
+        verifiedListEl.innerHTML = '<div class="pi-athena-work-row"><div class="pi-athena-work-dot" aria-hidden="true"></div><div class="pi-athena-work-name">No confirmed infrastructure yet. Complete your profile to see what\'s active.</div></div>';
+      }
+    }
+
+    // Gaps list
+    var gapsSection = document.getElementById('pi-athena-gaps-section');
+    var gapsListEl  = document.getElementById('pi-athena-gaps-list');
+    if (gapItems.length && gapsListEl) {
+      gapsListEl.innerHTML = gapItems.map(function (g) {
+        return '<div class="pi-athena-work-row"><div class="pi-athena-work-dot" aria-hidden="true" style="background:#ffc040"></div><div class="pi-athena-work-name">' + g + '</div></div>';
+      }).join('');
+    } else if (gapsSection) {
+      gapsSection.hidden = true;
+    }
+
+    // Recommended action
+    var actionText = gapItems.length
+      ? 'Priority: ' + gapItems[0]
+      : 'Your publishing infrastructure is strong. Continue monitoring for new opportunities via Royaltē.';
+    setText('pi-athena-action-body', actionText);
+
+  } catch (_e) {
+    // Silent fail — static placeholder HTML remains
+  }
+}());
+
 function piOpenAthena() {
   var overlay = document.getElementById('pi-athena-overlay');
   overlay.hidden = false;
