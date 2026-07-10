@@ -183,6 +183,25 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     }
 
     await sleep(600);
+
+    // Music Rights Profile™ gate — first-time users see the onboarding flow.
+    // Query the profile directly; the anon-key client can read the user's own row.
+    // Non-fatal: any DB error falls through to MC so the auth path is never blocked.
+    let _onboardingDone = false;
+    try {
+      const { data: _prof } = await supabase
+        .from('profiles')
+        .select('onboarding_completed_at')
+        .eq('id', session.user.id)
+        .single();
+      _onboardingDone = !!_prof?.onboarding_completed_at;
+    } catch (_profErr) { /* fall through — non-blocking */ }
+
+    if (!_onboardingDone) {
+      window.location.href = '/onboarding.html';
+      return;
+    }
+
     // Phase 4.1: all MC access goes through the Intelligence Vault.
     // Pass pending scan_id if present (email confirmation path).
     let _vaultDest = '/mission-control.html?vault=1';

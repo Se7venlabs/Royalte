@@ -82,6 +82,10 @@
       "dest": "/api/claim-scan.js"
     },
     {
+      "src": "/api/save-music-rights-profile",
+      "dest": "/api/save-music-rights-profile.js"
+    },
+    {
       "src": "/demo.html",
       "dest": "/public/demo.html"
     },
