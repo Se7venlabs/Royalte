@@ -5977,6 +5977,7 @@ a.ci-function-card:hover .ci-artwork-container {
 .ws-dept--ai-insights .ai-priorities-section,
 .ws-dept--ai-insights .ai-forecast-section   { gap: 8px; }
 .ws-dept--ai-insights .ai-forecast-section   { display: flex; flex-direction: column; }
+.ws-dept--ai-insights .ai-forecast-eyebrow-row { margin-top: 4px; }
 .ws-dept--ai-insights .ai-priorities-list    { gap: 3px; }
 .ws-dept--ai-insights .ai-priority-row       { padding: 6px 12px; gap: 12px; }
 .ws-dept--ai-insights .ai-priority-desc      { display: block; }
