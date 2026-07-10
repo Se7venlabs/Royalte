@@ -1,16 +1,26 @@
 // POST /api/save-music-rights-profile
 //
 // Persists the Music Rights Profile™ for the authenticated artist.
-// Called by public/onboarding.html on "Complete Profile" and on "Skip for Now".
+// Called by public/onboarding.html after the artist completes all 7 sections.
+// The profile is required — there is no skip path.
 //
-// On "Skip for Now" the client sends { skipped: true } — we set
-// onboarding_completed_at without writing a profile object so the gate
-// never fires again while leaving music_rights_profile null.
+// The stored JSONB shape is:
+//   {
+//     meta:              { version, completed_at, last_updated_at }
+//     performing_rights: { pro, soundexchange }
+//     publishing:        { publishing_admin, publisher }
+//     distribution:      { distributor, distributor_other }
+//     recording:         { record_label, label_name }
+//     songwriter:        { songwriter_status }
+//   }
+//
+// The client (onboarding.html) assembles the grouped structure and sends it
+// as body.profile. This endpoint wraps it with the meta block before writing.
 //
 // Request:
 //   Authorization: Bearer <user_access_token>
 //   Content-Type: application/json
-//   Body: { profile: object } | { skipped: true }
+//   Body: { profile: object }
 //
 // Response:
 //   200 { ok: true }
@@ -52,25 +62,29 @@ export default async function handler(req, res) {
 
   // ── Validate body ─────────────────────────────────────────────────────────────
   const body = req.body || {};
-  const isSkip = body.skipped === true;
   const profile = body.profile;
 
-  if (!isSkip && (typeof profile !== 'object' || profile === null || Array.isArray(profile))) {
+  if (typeof profile !== 'object' || profile === null || Array.isArray(profile)) {
     return res.status(400).json({ error: 'profile object required' });
   }
 
   // ── Upsert ────────────────────────────────────────────────────────────────────
+  const now = new Date().toISOString();
+  // Wrap the client-supplied groups with the meta block.
+  // profile is expected to be pre-structured by the client:
+  //   { performing_rights, publishing, distribution, recording, songwriter }
   const updatePayload = {
-    onboarding_completed_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-  if (!isSkip) {
-    updatePayload.music_rights_profile = {
-      version: '1.0',
-      completed_at: new Date().toISOString(),
+    onboarding_completed_at: now,
+    updated_at: now,
+    music_rights_profile: {
+      meta: {
+        version:          '1.0',
+        completed_at:     now,
+        last_updated_at:  now,
+      },
       ...profile,
-    };
-  }
+    },
+  };
 
   const { error: updateErr } = await supabase
     .from('profiles')
