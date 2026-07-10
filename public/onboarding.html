@@ -521,14 +521,16 @@ const SECTIONS = [
     question: 'Are you registered with a PRO?',
     hint: 'A Performing Rights Organization collects royalties when your music is played publicly — on radio, TV, live venues, and streaming.',
     options: [
-      { value: 'ASCAP',   label: 'ASCAP' },
-      { value: 'BMI',     label: 'BMI' },
-      { value: 'SESAC',   label: 'SESAC' },
-      { value: 'SOCAN',   label: 'SOCAN', badge: 'Canada' },
-      { value: 'PRS',     label: 'PRS for Music', badge: 'UK' },
-      { value: 'APRA',    label: 'APRA AMCOS', badge: 'AU/NZ' },
-      { value: 'Other',   label: 'Other / International PRO' },
-      { value: 'None',    label: 'Not registered with a PRO' },
+      { value: 'ASCAP',  label: 'ASCAP',         badge: 'US' },
+      { value: 'BMI',    label: 'BMI',            badge: 'US' },
+      { value: 'SESAC',  label: 'SESAC',          badge: 'US' },
+      { value: 'SOCAN',  label: 'SOCAN',          badge: 'Canada' },
+      { value: 'PRS',    label: 'PRS for Music',  badge: 'UK' },
+      { value: 'APRA',   label: 'APRA AMCOS',     badge: 'AU/NZ' },
+      { value: 'GEMA',   label: 'GEMA',           badge: 'Germany' },
+      { value: 'SACEM',  label: 'SACEM',          badge: 'France' },
+      { value: 'Other',  label: 'Other / International PRO' },
+      { value: 'None',   label: 'Not Registered' },
     ],
   },
   {
@@ -537,85 +539,10 @@ const SECTIONS = [
     question: 'Are you registered with SoundExchange?',
     hint: 'SoundExchange collects digital performance royalties (non-interactive streaming and satellite radio) paid directly to recording artists — separate from your PRO.',
     options: [
-      { value: 'Yes',     label: 'Yes — I\'m registered with SoundExchange' },
-      { value: 'No',      label: 'Not registered' },
-      { value: 'Unsure',  label: 'I\'m not sure' },
+      { value: 'Yes',    label: 'Yes — I\'m registered with SoundExchange' },
+      { value: 'No',     label: 'Not registered' },
+      { value: 'Unsure', label: 'I\'m not sure' },
     ],
-  },
-  {
-    key: 'publishing_admin',
-    eyebrow: 'Publishing Administration',
-    question: 'Do you have a publishing administrator?',
-    hint: 'A publishing admin registers your compositions, collects sync fees, and tracks mechanical royalties globally on your behalf.',
-    options: [
-      { value: 'Songtrust',         label: 'Songtrust' },
-      { value: 'CD Baby Pro',       label: 'CD Baby Pro Publishing' },
-      { value: 'DistroKid Publish', label: 'DistroKid Publishing' },
-      { value: 'TuneCore Pub',      label: 'TuneCore Publishing' },
-      { value: 'Sentric',           label: 'Sentric Music' },
-      { value: 'AWAL Pub',          label: 'AWAL Publishing' },
-      { value: 'Major Label',       label: 'Through my label', badge: 'Label deal' },
-      { value: 'Own Publisher',     label: 'I administer my own publishing' },
-      { value: 'None',              label: 'No publishing admin' },
-    ],
-  },
-  {
-    key: 'songwriter',
-    eyebrow: 'Songwriting Credits',
-    question: 'Are you the songwriter or co-writer on your recordings?',
-    hint: 'This affects which publishing royalty streams apply to your catalog and how ATHENA™ weights composition intelligence.',
-    options: [
-      { value: 'Sole',    label: 'Yes — I\'m the sole songwriter' },
-      { value: 'Co',      label: 'Yes — I co-write with others' },
-      { value: 'No',      label: 'No — I perform but don\'t write the songs' },
-      { value: 'Mixed',   label: 'It varies across my catalog' },
-    ],
-  },
-  {
-    key: 'publisher',
-    eyebrow: 'Publishing Company',
-    question: 'Do you own or operate a publishing entity?',
-    hint: 'A publishing company (even a self-owned one) is required to register works with the MLC, collect mechanical royalties in the US, and split songwriter/publisher shares correctly.',
-    options: [
-      { value: 'Yes',     label: 'Yes — I have my own publishing company' },
-      { value: 'No',      label: 'No publishing entity' },
-      { value: 'Planned', label: 'Planning to set one up' },
-    ],
-  },
-  {
-    key: 'record_label',
-    conditionalKey: 'label_name',
-    conditionalTrigger: 'Signed',
-    eyebrow: 'Record Label Status',
-    question: 'What is your record label situation?',
-    hint: 'Label status affects how recording royalties are split, who owns the masters, and which distribution channels are available to you.',
-    options: [
-      { value: 'Independent',   label: 'Independent — I own my masters' },
-      { value: 'Signed',        label: 'Signed to a record label', badge: 'Label deal' },
-      { value: 'Distribution',  label: 'Distribution deal only' },
-      { value: 'Own Label',     label: 'I run my own label' },
-      { value: 'Other',         label: 'Other / Not sure' },
-    ],
-    conditionalPlaceholder: 'Label name (e.g. Columbia Records)',
-  },
-  {
-    key: 'distribution',
-    conditionalKey: 'distribution_other',
-    conditionalTrigger: 'Other',
-    eyebrow: 'Music Distribution',
-    question: 'Who distributes your music?',
-    hint: 'Your distributor determines how your music reaches streaming platforms and how mechanical royalties flow back to you.',
-    options: [
-      { value: 'DistroKid',   label: 'DistroKid' },
-      { value: 'TuneCore',    label: 'TuneCore' },
-      { value: 'CD Baby',     label: 'CD Baby' },
-      { value: 'AWAL',        label: 'AWAL' },
-      { value: 'Amuse',       label: 'Amuse' },
-      { value: 'UnitedMasters', label: 'UnitedMasters' },
-      { value: 'Major Label',   label: 'Through my label', badge: 'Label deal' },
-      { value: 'Other',         label: 'Other distributor' },
-    ],
-    conditionalPlaceholder: 'Distributor name',
   },
 ];
 
@@ -651,20 +578,20 @@ function renderWelcome() {
   content.innerHTML = `
     <div class="ob-welcome">
       <div class="ob-welcome-eyebrow">Private Intelligence Layer™</div>
-      <h1>Complete Your<br>Music Rights Profile™</h1>
+      <h1>Verify Your<br>Music Rights Profile™</h1>
       <p class="ob-welcome-sub">
-        Help ATHENA™ understand your music business so it can deliver accurate intelligence,
-        flag real gaps, and surface the opportunities that matter to you.
+        Royaltē has already discovered most of your music business automatically.
+        Two quick questions confirm what our backend cannot determine on its own.
       </p>
       <div class="ob-welcome-meta">
         <span class="ob-welcome-meta-dot"></span>
-        7 questions &nbsp;·&nbsp; 30–60 seconds &nbsp;·&nbsp; Private &amp; encrypted
+        2 questions &nbsp;·&nbsp; Under 30 seconds &nbsp;·&nbsp; Private &amp; encrypted
       </div>
       <div class="ob-welcome-features">
         <div class="ob-feature-chip">
           <span class="ob-feature-icon">⚡</span>
-          <span class="ob-feature-label">Sharper Intelligence</span>
-          <span class="ob-feature-desc">ATHENA™ weighs your answers to surface insights only relevant to your deal structure.</span>
+          <span class="ob-feature-label">Backend Intelligence</span>
+          <span class="ob-feature-desc">Royaltē auto-detects your label, distributor, and publisher from live catalog data.</span>
         </div>
         <div class="ob-feature-chip">
           <span class="ob-feature-icon">🔒</span>
@@ -672,13 +599,13 @@ function renderWelcome() {
           <span class="ob-feature-desc">Your rights profile is never shared or sold. It lives only inside your Royaltē account.</span>
         </div>
         <div class="ob-feature-chip">
-          <span class="ob-feature-icon">✏️</span>
-          <span class="ob-feature-label">Always Editable</span>
-          <span class="ob-feature-desc">Your situation changes. Update your profile anytime from Settings.</span>
+          <span class="ob-feature-icon">✓</span>
+          <span class="ob-feature-label">2 Questions Only</span>
+          <span class="ob-feature-desc">We only ask what our backend cannot determine. Everything else is discovered automatically.</span>
         </div>
       </div>
       <div class="ob-nav" style="max-width:560px;width:100%;display:flex">
-        <button class="ob-btn ob-btn--start" id="ob-start-btn" type="button">Start — Build My Profile →</button>
+        <button class="ob-btn ob-btn--start" id="ob-start-btn" type="button">Verify My Profile →</button>
       </div>
     </div>
   `;
@@ -822,29 +749,15 @@ async function saveProfile() {
   redirectToMC();
 }
 
-// Maps flat form answers into the canonical grouped profile structure.
-// Future intelligence groups (MLC, neighboring rights, sync, IPI/CAE) extend
-// this function without changing the API contract.
+// Maps form answers into the canonical grouped profile structure.
+// Artist supplies only performing_rights during onboarding.
+// All other groups (recording, distribution, publishing) are auto-populated
+// by Royaltē intelligence engines post-scan — they are not collected here.
 function buildStructuredProfile(a) {
   return {
     performing_rights: {
       pro:           a.pro           || null,
       soundexchange: a.soundexchange || null,
-    },
-    publishing: {
-      publishing_admin: a.publishing_admin || null,
-      publisher:        a.publisher        || null,
-    },
-    distribution: {
-      distributor:       a.distribution       || null,
-      distributor_other: a.distribution_other || null,
-    },
-    recording: {
-      record_label: a.record_label || null,
-      label_name:   a.label_name   || null,
-    },
-    songwriter: {
-      songwriter_status: a.songwriter || null,
     },
   };
 }

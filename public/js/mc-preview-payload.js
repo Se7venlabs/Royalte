@@ -792,28 +792,13 @@ const _FIXTURE = {
 
   "musicRightsProfile": {
     "meta": {
-      "version": "1.0",
+      "version": "2.0",
       "completed_at": "2026-07-10T10:00:00.000Z",
       "last_updated_at": "2026-07-10T10:00:00.000Z"
     },
     "performing_rights": {
       "pro": "SOCAN",
       "soundexchange": "Yes"
-    },
-    "publishing": {
-      "publishing_admin": "TuneCore Pub",
-      "publisher": "No"
-    },
-    "distribution": {
-      "distributor": "DistroKid",
-      "distributor_other": null
-    },
-    "recording": {
-      "record_label": "Own Label",
-      "label_name": "Castle Park Studioz"
-    },
-    "songwriter": {
-      "songwriter_status": "Sole"
     }
   }
 };

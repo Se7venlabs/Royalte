@@ -1,26 +1,24 @@
 // POST /api/save-music-rights-profile
 //
 // Persists the Music Rights Profile™ for the authenticated artist.
-// Called by public/onboarding.html after the artist completes all 7 sections.
+// Called by public/onboarding.html after the artist answers the 2 required questions.
 // The profile is required — there is no skip path.
 //
-// The stored JSONB shape is:
-//   {
-//     meta:              { version, completed_at, last_updated_at }
-//     performing_rights: { pro, soundexchange }
-//     publishing:        { publishing_admin, publisher }
-//     distribution:      { distributor, distributor_other }
-//     recording:         { record_label, label_name }
-//     songwriter:        { songwriter_status }
-//   }
+// Artist-supplied groups (onboarding):
+//   performing_rights: { pro, soundexchange }
 //
-// The client (onboarding.html) assembles the grouped structure and sends it
-// as body.profile. This endpoint wraps it with the meta block before writing.
+// Intelligence-auto-populated groups (future, added post-scan by intelligence engines):
+//   recording:    { record_label, label_name }       — from Apple Music catalog
+//   distribution: { distributor, distributor_other } — inferred from Apple Music
+//   publishing:   { publishing_admin, publisher }    — from MLC works
+//
+// The client sends only the groups it has. This endpoint wraps them with the
+// meta block before writing. Future intelligence groups merge in separately.
 //
 // Request:
 //   Authorization: Bearer <user_access_token>
 //   Content-Type: application/json
-//   Body: { profile: object }
+//   Body: { profile: { performing_rights: { pro, soundexchange } } }
 //
 // Response:
 //   200 { ok: true }
@@ -71,8 +69,8 @@ export default async function handler(req, res) {
   // ── Upsert ────────────────────────────────────────────────────────────────────
   const now = new Date().toISOString();
   // Wrap the client-supplied groups with the meta block.
-  // profile is expected to be pre-structured by the client:
-  //   { performing_rights, publishing, distribution, recording, songwriter }
+  // At onboarding: profile = { performing_rights: { pro, soundexchange } }
+  // Intelligence engines merge additional groups post-scan.
   const updatePayload = {
     onboarding_completed_at: now,
     updated_at: now,
