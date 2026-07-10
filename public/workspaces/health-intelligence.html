@@ -506,8 +506,12 @@
 
 <script>
   /* Health Intelligence™ — Live Wiring
-   * Sources: healthIntelligence, executiveBrief (royalte_workspace_context)
-   * Falls back silently to hardcoded UI when no live data is present.
+   * Sources: healthIntelligence, executiveBrief, healthReport
+   *          (all from royalte_workspace_context)
+   *
+   * When live intelligence is present: every metric is sourced from the
+   * intelligence pipeline. When absent: all metric fields show
+   * "Not Available Yet™" — never stale demo values.
    */
   (function () {
     'use strict';
@@ -517,8 +521,12 @@
 
     var hi = ctx.healthIntelligence || null;
     var eb = ctx.executiveBrief     || null;
+    var hr = ctx.healthReport       || null;
 
-    if (!hi) return;
+    var NA      = 'Not Available Yet™';
+    var PENDING = 'Awaiting Next Scan™';
+
+    // ── Shared helpers ──────────────────────────────────────────────────
 
     function scoreToStatus(s) {
       if (s == null) return 'Needs Review';
@@ -557,6 +565,67 @@
       } catch (_) { return null; }
     }
 
+    // ── No-data fallback — replace every hardcoded metric ───────────────
+    // Ensures stale demo values never display when no scan is in context.
+
+    if (!hi) {
+      var numElNA = document.querySelector('.hi-score-ring-num');
+      if (numElNA) {
+        numElNA.removeAttribute('data-target');
+        numElNA.textContent = '—';
+      }
+      var progNA = document.querySelector('.hi-score-ring-progress');
+      if (progNA) progNA.style.strokeDasharray = '0 252';
+
+      var scoreCardNA = document.querySelector('.hi-kpi-card--score');
+      if (scoreCardNA) {
+        var metaRowNA = scoreCardNA.querySelector('.hi-score-meta-row');
+        if (metaRowNA) {
+          var pillNA = metaRowNA.querySelector('.hi-status-pill');
+          if (pillNA) {
+            var dotNA = pillNA.querySelector('.hi-status-dot');
+            pillNA.className = 'hi-status-pill hi-status-pill--purple';
+            pillNA.textContent = NA;
+            if (dotNA) pillNA.insertBefore(dotNA, pillNA.firstChild);
+          }
+          var trendElNA = metaRowNA.querySelector('.hi-kpi-trend');
+          if (trendElNA) trendElNA.textContent = PENDING;
+        }
+      }
+
+      var dateElNA = document.getElementById('ht-scan-date');
+      if (dateElNA) dateElNA.textContent = NA;
+
+      var bElsNA = document.querySelectorAll('[data-hi-breakdown]');
+      for (var bNA = 0; bNA < bElsNA.length; bNA++) bElsNA[bNA].textContent = '—';
+
+      var athenaNA = document.querySelectorAll('.hi-kpi-athena-brief');
+      if (athenaNA.length >= 2) athenaNA[1].textContent = NA;
+
+      var cardsNA = document.querySelectorAll('[data-hi-domain]');
+      for (var kNA = 0; kNA < cardsNA.length; kNA++) {
+        var cardNA   = cardsNA[kNA];
+        var snumNA   = cardNA.querySelector('.hi-cat-score-num');
+        if (snumNA) snumNA.textContent = '—';
+        var fillNA   = cardNA.querySelector('.hi-cat-progress-fill');
+        if (fillNA) fillNA.style.setProperty('--pct', '0%');
+        var barNA    = cardNA.querySelector('.hi-cat-progress');
+        if (barNA) barNA.setAttribute('aria-valuenow', '0');
+        var cpillNA  = cardNA.querySelector('.hi-status-pill');
+        if (cpillNA) {
+          var cdotNA = cpillNA.querySelector('.hi-status-dot');
+          cpillNA.textContent = NA;
+          if (cdotNA) cpillNA.insertBefore(cdotNA, cpillNA.firstChild);
+        }
+        var moveNA = cardNA.querySelector('.hi-cat-movement');
+        if (moveNA) { moveNA.className = 'hi-cat-movement'; moveNA.textContent = PENDING; }
+      }
+
+      return;
+    }
+
+    // ── Live wiring — all values sourced from intelligence pipeline ─────
+
     var domainScores = {
       identity:   hi.identityScore,
       publishing: hi.publishingScore,
@@ -568,7 +637,7 @@
 
     var ds = hi.domainStatuses || {};
 
-    // ── Score ring ──────────────────────────────────────────────────────
+    // Score ring
     var score = (hi.score != null) ? Math.round(hi.score) : null;
     if (score !== null) {
       var numEl = document.querySelector('.hi-score-ring-num[data-target]');
@@ -583,7 +652,7 @@
       if (prog) prog.style.strokeDasharray = arcLen + ' 252';
     }
 
-    // ── Score ring status pill ──────────────────────────────────────────
+    // Score ring status pill
     var mainStatus = hi.status || scoreToStatus(score);
     var scoreCard  = document.querySelector('.hi-kpi-card--score');
     if (scoreCard) {
@@ -591,14 +660,21 @@
       if (metaRow) wirePill(metaRow.querySelector('.hi-status-pill'), mainStatus);
     }
 
-    // ── Scan date ───────────────────────────────────────────────────────
+    // Trend (no historical baseline yet → Awaiting Next Scan™)
+    var trendEl = document.querySelector('.hi-kpi-trend');
+    if (trendEl) {
+      var trendVal = (hr && hr.trend && hr.trend !== 'Unknown') ? hr.trend : null;
+      trendEl.textContent = trendVal || PENDING;
+    }
+
+    // Scan date
     var dateStr = fmtDate(hi.generatedAt);
     if (dateStr) {
       var dateEl = document.getElementById('ht-scan-date');
       if (dateEl) dateEl.textContent = dateStr;
     }
 
-    // ── Health breakdown grid ───────────────────────────────────────────
+    // Health breakdown grid
     var breakdownEls = document.querySelectorAll('[data-hi-breakdown]');
     for (var b = 0; b < breakdownEls.length; b++) {
       var bEl  = breakdownEls[b];
@@ -606,7 +682,7 @@
       if (bVal != null) bEl.textContent = Math.round(bVal);
     }
 
-    // ── ATHENA brief ────────────────────────────────────────────────────
+    // ATHENA brief second line
     var athena = document.querySelectorAll('.hi-kpi-athena-brief');
     if (athena.length >= 2) {
       var line2 = (eb && eb.aiExecutiveInsight)
@@ -615,7 +691,7 @@
       if (line2) athena[1].textContent = line2;
     }
 
-    // ── Monitoring coverage icons ───────────────────────────────────────
+    // Monitoring coverage icons
     var coverageStatus = {
       apple:      ds.backend,
       spotify:    ds.backend,
@@ -640,7 +716,7 @@
                 : '/icons/royalte-icon-registry.svg#royalte-alert');
     }
 
-    // ── Category cards ──────────────────────────────────────────────────
+    // Category cards
     var cards = document.querySelectorAll('[data-hi-domain]');
     for (var k = 0; k < cards.length; k++) {
       var card     = cards[k];
@@ -662,8 +738,9 @@
 
       wirePill(card.querySelector('.hi-status-pill'), st);
 
+      // No historical baseline yet — movement populates after subsequent scans
       var move = card.querySelector('.hi-cat-movement');
-      if (move) { move.className = 'hi-cat-movement'; move.textContent = '—'; }
+      if (move) { move.className = 'hi-cat-movement'; move.textContent = PENDING; }
     }
 
   }());
