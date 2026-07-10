@@ -159,8 +159,8 @@
   if (!container) return;
 
   // ═══════════════════════════════════════════════════════════
-  // § 1 — DATA
-  // Read intelligence context; extract raw values. No logic here.
+  // § 1 — CONTEXT
+  // Read external data. No business logic. No calculations.
   // ═══════════════════════════════════════════════════════════
 
   var ctx = RI.readContext();
@@ -173,7 +173,8 @@
 
   // ═══════════════════════════════════════════════════════════
   // § 2 — INTELLIGENCE
-  // Derive state and prepare data objects. Plain values only — no HTML.
+  // Interpret business meaning. Derive state and prepare data objects.
+  // No HTML generation. No DOM manipulation. Plain values only.
   // ═══════════════════════════════════════════════════════════
 
   var CAT_LABEL = {
@@ -263,9 +264,9 @@
   var changeGroups = moduleState === 'changed' ? buildChangeGroups(events) : [];
 
   // ═══════════════════════════════════════════════════════════
-  // § 3 — RENDERING
-  // Pure functions: receive prepared data objects, return HTML strings.
-  // No data access, no business logic, no side effects.
+  // § 3 — PRESENTATION
+  // Prepare visual output. Pure functions: receive prepared intelligence
+  // objects, return HTML strings. No data access. No business logic.
   // ═══════════════════════════════════════════════════════════
 
   function esc(s) {
@@ -338,8 +339,9 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // § 4 — DISPLAY
-  // Assemble prepared output and inject once into the DOM.
+  // § 4 — RENDER
+  // Update the DOM. Assemble §3 output; single container.innerHTML write.
+  // No intelligence calculations. No business logic.
   // ═══════════════════════════════════════════════════════════
 
   var CLOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" '
