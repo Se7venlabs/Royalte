@@ -1359,6 +1359,17 @@ if (typeof window !== 'undefined') {
       musicRightsProfile = payload.musicRightsProfile;
     }
 
+    // Record Label — first non-empty recordLabel from Apple Music album catalog.
+    // Available when Capability.LABELS fired; null otherwise.
+    var _appleRecordLabel = null;
+    var _appleAlbums = payload.platforms?.appleMusic?.details?.albums;
+    if (Array.isArray(_appleAlbums)) {
+      for (var _alb of _appleAlbums) {
+        var _lbl = typeof _alb?.recordLabel === 'string' ? _alb.recordLabel.trim() : '';
+        if (_lbl) { _appleRecordLabel = _lbl; break; }
+      }
+    }
+
     console.log('[mc-diag] __mcPopulate payload source — subject.artistName:', payload.subject?.artistName || '(none)', '| intelligence keys present:', ['identityIntelligence','publishingIntelligence','healthIntelligence','royalteAI','catalogIntelligence','globalMusicFootprint','backendIntelligence','monitoringIntelligence'].filter(k => payload[k] != null).join(',') || 'NONE');
 
     // Store artist name — sole source of truth for what subject MC is displaying.
@@ -1433,15 +1444,17 @@ if (typeof window !== 'undefined') {
     // after navigating away from MC. Mirrors royalte_session_context pattern.
     try {
       sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
-        artistName:           _vaultPlans.artistName                          ?? null,
-        subject:              payload.subject                                 ?? null,
-        executiveBrief:       payload.executiveBrief                          ?? null,
-        healthReport:         payload.healthReport                            ?? null,
-        healthIntelligence:   payload.healthIntelligence                     ?? null,
-        healthScore:          payload.healthScore                             ?? null,
-        royalteAI:            payload.royalteAI                               ?? null,
-        globalMusicFootprint: payload.globalMusicFootprint                   ?? null,
-        musicRightsProfile:   musicRightsProfile,
+        artistName:             _vaultPlans.artistName                        ?? null,
+        subject:                payload.subject                               ?? null,
+        executiveBrief:         payload.executiveBrief                        ?? null,
+        healthReport:           payload.healthReport                          ?? null,
+        healthIntelligence:     payload.healthIntelligence                   ?? null,
+        healthScore:            payload.healthScore                           ?? null,
+        royalteAI:              payload.royalteAI                             ?? null,
+        globalMusicFootprint:   payload.globalMusicFootprint                 ?? null,
+        publishingIntelligence: payload.publishingIntelligence               ?? null,
+        recordLabel:            _appleRecordLabel,
+        musicRightsProfile:     musicRightsProfile,
       }));
     } catch (_e) {}
   };

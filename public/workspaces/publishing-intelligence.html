@@ -581,9 +581,103 @@
 </div>
 
 <script>
-// ── Music Rights Profile™ wiring deferred — see next sprint brief ────────────
-// IDs are in place. Source: royalte_workspace_context.musicRightsProfile (MC bridge).
+// ── Music Rights Profile™ Live Wiring ─────────────────────────────────────────
+// Source: royalte_workspace_context (written by mission-control.js __mcPopulate).
 // Constitutional rule: this workspace NEVER queries Supabase directly.
+//
+// Data availability per field (as of this sprint):
+//   PRO, SoundExchange   — musicRightsProfile.performing_rights (artist-verified)
+//   Record Label         — recordLabel (extracted from Apple Music albums)
+//   Distributor          — not yet available in pipeline (shows —)
+//   Publisher            — not yet available (mlc-adapter publishers[] pending)
+//   Publishing Admin     — not yet available (same as Publisher)
+(function () {
+  'use strict';
+
+  // ── Read workspace context ────────────────────────────────────────────────
+  var ctx = {};
+  try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+
+  var mrp = ctx.musicRightsProfile || null;
+  var pr  = (mrp && mrp.performing_rights) ? mrp.performing_rights : {};
+
+  // ── Field helper — sets value text and swaps badge class/label ────────────
+  function setField(valId, badgeId, displayValue, badgeClass, badgeLabel) {
+    var valEl   = document.getElementById(valId);
+    var badgeEl = document.getElementById(badgeId);
+    if (valEl) valEl.textContent = displayValue;
+    if (!badgeEl) return;
+    ['pi-mrp-badge--verified', 'pi-mrp-badge--none', 'pi-mrp-badge--missing',
+     'pi-mrp-badge--unknown',  'pi-mrp-badge--intel'].forEach(function (c) {
+      badgeEl.classList.remove(c);
+    });
+    badgeEl.classList.add(badgeClass);
+    if (badgeLabel !== undefined) badgeEl.textContent = badgeLabel;
+  }
+
+  // ── PRO ───────────────────────────────────────────────────────────────────
+  var proVal = pr.pro || null;
+  if (proVal && proVal !== 'None') {
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', proVal, 'pi-mrp-badge--verified', 'Verified');
+  } else if (proVal === 'None') {
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', 'Not Registered', 'pi-mrp-badge--none', 'Profile Source');
+  } else {
+    // No profile yet — leave default — placeholder state
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', '—', 'pi-mrp-badge--unknown', 'Profile Source');
+  }
+
+  // ── SoundExchange ─────────────────────────────────────────────────────────
+  var sxVal = pr.soundexchange || null;
+  if (sxVal === 'Yes') {
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Registered', 'pi-mrp-badge--verified', 'Verified');
+  } else if (sxVal === 'No') {
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Registered', 'pi-mrp-badge--none', 'Profile Source');
+  } else if (sxVal === 'Unsure') {
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Confirmed', 'pi-mrp-badge--none', 'Profile Source');
+  } else {
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', '—', 'pi-mrp-badge--unknown', 'Profile Source');
+  }
+
+  // ── Record Label (Apple Music) ────────────────────────────────────────────
+  var labelVal = ctx.recordLabel || null;
+  setField('pi-mrp-label-val', 'pi-mrp-label-badge',
+    labelVal || '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+
+  // ── Distributor — pipeline support pending ────────────────────────────────
+  setField('pi-mrp-dist-val', 'pi-mrp-dist-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+
+  // ── Music Publisher — pipeline support pending ────────────────────────────
+  setField('pi-mrp-publisher-val', 'pi-mrp-publisher-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+
+  // ── Publishing Administrator — pipeline support pending ───────────────────
+  setField('pi-mrp-admin-val', 'pi-mrp-admin-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+
+  // ── Publishing Health™ Score ──────────────────────────────────────────────
+  // Weights (Board-locked): PRO=30, Admin=25, SoundExchange=20, Distributor=15, Publisher=10
+  // Admin + Distributor + Publisher contribute 0 until pipeline support lands.
+  var score = 0;
+  if (proVal && proVal !== 'None') score += 30;
+  if (sxVal === 'Yes')             score += 20;
+
+  var scoreEl = document.getElementById('pi-mrp-health-score');
+  var statusEl = document.getElementById('pi-mrp-status-badge');
+
+  if (mrp) {
+    if (scoreEl) scoreEl.textContent = String(score);
+    if (statusEl) {
+      statusEl.className = 'pi-mrp-status-badge';
+      if (score >= 80) {
+        statusEl.classList.add('pi-mrp-status--optimized'); statusEl.textContent = 'Optimized';
+      } else if (score >= 50) {
+        statusEl.classList.add('pi-mrp-status--partial');   statusEl.textContent = 'Partial';
+      } else if (score >= 20) {
+        statusEl.classList.add('pi-mrp-status--needs');     statusEl.textContent = 'Needs Attention';
+      } else {
+        statusEl.classList.add('pi-mrp-status--unknown');   statusEl.textContent = 'Unverified';
+      }
+    }
+  }
+}());
 
 function piOpenAthena() {
   var overlay = document.getElementById('pi-athena-overlay');
