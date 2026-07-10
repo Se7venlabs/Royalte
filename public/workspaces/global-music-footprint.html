@@ -410,11 +410,38 @@
     calibrationMode: calParam,
   });
 
+  /* ── Global Music Footprint™ — Live Wiring ──────────────────────────
+   * Reads globalMusicFootprint from royalte_workspace_context (written by
+   * __mcPopulate). Injects live values before count-up animations run.
+   * No-data → static demo values preserved.
+   */
+  (function () {
+    var ctx = {};
+    try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+    var gf = ctx.globalMusicFootprint || null;
+    if (!gf) return;
+    var rn = document.getElementById('gf-ring-num');
+    var cn = document.getElementById('gf-countries-num');
+    var cv = document.getElementById('gf-coverage-num');
+    if (rn) rn.dataset.liveTarget = String(gf.coveragePercent    || 0);
+    if (cn) cn.dataset.liveTarget = String(gf.territoriesAvailable || 0);
+    if (cv) cv.dataset.liveTarget = String(gf.coveragePercent    || 0);
+
+    var pill = document.querySelector('.gf-reach-pill');
+    if (pill && gf.status) {
+      var statusMap = { 'Global': 'Global Reach', 'Wide': 'Wide Reach', 'Moderate': 'Moderate', 'Limited': 'Limited Reach' };
+      pill.textContent = statusMap[gf.status] || gf.status;
+      if (gf.status === 'Limited' || gf.status === 'Moderate') pill.classList.add('gf-reach-pill--limited');
+    }
+    var narrative = document.querySelector('.gf-reach-narrative');
+    if (narrative && gf.reachNarrative) narrative.textContent = gf.reachNarrative;
+  }());
+
   /* ── ring count-up ────────────────────────────────────────── */
   var ringNum = document.getElementById('gf-ring-num');
   var ringArc = document.getElementById('gf-ring-arc');
-  var scoreTarget = 94;
-  var arcTarget   = 251 * (1 - scoreTarget / 100); /* ≈ 15 */
+  var scoreTarget = (ringNum && ringNum.dataset.liveTarget) ? parseInt(ringNum.dataset.liveTarget, 10) : 94;
+  var arcTarget   = 251 * (1 - scoreTarget / 100);
 
   function ease(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
 
@@ -434,18 +461,20 @@
   requestAnimationFrame(ringStep);
 
   /* ── countries count-up ────────────────────────────────────── */
-  var countriesEl = document.getElementById('gf-countries-num');
-  var coverageEl  = document.getElementById('gf-coverage-num');
+  var countriesEl    = document.getElementById('gf-countries-num');
+  var coverageEl     = document.getElementById('gf-coverage-num');
+  var liveCountries  = (countriesEl && countriesEl.dataset.liveTarget) ? parseInt(countriesEl.dataset.liveTarget, 10) : 142;
+  var liveCoverage   = (coverageEl  && coverageEl.dataset.liveTarget)  ? parseInt(coverageEl.dataset.liveTarget,  10) : 94;
   var s2 = null;
 
   function countStep(ts) {
     if (!s2) s2 = ts;
     var p = Math.min((ts - s2) / 1200, 1);
     var ep = ease(p);
-    countriesEl.textContent = Math.round(ep * 142);
-    coverageEl.textContent  = Math.round(ep * 94);
+    countriesEl.textContent = Math.round(ep * liveCountries);
+    coverageEl.textContent  = Math.round(ep * liveCoverage);
     if (p < 1) requestAnimationFrame(countStep);
-    else { countriesEl.textContent = 142; coverageEl.textContent = 94; }
+    else { countriesEl.textContent = liveCountries; coverageEl.textContent = liveCoverage; }
   }
 
   requestAnimationFrame(countStep);

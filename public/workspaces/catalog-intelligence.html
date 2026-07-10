@@ -527,10 +527,76 @@
     }
   } catch(e) {}
 })();
+<script>
+/* Catalog Intelligence™ — Live Wiring
+ * Sources: catalogIntelligence, healthIntelligence, catalog
+ *          (all from royalte_workspace_context, written by __mcPopulate)
+ * Presentation-only. Never queries Supabase. No-data → leaves static demo.
+ */
+(function () {
+  'use strict';
+  var ctx = {};
+  try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+
+  var ci  = ctx.catalogIntelligence || null;
+  var hi  = ctx.healthIntelligence  || null;
+  var cat = ctx.catalog             || null;
+
+  /* ── Ring target — set data-live-target for animation below ─────────── */
+  var ringScore = (hi && hi.catalogScore != null) ? Math.round(hi.catalogScore) : null;
+  if (ringScore !== null) {
+    var ringNumEl = document.getElementById('ci-ring-num');
+    if (ringNumEl) ringNumEl.dataset.liveTarget = String(ringScore);
+    var ringArc = document.querySelector('.ci-readiness-ring-progress');
+    if (ringArc) ringArc.style.strokeDasharray = (ringScore / 100 * 251.327).toFixed(1) + ' 252';
+    var ringWrap = document.querySelector('.ci-readiness-ring-wrap');
+    if (ringWrap) ringWrap.setAttribute('aria-label', 'Catalog readiness: ' + ringScore + '%');
+  }
+
+  /* ── KPI — Total Tracks card (index 1) ─────────────────────────────── */
+  if (ci) {
+    var kpiCards = document.querySelectorAll('.hi-kpi-row .hi-kpi-card');
+    if (kpiCards.length >= 2) {
+      var tc = kpiCards[1];
+      var tcNum = tc.querySelector('.ii-kpi-big-num'); if (tcNum) tcNum.textContent = String(ci.totalTracks || 0);
+      var tcSt  = tc.querySelector('.ii-kpi-status-text');
+      if (tcSt) {
+        var projects = (ci.albums || 0) + (ci.eps || 0);
+        tcSt.textContent = projects > 0 ? 'Across ' + projects + ' Projects' : ci.catalogStatus || 'Limited Catalog';
+      }
+      var tcCap = tc.querySelector('.ii-kpi-caption');
+      if (tcCap) {
+        var parts = [];
+        if (ci.albums)  parts.push(ci.albums  + ' Album'  + (ci.albums  > 1 ? 's' : ''));
+        if (ci.eps)     parts.push(ci.eps     + ' EP'     + (ci.eps     > 1 ? 's' : ''));
+        if (ci.singles) parts.push(ci.singles + ' Single' + (ci.singles > 1 ? 's' : ''));
+        tcCap.textContent = parts.length > 0 ? parts.join(' · ') : 'Awaiting Next Scan™';
+      }
+    }
+  }
+
+  /* ── Catalog Snapshot™ stats ─────────────────────────────────────────── */
+  if (ci) {
+    var snapNums = document.querySelectorAll('.ci-snap-stat-num');
+    if (snapNums.length >= 4) {
+      snapNums[0].textContent = String(ci.singles    || 0);
+      snapNums[1].textContent = String(ci.albums     || 0);
+      snapNums[2].textContent = String(ci.eps        || 0);
+      snapNums[3].textContent = String(ci.totalTracks || 0);
+    }
+    /* Latest release meta row */
+    var metaVals = document.querySelectorAll('.ci-snap-meta-val');
+    if (metaVals.length >= 1 && cat && cat.latestYear) {
+      metaVals[0].textContent = 'Latest Release — ' + cat.latestYear;
+    }
+  }
+}());
+</script>
 (function() {
   var el = document.getElementById('ci-ring-num');
   if (!el) return;
-  var target = 96, duration = 1400, start = null;
+  var target = (el.dataset.liveTarget) ? parseInt(el.dataset.liveTarget, 10) : 96;
+  var duration = 1400, start = null;
   function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
   function step(ts) {
     if (!start) start = ts;
