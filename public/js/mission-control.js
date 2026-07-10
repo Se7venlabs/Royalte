@@ -1444,17 +1444,24 @@ if (typeof window !== 'undefined') {
     // after navigating away from MC. Mirrors royalte_session_context pattern.
     try {
       sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
-        artistName:             _vaultPlans.artistName                        ?? null,
-        subject:                payload.subject                               ?? null,
-        executiveBrief:         payload.executiveBrief                        ?? null,
-        healthReport:           payload.healthReport                          ?? null,
-        healthIntelligence:     payload.healthIntelligence                   ?? null,
-        healthScore:            payload.healthScore                           ?? null,
-        royalteAI:              payload.royalteAI                             ?? null,
-        globalMusicFootprint:   payload.globalMusicFootprint                 ?? null,
-        publishingIntelligence: payload.publishingIntelligence               ?? null,
-        recordLabel:            _appleRecordLabel,
-        musicRightsProfile:     musicRightsProfile,
+        artistName:              _vaultPlans.artistName                       ?? null,
+        subject:                 payload.subject                              ?? null,
+        executiveBrief:          payload.executiveBrief                       ?? null,
+        healthReport:            payload.healthReport                         ?? null,
+        healthIntelligence:      payload.healthIntelligence                   ?? null,
+        healthScore:             payload.healthScore                          ?? null,
+        royalteAI:               payload.royalteAI                            ?? null,
+        globalMusicFootprint:    payload.globalMusicFootprint                 ?? null,
+        publishingIntelligence:  payload.publishingIntelligence               ?? null,
+        identityIntelligence:    payload.identityIntelligence                 ?? null,
+        catalogIntelligence:     payload.catalogIntelligence                  ?? null,
+        backendIntelligence:     payload.backendIntelligence                  ?? null,
+        monitoringIntelligence:  payload.monitoringIntelligence               ?? null,
+        catalog:                 payload.catalog                              ?? null,
+        metrics:                 payload.metrics                              ?? null,
+        scannedAt:               payload.scannedAt                            ?? null,
+        recordLabel:             _appleRecordLabel,
+        musicRightsProfile:      musicRightsProfile,
       }));
     } catch (_e) {}
   };

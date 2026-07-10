@@ -677,6 +677,44 @@
       }
     }
   }
+
+  // ── KPI Cards — wire Publishing Coverage, Registered Works, PRO caption ──
+  var pi = ctx.publishingIntelligence || null;
+  var kpiCards = document.querySelectorAll('.hi-kpi-row .hi-kpi-card');
+
+  if (pi && kpiCards.length >= 3) {
+    // Card 2 (index 1): Publishing Coverage™
+    var c2 = kpiCards[1];
+    var bn2 = c2.querySelector('.ii-kpi-big-num'); if (bn2) bn2.textContent = String(pi.coverage || 0);
+    var cap2 = c2.querySelector('.ii-kpi-caption');
+    if (cap2) cap2.textContent = 'Across ' + (pi.supportedSources ? pi.supportedSources.length : 1) + ' Publishing Systems';
+    var st2 = c2.querySelector('.ii-kpi-status-text');
+    if (st2) {
+      var cov = pi.coverage || 0;
+      if (cov >= 80) { st2.className = 'ii-kpi-status-text ii-kpi-status-text--green';  st2.textContent = 'Strong'; }
+      else if (cov >= 50) { st2.className = 'ii-kpi-status-text ii-kpi-status-text--orange'; st2.textContent = 'Moderate'; }
+      else { st2.className = 'ii-kpi-status-text ii-kpi-status-text--orange'; st2.textContent = 'Needs Attention'; }
+    }
+
+    // Card 3 (index 2): Registered Works™
+    var c3 = kpiCards[2];
+    var bn3 = c3.querySelector('.ii-kpi-big-num');    if (bn3) bn3.textContent = String(pi.registeredCount || 0);
+    var fr3 = c3.querySelector('.ii-kpi-fraction');   if (fr3) fr3.textContent = ' / ' + (pi.totalChecked || 0);
+    var st3 = c3.querySelector('.ii-kpi-status-text');
+    if (st3 && pi.totalChecked != null) {
+      var pending = (pi.totalChecked || 0) - (pi.registeredCount || 0);
+      st3.textContent = pending > 0 ? pending + ' Pending' : 'All Registered';
+    }
+    var cap3 = c3.querySelector('.ii-kpi-caption');
+    if (cap3 && pi.metrics) cap3.textContent = 'ISWC: ' + (pi.metrics.mlcIswcCount || 0) + ' Assigned';
+  }
+
+  // PRO caption (Card 4)
+  var proCapEl = document.getElementById('pi-kpi-pro-caption');
+  if (proCapEl) {
+    if (proVal && proVal !== 'None') proCapEl.textContent = proVal + ' — Primary Society';
+    else proCapEl.textContent = 'No PRO Registered';
+  }
 }());
 
 function piOpenAthena() {
