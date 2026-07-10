@@ -636,6 +636,16 @@ const _FIXTURE = {
     "footprintScore": 0,
     "backendScore": 100,
     "monitoringScore": 50,
+    "domainStatuses": {
+      "identity":   "Moderate",
+      "publishing": "Needs Review",
+      "catalog":    "Excellent",
+      "footprint":  "Needs Review",
+      "backend":    "Excellent",
+      "monitoring": "Moderate",
+      "metadata":   "Excellent",
+      "coverage":   "Moderate"
+    },
     "strengths": [
       "Backend infrastructure fully connected",
       "Catalog verified with confidence"
