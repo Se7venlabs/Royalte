@@ -143,60 +143,233 @@
   </div>
 
 </div>
+<script src="/js/mc-intelligence-utils.js"></script>
 <script>
-/* Monitoring Timeline™ — Live Wiring
- * Sources: monitoringIntelligence (from royalte_workspace_context)
- * First scan is always baseline (scanNumber:1, newThisScan:0, events:[]).
- * Replaces Coming Soon placeholder with live baseline state.
+/* Change Detection™ — Live Intelligence Wiring
+ * Phase 1B.2 (refactored): Layered architecture — Data → Intelligence → Rendering → Display
+ * Sources: monitoringIntelligence, healthIntelligence (royalte_workspace_context)
+ * Answers: "What changed since my last scan, and why does it matter?"
  */
 (function () {
   'use strict';
-  var ctx = {};
-  try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+  var RI = window.RoyalteIntel;
+  if (!RI) return;
 
-  var mi = ctx.monitoringIntelligence || null;
-  if (!mi) return;
-
-  /* Replace the Coming Soon block with baseline state */
   var container = document.querySelector('.ws-coming-soon');
   if (!container) return;
 
-  var isBaseline   = mi.status === 'baseline' || mi.scanNumber <= 1;
-  var eventCount   = Array.isArray(mi.events) ? mi.events.length : 0;
-  var scanNum      = mi.scanNumber || 1;
-  var newThisScan  = mi.newThisScan || 0;
+  // ═══════════════════════════════════════════════════════════
+  // § 1 — DATA
+  // Read intelligence context; extract raw values. No logic here.
+  // ═══════════════════════════════════════════════════════════
 
-  if (isBaseline && eventCount === 0) {
-    /* Scan 1 baseline — monitoring starts building */
-    container.innerHTML =
-      '<div class="ws-cs-icon">'
-      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-      + '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>'
-      + '</svg></div>'
-      + '<div class="ws-cs-eyebrow">Scan #' + scanNum + ' Complete</div>'
-      + '<div class="ws-cs-title">Baseline Established</div>'
-      + '<p class="ws-cs-desc">Your first scan is complete. Royaltē has established your music business baseline. Change detection begins with your next scan — new events, updates, and alerts will appear here automatically.</p>';
-  } else if (eventCount === 0) {
-    /* Subsequent scan but no events yet */
-    container.innerHTML =
-      '<div class="ws-cs-icon">'
-      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-      + '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'
-      + '</svg></div>'
-      + '<div class="ws-cs-eyebrow">Scan #' + scanNum + ' — Monitoring Active</div>'
-      + '<div class="ws-cs-title">No Changes Detected</div>'
-      + '<p class="ws-cs-desc">No changes have been detected across your music business infrastructure since your baseline scan. Royaltē continues to monitor your identity, publishing, catalog, and backend systems for updates.</p>';
-  } else {
-    /* Has events — render count summary (full event list reserved for future pass) */
-    container.innerHTML =
-      '<div class="ws-cs-icon">'
-      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-      + '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'
-      + '</svg></div>'
-      + '<div class="ws-cs-eyebrow">Scan #' + scanNum + ' — ' + newThisScan + ' New Event' + (newThisScan !== 1 ? 's' : '') + '</div>'
-      + '<div class="ws-cs-title">Changes Detected</div>'
-      + '<p class="ws-cs-desc">' + eventCount + ' change event' + (eventCount !== 1 ? 's' : '') + ' recorded since your last scan. Full Monitoring Timeline™ view coming in next product update.</p>';
+  var ctx = RI.readContext();
+  var mi  = ctx.monitoringIntelligence || null;
+  var hi  = ctx.healthIntelligence     || null;
+
+  var scanNumber  = mi ? (mi.scanNumber  || 1) : 1;
+  var newThisScan = mi ? (mi.newThisScan || 0) : 0;
+  var events      = mi && Array.isArray(mi.events) ? mi.events : [];
+
+  // ═══════════════════════════════════════════════════════════
+  // § 2 — INTELLIGENCE
+  // Derive state and prepare data objects. Plain values only — no HTML.
+  // ═══════════════════════════════════════════════════════════
+
+  var CAT_LABEL = {
+    identity:   'Identity Intelligence™',
+    publishing: 'Publishing Intelligence™',
+    catalog:    'Catalog Intelligence™',
+    backend:    'Backend Intelligence™',
+    footprint:  'Global Music Footprint™',
+    health:     'Health Score™',
+  };
+  var CAT_ORDER = ['identity', 'publishing', 'catalog', 'backend', 'footprint', 'health'];
+
+  // Module state: baseline | stable | changed
+  var moduleState = (!mi || mi.status === 'baseline' || scanNumber <= 1) ? 'baseline'
+                  : events.length === 0 ? 'stable'
+                  : 'changed';
+
+  // Executive summary — plain text, no HTML
+  function buildSummary(state, evts) {
+    if (state === 'baseline') {
+      return 'Royaltē has established your music business baseline across all connected systems. '
+        + 'Future scans will compare against this snapshot to detect new developments, '
+        + 'improvements, and areas requiring attention.';
+    }
+    if (state === 'stable') {
+      return 'No significant changes detected during this monitoring cycle. '
+        + 'Your music business infrastructure remains stable since your previous scan.';
+    }
+    var improved = evts.filter(function (e) { return e.polarity === 'positive' || e.type === 'RESOLVED'; }).length;
+    var critical  = evts.filter(function (e) { var s = (e.severity || '').toUpperCase(); return s === 'CRITICAL' || s === 'HIGH'; }).length;
+    var parts = [];
+    if (improved > 0) parts.push(improved + ' improvement' + (improved > 1 ? 's' : '') + ' detected');
+    if (critical > 0) parts.push(critical + ' issue' + (critical > 1 ? 's' : '') + ' require' + (critical === 1 ? 's' : '') + ' attention');
+    if (!parts.length) parts.push(evts.length + ' update' + (evts.length > 1 ? 's' : '') + ' detected');
+    return parts.join('. ') + ' since your previous scan.';
   }
+
+  // Scan date label — plain text
+  function buildDateStr(scannedAt) {
+    if (!scannedAt) return '';
+    try {
+      var sd = new Date(scannedAt);
+      var t  = sd.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      return sd.toDateString() === new Date().toDateString()
+        ? 'Today, ' + t
+        : sd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + t;
+    } catch (_) { return ''; }
+  }
+
+  // Health snapshot data object — consumed by renderHealthSnapshot()
+  var healthData = (hi && hi.score != null) ? {
+    score:  Math.round(hi.score),
+    status: hi.status || RI.scoreLabel(Math.round(hi.score)),
+    color:  RI.scoreColor(Math.round(hi.score)),
+  } : null;
+
+  // Coverage grid data — consumed by renderCoverageGrid()
+  var coverageData = [
+    { label: 'Identity Intelligence™',  score: hi ? hi.identityScore   : null },
+    { label: 'Publishing Intelligence™', score: hi ? hi.publishingScore : null },
+    { label: 'Catalog Intelligence™',    score: hi ? hi.catalogScore    : null },
+    { label: 'Backend Intelligence™',    score: hi ? hi.backendScore    : null },
+    { label: 'Global Music Footprint™',  score: hi ? hi.footprintScore  : null },
+  ];
+
+  // Change groups — consumed by renderChangeList()
+  // Returns [{label, events}] in canonical category order
+  function buildChangeGroups(evts) {
+    var map = {};
+    evts.forEach(function (ev) {
+      var cat = (ev.category || 'backend').toLowerCase();
+      if (!map[cat]) map[cat] = [];
+      map[cat].push(ev);
+    });
+    var result = {};
+    var seen   = {};
+    CAT_ORDER.concat(Object.keys(map)).forEach(function (cat) {
+      if (map[cat] && !seen[cat]) { result[cat] = map[cat]; seen[cat] = true; }
+    });
+    return Object.keys(result).map(function (cat) {
+      return { label: CAT_LABEL[cat] || cat, events: result[cat] };
+    });
+  }
+
+  var summary      = buildSummary(moduleState, events);
+  var dateStr      = buildDateStr(ctx.scannedAt);
+  var changeGroups = moduleState === 'changed' ? buildChangeGroups(events) : [];
+
+  // ═══════════════════════════════════════════════════════════
+  // § 3 — RENDERING
+  // Pure functions: receive prepared data objects, return HTML strings.
+  // No data access, no business logic, no side effects.
+  // ═══════════════════════════════════════════════════════════
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function colHex(col) {
+    return { green: '#34d399', blue: '#38bdf8', orange: '#fb923c', purple: '#a855f7' }[col] || '#e8e4f4';
+  }
+
+  function renderHealthSnapshot(data) {
+    if (!data) return '';
+    return '<div style="display:inline-flex;align-items:center;gap:10px;margin-top:14px;'
+      + 'padding:8px 16px;background:rgba(255,255,255,0.04);'
+      + 'border:1px solid rgba(255,255,255,0.08);border-radius:8px;">'
+      + '<span style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;'
+      + 'color:rgba(132,128,168,0.7);font-weight:600;">Health Score™</span>'
+      + '<span style="font-size:20px;font-weight:700;color:' + colHex(data.color) + ';">' + data.score + '</span>'
+      + '<span style="font-size:11px;color:rgba(132,128,168,0.6);">/100 · ' + esc(data.status) + '</span>'
+      + '</div>';
+  }
+
+  function renderCoverageGrid(cats, scanNum) {
+    var rows = cats.map(function (c) {
+      var s   = c.score != null ? Math.round(c.score) : null;
+      var col = s !== null ? RI.scoreColor(s) : 'blue';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;'
+        + 'padding:9px 14px;background:rgba(255,255,255,0.03);'
+        + 'border:1px solid rgba(255,255,255,0.07);border-radius:8px;">'
+        + '<span style="font-size:12px;color:rgba(232,228,244,0.75);">' + esc(c.label) + '</span>'
+        + '<span style="font-size:13px;font-weight:600;color:' + colHex(col) + ';">'
+        + (s !== null ? s : '—') + '</span></div>';
+    }).join('');
+    return '<div style="margin-top:20px;max-width:460px;margin-left:auto;margin-right:auto;text-align:left;">'
+      + '<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;'
+      + 'color:rgba(132,128,168,0.7);font-weight:600;margin-bottom:8px;">'
+      + 'Baseline Scores — Scan #' + scanNum + '</div>'
+      + '<div style="display:grid;gap:5px;">' + rows + '</div></div>';
+  }
+
+  function renderChangeGroup(group) {
+    var items = group.events.map(function (ev) {
+      var sev      = (ev.severity || '').toUpperCase();
+      var positive = ev.polarity === 'positive' || ev.type === 'RESOLVED';
+      var dot      = positive ? '#34d399' : (sev === 'CRITICAL' || sev === 'HIGH') ? '#f05060' : '#38bdf8';
+      return '<div style="display:flex;gap:12px;padding:10px 14px;'
+        + 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);'
+        + 'border-radius:8px;margin-bottom:5px;text-align:left;">'
+        + '<div style="width:7px;height:7px;border-radius:50%;background:' + dot + ';'
+        + 'flex-shrink:0;margin-top:5px;"></div>'
+        + '<div>'
+        + '<div style="font-size:13px;color:rgba(232,228,244,0.9);font-weight:500;">'
+        + esc(ev.title || ev.type || 'Update Detected') + '</div>'
+        + (ev.description
+            ? '<div style="font-size:11.5px;color:rgba(132,128,168,0.75);margin-top:3px;line-height:1.5;">'
+              + esc(ev.description) + '</div>'
+            : '')
+        + '</div></div>';
+    }).join('');
+    return '<div style="margin-top:16px;">'
+      + '<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;'
+      + 'color:rgba(132,128,168,0.7);font-weight:600;margin-bottom:6px;text-align:left;">'
+      + esc(group.label) + '</div>'
+      + items + '</div>';
+  }
+
+  function renderChangeList(groups) {
+    return '<div style="max-width:520px;margin:0 auto;">'
+      + groups.map(renderChangeGroup).join('')
+      + '</div>';
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // § 4 — DISPLAY
+  // Assemble prepared output and inject once into the DOM.
+  // ═══════════════════════════════════════════════════════════
+
+  var CLOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" '
+    + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    + '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>';
+  var PULSE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" '
+    + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    + '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>';
+
+  var STATE_META = {
+    baseline: { icon: CLOCK_SVG, title: 'Baseline Established' },
+    stable:   { icon: PULSE_SVG, title: 'No Changes Detected'  },
+    changed:  { icon: PULSE_SVG, title: 'Changes Detected'     },
+  };
+
+  var meta    = STATE_META[moduleState];
+  var eyebrow = 'Scan #' + scanNumber + (dateStr ? ' · ' + dateStr : '');
+  var n       = newThisScan > 0 ? newThisScan : events.length;
+  if (moduleState === 'changed') eyebrow += ' · ' + n + ' Change' + (n > 1 ? 's' : '') + ' Detected';
+
+  container.innerHTML = [
+    '<div class="ws-cs-icon">'  + meta.icon + '</div>',
+    '<div class="ws-cs-eyebrow">' + esc(eyebrow) + '</div>',
+    '<div class="ws-cs-title">' + meta.title + '</div>',
+    '<p class="ws-cs-desc">'    + summary + '</p>',
+    renderHealthSnapshot(healthData),
+    moduleState === 'baseline' ? renderCoverageGrid(coverageData, scanNumber) : '',
+    moduleState === 'changed'  ? renderChangeList(changeGroups) : '',
+  ].join('');
+
 }());
 </script>
 <script src="/js/rds-preview-console.js" defer></script>
