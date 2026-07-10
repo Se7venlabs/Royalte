@@ -504,45 +504,24 @@
 
 </div><!-- /ws-shell -->
 
+<script src="/js/mc-intelligence-utils.js"></script>
 <script>
 /* Health Intelligence™ — Live Wiring
  * Sources: healthIntelligence, monitoringIntelligence, scannedAt
  *          (from royalte_workspace_context via __mcPopulate)
  * Runs synchronously so data-target is set before count-up DOMContentLoaded fires.
+ * Delegates score/color/label/pill/progress logic to window.RoyalteIntel.
  * No data → static placeholder preserved unchanged.
  */
 (function () {
   'use strict';
-  var ctx = {};
-  try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+  var RI = window.RoyalteIntel;
+  if (!RI) return;
 
-  var hi = ctx.healthIntelligence || null;
+  var ctx = RI.readContext();
+  var hi  = ctx.healthIntelligence    || null;
   if (!hi) return;
-
-  var mi = ctx.monitoringIntelligence || null;
-
-  function scoreColor(s) {
-    if (s >= 80) return 'green';
-    if (s >= 60) return 'blue';
-    if (s >= 40) return 'orange';
-    return 'purple';
-  }
-  function scoreLabel(s) {
-    if (s === 100) return 'Excellent';
-    if (s >= 80)   return 'Strong';
-    if (s >= 60)   return 'Good';
-    if (s >= 40)   return 'Moderate';
-    if (s > 0)     return 'Needs Attention';
-    return 'Critical';
-  }
-  function setPill(el, score, labelOverride) {
-    if (!el) return;
-    var col = scoreColor(score);
-    var dot = el.querySelector('.hi-status-dot');
-    el.className = 'hi-status-pill hi-status-pill--' + col;
-    el.textContent = labelOverride || scoreLabel(score);
-    if (dot) el.prepend(dot);
-  }
+  var mi  = ctx.monitoringIntelligence || null;
 
   // ── Main health score ring ─────────────────────────────────
   var score = hi.score != null ? Math.round(hi.score) : null;
@@ -550,8 +529,8 @@
     var ringNumEl = document.querySelector('.hi-score-ring-num');
     if (ringNumEl) { ringNumEl.dataset.target = String(score); ringNumEl.textContent = '0'; }
     var ringArc = document.querySelector('.hi-score-ring-progress');
-    if (ringArc) ringArc.style.strokeDasharray = (score / 100 * 251.327).toFixed(1) + ' 252';
-    setPill(document.querySelector('.hi-score-meta-row .hi-status-pill'), score, hi.status || null);
+    if (ringArc) ringArc.style.strokeDasharray = RI.ringArcDasharray(score, RI.RING_CIRC_R40);
+    RI.setPill(document.querySelector('.hi-score-meta-row .hi-status-pill'), score, hi.status || null);
   }
 
   // ── Breakdown cols ─────────────────────────────────────────
@@ -567,7 +546,7 @@
 
   // ── Category cards ─────────────────────────────────────────
   // HTML order: Identity, Publishing, Catalog, Change Detection, Backend, Footprint
-  // (Backend and Footprint are swapped vs breakdown col order above)
+  // (Backend and Footprint are swapped vs breakdown col order above — mapped separately)
   var CARD_SCORES = [
     hi.identityScore, hi.publishingScore, hi.catalogScore,
     hi.monitoringScore, hi.backendScore, hi.footprintScore
@@ -578,23 +557,24 @@
     var card = catCards[i];
     if (!card || s == null) return;
     var cs = Math.round(s);
-    var col = scoreColor(cs);
 
     var numEl = card.querySelector('.hi-cat-score-num');
-    if (numEl) { numEl.textContent = String(cs); numEl.className = 'hi-cat-score-num hi-cat-score-num--' + col; }
+    if (numEl) { numEl.textContent = String(cs); numEl.className = 'hi-cat-score-num hi-cat-score-num--' + RI.scoreColor(cs); }
 
-    var prog = card.querySelector('.hi-cat-progress');
-    if (prog) prog.setAttribute('aria-valuenow', String(cs));
-    var fill = card.querySelector('.hi-cat-progress-fill');
-    if (fill) { fill.style.setProperty('--pct', cs + '%'); fill.className = 'hi-cat-progress-fill hi-cat-progress-fill--' + col; }
+    RI.setProgressFill(
+      card.querySelector('.hi-cat-progress-fill'),
+      card.querySelector('.hi-cat-progress'),
+      cs, 'hi-cat-progress-fill'
+    );
 
-    setPill(card.querySelector('.hi-status-pill'), cs);
+    RI.setPill(card.querySelector('.hi-status-pill'), cs);
 
     var mvEl = card.querySelector('.hi-cat-movement');
     if (mvEl && isFirstScan) { mvEl.className = 'hi-cat-movement'; mvEl.textContent = '— First Scan'; }
   });
 
   // ── ATHENA monitoring card ─────────────────────────────────
+  // Status is monitoring-state based (not score-based) — handled inline.
   var athPill = document.querySelector('.hi-kpi-card--ai .hi-status-pill');
   if (athPill && mi) {
     var mpDot = athPill.querySelector('.hi-status-dot');
