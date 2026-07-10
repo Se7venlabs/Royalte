@@ -143,6 +143,62 @@
   </div>
 
 </div>
+<script>
+/* Monitoring Timeline™ — Live Wiring
+ * Sources: monitoringIntelligence (from royalte_workspace_context)
+ * First scan is always baseline (scanNumber:1, newThisScan:0, events:[]).
+ * Replaces Coming Soon placeholder with live baseline state.
+ */
+(function () {
+  'use strict';
+  var ctx = {};
+  try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+
+  var mi = ctx.monitoringIntelligence || null;
+  if (!mi) return;
+
+  /* Replace the Coming Soon block with baseline state */
+  var container = document.querySelector('.ws-coming-soon');
+  if (!container) return;
+
+  var isBaseline   = mi.status === 'baseline' || mi.scanNumber <= 1;
+  var eventCount   = Array.isArray(mi.events) ? mi.events.length : 0;
+  var scanNum      = mi.scanNumber || 1;
+  var newThisScan  = mi.newThisScan || 0;
+
+  if (isBaseline && eventCount === 0) {
+    /* Scan 1 baseline — monitoring starts building */
+    container.innerHTML =
+      '<div class="ws-cs-icon">'
+      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>'
+      + '</svg></div>'
+      + '<div class="ws-cs-eyebrow">Scan #' + scanNum + ' Complete</div>'
+      + '<div class="ws-cs-title">Baseline Established</div>'
+      + '<p class="ws-cs-desc">Your first scan is complete. Royaltē has established your music business baseline. Change detection begins with your next scan — new events, updates, and alerts will appear here automatically.</p>';
+  } else if (eventCount === 0) {
+    /* Subsequent scan but no events yet */
+    container.innerHTML =
+      '<div class="ws-cs-icon">'
+      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'
+      + '</svg></div>'
+      + '<div class="ws-cs-eyebrow">Scan #' + scanNum + ' — Monitoring Active</div>'
+      + '<div class="ws-cs-title">No Changes Detected</div>'
+      + '<p class="ws-cs-desc">No changes have been detected across your music business infrastructure since your baseline scan. Royaltē continues to monitor your identity, publishing, catalog, and backend systems for updates.</p>';
+  } else {
+    /* Has events — render count summary (full event list reserved for future pass) */
+    container.innerHTML =
+      '<div class="ws-cs-icon">'
+      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'
+      + '</svg></div>'
+      + '<div class="ws-cs-eyebrow">Scan #' + scanNum + ' — ' + newThisScan + ' New Event' + (newThisScan !== 1 ? 's' : '') + '</div>'
+      + '<div class="ws-cs-title">Changes Detected</div>'
+      + '<p class="ws-cs-desc">' + eventCount + ' change event' + (eventCount !== 1 ? 's' : '') + ' recorded since your last scan. Full Monitoring Timeline™ view coming in next product update.</p>';
+  }
+}());
+</script>
 <script src="/js/rds-preview-console.js" defer></script>
 </body>
 </html>

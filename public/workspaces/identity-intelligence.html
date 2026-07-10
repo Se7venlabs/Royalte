@@ -420,7 +420,197 @@
 </div><!-- /ws-shell -->
 
 <script>
-  /* Coverage ring count-up — 0 → 92% with ease-out cubic, fires once */
+/* Identity Intelligence™ — Live Wiring
+ * Sources: identityIntelligence, subject, recordLabel, scannedAt, metrics
+ *          (all from royalte_workspace_context, written by __mcPopulate)
+ * Presentation-only. Never queries Supabase. No-data → leaves static demo.
+ */
+(function () {
+  'use strict';
+  var ctx = {};
+  try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+
+  var ii      = ctx.identityIntelligence || null;
+  var subject = ctx.subject              || null;
+  var metrics = ctx.metrics              || null;
+
+  /* ── Shared date formatter ─────────────────────────────────────────── */
+  function fmtDate(iso) {
+    if (!iso) return null;
+    try {
+      var d = new Date(iso); var now = new Date();
+      var today = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+      var t = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      return today ? 'Today, ' + t : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + t;
+    } catch (_) { return null; }
+  }
+
+  /* ── Artist name + initials ─────────────────────────────────────────── */
+  var artistName = subject && subject.artistName ? subject.artistName : null;
+  if (artistName) {
+    var heading = document.querySelector('.ii-exec-heading');
+    if (heading) heading.textContent = artistName;
+    var parts    = artistName.trim().split(/\s+/);
+    var initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : artistName.slice(0, 2).toUpperCase();
+    var initEl   = document.querySelector('.ii-artist-initials');
+    if (initEl) initEl.textContent = initials;
+  }
+
+  /* ── Last sync ──────────────────────────────────────────────────────── */
+  var syncStr = fmtDate(ctx.scannedAt);
+  if (syncStr) {
+    var updEl = document.querySelector('.ii-exec-updated');
+    if (updEl) {
+      var dot = updEl.querySelector('.ii-exec-updated-dot');
+      updEl.textContent = 'Last Sync: ' + syncStr;
+      if (dot) updEl.insertBefore(dot, updEl.firstChild);
+    }
+  }
+
+  /* ── Identity Snapshot™ — subject fields ───────────────────────────── */
+  var snapRows = document.querySelectorAll('.ii-snapshot-row');
+  var snapMap  = {};
+  for (var s = 0; s < snapRows.length; s++) {
+    var kEl = snapRows[s].querySelector('.ii-snapshot-key');
+    if (kEl) snapMap[kEl.textContent.trim()] = snapRows[s];
+  }
+  function setSnap(key, val) {
+    var row = snapMap[key]; if (!row || !val) return;
+    var v = row.querySelector('.ii-snapshot-val'); if (v) v.textContent = val;
+  }
+  if (artistName)                    setSnap('Artist Name', artistName.toUpperCase());
+  if (subject && subject.trackTitle) setSnap('Top Track', subject.trackTitle);
+  if (subject && subject.trackIsrc)  setSnap('ISRC', subject.trackIsrc);
+  if (ctx.recordLabel)               setSnap('Record Label', ctx.recordLabel);
+  if (syncStr) {
+    var syncRow = snapMap['Last Identity Sync'];
+    if (syncRow) {
+      var svEl = syncRow.querySelector('.ii-snapshot-val');
+      if (svEl) {
+        var sdot = svEl.querySelector('.ii-sync-dot');
+        svEl.textContent = syncStr;
+        if (sdot) svEl.appendChild(sdot);
+      }
+    }
+  }
+  if (metrics && Array.isArray(metrics.genres) && metrics.genres.length > 0) {
+    var gRow = snapMap['Primary Genres'];
+    if (gRow) {
+      var gc = gRow.querySelector('.ii-snapshot-genre-row');
+      if (gc) {
+        gc.innerHTML = '';
+        metrics.genres.slice(0, 3).forEach(function (g) {
+          var tag = document.createElement('span');
+          tag.className = 'ii-snapshot-genre-tag';
+          tag.textContent = g.charAt(0).toUpperCase() + g.slice(1);
+          gc.appendChild(tag);
+        });
+      }
+    }
+  }
+
+  /* ── Record Label platform card ─────────────────────────────────────── */
+  if (ctx.recordLabel) {
+    var pcards = document.querySelectorAll('.ii-platform-card');
+    for (var lc = 0; lc < pcards.length; lc++) {
+      var lnEl = pcards[lc].querySelector('.ii-platform-name');
+      if (lnEl && lnEl.textContent.trim() === 'Record Label') {
+        var llEl = pcards[lc].querySelector('.ii-platform-lastsync');
+        if (llEl) llEl.textContent = ctx.recordLabel;
+        break;
+      }
+    }
+  }
+
+  /* ── Identity intelligence not available → leave demo content ────────── */
+  if (!ii) return;
+
+  /* ── Coverage ring ──────────────────────────────────────────────────── */
+  var coverage = ii.coverage != null ? Math.round(ii.coverage) : null;
+  if (coverage !== null) {
+    var numEl = document.querySelector('.ii-coverage-ring-num');
+    if (numEl) { numEl.dataset.target = String(coverage); numEl.textContent = '0'; }
+    var ringWrap = document.querySelector('.ii-coverage-ring-wrap');
+    if (ringWrap) ringWrap.setAttribute('aria-label', 'Identity presence: ' + coverage + '%');
+    var arc = document.querySelector('.ii-coverage-ring-progress');
+    if (arc) arc.style.strokeDasharray = (coverage / 100 * 251.327).toFixed(1) + ' 252';
+  }
+
+  /* ── Coverage card — status pill + caption ──────────────────────────── */
+  function coveragePill(pct) {
+    if (pct >= 80) return { label: 'Excellent',    cls: 'hi-status-pill--green' };
+    if (pct >= 60) return { label: 'Strong',       cls: 'hi-status-pill--blue' };
+    if (pct >= 40) return { label: 'Moderate',     cls: 'hi-status-pill--orange' };
+    return           { label: 'Needs Review', cls: 'hi-status-pill--purple' };
+  }
+  if (coverage !== null) {
+    var pill = document.querySelector('.ii-kpi-card--coverage .hi-status-pill');
+    if (pill) {
+      var pd = coveragePill(coverage); var pdot = pill.querySelector('.hi-status-dot');
+      pill.className = 'hi-status-pill ' + pd.cls; pill.textContent = pd.label;
+      if (pdot) pill.insertBefore(pdot, pill.firstChild);
+    }
+    var capEl = document.querySelector('.ii-kpi-card--coverage .ii-kpi-caption');
+    if (capEl && ii.totalProviders != null) capEl.textContent = 'Across ' + ii.totalProviders + ' Identity Providers';
+  }
+
+  /* ── Verified Platforms KPI card (second card) ──────────────────────── */
+  var kpiCards = document.querySelectorAll('.hi-kpi-row .hi-kpi-card');
+  if (kpiCards.length >= 2 && ii.verifiedProviders != null) {
+    var vpCard = kpiCards[1];
+    var bn = vpCard.querySelector('.ii-kpi-big-num'); if (bn) bn.textContent = String(ii.verifiedProviders);
+    var fr = vpCard.querySelector('.ii-kpi-fraction'); if (fr && ii.totalProviders != null) fr.textContent = ' / ' + ii.totalProviders;
+    var cp = vpCard.querySelector('.ii-kpi-caption'); if (cp && coverage != null) cp.textContent = coverage + '% of Identity Providers';
+  }
+
+  /* ── Platform card badge states (Apple, Spotify, YouTube) ───────────── */
+  var PROV_NAMES = { apple: 'Apple Music for Artists', spotify: 'Spotify for Artists', youtube: 'YouTube Official Artist Channel' };
+  var BADGE_MAP  = {
+    'VERIFIED':          { cls: 'ii-platform-badge--verified',       label: 'Verified' },
+    'ACTION_REQUIRED':   { cls: 'ii-platform-badge--action-required', label: 'Action Required' },
+    'NOT_FOUND':         { cls: 'ii-platform-badge--action-required', label: 'Not Found' },
+    'AUTH_UNAVAILABLE':  { cls: 'ii-platform-badge--action-required', label: 'Unavailable' },
+    'UNABLE_TO_CONFIRM': { cls: 'ii-platform-badge--action-required', label: 'Unconfirmed' },
+  };
+  var allCards = document.querySelectorAll('.ii-platform-card');
+  for (var pc = 0; pc < allCards.length; pc++) {
+    var card = allCards[pc];
+    var nameEl = card.querySelector('.ii-platform-name'); if (!nameEl) continue;
+    var provKey = null;
+    var provKeys = Object.keys(PROV_NAMES);
+    for (var pk = 0; pk < provKeys.length; pk++) {
+      if (PROV_NAMES[provKeys[pk]] === nameEl.textContent.trim()) { provKey = provKeys[pk]; break; }
+    }
+    if (!provKey || !ii.providers || ii.providers[provKey] == null) continue;
+    var state = ii.providers[provKey];
+    var bm    = BADGE_MAP[state] || { cls: 'ii-platform-badge--action-required', label: state };
+    var badge = card.querySelector('.ii-platform-badge'); if (!badge) continue;
+    badge.className   = 'ii-platform-badge ' + bm.cls;
+    badge.textContent = bm.label;
+    if (state !== 'VERIFIED') card.classList.add('ii-platform-card--alert');
+    else card.classList.remove('ii-platform-card--alert');
+  }
+
+  /* ── Pending Claims card — wire first issue from identityIntelligence ── */
+  var issues = Array.isArray(ii.issues) ? ii.issues : [];
+  if (issues.length > 0) {
+    var firstIssue = issues[0];
+    var pPlatEl = document.querySelector('.ii-kpi-card--pending .ii-action-path-platform');
+    if (pPlatEl) pPlatEl.textContent = firstIssue.label || firstIssue.provider || 'Platform';
+    var pDescEl = document.querySelector('.ii-kpi-card--pending .ii-action-path-desc');
+    if (pDescEl) pDescEl.textContent = firstIssue.title || 'Review required';
+  } else if (ii.verifiedProviders === ii.totalProviders) {
+    var allVerEl = document.querySelector('.ii-kpi-card--pending .ii-action-path-platform');
+    if (allVerEl) allVerEl.textContent = 'All Providers Verified';
+    var allDescEl = document.querySelector('.ii-kpi-card--pending .ii-action-path-desc');
+    if (allDescEl) allDescEl.textContent = 'All identity providers are verified and up to date.';
+    var allBadgeEl = document.querySelector('.ii-kpi-card--pending .ii-platform-badge');
+    if (allBadgeEl) { allBadgeEl.className = 'ii-platform-badge ii-platform-badge--verified'; allBadgeEl.textContent = 'No Actions Required'; }
+  }
+}());
+</script>
+<script>
+  /* Coverage ring count-up — 0 → data-target with ease-out cubic, fires once */
   document.addEventListener('DOMContentLoaded', function () {
     var el = document.querySelector('.ii-coverage-ring-num[data-target]');
     if (!el) return;

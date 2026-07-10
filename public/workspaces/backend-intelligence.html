@@ -662,9 +662,66 @@
     if (e.target === this) biCloseAthena();
   });
 
+  /* ── Backend Intelligence™ — Live Wiring ───────────────────────────
+   * Sources: backendIntelligence, healthIntelligence
+   *          (from royalte_workspace_context, written by __mcPopulate)
+   * Sets data-live-target attrs on counter elements before animations fire.
+   */
+  (function () {
+    'use strict';
+    var ctx = {};
+    try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+
+    var bi = ctx.backendIntelligence || null;
+    var hi = ctx.healthIntelligence  || null;
+
+    /* ── Ring target ─────────────────────────────────────────────────── */
+    var ringScore = (hi && hi.backendScore != null) ? Math.round(hi.backendScore) : null;
+    if (ringScore !== null) {
+      var rn = document.getElementById('bi-ring-num');
+      if (rn) rn.dataset.liveTarget = String(ringScore);
+      var ra = document.querySelector('.bi-ring-progress');
+      if (ra) {
+        var circ = 226.195; /* 2π × 36 */
+        ra.style.strokeDasharray = (ringScore / 100 * circ).toFixed(1) + ' ' + circ;
+      }
+    }
+
+    if (!bi) return;
+
+    /* ── KPI counter targets ─────────────────────────────────────────── */
+    var vEl = document.getElementById('bi-verify-num');
+    if (vEl) vEl.dataset.liveTarget = String(ringScore !== null ? ringScore : 94);
+
+    var sEl = document.getElementById('bi-systems-num');
+    if (sEl) {
+      sEl.dataset.liveTarget = String(bi.connectedCount || 0);
+      /* Update hardcoded denominator in HTML (the fraction span is adjacent) */
+      var sFrac = sEl.nextElementSibling;
+      if (sFrac && sFrac.classList.contains('ii-kpi-fraction')) sFrac.textContent = ' / ' + (bi.totalCount || bi.connectedCount || 0);
+    }
+
+    var rEl = document.getElementById('bi-records-num');
+    if (rEl) {
+      var responded = (bi.apisResponding && bi.apisResponding.responded != null) ? bi.apisResponding.responded : null;
+      var total     = (bi.apisResponding && bi.apisResponding.total     != null) ? bi.apisResponding.total     : null;
+      if (responded !== null) {
+        rEl.dataset.liveTarget = String(responded);
+        var rFrac = rEl.nextElementSibling;
+        if (rFrac && rFrac.classList.contains('ii-kpi-fraction') && total !== null) rFrac.textContent = ' / ' + total + ' APIs';
+      }
+    }
+
+    /* ── Executive header status text ───────────────────────────────── */
+    if (bi.summaryLabel) {
+      var scoreSubEl = document.querySelector('.bi-exec-score-sub');
+      if (scoreSubEl) scoreSubEl.textContent = bi.summaryLabel;
+    }
+  }());
+
   /* ── Executive ring counter ──────────────────────────────────────── */
-  var ringTarget = 98;
-  var numEl = document.getElementById('bi-ring-num');
+  var numEl    = document.getElementById('bi-ring-num');
+  var ringTarget = (numEl && numEl.dataset.liveTarget) ? parseInt(numEl.dataset.liveTarget, 10) : 98;
   var count = 0;
   var step  = Math.ceil(ringTarget / 40);
   var timer = setInterval(function () {
@@ -674,9 +731,10 @@
   }, 40);
 
   /* ── KPI counters ────────────────────────────────────────────────── */
-  function animateCounter(id, target, duration) {
+  function animateCounter(id, fallback, duration) {
     var el = document.getElementById(id);
     if (!el) return;
+    var target = (el.dataset.liveTarget) ? parseInt(el.dataset.liveTarget, 10) : fallback;
     var start = null;
     requestAnimationFrame(function tick(ts) {
       if (!start) start = ts;
