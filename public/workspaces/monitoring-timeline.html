@@ -146,9 +146,8 @@
 <script src="/js/mc-intelligence-utils.js"></script>
 <script>
 /* Change Detection™ — Live Intelligence Wiring
- * Phase 1B.2 (refactored): Layered architecture — Data → Intelligence → Rendering → Display
- * Sources: monitoringIntelligence, healthIntelligence (royalte_workspace_context)
- * Answers: "What changed since my last scan, and why does it matter?"
+ * Canonical Workspace Architecture™ — §1 Context → §2 Intelligence → §3 Presentation → §4 Render
+ * Each layer produces one named output consumed by the next.
  */
 (function () {
   'use strict';
@@ -161,19 +160,20 @@
   // ═══════════════════════════════════════════════════════════
   // § 1 — CONTEXT
   // Read external data. No business logic. No calculations.
+  // Output: context
   // ═══════════════════════════════════════════════════════════
 
-  var ctx = RI.readContext();
-  var mi  = ctx.monitoringIntelligence || null;
-  var hi  = ctx.healthIntelligence     || null;
-
-  var scanNumber  = mi ? (mi.scanNumber  || 1) : 1;
-  var newThisScan = mi ? (mi.newThisScan || 0) : 0;
-  var events      = mi && Array.isArray(mi.events) ? mi.events : [];
+  var rawCtx  = RI.readContext();
+  var context = {
+    monitoringIntelligence: rawCtx.monitoringIntelligence || null,
+    healthIntelligence:     rawCtx.healthIntelligence     || null,
+    scannedAt:              rawCtx.scannedAt              || null,
+  };
 
   // ═══════════════════════════════════════════════════════════
   // § 2 — INTELLIGENCE
   // Interpret business meaning. Derive state and prepare data objects.
+  // Consumes: context. Produces: intelligenceModel.
   // No HTML generation. No DOM manipulation. Plain values only.
   // ═══════════════════════════════════════════════════════════
 
@@ -187,12 +187,16 @@
   };
   var CAT_ORDER = ['identity', 'publishing', 'catalog', 'backend', 'footprint', 'health'];
 
-  // Module state: baseline | stable | changed
+  var mi          = context.monitoringIntelligence;
+  var hi          = context.healthIntelligence;
+  var scanNumber  = mi ? (mi.scanNumber  || 1) : 1;
+  var newThisScan = mi ? (mi.newThisScan || 0) : 0;
+  var events      = mi && Array.isArray(mi.events) ? mi.events : [];
+
   var moduleState = (!mi || mi.status === 'baseline' || scanNumber <= 1) ? 'baseline'
                   : events.length === 0 ? 'stable'
                   : 'changed';
 
-  // Executive summary — plain text, no HTML
   function buildSummary(state, evts) {
     if (state === 'baseline') {
       return 'Royaltē has established your music business baseline across all connected systems. '
@@ -212,7 +216,6 @@
     return parts.join('. ') + ' since your previous scan.';
   }
 
-  // Scan date label — plain text
   function buildDateStr(scannedAt) {
     if (!scannedAt) return '';
     try {
@@ -224,24 +227,6 @@
     } catch (_) { return ''; }
   }
 
-  // Health snapshot data object — consumed by renderHealthSnapshot()
-  var healthData = (hi && hi.score != null) ? {
-    score:  Math.round(hi.score),
-    status: hi.status || RI.scoreLabel(Math.round(hi.score)),
-    color:  RI.scoreColor(Math.round(hi.score)),
-  } : null;
-
-  // Coverage grid data — consumed by renderCoverageGrid()
-  var coverageData = [
-    { label: 'Identity Intelligence™',  score: hi ? hi.identityScore   : null },
-    { label: 'Publishing Intelligence™', score: hi ? hi.publishingScore : null },
-    { label: 'Catalog Intelligence™',    score: hi ? hi.catalogScore    : null },
-    { label: 'Backend Intelligence™',    score: hi ? hi.backendScore    : null },
-    { label: 'Global Music Footprint™',  score: hi ? hi.footprintScore  : null },
-  ];
-
-  // Change groups — consumed by renderChangeList()
-  // Returns [{label, events}] in canonical category order
   function buildChangeGroups(evts) {
     var map = {};
     evts.forEach(function (ev) {
@@ -259,14 +244,31 @@
     });
   }
 
-  var summary      = buildSummary(moduleState, events);
-  var dateStr      = buildDateStr(ctx.scannedAt);
+  var hiScore      = hi && hi.score != null ? Math.round(hi.score) : null;
   var changeGroups = moduleState === 'changed' ? buildChangeGroups(events) : [];
+  var displayCount = newThisScan > 0 ? newThisScan : events.length;
+
+  var intelligenceModel = {
+    moduleState:  moduleState,
+    summary:      buildSummary(moduleState, events),
+    dateStr:      buildDateStr(context.scannedAt),
+    scanNumber:   scanNumber,
+    displayCount: displayCount,
+    healthData:   hiScore !== null ? { score: hiScore, status: hi.status || RI.scoreLabel(hiScore), color: RI.scoreColor(hiScore) } : null,
+    coverageData: [
+      { label: 'Identity Intelligence™',  score: hi ? hi.identityScore   : null },
+      { label: 'Publishing Intelligence™', score: hi ? hi.publishingScore : null },
+      { label: 'Catalog Intelligence™',    score: hi ? hi.catalogScore    : null },
+      { label: 'Backend Intelligence™',    score: hi ? hi.backendScore    : null },
+      { label: 'Global Music Footprint™',  score: hi ? hi.footprintScore  : null },
+    ],
+    changeGroups: changeGroups,
+  };
 
   // ═══════════════════════════════════════════════════════════
   // § 3 — PRESENTATION
-  // Prepare visual output. Pure functions: receive prepared intelligence
-  // objects, return HTML strings. No data access. No business logic.
+  // Prepare visual output. Consumes: intelligenceModel. Produces: presentationModel.
+  // Pure functions: receive data, return HTML strings. No data access. No business logic.
   // ═══════════════════════════════════════════════════════════
 
   function esc(s) {
@@ -338,38 +340,46 @@
       + '</div>';
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // § 4 — RENDER
-  // Update the DOM. Assemble §3 output; single container.innerHTML write.
-  // No intelligence calculations. No business logic.
-  // ═══════════════════════════════════════════════════════════
-
   var CLOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" '
     + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
     + '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>';
   var PULSE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" '
     + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
     + '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>';
+  var ICON  = { baseline: CLOCK_SVG, stable: PULSE_SVG, changed: PULSE_SVG };
+  var TITLE = { baseline: 'Baseline Established', stable: 'No Changes Detected', changed: 'Changes Detected' };
 
-  var STATE_META = {
-    baseline: { icon: CLOCK_SVG, title: 'Baseline Established' },
-    stable:   { icon: PULSE_SVG, title: 'No Changes Detected'  },
-    changed:  { icon: PULSE_SVG, title: 'Changes Detected'     },
+  var im      = intelligenceModel;
+  var eyebrow = 'Scan #' + im.scanNumber + (im.dateStr ? ' · ' + im.dateStr : '');
+  if (im.moduleState === 'changed') {
+    eyebrow += ' · ' + im.displayCount + ' Change' + (im.displayCount > 1 ? 's' : '') + ' Detected';
+  }
+
+  var presentationModel = {
+    icon:             ICON[im.moduleState],
+    eyebrow:          esc(eyebrow),
+    title:            TITLE[im.moduleState],
+    executiveSummary: im.summary,
+    healthSnapshot:   renderHealthSnapshot(im.healthData),
+    supplemental:     im.moduleState === 'baseline' ? renderCoverageGrid(im.coverageData, im.scanNumber)
+                    : im.moduleState === 'changed'  ? renderChangeList(im.changeGroups)
+                    : '',
   };
 
-  var meta    = STATE_META[moduleState];
-  var eyebrow = 'Scan #' + scanNumber + (dateStr ? ' · ' + dateStr : '');
-  var n       = newThisScan > 0 ? newThisScan : events.length;
-  if (moduleState === 'changed') eyebrow += ' · ' + n + ' Change' + (n > 1 ? 's' : '') + ' Detected';
+  // ═══════════════════════════════════════════════════════════
+  // § 4 — RENDER
+  // Update the DOM. Consumes: presentationModel. Single container.innerHTML write.
+  // No business logic. No calculations.
+  // ═══════════════════════════════════════════════════════════
 
+  var pm = presentationModel;
   container.innerHTML = [
-    '<div class="ws-cs-icon">'  + meta.icon + '</div>',
-    '<div class="ws-cs-eyebrow">' + esc(eyebrow) + '</div>',
-    '<div class="ws-cs-title">' + meta.title + '</div>',
-    '<p class="ws-cs-desc">'    + summary + '</p>',
-    renderHealthSnapshot(healthData),
-    moduleState === 'baseline' ? renderCoverageGrid(coverageData, scanNumber) : '',
-    moduleState === 'changed'  ? renderChangeList(changeGroups) : '',
+    '<div class="ws-cs-icon">'    + pm.icon + '</div>',
+    '<div class="ws-cs-eyebrow">' + pm.eyebrow + '</div>',
+    '<div class="ws-cs-title">'   + pm.title + '</div>',
+    '<p class="ws-cs-desc">'      + pm.executiveSummary + '</p>',
+    pm.healthSnapshot,
+    pm.supplemental,
   ].join('');
 
 }());
