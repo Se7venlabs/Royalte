@@ -533,11 +533,11 @@
 
 </div><!-- /ws-shell -->
 
+<script src="/js/mc-intelligence-utils.js"></script>
 <script>
+/* Royaltē AI™ — Living Intelligence Core™ node activation */
 (function () {
   'use strict';
-
-  /* ── Load sequence — Living Intelligence Core™ ───────── */
   var NODES = [
     { id: 'ai-node-health',     delay: 600 },
     { id: 'ai-node-identity',   delay: 900 },
@@ -553,177 +553,352 @@
       if (el) el.classList.add('ai-node--live');
     }, n.delay);
   });
+}());
 
-  /* ── ATHENA™ Intelligence Wiring ────────────────────────
-     Source priority:
-       1. royalte_workspace_context — written by MC __mcPopulate()
-       2. royalte_scan_payload      — present on direct navigation (pre-MC)
-     Falls back to static placeholder content when neither key exists.
-  ──────────────────────────────────────────────────────── */
+/* Royaltē AI™ — Live Intelligence Wiring
+ * Canonical Workspace Architecture™ — §1 Context → §2 Intelligence → §3 Presentation → §4 Render
+ * Each layer produces one named output consumed by the next.
+ * Answers: "What should I focus on next, and why?"
+ */
+(function () {
+  'use strict';
 
-  function set(selector, text) {
-    var el = document.querySelector(selector);
-    if (el && text != null && String(text) !== '') el.textContent = String(text);
+  var RI = window.RoyalteIntel;
+  if (!RI) return;
+
+  // ═══════════════════════════════════════════════════════════
+  // § 1 — CONTEXT
+  // Read external data. No business logic. No calculations.
+  // Output: context
+  // ═══════════════════════════════════════════════════════════
+
+  var rawCtx = RI.readContext() || {};
+  if (!rawCtx.healthIntelligence) {
+    try {
+      var alt = JSON.parse(sessionStorage.getItem('royalte_scan_payload') || '{}');
+      if (alt && (alt.healthIntelligence || alt.executiveBrief || alt.royalteAI)) rawCtx = alt;
+    } catch (_) {}
   }
+
+  var context = {
+    artistName:             (rawCtx.subject && rawCtx.subject.artistName) || rawCtx.artistName || '',
+    royalteAI:              rawCtx.royalteAI              || null,
+    healthIntelligence:     rawCtx.healthIntelligence     || null,
+    healthReport:           rawCtx.healthReport           || null,
+    healthScore:            rawCtx.healthScore            || null,
+    executiveBrief:         rawCtx.executiveBrief         || null,
+    identityIntelligence:   rawCtx.identityIntelligence   || null,
+    publishingIntelligence: rawCtx.publishingIntelligence || null,
+    catalogIntelligence:    rawCtx.catalogIntelligence    || null,
+    globalMusicFootprint:   rawCtx.globalMusicFootprint   || null,
+    backendIntelligence:    rawCtx.backendIntelligence    || null,
+    monitoringIntelligence: rawCtx.monitoringIntelligence || null,
+  };
+
+  if (!context.healthIntelligence && !context.royalteAI && !context.executiveBrief) return;
+
+  // ═══════════════════════════════════════════════════════════
+  // § 2 — INTELLIGENCE
+  // Synthesize business meaning across all modules.
+  // Consumes: context. Produces: intelligenceModel.
+  // No HTML. No DOM manipulation. Plain values only.
+  // ═══════════════════════════════════════════════════════════
+
+  var eb = context.executiveBrief         || {};
+  var hr = context.healthReport           || {};
+  var hi = context.healthIntelligence     || {};
+  var hs = context.healthScore            || {};
+  var ai = context.royalteAI              || {};
+  var mi = context.monitoringIntelligence || {};
+  var ii = context.identityIntelligence   || {};
+  var pi = context.publishingIntelligence || {};
+  var gi = context.globalMusicFootprint   || {};
+
+  // ── Overall health ──────────────────────────────────────────
+  var healthScore  = hi.score != null ? Math.round(hi.score) : (hs.overallScore != null ? Math.round(hs.overallScore) : null);
+  var healthGrade  = hr.grade || hs.overallGrade || null;
+  var healthStatus = hi.status || (healthScore !== null ? RI.scoreLabel(healthScore) : null);
+  var healthHeadline = eb.healthHeadline || healthStatus || 'Analyzing';
+
+  // ── Source observations ─────────────────────────────────────
+  var risks = Array.isArray(hr.risks)         ? hr.risks         : [];
+  var opps  = Array.isArray(hr.opportunities) ? hr.opportunities : [];
+  var strs  = Array.isArray(hr.strengths)     ? hr.strengths     : [];
+
+  // ── Recommendation text from executiveBrief.priorityActions ─
+  var paMap = {};
+  if (Array.isArray(eb.priorityActions)) {
+    eb.priorityActions.forEach(function (pa) {
+      if (pa && pa.observationId) paMap[pa.observationId] = pa.recommendation || '';
+    });
+  }
+
+  // ── Severity ranking ────────────────────────────────────────
+  function sevRank(sev) {
+    return { CRITICAL: 5, HIGH: 4, MEDIUM: 3, LOW: 2, INFO: 1 }[(sev || '').toUpperCase()] || 0;
+  }
+
+  // ── Badge classification ─────────────────────────────────────
+  function badgeFor(obs) {
+    var sev = (obs.severity || '').toUpperCase();
+    var cat = (obs.category || obs.ruleId || '').toUpperCase();
+    if (sev === 'CRITICAL') return 'critical';
+    if (cat.includes('PUBLISH')) return 'critical';
+    if (cat.includes('IDENTITY') || cat.includes('APPLE') || cat.includes('SPOTIFY')) return 'identity';
+    if (cat.includes('CATALOG') || cat.includes('METADATA')) return 'metadata';
+    if (sev === 'HIGH') return 'critical';
+    return 'opportunity';
+  }
+  function badgeLabelFor(badge) {
+    return { critical: 'Critical', identity: 'Identity', metadata: 'Metadata', opportunity: 'Opportunity' }[badge] || 'Notice';
+  }
+
+  // ── Cross-module synthesis: weak module signals ─────────────
+  var MODULE_SCORES = [
+    { key: 'publishing', score: hi.publishingScore },
+    { key: 'footprint',  score: hi.footprintScore  },
+    { key: 'identity',   score: hi.identityScore   },
+    { key: 'catalog',    score: hi.catalogScore    },
+  ];
+  var WEAK_MODULE_MSGS = {
+    publishing: {
+      severity: 'HIGH', category: 'PUBLISHING',
+      title: 'Publishing registration unverified',
+      description: 'No confirmed publishing registrations were detected. Royalties from performance, mechanical, and sync cannot be collected without active PRO and MLC registration.',
+    },
+    footprint: {
+      severity: 'MEDIUM', category: 'CATALOG',
+      title: 'Limited territory reach detected',
+      description: 'Your music is not confirmed available in key markets. Expanding territory coverage unlocks passive revenue and audience reach in unverified regions.',
+    },
+  };
+
+  // ── Build unified observation list ──────────────────────────
+  var allObs = risks.concat(opps).sort(function (a, b) { return sevRank(b.severity) - sevRank(a.severity); });
+  var seenRuleIds = {};
+  allObs.forEach(function (o) { if (o.ruleId) seenRuleIds[o.ruleId] = true; });
+
+  if (Array.isArray(ii.issues)) {
+    ii.issues.forEach(function (issue) {
+      if (!seenRuleIds[issue.ruleId]) {
+        allObs.push({ ruleId: issue.ruleId, category: 'IDENTITY', severity: issue.severity || 'MEDIUM', title: issue.title, description: issue.recommendation });
+        seenRuleIds[issue.ruleId] = true;
+      }
+    });
+  }
+  if (Array.isArray(pi.issues)) {
+    pi.issues.forEach(function (issue) {
+      if (!seenRuleIds[issue.ruleId]) {
+        allObs.push({ ruleId: issue.ruleId, category: 'PUBLISHING', severity: issue.severity || 'HIGH', title: issue.title, description: issue.recommendation });
+        seenRuleIds[issue.ruleId] = true;
+      }
+    });
+  }
+
+  MODULE_SCORES.forEach(function (m) {
+    if (allObs.length >= 4) return;
+    var key = 'synthetic.' + m.key;
+    if (m.score != null && m.score < 40 && !seenRuleIds[key] && WEAK_MODULE_MSGS[m.key]) {
+      var msg = WEAK_MODULE_MSGS[m.key];
+      allObs.push({ ruleId: key, category: msg.category, severity: msg.severity, title: msg.title, description: msg.description });
+      seenRuleIds[key] = true;
+    }
+  });
+
+  allObs.sort(function (a, b) { return sevRank(b.severity) - sevRank(a.severity); });
+
+  // ── Recommendations (max 4) ─────────────────────────────────
+  var recommendations = allObs.slice(0, 4).map(function (obs) {
+    var badge = badgeFor(obs);
+    var desc  = (obs.observationId && paMap[obs.observationId]) || obs.description || obs.title || '';
+    return { badge: badge, badgeLabel: badgeLabelFor(badge), title: obs.title || '', description: desc };
+  });
+
+  // ── Priority list (max 5) ───────────────────────────────────
+  var titleMap = {};
+  allObs.concat(strs).forEach(function (o) {
+    var id = o.observationId || o.id || '';
+    if (id && o.title) titleMap[id] = o.title;
+  });
+
+  var priorities = [];
+  if (Array.isArray(eb.priorityActions) && eb.priorityActions.length > 0) {
+    priorities = eb.priorityActions.slice(0, 5).map(function (pa) {
+      var title = titleMap[pa.observationId || ''] || (pa.ruleId || 'Priority Action').replace(/[.\-]/g, ' ');
+      return { title: title, description: pa.recommendation || '' };
+    });
+  } else {
+    priorities = recommendations.slice(0, 5).map(function (r) { return { title: r.title, description: r.description }; });
+  }
+
+  // ── Forecast insights (3 bullets, cross-module synthesis) ───
+  var forecast0, forecast1, forecast2;
+
+  // Insight 0: Executive narrative — royalteAI preferred, then executiveBrief
+  forecast0 = ai.executiveInsight || eb.executiveSummary || '';
+  if (!forecast0) forecast0 = 'Additional monitoring is required before trends can be established.';
+  else if (forecast0.length > 240) forecast0 = forecast0.slice(0, 237) + '…';
+
+  // Insight 1: Primary risk signal
+  if (risks.length > 0 && risks[0].title) {
+    var riskRec = (risks[0].observationId && paMap[risks[0].observationId]) || '';
+    forecast1 = risks[0].title + (riskRec ? ': ' + riskRec : '. Address this to improve your health score.');
+  } else if (ai.priority) {
+    forecast1 = ai.priority;
+  } else {
+    forecast1 = 'No significant publishing risks were detected during this scan.';
+  }
+
+  // Insight 2: Opportunity signal — cross-module
+  if (opps.length > 0 && opps[0].title) {
+    var oppRec = (opps[0].observationId && paMap[opps[0].observationId]) || '';
+    forecast2 = opps[0].title + (oppRec ? ': ' + oppRec : '. Completing this will strengthen your profile.');
+  } else if (gi.reachNarrative) {
+    forecast2 = gi.reachNarrative;
+  } else if (ai.nextAction) {
+    forecast2 = ai.nextAction;
+  } else {
+    forecast2 = 'Continue monitoring to identify emerging opportunities across your music business.';
+  }
+
+  var intelligenceModel = {
+    artistName:          context.artistName || 'your music business',
+    healthStatus:        healthHeadline,
+    riskCount:           String(risks.length),
+    opportunityCount:    String(opps.length),
+    recommendations:     recommendations,
+    priorities:          priorities,
+    forecastInsights:    [forecast0, forecast1, forecast2],
+    forecastScore:       healthScore !== null ? healthScore + '/100' : '—',
+    forecastGrade:       healthGrade || '—',
+    forecastRisks:       String(risks.length),
+    forecastOpportunities: String(opps.length),
+    hasRecs:             recommendations.length > 0,
+    hasPriorities:       priorities.length > 0,
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // § 3 — PRESENTATION
+  // Prepare visual output. Consumes: intelligenceModel. Produces: presentationModel.
+  // Pure functions: receive data, return HTML strings or text values.
+  // No data access. No business logic.
+  // ═══════════════════════════════════════════════════════════
 
   function esc(s) {
-    return String(s || '')
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  var BADGE_ICON = {
+  var BADGE_SVG = {
     critical:    '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>',
     opportunity: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm-1-5h2v2h-2zm0-8h2v6h-2z"/></svg>',
     identity:    '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
     metadata:    '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>',
   };
 
-  function badgeForObs(obs) {
-    var sev = (obs.severity || '').toUpperCase();
-    var cat = (obs.category || '').toUpperCase();
-    if (sev === 'CRITICAL' || sev === 'HIGH') return 'critical';
-    if (cat === 'IDENTITY') return 'identity';
-    if (cat === 'PUBLISHING') return 'critical';
-    if (cat === 'CATALOG' || cat === 'METADATA') return 'metadata';
-    return 'opportunity';
+  function renderRecCard(rec) {
+    var icon = BADGE_SVG[rec.badge] || BADGE_SVG.metadata;
+    return '<div class="ai-rec-card">'
+      + '<div class="ai-rec-badge-row">'
+      +   '<div class="ai-rec-badge-icon ai-rec-badge-icon--' + rec.badge + '" aria-hidden="true">' + icon + '</div>'
+      +   '<span class="ai-rec-badge ai-rec-badge--' + rec.badge + '">' + esc(rec.badgeLabel) + '</span>'
+      + '</div>'
+      + '<div class="ai-rec-title">' + esc(rec.title) + '</div>'
+      + '<div class="ai-rec-desc">' + esc(rec.description) + '</div>'
+      + '<div class="ai-rec-meta-row">'
+      +   '<div class="ai-rec-meta-col">'
+      +     '<span class="ai-rec-meta-key">Priority</span>'
+      +     '<span class="ai-rec-meta-val ai-rec-meta-val--' + rec.badge + '">' + esc(rec.badgeLabel) + '</span>'
+      +   '</div>'
+      +   '<div class="ai-rec-arrow" aria-hidden="true">→</div>'
+      + '</div>'
+      + '</div>';
   }
 
-  function sevLabel(sev) {
-    var s = (sev || '').toUpperCase();
-    if (s === 'CRITICAL') return 'Critical';
-    if (s === 'HIGH')     return 'High Priority';
-    if (s === 'MEDIUM')   return 'Opportunity';
-    return 'Notice';
+  function renderRecGrid(recs) {
+    return recs.map(renderRecCard).join('');
   }
 
-  function sevRank(sev) {
-    return { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1, INFO: 0 }[(sev || '').toUpperCase()] || 0;
+  function renderPriorityRow(num, item) {
+    return '<div class="ai-priority-row">'
+      + '<div class="ai-priority-num">' + num + '</div>'
+      + '<div class="ai-priority-body">'
+      +   '<div class="ai-priority-title">' + esc(item.title) + '</div>'
+      +   '<div class="ai-priority-desc">' + esc(item.description) + '</div>'
+      + '</div>'
+      + '</div>';
   }
 
-  function buildRecCard(obs, recText) {
-    var badge = badgeForObs(obs);
-    var label = sevLabel(obs.severity);
-    var icon  = BADGE_ICON[badge] || BADGE_ICON.metadata;
-    return '<div class="ai-rec-card">' +
-      '<div class="ai-rec-badge-row">' +
-        '<div class="ai-rec-badge-icon ai-rec-badge-icon--' + badge + '" aria-hidden="true">' + icon + '</div>' +
-        '<span class="ai-rec-badge ai-rec-badge--' + badge + '">' + esc(label) + '</span>' +
-      '</div>' +
-      '<div class="ai-rec-title">' + esc(obs.title || '') + '</div>' +
-      '<div class="ai-rec-desc">' + esc(recText || obs.title || '') + '</div>' +
-      '<div class="ai-rec-meta-row">' +
-        '<div class="ai-rec-meta-col">' +
-          '<span class="ai-rec-meta-key">Severity</span>' +
-          '<span class="ai-rec-meta-val ai-rec-meta-val--' + badge + '">' + esc(label) + '</span>' +
-        '</div>' +
-        '<div class="ai-rec-arrow" aria-hidden="true">→</div>' +
-      '</div>' +
-    '</div>';
+  function renderPriorityList(items) {
+    return items.map(function (item, i) { return renderPriorityRow(i + 1, item); }).join('');
   }
 
-  function buildPriorityRow(num, title, desc) {
-    return '<div class="ai-priority-row">' +
-      '<div class="ai-priority-num">' + num + '</div>' +
-      '<div class="ai-priority-body">' +
-        '<div class="ai-priority-title">' + esc(title) + '</div>' +
-        '<div class="ai-priority-desc">' + esc(desc) + '</div>' +
-      '</div>' +
-    '</div>';
+  var im = intelligenceModel;
+
+  var presentationModel = {
+    artistName:          im.artistName,
+    healthStatus:        im.healthStatus,
+    riskCount:           im.riskCount,
+    opportunityCount:    im.opportunityCount,
+    recGridHtml:         im.hasRecs ? renderRecGrid(im.recommendations) : '',
+    priorityListHtml:    im.hasPriorities ? renderPriorityList(im.priorities) : '',
+    forecast0:           im.forecastInsights[0],
+    forecast1:           im.forecastInsights[1],
+    forecast2:           im.forecastInsights[2],
+    metricScore:         im.forecastScore,
+    metricGrade:         im.forecastGrade,
+    metricRisks:         im.forecastRisks,
+    metricOpportunities: im.forecastOpportunities,
+    hasRecs:             im.hasRecs,
+    hasPriorities:       im.hasPriorities,
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // § 4 — RENDER
+  // Update the DOM. Consumes: presentationModel.
+  // No business logic. No calculations.
+  // ═══════════════════════════════════════════════════════════
+
+  var pm = presentationModel;
+
+  function setText(sel, val) {
+    var el = document.querySelector(sel);
+    if (el && val != null && String(val) !== '') el.textContent = String(val);
   }
 
-  function updateForecastInsight(el, text) {
+  function setInsightText(idx, text) {
+    var el = document.querySelector('[data-ai-forecast-insight="' + idx + '"]');
     if (!el || !text) return;
     var nodes = el.childNodes;
     for (var j = nodes.length - 1; j >= 0; j--) {
-      if (nodes[j].nodeType === 3) { nodes[j].textContent = '\n              ' + text + '\n            '; break; }
+      if (nodes[j].nodeType === 3) { nodes[j].textContent = '\n              ' + text + '\n            '; return; }
     }
+    el.appendChild(document.createTextNode('\n              ' + text + '\n            '));
   }
 
-  try {
-    var raw = sessionStorage.getItem('royalte_workspace_context')
-           || sessionStorage.getItem('royalte_scan_payload');
-    if (!raw) return;
-    var payload = JSON.parse(raw);
-    if (!payload) return;
+  // Hero
+  setText('[data-ai-artist-name]',       pm.artistName);
+  setText('[data-ai-health-status]',     pm.healthStatus);
+  setText('[data-ai-risk-count]',        pm.riskCount);
+  setText('[data-ai-opportunity-count]', pm.opportunityCount);
 
-    var eb = payload.executiveBrief || {};
-    var hr = payload.healthReport   || {};
-    var hs = payload.healthScore    || {};
+  // Executive Recommendations™
+  var recGrid = document.getElementById('ai-rec-grid');
+  if (recGrid && pm.hasRecs) recGrid.innerHTML = pm.recGridHtml;
 
-    var risks = Array.isArray(hr.risks)        ? hr.risks        : [];
-    var opps  = Array.isArray(hr.opportunities) ? hr.opportunities : [];
-    var strs  = Array.isArray(hr.strengths)    ? hr.strengths    : [];
+  // Business Priorities™
+  var prioList = document.getElementById('ai-priorities-list');
+  if (prioList && pm.hasPriorities) prioList.innerHTML = pm.priorityListHtml;
 
-    // ── Hero ──────────────────────────────────────────────────
-    var artistName = (payload.subject && payload.subject.artistName) || payload.artistName || '';
-    if (artistName) set('[data-ai-artist-name]', artistName);
-    set('[data-ai-risk-count]', risks.length);
-    set('[data-ai-opportunity-count]', opps.length);
-    var headline = eb.healthHeadline || (payload.healthIntelligence && payload.healthIntelligence.status) || '';
-    if (headline) set('[data-ai-health-status]', headline);
+  // Executive Forecast™ — insight bullets
+  setInsightText(0, pm.forecast0);
+  setInsightText(1, pm.forecast1);
+  setInsightText(2, pm.forecast2);
 
-    // ── § 2 Executive Recommendations™ ────────────────────────
-    // Top 4 observations by severity (risks + opportunities combined)
-    var allObs = risks.concat(opps).sort(function (a, b) {
-      return sevRank(b.severity) - sevRank(a.severity);
-    });
-
-    // recommendation text lookup by observationId from priorityActions
-    var paMap = {};
-    if (Array.isArray(eb.priorityActions)) {
-      eb.priorityActions.forEach(function (pa) {
-        if (pa && pa.observationId) paMap[pa.observationId] = pa.recommendation || '';
-      });
-    }
-
-    var recGrid = document.getElementById('ai-rec-grid');
-    if (recGrid && allObs.length > 0) {
-      recGrid.innerHTML = allObs.slice(0, 4).map(function (obs) {
-        return buildRecCard(obs, paMap[obs.observationId || obs.id || ''] || '');
-      }).join('');
-    }
-
-    // ── § 4 Business Priorities™ ───────────────────────────────
-    // Title lookup: risks + opps + strengths → observationId → title
-    var titleMap = {};
-    allObs.concat(strs).forEach(function (o) {
-      var id = o.observationId || o.id || '';
-      if (id && o.title) titleMap[id] = o.title;
-    });
-
-    var prioList = document.getElementById('ai-priorities-list');
-    if (prioList && Array.isArray(eb.priorityActions) && eb.priorityActions.length > 0) {
-      prioList.innerHTML = eb.priorityActions.slice(0, 5).map(function (pa, i) {
-        var title = titleMap[pa.observationId || ''] || (pa.ruleId || 'Priority Action').replace(/[.-]/g, ' ');
-        return buildPriorityRow(i + 1, title, pa.recommendation || '');
-      }).join('');
-    }
-
-    // ── § 5 Executive Forecast™ — insight bullets ──────────────
-    var insightEls = document.querySelectorAll('[data-ai-forecast-insight]');
-    var insightTexts = [
-      eb.executiveSummary || '',
-      risks.length > 0 && risks[0].title
-        ? risks[0].title + ': ' + (paMap[risks[0].observationId || ''] || 'Address this to improve your health score.')
-        : (eb.recommendedNextStep ? 'Recommended next step: ' + eb.recommendedNextStep : ''),
-      opps.length > 0 && opps[0].title
-        ? opps[0].title + ': ' + (paMap[opps[0].observationId || ''] || 'This opportunity can improve your score.')
-        : (eb.aiExecutiveInsight ? eb.aiExecutiveInsight.slice(0, 180) + '…' : ''),
-    ];
-    insightEls.forEach(function (el, i) { updateForecastInsight(el, insightTexts[i]); });
-
-    // ── § 5 Executive Forecast™ — metrics ─────────────────────
-    var score = (hr.score != null ? hr.score : (hs.overallScore != null ? hs.overallScore : null));
-    var grade = hr.grade || hs.overallGrade || null;
-    set('[data-ai-metric-score]',         score !== null ? score + '/100' : '—');
-    set('[data-ai-metric-grade]',         grade || '—');
-    set('[data-ai-metric-risks]',         String(risks.length));
-    set('[data-ai-metric-opportunities]', String(opps.length));
-
-  } catch (_e) {
-    // Silent fail — static placeholder content remains visible
-  }
+  // Executive Forecast™ — metrics
+  setText('[data-ai-metric-score]',         pm.metricScore);
+  setText('[data-ai-metric-grade]',         pm.metricGrade);
+  setText('[data-ai-metric-risks]',         pm.metricRisks);
+  setText('[data-ai-metric-opportunities]', pm.metricOpportunities);
 
 }());
 </script>
