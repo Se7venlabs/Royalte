@@ -79,7 +79,15 @@ Marks the Board has identified for formal filing. Status remains `PLANNED` until
 | Revenue Signals™ | Se7ven Labs LLC | TBD | Revenue-side signal product. | PLANNED | US · CA | — | |
 | Collection Signals™ | Se7ven Labs LLC | TBD | Collection-side signal product. | PLANNED | US · CA | — | |
 
-**Mark count: 36** (the brief authorised 35 marks; 36 are listed because all 36 explicit names from the brief are preserved verbatim; the Board may consolidate or split the final list at filing time).
+| ATHENA™ | Se7ven Labs LLC | 2026-07-04 | Royaltē's Intelligence Engine — the branded AI layer transforming verified music intelligence into trusted executive recommendations. | PLANNED | US · CA | — | Board-ratified 2026-07-04. |
+| Smart Consensus™ | Se7ven Labs LLC | 2026-07-04 | Confidence-based AI routing architecture within ATHENA™. | PLANNED | US · CA | — | Board-ratified 2026-07-04. |
+| Confidence Engine™ | Se7ven Labs LLC | 2026-07-04 | Per-recommendation confidence scoring component within ATHENA™. | PLANNED | US · CA | — | Board-ratified 2026-07-04. |
+| Business Rules Engine™ | Se7ven Labs LLC | 2026-07-04 | Deterministic music industry rules layer within ATHENA™. | PLANNED | US · CA | — | Board-ratified 2026-07-04. |
+| Consensus Engine™ | Se7ven Labs LLC | 2026-07-04 | Multi-model output resolution component within ATHENA™ Smart Consensus™. | PLANNED | US · CA | — | Board-ratified 2026-07-04. |
+| ATHENA™ Validation™ | Se7ven Labs LLC | 2026-07-04 | ATHENA™'s final validation step before Executive Brief™ assembly. | PLANNED | US · CA | — | Board-ratified 2026-07-04. |
+| Artist Intelligence Profile™ | Se7ven Labs LLC | 2026-07-04 | Per-artist structured intelligence context — input substrate to the ATHENA™ pipeline. | PLANNED | US · CA | — | Board-ratified 2026-07-04. |
+
+**Mark count: 43** (36 prior marks + 7 ATHENA™ architecture marks added 2026-07-04).
 
 ---
 

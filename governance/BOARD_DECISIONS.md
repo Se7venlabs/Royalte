@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-04 — ATHENA™ Intelligence Engine — Smart Consensus™ Architecture — LOCKED
+
+| | |
+|---|---|
+| **Date** | 2026-07-04 |
+| **Decision** | Smart Consensus™ is locked as the permanent AI architecture for ATHENA™. ATHENA™ is Royaltē's Intelligence Engine — not an AI model. Its pipeline: Verified Royaltē Intelligence → Artist Intelligence Profile™ → Business Rules Engine™ → Primary Reasoning Model → Confidence Evaluation™ → [high confidence: ATHENA™ Validation™ → Executive Brief™] / [low confidence: Secondary Reasoning Model → Consensus Engine™ → ATHENA™ Validation™ → Executive Brief™]. Architecture is model-agnostic: GPT / Claude / Gemini / future models are provider-level configuration, not architectural commitments. Artists never see model names, provider names, prompts, or tokens. Royaltē's competitive advantage is the combination of verified intelligence + Business Rules Engine™ + executive reasoning + confidence evaluation + consensus validation + executive reporting — not the underlying model. Architectural spec: `constitution/ATHENA_ARCHITECTURE.md`. |
+| **Reason** | A single-model-always architecture is cost-inefficient and fails to handle complex cases (ownership conflicts, publishing inconsistencies, duplicate ISRCs, high-impact decisions) with sufficient confidence. Smart Consensus™ routes only difficult cases to a second model, dramatically reducing AI operating cost while maintaining enterprise-grade reasoning quality. |
+| **Impact** | `constitution/ATHENA_ARCHITECTURE.md` created as the permanent architectural specification. ATHENA™ registered in IP Vault (PRODUCT_REGISTRY, TRADEMARKS, INVENTION_LOG). ROADMAP updated with ATHENA™ Sprint. No Engineering Stack changes required — ATHENA™ sits above the existing stack. |
+| **Vote** | UNANIMOUS — Board-Approved |
+| **PR Number** | (this PR) |
+| **Commit SHA** | (pending) |
+| **Constitution update required** | No — ATHENA™ is a supra-stack layer; `constitution/ATHENA_ARCHITECTURE.md` is its own constitutional document |
+
+---
+
 ### 2026-07-04 — Executive Product Review Standard™ — Mandatory Merge Gate — MANDATORY
 
 | | |

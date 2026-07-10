@@ -28,12 +28,12 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **Royaltē OS v1.0 Design Baseline — Catalog Intelligence™ + Executive Icon System™ + Product Review Polish** |
-| Merged at | `7108f35` (PR #233, 2026-07-04) |
+| Most recently completed phase | **ATHENA™ Intelligence Engine — Smart Consensus™ Architecture Lock** |
+| Merged at | (pending merge on `feat/athena-architecture-lock`) |
 | Tag | — |
-| Prior phase | WS-4.2-RTZ — Reporting Time Zone™ + MC System Status™ (`6efd9e2`, PR #226, 2026-07-03) |
-| Active direction | Royaltē OS v1.0 design baseline locked. All 4 full Executive Workspaces (Health, Identity, Publishing, Catalog) complete. Royaltē Executive Icon Registry™ active. Workspace Accent Color Token system active. Waiting for next Board brief. |
-| Next Board gate | Board brief required before any new Executive Workspace or MC module begins |
+| Prior phase | Royaltē OS v1.0 Design Baseline — Catalog Intelligence™ + Executive Icon System™ + Product Review Polish (`7108f35`, PR #233, 2026-07-04) |
+| Active direction | ATHENA™ architecture locked. Smart Consensus™ is the permanent AI routing architecture. `constitution/ATHENA_ARCHITECTURE.md` is the authoritative spec. IP Vault updated (Invention Log, Trademarks, Product Registry). Backend Intelligence™ Executive Workspace in development on `feat/backend-intelligence-v1` (PR #236). |
+| Next Board gate | Board brief required before ATHENA™ implementation begins; Backend Intelligence™ workspace awaiting Board Review (gate 3 of 3) |
 
 **⚠ MANDATORY GATE — Executive Product Review Standard™ (2026-07-04)**
 Every Executive Workspace must pass the mandatory three-gate process before merge:
@@ -65,7 +65,7 @@ The Engineering Agent is responsible for the Product Review before opening a PR.
 
 **Phase 3.4 — Website Scan is a constitutional presentation layer.** All displayed intelligence reads from the Certified CIM. ISRC Coverage is a permanent RIE field (`isrcCoverage` in `catalogIntelligence`). Catalog Availability reads from `globalMusicFootprint.status`. Zero business logic remains in `_renderV2Found`.
 
-Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`. MC-3.2 Health Intelligence™ Executive Assessment `346a2d0`. MC-3.2-ELO Executive Layout Optimization™ v1.0 `83c8804`. MC-3.3 Identity Intelligence™ Executive Passport `654eb52`. MC-3.4 Publishing Intelligence™ Executive Passport + Amendment 1 `2bb1af2`. MC-3.4 Amendment 2 (executive brief typography) `8400134`.
+Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`. MC-3.2 Health Intelligence™ Executive Assessment `346a2d0`. MC-3.2-ELO Executive Layout Optimization™ v1.0 `83c8804`. MC-3.3 Identity Intelligence™ Executive Passport `654eb52`. MC-3.4 Publishing Intelligence™ Executive Passport + Amendment 1 `2bb1af2`. MC-3.4 Amendment 2 (executive brief typography) `8400134`. ATHENA-1 Smart Consensus™ Architecture Lock (Board-ratified 2026-07-04) — pending merge.
 
 The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`. The legacy retirement checklist lives in `governance/MIGRATION_RETIREMENT_REGISTER.md`.
 

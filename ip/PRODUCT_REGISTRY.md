@@ -27,6 +27,22 @@ The seven-layer Engineering Stack established in Constitution v1.3 § 8B.
 
 ---
 
+## ATHENA™ Intelligence Layer
+
+The AI reasoning layer sitting above the Royaltē Engineering Stack. Board-ratified 2026-07-04. Architecture specification: `constitution/ATHENA_ARCHITECTURE.md`.
+
+| Name | Description | Owner | Status | Dependencies | Constitution Section | Version |
+|---|---|---|---|---|---|---|
+| ATHENA™ Intelligence Engine | Intelligence layer transforming verified Royaltē music intelligence into trusted executive recommendations. Sole AI entry point for all artist-facing output. Never queries raw providers; consumes Engineering Stack output only. Artists never see an underlying model name. | Se7ven Labs LLC | LOCKED (architecture) | Intelligence Engine output | `constitution/ATHENA_ARCHITECTURE.md` | Board-ratified 2026-07-04 |
+| Artist Intelligence Profile™ | Structured per-artist intelligence context assembled from CIO data; the reasoning substrate passed into the ATHENA™ pipeline. | Se7ven Labs LLC | LOCKED (architecture) | CIO | `constitution/ATHENA_ARCHITECTURE.md` | Board-ratified 2026-07-04 |
+| Business Rules Engine™ | Deterministic music industry rules that constrain AI reasoning before and after model invocation. Owned entirely by Royaltē; independent of any AI provider. | Se7ven Labs LLC | LOCKED (architecture) | Rule Library | `constitution/ATHENA_ARCHITECTURE.md` | Board-ratified 2026-07-04 |
+| Confidence Engine™ | Per-recommendation confidence scoring. Every ATHENA™ recommendation carries a confidence score; scores below the Board-approved threshold automatically trigger Smart Consensus™. | Se7ven Labs LLC | LOCKED (architecture) | Primary Reasoning Model output | `constitution/ATHENA_ARCHITECTURE.md` | Board-ratified 2026-07-04 |
+| Smart Consensus™ | Confidence-based AI routing architecture. Routes most requests to a single primary model; invokes secondary model + Consensus Engine™ only when confidence falls below threshold. | Se7ven Labs LLC | LOCKED (architecture) | Confidence Engine™ | `constitution/ATHENA_ARCHITECTURE.md` | Board-ratified 2026-07-04 |
+| Consensus Engine™ | Evaluates and resolves disagreement between primary and secondary model outputs on the Smart Consensus™ low-confidence path. | Se7ven Labs LLC | LOCKED (architecture) | Smart Consensus™ | `constitution/ATHENA_ARCHITECTURE.md` | Board-ratified 2026-07-04 |
+| ATHENA™ Validation™ | Final validation step before Executive Brief™ assembly; enforces output quality and business-rule compliance. | Se7ven Labs LLC | LOCKED (architecture) | Consensus Engine™ or primary model output | `constitution/ATHENA_ARCHITECTURE.md` | Board-ratified 2026-07-04 |
+
+---
+
 ## Consumer Surfaces
 
 | Name | Description | Owner | Status | Dependencies | Constitution Section | Version |
