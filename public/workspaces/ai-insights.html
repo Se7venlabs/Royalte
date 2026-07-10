@@ -7,6 +7,67 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <style>
+    /* Royaltē AI™ — Loading & Empty Container States
+     * Applied to #ai-rec-grid and #ai-priorities-list before wiring completes.
+     * §4 Render removes data-ai-state and writes live content or empty state.
+     */
+    #ai-rec-grid[data-ai-state="loading"],
+    #ai-priorities-list[data-ai-state="loading"] {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 130px;
+      border: 1px solid var(--mc-border);
+      border-radius: 12px;
+      background: var(--mc-surface-2);
+    }
+    .ai-intel-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .ai-intel-loading-dots { display: flex; gap: 6px; }
+    .ai-intel-loading-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(168, 85, 247, 0.45);
+      animation: ai-dot-pulse 1.4s ease-in-out infinite;
+    }
+    .ai-intel-loading-dot:nth-child(2) { animation-delay: 0.22s; }
+    .ai-intel-loading-dot:nth-child(3) { animation-delay: 0.44s; }
+    @keyframes ai-dot-pulse {
+      0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+      40%            { opacity: 1;   transform: scale(1);   }
+    }
+    .ai-intel-loading-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+    }
+    /* Empty state — used for both "no recommendations" and "no session context" */
+    .ai-intel-empty {
+      padding: 28px 24px;
+      border: 1px solid var(--mc-border);
+      border-radius: 12px;
+      background: var(--mc-surface-2);
+    }
+    .ai-intel-empty--grid { grid-column: 1 / -1; }
+    .ai-intel-empty-body  { display: flex; flex-direction: column; gap: 5px; max-width: 480px; }
+    .ai-intel-empty-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--mc-text);
+    }
+    .ai-intel-empty-desc {
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--mc-text-muted);
+    }
+  </style>
 </head>
 <body>
 <div class="ws-shell ws-dept--ai-insights">
@@ -307,100 +368,15 @@
         <!-- § 2 — EXECUTIVE RECOMMENDATIONS™ ──────────────────────── -->
         <div class="ai-rec-section">
           <div class="ai-section-eyebrow">Executive Recommendations™</div>
-          <div class="ai-rec-grid" id="ai-rec-grid">
-
-            <!-- Rec 1: CRITICAL -->
-            <div class="ai-rec-card">
-              <div class="ai-rec-badge-row">
-                <div class="ai-rec-badge-icon ai-rec-badge-icon--critical" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
-                </div>
-                <span class="ai-rec-badge ai-rec-badge--critical">Critical</span>
+          <div class="ai-rec-grid" id="ai-rec-grid" data-ai-state="loading">
+            <div class="ai-intel-loading" style="grid-column:1/-1">
+              <div class="ai-intel-loading-dots">
+                <span class="ai-intel-loading-dot"></span>
+                <span class="ai-intel-loading-dot"></span>
+                <span class="ai-intel-loading-dot"></span>
               </div>
-              <div class="ai-rec-title">Publishing Administrator Missing</div>
-              <div class="ai-rec-desc">Your publishing is unprotected. Revenue risk is increasing with every release without administrator assignment.</div>
-              <div class="ai-rec-meta-row">
-                <div class="ai-rec-meta-col">
-                  <span class="ai-rec-meta-key">Impact</span>
-                  <span class="ai-rec-meta-val ai-rec-meta-val--critical">Very High</span>
-                </div>
-                <div class="ai-rec-meta-col">
-                  <span class="ai-rec-meta-key">Time</span>
-                  <span class="ai-rec-meta-val" style="color:var(--mc-text-soft);">15 min</span>
-                </div>
-                <div class="ai-rec-arrow" aria-hidden="true">→</div>
-              </div>
+              <div class="ai-intel-loading-label">Analyzing recommendations</div>
             </div>
-
-            <!-- Rec 2: OPPORTUNITY -->
-            <div class="ai-rec-card">
-              <div class="ai-rec-badge-row">
-                <div class="ai-rec-badge-icon ai-rec-badge-icon--opportunity" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm-1-5h2v2h-2zm0-8h2v6h-2z"/></svg>
-                </div>
-                <span class="ai-rec-badge ai-rec-badge--opportunity">Opportunity</span>
-              </div>
-              <div class="ai-rec-title">Expand into Germany &amp; Brazil</div>
-              <div class="ai-rec-desc">High listener growth potential detected. Both markets show strong streaming momentum for your genre profile.</div>
-              <div class="ai-rec-meta-row">
-                <div class="ai-rec-meta-col">
-                  <span class="ai-rec-meta-key">Impact</span>
-                  <span class="ai-rec-meta-val ai-rec-meta-val--opportunity">High</span>
-                </div>
-                <div class="ai-rec-meta-col">
-                  <span class="ai-rec-meta-key">Time</span>
-                  <span class="ai-rec-meta-val" style="color:var(--mc-text-soft);">30 days</span>
-                </div>
-                <div class="ai-rec-arrow" aria-hidden="true">→</div>
-              </div>
-            </div>
-
-            <!-- Rec 3: IDENTITY -->
-            <div class="ai-rec-card">
-              <div class="ai-rec-badge-row">
-                <div class="ai-rec-badge-icon ai-rec-badge-icon--identity" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                </div>
-                <span class="ai-rec-badge ai-rec-badge--identity">Identity</span>
-              </div>
-              <div class="ai-rec-title">Claim YouTube Official Artist Channel</div>
-              <div class="ai-rec-desc">Increase authority and unlock monetization. Your channel is eligible — claim now to access audience insights.</div>
-              <div class="ai-rec-meta-row">
-                <div class="ai-rec-meta-col">
-                  <span class="ai-rec-meta-key">Impact</span>
-                  <span class="ai-rec-meta-val ai-rec-meta-val--high">High</span>
-                </div>
-                <div class="ai-rec-meta-col">
-                  <span class="ai-rec-meta-key">Time</span>
-                  <span class="ai-rec-meta-val" style="color:var(--mc-text-soft);">20 min</span>
-                </div>
-                <div class="ai-rec-arrow" aria-hidden="true">→</div>
-              </div>
-            </div>
-
-            <!-- Rec 4: METADATA -->
-            <div class="ai-rec-card">
-              <div class="ai-rec-badge-row">
-                <div class="ai-rec-badge-icon ai-rec-badge-icon--metadata" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-                </div>
-                <span class="ai-rec-badge ai-rec-badge--metadata">Metadata</span>
-              </div>
-              <div class="ai-rec-title">Register Missing MusicBrainz ID</div>
-              <div class="ai-rec-desc">Improve discoverability and data accuracy across downstream platforms that rely on MusicBrainz authority records.</div>
-              <div class="ai-rec-meta-row">
-                <div class="ai-rec-meta-col">
-                  <span class="ai-rec-meta-key">Impact</span>
-                  <span class="ai-rec-meta-val ai-rec-meta-val--medium">Medium</span>
-                </div>
-                <div class="ai-rec-meta-col">
-                  <span class="ai-rec-meta-key">Time</span>
-                  <span class="ai-rec-meta-val" style="color:var(--mc-text-soft);">10 min</span>
-                </div>
-                <div class="ai-rec-arrow" aria-hidden="true">→</div>
-              </div>
-            </div>
-
           </div><!-- /ai-rec-grid -->
         </div><!-- /ai-rec-section -->
 
@@ -412,73 +388,15 @@
             <div class="ai-section-eyebrow">Business Priorities™</div>
             <div class="ai-forecast-period">Next 30 Days</div>
           </div>
-          <div class="ai-priorities-list" id="ai-priorities-list">
-
-            <div class="ai-priority-row">
-              <div class="ai-priority-num">1</div>
-              <div class="ai-priority-body">
-                <div class="ai-priority-title">Assign Publishing Administrator</div>
-                <div class="ai-priority-desc">Unprotected catalog is the single highest business risk identified by ATHENA™.</div>
+          <div class="ai-priorities-list" id="ai-priorities-list" data-ai-state="loading">
+            <div class="ai-intel-loading">
+              <div class="ai-intel-loading-dots">
+                <span class="ai-intel-loading-dot"></span>
+                <span class="ai-intel-loading-dot"></span>
+                <span class="ai-intel-loading-dot"></span>
               </div>
-              <div class="ai-priority-meta">
-                <span class="ai-priority-chip ai-priority-chip--impact-critical">Impact: Critical</span>
-                <span class="ai-priority-chip ai-priority-chip--diff-easy">Easy</span>
-                <span class="ai-priority-chip ai-priority-chip--time">15 min</span>
-              </div>
+              <div class="ai-intel-loading-label">Assembling priority actions</div>
             </div>
-
-            <div class="ai-priority-row">
-              <div class="ai-priority-num">2</div>
-              <div class="ai-priority-body">
-                <div class="ai-priority-title">Register PRO &amp; SoundExchange</div>
-                <div class="ai-priority-desc">Performance and digital performance royalties cannot be collected without active registrations.</div>
-              </div>
-              <div class="ai-priority-meta">
-                <span class="ai-priority-chip ai-priority-chip--impact-high">Impact: High</span>
-                <span class="ai-priority-chip ai-priority-chip--diff-medium">Medium</span>
-                <span class="ai-priority-chip ai-priority-chip--time">1–2 weeks</span>
-              </div>
-            </div>
-
-            <div class="ai-priority-row">
-              <div class="ai-priority-num">3</div>
-              <div class="ai-priority-body">
-                <div class="ai-priority-title">Claim YouTube Official Artist Channel</div>
-                <div class="ai-priority-desc">Authority signal gap detected across identity providers. Claiming OAC resolves 3 identity gaps simultaneously.</div>
-              </div>
-              <div class="ai-priority-meta">
-                <span class="ai-priority-chip ai-priority-chip--impact-high">Impact: High</span>
-                <span class="ai-priority-chip ai-priority-chip--diff-easy">Easy</span>
-                <span class="ai-priority-chip ai-priority-chip--time">20 min</span>
-              </div>
-            </div>
-
-            <div class="ai-priority-row">
-              <div class="ai-priority-num">4</div>
-              <div class="ai-priority-body">
-                <div class="ai-priority-title">Initiate Germany &amp; Brazil Market Expansion</div>
-                <div class="ai-priority-desc">Royaltē Global Intelligence™ forecasts 18–24% reach improvement with targeted playlist pitching in both markets.</div>
-              </div>
-              <div class="ai-priority-meta">
-                <span class="ai-priority-chip ai-priority-chip--impact-high">Impact: High</span>
-                <span class="ai-priority-chip ai-priority-chip--diff-medium">Medium</span>
-                <span class="ai-priority-chip ai-priority-chip--time">30 days</span>
-              </div>
-            </div>
-
-            <div class="ai-priority-row">
-              <div class="ai-priority-num">5</div>
-              <div class="ai-priority-body">
-                <div class="ai-priority-title">Register MusicBrainz Identity Record</div>
-                <div class="ai-priority-desc">Open database authority missing — affects discoverability on MusicBrainz-dependent platforms and sync licensing pipelines.</div>
-              </div>
-              <div class="ai-priority-meta">
-                <span class="ai-priority-chip ai-priority-chip--impact-medium">Impact: Medium</span>
-                <span class="ai-priority-chip ai-priority-chip--diff-easy">Easy</span>
-                <span class="ai-priority-chip ai-priority-chip--time">10 min</span>
-              </div>
-            </div>
-
           </div><!-- /ai-priorities-list -->
         </div><!-- /ai-priorities-section -->
 
@@ -832,6 +750,23 @@
     return items.map(function (item, i) { return renderPriorityRow(i + 1, item); }).join('');
   }
 
+  // Truthful empty states — shown when intelligence produces no items.
+  // Never shows demo content. Never appears broken.
+  var EMPTY_RECS_HTML =
+    '<div class="ai-intel-empty ai-intel-empty--grid">' +
+    '<div class="ai-intel-empty-body">' +
+    '<div class="ai-intel-empty-title">No recommendations identified</div>' +
+    '<div class="ai-intel-empty-desc">Your current scan did not identify any priority recommendations. ' +
+    'Continue monitoring to surface actionable intelligence.</div>' +
+    '</div></div>';
+
+  var EMPTY_PRIORITIES_HTML =
+    '<div class="ai-intel-empty">' +
+    '<div class="ai-intel-empty-body">' +
+    '<div class="ai-intel-empty-title">No priority actions identified</div>' +
+    '<div class="ai-intel-empty-desc">Additional monitoring is required before personalized priorities can be generated.</div>' +
+    '</div></div>';
+
   var im = intelligenceModel;
 
   var presentationModel = {
@@ -839,8 +774,8 @@
     healthStatus:        im.healthStatus,
     riskCount:           im.riskCount,
     opportunityCount:    im.opportunityCount,
-    recGridHtml:         im.hasRecs ? renderRecGrid(im.recommendations) : '',
-    priorityListHtml:    im.hasPriorities ? renderPriorityList(im.priorities) : '',
+    recGridHtml:         im.hasRecs ? renderRecGrid(im.recommendations) : EMPTY_RECS_HTML,
+    priorityListHtml:    im.hasPriorities ? renderPriorityList(im.priorities) : EMPTY_PRIORITIES_HTML,
     forecast0:           im.forecastInsights[0],
     forecast1:           im.forecastInsights[1],
     forecast2:           im.forecastInsights[2],
@@ -881,13 +816,13 @@
   setText('[data-ai-risk-count]',        pm.riskCount);
   setText('[data-ai-opportunity-count]', pm.opportunityCount);
 
-  // Executive Recommendations™
+  // Executive Recommendations™ — always write; pm.recGridHtml is live content or empty state
   var recGrid = document.getElementById('ai-rec-grid');
-  if (recGrid && pm.hasRecs) recGrid.innerHTML = pm.recGridHtml;
+  if (recGrid) { recGrid.removeAttribute('data-ai-state'); recGrid.innerHTML = pm.recGridHtml; }
 
-  // Business Priorities™
+  // Business Priorities™ — always write; pm.priorityListHtml is live content or empty state
   var prioList = document.getElementById('ai-priorities-list');
-  if (prioList && pm.hasPriorities) prioList.innerHTML = pm.priorityListHtml;
+  if (prioList) { prioList.removeAttribute('data-ai-state'); prioList.innerHTML = pm.priorityListHtml; }
 
   // Executive Forecast™ — insight bullets
   setInsightText(0, pm.forecast0);
@@ -900,6 +835,32 @@
   setText('[data-ai-metric-risks]',         pm.metricRisks);
   setText('[data-ai-metric-opportunities]', pm.metricOpportunities);
 
+}());
+
+/* Royaltē AI™ — No-Context Cleanup
+ * Runs unconditionally after the wiring IIFE.
+ * If the wiring returned early (no session context), the loading containers
+ * are still showing. Replace them with a truthful state so artists never see
+ * a stuck loading indicator.
+ */
+(function () {
+  'use strict';
+  var NO_CTX_GRID =
+    '<div class="ai-intel-empty ai-intel-empty--grid">' +
+    '<div class="ai-intel-empty-body">' +
+    '<div class="ai-intel-empty-title">Intelligence not available</div>' +
+    '<div class="ai-intel-empty-desc">Navigate to Mission Control™ to run a scan and generate your executive intelligence.</div>' +
+    '</div></div>';
+  var NO_CTX_LIST =
+    '<div class="ai-intel-empty">' +
+    '<div class="ai-intel-empty-body">' +
+    '<div class="ai-intel-empty-title">Intelligence not available</div>' +
+    '<div class="ai-intel-empty-desc">Navigate to Mission Control™ to run a scan and generate your executive intelligence.</div>' +
+    '</div></div>';
+  var recGrid  = document.getElementById('ai-rec-grid');
+  var prioList = document.getElementById('ai-priorities-list');
+  if (recGrid  && recGrid.dataset  && recGrid.dataset.aiState  === 'loading') { recGrid.removeAttribute('data-ai-state');  recGrid.innerHTML  = NO_CTX_GRID; }
+  if (prioList && prioList.dataset && prioList.dataset.aiState === 'loading') { prioList.removeAttribute('data-ai-state'); prioList.innerHTML = NO_CTX_LIST; }
 }());
 </script>
 <script src="/js/rds-preview-console.js" defer></script>
