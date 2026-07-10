@@ -68,7 +68,17 @@ const _FIXTURE = {
         "artistUrl": "https://music.apple.com/us/artist/radiohead/657515",
         "artwork": null,
         "albumCount": 15,
-        "albums": [],
+        "albums": [
+          {
+            "id": "1109714933",
+            "name": "A Moon Shaped Pool",
+            "releaseDate": "2016-05-08",
+            "trackCount": 11,
+            "artwork": null,
+            "upc": "634904031718",
+            "recordLabel": "XL Recordings"
+          }
+        ],
         "storefrontAvailability": null,
         "globalStorefrontAvailability": null,
         "catalogComparison": {
