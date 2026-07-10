@@ -550,6 +550,26 @@ async function _handleUnlock(email, password, sessionId, scanId) {
     return;
   }
 
+  // Music Rights Profile™ gate — first-time users see the onboarding flow.
+  // Redirect before populating MC so the vault overlay stays covering the
+  // (blank) MC while the browser navigates to onboarding.html.
+  // Non-fatal: any DB error falls through so auth is never blocked.
+  const _token = data?.session?.access_token;
+  const _userId = data?.session?.user?.id;
+  if (_token && _userId) {
+    try {
+      const { data: _prof } = await supabase
+        .from('profiles')
+        .select('onboarding_completed_at')
+        .eq('id', _userId)
+        .single();
+      if (!_prof?.onboarding_completed_at) {
+        window.location.href = '/onboarding.html';
+        return;
+      }
+    } catch (_profErr) { /* fall through — non-blocking */ }
+  }
+
   // Normal vault path: populate cards while they are still invisible behind
   // the vault overlay, then run the signature transition into the boot sequence.
   if (typeof window.__mcPopulate === 'function') {

@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Music Rights Profile™ — Royaltē</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Space+Grotesk:wght@400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #03030a;
+    --surface: #0a0914;
+    --border: rgba(138,92,255,0.18);
+    --border-hover: rgba(138,92,255,0.42);
+    --text: #e8e4f4;
+    --muted: #8480a8;
+    --soft: #5e5a7a;
+    --pur: #8a5cff;
+    --pnk: #e040c8;
+    --grn: #40f0a0;
+    --cyan: #40d0f0;
+    --red: #f05060;
+    --track: rgba(138,92,255,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0 20px 40px;
+  }
+
+  /* ── Header ── */
+  .ob-header {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 0 20px;
+  }
+
+  .ob-brand {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--pur), var(--pnk));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .ob-step-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Progress ── */
+  .ob-progress-track {
+    width: 100%;
+    max-width: 560px;
+    height: 2px;
+    background: var(--track);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 36px;
+  }
+
+  .ob-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--pur), var(--pnk));
+    transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  /* ── Welcome screen ── */
+  .ob-welcome {
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+    padding: 12px 0 0;
+    animation: ob-fade-in 0.4s ease both;
+  }
+
+  .ob-welcome-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--pur);
+    margin-bottom: 16px;
+  }
+
+  .ob-welcome h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: clamp(26px, 6vw, 36px);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .ob-welcome-sub {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.65;
+    max-width: 420px;
+    margin: 0 auto 32px;
+  }
+
+  .ob-welcome-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(138,92,255,0.08);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    margin-bottom: 40px;
+  }
+
+  .ob-welcome-meta-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--grn);
+    flex-shrink: 0;
+  }
+
+  .ob-welcome-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 40px;
+    text-align: left;
+  }
+
+  .ob-feature-chip {
+    background: rgba(138,92,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 14px;
+  }
+
+  .ob-feature-icon {
+    font-size: 18px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .ob-feature-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.04em;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .ob-feature-desc {
+    font-size: 10.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── Section card ── */
+  .ob-section {
+    width: 100%;
+    max-width: 560px;
+    animation: ob-fade-in 0.35s ease both;
+  }
+
+  .ob-section-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--pur);
+    margin-bottom: 10px;
+  }
+
+  .ob-section-question {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: clamp(20px, 5vw, 26px);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+
+  .ob-section-hint {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 28px;
+  }
+
+  /* ── Options ── */
+  .ob-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .ob-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: rgba(10, 9, 20, 0.7);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .ob-option:hover {
+    border-color: var(--border-hover);
+    background: rgba(138,92,255,0.06);
+  }
+
+  .ob-option.selected {
+    border-color: var(--pur);
+    background: rgba(138,92,255,0.1);
+  }
+
+  .ob-option-radio {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--soft);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease;
+  }
+
+  .ob-option.selected .ob-option-radio {
+    border-color: var(--pur);
+  }
+
+  .ob-option-radio-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pur);
+    transform: scale(0);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .ob-option.selected .ob-option-radio-dot {
+    transform: scale(1);
+  }
+
+  .ob-option-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .ob-option-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: rgba(138,92,255,0.15);
+    color: var(--pur);
+    flex-shrink: 0;
+  }
+
+  /* ── Conditional text input (e.g. label name, distribution other) ── */
+  .ob-conditional {
+    margin-top: 12px;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.25s ease;
+  }
+
+  .ob-conditional.visible {
+    max-height: 80px;
+    opacity: 1;
+  }
+
+  .ob-text-input {
+    width: 100%;
+    background: rgba(10, 9, 20, 0.7);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .ob-text-input:focus {
+    border-color: var(--pur);
+  }
+
+  .ob-text-input::placeholder {
+    color: var(--soft);
+  }
+
+  /* ── Nav buttons ── */
+  .ob-nav {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .ob-btn {
+    height: 46px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+    letter-spacing: 0.04em;
+  }
+
+  .ob-btn:active { transform: scale(0.98); }
+
+  .ob-btn--continue {
+    flex: 1;
+    background: linear-gradient(135deg, var(--pur), var(--pnk));
+    color: #fff;
+  }
+
+  .ob-btn--continue:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .ob-btn--back {
+    width: 100px;
+    flex-shrink: 0;
+    background: rgba(138,92,255,0.1);
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+  }
+
+  .ob-btn--back:hover { border-color: var(--border-hover); color: var(--text); }
+
+  .ob-btn--start {
+    flex: 1;
+    background: linear-gradient(135deg, var(--pur), var(--pnk));
+    color: #fff;
+    font-size: 15px;
+    height: 50px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+  }
+
+  .ob-btn--start:active { transform: scale(0.98); }
+
+  /* ── Footer skip ── */
+  .ob-footer {
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .ob-skip {
+    background: none;
+    border: none;
+    color: var(--soft);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+    letter-spacing: 0.04em;
+  }
+
+  .ob-skip:hover { color: var(--muted); }
+
+  /* ── Saving state ── */
+  .ob-saving {
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+    padding: 60px 0;
+    animation: ob-fade-in 0.3s ease both;
+  }
+
+  .ob-saving-spinner {
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--track);
+    border-top-color: var(--pur);
+    border-radius: 50%;
+    animation: ob-spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  .ob-saving-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── Animations ── */
+  @keyframes ob-fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes ob-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 480px) {
+    .ob-welcome-features {
+      grid-template-columns: 1fr;
+    }
+    .ob-btn--back { width: 80px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="ob-header">
+  <div class="ob-brand">Royaltē</div>
+  <div class="ob-step-counter" id="ob-step-counter"></div>
+</header>
+
+<div class="ob-progress-track">
+  <div class="ob-progress-fill" id="ob-progress-fill"></div>
+</div>
+
+<div id="ob-content"></div>
+
+<div class="ob-nav" id="ob-nav" style="display:none">
+  <button class="ob-btn ob-btn--back" id="ob-back" type="button">← Back</button>
+  <button class="ob-btn ob-btn--continue" id="ob-continue" type="button" disabled>Continue →</button>
+</div>
+
+<footer class="ob-footer" id="ob-footer">
+  <button class="ob-skip" id="ob-skip" type="button">Skip for Now — I'll complete this later</button>
+</footer>
+
+<script type="module">
+import { getSupabase } from '/js/supabase-client.js';
+
+// ── Section definitions ──────────────────────────────────────────────────────
+// Each section has: key (stored in profile), eyebrow, question, hint, options[]
+// Options have: value, label, badge? (optional tag)
+// Sections with conditional: when option.value === conditionalTrigger, show a
+// text input. The text input value is stored under conditionalKey.
+
+const SECTIONS = [
+  {
+    key: 'pro',
+    eyebrow: 'Performing Rights',
+    question: 'Are you registered with a PRO?',
+    hint: 'A Performing Rights Organization collects royalties when your music is played publicly — on radio, TV, live venues, and streaming.',
+    options: [
+      { value: 'ASCAP',   label: 'ASCAP' },
+      { value: 'BMI',     label: 'BMI' },
+      { value: 'SESAC',   label: 'SESAC' },
+      { value: 'SOCAN',   label: 'SOCAN', badge: 'Canada' },
+      { value: 'PRS',     label: 'PRS for Music', badge: 'UK' },
+      { value: 'APRA',    label: 'APRA AMCOS', badge: 'AU/NZ' },
+      { value: 'Other',   label: 'Other / International PRO' },
+      { value: 'None',    label: 'Not registered with a PRO' },
+    ],
+  },
+  {
+    key: 'soundexchange',
+    eyebrow: 'Digital Performance Royalties',
+    question: 'Are you registered with SoundExchange?',
+    hint: 'SoundExchange collects digital performance royalties (non-interactive streaming and satellite radio) paid directly to recording artists — separate from your PRO.',
+    options: [
+      { value: 'Yes',     label: 'Yes — I\'m registered with SoundExchange' },
+      { value: 'No',      label: 'Not registered' },
+      { value: 'Unsure',  label: 'I\'m not sure' },
+    ],
+  },
+  {
+    key: 'publishing_admin',
+    eyebrow: 'Publishing Administration',
+    question: 'Do you have a publishing administrator?',
+    hint: 'A publishing admin registers your compositions, collects sync fees, and tracks mechanical royalties globally on your behalf.',
+    options: [
+      { value: 'Songtrust',         label: 'Songtrust' },
+      { value: 'CD Baby Pro',       label: 'CD Baby Pro Publishing' },
+      { value: 'DistroKid Publish', label: 'DistroKid Publishing' },
+      { value: 'TuneCore Pub',      label: 'TuneCore Publishing' },
+      { value: 'Sentric',           label: 'Sentric Music' },
+      { value: 'AWAL Pub',          label: 'AWAL Publishing' },
+      { value: 'Major Label',       label: 'Through my label', badge: 'Label deal' },
+      { value: 'Own Publisher',     label: 'I administer my own publishing' },
+      { value: 'None',              label: 'No publishing admin' },
+    ],
+  },
+  {
+    key: 'songwriter',
+    eyebrow: 'Songwriting Credits',
+    question: 'Are you the songwriter or co-writer on your recordings?',
+    hint: 'This affects which publishing royalty streams apply to your catalog and how ATHENA™ weights composition intelligence.',
+    options: [
+      { value: 'Sole',    label: 'Yes — I\'m the sole songwriter' },
+      { value: 'Co',      label: 'Yes — I co-write with others' },
+      { value: 'No',      label: 'No — I perform but don\'t write the songs' },
+      { value: 'Mixed',   label: 'It varies across my catalog' },
+    ],
+  },
+  {
+    key: 'publisher',
+    eyebrow: 'Publishing Company',
+    question: 'Do you own or operate a publishing entity?',
+    hint: 'A publishing company (even a self-owned one) is required to register works with the MLC, collect mechanical royalties in the US, and split songwriter/publisher shares correctly.',
+    options: [
+      { value: 'Yes',     label: 'Yes — I have my own publishing company' },
+      { value: 'No',      label: 'No publishing entity' },
+      { value: 'Planned', label: 'Planning to set one up' },
+    ],
+  },
+  {
+    key: 'record_label',
+    conditionalKey: 'label_name',
+    conditionalTrigger: 'Signed',
+    eyebrow: 'Record Label Status',
+    question: 'What is your record label situation?',
+    hint: 'Label status affects how recording royalties are split, who owns the masters, and which distribution channels are available to you.',
+    options: [
+      { value: 'Independent',   label: 'Independent — I own my masters' },
+      { value: 'Signed',        label: 'Signed to a record label', badge: 'Label deal' },
+      { value: 'Distribution',  label: 'Distribution deal only' },
+      { value: 'Own Label',     label: 'I run my own label' },
+    ],
+    conditionalPlaceholder: 'Label name (e.g. Columbia Records)',
+  },
+  {
+    key: 'distribution',
+    conditionalKey: 'distribution_other',
+    conditionalTrigger: 'Other',
+    eyebrow: 'Music Distribution',
+    question: 'Who distributes your music?',
+    hint: 'Your distributor determines how your music reaches streaming platforms and how mechanical royalties flow back to you.',
+    options: [
+      { value: 'DistroKid',   label: 'DistroKid' },
+      { value: 'TuneCore',    label: 'TuneCore' },
+      { value: 'CD Baby',     label: 'CD Baby' },
+      { value: 'AWAL',        label: 'AWAL' },
+      { value: 'Amuse',       label: 'Amuse' },
+      { value: 'UnitedMasters', label: 'UnitedMasters' },
+      { value: 'Major Label',   label: 'Through my label', badge: 'Label deal' },
+      { value: 'Other',         label: 'Other distributor' },
+    ],
+    conditionalPlaceholder: 'Distributor name',
+  },
+];
+
+// ── State ────────────────────────────────────────────────────────────────────
+let currentScreen = 'welcome'; // 'welcome' | 0..6 (section index) | 'saving'
+const answers = {};            // key → value (+ conditionalKey → text if applicable)
+let supabase = null;
+let accessToken = null;
+
+// ── DOM refs ─────────────────────────────────────────────────────────────────
+const content      = document.getElementById('ob-content');
+const nav          = document.getElementById('ob-nav');
+const footer       = document.getElementById('ob-footer');
+const backBtn      = document.getElementById('ob-back');
+const continueBtn  = document.getElementById('ob-continue');
+const skipBtn      = document.getElementById('ob-skip');
+const progressFill = document.getElementById('ob-progress-fill');
+const stepCounter  = document.getElementById('ob-step-counter');
+
+// ── Render helpers ───────────────────────────────────────────────────────────
+function progressPercent(step) {
+  // step = section index 0-6; returns 0-100
+  return Math.round(((step + 1) / SECTIONS.length) * 100);
+}
+
+function setProgress(pct) {
+  progressFill.style.width = pct + '%';
+}
+
+function renderWelcome() {
+  stepCounter.textContent = '';
+  setProgress(0);
+  nav.style.display = 'none';
+
+  content.innerHTML = `
+    <div class="ob-welcome">
+      <div class="ob-welcome-eyebrow">Private Intelligence Layer™</div>
+      <h1>Complete Your<br>Music Rights Profile™</h1>
+      <p class="ob-welcome-sub">
+        Help ATHENA™ understand your music business so it can deliver accurate intelligence,
+        flag real gaps, and surface the opportunities that matter to you.
+      </p>
+      <div class="ob-welcome-meta">
+        <span class="ob-welcome-meta-dot"></span>
+        7 questions &nbsp;·&nbsp; 30–60 seconds &nbsp;·&nbsp; Private &amp; encrypted
+      </div>
+      <div class="ob-welcome-features">
+        <div class="ob-feature-chip">
+          <span class="ob-feature-icon">⚡</span>
+          <span class="ob-feature-label">Sharper Intelligence</span>
+          <span class="ob-feature-desc">ATHENA™ weighs your answers to surface insights only relevant to your deal structure.</span>
+        </div>
+        <div class="ob-feature-chip">
+          <span class="ob-feature-icon">🔒</span>
+          <span class="ob-feature-label">Private by Design</span>
+          <span class="ob-feature-desc">Your rights profile is never shared or sold. It lives only inside your Royaltē account.</span>
+        </div>
+        <div class="ob-feature-chip">
+          <span class="ob-feature-icon">✏️</span>
+          <span class="ob-feature-label">Always Editable</span>
+          <span class="ob-feature-desc">Your situation changes. Update your profile anytime from Settings.</span>
+        </div>
+      </div>
+      <div class="ob-nav" style="max-width:560px;width:100%;display:flex">
+        <button class="ob-btn ob-btn--start" id="ob-start-btn" type="button">Start — Build My Profile →</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('ob-start-btn').addEventListener('click', () => goToSection(0));
+}
+
+function renderSection(idx) {
+  const sec = SECTIONS[idx];
+  currentScreen = idx;
+  stepCounter.textContent = `Step ${idx + 1} of ${SECTIONS.length}`;
+  setProgress(progressPercent(idx));
+
+  nav.style.display = 'flex';
+  backBtn.style.display = idx === 0 ? 'none' : '';
+  continueBtn.disabled = !answers[sec.key];
+  continueBtn.textContent = idx === SECTIONS.length - 1 ? 'Complete Profile →' : 'Continue →';
+
+  const savedValue = answers[sec.key] || null;
+  const savedConditional = sec.conditionalKey ? (answers[sec.conditionalKey] || '') : '';
+
+  const optionsHtml = sec.options.map(opt => `
+    <label class="ob-option${savedValue === opt.value ? ' selected' : ''}" data-value="${esc(opt.value)}">
+      <span class="ob-option-radio"><span class="ob-option-radio-dot"></span></span>
+      <span class="ob-option-label">${esc(opt.label)}</span>
+      ${opt.badge ? `<span class="ob-option-badge">${esc(opt.badge)}</span>` : ''}
+    </label>
+  `).join('');
+
+  const showConditional = savedValue === sec.conditionalTrigger;
+
+  content.innerHTML = `
+    <div class="ob-section">
+      <div class="ob-section-eyebrow">${esc(sec.eyebrow)}</div>
+      <div class="ob-section-question">${esc(sec.question)}</div>
+      <p class="ob-section-hint">${esc(sec.hint)}</p>
+      <div class="ob-options" id="ob-options-list">${optionsHtml}</div>
+      ${sec.conditionalKey ? `
+        <div class="ob-conditional${showConditional ? ' visible' : ''}" id="ob-conditional">
+          <input
+            type="text"
+            class="ob-text-input"
+            id="ob-conditional-input"
+            placeholder="${esc(sec.conditionalPlaceholder || 'Enter value')}"
+            value="${esc(savedConditional)}"
+            autocomplete="off"
+          >
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  // Wire option clicks
+  document.getElementById('ob-options-list').querySelectorAll('.ob-option').forEach(el => {
+    el.addEventListener('click', () => {
+      const val = el.dataset.value;
+      answers[sec.key] = val;
+
+      // Update selected state
+      document.querySelectorAll('.ob-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+
+      // Conditional visibility
+      if (sec.conditionalKey) {
+        const cond = document.getElementById('ob-conditional');
+        if (val === sec.conditionalTrigger) {
+          cond.classList.add('visible');
+        } else {
+          cond.classList.remove('visible');
+          answers[sec.conditionalKey] = null;
+        }
+      }
+
+      continueBtn.disabled = false;
+    });
+  });
+
+  // Wire conditional input
+  if (sec.conditionalKey) {
+    const inp = document.getElementById('ob-conditional-input');
+    if (inp) {
+      inp.addEventListener('input', () => {
+        answers[sec.conditionalKey] = inp.value.trim() || null;
+      });
+    }
+  }
+}
+
+function renderSaving() {
+  currentScreen = 'saving';
+  stepCounter.textContent = '';
+  setProgress(100);
+  nav.style.display = 'none';
+  footer.style.display = 'none';
+
+  content.innerHTML = `
+    <div class="ob-saving">
+      <div class="ob-saving-spinner"></div>
+      <div class="ob-saving-label">Saving your profile…</div>
+    </div>
+  `;
+}
+
+function esc(str) {
+  if (typeof str !== 'string') return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+function goToSection(idx) {
+  content.innerHTML = '';
+  renderSection(idx);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToWelcome() {
+  currentScreen = 'welcome';
+  content.innerHTML = '';
+  footer.style.display = '';
+  nav.style.display = 'none';
+  renderWelcome();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+continueBtn.addEventListener('click', () => {
+  const idx = typeof currentScreen === 'number' ? currentScreen : -1;
+  if (idx < 0) return;
+  if (idx < SECTIONS.length - 1) {
+    goToSection(idx + 1);
+  } else {
+    saveProfile();
+  }
+});
+
+backBtn.addEventListener('click', () => {
+  const idx = typeof currentScreen === 'number' ? currentScreen : -1;
+  if (idx <= 0) {
+    goToWelcome();
+  } else {
+    goToSection(idx - 1);
+  }
+});
+
+skipBtn.addEventListener('click', () => skipOnboarding());
+
+// ── Save / skip ──────────────────────────────────────────────────────────────
+async function saveProfile() {
+  renderSaving();
+  const body = { profile: { ...answers } };
+  await callSaveEndpoint(body);
+}
+
+async function skipOnboarding() {
+  renderSaving();
+  await callSaveEndpoint({ skipped: true });
+}
+
+async function callSaveEndpoint(body) {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (accessToken) headers['Authorization'] = 'Bearer ' + accessToken;
+
+    const res = await fetch('/api/save-music-rights-profile', {
+      method:  'POST',
+      headers,
+      body:    JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      console.error('[onboarding] save failed:', res.status);
+      // Proceed anyway — don't strand the artist
+    }
+  } catch (e) {
+    console.error('[onboarding] save threw:', e.message);
+    // Proceed anyway
+  }
+
+  // Always redirect to MC after save attempt
+  redirectToMC();
+}
+
+function redirectToMC() {
+  let dest = '/mission-control.html?vault=1';
+  try {
+    const pending = localStorage.getItem('royalte_pending_scan_id');
+    if (pending) {
+      localStorage.removeItem('royalte_pending_scan_id');
+      dest = '/mission-control.html?vault=1&scanId=' + encodeURIComponent(pending);
+    }
+  } catch (_) {}
+  window.location.href = dest;
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+(async () => {
+  supabase = getSupabase();
+
+  if (supabase) {
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) {
+        accessToken = data.session.access_token;
+
+        // If onboarding is already done, forward to MC
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('onboarding_completed_at')
+          .eq('id', data.session.user.id)
+          .single();
+
+        if (prof?.onboarding_completed_at) {
+          redirectToMC();
+          return;
+        }
+      }
+      // No session is fine — save will proceed without a Bearer token and
+      // the endpoint will 401, but we still redirect to MC (gate is non-blocking)
+    } catch (e) {
+      console.error('[onboarding] init error:', e.message);
+    }
+  }
+
+  renderWelcome();
+})();
+</script>
+</body>
+</html>
