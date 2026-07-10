@@ -1,0 +1,68 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-international",
+  "_description": "International artist whose primary market is non-US (South Korea). Apple Music profile with KR storefront. Spotify and Apple verified. Multi-language release titles. Large recent catalog (K-pop release cadence). Publishing registered through international PRO. Tests non-US storefront handling and international catalog patterns.",
+  "_expectedBehavior": "Engine handles non-Latin artist name without error. Non-US storefront field retained in identity. Catalog confidence HIGH from Apple verification. No rule violations specific to locale.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "HIGH",
+  "identity": {
+    "canonicalArtistName": "인증 국제 아티스트 (Cert International Artist)",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "cert-intl-sp-001", "verified": true },
+      { "provider": "apple",   "profileId": "cert-intl-am-001", "verified": true },
+      { "provider": "youtube", "profileId": "cert-intl-yt-001", "verified": true }
+    ],
+    "storefront": "kr",
+    "artistConfidence": "HIGH"
+  },
+  "publishing": {
+    "worksCount": 85,
+    "workRoyalteIds": [
+      "rc_intl_001", "rc_intl_002", "rc_intl_003", "rc_intl_004", "rc_intl_005"
+    ],
+    "writerCount": 6,
+    "writerIPIs": [
+      "IPI_INTL_1", "IPI_INTL_2", "IPI_INTL_3",
+      "IPI_INTL_4", "IPI_INTL_5", "IPI_INTL_6"
+    ],
+    "publisherCount": 2,
+    "publishingConfidence": "HIGH",
+    "publishingCoverage": 80
+  },
+  "catalog": {
+    "releasesCount": 30,
+    "catalogAgeYears": 7,
+    "catalogConfidence": "HIGH",
+    "recordings": [
+      { "isrc": "KRA201900001", "title": "데뷔 싱글 (Debut Single)" },
+      { "isrc": "KRA202000002", "title": "첫 번째 앨범 트랙 1 (Album 1 Track 1)" },
+      { "isrc": "KRA202000003", "title": "첫 번째 앨범 트랙 2 (Album 1 Track 2)" },
+      { "isrc": "KRA202200004", "title": "컴백 싱글 (Comeback Single)" },
+      { "isrc": "KRA202300005", "title": "최신 릴리즈 (Latest Release)" }
+    ],
+    "orphanRecordings": [],
+    "duplicates": []
+  },
+  "metadata": {
+    "flagCount": 0,
+    "metadataConfidence": "HIGH",
+    "missingCredits": [],
+    "duplicateReleases": [],
+    "inconsistentMetadata": [],
+    "releaseConflicts": []
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {
+    "providers": {
+      "spotify": { "availability": "VERIFIED" },
+      "apple":   { "availability": "VERIFIED" },
+      "youtube": { "availability": "VERIFIED" }
+    },
+    "publishingSources": {
+      "mlc": { "availability": "AUTH_UNAVAILABLE" }
+    }
+  }
+}

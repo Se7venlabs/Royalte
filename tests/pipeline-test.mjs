@@ -74,6 +74,61 @@ const rawEngineOutput = {
   lastfmPlays: 234567890, lastfmListeners: 4567890,
   wikipediaUrl: 'https://en.wikipedia.org/wiki/Radiohead',
   deezerFans: 2345678, tidalPopularity: 78, discogsReleases: 89,
+  deezer: {
+    found: true,
+    artistId: 1167830,
+    name: 'Radiohead',
+    link: 'https://www.deezer.com/artist/1167830',
+    share: 'https://www.deezer.com/artist/1167830?utm_source=deezer&utm_content=artist-1167830&utm_term=0&utm_medium=web',
+    picture:        'https://e-cdns-images.dzcdn.net/images/artist/fba06c0bb78dbe8fc64ef8c7c5f6a7c4/56x56-000000-80-0-0.jpg',
+    picture_small:  'https://e-cdns-images.dzcdn.net/images/artist/fba06c0bb78dbe8fc64ef8c7c5f6a7c4/56x56-000000-80-0-0.jpg',
+    picture_medium: 'https://e-cdns-images.dzcdn.net/images/artist/fba06c0bb78dbe8fc64ef8c7c5f6a7c4/250x250-000000-80-0-0.jpg',
+    picture_big:    'https://e-cdns-images.dzcdn.net/images/artist/fba06c0bb78dbe8fc64ef8c7c5f6a7c4/500x500-000000-80-0-0.jpg',
+    picture_xl:     'https://e-cdns-images.dzcdn.net/images/artist/fba06c0bb78dbe8fc64ef8c7c5f6a7c4/1000x1000-000000-80-0-0.jpg',
+    fans: 2345678,
+    nb_album: 15,
+    radio: true,
+    tracklist: 'https://api.deezer.com/artist/1167830/top?limit=50',
+    type: 'artist',
+    albums: [
+      {
+        id: 14290988, title: 'A Moon Shaped Pool',
+        upc: '634904031718', link: 'https://www.deezer.com/album/14290988',
+        cover: 'https://api.deezer.com/album/14290988/image',
+        cover_small: 'https://e-cdns-images.dzcdn.net/images/cover/small.jpg',
+        cover_medium: 'https://e-cdns-images.dzcdn.net/images/cover/medium.jpg',
+        cover_big: 'https://e-cdns-images.dzcdn.net/images/cover/big.jpg',
+        cover_xl: 'https://e-cdns-images.dzcdn.net/images/cover/xl.jpg',
+        md5_image: 'abc123', genre_id: 152,
+        genres: { data: [{ id: 152, name: 'Rock' }, { id: 129, name: 'Alternative' }] },
+        label: 'XL Recordings', nb_tracks: 11, duration: 2641, fans: 87423,
+        release_date: '2016-05-08', record_type: 'album', available: true,
+        tracklist: 'https://api.deezer.com/album/14290988/tracks',
+        explicit_lyrics: false, explicit_content_lyrics: 0, explicit_content_cover: 0,
+        type: 'album',
+      },
+    ],
+    topTracks: [
+      {
+        id: 84672962, readable: true,
+        title: 'Creep', title_short: 'Creep', title_version: '', unseen: false,
+        isrc: 'GBAYE9300001',
+        link: 'https://www.deezer.com/track/84672962',
+        share: 'https://www.deezer.com/track/84672962?utm_source=deezer',
+        duration: 238, track_position: 3, disk_number: 1, rank: 892345,
+        explicit_lyrics: false, explicit_content_lyrics: 0, explicit_content_cover: 0,
+        preview: 'https://cdns-preview-d.dzcdn.net/stream/c-abc123-2.mp3',
+        bpm: 92.0, gain: -9.5,
+        available_countries: ['US', 'GB', 'CA', 'AU', 'FR', 'DE', 'JP'],
+        contributors: [{ id: 1167830, name: 'Radiohead', role: 'Main' }],
+        md5_image: 'def456',
+        artist: { id: 1167830, name: 'Radiohead', tracklist: 'https://api.deezer.com/artist/1167830/top', type: 'artist' },
+        album: { id: 1052405, title: 'Pablo Honey', cover: 'https://api.deezer.com/album/1052405/image', cover_small: '', cover_medium: '', cover_big: '', cover_xl: '', md5_image: 'ghi789', tracklist: 'https://api.deezer.com/album/1052405/tracks', type: 'album' },
+        type: 'track',
+      },
+    ],
+    genres: ['Rock', 'Alternative'],
+  },
   youtube: {
     found: true,
     officialChannel: { title: 'Radiohead', channelId: 'UC...', subscribers: 4200000, totalViews: 2100000000, videoCount: 89 },
@@ -164,6 +219,22 @@ assert(canonical.platforms.soundcloud.availability === 'NOT_FOUND', 'platforms.s
 assert(canonical.platforms.appleMusic.details !== null, 'platforms.appleMusic.details populated');
 assert(canonical.platforms.youtube.details.officialChannel !== null, 'platforms.youtube details present');
 
+// Deezer: Board Directive 2026-06-24 — rich details populated
+assert(canonical.platforms.deezer.availability === 'VERIFIED', 'platforms.deezer.availability VERIFIED');
+assert(canonical.platforms.deezer.details !== null, 'platforms.deezer.details populated');
+assert(canonical.platforms.deezer.details.fans === 2345678, 'platforms.deezer.details.fans preserved');
+assert(canonical.platforms.deezer.details.nb_album === 15, 'platforms.deezer.details.nb_album preserved');
+assert(Array.isArray(canonical.platforms.deezer.details.albums), 'platforms.deezer.details.albums is array');
+assert(canonical.platforms.deezer.details.albums.length === 1, 'platforms.deezer.details.albums populated');
+assert(canonical.platforms.deezer.details.albums[0].upc === '634904031718', 'platforms.deezer album UPC present');
+assert(Array.isArray(canonical.platforms.deezer.details.topTracks), 'platforms.deezer.details.topTracks is array');
+assert(canonical.platforms.deezer.details.topTracks[0].isrc === 'GBAYE9300001', 'platforms.deezer ISRC present on top track');
+assert(typeof canonical.platforms.deezer.details.topTracks[0].preview === 'string', 'platforms.deezer track preview URL present');
+assert(Array.isArray(canonical.platforms.deezer.details.topTracks[0].available_countries), 'platforms.deezer track territory info present');
+assert(Array.isArray(canonical.platforms.deezer.details.genres), 'platforms.deezer.details.genres is array');
+assert(canonical.platforms.deezer.details.genres.includes('Rock'), 'platforms.deezer.details.genres populated');
+assert(canonical.metrics.deezerFans === 2345678, 'metrics.deezerFans still populated from root deezerFans field');
+
 // Coverage
 assert(canonical.auditCoverage.spotify.status === 'Verified', 'auditCoverage.spotify.status preserved');
 assert(canonical.auditCoverageRaw._deprecated === true, 'auditCoverageRaw flagged deprecated');
@@ -198,52 +269,12 @@ assert(canonical.ownership.render === null, 'ownership.render null when raw lack
 assert(canonical.territoryCoverage === null, 'territoryCoverage explicit null');
 assert(canonical.isrcValidation === null, 'isrcValidation explicit null');
 
-// ── Canonical Health Object (v1.2.0, Health Object Migration) ────────────
-// Engine computes once at normalize time. UI reads only.
-assert(typeof canonical.health === 'object' && canonical.health !== null,
-       'canonical.health is an object');
-assert(typeof canonical.health.score === 'number' && canonical.health.score >= 0 && canonical.health.score <= 100,
-       'canonical.health.score is a valid 0-100 number');
-assert(['Excellent', 'Strong', 'Moderate', 'Review Recommended'].includes(canonical.health.grade),
-       `canonical.health.grade is a valid Board-locked label (got "${canonical.health.grade}")`);
-assert(Array.isArray(canonical.health.drivers),
-       'canonical.health.drivers is an array');
-assert(canonical.health.drivers.every((d) => typeof d === 'string'),
-       'canonical.health.drivers contains only strings (semantic, not objects)');
-assert(canonical.health.drivers.length <= 4,
-       'canonical.health.drivers capped at 4');
-assert(typeof canonical.health.breakdown === 'object' && canonical.health.breakdown !== null,
-       'canonical.health.breakdown is an object');
-assert(typeof canonical.health.breakdown.catalog_verification === 'number' &&
-       canonical.health.breakdown.catalog_verification >= 0 &&
-       canonical.health.breakdown.catalog_verification <= 40,
-       'canonical.health.breakdown.catalog_verification within [0, 40]');
-assert(typeof canonical.health.breakdown.big6_coverage === 'number' &&
-       canonical.health.breakdown.big6_coverage >= 0 &&
-       canonical.health.breakdown.big6_coverage <= 20,
-       'canonical.health.breakdown.big6_coverage within [0, 20]');
-assert(typeof canonical.health.breakdown.backend_health === 'number' &&
-       canonical.health.breakdown.backend_health >= 0 &&
-       canonical.health.breakdown.backend_health <= 20,
-       'canonical.health.breakdown.backend_health within [0, 20]');
-assert(typeof canonical.health.breakdown.youtube_presence === 'number' &&
-       canonical.health.breakdown.youtube_presence >= 0 &&
-       canonical.health.breakdown.youtube_presence <= 10,
-       'canonical.health.breakdown.youtube_presence within [0, 10]');
-// Radiohead-specific: 15 albums (>=10), backend Apple+Spotify verified, YouTube verified,
-// no storefrontAvailability, catalogComparison.matched > 0 → 20+20+10+0+10 = 60 → Moderate (60-74).
-assert(canonical.health.score === 60,
-       `Radiohead fixture: health.score === 60 (got ${canonical.health.score})`);
-assert(canonical.health.grade === 'Moderate',
-       `Radiohead fixture: health.grade === 'Moderate' (got "${canonical.health.grade}")`);
-assert(canonical.health.breakdown.catalog_verification === 20,
-       'Radiohead fixture: catalog_verification === 20 (albumCount=15 via albumCount fallback, albums.length=0 → no albums>=1 bonus)');
-assert(canonical.health.breakdown.big6_coverage === 0,
-       'Radiohead fixture: big6_coverage === 0 (storefrontAvailability is null)');
-assert(canonical.health.breakdown.backend_health === 20,
-       'Radiohead fixture: backend_health === 20 (Apple + Spotify both VERIFIED)');
-assert(canonical.health.breakdown.youtube_presence === 10,
-       'Radiohead fixture: youtube_presence === 10 (YouTube VERIFIED)');
+// ── Canonical Health Object (v2.0.0, One Health Engine directive 2026-07-02) ──
+// Board Directive: V2 Health Engine retired. health is null from
+// normalizeAuditResponse — populated by RIE via CimAdapter after OS enrichment.
+// health assertions for score/grade/drivers live in scan-migration.test.js.
+assert(canonical.health === null,
+       'canonical.health is null from normalizeAuditResponse (populated by RIE after OS enrichment)');
 
 console.log('\n─────────────────────────────────────────────');
 console.log('✓ All assertions passed. Canonical shape:');

@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "Sync License vs Sample vs Beat License vs Cover Song vs Interpolation vs Parody: What's the Difference?",
+    excerpt: "A practical breakdown of six music licensing types — sync licenses, samples, beat licenses, cover songs, interpolations, and parody — including which copyrights are involved and what permissions artists need.",
+    category: "Publishing",
+    date: "2026-06-23",
+    readTime: "8 min read",
+    slug: "music-licensing-types-explained",
+    url: "/blog/music-licensing-types-explained.html",
+    status: "live"
+  },
+  {
     title: "The Backend Infrastructure Powering Modern Music",
     excerpt: "The systems behind every stream, sync, and royalty payment — and why independent artists need to understand them.",
     category: "AI Music",

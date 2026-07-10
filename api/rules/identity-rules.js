@@ -26,6 +26,22 @@ function safeIdentity(cio) {
   return i;
 }
 
+// Read a provider observation off the new Phase 3B section
+// `cio.observations.providers.<provider>`. Returns the entry object
+// `{ availability, details }` or null. Never throws. Used by the
+// provider-scoped ACTION REQUIRED rules below; the per-provider STATE
+// resolution itself is owned by api/_lib/identity-intelligence.js.
+function safeProviderObs(cio, provider) {
+  if (!cio || typeof cio !== 'object' || Array.isArray(cio)) return null;
+  const o = cio.observations;
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return null;
+  const ps = o.providers;
+  if (!ps || typeof ps !== 'object' || Array.isArray(ps)) return null;
+  const entry = ps[provider];
+  if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return null;
+  return entry;
+}
+
 export const identityRules = Object.freeze([
 
   Object.freeze({
@@ -67,6 +83,76 @@ export const identityRules = Object.freeze([
       const identity = safeIdentity(cio);
       if (!identity) return false;
       return identity.artistConfidence === 'UNKNOWN';
+    },
+  }),
+
+  // ─── Phase 3B provider-scoped ACTION REQUIRED rules ──────────────
+  //
+  // Per Board D4 (2026-06-17), each VERIFIED provider may surface
+  // narrowly-scoped ACTION REQUIRED conditions. Rule IDs are
+  // provider-scoped (`identity.<provider>.<signal>`) so the Identity
+  // Intelligence™ assembler can group observations by provider via
+  // prefix match without category branching in the engine. Titles
+  // remain provider-neutral per Phase 5 lock + rule-library-test #28.
+  //
+  // Spotify intentionally has NO ACTION REQUIRED rules in Phase 3
+  // (Board D4: "Do NOT invent Action Required conditions until
+  // richer Spotify observations exist.").
+
+  Object.freeze({
+    id:              'identity.apple.artwork-missing',
+    category:        'IDENTITY',
+    title:           'Canonical identity profile is missing artwork',
+    description:     'A verified canonical identity profile was returned without an artwork URL in reviewed sources.',
+    severity:        'MEDIUM',
+    confidence:      'HIGH',
+    recommendation:  'Upload a high-resolution artist image to the canonical identity provider to complete the public profile.',
+    providerSources: [],
+    condition(cio) {
+      const obs = safeProviderObs(cio, 'apple');
+      if (!obs || obs.availability !== 'VERIFIED') return false;
+      const identity = safeIdentity(cio);
+      if (!identity) return false;
+      return identity.artwork === null || identity.artwork === '';
+    },
+  }),
+
+  Object.freeze({
+    id:              'identity.youtube.no-official-channel',
+    category:        'IDENTITY',
+    title:           'Verified channel is not registered as an Official Artist Channel',
+    description:     'A verified video-platform presence was found but the channel is not flagged as an Official Artist Channel in reviewed sources.',
+    severity:        'MEDIUM',
+    confidence:      'MEDIUM',
+    recommendation:  'Claim the Official Artist Channel status with the video platform to consolidate analytics and royalty attribution.',
+    providerSources: [],
+    condition(cio) {
+      const obs = safeProviderObs(cio, 'youtube');
+      if (!obs || obs.availability !== 'VERIFIED') return false;
+      if (!obs.details || typeof obs.details !== 'object') return false;
+      return obs.details.officialChannel === null
+          || obs.details.officialChannel === undefined;
+    },
+  }),
+
+  Object.freeze({
+    id:              'identity.youtube.content-id-unverified',
+    category:        'IDENTITY',
+    title:           'Content identification verification not confirmed',
+    description:     'A verified video-platform presence with an Official Artist Channel was found but Content ID verification was not confirmed in reviewed sources.',
+    severity:        'MEDIUM',
+    confidence:      'MEDIUM',
+    recommendation:  'Verify Content ID coverage with the video platform to protect user-generated content royalty attribution.',
+    providerSources: [],
+    condition(cio) {
+      const obs = safeProviderObs(cio, 'youtube');
+      if (!obs || obs.availability !== 'VERIFIED') return false;
+      if (!obs.details || typeof obs.details !== 'object') return false;
+      // Distinct from no-official-channel: only fires when a channel
+      // DOES exist but Content ID flag is explicitly false.
+      if (obs.details.officialChannel === null
+       || obs.details.officialChannel === undefined) return false;
+      return obs.details.contentIdVerified === false;
     },
   }),
 

@@ -31,6 +31,11 @@
   },
   "catalog": {
     "totalReleases": 3,
+    "totalTracks": 0,
+    "singlesCount": 0,
+    "epsCount": 0,
+    "albumsCount": 0,
+    "featuresCount": 0,
     "earliestYear": 2022,
     "latestYear": 2024,
     "catalogAgeYears": 2,
@@ -47,9 +52,11 @@
       "details": {
         "artistId": "1234567890",
         "artistUrl": "https://music.apple.com/us/artist/test-apple-only-artist/1234567890",
+        "artwork": null,
         "albumCount": 3,
         "albums": [],
         "storefrontAvailability": null,
+        "globalStorefrontAvailability": null,
         "catalogComparison": null,
         "isrcLookup": null
       }
@@ -182,22 +189,7 @@
     "moduleAverage": 53,
     "ownershipImpact": 0
   },
-  "health": {
-    "score": 20,
-    "grade": "Review Recommended",
-    "drivers": [
-      "Catalog depth was below the typical range in reviewed sources",
-      "Territory availability was not yet verified in this scan",
-      "YouTube presence was not available from reviewed sources",
-      "ISRC information was not available from reviewed sources"
-    ],
-    "breakdown": {
-      "catalog_verification": 0,
-      "big6_coverage": 0,
-      "backend_health": 20,
-      "youtube_presence": 0
-    }
-  },
+  "health": null,
   "royaltyGap": {
     "estAnnualStreams": 0,
     "estLifetimeStreams": 0,

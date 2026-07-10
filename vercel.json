@@ -2,6 +2,14 @@
   "version": 2,
   "functions": {
     "api/audit.js": {
+      "includeFiles": "api/apple-token.js",
+      "maxDuration": 30
+    },
+    "api/identify.js": {
+      "includeFiles": "api/apple-token.js",
+      "maxDuration": 10
+    },
+    "api/resolve-artist.js": {
       "includeFiles": "api/apple-token.js"
     },
     "api/submit-audit.js": {
@@ -38,6 +46,14 @@
       "dest": "/api/audit.js"
     },
     {
+      "src": "/api/identify",
+      "dest": "/api/identify.js"
+    },
+    {
+      "src": "/api/resolve-artist",
+      "dest": "/api/resolve-artist.js"
+    },
+    {
       "src": "/api/submit-audit",
       "dest": "/api/submit-audit.js"
     },
@@ -62,8 +78,24 @@
       "dest": "/api/auth/reset-password.js"
     },
     {
+      "src": "/api/claim-scan",
+      "dest": "/api/claim-scan.js"
+    },
+    {
+      "src": "/api/save-music-rights-profile",
+      "dest": "/api/save-music-rights-profile.js"
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/health.js"
+    },
+    {
       "src": "/demo.html",
       "dest": "/public/demo.html"
+    },
+    {
+      "src": "/what-we-do",
+      "dest": "/public/what-we-do.html"
     },
     {
       "src": "/faq.html",
@@ -88,6 +120,11 @@
         "content-type": "application/manifest+json; charset=utf-8"
       },
       "dest": "/public/mission-control.webmanifest"
+    },
+    {
+      "src": "/mission-control-preview",
+      "status": 307,
+      "headers": { "Location": "/mission-control.html?preview=1" }
     },
     {
       "src": "/",

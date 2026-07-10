@@ -1,0 +1,43 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-null-fields",
+  "_description": "Stress test: maximally sparse CIO with null values everywhere that the schema allows null. Identity present (minimum viable identification) but all optional fields are null, arrays are empty, counts are zero or null. Tests every assembler's null-guard and never-throws contract on degenerate input.",
+  "_expectedBehavior": "Every assembler and the Intelligence Engine must return a valid (possibly empty) result without throwing. No TypeError on null access. Health score returns a number (even if low). CIM output is structurally valid.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "UNKNOWN",
+  "identity": {
+    "canonicalArtistName": "Cert Null Fields Artist",
+    "externalProfiles": [],
+    "artistConfidence": null
+  },
+  "publishing": {
+    "worksCount": null,
+    "workRoyalteIds": [],
+    "writerCount": null,
+    "writerIPIs": [],
+    "publisherCount": null,
+    "publishingConfidence": "UNKNOWN",
+    "publishingCoverage": null
+  },
+  "catalog": {
+    "releasesCount": null,
+    "catalogAgeYears": null,
+    "catalogConfidence": "UNKNOWN",
+    "recordings": [],
+    "orphanRecordings": [],
+    "duplicates": []
+  },
+  "metadata": {
+    "flagCount": null,
+    "metadataConfidence": "UNKNOWN",
+    "missingCredits": [],
+    "duplicateReleases": [],
+    "inconsistentMetadata": [],
+    "releaseConflicts": []
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {}
+}

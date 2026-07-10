@@ -19,6 +19,308 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-03 — Executive Image Service™ — Platform-Agnostic Image Selection (PR #228)
+
+| | |
+|---|---|
+| **PR** | #228 |
+| **Commit SHA** | `7127bc0` |
+| **Constitution Version** | v1.3 |
+| **Added** | `api/_lib/image-service.js` — sole backend owner of image source selection. `getBestVerifiedArtistImage(resolved, artistData, appleMusicData)`: Apple-first per Canonical Identity Architecture; Spotify as verified fallback; extensible to future providers. `getBestVerifiedReleaseArtwork(trackData, resolved)`: album images first; Apple fallback. `public/js/royalte-image-service.js` — sole frontend owner. Reads canonical payload fields only (`cio.identity.artwork`, `albumImageUrl`, `subject.artistImageUrl`). `.royalte-exec-img` CSS standard class (80×80 px, `border-radius: 8px`, `object-fit: cover`) + `--artist` (circular) and `--artwork` (6px) variants. |
+| **Changed** | `api/_lib/run-scan.js` — `imageUrl`, `artistImageUrl`, `albumImageUrl` inline platform-specific chains replaced with `getBestVerifiedArtistImage` / `getBestVerifiedReleaseArtwork` calls. Apple-path `artistImage` in `resolveToArtist()` return replaced with image service call. `appleArtworkUrl` preserved as passthrough field. |
+| **Removed** | Inline platform-specific image selection logic from `run-scan.js` (three inline chains referencing `artistData.images`, `resolved.appleArtworkUrl`, `trackData.album.images` directly). |
+
+---
+
+## 2026-07-03 — Reporting Time Zone™ — MC System Status™ + Dynamic tz Detection (PR #226)
+
+| | |
+|---|---|
+| **PR** | #226 |
+| **Commit SHA** | `6efd9e2` |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/js/royalte-tz.js` — sole owner of RTZ detection, storage, and DOM rendering. Resolution: `profiles.reporting_timezone` → `localStorage` → browser `Intl.DateTimeFormat` auto-detect. IANA zone persisted on first detection; abbreviation derived live (DST-aware). `supabase/migrations/20260703000000_reporting_timezone.sql` — `profiles.reporting_timezone text DEFAULT NULL`. MC `mc-es-rtz-*` CSS block (Ice Blue™ `#7dd3fc`) in inline style. RTZ HTML row (`data-mc-rtz-abbr`) in `mc-es-cell--status`. |
+| **Changed** | `public/mission-control.html` — Section 6 renamed from "Monitoring Status" to **System Status™**; RTZ divider + clock + abbreviation + "Reporting Time Zone™" + "System Time Synced ✓" appended. `public/js/mission-control.js` — imports `initRtz`; called on DOMContentLoaded independent of scan payload. |
+| **Removed** | Orphaned `hi-panel-section--system` + `hi-sys-*` + `rtz-*` CSS from `royalte-workspace.css`. System Status™ HTML block from `health-intelligence.html`, `identity-intelligence.html`, `publishing-intelligence.html` (Amendment #004 correction). |
+
+---
+
+## 2026-07-03 — Publishing Intelligence™ Workspace — Phase 1 + Amendments #001/#002 (PR #224)
+
+| | |
+|---|---|
+| **PR** | #224 |
+| **Commit SHA** | `cdd4fda` |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/workspaces/publishing-intelligence.html` — full Publishing Intelligence™ Executive Workspace: Royal Violet (`#7c3aed`), system-focused header (no artist avatar), Potential Royalty Impact™ Executive Signature™ (three-state amber-pulse risk indicator), 4 KPI cards, 6 Core Publishing System cards (The MLC / Songtrust / Music Reports / Publisher / ISWC Coverage™ / Rights Ownership™). `public/css/royalte-workspace.css` — `pi-*` CSS namespace (5 blocks, ~237 lines) + `ws-dept--publishing` ambient glow. |
+| **Changed** | `public/workspaces/publishing-intelligence.html` — Board Amendment #001: PRO + Harry Fox replaced with ISWC Coverage™ + Songwriter Splits™. Board Amendment #002: Songwriter Splits™ replaced by Rights Ownership™; canonical 6-card order locked. |
+| **Removed** | PRO and Harry Fox Agency cards (replaced by ISWC Coverage™ and Rights Ownership™ per Amendments #001/#002). |
+
+---
+
+## 2026-07-03 — Ambient Module Elevation™ + Identity Intelligence™ Workspace (PR #222)
+
+| | |
+|---|---|
+| **PR** | #222 |
+| **Commit SHA** | `c43f431` (Identity workspace) · `96a8dc5` (Ambient Module Elevation™) |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/css/royalte-workspace.css` — `ii-*` CSS namespace in 5 blocks: exec header, coverage ring + KPI numbers, platform cards, Identity Snapshot™ + Activity™, responsive rules (~270 lines). Ambient Module Elevation™ system: `.ws-dept--health` (emerald, ~30 lines) + `.ws-dept--identity` (purple, ~30 lines) scoped glow rules. `public/workspaces/identity-intelligence.html` — full Executive Workspace: artist avatar header, Identity Coverage™ ring (one-time fill animation), 4 KPI cards, 6 platform navigation cards, Identity Snapshot™, Identity Activity™, right exec panel (AI Identity Summary™ + Top Priority™ + Identity Status™), count-up JS. |
+| **Changed** | `public/workspaces/health-intelligence.html` — `ws-dept--health` added to `ws-shell`. `public/workspaces/identity-intelligence.html` — `ws-dept--identity` added to `ws-shell`. |
+| **Removed** | Legacy MC card stub content in `identity-intelligence.html` (mc-card / mc-id-body / mc-id-* structure). |
+
+---
+
+## 2026-07-03 — Sprint 3.4 Amendment 2 — Publishing Intelligence™ Executive Layout Refinement (PR #216)
+
+| | |
+|---|---|
+| **PR** | #216 |
+| **Commit SHA** | `8400134` |
+| **Constitution Version** | v1.3 |
+| **Changed** | `public/mission-control.html` CSS only: `.mc-pi-impact` padding 8px → 10px/12px; `.mc-pi-impact-body` 11px → 12.5px weight-500 `var(--mc-text)` (explanation is dominant); royalty/resolution labels 8.5px → 8px fully muted; badge 10px → 9px with reduced padding; `.mc-pi-risk` / `.mc-pi-win` padding 8px → 6px/8px, icon 13px → 11px, title 11.5px → 11px, resolution 10px → 9.5px. |
+
+---
+
+## 2026-07-03 — Sprint 3.4 — Publishing Intelligence™ Executive Passport + Amendment (PR #215)
+
+| | |
+|---|---|
+| **PR** | #215 |
+| **Commit SHA** | `7f52f4f` (Sprint 3.4) · `2bb1af2` (Amendment) |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/mission-control.html` — `mc-pi-*` CSS (~175 lines); 7-section `mc-pi-body` HTML with `data-mc-pi-*` attributes; `mc-pi-impact-royalty-label` / `mc-pi-impact-resolution-label` / `mc-pi-impact-resolution-val` label styles (Amendment). `public/js/mission-control.js` — `_PI_COVERAGE_GRADE`, `_PI_STATE_PILL`, `_PI_RESOLUTION_TIME`, `_piFinancialImpact` helpers; `buildPublishingIntelligencePlan(payload)` and `applyPublishingIntelligencePlan(plan)`. |
+| **Changed** | `public/js/mission-control.js` — `__mcPopulate` stores `_vaultPlans.piPlan`; `__mcRevealModule 'publishing-intelligence'` calls `applyPublishingIntelligencePlan` + 1200ms count-up; ring code retired. `_piFinancialImpact` updated (Amendment) to return fuller body copy and `resolution` time. `applyPublishingIntelligencePlan` writes `data-mc-pi-impact-resolution`. `public/js/vault-auth.js` — `_blankSentinelData` updated to blank `data-mc-pi-*` + `data-mc-pi-impact-resolution` targets. |
+| **Removed** | Legacy `mc-pub-body` (ring + coverage summary), `mc-pub-checks` (flat metric list), `mc-card-foot` empty div, and associated JS ring-fill code in `__mcRevealModule`. |
+
+---
+
+## 2026-07-03 — Sprint 3.3 — Identity Intelligence™ Executive Passport (PR #213)
+
+| | |
+|---|---|
+| **PR** | #213 |
+| **Commit SHA** | `654eb52` |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/mission-control.html` — `mc-id-*` CSS (~140 lines); 6-section `mc-id-body` HTML with `data-mc-id-*` attributes covering all 6 sections. `public/js/mission-control.js` — `_ID_COVERAGE_GRADE`, `_ID_STATE_PILL`, `_idPlatformPill`, `_idSeverityLabel` helpers; `buildIdentityIntelligencePlan(payload)` and `applyIdentityIntelligencePlan(plan)`. |
+| **Changed** | `public/js/mission-control.js` — `__mcPopulate` stores `_vaultPlans.idPlan`; `__mcRevealModule 'identity-intelligence'` calls `applyIdentityIntelligencePlan` + 1200ms count-up; fingerprint ring code retired. Legacy `identityCoverage`/`identityProviders` plans preserved for ai-insights. `public/js/vault-auth.js` — `_blankSentinelData` updated to blank `data-mc-id-*` targets; old `data-mc-identity-*` sentinel code retired. |
+| **Removed** | Legacy `mc-identity-body` (fingerprint ring), `mc-identity-checks` (provider checklist), `mc-card-foot` empty div, and associated JS calls (`applyCoveragePlan`, `applyProvidersPlan`, `applyDeezerStatus`, `applyTidalStatus`, `applyDeezerTopTrack` for the identity module reveal). |
+
+---
+
+## 2026-07-03 — Sprint 3.2 + Executive Layout Optimization™ v1.0 (PR #211)
+
+| | |
+|---|---|
+| **PR** | #211 |
+| **Commit SHA** | `83c8804` (Executive Layout Optimization™) · `346a2d0` (Sprint 3.2) |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/mission-control.html` — `mc-hi-*` CSS (~160 lines); 6-section Health Intelligence™ HTML with `data-mc-hi-*` attributes; `_HI_DOT_THRESHOLDS`, `_hiDotClass`, `_hiTrendDir`, `_hiTrendLabel`, `_hiBestImprovement`, `_hiBiggestRisk`, `_hiRecentChanges` helpers. `public/js/mission-control.js` — `buildHealthIntelligencePlan(payload, plans)` and `applyHealthIntelligencePlan(plan)`. |
+| **Changed** | `public/js/mission-control.js` — `__mcPopulate` stores `_vaultPlans.hiPlan`; `__mcRevealModule 'health-intelligence'` calls `applyHealthIntelligencePlan` + 1500ms count-up. `public/js/vault-auth.js` — `_blankSentinelData` updated to blank `data-mc-hi-*` targets. `public/mission-control.html` — Executive Layout Optimization™: title 36→24px, radar 130→90px, hero cell/health padding compressed, Health card body gap 14→8px, breakdown 2-col grid, sparkline inline flex, section padding-bottoms 14→8px, score num 40→32px. |
+| **Removed** | Old `applyHealthPlan` legacy (no-op comment). Old `data-mc-health-*` blank targets in vault-auth.js. |
+
+---
+
+## 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™
+
+| | |
+|---|---|
+| **PR** | #201 |
+| **Commit SHA** | `ba66b26` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/deezer/DeezerConnector.js` — 6 capabilities; no credentials; `authenticate()` returns AVAILABLE after `initialize()` with no network call. `provider-acquisition/connectors/deezer/deezer-http.js` — GET-only HTTP client; Deezer-specific 200-with-body-error detection; 429/5xx retry/backoff. `provider-acquisition/connectors/deezer/deezer-capabilities.js` — frozen capability declaration (ARTIST_IDENTITY, ALBUMS, TRACKS, ISRC, ARTWORK, GENRES). `api/_lib/deezer-pal-acquisition.js` — sequential A→B acquisition; `synthesizeDeezerCompat` reproduces the exact legacy `getDeezer()` output shape. `tests/certification/suites/11-deezer-connector.mjs` — 67-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — `translateDeezerArtistIdentity`, `translateDeezerAlbums`, `translateDeezerTopTracks`; `platforms.deezer.isrcs[]` is the constitutional bridge for future Verification Intelligence™; genres aggregated at `platforms.deezer.genres[]`; raw genre objects preserved in `albums[].genres.data`. `api/_lib/run-scan.js` — Deezer added as 7th PAL provider; legacy `getDeezer()` direct-call retired. `tests/certification/harness.mjs` — Suite 11 wired. |
+| **Removed** | `getDeezer()` direct-call acquisition path from `run-scan.js` (lines ~1207–1277). All Deezer acquisition now flows through PAL. |
+| **Impact** | Deezer is Royaltē's Streaming Verification Authority™ (provider trust: 80). Independent streaming evidence preserved for future Verification Intelligence™ — cross-provider agreement, disagreement, and confidence detection against Apple Music and Spotify. All seven constitutional providers now acquire via PAL. The original streaming provider group (Apple, Spotify, Deezer) is now 100% migrated to PAL. |
+| **Tests** | 740 / 740 CERTIFIED (67 new assertions in Suite 11). |
+
+---
+
+## 2026-07-02 — Phase 3.6 MLC — The MLC Publishing Authority PAL Production Migration™
+
+| | |
+|---|---|
+| **PR** | #199 |
+| **Commit SHA** | `67d7fe8` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/mlc/MLCConnector.js` — ISRC + PUBLISHING capabilities; `authenticate()` calls `POST /oauth/token` to obtain JWT Bearer token (network call, distinct from other connectors). `provider-acquisition/connectors/mlc/mlc-http.js` — POST-only HTTP client; JWT Bearer auth; 401/429/5xx retry/backoff. `provider-acquisition/connectors/mlc/mlc-capabilities.js` — frozen capability declaration (ISRC + PUBLISHING). `api/_lib/mlc-pal-acquisition.js` — sequential A→B acquisition: recordings → extract mlcSongCodes → works; no compat synthesis (MLC is new to the fan-out). `tests/certification/suites/10-mlc-connector.mjs` — 63-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — `translateMLCRecordings` and `translateMLCWorks` added; recordings at `platforms.mlc.recordings[]`, works at `platforms.mlc.details.works[]`, `mlcSongCodes[]` bridge array; Board Amendment applied — no flattening of publishers/ISWCs into aggregate arrays. `api/_lib/run-scan.js` — MLC added as 6th PAL provider in fan-out. `tests/certification/harness.mjs` — Suite 10 wired. |
+| **Removed** | none |
+| **Impact** | The MLC is Royaltē's first constitutional Publishing Authority. Provider trust: 95 (statutory US mechanical licensing authority under the Music Modernization Act). Recording → Song Code → Musical Work → Publishers / Songwriters / ISWC hierarchy preserved for future Publishing Intelligence™, Rights Intelligence™, and Revenue Intelligence™. MLC API field-casing inconsistency documented and preserved raw: `/search/recordings` uses `mlcsongCode` (lowercase s); `/works` uses `mlcSongCode` (uppercase S). Six constitutional provider ecosystem complete. |
+| **Tests** | 673 / 673 CERTIFIED (63 new assertions in Suite 10). |
+
+---
+
+## 2026-07-02 — Phase 3.6 YouTube — Official Artist Channel PAL Production Migration™
+
+| | |
+|---|---|
+| **PR** | #198 |
+| **Commit SHA** | `fb44ef5` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/youtube/YouTubeConnector.js` — ARTIST_IDENTITY + COLLECTION_DATA capabilities. `provider-acquisition/connectors/youtube/youtube-http.js` — GET-only HTTP client; appends API key as query param; 403/quotaExceeded → RATE_LIMITED. `provider-acquisition/connectors/youtube/youtube-capabilities.js` — frozen capability declaration. `api/_lib/youtube-pal-acquisition.js` — identity-lock on channelTitle (no partial matches); `acquireYouTubeEvidence` + `synthesizeYouTubeCompat`. `tests/certification/suites/09-youtube-connector.mjs` — 66-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — `translateYouTubeChannelIdentity` and `translateYouTubeChannelData` added. `api/_lib/run-scan.js` — YouTube added as 5th PAL provider in fan-out; legacy `getYouTubeData` retired from run-scan. `tests/certification/harness.mjs` — Suite 09 wired. |
+| **Removed** | Legacy `getYouTubeData` direct-call path from `run-scan.js`. |
+| **Impact** | YouTube Official Artist Channel is Royaltē's Digital Presence Authority (provider trust: 85). Identity-lock ensures only official artist channels are captured. |
+| **Tests** | 610 / 610 CERTIFIED (66 new assertions in Suite 09). |
+
+---
+
+## 2026-07-02 — Phase 3.6 — Discogs PAL Production Migration™ + Amendment 1
+
+| | |
+|---|---|
+| **PR** | #197 |
+| **Commit SHA** | `aea8095` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/discogs/DiscogsConnector.js` — CATALOG_DATA + ARTIST_IDENTITY capabilities. `provider-acquisition/connectors/discogs/discogs-http.js` — GET HTTP client with Discogs user-agent header. `provider-acquisition/connectors/discogs/discogs-capabilities.js` — frozen capability declaration. `api/_lib/discogs-pal-acquisition.js` — identity-lock on artist name; `acquireDiscogsEvidence` + `synthesizeDiscogsCompat`. `tests/certification/suites/08-discogs-connector.mjs` — 79-assertion certification suite (6 groups A–F2). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — Discogs catalog translations added. `api/_lib/run-scan.js` — Discogs added as 4th PAL provider; legacy `getDiscogsData` retired from run-scan. `tests/certification/harness.mjs` — Suite 08 wired. Amendment 1 (Catalog Evidence Policy): EvidenceBridge reads `catalog.releases` array from Discogs evidence; no flattening of catalog data into summary fields at bridge layer. |
+| **Removed** | Legacy `getDiscogsData` direct-call path from `run-scan.js`. |
+| **Impact** | Discogs is Royaltē's Catalog Authority (provider trust: 75). Catalog evidence — releases, formats, labels — preserved as structured array. |
+| **Tests** | 544 / 544 CERTIFIED (79 new assertions in Suite 08). |
+
+---
+
+## 2026-07-02 — Phase 3.8 — MusicBrainz PAL Production Migration™ + Amendment 1
+
+| | |
+|---|---|
+| **PR** | #196 |
+| **Commit SHA** | `b966881` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/musicbrainz/MusicBrainzConnector.js` — ARTIST_IDENTITY + CATALOG_DATA + ISRC capabilities. `provider-acquisition/connectors/musicbrainz/musicbrainz-http.js` — GET HTTP client; rate-limit compliant (1 req/s per MB policy); MusicBrainz User-Agent header. `provider-acquisition/connectors/musicbrainz/musicbrainz-capabilities.js` — frozen capability declaration. `api/_lib/musicbrainz-pal-acquisition.js` — identity-lock on artist name; `acquireMusicBrainzEvidence` + `synthesizeMusicBrainzCompat`. `tests/certification/suites/07-musicbrainz-connector.mjs` — 73-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/EvidenceBridge.js` — MusicBrainz translations added. `api/_lib/run-scan.js` — MusicBrainz added as 3rd PAL provider; legacy `getMusicBrainzData` retired from run-scan. `tests/certification/harness.mjs` — Suite 07 wired. Amendment 1 (provider normalization boundary): all MusicBrainz-specific field parsing terminates at the connector/bridge boundary; EvidenceBridge never maps internal MB tags to provider-specific business concepts. |
+| **Removed** | Legacy `getMusicBrainzData` direct-call path from `run-scan.js`. |
+| **Impact** | MusicBrainz is Royaltē's Canonical Metadata Authority (provider trust: 80). MBID-based identity confirmed; Recording ISRC cross-reference preserved. |
+| **Tests** | 478 / 478 CERTIFIED (73 new assertions in Suite 07). |
+
+---
+
+## 2026-07-02 — Phase 3.7 — Recording Intelligence Foundation™ + Amendment
+
+| | |
+|---|---|
+| **PR** | #195 |
+| **Commit SHA** | `2057db6` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `api/_lib/recording-intelligence.js` — `assembleRecordingIntelligence(cio)` sole entrypoint; pure, deterministic; Board-locked RECORDING_CONFIDENCE_WEIGHTS and CONFIDENCE_THRESHOLDS (High ≥ 80 / Moderate ≥ 50 / Low ≥ 0). `tests/certification/suites/06-recording-intelligence.mjs` — 83-assertion certification suite (7 groups A–G). |
+| **Changed** | `lib/rie/RIE.js` — Recording Intelligence wired into the RIE pipeline. `tests/certification/harness.mjs` — Suite 06 wired. Amendment (Recording Confidence Policy): Board-locked weights ratified — ISRC 40, MusicBrainz 30, Apple 20, Spotify 10 (sum to 100). Confidence is normalized [0, 100]; weights are advisory signals, not hard gates. |
+| **Removed** | none |
+| **Impact** | Recording confidence is a first-class constitutional intelligence field. Every CIM now includes recording confidence with explicit rationale. Suite 06 enforces the confidence contract and prevents score regression. |
+| **Tests** | 405 / 405 CERTIFIED (83 new assertions in Suite 06). |
+
+---
+
+## 2026-07-02 — Phase 3.6 — Spotify PAL Production Migration
+
+| | |
+|---|---|
+| **PR** | #194 |
+| **Commit SHA** | `ba4054d` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `provider-acquisition/connectors/spotify/SpotifyConnector.js` — ARTIST_IDENTITY + CATALOG_DATA capabilities; client-credentials OAuth flow. `provider-acquisition/connectors/spotify/spotify-http.js` — GET HTTP client; Bearer token; 429 retry. `provider-acquisition/connectors/spotify/spotify-capabilities.js` — frozen capability declaration. `api/_lib/spotify-pal-acquisition.js` — `acquireSpotifyEvidence` + `synthesizeSpotifyCompat`. |
+| **Changed** | `lib/rie/EvidenceBridge.js` — Spotify translations added. `api/_lib/run-scan.js` — Spotify added as 2nd PAL provider; legacy `getSpotifyData` retired from run-scan. |
+| **Removed** | Legacy `getSpotifyData` direct-call path from `run-scan.js`. |
+| **Impact** | Spotify is the second constitutional PAL provider (provider trust: 90). Verification authority. Legacy Spotify direct path retired. |
+| **Tests** | 322 / 322 CERTIFIED. |
+
+---
+
+## 2026-07-02 — Phase 3.5 Governance Backfill — Royaltē OS v1.0 Certification
+
+| | |
+|---|---|
+| **PR** | #193 |
+| **Commit SHA** | (pending merge) |
+| **Tag** | — (documentation only) |
+| **Constitution Version** | v1.3 |
+| **Added** | `ARCHITECTURE.md` — four-layer OS architecture diagram, constitutional ownership map, certified provider status, determinism contract, performance baseline, key invariants. `CERTIFICATION.md` — permanent record of the Board Certification Harness™: suite architecture, artist library, determinism policy, performance baseline policy, certification gates, certified baseline record (`royalte-os-v1.0` at `65c5c16`, 308/308 assertions). `GOVERNANCE.md` — permanent engineering governance: constitutional priority chain, session init, pre-implementation checklist, certification gates, phase PR protocol, ownership rules, migration rules, intelligence integrity rules. `TESTING.md` — permanent testing reference: all 7 test suites with commands and assertion counts, full test file map, CI configuration, test governance rules. |
+| **Changed** | `governance/AGENT_MEMORY.md` § 2 — current build phase updated to Phase 3.5 complete, `royalte-os-v1.0` at `65c5c16` recorded. `governance/ROADMAP.md` — Phase 3.5 row updated to ✅; OS v1.0 milestone and certification framework added to What's Live. `governance/BOARD_DECISIONS.md` — Phase 3.5 ratification entry prepended. |
+| **Removed** | none |
+| **Impact** | Royaltē OS v1.0 certification is formally documented as permanent institutional record. Four root-level documents serve as the canonical orientation surface for all future engineering and AI sessions. |
+
+---
+
+## 2026-07-02 — Phase 3.5 — Royaltē OS v1.0 Board Certification Harness
+
+| | |
+|---|---|
+| **PR** | #192 |
+| **Commit SHA** | `65c5c16` |
+| **Tag** | `royalte-os-v1.0` |
+| **Constitution Version** | v1.3 |
+| **Added** | `tests/certification/harness.mjs` — permanent Board Certification Harness orchestrator; 5 suites; exit 0 = CERTIFIED. `tests/certification/suites/01-regression.mjs` — 8 golden fixtures through IE + Health; 73 assertions. `tests/certification/suites/02-determinism.mjs` — 20 fixtures × 10 IE runs + canonical-radiohead × 5 RIE runs with fixed clock; 21 assertions. `tests/certification/suites/03-artist-library.mjs` — 12 artist archetypes through IE, Health, Identity Intelligence, Publishing Intelligence; 177 assertions. `tests/certification/suites/04-cim-integrity.mjs` — full RIE → §8.2 CIM structure + deep-freeze verification; 36 assertions. `tests/certification/suites/05-performance.mjs` — stage timing baselines (20 samples); 500ms full-RIE p95 budget gate; 1 assertion. `tests/certification/reporters/board-report.mjs` — Board Certification Report formatter. `tests/certification/artist-library/*.json` — 12 certification archetypes: major, independent, single-only, album-heavy, no-publisher, legacy-catalog, duplicate-identity, international, classical, sparse-metadata, null-fields, multi-publisher. |
+| **Changed** | `api/_lib/backend-intelligence.js` line 93 — removed `!Array.isArray(v)` guard from `deepFreeze`; arrays now properly frozen. Production bug fix: `verification.services[]` was unfrozen in the CIM. |
+| **Removed** | none |
+| **Tests** | 308 assertions / 5 suites / 0 failures. BOARD VERDICT: CERTIFIED. |
+
+---
+
+## 2026-07-02 — Product Consumption Cleanup (Phase 3.4)
+
+| | |
+|---|---|
+| **PR** | #190 |
+| **Commit SHA** | `8a71df7` (pending merge) |
+| **Tag** | `phase-3-4-product-consumption-cleanup-v1.0` (pending) |
+| **Constitution Version** | v1.3 |
+| **Added** | `isrcCoverage` field in `api/_lib/catalog-intelligence.js` — constitutional ISRC Coverage intelligence (status/assessed/assessedCount/verifiedCount/coveragePercent). Board-pending `ISRC_THRESHOLDS` named constants (Complete ≥ 75 / Partial ≥ 25 / Limited ≥ 1 / Unknown). `renderCatalog` in `public/js/mission-control-renderers.js` extended with `isrcCoverage` in plan. |
+| **Changed** | `public/index.html` `_renderV2Found()` rewritten as a pure presentation layer — zero business logic. All six displayed fields now read from the Certified CIM (`data.canonical.catalogIntelligence` and `data.canonical.globalMusicFootprint`). Album classification loop, provider-count catalogAvail formula, and `trackIsrc` ISRC proxy removed. |
+| **Removed** | Renderer business logic: album classification (loop over `appleMusic.albums[]`), catalog availability provider-count formula (`verifAM + verifSP >= 2`), ISRC coverage proxy (`trackIsrc ? 'Complete' : 'Unknown'`). |
+| **Impact** | Website Scan is now a constitutional presentation layer. ISRC Coverage and Catalog Availability are certified by the RIE and produce identical results regardless of entry point. Vocabulary: Catalog Availability is now Global/Strong/Regional/Limited (from `globalMusicFootprint.status`); ISRC Coverage is Unknown/Limited/Partial/Complete (from `catalogIntelligence.isrcCoverage.status`). |
+
+---
+
+## 2026-07-02 — Apple Production Migration (Phase 3.3)
+
+| | |
+|---|---|
+| **PR** | #189 |
+| **Commit SHA** | `584770d` |
+| **Tag** | `apple-pal-production-migration-v1.0` |
+| **Constitution Version** | v1.3 |
+| **Added** | `api/_lib/apple-pal-acquisition.js` — PAL orchestration module; `acquireAppleEvidence()` (sequential ARTIST_IDENTITY → ALBUMS+ISRC → AVAILABILITY) + `synthesizeAppleMusicCompat()` (V1 module compat shim, TRANSITIONAL). `governance/MIGRATION_RETIREMENT_REGISTER.md` — Board's master legacy retirement checklist. |
+| **Changed** | `provider-acquisition/connectors/apple-music/AppleMusicConnector.js` — `AVAILABILITY` capability upgraded from BIG6 (8 storefronts) to global 167-storefront wave-based fan-out; `TERRITORIES` stays BIG6; `ALL_APPLE_STOREFRONTS` constant embedded. `lib/rie/index.js` — hybrid merge path added (`_mergeApplePalEvidence`, `_deepMerge`): when both `evidencePackages` and `canonicalForEnrichment` provided, PAL Apple evidence deep-merges into legacy canonical with PAL authoritative for `platforms.appleMusic.*`, `subject.*`, `source.*`. `api/_lib/run-scan.js` — Apple acquisition replaced by `acquireAppleEvidence()` running in parallel with all other providers via `Promise.allSettled`; `getAppleMusic()` removed from fan-out; legacy Apple imports marked `[RETIRED CANDIDATE]`; `evidencePackages` added to return value; `appleArtworkUrl` populated from PAL evidence for Spotify-URL inputs. `api/audit.js` — `evidencePackages: result.evidencePackages` threaded into `runRIE()`. |
+| **Removed** | Direct `getAppleMusic()` call from production scan path. |
+| **Tests** | pipeline-test 226/226, golden-fixture 31/31, rie-phase1 25/25, identity-wiring 19/19, publishing-intelligence 26/26, health-engine 36/36. |
+
+---
+
+## 2026-07-02 — One Health Engine (Phase 3.2)
+
+| | |
+|---|---|
+| **PR** | #188 |
+| **Commit SHA** | `aca5571` |
+| **Tag** | — |
+| **Constitution Version** | v1.3 |
+| **Added** | `lib/rie/CimAdapter.js` — `buildCimEnrichment(cim, baseCanonical)` migration bridge; maps CIM → legacy canonical fields for backward-compat consumers. `lib/rie/__tests__/scan-migration.test.js` — 36-criterion test suite enforcing CimAdapter boundaries and One Health Engine invariants. |
+| **Changed** | `api/_lib/persist-os-scan.js` — health score sourced from `cim.health.score` (via CimAdapter output) instead of `computeV2HealthScore`. `api/audit.js` — OS enrichment path migrated to `buildCimEnrichment(cim, canonical)` pattern; `canonical.cim` carries full certified CIM for Phase 3.2+ consumers. `api/lib/normalizeAuditResponse.js`, `api/schema/auditResponse.js`, `generate_audit_pdf.py` — schema alignment updates. `lib/rie/index.js` — `runRIE()` updated to return certified CIM (Phase 2.4 PAL path activated). |
+| **Removed** | `computeV2HealthScore()` removed from production paths (zero consumers; V2 function body retired). |
+
+---
+
+## 2026-06-20 — Phase 8: Scan Pipeline Wiring — Health & Executive Brief
+
+| | |
+|---|---|
+| **PR** | #155 |
+| **Commit SHA** | `17f462f` |
+| **Tag** | `phase-8-scan-pipeline-wiring-v1.0` |
+| **Constitution Version** | v1.3 |
+| **Added** | nothing new — integration only |
+| **Changed** | `api/audit.js` — step 5 added to `assembleIntelligenceForScan()`: `computeHealthScore(report)` [once] → `generateHealthReport(cio, report)` → `generateExecutiveBrief(cio, report, healthReport, healthScore)`; `healthScore`, `healthReport`, `executiveBrief` persisted in enriched payload. `api/_lib/executive-brief-engine.js` — signature updated from `generateExecutiveBrief(healthReport)` to `generateExecutiveBrief(cio, intelligenceReport, healthReport, canonicalHealth)`; strict layer ownership enforced; fail-closed on absent `canonicalHealth` or `intelligenceReport`. `tests/executive-brief-engine-test.mjs` — migrated to 4-arg signature (40 → 40 assertions, zero coverage lost). |
+| **Removed** | none |
+
+---
+
 ## 2026-06-12 — Phase 8: Royaltē Executive Brief Engine™
 
 | | |

@@ -1,0 +1,73 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-major",
+  "_description": "High-profile major-label artist. Three verified providers (Spotify, Apple, YouTube), 63-release catalog spanning 30 years, 432 registered publishing works across 3 publishers, zero orphans. All signals at or above constitutional strength thresholds.",
+  "_expectedBehavior": "Zero critical issues. Multiple strength observations (publishing.strong-coverage, identity multi-provider). Health score high. Catalog confidence HIGH. No duplicate profiles. No orphan recordings.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "HIGH",
+  "identity": {
+    "canonicalArtistName": "Cert Major Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "cert-major-sp-001", "verified": true },
+      { "provider": "apple",   "profileId": "cert-major-am-001", "verified": true },
+      { "provider": "youtube", "profileId": "cert-major-yt-001", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+  "publishing": {
+    "worksCount": 432,
+    "workRoyalteIds": [
+      "rc_maj_001", "rc_maj_002", "rc_maj_003", "rc_maj_004", "rc_maj_005",
+      "rc_maj_006", "rc_maj_007", "rc_maj_008", "rc_maj_009", "rc_maj_010"
+    ],
+    "writerCount": 8,
+    "writerIPIs": [
+      "IPI_MAJ_1", "IPI_MAJ_2", "IPI_MAJ_3", "IPI_MAJ_4",
+      "IPI_MAJ_5", "IPI_MAJ_6", "IPI_MAJ_7", "IPI_MAJ_8"
+    ],
+    "publisherCount": 3,
+    "publishingConfidence": "HIGH",
+    "publishingCoverage": 95
+  },
+  "catalog": {
+    "releasesCount": 63,
+    "catalogAgeYears": 30,
+    "catalogConfidence": "HIGH",
+    "recordings": [
+      { "isrc": "USRC10000001", "title": "Major Hit 1" },
+      { "isrc": "USRC10000002", "title": "Major Hit 2" },
+      { "isrc": "USRC10000003", "title": "Major Hit 3" },
+      { "isrc": "USRC10000004", "title": "Major Hit 4" },
+      { "isrc": "USRC10000005", "title": "Major Hit 5" },
+      { "isrc": "USRC10000006", "title": "Major Hit 6" },
+      { "isrc": "USRC10000007", "title": "Major Hit 7" },
+      { "isrc": "USRC10000008", "title": "Major Hit 8" },
+      { "isrc": "USRC10000009", "title": "Major Hit 9" },
+      { "isrc": "USRC10000010", "title": "Major Hit 10" }
+    ],
+    "orphanRecordings": [],
+    "duplicates": []
+  },
+  "metadata": {
+    "flagCount": 0,
+    "metadataConfidence": "HIGH",
+    "missingCredits": [],
+    "duplicateReleases": [],
+    "inconsistentMetadata": [],
+    "releaseConflicts": []
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {
+    "providers": {
+      "spotify": { "availability": "VERIFIED" },
+      "apple":   { "availability": "VERIFIED" },
+      "youtube": { "availability": "VERIFIED" }
+    },
+    "publishingSources": {
+      "mlc": { "availability": "AUTH_UNAVAILABLE" }
+    }
+  }
+}

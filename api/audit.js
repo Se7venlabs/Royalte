@@ -10,6 +10,29 @@ import { extractIp, checkBlocked, checkRateLimit, recordViolation } from './_lib
 import { runScan } from './_lib/run-scan.js';
 import { persistOSScanSnapshot, resolveUserIdFromAuthHeader } from './_lib/persist-os-scan.js';
 
+// ─── Phase 3.1: OS intelligence pipeline ────────────────────────────
+//
+//   Website Scan is now a thin client of the Royaltē Operating System.
+//   Intelligence is requested from the OS — never computed here.
+//
+//   CONSTITUTIONAL INVARIANT (Phase 3.1):
+//     The Website Scan NEVER computes, reconciles, or interprets intelligence.
+//     It requests a Certified Canonical Intelligence Model from the OS and
+//     renders from it. runRIE() is the sole intelligence entrypoint.
+//
+//   runRIE()             — sole OS entrypoint; produces the certified CIM
+//   buildCimEnrichment() — maps CIM → canonical fields (migration bridge only)
+//   fetchMlcWorksByArtist — provider data collection; feeds the OS, not audit.js
+//
+//   Retained for two-phase monitoring write (post-scan, outside RIE boundary):
+//   assembleMonitoringIntelligence, assembleHealthIntelligence
+import { runRIE }            from '../lib/rie/index.js';
+import { buildCimEnrichment } from '../lib/rie/CimAdapter.js';
+import { assembleMonitoringIntelligence } from './_lib/monitoring-intelligence.js';
+import { assembleHealthIntelligence }     from './_lib/health-intelligence.js';
+import { fetchMlcWorksByArtist }          from '../lib/publishing/mlc-client.js';
+import { normalizeMlcWorks }              from '../lib/publishing/mlc-adapter.js';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // AUDIT_SCANS PERSISTENCE
 //
@@ -95,18 +118,41 @@ async function handleSchemaViolation({ scanId, canonical, err }) {
   }
 }
 
-export async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId, sessionId = null) {
+export async function persistCanonicalScan(rawResponse, originalUrl, urlType, scanId, sessionId = null, enrichmentFn = null, userId = null) {
   const supabase = getAuditScansSupabase();
   if (!supabase) {
     throw new Error('audit_scans persistence unavailable: Supabase not configured');
   }
 
   // Pass handler-generated scanId in so canonical.scanId === scanId.
-  const canonical = normalizeAuditResponse({ ...rawResponse, scanId, _originalUrl: originalUrl });
+  let canonical = normalizeAuditResponse({ ...rawResponse, scanId, _originalUrl: originalUrl });
+
+  // Phase 4B-2 + Phase 5B enrichment hook (Board R5 + R10 + D2). The
+  // handler passes a callback that folds Identity Intelligence™ and
+  // Publishing Intelligence™ (and, in future phases, additional
+  // intelligence objects) into the canonical payload BEFORE validate
+  // + insert. Enrichment failures are non-blocking: the original
+  // canonical persists and the scan succeeds. The enrichment contract
+  // accepts both sync and async functions; `await` resolves the
+  // sync case transparently to the same value. Any throw or non-object
+  // return is logged and discarded.
+  if (typeof enrichmentFn === 'function') {
+    try {
+      const enriched = await enrichmentFn(canonical);
+      if (enriched && typeof enriched === 'object' && !Array.isArray(enriched)) {
+        canonical = enriched;
+      }
+    } catch (enrichErr) {
+      console.error('[audit] canonical enrichment failed (non-blocking):', enrichErr.message);
+    }
+  }
 
   // VALIDATION GATE — fires before any DB write. handleSchemaViolation either
   // logs + persists to schema_violations and returns (prod/preview), or
   // re-throws the AuditSchemaError (dev/test/CI). See helper for env policy.
+  // Enrichment fields (e.g. identityIntelligence) are forward-compat extras:
+  // validateAuditResponse warns on unknown root keys but does not throw,
+  // so the enriched payload passes the gate. No AUDIT_RESPONSE_VERSION bump.
   try {
     validateAuditResponse(canonical);
   } catch (err) {
@@ -115,6 +161,9 @@ export async function persistCanonicalScan(rawResponse, originalUrl, urlType, sc
 
   const spotifyArtistId = rawResponse.artistId || null;
   const appleArtistId   = rawResponse.appleMusic?.artistId || null;
+
+  // DIAGNOSTIC — remove after ownership trace confirmed
+  console.log(`[audit-diag] insert scanId=${scanId} artist="${canonical.subject?.artistName}" userId=${userId || 'NULL'} sessionId=${sessionId || 'NULL'}`);
 
   const insertRow = {
     id:                scanId,
@@ -127,6 +176,9 @@ export async function persistCanonicalScan(rawResponse, originalUrl, urlType, sc
     // Optional anonymous-session id — set when the browser passed one.
     // Bridges this scan to a user account via migrate_anonymous_scans.
     session_id:        sessionId || null,
+    // Authenticated user — resolved from Bearer token before this call.
+    // NULL for anonymous scans; claimed later via migrate_anonymous_scans.
+    user_id:           userId || null,
   };
 
   const MAX_ATTEMPTS = 3;
@@ -250,10 +302,119 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Audit failed. Please check the link and try again.', detail: m });
     }
 
-    // ── PERSIST ──
+    // ── PERSIST + OS INTELLIGENCE REQUEST ──
+    //
+    // Phase 3.1 — Website Scan is now a thin client of the Royaltē Operating System.
+    //
+    // CONSTITUTIONAL INVARIANT (Phase 3.1):
+    //   The Website Scan NEVER computes intelligence.
+    //   It requests a Certified Canonical Intelligence Model from the OS.
+    //   runRIE() is the sole intelligence entrypoint — one call, one CIM,
+    //   all consumers read from it.
+    //
+    // Execution sequence:
+    //   1. normalizeAuditResponse(rawResponse)  — inside persistCanonicalScan
+    //   2. OS enrichmentFn receives canonicalForEnrichment
+    //   3. MLC provider data collected  — feeds the OS, not audit.js
+    //   4. runRIE(canonicalForEnrichment + publishing data)  → certified CIM
+    //   5. buildCimEnrichment(cim)  — maps CIM → legacy fields (migration bridge)
+    //   6. canonical.cim = cim  — authoritative source for Phase 3.2 consumers
+    //
+    // Monitoring Intelligence is assembled post-scan in the two-phase OS write
+    // below (it depends on scan_snapshots data unavailable until after step 6).
+    // The monitoring patch updates legacy fields only; canonical.cim is not
+    // re-certified in Phase 3.1 (addressed in Phase 3.2 Mission Control migration).
+    const osEnrichmentFn = async (canonicalForEnrichment) => {
+      const artistName = canonicalForEnrichment.subject?.artistName;
+
+      // ── Provider data collection: MLC publishing source ──
+      // MLC is a provider call that feeds evidence into the OS — audit.js
+      // collects it here and passes it to runRIE(). Intelligence is never
+      // computed from it directly in audit.js.
+      let publishingSourceObservations = null;
+      let publishingWorks              = null;
+      try {
+        const mlcResult              = await fetchMlcWorksByArtist(artistName);
+        publishingSourceObservations = { mlc: mlcResult.observation };
+        publishingWorks              = normalizeMlcWorks(mlcResult.rawWorks);
+      } catch (mlcErr) {
+        console.error('[audit] MLC source fetch failed (non-blocking):', mlcErr.message);
+      }
+
+      // ── Request the Certified Canonical Intelligence Model from the OS ──
+      // runRIE() is the sole OS entrypoint. It accepts canonicalForEnrichment
+      // via the Phase 1 (legacy evidence) path — the same path tested in
+      // Phase 1 certification. Never throws; assembly failures return an
+      // empty certified CIM.
+      let cim = null;
+      try {
+        cim = await runRIE({
+          canonicalForEnrichment,
+          // Phase 3.3: Apple PAL evidence packages — hybrid merge in runRIE
+          evidencePackages: result.evidencePackages ?? null,
+          publishingWorks,
+          publishingSourceObservations,
+        });
+      } catch (osErr) {
+        // runRIE is documented never-throws; this is belt-and-suspenders.
+        console.error('[audit] OS intelligence request failed (non-blocking):', osErr.message);
+        return canonicalForEnrichment;
+      }
+
+      if (!cim || typeof cim !== 'object') {
+        return canonicalForEnrichment;
+      }
+
+      // ── Map CIM → canonical enrichment fields (backward-compat bridge) ──
+      // CimAdapter maps each CIM domain object to its canonical legacy field.
+      // Intelligence sourced from CIM — no duplication, no re-computation.
+      // canonical.cim carries the full certified CIM for Phase 3.2 consumers.
+      return buildCimEnrichment(cim, canonicalForEnrichment);
+    };
+
+    // ── Resolve authenticated user before persistence ──
+    // userId must be known before persistCanonicalScan so that audit_scans
+    // rows are written with the correct user_id from creation. Anonymous
+    // callers (no Bearer token) get null; their rows are later claimed via
+    // migrate_anonymous_scans using the session_id. The Supabase client is
+    // created once here and reused for both the V1 insert and the V2 path.
+    const supabaseForOS = getAuditScansSupabase();
+    const authenticatedUserId = supabaseForOS
+      ? await resolveUserIdFromAuthHeader(req, supabaseForOS).catch(() => null)
+      : null;
+    // DIAGNOSTIC — remove after ownership trace confirmed
+    const _authHeader = req.headers && (req.headers['authorization'] || req.headers['Authorization']);
+    console.log(`[audit-diag] auth resolution: header=${_authHeader ? 'PRESENT' : 'ABSENT'} userId=${authenticatedUserId || 'NULL'}`);
+
+    // ── Ownership gate: authenticated request with unresolvable token ────────
+    // An authenticated workflow must never silently downgrade to an anonymous
+    // scan. If a Bearer token was sent but the server cannot resolve a user_id
+    // from it (expired, invalid, or revoked), reject the request. The caller
+    // must re-authenticate before the scan proceeds.
+    //
+    // No audit_scans row is created — data integrity over silent failure.
+    //
+    // Note: requests with NO Authorization header are public scans and
+    // continue through the anonymous path below, unchanged.
+    if (_authHeader && !authenticatedUserId) {
+      return res.status(401).json({
+        error: 'Authentication required',
+        detail: 'Your session could not be verified. Please log in and try again.',
+        code: 'AUTH_INVALID',
+      });
+    }
+
     let canonical = null;
     try {
-      const persisted = await persistCanonicalScan(result.rawResponse, url, result.urlType, scanId, sessionId);
+      const persisted = await persistCanonicalScan(
+        result.rawResponse,
+        url,
+        result.urlType,
+        scanId,
+        sessionId,
+        osEnrichmentFn,
+        authenticatedUserId
+      );
       canonical = persisted.canonical;
     } catch (persistErr) {
       console.error('[audit] persistence failed:', persistErr.message);
@@ -268,18 +429,70 @@ export default async function handler(req, res) {
     // monitoring_subscriptions upsert. Anonymous callers (no Bearer token)
     // skip this entirely. Failures here are logged and swallowed — the
     // user-facing scan response must NEVER depend on V2 monitoring work.
+    //
+    // Monitoring Intelligence™ (Phase Monitoring v1.0 — Option A):
+    //   After persistOSScanSnapshot returns its generatedAlerts, assemble
+    //   monitoringIntelligence and PATCH audit_scans.payload to include it.
+    //   Two-phase write is required because the delta runs AFTER the initial
+    //   payload is persisted. Non-blocking — a patch failure never aborts
+    //   the scan response.
     try {
-      const supabaseForOS = getAuditScansSupabase();
       if (supabaseForOS && canonical) {
-        const userId = await resolveUserIdFromAuthHeader(req, supabaseForOS);
+        const userId = authenticatedUserId;
         if (userId) {
-          await persistOSScanSnapshot({
+          const osResult = await persistOSScanSnapshot({
             canonical,
             urlType: result.urlType,
             userId,
             supabase: supabaseForOS,
             warnings: result.warnings,
           });
+
+          // ── Monitoring + Health Intelligence™ — two-phase payload patch ──
+          // Both objects are (re-)assembled here now that monitoringIntelligence
+          // is known. Health Intelligence is re-assembled with real monitoring
+          // data so the final persisted payload has the complete score.
+          if (osResult && osResult.written) {
+            try {
+              const monitoringIntelligence = assembleMonitoringIntelligence({
+                scanNumber: osResult.scanNumber,
+                alerts:     osResult.alerts || [],
+                capturedAt: osResult.capturedAt,  // Evidence Snapshot Store™
+                nextScanAt: osResult.nextScanAt,   // Monitoring Policy™
+              });
+              if (monitoringIntelligence && canonical) {
+                canonical.monitoringIntelligence = monitoringIntelligence;
+                // Re-assemble Health Intelligence™ with real monitoringIntelligence.
+                // canonical.healthScore is the canonical authority — passed verbatim.
+                try {
+                  const finalHealthIntelligence = assembleHealthIntelligence(
+                    canonical.healthScore            || null,
+                    canonical.identityIntelligence   || null,
+                    canonical.publishingIntelligence || null,
+                    canonical.catalogIntelligence    || null,
+                    canonical.globalMusicFootprint   || null,
+                    canonical.backendIntelligence    || null,
+                    monitoringIntelligence,
+                    canonical.royalteAI              || null,
+                  );
+                  if (finalHealthIntelligence) {
+                    canonical.healthIntelligence = finalHealthIntelligence;
+                  }
+                } catch (hiPatchErr) {
+                  console.error('[audit] health intelligence re-assembly failed (non-blocking):', hiPatchErr.message);
+                }
+                const { error: miPatchErr } = await supabaseForOS
+                  .from('audit_scans')
+                  .update({ payload: canonical })
+                  .eq('id', scanId);
+                if (miPatchErr) {
+                  console.error('[audit] monitoring+health intelligence patch failed (non-blocking):', miPatchErr.message);
+                }
+              }
+            } catch (miErr) {
+              console.error('[audit] monitoring intelligence assembly/patch failed (non-blocking):', miErr.message);
+            }
+          }
         }
       }
     } catch (osErr) {
@@ -295,13 +508,29 @@ export default async function handler(req, res) {
       result.rawResponse.warnings = result.warnings;
     }
 
-    // Canonical Payload V2 Phase 1.5 — Board Option B (2026-06-09).
-    // Wire shape: legacy raw fields at root (back-compat for every
-    // existing browser consumer) + the full Canonical Payload™ under
-    // `canonical`. Consumers migrate one Royaltē Intelligence Object
-    // at a time by reading `data.canonical.<object>.<field>`.
-    // Required to unblock Canonical Health Object Phase 5/6.
-    return res.status(200).json({ ...result.rawResponse, scanId, canonical });
+    // Phase 3.1 — Wire shape:
+    //   legacy raw fields (backward-compat for existing frontend)
+    //   + canonical  (AuditResponse + CIM-sourced intelligence fields)
+    //   + cim        (the Certified Canonical Intelligence Model — Phase 3.2+ reads from here)
+    //   + intelligence aliases (same reference as canonical.*Intelligence)
+    //
+    // CONSTITUTIONAL INVARIANT:
+    //   response.identityIntelligence    === response.canonical.identityIntelligence
+    //   response.publishingIntelligence  === response.canonical.publishingIntelligence
+    //   Both sourced from canonical.cim — one CIM, one computation, no duplication.
+    //
+    // Phase 3.2 consumers: read from response.cim directly.
+    // Legacy consumers: read from response.canonical.*Intelligence (unchanged behavior).
+    const identityIntelligence   = canonical?.identityIntelligence   ?? null;
+    const publishingIntelligence = canonical?.publishingIntelligence ?? null;
+    return res.status(200).json({
+      ...result.rawResponse,
+      scanId,
+      canonical,
+      cim:                  canonical?.cim ?? null,
+      identityIntelligence,
+      publishingIntelligence,
+    });
 
   } catch (err) {
     console.error('Audit error:', err);

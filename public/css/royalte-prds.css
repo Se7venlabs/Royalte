@@ -1,0 +1,786 @@
+/* ============================================================
+ * ROYALTĒ OS™ — PUBLIC RESPONSIVE DESIGN SYSTEM™ (PRDS)
+ * ============================================================
+ *
+ * VERSION:    1.0
+ * STATUS:     ACTIVE — Phase 1 Foundation
+ * OWNERSHIP:  Royaltē Engineering / Executive Product
+ *
+ * PURPOSE
+ * -------
+ * Single source of truth for all responsive behavior across
+ * Royaltē's public-facing pages. Every current and future
+ * public page inherits this system.
+ *
+ * No public page may define its own responsive logic outside
+ * this file without explicit Board approval.
+ *
+ * ARCHITECTURAL SCOPE
+ * -------------------
+ * This file owns:
+ *   • Canonical viewport definitions and breakpoints
+ *   • Responsive container system
+ *   • Public section vertical rhythm
+ *   • Responsive grid system (2-, 3-, 4-column)
+ *   • Marketing typography scale
+ *   • CTA button system with touch-target guarantees
+ *   • Card component base
+ *   • Hero layout utilities
+ *   • Flex stack patterns
+ *   • Scroll behavior
+ *   • Safe-area handling (Dynamic Island, notch, home indicator)
+ *   • Viewport visibility utilities
+ *   • Reduced-motion accessibility
+ *
+ * CANONICAL VIEWPORTS
+ * -------------------
+ *   Executive Desktop™    > 1024px   Full layout, hover states active
+ *   Executive Tablet™    641–1024px  Adaptive, touch-first, single nav
+ *   Executive Mobile™     ≤ 640px   Single-column, natural scroll
+ *
+ * RELATIONSHIP TO RDS
+ * -------------------
+ * royalte-rds.css governs Mission Control™ workspaces (workspace
+ * pages, executive OS, intelligence modules).
+ * royalte-prds.css governs public-facing pages (index, faq,
+ * pricing, affiliates, legal, contact, blog).
+ * They share the same canonical viewports and breakpoints but
+ * are otherwise independent — different spacing, typography,
+ * and component values appropriate to their contexts.
+ *
+ * LOAD ORDER (per public page)
+ * ----------------------------
+ *   1. royalte-prds.css          ← this file (foundation)
+ *   2. page-specific <style>     ← page-level overrides (existing CSS)
+ *
+ * CONFLICT POLICY
+ * ---------------
+ * Additive only. All tokens use --prds-* prefix.
+ * All utility classes use prds-* prefix.
+ * Never overrides existing page classes, --mc-* tokens, or
+ * --rds-* tokens. Page-level <style> blocks always win.
+ *
+ * GOVERNANCE NOTICE
+ * -----------------
+ * Responsive behavior MUST NOT be implemented independently
+ * inside page <style> blocks for new features. All new
+ * responsive logic belongs here.
+ * Exceptions require an explicit Board engineering directive.
+ *
+ * SECTIONS
+ * --------
+ *   § 1  Design Tokens
+ *   § 2  Viewport Visibility Utilities
+ *   § 3  Layout Containers
+ *   § 4  Public Section Framework
+ *   § 5  Responsive Grid System
+ *   § 6  Flex Stack Patterns
+ *   § 7  Marketing Typography Scale
+ *   § 8  CTA Button System
+ *   § 9  Card System
+ *   § 10 Hero Layout Utilities
+ *   § 11 Scroll Architecture
+ *   § 12 Safe Area Support
+ *   § 13 Reduced Motion
+ * ============================================================ */
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 1 — DESIGN TOKENS
+   CSS custom properties for spacing, sizing, and layout.
+   Use --prds-* values for all new layout work — never hardcode.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+
+  /* ── Canonical breakpoints (unitless px — for documentation and JS reads).
+     Media queries must use raw pixel values; these exist for scripting only. */
+  --prds-bp-desktop-min:   1025;   /* Executive Desktop™   > 1024px  */
+  --prds-bp-tablet-max:    1024;   /* Executive Tablet™    ≤ 1024px  */
+  --prds-bp-tablet-min:     641;   /* Executive Tablet™    ≥ 641px   */
+  --prds-bp-mobile-max:     640;   /* Executive Mobile™    ≤ 640px   */
+
+  /* ── Container widths */
+  --prds-container-max:     1200px;  /* primary content column         */
+  --prds-container-narrow:   780px;  /* reading / form / CTA contexts  */
+  --prds-container-wide:    1440px;  /* full-bleed hero content        */
+
+  /* ── Section vertical rhythm
+     All public sections should use these values via .prds-section. */
+  --prds-section-pad-y: 140px;
+  --prds-section-pad-x:  56px;
+
+  /* ── Grid gaps */
+  --prds-gap-sm:  16px;
+  --prds-gap:     24px;
+  --prds-gap-lg:  56px;
+
+  /* ── Card */
+  --prds-card-pad:    28px 32px;
+  --prds-card-radius: 8px;
+
+  /* ── CTA button
+     --prds-btn-min-h: 52px exceeds WCAG 2.5.5 (44px) and iOS HIG (44pt).
+     Never reduce below 44px. */
+  --prds-btn-pad-y:      16px;
+  --prds-btn-pad-x:      36px;
+  --prds-btn-min-h:      52px;
+  --prds-btn-font-size:  14px;
+  --prds-btn-tracking:   0.10em;
+  --prds-btn-radius:     4px;
+
+  /* ── Nav height — locked; used in hero offset calc() */
+  --prds-nav-height: 64px;
+
+  /* ── Spacing scale — use for padding, margin, gap */
+  --prds-space-1:   4px;
+  --prds-space-2:   8px;
+  --prds-space-3:  12px;
+  --prds-space-4:  16px;
+  --prds-space-5:  20px;
+  --prds-space-6:  24px;
+  --prds-space-7:  32px;
+  --prds-space-8:  40px;
+  --prds-space-9:  56px;
+  --prds-space-10: 80px;
+  --prds-space-11: 112px;
+  --prds-space-12: 140px;
+
+  /* ── Safe area insets (resolved by the browser at runtime) */
+  --prds-safe-top:    env(safe-area-inset-top,    0px);
+  --prds-safe-right:  env(safe-area-inset-right,  0px);
+  --prds-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --prds-safe-left:   env(safe-area-inset-left,   0px);
+}
+
+/* ── Executive Tablet™ token overrides */
+@media (max-width: 1024px) {
+  :root {
+    --prds-section-pad-y: 96px;
+    --prds-section-pad-x: 36px;
+    --prds-gap-lg:        40px;
+    --prds-btn-pad-x:     28px;
+  }
+}
+
+/* ── Executive Mobile™ token overrides */
+@media (max-width: 640px) {
+  :root {
+    --prds-section-pad-y:  72px;
+    --prds-section-pad-x:  20px;
+    --prds-gap-sm:         12px;
+    --prds-gap:            16px;
+    --prds-gap-lg:         28px;
+    --prds-card-pad:       20px 20px;
+    --prds-btn-pad-y:      16px;
+    --prds-btn-pad-x:      20px;
+    --prds-btn-min-h:      52px;
+    --prds-btn-font-size:  13px;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 2 — VIEWPORT VISIBILITY UTILITIES
+   Show or hide elements by canonical viewport tier.
+   Always use these classes — never write ad-hoc media queries
+   inside component HTML for show/hide behaviour.
+   ───────────────────────────────────────────────────────────── */
+
+/* Default (Executive Desktop™): show all block elements */
+.prds-desktop-only         { display: block;  }
+.prds-tablet-only          { display: none;   }
+.prds-mobile-only          { display: none;   }
+.prds-not-mobile           { display: block;  }
+
+/* Inline variants (for spans, anchors, badges) */
+.prds-desktop-only--inline { display: inline; }
+.prds-tablet-only--inline  { display: none;   }
+.prds-mobile-only--inline  { display: none;   }
+.prds-not-mobile--inline   { display: inline; }
+
+/* Flex variants (for flex children that need display:flex) */
+.prds-desktop-only--flex   { display: flex;   }
+.prds-mobile-only--flex    { display: none;   }
+.prds-not-mobile--flex     { display: flex;   }
+
+/* Not-desktop: hidden on desktop, visible on tablet + mobile */
+.prds-not-desktop          { display: none;   }
+.prds-not-desktop--flex    { display: none;   }
+
+@media (max-width: 1024px) {
+  /* Executive Tablet™ */
+  .prds-desktop-only         { display: none;   }
+  .prds-desktop-only--inline { display: none;   }
+  .prds-desktop-only--flex   { display: none;   }
+  .prds-tablet-only          { display: block;  }
+  .prds-tablet-only--inline  { display: inline; }
+  .prds-not-mobile           { display: block;  }
+  .prds-not-mobile--inline   { display: inline; }
+  .prds-not-mobile--flex     { display: flex;   }
+  .prds-not-desktop          { display: block;  }
+  .prds-not-desktop--flex    { display: flex;   }
+}
+
+@media (max-width: 640px) {
+  /* Executive Mobile™ */
+  .prds-tablet-only          { display: none;   }
+  .prds-tablet-only--inline  { display: none;   }
+  .prds-mobile-only          { display: block;  }
+  .prds-mobile-only--inline  { display: inline; }
+  .prds-mobile-only--flex    { display: flex;   }
+  .prds-not-mobile           { display: none;   }
+  .prds-not-mobile--inline   { display: none;   }
+  .prds-not-mobile--flex     { display: none;   }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 3 — LAYOUT CONTAINERS
+   Centred, max-width-constrained content wrappers.
+   Use .prds-container inside .prds-section to constrain content
+   without constraining the section background.
+   ───────────────────────────────────────────────────────────── */
+
+/* Primary content container */
+.prds-container {
+  width: 100%;
+  max-width: var(--prds-container-max);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+/* Narrow: forms, reading contexts, single-column CTAs */
+.prds-container--narrow {
+  max-width: var(--prds-container-narrow);
+}
+
+/* Wide: full-bleed hero visuals */
+.prds-container--wide {
+  max-width: var(--prds-container-wide);
+}
+
+/* Flush: no horizontal padding (full-bleed children) */
+.prds-container--flush {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 4 — PUBLIC SECTION FRAMEWORK
+   Canonical vertical rhythm for all public page sections.
+   Replace ad-hoc section{padding:…} rules with .prds-section.
+   ───────────────────────────────────────────────────────────── */
+
+/* Base section — canonical vertical padding */
+.prds-section {
+  padding-top:    var(--prds-section-pad-y);
+  padding-bottom: var(--prds-section-pad-y);
+  padding-left:   var(--prds-section-pad-x);
+  padding-right:  var(--prds-section-pad-x);
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* No horizontal padding (full-bleed backgrounds / images) */
+.prds-section--flush-x {
+  padding-left:  0;
+  padding-right: 0;
+}
+
+/* No top padding (sections that follow a flush hero) */
+.prds-section--no-top {
+  padding-top: 0;
+}
+
+/* Reduced vertical spacing */
+.prds-section--tight {
+  padding-top:    calc(var(--prds-section-pad-y) * 0.57);
+  padding-bottom: calc(var(--prds-section-pad-y) * 0.57);
+}
+
+/* Top-ruled section separator */
+.prds-section--ruled {
+  border-top: 1px solid var(--border, rgba(138, 92, 255, 0.15));
+}
+
+/* Inner content max-width — nest inside .prds-section */
+.prds-section-inner {
+  max-width: var(--prds-container-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.prds-section-inner--narrow {
+  max-width: var(--prds-container-narrow);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 5 — RESPONSIVE GRID SYSTEM
+   Semantic column grids for marketing layouts.
+   All grids collapse to single-column on Executive Mobile™.
+   ───────────────────────────────────────────────────────────── */
+
+/* 2-column: even split desktop → 1-col mobile */
+.prds-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--prds-gap-lg);
+}
+
+/* 3-column: 3-col desktop → 2-col tablet → 1-col mobile */
+.prds-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--prds-gap);
+}
+
+/* 4-column: 4-col desktop → 2-col tablet → 2-col mobile */
+.prds-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--prds-gap);
+}
+
+/* Auto-fit: equal columns that wrap naturally (stats rows, trust badges) */
+.prds-grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--prds-gap);
+}
+
+@media (max-width: 1024px) {
+  /* Executive Tablet™ */
+  .prds-grid-2  { gap: var(--prds-gap); }
+  .prds-grid-3  { grid-template-columns: repeat(2, 1fr); }
+  .prds-grid-4  { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  /* Executive Mobile™ */
+  .prds-grid-2  { grid-template-columns: 1fr; gap: var(--prds-gap-sm); }
+  .prds-grid-3  { grid-template-columns: 1fr; gap: var(--prds-gap-sm); }
+  .prds-grid-4  { grid-template-columns: repeat(2, 1fr); gap: var(--prds-gap-sm); }
+  .prds-grid-auto {
+    grid-template-columns: 1fr;
+    gap: var(--prds-gap-sm);
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 6 — FLEX STACK PATTERNS
+   Flex layouts that adapt direction or wrapping by viewport.
+   ───────────────────────────────────────────────────────────── */
+
+/* Row on desktop → column on mobile */
+.prds-stack {
+  display: flex;
+  flex-direction: row;
+  gap: var(--prds-gap);
+  align-items: flex-start;
+}
+
+@media (max-width: 640px) {
+  .prds-stack {
+    flex-direction: column;
+    gap: var(--prds-gap-sm);
+  }
+}
+
+/* Always wraps — for badges, tags, stat chips */
+.prds-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--prds-gap-sm);
+  align-items: center;
+}
+
+/* Centred horizontal cluster */
+.prds-cluster--centred {
+  justify-content: center;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 7 — MARKETING TYPOGRAPHY SCALE
+   Fluid sizes for display and body text on public pages.
+   All sizes use clamp() — no viewport-specific overrides needed.
+   ───────────────────────────────────────────────────────────── */
+
+/* Hero H1 — fluid 36–72px */
+.prds-type-hero {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* Section H2 — fluid 30–62px */
+.prds-type-section {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(30px, 5vw, 62px);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* Sub-section H3 — fluid 22–32px */
+.prds-type-sub {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Lead body text — readable across all viewports */
+.prds-type-lead {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(15px, 1.8vw, 18px);
+  line-height: 1.70;
+  letter-spacing: 0.005em;
+}
+
+/* Standard body */
+.prds-type-body {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(13px, 1.4vw, 15px);
+  line-height: 1.65;
+}
+
+/* Mono eyebrow label — tracking-heavy, all-caps */
+.prds-type-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* Mono caption / micro text */
+.prds-type-caption {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+/* Gradient text utility — use for accent words in headings */
+.prds-type-grad {
+  background: linear-gradient(135deg, #8a5cff, #e040c8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 8 — CTA BUTTON SYSTEM
+   All public-facing CTAs inherit these base rules.
+   Touch target minimum: 52px height (exceeds WCAG 2.5.5 / iOS HIG).
+   Never reduce --prds-btn-min-h below 44px on any viewport.
+   ───────────────────────────────────────────────────────────── */
+
+/* Base — all CTAs start here */
+.prds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--prds-btn-pad-y) var(--prds-btn-pad-x);
+  min-height: var(--prds-btn-min-h);
+  border-radius: var(--prds-btn-radius);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: var(--prds-btn-font-size);
+  font-weight: 700;
+  letter-spacing: var(--prds-btn-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.prds-btn:focus-visible {
+  outline: 2px solid rgba(138, 92, 255, 0.8);
+  outline-offset: 3px;
+}
+
+.prds-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Primary — gradient fill */
+.prds-btn--primary {
+  background: linear-gradient(135deg, #8a5cff, #e040c8);
+  color: #ffffff;
+  box-shadow: 0 4px 24px rgba(138, 92, 255, 0.35);
+}
+
+.prds-btn--primary:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 32px rgba(138, 92, 255, 0.52);
+}
+
+.prds-btn--primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 16px rgba(138, 92, 255, 0.30);
+}
+
+/* Secondary — bordered */
+.prds-btn--secondary {
+  background: transparent;
+  color: var(--text, #e8e4f4);
+  border: 1px solid var(--border2, rgba(138, 92, 255, 0.30));
+}
+
+.prds-btn--secondary:hover {
+  border-color: rgba(138, 92, 255, 0.65);
+  background: rgba(138, 92, 255, 0.08);
+}
+
+/* Ghost — text link style */
+.prds-btn--ghost {
+  background: transparent;
+  color: var(--pur, #8a5cff);
+  border: none;
+  padding-left: 0;
+  padding-right: 0;
+  min-height: auto;
+  letter-spacing: 0.06em;
+}
+
+.prds-btn--ghost:hover { opacity: 0.75; }
+
+/* Full-width modifier */
+.prds-btn--full {
+  width: 100%;
+  display: flex;
+}
+
+/* Mobile-only full-width (primary CTAs in conversion blocks) */
+@media (max-width: 640px) {
+  .prds-btn--mobile-full {
+    width: 100%;
+    display: flex;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 9 — CARD SYSTEM
+   Base card shells for public-facing information panels.
+   Inherits the global --bg3, --border2 color tokens.
+   ───────────────────────────────────────────────────────────── */
+
+/* Base card */
+.prds-card {
+  background: var(--bg3, #10101e);
+  border: 1px solid var(--border2, rgba(138, 92, 255, 0.30));
+  border-radius: var(--prds-card-radius);
+  padding: var(--prds-card-pad);
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Accent top-border (gradient rule) */
+.prds-card--accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(135deg, #8a5cff, #e040c8);
+  border-radius: var(--prds-card-radius) var(--prds-card-radius) 0 0;
+  opacity: 0.8;
+}
+
+/* Glow variant */
+.prds-card--glow {
+  box-shadow: var(--glow, 0 0 80px rgba(138, 92, 255, 0.28));
+}
+
+/* Dark inner card (nested / secondary content) */
+.prds-card--dark {
+  background: var(--bg2, #0a0a14);
+  border-color: var(--border, rgba(138, 92, 255, 0.15));
+}
+
+/* Interactive card */
+.prds-card--interactive {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.prds-card--interactive:hover {
+  border-color: rgba(138, 92, 255, 0.55);
+  box-shadow: 0 0 24px rgba(138, 92, 255, 0.14);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 10 — HERO LAYOUT UTILITIES
+   Canonical hero section structure for public landing pages.
+   The nav height offset ensures content clears the fixed nav.
+   ───────────────────────────────────────────────────────────── */
+
+/* Hero shell — full-viewport minus nav height */
+.prds-hero {
+  min-height: calc(100vh - var(--prds-nav-height));
+  min-height: calc(100dvh - var(--prds-nav-height));
+  padding-top:    calc(var(--prds-nav-height) + var(--prds-space-9));
+  padding-bottom: var(--prds-space-10);
+  padding-left:   var(--prds-section-pad-x);
+  padding-right:  var(--prds-section-pad-x);
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Two-column hero: copy left, visual right */
+.prds-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--prds-gap-lg);
+  align-items: center;
+  max-width: var(--prds-container-max);
+  margin: 0 auto;
+}
+
+/* Centred hero: single column, text centred */
+.prds-hero-centred {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: var(--prds-container-narrow);
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  /* Executive Tablet™ */
+  .prds-hero {
+    padding-left:  var(--prds-section-pad-x);
+    padding-right: var(--prds-section-pad-x);
+  }
+  .prds-hero-grid {
+    gap: var(--prds-gap);
+  }
+}
+
+@media (max-width: 640px) {
+  /* Executive Mobile™ */
+  .prds-hero {
+    min-height: 0;
+    padding-top:    calc(var(--prds-nav-height) + var(--prds-space-6));
+    padding-bottom: var(--prds-space-8);
+  }
+  .prds-hero-grid {
+    grid-template-columns: 1fr;
+    gap: var(--prds-gap-sm);
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 11 — SCROLL ARCHITECTURE
+   Philosophy: Desktop — guided sections. Mobile — natural scroll.
+   ───────────────────────────────────────────────────────────── */
+
+/* Natural vertical scroll (mobile section containers, overlays) */
+.prds-scroll-natural {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Horizontal scroll (wide tables or visualisations on mobile) */
+.prds-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/* Body lock — active when modal / drawer is open */
+body.prds-body--locked {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* Full dynamic viewport height — accounts for mobile browser chrome
+   (Safari address bar, bottom toolbar). Use instead of 100vh on mobile. */
+.prds-dvh {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.prds-dvh--exact {
+  height: 100vh;
+  height: 100dvh;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 12 — SAFE AREA SUPPORT
+   Handles iPhone Dynamic Island, notch, home indicator, and
+   mobile browser chrome on modern iOS and Android devices.
+   ───────────────────────────────────────────────────────────── */
+
+/* Full safe-area padding on the page shell */
+.prds-safe-shell {
+  padding-top:    var(--prds-safe-top);
+  padding-right:  var(--prds-safe-right);
+  padding-bottom: var(--prds-safe-bottom);
+  padding-left:   var(--prds-safe-left);
+}
+
+/* Individual edge utilities */
+.prds-safe-top    { padding-top:    env(safe-area-inset-top,    0px); }
+.prds-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.prds-safe-sides  {
+  padding-left:  env(safe-area-inset-left,  0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Margin variants (for sticky / fixed elements) */
+.prds-safe-top--margin    { margin-top:    env(safe-area-inset-top,    0px); }
+.prds-safe-bottom--margin { margin-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* Sticky element bottom offset — uses the larger of a base gap or safe area */
+.prds-sticky-bottom {
+  bottom: max(var(--prds-space-5), env(safe-area-inset-bottom));
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   § 13 — REDUCED MOTION
+   All animations and transitions respect user OS preference.
+   Required for WCAG 2.1 Success Criterion 2.3.3.
+   ───────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+    scroll-behavior:           auto   !important;
+  }
+}

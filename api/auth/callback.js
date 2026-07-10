@@ -145,24 +145,28 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       return;
     }
 
-    // Claim the anonymous scan. session_id arrives on the redirect URL query
-    // (the channel that works for returning users — data.* only persists to
-    // user_metadata when Supabase creates the user). The URL param wins: it is
-    // the fresh signal from THIS sign-in; user_metadata is from account
-    // creation. Non-fatal: sign-in succeeds regardless — the scan just doesn't
-    // migrate this round.
+    // Claim the anonymous scan via the server-side endpoint (service role required).
+    // session_id arrives on the redirect URL query param, or falls back to the
+    // session_id embedded in user_metadata at signup. Non-fatal.
     const sessionId =
       new URLSearchParams(window.location.search).get('session_id') ||
       session.user?.user_metadata?.session_id;
-    if (sessionId) {
+    if (sessionId && session.access_token) {
       try {
-        const { error: rpcErr } = await supabase.rpc('migrate_anonymous_scans', {
-          p_session_id: sessionId,
-          p_user_id: session.user.id,
+        const claimRes = await fetch('/api/claim-scan', {
+          method:  'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': 'Bearer ' + session.access_token,
+          },
+          body: JSON.stringify({ session_id: sessionId }),
         });
-        if (rpcErr) console.error('[auth/callback] migrate_anonymous_scans error', rpcErr);
+        if (!claimRes.ok) {
+          const claimErr = await claimRes.json().catch(() => ({}));
+          console.error('[auth/callback] claim-scan failed:', claimErr);
+        }
       } catch (e) {
-        console.error('[auth/callback] migrate exception', e);
+        console.error('[auth/callback] claim exception', e);
       }
     }
 
@@ -179,7 +183,36 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     }
 
     await sleep(600);
-    window.location.href = '/dashboard.html';
+
+    // Music Rights Profile™ gate — first-time users see the onboarding flow.
+    // Query the profile directly; the anon-key client can read the user's own row.
+    // Non-fatal: any DB error falls through to MC so the auth path is never blocked.
+    let _onboardingDone = false;
+    try {
+      const { data: _prof } = await supabase
+        .from('profiles')
+        .select('onboarding_completed_at')
+        .eq('id', session.user.id)
+        .single();
+      _onboardingDone = !!_prof?.onboarding_completed_at;
+    } catch (_profErr) { /* fall through — non-blocking */ }
+
+    if (!_onboardingDone) {
+      window.location.href = '/onboarding.html';
+      return;
+    }
+
+    // Phase 4.1: all MC access goes through the Intelligence Vault.
+    // Pass pending scan_id if present (email confirmation path).
+    let _vaultDest = '/mission-control.html?vault=1';
+    try {
+      const _pendingScanId = localStorage.getItem('royalte_pending_scan_id');
+      if (_pendingScanId) {
+        localStorage.removeItem('royalte_pending_scan_id');
+        _vaultDest = '/mission-control.html?vault=1&scanId=' + encodeURIComponent(_pendingScanId);
+      }
+    } catch (_lsErr) { /* localStorage blocked — MC loads latest owned scan */ }
+    window.location.href = _vaultDest;
   }
 
   // 10s watchdog — a stalled getSession() or migrate RPC must never strand the

@@ -11,6 +11,414 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-04 — Executive Product Review Standard™ — Mandatory Merge Gate — MANDATORY
+
+| | |
+|---|---|
+| **Date** | 2026-07-04 |
+| **Decision** | No Executive Workspace may be merged into main until it has passed all three mandatory gates: (1) Development Complete, (2) Product Review Complete per `governance/EXECUTIVE_PRODUCT_REVIEW_STANDARD.md`, (3) Board Review Complete. The Engineering Agent conducting development is responsible for completing the Product Review before opening a PR. The Board is responsible for the final approval before merge. Neither gate may be skipped. |
+| **Reason** | Feature complete ≠ product complete. The final 2–3% of quality — visual consistency, emotional impact, OS coherence — is only found by experiencing the product, not by reading code. Every workspace must feel like one operating system. The previous review passes (PRs #232, #233) confirmed that product reviews surface real issues that code review misses: unicode character inconsistencies, inline style violations, panel stat grid rhythm breaks. |
+| **Impact** | Mandatory pre-merge gate on all current and future Executive Workspaces. Standard documented at `governance/EXECUTIVE_PRODUCT_REVIEW_STANDARD.md`. Agent Memory updated. Session memory updated. |
+| **Vote** | MANDATORY — Board-issued standard, no vote required |
+| **PR Number** | #234 |
+| **Commit SHA** | pending |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Executive Workspace Image Selection Standard™ — Platform-Agnostic Architecture — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Executive Workspaces must never reference a specific music platform for image selection. The UI requests only **Best Verified Artist Image™** or **Best Verified Release Artwork™** via `getBestVerifiedArtistImage()` / `getBestVerifiedReleaseArtwork()`. The backend intelligence layer owns source selection, quality evaluation, and future platform expansion. No workspace UI may read from `payload.platforms.apple.*`, `payload.platforms.spotify.*`, or any provider-specific path for images. |
+| **Reason** | Royaltē must not appear to favour any streaming platform. Hardcoding Apple or Spotify into UI image selection would require UI redesigns for every future provider integration. Architecture separation keeps workspaces platform-agnostic and future-proof. |
+| **Impact** | New `api/_lib/image-service.js` — sole backend owner. New `public/js/royalte-image-service.js` — sole frontend owner. `api/_lib/run-scan.js` inline platform chains replaced with service calls. `public/css/royalte-workspace.css` — `.royalte-exec-img` 80×80 standard class + `--artist` / `--artwork` variants. |
+| **Vote** | Board Approved |
+| **PR Number** | #228 |
+| **Commit SHA** | `7127bc0` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Reporting Time Zone™ Board Addendum — Dynamic tz detection + profile storage — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | RTZ must never be hardcoded. On first login the browser's `Intl.DateTimeFormat` detects the IANA zone automatically (e.g. `America/Toronto`). The zone is stored in `profiles.reporting_timezone` (authenticated) or `localStorage` (anonymous). The derived abbreviation (EDT, PST, GMT, etc.) is displayed throughout Royaltē OS via `[data-mc-rtz-abbr]`. The artist may override this value later from Settings → Preferences (deferred surface). IP-based fallback also deferred. |
+| **Reason** | A hardcoded "EDT" would break for every artist outside the US Eastern time zone. The Reporting Time Zone™ is a user-level reporting standard that governs scans, alerts, and Executive Brief™ reports — it must reflect the artist's actual locale. |
+| **Impact** | New `public/js/royalte-tz.js` — sole owner of RTZ detection, storage (`profiles.reporting_timezone` + `localStorage`), and DOM rendering (`[data-mc-rtz-abbr]`). New migration `supabase/migrations/20260703000000_reporting_timezone.sql` — `profiles.reporting_timezone text DEFAULT NULL`. `public/js/mission-control.js` — imports and calls `initRtz()` on DOMContentLoaded, independent of scan payload. |
+| **Vote** | Board Approved |
+| **PR Number** | #226 |
+| **Commit SHA** | `6efd9e2` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Reporting Time Zone™ Placement Amendment #004 — MC System Status™ only — CORRECTION
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Board correction of Amendment #003. RTZ removed from ALL Executive Workspace right panels (Health, Identity, Publishing). RTZ placed exclusively on Mission Control's existing system status section, renamed from "Monitoring Status" to **System Status™**. Approved hierarchy: System Status™ / Operational / ✓ Monitoring Active / divider / clock + abbreviation / Reporting Time Zone™ / System Time Synced ✓. Supersedes Amendment #003. |
+| **Reason** | Executive Workspaces are artist intelligence surfaces — system status is an OS-level concern, not a workspace-level concern. Mission Control is the correct home for OS infrastructure indicators. |
+| **Impact** | Orphaned `hi-sys-*` + `rtz-*` CSS removed from `royalte-workspace.css`. System Status™ HTML block removed from `health-intelligence.html`, `identity-intelligence.html`, `publishing-intelligence.html`. `mc-es-cell--status` renamed to System Status™; `mc-es-rtz-*` CSS + RTZ HTML block appended in MC inline style. |
+| **Vote** | Board Correction — Required |
+| **PR Number** | #226 |
+| **Commit SHA** | `6efd9e2` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Reporting Time Zone™ System Status Amendment #003 — SUPERSEDED by Amendment #004
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | ~~Add RTZ as a `hi-panel-section--system` at the bottom of the right exec panel in all three active Executive Workspaces.~~ **SUPERSEDED by Amendment #004 (above).** Entered governance record for completeness; implementation was reversed before production merge. |
+| **Reason** | Superseded — placement decision was corrected to MC System Status™ only. |
+| **Impact** | None (reversed in same PR #226 before merge). |
+| **Vote** | Board Approved then Corrected |
+| **PR Number** | #226 |
+| **Commit SHA** | `6efd9e2` (net result after #004 reversal) |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Publishing Intelligence™ Workspace — Board Amendment #002 — Rights Ownership™ — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Replace Songwriter Splits™ (from Amendment #001) with Rights Ownership™ (shield-check icon, 100% Independent). Canonical system card order locked: The MLC → Songtrust → Music Reports → Publisher (Interscope) → ISWC Coverage™ → Rights Ownership™. Supersedes the Songwriter Splits™ portion of Amendment #001. |
+| **Reason** | Rights Ownership™ conveys executive clarity — the artist has independent rights, the most valuable publishing position. Songwriter splits are a detail better suited to a future dedicated surface. |
+| **Impact** | Card 6 in `publishing-intelligence.html` updated. CSS `pi-system-badge--verified` applied. Canonical 6-card order locked for all future Publishing workspace iterations. |
+| **Vote** | Board Approved |
+| **PR Number** | #224 |
+| **Commit SHA** | `cdd4fda` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Publishing Intelligence™ Workspace — Board Amendment #001 — ISWC Coverage™ + Superseded — PARTIALLY SUPERSEDED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Remove PRO and Harry Fox Agency. Replace with ISWC Coverage™ (tag icon, 16 Assigned · 2 Pending) and Songwriter Splits™ (Amendment #001). Songwriter Splits™ subsequently superseded by Amendment #002 (Rights Ownership™). ISWC Coverage™ survives as card 5 in canonical order. |
+| **Reason** | PRO and Harry Fox Agency are generic industry names with no live data backing them in V1. ISWC Coverage™ is a concrete, data-backed signal. |
+| **Impact** | `publishing-intelligence.html` — cards 5 and 6 replaced. Amendment #002 subsequently locked the canonical order and replaced card 6 again. |
+| **Vote** | Board Approved |
+| **PR Number** | #224 |
+| **Commit SHA** | `cdd4fda` (net result after Amendment #002) |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Publishing Intelligence™ Workspace — Phase 1 Build — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve Publishing Intelligence™ as the third Executive Intelligence Workspace. Royal Violet (`#7c3aed`). System-focused (no artist avatar). 4 KPI cards (Potential Royalty Impact™ as Executive Signature™ with amber pulse, Publishing Coverage™, Registered Works™, Collection Health™). 6 Core Publishing System cards. `pi-*` CSS namespace. `ws-dept--publishing` ambient glow. |
+| **Reason** | Publishing and rights are the highest-leverage financial surface for independent artists. A dedicated publishing workspace surfaces royalty risk as an executive priority. |
+| **Impact** | `public/workspaces/publishing-intelligence.html` — full new workspace (~520 lines). `public/css/royalte-workspace.css` — `pi-*` namespace + `ws-dept--publishing` glow appended (~237 lines). |
+| **Vote** | Board Approved |
+| **PR Number** | #224 |
+| **Commit SHA** | `cdd4fda` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Ambient Module Elevation™ — Executive Workspace Design Language — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve Ambient Module Elevation™ system. Every Executive Workspace declares its department via `ws-dept--*` class on `ws-shell`. All card modules receive a workspace-scoped ambient glow (large blur, very low opacity, feathers outside card edges). Hover amplifies the glow. Health Intelligence™ (emerald) and Identity Intelligence™ (purple) are the first two implementations. Future workspaces extend the system by adding their own `ws-dept--*` scoped glow rules. |
+| **Reason** | Each workspace must feel like a distinct intelligence department without changing layout, navigation, or spacing. The ambient glow achieves atmospheric differentiation while maintaining OS consistency. |
+| **Impact** | `public/css/royalte-workspace.css` — `.ws-dept--health` and `.ws-dept--identity` scoped glow rules appended (~60 lines). `public/workspaces/health-intelligence.html` — `ws-dept--health` added to `ws-shell`. `public/workspaces/identity-intelligence.html` — `ws-dept--identity` added to `ws-shell`. |
+| **Vote** | Board Approved |
+| **PR Number** | #222 |
+| **Commit SHA** | `96a8dc5` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Phase 4 — Identity Intelligence™ Workspace Build — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve Identity Intelligence™ as the second Executive Intelligence Workspace, built on the Health Intelligence™ standard. Color identity: Purple. Reuses Health workspace components (`hi-main`, `hi-kpi-row/card`, `hi-status-pill`, `hi-exec-panel`, `hi-artist-*`). New `ii-*` namespace covers only Identity-specific components, organized in 5 logical CSS blocks per Board Amendment #001. Executive Signature™: Identity Coverage™ ring animates once on page load (0→92%), then stops permanently. |
+| **Reason** | Identity Intelligence™ answers the executive question "Does the music industry recognize me correctly?" It requires a dedicated workspace that inherits the Health Intelligence™ design language while expressing its own intelligence and visual identity (purple accent, artist avatar, platform cards, coverage ring). |
+| **Impact** | `public/workspaces/identity-intelligence.html` — full rewrite from MC card stub to complete Executive Workspace (~520 lines). `public/css/royalte-workspace.css` — `ii-*` CSS namespace appended in 5 blocks (~270 lines). |
+| **Vote** | Board Approved |
+| **PR Number** | #222 |
+| **Commit SHA** | `c43f431` (workspace) · `96a8dc5` (ambient glow) |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Sprint 3.4 Amendment 2 — Publishing Intelligence™ Executive Layout Refinement — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve CSS-only typography refinement of Publishing Intelligence™. Financial Impact™ elevated to executive brief style; Biggest Risk and Biggest Win reduced to supporting cards. No HTML structure, JS, or data changes. |
+| **Reason** | Financial Impact™ was visually competing with smaller cards rather than leading the lower section. The explanation body — the artist's executive message — needed higher typographic weight. |
+| **Impact** | `public/mission-control.html` CSS only: impact body 11px → 12.5px weight-500 `var(--mc-text)`; labels recede to 8px muted; Risk + Win padding/icon/title compressed. |
+| **Vote** | Board Approved |
+| **PR Number** | #216 |
+| **Commit SHA** | `8400134` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Sprint 3.4 — Publishing Intelligence™ Executive Passport + Financial Impact Amendment — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve and merge Sprint 3.4 — Publishing Intelligence™ executive passport (7 sections) plus Board Amendment expanding Section 4 into a Financial Impact mini Executive Brief. |
+| **Reason** | The legacy publishing card (ring + flat checklist) provided no executive context. The 7-section passport delivers publishing completeness as a financial readiness dashboard. The Amendment adds Potential Royalty Impact™ explanation and Estimated Resolution to Section 4, giving artists a complete executive read within five seconds. Financial Neutrality Rule™ preserved throughout — no dollar amounts. |
+| **Impact** | `public/mission-control.html`: old `mc-pub-body` + `mc-pub-checks` replaced with `mc-pi-body` 7-section grid. Section 4 Financial Impact™ contains risk badge, Potential Royalty Impact™ explanation, and Estimated Resolution time. `public/js/mission-control.js`: `buildPublishingIntelligencePlan` + `applyPublishingIntelligencePlan` added; `_piFinancialImpact` returns fuller body copy + resolution time. `public/js/vault-auth.js`: sentinel updated to `data-mc-pi-*`. |
+| **Vote** | Board Approved (Sprint 3.4) + Board Approved (Amendment) |
+| **PR Number** | #215 |
+| **Commit SHA** | `7f52f4f` (Sprint 3.4) · `2bb1af2` (Amendment) |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Sprint 3.3 — Identity Intelligence™ Executive Passport — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve and merge Sprint 3.3 — Identity Intelligence™ executive passport redesign. Replaces the legacy fingerprint ring + provider checklist with a 6-section constitutional presentation layer: Identity Coverage (% + grade), Identity Summary (4-count cells), Identity Providers (constitutional + platform pills), Biggest Risk, Biggest Win, Recent Changes. |
+| **Reason** | The legacy identity card surfaced a fingerprint animation and a flat provider checklist with no executive context. The 6-section passport delivers the same intelligence as a structured executive readout aligned with the Health Intelligence™ card pattern established in Sprint 3.2. |
+| **Impact** | `public/mission-control.html`: old `mc-identity-body` + `mc-identity-checks` blocks replaced with `mc-id-body` 6-section grid. `public/js/mission-control.js`: `buildIdentityIntelligencePlan` + `applyIdentityIntelligencePlan` added; count-up animation on coverage reveal. `public/js/vault-auth.js`: sentinel blanking updated to `data-mc-id-*` targets. Legacy identity plans preserved for ai-insights module. |
+| **Vote** | Board Approved |
+| **PR Number** | #213 |
+| **Commit SHA** | `654eb52` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Executive Layout Optimization™ v1.0 — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve and merge the Executive Layout Optimization™ CSS-only density pass on Mission Control™ targeting the 1920×1080 viewport. No content removed, no wiring changed, no business logic touched. Mobile/tablet responsiveness unchanged. Classified as Executive Layout Optimization™ Version 1; a final holistic pass is deferred until all MC modules are redesigned. |
+| **Reason** | At full desktop resolution the Executive Overview required vertical scrolling, reducing the immediate executive readout. Information density must match the ambition of the product. |
+| **Impact** | Page title 36→24px, hero banner ~40px shorter (radar 130→90px, cell padding compressed), Health Intelligence™ card ~170px shorter (breakdown 2-col grid, sparkline inline, section gaps tightened). Estimated 260px total reduction on main column. |
+| **Vote** | Board Approved |
+| **PR Number** | #211 |
+| **Commit SHA** | `83c8804` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Sprint 3.2 — Health Intelligence™ Executive Assessment — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Approve and merge Sprint 3.2: redesign of the Health Intelligence™ card into a 6-section executive assessment. Sections: (1) Overall Health Score + Grade + Trend, (2) Health Breakdown (6 categories, 2-col grid), (3) Biggest Improvement, (4) Biggest Risk, (5) Health Trend sparkline (current scan only; historical pending), (6) Recent Changes. Scope locked to the health-intelligence module only. All values sourced constitutionally from `renderHealth()` / `healthReport` / monitoring intelligence. |
+| **Reason** | The former Health card showed only the ring + single metric. The executive OS requires at minimum a category breakdown and risk/strength highlights at a glance. |
+| **Impact** | `public/mission-control.html` — new `mc-hi-*` CSS + HTML 6-section structure. `public/js/mission-control.js` — `buildHealthIntelligencePlan` + `applyHealthIntelligencePlan`. `public/js/vault-auth.js` — `_blankSentinelData` updated to new `data-mc-hi-*` targets. |
+| **Vote** | Board Approved |
+| **PR Number** | #211 |
+| **Commit SHA** | `346a2d0` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-03 — Phase 3.6 Deezer — Streaming Verification Authority™ PAL Production Migration™ — UNANIMOUSLY APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-03 |
+| **Decision** | Board UNANIMOUSLY APPROVES Phase 3.6 Provider Expansion 07 — Deezer as Royaltē's first constitutional Streaming Verification Authority™. DeezerConnector acquires independent streaming evidence (ARTIST_IDENTITY, ALBUMS, TRACKS, ISRC, ARTWORK, GENRES) from the Deezer Public API without performing any comparison, conflict detection, or confidence scoring. Legacy `getDeezer()` direct-call retired. All Deezer acquisition now flows through PAL. |
+| **Directives adopted** | (1) Deezer's constitutional role is Streaming Verification Authority™ — it acquires evidence only; it never compares providers, detects conflicts, calculates confidence, or performs verification. (2) Future Verification Intelligence™ will consume Deezer evidence to determine agreement/disagreement with Apple Music and Spotify — this is a future phase, not this provider. (3) `platforms.deezer.isrcs[]` is the constitutional bridge for future Verification Intelligence. (4) Provider trust: 80 (independent streaming authority — governance decision, never computed). (5) Deezer public API requires no credentials; `authenticate()` returning AVAILABLE without a network call is the constitutional pattern for credential-free providers. |
+| **Impact** | Seven constitutional providers, 740/740 certified. The original three streaming providers (Apple, Spotify, Deezer) are now 100% migrated to PAL. Evidence foundation for Verification Intelligence™ is established. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Number** | #201 |
+| **Commit SHA** | `ba66b26` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-02 — Phase 3.6 MLC — The MLC Publishing Authority PAL Production Migration™ — UNANIMOUSLY APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Board UNANIMOUSLY APPROVES Phase 3.6 Provider Expansion 05 — The Mechanical Licensing Collective (The MLC) as Royaltē's first constitutional Publishing Authority. MLCConnector establishes the constitutional precedent for statutory-authority providers. Provider trust: 95 (The MLC is the statutory US mechanical licensing authority under the Music Modernization Act). Board Amendment applied: Recording ≠ Musical Work — hierarchy Recording → ISRC → MLC Song Code → Musical Work → Publishers / Songwriters / ISWC preserved as nested structure in EvidenceBridge; no flattening. |
+| **Directives adopted** | (1) No Publishing Intelligence, Rights Intelligence, or Revenue Intelligence built in this phase — evidence acquisition only. (2) EvidenceBridge translates and preserves; translation is encouraged; flattening is not. (3) `platforms.mlc.recordings[]` = Recording entities; `platforms.mlc.details.works[]` = Musical Work entities; `platforms.mlc.mlcSongCodes[]` = constitutional bridge. (4) MLC API field-casing inconsistency (`mlcsongCode` vs `mlcSongCode`) preserved raw — consumers handle the difference. (5) `authenticate()` may make a real network call for session-based OAuth providers — constitutional from this phase forward. |
+| **Impact** | The MLC completes Royaltē's first constitutional evidence ecosystem: 6 providers, 6 constitutional authorities, 673/673 certified. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Number** | #199 |
+| **Commit SHA** | `67d7fe8` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-02 — Phase 3.6 Provider Expansion Sprint — Constitutional Evidence Ecosystem Complete — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Board ratifies the Provider Expansion Sprint, completing Royaltē's first constitutional six-provider evidence ecosystem. Each provider follows the constitutional PAL → Evidence Contract → EvidenceBridge → CIM pipeline without exception. Certification harness grew from 308 assertions (Phase 3.5 baseline) to 673 assertions across 10 suites, 0 failures. |
+| **Directives adopted** | (1) Six constitutional providers and their trust values: Apple Music = 100, Spotify = 90, MusicBrainz = 80, Discogs = 75, YouTube OAC = 85, The MLC = 95. (2) Provider Expansion Sprint pattern is the constitutional reference for all future provider integrations. (3) The Recording → Song Code → Musical Work hierarchy is permanent and governs all future publishing-domain features. (4) Certification harness (673 assertions, Suite 10) is the permanent gate for all future Provider Expansion phases. |
+| **Impact** | Royaltē possesses a constitutionally certified, provider-agnostic, evidence-driven intelligence platform. All future modules read from CIM — never from provider-specific data directly. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Numbers** | #194 (Spotify) · #195 (Recording Intelligence + Amendment) · #196 (MusicBrainz + Amendment 1) · #197 (Discogs + Amendment 1) · #198 (YouTube) · #199 (The MLC) |
+| **Commit SHAs** | `ba4054d` · `2057db6` · `b966881` · `aea8095` · `fb44ef5` · `67d7fe8` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-02 — Phase 3.5 — Royaltē OS v1.0 Board Certification — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Board ratifies Phase 3.5 — Royaltē OS v1.0 Certification Sprint. The Board Certification Harness (308 assertions, 5 suites, 0 failures) is accepted as the permanent certification infrastructure for the platform. `royalte-os-v1.0` is the official certified baseline. The `deepFreeze` bug in `backend-intelligence.js` (arrays skipped by `!Array.isArray(v)` guard) is accepted as fixed. The determinism policy (excluding provenance-only timestamps from comparison) is ratified. |
+| **Directives adopted** | (1) Intelligence Engine, Health Engine, Rule Library, and RIE changes require 100% harness pass before merge. (2) CIM schema changes require Suite 04 updates + 100% harness pass before merge. (3) No release tag may be created unless harness exits 0 and GitHub CI is green. (4) Certification Artist Library and Golden Fixture Library are append-only — existing fixtures never modified. (5) The certified OS v1.0 architecture is frozen for production. No changes to IE/Health/RIE without Board brief. |
+| **Impact** | Royaltē OS v1.0 is the certified production baseline. Phase 3.5 sprints A–F (dead code, ArtistNameAdapter, vocabulary, CimAdapter/Spotify, ISRC Coverage, Publishing expansion) remain Board-deferred until authorized individually. |
+| **Vote** | Board Approved — UNANIMOUS |
+| **PR Number** | #192 (harness) · #193 (governance backfill) |
+| **Commit SHA** | `65c5c16` (harness) |
+| **Tag** | `royalte-os-v1.0` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-02 — Phase 3.4 Product Consumption Cleanup — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Board ratifies Phase 3.4 — Product Consumption Cleanup. The Website Scan renderer is now a constitutional presentation layer: zero business logic, zero intelligence computation. All displayed fields read from the Certified CIM. ISRC Coverage is a permanent constitutional intelligence field owned by `assembleCatalogIntelligence` in the RIE. Catalog Availability reads from `globalMusicFootprint.status` (certified by the RIE from 167-storefront PAL evidence). |
+| **Directives adopted** | (1) Website Scan performs zero business intelligence — renderer reads only. (2) Certified CIM is the sole source of truth for all displayed values. (3) ISRC Coverage vocabulary locked: Unknown / Limited / Partial / Complete. ISRC_THRESHOLDS (75/25/1) pending formal Board ratification. (4) Catalog Availability vocabulary: Global / Strong / Regional / Limited (from globalMusicFootprint). (5) trackIsrc single-track sentinel PERMANENTLY EXCLUDED as proxy for catalog ISRC coverage. |
+| **Impact** | Parity gaps resolved — ISRC and Catalog Availability produce identical results regardless of entry point. Mission Control renderCatalog extended with isrcCoverage in plan (v1.1). |
+| **Vote** | Board Approved |
+| **PR Number** | #190 |
+| **Commit SHA** | `8a71df7` (pending merge) |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-02 — Engineering Rule: Every Migration Must Leave Less Legacy
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Effective immediately: every provider migration must reduce the legacy footprint — it must never increase it. Each migration must migrate ownership, reduce compatibility code, reduce duplicate logic, reduce duplicate provider calls, and reduce duplicate business rules. The Migration Retirement Register (`governance/MIGRATION_RETIREMENT_REGISTER.md`) is the Board's master checklist for tracking and retiring every transitional component. |
+| **Reason** | The Apple Production Migration established the blueprint. Future migrations must follow the same discipline and leave the codebase measurably smaller in legacy debt after each phase. |
+| **Impact** | All future migration briefs must include a legacy retirement delta (components moving from TRANSITIONAL → READY FOR RETIREMENT → RETIRED). The register is updated after every migration. |
+| **Vote** | Board Approved |
+| **PR Number** | #189 |
+| **Commit SHA** | `584770d` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-02 — Apple Production Migration (Phase 3.3) — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | Apple Music is now the first production provider fully migrated into the Royaltē Operating System. All Apple acquisition routes exclusively through the Provider Acquisition Layer → AppleMusicConnector → Evidence Contract → Royaltē Intelligence Engine. `run-scan.js` no longer owns Apple acquisition logic. `getAppleMusic()` has zero production callers and is marked READY FOR RETIREMENT. The `AppleMusicConnector` gains global 167-storefront AVAILABILITY capability. The RIE gains a constitutional hybrid merge path for the transitional period while other providers migrate. |
+| **Reason** | The Board's migration directive required proving the constitutional production architecture can successfully replace the legacy production path while preserving all existing functionality. PR #189 achieves this objective and establishes the migration blueprint every subsequent provider will follow. |
+| **Impact** | Production architecture is now: Artist → run-scan → PAL → AppleMusicConnector → Evidence Contract → RIE → CIM → Products. This is the constitutional production blueprint. Future provider migrations (Spotify, MusicBrainz, Deezer, etc.) follow this exact pattern without inventing new architecture. |
+| **Vote** | Board Approved — full acceptance testing passed |
+| **PR Number** | #189 |
+| **Commit SHA** | `584770d` |
+| **Tag** | `apple-pal-production-migration-v1.0` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-07-02 — One Health Engine (Phase 3.2) — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-02 |
+| **Decision** | `cim.health.score` is now the sole authoritative health score in production. `computeV2HealthScore` is retired with zero production consumers. `persist-os-scan.js` reads health from `cim.health` (the Royaltē Health Engine™ output) exclusively. The CimAdapter carries `cim.health` forward as the backward-compat `canonical.health` field. |
+| **Reason** | Two health score sources created ambiguity. The V2 signal-driven score and the constitutional Health Engine score coexisted. One Health Engine eliminates this duplication — the CIM is the single source of truth for health, scores, grades, and drivers. |
+| **Impact** | Every health surface (Mission Control health card, audit health badge, executive brief, PDF) reads from one source: the constitutional Royaltē Health Engine™. `computeV2HealthScore` function retired and removed from production paths. |
+| **Vote** | Board Approved |
+| **PR Number** | #188 |
+| **Commit SHA** | `aca5571` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-06-25 — Mission Control Module Freeze Directive
+
+| | |
+|---|---|
+| **Date** | 2026-06-25 |
+| **Decision** | All Mission Control™ modules are frozen. Only the module currently designated as the active Build Pass target may receive any changes. No other module's layout, wiring, data, copy, styling, or behavior may be modified while it is frozen. The freeze lifts for a module only when the Board explicitly opens a Build Pass for it. |
+| **Reason** | Concurrent edits across multiple modules during Board review create ambiguity about what is being approved. Isolating changes to one module at a time ensures the Board is approving a known, stable surface. |
+| **Impact** | Any PR touching a frozen module must be blocked until the Board opens that module. Engineers must confirm the target module before beginning any Build Pass work. Currently frozen: Identity Intelligence™, Publishing Intelligence™, Backend Intelligence™ (Build Pass 3 complete — now frozen), Catalog Intelligence™, Global Music Footprint™, Royaltē AI™, Health Intelligence™, Monitoring Intelligence™. |
+| **Vote** | Board Approved |
+| **PR Number** | — |
+| **Commit SHA** | 62dbed5 (last merge, Build Pass 3 completion) |
+| **Constitution update required** | No |
+
+---
+
+### 2026-06-20 — Phase 8: Scan Pipeline Wiring — Health & Executive Brief
+
+| | |
+|---|---|
+| **Date** | 2026-06-20 |
+| **Decision** | Wire `computeHealthScore()`, `generateHealthReport()`, and `generateExecutiveBrief()` into the production scan pipeline in `api/audit.js` as step 5 of `assembleIntelligenceForScan()`. `computeHealthScore()` is called exactly once per scan; the canonical result is passed downstream to `generateHealthReport()` and `generateExecutiveBrief()` — never re-derived by consumers. `generateExecutiveBrief()` signature updated to the Board-approved 4-argument form: `(cio, intelligenceReport, healthReport, canonicalHealth)`. Layer ownership enforced: `canonicalHealth` owns all scores/grades; `intelligenceReport` owns all arrays; `healthReport` owns `generatedAt`. `healthScore`, `healthReport`, and `executiveBrief` persisted in the enriched scan payload. `executive-brief-engine-test.mjs` migrated to the new 4-arg signature (40 → 40 assertions, zero coverage lost). |
+| **Reason** | All intelligence layers existed independently but were not connected into the scan execution path. Phase 8 closes the loop: every production scan now produces a full constitutional intelligence pipeline output. |
+| **Impact** | Every scan now produces: CIO → Intelligence Report → Health Score → Health Report → Executive Brief. All five outputs persisted for downstream consumers. `computeHealthScore()` is the single canonical scoring authority per scan — called once, passed everywhere. |
+| **Vote** | Board Approved Unanimous |
+| **PR Number** | #155 |
+| **Commit SHA** | `17f462f` |
+| **Tag** | `phase-8-scan-pipeline-wiring-v1.0` |
+| **Constitution update required** | No |
+
+---
+
+### 2026-06-20 — Roadmap Governance Correction
+
+| | |
+|---|---|
+| **Date** | 2026-06-20 |
+| **Decision** | Correct `governance/ROADMAP.md` to reflect constitutional truth. Add Phase 6C and Phase 6D rows as ✅ Complete. Revert Phases 7, 7.5, 8, and 9+ from ✅ Complete to ⬜ Planned. Rewrite "What's Live in main Today" to describe only code present on `main`. Rename "Anticipated Phase 7" to "Next Engineering Target" with Board-mandated prefix. |
+| **Reason** | The roadmap had incorrectly listed Phases 7, 7.5, and 8 as Complete. The Board principle is "Roadmap = Truth" — the roadmap must only reflect phases that have completed the full constitutional governance process. Phases 6C and 6D were missing from the table entirely. |
+| **Impact** | Roadmap now accurately reflects the current constitutional state of the platform: Phases 1–6D complete; Phase 7+ planned. No code changes. No Constitution amendment required. |
+| **Vote** | Board APPROVED |
+| **PR Number** | (governance backfill — same PR as Phase 6D SHA backfill) |
+| **Constitution update required** | No |
+
+---
+
+### 2026-06-20 — Phase 6D: Catalog Rule Library Migration Layer
+
+| | |
+|---|---|
+| **Date** | 2026-06-20 |
+| **Decision** | Add a dual-read migration layer to `api/rules/catalog-rules.js` connecting the Rule Library to the Canonical Catalog Model™ (`cio.catalog.catalogModel`). Introduces `catalogField(cio, fieldName)` as the single migration helper (reads `catalogModel` first, falls back to legacy `cio.catalog` fields; `hasOwnProperty.call()` for prototype safety), `readonlyCatalogValue(cio, value)` (deep-frozen `structuredClone()` with per-scan WeakMap cache keyed by CIO object), cycle-safe `deepFreeze()` with WeakSet guard, and orphan detection derived from `releaseIds[]` semantics on `catalogModel.recordings`. Full backward compatibility with legacy CIO shapes. 139/139 regression assertions passing across 6 test suites. |
+| **Reason** | The Canonical Catalog Model™ (Phase 6C) introduced a new facts source that the Rule Library must consume without breaking legacy consumers. Phase 6D is the governed migration: catalog rules become authoritative consumers of `catalogModel` while the legacy fallback ensures zero behavioral change for scans without a catalog model. Immutability is constitutional — rules consume facts, never own or mutate them. |
+| **Impact** | Rule Library catalog rules now derive facts from the Canonical Catalog Model™. `catalogField()` is the single read path. Orphan detection is derived from `releaseIds[]` semantics rather than a legacy `orphanRecordings[]` array. The per-scan WeakMap cache prevents repeated `structuredClone()` on the same catalog object within one evaluation cycle. |
+| **Vote** | Board APPROVED UNANIMOUS |
+| **PR Number** | #152 |
+| **Commit SHA** | `2979410` |
+| **Tag** | `phase-6d-catalog-rule-migration-v1.0` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-06-12 — Phase 8: Royaltē Executive Brief Engine™
 
 | | |

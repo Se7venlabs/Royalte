@@ -180,16 +180,24 @@ it('10 duplicate profiles → identityScore < 100', () => {
   assert.ok(r.identityScore < 100, 'expected < 100, got ' + r.identityScore);
 });
 
-it('11 missing publishing → publishingScore <= 80 (brief: < 80; HIGH=-20 floors at exactly 80)', () => {
-  const ir = reportFor('artist-missing-publishing');
+it('11 verified MLC absence → publishingScore < 100 (Board Directive v2.0: MEDIUM=-10)', () => {
+  // artist-mlc-no-registrations has MLC VERIFIED + 0 works → MEDIUM deduction (-10).
+  // artist-missing-publishing has no MLC obs → Unable to Confirm → no deduction (score stays 100).
+  const ir = reportFor('artist-mlc-no-registrations');
   const r  = computeHealthScore(ir);
-  assert.ok(r.publishingScore <= 80, 'expected <= 80, got ' + r.publishingScore);
+  assert.ok(r.publishingScore < 100, 'expected < 100, got ' + r.publishingScore);
 });
 
-it('12 missing publishing → riskCount > 0', () => {
+it('12 verified MLC absence → opportunityCount > 0 (MEDIUM routes to opportunities)', () => {
+  const ir = reportFor('artist-mlc-no-registrations');
+  const r  = computeHealthScore(ir);
+  assert.ok(r.opportunityCount > 0, 'expected > 0, got ' + r.opportunityCount);
+});
+
+it('12b unable-to-confirm publishing (no MLC obs) → no publishingScore penalty (Board Directive v2.0)', () => {
   const ir = reportFor('artist-missing-publishing');
   const r  = computeHealthScore(ir);
-  assert.ok(r.riskCount > 0, 'expected > 0, got ' + r.riskCount);
+  assert.equal(r.publishingScore, 100, 'no deduction when MLC not searched — Unable to Confirm carries no penalty');
 });
 
 it('13 orphan recordings → catalogScore <= 80 (brief: < 80; HIGH=-20 floors at exactly 80)', () => {
@@ -212,10 +220,10 @@ it('15 metadata conflicts → metadataScore < 100', () => {
 
 // ─── Tests 16-18 — derived-collection counts ─────────────────────
 
-it('16 HIGH obs → appears in riskCount', () => {
-  const ir = reportFor('artist-missing-publishing'); // fires HIGH publishing
+it('16 MEDIUM obs → appears in opportunityCount', () => {
+  const ir = reportFor('artist-mlc-no-registrations'); // fires MEDIUM publishing
   const r  = computeHealthScore(ir);
-  assert.ok(r.riskCount > 0);
+  assert.ok(r.opportunityCount > 0);
 });
 
 it('17 MEDIUM obs → appears in opportunityCount', () => {

@@ -21,7 +21,6 @@
 // returned without monitoring", never to a 5xx.
 
 import { computeDelta } from './delta-engine.js';
-import { computeV2HealthScore, getHealthBand } from '../lib/health-score.js';
 
 const RESCAN_INTERVAL_DAYS = 7;
 
@@ -191,15 +190,9 @@ export function buildCanonicalDataV2(canonical) {
   };
 }
 
-// V2 Health Score — implementation extracted 2026-06-09 to
-// api/lib/health-score.js (Canonical Payload V2 Phase 1: Health
-// Object Migration). Both this persist path and the normalize path
-// import from there per Constitutional rule "Compute Once. Consume
-// Everywhere." Existing call site below is preserved; no behavior
-// change. Re-export here so downstream tests/consumers that previously
-// imported from this module continue working unchanged through the
-// migration window.
-export { computeV2HealthScore, getHealthBand };
+// Board Directive (One Health Engine, 2026-07-02): V2 health engine retired.
+// health_score is now sourced from canonical.cim.health.score (Phase 7 RIE output).
+// computeV2HealthScore and getHealthBand are no longer imported or re-exported.
 
 export async function persistOSScanSnapshot({
   canonical,
@@ -250,11 +243,10 @@ export async function persistOSScanSnapshot({
   // seen — no V1 read-path change.
   const canonicalDataV2 = buildCanonicalDataV2(canonical);
 
-  // ── V2 health score (Brief 012a follow-up) ─────────────────────────────
-  //    Computed at insert time from verified signals only. The delta
-  //    engine no longer touches health_score; score reflects what is
-  //    verified now, not what changed since the last scan.
-  const v2 = computeV2HealthScore(canonical);
+  // ── CIM health score (One Health Engine directive, 2026-07-02) ───────────
+  //    Read directly from canonical.cim.health — the certified Phase 7 output.
+  //    The delta engine does not touch health_score.
+  const cimHealth = canonical.cim?.health ?? null;
 
   // ── Insert the snapshot ────────────────────────────────────────────────
   const insertRow = {
@@ -268,8 +260,8 @@ export async function persistOSScanSnapshot({
     payload:         canonical,
     source:          sourceFromUrlType(urlType),
     status:          warnings && warnings.length > 0 ? 'partial' : 'complete',
-    health_score:    v2.score,
-    score_breakdown: { ...v2.breakdown, drivers: v2.drivers },
+    health_score:    cimHealth?.score          ?? null,
+    score_breakdown: cimHealth?.categoryBreakdown ?? null,
   };
 
   const { data: inserted, error: insertErr } = await supabase
@@ -303,10 +295,11 @@ export async function persistOSScanSnapshot({
   }
 
   // ── Delta engine — non-blocking per Brief 003 ──────────────────────────
-  let alertCount = 0;
+  let alertCount      = 0;
+  let generatedAlerts = [];
   try {
-    const alerts = await computeDelta(inserted, previousSnapshot, supabase);
-    alertCount = Array.isArray(alerts) ? alerts.length : 0;
+    generatedAlerts = await computeDelta(inserted, previousSnapshot, supabase);
+    alertCount = Array.isArray(generatedAlerts) ? generatedAlerts.length : 0;
     console.log(`[delta] ${alertCount} alerts emitted for ${artistName}`);
   } catch (deltaErr) {
     console.error('[delta] computeDelta failed (non-blocking):', deltaErr.message);
@@ -315,10 +308,13 @@ export async function persistOSScanSnapshot({
   // ── monitoring_subscriptions upsert — also non-blocking. Failure here
   //    means the user got their scan + alerts but the next-rescan schedule
   //    didn't update; the cron's own bookkeeping will catch up next pass.
+  //
+  // capturedAt / nextScanAt are hoisted outside the try so they can be
+  // returned to audit.js and threaded into Monitoring Intelligence™.
+  const capturedAt = new Date();
+  const nextScanDate = new Date(capturedAt);
+  nextScanDate.setDate(nextScanDate.getDate() + RESCAN_INTERVAL_DAYS);
   try {
-    const now = new Date();
-    const nextScan = new Date(now);
-    nextScan.setDate(nextScan.getDate() + RESCAN_INTERVAL_DAYS);
     const { error: subErr } = await supabase
       .from('monitoring_subscriptions')
       .upsert(
@@ -327,8 +323,8 @@ export async function persistOSScanSnapshot({
           artist_id:       artistId,
           artist_name:     artistName,
           scan_frequency:  'weekly',
-          last_scanned_at: now.toISOString(),
-          next_scan_at:    nextScan.toISOString(),
+          last_scanned_at: capturedAt.toISOString(),
+          next_scan_at:    nextScanDate.toISOString(),
           active:          true,
         },
         { onConflict: 'user_id,artist_id' },
@@ -341,10 +337,13 @@ export async function persistOSScanSnapshot({
   }
 
   return {
-    written:    true,
-    snapshotId: inserted.id,
+    written:     true,
+    snapshotId:  inserted.id,
     scanNumber,
     alertCount,
+    alerts:      Array.isArray(generatedAlerts) ? generatedAlerts : [],
+    capturedAt:  capturedAt.toISOString(),   // Evidence Snapshot Store™ — last scan time
+    nextScanAt:  nextScanDate.toISOString(), // Monitoring Policy™ — next scheduled scan
   };
 }
 

@@ -2,22 +2,28 @@
 //  Royaltē Executive Brief Engine™ — deterministic test suite (Phase 8)
 // ─────────────────────────────────────────────────────────────────────
 //
-//  Exercises generateExecutiveBrief() against:
-//    (a) the Phase 6.5 Golden Fixture Library piped through the
-//        Phase 6 Intelligence Engine + Phase 7 Health Engine + an
-//        "enriched HealthReport" bundle, and
-//    (b) synthetic HealthReports with directly-constructed upstream
-//        arrays for the contract-level assertions.
+//  Exercises generateExecutiveBrief(cio, intelligenceReport, healthReport,
+//  canonicalHealth) against:
+//    (a) the Phase 6.5 Golden Fixture Library piped through the full
+//        constitutional pipeline, and
+//    (b) synthetic canonicalHealth objects for contract-level assertions
+//        that need specific score values.
 //
-//  All 40 assertions are deterministic (no network, no clock — the
-//  engine inherits `generatedAt` verbatim).
+//  Canonical ownership per Board directive:
+//    cio               → artistName
+//    intelligenceReport → arrays (strengths/risks/opportunities/
+//                          recommendations/observations)
+//    healthReport      → generatedAt (presentation metadata)
+//    canonicalHealth   → all score and grade fields
 //
-//  Input-shape note: the Phase 7 HealthReport carries only counts
-//  (strengthCount, riskCount, …); the upstream `strengths[]`,
-//  `risks[]`, `opportunities[]`, `recommendations[]` arrays live on
-//  the Phase 6 engineOutput. Callers pass an "enriched HealthReport"
-//  that bundles both. The engine reads the upstream arrays
-//  defensively (empty when absent) and NEVER invents entries.
+//  Contract-level tests that intentionally supply empty or absent upstream
+//  objects use Object.freeze(Object.create(null)) — immutable, prototype-
+//  free, consistent with Royaltē's deep-freeze philosophy — for cio,
+//  intelligenceReport, and healthReport slots only.
+//
+//  The canonicalHealth slot always receives syntheticCanonicalHealth()
+//  (or a real pipeline value) because the production pipeline never
+//  executes generateExecutiveBrief without a canonical health object.
 // ─────────────────────────────────────────────────────────────────────
 
 import { strict as assert } from 'node:assert';
@@ -25,12 +31,14 @@ import { execSync } from 'node:child_process';
 import { loadFixture } from './fixtures/fixture-loader.mjs';
 import { runIntelligenceEngine } from '../api/_lib/intelligence-engine.js';
 import { ALL_RULES } from '../api/rules/index.js';
-import { computeHealthScore } from '../api/_lib/health-engine.js';
+import {
+  computeHealthScore,
+  generateHealthReport,
+} from '../api/_lib/health-engine.js';
 import {
   BRIEF_VERSION,
   HEALTH_HEADLINES,
   RECOMMENDED_NEXT_STEPS,
-  emptyBrief,
   generateExecutiveBrief,
 } from '../api/_lib/executive-brief-engine.js';
 
@@ -43,24 +51,20 @@ function it(name, fn) {
 
 // ─── Helpers ──────────────────────────────────────────────────────
 
-function enrichedHealthReportFor(fixtureName) {
+// Full constitutional pipeline for a named fixture.
+// Returns { cio, ir, hr, ch } — one object per layer.
+function pipelineFor(fixtureName) {
   const cio = loadFixture(fixtureName);
   const ir  = runIntelligenceEngine(cio, ALL_RULES);
-  const hr  = computeHealthScore(ir);
-  return {
-    ...hr,
-    strengths:       ir.strengths,
-    risks:           ir.risks,
-    opportunities:   ir.opportunities,
-    recommendations: ir.recommendations,
-    observations:    ir.observations,
-  };
+  const ch  = computeHealthScore(ir);
+  const hr  = generateHealthReport(cio, ir);
+  return { cio, ir, hr, ch };
 }
 
-function syntheticHealthReport(overrides = {}) {
+// Synthetic canonicalHealth for tests that need specific score values.
+// Mirrors the computeHealthScore() output shape.
+function syntheticCanonicalHealth(overrides = {}) {
   return {
-    healthVersion:       '1.0.0',
-    generatedAt:         '2026-06-12T00:00:00.000Z',
     overallScore:        50,
     overallGrade:        'F',
     identityScore:       50,
@@ -73,17 +77,17 @@ function syntheticHealthReport(overrides = {}) {
     riskCount:           0,
     opportunityCount:    0,
     recommendationCount: 0,
-    categoryBreakdown:   [],
+    generatedAt:         '2026-06-20T00:00:00.000Z',
     summary:             '',
-    reserved:            { monitoring: null, revenue: null },
-    strengths:           [],
-    risks:               [],
-    opportunities:       [],
-    recommendations:     [],
-    observations:        [],
     ...overrides,
   };
 }
+
+// Immutable null-prototype placeholder for upstream layers in synthetic
+// contract tests. Frozen + prototype-free: no inherited props, no
+// mutation during testing, consistent with Royaltē's deep-freeze
+// philosophy. Used for cio, intelligenceReport, healthReport slots only.
+const empty = () => Object.freeze(Object.create(null));
 
 function isValidISO(s) {
   if (typeof s !== 'string' || s.length === 0) return false;
@@ -127,66 +131,66 @@ console.log('');
 
 // ─── Tests 1-4 — input tolerance ──────────────────────────────────
 
-it('01 null input → valid brief, no throw', () => {
-  const b = generateExecutiveBrief(null);
+it('01 null canonicalHealth → fail-closed: valid brief, no throw', () => {
+  const b = generateExecutiveBrief(empty(), empty(), empty(), null);
   assert.ok(isValidBriefShape(b));
   assert.equal(b.briefVersion, BRIEF_VERSION);
 });
 
-it('02 undefined input → valid brief, no throw', () => {
-  const b = generateExecutiveBrief(undefined);
+it('02 undefined canonicalHealth → fail-closed: valid brief, no throw', () => {
+  const b = generateExecutiveBrief(empty(), empty(), empty(), undefined);
   assert.ok(isValidBriefShape(b));
 });
 
-it('03 garbage string → valid brief, no throw', () => {
-  const b = generateExecutiveBrief('not a health report');
+it('03 null intelligenceReport → fail-closed: valid brief, no throw', () => {
+  const ch = syntheticCanonicalHealth();
+  const b  = generateExecutiveBrief(empty(), null, empty(), ch);
   assert.ok(isValidBriefShape(b));
 });
 
-it('04 empty object → valid brief, no throw', () => {
-  const b = generateExecutiveBrief({});
+it('04 absent upstream layers with canonical health → valid brief, no throw', () => {
+  const b = generateExecutiveBrief(empty(), empty(), empty(), syntheticCanonicalHealth());
   assert.ok(isValidBriefShape(b));
 });
 
 // ─── Tests 5-6 — grade-derived headlines ──────────────────────────
 
-it('05 perfect health report → grade A/B headline', () => {
-  const hr = enrichedHealthReportFor('artist-perfect');
-  const b  = generateExecutiveBrief(hr);
-  assert.ok(['A+', 'A', 'B'].includes(hr.overallGrade), 'grade ' + hr.overallGrade);
-  assert.equal(b.healthHeadline, HEALTH_HEADLINES[hr.overallGrade]);
+it('05 perfect fixture → high-grade headline', () => {
+  const { cio, ir, hr, ch } = pipelineFor('artist-perfect');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
+  assert.ok(['A+', 'A', 'B'].includes(ch.overallGrade), 'grade=' + ch.overallGrade);
+  assert.equal(b.healthHeadline, HEALTH_HEADLINES[ch.overallGrade]);
 });
 
-it('06 poor health report → grade D/F headline', () => {
-  const hr = syntheticHealthReport({ overallGrade: 'F', overallScore: 30 });
-  const b  = generateExecutiveBrief(hr);
-  assert.ok(['D', 'F'].includes(hr.overallGrade));
-  assert.equal(b.healthHeadline, HEALTH_HEADLINES[hr.overallGrade]);
+it('06 low-grade synthetic → matching headline', () => {
+  const ch = syntheticCanonicalHealth({ overallGrade: 'F', overallScore: 30 });
+  const b  = generateExecutiveBrief(empty(), empty(), empty(), ch);
+  assert.equal(b.healthHeadline, HEALTH_HEADLINES['F']);
 });
 
 // ─── Tests 7-10 — summary / narrative shape ──────────────────────
 
 it('07 executiveSummary non-empty string', () => {
-  const hr = enrichedHealthReportFor('artist-perfect');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-perfect');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.ok(typeof b.executiveSummary === 'string' && b.executiveSummary.length > 0);
 });
 
 it('08 executiveSummary max 300 words', () => {
-  const hr = enrichedHealthReportFor('artist-fragmented-catalog');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-fragmented-catalog');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.ok(wordCount(b.executiveSummary) <= 300, 'words=' + wordCount(b.executiveSummary));
 });
 
 it('09 executiveNarrative non-empty string', () => {
-  const hr = enrichedHealthReportFor('artist-perfect');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-perfect');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.ok(typeof b.executiveNarrative === 'string' && b.executiveNarrative.length > 0);
 });
 
 it('10 executiveNarrative max 150 words', () => {
-  const hr = enrichedHealthReportFor('artist-fragmented-catalog');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-fragmented-catalog');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.ok(wordCount(b.executiveNarrative) <= 150, 'words=' + wordCount(b.executiveNarrative));
 });
 
@@ -194,8 +198,8 @@ it('10 executiveNarrative max 150 words', () => {
 
 it('11 healthHeadline maps from HEALTH_HEADLINES across all 6 grades', () => {
   for (const grade of Object.keys(HEALTH_HEADLINES)) {
-    const hr = syntheticHealthReport({ overallGrade: grade });
-    const b  = generateExecutiveBrief(hr);
+    const ch = syntheticCanonicalHealth({ overallGrade: grade });
+    const b  = generateExecutiveBrief(empty(), empty(), empty(), ch);
     assert.equal(b.healthHeadline, HEALTH_HEADLINES[grade], 'grade=' + grade);
   }
 });
@@ -209,8 +213,8 @@ it('12 topStrengths max 5 items', () => {
     title: 'Strength ' + i, description: '', recommendation: '',
     evidence: [], providerSources: [],
   }));
-  const hr = syntheticHealthReport({ strengths, strengthCount: 8 });
-  const b  = generateExecutiveBrief(hr);
+  const ir = { strengths };
+  const b  = generateExecutiveBrief(empty(), ir, empty(), syntheticCanonicalHealth({ strengthCount: 8 }));
   assert.ok(b.topStrengths.length <= 5, 'len=' + b.topStrengths.length);
 });
 
@@ -219,8 +223,8 @@ it('13 topRisks max 5 items', () => {
     observationId: 'obs_r' + i, ruleId: 'rule.r' + i,
     category: 'IDENTITY', severity: 'HIGH', title: 'Risk ' + i,
   }));
-  const hr = syntheticHealthReport({ risks, riskCount: 8 });
-  const b  = generateExecutiveBrief(hr);
+  const ir = { risks };
+  const b  = generateExecutiveBrief(empty(), ir, empty(), syntheticCanonicalHealth({ riskCount: 8 }));
   assert.ok(b.topRisks.length <= 5);
 });
 
@@ -229,8 +233,8 @@ it('14 topOpportunities max 5 items', () => {
     observationId: 'obs_o' + i, ruleId: 'rule.o' + i,
     category: 'CATALOG', severity: 'MEDIUM', title: 'Opp ' + i,
   }));
-  const hr = syntheticHealthReport({ opportunities, opportunityCount: 8 });
-  const b  = generateExecutiveBrief(hr);
+  const ir = { opportunities };
+  const b  = generateExecutiveBrief(empty(), ir, empty(), syntheticCanonicalHealth({ opportunityCount: 8 }));
   assert.ok(b.topOpportunities.length <= 5);
 });
 
@@ -239,8 +243,8 @@ it('15 priorityActions max 5 items', () => {
     observationId: 'obs_a' + i, ruleId: 'rule.a' + i,
     recommendation: 'Action ' + i,
   }));
-  const hr = syntheticHealthReport({ recommendations, recommendationCount: 8 });
-  const b  = generateExecutiveBrief(hr);
+  const ir = { recommendations };
+  const b  = generateExecutiveBrief(empty(), ir, empty(), syntheticCanonicalHealth({ recommendationCount: 8 }));
   assert.ok(b.priorityActions.length <= 5);
 });
 
@@ -252,8 +256,8 @@ it('16 topRisks ordered by severity (CRITICAL first)', () => {
     { observationId: 'b', ruleId: 'r2', category: 'PUBLISHING', severity: 'CRITICAL', title: 'Critical risk' },
     { observationId: 'c', ruleId: 'r3', category: 'CATALOG',    severity: 'MEDIUM',   title: 'Medium risk' },
   ];
-  const hr = syntheticHealthReport({ risks, riskCount: 3 });
-  const b  = generateExecutiveBrief(hr);
+  const ir = { risks };
+  const b  = generateExecutiveBrief(empty(), ir, empty(), syntheticCanonicalHealth({ riskCount: 3 }));
   assert.equal(b.topRisks[0].severity, 'CRITICAL', 'first severity=' + b.topRisks[0].severity);
   assert.equal(b.topRisks[1].severity, 'HIGH');
   assert.equal(b.topRisks[2].severity, 'MEDIUM');
@@ -261,13 +265,13 @@ it('16 topRisks ordered by severity (CRITICAL first)', () => {
 
 // ─── Test 17 — priorityActions never invented ────────────────────
 
-it('17 priorityActions come only from healthReport.recommendations (never invented)', () => {
+it('17 priorityActions come only from intelligenceReport.recommendations (never invented)', () => {
   const recommendations = [
     { observationId: 'a', ruleId: 'r1', recommendation: 'Do X' },
     { observationId: 'b', ruleId: 'r2', recommendation: 'Do Y' },
   ];
-  const hr = syntheticHealthReport({ recommendations, recommendationCount: 2 });
-  const b  = generateExecutiveBrief(hr);
+  const ir = { recommendations };
+  const b  = generateExecutiveBrief(empty(), ir, empty(), syntheticCanonicalHealth({ recommendationCount: 2 }));
   assert.ok(b.priorityActions.length > 0);
   const inputRecs = new Set(recommendations.map((r) => r.recommendation));
   for (const a of b.priorityActions) {
@@ -278,34 +282,33 @@ it('17 priorityActions come only from healthReport.recommendations (never invent
 // ─── Tests 18-19 — confidence statement templates ────────────────
 
 it('18 confidenceStatement HIGH → correct template', () => {
-  const hr = syntheticHealthReport({ confidenceScore: 90 });
-  const b  = generateExecutiveBrief(hr);
+  const ch = syntheticCanonicalHealth({ confidenceScore: 90 });
+  const b  = generateExecutiveBrief(empty(), empty(), empty(), ch);
   assert.equal(b.confidenceStatement, 'This assessment is based on verified intelligence from multiple sources.');
 });
 
 it('19 confidenceStatement UNKNOWN → correct template', () => {
-  const hr = syntheticHealthReport({ confidenceScore: 0 });
-  const b  = generateExecutiveBrief(hr);
+  const ch = syntheticCanonicalHealth({ confidenceScore: 0 });
+  const b  = generateExecutiveBrief(empty(), empty(), empty(), ch);
   assert.equal(b.confidenceStatement, 'Confidence level has not yet been determined for this assessment.');
 });
 
 // ─── Tests 20-21 — recommended next step ─────────────────────────
 
 it('20 recommendedNextStep non-empty string', () => {
-  const hr = enrichedHealthReportFor('artist-missing-publishing');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-missing-publishing');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.ok(typeof b.recommendedNextStep === 'string' && b.recommendedNextStep.length > 0);
 });
 
 it('21 recommendedNextStep value drawn from RECOMMENDED_NEXT_STEPS', () => {
   const allValues = new Set(Object.values(RECOMMENDED_NEXT_STEPS));
-  // exercise via every fixture so multiple paths hit
   const fixtures = ['artist-empty', 'artist-perfect', 'artist-duplicate-profiles',
                     'artist-missing-publishing', 'artist-orphan-recordings',
                     'artist-fragmented-catalog', 'artist-metadata-conflicts'];
   for (const f of fixtures) {
-    const hr = enrichedHealthReportFor(f);
-    const b  = generateExecutiveBrief(hr);
+    const { cio, ir, hr, ch } = pipelineFor(f);
+    const b = generateExecutiveBrief(cio, ir, hr, ch);
     assert.ok(allValues.has(b.recommendedNextStep), f + ': ' + b.recommendedNextStep);
   }
 });
@@ -313,109 +316,112 @@ it('21 recommendedNextStep value drawn from RECOMMENDED_NEXT_STEPS', () => {
 // ─── Tests 22-23 — AI executive insight ──────────────────────────
 
 it('22 aiExecutiveInsight non-empty string', () => {
-  const hr = enrichedHealthReportFor('artist-perfect');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-perfect');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.ok(typeof b.aiExecutiveInsight === 'string' && b.aiExecutiveInsight.length > 0);
 });
 
 it('23 aiExecutiveInsight max 120 words', () => {
-  const hr = enrichedHealthReportFor('artist-fragmented-catalog');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-fragmented-catalog');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.ok(wordCount(b.aiExecutiveInsight) <= 120, 'words=' + wordCount(b.aiExecutiveInsight));
 });
 
 // ─── Tests 24-26 — immutability + determinism ────────────────────
 
 it('24 output is Object.isFrozen (deeply)', () => {
-  const hr = enrichedHealthReportFor('artist-perfect');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-perfect');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.ok(Object.isFrozen(b));
   assert.ok(isDeepFrozen(b), 'nested value not frozen');
 });
 
-it('25 input not mutated after generateExecutiveBrief', () => {
-  const hr     = enrichedHealthReportFor('artist-fragmented-catalog');
-  const before = JSON.stringify(hr);
-  generateExecutiveBrief(hr);
-  const after  = JSON.stringify(hr);
-  assert.equal(before, after);
+it('25 inputs not mutated after generateExecutiveBrief', () => {
+  const { cio, ir, hr, ch } = pipelineFor('artist-fragmented-catalog');
+  const beforeIr = JSON.stringify(ir);
+  const beforeHr = JSON.stringify(hr);
+  const beforeCh = JSON.stringify(ch);
+  generateExecutiveBrief(cio, ir, hr, ch);
+  assert.equal(JSON.stringify(ir), beforeIr, 'intelligenceReport was mutated');
+  assert.equal(JSON.stringify(hr), beforeHr, 'healthReport was mutated');
+  assert.equal(JSON.stringify(ch), beforeCh, 'canonicalHealth was mutated');
 });
 
 it('26 deterministic: same input → identical JSON', () => {
-  const hr = enrichedHealthReportFor('artist-fragmented-catalog');
-  const a  = generateExecutiveBrief(hr);
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-fragmented-catalog');
+  const a = generateExecutiveBrief(cio, ir, hr, ch);
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.equal(JSON.stringify(a), JSON.stringify(b));
 });
 
 // ─── Tests 27-28 — envelope ──────────────────────────────────────
 
 it('27 briefVersion matches BRIEF_VERSION constant', () => {
-  const hr = enrichedHealthReportFor('artist-perfect');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-perfect');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.equal(b.briefVersion, BRIEF_VERSION);
 });
 
-it('28 generatedAt is valid ISO timestamp (inherited from input)', () => {
-  const hr = enrichedHealthReportFor('artist-perfect');
-  const b  = generateExecutiveBrief(hr);
+it('28 generatedAt is valid ISO timestamp (inherited from healthReport)', () => {
+  const { cio, ir, hr, ch } = pipelineFor('artist-perfect');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.ok(isValidISO(b.generatedAt), 'generatedAt=' + b.generatedAt);
 });
 
 // ─── Tests 29-30 — reserved sections ─────────────────────────────
 
 it('29 reserved.monitoring === null', () => {
-  const hr = enrichedHealthReportFor('artist-perfect');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-perfect');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.equal(b.reserved.monitoring, null);
 });
 
 it('30 reserved.revenue === null', () => {
-  const hr = enrichedHealthReportFor('artist-perfect');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-perfect');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.equal(b.reserved.revenue, null);
 });
 
 // ─── Tests 31-34 — empty-array fall-through ──────────────────────
 
-it('31 topStrengths empty when no strengths in report', () => {
-  const hr = syntheticHealthReport({ strengths: [] });
-  const b  = generateExecutiveBrief(hr);
+it('31 topStrengths empty when no strengths in intelligenceReport', () => {
+  const ir = { strengths: [] };
+  const b  = generateExecutiveBrief(empty(), ir, empty(), syntheticCanonicalHealth({ strengthCount: 0 }));
   assert.equal(b.topStrengths.length, 0);
 });
 
-it('32 topRisks empty when no risks in report', () => {
-  const hr = syntheticHealthReport({ risks: [] });
-  const b  = generateExecutiveBrief(hr);
+it('32 topRisks empty when no risks in intelligenceReport', () => {
+  const ir = { risks: [] };
+  const b  = generateExecutiveBrief(empty(), ir, empty(), syntheticCanonicalHealth({ riskCount: 0 }));
   assert.equal(b.topRisks.length, 0);
 });
 
-it('33 topOpportunities empty when no opportunities', () => {
-  const hr = syntheticHealthReport({ opportunities: [] });
-  const b  = generateExecutiveBrief(hr);
+it('33 topOpportunities empty when no opportunities in intelligenceReport', () => {
+  const ir = { opportunities: [] };
+  const b  = generateExecutiveBrief(empty(), ir, empty(), syntheticCanonicalHealth({ opportunityCount: 0 }));
   assert.equal(b.topOpportunities.length, 0);
 });
 
-it('34 priorityActions empty when no recommendations', () => {
-  const hr = syntheticHealthReport({ recommendations: [] });
-  const b  = generateExecutiveBrief(hr);
+it('34 priorityActions empty when no recommendations in intelligenceReport', () => {
+  const ir = { recommendations: [] };
+  const b  = generateExecutiveBrief(empty(), ir, empty(), syntheticCanonicalHealth({ recommendationCount: 0 }));
   assert.equal(b.priorityActions.length, 0);
 });
 
 // ─── Tests 35-36 — fixture-driven semantics ──────────────────────
 
 it('35 perfect artist → topRisks empty', () => {
-  const hr = enrichedHealthReportFor('artist-perfect');
-  const b  = generateExecutiveBrief(hr);
+  const { cio, ir, hr, ch } = pipelineFor('artist-perfect');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.equal(b.topRisks.length, 0);
 });
 
-it('36 missing publishing → recommendedNextStep routes to publishing', () => {
-  const hr = enrichedHealthReportFor('artist-missing-publishing');
-  const b  = generateExecutiveBrief(hr);
-  // artist-missing-publishing fires a HIGH PUBLISHING risk; the engine
-  // routes the top-risk category (publishing) into the recommended-
-  // next-step lookup.
+it('36 publishing opportunity → recommendedNextStep routes to publishing', () => {
+  // Board Directive v2.0: the publishing rule fires as MEDIUM (opportunity).
+  // recommendedNextStepFor falls back to topOpportunitiesList when risks empty,
+  // so publishing opportunities still route the brief to the publishing step.
+  const { cio, ir, hr, ch } = pipelineFor('artist-mlc-no-registrations');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
   assert.equal(b.recommendedNextStep, RECOMMENDED_NEXT_STEPS.publishing,
     'got: ' + b.recommendedNextStep);
 });
@@ -433,23 +439,18 @@ it('38 RECOMMENDED_NEXT_STEPS has default entry', () => {
          && RECOMMENDED_NEXT_STEPS.default.length > 0);
 });
 
-// ─── Test 39 — summary contains the score number ─────────────────
+// ─── Test 39 — summary contains the computed score ───────────────
 
-it('39 executiveSummary contains the overallScore number from healthReport', () => {
-  const hr = enrichedHealthReportFor('artist-fragmented-catalog');
-  const b  = generateExecutiveBrief(hr);
-  assert.ok(b.executiveSummary.includes(String(hr.overallScore)),
-    'score ' + hr.overallScore + ' missing from summary');
+it('39 executiveSummary contains the computed overallScore', () => {
+  const { cio, ir, hr, ch } = pipelineFor('artist-fragmented-catalog');
+  const b = generateExecutiveBrief(cio, ir, hr, ch);
+  assert.ok(b.executiveSummary.includes(String(ch.overallScore)),
+    'score ' + ch.overallScore + ' missing from summary');
 });
 
 // ─── Test 40 — full regression ───────────────────────────────────
 
 it('40 full regression: pipeline-test.mjs still green', () => {
-  // Re-runs the canonical pipeline test in a subprocess so this suite
-  // verifies the platform stack still holds end-to-end. (The brief's
-  // "203+8" notation is interpreted as "the canonical pipeline test
-  // remains green"; the precise assertion count is owned by that
-  // suite itself.)
   execSync('node tests/pipeline-test.mjs', { stdio: 'ignore' });
 });
 

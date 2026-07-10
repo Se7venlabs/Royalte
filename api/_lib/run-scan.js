@@ -21,9 +21,40 @@
 // the original message, so callers can reproduce the exact HTTP classification
 // the inline handler used before this extraction.
 
-import { generateAppleToken } from '../apple-token.js';
-import { lookupByISRC, checkStorefrontAvailability, getArtistAlbums, getArtistSongs } from '../apple-music.js';
+// [RETIRED CANDIDATE] generateAppleToken — no longer called directly in run-scan.js.
+// Kept in identity/apple.js for resolveAppleArtist. Remove when that module migrates to PAL.
+// import { generateAppleToken } from '../apple-token.js';
+// [RETIRED CANDIDATE] lookupByISRC, checkStorefrontAvailability, getArtistAlbums — no longer
+// called in run-scan.js body. Transitively used by identity/apple.js only.
+import { getArtistSongs } from '../apple-music.js';
 import { lookupYouTubeChannelId } from './identity-graph.js';
+// Phase 1, Stage 1 — Apple identity resolution extracted to a named adapter.
+// Phase 3.3 — getAppleMusic() retired; acquisition now routes through PAL.
+import {
+  resolveAppleArtist,
+  resolveAppleArtistName,
+  // [RETIRED CANDIDATE] getAppleMusic — replaced by PAL acquisition below.
+  // Remove after PAL migration verified + Board approval.
+} from './identity/apple.js';
+// Phase 3.3 (Apple Production Migration) — PAL Apple acquisition
+import { acquireAppleEvidence, synthesizeAppleMusicCompat } from './apple-pal-acquisition.js';
+// Phase 3.6 (Spotify PAL Migration) — PAL Spotify acquisition
+import { acquireSpotifyEvidence, synthesizeSpotifyCompat } from './spotify-pal-acquisition.js';
+// Phase 3.8 (MusicBrainz PAL Migration) — PAL MusicBrainz acquisition
+import { acquireMBEvidence, synthesizeMBCompat } from './mb-pal-acquisition.js';
+// Phase 3.6/Discogs (Discogs PAL Migration) — PAL Discogs acquisition
+import { acquireDiscogsEvidence, synthesizeDiscogsCompat } from './discogs-pal-acquisition.js';
+// Phase 3.6/YouTube (YouTube PAL Migration) — PAL YouTube acquisition
+import { acquireYouTubeEvidence, synthesizeYouTubeCompat } from './youtube-pal-acquisition.js';
+// Phase 3.6/MLC (MLC PAL — Publishing Authority) — PAL MLC acquisition
+import { acquireMLCEvidence } from './mlc-pal-acquisition.js';
+import { getBestVerifiedArtistImage, getBestVerifiedReleaseArtwork } from './image-service.js';
+// Phase 3.6/Deezer (Deezer PAL — Streaming Verification Authority™) — replaces getDeezer()
+import { acquireDeezerEvidence, synthesizeDeezerCompat } from './deezer-pal-acquisition.js';
+// Phase 3.6/TheAudioDB (AudioDB PAL — Artist & Media Intelligence Authority™) — replaces getAudioDB()
+import { acquireAudioDbEvidence, synthesizeAudioDbCompat } from './audiodb-pal-acquisition.js';
+// Phase 3.6/LastFm (Last.fm PAL — Community Intelligence Authority™) — replaces getLastFm()
+import { acquireLastFmEvidence, synthesizeLastFmCompat } from './lastfm-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -44,11 +75,11 @@ const YOUTUBE_REVENUE_REQUIRES_VERIFIED_CHANNEL = true;
 // ─────────────────────────────────────────────────────────────────────────────
 // runScan — the scan orchestrator.
 //
-// Returns { rawResponse, urlType, warnings }:
-//   - rawResponse — the raw legacy-shape audit payload
-//   - urlType     — detectInputType(url), or 'apple' for the Apple-only
-//                   degraded path (matches the pre-refactor persist args)
-//   - warnings    — non-fatal degradation notices (empty on the happy path)
+// Returns { rawResponse, urlType, warnings, evidencePackages }:
+//   - rawResponse      — raw legacy-shape audit payload (appleMusic = PAL-synthesized)
+//   - urlType          — detectInputType(url), or 'apple' for degraded path
+//   - warnings         — non-fatal degradation notices (empty on the happy path)
+//   - evidencePackages — Apple + Spotify EvidencePackages from PAL (for runRIE hybrid merge)
 // ─────────────────────────────────────────────────────────────────────────────
 export async function runScan(url) {
   // Top-level input guard (was an inline 400 in the handler).
@@ -147,73 +178,146 @@ export async function runScan(url) {
   // ─────────────────────────────────────────────────────────────────────
   const warnings = [];
 
-  // ── Spotify-specific fetches (conditional on Spotify ID) ──
-  let artistData = null;
+  // ── Track data fetch (track URL inputs only — resolution enrichment, not general) ──
+  // [TRANSITIONAL]: getSpotifyTrack stays here; it is resolution infrastructure, not
+  // general enrichment. Track-input ISRC and album.images are needed for rawResponse.
   let trackData = null;
-  let albumsData = { items: [] };
-  let spotifyTopTracks = [];
-
-  if (resolved.artistId) {
-    try {
-      artistData = await getSpotifyArtist(resolved.artistId, token);
-    } catch (artistErr) {
-      console.warn('[run-scan] getSpotifyArtist failed — synthesizing stub:', artistErr.message);
-      warnings.push({
-        platform: 'spotify',
-        stage: 'artist_fetch',
-        reason: `Spotify artist fetch failed for ID ${resolved.artistId}: ${artistErr.message.replace(/^Spotify artist fetch failed:\s*/i, '')}`,
-      });
-    }
-    if (resolved.resolvedFromType === 'track' && resolved.spotifyTrackId) {
-      try { trackData = await getSpotifyTrack(resolved.spotifyTrackId, token); }
-      catch { trackData = null; }
-    }
-    try { albumsData       = await getSpotifyAlbums(resolved.artistId, token); }    catch { albumsData = { items: [] }; }
-    try { spotifyTopTracks = await getSpotifyTopTracks(resolved.artistId, token); } catch { spotifyTopTracks = []; }
-  }
-  // Stub when Spotify ID absent OR Spotify artist fetch failed. Same shape
-  // getSpotifyArtist returns so runModules / buildFlags / rawResponse fields
-  // see a uniform interface. followers=-1 is the existing "Spotify absent"
-  // sentinel.
-  if (!artistData) {
-    artistData = {
-      id: resolved.artistId || null,
-      name: resolved.artistName,
-      followers: { total: -1 },
-      popularity: 0,
-      genres: [],
-      images: resolved.artistImage ? [{ url: resolved.artistImage }] : [],
-      external_urls: resolved.artistUrl ? { spotify: resolved.artistUrl } : {},
-    };
+  if (resolved.artistId && resolved.resolvedFromType === 'track' && resolved.spotifyTrackId) {
+    try { trackData = await getSpotifyTrack(resolved.spotifyTrackId, token); }
+    catch { trackData = null; }
   }
 
   // Apple-locked canonical name (PR #103). Used as the query string for
   // every name-search-based enrichment source below.
   const artistName = resolved.artistName;
 
-  // ── Universal enrichment fan-out (always runs, independent per source) ──
-  // Apple Music uses ID-direct when appleArtistId known (Apple URL inputs)
-  // — avoids strict name-search failure for the same artist whose URL we
-  // just resolved. Other 8 providers name-search per PR #103 strict semantics.
+  // ── Universal enrichment fan-out ────────────────────────────────────────
+  // Phase 3.3: Apple acquisition routes through PAL (parallel with all other providers).
+  // Phase 3.6: Spotify enrichment acquisition routes through PAL (replacing direct calls).
+  // Phase 3.8: MusicBrainz acquisition routes through PAL (replacing direct getMusicBrainz call).
+  // Phase 3.6/Discogs: Discogs acquisition routes through PAL (replacing direct getDiscogs call).
+  // Phase 3.6/YouTube: YouTube acquisition routes through PAL (replacing direct getYouTube call).
+  // Phase 3.6/MLC: The MLC acquisition via PAL — first constitutional Publishing Authority.
+  // Phase 3.6/Deezer: Deezer via PAL — Streaming Verification Authority™.
+  // Phase 3.6/TheAudioDB: AudioDB via PAL — Artist & Media Intelligence Authority™; replaces getAudioDB().
+  // Phase 3.6/LastFm: Last.fm via PAL — Community Intelligence Authority™; replaces getLastFm().
+  // All PAL evidence packages flow into runRIE via the hybrid merge path.
+  // synthesize*Compat functions below are backward-compat synthesis for the V1 module system only.
   const appleIsrc = resolved.trackIsrc || trackData?.external_ids?.isrc || null;
-  const appleMusicCall = resolved.appleArtistId
-    ? getAppleMusic(artistName, appleIsrc, spotifyTopTracks, {
-        appleArtistId: resolved.appleArtistId,
-        storefront:    resolved.appleStorefront || 'us',
-      })
-    : getAppleMusic(artistName, appleIsrc, spotifyTopTracks);
 
-  const [mbData, deezerData, audioDbData, discogsData, soundcloudData, lastfmData, wikidataData, youtubeData, appleMusicData] = await Promise.allSettled([
-    getMusicBrainz(artistName),
-    getDeezer(artistName),
-    getAudioDB(artistName),
-    getDiscogs(artistName),
+  const [
+    applePalSettled,
+    spotifyPalSettled,
+    mbPalSettled,
+    discogsPalSettled,
+    youtubePalSettled,
+    mlcPalSettled,
+    deezerPalSettled,
+    audioDbPalSettled,
+    lastfmPalSettled,
+    soundcloudSettled,
+    wikidataSettled,
+  ] = await Promise.allSettled([
+    acquireAppleEvidence({
+      appleArtistId: resolved.appleArtistId ?? null,
+      artistName,
+      isrc: appleIsrc,
+    }),
+    // Phase 3.6/Spotify: Spotify enrichment via PAL
+    acquireSpotifyEvidence({
+      spotifyArtistId: resolved.artistId ?? null,
+      artistName,
+    }),
+    // Phase 3.8: MusicBrainz via PAL
+    acquireMBEvidence({ artistName }),
+    // Phase 3.6/Discogs: Discogs via PAL — replaces direct getDiscogs call
+    acquireDiscogsEvidence({ artistName }),
+    // Phase 3.6/YouTube: YouTube via PAL — replaces direct getYouTube call
+    acquireYouTubeEvidence({ artistName }),
+    // Phase 3.6/MLC: The MLC via PAL — constitutional Publishing Authority
+    acquireMLCEvidence({ artistName }),
+    // Phase 3.6/Deezer: Deezer via PAL — Streaming Verification Authority™; replaces getDeezer()
+    acquireDeezerEvidence({ artistName }),
+    // Phase 3.6/TheAudioDB: AudioDB via PAL — Artist & Media Intelligence Authority™; replaces getAudioDB()
+    acquireAudioDbEvidence({ artistName }),
+    // Phase 3.6/LastFm: Last.fm via PAL — Community Intelligence Authority™; replaces getLastFm()
+    acquireLastFmEvidence({ artistName }),
     getSoundCloud(artistName),
-    getLastFm(artistName),
     getWikidata(artistName),
-    getYouTube(artistName),
-    appleMusicCall,
-  ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : { found: false }));
+  ]);
+
+  const { evidencePackages: appleEvidencePackages = [] } =
+    applePalSettled.status === 'fulfilled' ? applePalSettled.value : {};
+  const { evidencePackages: spotifyEvidencePackages = [] } =
+    spotifyPalSettled.status === 'fulfilled' ? spotifyPalSettled.value : {};
+  const { evidencePackages: mbEvidencePackages = [] } =
+    mbPalSettled.status === 'fulfilled' ? mbPalSettled.value : {};
+  const { evidencePackages: discogsEvidencePackages = [] } =
+    discogsPalSettled.status === 'fulfilled' ? discogsPalSettled.value : {};
+  const { evidencePackages: youtubeEvidencePackages = [] } =
+    youtubePalSettled.status === 'fulfilled' ? youtubePalSettled.value : {};
+  const { evidencePackages: mlcEvidencePackages = [] } =
+    mlcPalSettled.status === 'fulfilled' ? mlcPalSettled.value : {};
+  const { evidencePackages: deezerEvidencePackages = [] } =
+    deezerPalSettled.status === 'fulfilled' ? deezerPalSettled.value : {};
+  const { evidencePackages: audioDbEvidencePackages = [] } =
+    audioDbPalSettled.status === 'fulfilled' ? audioDbPalSettled.value : {};
+  const { evidencePackages: lastfmEvidencePackages = [] } =
+    lastfmPalSettled.status === 'fulfilled' ? lastfmPalSettled.value : {};
+
+  // Combined evidence packages — all nine PAL providers enter the RIE hybrid merge path.
+  const evidencePackages = [
+    ...appleEvidencePackages,
+    ...spotifyEvidencePackages,
+    ...mbEvidencePackages,
+    ...discogsEvidencePackages,
+    ...youtubeEvidencePackages,
+    ...mlcEvidencePackages,
+    ...deezerEvidencePackages,
+    ...audioDbEvidencePackages,
+    ...lastfmEvidencePackages,
+  ];
+
+  // [TRANSITIONAL] Legacy compat shapes for V1 module system (runModules / buildFlags).
+  // Retires when those consumers migrate to RIE Rule Library.
+  const appleMusicData = synthesizeAppleMusicCompat(appleEvidencePackages);
+
+  // Phase 3.6/Spotify: Spotify compat synthesis
+  const subjectHints = {
+    spotifyArtistId: resolved.artistId   ?? null,
+    artistName:      resolved.artistName ?? null,
+    artistImage:     resolved.artistImage ?? null,
+    artistUrl:       resolved.artistUrl  ?? null,
+  };
+  const { artistData, albumsData, spotifyTopTracks } =
+    synthesizeSpotifyCompat(spotifyEvidencePackages, subjectHints);
+
+  // Phase 3.8: MusicBrainz compat synthesis
+  const mbData = synthesizeMBCompat(mbEvidencePackages, artistName);
+
+  // Phase 3.6/Discogs: Discogs compat synthesis replaces direct getDiscogs call
+  const discogsData = synthesizeDiscogsCompat(discogsEvidencePackages, artistName);
+
+  // Phase 3.6/YouTube: YouTube compat synthesis replaces direct getYouTube call
+  const youtubeData = synthesizeYouTubeCompat(youtubeEvidencePackages, artistName);
+
+  // Phase 3.6/Deezer: compat synthesis replaces direct getDeezer() call
+  const deezerData  = synthesizeDeezerCompat(deezerEvidencePackages, artistName);
+  // Phase 3.6/TheAudioDB: compat synthesis replaces direct getAudioDB() call
+  const audioDbData = synthesizeAudioDbCompat(audioDbEvidencePackages, artistName);
+  // Phase 3.6/LastFm: compat synthesis replaces direct getLastFm() call
+  const lastfmData  = synthesizeLastFmCompat(lastfmEvidencePackages, artistName);
+  const soundcloudData = soundcloudSettled.status === 'fulfilled' ? soundcloudSettled.value : { found: false };
+  const wikidataData   = wikidataSettled.status   === 'fulfilled' ? wikidataSettled.value   : { found: false };
+
+  // [RETIRED CANDIDATE] — Direct Spotify enrichment functions replaced by PAL in Phase 3.6.
+  // getSpotifyArtist (enrichment), getSpotifyAlbums, getSpotifyTopTracks are no longer
+  // called in the fan-out. The functions remain in this file for resolution use only:
+  //   getSpotifyArtist  — identity verification in resolveToArtist / ISRC cross-discovery
+  //   getSpotifyAlbum   — album input resolution
+  //   getSpotifyTrack   — track input resolution
+  //   searchSpotifyArtistByName — name-based artist identity discovery
+  //   discoverSpotifyByIsrc     — ISRC-based cross-provider discovery
 
   // ── Catalog: Spotify when available, Apple fallback ──
   // Same field shape in both cases so analyzeCatalog and downstream
@@ -226,9 +330,21 @@ export async function runScan(url) {
     const years = appleAlbums.map(a => parseInt(String(a.releaseDate || '').slice(0, 4), 10)).filter(y => !isNaN(y) && y > 1950);
     const earliestYear = years.length ? Math.min(...years) : null;
     const currentYear  = new Date().getUTCFullYear();
+    let appleSingles = 0, appleEps = 0, appleAlbumCount = 0, appleTotalTracks = 0;
+    for (const a of appleAlbums) {
+      const tc = typeof a.trackCount === 'number' ? a.trackCount : 7;
+      appleTotalTracks += tc;
+      if (tc === 1) appleSingles++;
+      else if (tc <= 6) appleEps++;
+      else appleAlbumCount++;
+    }
     catalogData = {
-      totalReleases: appleAlbums.length,
-      totalTracks:   appleAlbums.reduce((n, a) => n + (typeof a.trackCount === 'number' ? a.trackCount : 0), 0),
+      totalReleases:   appleAlbums.length,
+      singlesCount:    appleSingles,
+      epsCount:        appleEps,
+      albumsCount:     appleAlbumCount,
+      featuresCount:   0,    // Apple Music doesn't surface appears_on
+      totalTracks:     appleTotalTracks,
       earliestYear,
       latestYear:    years.length ? Math.max(...years) : null,
       catalogAgeYears: earliestYear ? (currentYear - earliestYear) : 0,
@@ -271,10 +387,17 @@ export async function runScan(url) {
     canonicalTarget:    'artist',
     spotifyMatched:     !!resolved.artistId,
     artistUrl:          resolved.artistUrl || artistData.external_urls?.spotify || null,
-    imageUrl:           resolved.artistImage || artistData.images?.[0]?.url || resolved.appleArtworkUrl || trackData?.album?.images?.[0]?.url || null,
-    artistImageUrl:     resolved.artistImage || artistData.images?.[0]?.url || resolved.appleArtworkUrl || null,
-    albumImageUrl:      trackData?.album?.images?.[0]?.url || null,
-    appleArtworkUrl:    resolved.appleArtworkUrl || null,
+    // Image Service — sole owner of platform-agnostic image selection.
+    // getBestVerifiedArtistImage / getBestVerifiedReleaseArtwork evaluate
+    // all available evidence and return the highest-quality verified URL.
+    // No workspace may reference Apple/Spotify/Deezer directly for images.
+    // (Board Directive: Executive Workspace Image Selection Standard™, 2026-07-03)
+    artistImageUrl:     getBestVerifiedArtistImage(resolved, artistData, appleMusicData),
+    albumImageUrl:      getBestVerifiedReleaseArtwork(trackData, resolved),
+    imageUrl:           getBestVerifiedArtistImage(resolved, artistData, appleMusicData) || getBestVerifiedReleaseArtwork(trackData, resolved) || null,
+    // Phase 3.3: PAL-synthesized artwork fills the gap for Spotify-URL inputs
+    // (resolveAppleArtist not called, so resolved.appleArtworkUrl is null).
+    appleArtworkUrl:    resolved.appleArtworkUrl || appleMusicData.artwork || null,
     platforms: {
       spotify:     !!resolved.artistId,
       musicbrainz: !!mbData.found,
@@ -297,6 +420,7 @@ export async function runScan(url) {
     wikipediaUrl:    wikidataData.wikipediaUrl || null,
     deezerFans:      deezerData.fans || 0,
     discogsReleases: discogsData.releases || 0,
+    deezer:          deezerData,
     youtube:         youtubeData,
     appleMusic:      appleMusicData,
     overallScore,
@@ -307,7 +431,7 @@ export async function runScan(url) {
     scannedAt: new Date().toISOString(),
   };
 
-  return { rawResponse, urlType: inputType, warnings };
+  return { rawResponse, urlType: inputType, warnings, evidencePackages };
 }
 
 // ────────────────────────────────────────────────────────
@@ -463,7 +587,7 @@ async function resolveToArtist(inputUrl, token) {
       return {
         artistId:          spotifyArtist.id,
         artistName:        appleArtistName,
-        artistImage:       appleArtwork || spotifyArtist.images?.[0]?.url || null,
+        artistImage:       getBestVerifiedArtistImage({ appleArtworkUrl: appleArtwork }, spotifyArtist, {}),
         artistUrl:         spotifyArtist.external_urls?.spotify || null,
         spotifyMatched:    true,
         resolvedFrom:      'apple',
@@ -643,10 +767,12 @@ async function searchSpotifyArtistByName(name, token) {
   } catch { return null; }
 }
 
+// [RETIRED CANDIDATE — Phase 3.6] getSpotifyAlbums: enrichment call replaced by PAL.
+// Kept only for potential resolution use. Remove when all callers confirmed retired.
 async function getSpotifyAlbums(artistId, token) {
   try {
     const resp = await fetch(
-      `https://api.spotify.com/v1/artists/${artistId}/albums?limit=50&include_groups=album,single`,
+      `https://api.spotify.com/v1/artists/${artistId}/albums?limit=50&include_groups=album,single,appears_on`,
       { headers: { 'Authorization': `Bearer ${token}` } }
     );
     if (!resp.ok) return { items: [] };
@@ -654,6 +780,8 @@ async function getSpotifyAlbums(artistId, token) {
   } catch { return { items: [] }; }
 }
 
+// [RETIRED CANDIDATE — Phase 3.6] getSpotifyTopTracks: enrichment call replaced by PAL.
+// Kept only for potential resolution use. Remove when all callers confirmed retired.
 async function getSpotifyTopTracks(artistId, token) {
   try {
     const resp = await fetch(
@@ -670,321 +798,19 @@ async function getSpotifyTopTracks(artistId, token) {
   } catch { return []; }
 }
 
-// ────────────────────────────────────────────────────────
-// APPLE MUSIC RESOLUTION (input → artist name)
-// Separate responsibility from getAppleMusic() which is cross-platform
-// enrichment AFTER artist is known.
-// Supports artist / song / album URLs from music.apple.com.
-// ────────────────────────────────────────────────────────
-async function resolveAppleArtist(appleUrl) {
-  try {
-    const meta = parseAppleMusicUrl(appleUrl);
-    if (!meta) return null;
-
-    const appleToken = generateAppleToken();
-    const headers = { Authorization: `Bearer ${appleToken}` };
-    const BASE = 'https://api.music.apple.com/v1';
-    const sf = meta.storefront || 'us';
-
-    const formatArtwork = (artwork) => {
-      if (!artwork || !artwork.url) return null;
-      // Apple's url is a template like https://....{w}x{h}bb.jpg
-      // Substitute 600x600 for a high-quality square image.
-      return artwork.url.replace('{w}', '600').replace('{h}', '600');
-    };
-
-    if (meta.kind === 'artist') {
-      const r = await fetch(`${BASE}/catalog/${sf}/artists/${meta.id}`, { headers });
-      if (!r.ok) return null;
-      const data = await r.json();
-      const attrs = data?.data?.[0]?.attributes;
-      if (!attrs) return null;
-      // Artist endpoint sometimes lacks artwork — fall back to artist search
-      let artworkUrl = formatArtwork(attrs.artwork);
-      if (!artworkUrl) {
-        const sresp = await fetch(`${BASE}/catalog/${sf}/search?term=${encodeURIComponent(attrs.name)}&types=artists&limit=3`, { headers });
-        if (sresp.ok) {
-          const sdata = await sresp.json();
-          const match = sdata?.results?.artists?.data?.[0];
-          artworkUrl = formatArtwork(match?.attributes?.artwork);
-        }
-      }
-      return { name: attrs.name, artworkUrl, appleArtistId: meta.id, storefront: sf };
-    }
-
-    if (meta.kind === 'song') {
-      const r = await fetch(`${BASE}/catalog/${sf}/songs/${meta.id}`, { headers });
-      if (!r.ok) return null;
-      const data = await r.json();
-      const attrs = data?.data?.[0]?.attributes;
-      if (!attrs?.artistName) return null;
-      // Songs always have artwork (album cover) — use as fallback
-      const artworkUrl = formatArtwork(attrs.artwork);
-      const appleArtistId = data?.data?.[0]?.relationships?.artists?.data?.[0]?.id || null;
-      return { name: attrs.artistName, artworkUrl, appleArtistId, trackTitle: attrs.name ?? null, trackIsrc: attrs.isrc ?? null, storefront: sf };
-    }
-
-    if (meta.kind === 'album') {
-      // If the URL contains ?i=<songId> Apple treats it as a song — try song first
-      if (meta.songId) {
-        const rs = await fetch(`${BASE}/catalog/${sf}/songs/${meta.songId}`, { headers });
-        if (rs.ok) {
-          const data = await rs.json();
-          const attrs = data?.data?.[0]?.attributes;
-          if (attrs?.artistName) {
-            const appleArtistId = data?.data?.[0]?.relationships?.artists?.data?.[0]?.id || null;
-            return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork), appleArtistId, trackTitle: attrs.name ?? null, trackIsrc: attrs.isrc ?? null, storefront: sf };
-          }
-        }
-      }
-      const r = await fetch(`${BASE}/catalog/${sf}/albums/${meta.id}`, { headers });
-      if (!r.ok) return null;
-      const data = await r.json();
-      const attrs = data?.data?.[0]?.attributes;
-      if (!attrs?.artistName) return null;
-      const appleArtistId = data?.data?.[0]?.relationships?.artists?.data?.[0]?.id || null;
-      return { name: attrs.artistName, artworkUrl: formatArtwork(attrs.artwork), appleArtistId, storefront: sf };
-    }
-
-    return null;
-  } catch (err) {
-    console.error('Apple resolution error:', err.message);
-    return null;
-  }
-}
-
-// Backwards-compat alias — keep the old function name in case anything else calls it
-async function resolveAppleArtistName(appleUrl) {
-  const r = await resolveAppleArtist(appleUrl);
-  return r ? r.name : null;
-}
-
-function parseAppleMusicUrl(url) {
-  try {
-    const u = new URL(url);
-    if (!u.hostname.includes('music.apple.com')) return null;
-    const parts = u.pathname.split('/').filter(Boolean);
-    // Expected shape: /<storefront>/<kind>/<slug>/<id>
-    // kind ∈ { artist, song, album }
-    const storefront = parts[0] || 'us';
-    const kindIdx = parts.findIndex(p => p === 'artist' || p === 'song' || p === 'album');
-    if (kindIdx === -1) return null;
-    const kind = parts[kindIdx];
-    const id = parts[parts.length - 1]; // last segment is the numeric id
-    if (!id) return null;
-    const songId = u.searchParams.get('i') || null;
-    return { storefront, kind, id, songId };
-  } catch { return null; }
-}
-
-// ────────────────────────────────────────────────────────
-// APPLE MUSIC — artist search, ISRC lookup, catalog comparison
-// (existing cross-platform enrichment — runs AFTER artist is known)
-// ────────────────────────────────────────────────────────
-// 2026-06-07 scan-engine-converge Phase 2 — options.appleArtistId lets
-// the unified pipeline call this with an Apple ID known from the URL
-// (Apple URL inputs always have one from resolveAppleArtist). Skipping
-// the name-search step removes the strict-exact-match failure mode for
-// the same artist whose URL we just resolved. Spotify-URL callers (no
-// known Apple ID) keep the existing name-search behavior.
-async function getAppleMusic(artistName, isrc, spotifyTopTracks = [], options = {}) {
-  try {
-    const appleToken = generateAppleToken();
-    const STOREFRONT = options.storefront || 'us';
-    const BASE = 'https://api.music.apple.com/v1';
-
-    const headers = { Authorization: `Bearer ${appleToken}` };
-
-    let artistFound = false;
-    let appleArtistId = null;
-    let appleArtistUrl = null;
-    let appleArtistGenres = [];
-    let appleAlbumCount = 0;
-    let appleAlbums = [];
-
-    if (options.appleArtistId) {
-      // ID-direct path: fetch artist record for url/genres, then drop
-      // into the existing album-list fetch below.
-      appleArtistId = options.appleArtistId;
-      artistFound = true;
-      try {
-        const ar = await fetch(`${BASE}/catalog/${STOREFRONT}/artists/${appleArtistId}`, { headers });
-        if (ar.ok) {
-          const ad = await ar.json();
-          const attrs = ad?.data?.[0]?.attributes;
-          appleArtistUrl    = attrs?.url || null;
-          appleArtistGenres = attrs?.genreNames || [];
-        }
-      } catch (e) {
-        console.warn(`[apple-id] artist record fetch failed for ${appleArtistId}: ${e.message}`);
-      }
-    } else {
-      // Name-search path (Spotify URL inputs without a known Apple ID).
-      const artistQuery = encodeURIComponent(artistName);
-      const artistResp = await fetch(
-        `${BASE}/catalog/${STOREFRONT}/search?term=${artistQuery}&types=artists&limit=5`,
-        { headers }
-      );
-
-      if (artistResp.ok) {
-        const artistData = await artistResp.json();
-        const artists = artistData?.results?.artists?.data || [];
-        const norm = s => s.toLowerCase().trim();
-        const match = artists.find(a => norm(a.attributes?.name) === norm(artistName)) || null;
-        if (!match && artists.length) {
-          console.log(`[identity] Apple returned ${artists.length} candidates for "${artistName}" but no exact match — skipping Apple Music enrichment`);
-        }
-        if (match) {
-          artistFound = true;
-          appleArtistId = match.id;
-          appleArtistUrl = match.attributes?.url || null;
-          appleArtistGenres = match.attributes?.genreNames || [];
-        }
-      }
-    }
-
-    if (artistFound && appleArtistId) {
-      {
-
-        // Get album list (up to 25). We previously surfaced only the count;
-        // the full list is the source for V2 releases[] / EPs / Singles /
-        // Tracks (Brief 008). attributes.trackCount lets the consumer side
-        // classify each release: 1 → Single · 2–6 → EP · 7+ → Album.
-        const albumResp = await fetch(
-          `${BASE}/catalog/${STOREFRONT}/artists/${appleArtistId}/albums?limit=25`,
-          { headers }
-        );
-        if (albumResp.ok) {
-          const albumData = await albumResp.json();
-          const rows = albumData?.data || [];
-          appleAlbumCount = rows.length;
-          appleAlbums = rows.map((a) => ({
-            id:          a.id || null,
-            name:        a.attributes?.name || null,
-            releaseDate: a.attributes?.releaseDate || null,
-            trackCount:  (typeof a.attributes?.trackCount === 'number') ? a.attributes.trackCount : null,
-            url:         a.attributes?.url || null,
-            // Brief 015k Fix #1 — persist cover artwork so Mission Control's
-            // Intelligence Feed can render real release art instead of the
-            // music-icon fallback. Apple Music returns a URL template with
-            // {w}x{h} placeholders; we substitute 300×300 here so the
-            // stored URL is immediately usable by any consumer (dashboard
-            // displays at 56×56 — 300×300 is ~retina-5×, slightly heavy
-            // bandwidth but matches the pattern already used in
-            // api/apple-music.js:79-81 / 117-119). Pre-existing scans
-            // won't have this field until they re-scan.
-            artwork:     a.attributes?.artwork?.url
-              ? a.attributes.artwork.url.replace('{w}', '300').replace('{h}', '300')
-              : null,
-          }));
-        }
-      }
-    }
-
-    // Brief 011 — BIG 6 storefront availability. Reuses the same JWT
-    // (single shared `headers` object) for 7 parallel `/catalog/{sf}/
-    // albums?ids=...` calls. Failure on any one storefront is isolated
-    // to that storefront's entry; others continue. Skipped entirely on
-    // an artist with no Apple Music albums.
-    let storefrontAvailability = null;
-    if (appleAlbums.length > 0) {
-      const albumIds = appleAlbums.map((a) => a.id).filter(Boolean);
-      if (albumIds.length > 0) {
-        try {
-          storefrontAvailability = await checkStorefrontAvailability(albumIds, headers);
-        } catch (sfErr) {
-          // checkStorefrontAvailability already isolates per-storefront
-          // errors; a top-level throw here means the whole Promise.all
-          // failed (e.g. headers / network catastrophe). Leave the field
-          // null so the dashboard renders the "—" empty state.
-          console.error('Apple Music storefront availability failed:', sfErr.message);
-        }
-      }
-    }
-
-    // 2. ISRC lookup for the specific track (if track scan)
-    let isrcResult = null;
-    if (isrc) {
-      const r = await lookupByISRC(isrc);
-      // Preserve original semantics: only surface definitive results.
-      // Helper errors (r.error present) stay invisible so the
-      // "ISRC found on Spotify but not on Apple Music" flag at
-      // audit.js:1253 doesn't fire on transient Apple API failures.
-      if (!r.error) isrcResult = r;
-    }
-
-    // 3. Compare Spotify top tracks against Apple Music catalog
-    let catalogComparison = null;
-    if (spotifyTopTracks.length > 0) {
-      const matched = [];
-      const notFound = [];
-
-      for (const track of spotifyTopTracks.slice(0, 10)) { // limit to 10 to avoid rate limits
-        let found = false;
-
-        if (track.isrc) {
-          found = (await lookupByISRC(track.isrc)).found;
-        }
-
-        if (!found) {
-          // Fallback: search by name
-          const q = encodeURIComponent(`${track.name} ${track.artistName}`);
-          const searchResp = await fetch(
-            `${BASE}/catalog/${STOREFRONT}/search?term=${q}&types=songs&limit=3`,
-            { headers }
-          );
-          if (searchResp.ok) {
-            const searchData = await searchResp.json();
-            const songs = searchData?.results?.songs?.data || [];
-            const norm = s => s.toLowerCase().trim();
-            // 2026-06-05 identity-lock — require BOTH track name AND artist
-            // name to match. Previously the name-only check let a same-titled
-            // track from a different artist count as a match, inflating the
-            // catalog-comparison match rate.
-            found = songs.some(s =>
-              norm(s.attributes?.name) === norm(track.name) &&
-              norm(s.attributes?.artistName || '') === norm(track.artistName || '')
-            );
-          }
-        }
-
-        if (found) {
-          matched.push(track.name);
-        } else {
-          notFound.push(track.name);
-        }
-      }
-
-      const total = matched.length + notFound.length;
-      catalogComparison = {
-        tracksChecked: total,
-        matched: matched.length,
-        notFound,
-        matchRate: total > 0 ? Math.round((matched.length / total) * 100) : 0,
-      };
-    }
-
-    return {
-      found: artistFound,
-      artistId: appleArtistId,
-      artistUrl: appleArtistUrl,
-      genres: appleArtistGenres,
-      albumCount: appleAlbumCount,
-      albums: appleAlbums,
-      storefrontAvailability,
-      isrcLookup: isrcResult,
-      catalogComparison,
-    };
-
-  } catch (err) {
-    console.error('Apple Music error:', err.message);
-    return { found: false, error: err.message };
-  }
-}
+// Apple resolution + cross-platform enrichment now live in
+// api/_lib/identity/apple.js (imported at the top of this file). The
+// functions extracted: resolveAppleArtist, resolveAppleArtistName,
+// parseAppleMusicUrl, getAppleMusic — byte-identical bodies, same
+// dependencies (generateAppleToken, lookupByISRC,
+// checkStorefrontAvailability), same return shapes. See Phase 1
+// Stage 1 brief for the rationale.
 
 // ────────────────────────────────────────────────────────
 // YOUTUBE DATA API v3 — real channel + UGC detection
 // ────────────────────────────────────────────────────────
+// [RETIRED CANDIDATE — Phase 3.6/YouTube] Direct YouTube fetch replaced by PAL acquisition.
+// Retained for emergency fallback only. Remove after Board approval.
 async function getYouTube(artistName) {
   try {
     const apiKey = process.env.YOUTUBE_API_KEY;
@@ -1088,9 +914,26 @@ async function getYouTube(artistName) {
 // ────────────────────────────────────────────────────────
 function analyzeCatalog(albumsData) {
   const albums = albumsData.items || [];
-  if (!albums.length) return { totalReleases: 0, earliestYear: null, catalogAgeYears: 0, estimatedAnnualStreams: 0 };
+  if (!albums.length) return { totalReleases: 0, singlesCount: 0, epsCount: 0, albumsCount: 0, featuresCount: 0, totalTracks: 0, earliestYear: null, catalogAgeYears: 0, estimatedAnnualStreams: 0 };
 
-  const years = albums
+  // Separate owned releases from appearances (appears_on).
+  // album_group is the artist-relative classification; album_type is the
+  // release's inherent type. Use album_group as the primary signal since
+  // it distinguishes "artist's own album" from "featured on".
+  let singlesCount = 0, epsCount = 0, albumsCount = 0, featuresCount = 0, totalTracks = 0;
+  const ownedAlbums = [];
+  for (const a of albums) {
+    const group = (a.album_group || '').toLowerCase();
+    if (group === 'appears_on') { featuresCount++; continue; }
+    ownedAlbums.push(a);
+    const tc = typeof a.total_tracks === 'number' ? a.total_tracks : 1;
+    totalTracks += tc;
+    if (tc === 1) singlesCount++;
+    else if (tc <= 6) epsCount++;
+    else albumsCount++;
+  }
+
+  const years = ownedAlbums
     .map(a => parseInt(a.release_date?.substring(0, 4)))
     .filter(y => !isNaN(y) && y > 1950);
 
@@ -1099,7 +942,12 @@ function analyzeCatalog(albumsData) {
   const catalogAgeYears = earliestYear ? currentYear - earliestYear : 0;
 
   return {
-    totalReleases: albums.length,
+    totalReleases: ownedAlbums.length,
+    singlesCount,
+    epsCount,
+    albumsCount,
+    featuresCount,
+    totalTracks,
     earliestYear,
     latestYear: years.length ? Math.max(...years) : null,
     catalogAgeYears,
@@ -1354,7 +1202,10 @@ function getPROGuide(country) {
 }
 
 // ────────────────────────────────────────────────────────
-// MUSICBRAINZ
+// MUSICBRAINZ — [RETIRED CANDIDATE — Phase 3.8]
+// Enrichment role superseded by acquireMBEvidence in mb-pal-acquisition.js.
+// Function retained for any residual resolution uses only.
+// Remove when no callers remain.
 // ────────────────────────────────────────────────────────
 async function getMusicBrainz(artistName) {
   try {
@@ -1380,6 +1231,8 @@ async function getMusicBrainz(artistName) {
 
 // ────────────────────────────────────────────────────────
 // DEEZER
+// Board Directive 2026-06-24: full enrichment — artist detail,
+// complete album list, top tracks (ISRCs + previews), all artwork.
 // ────────────────────────────────────────────────────────
 async function getDeezer(artistName) {
   try {
@@ -1395,13 +1248,68 @@ async function getDeezer(artistName) {
       console.log(`[identity] Deezer returned ${data.data.length} candidates for "${artistName}" but no exact match — skipping enrichment`);
       return { found: false, fans: 0 };
     }
-    const detail = await fetch(`https://api.deezer.com/artist/${artist.id}`).then(r => r.ok ? r.json() : artist);
-    return { found: true, fans: detail.nb_fan || 0, artistId: artist.id, name: artist.name, albums: detail.nb_album || 0 };
+
+    // Fetch artist detail, full album list, and top tracks in parallel.
+    const [detailRes, albumsRes, topRes] = await Promise.allSettled([
+      fetch(`https://api.deezer.com/artist/${artist.id}`),
+      fetch(`https://api.deezer.com/artist/${artist.id}/albums?limit=50`),
+      fetch(`https://api.deezer.com/artist/${artist.id}/top?limit=50`),
+    ]);
+
+    const detail = detailRes.status === 'fulfilled' && detailRes.value.ok
+      ? await detailRes.value.json().catch(() => artist)
+      : artist;
+
+    const albumsBody = albumsRes.status === 'fulfilled' && albumsRes.value.ok
+      ? await albumsRes.value.json().catch(() => null)
+      : null;
+
+    const topBody = topRes.status === 'fulfilled' && topRes.value.ok
+      ? await topRes.value.json().catch(() => null)
+      : null;
+
+    const albums    = Array.isArray(albumsBody?.data) ? albumsBody.data : [];
+    const topTracks = Array.isArray(topBody?.data)    ? topBody.data    : [];
+
+    // Collect unique genres from album genre tags.
+    const genreSet = new Set();
+    for (const album of albums) {
+      if (Array.isArray(album.genres?.data)) {
+        for (const g of album.genres.data) { if (g.name) genreSet.add(g.name); }
+      }
+    }
+
+    return {
+      found: true,
+      // Identity
+      artistId:       detail.id       ?? artist.id,
+      name:           detail.name     ?? artist.name,
+      link:           detail.link     ?? null,
+      share:          detail.share    ?? null,
+      // Artwork — all sizes Deezer exposes
+      picture:        detail.picture        ?? null,
+      picture_small:  detail.picture_small  ?? null,
+      picture_medium: detail.picture_medium ?? null,
+      picture_big:    detail.picture_big    ?? null,
+      picture_xl:     detail.picture_xl     ?? null,
+      // Metrics
+      fans:      detail.nb_fan   ?? artist.nb_fan   ?? 0,
+      nb_album:  detail.nb_album ?? artist.nb_album ?? 0,
+      radio:     !!detail.radio,
+      tracklist: detail.tracklist ?? null,
+      type:      detail.type     ?? 'artist',
+      // Enriched catalog
+      albums,
+      topTracks,
+      genres: [...genreSet],
+    };
   } catch { return { found: false, fans: 0 }; }
 }
 
 // ────────────────────────────────────────────────────────
-// AUDIODB
+// AUDIODB — [RETIRED CANDIDATE — Phase 3.6/TheAudioDB]
+// Enrichment role superseded by acquireAudioDbEvidence in audiodb-pal-acquisition.js.
+// Function retained for reference only. Remove when no callers remain.
 // ────────────────────────────────────────────────────────
 async function getAudioDB(artistName) {
   try {
@@ -1431,7 +1339,9 @@ async function getAudioDB(artistName) {
 }
 
 // ────────────────────────────────────────────────────────
-// DISCOGS
+// DISCOGS — [RETIRED CANDIDATE — Phase 3.6/Discogs]
+// Enrichment role superseded by acquireDiscogsEvidence in discogs-pal-acquisition.js.
+// Function retained for reference only. Remove when no callers remain.
 // ────────────────────────────────────────────────────────
 async function getDiscogs(artistName) {
   try {
@@ -1482,7 +1392,10 @@ async function getSoundCloud(artistName) {
 }
 
 // ────────────────────────────────────────────────────────
-// LAST.FM
+// LAST.FM — [RETIRED CANDIDATE — Phase 3.6/LastFm]
+// Replaced by acquireLastFmEvidence + synthesizeLastFmCompat (PAL).
+// This direct-call function is no longer invoked from the fan-out.
+// Retained here until V1 module system migration completes.
 // ────────────────────────────────────────────────────────
 async function getLastFm(artistName) {
   try {

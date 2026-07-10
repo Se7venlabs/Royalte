@@ -28,15 +28,46 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently locked phase | **Phase 8 — Royaltē Executive Brief Engine™** |
-| Locked at | `8f00014` |
+| Most recently completed phase | **Royaltē OS v1.0 Design Baseline — Catalog Intelligence™ + Executive Icon System™ + Product Review Polish** |
+| Merged at | `7108f35` (PR #233, 2026-07-04) |
 | Tag | — |
-| Effective | 2026-06-12 |
-| Next anticipated phase | per future Board directives (no brief authorised yet) |
+| Prior phase | WS-4.2-RTZ — Reporting Time Zone™ + MC System Status™ (`6efd9e2`, PR #226, 2026-07-03) |
+| Active direction | Royaltē OS v1.0 design baseline locked. All 4 full Executive Workspaces (Health, Identity, Publishing, Catalog) complete. Royaltē Executive Icon Registry™ active. Workspace Accent Color Token system active. Waiting for next Board brief. |
+| Next Board gate | Board brief required before any new Executive Workspace or MC module begins |
 
-Phase 6 lock point: `a23788b` / tag `intelligence-engine-v1.0`. Phase 6.5 lock point: `52b1750`. Phase 7 lock point: `ec57481`. Phase 7.5 lock point: `38ec3be`.
+**⚠ MANDATORY GATE — Executive Product Review Standard™ (2026-07-04)**
+Every Executive Workspace must pass the mandatory three-gate process before merge:
+1. Development Complete
+2. Product Review Complete — per `governance/EXECUTIVE_PRODUCT_REVIEW_STANDARD.md`
+3. Board Review Complete
 
-The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`.
+The Engineering Agent is responsible for the Product Review before opening a PR. No workspace may merge without completing all three gates. See full standard at `governance/EXECUTIVE_PRODUCT_REVIEW_STANDARD.md`.
+
+**Executive Workspace Sprint underway.** Three Executive Workspaces complete. Health Intelligence™ (PR #220, emerald), Identity Intelligence™ (PR #222, purple), and Publishing Intelligence™ (PR #224, Royal Violet) are the three active departments in the ws-dept scoping system. Ambient Module Elevation™ introduces workspace-scoped ambient card glows — each dept class owns its accent color; large blur, very low opacity, feathers outside card edges. Future workspaces add `ws-dept--*` scoping without touching existing workspace CSS.
+
+**Reporting Time Zone™ is now dynamic and profile-backed.** `royalte-tz.js` is the sole RTZ owner. Resolution: `profiles.reporting_timezone` → `localStorage` → browser `Intl.DateTimeFormat`. IANA zone stored on first detection; abbreviation derived live (DST-aware). Settings → Preferences override UI is deferred. RTZ lives exclusively on MC System Status™ — never in Executive Workspace panels.
+
+**Executive Image Service™ is now the sole owner of image selection.** No workspace may reference Apple, Spotify, Deezer, or any platform directly for image URLs. Backend: `api/_lib/image-service.js` (`getBestVerifiedArtistImage` / `getBestVerifiedReleaseArtwork`). Frontend: `public/js/royalte-image-service.js` (reads canonical payload fields only). CSS standard: `.royalte-exec-img` (80×80, `--artist` circular, `--artwork` 6px). `run-scan.js` inline platform chains replaced.
+
+**MC Intelligence Sprint (MC cards on Mission Control) remains active.** Three MC modules complete. Health Intelligence™ (PR #211) + Identity Intelligence™ (PR #213) + Publishing Intelligence™ (PR #215) are constitutional presentation layers using the `build*Plan` / `apply*Plan` wiring pattern. Publishing introduces Financial Impact™ (Section 4). Financial Neutrality Rule™ governs all impact language. Executive Layout Optimization™ v1.0 is the density baseline; final holistic pass deferred until all MC modules complete.
+
+**Phase 3.6 Deezer (PR #201, `ba66b26`, 2026-07-03):** Streaming Verification Authority™, trust 80. `getDeezer()` direct-call retired. All original streaming providers (Apple, Spotify, Deezer) now 100% migrated to PAL. Suite 11 (67 assertions). `platforms.deezer.isrcs[]` is the constitutional bridge for future Verification Intelligence™.
+
+**Provider Expansion Sprint (PRs #194–#199, COMPLETE, 2026-07-02):**
+- Phase 3.6 Spotify (PR #194, `ba4054d`) — Streaming Authority, trust 90, client-credentials OAuth
+- Phase 3.7 Recording Intelligence Foundation™ + Amendment (PR #195, `2057db6`) — Board-locked RECORDING_CONFIDENCE_WEIGHTS; Suite 06 (83 assertions)
+- Phase 3.8 MusicBrainz + Amendment 1 (PR #196, `b966881`) — Canonical Metadata Authority, trust 80; Suite 07 (73 assertions)
+- Phase 3.6 Discogs + Amendment 1 (PR #197, `aea8095`) — Catalog Authority, trust 75; Suite 08 (79 assertions)
+- Phase 3.6 YouTube OAC (PR #198, `fb44ef5`) — Digital Presence Authority, trust 85; Suite 09 (66 assertions)
+- Phase 3.6 The MLC (PR #199, `67d7fe8`) — Publishing Authority, trust 95; Suite 10 (63 assertions); Recording → Song Code → Musical Work hierarchy locked
+
+**Phase 3.5 Certification Sprint (COMPLETE):** Board Certification Harness, Certification Artist Library (12 archetypes), Regression Suite, Determinism Suite, CIM Integrity Suite, Performance Baseline (Full RIE p95: 0.33ms), `deepFreeze` bug fix in `backend-intelligence.js`, `royalte-os-v1.0` tagged at `65c5c16`.
+
+**Phase 3.4 — Website Scan is a constitutional presentation layer.** All displayed intelligence reads from the Certified CIM. ISRC Coverage is a permanent RIE field (`isrcCoverage` in `catalogIntelligence`). Catalog Availability reads from `globalMusicFootprint.status`. Zero business logic remains in `_renderV2Found`.
+
+Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`. MC-3.2 Health Intelligence™ Executive Assessment `346a2d0`. MC-3.2-ELO Executive Layout Optimization™ v1.0 `83c8804`. MC-3.3 Identity Intelligence™ Executive Passport `654eb52`. MC-3.4 Publishing Intelligence™ Executive Passport + Amendment 1 `2bb1af2`. MC-3.4 Amendment 2 (executive brief typography) `8400134`.
+
+The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`. The legacy retirement checklist lives in `governance/MIGRATION_RETIREMENT_REGISTER.md`.
 
 ---
 
@@ -124,11 +155,13 @@ Test suites (13, all deterministic) live under `tests/`. Pipeline regression is 
 
 | | |
 |---|---|
-| Scan Experience V1 | **DESIGN FROZEN** (PR #122 held; will merge when intel wiring is complete) |
-| Intelligence-Wiring Sprint | Phases 1–6 **COMPLETE** |
-| Next | Phase 7 — wire `runIntelligenceEngine` into `/api/audit`. No brief authorised yet. |
-| Beta target | June 1, 2026 (per `LAUNCH_CHECKLIST.md`) |
-| Live intelligence sources to wire (per Board roadmap) | Spotify · Apple Music · MusicBrainz · Discogs · Listen Notes · YouTube · MLC Public API · MLC Bulk Data Feed |
+| Active direction | **OS Migration** — eliminate legacy provider acquisition one provider at a time |
+| Migration blueprint | Apple Production Migration (PR #189, 2026-07-02) — proven in production |
+| First migrated provider | **Apple Music** — fully constitutional (PAL → AppleMusicConnector → Evidence Contract → RIE → CIM) |
+| Next provider | Board-authorized only; Spotify recommended as highest impact |
+| Legacy retirement register | `governance/MIGRATION_RETIREMENT_REGISTER.md` — living Board checklist |
+| Engineering rule | Every migration must leave LESS legacy than it started with (Board Directive 2026-07-02) |
+| One Health Engine | `cim.health.score` is the sole authoritative health score (PR #188, 2026-07-02) |
 
 ---
 

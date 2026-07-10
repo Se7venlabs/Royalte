@@ -263,13 +263,20 @@ function buildConfidenceStatement(confidenceScore) {
   return 'Confidence level has not yet been determined for this assessment.';
 }
 
-// Recommended next step — deterministic lookup from RECOMMENDED_NEXT_STEPS
-// keyed on the top risk's category (lowercased). Falls back to 'default'
-// when no top risk is present or the category is unrecognised.
-function recommendedNextStepFor(topRisksList) {
-  if (topRisksList.length === 0) return RECOMMENDED_NEXT_STEPS.default;
-  const cat = safeString(topRisksList[0].category).toLowerCase();
-  return RECOMMENDED_NEXT_STEPS[cat] || RECOMMENDED_NEXT_STEPS.default;
+// Recommended next step — deterministic lookup from RECOMMENDED_NEXT_STEPS.
+// Checks topRisksList first (HIGH/CRITICAL), then falls back to the top
+// opportunity category (MEDIUM) before defaulting.
+function recommendedNextStepFor(topRisksList, topOpportunitiesList = []) {
+  if (topRisksList.length > 0) {
+    const cat = safeString(topRisksList[0].category).toLowerCase();
+    return RECOMMENDED_NEXT_STEPS[cat] || RECOMMENDED_NEXT_STEPS.default;
+  }
+  if (topOpportunitiesList.length > 0) {
+    const cat = safeString(topOpportunitiesList[0].category).toLowerCase();
+    const step = RECOMMENDED_NEXT_STEPS[cat];
+    if (step) return step;
+  }
+  return RECOMMENDED_NEXT_STEPS.default;
 }
 
 // AI executive insight — template-driven; max 120 words.
@@ -300,64 +307,126 @@ function buildAiExecutiveInsight(report, topStrengthsList, topRisksList, nextSte
   return truncateToWords(insight, 120);
 }
 
+// Recovery narrative — opportunity-scoped, max 80 words. No revenue figures.
+function buildRecoveryNarrative(topOpportunitiesList, overallScore) {
+  const count    = topOpportunitiesList.length;
+  const headroom = Math.max(0, 100 - safeNumber(overallScore));
+
+  if (count === 0) {
+    return 'No specific infrastructure improvement opportunities were identified from reviewed sources.';
+  }
+
+  const topOpp   = topOpportunitiesList[0];
+  const topCat   = safeString(topOpp.category).toLowerCase() || 'infrastructure';
+  const topTitle = safeString(topOpp.title);
+  const titleLc  = topTitle ? topTitle.replace(/\.+$/, '').toLowerCase() : 'an identified improvement area';
+
+  const countPhrase = count === 1 ? '1 infrastructure improvement' : `${count} infrastructure improvements`;
+
+  return truncateToWords(
+    `${countPhrase} ${count === 1 ? 'has' : 'have'} been identified that can strengthen overall catalog health. ` +
+    `The highest-opportunity area is ${topCat} — ${titleLc}. ` +
+    `Addressing identified gaps represents an estimated ${headroom}-point improvement opportunity across reviewed infrastructure categories.`,
+    80
+  );
+}
+
+// Score headroom apportioned by severity.
+const GAIN_WEIGHT = Object.freeze({
+  CRITICAL: 0.40, HIGH: 0.30, MEDIUM: 0.20, LOW: 0.10, INFO: 0.05,
+});
+
+function apportionScoreGain(action, overallScore) {
+  const headroom = Math.max(0, 100 - safeNumber(overallScore));
+  const severity = safeString(action.severity).toUpperCase();
+  const weight   = Object.prototype.hasOwnProperty.call(GAIN_WEIGHT, severity) ? GAIN_WEIGHT[severity] : 0.10;
+  return Math.round(headroom * weight);
+}
+
 // ─── Public API ────────────────────────────────────────────────────
 
 /**
- * generateExecutiveBrief — project a Royaltē Health Report into a
+ * generateExecutiveBrief — project canonical Health intelligence into a
  * Royaltē Executive Brief.
+ *
+ * Signature: generateExecutiveBrief(cio, intelligenceReport, healthReport, canonicalHealth)
+ *
+ *   cio               — Canonical Intelligence Object; owns artistName.
+ *   intelligenceReport — Intelligence Engine output; the sole owner of
+ *                        all intelligence arrays (strengths, risks,
+ *                        opportunities, recommendations, observations).
+ *   healthReport      — generateHealthReport() output; the sole owner of
+ *                        presentation metadata (generatedAt, trend,
+ *                        confidence text).
+ *   canonicalHealth   — computeHealthScore() output, computed ONCE by the
+ *                        orchestrator (api/audit.js) and passed in. Owns
+ *                        all score and grade fields. The brief never
+ *                        calls computeHealthScore() itself.
  *
  * Always returns a deeply-frozen, structurally-valid brief.
  * Never throws. Pure: no I/O, no LLM, no randomness, no wall clock.
- * `generatedAt` is inherited verbatim from `healthReport.generatedAt`
- * so identical input produces identical output.
  *
- * Top-N sections (topStrengths · topRisks · topOpportunities ·
- * priorityActions) are sourced ONLY from the corresponding upstream
- * arrays on the (extended) healthReport. The engine never invents an
- * entry that is not present in those arrays.
+ * Top-N sections are sourced exclusively from intelligenceReport arrays.
+ * No fallback to other layers. Fail closed on missing required inputs.
  */
-export function generateExecutiveBrief(healthReport) {
+export function generateExecutiveBrief(cio, intelligenceReport, healthReport, canonicalHealth) {
   const brief = emptyBrief();
 
   try {
-    // Garbage-input guard. null / undefined / non-object / array →
-    // return the structurally-valid empty brief.
-    if (healthReport === null
-        || healthReport === undefined
-        || typeof healthReport !== 'object'
-        || Array.isArray(healthReport)) {
+    // Helper: a valid pipeline object is a non-null, non-array plain object.
+    const isValidObj = (x) => x !== null && x !== undefined
+      && typeof x === 'object' && !Array.isArray(x);
+
+    // Fail closed: both canonicalHealth and intelligenceReport must be
+    // present and well-formed. Missing either → return empty brief.
+    // Never silently substitute arrays from a different layer.
+    if (!isValidObj(canonicalHealth) || !isValidObj(intelligenceReport)) {
       return deepFreeze(brief);
     }
 
-    // Inherit generatedAt verbatim — deterministic.
-    brief.generatedAt = safeString(healthReport.generatedAt);
+    // Health Report is the sole owner of presentation metadata.
+    brief.generatedAt = safeString(healthReport?.generatedAt);
 
-    // Pull upstream arrays defensively (Phase 7 HealthReport doesn't
-    // carry these; callers supply them by bundling the Phase 6 engine
-    // output's arrays into the HealthReport before the call).
-    const strengths       = safeArray(healthReport.strengths);
-    const risks           = safeArray(healthReport.risks);
-    const opportunities   = safeArray(healthReport.opportunities);
-    const recommendations = safeArray(healthReport.recommendations);
-    const observations    = safeArray(healthReport.observations);
+    // Arrays come exclusively from intelligenceReport — the sole owner of
+    // intelligence observations. No fallback to other layers.
+    const strengths       = safeArray(intelligenceReport.strengths);
+    const risks           = safeArray(intelligenceReport.risks);
+    const opportunities   = safeArray(intelligenceReport.opportunities);
+    const recommendations = safeArray(intelligenceReport.recommendations);
+    const observations    = safeArray(intelligenceReport.observations);
 
     // Top-N projections (sorted + capped at 5).
+    const overallScore         = safeNumber(canonicalHealth.overallScore);
     const topStrengthsList     = sortByCategoryThenTitle(strengths).slice(0, 5);
     const topRisksList         = sortRisks(risks).slice(0, 5);
     const topOpportunitiesList = sortByCategoryThenTitle(opportunities).slice(0, 5);
-    const priorityActionsList  = sortRecommendations(recommendations, observations).slice(0, 5);
+    const priorityActionsRaw   = sortRecommendations(recommendations, observations).slice(0, 5);
+    // Annotate each priority action with a headroom-apportioned score gain estimate.
+    const priorityActionsList  = priorityActionsRaw.map(a => ({
+      ...a,
+      potentialScoreGain: apportionScoreGain(a, overallScore),
+    }));
+
+    // Build enriched object for internal language builders.
+    // canonicalHealth provides all score fields; CIO supplies artistName.
+    const enrichedForBuilders = Object.assign(Object.create(null), canonicalHealth, {
+      artistName: isValidObj(cio)
+        ? safeString(cio.canonicalArtistName) || safeString(cio.identity?.name)
+        : '',
+    });
 
     // Language sections.
-    brief.healthHeadline      = HEALTH_HEADLINES[safeString(healthReport.overallGrade)] || '';
-    brief.executiveSummary    = buildExecutiveSummary(healthReport);
-    brief.executiveNarrative  = buildExecutiveNarrative(healthReport, topRisksList, topOpportunitiesList);
+    brief.healthHeadline      = HEALTH_HEADLINES[safeString(canonicalHealth.overallGrade)] || '';
+    brief.executiveSummary    = buildExecutiveSummary(enrichedForBuilders);
+    brief.executiveNarrative  = buildExecutiveNarrative(enrichedForBuilders, topRisksList, topOpportunitiesList);
     brief.topStrengths        = topStrengthsList;
     brief.topRisks            = topRisksList;
     brief.topOpportunities    = topOpportunitiesList;
     brief.priorityActions     = priorityActionsList;
-    brief.confidenceStatement = buildConfidenceStatement(healthReport.confidenceScore);
-    brief.recommendedNextStep = recommendedNextStepFor(topRisksList);
-    brief.aiExecutiveInsight  = buildAiExecutiveInsight(healthReport, topStrengthsList, topRisksList, brief.recommendedNextStep);
+    brief.recoveryNarrative   = buildRecoveryNarrative(topOpportunitiesList, overallScore);
+    brief.confidenceStatement = buildConfidenceStatement(canonicalHealth.confidenceScore);
+    brief.recommendedNextStep = recommendedNextStepFor(topRisksList, topOpportunitiesList);
+    brief.aiExecutiveInsight  = buildAiExecutiveInsight(enrichedForBuilders, topStrengthsList, topRisksList, brief.recommendedNextStep);
 
     // Reserved sections remain null until future phases populate them.
     // Already set by emptyBrief(); no mutation here.

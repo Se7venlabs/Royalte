@@ -41,13 +41,15 @@
 <link rel="preload" as="image" href="/images/artist-singer-belt.jpg">
 <script async src='https://r.wdfl.co/rw.js' data-rewardful='YOUR_REWARDFUL_ID'></script>
 <script>var rewardful=rewardful||function(){(rewardful.q=rewardful.q||[]).push(arguments)};</script>
+<!-- PRDS v1.0 — Public Responsive Design System™ foundation -->
+<link rel="stylesheet" href="/css/royalte-prds.css">
 <style>
 :root{
---bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
---border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
---text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
+--bg:#060610;--bg2:#0a0a14;--bg3:#10101e;--bg4:#14142a;
+--border:rgba(138,92,255,0.15);--border2:rgba(138,92,255,0.30);--border3:rgba(255,255,255,0.08);
+--text:#e8e4f4;--muted:#9490b8;--muted2:#bab6d8;--text2:#d4d0e8;
 --pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
---grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.2);
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.28);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -72,33 +74,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;d
 .nav-cta:hover{opacity:0.85;}
 .nav-os-entry{display:inline-block;text-decoration:none;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);background:rgba(138,92,255,0.06);border:1px solid var(--border2);padding:9px 20px;border-radius:4px;white-space:nowrap;transition:background 0.2s,border-color 0.2s,color 0.2s;}
 .nav-os-entry:hover{background:rgba(138,92,255,0.12);border-color:var(--pur);color:#fff;}
-/* ─── Royaltē OS login modal (Block F) ─── */
-.os-modal-overlay{position:fixed;inset:0;background:rgba(3,3,10,0.8);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);z-index:200;opacity:0;pointer-events:none;transition:opacity 0.2s;}
-.os-modal-overlay[aria-hidden="false"]{opacity:1;pointer-events:auto;}
-.os-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%);z-index:201;width:calc(100% - 40px);max-width:400px;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:30px 28px;opacity:0;pointer-events:none;transition:opacity 0.2s,transform 0.2s;}
-.os-modal[aria-hidden="false"]{opacity:1;pointer-events:auto;transform:translate(-50%,-50%);}
-.os-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);border-radius:14px 14px 0 0;}
-.os-modal-close{position:absolute;top:12px;right:15px;background:none;border:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer;padding:4px;transition:color 0.2s;}
-.os-modal-close:hover{color:var(--text);}
-.os-modal-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:#fff;margin:0 0 4px;}
-.os-modal-sub{font-size:13px;color:var(--muted2);margin:0 0 18px;}
-.os-modal-label{display:block;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px;}
-.os-modal-input{width:100%;padding:11px 13px;background:var(--bg);color:var(--text);border:1px solid var(--border2);border-radius:6px;font-family:'Space Grotesk',sans-serif;font-size:14px;}
-.os-modal-input:focus{outline:none;border-color:var(--pur);}
-.os-modal-forgot{display:block;width:100%;margin:8px 0 0;padding:0;background:none;border:none;cursor:pointer;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.06em;color:var(--muted);text-align:right;}
-.os-modal-forgot:hover{color:var(--pur);}
-.os-modal-forgot:disabled{opacity:0.5;cursor:default;}
-.os-modal-btn{width:100%;margin-top:18px;padding:12px;background:var(--grad);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;transition:opacity 0.2s;}
-.os-modal-btn:hover{opacity:0.9;}
-.os-modal-btn:disabled{opacity:0.55;cursor:not-allowed;}
-.os-modal-btn-secondary{margin-top:0;background:transparent;border:1px solid var(--border2);color:var(--text);}
-.os-modal-btn-secondary:hover{background:rgba(138,92,255,0.08);border-color:var(--pur);opacity:1;}
-.os-modal-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;}
-.os-modal-divider::before,.os-modal-divider::after{content:'';flex:1;height:1px;background:var(--border2);}
-.os-modal-status{margin:14px 0 0;font-size:12.5px;line-height:1.5;}
-.os-modal-status.success{color:var(--grn);}
-.os-modal-status.error{color:var(--red);}
-body.os-modal-open{overflow:hidden;}
 /* HERO */
 .hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:124px 56px 60px;position:relative;overflow:hidden;gap:56px;}
 #scan-tool{min-height:auto;padding:124px 56px 32px;align-items:start;}
@@ -149,7 +124,7 @@ body.os-modal-open{overflow:hidden;}
 .scan-decoder{
   margin-top:24px;
   padding:20px 22px;
-  background:rgba(7,7,15,0.55);
+  background:rgba(10,10,20,0.65);
   border:1px solid var(--border3);
   border-radius:6px;
   display:flex;
@@ -217,7 +192,7 @@ body.os-modal-open{overflow:hidden;}
 .dtb-live{margin-left:auto;display:flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:11px;color:var(--grn);letter-spacing:0.1em;}
 .dtb-live-dot{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:pulse 2s infinite;}
 .dash-body{padding:16px;display:flex;flex-direction:column;gap:10px;}
-.d-score-row{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:#0a0818;border:1px solid rgba(138,92,255,0.25);border-radius:8px;padding:16px;}
+.d-score-row{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:#0d0b1e;border:1px solid rgba(138,92,255,0.28);border-radius:8px;padding:16px;}
 .d-score-ring{width:64px;height:64px;position:relative;flex-shrink:0;}
 .d-score-ring svg{transform:rotate(-90deg);}
 .d-score-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
@@ -233,7 +208,7 @@ body.os-modal-open{overflow:hidden;}
 .d-alert-t{font-size:13px;color:#ffffff;flex:1;line-height:1.4;}
 .d-alert-t strong{color:var(--red);}
 .d-modules{display:flex;flex-direction:column;gap:6px;}
-.d-mod{display:flex;flex-direction:column;gap:6px;padding:10px 14px;background:#0a0818;border:1px solid rgba(138,92,255,0.15);border-radius:6px;}
+.d-mod{display:flex;flex-direction:column;gap:6px;padding:10px 14px;background:#0d0b1e;border:1px solid rgba(138,92,255,0.18);border-radius:6px;}
 .d-mod-top{display:flex;align-items:center;gap:12px;}
 .d-mod-problem{font-size:11.5px;color:#c8c4e0;line-height:1.35;padding-left:20px;letter-spacing:0.005em;}
 .d-mod-impact{font-size:10.5px;color:#7a7598;line-height:1.3;padding-left:20px;font-style:italic;letter-spacing:0.01em;}
@@ -286,7 +261,7 @@ section{padding:140px 56px;position:relative;}
 .verified-badge{font-family:'Space Mono',monospace;font-size:13px;font-weight:600;line-height:1.5;letter-spacing:0.06em;padding:6px 12px;border-radius:3px;background:rgba(64,240,160,0.08);border:1px solid rgba(64,240,160,0.35);color:var(--grn);}
 
 /* ── ROYALTY RISK SCORE BANNER ── */
-.risk-banner{background:#0e0b1e;border:1px solid rgba(138,92,255,0.4);border-radius:8px;padding:24px 28px;margin-bottom:14px;position:relative;overflow:hidden;}
+.risk-banner{background:#120e24;border:1px solid rgba(138,92,255,0.42);border-radius:8px;padding:24px 28px;margin-bottom:14px;position:relative;overflow:hidden;}
 .risk-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);}
 .risk-banner-inner{display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;}
 .risk-score-block{text-align:center;}
@@ -308,7 +283,7 @@ section{padding:140px 56px;position:relative;}
 .risk-data-tag{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.1em;text-align:center;}
 
 /* ── SCORE RING ── */
-.r-score{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden;}
+.r-score{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:var(--bg3);border:1px solid var(--border2);box-shadow:0 0 0 1px rgba(138,92,255,0.06);border-radius:6px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden;}
 .r-score::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
 .r-ring{width:70px;height:70px;position:relative;flex-shrink:0;}
 .r-ring svg{transform:rotate(-90deg);}
@@ -318,8 +293,8 @@ section{padding:140px 56px;position:relative;}
 .r-verdict{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
 .r-desc{font-size:12px;color:var(--text2);line-height:1.5;}
 .r-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;}
-.r-card{background:#0e0b1e;border:1px solid rgba(138,92,255,0.2);border-radius:8px;padding:20px;transition:border-color 0.2s,box-shadow 0.2s;}
-.r-card:hover{border-color:rgba(138,92,255,0.5);box-shadow:0 0 20px rgba(138,92,255,0.1);}
+.r-card{background:#120e24;border:1px solid rgba(138,92,255,0.22);border-radius:8px;padding:20px;transition:border-color 0.2s,box-shadow 0.2s;}
+.r-card:hover{border-color:rgba(138,92,255,0.55);box-shadow:0 0 24px rgba(138,92,255,0.14);}
 .rc-icon{font-size:36px;margin-bottom:12px;display:block;}
 .rc-title{font-size:15px;font-weight:700;color:#ffffff;margin-bottom:6px;}
 .rc-value{font-size:14px;color:var(--text);}
@@ -330,7 +305,7 @@ section{padding:140px 56px;position:relative;}
 .rb-red{background:rgba(240,80,96,0.1);color:var(--red);}
 
 /* ── TERRITORY COVERAGE ── */
-.territory-section{background:#0e0b1e;border:1px solid rgba(138,92,255,0.2);border-radius:8px;margin-bottom:12px;overflow:hidden;}
+.territory-section{background:#120e24;border:1px solid rgba(138,92,255,0.22);border-radius:8px;margin-bottom:12px;overflow:hidden;}
 .territory-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border3);}
 .territory-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
 .territory-policy{font-family:'Space Mono',monospace;font-size:8px;color:var(--grn);letter-spacing:0.08em;background:rgba(64,240,160,0.06);padding:2px 8px;border-radius:2px;border:1px solid rgba(64,240,160,0.15);}
@@ -347,7 +322,7 @@ section{padding:140px 56px;position:relative;}
 .territory-source{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.06em;}
 
 /* ── AUDIT COVERAGE ── */
-.audit-coverage{background:#0e0b1e;border:1px solid rgba(138,92,255,0.2);border-radius:8px;margin-bottom:12px;overflow:hidden;}
+.audit-coverage{background:#120e24;border:1px solid rgba(138,92,255,0.22);border-radius:8px;margin-bottom:12px;overflow:hidden;}
 .audit-coverage-hd{padding:12px 16px;border-bottom:1px solid var(--border3);}
 .audit-coverage-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
 .ac-row{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid rgba(138,92,255,0.1);}
@@ -359,7 +334,7 @@ section{padding:140px 56px;position:relative;}
 .acs-not-confirmed{background:rgba(240,192,64,0.12);color:var(--amb);border:1px solid rgba(240,192,64,0.25);}
 
 /* ── FLAGS ── */
-.r-flags{background:#0e0b1e;border:1px solid rgba(138,92,255,0.2);border-radius:8px;padding:18px;margin-bottom:12px;}
+.r-flags{background:#120e24;border:1px solid rgba(138,92,255,0.22);border-radius:8px;padding:18px;margin-bottom:12px;}
 .rf-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .rf-title{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
 .flag-item{padding:10px 0;border-bottom:1px solid var(--border3);}
@@ -494,7 +469,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 .reveal{opacity:0;transform:translateY(22px);transition:all 0.65s ease;}
 .reveal.visible{opacity:1;transform:translateY(0);}
 .d1{transition-delay:0.1s;}.d2{transition-delay:0.2s;}.d3{transition-delay:0.3s;}
-@media(max-width:900px){
+@media(max-width:1024px){
   nav{padding:0 14px;height:64px;}
   .nav-logo-full{display:none;}
   .nav-logo-mobile{display:block;height:32px;}
@@ -518,7 +493,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
      at narrow widths. */
   .dash-body{padding:14px;}
   #scan-tool{padding:60px 20px;}
-  section{padding:60px 20px;}.steps{grid-template-columns:1fr;}.beta-grid-2{grid-template-columns:1fr;}
+  .steps{grid-template-columns:1fr;}.beta-grid-2{grid-template-columns:1fr;}
   #beta{padding-top:30px;}
   #request{padding-top:30px;}
   .form-split{grid-template-columns:1fr;}.trust-grid{grid-template-columns:1fr 1fr;}
@@ -639,7 +614,8 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 .hero-scan-eyebrow-section .sec-h2{font-family:'Rajdhani',sans-serif;font-size:clamp(36px,5vw,62px);font-weight:700;line-height:1;letter-spacing:-0.01em;text-transform:uppercase;color:var(--text);max-width:780px;}
 .hero-scan-eyebrow-section .sec-h2 .gt{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
-@media(max-width:900px){
+@media(max-width:1024px){
+  section{padding:var(--prds-section-pad-y) var(--prds-section-pad-x);}
   .new-hero{grid-template-columns:1fr;padding:40px 22px;gap:40px;min-height:calc(100vh - 64px);height:calc(100vh - 64px);margin-top:64px;align-items:center;}
   .nh-collage{grid-template-columns:repeat(2,1fr) !important;grid-template-rows:repeat(3,minmax(0,1fr)) !important;opacity:0.5;}
   .nh-mobile-hide{display:none !important;}
@@ -668,11 +644,19 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   .hero{padding:114px 20px 90px;}
 }
 
-@media(min-width:901px){
+@media(min-width:1025px){
   .nh-tagline{display:block !important;font-family:'Space Grotesk',sans-serif;font-size:19px;color:var(--text2);line-height:1.55;max-width:580px;margin:0 auto 36px;text-align:center;opacity:0;animation:fadeUp 0.7s ease 0.45s forwards;text-shadow:0 2px 16px rgba(3,3,10,0.8);}
   .nh-tagline .gt{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:600;}
   .nh-tagline-emphasis{color:#ffffff;font-weight:600;}
   .nh-h1{text-align:center;}
+}
+/* Executive Mobile™: remove 100vh constraint so keyboard open/close
+   does not recalculate hero height and shift layout below it. */
+@media(max-width:640px){
+  .new-hero{height:auto;min-height:auto;}
+  /* Anchor collage images to top so heads/faces are not cropped.
+     !important overrides per-image inline object-position styles. */
+  .nh-collage img{object-position:center top !important;}
 }
 /* ═══════════════════════════════════════════════════════════
    SCAN RESULT CARD UPGRADES — visual/UX patch (additive only)
@@ -787,7 +771,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 .dash-body.is-revealed .d-locked-cta{animation:resultFadeUp 0.45s ease 0.86s both;}
 
 /* Mobile — stack image cleanly, keep CTA visible, no overflow */
-@media(max-width:900px){
+@media(max-width:1024px){
   .d-score-row{grid-template-columns:auto 1fr;gap:12px;}
   .d-score-img-wrap{width:80px;height:80px;grid-column:1;grid-row:2;}
   .d-score-ring{grid-column:1;grid-row:1;}
@@ -940,7 +924,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   0%,100%{box-shadow:0 6px 28px rgba(138,92,255,0.42);}
   50%    {box-shadow:0 6px 36px rgba(138,92,255,0.65),0 0 18px rgba(224,64,200,0.30);}
 }
-@media(max-width:900px){
+@media(max-width:1024px){
   .scan-conversion-section{padding:40px 20px 48px;}
   .scan-conversion-inner{padding:32px 22px;}
   .scan-conversion-headline{font-size:22px;}
@@ -998,7 +982,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   pointer-events:none;
 }
 
-@media(max-width:900px){
+@media(max-width:1024px){
   .hero-visual{min-height:180px;margin-top:24px;}
 }
 
@@ -1217,6 +1201,34 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
 }
 .bi-os-status.success{color:var(--grn);}
 .bi-os-status.error{color:var(--red);}
+.open-mc-btn{
+  display:block;width:100%;
+  background:var(--grad);color:#fff;
+  padding:18px 40px;border-radius:4px;
+  font-size:14px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+  transition:all 0.25s;
+  animation:ctaGlow 2.4s ease-in-out 1s infinite;
+  position:relative;margin:0;
+}
+.open-mc-btn:hover{
+  opacity:0.92;
+  box-shadow:0 0 80px 14px rgba(138,92,255,0.9),0 0 120px 24px rgba(224,64,200,0.6);
+  transform:translateY(-1px) scale(1.04);
+  animation-play-state:paused;
+}
+.open-mc-btn:disabled{opacity:0.35;cursor:not-allowed;animation:none;}
+.open-mc-ready{font-size:12px;color:var(--muted);letter-spacing:0.02em;margin:10px 0 0;text-align:center;}
+/* ── SCAN COMPLETION SCREEN ── */
+.scan-complete-screen{display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px 22px 24px;}
+.scan-complete-badge{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.scan-complete-check{width:22px;height:22px;border-radius:50%;background:rgba(64,240,160,0.12);border:1px solid rgba(64,240,160,0.32);display:flex;align-items:center;justify-content:center;color:var(--grn);flex-shrink:0;}
+.scan-complete-label{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--grn);}
+.scan-complete-headline{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text);margin-bottom:14px;}
+.scan-complete-rule{width:36px;height:1px;background:var(--border2);margin:0 auto 16px;}
+.scan-complete-desc{font-size:13px;color:var(--muted2);line-height:1.65;max-width:280px;margin:0 auto 20px;}
+.scan-complete-cta{padding:14px 20px;font-size:12.5px;letter-spacing:0.12em;}
+.scan-complete-trust{font-size:11px;color:var(--muted);margin-top:10px;letter-spacing:0.03em;}
 .bi-os-access{
   text-align:center;
   margin:0;
@@ -1225,7 +1237,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   letter-spacing:0.08em;
   color:var(--muted);
 }
-@media (max-width:768px){
+@media (max-width:640px){
   .bi-os-preview{padding:22px 18px;margin-top:22px;}
   .bi-os-preview-intro br{display:none;}
   .bi-os-preview-features li{font-size:12.5px;}
@@ -1237,7 +1249,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
    Approved audit fixes. CSS-only, mobile-only. Desktop above 768px is
    byte-identical. Orbs reduced in visual weight (not removed) per founder
    modification. */
-@media (max-width:768px){
+@media (max-width:640px){
   /* I-C1 — territory rows stack vertically; status allowed to wrap */
   .territory-row{grid-template-columns:1fr;gap:4px;}
   .territory-status{white-space:normal;}
@@ -1249,8 +1261,7 @@ footer > div:first-child{display:flex;flex-direction:column;align-items:center;t
   /* I-C4 + I-C5 + I-C6 — prevent iOS auto-zoom on input focus
      (Safari zooms in when input font-size < 16px) */
   .form-input,
-  .bi-os-email,
-  .os-modal-input{font-size:16px;}
+  .bi-os-email{font-size:16px;}
 
   /* I-H1 + I-H2 — tap targets ≥44px (WCAG / iOS HIG) */
   .nav-hamburger,
@@ -1453,7 +1464,7 @@ body.menu-locked {
 /* ─── GAP-BASED EXPOSURE (homepage mirror — reduced for conversion) ───
    Aggregate range + gap count + tease only. Per-indicator detail is held
    back for the authenticated dashboard. */
-.gbe-card{margin-top:14px;padding:18px 20px;background:#0a0818;border:1px solid rgba(138,92,255,0.25);border-radius:8px;}
+.gbe-card{margin-top:14px;padding:18px 20px;background:#0d0b1e;border:1px solid rgba(138,92,255,0.28);border-radius:8px;}
 .gbe-card-title{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--pur);margin-bottom:14px;}
 .gbe-body{display:flex;flex-direction:column;}
 .gbe-primary-statement{font-size:14px;color:var(--text2);line-height:1.55;margin:0 0 16px;}
@@ -1521,6 +1532,55 @@ body.menu-locked {
 .os-cta-card .os-fa-counter-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
 .os-cta-card .os-fa-counter-value{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;}
 .bi-os-cta:disabled{opacity:0.5;cursor:not-allowed;}
+/* ── Scan Hero V3 ─────────────────────────────────────────────────────── */
+.scan-hero .hero-left{display:flex;flex-direction:column;justify-content:flex-start;padding-top:0;gap:0;}
+.scan-hero .orb1{opacity:0.5;}
+.scan-hero .orb2{opacity:0.5;}
+.sh-badge{display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(138,92,255,0.3);border-radius:20px;padding:5px 12px;margin:0 0 20px;width:fit-content;}
+.sh-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:corePulse 3s ease-in-out infinite;}
+.sh-headline{font-family:'Rajdhani',sans-serif;font-size:clamp(32px,4.5vw,52px);font-weight:700;color:#fff;letter-spacing:0.01em;text-transform:uppercase;line-height:1.08;margin:0 0 14px;}
+.sh-sub{font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--text2);line-height:1.5;margin:0 0 6px;}
+.sh-attr{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px;}
+.sh-body{font-family:'Space Grotesk',sans-serif;font-size:14px;color:var(--muted2);line-height:1.6;margin:0 0 28px;}
+.sh-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin:0 0 16px;}
+.sh-methods{display:flex;flex-direction:column;gap:8px;margin:0 0 6px;}
+.sh-or-divider{display:flex;align-items:center;gap:12px;margin:2px 0;color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
+.sh-or-divider::before,.sh-or-divider::after{content:'';flex:1;height:1px;background:var(--border3);}
+.sh-inputs{display:flex;flex-direction:column;gap:8px;}
+.sh-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border3);border-radius:7px;padding:10px 14px;font-family:'Space Grotesk',sans-serif;font-size:13px;color:#fff;outline:none;box-sizing:border-box;transition:border-color 0.2s ease;}
+.sh-input::placeholder{color:var(--muted);}
+.sh-input:focus{border-color:rgba(138,92,255,0.5);}
+.sh-verify{font-family:'Space Grotesk',sans-serif;font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.4;}
+.sh-example{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.06em;margin:8px 0 0;}
+.sh-scan-error{font-family:'Space Grotesk',sans-serif;font-size:12px;color:#f05060;margin:10px 0 0;min-height:0;line-height:1.5;}
+.sh-run-btn{width:100%;margin-top:16px;padding:15px 24px;background:linear-gradient(90deg,#8a5cff 0%,#e040c8 100%);border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;cursor:pointer;box-shadow:0 0 28px rgba(138,92,255,0.4),0 0 80px rgba(138,92,255,0.14),0 0 100px rgba(224,64,200,0.08);transition:box-shadow 0.4s ease,transform 0.15s ease;animation:sh-btn-pulse 4s ease-in-out infinite;display:block;}
+.sh-run-btn:hover{box-shadow:0 0 36px rgba(138,92,255,0.55),0 0 100px rgba(138,92,255,0.22),0 0 140px rgba(224,64,200,0.14);transform:translateY(-2px);animation:none;}
+.sh-run-btn:active{box-shadow:0 0 18px rgba(138,92,255,0.35),0 0 50px rgba(138,92,255,0.1);transform:translateY(0);}
+.sh-run-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;animation:none;}
+@keyframes sh-btn-pulse{0%,100%{box-shadow:0 0 28px rgba(138,92,255,0.4),0 0 80px rgba(138,92,255,0.14),0 0 100px rgba(224,64,200,0.08);}50%{box-shadow:0 0 36px rgba(138,92,255,0.5),0 0 110px rgba(138,92,255,0.2),0 0 140px rgba(224,64,200,0.12);}}
+.sh-trust{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 10px;margin-top:10px;font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:0.02em;color:var(--text2);}
+.sh-trust span{display:flex;align-items:center;}
+.sh-trust span::before{content:'·';margin-right:10px;opacity:0.5;}
+.sh-trust span:first-child::before{display:none;}
+.sh-machinery{position:absolute;top:-9999px;left:-9999px;visibility:hidden;pointer-events:none;}
+.scan-hero .paste-hint{display:none;}
+/* ── Scan Confirmed State ────────────────────────────────────────────── */
+/* Hides scan form + results while Identity Confirmed overlay is shown.  */
+/* Hides hero-right while scan-confirmed overlay is shown.               */
+body.scan-confirmed .hero-right{visibility:hidden;}
+#sc-confirm{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity 0.7s ease;z-index:5;background:var(--bg,#070714);}
+body.scan-confirmed #sc-confirm{opacity:1;}
+.sc-eyebrow{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(138,92,255,0.85);margin-bottom:18px;}
+.sc-title{font-family:'Rajdhani',sans-serif;font-size:clamp(32px,5vw,56px);font-weight:700;color:rgba(255,255,255,0.95);letter-spacing:0.01em;line-height:1.05;margin-bottom:14px;}
+.sc-sub{font-family:'Space Grotesk',sans-serif;font-size:15px;color:rgba(138,92,255,0.65);letter-spacing:0.06em;}
+
+.sh-features{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;margin-top:24px;}
+.sh-feat{padding:16px 14px;display:flex;flex-direction:column;gap:6px;position:relative;}
+.sh-feat+.sh-feat::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:1px;background:rgba(255,255,255,0.05);}
+.sh-feat-icon{line-height:1;filter:drop-shadow(0 0 8px rgba(138,92,255,0.6));}
+.sh-feat-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:#fff;line-height:1.3;}
+.sh-feat-desc{font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--muted2);line-height:1.5;}
+@media(max-width:640px){.sh-headline{font-size:28px;}.sh-input{font-size:16px;}.sh-run-btn{font-size:15px;padding:13px 20px;}.sh-features{grid-template-columns:repeat(2,1fr);}.sh-feat:nth-child(3)::before{display:none;}}
 
 </style>
 </head>
@@ -1555,7 +1615,7 @@ body.menu-locked {
     <p class="nh-desc-mobile">
       We diagnose the infrastructure problems your distributor, PRO, and publisher don't catch. Founding Artist Beta — limited to 1,000 artists.
     </p>
-    <button class="nh-cta-btn" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('hero-url').focus(),800);">Run Free Scan →</button>
+    <button class="nh-cta-btn prds-btn prds-btn--primary" onclick="document.getElementById('scan-tool').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('hero-url').focus(),800);">Run Free Scan →</button>
     <div class="nh-finds">
       <div class="nh-find-row">
         <div class="nh-find-marker"></div>
@@ -1740,13 +1800,14 @@ body.menu-locked {
     </svg>
   </a>
   <div class="nav-right">
-    <div class="nav-links">
+    <div class="nav-links prds-desktop-only--flex">
       <a href="/contact.html">Contact</a>
+      <a href="/what-we-do.html">What We Do</a>
       <a href="/faq.html">FAQ</a>
       <a href="/blog.html">Learn</a>
     </div>
     <span class="nav-beta">// Beta</span>
-    <a href="/dashboard.html" class="nav-os-entry" id="enter-os-btn">Enter Royaltē OS →</a>
+    <a href="/mission-control.html?vault=1" class="nav-os-entry" id="enter-os-btn">Enter Royaltē OS →</a>
     <button class="nav-cta nav-cta-pulse" type="button" onclick="requestFullAuditFromNav()">Get Your Royaltē Review</button>
     <button class="nav-hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu-drawer">
       <span class="hamburger-line"></span>
@@ -1762,31 +1823,13 @@ body.menu-locked {
   <nav class="mobile-menu-nav">
     <a href="/" class="mobile-menu-link">Home</a>
     <a href="/blog.html" class="mobile-menu-link">Learn</a>
+    <a href="/what-we-do.html" class="mobile-menu-link">What We Do</a>
     <a href="/faq.html" class="mobile-menu-link">FAQ</a>
     <a href="/contact.html" class="mobile-menu-link">Contact</a>
     <a href="/#scan-tool" class="mobile-menu-cta">Run Free Scan</a>
   </nav>
 </aside>
 
-<!-- Royaltē OS login modal — returning-user entry from the "Enter Royaltē OS"
-     nav button (Block F). Password sign-in OR magic link; one shared email. -->
-<div class="os-modal-overlay" id="os-login-overlay" aria-hidden="true"></div>
-<div class="os-modal" id="os-login-modal" role="dialog" aria-modal="true" aria-labelledby="os-login-title" aria-hidden="true">
-  <button class="os-modal-close" id="os-login-close" type="button" aria-label="Close">&times;</button>
-  <h2 class="os-modal-title" id="os-login-title">Enter Royaltē OS</h2>
-  <p class="os-modal-sub">Sign in to your dashboard.</p>
-  <form id="os-login-form" novalidate>
-    <label class="os-modal-label" for="os-login-email">Email</label>
-    <input class="os-modal-input" id="os-login-email" type="email" autocomplete="username" required>
-    <label class="os-modal-label" for="os-login-password">Password</label>
-    <input class="os-modal-input" id="os-login-password" type="password" autocomplete="current-password">
-    <button class="os-modal-forgot" id="os-forgot-btn" type="button">Forgot password?</button>
-    <button class="os-modal-btn" id="os-login-submit" type="submit">Sign In</button>
-  </form>
-  <div class="os-modal-divider"><span>or</span></div>
-  <button class="os-modal-btn os-modal-btn-secondary" id="os-magic-btn" type="button">Send Magic Link</button>
-  <p class="os-modal-status" id="os-login-status" role="status" aria-live="polite"></p>
-</div>
 
 
 
@@ -1835,41 +1878,78 @@ body.menu-locked {
   </div>
 </section>
 
-<section class="hero" id="scan-tool">
+<section class="hero scan-hero" id="scan-tool">
   <div class="orb1"></div><div class="orb2"></div>
   <div class="hero-scan"></div>
   <div class="hero-left">
-    <h3 class="hero-h1">Paste your link. See your gaps in <span class="gt">seconds.</span></h3>
-    <p class="hero-desc">Royaltē scans your profile and shows you verified gaps — no estimates, no guesswork.</p>
-    <div class="hero-paste">
-      <div class="paste-box">
-        <input class="paste-input" id="hero-url" type="text" placeholder="open.spotify.com/artist/... or music.apple.com/us/album/...">
-        <button class="paste-btn" id="hero-btn" onclick="runAudit()">Run Free Scan →</button>
+    <div class="sh-badge">Music Intelligence OS</div>
+    <h1 class="sh-headline">Discover what your<br>music is missing.</h1>
+    <p class="sh-sub">Your music has data. We make sense of it.</p>
+    <p class="sh-attr">Built by artists, for artists.</p>
+    <p class="sh-body">Most artists only see part of the picture.<br>Royalt&#x113; shows you the rest.</p>
+    <div class="sh-methods">
+      <input class="sh-input" id="url-input" type="text" placeholder="Paste Apple Music or Spotify Artist URL" autocomplete="off" spellcheck="false">
+      <div class="sh-or-divider"><span>or</span></div>
+      <div class="sh-inputs">
+        <input class="sh-input" id="artist-name-input" type="text" placeholder="Artist Name" autocomplete="off" spellcheck="false">
+        <input class="sh-input" id="song-title-input" type="text" placeholder="Any Song" autocomplete="off" spellcheck="false">
       </div>
+    </div>
+    <div class="scan-progress" id="scan-progress">
+      <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
+      <div class="sp-label" id="sp-label">Scanning...</div>
+    </div>
+    <!-- paste-hint must remain in visible DOM so showUrlError() injection is visible -->
+    <div class="paste-hint"></div>
+    <div class="sh-scan-error" id="sh-scan-error"></div>
+    <button class="sh-run-btn prds-btn prds-btn--primary prds-btn--mobile-full" id="sh-run-btn" onclick="runScan()">Run My Scan &#x2192;</button>
+    <div class="sh-trust">
+      <span>100% Free</span>
+      <span>No Credit Card Required</span>
+      <span>Results In Seconds</span>
+    </div>
+    <div class="sh-features">
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="2" y="14" width="4" height="8" rx="1" fill="#8a5cff"/><rect x="10" y="8" width="4" height="14" rx="1" fill="#8a5cff"/><rect x="18" y="4" width="4" height="18" rx="1" fill="#8a5cff"/></svg>
+        </div>
+        <div class="sh-feat-title">Artist Intelligence&#x2122;</div>
+        <div class="sh-feat-desc">Discover verified gaps and opportunities across your music business.</div>
+      </div>
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#8a5cff" stroke-width="2.5"/><path d="M16.5 16.5L21 21" stroke="#8a5cff" stroke-width="2.5" stroke-linecap="round"/><path d="M9 11h4M11 9v4" stroke="#8a5cff" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="sh-feat-title">Metadata Analysis&#x2122;</div>
+        <div class="sh-feat-desc">Identify missing registrations, metadata issues and catalog risks.</div>
+      </div>
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z" fill="#8a5cff"/></svg>
+        </div>
+        <div class="sh-feat-title">Instant Scan Results</div>
+        <div class="sh-feat-desc">Receive your intelligence report in seconds.</div>
+      </div>
+      <div class="sh-feat">
+        <div class="sh-feat-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6l-8-4z" fill="#8a5cff"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="sh-feat-title">Verified Industry Data</div>
+        <div class="sh-feat-desc">Powered by real music industry sources and platform data.</div>
+      </div>
+    </div>
+    <!-- Identity Confirmed state — overlays hero-left after scan success -->
+    <div id="sc-confirm" aria-hidden="true">
+      <p class="sc-eyebrow">// Scan Complete</p>
+      <p class="sc-title">Identity<br>Confirmed&#x2122;</p>
+      <p class="sc-sub">Launching Royalt&#x113; OS&#x2122;</p>
+    </div>
+    <!-- Hidden machinery — IDs required by runAudit() wiring -->
+    <div class="sh-machinery">
+      <input id="hero-url" type="text" tabindex="-1" aria-hidden="true">
+      <button id="hero-btn" onclick="runAudit()" tabindex="-1" aria-hidden="true">Run Free Scan</button>
       <div id="url-type-chip" class="url-type-chip"></div>
-      <div class="paste-hint">// Supports Spotify &amp; Apple Music · artist, album, track, or song links</div>
-      <div class="scan-progress" id="scan-progress">
-        <div class="sp-track"><div class="sp-fill" id="sp-fill"></div></div>
-        <div class="sp-label" id="sp-label">Scanning...</div>
-      </div>
     </div>
-    <div class="hero-stats">
-      <div class="hstat"><span class="hstat-n">6</span><span class="hstat-l">Audit modules</span></div>
-      <div class="hstat"><span class="hstat-n">Verified</span><span class="hstat-l">Data only</span></div>
-      <div class="hstat"><span class="hstat-n">Instant</span><span class="hstat-l">Full audit delivery</span></div>
-    </div>
-    <div class="scan-decoder" aria-label="Understanding your Health Score">
-      <div class="scan-decoder-hd">Understanding your Health Score</div>
-      <div class="scan-decoder-body">Higher scores indicate a healthier music business backend. Royaltē reviews catalog presence, identifier coverage, and platform availability across verified public sources to compute the Health Score.<br><br>Score is based on verified data only — no estimates or assumptions.</div>
-      <div class="scan-decoder-legend">
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot low"></span><span class="scan-decoder-range">90–100</span>Excellent</div>
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot moderate"></span><span class="scan-decoder-range">75–89</span>Strong</div>
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot atrisk"></span><span class="scan-decoder-range">60–74</span>Moderate</div>
-        <div class="scan-decoder-legend-row"><span class="scan-decoder-dot critical"></span><span class="scan-decoder-range">&lt; 60</span>Review recommended</div>
-      </div>
-      <div class="scan-decoder-foot">Score is not a royalty estimate, revenue prediction, or popularity score. It reflects what Royaltē can verify from public catalog data.</div>
-    </div>
-    <div class="hero-visual" aria-hidden="true"></div>
   </div>
   <div class="hero-right">
     <div class="dash-badge db1"><div class="dbadge-val">Beta</div><div class="dbadge-lbl">Live now</div></div>
@@ -1926,83 +2006,22 @@ body.menu-locked {
           </div>
         </div>
         <div id="audit-results" style="display:none;">
-        <!-- 1. Health Score banner — same .d-score-tag style as V1 -->
-        <div class="d-score-tag" id="hero-score-tag">
-          <div class="d-score-tag-num" id="hero-score-tag-num">—</div>
-          <div class="d-score-tag-lbl" id="hero-score-tag-lbl">Health Score</div>
-        </div>
-        <div class="d-score-helper" id="hero-score-helper" style="display:none;">
-          Higher is healthier — Royaltē reviews catalog presence, identifier coverage, and platform availability.
-          <div class="d-score-helper-tooltip">
-            <div class="tt-row healthy"><span class="tt-dot"></span><strong>90–100</strong> · Excellent</div>
-            <div class="tt-row warning"><span class="tt-dot"></span><strong>75–89</strong> · Strong</div>
-            <div class="tt-row atrisk"><span class="tt-dot"></span><strong>60–74</strong> · Moderate</div>
-            <div class="tt-row danger"><span class="tt-dot"></span><strong>&lt; 60</strong> · Review recommended</div>
-          </div>
-        </div>
-
-        <!-- Score drivers (Brief 012a) — populated + shown/hidden by
-             renderV2Section2 per the locked display rule:
-               score ≥ 90        → hidden
-               75–89 + drivers>0 → shown
-               75–89 + drivers=0 → hidden
-               < 75 + drivers>0  → shown (REQUIRED by brief)
-             Subtle amber styling — "factors", not "issues". -->
-        <div class="os-score-drivers" id="os-score-drivers">
-          <p class="os-drivers-label">What influenced your Health Score</p>
-          <ul class="os-drivers-list" id="os-drivers-list"></ul>
-        </div>
-
-        <!-- 2. Top Findings + What Royaltē Found — same .d-modules / .d-mod
-             card style as V1, with V2 content populated by JS. -->
-        <div class="d-modules">
-          <div class="d-mod" id="os-findings-card">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Top findings</div></div>
-            <div class="os-findings-list" id="os-findings"><!-- populated by renderV2Findings() --></div>
-          </div>
-          <div class="d-mod" id="os-found-card">
-            <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">What Royaltē found</div></div>
-            <div class="os-found-grid" id="os-found-grid"><!-- populated by renderV2Found() --></div>
-          </div>
-        </div>
-
-        <!-- 3. Bridge line + CTA — replaces V1 .gbe-card position. -->
-        <div class="os-bridge">This is what one scan found. Royaltē OS watches this continuously.</div>
-        <div class="d-mod os-cta-card">
-          <div class="d-mod-top"><div class="d-mod-icon"></div><div class="d-mod-name">Royaltē OS Is Monitoring Signals This Scan Doesn't Show</div></div>
-          <p class="os-cta-statement">One Scan Shows A Snapshot.<br>Royaltē OS Watches What Changes.</p>
-          <ul class="os-cta-features">
-            <li>Catalog Change Detection</li>
-            <li>Health Score Tracking</li>
-            <li>Backend Protection</li>
-            <li>Action Center</li>
-            <li>Continuous Monitoring</li>
-            <li>Territory Changes</li>
-            <li>Identifier Changes</li>
-            <li>Metadata Coverage</li>
-            <li>YouTube Presence</li>
-          </ul>
-          <p class="os-cta-body">Royaltē OS continuously monitors your music business backend and alerts you when meaningful changes are detected.</p>
-          <!-- Founding Artist subsection (Brief 012a follow-up) — counter
-               populated by loadFoundingArtistCount() against
-               /api/founding-artist-count. Closed-state swap is innerHTML-
-               replaced and the submit button is disabled in place. -->
-          <div class="os-fa-section" id="os-fa-section">
-            <h3 class="os-fa-heading">Become A Founding Artist</h3>
-            <p class="os-fa-sub">The first 1,000 artists can secure lifetime Founding Artist access and unlock Royaltē OS before the program closes.</p>
-            <div class="os-fa-counter">
-              <div class="os-fa-counter-label">Founding Artist Program</div>
-              <div class="os-fa-counter-value" id="os-fa-counter-value">— of 1,000 spots claimed</div>
+        <!-- Scan completion screen — replaces data reveal. Intelligence lives in Royaltē OS. -->
+        <div class="scan-complete-screen">
+          <div class="scan-complete-badge">
+            <div class="scan-complete-check" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M2 7L5.5 10.5L12 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </div>
+            <div class="scan-complete-label">Music Ecosystem Verified</div>
           </div>
-          <!-- bi-os-form IDs preserved → sendMagicLink behavior unchanged.
-               Button text renamed per Brief 012a; submit handler at line ~3349
-               still calls sendMagicLink(email, 'homepage_scan'). -->
-          <form class="bi-os-form" id="bi-os-form" novalidate>
-            <input type="email" class="bi-os-email" id="bi-os-email" placeholder="your@email.com" autocomplete="email" required>
-            <button type="submit" class="bi-os-cta" data-cta="enter-os">Become A Founding Artist</button>
-          </form>
-          <div class="bi-os-status" id="bi-os-status" role="status" aria-live="polite"></div>
+          <div class="scan-complete-headline">Royaltē Executive Brief Ready</div>
+          <div class="scan-complete-rule" aria-hidden="true"></div>
+          <p class="scan-complete-desc">Claim this scan to unlock your complete Royaltē OS experience.</p>
+          <!-- Phase 4.3: MC entry — enabled after scan success; navigates to preactivate path. -->
+          <button id="open-mc-btn" class="open-mc-btn scan-complete-cta" disabled>CLAIM &amp; ENTER ROYALTĒ OS</button>
+          <p class="scan-complete-trust">Your intelligence is ready.</p>
         </div>
         </div>
       </div>
@@ -2331,45 +2350,127 @@ async function playSuccessChime() {
 // Legacy alias — called from runAudit, now starts processing loop
 async function playSweep() { startProcessingSound(); }
 
+// ── Cinematic audio synthesis (Web Audio API, no external files) ──────────
+function _noiseBuffer(ctx, dur) {
+  var len = Math.floor(ctx.sampleRate * dur);
+  var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  var d = buf.getChannelData(0);
+  for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  return buf;
+}
+
+
+function _playKeyClick() {
+  try {
+    var ctx = getAudioCtx();
+    var src = ctx.createBufferSource();
+    src.buffer = _noiseBuffer(ctx, 0.022);
+    var lpf = ctx.createBiquadFilter();
+    lpf.type = 'lowpass'; lpf.frequency.value = 1800;
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.18, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.022);
+    src.connect(lpf); lpf.connect(g); g.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+
+function _playAuthTone() {
+  try {
+    var ctx = getAudioCtx();
+    [[330, 0], [495, 0.09]].forEach(function(pair) {
+      var osc = ctx.createOscillator();
+      var g   = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.value = pair[0];
+      var t = ctx.currentTime + pair[1];
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.08, t + 0.1);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.72);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.75);
+    });
+  } catch(e) {}
+}
+
+function _playSwitchSound() {
+  try {
+    var ctx = getAudioCtx();
+    var src = ctx.createBufferSource();
+    src.buffer = _noiseBuffer(ctx, 0.038);
+    var hpf = ctx.createBiquadFilter();
+    hpf.type = 'highpass'; hpf.frequency.value = 1200;
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.22, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.038);
+    src.connect(hpf); hpf.connect(g); g.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
 
 function animateScan(isApple) {
   const prog  = document.getElementById('scan-progress');
   const fill  = document.getElementById('sp-fill');
   const label = document.getElementById('sp-label');
   prog.style.display = 'block';
-  // reset any prior error styling
   label.style.color = '';
-  const labels = isApple
-    ? ['Resolving Apple Music link...', 'Matching ISRC to Spotify...', 'Running verification modules...', 'Building verified report...']
-    : ['Scanning Spotify profile...', 'Resolving metadata...', 'Running verification modules...', 'Building verified report...'];
-  let pct = 0, li = 0;
 
-  // Run to 95%, then HOLD until the API caller resolves the animation.
-  const animation = new Promise((animResolve) => {
-    const iv = setInterval(() => {
-      pct = Math.min(pct + Math.random() * 3.5 + 1, 95);
-      fill.style.width = pct + '%';
-      if (pct > 25 && li < 1) { li = 1; label.textContent = labels[1]; }
-      if (pct > 55 && li < 2) { li = 2; label.textContent = labels[2]; }
-      if (pct > 80 && li < 3) { li = 3; label.textContent = labels[3]; }
-      if (pct >= 95) {
-        clearInterval(iv);
-        fill.style.width = '95%';
-        label.textContent = 'Finalising results...';
-        animResolve();
-      }
-    }, 80);
-  });
+  let pct         = 0;
+  let _verified   = false;
+  let _verifiedAt = 0;
+  let _iv         = null;
+
+  // Phase 1: identity resolution labels (before verification)
+  const p1Labels = isApple
+    ? ['Searching Apple Music...', 'Locating artist profile...', 'Verifying identity...']
+    : ['Searching Spotify...', 'Locating artist profile...', 'Verifying identity...'];
+  // Phase 2: intelligence processing labels (after verification, while full scan runs)
+  const p2Labels = [
+    'Building Catalog Intelligence...',
+    'Analyzing Identity Coverage...',
+    'Checking Publishing Records...',
+    'Verifying Backend Systems...',
+    'Computing Health Score...',
+    'Preparing Executive Brief...',
+  ];
+  let p1idx = 0;
+  label.textContent = p1Labels[0];
+
+  // Two-phase animation:
+  //   Phase 1 (0→~40%, ~3s): fast fill — identity resolution in progress
+  //   Phase 2 (40→95%, ~20s): slow fill — intelligence building in background
+  //   audit resolve: scan.complete() jumps to 100% via CSS transition
+  _iv = setInterval(() => {
+    if (_verified) {
+      // Phase 2: ~0.2%/100ms → fills 55% over ~27s (never blocks on audit)
+      pct = Math.min(pct + 0.12 + Math.random() * 0.28, 95);
+      const elapsed = Date.now() - _verifiedAt;
+      const p2idx   = Math.min(Math.floor(elapsed / 3500), p2Labels.length - 1);
+      label.textContent = p2Labels[p2idx];
+    } else {
+      // Phase 1: ~1.1%/100ms → reaches ~40% in ~3.5s
+      pct = Math.min(pct + 0.7 + Math.random() * 0.8, 40);
+      if (pct > 15 && p1idx < 1) { p1idx = 1; label.textContent = p1Labels[1]; }
+      if (pct > 30 && p1idx < 2) { p1idx = 2; label.textContent = p1Labels[2]; }
+    }
+    fill.style.width = pct + '%';
+  }, 100);
 
   return {
-    animation,
+    // setVerified: called when /api/identify returns successfully
+    setVerified() {
+      _verified   = true;
+      _verifiedAt = Date.now();
+    },
     complete() {
+      if (_iv) { clearInterval(_iv); _iv = null; }
       fill.style.width = '100%';
       label.textContent = 'Complete';
     },
     fail(message) {
+      if (_iv) { clearInterval(_iv); _iv = null; }
       label.textContent = message || 'Scan failed — please try again';
-      // inline error styling — no CSS edit
       label.style.color = 'var(--red)';
     }
   };
@@ -2441,29 +2542,24 @@ async function runAudit() {
     urlType === 'album'  ? 'Resolving artist profile…' :
                            'Fetching verified data...';
 
-  // Start the animation. It will run to 95% then HOLD with "Finalising results..."
-  // until scan.complete() or scan.fail() is called below.
+  // Two-phase animation — runs independently from both API calls.
+  // Phase 1 fills to ~40% during identity resolution (~3s).
+  // Phase 2 slowly fills 40→95% while intelligence builds in background.
+  // audit result is awaited directly (animation never blocks the scan result).
   const scan = animateScan(isApple);
 
-  // 30-second hard timeout on the API.
+  // 30-second hard timeout on the full audit.
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-  // Fire the API in parallel with the animation.
   const meta = getMusicInputMeta(val);
   let qs = meta
     ? `?url=${encodeURIComponent(val)}&platform=${encodeURIComponent(meta.platform)}&type=${encodeURIComponent(meta.type)}`
     : `?url=${encodeURIComponent(val)}`;
-  // Tag the scan with the anonymous session_id so it can be claimed onto a
-  // user account after sign-in (see migrate_anonymous_scans). Optional —
-  // the scan still runs if the id is unavailable.
   const auditSessionId = window.getOrCreateSessionId ? window.getOrCreateSessionId() : null;
   if (auditSessionId) qs += `&session_id=${encodeURIComponent(auditSessionId)}`;
 
-  // V2 OS — when the visitor is logged in, attach an Authorization: Bearer
-  // header so /api/audit's V2 scan-write path can resolve user_id and
-  // activate monitoring (scan_snapshots + delta engine + subscription
-  // upsert). Anonymous visitors send no token → V2 path skipped server-side.
+  // Attach Bearer token for authenticated scans (V2 OS write path).
   const auditHeaders = {};
   try {
     if (window.getSupabase) {
@@ -2472,6 +2568,9 @@ async function runAudit() {
         const { data: { session } } = await sb.auth.getSession();
         if (session && session.access_token) {
           auditHeaders['Authorization'] = `Bearer ${session.access_token}`;
+          console.log('[audit-diag] pre-scan: authenticated uid=' + (session.user?.id || 'unknown') + ' bearer=ATTACHED');
+        } else {
+          console.log('[audit-diag] pre-scan: no session — anonymous scan');
         }
       }
     }
@@ -2479,43 +2578,46 @@ async function runAudit() {
     console.warn('[audit] auth header lookup failed (non-fatal):', e);
   }
 
-  const fetchPromise = fetch(`/api/audit${qs}`, { signal: controller.signal, headers: auditHeaders })
+  // ── Phase 1: fire /api/identify in parallel — fast artist verification ──
+  // Non-blocking. When it resolves, update the hero and transition animation
+  // to Phase 2 (intelligence labels). If it fails, scan continues normally.
+  const identifyUrl = `/api/identify?url=${encodeURIComponent(val)}`;
+  fetch(identifyUrl)
     .then(r => r.json())
-    .catch(err => ({ __error: err }));
+    .then(id => {
+      if (!id || !id.verified) return;
+      const nameEl = document.getElementById('hero-artist-name');
+      const subEl  = document.getElementById('hero-artist-sub');
+      if (nameEl) { nameEl.classList.remove('is-idle'); nameEl.textContent = id.artistName || 'Artist'; }
+      if (subEl)  subEl.textContent = '✓ Music Ecosystem Verified';
+      scan.setVerified();
+    })
+    .catch(() => { /* silent — audit continues regardless */ });
 
-  // Wait for BOTH the animation to reach 95% AND the API to return.
-  // If the API is faster, we still wait for the animation. If slower, we hold at 95%.
-  const [_, auditData] = await Promise.all([scan.animation, fetchPromise]);
+  // ── Phase 2: await full scan — intelligence + persistence ──
+  const auditData = await fetch(`/api/audit${qs}`, { signal: controller.signal, headers: auditHeaders })
+    .then(async r => {
+      if (r.status === 401) return { __authError: true };
+      return r.json();
+    })
+    .catch(err => ({ __error: err }));
   clearTimeout(timeoutId);
 
   const apiOk = auditData && !auditData.__error && auditData.success;
 
   if (apiOk) {
-    // Stop the looping processing sound and fire success chime
+    window.__lastAuditOk = true;
     stopProcessingSound();
     playSuccessChime();
     scan.complete();
-    // ── 400ms "VERIFIED DATA FOUND" BEAT ──
-    // Brief moment between scan completion and full result reveal.
-    // Artist name slot reads "✓ Verified data found" so the user feels
-    // the system found something REAL before the score + flags hit them.
-    // #audit-results remains hidden — showRealResults reveals it after the pause.
-    const verifiedNameEl = document.getElementById('hero-artist-name');
-    const verifiedSubEl  = document.getElementById('hero-artist-sub');
-    if (verifiedNameEl) {
-      verifiedNameEl.classList.remove('is-idle');
-      verifiedNameEl.textContent = '✓ Verified data found';
-    }
-    if (verifiedSubEl) verifiedSubEl.textContent = '';
     setTimeout(() => {
       showRealResults(auditData);
-    }, 400);
+    }, 150);
     btn.disabled = false;
     btn.textContent = 'Run Free Scan →';
     setTimeout(() => {
       document.getElementById('scan-progress').style.display = 'none';
     }, 600);
-    // No auto-scroll. User stays on the scan card to absorb the reveal moment.
     return;
   }
 
@@ -2523,7 +2625,9 @@ async function runAudit() {
   // Stop the audio loop so it doesn't keep playing; do NOT play the success chime.
   stopProcessingSound();
   let msg = 'Scan failed — please try again';
-  if (auditData && auditData.__error && auditData.__error.name === 'AbortError') {
+  if (auditData && auditData.__authError) {
+    msg = 'Session expired — select Enter Royaltē OS to sign in and continue.';
+  } else if (auditData && auditData.__error && auditData.__error.name === 'AbortError') {
     msg = 'Scan timed out — please try again';
   } else if (auditData && auditData.error) {
     // Surface API `detail` (HTML-escaped) for beta debugging. Built-in
@@ -2659,7 +2763,16 @@ function updateHeroDashboard(artistName, subText, score, riskLevel) {
   document.getElementById('hero-artist-sub').textContent = subText;
   // Reveal entire audit results container — score, alert, modules, issues, locked CTA
   const resultsEl = document.getElementById('audit-results');
-  if (resultsEl) resultsEl.style.display = 'block';
+  if (resultsEl) {
+    resultsEl.style.display = 'block';
+    // Executive Mobile™ only — guide the artist to their results.
+    // Desktop and Tablet scroll is not changed.
+    if (window.innerWidth <= 768) {
+      setTimeout(function() {
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 400);
+    }
+  }
   // Show risk level instead of score number
   const RISK_COLORS = { 'High': 'var(--red)', 'Moderate': 'var(--amb)', 'Low': 'var(--grn)' };
   const RISK_GLOW   = { 'High': '#f05060',    'Moderate': '#f0c040',    'Low': '#40f0a0'    };
@@ -2747,16 +2860,14 @@ function formatFollowers(n) {
 }
 
 // ── ECOSYSTEM SIGNAL ──
-// Source-agnostic backend framing for the hero sub-line. Spotify and Apple
-// Music are input sources, not authority metrics — the scan result never
-// shows a follower / listener / fan count as the artist's identity. It
-// reports verified ecosystem presence instead, counted from data.platforms.
+// Phase 3.4: reads identity provider coverage from the Certified CIM.
+// Constitutional owner: Identity Intelligence assembler.
+// CIM path: data.canonical.identityIntelligence.verifiedProviders / totalProviders
 function getEcosystemSignal(data) {
-  const plats    = (data && data.platforms) || {};
-  const values   = Object.values(plats);
-  const total    = values.length;
-  const verified = values.filter(p => p === true || (p && p.found === true)).length;
-  if (total > 0) return `${verified} of ${total} ecosystems verified`;
+  const ii = data?.canonical?.identityIntelligence;
+  if (ii && typeof ii.verifiedProviders === 'number' && typeof ii.totalProviders === 'number') {
+    return `${ii.verifiedProviders} of ${ii.totalProviders} ecosystems verified`;
+  }
   return 'Backend signal verified';
 }
 
@@ -2783,7 +2894,7 @@ function renderGapBasedExposure(gbe) {
     body.innerHTML =
       '<div class="gbe-empty"><div class="gbe-empty-check">✓</div>'
       + '<div class="gbe-empty-title">No revenue-relevant backend gaps detected</div>'
-      + '<p class="gbe-empty-body">Your music’s backend infrastructure shows complete '
+      + "<p class=\"gbe-empty-body\">Your music's backend infrastructure shows complete "
       + 'verification across the detected ecosystem signals. Continue monitoring with '
       + 'Royaltē OS to track changes and emerging gaps over time.</p></div>';
     return;
@@ -2831,7 +2942,8 @@ function showRealResults(data) {
   const artistName = data.artistName || 'Artist';
   const scanMode   = data.scanMode || data.type || 'artist';
   const isApple    = data.sourcePlatform === 'apple_music';
-  const flagsArr   = Array.isArray(data.flags) ? data.flags : [];
+  // data.flags[] (V1 TRANSITIONAL) retired by Phase 3.4 Board Directive.
+  // Findings now read from data.canonical.healthReport.risks[] (RIE-certified).
 
   // ── Modal snapshot (preserved) ──
   try {
@@ -2839,12 +2951,32 @@ function showRealResults(data) {
       artistName:  artistName,
       sourceUrl:   document.getElementById('hero-url')?.value?.trim() || '',
       score:       (data.royalteScore != null) ? data.royalteScore : (data.riskScore != null ? data.riskScore : null),
-      issuesCount: flagsArr.length,
+      issuesCount: (data.canonical?.healthReport?.risks ?? []).length,
       urlType:     detectUrlType(document.getElementById('hero-url')?.value?.trim() || '') || (isApple ? 'apple' : 'unknown'),
       scannedAt:   new Date().toISOString(),
       scanId:      data.scanId || null
     };
   } catch(e) { /* non-blocking */ }
+
+  // Phase 4.3: bridge scan payload for MC preactivate path.
+  // Store data.canonical — the flat canonical shape that audit_scans.payload carries and
+  // that __mcPopulate() was written to read. The raw API response wraps canonical in a
+  // nested key and only surfaces identityIntelligence / publishingIntelligence as top-level
+  // aliases, leaving royalteAI, healthIntelligence, catalogIntelligence, globalMusicFootprint,
+  // and backendIntelligence undefined at the top level — causing __mcPopulate() to build
+  // null plans for those domains and fall through to the Supabase "latest owned" path.
+  // canonical spreads rawResponse so canonical.platforms.deezer etc. still work.
+  // sessionStorage cleared by fetchScanPayload() in mission-control.js after reading.
+  try {
+    if (data && data.canonical) {
+      console.log('[hp-diag] storing canonical for artist:', data.canonical.subject?.artistName || data.artistName, '| keys:', Object.keys(data.canonical).join(','));
+      sessionStorage.setItem('royalte_scan_payload', JSON.stringify(data.canonical));
+    } else {
+      console.warn('[hp-diag] data.canonical missing — sessionStorage bridge skipped; MC will fall to Supabase');
+    }
+  } catch (_ssErr) {
+    console.warn('[hp-diag] sessionStorage.setItem threw (QuotaExceededError?):', _ssErr?.message || _ssErr);
+  }
 
   // ── Hero (above audit-results) — name + sub-line, no risk colour ──
   const subText = getEcosystemSignal(data);
@@ -2886,10 +3018,11 @@ function showRealResults(data) {
   if (scoreTagEl && scoreNumEl) {
     const result = data && data.canonical && data.canonical.health;
     if (result && typeof result.score === 'number') {
-      const { score: health, grade, drivers } = result;
-      const className = GRADE_TO_CLASS[grade] || 'band-danger';
+      const { score: health, grade, status, drivers } = result;
+      const displayLabel = status || grade;
+      const className = GRADE_TO_CLASS[grade] || GRADE_TO_CLASS[status] || 'band-danger';
       scoreNumEl.textContent = health;
-      if (scoreLblEl) scoreLblEl.textContent = `Health Score · ${grade}`;
+      if (scoreLblEl) scoreLblEl.textContent = `Health Score · ${displayLabel}`;
       scoreTagEl.classList.remove('band-healthy','band-warning','band-atrisk','band-danger');
       scoreTagEl.classList.add(className);
       scoreTagEl.classList.add('is-shown');
@@ -2921,7 +3054,7 @@ function showRealResults(data) {
     const indicator = document.getElementById('hero-risk-indicator');
     if (ring) ring.classList.add('jarvis-on');
     if (indicator) { indicator.classList.add('jarvis-active'); indicator.classList.add('jarvis-fade-in'); }
-  }, 500);
+  }, 200);
 
   // ── Resolved-from pill (V1, not risk-themed) ──
   const matchedNote = document.getElementById('results-matched-note');
@@ -2940,7 +3073,7 @@ function showRealResults(data) {
   }
 
   // ── V2 content blocks ──
-  _renderV2Findings(flagsArr);
+  _renderV2Findings(data);
   _renderV2Found(data);
 
   // ── Audit-request modal form-lock unlock (V1, preserved) ──
@@ -2970,46 +3103,38 @@ function _osEscape(s) {
 // mappings — that is correct per One Truth · One Engine · One Platform:
 // the grade is canonical; the className is presentation.
 //
-// Generate Once. Normalize Once. Compute Once. Consume Everywhere.
+// Grade vocabulary: Health Intelligence status bands (Board-locked).
+//   Excellent | Strong | Moderate | Needs Review
+// 'Review Recommended' retained for backward compat with pre-migration
+// sessionStorage reads.
 const GRADE_TO_CLASS = {
   'Excellent':          'band-healthy',
   'Strong':             'band-warning',
   'Moderate':           'band-atrisk',
-  'Review Recommended': 'band-danger',
+  'Needs Review':       'band-danger',
+  'Review Recommended': 'band-danger',   // backward compat — pre-migration reads
 };
 
-function _renderV2Findings(flagsArr) {
+// Phase 3.4: reads from Certified CIM — data.canonical.healthReport.risks[]
+// Constitutional owner: Intelligence Engine (via Rule Library).
+// CIM path: data.canonical.healthReport.risks[].{ title, observation }
+// data.flags[] (V1 TRANSITIONAL) permanently retired.
+function _renderV2Findings(data) {
   const findingsEl = document.getElementById('os-findings');
   if (!findingsEl) return;
 
-  // Filter V1 platform-presence noise (Wikipedia / AudioDB / Discogs / SoundCloud)
-  const v2Flags = (flagsArr || []).filter((f) => {
-    const text = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
-    return !/\b(wikipedia|audiodb|discogs|soundcloud|musicbrainz)\b/.test(text);
-  });
-  if (v2Flags.length === 0) {
+  const risks = data?.canonical?.healthReport?.risks ?? [];
+  if (risks.length === 0) {
     findingsEl.innerHTML = '<div class="os-finding-empty">Your catalog looks clean. Royaltē OS is monitoring for changes and will alert you if anything needs attention.</div>';
     return;
   }
 
-  // Strip trailing "— … risk" suffixes from V1 descriptions
-  const clean = (s) => (s || '').replace(/\s+[—-]\s+[\w\s]*\brisk\s*$/i, '').trim();
-  const titleFor = (f) => {
-    const t = ((f.description || '') + ' ' + (f.module || '')).toLowerCase();
-    if (/\bisrc\b/.test(t))                     return 'Identifier coverage review';
-    if (/territory|storefront|country/.test(t)) return 'Territory availability review';
-    if (/youtube|ugc|video/.test(t))            return 'Limited visibility observed in reviewed sources';
-    if (/duplicate|collision|fragment/.test(t)) return 'Catalog consistency review';
-    if (/metadata|genre/.test(t))               return 'Metadata completeness review';
-    return                                              'Catalog consistency review';
-  };
-
-  findingsEl.innerHTML = v2Flags.slice(0, 3).map((f) => `
+  findingsEl.innerHTML = risks.slice(0, 3).map((r) => `
     <div class="os-finding">
       <div class="os-finding-icon">!</div>
       <div class="os-finding-body">
-        <p class="os-finding-title">${_osEscape(titleFor(f))}</p>
-        <p class="os-finding-desc">${_osEscape(clean(f.description))}</p>
+        <p class="os-finding-title">${_osEscape(r.title  ?? 'Finding')}</p>
+        <p class="os-finding-desc">${_osEscape(r.observation ?? '')}</p>
       </div>
     </div>`).join('');
 }
@@ -3017,68 +3142,24 @@ function _renderV2Findings(flagsArr) {
 function _renderV2Found(data) {
   const gridEl = document.getElementById('os-found-grid');
   if (!gridEl) return;
-  // Raw shape vs canonical: data.appleMusic is the raw root object;
-  // data.platforms.appleMusic.details is the canonical-nested form.
-  const am = data.appleMusic || (data.platforms && data.platforms.appleMusic && data.platforms.appleMusic.details) || {};
-  const cc = am.catalogComparison || null;
 
-  // Brief 008 — classify each release from appleMusic.albums[] by track
-  // count: 1 → Single · 2–6 → EP · 7+ → Album. Tracks = sum of trackCount
-  // across all surfaced albums. Falls back to legacy paths when the
-  // albums[] list isn't present (older snapshots / non-Apple-resolved).
-  const albumsList = Array.isArray(am.albums) ? am.albums : [];
-  let cAlbums = 0, cEps = 0, cSingles = 0, cTracks = 0, anyTrackCount = false;
-  for (const a of albumsList) {
-    const tc = (a && typeof a.trackCount === 'number') ? a.trackCount : null;
-    if (tc != null) { anyTrackCount = true; cTracks += tc; }
-    if (tc === 1)        cSingles++;
-    else if (tc != null && tc <= 6) cEps++;
-    else                 cAlbums++;
-  }
-
-  // Albums display — prefer the classified count from albums[]; fall back
-  // to appleMusic.albumCount or catalog.totalReleases when no albums[].
-  const albumsValue = albumsList.length > 0 ? cAlbums
-                    : (typeof am.albumCount === 'number') ? am.albumCount
-                    : (data.catalog && typeof data.catalog.totalReleases === 'number' && data.catalog.totalReleases > 0
-                       ? data.catalog.totalReleases : null);
-
-  const epsValue     = albumsList.length > 0 ? cEps     : null;
-  const singlesValue = albumsList.length > 0 ? cSingles : null;
-
-  // Tracks — sum across surfaced releases when track counts are present;
-  // else use catalogComparison.tracksChecked (track-URL scans) or 1 for a
-  // single-track input.
-  const tracksValue = anyTrackCount ? cTracks
-                    : (cc && typeof cc.tracksChecked === 'number') ? cc.tracksChecked
-                    : (data.trackTitle ? 1 : null);
-
-  const isrcCoverage = (() => {
-    if (cc && typeof cc.matchRate === 'number') {
-      if (cc.matchRate >= 95) return 'Complete';
-      if (cc.matchRate >= 50) return 'Partial';
-      if (cc.matchRate >= 1)  return 'Limited';
-      return 'Limited';
-    }
-    return data.trackIsrc ? 'Complete' : 'Unknown';
-  })();
-  const catalogAvail = (() => {
-    const p = data.platforms || {};
-    const verifAM = (p.appleMusic === true) || (am.found === true);
-    const verifSP = (p.spotify === true)    || (data.spotifyMatched === true);
-    const v = (verifAM ? 1 : 0) + (verifSP ? 1 : 0);
-    if (v >= 2)  return 'Strong';
-    if (v === 1) return 'Moderate';
-    return 'Unknown';
-  })();
+  // Phase 3.4 — Website Scan is a pure presentation layer.
+  // All intelligence is certified by the RIE and read from the Certified CIM.
+  // This function contains zero business logic.
+  //
+  // Sources:
+  //   Albums / EPs / Singles / Tracks / ISRC Coverage → data.canonical.catalogIntelligence
+  //   Catalog Availability                             → data.canonical.globalMusicFootprint
+  const ci  = data.canonical?.catalogIntelligence  ?? null;
+  const gmf = data.canonical?.globalMusicFootprint ?? null;
 
   const rows = [
-    { label: 'Albums',                value: albumsValue  != null ? albumsValue  : '—' },
-    { label: 'EPs',                   value: epsValue     != null ? epsValue     : '—' },
-    { label: 'Singles',               value: singlesValue != null ? singlesValue : '—' },
-    { label: 'Tracks',                value: tracksValue  != null ? tracksValue  : '—' },
-    { label: 'ISRC coverage',         value: isrcCoverage },
-    { label: 'Catalog availability',  value: catalogAvail },
+    { label: 'Albums',               value: ci != null ? ci.albums      : '—' },
+    { label: 'EPs',                  value: ci != null ? ci.eps         : '—' },
+    { label: 'Singles',              value: ci != null ? ci.singles     : '—' },
+    { label: 'Tracks',               value: ci != null ? ci.totalTracks : '—' },
+    { label: 'ISRC coverage',        value: ci?.isrcCoverage?.status   ?? 'Unknown' },
+    { label: 'Catalog availability', value: gmf?.status                ?? 'Unknown' },
   ];
   gridEl.innerHTML = rows.map((r) => `
     <div class="os-found-row">
@@ -3211,8 +3292,11 @@ function scrollToForm() {
 function requestFullAuditFromNav() {
   const scanId = window.__royalteScan?.scanId;
   if (typeof scanId === 'string' && scanId.length > 0) {
-    document.getElementById('bi-os-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => document.getElementById('bi-os-email')?.focus(), 600);
+    const openMcBtn = document.getElementById('open-mc-btn');
+    if (openMcBtn) {
+      openMcBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => openMcBtn.focus(), 600);
+    }
     return;
   }
   document.getElementById('scan-tool')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3220,6 +3304,69 @@ function requestFullAuditFromNav() {
 }
 
 document.getElementById('hero-url').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
+
+// ─────────────────────────────────────────────
+// Scan Hero V3 — method selection + scan bridge
+// ─────────────────────────────────────────────
+async function runScan() {
+  var urlInput = document.getElementById('hero-url');
+  var errEl    = document.getElementById('sh-scan-error');
+  var visBtn   = document.getElementById('sh-run-btn');
+  if (errEl) errEl.textContent = '';
+
+  var pastedUrl  = (document.getElementById('url-input')?.value || '').trim();
+  var artistName = (document.getElementById('artist-name-input')?.value || '').trim();
+  var songTitle  = (document.getElementById('song-title-input')?.value || '').trim();
+
+  if (pastedUrl) {
+    // Method 1: Apple Music or Spotify URL — audit engine auto-detects platform
+    urlInput.value = pastedUrl;
+  } else if (artistName) {
+    // Method 2: Resolve artist name + song via /api/resolve-artist
+    if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Finding Artist…'; }
+    try {
+      var qs = new URLSearchParams({ name: artistName });
+      if (songTitle) qs.set('song', songTitle);
+      var resp = await fetch('/api/resolve-artist?' + qs.toString());
+      var data = await resp.json();
+      if (!resp.ok || !data.url) {
+        if (errEl) errEl.textContent = "We couldn't safely verify that artist. Please use an Apple Music or Spotify URL.";
+        if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
+        return;
+      }
+      urlInput.value = data.url;
+    } catch (_e) {
+      if (errEl) errEl.textContent = "We couldn't safely verify that artist. Please use an Apple Music or Spotify URL.";
+      if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
+      return;
+    }
+  } else {
+    document.getElementById('url-input')?.focus();
+    return;
+  }
+
+  // URL is set — run the scan
+  if (visBtn) { visBtn.disabled = true; visBtn.textContent = 'Scanning…'; }
+  window.__lastAuditOk = false;
+  await runAudit();
+
+  // Phase 4.2: scan is the endpoint — artist stays on results page.
+  // Re-enable the scan button in all cases so the artist can re-scan.
+  if (visBtn) { visBtn.disabled = false; visBtn.textContent = 'Run My Scan →'; }
+  if (window.__lastAuditOk) {
+    // Phase 4.3: scan succeeded — unlock the MC entry button.
+    const openMcBtn = document.getElementById('open-mc-btn');
+    if (openMcBtn) openMcBtn.disabled = false;
+  }
+}
+
+
+
+// Enter key support for all Scan Hero V3 inputs
+['url-input', 'artist-name-input', 'song-title-input'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('keydown', function(e) { if (e.key === 'Enter') runScan(); });
+});
 
 // ─────────────────────────────────────────────
 // Mobile menu drawer
@@ -3378,6 +3525,22 @@ if (biOsForm) {
   });
 }
 
+// Phase 4.3: Open Mission Control — preactivate entry point.
+// Stores full scan payload in sessionStorage so MC can populate
+// before the artist authenticates, then navigates to the preactivate path.
+(function() {
+  const openMcBtn = document.getElementById('open-mc-btn');
+  if (!openMcBtn) return;
+  openMcBtn.addEventListener('click', function() {
+    const scanId    = window.__royalteScan?.scanId || '';
+    const sessionId = (typeof getOrCreateSessionId === 'function') ? getOrCreateSessionId() : '';
+    let dest = '/mission-control.html?vault=1&preactivate=1';
+    if (scanId)    dest += '&scanId='     + encodeURIComponent(scanId);
+    if (sessionId) dest += '&session_id=' + encodeURIComponent(sessionId);
+    window.location.href = dest;
+  });
+})();
+
 // ── Founding Artist counter (Brief 012a follow-up) ──
 // Reads /api/founding-artist-count on page load and updates the Section 5
 // counter. On closed state (count >= 1000), swaps the subsection content
@@ -3411,177 +3574,16 @@ async function loadFoundingArtistCount() {
 }
 loadFoundingArtistCount();
 
-// ── Royaltē OS login modal (Block F) ────────────────────────────
-// Returning-user entry. NOT an admin gate — any valid sign-in is let
-// through; admin powers are gated later inside dashboard.js.
-const osModal      = document.getElementById('os-login-modal');
-const osOverlay    = document.getElementById('os-login-overlay');
-const osModalForm  = document.getElementById('os-login-form');
-const osModalEmail = document.getElementById('os-login-email');
-const osModalPass  = document.getElementById('os-login-password');
-const osSubmitBtn  = document.getElementById('os-login-submit');
-const osMagicBtn   = document.getElementById('os-magic-btn');
-const osForgotBtn  = document.getElementById('os-forgot-btn');
-const osStatusEl   = document.getElementById('os-login-status');
-const osCloseBtn   = document.getElementById('os-login-close');
-
-function osStatus(msg, kind) {
-  if (!osStatusEl) return;
-  osStatusEl.textContent = msg || '';
-  osStatusEl.className = 'os-modal-status' + (kind ? ' ' + kind : '');
-}
-
-function openOSModal() {
-  if (!osModal) return;
-  osStatus('', '');
-  osModal.setAttribute('aria-hidden', 'false');
-  if (osOverlay) osOverlay.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('os-modal-open');
-  setTimeout(() => osModalEmail && osModalEmail.focus(), 80);
-}
-
-function closeOSModal() {
-  if (!osModal) return;
-  osModal.setAttribute('aria-hidden', 'true');
-  if (osOverlay) osOverlay.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('os-modal-open');
-}
-
-if (osCloseBtn) osCloseBtn.addEventListener('click', closeOSModal);
-if (osOverlay) osOverlay.addEventListener('click', closeOSModal);
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && osModal && osModal.getAttribute('aria-hidden') === 'false') {
-    closeOSModal();
-  }
-});
-
-// Password sign-in — any valid Supabase account is let through. No admin
-// allowlist check here; that moves to dashboard.js render-time.
-if (osModalForm) {
-  osModalForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = (osModalEmail && osModalEmail.value || '').trim();
-    const password = (osModalPass && osModalPass.value) || '';
-    if (!EMAIL_RE.test(email) || !password) {
-      osStatus('Enter your email and password.', 'error');
-      return;
-    }
-    const supabase = getSupabase();
-    if (!supabase) { osStatus('Sign in failed. Please try again.', 'error'); return; }
-
-    const original = osSubmitBtn.textContent;
-    osSubmitBtn.disabled = true;
-    osSubmitBtn.textContent = 'Signing in…';
-    osStatus('', '');
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error || !data || !data.session) {
-        osStatus("Invalid email or password. If you don't have an account yet, "
-          + 'use Send Magic Link below or run a scan to get started.', 'error');
-        osSubmitBtn.disabled = false;
-        osSubmitBtn.textContent = original;
-        return;
-      }
-      window.location.href = '/dashboard.html';
-    } catch (err) {
-      console.error('[os-login] signInWithPassword threw', err);
-      osStatus('Sign in failed. Please try again.', 'error');
-      osSubmitBtn.disabled = false;
-      osSubmitBtn.textContent = original;
-    }
-  });
-}
-
-// Forgot-password path — sends a Supabase recovery email. redirectTo is
-// computed from window.location.origin so it resolves on production, preview,
-// and localhost. Status renders inline in the modal — the login form is not
-// dismissed (the user stays oriented while they go check their inbox).
-if (osForgotBtn) {
-  osForgotBtn.addEventListener('click', async () => {
-    const email = (osModalEmail && osModalEmail.value || '').trim();
-    if (!EMAIL_RE.test(email)) {
-      osStatus('Enter your email above, then tap Forgot password.', 'error');
-      if (osModalEmail) osModalEmail.focus();
-      return;
-    }
-    const supabase = getSupabase();
-    if (!supabase) { osStatus('Could not send reset link — please try again.', 'error'); return; }
-
-    const original = osForgotBtn.textContent;
-    osForgotBtn.disabled = true;
-    osForgotBtn.textContent = 'Sending…';
-    osStatus('', '');
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/auth/reset-password',
-      });
-      osForgotBtn.disabled = false;
-      osForgotBtn.textContent = original;
-      if (error) {
-        console.error('[os-login] resetPasswordForEmail error', error);
-        osStatus('Could not send reset link — please try again.', 'error');
-        return;
-      }
-      osStatus('Check your email for a password reset link.', 'success');
-    } catch (err) {
-      console.error('[os-login] resetPasswordForEmail threw', err);
-      osForgotBtn.disabled = false;
-      osForgotBtn.textContent = original;
-      osStatus('Could not send reset link — please try again.', 'error');
-    }
-  });
-}
-
-// Magic-link path — shares the modal's email field.
-if (osMagicBtn) {
-  osMagicBtn.addEventListener('click', async () => {
-    const email = (osModalEmail && osModalEmail.value || '').trim();
-    if (!EMAIL_RE.test(email)) {
-      osStatus('Please enter a valid email address.', 'error');
-      if (osModalEmail) osModalEmail.focus();
-      return;
-    }
-    const original = osMagicBtn.textContent;
-    osMagicBtn.disabled = true;
-    osMagicBtn.textContent = 'Sending…';
-    osStatus('Sending your secure link…', '');
-    const res = await sendMagicLink(email, 'os_login');
-    osMagicBtn.disabled = false;
-    osMagicBtn.textContent = original;
-    osStatus(res.ok
-      ? 'Check your inbox — your Royaltē OS access link is on the way.'
-      : 'Sign in failed. Please try again.', res.ok ? 'success' : 'error');
-  });
-}
-
-
 // ── "Enter Royaltē OS" nav button ────────────────────────────────
-// Session-aware: logged-in users follow the native <a> to the
-// dashboard; logged-out users get the click intercepted to open the
-// OS login modal. Until getSession() resolves the button stays a live
-// link — a logged-out click in that <1s window just bounces off the
-// dashboard auth gate, which is acceptable for V1.
-async function wireOSEntry() {
-  const btn = document.getElementById('enter-os-btn');
-  if (!btn) return;
-  const supabase = getSupabase();
-  if (!supabase) return;
-  let session = null;
-  try {
-    ({ data: { session } } = await supabase.auth.getSession());
-  } catch (e) {
-    console.error('[enter-os] getSession failed', e);
-  }
-  if (session) return; // logged in — native href to /dashboard.html
-
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    openOSModal();
-  });
-}
-
-wireOSEntry();
+// Phase 4.1: website is always public — no auto-redirect into Mission Control.
+// The nav link points to mission-control.html?vault=1; the Intelligence Vault
+// on that page handles all auth state. No session check, no interception.
+(function wireOSEntry() {
+  var btn = document.getElementById('enter-os-btn');
+  if (btn) btn.href = '/mission-control.html?vault=1';
+})();
 </script>
+
 
 </body>
 </html>

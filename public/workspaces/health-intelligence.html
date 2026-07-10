@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Health Intelligence™ — Royaltē OS</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/royalte-rds.css">
+  <link rel="stylesheet" href="/css/royalte-workspace.css">
+</head>
+<body>
+<div class="ws-shell ws-dept--health">
+
+  <aside class="ws-rail" role="navigation" aria-label="Royaltē OS navigation">
+
+    <a class="mc-brand" href="/mission-control.html">
+      <div class="mc-brand-mark" aria-hidden="true">ē</div>
+      <div>
+        <div class="mc-brand-text">ROYALTĒ</div>
+        <div class="mc-brand-sub">MISSION CONTROL</div>
+      </div>
+    </a>
+
+    <nav class="mc-nav">
+      <a class="mc-nav-item" href="/mission-control.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-mission-control"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Mission Control</span>
+          <div class="mc-nav-sub">Executive Overview</div>
+        </span>
+      </a>
+      <a class="mc-nav-item mc-nav-item--active" href="/workspaces/health-intelligence.html" aria-current="page">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Health Intelligence</span>
+          <div class="mc-nav-sub">System Status</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/identity-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-identity"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Identity Intelligence</span>
+          <div class="mc-nav-sub">Who You Are</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/publishing-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Publishing Intelligence</span>
+          <div class="mc-nav-sub">Your Works</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/catalog-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-catalog"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Catalog Intelligence</span>
+          <div class="mc-nav-sub">Your Releases</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/global-music-footprint.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Global Music Footprint™</span>
+          <div class="mc-nav-sub">Where Your Music Exists</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/ai-insights.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">AI Insights</span>
+          <div class="mc-nav-sub">Intelligence Brief</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/backend-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-backend"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Backend Intelligence</span>
+          <div class="mc-nav-sub">Infrastructure Connected</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/mission-control.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-settings"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Settings</span>
+          <div class="mc-nav-sub">Account &amp; Preferences</div>
+        </span>
+      </a>
+    </nav>
+
+  </aside>
+
+  <div class="ws-content">
+
+    <header class="ws-breadcrumb">
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Royaltē OS™</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <span class="ws-breadcrumb-current hi-breadcrumb-current">Health Intelligence™</span>
+    </header>
+
+    <div class="ws-body">
+
+      <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
+      <div class="hi-main" id="ht-main">
+
+        <!-- § 1 — EXECUTIVE HEADER ─────────────────────────────────── -->
+        <div class="hi-exec-header">
+          <div class="hi-exec-title-block">
+            <div class="hi-exec-eyebrow">Health Intelligence™</div>
+            <h1 class="hi-exec-heading">Music Business Health Report</h1>
+            <div class="hi-exec-desc">Your complete music business health score — monitoring identity, publishing, catalog, and backend performance across all registered systems.</div>
+            <div class="hi-exec-meta-row">
+              <div class="hi-exec-updated">
+                <div class="hi-exec-updated-dot" aria-hidden="true"></div>
+                Last Sync: <span id="ht-scan-date">Today, 8:42 AM</span>
+              </div>
+            </div>
+          </div>
+          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
+            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
+            Jun 27 – Jul 3, 2026
+            <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down"></use></svg>
+          </div>
+        </div>
+
+        <!-- § 2a — HISTORICAL SCAN BANNER ─────────────────────────── -->
+        <!-- Appears when viewing a historical scan. Hidden for current. -->
+        <div id="ht-history-banner" class="ht-history-banner" hidden aria-live="polite">
+          <div>
+            <span class="ht-history-banner-label">Historical View</span>
+            <span class="ht-history-banner-date" id="ht-history-banner-date"></span>
+          </div>
+          <button id="ht-history-return" class="ht-history-return-btn" type="button">
+            Return to Current →
+          </button>
+        </div>
+
+        <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
+        <div class="hi-kpi-row">
+
+          <!-- Health Score — ring left / meta right / breakdown horizontal -->
+          <div class="hi-kpi-card hi-kpi-card--score">
+            <div class="hi-kpi-label hi-kpi-label--green">Health Score™</div>
+
+            <div class="hi-score-body">
+              <div class="hi-score-ring-wrap" aria-label="Health score: 89 out of 100">
+                <svg class="hi-score-ring-svg" viewBox="0 0 96 96" aria-hidden="true">
+                  <circle class="hi-score-ring-track" cx="48" cy="48" r="40"/>
+                  <circle class="hi-score-ring-progress" cx="48" cy="48" r="40"/>
+                </svg>
+                <div class="hi-score-ring-center">
+                  <span class="hi-score-ring-num" data-target="89" aria-live="polite">0</span>
+                  <span class="hi-score-ring-sub">/100</span>
+                </div>
+              </div>
+              <div class="hi-score-meta-row">
+                <div class="hi-status-pill hi-status-pill--green">
+                  <span class="hi-status-dot" aria-hidden="true"></span>Strong
+                </div>
+                <div class="hi-kpi-trend">— Trend Updating</div>
+              </div>
+            </div>
+
+            <div class="hi-kpi-breakdown">
+              <div class="hi-kpi-breakdown-title">Health Breakdown</div>
+              <div class="hi-kpi-breakdown-cols">
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Identity</span><span class="hi-kpi-breakdown-val">67</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Publishing</span><span class="hi-kpi-breakdown-val">67</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Catalog</span><span class="hi-kpi-breakdown-val">100</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Change Det.</span><span class="hi-kpi-breakdown-val">75</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Footprint</span><span class="hi-kpi-breakdown-val">82</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Backend</span><span class="hi-kpi-breakdown-val">100</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ATHENA Monitoring — left content / right coverage panel -->
+          <div class="hi-kpi-card hi-kpi-card--ai">
+            <div class="hi-athena-left">
+              <div class="hi-kpi-label hi-kpi-label--purple">ATHENA Monitoring™</div>
+              <div class="hi-status-pill hi-status-pill--green">
+                <span class="hi-status-dot" aria-hidden="true"></span>Monitoring Active
+              </div>
+              <div class="hi-kpi-athena-brief">ATHENA is actively monitoring your music business.</div>
+              <div class="hi-kpi-athena-brief">This cycle is clean — one Publishing action requires your attention.</div>
+            </div>
+            <div class="hi-athena-right">
+              <div class="hi-monitoring-coverage">
+                <div class="hi-monitoring-coverage-title">Monitoring Coverage</div>
+                <ul class="hi-monitoring-coverage-list" role="list">
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+                    Apple Music
+                  </li>
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+                    Spotify
+                  </li>
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+                    YouTube
+                  </li>
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--amber" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
+                    Publishing
+                  </li>
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+                    Metadata
+                  </li>
+                  <li class="hi-monitoring-coverage-item">
+                    <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+                    Catalog
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- § 3 — CORE HEALTH METRICS ──────────────────────────────── -->
+        <div>
+          <div class="hi-section-header">
+            <div class="hi-section-title">Core Health Metrics™</div>
+          </div>
+          <div class="hi-category-grid">
+
+            <!-- 1. Identity Intelligence™ -->
+            <a class="hi-cat-card" href="/workspaces/identity-intelligence.html" aria-label="Open Identity Intelligence workspace">
+              <div class="hi-cat-label">Identity Intelligence™</div>
+              <div class="hi-cat-score-wrap">
+                <span class="hi-cat-score-num hi-cat-score-num--purple">67</span>
+                <span class="hi-cat-score-denom">/100</span>
+              </div>
+              <div class="hi-cat-progress" role="progressbar" aria-valuenow="67" aria-valuemin="0" aria-valuemax="100">
+                <div class="hi-cat-progress-fill hi-cat-progress-fill--purple" style="--pct:67%"></div>
+              </div>
+              <div class="hi-status-pill hi-status-pill--purple">
+                <span class="hi-status-dot" aria-hidden="true"></span>Needs Attention
+              </div>
+              <div class="hi-cat-sparkline" aria-label="Trend: declining">
+                <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="spark-fill-identity" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.18"/>
+                      <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,6 L16,9 L32,12 L48,15 L64,17 L80,20 L80,24 L0,24 Z" fill="url(#spark-fill-identity)"/>
+                  <polyline points="0,6 16,9 32,12 48,15 64,17 80,20" fill="none" stroke="#a855f7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="80" cy="20" r="2.5" fill="#a855f7"/>
+                </svg>
+              </div>
+              <div class="hi-cat-movement hi-cat-movement--down">▼ 3% this week</div>
+            </a>
+
+            <!-- 2. Publishing Intelligence™ -->
+            <a class="hi-cat-card" href="/workspaces/publishing-intelligence.html" aria-label="Open Publishing Intelligence workspace">
+              <div class="hi-cat-label">Publishing Intelligence™</div>
+              <div class="hi-cat-score-wrap">
+                <span class="hi-cat-score-num hi-cat-score-num--purple">67</span>
+                <span class="hi-cat-score-denom">/100</span>
+              </div>
+              <div class="hi-cat-progress" role="progressbar" aria-valuenow="67" aria-valuemin="0" aria-valuemax="100">
+                <div class="hi-cat-progress-fill hi-cat-progress-fill--purple" style="--pct:67%"></div>
+              </div>
+              <div class="hi-status-pill hi-status-pill--purple">
+                <span class="hi-status-dot" aria-hidden="true"></span>Needs Attention
+              </div>
+              <div class="hi-cat-sparkline" aria-label="Trend: declining">
+                <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="spark-fill-publishing" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.16"/>
+                      <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,8 L16,10 L32,12 L48,15 L64,17 L80,19 L80,24 L0,24 Z" fill="url(#spark-fill-publishing)"/>
+                  <polyline points="0,8 16,10 32,12 48,15 64,17 80,19" fill="none" stroke="#a855f7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="80" cy="19" r="2.5" fill="#a855f7"/>
+                </svg>
+              </div>
+              <div class="hi-cat-movement hi-cat-movement--down">▼ 2% this week</div>
+            </a>
+
+            <!-- 3. Catalog Intelligence™ -->
+            <a class="hi-cat-card" href="/workspaces/catalog-intelligence.html" aria-label="Open Catalog Intelligence workspace">
+              <div class="hi-cat-label">Catalog Intelligence™</div>
+              <div class="hi-cat-score-wrap">
+                <span class="hi-cat-score-num hi-cat-score-num--green">100</span>
+                <span class="hi-cat-score-denom">/100</span>
+              </div>
+              <div class="hi-cat-progress" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                <div class="hi-cat-progress-fill hi-cat-progress-fill--green" style="--pct:100%"></div>
+              </div>
+              <div class="hi-status-pill hi-status-pill--green">
+                <span class="hi-status-dot" aria-hidden="true"></span>Excellent
+              </div>
+              <div class="hi-cat-sparkline" aria-label="Trend: improving">
+                <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="spark-fill-catalog" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.2"/>
+                      <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,20 L16,16 L32,12 L48,8 L64,4 L80,2 L80,24 L0,24 Z" fill="url(#spark-fill-catalog)"/>
+                  <polyline points="0,20 16,16 32,12 48,8 64,4 80,2" fill="none" stroke="#2dd4bf" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="80" cy="2" r="2.5" fill="#2dd4bf"/>
+                </svg>
+              </div>
+              <div class="hi-cat-movement hi-cat-movement--up">▲ 8% this week</div>
+            </a>
+
+            <!-- 4. Change Detection™ (replaces Streaming Health™) -->
+            <a class="hi-cat-card" href="/workspaces/monitoring-timeline.html" aria-label="Open Change Detection workspace">
+              <div class="hi-cat-label">Change Detection™</div>
+              <div class="hi-cat-score-wrap">
+                <span class="hi-cat-score-num hi-cat-score-num--blue">75</span>
+                <span class="hi-cat-score-denom">/100</span>
+              </div>
+              <div class="hi-cat-progress" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+                <div class="hi-cat-progress-fill hi-cat-progress-fill--blue" style="--pct:75%"></div>
+              </div>
+              <div class="hi-status-pill hi-status-pill--blue">
+                <span class="hi-status-dot" aria-hidden="true"></span>Active
+              </div>
+              <div class="hi-cat-sparkline" aria-label="Trend: improving">
+                <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="spark-fill-changes" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.18"/>
+                      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,16 L16,14 L32,13 L48,11 L64,10 L80,8 L80,24 L0,24 Z" fill="url(#spark-fill-changes)"/>
+                  <polyline points="0,16 16,14 32,13 48,11 64,10 80,8" fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="80" cy="8" r="2.5" fill="#38bdf8"/>
+                </svg>
+              </div>
+              <div class="hi-cat-movement hi-cat-movement--up">▲ 2% this week</div>
+            </a>
+
+            <!-- 5. Backend Intelligence™ -->
+            <a class="hi-cat-card" href="/workspaces/backend-intelligence.html" aria-label="Open Backend Intelligence workspace">
+              <div class="hi-cat-label">Backend Intelligence™</div>
+              <div class="hi-cat-score-wrap">
+                <span class="hi-cat-score-num hi-cat-score-num--green">100</span>
+                <span class="hi-cat-score-denom">/100</span>
+              </div>
+              <div class="hi-cat-progress" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                <div class="hi-cat-progress-fill hi-cat-progress-fill--green" style="--pct:100%"></div>
+              </div>
+              <div class="hi-status-pill hi-status-pill--green">
+                <span class="hi-status-dot" aria-hidden="true"></span>Excellent
+              </div>
+              <div class="hi-cat-sparkline" aria-label="Trend: improving">
+                <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="spark-fill-backend" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.2"/>
+                      <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,18 L16,14 L32,10 L48,6 L64,3 L80,2 L80,24 L0,24 Z" fill="url(#spark-fill-backend)"/>
+                  <polyline points="0,18 16,14 32,10 48,6 64,3 80,2" fill="none" stroke="#2dd4bf" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="80" cy="2" r="2.5" fill="#2dd4bf"/>
+                </svg>
+              </div>
+              <div class="hi-cat-movement hi-cat-movement--up">▲ 5% this week</div>
+            </a>
+
+            <!-- 6. Global Music Footprint™ -->
+            <a class="hi-cat-card" href="/workspaces/global-music-footprint.html" aria-label="Open Global Music Footprint workspace">
+              <div class="hi-cat-label">Global Music Footprint™</div>
+              <div class="hi-cat-score-wrap">
+                <span class="hi-cat-score-num hi-cat-score-num--green">82</span>
+                <span class="hi-cat-score-denom">/100</span>
+              </div>
+              <div class="hi-cat-progress" role="progressbar" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100">
+                <div class="hi-cat-progress-fill hi-cat-progress-fill--green" style="--pct:82%"></div>
+              </div>
+              <div class="hi-status-pill hi-status-pill--green">
+                <span class="hi-status-dot" aria-hidden="true"></span>Strong
+              </div>
+              <div class="hi-cat-sparkline" aria-label="Trend: improving">
+                <svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="spark-fill-footprint" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.18"/>
+                      <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,15 L16,13 L32,11 L48,8 L64,6 L80,4 L80,24 L0,24 Z" fill="url(#spark-fill-footprint)"/>
+                  <polyline points="0,15 16,13 32,11 48,8 64,6 80,4" fill="none" stroke="#2dd4bf" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="80" cy="4" r="2.5" fill="#2dd4bf"/>
+                </svg>
+              </div>
+              <div class="hi-cat-movement hi-cat-movement--up">▲ 3% this week</div>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- § 4 — HEALTH TIMELINE ──────────────────────────────────── -->
+        <div>
+          <div class="hi-section-header">
+            <div class="hi-section-title">Health Timeline™</div>
+          </div>
+          <div class="hi-timeline-card">
+            <div class="hi-timeline-body">
+              <div class="hi-timeline-ruler" role="list" aria-label="Health monitoring timeline Jun 27 – Jul 3">
+                <div class="hi-timeline-day" role="listitem">
+                  <button class="ht-scan-btn" data-scan-idx="0" type="button"
+                          aria-label="View Jun 27 scan — Backend connected"
+                          title="Jun 27 · Backend connected">
+                    <div class="hi-timeline-dot hi-timeline-dot--event"></div>
+                  </button>
+                  <div class="hi-timeline-day-label">Jun 27</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <button class="ht-scan-btn" data-scan-idx="1" type="button"
+                          aria-label="View Jun 28 scan"
+                          title="Jun 28">
+                    <div class="hi-timeline-dot"></div>
+                  </button>
+                  <div class="hi-timeline-day-label">Jun 28</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <button class="ht-scan-btn" data-scan-idx="2" type="button"
+                          aria-label="View Jun 29 scan — Catalog verified"
+                          title="Jun 29 · Catalog verified">
+                    <div class="hi-timeline-dot hi-timeline-dot--event"></div>
+                  </button>
+                  <div class="hi-timeline-day-label">Jun 29</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <button class="ht-scan-btn" data-scan-idx="3" type="button"
+                          aria-label="View Jun 30 scan"
+                          title="Jun 30">
+                    <div class="hi-timeline-dot"></div>
+                  </button>
+                  <div class="hi-timeline-day-label">Jun 30</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <button class="ht-scan-btn" data-scan-idx="4" type="button"
+                          aria-label="View Jul 1 scan"
+                          title="Jul 1">
+                    <div class="hi-timeline-dot"></div>
+                  </button>
+                  <div class="hi-timeline-day-label">Jul 1</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <button class="ht-scan-btn" data-scan-idx="5" type="button"
+                          aria-label="View Jul 2 scan"
+                          title="Jul 2">
+                    <div class="hi-timeline-dot"></div>
+                  </button>
+                  <div class="hi-timeline-day-label">Jul 2</div>
+                </div>
+                <div class="hi-timeline-day" role="listitem">
+                  <button class="ht-scan-btn" data-scan-idx="6" type="button"
+                          aria-label="Current scan — Jul 3"
+                          title="Jul 3 · Current scan">
+                    <div class="hi-timeline-dot hi-timeline-dot--active"></div>
+                  </button>
+                  <div class="hi-timeline-day-label">Jul 3</div>
+                </div>
+              </div>
+            </div>
+            <div class="hi-timeline-footer">
+              <a class="hi-timeline-link" href="/workspaces/monitoring-timeline.html">View Full Timeline →</a>
+            </div>
+          </div>
+        </div>
+
+
+      </div><!-- /hi-main -->
+
+
+    </div><!-- /ws-body -->
+
+  </div><!-- /ws-content -->
+
+</div><!-- /ws-shell -->
+
+<script>
+  /* Score count-up — 0 → 89 with ease-out cubic */
+  document.addEventListener('DOMContentLoaded', function () {
+    var el = document.querySelector('.hi-score-ring-num[data-target]');
+    if (!el) return;
+    var target = parseInt(el.dataset.target, 10);
+    var start = null;
+    var dur = 1400;
+    function tick(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(ease * target);
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = target;
+    }
+    requestAnimationFrame(tick);
+  });
+</script>
+<script src="/js/health-timeline.js"></script>
+<script src="/js/rds-preview-console.js" defer></script>
+</body>
+</html>

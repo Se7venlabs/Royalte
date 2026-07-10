@@ -16,7 +16,6 @@ import {
 } from '../schema/auditResponse.js';
 
 import { randomUUID, createHash } from 'node:crypto';
-import { computeV2HealthScore } from './health-score.js';
 
 // ── Public API ───────────────────────────────────────────────────────────────
 export function normalizeAuditResponse(raw) {
@@ -42,16 +41,11 @@ export function normalizeAuditResponse(raw) {
   const gapBasedExposure = _normalizeGapBasedExposure(raw);
   const proGuide = _normalizeProGuide(raw);
 
-  // ── Canonical Health Object (V2 Phase 1, 2026-06-09) ────────────────────
-  // Engine computes once at normalize time so every Royaltē surface
-  // (Scan Results, Mission Control, Royaltē Review, Monitoring, future
-  // API) consumes the same { score, grade, drivers, breakdown }.
-  // computeV2HealthScore reads only canonical fields; the call must
-  // happen AFTER the rest of the canonical shape is built.
-  const canonicalForHealth = {
-    subject, platforms, catalog, modules,
-  };
-  const health = computeV2HealthScore(canonicalForHealth);
+  // ── Canonical Health Object ──────────────────────────────────────────────
+  // Board Directive (One Health Engine, 2026-07-02): health is populated by
+  // the RIE via CimAdapter.buildCimEnrichment after OS enrichment.
+  // V2 Health Engine (computeV2HealthScore) is retired.
+  // health: null here is the correct pre-enrichment state.
 
   return {
     schemaVersion: AUDIT_RESPONSE_VERSION,
@@ -67,7 +61,7 @@ export function normalizeAuditResponse(raw) {
     modules,
     issues,
     score,
-    health,
+    health:  null,   // populated by RIE via CimAdapter after OS enrichment
     royaltyGap,
     gapBasedExposure,
     proGuide,
@@ -128,6 +122,11 @@ function _normalizeCatalog(r) {
   const c = r.catalog || {};
   return {
     totalReleases:          _num(c.totalReleases),
+    totalTracks:            _num(c.totalTracks),
+    singlesCount:           _num(c.singlesCount),
+    epsCount:               _num(c.epsCount),
+    albumsCount:            _num(c.albumsCount),
+    featuresCount:          _num(c.featuresCount),
     earliestYear:           c.earliestYear ?? null,
     latestYear:             c.latestYear ?? null,
     catalogAgeYears:        _num(c.catalogAgeYears),
@@ -157,11 +156,16 @@ function _normalizePlatforms(r) {
     details: p.appleMusic ? {
       artistId:                appleMusicDetails.artistId || null,
       artistUrl:               appleMusicDetails.artistUrl || null,
+      // Apple-canonical artwork URL (600x600). Sourced from the Apple
+      // Adapter via run-scan's top-level appleArtworkUrl. Consumed by
+      // the CIO Assembly Engine to populate cio.identity.artwork.
+      artwork:                 r.appleArtworkUrl || null,
       albumCount:              _num(appleMusicDetails.albumCount),
       albums:                  Array.isArray(appleMusicDetails.albums) ? appleMusicDetails.albums : [],
-      storefrontAvailability:  appleMusicDetails.storefrontAvailability || null,
-      catalogComparison:       appleMusicDetails.catalogComparison || null,
-      isrcLookup:              appleMusicDetails.isrcLookup || null,
+      storefrontAvailability:       appleMusicDetails.storefrontAvailability       || null,
+      globalStorefrontAvailability: appleMusicDetails.globalStorefrontAvailability || null,
+      catalogComparison:            appleMusicDetails.catalogComparison            || null,
+      isrcLookup:                   appleMusicDetails.isrcLookup                   || null,
     } : null,
   };
 
@@ -195,7 +199,7 @@ function _normalizePlatforms(r) {
     spotify,
     appleMusic,
     musicbrainz: simple(p.musicbrainz),
-    deezer:      simple(p.deezer),
+    deezer:      _normalizeDeezerPlatform(r),
     audiodb:     simple(p.audiodb),
     discogs:     simple(p.discogs),
     soundcloud:  simple(p.soundcloud),
@@ -203,6 +207,40 @@ function _normalizePlatforms(r) {
     wikipedia:   simple(p.wikipedia),
     youtube,
     tidal:       simple(p.tidal),
+  };
+}
+
+// Deezer: if the rich deezerData object is present (Board Directive 2026-06-24),
+// produce full details; otherwise fall back to the legacy boolean flag.
+function _normalizeDeezerPlatform(r) {
+  const d = r.deezer;
+  if (!d || !d.found) {
+    const flag = !!(r.platforms?.deezer);
+    return {
+      availability: flag ? PLATFORM_AVAILABILITY.VERIFIED : PLATFORM_AVAILABILITY.NOT_FOUND,
+      details: null,
+    };
+  }
+  return {
+    availability: PLATFORM_AVAILABILITY.VERIFIED,
+    details: {
+      artistId:       d.artistId      ?? null,
+      name:           d.name          ?? null,
+      link:           d.link          ?? null,
+      share:          d.share         ?? null,
+      picture:        d.picture        ?? null,
+      picture_small:  d.picture_small  ?? null,
+      picture_medium: d.picture_medium ?? null,
+      picture_big:    d.picture_big    ?? null,
+      picture_xl:     d.picture_xl     ?? null,
+      fans:           _num(d.fans),
+      nb_album:       _num(d.nb_album),
+      radio:          !!d.radio,
+      tracklist:      d.tracklist     ?? null,
+      albums:         Array.isArray(d.albums)    ? d.albums    : [],
+      topTracks:      Array.isArray(d.topTracks) ? d.topTracks : [],
+      genres:         Array.isArray(d.genres)    ? d.genres    : [],
+    },
   };
 }
 

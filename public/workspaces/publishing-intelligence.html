@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Publishing Intelligence™ — Royaltē OS</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/royalte-rds.css">
+  <link rel="stylesheet" href="/css/royalte-workspace.css">
+<style>
+/* ── Music Rights Profile™ component ───────────────────────────────────────── */
+.pi-mrp-section {
+  background: linear-gradient(135deg, rgba(138,92,255,0.04) 0%, rgba(224,64,200,0.03) 100%);
+  border: 1px solid rgba(138,92,255,0.18);
+  border-radius: 12px;
+  padding: 22px 24px 18px;
+  margin-bottom: 24px;
+}
+.pi-mrp-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+.pi-mrp-title-block {}
+.pi-mrp-title {
+  font-family: var(--mc-font-brand, 'Rajdhani', sans-serif);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-text-primary, #e8e4f4);
+  margin-bottom: 3px;
+}
+.pi-mrp-tagline {
+  font-size: 11px;
+  color: rgba(132,128,168,0.7);
+  letter-spacing: 0.04em;
+}
+.pi-mrp-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.pi-mrp-health-block { text-align: right; }
+.pi-mrp-health-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: #40f0a0;
+  letter-spacing: -0.02em;
+}
+.pi-mrp-health-sub {
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(132,128,168,0.6);
+  margin-top: 3px;
+}
+.pi-mrp-status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.pi-mrp-status--optimized    { background: rgba(64,240,160,0.12); color: #40f0a0; border: 1px solid rgba(64,240,160,0.25); }
+.pi-mrp-status--partial      { background: rgba(255,192,64,0.12); color: #ffc040; border: 1px solid rgba(255,192,64,0.25); }
+.pi-mrp-status--needs        { background: rgba(240,80,96,0.12);  color: #f05060; border: 1px solid rgba(240,80,96,0.25); }
+.pi-mrp-status--unknown      { background: rgba(132,128,168,0.1); color: rgba(132,128,168,0.7); border: 1px solid rgba(132,128,168,0.2); }
+/* 6-field verification grid — 3 cols desktop, 2 tablet, 1 mobile */
+.pi-mrp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.pi-mrp-field {
+  background: rgba(10,9,20,0.55);
+  border: 1px solid rgba(138,92,255,0.12);
+  border-radius: 8px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+.pi-mrp-field-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(132,128,168,0.65);
+  margin-bottom: 5px;
+}
+.pi-mrp-field-value {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #e8e4f4;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pi-mrp-field-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.pi-mrp-badge--verified { background: rgba(64,240,160,0.1);   color: #40f0a0; }
+.pi-mrp-badge--none     { background: rgba(255,192,64,0.1);   color: #ffc040; }
+.pi-mrp-badge--missing  { background: rgba(240,80,96,0.1);    color: #f05060; }
+.pi-mrp-badge--unknown  { background: rgba(132,128,168,0.1);  color: rgba(132,128,168,0.6); }
+/* Auto-detect fields — populated by Royaltē intelligence engines, not onboarding */
+.pi-mrp-badge--intel    { background: rgba(64,208,240,0.08);  color: rgba(64,208,240,0.7); }
+.pi-mrp-footer {
+  border-top: 1px solid rgba(138,92,255,0.1);
+  padding-top: 11px;
+  font-size: 10.5px;
+  color: rgba(132,128,168,0.45);
+  letter-spacing: 0.03em;
+}
+@media (max-width: 960px) { .pi-mrp-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .pi-mrp-grid { grid-template-columns: 1fr; } .pi-mrp-header-row { flex-direction: column; } }
+</style>
+</head>
+<body>
+<div class="ws-shell ws-dept--publishing">
+
+  <aside class="ws-rail" role="navigation" aria-label="Royaltē OS navigation">
+
+    <a class="mc-brand" href="/mission-control.html">
+      <div class="mc-brand-mark" aria-hidden="true">ē</div>
+      <div>
+        <div class="mc-brand-text">ROYALTĒ</div>
+        <div class="mc-brand-sub">MISSION CONTROL</div>
+      </div>
+    </a>
+
+    <nav class="mc-nav">
+      <a class="mc-nav-item" href="/mission-control.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-mission-control"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Mission Control</span>
+          <div class="mc-nav-sub">Executive Overview</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/health-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Health Intelligence</span>
+          <div class="mc-nav-sub">System Status</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/identity-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-identity"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Identity Intelligence</span>
+          <div class="mc-nav-sub">Who You Are</div>
+        </span>
+      </a>
+      <a class="mc-nav-item mc-nav-item--active" href="/workspaces/publishing-intelligence.html" aria-current="page">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Publishing Intelligence</span>
+          <div class="mc-nav-sub">Your Works</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/catalog-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-catalog"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Catalog Intelligence</span>
+          <div class="mc-nav-sub">Your Releases</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/global-music-footprint.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Global Music Footprint™</span>
+          <div class="mc-nav-sub">Where Your Music Exists</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/ai-insights.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">AI Insights</span>
+          <div class="mc-nav-sub">Intelligence Brief</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/backend-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-backend"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Backend Intelligence</span>
+          <div class="mc-nav-sub">Infrastructure Connected</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/mission-control.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-settings"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Settings</span>
+          <div class="mc-nav-sub">Account &amp; Preferences</div>
+        </span>
+      </a>
+    </nav>
+
+  </aside>
+
+  <div class="ws-content">
+
+    <header class="ws-breadcrumb">
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Royaltē OS™</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <span class="ws-breadcrumb-current pi-breadcrumb-current">Publishing Intelligence™</span>
+    </header>
+
+    <div class="ws-body">
+
+      <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
+      <div class="hi-main">
+
+        <!-- § 1 — EXECUTIVE HEADER ─────────────────────────────────── -->
+        <div class="pi-exec-header">
+          <div class="pi-exec-icon-block">
+            <div class="pi-exec-icon" aria-hidden="true">
+              <svg class="royalte-icon royalte-icon--md" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
+            </div>
+          </div>
+          <div class="pi-exec-title-block">
+            <div class="pi-exec-eyebrow">Publishing Intelligence™</div>
+            <h1 class="pi-exec-heading">Publishing Intelligence™</h1>
+            <div class="pi-exec-desc">Monitor your publishing registrations, royalty collection and rights management across your music business.</div>
+            <div class="pi-exec-meta-row">
+              <div class="pi-exec-updated">
+                <div class="pi-exec-updated-dot" aria-hidden="true"></div>
+                Last Sync: Today, 9:15 AM
+              </div>
+            </div>
+          </div>
+          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
+            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
+            Jun 27 – Jul 3, 2026
+            <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down"></use></svg>
+          </div>
+        </div>
+
+        <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
+        <div class="hi-kpi-row">
+
+          <!-- Potential Royalty Impact™ — Executive Signature™ -->
+          <div class="hi-kpi-card pi-kpi-card--impact pi-kpi-card--athena-trigger"
+               role="button" tabindex="0" aria-label="Open ATHENA Publishing Intelligence"
+               onclick="piOpenAthena()" onkeydown="if(event.key==='Enter'||event.key===' ')piOpenAthena()">
+            <div class="hi-kpi-label hi-kpi-label--orange">Potential Royalty Impact™</div>
+
+            <div class="pi-risk-indicator" aria-label="Publishing risk level: Moderate">
+              <div class="pi-risk-step pi-risk-step--inactive">Low</div>
+              <div class="pi-risk-step pi-risk-step--active pi-risk-step--moderate" aria-current="true">Moderate</div>
+              <div class="pi-risk-step pi-risk-step--inactive">High</div>
+            </div>
+
+            <div class="pi-impact-risk-label pi-impact-risk-label--moderate">Moderate Risk</div>
+            <div class="pi-impact-desc">2 works require registration</div>
+
+            <div class="hi-score-meta-row">
+              <div class="hi-status-pill hi-status-pill--orange">
+                <span class="hi-status-dot" aria-hidden="true"></span>Needs Attention
+              </div>
+            </div>
+          </div>
+
+          <!-- Publishing Coverage™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--green">Publishing Coverage™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--green" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
+            </div>
+            <div class="ii-kpi-num-row">
+              <span class="ii-kpi-big-num">87</span>
+              <span class="ii-kpi-fraction">%</span>
+            </div>
+            <div class="ii-kpi-status-text ii-kpi-status-text--green">Strong</div>
+            <div class="ii-kpi-caption">Across 6 Publishing Systems</div>
+          </div>
+
+          <!-- Registered Works™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label pi-kpi-label--violet">Registered Works™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--violet" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-compositions"></use></svg>
+            </div>
+            <div class="ii-kpi-num-row">
+              <span class="ii-kpi-big-num">18</span>
+              <span class="ii-kpi-fraction"> / 20</span>
+            </div>
+            <div class="ii-kpi-status-text ii-kpi-status-text--violet">2 Pending</div>
+            <div class="ii-kpi-caption">ISWC: 16 Assigned</div>
+          </div>
+
+          <!-- Collection Health™ -->
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--green">Collection Health™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--green" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+            </div>
+            <div class="ii-kpi-num-row">
+              <span class="ii-kpi-big-num">Strong</span>
+            </div>
+            <div class="ii-kpi-status-text ii-kpi-status-text--green">Active Collection</div>
+            <div class="ii-kpi-caption" id="pi-kpi-pro-caption">SOCAN — Primary Society</div>
+          </div>
+
+        </div>
+
+        <!-- § Music Rights Profile™ ─────────────────────────────────── -->
+        <!-- IDs ready for wiring sprint. Badges show data source intent. -->
+        <div class="pi-mrp-section">
+
+          <div class="pi-mrp-header-row">
+            <div class="pi-mrp-title-block">
+              <div class="pi-mrp-title">Music Rights Profile™</div>
+              <div class="pi-mrp-tagline">Artist-Verified + Auto-Detected Infrastructure · Private Intelligence Layer™</div>
+            </div>
+            <div class="pi-mrp-summary-right">
+              <div class="pi-mrp-health-block">
+                <div class="pi-mrp-health-score" id="pi-mrp-health-score">—</div>
+                <div class="pi-mrp-health-sub">Publishing Health™</div>
+              </div>
+              <div class="pi-mrp-status-badge pi-mrp-status--unknown" id="pi-mrp-status-badge">Pending</div>
+            </div>
+          </div>
+
+          <div class="pi-mrp-grid">
+
+            <!-- Artist-supplied via onboarding -->
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Performing Rights</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-pro-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-pro-badge">Profile Source</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">SoundExchange</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-sx-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-sx-badge">Profile Source</div>
+            </div>
+
+            <!-- Auto-detected by Royaltē intelligence engines -->
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Record Label</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-label-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-label-badge">Auto-Detect</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Distributor</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-dist-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-dist-badge">Auto-Detect</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Music Publisher</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-publisher-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-publisher-badge">Auto-Detect</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Publishing Administrator</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-admin-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-admin-badge">Auto-Detect</div>
+            </div>
+
+          </div>
+
+          <div class="pi-mrp-footer" id="pi-mrp-footer">
+            Profile Source: artist-verified · Auto-Detect: Royaltē Intelligence™ from Apple Music + MLC
+          </div>
+
+        </div>
+
+        <!-- § 3 — CORE PUBLISHING SYSTEMS ─────────────────────────── -->
+        <div>
+          <div class="pi-section-header">
+            <div class="pi-section-title">Core Publishing Systems™</div>
+          </div>
+          <div class="pi-system-grid">
+
+            <!-- The MLC -->
+            <div class="pi-system-card pi-system-card--unknown" aria-label="The MLC — Status Unknown">
+              <div class="pi-system-icon-wrap pi-system-icon-wrap--unknown">
+                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-administration"></use></svg>
+              </div>
+              <div class="pi-system-name">The MLC</div>
+              <div class="pi-system-sub">Mechanical Licensing Collective</div>
+              <div class="pi-system-badge pi-system-badge--unknown">Unknown</div>
+              <div class="pi-system-works">Connection required to verify</div>
+              <a class="pi-system-action-cta pi-system-action-cta--connect" href="https://www.themlc.com" target="_blank" rel="noopener noreferrer">Connect The MLC →</a>
+            </div>
+
+            <!-- Publishing Administration™ -->
+            <div class="pi-system-card pi-system-card--unknown" aria-label="Publishing Administration — Status Unknown">
+              <div class="pi-system-icon-wrap pi-system-icon-wrap--unknown">
+                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-compositions"></use></svg>
+              </div>
+              <div class="pi-system-name">Publishing Administration™</div>
+              <div class="pi-system-sub">Publishing Admin Status</div>
+              <div class="pi-system-badge pi-system-badge--unknown">Unknown</div>
+              <div class="pi-system-works">Upload a statement to verify</div>
+              <a class="pi-system-action-cta pi-system-action-cta--connect" href="#">Upload Publishing Statement →</a>
+            </div>
+
+            <!-- Publisher™ -->
+            <div class="pi-system-card pi-system-card--unknown" aria-label="Publisher — Status Unknown">
+              <div class="pi-system-icon-wrap pi-system-icon-wrap--unknown">
+                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publisher"></use></svg>
+              </div>
+              <div class="pi-system-name">Publisher™</div>
+              <div class="pi-system-sub">Publishing Entity</div>
+              <div class="pi-system-badge pi-system-badge--unknown">Unknown</div>
+              <div class="pi-system-works">Upload a statement to verify</div>
+              <a class="pi-system-action-cta pi-system-action-cta--connect" href="#">Upload Publishing Statement →</a>
+            </div>
+
+          </div>
+
+          <!-- § 4 — ISWC COVERAGE™ + PUBLISHING ACTIVITY™ side by side -->
+          <div class="pi-bottom-row">
+
+            <!-- ISWC Coverage™ -->
+            <div class="pi-system-card pi-system-card--attention" aria-label="ISWC Coverage — 2 Pending">
+              <div class="pi-system-icon-wrap pi-system-icon-wrap--attention">
+                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-claims"></use></svg>
+              </div>
+              <div class="pi-system-name">ISWC Coverage™</div>
+              <div class="pi-system-sub">International Work Codes</div>
+              <div class="pi-system-badge pi-system-badge--amber">2 Pending</div>
+              <div class="pi-system-works">16 Assigned · 2 Pending</div>
+              <a class="pi-system-action-cta" href="#" target="_blank" rel="noopener noreferrer">View Missing ISWCs →</a>
+            </div>
+
+            <!-- Publishing Activity™ -->
+            <div class="pi-activity-card">
+              <div class="pi-card-header">
+                <svg class="pi-card-header-icon royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg>
+                <div class="pi-card-header-meta">
+                  <div class="pi-card-header-title">Publishing Activity™</div>
+                  <div class="pi-card-header-sub">Recent Publishing Updates</div>
+                </div>
+              </div>
+              <div class="pi-activity-stats" role="list" aria-label="Publishing activity summary">
+                <div class="pi-activity-stat" role="listitem">
+                  <div class="pi-activity-stat-num">3</div>
+                  <div class="pi-activity-stat-label">Registrations</div>
+                  <div class="pi-activity-stat-sub">This Week</div>
+                </div>
+                <div class="pi-activity-stat" role="listitem">
+                  <div class="pi-activity-stat-num">1</div>
+                  <div class="pi-activity-stat-label">Updates</div>
+                  <div class="pi-activity-stat-sub">This Week</div>
+                </div>
+                <div class="pi-activity-stat" role="listitem">
+                  <div class="pi-activity-stat-num">0</div>
+                  <div class="pi-activity-stat-label">Disputes</div>
+                  <div class="pi-activity-stat-sub">This Week</div>
+                </div>
+              </div>
+              <div class="pi-activity-footer">
+                <a class="pi-activity-link" href="/workspaces/monitoring-timeline.html">View Activity →</a>
+              </div>
+            </div>
+
+          </div><!-- /pi-bottom-row -->
+        </div>
+
+      </div><!-- /hi-main -->
+
+
+    </div><!-- /ws-body -->
+
+    <footer class="pi-footer">
+      <span class="pi-footer-left">
+        <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+        Secure • Private • Verified Data
+      </span>
+      <span class="pi-footer-right">All publishing data is encrypted and tokenized.</span>
+    </footer>
+
+  </div><!-- /ws-content -->
+
+</div><!-- /ws-shell -->
+
+<!-- ATHENA Publishing Intelligence™ Panel -->
+<div id="pi-athena-overlay" class="pi-athena-overlay" role="dialog" aria-modal="true" aria-labelledby="pi-athena-title" hidden>
+  <div class="pi-athena-panel" role="document">
+
+    <div class="pi-athena-header">
+      <div class="pi-athena-brand">
+        <div class="pi-athena-logo" aria-hidden="true">ē</div>
+        <div class="pi-athena-brand-text">
+          <div class="pi-athena-eyebrow">ATHENA</div>
+          <div class="pi-athena-wordmark">Publishing Intelligence™</div>
+        </div>
+      </div>
+      <button class="pi-athena-close" onclick="piCloseAthena()" aria-label="Close ATHENA panel">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="pi-athena-body">
+
+      <div class="pi-athena-rating-row">
+        <div class="pi-athena-rating-label">Publishing Health™</div>
+        <div class="pi-athena-rating-value" id="pi-athena-rating-value">Moderate Risk</div>
+      </div>
+
+      <div class="pi-athena-section">
+        <div class="pi-athena-section-label">Your Infrastructure</div>
+        <div class="pi-athena-section-body" id="pi-athena-infra-body">Analyzing your verified publishing infrastructure…</div>
+      </div>
+
+      <div class="pi-athena-section">
+        <div class="pi-athena-section-label">Verified</div>
+        <div class="pi-athena-works-list" id="pi-athena-verified-list">
+          <div class="pi-athena-work-row">
+            <div class="pi-athena-work-dot" aria-hidden="true" style="background:#40f0a0"></div>
+            <div class="pi-athena-work-name">Scanning profile…</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pi-athena-section" id="pi-athena-gaps-section">
+        <div class="pi-athena-section-label">Gaps Identified</div>
+        <div class="pi-athena-works-list" id="pi-athena-gaps-list">
+          <div class="pi-athena-work-row">
+            <div class="pi-athena-work-dot" aria-hidden="true" style="background:#ffc040"></div>
+            <div class="pi-athena-work-name">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pi-athena-section">
+        <div class="pi-athena-section-label">Recommended Action</div>
+        <div class="pi-athena-section-body" id="pi-athena-action-body">Complete your Music Rights Profile™ to receive personalized recommendations.</div>
+      </div>
+
+    </div>
+
+    <div class="pi-athena-footer">
+      <a class="pi-athena-action-cta" href="https://www.themlc.com" target="_blank" rel="noopener noreferrer">Register with The MLC →</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Music Rights Profile™ Live Wiring ─────────────────────────────────────────
+// Source: royalte_workspace_context (written by mission-control.js __mcPopulate).
+// Constitutional rule: this workspace NEVER queries Supabase directly.
+//
+// Data availability per field (as of this sprint):
+//   PRO, SoundExchange   — musicRightsProfile.performing_rights (artist-verified)
+//   Record Label         — recordLabel (extracted from Apple Music albums)
+//   Distributor          — not yet available in pipeline (shows —)
+//   Publisher            — not yet available (mlc-adapter publishers[] pending)
+//   Publishing Admin     — not yet available (same as Publisher)
+(function () {
+  'use strict';
+
+  // ── Read workspace context ────────────────────────────────────────────────
+  var ctx = {};
+  try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+
+  var mrp = ctx.musicRightsProfile || null;
+  var pr  = (mrp && mrp.performing_rights) ? mrp.performing_rights : {};
+
+  // ── Field helper — sets value text and swaps badge class/label ────────────
+  function setField(valId, badgeId, displayValue, badgeClass, badgeLabel) {
+    var valEl   = document.getElementById(valId);
+    var badgeEl = document.getElementById(badgeId);
+    if (valEl) valEl.textContent = displayValue;
+    if (!badgeEl) return;
+    ['pi-mrp-badge--verified', 'pi-mrp-badge--none', 'pi-mrp-badge--missing',
+     'pi-mrp-badge--unknown',  'pi-mrp-badge--intel'].forEach(function (c) {
+      badgeEl.classList.remove(c);
+    });
+    badgeEl.classList.add(badgeClass);
+    if (badgeLabel !== undefined) badgeEl.textContent = badgeLabel;
+  }
+
+  // ── PRO ───────────────────────────────────────────────────────────────────
+  var proVal = pr.pro || null;
+  if (proVal && proVal !== 'None') {
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', proVal, 'pi-mrp-badge--verified', 'Verified');
+  } else if (proVal === 'None') {
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', 'Not Registered', 'pi-mrp-badge--none', 'Profile Source');
+  } else {
+    // No profile yet — leave default — placeholder state
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', '—', 'pi-mrp-badge--unknown', 'Profile Source');
+  }
+
+  // ── SoundExchange ─────────────────────────────────────────────────────────
+  var sxVal = pr.soundexchange || null;
+  if (sxVal === 'Yes') {
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Registered', 'pi-mrp-badge--verified', 'Verified');
+  } else if (sxVal === 'No') {
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Registered', 'pi-mrp-badge--none', 'Profile Source');
+  } else if (sxVal === 'Unsure') {
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Confirmed', 'pi-mrp-badge--none', 'Profile Source');
+  } else {
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', '—', 'pi-mrp-badge--unknown', 'Profile Source');
+  }
+
+  // ── Record Label (Apple Music) ────────────────────────────────────────────
+  var labelVal = ctx.recordLabel || null;
+  setField('pi-mrp-label-val', 'pi-mrp-label-badge',
+    labelVal || '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+
+  // ── Distributor — pipeline support pending ────────────────────────────────
+  setField('pi-mrp-dist-val', 'pi-mrp-dist-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+
+  // ── Music Publisher — pipeline support pending ────────────────────────────
+  setField('pi-mrp-publisher-val', 'pi-mrp-publisher-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+
+  // ── Publishing Administrator — pipeline support pending ───────────────────
+  setField('pi-mrp-admin-val', 'pi-mrp-admin-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+
+  // ── Publishing Health™ Score ──────────────────────────────────────────────
+  // Weights (Board-locked): PRO=30, Admin=25, SoundExchange=20, Distributor=15, Publisher=10
+  // Admin + Distributor + Publisher contribute 0 until pipeline support lands.
+  var score = 0;
+  if (proVal && proVal !== 'None') score += 30;
+  if (sxVal === 'Yes')             score += 20;
+
+  var scoreEl = document.getElementById('pi-mrp-health-score');
+  var statusEl = document.getElementById('pi-mrp-status-badge');
+
+  if (mrp) {
+    if (scoreEl) scoreEl.textContent = String(score);
+    if (statusEl) {
+      statusEl.className = 'pi-mrp-status-badge';
+      if (score >= 80) {
+        statusEl.classList.add('pi-mrp-status--optimized'); statusEl.textContent = 'Optimized';
+      } else if (score >= 50) {
+        statusEl.classList.add('pi-mrp-status--partial');   statusEl.textContent = 'Partial';
+      } else if (score >= 20) {
+        statusEl.classList.add('pi-mrp-status--needs');     statusEl.textContent = 'Needs Attention';
+      } else {
+        statusEl.classList.add('pi-mrp-status--unknown');   statusEl.textContent = 'Unverified';
+      }
+    }
+  }
+
+  // ── KPI Cards — wire Publishing Coverage, Registered Works, PRO caption ──
+  var pi = ctx.publishingIntelligence || null;
+  var kpiCards = document.querySelectorAll('.hi-kpi-row .hi-kpi-card');
+
+  if (pi && kpiCards.length >= 3) {
+    // Card 2 (index 1): Publishing Coverage™
+    var c2 = kpiCards[1];
+    var bn2 = c2.querySelector('.ii-kpi-big-num'); if (bn2) bn2.textContent = String(pi.coverage || 0);
+    var cap2 = c2.querySelector('.ii-kpi-caption');
+    if (cap2) cap2.textContent = 'Across ' + (pi.supportedSources ? pi.supportedSources.length : 1) + ' Publishing Systems';
+    var st2 = c2.querySelector('.ii-kpi-status-text');
+    if (st2) {
+      var cov = pi.coverage || 0;
+      if (cov >= 80) { st2.className = 'ii-kpi-status-text ii-kpi-status-text--green';  st2.textContent = 'Strong'; }
+      else if (cov >= 50) { st2.className = 'ii-kpi-status-text ii-kpi-status-text--orange'; st2.textContent = 'Moderate'; }
+      else { st2.className = 'ii-kpi-status-text ii-kpi-status-text--orange'; st2.textContent = 'Needs Attention'; }
+    }
+
+    // Card 3 (index 2): Registered Works™
+    var c3 = kpiCards[2];
+    var bn3 = c3.querySelector('.ii-kpi-big-num');    if (bn3) bn3.textContent = String(pi.registeredCount || 0);
+    var fr3 = c3.querySelector('.ii-kpi-fraction');   if (fr3) fr3.textContent = ' / ' + (pi.totalChecked || 0);
+    var st3 = c3.querySelector('.ii-kpi-status-text');
+    if (st3 && pi.totalChecked != null) {
+      var pending = (pi.totalChecked || 0) - (pi.registeredCount || 0);
+      st3.textContent = pending > 0 ? pending + ' Pending' : 'All Registered';
+    }
+    var cap3 = c3.querySelector('.ii-kpi-caption');
+    if (cap3 && pi.metrics) cap3.textContent = 'ISWC: ' + (pi.metrics.mlcIswcCount || 0) + ' Assigned';
+  }
+
+  // PRO caption (Card 4)
+  var proCapEl = document.getElementById('pi-kpi-pro-caption');
+  if (proCapEl) {
+    if (proVal && proVal !== 'None') proCapEl.textContent = proVal + ' — Primary Society';
+    else proCapEl.textContent = 'No PRO Registered';
+  }
+}());
+
+function piOpenAthena() {
+  var overlay = document.getElementById('pi-athena-overlay');
+  overlay.hidden = false;
+  overlay.removeAttribute('hidden');
+  document.body.style.overflow = 'hidden';
+  overlay.querySelector('.pi-athena-close').focus();
+}
+function piCloseAthena() {
+  var overlay = document.getElementById('pi-athena-overlay');
+  overlay.hidden = true;
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') piCloseAthena();
+});
+document.getElementById('pi-athena-overlay').addEventListener('click', function(e) {
+  if (e.target === this) piCloseAthena();
+});
+</script>
+<script src="/js/rds-preview-console.js" defer></script>
+</body>
+</html>

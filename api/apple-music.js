@@ -8,6 +8,38 @@ const STOREFRONT = 'us';
 // downstream consumers (dashboard, tests) can iterate predictably.
 const BIG6_STOREFRONTS = ['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au', 'br'];
 
+// Global Music Footprint™ — complete Apple Music storefront universe.
+// Source: Apple MusicKit documentation + storefronts API (2026-06).
+// 167 storefronts. Organized by region for readability; the order
+// does not affect correctness. Update when Apple adds new markets
+// (verify against GET /v1/storefronts). Named constant — change only
+// through a Board directive.
+const ALL_APPLE_STOREFRONTS = Object.freeze([
+  // Americas (36)
+  'ag','ai','bb','bm','bo','br','bs','bz','ca','cl',
+  'co','cr','dm','do','ec','gd','gt','gy','hn','jm',
+  'kn','ky','lc','mx','ni','pa','pe','py','sr','sv',
+  'tc','tt','us','uy','vc','vg',
+  // Europe (44)
+  'al','am','at','az','be','bg','by','ch','cy','cz',
+  'de','dk','ee','es','fi','fr','gb','gr','hr','hu',
+  'ie','is','it','kg','kz','lt','lu','lv','md','mk',
+  'mt','nl','no','pl','pt','ro','ru','se','si','sk',
+  'tj','tr','ua','uz',
+  // Middle East & Africa (55)
+  'ae','ao','bf','bh','bj','bw','cd','cg','ci','cm',
+  'cv','dj','dz','eg','et','ga','gh','gm','gn','gq',
+  'gw','il','jo','ke','kw','lb','lr','ly','ma','mg',
+  'ml','mr','mu','mw','mz','na','ne','ng','om','qa',
+  'rw','sa','sc','sl','sn','st','sz','td','tn','tz',
+  'ug','ye','za','zm','zw',
+  // Asia Pacific (32)
+  'au','bt','cn','fj','fm','hk','id','in','jp','kh',
+  'kr','la','lk','mn','mo','mv','my','np','nr','nz',
+  'pg','ph','pw','sb','sg','th','tl','to','tw','vn',
+  'vu','ws',
+]);
+
 async function appleRequest(path) {
   const token = generateAppleToken();
   const res = await fetch(`${APPLE_MUSIC_API}${path}`, {
@@ -298,6 +330,70 @@ async function checkStorefrontAvailability(albumIds, headers) {
   return Object.fromEntries(results);
 }
 
+/**
+ * Global Music Footprint™ — Check one probe album ID across all 167 Apple
+ * Music storefronts, batched in waves of WAVE_SIZE to avoid rate-limiting.
+ *
+ * Uses a single album ID as the availability probe: if the artist's catalog
+ * is in a storefront, that album appears in the response; otherwise the
+ * response is empty. Promise.allSettled within each wave isolates failures
+ * — a bad storefront never aborts the remaining checks.
+ *
+ * Returns:
+ *   {
+ *     available:   string[],  // storefront IDs where album was found
+ *     unavailable: string[],  // storefront IDs where album was absent
+ *     errors:      Array<{sf, error}>,  // storefronts that errored
+ *     total:       number,    // ALL_APPLE_STOREFRONTS.length (167)
+ *   }
+ *
+ * Scope note: Global Music Footprint™ uses Apple Music storefront availability
+ * as the canonical global availability signal for v1.0.
+ */
+async function checkGlobalStorefrontAvailability(probeAlbumId, headers) {
+  const WAVE_SIZE = 50;
+  const empty = { available: [], unavailable: ALL_APPLE_STOREFRONTS.slice(), errors: [], total: ALL_APPLE_STOREFRONTS.length };
+  if (!probeAlbumId || typeof probeAlbumId !== 'string') return empty;
+
+  const storefronts = ALL_APPLE_STOREFRONTS;
+  const available   = [];
+  const unavailable = [];
+  const errors      = [];
+
+  for (let i = 0; i < storefronts.length; i += WAVE_SIZE) {
+    const wave = storefronts.slice(i, i + WAVE_SIZE);
+    const results = await Promise.allSettled(
+      wave.map(async (sf) => {
+        try {
+          const res = await fetch(
+            `${APPLE_MUSIC_API}/catalog/${sf}/albums?ids=${probeAlbumId}`,
+            { headers }
+          );
+          if (!res.ok) return [sf, false, `HTTP ${res.status}`];
+          const data = await res.json();
+          const rows = (data && Array.isArray(data.data)) ? data.data : [];
+          return [sf, rows.length > 0, null];
+        } catch (err) {
+          return [sf, null, err.message];
+        }
+      })
+    );
+
+    for (const r of results) {
+      if (r.status !== 'fulfilled') {
+        errors.push({ sf: 'unknown', error: r.reason?.message || 'unknown' });
+        continue;
+      }
+      const [sf, found, errMsg] = r.value;
+      if (errMsg) errors.push({ sf, error: errMsg });
+      else if (found) available.push(sf);
+      else unavailable.push(sf);
+    }
+  }
+
+  return { available, unavailable, errors, total: storefronts.length };
+}
+
 export {
   searchArtist,
   getArtistAlbums,
@@ -306,5 +402,7 @@ export {
   searchTrack,
   compareSpotifyToApple,
   checkStorefrontAvailability,
+  checkGlobalStorefrontAvailability,
   BIG6_STOREFRONTS,
+  ALL_APPLE_STOREFRONTS,
 };

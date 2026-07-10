@@ -24,9 +24,10 @@
 //  SUMMARISING — never duplicating — graph + adapter + scan state.
 //
 //    sources = {
-//      identityGraph:   { compositions?, … } | null,
-//      publishingWorks: PublishingWork[]      | null,
-//      scanPayload:     CanonicalAuditResponse | null,
+//      identityGraph:                { compositions?, … } | null,
+//      publishingWorks:              PublishingWork[]      | null,
+//      publishingSourceObservations: { mlc?, … }           | null,  // Phase 5B Board D3
+//      scanPayload:                  CanonicalAuditResponse | null,
 //    }
 //
 //  Section ownership (Board rule):
@@ -120,9 +121,10 @@ export function assembleCio(artistName, sources, options) {
   const now         = (typeof opts.now === 'function') ? opts.now : defaultNow;
   const safeSources = (sources && typeof sources === 'object' && !Array.isArray(sources)) ? sources : {};
 
-  const identityGraph   = safeSources.identityGraph;
-  const publishingWorks = safeSources.publishingWorks;
-  const scanPayload     = safeSources.scanPayload;
+  const identityGraph                = safeSources.identityGraph;
+  const publishingWorks              = safeSources.publishingWorks;
+  const publishingSourceObservations = safeSources.publishingSourceObservations;
+  const scanPayload                  = safeSources.scanPayload;
 
   // ── Empty shell + envelope timestamp ────────────────────────────
   const cio = emptyCio(artistName);
@@ -138,6 +140,74 @@ export function assembleCio(artistName, sources, options) {
     }
     const profile = buildExternalProfileFromScan(scanPayload);
     if (profile) cio.identity.externalProfiles.push(profile);
+
+    // Apple-canonical identity fields (Stage 2B). Sourced from the
+    // Apple Adapter's output as it lands in the canonical scan
+    // response. Apple is canonical for artwork + Apple URL regardless
+    // of whether the scan started from Spotify or Apple — these
+    // values are populated whenever the adapter found the artist.
+    const appleDetails = scanPayload.platforms
+                      && scanPayload.platforms.appleMusic
+                      && scanPayload.platforms.appleMusic.details;
+    if (appleDetails && typeof appleDetails === 'object') {
+      if (typeof appleDetails.artistUrl === 'string' && appleDetails.artistUrl !== '') {
+        cio.identity.appleUrl = appleDetails.artistUrl;
+      }
+      if (typeof appleDetails.artwork === 'string' && appleDetails.artwork !== '') {
+        cio.identity.artwork = appleDetails.artwork;
+      }
+    }
+    if (scanPayload.source
+        && typeof scanPayload.source.storefront === 'string'
+        && scanPayload.source.storefront !== '') {
+      cio.identity.storefront = scanPayload.source.storefront;
+    }
+  }
+
+  // ── observations.providers (Board D2, Phase 3B) ─────────────────
+  //  COPY scanPayload.platforms.<key> into cio.observations.providers
+  //  for the three Phase 3 providers (apple / spotify / youtube). The
+  //  assembler never invents availability — it mirrors only what the
+  //  scan response carries. Missing entries stay null and downstream
+  //  resolves to Unable to Confirm, never Not Found.
+  if (scanPayload && scanPayload.platforms && typeof scanPayload.platforms === 'object') {
+    const p = scanPayload.platforms;
+    if (p.appleMusic && typeof p.appleMusic === 'object' && !Array.isArray(p.appleMusic)) {
+      cio.observations.providers.apple = {
+        availability: typeof p.appleMusic.availability === 'string' ? p.appleMusic.availability : null,
+        details:      (p.appleMusic.details && typeof p.appleMusic.details === 'object') ? p.appleMusic.details : null,
+      };
+    }
+    if (p.spotify && typeof p.spotify === 'object' && !Array.isArray(p.spotify)) {
+      cio.observations.providers.spotify = {
+        availability: typeof p.spotify.availability === 'string' ? p.spotify.availability : null,
+        details:      (p.spotify.details && typeof p.spotify.details === 'object') ? p.spotify.details : null,
+      };
+    }
+    if (p.youtube && typeof p.youtube === 'object' && !Array.isArray(p.youtube)) {
+      cio.observations.providers.youtube = {
+        availability: typeof p.youtube.availability === 'string' ? p.youtube.availability : null,
+        details:      (p.youtube.details && typeof p.youtube.details === 'object') ? p.youtube.details : null,
+      };
+    }
+  }
+
+  // ── observations.publishingSources (Phase 5B Board D3) ──────────
+  //  COPY publishingSourceObservations.<source> into
+  //  cio.observations.publishingSources.<source>. Same shape contract
+  //  as identity providers: { availability, details }. null left in
+  //  place when no observation was supplied — downstream resolves to
+  //  Unable to Confirm, never Not Found (Board D5 4-state model).
+  if (publishingSourceObservations
+      && typeof publishingSourceObservations === 'object'
+      && !Array.isArray(publishingSourceObservations)) {
+    const psObs = publishingSourceObservations;
+    if (psObs.mlc && typeof psObs.mlc === 'object' && !Array.isArray(psObs.mlc)) {
+      cio.observations.publishingSources.mlc = {
+        availability: typeof psObs.mlc.availability === 'string' ? psObs.mlc.availability : null,
+        details:      (psObs.mlc.details && typeof psObs.mlc.details === 'object') ? psObs.mlc.details : null,
+      };
+    }
   }
 
   // ── catalog (from scanPayload.catalog) ──────────────────────────
@@ -236,7 +306,8 @@ export function assembleCio(artistName, sources, options) {
 // Required envelope fields:
 //   cioVersion, generatedAt, confidence  (non-empty strings)
 // Required sections (each must be an object):
-//   identity, publishing, catalog, metadata, sources, monitoring, revenue
+//   identity, publishing, catalog, metadata, sources, observations,
+//   monitoring, revenue
 // Required fields within sections:
 //   identity.canonicalArtistName  must be a non-empty string
 //   sources.sources               must be an array
@@ -251,7 +322,7 @@ export function validateCio(cio) {
   if (typeof cio.generatedAt !== 'string' || cio.generatedAt === '') errors.push('missing_generatedAt');
   if (typeof cio.confidence  !== 'string' || cio.confidence  === '') errors.push('missing_confidence');
 
-  const sectionKeys = ['identity', 'publishing', 'catalog', 'metadata', 'sources', 'monitoring', 'revenue'];
+  const sectionKeys = ['identity', 'publishing', 'catalog', 'metadata', 'sources', 'observations', 'monitoring', 'revenue'];
   for (const key of sectionKeys) {
     const value = cio[key];
     if (!value || typeof value !== 'object' || Array.isArray(value)) {

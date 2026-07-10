@@ -1,0 +1,60 @@
+{
+  "_fixtureVersion": "1.0.0",
+  "_fixtureName": "artist-no-publisher",
+  "_description": "Artist with an active release catalog but zero publishing registrations. Identity present across two platforms. Catalog confirmed. Publishing section is entirely empty — no works, no writers, no publishers, no royalteIds. Tests the 'no publishing' edge case through all publishing-domain assemblers.",
+  "_expectedBehavior": "Publishing gap rules fire (zero works, zero coverage). Publishing Intelligence shows low or zero coverage. Identity and catalog domains unaffected. Engine never throws on empty publishing section.",
+  "cioVersion": "1.0.0",
+  "generatedAt": "2026-07-02T00:00:00.000Z",
+  "confidence": "MEDIUM",
+  "identity": {
+    "canonicalArtistName": "Cert Unpublished Artist",
+    "externalProfiles": [
+      { "provider": "spotify", "profileId": "cert-nopub-sp-001", "verified": true },
+      { "provider": "apple",   "profileId": "cert-nopub-am-001", "verified": true }
+    ],
+    "artistConfidence": "HIGH"
+  },
+  "publishing": {
+    "worksCount": 0,
+    "workRoyalteIds": [],
+    "writerCount": 0,
+    "writerIPIs": [],
+    "publisherCount": 0,
+    "publishingConfidence": "UNKNOWN",
+    "publishingCoverage": 0
+  },
+  "catalog": {
+    "releasesCount": 12,
+    "catalogAgeYears": 6,
+    "catalogConfidence": "HIGH",
+    "recordings": [
+      { "isrc": "USNOP0000001", "title": "Unregistered Track 1" },
+      { "isrc": "USNOP0000002", "title": "Unregistered Track 2" },
+      { "isrc": "USNOP0000003", "title": "Unregistered Track 3" },
+      { "isrc": "USNOP0000004", "title": "Unregistered Track 4" }
+    ],
+    "orphanRecordings": [],
+    "duplicates": []
+  },
+  "metadata": {
+    "flagCount": 0,
+    "metadataConfidence": "HIGH",
+    "missingCredits": [],
+    "duplicateReleases": [],
+    "inconsistentMetadata": [],
+    "releaseConflicts": []
+  },
+  "sources": { "sources": [] },
+  "monitoring": { "reserved": true },
+  "revenue": {},
+  "observations": {
+    "providers": {
+      "spotify": { "availability": "VERIFIED" },
+      "apple":   { "availability": "VERIFIED" },
+      "youtube": { "availability": "NOT_FOUND" }
+    },
+    "publishingSources": {
+      "mlc": { "availability": "NOT_FOUND" }
+    }
+  }
+}
