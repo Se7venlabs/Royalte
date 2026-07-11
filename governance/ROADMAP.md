@@ -50,6 +50,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | 3.6 YouTube | YouTube Official Artist Channel PAL Production Migration™ | ✅ Complete | `fb44ef5` (PR #198) | — |
 | 3.6 MLC | The MLC Publishing Authority PAL Production Migration™ | ✅ Complete | `67d7fe8` (PR #199) | — |
 | 3.6 Deezer | Deezer Streaming Verification Authority™ PAL Production Migration™ | ✅ Complete | `ba66b26` (PR #201) | — |
+| 3C | Identity Intelligence™ Phase 3C — 5-Provider Expansion + ISRC-First Verification Strategy™ | ✅ Complete | `041e40f` (PR #301) | `identity-intelligence-phase3c-v1.0` |
 
 ### MC Intelligence Sprint
 
@@ -104,6 +105,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 - **Constitution at v1.3** (effective 2026-06-11) ratifies the seven-layer Engineering Stack.
 - **Phase 5 rule format** permits the optional `polarity: 'positive'` field on positive-framing rules — applied to `publishing.strong-coverage` and `catalog.complete-delivery-verified`.
 - **Mission Control™ Health Intelligence™ card redesigned** (PR #211, 2026-07-03): 6-section executive assessment fully wired to Health Engine output. `applyHealthIntelligencePlan` is the sole DOM writer; `buildHealthIntelligencePlan` is the sole plan builder. All values sourced constitutionally. Executive Layout Optimization™ v1.0 reduces desktop page height ~260px; final holistic pass deferred until all MC modules complete.
+- **Identity Intelligence™ Phase 3C complete** (PR #301, `041e40f`, tag `identity-intelligence-phase3c-v1.0`, 2026-07-11): canonical Identity Provider set expanded from 3 to 5 (apple/spotify/youtube/deezer/tidal) across CIO schema, assembler, engine, workspace, and tests. ISRC-First Verification Strategy™: when scan input carries a verified track ISRC, it is the primary Spotify resolution path. ISRC bridge (step 4) is artist-URL fallback with play-count-ordered determinism. Apple Music API limit=25 → limit=20 fixed across all 4 call sites. 53 assertions.
 - **Mission Control™ Identity Intelligence™ card redesigned** (PR #213, 2026-07-03): 6-section executive passport replaces the fingerprint ring + provider checklist. Sections: Identity Coverage (% + grade), Identity Summary (4 counts), Identity Providers (constitutional + platform pills), Biggest Risk, Biggest Win, Recent Changes. `applyIdentityIntelligencePlan` is the sole DOM writer; `buildIdentityIntelligencePlan` is the sole plan builder. Deezer/TIDAL read from `payload.platforms.*` via Evidence Bridge™.
 - **Mission Control™ Publishing Intelligence™ card redesigned** (PR #215, 2026-07-03): 7-section executive passport replaces the ring + flat checklist. Sections: Publishing Coverage (% + grade), Publishing Summary (4 counts), Publishing Systems (6 metric rows), Financial Impact™ (NEW — risk badge + Potential Royalty Impact™ + Estimated Resolution), Biggest Risk, Biggest Win, Recent Changes. Financial Neutrality Rule™ preserved. `applyPublishingIntelligencePlan` is the sole DOM writer; `buildPublishingIntelligencePlan` is the sole plan builder.
 
