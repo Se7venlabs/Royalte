@@ -420,8 +420,41 @@
 </div><!-- /ws-shell -->
 
 <script>
+/* Dev fixture injection — fires ONLY when ?dev=1 and no session context exists.
+ * Never affects production. Allows Executive Board HTML review without manual
+ * sessionStorage manipulation. Source: api/fixtures/canonical-black-alternative.json
+ */
+(function () {
+  'use strict';
+  try {
+    if (new URLSearchParams(location.search).get('dev') !== '1') return;
+    if (sessionStorage.getItem('royalte_workspace_context')) return;
+    var ctx = {
+      artistName: 'Black Alternative',
+      subject: { artistName: 'Black Alternative', artistId: '1lnM3VZrD6SG9vxBsE9654', trackTitle: null, trackIsrc: null, trackIsrcSource: null, albumName: null },
+      identityIntelligence: {
+        providers: { apple: 'VERIFIED', spotify: 'VERIFIED', youtube: 'VERIFIED' },
+        supportedProviders: ['apple', 'spotify', 'youtube'],
+        verifiedProviders: 3, totalProviders: 3, coverage: 100,
+        strengths: [{ provider: 'apple', label: 'Apple Music' }, { provider: 'spotify', label: 'Spotify' }, { provider: 'youtube', label: 'YouTube' }],
+        issues: [], recommendations: []
+      },
+      metrics: { followers: -1, popularity: 0, genres: [], lastfmPlays: 16, lastfmListeners: 15, deezerFans: 13, tidalPopularity: 0, discogsReleases: 0, country: null, wikipediaUrl: null },
+      catalogIntelligence: { bestVerifiedRelease: { artwork: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/300x300bb.jpg', releaseTitle: 'Everything Is Over - Single', releaseType: 'Single', releaseDate: '2026-05-15' } },
+      scannedAt: '2026-07-11T00:35:35.683Z',
+      recordLabel: 'Castle Park Studioz (GmbH)'
+    };
+    sessionStorage.setItem('royalte_workspace_context', JSON.stringify(ctx));
+    sessionStorage.setItem('royalte_session_context', JSON.stringify({
+      artistImageUrl: 'https://is1-ssl.mzstatic.com/image/thumb/AMCArtistImages221/v4/eb/f5/cc/ebf5cc94-4362-b35b-79df-1edd7c87ed72/ami-identity-6aca4eb45a526637156da8491d6c7070-2026-03-26T12-43-55.567Z_cropped.png/600x600bb.jpg',
+      albumImageUrl: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/300x300bb.jpg'
+    }));
+  } catch (_) {}
+}());
+</script>
+<script>
 /* Identity Intelligence™ — Live Wiring
- * Sources: identityIntelligence, subject, recordLabel, scannedAt, metrics
+ * Sources: identityIntelligence, subject, catalogIntelligence, recordLabel, scannedAt, metrics
  *          (all from royalte_workspace_context, written by __mcPopulate)
  * Presentation-only. Never queries Supabase. No-data → leaves static demo.
  */
@@ -446,7 +479,7 @@
   }
 
   /* ── Artist name + initials ─────────────────────────────────────────── */
-  var artistName = subject && subject.artistName ? subject.artistName : null;
+  var artistName = (subject && subject.artistName) ? subject.artistName : (ctx.artistName || null);
   if (artistName) {
     var heading = document.querySelector('.ii-exec-heading');
     if (heading) heading.textContent = artistName;
@@ -478,10 +511,8 @@
     var row = snapMap[key]; if (!row || !val) return;
     var v = row.querySelector('.ii-snapshot-val'); if (v) v.textContent = val;
   }
-  if (artistName)                    setSnap('Artist Name', artistName.toUpperCase());
-  if (subject && subject.trackTitle) setSnap('Top Track', subject.trackTitle);
-  if (subject && subject.trackIsrc)  setSnap('ISRC', subject.trackIsrc);
-  if (ctx.recordLabel)               setSnap('Record Label', ctx.recordLabel);
+  if (artistName)      setSnap('Artist Name', artistName.toUpperCase());
+  if (ctx.recordLabel) setSnap('Record Label', ctx.recordLabel);
   if (syncStr) {
     var syncRow = snapMap['Last Identity Sync'];
     if (syncRow) {
@@ -493,18 +524,37 @@
       }
     }
   }
-  if (metrics && Array.isArray(metrics.genres) && metrics.genres.length > 0) {
+  /* Snapshot fields — show truthful empty state ('—') when values are null.
+   * Only updates when subject is present (live data path). */
+  if (subject) {
+    setSnap('Top Track', subject.trackTitle || '—');
+    setSnap('ISRC', subject.trackIsrc || '—');
+    var bestRelease = ctx.catalogIntelligence && ctx.catalogIntelligence.bestVerifiedRelease;
+    setSnap('Primary Release', (bestRelease && bestRelease.releaseTitle) || subject.albumName || '—');
+    /* Wire snapshot artwork caption to the best release title */
+    var artText = document.querySelector('.ii-snapshot-art-text');
+    if (artText) artText.textContent = (bestRelease && bestRelease.releaseTitle) || subject.trackTitle || '';
+  }
+  if (metrics) {
     var gRow = snapMap['Primary Genres'];
     if (gRow) {
       var gc = gRow.querySelector('.ii-snapshot-genre-row');
       if (gc) {
         gc.innerHTML = '';
-        metrics.genres.slice(0, 3).forEach(function (g) {
-          var tag = document.createElement('span');
-          tag.className = 'ii-snapshot-genre-tag';
-          tag.textContent = g.charAt(0).toUpperCase() + g.slice(1);
-          gc.appendChild(tag);
-        });
+        var genreArr = Array.isArray(metrics.genres) ? metrics.genres.slice(0, 3) : [];
+        if (genreArr.length > 0) {
+          genreArr.forEach(function (g) {
+            var tag = document.createElement('span');
+            tag.className = 'ii-snapshot-genre-tag';
+            tag.textContent = g.charAt(0).toUpperCase() + g.slice(1);
+            gc.appendChild(tag);
+          });
+        } else {
+          var dashEl = document.createElement('span');
+          dashEl.className = 'ii-snapshot-val';
+          dashEl.textContent = '—';
+          gc.appendChild(dashEl);
+        }
       }
     }
   }
@@ -563,15 +613,28 @@
     var cp = vpCard.querySelector('.ii-kpi-caption'); if (cp && coverage != null) cp.textContent = coverage + '% of Identity Providers';
   }
 
-  /* ── Platform card badge states (Apple, Spotify, YouTube) ───────────── */
-  var PROV_NAMES = { apple: 'Apple Music for Artists', spotify: 'Spotify for Artists', youtube: 'YouTube Official Artist Channel' };
-  var BADGE_MAP  = {
+  /* ── Platform card badge states ─────────────────────────────────────── */
+  /* PROV_NAMES maps provider key → platform card display name.
+   * Deezer and TIDAL are included so cards not in ii.providers receive a
+   * truthful "Unable to confirm" state rather than retaining demo values.
+   * identityIntelligence only verifies apple/spotify/youtube (v1.0 scope). */
+  var PROV_NAMES = {
+    apple:   'Apple Music for Artists',
+    spotify: 'Spotify for Artists',
+    youtube: 'YouTube Official Artist Channel',
+    deezer:  'Deezer',
+    tidal:   'TIDAL Artist Home',
+  };
+  var BADGE_MAP = {
     'VERIFIED':          { cls: 'ii-platform-badge--verified',       label: 'Verified' },
     'ACTION_REQUIRED':   { cls: 'ii-platform-badge--action-required', label: 'Action Required' },
     'NOT_FOUND':         { cls: 'ii-platform-badge--action-required', label: 'Not Found' },
     'AUTH_UNAVAILABLE':  { cls: 'ii-platform-badge--action-required', label: 'Unavailable' },
-    'UNABLE_TO_CONFIRM': { cls: 'ii-platform-badge--action-required', label: 'Unconfirmed' },
+    'UNABLE_TO_CONFIRM': { cls: 'ii-platform-badge--action-required', label: 'Unable to confirm' },
   };
+  /* States that indicate a real actionable problem for the artist. */
+  var ALERT_STATES = { ACTION_REQUIRED: true, NOT_FOUND: true };
+
   var allCards = document.querySelectorAll('.ii-platform-card');
   for (var pc = 0; pc < allCards.length; pc++) {
     var card = allCards[pc];
@@ -581,14 +644,28 @@
     for (var pk = 0; pk < provKeys.length; pk++) {
       if (PROV_NAMES[provKeys[pk]] === nameEl.textContent.trim()) { provKey = provKeys[pk]; break; }
     }
-    if (!provKey || !ii.providers || ii.providers[provKey] == null) continue;
-    var state = ii.providers[provKey];
+    if (!provKey) continue; /* Card name not in our map — leave as-is */
+
+    /* Determine state: use ii.providers value if present, else UNABLE_TO_CONFIRM */
+    var state = (ii.providers && ii.providers[provKey] != null) ? ii.providers[provKey] : 'UNABLE_TO_CONFIRM';
     var bm    = BADGE_MAP[state] || { cls: 'ii-platform-badge--action-required', label: state };
+
     var badge = card.querySelector('.ii-platform-badge'); if (!badge) continue;
     badge.className   = 'ii-platform-badge ' + bm.cls;
     badge.textContent = bm.label;
-    if (state !== 'VERIFIED') card.classList.add('ii-platform-card--alert');
+
+    /* Alert styling only for genuine actionable issues, not for unreviewed providers */
+    if (ALERT_STATES[state]) card.classList.add('ii-platform-card--alert');
     else card.classList.remove('ii-platform-card--alert');
+
+    /* Mute confidence display for providers outside the identity engine's scope */
+    if (state === 'UNABLE_TO_CONFIRM' || state === 'AUTH_UNAVAILABLE') {
+      var confEl = card.querySelector('.ii-platform-confidence');
+      if (confEl) {
+        confEl.className = 'ii-platform-confidence--muted';
+        confEl.textContent = '—';
+      }
+    }
   }
 
   /* ── Pending Claims card — wire first issue from identityIntelligence ── */
