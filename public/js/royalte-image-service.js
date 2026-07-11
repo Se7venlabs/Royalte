@@ -39,9 +39,12 @@ export function getBestVerifiedArtistImage(payload) {
   const cioArtwork = payload.cio?.identity?.artwork;
   if (typeof cioArtwork === 'string' && cioArtwork) return cioArtwork;
 
-  // Scan-level fallback: artistImageUrl was assembled by image-service.js
-  // during scan execution and reflects the same priority ordering.
-  const scanImg = payload.subject?.artistImageUrl || payload.artistImageUrl || null;
+  // Canonical subject.artwork — added in normalizeAuditResponse v2+.
+  // subject.artistImageUrl is the legacy name for the same field.
+  const scanImg = payload.subject?.artwork
+               || payload.subject?.artistImageUrl
+               || payload.artistImageUrl
+               || null;
   if (typeof scanImg === 'string' && scanImg) return scanImg;
 
   // Platform fallback: artwork written to platforms.appleMusic.details.artwork

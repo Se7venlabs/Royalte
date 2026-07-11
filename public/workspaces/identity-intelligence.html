@@ -435,21 +435,19 @@
   fetch('/fixtures/canonical-black-alternative.json')
     .then(function (r) { return r.json(); })
     .then(function (fixture) {
-      /* canonical sub-object holds the normalized AuditResponse shape
-       * (subject, metrics, catalogIntelligence, etc.) — same as audit_scans.payload */
-      var can = fixture.canonical || {};
+      /* canonical is the normalized AuditResponse shape (subject, metrics, platforms, etc.).
+       * The fixture IS the canonical payload — no .canonical wrapper. */
+      var can = fixture.canonical || fixture;
 
-      /* Record label: Apple album[0].recordLabel — mirrors __mcPopulate resolution */
-      var recordLabel = null;
-      var appleAlbums = fixture.appleMusic && fixture.appleMusic.albums;
-      if (Array.isArray(appleAlbums) && appleAlbums[0]) recordLabel = appleAlbums[0].recordLabel || null;
+      /* Record label — canonical field: subject.recordLabel (normalizeAuditResponse v2+).
+       * Mirrors __mcPopulate() resolution order. */
+      var recordLabel = (can.subject && can.subject.recordLabel) || null;
 
-      /* Artist image: platforms.appleMusic.details.artwork → appleArtworkUrl → artistImageUrl
-       * Same priority ordering as getBestVerifiedArtistImage() */
+      /* Artist image — canonical field: subject.artwork (normalizeAuditResponse v2+)
+       * with platform-detail fallback for backward compat. */
       var artistImageUrl =
+        (can.subject && can.subject.artwork) ||
         (can.platforms && can.platforms.appleMusic && can.platforms.appleMusic.details && can.platforms.appleMusic.details.artwork) ||
-        fixture.appleArtworkUrl ||
-        fixture.artistImageUrl ||
         null;
 
       /* Release artwork: bestVerifiedRelease.artwork with {w}x{h} resolved → artist image fallback */
@@ -460,13 +458,14 @@
 
       /* Workspace context — mirrors the exact shape __mcPopulate writes */
       sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
-        artistName:           fixture.artistName || (can.subject && can.subject.artistName) || null,
+        artistName:           (can.subject && can.subject.artistName) || null,
         subject:              can.subject              || null,
         identityIntelligence: fixture.identityIntelligence || can.identityIntelligence || null,
         metrics:              can.metrics              || null,
         catalogIntelligence:  can.catalogIntelligence  || null,
-        scannedAt:            fixture.scannedAt        || can.scannedAt || null,
+        scannedAt:            can.scannedAt            || null,
         recordLabel:          recordLabel,
+        artwork:              artistImageUrl,
       }));
 
       /* Session context — mirrors the exact shape __mcPopulate writes for images */
@@ -744,7 +743,7 @@
     // royalte-image-service.js. Cannot import (non-module script block).
     var artistUrl =
       (p.cio && p.cio.identity && p.cio.identity.artwork) ||
-      (p.subject && p.subject.artistImageUrl) ||
+      (p.subject && (p.subject.artwork || p.subject.artistImageUrl)) ||
       p.artistImageUrl ||
       (p.platforms && p.platforms.appleMusic && p.platforms.appleMusic.details && p.platforms.appleMusic.details.artwork) ||
       null;

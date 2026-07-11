@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.2.0",
-  "scanId": "689b3118-8264-48ab-8468-2824512f7150",
-  "scannedAt": "2026-07-11T17:56:10.897Z",
+  "scanId": "0482acfa-4af7-47e5-8e7d-864e42ba330b",
+  "scannedAt": "2026-07-11T18:23:24.539Z",
   "source": {
     "platform": "apple_music",
     "urlType": "artist",
@@ -15,7 +15,9 @@
     "trackTitle": "Everything Is Over",
     "trackIsrc": "QT6622698063",
     "trackIsrcSource": null,
-    "albumName": null
+    "albumName": null,
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/600x600bb.jpg",
+    "recordLabel": "Castle Park Studioz (GmbH)"
   },
   "metrics": {
     "followers": -1,
@@ -309,7 +311,7 @@
         "artistId": 3215321,
         "name": "Black Alternative",
         "link": "https://www.deezer.com/artist/3215321",
-        "share": "https://www.deezer.com/artist/3215321?utm_source=deezer&utm_content=artist-3215321&utm_term=0_1783792555&utm_medium=web",
+        "share": "https://www.deezer.com/artist/3215321?utm_source=deezer&utm_content=artist-3215321&utm_term=0_1783794193&utm_medium=web",
         "picture": "https://api.deezer.com/artist/3215321/image",
         "picture_small": "https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/56x56-000000-80-0-0.jpg",
         "picture_medium": "https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/250x250-000000-80-0-0.jpg",
