@@ -28,12 +28,12 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **Mission Control™ v2.0 Sprint 1 — Canonical Registry Foundation™** |
-| Merged at | `a902da7` (PR #303, 2026-07-11) |
-| Tag | `canonical-registry-sprint1-v1.0` |
-| Prior phase | Phase 1B Data Integrity Program™ — Black Alternative Canonical Validation + Executive Brief Engine™ source fixes (`8989e88`, PR #295, 2026-07-11) |
-| Active direction | **Canonical Intelligence Platform™ — Sprint 1 merged and locked.** Registry is the constitutional source of truth for all intelligence fields. Sprint 2 (Evidence Contracts™) is next. |
-| Next Board gate | Sprint 2 brief required from the Board to begin Evidence Contracts™. |
+| Most recently completed phase | **Mission Control™ v2.0 Sprint 2 — Evidence Contracts™** |
+| Merged at | `d10d469` (PR #305, 2026-07-11) |
+| Tag | `evidence-contracts-sprint2-v1.0` |
+| Prior phase | Mission Control™ v2.0 Sprint 1 — Canonical Registry Foundation™ (`a902da7`, PR #303, 2026-07-11) |
+| Active direction | **Canonical Intelligence Platform™ — Sprint 2 merged and locked.** Evidence Contracts™ are the constitutional transport layer for all provider evidence. Sprint 3 (Evidence Registry™) is next. |
+| Next Board gate | Sprint 3 brief required from the Board to begin Evidence Registry™. |
 
 **⚠ ACTIVE INITIATIVE — Mission Control™ Data Integrity Program™ (2026-07-11)**  
 Black Alternative is the **Canonical Development Artist™**. Every workspace must accurately represent Black Alternative's verified scan results before any new module development begins.  
