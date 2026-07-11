@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-10 — Royaltē AI™ Intelligence Wiring Phase 1B.3 — Demo Placeholder Removal + CWA™ Wiring (PR #293)
+
+| | |
+|---|---|
+| **PR** | #293 |
+| **Commit SHA** | `9b5e648` |
+| **Constitution Version** | v1.3 |
+| **Added** | Three-state rendering lifecycle for `#ai-rec-grid` and `#ai-priorities-list`: loading (animated dot pulse) → live intelligence (§4 Render writes innerHTML) or truthful empty state. Cleanup IIFE for no-session-context path ("Navigate to Mission Control™ to run a scan"). Inline loading/empty-state CSS in `<head>`. Validation harness `/tmp/validate-ai-wiring.mjs` rebuilt to production-equivalent using `new Function('window', 'sessionStorage', utilsSrc)` pattern — harness failures ([H]) separated from production failures ([P]). |
+| **Changed** | `public/workspaces/ai-insights.html` — full Canonical Workspace Architecture™ rewrite (§1 Context → §2 Intelligence → §3 Presentation → §4 Render). Cross-module synthesis across 8 intelligence sources (`royalteAI`, `healthIntelligence`, `healthReport`, `executiveBrief`, `identityIntelligence`, `publishingIntelligence`, `globalMusicFootprint`, `monitoringIntelligence`). `presentationModel` bakes empty-state HTML so §4 always has valid content. |
+| **Removed** | 4 hardcoded rec cards: "Publishing Administrator Missing", "Expand into Germany & Brazil", "Claim YouTube Official Artist Channel", "Register Missing MusicBrainz ID". 5 hardcoded priority rows: "Assign Publishing Administrator", "Register PRO & SoundExchange", "Claim YouTube Official Artist Channel", "Initiate Germany & Brazil Market Expansion", "Register MusicBrainz Identity Record". |
+
+---
+
 ## 2026-07-03 — Executive Image Service™ — Platform-Agnostic Image Selection (PR #228)
 
 | | |

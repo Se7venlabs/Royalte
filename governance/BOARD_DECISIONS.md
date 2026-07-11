@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-10 — Royaltē AI™ Intelligence Wiring Phase 1B.3 — Demo Placeholder Removal + Full CWA™ Wiring — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-10 |
+| **Decision** | Royaltē AI™ workspace fully wired to live intelligence via the Canonical Workspace Architecture™ (4-layer: §1 Context, §2 Intelligence, §3 Presentation, §4 Render). All 9 hardcoded demo items (4 rec cards, 5 priority rows) removed. Mission Control™ must never display fictional intelligence. |
+| **Reason** | Demo placeholder content was shown unconditionally to every artist regardless of their actual scan data. Board standard: every workspace must display live data or a truthful empty state — never fabricated content. |
+| **Impact** | `public/workspaces/ai-insights.html` — full CWA™ rewrite; loading/empty/live three-state lifecycle for `#ai-rec-grid` and `#ai-priorities-list`; cross-module synthesis across 8 intelligence sources; cleanup IIFE for no-session-context path. Validation harness rebuilt to production-equivalent (`/tmp/validate-ai-wiring.mjs`). 63/63 data flow · 46/46 smoke · 226/226 pipeline. |
+| **Vote** | Board Approved |
+| **PR Number** | #293 |
+| **Commit SHA** | `9b5e648` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-04 — Executive Product Review Standard™ — Mandatory Merge Gate — MANDATORY
 
 | | |
