@@ -206,7 +206,34 @@ function _normalizePlatforms(r) {
     lastfm:      simple(p.lastfm),
     wikipedia:   simple(p.wikipedia),
     youtube,
-    tidal:       { availability: PLATFORM_AVAILABILITY.AUTH_UNAVAILABLE, details: null },
+    tidal:       _normalizeTidalPlatform(r),
+  };
+}
+
+// TIDAL: if the rich tidalData object is present, produce full details;
+// otherwise fall back to the legacy boolean flag.
+// Phase 4.0: AUTH_UNAVAILABLE is retired once the connector is wired and credentials loaded.
+function _normalizeTidalPlatform(r) {
+  const t = r.tidal;
+  if (!t || !t.found) {
+    const flag = !!(r.platforms?.tidal);
+    return {
+      availability: flag ? PLATFORM_AVAILABILITY.VERIFIED : PLATFORM_AVAILABILITY.NOT_FOUND,
+      details: null,
+    };
+  }
+  return {
+    availability: PLATFORM_AVAILABILITY.VERIFIED,
+    details: {
+      artistId:   t.artistId   ?? null,
+      name:       t.name       ?? null,
+      url:        t.url        ?? null,
+      popularity: _num(t.popularity),
+      picture:    t.picture    ?? null,
+      albums:     Array.isArray(t.albums)    ? t.albums    : [],
+      topTracks:  Array.isArray(t.topTracks) ? t.topTracks : [],
+      genres:     Array.isArray(t.genres)    ? t.genres    : [],
+    },
   };
 }
 

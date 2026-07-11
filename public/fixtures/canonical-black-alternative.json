@@ -1,1 +1,965 @@
-{"success":true,"platform":"apple","type":"artist","artistName":"Black Alternative","artistId":"1lnM3VZrD6SG9vxBsE9654","followers":-1,"popularity":0,"genres":["Soundtrack"],"trackTitle":"Everything Is Over","trackIsrc":"QT6622698063","resolvedFrom":"apple","resolvedFromType":"external","resolvedFromTitle":"Black Alternative","canonicalTarget":"artist","spotifyMatched":true,"artistUrl":"https://open.spotify.com/artist/1lnM3VZrD6SG9vxBsE9654","artistImageUrl":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/600x600bb.jpg","albumImageUrl":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/600x600bb.jpg","imageUrl":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/600x600bb.jpg","appleArtworkUrl":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/600x600bb.jpg","platforms":{"spotify":true,"musicbrainz":true,"deezer":true,"audiodb":false,"discogs":false,"soundcloud":false,"lastfm":false,"wikipedia":false,"youtube":true,"appleMusic":true},"catalog":{"totalReleases":4,"singlesCount":4,"epsCount":0,"albumsCount":0,"featuresCount":0,"totalTracks":4,"earliestYear":2013,"latestYear":2026,"catalogAgeYears":13,"estimatedAnnualStreams":0,"recentActivity":true},"royaltyGap":{"estAnnualStreams":0,"estLifetimeStreams":0,"estSpotifyRoyalties":0,"estPROEarnings":0,"estTotalRoyalties":0,"potentialGapLow":0,"potentialGapHigh":0,"catalogYears":13,"ugcUnmonetisedViews":0,"ugcPotentialRevenue":0,"disclaimer":"Estimates only. Based on streaming activity and platform coverage. Verify with your distributor and PRO."},"gapBasedExposure":{"indicators":[{"id":"catalog-age","severity":"MED","title":"Extended royalty verification recommended","description":"Catalog active for 13 years across 4 releases.","exposureLow":156,"exposureHigh":936,"methodology":"Unaudited-activity accrual × (catalog age × release count)"},{"id":"sync-discoverability","severity":"LOW","title":"Sync licensing discoverability limited","description":"Editorial reference signals partial.","exposureLow":null,"exposureHigh":null,"methodology":"Exposure pending validation"}],"aggregateLow":156,"aggregateHigh":936,"pendingValidationCount":1,"hasAnyGaps":true},"proGuide":{"pro":"Your local PRO","url":"https://www.cisac.org","steps":["Find your country's PRO at cisac.org/find-a-society","Register as a songwriter and composer","Register all your works in the PRO database","Verify reciprocal agreements with SOCAN, ASCAP, GEMA and PRS"],"note":"CISAC is the international confederation of PROs. Their directory lists every PRO worldwide."},"country":null,"lastfmPlays":0,"lastfmListeners":0,"wikipediaUrl":null,"deezerFans":13,"discogsReleases":0,"deezer":{"found":true,"artistId":3215321,"name":"Black Alternative","link":"https://www.deezer.com/artist/3215321","share":"https://www.deezer.com/artist/3215321?utm_source=deezer&utm_content=artist-3215321&utm_term=0_1783789021&utm_medium=web","picture":"https://api.deezer.com/artist/3215321/image","picture_small":"https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/56x56-000000-80-0-0.jpg","picture_medium":"https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/250x250-000000-80-0-0.jpg","picture_big":"https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/500x500-000000-80-0-0.jpg","picture_xl":"https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/1000x1000-000000-80-0-0.jpg","fans":13,"nb_album":5,"radio":true,"tracklist":"https://api.deezer.com/artist/3215321/top?limit=50","type":"artist","albums":[{"id":952147151,"title":"Everything Is Over","link":"https://www.deezer.com/album/952147151","cover":"https://api.deezer.com/album/952147151/image","cover_small":"https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/56x56-000000-80-0-0.jpg","cover_medium":"https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/250x250-000000-80-0-0.jpg","cover_big":"https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/500x500-000000-80-0-0.jpg","cover_xl":"https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/1000x1000-000000-80-0-0.jpg","md5_image":"82a2618c70343dd13ac201ff5957e76b","genre_id":85,"fans":0,"release_date":"2026-05-15","record_type":"single","tracklist":"https://api.deezer.com/album/952147151/tracks","explicit_lyrics":false,"type":"album"},{"id":866482652,"title":"Knockin' on Heavens Door","link":"https://www.deezer.com/album/866482652","cover":"https://api.deezer.com/album/866482652/image","cover_small":"https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/56x56-000000-80-0-0.jpg","cover_medium":"https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/250x250-000000-80-0-0.jpg","cover_big":"https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/500x500-000000-80-0-0.jpg","cover_xl":"https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/1000x1000-000000-80-0-0.jpg","md5_image":"5c5a74273de668463a6ba754a783c27b","genre_id":85,"fans":0,"release_date":"2014-06-25","record_type":"single","tracklist":"https://api.deezer.com/album/866482652/tracks","explicit_lyrics":false,"type":"album"},{"id":877248912,"title":"Strange Situation","link":"https://www.deezer.com/album/877248912","cover":"https://api.deezer.com/album/877248912/image","cover_small":"https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/56x56-000000-80-0-0.jpg","cover_medium":"https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/250x250-000000-80-0-0.jpg","cover_big":"https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/500x500-000000-80-0-0.jpg","cover_xl":"https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/1000x1000-000000-80-0-0.jpg","md5_image":"66b5e6ac57a627bca4e2a531ba4d6262","genre_id":165,"fans":0,"release_date":"2013-11-11","record_type":"single","tracklist":"https://api.deezer.com/album/877248912/tracks","explicit_lyrics":false,"type":"album"},{"id":948553801,"title":"Nosferatu (Cryptic Mix)","link":"https://www.deezer.com/album/948553801","cover":"https://api.deezer.com/album/948553801/image","cover_small":"https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/56x56-000000-80-0-0.jpg","cover_medium":"https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/250x250-000000-80-0-0.jpg","cover_big":"https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/500x500-000000-80-0-0.jpg","cover_xl":"https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/1000x1000-000000-80-0-0.jpg","md5_image":"cf1e9f6b6b0126b60b5211d56035f64f","genre_id":85,"fans":0,"release_date":"2013-03-12","record_type":"single","tracklist":"https://api.deezer.com/album/948553801/tracks","explicit_lyrics":false,"type":"album"},{"id":4491891,"title":"Come to Me (Inspired by the Twilight Saga Breaking Dawn Pt.1)","link":"https://www.deezer.com/album/4491891","cover":"https://api.deezer.com/album/4491891/image","cover_small":"https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/56x56-000000-80-0-0.jpg","cover_medium":"https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/250x250-000000-80-0-0.jpg","cover_big":"https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/500x500-000000-80-0-0.jpg","cover_xl":"https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/1000x1000-000000-80-0-0.jpg","md5_image":"febe0204a9453eab37d27bfb834e7157","genre_id":173,"fans":23,"release_date":"2012-08-22","record_type":"single","tracklist":"https://api.deezer.com/album/4491891/tracks","explicit_lyrics":false,"type":"album"}],"topTracks":[],"genres":[]},"youtube":{"found":true,"availability":"VERIFIED","officialChannel":{"title":"Black Alternative Music","channelId":"UCOIO07KGdBFp9Ej40iaZRGQ","subscribers":4,"totalViews":23,"videoCount":1,"verifiedVia":"royalte_identity_graph"},"contentIdVerified":true,"subscriberCount":4,"totalOfficialViews":23},"appleMusic":{"found":true,"artistId":"505490272","artistUrl":"https://music.apple.com/us/artist/black-alternative/505490272","artwork":"https://is1-ssl.mzstatic.com/image/thumb/AMCArtistImages221/v4/eb/f5/cc/ebf5cc94-4362-b35b-79df-1edd7c87ed72/ami-identity-6aca4eb45a526637156da8491d6c7070-2026-03-26T12-43-55.567Z_cropped.png/600x600bb.jpg","genres":["Soundtrack"],"albumCount":4,"albums":[{"id":"1889785995","name":"Everything Is Over - Single","releaseDate":"2026-05-15","trackCount":1,"artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/{w}x{h}bb.jpg","upc":"859735256318","recordLabel":"Castle Park Studioz (GmbH)"},{"id":"1888378272","name":"Nosferatu (Cryptic Mix) - Single","releaseDate":"2013-03-12","trackCount":1,"artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/27/b4/86/27b486e2-10c0-b104-15e9-5f489927dd51/859734942694_cover.jpg/{w}x{h}bb.jpg","upc":"859734942694","recordLabel":"Castle Park Studioz"},{"id":"1857079198","name":"Knockin' on Heavens Door - Single","releaseDate":"2014-06-25","trackCount":1,"artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/7f/dc/30/7fdc3073-142e-e063-0e05-d1753667e153/859724236222_cover.jpg/{w}x{h}bb.jpg","upc":"859724236222","recordLabel":"Castle Park Studioz (GmbH)"},{"id":"1861345414","name":"Strange Situation (feat. Chuck Ice) - Single","releaseDate":"2013-11-11","trackCount":1,"artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/32/94/a0/3294a0a1-7ffd-f2a7-22f1-7e786936e729/859725695899_cover.jpg/{w}x{h}bb.jpg","upc":"859725695899","recordLabel":"Castle Park Studioz (GmbH)"}],"globalStorefrontAvailability":{"available":["ag","ai","bb","bm","bo","br","bs","bz","ca","cl","co","cr","dm","do","ec","gd","gt","gy","hn","jm","kn","ky","lc","mx","ni","pa","pe","py","sr","sv","tc","tt","us","uy","vc","vg","am","at","az","be","bg","by","ch","cy","cz","de","dk","ee","es","fi","fr","gb","gr","hr","hu","ie","is","it","kg","kz","lt","lu","lv","md","mk","mt","nl","no","pl","pt","ro","ru","se","si","sk","tj","tr","ua","uz","ae","ao","bf","bh","bj","bw","cd","cg","ci","cm","cv","dz","eg","ga","gh","gm","gw","il","jo","ke","kw","lb","lr","ly","ma","mg","ml","mr","mu","mw","mz","na","ne","ng","om","qa","rw","sa","sc","sl","sn","sz","td","tn","tz","ug","ye","za","zm","zw","au","bt","fj","fm","hk","id","in","jp","kh","kr","la","lk","mn","mo","mv","my","np","nz","pg","ph","sb","sg","th","to","tw","vn","vu"],"unavailable":["al","dj","et","gn","gq","st","cn","nr","pw","tl","ws"],"errors":[{"sf":"dj","error":"MAINTENANCE"},{"sf":"et","error":"MAINTENANCE"},{"sf":"gn","error":"MAINTENANCE"},{"sf":"gq","error":"MAINTENANCE"},{"sf":"tl","error":"MAINTENANCE"},{"sf":"ws","error":"MAINTENANCE"}],"total":167},"storefrontAvailability":null,"isrcLookup":null,"catalogComparison":null},"overallScore":72,"modules":{"metadata":{"name":"Metadata Integrity","score":100,"flags":[]},"coverage":{"name":"Platform Coverage","score":60,"flags":["AudioDB presence not detected — coverage risk","Discogs presence not detected — coverage risk","SoundCloud presence not detected — coverage risk","Last.fm presence not detected — coverage risk","Wikipedia presence not detected — coverage risk"]},"publishing":{"name":"Publishing Risk","score":90,"flags":["Catalog active for 13 years — extended royalty verification recommended"]},"duplicates":{"name":"Duplicate Detection","score":80,"flags":[]},"youtube":{"name":"YouTube / UGC","score":60,"flags":[]},"sync":{"name":"Sync Readiness","score":43,"flags":["No Wikipedia presence — sync discoverability risk"]}},"flags":[{"module":"Publishing Risk","severity":"high","description":"Catalog active for 13 years — extended period of potential royalty exposure detected"},{"module":"Platform Coverage","severity":"medium","description":"AudioDB presence not detected — coverage risk"},{"module":"Platform Coverage","severity":"medium","description":"Discogs presence not detected — coverage risk"},{"module":"Platform Coverage","severity":"medium","description":"SoundCloud presence not detected — coverage risk"},{"module":"Platform Coverage","severity":"medium","description":"Last.fm presence not detected — coverage risk"},{"module":"Platform Coverage","severity":"medium","description":"Wikipedia presence not detected — coverage risk"},{"module":"Sync Readiness","severity":"medium","description":"No Wikipedia presence — sync discoverability risk"},{"module":"Publishing Risk","severity":"low","description":"Catalog active for 13 years — extended royalty verification recommended"}],"flagCount":8,"previewFlags":[{"module":"Publishing Risk","severity":"high","description":"Catalog active for 13 years — extended period of potential royalty exposure detected"},{"module":"Platform Coverage","severity":"medium","description":"AudioDB presence not detected — coverage risk"}],"scannedAt":"2026-07-11T16:57:11.699Z","scanId":"f3457755-8ea8-46d0-afc1-31474f5c19fc","canonical":{"schemaVersion":"1.2.0","scanId":"f3457755-8ea8-46d0-afc1-31474f5c19fc","scannedAt":"2026-07-11T16:57:11.699Z","source":{"platform":"apple_music","urlType":"artist","resolvedFrom":"artist","originalUrl":"https://music.apple.com/ca/album/everything-is-over/1889785995?i=1889786000","storefront":null},"subject":{"artistName":"Black Alternative","artistId":"1lnM3VZrD6SG9vxBsE9654","trackTitle":"Everything Is Over","trackIsrc":"QT6622698063","trackIsrcSource":null,"albumName":null},"metrics":{"followers":-1,"popularity":0,"genres":["Soundtrack"],"lastfmPlays":0,"lastfmListeners":0,"deezerFans":13,"tidalPopularity":0,"discogsReleases":0,"country":null,"wikipediaUrl":null},"catalog":{"totalReleases":4,"totalTracks":4,"singlesCount":4,"epsCount":0,"albumsCount":0,"featuresCount":0,"earliestYear":2013,"latestYear":2026,"catalogAgeYears":13,"estimatedAnnualStreams":0,"recentActivity":true},"platforms":{"spotify":{"availability":"VERIFIED","details":null},"appleMusic":{"availability":"VERIFIED","details":{"artistId":"505490272","artistUrl":"https://music.apple.com/us/artist/black-alternative/505490272","artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/600x600bb.jpg","albumCount":4,"albums":[{"id":"1889785995","name":"Everything Is Over - Single","releaseDate":"2026-05-15","trackCount":1,"artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/{w}x{h}bb.jpg","upc":"859735256318","recordLabel":"Castle Park Studioz (GmbH)"},{"id":"1888378272","name":"Nosferatu (Cryptic Mix) - Single","releaseDate":"2013-03-12","trackCount":1,"artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/27/b4/86/27b486e2-10c0-b104-15e9-5f489927dd51/859734942694_cover.jpg/{w}x{h}bb.jpg","upc":"859734942694","recordLabel":"Castle Park Studioz"},{"id":"1857079198","name":"Knockin' on Heavens Door - Single","releaseDate":"2014-06-25","trackCount":1,"artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/7f/dc/30/7fdc3073-142e-e063-0e05-d1753667e153/859724236222_cover.jpg/{w}x{h}bb.jpg","upc":"859724236222","recordLabel":"Castle Park Studioz (GmbH)"},{"id":"1861345414","name":"Strange Situation (feat. Chuck Ice) - Single","releaseDate":"2013-11-11","trackCount":1,"artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/32/94/a0/3294a0a1-7ffd-f2a7-22f1-7e786936e729/859725695899_cover.jpg/{w}x{h}bb.jpg","upc":"859725695899","recordLabel":"Castle Park Studioz (GmbH)"}],"storefrontAvailability":null,"globalStorefrontAvailability":{"available":["ag","ai","bb","bm","bo","br","bs","bz","ca","cl","co","cr","dm","do","ec","gd","gt","gy","hn","jm","kn","ky","lc","mx","ni","pa","pe","py","sr","sv","tc","tt","us","uy","vc","vg","am","at","az","be","bg","by","ch","cy","cz","de","dk","ee","es","fi","fr","gb","gr","hr","hu","ie","is","it","kg","kz","lt","lu","lv","md","mk","mt","nl","no","pl","pt","ro","ru","se","si","sk","tj","tr","ua","uz","ae","ao","bf","bh","bj","bw","cd","cg","ci","cm","cv","dz","eg","ga","gh","gm","gw","il","jo","ke","kw","lb","lr","ly","ma","mg","ml","mr","mu","mw","mz","na","ne","ng","om","qa","rw","sa","sc","sl","sn","sz","td","tn","tz","ug","ye","za","zm","zw","au","bt","fj","fm","hk","id","in","jp","kh","kr","la","lk","mn","mo","mv","my","np","nz","pg","ph","sb","sg","th","to","tw","vn","vu"],"unavailable":["al","dj","et","gn","gq","st","cn","nr","pw","tl","ws"],"errors":[{"sf":"dj","error":"MAINTENANCE"},{"sf":"et","error":"MAINTENANCE"},{"sf":"gn","error":"MAINTENANCE"},{"sf":"gq","error":"MAINTENANCE"},{"sf":"tl","error":"MAINTENANCE"},{"sf":"ws","error":"MAINTENANCE"}],"total":167},"catalogComparison":null,"isrcLookup":null}},"musicbrainz":{"availability":"VERIFIED","details":null},"deezer":{"availability":"VERIFIED","details":{"artistId":3215321,"name":"Black Alternative","link":"https://www.deezer.com/artist/3215321","share":"https://www.deezer.com/artist/3215321?utm_source=deezer&utm_content=artist-3215321&utm_term=0_1783789021&utm_medium=web","picture":"https://api.deezer.com/artist/3215321/image","picture_small":"https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/56x56-000000-80-0-0.jpg","picture_medium":"https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/250x250-000000-80-0-0.jpg","picture_big":"https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/500x500-000000-80-0-0.jpg","picture_xl":"https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/1000x1000-000000-80-0-0.jpg","fans":13,"nb_album":5,"radio":true,"tracklist":"https://api.deezer.com/artist/3215321/top?limit=50","albums":[{"id":952147151,"title":"Everything Is Over","link":"https://www.deezer.com/album/952147151","cover":"https://api.deezer.com/album/952147151/image","cover_small":"https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/56x56-000000-80-0-0.jpg","cover_medium":"https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/250x250-000000-80-0-0.jpg","cover_big":"https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/500x500-000000-80-0-0.jpg","cover_xl":"https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/1000x1000-000000-80-0-0.jpg","md5_image":"82a2618c70343dd13ac201ff5957e76b","genre_id":85,"fans":0,"release_date":"2026-05-15","record_type":"single","tracklist":"https://api.deezer.com/album/952147151/tracks","explicit_lyrics":false,"type":"album"},{"id":866482652,"title":"Knockin' on Heavens Door","link":"https://www.deezer.com/album/866482652","cover":"https://api.deezer.com/album/866482652/image","cover_small":"https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/56x56-000000-80-0-0.jpg","cover_medium":"https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/250x250-000000-80-0-0.jpg","cover_big":"https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/500x500-000000-80-0-0.jpg","cover_xl":"https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/1000x1000-000000-80-0-0.jpg","md5_image":"5c5a74273de668463a6ba754a783c27b","genre_id":85,"fans":0,"release_date":"2014-06-25","record_type":"single","tracklist":"https://api.deezer.com/album/866482652/tracks","explicit_lyrics":false,"type":"album"},{"id":877248912,"title":"Strange Situation","link":"https://www.deezer.com/album/877248912","cover":"https://api.deezer.com/album/877248912/image","cover_small":"https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/56x56-000000-80-0-0.jpg","cover_medium":"https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/250x250-000000-80-0-0.jpg","cover_big":"https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/500x500-000000-80-0-0.jpg","cover_xl":"https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/1000x1000-000000-80-0-0.jpg","md5_image":"66b5e6ac57a627bca4e2a531ba4d6262","genre_id":165,"fans":0,"release_date":"2013-11-11","record_type":"single","tracklist":"https://api.deezer.com/album/877248912/tracks","explicit_lyrics":false,"type":"album"},{"id":948553801,"title":"Nosferatu (Cryptic Mix)","link":"https://www.deezer.com/album/948553801","cover":"https://api.deezer.com/album/948553801/image","cover_small":"https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/56x56-000000-80-0-0.jpg","cover_medium":"https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/250x250-000000-80-0-0.jpg","cover_big":"https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/500x500-000000-80-0-0.jpg","cover_xl":"https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/1000x1000-000000-80-0-0.jpg","md5_image":"cf1e9f6b6b0126b60b5211d56035f64f","genre_id":85,"fans":0,"release_date":"2013-03-12","record_type":"single","tracklist":"https://api.deezer.com/album/948553801/tracks","explicit_lyrics":false,"type":"album"},{"id":4491891,"title":"Come to Me (Inspired by the Twilight Saga Breaking Dawn Pt.1)","link":"https://www.deezer.com/album/4491891","cover":"https://api.deezer.com/album/4491891/image","cover_small":"https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/56x56-000000-80-0-0.jpg","cover_medium":"https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/250x250-000000-80-0-0.jpg","cover_big":"https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/500x500-000000-80-0-0.jpg","cover_xl":"https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/1000x1000-000000-80-0-0.jpg","md5_image":"febe0204a9453eab37d27bfb834e7157","genre_id":173,"fans":23,"release_date":"2012-08-22","record_type":"single","tracklist":"https://api.deezer.com/album/4491891/tracks","explicit_lyrics":false,"type":"album"}],"topTracks":[],"genres":[]}},"audiodb":{"availability":"NOT_FOUND","details":null},"discogs":{"availability":"NOT_FOUND","details":null},"soundcloud":{"availability":"NOT_FOUND","details":null},"lastfm":{"availability":"NOT_FOUND","details":null},"wikipedia":{"availability":"NOT_FOUND","details":null},"youtube":{"availability":"VERIFIED","details":{"officialChannel":{"title":"Black Alternative Music","channelId":"UCOIO07KGdBFp9Ej40iaZRGQ","subscribers":4,"totalViews":23,"videoCount":1,"verifiedVia":"royalte_identity_graph"},"ugc":null,"subscriberCount":4}},"tidal":{"availability":"AUTH_UNAVAILABLE","details":null}},"auditCoverage":{"spotify":{"status":"Not Confirmed","tier":null},"appleMusic":{"status":"Not Confirmed","tier":null},"publishing":{"status":"Not Confirmed","tier":null},"soundExchange":{"status":"Not Confirmed","tier":null}},"auditCoverageRaw":{"_deprecated":true,"spotify":{"connected":false},"apple_music":{"connected":false}},"modules":{"metadata":{"key":"metadata","name":"Metadata Integrity","score":100,"grade":"A","availability":"AVAILABLE","issueCount":0,"flags":[]},"coverage":{"key":"coverage","name":"Platform Coverage","score":60,"grade":"D","availability":"AVAILABLE","issueCount":5,"flags":["AudioDB presence not detected — coverage risk","Discogs presence not detected — coverage risk","SoundCloud presence not detected — coverage risk","Last.fm presence not detected — coverage risk","Wikipedia presence not detected — coverage risk"]},"publishing":{"key":"publishing","name":"Publishing Risk","score":90,"grade":"A","availability":"AVAILABLE","issueCount":1,"flags":["Catalog active for 13 years — extended royalty verification recommended"]},"duplicates":{"key":"duplicates","name":"Duplicate Detection","score":80,"grade":"B","availability":"AVAILABLE","issueCount":0,"flags":[]},"youtube":{"key":"youtube","name":"YouTube / UGC","score":60,"grade":"D","availability":"AVAILABLE","issueCount":0,"flags":[]},"sync":{"key":"sync","name":"Sync Readiness","score":43,"grade":"F","availability":"AVAILABLE","issueCount":1,"flags":["No Wikipedia presence — sync discoverability risk"]}},"issues":[{"id":"040199fafff9","module":"publishing","moduleName":"Publishing Risk","severity":"HIGH","title":"Catalog active for 13 years","detail":"Catalog active for 13 years — extended period of potential royalty exposure detected","source":"module"},{"id":"7e6a20c7eda9","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"AudioDB presence not detected","detail":"AudioDB presence not detected — coverage risk","source":"platform"},{"id":"212230864e48","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"Discogs presence not detected","detail":"Discogs presence not detected — coverage risk","source":"platform"},{"id":"1977ad5f3632","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"SoundCloud presence not detected","detail":"SoundCloud presence not detected — coverage risk","source":"platform"},{"id":"1fc95a58144a","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"Last.fm presence not detected","detail":"Last.fm presence not detected — coverage risk","source":"platform"},{"id":"a76f760fbc98","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"Wikipedia presence not detected","detail":"Wikipedia presence not detected — coverage risk","source":"platform"},{"id":"cbd27f73ba92","module":"sync","moduleName":"Sync Readiness","severity":"WARNING","title":"No Wikipedia presence","detail":"No Wikipedia presence — sync discoverability risk","source":"module"},{"id":"aa8ed3db9d4b","module":"publishing","moduleName":"Publishing Risk","severity":"INFO","title":"Catalog active for 13 years","detail":"Catalog active for 13 years — extended royalty verification recommended","source":"module"}],"score":{"overall":72,"riskLevel":"MODERATE","riskSummary":"Moderate risk — some gaps detected. Top concerns: Catalog active for 13 years.","moduleAverage":72,"ownershipImpact":0},"health":{"score":90,"grade":"Excellent","status":"Excellent","drivers":["Complete catalog delivery verified"]},"royaltyGap":{"estAnnualStreams":0,"estLifetimeStreams":0,"estSpotifyRoyalties":0,"estPROEarnings":0,"estTotalRoyalties":0,"potentialGapLow":0,"potentialGapHigh":0,"catalogYears":13,"ugcUnmonetisedViews":0,"ugcPotentialRevenue":0,"disclaimer":"Estimates only. Based on streaming activity and platform coverage. Verify with your distributor and PRO."},"gapBasedExposure":{"indicators":[{"id":"catalog-age","severity":"MED","title":"Extended royalty verification recommended","description":"Catalog active for 13 years across 4 releases.","exposureLow":156,"exposureHigh":936,"methodology":"Unaudited-activity accrual × (catalog age × release count)"},{"id":"sync-discoverability","severity":"LOW","title":"Sync licensing discoverability limited","description":"Editorial reference signals partial.","exposureLow":null,"exposureHigh":null,"methodology":"Exposure pending validation"}],"aggregateLow":156,"aggregateHigh":936,"pendingValidationCount":1,"hasAnyGaps":true},"proGuide":{"pro":"Your local PRO","url":"https://www.cisac.org","steps":["Find your country's PRO at cisac.org/find-a-society","Register as a songwriter and composer","Register all your works in the PRO database","Verify reciprocal agreements with SOCAN, ASCAP, GEMA and PRS"],"note":"CISAC is the international confederation of PROs. Their directory lists every PRO worldwide.","country":null},"ownership":{"status":"unverified","confidence":"LOW","scoreImpact":0,"render":null},"territoryCoverage":null,"isrcValidation":null,"identityIntelligence":{"providers":{"apple":"VERIFIED","spotify":"VERIFIED","youtube":"VERIFIED"},"supportedProviders":["apple","spotify","youtube"],"verifiedProviders":3,"totalProviders":3,"coverage":100,"strengths":[{"provider":"apple","label":"Apple Music"},{"provider":"spotify","label":"Spotify"},{"provider":"youtube","label":"YouTube"}],"issues":[],"recommendations":[]},"publishingIntelligence":{"registrations":{"mlcRegistration":"UNABLE_TO_CONFIRM","registeredWorks":"UNABLE_TO_CONFIRM","iswcCoverage":"UNABLE_TO_CONFIRM","registeredSongwriters":"UNABLE_TO_CONFIRM","writerIpi":"UNABLE_TO_CONFIRM","compositionMatch":"UNABLE_TO_CONFIRM"},"metrics":{"mlcWorksCount":0,"mlcIswcCount":0,"mlcWriterCount":0,"mlcWriterIpiCount":0},"supportedSources":["mlc"],"registeredCount":0,"totalChecked":6,"coverage":null,"coverageStatus":"Unavailable","strengths":[],"issues":[],"recommendations":[]},"catalogIntelligence":{"singles":4,"eps":0,"albums":0,"totalTracks":4,"catalogStatus":"Stable","confidence":"Verified","isrcCoverage":{"status":"Unknown","assessed":false,"assessedCount":0,"verifiedCount":0,"coveragePercent":null},"firstReleaseYear":2013,"latestReleaseYear":2026,"catalogAgeYears":13,"physicalReleaseCount":null,"bestVerifiedRelease":{"artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/{w}x{h}bb.jpg","artistName":"Black Alternative","releaseTitle":"Everything Is Over - Single","releaseType":"Single","releaseDate":"2026-05-15","verificationScore":20,"selectionScore":70,"reasonSelected":"Single — score 70/100 (artwork present, recent release); evaluated 4 candidates"}},"globalMusicFootprint":{"territoriesAvailable":156,"territoriesUnavailable":11,"coveragePercent":93,"status":"Strong","reachNarrative":"Available in 156 territories (93% of global markets).","confidence":"Verified"},"backendIntelligence":{"services":[{"key":"musicbrainz","name":"MusicBrainz","state":"VERIFIED","subLabel":"Connected","statusLabel":"Verified"},{"key":"mlc","name":"MLC","state":"AUTH_UNAVAILABLE","subLabel":"Unavailable","statusLabel":"Unavailable"}],"connectedCount":1,"totalCount":2,"apisResponding":{"responded":3,"total":4},"lastSync":"2026-07-11T16:57:11.699Z","summaryLabel":"1 of 2 Connected"},"royalteAI":{"observation":"Platform identity is verified and consistent — the foundation of a professionally managed independent catalog.","priority":"With core infrastructure verified, the most significant risk is change over time — gaps that emerge silently as the catalog evolves.","priorityLabel":"Infrastructure Review","positiveSignal":"Distribution verified in 156 Apple Music territories.","nextAction":"Establish continuous monitoring across identity, publishing, and catalog status — the infrastructure that exists today will evolve, and visibility into those changes is what protects long-term value.","executiveInsight":"Platform identity is verified and catalog presence is established — the core signals of a professionally managed independent artist infrastructure. The next phase is not discovery — it is protection. Infrastructure that exists today will evolve, and visibility into those changes is what preserves long-term value. Establishing continuous monitoring across identity, publishing, catalog status, and territory availability ensures future changes are detected before they affect visibility, attribution, or royalty collection.","confidence":"high","generatedBy":"engine_template","generatedAt":"2026-07-11T16:57:11.703Z","generatedFrom":["identityIntelligence","publishingIntelligence","catalogIntelligence","globalMusicFootprint"]},"healthScore":{"overallScore":90,"overallGrade":"B","summary":"Your music backend is in strong shape.","generatedAt":"2026-07-11T16:57:11.701Z","identityScore":95,"publishingScore":100,"catalogScore":98,"metadataScore":100,"coverageScore":57,"confidenceScore":60,"categoryBreakdown":[{"category":"identity","score":95,"weight":0.2,"observationCount":1,"grade":"A"},{"category":"publishing","score":100,"weight":0.25,"observationCount":0,"grade":"A+"},{"category":"catalog","score":98,"weight":0.2,"observationCount":1,"grade":"A+"},{"category":"metadata","score":100,"weight":0.15,"observationCount":0,"grade":"A+"},{"category":"coverage","score":57,"weight":0.1,"observationCount":0,"grade":"F"},{"category":"confidence","score":60,"weight":0.1,"observationCount":0,"grade":"F"}]},"healthReport":{"score":90,"grade":"B","trend":"Unknown","strengths":[{"id":"obs_58b1e7698abb9d91","ruleId":"catalog.complete-delivery-verified","category":"CATALOG","severity":"INFO","confidence":"HIGH","title":"Complete catalog delivery verified","description":"All identified recordings have corresponding release linkage in reviewed sources.","recommendation":"Continue current catalog delivery practices.","evidence":[],"providerSources":[]}],"risks":[],"opportunities":[],"drivers":["Complete catalog delivery verified"],"confidence":"","engineVersion":"1.0.0","generatedAt":"2026-07-11T16:57:11.701Z"},"healthIntelligence":{"score":90,"status":"Excellent","grade":"B","confidence":"Partial","concerns":["Monitoring not active for this scan"],"strengths":["Identity verified across reviewed platforms","Global distribution verified","Backend infrastructure fully connected","Catalog verified with confidence"],"identityScore":100,"publishingScore":50,"catalogScore":100,"footprintScore":93,"backendScore":100,"monitoringScore":50},"executiveBrief":{"briefVersion":"1.0.0","generatedAt":"2026-07-11T16:57:11.701Z","executiveSummary":"Your music backend infrastructure has been assessed and received an overall Health Score of 90/100, rated B — Strong Foundation with Minor Gaps. Identity scored 95, publishing 100, catalog 98, and metadata 100, with coverage at 57 and confidence at 60. 1 documented strength reinforces a stable foundation, with 0 opportunities identified for further improvement. The outlook is positive, with focused work on the noted gaps positioning the catalog for sustained growth.","healthHeadline":"Strong Foundation with Minor Gaps","executiveNarrative":"The backend infrastructure reflects strong maturity at a Health Score of 90, with minor gaps. No material risks have been identified in the current assessment. Optimisation opportunities are limited under current conditions. Long term, the foundation is well positioned to compound value over time.","topStrengths":[{"id":"obs_58b1e7698abb9d91","ruleId":"catalog.complete-delivery-verified","category":"CATALOG","severity":"INFO","confidence":"HIGH","title":"Complete catalog delivery verified","description":"All identified recordings have corresponding release linkage in reviewed sources.","recommendation":"Continue current catalog delivery practices.","evidence":[],"providerSources":[]}],"topRisks":[],"topOpportunities":[],"priorityActions":[],"confidenceStatement":"This assessment is based on partially verified intelligence.","recommendedNextStep":"Schedule Full Backend Review","aiExecutiveInsight":"Based on the intelligence assembled, this catalog demonstrates verifiable strength in catalog. No material risks have been identified in the current assessment. Addressing \"Schedule Full Backend Review\" would materially improve backend infrastructure health. Executing the recommended next step will materially improve the Health Score from 90.","reserved":{"monitoring":null,"revenue":null},"recoveryNarrative":"No specific infrastructure improvement opportunities were identified from reviewed sources."},"cim":{"_cimVersion":"1.0.0","identity":{"providers":{"apple":"VERIFIED","spotify":"VERIFIED","youtube":"VERIFIED"},"supportedProviders":["apple","spotify","youtube"],"verifiedProviders":3,"totalProviders":3,"coverage":100,"strengths":[{"provider":"apple","label":"Apple Music"},{"provider":"spotify","label":"Spotify"},{"provider":"youtube","label":"YouTube"}],"issues":[],"recommendations":[]},"health":{"score":90,"grade":"B","status":"Excellent","summary":"Your music backend is in strong shape.","confidence":"Partial","categoryBreakdown":[{"category":"identity","score":95,"weight":0.2,"observationCount":1,"grade":"A"},{"category":"publishing","score":100,"weight":0.25,"observationCount":0,"grade":"A+"},{"category":"catalog","score":98,"weight":0.2,"observationCount":1,"grade":"A+"},{"category":"metadata","score":100,"weight":0.15,"observationCount":0,"grade":"A+"},{"category":"coverage","score":57,"weight":0.1,"observationCount":0,"grade":"F"},{"category":"confidence","score":60,"weight":0.1,"observationCount":0,"grade":"F"}],"concerns":["Monitoring not active for this scan"],"strengths":["Identity verified across reviewed platforms","Global distribution verified","Backend infrastructure fully connected","Catalog verified with confidence"],"identityScore":100,"publishingScore":50,"catalogScore":100,"footprintScore":93,"backendScore":100,"monitoringScore":50,"report":{"score":90,"grade":"B","trend":"Unknown","strengths":[{"id":"obs_58b1e7698abb9d91","ruleId":"catalog.complete-delivery-verified","category":"CATALOG","severity":"INFO","confidence":"HIGH","title":"Complete catalog delivery verified","description":"All identified recordings have corresponding release linkage in reviewed sources.","recommendation":"Continue current catalog delivery practices.","evidence":[],"providerSources":[]}],"risks":[],"opportunities":[],"drivers":["Complete catalog delivery verified"],"confidence":"","engineVersion":"1.0.0","generatedAt":"2026-07-11T16:57:11.701Z"}},"globalFootprint":{"territoriesAvailable":156,"territoriesUnavailable":11,"coveragePercent":93,"status":"Strong","reachNarrative":"Available in 156 territories (93% of global markets).","confidence":"Verified"},"catalog":{"singles":4,"eps":0,"albums":0,"totalTracks":4,"catalogStatus":"Stable","confidence":"Verified","isrcCoverage":{"status":"Unknown","assessed":false,"assessedCount":0,"verifiedCount":0,"coveragePercent":null},"firstReleaseYear":2013,"latestReleaseYear":2026,"catalogAgeYears":13,"physicalReleaseCount":null,"bestVerifiedRelease":{"artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/{w}x{h}bb.jpg","artistName":"Black Alternative","releaseTitle":"Everything Is Over - Single","releaseType":"Single","releaseDate":"2026-05-15","verificationScore":20,"selectionScore":70,"reasonSelected":"Single — score 70/100 (artwork present, recent release); evaluated 4 candidates"}},"verification":{"services":[{"key":"musicbrainz","name":"MusicBrainz","state":"VERIFIED","subLabel":"Connected","statusLabel":"Verified"},{"key":"mlc","name":"MLC","state":"AUTH_UNAVAILABLE","subLabel":"Unavailable","statusLabel":"Unavailable"}],"connectedCount":1,"totalCount":2,"apisResponding":{"responded":3,"total":4},"lastSync":"2026-07-11T16:57:11.699Z","summaryLabel":"1 of 2 Connected"},"metadata":{"flagCount":8,"flags":[{"id":"040199fafff9","module":"publishing","moduleName":"Publishing Risk","severity":"HIGH","title":"Catalog active for 13 years","detail":"Catalog active for 13 years — extended period of potential royalty exposure detected","source":"module"},{"id":"7e6a20c7eda9","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"AudioDB presence not detected","detail":"AudioDB presence not detected — coverage risk","source":"platform"},{"id":"212230864e48","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"Discogs presence not detected","detail":"Discogs presence not detected — coverage risk","source":"platform"},{"id":"1977ad5f3632","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"SoundCloud presence not detected","detail":"SoundCloud presence not detected — coverage risk","source":"platform"},{"id":"1fc95a58144a","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"Last.fm presence not detected","detail":"Last.fm presence not detected — coverage risk","source":"platform"},{"id":"a76f760fbc98","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"Wikipedia presence not detected","detail":"Wikipedia presence not detected — coverage risk","source":"platform"},{"id":"cbd27f73ba92","module":"sync","moduleName":"Sync Readiness","severity":"WARNING","title":"No Wikipedia presence","detail":"No Wikipedia presence — sync discoverability risk","source":"module"},{"id":"aa8ed3db9d4b","module":"publishing","moduleName":"Publishing Risk","severity":"INFO","title":"Catalog active for 13 years","detail":"Catalog active for 13 years — extended royalty verification recommended","source":"module"}],"moduleStatus":{"metadata":{"key":"metadata","name":"Metadata Integrity","score":100,"grade":"A","availability":"AVAILABLE","issueCount":0,"flags":[]},"coverage":{"key":"coverage","name":"Platform Coverage","score":60,"grade":"D","availability":"AVAILABLE","issueCount":5,"flags":["AudioDB presence not detected — coverage risk","Discogs presence not detected — coverage risk","SoundCloud presence not detected — coverage risk","Last.fm presence not detected — coverage risk","Wikipedia presence not detected — coverage risk"]},"publishing":{"key":"publishing","name":"Publishing Risk","score":90,"grade":"A","availability":"AVAILABLE","issueCount":1,"flags":["Catalog active for 13 years — extended royalty verification recommended"]},"duplicates":{"key":"duplicates","name":"Duplicate Detection","score":80,"grade":"B","availability":"AVAILABLE","issueCount":0,"flags":[]},"youtube":{"key":"youtube","name":"YouTube / UGC","score":60,"grade":"D","availability":"AVAILABLE","issueCount":0,"flags":[]},"sync":{"key":"sync","name":"Sync Readiness","score":43,"grade":"F","availability":"AVAILABLE","issueCount":1,"flags":["No Wikipedia presence — sync discoverability risk"]}},"_phase1Stub":true},"publishing":{"registrations":{"mlcRegistration":"UNABLE_TO_CONFIRM","registeredWorks":"UNABLE_TO_CONFIRM","iswcCoverage":"UNABLE_TO_CONFIRM","registeredSongwriters":"UNABLE_TO_CONFIRM","writerIpi":"UNABLE_TO_CONFIRM","compositionMatch":"UNABLE_TO_CONFIRM"},"metrics":{"mlcWorksCount":0,"mlcIswcCount":0,"mlcWriterCount":0,"mlcWriterIpiCount":0},"supportedSources":["mlc"],"registeredCount":0,"totalChecked":6,"coverage":null,"coverageStatus":"Unavailable","strengths":[],"issues":[],"recommendations":[]},"opportunities":[],"actions":[],"aiInsight":{"observation":"Platform identity is verified and consistent — the foundation of a professionally managed independent catalog.","priority":"With core infrastructure verified, the most significant risk is change over time — gaps that emerge silently as the catalog evolves.","priorityLabel":"Infrastructure Review","positiveSignal":"Distribution verified in 156 Apple Music territories.","nextAction":"Establish continuous monitoring across identity, publishing, and catalog status — the infrastructure that exists today will evolve, and visibility into those changes is what protects long-term value.","executiveInsight":"Platform identity is verified and catalog presence is established — the core signals of a professionally managed independent artist infrastructure. The next phase is not discovery — it is protection. Infrastructure that exists today will evolve, and visibility into those changes is what preserves long-term value. Establishing continuous monitoring across identity, publishing, catalog status, and territory availability ensures future changes are detected before they affect visibility, attribution, or royalty collection.","confidence":"high","generatedBy":"engine_template","generatedAt":"2026-07-11T16:57:11.703Z","generatedFrom":["identityIntelligence","publishingIntelligence","catalogIntelligence","globalMusicFootprint"]},"revenueSignals":{"status":"RESERVED","data":null},"scanAuthority":{"_cimVersion":"1.0.0","generatedAt":"2026-07-11T16:57:11.704Z","subjectName":"Black Alternative","subjectId":"505490272","anchorProvider":"apple","reconciliationRule":"identity-anchor-v1","schemaVersion":"1.0","intelligenceEngineVersion":"1.0.0","sourceProviders":["apple_music","spotify","musicbrainz","discogs","youtube","deezer","audiodb"],"evidenceIds":["c363cf39-17d7-42bc-b66b-e4998a8c943b","31a9fb24-21b1-4c06-9c48-7f303a983676","96c679c6-57ec-4fcb-99db-014442671539","2ebf9613-572b-4382-a4ea-87cd3a15eccb","6d683eff-9541-44c2-8c02-3bc20f2ab1e4","a6405356-90ac-405f-955d-1bc058e1a950","9a19e7f0-e188-4826-8e54-53876ed7817d","9c87dcb0-ae85-41f8-a7b0-e1587cb70560","e8dcd13d-fcbc-42eb-a59a-11b50d6f98ba","05e7f5c6-5451-4bfd-8af0-d1c59a6e4389","7ace9174-6700-43c2-8cda-192afa6828a8","d519a01f-248d-4043-9cda-eed85534ccc0","6cc9f8b4-b391-449d-b795-fd59940ad944","e11b9554-3b11-4bf9-9830-00d59ad92ff1","aacd4b46-3f36-4657-b42f-a33acc5b669e","29fae44f-25b1-47d0-8c4f-e4a0bea7efe1","d8a2471d-f3b5-42ab-a514-f042311d85f7"],"connectorVersions":["1.0"],"certificationId":"6e85baed-561b-43fb-87b6-511597909b2c"},"recording":null,"brief":{"briefVersion":"1.0.0","generatedAt":"2026-07-11T16:57:11.701Z","executiveSummary":"Your music backend infrastructure has been assessed and received an overall Health Score of 90/100, rated B — Strong Foundation with Minor Gaps. Identity scored 95, publishing 100, catalog 98, and metadata 100, with coverage at 57 and confidence at 60. 1 documented strength reinforces a stable foundation, with 0 opportunities identified for further improvement. The outlook is positive, with focused work on the noted gaps positioning the catalog for sustained growth.","healthHeadline":"Strong Foundation with Minor Gaps","executiveNarrative":"The backend infrastructure reflects strong maturity at a Health Score of 90, with minor gaps. No material risks have been identified in the current assessment. Optimisation opportunities are limited under current conditions. Long term, the foundation is well positioned to compound value over time.","topStrengths":[{"id":"obs_58b1e7698abb9d91","ruleId":"catalog.complete-delivery-verified","category":"CATALOG","severity":"INFO","confidence":"HIGH","title":"Complete catalog delivery verified","description":"All identified recordings have corresponding release linkage in reviewed sources.","recommendation":"Continue current catalog delivery practices.","evidence":[],"providerSources":[]}],"topRisks":[],"topOpportunities":[],"priorityActions":[],"confidenceStatement":"This assessment is based on partially verified intelligence.","recommendedNextStep":"Schedule Full Backend Review","aiExecutiveInsight":"Based on the intelligence assembled, this catalog demonstrates verifiable strength in catalog. No material risks have been identified in the current assessment. Addressing \"Schedule Full Backend Review\" would materially improve backend infrastructure health. Executing the recommended next step will materially improve the Health Score from 90.","reserved":{"monitoring":null,"revenue":null},"recoveryNarrative":"No specific infrastructure improvement opportunities were identified from reviewed sources."},"_certified":true,"_certifiedAt":"2026-07-11T16:57:11.704Z"}},"cim":{"_cimVersion":"1.0.0","identity":{"providers":{"apple":"VERIFIED","spotify":"VERIFIED","youtube":"VERIFIED"},"supportedProviders":["apple","spotify","youtube"],"verifiedProviders":3,"totalProviders":3,"coverage":100,"strengths":[{"provider":"apple","label":"Apple Music"},{"provider":"spotify","label":"Spotify"},{"provider":"youtube","label":"YouTube"}],"issues":[],"recommendations":[]},"health":{"score":90,"grade":"B","status":"Excellent","summary":"Your music backend is in strong shape.","confidence":"Partial","categoryBreakdown":[{"category":"identity","score":95,"weight":0.2,"observationCount":1,"grade":"A"},{"category":"publishing","score":100,"weight":0.25,"observationCount":0,"grade":"A+"},{"category":"catalog","score":98,"weight":0.2,"observationCount":1,"grade":"A+"},{"category":"metadata","score":100,"weight":0.15,"observationCount":0,"grade":"A+"},{"category":"coverage","score":57,"weight":0.1,"observationCount":0,"grade":"F"},{"category":"confidence","score":60,"weight":0.1,"observationCount":0,"grade":"F"}],"concerns":["Monitoring not active for this scan"],"strengths":["Identity verified across reviewed platforms","Global distribution verified","Backend infrastructure fully connected","Catalog verified with confidence"],"identityScore":100,"publishingScore":50,"catalogScore":100,"footprintScore":93,"backendScore":100,"monitoringScore":50,"report":{"score":90,"grade":"B","trend":"Unknown","strengths":[{"id":"obs_58b1e7698abb9d91","ruleId":"catalog.complete-delivery-verified","category":"CATALOG","severity":"INFO","confidence":"HIGH","title":"Complete catalog delivery verified","description":"All identified recordings have corresponding release linkage in reviewed sources.","recommendation":"Continue current catalog delivery practices.","evidence":[],"providerSources":[]}],"risks":[],"opportunities":[],"drivers":["Complete catalog delivery verified"],"confidence":"","engineVersion":"1.0.0","generatedAt":"2026-07-11T16:57:11.701Z"}},"globalFootprint":{"territoriesAvailable":156,"territoriesUnavailable":11,"coveragePercent":93,"status":"Strong","reachNarrative":"Available in 156 territories (93% of global markets).","confidence":"Verified"},"catalog":{"singles":4,"eps":0,"albums":0,"totalTracks":4,"catalogStatus":"Stable","confidence":"Verified","isrcCoverage":{"status":"Unknown","assessed":false,"assessedCount":0,"verifiedCount":0,"coveragePercent":null},"firstReleaseYear":2013,"latestReleaseYear":2026,"catalogAgeYears":13,"physicalReleaseCount":null,"bestVerifiedRelease":{"artwork":"https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/{w}x{h}bb.jpg","artistName":"Black Alternative","releaseTitle":"Everything Is Over - Single","releaseType":"Single","releaseDate":"2026-05-15","verificationScore":20,"selectionScore":70,"reasonSelected":"Single — score 70/100 (artwork present, recent release); evaluated 4 candidates"}},"verification":{"services":[{"key":"musicbrainz","name":"MusicBrainz","state":"VERIFIED","subLabel":"Connected","statusLabel":"Verified"},{"key":"mlc","name":"MLC","state":"AUTH_UNAVAILABLE","subLabel":"Unavailable","statusLabel":"Unavailable"}],"connectedCount":1,"totalCount":2,"apisResponding":{"responded":3,"total":4},"lastSync":"2026-07-11T16:57:11.699Z","summaryLabel":"1 of 2 Connected"},"metadata":{"flagCount":8,"flags":[{"id":"040199fafff9","module":"publishing","moduleName":"Publishing Risk","severity":"HIGH","title":"Catalog active for 13 years","detail":"Catalog active for 13 years — extended period of potential royalty exposure detected","source":"module"},{"id":"7e6a20c7eda9","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"AudioDB presence not detected","detail":"AudioDB presence not detected — coverage risk","source":"platform"},{"id":"212230864e48","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"Discogs presence not detected","detail":"Discogs presence not detected — coverage risk","source":"platform"},{"id":"1977ad5f3632","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"SoundCloud presence not detected","detail":"SoundCloud presence not detected — coverage risk","source":"platform"},{"id":"1fc95a58144a","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"Last.fm presence not detected","detail":"Last.fm presence not detected — coverage risk","source":"platform"},{"id":"a76f760fbc98","module":"coverage","moduleName":"Platform Coverage","severity":"WARNING","title":"Wikipedia presence not detected","detail":"Wikipedia presence not detected — coverage risk","source":"platform"},{"id":"cbd27f73ba92","module":"sync","moduleName":"Sync Readiness","severity":"WARNING","title":"No Wikipedia presence","detail":"No Wikipedia presence — sync discoverability risk","source":"module"},{"id":"aa8ed3db9d4b","module":"publishing","moduleName":"Publishing Risk","severity":"INFO","title":"Catalog active for 13 years","detail":"Catalog active for 13 years — extended royalty verification recommended","source":"module"}],"moduleStatus":{"metadata":{"key":"metadata","name":"Metadata Integrity","score":100,"grade":"A","availability":"AVAILABLE","issueCount":0,"flags":[]},"coverage":{"key":"coverage","name":"Platform Coverage","score":60,"grade":"D","availability":"AVAILABLE","issueCount":5,"flags":["AudioDB presence not detected — coverage risk","Discogs presence not detected — coverage risk","SoundCloud presence not detected — coverage risk","Last.fm presence not detected — coverage risk","Wikipedia presence not detected — coverage risk"]},"publishing":{"key":"publishing","name":"Publishing Risk","score":90,"grade":"A","availability":"AVAILABLE","issueCount":1,"flags":["Catalog active for 13 years — extended royalty verification recommended"]},"duplicates":{"key":"duplicates","name":"Duplicate Detection","score":80,"grade":"B","availability":"AVAILABLE","issueCount":0,"flags":[]},"youtube":{"key":"youtube","name":"YouTube / UGC","score":60,"grade":"D","availability":"AVAILABLE","issueCount":0,"flags":[]},"sync":{"key":"sync","name":"Sync Readiness","score":43,"grade":"F","availability":"AVAILABLE","issueCount":1,"flags":["No Wikipedia presence — sync discoverability risk"]}},"_phase1Stub":true},"publishing":{"registrations":{"mlcRegistration":"UNABLE_TO_CONFIRM","registeredWorks":"UNABLE_TO_CONFIRM","iswcCoverage":"UNABLE_TO_CONFIRM","registeredSongwriters":"UNABLE_TO_CONFIRM","writerIpi":"UNABLE_TO_CONFIRM","compositionMatch":"UNABLE_TO_CONFIRM"},"metrics":{"mlcWorksCount":0,"mlcIswcCount":0,"mlcWriterCount":0,"mlcWriterIpiCount":0},"supportedSources":["mlc"],"registeredCount":0,"totalChecked":6,"coverage":null,"coverageStatus":"Unavailable","strengths":[],"issues":[],"recommendations":[]},"opportunities":[],"actions":[],"aiInsight":{"observation":"Platform identity is verified and consistent — the foundation of a professionally managed independent catalog.","priority":"With core infrastructure verified, the most significant risk is change over time — gaps that emerge silently as the catalog evolves.","priorityLabel":"Infrastructure Review","positiveSignal":"Distribution verified in 156 Apple Music territories.","nextAction":"Establish continuous monitoring across identity, publishing, and catalog status — the infrastructure that exists today will evolve, and visibility into those changes is what protects long-term value.","executiveInsight":"Platform identity is verified and catalog presence is established — the core signals of a professionally managed independent artist infrastructure. The next phase is not discovery — it is protection. Infrastructure that exists today will evolve, and visibility into those changes is what preserves long-term value. Establishing continuous monitoring across identity, publishing, catalog status, and territory availability ensures future changes are detected before they affect visibility, attribution, or royalty collection.","confidence":"high","generatedBy":"engine_template","generatedAt":"2026-07-11T16:57:11.703Z","generatedFrom":["identityIntelligence","publishingIntelligence","catalogIntelligence","globalMusicFootprint"]},"revenueSignals":{"status":"RESERVED","data":null},"scanAuthority":{"_cimVersion":"1.0.0","generatedAt":"2026-07-11T16:57:11.704Z","subjectName":"Black Alternative","subjectId":"505490272","anchorProvider":"apple","reconciliationRule":"identity-anchor-v1","schemaVersion":"1.0","intelligenceEngineVersion":"1.0.0","sourceProviders":["apple_music","spotify","musicbrainz","discogs","youtube","deezer","audiodb"],"evidenceIds":["c363cf39-17d7-42bc-b66b-e4998a8c943b","31a9fb24-21b1-4c06-9c48-7f303a983676","96c679c6-57ec-4fcb-99db-014442671539","2ebf9613-572b-4382-a4ea-87cd3a15eccb","6d683eff-9541-44c2-8c02-3bc20f2ab1e4","a6405356-90ac-405f-955d-1bc058e1a950","9a19e7f0-e188-4826-8e54-53876ed7817d","9c87dcb0-ae85-41f8-a7b0-e1587cb70560","e8dcd13d-fcbc-42eb-a59a-11b50d6f98ba","05e7f5c6-5451-4bfd-8af0-d1c59a6e4389","7ace9174-6700-43c2-8cda-192afa6828a8","d519a01f-248d-4043-9cda-eed85534ccc0","6cc9f8b4-b391-449d-b795-fd59940ad944","e11b9554-3b11-4bf9-9830-00d59ad92ff1","aacd4b46-3f36-4657-b42f-a33acc5b669e","29fae44f-25b1-47d0-8c4f-e4a0bea7efe1","d8a2471d-f3b5-42ab-a514-f042311d85f7"],"connectorVersions":["1.0"],"certificationId":"6e85baed-561b-43fb-87b6-511597909b2c"},"recording":null,"brief":{"briefVersion":"1.0.0","generatedAt":"2026-07-11T16:57:11.701Z","executiveSummary":"Your music backend infrastructure has been assessed and received an overall Health Score of 90/100, rated B — Strong Foundation with Minor Gaps. Identity scored 95, publishing 100, catalog 98, and metadata 100, with coverage at 57 and confidence at 60. 1 documented strength reinforces a stable foundation, with 0 opportunities identified for further improvement. The outlook is positive, with focused work on the noted gaps positioning the catalog for sustained growth.","healthHeadline":"Strong Foundation with Minor Gaps","executiveNarrative":"The backend infrastructure reflects strong maturity at a Health Score of 90, with minor gaps. No material risks have been identified in the current assessment. Optimisation opportunities are limited under current conditions. Long term, the foundation is well positioned to compound value over time.","topStrengths":[{"id":"obs_58b1e7698abb9d91","ruleId":"catalog.complete-delivery-verified","category":"CATALOG","severity":"INFO","confidence":"HIGH","title":"Complete catalog delivery verified","description":"All identified recordings have corresponding release linkage in reviewed sources.","recommendation":"Continue current catalog delivery practices.","evidence":[],"providerSources":[]}],"topRisks":[],"topOpportunities":[],"priorityActions":[],"confidenceStatement":"This assessment is based on partially verified intelligence.","recommendedNextStep":"Schedule Full Backend Review","aiExecutiveInsight":"Based on the intelligence assembled, this catalog demonstrates verifiable strength in catalog. No material risks have been identified in the current assessment. Addressing \"Schedule Full Backend Review\" would materially improve backend infrastructure health. Executing the recommended next step will materially improve the Health Score from 90.","reserved":{"monitoring":null,"revenue":null},"recoveryNarrative":"No specific infrastructure improvement opportunities were identified from reviewed sources."},"_certified":true,"_certifiedAt":"2026-07-11T16:57:11.704Z"},"identityIntelligence":{"providers":{"apple":"VERIFIED","spotify":"VERIFIED","youtube":"VERIFIED"},"supportedProviders":["apple","spotify","youtube"],"verifiedProviders":3,"totalProviders":3,"coverage":100,"strengths":[{"provider":"apple","label":"Apple Music"},{"provider":"spotify","label":"Spotify"},{"provider":"youtube","label":"YouTube"}],"issues":[],"recommendations":[]},"publishingIntelligence":{"registrations":{"mlcRegistration":"UNABLE_TO_CONFIRM","registeredWorks":"UNABLE_TO_CONFIRM","iswcCoverage":"UNABLE_TO_CONFIRM","registeredSongwriters":"UNABLE_TO_CONFIRM","writerIpi":"UNABLE_TO_CONFIRM","compositionMatch":"UNABLE_TO_CONFIRM"},"metrics":{"mlcWorksCount":0,"mlcIswcCount":0,"mlcWriterCount":0,"mlcWriterIpiCount":0},"supportedSources":["mlc"],"registeredCount":0,"totalChecked":6,"coverage":null,"coverageStatus":"Unavailable","strengths":[],"issues":[],"recommendations":[]},"musicRightsProfile":{"meta":{"version":"1.0","completed_at":"2026-07-11T14:31:22.043Z","last_updated_at":"2026-07-11T14:31:22.043Z","source":"Executive Board Reset Directive 2026-07-11"},"performing_rights":{"pro":"SOCAN","soundexchange":"Yes"},"publishing":{"publishing_admin":"TuneCore Publishing","mlc":"Registered"},"recording":{"record_label":"Own Label","label_name":"Castle Park Studioz"},"distribution":{"distributor":"TuneCore"},"songwriter":{}}}
+{
+  "schemaVersion": "1.2.0",
+  "scanId": "689b3118-8264-48ab-8468-2824512f7150",
+  "scannedAt": "2026-07-11T17:56:10.897Z",
+  "source": {
+    "platform": "apple_music",
+    "urlType": "artist",
+    "resolvedFrom": "artist",
+    "originalUrl": "",
+    "storefront": null
+  },
+  "subject": {
+    "artistName": "Black Alternative",
+    "artistId": "1lnM3VZrD6SG9vxBsE9654",
+    "trackTitle": "Everything Is Over",
+    "trackIsrc": "QT6622698063",
+    "trackIsrcSource": null,
+    "albumName": null
+  },
+  "metrics": {
+    "followers": -1,
+    "popularity": 0,
+    "genres": [
+      "Soundtrack"
+    ],
+    "lastfmPlays": 0,
+    "lastfmListeners": 0,
+    "deezerFans": 13,
+    "tidalPopularity": 3,
+    "discogsReleases": 0,
+    "country": null,
+    "wikipediaUrl": null
+  },
+  "catalog": {
+    "totalReleases": 4,
+    "totalTracks": 4,
+    "singlesCount": 4,
+    "epsCount": 0,
+    "albumsCount": 0,
+    "featuresCount": 0,
+    "earliestYear": 2013,
+    "latestYear": 2026,
+    "catalogAgeYears": 13,
+    "estimatedAnnualStreams": 0,
+    "recentActivity": true
+  },
+  "platforms": {
+    "spotify": {
+      "availability": "VERIFIED",
+      "details": null
+    },
+    "appleMusic": {
+      "availability": "VERIFIED",
+      "details": {
+        "artistId": "505490272",
+        "artistUrl": "https://music.apple.com/us/artist/black-alternative/505490272",
+        "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/600x600bb.jpg",
+        "albumCount": 4,
+        "albums": [
+          {
+            "id": "1889785995",
+            "name": "Everything Is Over - Single",
+            "releaseDate": "2026-05-15",
+            "trackCount": 1,
+            "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/{w}x{h}bb.jpg",
+            "upc": "859735256318",
+            "recordLabel": "Castle Park Studioz (GmbH)"
+          },
+          {
+            "id": "1888378272",
+            "name": "Nosferatu (Cryptic Mix) - Single",
+            "releaseDate": "2013-03-12",
+            "trackCount": 1,
+            "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/27/b4/86/27b486e2-10c0-b104-15e9-5f489927dd51/859734942694_cover.jpg/{w}x{h}bb.jpg",
+            "upc": "859734942694",
+            "recordLabel": "Castle Park Studioz"
+          },
+          {
+            "id": "1857079198",
+            "name": "Knockin' on Heavens Door - Single",
+            "releaseDate": "2014-06-25",
+            "trackCount": 1,
+            "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/7f/dc/30/7fdc3073-142e-e063-0e05-d1753667e153/859724236222_cover.jpg/{w}x{h}bb.jpg",
+            "upc": "859724236222",
+            "recordLabel": "Castle Park Studioz (GmbH)"
+          },
+          {
+            "id": "1861345414",
+            "name": "Strange Situation (feat. Chuck Ice) - Single",
+            "releaseDate": "2013-11-11",
+            "trackCount": 1,
+            "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/32/94/a0/3294a0a1-7ffd-f2a7-22f1-7e786936e729/859725695899_cover.jpg/{w}x{h}bb.jpg",
+            "upc": "859725695899",
+            "recordLabel": "Castle Park Studioz (GmbH)"
+          }
+        ],
+        "storefrontAvailability": null,
+        "globalStorefrontAvailability": {
+          "available": [
+            "ag",
+            "ai",
+            "bb",
+            "bm",
+            "bo",
+            "br",
+            "bs",
+            "bz",
+            "ca",
+            "cl",
+            "co",
+            "cr",
+            "dm",
+            "do",
+            "ec",
+            "gd",
+            "gt",
+            "gy",
+            "hn",
+            "jm",
+            "kn",
+            "ky",
+            "lc",
+            "mx",
+            "ni",
+            "pa",
+            "pe",
+            "py",
+            "sr",
+            "sv",
+            "tc",
+            "tt",
+            "us",
+            "uy",
+            "vc",
+            "vg",
+            "am",
+            "at",
+            "az",
+            "be",
+            "bg",
+            "by",
+            "ch",
+            "cy",
+            "cz",
+            "de",
+            "dk",
+            "ee",
+            "es",
+            "fi",
+            "fr",
+            "gb",
+            "gr",
+            "hr",
+            "hu",
+            "ie",
+            "is",
+            "it",
+            "kg",
+            "kz",
+            "lt",
+            "lu",
+            "lv",
+            "md",
+            "mk",
+            "mt",
+            "nl",
+            "no",
+            "pl",
+            "pt",
+            "ro",
+            "ru",
+            "se",
+            "si",
+            "sk",
+            "tj",
+            "tr",
+            "ua",
+            "uz",
+            "ae",
+            "ao",
+            "bf",
+            "bh",
+            "bj",
+            "bw",
+            "cd",
+            "cg",
+            "ci",
+            "cm",
+            "cv",
+            "dz",
+            "eg",
+            "ga",
+            "gh",
+            "gm",
+            "gw",
+            "il",
+            "jo",
+            "ke",
+            "kw",
+            "lb",
+            "lr",
+            "ly",
+            "ma",
+            "mg",
+            "ml",
+            "mr",
+            "mu",
+            "mw",
+            "mz",
+            "na",
+            "ne",
+            "ng",
+            "om",
+            "qa",
+            "rw",
+            "sa",
+            "sc",
+            "sl",
+            "sn",
+            "sz",
+            "td",
+            "tn",
+            "tz",
+            "ug",
+            "ye",
+            "za",
+            "zm",
+            "zw",
+            "au",
+            "bt",
+            "fj",
+            "fm",
+            "hk",
+            "id",
+            "in",
+            "jp",
+            "kh",
+            "kr",
+            "la",
+            "lk",
+            "mn",
+            "mo",
+            "mv",
+            "my",
+            "np",
+            "nz",
+            "pg",
+            "ph",
+            "sb",
+            "sg",
+            "th",
+            "to",
+            "tw",
+            "vn",
+            "vu"
+          ],
+          "unavailable": [
+            "al",
+            "dj",
+            "et",
+            "gn",
+            "gq",
+            "st",
+            "cn",
+            "nr",
+            "pw",
+            "tl",
+            "ws"
+          ],
+          "errors": [
+            {
+              "sf": "dj",
+              "error": "MAINTENANCE"
+            },
+            {
+              "sf": "et",
+              "error": "MAINTENANCE"
+            },
+            {
+              "sf": "gn",
+              "error": "MAINTENANCE"
+            },
+            {
+              "sf": "gq",
+              "error": "MAINTENANCE"
+            },
+            {
+              "sf": "tl",
+              "error": "MAINTENANCE"
+            },
+            {
+              "sf": "ws",
+              "error": "MAINTENANCE"
+            }
+          ],
+          "total": 167
+        },
+        "catalogComparison": null,
+        "isrcLookup": null
+      }
+    },
+    "musicbrainz": {
+      "availability": "VERIFIED",
+      "details": null
+    },
+    "deezer": {
+      "availability": "VERIFIED",
+      "details": {
+        "artistId": 3215321,
+        "name": "Black Alternative",
+        "link": "https://www.deezer.com/artist/3215321",
+        "share": "https://www.deezer.com/artist/3215321?utm_source=deezer&utm_content=artist-3215321&utm_term=0_1783792555&utm_medium=web",
+        "picture": "https://api.deezer.com/artist/3215321/image",
+        "picture_small": "https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/56x56-000000-80-0-0.jpg",
+        "picture_medium": "https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/250x250-000000-80-0-0.jpg",
+        "picture_big": "https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/500x500-000000-80-0-0.jpg",
+        "picture_xl": "https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/1000x1000-000000-80-0-0.jpg",
+        "fans": 13,
+        "nb_album": 5,
+        "radio": true,
+        "tracklist": "https://api.deezer.com/artist/3215321/top?limit=50",
+        "albums": [
+          {
+            "id": 952147151,
+            "title": "Everything Is Over",
+            "link": "https://www.deezer.com/album/952147151",
+            "cover": "https://api.deezer.com/album/952147151/image",
+            "cover_small": "https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/56x56-000000-80-0-0.jpg",
+            "cover_medium": "https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/250x250-000000-80-0-0.jpg",
+            "cover_big": "https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/500x500-000000-80-0-0.jpg",
+            "cover_xl": "https://cdn-images.dzcdn.net/images/cover/82a2618c70343dd13ac201ff5957e76b/1000x1000-000000-80-0-0.jpg",
+            "md5_image": "82a2618c70343dd13ac201ff5957e76b",
+            "genre_id": 85,
+            "fans": 0,
+            "release_date": "2026-05-15",
+            "record_type": "single",
+            "tracklist": "https://api.deezer.com/album/952147151/tracks",
+            "explicit_lyrics": false,
+            "type": "album"
+          },
+          {
+            "id": 866482652,
+            "title": "Knockin' on Heavens Door",
+            "link": "https://www.deezer.com/album/866482652",
+            "cover": "https://api.deezer.com/album/866482652/image",
+            "cover_small": "https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/56x56-000000-80-0-0.jpg",
+            "cover_medium": "https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/250x250-000000-80-0-0.jpg",
+            "cover_big": "https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/500x500-000000-80-0-0.jpg",
+            "cover_xl": "https://cdn-images.dzcdn.net/images/cover/5c5a74273de668463a6ba754a783c27b/1000x1000-000000-80-0-0.jpg",
+            "md5_image": "5c5a74273de668463a6ba754a783c27b",
+            "genre_id": 85,
+            "fans": 0,
+            "release_date": "2014-06-25",
+            "record_type": "single",
+            "tracklist": "https://api.deezer.com/album/866482652/tracks",
+            "explicit_lyrics": false,
+            "type": "album"
+          },
+          {
+            "id": 877248912,
+            "title": "Strange Situation",
+            "link": "https://www.deezer.com/album/877248912",
+            "cover": "https://api.deezer.com/album/877248912/image",
+            "cover_small": "https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/56x56-000000-80-0-0.jpg",
+            "cover_medium": "https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/250x250-000000-80-0-0.jpg",
+            "cover_big": "https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/500x500-000000-80-0-0.jpg",
+            "cover_xl": "https://cdn-images.dzcdn.net/images/cover/66b5e6ac57a627bca4e2a531ba4d6262/1000x1000-000000-80-0-0.jpg",
+            "md5_image": "66b5e6ac57a627bca4e2a531ba4d6262",
+            "genre_id": 165,
+            "fans": 0,
+            "release_date": "2013-11-11",
+            "record_type": "single",
+            "tracklist": "https://api.deezer.com/album/877248912/tracks",
+            "explicit_lyrics": false,
+            "type": "album"
+          },
+          {
+            "id": 948553801,
+            "title": "Nosferatu (Cryptic Mix)",
+            "link": "https://www.deezer.com/album/948553801",
+            "cover": "https://api.deezer.com/album/948553801/image",
+            "cover_small": "https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/56x56-000000-80-0-0.jpg",
+            "cover_medium": "https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/250x250-000000-80-0-0.jpg",
+            "cover_big": "https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/500x500-000000-80-0-0.jpg",
+            "cover_xl": "https://cdn-images.dzcdn.net/images/cover/cf1e9f6b6b0126b60b5211d56035f64f/1000x1000-000000-80-0-0.jpg",
+            "md5_image": "cf1e9f6b6b0126b60b5211d56035f64f",
+            "genre_id": 85,
+            "fans": 0,
+            "release_date": "2013-03-12",
+            "record_type": "single",
+            "tracklist": "https://api.deezer.com/album/948553801/tracks",
+            "explicit_lyrics": false,
+            "type": "album"
+          },
+          {
+            "id": 4491891,
+            "title": "Come to Me (Inspired by the Twilight Saga Breaking Dawn Pt.1)",
+            "link": "https://www.deezer.com/album/4491891",
+            "cover": "https://api.deezer.com/album/4491891/image",
+            "cover_small": "https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/56x56-000000-80-0-0.jpg",
+            "cover_medium": "https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/250x250-000000-80-0-0.jpg",
+            "cover_big": "https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/500x500-000000-80-0-0.jpg",
+            "cover_xl": "https://cdn-images.dzcdn.net/images/cover/febe0204a9453eab37d27bfb834e7157/1000x1000-000000-80-0-0.jpg",
+            "md5_image": "febe0204a9453eab37d27bfb834e7157",
+            "genre_id": 173,
+            "fans": 23,
+            "release_date": "2012-08-22",
+            "record_type": "single",
+            "tracklist": "https://api.deezer.com/album/4491891/tracks",
+            "explicit_lyrics": false,
+            "type": "album"
+          }
+        ],
+        "topTracks": [],
+        "genres": []
+      }
+    },
+    "audiodb": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "discogs": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "soundcloud": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "lastfm": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "wikipedia": {
+      "availability": "NOT_FOUND",
+      "details": null
+    },
+    "youtube": {
+      "availability": "VERIFIED",
+      "details": {
+        "officialChannel": {
+          "title": "Black Alternative Music",
+          "channelId": "UCOIO07KGdBFp9Ej40iaZRGQ",
+          "subscribers": 4,
+          "totalViews": 23,
+          "videoCount": 1,
+          "verifiedVia": "royalte_identity_graph"
+        },
+        "ugc": null,
+        "subscriberCount": 4
+      }
+    },
+    "tidal": {
+      "availability": "VERIFIED",
+      "details": {
+        "artistId": "4972312",
+        "name": "Black Alternative",
+        "url": "https://tidal.com/browse/artist/4972312",
+        "popularity": 3,
+        "picture": "https://resources.tidal.com/images/a31e70fc/53a6/482b/8cdb/0a62fa095588/1280x1280.jpg",
+        "albums": [
+          {
+            "id": "477638432",
+            "type": "SINGLE",
+            "title": "Knockin' on Heavens Door",
+            "barcodeId": "859724236222",
+            "numberOfVolumes": 1,
+            "numberOfItems": 1,
+            "duration": "PT3M52S",
+            "explicit": false,
+            "releaseDate": "2013-06-25",
+            "copyright": {
+              "text": "2025 Castle Park Studioz (GmbH)"
+            },
+            "popularity": 0,
+            "accessType": "PUBLIC",
+            "availability": [
+              "STREAM",
+              "DJ"
+            ],
+            "mediaTags": [
+              "LOSSLESS"
+            ],
+            "externalLinks": [
+              {
+                "href": "https://tidal.com/browse/album/477638432",
+                "meta": {
+                  "type": "TIDAL_SHARING"
+                }
+              }
+            ],
+            "albumType": "SINGLE",
+            "createdAt": "2025-11-28T22:46:52Z"
+          },
+          {
+            "id": "481648584",
+            "type": "SINGLE",
+            "title": "Strange Situation",
+            "barcodeId": "859725695899",
+            "numberOfVolumes": 1,
+            "numberOfItems": 1,
+            "duration": "PT4M44S",
+            "explicit": false,
+            "releaseDate": "2013-11-11",
+            "copyright": {
+              "text": "2026 Castle Park Studioz (GmbH)"
+            },
+            "popularity": 0,
+            "accessType": "PUBLIC",
+            "availability": [
+              "STREAM",
+              "DJ"
+            ],
+            "mediaTags": [
+              "HIRES_LOSSLESS",
+              "LOSSLESS"
+            ],
+            "externalLinks": [
+              {
+                "href": "https://tidal.com/browse/album/481648584",
+                "meta": {
+                  "type": "TIDAL_SHARING"
+                }
+              }
+            ],
+            "albumType": "SINGLE",
+            "createdAt": "2025-12-14T23:48:41Z"
+          },
+          {
+            "id": "510563317",
+            "type": "SINGLE",
+            "title": "Nosferatu (Cryptic Mix)",
+            "barcodeId": "859734942694",
+            "numberOfVolumes": 1,
+            "numberOfItems": 1,
+            "duration": "PT5M17S",
+            "explicit": false,
+            "releaseDate": "2013-03-12",
+            "copyright": {
+              "text": "2026 Castle Park Studioz "
+            },
+            "popularity": 0,
+            "accessType": "PUBLIC",
+            "availability": [
+              "STREAM",
+              "DJ"
+            ],
+            "mediaTags": [
+              "HIRES_LOSSLESS",
+              "LOSSLESS"
+            ],
+            "externalLinks": [
+              {
+                "href": "https://tidal.com/browse/album/510563317",
+                "meta": {
+                  "type": "TIDAL_SHARING"
+                }
+              }
+            ],
+            "albumType": "SINGLE",
+            "createdAt": "2026-03-27T05:21:14Z"
+          },
+          {
+            "id": "512096919",
+            "type": "SINGLE",
+            "title": "Everything Is Over",
+            "barcodeId": "859735256318",
+            "numberOfVolumes": 1,
+            "numberOfItems": 1,
+            "duration": "PT3M46S",
+            "explicit": false,
+            "releaseDate": "2026-05-15",
+            "copyright": {
+              "text": "2026 Castle Park Studioz (GmbH)"
+            },
+            "popularity": 0,
+            "accessType": "PUBLIC",
+            "availability": [
+              "STREAM",
+              "DJ"
+            ],
+            "mediaTags": [
+              "HIRES_LOSSLESS",
+              "LOSSLESS"
+            ],
+            "externalLinks": [
+              {
+                "href": "https://tidal.com/browse/album/512096919",
+                "meta": {
+                  "type": "TIDAL_SHARING"
+                }
+              }
+            ],
+            "albumType": "SINGLE",
+            "createdAt": "2026-04-01T09:29:05Z"
+          }
+        ],
+        "topTracks": [
+          {
+            "id": "477638434",
+            "type": "tracks",
+            "title": "Knockin' on Heavens Door",
+            "version": null,
+            "isrc": "TCABM1310294",
+            "duration": "PT3M52S",
+            "copyright": {
+              "text": "2025 Castle Park Studioz (GmbH)"
+            },
+            "explicit": false,
+            "popularity": 0.06714046296702654,
+            "accessType": "PUBLIC",
+            "availability": [
+              "STREAM",
+              "DJ"
+            ],
+            "mediaTags": [
+              "LOSSLESS"
+            ],
+            "externalLinks": [
+              {
+                "href": "https://tidal.com/browse/track/477638434",
+                "meta": {
+                  "type": "TIDAL_SHARING"
+                }
+              }
+            ],
+            "spotlighted": false,
+            "createdAt": "2025-11-28T22:46:52Z"
+          },
+          {
+            "id": "481648585",
+            "type": "tracks",
+            "title": "Strange Situation",
+            "version": null,
+            "isrc": "QT6662505670",
+            "duration": "PT4M44S",
+            "copyright": {
+              "text": "2026 Castle Park Studioz (GmbH)"
+            },
+            "explicit": false,
+            "popularity": 0,
+            "accessType": "PUBLIC",
+            "availability": [
+              "STREAM",
+              "DJ"
+            ],
+            "mediaTags": [
+              "HIRES_LOSSLESS",
+              "LOSSLESS"
+            ],
+            "externalLinks": [
+              {
+                "href": "https://tidal.com/browse/track/481648585",
+                "meta": {
+                  "type": "TIDAL_SHARING"
+                }
+              }
+            ],
+            "spotlighted": false,
+            "createdAt": "2025-12-14T23:48:41Z"
+          },
+          {
+            "id": "510563319",
+            "type": "tracks",
+            "title": "Nosferatu (Cryptic Mix)",
+            "version": null,
+            "isrc": "USA2P1315868",
+            "duration": "PT5M17S",
+            "copyright": {
+              "text": "2026 Castle Park Studioz "
+            },
+            "explicit": false,
+            "popularity": 0,
+            "accessType": "PUBLIC",
+            "availability": [
+              "STREAM",
+              "DJ"
+            ],
+            "mediaTags": [
+              "HIRES_LOSSLESS",
+              "LOSSLESS"
+            ],
+            "externalLinks": [
+              {
+                "href": "https://tidal.com/browse/track/510563319",
+                "meta": {
+                  "type": "TIDAL_SHARING"
+                }
+              }
+            ],
+            "spotlighted": false,
+            "createdAt": "2026-03-27T05:21:14Z"
+          },
+          {
+            "id": "512096940",
+            "type": "tracks",
+            "title": "Everything Is Over",
+            "version": null,
+            "isrc": "QT6622698063",
+            "duration": "PT3M46S",
+            "copyright": {
+              "text": "2026 Castle Park Studioz (GmbH)"
+            },
+            "explicit": false,
+            "popularity": 0,
+            "accessType": "PUBLIC",
+            "availability": [
+              "STREAM",
+              "DJ"
+            ],
+            "mediaTags": [
+              "HIRES_LOSSLESS",
+              "LOSSLESS"
+            ],
+            "externalLinks": [
+              {
+                "href": "https://tidal.com/browse/track/512096940",
+                "meta": {
+                  "type": "TIDAL_SHARING"
+                }
+              }
+            ],
+            "spotlighted": false,
+            "createdAt": "2026-04-01T09:29:05Z"
+          }
+        ],
+        "genres": []
+      }
+    }
+  },
+  "auditCoverage": {
+    "spotify": {
+      "status": "Not Confirmed",
+      "tier": null
+    },
+    "appleMusic": {
+      "status": "Not Confirmed",
+      "tier": null
+    },
+    "publishing": {
+      "status": "Not Confirmed",
+      "tier": null
+    },
+    "soundExchange": {
+      "status": "Not Confirmed",
+      "tier": null
+    }
+  },
+  "auditCoverageRaw": {
+    "_deprecated": true,
+    "spotify": {
+      "connected": false
+    },
+    "apple_music": {
+      "connected": false
+    }
+  },
+  "modules": {
+    "metadata": {
+      "key": "metadata",
+      "name": "Metadata Integrity",
+      "score": 100,
+      "grade": "A",
+      "availability": "AVAILABLE",
+      "issueCount": 0,
+      "flags": []
+    },
+    "coverage": {
+      "key": "coverage",
+      "name": "Platform Coverage",
+      "score": 60,
+      "grade": "D",
+      "availability": "AVAILABLE",
+      "issueCount": 5,
+      "flags": [
+        "AudioDB presence not detected — coverage risk",
+        "Discogs presence not detected — coverage risk",
+        "SoundCloud presence not detected — coverage risk",
+        "Last.fm presence not detected — coverage risk",
+        "Wikipedia presence not detected — coverage risk"
+      ]
+    },
+    "publishing": {
+      "key": "publishing",
+      "name": "Publishing Risk",
+      "score": 90,
+      "grade": "A",
+      "availability": "AVAILABLE",
+      "issueCount": 1,
+      "flags": [
+        "Catalog active for 13 years — extended royalty verification recommended"
+      ]
+    },
+    "duplicates": {
+      "key": "duplicates",
+      "name": "Duplicate Detection",
+      "score": 80,
+      "grade": "B",
+      "availability": "AVAILABLE",
+      "issueCount": 0,
+      "flags": []
+    },
+    "youtube": {
+      "key": "youtube",
+      "name": "YouTube / UGC",
+      "score": 60,
+      "grade": "D",
+      "availability": "AVAILABLE",
+      "issueCount": 0,
+      "flags": []
+    },
+    "sync": {
+      "key": "sync",
+      "name": "Sync Readiness",
+      "score": 43,
+      "grade": "F",
+      "availability": "AVAILABLE",
+      "issueCount": 1,
+      "flags": [
+        "No Wikipedia presence — sync discoverability risk"
+      ]
+    }
+  },
+  "issues": [
+    {
+      "id": "040199fafff9",
+      "module": "publishing",
+      "moduleName": "Publishing Risk",
+      "severity": "HIGH",
+      "title": "Catalog active for 13 years",
+      "detail": "Catalog active for 13 years — extended period of potential royalty exposure detected",
+      "source": "module"
+    },
+    {
+      "id": "7e6a20c7eda9",
+      "module": "coverage",
+      "moduleName": "Platform Coverage",
+      "severity": "WARNING",
+      "title": "AudioDB presence not detected",
+      "detail": "AudioDB presence not detected — coverage risk",
+      "source": "platform"
+    },
+    {
+      "id": "212230864e48",
+      "module": "coverage",
+      "moduleName": "Platform Coverage",
+      "severity": "WARNING",
+      "title": "Discogs presence not detected",
+      "detail": "Discogs presence not detected — coverage risk",
+      "source": "platform"
+    },
+    {
+      "id": "1977ad5f3632",
+      "module": "coverage",
+      "moduleName": "Platform Coverage",
+      "severity": "WARNING",
+      "title": "SoundCloud presence not detected",
+      "detail": "SoundCloud presence not detected — coverage risk",
+      "source": "platform"
+    },
+    {
+      "id": "1fc95a58144a",
+      "module": "coverage",
+      "moduleName": "Platform Coverage",
+      "severity": "WARNING",
+      "title": "Last.fm presence not detected",
+      "detail": "Last.fm presence not detected — coverage risk",
+      "source": "platform"
+    },
+    {
+      "id": "a76f760fbc98",
+      "module": "coverage",
+      "moduleName": "Platform Coverage",
+      "severity": "WARNING",
+      "title": "Wikipedia presence not detected",
+      "detail": "Wikipedia presence not detected — coverage risk",
+      "source": "platform"
+    },
+    {
+      "id": "cbd27f73ba92",
+      "module": "sync",
+      "moduleName": "Sync Readiness",
+      "severity": "WARNING",
+      "title": "No Wikipedia presence",
+      "detail": "No Wikipedia presence — sync discoverability risk",
+      "source": "module"
+    },
+    {
+      "id": "aa8ed3db9d4b",
+      "module": "publishing",
+      "moduleName": "Publishing Risk",
+      "severity": "INFO",
+      "title": "Catalog active for 13 years",
+      "detail": "Catalog active for 13 years — extended royalty verification recommended",
+      "source": "module"
+    }
+  ],
+  "score": {
+    "overall": 72,
+    "riskLevel": "MODERATE",
+    "riskSummary": "Moderate risk — some gaps detected. Top concerns: Catalog active for 13 years.",
+    "moduleAverage": 72,
+    "ownershipImpact": 0
+  },
+  "health": null,
+  "royaltyGap": {
+    "estAnnualStreams": 0,
+    "estLifetimeStreams": 0,
+    "estSpotifyRoyalties": 0,
+    "estPROEarnings": 0,
+    "estTotalRoyalties": 0,
+    "potentialGapLow": 0,
+    "potentialGapHigh": 0,
+    "catalogYears": 13,
+    "ugcUnmonetisedViews": 0,
+    "ugcPotentialRevenue": 0,
+    "disclaimer": "Estimates only. Based on streaming activity and platform coverage. Verify with your distributor and PRO."
+  },
+  "gapBasedExposure": {
+    "indicators": [
+      {
+        "id": "catalog-age",
+        "severity": "MED",
+        "title": "Extended royalty verification recommended",
+        "description": "Catalog active for 13 years across 4 releases.",
+        "exposureLow": 156,
+        "exposureHigh": 936,
+        "methodology": "Unaudited-activity accrual × (catalog age × release count)"
+      },
+      {
+        "id": "sync-discoverability",
+        "severity": "LOW",
+        "title": "Sync licensing discoverability limited",
+        "description": "Editorial reference signals partial.",
+        "exposureLow": null,
+        "exposureHigh": null,
+        "methodology": "Exposure pending validation"
+      }
+    ],
+    "aggregateLow": 156,
+    "aggregateHigh": 936,
+    "pendingValidationCount": 1,
+    "hasAnyGaps": true
+  },
+  "proGuide": {
+    "pro": "Your local PRO",
+    "url": "https://www.cisac.org",
+    "steps": [
+      "Find your country's PRO at cisac.org/find-a-society",
+      "Register as a songwriter and composer",
+      "Register all your works in the PRO database",
+      "Verify reciprocal agreements with SOCAN, ASCAP, GEMA and PRS"
+    ],
+    "note": "CISAC is the international confederation of PROs. Their directory lists every PRO worldwide.",
+    "country": null
+  },
+  "ownership": {
+    "status": "unverified",
+    "confidence": "LOW",
+    "scoreImpact": 0,
+    "render": null
+  },
+  "territoryCoverage": null,
+  "isrcValidation": null
+}

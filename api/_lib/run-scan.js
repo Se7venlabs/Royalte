@@ -55,6 +55,8 @@ import { acquireDeezerEvidence, synthesizeDeezerCompat } from './deezer-pal-acqu
 import { acquireAudioDbEvidence, synthesizeAudioDbCompat } from './audiodb-pal-acquisition.js';
 // Phase 3.6/LastFm (Last.fm PAL — Community Intelligence Authority™) — replaces getLastFm()
 import { acquireLastFmEvidence, synthesizeLastFmCompat } from './lastfm-pal-acquisition.js';
+// Phase 4.0/TIDAL (TIDAL PAL — Independent Streaming Verification Authority™)
+import { acquireTidalEvidence, synthesizeTidalCompat } from './tidal-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -215,6 +217,7 @@ export async function runScan(url) {
     deezerPalSettled,
     audioDbPalSettled,
     lastfmPalSettled,
+    tidalPalSettled,
     soundcloudSettled,
     wikidataSettled,
   ] = await Promise.allSettled([
@@ -242,6 +245,8 @@ export async function runScan(url) {
     acquireAudioDbEvidence({ artistName }),
     // Phase 3.6/LastFm: Last.fm via PAL — Community Intelligence Authority™; replaces getLastFm()
     acquireLastFmEvidence({ artistName }),
+    // Phase 4.0/TIDAL: TIDAL via PAL — Independent Streaming Verification Authority™
+    acquireTidalEvidence({ artistName }),
     getSoundCloud(artistName),
     getWikidata(artistName),
   ]);
@@ -264,8 +269,10 @@ export async function runScan(url) {
     audioDbPalSettled.status === 'fulfilled' ? audioDbPalSettled.value : {};
   const { evidencePackages: lastfmEvidencePackages = [] } =
     lastfmPalSettled.status === 'fulfilled' ? lastfmPalSettled.value : {};
+  const { evidencePackages: tidalEvidencePackages = [] } =
+    tidalPalSettled.status === 'fulfilled' ? tidalPalSettled.value : {};
 
-  // Combined evidence packages — all nine PAL providers enter the RIE hybrid merge path.
+  // Combined evidence packages — all ten PAL providers enter the RIE hybrid merge path.
   const evidencePackages = [
     ...appleEvidencePackages,
     ...spotifyEvidencePackages,
@@ -276,6 +283,7 @@ export async function runScan(url) {
     ...deezerEvidencePackages,
     ...audioDbEvidencePackages,
     ...lastfmEvidencePackages,
+    ...tidalEvidencePackages,
   ];
 
   // [TRANSITIONAL] Legacy compat shapes for V1 module system (runModules / buildFlags).
@@ -307,6 +315,8 @@ export async function runScan(url) {
   const audioDbData = synthesizeAudioDbCompat(audioDbEvidencePackages, artistName);
   // Phase 3.6/LastFm: compat synthesis replaces direct getLastFm() call
   const lastfmData  = synthesizeLastFmCompat(lastfmEvidencePackages, artistName);
+  // Phase 4.0/TIDAL: compat synthesis for Independent Streaming Verification Authority™
+  const tidalData   = synthesizeTidalCompat(tidalEvidencePackages, artistName);
   const soundcloudData = soundcloudSettled.status === 'fulfilled' ? soundcloudSettled.value : { found: false };
   const wikidataData   = wikidataSettled.status   === 'fulfilled' ? wikidataSettled.value   : { found: false };
 
@@ -409,6 +419,7 @@ export async function runScan(url) {
       wikipedia:   !!wikidataData.found,
       youtube:     !!youtubeData.found,
       appleMusic:  !!appleMusicData.found,
+      tidal:       !!tidalData.found,
     },
     catalog: catalogData,
     royaltyGap,
@@ -419,8 +430,10 @@ export async function runScan(url) {
     lastfmListeners: lastfmData.listeners || 0,
     wikipediaUrl:    wikidataData.wikipediaUrl || null,
     deezerFans:      deezerData.fans || 0,
+    tidalPopularity: tidalData.popularity || 0,
     discogsReleases: discogsData.releases || 0,
     deezer:          deezerData,
+    tidal:           tidalData,
     youtube:         youtubeData,
     appleMusic:      appleMusicData,
     overallScore,
