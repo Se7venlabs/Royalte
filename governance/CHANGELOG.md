@@ -39,7 +39,7 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 | **PR** | #295 |
 | **Commit SHA** | `8989e88` |
 | **Constitution Version** | v1.3 |
-| **Added** | `api/fixtures/canonical-black-alternative.json` — Canonical Development Artist™ reference fixture (live scan: Health Score 90, grade B, 1 strength, 0 risks, 156 Apple Music territories, 4 singles). |
+| **Added** | `public/fixtures/canonical-black-alternative.json` — Canonical Development Artist™ reference fixture (live scan: Health Score 90, grade B, 1 strength, 0 risks, 156 Apple Music territories, 4 singles). |
 | **Changed** | `api/_lib/executive-brief-engine.js` — three text-quality bugs fixed at source: (1) subject-verb agreement for singular strength count (`reinforce` → `reinforces`); (2) zero-recommendation guard in `buildLongTermClause` for grade B — no longer produces "executing the 0 priority recommendations"; (3) no-risk sentence in `buildAiExecutiveInsight` — grammatically broken "The primary area requiring executive attention is no material risks at this time" replaced with clean "No material risks have been identified in the current assessment." |
 | **Removed** | Nothing. |
 

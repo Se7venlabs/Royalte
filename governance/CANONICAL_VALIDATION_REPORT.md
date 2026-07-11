@@ -15,7 +15,7 @@
 | **Canonical Artist** | Black Alternative |
 | **Scan Schema Version** | 1.2.0 |
 | **Executive Brief Version** | 1.0.0 |
-| **Canonical Fixture** | `api/fixtures/canonical-black-alternative.json` |
+| **Canonical Fixture** | `public/fixtures/canonical-black-alternative.json` |
 | **Workspaces Validated** | 6 of 9 |
 | **Validation Progress** | 67% |
 | **Outstanding Issues** | 2 flagged for Board decision (no open defects blocking display) |
@@ -53,7 +53,7 @@ This profile is the permanent baseline for all Mission Control™ validation.
 | **Status Label (Phase 7)** | Strong Foundation with Minor Gaps |
 | **Scan Date** | 2026-07-11 |
 | **Scan ID (reference)** | `d018e521-2307-49e0-8da8-0efd15fff85a` |
-| **Canonical Fixture** | `api/fixtures/canonical-black-alternative.json` |
+| **Canonical Fixture** | `public/fixtures/canonical-black-alternative.json` |
 | **Schema Version** | 1.2.0 |
 | **Executive Brief Version** | 1.0.0 |
 | **Platform** | Spotify (scan input) |
