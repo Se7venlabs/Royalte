@@ -37,15 +37,16 @@
 //  would mislead an artist into thinking Royaltē confirmed their
 //  absence when in fact Royaltē could not look.
 //
-//  Provider coverage (Phase 3B): apple · spotify · youtube.
+//  Provider coverage (Phase 3C): apple · spotify · youtube · deezer · tidal.
 //  Amazon Music is deferred per Board D1 and intentionally absent
 //  from the output object. Adding it would imply scan coverage that
 //  does not exist.
 //
-//  Spotify intentionally never resolves to ACTION_REQUIRED in this
-//  phase — Board D4 forbids inventing conditions until richer Spotify
-//  observations exist. A future phase may add Spotify rules; until
-//  then Spotify resolves only to VERIFIED / NOT_FOUND / UNABLE_TO_CONFIRM.
+//  Spotify, Deezer, and TIDAL intentionally never resolve to ACTION_REQUIRED
+//  in this phase — Board D4 forbids inventing conditions until richer
+//  provider-scoped observations exist. A future phase may add rules;
+//  until then these three providers resolve only to VERIFIED / NOT_FOUND /
+//  UNABLE_TO_CONFIRM.
 //
 // ─────────────────────────────────────────────────────────────────────
 //  Output object shape (LOCKED v1.0 — Board Final Lock 2026-06-17,
@@ -56,6 +57,8 @@
 //        apple:   IDENTITY_STATE,
 //        spotify: IDENTITY_STATE,
 //        youtube: IDENTITY_STATE,
+//        deezer:  IDENTITY_STATE,
+//        tidal:   IDENTITY_STATE,
 //      },
 //      supportedProviders: string[],  // Board R2 — Mission Control reads
 //                                      // this to self-describe platform
@@ -83,7 +86,7 @@
 //
 //    UNABLE_TO_CONFIRM, NOT_FOUND, and ACTION_REQUIRED do NOT count as
 //    verified — only IDENTITY_STATE.VERIFIED does. The denominator is
-//    the full Phase-3 provider set (IDENTITY_PROVIDERS.length = 3).
+//    the full Phase-3C provider set (IDENTITY_PROVIDERS.length = 5).
 //
 //    Coverage answers: "Is my artist identity healthy across supported
 //    providers?" It is NOT a Health Score. Mission Control™ MUST NOT
@@ -131,12 +134,14 @@ export const IDENTITY_STATE = Object.freeze({
   UNABLE_TO_CONFIRM: 'UNABLE_TO_CONFIRM',
 });
 
-export const IDENTITY_PROVIDERS = Object.freeze(['apple', 'spotify', 'youtube']);
+export const IDENTITY_PROVIDERS = Object.freeze(['apple', 'spotify', 'youtube', 'deezer', 'tidal']);
 
 export const IDENTITY_PROVIDER_LABELS = Object.freeze({
   apple:   'Apple Music',
   spotify: 'Spotify',
   youtube: 'YouTube',
+  deezer:  'Deezer',
+  tidal:   'TIDAL',
 });
 
 function deepFreeze(obj) {
@@ -271,12 +276,15 @@ export function assembleIdentityIntelligence(intelligenceReport, cio) {
 
   const { verifiedProviders, totalProviders, coverage } = computeCoverage(states);
 
+  // Build providers object from IDENTITY_PROVIDERS so any future
+  // extension to IDENTITY_PROVIDERS automatically flows through.
+  const providerStates = {};
+  for (const p of IDENTITY_PROVIDERS) {
+    providerStates[p] = states[p];
+  }
+
   return deepFreeze({
-    providers: {
-      apple:   states.apple,
-      spotify: states.spotify,
-      youtube: states.youtube,
-    },
+    providers: providerStates,
     // supportedProviders (Board R2) — Mission Control reads this to
     // self-describe platform capability. When a future adapter lands
     // (e.g. Amazon), extend IDENTITY_PROVIDERS and this list grows

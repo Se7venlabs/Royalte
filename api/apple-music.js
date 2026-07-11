@@ -101,7 +101,7 @@ async function searchArtist(artistName) {
 async function getArtistAlbums(appleArtistId, storefront = STOREFRONT) {
   try {
     const data = await appleRequest(
-      `/catalog/${storefront}/artists/${appleArtistId}/albums?limit=25`
+      `/catalog/${storefront}/artists/${appleArtistId}/albums?limit=20`
     );
 
     const albums = data?.data || [];
@@ -128,7 +128,7 @@ async function getArtistAlbums(appleArtistId, storefront = STOREFRONT) {
  * Alternative" doesn't surface in Spotify's top-5 generic search).
  * Returns only songs whose ISRC is populated, capped at `limit`.
  */
-async function getArtistSongs(appleArtistId, storefront = STOREFRONT, limit = 25) {
+async function getArtistSongs(appleArtistId, storefront = STOREFRONT, limit = 20) {
   try {
     const data = await appleRequest(
       `/catalog/${storefront}/artists/${appleArtistId}/songs?limit=${limit}`

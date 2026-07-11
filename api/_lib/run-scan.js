@@ -55,6 +55,8 @@ import { acquireDeezerEvidence, synthesizeDeezerCompat } from './deezer-pal-acqu
 import { acquireAudioDbEvidence, synthesizeAudioDbCompat } from './audiodb-pal-acquisition.js';
 // Phase 3.6/LastFm (Last.fm PAL — Community Intelligence Authority™) — replaces getLastFm()
 import { acquireLastFmEvidence, synthesizeLastFmCompat } from './lastfm-pal-acquisition.js';
+// Phase 4.0/TIDAL (TIDAL PAL — Independent Streaming Verification Authority™)
+import { acquireTidalEvidence, synthesizeTidalCompat } from './tidal-pal-acquisition.js';
 
 // ── Revenue Exposure estimation constants ───────────────────────────────────
 // Last.fm playcount is the primary stream-volume signal (Spotify demoted —
@@ -215,6 +217,7 @@ export async function runScan(url) {
     deezerPalSettled,
     audioDbPalSettled,
     lastfmPalSettled,
+    tidalPalSettled,
     soundcloudSettled,
     wikidataSettled,
   ] = await Promise.allSettled([
@@ -242,6 +245,8 @@ export async function runScan(url) {
     acquireAudioDbEvidence({ artistName }),
     // Phase 3.6/LastFm: Last.fm via PAL — Community Intelligence Authority™; replaces getLastFm()
     acquireLastFmEvidence({ artistName }),
+    // Phase 4.0/TIDAL: TIDAL via PAL — Independent Streaming Verification Authority™
+    acquireTidalEvidence({ artistName }),
     getSoundCloud(artistName),
     getWikidata(artistName),
   ]);
@@ -264,8 +269,10 @@ export async function runScan(url) {
     audioDbPalSettled.status === 'fulfilled' ? audioDbPalSettled.value : {};
   const { evidencePackages: lastfmEvidencePackages = [] } =
     lastfmPalSettled.status === 'fulfilled' ? lastfmPalSettled.value : {};
+  const { evidencePackages: tidalEvidencePackages = [] } =
+    tidalPalSettled.status === 'fulfilled' ? tidalPalSettled.value : {};
 
-  // Combined evidence packages — all nine PAL providers enter the RIE hybrid merge path.
+  // Combined evidence packages — all ten PAL providers enter the RIE hybrid merge path.
   const evidencePackages = [
     ...appleEvidencePackages,
     ...spotifyEvidencePackages,
@@ -276,6 +283,7 @@ export async function runScan(url) {
     ...deezerEvidencePackages,
     ...audioDbEvidencePackages,
     ...lastfmEvidencePackages,
+    ...tidalEvidencePackages,
   ];
 
   // [TRANSITIONAL] Legacy compat shapes for V1 module system (runModules / buildFlags).
@@ -307,6 +315,8 @@ export async function runScan(url) {
   const audioDbData = synthesizeAudioDbCompat(audioDbEvidencePackages, artistName);
   // Phase 3.6/LastFm: compat synthesis replaces direct getLastFm() call
   const lastfmData  = synthesizeLastFmCompat(lastfmEvidencePackages, artistName);
+  // Phase 4.0/TIDAL: compat synthesis for Independent Streaming Verification Authority™
+  const tidalData   = synthesizeTidalCompat(tidalEvidencePackages, artistName);
   const soundcloudData = soundcloudSettled.status === 'fulfilled' ? soundcloudSettled.value : { found: false };
   const wikidataData   = wikidataSettled.status   === 'fulfilled' ? wikidataSettled.value   : { found: false };
 
@@ -378,9 +388,9 @@ export async function runScan(url) {
     artistId:           resolved.artistId || null,
     followers:          artistData.followers?.total ?? -1,
     popularity:         artistData.popularity || 0,
-    genres:             artistData.genres || [],
-    trackTitle:         trackData?.name || resolved.trackTitle || null,
-    trackIsrc:          trackData?.external_ids?.isrc || resolved.trackIsrc || null,
+    genres:             getEffectiveGenres(artistData, appleMusicData, lastfmData),
+    trackTitle:         trackData?.name || resolved.trackTitle || spotifyTopTracks[0]?.name || null,
+    trackIsrc:          trackData?.external_ids?.isrc || resolved.trackIsrc || spotifyTopTracks[0]?.isrc || null,
     resolvedFrom:       resolved.resolvedFrom,
     resolvedFromType:   resolved.resolvedFromType,
     resolvedFromTitle:  resolved.resolvedFromTitle,
@@ -409,6 +419,7 @@ export async function runScan(url) {
       wikipedia:   !!wikidataData.found,
       youtube:     !!youtubeData.found,
       appleMusic:  !!appleMusicData.found,
+      tidal:       !!tidalData.found,
     },
     catalog: catalogData,
     royaltyGap,
@@ -419,8 +430,10 @@ export async function runScan(url) {
     lastfmListeners: lastfmData.listeners || 0,
     wikipediaUrl:    wikidataData.wikipediaUrl || null,
     deezerFans:      deezerData.fans || 0,
+    tidalPopularity: tidalData.popularity || 0,
     discogsReleases: discogsData.releases || 0,
     deezer:          deezerData,
+    tidal:           tidalData,
     youtube:         youtubeData,
     appleMusic:      appleMusicData,
     overallScore,
@@ -533,29 +546,68 @@ async function resolveToArtist(inputUrl, token) {
     if (!appleArtistName) {
       throw new Error('Could not resolve artist from Apple Music link');
     }
-    // First attempt: search Spotify with the raw Apple name.
-    let spotifyArtist = await searchSpotifyArtistByName(appleArtistName, token);
-    // Conservative retry: strip parentheticals + collapse whitespace, keep case
-    // and stylized punctuation (P!nk, BØRNS, etc.).
+    // Board ISRC-First Verification Strategy™ (2026-07-11).
+    //
+    // Resolution priority for Apple inputs:
+    //   1. ISRC-first  — only when the scan input carried a specific verified
+    //                    ISRC (song or album+track URL). appleTrackIsrc is null
+    //                    for artist URLs, so this step is skipped for them.
+    //                    Uses the existing discoverSpotifyByIsrc() — no new
+    //                    matching logic introduced.
+    //   2. Exact name  — Spotify artist search with the raw Apple canonical name.
+    //   3. Cleaned name — strip parentheticals / collapse whitespace; keeps
+    //                    stylized punctuation (P!nk, BØRNS, etc.).
+    //   4. ISRC bridge — artist URL fallback. Fetches up to 20 songs from Apple
+    //                    (ordered by play count — deterministic for a given
+    //                    catalog snapshot) and walks their ISRCs until one
+    //                    resolves to a Spotify artist whose name exactly matches.
+    //                    Strict-exact-match-or-null preserved end-to-end.
+    //
+    // When the scan originates from a specific track, appleTrackIsrc is already
+    // set by resolveAppleArtist() and step 1 fires. For artist URL inputs where
+    // no single authoritative track ISRC exists, we do not speculatively grab
+    // the "first available song" ISRC — that risks featuring-artist co-credit
+    // conflicts. The ISRC bridge (step 4) handles this case deterministically.
+    const norm = (s) => (s || '').toLowerCase().trim();
+    let spotifyArtist = null;
+
+    // 1. ISRC-first: fires only when scan input provided a specific verified ISRC.
+    if (appleTrackIsrc) {
+      const isrcCandidateId = await discoverSpotifyByIsrc(appleTrackIsrc, token);
+      if (isrcCandidateId) {
+        try {
+          const isrcCandidate = await getSpotifyArtist(isrcCandidateId, token);
+          if (isrcCandidate && norm(isrcCandidate.name) === norm(appleArtistName)) {
+            spotifyArtist = isrcCandidate;
+            console.log(`[scan] ISRC-first resolved "${appleArtistName}" via ISRC ${appleTrackIsrc}`);
+          } else {
+            console.log(`[scan] ISRC-first name verification failed — Apple="${appleArtistName}" vs Spotify="${isrcCandidate?.name || '?'}". Falling through to name search.`);
+          }
+        } catch { /* fall through to name search */ }
+      }
+    }
+
+    // 2. Exact name search.
+    if (!spotifyArtist) {
+      spotifyArtist = await searchSpotifyArtistByName(appleArtistName, token);
+    }
+
+    // 3. Cleaned name retry: strip parentheticals + collapse whitespace,
+    //    keep case and stylized punctuation (P!nk, BØRNS, etc.).
     if (!spotifyArtist) {
       const cleaned = cleanArtistName(appleArtistName);
       if (cleaned && cleaned !== appleArtistName) {
         spotifyArtist = await searchSpotifyArtistByName(cleaned, token);
       }
     }
-    // 2026-06-09 ISRC-bridge fallback for Apple ARTIST URLs.
-    // Spotify search ranks by popularity-weighted relevance — artists with
-    // common-noun names ("Black Alternative") are buried below higher-ranked
-    // results and never surface in the top-5 the strict matcher inspects.
-    // Apple song URLs already cover this via resolved.trackIsrc + the bridge
-    // at the top of resolveToArtist; ARTIST URLs have no trackIsrc, so we
-    // pull the artist's full song list from Apple and walk every ISRC until
-    // one resolves to a Spotify track whose artist name verifies against
-    // the Apple canonical. Strict-exact-match-or-null preserved end-to-end.
+
+    // 4. ISRC bridge: artist URL fallback when name search fails.
+    //    Apple returns songs ordered by play count — the walk order is
+    //    deterministic for a given catalog snapshot. First ISRC whose
+    //    Spotify cross-reference names-matches the Apple canonical wins.
     if (!spotifyArtist && appleArtistId) {
       try {
-        const songs = await getArtistSongs(appleArtistId, appleStorefront, 25);
-        const norm  = (s) => (s || '').toLowerCase().trim();
+        const songs = await getArtistSongs(appleArtistId, appleStorefront, 20);
         for (const song of songs) {
           const candidateSpotifyId = await discoverSpotifyByIsrc(song.isrc, token);
           if (!candidateSpotifyId) continue;
@@ -563,7 +615,7 @@ async function resolveToArtist(inputUrl, token) {
             const verifyArtist = await getSpotifyArtist(candidateSpotifyId, token);
             if (verifyArtist && norm(verifyArtist.name) === norm(appleArtistName)) {
               spotifyArtist = verifyArtist;
-              console.log(`[scan] Apple→Spotify ISRC bridge resolved "${appleArtistName}" via ISRC ${song.isrc}`);
+              console.log(`[scan] ISRC bridge resolved "${appleArtistName}" via ISRC ${song.isrc}`);
               break;
             }
           } catch {
@@ -571,10 +623,10 @@ async function resolveToArtist(inputUrl, token) {
           }
         }
         if (!spotifyArtist) {
-          console.log(`[scan] Apple→Spotify ISRC bridge exhausted ${songs.length} ISRC candidates without verified match for "${appleArtistName}"`);
+          console.log(`[scan] ISRC bridge exhausted ${songs.length} candidates without verified match for "${appleArtistName}"`);
         }
       } catch (bridgeErr) {
-        console.warn(`[scan] Apple→Spotify ISRC bridge threw: ${bridgeErr.message}`);
+        console.warn(`[scan] ISRC bridge threw: ${bridgeErr.message}`);
       }
     }
     if (spotifyArtist) {

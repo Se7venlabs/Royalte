@@ -89,6 +89,10 @@ export const AUDIT_RESPONSE_SCHEMA = {
       trackIsrc:       { type: 'string',  required: false, nullable: true },
       trackIsrcSource: { type: 'string',  required: false, nullable: true },
       albumName:       { type: 'string',  required: false, nullable: true },
+      // Canonical identity snapshot fields — sourced once in normalizeAuditResponse(),
+      // available to every workspace via royalte_workspace_context.subject.
+      artwork:         { type: 'string',  required: false, nullable: true },
+      recordLabel:     { type: 'string',  required: false, nullable: true },
     },
   },
 

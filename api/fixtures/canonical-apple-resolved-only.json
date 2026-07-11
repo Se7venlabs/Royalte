@@ -15,7 +15,9 @@
     "trackTitle": null,
     "trackIsrc": null,
     "trackIsrcSource": null,
-    "albumName": null
+    "albumName": null,
+    "artwork": null,
+    "recordLabel": null
   },
   "metrics": {
     "followers": 0,

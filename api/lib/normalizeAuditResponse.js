@@ -79,7 +79,7 @@ function _normalizeSource(r) {
   return {
     platform:     r.sourcePlatform || (r.platform === 'apple' ? 'apple_music' : 'spotify'),
     urlType:      r.type || 'artist',
-    resolvedFrom: r.resolvedFrom || r.type || 'artist',
+    resolvedFrom: (['artist','track','album'].includes(r.resolvedFrom) ? r.resolvedFrom : 'artist'),
     originalUrl:  r._originalUrl || r.originalUrl || '',
     storefront:   r._storefront || r.storefront || null,
   };
@@ -100,7 +100,25 @@ function _normalizeSubject(r) {
     trackIsrc:       _nullableString(r.trackIsrc),
     trackIsrcSource: _nullableString(r.trackIsrcSource),
     albumName:       _nullableString(r.appleMusicSource?.albumName),
+    // Canonical identity snapshot fields — every workspace reads these from
+    // royalte_workspace_context.subject; no workspace-level platform lookup needed.
+    artwork:         _nullableString(r.appleArtworkUrl)
+                  || _nullableString(r.appleMusic?.albums?.[0]?.artwork)
+                  || null,
+    recordLabel:     _firstAlbumRecordLabel(r),
   };
+}
+
+// Returns the first non-empty recordLabel from Apple Music album catalog.
+// Apple Music is the authoritative source; order follows catalog sort (newest first).
+function _firstAlbumRecordLabel(r) {
+  const albums = r.appleMusic?.albums;
+  if (!Array.isArray(albums)) return null;
+  for (const a of albums) {
+    const lbl = typeof a?.recordLabel === 'string' ? a.recordLabel.trim() : '';
+    if (lbl) return lbl;
+  }
+  return null;
 }
 
 function _normalizeMetrics(r) {
@@ -206,7 +224,34 @@ function _normalizePlatforms(r) {
     lastfm:      simple(p.lastfm),
     wikipedia:   simple(p.wikipedia),
     youtube,
-    tidal:       simple(p.tidal),
+    tidal:       _normalizeTidalPlatform(r),
+  };
+}
+
+// TIDAL: if the rich tidalData object is present, produce full details;
+// otherwise fall back to the legacy boolean flag.
+// Phase 4.0: AUTH_UNAVAILABLE is retired once the connector is wired and credentials loaded.
+function _normalizeTidalPlatform(r) {
+  const t = r.tidal;
+  if (!t || !t.found) {
+    const flag = !!(r.platforms?.tidal);
+    return {
+      availability: flag ? PLATFORM_AVAILABILITY.VERIFIED : PLATFORM_AVAILABILITY.NOT_FOUND,
+      details: null,
+    };
+  }
+  return {
+    availability: PLATFORM_AVAILABILITY.VERIFIED,
+    details: {
+      artistId:   t.artistId   ?? null,
+      name:       t.name       ?? null,
+      url:        t.url        ?? null,
+      popularity: _num(t.popularity),
+      picture:    t.picture    ?? null,
+      albums:     Array.isArray(t.albums)    ? t.albums    : [],
+      topTracks:  Array.isArray(t.topTracks) ? t.topTracks : [],
+      genres:     Array.isArray(t.genres)    ? t.genres    : [],
+    },
   };
 }
 

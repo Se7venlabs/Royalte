@@ -267,6 +267,8 @@ export function emptyCio(artistName) {
         apple:   null,                // { availability, details } | null
         spotify: null,                // { availability, details } | null
         youtube: null,                // { availability, details } | null
+        deezer:  null,                // { availability, details } | null
+        tidal:   null,                // { availability, details } | null
       },
       // Publishing source observations (Phase 5B Board D3). One entry
       // per publishing data backend that participated in this scan.
