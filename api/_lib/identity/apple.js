@@ -225,7 +225,7 @@ export async function getAppleMusic(artistName, isrc, spotifyTopTracks = [], opt
         // Tracks (Brief 008). attributes.trackCount lets the consumer side
         // classify each release: 1 → Single · 2–6 → EP · 7+ → Album.
         const albumResp = await fetch(
-          `${BASE}/catalog/${STOREFRONT}/artists/${appleArtistId}/albums?limit=25`,
+          `${BASE}/catalog/${STOREFRONT}/artists/${appleArtistId}/albums?limit=20`,
           { headers }
         );
         if (albumResp.ok) {

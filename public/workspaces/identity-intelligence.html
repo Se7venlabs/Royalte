@@ -589,15 +589,22 @@
   }
 
   /* ── Record Label platform card ─────────────────────────────────────── */
-  if (ctx.recordLabel) {
-    var pcards = document.querySelectorAll('.ii-platform-card');
-    for (var lc = 0; lc < pcards.length; lc++) {
-      var lnEl = pcards[lc].querySelector('.ii-platform-name');
-      if (lnEl && lnEl.textContent.trim() === 'Record Label') {
+  var pcards = document.querySelectorAll('.ii-platform-card');
+  for (var lc = 0; lc < pcards.length; lc++) {
+    var lnEl = pcards[lc].querySelector('.ii-platform-name');
+    if (lnEl && lnEl.textContent.trim() === 'Record Label') {
+      /* Write live record label name */
+      if (ctx.recordLabel) {
         var llEl = pcards[lc].querySelector('.ii-platform-lastsync');
         if (llEl) llEl.textContent = ctx.recordLabel;
-        break;
       }
+      /* Mute placeholder confidence — no live confidence score in pipeline */
+      var rlConfEl = pcards[lc].querySelector('.ii-platform-confidence');
+      if (rlConfEl) {
+        rlConfEl.className = 'ii-platform-confidence--muted';
+        rlConfEl.textContent = '—';
+      }
+      break;
     }
   }
 
@@ -644,9 +651,8 @@
 
   /* ── Platform card badge states ─────────────────────────────────────── */
   /* PROV_NAMES maps provider key → platform card display name.
-   * Deezer and TIDAL are included so cards not in ii.providers receive a
-   * truthful "Unable to confirm" state rather than retaining demo values.
-   * identityIntelligence only verifies apple/spotify/youtube (v1.0 scope). */
+   * All five identity providers are included (Phase 3C). State is driven
+   * exclusively from ii.providers — no card derives its own status. */
   var PROV_NAMES = {
     apple:   'Apple Music for Artists',
     spotify: 'Spotify for Artists',
@@ -687,13 +693,13 @@
     if (ALERT_STATES[state]) card.classList.add('ii-platform-card--alert');
     else card.classList.remove('ii-platform-card--alert');
 
-    /* Mute confidence display for providers outside the identity engine's scope */
-    if (state === 'UNABLE_TO_CONFIRM' || state === 'AUTH_UNAVAILABLE') {
-      var confEl = card.querySelector('.ii-platform-confidence');
-      if (confEl) {
-        confEl.className = 'ii-platform-confidence--muted';
-        confEl.textContent = '—';
-      }
+    /* Mute confidence — the Phase 3C pipeline does not produce per-provider
+     * confidence scores; "—" is the truthful display for all providers. */
+    var confEl = card.querySelector('.ii-platform-confidence')
+              || card.querySelector('.ii-platform-confidence--muted');
+    if (confEl) {
+      confEl.className = 'ii-platform-confidence--muted';
+      confEl.textContent = '—';
     }
 
     /* YouTube: when VERIFIED, replace the action CTA with a neutral view CTA
