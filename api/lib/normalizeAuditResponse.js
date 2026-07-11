@@ -100,7 +100,25 @@ function _normalizeSubject(r) {
     trackIsrc:       _nullableString(r.trackIsrc),
     trackIsrcSource: _nullableString(r.trackIsrcSource),
     albumName:       _nullableString(r.appleMusicSource?.albumName),
+    // Canonical identity snapshot fields — every workspace reads these from
+    // royalte_workspace_context.subject; no workspace-level platform lookup needed.
+    artwork:         _nullableString(r.appleArtworkUrl)
+                  || _nullableString(r.appleMusic?.albums?.[0]?.artwork)
+                  || null,
+    recordLabel:     _firstAlbumRecordLabel(r),
   };
+}
+
+// Returns the first non-empty recordLabel from Apple Music album catalog.
+// Apple Music is the authoritative source; order follows catalog sort (newest first).
+function _firstAlbumRecordLabel(r) {
+  const albums = r.appleMusic?.albums;
+  if (!Array.isArray(albums)) return null;
+  for (const a of albums) {
+    const lbl = typeof a?.recordLabel === 'string' ? a.recordLabel.trim() : '';
+    if (lbl) return lbl;
+  }
+  return null;
 }
 
 function _normalizeMetrics(r) {

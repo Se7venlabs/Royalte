@@ -1359,14 +1359,17 @@ if (typeof window !== 'undefined') {
       musicRightsProfile = payload.musicRightsProfile;
     }
 
-    // Record Label — first non-empty recordLabel from Apple Music album catalog.
-    // Available when Capability.LABELS fired; null otherwise.
-    var _appleRecordLabel = null;
-    var _appleAlbums = payload.platforms?.appleMusic?.details?.albums;
-    if (Array.isArray(_appleAlbums)) {
-      for (var _alb of _appleAlbums) {
-        var _lbl = typeof _alb?.recordLabel === 'string' ? _alb.recordLabel.trim() : '';
-        if (_lbl) { _appleRecordLabel = _lbl; break; }
+    // Record Label — canonical field from subject.recordLabel (normalizeAuditResponse).
+    // Backward-compat fallback scans Apple album catalog for pre-v2 payloads that
+    // pre-date the subject.recordLabel addition.
+    var _appleRecordLabel = payload.subject?.recordLabel || null;
+    if (!_appleRecordLabel) {
+      var _appleAlbums = payload.platforms?.appleMusic?.details?.albums;
+      if (Array.isArray(_appleAlbums)) {
+        for (var _alb of _appleAlbums) {
+          var _lbl = typeof _alb?.recordLabel === 'string' ? _alb.recordLabel.trim() : '';
+          if (_lbl) { _appleRecordLabel = _lbl; break; }
+        }
       }
     }
 
@@ -1461,6 +1464,7 @@ if (typeof window !== 'undefined') {
         metrics:                 payload.metrics                              ?? null,
         scannedAt:               payload.scannedAt                            ?? null,
         recordLabel:             _appleRecordLabel,
+        artwork:                 getBestVerifiedArtistImage(payload)          ?? null,
         musicRightsProfile:      musicRightsProfile,
       }));
     } catch (_e) {}
