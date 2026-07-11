@@ -420,41 +420,71 @@
 </div><!-- /ws-shell -->
 
 <script>
-/* Dev fixture injection — fires ONLY when ?dev=1 and no session context exists.
- * Never affects production. Allows Executive Board HTML review without manual
- * sessionStorage manipulation. Source: api/fixtures/canonical-black-alternative.json
+/* Dev fixture loader — fires ONLY when ?dev=1 and royalte_workspace_context is absent.
+ * Fetches the single canonical source of truth:
+ *   public/fixtures/canonical-black-alternative.json  (served at /fixtures/...)
+ * Never embedded, never duplicated. On successful fetch, builds workspace context
+ * matching __mcPopulate() structure then reloads so the synchronous wiring script
+ * reads the populated sessionStorage. Production path: untouched.
  */
 (function () {
   'use strict';
-  try {
-    if (new URLSearchParams(location.search).get('dev') !== '1') return;
-    if (sessionStorage.getItem('royalte_workspace_context')) return;
-    var ctx = {
-      artistName: 'Black Alternative',
-      subject: { artistName: 'Black Alternative', artistId: '1lnM3VZrD6SG9vxBsE9654', trackTitle: null, trackIsrc: null, trackIsrcSource: null, albumName: null },
-      identityIntelligence: {
-        providers: { apple: 'VERIFIED', spotify: 'VERIFIED', youtube: 'VERIFIED' },
-        supportedProviders: ['apple', 'spotify', 'youtube'],
-        verifiedProviders: 3, totalProviders: 3, coverage: 100,
-        strengths: [{ provider: 'apple', label: 'Apple Music' }, { provider: 'spotify', label: 'Spotify' }, { provider: 'youtube', label: 'YouTube' }],
-        issues: [], recommendations: []
-      },
-      metrics: { followers: -1, popularity: 0, genres: [], lastfmPlays: 16, lastfmListeners: 15, deezerFans: 13, tidalPopularity: 0, discogsReleases: 0, country: null, wikipediaUrl: null },
-      catalogIntelligence: { bestVerifiedRelease: { artwork: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/300x300bb.jpg', releaseTitle: 'Everything Is Over - Single', releaseType: 'Single', releaseDate: '2026-05-15' } },
-      scannedAt: '2026-07-11T00:35:35.683Z',
-      recordLabel: 'Castle Park Studioz (GmbH)'
-    };
-    sessionStorage.setItem('royalte_workspace_context', JSON.stringify(ctx));
-    sessionStorage.setItem('royalte_session_context', JSON.stringify({
-      artistImageUrl: 'https://is1-ssl.mzstatic.com/image/thumb/AMCArtistImages221/v4/eb/f5/cc/ebf5cc94-4362-b35b-79df-1edd7c87ed72/ami-identity-6aca4eb45a526637156da8491d6c7070-2026-03-26T12-43-55.567Z_cropped.png/600x600bb.jpg',
-      albumImageUrl: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/300x300bb.jpg'
-    }));
-  } catch (_) {}
+  if (new URLSearchParams(location.search).get('dev') !== '1') return;
+  if (sessionStorage.getItem('royalte_workspace_context')) return;
+
+  fetch('/fixtures/canonical-black-alternative.json')
+    .then(function (r) { return r.json(); })
+    .then(function (fixture) {
+      /* canonical sub-object holds the normalized AuditResponse shape
+       * (subject, metrics, catalogIntelligence, etc.) — same as audit_scans.payload */
+      var can = fixture.canonical || {};
+
+      /* Record label: Apple album[0].recordLabel — mirrors __mcPopulate resolution */
+      var recordLabel = null;
+      var appleAlbums = fixture.appleMusic && fixture.appleMusic.albums;
+      if (Array.isArray(appleAlbums) && appleAlbums[0]) recordLabel = appleAlbums[0].recordLabel || null;
+
+      /* Artist image: platforms.appleMusic.details.artwork → appleArtworkUrl → artistImageUrl
+       * Same priority ordering as getBestVerifiedArtistImage() */
+      var artistImageUrl =
+        (can.platforms && can.platforms.appleMusic && can.platforms.appleMusic.details && can.platforms.appleMusic.details.artwork) ||
+        fixture.appleArtworkUrl ||
+        fixture.artistImageUrl ||
+        null;
+
+      /* Release artwork: bestVerifiedRelease.artwork with {w}x{h} resolved → artist image fallback */
+      var bvr = can.catalogIntelligence && can.catalogIntelligence.bestVerifiedRelease;
+      var albumImageUrl = (bvr && bvr.artwork)
+        ? bvr.artwork.replace('{w}x{h}', '300x300')
+        : artistImageUrl;
+
+      /* Workspace context — mirrors the exact shape __mcPopulate writes */
+      sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+        artistName:           fixture.artistName || (can.subject && can.subject.artistName) || null,
+        subject:              can.subject              || null,
+        identityIntelligence: fixture.identityIntelligence || can.identityIntelligence || null,
+        metrics:              can.metrics              || null,
+        catalogIntelligence:  can.catalogIntelligence  || null,
+        scannedAt:            fixture.scannedAt        || can.scannedAt || null,
+        recordLabel:          recordLabel,
+      }));
+
+      /* Session context — mirrors the exact shape __mcPopulate writes for images */
+      sessionStorage.setItem('royalte_session_context', JSON.stringify({
+        artistImageUrl: artistImageUrl,
+        albumImageUrl:  albumImageUrl,
+      }));
+
+      /* Reload so the synchronous wiring scripts run with context populated */
+      location.reload();
+    })
+    .catch(function () { /* fetch failed in dev — workspace falls back to static demo */ });
 }());
 </script>
 <script>
 /* Identity Intelligence™ — Live Wiring
  * Sources: identityIntelligence, subject, catalogIntelligence, recordLabel, scannedAt, metrics
+ * Canonical fixture: public/fixtures/canonical-black-alternative.json
  *          (all from royalte_workspace_context, written by __mcPopulate)
  * Presentation-only. Never queries Supabase. No-data → leaves static demo.
  */
