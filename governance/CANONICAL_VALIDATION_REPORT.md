@@ -52,7 +52,7 @@ This profile is the permanent baseline for all Mission Control™ validation.
 | **Status Label (V1)** | Excellent |
 | **Status Label (Phase 7)** | Strong Foundation with Minor Gaps |
 | **Scan Date** | 2026-07-11 |
-| **Scan ID (reference)** | `d018e521-2307-49e0-8da8-0efd15fff85a` |
+| **Scan ID (reference)** | `canonical-fixture-tidal-v1-2026-07-11` |
 | **Canonical Fixture** | `public/fixtures/canonical-black-alternative.json` |
 | **Schema Version** | 1.2.0 |
 | **Executive Brief Version** | 1.0.0 |
@@ -66,6 +66,7 @@ This profile is the permanent baseline for all Mission Control™ validation.
 | Spotify | VERIFIED |
 | YouTube | VERIFIED |
 | MusicBrainz | VERIFIED |
+| TIDAL | VERIFIED |
 | Deezer | Present (13 fans) |
 | Last.fm | Present (16 plays / 15 listeners) |
 | Wikipedia | Not found |
@@ -552,6 +553,7 @@ The following items require Executive Board decision before engineering can reso
 |---|---|---|---|
 | 1.0 | 2026-07-11 | Initial creation. All 9 workspaces assessed. 6 verified, 1 conditional, 1 needs review, 1 not started. 3 variance entries (resolved). 2 flags open for Board decision. | Engineering |
 | 1.1 | 2026-07-11 | Data Integrity Program™ — Identity Intelligence™ Workspace 2 post-merge validation (PR #299). Source fixes: artist name fallback, snapshot null handling, Deezer/TIDAL alert semantics, Primary Release wiring. Single Source of Truth architecture: canonical fixture moved to `public/fixtures/`; dev loader fetches from canonical fixture (never duplicates). Commits `500a3b4` + `0680561` on `feat/mission-control-shell`. Board approved 2026-07-11. | Engineering |
+| 1.2 | 2026-07-11 | TIDAL Provider Integration™ — TIDAL connector built from scratch (PAL-compliant); OAuth 2.1 client credentials; verified API contract (v2 endpoints, camelCase `/searchResults/{query}`, `collapseBy=FINGERPRINT` required for tracks). Black Alternative confirmed: Artist ID `4972312`, 4 albums, 4 tracks, ISRC `QT6622698063` verified. `platforms.tidal` now reports `VERIFIED`. Canonical fixture regenerated. TIDAL added to Verified Platforms register. No regressions (Spotify, Apple Music, Deezer, MusicBrainz, YouTube all still VERIFIED). Branch `fix/scan-genres-top-track-isrc`. Pending Board merge authorization. | Engineering |
 
 ---
 
