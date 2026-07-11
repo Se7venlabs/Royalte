@@ -187,7 +187,7 @@ function buildExecutiveSummary(report) {
     ? `${riskCount} risk${riskCount === 1 ? '' : 's'} require executive attention, ` +
       `alongside ${strengthCount} documented strength${strengthCount === 1 ? '' : 's'} ` +
       `and ${opportunityCount} opportunit${opportunityCount === 1 ? 'y' : 'ies'} for further improvement`
-    : `${strengthCount} documented strength${strengthCount === 1 ? '' : 's'} reinforce a stable foundation, ` +
+    : `${strengthCount} documented strength${strengthCount === 1 ? '' : 's'} reinforce${strengthCount === 1 ? 's' : ''} a stable foundation, ` +
       `with ${opportunityCount} opportunit${opportunityCount === 1 ? 'y' : 'ies'} identified for further improvement`;
 
   const outlook = buildOutlookClause(grade);
@@ -242,7 +242,9 @@ function buildMaturityClause(grade, score) {
 
 function buildLongTermClause(grade, recCount) {
   if (grade === 'A+' || grade === 'A') return 'Long term, the infrastructure is positioned to compound value with minimal intervention';
-  if (grade === 'B') return `Long term, executing the ${recCount} priority recommendation${recCount === 1 ? '' : 's'} will harden the foundation`;
+  if (grade === 'B') return recCount === 0
+    ? 'Long term, the foundation is well positioned to compound value over time'
+    : `Long term, executing the ${recCount} priority recommendation${recCount === 1 ? '' : 's'} will harden the foundation`;
   if (grade === 'C') return `Long term, completing the ${recCount} recommendation${recCount === 1 ? '' : 's'} is necessary to reach a defensible posture`;
   if (grade === 'D') return `Long term, immediate work on the ${recCount} recommendation${recCount === 1 ? '' : 's'} is needed to avoid revenue impact`;
   return `Long term, urgent remediation of the ${recCount} recommendation${recCount === 1 ? '' : 's'} is required`;
@@ -288,10 +290,10 @@ function buildAiExecutiveInsight(report, topStrengthsList, topRisksList, nextSte
     ? `verifiable strength in ${safeString(topStrengthsList[0].category).toLowerCase() || 'reviewed categories'}`
     : 'consistent performance across reviewed categories';
 
-  const riskSummary = topRisksList.length > 0
-    ? `${safeString(topRisksList[0].title) || 'an unresolved issue'} ` +
-      `in the ${safeString(topRisksList[0].category).toLowerCase() || 'reviewed'} domain`
-    : 'no material risks at this time';
+  const riskSentence = topRisksList.length > 0
+    ? `The primary area requiring executive attention is ${safeString(topRisksList[0].title) || 'an unresolved issue'} ` +
+      `in the ${safeString(topRisksList[0].category).toLowerCase() || 'reviewed'} domain.`
+    : 'No material risks have been identified in the current assessment.';
 
   const outlook = (grade === 'A+' || grade === 'A')
     ? `The catalog is well positioned to compound value at its current Health Score of ${score}`
@@ -301,7 +303,7 @@ function buildAiExecutiveInsight(report, topStrengthsList, topRisksList, nextSte
 
   const insight =
     `Based on the intelligence assembled, this catalog demonstrates ${strengthSummary}. ` +
-    `The primary area requiring executive attention is ${riskSummary}. ` +
+    `${riskSentence} ` +
     `Addressing "${nextStep}" would materially improve backend infrastructure health. ${outlook}.`;
 
   return truncateToWords(insight, 120);
