@@ -28,12 +28,25 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **Royaltē OS v1.0 Design Baseline — Catalog Intelligence™ + Executive Icon System™ + Product Review Polish** |
-| Merged at | `7108f35` (PR #233, 2026-07-04) |
+| Most recently completed phase | **Phase 1B Data Integrity Program™ — Black Alternative Canonical Validation + Executive Brief Engine™ source fixes** |
+| Merged at | `8989e88` (PR #295, 2026-07-11) |
 | Tag | — |
-| Prior phase | WS-4.2-RTZ — Reporting Time Zone™ + MC System Status™ (`6efd9e2`, PR #226, 2026-07-03) |
-| Active direction | Royaltē OS v1.0 design baseline locked. All 4 full Executive Workspaces (Health, Identity, Publishing, Catalog) complete. Royaltē Executive Icon Registry™ active. Workspace Accent Color Token system active. Waiting for next Board brief. |
-| Next Board gate | Board brief required before any new Executive Workspace or MC module begins |
+| Prior phase | Royaltē AI™ Intelligence Wiring Phase 1B.3 — Demo Placeholder Removal + CWA™ Wiring (`9b5e648`, PR #293, 2026-07-10) |
+| Active direction | **Mission Control™ Data Integrity Program™ is active. All new module development paused.** Every workspace validated against Black Alternative's live scan. 6 of 9 workspaces verified. 2 flags open for Board decision (FLAG-001: status vocabulary alignment, FLAG-002: AUTH_UNAVAILABLE backend scoring). Royaltē Review™ and Executive Brief™ workspaces require Board briefs to wire. |
+| Next Board gate | Board decision required on FLAG-001 and FLAG-002 before remaining workspace validation can close. |
+
+**⚠ ACTIVE INITIATIVE — Mission Control™ Data Integrity Program™ (2026-07-11)**  
+Black Alternative is the **Canonical Development Artist™**. Every workspace must accurately represent Black Alternative's verified scan results before any new module development begins.  
+Canonical fixture: `api/fixtures/canonical-black-alternative.json`  
+Validation report: `governance/CANONICAL_VALIDATION_REPORT.md`
+
+**⚠ MANDATORY GATE — Executive Product Review Standard™ (2026-07-04)**
+Every Executive Workspace must pass the mandatory three-gate process before merge:
+1. Development Complete
+2. Product Review Complete — per `governance/EXECUTIVE_PRODUCT_REVIEW_STANDARD.md`
+3. Board Review Complete
+
+The Engineering Agent is responsible for the Product Review before opening a PR. No workspace may merge without completing all three gates. See full standard at `governance/EXECUTIVE_PRODUCT_REVIEW_STANDARD.md`.
 
 **⚠ MANDATORY GATE — Executive Product Review Standard™ (2026-07-04)**
 Every Executive Workspace must pass the mandatory three-gate process before merge:
