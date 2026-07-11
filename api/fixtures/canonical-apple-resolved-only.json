@@ -94,7 +94,7 @@
       "details": null
     },
     "tidal": {
-      "availability": "NOT_FOUND",
+      "availability": "AUTH_UNAVAILABLE",
       "details": null
     }
   },

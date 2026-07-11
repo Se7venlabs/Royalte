@@ -79,7 +79,7 @@ function _normalizeSource(r) {
   return {
     platform:     r.sourcePlatform || (r.platform === 'apple' ? 'apple_music' : 'spotify'),
     urlType:      r.type || 'artist',
-    resolvedFrom: r.resolvedFrom || r.type || 'artist',
+    resolvedFrom: (['artist','track','album'].includes(r.resolvedFrom) ? r.resolvedFrom : 'artist'),
     originalUrl:  r._originalUrl || r.originalUrl || '',
     storefront:   r._storefront || r.storefront || null,
   };
@@ -206,7 +206,7 @@ function _normalizePlatforms(r) {
     lastfm:      simple(p.lastfm),
     wikipedia:   simple(p.wikipedia),
     youtube,
-    tidal:       simple(p.tidal),
+    tidal:       { availability: PLATFORM_AVAILABILITY.AUTH_UNAVAILABLE, details: null },
   };
 }
 
