@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.2.0",
-  "scanId": "0482acfa-4af7-47e5-8e7d-864e42ba330b",
-  "scannedAt": "2026-07-11T18:23:24.539Z",
+  "scanId": "d3531731-86cf-4d9d-83a6-16cf03ea30a8",
+  "scannedAt": "2026-07-11T18:33:24.060Z",
   "source": {
     "platform": "apple_music",
     "urlType": "artist",
     "resolvedFrom": "artist",
-    "originalUrl": "",
+    "originalUrl": "https://music.apple.com/ca/album/everything-is-over/1889785995?i=1889786000",
     "storefront": null
   },
   "subject": {
@@ -311,7 +311,7 @@
         "artistId": 3215321,
         "name": "Black Alternative",
         "link": "https://www.deezer.com/artist/3215321",
-        "share": "https://www.deezer.com/artist/3215321?utm_source=deezer&utm_content=artist-3215321&utm_term=0_1783794193&utm_medium=web",
+        "share": "https://www.deezer.com/artist/3215321?utm_source=deezer&utm_content=artist-3215321&utm_term=0_1783794793&utm_medium=web",
         "picture": "https://api.deezer.com/artist/3215321/image",
         "picture_small": "https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/56x56-000000-80-0-0.jpg",
         "picture_medium": "https://cdn-images.dzcdn.net/images/artist/591920f274427d2c83510350604298d6/250x250-000000-80-0-0.jpg",
@@ -904,7 +904,14 @@
     "moduleAverage": 72,
     "ownershipImpact": 0
   },
-  "health": null,
+  "health": {
+    "score": 90,
+    "grade": "Excellent",
+    "status": "Excellent",
+    "drivers": [
+      "Complete catalog delivery verified"
+    ]
+  },
   "royaltyGap": {
     "estAnnualStreams": 0,
     "estLifetimeStreams": 0,
@@ -963,5 +970,742 @@
     "render": null
   },
   "territoryCoverage": null,
-  "isrcValidation": null
+  "isrcValidation": null,
+  "identityIntelligence": {
+    "providers": {
+      "apple": "VERIFIED",
+      "spotify": "VERIFIED",
+      "youtube": "VERIFIED"
+    },
+    "supportedProviders": [
+      "apple",
+      "spotify",
+      "youtube"
+    ],
+    "verifiedProviders": 3,
+    "totalProviders": 3,
+    "coverage": 100,
+    "strengths": [
+      {
+        "provider": "apple",
+        "label": "Apple Music"
+      },
+      {
+        "provider": "spotify",
+        "label": "Spotify"
+      },
+      {
+        "provider": "youtube",
+        "label": "YouTube"
+      }
+    ],
+    "issues": [],
+    "recommendations": []
+  },
+  "publishingIntelligence": {
+    "registrations": {
+      "mlcRegistration": "UNABLE_TO_CONFIRM",
+      "registeredWorks": "UNABLE_TO_CONFIRM",
+      "iswcCoverage": "UNABLE_TO_CONFIRM",
+      "registeredSongwriters": "UNABLE_TO_CONFIRM",
+      "writerIpi": "UNABLE_TO_CONFIRM",
+      "compositionMatch": "UNABLE_TO_CONFIRM"
+    },
+    "metrics": {
+      "mlcWorksCount": 0,
+      "mlcIswcCount": 0,
+      "mlcWriterCount": 0,
+      "mlcWriterIpiCount": 0
+    },
+    "supportedSources": [
+      "mlc"
+    ],
+    "registeredCount": 0,
+    "totalChecked": 6,
+    "coverage": null,
+    "coverageStatus": "Unavailable",
+    "strengths": [],
+    "issues": [],
+    "recommendations": []
+  },
+  "catalogIntelligence": {
+    "singles": 4,
+    "eps": 0,
+    "albums": 0,
+    "totalTracks": 4,
+    "catalogStatus": "Stable",
+    "confidence": "Verified",
+    "isrcCoverage": {
+      "status": "Unknown",
+      "assessed": false,
+      "assessedCount": 0,
+      "verifiedCount": 0,
+      "coveragePercent": null
+    },
+    "firstReleaseYear": 2013,
+    "latestReleaseYear": 2026,
+    "catalogAgeYears": 13,
+    "physicalReleaseCount": null,
+    "bestVerifiedRelease": {
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/{w}x{h}bb.jpg",
+      "artistName": "Black Alternative",
+      "releaseTitle": "Everything Is Over - Single",
+      "releaseType": "Single",
+      "releaseDate": "2026-05-15",
+      "verificationScore": 20,
+      "selectionScore": 70,
+      "reasonSelected": "Single — score 70/100 (artwork present, recent release); evaluated 4 candidates"
+    }
+  },
+  "globalMusicFootprint": {
+    "territoriesAvailable": 156,
+    "territoriesUnavailable": 11,
+    "coveragePercent": 93,
+    "status": "Strong",
+    "reachNarrative": "Available in 156 territories (93% of global markets).",
+    "confidence": "Verified"
+  },
+  "backendIntelligence": {
+    "services": [
+      {
+        "key": "musicbrainz",
+        "name": "MusicBrainz",
+        "state": "VERIFIED",
+        "subLabel": "Connected",
+        "statusLabel": "Verified"
+      },
+      {
+        "key": "mlc",
+        "name": "MLC",
+        "state": "AUTH_UNAVAILABLE",
+        "subLabel": "Unavailable",
+        "statusLabel": "Unavailable"
+      }
+    ],
+    "connectedCount": 1,
+    "totalCount": 2,
+    "apisResponding": {
+      "responded": 3,
+      "total": 4
+    },
+    "lastSync": "2026-07-11T18:33:24.060Z",
+    "summaryLabel": "1 of 2 Connected"
+  },
+  "royalteAI": {
+    "observation": "Platform identity is verified and consistent — the foundation of a professionally managed independent catalog.",
+    "priority": "With core infrastructure verified, the most significant risk is change over time — gaps that emerge silently as the catalog evolves.",
+    "priorityLabel": "Infrastructure Review",
+    "positiveSignal": "Distribution verified in 156 Apple Music territories.",
+    "nextAction": "Establish continuous monitoring across identity, publishing, and catalog status — the infrastructure that exists today will evolve, and visibility into those changes is what protects long-term value.",
+    "executiveInsight": "Platform identity is verified and catalog presence is established — the core signals of a professionally managed independent artist infrastructure. The next phase is not discovery — it is protection. Infrastructure that exists today will evolve, and visibility into those changes is what preserves long-term value. Establishing continuous monitoring across identity, publishing, catalog status, and territory availability ensures future changes are detected before they affect visibility, attribution, or royalty collection.",
+    "confidence": "high",
+    "generatedBy": "engine_template",
+    "generatedAt": "2026-07-11T18:33:24.066Z",
+    "generatedFrom": [
+      "identityIntelligence",
+      "publishingIntelligence",
+      "catalogIntelligence",
+      "globalMusicFootprint"
+    ]
+  },
+  "healthScore": {
+    "overallScore": 90,
+    "overallGrade": "B",
+    "summary": "Your music backend is in strong shape.",
+    "generatedAt": "2026-07-11T18:33:24.062Z",
+    "identityScore": 95,
+    "publishingScore": 100,
+    "catalogScore": 98,
+    "metadataScore": 100,
+    "coverageScore": 57,
+    "confidenceScore": 60,
+    "categoryBreakdown": [
+      {
+        "category": "identity",
+        "score": 95,
+        "weight": 0.2,
+        "observationCount": 1,
+        "grade": "A"
+      },
+      {
+        "category": "publishing",
+        "score": 100,
+        "weight": 0.25,
+        "observationCount": 0,
+        "grade": "A+"
+      },
+      {
+        "category": "catalog",
+        "score": 98,
+        "weight": 0.2,
+        "observationCount": 1,
+        "grade": "A+"
+      },
+      {
+        "category": "metadata",
+        "score": 100,
+        "weight": 0.15,
+        "observationCount": 0,
+        "grade": "A+"
+      },
+      {
+        "category": "coverage",
+        "score": 57,
+        "weight": 0.1,
+        "observationCount": 0,
+        "grade": "F"
+      },
+      {
+        "category": "confidence",
+        "score": 60,
+        "weight": 0.1,
+        "observationCount": 0,
+        "grade": "F"
+      }
+    ]
+  },
+  "healthReport": {
+    "score": 90,
+    "grade": "B",
+    "trend": "Unknown",
+    "strengths": [
+      {
+        "id": "obs_58b1e7698abb9d91",
+        "ruleId": "catalog.complete-delivery-verified",
+        "category": "CATALOG",
+        "severity": "INFO",
+        "confidence": "HIGH",
+        "title": "Complete catalog delivery verified",
+        "description": "All identified recordings have corresponding release linkage in reviewed sources.",
+        "recommendation": "Continue current catalog delivery practices.",
+        "evidence": [],
+        "providerSources": []
+      }
+    ],
+    "risks": [],
+    "opportunities": [],
+    "drivers": [
+      "Complete catalog delivery verified"
+    ],
+    "confidence": "",
+    "engineVersion": "1.0.0",
+    "generatedAt": "2026-07-11T18:33:24.062Z"
+  },
+  "healthIntelligence": {
+    "score": 90,
+    "status": "Excellent",
+    "grade": "B",
+    "confidence": "Partial",
+    "concerns": [
+      "Monitoring not active for this scan"
+    ],
+    "strengths": [
+      "Identity verified across reviewed platforms",
+      "Global distribution verified",
+      "Backend infrastructure fully connected",
+      "Catalog verified with confidence"
+    ],
+    "identityScore": 100,
+    "publishingScore": 50,
+    "catalogScore": 100,
+    "footprintScore": 93,
+    "backendScore": 100,
+    "monitoringScore": 50
+  },
+  "executiveBrief": {
+    "briefVersion": "1.0.0",
+    "generatedAt": "2026-07-11T18:33:24.062Z",
+    "executiveSummary": "Your music backend infrastructure has been assessed and received an overall Health Score of 90/100, rated B — Strong Foundation with Minor Gaps. Identity scored 95, publishing 100, catalog 98, and metadata 100, with coverage at 57 and confidence at 60. 1 documented strength reinforces a stable foundation, with 0 opportunities identified for further improvement. The outlook is positive, with focused work on the noted gaps positioning the catalog for sustained growth.",
+    "healthHeadline": "Strong Foundation with Minor Gaps",
+    "executiveNarrative": "The backend infrastructure reflects strong maturity at a Health Score of 90, with minor gaps. No material risks have been identified in the current assessment. Optimisation opportunities are limited under current conditions. Long term, the foundation is well positioned to compound value over time.",
+    "topStrengths": [
+      {
+        "id": "obs_58b1e7698abb9d91",
+        "ruleId": "catalog.complete-delivery-verified",
+        "category": "CATALOG",
+        "severity": "INFO",
+        "confidence": "HIGH",
+        "title": "Complete catalog delivery verified",
+        "description": "All identified recordings have corresponding release linkage in reviewed sources.",
+        "recommendation": "Continue current catalog delivery practices.",
+        "evidence": [],
+        "providerSources": []
+      }
+    ],
+    "topRisks": [],
+    "topOpportunities": [],
+    "priorityActions": [],
+    "confidenceStatement": "This assessment is based on partially verified intelligence.",
+    "recommendedNextStep": "Schedule Full Backend Review",
+    "aiExecutiveInsight": "Based on the intelligence assembled, this catalog demonstrates verifiable strength in catalog. No material risks have been identified in the current assessment. Addressing \"Schedule Full Backend Review\" would materially improve backend infrastructure health. Executing the recommended next step will materially improve the Health Score from 90.",
+    "reserved": {
+      "monitoring": null,
+      "revenue": null
+    },
+    "recoveryNarrative": "No specific infrastructure improvement opportunities were identified from reviewed sources."
+  },
+  "cim": {
+    "_cimVersion": "1.0.0",
+    "identity": {
+      "providers": {
+        "apple": "VERIFIED",
+        "spotify": "VERIFIED",
+        "youtube": "VERIFIED"
+      },
+      "supportedProviders": [
+        "apple",
+        "spotify",
+        "youtube"
+      ],
+      "verifiedProviders": 3,
+      "totalProviders": 3,
+      "coverage": 100,
+      "strengths": [
+        {
+          "provider": "apple",
+          "label": "Apple Music"
+        },
+        {
+          "provider": "spotify",
+          "label": "Spotify"
+        },
+        {
+          "provider": "youtube",
+          "label": "YouTube"
+        }
+      ],
+      "issues": [],
+      "recommendations": []
+    },
+    "health": {
+      "score": 90,
+      "grade": "B",
+      "status": "Excellent",
+      "summary": "Your music backend is in strong shape.",
+      "confidence": "Partial",
+      "categoryBreakdown": [
+        {
+          "category": "identity",
+          "score": 95,
+          "weight": 0.2,
+          "observationCount": 1,
+          "grade": "A"
+        },
+        {
+          "category": "publishing",
+          "score": 100,
+          "weight": 0.25,
+          "observationCount": 0,
+          "grade": "A+"
+        },
+        {
+          "category": "catalog",
+          "score": 98,
+          "weight": 0.2,
+          "observationCount": 1,
+          "grade": "A+"
+        },
+        {
+          "category": "metadata",
+          "score": 100,
+          "weight": 0.15,
+          "observationCount": 0,
+          "grade": "A+"
+        },
+        {
+          "category": "coverage",
+          "score": 57,
+          "weight": 0.1,
+          "observationCount": 0,
+          "grade": "F"
+        },
+        {
+          "category": "confidence",
+          "score": 60,
+          "weight": 0.1,
+          "observationCount": 0,
+          "grade": "F"
+        }
+      ],
+      "concerns": [
+        "Monitoring not active for this scan"
+      ],
+      "strengths": [
+        "Identity verified across reviewed platforms",
+        "Global distribution verified",
+        "Backend infrastructure fully connected",
+        "Catalog verified with confidence"
+      ],
+      "identityScore": 100,
+      "publishingScore": 50,
+      "catalogScore": 100,
+      "footprintScore": 93,
+      "backendScore": 100,
+      "monitoringScore": 50,
+      "report": {
+        "score": 90,
+        "grade": "B",
+        "trend": "Unknown",
+        "strengths": [
+          {
+            "id": "obs_58b1e7698abb9d91",
+            "ruleId": "catalog.complete-delivery-verified",
+            "category": "CATALOG",
+            "severity": "INFO",
+            "confidence": "HIGH",
+            "title": "Complete catalog delivery verified",
+            "description": "All identified recordings have corresponding release linkage in reviewed sources.",
+            "recommendation": "Continue current catalog delivery practices.",
+            "evidence": [],
+            "providerSources": []
+          }
+        ],
+        "risks": [],
+        "opportunities": [],
+        "drivers": [
+          "Complete catalog delivery verified"
+        ],
+        "confidence": "",
+        "engineVersion": "1.0.0",
+        "generatedAt": "2026-07-11T18:33:24.062Z"
+      }
+    },
+    "globalFootprint": {
+      "territoriesAvailable": 156,
+      "territoriesUnavailable": 11,
+      "coveragePercent": 93,
+      "status": "Strong",
+      "reachNarrative": "Available in 156 territories (93% of global markets).",
+      "confidence": "Verified"
+    },
+    "catalog": {
+      "singles": 4,
+      "eps": 0,
+      "albums": 0,
+      "totalTracks": 4,
+      "catalogStatus": "Stable",
+      "confidence": "Verified",
+      "isrcCoverage": {
+        "status": "Unknown",
+        "assessed": false,
+        "assessedCount": 0,
+        "verifiedCount": 0,
+        "coveragePercent": null
+      },
+      "firstReleaseYear": 2013,
+      "latestReleaseYear": 2026,
+      "catalogAgeYears": 13,
+      "physicalReleaseCount": null,
+      "bestVerifiedRelease": {
+        "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/9d/c0/269dc010-d2ce-f5ac-86b1-0286b222307e/859735256318_cover.jpg/{w}x{h}bb.jpg",
+        "artistName": "Black Alternative",
+        "releaseTitle": "Everything Is Over - Single",
+        "releaseType": "Single",
+        "releaseDate": "2026-05-15",
+        "verificationScore": 20,
+        "selectionScore": 70,
+        "reasonSelected": "Single — score 70/100 (artwork present, recent release); evaluated 4 candidates"
+      }
+    },
+    "verification": {
+      "services": [
+        {
+          "key": "musicbrainz",
+          "name": "MusicBrainz",
+          "state": "VERIFIED",
+          "subLabel": "Connected",
+          "statusLabel": "Verified"
+        },
+        {
+          "key": "mlc",
+          "name": "MLC",
+          "state": "AUTH_UNAVAILABLE",
+          "subLabel": "Unavailable",
+          "statusLabel": "Unavailable"
+        }
+      ],
+      "connectedCount": 1,
+      "totalCount": 2,
+      "apisResponding": {
+        "responded": 3,
+        "total": 4
+      },
+      "lastSync": "2026-07-11T18:33:24.060Z",
+      "summaryLabel": "1 of 2 Connected"
+    },
+    "metadata": {
+      "flagCount": 8,
+      "flags": [
+        {
+          "id": "040199fafff9",
+          "module": "publishing",
+          "moduleName": "Publishing Risk",
+          "severity": "HIGH",
+          "title": "Catalog active for 13 years",
+          "detail": "Catalog active for 13 years — extended period of potential royalty exposure detected",
+          "source": "module"
+        },
+        {
+          "id": "7e6a20c7eda9",
+          "module": "coverage",
+          "moduleName": "Platform Coverage",
+          "severity": "WARNING",
+          "title": "AudioDB presence not detected",
+          "detail": "AudioDB presence not detected — coverage risk",
+          "source": "platform"
+        },
+        {
+          "id": "212230864e48",
+          "module": "coverage",
+          "moduleName": "Platform Coverage",
+          "severity": "WARNING",
+          "title": "Discogs presence not detected",
+          "detail": "Discogs presence not detected — coverage risk",
+          "source": "platform"
+        },
+        {
+          "id": "1977ad5f3632",
+          "module": "coverage",
+          "moduleName": "Platform Coverage",
+          "severity": "WARNING",
+          "title": "SoundCloud presence not detected",
+          "detail": "SoundCloud presence not detected — coverage risk",
+          "source": "platform"
+        },
+        {
+          "id": "1fc95a58144a",
+          "module": "coverage",
+          "moduleName": "Platform Coverage",
+          "severity": "WARNING",
+          "title": "Last.fm presence not detected",
+          "detail": "Last.fm presence not detected — coverage risk",
+          "source": "platform"
+        },
+        {
+          "id": "a76f760fbc98",
+          "module": "coverage",
+          "moduleName": "Platform Coverage",
+          "severity": "WARNING",
+          "title": "Wikipedia presence not detected",
+          "detail": "Wikipedia presence not detected — coverage risk",
+          "source": "platform"
+        },
+        {
+          "id": "cbd27f73ba92",
+          "module": "sync",
+          "moduleName": "Sync Readiness",
+          "severity": "WARNING",
+          "title": "No Wikipedia presence",
+          "detail": "No Wikipedia presence — sync discoverability risk",
+          "source": "module"
+        },
+        {
+          "id": "aa8ed3db9d4b",
+          "module": "publishing",
+          "moduleName": "Publishing Risk",
+          "severity": "INFO",
+          "title": "Catalog active for 13 years",
+          "detail": "Catalog active for 13 years — extended royalty verification recommended",
+          "source": "module"
+        }
+      ],
+      "moduleStatus": {
+        "metadata": {
+          "key": "metadata",
+          "name": "Metadata Integrity",
+          "score": 100,
+          "grade": "A",
+          "availability": "AVAILABLE",
+          "issueCount": 0,
+          "flags": []
+        },
+        "coverage": {
+          "key": "coverage",
+          "name": "Platform Coverage",
+          "score": 60,
+          "grade": "D",
+          "availability": "AVAILABLE",
+          "issueCount": 5,
+          "flags": [
+            "AudioDB presence not detected — coverage risk",
+            "Discogs presence not detected — coverage risk",
+            "SoundCloud presence not detected — coverage risk",
+            "Last.fm presence not detected — coverage risk",
+            "Wikipedia presence not detected — coverage risk"
+          ]
+        },
+        "publishing": {
+          "key": "publishing",
+          "name": "Publishing Risk",
+          "score": 90,
+          "grade": "A",
+          "availability": "AVAILABLE",
+          "issueCount": 1,
+          "flags": [
+            "Catalog active for 13 years — extended royalty verification recommended"
+          ]
+        },
+        "duplicates": {
+          "key": "duplicates",
+          "name": "Duplicate Detection",
+          "score": 80,
+          "grade": "B",
+          "availability": "AVAILABLE",
+          "issueCount": 0,
+          "flags": []
+        },
+        "youtube": {
+          "key": "youtube",
+          "name": "YouTube / UGC",
+          "score": 60,
+          "grade": "D",
+          "availability": "AVAILABLE",
+          "issueCount": 0,
+          "flags": []
+        },
+        "sync": {
+          "key": "sync",
+          "name": "Sync Readiness",
+          "score": 43,
+          "grade": "F",
+          "availability": "AVAILABLE",
+          "issueCount": 1,
+          "flags": [
+            "No Wikipedia presence — sync discoverability risk"
+          ]
+        }
+      },
+      "_phase1Stub": true
+    },
+    "publishing": {
+      "registrations": {
+        "mlcRegistration": "UNABLE_TO_CONFIRM",
+        "registeredWorks": "UNABLE_TO_CONFIRM",
+        "iswcCoverage": "UNABLE_TO_CONFIRM",
+        "registeredSongwriters": "UNABLE_TO_CONFIRM",
+        "writerIpi": "UNABLE_TO_CONFIRM",
+        "compositionMatch": "UNABLE_TO_CONFIRM"
+      },
+      "metrics": {
+        "mlcWorksCount": 0,
+        "mlcIswcCount": 0,
+        "mlcWriterCount": 0,
+        "mlcWriterIpiCount": 0
+      },
+      "supportedSources": [
+        "mlc"
+      ],
+      "registeredCount": 0,
+      "totalChecked": 6,
+      "coverage": null,
+      "coverageStatus": "Unavailable",
+      "strengths": [],
+      "issues": [],
+      "recommendations": []
+    },
+    "opportunities": [],
+    "actions": [],
+    "aiInsight": {
+      "observation": "Platform identity is verified and consistent — the foundation of a professionally managed independent catalog.",
+      "priority": "With core infrastructure verified, the most significant risk is change over time — gaps that emerge silently as the catalog evolves.",
+      "priorityLabel": "Infrastructure Review",
+      "positiveSignal": "Distribution verified in 156 Apple Music territories.",
+      "nextAction": "Establish continuous monitoring across identity, publishing, and catalog status — the infrastructure that exists today will evolve, and visibility into those changes is what protects long-term value.",
+      "executiveInsight": "Platform identity is verified and catalog presence is established — the core signals of a professionally managed independent artist infrastructure. The next phase is not discovery — it is protection. Infrastructure that exists today will evolve, and visibility into those changes is what preserves long-term value. Establishing continuous monitoring across identity, publishing, catalog status, and territory availability ensures future changes are detected before they affect visibility, attribution, or royalty collection.",
+      "confidence": "high",
+      "generatedBy": "engine_template",
+      "generatedAt": "2026-07-11T18:33:24.066Z",
+      "generatedFrom": [
+        "identityIntelligence",
+        "publishingIntelligence",
+        "catalogIntelligence",
+        "globalMusicFootprint"
+      ]
+    },
+    "revenueSignals": {
+      "status": "RESERVED",
+      "data": null
+    },
+    "scanAuthority": {
+      "_cimVersion": "1.0.0",
+      "generatedAt": "2026-07-11T18:33:24.067Z",
+      "subjectName": "Black Alternative",
+      "subjectId": "505490272",
+      "anchorProvider": "apple",
+      "reconciliationRule": "identity-anchor-v1",
+      "schemaVersion": "1.0",
+      "intelligenceEngineVersion": "1.0.0",
+      "sourceProviders": [
+        "apple_music",
+        "spotify",
+        "musicbrainz",
+        "discogs",
+        "youtube",
+        "deezer",
+        "audiodb",
+        "tidal"
+      ],
+      "evidenceIds": [
+        "cfa75fca-a399-4441-86aa-639442c5635b",
+        "2424c522-161d-47cb-aa87-5dd313e65243",
+        "f79163f7-b06c-4da5-bb7d-fc6dc644047e",
+        "8864550a-d4f8-4f47-9c64-39324b12bf9a",
+        "787afcde-940b-4b90-98c0-1573c5cd8914",
+        "07356000-9972-4c14-903c-5d6a840c9927",
+        "f454767c-829c-493b-80ce-312f4e13076a",
+        "5363a18b-d11f-422d-808d-aa5414d9546f",
+        "971f9a1a-605d-4fdb-a344-0ddd17e4eafe",
+        "686f1c90-a9ac-4056-84d2-d0dc8446b9fa",
+        "39bdf93f-beea-4ab4-8f3b-4b19546fd68d",
+        "22e56e11-97a1-4bda-ad42-d59440220c8e",
+        "35bec688-3ef1-4386-bfa8-53f9445517ab",
+        "ffa4dcce-2418-45de-82f7-559d1dc9def7",
+        "f604e4bd-4aa1-4e4a-a194-580ec700b2a3",
+        "9cd659b4-87bc-459d-a406-896b6fa4bc6e",
+        "9583d63c-e59e-4ba2-bb77-d28df7c5be63",
+        "cc259b0b-b28c-4d4a-9c9b-b49d78cee20e",
+        "388eb7ab-cfc6-4f08-bf15-5668776f2c3d",
+        "f8ae86d1-c5e0-4a90-998f-a0417f4ef09d"
+      ],
+      "connectorVersions": [
+        "1.0"
+      ],
+      "certificationId": "f4a355d6-2da2-4c92-a2be-63e813e47831"
+    },
+    "recording": null,
+    "brief": {
+      "briefVersion": "1.0.0",
+      "generatedAt": "2026-07-11T18:33:24.062Z",
+      "executiveSummary": "Your music backend infrastructure has been assessed and received an overall Health Score of 90/100, rated B — Strong Foundation with Minor Gaps. Identity scored 95, publishing 100, catalog 98, and metadata 100, with coverage at 57 and confidence at 60. 1 documented strength reinforces a stable foundation, with 0 opportunities identified for further improvement. The outlook is positive, with focused work on the noted gaps positioning the catalog for sustained growth.",
+      "healthHeadline": "Strong Foundation with Minor Gaps",
+      "executiveNarrative": "The backend infrastructure reflects strong maturity at a Health Score of 90, with minor gaps. No material risks have been identified in the current assessment. Optimisation opportunities are limited under current conditions. Long term, the foundation is well positioned to compound value over time.",
+      "topStrengths": [
+        {
+          "id": "obs_58b1e7698abb9d91",
+          "ruleId": "catalog.complete-delivery-verified",
+          "category": "CATALOG",
+          "severity": "INFO",
+          "confidence": "HIGH",
+          "title": "Complete catalog delivery verified",
+          "description": "All identified recordings have corresponding release linkage in reviewed sources.",
+          "recommendation": "Continue current catalog delivery practices.",
+          "evidence": [],
+          "providerSources": []
+        }
+      ],
+      "topRisks": [],
+      "topOpportunities": [],
+      "priorityActions": [],
+      "confidenceStatement": "This assessment is based on partially verified intelligence.",
+      "recommendedNextStep": "Schedule Full Backend Review",
+      "aiExecutiveInsight": "Based on the intelligence assembled, this catalog demonstrates verifiable strength in catalog. No material risks have been identified in the current assessment. Addressing \"Schedule Full Backend Review\" would materially improve backend infrastructure health. Executing the recommended next step will materially improve the Health Score from 90.",
+      "reserved": {
+        "monitoring": null,
+        "revenue": null
+      },
+      "recoveryNarrative": "No specific infrastructure improvement opportunities were identified from reviewed sources."
+    },
+    "_certified": true,
+    "_certifiedAt": "2026-07-11T18:33:24.067Z"
+  }
 }

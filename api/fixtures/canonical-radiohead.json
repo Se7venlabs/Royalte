@@ -15,7 +15,9 @@
     "trackTitle": "Creep",
     "trackIsrc": "GBAYE9300001",
     "trackIsrcSource": "top_tracks_hoist",
-    "albumName": null
+    "albumName": null,
+    "artwork": null,
+    "recordLabel": null
   },
   "metrics": {
     "followers": 8234567,

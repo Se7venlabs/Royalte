@@ -695,6 +695,20 @@
         confEl.textContent = '—';
       }
     }
+
+    /* YouTube: when VERIFIED, replace the action CTA with a neutral view CTA
+     * and remove the placeholder aria-label that said "Not Claimed". */
+    if (provKey === 'youtube' && state === 'VERIFIED') {
+      card.setAttribute('aria-label', 'YouTube Official Artist Channel — Verified');
+      var ytCta = card.querySelector('.ii-platform-cta');
+      if (ytCta) {
+        ytCta.className   = 'ii-platform-cta ii-platform-cta--view';
+        ytCta.textContent = 'View Channel →';
+        ytCta.href        = '#';
+        ytCta.removeAttribute('target');
+        ytCta.removeAttribute('rel');
+      }
+    }
   }
 
   /* ── Pending Claims card — wire first issue from identityIntelligence ── */
@@ -712,6 +726,9 @@
     if (allDescEl) allDescEl.textContent = 'All identity providers are verified and up to date.';
     var allBadgeEl = document.querySelector('.ii-kpi-card--pending .ii-platform-badge');
     if (allBadgeEl) { allBadgeEl.className = 'ii-platform-badge ii-platform-badge--verified'; allBadgeEl.textContent = 'No Actions Required'; }
+    /* Hide the action CTA — it only applies when there are pending claims */
+    var allCtaEl = document.querySelector('.ii-kpi-card--pending .ii-action-path-cta');
+    if (allCtaEl) allCtaEl.style.display = 'none';
   }
 }());
 </script>
