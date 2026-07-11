@@ -99,7 +99,7 @@ test('2.  canonical-radiohead — output matches locked v1.0 shape', () => {
   assert.deepStrictEqual(Object.keys(identityIntelligence).sort(),
     ['coverage', 'issues', 'providers', 'recommendations', 'strengths', 'supportedProviders', 'totalProviders', 'verifiedProviders']);
   assert.deepStrictEqual(Object.keys(identityIntelligence.providers).sort(),
-    ['apple', 'spotify', 'youtube']);
+    ['apple', 'deezer', 'spotify', 'tidal', 'youtube']);
 });
 
 test('3.  canonical-radiohead — Spotify is VERIFIED upstream → VERIFIED state', () => {
@@ -135,12 +135,12 @@ test('6.  canonical-apple-resolved-only — chain runs without throwing', () => 
   assert.ok(identityIntelligence);
 });
 
-test('7.  canonical-apple-resolved-only — supportedProviders is the Phase-3 set, length 3', () => {
+test('7.  canonical-apple-resolved-only — supportedProviders is the Phase-3C set, length 5', () => {
   const canonical = loadCanonicalFixture('canonical-apple-resolved-only');
   const { identityIntelligence } = runEagerAssemblyChain(canonical);
   assert.deepStrictEqual(Array.from(identityIntelligence.supportedProviders),
-    ['apple', 'spotify', 'youtube']);
-  assert.equal(identityIntelligence.totalProviders, 3);
+    ['apple', 'spotify', 'youtube', 'deezer', 'tidal']);
+  assert.equal(identityIntelligence.totalProviders, 5);
 });
 
 test('8.  canonical-apple-resolved-only — Apple VERIFIED upstream + artwork null → ACTION_REQUIRED', () => {

@@ -164,10 +164,10 @@ export function assembleCio(artistName, sources, options) {
     }
   }
 
-  // ── observations.providers (Board D2, Phase 3B) ─────────────────
+  // ── observations.providers (Board D2, Phase 3C) ─────────────────
   //  COPY scanPayload.platforms.<key> into cio.observations.providers
-  //  for the three Phase 3 providers (apple / spotify / youtube). The
-  //  assembler never invents availability — it mirrors only what the
+  //  for all five identity providers (apple/spotify/youtube/deezer/tidal).
+  //  The assembler never invents availability — it mirrors only what the
   //  scan response carries. Missing entries stay null and downstream
   //  resolves to Unable to Confirm, never Not Found.
   if (scanPayload && scanPayload.platforms && typeof scanPayload.platforms === 'object') {
@@ -188,6 +188,18 @@ export function assembleCio(artistName, sources, options) {
       cio.observations.providers.youtube = {
         availability: typeof p.youtube.availability === 'string' ? p.youtube.availability : null,
         details:      (p.youtube.details && typeof p.youtube.details === 'object') ? p.youtube.details : null,
+      };
+    }
+    if (p.deezer && typeof p.deezer === 'object' && !Array.isArray(p.deezer)) {
+      cio.observations.providers.deezer = {
+        availability: typeof p.deezer.availability === 'string' ? p.deezer.availability : null,
+        details:      (p.deezer.details && typeof p.deezer.details === 'object') ? p.deezer.details : null,
+      };
+    }
+    if (p.tidal && typeof p.tidal === 'object' && !Array.isArray(p.tidal)) {
+      cio.observations.providers.tidal = {
+        availability: typeof p.tidal.availability === 'string' ? p.tidal.availability : null,
+        details:      (p.tidal.details && typeof p.tidal.details === 'object') ? p.tidal.details : null,
       };
     }
   }
