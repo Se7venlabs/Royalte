@@ -11,6 +11,22 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-11 — Mission Control™ v2.0 Sprint 2 — Evidence Contracts™ — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-11 |
+| **Decision** | Sprint 2 (Evidence Contracts™) is ratified. The Evidence Contract layer is constitutionally ratified as the standard transport interface between every provider connector and the Canonical Intelligence Platform pipeline. |
+| **Reason** | Mission Control™ v2.0 requires a constitutional contract for how providers contribute evidence. Sprint 2 establishes this layer: 6 Evidence Contracts (Identity, Rights, Catalog, Distribution, Monitoring, Operations), a 16-provider registry, a 13-rule validation engine, an Evidence Envelope™ factory, a Contract Registry with startup integrity check, and full architectural documentation. No connector may invent its own output shape — it must satisfy an Evidence Contract. |
+| **Impact** | `api/evidence/` created — types.js, version.js, providers.js, validate.js, envelope.js, index.js, 6 contract files + EVIDENCE_CONTRACTS.md. `tests/evidence-contracts-test.mjs` — 203 assertions / 12 sections. Contract Registry validates at startup; broken registry = startup failure. Tagged `evidence-contracts-sprint2-v1.0` at `d10d469`. |
+| **Vote** | Board Unanimous |
+| **PR Number** | #305 |
+| **Commit SHA** | `d10d469` |
+| **Tag** | `evidence-contracts-sprint2-v1.0` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-11 — Mission Control™ v2.0 Sprint 1 — Canonical Registry Foundation™ — RATIFIED
 
 | | |
