@@ -9,22 +9,29 @@
 // Public API:
 //
 //   REGISTRY
-//     .version       — REGISTRY_VERSION metadata object
-//     .objects       — frozen array of all Canonical Objects
-//     .fields        — frozen array of all Canonical Fields (all domains)
-//     .fieldsByDomain — Map<domain string → field[]>
-//     .fieldsByObject — Map<parentObject string → field[]>
+//     .version          — REGISTRY_VERSION metadata object
+//     .objects          — frozen array of all Canonical Objects
+//     .fields           — frozen array of all Canonical Fields (all domains)
+//     .fieldsByDomain   — Map<domain string → field[]>
+//     .fieldsByObject   — Map<parentObject string → field[]>
+//     .provisionalFields — frozen array of PROVISIONAL derived fields
+//                          (NOT subject to canonical domain validation)
 //
 //   getField(id)
 //     Returns the canonical field for a given stable field ID.
 //     Returns undefined if not found.
+//
+//   getProvisionalField(id)
+//     Returns a PROVISIONAL field (executive.*) by stable ID.
+//     Returns undefined if not found.
+//     NOTE: provisional fields are NOT in REGISTRY.fields.
 //
 //   getFieldsByDomain(domain)
 //     Returns all fields for the given domain string.
 //     Returns [] for an unknown domain.
 //
 //   getFieldsByObject(parentObject)
-//     Returns all fields for the given canonical object ID.
+//     Returns all canonical fields for the given canonical object ID.
 //     Returns [] for an unknown object.
 //
 // Startup contract:
@@ -39,17 +46,20 @@ import { IDENTITY_FIELDS }     from './fields/identity.js';
 import { RIGHTS_FIELDS }       from './fields/rights.js';
 import { CATALOG_FIELDS }      from './fields/catalog.js';
 import { DISTRIBUTION_FIELDS } from './fields/distribution.js';
-import { BACKEND_FIELDS }      from './fields/backend.js';
+import { SYSTEM_OPS_FIELDS }   from './fields/system-ops.js';
 import { MONITORING_FIELDS }   from './fields/monitoring.js';
-import { validateRegistry }    from './validate.js';
+import { DERIVED_FIELDS }      from './fields/derived.js';
+import { validateRegistry, validateProvisionalFields } from './validate.js';
 
-// ── Aggregate all fields in stable domain order ────────────────────────────
+// ── Aggregate canonical fields in stable domain order ─────────────────────
+// DERIVED_FIELDS are intentionally excluded — they are PROVISIONAL and bypass
+// canonical domain validation. They live in REGISTRY.provisionalFields.
 const ALL_FIELDS = Object.freeze([
   ...IDENTITY_FIELDS,
   ...RIGHTS_FIELDS,
   ...CATALOG_FIELDS,
   ...DISTRIBUTION_FIELDS,
-  ...BACKEND_FIELDS,
+  ...SYSTEM_OPS_FIELDS,
   ...MONITORING_FIELDS,
 ]);
 
@@ -86,10 +96,34 @@ for (const field of ALL_FIELDS) {
   fieldsByObject.get(field.parentObject).push(field);
 }
 
+// ── Validate provisional fields — governed but isolated ───────────────────
+const provResult = validateProvisionalFields(DERIVED_FIELDS, ALL_FIELDS);
+
+if (provResult.warnings.length > 0) {
+  for (const w of provResult.warnings) {
+    console.warn(`[registry] PROVISIONAL WARNING: ${w}`);
+  }
+}
+
+if (!provResult.valid) {
+  const message = [
+    '[registry] FATAL: Provisional field validation failed — platform cannot start.',
+    ...provResult.errors.map((e) => `  • ${e}`),
+  ].join('\n');
+  throw new Error(message);
+}
+
+// ── Provisional field index (executive.* — not in canonical validation) ────
+const provisionalById = new Map(DERIVED_FIELDS.map((f) => [f.id, f]));
+
 // ── Public accessor functions ──────────────────────────────────────────────
 
 export function getField(id) {
   return fieldById.get(id);
+}
+
+export function getProvisionalField(id) {
+  return provisionalById.get(id);
 }
 
 export function getFieldsByDomain(domain) {
@@ -103,9 +137,10 @@ export function getFieldsByObject(parentObject) {
 // ── Exported REGISTRY — the canonical read-only interface ─────────────────
 
 export const REGISTRY = Object.freeze({
-  version:        REGISTRY_VERSION,
-  objects:        CANONICAL_OBJECTS,
-  fields:         ALL_FIELDS,
-  fieldsByDomain: Object.freeze(Object.fromEntries(fieldsByDomain)),
-  fieldsByObject: Object.freeze(Object.fromEntries(fieldsByObject)),
+  version:          REGISTRY_VERSION,
+  objects:          CANONICAL_OBJECTS,
+  fields:           ALL_FIELDS,
+  fieldsByDomain:   Object.freeze(Object.fromEntries(fieldsByDomain)),
+  fieldsByObject:   Object.freeze(Object.fromEntries(fieldsByObject)),
+  provisionalFields: Object.freeze([...DERIVED_FIELDS]),
 });

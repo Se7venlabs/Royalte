@@ -1,10 +1,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Canonical Intelligence Platform™ — Global Distribution™ Domain Fields
+// Canonical Intelligence Platform™ — Distribution Availability™ Domain Fields
 // ─────────────────────────────────────────────────────────────────────────────
 //
-// Global Distribution™ owns all fields describing WHERE an artist's catalog
-// is available: country count, platform count, storefront availability, and
-// primary market presence.
+// Distribution Availability™ owns canonical availability facts: where the
+// artist's catalog exists across countries, territories, and platforms.
+// This domain does NOT duplicate connector logic performed by Identity or Catalog.
+// It consumes shared evidence collected once by the platform.
 //
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -14,7 +15,7 @@ export const DISTRIBUTION_FIELDS = Object.freeze([
     canonicalName:    'country_count',
     displayName:      'Country Count',
     parentObject:     'Artist',
-    domain:           'Global Distribution',
+    domain:           'Distribution Availability',
     description:      'Number of countries where the artist\'s catalog is available on Apple Music.',
     dataType:         'number',
     required:         false,
@@ -32,7 +33,7 @@ export const DISTRIBUTION_FIELDS = Object.freeze([
     canonicalName:    'platform_count',
     displayName:      'Platform Count',
     parentObject:     'Artist',
-    domain:           'Global Distribution',
+    domain:           'Distribution Availability',
     description:      'Number of platforms where the artist\'s catalog has a verified presence.',
     dataType:         'number',
     required:         false,
@@ -50,7 +51,7 @@ export const DISTRIBUTION_FIELDS = Object.freeze([
     canonicalName:    'global_availability_status',
     displayName:      'Global Availability',
     parentObject:     'Artist',
-    domain:           'Global Distribution',
+    domain:           'Distribution Availability',
     description:      'Summary availability status across all 167 Apple Music storefronts: WIDE | MODERATE | LIMITED | MINIMAL.',
     dataType:         'enum',
     required:         false,
@@ -68,7 +69,7 @@ export const DISTRIBUTION_FIELDS = Object.freeze([
     canonicalName:    'big6_availability',
     displayName:      'BIG6 Availability',
     parentObject:     'Artist',
-    domain:           'Global Distribution',
+    domain:           'Distribution Availability',
     description:      'Per-storefront availability map for the 8 key revenue markets (US, CA, GB, DE, FR, JP, AU, BR).',
     dataType:         'object',
     required:         false,
@@ -86,7 +87,7 @@ export const DISTRIBUTION_FIELDS = Object.freeze([
     canonicalName:    'primary_markets',
     displayName:      'Primary Markets',
     parentObject:     'Artist',
-    domain:           'Global Distribution',
+    domain:           'Distribution Availability',
     description:      'Ordered list of top markets by catalog presence, derived from storefront availability data.',
     dataType:         'array',
     required:         false,
@@ -104,7 +105,7 @@ export const DISTRIBUTION_FIELDS = Object.freeze([
     canonicalName:    'apple_storefront_count',
     displayName:      'Apple Storefronts',
     parentObject:     'Artist',
-    domain:           'Global Distribution',
+    domain:           'Distribution Availability',
     description:      'Number of Apple Music storefronts (out of 167) where the artist\'s catalog is available.',
     dataType:         'number',
     required:         false,
@@ -122,7 +123,7 @@ export const DISTRIBUTION_FIELDS = Object.freeze([
     canonicalName:    'spotify_market_count',
     displayName:      'Spotify Markets',
     parentObject:     'Artist',
-    domain:           'Global Distribution',
+    domain:           'Distribution Availability',
     description:      'Number of Spotify markets where the artist\'s catalog is available.',
     dataType:         'number',
     required:         false,
