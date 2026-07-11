@@ -60,6 +60,13 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | MC-3.3 | Identity Intelligence™ Executive Passport (6-section redesign) | ✅ Complete | `654eb52` (PR #213) | — |
 | MC-3.4 | Publishing Intelligence™ Executive Passport (7-section + Amendment 1 + Amendment 2) | ✅ Complete | `8400134` (PR #216) | — |
 
+### Mission Control™ v2.0 — Canonical Intelligence Platform™
+
+| Phase | Title | Status | Locked at | Tag |
+|---|---|---|---|---|
+| Sprint 1 | Canonical Registry Foundation™ (+ Sprint 1A Ownership Corrections) | ✅ Complete | `a902da7` (PR #303) | `canonical-registry-sprint1-v1.0` |
+| Sprint 2 | Evidence Contracts™ | 🔜 Next | — | — |
+
 ### Executive Workspace Sprint
 
 | Phase | Title | Status | Locked at | Tag |
