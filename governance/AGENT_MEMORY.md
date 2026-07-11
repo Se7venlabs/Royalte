@@ -28,12 +28,12 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **Phase 1B Data Integrity Program™ — Black Alternative Canonical Validation + Executive Brief Engine™ source fixes** |
-| Merged at | `8989e88` (PR #295, 2026-07-11) |
-| Tag | — |
-| Prior phase | Royaltē AI™ Intelligence Wiring Phase 1B.3 — Demo Placeholder Removal + CWA™ Wiring (`9b5e648`, PR #293, 2026-07-10) |
-| Active direction | **Mission Control™ Data Integrity Program™ is active. All new module development paused.** Every workspace validated against Black Alternative's live scan. 6 of 9 workspaces verified. 2 flags open for Board decision (FLAG-001: status vocabulary alignment, FLAG-002: AUTH_UNAVAILABLE backend scoring). Royaltē Review™ and Executive Brief™ workspaces require Board briefs to wire. |
-| Next Board gate | Board decision required on FLAG-001 and FLAG-002 before remaining workspace validation can close. |
+| Most recently completed phase | **Mission Control™ v2.0 Sprint 1 — Canonical Registry Foundation™** |
+| Merged at | `a902da7` (PR #303, 2026-07-11) |
+| Tag | `canonical-registry-sprint1-v1.0` |
+| Prior phase | Phase 1B Data Integrity Program™ — Black Alternative Canonical Validation + Executive Brief Engine™ source fixes (`8989e88`, PR #295, 2026-07-11) |
+| Active direction | **Canonical Intelligence Platform™ — Sprint 1 merged and locked.** Registry is the constitutional source of truth for all intelligence fields. Sprint 2 (Evidence Contracts™) is next. |
+| Next Board gate | Sprint 2 brief required from the Board to begin Evidence Contracts™. |
 
 **⚠ ACTIVE INITIATIVE — Mission Control™ Data Integrity Program™ (2026-07-11)**  
 Black Alternative is the **Canonical Development Artist™**. Every workspace must accurately represent Black Alternative's verified scan results before any new module development begins.  
@@ -78,7 +78,7 @@ The Engineering Agent is responsible for the Product Review before opening a PR.
 
 **Phase 3.4 — Website Scan is a constitutional presentation layer.** All displayed intelligence reads from the Certified CIM. ISRC Coverage is a permanent RIE field (`isrcCoverage` in `catalogIntelligence`). Catalog Availability reads from `globalMusicFootprint.status`. Zero business logic remains in `_renderV2Found`.
 
-Phase lock history: Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`. MC-3.2 Health Intelligence™ Executive Assessment `346a2d0`. MC-3.2-ELO Executive Layout Optimization™ v1.0 `83c8804`. MC-3.3 Identity Intelligence™ Executive Passport `654eb52`. MC-3.4 Publishing Intelligence™ Executive Passport + Amendment 1 `2bb1af2`. MC-3.4 Amendment 2 (executive brief typography) `8400134`.
+Phase lock history: MC v2.0 Sprint 1 `a902da7` / `canonical-registry-sprint1-v1.0`. Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`. MC-3.2 Health Intelligence™ Executive Assessment `346a2d0`. MC-3.2-ELO Executive Layout Optimization™ v1.0 `83c8804`. MC-3.3 Identity Intelligence™ Executive Passport `654eb52`. MC-3.4 Publishing Intelligence™ Executive Passport + Amendment 1 `2bb1af2`. MC-3.4 Amendment 2 (executive brief typography) `8400134`.
 
 The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`. The legacy retirement checklist lives in `governance/MIGRATION_RETIREMENT_REGISTER.md`.
 
