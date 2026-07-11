@@ -33,7 +33,7 @@ Entries are listed **newest first** for ease of catching up; chronological order
 | **Date** | 2026-07-11 |
 | **Decision** | All new module development paused. Every Mission Control™ workspace must be validated using Black Alternative's verified scan results before it can be considered complete. A workspace is complete only when the intelligence accurately represents Black Alternative's real music ecosystem — not when the JavaScript works or the tests pass. |
 | **Reason** | Live Board review of Black Alternative's Mission Control™ revealed that displayed intelligence did not accurately reflect their actual music ecosystem. Architecture complete; data accuracy validation begins. |
-| **Impact** | Black Alternative designated Canonical Development Artist™. `api/fixtures/canonical-black-alternative.json` added as reference fixture. Three text-quality bugs in Executive Brief Engine™ fixed at source (`8989e88`): subject-verb agreement, zero-recommendation guard, no-risk sentence. Two items flagged for future Board decision: (1) healthIntelligence "Excellent" vs Phase 7 "B/Strong" vocabulary alignment; (2) backendScore 100 with MLC AUTH_UNAVAILABLE scoring philosophy. |
+| **Impact** | Black Alternative designated Canonical Development Artist™. `public/fixtures/canonical-black-alternative.json` added as reference fixture. Three text-quality bugs in Executive Brief Engine™ fixed at source (`8989e88`): subject-verb agreement, zero-recommendation guard, no-risk sentence. Two items flagged for future Board decision: (1) healthIntelligence "Excellent" vs Phase 7 "B/Strong" vocabulary alignment; (2) backendScore 100 with MLC AUTH_UNAVAILABLE scoring philosophy. |
 | **Vote** | Board Initiated |
 | **PR Number** | #295 |
 | **Commit SHA** | `8989e88` |

@@ -37,7 +37,7 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 **⚠ ACTIVE INITIATIVE — Mission Control™ Data Integrity Program™ (2026-07-11)**  
 Black Alternative is the **Canonical Development Artist™**. Every workspace must accurately represent Black Alternative's verified scan results before any new module development begins.  
-Canonical fixture: `api/fixtures/canonical-black-alternative.json`  
+Canonical fixture: `public/fixtures/canonical-black-alternative.json`  
 Validation report: `governance/CANONICAL_VALIDATION_REPORT.md`
 
 **⚠ MANDATORY GATE — Executive Product Review Standard™ (2026-07-04)**
