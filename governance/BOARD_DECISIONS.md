@@ -11,6 +11,23 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-11 — Mission Control™ v2.0 Sprint 3 — Evidence Registry™ — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-11 |
+| **Decision** | Sprint 3 (Evidence Registry™) is ratified. The Evidence Registry™ is constitutionally ratified as the permanent, immutable, auditable system of record for all provider evidence collected by Royaltē. It stores evidence; it does not interpret, normalize, resolve, or establish canonical truth. |
+| **Reason** | The Canonical Intelligence Platform™ pipeline requires a constitutional vault between the Evidence Contract layer and the future Normalization Engine. Sprint 3 establishes this layer: independent `registryRecordId` + `evidenceEnvelopeId` identities, SHA-256 deterministic payload hashing, deduplication classification (UNIQUE / EXACT\_DUPLICATE / POTENTIAL\_DUPLICATE / REPLAY / CORRECTION / SUPERSEDING\_RECORD), Registry Event Log™ (append-only lifecycle log per record), R1–R21 record validation, a full memory adapter with 9 secondary indexes, a persistence adapter stub, read/write service split, and full architectural documentation. Board enhancements include reserved event types READ + RESTORED (no implementation logic), and an `eventVersion` field (default "1.0") on every Registry Event. |
+| **Impact** | `api/evidence/registry/` is the sole authoritative storage layer for Evidence Envelopes entering the platform. No connector, engine, or workspace may bypass the registry for evidence storage. Sprint 4 (Normalization Engine) unblocked. |
+| **Vote** | Board Approved — RATIFIED UNANIMOUS |
+| **PR Number** | #307 |
+| **Commit SHA** | `73a036d` |
+| **Tag** | `evidence-registry-sprint3-v1.0` |
+| **Test surface** | 66 assertions · 18 sections · 0 failures |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-11 — Mission Control™ v2.0 Sprint 2 — Evidence Contracts™ — RATIFIED
 
 | | |
