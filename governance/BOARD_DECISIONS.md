@@ -11,6 +11,22 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-11 — Mission Control™ v2.0 Sprint 1 — Canonical Registry Foundation™ — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-11 |
+| **Decision** | Sprint 1 (Canonical Registry Foundation™) and Sprint 1A (Ownership Corrections) are ratified as an architectural milestone. The Canonical Field Registry is constitutionally ratified as the single source of truth for every piece of intelligence Royaltē tracks. |
+| **Reason** | Mission Control™ v2.0 requires a stable field registry before any Evidence Contract, connector, or workspace work can proceed. Sprint 1 establishes this foundation: 14 registry files, 6 owning domains, 6 consumer workspaces, 3 object classes, 26 canonical objects, a provisional field governance layer, startup validation, and architectural documentation. |
+| **Impact** | `api/registry/` created — types.js, objects.js, version.js, validate.js, index.js, 6 domain field files + derived.js, REGISTRY_ARCHITECTURE.md. `tests/registry-test.mjs` — 168 assertions / 15 sections. Registry validates at startup; broken registry = startup failure. Tagged `canonical-registry-sprint1-v1.0` at `a902da7`. |
+| **Vote** | Board Unanimous |
+| **PR Number** | #303 |
+| **Commit SHA** | `a902da7` |
+| **Tag** | `canonical-registry-sprint1-v1.0` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-11 — Identity Intelligence™ Workspace 2 — Data Integrity Program™ Validation — APPROVED
 
 | | |
