@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-11 — Identity Intelligence™ Phase 3C — 5-Provider Expansion + ISRC-First Verification Strategy™ — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-11 |
+| **Decision** | Expand the canonical Identity Provider set from 3 (apple/spotify/youtube) to 5 (+ deezer/tidal) across the full pipeline: CIO schema, assembler, Identity Intelligence engine, workspace wiring, and test suite. Implement ISRC-First Verification Strategy™: when scan input carries a specific track ISRC, it is the primary Spotify resolution path (no name-matching ambiguity). ISRC bridge (step 4) is the artist-URL fallback with documented determinism (Apple returns songs by play count). Fix Apple Music API limit=25 → limit=20 across all 4 call sites. |
+| **Reason** | Provider count inconsistency (UI showed 5 cards but calculation used 3/3) required a canonical fix at the earliest responsible layer. TIDAL and Deezer were absent from `cio.observations.providers`; `deriveState()` returned UNABLE_TO_CONFIRM for both. The ISRC-first strategy reduces name-matching ambiguity for Spotify verification when a verified track ISRC is already known from the scan input. |
+| **Impact** | All 5 providers flow through the complete pipeline. Identity Presence shows 5/5 verified at 100% coverage for a fully-verified artist. 53 assertions enforcing boundaries. Tag `identity-intelligence-phase3c-v1.0` at `041e40f` (PR #301, merged into `feat/mission-control-shell`). |
+| **Vote** | Board Approved |
+| **PR Number** | #301 |
+| **Commit SHA** | `041e40f` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-11 — Identity Intelligence™ Workspace 2 — Data Integrity Program™ Validation — APPROVED
 
 | | |
