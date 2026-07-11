@@ -65,7 +65,8 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | Phase | Title | Status | Locked at | Tag |
 |---|---|---|---|---|
 | Sprint 1 | Canonical Registry Foundation™ (+ Sprint 1A Ownership Corrections) | ✅ Complete | `a902da7` (PR #303) | `canonical-registry-sprint1-v1.0` |
-| Sprint 2 | Evidence Contracts™ | 🔜 Next | — | — |
+| Sprint 2 | Evidence Contracts™ | ✅ Complete | `d10d469` (PR #305) | `evidence-contracts-sprint2-v1.0` |
+| Sprint 3 | Evidence Registry™ | 🔜 Next | — | — |
 
 ### Executive Workspace Sprint
 
