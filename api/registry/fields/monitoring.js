@@ -2,15 +2,13 @@
 // Canonical Intelligence Platform™ — Monitoring™ Domain Fields
 // ─────────────────────────────────────────────────────────────────────────────
 //
-// Monitoring™ owns all fields tracking CHANGE OVER TIME: scan history,
-// detected changes, alerts, health trend, and aggregated executive metrics.
+// Monitoring™ owns all fields tracking CHANGE OVER TIME for an artist:
+// scan history, detected changes, alerts, and health trend.
 //
-// Note on executive.* field IDs:
-//   The brief defines stable IDs with the "executive." prefix for
-//   health-aggregated fields. These fields are OWNED by Monitoring™
-//   (the domain that computes them) and CONSUMED by Executive Intelligence™.
-//   Constitutional rule: Executive Intelligence never owns fields.
-//   The "executive." prefix is a stable namespace, not a domain claim.
+// Scope note:
+//   executive.* fields (health_score, health_grade, priority_actions, ai_insight)
+//   are NOT in this file. Those are provisional derived fields pending the Board's
+//   Derived Intelligence policy ratification. See fields/derived.js.
 //
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -29,7 +27,7 @@ export const MONITORING_FIELDS = Object.freeze([
     resolutionPolicy: 'MOST_RECENT',
     confidencePolicy: 'STATIC',
     sourcePriority:   [],
-    consumers:        ['MonitoringIntelligence', 'MissionControl', 'ExecutiveBrief'],
+    consumers:        ['MonitoringIntelligence', 'MissionControl', 'Executive Brief'],
     version:          '1.0.0',
     status:           'ACTIVE',
   },
@@ -65,7 +63,7 @@ export const MONITORING_FIELDS = Object.freeze([
     resolutionPolicy: 'MOST_RECENT',
     confidencePolicy: 'STATIC',
     sourcePriority:   [],
-    consumers:        ['MonitoringIntelligence', 'HealthEngine', 'MissionControl', 'ExecutiveBrief'],
+    consumers:        ['MonitoringIntelligence', 'Health Intelligence', 'MissionControl', 'Executive Brief'],
     version:          '1.0.0',
     status:           'ACTIVE',
   },
@@ -83,7 +81,7 @@ export const MONITORING_FIELDS = Object.freeze([
     resolutionPolicy: 'MOST_RECENT',
     confidencePolicy: 'STATIC',
     sourcePriority:   [],
-    consumers:        ['MonitoringIntelligence', 'MissionControl', 'ExecutiveBrief'],
+    consumers:        ['MonitoringIntelligence', 'MissionControl', 'Executive Brief'],
     version:          '1.0.0',
     status:           'ACTIVE',
   },
@@ -101,7 +99,7 @@ export const MONITORING_FIELDS = Object.freeze([
     resolutionPolicy: 'DERIVED',
     confidencePolicy: 'STATIC',
     sourcePriority:   [],
-    consumers:        ['MonitoringIntelligence', 'HealthEngine', 'MissionControl', 'ExecutiveBrief'],
+    consumers:        ['MonitoringIntelligence', 'Health Intelligence', 'MissionControl', 'Executive Brief'],
     version:          '1.0.0',
     status:           'ACTIVE',
   },
@@ -120,79 +118,6 @@ export const MONITORING_FIELDS = Object.freeze([
     confidencePolicy: 'STATIC',
     sourcePriority:   [],
     consumers:        ['MonitoringIntelligence', 'MissionControl'],
-    version:          '1.0.0',
-    status:           'ACTIVE',
-  },
-  // ── executive.* namespace — owned by Monitoring, consumed by Executive Intelligence ──────
-  {
-    id:               'executive.health_score',
-    canonicalName:    'health_score',
-    displayName:      'Health Score',
-    parentObject:     'HealthIndicator',
-    domain:           'Monitoring',
-    description:      'Composite health score (0–100) computed by the Royaltē Health Engine™ from all domain signals.',
-    dataType:         'number',
-    required:         false,
-    defaultValue:     null,
-    validationRule:   '0–100 inclusive',
-    resolutionPolicy: 'DERIVED',
-    confidencePolicy: 'STATIC',
-    sourcePriority:   [],
-    consumers:        ['HealthEngine', 'ExecutiveBrief', 'MissionControl', 'ScanUI'],
-    version:          '1.0.0',
-    status:           'ACTIVE',
-  },
-  {
-    id:               'executive.health_grade',
-    canonicalName:    'health_grade',
-    displayName:      'Health Grade',
-    parentObject:     'HealthIndicator',
-    domain:           'Monitoring',
-    description:      'Letter-grade summary of the health score: A+ | A | B | C | D | F.',
-    dataType:         'enum',
-    required:         false,
-    defaultValue:     null,
-    validationRule:   'A+|A|B|C|D|F',
-    resolutionPolicy: 'DERIVED',
-    confidencePolicy: 'STATIC',
-    sourcePriority:   [],
-    consumers:        ['HealthEngine', 'ExecutiveBrief', 'MissionControl', 'ScanUI'],
-    version:          '1.0.0',
-    status:           'ACTIVE',
-  },
-  {
-    id:               'executive.priority_actions',
-    canonicalName:    'priority_actions',
-    displayName:      'Priority Actions',
-    parentObject:     'ExecutiveInsight',
-    domain:           'Monitoring',
-    description:      'Ordered list of high-priority recommended actions sourced strictly from the Health Engine intelligence report.',
-    dataType:         'array',
-    required:         false,
-    defaultValue:     null,
-    validationRule:   null,
-    resolutionPolicy: 'DERIVED',
-    confidencePolicy: 'STATIC',
-    sourcePriority:   [],
-    consumers:        ['ExecutiveBrief', 'MissionControl'],
-    version:          '1.0.0',
-    status:           'ACTIVE',
-  },
-  {
-    id:               'executive.ai_insight',
-    canonicalName:    'ai_insight',
-    displayName:      'AI Insight',
-    parentObject:     'ExecutiveInsight',
-    domain:           'Monitoring',
-    description:      'ATHENA™-generated natural-language insight synthesized from all domain intelligence for this scan.',
-    dataType:         'string',
-    required:         false,
-    defaultValue:     null,
-    validationRule:   null,
-    resolutionPolicy: 'DERIVED',
-    confidencePolicy: 'STATIC',
-    sourcePriority:   [],
-    consumers:        ['ExecutiveBrief', 'MissionControl'],
     version:          '1.0.0',
     status:           'ACTIVE',
   },
