@@ -3,12 +3,15 @@
 // Updates the music_rights_profile for a target account without overwriting
 // any fields not explicitly listed in this script.
 //
-// Target: Black Alternative test account
+// Target: Black Alternative test account (Executive Board Reset Directive 2026-07-11)
 // Changes:
 //   performing_rights.pro          → 'SOCAN'
-//   publishing.publishing_admin    → 'TuneCore Pub'
+//   performing_rights.soundexchange → 'Yes'
+//   publishing.publishing_admin    → 'TuneCore Publishing'
+//   publishing.mlc                 → 'Registered'
 //   recording.record_label         → 'Own Label'
 //   recording.label_name           → 'Castle Park Studioz'
+//   distribution.distributor       → 'TuneCore'
 //
 // Usage:
 //   node scripts/update-mrp-test.mjs [email]
@@ -48,9 +51,10 @@ console.log(`\nTarget: ${TARGET_EMAIL}`);
 // ── Profile patch values ──────────────────────────────────────────────────────
 // These are the three fields being updated; all others are preserved.
 const PATCH = {
-  performing_rights: { pro: 'SOCAN' },
-  publishing:        { publishing_admin: 'TuneCore Pub' },
+  performing_rights: { pro: 'SOCAN', soundexchange: 'Yes' },
+  publishing:        { publishing_admin: 'TuneCore Publishing', mlc: 'Registered' },
   recording:         { record_label: 'Own Label', label_name: 'Castle Park Studioz' },
+  distribution:      { distributor: 'TuneCore' },
 };
 
 // ── Resolve user ──────────────────────────────────────────────────────────────
@@ -95,7 +99,7 @@ const updated = {
   },
   performing_rights: { ...(existing.performing_rights || {}), ...PATCH.performing_rights },
   publishing:        { ...(existing.publishing        || {}), ...PATCH.publishing },
-  distribution:      { ...(existing.distribution      || {}) },
+  distribution:      { ...(existing.distribution      || {}), ...PATCH.distribution },
   recording:         { ...(existing.recording         || {}), ...PATCH.recording },
   songwriter:        { ...(existing.songwriter        || {}) },
 };
@@ -136,10 +140,13 @@ console.log(JSON.stringify(verify.music_rights_profile, null, 2));
 // ── Spot-check the three target fields ───────────────────────────────────────
 const p = verify.music_rights_profile;
 const checks = [
-  ['performing_rights.pro',         p?.performing_rights?.pro,        'SOCAN'],
-  ['publishing.publishing_admin',   p?.publishing?.publishing_admin,  'TuneCore Pub'],
-  ['recording.record_label',        p?.recording?.record_label,       'Own Label'],
-  ['recording.label_name',          p?.recording?.label_name,         'Castle Park Studioz'],
+  ['performing_rights.pro',           p?.performing_rights?.pro,          'SOCAN'],
+  ['performing_rights.soundexchange', p?.performing_rights?.soundexchange, 'Yes'],
+  ['publishing.publishing_admin',     p?.publishing?.publishing_admin,    'TuneCore Publishing'],
+  ['publishing.mlc',                  p?.publishing?.mlc,                 'Registered'],
+  ['recording.record_label',          p?.recording?.record_label,         'Own Label'],
+  ['recording.label_name',            p?.recording?.label_name,           'Castle Park Studioz'],
+  ['distribution.distributor',        p?.distribution?.distributor,       'TuneCore'],
 ];
 
 console.log('\nField verification:');
