@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-11 — Mission Control™ Canonical Validation Report™ v1.0 — Required Engineering Artifact — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-11 |
+| **Decision** | The Mission Control™ Canonical Validation Report™ is a required engineering artifact. It documents the verified intelligence state of every workspace against Black Alternative's scan results and becomes the Executive Board's primary reference during development and the engineering team's authoritative validation guide. |
+| **Reason** | Mission Control™ is an Executive Intelligence Platform. Its credibility depends on the accuracy of every intelligence module. The CVR proves every displayed value is traceable, verified, and trusted. |
+| **Impact** | `governance/CANONICAL_VALIDATION_REPORT.md` created — 9-workspace validation, data lineage, variance register, board decision register. 6/9 workspaces verified; 2 open Board decisions (DECISION-001: status vocabulary alignment; DECISION-002: AUTH_UNAVAILABLE backend scoring). Living document — updated whenever an engine, model, workspace, or fixture changes. |
+| **Vote** | Board Approved |
+| **PR Number** | #297 |
+| **Commit SHA** | `6c52407` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-11 — Mission Control™ Data Integrity Program™ — Black Alternative as Canonical Development Artist™ — INITIATED
 
 | | |
