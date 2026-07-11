@@ -19,6 +19,19 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-11 — Identity Intelligence™ Workspace 2 — Data Integrity Program™ Validation + Single Source of Truth Architecture (PR #299)
+
+| | |
+|---|---|
+| **PR** | #299 |
+| **Commit SHA** | `500a3b4` (source fixes) · `0680561` (single source of truth architecture) |
+| **Constitution Version** | v1.3 |
+| **Added** | `public/fixtures/canonical-black-alternative.json` — sole fetchable canonical fixture for Black Alternative; served at `/fixtures/canonical-black-alternative.json` via Vercel catch-all. |
+| **Changed** | `public/workspaces/identity-intelligence.html` — (1) dev loader refactored from inline JS object to `fetch('/fixtures/canonical-black-alternative.json')`; (2) platform cards: PROV_NAMES extended to cover Deezer + TIDAL; providers outside `identityIntelligence.providers` v1.0 scope default to `UNABLE_TO_CONFIRM` (muted badge, `—` confidence); `ALERT_STATES` drives `ii-platform-card--alert` class; (3) snapshot: null-guards for `subject.trackTitle`, `subject.trackIsrc`, `subject.albumName`; Primary Release wired to `catalogIntelligence.bestVerifiedRelease.releaseTitle`; Genres falls through to `—` when `metrics.genres` is empty; (4) artist name fallback order corrected. `governance/AGENT_MEMORY.md`, `governance/CANONICAL_VALIDATION_REPORT.md`, `governance/BOARD_DECISIONS.md` — fixture path references updated from `api/fixtures/` to `public/fixtures/`. |
+| **Removed** | `api/fixtures/canonical-black-alternative.json` — file relocated to `public/fixtures/`; zero backend/test consumers confirmed by dependency audit. Inline Black Alternative JavaScript object removed from workspace dev loader. |
+
+---
+
 ## 2026-07-11 — Mission Control™ Canonical Validation Report™ v1.0 (PR #297)
 
 | | |

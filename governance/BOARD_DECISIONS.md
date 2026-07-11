@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-11 — Identity Intelligence™ Workspace 2 — Data Integrity Program™ Validation — APPROVED
+
+| | |
+|---|---|
+| **Date** | 2026-07-11 |
+| **Decision** | Identity Intelligence™ Workspace 2 validated against Black Alternative's canonical fixture and approved. All displayed intelligence — provider statuses, coverage, verified counts, snapshot fields — accurately represents the canonical scan results. Single Source of Truth Architecture™ adopted: the canonical fixture lives at one physical path (`public/fixtures/canonical-black-alternative.json`) and is fetched, never duplicated. |
+| **Reason** | Data Integrity Program™ validation revealed that the workspace contained fabricated data (hardcoded Deezer/TIDAL "Verified 95/97%" badges), broken field wiring (Primary Release, Genres, Top Track null-state), and a duplicate source of truth (inline JS object copying the canonical fixture). Board standard: every workspace displays live, traceable intelligence or a truthful empty state. |
+| **Impact** | `public/workspaces/identity-intelligence.html` — source fixes (artist name fallback, snapshot null-state handling, Deezer/TIDAL alert semantics, Primary Release wiring from `catalogIntelligence.bestVerifiedRelease.releaseTitle`). `public/fixtures/canonical-black-alternative.json` created as sole fetchable fixture; `api/fixtures/canonical-black-alternative.json` retired. Dev loader refactored to fetch from canonical fixture path — never embeds a copy. Governance references updated. 226/226 pipeline green. |
+| **Vote** | Board Approved |
+| **PR Number** | #299 |
+| **Commit SHA** | `500a3b4` (source fixes) + `0680561` (single source of truth architecture) |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-11 — Mission Control™ Canonical Validation Report™ v1.0 — Required Engineering Artifact — APPROVED
 
 | | |
