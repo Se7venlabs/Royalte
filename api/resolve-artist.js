@@ -101,20 +101,36 @@ function sendAlert(subject, name, song, eventType) {
   }).catch(() => { /* never break main flow */ });
 }
 
+// ── Diagnostic instrumentation ────────────────────────────────────────────
+// Structured JSON entries emitted at every decision point.
+// Captured in Vercel function logs. Prefix: [resolve-diag]
+// Board Validation Issue #001 Phase 3 — 2026-07-12.
+
+function diagLog(step, name, song, data = {}) {
+  console.log(JSON.stringify({
+    prefix:     '[resolve-diag]',
+    step,
+    artistName: name,
+    songTitle:  song || null,
+    timestamp:  new Date().toISOString(),
+    ...data,
+  }));
+}
+
 // ── Apple Music helpers ────────────────────────────────────────────────────
 
 async function searchSongsByArtist(song, name) {
   try {
     const token = generateAppleToken();
     const query = encodeURIComponent(`${song} ${name}`);
-    const resp  = await fetch(
-      `${APPLE_API}/catalog/us/search?term=${query}&types=songs&limit=5`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    if (!resp.ok) return [];
+    const url   = `${APPLE_API}/catalog/us/search?term=${query}&types=songs&limit=5`;
+    const resp  = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    if (!resp.ok) return { songs: [], requestUrl: url, httpStatus: resp.status };
     const data = await resp.json();
-    return data?.results?.songs?.data || [];
-  } catch { return []; }
+    return { songs: data?.results?.songs?.data || [], requestUrl: url, httpStatus: 200 };
+  } catch (err) {
+    return { songs: [], requestUrl: null, httpStatus: null, error: err.message };
+  }
 }
 
 // ── Handler ────────────────────────────────────────────────────────────────
@@ -126,6 +142,14 @@ export default async function handler(req, res) {
 
   const name = (req.query.name || '').trim();
   const song = (req.query.song || '').trim();
+
+  // Q1 — did resolve-artist receive both params?
+  diagLog('ENTRY', name, song, {
+    q1_received_artist: !!name,
+    q1_received_song:   !!song,
+    q1_artist_value:    name  || null,
+    q1_song_value:      song  || null,
+  });
 
   if (!name) {
     return res.status(400).json({ error: 'name is required' });
@@ -167,29 +191,115 @@ export default async function handler(req, res) {
     // Multiplicity of Apple artist results does NOT trigger 409 here —
     // the song match is authoritative.
     if (song) {
-      const songs   = await searchSongsByArtist(song, name);
+      // Q2 — RULE A executing
+      diagLog('RULE_A_START', name, song, { q2_rule_a_executing: true });
+
+      // Q3/Q4 — Apple song search called; exact URL logged
+      const { songs, requestUrl, httpStatus } = await searchSongsByArtist(song, name);
+      diagLog('SONG_SEARCH_RESPONSE', name, song, {
+        q3_apple_song_api_called: true,
+        q4_request_url:           requestUrl,
+        q4_http_status:           httpStatus,
+        q5_songs_returned:        songs.length,
+        q5_song_candidates:       songs.map(s => ({
+          songTitle:  s.attributes?.name        ?? null,
+          artistName: s.attributes?.artistName  ?? null,
+          artistId:   s.attributes?.artistId    ?? null,
+          songId:     s.id                      ?? null,
+        })),
+      });
+
       const matched = songs.find(
         s => s.attributes?.artistName?.toLowerCase() === nameLower
       );
+
+      // Q6 — was the matched song object found?
+      diagLog('SONG_MATCH_RESULT', name, song, {
+        q6_match_found:         !!matched,
+        q6_matched_song_title:  matched?.attributes?.name       ?? null,
+        q6_matched_artist_name: matched?.attributes?.artistName ?? null,
+        q6_match_criterion:     `artistName.toLowerCase() === "${nameLower}"`,
+      });
+
       if (matched) {
         const confirmedName = matched.attributes.artistName;
+
+        // Q7 — confirmed artist carried forward into artist search
+        diagLog('ARTIST_SEARCH_START', name, song, {
+          q7_confirmed_name_carried_forward: confirmedName,
+          q7_searching_apple_artists_for:    confirmedName,
+        });
+
         const artistResult  = await searchArtist(confirmedName);
+
+        diagLog('ARTIST_SEARCH_RESPONSE', name, song, {
+          q7_artist_search_found:     artistResult.found,
+          q7_candidate_count:         artistResult.results.length,
+          q7_all_candidates:          artistResult.results.map(r => ({
+            name: r.name,
+            url:  r.url,
+            id:   r.id,
+          })),
+          q7_first_candidate_name:    artistResult.results[0]?.name ?? null,
+          q7_first_candidate_url:     artistResult.results[0]?.url  ?? null,
+          q7_defect_note:             artistResult.results.length > 0 && artistResult.results[0]?.name !== confirmedName
+            ? `IDENTITY_MISMATCH: results[0].name="${artistResult.results[0]?.name}" !== confirmedName="${confirmedName}"`
+            : 'name_check_not_enforced_in_current_code',
+        });
+
         if (artistResult.found && artistResult.results.length > 0) {
           logEvent(EVENTS.SONG_CONFIRMED, name, song, {
             confirmedName,
             candidateCount: artistResult.results.length,
           });
+          diagLog('RETURNING_URL', name, song, {
+            q7_url_returned:        artistResult.results[0].url,
+            q7_url_artist_name:     artistResult.results[0].name,
+            q7_confirmed_name:      confirmedName,
+            q7_name_mismatch:       artistResult.results[0].name !== confirmedName,
+            defect_line:            'resolve-artist.js:182 — results[0] taken without name verification',
+          });
           return res.status(200).json({ url: artistResult.results[0].url });
         }
+      } else {
+        // Q8 — RULE A produced no match; why
+        diagLog('RULE_A_NO_MATCH', name, song, {
+          q8_rule_a_skipped_reason: songs.length === 0
+            ? 'Apple song search returned 0 results for this query'
+            : `${songs.length} song(s) returned but none had artistName matching "${name}" (case-insensitive). ` +
+              `Artist names found: [${songs.map(s => s.attributes?.artistName ?? 'null').join(', ')}]`,
+          q8_falling_through_to_rule_b: true,
+        });
       }
+    } else {
+      // Q2/Q8 — RULE A was skipped entirely
+      diagLog('RULE_A_SKIPPED', name, song, {
+        q2_rule_a_executing:  false,
+        q8_rule_a_skipped_reason: 'song param was empty — RULE A requires a song title',
+      });
     }
 
     // ── RULE B/C: No song match — fallback to artist name only ──────────
     // Without song confirmation a single unambiguous Apple result is required.
+    diagLog('RULE_B_START', name, song, { fallback_to_artist_only: true });
+
     const artistResult = await searchArtist(name);
+
+    diagLog('RULE_B_ARTIST_SEARCH', name, song, {
+      found:          artistResult.found,
+      candidateCount: artistResult.results.length,
+      candidates:     artistResult.results.map(r => ({ name: r.name, url: r.url, id: r.id })),
+    });
 
     if (artistResult.found && artistResult.results.length === 1) {
       logEvent(EVENTS.ARTIST_ONLY, name, song, { candidateCount: 1 });
+      diagLog('RETURNING_URL', name, song, {
+        rule:              'B',
+        url_returned:      artistResult.results[0].url,
+        url_artist_name:   artistResult.results[0].name,
+        name_mismatch:     artistResult.results[0].name !== name,
+        defect_line:       'resolve-artist.js:193 — results[0] taken without name verification',
+      });
       return res.status(200).json({ url: artistResult.results[0].url });
     }
 
@@ -203,6 +313,7 @@ export default async function handler(req, res) {
         song,
         EVENTS.AMBIGUOUS
       );
+      diagLog('RETURNING_409', name, song, { candidateCount: artistResult.results.length });
       return res.status(409).json({ error: 'ambiguous' });
     }
 
@@ -214,6 +325,7 @@ export default async function handler(req, res) {
       song,
       EVENTS.NOT_FOUND
     );
+    diagLog('RETURNING_404', name, song, {});
     return res.status(404).json({ error: 'not_found' });
 
   } catch (err) {
