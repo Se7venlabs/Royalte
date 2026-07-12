@@ -69,6 +69,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | Sprint 3 | Evidence Registry™ | ✅ Complete | `73a036d` (PR #307) | `evidence-registry-sprint3-v1.0` |
 | Sprint 4 | Normalization Engine™ (+ Board Enhancements: Normalized Record™, Manifest™, Fingerprint) | ✅ Complete | `43761fa` (PR #309) | `normalization-engine-sprint4-v1.0` |
 | Sprint 5 | Evidence Resolution Engine™ (Resolution Policy Registry™, Confidence Engine™, Conflict Detection™, Field Provenance™, Resolution Record™, Resolution Manifest™) | ✅ Complete | `8c7fb5f` (PR #311) | `resolution-engine-sprint5-v1.0` |
+| Sprint 6 | Canonical Intelligence Domains™ (6-domain schema: Identity, Music Rights, Catalog, Distribution Availability, Monitoring, System Operations; 26 canonical objects; domain ownership validation) | ✅ Complete | `a902da7` (PR #303, Canonical Registry Foundation™ Sprint 1) | `canonical-registry-sprint1-v1.0` |
 | Sprint 7 | Scan Orchestrator™ (Scan Lifecycle™, Scan State™, Pipeline Coordinator™, Event System™, Scan Queue™, Scan Scheduler™) | ✅ Complete | `8a4aa19` (PR #313) | `scan-orchestrator-sprint7-v1.0` |
 | Sprint 8 | Monitoring & Change Detection™ (Canonical Snapshot™, Change Detection Engine™, Timeline Engine™, Alert Engine™, Severity Engine™, History Store™) | ✅ Complete | `1317f07` (PR #315) | `monitoring-engine-v1.0` |
 

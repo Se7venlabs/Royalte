@@ -11,6 +11,23 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-12 — Executive Board Correction — Sprint 6 Canonical Intelligence Domains™ — STATUS CORRECTED TO COMPLETE
+
+| | |
+|---|---|
+| **Date** | 2026-07-12 |
+| **Decision** | Sprint 6 — Canonical Intelligence Domains™ is complete. The Canonical Intelligence Domain schema was delivered as a constitutional component of the Canonical Registry Foundation™ (Sprint 1, PR #303, `a902da7`). Sprint 6 is a constitutional dependency of Sprint 7 (Scan Orchestrator™) and Sprint 8 (Monitoring & Change Detection™). All four governance documents are corrected to reflect this status. |
+| **Reason** | The Canonical Registry Foundation™ (Sprint 1) established the six Canonical Intelligence Domains (Identity, Music Rights, Catalog, Distribution Availability, Monitoring, System Operations), 26 canonical objects, domain ownership validation, and a 168-assertion test suite. These constitute the Sprint 6 deliverable. Sprint 7 and Sprint 8 briefs referenced Sprint 6 as a constitutional predecessor, confirming it was complete at the time of those implementations. The governance record omitted the Sprint 6 row; this entry corrects that omission. |
+| **Impact** | ROADMAP.md Sprint 6 row added. BOARD_DECISIONS.md, CHANGELOG.md, AGENT_MEMORY.md updated to reflect consistent Sprint 6 completion status. No code changes — domain definitions already live in `api/registry/` (Sprint 1 deliverable). |
+| **Vote** | Executive Board — APPROVED — STATUS CORRECTED |
+| **Correction of** | Governance record omission; no prior conflicting Board Decision exists |
+| **Lock point** | `a902da7` (PR #303) — Canonical Registry Foundation™ Sprint 1 |
+| **Tag** | `canonical-registry-sprint1-v1.0` |
+| **Test surface** | 168 assertions (registry-test.mjs) |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-12 — Mission Control™ v2.0 Sprint 8 — Monitoring & Change Detection™ — CONSTITUTION RATIFIED
 
 | | |
