@@ -19,6 +19,22 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-12 — Executive Board Correction — Sprint 6 Canonical Intelligence Domains™ (Governance Record)
+
+| | |
+|---|---|
+| **Date** | 2026-07-12 |
+| **PR Number** | — (governance correction; no new code) |
+| **Commit SHA** | — |
+| **Tag** | — |
+| **Added** | Governance entries in ROADMAP.md, BOARD_DECISIONS.md, CHANGELOG.md, AGENT_MEMORY.md correctly marking Sprint 6 as ✅ Complete. |
+| **Changed** | ROADMAP.md: Sprint 6 row inserted between Sprint 5 and Sprint 7. AGENT_MEMORY.md: Sprint 6 noted as complete in phase ledger. |
+| **Removed** | Nothing. |
+| **Constitution Version** | v1.3 |
+| **Note** | Sprint 6 — Canonical Intelligence Domains™ was delivered as part of the Canonical Registry Foundation™ (Sprint 1, PR #303, `a902da7`). The six domain schema (Identity, Music Rights, Catalog, Distribution Availability, Monitoring, System Operations) is the Sprint 6 deliverable. No code changes in this correction. |
+
+---
+
 ## 2026-07-12 — Mission Control™ v2.0 Sprint 8 — Monitoring & Change Detection™ (PR #315)
 
 | | |
