@@ -42,7 +42,8 @@ import { normalizeParsedEvidence as _normParsed,
          normalizeEnvelope         as _normEnvelope,
          normalizeMany             as _normMany } from './pipeline.js';
 import { validateRule, validateNormalizedOutput, validateReport } from './validate.js';
-import { createNormalizationReport } from './report.js';
+import { createNormalizationReport, createNormalizationManifest } from './report.js';
+import { createNormalizedRecord, computeNormalizationFingerprint } from './normalized-record.js';
 
 import { TEXT_RULES }       from './normalizers/text.js';
 import { IDENTIFIER_RULES } from './normalizers/identifiers.js';
@@ -138,6 +139,9 @@ export {
   validateNormalizedOutput,
   validateReport,
   createNormalizationReport,
+  createNormalizationManifest,
+  createNormalizedRecord,
+  computeNormalizationFingerprint,
   // Rule sets
   TEXT_RULES,
   IDENTITY_RULES,

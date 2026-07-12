@@ -10,8 +10,8 @@ import { randomUUID } from 'node:crypto';
 import { NORMALIZATION_ENGINE_VERSION } from './version.js';
 
 // Create a record of one rule application that changed a value.
-export function createAppliedEntry(ruleId, ruleName, field, inputValue, outputValue) {
-  return Object.freeze({ ruleId, ruleName, field, inputValue, outputValue });
+export function createAppliedEntry(ruleId, ruleName, ruleVersion, field, inputValue, outputValue) {
+  return Object.freeze({ ruleId, ruleName, ruleVersion: ruleVersion ?? null, field, inputValue, outputValue });
 }
 
 // Create a record of a rule that was deliberately skipped (applicable but bypassed).
@@ -22,6 +22,72 @@ export function createSkippedEntry(ruleId, ruleName, reason) {
 // Create an error entry for a rule that threw during execution.
 export function createErrorEntry(ruleId, field, error) {
   return Object.freeze({ ruleId, field, error: String(error) });
+}
+
+// Create an immutable Normalization Manifest™.
+//
+// The Manifest is the constitutional audit record that permanently explains HOW
+// normalization occurred. It is the companion artifact to the Normalized Record.
+//
+// The Manifest links backward to the source Registry Record (inputRegistryRecordId)
+// and forward to the produced Normalized Record (outputNormalizedRecordId).
+//
+// params:
+//   manifestId               -- UUID (caller supplies so Record and Manifest can cross-link)
+//   inputRegistryRecordId    -- Sprint 3 registryRecordId (may be null)
+//   outputNormalizedRecordId -- normalizedRecordId of the produced Normalized Record
+//   rulesApplied             -- array of createAppliedEntry results
+//   rulesSkipped             -- array of createSkippedEntry results
+//   ruleVersions             -- { [ruleId]: version } for all rules that ran
+//   engineVersion            -- NORMALIZATION_ENGINE_VERSION.version
+//   warnings                 -- array of warning strings
+//   errors                   -- array of createErrorEntry results
+//   processingTime           -- milliseconds elapsed during normalization
+//   createdAt                -- ISO timestamp
+//   (plus backward-compat fields from the original NormalizationReport)
+export function createNormalizationManifest({
+  manifestId,
+  inputRegistryRecordId,
+  outputNormalizedRecordId,
+  rulesApplied,
+  rulesSkipped,
+  ruleVersions,
+  engineVersion,
+  warnings,
+  errors,
+  processingTime,
+  createdAt,
+  sourceEnvelopeId,
+  evidenceEnvelopeId,
+  contractId,
+  providerId,
+  inputFieldCount,
+  transformedFieldCount,
+}) {
+  const id  = manifestId ?? randomUUID();
+  const now = createdAt  ?? new Date().toISOString();
+  return Object.freeze({
+    manifestId:               id,
+    reportId:                 id,      // backward-compat alias: reportId === manifestId
+    inputRegistryRecordId:    inputRegistryRecordId    ?? null,
+    outputNormalizedRecordId: outputNormalizedRecordId ?? null,
+    rulesApplied:             Object.freeze([...(rulesApplied  ?? [])]),
+    rulesSkipped:             Object.freeze([...(rulesSkipped  ?? [])]),
+    ruleVersions:             Object.freeze({ ...(ruleVersions ?? {}) }),
+    engineVersion:            engineVersion ?? NORMALIZATION_ENGINE_VERSION.version,
+    warnings:                 Object.freeze([...(warnings ?? [])]),
+    errors:                   Object.freeze([...(errors   ?? [])]),
+    processingTime:           processingTime ?? 0,
+    createdAt:                now,
+    normalizedAt:             now,     // backward-compat alias: normalizedAt === createdAt
+    sourceEnvelopeId:         sourceEnvelopeId   ?? null,
+    evidenceEnvelopeId:       evidenceEnvelopeId  ?? null,
+    contractId:               contractId  ?? null,
+    providerId:               providerId  ?? null,
+    inputFieldCount:          inputFieldCount      ?? 0,
+    transformedFieldCount:    transformedFieldCount ?? 0,
+    success:                  (errors?.length ?? 0) === 0,
+  });
 }
 
 // Create the Normalization Report for one normalization run.
