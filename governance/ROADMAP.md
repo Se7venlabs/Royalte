@@ -70,6 +70,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | Sprint 4 | Normalization Engine™ (+ Board Enhancements: Normalized Record™, Manifest™, Fingerprint) | ✅ Complete | `43761fa` (PR #309) | `normalization-engine-sprint4-v1.0` |
 | Sprint 5 | Evidence Resolution Engine™ (Resolution Policy Registry™, Confidence Engine™, Conflict Detection™, Field Provenance™, Resolution Record™, Resolution Manifest™) | ✅ Complete | `8c7fb5f` (PR #311) | `resolution-engine-sprint5-v1.0` |
 | Sprint 7 | Scan Orchestrator™ (Scan Lifecycle™, Scan State™, Pipeline Coordinator™, Event System™, Scan Queue™, Scan Scheduler™) | ✅ Complete | `8a4aa19` (PR #313) | `scan-orchestrator-sprint7-v1.0` |
+| Sprint 8 | Monitoring & Change Detection™ (Canonical Snapshot™, Change Detection Engine™, Timeline Engine™, Alert Engine™, Severity Engine™, History Store™) | ✅ Complete | `1317f07` (PR #315) | `monitoring-engine-v1.0` |
 
 ### Executive Workspace Sprint
 
@@ -131,8 +132,8 @@ from Apple Production Migration (PR #189, 2026-07-02).
 
 ## Next Engineering Target
 
-**Canonical Intelligence Platform™ Sprint 7 complete. Scan Orchestrator™ constitution ratified.** The next phase requires explicit Board authorization. Options pending Board direction:
-- **Sprint 8 — Monitoring & Change Detection™** — detect changes between scans, track scan history, surface deltas to Mission Control; requires Board brief
+**Canonical Intelligence Platform™ Sprint 8 complete. Monitoring & Change Detection™ constitution ratified.** The platform now answers both constitutional questions: "What is true?" (Sprints 1–7) and "What changed?" (Sprint 8). The next phase requires explicit Board authorization. Options pending Board direction:
+- **Sprint 9** — pending Board brief
 
 Prior options (carried forward, still require Board authorization):
 - **Publishing Intelligence™** — consume MLC + publishing evidence from CIM to generate constitutional publishing insight; requires Board brief

@@ -11,6 +11,23 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-12 — Mission Control™ v2.0 Sprint 8 — Monitoring & Change Detection™ — CONSTITUTION RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-12 |
+| **Decision** | Sprint 8 (Monitoring & Change Detection™) is ratified as a constitutional component of the Canonical Intelligence Platform™. The Monitoring Engine™, Canonical Snapshot™, Change Detection Engine™, Timeline Engine™, Timeline Events™, Alert Engine™, Severity Engine™, History Store™, and monitoring validation are approved. No additional Sprint 8 architectural changes may be introduced after merge except for critical defects. |
+| **Reason** | The Canonical Intelligence Platform™ requires permanent historical awareness. Sprint 8 establishes the Monitoring Engine™ as the sole component that compares immutable Canonical Snapshots™, detects meaningful changes, classifies them by Board-locked severity, and records them as permanent Timeline Events™ and Alerts. The engine answers the second constitutional question — "What changed?" — consumed by Mission Control™, ATHENA™, Executive Brief™, and future notifications. |
+| **Impact** | `api/monitoring/` created — version.js, types.js, severity.js, snapshots.js, change-engine.js, events.js, timeline.js, alerts.js, history.js, validate.js, index.js + MONITORING_ENGINE.md. `tests/monitoring-engine-test.mjs` — 182 assertions / 25 sections / 0 failures. `MONITORING_ENGINE` singleton and `createMonitoringEngine` factory exported. Board-locked severity rules: CRITICAL (ownership/rights/publishing/ISRC), HIGH (label/distributor/verification), MEDIUM (metadata/genre/profile), LOW (artwork/biography), INFORMATION (system events). |
+| **Vote** | Executive Board — APPROVED — CONSTITUTION RATIFIED |
+| **PR Number** | #315 |
+| **Commit SHA** | `1317f07` |
+| **Tag** | `monitoring-engine-v1.0` |
+| **Test surface** | 182 assertions · 25 sections · 0 failures |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-12 — Mission Control™ v2.0 Sprint 7 — Scan Orchestrator™ — CONSTITUTION RATIFIED
 
 | | |
