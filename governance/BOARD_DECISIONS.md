@@ -11,6 +11,23 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-12 — Mission Control™ v2.0 Sprint 4 — Normalization Engine™ — CONSTITUTION RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-12 |
+| **Decision** | Sprint 4 (Normalization Engine™) is ratified as a constitutional component of the Canonical Intelligence Platform™. The Normalization Engine, Normalized Record™, Normalization Manifest™, and Normalization Fingerprint are approved. No additional Sprint 4 architectural changes may be introduced after merge except for critical defects. |
+| **Reason** | The Canonical Intelligence Platform™ pipeline requires a deterministic, provider-neutral transformation layer between the Evidence Registry and the future Resolution Engine. Sprint 4 establishes this layer: 17 normalization rules across 8 categories, a central rule registry with idempotency validation, the Normalized Record™ as the constitutional output artifact, the Normalization Manifest™ as the permanent audit companion, and a SHA-256 deterministic fingerprint enabling chain-of-custody verification from Evidence Registry through to Canonical Record. |
+| **Impact** | `api/normalization/` is the sole normalization layer in the platform. All future providers and connectors must route evidence through this engine before Resolution. Sprint 5 (Evidence Resolution Engine™) unblocked. |
+| **Vote** | Executive Board — APPROVED FOR MERGE — CONSTITUTION RATIFIED |
+| **PR Number** | #309 |
+| **Commit SHA** | `43761fa` |
+| **Tag** | `normalization-engine-sprint4-v1.0` |
+| **Test surface** | 96 assertions · 21 sections · 0 failures |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-11 — Mission Control™ v2.0 Sprint 3 — Evidence Registry™ — RATIFIED
 
 | | |
