@@ -7,6 +7,7 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <script src="/js/mc-workspace-context.js"></script>
 </head>
 <body>
 <div class="ws-shell ws-dept--global">
@@ -107,6 +108,13 @@
 
   </aside>
 
+  <div id="ws-no-scan-overlay" hidden style="display:none;position:fixed;inset:0;background:rgba(10,10,10,.94);z-index:800;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:32px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="40" height="40" style="color:#6b7280" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div style="font-size:18px;font-weight:600;color:#e5e7eb;letter-spacing:-0.02em;">No Scan Loaded</div>
+    <div style="font-size:13px;color:#9ca3af;max-width:280px;line-height:1.6;">Run a scan from Mission Control to populate this workspace.</div>
+    <a href="/mission-control.html" style="margin-top:8px;padding:10px 20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e5e7eb;text-decoration:none;font-size:13px;font-weight:500;">← Mission Control</a>
+  </div>
+
   <div class="ws-content">
 
     <header class="ws-breadcrumb">
@@ -117,7 +125,7 @@
       <span class="ws-breadcrumb-current gf-breadcrumb-current">Global Music Footprint™</span>
     </header>
 
-    <div class="ws-body">
+    <div class="ws-body" style="opacity:0;transition:opacity .15s ease">
 
       <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
       <div class="hi-main">
@@ -410,14 +418,22 @@
     calibrationMode: calParam,
   });
 
-  /* ── Global Music Footprint™ — Live Wiring ──────────────────────────
-   * Reads globalMusicFootprint from royalte_workspace_context (written by
-   * __mcPopulate). Injects live values before count-up animations run.
-   * No-data → static demo values preserved.
+  /* ── Global Music Footprint™ — Runtime Renderer v1.0 ───────────────
+   * Input:  royalte_workspace_context (mc-workspace-context.js)
+   * Output: Rendered HTML. Never queries storage or renders demo data.
    */
   (function () {
-    var ctx = {};
-    try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+    var _result = window.RoyalteContext
+      ? window.RoyalteContext.readWorkspaceContext()
+      : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
+    if (_result.state !== 'valid') {
+      var _ol = document.getElementById('ws-no-scan-overlay');
+      if (_ol) { _ol.removeAttribute('hidden'); _ol.style.display = 'flex'; }
+      return;
+    }
+    var ctx = _result.ctx;
+    var _body = document.querySelector('.ws-body');
+    if (_body) _body.style.opacity = '1';
     var gf = ctx.globalMusicFootprint || null;
     if (!gf) return;
     var rn = document.getElementById('gf-ring-num');
