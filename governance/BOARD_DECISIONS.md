@@ -11,6 +11,23 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-12 — Mission Control™ v2.0 Sprint 7 — Scan Orchestrator™ — CONSTITUTION RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-12 |
+| **Decision** | Sprint 7 (Scan Orchestrator™) is ratified as a constitutional component of the Canonical Intelligence Platform™. The Scan Orchestrator™, Scan Lifecycle™, Scan State™, Pipeline Coordinator™, Event System™, Scan Queue™, Scan Scheduler™, and orchestration validation are approved. No additional Sprint 7 architectural changes may be introduced after merge except for critical defects. |
+| **Reason** | The Canonical Intelligence Platform™ requires a constitutional conductor that coordinates every stage of a Royaltē scan without containing business logic. Sprint 7 establishes this: an 11-state lifecycle machine, immutable scan state with full transition history, a 5-stage pipeline coordinator with timeout and cancellation, a wildcard event system, concurrency-limited scheduler, and injected stage executor interfaces. The Orchestrator becomes the sole component authorized to execute the complete scan pipeline. Stage executors are injected — the Core Intelligence Engine (Sprints 1–6) is never bypassed. |
+| **Impact** | `api/orchestrator/` created — version.js, types.js, lifecycle.js, state.js, events.js, queue.js, scheduler.js, pipeline.js, validate.js, index.js + ORCHESTRATOR.md. `tests/orchestrator-test.mjs` — 194 assertions / 25 sections / 0 failures. `SCAN_ORCHESTRATOR` singleton and `createScanOrchestrator` factory exported; `DEFAULT_STAGE_EXECUTORS` define the exact interfaces Sprint 3/4/5/6 modules satisfy at wiring time. |
+| **Vote** | Executive Board — APPROVED — CONSTITUTION RATIFIED |
+| **PR Number** | #313 |
+| **Commit SHA** | `8a4aa19` |
+| **Tag** | `scan-orchestrator-sprint7-v1.0` |
+| **Test surface** | 194 assertions · 25 sections · 0 failures |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-12 — Mission Control™ v2.0 Sprint 5 — Evidence Resolution Engine™ — CONSTITUTION RATIFIED
 
 | | |

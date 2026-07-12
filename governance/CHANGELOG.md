@@ -19,6 +19,20 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-12 — Mission Control™ v2.0 Sprint 7 — Scan Orchestrator™ (PR #313)
+
+| | |
+|---|---|
+| **PR** | #313 |
+| **Commit SHA** | `8a4aa19` |
+| **Tag** | `scan-orchestrator-sprint7-v1.0` |
+| **Constitution Version** | v1.3 |
+| **Added** | `api/orchestrator/version.js` — `ORCHESTRATOR_VERSION`. `api/orchestrator/types.js` — `LIFECYCLE_STAGES` (11 states), `SCAN_STATUSES`, `ORCHESTRATOR_EVENTS` (17 events), `ORCHESTRATOR_ERROR_CODES`, `LIFECYCLE_STAGE_ORDER`, `TERMINAL_STAGES`, `STAGE_EXECUTOR_MAP`, `EXECUTOR_KEYS`. `api/orchestrator/lifecycle.js` — Scan Lifecycle™: `VALID_TRANSITIONS`, `isValidTransition`, `isTerminalStage`, `deriveStatus`. `api/orchestrator/state.js` — Scan State™: `createScanState`, `transitionState`, `markCancelRequested`; every transition produces a new deep-frozen state. `api/orchestrator/events.js` — Event System™: `createEventEmitter` (specific + wildcard `*` subscriptions); `createScanEvent` frozen event factory. `api/orchestrator/queue.js` — Scan Queue™: scanId-indexed state store; `pending()` / `running()` / `completed()` / `failed()` filters; cancel flag. `api/orchestrator/scheduler.js` — Scan Scheduler™: configurable `maxConcurrentScans`; `markStarted` / `markCompleted`; throws at capacity. `api/orchestrator/pipeline.js` — Pipeline Coordinator™: 5-stage `executePipeline` with per-stage timeout (`withTimeout`), cancellation checkpoint before each stage, distinct error codes per failure type. `api/orchestrator/validate.js` — `validateScanRequest` / `validateStageExecutors` / `validatePipelineOrder` / `validateLifecycleTransition` / `validateScanState`. `api/orchestrator/index.js` — `SCAN_ORCHESTRATOR` singleton + `createScanOrchestrator` factory; `DEFAULT_STAGE_EXECUTORS` stubs defining interfaces for Sprint 3/4/5/6 wiring. `api/orchestrator/ORCHESTRATOR.md` — full architectural documentation. `tests/orchestrator-test.mjs` — 194 assertions / 25 sections / 0 failures. |
+| **Changed** | Nothing. Sprint 7 is additive only. |
+| **Removed** | Nothing. |
+
+---
+
 ## 2026-07-12 — Mission Control™ v2.0 Sprint 5 — Evidence Resolution Engine™ (PR #311)
 
 | | |
