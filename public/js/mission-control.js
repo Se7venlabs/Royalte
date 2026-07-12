@@ -1445,10 +1445,18 @@ if (typeof window !== 'undefined') {
     // Workspace bridge — write the intelligence subset workspace pages need.
     // Uses a non-consumed key (never removed) so workspace pages can read it
     // after navigating away from MC. Mirrors royalte_session_context pattern.
+    // Runtime Context Contract v1.0 (Board-locked 2026-07-12).
+    // schemaVersion + scanId + generatedAt are required by mc-workspace-context.js validation.
+    // identity = payload.cim?.identity (provider coverage data — the field that IS populated
+    // in current scans; identityIntelligence is legacy/future).
     try {
       sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+        schemaVersion:           '1.0',
+        scanId:                  payload.scanId                               ?? null,
+        generatedAt:             new Date().toISOString(),
         artistName:              _vaultPlans.artistName                       ?? null,
         subject:                 payload.subject                              ?? null,
+        identity:                payload.cim?.identity                        ?? null,
         executiveBrief:          payload.executiveBrief                       ?? null,
         healthReport:            payload.healthReport                         ?? null,
         healthIntelligence:      payload.healthIntelligence                   ?? null,
