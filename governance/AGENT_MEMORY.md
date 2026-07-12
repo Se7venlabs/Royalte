@@ -28,12 +28,12 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **Mission Control™ v2.0 Sprint 4 — Normalization Engine™** |
-| Merged at | `43761fa` (PR #309, 2026-07-12) |
-| Tag | `normalization-engine-sprint4-v1.0` |
-| Prior phase | Mission Control™ v2.0 Sprint 3 — Evidence Registry™ (`73a036d`, PR #307, 2026-07-11) |
-| Active direction | **Canonical Intelligence Platform™ — Sprint 4 merged and constitution ratified.** Normalized Record™, Normalization Manifest™, and Normalization Fingerprint are constitutional components. Sprint 5 (Evidence Resolution Engine™) pending Board brief. |
-| Next Board gate | Sprint 5 brief required from the Board. |
+| Most recently completed phase | **Mission Control™ v2.0 Sprint 5 — Evidence Resolution Engine™** |
+| Merged at | `8c7fb5f` (PR #311, 2026-07-12) |
+| Tag | `resolution-engine-sprint5-v1.0` |
+| Prior phase | Mission Control™ v2.0 Sprint 4 — Normalization Engine™ (`43761fa`, PR #309, 2026-07-12) |
+| Active direction | **Canonical Intelligence Platform™ — Sprint 5 merged and constitution ratified.** Resolution Engine™, Resolution Policy Registry™, Resolution Record™, Field Provenance™, Conflict Detection™, Confidence Engine™, and Resolution Manifest™ are constitutional components. Sprint 6 (Canonical Intelligence Domains™) pending Board brief. |
+| Next Board gate | Sprint 6 brief required from the Board. |
 
 **⚠ ACTIVE INITIATIVE — Mission Control™ Data Integrity Program™ (2026-07-11)**  
 Black Alternative is the **Canonical Development Artist™**. Every workspace must accurately represent Black Alternative's verified scan results before any new module development begins.  

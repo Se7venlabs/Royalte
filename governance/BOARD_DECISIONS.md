@@ -11,6 +11,23 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-12 — Mission Control™ v2.0 Sprint 5 — Evidence Resolution Engine™ — CONSTITUTION RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-12 |
+| **Decision** | Sprint 5 (Evidence Resolution Engine™) is ratified as a constitutional component of the Canonical Intelligence Platform™. The Evidence Resolution Engine™, Resolution Policy Registry™, Resolution Record™, Field Provenance™, Conflict Detection™, Confidence Engine™, and Resolution Manifest™ are approved. No additional Sprint 5 architectural changes may be introduced after merge except for critical defects. |
+| **Reason** | The Canonical Intelligence Platform™ pipeline requires a deterministic, auditable layer that consumes Normalized Records from Sprint 4 and produces a single canonical truth per field. Sprint 5 establishes this as the first constitutional layer permitted to select canonical truth. It applies deterministic Resolution Policies™ (ordered provider priority per field), detects conflicts across providers, computes deterministic confidence scores via the Confidence Engine™, records full Field Provenance™ for every selection, and produces immutable Resolution Records™ and Resolution Manifests™. No provider ordering exists outside the Policy Registry — constitutional mandate. Eight constitutional laws are enforced in code. |
+| **Impact** | `api/resolution/` created — version.js, types.js, registry.js, policies.js, confidence.js, conflicts.js, provenance.js, resolution-record.js, manifest.js, pipeline.js, validate.js, index.js + RESOLUTION_ENGINE.md. `tests/resolution-engine-test.mjs` — 131 assertions / 25 sections / 0 failures. `RESOLUTION_ENGINE` singleton validates the full default policy registry at startup; broken registry = startup failure. Chain of custody now complete through: Evidence Registry Record → Normalized Record™ → Resolution Record™ → Canonical Record (Sprint 6+). |
+| **Vote** | Executive Board — APPROVED — CONSTITUTION RATIFIED |
+| **PR Number** | #311 |
+| **Commit SHA** | `8c7fb5f` |
+| **Tag** | `resolution-engine-sprint5-v1.0` |
+| **Test surface** | 131 assertions · 25 sections · 0 failures |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-12 — Mission Control™ v2.0 Sprint 4 — Normalization Engine™ — CONSTITUTION RATIFIED
 
 | | |
