@@ -11,6 +11,23 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-12 — Mission Control™ v2.0 Sprint 9 — Mission Control Data API™ — CONSTITUTION RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-12 |
+| **Decision** | Sprint 9 (Mission Control Data API™) is ratified as a constitutional component of the Canonical Intelligence Platform™. The Endpoint Registry™, Response Models™, Serialization Layer™, Validation Framework™, Route Layer™, and API Factory™ are approved. From this sprint forward, no application may communicate directly with the Evidence Registry, Normalization Engine, Resolution Engine, Canonical Intelligence Domains, or Monitoring Engine. All access routes through the Mission Control Data API™. No additional Sprint 9 architectural changes may be introduced after merge except for critical defects. |
+| **Reason** | The Canonical Intelligence Platform™ (Sprints 1–8) requires a single constitutional gateway to protect the integrity of its internal engines. Sprint 9 establishes the Mission Control Data API™ as that gateway — 7 ACTIVE endpoints, deep-frozen immutable response envelopes, deterministic JSON serialization, a registry-verified dispatch layer, and a factory pattern that supports injected registries for testing. The API satisfies the "One Platform. One API. Many Consumers." constitutional principle. |
+| **Impact** | `api/mission-control-api/` created — version.js, types.js, schemas.js, registry.js, responses.js, serialization.js, validation.js, routes.js, index.js + MISSION_CONTROL_API.md. `tests/mission-control-api-test.mjs` — 136 assertions / 20 sections / 0 failures. `MISSION_CONTROL_API` singleton and `createMissionControlApi` factory exported. 7 Board-registered endpoints: identity, music_rights, catalog, distribution, monitoring, system_operations, executive_overview. |
+| **Vote** | Executive Board — APPROVED — CONSTITUTION RATIFIED |
+| **PR Number** | #318 |
+| **Commit SHA** | `4047311` |
+| **Tag** | `mission-control-api-v1.0` |
+| **Test surface** | 136 assertions · 20 sections · 0 failures |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-12 — Sprint 6 Canonical Intelligence Domains™ — GOVERNANCE RECONCILIATION
 
 | | |

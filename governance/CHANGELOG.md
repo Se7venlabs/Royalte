@@ -19,6 +19,21 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-12 — Mission Control™ v2.0 Sprint 9 — Mission Control Data API™ (PR #318)
+
+| | |
+|---|---|
+| **Date** | 2026-07-12 |
+| **PR Number** | #318 |
+| **Commit SHA** | `4047311` |
+| **Tag** | `mission-control-api-v1.0` |
+| **Added** | `api/mission-control-api/` (10 source files + `MISSION_CONTROL_API.md`): `version.js`, `types.js`, `schemas.js`, `registry.js`, `responses.js`, `serialization.js`, `validation.js`, `routes.js`, `index.js`. `tests/mission-control-api-test.mjs` (136 assertions / 20 sections / 0 failures). |
+| **Changed** | Nothing. Sprint 9 is additive only. |
+| **Removed** | Nothing. |
+| **Constitution Version** | v1.3 |
+
+---
+
 ## 2026-07-12 — Governance Reconciliation — Sprint 6 Canonical Intelligence Domains™
 
 | | |

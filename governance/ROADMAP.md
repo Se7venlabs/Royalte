@@ -72,6 +72,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | Sprint 6 | Canonical Intelligence Domains™ — Delivered during the expanded Canonical Registry Foundation™ implementation (PR #303 / `a902da7`). Sprint 6 formally recognizes the Canonical Intelligence Domain architecture (6 domains, 26 objects, domain ownership validation, consumer workspace separation) that was implemented during the expanded Sprint 1. No additional engineering implementation was required. Constitutional ratification only. | ✅ Complete | `a902da7` (PR #303) | `canonical-registry-sprint1-v1.0` |
 | Sprint 7 | Scan Orchestrator™ (Scan Lifecycle™, Scan State™, Pipeline Coordinator™, Event System™, Scan Queue™, Scan Scheduler™) | ✅ Complete | `8a4aa19` (PR #313) | `scan-orchestrator-sprint7-v1.0` |
 | Sprint 8 | Monitoring & Change Detection™ (Canonical Snapshot™, Change Detection Engine™, Timeline Engine™, Alert Engine™, Severity Engine™, History Store™) | ✅ Complete | `1317f07` (PR #315) | `monitoring-engine-v1.0` |
+| Sprint 9 | Mission Control Data API™ (Endpoint Registry™, Response Models™, Serialization Layer™, Validation Framework™, Route Layer™, API Factory™) — constitutional public gateway between the Canonical Intelligence Platform™ and every consumer. No application may bypass this layer to reach platform engines directly. | ✅ Complete | `4047311` (PR #318) | `mission-control-api-v1.0` |
 
 ### Executive Workspace Sprint
 
@@ -133,8 +134,8 @@ from Apple Production Migration (PR #189, 2026-07-02).
 
 ## Next Engineering Target
 
-**Canonical Intelligence Platform™ Sprint 8 complete. Monitoring & Change Detection™ constitution ratified.** The platform now answers both constitutional questions: "What is true?" (Sprints 1–7) and "What changed?" (Sprint 8). The next phase requires explicit Board authorization. Options pending Board direction:
-- **Sprint 9** — pending Board brief
+**Canonical Intelligence Platform™ Sprint 9 complete. Mission Control Data API™ constitution ratified.** The platform now has a single constitutional gateway between the Canonical Intelligence Platform™ and every consumer. The next phase requires explicit Board authorization. Options pending Board direction:
+- **Sprint 10** — Executive Intelligence Engine™ (pending Board brief)
 
 Prior options (carried forward, still require Board authorization):
 - **Publishing Intelligence™** — consume MLC + publishing evidence from CIM to generate constitutional publishing insight; requires Board brief
