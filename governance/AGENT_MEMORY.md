@@ -28,12 +28,12 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **Mission Control™ v2.0 Sprint 8 — Monitoring & Change Detection™** |
-| Merged at | `1317f07` (PR #315, 2026-07-12) |
-| Tag | `monitoring-engine-v1.0` |
-| Prior phase | Mission Control™ v2.0 Sprint 7 — Scan Orchestrator™ (`8a4aa19`, PR #313, 2026-07-12) |
-| Active direction | **Canonical Intelligence Platform™ — Sprint 8 merged and constitution ratified.** Monitoring Engine™, Canonical Snapshot™, Change Detection Engine™, Timeline Engine™, Alert Engine™, Severity Engine™, and History Store™ are constitutional components. Sprint 9 pending Board brief. |
-| Next Board gate | Sprint 9 brief required from the Board. |
+| Most recently completed phase | **Mission Control™ v2.0 Sprint 9 — Mission Control Data API™** |
+| Merged at | `4047311` (PR #318, 2026-07-12) |
+| Tag | `mission-control-api-v1.0` |
+| Prior phase | Mission Control™ v2.0 Sprint 8 — Monitoring & Change Detection™ (`1317f07`, PR #315, 2026-07-12) |
+| Active direction | **Canonical Intelligence Platform™ — Sprint 9 merged and constitution ratified.** Mission Control Data API™, Endpoint Registry™, Response Models™, Serialization Layer™, Validation Framework™, Route Layer™, and API Factory™ are constitutional components. No application may bypass this layer. Sprint 10 — Executive Intelligence Engine™ pending Board brief. |
+| Next Board gate | Sprint 10 brief required from the Board. |
 
 **⚠ ACTIVE INITIATIVE — Mission Control™ Data Integrity Program™ (2026-07-11)**  
 Black Alternative is the **Canonical Development Artist™**. Every workspace must accurately represent Black Alternative's verified scan results before any new module development begins.  
@@ -78,7 +78,7 @@ The Engineering Agent is responsible for the Product Review before opening a PR.
 
 **Phase 3.4 — Website Scan is a constitutional presentation layer.** All displayed intelligence reads from the Certified CIM. ISRC Coverage is a permanent RIE field (`isrcCoverage` in `catalogIntelligence`). Catalog Availability reads from `globalMusicFootprint.status`. Zero business logic remains in `_renderV2Found`.
 
-Phase lock history: MC v2.0 Sprint 1 `a902da7` / `canonical-registry-sprint1-v1.0`. MC v2.0 Sprint 2 `d10d469`. MC v2.0 Sprint 3 `73a036d`. MC v2.0 Sprint 4 `43761fa`. MC v2.0 Sprint 5 `8c7fb5f`. MC v2.0 Sprint 6 (Canonical Intelligence Domains™) — ✅ COMPLETE — constitutionally ratified architecture implemented during expanded Sprint 1 (`a902da7`); no separate engineering implementation; `canonical-registry-sprint1-v1.0`. MC v2.0 Sprint 7 `8a4aa19`. MC v2.0 Sprint 8 `1317f07`. Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`. MC-3.2 Health Intelligence™ Executive Assessment `346a2d0`. MC-3.2-ELO Executive Layout Optimization™ v1.0 `83c8804`. MC-3.3 Identity Intelligence™ Executive Passport `654eb52`. MC-3.4 Publishing Intelligence™ Executive Passport + Amendment 1 `2bb1af2`. MC-3.4 Amendment 2 (executive brief typography) `8400134`.
+Phase lock history: MC v2.0 Sprint 1 `a902da7` / `canonical-registry-sprint1-v1.0`. MC v2.0 Sprint 2 `d10d469`. MC v2.0 Sprint 3 `73a036d`. MC v2.0 Sprint 4 `43761fa`. MC v2.0 Sprint 5 `8c7fb5f`. MC v2.0 Sprint 6 (Canonical Intelligence Domains™) — ✅ COMPLETE — constitutionally ratified architecture implemented during expanded Sprint 1 (`a902da7`); no separate engineering implementation; `canonical-registry-sprint1-v1.0`. MC v2.0 Sprint 7 `8a4aa19`. MC v2.0 Sprint 8 `1317f07`. MC v2.0 Sprint 9 `4047311` / `mission-control-api-v1.0`. Phase 6 `a23788b` / `intelligence-engine-v1.0`. Phase 6.5 `52b1750`. Phase 7 `ec57481`. Phase 7.5 `38ec3be`. Phase 8 `8f00014` / `phase-8-scan-pipeline-wiring-v1.0`. Phase 3.1 (CimAdapter + scan-migration) `77c827a`. Phase 3.2 (One Health Engine) `aca5571`. Phase 3.3 (Apple Production Migration) `584770d`. Phase 3.4 (Product Consumption Cleanup) `8a71df7`. Phase 3.5 (OS v1.0 Certification) `65c5c16` / `royalte-os-v1.0`. Phase 3.6 Spotify `ba4054d`. Phase 3.7 (Recording Intelligence) `2057db6`. Phase 3.8 (MusicBrainz) `b966881`. Phase 3.6 Discogs `aea8095`. Phase 3.6 YouTube `fb44ef5`. Phase 3.6 MLC `67d7fe8`. Phase 3.6 Deezer `ba66b26`. MC-3.2 Health Intelligence™ Executive Assessment `346a2d0`. MC-3.2-ELO Executive Layout Optimization™ v1.0 `83c8804`. MC-3.3 Identity Intelligence™ Executive Passport `654eb52`. MC-3.4 Publishing Intelligence™ Executive Passport + Amendment 1 `2bb1af2`. MC-3.4 Amendment 2 (executive brief typography) `8400134`.
 
 The full phase ledger lives in `governance/ROADMAP.md`. The merge history lives in `governance/CHANGELOG.md`. The legacy retirement checklist lives in `governance/MIGRATION_RETIREMENT_REGISTER.md`.
 
