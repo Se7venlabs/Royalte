@@ -19,6 +19,20 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-12 — Mission Control™ v2.0 Sprint 5 — Evidence Resolution Engine™ (PR #311)
+
+| | |
+|---|---|
+| **PR** | #311 |
+| **Commit SHA** | `8c7fb5f` |
+| **Tag** | `resolution-engine-sprint5-v1.0` |
+| **Constitution Version** | v1.3 |
+| **Added** | `api/resolution/version.js` — `RESOLUTION_ENGINE_VERSION`. `api/resolution/types.js` — `CONFLICT_TYPES`, `CONFIDENCE_LEVELS`, `RESOLUTION_RULES`, `POLICY_STATUSES`, `RESOLUTION_ERROR_CODES`. `api/resolution/registry.js` — `createResolutionRegistry` + `assertPolicyInterface` (startup integrity check; broken registry = startup failure). `api/resolution/policies.js` — 10 default Sprint 5 policies (artistName, artistId, recordLabel, genre, releaseDate, trackCount, isrc, upc, sourceUrl, DEFAULT). `api/resolution/confidence.js` — Confidence Engine™: deterministic `providerPriorityScore × agreementMultiplier` formula; Board-locked scores per rank and conflict type. `api/resolution/conflicts.js` — Conflict Detection™: `ALL_AGREE / PARTIAL_AGREEMENT / CONFLICT / SINGLE_SOURCE / NO_DATA` classification with full conflicting-pair registry. `api/resolution/provenance.js` — `createFieldProvenance` — permanent audit record of every canonical selection (selectedProvider, supportingProviders, conflictingProviders, resolutionRule, confidence, conflictType). `api/resolution/resolution-record.js` — `createResolutionRecord` — immutable constitutional output artifact. `api/resolution/manifest.js` — `createResolutionManifest` — immutable audit companion; cross-linked to Resolution Record and Field Provenance. `api/resolution/pipeline.js` — `resolveField` / `resolveManyFields` / `resolveAllFields`; stateless; deterministic; never throws; never mutates inputs. `api/resolution/validate.js` — `validatePolicy` / `validateResolutionRecord` / `validateResolutionManifest` / `validateNormalizedRecords`. `api/resolution/index.js` — `RESOLUTION_ENGINE` singleton + `createResolutionEngine` factory; full public API. `api/resolution/RESOLUTION_ENGINE.md` — full architectural documentation. `tests/resolution-engine-test.mjs` — 131 assertions / 25 sections / 0 failures. |
+| **Changed** | Nothing. Sprint 5 is additive only. |
+| **Removed** | Nothing. |
+
+---
+
 ## 2026-07-11 — Identity Intelligence™ Workspace 2 — Data Integrity Program™ Validation + Single Source of Truth Architecture (PR #299)
 
 | | |
