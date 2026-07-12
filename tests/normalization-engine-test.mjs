@@ -8,6 +8,9 @@ import * as _normModuleRef from '../api/normalization/index.js';
 import {
   NORMALIZATION_ENGINE,
   NORMALIZATION_ENGINE_VERSION,
+  createNormalizedRecord,
+  computeNormalizationFingerprint,
+  createNormalizationManifest,
   NORMALIZATION_CATEGORIES,
   RULE_STATUSES,
   NORMALIZER_INPUT_TYPES,
@@ -755,6 +758,207 @@ test('normalizeRegistryRecord does not return a canonical provider selection', (
   // The output must contain the provider field unchanged — the engine does not pick a winner
   assert.equal(result.normalizedEvidence.provider, 'apple-music',
     'Provider field must be preserved, not resolved');
+});
+
+// ============================================================
+// 19. Normalized Record™ — Enhancement 1
+// ============================================================
+console.log('\n-- 19. Normalized Record(tm)');
+
+test('normalizeRegistryRecord returns a normalizedRecord', () => {
+  const { normalizedRecord } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.ok(normalizedRecord, 'normalizedRecord must be present');
+  assert.ok(Object.isFrozen(normalizedRecord), 'normalizedRecord must be frozen');
+});
+
+test('Normalized Record has required fields', () => {
+  const { normalizedRecord } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.ok(normalizedRecord.normalizedRecordId,      'normalizedRecordId required');
+  assert.ok(normalizedRecord.normalizationManifestId, 'normalizationManifestId required');
+  assert.ok(normalizedRecord.normalizedEvidence,      'normalizedEvidence required');
+  assert.ok(normalizedRecord.normalizationFingerprint,'normalizationFingerprint required');
+  assert.ok(normalizedRecord.engineVersion,           'engineVersion required');
+  assert.ok(normalizedRecord.ruleVersions,            'ruleVersions required');
+  assert.ok(normalizedRecord.createdAt,               'createdAt required');
+});
+
+test('normalizedRecordId is a UUID v4', () => {
+  const { normalizedRecord } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.match(
+    normalizedRecord.normalizedRecordId,
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    'normalizedRecordId must be UUID v4'
+  );
+});
+
+test('Normalized Record links to its registryRecordId', () => {
+  const record = makeRegistryRecord();
+  const { normalizedRecord } = normalizeRegistryRecord(record);
+  assert.equal(normalizedRecord.registryRecordId, record.registryRecordId);
+});
+
+test('Normalized Record links to its Manifest via normalizationManifestId', () => {
+  const { normalizedRecord, manifest } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.equal(normalizedRecord.normalizationManifestId, manifest.manifestId,
+    'normalizationManifestId must match companion manifest');
+});
+
+test('normalizedEvidence on the Normalized Record matches backward-compat normalizedEvidence', () => {
+  const result = normalizeRegistryRecord(makeRegistryRecord());
+  assert.strictEqual(
+    result.normalizedRecord.normalizedEvidence,
+    result.normalizedEvidence,
+    'normalizedRecord.normalizedEvidence must === backward-compat normalizedEvidence'
+  );
+});
+
+test('ruleVersions on Normalized Record contains versions of applied rules', () => {
+  const record = makeRegistryRecord({ evidence: { artistName: '  The Weeknd  ' } });
+  const { normalizedRecord } = normalizeRegistryRecord(record);
+  // TXT-001 (trim) should have fired; its version must appear in ruleVersions
+  assert.ok('TXT-001' in normalizedRecord.ruleVersions, 'TXT-001 must be in ruleVersions');
+  assert.match(normalizedRecord.ruleVersions['TXT-001'], /^\d+\.\d+\.\d+$/,
+    'ruleVersions value must be semver');
+});
+
+test('createNormalizedRecord factory produces a frozen record', () => {
+  const record = createNormalizedRecord({
+    normalizedRecordId:       'rec-test-001',
+    normalizationManifestId:  'mfst-test-001',
+    normalizedEvidence:       { evidence: { artistName: 'Test' } },
+    engineVersion:            '1.0.0',
+    ruleVersions:             { 'TXT-001': '1.0.0' },
+  });
+  assert.ok(Object.isFrozen(record));
+  assert.ok(Object.isFrozen(record.ruleVersions));
+  assert.ok(record.normalizationFingerprint, 'fingerprint must be computed');
+});
+
+// ============================================================
+// 20. Normalization Manifest™ — Enhancement 2
+// ============================================================
+console.log('\n-- 20. Normalization Manifest(tm)');
+
+test('normalizeRegistryRecord returns a manifest', () => {
+  const { manifest } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.ok(manifest, 'manifest must be present');
+  assert.ok(Object.isFrozen(manifest), 'manifest must be frozen');
+});
+
+test('Manifest has required fields', () => {
+  const { manifest } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.ok(manifest.manifestId,               'manifestId required');
+  assert.ok(manifest.outputNormalizedRecordId, 'outputNormalizedRecordId required');
+  assert.ok(manifest.engineVersion,            'engineVersion required');
+  assert.ok(Array.isArray(manifest.rulesApplied), 'rulesApplied must be array');
+  assert.ok(Array.isArray(manifest.rulesSkipped), 'rulesSkipped must be array');
+  assert.ok(manifest.ruleVersions,             'ruleVersions required');
+  assert.equal(typeof manifest.processingTime, 'number', 'processingTime must be a number');
+  assert.ok(manifest.createdAt,                'createdAt required');
+  assert.equal(typeof manifest.success, 'boolean', 'success must be boolean');
+});
+
+test('Manifest links forward to Normalized Record via outputNormalizedRecordId', () => {
+  const { normalizedRecord, manifest } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.equal(manifest.outputNormalizedRecordId, normalizedRecord.normalizedRecordId,
+    'outputNormalizedRecordId must match companion Normalized Record');
+});
+
+test('Manifest links backward to input Registry Record via inputRegistryRecordId', () => {
+  const record = makeRegistryRecord();
+  const { manifest } = normalizeRegistryRecord(record);
+  assert.equal(manifest.inputRegistryRecordId, record.registryRecordId);
+});
+
+test('Manifest backward-compat: reportId === manifestId', () => {
+  const { manifest } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.equal(manifest.reportId, manifest.manifestId,
+    'reportId must equal manifestId for backward compatibility');
+});
+
+test('Manifest backward-compat: normalizedAt === createdAt', () => {
+  const { manifest } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.equal(manifest.normalizedAt, manifest.createdAt,
+    'normalizedAt must equal createdAt for backward compatibility');
+});
+
+test('manifest === report (backward-compat alias)', () => {
+  const result = normalizeRegistryRecord(makeRegistryRecord());
+  assert.strictEqual(result.manifest, result.report,
+    'manifest and report must be the same object');
+});
+
+test('Manifest processingTime is a non-negative number', () => {
+  const { manifest } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.ok(manifest.processingTime >= 0, 'processingTime must be >= 0');
+});
+
+test('createNormalizationManifest factory produces a frozen manifest', () => {
+  const mfst = createNormalizationManifest({
+    manifestId:               'mfst-test-001',
+    outputNormalizedRecordId: 'rec-test-001',
+    rulesApplied:             [],
+    ruleVersions:             {},
+    engineVersion:            '1.0.0',
+    processingTime:           5,
+  });
+  assert.ok(Object.isFrozen(mfst));
+  assert.equal(mfst.manifestId, 'mfst-test-001');
+  assert.equal(mfst.reportId,   'mfst-test-001');
+});
+
+// ============================================================
+// 21. Normalization Fingerprint — Enhancement 3
+// ============================================================
+console.log('\n-- 21. Normalization Fingerprint');
+
+test('Normalized Record has a normalizationFingerprint', () => {
+  const { normalizedRecord } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.ok(normalizedRecord.normalizationFingerprint, 'fingerprint must be present');
+  assert.equal(typeof normalizedRecord.normalizationFingerprint, 'string');
+});
+
+test('Fingerprint is a SHA-256 hex string (64 chars)', () => {
+  const { normalizedRecord } = normalizeRegistryRecord(makeRegistryRecord());
+  assert.match(normalizedRecord.normalizationFingerprint, /^[0-9a-f]{64}$/,
+    'fingerprint must be a 64-char hex string');
+});
+
+test('Fingerprint is deterministic: same input produces same fingerprint', () => {
+  const record = makeRegistryRecord();
+  const r1 = normalizeRegistryRecord(record);
+  const r2 = normalizeRegistryRecord(record);
+  assert.equal(
+    r1.normalizedRecord.normalizationFingerprint,
+    r2.normalizedRecord.normalizationFingerprint,
+    'Fingerprint must be identical across runs for identical input'
+  );
+});
+
+test('Fingerprint is key-order-independent', () => {
+  // Same content, different key order in evidence
+  const pe1 = makeParsedEvidence({ evidence: { artistName: 'Test', artistId: 'A001' } });
+  const pe2 = makeParsedEvidence({ evidence: { artistId: 'A001', artistName: 'Test' } });
+  const fp1 = computeNormalizationFingerprint(pe1.evidence);
+  const fp2 = computeNormalizationFingerprint(pe2.evidence);
+  assert.equal(fp1, fp2, 'Fingerprint must be identical regardless of key order');
+});
+
+test('Different normalized evidence produces different fingerprints', () => {
+  const record1 = makeRegistryRecord({ evidence: { artistName: 'Artist A' } });
+  const record2 = makeRegistryRecord({ evidence: { artistName: 'Artist B' } });
+  const { normalizedRecord: nr1 } = normalizeRegistryRecord(record1);
+  const { normalizedRecord: nr2 } = normalizeRegistryRecord(record2);
+  assert.notEqual(
+    nr1.normalizationFingerprint,
+    nr2.normalizationFingerprint,
+    'Different evidence must produce different fingerprints'
+  );
+});
+
+test('computeNormalizationFingerprint returns sentinel for null input', () => {
+  const fp = computeNormalizationFingerprint(null);
+  assert.equal(fp, 'null-evidence');
 });
 
 // ============================================================
