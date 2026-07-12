@@ -67,6 +67,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | Sprint 1 | Canonical Registry Foundation™ (+ Sprint 1A Ownership Corrections) | ✅ Complete | `a902da7` (PR #303) | `canonical-registry-sprint1-v1.0` |
 | Sprint 2 | Evidence Contracts™ | ✅ Complete | `d10d469` (PR #305) | `evidence-contracts-sprint2-v1.0` |
 | Sprint 3 | Evidence Registry™ | ✅ Complete | `73a036d` (PR #307) | `evidence-registry-sprint3-v1.0` |
+| Sprint 4 | Normalization Engine™ (+ Board Enhancements: Normalized Record™, Manifest™, Fingerprint) | ✅ Complete | `43761fa` (PR #309) | `normalization-engine-sprint4-v1.0` |
 
 ### Executive Workspace Sprint
 
@@ -128,9 +129,8 @@ from Apple Production Migration (PR #189, 2026-07-02).
 
 ## Next Engineering Target
 
-**Canonical Intelligence Platform™ Sprint 3 complete. Evidence Registry™ ratified.** The next phase requires explicit Board authorization. Options pending Board direction:
-- **Sprint 4 — Normalization Engine™** — normalize stored Evidence Registry records into canonical field shapes; requires Board brief
-- **Sprint 5 — Resolution Engine™** — resolve conflicts across providers into a single authoritative canonical record; requires Board brief
+**Canonical Intelligence Platform™ Sprint 4 complete. Normalization Engine™ constitution ratified.** The next phase requires explicit Board authorization. Options pending Board direction:
+- **Sprint 5 — Evidence Resolution Engine™** — resolve conflicts across normalized records from multiple providers into a single authoritative canonical record; requires Board brief
 
 Prior options (carried forward, still require Board authorization):
 - **Publishing Intelligence™** — consume MLC + publishing evidence from CIM to generate constitutional publishing insight; requires Board brief
