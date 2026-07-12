@@ -19,6 +19,21 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-12 — Mission Control™ v2.0 Sprint 8 — Monitoring & Change Detection™ (PR #315)
+
+| | |
+|---|---|
+| **Date** | 2026-07-12 |
+| **PR Number** | #315 |
+| **Commit SHA** | `1317f07` |
+| **Tag** | `monitoring-engine-v1.0` |
+| **Added** | `api/monitoring/` (12 source files + `MONITORING_ENGINE.md`): `version.js`, `types.js`, `severity.js`, `snapshots.js`, `change-engine.js`, `events.js`, `timeline.js`, `alerts.js`, `history.js`, `validate.js`, `index.js`. `tests/monitoring-engine-test.mjs` (182 assertions / 25 sections / 0 failures). |
+| **Changed** | Nothing. Sprint 8 is additive only. |
+| **Removed** | Nothing. |
+| **Constitution Version** | v1.3 |
+
+---
+
 ## 2026-07-12 — Mission Control™ v2.0 Sprint 7 — Scan Orchestrator™ (PR #313)
 
 | | |

@@ -28,12 +28,12 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **Mission Control™ v2.0 Sprint 7 — Scan Orchestrator™** |
-| Merged at | `8a4aa19` (PR #313, 2026-07-12) |
-| Tag | `scan-orchestrator-sprint7-v1.0` |
-| Prior phase | Mission Control™ v2.0 Sprint 5 — Evidence Resolution Engine™ (`8c7fb5f`, PR #311, 2026-07-12) |
-| Active direction | **Canonical Intelligence Platform™ — Sprint 7 merged and constitution ratified.** Scan Orchestrator™, Scan Lifecycle™, Scan State™, Pipeline Coordinator™, Event System™, Scan Queue™, and Scan Scheduler™ are constitutional components. Sprint 8 (Monitoring & Change Detection™) pending Board brief. |
-| Next Board gate | Sprint 8 brief required from the Board. |
+| Most recently completed phase | **Mission Control™ v2.0 Sprint 8 — Monitoring & Change Detection™** |
+| Merged at | `1317f07` (PR #315, 2026-07-12) |
+| Tag | `monitoring-engine-v1.0` |
+| Prior phase | Mission Control™ v2.0 Sprint 7 — Scan Orchestrator™ (`8a4aa19`, PR #313, 2026-07-12) |
+| Active direction | **Canonical Intelligence Platform™ — Sprint 8 merged and constitution ratified.** Monitoring Engine™, Canonical Snapshot™, Change Detection Engine™, Timeline Engine™, Alert Engine™, Severity Engine™, and History Store™ are constitutional components. Sprint 9 pending Board brief. |
+| Next Board gate | Sprint 9 brief required from the Board. |
 
 **⚠ ACTIVE INITIATIVE — Mission Control™ Data Integrity Program™ (2026-07-11)**  
 Black Alternative is the **Canonical Development Artist™**. Every workspace must accurately represent Black Alternative's verified scan results before any new module development begins.  
