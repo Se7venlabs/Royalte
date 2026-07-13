@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────
-// ROYALTĒ MISSION CONTROL™ — RUNTIME CONTEXT CONTRACT v1.0
+// ROYALTĒ MISSION CONTROL™ — RUNTIME CONTEXT CONTRACT v1.1
 //
-// Architectural rule (Board-locked 2026-07-12):
+// Architectural rules (Board-locked 2026-07-12):
 //   ONE source of truth.  MC writes it.  Workspaces read it.
 //   Workspaces are pure renderers — they receive context and render.
 //   If context is absent or invalid → show "No scan loaded."
@@ -10,7 +10,20 @@
 // Runtime flow:
 //   Scan → Canonical Payload → __mcPopulate() → royalte_workspace_context
 //                                                         ↓
+//                                              readWorkspaceContext()
+//                                                         ↓
 //                                                  Workspace renderer
+//
+// FORWARD COMPATIBILITY — Master Field Registry (v2.0 target):
+//   Workspaces declare required domains via readWorkspaceContext({ required: [] }).
+//   The validator enforces domain presence today.
+//   When the Master Field Registry ships, the required[] declaration becomes
+//   a formal Workspace Contract derived from the registry spec.
+//   No workspace rewrite is needed at that point — contracts are already in place.
+//
+// State enum: 'valid' | 'missing' | 'invalid' | 'expired' | 'missing_domain'
+//   Workspaces treat all non-'valid' states identically: show overlay, stop.
+//   The distinction exists for diagnostics and future tooling only.
 //
 // Every workspace loads this file before its wiring script.
 // SCHEMA_VERSION must match the value written by mission-control.js.
@@ -24,7 +37,7 @@
   var STORAGE_KEY    = 'royalte_workspace_context';
 
   /**
-   * Validate a parsed context object.
+   * Validate a parsed context object against the runtime schema.
    * Returns { state, ctx, reason }.
    * state: 'valid' | 'missing' | 'invalid' | 'expired'
    */
@@ -61,11 +74,30 @@
   }
 
   /**
-   * Read royalte_workspace_context from sessionStorage and validate.
+   * Read royalte_workspace_context from sessionStorage, validate, and optionally
+   * enforce a workspace domain contract.
+   *
    * Always returns { state, ctx, reason } — never throws.
-   * state: 'valid' | 'missing' | 'invalid' | 'expired'
+   *
+   * @param {Object} [options]
+   * @param {string[]} [options.required]
+   *   Domain keys that must be non-null in the context for this workspace to render.
+   *   Example: { required: ['healthIntelligence', 'monitoringIntelligence'] }
+   *
+   *   Forward-compatibility note: these declarations become formal Workspace Contracts™
+   *   when the Master Field Registry ships. No workspace changes are required at
+   *   that point — the registry replaces the manual string list, not the call site.
+   *
+   * State values:
+   *   'valid'          — context present, schema matches, not expired, all required domains present
+   *   'missing'        — no context in sessionStorage
+   *   'invalid'        — context present but schema version or artist missing
+   *   'expired'        — context present but older than MAX_AGE_MS
+   *   'missing_domain' — context valid but a required domain is absent from this scan
+   *
+   * All non-'valid' states: show #ws-no-scan-overlay, stop rendering.
    */
-  function readWorkspaceContext() {
+  function readWorkspaceContext(options) {
     try {
       var raw = sessionStorage.getItem(STORAGE_KEY);
       if (!raw) {
@@ -77,7 +109,25 @@
       } catch (parseErr) {
         return { state: 'invalid', ctx: null, reason: 'JSON parse error: ' + parseErr.message };
       }
-      return validate(parsed);
+      var result = validate(parsed);
+      if (result.state !== 'valid') return result;
+
+      // Workspace Contract enforcement.
+      // If the caller declared required domains, verify all are present in this scan.
+      // Missing domains trigger the overlay — the workspace cannot render partial intelligence.
+      if (options && Array.isArray(options.required) && options.required.length > 0) {
+        var absent = options.required.filter(function (d) { return result.ctx[d] == null; });
+        if (absent.length > 0) {
+          return {
+            state:          'missing_domain',
+            ctx:            result.ctx,
+            reason:         'required domains absent from this scan: ' + absent.join(', '),
+            missingDomains: absent,
+          };
+        }
+      }
+
+      return result;
     } catch (e) {
       return { state: 'invalid', ctx: null, reason: 'sessionStorage read error: ' + e.message };
     }
