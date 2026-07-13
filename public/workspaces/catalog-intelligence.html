@@ -583,6 +583,39 @@
     }
   }
 
+  /* ── KPI — Metadata Completeness (no runtime source → clear to '—') ─── */
+  if (ci) {
+    var kpiCards2 = document.querySelectorAll('.hi-kpi-row .hi-kpi-card');
+    // Index 2 = Metadata Completeness KPI — no field in catalogIntelligence; clear placeholders
+    if (kpiCards2.length >= 3) {
+      var mcCard  = kpiCards2[2];
+      var mcNum   = mcCard.querySelector('.ii-kpi-big-num');   if (mcNum)  mcNum.textContent  = '—';
+      var mcFrac  = mcCard.querySelector('.ii-kpi-fraction');  if (mcFrac) mcFrac.textContent  = '';
+      var mcSt    = mcCard.querySelector('.ii-kpi-status-text'); if (mcSt)  mcSt.textContent   = 'Not Available';
+      var mcCap   = mcCard.querySelector('.ii-kpi-caption');   if (mcCap)  mcCap.textContent   = 'Future scan enhancement';
+    }
+    // Index 3 = ISRC Coverage — wire from isrcCoverage.percent
+    if (kpiCards2.length >= 4 && ci.isrcCoverage) {
+      var isrcCard  = kpiCards2[3];
+      var isrcNum   = isrcCard.querySelector('.ii-kpi-big-num');
+      var isrcFrac  = isrcCard.querySelector('.ii-kpi-fraction');
+      var isrcSt    = isrcCard.querySelector('.ii-kpi-status-text');
+      var isrcCap   = isrcCard.querySelector('.ii-kpi-caption');
+      var isrcPct   = ci.isrcCoverage.percent != null ? Math.round(ci.isrcCoverage.percent) : null;
+      var isrcStatusText = { 'Complete': 'Complete', 'Partial': 'Partial Coverage', 'Limited': 'Limited Coverage', 'Unknown': 'Not Available' };
+      if (isrcNum)  isrcNum.textContent  = isrcPct !== null ? String(isrcPct) : '—';
+      if (isrcFrac) isrcFrac.textContent = isrcPct !== null ? '%' : '';
+      if (isrcSt)   isrcSt.textContent   = isrcStatusText[ci.isrcCoverage.status] || ci.isrcCoverage.status || '—';
+      if (isrcCap)  isrcCap.textContent  = ci.isrcCoverage.status !== 'Unknown' ? 'ISRC Data Reviewed' : 'Not available from this scan';
+    }
+  }
+
+  /* ── Function card stats — clear placeholders (no runtime source) ────── */
+  if (ci) {
+    var fnStats = document.querySelectorAll('.ci-function-stat');
+    fnStats.forEach(function (el) { el.textContent = '—'; });
+  }
+
   /* ── Catalog Snapshot™ stats ─────────────────────────────────────────── */
   if (ci) {
     var snapNums = document.querySelectorAll('.ci-snap-stat-num');

@@ -445,12 +445,23 @@
 
     var pill = document.querySelector('.gf-reach-pill');
     if (pill && gf.status) {
-      var statusMap = { 'Global': 'Global Reach', 'Wide': 'Wide Reach', 'Moderate': 'Moderate', 'Limited': 'Limited Reach' };
+      var statusMap = { 'Global': 'Global Reach', 'Strong': 'Strong Reach', 'Regional': 'Regional Reach', 'Limited': 'Limited Reach' };
       pill.textContent = statusMap[gf.status] || gf.status;
-      if (gf.status === 'Limited' || gf.status === 'Moderate') pill.classList.add('gf-reach-pill--limited');
+      if (gf.status === 'Limited' || gf.status === 'Regional') pill.classList.add('gf-reach-pill--limited');
     }
     var narrative = document.querySelector('.gf-reach-narrative');
     if (narrative && gf.reachNarrative) narrative.textContent = gf.reachNarrative;
+
+    // Wire presence KPI card (label, description, coverage %) from Runtime Context.
+    // These elements had hardcoded placeholder values ("Strong", "Worldwide Distribution", "94%").
+    var presLabel   = document.querySelector('.gf-presence-kpi .gf-presence-label');
+    var presDesc    = document.querySelector('.gf-presence-kpi .gf-presence-desc');
+    var presCovPill = document.querySelector('.gf-presence-kpi .hi-status-pill--blue');
+    var presLabelMap = { 'Global': 'Global Reach', 'Strong': 'Strong Reach', 'Regional': 'Regional Reach', 'Limited': 'Limited Reach' };
+    var presDescMap  = { 'Global': 'Worldwide Distribution', 'Strong': 'Wide Distribution', 'Regional': 'Regional Distribution', 'Limited': 'Limited Distribution' };
+    if (presLabel)   presLabel.textContent = presLabelMap[gf.status] || gf.status;
+    if (presDesc)    presDesc.textContent  = presDescMap[gf.status]  || gf.reachNarrative;
+    if (presCovPill) presCovPill.innerHTML = '<span class="hi-status-dot" aria-hidden="true"></span>' + gf.coveragePercent + '% Global Coverage';
   }());
 
   /* ── ring count-up ────────────────────────────────────────── */
