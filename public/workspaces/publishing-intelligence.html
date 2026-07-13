@@ -606,7 +606,7 @@
   // musicRightsProfile is User Configuration — its absence must never suppress system intelligence.
   // If MRP is absent, an inline onboarding section is shown within the workspace instead.
   var _result = window.RoyalteContext
-    ? window.RoyalteContext.readWorkspaceContext({ required: ['publishingIntelligence'] })
+    ? window.RoyalteContext.readWorkspaceContext({ contract: 'publishing-intelligence' })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');

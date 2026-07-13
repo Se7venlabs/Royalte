@@ -500,7 +500,7 @@
   // intelligence domain for the AI Insights workspace. royalteAI and cross-domain intelligence
   // (health, identity, publishing, footprint) are secondary enrichment consumed from context.
   var _result = window.RoyalteContext
-    ? window.RoyalteContext.readWorkspaceContext({ required: ['executiveBrief'] })
+    ? window.RoyalteContext.readWorkspaceContext({ contract: 'ai-insights' })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');
@@ -548,7 +548,7 @@
   var healthScore  = hi.score != null ? Math.round(hi.score) : (hs.overallScore != null ? Math.round(hs.overallScore) : null);
   var healthGrade  = hr.grade || hs.overallGrade || null;
   var healthStatus = hi.status || (healthScore !== null ? RI.scoreLabel(healthScore) : null);
-  var healthHeadline = eb.healthHeadline || healthStatus || 'Analyzing';
+  var healthHeadline = eb.headline || healthStatus || 'Analyzing';  // mapper normalizes healthHeadline → headline
 
   // ── Source observations ─────────────────────────────────────
   var risks = Array.isArray(hr.risks)         ? hr.risks         : [];

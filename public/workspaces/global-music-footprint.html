@@ -425,7 +425,7 @@
   (function () {
     // Workspace Contract™ — required: globalMusicFootprint (territory coverage data)
     var _result = window.RoyalteContext
-      ? window.RoyalteContext.readWorkspaceContext({ required: ['globalMusicFootprint'] })
+      ? window.RoyalteContext.readWorkspaceContext({ contract: 'global-music-footprint' })
       : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
     if (_result.state !== 'valid') {
       var _ol = document.getElementById('ws-no-scan-overlay');
