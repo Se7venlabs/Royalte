@@ -523,8 +523,11 @@
  */
 (function () {
   'use strict';
+  // Workspace Contract™ — declares required domains (v2.0 forward-compatible).
+  // When the Master Field Registry ships, this declaration becomes machine-verified
+  // from the registry spec. No change needed at this call site.
   var _result = window.RoyalteContext
-    ? window.RoyalteContext.readWorkspaceContext()
+    ? window.RoyalteContext.readWorkspaceContext({ required: ['healthIntelligence'] })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');
@@ -535,8 +538,7 @@
   var _body = document.querySelector('.ws-body');
   if (_body) _body.style.opacity = '1';
   var RI = window.RoyalteIntel;
-  var hi  = ctx.healthIntelligence    || null;
-  if (!hi) return;
+  var hi  = ctx.healthIntelligence;    // guaranteed non-null by contract
   var mi  = ctx.monitoringIntelligence || null;
 
   // ── Main health score ring ─────────────────────────────────
