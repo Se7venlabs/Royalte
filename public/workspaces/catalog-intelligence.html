@@ -240,7 +240,7 @@
               <div class="ci-release-artist" data-mc-catalog-release-artist>GENTLEMEN X</div>
               <div class="ci-function-name" data-mc-catalog-release-title>Midnight Protocols</div>
               <div class="ci-function-sub" data-mc-catalog-release-type>Album</div>
-              <div class="ci-function-badge ci-function-badge--verified">Verified</div>
+              <div class="ci-function-badge ci-function-badge--verified" data-ci-badge="artwork">Verified</div>
             </div>
 
             <!-- Lyrics™ -->
@@ -250,7 +250,7 @@
               </div>
               <div class="ci-function-name">Lyrics™</div>
               <div class="ci-function-sub">Lyric Sync Coverage</div>
-              <div class="ci-function-badge ci-function-badge--synced">Synced</div>
+              <div class="ci-function-badge ci-function-badge--synced" data-ci-badge="lyrics">Synced</div>
               <div class="ci-function-stat">17 of 20 tracks</div>
             </div>
 
@@ -261,7 +261,7 @@
               </div>
               <div class="ci-function-name">Credits™</div>
               <div class="ci-function-sub">Producer &amp; Writer Tags</div>
-              <div class="ci-function-badge ci-function-badge--verified">Complete</div>
+              <div class="ci-function-badge ci-function-badge--verified" data-ci-badge="credits">Complete</div>
               <div class="ci-function-stat">All producers tagged</div>
             </div>
 
@@ -272,7 +272,7 @@
               </div>
               <div class="ci-function-name">ISRC™</div>
               <div class="ci-function-sub">Track Recording Codes</div>
-              <div class="ci-function-badge ci-function-badge--pending">1 Pending</div>
+              <div class="ci-function-badge ci-function-badge--pending" data-ci-badge="isrc">1 Pending</div>
               <div class="ci-function-stat">19 of 20 assigned</div>
               <a class="ci-function-action" href="/workspaces/catalog-intelligence.html">Resolve Missing ISRC →</a>
             </div>
@@ -284,7 +284,7 @@
               </div>
               <div class="ci-function-name">UPC™</div>
               <div class="ci-function-sub">Universal Product Codes</div>
-              <div class="ci-function-badge ci-function-badge--verified">Verified</div>
+              <div class="ci-function-badge ci-function-badge--verified" data-ci-badge="upc">Verified</div>
               <div class="ci-function-stat">3 active · 0 missing</div>
             </div>
 
@@ -295,7 +295,7 @@
               </div>
               <div class="ci-function-name">Metadata Integrity™</div>
               <div class="ci-function-sub">Field Completeness</div>
-              <div class="ci-function-badge ci-function-badge--strong">Strong</div>
+              <div class="ci-function-badge ci-function-badge--strong" data-ci-badge="metadata">Strong</div>
               <div class="ci-function-stat">94% complete</div>
             </div>
 
@@ -610,11 +610,40 @@
     }
   }
 
-  /* ── Function card stats — clear placeholders (no runtime source) ────── */
-  if (ci) {
-    var fnStats = document.querySelectorAll('.ci-function-stat');
-    fnStats.forEach(function (el) { el.textContent = '—'; });
+  /* ── Function card badges + stats — derived from Runtime Context ──────── */
+  // setBadge strips all modifier classes, applies the correct state class + text.
+  // Board Principle: badge text AND color must derive from Runtime Context.
+  // No runtime source for a badge → "Not Available" (never leave a misleading positive).
+  function setBadge(el, modifierClass, label) {
+    var allMods = ['verified','active','pending','strong','synced','unknown'];
+    allMods.forEach(function(m) { el.classList.remove('ci-function-badge--' + m); });
+    el.classList.add('ci-function-badge--' + modifierClass);
+    el.textContent = label;
   }
+  document.querySelectorAll('[data-ci-badge]').forEach(function (el) {
+    var key = el.getAttribute('data-ci-badge');
+    if (key === 'artwork') {
+      if (ci && ci.bestVerifiedRelease) {
+        setBadge(el, 'verified', 'Verified');
+      } else {
+        setBadge(el, 'unknown', 'Not Available');
+      }
+    } else if (key === 'isrc') {
+      var isrcStatus = ci && ci.isrcCoverage && ci.isrcCoverage.status;
+      if (isrcStatus === 'complete') {
+        setBadge(el, 'verified', 'Complete');
+      } else if (isrcStatus === 'partial') {
+        var pct = (ci.isrcCoverage.percent != null) ? (ci.isrcCoverage.percent + '% Assigned') : 'Partial';
+        setBadge(el, 'pending', pct);
+      } else {
+        setBadge(el, 'unknown', 'Not Available');
+      }
+    } else {
+      // lyrics, credits, upc, metadata — no v1.0 runtime source; never show misleading positive
+      setBadge(el, 'unknown', 'Not Available');
+    }
+  });
+  document.querySelectorAll('.ci-function-stat').forEach(function (el) { el.textContent = '—'; });
 
   /* ── Catalog Snapshot™ stats ─────────────────────────────────────────── */
   if (ci) {

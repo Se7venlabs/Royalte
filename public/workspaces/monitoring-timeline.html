@@ -160,9 +160,10 @@
 (function () {
   'use strict';
 
-  // Workspace Contract™ — required: monitoringIntelligence (change detection data)
+  // Workspace Contract™ — scan required; monitoringIntelligence is conditionally absent on first
+  // scan (no prior baseline exists for comparison). Context must be valid; monitoring may be null.
   var _result = window.RoyalteContext
-    ? window.RoyalteContext.readWorkspaceContext({ required: ['monitoringIntelligence'] })
+    ? window.RoyalteContext.readWorkspaceContext()
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');
@@ -182,7 +183,7 @@
   // ═══════════════════════════════════════════════════════════
 
   var context = {
-    monitoringIntelligence: rawCtx.monitoringIntelligence,  // guaranteed non-null by contract
+    monitoringIntelligence: rawCtx.monitoringIntelligence || null,  // null on first scan — expected
     healthIntelligence:     rawCtx.healthIntelligence     || null,
     scannedAt:              rawCtx.scannedAt              || null,
   };
@@ -204,8 +205,24 @@
   };
   var CAT_ORDER = ['identity', 'publishing', 'catalog', 'backend', 'footprint', 'health'];
 
-  var mi          = context.monitoringIntelligence;  // guaranteed non-null by contract
-  var hi          = context.healthIntelligence;
+  var mi = context.monitoringIntelligence;
+  var hi = context.healthIntelligence;
+
+  // ── First Scan State ────────────────────────────────────────────────────────
+  // monitoringIntelligence is legitimately null on a first scan — no prior baseline
+  // exists for comparison. This is not an error. Show an educational onboarding state.
+  if (!mi) {
+    var _eyebrow = container.querySelector('.ws-cs-eyebrow');
+    var _title   = container.querySelector('.ws-cs-title');
+    var _desc    = container.querySelector('.ws-cs-desc');
+    if (_eyebrow) _eyebrow.textContent = 'Baseline Established';
+    if (_title)   _title.textContent   = 'Monitoring Begins After Your Next Scan';
+    if (_desc)    _desc.textContent    =
+      'Royaltē compares future scans against today’s certified baseline to detect changes ' +
+      'across your catalog. Return after your next scan to see your complete change timeline.';
+    return;
+  }
+
   var scanNumber  = mi.scanNumber  || 1;
   var newThisScan = mi.newThisScan || 0;
   var events      = Array.isArray(mi.events) ? mi.events : [];

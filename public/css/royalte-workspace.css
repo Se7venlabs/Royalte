@@ -3921,6 +3921,10 @@ a.ci-function-card:hover .ci-artwork-container {
   background: rgba(56,189,248,0.12); color: var(--mc-blue);
   border: 1px solid rgba(56,189,248,0.20);
 }
+.ci-function-badge--unknown {
+  background: rgba(156,163,175,0.08); color: var(--mc-text-muted);
+  border: 1px solid rgba(156,163,175,0.18);
+}
 .ci-function-stat { font-size: 10px; color: var(--mc-text-muted); margin-top: 4px; }
 
 /* Bottom row — Catalog Snapshot™ + Catalog Activity™ */

@@ -364,7 +364,13 @@
             </div>
           </div>
 
-          <div class="pi-mrp-grid">
+          <!-- Shown when MRP is absent — Board Principle: user config absence never suppresses system intelligence -->
+          <div id="pi-mrp-onboard" hidden style="padding:14px 0 10px;border-top:1px solid rgba(132,128,168,0.15);margin-top:12px;">
+            <div style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:rgba(132,128,168,0.5);margin-bottom:6px;">Profile Not Configured</div>
+            <div style="font-size:13px;color:rgba(220,215,255,0.75);line-height:1.5;">Complete your Music Rights Profile to unlock PRO, Publishing Administrator, MLC, and SoundExchange validation.</div>
+          </div>
+
+          <div class="pi-mrp-grid" id="pi-mrp-grid">
 
             <!-- Artist-supplied via onboarding -->
             <div class="pi-mrp-field">
@@ -596,9 +602,11 @@
 (function () {
   'use strict';
 
-  // Workspace Contract™ — required: publishingIntelligence, musicRightsProfile
+  // Workspace Contract™ — required: publishingIntelligence (system intelligence).
+  // musicRightsProfile is User Configuration — its absence must never suppress system intelligence.
+  // If MRP is absent, an inline onboarding section is shown within the workspace instead.
   var _result = window.RoyalteContext
-    ? window.RoyalteContext.readWorkspaceContext({ required: ['publishingIntelligence', 'musicRightsProfile'] })
+    ? window.RoyalteContext.readWorkspaceContext({ required: ['publishingIntelligence'] })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');
@@ -609,8 +617,16 @@
   var _body = document.querySelector('.ws-body');
   if (_body) _body.style.opacity = '1';
 
-  var mrp = ctx.musicRightsProfile;  // guaranteed non-null by contract
+  var mrp = ctx.musicRightsProfile || null;  // User Configuration — may be absent on first scan
   var pr  = (mrp && mrp.performing_rights) ? mrp.performing_rights : {};
+
+  // ── MRP onboarding state — show inline section when MRP is absent ─────────
+  if (!mrp) {
+    var _onboard = document.getElementById('pi-mrp-onboard');
+    var _grid    = document.getElementById('pi-mrp-grid');
+    if (_onboard) { _onboard.removeAttribute('hidden'); _onboard.style.display = 'block'; }
+    if (_grid)    { _grid.style.display = 'none'; }
+  }
 
   // ── Field helper — sets value text and swaps badge class/label ────────────
   function setField(valId, badgeId, displayValue, badgeClass, badgeLabel) {
