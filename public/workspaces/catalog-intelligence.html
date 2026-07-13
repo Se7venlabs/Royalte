@@ -481,7 +481,7 @@
   'use strict';
   // Workspace Contract™ — required: catalogIntelligence (release catalog data)
   var _result = window.RoyalteContext
-    ? window.RoyalteContext.readWorkspaceContext({ required: ['catalogIntelligence'] })
+    ? window.RoyalteContext.readWorkspaceContext({ contract: 'catalog-intelligence' })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');

@@ -678,7 +678,7 @@
     'use strict';
     // Workspace Contract™ — required: backendIntelligence (platform connection data)
     var _result = window.RoyalteContext
-      ? window.RoyalteContext.readWorkspaceContext({ required: ['backendIntelligence'] })
+      ? window.RoyalteContext.readWorkspaceContext({ contract: 'backend-intelligence' })
       : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
     if (_result.state !== 'valid') {
       var _ol = document.getElementById('ws-no-scan-overlay');

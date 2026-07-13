@@ -1445,44 +1445,21 @@ if (typeof window !== 'undefined') {
     // Workspace bridge — write the intelligence subset workspace pages need.
     // Uses a non-consumed key (never removed) so workspace pages can read it
     // after navigating away from MC. Mirrors royalte_session_context pattern.
-    // Runtime Context Contract v1.1 (Board-locked 2026-07-12).
-    // schemaVersion + scanId + generatedAt are required by mc-workspace-context.js validation.
-    //
-    // Payload source resolution — two paths produce different shapes:
-    //   1. sessionStorage (first load after scan): raw API response.
-    //      Top-level has: identityIntelligence, publishingIntelligence.
-    //      All other domains live under payload.canonical.* — must fall back.
-    //   2. Supabase (authenticated reads): stored payload IS canonical.
-    //      All domains available at payload.* directly.
-    // Strategy: payload.field ?? payload.canonical?.field ?? null
-    // This is transparent to the workspace — one shape regardless of source.
-    const _can = payload.canonical || {};
+    // Runtime Context Contract v1.2 (Board-locked 2026-07-13).
+    // buildWorkspaceRuntimeContext() is the sole assembly path.
+    // All field resolution and normalization happens inside the mapper.
+    // This block must remain a thin delegation — no field-by-field logic here.
     try {
-      sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
-        schemaVersion:           '1.0',
-        scanId:                  payload.scanId                                                   ?? null,
-        generatedAt:             new Date().toISOString(),
-        artistName:              _vaultPlans.artistName                                           ?? null,
-        subject:                 payload.subject                   || _can.subject                ?? null,
-        identity:                payload.cim?.identity             || _can.cim?.identity          ?? null,
-        executiveBrief:          payload.executiveBrief            ?? _can.executiveBrief         ?? null,
-        healthReport:            payload.healthReport              ?? _can.healthReport           ?? null,
-        healthIntelligence:      payload.healthIntelligence        ?? _can.healthIntelligence     ?? null,
-        healthScore:             payload.healthScore               ?? _can.healthScore            ?? null,
-        royalteAI:               payload.royalteAI                ?? _can.royalteAI              ?? null,
-        globalMusicFootprint:    payload.globalMusicFootprint      ?? _can.globalMusicFootprint   ?? null,
-        publishingIntelligence:  payload.publishingIntelligence    ?? _can.publishingIntelligence ?? null,
-        identityIntelligence:    payload.identityIntelligence      ?? _can.identityIntelligence   ?? null,
-        catalogIntelligence:     payload.catalogIntelligence       ?? _can.catalogIntelligence    ?? null,
-        backendIntelligence:     payload.backendIntelligence       ?? _can.backendIntelligence    ?? null,
-        monitoringIntelligence:  payload.monitoringIntelligence    ?? _can.monitoringIntelligence ?? null,
-        catalog:                 payload.catalog                   ?? _can.catalog               ?? null,
-        metrics:                 payload.metrics                   ?? _can.metrics               ?? null,
-        scannedAt:               payload.scannedAt                 ?? _can.scannedAt             ?? null,
-        recordLabel:             _appleRecordLabel,
-        artwork:                 getBestVerifiedArtistImage(payload)                             ?? null,
-        musicRightsProfile:      musicRightsProfile,
-      }));
+      const workspaceContext = window.buildWorkspaceRuntimeContext(
+        payload,
+        musicRightsProfile,
+        {
+          artistName:  _vaultPlans.artistName                ?? null,
+          artwork:     getBestVerifiedArtistImage(payload)   ?? null,
+          recordLabel: _appleRecordLabel                     ?? null,
+        }
+      );
+      sessionStorage.setItem('royalte_workspace_context', JSON.stringify(workspaceContext));
     } catch (_e) {}
   };
 
