@@ -237,9 +237,9 @@
                 <svg class="royalte-icon royalte-icon--lg" id="ci-artwork-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-artwork"></use></svg>
                 <img class="royalte-exec-img royalte-exec-img--artwork" id="ci-artwork-img" alt="" draggable="false">
               </div>
-              <div class="ci-release-artist" data-mc-catalog-release-artist>GENTLEMEN X</div>
-              <div class="ci-function-name" data-mc-catalog-release-title>Midnight Protocols</div>
-              <div class="ci-function-sub" data-mc-catalog-release-type>Album</div>
+              <div class="ci-release-artist" data-mc-catalog-release-artist></div>
+              <div class="ci-function-name" data-mc-catalog-release-title>—</div>
+              <div class="ci-function-sub" data-mc-catalog-release-type></div>
               <div class="ci-function-badge ci-function-badge--verified" data-ci-badge="artwork">Verified</div>
             </div>
 
@@ -336,7 +336,7 @@
             <div class="ci-snap-meta-list">
               <div class="ci-snap-meta">
                 <span class="ci-snap-meta-label">Latest Release</span>
-                <span class="ci-snap-meta-val">Midnight Protocols — 2024</span>
+                <span class="ci-snap-meta-val">—</span>
               </div>
               <div class="ci-snap-meta">
                 <span class="ci-snap-meta-label">Primary Genre</span>
@@ -360,54 +360,8 @@
             </div>
             <div class="ci-activity-body" role="list" aria-label="Recent catalog activity">
 
-              <div class="ci-activity-item" role="listitem">
-                <div class="ci-activity-dot-col">
-                  <div class="ci-activity-dot ci-activity-dot--green" aria-hidden="true"></div>
-                </div>
-                <div>
-                  <div class="ci-activity-text">ISRC assigned — "Midnight Protocols"</div>
-                  <div class="ci-activity-time">30 minutes ago</div>
-                </div>
-              </div>
-
-              <div class="ci-activity-item" role="listitem">
-                <div class="ci-activity-dot-col">
-                  <div class="ci-activity-dot ci-activity-dot--crimson" aria-hidden="true"></div>
-                </div>
-                <div>
-                  <div class="ci-activity-text">Lyric sync pending — 3 tracks</div>
-                  <div class="ci-activity-time">2 hours ago</div>
-                </div>
-              </div>
-
-              <div class="ci-activity-item" role="listitem">
-                <div class="ci-activity-dot-col">
-                  <div class="ci-activity-dot ci-activity-dot--green" aria-hidden="true"></div>
-                </div>
-                <div>
-                  <div class="ci-activity-text">Artwork verified — Album 2 complete</div>
-                  <div class="ci-activity-time">5 hours ago</div>
-                </div>
-              </div>
-
-              <div class="ci-activity-item" role="listitem">
-                <div class="ci-activity-dot-col">
-                  <div class="ci-activity-dot ci-activity-dot--crimson" aria-hidden="true"></div>
-                </div>
-                <div>
-                  <div class="ci-activity-text">UPC renewal required — 1 release</div>
-                  <div class="ci-activity-time">1 day ago</div>
-                </div>
-              </div>
-
-              <div class="ci-activity-item" role="listitem">
-                <div class="ci-activity-dot-col">
-                  <div class="ci-activity-dot ci-activity-dot--green" aria-hidden="true"></div>
-                </div>
-                <div>
-                  <div class="ci-activity-text">Metadata integrity confirmed — EP complete</div>
-                  <div class="ci-activity-time">1 day ago</div>
-                </div>
+              <div class="ci-activity-item" role="listitem" style="opacity:0.45;padding:16px 0;">
+                <div style="font-size:11px;color:var(--mc-text-muted);letter-spacing:0.04em;">Activity feed requires pipeline support — coming in a future release.</div>
               </div>
 
             </div>
@@ -459,14 +413,10 @@
 
       <div class="pi-athena-section">
         <div class="pi-athena-section-label">Active Issues</div>
-        <div class="pi-athena-works-list">
+        <div class="pi-athena-works-list" id="ci-athena-issues-list">
           <div class="pi-athena-work-row">
             <div class="pi-athena-work-dot" aria-hidden="true"></div>
-            <div class="pi-athena-work-name">1 track missing ISRC — "Midnight Protocols"</div>
-          </div>
-          <div class="pi-athena-work-row">
-            <div class="pi-athena-work-dot" aria-hidden="true"></div>
-            <div class="pi-athena-work-name">3 tracks pending lyric sync</div>
+            <div class="pi-athena-work-name" id="ci-athena-isrc-issue">ISRC coverage — see catalog snapshot for details</div>
           </div>
         </div>
       </div>
@@ -491,19 +441,16 @@
 </div>
 
 <script>
+// Artwork card loader — reads workspace context; no direct sessionStorage access.
 (function() {
   'use strict';
   try {
-    var src = null, bvr = null;
-    var ctxRaw = sessionStorage.getItem('royalte_session_context');
-    if (ctxRaw) {
-      var ctx = JSON.parse(ctxRaw);
-      bvr = (ctx && ctx.bestVerifiedRelease) || null;
-      // BVR artwork is the intelligence-selected release artwork (highest-scoring release).
-      // Fall back to albumImageUrl (scan-input artwork) when BVR is absent.
-      src = (bvr && bvr.artwork) || (ctx && ctx.albumImageUrl) || null;
-    }
-    // Inject artwork
+    if (!window.RoyalteContext) return;
+    var _r = window.RoyalteContext.readWorkspaceContext();
+    if (_r.state !== 'valid') return;
+    var _ctx = _r.ctx;
+    var bvr = (_ctx.catalogIntelligence && _ctx.catalogIntelligence.bestVerifiedRelease) || null;
+    var src = (bvr && bvr.artwork) || _ctx.artwork || null;
     var img = document.getElementById('ci-artwork-img');
     if (img && src) {
       img.onload = function() {
@@ -514,14 +461,13 @@
       img.onerror = function() { img.removeAttribute('src'); };
       img.src = src;
     }
-    // Wire BVR text fields (artist name, release title, release type)
     if (bvr) {
       var artistEl = document.querySelector('[data-mc-catalog-release-artist]');
       var titleEl  = document.querySelector('[data-mc-catalog-release-title]');
       var typeEl   = document.querySelector('[data-mc-catalog-release-type]');
-      if (artistEl && bvr.artistName) artistEl.textContent = bvr.artistName;
-      if (titleEl  && bvr.releaseTitle) titleEl.textContent = bvr.releaseTitle;
-      if (typeEl   && bvr.releaseType)  typeEl.textContent  = bvr.releaseType;
+      if (artistEl && bvr.artistName)   artistEl.textContent = bvr.artistName;
+      if (titleEl  && bvr.releaseTitle) titleEl.textContent  = bvr.releaseTitle;
+      if (typeEl   && bvr.releaseType)  typeEl.textContent   = bvr.releaseType;
     }
   } catch(e) {}
 })();

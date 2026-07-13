@@ -719,10 +719,7 @@
 </script>
 <script src="/js/rds-preview-console.js" defer></script>
 <script>
-/* Image loader — reads royalte_session_context ONLY.
- * This key is written by __mcPopulate() and is never consumed or removed.
- * If the workspace is rendering, MC has already run. No fallback to
- * royalte_scan_payload — that path is a pure-renderer violation. */
+// Artwork loader — reads workspace context; no direct sessionStorage access.
 (function () {
   'use strict';
   function applyImg(el, src, onLoad) {
@@ -732,13 +729,14 @@
     el.src = src;
   }
   try {
-    var artistSrc = null, releaseSrc = null;
-    var raw = sessionStorage.getItem('royalte_session_context');
-    if (raw) {
-      var ctx = JSON.parse(raw);
-      artistSrc  = ctx.artistImageUrl || null;
-      releaseSrc = ctx.albumImageUrl  || ctx.artistImageUrl || null;
-    }
+    if (!window.RoyalteContext) return;
+    var _r = window.RoyalteContext.readWorkspaceContext();
+    if (_r.state !== 'valid') return;
+    var _ctx = _r.ctx;
+    var artistSrc  = _ctx.artwork || null;
+    var bvrArtwork = (_ctx.catalogIntelligence && _ctx.catalogIntelligence.bestVerifiedRelease &&
+                      _ctx.catalogIntelligence.bestVerifiedRelease.artwork) || null;
+    var releaseSrc = bvrArtwork || artistSrc;
     applyImg(
       document.getElementById('ii-artist-img'),
       artistSrc,
