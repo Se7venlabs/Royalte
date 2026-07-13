@@ -503,16 +503,6 @@
       // Fall back to albumImageUrl (scan-input artwork) when BVR is absent.
       src = (bvr && bvr.artwork) || (ctx && ctx.albumImageUrl) || null;
     }
-    if (!src) {
-      // Last resort: read from scan payload before MC consumed it.
-      var raw = sessionStorage.getItem('royalte_scan_payload');
-      if (raw) {
-        var p = JSON.parse(raw);
-        src = p.albumImageUrl ||
-              (p.platforms && p.platforms.appleMusic && p.platforms.appleMusic.details && p.platforms.appleMusic.details.artwork) ||
-              null;
-      }
-    }
     // Inject artwork
     var img = document.getElementById('ci-artwork-img');
     if (img && src) {
@@ -543,8 +533,9 @@
  */
 (function () {
   'use strict';
+  // Workspace Contract™ — required: catalogIntelligence (release catalog data)
   var _result = window.RoyalteContext
-    ? window.RoyalteContext.readWorkspaceContext()
+    ? window.RoyalteContext.readWorkspaceContext({ required: ['catalogIntelligence'] })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');

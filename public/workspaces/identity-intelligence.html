@@ -481,8 +481,9 @@
   }
 
   // ── 1. Read and validate context via Runtime Contract ──────────────────
+  // Workspace Contract™ — required: subject (artist identity), identity (provider coverage)
   var result = window.RoyalteContext
-    ? window.RoyalteContext.readWorkspaceContext()
+    ? window.RoyalteContext.readWorkspaceContext({ required: ['subject', 'identity'] })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
 
   showDiag(result.state, result.ctx);
