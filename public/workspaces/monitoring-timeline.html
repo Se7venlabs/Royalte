@@ -160,8 +160,9 @@
 (function () {
   'use strict';
 
+  // Workspace Contract™ — required: monitoringIntelligence (change detection data)
   var _result = window.RoyalteContext
-    ? window.RoyalteContext.readWorkspaceContext()
+    ? window.RoyalteContext.readWorkspaceContext({ required: ['monitoringIntelligence'] })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');
@@ -181,7 +182,7 @@
   // ═══════════════════════════════════════════════════════════
 
   var context = {
-    monitoringIntelligence: rawCtx.monitoringIntelligence || null,
+    monitoringIntelligence: rawCtx.monitoringIntelligence,  // guaranteed non-null by contract
     healthIntelligence:     rawCtx.healthIntelligence     || null,
     scannedAt:              rawCtx.scannedAt              || null,
   };
@@ -203,13 +204,13 @@
   };
   var CAT_ORDER = ['identity', 'publishing', 'catalog', 'backend', 'footprint', 'health'];
 
-  var mi          = context.monitoringIntelligence;
+  var mi          = context.monitoringIntelligence;  // guaranteed non-null by contract
   var hi          = context.healthIntelligence;
-  var scanNumber  = mi ? (mi.scanNumber  || 1) : 1;
-  var newThisScan = mi ? (mi.newThisScan || 0) : 0;
-  var events      = mi && Array.isArray(mi.events) ? mi.events : [];
+  var scanNumber  = mi.scanNumber  || 1;
+  var newThisScan = mi.newThisScan || 0;
+  var events      = Array.isArray(mi.events) ? mi.events : [];
 
-  var moduleState = (!mi || mi.status === 'baseline' || scanNumber <= 1) ? 'baseline'
+  var moduleState = (mi.status === 'baseline' || scanNumber <= 1) ? 'baseline'
                   : events.length === 0 ? 'stable'
                   : 'changed';
 

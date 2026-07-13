@@ -495,8 +495,12 @@
   // If context is invalid: show overlay, stop. Never render demo.
   // ═══════════════════════════════════════════════════════════
 
+  // Workspace Contract™ — required: executiveBrief (ATHENA™ executive intelligence synthesis)
+  // executiveBrief is the canonical output of the Executive Brief Engine™ and the primary
+  // intelligence domain for the AI Insights workspace. royalteAI and cross-domain intelligence
+  // (health, identity, publishing, footprint) are secondary enrichment consumed from context.
   var _result = window.RoyalteContext
-    ? window.RoyalteContext.readWorkspaceContext()
+    ? window.RoyalteContext.readWorkspaceContext({ required: ['executiveBrief'] })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');
@@ -514,7 +518,7 @@
     healthIntelligence:     rawCtx.healthIntelligence     || null,
     healthReport:           rawCtx.healthReport           || null,
     healthScore:            rawCtx.healthScore            || null,
-    executiveBrief:         rawCtx.executiveBrief         || null,
+    executiveBrief:         rawCtx.executiveBrief,        // guaranteed non-null by contract
     identityIntelligence:   rawCtx.identityIntelligence   || null,
     publishingIntelligence: rawCtx.publishingIntelligence || null,
     catalogIntelligence:    rawCtx.catalogIntelligence    || null,
@@ -522,8 +526,6 @@
     backendIntelligence:    rawCtx.backendIntelligence    || null,
     monitoringIntelligence: rawCtx.monitoringIntelligence || null,
   };
-
-  if (!context.healthIntelligence && !context.royalteAI && !context.executiveBrief) return;
 
   // ═══════════════════════════════════════════════════════════
   // § 2 — INTELLIGENCE

@@ -596,8 +596,9 @@
 (function () {
   'use strict';
 
+  // Workspace Contract™ — required: publishingIntelligence, musicRightsProfile
   var _result = window.RoyalteContext
-    ? window.RoyalteContext.readWorkspaceContext()
+    ? window.RoyalteContext.readWorkspaceContext({ required: ['publishingIntelligence', 'musicRightsProfile'] })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');
@@ -608,7 +609,7 @@
   var _body = document.querySelector('.ws-body');
   if (_body) _body.style.opacity = '1';
 
-  var mrp = ctx.musicRightsProfile || null;
+  var mrp = ctx.musicRightsProfile;  // guaranteed non-null by contract
   var pr  = (mrp && mrp.performing_rights) ? mrp.performing_rights : {};
 
   // ── Field helper — sets value text and swaps badge class/label ────────────
