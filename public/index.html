@@ -2536,7 +2536,7 @@ async function finalizeScan(auditData) {
   }
 
   try {
-    // Step 2 — window.__royalteScan
+    // Step 2 — window.__royalteScan (sole writer; showRealResults is presentation-only)
     var _url = (document.getElementById('hero-url') || {}).value?.trim() || '';
     window.__royalteScan = {
       artistName:  auditData.artistName || _can.subject?.artistName || null,
@@ -2549,34 +2549,30 @@ async function finalizeScan(auditData) {
       scanId:      auditData.scanId || null,
     };
 
-    // Step 3 — buildWorkspaceRuntimeContext
+    // Step 3 — buildWorkspaceRuntimeContext is MANDATORY.
+    // runtime-context-mapper.js unavailable = application cannot reach READY state.
     if (typeof window.buildWorkspaceRuntimeContext !== 'function') {
-      // runtime-context-mapper.js failed to load. Gate on payload bridges only so
-      // a CDN outage does not permanently block MC access.
-      console.warn('[finalize] buildWorkspaceRuntimeContext not available — skipping context pre-write');
-      sessionStorage.setItem('royalte_scan_payload', JSON.stringify(_can));
-      try { localStorage.setItem('royalte_scan_payload_ls', JSON.stringify({ payload: _can, storedAt: Date.now() })); } catch (_) {}
-      return { ok: true, artistName: window.__royalteScan.artistName, skippedContextBuild: true };
+      return { ok: false, reason: 'Runtime Context Mapper unavailable' };
     }
 
     var _artistName  = _can.subject?.artistName || auditData.artistName || null;
     var _recordLabel = _can.subject?.recordLabel || null;
     var _wctx = window.buildWorkspaceRuntimeContext(_can, null, {
       artistName:  _artistName,
-      artwork:     null,
+      artwork:     null,  // MC page overwrites with verified artwork via __mcPopulate
       recordLabel: _recordLabel,
     });
 
-    // Step 4 — Runtime Contract validation
+    // Step 4 — Runtime Contract pre-write validation
     if (!_wctx || _wctx.schemaVersion !== '1.1' || !(_wctx.subject && _wctx.subject.artistName)) {
       return {
         ok:     false,
-        reason: 'Runtime Contract invalid — schemaVersion=' + (_wctx?.schemaVersion || 'null') +
-                ' artistName=' + (_wctx?.subject?.artistName || 'null'),
+        reason: 'buildWorkspaceRuntimeContext returned invalid context — schemaVersion=' +
+                (_wctx?.schemaVersion || 'null') + ' artistName=' + (_wctx?.subject?.artistName || 'null'),
       };
     }
 
-    // Step 5 — write payload bridges
+    // Step 5 — write payload bridges (sole writer for these keys)
     sessionStorage.setItem('royalte_scan_payload', JSON.stringify(_can));
     try {
       localStorage.setItem('royalte_scan_payload_ls', JSON.stringify({ payload: _can, storedAt: Date.now() }));
@@ -2584,22 +2580,71 @@ async function finalizeScan(auditData) {
       console.warn('[finalize] localStorage write failed (non-fatal):', _lsErr?.message || _lsErr);
     }
 
-    // Step 6 — write royalte_workspace_context
+    // Step 6 — write royalte_workspace_context (sole writer for this key)
     sessionStorage.setItem('royalte_workspace_context', JSON.stringify(_wctx));
 
-    // Step 7 — storage verification (read-back)
-    var _verifyScanPayload  = !!sessionStorage.getItem('royalte_scan_payload');
-    var _verifyWorkspaceCtx = !!sessionStorage.getItem('royalte_workspace_context');
-    if (!_verifyScanPayload || !_verifyWorkspaceCtx) {
-      return {
-        ok:     false,
-        reason: 'Storage verification failed — royalte_scan_payload:' + _verifyScanPayload +
-                ' royalte_workspace_context:' + _verifyWorkspaceCtx,
-      };
+    // Step 7 — deep read-back verification: parse both values and re-validate.
+    // A non-empty string is insufficient — the application must confirm it wrote
+    // parseable, structurally valid objects back to storage before READY is declared.
+    var _scanPayloadRaw  = sessionStorage.getItem('royalte_scan_payload');
+    var _workspaceCtxRaw = sessionStorage.getItem('royalte_workspace_context');
+
+    if (!_scanPayloadRaw) {
+      return { ok: false, reason: 'Read-back failed: royalte_scan_payload missing' };
+    }
+    if (!_workspaceCtxRaw) {
+      return { ok: false, reason: 'Read-back failed: royalte_workspace_context missing' };
     }
 
-    console.log('[finalize] READY — artist:', _artistName, '| scanId:', auditData.scanId || 'none');
-    return { ok: true, artistName: _artistName };
+    var _scanPayloadParsed, _workspaceCtxParsed;
+    try { _scanPayloadParsed  = JSON.parse(_scanPayloadRaw);  }
+    catch (_) { return { ok: false, reason: 'Read-back failed: royalte_scan_payload is not valid JSON' }; }
+    try { _workspaceCtxParsed = JSON.parse(_workspaceCtxRaw); }
+    catch (_) { return { ok: false, reason: 'Read-back failed: royalte_workspace_context is not valid JSON' }; }
+
+    // Validate royalte_scan_payload: must have a canonical subject
+    if (!_scanPayloadParsed || typeof _scanPayloadParsed !== 'object') {
+      return { ok: false, reason: 'Read-back failed: royalte_scan_payload is not an object' };
+    }
+    if (!(_scanPayloadParsed.subject && _scanPayloadParsed.subject.artistName)) {
+      return { ok: false, reason: 'Read-back failed: royalte_scan_payload missing subject.artistName' };
+    }
+
+    // Validate royalte_workspace_context: full structural contract
+    if (_workspaceCtxParsed.schemaVersion !== '1.1') {
+      return { ok: false, reason: 'Read-back failed: workspace context schemaVersion=' + _workspaceCtxParsed.schemaVersion };
+    }
+    if (!(_workspaceCtxParsed.subject && _workspaceCtxParsed.subject.artistName)) {
+      return { ok: false, reason: 'Read-back failed: workspace context missing subject.artistName' };
+    }
+    if (!_workspaceCtxParsed.generatedAt) {
+      return { ok: false, reason: 'Read-back failed: workspace context missing generatedAt' };
+    }
+    // scanId cross-check: if this scan produced a scanId, the context must carry it
+    if (auditData.scanId && _workspaceCtxParsed.scanId !== auditData.scanId) {
+      return {
+        ok:     false,
+        reason: 'Read-back failed: workspace context scanId mismatch — expected ' +
+                auditData.scanId + ' got ' + (_workspaceCtxParsed.scanId || 'null'),
+      };
+    }
+    // artistName cross-check
+    if (_artistName && _workspaceCtxParsed.subject.artistName !== _artistName) {
+      return {
+        ok:     false,
+        reason: 'Read-back failed: workspace context artistName mismatch — expected "' +
+                _artistName + '" got "' + _workspaceCtxParsed.subject.artistName + '"',
+      };
+    }
+    // Age sanity: context must have been generated within the last 60 seconds
+    var _ctxAge = Date.now() - new Date(_workspaceCtxParsed.generatedAt).getTime();
+    if (_ctxAge > 60000) {
+      return { ok: false, reason: 'Read-back failed: workspace context is stale (' + _ctxAge + 'ms)' };
+    }
+
+    console.log('[finalize] READY — artist:', _artistName, '| scanId:', auditData.scanId || 'none',
+      '| ctx age:', _ctxAge + 'ms');
+    return { ok: true, artistName: _artistName, scanId: auditData.scanId || null };
 
   } catch (_err) {
     console.error('[finalize] threw:', _err?.message || _err);
@@ -3056,49 +3101,8 @@ function showRealResults(data) {
   // data.flags[] (V1 TRANSITIONAL) retired by Phase 3.4 Board Directive.
   // Findings now read from data.canonical.healthReport.risks[] (RIE-certified).
 
-  // ── Modal snapshot (preserved) ──
-  try {
-    window.__royalteScan = {
-      artistName:  artistName,
-      sourceUrl:   document.getElementById('hero-url')?.value?.trim() || '',
-      score:       (data.royalteScore != null) ? data.royalteScore : (data.riskScore != null ? data.riskScore : null),
-      issuesCount: (data.canonical?.healthReport?.risks ?? []).length,
-      urlType:     detectUrlType(document.getElementById('hero-url')?.value?.trim() || '') || (isApple ? 'apple' : 'unknown'),
-      scannedAt:   new Date().toISOString(),
-      scanId:      data.scanId || null
-    };
-  } catch(e) { /* non-blocking */ }
-
-  // Phase 4.3: bridge scan payload for MC preactivate path.
-  // Store data.canonical — the flat canonical shape that audit_scans.payload carries and
-  // that __mcPopulate() was written to read. The raw API response wraps canonical in a
-  // nested key and only surfaces identityIntelligence / publishingIntelligence as top-level
-  // aliases, leaving royalteAI, healthIntelligence, catalogIntelligence, globalMusicFootprint,
-  // and backendIntelligence undefined at the top level — causing __mcPopulate() to build
-  // null plans for those domains and fall through to the Supabase "latest owned" path.
-  // canonical spreads rawResponse so canonical.platforms.deezer etc. still work.
-  // Primary bridge: sessionStorage (same-tab navigation only; cleared by fetchScanPayload after read).
-  // Fallback bridge: localStorage (survives new-tab opens, mobile browser suspend, and Cmd/Ctrl+click).
-  // Both keyed to the canonical payload so __mcPopulate reads the same shape from either source.
-  // TTL on the localStorage entry (4 h) matches royalte_workspace_context MAX_AGE_MS.
-  try {
-    if (data && data.canonical) {
-      console.log('[hp-diag] storing canonical for artist:', data.canonical.subject?.artistName || data.artistName, '| keys:', Object.keys(data.canonical).join(','));
-      sessionStorage.setItem('royalte_scan_payload', JSON.stringify(data.canonical));
-      try {
-        localStorage.setItem('royalte_scan_payload_ls', JSON.stringify({
-          payload:  data.canonical,
-          storedAt: Date.now(),
-        }));
-      } catch (_lsErr) {
-        console.warn('[hp-diag] localStorage bridge write failed:', _lsErr?.message || _lsErr);
-      }
-    } else {
-      console.warn('[hp-diag] data.canonical missing — sessionStorage bridge skipped; MC will fall to Supabase');
-    }
-  } catch (_ssErr) {
-    console.warn('[hp-diag] sessionStorage.setItem threw (QuotaExceededError?):', _ssErr?.message || _ssErr);
-  }
+  // window.__royalteScan and all storage writes are owned exclusively by finalizeScan().
+  // showRealResults() is presentation-only — DOM rendering, no state writes.
 
   // ── Hero (above audit-results) — name + sub-line, no risk colour ──
   const subText = getEcosystemSignal(data);
