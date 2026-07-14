@@ -462,6 +462,13 @@
     if (presLabel)   presLabel.textContent = presLabelMap[gf.status] || gf.status;
     if (presDesc)    presDesc.textContent  = presDescMap[gf.status]  || gf.reachNarrative;
     if (presCovPill) presCovPill.innerHTML = '<span class="hi-status-dot" aria-hidden="true"></span>' + gf.coveragePercent + '% Global Coverage';
+
+    // Countries KPI caption: derive "X% of World" from territoriesAvailable / 195
+    var cnCard = cn && cn.closest && cn.closest('.hi-kpi-card');
+    var cnCap  = cnCard && cnCard.querySelector('.ii-kpi-caption');
+    if (cnCap && gf.territoriesAvailable != null) {
+      cnCap.textContent = (gf.territoriesAvailable / 195 * 100).toFixed(1) + '% of World';
+    }
   }());
 
   /* ── ring count-up ────────────────────────────────────────── */

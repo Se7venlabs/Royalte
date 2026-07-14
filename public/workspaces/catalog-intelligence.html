@@ -505,6 +505,36 @@
     if (ringArc) ringArc.style.strokeDasharray = (ringScore / 100 * 251.327).toFixed(1) + ' 252';
     var ringWrap = document.querySelector('.ci-readiness-ring-wrap');
     if (ringWrap) ringWrap.setAttribute('aria-label', 'Catalog readiness: ' + ringScore + '%');
+
+    // Derive label and description from runtime score
+    var readinessLabel = ringScore >= 90 ? 'Ready For Distribution' :
+                         ringScore >= 70 ? 'Distribution Ready'     : 'Needs Attention';
+    var readinessStatusLabel = ringScore >= 90 ? 'Release Ready' :
+                               ringScore >= 70 ? 'Good Standing'  : 'Needs Work';
+    var rdLabel = document.querySelector('.ci-readiness-label');
+    if (rdLabel) rdLabel.textContent = readinessLabel;
+
+    var rdPill = document.querySelector('.ci-kpi-card--readiness .hi-status-pill');
+    if (rdPill) {
+      var dot = rdPill.querySelector('.hi-status-dot');
+      rdPill.textContent = readinessStatusLabel;
+      if (dot) rdPill.prepend(dot);
+      rdPill.className = 'hi-status-pill ' + (ringScore >= 70 ? 'hi-status-pill--green' : 'hi-status-pill--orange');
+    }
+
+    // Derive description from ISRC coverage
+    var isrcIssues = (ci && ci.isrcCoverage && ci.isrcCoverage.status === 'complete') ? 0 :
+                     (ci && ci.isrcCoverage && ci.isrcCoverage.percent != null) ? 1 : 1;
+    var rdDesc = document.querySelector('.ci-readiness-desc');
+    if (rdDesc) {
+      rdDesc.textContent = isrcIssues === 0 ? 'All attributes verified' :
+                           isrcIssues === 1 ? '1 attribute requires attention' :
+                           isrcIssues + ' attributes require attention';
+    }
+
+    // ATHENA panel rating
+    var athRating = document.querySelector('.pi-athena-rating-value');
+    if (athRating) athRating.textContent = ringScore + '% — ' + readinessStatusLabel;
   }
 
   /* ── KPI — Total Tracks card (index 1) ─────────────────────────────── */
