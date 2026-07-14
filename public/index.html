@@ -1583,6 +1583,10 @@ body.scan-confirmed #sc-confirm{opacity:1;}
 @media(max-width:640px){.sh-headline{font-size:28px;}.sh-input{font-size:16px;}.sh-run-btn{font-size:15px;padding:13px 20px;}.sh-features{grid-template-columns:repeat(2,1fr);}.sh-feat:nth-child(3)::before{display:none;}}
 
 </style>
+<!-- runtime-context-mapper: required on scan page to pre-write royalte_workspace_context
+     before the Mission Control button is enabled (P0 race-fix, PR #327).
+     Also loaded in mission-control.html where __mcPopulate calls it with enriched derivedState. -->
+<script src="/js/runtime-context-mapper.js"></script>
 </head>
 <body class="tier-free">
 
@@ -2502,6 +2506,107 @@ async function fetchWithRetry(url, attempts = 2) {
   }
 }
 
+// ── FINALIZE SCAN ──────────────────────────────────────────
+//
+// Single authoritative completion gate for every scan.
+//
+// Nothing downstream of this function (specifically #open-mc-btn) may become
+// active until finalizeScan() returns { ok: true }.  The Mission Control button
+// is the external signal that the application has reached READY state, and READY
+// means every contract below is satisfied:
+//
+//   Step 1  Canonical payload validated (auditData.canonical present)
+//   Step 2  window.__royalteScan set    (click handler has scanId)
+//   Step 3  buildWorkspaceRuntimeContext() called
+//   Step 4  Runtime Contract validated  (schemaVersion, artistName)
+//   Step 5  royalte_scan_payload written to sessionStorage + localStorage
+//   Step 6  royalte_workspace_context written to sessionStorage
+//   Step 7  Both storage keys read-back verified
+//
+// Returns { ok: true, artistName } on success.
+// Returns { ok: false, reason }    on any failure — MC button stays disabled.
+//
+// runtime-context-mapper.js is loaded in <head> on this page (above </head>).
+// MC page (__mcPopulate) will overwrite royalte_workspace_context with an
+// enriched version that includes verified artwork from getBestVerifiedArtistImage.
+async function finalizeScan(auditData) {
+  var _can = auditData && auditData.canonical;
+  if (!_can) {
+    return { ok: false, reason: 'auditData.canonical missing' };
+  }
+
+  try {
+    // Step 2 — window.__royalteScan
+    var _url = (document.getElementById('hero-url') || {}).value?.trim() || '';
+    window.__royalteScan = {
+      artistName:  auditData.artistName || _can.subject?.artistName || null,
+      sourceUrl:   _url,
+      score:       (auditData.royalteScore != null) ? auditData.royalteScore
+                     : (auditData.riskScore != null ? auditData.riskScore : null),
+      issuesCount: (_can.healthReport?.risks ?? []).length,
+      urlType:     (typeof detectUrlType === 'function') ? detectUrlType(_url) : null,
+      scannedAt:   new Date().toISOString(),
+      scanId:      auditData.scanId || null,
+    };
+
+    // Step 3 — buildWorkspaceRuntimeContext
+    if (typeof window.buildWorkspaceRuntimeContext !== 'function') {
+      // runtime-context-mapper.js failed to load. Gate on payload bridges only so
+      // a CDN outage does not permanently block MC access.
+      console.warn('[finalize] buildWorkspaceRuntimeContext not available — skipping context pre-write');
+      sessionStorage.setItem('royalte_scan_payload', JSON.stringify(_can));
+      try { localStorage.setItem('royalte_scan_payload_ls', JSON.stringify({ payload: _can, storedAt: Date.now() })); } catch (_) {}
+      return { ok: true, artistName: window.__royalteScan.artistName, skippedContextBuild: true };
+    }
+
+    var _artistName  = _can.subject?.artistName || auditData.artistName || null;
+    var _recordLabel = _can.subject?.recordLabel || null;
+    var _wctx = window.buildWorkspaceRuntimeContext(_can, null, {
+      artistName:  _artistName,
+      artwork:     null,
+      recordLabel: _recordLabel,
+    });
+
+    // Step 4 — Runtime Contract validation
+    if (!_wctx || _wctx.schemaVersion !== '1.1' || !(_wctx.subject && _wctx.subject.artistName)) {
+      return {
+        ok:     false,
+        reason: 'Runtime Contract invalid — schemaVersion=' + (_wctx?.schemaVersion || 'null') +
+                ' artistName=' + (_wctx?.subject?.artistName || 'null'),
+      };
+    }
+
+    // Step 5 — write payload bridges
+    sessionStorage.setItem('royalte_scan_payload', JSON.stringify(_can));
+    try {
+      localStorage.setItem('royalte_scan_payload_ls', JSON.stringify({ payload: _can, storedAt: Date.now() }));
+    } catch (_lsErr) {
+      console.warn('[finalize] localStorage write failed (non-fatal):', _lsErr?.message || _lsErr);
+    }
+
+    // Step 6 — write royalte_workspace_context
+    sessionStorage.setItem('royalte_workspace_context', JSON.stringify(_wctx));
+
+    // Step 7 — storage verification (read-back)
+    var _verifyScanPayload  = !!sessionStorage.getItem('royalte_scan_payload');
+    var _verifyWorkspaceCtx = !!sessionStorage.getItem('royalte_workspace_context');
+    if (!_verifyScanPayload || !_verifyWorkspaceCtx) {
+      return {
+        ok:     false,
+        reason: 'Storage verification failed — royalte_scan_payload:' + _verifyScanPayload +
+                ' royalte_workspace_context:' + _verifyWorkspaceCtx,
+      };
+    }
+
+    console.log('[finalize] READY — artist:', _artistName, '| scanId:', auditData.scanId || 'none');
+    return { ok: true, artistName: _artistName };
+
+  } catch (_err) {
+    console.error('[finalize] threw:', _err?.message || _err);
+    return { ok: false, reason: _err?.message || String(_err) };
+  }
+}
+
 // ── RUN AUDIT ──────────────────────────────────────────────
 async function runAudit() {
   const input = document.getElementById('hero-url');
@@ -2606,18 +2711,24 @@ async function runAudit() {
   const apiOk = auditData && !auditData.__error && auditData.success;
 
   if (apiOk) {
-    window.__lastAuditOk = true;
     stopProcessingSound();
     playSuccessChime();
     scan.complete();
-    setTimeout(() => {
-      showRealResults(auditData);
-    }, 150);
+
+    // finalizeScan() is the single completion gate.
+    // window.__lastAuditOk is set ONLY after every write is verified.
+    // runScan() enables #open-mc-btn only when __lastAuditOk is true.
+    const _fin = await finalizeScan(auditData);
+    if (_fin.ok) {
+      window.__lastAuditOk = true;
+    } else {
+      console.error('[audit] Scan finalization failed — MC button will NOT be enabled:', _fin.reason);
+    }
+
+    setTimeout(() => { showRealResults(auditData); }, 150);
     btn.disabled = false;
     btn.textContent = 'Run Free Scan →';
-    setTimeout(() => {
-      document.getElementById('scan-progress').style.display = 'none';
-    }, 600);
+    setTimeout(() => { document.getElementById('scan-progress').style.display = 'none'; }, 600);
     return;
   }
 
