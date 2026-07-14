@@ -191,12 +191,12 @@
             <div class="hi-kpi-breakdown">
               <div class="hi-kpi-breakdown-title">Health Breakdown</div>
               <div class="hi-kpi-breakdown-cols">
-                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Identity</span><span class="hi-kpi-breakdown-val">67</span></div>
-                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Publishing</span><span class="hi-kpi-breakdown-val">67</span></div>
-                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Catalog</span><span class="hi-kpi-breakdown-val">100</span></div>
-                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Change Det.</span><span class="hi-kpi-breakdown-val">75</span></div>
-                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Footprint</span><span class="hi-kpi-breakdown-val">82</span></div>
-                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Backend</span><span class="hi-kpi-breakdown-val">100</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Identity</span><span class="hi-kpi-breakdown-val" data-hi-breakdown="identity">67</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Publishing</span><span class="hi-kpi-breakdown-val" data-hi-breakdown="publishing">67</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Catalog</span><span class="hi-kpi-breakdown-val" data-hi-breakdown="catalog">100</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Change Det.</span><span class="hi-kpi-breakdown-val" data-hi-breakdown="monitoring">75</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Footprint</span><span class="hi-kpi-breakdown-val" data-hi-breakdown="footprint">82</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Backend</span><span class="hi-kpi-breakdown-val" data-hi-breakdown="backend">100</span></div>
               </div>
             </div>
           </div>
@@ -215,27 +215,27 @@
               <div class="hi-monitoring-coverage">
                 <div class="hi-monitoring-coverage-title">Monitoring Coverage</div>
                 <ul class="hi-monitoring-coverage-list" role="list">
-                  <li class="hi-monitoring-coverage-item">
+                  <li class="hi-monitoring-coverage-item" data-hi-coverage="apple">
                     <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
                     Apple Music
                   </li>
-                  <li class="hi-monitoring-coverage-item">
+                  <li class="hi-monitoring-coverage-item" data-hi-coverage="spotify">
                     <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
                     Spotify
                   </li>
-                  <li class="hi-monitoring-coverage-item">
+                  <li class="hi-monitoring-coverage-item" data-hi-coverage="youtube">
                     <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
                     YouTube
                   </li>
-                  <li class="hi-monitoring-coverage-item">
+                  <li class="hi-monitoring-coverage-item" data-hi-coverage="publishing">
                     <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--amber" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
                     Publishing
                   </li>
-                  <li class="hi-monitoring-coverage-item">
+                  <li class="hi-monitoring-coverage-item" data-hi-coverage="metadata">
                     <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
                     Metadata
                   </li>
-                  <li class="hi-monitoring-coverage-item">
+                  <li class="hi-monitoring-coverage-item" data-hi-coverage="catalog">
                     <svg class="royalte-icon royalte-icon--xs hi-kpi-check-icon--green" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
                     Catalog
                   </li>
@@ -254,7 +254,7 @@
           <div class="hi-category-grid">
 
             <!-- 1. Identity Intelligence™ -->
-            <a class="hi-cat-card" href="/workspaces/identity-intelligence.html" aria-label="Open Identity Intelligence workspace">
+            <a class="hi-cat-card" data-hi-domain="identity" href="/workspaces/identity-intelligence.html" aria-label="Open Identity Intelligence workspace">
               <div class="hi-cat-label">Identity Intelligence™</div>
               <div class="hi-cat-score-wrap">
                 <span class="hi-cat-score-num hi-cat-score-num--purple">67</span>
@@ -283,7 +283,7 @@
             </a>
 
             <!-- 2. Publishing Intelligence™ -->
-            <a class="hi-cat-card" href="/workspaces/publishing-intelligence.html" aria-label="Open Publishing Intelligence workspace">
+            <a class="hi-cat-card" data-hi-domain="publishing" href="/workspaces/publishing-intelligence.html" aria-label="Open Publishing Intelligence workspace">
               <div class="hi-cat-label">Publishing Intelligence™</div>
               <div class="hi-cat-score-wrap">
                 <span class="hi-cat-score-num hi-cat-score-num--purple">67</span>
@@ -312,7 +312,7 @@
             </a>
 
             <!-- 3. Catalog Intelligence™ -->
-            <a class="hi-cat-card" href="/workspaces/catalog-intelligence.html" aria-label="Open Catalog Intelligence workspace">
+            <a class="hi-cat-card" data-hi-domain="catalog" href="/workspaces/catalog-intelligence.html" aria-label="Open Catalog Intelligence workspace">
               <div class="hi-cat-label">Catalog Intelligence™</div>
               <div class="hi-cat-score-wrap">
                 <span class="hi-cat-score-num hi-cat-score-num--green">100</span>
@@ -341,7 +341,7 @@
             </a>
 
             <!-- 4. Change Detection™ (replaces Streaming Health™) -->
-            <a class="hi-cat-card" href="/workspaces/monitoring-timeline.html" aria-label="Open Change Detection workspace">
+            <a class="hi-cat-card" data-hi-domain="monitoring" href="/workspaces/monitoring-timeline.html" aria-label="Open Change Detection workspace">
               <div class="hi-cat-label">Change Detection™</div>
               <div class="hi-cat-score-wrap">
                 <span class="hi-cat-score-num hi-cat-score-num--blue">75</span>
@@ -370,7 +370,7 @@
             </a>
 
             <!-- 5. Backend Intelligence™ -->
-            <a class="hi-cat-card" href="/workspaces/backend-intelligence.html" aria-label="Open Backend Intelligence workspace">
+            <a class="hi-cat-card" data-hi-domain="backend" href="/workspaces/backend-intelligence.html" aria-label="Open Backend Intelligence workspace">
               <div class="hi-cat-label">Backend Intelligence™</div>
               <div class="hi-cat-score-wrap">
                 <span class="hi-cat-score-num hi-cat-score-num--green">100</span>
@@ -399,7 +399,7 @@
             </a>
 
             <!-- 6. Global Music Footprint™ -->
-            <a class="hi-cat-card" href="/workspaces/global-music-footprint.html" aria-label="Open Global Music Footprint workspace">
+            <a class="hi-cat-card" data-hi-domain="footprint" href="/workspaces/global-music-footprint.html" aria-label="Open Global Music Footprint workspace">
               <div class="hi-cat-label">Global Music Footprint™</div>
               <div class="hi-cat-score-wrap">
                 <span class="hi-cat-score-num hi-cat-score-num--green">82</span>
@@ -642,7 +642,248 @@
 }());
 </script>
 <script>
-  /* Score count-up — 0 → 89 with ease-out cubic */
+  /* Health Intelligence™ — Live Wiring
+   * Sources: healthIntelligence, executiveBrief, healthReport
+   *          (all from royalte_workspace_context)
+   *
+   * When live intelligence is present: every metric is sourced from the
+   * intelligence pipeline. When absent: all metric fields show
+   * "Not Available Yet™" — never stale demo values.
+   */
+  (function () {
+    'use strict';
+
+    var ctx = {};
+    try { ctx = JSON.parse(sessionStorage.getItem('royalte_workspace_context') || '{}'); } catch (_) {}
+
+    var hi = ctx.healthIntelligence || null;
+    var eb = ctx.executiveBrief     || null;
+    var hr = ctx.healthReport       || null;
+
+    var NA      = 'Not Available Yet™';
+    var PENDING = 'Awaiting Next Scan™';
+
+    // ── Shared helpers ──────────────────────────────────────────────────
+
+    function scoreToStatus(s) {
+      if (s == null) return 'Needs Review';
+      if (s >= 90)   return 'Excellent';
+      if (s >= 70)   return 'Strong';
+      if (s >= 50)   return 'Moderate';
+      return 'Needs Review';
+    }
+
+    function statusColor(status) {
+      if (status === 'Excellent' || status === 'Strong') return 'green';
+      if (status === 'Moderate') return 'blue';
+      return 'purple';
+    }
+
+    function wirePill(pill, status) {
+      if (!pill || !status) return;
+      var dot = pill.querySelector('.hi-status-dot');
+      pill.className = 'hi-status-pill hi-status-pill--' + statusColor(status);
+      pill.textContent = status;
+      if (dot) pill.insertBefore(dot, pill.firstChild);
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return null;
+      try {
+        var d = new Date(iso);
+        var now = new Date();
+        var today = d.getFullYear() === now.getFullYear() &&
+                    d.getMonth()    === now.getMonth()    &&
+                    d.getDate()     === now.getDate();
+        var t = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        return today
+          ? 'Today, ' + t
+          : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + t;
+      } catch (_) { return null; }
+    }
+
+    // ── No-data fallback — replace every hardcoded metric ───────────────
+    // Ensures stale demo values never display when no scan is in context.
+
+    if (!hi) {
+      var numElNA = document.querySelector('.hi-score-ring-num');
+      if (numElNA) {
+        numElNA.removeAttribute('data-target');
+        numElNA.textContent = '—';
+      }
+      var progNA = document.querySelector('.hi-score-ring-progress');
+      if (progNA) progNA.style.strokeDasharray = '0 252';
+
+      var scoreCardNA = document.querySelector('.hi-kpi-card--score');
+      if (scoreCardNA) {
+        var metaRowNA = scoreCardNA.querySelector('.hi-score-meta-row');
+        if (metaRowNA) {
+          var pillNA = metaRowNA.querySelector('.hi-status-pill');
+          if (pillNA) {
+            var dotNA = pillNA.querySelector('.hi-status-dot');
+            pillNA.className = 'hi-status-pill hi-status-pill--purple';
+            pillNA.textContent = NA;
+            if (dotNA) pillNA.insertBefore(dotNA, pillNA.firstChild);
+          }
+          var trendElNA = metaRowNA.querySelector('.hi-kpi-trend');
+          if (trendElNA) trendElNA.textContent = PENDING;
+        }
+      }
+
+      var dateElNA = document.getElementById('ht-scan-date');
+      if (dateElNA) dateElNA.textContent = NA;
+
+      var bElsNA = document.querySelectorAll('[data-hi-breakdown]');
+      for (var bNA = 0; bNA < bElsNA.length; bNA++) bElsNA[bNA].textContent = '—';
+
+      var athenaNA = document.querySelectorAll('.hi-kpi-athena-brief');
+      if (athenaNA.length >= 2) athenaNA[1].textContent = NA;
+
+      var cardsNA = document.querySelectorAll('[data-hi-domain]');
+      for (var kNA = 0; kNA < cardsNA.length; kNA++) {
+        var cardNA   = cardsNA[kNA];
+        var snumNA   = cardNA.querySelector('.hi-cat-score-num');
+        if (snumNA) snumNA.textContent = '—';
+        var fillNA   = cardNA.querySelector('.hi-cat-progress-fill');
+        if (fillNA) fillNA.style.setProperty('--pct', '0%');
+        var barNA    = cardNA.querySelector('.hi-cat-progress');
+        if (barNA) barNA.setAttribute('aria-valuenow', '0');
+        var cpillNA  = cardNA.querySelector('.hi-status-pill');
+        if (cpillNA) {
+          var cdotNA = cpillNA.querySelector('.hi-status-dot');
+          cpillNA.textContent = NA;
+          if (cdotNA) cpillNA.insertBefore(cdotNA, cpillNA.firstChild);
+        }
+        var moveNA = cardNA.querySelector('.hi-cat-movement');
+        if (moveNA) { moveNA.className = 'hi-cat-movement'; moveNA.textContent = PENDING; }
+      }
+
+      return;
+    }
+
+    // ── Live wiring — all values sourced from intelligence pipeline ─────
+
+    var domainScores = {
+      identity:   hi.identityScore,
+      publishing: hi.publishingScore,
+      catalog:    hi.catalogScore,
+      monitoring: hi.monitoringScore,
+      footprint:  hi.footprintScore,
+      backend:    hi.backendScore,
+    };
+
+    var ds = hi.domainStatuses || {};
+
+    // Score ring
+    var score = (hi.score != null) ? Math.round(hi.score) : null;
+    if (score !== null) {
+      var numEl = document.querySelector('.hi-score-ring-num[data-target]');
+      if (numEl) {
+        numEl.dataset.target = score;
+        var ringWrap = numEl.closest ? numEl.closest('.hi-score-ring-wrap') : null;
+        if (ringWrap) ringWrap.setAttribute('aria-label', 'Health score: ' + score + ' out of 100');
+      }
+      // r=40, circumference ≈ 251.327; CSS uses stroke-dasharray: [arc] 252
+      var arcLen = (score / 100 * 251.327).toFixed(1);
+      var prog = document.querySelector('.hi-score-ring-progress');
+      if (prog) prog.style.strokeDasharray = arcLen + ' 252';
+    }
+
+    // Score ring status pill
+    var mainStatus = hi.status || scoreToStatus(score);
+    var scoreCard  = document.querySelector('.hi-kpi-card--score');
+    if (scoreCard) {
+      var metaRow = scoreCard.querySelector('.hi-score-meta-row');
+      if (metaRow) wirePill(metaRow.querySelector('.hi-status-pill'), mainStatus);
+    }
+
+    // Trend (no historical baseline yet → Awaiting Next Scan™)
+    var trendEl = document.querySelector('.hi-kpi-trend');
+    if (trendEl) {
+      var trendVal = (hr && hr.trend && hr.trend !== 'Unknown') ? hr.trend : null;
+      trendEl.textContent = trendVal || PENDING;
+    }
+
+    // Scan date
+    var dateStr = fmtDate(hi.generatedAt);
+    if (dateStr) {
+      var dateEl = document.getElementById('ht-scan-date');
+      if (dateEl) dateEl.textContent = dateStr;
+    }
+
+    // Health breakdown grid
+    var breakdownEls = document.querySelectorAll('[data-hi-breakdown]');
+    for (var b = 0; b < breakdownEls.length; b++) {
+      var bEl  = breakdownEls[b];
+      var bVal = domainScores[bEl.getAttribute('data-hi-breakdown')];
+      if (bVal != null) bEl.textContent = Math.round(bVal);
+    }
+
+    // ATHENA brief second line
+    var athena = document.querySelectorAll('.hi-kpi-athena-brief');
+    if (athena.length >= 2) {
+      var line2 = (eb && eb.aiExecutiveInsight)
+        ? eb.aiExecutiveInsight
+        : (hi.concerns && hi.concerns.length > 0) ? hi.concerns[0] + '.' : null;
+      if (line2) athena[1].textContent = line2;
+    }
+
+    // Monitoring coverage icons
+    var coverageStatus = {
+      apple:      ds.backend,
+      spotify:    ds.backend,
+      youtube:    ds.backend,
+      publishing: ds.publishing,
+      metadata:   ds.metadata || ds.coverage,
+      catalog:    ds.catalog,
+    };
+    var coverageEls = document.querySelectorAll('[data-hi-coverage]');
+    for (var c = 0; c < coverageEls.length; c++) {
+      var li       = coverageEls[c];
+      var cvStatus = coverageStatus[li.getAttribute('data-hi-coverage')];
+      if (!cvStatus) continue;
+      var healthy  = (cvStatus === 'Excellent' || cvStatus === 'Strong');
+      var svg      = li.querySelector('svg');
+      var use      = li.querySelector('use');
+      if (!svg || !use) continue;
+      var cls = (svg.getAttribute('class') || '').replace(/hi-kpi-check-icon--\w+/g, '').trim();
+      svg.setAttribute('class', cls + ' ' + (healthy ? 'hi-kpi-check-icon--green' : 'hi-kpi-check-icon--amber'));
+      use.setAttribute('href',
+        healthy ? '/icons/royalte-icon-registry.svg#royalte-check'
+                : '/icons/royalte-icon-registry.svg#royalte-alert');
+    }
+
+    // Category cards
+    var cards = document.querySelectorAll('[data-hi-domain]');
+    for (var k = 0; k < cards.length; k++) {
+      var card     = cards[k];
+      var domain   = card.getAttribute('data-hi-domain');
+      var rawScore = domainScores[domain];
+      if (rawScore == null) continue;
+
+      var s  = Math.round(rawScore);
+      var st = ds[domain] || scoreToStatus(s);
+
+      var scoreNum = card.querySelector('.hi-cat-score-num');
+      if (scoreNum) scoreNum.textContent = s;
+
+      var bar = card.querySelector('.hi-cat-progress');
+      if (bar) bar.setAttribute('aria-valuenow', s);
+
+      var fill = card.querySelector('.hi-cat-progress-fill');
+      if (fill) fill.style.setProperty('--pct', s + '%');
+
+      wirePill(card.querySelector('.hi-status-pill'), st);
+
+      // No historical baseline yet — movement populates after subsequent scans
+      var move = card.querySelector('.hi-cat-movement');
+      if (move) { move.className = 'hi-cat-movement'; move.textContent = PENDING; }
+    }
+
+  }());
+</script>
+<script>
+  /* Score count-up — 0 → data-target with ease-out cubic */
   document.addEventListener('DOMContentLoaded', function () {
     var el = document.querySelector('.hi-score-ring-num[data-target]');
     if (!el) return;
