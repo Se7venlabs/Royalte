@@ -114,7 +114,26 @@ async function fetchScanPayload() {
         return _parsed;
       }
     } else {
-      console.log('[mc-diag] sessionStorage MISS — falling to Supabase path. _isPreactivate:', _isPreactivate, '| scanId:', getScanIdFromUrl() || 'none');
+      console.log('[mc-diag] sessionStorage MISS — trying localStorage fallback. _isPreactivate:', _isPreactivate, '| scanId:', getScanIdFromUrl() || 'none');
+      // Fallback bridge: localStorage survives new-tab opens (Cmd/Ctrl+click), mobile
+      // browser suspend, and any other mechanism that clears sessionStorage between
+      // the scan page and Mission Control. TTL: 4 hours (matches workspace context MAX_AGE_MS).
+      try {
+        const _lsRaw = localStorage.getItem('royalte_scan_payload_ls');
+        if (_lsRaw) {
+          const _lsEntry = JSON.parse(_lsRaw);
+          const _lsAge   = Date.now() - (_lsEntry?.storedAt || 0);
+          if (_lsAge < 4 * 60 * 60 * 1000 && _lsEntry?.payload && typeof _lsEntry.payload === 'object') {
+            console.log('[mc-diag] localStorage FALLBACK HIT — artist:', _lsEntry.payload.subject?.artistName || '(unknown)', '| age:', Math.round(_lsAge / 1000) + 's');
+            return _lsEntry.payload;
+          }
+          console.log('[mc-diag] localStorage entry present but stale or malformed — age:', Math.round(_lsAge / 1000) + 's');
+        } else {
+          console.log('[mc-diag] localStorage MISS — falling to Supabase path');
+        }
+      } catch (_lsErr) {
+        console.warn('[mc-diag] localStorage fallback threw:', _lsErr?.message || _lsErr);
+      }
     }
   } catch (_ssErr) {
     console.warn('[mc-diag] sessionStorage read/parse threw:', _ssErr?.message || _ssErr);
@@ -1460,7 +1479,9 @@ if (typeof window !== 'undefined') {
         }
       );
       sessionStorage.setItem('royalte_workspace_context', JSON.stringify(workspaceContext));
-    } catch (_e) {}
+    } catch (_e) {
+      console.error('[mc-diag] buildWorkspaceRuntimeContext threw — royalte_workspace_context NOT written:', _e?.message || _e);
+    }
   };
 
   window.__mcRevealModule = function (id) {

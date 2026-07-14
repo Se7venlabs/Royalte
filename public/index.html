@@ -2966,11 +2966,22 @@ function showRealResults(data) {
   // and backendIntelligence undefined at the top level — causing __mcPopulate() to build
   // null plans for those domains and fall through to the Supabase "latest owned" path.
   // canonical spreads rawResponse so canonical.platforms.deezer etc. still work.
-  // sessionStorage cleared by fetchScanPayload() in mission-control.js after reading.
+  // Primary bridge: sessionStorage (same-tab navigation only; cleared by fetchScanPayload after read).
+  // Fallback bridge: localStorage (survives new-tab opens, mobile browser suspend, and Cmd/Ctrl+click).
+  // Both keyed to the canonical payload so __mcPopulate reads the same shape from either source.
+  // TTL on the localStorage entry (4 h) matches royalte_workspace_context MAX_AGE_MS.
   try {
     if (data && data.canonical) {
       console.log('[hp-diag] storing canonical for artist:', data.canonical.subject?.artistName || data.artistName, '| keys:', Object.keys(data.canonical).join(','));
       sessionStorage.setItem('royalte_scan_payload', JSON.stringify(data.canonical));
+      try {
+        localStorage.setItem('royalte_scan_payload_ls', JSON.stringify({
+          payload:  data.canonical,
+          storedAt: Date.now(),
+        }));
+      } catch (_lsErr) {
+        console.warn('[hp-diag] localStorage bridge write failed:', _lsErr?.message || _lsErr);
+      }
     } else {
       console.warn('[hp-diag] data.canonical missing — sessionStorage bridge skipped; MC will fall to Supabase');
     }
