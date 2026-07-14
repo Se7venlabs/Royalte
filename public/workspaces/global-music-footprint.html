@@ -199,7 +199,7 @@
               <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-verified"></use></svg>
             </div>
             <div class="ii-kpi-num-row">
-              <span class="ii-kpi-big-num">4</span>
+              <span class="ii-kpi-big-num" id="gf-provider-num">—</span>
             </div>
             <div class="ii-kpi-status-text ii-kpi-status-text--blue">Active</div>
             <div class="ii-kpi-caption">Apple · Spotify · Deezer · TIDAL</div>
@@ -436,9 +436,15 @@
     var _body = document.querySelector('.ws-body');
     if (_body) _body.style.opacity = '1';
     var gf = ctx.globalMusicFootprint;  // guaranteed non-null by contract
+    var ii = ctx.identityIntelligence || null;
     var rn = document.getElementById('gf-ring-num');
     var cn = document.getElementById('gf-countries-num');
     var cv = document.getElementById('gf-coverage-num');
+    var pn = document.getElementById('gf-provider-num');
+    if (pn) {
+      var provCount = (ii && ii.providers) ? Object.keys(ii.providers).length : null;
+      pn.textContent = provCount != null ? String(provCount) : '—';
+    }
     if (rn) rn.dataset.liveTarget = String(gf.coveragePercent    || 0);
     if (cn) cn.dataset.liveTarget = String(gf.territoriesAvailable || 0);
     if (cv) cv.dataset.liveTarget = String(gf.coveragePercent    || 0);
