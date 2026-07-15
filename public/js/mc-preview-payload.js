@@ -807,8 +807,14 @@ const _FIXTURE = {
       "last_updated_at": "2026-07-10T10:00:00.000Z"
     },
     "performing_rights": {
-      "pro": "SOCAN",
-      "soundexchange": "Yes"
+      "pro": "SOCAN"
+    },
+    "publishing": {
+      "self_published": true,
+      "publisher_name": null,
+      "publishing_admin": false,
+      "publishing_admin_name": null,
+      "mlc_registered": true
     }
   }
 };

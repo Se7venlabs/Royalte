@@ -1,16 +1,16 @@
 // POST /api/save-music-rights-profile
 //
 // Persists the Music Rights Profile™ for the authenticated artist.
-// Called by public/onboarding.html after the artist answers the 2 required questions.
+// Called by public/onboarding.html after the artist answers the 4 required questions.
 // The profile is required — there is no skip path.
 //
 // Artist-supplied groups (onboarding):
-//   performing_rights: { pro, soundexchange }
+//   performing_rights: { pro }
+//   publishing: { self_published, publisher_name, publishing_admin, publishing_admin_name, mlc_registered }
 //
 // Intelligence-auto-populated groups (future, added post-scan by intelligence engines):
 //   recording:    { record_label, label_name }       — from Apple Music catalog
 //   distribution: { distributor, distributor_other } — inferred from Apple Music
-//   publishing:   { publishing_admin, publisher }    — from MLC works
 //
 // The client sends only the groups it has. This endpoint wraps them with the
 // meta block before writing. Future intelligence groups merge in separately.
@@ -18,7 +18,7 @@
 // Request:
 //   Authorization: Bearer <user_access_token>
 //   Content-Type: application/json
-//   Body: { profile: { performing_rights: { pro, soundexchange } } }
+//   Body: { profile: { performing_rights: { pro }, publishing: { ... } } }
 //
 // Response:
 //   200 { ok: true }
