@@ -6,7 +6,7 @@
 //
 // Artist-supplied groups (onboarding):
 //   performing_rights: { pro }
-//   publishing: { self_published, publisher_name, publishing_admin, publishing_admin_name, mlc_registered }
+//   publishing: { publishing_management, organization_name, mlc_registered }
 //
 // Intelligence-auto-populated groups (future, added post-scan by intelligence engines):
 //   recording:    { record_label, label_name }       — from Apple Music catalog
@@ -18,7 +18,7 @@
 // Request:
 //   Authorization: Bearer <user_access_token>
 //   Content-Type: application/json
-//   Body: { profile: { performing_rights: { pro }, publishing: { ... } } }
+//   Body: { profile: { performing_rights: { pro }, publishing: { publishing_management, organization_name, mlc_registered } } }
 //
 // Response:
 //   200 { ok: true }

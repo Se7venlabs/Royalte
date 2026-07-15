@@ -810,10 +810,8 @@ const _FIXTURE = {
       "pro": "SOCAN"
     },
     "publishing": {
-      "self_published": true,
-      "publisher_name": null,
-      "publishing_admin": false,
-      "publishing_admin_name": null,
+      "publishing_management": "self",
+      "organization_name": null,
       "mlc_registered": true
     }
   }
