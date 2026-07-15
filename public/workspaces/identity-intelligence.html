@@ -7,6 +7,114 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <style>
+  /* ── Latest Release™ KPI card internals ── */
+  .ii-lr-body {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 8px;
+    flex: 1;
+  }
+  .ii-lr-artwork {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    background: rgba(138,92,255,0.08);
+    border: 1px solid rgba(138,92,255,0.18);
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ii-lr-artwork-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .ii-lr-artwork-img.ii--loaded { opacity: 1; }
+  .ii-lr-table {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .ii-lr-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+  }
+  .ii-lr-key {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text2, #6b7280);
+    flex-shrink: 0;
+    min-width: 46px;
+  }
+  .ii-lr-val {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text, #e8e8e8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  </style>
+  <script>
+  /* DEV FIXTURE — localhost only, never runs on production.
+   * Seeds royalte_workspace_context so the workspace renders without a real scan. */
+  (function () {
+    var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (!isLocal) return;
+    if (sessionStorage.getItem('royalte_workspace_context')) return;
+    sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+      schemaVersion: '1.1',
+      scanId:        'preview-fixture-identity-001',
+      artistName:    'Prince',
+      scannedAt:     new Date().toISOString(),
+      generatedAt:   new Date().toISOString(),
+      subject: {
+        artistName:  'Prince',
+        trackTitle:  'Purple Rain',
+        trackIsrc:   'USPR38400001',
+        albumName:   'Purple Rain',
+      },
+      metrics: {
+        genres: ['pop', 'funk', 'r&b'],
+      },
+      recordLabel: 'Warner Records',
+      artwork: null,
+      catalogIntelligence: {
+        totalTracks: 247,
+        bestVerifiedRelease: { releaseTitle: 'Purple Rain', artwork: null },
+      },
+      identity: {
+        coverage:           80,
+        verifiedProviders:  4,
+        totalProviders:     5,
+        supportedProviders: ['apple', 'spotify', 'youtube', 'deezer', 'tidal'],
+        providers: {
+          apple:   'VERIFIED',
+          spotify: 'VERIFIED',
+          youtube: 'VERIFIED',
+          deezer:  'VERIFIED',
+          tidal:   'NOT_FOUND',
+        },
+        issues: [],
+        strengths: ['Verified on 4 of 5 major identity services.'],
+        recommendations: [],
+      },
+    }));
+  }());
+  </script>
   <script src="/js/mc-workspace-context.js"></script>
 </head>
 <body>
@@ -175,23 +283,41 @@
             <div class="ii-kpi-caption" style="text-align:center;margin-top:4px">—</div>
           </div>
 
-          <!-- Verified Platforms™ -->
-          <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--green">Verified Platforms™</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--green" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+          <!-- Latest Release™ -->
+          <div class="hi-kpi-card ii-kpi-card--latest-release">
+            <div class="hi-kpi-label hi-kpi-label--green">Latest Release™</div>
+            <div class="ii-lr-body">
+              <div class="ii-lr-artwork" aria-hidden="true">
+                <img class="ii-lr-artwork-img" id="ii-lr-artwork-img" alt="" draggable="false">
+              </div>
+              <div class="ii-lr-table">
+                <div class="ii-lr-row">
+                  <span class="ii-lr-key">Artist</span>
+                  <span class="ii-lr-val" id="ii-lr-artist">—</span>
+                </div>
+                <div class="ii-lr-row">
+                  <span class="ii-lr-key">Release</span>
+                  <span class="ii-lr-val" id="ii-lr-release">—</span>
+                </div>
+                <div class="ii-lr-row">
+                  <span class="ii-lr-key">Label</span>
+                  <span class="ii-lr-val" id="ii-lr-label">—</span>
+                </div>
+                <div class="ii-lr-row">
+                  <span class="ii-lr-key">Genre</span>
+                  <span class="ii-lr-val" id="ii-lr-genre">—</span>
+                </div>
+                <div class="ii-lr-row">
+                  <span class="ii-lr-key">ISRC</span>
+                  <span class="ii-lr-val" id="ii-lr-isrc">—</span>
+                </div>
+              </div>
             </div>
-            <div class="ii-kpi-num-row">
-              <span class="ii-kpi-big-num">—</span>
-              <span class="ii-kpi-fraction"> / —</span>
-            </div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--green">—</div>
-            <div class="ii-kpi-caption">—</div>
           </div>
 
-          <!-- Pending Claims™ — Action Path™ -->
-          <div class="hi-kpi-card ii-kpi-card--pending">
-            <div class="hi-kpi-label hi-kpi-label--orange">Pending Claims™</div>
+          <!-- Identity Risks™ — Action Path™ -->
+          <div class="hi-kpi-card ii-kpi-card--risks">
+            <div class="hi-kpi-label hi-kpi-label--orange">Identity Risks™</div>
             <div class="ii-action-path">
               <div class="ii-action-path-platform">—</div>
               <div class="ii-platform-badge ii-platform-badge--verified" style="align-self:flex-start">—</div>
@@ -356,56 +482,6 @@
           </div>
         </div>
 
-        <!-- § 4 — IDENTITY SNAPSHOT™ ──────────────────────────────── -->
-        <div class="ii-snapshot-card">
-            <div class="ii-card-header">
-              <svg class="ii-card-header-icon royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-profile"></use></svg>
-              <div class="ii-card-header-title">Identity Snapshot™</div>
-            </div>
-            <div class="ii-snapshot-body">
-              <div class="ii-snapshot-art" aria-hidden="true">
-                <img class="ii-snapshot-img" id="ii-snapshot-img" alt="" draggable="false">
-                <div class="ii-snapshot-art-text"></div>
-              </div>
-              <div class="ii-snapshot-table">
-                <div class="ii-snapshot-row">
-                  <span class="ii-snapshot-key">Artist Name</span>
-                  <span class="ii-snapshot-val">—</span>
-                </div>
-                <div class="ii-snapshot-row">
-                  <span class="ii-snapshot-key">Top Track</span>
-                  <span class="ii-snapshot-val">—</span>
-                </div>
-                <div class="ii-snapshot-row">
-                  <span class="ii-snapshot-key">ISRC</span>
-                  <span class="ii-snapshot-val">—</span>
-                </div>
-                <div class="ii-snapshot-row">
-                  <span class="ii-snapshot-key">Primary Release</span>
-                  <span class="ii-snapshot-val">—</span>
-                </div>
-                <div class="ii-snapshot-row">
-                  <span class="ii-snapshot-key">Record Label</span>
-                  <span class="ii-snapshot-val">—</span>
-                </div>
-                <div class="ii-snapshot-row" style="align-items:flex-start">
-                  <span class="ii-snapshot-key">Primary Genres</span>
-                  <div class="ii-snapshot-genre-row">
-                    <span class="ii-snapshot-val">—</span>
-                  </div>
-                </div>
-                <div class="ii-snapshot-row">
-                  <span class="ii-snapshot-key">Last Identity Sync</span>
-                  <span class="ii-snapshot-val">
-                    —
-                    <span class="ii-sync-dot" aria-hidden="true"></span>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
 
       </div><!-- /hi-main -->
 
@@ -454,13 +530,6 @@
       return sameDay ? 'Today, ' + t
         : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + t;
     } catch (_) { return null; }
-  }
-
-  function setSnap(snapMap, key, val) {
-    var row = snapMap[key];
-    if (!row || val == null) return;
-    var v = row.querySelector('.ii-snapshot-val');
-    if (v) v.textContent = val;
   }
 
   function showDiag(state, ctx) {
@@ -546,22 +615,22 @@
       if (pdot) pill.insertBefore(pdot, pill.firstChild);
     }
     var capEl = document.querySelector('.ii-kpi-card--coverage .ii-kpi-caption');
-    var totalProv = identity && identity.totalProviders != null ? identity.totalProviders
-      : (identity && identity.supportedProviders ? identity.supportedProviders.length : null);
-    if (capEl && totalProv != null) capEl.textContent = 'Across ' + totalProv + ' Identity Systems';
+    if (capEl) capEl.textContent = 'Across 5 Identity Services';
   }
 
-  // ── 3d. Verified Platforms KPI (from ctx.identity) ───────────────────
-  if (identity && identity.verifiedProviders != null) {
-    var vp = identity.verifiedProviders;
-    var tp = identity.totalProviders != null ? identity.totalProviders
-           : (identity.supportedProviders ? identity.supportedProviders.length : vp);
-    var bn = document.querySelector('.ii-kpi-big-num'); if (bn) bn.textContent = String(vp);
-    var fr = document.querySelector('.ii-kpi-fraction'); if (fr) fr.textContent = ' / ' + tp;
-    var ks = document.querySelector('.ii-kpi-status-text'); if (ks) ks.textContent = vp === tp ? 'All Verified' : vp + ' Verified';
-    var kc = document.querySelector('.hi-kpi-card:not(.ii-kpi-card--coverage):not(.ii-kpi-card--pending) .ii-kpi-caption');
-    if (kc && tp > 0) kc.textContent = Math.round(vp / tp * 100) + '% of Identity Systems';
+  // ── 3d. Latest Release™ KPI ──────────────────────────────────────────
+  var bvr = ctx.catalogIntelligence && ctx.catalogIntelligence.bestVerifiedRelease;
+  function setLR(id, val) {
+    var lrEl = document.getElementById(id);
+    if (lrEl) lrEl.textContent = (val != null && val !== '') ? val : 'Not Available';
   }
+  setLR('ii-lr-artist',  artistName);
+  setLR('ii-lr-release', (bvr && bvr.releaseTitle) || (subject && subject.albumName));
+  setLR('ii-lr-label',   ctx.recordLabel);
+  var genreFirst = (metrics && Array.isArray(metrics.genres) && metrics.genres[0])
+    ? (metrics.genres[0].charAt(0).toUpperCase() + metrics.genres[0].slice(1)) : null;
+  setLR('ii-lr-genre', genreFirst);
+  setLR('ii-lr-isrc',  subject && subject.trackIsrc);
 
   // ── 3e. Provider cards (from ctx.identity.providers via data-provider) ─
   var BADGE_MAP = {
@@ -623,77 +692,25 @@
     }
   });
 
-  // ── 3g. Pending Claims KPI (from ctx.identity.issues) ────────────────
+  // ── 3g. Identity Risks™ KPI (from ctx.identity.issues) ──────────────
   var issues = (identity && Array.isArray(identity.issues)) ? identity.issues : [];
-  var pPlatEl  = document.querySelector('.ii-kpi-card--pending .ii-action-path-platform');
-  var pBadgeEl = document.querySelector('.ii-kpi-card--pending .ii-platform-badge');
-  var pDescEl  = document.querySelector('.ii-kpi-card--pending .ii-action-path-desc');
-  var pCtaEl   = document.querySelector('.ii-kpi-card--pending .ii-action-path-cta');
+  var rPlatEl  = document.querySelector('.ii-kpi-card--risks .ii-action-path-platform');
+  var rBadgeEl = document.querySelector('.ii-kpi-card--risks .ii-platform-badge');
+  var rDescEl  = document.querySelector('.ii-kpi-card--risks .ii-action-path-desc');
+  var rCtaEl   = document.querySelector('.ii-kpi-card--risks .ii-action-path-cta');
   if (issues.length > 0) {
     var fi = issues[0];
-    if (pPlatEl)  pPlatEl.textContent  = fi.label || fi.provider || 'Identity System';
-    if (pDescEl)  pDescEl.textContent  = fi.title || fi.description || 'Review required';
-    if (pBadgeEl) { pBadgeEl.className = 'ii-platform-badge ii-platform-badge--action-required'; pBadgeEl.textContent = 'Action Required'; }
-    if (pCtaEl)   pCtaEl.style.display = '';
+    if (rPlatEl)  rPlatEl.textContent  = fi.label || fi.provider || 'Identity System';
+    if (rDescEl)  rDescEl.textContent  = fi.title || fi.description || 'Review required';
+    if (rBadgeEl) { rBadgeEl.className = 'ii-platform-badge ii-platform-badge--action-required'; rBadgeEl.textContent = 'Action Required'; }
+    if (rCtaEl)   rCtaEl.style.display = '';
   } else {
-    if (pPlatEl)  pPlatEl.textContent  = 'No Pending Claims';
-    if (pDescEl)  pDescEl.textContent  = 'All tracked identity systems are verified. No actions required.';
-    if (pBadgeEl) { pBadgeEl.className = 'ii-platform-badge ii-platform-badge--verified'; pBadgeEl.textContent = 'All Clear'; }
-    if (pCtaEl)   pCtaEl.style.display = 'none';
-    var pendLabel = document.querySelector('.ii-kpi-card--pending .hi-kpi-label');
-    if (pendLabel) pendLabel.className = 'hi-kpi-label hi-kpi-label--green';
-  }
-
-  // ── 3h. Identity Snapshot (from subject + metrics + catalogIntelligence) ─
-  var snapRows = document.querySelectorAll('.ii-snapshot-row');
-  var snapMap  = {};
-  snapRows.forEach(function (row) {
-    var k = row.querySelector('.ii-snapshot-key');
-    if (k) snapMap[k.textContent.trim()] = row;
-  });
-
-  if (artistName)      setSnap(snapMap, 'Artist Name',   artistName.toUpperCase());
-  if (ctx.recordLabel) setSnap(snapMap, 'Record Label',  ctx.recordLabel);
-  if (subject) {
-    setSnap(snapMap, 'Top Track', subject.trackTitle || '—');
-    setSnap(snapMap, 'ISRC',      subject.trackIsrc  || '—');
-    var bvr = ctx.catalogIntelligence && ctx.catalogIntelligence.bestVerifiedRelease;
-    setSnap(snapMap, 'Primary Release', (bvr && bvr.releaseTitle) || subject.albumName || '—');
-    var artText = document.querySelector('.ii-snapshot-art-text');
-    if (artText) artText.textContent = (bvr && bvr.releaseTitle) || subject.trackTitle || '';
-  }
-  if (metrics) {
-    var gRow = snapMap['Primary Genres'];
-    if (gRow) {
-      var gc = gRow.querySelector('.ii-snapshot-genre-row');
-      if (gc) {
-        gc.innerHTML = '';
-        var genreArr = Array.isArray(metrics.genres) ? metrics.genres.slice(0, 3) : [];
-        if (genreArr.length > 0) {
-          genreArr.forEach(function (g) {
-            var tag = document.createElement('span');
-            tag.className = 'ii-snapshot-genre-tag';
-            tag.textContent = g.charAt(0).toUpperCase() + g.slice(1);
-            gc.appendChild(tag);
-          });
-        } else {
-          var dash = document.createElement('span');
-          dash.className = 'ii-snapshot-val'; dash.textContent = '—';
-          gc.appendChild(dash);
-        }
-      }
-    }
-  }
-  if (syncStr) {
-    var syncRow = snapMap['Last Identity Sync'];
-    if (syncRow) {
-      var svEl = syncRow.querySelector('.ii-snapshot-val');
-      if (svEl) {
-        var sdot = svEl.querySelector('.ii-sync-dot');
-        svEl.textContent = syncStr;
-        if (sdot) svEl.appendChild(sdot);
-      }
-    }
+    if (rPlatEl)  rPlatEl.textContent  = 'No Identity Risks Detected';
+    if (rDescEl)  rDescEl.textContent  = 'All identity systems are verified. No risks detected.';
+    if (rBadgeEl) { rBadgeEl.className = 'ii-platform-badge ii-platform-badge--verified'; rBadgeEl.textContent = 'All Clear'; }
+    if (rCtaEl)   rCtaEl.style.display = 'none';
+    var riskLabel = document.querySelector('.ii-kpi-card--risks .hi-kpi-label');
+    if (riskLabel) riskLabel.className = 'hi-kpi-label hi-kpi-label--green';
   }
 
 }());
@@ -745,7 +762,7 @@
         if (initials) initials.style.display = 'none';
       }
     );
-    applyImg(document.getElementById('ii-snapshot-img'), releaseSrc);
+    applyImg(document.getElementById('ii-lr-artwork-img'), releaseSrc);
   } catch (e) {}
 })();
 </script>
