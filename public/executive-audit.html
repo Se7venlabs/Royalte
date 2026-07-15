@@ -110,17 +110,29 @@
       text-align: center;
       flex-shrink: 0;
     }
-    .ea-sb-avatar {
-      width: 60px; height: 60px;
-      border-radius: 50%;
-      background: var(--mc-surface-2);
-      border: 2px solid var(--mc-border);
-      display: grid;
-      place-items: center;
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--mc-text-muted);
-      letter-spacing: -0.02em;
+    .ea-sb-artist-img-wrap {
+      width: 78px; height: 78px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.09);
+      flex-shrink: 0;
+    }
+    .ea-sb-artist-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .ea-sb-artist-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #12101e 0%, #0d0d1a 60%, #14101f 100%);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      font-style: italic;
+      color: rgba(168,85,247,0.50);
     }
     .ea-sb-artist-name {
       font-size: 11px;
@@ -1074,7 +1086,9 @@
 
     <!-- Artist -->
     <div class="ea-sb-artist">
-      <div class="ea-sb-avatar">BA</div>
+      <div class="ea-sb-artist-img-wrap">
+        <div class="ea-sb-artist-img-placeholder">BA</div>
+      </div>
       <div class="ea-sb-artist-name">Black Alternative</div>
       <div class="ea-sb-artist-role">Artist</div>
     </div>
@@ -1397,6 +1411,25 @@
   </main><!-- /ea-main -->
 </div><!-- /ea-shell -->
 
+<!-- ── WORKSPACE REVIEW OVERLAY ──────────────────────────────────── -->
+<div id="ea-review-overlay" class="pi-athena-overlay" role="dialog" aria-modal="true" aria-labelledby="ea-review-title" hidden>
+  <div class="pi-athena-panel" role="document">
+    <div class="pi-athena-header">
+      <div class="pi-athena-brand">
+        <div class="pi-athena-logo" aria-hidden="true">ē</div>
+        <div class="pi-athena-brand-text">
+          <div class="pi-athena-eyebrow">ATHENA EXECUTIVE AUDIT™</div>
+          <div class="pi-athena-wordmark" id="ea-review-title">Workspace Review</div>
+        </div>
+      </div>
+      <button class="pi-athena-close" id="ea-review-close" onclick="eaCloseReview()" aria-label="Close workspace review">✕</button>
+    </div>
+    <div class="pi-athena-body" id="ea-review-body" style="padding-bottom:32px;">
+      <!-- populated by eaOpenReview() -->
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   'use strict';
@@ -1630,7 +1663,7 @@
           + '<div class="ea-ws-exec-val">'   + esc(ws[field] || '') + '</div>'
           + '</div>';
       }).join('')
-      + '<div class="ea-ws-cta">View Review →</div>';
+      + '<div class="ea-ws-cta" role="button" tabindex="0" onclick="eaOpenReview(\'' + ws.key + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \')eaOpenReview(\'' + ws.key + '\')">View Review →</div>';
     wsGrid.appendChild(card);
   });
 
@@ -1744,6 +1777,139 @@
 
   mainEl.addEventListener('scroll', updateProgress, { passive: true });
   updateProgress();
+
+  /* ── WORKSPACE REVIEW OVERLAY ────────────────────────────────── */
+
+  var WS_REVIEWS = {
+    health: {
+      title: 'Health Intelligence™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Black Alternative\'s overall music business infrastructure is operational with a Health Score of 72. Identity and catalog foundations are strong. The score is held below 85 by the absence of publishing registrations, which is the primary gap in the current profile.' },
+        { label: 'Key Findings', list: [
+          'Health Score: 72 out of 100, rated Good',
+          'Identity verification: Strong across 4 platforms',
+          'Catalog accuracy: High — metadata verified on all primary releases',
+          'Publishing registration: Not found — PRO and SoundExchange both absent',
+          'Distribution coverage: Active on major DSPs; expansion available',
+        ]},
+        { label: 'Why This Matters', body: 'The Health Score is ATHENA\'s unified view of your music business readiness. It measures how fully your rights infrastructure is in place across identity, publishing, catalog, distribution, and backend systems. A score of 72 means most foundations are sound, but the publishing gap creates a blind spot that limits the completeness of the overall intelligence picture. Closing that gap improves score accuracy across all related workspaces.' },
+        { label: 'Impact on Royalties', body: 'Publishing registration gaps affect two independent royalty streams — performance royalties via a PRO and digital performance royalties via SoundExchange. Without these registrations, your recordings earn royalties through these channels but those royalties cannot be claimed or collected. Resolving the publishing gap is the single action with the greatest impact on royalty collection completeness.' },
+        { label: 'Recommended Action', body: 'Complete PRO and SoundExchange registrations to restore full publishing royalty collection capacity. This is the single action with the greatest impact on your overall Health Score. Review the Publishing Ecosystem workspace for specific registration steps.' },
+      ],
+    },
+    identity: {
+      title: 'Identity Intelligence™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Black Alternative\'s identity is confirmed across all major streaming platforms with an Identity Intelligence score of 88. This is one of the strongest-performing areas of the business profile. The only remaining gap is a missing IPI number, which affects publishing identity only.' },
+        { label: 'Key Findings', list: [
+          'Platforms verified: Apple Music, Spotify, YouTube, Deezer',
+          'ISRC coverage: Strong across the primary catalog',
+          'IPI number: Not found — publishing identity incomplete',
+          'Duplicate or conflicting artist profiles: None detected',
+          'Overall identity confidence: Very Good',
+        ]},
+        { label: 'Why This Matters', body: 'Artist identity is the foundation of the entire music rights infrastructure. Every royalty payment, rights claim, and distribution agreement begins with a verified identity consistently recognized across platforms. A confirmed identity on all major DSPs ensures your recordings are correctly attributed to you when royalties are calculated and distributed. The missing IPI number is specifically relevant to publishing identity — it is how performing rights organizations and international collection societies identify you as a rights holder in their systems.' },
+        { label: 'Impact on Royalties', body: 'An identity score of 88 means your recordings are very likely to be correctly matched to your artist profile across distribution, publishing, and collection systems. The missing IPI number creates a specific gap in publishing royalty attribution. Performing rights organizations and international collection societies use IPI numbers to identify rights holders in their databases. Without it, cross-border performance royalty routing can be incomplete or delayed, and some societies may not be able to match incoming royalties to your account.' },
+        { label: 'Recommended Action', body: 'Register with a Performing Rights Organization to obtain your IPI number. Once assigned, the IPI number becomes your permanent publishing identity credential and enables accurate cross-system royalty attribution across all registered territories.' },
+      ],
+    },
+    publishing: {
+      title: 'Publishing Ecosystem™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Publishing infrastructure is the most critical area requiring immediate attention. The score of 58 reflects two absent registrations each independently blocking a separate royalty stream. No publishing-related royalty collection is currently confirmed as active for this artist.' },
+        { label: 'Key Findings', list: [
+          'PRO (Performing Rights Organization): Not registered',
+          'SoundExchange: Not registered',
+          'Publisher of record: Not confirmed',
+          'MLC (Mechanical Licensing Collective): Registration status not available',
+          'Publishing royalty collection status: Not active',
+        ]},
+        { label: 'Why This Matters', body: 'Publishing covers the rights layer that governs how your compositions earn money when performed, broadcast, or streamed — distinct from the recording rights your distributor administers. PRO registration enables collection of performance royalties from radio airplay, live performances, sync licensing, and streaming. SoundExchange administers digital performance royalties for non-interactive streams on services such as Pandora and SiriusXM. Without both registrations, these income streams are not routed to you regardless of how frequently your music is played.' },
+        { label: 'Impact on Royalties', body: 'The absence of PRO and SoundExchange registrations means that performance royalties and digital neighboring rights royalties are currently not being collected on your behalf. The MLC administers mechanical royalties from digital services — without confirmed registration, mechanical royalties for streams may not be correctly matched and paid. These three royalty streams are independent of each other and of your distribution income. Each absent registration represents a separate collection channel that is currently closed.' },
+        { label: 'Recommended Action', body: 'Register with a Performing Rights Organization (ASCAP, BMI, SESAC, or SOCAN depending on your territory). Register with SoundExchange for digital performance royalties. Confirm registration with The MLC for mechanical royalties from digital services. Identify or establish a publisher of record. These four steps each address a separate royalty stream and should be completed as a priority.' },
+      ],
+    },
+    catalog: {
+      title: 'Catalog Intelligence™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Catalog metadata is accurate and verified across all primary tracked releases with a Catalog Intelligence score of 81. This workspace is performing well above the industry baseline. The remaining gap is ISRC standardization across the full catalog.' },
+        { label: 'Key Findings', list: [
+          'Primary release entries: Verified and attributed',
+          'Metadata accuracy: High across major DSPs',
+          'ISRC codes: Present on primary releases; standardization incomplete across full catalog',
+          'Metadata conflicts: None detected',
+          'Catalog certification status: Near-complete',
+        ]},
+        { label: 'Why This Matters', body: 'Your catalog is the commercial record of every release you have made available. Accurate, consistent, and verified catalog metadata is the mechanism by which streaming services, collection societies, and distributors identify your recordings, link them to the correct rights holders, and calculate royalties. ISRC codes are the international standard for identifying individual recordings and are required for royalty matching across the global rights ecosystem. Incomplete ISRC coverage means some recordings may not be recognized in all systems even when your identity is confirmed.' },
+        { label: 'Impact on Royalties', body: 'A catalog score of 81 reflects strong metadata quality supporting accurate royalty matching and distribution reporting. Standardizing ISRC codes across all releases improves the ability of streaming services, neighboring rights organizations, and collection societies to identify your recordings, link them to your artist account, and ensure that streaming royalties, neighboring rights payments, and broadcast royalties are matched and paid correctly.' },
+        { label: 'Recommended Action', body: 'Audit ISRC codes across all releases and confirm that each recording has a valid, registered ISRC linked to your catalog. Work with your distributor to assign ISRCs to any releases that are missing them, and register those ISRCs with your collecting societies.' },
+      ],
+    },
+    global: {
+      title: 'Global Music Footprint™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Distribution is established on major platforms but the global footprint has significant expansion potential with a score of 64. YouTube Content ID is not activated and several important DSPs are not yet confirmed, limiting both reach and royalty collection across key territories.' },
+        { label: 'Key Findings', list: [
+          'Active distribution: Spotify, Apple Music, Amazon Music confirmed',
+          'YouTube Content ID: Not activated',
+          'Deezer: Not confirmed',
+          'TIDAL: Not confirmed',
+          'International territory coverage: Incomplete',
+        ]},
+        { label: 'Why This Matters', body: 'Global footprint determines where your music can be legally streamed, downloaded, and monetized. Each platform and territory represents a distinct commercial channel with its own royalty structure and collection pathway. Distribution presence in a territory also establishes the legal basis for collection societies in that market to identify your recordings and administer royalties. YouTube Content ID is the mechanism by which recordings uploaded to YouTube — by fans, distributors, or the artist directly — are identified and monetized. Without it, recordings on YouTube generate views without generating revenue for the rights holder.' },
+        { label: 'Impact on Royalties', body: 'YouTube Content ID is a high-impact gap because YouTube is the world\'s largest music streaming platform by monthly users. Without Content ID, recordings uploaded by fans or third parties generate no royalties for the rights holder. Deezer and TIDAL each operate in territories and user demographics with limited overlap with Spotify and Apple Music — absent distribution means absent royalty collection on those platforms. Each missing platform represents a closed collection channel for recordings already in your catalog.' },
+        { label: 'Recommended Action', body: 'Activate YouTube Content ID through your distributor or a dedicated Content ID partner. Confirm that your distributor is delivering your catalog to Deezer and TIDAL. Review your distribution agreement to identify the full list of active territories and determine where coverage gaps exist.' },
+      ],
+    },
+    backend: {
+      title: 'Backend Intelligence™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Backend infrastructure is operational with all core services connected and the canonical record complete. The score of 78 reflects strong fundamentals with minor dependency risks flagged for monitoring. No critical backend failures are present.' },
+        { label: 'Key Findings', list: [
+          'Canonical record integrity: Verified and complete',
+          'Connected services: All primary services active',
+          'Evidence verification: Complete for primary records',
+          'Dependency risks: Minor risks identified and flagged',
+          'Backend operational status: Good',
+        ]},
+        { label: 'Why This Matters', body: 'Backend Intelligence represents ATHENA\'s view of the technical infrastructure that supports your music business. This includes the integrity of your canonical artist record — the authoritative data object that links your identity, catalog, and rights information across all connected systems — and the reliability of the services that depend on it. When backend infrastructure is complete and verified, royalty processing systems can reliably identify, match, and route payments.' },
+        { label: 'Impact on Royalties', body: 'A backend score of 78 reflects infrastructure well-positioned to support accurate royalty administration. The canonical record is complete and verified, meaning ATHENA can reliably link your identity, catalog, and rights data across connected services. The minor dependency risks flagged do not affect current operations but represent conditions that could degrade data reliability if left unmonitored. Backend integrity is the foundation all other intelligence workspaces depend on — it is the system of record that rights administrators, distributors, and collection societies query when resolving royalty matching questions.' },
+        { label: 'Recommended Action', body: 'Monitor the flagged dependency risks using the Royaltē Intelligence dashboard. Complete outstanding evidence verification tasks for secondary records. No immediate action is required for core backend function — the infrastructure is operational and no active failures are present.' },
+      ],
+    },
+  };
+
+  function eaRenderSection(s) {
+    var body = s.list
+      ? '<ul style="margin:4px 0 0;padding-left:16px;display:flex;flex-direction:column;gap:4px;">'
+          + s.list.map(function(item){ return '<li style="font-size:12px;line-height:1.55;color:var(--mc-text-soft);">' + esc(item) + '</li>'; }).join('')
+          + '</ul>'
+      : '<div class="pi-athena-section-body">' + esc(s.body) + '</div>';
+    return '<div class="pi-athena-section"><div class="pi-athena-section-label">' + esc(s.label) + '</div>' + body + '</div>';
+  }
+
+  window.eaOpenReview = function(key) {
+    var review = WS_REVIEWS[key];
+    if (!review) return;
+    document.getElementById('ea-review-title').textContent = review.title + ' — Workspace Review';
+    document.getElementById('ea-review-body').innerHTML = review.sections.map(eaRenderSection).join('');
+    var overlay = document.getElementById('ea-review-overlay');
+    overlay.removeAttribute('hidden');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ document.getElementById('ea-review-close').focus(); }, 50);
+  };
+
+  window.eaCloseReview = function() {
+    document.getElementById('ea-review-overlay').setAttribute('hidden', '');
+    document.body.style.overflow = '';
+  };
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var overlay = document.getElementById('ea-review-overlay');
+      if (overlay && !overlay.hasAttribute('hidden')) eaCloseReview();
+    }
+  });
 
 }());
 </script>
