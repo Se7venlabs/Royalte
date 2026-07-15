@@ -134,7 +134,7 @@
         <div class="hi-exec-header">
           <div class="hi-exec-title-block">
             <div class="hi-exec-eyebrow">Health Intelligence™</div>
-            <h1 class="hi-exec-heading">Music Business Health Report</h1>
+            <h1 class="hi-exec-heading">Music Business Health Report<span id="hi-artist-name"></span></h1>
             <div class="hi-exec-desc">Your complete music business health score — monitoring identity, publishing, catalog, and backend performance across all registered systems.</div>
             <div class="hi-exec-meta-row">
               <div class="hi-exec-updated">
@@ -194,7 +194,7 @@
                 <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Identity</span><span class="hi-kpi-breakdown-val">67</span></div>
                 <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Publishing</span><span class="hi-kpi-breakdown-val">67</span></div>
                 <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Catalog</span><span class="hi-kpi-breakdown-val">100</span></div>
-                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Change Det.</span><span class="hi-kpi-breakdown-val">75</span></div>
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">AI Insights</span><span class="hi-kpi-breakdown-val">75</span></div>
                 <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Footprint</span><span class="hi-kpi-breakdown-val">82</span></div>
                 <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Backend</span><span class="hi-kpi-breakdown-val">100</span></div>
               </div>
@@ -282,9 +282,9 @@
               <div class="hi-cat-movement hi-cat-movement--down">▼ 3% this week</div>
             </a>
 
-            <!-- 2. Publishing Intelligence™ -->
-            <a class="hi-cat-card" href="/workspaces/publishing-intelligence.html" aria-label="Open Publishing Intelligence workspace">
-              <div class="hi-cat-label">Publishing Intelligence™</div>
+            <!-- 2. Publishing Ecosystem™ -->
+            <a class="hi-cat-card" href="/workspaces/publishing-intelligence.html" aria-label="Open Publishing Ecosystem workspace">
+              <div class="hi-cat-label">Publishing Ecosystem™</div>
               <div class="hi-cat-score-wrap">
                 <span class="hi-cat-score-num hi-cat-score-num--purple">67</span>
                 <span class="hi-cat-score-denom">/100</span>
@@ -340,9 +340,9 @@
               <div class="hi-cat-movement hi-cat-movement--up">▲ 8% this week</div>
             </a>
 
-            <!-- 4. Change Detection™ (replaces Streaming Health™) -->
-            <a class="hi-cat-card" href="/workspaces/monitoring-timeline.html" aria-label="Open Change Detection workspace">
-              <div class="hi-cat-label">Change Detection™</div>
+            <!-- 4. AI Insights™ -->
+            <a class="hi-cat-card" href="/workspaces/ai-insights.html" aria-label="Open AI Insights workspace">
+              <div class="hi-cat-label">AI Insights™</div>
               <div class="hi-cat-score-wrap">
                 <span class="hi-cat-score-num hi-cat-score-num--blue">75</span>
                 <span class="hi-cat-score-denom">/100</span>
@@ -433,7 +433,7 @@
         <!-- § 4 — HEALTH TIMELINE ──────────────────────────────────── -->
         <div>
           <div class="hi-section-header">
-            <div class="hi-section-title">Health Timeline™</div>
+            <div class="hi-section-title">Executive Timeline™</div>
           </div>
           <div class="hi-timeline-card">
             <div class="hi-timeline-body">
@@ -541,6 +541,10 @@
   var hi  = ctx.healthIntelligence;    // guaranteed non-null by contract
   var mi  = ctx.monitoringIntelligence || null;
 
+  // ── Artist name in report title ────────────────────────────
+  var anEl = document.getElementById('hi-artist-name');
+  if (anEl && ctx.artistName) anEl.textContent = ' — ' + ctx.artistName;
+
   // ── Main health score ring ─────────────────────────────────
   var score = hi.score != null ? Math.round(hi.score) : null;
   if (score !== null) {
@@ -552,7 +556,7 @@
   }
 
   // ── Breakdown cols ─────────────────────────────────────────
-  // HTML order: Identity, Publishing, Catalog, Change Det., Footprint, Backend
+  // HTML order: Identity, Publishing, Catalog, AI Insights, Footprint, Backend
   var BREAKDOWN = [
     hi.identityScore, hi.publishingScore, hi.catalogScore,
     hi.monitoringScore, hi.footprintScore, hi.backendScore
@@ -563,8 +567,7 @@
   });
 
   // ── Category cards ─────────────────────────────────────────
-  // HTML order: Identity, Publishing, Catalog, Change Detection, Backend, Footprint
-  // (Backend and Footprint are swapped vs breakdown col order above — mapped separately)
+  // HTML order: Identity, Publishing Ecosystem, Catalog, AI Insights, Backend, Footprint
   var CARD_SCORES = [
     hi.identityScore, hi.publishingScore, hi.catalogScore,
     hi.monitoringScore, hi.backendScore, hi.footprintScore
