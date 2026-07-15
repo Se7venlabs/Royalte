@@ -7,6 +7,42 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <script>
+  /* DEV FIXTURE — localhost only, never runs on production (Vercel hostname check).
+   * Seeds royalte_workspace_context so the workspace renders without a real scan.
+   * Does not overwrite a context that was already written by a real scan session. */
+  (function () {
+    var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (!isLocal) return;
+    if (sessionStorage.getItem('royalte_workspace_context')) return;
+    sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+      schemaVersion:  '1.1',
+      scanId:         'preview-fixture-health-001',
+      artistName:     'Prince',
+      scannedAt:      new Date().toISOString(),
+      generatedAt:    new Date().toISOString(),
+      healthIntelligence: {
+        score:          89,
+        status:         'strong',
+        grade:          'B+',
+        identityScore:  67,
+        publishingScore: 67,
+        catalogScore:   100,
+        monitoringScore: 75,
+        footprintScore: 82,
+        backendScore:   100,
+        strengths:  ['Catalog is fully verified across major platforms.'],
+        concerns:   ['Publishing registration gap detected — review PRO status.'],
+      },
+      monitoringIntelligence: {
+        status:      'active',
+        scanNumber:  5,
+        newThisScan: 1,
+        events:      [],
+      },
+    }));
+  }());
+  </script>
   <script src="/js/mc-workspace-context.js"></script>
 </head>
 <body>
