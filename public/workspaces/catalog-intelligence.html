@@ -23,62 +23,63 @@
   sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
     schemaVersion: '1.1',
     scanId: 'preview-fixture-catalog-001',
-    artistName: 'Castle Park',
+    artistName: 'Black Alternative',
     scannedAt: new Date().toISOString(),
     generatedAt: new Date().toISOString(),
-    recordLabel: 'Castle Park Studioz',
+    recordLabel: 'Not Available',
     catalogIntelligence: {
-      totalTracks: 20,
-      singles: 4,
-      albums: 7,
+      totalTracks: 18,
+      singles: 6,
+      albums: 2,
       eps: 1,
       catalogStatus: 'Active',
-      isrcCoverage: { percent: 95, status: 'Partial', assigned: 19, total: 20 },
-      metadataIntegrity: 95,
-      lyricSyncCoverage: 100,
-      lyricSyncStatus: 'Synced',
-      lyricSyncTracks: 20,
+      isrcCoverage: { percent: 89, status: 'Partial', assigned: 16, total: 18 },
+      metadataIntegrity: 88,
+      lyricSyncCoverage: 72,
+      lyricSyncStatus: 'Partial',
+      lyricSyncTracks: 18,
       duplicatesDetected: false,
       bestVerifiedRelease: {
-        releaseTitle: 'Midnight Protocols',
-        releaseType: 'Album · 2024',
-        artistName: 'Castle Park',
-        isrc: 'CA7Q62400001',
-        upc: '859123456789',
-        releaseDate: 'May 24, 2024',
-        label: 'Castle Park Studioz',
-        verified: true,
+        releaseTitle: 'Not Available',
+        releaseType: 'Not Available',
+        artistName: 'Black Alternative',
+        genre: 'Not Available',
+        isrc: 'Not Available',
+        upc: 'Not Available',
+        releaseDate: 'Not Available',
+        label: 'Not Available',
+        verified: false,
         artwork: null,
       },
       metadataFields: {
-        title:        { status: 'complete', display: 'Complete' },
-        artistName:   { status: 'complete', display: 'Complete' },
-        album:        { status: 'complete', display: 'Complete' },
-        isrc:         { status: 'partial',  display: '19 / 20'  },
-        upc:          { status: 'complete', display: '3 Active' },
-        genre:        { status: 'complete', display: 'Complete' },
-        recordLabel:  { status: 'complete', display: 'Complete' },
-        releaseDate:  { status: 'complete', display: 'Complete' },
-        explicitFlag: { status: 'complete', display: 'Complete' },
-        credits:      { status: 'complete', display: 'Complete' },
-        artwork:      { status: 'complete', display: 'Complete' },
+        title:        { status: 'complete', display: 'Complete'      },
+        artistName:   { status: 'complete', display: 'Complete'      },
+        album:        { status: 'complete', display: 'Complete'      },
+        isrc:         { status: 'partial',  display: '16 / 18'       },
+        upc:          { status: 'partial',  display: '2 / 3 Active'  },
+        genre:        { status: 'partial',  display: 'Partial'       },
+        recordLabel:  { status: 'partial',  display: 'Not Available' },
+        releaseDate:  { status: 'complete', display: 'Complete'      },
+        explicitFlag: { status: 'complete', display: 'Complete'      },
+        credits:      { status: 'partial',  display: 'Partial'       },
+        artwork:      { status: 'complete', display: 'Complete'      },
       },
       timeline: [
-        { year: 2021, releases: 1, detail: '1 Single',                    active: false },
-        { year: 2022, releases: 1, detail: '1 Single',                    active: false },
-        { year: 2023, releases: 2, detail: '1 Album · 1 Single',          active: false },
-        { year: 2024, releases: 3, detail: '1 Album · 2 Singles',         active: true  },
-        { year: 2025, releases: 1, detail: '1 EP',                        active: false },
+        { year: 2021, releases: 1, detail: '1 Single',           active: false },
+        { year: 2022, releases: 2, detail: '1 Album · 1 Single', active: false },
+        { year: 2023, releases: 3, detail: '1 Album · 2 Singles',active: false },
+        { year: 2024, releases: 2, detail: '1 EP · 1 Single',    active: true  },
+        { year: 2025, releases: 1, detail: '1 Single',           active: false },
       ],
       recentActivity: [
-        { icon: 'check',    label: 'ISRC assigned',        detail: 'Midnight Protocols', time: '30 minutes ago', status: 'positive' },
-        { icon: 'lyrics',   label: 'Lyric sync pending',   detail: '3 tracks',           time: '2 hours ago',    status: 'warning'  },
-        { icon: 'artwork',  label: 'Artwork verified',     detail: 'Album 2 complete',   time: '5 hours ago',    status: 'positive' },
-        { icon: 'upc',      label: 'UPC renewal required', detail: '1 release',          time: '1 day ago',      status: 'warning'  },
-        { icon: 'metadata', label: 'Metadata integrity',   detail: 'EP complete',        time: '1 day ago',      status: 'positive' },
+        { icon: 'isrc',     label: 'ISRC gap detected',     detail: '2 tracks unresolved', time: '1 hour ago',    status: 'warning'  },
+        { icon: 'metadata', label: 'Metadata review',        detail: 'Credits incomplete',  time: '3 hours ago',   status: 'warning'  },
+        { icon: 'artwork',  label: 'Artwork verified',       detail: 'Album 1 complete',    time: '1 day ago',     status: 'positive' },
+        { icon: 'upc',      label: 'UPC confirmed',          detail: 'EP registered',       time: '2 days ago',    status: 'positive' },
+        { icon: 'lyrics',   label: 'Lyric sync incomplete',  detail: '5 tracks pending',    time: '3 days ago',    status: 'warning'  },
       ],
     },
-    healthIntelligence: { catalogScore: 96 },
+    healthIntelligence: { catalogScore: 88 },
   }));
 }());
 </script>
@@ -750,7 +751,7 @@
           <div class="ci-kpi-card">
             <div class="ci-kpi-label">Total Releases</div>
             <div class="ci-kpi-icon-wrap ci-kpi-icon-wrap--pink" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-track"></use></svg>
+              <svg class="royalte-icon" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-projects"></use></svg>
             </div>
             <div class="ci-kpi-value-row">
               <span class="ci-kpi-big ci-kpi-big--pink" id="ci-kpi-releases">—</span>
@@ -771,9 +772,9 @@
             <div class="ci-kpi-badge ci-kpi-badge--green" id="ci-kpi-meta-badge">—</div>
           </div>
 
-          <!-- Tracks with ISRC -->
+          <!-- ISRC Coverage™ -->
           <div class="ci-kpi-card">
-            <div class="ci-kpi-label">Tracks with ISRC</div>
+            <div class="ci-kpi-label">ISRC Coverage™</div>
             <div class="ci-kpi-icon-wrap ci-kpi-icon-wrap--orange" aria-hidden="true">
               <svg class="royalte-icon" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-isrc"></use></svg>
             </div>
@@ -806,7 +807,7 @@
           <div class="ci-card">
             <div class="ci-card-header">
               <div class="ci-card-title">
-                <svg class="royalte-icon royalte-icon--xs ci-card-title-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-track"></use></svg>
+                <svg class="royalte-icon royalte-icon--xs ci-card-title-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-release"></use></svg>
                 Latest Release™
               </div>
               <a class="ci-card-link" href="#" onclick="ciOpenPanel('release');return false;">View Release Details →</a>
@@ -821,6 +822,10 @@
                 <div class="ci-lr-type" id="ci-lr-type">—</div>
                 <div class="ci-lr-field-list">
                   <div class="ci-lr-field">
+                    <span class="ci-lr-field-label">Genre</span>
+                    <span class="ci-lr-field-val" id="ci-lr-genre">—</span>
+                  </div>
+                  <div class="ci-lr-field">
                     <span class="ci-lr-field-label">ISRC</span>
                     <span class="ci-lr-field-val" id="ci-lr-isrc">—</span>
                   </div>
@@ -829,12 +834,12 @@
                     <span class="ci-lr-field-val" id="ci-lr-upc">—</span>
                   </div>
                   <div class="ci-lr-field">
-                    <span class="ci-lr-field-label">Release Date</span>
-                    <span class="ci-lr-field-val" id="ci-lr-date">—</span>
+                    <span class="ci-lr-field-label">Record Label</span>
+                    <span class="ci-lr-field-val" id="ci-lr-label">—</span>
                   </div>
                   <div class="ci-lr-field">
-                    <span class="ci-lr-field-label">Label</span>
-                    <span class="ci-lr-field-val" id="ci-lr-label">—</span>
+                    <span class="ci-lr-field-label">Release Date</span>
+                    <span class="ci-lr-field-val" id="ci-lr-date">—</span>
                   </div>
                 </div>
                 <div class="ci-lr-badges" id="ci-lr-badges"></div>
@@ -880,21 +885,21 @@
               </div>
               <div class="ci-summary-stat">
                 <div class="ci-summary-stat-icon ci-summary-stat-icon--purple" aria-hidden="true">
-                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-catalog"></use></svg>
+                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-release"></use></svg>
                 </div>
                 <div class="ci-summary-stat-num" id="ci-sum-albums">—</div>
                 <div class="ci-summary-stat-label">Albums</div>
               </div>
               <div class="ci-summary-stat">
                 <div class="ci-summary-stat-icon ci-summary-stat-icon--teal" aria-hidden="true">
-                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
+                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-compositions"></use></svg>
                 </div>
                 <div class="ci-summary-stat-num" id="ci-sum-eps">—</div>
                 <div class="ci-summary-stat-label">EPs</div>
               </div>
               <div class="ci-summary-stat">
                 <div class="ci-summary-stat-icon ci-summary-stat-icon--orange" aria-hidden="true">
-                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg>
+                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-monitoring"></use></svg>
                 </div>
                 <div class="ci-summary-stat-num" id="ci-sum-tracks">—</div>
                 <div class="ci-summary-stat-label">Total Tracks</div>
@@ -1060,18 +1065,20 @@
 
   /* ── Latest Release™ card ─────────────────────────────────────────── */
   if (bvr) {
-    var titleEl = document.getElementById('ci-lr-title');
-    var typeEl  = document.getElementById('ci-lr-type');
-    var isrcEl  = document.getElementById('ci-lr-isrc');
-    var upcEl   = document.getElementById('ci-lr-upc');
-    var dateEl  = document.getElementById('ci-lr-date');
-    var labelEl = document.getElementById('ci-lr-label');
-    if (titleEl) titleEl.textContent = bvr.releaseTitle || '—';
-    if (typeEl)  typeEl.textContent  = bvr.releaseType  || '—';
-    if (isrcEl)  isrcEl.textContent  = bvr.isrc         || '—';
-    if (upcEl)   upcEl.textContent   = bvr.upc          || '—';
-    if (dateEl)  dateEl.textContent  = bvr.releaseDate  || '—';
-    if (labelEl) labelEl.textContent = bvr.label || ctx.recordLabel || '—';
+    var titleEl  = document.getElementById('ci-lr-title');
+    var typeEl   = document.getElementById('ci-lr-type');
+    var genreEl  = document.getElementById('ci-lr-genre');
+    var isrcEl   = document.getElementById('ci-lr-isrc');
+    var upcEl    = document.getElementById('ci-lr-upc');
+    var dateEl   = document.getElementById('ci-lr-date');
+    var labelEl  = document.getElementById('ci-lr-label');
+    if (titleEl)  titleEl.textContent  = bvr.releaseTitle || '—';
+    if (typeEl)   typeEl.textContent   = bvr.releaseType  || '—';
+    if (genreEl)  genreEl.textContent  = bvr.genre        || 'Not Available';
+    if (isrcEl)   isrcEl.textContent   = bvr.isrc         || 'Not Available';
+    if (upcEl)    upcEl.textContent    = bvr.upc          || 'Not Available';
+    if (dateEl)   dateEl.textContent   = bvr.releaseDate  || 'Not Available';
+    if (labelEl)  labelEl.textContent  = bvr.label || ctx.recordLabel || 'Not Available';
 
     if (bvr.verified) {
       var badgesEl = document.getElementById('ci-lr-badges');
@@ -1205,10 +1212,13 @@
       var iconUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
       var iconMap = {
         check:    '#royalte-check',
+        isrc:     '#royalte-isrc',
         lyrics:   '#royalte-lyrics',
         artwork:  '#royalte-artwork',
-        upc:      '#royalte-isrc',
+        upc:      '#royalte-upc',
         metadata: '#royalte-metadata',
+        release:  '#royalte-release',
+        credits:  '#royalte-credits',
       };
       iconUse.setAttribute('href', '/icons/royalte-icon-registry.svg' + (iconMap[act.icon] || '#royalte-check'));
       iconSvg.appendChild(iconUse);
