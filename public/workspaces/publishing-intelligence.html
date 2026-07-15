@@ -704,11 +704,11 @@
               <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-sx-badge">Artist Disclosure</div>
             </div>
 
-            <!-- Evidence Verified — sourced from platform metadata (Apple Music, etc.) -->
+            <!-- Artist Disclosure — MLC registration from MRP (upgraded to Official Source when independently verified) -->
             <div class="pi-mrp-field">
-              <div class="pi-mrp-field-label">Record Label</div>
-              <div class="pi-mrp-field-value" id="pi-mrp-label-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-label-badge">Evidence Verified</div>
+              <div class="pi-mrp-field-label">The MLC</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-mlc-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-mlc-badge">Artist Disclosure</div>
             </div>
 
             <div class="pi-mrp-field">
@@ -734,53 +734,6 @@
 
           <div class="pi-mrp-footer" id="pi-mrp-footer">
             Artist Disclosure: Information provided by you &nbsp;•&nbsp; Evidence Verified: Information confirmed through credible sources
-          </div>
-
-        </div>
-
-        <!-- § 3 — CORE PUBLISHING SYSTEMS ─────────────────────────── -->
-        <div>
-          <div class="pi-section-header">
-            <div class="pi-section-title">Core Publishing Systems™</div>
-          </div>
-          <div class="pi-system-grid">
-
-            <!-- The MLC -->
-            <div class="pi-system-card pi-system-card--unknown" aria-label="The MLC — Status Unknown">
-              <div class="pi-system-icon-wrap pi-system-icon-wrap--unknown">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-administration"></use></svg>
-              </div>
-              <div class="pi-system-name">The MLC</div>
-              <div class="pi-system-sub">Mechanical Licensing Collective</div>
-              <div class="pi-system-badge pi-system-badge--unknown">Unknown</div>
-              <div class="pi-system-works">Connection required to verify</div>
-              <a class="pi-system-action-cta pi-system-action-cta--connect" href="https://www.themlc.com" target="_blank" rel="noopener noreferrer">Connect The MLC →</a>
-            </div>
-
-            <!-- Publishing Administration™ -->
-            <div class="pi-system-card pi-system-card--unknown" aria-label="Publishing Administration — Status Unknown">
-              <div class="pi-system-icon-wrap pi-system-icon-wrap--unknown">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-compositions"></use></svg>
-              </div>
-              <div class="pi-system-name">Publishing Administration™</div>
-              <div class="pi-system-sub">Publishing Admin Status</div>
-              <div class="pi-system-badge pi-system-badge--unknown">Unknown</div>
-              <div class="pi-system-works">Upload a statement to verify</div>
-              <a class="pi-system-action-cta pi-system-action-cta--connect" href="#">Upload Publishing Statement →</a>
-            </div>
-
-            <!-- Publisher™ -->
-            <div class="pi-system-card pi-system-card--unknown" aria-label="Publisher — Status Unknown">
-              <div class="pi-system-icon-wrap pi-system-icon-wrap--unknown">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publisher"></use></svg>
-              </div>
-              <div class="pi-system-name">Publisher™</div>
-              <div class="pi-system-sub">Publishing Entity</div>
-              <div class="pi-system-badge pi-system-badge--unknown">Unknown</div>
-              <div class="pi-system-works">Upload a statement to verify</div>
-              <a class="pi-system-action-cta pi-system-action-cta--connect" href="#">Upload Publishing Statement →</a>
-            </div>
-
           </div>
 
         </div>
@@ -1102,16 +1055,21 @@
     setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', '—', 'pi-mrp-badge--unknown', 'Artist Disclosure');
   }
 
-  // ── Record Label — Evidence Verified (Apple Music) ───────────────────────
-  var labelVal = ctx.recordLabel || null;
-  setField('pi-mrp-label-val', 'pi-mrp-label-badge',
-    labelVal || '—', 'pi-mrp-badge--intel', 'Evidence Verified');
+  // ── The MLC — Artist Disclosure (from MRP mlc_registered; upgrades to Official Source when independently verified) ──
+  var pub    = (mrp && mrp.publishing) ? mrp.publishing : {};
+  var mlcVal = pub.mlc_registered;
+  if (mlcVal === true) {
+    setField('pi-mrp-mlc-val', 'pi-mrp-mlc-badge', 'Registered', 'pi-mrp-badge--verified', 'Artist Disclosure');
+  } else if (mlcVal === false) {
+    setField('pi-mrp-mlc-val', 'pi-mrp-mlc-badge', 'Not Registered', 'pi-mrp-badge--none', 'Artist Disclosure');
+  } else {
+    setField('pi-mrp-mlc-val', 'pi-mrp-mlc-badge', '—', 'pi-mrp-badge--unknown', 'Artist Disclosure');
+  }
 
   // ── Distributor — Evidence Verified (pipeline support pending) ───────────
   setField('pi-mrp-dist-val', 'pi-mrp-dist-badge', '—', 'pi-mrp-badge--intel', 'Evidence Verified');
 
   // ── Music Publisher — Artist Disclosure (from MRP publishing_management / org_name) ─
-  var pub = (mrp && mrp.publishing) ? mrp.publishing : {};
   var publisherVal = (pub.publishing_management === 'publisher' && pub.organization_name)
     ? pub.organization_name : null;
   setField('pi-mrp-publisher-val', 'pi-mrp-publisher-badge',
