@@ -7,7 +7,609 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+<script>
+(function () {
+  var host = location.hostname;
+  var isLocal   = host === 'localhost' || host === '127.0.0.1';
+  var isPreview = host.endsWith('.vercel.app');
+  if (!isLocal && !isPreview) return;
+  var existing = sessionStorage.getItem('royalte_workspace_context');
+  if (existing) {
+    try {
+      var ex = JSON.parse(existing);
+      if (ex.scanId && !String(ex.scanId).startsWith('preview-fixture-')) return;
+    } catch (_) {}
+  }
+  sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+    schemaVersion: '1.1',
+    scanId: 'preview-fixture-catalog-001',
+    artistName: 'Black Alternative',
+    scannedAt: new Date().toISOString(),
+    generatedAt: new Date().toISOString(),
+    recordLabel: 'Not Available',
+    catalogIntelligence: {
+      totalTracks: 18,
+      singles: 6,
+      albums: 2,
+      eps: 1,
+      catalogStatus: 'Active',
+      isrcCoverage: { percent: 89, status: 'Partial', assigned: 16, total: 18 },
+      metadataIntegrity: 88,
+      lyricSyncCoverage: 72,
+      lyricSyncStatus: 'Partial',
+      lyricSyncTracks: 18,
+      duplicatesDetected: false,
+      bestVerifiedRelease: {
+        releaseTitle: 'Not Available',
+        releaseType: 'Not Available',
+        artistName: 'Black Alternative',
+        genre: 'Not Available',
+        isrc: 'Not Available',
+        upc: 'Not Available',
+        releaseDate: 'Not Available',
+        label: 'Not Available',
+        verified: false,
+        artwork: null,
+      },
+      metadataFields: {
+        title:        { status: 'complete', display: 'Complete'      },
+        artistName:   { status: 'complete', display: 'Complete'      },
+        album:        { status: 'complete', display: 'Complete'      },
+        isrc:         { status: 'partial',  display: '16 / 18'       },
+        upc:          { status: 'partial',  display: '2 / 3 Active'  },
+        genre:        { status: 'partial',  display: 'Partial'       },
+        recordLabel:  { status: 'partial',  display: 'Not Available' },
+        releaseDate:  { status: 'complete', display: 'Complete'      },
+        explicitFlag: { status: 'complete', display: 'Complete'      },
+        credits:      { status: 'partial',  display: 'Partial'       },
+        artwork:      { status: 'complete', display: 'Complete'      },
+      },
+      timeline: [
+        { year: 2021, releases: 1, detail: '1 Single',           active: false },
+        { year: 2022, releases: 2, detail: '1 Album · 1 Single', active: false },
+        { year: 2023, releases: 3, detail: '1 Album · 2 Singles',active: false },
+        { year: 2024, releases: 2, detail: '1 EP · 1 Single',    active: true  },
+        { year: 2025, releases: 1, detail: '1 Single',           active: false },
+      ],
+      recentActivity: [
+        { icon: 'isrc',     label: 'ISRC gap detected',     detail: '2 tracks unresolved', time: '1 hour ago',    status: 'warning'  },
+        { icon: 'metadata', label: 'Metadata review',        detail: 'Credits incomplete',  time: '3 hours ago',   status: 'warning'  },
+        { icon: 'artwork',  label: 'Artwork verified',       detail: 'Album 1 complete',    time: '1 day ago',     status: 'positive' },
+        { icon: 'upc',      label: 'UPC confirmed',          detail: 'EP registered',       time: '2 days ago',    status: 'positive' },
+        { icon: 'lyrics',   label: 'Lyric sync incomplete',  detail: '5 tracks pending',    time: '3 days ago',    status: 'warning'  },
+      ],
+    },
+    healthIntelligence: { catalogScore: 88 },
+  }));
+}());
+</script>
   <script src="/js/mc-workspace-context.js"></script>
+<style>
+/* ── Catalog Intelligence™ workspace ─────────────────────────────────────── */
+
+/* Header */
+.ci-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.ci-page-title-block {}
+.ci-page-eyebrow {
+  font-family: var(--mc-font-brand, 'Rajdhani', sans-serif);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  color: var(--mc-text, #fff);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.ci-page-subtitle {
+  font-size: 13px;
+  color: var(--mc-text-muted, #8a8da1);
+  line-height: 1.4;
+}
+.ci-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+.ci-sync-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--mc-text-muted);
+}
+.ci-sync-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--mc-green, #2dd4bf);
+  box-shadow: 0 0 6px var(--mc-green, #2dd4bf);
+  flex-shrink: 0;
+}
+.ci-audit-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid rgba(224,64,200,0.45);
+  border-radius: 8px;
+  color: rgba(224,64,200,0.9);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.ci-audit-cta:hover {
+  background: rgba(224,64,200,0.08);
+  border-color: rgba(224,64,200,0.7);
+}
+
+/* KPI row */
+.ci-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.ci-kpi-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 20px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ci-kpi-icon-wrap {
+  width: 46px; height: 46px;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  margin-bottom: 6px;
+}
+.ci-kpi-icon-wrap svg { width: 22px; height: 22px; }
+.ci-kpi-icon-wrap--pink   { background: rgba(236,72,153,0.10); color: #ec4899; }
+.ci-kpi-icon-wrap--green  { background: rgba(45,212,191,0.10);  color: var(--mc-green); }
+.ci-kpi-icon-wrap--orange { background: rgba(251,146,60,0.10);  color: var(--mc-orange); }
+.ci-kpi-icon-wrap--purple { background: rgba(138,92,255,0.10);  color: #8a5cff; }
+.ci-kpi-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  margin-bottom: 2px;
+}
+.ci-kpi-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+.ci-kpi-big {
+  font-family: 'Space Mono', monospace;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #e8e4f4;
+}
+.ci-kpi-big--pink   { color: #ec4899; }
+.ci-kpi-big--green  { color: var(--mc-green); }
+.ci-kpi-big--orange { color: var(--mc-orange); }
+.ci-kpi-frac {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(220,215,255,0.5);
+}
+.ci-kpi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  width: fit-content;
+  margin-top: 2px;
+}
+.ci-kpi-badge--green  { background: rgba(45,212,191,0.14); color: var(--mc-green); }
+.ci-kpi-badge--orange { background: rgba(251,146,60,0.14); color: var(--mc-orange); }
+.ci-kpi-caption {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  margin-top: 1px;
+}
+
+/* Two-column rows */
+.ci-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* Card shell */
+.ci-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+}
+.ci-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.ci-card-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.ci-card-title-icon { color: rgba(224,64,200,0.7); }
+.ci-card-link {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgba(224,64,200,0.85);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.ci-card-link:hover { color: rgba(224,64,200,1); }
+
+/* Latest Release™ card */
+.ci-lr-body {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  flex: 1;
+}
+.ci-lr-artwork-wrap {
+  width: 110px;
+  height: 110px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: rgba(138,92,255,0.08);
+  border: 1px solid rgba(138,92,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.ci-lr-artwork-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 7px;
+  display: none;
+}
+.ci-lr-artwork-img.ci-lr-artwork-loaded { display: block; }
+.ci-lr-artwork-icon { color: rgba(138,92,255,0.4); }
+.ci-lr-details { flex: 1; min-width: 0; }
+.ci-lr-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e8e4f4;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ci-lr-type {
+  font-size: 11px;
+  color: var(--mc-text-muted);
+  margin-bottom: 10px;
+}
+.ci-lr-field-list { display: flex; flex-direction: column; gap: 5px; }
+.ci-lr-field {
+  display: flex;
+  gap: 8px;
+  font-size: 11.5px;
+}
+.ci-lr-field-label {
+  color: rgba(132,128,168,0.55);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  min-width: 72px;
+  flex-shrink: 0;
+}
+.ci-lr-field-val { color: rgba(220,215,255,0.85); font-weight: 500; }
+.ci-lr-badges { display: flex; gap: 8px; margin-top: 10px; }
+.ci-lr-badge--verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(45,212,191,0.12);
+  border: 1px solid rgba(45,212,191,0.22);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--mc-green);
+  text-transform: uppercase;
+}
+
+/* Metadata Integrity™ card */
+.ci-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 16px;
+  flex: 1;
+}
+.ci-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  gap: 8px;
+}
+.ci-meta-field {
+  font-size: 12px;
+  color: rgba(220,215,255,0.7);
+  font-weight: 500;
+}
+.ci-meta-status {
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.ci-meta-status--complete { color: var(--mc-green); }
+.ci-meta-status--partial  { color: var(--mc-orange); }
+.ci-meta-check { font-size: 10px; }
+
+/* Catalog Summary card */
+.ci-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.ci-summary-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 9px;
+  padding: 12px 8px 10px;
+}
+.ci-summary-stat-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+}
+.ci-summary-stat-icon--pink   { background: rgba(236,72,153,0.12); color: #ec4899; }
+.ci-summary-stat-icon--purple { background: rgba(138,92,255,0.12); color: #8a5cff; }
+.ci-summary-stat-icon--teal   { background: rgba(45,212,191,0.12); color: var(--mc-green); }
+.ci-summary-stat-icon--orange { background: rgba(251,146,60,0.12); color: var(--mc-orange); }
+.ci-summary-stat-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: #e8e4f4;
+  line-height: 1;
+}
+.ci-summary-stat-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  text-align: center;
+}
+.ci-no-dupe-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  background: rgba(45,212,191,0.05);
+  border: 1px solid rgba(45,212,191,0.12);
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+.ci-no-dupe-icon { color: var(--mc-green); flex-shrink: 0; }
+.ci-no-dupe-text {}
+.ci-no-dupe-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(220,215,255,0.88);
+  margin-bottom: 1px;
+}
+.ci-no-dupe-sub {
+  font-size: 10.5px;
+  color: var(--mc-text-muted);
+}
+.ci-summary-footer { margin-top: auto; }
+
+/* Release Timeline card */
+.ci-timeline-track {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  position: relative;
+  padding: 8px 0 0;
+  flex: 1;
+}
+.ci-timeline-line {
+  position: absolute;
+  top: 20px;
+  left: calc(10% + 14px);
+  right: calc(10% + 14px);
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+}
+.ci-timeline-year-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+.ci-timeline-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+.ci-timeline-dot--active {
+  background: #ec4899;
+  border-color: #ec4899;
+  box-shadow: 0 0 8px rgba(236,72,153,0.5);
+  width: 12px; height: 12px;
+}
+.ci-timeline-year-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: rgba(220,215,255,0.4);
+  letter-spacing: 0.02em;
+}
+.ci-timeline-year-label--active { color: #ec4899; }
+.ci-timeline-rel-count {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: rgba(220,215,255,0.55);
+  text-align: center;
+}
+.ci-timeline-rel-detail {
+  font-size: 9.5px;
+  color: var(--mc-text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Catalog Activity™ strip */
+.ci-activity-section {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+.ci-activity-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.ci-activity-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.ci-activity-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+.ci-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+}
+.ci-activity-icon-wrap {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ci-activity-icon-wrap--positive { background: rgba(45,212,191,0.12); color: var(--mc-green); }
+.ci-activity-icon-wrap--warning  { background: rgba(251,146,60,0.12);  color: var(--mc-orange); }
+.ci-activity-text {}
+.ci-activity-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgba(220,215,255,0.88);
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+.ci-activity-detail {
+  font-size: 10.5px;
+  color: var(--mc-text-muted);
+  margin-bottom: 3px;
+}
+.ci-activity-time {
+  font-size: 10px;
+  color: rgba(132,128,168,0.5);
+}
+
+/* ATHENA panel — inherits pi-athena-* from publishing workspace via shared CSS */
+/* Executive Closing Section */
+.ci-exec-closing-section {
+  border-top: 1px solid rgba(138,92,255,0.15);
+  padding-top: 16px;
+  margin-top: 4px;
+}
+.ci-exec-closing-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(138,92,255,0.7);
+  margin-bottom: 6px;
+}
+.ci-exec-closing-body {
+  font-size: 12.5px;
+  color: rgba(220,215,255,0.78);
+  line-height: 1.65;
+}
+.ci-exec-action-list {
+  margin: 6px 0 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.ci-exec-action-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  color: rgba(220,215,255,0.78);
+  line-height: 1.5;
+}
+.ci-exec-action-list li::before {
+  content: '→';
+  color: rgba(138,92,255,0.6);
+  flex-shrink: 0;
+  font-size: 12px;
+  margin-top: 1px;
+}
+</style>
 </head>
 <body>
 <div class="ws-shell ws-dept--catalog">
@@ -55,8 +657,8 @@
           <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
         </span>
         <span>
-          <span class="mc-nav-label">Publishing Intelligence</span>
-          <div class="mc-nav-sub">Your Works</div>
+          <span class="mc-nav-label">Publishing Ecosystem™</span>
+          <div class="mc-nav-sub">Your Rights</div>
         </span>
       </a>
       <a class="mc-nav-item mc-nav-item--active" href="/workspaces/catalog-intelligence.html" aria-current="page">
@@ -122,266 +724,237 @@
       <span class="ws-breadcrumb-sep">/</span>
       <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
       <span class="ws-breadcrumb-sep">/</span>
-      <span class="ws-breadcrumb-current ci-breadcrumb-current">Catalog Intelligence™</span>
+      <span class="ws-breadcrumb-current">Catalog Intelligence™</span>
     </header>
 
     <div class="ws-body" style="opacity:0;transition:opacity .15s ease">
 
-      <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
       <div class="hi-main">
 
-        <!-- § 1 — EXECUTIVE HEADER ─────────────────────────────────── -->
-        <div class="ci-exec-header">
-          <div class="ci-exec-title-block">
-            <div class="ci-exec-eyebrow">Catalog Intelligence™</div>
-            <h1 class="ci-exec-heading">Catalog Readiness Overview</h1>
-            <div class="ci-exec-desc">Artwork, lyrics, credits, ISRC coverage, UPC status, and metadata integrity across your complete release catalog.</div>
-            <div class="ci-exec-meta-row">
-              <div class="ci-exec-updated">
-                <div class="ci-exec-updated-dot" aria-hidden="true"></div>
-                Last Sync: Today, 9:15 AM
-              </div>
-            </div>
+        <!-- § 1 — PAGE HEADER ─────────────────────────────────────────── -->
+        <div class="ci-page-header">
+          <div class="ci-page-title-block">
+            <div class="ci-page-eyebrow">Catalog Intelligence™</div>
+            <div class="ci-page-subtitle">Your music catalog, releases, and metadata at a glance.</div>
           </div>
-          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
-            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
-            Jun 27 – Jul 4, 2026
-            <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down"></use></svg>
+          <div class="ci-header-right">
+            <div class="ci-sync-status">
+              <div class="ci-sync-dot" aria-hidden="true"></div>
+              <span id="ci-sync-label">Last Catalog Sync: 2 hours ago</span>
+            </div>
+            <a class="ci-audit-cta" href="/workspaces/health-intelligence.html">View Full Audit →</a>
           </div>
         </div>
 
-        <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
-        <div class="hi-kpi-row">
+        <!-- § 2 — KPI CARDS ──────────────────────────────────────────── -->
+        <div class="ci-kpi-row">
 
-          <!-- Catalog Readiness™ — ATHENA Trigger -->
-          <div class="hi-kpi-card ci-kpi-card--readiness ci-kpi-card--athena-trigger"
-               role="button" tabindex="0" aria-label="Open ATHENA Catalog Intelligence"
-               onclick="ciOpenAthena()" onkeydown="if(event.key==='Enter'||event.key===' ')ciOpenAthena()">
-            <div class="hi-kpi-label hi-kpi-label--crimson">Catalog Readiness™</div>
-
-            <div class="ci-readiness-ring-wrap" aria-label="Catalog readiness: 96%">
-              <svg class="ci-readiness-ring-svg" viewBox="0 0 116 116">
-                <circle class="ci-readiness-ring-track" cx="58" cy="58" r="40"/>
-                <circle class="ci-readiness-ring-progress" cx="58" cy="58" r="40"/>
-              </svg>
-              <div class="ci-readiness-ring-center">
-                <span class="ci-readiness-ring-num" id="ci-ring-num">0</span>
-                <span class="ci-readiness-ring-label">%</span>
-              </div>
+          <!-- Total Releases -->
+          <div class="ci-kpi-card">
+            <div class="ci-kpi-label">Total Releases</div>
+            <div class="ci-kpi-icon-wrap ci-kpi-icon-wrap--pink" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-projects"></use></svg>
             </div>
-
-            <div class="ci-readiness-label">Ready For Distribution</div>
-            <div class="ci-readiness-desc">1 attribute requires attention</div>
-
-            <div class="hi-score-meta-row">
-              <div class="hi-status-pill hi-status-pill--green">
-                <span class="hi-status-dot" aria-hidden="true"></span>Release Ready
-              </div>
+            <div class="ci-kpi-value-row">
+              <span class="ci-kpi-big ci-kpi-big--pink" id="ci-kpi-releases">—</span>
             </div>
-            <button class="pi-risk-step pi-risk-step--active pi-risk-step--moderate" onclick="event.stopPropagation();ciOpenAthena()" tabindex="-1">Review Catalog Readiness →</button>
+            <div class="ci-kpi-caption" id="ci-kpi-releases-cap">—</div>
           </div>
 
-          <!-- Total Tracks™ -->
-          <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--crimson">Total Tracks™</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--crimson" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-track"></use></svg>
+          <!-- Metadata Integrity -->
+          <div class="ci-kpi-card">
+            <div class="ci-kpi-label">Metadata Integrity</div>
+            <div class="ci-kpi-icon-wrap ci-kpi-icon-wrap--green" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
             </div>
-            <div class="ii-kpi-num-row">
-              <span class="ii-kpi-big-num">20</span>
+            <div class="ci-kpi-value-row">
+              <span class="ci-kpi-big ci-kpi-big--green" id="ci-kpi-meta-pct">—</span>
+              <span class="ci-kpi-frac" id="ci-kpi-meta-pct-sym"></span>
             </div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--crimson">Across 3 Projects</div>
-            <div class="ii-kpi-caption">2 Albums · 1 EP</div>
-          </div>
-
-          <!-- Metadata Completeness™ -->
-          <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--green">Metadata Completeness™</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--green" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-            </div>
-            <div class="ii-kpi-num-row">
-              <span class="ii-kpi-big-num">94</span>
-              <span class="ii-kpi-fraction">%</span>
-            </div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--green">Strong</div>
-            <div class="ii-kpi-caption">6 Attributes Verified</div>
+            <div class="ci-kpi-badge ci-kpi-badge--green" id="ci-kpi-meta-badge">—</div>
           </div>
 
           <!-- ISRC Coverage™ -->
-          <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--crimson">ISRC Coverage™</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--crimson" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-isrc"></use></svg>
+          <div class="ci-kpi-card">
+            <div class="ci-kpi-label">ISRC Coverage™</div>
+            <div class="ci-kpi-icon-wrap ci-kpi-icon-wrap--orange" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-isrc"></use></svg>
             </div>
-            <div class="ii-kpi-num-row">
-              <span class="ii-kpi-big-num">19</span>
-              <span class="ii-kpi-fraction"> / 20</span>
+            <div class="ci-kpi-value-row">
+              <span class="ci-kpi-big" id="ci-kpi-isrc-assigned">—</span>
+              <span class="ci-kpi-frac" id="ci-kpi-isrc-total"></span>
             </div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--crimson">1 Pending</div>
-            <div class="ii-kpi-caption">1 Track Unresolved</div>
+            <div class="ci-kpi-badge" id="ci-kpi-isrc-badge">—</div>
+          </div>
+
+          <!-- Lyric Sync Coverage -->
+          <div class="ci-kpi-card">
+            <div class="ci-kpi-label">Lyric Sync Coverage</div>
+            <div class="ci-kpi-icon-wrap ci-kpi-icon-wrap--purple" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-lyrics"></use></svg>
+            </div>
+            <div class="ci-kpi-value-row">
+              <span class="ci-kpi-big" id="ci-kpi-lyric-pct">—</span>
+              <span class="ci-kpi-frac" id="ci-kpi-lyric-sym"></span>
+            </div>
+            <div class="ci-kpi-badge ci-kpi-badge--green" id="ci-kpi-lyric-badge">—</div>
           </div>
 
         </div>
 
-        <!-- § 3 — CATALOG INTELLIGENCE ENGINE™ ────────────────────── -->
-        <div>
-          <div class="ci-section-header">
-            <div class="ci-section-title">Catalog Intelligence Engine™</div>
+        <!-- § 3 — LATEST RELEASE™ + METADATA INTEGRITY™ ──────────────── -->
+        <div class="ci-two-col">
+
+          <!-- Latest Release™ -->
+          <div class="ci-card">
+            <div class="ci-card-header">
+              <div class="ci-card-title">
+                <svg class="royalte-icon royalte-icon--xs ci-card-title-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-release"></use></svg>
+                Latest Release™
+              </div>
+              <a class="ci-card-link" href="#" onclick="ciOpenPanel('release');return false;">View Release Details →</a>
+            </div>
+            <div class="ci-lr-body">
+              <div class="ci-lr-artwork-wrap" aria-hidden="true">
+                <svg class="royalte-icon royalte-icon--lg ci-lr-artwork-icon" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-artwork"></use></svg>
+                <img class="ci-lr-artwork-img" id="ci-lr-artwork-img" alt="" draggable="false">
+              </div>
+              <div class="ci-lr-details">
+                <div class="ci-lr-title" id="ci-lr-title">—</div>
+                <div class="ci-lr-type" id="ci-lr-type">—</div>
+                <div class="ci-lr-field-list">
+                  <div class="ci-lr-field">
+                    <span class="ci-lr-field-label">Genre</span>
+                    <span class="ci-lr-field-val" id="ci-lr-genre">—</span>
+                  </div>
+                  <div class="ci-lr-field">
+                    <span class="ci-lr-field-label">ISRC</span>
+                    <span class="ci-lr-field-val" id="ci-lr-isrc">—</span>
+                  </div>
+                  <div class="ci-lr-field">
+                    <span class="ci-lr-field-label">UPC</span>
+                    <span class="ci-lr-field-val" id="ci-lr-upc">—</span>
+                  </div>
+                  <div class="ci-lr-field">
+                    <span class="ci-lr-field-label">Record Label</span>
+                    <span class="ci-lr-field-val" id="ci-lr-label">—</span>
+                  </div>
+                  <div class="ci-lr-field">
+                    <span class="ci-lr-field-label">Release Date</span>
+                    <span class="ci-lr-field-val" id="ci-lr-date">—</span>
+                  </div>
+                </div>
+                <div class="ci-lr-badges" id="ci-lr-badges"></div>
+              </div>
+            </div>
           </div>
-          <div class="ci-function-grid">
 
-            <!-- Artwork™ -->
-            <div class="ci-function-card">
-              <div class="ci-artwork-container" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--lg" id="ci-artwork-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-artwork"></use></svg>
-                <img class="royalte-exec-img royalte-exec-img--artwork" id="ci-artwork-img" alt="" draggable="false">
+          <!-- Metadata Integrity™ -->
+          <div class="ci-card">
+            <div class="ci-card-header">
+              <div class="ci-card-title">
+                <svg class="royalte-icon royalte-icon--xs ci-card-title-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-metadata"></use></svg>
+                Metadata Integrity™
               </div>
-              <div class="ci-release-artist" data-mc-catalog-release-artist></div>
-              <div class="ci-function-name" data-mc-catalog-release-title>—</div>
-              <div class="ci-function-sub" data-mc-catalog-release-type></div>
-              <div class="ci-function-badge ci-function-badge--verified" data-ci-badge="artwork">Verified</div>
+              <a class="ci-card-link" href="#" onclick="ciOpenPanel('metadata');return false;">View Metadata Details →</a>
             </div>
-
-            <!-- Lyrics™ -->
-            <div class="ci-function-card">
-              <div class="ci-function-icon-wrap">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-lyrics"></use></svg>
-              </div>
-              <div class="ci-function-name">Lyrics™</div>
-              <div class="ci-function-sub">Lyric Sync Coverage</div>
-              <div class="ci-function-badge ci-function-badge--synced" data-ci-badge="lyrics">Synced</div>
-              <div class="ci-function-stat">17 of 20 tracks</div>
+            <div class="ci-meta-grid" id="ci-meta-grid">
+              <!-- Populated by JS -->
             </div>
-
-            <!-- Credits™ -->
-            <div class="ci-function-card">
-              <div class="ci-function-icon-wrap">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-credits"></use></svg>
-              </div>
-              <div class="ci-function-name">Credits™</div>
-              <div class="ci-function-sub">Producer &amp; Writer Tags</div>
-              <div class="ci-function-badge ci-function-badge--verified" data-ci-badge="credits">Complete</div>
-              <div class="ci-function-stat">All producers tagged</div>
-            </div>
-
-            <!-- ISRC™ — Action Path (1 Pending) -->
-            <div class="ci-function-card">
-              <div class="ci-function-icon-wrap ci-function-icon-wrap--attention">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-isrc"></use></svg>
-              </div>
-              <div class="ci-function-name">ISRC™</div>
-              <div class="ci-function-sub">Track Recording Codes</div>
-              <div class="ci-function-badge ci-function-badge--pending" data-ci-badge="isrc">1 Pending</div>
-              <div class="ci-function-stat">19 of 20 assigned</div>
-              <a class="ci-function-action" href="/workspaces/catalog-intelligence.html">Resolve Missing ISRC →</a>
-            </div>
-
-            <!-- UPC™ -->
-            <div class="ci-function-card">
-              <div class="ci-function-icon-wrap">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-upc"></use></svg>
-              </div>
-              <div class="ci-function-name">UPC™</div>
-              <div class="ci-function-sub">Universal Product Codes</div>
-              <div class="ci-function-badge ci-function-badge--verified" data-ci-badge="upc">Verified</div>
-              <div class="ci-function-stat">3 active · 0 missing</div>
-            </div>
-
-            <!-- Metadata Integrity™ -->
-            <div class="ci-function-card">
-              <div class="ci-function-icon-wrap">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-metadata"></use></svg>
-              </div>
-              <div class="ci-function-name">Metadata Integrity™</div>
-              <div class="ci-function-sub">Field Completeness</div>
-              <div class="ci-function-badge ci-function-badge--strong" data-ci-badge="metadata">Strong</div>
-              <div class="ci-function-stat">94% complete</div>
-            </div>
-
           </div>
+
         </div>
 
-        <!-- § 4 — CATALOG SNAPSHOT™ + CATALOG ACTIVITY™ ─────────────── -->
-        <div class="ci-bottom-row">
+        <!-- § 4 — CATALOG SUMMARY + RELEASE TIMELINE ─────────────────── -->
+        <div class="ci-two-col">
 
-          <!-- Catalog Snapshot™ -->
-          <div class="ci-snapshot-card">
+          <!-- Catalog Summary -->
+          <div class="ci-card">
             <div class="ci-card-header">
-              <svg class="ci-card-header-icon royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-catalog"></use></svg>
-              <div class="ci-card-header-title">Catalog Snapshot™</div>
+              <div class="ci-card-title">
+                <svg class="royalte-icon royalte-icon--xs ci-card-title-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-catalog"></use></svg>
+                Catalog Summary
+              </div>
+              <a class="ci-card-link" href="/workspaces/monitoring-timeline.html">View All Releases →</a>
             </div>
-
-            <div class="ci-snapshot-stats">
-              <div class="ci-snap-stat">
-                <span class="ci-snap-stat-num">18</span>
-                <span class="ci-snap-stat-label">Singles</span>
+            <div class="ci-summary-stats">
+              <div class="ci-summary-stat">
+                <div class="ci-summary-stat-icon ci-summary-stat-icon--pink" aria-hidden="true">
+                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-track"></use></svg>
+                </div>
+                <div class="ci-summary-stat-num" id="ci-sum-singles">—</div>
+                <div class="ci-summary-stat-label">Singles</div>
               </div>
-              <div class="ci-snap-stat">
-                <span class="ci-snap-stat-num">2</span>
-                <span class="ci-snap-stat-label">Albums</span>
+              <div class="ci-summary-stat">
+                <div class="ci-summary-stat-icon ci-summary-stat-icon--purple" aria-hidden="true">
+                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-release"></use></svg>
+                </div>
+                <div class="ci-summary-stat-num" id="ci-sum-albums">—</div>
+                <div class="ci-summary-stat-label">Albums</div>
               </div>
-              <div class="ci-snap-stat">
-                <span class="ci-snap-stat-num">1</span>
-                <span class="ci-snap-stat-label">EPs</span>
+              <div class="ci-summary-stat">
+                <div class="ci-summary-stat-icon ci-summary-stat-icon--teal" aria-hidden="true">
+                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-compositions"></use></svg>
+                </div>
+                <div class="ci-summary-stat-num" id="ci-sum-eps">—</div>
+                <div class="ci-summary-stat-label">EPs</div>
               </div>
-              <div class="ci-snap-stat">
-                <span class="ci-snap-stat-num">20</span>
-                <span class="ci-snap-stat-label">Total Tracks</span>
+              <div class="ci-summary-stat">
+                <div class="ci-summary-stat-icon ci-summary-stat-icon--orange" aria-hidden="true">
+                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-monitoring"></use></svg>
+                </div>
+                <div class="ci-summary-stat-num" id="ci-sum-tracks">—</div>
+                <div class="ci-summary-stat-label">Total Tracks</div>
               </div>
             </div>
-
-            <div class="ci-snap-divider"></div>
-
-            <div class="ci-snap-meta-list">
-              <div class="ci-snap-meta">
-                <span class="ci-snap-meta-label">Latest Release</span>
-                <span class="ci-snap-meta-val">—</span>
-              </div>
-              <div class="ci-snap-meta">
-                <span class="ci-snap-meta-label">Primary Genre</span>
-                <span class="ci-snap-meta-val">Alternative R&amp;B</span>
-              </div>
-              <div class="ci-snap-meta">
-                <span class="ci-snap-meta-label">Last Catalog Sync</span>
-                <span class="ci-snap-meta-val">
-                  2 hours ago
-                  <svg class="royalte-icon royalte-icon--xs ci-snap-sync-check" fill="currentColor" aria-label="Sync healthy"><use href="/icons/royalte-icon-registry.svg#royalte-check-circle"></use></svg>
-                </span>
+            <div class="ci-no-dupe-row" id="ci-no-dupe-row">
+              <svg class="royalte-icon royalte-icon--sm ci-no-dupe-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check-circle"></use></svg>
+              <div class="ci-no-dupe-text">
+                <div class="ci-no-dupe-label" id="ci-no-dupe-label">No Duplicate Releases Detected</div>
+                <div class="ci-no-dupe-sub" id="ci-no-dupe-sub">All releases appear unique in your catalog.</div>
               </div>
             </div>
           </div>
 
-          <!-- Catalog Activity™ -->
-          <div class="ci-activity-card">
+          <!-- Release Timeline -->
+          <div class="ci-card">
             <div class="ci-card-header">
-              <svg class="ci-card-header-icon royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
-              <div class="ci-card-header-title">Catalog Activity™</div>
-            </div>
-            <div class="ci-activity-body" role="list" aria-label="Recent catalog activity">
-
-              <div class="ci-activity-item" role="listitem" style="opacity:0.45;padding:16px 0;">
-                <div style="font-size:11px;color:var(--mc-text-muted);letter-spacing:0.04em;">Activity feed requires pipeline support — coming in a future release.</div>
+              <div class="ci-card-title">
+                <svg class="royalte-icon royalte-icon--xs ci-card-title-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
+                Release Timeline
               </div>
-
+              <a class="ci-card-link" href="/workspaces/monitoring-timeline.html">View Timeline →</a>
             </div>
-            <div class="ci-activity-footer">
-              <a class="ci-activity-link" href="/workspaces/monitoring-timeline.html">View All Activity →</a>
+            <div class="ci-timeline-track" id="ci-timeline-track" style="position:relative;">
+              <div class="ci-timeline-line" aria-hidden="true"></div>
+              <!-- Populated by JS -->
             </div>
           </div>
 
+        </div>
+
+        <!-- § 5 — CATALOG ACTIVITY™ ──────────────────────────────────── -->
+        <div class="ci-activity-section">
+          <div class="ci-activity-header">
+            <div class="ci-activity-title">
+              <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
+              Catalog Activity™
+            </div>
+            <a class="ci-card-link" href="/workspaces/monitoring-timeline.html">View All Activity →</a>
+          </div>
+          <div class="ci-activity-strip" id="ci-activity-strip">
+            <!-- Populated by JS -->
+          </div>
         </div>
 
       </div><!-- /hi-main -->
 
     </div><!-- /ws-body -->
-
   </div><!-- /ws-content -->
-
 </div><!-- /ws-shell -->
 
-<!-- ATHENA Catalog Intelligence™ Panel -->
-<div id="ci-athena-overlay" class="pi-athena-overlay" role="dialog" aria-modal="true" aria-labelledby="ci-athena-title" hidden>
+<!-- ATHENA Detail Panel — Release Details + Metadata Details -->
+<div id="ci-detail-overlay" class="pi-athena-overlay" role="dialog" aria-modal="true" aria-labelledby="ci-panel-title" hidden>
   <div class="pi-athena-panel" role="document">
 
     <div class="pi-athena-header">
@@ -389,288 +962,370 @@
         <div class="pi-athena-logo" aria-hidden="true">ē</div>
         <div class="pi-athena-brand-text">
           <div class="pi-athena-eyebrow">ATHENA</div>
-          <div class="pi-athena-wordmark" id="ci-athena-title">Catalog Intelligence™</div>
+          <div class="pi-athena-wordmark" id="ci-panel-title">Catalog Intelligence™</div>
         </div>
       </div>
-      <button class="pi-athena-close" onclick="ciCloseAthena()" aria-label="Close ATHENA panel">
+      <button class="pi-athena-close" onclick="ciClosePanel()" aria-label="Close panel">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </button>
     </div>
 
-    <div class="pi-athena-body">
-
-      <div class="pi-athena-rating-row">
-        <div class="pi-athena-rating-label">Catalog Readiness</div>
-        <div class="pi-athena-rating-value" style="color:var(--mc-green);">96% — Release Ready</div>
-      </div>
-
-      <div class="pi-athena-section">
-        <div class="pi-athena-section-label">How This Score Is Calculated</div>
-        <div class="pi-athena-section-body">ATHENA evaluates artwork completeness, lyric sync coverage, producer credits, ISRC assignments, UPC validity, and metadata field completeness across all 20 tracks in your catalog.</div>
-      </div>
-
-      <div class="pi-athena-section">
-        <div class="pi-athena-section-label">Active Issues</div>
-        <div class="pi-athena-works-list" id="ci-athena-issues-list">
-          <div class="pi-athena-work-row">
-            <div class="pi-athena-work-dot" aria-hidden="true"></div>
-            <div class="pi-athena-work-name" id="ci-athena-isrc-issue">ISRC coverage — see catalog snapshot for details</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="pi-athena-section">
-        <div class="pi-athena-section-label">Why ISRC Matters</div>
-        <div class="pi-athena-section-body">ISRC codes are the primary identifier for royalty tracking at DSPs. A track without an ISRC cannot be linked to its performance data, which creates gaps in both mechanical and performance royalty collection.</div>
-      </div>
-
-      <div class="pi-athena-section">
-        <div class="pi-athena-section-label">Recommended Action</div>
-        <div class="pi-athena-section-body">Assign the missing ISRC via your distributor or directly through ISRC.com. Estimated completion: 10 minutes. Once assigned, catalog readiness reaches 100%.</div>
-      </div>
-
-    </div>
-
-    <div class="pi-athena-footer">
-      <a class="pi-athena-action-cta" href="https://www.usisrc.org" target="_blank" rel="noopener noreferrer">Register ISRC →</a>
+    <div class="pi-athena-body" id="ci-panel-body">
+      <!-- Populated by JS based on panel type -->
     </div>
 
   </div>
 </div>
 
 <script>
-// Artwork card loader — reads workspace context; no direct sessionStorage access.
-(function() {
-  'use strict';
-  try {
-    if (!window.RoyalteContext) return;
-    var _r = window.RoyalteContext.readWorkspaceContext();
-    if (_r.state !== 'valid') return;
-    var _ctx = _r.ctx;
-    var bvr = (_ctx.catalogIntelligence && _ctx.catalogIntelligence.bestVerifiedRelease) || null;
-    var src = (bvr && bvr.artwork) || _ctx.artwork || null;
-    var img = document.getElementById('ci-artwork-img');
-    if (img && src) {
-      img.onload = function() {
-        img.classList.add('ci--artwork-loaded');
-        var icon = document.getElementById('ci-artwork-icon');
-        if (icon) icon.style.display = 'none';
-      };
-      img.onerror = function() { img.removeAttribute('src'); };
-      img.src = src;
-    }
-    if (bvr) {
-      var artistEl = document.querySelector('[data-mc-catalog-release-artist]');
-      var titleEl  = document.querySelector('[data-mc-catalog-release-title]');
-      var typeEl   = document.querySelector('[data-mc-catalog-release-type]');
-      if (artistEl && bvr.artistName)   artistEl.textContent = bvr.artistName;
-      if (titleEl  && bvr.releaseTitle) titleEl.textContent  = bvr.releaseTitle;
-      if (typeEl   && bvr.releaseType)  typeEl.textContent   = bvr.releaseType;
-    }
-  } catch(e) {}
-})();
-
-/* Catalog Intelligence™ — Runtime Renderer v1.0
+/* Catalog Intelligence™ — Runtime Renderer v2.0
  * Input:  royalte_workspace_context (mc-workspace-context.js)
  * Output: Rendered HTML
- * Never:  queries storage directly, renders demo data, builds artist objects
  */
 (function () {
   'use strict';
-  // Workspace Contract™ — required: catalogIntelligence (release catalog data)
+
   var _result = window.RoyalteContext
     ? window.RoyalteContext.readWorkspaceContext({ contract: 'catalog-intelligence' })
-    : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
+    : { state: 'invalid' };
+
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');
     if (_ol) { _ol.removeAttribute('hidden'); _ol.style.display = 'flex'; }
     return;
   }
+
   var ctx = _result.ctx;
   var _body = document.querySelector('.ws-body');
   if (_body) _body.style.opacity = '1';
 
-  var ci  = ctx.catalogIntelligence || null;
-  var hi  = ctx.healthIntelligence  || null;
-  var cat = ctx.catalog             || null;
+  var ci = ctx.catalogIntelligence || {};
+  var bvr = ci.bestVerifiedRelease || null;
 
-  /* ── Ring target — set data-live-target for animation below ─────────── */
-  var ringScore = (hi && hi.catalogScore != null) ? Math.round(hi.catalogScore) : null;
-  if (ringScore !== null) {
-    var ringNumEl = document.getElementById('ci-ring-num');
-    if (ringNumEl) ringNumEl.dataset.liveTarget = String(ringScore);
-    var ringArc = document.querySelector('.ci-readiness-ring-progress');
-    if (ringArc) ringArc.style.strokeDasharray = (ringScore / 100 * 251.327).toFixed(1) + ' 252';
-    var ringWrap = document.querySelector('.ci-readiness-ring-wrap');
-    if (ringWrap) ringWrap.setAttribute('aria-label', 'Catalog readiness: ' + ringScore + '%');
-
-    // Derive label and description from runtime score
-    var readinessLabel = ringScore >= 90 ? 'Ready For Distribution' :
-                         ringScore >= 70 ? 'Distribution Ready'     : 'Needs Attention';
-    var readinessStatusLabel = ringScore >= 90 ? 'Release Ready' :
-                               ringScore >= 70 ? 'Good Standing'  : 'Needs Work';
-    var rdLabel = document.querySelector('.ci-readiness-label');
-    if (rdLabel) rdLabel.textContent = readinessLabel;
-
-    var rdPill = document.querySelector('.ci-kpi-card--readiness .hi-status-pill');
-    if (rdPill) {
-      var dot = rdPill.querySelector('.hi-status-dot');
-      rdPill.textContent = readinessStatusLabel;
-      if (dot) rdPill.prepend(dot);
-      rdPill.className = 'hi-status-pill ' + (ringScore >= 70 ? 'hi-status-pill--green' : 'hi-status-pill--orange');
-    }
-
-    // Derive description from ISRC coverage
-    var isrcIssues = (ci && ci.isrcCoverage && ci.isrcCoverage.status === 'complete') ? 0 :
-                     (ci && ci.isrcCoverage && ci.isrcCoverage.percent != null) ? 1 : 1;
-    var rdDesc = document.querySelector('.ci-readiness-desc');
-    if (rdDesc) {
-      rdDesc.textContent = isrcIssues === 0 ? 'All attributes verified' :
-                           isrcIssues === 1 ? '1 attribute requires attention' :
-                           isrcIssues + ' attributes require attention';
-    }
-
-    // ATHENA panel rating
-    var athRating = document.querySelector('.pi-athena-rating-value');
-    if (athRating) athRating.textContent = ringScore + '% — ' + readinessStatusLabel;
+  /* ── § 1 KPI — Total Releases ─────────────────────────────────────── */
+  var totalReleases = (ci.singles || 0) + (ci.albums || 0) + (ci.eps || 0);
+  var relEl = document.getElementById('ci-kpi-releases');
+  if (relEl) relEl.textContent = totalReleases > 0 ? String(totalReleases) : '—';
+  var relCap = document.getElementById('ci-kpi-releases-cap');
+  if (relCap) {
+    var parts = [];
+    if (ci.singles) parts.push(ci.singles + ' Singles');
+    if (ci.albums)  parts.push(ci.albums  + ' Albums');
+    if (ci.eps)     parts.push(ci.eps     + ' EP' + (ci.eps > 1 ? 's' : ''));
+    relCap.textContent = parts.length ? parts.join(' · ') : '—';
   }
 
-  /* ── KPI — Total Tracks card (index 1) ─────────────────────────────── */
-  if (ci) {
-    var kpiCards = document.querySelectorAll('.hi-kpi-row .hi-kpi-card');
-    if (kpiCards.length >= 2) {
-      var tc = kpiCards[1];
-      var tcNum = tc.querySelector('.ii-kpi-big-num'); if (tcNum) tcNum.textContent = String(ci.totalTracks || 0);
-      var tcSt  = tc.querySelector('.ii-kpi-status-text');
-      if (tcSt) {
-        var projects = (ci.albums || 0) + (ci.eps || 0);
-        tcSt.textContent = projects > 0 ? 'Across ' + projects + ' Projects' : ci.catalogStatus || 'Limited Catalog';
-      }
-      var tcCap = tc.querySelector('.ii-kpi-caption');
-      if (tcCap) {
-        var parts = [];
-        if (ci.albums)  parts.push(ci.albums  + ' Album'  + (ci.albums  > 1 ? 's' : ''));
-        if (ci.eps)     parts.push(ci.eps     + ' EP'     + (ci.eps     > 1 ? 's' : ''));
-        if (ci.singles) parts.push(ci.singles + ' Single' + (ci.singles > 1 ? 's' : ''));
-        tcCap.textContent = parts.length > 0 ? parts.join(' · ') : 'Awaiting Next Scan™';
+  /* ── § 2 KPI — Metadata Integrity ────────────────────────────────── */
+  var metaPct = ci.metadataIntegrity != null ? Math.round(ci.metadataIntegrity) : null;
+  var metaPctEl  = document.getElementById('ci-kpi-meta-pct');
+  var metaSymEl  = document.getElementById('ci-kpi-meta-pct-sym');
+  var metaBadge  = document.getElementById('ci-kpi-meta-badge');
+  if (metaPct !== null) {
+    if (metaPctEl) metaPctEl.textContent = String(metaPct);
+    if (metaSymEl) metaSymEl.textContent = '%';
+    if (metaBadge) metaBadge.textContent = metaPct >= 90 ? 'High' : metaPct >= 70 ? 'Good' : 'Needs Attention';
+  }
+
+  /* ── § 3 KPI — ISRC Coverage ─────────────────────────────────────── */
+  var isrc = ci.isrcCoverage || {};
+  var isrcAssigned = isrc.assigned != null ? isrc.assigned : null;
+  var isrcTotal    = isrc.total    != null ? isrc.total    : null;
+  var isrcAssignedEl = document.getElementById('ci-kpi-isrc-assigned');
+  var isrcTotalEl    = document.getElementById('ci-kpi-isrc-total');
+  var isrcBadge      = document.getElementById('ci-kpi-isrc-badge');
+  if (isrcAssigned !== null) {
+    if (isrcAssignedEl) isrcAssignedEl.textContent = String(isrcAssigned);
+    if (isrcTotalEl)    isrcTotalEl.textContent    = ' / ' + (isrcTotal || '?');
+    var missing = isrcTotal != null ? (isrcTotal - isrcAssigned) : null;
+    if (isrcBadge) {
+      if (missing === 0) {
+        isrcBadge.textContent = 'Complete';
+        isrcBadge.className   = 'ci-kpi-badge ci-kpi-badge--green';
+      } else if (missing > 0) {
+        isrcBadge.textContent = missing + ' Missing';
+        isrcBadge.className   = 'ci-kpi-badge ci-kpi-badge--orange';
       }
     }
   }
 
-  /* ── KPI — Metadata Completeness (no runtime source → clear to '—') ─── */
-  if (ci) {
-    var kpiCards2 = document.querySelectorAll('.hi-kpi-row .hi-kpi-card');
-    // Index 2 = Metadata Completeness KPI — no field in catalogIntelligence; clear placeholders
-    if (kpiCards2.length >= 3) {
-      var mcCard  = kpiCards2[2];
-      var mcNum   = mcCard.querySelector('.ii-kpi-big-num');   if (mcNum)  mcNum.textContent  = '—';
-      var mcFrac  = mcCard.querySelector('.ii-kpi-fraction');  if (mcFrac) mcFrac.textContent  = '';
-      var mcSt    = mcCard.querySelector('.ii-kpi-status-text'); if (mcSt)  mcSt.textContent   = 'Not Available';
-      var mcCap   = mcCard.querySelector('.ii-kpi-caption');   if (mcCap)  mcCap.textContent   = 'Future scan enhancement';
-    }
-    // Index 3 = ISRC Coverage — wire from isrcCoverage.percent
-    if (kpiCards2.length >= 4 && ci.isrcCoverage) {
-      var isrcCard  = kpiCards2[3];
-      var isrcNum   = isrcCard.querySelector('.ii-kpi-big-num');
-      var isrcFrac  = isrcCard.querySelector('.ii-kpi-fraction');
-      var isrcSt    = isrcCard.querySelector('.ii-kpi-status-text');
-      var isrcCap   = isrcCard.querySelector('.ii-kpi-caption');
-      var isrcPct   = ci.isrcCoverage.percent != null ? Math.round(ci.isrcCoverage.percent) : null;
-      var isrcStatusText = { 'Complete': 'Complete', 'Partial': 'Partial Coverage', 'Limited': 'Limited Coverage', 'Unknown': 'Not Available' };
-      if (isrcNum)  isrcNum.textContent  = isrcPct !== null ? String(isrcPct) : '—';
-      if (isrcFrac) isrcFrac.textContent = isrcPct !== null ? '%' : '';
-      if (isrcSt)   isrcSt.textContent   = isrcStatusText[ci.isrcCoverage.status] || ci.isrcCoverage.status || '—';
-      if (isrcCap)  isrcCap.textContent  = ci.isrcCoverage.status !== 'Unknown' ? 'ISRC Data Reviewed' : 'Not available from this scan';
+  /* ── § 4 KPI — Lyric Sync Coverage ───────────────────────────────── */
+  var lyricPct    = ci.lyricSyncCoverage != null ? Math.round(ci.lyricSyncCoverage) : null;
+  var lyricStatus = ci.lyricSyncStatus   || null;
+  var lyricPctEl  = document.getElementById('ci-kpi-lyric-pct');
+  var lyricSymEl  = document.getElementById('ci-kpi-lyric-sym');
+  var lyricBadge  = document.getElementById('ci-kpi-lyric-badge');
+  if (lyricPct !== null) {
+    if (lyricPctEl) lyricPctEl.textContent = String(lyricPct);
+    if (lyricSymEl) lyricSymEl.textContent = '%';
+    if (lyricBadge) {
+      lyricBadge.textContent = lyricStatus || (lyricPct === 100 ? 'Synced' : 'Partial');
+      lyricBadge.className   = 'ci-kpi-badge ' + (lyricPct >= 90 ? 'ci-kpi-badge--green' : 'ci-kpi-badge--orange');
     }
   }
 
-  /* ── Function card badges + stats — derived from Runtime Context ──────── */
-  // setBadge strips all modifier classes, applies the correct state class + text.
-  // Board Principle: badge text AND color must derive from Runtime Context.
-  // No runtime source for a badge → "Not Available" (never leave a misleading positive).
-  function setBadge(el, modifierClass, label) {
-    var allMods = ['verified','active','pending','strong','synced','unknown'];
-    allMods.forEach(function(m) { el.classList.remove('ci-function-badge--' + m); });
-    el.classList.add('ci-function-badge--' + modifierClass);
-    el.textContent = label;
-  }
-  document.querySelectorAll('[data-ci-badge]').forEach(function (el) {
-    var key = el.getAttribute('data-ci-badge');
-    if (key === 'artwork') {
-      if (ci && ci.bestVerifiedRelease) {
-        setBadge(el, 'verified', 'Verified');
-      } else {
-        setBadge(el, 'unknown', 'Not Available');
-      }
-    } else if (key === 'isrc') {
-      var isrcStatus = ci && ci.isrcCoverage && ci.isrcCoverage.status;
-      if (isrcStatus === 'complete') {
-        setBadge(el, 'verified', 'Complete');
-      } else if (isrcStatus === 'partial') {
-        var pct = (ci.isrcCoverage.percent != null) ? (ci.isrcCoverage.percent + '% Assigned') : 'Partial';
-        setBadge(el, 'pending', pct);
-      } else {
-        setBadge(el, 'unknown', 'Not Available');
-      }
-    } else {
-      // lyrics, credits, upc, metadata — no v1.0 runtime source; never show misleading positive
-      setBadge(el, 'unknown', 'Not Available');
-    }
-  });
-  document.querySelectorAll('.ci-function-stat').forEach(function (el) { el.textContent = '—'; });
+  /* ── Latest Release™ card ─────────────────────────────────────────── */
+  if (bvr) {
+    var titleEl  = document.getElementById('ci-lr-title');
+    var typeEl   = document.getElementById('ci-lr-type');
+    var genreEl  = document.getElementById('ci-lr-genre');
+    var isrcEl   = document.getElementById('ci-lr-isrc');
+    var upcEl    = document.getElementById('ci-lr-upc');
+    var dateEl   = document.getElementById('ci-lr-date');
+    var labelEl  = document.getElementById('ci-lr-label');
+    if (titleEl)  titleEl.textContent  = bvr.releaseTitle || '—';
+    if (typeEl)   typeEl.textContent   = bvr.releaseType  || '—';
+    if (genreEl)  genreEl.textContent  = bvr.genre        || 'Not Available';
+    if (isrcEl)   isrcEl.textContent   = bvr.isrc         || 'Not Available';
+    if (upcEl)    upcEl.textContent    = bvr.upc          || 'Not Available';
+    if (dateEl)   dateEl.textContent   = bvr.releaseDate  || 'Not Available';
+    if (labelEl)  labelEl.textContent  = bvr.label || ctx.recordLabel || 'Not Available';
 
-  /* ── Catalog Snapshot™ stats ─────────────────────────────────────────── */
-  if (ci) {
-    var snapNums = document.querySelectorAll('.ci-snap-stat-num');
-    if (snapNums.length >= 4) {
-      snapNums[0].textContent = String(ci.singles    || 0);
-      snapNums[1].textContent = String(ci.albums     || 0);
-      snapNums[2].textContent = String(ci.eps        || 0);
-      snapNums[3].textContent = String(ci.totalTracks || 0);
+    if (bvr.verified) {
+      var badgesEl = document.getElementById('ci-lr-badges');
+      if (badgesEl) {
+        var vbadge = document.createElement('span');
+        vbadge.className = 'ci-lr-badge--verified';
+        vbadge.textContent = 'Verified';
+        badgesEl.appendChild(vbadge);
+      }
     }
-    /* Latest release meta row */
-    var metaVals = document.querySelectorAll('.ci-snap-meta-val');
-    if (metaVals.length >= 1 && cat && cat.latestYear) {
-      metaVals[0].textContent = 'Latest Release — ' + cat.latestYear;
+
+    var artSrc = bvr.artwork || ctx.artwork || null;
+    if (artSrc) {
+      var artImg = document.getElementById('ci-lr-artwork-img');
+      if (artImg) {
+        artImg.onload = function() {
+          artImg.classList.add('ci-lr-artwork-loaded');
+          var icon = artImg.parentElement && artImg.parentElement.querySelector('.ci-lr-artwork-icon');
+          if (icon) icon.style.display = 'none';
+        };
+        artImg.onerror = function() { artImg.removeAttribute('src'); };
+        artImg.src = artSrc;
+      }
     }
   }
+
+  /* ── Metadata Integrity™ grid ─────────────────────────────────────── */
+  var META_FIELDS = [
+    { key: 'title',        label: 'Title'         },
+    { key: 'artistName',   label: 'Artist Name'   },
+    { key: 'album',        label: 'Album'         },
+    { key: 'isrc',         label: 'ISRC'          },
+    { key: 'upc',          label: 'UPC'           },
+    { key: 'genre',        label: 'Genre'         },
+    { key: 'recordLabel',  label: 'Record Label'  },
+    { key: 'releaseDate',  label: 'Release Date'  },
+    { key: 'explicitFlag', label: 'Explicit Flag' },
+    { key: 'credits',      label: 'Credits'       },
+    { key: 'artwork',      label: 'Artwork'       },
+  ];
+  var mf = ci.metadataFields || {};
+  var metaGrid = document.getElementById('ci-meta-grid');
+  if (metaGrid) {
+    metaGrid.innerHTML = '';
+    META_FIELDS.forEach(function (f) {
+      var field  = mf[f.key] || {};
+      var status = field.status  || 'unknown';
+      var disp   = field.display || (status === 'complete' ? 'Complete' : '—');
+      var row = document.createElement('div');
+      row.className = 'ci-meta-row';
+      var nameEl = document.createElement('span');
+      nameEl.className = 'ci-meta-field';
+      nameEl.textContent = f.label;
+      var statEl = document.createElement('span');
+      statEl.className = 'ci-meta-status ci-meta-status--' + (status === 'complete' ? 'complete' : 'partial');
+      statEl.textContent = disp;
+      if (status === 'complete') statEl.textContent += ' ✓';
+      else statEl.textContent += ' ⚠';
+      row.appendChild(nameEl); row.appendChild(statEl);
+      metaGrid.appendChild(row);
+    });
+  }
+
+  /* ── Catalog Summary stats ────────────────────────────────────────── */
+  var singlesEl = document.getElementById('ci-sum-singles');
+  var albumsEl  = document.getElementById('ci-sum-albums');
+  var epsEl     = document.getElementById('ci-sum-eps');
+  var tracksEl  = document.getElementById('ci-sum-tracks');
+  if (singlesEl) singlesEl.textContent = String(ci.singles    || 0);
+  if (albumsEl)  albumsEl.textContent  = String(ci.albums     || 0);
+  if (epsEl)     epsEl.textContent     = String(ci.eps        || 0);
+  if (tracksEl)  tracksEl.textContent  = String(ci.totalTracks|| 0);
+
+  if (ci.duplicatesDetected === true) {
+    var dupeLabel = document.getElementById('ci-no-dupe-label');
+    var dupeSub   = document.getElementById('ci-no-dupe-sub');
+    var dupeRow   = document.getElementById('ci-no-dupe-row');
+    if (dupeLabel) dupeLabel.textContent = 'Duplicate Releases Detected';
+    if (dupeSub)   dupeSub.textContent   = 'Review your catalog for potential conflicts.';
+    if (dupeRow) {
+      dupeRow.style.background = 'rgba(251,146,60,0.05)';
+      dupeRow.style.borderColor = 'rgba(251,146,60,0.15)';
+      var dupeIcon = dupeRow.querySelector('.ci-no-dupe-icon');
+      if (dupeIcon) { dupeIcon.style.color = 'var(--mc-orange)'; }
+    }
+  }
+
+  /* ── Release Timeline ─────────────────────────────────────────────── */
+  var timelineEl = document.getElementById('ci-timeline-track');
+  var timeline   = Array.isArray(ci.timeline) ? ci.timeline : [];
+  if (timelineEl && timeline.length > 0) {
+    timeline.forEach(function (yr) {
+      var col = document.createElement('div');
+      col.className = 'ci-timeline-year-col';
+
+      var dot = document.createElement('div');
+      dot.className = 'ci-timeline-dot' + (yr.active ? ' ci-timeline-dot--active' : '');
+
+      var yearLabel = document.createElement('div');
+      yearLabel.className = 'ci-timeline-year-label' + (yr.active ? ' ci-timeline-year-label--active' : '');
+      yearLabel.textContent = String(yr.year);
+
+      var relCount = document.createElement('div');
+      relCount.className = 'ci-timeline-rel-count';
+      relCount.textContent = yr.releases + ' Release' + (yr.releases !== 1 ? 's' : '');
+
+      var relDetail = document.createElement('div');
+      relDetail.className = 'ci-timeline-rel-detail';
+      relDetail.textContent = yr.detail || '';
+
+      col.appendChild(dot); col.appendChild(yearLabel);
+      col.appendChild(relCount); col.appendChild(relDetail);
+      timelineEl.appendChild(col);
+    });
+  }
+
+  /* ── Catalog Activity™ strip ──────────────────────────────────────── */
+  var activityEl  = document.getElementById('ci-activity-strip');
+  var activities  = Array.isArray(ci.recentActivity) ? ci.recentActivity : [];
+  if (activityEl && activities.length > 0) {
+    activities.forEach(function (act) {
+      var item = document.createElement('div');
+      item.className = 'ci-activity-item';
+
+      var iconWrap = document.createElement('div');
+      iconWrap.className = 'ci-activity-icon-wrap ci-activity-icon-wrap--' + (act.status === 'positive' ? 'positive' : 'warning');
+      var iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      iconSvg.setAttribute('class', 'royalte-icon royalte-icon--xs');
+      iconSvg.setAttribute('fill', 'currentColor');
+      iconSvg.setAttribute('aria-hidden', 'true');
+      var iconUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+      var iconMap = {
+        check:    '#royalte-check',
+        isrc:     '#royalte-isrc',
+        lyrics:   '#royalte-lyrics',
+        artwork:  '#royalte-artwork',
+        upc:      '#royalte-upc',
+        metadata: '#royalte-metadata',
+        release:  '#royalte-release',
+        credits:  '#royalte-credits',
+      };
+      iconUse.setAttribute('href', '/icons/royalte-icon-registry.svg' + (iconMap[act.icon] || '#royalte-check'));
+      iconSvg.appendChild(iconUse);
+      iconWrap.appendChild(iconSvg);
+
+      var text = document.createElement('div');
+      text.className = 'ci-activity-text';
+      var labelEl2 = document.createElement('div');
+      labelEl2.className = 'ci-activity-label';
+      labelEl2.textContent = act.label;
+      var detailEl2 = document.createElement('div');
+      detailEl2.className = 'ci-activity-detail';
+      detailEl2.textContent = act.detail;
+      var timeEl = document.createElement('div');
+      timeEl.className = 'ci-activity-time';
+      timeEl.textContent = act.time;
+      text.appendChild(labelEl2); text.appendChild(detailEl2); text.appendChild(timeEl);
+
+      item.appendChild(iconWrap); item.appendChild(text);
+      activityEl.appendChild(item);
+    });
+  }
+
 }());
 
-(function() {
-  var el = document.getElementById('ci-ring-num');
-  if (!el) return;
-  var target = (el.dataset.liveTarget) ? parseInt(el.dataset.liveTarget, 10) : 96;
-  var duration = 1400, start = null;
-  function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
-  function step(ts) {
-    if (!start) start = ts;
-    var p = Math.min((ts - start) / duration, 1);
-    el.textContent = Math.round(ease(p) * target);
-    if (p < 1) requestAnimationFrame(step);
-    else el.textContent = target;
+/* ── ATHENA Detail Panel ─────────────────────────────────────────────── */
+var _ciPanelData = {};
+
+function ciOpenPanel(type) {
+  var overlay   = document.getElementById('ci-detail-overlay');
+  var panelBody = document.getElementById('ci-panel-body');
+  var panelTitle= document.getElementById('ci-panel-title');
+  if (!overlay || !panelBody) return;
+
+  if (type === 'release') {
+    panelTitle.textContent = 'Release Details';
+    panelBody.innerHTML = [
+      '<div class="pi-athena-section">',
+        '<div class="pi-athena-section-label">Latest Verified Release</div>',
+        '<div class="pi-athena-section-body">Royaltē verified your most recent release against catalog sources. ISRC, UPC, and release metadata were reviewed and confirmed active.</div>',
+      '</div>',
+      '<div class="pi-athena-section">',
+        '<div class="pi-athena-section-label">Verification Sources</div>',
+        '<div class="pi-athena-section-body">Release data was cross-referenced against Apple Music, Spotify, and your distributor metadata to confirm accuracy and availability.</div>',
+      '</div>',
+      '<div class="ci-exec-closing-section">',
+        '<div class="ci-exec-closing-label">Why This Matters</div>',
+        '<div class="ci-exec-closing-body">Your latest release is the entry point for new listeners, DSP algorithms, and rights organizations. Inaccurate or incomplete release data can prevent your music from being correctly identified, matched, and paid across the global rights ecosystem.</div>',
+      '</div>',
+      '<div class="ci-exec-closing-section">',
+        '<div class="ci-exec-closing-label">Impact on Royalties</div>',
+        '<div class="ci-exec-closing-body">Complete and accurate release metadata — including ISRC, UPC, and label information — improves the likelihood that performance and mechanical royalties can be correctly identified, matched to your catalog, and paid through DSPs, PROs, and mechanical licensing organizations.</div>',
+      '</div>',
+      '<div class="ci-exec-closing-section">',
+        '<div class="ci-exec-closing-label">Recommended Action</div>',
+        '<ul class="ci-exec-action-list">',
+          '<li>Verify your ISRC is registered with your PRO and distributor.</li>',
+          '<li>Confirm release metadata matches across all active DSPs.</li>',
+          '<li>Contact your distributor if any release information is incorrect.</li>',
+        '</ul>',
+      '</div>',
+    ].join('');
+  } else if (type === 'metadata') {
+    panelTitle.textContent = 'Metadata Integrity Details';
+    panelBody.innerHTML = [
+      '<div class="pi-athena-section">',
+        '<div class="pi-athena-section-label">What Is Metadata Integrity?</div>',
+        '<div class="pi-athena-section-body">Metadata integrity measures how completely and accurately your releases are tagged across critical fields — title, artist name, ISRC, UPC, genre, artwork, credits, and more. Each field plays a direct role in how your music is identified and paid.</div>',
+      '</div>',
+      '<div class="pi-athena-section">',
+        '<div class="pi-athena-section-label">ISRC Coverage Gap</div>',
+        '<div class="pi-athena-section-body">One track in your catalog does not have an ISRC assigned. ISRCs are the primary recording identifier used by DSPs, PROs, and mechanical licensing organizations to match streams to royalty payments.</div>',
+      '</div>',
+      '<div class="ci-exec-closing-section">',
+        '<div class="ci-exec-closing-label">Why This Matters</div>',
+        '<div class="ci-exec-closing-body">Incomplete metadata creates gaps in how rights organizations and DSPs identify your recordings. A single missing field can cause a track to be excluded from royalty matching — meaning royalties may be collected but never paid to you.</div>',
+      '</div>',
+      '<div class="ci-exec-closing-section">',
+        '<div class="ci-exec-closing-label">Impact on Royalties</div>',
+        '<div class="ci-exec-closing-body">Complete metadata across all fields improves the likelihood that royalties can be correctly identified, matched to your recordings, and administered through DSPs, PROs, and mechanical licensing organizations. Fields like ISRC and credits are especially critical for tracking splits and ownership in multi-contributor works.</div>',
+      '</div>',
+      '<div class="ci-exec-closing-section">',
+        '<div class="ci-exec-closing-label">Recommended Action</div>',
+        '<ul class="ci-exec-action-list">',
+          '<li>Assign the missing ISRC via your distributor or at isrc.org.</li>',
+          '<li>Verify all producer and writer credits are tagged on every track.</li>',
+          '<li>Review your release metadata in your distributor dashboard for discrepancies.</li>',
+        '</ul>',
+      '</div>',
+    ].join('');
   }
-  requestAnimationFrame(step);
-})();
-function ciOpenAthena() {
-  var overlay = document.getElementById('ci-athena-overlay');
+
   overlay.hidden = false;
   overlay.removeAttribute('hidden');
   document.body.style.overflow = 'hidden';
   overlay.querySelector('.pi-athena-close').focus();
 }
-function ciCloseAthena() {
-  var overlay = document.getElementById('ci-athena-overlay');
+
+function ciClosePanel() {
+  var overlay = document.getElementById('ci-detail-overlay');
   overlay.hidden = true;
   document.body.style.overflow = '';
 }
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') ciCloseAthena();
-});
-document.getElementById('ci-athena-overlay').addEventListener('click', function(e) {
-  if (e.target === this) ciCloseAthena();
-});
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') ciClosePanel(); });
+document.getElementById('ci-detail-overlay').addEventListener('click', function(e) { if (e.target === this) ciClosePanel(); });
 </script>
 <script src="/js/rds-preview-console.js" defer></script>
 </body>
