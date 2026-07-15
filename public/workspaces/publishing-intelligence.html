@@ -130,6 +130,39 @@
 @media (max-width: 960px) { .pi-mrp-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .pi-mrp-grid { grid-template-columns: 1fr; } .pi-mrp-header-row { flex-direction: column; } }
 </style>
+  <script>
+  /* DEV FIXTURE — localhost only, never runs on production.
+   * Seeds royalte_workspace_context so the workspace renders without a real scan. */
+  (function () {
+    var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (!isLocal) return;
+    if (sessionStorage.getItem('royalte_workspace_context')) return;
+    sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+      schemaVersion: '1.1',
+      scanId:        'preview-fixture-publishing-001',
+      artistName:    'Prince',
+      scannedAt:     new Date().toISOString(),
+      generatedAt:   new Date().toISOString(),
+      recordLabel:   'Warner Records',
+      musicRightsProfile: {
+        meta: { version: '2.0', completed_at: new Date().toISOString(), last_updated_at: new Date().toISOString() },
+        performing_rights: { pro: 'SOCAN' },
+        publishing: {
+          publishing_management: 'admin',
+          organization_name:     'Paisley Park Music',
+          mlc_registered:        true,
+        },
+      },
+      publishingIntelligence: {
+        coverage:        80,
+        registeredCount: 18,
+        totalChecked:    20,
+        supportedSources: ['mlc', 'ascap', 'socan', 'bmi', 'sesac', 'prs'],
+        metrics: { mlcIswcCount: 16 },
+      },
+    }));
+  }());
+  </script>
   <script src="/js/mc-workspace-context.js"></script>
 </head>
 <body>
@@ -353,7 +386,7 @@
           <div class="pi-mrp-header-row">
             <div class="pi-mrp-title-block">
               <div class="pi-mrp-title">Music Rights Profile™</div>
-              <div class="pi-mrp-tagline">Artist-Verified + Auto-Detected Infrastructure · Private Intelligence Layer™</div>
+              <div class="pi-mrp-tagline">Artist Disclosure + Evidence Verified · Private Intelligence Layer™</div>
             </div>
             <div class="pi-mrp-summary-right">
               <div class="pi-mrp-health-block">
@@ -372,48 +405,51 @@
 
           <div class="pi-mrp-grid" id="pi-mrp-grid">
 
-            <!-- Artist-supplied via onboarding -->
+            <!-- Artist Disclosure — supplied via Music Rights Profile onboarding -->
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">Performing Rights</div>
               <div class="pi-mrp-field-value" id="pi-mrp-pro-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-pro-badge">Profile Source</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-pro-badge">Artist Disclosure</div>
             </div>
 
+            <!-- Board Flag: SoundExchange removed from MRP v2 (PR #330); field has no current source.
+                 Board decision required: remove field, re-add to MRP, or defer. -->
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">SoundExchange</div>
               <div class="pi-mrp-field-value" id="pi-mrp-sx-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-sx-badge">Profile Source</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-sx-badge">Artist Disclosure</div>
             </div>
 
-            <!-- Auto-detected by Royaltē intelligence engines -->
+            <!-- Evidence Verified — sourced from platform metadata (Apple Music, etc.) -->
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">Record Label</div>
               <div class="pi-mrp-field-value" id="pi-mrp-label-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-label-badge">Auto-Detect</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-label-badge">Evidence Verified</div>
             </div>
 
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">Distributor</div>
               <div class="pi-mrp-field-value" id="pi-mrp-dist-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-dist-badge">Auto-Detect</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-dist-badge">Evidence Verified</div>
             </div>
 
+            <!-- Artist Disclosure — sourced from MRP publishing_management + organization_name -->
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">Music Publisher</div>
               <div class="pi-mrp-field-value" id="pi-mrp-publisher-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-publisher-badge">Auto-Detect</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-publisher-badge">Artist Disclosure</div>
             </div>
 
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">Publishing Administrator</div>
               <div class="pi-mrp-field-value" id="pi-mrp-admin-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-admin-badge">Auto-Detect</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-admin-badge">Artist Disclosure</div>
             </div>
 
           </div>
 
           <div class="pi-mrp-footer" id="pi-mrp-footer">
-            Profile Source: artist-verified · Auto-Detect: Royaltē Intelligence™ from Apple Music + MLC
+            Artist Disclosure: artist-supplied · Evidence Verified: Royaltē Intelligence™ from Apple Music + MLC
           </div>
 
         </div>
@@ -642,42 +678,50 @@
     if (badgeLabel !== undefined) badgeEl.textContent = badgeLabel;
   }
 
-  // ── PRO ───────────────────────────────────────────────────────────────────
+  // ── PRO — Artist Disclosure ───────────────────────────────────────────────
   var proVal = pr.pro || null;
   if (proVal && proVal !== 'None') {
-    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', proVal, 'pi-mrp-badge--verified', 'Verified');
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', proVal, 'pi-mrp-badge--verified', 'Artist Disclosure');
   } else if (proVal === 'None') {
-    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', 'Not Registered', 'pi-mrp-badge--none', 'Profile Source');
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', 'Not Registered', 'pi-mrp-badge--none', 'Artist Disclosure');
   } else {
-    // No profile yet — leave default — placeholder state
-    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', '—', 'pi-mrp-badge--unknown', 'Profile Source');
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', '—', 'pi-mrp-badge--unknown', 'Artist Disclosure');
   }
 
-  // ── SoundExchange ─────────────────────────────────────────────────────────
+  // ── SoundExchange — Artist Disclosure ────────────────────────────────────
+  // Board Flag: SoundExchange was removed from MRP v2 (PR #330). pr.soundexchange will
+  // always be null until MRP is updated. Field retained pending Board decision.
   var sxVal = pr.soundexchange || null;
   if (sxVal === 'Yes') {
-    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Registered', 'pi-mrp-badge--verified', 'Verified');
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Registered', 'pi-mrp-badge--verified', 'Artist Disclosure');
   } else if (sxVal === 'No') {
-    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Registered', 'pi-mrp-badge--none', 'Profile Source');
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Registered', 'pi-mrp-badge--none', 'Artist Disclosure');
   } else if (sxVal === 'Unsure') {
-    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Confirmed', 'pi-mrp-badge--none', 'Profile Source');
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Confirmed', 'pi-mrp-badge--none', 'Artist Disclosure');
   } else {
-    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', '—', 'pi-mrp-badge--unknown', 'Profile Source');
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', '—', 'pi-mrp-badge--unknown', 'Artist Disclosure');
   }
 
-  // ── Record Label (Apple Music) ────────────────────────────────────────────
+  // ── Record Label — Evidence Verified (Apple Music) ───────────────────────
   var labelVal = ctx.recordLabel || null;
   setField('pi-mrp-label-val', 'pi-mrp-label-badge',
-    labelVal || '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+    labelVal || '—', 'pi-mrp-badge--intel', 'Evidence Verified');
 
-  // ── Distributor — pipeline support pending ────────────────────────────────
-  setField('pi-mrp-dist-val', 'pi-mrp-dist-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+  // ── Distributor — Evidence Verified (pipeline support pending) ───────────
+  setField('pi-mrp-dist-val', 'pi-mrp-dist-badge', '—', 'pi-mrp-badge--intel', 'Evidence Verified');
 
-  // ── Music Publisher — pipeline support pending ────────────────────────────
-  setField('pi-mrp-publisher-val', 'pi-mrp-publisher-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+  // ── Music Publisher — Artist Disclosure (from MRP publishing_management / org_name) ─
+  var pub = (mrp && mrp.publishing) ? mrp.publishing : {};
+  var publisherVal = (pub.publishing_management === 'publisher' && pub.organization_name)
+    ? pub.organization_name : null;
+  setField('pi-mrp-publisher-val', 'pi-mrp-publisher-badge',
+    publisherVal || '—', publisherVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
-  // ── Publishing Administrator — pipeline support pending ───────────────────
-  setField('pi-mrp-admin-val', 'pi-mrp-admin-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+  // ── Publishing Administrator — Artist Disclosure (from MRP publishing_management / org_name) ─
+  var adminVal = (pub.publishing_management === 'admin' && pub.organization_name)
+    ? pub.organization_name : null;
+  setField('pi-mrp-admin-val', 'pi-mrp-admin-badge',
+    adminVal || '—', adminVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
   // ── Publishing Health™ Score ──────────────────────────────────────────────
   // Weights (Board-locked): PRO=30, Admin=25, SoundExchange=20, Distributor=15, Publisher=10
