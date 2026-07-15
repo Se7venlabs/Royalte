@@ -254,7 +254,7 @@
             <h1 class="ai-hero-greeting">Good morning, <span data-ai-artist-name>your music business</span>.</h1>
             <p class="ai-hero-analyzed">ATHENA™ has analyzed your complete music business.</p>
             <div class="ai-hero-brief-label">Today's Executive Brief</div>
-            <p class="ai-hero-desc">Your business is <strong data-ai-health-status>strong</strong>. <span class="ai-hero-critical"><span data-ai-risk-count>3</span> critical issues</span> require attention. <span class="ai-hero-opportunity"><span data-ai-opportunity-count>7</span> high-impact opportunities</span> identified.</p>
+            <p class="ai-hero-desc">ATHENA has identified <span class="ai-hero-critical"><span data-ai-risk-count>3</span> critical issues</span> requiring immediate attention.</p>
             <div class="ai-hero-reading-row">
               <div class="ai-hero-reading-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -429,7 +429,7 @@
 
         <!-- § 2 — EXECUTIVE RECOMMENDATIONS™ ──────────────────────── -->
         <div class="ai-rec-section">
-          <div class="ai-section-eyebrow">Executive Recommendations™</div>
+          <div class="ai-section-eyebrow">Executive Actions™</div>
           <div class="ai-rec-grid" id="ai-rec-grid" data-ai-state="loading">
             <div class="ai-intel-loading" style="grid-column:1/-1">
               <div class="ai-intel-loading-dots">
@@ -437,7 +437,7 @@
                 <span class="ai-intel-loading-dot"></span>
                 <span class="ai-intel-loading-dot"></span>
               </div>
-              <div class="ai-intel-loading-label">Analyzing recommendations</div>
+              <div class="ai-intel-loading-label">Analyzing actions</div>
             </div>
           </div><!-- /ai-rec-grid -->
         </div><!-- /ai-rec-section -->
@@ -447,7 +447,7 @@
 
         <div class="ai-priorities-section">
           <div class="ai-forecast-eyebrow-row">
-            <div class="ai-section-eyebrow">Business Priorities™</div>
+            <div class="ai-section-eyebrow">Priority Roadmap™</div>
             <div class="ai-forecast-period">Next 30 Days</div>
           </div>
           <div class="ai-priorities-list" id="ai-priorities-list" data-ai-state="loading">
@@ -484,15 +484,15 @@
           </div>
           <div class="ai-forecast-metrics">
             <div class="ai-forecast-metric">
-              <div class="ai-forecast-metric-key">Health Score</div>
+              <div class="ai-forecast-metric-key">Confidence Score™</div>
               <div class="ai-forecast-metric-val ai-forecast-metric-val--green" data-ai-metric-score>—</div>
             </div>
             <div class="ai-forecast-metric">
-              <div class="ai-forecast-metric-key">Grade</div>
+              <div class="ai-forecast-metric-key">Evidence Coverage™</div>
               <div class="ai-forecast-metric-val ai-forecast-metric-val--cyan" data-ai-metric-grade>—</div>
             </div>
             <div class="ai-forecast-metric">
-              <div class="ai-forecast-metric-key">Open Risks</div>
+              <div class="ai-forecast-metric-key">Open Risks™</div>
               <div class="ai-forecast-metric-val ai-forecast-metric-val--purple" data-ai-metric-risks>—</div>
             </div>
             <div class="ai-forecast-metric">
@@ -512,6 +512,29 @@
   </div><!-- /ws-content -->
 
 </div><!-- /ws-shell -->
+
+<!-- ATHENA Executive Action Detail Panel -->
+<div id="ai-action-detail-overlay" class="pi-athena-overlay" role="dialog" aria-modal="true" aria-labelledby="ai-action-detail-title" hidden>
+  <div class="pi-athena-panel" role="document">
+    <div class="pi-athena-header">
+      <div class="pi-athena-brand">
+        <div class="pi-athena-logo" aria-hidden="true">ē</div>
+        <div class="pi-athena-brand-text">
+          <div class="pi-athena-eyebrow">ATHENA</div>
+          <div class="pi-athena-wordmark" id="ai-action-detail-title">Executive Action™</div>
+        </div>
+      </div>
+      <button class="pi-athena-close" onclick="aiCloseActionDetail()" aria-label="Close action detail">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="pi-athena-body" id="ai-action-detail-body">
+      <!-- populated by aiOpenActionDetail() -->
+    </div>
+  </div>
+</div>
 
 <script src="/js/mc-intelligence-utils.js"></script>
 <script>
@@ -691,11 +714,28 @@
 
   allObs.sort(function (a, b) { return sevRank(b.severity) - sevRank(a.severity); });
 
-  // ── Recommendations (max 4) ─────────────────────────────────
+  // ── Impact statements per badge (Executive Closing Standard) ──
+  var IMPACT_STATEMENTS = {
+    critical:    'Resolving this issue improves the likelihood that publishing royalties — performance, mechanical, and sync — can be correctly identified, administered, and paid.',
+    identity:    "A stronger identity profile improves Royaltē's ability to link your catalog across platforms, increasing confidence in ownership verification and royalty matching.",
+    metadata:    'Complete and accurate metadata improves the likelihood that your recordings are correctly matched to streaming events, broadcast logs, and licensing data.',
+    opportunity: 'Completing this action improves your coverage across evidence domains, increasing the overall confidence of your Canonical Record.',
+  };
+
+  // ── Recommendations / Executive Actions (max 4) ────────────
   var recommendations = allObs.slice(0, 4).map(function (obs) {
-    var badge = badgeFor(obs);
-    var desc  = (obs.observationId && paMap[obs.observationId]) || obs.description || obs.title || '';
-    return { badge: badge, badgeLabel: badgeLabelFor(badge), title: obs.title || '', description: desc };
+    var badge      = badgeFor(obs);
+    var whyMatters = obs.description || obs.title || '';
+    var action     = (obs.observationId && paMap[obs.observationId]) || obs.description || '';
+    return {
+      badge:      badge,
+      badgeLabel: badgeLabelFor(badge),
+      title:      obs.title || '',
+      description: action || whyMatters,
+      whyMatters:  whyMatters,
+      impact:      IMPACT_STATEMENTS[badge] || IMPACT_STATEMENTS.opportunity,
+      action:      action,
+    };
   });
 
   // ── Priority list (max 5) ───────────────────────────────────
@@ -781,7 +821,9 @@
 
   function renderRecCard(rec) {
     var icon = BADGE_SVG[rec.badge] || BADGE_SVG.metadata;
-    return '<div class="ai-rec-card">'
+    var detail = { title: rec.title, badge: rec.badge, badgeLabel: rec.badgeLabel, whyMatters: rec.whyMatters, impact: rec.impact, action: rec.action };
+    var detailAttr = JSON.stringify(detail).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return '<div class="ai-rec-card" role="button" tabindex="0" style="cursor:pointer;" onclick="aiOpenActionDetail(this)" onkeydown="if(event.key===\'Enter\'||event.key===\' \')aiOpenActionDetail(this)" data-ai-action-detail="' + detailAttr + '">'
       + '<div class="ai-rec-badge-row">'
       +   '<div class="ai-rec-badge-icon ai-rec-badge-icon--' + rec.badge + '" aria-hidden="true">' + icon + '</div>'
       +   '<span class="ai-rec-badge ai-rec-badge--' + rec.badge + '">' + esc(rec.badgeLabel) + '</span>'
@@ -793,7 +835,7 @@
       +     '<span class="ai-rec-meta-key">Priority</span>'
       +     '<span class="ai-rec-meta-val ai-rec-meta-val--' + rec.badge + '">' + esc(rec.badgeLabel) + '</span>'
       +   '</div>'
-      +   '<div class="ai-rec-arrow" aria-hidden="true">→</div>'
+      +   '<div class="ai-rec-arrow">View Details →</div>'
       + '</div>'
       + '</div>';
   }
@@ -882,11 +924,11 @@
   setText('[data-ai-risk-count]',        pm.riskCount);
   setText('[data-ai-opportunity-count]', pm.opportunityCount);
 
-  // Executive Recommendations™ — always write; pm.recGridHtml is live content or empty state
+  // Executive Actions™ — always write; pm.recGridHtml is live content or empty state
   var recGrid = document.getElementById('ai-rec-grid');
   if (recGrid) { recGrid.removeAttribute('data-ai-state'); recGrid.innerHTML = pm.recGridHtml; }
 
-  // Business Priorities™ — always write; pm.priorityListHtml is live content or empty state
+  // Priority Roadmap™ — always write; pm.priorityListHtml is live content or empty state
   var prioList = document.getElementById('ai-priorities-list');
   if (prioList) { prioList.removeAttribute('data-ai-state'); prioList.innerHTML = pm.priorityListHtml; }
 
@@ -902,6 +944,60 @@
   setText('[data-ai-metric-opportunities]', pm.metricOpportunities);
 
 }());
+
+/* Royaltē AI™ — Executive Action Detail Panel */
+window.aiOpenActionDetail = function (el) {
+  var card = (el && el.closest) ? el.closest('[data-ai-action-detail]') : el;
+  var raw  = card && card.getAttribute('data-ai-action-detail');
+  if (!raw) return;
+  var detail;
+  try { detail = JSON.parse(raw); } catch (e) { return; }
+
+  document.getElementById('ai-action-detail-title').textContent = detail.title || 'Executive Action™';
+
+  var html = '';
+  if (detail.whyMatters) {
+    html += '<div class="pi-athena-section">'
+      + '<div class="pi-athena-section-label">Why This Matters</div>'
+      + '<div class="pi-athena-section-body">' + _escDetail(detail.whyMatters) + '</div>'
+      + '</div>';
+  }
+  if (detail.impact) {
+    html += '<div class="pi-athena-section">'
+      + '<div class="pi-athena-section-label">Impact on Royalties</div>'
+      + '<div class="pi-athena-section-body">' + _escDetail(detail.impact) + '</div>'
+      + '</div>';
+  }
+  if (detail.action) {
+    html += '<div class="pi-athena-section">'
+      + '<div class="pi-athena-section-label">Recommended Action</div>'
+      + '<div class="pi-athena-section-body">' + _escDetail(detail.action) + '</div>'
+      + '</div>';
+  }
+  document.getElementById('ai-action-detail-body').innerHTML = html;
+
+  var overlay = document.getElementById('ai-action-detail-overlay');
+  overlay.hidden = false;
+  overlay.removeAttribute('hidden');
+  document.body.style.overflow = 'hidden';
+  overlay.querySelector('.pi-athena-close').focus();
+};
+
+window.aiCloseActionDetail = function () {
+  document.getElementById('ai-action-detail-overlay').hidden = true;
+  document.body.style.overflow = '';
+};
+
+function _escDetail(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') aiCloseActionDetail();
+});
+document.getElementById('ai-action-detail-overlay').addEventListener('click', function (e) {
+  if (e.target === this) aiCloseActionDetail();
+});
 
 /* Royaltē AI™ — No-Context Cleanup
  * Runs unconditionally after the wiring IIFE.
