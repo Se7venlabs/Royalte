@@ -251,16 +251,31 @@
 /* Rights Registrations */
 .pi-reg-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 7px 0;
+  padding: 8px 0;
   border-bottom: 1px solid rgba(138,92,255,0.06);
+  gap: 8px;
 }
 .pi-reg-row:last-child { border-bottom: none; }
-.pi-reg-name { font-size: 12.5px; font-weight: 500; color: rgba(220,215,255,0.82); }
-.pi-reg-status--active       { font-size: 11.5px; font-weight: 700; color: #40f0a0; }
-.pi-reg-status--registered   { font-size: 11.5px; font-weight: 700; color: #8a5cff; }
-.pi-reg-status--not-registered { font-size: 11.5px; color: rgba(132,128,168,0.45); }
+.pi-reg-row-left { display: flex; flex-direction: column; min-width: 0; }
+.pi-reg-category {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(132,128,168,0.48);
+  margin-bottom: 2px;
+}
+.pi-reg-name { font-size: 12.5px; font-weight: 500; color: rgba(220,215,255,0.88); }
+.pi-reg-status--active       { font-size: 11px; font-weight: 700; color: #40f0a0; flex-shrink: 0; padding-top: 10px; }
+.pi-reg-status--registered   { font-size: 11px; font-weight: 700; color: #8a5cff; flex-shrink: 0; padding-top: 10px; }
+.pi-reg-empty {
+  font-size: 11.5px;
+  color: rgba(132,128,168,0.42);
+  line-height: 1.5;
+  padding: 6px 0;
+}
 
 /* Work Registration Status — donut */
 .pi-donut-wrap {
@@ -441,8 +456,6 @@
           socan:         'ACTIVE',
           themlc:        'REGISTERED',
           soundexchange: 'REGISTERED',
-          ascap:         'NOT_REGISTERED',
-          bmi:           'NOT_REGISTERED',
         },
         royaltyChannels: {
           performance:    80,
@@ -765,26 +778,7 @@
             <div class="pi-dd-card">
               <div class="pi-dd-card-title">Rights Registrations</div>
               <div class="pi-dd-card-body" id="pi-dd-registrations">
-                <div class="pi-reg-row">
-                  <span class="pi-reg-name">SOCAN</span>
-                  <span class="pi-reg-status--not-registered">—</span>
-                </div>
-                <div class="pi-reg-row">
-                  <span class="pi-reg-name">The MLC</span>
-                  <span class="pi-reg-status--not-registered">—</span>
-                </div>
-                <div class="pi-reg-row">
-                  <span class="pi-reg-name">SoundExchange</span>
-                  <span class="pi-reg-status--not-registered">—</span>
-                </div>
-                <div class="pi-reg-row">
-                  <span class="pi-reg-name">ASCAP</span>
-                  <span class="pi-reg-status--not-registered">—</span>
-                </div>
-                <div class="pi-reg-row">
-                  <span class="pi-reg-name">BMI</span>
-                  <span class="pi-reg-status--not-registered">—</span>
-                </div>
+                <!-- Dynamically populated by JS from MRP + Official Sources -->
               </div>
               <div class="pi-dd-card-footer">
                 <a class="pi-dd-link" href="#">View All Registrations →</a>
@@ -1185,36 +1179,67 @@
 
   // ── § 4 Publishing Drill-Down™ wiring ───────────────────────────────────
 
-  // Rights Registrations (Royaltē Intelligence™ / Official Source)
-  var REGS = [
-    { key: 'socan',         label: 'SOCAN' },
-    { key: 'themlc',        label: 'The MLC' },
-    { key: 'soundexchange', label: 'SoundExchange' },
-    { key: 'ascap',         label: 'ASCAP' },
-    { key: 'bmi',           label: 'BMI' },
-  ];
-  var regData   = pi && pi.registrations ? pi.registrations : {};
+  // Rights Registrations — dynamic, artist-specific (Artist Disclosure + Official Source)
+  // Only organizations applicable to this artist are displayed. No generic checklists.
+  var regData = pi && pi.registrations ? pi.registrations : {};
+  var regEntries = [];
+
+  // Performance Rights — from MRP PRO (Artist Disclosure; status upgradeable via Official Source)
+  if (proVal && proVal !== 'None') {
+    var proKey   = proVal.toLowerCase().replace(/[^a-z0-9]/g, '');
+    var proStat  = regData[proKey] || 'REGISTERED';
+    regEntries.push({ category: 'Performance Rights', org: proVal, status: proStat });
+  }
+
+  // Mechanical Licensing — The MLC (Artist Disclosure; status upgradeable via Official Source)
+  if (pub.mlc_registered === true) {
+    var mlcStat = regData['themlc'] || 'REGISTERED';
+    regEntries.push({ category: 'Mechanical Licensing', org: 'The MLC', status: mlcStat });
+  }
+
+  // Digital Performance — SoundExchange (Artist Disclosure when available; Official Source when verified)
+  var sxMrp = pr.soundexchange;
+  var sxOff = regData['soundexchange'];
+  if (sxMrp === 'Yes' || sxOff === 'REGISTERED' || sxOff === 'ACTIVE') {
+    regEntries.push({ category: 'Digital Performance', org: 'SoundExchange', status: sxOff || 'REGISTERED' });
+  }
+
+  // Publishing Administration — when artist disclosed an admin (Artist Disclosure)
+  if (pub.publishing_management === 'admin' && pub.organization_name) {
+    regEntries.push({ category: 'Publishing Administration', org: pub.organization_name, status: 'ACTIVE' });
+  }
+
   var regContainer = document.getElementById('pi-dd-registrations');
   if (regContainer) {
     regContainer.innerHTML = '';
-    REGS.forEach(function (r) {
-      var status = regData[r.key] || 'UNKNOWN';
-      var row    = document.createElement('div');
-      row.className = 'pi-reg-row';
-      var nameEl = document.createElement('span');
-      nameEl.className = 'pi-reg-name';
-      nameEl.textContent = r.label;
-      var statEl = document.createElement('span');
-      if (status === 'ACTIVE') {
-        statEl.className = 'pi-reg-status--active'; statEl.textContent = 'Active';
-      } else if (status === 'REGISTERED') {
-        statEl.className = 'pi-reg-status--registered'; statEl.textContent = 'Registered';
-      } else {
-        statEl.className = 'pi-reg-status--not-registered'; statEl.textContent = 'Not Registered';
-      }
-      row.appendChild(nameEl); row.appendChild(statEl);
-      regContainer.appendChild(row);
-    });
+    if (regEntries.length === 0) {
+      var emptyReg = document.createElement('div');
+      emptyReg.className = 'pi-reg-empty';
+      emptyReg.textContent = 'Complete your Music Rights Profile to populate your rights registrations.';
+      regContainer.appendChild(emptyReg);
+    } else {
+      regEntries.forEach(function (e) {
+        var row    = document.createElement('div');
+        row.className = 'pi-reg-row';
+        var left   = document.createElement('div');
+        left.className = 'pi-reg-row-left';
+        var catEl  = document.createElement('div');
+        catEl.className = 'pi-reg-category';
+        catEl.textContent = e.category;
+        var nameEl = document.createElement('div');
+        nameEl.className = 'pi-reg-name';
+        nameEl.textContent = e.org;
+        left.appendChild(catEl); left.appendChild(nameEl);
+        var statEl = document.createElement('span');
+        if (e.status === 'ACTIVE') {
+          statEl.className = 'pi-reg-status--active'; statEl.textContent = 'Active';
+        } else {
+          statEl.className = 'pi-reg-status--registered'; statEl.textContent = 'Registered';
+        }
+        row.appendChild(left); row.appendChild(statEl);
+        regContainer.appendChild(row);
+      });
+    }
   }
 
   // Work Registration Status — donut (Royaltē Intelligence™)
