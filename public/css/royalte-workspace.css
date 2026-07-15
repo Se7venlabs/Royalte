@@ -4745,9 +4745,20 @@ a.ci-function-card:hover .ci-artwork-container {
 .gf-additional-territories { display: none; }
 
 /* Streaming Platforms Legend™ panel — below-map card for tablet + mobile.
- * Floating overlay (.gf-legend, position:absolute) is hidden at ≤1024px;
- * this card replaces it in document flow. Hidden on desktop. */
-.gf-legend-panel          { display: none; }
+ * Floating overlay (.gf-legend, position:absolute) is always hidden;
+ * this panel replaces it in document flow at all breakpoints. */
+.gf-legend-panel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  background: var(--mc-surface-2);
+  border: 1px solid rgba(56,189,248,0.12);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-top: 12px;
+}
 .gf-legend-panel-title    {
   font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
   text-transform: uppercase; color: var(--mc-text-muted); flex-shrink: 0;
@@ -6418,23 +6429,10 @@ a.ci-function-card:hover .ci-artwork-container {
 
 }
 
-/* ─── Global Music Footprint™ — Tablet + Mobile Legend ──────────────── */
-/* ≤1024px: hide floating map overlay, show static card below map.
- * Covers both tablet (641–1024px) and mobile (≤640px) in one rule.    */
-@media (max-width: 1024px) {
-  .ws-dept--global .gf-legend { display: none; }
-  .gf-legend-panel {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px 20px;
-    background: var(--mc-surface-2);
-    border: 1px solid rgba(56,189,248,0.12);
-    border-radius: 10px;
-    padding: 12px 16px;
-  }
-}
+/* ─── Global Music Footprint™ — Legend always below map ─────────────── */
+/* Floating overlay hidden at all breakpoints; panel shows in document
+ * flow beneath the map. Base .gf-legend-panel rule above handles layout. */
+.ws-dept--global .gf-legend { display: none; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    ROYALTĒ OS™ — Mobile Executive Briefing Mode
