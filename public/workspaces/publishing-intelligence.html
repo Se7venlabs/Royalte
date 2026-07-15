@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Publishing Intelligence™ — Royaltē OS</title>
+  <title>Publishing Ecosystem™ — Royaltē OS</title>
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
@@ -129,6 +129,270 @@
 }
 @media (max-width: 960px) { .pi-mrp-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .pi-mrp-grid { grid-template-columns: 1fr; } .pi-mrp-header-row { flex-direction: column; } }
+
+/* ── Publishing Ecosystem™ header health block ──────────────────────────── */
+.pi-exec-health-block {
+  text-align: right;
+  flex-shrink: 0;
+  min-width: 160px;
+}
+.pi-exec-health-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(132,128,168,0.55);
+  margin-bottom: 5px;
+}
+.pi-exec-health-score-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.pi-exec-health-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: #40f0a0;
+  letter-spacing: -0.02em;
+}
+.pi-exec-health-sub {
+  font-size: 10px;
+  color: rgba(132,128,168,0.45);
+  letter-spacing: 0.02em;
+}
+
+/* ── Publishing Drill-Down™ ──────────────────────────────────────────────── */
+.pi-drilldown {
+  background: rgba(10,9,20,0.5);
+  border: 1px solid rgba(138,92,255,0.2);
+  border-radius: 12px;
+  padding: 22px 24px 18px;
+  margin-top: 4px;
+}
+.pi-drilldown-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+.pi-drilldown-title {
+  font-family: var(--mc-font-brand, 'Rajdhani', sans-serif);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8a5cff;
+  margin-bottom: 3px;
+}
+.pi-drilldown-sub {
+  font-size: 12px;
+  color: rgba(132,128,168,0.6);
+  letter-spacing: 0.01em;
+}
+.pi-drilldown-audit-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: rgba(138,92,255,0.08);
+  border: 1px solid rgba(138,92,255,0.28);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(138,92,255,0.9);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transition: background 0.18s;
+}
+.pi-drilldown-audit-btn:hover { background: rgba(138,92,255,0.16); }
+.pi-drilldown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.pi-dd-card {
+  background: rgba(15,13,32,0.7);
+  border: 1px solid rgba(138,92,255,0.12);
+  border-radius: 10px;
+  padding: 16px 16px 14px;
+  display: flex;
+  flex-direction: column;
+}
+.pi-dd-card-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(132,128,168,0.55);
+  margin-bottom: 14px;
+}
+.pi-dd-card-body { flex: 1; }
+.pi-dd-card-footer {
+  border-top: 1px solid rgba(138,92,255,0.1);
+  padding-top: 10px;
+  margin-top: 12px;
+}
+.pi-dd-link {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8a5cff;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+}
+.pi-dd-link:hover { color: #a07cff; }
+
+/* Rights Registrations */
+.pi-reg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(138,92,255,0.06);
+}
+.pi-reg-row:last-child { border-bottom: none; }
+.pi-reg-name { font-size: 12.5px; font-weight: 500; color: rgba(220,215,255,0.82); }
+.pi-reg-status--active       { font-size: 11.5px; font-weight: 700; color: #40f0a0; }
+.pi-reg-status--registered   { font-size: 11.5px; font-weight: 700; color: #8a5cff; }
+.pi-reg-status--not-registered { font-size: 11.5px; color: rgba(132,128,168,0.45); }
+
+/* Work Registration Status — donut */
+.pi-donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.pi-donut-svg-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 90px;
+  height: 90px;
+}
+.pi-donut-svg {
+  width: 90px;
+  height: 90px;
+  transform: rotate(-90deg);
+}
+.pi-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.pi-donut-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: #e8e4f4;
+  line-height: 1;
+}
+.pi-donut-label {
+  font-size: 8px;
+  color: rgba(132,128,168,0.55);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-top: 3px;
+  text-align: center;
+}
+.pi-donut-legend { flex: 1; min-width: 0; }
+.pi-donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: rgba(220,215,255,0.78);
+  margin-bottom: 7px;
+  white-space: nowrap;
+}
+.pi-donut-legend-item:last-child { margin-bottom: 0; }
+.pi-donut-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pi-dot--green  { background: #40f0a0; }
+.pi-dot--purple { background: #8a5cff; }
+.pi-dot--orange { background: #ffc040; }
+.pi-dot--red    { background: #f05060; }
+
+/* Royalty Channels */
+.pi-channel-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 11px;
+}
+.pi-channel-row:last-child { margin-bottom: 0; }
+.pi-channel-label {
+  font-size: 11.5px;
+  color: rgba(220,215,255,0.72);
+  min-width: 88px;
+  flex-shrink: 0;
+}
+.pi-channel-bar-wrap {
+  flex: 1;
+  height: 5px;
+  background: rgba(138,92,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.pi-channel-bar {
+  height: 100%;
+  border-radius: 3px;
+}
+.pi-channel-pct {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: rgba(220,215,255,0.5);
+  min-width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Publishing Entities */
+.pi-entity-item {
+  display: flex;
+  flex-direction: column;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(138,92,255,0.07);
+}
+.pi-entity-item:last-child { border-bottom: none; }
+.pi-entity-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(220,215,255,0.88);
+  margin-bottom: 2px;
+}
+.pi-entity-role {
+  font-size: 10px;
+  color: rgba(132,128,168,0.5);
+  letter-spacing: 0.03em;
+}
+
+/* Drill-Down data note footer */
+.pi-drilldown-note {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(138,92,255,0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 10.5px;
+  color: rgba(132,128,168,0.45);
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 1100px) { .pi-drilldown-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .pi-drilldown-grid { grid-template-columns: 1fr; } }
 </style>
   <script>
   /* DEV FIXTURE — localhost only, never runs on production.
@@ -154,11 +418,28 @@
         },
       },
       publishingIntelligence: {
-        coverage:        80,
-        registeredCount: 18,
-        totalChecked:    20,
-        supportedSources: ['mlc', 'ascap', 'socan', 'bmi', 'sesac', 'prs'],
-        metrics: { mlcIswcCount: 16 },
+        coverage:            80,
+        publishingScore:     78,
+        registeredCount:     16,
+        pendingCount:        2,
+        partialCount:        1,
+        notRegisteredCount:  1,
+        totalChecked:        20,
+        supportedSources:    ['mlc', 'ascap', 'socan', 'bmi', 'sesac', 'prs'],
+        metrics:             { mlcIswcCount: 16 },
+        registrations: {
+          socan:         'ACTIVE',
+          themlc:        'REGISTERED',
+          soundexchange: 'REGISTERED',
+          ascap:         'NOT_REGISTERED',
+          bmi:           'NOT_REGISTERED',
+        },
+        royaltyChannels: {
+          performance:    80,
+          mechanical:     70,
+          digital:        90,
+          synchronization: 40,
+        },
       },
     }));
   }());
@@ -211,8 +492,8 @@
           <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
         </span>
         <span>
-          <span class="mc-nav-label">Publishing Intelligence</span>
-          <div class="mc-nav-sub">Your Works</div>
+          <span class="mc-nav-label">Publishing Ecosystem™</span>
+          <div class="mc-nav-sub">Your Rights</div>
         </span>
       </a>
       <a class="mc-nav-item" href="/workspaces/catalog-intelligence.html">
@@ -278,7 +559,7 @@
       <span class="ws-breadcrumb-sep">/</span>
       <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
       <span class="ws-breadcrumb-sep">/</span>
-      <span class="ws-breadcrumb-current pi-breadcrumb-current">Publishing Intelligence™</span>
+      <span class="ws-breadcrumb-current pi-breadcrumb-current">Publishing Ecosystem™</span>
     </header>
 
     <div class="ws-body" style="opacity:0;transition:opacity .15s ease">
@@ -294,20 +575,23 @@
             </div>
           </div>
           <div class="pi-exec-title-block">
-            <div class="pi-exec-eyebrow">Publishing Intelligence™</div>
-            <h1 class="pi-exec-heading">Publishing Intelligence™</h1>
-            <div class="pi-exec-desc">Monitor your publishing registrations, royalty collection and rights management across your music business.</div>
+            <div class="pi-exec-eyebrow">Publishing Ecosystem™</div>
+            <h1 class="pi-exec-heading">Publishing Ecosystem™</h1>
+            <div class="pi-exec-desc">Your Publishing Rights • Verified Sources • Complete Visibility</div>
             <div class="pi-exec-meta-row">
               <div class="pi-exec-updated">
                 <div class="pi-exec-updated-dot" aria-hidden="true"></div>
-                Last Sync: Today, 9:15 AM
+                Last Updated: —
               </div>
             </div>
           </div>
-          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
-            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
-            Jun 27 – Jul 3, 2026
-            <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down"></use></svg>
+          <div class="pi-exec-health-block">
+            <div class="pi-exec-health-label">Publishing Health™</div>
+            <div class="pi-exec-health-score-row">
+              <span class="pi-exec-health-score" id="pi-exec-health-score">—</span>
+              <div class="pi-mrp-status-badge pi-mrp-status--unknown" id="pi-exec-health-badge">—</div>
+            </div>
+            <div class="pi-exec-health-sub" id="pi-exec-health-updated">—</div>
           </div>
         </div>
 
@@ -386,7 +670,7 @@
           <div class="pi-mrp-header-row">
             <div class="pi-mrp-title-block">
               <div class="pi-mrp-title">Music Rights Profile™</div>
-              <div class="pi-mrp-tagline">Artist Disclosure + Evidence Verified · Private Intelligence Layer™</div>
+              <div class="pi-mrp-tagline">Artist Disclosure • Evidence Verified • Private Intelligence Layer™</div>
             </div>
             <div class="pi-mrp-summary-right">
               <div class="pi-mrp-health-block">
@@ -449,7 +733,7 @@
           </div>
 
           <div class="pi-mrp-footer" id="pi-mrp-footer">
-            Artist Disclosure: artist-supplied · Evidence Verified: Royaltē Intelligence™ from Apple Music + MLC
+            Artist Disclosure: Information provided by you &nbsp;•&nbsp; Evidence Verified: Information confirmed through credible sources
           </div>
 
         </div>
@@ -499,54 +783,170 @@
 
           </div>
 
-          <!-- § 4 — ISWC COVERAGE™ + PUBLISHING ACTIVITY™ side by side -->
-          <div class="pi-bottom-row">
-
-            <!-- ISWC Coverage™ -->
-            <div class="pi-system-card pi-system-card--attention" aria-label="ISWC Coverage — 2 Pending">
-              <div class="pi-system-icon-wrap pi-system-icon-wrap--attention">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-claims"></use></svg>
-              </div>
-              <div class="pi-system-name">ISWC Coverage™</div>
-              <div class="pi-system-sub">International Work Codes</div>
-              <div class="pi-system-badge pi-system-badge--amber">2 Pending</div>
-              <div class="pi-system-works">16 Assigned · 2 Pending</div>
-              <a class="pi-system-action-cta" href="#" target="_blank" rel="noopener noreferrer">View Missing ISWCs →</a>
-            </div>
-
-            <!-- Publishing Activity™ -->
-            <div class="pi-activity-card">
-              <div class="pi-card-header">
-                <svg class="pi-card-header-icon royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg>
-                <div class="pi-card-header-meta">
-                  <div class="pi-card-header-title">Publishing Activity™</div>
-                  <div class="pi-card-header-sub">Recent Publishing Updates</div>
-                </div>
-              </div>
-              <div class="pi-activity-stats" role="list" aria-label="Publishing activity summary">
-                <div class="pi-activity-stat" role="listitem">
-                  <div class="pi-activity-stat-num">3</div>
-                  <div class="pi-activity-stat-label">Registrations</div>
-                  <div class="pi-activity-stat-sub">This Week</div>
-                </div>
-                <div class="pi-activity-stat" role="listitem">
-                  <div class="pi-activity-stat-num">1</div>
-                  <div class="pi-activity-stat-label">Updates</div>
-                  <div class="pi-activity-stat-sub">This Week</div>
-                </div>
-                <div class="pi-activity-stat" role="listitem">
-                  <div class="pi-activity-stat-num">0</div>
-                  <div class="pi-activity-stat-label">Disputes</div>
-                  <div class="pi-activity-stat-sub">This Week</div>
-                </div>
-              </div>
-              <div class="pi-activity-footer">
-                <a class="pi-activity-link" href="/workspaces/monitoring-timeline.html">View Activity →</a>
-              </div>
-            </div>
-
-          </div><!-- /pi-bottom-row -->
         </div>
+
+        <!-- § 4 — PUBLISHING DRILL-DOWN™ ───────────────────────────── -->
+        <div class="pi-drilldown">
+
+          <div class="pi-drilldown-header">
+            <div>
+              <div class="pi-drilldown-title">Publishing Drill-Down™</div>
+              <div class="pi-drilldown-sub">Deep dive into your publishing rights and registrations</div>
+            </div>
+            <a class="pi-drilldown-audit-btn" href="#" aria-label="View full publishing audit">View Full Audit →</a>
+          </div>
+
+          <div class="pi-drilldown-grid">
+
+            <!-- Card 1 — Rights Registrations™ -->
+            <div class="pi-dd-card">
+              <div class="pi-dd-card-title">Rights Registrations</div>
+              <div class="pi-dd-card-body" id="pi-dd-registrations">
+                <div class="pi-reg-row">
+                  <span class="pi-reg-name">SOCAN</span>
+                  <span class="pi-reg-status--not-registered">—</span>
+                </div>
+                <div class="pi-reg-row">
+                  <span class="pi-reg-name">The MLC</span>
+                  <span class="pi-reg-status--not-registered">—</span>
+                </div>
+                <div class="pi-reg-row">
+                  <span class="pi-reg-name">SoundExchange</span>
+                  <span class="pi-reg-status--not-registered">—</span>
+                </div>
+                <div class="pi-reg-row">
+                  <span class="pi-reg-name">ASCAP</span>
+                  <span class="pi-reg-status--not-registered">—</span>
+                </div>
+                <div class="pi-reg-row">
+                  <span class="pi-reg-name">BMI</span>
+                  <span class="pi-reg-status--not-registered">—</span>
+                </div>
+              </div>
+              <div class="pi-dd-card-footer">
+                <a class="pi-dd-link" href="#">View All Registrations →</a>
+              </div>
+            </div>
+
+            <!-- Card 2 — Work Registration Status™ -->
+            <div class="pi-dd-card">
+              <div class="pi-dd-card-title">Work Registration Status</div>
+              <div class="pi-dd-card-body">
+                <div class="pi-donut-wrap">
+                  <div class="pi-donut-svg-wrap">
+                    <!-- Donut segments wired by JS; static circumference for r=35: 219.9 -->
+                    <svg class="pi-donut-svg" viewBox="0 0 90 90" aria-hidden="true">
+                      <!-- Track -->
+                      <circle cx="45" cy="45" r="35" fill="none"
+                        stroke="rgba(138,92,255,0.08)" stroke-width="10"/>
+                      <!-- Registered (green) -->
+                      <circle id="pi-donut-seg-registered" cx="45" cy="45" r="35" fill="none"
+                        stroke="#40f0a0" stroke-width="10"
+                        stroke-dasharray="0 219.9" stroke-linecap="butt"/>
+                      <!-- Pending (purple) -->
+                      <circle id="pi-donut-seg-pending" cx="45" cy="45" r="35" fill="none"
+                        stroke="#8a5cff" stroke-width="10"
+                        stroke-dasharray="0 219.9" stroke-linecap="butt"/>
+                      <!-- Partial (orange) -->
+                      <circle id="pi-donut-seg-partial" cx="45" cy="45" r="35" fill="none"
+                        stroke="#ffc040" stroke-width="10"
+                        stroke-dasharray="0 219.9" stroke-linecap="butt"/>
+                      <!-- Not Registered (red) -->
+                      <circle id="pi-donut-seg-notreg" cx="45" cy="45" r="35" fill="none"
+                        stroke="#f05060" stroke-width="10"
+                        stroke-dasharray="0 219.9" stroke-linecap="butt"/>
+                    </svg>
+                    <div class="pi-donut-center">
+                      <div class="pi-donut-num" id="pi-donut-total">—</div>
+                      <div class="pi-donut-label">Total Works</div>
+                    </div>
+                  </div>
+                  <div class="pi-donut-legend">
+                    <div class="pi-donut-legend-item">
+                      <span class="pi-donut-dot pi-dot--green"></span>
+                      <span id="pi-donut-registered-label">— Registered</span>
+                    </div>
+                    <div class="pi-donut-legend-item">
+                      <span class="pi-donut-dot pi-dot--purple"></span>
+                      <span id="pi-donut-pending-label">— Pending</span>
+                    </div>
+                    <div class="pi-donut-legend-item">
+                      <span class="pi-donut-dot pi-dot--orange"></span>
+                      <span id="pi-donut-partial-label">— Partial</span>
+                    </div>
+                    <div class="pi-donut-legend-item">
+                      <span class="pi-donut-dot pi-dot--red"></span>
+                      <span id="pi-donut-notreg-label">— Not Registered</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pi-dd-card-footer">
+                <a class="pi-dd-link" href="#">View Work Details →</a>
+              </div>
+            </div>
+
+            <!-- Card 3 — Royalty Channels™ -->
+            <div class="pi-dd-card">
+              <div class="pi-dd-card-title">Royalty Channels</div>
+              <div class="pi-dd-card-body" id="pi-dd-channels">
+                <div class="pi-channel-row">
+                  <span class="pi-channel-label">Performance</span>
+                  <div class="pi-channel-bar-wrap">
+                    <div class="pi-channel-bar" id="pi-chan-performance" style="width:0%;background:#40f0a0"></div>
+                  </div>
+                  <span class="pi-channel-pct" id="pi-chan-performance-pct">—</span>
+                </div>
+                <div class="pi-channel-row">
+                  <span class="pi-channel-label">Mechanical</span>
+                  <div class="pi-channel-bar-wrap">
+                    <div class="pi-channel-bar" id="pi-chan-mechanical" style="width:0%;background:#8a5cff"></div>
+                  </div>
+                  <span class="pi-channel-pct" id="pi-chan-mechanical-pct">—</span>
+                </div>
+                <div class="pi-channel-row">
+                  <span class="pi-channel-label">Digital</span>
+                  <div class="pi-channel-bar-wrap">
+                    <div class="pi-channel-bar" id="pi-chan-digital" style="width:0%;background:#40d0f0"></div>
+                  </div>
+                  <span class="pi-channel-pct" id="pi-chan-digital-pct">—</span>
+                </div>
+                <div class="pi-channel-row">
+                  <span class="pi-channel-label">Synchronization</span>
+                  <div class="pi-channel-bar-wrap">
+                    <div class="pi-channel-bar" id="pi-chan-sync" style="width:0%;background:#ffc040"></div>
+                  </div>
+                  <span class="pi-channel-pct" id="pi-chan-sync-pct">—</span>
+                </div>
+              </div>
+              <div class="pi-dd-card-footer">
+                <a class="pi-dd-link" href="#">View Channel Analysis →</a>
+              </div>
+            </div>
+
+            <!-- Card 4 — Publishing Entities™ -->
+            <div class="pi-dd-card">
+              <div class="pi-dd-card-title">Publishing Entities</div>
+              <div class="pi-dd-card-body" id="pi-dd-entities">
+                <!-- Wired by JS from MRP + ctx -->
+              </div>
+              <div class="pi-dd-card-footer">
+                <a class="pi-dd-link" href="#">View Entity Relationships →</a>
+              </div>
+            </div>
+
+          </div><!-- /pi-drilldown-grid -->
+
+          <div class="pi-drilldown-note">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+              <circle cx="6.5" cy="6.5" r="6" stroke="rgba(132,128,168,0.4)" stroke-width="1"/>
+              <line x1="6.5" y1="5.5" x2="6.5" y2="9.5" stroke="rgba(132,128,168,0.4)" stroke-width="1.2" stroke-linecap="round"/>
+              <circle cx="6.5" cy="3.8" r="0.6" fill="rgba(132,128,168,0.4)"/>
+            </svg>
+            Publishing data is aggregated from multiple sources and updated continuously.
+          </div>
+
+        </div><!-- /pi-drilldown -->
 
       </div><!-- /hi-main -->
 
@@ -786,6 +1186,160 @@
     if (proVal && proVal !== 'None') proCapEl.textContent = proVal + ' — Primary Society';
     else proCapEl.textContent = 'No PRO Registered';
   }
+
+  // ── Header health block ───────────────────────────────────────────────────
+  var pubScore  = pi ? (pi.publishingScore || score || 0) : score;
+  var hScoreEl  = document.getElementById('pi-exec-health-score');
+  var hBadgeEl  = document.getElementById('pi-exec-health-badge');
+  var hUpdEl    = document.getElementById('pi-exec-health-updated');
+  var updEl2    = document.querySelector('.pi-exec-updated');
+  if (hScoreEl) hScoreEl.textContent = mrp || pi ? String(pubScore) : '—';
+  if (hBadgeEl && (mrp || pi)) {
+    hBadgeEl.className = 'pi-mrp-status-badge';
+    if (pubScore >= 80)      { hBadgeEl.classList.add('pi-mrp-status--optimized'); hBadgeEl.textContent = 'Optimized'; }
+    else if (pubScore >= 60) { hBadgeEl.classList.add('pi-mrp-status--partial');   hBadgeEl.textContent = 'Strong'; }
+    else if (pubScore >= 40) { hBadgeEl.classList.add('pi-mrp-status--partial');   hBadgeEl.textContent = 'Partial'; }
+    else                     { hBadgeEl.classList.add('pi-mrp-status--needs');     hBadgeEl.textContent = 'Needs Attention'; }
+  }
+  var syncTs = ctx.scannedAt || ctx.generatedAt;
+  if (hUpdEl && syncTs) {
+    try {
+      var d = new Date(syncTs);
+      hUpdEl.textContent = 'Last Updated: ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    } catch(_) {}
+  }
+  if (updEl2) {
+    var dot2 = updEl2.querySelector('.pi-exec-updated-dot');
+    updEl2.textContent = (syncTs ? hUpdEl && hUpdEl.textContent : 'Last Updated: —');
+    if (dot2) updEl2.insertBefore(dot2, updEl2.firstChild);
+  }
+
+  // ── § 4 Publishing Drill-Down™ wiring ───────────────────────────────────
+
+  // Rights Registrations (Royaltē Intelligence™ / Official Source)
+  var REGS = [
+    { key: 'socan',         label: 'SOCAN' },
+    { key: 'themlc',        label: 'The MLC' },
+    { key: 'soundexchange', label: 'SoundExchange' },
+    { key: 'ascap',         label: 'ASCAP' },
+    { key: 'bmi',           label: 'BMI' },
+  ];
+  var regData   = pi && pi.registrations ? pi.registrations : {};
+  var regContainer = document.getElementById('pi-dd-registrations');
+  if (regContainer) {
+    regContainer.innerHTML = '';
+    REGS.forEach(function (r) {
+      var status = regData[r.key] || 'UNKNOWN';
+      var row    = document.createElement('div');
+      row.className = 'pi-reg-row';
+      var nameEl = document.createElement('span');
+      nameEl.className = 'pi-reg-name';
+      nameEl.textContent = r.label;
+      var statEl = document.createElement('span');
+      if (status === 'ACTIVE') {
+        statEl.className = 'pi-reg-status--active'; statEl.textContent = 'Active';
+      } else if (status === 'REGISTERED') {
+        statEl.className = 'pi-reg-status--registered'; statEl.textContent = 'Registered';
+      } else {
+        statEl.className = 'pi-reg-status--not-registered'; statEl.textContent = 'Not Registered';
+      }
+      row.appendChild(nameEl); row.appendChild(statEl);
+      regContainer.appendChild(row);
+    });
+  }
+
+  // Work Registration Status — donut (Royaltē Intelligence™)
+  var total    = pi ? (pi.totalChecked || 0) : 0;
+  var regCount = pi ? (pi.registeredCount || 0) : 0;
+  var pendCount= pi ? (pi.pendingCount || 0) : 0;
+  var partCount= pi ? (pi.partialCount || 0) : 0;
+  var nrCount  = pi ? (pi.notRegisteredCount || 0) : 0;
+  var C = 219.9; // circumference for r=35
+
+  function donutSeg(id, count, offset) {
+    var el = document.getElementById(id);
+    if (!el || !total) return offset;
+    var len = (count / total) * C;
+    el.style.strokeDasharray = len.toFixed(1) + ' ' + C;
+    el.style.strokeDashoffset = '-' + offset.toFixed(1);
+    return offset + len;
+  }
+  var off = 0;
+  off = donutSeg('pi-donut-seg-registered', regCount,  off);
+  off = donutSeg('pi-donut-seg-pending',    pendCount,  off);
+  off = donutSeg('pi-donut-seg-partial',    partCount,  off);
+       donutSeg('pi-donut-seg-notreg',     nrCount,    off);
+
+  var dtEl = document.getElementById('pi-donut-total');
+  if (dtEl) dtEl.textContent = total > 0 ? String(total) : '—';
+  function setLegend(id, n, label) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = (total > 0 ? String(n) : '—') + ' ' + label;
+  }
+  setLegend('pi-donut-registered-label', regCount,  'Registered');
+  setLegend('pi-donut-pending-label',    pendCount,  'Pending');
+  setLegend('pi-donut-partial-label',    partCount,  'Partial');
+  setLegend('pi-donut-notreg-label',     nrCount,    'Not Registered');
+
+  // Royalty Channels (Royaltē Intelligence™)
+  var ch = pi && pi.royaltyChannels ? pi.royaltyChannels : {};
+  function setChan(barId, pctId, val) {
+    var b = document.getElementById(barId);
+    var p = document.getElementById(pctId);
+    var v = val != null ? Math.min(100, Math.max(0, val)) : 0;
+    if (b) b.style.width = v + '%';
+    if (p) p.textContent = val != null ? v + '%' : '—';
+  }
+  setChan('pi-chan-performance', 'pi-chan-performance-pct', ch.performance);
+  setChan('pi-chan-mechanical',  'pi-chan-mechanical-pct',  ch.mechanical);
+  setChan('pi-chan-digital',     'pi-chan-digital-pct',     ch.digital);
+  setChan('pi-chan-sync',        'pi-chan-sync-pct',        ch.synchronization);
+
+  // Publishing Entities (Artist Disclosure + Evidence Verified)
+  var entitiesEl = document.getElementById('pi-dd-entities');
+  if (entitiesEl) {
+    entitiesEl.innerHTML = '';
+    var entities = [];
+    // Publishing Administrator — Artist Disclosure
+    var pubData = (mrp && mrp.publishing) ? mrp.publishing : {};
+    if (pubData.publishing_management === 'admin' && pubData.organization_name) {
+      entities.push({ name: pubData.organization_name, role: 'Administrator' });
+    }
+    // Publisher — Artist Disclosure
+    if (pubData.publishing_management === 'publisher' && pubData.organization_name) {
+      entities.push({ name: pubData.organization_name, role: 'Publisher' });
+    }
+    // Record Label — Evidence Verified
+    if (ctx.recordLabel) {
+      entities.push({ name: ctx.recordLabel, role: 'Label' });
+    }
+    // Artist — from context
+    var artistName2 = (ctx.subject && ctx.subject.artistName) || ctx.artistName || null;
+    if (artistName2) {
+      entities.push({ name: artistName2, role: 'Artist' });
+    }
+    if (entities.length === 0) {
+      var emptyEl = document.createElement('div');
+      emptyEl.style.cssText = 'font-size:11.5px;color:rgba(132,128,168,0.45);padding:8px 0';
+      emptyEl.textContent = 'Complete your Music Rights Profile to populate publishing entities.';
+      entitiesEl.appendChild(emptyEl);
+    } else {
+      entities.forEach(function (e) {
+        var item = document.createElement('div');
+        item.className = 'pi-entity-item';
+        var nameEl = document.createElement('div');
+        nameEl.className = 'pi-entity-name';
+        nameEl.textContent = e.name;
+        var roleEl = document.createElement('div');
+        roleEl.className = 'pi-entity-role';
+        roleEl.textContent = e.role;
+        item.appendChild(nameEl); item.appendChild(roleEl);
+        entitiesEl.appendChild(item);
+      });
+    }
+  }
+
 }());
 
 function piOpenAthena() {
