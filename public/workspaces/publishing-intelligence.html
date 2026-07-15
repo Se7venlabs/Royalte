@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Publishing Intelligence™ — Royaltē OS</title>
+  <title>Publishing Ecosystem™ — Royaltē OS</title>
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
@@ -129,7 +129,344 @@
 }
 @media (max-width: 960px) { .pi-mrp-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .pi-mrp-grid { grid-template-columns: 1fr; } .pi-mrp-header-row { flex-direction: column; } }
+
+/* ── Publishing Ecosystem™ header health block ──────────────────────────── */
+.pi-exec-health-block {
+  text-align: right;
+  flex-shrink: 0;
+  min-width: 160px;
+}
+.pi-exec-health-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(132,128,168,0.55);
+  margin-bottom: 5px;
+}
+.pi-exec-health-score-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.pi-exec-health-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: #40f0a0;
+  letter-spacing: -0.02em;
+}
+.pi-exec-health-sub {
+  font-size: 10px;
+  color: rgba(132,128,168,0.45);
+  letter-spacing: 0.02em;
+}
+
+/* ── Publishing Drill-Down™ ──────────────────────────────────────────────── */
+.pi-drilldown {
+  background: rgba(10,9,20,0.5);
+  border: 1px solid rgba(138,92,255,0.2);
+  border-radius: 12px;
+  padding: 22px 24px 18px;
+  margin-top: 4px;
+}
+.pi-drilldown-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+.pi-drilldown-title {
+  font-family: var(--mc-font-brand, 'Rajdhani', sans-serif);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8a5cff;
+  margin-bottom: 3px;
+}
+.pi-drilldown-sub {
+  font-size: 12px;
+  color: rgba(132,128,168,0.6);
+  letter-spacing: 0.01em;
+}
+.pi-drilldown-audit-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: rgba(138,92,255,0.08);
+  border: 1px solid rgba(138,92,255,0.28);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(138,92,255,0.9);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transition: background 0.18s;
+}
+.pi-drilldown-audit-btn:hover { background: rgba(138,92,255,0.16); }
+.pi-drilldown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.pi-dd-card {
+  background: rgba(15,13,32,0.7);
+  border: 1px solid rgba(138,92,255,0.12);
+  border-radius: 10px;
+  padding: 16px 16px 14px;
+  display: flex;
+  flex-direction: column;
+}
+.pi-dd-card-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(132,128,168,0.55);
+  margin-bottom: 14px;
+}
+.pi-dd-card-body { flex: 1; }
+.pi-dd-card-footer {
+  border-top: 1px solid rgba(138,92,255,0.1);
+  padding-top: 10px;
+  margin-top: 12px;
+}
+.pi-dd-link {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8a5cff;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+}
+.pi-dd-link:hover { color: #a07cff; }
+
+/* Rights Registrations */
+.pi-reg-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(138,92,255,0.06);
+  gap: 8px;
+}
+.pi-reg-row:last-child { border-bottom: none; }
+.pi-reg-row-left { display: flex; flex-direction: column; min-width: 0; }
+.pi-reg-category {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(132,128,168,0.48);
+  margin-bottom: 2px;
+}
+.pi-reg-name { font-size: 12.5px; font-weight: 500; color: rgba(220,215,255,0.88); }
+.pi-reg-status--active       { font-size: 11px; font-weight: 700; color: #40f0a0; flex-shrink: 0; padding-top: 10px; }
+.pi-reg-status--registered   { font-size: 11px; font-weight: 700; color: #8a5cff; flex-shrink: 0; padding-top: 10px; }
+.pi-reg-empty {
+  font-size: 11.5px;
+  color: rgba(132,128,168,0.42);
+  line-height: 1.5;
+  padding: 6px 0;
+}
+
+/* Work Registration Status — donut */
+.pi-donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.pi-donut-svg-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 90px;
+  height: 90px;
+}
+.pi-donut-svg {
+  width: 90px;
+  height: 90px;
+  transform: rotate(-90deg);
+}
+.pi-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.pi-donut-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: #e8e4f4;
+  line-height: 1;
+}
+.pi-donut-label {
+  font-size: 8px;
+  color: rgba(132,128,168,0.55);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-top: 3px;
+  text-align: center;
+}
+.pi-donut-legend { flex: 1; min-width: 0; }
+.pi-donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: rgba(220,215,255,0.78);
+  margin-bottom: 7px;
+  white-space: nowrap;
+}
+.pi-donut-legend-item:last-child { margin-bottom: 0; }
+.pi-donut-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pi-dot--green  { background: #40f0a0; }
+.pi-dot--purple { background: #8a5cff; }
+.pi-dot--orange { background: #ffc040; }
+.pi-dot--red    { background: #f05060; }
+
+/* Royalty Channels */
+.pi-channel-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 11px;
+}
+.pi-channel-row:last-child { margin-bottom: 0; }
+.pi-channel-label {
+  font-size: 11.5px;
+  color: rgba(220,215,255,0.72);
+  min-width: 88px;
+  flex-shrink: 0;
+}
+.pi-channel-bar-wrap {
+  flex: 1;
+  height: 5px;
+  background: rgba(138,92,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.pi-channel-bar {
+  height: 100%;
+  border-radius: 3px;
+}
+.pi-channel-pct {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: rgba(220,215,255,0.5);
+  min-width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Publishing Entities */
+.pi-entity-item {
+  display: flex;
+  flex-direction: column;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(138,92,255,0.07);
+}
+.pi-entity-item:last-child { border-bottom: none; }
+.pi-entity-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(220,215,255,0.88);
+  margin-bottom: 2px;
+}
+.pi-entity-role {
+  font-size: 10px;
+  color: rgba(132,128,168,0.5);
+  letter-spacing: 0.03em;
+}
+
+/* Drill-Down data note footer */
+.pi-drilldown-note {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(138,92,255,0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 10.5px;
+  color: rgba(132,128,168,0.45);
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 1100px) { .pi-drilldown-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .pi-drilldown-grid { grid-template-columns: 1fr; } }
 </style>
+  <script>
+  /* DEV FIXTURE — activates on localhost and Vercel preview deployments only.
+   * Seeds royalte_workspace_context so the workspace renders without a real scan.
+   * Will NOT overwrite real (non-fixture) scan data. */
+  (function () {
+    var host = location.hostname;
+    var isLocal   = host === 'localhost' || host === '127.0.0.1';
+    var isPreview = host.endsWith('.vercel.app');
+    if (!isLocal && !isPreview) return;
+    // Skip only if real scan data (non-fixture) already exists
+    var existing = sessionStorage.getItem('royalte_workspace_context');
+    if (existing) {
+      try {
+        var ex = JSON.parse(existing);
+        if (ex.scanId && !String(ex.scanId).startsWith('preview-fixture-')) return;
+      } catch (_) {}
+    }
+    sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+      schemaVersion: '1.1',
+      scanId:        'preview-fixture-publishing-001',
+      artistName:    'Prince',
+      scannedAt:     new Date().toISOString(),
+      generatedAt:   new Date().toISOString(),
+      recordLabel:   'Warner Records',
+      musicRightsProfile: {
+        meta: { version: '2.0', completed_at: new Date().toISOString(), last_updated_at: new Date().toISOString() },
+        performing_rights: { pro: 'SOCAN' },
+        publishing: {
+          publishing_management: 'admin',
+          organization_name:     'Paisley Park Music',
+          mlc_registered:        true,
+        },
+      },
+      publishingIntelligence: {
+        coverage:            80,
+        publishingScore:     78,
+        registeredCount:     16,
+        pendingCount:        2,
+        partialCount:        1,
+        notRegisteredCount:  1,
+        totalChecked:        20,
+        supportedSources:    ['mlc', 'ascap', 'socan', 'bmi', 'sesac', 'prs'],
+        metrics:             { mlcIswcCount: 16 },
+        registrations: {
+          socan:         'ACTIVE',
+          themlc:        'REGISTERED',
+          soundexchange: 'REGISTERED',
+        },
+        royaltyChannels: {
+          performance:    80,
+          mechanical:     70,
+          digital:        90,
+          synchronization: 40,
+        },
+      },
+    }));
+  }());
+  </script>
   <script src="/js/mc-workspace-context.js"></script>
 </head>
 <body>
@@ -178,8 +515,8 @@
           <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
         </span>
         <span>
-          <span class="mc-nav-label">Publishing Intelligence</span>
-          <div class="mc-nav-sub">Your Works</div>
+          <span class="mc-nav-label">Publishing Ecosystem™</span>
+          <div class="mc-nav-sub">Your Rights</div>
         </span>
       </a>
       <a class="mc-nav-item" href="/workspaces/catalog-intelligence.html">
@@ -245,7 +582,7 @@
       <span class="ws-breadcrumb-sep">/</span>
       <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
       <span class="ws-breadcrumb-sep">/</span>
-      <span class="ws-breadcrumb-current pi-breadcrumb-current">Publishing Intelligence™</span>
+      <span class="ws-breadcrumb-current pi-breadcrumb-current">Publishing Ecosystem™</span>
     </header>
 
     <div class="ws-body" style="opacity:0;transition:opacity .15s ease">
@@ -261,20 +598,23 @@
             </div>
           </div>
           <div class="pi-exec-title-block">
-            <div class="pi-exec-eyebrow">Publishing Intelligence™</div>
-            <h1 class="pi-exec-heading">Publishing Intelligence™</h1>
-            <div class="pi-exec-desc">Monitor your publishing registrations, royalty collection and rights management across your music business.</div>
+            <div class="pi-exec-eyebrow">Publishing Ecosystem™</div>
+            <h1 class="pi-exec-heading">Publishing Ecosystem™</h1>
+            <div class="pi-exec-desc">Your Publishing Rights • Verified Sources • Complete Visibility</div>
             <div class="pi-exec-meta-row">
               <div class="pi-exec-updated">
                 <div class="pi-exec-updated-dot" aria-hidden="true"></div>
-                Last Sync: Today, 9:15 AM
+                Last Updated: —
               </div>
             </div>
           </div>
-          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
-            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
-            Jun 27 – Jul 3, 2026
-            <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down"></use></svg>
+          <div class="pi-exec-health-block">
+            <div class="pi-exec-health-label">Publishing Health™</div>
+            <div class="pi-exec-health-score-row">
+              <span class="pi-exec-health-score" id="pi-exec-health-score">—</span>
+              <div class="pi-mrp-status-badge pi-mrp-status--unknown" id="pi-exec-health-badge">—</div>
+            </div>
+            <div class="pi-exec-health-sub" id="pi-exec-health-updated">—</div>
           </div>
         </div>
 
@@ -353,7 +693,7 @@
           <div class="pi-mrp-header-row">
             <div class="pi-mrp-title-block">
               <div class="pi-mrp-title">Music Rights Profile™</div>
-              <div class="pi-mrp-tagline">Artist-Verified + Auto-Detected Infrastructure · Private Intelligence Layer™</div>
+              <div class="pi-mrp-tagline">Artist Disclosure • Evidence Verified • Private Intelligence Layer™</div>
             </div>
             <div class="pi-mrp-summary-right">
               <div class="pi-mrp-health-block">
@@ -372,145 +712,198 @@
 
           <div class="pi-mrp-grid" id="pi-mrp-grid">
 
-            <!-- Artist-supplied via onboarding -->
+            <!-- Artist Disclosure — supplied via Music Rights Profile onboarding -->
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">Performing Rights</div>
               <div class="pi-mrp-field-value" id="pi-mrp-pro-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-pro-badge">Profile Source</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-pro-badge">Artist Disclosure</div>
             </div>
 
+            <!-- Board Flag: SoundExchange removed from MRP v2 (PR #330); field has no current source.
+                 Board decision required: remove field, re-add to MRP, or defer. -->
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">SoundExchange</div>
               <div class="pi-mrp-field-value" id="pi-mrp-sx-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-sx-badge">Profile Source</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-sx-badge">Artist Disclosure</div>
             </div>
 
-            <!-- Auto-detected by Royaltē intelligence engines -->
+            <!-- Artist Disclosure — MLC registration from MRP (upgraded to Official Source when independently verified) -->
             <div class="pi-mrp-field">
-              <div class="pi-mrp-field-label">Record Label</div>
-              <div class="pi-mrp-field-value" id="pi-mrp-label-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-label-badge">Auto-Detect</div>
+              <div class="pi-mrp-field-label">The MLC</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-mlc-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-mlc-badge">Artist Disclosure</div>
             </div>
 
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">Distributor</div>
               <div class="pi-mrp-field-value" id="pi-mrp-dist-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-dist-badge">Auto-Detect</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-dist-badge">Evidence Verified</div>
             </div>
 
+            <!-- Artist Disclosure — sourced from MRP publishing_management + organization_name -->
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">Music Publisher</div>
               <div class="pi-mrp-field-value" id="pi-mrp-publisher-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-publisher-badge">Auto-Detect</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-publisher-badge">Artist Disclosure</div>
             </div>
 
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">Publishing Administrator</div>
               <div class="pi-mrp-field-value" id="pi-mrp-admin-val">—</div>
-              <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-admin-badge">Auto-Detect</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-admin-badge">Artist Disclosure</div>
             </div>
 
           </div>
 
           <div class="pi-mrp-footer" id="pi-mrp-footer">
-            Profile Source: artist-verified · Auto-Detect: Royaltē Intelligence™ from Apple Music + MLC
+            Artist Disclosure: Information provided by you &nbsp;•&nbsp; Evidence Verified: Information confirmed through credible sources
           </div>
 
         </div>
 
-        <!-- § 3 — CORE PUBLISHING SYSTEMS ─────────────────────────── -->
-        <div>
-          <div class="pi-section-header">
-            <div class="pi-section-title">Core Publishing Systems™</div>
-          </div>
-          <div class="pi-system-grid">
+        <!-- § 4 — PUBLISHING DRILL-DOWN™ ───────────────────────────── -->
+        <div class="pi-drilldown">
 
-            <!-- The MLC -->
-            <div class="pi-system-card pi-system-card--unknown" aria-label="The MLC — Status Unknown">
-              <div class="pi-system-icon-wrap pi-system-icon-wrap--unknown">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-administration"></use></svg>
-              </div>
-              <div class="pi-system-name">The MLC</div>
-              <div class="pi-system-sub">Mechanical Licensing Collective</div>
-              <div class="pi-system-badge pi-system-badge--unknown">Unknown</div>
-              <div class="pi-system-works">Connection required to verify</div>
-              <a class="pi-system-action-cta pi-system-action-cta--connect" href="https://www.themlc.com" target="_blank" rel="noopener noreferrer">Connect The MLC →</a>
+          <div class="pi-drilldown-header">
+            <div>
+              <div class="pi-drilldown-title">Publishing Drill-Down™</div>
+              <div class="pi-drilldown-sub">Deep dive into your publishing rights and registrations</div>
             </div>
-
-            <!-- Publishing Administration™ -->
-            <div class="pi-system-card pi-system-card--unknown" aria-label="Publishing Administration — Status Unknown">
-              <div class="pi-system-icon-wrap pi-system-icon-wrap--unknown">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-compositions"></use></svg>
-              </div>
-              <div class="pi-system-name">Publishing Administration™</div>
-              <div class="pi-system-sub">Publishing Admin Status</div>
-              <div class="pi-system-badge pi-system-badge--unknown">Unknown</div>
-              <div class="pi-system-works">Upload a statement to verify</div>
-              <a class="pi-system-action-cta pi-system-action-cta--connect" href="#">Upload Publishing Statement →</a>
-            </div>
-
-            <!-- Publisher™ -->
-            <div class="pi-system-card pi-system-card--unknown" aria-label="Publisher — Status Unknown">
-              <div class="pi-system-icon-wrap pi-system-icon-wrap--unknown">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publisher"></use></svg>
-              </div>
-              <div class="pi-system-name">Publisher™</div>
-              <div class="pi-system-sub">Publishing Entity</div>
-              <div class="pi-system-badge pi-system-badge--unknown">Unknown</div>
-              <div class="pi-system-works">Upload a statement to verify</div>
-              <a class="pi-system-action-cta pi-system-action-cta--connect" href="#">Upload Publishing Statement →</a>
-            </div>
-
+            <a class="pi-drilldown-audit-btn" href="#" aria-label="View full publishing audit">View Full Audit →</a>
           </div>
 
-          <!-- § 4 — ISWC COVERAGE™ + PUBLISHING ACTIVITY™ side by side -->
-          <div class="pi-bottom-row">
+          <div class="pi-drilldown-grid">
 
-            <!-- ISWC Coverage™ -->
-            <div class="pi-system-card pi-system-card--attention" aria-label="ISWC Coverage — 2 Pending">
-              <div class="pi-system-icon-wrap pi-system-icon-wrap--attention">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-claims"></use></svg>
+            <!-- Card 1 — Rights Registrations™ -->
+            <div class="pi-dd-card">
+              <div class="pi-dd-card-title">Rights Registrations</div>
+              <div class="pi-dd-card-body" id="pi-dd-registrations">
+                <!-- Dynamically populated by JS from MRP + Official Sources -->
               </div>
-              <div class="pi-system-name">ISWC Coverage™</div>
-              <div class="pi-system-sub">International Work Codes</div>
-              <div class="pi-system-badge pi-system-badge--amber">2 Pending</div>
-              <div class="pi-system-works">16 Assigned · 2 Pending</div>
-              <a class="pi-system-action-cta" href="#" target="_blank" rel="noopener noreferrer">View Missing ISWCs →</a>
-            </div>
-
-            <!-- Publishing Activity™ -->
-            <div class="pi-activity-card">
-              <div class="pi-card-header">
-                <svg class="pi-card-header-icon royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg>
-                <div class="pi-card-header-meta">
-                  <div class="pi-card-header-title">Publishing Activity™</div>
-                  <div class="pi-card-header-sub">Recent Publishing Updates</div>
-                </div>
-              </div>
-              <div class="pi-activity-stats" role="list" aria-label="Publishing activity summary">
-                <div class="pi-activity-stat" role="listitem">
-                  <div class="pi-activity-stat-num">3</div>
-                  <div class="pi-activity-stat-label">Registrations</div>
-                  <div class="pi-activity-stat-sub">This Week</div>
-                </div>
-                <div class="pi-activity-stat" role="listitem">
-                  <div class="pi-activity-stat-num">1</div>
-                  <div class="pi-activity-stat-label">Updates</div>
-                  <div class="pi-activity-stat-sub">This Week</div>
-                </div>
-                <div class="pi-activity-stat" role="listitem">
-                  <div class="pi-activity-stat-num">0</div>
-                  <div class="pi-activity-stat-label">Disputes</div>
-                  <div class="pi-activity-stat-sub">This Week</div>
-                </div>
-              </div>
-              <div class="pi-activity-footer">
-                <a class="pi-activity-link" href="/workspaces/monitoring-timeline.html">View Activity →</a>
+              <div class="pi-dd-card-footer">
+                <a class="pi-dd-link" href="#">View All Registrations →</a>
               </div>
             </div>
 
-          </div><!-- /pi-bottom-row -->
-        </div>
+            <!-- Card 2 — Work Registration Status™ -->
+            <div class="pi-dd-card">
+              <div class="pi-dd-card-title">Work Registration Status</div>
+              <div class="pi-dd-card-body">
+                <div class="pi-donut-wrap">
+                  <div class="pi-donut-svg-wrap">
+                    <!-- Donut segments wired by JS; static circumference for r=35: 219.9 -->
+                    <svg class="pi-donut-svg" viewBox="0 0 90 90" aria-hidden="true">
+                      <!-- Track -->
+                      <circle cx="45" cy="45" r="35" fill="none"
+                        stroke="rgba(138,92,255,0.08)" stroke-width="10"/>
+                      <!-- Registered (green) -->
+                      <circle id="pi-donut-seg-registered" cx="45" cy="45" r="35" fill="none"
+                        stroke="#40f0a0" stroke-width="10"
+                        stroke-dasharray="0 219.9" stroke-linecap="butt"/>
+                      <!-- Pending (purple) -->
+                      <circle id="pi-donut-seg-pending" cx="45" cy="45" r="35" fill="none"
+                        stroke="#8a5cff" stroke-width="10"
+                        stroke-dasharray="0 219.9" stroke-linecap="butt"/>
+                      <!-- Partial (orange) -->
+                      <circle id="pi-donut-seg-partial" cx="45" cy="45" r="35" fill="none"
+                        stroke="#ffc040" stroke-width="10"
+                        stroke-dasharray="0 219.9" stroke-linecap="butt"/>
+                      <!-- Not Registered (red) -->
+                      <circle id="pi-donut-seg-notreg" cx="45" cy="45" r="35" fill="none"
+                        stroke="#f05060" stroke-width="10"
+                        stroke-dasharray="0 219.9" stroke-linecap="butt"/>
+                    </svg>
+                    <div class="pi-donut-center">
+                      <div class="pi-donut-num" id="pi-donut-total">—</div>
+                      <div class="pi-donut-label">Total Works</div>
+                    </div>
+                  </div>
+                  <div class="pi-donut-legend">
+                    <div class="pi-donut-legend-item">
+                      <span class="pi-donut-dot pi-dot--green"></span>
+                      <span id="pi-donut-registered-label">— Registered</span>
+                    </div>
+                    <div class="pi-donut-legend-item">
+                      <span class="pi-donut-dot pi-dot--purple"></span>
+                      <span id="pi-donut-pending-label">— Pending</span>
+                    </div>
+                    <div class="pi-donut-legend-item">
+                      <span class="pi-donut-dot pi-dot--orange"></span>
+                      <span id="pi-donut-partial-label">— Partial</span>
+                    </div>
+                    <div class="pi-donut-legend-item">
+                      <span class="pi-donut-dot pi-dot--red"></span>
+                      <span id="pi-donut-notreg-label">— Not Registered</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pi-dd-card-footer">
+                <a class="pi-dd-link" href="#">View Work Details →</a>
+              </div>
+            </div>
+
+            <!-- Card 3 — Royalty Channels™ -->
+            <div class="pi-dd-card">
+              <div class="pi-dd-card-title">Royalty Channels</div>
+              <div class="pi-dd-card-body" id="pi-dd-channels">
+                <div class="pi-channel-row">
+                  <span class="pi-channel-label">Performance</span>
+                  <div class="pi-channel-bar-wrap">
+                    <div class="pi-channel-bar" id="pi-chan-performance" style="width:0%;background:#40f0a0"></div>
+                  </div>
+                  <span class="pi-channel-pct" id="pi-chan-performance-pct">—</span>
+                </div>
+                <div class="pi-channel-row">
+                  <span class="pi-channel-label">Mechanical</span>
+                  <div class="pi-channel-bar-wrap">
+                    <div class="pi-channel-bar" id="pi-chan-mechanical" style="width:0%;background:#8a5cff"></div>
+                  </div>
+                  <span class="pi-channel-pct" id="pi-chan-mechanical-pct">—</span>
+                </div>
+                <div class="pi-channel-row">
+                  <span class="pi-channel-label">Digital</span>
+                  <div class="pi-channel-bar-wrap">
+                    <div class="pi-channel-bar" id="pi-chan-digital" style="width:0%;background:#40d0f0"></div>
+                  </div>
+                  <span class="pi-channel-pct" id="pi-chan-digital-pct">—</span>
+                </div>
+                <div class="pi-channel-row">
+                  <span class="pi-channel-label">Synchronization</span>
+                  <div class="pi-channel-bar-wrap">
+                    <div class="pi-channel-bar" id="pi-chan-sync" style="width:0%;background:#ffc040"></div>
+                  </div>
+                  <span class="pi-channel-pct" id="pi-chan-sync-pct">—</span>
+                </div>
+              </div>
+              <div class="pi-dd-card-footer">
+                <a class="pi-dd-link" href="#">View Channel Analysis →</a>
+              </div>
+            </div>
+
+            <!-- Card 4 — Publishing Entities™ -->
+            <div class="pi-dd-card">
+              <div class="pi-dd-card-title">Publishing Entities</div>
+              <div class="pi-dd-card-body" id="pi-dd-entities">
+                <!-- Wired by JS from MRP + ctx -->
+              </div>
+              <div class="pi-dd-card-footer">
+                <a class="pi-dd-link" href="#">View Entity Relationships →</a>
+              </div>
+            </div>
+
+          </div><!-- /pi-drilldown-grid -->
+
+          <div class="pi-drilldown-note">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+              <circle cx="6.5" cy="6.5" r="6" stroke="rgba(132,128,168,0.4)" stroke-width="1"/>
+              <line x1="6.5" y1="5.5" x2="6.5" y2="9.5" stroke="rgba(132,128,168,0.4)" stroke-width="1.2" stroke-linecap="round"/>
+              <circle cx="6.5" cy="3.8" r="0.6" fill="rgba(132,128,168,0.4)"/>
+            </svg>
+            Publishing data is aggregated from multiple sources and updated continuously.
+          </div>
+
+        </div><!-- /pi-drilldown -->
 
       </div><!-- /hi-main -->
 
@@ -642,42 +1035,55 @@
     if (badgeLabel !== undefined) badgeEl.textContent = badgeLabel;
   }
 
-  // ── PRO ───────────────────────────────────────────────────────────────────
+  // ── PRO — Artist Disclosure ───────────────────────────────────────────────
   var proVal = pr.pro || null;
   if (proVal && proVal !== 'None') {
-    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', proVal, 'pi-mrp-badge--verified', 'Verified');
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', proVal, 'pi-mrp-badge--verified', 'Artist Disclosure');
   } else if (proVal === 'None') {
-    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', 'Not Registered', 'pi-mrp-badge--none', 'Profile Source');
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', 'Not Registered', 'pi-mrp-badge--none', 'Artist Disclosure');
   } else {
-    // No profile yet — leave default — placeholder state
-    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', '—', 'pi-mrp-badge--unknown', 'Profile Source');
+    setField('pi-mrp-pro-val', 'pi-mrp-pro-badge', '—', 'pi-mrp-badge--unknown', 'Artist Disclosure');
   }
 
-  // ── SoundExchange ─────────────────────────────────────────────────────────
+  // ── SoundExchange — Artist Disclosure ────────────────────────────────────
+  // Board Flag: SoundExchange was removed from MRP v2 (PR #330). pr.soundexchange will
+  // always be null until MRP is updated. Field retained pending Board decision.
   var sxVal = pr.soundexchange || null;
   if (sxVal === 'Yes') {
-    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Registered', 'pi-mrp-badge--verified', 'Verified');
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Registered', 'pi-mrp-badge--verified', 'Artist Disclosure');
   } else if (sxVal === 'No') {
-    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Registered', 'pi-mrp-badge--none', 'Profile Source');
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Registered', 'pi-mrp-badge--none', 'Artist Disclosure');
   } else if (sxVal === 'Unsure') {
-    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Confirmed', 'pi-mrp-badge--none', 'Profile Source');
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Confirmed', 'pi-mrp-badge--none', 'Artist Disclosure');
   } else {
-    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', '—', 'pi-mrp-badge--unknown', 'Profile Source');
+    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', '—', 'pi-mrp-badge--unknown', 'Artist Disclosure');
   }
 
-  // ── Record Label (Apple Music) ────────────────────────────────────────────
-  var labelVal = ctx.recordLabel || null;
-  setField('pi-mrp-label-val', 'pi-mrp-label-badge',
-    labelVal || '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+  // ── The MLC — Artist Disclosure (from MRP mlc_registered; upgrades to Official Source when independently verified) ──
+  var pub    = (mrp && mrp.publishing) ? mrp.publishing : {};
+  var mlcVal = pub.mlc_registered;
+  if (mlcVal === true) {
+    setField('pi-mrp-mlc-val', 'pi-mrp-mlc-badge', 'Registered', 'pi-mrp-badge--verified', 'Artist Disclosure');
+  } else if (mlcVal === false) {
+    setField('pi-mrp-mlc-val', 'pi-mrp-mlc-badge', 'Not Registered', 'pi-mrp-badge--none', 'Artist Disclosure');
+  } else {
+    setField('pi-mrp-mlc-val', 'pi-mrp-mlc-badge', '—', 'pi-mrp-badge--unknown', 'Artist Disclosure');
+  }
 
-  // ── Distributor — pipeline support pending ────────────────────────────────
-  setField('pi-mrp-dist-val', 'pi-mrp-dist-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+  // ── Distributor — Evidence Verified (pipeline support pending) ───────────
+  setField('pi-mrp-dist-val', 'pi-mrp-dist-badge', '—', 'pi-mrp-badge--intel', 'Evidence Verified');
 
-  // ── Music Publisher — pipeline support pending ────────────────────────────
-  setField('pi-mrp-publisher-val', 'pi-mrp-publisher-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+  // ── Music Publisher — Artist Disclosure (from MRP publishing_management / org_name) ─
+  var publisherVal = (pub.publishing_management === 'publisher' && pub.organization_name)
+    ? pub.organization_name : null;
+  setField('pi-mrp-publisher-val', 'pi-mrp-publisher-badge',
+    publisherVal || '—', publisherVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
-  // ── Publishing Administrator — pipeline support pending ───────────────────
-  setField('pi-mrp-admin-val', 'pi-mrp-admin-badge', '—', 'pi-mrp-badge--intel', 'Auto-Detect');
+  // ── Publishing Administrator — Artist Disclosure (from MRP publishing_management / org_name) ─
+  var adminVal = (pub.publishing_management === 'admin' && pub.organization_name)
+    ? pub.organization_name : null;
+  setField('pi-mrp-admin-val', 'pi-mrp-admin-badge',
+    adminVal || '—', adminVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
   // ── Publishing Health™ Score ──────────────────────────────────────────────
   // Weights (Board-locked): PRO=30, Admin=25, SoundExchange=20, Distributor=15, Publisher=10
@@ -742,6 +1148,191 @@
     if (proVal && proVal !== 'None') proCapEl.textContent = proVal + ' — Primary Society';
     else proCapEl.textContent = 'No PRO Registered';
   }
+
+  // ── Header health block ───────────────────────────────────────────────────
+  var pubScore  = pi ? (pi.publishingScore || score || 0) : score;
+  var hScoreEl  = document.getElementById('pi-exec-health-score');
+  var hBadgeEl  = document.getElementById('pi-exec-health-badge');
+  var hUpdEl    = document.getElementById('pi-exec-health-updated');
+  var updEl2    = document.querySelector('.pi-exec-updated');
+  if (hScoreEl) hScoreEl.textContent = mrp || pi ? String(pubScore) : '—';
+  if (hBadgeEl && (mrp || pi)) {
+    hBadgeEl.className = 'pi-mrp-status-badge';
+    if (pubScore >= 80)      { hBadgeEl.classList.add('pi-mrp-status--optimized'); hBadgeEl.textContent = 'Optimized'; }
+    else if (pubScore >= 60) { hBadgeEl.classList.add('pi-mrp-status--partial');   hBadgeEl.textContent = 'Strong'; }
+    else if (pubScore >= 40) { hBadgeEl.classList.add('pi-mrp-status--partial');   hBadgeEl.textContent = 'Partial'; }
+    else                     { hBadgeEl.classList.add('pi-mrp-status--needs');     hBadgeEl.textContent = 'Needs Attention'; }
+  }
+  var syncTs = ctx.scannedAt || ctx.generatedAt;
+  if (hUpdEl && syncTs) {
+    try {
+      var d = new Date(syncTs);
+      hUpdEl.textContent = 'Last Updated: ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    } catch(_) {}
+  }
+  if (updEl2) {
+    var dot2 = updEl2.querySelector('.pi-exec-updated-dot');
+    updEl2.textContent = (syncTs ? hUpdEl && hUpdEl.textContent : 'Last Updated: —');
+    if (dot2) updEl2.insertBefore(dot2, updEl2.firstChild);
+  }
+
+  // ── § 4 Publishing Drill-Down™ wiring ───────────────────────────────────
+
+  // Rights Registrations — dynamic, artist-specific (Artist Disclosure + Official Source)
+  // Only organizations applicable to this artist are displayed. No generic checklists.
+  var regData = pi && pi.registrations ? pi.registrations : {};
+  var regEntries = [];
+
+  // Performance Rights — from MRP PRO (Artist Disclosure; status upgradeable via Official Source)
+  if (proVal && proVal !== 'None') {
+    var proKey   = proVal.toLowerCase().replace(/[^a-z0-9]/g, '');
+    var proStat  = regData[proKey] || 'REGISTERED';
+    regEntries.push({ category: 'Performance Rights', org: proVal, status: proStat });
+  }
+
+  // Mechanical Licensing — The MLC (Artist Disclosure; status upgradeable via Official Source)
+  if (pub.mlc_registered === true) {
+    var mlcStat = regData['themlc'] || 'REGISTERED';
+    regEntries.push({ category: 'Mechanical Licensing', org: 'The MLC', status: mlcStat });
+  }
+
+  // Digital Performance — SoundExchange (Artist Disclosure when available; Official Source when verified)
+  var sxMrp = pr.soundexchange;
+  var sxOff = regData['soundexchange'];
+  if (sxMrp === 'Yes' || sxOff === 'REGISTERED' || sxOff === 'ACTIVE') {
+    regEntries.push({ category: 'Digital Performance', org: 'SoundExchange', status: sxOff || 'REGISTERED' });
+  }
+
+  // Publishing Administration — when artist disclosed an admin (Artist Disclosure)
+  if (pub.publishing_management === 'admin' && pub.organization_name) {
+    regEntries.push({ category: 'Publishing Administration', org: pub.organization_name, status: 'ACTIVE' });
+  }
+
+  var regContainer = document.getElementById('pi-dd-registrations');
+  if (regContainer) {
+    regContainer.innerHTML = '';
+    if (regEntries.length === 0) {
+      var emptyReg = document.createElement('div');
+      emptyReg.className = 'pi-reg-empty';
+      emptyReg.textContent = 'Complete your Music Rights Profile to populate your rights registrations.';
+      regContainer.appendChild(emptyReg);
+    } else {
+      regEntries.forEach(function (e) {
+        var row    = document.createElement('div');
+        row.className = 'pi-reg-row';
+        var left   = document.createElement('div');
+        left.className = 'pi-reg-row-left';
+        var catEl  = document.createElement('div');
+        catEl.className = 'pi-reg-category';
+        catEl.textContent = e.category;
+        var nameEl = document.createElement('div');
+        nameEl.className = 'pi-reg-name';
+        nameEl.textContent = e.org;
+        left.appendChild(catEl); left.appendChild(nameEl);
+        var statEl = document.createElement('span');
+        if (e.status === 'ACTIVE') {
+          statEl.className = 'pi-reg-status--active'; statEl.textContent = 'Active';
+        } else {
+          statEl.className = 'pi-reg-status--registered'; statEl.textContent = 'Registered';
+        }
+        row.appendChild(left); row.appendChild(statEl);
+        regContainer.appendChild(row);
+      });
+    }
+  }
+
+  // Work Registration Status — donut (Royaltē Intelligence™)
+  var total    = pi ? (pi.totalChecked || 0) : 0;
+  var regCount = pi ? (pi.registeredCount || 0) : 0;
+  var pendCount= pi ? (pi.pendingCount || 0) : 0;
+  var partCount= pi ? (pi.partialCount || 0) : 0;
+  var nrCount  = pi ? (pi.notRegisteredCount || 0) : 0;
+  var C = 219.9; // circumference for r=35
+
+  function donutSeg(id, count, offset) {
+    var el = document.getElementById(id);
+    if (!el || !total) return offset;
+    var len = (count / total) * C;
+    el.style.strokeDasharray = len.toFixed(1) + ' ' + C;
+    el.style.strokeDashoffset = '-' + offset.toFixed(1);
+    return offset + len;
+  }
+  var off = 0;
+  off = donutSeg('pi-donut-seg-registered', regCount,  off);
+  off = donutSeg('pi-donut-seg-pending',    pendCount,  off);
+  off = donutSeg('pi-donut-seg-partial',    partCount,  off);
+       donutSeg('pi-donut-seg-notreg',     nrCount,    off);
+
+  var dtEl = document.getElementById('pi-donut-total');
+  if (dtEl) dtEl.textContent = total > 0 ? String(total) : '—';
+  function setLegend(id, n, label) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = (total > 0 ? String(n) : '—') + ' ' + label;
+  }
+  setLegend('pi-donut-registered-label', regCount,  'Registered');
+  setLegend('pi-donut-pending-label',    pendCount,  'Pending');
+  setLegend('pi-donut-partial-label',    partCount,  'Partial');
+  setLegend('pi-donut-notreg-label',     nrCount,    'Not Registered');
+
+  // Royalty Channels (Royaltē Intelligence™)
+  var ch = pi && pi.royaltyChannels ? pi.royaltyChannels : {};
+  function setChan(barId, pctId, val) {
+    var b = document.getElementById(barId);
+    var p = document.getElementById(pctId);
+    var v = val != null ? Math.min(100, Math.max(0, val)) : 0;
+    if (b) b.style.width = v + '%';
+    if (p) p.textContent = val != null ? v + '%' : '—';
+  }
+  setChan('pi-chan-performance', 'pi-chan-performance-pct', ch.performance);
+  setChan('pi-chan-mechanical',  'pi-chan-mechanical-pct',  ch.mechanical);
+  setChan('pi-chan-digital',     'pi-chan-digital-pct',     ch.digital);
+  setChan('pi-chan-sync',        'pi-chan-sync-pct',        ch.synchronization);
+
+  // Publishing Entities (Artist Disclosure + Evidence Verified)
+  var entitiesEl = document.getElementById('pi-dd-entities');
+  if (entitiesEl) {
+    entitiesEl.innerHTML = '';
+    var entities = [];
+    // Publishing Administrator — Artist Disclosure
+    var pubData = (mrp && mrp.publishing) ? mrp.publishing : {};
+    if (pubData.publishing_management === 'admin' && pubData.organization_name) {
+      entities.push({ name: pubData.organization_name, role: 'Administrator' });
+    }
+    // Publisher — Artist Disclosure
+    if (pubData.publishing_management === 'publisher' && pubData.organization_name) {
+      entities.push({ name: pubData.organization_name, role: 'Publisher' });
+    }
+    // Record Label — Evidence Verified
+    if (ctx.recordLabel) {
+      entities.push({ name: ctx.recordLabel, role: 'Label' });
+    }
+    // Artist — from context
+    var artistName2 = (ctx.subject && ctx.subject.artistName) || ctx.artistName || null;
+    if (artistName2) {
+      entities.push({ name: artistName2, role: 'Artist' });
+    }
+    if (entities.length === 0) {
+      var emptyEl = document.createElement('div');
+      emptyEl.style.cssText = 'font-size:11.5px;color:rgba(132,128,168,0.45);padding:8px 0';
+      emptyEl.textContent = 'Complete your Music Rights Profile to populate publishing entities.';
+      entitiesEl.appendChild(emptyEl);
+    } else {
+      entities.forEach(function (e) {
+        var item = document.createElement('div');
+        item.className = 'pi-entity-item';
+        var nameEl = document.createElement('div');
+        nameEl.className = 'pi-entity-name';
+        nameEl.textContent = e.name;
+        var roleEl = document.createElement('div');
+        roleEl.className = 'pi-entity-role';
+        roleEl.textContent = e.role;
+        item.appendChild(nameEl); item.appendChild(roleEl);
+        entitiesEl.appendChild(item);
+      });
+    }
+  }
+
 }());
 
 function piOpenAthena() {
