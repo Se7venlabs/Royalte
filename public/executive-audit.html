@@ -405,32 +405,59 @@
       display: block;
       /* mix-blend-mode: screen makes dark bg pixels vanish, bright orb glows through */
       mix-blend-mode: screen;
-      opacity: 0.34;
-      /* Soft radial fade — full center, transparent at edges */
+      opacity: 0.20;
+      /* Deeper radial fade — dissolves further into background */
       -webkit-mask-image: radial-gradient(
-        ellipse 72% 76% at center,
-        rgba(0,0,0,0.95) 0%,
-        rgba(0,0,0,0.85) 28%,
-        rgba(0,0,0,0.45) 55%,
-        transparent 78%
+        ellipse 62% 64% at center,
+        rgba(0,0,0,0.80) 0%,
+        rgba(0,0,0,0.48) 30%,
+        rgba(0,0,0,0.14) 55%,
+        transparent 70%
       );
       mask-image: radial-gradient(
-        ellipse 72% 76% at center,
-        rgba(0,0,0,0.95) 0%,
-        rgba(0,0,0,0.85) 28%,
-        rgba(0,0,0,0.45) 55%,
-        transparent 78%
+        ellipse 62% 64% at center,
+        rgba(0,0,0,0.80) 0%,
+        rgba(0,0,0,0.48) 30%,
+        rgba(0,0,0,0.14) 55%,
+        transparent 70%
       );
     }
 
-    /* Purple ambient glow beneath the orb — reinforces Royaltē palette */
+    /* Purple ambient glow — breathes every 10s */
     .ea-s1-bg-orb::after {
       content: '';
       position: absolute;
       inset: 15%;
       border-radius: 50%;
-      background: radial-gradient(ellipse at center, rgba(168,85,247,0.18) 0%, transparent 70%);
+      background: radial-gradient(ellipse at center, rgba(168,85,247,0.20) 0%, transparent 70%);
       pointer-events: none;
+      animation: ea-glow-breathe 10s ease-in-out infinite;
+    }
+
+    /* Rotation: one revolution every 200s — imperceptible until observed */
+    @keyframes ea-orb-spin {
+      from { transform: translateY(-50%) rotate(0deg); }
+      to   { transform: translateY(-50%) rotate(360deg); }
+    }
+    @keyframes ea-orb-spin-mobile {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes ea-glow-breathe {
+      0%, 100% { opacity: 0.55; }
+      50%       { opacity: 1.0; }
+    }
+    .ea-s1-bg-orb { animation: ea-orb-spin 200s linear infinite; }
+
+    /* Energy SVG overlay — positioned identically to the artwork */
+    .ea-orb-energy {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      opacity: 0.9;
     }
 
     /* Foreground content sits above the background orb */
@@ -723,38 +750,63 @@
 
     .ea-ws-grid {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 9px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
     .ea-ws-card {
       background: var(--mc-surface-2);
       border: 1px solid var(--mc-border);
-      border-radius: 9px;
-      padding: 13px 11px;
+      border-radius: 10px;
+      padding: 15px 14px;
       display: flex;
       flex-direction: column;
     }
-    .ea-ws-name {
+    /* Card header: icon + name + score + status in a row */
+    .ea-ws-card-hd {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--mc-border);
+    }
+    .ea-ws-hd-icon { width: 20px; height: 20px; color: var(--mc-teal); flex-shrink: 0; }
+    .ea-ws-hd-body { flex: 1; min-width: 0; }
+    .ea-ws-hd-name {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--mc-text-muted);
+      margin-bottom: 3px;
+    }
+    .ea-ws-hd-score-row { display: flex; align-items: center; gap: 6px; }
+    .ea-ws-hd-score  { font-size: 16px; font-weight: 800; color: var(--mc-text); letter-spacing: -0.02em; }
+    .ea-ws-hd-denom  { font-size: 9px; color: var(--mc-text-faint); }
+    .ea-ws-hd-status { font-size: 8.5px; font-weight: 700; }
+    /* Executive format fields */
+    .ea-ws-exec-field { margin-bottom: 7px; }
+    .ea-ws-exec-field:last-of-type { margin-bottom: 0; flex: 1; }
+    .ea-ws-exec-label {
       font-size: 7.5px;
       font-weight: 700;
-      letter-spacing: 0.07em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--mc-text-faint);
-      margin-bottom: 7px;
-      line-height: 1.3;
+      margin-bottom: 2px;
     }
-    .ea-ws-icon { width: 20px; height: 20px; color: var(--mc-teal); margin-bottom: 6px; }
-    .ea-ws-score-row { display: flex; align-items: baseline; gap: 2px; margin-bottom: 3px; }
-    .ea-ws-score  { font-size: 18px; font-weight: 800; color: var(--mc-text); letter-spacing: -0.02em; }
-    .ea-ws-denom  { font-size: 9px; color: var(--mc-text-faint); }
-    .ea-ws-status { font-size: 8.5px; font-weight: 700; margin-bottom: 6px; }
-    .ea-ws-summary { font-size: 9.5px; color: var(--mc-text-muted); line-height: 1.5; flex: 1; margin-bottom: 8px; }
+    .ea-ws-exec-val {
+      font-size: 10.5px;
+      color: var(--mc-text-muted);
+      line-height: 1.5;
+    }
     .ea-ws-cta {
       font-size: 8.5px;
       font-weight: 700;
       letter-spacing: 0.04em;
       color: var(--mc-teal);
-      padding-top: 7px;
+      padding-top: 9px;
+      margin-top: 10px;
       border-top: 1px solid var(--mc-border);
       cursor: pointer;
     }
@@ -969,7 +1021,7 @@
 
     @media (max-width: 1100px) {
       .ea-scorecard-row { grid-template-columns: repeat(3, 1fr); }
-      .ea-ws-grid       { grid-template-columns: repeat(3, 1fr); }
+      .ea-ws-grid       { grid-template-columns: repeat(2, 1fr); }
       .ea-kpi-row       { grid-template-columns: repeat(2, 1fr); }
       .ea-s1-bg-orb     { width: 400px; right: -60px; }
     }
@@ -981,19 +1033,20 @@
       .ea-rc-left       { border-right: none; border-bottom: 1px solid var(--mc-border); }
       .ea-insights-grid { grid-template-columns: 1fr; }
       .ea-roadmap-cols  { grid-template-columns: 1fr; }
-      /* Tablet: scale orb down, keep right-side composition */
+      .ea-ws-grid       { grid-template-columns: repeat(2, 1fr); }
       .ea-s1-bg-orb     { width: 320px; right: -40px; }
     }
     @media (max-width: 540px) {
-      /* Mobile: orb anchors to bottom-right, more subtle */
+      .ea-ws-grid { grid-template-columns: 1fr; }
       .ea-s1-bg-orb {
-        width: 260px;
-        right: -30px;
+        width: 240px;
+        right: -20px;
         top: auto;
-        bottom: -40px;
+        bottom: -30px;
         transform: none;
+        animation: ea-orb-spin-mobile 200s linear infinite;
       }
-      .ea-s1-bg-orb img { opacity: 0.22; }
+      .ea-s1-bg-orb img { opacity: 0.14; }
       .ea-kpi-row       { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
@@ -1074,33 +1127,11 @@
       <div class="ea-sb-nav-label">Section Navigation</div>
     </div>
 
-    <!-- ATHENA widget -->
+    <!-- About ATHENA™ — educational panel -->
     <div class="ea-sb-athena">
-      <div class="ea-sb-athena-name">ATHENA</div>
-      <div class="ea-sb-athena-role">Your Executive AI</div>
-      <!-- Mini silver orb -->
-      <svg class="ea-sb-athena-orb" width="48" height="48" viewBox="0 0 48 48" aria-hidden="true">
-        <defs>
-          <radialGradient id="ea-mini-g" cx="36%" cy="30%" r="70%">
-            <stop offset="0%"  stop-color="#ffffff"/>
-            <stop offset="28%" stop-color="#C8CDD8"/>
-            <stop offset="65%" stop-color="#7c8494"/>
-            <stop offset="100%" stop-color="#4B5563" stop-opacity="0.88"/>
-          </radialGradient>
-          <radialGradient id="ea-mini-hl" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.50"/>
-            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-          </radialGradient>
-          <radialGradient id="ea-mini-halo" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.24"/>
-            <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
-          </radialGradient>
-        </defs>
-        <circle cx="24" cy="24" r="22" fill="url(#ea-mini-halo)"/>
-        <circle cx="24" cy="24" r="13" fill="url(#ea-mini-g)"/>
-        <circle cx="19" cy="18" r="4" fill="url(#ea-mini-hl)"/>
-      </svg>
-      <div class="ea-sb-athena-desc">ATHENA analyzes your entire music business infrastructure to deliver executive intelligence you can act on.</div>
+      <div class="ea-sb-athena-name">About ATHENA™</div>
+      <div class="ea-sb-athena-desc">ATHENA continuously analyzes your music business using verified evidence from Royaltē Intelligence™, connected services, and artist disclosures.</div>
+      <div class="ea-sb-athena-desc" style="margin-top:7px;">Every recommendation in this Executive Audit is generated from your current business profile and supporting evidence.</div>
     </div>
 
   </aside><!-- /sidebar -->
@@ -1123,6 +1154,101 @@
           loading="eager"
           draggable="false"
         >
+        <!-- Internal energy overlay — light streams, node pulses, central shimmer -->
+        <svg class="ea-orb-energy" viewBox="0 0 540 540" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="ea-core-grd" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.95"/>
+              <stop offset="35%"  stop-color="#ddd6fe" stop-opacity="0.55"/>
+              <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="ea-soft" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3.5"/>
+            </filter>
+            <filter id="ea-softer" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="7"/>
+            </filter>
+            <filter id="ea-node-glow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="2.5"/>
+            </filter>
+            <clipPath id="ea-orb-clip">
+              <circle cx="270" cy="270" r="190"/>
+            </clipPath>
+          </defs>
+
+          <g clip-path="url(#ea-orb-clip)">
+
+            <!-- Central shimmer — pulsing core light -->
+            <circle cx="270" cy="270" r="26" fill="url(#ea-core-grd)" filter="url(#ea-softer)">
+              <animate attributeName="r"       values="22;30;22"    dur="6.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              <animate attributeName="opacity" values="0.35;0.62;0.35" dur="6.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+            </circle>
+
+            <!-- Inner ring — light dash traveling clockwise, r=70, C≈440 -->
+            <circle cx="270" cy="270" r="70" fill="none" stroke="rgba(196,181,253,0.25)" stroke-width="0.7" filter="url(#ea-soft)"/>
+            <circle cx="270" cy="270" r="70" fill="none" stroke="rgba(221,214,254,0.80)" stroke-width="1.1"
+              stroke-dasharray="55 385" stroke-linecap="round" filter="url(#ea-soft)">
+              <animateTransform attributeName="transform" type="rotate"
+                from="-90 270 270" to="270 270 270" dur="26s" repeatCount="indefinite" calcMode="linear"/>
+            </circle>
+
+            <!-- Middle ring — counter-clockwise, r=110, C≈691 -->
+            <circle cx="270" cy="270" r="110" fill="none" stroke="rgba(167,139,250,0.18)" stroke-width="0.6" filter="url(#ea-soft)"/>
+            <circle cx="270" cy="270" r="110" fill="none" stroke="rgba(196,181,253,0.68)" stroke-width="0.9"
+              stroke-dasharray="42 649" stroke-linecap="round" filter="url(#ea-soft)">
+              <animateTransform attributeName="transform" type="rotate"
+                from="90 270 270" to="-270 270 270" dur="43s" repeatCount="indefinite" calcMode="linear"/>
+            </circle>
+
+            <!-- Outer ring — clockwise, r=155, C≈974 -->
+            <circle cx="270" cy="270" r="155" fill="none" stroke="rgba(139,92,246,0.14)" stroke-width="0.5" filter="url(#ea-soft)"/>
+            <circle cx="270" cy="270" r="155" fill="none" stroke="rgba(167,139,250,0.55)" stroke-width="0.7"
+              stroke-dasharray="32 942" stroke-linecap="round" filter="url(#ea-soft)">
+              <animateTransform attributeName="transform" type="rotate"
+                from="0 270 270" to="360 270 270" dur="67s" repeatCount="indefinite" calcMode="linear"/>
+            </circle>
+
+            <!-- Six hexagonal nodes (r=110 from center, 60° apart) -->
+            <!-- top:(270,160) top-right:(365,215) bot-right:(365,325) bot:(270,380) bot-left:(175,325) top-left:(175,215) -->
+            <g filter="url(#ea-node-glow)">
+              <circle cx="270" cy="160" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="0s"    repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="0s"    repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+              <circle cx="365" cy="215" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="1.53s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="1.53s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+              <circle cx="365" cy="325" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="3.07s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="3.07s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+              <circle cx="270" cy="380" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="4.60s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="4.60s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+              <circle cx="175" cy="325" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="6.13s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="6.13s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+              <circle cx="175" cy="215" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="7.67s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="7.67s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+            </g>
+
+            <!-- Expanding ripple — slow energy pulse from center, pair offset by half -->
+            <circle cx="270" cy="270" r="40" fill="none" stroke="rgba(168,85,247,0.45)" stroke-width="0.6">
+              <animate attributeName="r"       values="40;195"      dur="13s" repeatCount="indefinite" calcMode="spline" keySplines="0.12 0 0.88 1"/>
+              <animate attributeName="opacity" values="0.35;0"      dur="13s" repeatCount="indefinite" calcMode="spline" keySplines="0.12 0 0.88 1"/>
+            </circle>
+            <circle cx="270" cy="270" r="40" fill="none" stroke="rgba(168,85,247,0.45)" stroke-width="0.6">
+              <animate attributeName="r"       values="40;195"      dur="13s" begin="6.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.12 0 0.88 1"/>
+              <animate attributeName="opacity" values="0.35;0"      dur="13s" begin="6.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.12 0 0.88 1"/>
+            </circle>
+
+          </g>
+        </svg>
       </div>
 
       <!-- Executive Summary content — foreground -->
@@ -1161,7 +1287,7 @@
               Estimated Revenue Impact
             </div>
             <div class="ea-kpi-val ea-kpi-val--amber">Moderate</div>
-            <div class="ea-kpi-sub">+$2.8K – $7.1K / year</div>
+            <div class="ea-kpi-sub">Revenue Impact Identified</div>
           </div>
         </div>
       </div><!-- /ea-s1-content-wrap -->
@@ -1278,12 +1404,48 @@
   /* ── BLACK ALTERNATIVE FIXTURE ──────────────────────────────── */
 
   var WS = [
-    { key: 'health',     name: 'Health Intelligence',   score: 72, status: 'Good',           stClass: 'ea-st--good',  summary: 'System health is stable. Minor gaps in publishing registration require attention.' },
-    { key: 'identity',   name: 'Identity Intelligence', score: 88, status: 'Very Good',       stClass: 'ea-st--vgood', summary: 'Identity is well verified across all major streaming platforms.' },
-    { key: 'publishing', name: 'Publishing Ecosystem',  score: 58, status: 'Needs Attention', stClass: 'ea-st--attn',  summary: 'PRO and SoundExchange registrations absent. Publishing infrastructure requires immediate action.' },
-    { key: 'catalog',    name: 'Catalog Intelligence',  score: 81, status: 'Very Good',       stClass: 'ea-st--vgood', summary: 'Catalog metadata is strong with high accuracy across all tracked releases.' },
-    { key: 'global',     name: 'Global Footprint',      score: 64, status: 'Fair',            stClass: 'ea-st--fair',  summary: 'Distribution footprint is solid but can be significantly expanded to new markets.' },
-    { key: 'backend',    name: 'Backend Intelligence',  score: 78, status: 'Good',            stClass: 'ea-st--good',  summary: 'Backend infrastructure is operational. Minor dependency risks to monitor.' },
+    {
+      key: 'health', name: 'Health Intelligence', score: 72, status: 'Good', stClass: 'ea-st--good',
+      assessment: 'Music business infrastructure is operational with minor optimization opportunities remaining.',
+      finding:    'Publishing registration gaps are reducing the completeness of the overall Health Profile.',
+      bizImpact:  'Unresolved publishing gaps limit the accuracy of your royalty infrastructure picture across all workspaces.',
+      action:     'Complete publishing registrations to achieve a comprehensive Health Intelligence score.',
+    },
+    {
+      key: 'identity', name: 'Identity Intelligence', score: 88, status: 'Very Good', stClass: 'ea-st--vgood',
+      assessment: 'Artist identity is verified and confirmed across all major streaming platforms.',
+      finding:    'ISRC coverage is strong across the catalog; IPI verification is the only remaining gap.',
+      bizImpact:  'High identity confidence supports accurate cross-platform royalty attribution and reduces payment risk.',
+      action:     'Obtain an IPI number to complete full identity verification.',
+    },
+    {
+      key: 'publishing', name: 'Publishing Ecosystem', score: 58, status: 'Needs Attention', stClass: 'ea-st--attn',
+      assessment: 'Publishing infrastructure requires immediate attention to restore royalty collection capacity.',
+      finding:    'PRO and SoundExchange registrations are both absent, blocking two independent royalty streams.',
+      bizImpact:  'These gaps are directly preventing collection of performance royalties and digital neighboring rights.',
+      action:     'Register with a PRO and SoundExchange as the immediate first priority.',
+    },
+    {
+      key: 'catalog', name: 'Catalog Intelligence', score: 81, status: 'Very Good', stClass: 'ea-st--vgood',
+      assessment: 'Catalog metadata is strong with high accuracy verified across all tracked releases.',
+      finding:    'All primary catalog entries are attributed and verified. ISRC standardization is the remaining task.',
+      bizImpact:  'Accurate catalog data supports correct royalty matching, distribution reporting, and rights enforcement.',
+      action:     'Standardize ISRC codes across all releases to complete catalog certification.',
+    },
+    {
+      key: 'global', name: 'Global Footprint', score: 64, status: 'Fair', stClass: 'ea-st--fair',
+      assessment: 'Distribution footprint covers major markets but significant expansion opportunity exists.',
+      finding:    'YouTube Content ID and several emerging DSPs are not yet activated for this catalog.',
+      bizImpact:  'Unclaimed distribution channels represent untapped reach and potential royalty collection.',
+      action:     'Activate YouTube Content ID and expand distribution to Deezer and TIDAL.',
+    },
+    {
+      key: 'backend', name: 'Backend Intelligence', score: 78, status: 'Good', stClass: 'ea-st--good',
+      assessment: 'Backend infrastructure is operational with all core services connected and verified.',
+      finding:    'Canonical records are complete. Minor dependency risks are identified and require monitoring.',
+      bizImpact:  'Strong backend integrity supports reliable data flow across all intelligence workspaces.',
+      action:     'Monitor flagged dependencies and complete outstanding evidence verification tasks.',
+    },
   ];
 
   var ISSUES = [
@@ -1291,21 +1453,21 @@
       title: 'PRO Registration Absent',
       desc: 'You are not registered with a Performing Rights Organization. This prevents collection of performance royalties from radio, streaming, and live performances worldwide.',
       impact: 'High', impactClass: 'ea-ft--high',
-      revenue: '$1.5K – $4.3K / year',
+      revenue: 'High Revenue Impact',
       action: 'Register with SOCAN',
     },
     {
       title: 'SoundExchange Not Registered',
       desc: 'You are not registered with SoundExchange to collect digital performance royalties from Pandora, SiriusXM, and internet radio services.',
       impact: 'High', impactClass: 'ea-ft--high',
-      revenue: '$900 – $2.1K / year',
+      revenue: 'High Revenue Impact',
       action: 'Register with SoundExchange',
     },
     {
       title: 'Publisher Of Record Unconfirmed',
       desc: 'Your compositions are not registered with The MLC and your publisher of record is not confirmed. This delays mechanical royalty collection from digital services.',
       impact: 'Medium', impactClass: 'ea-ft--medium',
-      revenue: '$500 – $1.0K / year',
+      revenue: 'Moderate Revenue Impact',
       action: 'Confirm publisher with The MLC',
     },
   ];
@@ -1443,17 +1605,31 @@
     oppsEl.appendChild(div);
   });
 
-  /* ── §5 WORKSPACE REVIEWS ────────────────────────────────── */
+  /* ── §5 WORKSPACE REVIEWS (executive format) ─────────────── */
 
   var wsGrid = document.getElementById('ea-ws-grid');
+  var WS_EXEC_LABELS = ['Executive Assessment', 'Key Finding', 'Business Impact', 'Recommended Action'];
   WS.forEach(function (ws) {
     var card = document.createElement('div');
     card.className = 'ea-ws-card';
-    card.innerHTML = '<div class="ea-ws-name">' + esc(ws.name) + '</div>'
-      + '<div class="ea-ws-icon" aria-hidden="true">' + (ICONS[ws.key] || '') + '</div>'
-      + '<div class="ea-ws-score-row"><span class="ea-ws-score">' + ws.score + '</span><span class="ea-ws-denom"> / 100</span></div>'
-      + '<div class="ea-ws-status ' + ws.stClass + '">' + esc(ws.status) + '</div>'
-      + '<div class="ea-ws-summary">' + esc(ws.summary) + '</div>'
+    card.innerHTML =
+      '<div class="ea-ws-card-hd">'
+      + '<div class="ea-ws-hd-icon" aria-hidden="true">' + (ICONS[ws.key] || '') + '</div>'
+      + '<div class="ea-ws-hd-body">'
+      +   '<div class="ea-ws-hd-name">' + esc(ws.name) + '</div>'
+      +   '<div class="ea-ws-hd-score-row">'
+      +     '<span class="ea-ws-hd-score">' + ws.score + '</span>'
+      +     '<span class="ea-ws-hd-denom"> / 100</span>'
+      +     '<span class="ea-ws-hd-status ' + ws.stClass + '">' + esc(ws.status) + '</span>'
+      +   '</div>'
+      + '</div>'
+      + '</div>'
+      + ['assessment','finding','bizImpact','action'].map(function (field, i) {
+        return '<div class="ea-ws-exec-field">'
+          + '<div class="ea-ws-exec-label">' + WS_EXEC_LABELS[i] + '</div>'
+          + '<div class="ea-ws-exec-val">'   + esc(ws[field] || '') + '</div>'
+          + '</div>';
+      }).join('')
       + '<div class="ea-ws-cta">View Review →</div>';
     wsGrid.appendChild(card);
   });
