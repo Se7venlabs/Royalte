@@ -540,8 +540,8 @@ import { getSupabase } from '/js/supabase-client.js';
 // ── Section definitions ──────────────────────────────────────────────────────
 // Each section has: key (stored in profile), eyebrow, question, hint, options[]
 // Options have: value, label, badge? (optional tag)
-// Sections with conditional: when option.value === conditionalTrigger, show a
-// text input. The text input value is stored under conditionalKey.
+// Sections with conditional: when option.value matches conditionalTrigger (string)
+// or any value in conditionalTriggers (array), show a text input stored under conditionalKey.
 
 const SECTIONS = [
   {
@@ -560,30 +560,18 @@ const SECTIONS = [
     ],
   },
   {
-    key: 'publisher_status',
+    key: 'publishing_management',
     eyebrow: 'Publishing',
-    question: 'Are you self-published or do you have a publisher?',
-    hint: 'A publisher manages your composition rights and licenses. Self-published artists retain full control of their publishing.',
+    question: 'Who manages your publishing?',
+    hint: 'Tell us how your publishing is managed so Royaltē can identify the right royalty collection paths for your music.',
     options: [
-      { value: 'Self-Published',     label: 'Self-Published' },
-      { value: 'I Have a Publisher', label: 'I Have a Publisher' },
+      { value: 'self',      label: 'I manage my own publishing' },
+      { value: 'admin',     label: 'Publishing Administrator' },
+      { value: 'publisher', label: 'Publisher' },
     ],
-    conditionalTrigger: 'I Have a Publisher',
-    conditionalKey: 'publisher_name',
-    conditionalPlaceholder: 'Publisher Name',
-  },
-  {
-    key: 'publishing_admin',
-    eyebrow: 'Publishing Administration',
-    question: 'Do you use a Publishing Administrator?',
-    hint: 'A publishing administrator registers your works and collects royalties on your behalf without taking ownership of your copyrights.',
-    options: [
-      { value: 'No',  label: 'No' },
-      { value: 'Yes', label: 'Yes' },
-    ],
-    conditionalTrigger: 'Yes',
-    conditionalKey: 'publishing_admin_name',
-    conditionalPlaceholder: 'Publishing Administrator',
+    conditionalTriggers: ['admin', 'publisher'],
+    conditionalKey: 'organization_name',
+    conditionalPlaceholder: 'Organization Name',
   },
   {
     key: 'mlc',
@@ -632,7 +620,7 @@ function renderWelcome() {
       <h1>One Quick Step</h1>
       <p class="ob-welcome-subtitle">Complete Your Music Rights Profile</p>
       <p class="ob-welcome-sub">
-        These four quick questions provide Royaltē with the minimum rights information required to generate accurate Publishing Intelligence.
+        These three quick questions provide Royaltē with the minimum rights information required to generate accurate Publishing Intelligence.
       </p>
       <p class="ob-welcome-timing">Approximately 20 seconds</p>
       <p class="ob-welcome-settings-note">
@@ -641,7 +629,7 @@ function renderWelcome() {
       </p>
       <div class="ob-welcome-meta">
         <span class="ob-welcome-meta-dot"></span>
-        4 questions &nbsp;·&nbsp; Private &amp; encrypted
+        3 questions &nbsp;·&nbsp; Private &amp; encrypted
       </div>
       <div class="ob-welcome-features">
         <div class="ob-feature-chip">
@@ -691,7 +679,7 @@ function renderSection(idx) {
     </label>
   `).join('');
 
-  const showConditional = savedValue === sec.conditionalTrigger;
+  const showConditional = isTriggerVal(sec, savedValue);
 
   content.innerHTML = `
     <div class="ob-section">
@@ -727,7 +715,7 @@ function renderSection(idx) {
       // Conditional visibility
       if (sec.conditionalKey) {
         const cond = document.getElementById('ob-conditional');
-        if (val === sec.conditionalTrigger) {
+        if (isTriggerVal(sec, val)) {
           cond.classList.add('visible');
         } else {
           cond.classList.remove('visible');
@@ -748,6 +736,13 @@ function renderSection(idx) {
       });
     }
   }
+}
+
+// Supports both conditionalTrigger (string) and conditionalTriggers (array).
+function isTriggerVal(sec, val) {
+  if (!val) return false;
+  if (sec.conditionalTriggers) return sec.conditionalTriggers.includes(val);
+  return val === sec.conditionalTrigger;
 }
 
 function esc(str) {
@@ -812,10 +807,8 @@ function buildStructuredProfile(a) {
       pro: a.pro || null,
     },
     publishing: {
-      self_published:        a.publisher_status === 'Self-Published',
-      publisher_name:        a.publisher_name        || null,
-      publishing_admin:      a.publishing_admin === 'Yes',
-      publishing_admin_name: a.publishing_admin_name || null,
+      publishing_management: a.publishing_management || null,
+      organization_name:     a.organization_name     || null,
       mlc_registered:        a.mlc === 'Yes',
     },
   };
