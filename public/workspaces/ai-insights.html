@@ -67,6 +67,29 @@
       line-height: 1.55;
       color: var(--mc-text-muted);
     }
+
+    /* Executive Action cards — "View Details →" action link
+     * Overrides the 22×22 circle from base .ai-rec-arrow.
+     * white-space:nowrap prevents wrapping at all breakpoints. */
+    .ws-dept--ai-insights .ai-rec-arrow {
+      width: auto;
+      height: auto;
+      border-radius: 4px;
+      background: rgba(168,85,247,0.08);
+      border: 1px solid rgba(168,85,247,0.20);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--mc-purple);
+      white-space: nowrap;
+      flex-shrink: 0;
+      padding: 3px 8px;
+      line-height: 1;
+    }
+    .ws-dept--ai-insights .ai-rec-card:hover .ai-rec-arrow {
+      background: rgba(168,85,247,0.14);
+      border-color: rgba(168,85,247,0.35);
+    }
   </style>
   <script>
 /* DEV FIXTURE — localhost only, never runs on production (hostname check).
