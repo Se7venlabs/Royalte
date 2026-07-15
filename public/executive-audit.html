@@ -447,6 +447,15 @@
       align-items: center;
       justify-content: center;
     }
+    .ea-s1-artwork {
+      width: 100%;
+      max-width: 340px;
+      height: auto;
+      display: block;
+      border-radius: 16px;
+      object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+    }
 
     /* ── §2 HEALTH SCORECARD ───────────────────────────────────── */
 
@@ -1087,40 +1096,16 @@
             </div>
           </div>
         </div>
-        <!-- Right: ATHENA orb -->
+        <!-- Right: ATHENA Executive Intelligence Core™ artwork -->
         <div class="ea-s1-orb">
-          <svg viewBox="0 0 260 260" width="260" height="260" aria-hidden="true" style="opacity:0.94">
-            <defs>
-              <radialGradient id="ea-sphere-g" cx="36%" cy="30%" r="70%" fx="36%" fy="30%">
-                <stop offset="0%"  stop-color="#ffffff"/>
-                <stop offset="14%" stop-color="#F0F3FA"/>
-                <stop offset="42%" stop-color="#C8CDD8"/>
-                <stop offset="72%" stop-color="#9BA3B2" stop-opacity="0.96"/>
-                <stop offset="100%" stop-color="#6B7280" stop-opacity="0.88"/>
-              </radialGradient>
-              <radialGradient id="ea-hl-g" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.44"/>
-                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-              </radialGradient>
-              <radialGradient id="ea-amb-g" cx="50%" cy="50%" r="50%">
-                <stop offset="0%"  stop-color="#a855f7" stop-opacity="0.20"/>
-                <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
-              </radialGradient>
-              <filter id="ea-glow" x="-80%" y="-80%" width="260%" height="260%">
-                <feGaussianBlur stdDeviation="8" result="b"/>
-                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-              <filter id="ea-amb-blur" x="-200%" y="-200%" width="500%" height="500%">
-                <feGaussianBlur stdDeviation="26"/>
-              </filter>
-            </defs>
-            <circle cx="130" cy="130" r="80" fill="url(#ea-amb-g)" filter="url(#ea-amb-blur)"/>
-            <ellipse cx="130" cy="130" rx="108" ry="26" fill="none" stroke="rgba(168,85,247,0.16)" stroke-width="1" style="transform-origin:130px 130px;transform:rotateX(70deg)"/>
-            <ellipse cx="130" cy="130" rx="90" ry="20" fill="none" stroke="rgba(168,85,247,0.10)" stroke-width="1" style="transform-origin:130px 130px;transform:rotateX(60deg) rotateZ(42deg)"/>
-            <circle cx="130" cy="130" r="62" fill="url(#ea-sphere-g)" filter="url(#ea-glow)"/>
-            <circle cx="111" cy="107" r="20" fill="url(#ea-hl-g)"/>
-            <circle cx="130" cy="130" r="71" fill="none" stroke="rgba(200,205,216,0.15)" stroke-width="1.5"/>
-          </svg>
+          <img
+            class="ea-s1-artwork"
+            src="/images/athena-executive-intelligence-core.png"
+            alt="ATHENA Executive Intelligence Core™"
+            width="340"
+            height="340"
+            loading="eager"
+          >
         </div>
       </div>
     </div><!-- /§1 -->
