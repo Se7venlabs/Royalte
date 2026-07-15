@@ -68,6 +68,60 @@
       color: var(--mc-text-muted);
     }
   </style>
+  <script>
+/* DEV FIXTURE — localhost only, never runs on production (hostname check).
+ * Seeds royalte_workspace_context so the workspace renders without a real scan.
+ * Does not overwrite a context already written by a real scan session. */
+(function () {
+  var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (!isLocal) return;
+  if (sessionStorage.getItem('royalte_workspace_context')) return;
+  sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+    schemaVersion: '1.1',
+    scanId: 'preview-fixture-ai-001',
+    artistName: 'Black Alternative',
+    scannedAt: new Date().toISOString(),
+    generatedAt: new Date().toISOString(),
+    executiveBrief: {
+      headline: 'Strong',
+      executiveSummary: 'Black Alternative has a well-established digital presence with confirmed identity across major platforms. Two registration gaps — PRO and SoundExchange — represent the primary opportunity to capture uncollected performance royalties.',
+      priorityActions: [
+        { observationId: 'obs-pro-missing',    ruleId: 'pro-registration-absent',  recommendation: 'Register with ASCAP, BMI, or SESAC to enable performance royalty collection from streaming, radio, and live performance.' },
+        { observationId: 'obs-sx-missing',     ruleId: 'soundexchange-absent',     recommendation: 'Register with SoundExchange as both artist and rights owner to collect digital performance royalties from Pandora, SiriusXM, and internet radio.' },
+        { observationId: 'obs-pub-unverified', ruleId: 'publisher-unregistered',   recommendation: 'Register compositions with The MLC and confirm publisher of record to complete your publishing rights chain.' },
+        { observationId: 'obs-distro-expand',  ruleId: 'distribution-gaps',       recommendation: 'Expand distribution to YouTube Music, Amazon Music, and Pandora to reach additional revenue-generating platforms.' },
+        { observationId: 'obs-identity-ipi',   ruleId: 'ipi-not-detected',        recommendation: 'Obtain an IPI number through your PRO registration to enable international mechanical and performance royalty tracking.' },
+      ],
+    },
+    healthReport: {
+      grade: 'B',
+      risks: [
+        { observationId: 'obs-pro-missing',    ruleId: 'pro-registration-absent',  severity: 'HIGH',   category: 'PUBLISHING', title: 'PRO registration absent',           description: 'No performing rights organization detected. Performance royalties from streaming, radio, and live performance cannot be collected.' },
+        { observationId: 'obs-sx-missing',     ruleId: 'soundexchange-absent',     severity: 'HIGH',   category: 'PUBLISHING', title: 'SoundExchange not registered',      description: 'Digital performance royalties from Pandora, SiriusXM, and internet radio are not being collected.' },
+        { observationId: 'obs-pub-unverified', ruleId: 'publisher-unregistered',   severity: 'MEDIUM', category: 'PUBLISHING', title: 'Publisher of record unconfirmed',    description: 'No publisher of record detected. Mechanical and sync royalties may not be correctly administered.' },
+      ],
+      opportunities: [
+        { observationId: 'obs-distro-expand',  ruleId: 'distribution-gaps',       severity: 'MEDIUM', category: 'CATALOG',    title: 'Distribution expansion available',  description: 'Catalog not confirmed on YouTube Music, Amazon Music, and Pandora. Additional platforms represent uncaptured streaming revenue.' },
+      ],
+      strengths: [
+        { id: 'str-identity', title: 'Identity confirmed across 4 platforms', description: 'Apple Music, Spotify, MusicBrainz, and Discogs all verified.' },
+      ],
+    },
+    healthIntelligence: {
+      score: 72,
+      status: 'Good',
+      publishingScore: 35,
+      identityScore: 88,
+      footprintScore: 61,
+      catalogScore: 78,
+      backendScore: 98,
+    },
+    royalteAI: {
+      executiveInsight: 'Black Alternative has a strong digital infrastructure but two critical registration gaps are limiting royalty collection. Addressing PRO and SoundExchange registration represents the highest-impact action available.',
+    },
+  }));
+}());
+</script>
   <script src="/js/mc-workspace-context.js"></script>
 </head>
 <body>
