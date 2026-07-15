@@ -7,6 +7,43 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+<script>
+(function () {
+  var host = location.hostname;
+  var isLocal   = host === 'localhost' || host === '127.0.0.1';
+  var isPreview = host.endsWith('.vercel.app');
+  if (!isLocal && !isPreview) return;
+  var existing = sessionStorage.getItem('royalte_workspace_context');
+  if (existing) {
+    try {
+      var ex = JSON.parse(existing);
+      if (ex.scanId && !String(ex.scanId).startsWith('preview-fixture-')) return;
+    } catch (_) {}
+  }
+  sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+    schemaVersion: '1.1',
+    scanId: 'preview-fixture-gmf-001',
+    artistName: 'Black Alternative',
+    scannedAt: new Date().toISOString(),
+    generatedAt: new Date().toISOString(),
+    globalMusicFootprint: {
+      status: 'Strong',
+      territoriesAvailable: 124,
+      coveragePercent: 78,
+      reachNarrative: 'Available across 124 territories on major streaming platforms.',
+    },
+    identityIntelligence: {
+      providers: {
+        apple:   { verified: true  },
+        spotify: { verified: true  },
+        youtube: { verified: true  },
+        deezer:  { verified: false },
+        tidal:   { verified: false },
+      },
+    },
+  }));
+}());
+</script>
   <script src="/js/mc-workspace-context.js"></script>
 </head>
 <body>
