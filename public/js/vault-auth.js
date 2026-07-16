@@ -598,26 +598,14 @@ async function _handleUnlock(email, password, sessionId, scanId) {
     await _claimScan(token, sessionId);
   }
 
-  if (window.__royaltePreactivated) {
-    // Preactivate path: Mission Control is already displaying the current scan's
-    // intelligence. The scan claim above establishes ownership. No re-population
-    // is performed — the anonymous scan payload and the authenticated scan payload
-    // are identical for this scan. Querying Supabase post-auth could return a
-    // different artist's owned data, violating the authentication boundary.
-    // The vault dissolves; the OS remains active with the correct scan displayed.
-    const _vault = document.getElementById('mc-vault');
-    if (_vault) {
-      _vault.classList.remove('mc-vault--visible');
-      await sleep(800);
-      _vault.setAttribute('aria-hidden', 'true');
-    }
-    return;
-  }
-
-  // Music Rights Profile™ gate — first-time users see the onboarding flow.
-  // Redirect before populating MC so the vault overlay stays covering the
-  // (blank) MC while the browser navigates to onboarding.html.
-  // Non-fatal: any DB error falls through so auth is never blocked.
+  // Music Rights Profile™ gate — runs unconditionally after authentication,
+  // on every entry path (standard AND preactivate). Onboarding completion is
+  // an account-level requirement; the preactivate visual-continuity behavior
+  // below may not bypass it. Redirect before populating MC so the vault
+  // overlay stays covering the (blank) MC while the browser navigates to
+  // onboarding.html. Non-fatal: any DB error falls through so auth is never
+  // blocked (P0 board directive 2026-07-16 — do not change without a
+  // separate directive on Failure Behaviour).
   const _token = data?.session?.access_token;
   const _userId = data?.session?.user?.id;
   if (_token && _userId) {
@@ -628,10 +616,31 @@ async function _handleUnlock(email, password, sessionId, scanId) {
         .eq('id', _userId)
         .single();
       if (!_prof?.onboarding_completed_at) {
+        // Preserve the scan so onboarding.html's redirectToMC() returns the
+        // artist to the same scan instead of forcing a re-scan.
+        if (scanId) { try { localStorage.setItem('royalte_pending_scan_id', scanId); } catch {} }
         window.location.href = '/onboarding.html';
         return;
       }
     } catch (_profErr) { /* fall through — non-blocking */ }
+  }
+
+  if (window.__royaltePreactivated) {
+    // Preactivate path: the onboarding gate above has already confirmed this
+    // account's Music Rights Profile is complete. Mission Control is already
+    // displaying the current scan's intelligence. The scan claim above
+    // establishes ownership. No re-population is performed — the anonymous
+    // scan payload and the authenticated scan payload are identical for this
+    // scan. Querying Supabase post-auth could return a different artist's
+    // owned data, violating the authentication boundary. The vault dissolves;
+    // the OS remains active with the correct scan displayed.
+    const _vault = document.getElementById('mc-vault');
+    if (_vault) {
+      _vault.classList.remove('mc-vault--visible');
+      await sleep(800);
+      _vault.setAttribute('aria-hidden', 'true');
+    }
+    return;
   }
 
   // Normal vault path: populate cards while they are still invisible behind
