@@ -1351,8 +1351,20 @@ let _vaultPlans = {};
 
 if (typeof window !== 'undefined') {
   window.__mcPopulate = async function () {
+    // P0 instrumentation (2026-07-16, Board-approved, debugging branch only).
+    // Measures every awaited step so the blocking call is identified from
+    // measured evidence, not inference. Additive only — no logic or timing
+    // changed. Remove before production merge.
+    const __p0t0 = performance.now();
+    console.log('[mc-p0] __mcPopulate start');
+
+    const __p0t1 = performance.now();
     const payload = await fetchScanPayload();
-    if (!payload) return;
+    console.log(`[mc-p0] fetchScanPayload completed: ${Math.round(performance.now() - __p0t1)}ms`, payload ? '(payload present)' : '(payload null)');
+    if (!payload) {
+      console.log(`[mc-p0] __mcPopulate complete: ${Math.round(performance.now() - __p0t0)}ms (no payload — aborted)`);
+      return;
+    }
 
     // Music Rights Profile™ — fetch from the authenticated user's Supabase profile.
     // No workspace may query Supabase directly; MC is the sole intelligence bridge.
@@ -1362,17 +1374,23 @@ if (typeof window !== 'undefined') {
     try {
       const _mrpSb = getSupabase();
       if (_mrpSb) {
-        const { data: { user: _mrpUser } } = await _mrpSb.auth.getUser();
+        const __p0t2 = performance.now();
+        const { data: { user: _mrpUser }, error: _mrpUserErr } = await _mrpSb.auth.getUser();
+        console.log(`[mc-p0] auth.getUser completed: ${Math.round(performance.now() - __p0t2)}ms`, _mrpUserErr ? `error=${_mrpUserErr.message}` : `uid=${_mrpUser?.id || '(none)'}`);
         if (_mrpUser?.id) {
-          const { data: _mrpRow } = await _mrpSb
+          const __p0t3 = performance.now();
+          const { data: _mrpRow, error: _mrpRowErr } = await _mrpSb
             .from('profiles')
             .select('music_rights_profile')
             .eq('id', _mrpUser.id)
             .single();
+          console.log(`[mc-p0] profile query completed: ${Math.round(performance.now() - __p0t3)}ms`, _mrpRowErr ? `error=${_mrpRowErr.message}` : '(ok)');
           musicRightsProfile = _mrpRow?.music_rights_profile ?? null;
         }
       }
-    } catch (_mrpErr) {}
+    } catch (_mrpErr) {
+      console.log('[mc-p0] music rights profile fetch threw:', _mrpErr?.message || _mrpErr);
+    }
     // Preview fallback: use the profile bundled with the preview fixture payload.
     if (!musicRightsProfile && payload.musicRightsProfile) {
       musicRightsProfile = payload.musicRightsProfile;
@@ -1479,9 +1497,13 @@ if (typeof window !== 'undefined') {
         }
       );
       sessionStorage.setItem('royalte_workspace_context', JSON.stringify(workspaceContext));
+      console.log(`[mc-p0] workspace context written: ${Math.round(performance.now() - __p0t0)}ms`);
     } catch (_e) {
+      console.log(`[mc-p0] workspace context write FAILED: ${Math.round(performance.now() - __p0t0)}ms —`, _e?.message || _e);
       console.error('[mc-diag] buildWorkspaceRuntimeContext threw — royalte_workspace_context NOT written:', _e?.message || _e);
     }
+
+    console.log(`[mc-p0] __mcPopulate complete: ${Math.round(performance.now() - __p0t0)}ms`);
   };
 
   window.__mcRevealModule = function (id) {
