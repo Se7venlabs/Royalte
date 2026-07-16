@@ -199,7 +199,70 @@ function _blankSentinelData() {
 
 let _lastBlipIdx = -1;
 
+// ── Workspace context pre-fill ─────────────────────────────────────────
+//
+// Writes royalte_workspace_context from the bridged scan payload immediately
+// on vault entry — before animation timers fire and before authentication
+// completes — so workspace navigation links in Mission Control never show
+// "No Scan Loaded" when a valid scan exists.
+//
+// Reads sessionStorage WITHOUT consuming the payload (peek-only), so
+// fetchScanPayload() / __mcPopulate() can still consume it at ACTIVATE_AT
+// via the normal flow. Falls back to localStorage (never consumed on read).
+//
+// __mcPopulate() overwrites this context later with full authenticated data
+// (musicRightsProfile, artwork). Non-fatal: any error is silently suppressed.
+function _prefillWorkspaceContext() {
+  try {
+    if (sessionStorage.getItem('royalte_workspace_context')) return;
+
+    let payload = null;
+
+    // Peek without consuming — __mcPopulate() must still find this key.
+    try {
+      const _ss = sessionStorage.getItem('royalte_scan_payload');
+      if (_ss) {
+        const _p = JSON.parse(_ss);
+        if (_p && typeof _p === 'object') payload = _p;
+      }
+    } catch (_ssErr) {}
+
+    // localStorage fallback (never consumed on read).
+    if (!payload) {
+      try {
+        const _lsRaw = localStorage.getItem('royalte_scan_payload_ls');
+        if (_lsRaw) {
+          const _lsEntry = JSON.parse(_lsRaw);
+          const _lsAge   = Date.now() - (_lsEntry?.storedAt || 0);
+          if (_lsAge < 4 * 60 * 60 * 1000 && _lsEntry?.payload && typeof _lsEntry.payload === 'object') {
+            payload = _lsEntry.payload;
+          }
+        }
+      } catch (_lsErr) {}
+    }
+
+    // No scan payload found — "No Scan Loaded" is correct, nothing to pre-fill.
+    if (!payload) return;
+
+    if (typeof window.buildWorkspaceRuntimeContext !== 'function') return;
+
+    const artistName  = payload.subject?.artistName || payload.artistName || null;
+    const recordLabel = payload.subject?.recordLabel || null;
+
+    const ctx = window.buildWorkspaceRuntimeContext(payload, null, {
+      artistName,
+      artwork:     null, // image-service not available pre-auth; filled by __mcPopulate later
+      recordLabel,
+    });
+    sessionStorage.setItem('royalte_workspace_context', JSON.stringify(ctx));
+    console.log('[vault] workspace context pre-filled for:', artistName || '(unknown)');
+  } catch (_e) {
+    console.warn('[vault] _prefillWorkspaceContext failed:', _e?.message || _e);
+  }
+}
+
 function _showVault(sessionId, scanId) {
+  _prefillWorkspaceContext();
   document.body.classList.add('mc-sentinel');
   _blankSentinelData();
 
@@ -266,6 +329,7 @@ function _showVault(sessionId, scanId) {
 // The "activation" effect is data appearing via __mcRevealModule, not
 // opacity transitions (those require mc-booting which is cold-start only).
 function _showPreactivateSequence(sessionId, scanId) {
+  _prefillWorkspaceContext();
   document.body.classList.add('mc-sentinel');
   _blankSentinelData();
 
