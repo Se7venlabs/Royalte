@@ -961,47 +961,216 @@
       text-transform: uppercase;
     }
 
-    /* ── §9 APPENDIX ───────────────────────────────────────────── */
+    /* ── §9 TECHNICAL APPENDIX ─────────────────────────────────── */
 
-    .ea-appendix {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 32px;
-      background: var(--mc-surface-1);
+    .ea-apx-sub {
+      padding: 20px 0;
       border-bottom: 1px solid var(--mc-border);
     }
-    .ea-appendix-num {
-      width: 20px; height: 20px;
-      border-radius: 50%;
+    .ea-apx-sub:last-child { border-bottom: none; padding-bottom: 4px; }
+    .ea-apx-sub-hd {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .ea-apx-sub-tag {
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
       background: var(--mc-surface-2);
       border: 1px solid var(--mc-border);
-      display: grid; place-items: center;
-      font-size: 8.5px; font-weight: 700;
-      color: var(--mc-text-faint);
+      border-radius: 4px;
+      padding: 2px 7px;
       flex-shrink: 0;
     }
-    .ea-appendix-lbl {
-      font-size: 9.5px;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--mc-text-muted);
-      flex-shrink: 0;
-    }
-    .ea-appendix-desc {
-      font-size: 9.5px;
-      color: var(--mc-text-faint);
-      flex: 1;
-    }
-    .ea-appendix-cta {
-      font-size: 9.5px;
+    .ea-apx-sub-title {
+      font-size: 12px;
       font-weight: 700;
-      color: var(--mc-teal);
-      cursor: pointer;
-      white-space: nowrap;
+      color: var(--mc-text);
     }
-    .ea-appendix-cta:hover { opacity: 0.75; }
+    .ea-apx-table { width: 100%; border-collapse: collapse; }
+    .ea-apx-table th {
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+      padding: 0 16px 8px 0;
+      border-bottom: 1px solid var(--mc-border);
+      text-align: left;
+    }
+    .ea-apx-table th:last-child { padding-right: 0; text-align: right; }
+    .ea-apx-table td {
+      font-size: 11px;
+      color: var(--mc-text-soft);
+      padding: 7px 16px 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      vertical-align: middle;
+    }
+    .ea-apx-table td:last-child { padding-right: 0; text-align: right; }
+    .ea-apx-table tr:last-child td { border-bottom: none; }
+    .ea-apx-st {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .ea-apx-st::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .ea-apx-st--verified    { color: #34d399; }
+    .ea-apx-st--verified::before    { background: #34d399; }
+    .ea-apx-st--connected   { color: var(--mc-teal); }
+    .ea-apx-st--connected::before   { background: var(--mc-teal); }
+    .ea-apx-st--pending     { color: #fbbf24; }
+    .ea-apx-st--pending::before     { background: #fbbf24; }
+    .ea-apx-st--unavailable { color: var(--mc-text-faint); }
+    .ea-apx-st--unavailable::before { background: var(--mc-text-faint); }
+    .ea-apx-conf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 48px;
+    }
+    .ea-apx-conf-row { display: flex; flex-direction: column; gap: 5px; }
+    .ea-apx-conf-hd  { display: flex; align-items: baseline; justify-content: space-between; }
+    .ea-apx-conf-label { font-size: 10px; font-weight: 600; color: var(--mc-text-soft); }
+    .ea-apx-conf-pct   { font-size: 10px; font-weight: 800; color: var(--mc-text); }
+    .ea-apx-conf-track {
+      height: 3px;
+      background: var(--mc-surface-2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .ea-apx-conf-fill { height: 100%; border-radius: 2px; }
+    .ea-apx-conf-note { font-size: 9.5px; color: var(--mc-text-faint); line-height: 1.45; }
+    .ea-apx-ev-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      border: 1px solid var(--mc-border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .ea-apx-ev-cell {
+      padding: 12px 14px;
+      border-right: 1px solid var(--mc-border);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .ea-apx-ev-cell:last-child { border-right: none; }
+    .ea-apx-ev-label {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+      line-height: 1.3;
+    }
+    .ea-apx-ev-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--mc-text);
+      line-height: 1;
+    }
+    .ea-apx-ev-missing { font-size: 10px; color: var(--mc-text-faint); padding: 6px 0; }
+    .ea-apx-ev-missing strong { font-weight: 700; color: var(--mc-text-muted); }
+    .ea-apx-flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .ea-apx-flow-step {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .ea-apx-flow-num {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: rgba(0,191,165,0.10);
+      border: 1px solid rgba(0,191,165,0.22);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7.5px; font-weight: 800;
+      color: var(--mc-teal);
+      flex-shrink: 0;
+    }
+    .ea-apx-flow-label { font-size: 10px; font-weight: 600; color: var(--mc-text-soft); white-space: nowrap; }
+    .ea-apx-flow-arrow { color: var(--mc-text-faint); font-size: 11px; flex-shrink: 0; line-height: 1; }
+    .ea-apx-dq-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .ea-apx-dq-cell {
+      padding: 10px 8px;
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      align-items: center;
+      text-align: center;
+    }
+    .ea-apx-dq-domain {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+    }
+    .ea-apx-dq-val { font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+    .ea-apx-dq--excellent { color: #34d399; }
+    .ea-apx-dq--good      { color: var(--mc-teal); }
+    .ea-apx-dq--attn      { color: #fb923c; }
+    .ea-apx-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; }
+    .ea-apx-meta-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      gap: 12px;
+    }
+    .ea-apx-meta-row:last-child { border-bottom: none; }
+    .ea-apx-meta-key { font-size: 9.5px; font-weight: 600; color: var(--mc-text-faint); flex-shrink: 0; }
+    .ea-apx-meta-val { font-size: 10px; font-weight: 700; color: var(--mc-text-soft); text-align: right; }
+    .ea-apx-notice {
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--mc-border);
+      border-radius: 6px;
+      font-size: 10.5px;
+      line-height: 1.7;
+      color: var(--mc-text-faint);
+    }
+    @media (max-width: 1100px) {
+      .ea-apx-dq-grid  { grid-template-columns: repeat(4, 1fr); }
+      .ea-apx-ev-strip { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 820px) {
+      .ea-apx-conf-grid { grid-template-columns: 1fr; }
+      .ea-apx-meta-grid { grid-template-columns: 1fr; }
+      .ea-apx-dq-grid   { grid-template-columns: repeat(3, 1fr); }
+      .ea-apx-ev-strip  { grid-template-columns: repeat(3, 1fr); }
+    }
 
     /* ── FOOTER ────────────────────────────────────────────────── */
 
@@ -1393,13 +1562,206 @@
       </div>
     </div><!-- /§7+8 -->
 
-    <!-- §9 APPENDIX ─────────────────────────────────────────── -->
-    <div class="ea-appendix">
-      <div class="ea-appendix-num">9</div>
-      <div class="ea-appendix-lbl">Appendix</div>
-      <div class="ea-appendix-desc">Detailed evidence, data sources, methodology, and technical validations are available in the full technical appendix.</div>
-      <span class="ea-appendix-cta">View Appendix →</span>
-    </div>
+    <!-- §9 TECHNICAL APPENDIX ─────────────────────────────────── -->
+    <div class="ea-section" id="ea-s9" data-section="9">
+      <div class="ea-section-hd">
+        <div class="ea-section-num">9</div>
+        <div class="ea-section-title">Technical Appendix</div>
+      </div>
+
+      <!-- A1: Evidence Sources -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A1</div>
+          <div class="ea-apx-sub-title">Evidence Sources</div>
+        </div>
+        <table class="ea-apx-table">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Category</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Royaltē Intelligence™</td><td>Internal</td><td><span class="ea-apx-st ea-apx-st--verified">Verified</span></td></tr>
+            <tr><td>Apple Music API</td><td>Platform</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>Spotify API</td><td>Platform</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>YouTube API</td><td>Platform</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>MusicBrainz</td><td>Database</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>Discogs</td><td>Database</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>Deezer API</td><td>Platform</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>TIDAL API</td><td>Platform</td><td><span class="ea-apx-st ea-apx-st--pending">Pending</span></td></tr>
+            <tr><td>SoundExchange Registry</td><td>Rights</td><td><span class="ea-apx-st ea-apx-st--unavailable">Unavailable</span></td></tr>
+            <tr><td>PRO Registry</td><td>Rights</td><td><span class="ea-apx-st ea-apx-st--unavailable">Unavailable</span></td></tr>
+            <tr><td>The MLC</td><td>Rights</td><td><span class="ea-apx-st ea-apx-st--unavailable">Unavailable</span></td></tr>
+            <tr><td>Artist Disclosure</td><td>Disclosure</td><td><span class="ea-apx-st ea-apx-st--verified">Verified</span></td></tr>
+            <tr><td>Internal Canonical Resolution Engine™</td><td>Internal</td><td><span class="ea-apx-st ea-apx-st--verified">Verified</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- A2: Confidence Analysis -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A2</div>
+          <div class="ea-apx-sub-title">Confidence Analysis</div>
+        </div>
+        <div class="ea-apx-conf-grid">
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Overall Confidence</div>
+              <div class="ea-apx-conf-pct">84%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:84%;background:var(--mc-teal)"></div></div>
+            <div class="ea-apx-conf-note">Strong identity and catalog evidence, offset by absent publishing registrations and incomplete distribution coverage.</div>
+          </div>
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Identity Confidence</div>
+              <div class="ea-apx-conf-pct">88%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:88%;background:var(--mc-teal)"></div></div>
+            <div class="ea-apx-conf-note">Identity confirmed across 4 platforms with strong cross-source agreement. IPI number not found.</div>
+          </div>
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Publishing Confidence</div>
+              <div class="ea-apx-conf-pct">42%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:42%;background:#fb923c"></div></div>
+            <div class="ea-apx-conf-note">PRO and SoundExchange registrations absent. Publishing profile cannot be fully verified from available evidence.</div>
+          </div>
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Catalog Confidence</div>
+              <div class="ea-apx-conf-pct">81%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:81%;background:var(--mc-teal)"></div></div>
+            <div class="ea-apx-conf-note">Primary releases verified and attributed. Full catalog ISRC standardization is incomplete.</div>
+          </div>
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Global Footprint Confidence</div>
+              <div class="ea-apx-conf-pct">64%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:64%;background:rgba(0,191,165,0.65)"></div></div>
+            <div class="ea-apx-conf-note">Major DSPs confirmed. YouTube Content ID unverified; TIDAL and secondary DSPs pending.</div>
+          </div>
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Backend Confidence</div>
+              <div class="ea-apx-conf-pct">78%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:78%;background:var(--mc-teal)"></div></div>
+            <div class="ea-apx-conf-note">Canonical record complete and verified. Minor dependency risks do not affect overall confidence.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- A3: Evidence Summary -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A3</div>
+          <div class="ea-apx-sub-title">Evidence Summary</div>
+        </div>
+        <div class="ea-apx-ev-strip">
+          <div class="ea-apx-ev-cell">
+            <div class="ea-apx-ev-label">Total Sources</div>
+            <div class="ea-apx-ev-val">13</div>
+          </div>
+          <div class="ea-apx-ev-cell">
+            <div class="ea-apx-ev-label">Connected</div>
+            <div class="ea-apx-ev-val">6</div>
+          </div>
+          <div class="ea-apx-ev-cell">
+            <div class="ea-apx-ev-label">Verified</div>
+            <div class="ea-apx-ev-val">3</div>
+          </div>
+          <div class="ea-apx-ev-cell">
+            <div class="ea-apx-ev-label">Artist-Supplied</div>
+            <div class="ea-apx-ev-val">1</div>
+          </div>
+          <div class="ea-apx-ev-cell">
+            <div class="ea-apx-ev-label">Auto-Verified</div>
+            <div class="ea-apx-ev-val">8</div>
+          </div>
+        </div>
+        <div class="ea-apx-ev-missing"><strong>Missing Evidence:</strong> PRO Registry · SoundExchange · TIDAL · The MLC</div>
+      </div>
+
+      <!-- A4: Methodology -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A4</div>
+          <div class="ea-apx-sub-title">Methodology</div>
+        </div>
+        <div class="ea-apx-flow">
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">1</div><div class="ea-apx-flow-label">Evidence Collection</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">2</div><div class="ea-apx-flow-label">Evidence Verification</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">3</div><div class="ea-apx-flow-label">Canonical Resolution</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">4</div><div class="ea-apx-flow-label">Risk Analysis</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">5</div><div class="ea-apx-flow-label">Opportunity Analysis</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">6</div><div class="ea-apx-flow-label">Executive Intelligence</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">7</div><div class="ea-apx-flow-label">Executive Audit™</div></div>
+        </div>
+      </div>
+
+      <!-- A5: Data Quality Summary -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A5</div>
+          <div class="ea-apx-sub-title">Data Quality Summary</div>
+        </div>
+        <div class="ea-apx-dq-grid">
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Identity</div><div class="ea-apx-dq-val ea-apx-dq--excellent">Excellent</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Publishing</div><div class="ea-apx-dq-val ea-apx-dq--attn">Needs Attention</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Catalog</div><div class="ea-apx-dq-val ea-apx-dq--good">Good</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Metadata</div><div class="ea-apx-dq-val ea-apx-dq--good">Good</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Rights Ownership</div><div class="ea-apx-dq-val ea-apx-dq--attn">Needs Attention</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Distribution</div><div class="ea-apx-dq-val ea-apx-dq--good">Good</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Backend</div><div class="ea-apx-dq-val ea-apx-dq--good">Good</div></div>
+        </div>
+      </div>
+
+      <!-- A6: Executive Audit Metadata -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A6</div>
+          <div class="ea-apx-sub-title">Executive Audit Metadata</div>
+        </div>
+        <div class="ea-apx-meta-grid">
+          <div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Audit Generated</span><span class="ea-apx-meta-val">July 15, 2026 · 9:41 AM</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Audit Version</span><span class="ea-apx-meta-val">2.0</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">ATHENA Engine Version</span><span class="ea-apx-meta-val">1.0.0</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Canonical Dataset Version</span><span class="ea-apx-meta-val">2.0</span></div>
+          </div>
+          <div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Evidence Registry Version</span><span class="ea-apx-meta-val">1.0.0</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Last Scan</span><span class="ea-apx-meta-val">July 15, 2026 · 9:38 AM</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Audit Duration</span><span class="ea-apx-meta-val">3.2 seconds</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Estimated Confidence</span><span class="ea-apx-meta-val">84%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- A7: Important Notice -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A7</div>
+          <div class="ea-apx-sub-title">Important Notice</div>
+        </div>
+        <div class="ea-apx-notice">This Executive Audit™ is generated using evidence collected from Royaltē Intelligence™, connected music services, verified public sources, and artist disclosures. Recommendations are intended to help improve the accuracy, completeness, administration, and monitoring of your music business. Royaltē does not guarantee royalty payments or financial outcomes.</div>
+      </div>
+
+    </div><!-- /§9 -->
 
     <!-- Footer -->
     <div class="ea-footer">
@@ -1570,6 +1932,7 @@
     { num: '6', label: 'ATHENA Insights',      id: 'ea-s6' },
     { num: '7', label: 'Executive Roadmap',    id: 'ea-s7' },
     { num: '8', label: 'Executive Conclusion', id: 'ea-s8' },
+    { num: '9', label: 'Technical Appendix',  id: 'ea-s9' },
   ];
 
   var navEl = document.getElementById('ea-nav');
@@ -1759,7 +2122,7 @@
 
   setActive('ea-s1'); // default
 
-  var observedIds = ['ea-s1','ea-s2','ea-s3','ea-s4','ea-s5','ea-s6','ea-s7','ea-s8'];
+  var observedIds = ['ea-s1','ea-s2','ea-s3','ea-s4','ea-s5','ea-s6','ea-s7','ea-s8','ea-s9'];
   var mainEl = document.getElementById('ea-main');
 
   var io = new IntersectionObserver(function (entries) {
