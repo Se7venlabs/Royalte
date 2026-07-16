@@ -1,0 +1,2281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATHENA Executive Audit™ — Black Alternative — Royaltē</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/royalte-rds.css">
+  <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <style>
+    /* ══════════════════════════════════════════════════════════════
+       ATHENA Executive Audit™ — Layout System
+       Standalone report surface. Consumes Royaltē design tokens.
+       Board-locked terminology: "ATHENA Executive Audit™" throughout.
+       ══════════════════════════════════════════════════════════════ */
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+
+    .ea-shell {
+      display: flex;
+      height: 100vh;
+      background: var(--mc-bg);
+      color: var(--mc-text);
+      font-family: var(--mc-font);
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ───────────────────────────────────────────────── */
+
+    .ea-sidebar {
+      width: 192px;
+      min-width: 192px;
+      flex-shrink: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--mc-surface-1);
+      border-right: 1px solid var(--mc-border);
+      display: flex;
+      flex-direction: column;
+      scrollbar-width: none;
+      position: relative;
+      z-index: 10;
+    }
+    .ea-sidebar::-webkit-scrollbar { display: none; }
+
+    /* Brand block */
+    .ea-sb-brand {
+      padding: 16px 14px 13px;
+      border-bottom: 1px solid var(--mc-border);
+      flex-shrink: 0;
+    }
+    .ea-sb-brand-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .ea-sb-logo {
+      width: 26px; height: 26px;
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--mc-teal);
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .ea-sb-brand-name {
+      font-size: 8.5px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mc-text-muted);
+      line-height: 1.2;
+    }
+    .ea-sb-brand-sub {
+      font-size: 7.5px;
+      color: var(--mc-text-faint);
+      letter-spacing: 0.04em;
+      margin-top: 1px;
+    }
+    .ea-sb-report-title {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--mc-teal);
+      line-height: 1.25;
+      margin-bottom: 2px;
+    }
+    .ea-sb-report-sub {
+      font-size: 8.5px;
+      color: var(--mc-text-faint);
+      letter-spacing: 0.02em;
+    }
+
+    /* Artist block */
+    .ea-sb-artist {
+      padding: 14px;
+      border-bottom: 1px solid var(--mc-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .ea-sb-artist-img-wrap {
+      width: 78px; height: 78px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.09);
+      flex-shrink: 0;
+    }
+    .ea-sb-artist-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .ea-sb-artist-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #12101e 0%, #0d0d1a 60%, #14101f 100%);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      font-style: italic;
+      color: rgba(168,85,247,0.50);
+    }
+    .ea-sb-artist-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--mc-text);
+    }
+    .ea-sb-artist-role {
+      font-size: 8.5px;
+      color: var(--mc-text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: -4px;
+    }
+
+    /* Meta block */
+    .ea-sb-meta {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--mc-border);
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+    .ea-sb-meta-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+    }
+    .ea-sb-meta-ico {
+      width: 13px; height: 13px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      color: var(--mc-text-faint);
+    }
+    .ea-sb-meta-label {
+      font-size: 8px;
+      color: var(--mc-text-faint);
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .ea-sb-meta-val {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--mc-text-muted);
+      line-height: 1.2;
+    }
+
+    /* Reading progress */
+    .ea-sb-progress {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--mc-border);
+      flex-shrink: 0;
+    }
+    .ea-sb-progress-label {
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+      margin-bottom: 5px;
+    }
+    .ea-sb-progress-track {
+      height: 2px;
+      background: var(--mc-surface-2);
+      border-radius: 1px;
+      overflow: hidden;
+      margin-bottom: 5px;
+    }
+    .ea-sb-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--mc-teal);
+      border-radius: 1px;
+      transition: width 0.2s ease;
+    }
+    .ea-sb-progress-time {
+      font-size: 8.5px;
+      color: var(--mc-text-muted);
+    }
+
+    /* Export button */
+    .ea-sb-export {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--mc-border);
+      flex-shrink: 0;
+    }
+    .ea-sb-export-btn {
+      width: 100%;
+      padding: 8px 10px;
+      background: rgba(0,191,165,0.10);
+      border: 1px solid rgba(0,191,165,0.26);
+      border-radius: 7px;
+      color: var(--mc-teal);
+      font-size: 8.5px;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: var(--mc-font);
+      transition: background 0.18s, border-color 0.18s;
+      line-height: 1;
+    }
+    .ea-sb-export-btn:hover {
+      background: rgba(0,191,165,0.18);
+      border-color: rgba(0,191,165,0.44);
+    }
+
+    /* Section nav */
+    .ea-sb-nav {
+      flex: 1;
+      padding: 10px 0 0;
+    }
+    .ea-sb-nav-label {
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+      padding: 0 14px;
+      margin-bottom: 4px;
+    }
+    .ea-sb-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: background 0.15s;
+      user-select: none;
+    }
+    .ea-sb-nav-item:hover { background: rgba(255,255,255,0.02); }
+    .ea-sb-nav-item.ea-nav--active {
+      background: rgba(0,191,165,0.05);
+      border-left-color: var(--mc-teal);
+    }
+    .ea-sb-nav-badge {
+      width: 17px; height: 17px;
+      border-radius: 50%;
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      display: grid;
+      place-items: center;
+      font-size: 7.5px;
+      font-weight: 700;
+      color: var(--mc-text-faint);
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .ea-nav--active .ea-sb-nav-badge {
+      background: rgba(0,191,165,0.14);
+      border-color: rgba(0,191,165,0.32);
+      color: var(--mc-teal);
+    }
+    .ea-sb-nav-label-text {
+      font-size: 9.5px;
+      font-weight: 500;
+      color: var(--mc-text-muted);
+      transition: color 0.15s;
+      line-height: 1.2;
+    }
+    .ea-nav--active .ea-sb-nav-label-text {
+      color: var(--mc-text);
+      font-weight: 600;
+    }
+
+    /* ATHENA widget */
+    .ea-sb-athena {
+      margin: 10px 10px 12px;
+      padding: 12px 11px;
+      background: rgba(168,85,247,0.06);
+      border: 1px solid rgba(168,85,247,0.16);
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    .ea-sb-athena-name {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mc-purple);
+      margin-bottom: 1px;
+    }
+    .ea-sb-athena-role {
+      font-size: 7.5px;
+      color: var(--mc-text-faint);
+      margin-bottom: 10px;
+    }
+    .ea-sb-athena-orb {
+      display: block;
+      margin: 0 auto 9px;
+    }
+    .ea-sb-athena-desc {
+      font-size: 8.5px;
+      color: var(--mc-text-muted);
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    /* ── MAIN ──────────────────────────────────────────────────── */
+
+    .ea-main {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-width: 0;
+      scroll-behavior: smooth;
+    }
+    .ea-main::-webkit-scrollbar { width: 6px; }
+    .ea-main::-webkit-scrollbar-track { background: var(--mc-bg); }
+    .ea-main::-webkit-scrollbar-thumb { background: var(--mc-surface-2); border-radius: 3px; }
+
+    /* Section wrapper */
+    .ea-section {
+      padding: 28px 32px;
+      border-bottom: 1px solid var(--mc-border);
+      scroll-margin-top: 0;
+    }
+
+    /* Section header with numbered badge */
+    .ea-section-hd {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .ea-section-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(0,191,165,0.12);
+      border: 1.5px solid rgba(0,191,165,0.32);
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--mc-teal);
+      flex-shrink: 0;
+    }
+    .ea-section-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mc-text);
+    }
+
+    /* ── §1 EXECUTIVE SUMMARY ──────────────────────────────────── */
+
+    .ea-s1-eyebrow {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mc-teal);
+      margin-bottom: 10px;
+    }
+    /* Hero section — position context for background artwork */
+    .ea-s1-hero {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ATHENA Executive Intelligence Core™ — atmospheric background */
+    .ea-s1-bg-orb {
+      position: absolute;
+      right: -90px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 540px;
+      height: 540px;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+    .ea-s1-bg-orb img {
+      width: 100%;
+      height: auto;
+      display: block;
+      /* mix-blend-mode: screen makes dark bg pixels vanish, bright orb glows through */
+      mix-blend-mode: screen;
+      opacity: 0.20;
+      /* Deeper radial fade — dissolves further into background */
+      -webkit-mask-image: radial-gradient(
+        ellipse 62% 64% at center,
+        rgba(0,0,0,0.80) 0%,
+        rgba(0,0,0,0.48) 30%,
+        rgba(0,0,0,0.14) 55%,
+        transparent 70%
+      );
+      mask-image: radial-gradient(
+        ellipse 62% 64% at center,
+        rgba(0,0,0,0.80) 0%,
+        rgba(0,0,0,0.48) 30%,
+        rgba(0,0,0,0.14) 55%,
+        transparent 70%
+      );
+    }
+
+    /* Purple ambient glow — breathes every 10s */
+    .ea-s1-bg-orb::after {
+      content: '';
+      position: absolute;
+      inset: 15%;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(168,85,247,0.20) 0%, transparent 70%);
+      pointer-events: none;
+      animation: ea-glow-breathe 10s ease-in-out infinite;
+    }
+
+    /* Rotation: one revolution every 200s — imperceptible until observed */
+    @keyframes ea-orb-spin {
+      from { transform: translateY(-50%) rotate(0deg); }
+      to   { transform: translateY(-50%) rotate(360deg); }
+    }
+    @keyframes ea-orb-spin-mobile {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes ea-glow-breathe {
+      0%, 100% { opacity: 0.55; }
+      50%       { opacity: 1.0; }
+    }
+    .ea-s1-bg-orb { animation: ea-orb-spin 200s linear infinite; }
+
+    /* Energy SVG overlay — positioned identically to the artwork */
+    .ea-orb-energy {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      opacity: 0.9;
+    }
+
+    /* Foreground content sits above the background orb */
+    .ea-s1-content-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 600px;
+    }
+
+    .ea-s1-headline {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--mc-text);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .ea-s1-headline .ea-critical {
+      color: #f87171;
+    }
+    .ea-s1-sub {
+      font-size: 12.5px;
+      color: var(--mc-text-muted);
+      line-height: 1.65;
+      max-width: 480px;
+      margin-bottom: 20px;
+    }
+    .ea-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+      max-width: 600px;
+    }
+    .ea-kpi-chip {
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      border-radius: 8px;
+      padding: 10px 11px;
+      /* Slight backdrop blur gives depth against the orb */
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    .ea-kpi-key {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+      margin-bottom: 5px;
+    }
+    .ea-kpi-val {
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.05;
+      margin-bottom: 2px;
+    }
+    .ea-kpi-val--green  { color: #4ade80; }
+    .ea-kpi-val--teal   { color: var(--mc-teal); }
+    .ea-kpi-val--red    { color: #f87171; }
+    .ea-kpi-val--amber  { color: #F59E0B; }
+    .ea-kpi-sub {
+      font-size: 8.5px;
+      color: var(--mc-text-faint);
+      line-height: 1.3;
+    }
+
+    /* ── §2 HEALTH SCORECARD ───────────────────────────────────── */
+
+    .ea-scorecard-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr) 110px;
+      gap: 9px;
+      align-items: start;
+    }
+    .ea-sc-card {
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      border-radius: 9px;
+      padding: 13px 10px;
+      text-align: center;
+    }
+    .ea-sc-ws-name {
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+      margin-bottom: 7px;
+      line-height: 1.3;
+    }
+    .ea-sc-icon {
+      width: 20px; height: 20px;
+      margin: 0 auto 7px;
+      color: var(--mc-teal);
+    }
+    .ea-sc-score {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--mc-text);
+      line-height: 1;
+    }
+    .ea-sc-denom {
+      font-size: 9px;
+      color: var(--mc-text-faint);
+      font-weight: 500;
+    }
+    .ea-sc-status {
+      font-size: 8.5px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    .ea-st--good      { color: #4ade80; }
+    .ea-st--vgood     { color: var(--mc-teal); }
+    .ea-st--attn      { color: #f87171; }
+    .ea-st--fair      { color: #F59E0B; }
+
+    /* Confidence ring */
+    .ea-confidence {
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      border-radius: 9px;
+      padding: 13px 10px;
+      text-align: center;
+    }
+    .ea-confidence-lbl {
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .ea-confidence-ring {
+      width: 64px; height: 64px;
+      margin: 0 auto 5px;
+      display: block;
+    }
+    .ea-confidence-pct {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--mc-teal);
+    }
+    .ea-confidence-sub {
+      font-size: 8px;
+      color: var(--mc-text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── §3+4 CRITICAL ISSUES + OPPORTUNITIES ──────────────────── */
+
+    .ea-co-shell {
+      border-bottom: 1px solid var(--mc-border);
+    }
+    .ea-co-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .ea-co-left {
+      padding: 24px 28px;
+      border-right: 1px solid var(--mc-border);
+    }
+    .ea-co-right {
+      padding: 24px 28px;
+    }
+
+    /* Issue card */
+    .ea-issue {
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      border-radius: 9px;
+      padding: 13px;
+      margin-bottom: 9px;
+    }
+    .ea-issue:last-of-type { margin-bottom: 0; }
+    .ea-issue-hd {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 7px;
+    }
+    .ea-issue-num {
+      width: 19px; height: 19px;
+      border-radius: 50%;
+      background: rgba(248,113,113,0.12);
+      border: 1px solid rgba(248,113,113,0.26);
+      display: grid; place-items: center;
+      font-size: 8.5px; font-weight: 800;
+      color: #f87171;
+      flex-shrink: 0;
+    }
+    .ea-issue-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--mc-text);
+      flex: 1;
+      line-height: 1.2;
+    }
+    .ea-issue-badge {
+      font-size: 6.5px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 5px;
+      border-radius: 3px;
+      background: rgba(248,113,113,0.10);
+      border: 1px solid rgba(248,113,113,0.24);
+      color: #f87171;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .ea-issue-desc {
+      font-size: 10.5px;
+      color: var(--mc-text-muted);
+      line-height: 1.55;
+      margin-bottom: 9px;
+    }
+    .ea-issue-ft {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 7px;
+      padding-top: 9px;
+      border-top: 1px solid var(--mc-border);
+    }
+    .ea-issue-ft-col { display: flex; flex-direction: column; gap: 2px; }
+    .ea-issue-ft-key {
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+    }
+    .ea-issue-ft-val {
+      font-size: 9.5px;
+      font-weight: 700;
+    }
+    .ea-ft--high    { color: #f87171; }
+    .ea-ft--medium  { color: #F59E0B; }
+    .ea-ft--green   { color: #4ade80; }
+    .ea-ft--action  { color: var(--mc-text); font-weight: 600; }
+
+    .ea-view-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 12px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--mc-teal);
+      cursor: pointer;
+    }
+    .ea-view-all:hover { opacity: 0.75; }
+
+    /* Opportunity row */
+    .ea-opp-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--mc-border);
+    }
+    .ea-opp-row:first-of-type { padding-top: 0; }
+    .ea-opp-row:last-of-type  { border-bottom: none; padding-bottom: 0; }
+    .ea-opp-num {
+      width: 19px; height: 19px;
+      border-radius: 50%;
+      background: rgba(0,191,165,0.10);
+      border: 1px solid rgba(0,191,165,0.24);
+      display: grid; place-items: center;
+      font-size: 8.5px; font-weight: 800;
+      color: var(--mc-teal);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .ea-opp-body { flex: 1; min-width: 0; }
+    .ea-opp-title { font-size: 10.5px; font-weight: 700; color: var(--mc-text); margin-bottom: 2px; }
+    .ea-opp-desc  { font-size: 9.5px; color: var(--mc-text-muted); line-height: 1.45; }
+    .ea-opp-impact-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+    .ea-opp-impact-lbl  { font-size: 7px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mc-text-faint); }
+    .ea-opp-impact-val  { font-size: 9.5px; font-weight: 800; }
+    .ea-oiv--high   { color: #4ade80; }
+    .ea-oiv--medium { color: #F59E0B; }
+
+    /* ── §5 WORKSPACE REVIEWS ──────────────────────────────────── */
+
+    .ea-ws-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .ea-ws-card {
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      border-radius: 10px;
+      padding: 15px 14px;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Card header: icon + name + score + status in a row */
+    .ea-ws-card-hd {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--mc-border);
+    }
+    .ea-ws-hd-icon { width: 20px; height: 20px; color: var(--mc-teal); flex-shrink: 0; }
+    .ea-ws-hd-body { flex: 1; min-width: 0; }
+    .ea-ws-hd-name {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--mc-text-muted);
+      margin-bottom: 3px;
+    }
+    .ea-ws-hd-score-row { display: flex; align-items: center; gap: 6px; }
+    .ea-ws-hd-score  { font-size: 16px; font-weight: 800; color: var(--mc-text); letter-spacing: -0.02em; }
+    .ea-ws-hd-denom  { font-size: 9px; color: var(--mc-text-faint); }
+    .ea-ws-hd-status { font-size: 8.5px; font-weight: 700; }
+    /* Executive format fields */
+    .ea-ws-exec-field { margin-bottom: 7px; }
+    .ea-ws-exec-field:last-of-type { margin-bottom: 0; flex: 1; }
+    .ea-ws-exec-label {
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+      margin-bottom: 2px;
+    }
+    .ea-ws-exec-val {
+      font-size: 10.5px;
+      color: var(--mc-text-muted);
+      line-height: 1.5;
+    }
+    .ea-ws-cta {
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--mc-teal);
+      padding-top: 9px;
+      margin-top: 10px;
+      border-top: 1px solid var(--mc-border);
+      cursor: pointer;
+    }
+    .ea-ws-cta:hover { opacity: 0.75; }
+
+    /* ── §6 ATHENA INSIGHTS ────────────────────────────────────── */
+
+    .ea-insights-grid {
+      display: grid;
+      grid-template-columns: 1fr 190px;
+      gap: 24px;
+      align-items: start;
+    }
+    .ea-insights-paras p {
+      font-size: 12.5px;
+      color: var(--mc-text-muted);
+      line-height: 1.75;
+      margin-bottom: 13px;
+    }
+    .ea-insights-paras p:last-child { margin-bottom: 0; }
+    .ea-insights-paras strong { color: var(--mc-text); font-weight: 700; }
+    .ea-pullquote {
+      background: rgba(168,85,247,0.06);
+      border: 1px solid rgba(168,85,247,0.18);
+      border-radius: 11px;
+      padding: 16px 14px;
+    }
+    .ea-pq-mark {
+      font-size: 32px;
+      line-height: 0.8;
+      color: rgba(168,85,247,0.40);
+      margin-bottom: 9px;
+    }
+    .ea-pq-text {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--mc-text);
+      line-height: 1.6;
+      font-style: italic;
+      margin-bottom: 11px;
+    }
+    .ea-pq-attr { font-size: 9px; font-weight: 700; color: var(--mc-purple); letter-spacing: 0.05em; }
+    .ea-pq-role { font-size: 8px; color: var(--mc-text-faint); margin-top: 2px; }
+
+    /* ── §7+8 ROADMAP + CONCLUSION ─────────────────────────────── */
+
+    .ea-rc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--mc-border);
+    }
+    .ea-rc-left {
+      padding: 28px 32px;
+      border-right: 1px solid var(--mc-border);
+    }
+    .ea-rc-right {
+      padding: 28px 32px;
+    }
+
+    .ea-roadmap-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .ea-rm-col-hd {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .ea-rm-icon {
+      width: 16px; height: 16px;
+      border-radius: 4px;
+      display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .ea-rm-icon--30  { background: rgba(0,191,165,0.14);  color: var(--mc-teal); }
+    .ea-rm-icon--90  { background: rgba(168,85,247,0.14); color: var(--mc-purple); }
+    .ea-rm-icon--12m { background: rgba(56,189,248,0.14); color: var(--mc-blue); }
+    .ea-rm-label {
+      font-size: 8.5px;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .ea-rm-label--30  { color: var(--mc-teal); }
+    .ea-rm-label--90  { color: var(--mc-purple); }
+    .ea-rm-label--12m { color: var(--mc-blue); }
+    .ea-rm-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      margin-bottom: 7px;
+      font-size: 10px;
+      color: var(--mc-text-muted);
+      line-height: 1.4;
+    }
+    .ea-rm-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .ea-conclusion-body {
+      font-size: 12.5px;
+      color: var(--mc-text-muted);
+      line-height: 1.75;
+      margin-bottom: 14px;
+    }
+    .ea-conclusion-athena {
+      font-size: 12.5px;
+      color: var(--mc-text);
+      font-weight: 600;
+      line-height: 1.65;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--mc-border);
+    }
+    .ea-conclusion-sig {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+    .ea-conclusion-date { font-size: 10.5px; color: var(--mc-text-muted); }
+    .ea-conclusion-brand-col { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .ea-conclusion-sig-orb { display: block; margin-bottom: 4px; margin-left: auto; }
+    .ea-conclusion-athena-name {
+      font-size: 15px;
+      font-style: italic;
+      color: var(--mc-text-faint);
+      letter-spacing: 0.02em;
+      font-weight: 600;
+    }
+    .ea-conclusion-role {
+      font-size: 8.5px;
+      color: var(--mc-text-faint);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── §9 TECHNICAL APPENDIX ─────────────────────────────────── */
+
+    .ea-apx-sub {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--mc-border);
+    }
+    .ea-apx-sub:last-child { border-bottom: none; padding-bottom: 4px; }
+    .ea-apx-sub-hd {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .ea-apx-sub-tag {
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      border-radius: 4px;
+      padding: 2px 7px;
+      flex-shrink: 0;
+    }
+    .ea-apx-sub-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--mc-text);
+    }
+    .ea-apx-table { width: 100%; border-collapse: collapse; }
+    .ea-apx-table th {
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+      padding: 0 16px 8px 0;
+      border-bottom: 1px solid var(--mc-border);
+      text-align: left;
+    }
+    .ea-apx-table th:last-child { padding-right: 0; text-align: right; }
+    .ea-apx-table td {
+      font-size: 11px;
+      color: var(--mc-text-soft);
+      padding: 7px 16px 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      vertical-align: middle;
+    }
+    .ea-apx-table td:last-child { padding-right: 0; text-align: right; }
+    .ea-apx-table tr:last-child td { border-bottom: none; }
+    .ea-apx-st {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .ea-apx-st::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .ea-apx-st--verified    { color: #34d399; }
+    .ea-apx-st--verified::before    { background: #34d399; }
+    .ea-apx-st--connected   { color: var(--mc-teal); }
+    .ea-apx-st--connected::before   { background: var(--mc-teal); }
+    .ea-apx-st--pending     { color: #fbbf24; }
+    .ea-apx-st--pending::before     { background: #fbbf24; }
+    .ea-apx-st--unavailable { color: var(--mc-text-faint); }
+    .ea-apx-st--unavailable::before { background: var(--mc-text-faint); }
+    .ea-apx-conf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 48px;
+    }
+    .ea-apx-conf-row { display: flex; flex-direction: column; gap: 5px; }
+    .ea-apx-conf-hd  { display: flex; align-items: baseline; justify-content: space-between; }
+    .ea-apx-conf-label { font-size: 10px; font-weight: 600; color: var(--mc-text-soft); }
+    .ea-apx-conf-pct   { font-size: 10px; font-weight: 800; color: var(--mc-text); }
+    .ea-apx-conf-track {
+      height: 3px;
+      background: var(--mc-surface-2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .ea-apx-conf-fill { height: 100%; border-radius: 2px; }
+    .ea-apx-conf-note { font-size: 9.5px; color: var(--mc-text-faint); line-height: 1.45; }
+    .ea-apx-ev-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      border: 1px solid var(--mc-border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .ea-apx-ev-cell {
+      padding: 12px 14px;
+      border-right: 1px solid var(--mc-border);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .ea-apx-ev-cell:last-child { border-right: none; }
+    .ea-apx-ev-label {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+      line-height: 1.3;
+    }
+    .ea-apx-ev-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--mc-text);
+      line-height: 1;
+    }
+    .ea-apx-ev-missing { font-size: 10px; color: var(--mc-text-faint); padding: 6px 0; }
+    .ea-apx-ev-missing strong { font-weight: 700; color: var(--mc-text-muted); }
+    .ea-apx-flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .ea-apx-flow-step {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .ea-apx-flow-num {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: rgba(0,191,165,0.10);
+      border: 1px solid rgba(0,191,165,0.22);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7.5px; font-weight: 800;
+      color: var(--mc-teal);
+      flex-shrink: 0;
+    }
+    .ea-apx-flow-label { font-size: 10px; font-weight: 600; color: var(--mc-text-soft); white-space: nowrap; }
+    .ea-apx-flow-arrow { color: var(--mc-text-faint); font-size: 11px; flex-shrink: 0; line-height: 1; }
+    .ea-apx-dq-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .ea-apx-dq-cell {
+      padding: 10px 8px;
+      background: var(--mc-surface-2);
+      border: 1px solid var(--mc-border);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      align-items: center;
+      text-align: center;
+    }
+    .ea-apx-dq-domain {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+    }
+    .ea-apx-dq-val { font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+    .ea-apx-dq--excellent { color: #34d399; }
+    .ea-apx-dq--good      { color: var(--mc-teal); }
+    .ea-apx-dq--attn      { color: #fb923c; }
+    .ea-apx-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; }
+    .ea-apx-meta-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      gap: 12px;
+    }
+    .ea-apx-meta-row:last-child { border-bottom: none; }
+    .ea-apx-meta-key { font-size: 9.5px; font-weight: 600; color: var(--mc-text-faint); flex-shrink: 0; }
+    .ea-apx-meta-val { font-size: 10px; font-weight: 700; color: var(--mc-text-soft); text-align: right; }
+    .ea-apx-notice {
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--mc-border);
+      border-radius: 6px;
+      font-size: 10.5px;
+      line-height: 1.7;
+      color: var(--mc-text-faint);
+    }
+    @media (max-width: 1100px) {
+      .ea-apx-dq-grid  { grid-template-columns: repeat(4, 1fr); }
+      .ea-apx-ev-strip { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 820px) {
+      .ea-apx-conf-grid { grid-template-columns: 1fr; }
+      .ea-apx-meta-grid { grid-template-columns: 1fr; }
+      .ea-apx-dq-grid   { grid-template-columns: repeat(3, 1fr); }
+      .ea-apx-ev-strip  { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ── FOOTER ────────────────────────────────────────────────── */
+
+    .ea-footer {
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ea-footer-brand {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--mc-text-faint);
+    }
+    .ea-footer-center {
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mc-text-faint);
+    }
+    .ea-footer-copy {
+      font-size: 8.5px;
+      color: var(--mc-text-faint);
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────────── */
+
+    @media (max-width: 1100px) {
+      .ea-scorecard-row { grid-template-columns: repeat(3, 1fr); }
+      .ea-ws-grid       { grid-template-columns: repeat(2, 1fr); }
+      .ea-kpi-row       { grid-template-columns: repeat(2, 1fr); }
+      .ea-s1-bg-orb     { width: 400px; right: -60px; }
+    }
+    @media (max-width: 820px) {
+      .ea-sidebar       { display: none; }
+      .ea-co-grid       { grid-template-columns: 1fr; }
+      .ea-co-left       { border-right: none; border-bottom: 1px solid var(--mc-border); }
+      .ea-rc-grid       { grid-template-columns: 1fr; }
+      .ea-rc-left       { border-right: none; border-bottom: 1px solid var(--mc-border); }
+      .ea-insights-grid { grid-template-columns: 1fr; }
+      .ea-roadmap-cols  { grid-template-columns: 1fr; }
+      .ea-ws-grid       { grid-template-columns: repeat(2, 1fr); }
+      .ea-s1-bg-orb     { width: 320px; right: -40px; }
+    }
+    @media (max-width: 540px) {
+      .ea-ws-grid { grid-template-columns: 1fr; }
+      .ea-s1-bg-orb {
+        width: 240px;
+        right: -20px;
+        top: auto;
+        bottom: -30px;
+        transform: none;
+        animation: ea-orb-spin-mobile 200s linear infinite;
+      }
+      .ea-s1-bg-orb img { opacity: 0.14; }
+      .ea-kpi-row       { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="ea-shell">
+
+  <!-- ══════════════════════════════════════════════════════════
+       SIDEBAR
+       ══════════════════════════════════════════════════════════ -->
+  <aside class="ea-sidebar">
+
+    <!-- Brand -->
+    <div class="ea-sb-brand">
+      <div class="ea-sb-brand-row">
+        <div class="ea-sb-logo">ē</div>
+        <div>
+          <div class="ea-sb-brand-name">ROYALTĒ</div>
+          <div class="ea-sb-brand-sub">Mission Control</div>
+        </div>
+      </div>
+      <div class="ea-sb-report-title">ATHENA Executive Audit™</div>
+      <div class="ea-sb-report-sub">Executive Intelligence Report</div>
+    </div>
+
+    <!-- Artist -->
+    <div class="ea-sb-artist">
+      <div class="ea-sb-artist-img-wrap">
+        <div class="ea-sb-artist-img-placeholder">BA</div>
+      </div>
+      <div class="ea-sb-artist-name">Black Alternative</div>
+      <div class="ea-sb-artist-role">Artist</div>
+    </div>
+
+    <!-- Report meta -->
+    <div class="ea-sb-meta">
+      <div class="ea-sb-meta-row">
+        <svg class="ea-sb-meta-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <div>
+          <div class="ea-sb-meta-label">Report Generated</div>
+          <div class="ea-sb-meta-val">July 15, 2026 · 9:41 AM</div>
+        </div>
+      </div>
+      <div class="ea-sb-meta-row">
+        <svg class="ea-sb-meta-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+        <div>
+          <div class="ea-sb-meta-label">Estimated Reading Time</div>
+          <div class="ea-sb-meta-val">3 Minutes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reading progress -->
+    <div class="ea-sb-progress">
+      <div class="ea-sb-progress-label">Reading Progress</div>
+      <div class="ea-sb-progress-track">
+        <div class="ea-sb-progress-fill" id="ea-progress-fill"></div>
+      </div>
+      <div class="ea-sb-progress-time" id="ea-progress-time">3 min remaining</div>
+    </div>
+
+    <!-- Export -->
+    <div class="ea-sb-export">
+      <button class="ea-sb-export-btn" type="button" onclick="window.print()">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export Executive Audit (PDF)
+      </button>
+    </div>
+
+    <!-- Section nav (populated by JS) -->
+    <div class="ea-sb-nav" id="ea-nav">
+      <div class="ea-sb-nav-label">Section Navigation</div>
+    </div>
+
+    <!-- About ATHENA™ — educational panel -->
+    <div class="ea-sb-athena">
+      <div class="ea-sb-athena-name">About ATHENA™</div>
+      <div class="ea-sb-athena-desc">ATHENA continuously analyzes your music business using verified evidence from Royaltē Intelligence™, connected services, and artist disclosures.</div>
+      <div class="ea-sb-athena-desc" style="margin-top:7px;">Every recommendation in this Executive Audit is generated from your current business profile and supporting evidence.</div>
+    </div>
+
+  </aside><!-- /sidebar -->
+
+  <!-- ══════════════════════════════════════════════════════════
+       MAIN CONTENT
+       ══════════════════════════════════════════════════════════ -->
+  <main class="ea-main" id="ea-main">
+
+    <!-- §1 EXECUTIVE SUMMARY ─────────────────────────────────── -->
+    <div class="ea-section ea-s1-hero" id="ea-s1" data-section="1">
+
+      <!-- ATHENA Executive Intelligence Core™ — atmospheric hero background -->
+      <div class="ea-s1-bg-orb" aria-hidden="true">
+        <img
+          src="/images/athena-executive-intelligence-core.png"
+          alt=""
+          width="540"
+          height="540"
+          loading="eager"
+          draggable="false"
+        >
+        <!-- Internal energy overlay — light streams, node pulses, central shimmer -->
+        <svg class="ea-orb-energy" viewBox="0 0 540 540" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="ea-core-grd" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.95"/>
+              <stop offset="35%"  stop-color="#ddd6fe" stop-opacity="0.55"/>
+              <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="ea-soft" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3.5"/>
+            </filter>
+            <filter id="ea-softer" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="7"/>
+            </filter>
+            <filter id="ea-node-glow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="2.5"/>
+            </filter>
+            <clipPath id="ea-orb-clip">
+              <circle cx="270" cy="270" r="190"/>
+            </clipPath>
+          </defs>
+
+          <g clip-path="url(#ea-orb-clip)">
+
+            <!-- Central shimmer — pulsing core light -->
+            <circle cx="270" cy="270" r="26" fill="url(#ea-core-grd)" filter="url(#ea-softer)">
+              <animate attributeName="r"       values="22;30;22"    dur="6.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              <animate attributeName="opacity" values="0.35;0.62;0.35" dur="6.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+            </circle>
+
+            <!-- Inner ring — light dash traveling clockwise, r=70, C≈440 -->
+            <circle cx="270" cy="270" r="70" fill="none" stroke="rgba(196,181,253,0.25)" stroke-width="0.7" filter="url(#ea-soft)"/>
+            <circle cx="270" cy="270" r="70" fill="none" stroke="rgba(221,214,254,0.80)" stroke-width="1.1"
+              stroke-dasharray="55 385" stroke-linecap="round" filter="url(#ea-soft)">
+              <animateTransform attributeName="transform" type="rotate"
+                from="-90 270 270" to="270 270 270" dur="26s" repeatCount="indefinite" calcMode="linear"/>
+            </circle>
+
+            <!-- Middle ring — counter-clockwise, r=110, C≈691 -->
+            <circle cx="270" cy="270" r="110" fill="none" stroke="rgba(167,139,250,0.18)" stroke-width="0.6" filter="url(#ea-soft)"/>
+            <circle cx="270" cy="270" r="110" fill="none" stroke="rgba(196,181,253,0.68)" stroke-width="0.9"
+              stroke-dasharray="42 649" stroke-linecap="round" filter="url(#ea-soft)">
+              <animateTransform attributeName="transform" type="rotate"
+                from="90 270 270" to="-270 270 270" dur="43s" repeatCount="indefinite" calcMode="linear"/>
+            </circle>
+
+            <!-- Outer ring — clockwise, r=155, C≈974 -->
+            <circle cx="270" cy="270" r="155" fill="none" stroke="rgba(139,92,246,0.14)" stroke-width="0.5" filter="url(#ea-soft)"/>
+            <circle cx="270" cy="270" r="155" fill="none" stroke="rgba(167,139,250,0.55)" stroke-width="0.7"
+              stroke-dasharray="32 942" stroke-linecap="round" filter="url(#ea-soft)">
+              <animateTransform attributeName="transform" type="rotate"
+                from="0 270 270" to="360 270 270" dur="67s" repeatCount="indefinite" calcMode="linear"/>
+            </circle>
+
+            <!-- Six hexagonal nodes (r=110 from center, 60° apart) -->
+            <!-- top:(270,160) top-right:(365,215) bot-right:(365,325) bot:(270,380) bot-left:(175,325) top-left:(175,215) -->
+            <g filter="url(#ea-node-glow)">
+              <circle cx="270" cy="160" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="0s"    repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="0s"    repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+              <circle cx="365" cy="215" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="1.53s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="1.53s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+              <circle cx="365" cy="325" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="3.07s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="3.07s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+              <circle cx="270" cy="380" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="4.60s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="4.60s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+              <circle cx="175" cy="325" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="6.13s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="6.13s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+              <circle cx="175" cy="215" r="4.5" fill="rgba(196,181,253,0.65)">
+                <animate attributeName="opacity" values="0.12;0.50;0.12" dur="9.2s" begin="7.67s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+                <animate attributeName="r"       values="3.5;5.5;3.5"    dur="9.2s" begin="7.67s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>
+              </circle>
+            </g>
+
+            <!-- Expanding ripple — slow energy pulse from center, pair offset by half -->
+            <circle cx="270" cy="270" r="40" fill="none" stroke="rgba(168,85,247,0.45)" stroke-width="0.6">
+              <animate attributeName="r"       values="40;195"      dur="13s" repeatCount="indefinite" calcMode="spline" keySplines="0.12 0 0.88 1"/>
+              <animate attributeName="opacity" values="0.35;0"      dur="13s" repeatCount="indefinite" calcMode="spline" keySplines="0.12 0 0.88 1"/>
+            </circle>
+            <circle cx="270" cy="270" r="40" fill="none" stroke="rgba(168,85,247,0.45)" stroke-width="0.6">
+              <animate attributeName="r"       values="40;195"      dur="13s" begin="6.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.12 0 0.88 1"/>
+              <animate attributeName="opacity" values="0.35;0"      dur="13s" begin="6.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.12 0 0.88 1"/>
+            </circle>
+
+          </g>
+        </svg>
+      </div>
+
+      <!-- Executive Summary content — foreground -->
+      <div class="ea-s1-eyebrow">Executive Summary</div>
+      <div class="ea-s1-content-wrap">
+        <h1 class="ea-s1-headline">ATHENA identified <span class="ea-critical">3 critical issues</span> requiring immediate attention.</h1>
+        <p class="ea-s1-sub">Your music business foundation is strong, but addressing these issues will significantly improve your royalty collection potential and long-term business efficiency.</p>
+        <div class="ea-kpi-row">
+          <div class="ea-kpi-chip">
+            <div class="ea-kpi-key">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              Overall Business Health
+            </div>
+            <div class="ea-kpi-val ea-kpi-val--green">Strong</div>
+            <div class="ea-kpi-sub">72 / 100</div>
+          </div>
+          <div class="ea-kpi-chip">
+            <div class="ea-kpi-key">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Executive Confidence
+            </div>
+            <div class="ea-kpi-val ea-kpi-val--teal">96%</div>
+            <div class="ea-kpi-sub">High Confidence</div>
+          </div>
+          <div class="ea-kpi-chip">
+            <div class="ea-kpi-key">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Priority Score
+            </div>
+            <div class="ea-kpi-val ea-kpi-val--red">High</div>
+            <div class="ea-kpi-sub">Top Priority</div>
+          </div>
+          <div class="ea-kpi-chip">
+            <div class="ea-kpi-key">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              Estimated Revenue Impact
+            </div>
+            <div class="ea-kpi-val ea-kpi-val--amber">Moderate</div>
+            <div class="ea-kpi-sub">Revenue Impact Identified</div>
+          </div>
+        </div>
+      </div><!-- /ea-s1-content-wrap -->
+
+    </div><!-- /§1 -->
+
+    <!-- §2 EXECUTIVE HEALTH SCORECARD ───────────────────────── -->
+    <div class="ea-section" id="ea-s2" data-section="2">
+      <div class="ea-section-hd">
+        <div class="ea-section-num">2</div>
+        <div class="ea-section-title">Executive Health Scorecard</div>
+      </div>
+      <div class="ea-scorecard-row" id="ea-scorecard">
+        <!-- §2 workspace cards injected by JS -->
+        <div class="ea-confidence" id="ea-confidence-card">
+          <div class="ea-confidence-lbl">Overall<br>Confidence</div>
+          <svg class="ea-confidence-ring" viewBox="0 0 64 64" aria-hidden="true">
+            <circle cx="32" cy="32" r="25" fill="none" stroke="rgba(0,191,165,0.14)" stroke-width="4.5"/>
+            <circle cx="32" cy="32" r="25" fill="none" stroke="#00BFA5" stroke-width="4.5"
+              stroke-linecap="round" stroke-dasharray="157" stroke-dashoffset="6.3"
+              transform="rotate(-90 32 32)"/>
+            <text x="32" y="37" text-anchor="middle" font-size="13" font-weight="800" fill="#00BFA5" font-family="system-ui,sans-serif">96%</text>
+          </svg>
+          <div class="ea-confidence-sub">High Confidence</div>
+        </div>
+      </div>
+    </div><!-- /§2 -->
+
+    <!-- §3 + §4 CRITICAL ISSUES + OPPORTUNITIES ─────────────── -->
+    <div class="ea-co-shell" id="ea-s3" data-section="3">
+      <div class="ea-co-grid">
+        <!-- Critical Issues -->
+        <div class="ea-co-left">
+          <div class="ea-section-hd">
+            <div class="ea-section-num">3</div>
+            <div class="ea-section-title">Critical Issues (Top 3)</div>
+          </div>
+          <div id="ea-issues-list"></div>
+          <span class="ea-view-all">View All Issues →</span>
+        </div>
+        <!-- Opportunities -->
+        <div class="ea-co-right" id="ea-s4" data-section="4">
+          <div class="ea-section-hd">
+            <div class="ea-section-num">4</div>
+            <div class="ea-section-title">Top Opportunities (Top 5)</div>
+          </div>
+          <div id="ea-opps-list"></div>
+          <span class="ea-view-all">View All Opportunities →</span>
+        </div>
+      </div>
+    </div><!-- /§3+4 -->
+
+    <!-- §5 EXECUTIVE WORKSPACE REVIEWS ──────────────────────── -->
+    <div class="ea-section" id="ea-s5" data-section="5">
+      <div class="ea-section-hd">
+        <div class="ea-section-num">5</div>
+        <div class="ea-section-title">Executive Workspace Reviews</div>
+      </div>
+      <div class="ea-ws-grid" id="ea-ws-grid"></div>
+    </div><!-- /§5 -->
+
+    <!-- §6 ATHENA INSIGHTS ───────────────────────────────────── -->
+    <div class="ea-section" id="ea-s6" data-section="6">
+      <div class="ea-section-hd">
+        <div class="ea-section-num">6</div>
+        <div class="ea-section-title">ATHENA Insights</div>
+      </div>
+      <div class="ea-insights-grid">
+        <div class="ea-insights-paras" id="ea-insights-paras"></div>
+        <div class="ea-pullquote" id="ea-pullquote"></div>
+      </div>
+    </div><!-- /§6 -->
+
+    <!-- §7 + §8 EXECUTIVE ROADMAP + CONCLUSION ──────────────── -->
+    <div class="ea-rc-grid">
+      <div class="ea-rc-left" id="ea-s7" data-section="7">
+        <div class="ea-section-hd">
+          <div class="ea-section-num">7</div>
+          <div class="ea-section-title">Executive Roadmap</div>
+        </div>
+        <div class="ea-roadmap-cols" id="ea-roadmap-cols"></div>
+      </div>
+      <div class="ea-rc-right" id="ea-s8" data-section="8">
+        <div class="ea-section-hd">
+          <div class="ea-section-num">8</div>
+          <div class="ea-section-title">Executive Conclusion</div>
+        </div>
+        <div id="ea-conclusion"></div>
+      </div>
+    </div><!-- /§7+8 -->
+
+    <!-- §9 TECHNICAL APPENDIX ─────────────────────────────────── -->
+    <div class="ea-section" id="ea-s9" data-section="9">
+      <div class="ea-section-hd">
+        <div class="ea-section-num">9</div>
+        <div class="ea-section-title">Technical Appendix</div>
+      </div>
+
+      <!-- A1: Evidence Sources -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A1</div>
+          <div class="ea-apx-sub-title">Evidence Sources</div>
+        </div>
+        <table class="ea-apx-table">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Category</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Royaltē Intelligence™</td><td>Internal</td><td><span class="ea-apx-st ea-apx-st--verified">Verified</span></td></tr>
+            <tr><td>Apple Music API</td><td>Platform</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>Spotify API</td><td>Platform</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>YouTube API</td><td>Platform</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>MusicBrainz</td><td>Database</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>Discogs</td><td>Database</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>Deezer API</td><td>Platform</td><td><span class="ea-apx-st ea-apx-st--connected">Connected</span></td></tr>
+            <tr><td>TIDAL API</td><td>Platform</td><td><span class="ea-apx-st ea-apx-st--pending">Pending</span></td></tr>
+            <tr><td>SoundExchange Registry</td><td>Rights</td><td><span class="ea-apx-st ea-apx-st--unavailable">Unavailable</span></td></tr>
+            <tr><td>PRO Registry</td><td>Rights</td><td><span class="ea-apx-st ea-apx-st--unavailable">Unavailable</span></td></tr>
+            <tr><td>The MLC</td><td>Rights</td><td><span class="ea-apx-st ea-apx-st--unavailable">Unavailable</span></td></tr>
+            <tr><td>Artist Disclosure</td><td>Disclosure</td><td><span class="ea-apx-st ea-apx-st--verified">Verified</span></td></tr>
+            <tr><td>Internal Canonical Resolution Engine™</td><td>Internal</td><td><span class="ea-apx-st ea-apx-st--verified">Verified</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- A2: Confidence Analysis -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A2</div>
+          <div class="ea-apx-sub-title">Confidence Analysis</div>
+        </div>
+        <div class="ea-apx-conf-grid">
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Overall Confidence</div>
+              <div class="ea-apx-conf-pct">84%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:84%;background:var(--mc-teal)"></div></div>
+            <div class="ea-apx-conf-note">Strong identity and catalog evidence, offset by absent publishing registrations and incomplete distribution coverage.</div>
+          </div>
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Identity Confidence</div>
+              <div class="ea-apx-conf-pct">88%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:88%;background:var(--mc-teal)"></div></div>
+            <div class="ea-apx-conf-note">Identity confirmed across 4 platforms with strong cross-source agreement. IPI number not found.</div>
+          </div>
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Publishing Confidence</div>
+              <div class="ea-apx-conf-pct">42%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:42%;background:#fb923c"></div></div>
+            <div class="ea-apx-conf-note">PRO and SoundExchange registrations absent. Publishing profile cannot be fully verified from available evidence.</div>
+          </div>
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Catalog Confidence</div>
+              <div class="ea-apx-conf-pct">81%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:81%;background:var(--mc-teal)"></div></div>
+            <div class="ea-apx-conf-note">Primary releases verified and attributed. Full catalog ISRC standardization is incomplete.</div>
+          </div>
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Global Footprint Confidence</div>
+              <div class="ea-apx-conf-pct">64%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:64%;background:rgba(0,191,165,0.65)"></div></div>
+            <div class="ea-apx-conf-note">Major DSPs confirmed. YouTube Content ID unverified; TIDAL and secondary DSPs pending.</div>
+          </div>
+          <div class="ea-apx-conf-row">
+            <div class="ea-apx-conf-hd">
+              <div class="ea-apx-conf-label">Backend Confidence</div>
+              <div class="ea-apx-conf-pct">78%</div>
+            </div>
+            <div class="ea-apx-conf-track"><div class="ea-apx-conf-fill" style="width:78%;background:var(--mc-teal)"></div></div>
+            <div class="ea-apx-conf-note">Canonical record complete and verified. Minor dependency risks do not affect overall confidence.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- A3: Evidence Summary -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A3</div>
+          <div class="ea-apx-sub-title">Evidence Summary</div>
+        </div>
+        <div class="ea-apx-ev-strip">
+          <div class="ea-apx-ev-cell">
+            <div class="ea-apx-ev-label">Total Sources</div>
+            <div class="ea-apx-ev-val">13</div>
+          </div>
+          <div class="ea-apx-ev-cell">
+            <div class="ea-apx-ev-label">Connected</div>
+            <div class="ea-apx-ev-val">6</div>
+          </div>
+          <div class="ea-apx-ev-cell">
+            <div class="ea-apx-ev-label">Verified</div>
+            <div class="ea-apx-ev-val">3</div>
+          </div>
+          <div class="ea-apx-ev-cell">
+            <div class="ea-apx-ev-label">Artist-Supplied</div>
+            <div class="ea-apx-ev-val">1</div>
+          </div>
+          <div class="ea-apx-ev-cell">
+            <div class="ea-apx-ev-label">Auto-Verified</div>
+            <div class="ea-apx-ev-val">8</div>
+          </div>
+        </div>
+        <div class="ea-apx-ev-missing"><strong>Missing Evidence:</strong> PRO Registry · SoundExchange · TIDAL · The MLC</div>
+      </div>
+
+      <!-- A4: Methodology -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A4</div>
+          <div class="ea-apx-sub-title">Methodology</div>
+        </div>
+        <div class="ea-apx-flow">
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">1</div><div class="ea-apx-flow-label">Evidence Collection</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">2</div><div class="ea-apx-flow-label">Evidence Verification</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">3</div><div class="ea-apx-flow-label">Canonical Resolution</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">4</div><div class="ea-apx-flow-label">Risk Analysis</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">5</div><div class="ea-apx-flow-label">Opportunity Analysis</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">6</div><div class="ea-apx-flow-label">Executive Intelligence</div></div>
+          <div class="ea-apx-flow-arrow">→</div>
+          <div class="ea-apx-flow-step"><div class="ea-apx-flow-num">7</div><div class="ea-apx-flow-label">Executive Audit™</div></div>
+        </div>
+      </div>
+
+      <!-- A5: Data Quality Summary -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A5</div>
+          <div class="ea-apx-sub-title">Data Quality Summary</div>
+        </div>
+        <div class="ea-apx-dq-grid">
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Identity</div><div class="ea-apx-dq-val ea-apx-dq--excellent">Excellent</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Publishing</div><div class="ea-apx-dq-val ea-apx-dq--attn">Needs Attention</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Catalog</div><div class="ea-apx-dq-val ea-apx-dq--good">Good</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Metadata</div><div class="ea-apx-dq-val ea-apx-dq--good">Good</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Rights Ownership</div><div class="ea-apx-dq-val ea-apx-dq--attn">Needs Attention</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Distribution</div><div class="ea-apx-dq-val ea-apx-dq--good">Good</div></div>
+          <div class="ea-apx-dq-cell"><div class="ea-apx-dq-domain">Backend</div><div class="ea-apx-dq-val ea-apx-dq--good">Good</div></div>
+        </div>
+      </div>
+
+      <!-- A6: Executive Audit Metadata -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A6</div>
+          <div class="ea-apx-sub-title">Executive Audit Metadata</div>
+        </div>
+        <div class="ea-apx-meta-grid">
+          <div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Audit Generated</span><span class="ea-apx-meta-val">July 15, 2026 · 9:41 AM</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Audit Version</span><span class="ea-apx-meta-val">2.0</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">ATHENA Engine Version</span><span class="ea-apx-meta-val">1.0.0</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Canonical Dataset Version</span><span class="ea-apx-meta-val">2.0</span></div>
+          </div>
+          <div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Evidence Registry Version</span><span class="ea-apx-meta-val">1.0.0</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Last Scan</span><span class="ea-apx-meta-val">July 15, 2026 · 9:38 AM</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Audit Duration</span><span class="ea-apx-meta-val">3.2 seconds</span></div>
+            <div class="ea-apx-meta-row"><span class="ea-apx-meta-key">Estimated Confidence</span><span class="ea-apx-meta-val">84%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- A7: Important Notice -->
+      <div class="ea-apx-sub">
+        <div class="ea-apx-sub-hd">
+          <div class="ea-apx-sub-tag">A7</div>
+          <div class="ea-apx-sub-title">Important Notice</div>
+        </div>
+        <div class="ea-apx-notice">This Executive Audit™ is generated using evidence collected from Royaltē Intelligence™, connected music services, verified public sources, and artist disclosures. Recommendations are intended to help improve the accuracy, completeness, administration, and monitoring of your music business. Royaltē does not guarantee royalty payments or financial outcomes.</div>
+      </div>
+
+    </div><!-- /§9 -->
+
+    <!-- Footer -->
+    <div class="ea-footer">
+      <div class="ea-footer-brand">ROYALTĒ</div>
+      <div class="ea-footer-center">Music Backend Intelligence™</div>
+      <div class="ea-footer-copy">© 2026 Se7en Labs Inc. All Rights Reserved.</div>
+    </div>
+
+  </main><!-- /ea-main -->
+</div><!-- /ea-shell -->
+
+<!-- ── WORKSPACE REVIEW OVERLAY ──────────────────────────────────── -->
+<div id="ea-review-overlay" class="pi-athena-overlay" role="dialog" aria-modal="true" aria-labelledby="ea-review-title" hidden>
+  <div class="pi-athena-panel" role="document">
+    <div class="pi-athena-header">
+      <div class="pi-athena-brand">
+        <div class="pi-athena-logo" aria-hidden="true">ē</div>
+        <div class="pi-athena-brand-text">
+          <div class="pi-athena-eyebrow">ATHENA EXECUTIVE AUDIT™</div>
+          <div class="pi-athena-wordmark" id="ea-review-title">Workspace Review</div>
+        </div>
+      </div>
+      <button class="pi-athena-close" id="ea-review-close" onclick="eaCloseReview()" aria-label="Close workspace review">✕</button>
+    </div>
+    <div class="pi-athena-body" id="ea-review-body" style="padding-bottom:32px;">
+      <!-- populated by eaOpenReview() -->
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── BLACK ALTERNATIVE FIXTURE ──────────────────────────────── */
+
+  var WS = [
+    {
+      key: 'health', name: 'Health Intelligence', score: 72, status: 'Good', stClass: 'ea-st--good',
+      assessment: 'Music business infrastructure is operational with minor optimization opportunities remaining.',
+      finding:    'Publishing registration gaps are reducing the completeness of the overall Health Profile.',
+      bizImpact:  'Unresolved publishing gaps limit the accuracy of your royalty infrastructure picture across all workspaces.',
+      action:     'Complete publishing registrations to achieve a comprehensive Health Intelligence score.',
+    },
+    {
+      key: 'identity', name: 'Identity Intelligence', score: 88, status: 'Very Good', stClass: 'ea-st--vgood',
+      assessment: 'Artist identity is verified and confirmed across all major streaming platforms.',
+      finding:    'ISRC coverage is strong across the catalog; IPI verification is the only remaining gap.',
+      bizImpact:  'High identity confidence supports accurate cross-platform royalty attribution and reduces payment risk.',
+      action:     'Obtain an IPI number to complete full identity verification.',
+    },
+    {
+      key: 'publishing', name: 'Publishing Ecosystem', score: 58, status: 'Needs Attention', stClass: 'ea-st--attn',
+      assessment: 'Publishing infrastructure requires immediate attention to restore royalty collection capacity.',
+      finding:    'PRO and SoundExchange registrations are both absent, blocking two independent royalty streams.',
+      bizImpact:  'These gaps are directly preventing collection of performance royalties and digital neighboring rights.',
+      action:     'Register with a PRO and SoundExchange as the immediate first priority.',
+    },
+    {
+      key: 'catalog', name: 'Catalog Intelligence', score: 81, status: 'Very Good', stClass: 'ea-st--vgood',
+      assessment: 'Catalog metadata is strong with high accuracy verified across all tracked releases.',
+      finding:    'All primary catalog entries are attributed and verified. ISRC standardization is the remaining task.',
+      bizImpact:  'Accurate catalog data supports correct royalty matching, distribution reporting, and rights enforcement.',
+      action:     'Standardize ISRC codes across all releases to complete catalog certification.',
+    },
+    {
+      key: 'global', name: 'Global Footprint', score: 64, status: 'Fair', stClass: 'ea-st--fair',
+      assessment: 'Distribution footprint covers major markets but significant expansion opportunity exists.',
+      finding:    'YouTube Content ID and several emerging DSPs are not yet activated for this catalog.',
+      bizImpact:  'Unclaimed distribution channels represent untapped reach and potential royalty collection.',
+      action:     'Activate YouTube Content ID and expand distribution to Deezer and TIDAL.',
+    },
+    {
+      key: 'backend', name: 'Backend Intelligence', score: 78, status: 'Good', stClass: 'ea-st--good',
+      assessment: 'Backend infrastructure is operational with all core services connected and verified.',
+      finding:    'Canonical records are complete. Minor dependency risks are identified and require monitoring.',
+      bizImpact:  'Strong backend integrity supports reliable data flow across all intelligence workspaces.',
+      action:     'Monitor flagged dependencies and complete outstanding evidence verification tasks.',
+    },
+  ];
+
+  var ISSUES = [
+    {
+      title: 'PRO Registration Absent',
+      desc: 'You are not registered with a Performing Rights Organization. This prevents collection of performance royalties from radio, streaming, and live performances worldwide.',
+      impact: 'High', impactClass: 'ea-ft--high',
+      revenue: 'High Revenue Impact',
+      action: 'Register with SOCAN',
+    },
+    {
+      title: 'SoundExchange Not Registered',
+      desc: 'You are not registered with SoundExchange to collect digital performance royalties from Pandora, SiriusXM, and internet radio services.',
+      impact: 'High', impactClass: 'ea-ft--high',
+      revenue: 'High Revenue Impact',
+      action: 'Register with SoundExchange',
+    },
+    {
+      title: 'Publisher Of Record Unconfirmed',
+      desc: 'Your compositions are not registered with The MLC and your publisher of record is not confirmed. This delays mechanical royalty collection from digital services.',
+      impact: 'Medium', impactClass: 'ea-ft--medium',
+      revenue: 'Moderate Revenue Impact',
+      action: 'Confirm publisher with The MLC',
+    },
+  ];
+
+  var OPPS = [
+    { title: 'Register with SoundExchange',   desc: 'Capture digital performance royalties from internet radio and non-interactive streaming.',   impact: 'High',   impactClass: 'ea-oiv--high' },
+    { title: 'Expand to YouTube Content ID',  desc: 'Monetize your catalog across YouTube\'s global audience with automated rights management.',   impact: 'High',   impactClass: 'ea-oiv--high' },
+    { title: 'Complete MLC Registration',     desc: 'Ensure all mechanical royalties are collected for compositions across digital platforms.',      impact: 'High',   impactClass: 'ea-oiv--high' },
+    { title: 'Add to Additional DSPs',        desc: 'Expand distribution to Deezer, TIDAL, and Qobuz to reach untapped listener segments.',         impact: 'Medium', impactClass: 'ea-oiv--medium' },
+    { title: 'Verify & Standardize ISRCs',    desc: 'Ensure every track has a valid, consistent ISRC for accurate cross-platform tracking.',         impact: 'Medium', impactClass: 'ea-oiv--medium' },
+  ];
+
+  var INSIGHTS = [
+    '<strong>Black Alternative</strong> has a solid foundation with verified identity and strong catalog metadata across all major platforms. However, the absence of PRO and SoundExchange registrations is actively limiting royalty collection from key performance-rights and neighboring-rights income streams.',
+    'Publishing administration is incomplete, which may delay mechanical royalty payments. Completing MLC registration and confirming a publisher of record will significantly strengthen your revenue infrastructure.',
+    'Your global distribution footprint shows good coverage across major DSPs, but there is untapped potential in emerging platforms and territories. Expanding to YouTube Content ID will unlock a meaningful new revenue channel with minimal overhead.',
+    'Overall, addressing these three critical gaps will position your music business for stronger, more consistent royalty performance across all active income streams.',
+  ];
+
+  var PULL_QUOTE = {
+    text: 'Focus on registration first. Once your rights infrastructure is complete, scaling your distribution will drive sustainable revenue growth.',
+    attr: '— ATHENA',
+    role: 'Executive AI',
+  };
+
+  var ROADMAP = {
+    days30:   ['Register with SOCAN (PRO)', 'Register with SoundExchange', 'Complete MLC Registration', 'Confirm Publisher of Record', 'Verify ISRCs for All Tracks'],
+    days90:   ['Expand to YouTube Content ID', 'Add Distribution to Deezer & TIDAL', 'Audit & Optimize Release Metadata', 'Claim Official Artist Channels', 'Review & Update Rights Administration'],
+    months12: ['Global Distribution Expansion', 'Full Catalog Audit & Cleanup', 'Copyright Registration Review', 'Sync Licensing Strategy', 'Build Fan Engagement Channels'],
+  };
+
+  var CONCLUSION = {
+    body: 'Black Alternative is well positioned with a strong foundation in identity verification and catalog accuracy. By addressing the three critical issues identified in this report, you will significantly improve your ability to collect royalties and unlock new revenue opportunities across all active channels.',
+    athena: 'ATHENA will continue monitoring your music business infrastructure and will alert you as new opportunities and risks are detected.',
+    date: 'July 15, 2026',
+  };
+
+  /* ── WORKSPACE SVG ICONS ─────────────────────────────────── */
+
+  var ICONS = {
+    health:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+    identity:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+    publishing: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    catalog:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+    global:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+    backend:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>',
+  };
+
+  var RM_ICONS = {
+    days30:   '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+    days90:   '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+    months12: '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>',
+  };
+
+  function esc(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  /* ── NAV ITEMS ───────────────────────────────────────────── */
+
+  var NAV = [
+    { num: '1', label: 'Executive Summary',    id: 'ea-s1' },
+    { num: '2', label: 'Executive Health',     id: 'ea-s2' },
+    { num: '3', label: 'Critical Issues',      id: 'ea-s3' },
+    { num: '4', label: 'Opportunities',        id: 'ea-s4' },
+    { num: '5', label: 'Workspace Reviews',    id: 'ea-s5' },
+    { num: '6', label: 'ATHENA Insights',      id: 'ea-s6' },
+    { num: '7', label: 'Executive Roadmap',    id: 'ea-s7' },
+    { num: '8', label: 'Executive Conclusion', id: 'ea-s8' },
+    { num: '9', label: 'Technical Appendix',  id: 'ea-s9' },
+  ];
+
+  var navEl = document.getElementById('ea-nav');
+  NAV.forEach(function (item) {
+    var div = document.createElement('div');
+    div.className = 'ea-sb-nav-item';
+    div.dataset.navId = item.id;
+    div.innerHTML = '<div class="ea-sb-nav-badge">' + item.num + '</div>'
+      + '<div class="ea-sb-nav-label-text">' + esc(item.label) + '</div>';
+    div.addEventListener('click', function () {
+      var el = document.getElementById(item.id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    });
+    navEl.appendChild(div);
+  });
+
+  /* ── §2 SCORECARD ────────────────────────────────────────── */
+
+  var scorecardEl = document.getElementById('ea-scorecard');
+  var confidenceCard = document.getElementById('ea-confidence-card');
+  WS.forEach(function (ws) {
+    var card = document.createElement('div');
+    card.className = 'ea-sc-card';
+    card.innerHTML = '<div class="ea-sc-ws-name">' + esc(ws.name) + '</div>'
+      + '<div class="ea-sc-icon" aria-hidden="true">' + (ICONS[ws.key] || '') + '</div>'
+      + '<div class="ea-sc-score">' + ws.score + '<span class="ea-sc-denom"> / 100</span></div>'
+      + '<div class="ea-sc-status ' + ws.stClass + '">' + esc(ws.status) + '</div>';
+    scorecardEl.insertBefore(card, confidenceCard);
+  });
+
+  /* ── §3 CRITICAL ISSUES ──────────────────────────────────── */
+
+  var issuesEl = document.getElementById('ea-issues-list');
+  ISSUES.forEach(function (issue, i) {
+    var div = document.createElement('div');
+    div.className = 'ea-issue';
+    div.innerHTML = '<div class="ea-issue-hd">'
+      + '<div class="ea-issue-num">' + (i + 1) + '</div>'
+      + '<div class="ea-issue-title">' + esc(issue.title) + '</div>'
+      + '<span class="ea-issue-badge">CRITICAL</span>'
+      + '</div>'
+      + '<div class="ea-issue-desc">' + esc(issue.desc) + '</div>'
+      + '<div class="ea-issue-ft">'
+      +   '<div class="ea-issue-ft-col"><div class="ea-issue-ft-key">Impact on Royalties</div><div class="ea-issue-ft-val ' + issue.impactClass + '">' + esc(issue.impact) + '</div></div>'
+      +   '<div class="ea-issue-ft-col"><div class="ea-issue-ft-key">Revenue Impact</div><div class="ea-issue-ft-val ea-ft--green">' + esc(issue.revenue) + '</div></div>'
+      +   '<div class="ea-issue-ft-col"><div class="ea-issue-ft-key">Action</div><div class="ea-issue-ft-val ea-ft--action">' + esc(issue.action) + ' →</div></div>'
+      + '</div>';
+    issuesEl.appendChild(div);
+  });
+
+  /* ── §4 OPPORTUNITIES ────────────────────────────────────── */
+
+  var oppsEl = document.getElementById('ea-opps-list');
+  OPPS.forEach(function (opp, i) {
+    var div = document.createElement('div');
+    div.className = 'ea-opp-row';
+    div.innerHTML = '<div class="ea-opp-num">' + (i + 1) + '</div>'
+      + '<div class="ea-opp-body">'
+      +   '<div class="ea-opp-title">' + esc(opp.title) + '</div>'
+      +   '<div class="ea-opp-desc">'  + esc(opp.desc)  + '</div>'
+      + '</div>'
+      + '<div class="ea-opp-impact-wrap">'
+      +   '<div class="ea-opp-impact-lbl">Impact</div>'
+      +   '<div class="ea-opp-impact-val ' + opp.impactClass + '">' + esc(opp.impact) + '</div>'
+      + '</div>';
+    oppsEl.appendChild(div);
+  });
+
+  /* ── §5 WORKSPACE REVIEWS (executive format) ─────────────── */
+
+  var wsGrid = document.getElementById('ea-ws-grid');
+  var WS_EXEC_LABELS = ['Executive Assessment', 'Key Finding', 'Business Impact', 'Recommended Action'];
+  WS.forEach(function (ws) {
+    var card = document.createElement('div');
+    card.className = 'ea-ws-card';
+    card.innerHTML =
+      '<div class="ea-ws-card-hd">'
+      + '<div class="ea-ws-hd-icon" aria-hidden="true">' + (ICONS[ws.key] || '') + '</div>'
+      + '<div class="ea-ws-hd-body">'
+      +   '<div class="ea-ws-hd-name">' + esc(ws.name) + '</div>'
+      +   '<div class="ea-ws-hd-score-row">'
+      +     '<span class="ea-ws-hd-score">' + ws.score + '</span>'
+      +     '<span class="ea-ws-hd-denom"> / 100</span>'
+      +     '<span class="ea-ws-hd-status ' + ws.stClass + '">' + esc(ws.status) + '</span>'
+      +   '</div>'
+      + '</div>'
+      + '</div>'
+      + ['assessment','finding','bizImpact','action'].map(function (field, i) {
+        return '<div class="ea-ws-exec-field">'
+          + '<div class="ea-ws-exec-label">' + WS_EXEC_LABELS[i] + '</div>'
+          + '<div class="ea-ws-exec-val">'   + esc(ws[field] || '') + '</div>'
+          + '</div>';
+      }).join('')
+      + '<div class="ea-ws-cta" role="button" tabindex="0" onclick="eaOpenReview(\'' + ws.key + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \')eaOpenReview(\'' + ws.key + '\')">View Review →</div>';
+    wsGrid.appendChild(card);
+  });
+
+  /* ── §6 ATHENA INSIGHTS ──────────────────────────────────── */
+
+  var parasEl = document.getElementById('ea-insights-paras');
+  INSIGHTS.forEach(function (para) {
+    var p = document.createElement('p');
+    p.innerHTML = para;
+    parasEl.appendChild(p);
+  });
+
+  document.getElementById('ea-pullquote').innerHTML =
+    '<div class="ea-pq-mark">"</div>'
+    + '<div class="ea-pq-text">' + esc(PULL_QUOTE.text) + '</div>'
+    + '<div class="ea-pq-attr">' + esc(PULL_QUOTE.attr) + '</div>'
+    + '<div class="ea-pq-role">' + esc(PULL_QUOTE.role) + '</div>';
+
+  /* ── §7 EXECUTIVE ROADMAP ────────────────────────────────── */
+
+  var rmDefs = [
+    { key: 'days30',   label: 'Next 30 Days',   items: ROADMAP.days30,   lClass: 'ea-rm-label--30',  iClass: 'ea-rm-icon--30' },
+    { key: 'days90',   label: 'Next 90 Days',   items: ROADMAP.days90,   lClass: 'ea-rm-label--90',  iClass: 'ea-rm-icon--90' },
+    { key: 'months12', label: 'Next 12 Months', items: ROADMAP.months12, lClass: 'ea-rm-label--12m', iClass: 'ea-rm-icon--12m' },
+  ];
+  var rmEl = document.getElementById('ea-roadmap-cols');
+  rmDefs.forEach(function (col) {
+    var items = col.items.map(function (item) {
+      return '<div class="ea-rm-item"><div class="ea-rm-dot"></div>' + esc(item) + '</div>';
+    }).join('');
+    var div = document.createElement('div');
+    div.innerHTML = '<div class="ea-rm-col-hd">'
+      + '<div class="ea-rm-icon ' + col.iClass + '">' + RM_ICONS[col.key] + '</div>'
+      + '<div class="ea-rm-label ' + col.lClass + '">' + esc(col.label) + '</div>'
+      + '</div>' + items;
+    rmEl.appendChild(div);
+  });
+
+  /* ── §8 EXECUTIVE CONCLUSION ─────────────────────────────── */
+
+  var conclusionEl = document.getElementById('ea-conclusion');
+
+  /* Tiny conclusion orb */
+  var orbSvg = '<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" class="ea-conclusion-sig-orb">'
+    + '<defs>'
+    + '<radialGradient id="ea-co-g" cx="36%" cy="30%" r="70%"><stop offset="0%" stop-color="#ffffff"/><stop offset="30%" stop-color="#C8CDD8"/><stop offset="70%" stop-color="#7c8494"/><stop offset="100%" stop-color="#4B5563" stop-opacity="0.88"/></radialGradient>'
+    + '<radialGradient id="ea-co-hl" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.44"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient>'
+    + '</defs>'
+    + '<circle cx="16" cy="16" r="12" fill="url(#ea-co-g)"/>'
+    + '<circle cx="12" cy="11" r="4" fill="url(#ea-co-hl)"/>'
+    + '</svg>';
+
+  conclusionEl.innerHTML =
+    '<p class="ea-conclusion-body">' + esc(CONCLUSION.body) + '</p>'
+    + '<p class="ea-conclusion-athena">' + esc(CONCLUSION.athena) + '</p>'
+    + '<div class="ea-conclusion-sig">'
+    +   '<div class="ea-conclusion-date">' + esc(CONCLUSION.date) + '</div>'
+    +   '<div class="ea-conclusion-brand-col">'
+    +     orbSvg
+    +     '<div class="ea-conclusion-athena-name">ATHENA</div>'
+    +     '<div class="ea-conclusion-role">Executive AI</div>'
+    +   '</div>'
+    + '</div>';
+
+  /* ── READING PROGRESS ────────────────────────────────────── */
+
+  var progressFill = document.getElementById('ea-progress-fill');
+  var progressTime = document.getElementById('ea-progress-time');
+  var TOTAL_MINUTES = 3;
+
+  function updateProgress() {
+    var main = document.getElementById('ea-main');
+    var scrollH = main.scrollHeight - main.clientHeight;
+    var pct = scrollH > 0 ? Math.min(main.scrollTop / scrollH * 100, 100) : 0;
+    progressFill.style.width = pct.toFixed(1) + '%';
+    var rem = Math.max(0, Math.round(TOTAL_MINUTES * (1 - pct / 100)));
+    progressTime.textContent = (rem <= 0) ? 'Complete' : rem + ' min remaining';
+  }
+
+  /* ── ACTIVE SECTION (IntersectionObserver) ───────────────── */
+
+  var navItems = document.querySelectorAll('.ea-sb-nav-item');
+
+  function setActive(id) {
+    navItems.forEach(function (item) {
+      if (item.dataset.navId === id) {
+        item.classList.add('ea-nav--active');
+      } else {
+        item.classList.remove('ea-nav--active');
+      }
+    });
+  }
+
+  setActive('ea-s1'); // default
+
+  var observedIds = ['ea-s1','ea-s2','ea-s3','ea-s4','ea-s5','ea-s6','ea-s7','ea-s8','ea-s9'];
+  var mainEl = document.getElementById('ea-main');
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        setActive(entry.target.id);
+      }
+    });
+  }, { root: mainEl, threshold: 0.18 });
+
+  observedIds.forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) io.observe(el);
+  });
+
+  mainEl.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  /* ── WORKSPACE REVIEW OVERLAY ────────────────────────────────── */
+
+  var WS_REVIEWS = {
+    health: {
+      title: 'Health Intelligence™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Black Alternative\'s overall music business infrastructure is operational with a Health Score of 72. Identity and catalog foundations are strong. The score is held below 85 by the absence of publishing registrations, which is the primary gap in the current profile.' },
+        { label: 'Key Findings', list: [
+          'Health Score: 72 out of 100, rated Good',
+          'Identity verification: Strong across 4 platforms',
+          'Catalog accuracy: High — metadata verified on all primary releases',
+          'Publishing registration: Not found — PRO and SoundExchange both absent',
+          'Distribution coverage: Active on major DSPs; expansion available',
+        ]},
+        { label: 'Why This Matters', body: 'The Health Score is ATHENA\'s unified view of your music business readiness. It measures how fully your rights infrastructure is in place across identity, publishing, catalog, distribution, and backend systems. A score of 72 means most foundations are sound, but the publishing gap creates a blind spot that limits the completeness of the overall intelligence picture. Closing that gap improves score accuracy across all related workspaces.' },
+        { label: 'Impact on Royalties', body: 'Publishing registration gaps affect two independent royalty streams — performance royalties via a PRO and digital performance royalties via SoundExchange. Without these registrations, your recordings earn royalties through these channels but those royalties cannot be claimed or collected. Resolving the publishing gap is the single action with the greatest impact on royalty collection completeness.' },
+        { label: 'Recommended Action', body: 'Complete PRO and SoundExchange registrations to restore full publishing royalty collection capacity. This is the single action with the greatest impact on your overall Health Score. Review the Publishing Ecosystem workspace for specific registration steps.' },
+      ],
+    },
+    identity: {
+      title: 'Identity Intelligence™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Black Alternative\'s identity is confirmed across all major streaming platforms with an Identity Intelligence score of 88. This is one of the strongest-performing areas of the business profile. The only remaining gap is a missing IPI number, which affects publishing identity only.' },
+        { label: 'Key Findings', list: [
+          'Platforms verified: Apple Music, Spotify, YouTube, Deezer',
+          'ISRC coverage: Strong across the primary catalog',
+          'IPI number: Not found — publishing identity incomplete',
+          'Duplicate or conflicting artist profiles: None detected',
+          'Overall identity confidence: Very Good',
+        ]},
+        { label: 'Why This Matters', body: 'Artist identity is the foundation of the entire music rights infrastructure. Every royalty payment, rights claim, and distribution agreement begins with a verified identity consistently recognized across platforms. A confirmed identity on all major DSPs ensures your recordings are correctly attributed to you when royalties are calculated and distributed. The missing IPI number is specifically relevant to publishing identity — it is how performing rights organizations and international collection societies identify you as a rights holder in their systems.' },
+        { label: 'Impact on Royalties', body: 'An identity score of 88 means your recordings are very likely to be correctly matched to your artist profile across distribution, publishing, and collection systems. The missing IPI number creates a specific gap in publishing royalty attribution. Performing rights organizations and international collection societies use IPI numbers to identify rights holders in their databases. Without it, cross-border performance royalty routing can be incomplete or delayed, and some societies may not be able to match incoming royalties to your account.' },
+        { label: 'Recommended Action', body: 'Register with a Performing Rights Organization to obtain your IPI number. Once assigned, the IPI number becomes your permanent publishing identity credential and enables accurate cross-system royalty attribution across all registered territories.' },
+      ],
+    },
+    publishing: {
+      title: 'Publishing Ecosystem™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Publishing infrastructure is the most critical area requiring immediate attention. The score of 58 reflects two absent registrations each independently blocking a separate royalty stream. No publishing-related royalty collection is currently confirmed as active for this artist.' },
+        { label: 'Key Findings', list: [
+          'PRO (Performing Rights Organization): Not registered',
+          'SoundExchange: Not registered',
+          'Publisher of record: Not confirmed',
+          'MLC (Mechanical Licensing Collective): Registration status not available',
+          'Publishing royalty collection status: Not active',
+        ]},
+        { label: 'Why This Matters', body: 'Publishing covers the rights layer that governs how your compositions earn money when performed, broadcast, or streamed — distinct from the recording rights your distributor administers. PRO registration enables collection of performance royalties from radio airplay, live performances, sync licensing, and streaming. SoundExchange administers digital performance royalties for non-interactive streams on services such as Pandora and SiriusXM. Without both registrations, these income streams are not routed to you regardless of how frequently your music is played.' },
+        { label: 'Impact on Royalties', body: 'The absence of PRO and SoundExchange registrations means that performance royalties and digital neighboring rights royalties are currently not being collected on your behalf. The MLC administers mechanical royalties from digital services — without confirmed registration, mechanical royalties for streams may not be correctly matched and paid. These three royalty streams are independent of each other and of your distribution income. Each absent registration represents a separate collection channel that is currently closed.' },
+        { label: 'Recommended Action', body: 'Register with a Performing Rights Organization (ASCAP, BMI, SESAC, or SOCAN depending on your territory). Register with SoundExchange for digital performance royalties. Confirm registration with The MLC for mechanical royalties from digital services. Identify or establish a publisher of record. These four steps each address a separate royalty stream and should be completed as a priority.' },
+      ],
+    },
+    catalog: {
+      title: 'Catalog Intelligence™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Catalog metadata is accurate and verified across all primary tracked releases with a Catalog Intelligence score of 81. This workspace is performing well above the industry baseline. The remaining gap is ISRC standardization across the full catalog.' },
+        { label: 'Key Findings', list: [
+          'Primary release entries: Verified and attributed',
+          'Metadata accuracy: High across major DSPs',
+          'ISRC codes: Present on primary releases; standardization incomplete across full catalog',
+          'Metadata conflicts: None detected',
+          'Catalog certification status: Near-complete',
+        ]},
+        { label: 'Why This Matters', body: 'Your catalog is the commercial record of every release you have made available. Accurate, consistent, and verified catalog metadata is the mechanism by which streaming services, collection societies, and distributors identify your recordings, link them to the correct rights holders, and calculate royalties. ISRC codes are the international standard for identifying individual recordings and are required for royalty matching across the global rights ecosystem. Incomplete ISRC coverage means some recordings may not be recognized in all systems even when your identity is confirmed.' },
+        { label: 'Impact on Royalties', body: 'A catalog score of 81 reflects strong metadata quality supporting accurate royalty matching and distribution reporting. Standardizing ISRC codes across all releases improves the ability of streaming services, neighboring rights organizations, and collection societies to identify your recordings, link them to your artist account, and ensure that streaming royalties, neighboring rights payments, and broadcast royalties are matched and paid correctly.' },
+        { label: 'Recommended Action', body: 'Audit ISRC codes across all releases and confirm that each recording has a valid, registered ISRC linked to your catalog. Work with your distributor to assign ISRCs to any releases that are missing them, and register those ISRCs with your collecting societies.' },
+      ],
+    },
+    global: {
+      title: 'Global Music Footprint™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Distribution is established on major platforms but the global footprint has significant expansion potential with a score of 64. YouTube Content ID is not activated and several important DSPs are not yet confirmed, limiting both reach and royalty collection across key territories.' },
+        { label: 'Key Findings', list: [
+          'Active distribution: Spotify, Apple Music, Amazon Music confirmed',
+          'YouTube Content ID: Not activated',
+          'Deezer: Not confirmed',
+          'TIDAL: Not confirmed',
+          'International territory coverage: Incomplete',
+        ]},
+        { label: 'Why This Matters', body: 'Global footprint determines where your music can be legally streamed, downloaded, and monetized. Each platform and territory represents a distinct commercial channel with its own royalty structure and collection pathway. Distribution presence in a territory also establishes the legal basis for collection societies in that market to identify your recordings and administer royalties. YouTube Content ID is the mechanism by which recordings uploaded to YouTube — by fans, distributors, or the artist directly — are identified and monetized. Without it, recordings on YouTube generate views without generating revenue for the rights holder.' },
+        { label: 'Impact on Royalties', body: 'YouTube Content ID is a high-impact gap because YouTube is the world\'s largest music streaming platform by monthly users. Without Content ID, recordings uploaded by fans or third parties generate no royalties for the rights holder. Deezer and TIDAL each operate in territories and user demographics with limited overlap with Spotify and Apple Music — absent distribution means absent royalty collection on those platforms. Each missing platform represents a closed collection channel for recordings already in your catalog.' },
+        { label: 'Recommended Action', body: 'Activate YouTube Content ID through your distributor or a dedicated Content ID partner. Confirm that your distributor is delivering your catalog to Deezer and TIDAL. Review your distribution agreement to identify the full list of active territories and determine where coverage gaps exist.' },
+      ],
+    },
+    backend: {
+      title: 'Backend Intelligence™',
+      sections: [
+        { label: 'Executive Assessment', body: 'Backend infrastructure is operational with all core services connected and the canonical record complete. The score of 78 reflects strong fundamentals with minor dependency risks flagged for monitoring. No critical backend failures are present.' },
+        { label: 'Key Findings', list: [
+          'Canonical record integrity: Verified and complete',
+          'Connected services: All primary services active',
+          'Evidence verification: Complete for primary records',
+          'Dependency risks: Minor risks identified and flagged',
+          'Backend operational status: Good',
+        ]},
+        { label: 'Why This Matters', body: 'Backend Intelligence represents ATHENA\'s view of the technical infrastructure that supports your music business. This includes the integrity of your canonical artist record — the authoritative data object that links your identity, catalog, and rights information across all connected systems — and the reliability of the services that depend on it. When backend infrastructure is complete and verified, royalty processing systems can reliably identify, match, and route payments.' },
+        { label: 'Impact on Royalties', body: 'A backend score of 78 reflects infrastructure well-positioned to support accurate royalty administration. The canonical record is complete and verified, meaning ATHENA can reliably link your identity, catalog, and rights data across connected services. The minor dependency risks flagged do not affect current operations but represent conditions that could degrade data reliability if left unmonitored. Backend integrity is the foundation all other intelligence workspaces depend on — it is the system of record that rights administrators, distributors, and collection societies query when resolving royalty matching questions.' },
+        { label: 'Recommended Action', body: 'Monitor the flagged dependency risks using the Royaltē Intelligence dashboard. Complete outstanding evidence verification tasks for secondary records. No immediate action is required for core backend function — the infrastructure is operational and no active failures are present.' },
+      ],
+    },
+  };
+
+  function eaRenderSection(s) {
+    var body = s.list
+      ? '<ul style="margin:4px 0 0;padding-left:16px;display:flex;flex-direction:column;gap:4px;">'
+          + s.list.map(function(item){ return '<li style="font-size:12px;line-height:1.55;color:var(--mc-text-soft);">' + esc(item) + '</li>'; }).join('')
+          + '</ul>'
+      : '<div class="pi-athena-section-body">' + esc(s.body) + '</div>';
+    return '<div class="pi-athena-section"><div class="pi-athena-section-label">' + esc(s.label) + '</div>' + body + '</div>';
+  }
+
+  window.eaOpenReview = function(key) {
+    var review = WS_REVIEWS[key];
+    if (!review) return;
+    document.getElementById('ea-review-title').textContent = review.title + ' — Workspace Review';
+    document.getElementById('ea-review-body').innerHTML = review.sections.map(eaRenderSection).join('');
+    var overlay = document.getElementById('ea-review-overlay');
+    overlay.removeAttribute('hidden');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ document.getElementById('ea-review-close').focus(); }, 50);
+  };
+
+  window.eaCloseReview = function() {
+    document.getElementById('ea-review-overlay').setAttribute('hidden', '');
+    document.body.style.overflow = '';
+  };
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var overlay = document.getElementById('ea-review-overlay');
+      if (overlay && !overlay.hasAttribute('hidden')) eaCloseReview();
+    }
+  });
+
+}());
+</script>
+
+</body>
+</html>
