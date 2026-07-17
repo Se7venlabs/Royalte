@@ -124,7 +124,14 @@ export const DISTRIBUTION_FIELDS = Object.freeze([
     displayName:      'Spotify Markets',
     parentObject:     'Artist',
     domain:           'Distribution Availability',
-    description:      'Number of Spotify markets where the artist\'s catalog is available.',
+    // Phase 5.2 correction (Board Decision 1): Spotify removed bulk
+    // available_markets in Feb 2026, and exhaustive per-market Spotify
+    // territory acquisition is explicitly out of scope for Phase 5.2 —
+    // Apple is the sole territory-acquisition provider this phase. This
+    // field is not populated by the Territory Intelligence Engine and is
+    // left DEFERRED rather than silently implying live Spotify coverage
+    // data that does not exist.
+    description:      'Number of Spotify markets where the artist\'s catalog is available. Not populated in Phase 5.2 — Spotify does not contribute territory-acquisition evidence this phase (Board Decision 1).',
     dataType:         'number',
     required:         false,
     defaultValue:     0,
@@ -132,6 +139,42 @@ export const DISTRIBUTION_FIELDS = Object.freeze([
     resolutionPolicy: 'CANONICAL_SOURCE',
     confidencePolicy: 'PROVIDER_TRUST',
     sourcePriority:   ['spotify'],
+    consumers:        ['GlobalFootprintIntelligence', 'HealthEngine', 'MissionControl'],
+    version:          '1.0.0',
+    status:           'ACTIVE',
+  },
+  {
+    id:               'distribution.territory_states',
+    canonicalName:    'territory_states',
+    displayName:      'Territory States',
+    parentObject:     'Artist',
+    domain:           'Distribution Availability',
+    description:      'Per-territory reconciled state from the Territory Intelligence Engine™: five-state model (AVAILABLE/UNAVAILABLE/UNKNOWN/NOT_EVALUATED/ERROR) with preserved provider evidence per territory.',
+    dataType:         'array',
+    required:         false,
+    defaultValue:     null,
+    validationRule:   null,
+    resolutionPolicy: 'CANONICAL_SOURCE',
+    confidencePolicy: 'PROVIDER_TRUST',
+    sourcePriority:   ['apple'],
+    consumers:        ['GlobalFootprintIntelligence', 'MissionControl'],
+    version:          '1.0.0',
+    status:           'ACTIVE',
+  },
+  {
+    id:               'distribution.territory_summary',
+    canonicalName:    'territory_summary',
+    displayName:      'Territory Summary',
+    parentObject:     'Artist',
+    domain:           'Distribution Availability',
+    description:      'Aggregate territory-state counts from the Territory Intelligence Engine™: { available, unavailable, unknown, notEvaluated, error }.',
+    dataType:         'object',
+    required:         false,
+    defaultValue:     null,
+    validationRule:   null,
+    resolutionPolicy: 'DERIVED',
+    confidencePolicy: 'PROVIDER_TRUST',
+    sourcePriority:   ['apple'],
     consumers:        ['GlobalFootprintIntelligence', 'HealthEngine', 'MissionControl'],
     version:          '1.0.0',
     status:           'ACTIVE',

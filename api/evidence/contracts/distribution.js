@@ -63,5 +63,32 @@ export const DISTRIBUTION_CONTRACT = Object.freeze({
       required:    false,
       description: 'Provider\'s summary availability classification (e.g. WIDE, MODERATE, LIMITED, MINIMAL).',
     },
+    // Phase 5.2 — Territory Intelligence Engine™ reconciled output fields.
+    // Additive only (Board decision 6): the six fields above are unchanged.
+    // These represent the Engine's per-territory five-state reconciliation
+    // (AVAILABLE/UNAVAILABLE/UNKNOWN/NOT_EVALUATED/ERROR), not raw
+    // per-provider evidence — evidence itself is preserved inside
+    // territoryStates rather than collapsed away (Board Decision 2).
+    {
+      id:          'territoryStates',
+      displayName: 'Territory States',
+      dataType:    'array',
+      required:    false,
+      description: 'Per-territory reconciled state from the Territory Intelligence Engine: { code, name, state, confidence, evidence[] }. evidence[] preserves each contributing provider\'s raw observation, acquisition status, timestamp, source, and reason code.',
+    },
+    {
+      id:          'territorySummary',
+      displayName: 'Territory Summary',
+      dataType:    'object',
+      required:    false,
+      description: 'Aggregate counts by state across all evaluated territories: { available, unavailable, unknown, notEvaluated, error }.',
+    },
+    {
+      id:          'territoryProvidersContributing',
+      displayName: 'Territory Providers Contributing',
+      dataType:    'array',
+      required:    false,
+      description: 'Providers whose evidence contributed to the reconciled territory states (Apple-only in Phase 5.2; provider-general by design).',
+    },
   ]),
 });
