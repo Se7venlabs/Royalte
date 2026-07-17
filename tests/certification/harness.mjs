@@ -33,6 +33,7 @@
 //    17-tidal                TIDAL Connector™ PAL connector certified
 //    18-acrcloud-ai-detection ACRCloud AI Detection Connector™ PAL connector certified
 //    19-territory-intelligence Territory Intelligence Engine™ certified
+//    20-distribution-gaps    Distribution Gaps™ (GMF) certified
 //
 //  This harness never throws. Any suite that throws is caught and reported
 //  as a failed suite. The exit code reflects the overall certification status.
@@ -59,6 +60,7 @@ import { runSpotifyConnector }   from './suites/16-spotify-connector.mjs';
 import { runTidalConnector }     from './suites/17-tidal-connector.mjs';
 import { runACRCloudAIDetectionConnector } from './suites/18-acrcloud-ai-detection-connector.mjs';
 import { runTerritoryIntelligence } from './suites/19-territory-intelligence.mjs';
+import { runDistributionGaps }   from './suites/20-distribution-gaps.mjs';
 import { printBoardReport }      from './reporters/board-report.mjs';
 
 const QUIET = process.argv.includes('--quiet');
@@ -114,6 +116,7 @@ async function main() {
   results.push(await runSuite('17-tidal',                  runTidalConnector));
   results.push(await runSuite('18-acrcloud-ai-detection',  runACRCloudAIDetectionConnector));
   results.push(await runSuite('19-territory-intelligence', runTerritoryIntelligence));
+  results.push(await runSuite('20-distribution-gaps',      runDistributionGaps));
 
   const elapsed = Math.round(performance.now() - startMs);
   log('');
