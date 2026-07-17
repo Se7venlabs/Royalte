@@ -238,7 +238,11 @@ export class TidalConnector extends ProviderConnector {
       };
     }
 
-    // Candidates are in included[].attributes — full objects returned when include=artists
+    // Candidates are in included[].attributes — full objects returned when include=artists.
+    // Identity-lock is a routing decision only — it selects WHICH artist ID to
+    // fetch full detail for. It never transforms or selects fields out of the
+    // provider response; the payload returned below is always TIDAL's raw
+    // response, untouched (constitutional constraint: acquire raw evidence only).
     const included   = Array.isArray(search.data?.included) ? search.data.included : [];
     const candidates = included.filter(item => item?.type === 'artists');
 
@@ -253,7 +257,8 @@ export class TidalConnector extends ProviderConnector {
       };
     }
 
-    // Fetch full artist detail including profileArt
+    // Fetch full artist detail including profileArt — this raw response IS
+    // the payload returned, exactly as TIDAL sent it.
     const detail = await tidalGet(
       `/artists/${encodeURIComponent(match.id)}?countryCode=${this.#cc()}&include=profileArt`,
       this.#token,
@@ -261,34 +266,21 @@ export class TidalConnector extends ProviderConnector {
     );
 
     if (detail.ok && detail.data) {
-      // Merge search-match attributes into the detail response payload
-      // so downstream has all fields in one object
-      const detailData = detail.data?.data ?? {};
-      const payload    = {
-        id:         detailData.id          ?? match.id,
-        name:       detailData.attributes?.name        ?? match.attributes?.name,
-        popularity: detailData.attributes?.popularity  ?? match.attributes?.popularity,
-        url:        this.#extractUrl(detailData.attributes?.externalLinks ?? match.attributes?.externalLinks),
-        images:     this.#extractImages(detail.data?.included ?? []),
-      };
       return {
-        payload,
+        payload:      detail.data,
         rawText:      detail.rawText,
         health:       createHealthSignal({ state: HealthState.AVAILABLE, provider: PROVIDER_NAME }),
         completeness: 'full',
       };
     }
 
-    // Fall back to search-match object if detail fetch fails
-    const payload = {
-      id:         match.id,
-      name:       match.attributes?.name,
-      popularity: match.attributes?.popularity,
-      url:        this.#extractUrl(match.attributes?.externalLinks),
-      images:     [],
-    };
+    // Detail fetch failed — fall back to the identity-locked candidate's raw
+    // resource object from the search response's included[] array (still
+    // untouched TIDAL evidence, just the one already-resolved item rather
+    // than the full, still-ambiguous search envelope — resolving WHICH item
+    // is a routing decision already made above; this doesn't reshape it).
     return {
-      payload,
+      payload:      match,
       rawText:      search.rawText ?? '',
       health:       createHealthSignal({ state: HealthState.AVAILABLE, provider: PROVIDER_NAME,
                       detail: 'using search result — artist detail fetch failed' }),
@@ -379,26 +371,6 @@ export class TidalConnector extends ProviderConnector {
       health:      createHealthSignal({ state, provider: PROVIDER_NAME, detail }),
       credentials: token ? { token } : null,
     };
-  }
-
-  // ── Response helpers ──────────────────────────────────────────────────────────
-
-  // Extract TIDAL browse URL from externalLinks array.
-  // Shape: [{ href: 'https://tidal.com/browse/artist/...', meta: { type: 'TIDAL_SHARING' } }]
-  #extractUrl(externalLinks) {
-    if (!Array.isArray(externalLinks)) return null;
-    return externalLinks.find(l => l.meta?.type === 'TIDAL_SHARING')?.href ?? externalLinks[0]?.href ?? null;
-  }
-
-  // Extract image URLs from an included artworks array.
-  // Shape: [{ id, type: 'artworks', attributes: { files: [{ href, meta: { width, height } }...] } }]
-  // Returns the largest image file href.
-  #extractImages(included) {
-    const artworks = included.filter(item => item?.type === 'artworks');
-    const files    = artworks.flatMap(a => Array.isArray(a.attributes?.files) ? a.attributes.files : []);
-    if (files.length === 0) return [];
-    // Sort by width descending, return all files
-    return files.sort((a, b) => (b.meta?.width ?? 0) - (a.meta?.width ?? 0));
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────────

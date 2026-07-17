@@ -5,7 +5,10 @@
 //
 // TIDAL uses OAuth 2.1 client credentials flow.
 // Token endpoint: https://auth.tidal.com/v1/oauth2/token
-// Tokens are valid for 24 hours (86400s) by default.
+// Tokens are valid for 4 hours (expires_in: 14400s) — live-verified 2026-07-17.
+// This connector does not cache tokens across calls, so the exact lifetime
+// is informational only; it re-authenticates fresh each time authenticate()
+// is called.
 
 export const TIDAL_AUTH_URL = 'https://auth.tidal.com/v1/oauth2/token';
 

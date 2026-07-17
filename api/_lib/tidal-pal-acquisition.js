@@ -82,7 +82,7 @@ export async function acquireTidalEvidence({ artistName }) {
       return { evidencePackages, acquired: false, elapsedMs: Date.now() - startMs };
     }
 
-    const tidalArtistId = identityReport.contract.payload?.id ?? null;
+    const tidalArtistId = _normalizeArtistResource(identityReport.contract.payload)?.id ?? null;
     if (!tidalArtistId) {
       await pal.shutdown().catch(() => {});
       return { evidencePackages, acquired: false, elapsedMs: Date.now() - startMs };
@@ -146,21 +146,20 @@ export function synthesizeTidalCompat(evidencePackages, artistName) {
 
   // ── artist identity ────────────────────────────────────────────────────────
   const identityPkg = findFirstByType(evidencePackages, Capability.ARTIST_IDENTITY);
-  const detail      = identityPkg?.contract?.payload;
+  const resource     = _normalizeArtistResource(identityPkg?.contract?.payload);
 
-  if (!detail || typeof detail !== 'object' || !detail.id) {
+  if (!resource || !resource.id) {
     return defaultResult;
   }
 
   // TIDAL popularity is 0-1 scale; normalize to 0-100 for consistency with other providers
-  const popularity = typeof detail.popularity === 'number'
-    ? Math.round(detail.popularity * 100)
+  const popularity = typeof resource.attributes.popularity === 'number'
+    ? Math.round(resource.attributes.popularity * 100)
     : 0;
 
   // Best image: first entry in sorted images array (largest first)
-  const picture = Array.isArray(detail.images) && detail.images.length > 0
-    ? detail.images[0].href ?? null
-    : null;
+  const images  = _extractImages(resource.included);
+  const picture = images.length > 0 ? images[0].href ?? null : null;
 
   // ── albums ─────────────────────────────────────────────────────────────────
   const albumsPkg = findFirstByType(evidencePackages, Capability.ALBUMS);
@@ -172,9 +171,9 @@ export function synthesizeTidalCompat(evidencePackages, artistName) {
 
   return {
     found:      true,
-    artistId:   String(detail.id),
-    name:       detail.name     ?? artistName,
-    url:        detail.url      ?? `https://tidal.com/browse/artist/${detail.id}`,
+    artistId:   String(resource.id),
+    name:       resource.attributes.name ?? artistName,
+    url:        _extractUrl(resource.attributes.externalLinks) ?? `https://tidal.com/browse/artist/${resource.id}`,
     popularity,
     picture,
     albums,
@@ -184,6 +183,45 @@ export function synthesizeTidalCompat(evidencePackages, artistName) {
 }
 
 // ── Private helpers ─────────────────────────────────────────────────────────
+//
+// TidalConnector#fetchArtistIdentity returns raw provider evidence in one of
+// two shapes (Phase 4.0 TIDAL Connector Modernization — connector no longer
+// reshapes evidence, per PAL constitutional standard):
+//   - full detail envelope: { data: { id, type, attributes }, included: [...] }
+//   - identity-locked search match (fallback path): { id, type, attributes }
+// This compat layer — explicitly transitional, unlike the connector — is the
+// correct place to normalize and interpret raw evidence into a legacy shape.
+
+function _normalizeArtistResource(payload) {
+  if (!payload || typeof payload !== 'object') return null;
+  if (payload.data && typeof payload.data === 'object' && !Array.isArray(payload.data)) {
+    return {
+      id:         payload.data.id,
+      attributes: payload.data.attributes ?? {},
+      included:   Array.isArray(payload.included) ? payload.included : [],
+    };
+  }
+  if (payload.id) {
+    return { id: payload.id, attributes: payload.attributes ?? {}, included: [] };
+  }
+  return null;
+}
+
+// Extract TIDAL browse URL from externalLinks array.
+// Shape: [{ href: 'https://tidal.com/browse/artist/...', meta: { type: 'TIDAL_SHARING' } }]
+function _extractUrl(externalLinks) {
+  if (!Array.isArray(externalLinks)) return null;
+  return externalLinks.find(l => l.meta?.type === 'TIDAL_SHARING')?.href ?? externalLinks[0]?.href ?? null;
+}
+
+// Extract image files from an included artworks array, largest first.
+// Shape: [{ id, type: 'artworks', attributes: { files: [{ href, meta: { width, height } }...] } }]
+function _extractImages(included) {
+  const artworks = included.filter(item => item?.type === 'artworks');
+  const files    = artworks.flatMap(a => Array.isArray(a.attributes?.files) ? a.attributes.files : []);
+  if (files.length === 0) return [];
+  return [...files].sort((a, b) => (b.meta?.width ?? 0) - (a.meta?.width ?? 0));
+}
 
 // Extract included resource objects of a given type from a JSON:API collection response.
 // TIDAL collections: { data: [{ id, type }...], included: [{ id, type, attributes: {...} }...] }
