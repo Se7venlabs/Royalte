@@ -11,4 +11,5 @@ export const DEEZER_CAPABILITIES = Object.freeze([
   Capability.ISRC,             // ISRC fields present in top-tracks response
   Capability.ARTWORK,          // artist picture URLs at multiple sizes
   Capability.GENRES,           // genres derived from album genre tags
+  Capability.AVAILABILITY,     // full track resource: available_countries, bpm, gain, contributors, track_token
 ]);
