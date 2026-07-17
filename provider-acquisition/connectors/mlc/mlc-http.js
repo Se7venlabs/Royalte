@@ -118,6 +118,90 @@ export async function mlcPost(path, body, options = {}) {
   return { ok: false, healthState: 'MAINTENANCE', error: 'max retries exceeded' };
 }
 
+/**
+ * GET request to the MLC API. Mirrors mlcPost's retry/backoff/error
+ * classification exactly; added alongside it (not merged into it) so the
+ * existing POST wrapper is untouched.
+ *
+ * @param {string} path — e.g. '/work/id/{id}'
+ * @param {object} options — { idToken?, fetchFn, timeoutMs, maxRetries, baseUrl }
+ * @returns {{ ok, status?, rawText?, data?, healthState, error? }}
+ */
+export async function mlcGet(path, options = {}) {
+  const {
+    idToken    = null,
+    fetchFn    = globalThis.fetch,
+    timeoutMs  = DEFAULT_TIMEOUT_MS,
+    maxRetries = DEFAULT_MAX_RETRIES,
+    baseUrl    = MLC_API_BASE,
+  } = options;
+
+  const url = path.startsWith('http') ? path : `${baseUrl}${path}`;
+
+  const headers = { Accept: 'application/json' };
+  if (idToken) headers['Authorization'] = `Bearer ${idToken}`;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const controller = new AbortController();
+    const timer      = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const res = await fetchFn(url, {
+        method:  'GET',
+        headers,
+        signal:  controller.signal,
+      });
+      clearTimeout(timer);
+
+      if (res.ok) {
+        const rawText = await res.text();
+        let data = null;
+        try { data = JSON.parse(rawText); } catch { /* non-JSON → data stays null */ }
+        return { ok: true, status: res.status, rawText, data };
+      }
+
+      if (res.status === 401) {
+        return { ok: false, status: 401, healthState: 'AUTH_FAILED', rawText: await safeText(res) };
+      }
+      if (res.status === 400) {
+        return { ok: false, status: 400, healthState: 'MAINTENANCE', rawText: await safeText(res) };
+      }
+      if (res.status === 404) {
+        return { ok: false, status: 404, healthState: 'PARTIAL_RESPONSE', rawText: await safeText(res) };
+      }
+      if (res.status === 429) {
+        if (attempt < maxRetries) {
+          await sleep(jitteredBackoff(attempt));
+          continue;
+        }
+        return { ok: false, status: 429, healthState: 'RATE_LIMITED', rawText: await safeText(res) };
+      }
+      if (res.status >= 500) {
+        if (attempt < maxRetries) {
+          await sleep(jitteredBackoff(attempt));
+          continue;
+        }
+        return { ok: false, status: res.status, healthState: 'MAINTENANCE', rawText: await safeText(res) };
+      }
+
+      return { ok: false, status: res.status, healthState: 'MAINTENANCE', rawText: await safeText(res) };
+
+    } catch (err) {
+      clearTimeout(timer);
+      if (err.name === 'AbortError') {
+        return { ok: false, healthState: 'TIMEOUT', error: 'request timed out' };
+      }
+      if (attempt < maxRetries) {
+        await sleep(jitteredBackoff(attempt));
+        continue;
+      }
+      return { ok: false, healthState: 'MAINTENANCE', error: err.message };
+    }
+  }
+
+  return { ok: false, healthState: 'MAINTENANCE', error: 'max retries exceeded' };
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function jitteredBackoff(attempt) {

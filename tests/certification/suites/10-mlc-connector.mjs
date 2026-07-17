@@ -198,8 +198,25 @@ function groupA() {
     MLC_CAPABILITIES.includes(Capability.PUBLISHING),
   ));
   results.push(check(
-    'MLC_CAPABILITIES has exactly 2 entries',
-    MLC_CAPABILITIES.length === 2,
+    'MLC_CAPABILITIES includes SONGWRITERS',
+    MLC_CAPABILITIES.includes(Capability.SONGWRITERS),
+  ));
+  results.push(check(
+    'MLC_CAPABILITIES has exactly 3 entries',
+    MLC_CAPABILITIES.length === 3,
+    `got: ${MLC_CAPABILITIES.length}`,
+  ));
+  results.push(check(
+    'MLC_CAPABILITIES contains no unexpected entries',
+    MLC_CAPABILITIES.every(c => [Capability.ISRC, Capability.PUBLISHING, Capability.SONGWRITERS].includes(c)),
+    `got: ${JSON.stringify(MLC_CAPABILITIES)}`,
+  ));
+  results.push(check(
+    'MLC_CAPABILITIES ordering is deterministic: ISRC, PUBLISHING, SONGWRITERS',
+    MLC_CAPABILITIES[0] === Capability.ISRC &&
+    MLC_CAPABILITIES[1] === Capability.PUBLISHING &&
+    MLC_CAPABILITIES[2] === Capability.SONGWRITERS,
+    `got: ${JSON.stringify(MLC_CAPABILITIES)}`,
   ));
   results.push(check(
     'MLCConnector is a class (function)',
@@ -263,8 +280,64 @@ async function groupB() {
     `got: ${authWithCreds.health?.state}`,
   ));
   results.push(check(
-    'authenticate() with valid credentials returns redacted username in credentials',
-    authWithCreds.credentials?.username === '[redacted]',
+    'authenticate() with username/password reports mode "username", value redacted',
+    authWithCreds.credentials?.mode === 'username' && authWithCreds.credentials?.value === '[redacted]',
+    `got: ${JSON.stringify(authWithCreds.credentials)}`,
+  ));
+  results.push(check(
+    'authenticate() credentials never exposes the actual username or password',
+    !JSON.stringify(authWithCreds.credentials).includes('test@royalte.ai') &&
+    !JSON.stringify(authWithCreds.credentials).includes('test-pass'),
+  ));
+
+  // Refresh-token authentication — alternative credential mode, same /oauth/token
+  // endpoint, body shape { refreshToken } instead of { username, password }.
+  let capturedRefreshBody = null;
+  const mockRefreshTokenFetch = async (url, opts) => {
+    capturedRefreshBody = JSON.parse(opts.body);
+    return {
+      ok: true, status: 200,
+      text: async () => JSON.stringify({
+        accessToken: 'mock-access-token', idToken: 'mock-id-token-jwt',
+        refreshToken: 'mock-refresh-token', expiresIn: 3600, tokenType: 'Bearer', scope: 'openid',
+      }),
+    };
+  };
+  const connectorRefresh = new MLCConnector();
+  await connectorRefresh.initialize({ refreshToken: 'mock-refresh-token-value', fetchFn: mockRefreshTokenFetch });
+  const authRefresh = await connectorRefresh.authenticate();
+  results.push(check(
+    'authenticate() with refreshToken returns AVAILABLE',
+    authRefresh.health?.state === 'AVAILABLE',
+    `got: ${authRefresh.health?.state}`,
+  ));
+  results.push(check(
+    'authenticate() with refreshToken reports mode "refreshToken", value redacted',
+    authRefresh.credentials?.mode === 'refreshToken' && authRefresh.credentials?.value === '[redacted]',
+    `got: ${JSON.stringify(authRefresh.credentials)}`,
+  ));
+  results.push(check(
+    'authenticate() with refreshToken sends { refreshToken } body, not username/password',
+    capturedRefreshBody?.refreshToken === 'mock-refresh-token-value' &&
+    !('username' in (capturedRefreshBody ?? {})) && !('password' in (capturedRefreshBody ?? {})),
+    `got: ${JSON.stringify(capturedRefreshBody)}`,
+  ));
+  results.push(check(
+    'authenticate() credentials never exposes the actual refresh token value',
+    !JSON.stringify(authRefresh.credentials).includes('mock-refresh-token-value'),
+  ));
+
+  // Password credentials take priority when both password and refreshToken are supplied
+  const connectorBoth = new MLCConnector();
+  await connectorBoth.initialize({
+    username: 'test@royalte.ai', password: 'test-pass',
+    refreshToken: 'should-not-be-used', fetchFn: mockTokenFetch,
+  });
+  const authBoth = await connectorBoth.authenticate();
+  results.push(check(
+    'when both username/password and refreshToken supplied, password credentials take priority',
+    authBoth.credentials?.mode === 'username',
+    `got: ${JSON.stringify(authBoth.credentials)}`,
   ));
 
   // Token endpoint returns 401 → AUTH_FAILED
@@ -307,6 +380,211 @@ async function groupB() {
   await connectorWithAuth.shutdown();
 
   return { name: 'B-auth-behavior', results };
+}
+
+// ── Group H: New acquisition capabilities — SONGWRITERS + PUBLISHING single-ID ──
+//
+// POST /search/songcode and GET /work/id/{id}, both dispatched through the
+// public acquire() entrypoint exactly as production code calls them —
+// not by invoking the private methods directly.
+
+const SONGCODE_SEARCH_PAYLOAD = [
+  { mlcSongCode: 'EA082P', primaryTitle: 'Shape of You', matchScore: 0.97 },
+];
+
+const WORK_BY_ID_PAYLOAD = {
+  primaryTitle: 'Shape of You', mlcSongCode: 'EA082P', iswc: 'T-921.536.001-0',
+  writers: [{ writerFirstName: 'Edward', writerLastName: 'Sheeran', writerIPI: '00553927870' }],
+  publishers: [{ publisherName: 'Sony Music Publishing (US) LLC', publisherIpiNumber: '00364281420' }],
+};
+
+function mockDispatchFetch({ onToken, onSongcodeSearch, onWorkById }) {
+  return async (url, opts = {}) => {
+    const method = opts.method ?? 'GET';
+    if (url.includes('/oauth/token')) return onToken(url, opts);
+    if (method === 'POST' && url.includes('/search/songcode')) return onSongcodeSearch(url, opts);
+    if (method === 'GET' && url.includes('/work/id/')) return onWorkById(url, opts);
+    return { ok: false, status: 404, text: async () => '{}' };
+  };
+}
+
+const tokenOk = async () => ({
+  ok: true, status: 200,
+  text: async () => JSON.stringify({ idToken: 'mock-id-token-jwt', accessToken: 'x', tokenType: 'Bearer' }),
+});
+
+async function groupH() {
+  const results = [];
+
+  // ── SONGWRITERS: POST /search/songcode ──
+  let capturedSongcodeBody = null;
+  let capturedSongcodeAuthHeader = null;
+  const songcodeFetch = mockDispatchFetch({
+    onToken: tokenOk,
+    onSongcodeSearch: async (url, opts) => {
+      capturedSongcodeBody = JSON.parse(opts.body);
+      capturedSongcodeAuthHeader = opts.headers?.Authorization;
+      return { ok: true, status: 200, text: async () => JSON.stringify(SONGCODE_SEARCH_PAYLOAD) };
+    },
+    onWorkById: async () => ({ ok: false, status: 404, text: async () => '{}' }),
+  });
+
+  const songcodeConnector = new MLCConnector();
+  await songcodeConnector.initialize({ username: 'test@royalte.ai', password: 'test-pass', fetchFn: songcodeFetch });
+  await songcodeConnector.authenticate();
+  const songcodeContract = await songcodeConnector.acquire({
+    requestId: 'req-songcode', evidenceType: Capability.SONGWRITERS,
+    subjectRef: { title: 'Shape of You', writers: ['Sheeran'] },
+    context: { correlationId: 'corr-songcode' },
+  });
+
+  results.push(check(
+    'acquire(SONGWRITERS) sends title + writers in POST /search/songcode body',
+    capturedSongcodeBody?.title === 'Shape of You' &&
+    Array.isArray(capturedSongcodeBody?.writers) && capturedSongcodeBody.writers[0] === 'Sheeran',
+    `got: ${JSON.stringify(capturedSongcodeBody)}`,
+  ));
+  results.push(check(
+    'acquire(SONGWRITERS) sends Bearer idToken on the songcode search request',
+    capturedSongcodeAuthHeader === 'Bearer mock-id-token-jwt',
+    `got: ${capturedSongcodeAuthHeader}`,
+  ));
+  results.push(check(
+    'acquire(SONGWRITERS) returns AVAILABLE health with the raw songcode search payload',
+    songcodeContract.health?.state === 'AVAILABLE' &&
+    Array.isArray(songcodeContract.payload) && songcodeContract.payload[0]?.mlcSongCode === 'EA082P',
+    `got: ${JSON.stringify(songcodeContract.payload)}`,
+  ));
+
+  // writers defaults to [] when omitted (MLC gateway rejects title-only with empty writers absent)
+  let capturedSongcodeBodyNoWriters = null;
+  const songcodeFetchNoWriters = mockDispatchFetch({
+    onToken: tokenOk,
+    onSongcodeSearch: async (url, opts) => {
+      capturedSongcodeBodyNoWriters = JSON.parse(opts.body);
+      return { ok: true, status: 200, text: async () => JSON.stringify([]) };
+    },
+    onWorkById: async () => ({ ok: false, status: 404, text: async () => '{}' }),
+  });
+  const songcodeConnectorNoWriters = new MLCConnector();
+  await songcodeConnectorNoWriters.initialize({ username: 'test@royalte.ai', password: 'test-pass', fetchFn: songcodeFetchNoWriters });
+  await songcodeConnectorNoWriters.authenticate();
+  await songcodeConnectorNoWriters.acquire({
+    requestId: 'req-songcode-2', evidenceType: Capability.SONGWRITERS,
+    subjectRef: { title: 'Shape of You' },
+    context: { correlationId: 'corr-songcode-2' },
+  });
+  results.push(check(
+    'acquire(SONGWRITERS) defaults writers to [] when subjectRef.writers is absent',
+    Array.isArray(capturedSongcodeBodyNoWriters?.writers) && capturedSongcodeBodyNoWriters.writers.length === 0,
+    `got: ${JSON.stringify(capturedSongcodeBodyNoWriters)}`,
+  ));
+
+  // missing required field → PARTIAL_RESPONSE, no network call
+  const songcodeConnectorNoTitle = new MLCConnector();
+  await songcodeConnectorNoTitle.initialize({ username: 'test@royalte.ai', password: 'test-pass', fetchFn: songcodeFetch });
+  await songcodeConnectorNoTitle.authenticate();
+  const songcodeNoTitleContract = await songcodeConnectorNoTitle.acquire({
+    requestId: 'req-songcode-3', evidenceType: Capability.SONGWRITERS,
+    subjectRef: {}, context: { correlationId: 'corr-songcode-3' },
+  });
+  results.push(check(
+    'acquire(SONGWRITERS) with no subjectRef.title returns PARTIAL_RESPONSE, no payload',
+    songcodeNoTitleContract.health?.state === 'PARTIAL_RESPONSE' && songcodeNoTitleContract.payload === null,
+    `got: ${songcodeNoTitleContract.health?.state}`,
+  ));
+
+  // ── PUBLISHING single-ID routing: GET /work/id/{id} ──
+  let capturedWorkByIdPath = null;
+  let capturedWorkByIdAuthHeader = null;
+  let capturedWorkByIdMethod = null;
+  const workByIdFetch = mockDispatchFetch({
+    onToken: tokenOk,
+    onSongcodeSearch: async () => ({ ok: false, status: 404, text: async () => '{}' }),
+    onWorkById: async (url, opts) => {
+      capturedWorkByIdPath   = url;
+      capturedWorkByIdAuthHeader = opts.headers?.Authorization;
+      capturedWorkByIdMethod = opts.method ?? 'GET';
+      return { ok: true, status: 200, text: async () => JSON.stringify(WORK_BY_ID_PAYLOAD) };
+    },
+  });
+
+  const workByIdConnector = new MLCConnector();
+  await workByIdConnector.initialize({ username: 'test@royalte.ai', password: 'test-pass', fetchFn: workByIdFetch });
+  await workByIdConnector.authenticate();
+  const workByIdContract = await workByIdConnector.acquire({
+    requestId: 'req-work-id', evidenceType: Capability.PUBLISHING,
+    subjectRef: { mlcSongCode: 'EA082P' },
+    context: { correlationId: 'corr-work-id' },
+  });
+
+  results.push(check(
+    'acquire(PUBLISHING) with a single mlcSongCode (no mlcSongCodes array) routes to GET /work/id/{id}',
+    capturedWorkByIdPath?.includes('/work/id/EA082P'),
+    `got: ${capturedWorkByIdPath}`,
+  ));
+  results.push(check(
+    'GET /work/id/{id} request uses HTTP GET, not POST',
+    capturedWorkByIdMethod === 'GET',
+    `got: ${capturedWorkByIdMethod}`,
+  ));
+  results.push(check(
+    'GET /work/id/{id} sends Bearer idToken',
+    capturedWorkByIdAuthHeader === 'Bearer mock-id-token-jwt',
+    `got: ${capturedWorkByIdAuthHeader}`,
+  ));
+  results.push(check(
+    'acquire(PUBLISHING) single-ID route returns AVAILABLE health with the raw single Work object (not an array)',
+    workByIdContract.health?.state === 'AVAILABLE' &&
+    !Array.isArray(workByIdContract.payload) && workByIdContract.payload?.mlcSongCode === 'EA082P',
+    `got: ${JSON.stringify(workByIdContract.payload)}`,
+  ));
+
+  // Existing batch path (mlcSongCodes array) must still route to POST /works, unaffected
+  // by the new single-ID branch — regression check for the dispatch condition itself.
+  let batchRouteCalled = false;
+  let singleRouteCalled = false;
+  const batchRegressionFetch = mockDispatchFetch({
+    onToken: tokenOk,
+    onSongcodeSearch: async () => ({ ok: false, status: 404, text: async () => '{}' }),
+    onWorkById: async () => { singleRouteCalled = true; return { ok: true, status: 200, text: async () => '{}' }; },
+  });
+  const batchFetchWithPost = async (url, opts = {}) => {
+    if (url.includes('/works') && (opts.method ?? 'GET') === 'POST') {
+      batchRouteCalled = true;
+      return { ok: true, status: 200, text: async () => JSON.stringify(WORKS_PAYLOAD) };
+    }
+    return batchRegressionFetch(url, opts);
+  };
+  const batchConnector = new MLCConnector();
+  await batchConnector.initialize({ username: 'test@royalte.ai', password: 'test-pass', fetchFn: batchFetchWithPost });
+  await batchConnector.authenticate();
+  await batchConnector.acquire({
+    requestId: 'req-batch', evidenceType: Capability.PUBLISHING,
+    subjectRef: { mlcSongCodes: ['EA082P', 'S831QA'] },
+    context: { correlationId: 'corr-batch' },
+  });
+  results.push(check(
+    'acquire(PUBLISHING) with mlcSongCodes array still routes to POST /works (existing production behavior unchanged)',
+    batchRouteCalled === true && singleRouteCalled === false,
+    `batchRouteCalled: ${batchRouteCalled}, singleRouteCalled: ${singleRouteCalled}`,
+  ));
+
+  // missing required field → PARTIAL_RESPONSE, no network call
+  const workByIdConnectorNoRef = new MLCConnector();
+  await workByIdConnectorNoRef.initialize({ username: 'test@royalte.ai', password: 'test-pass', fetchFn: workByIdFetch });
+  await workByIdConnectorNoRef.authenticate();
+  const workByIdNoRefContract = await workByIdConnectorNoRef.acquire({
+    requestId: 'req-work-id-2', evidenceType: Capability.PUBLISHING,
+    subjectRef: {}, context: { correlationId: 'corr-work-id-2' },
+  });
+  results.push(check(
+    'acquire(PUBLISHING) with neither mlcSongCode nor mlcSongCodes returns PARTIAL_RESPONSE (falls through to #fetchWorks missing-ref guard)',
+    workByIdNoRefContract.health?.state === 'PARTIAL_RESPONSE' && workByIdNoRefContract.payload === null,
+    `got: ${workByIdNoRefContract.health?.state}`,
+  ));
+
+  return { name: 'H-new-acquisition-capabilities', results };
 }
 
 // ── Group C: EvidenceBridge — ISRC (recordings) ──────────────────────────────
@@ -638,6 +916,7 @@ export async function runMLCConnector() {
     groupE(),
     groupF(),
     groupG(),
+    await groupH(),
   ];
 
   let passed = 0, failed = 0;
