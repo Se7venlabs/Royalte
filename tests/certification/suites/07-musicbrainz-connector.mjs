@@ -20,7 +20,7 @@ import { MB_CAPABILITIES }         from '../../../provider-acquisition/connector
 import { Capability }              from '../../../provider-acquisition/capability/capabilityVocabulary.js';
 import { createEvidenceContract }  from '../../../provider-acquisition/evidence/EvidenceContract.js';
 import { synthesizeMBCompat }      from '../../../api/_lib/mb-pal-acquisition.js';
-import { PROVIDER_NAME, CONNECTOR_VERSION }
+import { PROVIDER_NAME, CONNECTOR_VERSION, MusicBrainzConnector }
   from '../../../provider-acquisition/connectors/musicbrainz/MusicBrainzConnector.js';
 
 function check(label, pass, note = '') {
@@ -135,8 +135,23 @@ function groupA() {
   assertions.push(check('MB_CAPABILITIES includes ISRC',
     MB_CAPABILITIES.includes(Capability.ISRC)));
 
-  assertions.push(check('MB_CAPABILITIES has exactly 4 capabilities',
-    MB_CAPABILITIES.length === 4, `got ${MB_CAPABILITIES.length}`));
+  assertions.push(check('MB_CAPABILITIES includes PUBLISHING',
+    MB_CAPABILITIES.includes(Capability.PUBLISHING)));
+
+  assertions.push(check('MB_CAPABILITIES includes SONGWRITERS',
+    MB_CAPABILITIES.includes(Capability.SONGWRITERS)));
+
+  assertions.push(check('MB_CAPABILITIES includes CONTRIBUTORS',
+    MB_CAPABILITIES.includes(Capability.CONTRIBUTORS)));
+
+  assertions.push(check('MB_CAPABILITIES includes LABELS',
+    MB_CAPABILITIES.includes(Capability.LABELS)));
+
+  assertions.push(check('MB_CAPABILITIES includes SOCIAL_LINKS',
+    MB_CAPABILITIES.includes(Capability.SOCIAL_LINKS)));
+
+  assertions.push(check('MB_CAPABILITIES has exactly 9 capabilities',
+    MB_CAPABILITIES.length === 9, `got ${MB_CAPABILITIES.length}`));
 
   return { label: 'A — Static Contract', assertions };
 }
@@ -503,6 +518,117 @@ function groupG() {
   return { label: 'G — Edge Cases', assertions };
 }
 
+// ── Group H — Connector dispatch: PUBLISHING/SONGWRITERS/CONTRIBUTORS/LABELS/SOCIAL_LINKS ──
+//
+// These 5 capabilities (Phase 3.8 extension) have no EvidenceBridge translation
+// yet — they are raw-acquisition-only, same constitutional stage MLC's
+// PUBLISHING capability started at. Certified here against the connector's
+// public acquire() entrypoint with a mocked fetchFn, the same pattern used by
+// the MLC and ACRCloud certification suites.
+
+function mockFetchCapturingPath(payload) {
+  let capturedUrl = null;
+  const fetchFn = async (url) => {
+    capturedUrl = url;
+    return { ok: true, status: 200, text: async () => JSON.stringify(payload) };
+  };
+  return { fetchFn, getUrl: () => capturedUrl };
+}
+
+async function acquireVia(connector, evidenceType, subjectRef) {
+  return connector.acquire({
+    requestId: `req-${evidenceType}`, evidenceType, subjectRef,
+    context: { correlationId: `corr-${evidenceType}` },
+  });
+}
+
+async function groupH() {
+  const assertions = [];
+
+  // PUBLISHING → #fetchWorks → GET /work?artist={mbid}
+  {
+    const payload = { works: [{ id: 'work1', title: 'Shape of You', type: 'Song' }] };
+    const { fetchFn, getUrl } = mockFetchCapturingPath(payload);
+    const c = new MusicBrainzConnector();
+    await c.initialize({ fetchFn });
+    const contract = await acquireVia(c, Capability.PUBLISHING, { mbid: 'b8a7c3ae-38d7-4489-9cb5-38f44d59f406' });
+    assertions.push(check('PUBLISHING calls GET /work?artist={mbid}',
+      getUrl()?.includes('/work?artist=b8a7c3ae-38d7-4489-9cb5-38f44d59f406'), `got: ${getUrl()}`));
+    assertions.push(check('PUBLISHING health is AVAILABLE', contract.health?.state === 'AVAILABLE'));
+    assertions.push(check('PUBLISHING payload passed through raw',
+      contract.payload?.works?.[0]?.title === 'Shape of You'));
+    const missing = await acquireVia(c, Capability.PUBLISHING, {});
+    assertions.push(check('PUBLISHING with no mbid returns PARTIAL_RESPONSE',
+      missing.health?.state === 'PARTIAL_RESPONSE'));
+  }
+
+  // SONGWRITERS → #fetchWorkRelationships → GET /work/{workMbid}?inc=artist-rels+work-rels+url-rels
+  {
+    const payload = { relations: [{ type: 'composer', artist: { name: 'Edward Sheeran' } }] };
+    const { fetchFn, getUrl } = mockFetchCapturingPath(payload);
+    const c = new MusicBrainzConnector();
+    await c.initialize({ fetchFn });
+    const contract = await acquireVia(c, Capability.SONGWRITERS, { workMbid: 'work-mbid-1' });
+    assertions.push(check('SONGWRITERS calls GET /work/{workMbid}?inc=artist-rels+work-rels+url-rels',
+      getUrl()?.includes('/work/work-mbid-1?inc=artist-rels+work-rels+url-rels'), `got: ${getUrl()}`));
+    assertions.push(check('SONGWRITERS health is AVAILABLE', contract.health?.state === 'AVAILABLE'));
+    assertions.push(check('SONGWRITERS payload preserves relations[0].type',
+      contract.payload?.relations?.[0]?.type === 'composer'));
+    const missing = await acquireVia(c, Capability.SONGWRITERS, {});
+    assertions.push(check('SONGWRITERS with no workMbid returns PARTIAL_RESPONSE',
+      missing.health?.state === 'PARTIAL_RESPONSE'));
+  }
+
+  // CONTRIBUTORS → #fetchRecordingRelationships → GET /recording/{recordingMbid}?inc=artist-rels+work-rels
+  {
+    const payload = { relations: [{ type: 'producer', artist: { name: 'Someone' } }] };
+    const { fetchFn, getUrl } = mockFetchCapturingPath(payload);
+    const c = new MusicBrainzConnector();
+    await c.initialize({ fetchFn });
+    const contract = await acquireVia(c, Capability.CONTRIBUTORS, { recordingMbid: 'rec-mbid-1' });
+    assertions.push(check('CONTRIBUTORS calls GET /recording/{recordingMbid}?inc=artist-rels+work-rels',
+      getUrl()?.includes('/recording/rec-mbid-1?inc=artist-rels+work-rels'), `got: ${getUrl()}`));
+    assertions.push(check('CONTRIBUTORS health is AVAILABLE', contract.health?.state === 'AVAILABLE'));
+    const missing = await acquireVia(c, Capability.CONTRIBUTORS, {});
+    assertions.push(check('CONTRIBUTORS with no recordingMbid returns PARTIAL_RESPONSE',
+      missing.health?.state === 'PARTIAL_RESPONSE'));
+  }
+
+  // LABELS → #fetchReleaseDetail → GET /release/{releaseMbid}?inc=labels
+  {
+    const payload = { id: 'rel1', 'label-info': [{ label: { name: 'Atlantic Records' }, 'catalog-number': 'ATL001' }] };
+    const { fetchFn, getUrl } = mockFetchCapturingPath(payload);
+    const c = new MusicBrainzConnector();
+    await c.initialize({ fetchFn });
+    const contract = await acquireVia(c, Capability.LABELS, { releaseMbid: 'release-mbid-1' });
+    assertions.push(check('LABELS calls GET /release/{releaseMbid}?inc=labels',
+      getUrl()?.includes('/release/release-mbid-1?inc=labels'), `got: ${getUrl()}`));
+    assertions.push(check('LABELS health is AVAILABLE', contract.health?.state === 'AVAILABLE'));
+    assertions.push(check('LABELS payload preserves label-info',
+      contract.payload?.['label-info']?.[0]?.label?.name === 'Atlantic Records'));
+    const missing = await acquireVia(c, Capability.LABELS, {});
+    assertions.push(check('LABELS with no releaseMbid returns PARTIAL_RESPONSE',
+      missing.health?.state === 'PARTIAL_RESPONSE'));
+  }
+
+  // SOCIAL_LINKS → #fetchArtistRelationships → GET /artist/{mbid}?inc=artist-rels+url-rels
+  {
+    const payload = { relations: [{ type: 'official homepage', url: { resource: 'https://example.com' } }] };
+    const { fetchFn, getUrl } = mockFetchCapturingPath(payload);
+    const c = new MusicBrainzConnector();
+    await c.initialize({ fetchFn });
+    const contract = await acquireVia(c, Capability.SOCIAL_LINKS, { mbid: 'b8a7c3ae-38d7-4489-9cb5-38f44d59f406' });
+    assertions.push(check('SOCIAL_LINKS calls GET /artist/{mbid}?inc=artist-rels+url-rels',
+      getUrl()?.includes('/artist/b8a7c3ae-38d7-4489-9cb5-38f44d59f406?inc=artist-rels+url-rels'), `got: ${getUrl()}`));
+    assertions.push(check('SOCIAL_LINKS health is AVAILABLE', contract.health?.state === 'AVAILABLE'));
+    const missing = await acquireVia(c, Capability.SOCIAL_LINKS, {});
+    assertions.push(check('SOCIAL_LINKS with no mbid returns PARTIAL_RESPONSE',
+      missing.health?.state === 'PARTIAL_RESPONSE'));
+  }
+
+  return { label: 'H — Connector Dispatch: New Capabilities (Publishing/Songwriters/Contributors/Labels/Social Links)', assertions };
+}
+
 // ── Suite runner ──────────────────────────────────────────────────────────────
 
 export async function runMusicBrainzConnector() {
@@ -516,6 +642,7 @@ export async function runMusicBrainzConnector() {
     groupE(),
     groupF(),
     groupG(),
+    await groupH(),
   ];
 
   for (const { label, assertions } of groups) {
