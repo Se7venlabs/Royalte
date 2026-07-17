@@ -24,28 +24,15 @@ import { getTrustValue }         from '../../trust/trustConfig.js';
 import { generateAppleToken }       from './apple-auth.js';
 import { appleGet, APPLE_API_BASE } from './apple-http.js';
 import { APPLE_MUSIC_CAPABILITIES } from './apple-capabilities.js';
+// Phase 5.2 — storefront lists now sourced from the canonical territory
+// vocabulary (Board decision: one canonical vocabulary, no per-file copies).
+// Verified byte-identical to the prior local declaration before this
+// migration — see Phase 5.2 completion report for the diff proof.
+import { ALL_APPLE_STOREFRONTS, BIG6_STOREFRONTS } from '../../../lib/territory/canonical-territory-vocabulary.js';
 
 export const PROVIDER_NAME        = 'apple_music';
 export const CONNECTOR_VERSION    = '1.0';
 export const PROVIDER_API_VERSION = 'v1';
-
-// BIG6 storefronts — primary availability markets (TERRITORIES evidence type)
-const BIG6_STOREFRONTS = Object.freeze(['us', 'ca', 'gb', 'de', 'fr', 'jp', 'au', 'br']);
-
-// Global Music Footprint™ — complete 167-storefront universe (AVAILABILITY evidence type).
-// Mirror of ALL_APPLE_STOREFRONTS in api/apple-music.js. Change only via Board directive.
-const ALL_APPLE_STOREFRONTS = Object.freeze([
-  'ag','ai','bb','bm','bo','br','bs','bz','ca','cl','co','cr','dm','do','ec','gd','gt','gy','hn','jm',
-  'kn','ky','lc','mx','ni','pa','pe','py','sr','sv','tc','tt','us','uy','vc','vg',
-  'al','am','at','az','be','bg','by','ch','cy','cz','de','dk','ee','es','fi','fr','gb','gr','hr','hu',
-  'ie','is','it','kg','kz','lt','lu','lv','md','mk','mt','nl','no','pl','pt','ro','ru','se','si','sk',
-  'tj','tr','ua','uz',
-  'ae','ao','bf','bh','bj','bw','cd','cg','ci','cm','cv','dj','dz','eg','et','ga','gh','gm','gn','gq',
-  'gw','il','jo','ke','kw','lb','lr','ly','ma','mg','ml','mr','mu','mw','mz','na','ne','ng','om','qa',
-  'rw','sa','sc','sl','sn','st','sz','td','tn','tz','ug','ye','za','zm','zw',
-  'au','bt','cn','fj','fm','hk','id','in','jp','kh','kr','la','lk','mn','mo','mv','my','np','nr','nz',
-  'pg','ph','pw','sb','sg','th','tl','to','tw','vn','vu','ws',
-]);
 
 const GLOBAL_SF_WAVE_SIZE = 50;
 

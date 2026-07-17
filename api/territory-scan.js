@@ -1,16 +1,33 @@
 // Royalté Territory Availability Engine — /api/territory-scan.js
 //
 // PURPOSE: Check and confirm what countries a song, album, or artist
-// is available in, using Spotify as the primary source and Apple Music
-// as a secondary validation layer.
+// is available in.
+//
+// Phase 5.2 (dataSourceVersion 'territory-intelligence-engine-v1.0-apple-only')
+// — rewired onto the Territory Intelligence Engine™, the platform's single
+// authoritative territory source (Board-ratified architecture). Two contract
+// changes from this endpoint's original design, both explicitly versioned
+// per Board Decision 3 rather than shipped silently:
+//   1. Spotify is no longer a territory-acquisition input. Spotify removed
+//      bulk available_markets in Feb 2026; exhaustive per-market Spotify
+//      acquisition is out of scope for Phase 5.2 (Board Decision 1). Spotify
+//      is still used to resolve the input URL to an artist/track/album.
+//   2. Apple-side evaluation is now artist-level catalog-presence (the same
+//      probe-album mechanism the Engine uses everywhere else), not the
+//      entity-aware exact-title/ISRC matching this endpoint used to do.
+//      "Territory Intelligence Engine becomes the single authoritative
+//      source of all territory intelligence. No other module computes,
+//      derives, or reconciles territory/availability data" (Board-ratified
+//      architecture, decree §2.1) — this endpoint no longer runs its own
+//      Apple search logic.
 //
 // HONESTY RULES:
 // - Coverage score is calculated against a fixed evaluation universe, not total
 //   countries in the world. It is NOT a true global percentage.
-// - Confidence labels are conservative: Verified requires 2+ sources confirming.
+// - Confidence labels are conservative: "Inferred" is the ceiling in this phase
+//   (single-source, Apple-only) — "Verified" (2+ sources agreeing) cannot occur
+//   until a future phase adds a second territory-acquisition provider.
 // - Artist scans are SAMPLE-BASED estimates from top tracks — not full catalog guarantees.
-// - Apple Music validation is entity-aware: tracks use song search, albums use album search,
-//   artists use artist search.
 // - "not_confirmed" and "unknown" are valid statuses — we do not force availability claims.
 //
 // PLAN TIERS (request-based gating — auth enforcement to be added in a future phase):
@@ -18,8 +35,11 @@
 //   audit        — broader snapshot: priority-ordered 25–50 countries
 //   subscription — full dataset, structured for weekly re-scan comparison
 
-import { generateAppleToken } from './apple-token.js';
+import { acquireAppleEvidence } from './_lib/apple-pal-acquisition.js';
+import { assembleTerritoryIntelligence, TerritoryState } from './_lib/territory-intelligence.js';
 import { createClient } from '@supabase/supabase-js';
+
+const DATA_SOURCE_VERSION = 'territory-intelligence-engine-v1.0-apple-only';
 
 // ── SUPABASE CLIENT ───────────────────────────────────────────────────────────
 function getSupabase() {
@@ -115,23 +135,23 @@ export default async function handler(req, res) {
       });
     }
 
-    const spotifyMarkets = normalizeMarkets(spotifyData.available_markets || []);
+    // Territory Intelligence Engine™ — Apple-only in Phase 5.2 (Board
+    // Decision 1). acquireAppleEvidence() never throws; if Apple is
+    // unreachable or the artist can't be resolved, assembleTerritoryIntelligence
+    // degrades honestly to NOT_EVALUATED/UNKNOWN across the board rather than
+    // failing the request — matching this endpoint's existing non-blocking
+    // philosophy for Apple validation.
+    const appleAcquisition = await acquireAppleEvidence({
+      artistName: spotifyData.entityName,
+      isrc: spotifyData.isrc || null,
+    });
+    const territoryIntelligence = assembleTerritoryIntelligence(appleAcquisition.evidencePackages);
 
-    // Apple validation is entity-aware and non-blocking
-    const appleResults = await validateAppleMarkets(
-      parsed.type,
-      spotifyData.entityName,
-      spotifyData.trackTitle || null,
-      spotifyData.albumName || null,
-      spotifyData.isrc || null,
-      PRIORITY_MARKETS.map(m => m.code)
-    );
-
-    const allMarkets = buildTerritoryDataset(spotifyMarkets, appleResults, COUNTRY_NAMES);
+    const allMarkets = buildTerritoryDataset(territoryIntelligence, COUNTRY_NAMES);
 
     const scoring = computeCoverageScore(allMarkets);
 
-    const insights = generateInsights(allMarkets, scoring, parsed.type);
+    const insights = generateInsights(allMarkets, scoring);
 
     const gatedResponse = applyTierGating(tier, allMarkets, scoring, insights, parsed);
 
@@ -159,13 +179,16 @@ export default async function handler(req, res) {
         id: parsed.id,
         trackTitle: spotifyData.trackTitle || null,
         isrc: spotifyData.isrc || null,
-        // Artist scans are sample-based — make this explicit in the response
-        scan_note: parsed.type === 'artist'
-          ? 'Artist scan is a sample-based estimate derived from selected top tracks. It does not represent full catalog availability.'
-          : null,
+        // Explicit per HONESTY RULES — the Territory Intelligence Engine
+        // evaluates artist-level Apple Music catalog presence regardless of
+        // entity type (a real behavior change from this endpoint's prior
+        // entity-aware matching and top-track sampling — see Phase 5.2
+        // header note).
+        scan_note: 'Territory availability reflects artist-level Apple Music catalog presence via the Territory Intelligence Engine, not track/album-specific matching or top-track sampling.',
       },
       planTier: tier,
       scannedAt: new Date().toISOString(),
+      dataSourceVersion: DATA_SOURCE_VERSION,
       ...gatedResponse,
     });
 
@@ -217,6 +240,12 @@ async function getSpotifyToken() {
 }
 
 // ── SPOTIFY DATA FETCH ────────────────────────────────────────────────────────
+// Phase 5.2 — used for entity resolution only (name/title/ISRC needed to
+// drive Apple acquisition via the Territory Intelligence Engine). Spotify's
+// available_markets is no longer fetched: it is not read anywhere, since
+// Spotify does not contribute territory-acquisition evidence in this phase
+// (Board Decision 1), and Spotify itself removed bulk available_markets in
+// Feb 2026.
 async function fetchSpotifyData(parsed, token) {
   const headers = { 'Authorization': `Bearer ${token}` };
   const BASE = 'https://api.spotify.com/v1';
@@ -232,7 +261,6 @@ async function fetchSpotifyData(parsed, token) {
         entityName: data.artists?.[0]?.name || data.name,
         trackTitle: data.name,
         isrc: data.external_ids?.isrc || null,
-        available_markets: data.available_markets || [],
         albumName: data.album?.name || null,
       };
     }
@@ -246,7 +274,6 @@ async function fetchSpotifyData(parsed, token) {
         entityName: data.artists?.[0]?.name || data.name,
         trackTitle: null,
         isrc: null,
-        available_markets: data.available_markets || [],
         albumName: data.name,
       };
     }
@@ -257,35 +284,10 @@ async function fetchSpotifyData(parsed, token) {
       if (!artistResp.ok) return null;
       const artistData = await artistResp.json();
 
-      const topResp = await fetch(`${BASE}/artists/${parsed.id}/top-tracks?market=US`, { headers, ...timeout });
-      const topData = topResp.ok ? await topResp.json() : { tracks: [] };
-
-      // Filter non-official versions — artist scans use top 5 official tracks only
-      // NOTE: This is a sample — it does not guarantee full catalog availability
-      const officialTracks = (topData.tracks || [])
-        .filter(t => !isNonOfficialVersion(t.name))
-        .slice(0, 5);
-
-      const marketSets = await Promise.all(
-        officialTracks.map(async t => {
-          try {
-            const tr = await fetch(`${BASE}/tracks/${t.id}`, { headers, signal: AbortSignal.timeout(5000) });
-            if (!tr.ok) return [];
-            const td = await tr.json();
-            return td.available_markets || [];
-          } catch { return []; }
-        })
-      );
-
-      // Union markets across sampled top tracks
-      // This is an estimate — individual tracks may have different distribution settings
-      const allMarkets = [...new Set(marketSets.flat())];
-
       return {
         entityName: artistData.name,
         trackTitle: null,
         isrc: null,
-        available_markets: allMarkets,
         albumName: null,
       };
     }
@@ -297,123 +299,7 @@ async function fetchSpotifyData(parsed, token) {
   }
 }
 
-function isNonOfficialVersion(title) {
-  const lower = title.toLowerCase();
-  return (
-    lower.includes('remix') || lower.includes('live') || lower.includes('karaoke') ||
-    lower.includes('sped up') || lower.includes('slowed') || lower.includes('nightcore') ||
-    lower.includes('instrumental') || lower.includes('acapella') || lower.includes('a cappella')
-  );
-}
-
-// ── MARKET NORMALIZATION ──────────────────────────────────────────────────────
-function normalizeMarkets(markets) {
-  return [...new Set((markets || []).map(m => m.toUpperCase()))];
-}
-
-// ── APPLE MUSIC VALIDATION — ENTITY-AWARE ────────────────────────────────────
-// Validation method depends on what was submitted:
-//   track  → song search by ISRC first, then title+artist
-//   album  → album search by title+artist
-//   artist → artist search by name
-//
-// Non-blocking: if Apple fails, scan continues with Spotify-only data.
-// generateAppleToken() is treated as potentially async for safety.
-async function validateAppleMarkets(entityType, artistName, trackTitle, albumName, isrc, countryCodes) {
-  const results = {};
-  try {
-    const appleToken = await Promise.resolve(generateAppleToken());
-    const headers = { Authorization: `Bearer ${appleToken}` };
-    const BASE = 'https://api.music.apple.com/v1';
-
-    await Promise.all(
-      countryCodes.map(async code => {
-        try {
-          const storefront = code.toLowerCase();
-
-          // ── TRACK: ISRC first, then title+artist song search
-          if (entityType === 'track') {
-            if (isrc) {
-              const resp = await fetch(
-                `${BASE}/catalog/${storefront}/songs?filter[isrc]=${isrc}`,
-                { headers, signal: AbortSignal.timeout(5000) }
-              );
-              if (resp.status === 429) { results[code] = null; return; }
-              if (resp.ok) {
-                const data = await resp.json();
-                results[code] = (data?.data?.length || 0) > 0;
-                return;
-              }
-            }
-            // Fallback: song search by title + artist
-            if (trackTitle && artistName) {
-              const q = encodeURIComponent(`${trackTitle} ${artistName}`);
-              const resp = await fetch(
-                `${BASE}/catalog/${storefront}/search?term=${q}&types=songs&limit=5`,
-                { headers, signal: AbortSignal.timeout(5000) }
-              );
-              if (resp.status === 429) { results[code] = null; return; }
-              if (resp.ok) {
-                const data = await resp.json();
-                const songs = data?.results?.songs?.data || [];
-                const normTrack = trackTitle.toLowerCase().trim();
-                results[code] = songs.some(s => s.attributes?.name?.toLowerCase().trim() === normTrack);
-                return;
-              }
-            }
-          }
-
-          // ── ALBUM: album search by title + artist
-          if (entityType === 'album') {
-            if (albumName && artistName) {
-              const q = encodeURIComponent(`${albumName} ${artistName}`);
-              const resp = await fetch(
-                `${BASE}/catalog/${storefront}/search?term=${q}&types=albums&limit=5`,
-                { headers, signal: AbortSignal.timeout(5000) }
-              );
-              if (resp.status === 429) { results[code] = null; return; }
-              if (resp.ok) {
-                const data = await resp.json();
-                const albums = data?.results?.albums?.data || [];
-                const normAlbum = albumName.toLowerCase().trim();
-                results[code] = albums.some(a => a.attributes?.name?.toLowerCase().trim() === normAlbum);
-                return;
-              }
-            }
-          }
-
-          // ── ARTIST: artist search by name
-          if (entityType === 'artist') {
-            if (artistName) {
-              const q = encodeURIComponent(artistName);
-              const resp = await fetch(
-                `${BASE}/catalog/${storefront}/search?term=${q}&types=artists&limit=5`,
-                { headers, signal: AbortSignal.timeout(5000) }
-              );
-              if (resp.status === 429) { results[code] = null; return; }
-              if (resp.ok) {
-                const data = await resp.json();
-                const artists = data?.results?.artists?.data || [];
-                const normArtist = artistName.toLowerCase().trim();
-                results[code] = artists.some(a => a.attributes?.name?.toLowerCase().trim() === normArtist);
-                return;
-              }
-            }
-          }
-
-          results[code] = null; // validation not possible for this storefront
-        } catch {
-          results[code] = null;
-        }
-      })
-    );
-  } catch (err) {
-    console.warn('[Territory] Apple Music validation unavailable:', err.message);
-  }
-  return results;
-}
-
-// ── TERRITORY MERGE ───────────────────────────────────────────────────────────
+// ── TERRITORY MERGE — Territory Intelligence Engine™ consumer ────────────────
 // Iterates over the FULL EVALUATION_UNIVERSE — one row per evaluated country,
 // every scan, every tier. This ensures:
 //   - Free tier always has anchor countries available to select from
@@ -421,63 +307,65 @@ async function validateAppleMarkets(entityType, artistName, trackTitle, albumNam
 //   - Subscription truly returns the full evaluated dataset
 //   - DB stores exactly one row per evaluated country per scan
 //
+// Maps the Engine's 5-state model (AVAILABLE/UNAVAILABLE/UNKNOWN/
+// NOT_EVALUATED/ERROR) down onto this endpoint's existing 3-status shape.
+// UNAVAILABLE maps to 'not_confirmed', not 'unavailable' — consistent with
+// this endpoint's own pre-existing honesty convention (see status values
+// below): "unavailable" is reserved for an explicit distributor block, which
+// no current source confirms; a confirmed-empty catalog probe on one
+// provider is exactly the kind of signal "not_confirmed" was designed for.
+//
 // Status values (active):
-//   available     — at least one source confirms this territory as available
-//   not_confirmed — neither source confirms availability (absence ≠ confirmed absence)
-//   unknown       — no data attempted or both sources errored for this country
+//   available     — Engine state AVAILABLE
+//   not_confirmed — Engine state UNAVAILABLE (confirmed-empty on the one
+//                   available provider; absence ≠ confirmed distributor block)
+//   unknown       — Engine state UNKNOWN, NOT_EVALUATED, or ERROR
 //
 // Note: `unavailable` is reserved in the schema for future use when a distributor
 // explicitly blocks a territory. No current API source provides that signal reliably,
 // so it is not emitted by this function.
 //
-// Confidence values:
-//   Verified  — 2+ sources agree (Spotify + Apple both confirm available)
-//   Inferred  — single source, or sources partially disagree
-//   Unknown   — no reliable signal attempted
-function buildTerritoryDataset(spotifyMarkets, appleResults, countryNames) {
-  const spotifySet = new Set(spotifyMarkets);
+// Confidence values (Phase 5.2 — Apple-only, single source):
+//   Inferred — Engine reached a definitive AVAILABLE/UNAVAILABLE state from
+//              the one contributing provider. This is the ceiling in this
+//              phase; "Verified" (2+ sources agreeing) cannot occur until a
+//              future phase adds a second territory-acquisition provider.
+//   Unknown  — no definitive signal (UNKNOWN/NOT_EVALUATED/ERROR)
+function mapEngineStateToStatus(state) {
+  if (state === TerritoryState.AVAILABLE)   return 'available';
+  if (state === TerritoryState.UNAVAILABLE) return 'not_confirmed';
+  return 'unknown'; // UNKNOWN, NOT_EVALUATED, ERROR
+}
 
-  // Always iterate over the full evaluation universe — not just what Spotify/Apple returned
-  // This guarantees every evaluated country has a row regardless of API coverage
+function mapEngineStateToConfidence(state) {
+  if (state === TerritoryState.AVAILABLE || state === TerritoryState.UNAVAILABLE) return 'Inferred';
+  return 'Unknown';
+}
+
+function buildTerritoryDataset(territoryIntelligence, countryNames) {
+  const byCode = new Map(
+    (territoryIntelligence?.territories || []).map(t => [String(t.code).toUpperCase(), t])
+  );
+
+  // Always iterate over the full evaluation universe — not just what the
+  // Engine returned — so every evaluated country has a row regardless of
+  // whether Apple's storefront list happens to cover it.
   return EVALUATION_UNIVERSE.map(code => {
-    const spotifyAvailable = spotifySet.has(code);
-    const appleAvailable = appleResults[code] ?? null; // null = not checked or failed
-
-    let status, confidence;
-
-    if (spotifyAvailable && appleAvailable === true) {
-      // Both sources confirm — strongest signal
-      status = 'available';
-      confidence = 'Verified';
-    } else if (spotifyAvailable && appleAvailable === false) {
-      // Spotify yes, Apple no — unusual, trust Spotify as primary
-      status = 'available';
-      confidence = 'Inferred';
-    } else if (spotifyAvailable && appleAvailable === null) {
-      // Spotify confirms, Apple not checked or unavailable
-      status = 'available';
-      confidence = 'Inferred';
-    } else if (!spotifyAvailable && appleAvailable === true) {
-      // Apple yes, Spotify no — unusual, treat as inferred available
-      status = 'available';
-      confidence = 'Inferred';
-    } else if (!spotifyAvailable && appleAvailable === false) {
-      // Neither source confirms — not_confirmed (not the same as unavailable)
-      status = 'not_confirmed';
-      confidence = 'Inferred';
-    } else {
-      // Country is in evaluation universe but no data was attempted or both errored
-      status = 'unknown';
-      confidence = 'Unknown';
-    }
+    const entry = byCode.get(code);
+    const state = entry?.state ?? TerritoryState.NOT_EVALUATED;
 
     return {
       country_code: code,
       country_name: countryNames[code] || code,
-      spotify_available: spotifyAvailable,
-      apple_available: appleAvailable,
-      status,
-      confidence,
+      // Spotify no longer contributes territory-acquisition evidence in
+      // Phase 5.2 (Board Decision 1) — null, not false, so this column
+      // honestly reflects "not sourced" rather than "confirmed absent".
+      spotify_available: null,
+      apple_available: state === TerritoryState.AVAILABLE ? true
+                      : state === TerritoryState.UNAVAILABLE ? false
+                      : null,
+      status: mapEngineStateToStatus(state),
+      confidence: mapEngineStateToConfidence(state),
     };
   }).sort((a, b) => {
     const pa = PRIORITY_MARKETS.findIndex(m => m.code === a.country_code);
@@ -521,7 +409,7 @@ function computeCoverageScore(territories) {
 }
 
 // ── INSIGHT GENERATION ────────────────────────────────────────────────────────
-function generateInsights(territories, scoring, entityType) {
+function generateInsights(territories, scoring) {
   const insights = [];
 
   if (scoring.coverage_score >= 85) {
@@ -532,9 +420,11 @@ function generateInsights(territories, scoring, entityType) {
     insights.push(`Coverage across evaluated territories is estimated at ${scoring.coverage_score}% — significant gaps detected.`);
   }
 
-  if (entityType === 'artist') {
-    insights.push('Artist scan is sample-based — derived from selected top tracks. Results may not represent full catalog availability.');
-  }
+  // Phase 5.2 — Apple is the sole territory-acquisition provider this phase
+  // (Board Decision 1). Surfaced as a visible insight, not just a metadata
+  // field, per the decree's "explicitly versioned, not silently changed"
+  // requirement.
+  insights.push('Availability is evaluated using Apple Music data only in this release — Spotify market cross-validation is not currently available.');
 
   if (scoring.missing_key_markets.length > 0) {
     const names = scoring.missing_key_markets
@@ -547,12 +437,6 @@ function generateInsights(territories, scoring, entityType) {
   const jp = territories.find(t => t.country_code === 'JP');
   if (jp && jp.status !== 'available') {
     insights.push('Japan does not appear in the confirmed available markets — a high-value streaming territory.');
-  }
-
-  const verifiedCount = territories.filter(t => t.confidence === 'Verified').length;
-  const inferredCount = territories.filter(t => t.confidence === 'Inferred').length;
-  if (inferredCount > verifiedCount) {
-    insights.push('Most results are inferred from Spotify data only — Apple Music cross-validation was limited or unavailable.');
   }
 
   return insights;
