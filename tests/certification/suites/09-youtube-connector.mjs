@@ -180,8 +180,12 @@ function groupA() {
     YOUTUBE_CAPABILITIES.includes(Capability.COLLECTION_DATA),
   ));
   results.push(check(
-    'YOUTUBE_CAPABILITIES has exactly 2 entries',
-    YOUTUBE_CAPABILITIES.length === 2,
+    'YOUTUBE_CAPABILITIES includes VIDEOS',
+    YOUTUBE_CAPABILITIES.includes(Capability.VIDEOS),
+  ));
+  results.push(check(
+    'YOUTUBE_CAPABILITIES has exactly 3 entries',
+    YOUTUBE_CAPABILITIES.length === 3, `got ${YOUTUBE_CAPABILITIES.length}`,
   ));
   results.push(check(
     'YouTubeConnector is a class (function)',
@@ -577,6 +581,114 @@ function groupG() {
   return { name: 'G-edge-cases', results };
 }
 
+// ── Group H: Connector dispatch — VIDEOS capability ───────────────────────────
+//
+// VIDEOS has no EvidenceBridge translation yet — raw-acquisition-only.
+// Certified here against the connector's public acquire() entrypoint with a
+// mocked fetchFn, the same pattern used by the MusicBrainz/MLC/ACRCloud suites.
+// #fetchVideoDetails orchestrates two calls internally: playlistItems (to
+// resolve upload IDs) then videos (to fetch full details) — both routed
+// through the same mocked fetchFn, dispatched here by URL.
+
+const PLAYLIST_ITEMS_PAYLOAD = {
+  items: [
+    { contentDetails: { videoId: 'vid1' } },
+    { contentDetails: { videoId: 'vid2' } },
+  ],
+};
+
+const VIDEOS_PAYLOAD = {
+  kind: 'youtube#videoListResponse',
+  items: [
+    { id: 'vid1', snippet: { title: 'Official Video 1' }, statistics: { viewCount: '1000' }, status: { privacyStatus: 'public' } },
+    { id: 'vid2', snippet: { title: 'Official Video 2' }, statistics: { viewCount: '2000' }, status: { privacyStatus: 'public' } },
+  ],
+};
+
+function mockVideosFetch({ playlistItemsPayload = PLAYLIST_ITEMS_PAYLOAD, videosPayload = VIDEOS_PAYLOAD, playlistOk = true } = {}) {
+  const calls = [];
+  const fetchFn = async (url) => {
+    calls.push(url);
+    if (url.includes('/playlistItems')) {
+      return playlistOk
+        ? { ok: true, status: 200, text: async () => JSON.stringify(playlistItemsPayload) }
+        : { ok: false, status: 500, text: async () => '{}' };
+    }
+    if (url.includes('/videos')) {
+      return { ok: true, status: 200, text: async () => JSON.stringify(videosPayload) };
+    }
+    return { ok: false, status: 404, text: async () => '{}' };
+  };
+  return { fetchFn, calls };
+}
+
+async function acquireVideos(connector, subjectRef) {
+  return connector.acquire({
+    requestId: 'req-videos', evidenceType: Capability.VIDEOS, subjectRef,
+    context: { correlationId: 'corr-videos' },
+  });
+}
+
+async function groupH() {
+  const results = [];
+
+  // Happy path: playlistItems → videos, orchestrated correctly
+  {
+    const { fetchFn, calls } = mockVideosFetch();
+    const c = new YouTubeConnector();
+    await c.initialize({ apiKey: 'fake-api-key', fetchFn });
+    const contract = await acquireVideos(c, { uploadsPlaylistId: 'UUplaylist123' });
+
+    results.push(check('VIDEOS first calls /playlistItems with the uploads playlist ID',
+      calls[0]?.includes('/playlistItems') && calls[0]?.includes('playlistId=UUplaylist123'), `got: ${calls[0]}`));
+    results.push(check('VIDEOS then calls /videos with resolved video IDs (comma-joined)',
+      calls[1]?.includes('/videos') && calls[1]?.includes('id=vid1%2Cvid2'), `got: ${calls[1]}`));
+    results.push(check('VIDEOS requests part=snippet,contentDetails,statistics,status',
+      calls[1]?.includes('part=snippet%2CcontentDetails%2Cstatistics%2Cstatus') || calls[1]?.includes('part=snippet,contentDetails,statistics,status'),
+      `got: ${calls[1]}`));
+    results.push(check('VIDEOS health is AVAILABLE', contract.health?.state === 'AVAILABLE', `got: ${contract.health?.state}`));
+    results.push(check('VIDEOS completeness is "full"', contract.completeness === 'full'));
+    results.push(check('VIDEOS payload preserves raw items[0].snippet.title',
+      contract.payload?.items?.[0]?.snippet?.title === 'Official Video 1'));
+  }
+
+  // Missing uploadsPlaylistId — no network call
+  {
+    const { fetchFn, calls } = mockVideosFetch();
+    const c = new YouTubeConnector();
+    await c.initialize({ apiKey: 'fake-api-key', fetchFn });
+    const contract = await acquireVideos(c, {});
+    results.push(check('VIDEOS with no uploadsPlaylistId returns PARTIAL_RESPONSE', contract.health?.state === 'PARTIAL_RESPONSE'));
+    results.push(check('VIDEOS with no uploadsPlaylistId makes no network call', calls.length === 0));
+  }
+
+  // Empty uploads playlist (channel with zero videos) — AVAILABLE, not an error
+  {
+    const { fetchFn } = mockVideosFetch({ playlistItemsPayload: { items: [] } });
+    const c = new YouTubeConnector();
+    await c.initialize({ apiKey: 'fake-api-key', fetchFn });
+    const contract = await acquireVideos(c, { uploadsPlaylistId: 'UUempty' });
+    results.push(check('VIDEOS with empty uploads playlist is AVAILABLE, not an error',
+      contract.health?.state === 'AVAILABLE', `got: ${contract.health?.state}`));
+    results.push(check('VIDEOS with empty uploads playlist returns payload.items = []',
+      Array.isArray(contract.payload?.items) && contract.payload.items.length === 0));
+  }
+
+  // playlistItems transport failure — UNAVAILABLE
+  {
+    const { fetchFn } = mockVideosFetch({ playlistOk: false });
+    const c = new YouTubeConnector();
+    await c.initialize({ apiKey: 'fake-api-key', fetchFn });
+    const contract = await acquireVideos(c, { uploadsPlaylistId: 'UUbroken' });
+    results.push(check('VIDEOS when playlistItems fetch fails maps to MAINTENANCE (fixed from invalid HealthState.UNAVAILABLE reference)',
+      contract.health?.state === 'MAINTENANCE', `got: ${contract.health?.state}`));
+    results.push(check('VIDEOS when playlistItems fetch fails returns null payload',
+      contract.payload === null));
+  }
+
+  return { name: 'H-videos-dispatch', results };
+}
+
 // ── Suite runner ──────────────────────────────────────────────────────────────
 
 export async function runYouTubeConnector() {
@@ -588,6 +700,7 @@ export async function runYouTubeConnector() {
     groupE(),
     groupF(),
     groupG(),
+    await groupH(),
   ];
 
   let passed = 0, failed = 0;

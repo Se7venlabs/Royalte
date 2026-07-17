@@ -11,4 +11,5 @@ import { Capability } from '../../capability/capabilityVocabulary.js';
 export const YOUTUBE_CAPABILITIES = Object.freeze([
   Capability.ARTIST_IDENTITY,   // search.list — Official Artist Channel identification
   Capability.COLLECTION_DATA,   // channels.list — statistics, topics, branding, content details
+  Capability.VIDEOS,            // playlistItems.list (uploads playlist) -> videos.list full detail
 ]);
