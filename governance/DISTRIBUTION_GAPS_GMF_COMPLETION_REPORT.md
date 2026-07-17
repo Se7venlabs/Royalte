@@ -57,17 +57,17 @@ Performed directly this session (Chrome extension connected mid-session; noted t
 
 ## 6. Git Summary
 
-*(To be finalized after commit/push — see below for the values as of this report's creation.)*
-
 - **Branch:** `feat/distribution-gaps-gmf`
 - **Base:** `main` at `29222f1` (post Phase 5.2 governance backfill)
-- **PR:** to be opened
-- **Commit SHA:** to be created
-- **CI status:** pending
+- **PR:** [#351](https://github.com/Se7venlabs/Royalte/pull/351)
+- **Commit SHA:** `3600e29`
+- **CI status:** ✅ green — `Run pipeline test` pass, `Vercel` deployment pass, `Vercel Preview Comments` pass
 
 ## 7. Developer Preview
 
-**URL:** `/workspaces/global-music-footprint.html?dev=1` — on the Vercel Preview once deployed, or `http://localhost:8934/workspaces/global-music-footprint.html?dev=1` as tested locally this session.
+**URL:** `https://royalte-a48t0mjge-darrylwest-7086s-projects.vercel.app/workspaces/global-music-footprint.html?dev=1` — confirmed deployed from commit `3600e29` (this PR's current head).
+
+Locally tested this session at `http://localhost:8934/workspaces/global-music-footprint.html?dev=1` (static file server, same HTML/CSS/JS the Preview serves).
 
 **No steps required beyond opening the URL.** The dev-fixture gate now activates on `?dev=1` regardless of hostname (previously localhost-only); the fixture ("Black Alternative," 24 sample territories spanning Available/Unavailable/Unknown/Pending Review with multiple providers) loads automatically. No DevTools, no sessionStorage pasting, no login/session required — confirmed directly this session.
 
