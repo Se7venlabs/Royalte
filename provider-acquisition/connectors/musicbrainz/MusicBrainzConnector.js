@@ -143,6 +143,21 @@ export class MusicBrainzConnector extends ProviderConnector {
       case Capability.ISRC:
         return this.#fetchByISRC(subjectRef);
 
+      case Capability.PUBLISHING:
+        return this.#fetchWorks(subjectRef);
+
+      case Capability.SONGWRITERS:
+        return this.#fetchWorkRelationships(subjectRef);
+
+      case Capability.CONTRIBUTORS:
+        return this.#fetchRecordingRelationships(subjectRef);
+
+      case Capability.LABELS:
+        return this.#fetchReleaseDetail(subjectRef);
+
+      case Capability.SOCIAL_LINKS:
+        return this.#fetchArtistRelationships(subjectRef);
+
       default:
         return {
           payload:      null,
@@ -188,6 +203,58 @@ export class MusicBrainzConnector extends ProviderConnector {
   async #fetchByISRC(subjectRef) {
     if (!subjectRef?.isrc) return this.#missingRef('isrc');
     return this.#get(`/recording?isrc=${encodeURIComponent(subjectRef.isrc)}`);
+  }
+
+  // WORKS: every work (composition) associated with the artist, via browse.
+  // Reuses subjectRef.mbid already resolved via ARTIST_IDENTITY — no new
+  // discovery. Each work already carries ISWC and PRO/CMO registration IDs
+  // (ASCAP, SACEM, GEMA, JASRAC, etc.) in its attributes array.
+  // MusicBrainz: GET /work?artist={mbid}&limit=100
+  async #fetchWorks(subjectRef) {
+    if (!subjectRef?.mbid) return this.#missingRef('mbid');
+    return this.#get(`/work?artist=${encodeURIComponent(subjectRef.mbid)}&limit=100`);
+  }
+
+  // WORK RELATIONSHIPS: writer/composer/lyricist credits for a known work.
+  // Reuses a work MBID already obtained from #fetchWorks — no new discovery.
+  // MusicBrainz: GET /work/{mbid}?inc=artist-rels+work-rels+url-rels
+  async #fetchWorkRelationships(subjectRef) {
+    if (!subjectRef?.workMbid) return this.#missingRef('workMbid');
+    return this.#get(
+      `/work/${encodeURIComponent(subjectRef.workMbid)}?inc=artist-rels+work-rels+url-rels`
+    );
+  }
+
+  // RECORDING RELATIONSHIPS: performer/producer/engineer credits for a known
+  // recording. Reuses a recording MBID already obtained from
+  // #fetchRecordings — no new discovery.
+  // MusicBrainz: GET /recording/{mbid}?inc=artist-rels+work-rels
+  async #fetchRecordingRelationships(subjectRef) {
+    if (!subjectRef?.recordingMbid) return this.#missingRef('recordingMbid');
+    return this.#get(
+      `/recording/${encodeURIComponent(subjectRef.recordingMbid)}?inc=artist-rels+work-rels`
+    );
+  }
+
+  // RELEASE DETAIL: complete release metadata for a known release MBID —
+  // country, release events, labels, catalog number, barcode, language,
+  // script, status, packaging, and any other field MusicBrainz returns.
+  // MusicBrainz: GET /release/{mbid}?inc=labels
+  async #fetchReleaseDetail(subjectRef) {
+    if (!subjectRef?.releaseMbid) return this.#missingRef('releaseMbid');
+    return this.#get(`/release/${encodeURIComponent(subjectRef.releaseMbid)}?inc=labels`);
+  }
+
+  // ARTIST RELATIONSHIPS: band members, associated artists, and URL
+  // relationships (official site, Discogs, Wikidata, Bandcamp, social,
+  // streaming links). Reuses subjectRef.mbid already resolved via
+  // ARTIST_IDENTITY — no new discovery.
+  // MusicBrainz: GET /artist/{mbid}?inc=artist-rels+url-rels
+  async #fetchArtistRelationships(subjectRef) {
+    if (!subjectRef?.mbid) return this.#missingRef('mbid');
+    return this.#get(
+      `/artist/${encodeURIComponent(subjectRef.mbid)}?inc=artist-rels+url-rels`
+    );
   }
 
   // ── HTTP helper ──────────────────────────────────────────────────────────────
