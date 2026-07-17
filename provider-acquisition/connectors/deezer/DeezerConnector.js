@@ -141,6 +141,9 @@ export class DeezerConnector extends ProviderConnector {
       case Capability.ISRC:
         return this.#fetchArtistTopTracks(subjectRef);
 
+      case Capability.AVAILABILITY:
+        return this.#fetchTrackDetail(subjectRef);
+
       default:
         return {
           payload:      null,
@@ -211,6 +214,17 @@ export class DeezerConnector extends ProviderConnector {
   async #fetchArtistTopTracks(subjectRef) {
     if (!subjectRef?.deezerArtistId) return this.#missingRef('deezerArtistId');
     return this.#get(`/artist/${encodeURIComponent(subjectRef.deezerArtistId)}/top?limit=50`);
+  }
+
+  // AVAILABILITY: full track resource for a known Deezer track ID.
+  // Reuses a track ID already obtained from #fetchArtistTopTracks — no new
+  // artist-resolution workflow. Returns the raw track object unfiltered, so
+  // available_countries, bpm, gain, contributors, track_token, and any other
+  // field Deezer returns all pass through untouched (constitutional
+  // constraint: this connector never selects or normalizes fields).
+  async #fetchTrackDetail(subjectRef) {
+    if (!subjectRef?.deezerTrackId) return this.#missingRef('deezerTrackId');
+    return this.#get(`/track/${encodeURIComponent(subjectRef.deezerTrackId)}`);
   }
 
   // ── HTTP helper ──────────────────────────────────────────────────────────────

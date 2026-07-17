@@ -210,8 +210,12 @@ function groupA() {
     DEEZER_CAPABILITIES.includes(Capability.GENRES),
   ));
   results.push(check(
-    'DEEZER_CAPABILITIES has exactly 6 entries',
-    DEEZER_CAPABILITIES.length === 6,
+    'DEEZER_CAPABILITIES includes AVAILABILITY',
+    DEEZER_CAPABILITIES.includes(Capability.AVAILABILITY),
+  ));
+  results.push(check(
+    'DEEZER_CAPABILITIES has exactly 7 entries',
+    DEEZER_CAPABILITIES.length === 7,
     `got: ${DEEZER_CAPABILITIES.length}`,
   ));
   results.push(check(
@@ -579,6 +583,54 @@ function groupG() {
   return { name: 'G-edge-cases', results };
 }
 
+// ── Group H: Connector dispatch — AVAILABILITY capability ────────────────────
+//
+// AVAILABILITY has no EvidenceBridge translation yet — raw-acquisition-only.
+// Certified here against the connector's public acquire() entrypoint with a
+// mocked fetchFn, the same pattern used by the MusicBrainz/YouTube/MLC/
+// ACRCloud suites.
+
+const TRACK_DETAIL_PAYLOAD = {
+  id: 3135556, title: 'Shape of You',
+  available_countries: ['US', 'GB', 'DE', 'FR', 'JP'],
+  bpm: 95.98, gain: -6.4, track_token: 'mock-track-token',
+  contributors: [{ id: 12345, name: 'Ed Sheeran' }],
+};
+
+async function groupH() {
+  const results = [];
+
+  let capturedUrl = null;
+  const fetchFn = async (url) => {
+    capturedUrl = url;
+    return { ok: true, status: 200, text: async () => JSON.stringify(TRACK_DETAIL_PAYLOAD) };
+  };
+  const c = new DeezerConnector();
+  await c.initialize({ fetchFn });
+  const contract = await c.acquire({
+    requestId: 'req-availability', evidenceType: Capability.AVAILABILITY,
+    subjectRef: { deezerTrackId: 3135556 },
+    context: { correlationId: 'corr-availability' },
+  });
+
+  results.push(check('AVAILABILITY calls GET /track/{deezerTrackId}',
+    capturedUrl?.includes('/track/3135556'), `got: ${capturedUrl}`));
+  results.push(check('AVAILABILITY health is AVAILABLE', contract.health?.state === 'AVAILABLE', `got: ${contract.health?.state}`));
+  results.push(check('AVAILABILITY payload preserves available_countries',
+    Array.isArray(contract.payload?.available_countries) && contract.payload.available_countries.length === 5));
+  results.push(check('AVAILABILITY payload preserves bpm (raw, uninterpreted)', contract.payload?.bpm === 95.98));
+  results.push(check('AVAILABILITY payload preserves contributors', contract.payload?.contributors?.[0]?.name === 'Ed Sheeran'));
+
+  const missing = await c.acquire({
+    requestId: 'req-availability-2', evidenceType: Capability.AVAILABILITY,
+    subjectRef: {}, context: { correlationId: 'corr-availability-2' },
+  });
+  results.push(check('AVAILABILITY with no deezerTrackId returns PARTIAL_RESPONSE',
+    missing.health?.state === 'PARTIAL_RESPONSE'));
+
+  return { name: 'H-availability-dispatch', results };
+}
+
 // ── Suite runner ──────────────────────────────────────────────────────────────
 
 export async function runDeezerConnector() {
@@ -590,6 +642,7 @@ export async function runDeezerConnector() {
     groupE(),
     groupF(),
     groupG(),
+    await groupH(),
   ];
 
   let passed = 0, failed = 0;
