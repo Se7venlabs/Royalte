@@ -1,0 +1,500 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Distribution Gaps™ — Global Music Footprint™ Workspace
+   Board Directive 2026-07-17 — Responsive-First Implementation
+   ═══════════════════════════════════════════════════════════════════════
+   Loaded only by /workspaces/global-music-footprint.html. Reuses design
+   tokens from royalte-workspace.css (--mc-*, --rds-*); does not redefine
+   them. Accent: --mc-blue (GMF workspace accent, ws-dept--global).
+
+   Canonical viewport tiers (matches royalte-rds.css):
+     Executive Desktop™    > 1024px
+     Executive Tablet™    641–1024px
+     Executive Mobile™     ≤ 640px
+
+   Structure:
+     § 1  Summary section (beneath the map)
+     § 2  Full-list drawer / bottom sheet
+     § 3  Search + filter chips
+     § 4  Territory list rows
+     § 5  Territory detail sub-panel
+     § 6  Responsive overrides (tablet, mobile)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────
+   § 1 — SUMMARY SECTION
+   ───────────────────────────────────────────────────────────────────── */
+
+.gf-gaps-section {
+  background: var(--mc-surface-1);
+  border: 1px solid rgba(56, 189, 248, 0.12);
+  border-radius: var(--mc-r-3);
+  padding: 18px 20px 20px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gf-gaps-header { display: flex; flex-direction: column; gap: 2px; }
+
+.gf-gaps-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--mc-text);
+}
+
+.gf-gaps-subtitle {
+  font-size: 11.5px;
+  color: var(--mc-text-muted);
+  line-height: 1.4;
+}
+
+.gf-gaps-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.gf-gaps-stat {
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-divider);
+  border-radius: var(--mc-r-2);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gf-gaps-stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--mc-text);
+}
+
+.gf-gaps-stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--mc-text-muted);
+}
+
+.gf-gaps-stat--total     .gf-gaps-stat-num { color: var(--mc-blue); }
+.gf-gaps-stat--unavailable .gf-gaps-stat-num { color: #f87171; }
+.gf-gaps-stat--unknown   .gf-gaps-stat-num { color: var(--mc-orange); }
+.gf-gaps-stat--pending   .gf-gaps-stat-num { color: var(--mc-text-soft); }
+
+.gf-gaps-view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  background: var(--mc-blue-soft);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: var(--mc-r-2);
+  color: var(--mc-blue);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  align-self: flex-start;
+}
+.gf-gaps-view-btn:hover { background: rgba(56, 189, 248, 0.20); border-color: rgba(56, 189, 248, 0.45); }
+.gf-gaps-view-btn svg { width: 14px; height: 14px; }
+
+.gf-gaps-empty {
+  font-size: 12px;
+  color: var(--mc-text-muted);
+  padding: 8px 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   § 2 — FULL-LIST DRAWER (desktop default: right-side drawer)
+   ───────────────────────────────────────────────────────────────────── */
+
+.gf-gaps-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.gf-gaps-scrim[hidden] { display: none; }
+.gf-gaps-scrim--visible { opacity: 1; }
+
+.gf-gaps-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 960;
+  width: 460px;
+  max-width: 92vw;
+  background: var(--mc-surface-1);
+  border-left: 1px solid var(--mc-border);
+  box-shadow: -24px 0 60px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  transform: translateX(100%);
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gf-gaps-drawer[hidden] { display: none; }
+.gf-gaps-drawer--visible { transform: translateX(0); }
+
+.gf-gaps-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--mc-border-soft);
+  flex-shrink: 0;
+}
+
+.gf-gaps-drawer-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--mc-text);
+}
+
+.gf-gaps-drawer-close,
+.gf-gaps-detail-close {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: var(--mc-r-2);
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-border-soft);
+  color: var(--mc-text-muted);
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.gf-gaps-drawer-close:hover,
+.gf-gaps-detail-close:hover { background: var(--mc-surface-3); color: var(--mc-text); }
+
+/* ─────────────────────────────────────────────────────────────────────
+   § 3 — SEARCH + FILTER CHIPS
+   ───────────────────────────────────────────────────────────────────── */
+
+.gf-gaps-controls {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--mc-border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.gf-gaps-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.gf-gaps-search-wrap svg {
+  position: absolute;
+  left: 12px;
+  width: 14px;
+  height: 14px;
+  color: var(--mc-text-muted);
+  pointer-events: none;
+}
+.gf-gaps-search {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px 0 34px;
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-r-2);
+  color: var(--mc-text);
+  font-size: 13px;
+  box-sizing: border-box;
+}
+.gf-gaps-search::placeholder { color: var(--mc-text-faint); }
+.gf-gaps-search:focus { outline: none; border-color: rgba(56, 189, 248, 0.45); }
+
+.gf-gaps-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.gf-gaps-chip {
+  min-height: 32px;
+  padding: 0 12px;
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-border);
+  border-radius: 999px;
+  color: var(--mc-text-soft);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  display: inline-flex;
+  align-items: center;
+}
+.gf-gaps-chip:hover { background: var(--mc-surface-3); }
+.gf-gaps-chip--active {
+  background: var(--mc-blue-soft);
+  border-color: rgba(56, 189, 248, 0.40);
+  color: var(--mc-blue);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   § 4 — TERRITORY LIST
+   ───────────────────────────────────────────────────────────────────── */
+
+.gf-gaps-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gf-gaps-list-empty {
+  padding: 32px 20px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--mc-text-muted);
+}
+
+.gf-gaps-row {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr 1fr;
+  align-items: center;
+  gap: 4px 10px;
+  min-height: 56px;
+  padding: 10px 12px;
+  background: var(--mc-surface-2);
+  border: 1px solid var(--mc-border-soft);
+  border-radius: var(--mc-r-2);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  transition: background 0.15s, border-color 0.15s;
+}
+.gf-gaps-row:hover { background: var(--mc-surface-3); border-color: rgba(56, 189, 248, 0.22); }
+
+.gf-gaps-row-territory { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.gf-gaps-row-name { font-size: 12.5px; font-weight: 600; color: var(--mc-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gf-gaps-row-code { font-size: 9.5px; color: var(--mc-text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+
+.gf-gaps-row-status {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  justify-self: start;
+  white-space: nowrap;
+}
+.gf-gaps-row-status--available   { color: var(--mc-green-bright); background: rgba(52,245,176,0.12); }
+.gf-gaps-row-status--unavailable { color: #f87171; background: rgba(248,113,113,0.12); }
+.gf-gaps-row-status--unknown     { color: var(--mc-orange); background: rgba(251,146,60,0.12); }
+.gf-gaps-row-status--pending     { color: var(--mc-text-soft); background: rgba(255,255,255,0.06); }
+
+.gf-gaps-row-providers { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+.gf-gaps-row-pdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.gf-gaps-row-pdot--apple_music { background: #FC3C44; }
+.gf-gaps-row-pdot--spotify     { background: #1DB954; }
+.gf-gaps-row-pdot--deezer      { background: #A238FF; }
+.gf-gaps-row-pdot--tidal       { background: #00D5FF; }
+.gf-gaps-row-providers-empty { font-size: 10.5px; color: var(--mc-text-faint); }
+
+/* Reason / recommended action / last verified are shown in the row on
+   desktop/tablet (wide layout below) and in the detail panel always. */
+.gf-gaps-row-reason,
+.gf-gaps-row-action,
+.gf-gaps-row-verified { display: none; }
+
+/* ─────────────────────────────────────────────────────────────────────
+   § 5 — TERRITORY DETAIL SUB-PANEL
+   ───────────────────────────────────────────────────────────────────── */
+
+.gf-gaps-detail-scrim {
+  position: fixed; inset: 0; z-index: 970;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+  opacity: 0; transition: opacity 0.2s ease;
+}
+.gf-gaps-detail-scrim[hidden] { display: none; }
+.gf-gaps-detail-scrim--visible { opacity: 1; }
+
+.gf-gaps-detail {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  z-index: 980;
+  width: 420px;
+  max-width: 92vw;
+  background: var(--mc-surface-1);
+  border-left: 1px solid var(--mc-border);
+  box-shadow: -24px 0 60px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gf-gaps-detail[hidden] { display: none; }
+.gf-gaps-detail--visible { transform: translateX(0); }
+
+.gf-gaps-detail-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--mc-border-soft);
+  flex-shrink: 0;
+}
+.gf-gaps-detail-back {
+  min-height: 44px;
+  padding: 0 14px 0 8px;
+  background: transparent;
+  border: none;
+  color: var(--mc-text-soft);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.gf-gaps-detail-back:hover { color: var(--mc-text); }
+
+.gf-gaps-detail-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gf-gaps-detail-territory { display: flex; flex-direction: column; gap: 2px; }
+.gf-gaps-detail-name { font-size: 18px; font-weight: 700; color: var(--mc-text); }
+.gf-gaps-detail-code { font-size: 11px; color: var(--mc-text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+.gf-gaps-detail-field { display: flex; flex-direction: column; gap: 4px; padding-top: 12px; border-top: 1px solid var(--mc-divider); }
+.gf-gaps-detail-field:first-of-type { border-top: none; padding-top: 0; }
+.gf-gaps-detail-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mc-text-faint); }
+.gf-gaps-detail-value { font-size: 13px; color: var(--mc-text-soft); line-height: 1.5; }
+.gf-gaps-detail-providers { display: flex; flex-direction: column; gap: 6px; }
+.gf-gaps-detail-provider-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--mc-text-soft); }
+
+/* ─────────────────────────────────────────────────────────────────────
+   § 6 — RESPONSIVE OVERRIDES
+   ───────────────────────────────────────────────────────────────────── */
+
+/* ── Executive Tablet™ 641–1024px ─────────────────────────────────── */
+@media (max-width: 1024px) {
+  .gf-gaps-summary { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+  .gf-gaps-drawer {
+    width: min(560px, 78vw);
+  }
+  .gf-gaps-detail { width: min(480px, 82vw); }
+
+  .gf-gaps-row {
+    grid-template-columns: 1.2fr 0.9fr;
+    row-gap: 6px;
+  }
+  .gf-gaps-row-providers { grid-column: 1 / -1; }
+
+  .gf-gaps-chip { min-height: 36px; padding: 0 14px; }
+}
+
+/* ── Executive Mobile™ ≤ 640px ────────────────────────────────────── */
+@media (max-width: 640px) {
+  .gf-gaps-section { padding: 16px; }
+
+  /* Summary cards stack vertically, one per row, per Board spec. */
+  .gf-gaps-summary { grid-template-columns: 1fr; gap: 8px; }
+  .gf-gaps-stat { flex-direction: row; align-items: center; justify-content: space-between; padding: 12px 14px; }
+
+  .gf-gaps-view-btn { width: 100%; align-self: stretch; }
+
+  /* Drawer becomes a full-screen sheet — never a squeezed desktop drawer. */
+  .gf-gaps-drawer {
+    width: 100%;
+    max-width: 100%;
+    top: auto;
+    height: 92vh;
+    border-left: none;
+    border-top: 1px solid var(--mc-border);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.5);
+    transform: translateY(100%);
+  }
+  .gf-gaps-drawer--visible { transform: translateY(0); }
+
+  .gf-gaps-detail {
+    width: 100%;
+    max-width: 100%;
+    top: auto;
+    height: 92vh;
+    border-left: none;
+    border-top: 1px solid var(--mc-border);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.5);
+    transform: translateY(100%);
+  }
+  .gf-gaps-detail--visible { transform: translateY(0); }
+
+  /* Drag handle affordance — obvious sheet, obvious close */
+  .gf-gaps-drawer-header,
+  .gf-gaps-detail-header { position: relative; padding-top: 20px; }
+  .gf-gaps-drawer-header::before,
+  .gf-gaps-detail-header::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 36px; height: 4px;
+    border-radius: 2px;
+    background: var(--mc-border);
+  }
+
+  .gf-gaps-controls { padding: 12px 16px; }
+  .gf-gaps-list { padding: 6px 10px 24px; }
+
+  /* Territory list becomes mobile cards — stacked fields, all columns
+     visible (reason / action / verified are hidden on desktop/tablet
+     rows but shown here since mobile has no room for a wide table and
+     the detail panel is one extra tap away already). */
+  .gf-gaps-row {
+    grid-template-columns: 1fr;
+    row-gap: 6px;
+    min-height: 44px;
+    padding: 12px;
+  }
+  .gf-gaps-row-status { justify-self: start; }
+  .gf-gaps-row-reason {
+    display: block;
+    font-size: 11.5px;
+    color: var(--mc-text-muted);
+    line-height: 1.4;
+  }
+
+  /* Board spec: minimum 44px touch targets throughout on mobile. */
+  .gf-gaps-chip { min-height: 44px; padding: 0 14px; font-size: 12px; }
+  .gf-gaps-search { min-height: 44px; }
+  .gf-gaps-row { min-height: 44px; }
+
+  .gf-gaps-detail-back,
+  .gf-gaps-detail-close { min-height: 44px; min-width: 44px; }
+}

@@ -29,7 +29,8 @@
 //    - Output is deep-frozen.
 //
 // ─────────────────────────────────────────────────────────────────────
-//  Output shape (v1.0 — unchanged by Phase 5.2):
+//  Output shape (v1.0 fields unchanged by Phase 5.2; distributionGaps
+//  added Board Directive 2026-07-17 — additive only):
 //
 //    {
 //      territoriesAvailable:   number,
@@ -37,11 +38,60 @@
 //      coveragePercent:        number,  // (available / evaluated) × 100, rounded
 //      status:                 string,  // 'Global' | 'Strong' | 'Regional' | 'Limited'
 //      confidence:             string,  // 'Verified' | 'Partial' | 'Unable to Confirm' | 'Not Found'
+//      distributionGaps: {              // present only when Engine per-territory data exists
+//        totalRequiringAttention: number,  // count of non-AVAILABLE territories
+//        unavailable:             number,
+//        unknown:                 number,  // Engine UNKNOWN + ERROR grouped (no separate "Error" tier in this UI)
+//        notEvaluated:            number,
+//        territories: [{                    // ALL evaluated territories, not just gaps —
+//          code, name,                       // the drawer's "Available" filter needs these too
+//          status: 'Available'|'Unavailable'|'Unknown'|'Pending Review',
+//          providers: string[],              // providers with real evidence for this territory only
+//          reason: string|null,               // derived from the Engine's own reasonCode — never invented
+//          recommendedAction: string|null,    // null for Available (no action needed)
+//          lastVerified: string|null,         // real evidence.acquiredAt ISO timestamp, or null
+//        }],
+//      } | null,
 //    }
 //
 // ─────────────────────────────────────────────────────────────────────
 
 export const GLOBAL_MUSIC_FOOTPRINT_VERSION = '1.0.0';
+
+// Distribution Gaps™ (Board Directive 2026-07-17) — display-label and
+// recommended-action maps. Every value here is a deterministic function of
+// the Territory Intelligence Engine's own real state/reasonCode — never a
+// per-territory fabrication. Unrecognized reasonCodes fall back to an
+// honest per-state default rather than inventing detail that isn't there.
+const STATUS_DISPLAY_LABELS = Object.freeze({
+  AVAILABLE:     'Available',
+  UNAVAILABLE:   'Unavailable',
+  UNKNOWN:       'Unknown',
+  ERROR:         'Unknown', // Distribution Gaps™ UI exposes 4 statuses only (Board spec); ERROR reads as Unknown to the artist, detail preserved in `reason`
+  NOT_EVALUATED: 'Pending Review',
+});
+
+const REASON_LABELS = Object.freeze({
+  catalog_match_found:          'Catalog confirmed in this storefront',
+  catalog_match_absent:         'Catalog not found in this storefront',
+  provider_request_failed:      'Provider request failed during acquisition',
+  unrecognized_response_shape:  'Provider returned an unrecognized response',
+  capability_acquisition_failed:'Territory data could not be acquired for this scan',
+});
+
+const RECOMMENDED_ACTIONS_BY_REASON = Object.freeze({
+  'UNAVAILABLE:catalog_match_absent':      'Confirm catalog delivery to this storefront with your distributor.',
+  'ERROR:provider_request_failed':         'Re-run scan — the provider request failed and can be retried.',
+  'ERROR:capability_acquisition_failed':   'Re-run scan — territory data could not be acquired this pass.',
+  'UNKNOWN:unrecognized_response_shape':   'Provider response could not be interpreted — re-verify manually.',
+});
+
+const DEFAULT_ACTION_BY_STATE = Object.freeze({
+  UNAVAILABLE:   'Confirm catalog delivery to this storefront with your distributor.',
+  UNKNOWN:       'Insufficient data to confirm — re-verify with the provider.',
+  ERROR:         'Re-run scan — acquisition did not complete for this territory.',
+  NOT_EVALUATED: 'Not yet evaluated — will be checked on the next scan.',
+});
 
 // Board-locked status thresholds (coverage percent of evaluated markets).
 // Named constants — change only through formal Board Review.
@@ -95,6 +145,65 @@ function deriveConfidenceFromTerritoryIntelligence(appleAvailability, territoryI
   return evaluated > 0 ? 'Verified' : 'Partial';
 }
 
+// Distribution Gaps™ — Board Directive 2026-07-17. Pure derivation from the
+// Territory Intelligence Engine's own per-territory evidence; never invents
+// a provider, reason, or timestamp that isn't already present in `evidence`.
+function reasonLabelFor(reasonCode, hasEvidence) {
+  if (reasonCode && REASON_LABELS[reasonCode]) return REASON_LABELS[reasonCode];
+  if (!hasEvidence) return 'Not yet evaluated for this territory';
+  return 'Reason not available from reviewed sources';
+}
+
+function recommendedActionFor(state, reasonCode) {
+  if (state === 'AVAILABLE') return null; // no action needed — never fabricate a directive where none applies
+  const keyed = reasonCode ? RECOMMENDED_ACTIONS_BY_REASON[`${state}:${reasonCode}`] : null;
+  return keyed || DEFAULT_ACTION_BY_STATE[state] || 'Review this territory manually.';
+}
+
+function buildDistributionGaps(territoryIntelligence) {
+  const rawTerritories = Array.isArray(territoryIntelligence?.territories) ? territoryIntelligence.territories : [];
+  const summary = territoryIntelligence?.summary ?? {};
+
+  const territories = rawTerritories.map((t) => {
+    const state = t?.state;
+    const evidence = Array.isArray(t?.evidence) ? t.evidence : [];
+    // Only providers with real evidence for THIS territory — never the
+    // full platform provider roster.
+    const providers = evidence
+      .map((e) => (e && typeof e.provider === 'string') ? e.provider : null)
+      .filter(Boolean);
+    // Phase 5.2 is single-provider (Apple); the first evidence entry is the
+    // primary reason. Provider-general by design — a future multi-provider
+    // phase can extend this without re-architecture, since `evidence` already
+    // preserves every contributing provider's entry, not just the first.
+    const primaryEvidence = evidence[0] || null;
+    const reasonCode = primaryEvidence?.reasonCode ?? null;
+
+    return {
+      code:              t?.code,
+      name:              t?.name,
+      status:            STATUS_DISPLAY_LABELS[state] || 'Unknown',
+      providers,
+      reason:            reasonLabelFor(reasonCode, evidence.length > 0),
+      recommendedAction: recommendedActionFor(state, reasonCode),
+      lastVerified:      primaryEvidence?.acquiredAt ?? null,
+    };
+  });
+
+  const unavailable   = typeof summary.unavailable  === 'number' ? summary.unavailable  : 0;
+  const unknownGrouped = (typeof summary.unknown === 'number' ? summary.unknown : 0)
+                        + (typeof summary.error   === 'number' ? summary.error   : 0);
+  const notEvaluated  = typeof summary.notEvaluated === 'number' ? summary.notEvaluated : 0;
+
+  return {
+    totalRequiringAttention: unavailable + unknownGrouped + notEvaluated,
+    unavailable,
+    unknown: unknownGrouped,
+    notEvaluated,
+    territories,
+  };
+}
+
 export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical, territoryIntelligence) {
   try {
     const safeCanonical = (canonical && typeof canonical === 'object' && !Array.isArray(canonical))
@@ -130,11 +239,14 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical,
         status,
         reachNarrative,
         confidence,
+        distributionGaps: buildDistributionGaps(territoryIntelligence),
       });
     }
 
     // ── Legacy fallback path — preserved for callers not yet passing
-    //    territoryIntelligence. Unchanged from pre-Phase-5.2 behavior. ──────
+    //    territoryIntelligence. Unchanged from pre-Phase-5.2 behavior.
+    //    distributionGaps is null here — no per-territory evidence exists on
+    //    this path to derive it from honestly. ──────────────────────────────
     const appleDetails = safeCanonical?.platforms?.appleMusic?.details;
     const globalSfData = appleDetails?.globalStorefrontAvailability;
 
@@ -146,6 +258,7 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical,
         status:                 'Limited',
         reachNarrative:         'Territory availability could not be determined from reviewed sources.',
         confidence:             deriveConfidence(appleAvailability, null),
+        distributionGaps:       null,
       });
     }
 
@@ -168,6 +281,7 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical,
       status,
       reachNarrative,
       confidence,
+      distributionGaps:       null,
     });
   } catch (err) {
     console.error('[global-music-footprint] assembly threw (returning empty shell):', err?.message || err);
@@ -178,6 +292,7 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical,
       status:                 'Limited',
       reachNarrative:         'Territory availability could not be determined from reviewed sources.',
       confidence:             'Unable to Confirm',
+      distributionGaps:       null,
     });
   }
 }

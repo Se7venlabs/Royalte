@@ -7,14 +7,61 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <link rel="stylesheet" href="/css/gmf-distribution-gaps.css">
   <script>
-  /* DEV FIXTURE — localhost only, never runs on production (hostname check).
+  /* DEV FIXTURE — localhost OR ?dev=1 (Board Directive 2026-07-17: the
+   * Developer Preview must self-seed with no DevTools/sessionStorage
+   * pasting required). Still never runs on production without ?dev=1 —
+   * a normal production visit with no query param gets the real
+   * "No Scan Loaded" state, unchanged.
    * Seeds royalte_workspace_context so the workspace renders without a real scan.
    * Does not overwrite a context already written by a real scan session. */
   (function () {
-    var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-    if (!isLocal) return;
+    var isLocal  = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    var devParam = new URLSearchParams(location.search).get('dev') === '1';
+    if (!isLocal && !devParam) return;
     if (sessionStorage.getItem('royalte_workspace_context')) return;
+
+    // Distribution Gaps™ fixture — a representative sample (not all 167
+    // storefronts) spanning every state the real Territory Intelligence
+    // Engine can produce, in the exact shape assembleGlobalMusicFootprint()
+    // produces in production (api/_lib/global-music-footprint.js
+    // buildDistributionGaps()). Counts below are internally consistent with
+    // the territories actually listed, not borrowed from an unrelated total.
+    var gapTerritories = [
+      // ── Available (10) — mix of single- and multi-provider evidence to
+      //    demonstrate the provider filter with more than one provider,
+      //    matching the Engine's provider-general reconciliation design
+      //    even though production is Apple-only in Phase 5.2. ──────────────
+      { code: 'us', name: 'United States',  status: 'Available', providers: ['apple_music', 'spotify'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'ca', name: 'Canada',         status: 'Available', providers: ['apple_music', 'spotify'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'gb', name: 'United Kingdom', status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'de', name: 'Germany',        status: 'Available', providers: ['apple_music', 'deezer'],   reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'fr', name: 'France',         status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'au', name: 'Australia',      status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'jp', name: 'Japan',          status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'nl', name: 'Netherlands',    status: 'Available', providers: ['apple_music', 'tidal'],    reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'se', name: 'Sweden',         status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'ie', name: 'Ireland',        status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
+      // ── Unavailable (6) — confirmed-empty catalog probes ────────────────
+      { code: 'br', name: 'Brazil',         status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'mx', name: 'Mexico',         status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'in', name: 'India',          status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'za', name: 'South Africa',   status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'kr', name: 'South Korea',    status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'ng', name: 'Nigeria',        status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
+      // ── Unknown (4) — request failures / unrecognized provider responses ─
+      { code: 'it', name: 'Italy',   status: 'Unknown', providers: ['apple_music'], reason: 'Provider request failed during acquisition',     recommendedAction: 'Re-run scan — the provider request failed and can be retried.',   lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'es', name: 'Spain',   status: 'Unknown', providers: ['apple_music'], reason: 'Provider returned an unrecognized response',      recommendedAction: 'Provider response could not be interpreted — re-verify manually.', lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'pl', name: 'Poland',  status: 'Unknown', providers: ['apple_music'], reason: 'Provider request failed during acquisition',     recommendedAction: 'Re-run scan — the provider request failed and can be retried.',   lastVerified: '2026-07-17T09:12:00.000Z' },
+      { code: 'tr', name: 'Türkiye', status: 'Unknown', providers: ['apple_music'], reason: 'Provider returned an unrecognized response',      recommendedAction: 'Provider response could not be interpreted — re-verify manually.', lastVerified: '2026-07-17T09:12:00.000Z' },
+      // ── Pending Review (4) — not yet evaluated this scan ─────────────────
+      { code: 'cn', name: 'China',       status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null },
+      { code: 'id', name: 'Indonesia',   status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null },
+      { code: 'vn', name: 'Vietnam',     status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null },
+      { code: 'ph', name: 'Philippines', status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null },
+    ];
+
     sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
       schemaVersion: '1.1',
       scanId: 'preview-fixture-gmf-001',
@@ -23,9 +70,18 @@
       generatedAt: new Date().toISOString(),
       globalMusicFootprint: {
         status: 'Strong',
-        territoriesAvailable: 124,
-        coveragePercent: 78,
-        reachNarrative: 'Available across 124 territories on major streaming platforms.',
+        territoriesAvailable: 10,
+        territoriesUnavailable: 6,
+        coveragePercent: 63,
+        reachNarrative: 'Available across 10 territories on major streaming platforms.',
+        confidence: 'Verified',
+        distributionGaps: {
+          totalRequiringAttention: 14,
+          unavailable: 6,
+          unknown: 4,
+          notEvaluated: 4,
+          territories: gapTerritories,
+        },
       },
       identityIntelligence: {
         providers: {
@@ -282,6 +338,44 @@
           </div>
         </div>
 
+        <!-- § 3.6 — DISTRIBUTION GAPS™ — Board Directive 2026-07-17 ──────── -->
+        <!-- Territories requiring attention. Populated from the same        -->
+        <!-- Workspace Contract as the rest of this page — never fabricated. -->
+        <!-- See public/js/gmf-distribution-gaps.js for rendering logic and  -->
+        <!-- public/css/gmf-distribution-gaps.css for responsive behavior.   -->
+        <section class="gf-gaps-section" aria-label="Distribution Gaps">
+          <div class="gf-gaps-header">
+            <div class="gf-gaps-title">Distribution Gaps™</div>
+            <div class="gf-gaps-subtitle">Territories requiring attention across your active providers</div>
+          </div>
+
+          <div class="gf-gaps-summary">
+            <div class="gf-gaps-stat gf-gaps-stat--total">
+              <div class="gf-gaps-stat-num" id="gf-gaps-total">—</div>
+              <div class="gf-gaps-stat-label">Requiring Attention</div>
+            </div>
+            <div class="gf-gaps-stat gf-gaps-stat--unavailable">
+              <div class="gf-gaps-stat-num" id="gf-gaps-unavailable">—</div>
+              <div class="gf-gaps-stat-label">Unavailable</div>
+            </div>
+            <div class="gf-gaps-stat gf-gaps-stat--unknown">
+              <div class="gf-gaps-stat-num" id="gf-gaps-unknown">—</div>
+              <div class="gf-gaps-stat-label">Unknown</div>
+            </div>
+            <div class="gf-gaps-stat gf-gaps-stat--pending">
+              <div class="gf-gaps-stat-num" id="gf-gaps-pending">—</div>
+              <div class="gf-gaps-stat-label">Pending Review</div>
+            </div>
+          </div>
+
+          <button class="gf-gaps-view-btn" id="gf-gaps-view-btn" type="button">
+            View Full List
+            <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down" style="transform:rotate(-90deg);transform-origin:center;"></use></svg>
+          </button>
+
+          <div class="gf-gaps-empty" id="gf-gaps-empty" hidden></div>
+        </section>
+
         <!-- § 4 — ADDITIONAL TERRITORIES™ ──────────────────────────────── -->
         <!-- Mobile-only (≤640px). 14 secondary markets not on mobile map.  -->
         <!-- Shown via CSS; hidden on desktop and tablet.                   -->
@@ -436,6 +530,40 @@
   </div><!-- /ws-content -->
 
 </div><!-- /ws-shell -->
+
+<!-- Distribution Gaps™ — full-list drawer (Board Directive 2026-07-17).      -->
+<!-- Fixed-position; DOM placement outside .ws-shell is intentional, matching -->
+<!-- #ws-no-scan-overlay's existing pattern for full-viewport overlays.       -->
+<div class="gf-gaps-scrim" id="gf-gaps-scrim" hidden></div>
+<div class="gf-gaps-drawer" id="gf-gaps-drawer" hidden role="dialog" aria-modal="true" aria-label="Distribution Gaps — full territory list">
+  <div class="gf-gaps-drawer-header">
+    <div class="gf-gaps-drawer-title">Distribution Gaps™</div>
+    <button class="gf-gaps-drawer-close" id="gf-gaps-drawer-close" type="button" aria-label="Close">&times;</button>
+  </div>
+
+  <div class="gf-gaps-controls">
+    <div class="gf-gaps-search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="gf-gaps-search" id="gf-gaps-search" type="text" placeholder="Search Territory..." aria-label="Search territory">
+    </div>
+    <div class="gf-gaps-filter-row" id="gf-gaps-status-filters" role="group" aria-label="Filter by status"></div>
+    <div class="gf-gaps-filter-row" id="gf-gaps-provider-filters" role="group" aria-label="Filter by provider"></div>
+  </div>
+
+  <div class="gf-gaps-list" id="gf-gaps-list" role="list"></div>
+  <div class="gf-gaps-list-empty" id="gf-gaps-list-empty" hidden>No territories match your filters.</div>
+</div>
+
+<!-- Distribution Gaps™ — territory detail sub-panel -->
+<div class="gf-gaps-detail-scrim" id="gf-gaps-detail-scrim" hidden></div>
+<div class="gf-gaps-detail" id="gf-gaps-detail" hidden role="dialog" aria-modal="true" aria-label="Territory detail">
+  <div class="gf-gaps-detail-header">
+    <button class="gf-gaps-detail-back" id="gf-gaps-detail-back" type="button" aria-label="Back to list">‹ Back</button>
+    <button class="gf-gaps-detail-close" id="gf-gaps-detail-close" type="button" aria-label="Close">&times;</button>
+  </div>
+  <div class="gf-gaps-detail-body" id="gf-gaps-detail-body"></div>
+</div>
+
 <script src="/js/global-map-viewport.js"></script>
 <script>
 (function () {
@@ -573,6 +701,7 @@
 
 }());
 </script>
+<script src="/js/gmf-distribution-gaps.js"></script>
 <script src="/js/rds-preview-console.js" defer></script>
 </body>
 </html>
