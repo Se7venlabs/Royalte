@@ -31,6 +31,7 @@
 //    15-acrcloud             ACRCloud Audio Recognition Connector™ PAL connector certified
 //    16-spotify              Spotify AVAILABILITY capability PAL connector certified
 //    17-tidal                TIDAL Connector™ PAL connector certified
+//    18-acrcloud-ai-detection ACRCloud AI Detection Connector™ PAL connector certified
 //
 //  This harness never throws. Any suite that throws is caught and reported
 //  as a failed suite. The exit code reflects the overall certification status.
@@ -55,6 +56,7 @@ import { runMonitoring }         from './suites/14-monitoring.mjs';
 import { runACRCloudConnector }  from './suites/15-acrcloud-connector.mjs';
 import { runSpotifyConnector }   from './suites/16-spotify-connector.mjs';
 import { runTidalConnector }     from './suites/17-tidal-connector.mjs';
+import { runACRCloudAIDetectionConnector } from './suites/18-acrcloud-ai-detection-connector.mjs';
 import { printBoardReport }      from './reporters/board-report.mjs';
 
 const QUIET = process.argv.includes('--quiet');
@@ -108,6 +110,7 @@ async function main() {
   results.push(await runSuite('15-acrcloud',             runACRCloudConnector));
   results.push(await runSuite('16-spotify',               runSpotifyConnector));
   results.push(await runSuite('17-tidal',                  runTidalConnector));
+  results.push(await runSuite('18-acrcloud-ai-detection',  runACRCloudAIDetectionConnector));
 
   const elapsed = Math.round(performance.now() - startMs);
   log('');

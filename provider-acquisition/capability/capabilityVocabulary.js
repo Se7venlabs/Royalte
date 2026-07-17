@@ -1,8 +1,8 @@
 // Standardized capability vocabulary — PAL Technical Design v3 §2.12
-// 23 Board-ratified capabilities. Connectors declare from this enumeration only.
+// 24 Board-ratified capabilities. Connectors declare from this enumeration only.
 // Adding a new capability = extend this file + bump VOCABULARY_VERSION. No other change needed.
 
-export const VOCABULARY_VERSION = '1.1';
+export const VOCABULARY_VERSION = '1.2';
 
 export const Capability = Object.freeze({
   ARTIST_IDENTITY:  'Artist Identity',
@@ -33,6 +33,13 @@ export const Capability = Object.freeze({
   // text/ID). EXTERNAL_IDS and CONFIDENCE were considered and deferred — see
   // provider-acquisition/connectors/acrcloud/README.md for the rejected alternatives.
   AUDIO_RECOGNITION: 'Audio Recognition',
+  // Added Phase 5.0 (ACRCloud AI Detection) — Board-approved 2026-07-17.
+  // Distinct from AUDIO_RECOGNITION: answers "was this likely AI-generated?"
+  // rather than "what recording is this?" — a different acquisition
+  // responsibility entirely, served by a different ACRCloud product (File
+  // Scanning, engine 5) with different auth (Bearer token vs. HMAC signing)
+  // and a different processing model (async submit+poll vs. single request).
+  AI_MUSIC_DETECTION: 'AI Music Detection',
 });
 
 export const ALL_CAPABILITIES = Object.freeze(new Set(Object.values(Capability)));
