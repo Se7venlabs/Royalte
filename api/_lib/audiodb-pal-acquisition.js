@@ -134,6 +134,14 @@ export function synthesizeAudioDbCompat(evidencePackages, artistName) {
     return defaultResult;
   }
 
+  // TheAudioDB field drift, live-verified 2026-07-17 (see Phase 4.0 AudioDB
+  // modernization completion report): strBiographyEN was renamed to
+  // strBiography; strYoutube/strInstagram no longer exist on the artist
+  // object at all; strTwitter now returns the literal string "1" for every
+  // artist rather than a URL, filtered out here rather than exposed as if
+  // it were a real link.
+  const twitter = a.strTwitter === '1' ? null : (a.strTwitter ?? null);
+
   return {
     found:     true,
     name:      a.strArtist  ?? artistName,
@@ -141,12 +149,12 @@ export function synthesizeAudioDbCompat(evidencePackages, artistName) {
     style:     a.strStyle   ?? null,
     mood:      a.strMood    ?? null,
     country:   a.strCountry ?? null,
-    biography: a.strBiographyEN ? a.strBiographyEN.substring(0, 400) : null,
+    biography: a.strBiography ? a.strBiography.substring(0, 400) : null,
     formed:    a.intFormedYear  ?? null,
     website:   a.strWebsite    ?? null,
     youtube:   a.strYoutube    ?? null,
     facebook:  a.strFacebook   ?? null,
-    twitter:   a.strTwitter    ?? null,
+    twitter,
     instagram: a.strInstagram  ?? null,
   };
 }
