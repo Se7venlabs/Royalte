@@ -629,6 +629,26 @@ const mockTrackScan = {
   assert(extractTerritories({ territoryCoverage: ['AU', 'NZ'] }).length === 2, 'extractTerritories: accepts bare-array shape');
   // Filters non-strings to be defensive.
   assert(extractTerritories({ territoryCoverage: ['US', null, 42, 'JP'] }).length === 2, 'extractTerritories: filters non-strings');
+
+  // Phase 5.4 WP3 (Board Decision: Option A) — Territory Intelligence
+  // Engine™ fallback via globalMusicFootprint.distributionGaps.territories.
+  const engineCanonical = {
+    globalMusicFootprint: { distributionGaps: { territories: [
+      { code: 'us', status: 'Available' },
+      { code: 'ca', status: 'Available' },
+      { code: 'gb', status: 'Unavailable' },
+      { code: 'de', status: 'Unknown' },
+      { code: 'jp', status: 'Pending Review' },
+    ] } },
+  };
+  const engineTerritories = extractTerritories(engineCanonical);
+  assert(engineTerritories.length === 2, 'extractTerritories: Engine fallback returns only Available territories');
+  assert(engineTerritories.includes('US') && engineTerritories.includes('CA'), 'extractTerritories: Engine fallback uppercases codes');
+  assert(!engineTerritories.includes('GB') && !engineTerritories.includes('DE') && !engineTerritories.includes('JP'), 'extractTerritories: Engine fallback excludes non-Available states');
+  // Legacy territoryCoverage shapes take priority over the Engine fallback
+  // when both are present — preserves the existing contract exactly.
+  const bothPresent = { ...engineCanonical, territoryCoverage: ['FR'] };
+  assert(JSON.stringify(extractTerritories(bothPresent)) === JSON.stringify(['FR']), 'extractTerritories: legacy territoryCoverage still takes priority over the Engine fallback');
 }
 
 // extractTracks

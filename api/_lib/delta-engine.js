@@ -82,6 +82,15 @@ function emitBaseline(currentSnapshot) {
   ];
 }
 
+// Board Architecture Note (Phase 5.4 WP3): Territory monitoring shall
+// consume Territory Intelligence Engine output only. This module owns
+// change detection, not territory classification. Classification remains
+// exclusively owned by the Territory Intelligence Engine
+// (api/_lib/territory-intelligence.js). getTerritories() below reads
+// canonical_data.territories, which persist-os-scan.js's extractTerritories()
+// now sources from the Engine's globalMusicFootprint.distributionGaps
+// output (Board Decision, Option A) — this function only diffs two already-
+// classified snapshots and never decides availability itself.
 function emitTerritoryDeltas(currentSnapshot, previousSnapshot) {
   const prev = new Set(getTerritories(previousSnapshot));
   const curr = new Set(getTerritories(currentSnapshot));
