@@ -1066,24 +1066,38 @@ const BIG6 = [
   { code:'br', name:'Brazil',    flag:'🇧🇷' },
 ];
 
+// Phase 5.4 — sourced exclusively from the Territory Intelligence Engine™
+// via globalMusicFootprint.distributionGaps.territories (the same field
+// public/js/gmf-distribution-gaps.js already consumes). Previously this
+// card independently classified availability from
+// platforms.appleMusic.details.storefrontAvailability, a field the PAL
+// compat layer hard-codes to null (api/_lib/apple-pal-acquisition.js
+// synthesizeAppleMusicCompat()) — so every cell always rendered
+// unstyled/"0 of 8" regardless of the artist's real territory data.
+// Class semantics preserved exactly (is-verified/is-partial/is-unavail,
+// green/amber/red per public/dashboard.html's existing CSS); is-partial
+// is now used honestly for Unknown/Pending Review territories rather
+// than the old mixed-signal meaning, which the Engine's one-state-per-
+// territory model has no equivalent of.
 function renderMcGlobalPresence(scan) {
-  const sfa = scan?.payload?.platforms?.appleMusic?.details?.storefrontAvailability;
+  const territories = scan?.payload?.globalMusicFootprint?.distributionGaps?.territories;
   const grid = document.getElementById('mc-flag-grid');
   const countEl = document.getElementById('mc-presence-num');
   const totalEl = document.getElementById('mc-presence-total');
   if (!grid) return;
 
+  const byCode = new Map(
+    Array.isArray(territories) ? territories.map(t => [String(t.code).toLowerCase(), t]) : []
+  );
+
   let verifiedN = 0;
   const cells = BIG6.map(sf => {
-    const ent = sfa ? sfa[sf.code] : null;
+    const t = byCode.get(sf.code);
     let cls = '';
-    if (!ent || ent.error) cls = '';
-    else {
-      const avail = Array.isArray(ent.available) ? ent.available.length : 0;
-      const unavail = Array.isArray(ent.unavailable) ? ent.unavailable.length : 0;
-      if (avail > 0 && unavail === 0) { cls = 'is-verified'; verifiedN++; }
-      else if (avail > 0)             { cls = 'is-partial'; verifiedN++; }
-      else                             { cls = 'is-unavail'; }
+    if (t) {
+      if (t.status === 'Available')          { cls = 'is-verified'; verifiedN++; }
+      else if (t.status === 'Unavailable')   { cls = 'is-unavail'; }
+      else                                    { cls = 'is-partial'; } // Unknown / Pending Review
     }
     return `<div class="mc-flag-cell ${cls}"><div class="mc-flag-emoji">${sf.flag}</div><div class="mc-flag-name">${escapeHtml(sf.name)}</div></div>`;
   }).join('');

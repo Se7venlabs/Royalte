@@ -45,6 +45,22 @@ function sourceFromUrlType(urlType) {
 // `territoryCoverage.available[]` or `youtube.details.confirmedMatches[]`,
 // the extractors pick them up automatically without code changes here.
 
+// Phase 5.4 WP3 (Board Decision: Option A — rewire, not retire).
+//
+// Board Architecture Note: Territory monitoring shall consume Territory
+// Intelligence Engine output only. This module owns change detection, not
+// territory classification. Classification remains exclusively owned by
+// the Territory Intelligence Engine (api/_lib/territory-intelligence.js).
+//
+// canonical.territoryCoverage (the three checks above) has had no live
+// writer since the Health Engine migration nulled it out — see
+// governance/PHASE_5_3_TERRITORY_INTELLIGENCE_CONSOLIDATION_CERTIFICATION_REPORT.md
+// Legacy Inventory #2. globalMusicFootprint.distributionGaps.territories is
+// the Engine's own already-classified per-territory output (Board Directive
+// 2026-07-17, Distribution Gaps™) and is added here as an additional,
+// lowest-priority fallback — the three legacy checks above are preserved
+// unchanged so this extractor's existing contract does not change for any
+// caller still supplying the older shapes.
 export function extractTerritories(canonical) {
   if (!canonical) return [];
   const tc = canonical.territoryCoverage;
@@ -56,6 +72,12 @@ export function extractTerritories(canonical) {
   }
   if (tc && Array.isArray(tc.territories)) {
     return tc.territories.filter((x) => typeof x === 'string');
+  }
+  const gapTerritories = canonical.globalMusicFootprint?.distributionGaps?.territories;
+  if (Array.isArray(gapTerritories)) {
+    return gapTerritories
+      .filter((t) => t && t.status === 'Available' && typeof t.code === 'string')
+      .map((t) => t.code.toUpperCase());
   }
   return [];
 }
