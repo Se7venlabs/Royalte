@@ -114,3 +114,23 @@ This closes the Phase 5.3 landmine (a live monitoring path reading a permanently
 ---
 
 ## 5. Repository Summary
+
+- **Branch:** `phase-5.4-territory-refactor`
+- **Base:** `main` at `31de17c` (post Phase 5.3 certification report)
+- **`git diff --stat`:**
+  ```
+   api/_lib/delta-engine.js    |  9 ++++++++
+   api/_lib/persist-os-scan.js | 22 ++++++++++++++++++
+   lib/rie/EvidenceBridge.js   | 54 ++++++++++++++++++++++++++++++++++++---------
+   public/js/dashboard.js      | 32 +++++++++++++++++++--------
+   tests/pipeline-test.mjs     | 20 +++++++++++++++++
+   5 files changed, 117 insertions(+), 20 deletions(-)
+  ```
+- **`git status --short`** (before this report was added): exactly the 5 files above, plus this report itself once written. No other tracked or untracked file touched.
+- **Modified files:** `api/_lib/delta-engine.js`, `api/_lib/persist-os-scan.js`, `lib/rie/EvidenceBridge.js`, `public/js/dashboard.js`, `tests/pipeline-test.mjs`, `governance/PHASE_5_4_TERRITORY_INTELLIGENCE_REFACTORING_COMPLETION_REPORT.md` (new)
+- **Commit SHA:** `dd48cf6`
+- **Pull Request:** [#354](https://github.com/Se7venlabs/Royalte/pull/354)
+- **Preview URL:** `https://royalte-1fx06xr1r-darrylwest-7086s-projects.vercel.app` — confirmed deployed from commit `dd48cf6` (this PR's current head)
+- **CI status:** ✅ green — `Run pipeline test` pass, `Vercel` deployment pass, `Vercel Preview Comments` pass
+
+**No merge performed.** Per the Board's explicit restriction: "Do not merge without Board approval." Standing by.
