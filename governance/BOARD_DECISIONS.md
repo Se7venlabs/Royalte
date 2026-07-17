@@ -11,6 +11,23 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-17 — ROYALTĒ v3.0 §1 — Engine Provider Registry™ — APPROVED WITH CHANGES, MERGED
+
+| | |
+|---|---|
+| **Date** | 2026-07-17 |
+| **Decision** | Section 1 of the ROYALTĒ v3.0 Board Launch Master Plan — the Engine Provider Registry™ — is approved and merged. The Board's Final Validation Checklist was confirmed before merge: architecture diagram present, provider inventory complete (15 providers), every provider mapped to its consuming Intelligence Engine(s), SoundCloud/Wikidata/Listen Notes documented as PAL migration candidates, and the runtime `ProviderRegistry.js`/`RegistryEntry.js` confirmed untouched (both by manual git check and an automated fingerprint test that runs on every future change). "Approved with Changes" refers to the Board directing that the architectural-debt findings below be tracked as separate future work items rather than addressed in this PR. |
+| **Reason** | Establishes a single governance-level source of truth for every external provider Royaltē integrates with, separate from and non-duplicative of the existing runtime `ProviderRegistry` (ephemeral, per-scan, PAL-internal bookkeeping). Building a genuine inventory (verified against the actual repository, not memory) surfaced real architectural debt — 3 providers with no PAL connector, one with a hardcoded credential literal — that existed before this registry and is now visible instead of implicit. |
+| **Impact** | `provider-acquisition/registry/EngineProviderRegistry.js` created (15 providers, 15 fields each, deep-frozen). `tests/engine-provider-registry-test.mjs` created (427 assertions). `governance/ENGINE_PROVIDER_REGISTRY_ARCHITECTURE.md` created (Mermaid architecture diagram). Zero existing files modified — purely additive. Two new Board work items opened per Post-Merge Actions: PAL migration of SoundCloud/Wikidata/Listen Notes, and removal of SoundCloud's hardcoded `client_id` — both deferred, not authorized for implementation by this decision. |
+| **Vote** | Board Approved (with Changes — findings deferred to future work items) |
+| **PR Number** | #356 |
+| **Commit SHA** | `c141c0b` |
+| **Tag** | — |
+| **Test surface** | 427/427 (new registry suite); full regression 1587/1587 (certification harness) + 230/230 (pipeline test); 2,244 total assertions, zero failures |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-17 — Phase 5.4 — Territory Intelligence Refactoring — APPROVED FOR MERGE
 
 | | |

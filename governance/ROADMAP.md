@@ -8,6 +8,23 @@ When this roadmap and the Constitution disagree, **the Constitution wins.**
 
 ---
 
+## ROYALTĒ v3.0 — Board Launch Master Plan
+
+| Section | Item | Status |
+|---|---|---|
+| Section 1 | Engine Provider Registry™ | ☑ Complete — PR #356, commit `c141c0b`, 2026-07-17 |
+| Section 3 | Connect Library | ⏳ Next Board Initiative — not yet briefed |
+
+**Section 1 summary:** `provider-acquisition/registry/EngineProviderRegistry.js` — governance-level, static, 15-provider catalog (12 PAL-migrated and Board-certified, 3 legacy/not-yet-migrated), separate from and non-duplicative of the runtime `ProviderRegistry.js`. Full detail: `governance/ENGINE_PROVIDER_REGISTRY_COMPLETION_REPORT.md`, `governance/ENGINE_PROVIDER_REGISTRY_ARCHITECTURE.md`.
+
+**Open Board work items from Section 1's findings** (deferred, not yet authorized for implementation):
+- PAL migration of SoundCloud, Wikidata, and Listen Notes (all three currently called directly from `run-scan.js`/`listen-notes.js`, predating the PAL architecture — no connector, no certification suite)
+- Removal of SoundCloud's hardcoded `client_id` literal (`api/_lib/run-scan.js:1429`) in favor of an environment variable
+
+*(Section 2 was not referenced in the Section 1 or Section 3 briefs received to date — status unknown, not assumed complete or pending.)*
+
+---
+
 ## Active Build — OS Migration Sprint
 
 The constitutional architecture is complete. The platform is now in its migration epoch:

@@ -1,8 +1,8 @@
 # Engine Provider Registry™ — ROYALTĒ v3.0 §1 — Completion Report
 
-**Status:** Implementation complete. Standing by for Board review. **No merge performed or authorized.**
-**Branch:** `feat/engine-provider-registry`
-**Governing documents:** Board Implementation Brief "ROYALTĒ v3.0 — Section 1 — Engine Provider Registry (Final Certification)"; `governance/ENGINE_PROVIDER_REGISTRY_ARCHITECTURE.md` (architecture reference, produced alongside this report)
+**Status:** ✅ MERGED — Board-approved 2026-07-17. Merge commit `c141c0b` on `main` (fast-forward via PR #356). Branch `feat/engine-provider-registry` deleted post-merge.
+**Governing documents:** Board Implementation Brief "ROYALTĒ v3.0 — Section 1 — Engine Provider Registry (Final Certification)"; `governance/ENGINE_PROVIDER_REGISTRY_ARCHITECTURE.md` (architecture reference)
+**Board decision record:** `governance/BOARD_DECISIONS.md`, entry dated 2026-07-17
 
 ---
 
