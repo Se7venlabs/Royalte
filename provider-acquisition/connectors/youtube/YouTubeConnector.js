@@ -145,6 +145,9 @@ export class YouTubeConnector extends ProviderConnector {
       case Capability.COLLECTION_DATA:
         return this.#fetchChannelData(subjectRef);
 
+      case Capability.VIDEOS:
+        return this.#fetchVideoDetails(subjectRef);
+
       default:
         return {
           payload:      null,
@@ -186,6 +189,51 @@ export class YouTubeConnector extends ProviderConnector {
     return this.#get(
       `/channels?part=snippet,statistics,topicDetails,brandingSettings,contentDetails&id=${id}&maxResults=1`
     );
+  }
+
+  // VIDEOS: resolve the channel's uploads playlist to video IDs, then fetch
+  // full video details for all of them. Reuses subjectRef.uploadsPlaylistId,
+  // already present on the channel object #fetchChannelData() returns
+  // (contentDetails.relatedPlaylists.uploads) — no new channel discovery.
+  async #fetchVideoDetails(subjectRef) {
+    if (!subjectRef?.uploadsPlaylistId) return this.#missingRef('uploadsPlaylistId');
+
+    const videoIds = await this.#fetchUploadedVideos(subjectRef);
+    if (videoIds === null) {
+      return {
+        payload:      null,
+        rawText:      '',
+        health:       createHealthSignal({ state: HealthState.MAINTENANCE, provider: PROVIDER_NAME,
+                        detail: 'uploads playlist fetch failed' }),
+        completeness: 'empty',
+      };
+    }
+    if (videoIds.length === 0) {
+      return {
+        payload:      { items: [] },
+        rawText:      '',
+        health:       createHealthSignal({ state: HealthState.AVAILABLE, provider: PROVIDER_NAME,
+                        detail: 'uploads playlist contains no videos' }),
+        completeness: 'full',
+      };
+    }
+
+    // videos.list accepts up to 50 comma-separated IDs per call.
+    const ids = encodeURIComponent(videoIds.slice(0, 50).join(','));
+    return this.#get(`/videos?part=snippet,contentDetails,statistics,status&id=${ids}&maxResults=50`);
+  }
+
+  // Resolves a channel's uploads playlist to a flat array of video IDs.
+  // Returns null on transport/API failure, [] if the playlist is empty.
+  async #fetchUploadedVideos(subjectRef) {
+    const playlistId = encodeURIComponent(subjectRef.uploadsPlaylistId);
+    const result = await youtubeGet(
+      `/playlistItems?part=contentDetails&playlistId=${playlistId}&maxResults=50`,
+      this.#fetchOpts ?? {}
+    );
+    if (!result.ok) return null;
+    const items = Array.isArray(result.data?.items) ? result.data.items : [];
+    return items.map(item => item.contentDetails?.videoId).filter(Boolean);
   }
 
   // ── HTTP helper ──────────────────────────────────────────────────────────────
