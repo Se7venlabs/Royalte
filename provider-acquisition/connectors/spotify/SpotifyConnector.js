@@ -29,8 +29,11 @@ export const PROVIDER_NAME        = 'spotify';
 export const CONNECTOR_VERSION    = '1.0';
 export const PROVIDER_API_VERSION = 'v1';
 
-// Health probe — lightweight endpoint to verify API connectivity
-const HEALTH_PROBE_PATH = '/markets';
+// Health probe — lightweight endpoint to verify API connectivity.
+// /markets requires an elevated API access tier and returns 403 under
+// standard Development Mode client-credentials apps (live-verified 2026-07-17)
+// — a known-stable track lookup works under every access tier instead.
+const HEALTH_PROBE_PATH = '/tracks/7qiZfU4dY1lWllzX7mPBI3'; // "Shape of You" — Ed Sheeran
 
 export class SpotifyConnector extends ProviderConnector {
   #config    = null;
@@ -161,6 +164,9 @@ export class SpotifyConnector extends ProviderConnector {
       case Capability.ISRC:
         return this.#fetchByISRC(subjectRef);
 
+      case Capability.AVAILABILITY:
+        return this.#fetchAvailability(subjectRef);
+
       default:
         return {
           payload:      null,
@@ -198,6 +204,28 @@ export class SpotifyConnector extends ProviderConnector {
     return this.#get(
       `/search?q=isrc:${encodeURIComponent(subjectRef.isrc)}&type=track&limit=1`
     );
+  }
+
+  // AVAILABILITY: per-market playback check via the market query param.
+  // Spotify removed the bulk available_markets field from track/album
+  // responses (live-verified 2026-07-17: absent from both /tracks/{id} and
+  // /albums/{id} under Development Mode client-credentials access; /markets
+  // itself returns 403). ?market={code} still works and returns is_playable
+  // for that single market — one country per call, same shape as TIDAL's
+  // existing AVAILABILITY implementation in this PAL. This connector does
+  // not synthesize or reconstruct a bulk list; it returns exactly what
+  // Spotify's current API exposes.
+  async #fetchAvailability(subjectRef) {
+    if (!subjectRef?.market) return this.#missingRef('market');
+    const market = encodeURIComponent(subjectRef.market);
+
+    if (subjectRef.spotifyTrackId) {
+      return this.#get(`/tracks/${encodeURIComponent(subjectRef.spotifyTrackId)}?market=${market}`);
+    }
+    if (subjectRef.spotifyAlbumId) {
+      return this.#get(`/albums/${encodeURIComponent(subjectRef.spotifyAlbumId)}?market=${market}`);
+    }
+    return this.#missingRef('spotifyTrackId or spotifyAlbumId');
   }
 
   // ── HTTP helper ──────────────────────────────────────────────────────────────

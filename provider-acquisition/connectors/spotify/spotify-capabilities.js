@@ -11,4 +11,7 @@ export const SPOTIFY_CAPABILITIES = Object.freeze([
   Capability.ISRC,             // ISRC filter lookup via search endpoint
   Capability.ARTWORK,          // artist and album image arrays
   Capability.GENRES,           // genre arrays on artist response
+  Capability.AVAILABILITY,     // per-market is_playable check via ?market={code} on a known
+                                // track or album (available_markets was removed by Spotify;
+                                // see SpotifyConnector#fetchAvailability)
 ]);
