@@ -11,6 +11,23 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-17 — Distribution Gaps™ (Global Music Footprint™) — APPROVED FOR MERGE
+
+| | |
+|---|---|
+| **Date** | 2026-07-17 |
+| **Decision** | Distribution Gaps™ — a new responsive-first section on the Global Music Footprint™ workspace surfacing territories requiring attention — is approved for merge. Built to a Board-mandated standard: desktop/tablet/mobile are equal citizens, responsive behavior is part of the implementation rather than a follow-up, and every displayed field must be a real derivation from the Territory Intelligence Engine™'s own evidence, never fabricated. Visual verification was performed live in-browser this session (Chrome extension connected mid-session) across all three canonical breakpoints, with zero console errors; one real defect (mobile filter chips at 40px rather than the mandated 44px minimum) was caught and fixed during that verification, not merely asserted compliant. |
+| **Reason** | Gives artists and the Board actionable per-territory detail (status, contributing providers, reason, recommended action, last verified) beneath the existing summary-only Global Music Footprint™ view, without duplicating or bypassing the Territory Intelligence Engine™ as the single source of truth. Establishes responsive-first as the binding standard for all future Royaltē workspace/panel/engine UI work (Board Note, same directive). |
+| **Impact** | `api/_lib/global-music-footprint.js` gains an additive `distributionGaps` field (`buildDistributionGaps()`); all existing GMF output fields unchanged. New `public/css/gmf-distribution-gaps.css` and `public/js/gmf-distribution-gaps.js`. `public/workspaces/global-music-footprint.html` gains the new section plus a broadened dev-fixture gate (`isLocal \|\| ?dev=1`) so the Developer Preview self-seeds with no manual sessionStorage steps. Full detail: `governance/DISTRIBUTION_GAPS_GMF_COMPLETION_REPORT.md`. |
+| **Vote** | Board Approved |
+| **PR Number** | #351 |
+| **Commit SHA** | `930fd91` |
+| **Tag** | — |
+| **Test surface** | Certification suite 20: 37/37; full harness 1587/1587 (suites 01–20); 2,281 total assertions across all suites, zero failures |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-17 — Phase 5.2 — Territory Intelligence Engine™ — APPROVED FOR MERGE
 
 | | |
