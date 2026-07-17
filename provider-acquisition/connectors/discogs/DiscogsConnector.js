@@ -148,7 +148,9 @@ export class DiscogsConnector extends ProviderConnector {
         return this.#fetchArtistIdentity(subjectRef);
 
       case Capability.RELEASES:
-        return this.#fetchArtistReleases(subjectRef);
+        return subjectRef?.discogsReleaseId
+          ? this.#fetchReleaseDetail(subjectRef)
+          : this.#fetchArtistReleases(subjectRef);
 
       default:
         return {
@@ -183,6 +185,20 @@ export class DiscogsConnector extends ProviderConnector {
     if (!subjectRef?.discogsArtistId) return this.#missingRef('discogsArtistId');
     const id = encodeURIComponent(subjectRef.discogsArtistId);
     return this.#get(`/artists/${id}/releases?per_page=100&sort=year&sort_order=asc`);
+  }
+
+  // RELEASE DETAIL: full release resource for a known Discogs release ID.
+  // Reuses a release ID already obtained from #fetchArtistReleases — no new
+  // artist-resolution workflow. Returns the raw release object unfiltered:
+  // labels, formats, genres, styles, tracklist, country, released, notes,
+  // images, videos, identifiers, companies, extraartists (credits),
+  // community (want/have/rating), num_for_sale, lowest_price, master_id,
+  // master_url, and any other field Discogs returns all pass through
+  // untouched (constitutional constraint: this connector never selects or
+  // normalizes fields).
+  async #fetchReleaseDetail(subjectRef) {
+    if (!subjectRef?.discogsReleaseId) return this.#missingRef('discogsReleaseId');
+    return this.#get(`/releases/${encodeURIComponent(subjectRef.discogsReleaseId)}`);
   }
 
   // ── HTTP helper ──────────────────────────────────────────────────────────────
