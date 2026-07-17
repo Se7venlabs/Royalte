@@ -1,8 +1,10 @@
 # Phase 5.2 — Territory Intelligence Engine™ — Completion Report
 
-**Status:** Implementation complete. Standing by for Board review. **No merge performed or authorized.**
-**Branch:** `feat/territory-intelligence-engine`
+**Status:** ✅ MERGED — Board-approved 2026-07-17. Merge commit `788f97c` on `main`, tag `territory-intelligence-engine-v1.0`. Branch `feat/territory-intelligence-engine` deleted post-merge.
 **Governing documents:** `PHASE_5_1_TERRITORY_INTELLIGENCE_DISCOVERY_REPORT.md`, `PHASE_5_2_TERRITORY_INTELLIGENCE_IMPLEMENTATION_DECREE.md` (as revised), `PHASE_5_2_IMPLEMENTATION_CHECKPOINT_DEAD_CODE_FINDING.md`, `PHASE_5_2_RUNTIME_DISCOVERY_ADDENDUM.md`
+**Board decision record:** `governance/BOARD_DECISIONS.md`, entry dated 2026-07-17
+
+**Post-merge note on visual verification:** the Merge Readiness Assessment below (§7) was written before merge and lists Mission Control visual verification as an open item, since Claude's browser automation tooling was non-functional throughout this session (Chrome extension never connected). The Board performed this verification directly against the Vercel Preview and reported: world map rendering correctly, KPI cards populated with valid values (no `NaN`/`undefined`/placeholder text), visual hierarchy and spacing consistent with the Mission Control design language, no obvious regressions. Recorded here as Board-performed verification, not Claude-performed — the distinction is preserved for an accurate record rather than claiming a check that did not happen on Claude's end.
 
 ---
 

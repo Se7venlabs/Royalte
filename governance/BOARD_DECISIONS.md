@@ -11,6 +11,23 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-17 — Phase 5.2 — Territory Intelligence Engine™ — APPROVED FOR MERGE
+
+| | |
+|---|---|
+| **Date** | 2026-07-17 |
+| **Decision** | Phase 5.2 (Territory Intelligence Engine™) is approved for merge and marked the canonical production engine for territory/availability intelligence across the platform. Two mid-implementation governance checkpoints were raised and resolved by the Board before this decision: a dead-code finding that corrected the ratified decree's Discovery Correction Record (Steps 9–11 of the Implementation Order were reinterpreted from "eliminate live duplication" to "remove verified dead code"), and a Runtime Discovery Addendum formally documenting the corrected runtime evidence. Final visual verification of the Global Music Footprint™ workspace (world map render, KPI values, layout) was performed directly by the Board via the Vercel Preview — Claude's browser automation tooling was non-functional this session and did not independently verify rendering; this is recorded accurately rather than claimed. |
+| **Reason** | Replaces three fragmented territory systems with one authoritative, provider-general five-state model (`AVAILABLE`/`UNAVAILABLE`/`UNKNOWN`/`NOT_EVALUATED`/`ERROR`) sourced via PAL, with a binding invariant that missing/unsupported/omitted/timed-out evidence never becomes `UNAVAILABLE`. Consolidates a 3-way canonical vocabulary fragmentation into one module. Global Music Footprint™ converted to a consumer; `api/territory-scan.js` repaired and rewired onto the Engine rather than sunset, with two explicitly-versioned contract changes rather than silent behavior drift. |
+| **Impact** | `api/_lib/territory-intelligence.js` (the Engine) and `lib/territory/canonical-territory-vocabulary.js` created. `global-music-footprint.js`, `lib/rie/index.js`, `api/apple-music.js`, `api/_lib/identity/apple.js`, `api/territory-scan.js`, Distribution Contract/Registry all modified. Legacy Apple storefront duplication (`getAppleMusic()`, `checkGlobalStorefrontAvailability()`) removed — confirmed already dead code via the Runtime Discovery Addendum, not live duplication as originally assumed. Full detail: `governance/PHASE_5_2_TERRITORY_INTELLIGENCE_ENGINE_COMPLETION_REPORT.md`. |
+| **Vote** | Board Approved |
+| **PR Number** | #349 |
+| **Commit SHA** | `788f97c` |
+| **Tag** | `territory-intelligence-engine-v1.0` |
+| **Test surface** | Certification harness 1550/1550 (suites 01–19); 2,244 total assertions across all suites, zero failures |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-12 — Mission Control™ v2.0 Sprint 9 — Mission Control Data API™ — CONSTITUTION RATIFIED
 
 | | |

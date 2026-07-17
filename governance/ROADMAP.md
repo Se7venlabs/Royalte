@@ -84,9 +84,20 @@ from Apple Production Migration (PR #189, 2026-07-02).
 | WS-4.2-RTZ | Reporting Time Zone™ — dynamic tz detection, MC System Status™ placement, DB migration | ✅ Complete | `6efd9e2` (PR #226) | — |
 | WS-4.x-IMG | Executive Image Service™ — platform-agnostic image selection + .royalte-exec-img standard | ✅ Complete | `7127bc0` (PR #228) | — |
 
+### Territory Intelligence Sprint
+
+| Phase | Title | Status | Locked at | Tag |
+|---|---|---|---|---|
+| 5.1 | Territory Intelligence Discovery Report — architectural audit of all existing territory/availability/market infrastructure | ✅ Complete | (discovery only, no code) | — |
+| 5.2 | Territory Intelligence Engine™ — single authoritative provider-general territory/availability assembler, five-state model, GMF converted to consumer, territory-scan.js rewired onto the Engine | ✅ Complete | `788f97c` (PR #349) | `territory-intelligence-engine-v1.0` |
+
+**Note:** this roadmap's phase inventory between Sprint 9 (Mission Control Data API™, above) and Phase 5.2 (this entry) is known to be incomplete — several later phases from this build cycle (Sprint 10 ATHENA™ Intelligence Engine, Sprint 11 Executive Brief™ Engine, Sprint 12 MC Integration Layer, the P0 MC payload bridge fix, and the PAL Connector Modernization Program covering ACRCloud ×2/Discogs/MusicBrainz/YouTube/Deezer/MLC/Spotify/TIDAL/TheAudioDB) are not yet reflected in the tables above. Backfilling that gap is a separate governance task, out of scope for this entry.
+
 ---
 
 ## What's Live in `main` Today
+
+- **Territory Intelligence Engine™ is the sole authoritative source of territory/availability intelligence** (Phase 5.2, PR #349, tag `territory-intelligence-engine-v1.0`, 2026-07-17): `api/_lib/territory-intelligence.js` — `assembleTerritoryIntelligence(evidencePackages)`, Board-ratified five-state model (`AVAILABLE`/`UNAVAILABLE`/`UNKNOWN`/`NOT_EVALUATED`/`ERROR`), provider-general reconciliation policy, Apple-sourced via PAL in this phase. One canonical territory vocabulary at `lib/territory/canonical-territory-vocabulary.js` replaces three prior fragmented copies. Global Music Footprint™ (`api/_lib/global-music-footprint.js`) converted to a consumer of the Engine's output; public output shape unchanged. `api/territory-scan.js` repaired and rewired onto the Engine (two explicitly-versioned contract changes, `dataSourceVersion` field). Legacy Apple storefront duplication (`getAppleMusic()`, `checkGlobalStorefrontAvailability()`) removed after confirmation it was already dead code, not live duplication.
 
 - **Phases 1–8 are merged and locked.** The full Intelligence Stack is wired into production:
   - **Rule Library** at `api/rules/` — declarative pure-data rules with `(cio) => boolean` conditions; polarity-aware; category-indexed
@@ -134,10 +145,17 @@ from Apple Production Migration (PR #189, 2026-07-02).
 
 ## Next Engineering Target
 
-**Canonical Intelligence Platform™ Sprint 9 complete. Mission Control Data API™ constitution ratified.** The platform now has a single constitutional gateway between the Canonical Intelligence Platform™ and every consumer. The next phase requires explicit Board authorization. Options pending Board direction:
-- **Sprint 10** — Executive Intelligence Engine™ (pending Board brief)
+**Superseded by later Board activity not yet backfilled into this section** (see the Territory Intelligence Sprint note above) — several of the items below were completed in phases this roadmap doesn't yet reflect. Left as-is rather than guessed at; reconciling this section is part of the same backfill task noted above.
 
-Prior options (carried forward, still require Board authorization):
+**Phase 5.2 (Territory Intelligence Engine™) is complete as of 2026-07-17.** The Board's stated candidate next initiatives, none yet formally briefed:
+- Royaltē Platform Architecture v1.0 — document the complete platform architecture
+- Connector completion roadmap — finish remaining Connectors™
+- Engine completion roadmap — finish remaining Intelligence Engines™
+- ATHENA™ activation, once the underlying intelligence platform is sufficiently mature
+
+No sprint begins until the Board issues a formal brief.
+
+Prior options (carried forward from an earlier roadmap state, status not reconciled):
 - **Publishing Intelligence™** — consume MLC + publishing evidence from CIM to generate constitutional publishing insight; requires Board brief
 - **Rights Intelligence™** — consume publisher/writer/ISWC evidence to generate ownership insight; requires Board brief
 - **UI Wiring** — surface Phase 8 engine output (`healthScore`, `healthReport`, `executiveBrief`) in Mission Control and the scan UI; requires Board brief
