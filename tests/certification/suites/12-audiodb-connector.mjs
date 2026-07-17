@@ -82,7 +82,7 @@ const ARTIST_PAYLOAD = {
   strStyle:            'Contemporary',
   strMood:             'Happy',
   strCountry:          'United Kingdom',
-  strBiographyEN:      'Ed Sheeran is a singer-songwriter who rose to fame with his debut album + (Plus). '.repeat(12),  // > 400 chars
+  strBiography:        'Ed Sheeran is a singer-songwriter who rose to fame with his debut album + (Plus). '.repeat(12),  // > 400 chars
   intFormedYear:       '2004',
   strLabel:            'Asylum/Atlantic',
   strWebsite:          'www.edsheeran.com',
@@ -397,12 +397,21 @@ function groupC() {
     audiodb.media.social.youtube.includes('youtube.com'),
   ));
   results.push(check(
-    'media.social.twitter populated',
+    'media.social.twitter populated (real URL passes through unchanged)',
     typeof audiodb?.media?.social?.twitter === 'string',
   ));
   results.push(check(
     'media.social.instagram populated',
     typeof audiodb?.media?.social?.instagram === 'string',
+  ));
+  results.push(check(
+    'media.social.twitter is null when TheAudioDB returns the "1" stub value (live-verified 2026-07-17 drift, not a real URL)',
+    (() => {
+      const c = bridgeToCanonical([audiodbPkg(Capability.ARTIST_IDENTITY, {
+        idArtist: '999', strArtist: 'StubTwitterArtist', strTwitter: '1',
+      })]);
+      return c.platforms?.audiodb?.media?.social?.twitter === null;
+    })(),
   ));
 
   // Videos initialized as empty array (populated by translateAudioDBVideos)
@@ -607,6 +616,15 @@ function groupF() {
     `got: ${compat.twitter}`,
   ));
   results.push(check(
+    'compat twitter is null when strTwitter is the "1" stub value',
+    (() => {
+      const r = synthesizeAudioDbCompat([
+        audiodbPkg(Capability.ARTIST_IDENTITY, { idArtist: '999', strArtist: 'StubTwitterArtist', strTwitter: '1' }),
+      ], 'StubTwitterArtist');
+      return r.twitter === null;
+    })(),
+  ));
+  results.push(check(
     'instagram from strInstagram',
     typeof compat.instagram === 'string' && compat.instagram.includes('instagram.com'),
     `got: ${compat.instagram}`,
@@ -685,7 +703,7 @@ function groupG() {
     const c = bridgeToCanonical([audiodbPkg(Capability.VIDEOS, { mvids: [] })]);
     return c.platforms?.audiodb?.videoCount === 0;
   })()));
-  results.push(check('profile.biography null when strBiographyEN absent', (() => {
+  results.push(check('profile.biography null when strBiography absent', (() => {
     const c = bridgeToCanonical([audiodbPkg(Capability.ARTIST_IDENTITY, {
       idArtist: '123', strArtist: 'NoBio',
     })]);
