@@ -1,8 +1,8 @@
 # Phase 5.4 — Territory Intelligence Refactoring — Completion Report
 
-**Status:** Implementation complete. Standing by for Board review. **No merge performed or authorized.**
-**Branch:** `phase-5.4-territory-refactor`
+**Status:** ✅ MERGED — Board-approved 2026-07-17. Merge commit `36df8f2` on `main` (fast-forward via PR #354). Branch `phase-5.4-territory-refactor` deleted post-merge.
 **Governing documents:** Board Directive "Phase 5.4 Territory Intelligence Refactoring"; `governance/PHASE_5_3_TERRITORY_INTELLIGENCE_CONSOLIDATION_CERTIFICATION_REPORT.md` (the three findings this phase resolves)
+**Board decision record:** `governance/BOARD_DECISIONS.md`, entry dated 2026-07-17
 
 ---
 

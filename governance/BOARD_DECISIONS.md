@@ -11,6 +11,23 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-17 — Phase 5.4 — Territory Intelligence Refactoring — APPROVED FOR MERGE
+
+| | |
+|---|---|
+| **Date** | 2026-07-17 |
+| **Decision** | Phase 5.4 (Territory Intelligence Refactoring) is approved for merge, resolving all three live findings certified in Phase 5.3. Work Package 3 required a Board decision between two options before implementation; the Board selected **Option A (rewire to the Engine, not retire the feature)**, with an explicit architectural-ownership comment mandated in the code itself ("this module owns change detection, not territory classification"). All three fixes were runtime-verified by executing the actual, unmodified production code against realistic Engine-shaped input — not static analysis alone, per Board requirement. |
+| **Reason** | Closes the gap between Phase 5.2's acquisition-level certification and full platform consistency: a live user-facing dashboard defect (rendering unstyled/"0 of 8" regardless of real data since a PAL migration nulled its data source), a duplicate territory-interpretation layer in `EvidenceBridge.js` (in tension with that file's own constitutional constraint against interpreting provider responses), and a dormant monitoring capability starved of input by an unrelated field nulling. |
+| **Impact** | `public/js/dashboard.js`'s Global Presence card now reads `globalMusicFootprint.distributionGaps.territories`. `lib/rie/EvidenceBridge.js`'s `translateTerritories()` now calls `assembleTerritoryIntelligence()` directly (`storefrontIsAvailable()` deleted). `api/_lib/persist-os-scan.js`'s `extractTerritories()` gained an Engine-sourced fallback, restoring real `territory_gain`/`territory_loss` monitoring alerts. All existing legacy fallback shapes and payload contracts preserved unchanged. Full detail: `governance/PHASE_5_4_TERRITORY_INTELLIGENCE_REFACTORING_COMPLETION_REPORT.md`. |
+| **Vote** | Board Approved |
+| **PR Number** | #354 |
+| **Commit SHA** | `36df8f2` |
+| **Tag** | — |
+| **Test surface** | Certification harness 1587/1587 (suites 01–20); 2,344 total assertions across all suites, zero failures |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-17 — Distribution Gaps™ (Global Music Footprint™) — APPROVED FOR MERGE
 
 | | |
