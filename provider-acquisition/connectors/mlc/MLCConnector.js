@@ -40,7 +40,7 @@ import { createEvidenceContract }  from '../../evidence/EvidenceContract.js';
 import { computePayloadChecksum, computeRawResponseHash } from '../../evidence/integrity.js';
 import { getTrustValue }           from '../../trust/trustConfig.js';
 
-import { mlcPost, MLC_API_BASE } from './mlc-http.js';
+import { mlcPost, mlcGet, MLC_API_BASE } from './mlc-http.js';
 import { MLC_CAPABILITIES }      from './mlc-capabilities.js';
 
 export const PROVIDER_NAME        = 'mlc';
@@ -52,23 +52,33 @@ export const PROVIDER_API_VERSION = 'v1';
 const MLC_DEFAULT_TRUST = 95;
 
 export class MLCConnector extends ProviderConnector {
-  #credentials = null;  // { username, password }
+  #credentials = null;  // { username, password } OR { refreshToken }
   #fetchOpts   = null;  // shared HTTP options (no idToken — auth is per-session)
   #idToken     = null;  // JWT obtained during authenticate()
 
   // ── ProviderConnector interface ─────────────────────────────────────────────
 
+  // Accepts either username+password OR a refreshToken — MLC's /oauth/token
+  // endpoint supports both as alternative initial credentials. Password
+  // credentials take priority when both are present, matching the same
+  // preference already established in api/mlc-test.js. MLCConnector remains
+  // the single authentication authority — no other file may hold or exchange
+  // MLC credentials.
   async initialize(config = {}) {
-    const username = config.username ?? config.MLC_USERNAME ?? null;
-    const password = config.password ?? config.MLC_PASSWORD ?? null;
+    const username     = config.username     ?? config.MLC_USERNAME     ?? null;
+    const password     = config.password     ?? config.MLC_PASSWORD     ?? null;
+    const refreshToken = config.refreshToken ?? config.MLC_REFRESH_TOKEN ?? null;
 
-    if (!username || !password) {
+    const hasPasswordCreds = !!(username && password);
+    const hasRefreshToken  = !!refreshToken;
+
+    if (!hasPasswordCreds && !hasRefreshToken) {
       this.#credentials = null;
       this.#fetchOpts   = null;
       return;
     }
 
-    this.#credentials = { username, password };
+    this.#credentials = hasPasswordCreds ? { username, password } : { refreshToken };
     this.#fetchOpts   = {
       fetchFn:    config.fetchFn   ?? globalThis.fetch,
       timeoutMs:  config.timeoutMs ?? 15_000,
@@ -80,16 +90,19 @@ export class MLCConnector extends ProviderConnector {
 
   // authenticate() makes a real network call to obtain the MLC idToken.
   // Unlike other connectors where authenticate() is a local credential check,
-  // MLC uses a username/password OAuth flow that requires a /oauth/token round-trip.
+  // MLC uses an OAuth flow that requires a /oauth/token round-trip. The
+  // request body shape is determined automatically by which credential type
+  // was supplied to initialize() — username+password or refreshToken.
   async authenticate() {
     if (!this.#credentials || !this.#fetchOpts) {
-      return this.#authResult(HealthState.AUTH_FAILED, 'username or password missing');
+      return this.#authResult(HealthState.AUTH_FAILED, 'credentials missing');
     }
 
-    const result = await mlcPost('/oauth/token', {
-      username: this.#credentials.username,
-      password: this.#credentials.password,
-    }, { ...this.#fetchOpts, idToken: null });
+    const tokenBody = this.#credentials.refreshToken
+      ? { refreshToken: this.#credentials.refreshToken }
+      : { username: this.#credentials.username, password: this.#credentials.password };
+
+    const result = await mlcPost('/oauth/token', tokenBody, { ...this.#fetchOpts, idToken: null });
 
     if (!result.ok) {
       const state = result.healthState === 'AUTH_FAILED'
@@ -171,7 +184,17 @@ export class MLCConnector extends ProviderConnector {
         return this.#fetchRecordings(subjectRef);
 
       case Capability.PUBLISHING:
-        return this.#fetchWorks(subjectRef);
+        // A single mlcSongCode (not the batch mlcSongCodes array) routes to
+        // the GET /work/id/{id} single-item lookup instead of the existing
+        // POST /works batch call. Existing production callers always pass
+        // mlcSongCodes (array), so this branch is additive and never
+        // changes behavior for any current caller.
+        return (subjectRef?.mlcSongCode && !subjectRef?.mlcSongCodes)
+          ? this.#fetchWorkById(subjectRef)
+          : this.#fetchWorks(subjectRef);
+
+      case Capability.SONGWRITERS:
+        return this.#fetchSongCodeSearch(subjectRef);
 
       default:
         return {
@@ -221,7 +244,30 @@ export class MLCConnector extends ProviderConnector {
     return this.#post('/works', body);
   }
 
-  // ── HTTP helper ──────────────────────────────────────────────────────────────
+  // SONG CODE SEARCH: POST /search/songcode — search by title + writers.
+  // Raw acquisition only: the writer list is passed through exactly as
+  // supplied by the caller, never derived, split, or guessed here — that
+  // kind of decision belongs to an orchestration layer, not this connector.
+  // MLC's API Gateway validator rejects { title } alone with an empty 400;
+  // writers must be present, even as [].
+  async #fetchSongCodeSearch(subjectRef) {
+    if (!subjectRef?.title) return this.#missingRef('title');
+    const body = {
+      title:   subjectRef.title,
+      writers: Array.isArray(subjectRef.writers) ? subjectRef.writers : [],
+    };
+    return this.#post('/search/songcode', body);
+  }
+
+  // WORK BY ID: GET /work/id/{id} — single-item convenience lookup for a
+  // known MLC song code. Additive only; does not replace #fetchWorks (the
+  // existing POST /works batch path), which remains unchanged.
+  async #fetchWorkById(subjectRef) {
+    if (!subjectRef?.mlcSongCode) return this.#missingRef('mlcSongCode');
+    return this.#getReq(`/work/id/${encodeURIComponent(subjectRef.mlcSongCode)}`);
+  }
+
+  // ── HTTP helpers ─────────────────────────────────────────────────────────────
 
   async #post(path, body) {
     const opts   = { ...this.#fetchOpts, idToken: this.#idToken };
@@ -252,6 +298,40 @@ export class MLCConnector extends ProviderConnector {
                       detail:   schemaOk ? null : 'response body was not a valid JSON object or array',
                     }),
       completeness: schemaOk ? (Array.isArray(data) && data.length === 0 ? 'partial' : 'full') : 'partial',
+    };
+  }
+
+  // GET variant of #post, added alongside it for the new GET /work/id/{id}
+  // acquisition — mirrors #post's classification logic exactly.
+  async #getReq(path) {
+    const opts   = { ...this.#fetchOpts, idToken: this.#idToken };
+    const result = await mlcGet(path, opts);
+
+    if (!result.ok) {
+      return {
+        payload:      null,
+        rawText:      result.rawText ?? '',
+        health:       createHealthSignal({
+                        state:    result.healthState ?? HealthState.UNAVAILABLE,
+                        provider: PROVIDER_NAME,
+                        detail:   result.error ?? `HTTP ${result.status}`,
+                      }),
+        completeness: 'empty',
+      };
+    }
+
+    const data     = result.data;
+    const schemaOk = data !== null && (Array.isArray(data) || typeof data === 'object');
+
+    return {
+      payload:      data,
+      rawText:      result.rawText,
+      health:       createHealthSignal({
+                      state:    schemaOk ? HealthState.AVAILABLE : HealthState.SCHEMA_CHANGED,
+                      provider: PROVIDER_NAME,
+                      detail:   schemaOk ? null : 'response body was not a valid JSON object or array',
+                    }),
+      completeness: schemaOk ? 'full' : 'partial',
     };
   }
 
@@ -290,7 +370,9 @@ export class MLCConnector extends ProviderConnector {
   #authResult(state, detail) {
     return {
       health:      createHealthSignal({ state, provider: PROVIDER_NAME, detail }),
-      credentials: this.#credentials ? { username: '[redacted]' } : null,
+      credentials: this.#credentials
+        ? { mode: this.#credentials.refreshToken ? 'refreshToken' : 'username', value: '[redacted]' }
+        : null,
     };
   }
 

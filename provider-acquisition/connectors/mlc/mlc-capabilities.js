@@ -13,6 +13,8 @@
 import { Capability } from '../../capability/capabilityVocabulary.js';
 
 export const MLC_CAPABILITIES = Object.freeze([
-  Capability.ISRC,       // recording search — cross-reference recordings to MLC works
-  Capability.PUBLISHING, // work lookup — full publishing data (publishers, writers, ISWC)
+  Capability.ISRC,        // recording search — cross-reference recordings to MLC works
+  Capability.PUBLISHING,  // work lookup — full publishing data (publishers, writers, ISWC);
+                          // also routes single-ID lookups (GET /work/id/{id})
+  Capability.SONGWRITERS, // song-code search by title + writers (POST /search/songcode)
 ]);
