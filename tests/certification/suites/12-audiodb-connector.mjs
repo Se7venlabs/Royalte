@@ -14,6 +14,27 @@
 //
 // Returns: { name, passed, failed, assertions, details[] }
 
+// Phase 4.0 addendum (2026-07-17): Groups H–K added — the suite above tested
+// EvidenceBridge translation extensively but never exercised the connector's
+// own acquire()/dispatch behavior against a mocked fetchFn. This addendum
+// closes that gap: HTTP endpoint construction, missing-subjectRef guards,
+// health-state mapping on failure, identity-lock routing, and initialization
+// edge cases — the checklist required for full self-certification.
+//
+// Live-verified provider drift (documented in the Phase 4.0 completion
+// report, NOT fixed here — outside this connector's scope, since
+// AudioDBConnector.js itself is unaffected raw-passthrough):
+//   - strBiographyEN was renamed to strBiography (no language suffix for
+//     English) — EvidenceBridge.js:834 and audiodb-pal-acquisition.js:144
+//     both still reference the old name, so profile.biography is currently
+//     always null in production regardless of whether TheAudioDB has a bio.
+//   - strYoutube and strInstagram no longer exist on the artist object at
+//     all (confirmed absent, not just empty, across 4 different artists).
+//   - strTwitter still exists but its value is now the literal string "1"
+//     for every artist tested — no longer a URL.
+// New Group H+ fixtures below use TheAudioDB's actual current live field
+// names/shapes, not the older fixture data Groups A–G were written against.
+
 import { bridgeToCanonical }      from '../../../lib/rie/EvidenceBridge.js';
 import { AUDIODB_CAPABILITIES }    from '../../../provider-acquisition/connectors/audiodb/audiodb-capabilities.js';
 import { Capability }              from '../../../provider-acquisition/capability/capabilityVocabulary.js';
@@ -697,6 +718,220 @@ function groupG() {
   return { name: 'G-edge-cases', results };
 }
 
+// ── Live-current fixtures (Phase 4.0) — match TheAudioDB's actual field ──────
+// names/shapes as verified live 2026-07-17, distinct from the Groups A-G
+// fixtures above which predate the provider drift documented at the top of
+// this file.
+
+const LIVE_ARTIST_PAYLOAD = {
+  idArtist: '111611', strArtist: 'Ed Sheeran', strLabel: 'Asylum/Atlantic',
+  intFormedYear: '2004', strGenre: 'Pop', strStyle: 'Contemporary', strMood: 'Happy',
+  strCountry: 'United Kingdom', strBiography: 'Full biography text under the current field name.',
+  strWebsite: 'www.edsheeran.com', strFacebook: 'www.facebook.com/EdSheeranMusic', strTwitter: '1',
+  strArtistThumb: 'https://cdn.theaudiodb.com/images/media/artist/thumb/thumb.jpg',
+};
+
+const LIVE_DISCOGRAPHY_PAYLOAD = { album: [{ strAlbum: 'Play', intYearReleased: '2025' }, { strAlbum: '÷ (Divide)', intYearReleased: '2017' }] };
+const LIVE_VIDEOS_PAYLOAD = { mvids: [{ idArtist: '111611', idAlbum: '2113725', idTrack: '32767153', strTrack: 'Small Bump', strTrackThumb: null, strMusicVid: 'http://www.youtube.com/watch?v=A_af256mnTE', strDescriptionEN: 'Official music video.' }] };
+
+function jsonRes(body) {
+  return { ok: true, status: 200, text: async () => JSON.stringify(body) };
+}
+
+async function newConnector(fetchFn, config = {}) {
+  const c = new AudioDBConnector();
+  await c.initialize({ fetchFn, ...config });
+  await c.authenticate();
+  return c;
+}
+
+// ── Group H: ARTIST_IDENTITY dispatch (direct + search + identity-lock) ──────
+
+async function groupH() {
+  const results = [];
+
+  // Direct path — audiodbArtistId known
+  let capturedUrl = null;
+  const fetchFnDirect = async (url) => { capturedUrl = url; return jsonRes({ artists: [LIVE_ARTIST_PAYLOAD] }); };
+  const cDirect = await newConnector(fetchFnDirect);
+  const contractDirect = await cDirect.acquire({
+    requestId: 'req-direct', evidenceType: Capability.ARTIST_IDENTITY,
+    subjectRef: { audiodbArtistId: '111611' }, context: { correlationId: 'corr-direct' },
+  });
+  results.push(check('direct path calls GET /artist.php?i={id}', capturedUrl?.includes('/artist.php?i=111611'), `got: ${capturedUrl}`));
+  results.push(check('direct path health is AVAILABLE', contractDirect.health?.state === 'AVAILABLE'));
+  results.push(check('direct path payload is raw, unreshaped (has artists[] envelope)', Array.isArray(contractDirect.payload?.artists)));
+
+  // Search path — identity-lock exact match
+  let searchUrl = null;
+  const fetchFnSearch = async (url) => { searchUrl = url; return jsonRes({ artists: [LIVE_ARTIST_PAYLOAD] }); };
+  const cSearch = await newConnector(fetchFnSearch);
+  const contractSearch = await cSearch.acquire({
+    requestId: 'req-search', evidenceType: Capability.ARTIST_IDENTITY,
+    subjectRef: { artistName: 'Ed Sheeran' }, context: { correlationId: 'corr-search' },
+  });
+  results.push(check('search path calls GET /search.php?s={query}', searchUrl?.includes('/search.php?s=Ed'), `got: ${searchUrl}`));
+  results.push(check('search path health is AVAILABLE', contractSearch.health?.state === 'AVAILABLE'));
+  results.push(check('search path completeness is "full"', contractSearch.completeness === 'full'));
+  results.push(check('search path payload is the raw matched artist object (identity-lock is routing only, not reshaping)',
+    contractSearch.payload?.idArtist === '111611' && contractSearch.payload?.strArtist === 'Ed Sheeran',
+    `got: ${JSON.stringify(contractSearch.payload).slice(0, 120)}`));
+  results.push(check('search path payload preserves live-current field name strBiography (not reshaped/renamed)',
+    contractSearch.payload?.strBiography === 'Full biography text under the current field name.'));
+
+  // Search path — no exact match
+  const cNoMatch = await newConnector(async () => jsonRes({ artists: [{ idArtist: '999', strArtist: 'Completely Different Artist' }] }));
+  const contractNoMatch = await cNoMatch.acquire({
+    requestId: 'req-nomatch', evidenceType: Capability.ARTIST_IDENTITY,
+    subjectRef: { artistName: 'Ed Sheeran' }, context: { correlationId: 'corr-nomatch' },
+  });
+  results.push(check('no identity-lock match returns PARTIAL_RESPONSE', contractNoMatch.health?.state === 'PARTIAL_RESPONSE'));
+  results.push(check('no identity-lock match returns null payload', contractNoMatch.payload === null));
+
+  // Search path — provider returns no artists at all (empty catalog result)
+  const cEmpty = await newConnector(async () => jsonRes({ artists: null }));
+  const contractEmpty = await cEmpty.acquire({
+    requestId: 'req-empty', evidenceType: Capability.ARTIST_IDENTITY,
+    subjectRef: { artistName: 'Nonexistent Artist' }, context: { correlationId: 'corr-empty' },
+  });
+  results.push(check('search with artists:null does not throw, returns PARTIAL_RESPONSE', contractEmpty.health?.state === 'PARTIAL_RESPONSE'));
+
+  return { name: 'H-artist-identity-dispatch', results };
+}
+
+// ── Group I: COLLECTION_DATA / VIDEOS dispatch ────────────────────────────────
+
+async function groupI() {
+  const results = [];
+
+  let discogUrl = null;
+  const fetchFnDiscog = async (url) => { discogUrl = url; return jsonRes(LIVE_DISCOGRAPHY_PAYLOAD); };
+  const cDiscog = await newConnector(fetchFnDiscog);
+  const contractDiscog = await cDiscog.acquire({
+    requestId: 'req-discog', evidenceType: Capability.COLLECTION_DATA,
+    subjectRef: { artistName: 'Ed Sheeran' }, context: { correlationId: 'corr-discog' },
+  });
+  results.push(check('COLLECTION_DATA calls GET /discography.php?s={name}', discogUrl?.includes('/discography.php?s=Ed'), `got: ${discogUrl}`));
+  results.push(check('COLLECTION_DATA health is AVAILABLE', contractDiscog.health?.state === 'AVAILABLE'));
+  results.push(check('COLLECTION_DATA payload preserves raw album[] (live-current 2-field shape)',
+    contractDiscog.payload?.album?.[0]?.strAlbum === 'Play' && contractDiscog.payload?.album?.[0]?.intYearReleased === '2025'));
+
+  const cDiscogMissing = await newConnector(async () => jsonRes(LIVE_DISCOGRAPHY_PAYLOAD));
+  const missingDiscog = await cDiscogMissing.acquire({
+    requestId: 'req-discog-missing', evidenceType: Capability.COLLECTION_DATA,
+    subjectRef: {}, context: { correlationId: 'corr-discog-missing' },
+  });
+  results.push(check('COLLECTION_DATA with no artistName returns PARTIAL_RESPONSE', missingDiscog.health?.state === 'PARTIAL_RESPONSE'));
+
+  let videosUrl = null;
+  const fetchFnVideos = async (url) => { videosUrl = url; return jsonRes(LIVE_VIDEOS_PAYLOAD); };
+  const cVideos = await newConnector(fetchFnVideos);
+  const contractVideos = await cVideos.acquire({
+    requestId: 'req-videos', evidenceType: Capability.VIDEOS,
+    subjectRef: { audiodbArtistId: '111611' }, context: { correlationId: 'corr-videos' },
+  });
+  results.push(check('VIDEOS calls GET /mvid.php?i={id}', videosUrl?.includes('/mvid.php?i=111611'), `got: ${videosUrl}`));
+  results.push(check('VIDEOS health is AVAILABLE', contractVideos.health?.state === 'AVAILABLE'));
+  results.push(check('VIDEOS payload preserves raw mvids[] (live-current idTrack, no idMVid)',
+    contractVideos.payload?.mvids?.[0]?.strTrack === 'Small Bump' && contractVideos.payload?.mvids?.[0]?.idTrack === '32767153'));
+
+  const cVideosMissing = await newConnector(async () => jsonRes(LIVE_VIDEOS_PAYLOAD));
+  const missingVideos = await cVideosMissing.acquire({
+    requestId: 'req-videos-missing', evidenceType: Capability.VIDEOS,
+    subjectRef: {}, context: { correlationId: 'corr-videos-missing' },
+  });
+  results.push(check('VIDEOS with no audiodbArtistId returns PARTIAL_RESPONSE', missingVideos.health?.state === 'PARTIAL_RESPONSE'));
+
+  return { name: 'I-collection-videos-dispatch', results };
+}
+
+// ── Group J: Health reporting + error-path health-state mapping ──────────────
+
+async function groupJ() {
+  const results = [];
+
+  const cNotInit = new AudioDBConnector();
+  const hNotInit = await cNotInit.reportHealth();
+  results.push(check('reportHealth() before initialize() returns AUTH_FAILED', hNotInit.state === 'AUTH_FAILED'));
+
+  let probeUrl = null;
+  const cHealthy = await newConnector(async (url) => { probeUrl = url; return jsonRes({ artists: [LIVE_ARTIST_PAYLOAD] }); });
+  const hHealthy = await cHealthy.reportHealth();
+  results.push(check('reportHealth() probes /search.php?s=Ed+Sheeran', probeUrl?.includes('/search.php?s=Ed'), `got: ${probeUrl}`));
+  results.push(check('reportHealth() with working probe returns AVAILABLE', hHealthy.state === 'AVAILABLE'));
+
+  const cDown = await newConnector(async () => ({ ok: false, status: 503, text: async () => '{}' }), { maxRetries: 0 });
+  const hDown = await cDown.reportHealth();
+  results.push(check('reportHealth() when probe fails returns a non-AVAILABLE state', hDown.state !== 'AVAILABLE', `got: ${hDown.state}`));
+
+  // acquire()-level error-path mapping
+  const c429 = await newConnector(async () => ({ ok: false, status: 429, text: async () => '{}' }), { maxRetries: 0 });
+  const contract429 = await c429.acquire({
+    requestId: 'req-429', evidenceType: Capability.VIDEOS, subjectRef: { audiodbArtistId: 'x' },
+    context: { correlationId: 'corr-429' },
+  });
+  results.push(check('HTTP 429 maps to RATE_LIMITED', contract429.health?.state === 'RATE_LIMITED', `got: ${contract429.health?.state}`));
+
+  const c404 = await newConnector(async () => ({ ok: false, status: 404, text: async () => '{}' }));
+  const contract404 = await c404.acquire({
+    requestId: 'req-404', evidenceType: Capability.VIDEOS, subjectRef: { audiodbArtistId: 'x' },
+    context: { correlationId: 'corr-404' },
+  });
+  results.push(check('HTTP 404 maps to PARTIAL_RESPONSE', contract404.health?.state === 'PARTIAL_RESPONSE', `got: ${contract404.health?.state}`));
+
+  const cMalformed = await newConnector(async () => ({ ok: true, status: 200, text: async () => 'not json{{' }));
+  const contractMalformed = await cMalformed.acquire({
+    requestId: 'req-malformed', evidenceType: Capability.VIDEOS, subjectRef: { audiodbArtistId: 'x' },
+    context: { correlationId: 'corr-malformed' },
+  });
+  results.push(check('malformed JSON response maps to SCHEMA_CHANGED', contractMalformed.health?.state === 'SCHEMA_CHANGED', `got: ${contractMalformed.health?.state}`));
+
+  return { name: 'J-health-and-error-mapping', results };
+}
+
+// ── Group K: Initialization / connector-level edge cases ─────────────────────
+
+async function groupK() {
+  const results = [];
+
+  const cNotInit = new AudioDBConnector();
+  const notInitContract = await cNotInit.acquire({
+    requestId: 'req-not-init', evidenceType: Capability.ARTIST_IDENTITY,
+    subjectRef: { artistName: 'X' }, context: { correlationId: 'corr-not-init' },
+  });
+  results.push(check('acquire() before initialize() returns AUTH_FAILED', notInitContract.health?.state === 'AUTH_FAILED'));
+  results.push(check('acquire() before initialize() returns null payload', notInitContract.payload === null));
+
+  const c = await newConnector(async () => jsonRes({ artists: [] }));
+  const unsupported = await c.acquire({
+    requestId: 'req-unsupported', evidenceType: Capability.ISRC, subjectRef: {},
+    context: { correlationId: 'corr-unsupported' },
+  });
+  results.push(check('unsupported evidence type returns PARTIAL_RESPONSE, not a throw', unsupported.health?.state === 'PARTIAL_RESPONSE'));
+
+  // Evidence Contract integrity
+  const fetchFn = async () => jsonRes({ artists: [LIVE_ARTIST_PAYLOAD] });
+  const cContract = await newConnector(fetchFn);
+  const contract = await cContract.acquire({
+    requestId: 'req-integrity', evidenceType: Capability.ARTIST_IDENTITY,
+    subjectRef: { artistName: 'Ed Sheeran' }, context: { correlationId: 'corr-integrity' },
+  });
+  const requiredFields = [
+    'evidenceId', 'schemaVersion', 'acquisitionId', 'correlationId', 'requestId',
+    'provider', 'providerVersion', 'connectorVersion', 'providerTrust',
+    'capabilityProfileRef', 'acquiredAt', 'health', 'completeness', 'payload',
+    'payloadChecksum', 'rawResponseHash',
+  ];
+  for (const field of requiredFields) {
+    results.push(check(`contract has required field "${field}"`, Object.prototype.hasOwnProperty.call(contract, field)));
+  }
+  results.push(check('contract.providerTrust defaults to 70', contract.providerTrust === 70, `got: ${contract.providerTrust}`));
+  results.push(check('contract.payloadChecksum is a non-empty sha256 hex string', /^[0-9a-f]{64}$/.test(contract.payloadChecksum)));
+  results.push(check('contract is frozen (Evidence Contract immutability)', Object.isFrozen(contract)));
+
+  return { name: 'K-initialization-and-contract-integrity', results };
+}
+
 // ── Suite runner ──────────────────────────────────────────────────────────────
 
 export async function runAudioDbConnector() {
@@ -708,6 +943,10 @@ export async function runAudioDbConnector() {
     groupE(),
     groupF(),
     groupG(),
+    await groupH(),
+    await groupI(),
+    await groupJ(),
+    await groupK(),
   ];
 
   let passed = 0, failed = 0;
