@@ -1,117 +1,148 @@
 # Royaltē — Artist Profile Card
 # Section 9: Monitoring Timeline™ Field Schema
 
-## Purpose
+## Status note — read before anything else
 
-Define the Monitoring Timeline™ field contract for the Artist Profile Card: continuous change detection since the artist's previous scan. This document works within the approved architecture (`governance/ARTIST_PROFILE_CARD_ARCHITECTURE.md` §8) and does not introduce architecture changes, revisit prior sections, modify Mission Control, or activate ATHENA. Scope is field-schema completion only. No production code is changed by this document.
+Unlike Sections 2–8, Monitoring Timeline™ has never been formally architected as a constitutional domain. Per Board directive, this document does **not** assume the current HTML/implementation is final product. It treats the existing implementation as prototype-status unless evidence proves otherwise, and separates findings into three tiers — **Current Prototype**, **Current Production Implementation**, and **Future Constitutional Architecture** — rather than forcing everything into a single "implemented vs. gap" model as prior sections did. Where the implementation exposes architectural inconsistencies, they are documented as findings, not defects.
 
-Per established practice (Media Intelligence, Health Intelligence), HTML-first review was performed: the live workspace (`public/workspaces/monitoring-timeline.html`) was inventoried before the code was traced.
+This document works within the approved architecture (`governance/ARTIST_PROFILE_CARD_ARCHITECTURE.md` §8), does not introduce architecture changes, revisit prior sections, modify Mission Control, or activate ATHENA. Scope is documentation only. No production code is changed.
 
-**Important disambiguation, confirmed by direct trace:** "Monitoring Timeline™" (this workspace — a single-scan "what changed since last time" view, driven by real `monitoringIntelligence.events[]`) is a **different system** from the hardcoded 7-day "Executive Timeline™" mock dataset already found and logged on Health Intelligence (`ARTIST_PROFILE_CARD_HEALTH_SCHEMA.md` §4, task #53). They share no code. Per the Board's own note approving PR #371, the *intent* is for Health Intelligence's Executive Timeline™ to eventually be *driven by* this Monitoring Timeline architecture — that is a future integration, not a current fact, and is not claimed as implemented here.
-
----
-
-## Step 1–3: Field Inventory (from the live HTML/JS)
-
-### Bootstrap/static shell (pre-render only)
-Hero icon, title ("Monitoring Timeline™"), description ("Continuous change detection and historical monitoring timeline across your music business infrastructure."), and a "Coming Soon" placeholder card (icon, eyebrow, title, description) are present in the raw HTML (`monitoring-timeline.html:137-158`). **This placeholder is not the product state** — on every valid scan, the real renderer (`monitoring-timeline.html:169-431`) immediately overwrites the `.ws-coming-soon` container's `innerHTML`. The static copy only remains visible in the narrow edge case where the container element itself isn't found (defensive null check, line 186-187) — not a realistic production path.
-
-### Dynamic content — four possible visible states
-
-**1. True first-scan / onboarding state** (`mi.status === 'baseline' && mi.scanNumber <= 1`): eyebrow "Baseline Established", title "Monitoring Begins After Your Next Scan", explanatory paragraph. No health snapshot, no coverage grid, no change list — an early-return path, distinct from state 2 below.
-
-**2. Baseline state** (module-computed, `mi.status === 'baseline' || scanNumber <= 1` — reachable only as an edge case not already caught by state 1, e.g. `scanNumber <= 1` with `mi.status` not `'baseline'`): clock icon, eyebrow "Scan #N · {date}", title "Baseline Established", summary text, Health Snapshot badge, **Baseline Scores coverage grid** — 5 rows (Identity Intelligence™, Publishing Intelligence™, Catalog Intelligence™, Backend Intelligence™, Global Music Footprint™ — each a label + score).
-
-**3. Stable state** (`events.length === 0`): pulse icon, eyebrow "Scan #N · {date}", title "No Changes Detected", summary text, Health Snapshot badge, no supplemental content.
-
-**4. Changed state** (`events.length > 0`): pulse icon, eyebrow "Scan #N · {date} · M Changes Detected", title "Changes Detected", summary text, Health Snapshot badge, **Change List** grouped by category — each group: category label header, then per-event rows (colored dot, title, optional description).
-
-### Sub-elements
-- **Health Snapshot badge**: "Health Score™ {score}/100 · {status}"
-- **Coverage Grid row**: domain label + score (state 2 only)
-- **Change List group**: category label + event rows (state 4 only); event row: severity/polarity-colored dot, title, optional description
+**Disambiguation, confirmed by direct trace:** "Monitoring Timeline™" (this workspace) is a different system from Health Intelligence's hardcoded 7-day "Executive Timeline™" mock (`ARTIST_PROFILE_CARD_HEALTH_SCHEMA.md` §4, task #53). They share no code. The Board's stated intent for those two to eventually converge is future direction, not current fact.
 
 ---
 
-## Step 4–5: Code Trace & Evidence Validation
+## 1. What Currently Exists
 
-**The core pipeline is real — same finding as Health Intelligence.** `assembleMonitoringIntelligence()` (`api/_lib/monitoring-intelligence.js:90`) is the real, wired assembler, confirmed already in `ARTIST_PROFILE_CARD_HEALTH_SCHEMA.md` §4: two-phase patch, gated on authenticated scans, `_normalizeMonitoring()` in `runtime-context-mapper.js:76-88` promotes a null first-scan result to a canonical empty baseline object (and otherwise **passes real data through completely unchanged** — confirmed by reading it directly: `if (raw) return raw;`, no event enrichment happens anywhere in the pipeline).
+### 1a. Current Prototype (placeholder, not product)
 
-**Real, correctly wired fields:**
+The raw HTML (`monitoring-timeline.html:137-158`) contains a static hero + "Coming Soon" card (icon, eyebrow, title, "This workspace is being prepared. Check back after your next Board brief."). This is genuinely prototype/placeholder markup — it is not the product state. On every valid scan, a real renderer script (`monitoring-timeline.html:169-431`) immediately overwrites this container's `innerHTML`. The static copy is only visible in the narrow edge case where the container element isn't found (defensive null check, line 186-187) — not a realistic production path, but the presence of "Coming Soon" copy at all is itself evidence this workspace was never signed off as finished, consistent with the Board's framing.
+
+### 1b. Current Production Implementation (real, wired, wholly independent of this document)
+
+This is a materially different finding from the "everything is hardcoded" pattern found on Catalog/Footprint/Backend, and closer to Health Intelligence's mostly-real pipeline:
+
+- `assembleMonitoringIntelligence()` (`api/_lib/monitoring-intelligence.js:90`) is real and wired via the same two-phase, authenticated-scans-only patch already confirmed in `ARTIST_PROFILE_CARD_HEALTH_SCHEMA.md` §4.
+- `runtime-context-mapper.js`'s `_normalizeMonitoring()` (lines 76-88) only promotes a null first-scan result to a canonical empty baseline shape — it does not alter real data (`if (raw) return raw;`, confirmed by direct read, no enrichment anywhere in the pipeline).
 - `mi.status`, `mi.scanNumber`, `mi.newThisScan` — real, direct from the assembler.
-- `hi.score`, `hi.status`, `hi.identityScore`, `hi.publishingScore`, `hi.catalogScore`, `hi.backendScore`, `hi.footprintScore` — all real, already confirmed in the Health Intelligence trace, reused here for the Health Snapshot and Coverage Grid.
-- The true first-scan detection path (state 1) is real and correctly wired.
-- Event `title` — real (`normalizeEvent()`, `monitoring-intelligence.js:78-86`, the only text field it guarantees — events with an empty title are filtered out entirely).
-- Event `severity` — real, but see vocabulary mismatch below.
+- Event `title` and `severity` — real (see §2 for the full field model).
+- Health Snapshot and Coverage Grid reuse `hi.score`, `hi.status`, `hi.identityScore`, `hi.publishingScore`, `hi.catalogScore`, `hi.backendScore`, `hi.footprintScore` — all real, already confirmed in the Health Intelligence trace.
+- The true first-scan onboarding state (`mi.status === 'baseline' && mi.scanNumber <= 1`) is real and correctly wired.
+- **The delta engine itself** (`api/_lib/delta-engine.js`) is real, production code, not a prototype — it runs on every authenticated scan with a prior snapshot, and writes real rows to `monitoring_alerts`. Its scope is narrow (see §3), but what it does do, it does for real.
 
-**Confirmed gap — real but never rendered:**
-- `mi.capturedAt`, `mi.nextScan` (both real fields on the assembler's output, `monitoring-intelligence.js:106-107,114-115`) are never read anywhere in `monitoring-timeline.html`'s renderer. Same class of finding as Health Intelligence's `grade` (task #52).
-- Event `changeType` (the real field name) is never read by the renderer at all — it reads `ev.type`, not `ev.changeType`. Since events always have a non-empty `title` (filtered by `normalizeEvent`), the `ev.type` fallback is effectively unreachable dead code in the renderer.
+### 1c. What is hardcoded
 
-**Major finding — the renderer expects event fields the real assembler does not produce.** `normalizeEvent()` (`monitoring-intelligence.js:78-86`) freezes each event as exactly `{ changeType, title, severity }` — nothing else. But the renderer reads four fields that don't exist on that shape:
-
-| Renderer expects | Real event has it? | Effect in production |
-|---|---|---|
-| `ev.category` (`buildChangeGroups()`, `monitoring-timeline.html:279`) | No | Every event falls into the `'backend'` default bucket (`(ev.category \|\| 'backend').toLowerCase()`) — **all change events are grouped under "Backend Intelligence™" regardless of their true domain** |
-| `ev.polarity` (lines 256, 360) | No | The "improvement" count in the summary text is always 0; the positive/green dot-color branch can never trigger from real data |
-| `ev.type` (lines 256, 369) | No (real field is `changeType`) | Same effect as `polarity` on the improvement count; title fallback is dead code |
-| `ev.description` (line 370) | No | Silently never renders — not broken, just always absent |
-
-**A second, independent mismatch — severity vocabulary.** The renderer checks `(ev.severity || '').toUpperCase()` against `'CRITICAL'` or `'HIGH'` (`monitoring-timeline.html:257,361`) to count "critical" issues and color dots red. The real, Board-locked severity vocabulary (`VALID_SEVERITIES`, `monitoring-intelligence.js:57`) is `informational | positive | action_needed | monitor` — **none of these ever match `'CRITICAL'` or `'HIGH'`**. Effect: the `critical` count in the summary is always 0, and every event dot renders with the same default (blue/informational) color, regardless of real severity — an `action_needed` event looks identical to an `informational` one.
-
-**Net effect, stated precisely (not alarmist):** the Changed state does not crash and does display real event titles and a real count. But category grouping, the improvements/critical breakdown in the summary text, and severity-based visual urgency all silently degrade to defaults because of this field-name and vocabulary mismatch — the same class of finding as Catalog Intelligence's ISRC Coverage™ KPI field-name mismatch (task #45), not a new kind of defect in this series.
+Nothing found in this workspace's own script. Unlike `catalog-intelligence.html`, `global-music-footprint.html`, or `health-timeline.js`, `monitoring-timeline.html`'s renderer contains no embedded fixture/mock dataset — every value it displays is read from `ctx.monitoringIntelligence` / `ctx.healthIntelligence`. The issues found here (§2) are field-shape mismatches between real data and what the renderer expects, not hardcoded placeholder content.
 
 ---
 
-## Artist Profile Monitoring Schema
+## 2. The Actual Event Contract — traced without normalizing field names
 
-### Section 1 — Implemented Fields
+Per Board instruction, all four layers were checked independently, with no assumption that names align across layers.
 
-| Field | Classification | Population Source | Current Implementation Reference |
+### Layer 1 — What the delta engine actually produces (raw alert, `delta-engine.js`, `buildAlert()`, lines 50-65)
+
+```text
+{
+  user_id, artist_id, artist_name, scan_id, previous_scan_id,
+  detected_at, resolved (boolean, always false — nothing in this
+    file ever sets it true), track_name, territory, isrc, platform,
+  change_type, severity, title, detail
+}
+```
+
+Confirmed via all 5 real emitter functions (`emitBaseline`, `emitTerritoryDeltas`, `emitTrackDeltas`, `emitReleaseDeltas`, `emitVideoDeltas`). **Complete `change_type` taxonomy — exactly 10 values, no more:** `baseline_established`, `territory_loss`, `territory_gain`, `isrc_dropped`, `isrc_added`, `isrc_mismatch`, `release_removed`, `release_added`, `video_removed`, `video_added`. **Complete `severity` taxonomy:** `informational`, `action_needed`, `positive`, `monitor` — matches `VALID_SEVERITIES` exactly.
+
+`detail` is real, rich, always-populated text (e.g. *"New release 'Take It All' detected in the current Apple Music catalog."*) — generated per-alert by the emitter that raises it.
+
+### Layer 2 — What Monitoring Intelligence™ actually produces (`monitoring-intelligence.js`, `normalizeEvent()`, lines 78-86)
+
+```text
+{ changeType, title, severity }
+```
+
+Exactly three fields, frozen. **This layer discards `detail`, `resolved`, `platform`, `territory`, `isrc`, `track_name`, and every identifier field from Layer 1** — not because that data doesn't exist, but because `normalizeEvent()`'s return statement only names three keys. This is a narrowing decision inside `normalizeEvent()` itself, not a fact about what data is available.
+
+### Layer 3 — What Runtime Context receives and passes through (`runtime-context-mapper.js`, `_normalizeMonitoring()`, lines 76-88)
+
+Identical to Layer 2. Confirmed by direct read: when `monitoringIntelligence` is non-null, the function returns it completely unchanged (`if (raw) return raw;`). No transformation, no enrichment, no field renaming happens at this layer. Runtime Context is not the source of any mismatch — it faithfully passes through whatever Layer 2 gives it.
+
+### Layer 4 — What `monitoring-timeline.html` expects on each event
+
+```text
+ev.category    (buildChangeGroups(), line 279)
+ev.polarity    (lines 256, 360)
+ev.type        (lines 256, 369 — checks ev.type === 'RESOLVED')
+ev.title       (real, matches Layer 2/3)
+ev.description (line 370)
+ev.severity    (real, matches Layer 2/3, but see vocabulary check below)
+```
+
+### Do the four contracts align? No — documented precisely, not normalized:
+
+| Renderer expects (Layer 4) | Exists at Layer 2/3? | Exists at Layer 1 (raw alert)? | Precise finding |
 |---|---|---|---|
-| Scan Number | Canonical Data Field | Royaltē System | `mi.scanNumber`, real, `monitoring-intelligence.js:111` |
-| Monitoring Status (baseline/no_changes/active) | Canonical Data Field | Royaltē System | `mi.status`, `deriveStatus()`, `monitoring-intelligence.js:72-76` |
-| New-This-Scan Count | Canonical Data Field | Royaltē System | `mi.newThisScan`, `monitoring-intelligence.js:112` |
-| Event Title | Canonical Data Field | Royaltē System (delta engine) | `ev.title`, real, only guaranteed non-empty field per event |
-| Event Severity (raw value) | Canonical Data Field | Royaltē System (delta engine) | `ev.severity`, real, but vocabulary mismatch with the renderer (see above) |
-| Health Snapshot (score, status) | Canonical Intelligence Field | Royaltē System | `hi.score`/`hi.status`, real, shared with Health Intelligence™ |
-| Coverage Grid scores (5 domains) | Canonical Intelligence Field | Royaltē System | `hi.identityScore` etc., real, shared with Health Intelligence™ |
-| First-scan onboarding state | Canonical Data Field | Royaltē System | `mi.status === 'baseline' && mi.scanNumber <= 1`, real and correctly wired |
+| `category` | No | No | **Does not exist anywhere in the pipeline.** Would require new derivation logic (e.g. mapping `change_type` prefixes to a domain) — genuinely new capability, not a dropped field. |
+| `polarity` | No | No (as a named field) | **The underlying signal already exists**, just under a different name: `severity: 'positive'` at Layer 1 (and Layer 2/3, since severity passes through) already distinguishes positive changes from `action_needed`/`monitor`/`informational` ones. The renderer's `ev.polarity === 'positive'` check could be satisfied by checking `ev.severity === 'positive'` instead — this is a much smaller gap than "field doesn't exist," it's "renderer checks the wrong field name for a signal that's already there." |
+| `type` (checked against `'RESOLVED'`) | No | No | **Corresponds to nothing real at any layer.** Layer 1 has a `resolved` boolean (always `false` in every current emitter), not a `type` string enum, and Layer 2 drops even that. This looks like speculative code referencing a shape that was never implemented, not a dropped field. |
+| `description` | No | **Yes — as `detail`** | **Real, rich data exists at Layer 1 and is discarded by `normalizeEvent()`** before it ever reaches Layer 2/3/4. This is the one genuinely "just wire it through" gap — no new data generation needed, only a change to `normalizeEvent()`'s return shape. |
+| `severity` value check (`'CRITICAL'`/`'HIGH'`) | Real field, wrong vocabulary | Real field, wrong vocabulary | Layers 1–3 all agree on `informational \| positive \| action_needed \| monitor`. The renderer's check against `'CRITICAL'`/`'HIGH'` matches none of these — an independent vocabulary mismatch, not a missing-field problem. |
 
-### Section 2 — Implementation Required
-
-| Approved Field | Current Gap | Required Implementation Change |
-|---|---|---|
-| Event Category (for grouping) | `ev.category` does not exist on real events — every event is grouped under a default "backend" bucket | `monitoring-intelligence.js`'s `normalizeEvent()` needs a real `category` field, likely derived from `changeType` or the originating domain assembler |
-| Event Polarity / improvement detection | `ev.polarity` does not exist — the "improvements detected" summary count is always 0 | New field on `EventEntry`, populated from the delta engine's own classification of the change (positive vs. negative) |
-| Event Description | `ev.description` does not exist — description sub-line never renders | New field on `EventEntry` |
-| Severity-based visual urgency | Renderer's `'CRITICAL'`/`'HIGH'` checks never match the real `informational/positive/action_needed/monitor` vocabulary | Either the renderer's severity checks need to be updated to match the real, Board-locked vocabulary, or a new higher-urgency severity tier needs to be added to `VALID_SEVERITIES` — a decision, not just a rename |
-| `capturedAt` / `nextScan` display | Both real fields, never rendered | UI-binding gap only — bind to the workspace (e.g. "next scheduled scan" copy) |
-| `changeType` (correct field name) | Renderer reads the non-existent `ev.type` instead of the real `ev.changeType` | Fix the renderer's field reference — same class as Catalog's ISRC KPI mismatch |
+**Conclusion: the four contracts do not align.** Per Board instruction, this is documented as the current implementation state — a set of findings, not defects to be silently patched or assumed away.
 
 ---
 
-## Monitoring Timeline™ Rules
+## 3. The Constitutional Capability Gap (the most significant finding in this document)
 
-1. This workspace is a single-scan "what changed" view driven by the real delta engine — it is not the same system as Health Intelligence's hardcoded 7-day Executive Timeline™ mock (task #53). The Board's intent for those two to eventually converge is documented as future direction, not current fact.
-2. Monitoring Intelligence™ (`assembleMonitoringIntelligence()`) is the sole constitutional owner of change-detection data. This document does not propose duplicating that logic — every gap in Section 2 is scoped to extending that existing module's output shape.
-3. Health Intelligence™ fields reused here (score, status, per-domain scores) are owned by Health Intelligence™, not by this workspace — confirmed already in `ARTIST_PROFILE_CARD_HEALTH_SCHEMA.md`.
-4. A field belongs in **Section 1 — Implemented Fields** only if traceable to real, committed code today and actually consumed correctly by the renderer. A field that exists on the real assembler but is read under the wrong name by the renderer (`changeType`/`type`) is documented as a mismatch, not counted as either fully implemented or fully missing.
-5. No approved field is removed for lack of current support.
-6. This document does not authorize fixing the renderer/assembler field-name mismatches — they are documented as gaps and logged as separate engineering tasks.
+The Board's stated vision is that Monitoring Timeline™ becomes Royaltē's permanent audit history for Artist Profile changes across nine domains: Identity, Publishing, Catalog, Global Music Footprint, Backend, Media, Health, Settings, and Territory Intelligence.
+
+**Today's delta engine detects changes in exactly three of those nine:**
+- Territory / Global Music Footprint (`territory_loss`, `territory_gain`)
+- Catalog (`isrc_dropped`, `isrc_added`, `isrc_mismatch`, `release_removed`, `release_added`)
+- A raw YouTube-match signal (`video_removed`, `video_added`) — **not** wired to the Media Intelligence domain object (which per `ARTIST_PROFILE_CARD_MEDIA_SCHEMA.md` has no assembler at all); this is an independent, older signal (`getYoutubeMatches()` reads `canonical_data.youtubeMatches`, unrelated to Media Intelligence's own data model).
+
+**Zero change-detection exists for:** Identity Intelligence™, Publishing Intelligence™, Backend Intelligence™, Health Intelligence™, Media Intelligence™ (as its own domain), and Settings. There is no `change_type` value, no emitter function, and no code path anywhere in `delta-engine.js` that produces an alert for any of these six domains.
+
+This is not a UI-binding gap or a field-name mismatch — it is an entirely unbuilt capability. Building it is a significant scope of new work (new emitter functions per domain, each requiring its own definition of what constitutes a "meaningful change" for that domain), not a documentation or rewiring task.
+
+---
+
+## 4. Future Constitutional Architecture (documentation only — no implementation implied)
+
+```text
+Identity Intelligence™ ──┐
+Publishing Intelligence™ ─┤
+Catalog Intelligence™ ────┤
+Global Music Footprint™ ──┼──▶ MONITORING TIMELINE™ ──▶ Artist Profile Card ──▶ Runtime Context ──▶ Mission Control™
+Backend Intelligence™ ────┤      (constitutional audit
+Media Intelligence™ ──────┤       history — not yet built
+Health Intelligence™ ─────┤       for 6 of these 9 sources)
+Settings ─────────────────┤
+Territory Intelligence™ ──┘
+```
+
+This states direction only. It does not change what exists today (§1–3 above) and does not authorize any code change. Reaching this state requires, at minimum: (a) a canonical event model with real `category`, `polarity`-or-equivalent, and `description` fields, decided deliberately rather than inferred from the renderer's current (partially speculative) expectations; (b) new emitter functions for the six currently-uncovered domains; (c) a decision on the severity vocabulary mismatch; (d) a decision on whether/how this becomes the source for Health Intelligence's separate Executive Timeline™ feature (task #53).
+
+---
+
+## 5. Rules
+
+1. This document does not force the current implementation into a constitutional model it hasn't earned. Where evidence showed a mismatch, it is reported as a mismatch — not silently resolved by assuming which side (renderer or assembler) is "correct."
+2. No field name is normalized or assumed to mean the same thing across layers unless directly confirmed by reading the code at that layer.
+3. The delta engine (`delta-engine.js`) and Monitoring Intelligence™ (`monitoring-intelligence.js`) remain the sole owners of change-detection logic. This document does not propose new business logic — it documents what exists and names the gap between that and the nine-domain constitutional vision.
+4. Health Intelligence™ fields reused here (score, status, per-domain scores) remain owned by Health Intelligence™, confirmed already in `ARTIST_PROFILE_CARD_HEALTH_SCHEMA.md`.
+5. This document does not authorize fixing any of the mismatches in §2 or building any of the missing domain coverage in §3 — both are logged as separate engineering tasks for Board sequencing.
 
 ---
 
 ## Deliverable Status
 
-Monitoring Timeline™ field schema — complete:
-- ✅ Bootstrap/static shell distinguished from the real, dynamically-rendered product state
-- ✅ All four visible states inventoried (onboarding, baseline, stable, changed)
-- ✅ Core pipeline (scan number, status, event count, Health Snapshot, Coverage Grid) confirmed real and wired
-- ✅ Major finding documented, not fixed: renderer expects `category`/`polarity`/`type`/`description` fields that don't exist on real events, plus an independent severity-vocabulary mismatch (`CRITICAL`/`HIGH` vs. the real `informational/positive/action_needed/monitor` set) — both degrade gracefully, neither crashes, but both silently lose fidelity
-- ✅ Two real-but-unrendered fields found (`capturedAt`, `nextScan`)
-- ✅ Disambiguated from Health Intelligence's separate Executive Timeline™ mock-data finding
+Monitoring Timeline™ documentation — complete:
+- ✅ Current Prototype, Current Production Implementation, and Future Constitutional Architecture explicitly separated, per Board directive — nothing forced into a single implemented/gap model
+- ✅ All four contract layers (delta engine raw alert → Monitoring Intelligence normalized event → Runtime Context passthrough → renderer expectations) traced independently, with no field-name normalization or assumption
+- ✅ Corrected, more precise findings from the prior draft: `description`/`detail` exists upstream and is discarded (not absent), `polarity` is satisfiable via existing `severity` (not a wholly new field), `type`/`'RESOLVED'` corresponds to nothing real at any layer
+- ✅ Major finding: the four contracts do not align — documented as findings, not defects
+- ✅ Most significant finding: 6 of the 9 domains in the Board's constitutional vision (Identity, Publishing, Backend, Health, Media, Settings) have zero change-detection today — a genuine unbuilt capability, not a wiring gap
 - ✅ No production code changed; no Mission Control changes
-- ✅ Ready for review and lock
+- ✅ Ready for Board review
 
-**Monitoring Timeline™ ready to lock.**
+**Standing by for Board direction on how this document should be finalized.**
