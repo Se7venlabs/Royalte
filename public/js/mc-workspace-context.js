@@ -144,6 +144,19 @@
       },
       optional:       ['royalteAI', 'healthScore'],
     },
+    'media-intelligence': {
+      // UI-shell phase (Board Implementation Brief v1.0) -- mediaIntelligence
+      // is not yet an official buildWorkspaceRuntimeContext() output field,
+      // so this contract is only satisfied by the workspace's own dev
+      // fixture until a real acquisition/assembly pipeline is authorized.
+      required:       ['mediaIntelligence'],
+      requiredFields: ['mediaIntelligence.subscribers', 'mediaIntelligence.totalVideos'],
+      requiredTypes:  {
+        'mediaIntelligence.subscribers': 'number',
+        'mediaIntelligence.totalVideos': 'number',
+      },
+      optional:       ['mediaIntelligence.videos', 'mediaIntelligence.monetization', 'mediaIntelligence.opportunities', 'mediaIntelligence.athenaInsights'],
+    },
   };
 
   // -- Field path resolver --------------------------------------------------
