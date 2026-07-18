@@ -106,31 +106,149 @@ This is not a UI-binding gap or a field-name mismatch — it is an entirely unbu
 
 ---
 
-## 4. Future Constitutional Architecture (documentation only — no implementation implied)
+## 4. Future Constitutional Architecture
+
+**Status for everything in this section: Phase 1 constitutional design, per Board Implementation Brief. Not built. Not authorized for implementation by this document. No Build Pass has been opened for Monitoring Timeline™ — the Board has explicitly confirmed this remains a documentation exercise only, with implementation deferred to a future, separately-opened, multi-PR engineering initiative.** Everything below is blueprint, to be used as the specification for that future Build Pass — it does not describe, and must never be read as describing, anything that exists in the codebase today. §1–3 above remain the authoritative record of current state.
+
+### 4.1 Constitutional Purpose
+
+Monitoring Timeline™ is not an activity log. It is the permanent historical record of every meaningful change that occurs within an Artist Profile — answering one question: *"What happened to this artist's digital business over time?"* Every significant discovery, correction, synchronization, user update, and system intelligence event is intended to ultimately be recorded here. This is designed to become the historical memory of Royaltē.
+
+**Core principle:** Monitoring Timeline™ does not create events. It receives events from every constitutional domain. Mission Control displays those events. The Artist Profile owns the history. Monitoring Timeline™ never calculates business logic — it only records the result.
+
+### 4.2 Architectural Relationships
 
 ```text
-Identity Intelligence™ ──┐
-Publishing Intelligence™ ─┤
-Catalog Intelligence™ ────┤
-Global Music Footprint™ ──┼──▶ MONITORING TIMELINE™ ──▶ Artist Profile Card ──▶ Runtime Context ──▶ Mission Control™
-Backend Intelligence™ ────┤      (constitutional audit
-Media Intelligence™ ──────┤       history — not yet built
-Health Intelligence™ ─────┤       for 6 of these 9 sources)
-Settings ─────────────────┤
-Territory Intelligence™ ──┘
+Identity Intelligence™
+        │
+Publishing Intelligence™
+        │
+Catalog Intelligence™
+        │
+Global Music Footprint™
+        │
+Backend Intelligence™
+        │
+Media Intelligence™
+        │
+Health Intelligence™
+        │
+Settings
+        │
+Future Territory Intelligence™
+        │
+        ▼
+Change Detection Engine
+        │
+        ▼
+Monitoring Event Engine
+        │
+        ▼
+Artist Profile Timeline Store
+        │
+        ▼
+Monitoring Timeline™ UI
 ```
 
-This states direction only. It does not change what exists today (§1–3 above) and does not authorize any code change. Reaching this state requires, at minimum: (a) a canonical event model with real `category`, `polarity`-or-equivalent, and `description` fields, decided deliberately rather than inferred from the renderer's current (partially speculative) expectations; (b) new emitter functions for the six currently-uncovered domains; (c) a decision on the severity vocabulary mismatch; (d) a decision on whether/how this becomes the source for Health Intelligence's separate Executive Timeline™ feature (task #53).
+Every domain publishes events into this pipeline; none of them read from it. Monitoring Timeline™ (and its future Event Engine) is a pure sink for the other nine domains and a pure source for the UI layer — it does not feed back into any domain's own scoring or state.
+
+### 4.3 Canonical Event Model (proposed constitutional contract)
+
+Every future event is proposed to carry:
+
+| Field | Notes |
+|---|---|
+| Event ID | unique identifier |
+| Artist Profile ID | owning artist |
+| Timestamp (UTC) | when the event occurred |
+| Source Workspace | which domain published it |
+| Event Category | see §4.4 |
+| Event Type | specific event, e.g. "Record Label Updated" |
+| Severity | see §4.4 |
+| Previous Value | prior state, where applicable |
+| New Value | resulting state, where applicable |
+| Human Summary | plain-language description |
+| Technical Details | structured/debug detail |
+| User Initiated (Yes/No) | distinguishes artist actions from system detection |
+| System Generated (Yes/No) | complement of the above |
+| Scan ID (optional) | links to the triggering scan, where applicable |
+| Provider (optional) | e.g. Apple Music, Spotify, MLC |
+| Metadata (future expansion) | open-ended, for fields not yet anticipated |
+
+**Explicit non-normalization note, per Board instruction:** this proposed model is **not** the same as either the real raw alert shape or the real normalized event shape already documented in §2. It is a superset design for a future engine, not a description of `delta-engine.js`'s current `buildAlert()` or `monitoring-intelligence.js`'s current `normalizeEvent()`. Reconciling this future model against those two real, narrower shapes is itself a Build Pass task, not resolved here. Two concrete overlaps and one open question worth flagging precisely:
+- "Previous Value" / "New Value" have no equivalent in the current real event shape at all — closest existing real analog is the raw alert's `territory`/`isrc`/`track_name` fields, which identify *what* changed but not the before/after values themselves.
+- "Human Summary" maps closely to the real raw alert's `detail` field (already documented in §2 as real but currently discarded by `normalizeEvent()`).
+- "Provider" maps closely to the real raw alert's `platform` field (`'apple_music'`/`'youtube'`, also currently discarded by `normalizeEvent()`).
+
+### 4.4 Event Taxonomy (proposed)
+
+**Event Categories (initial, per Board brief):** Identity, Publishing, Catalog, Media, Backend, Health, Territory, Settings, System, Scan, Synchronization, AI, Security.
+
+**Note on a real discrepancy, documented rather than smoothed over:** this 13-category list does not exactly match the 9-domain list in the §4.2 architecture diagram (which uses "Global Music Footprint" where this list uses "Territory," and adds System/Scan/Synchronization/AI/Security as categories with no corresponding domain box in §4.2's diagram). Both are transcribed exactly as given in the Board brief. Reconciling the two into one consistent taxonomy is future Build Pass work, not resolved by this document.
+
+**Event Severity (proposed):** Informational, Success, Warning, Critical, Achievement.
+
+**This is a different vocabulary from the real, currently-implemented severity set already documented in §2** (`informational | positive | action_needed | monitor`, from `VALID_SEVERITIES` in `monitoring-intelligence.js`). The two share only "Informational." Whether the future taxonomy replaces the current one, or the current one is extended to match it, is an open Build Pass decision — not assumed or normalized here.
+
+**Example events (illustrative, per Board brief — none of these exist in the current 10-value `change_type` taxonomy documented in §2 except where noted):**
+
+| Category | Examples |
+|---|---|
+| Identity | Official Website Added · Record Label Updated · Identity Coverage Increased |
+| Publishing | PRO Detected · Publishing Administrator Added · Publishing Health Improved |
+| Catalog | Album Discovered · ISRC Corrected · Metadata Updated (closest real analog: `isrc_added`/`isrc_mismatch`, §2) |
+| Media | Official Artist Channel Verified · New Video Published · Biography Updated (closest real analog: `video_added`, §2 — though that signal is not wired to Media Intelligence's own domain object, per §3) |
+| Backend | Spotify Sync Completed · Apple Sync Completed · Provider Timeout · Retry Successful |
+| Health | Overall Health Increased · Identity Health Improved · Critical Issue Detected |
+| Settings | Password Changed · Email Updated · Music Rights Profile Updated |
+| Territory | New Territory Detected · Distribution Expanded · Market Coverage Increased (closest real analog: `territory_gain`, §2) |
+
+### 4.5 Ownership
+
+- Each of the nine source domains (§4.2) owns the decision of what constitutes a "meaningful change" within its own scope, and is responsible for publishing events — Monitoring Timeline™ does not decide this on their behalf.
+- The proposed Change Detection Engine / Monitoring Event Engine owns ingestion, canonical-model validation, and storage (the future "Artist Profile Timeline Store") — not computation of what changed.
+- Mission Control's Monitoring Timeline™ UI owns presentation only.
+- ATHENA never owns history — it reads it. Per Board brief example: *"Over the past 30 days your Health Score improved by 12% because Publishing and Media Intelligence completed."* is an ATHENA interpretation layered on top of Monitoring Timeline™ facts, not something Monitoring Timeline™ itself generates.
+
+### 4.6 Relationship to Health Intelligence™
+
+Health Intelligence™ summarizes the current state (already documented as real and wired, `ARTIST_PROFILE_CARD_HEALTH_SCHEMA.md`). Monitoring Timeline™ records how the current state was reached. They are designed to complement, not duplicate, each other. This is also where Health Intelligence's own hardcoded Executive Timeline™ mock (task #53) is intended to eventually be replaced by real Monitoring Timeline™ data — a future integration, not decided further here.
+
+### 4.7 Timeline UI Requirements (future — not built, not authorized here)
+
+Each event card: timestamp, workspace icon, workspace name, event title, human summary, status badge, severity, expandable details (previous value → new value), and — if available — provider, scan ID, user/system attribution.
+
+**Filters (future):** date range (Today / 7 Days / 30 Days / 90 Days / All Time), workspace, severity, system events, user events, search.
+
+**Future search (explicitly deferred by the Board brief itself):** natural-language queries such as *"When did Publishing Health reach 90%?"* or *"Show Backend failures."* The brief is explicit: *"Do not build AI search now. Design for it."* — noted here as a design constraint on the future canonical event model (§4.3), not a deliverable of this document.
+
+**Responsive requirements (future):** full desktop/tablet/mobile responsiveness, cards that collapse elegantly, touch-usable filters, no horizontal scrolling.
+
+### 4.8 Future Deliverables (Phase 1 scope, per Board brief — none authorized or built by this document)
+
+- Canonical Event Model (§4.3, as a real schema)
+- Monitoring Event Engine
+- Timeline UI
+- Timeline Filters
+- Responsive Layout
+- Placeholder event publisher interface for future workspaces
+
+Explicitly out of Phase 1 scope per the Board brief: building every future event now, or wiring every workspace immediately. The stated Phase 1 objective is the platform architecture that lets every workspace publish events consistently — not full domain coverage (§3's six-domain gap remains a separate, larger, later effort).
+
+### 4.9 Board Vision (verbatim intent, for context)
+
+Years from now, an artist should be able to open their profile and replay the evolution of their digital career — when they registered publishing, when their catalog expanded, when new territories appeared, when Health improved, when Media grew, when backend synchronizations occurred. Not an activity feed — the historical intelligence record of the Artist Profile.
 
 ---
 
 ## 5. Rules
 
 1. This document does not force the current implementation into a constitutional model it hasn't earned. Where evidence showed a mismatch, it is reported as a mismatch — not silently resolved by assuming which side (renderer or assembler) is "correct."
-2. No field name is normalized or assumed to mean the same thing across layers unless directly confirmed by reading the code at that layer.
-3. The delta engine (`delta-engine.js`) and Monitoring Intelligence™ (`monitoring-intelligence.js`) remain the sole owners of change-detection logic. This document does not propose new business logic — it documents what exists and names the gap between that and the nine-domain constitutional vision.
+2. No field name is normalized or assumed to mean the same thing across layers unless directly confirmed by reading the code at that layer. This applies equally to §4's proposed future model — it is never conflated with the real, current shapes documented in §2.
+3. The delta engine (`delta-engine.js`) and Monitoring Intelligence™ (`monitoring-intelligence.js`) remain the sole owners of current change-detection logic. This document does not propose new business logic in §1–3 — it documents what exists and names the gap between that and the nine-domain constitutional vision.
 4. Health Intelligence™ fields reused here (score, status, per-domain scores) remain owned by Health Intelligence™, confirmed already in `ARTIST_PROFILE_CARD_HEALTH_SCHEMA.md`.
-5. This document does not authorize fixing any of the mismatches in §2 or building any of the missing domain coverage in §3 — both are logged as separate engineering tasks for Board sequencing.
+5. Nothing in §4 (Future Constitutional Architecture) is authorized for implementation by this document. No Build Pass has been opened for Monitoring Timeline™. This document is the blueprint for that future, separately-authorized, multi-PR engineering initiative — not a work order.
+6. This document does not authorize fixing any of the mismatches in §2 or building any of the missing domain coverage in §3 — both are logged as separate engineering tasks for Board sequencing.
 
 ---
 
@@ -142,7 +260,9 @@ Monitoring Timeline™ documentation — complete:
 - ✅ Corrected, more precise findings from the prior draft: `description`/`detail` exists upstream and is discarded (not absent), `polarity` is satisfiable via existing `severity` (not a wholly new field), `type`/`'RESOLVED'` corresponds to nothing real at any layer
 - ✅ Major finding: the four contracts do not align — documented as findings, not defects
 - ✅ Most significant finding: 6 of the 9 domains in the Board's constitutional vision (Identity, Publishing, Backend, Health, Media, Settings) have zero change-detection today — a genuine unbuilt capability, not a wiring gap
-- ✅ No production code changed; no Mission Control changes
+- ✅ Constitutional purpose, canonical event model, event taxonomy, ownership, architectural relationships, and future implementation requirements documented per the Board Implementation Brief — explicitly as Phase 1 blueprint, not implementation
+- ✅ Two real discrepancies in the Board's own brief flagged rather than silently reconciled: the 13-category taxonomy vs. the 9-domain architecture diagram, and the proposed 5-value severity taxonomy vs. the real, currently-implemented 4-value one
+- ✅ No production code changed; no Mission Control changes; no engine, filtering, or UI built
 - ✅ Ready for Board review
 
-**Standing by for Board direction on how this document should be finalized.**
+**Monitoring Timeline™ constitutional architecture ready to lock as the implementation blueprint for a future Build Pass.**
