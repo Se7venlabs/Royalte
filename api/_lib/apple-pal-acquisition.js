@@ -8,8 +8,12 @@
 //
 // Sequential acquisition order:
 //   A. ARTIST_IDENTITY   — confirms/discovers appleArtistId
-//   B. ALBUMS + ISRC     — parallel (both need appleArtistId from A)
+//   B. ALBUMS + ISRC + VIDEOS — parallel (all need only appleArtistId from A)
 //   C. AVAILABILITY      — global 167-storefront check (needs appleAlbumId from B)
+//
+// VIDEOS added Media PAL Expansion™ — artist music-videos catalog
+// (/catalog/{storefront}/artists/{id}/music-videos), same parallel batch as
+// ALBUMS since both only need appleArtistId, no new sequential round trip.
 
 import { ProviderAcquisitionLayer }  from '../../provider-acquisition/pal/ProviderAcquisitionLayer.js';
 import { AppleMusicConnector, PROVIDER_NAME as APPLE_PROVIDER } from '../../provider-acquisition/connectors/apple-music/AppleMusicConnector.js';
@@ -99,11 +103,17 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
 
     const enrichedSubjectRef = { ...baseSubjectRef, appleArtistId: resolvedAppleArtistId };
 
-    // ── B: ALBUMS + optional ISRC (parallel) ────────────────────────────
+    // ── B: ALBUMS + optional ISRC + VIDEOS (parallel) ────────────────────
     const parallelB = [
       pal.acquire(APPLE_PROVIDER, createEvidenceRequest({
         subjectRef:   enrichedSubjectRef,
         evidenceType: Capability.ALBUMS,
+      })),
+      // Media PAL Expansion™ — artist music-videos catalog. Index [1] is
+      // fixed regardless of whether the ISRC request below is appended.
+      pal.acquire(APPLE_PROVIDER, createEvidenceRequest({
+        subjectRef:   enrichedSubjectRef,
+        evidenceType: Capability.VIDEOS,
       })),
     ];
     if (isrc) {
@@ -113,12 +123,15 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
       })));
     }
 
-    const [albumsSettled, isrcSettled] = await Promise.allSettled(parallelB);
+    const [albumsSettled, videosSettled, isrcSettled] = await Promise.allSettled(parallelB);
 
     let albumsReport = null;
     if (albumsSettled?.status === 'fulfilled') {
       albumsReport = albumsSettled.value;
       evidencePackages.push({ evidenceType: Capability.ALBUMS, contract: albumsReport.contract });
+    }
+    if (videosSettled?.status === 'fulfilled') {
+      evidencePackages.push({ evidenceType: Capability.VIDEOS, contract: videosSettled.value.contract });
     }
     if (isrcSettled?.status === 'fulfilled') {
       evidencePackages.push({ evidenceType: Capability.ISRC, contract: isrcSettled.value.contract });

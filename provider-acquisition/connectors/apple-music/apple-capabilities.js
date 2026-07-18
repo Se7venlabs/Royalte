@@ -16,4 +16,9 @@ export const APPLE_MUSIC_CAPABILITIES = Object.freeze([
   Capability.AVAILABILITY,     // BIG6 storefront availability
   Capability.TERRITORIES,      // global storefront availability
   Capability.LABELS,           // record label on album attributes
+  // Added Media PAL Expansion™ — artist music-videos relationship view
+  // (/catalog/{storefront}/artists/{id}/music-videos). Reuses the shared
+  // Capability.VIDEOS entry already ratified for YouTube/TheAudioDB — no
+  // vocabulary change required, only this connector's own declaration.
+  Capability.VIDEOS,
 ]);
