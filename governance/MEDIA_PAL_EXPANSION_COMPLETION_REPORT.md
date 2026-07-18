@@ -86,8 +86,8 @@ Confirmed out-of-scope items were not touched:
 
 - **Branch:** `feat/media-pal-expansion`
 - **Base:** `main` at `d0675e9` (post Media Intelligence™ UI merge)
-- **Commit:** _(filled in after commit)_
-- **Pull Request:** _(filled in after PR opened)_
-- **CI status:** _(filled in after push)_
+- **Commit:** `78cfc49`
+- **Pull Request:** [#363](https://github.com/Se7venlabs/Royalte/pull/363)
+- **CI status:** ✅ green — `Run pipeline test` pass, `Vercel` deployment pass, `Vercel Preview Comments` pass
 
-Standing by for Board review before merge.
+**No merge performed.** Standing by for Board review before merge.
