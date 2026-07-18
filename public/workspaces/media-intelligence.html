@@ -19,6 +19,13 @@
       --ws-accent-glow:  var(--mc-gold-glow);
     }
 
+    /* .hi-main's shared gap:28px (royalte-workspace.css) is tuned for pages
+       with 2-3 stacked sections. Media Intelligence™ has 4, so this page
+       scopes a denser gap + padding to fit desktop on one screen (Board
+       Revision #1, item 6) without touching the shared rule other
+       workspaces depend on. */
+    .ws-dept--media .hi-main { gap: 12px; padding: 20px 28px 16px; }
+
     /* Executive header — title/subtitle left, date selector + export right */
     .mi-exec-header {
       display: flex;
@@ -26,17 +33,16 @@
       justify-content: space-between;
       gap: 20px;
       flex-wrap: wrap;
-      margin-bottom: 20px;
     }
     .mi-exec-eyebrow {
       font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--mc-gold); margin-bottom: 6px;
+      color: var(--mc-gold); margin-bottom: 4px;
     }
     .mi-exec-heading {
-      font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--mc-text-primary);
-      margin: 0 0 6px 0;
+      font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--mc-text-primary);
+      margin: 0 0 4px 0;
     }
-    .mi-exec-desc { font-size: 13px; color: var(--mc-text-muted); max-width: 520px; line-height: 1.5; }
+    .mi-exec-desc { font-size: 12.5px; color: var(--mc-text-muted); max-width: 560px; line-height: 1.4; }
     .mi-exec-actions { display: flex; align-items: center; gap: 10px; }
     .mi-export-btn {
       display: inline-flex; align-items: center; gap: 8px;
@@ -55,19 +61,24 @@
     .mi-kpi-row {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 14px;
-      margin-bottom: 20px;
+      gap: 12px;
     }
     @media (max-width: 1180px) { .mi-kpi-row { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 720px)  { .mi-kpi-row { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 460px)  { .mi-kpi-row { grid-template-columns: 1fr; } }
 
+    /* KPI cards on this page run denser than the 4-column standard so the   */
+    /* whole workspace fits one desktop screen (Board Revision #1, item 6). */
+    .mi-kpi-row .hi-kpi-card { padding: 14px 16px; gap: 5px; }
+    .mi-kpi-row .hi-kpi-icon-wrap { width: 34px; height: 34px; }
+    .mi-kpi-row .hi-kpi-icon-wrap svg { width: 18px; height: 18px; }
+    .mi-kpi-row .ii-kpi-big-num { font-size: 26px; }
+
     /* Second row — Latest Releases / Monetization / Missing Opportunities */
     .mi-row-2 {
       display: grid;
       grid-template-columns: 1.3fr 1fr 1.3fr;
-      gap: 14px;
-      margin-bottom: 20px;
+      gap: 12px;
       align-items: stretch;
     }
     @media (max-width: 1180px) { .mi-row-2 { grid-template-columns: 1fr 1fr; } }
@@ -77,7 +88,7 @@
     .mi-row-3 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 12px;
     }
     @media (max-width: 900px) { .mi-row-3 { grid-template-columns: 1fr; } }
 
@@ -85,7 +96,7 @@
       background: var(--mc-surface-1);
       border: 1px solid var(--mc-border);
       border-radius: var(--rds-radius-md, 14px);
-      padding: 20px;
+      padding: 15px 16px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.035);
       display: flex;
       flex-direction: column;
@@ -93,25 +104,30 @@
     }
     .mi-card-header {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
     .mi-card-title {
-      font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
       color: var(--mc-text-primary);
     }
     .mi-card-link { font-size: 11px; font-weight: 600; color: var(--mc-gold); text-decoration: none; }
     .mi-card-link:hover { text-decoration: underline; }
 
-    /* ── Latest Video Releases™ ─────────────────────────────────────── */
-    .mi-video-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; max-height: 420px; }
+    /* ── Latest Video Releases™ ─────────────────────────────────────────
+       Fields wired per release, built for a future thumbnail upgrade:
+       thumbnail (v.thumbnail — YouTube API provides this; falls back to a
+       branded placeholder + play glyph until wired), title, type, platform,
+       release date, status. No redesign needed to add real thumbnails —
+       only v.thumbnail needs to start arriving populated. ──────────────── */
+    .mi-video-list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: 254px; }
     .mi-video-card {
-      display: flex; align-items: center; gap: 12px;
-      padding: 8px; border-radius: 10px; border: 1px solid transparent;
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px; border-radius: 10px; border: 1px solid transparent;
       transition: background 0.15s ease, border-color 0.15s ease;
     }
     .mi-video-card:hover { background: rgba(255,255,255,0.03); border-color: var(--mc-border); }
     .mi-video-thumb {
-      position: relative; flex-shrink: 0; width: 64px; height: 48px; border-radius: 8px;
+      position: relative; flex-shrink: 0; width: 54px; height: 40px; border-radius: 7px;
       overflow: hidden; background: linear-gradient(145deg, rgba(198,168,106,0.18), rgba(0,0,0,0.4));
       display: flex; align-items: center; justify-content: center;
     }
@@ -126,47 +142,47 @@
       background: rgba(0,0,0,0.75); color: #fff; padding: 1px 4px; border-radius: 4px;
     }
     .mi-video-body { flex: 1; min-width: 0; }
-    .mi-video-title { font-size: 13px; font-weight: 600; color: var(--mc-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .mi-video-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; font-size: 11px; color: var(--mc-text-muted); }
-    .mi-video-meta svg { width: 11px; height: 11px; color: #ff0033; flex-shrink: 0; }
-    .mi-video-date { font-size: 10.5px; color: var(--mc-text-muted); margin-top: 2px; }
+    .mi-video-title { font-size: 12.5px; font-weight: 600; color: var(--mc-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mi-video-meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 10.5px; color: var(--mc-text-muted); }
+    .mi-video-meta svg { width: 10px; height: 10px; color: #ff0033; flex-shrink: 0; }
+    .mi-video-date { font-size: 10px; color: var(--mc-text-muted); margin-top: 1px; }
     .mi-video-status {
-      flex-shrink: 0; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+      flex-shrink: 0; font-size: 9.5px; font-weight: 700; padding: 2px 9px; border-radius: 20px;
       border: 1px solid rgba(52,211,153,0.35); color: #34d399; background: rgba(52,211,153,0.08);
       text-transform: capitalize;
     }
 
     /* ── Monetization Status™ ───────────────────────────────────────── */
     .mi-mon-card { align-items: center; text-align: center; }
-    .mi-mon-ring-wrap { position: relative; width: 116px; height: 116px; margin: 4px 0 12px; }
-    .mi-mon-ring-svg { width: 116px; height: 116px; transform: rotate(-90deg); }
-    .mi-mon-ring-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
-    .mi-mon-ring-progress { fill: none; stroke: #34d399; stroke-width: 8; stroke-linecap: round; stroke-dasharray: 251; stroke-dashoffset: 251; transition: stroke-dashoffset 1s ease; }
+    .mi-mon-ring-wrap { position: relative; width: 84px; height: 84px; margin: 2px 0 8px; }
+    .mi-mon-ring-svg { width: 84px; height: 84px; transform: rotate(-90deg); }
+    .mi-mon-ring-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 7; }
+    .mi-mon-ring-progress { fill: none; stroke: #34d399; stroke-width: 7; stroke-linecap: round; stroke-dasharray: 251; stroke-dashoffset: 251; transition: stroke-dashoffset 1s ease; }
     .mi-mon-ring-center {
       position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      font-size: 34px; font-weight: 700; color: #34d399;
+      font-size: 24px; font-weight: 700; color: #34d399;
     }
-    .mi-mon-label { font-size: 15px; font-weight: 700; color: var(--mc-text-primary); margin-bottom: 4px; }
-    .mi-mon-desc { font-size: 12px; color: var(--mc-text-muted); margin-bottom: 16px; line-height: 1.4; }
-    .mi-mon-checklist { width: 100%; display: flex; flex-direction: column; gap: 9px; margin-bottom: 16px; }
-    .mi-mon-check-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--mc-text-secondary); }
-    .mi-mon-check-icon { width: 17px; height: 17px; color: #34d399; flex-shrink: 0; }
+    .mi-mon-label { font-size: 14px; font-weight: 700; color: var(--mc-text-primary); margin-bottom: 3px; }
+    .mi-mon-desc { font-size: 11px; color: var(--mc-text-muted); margin-bottom: 10px; line-height: 1.35; }
+    .mi-mon-checklist { width: 100%; display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .mi-mon-check-row { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: var(--mc-text-secondary); }
+    .mi-mon-check-icon { width: 15px; height: 15px; color: #34d399; flex-shrink: 0; }
     .mi-mon-details-btn {
-      width: 100%; padding: 10px; border-radius: 9px; border: 1px solid var(--mc-border-warm);
-      background: transparent; color: var(--mc-gold); font-size: 12px; font-weight: 600; cursor: pointer;
+      width: 100%; padding: 8px; border-radius: 9px; border: 1px solid var(--mc-border-warm);
+      background: transparent; color: var(--mc-gold); font-size: 11.5px; font-weight: 600; cursor: pointer;
       transition: background 0.15s ease;
     }
     .mi-mon-details-btn:hover { background: var(--mc-gold-soft); }
 
     /* ── Missing Video Opportunities™ (expandable list) ───────────────── */
-    .mi-opp-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; max-height: 420px; }
+    .mi-opp-list { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; max-height: 254px; }
     .mi-opp-row {
-      display: flex; align-items: flex-start; gap: 12px; padding: 10px 4px; border-radius: 10px;
+      display: flex; align-items: flex-start; gap: 10px; padding: 7px 4px; border-radius: 10px;
       cursor: pointer; transition: background 0.15s ease;
     }
     .mi-opp-row:hover { background: rgba(255,255,255,0.03); }
     .mi-opp-icon {
-      flex-shrink: 0; width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; width: 29px; height: 29px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
     }
     .mi-opp-icon--high   { background: rgba(240,80,96,0.12); color: #f05060; }
     .mi-opp-icon--medium { background: rgba(251,146,60,0.12); color: var(--mc-orange); }
@@ -182,19 +198,19 @@
 
     /* ── Video Performance Summary™ ────────────────────────────────────── */
     .mi-perf-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 12px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 10px;
     }
     @media (max-width: 560px) { .mi-perf-grid { grid-template-columns: repeat(2, 1fr); } }
-    .mi-perf-stat { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+    .mi-perf-stat { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; }
     .mi-perf-icon-wrap {
-      width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center;
       background: var(--mc-gold-soft); color: var(--mc-gold);
     }
-    .mi-perf-icon-wrap svg { width: 20px; height: 20px; }
-    .mi-perf-val { font-size: 17px; font-weight: 700; color: var(--mc-text-primary); letter-spacing: -0.01em; }
-    .mi-perf-val--sub { font-size: 13px; }
-    .mi-perf-label { font-size: 10.5px; color: var(--mc-text-muted); line-height: 1.3; }
-    .mi-perf-delta { font-size: 10px; font-weight: 700; color: #34d399; }
+    .mi-perf-icon-wrap svg { width: 16px; height: 16px; }
+    .mi-perf-val { font-size: 15px; font-weight: 700; color: var(--mc-text-primary); letter-spacing: -0.01em; }
+    .mi-perf-val--sub { font-size: 12px; }
+    .mi-perf-label { font-size: 10px; color: var(--mc-text-muted); line-height: 1.25; }
+    .mi-perf-delta { font-size: 9.5px; font-weight: 700; color: #34d399; }
 
     /* ── ATHENA Media Insights™ ─────────────────────────────────────────── */
     .mi-athena-card { position: relative; overflow: hidden; }
@@ -203,10 +219,20 @@
       background: radial-gradient(120px 90px at 70% 70%, rgba(198,168,106,0.16), transparent 65%);
       pointer-events: none;
     }
-    .mi-athena-list { display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 1; }
-    .mi-athena-item { display: flex; align-items: flex-start; gap: 10px; }
-    .mi-athena-spark { flex-shrink: 0; width: 15px; height: 15px; margin-top: 1px; color: var(--mc-gold-bright); filter: drop-shadow(0 0 4px var(--mc-gold-glow)); }
-    .mi-athena-text { font-size: 12.5px; color: var(--mc-text-secondary); line-height: 1.5; }
+    .mi-athena-list { display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 1; }
+    .mi-athena-item { display: flex; align-items: flex-start; gap: 9px; }
+    .mi-athena-spark { flex-shrink: 0; width: 14px; height: 14px; margin-top: 1px; color: var(--mc-gold-bright); filter: drop-shadow(0 0 4px var(--mc-gold-glow)); }
+    .mi-athena-text { font-size: 12px; color: var(--mc-text-secondary); line-height: 1.4; }
+
+    /* ── Platforms Detected™ — extensible platform list (Board Revision #1,
+       item 2). Add future platforms by extending PLATFORM_META in the
+       renderer script below; no markup changes needed. ────────────────── */
+    .mi-platform-list { display: flex; flex-direction: column; gap: 3px; margin-top: 2px; }
+    .mi-platform-row { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--mc-text-secondary); }
+    .mi-platform-dot { flex-shrink: 0; width: 7px; height: 7px; border-radius: 50%; }
+    .mi-platform-dot--youtube { background: #FF0000; box-shadow: 0 0 5px rgba(255,0,0,0.6); }
+    .mi-platform-dot--appleMusic { background: #FC3C44; box-shadow: 0 0 5px rgba(252,60,68,0.6); }
+    .mi-platform-dot--spotify { background: #1DB954; box-shadow: 0 0 5px rgba(29,185,84,0.6); }
 
     /* ── Loading skeleton (mirrors ai-insights.html's data-ai-state pattern) */
     [data-mi-state="loading"] { position: relative; min-height: 120px; }
@@ -426,8 +452,8 @@
         <div class="mi-exec-header">
           <div>
             <div class="mi-exec-eyebrow">Media Intelligence™</div>
-            <h1 class="mi-exec-heading">Your media presence, performance, and opportunities.</h1>
-            <div class="mi-exec-desc">Executive view of your official video ecosystem — channel health, release cadence, and visual content opportunities across every connected platform.</div>
+            <h1 class="mi-exec-heading">Executive view of your official video ecosystem across connected music platforms.</h1>
+            <div class="mi-exec-desc">Channel health, release cadence, and visual content opportunities — all in one view.</div>
           </div>
           <div class="mi-exec-actions">
             <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
@@ -472,7 +498,7 @@
             </div>
             <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-total-videos">—</span></div>
             <div class="ii-kpi-status-text ii-kpi-status-text--amber" id="mi-total-videos-delta">—</div>
-            <div class="ii-kpi-caption">YouTube · more platforms coming</div>
+            <div class="ii-kpi-caption">Official Uploads</div>
           </div>
 
           <div class="hi-kpi-card">
@@ -481,8 +507,8 @@
               <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
             </div>
             <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-platforms">—</span></div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--amber">Platforms Detected</div>
-            <div class="ii-kpi-caption" id="mi-platforms-caption">&nbsp;</div>
+            <div class="ii-kpi-status-text ii-kpi-status-text--amber">Connected Platforms</div>
+            <div class="mi-platform-list" id="mi-platform-list"></div>
           </div>
 
           <div class="hi-kpi-card hi-kpi-card--risk">
@@ -491,7 +517,7 @@
               <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-warning"></use></svg>
             </div>
             <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-opp-count" style="color:#f05060;">—</span></div>
-            <div class="ii-kpi-status-text" style="color:#f05060;">High Priority</div>
+            <div class="ii-kpi-status-text" style="color:#f05060;">Action Required</div>
             <div class="ii-kpi-caption">&nbsp;</div>
           </div>
 
@@ -603,6 +629,22 @@
   }
   var PLATFORM_LABEL = { youtube: 'YouTube', appleMusic: 'Apple Music', spotify: 'Spotify' };
 
+  /* Platforms Detected™ — one entry per supported source. Add a future
+   * platform (TikTok, Instagram, VEVO, etc.) by adding one line here and
+   * one .mi-platform-dot--<key> color rule in <style> — no other change
+   * needed anywhere in this card or its renderer. */
+  var PLATFORM_META = {
+    youtube:    { label: 'YouTube',     dot: 'youtube' },
+    appleMusic: { label: 'Apple Music', dot: 'appleMusic' },
+    spotify:    { label: 'Spotify',     dot: 'spotify' },
+  };
+  function renderPlatformList(platforms) {
+    return platforms.map(function (p) {
+      var meta = PLATFORM_META[p] || { label: p, dot: '' };
+      return '<div class="mi-platform-row"><span class="mi-platform-dot mi-platform-dot--' + esc(meta.dot) + '" aria-hidden="true"></span>' + esc(meta.label) + '</div>';
+    }).join('');
+  }
+
   var YT_ICON = '<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-youtube"></use></svg>';
   var PLAY_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
   var WARN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>';
@@ -707,7 +749,7 @@
   document.getElementById('mi-total-videos').textContent = mi.totalVideos != null ? mi.totalVideos : '—';
   document.getElementById('mi-total-videos-delta').textContent = mi.totalVideosDelta != null ? ('▲ ' + mi.totalVideosDelta) : '—';
   document.getElementById('mi-platforms').textContent = (mi.platformsDetected || []).length;
-  document.getElementById('mi-platforms-caption').textContent = (mi.platformsDetected || []).map(function (p) { return PLATFORM_LABEL[p] || p; }).join(' · ');
+  document.getElementById('mi-platform-list').innerHTML = renderPlatformList(mi.platformsDetected || []);
   document.getElementById('mi-opp-count').textContent = mi.missingOpportunitiesCount != null ? mi.missingOpportunitiesCount : (mi.opportunities || []).length;
   document.getElementById('mi-kpi-row').removeAttribute('data-mi-state');
 
