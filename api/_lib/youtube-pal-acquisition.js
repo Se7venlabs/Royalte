@@ -1,4 +1,4 @@
-// YouTube PAL Acquisition — Phase 3.6 (YouTube)
+// YouTube PAL Acquisition — Phase 3.6 (YouTube) + Media PAL Expansion™
 //
 // Routes all YouTube evidence acquisition through the Provider Acquisition Layer.
 // REPLACES: direct calls to getYouTube(artistName) in api/_lib/run-scan.js
@@ -14,6 +14,12 @@
 //                         Identity-lock: exact channelTitle match required
 //   B. COLLECTION_DATA  — channel stats, topicDetails, brandingSettings, contentDetails
 //                         (requires channelId resolved from step A)
+//   C. VIDEOS           — full video catalog (snippet incl. thumbnails/publishedAt,
+//                         contentDetails incl. duration, statistics, status), resolved
+//                         via the uploads playlist ID captured in step B's
+//                         contentDetails.relatedPlaylists.uploads. The connector has
+//                         supported this capability since Phase 3.6; this step was the
+//                         missing wiring — see Media PAL Expansion™ Board brief.
 
 import { ProviderAcquisitionLayer } from '../../provider-acquisition/pal/ProviderAcquisitionLayer.js';
 import { YouTubeConnector, PROVIDER_NAME as YOUTUBE_PROVIDER }
@@ -70,6 +76,17 @@ function extractChannelTitle(contract, channelSource) {
   const item = payload.items[0];
   // channels.list: snippet.title — search.list: snippet.channelTitle
   return item?.snippet?.title ?? item?.snippet?.channelTitle ?? null;
+}
+
+// ── Uploads playlist ID extraction (Media PAL Expansion™) ─────────────────────
+// channels.list contentDetails.relatedPlaylists.uploads — the one playlist ID
+// every channel has, listing every public upload in reverse-chronological
+// order. Required subjectRef for the VIDEOS evidence type (step C).
+function extractUploadsPlaylistId(contract) {
+  const payload = contract?.payload;
+  if (!payload || !Array.isArray(payload.items) || payload.items.length === 0) return null;
+  const item = payload.items[0];
+  return item?.contentDetails?.relatedPlaylists?.uploads ?? null;
 }
 
 /**
@@ -134,6 +151,18 @@ export async function acquireYouTubeEvidence({ artistName }) {
       evidenceType: Capability.COLLECTION_DATA,
     }));
     evidencePackages.push({ evidenceType: Capability.COLLECTION_DATA, contract: collectionReport.contract });
+
+    // ── C: VIDEOS (Media PAL Expansion™) ─────────────────────────────────────
+    // Requires the uploads playlist ID captured in step B. Skipped gracefully
+    // (not an error) if the channel has no resolvable uploads playlist.
+    const uploadsPlaylistId = extractUploadsPlaylistId(collectionReport.contract);
+    if (uploadsPlaylistId) {
+      const videosReport = await pal.acquire(YOUTUBE_PROVIDER, createEvidenceRequest({
+        subjectRef:   { artistName, channelId: resolvedChannelId, uploadsPlaylistId },
+        evidenceType: Capability.VIDEOS,
+      }));
+      evidencePackages.push({ evidenceType: Capability.VIDEOS, contract: videosReport.contract });
+    }
 
     return { evidencePackages, acquired: true, elapsedMs: Date.now() - startMs };
 

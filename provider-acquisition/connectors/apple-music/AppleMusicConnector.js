@@ -188,6 +188,9 @@ export class AppleMusicConnector extends ProviderConnector {
       case Capability.UPC:
         return this.#fetchAlbumData(subjectRef, sf);
 
+      case Capability.VIDEOS:
+        return this.#fetchArtistMusicVideos(subjectRef, sf);
+
       default:
         // Unsupported evidence type — PARTIAL_RESPONSE, empty payload
         return {
@@ -236,6 +239,24 @@ export class AppleMusicConnector extends ProviderConnector {
   async #fetchArtwork(subjectRef, sf) {
     // Artwork is embedded in artist or album responses — fetch artist as the primary source
     return this.#fetchArtistIdentity(subjectRef, sf);
+  }
+
+  // VIDEOS (Media PAL Expansion™) — artist's official music videos.
+  //
+  // Apple Music API does NOT expose music videos as an artist relationship
+  // or view — both `/artists/{id}/musicVideos` (400 "No relationship found")
+  // and `/artists/{id}/view/music-videos` (400 "No view found") are invalid
+  // paths, confirmed by direct probe against a live artist during Media PAL
+  // Expansion™ validation. The only working catalog path is a search scoped
+  // to the music-videos resource type, mirroring #fetchArtistIdentity's own
+  // search-by-term pattern. Returns raw search hits — no artist-name
+  // filtering here (that is interpretation, out of scope for the connector;
+  // per-provider identity-lock logic lives in the *-pal-acquisition.js
+  // wrapper for every other capability in this codebase).
+  async #fetchArtistMusicVideos(subjectRef, sf) {
+    if (!subjectRef.artistName) return this.#missingRef('artistName');
+    const q = encodeURIComponent(subjectRef.artistName);
+    return this.#get(`/catalog/${sf}/search?term=${q}&types=music-videos&limit=25`);
   }
 
   async #fetchStorefrontAvailability(subjectRef, storefronts) {
