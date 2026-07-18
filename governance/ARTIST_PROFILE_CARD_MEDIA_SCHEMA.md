@@ -93,7 +93,7 @@ Approved fields below are exactly the Step 1–3 inventory — nothing added, no
 | Subscribers / Views / Videos deltas (vs. prior period) | Canonical Intelligence Field | Royaltē System | No historical comparison exists for this domain | Requires snapshot-over-time computation, likely analogous to the existing Monitoring Engine's snapshot-diff pattern |
 | Platforms Detected | Canonical Data Field | Scan (YouTube, Apple Music, Spotify) | No consolidated "platforms with video presence" field exists | New aggregation across existing per-provider canonical data |
 | Missing Video Opportunities™ (count + list) | Canonical Intelligence Field | Royaltē System | No gap-detection logic for video content exists anywhere | New intelligence logic — genuinely new capability |
-| Latest Video Releases™ (video list: title, type, platform, release date, status, duration, thumbnail) | Canonical Data Field | Scan (YouTube, Apple Music) | Evidence is acquired (`Capability.VIDEOS`, both providers) but **discarded** — no `EvidenceBridge` translator exists for it | Requires new `translateYouTubeVideos`/Apple-video translator functions, following the existing `translateAudioDBVideos` pattern, plus a new domain assembler |
+| Latest Video Releases™ (video list: title, type, platform, release date, status, duration, thumbnail) | Canonical Data Field | Scan (YouTube, Apple Music) | Evidence is acquired (`Capability.VIDEOS`, both providers) but **discarded** — no `EvidenceBridge` translator exists for it | Requires new `translateYouTubeVideos`/Apple-video translator functions, following the existing `translateAudioDBVideos` pattern, plus a new domain assembler. **Thumbnail specifically has a narrower, already-documented path**: the workspace's own CSS comment (`media-intelligence.html:116-121`) states the YouTube API already provides `v.thumbnail`, the card falls back to a branded placeholder only until it's wired, and "no redesign needed to add real thumbnails — only `v.thumbnail` needs to start arriving populated." |
 | Monetization Status™ (status, summary, readiness %, checklist) | Canonical Intelligence Field | Scan (eligibility signal, if available) + Royaltē System (readiness scoring) | No monetization signal is acquired from any provider today | Requires new acquisition (if the YouTube Data API exposes a usable signal) plus new readiness-scoring logic |
 | Video Performance Summary™ grid (Public Videos, Official Artist Channel, Latest Upload) | Canonical Data Field | Scan (YouTube) | No distinct "public video count" or "official channel" boolean/date field found in canonical | Partial overlap with existing `officialChannel` data from the legacy V1 path (`api/lib/normalizeAuditResponse.js:204-206`) — needs reconciliation, not necessarily new acquisition |
 | ATHENA Media Insights™ (insight text list) | Canonical Intelligence Field | Royaltē System (AI Insights domain) | No insight-generation logic for video/media content exists; real ATHENA (`api/athena/`) has zero production callers per prior findings (`ARTIST_PROFILE_CARD_ARCHITECTURE.md` §5) | The "ATHENA" branding on this card is a forward-reference to the approved target architecture (§8), not a claim that real ATHENA is wired — new intelligence logic required regardless of which engine ultimately generates it |
@@ -101,6 +101,26 @@ Approved fields below are exactly the Step 1–3 inventory — nothing added, no
 ### Static UI chrome (not data fields — noted for completeness, not tracked as gaps)
 
 Export Report button, "View All" links (×3), Monetization "View Details" button, and the Date Range selector are interactive controls with no bound data and no click handler found. Whether these need wiring is a UX/product decision, not a field-schema gap — noted here rather than silently omitted from the inventory.
+
+---
+
+## Constitutional Validation Pass (Board-directed re-verification)
+
+Per Board request, every visible element on the live page was re-checked line-by-line against this schema, including elements outside the primary card/KPI inventory:
+
+| Visible element | In schema? | Disposition |
+|---|---|---|
+| Sidebar navigation (`ws-rail`/`mc-nav`, `media-intelligence.html:325-428`) — brand mark + 10 workspace links (Mission Control, Health, Identity, Publishing, Catalog, Global Music Footprint, Media Intelligence [active], AI Insights, Backend, Settings) | Not a Media Intelligence field | **Belongs to Mission Control shell, not any single Artist Profile Card domain.** Identical structure appears on every other workspace traced in this series (Identity, Catalog, Backend) — it is application chrome, not Identity/Catalog/Publishing/etc. domain data, so it is out of scope for a field schema by the same standard applied to those five prior workspaces (none of which inventoried their own copy of this sidebar either) |
+| Breadcrumb (`media-intelligence.html:439-445`) — "Royaltē OS™ / Mission Control / Media Intelligence™" | Not a Media Intelligence field | Same disposition as sidebar — shared shell navigation chrome |
+| Monetization ring's center icon (decorative musical-note glyph, `media-intelligence.html:546-548`) | Not a data field | Fixed decorative icon, does not represent or vary with any data value |
+| ATHENA card's background glow (`mi-athena-glow`, `media-intelligence.html:577`, styled `577-221` in CSS) | Not a data field | Pure visual decoration (radial gradient), `aria-hidden="true"`, no data binding |
+| Loading skeleton shimmer state (`data-mi-state="loading"`, CSS `238-244`) | Covered implicitly | A transient pre-load visual state applied to the KPI row, video list, opportunity list, perf grid, and ATHENA list containers before `readWorkspaceContext()` resolves — not a distinct data field, it is the loading presentation of the fields already in the schema |
+| Video card thumbnail activation path (`media-intelligence.html:116-121`) | Now cited directly | Added precision to the Latest Video Releases™ row above — the code comment confirms thumbnail specifically needs only data population, not new code, once `v.thumbnail` starts arriving |
+| "Board Revision #1" (items 2, 6) and "Board Implementation Brief v1.0" — named in `media-intelligence.html:11-13,24-27,58-61,227-229,723-730` and `mc-workspace-context.js:148` | Reinforces existing framing | Multiple independent code comments cite the same named authorities as the source of this page's design — further confirms the UI is a Board-approved specification, not an engineer's unilateral placeholder |
+
+No new data field was found by this pass. The additions above are chrome/decoration dispositions and one citation refinement (video thumbnail) — the Section 1/Section 2 field classification from the original trace is unchanged.
+
+**All visible Media Intelligence™ fields have been inventoried.**
 
 ---
 
