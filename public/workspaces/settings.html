@@ -131,19 +131,41 @@
     .st-auth-gate a { color: var(--mc-orange); text-decoration: none; font-weight: 600; }
 
     /* ── Royalty Statements™ — Archive Intelligence enhancement pass ────── */
+    /* Visual Polish pass (Board brief, 2026-07-20): Royalty Statements now
+       reads as a premium intelligence surface, not accounting software.
+       --mc-purple/-soft/-glow/-deep are the SAME tokens AI Insights™ and
+       Identity Intelligence™ already use (royalte-workspace.css) — this is
+       reuse of the established Royaltē OS accent family, not a new palette.
+       Orange remains present (Upload CTA, some semantic warnings) but is no
+       longer the dominant color across this section. Scoped to #st-statements
+       and its dialog only — no other Settings section's styling changes. */
 
-    /* Archive summary */
+    /* Archive summary — KPI-card treatment matching Health Intelligence™ */
     .st-rs-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
     @media (max-width: 860px) { .st-rs-summary { grid-template-columns: repeat(2, 1fr); } }
-    .st-rs-stat { border: 1px solid var(--mc-border); border-radius: 10px; padding: 12px 14px; background: rgba(255,255,255,0.02); }
+    .st-rs-stat {
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(168,85,247,0.16); border-top: 2px solid rgba(168,85,247,0.4);
+      border-radius: 10px; padding: 12px 14px;
+      background: linear-gradient(160deg, rgba(168,85,247,0.07), rgba(255,255,255,0.015) 60%);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .st-rs-stat:hover {
+      transform: translateY(-2px); border-color: rgba(168,85,247,0.32);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.32), 0 0 20px rgba(168,85,247,0.12);
+    }
     .st-rs-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mc-text-faint); margin-bottom: 6px; }
-    .st-rs-stat-value { font-size: 16px; font-weight: 700; color: var(--mc-text-primary); font-variant-numeric: tabular-nums; }
+    .st-rs-stat-value { font-size: 16px; font-weight: 700; color: var(--mc-text-primary); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
     .st-rs-stat-value--sub { font-size: 13px; }
+    @media (prefers-reduced-motion: reduce) { .st-rs-stat { transition: none; } .st-rs-stat:hover { transform: none; } }
 
-    /* Evidence card + disclaimer */
+    /* Evidence card + disclaimer — purple accent glow, copy unchanged */
     .st-rs-evidence-card {
-      border: 1px solid var(--mc-accent-border, rgba(251,146,60,0.28)); border-radius: 10px; padding: 14px 16px;
-      background: rgba(251,146,60,0.06);
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(168,85,247,0.26); border-left: 3px solid var(--mc-purple);
+      border-radius: 10px; padding: 14px 16px 14px 15px;
+      background: linear-gradient(160deg, rgba(168,85,247,0.08), rgba(109,40,217,0.03) 70%);
+      box-shadow: 0 0 32px -16px rgba(168,85,247,0.4);
     }
     .st-rs-evidence-title { font-size: 12.5px; font-weight: 700; color: var(--mc-text-primary); margin-bottom: 6px; }
     .st-rs-evidence-body { font-size: 12px; color: var(--mc-text-secondary); line-height: 1.6; }
@@ -173,19 +195,21 @@
       font-size: 12.5px; color: var(--mc-text-primary); background: rgba(255,255,255,0.03);
       border: 1px solid var(--mc-border); border-radius: 8px; padding: 7px 10px; outline: none; font-family: inherit;
     }
-    .st-rs-toolbar-field input:focus, .st-rs-toolbar-field select:focus { border-color: var(--mc-orange); }
+    .st-rs-toolbar-field input:focus, .st-rs-toolbar-field select:focus { border-color: var(--mc-purple); box-shadow: 0 0 0 3px rgba(168,85,247,0.14); }
     .st-rs-toolbar-search { flex: 1 1 200px; min-width: 160px; }
     @media (max-width: 720px) { .st-rs-toolbar { flex-direction: column; align-items: stretch; } .st-rs-toolbar-field { width: 100%; } }
 
-    /* Source avatar (initials badge) */
+    /* Source avatar (initials badge) — purple identity, no longer orange */
     .st-rs-source-cell { display: flex; align-items: center; gap: 8px; }
     .st-rs-avatar {
       flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 9.5px; font-weight: 700; letter-spacing: 0.02em; color: #1a1207;
-      background: linear-gradient(145deg, var(--mc-orange), #ea7d2c);
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.02em; color: #f5f3ff;
+      background: linear-gradient(145deg, var(--mc-purple), var(--mc-purple-deep));
+      box-shadow: 0 0 0 1px rgba(168,85,247,0.18);
     }
 
-    /* Status + AI readiness badges — never color alone; always a text label */
+    /* Status badges — never color alone; always a text label. Semantic
+       (green=active, red=deleted, amber=needs attention, gray=inactive). */
     .st-rs-badge {
       display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 700;
       letter-spacing: 0.02em; padding: 4px 9px; border-radius: 20px; border: 1px solid transparent; white-space: nowrap;
@@ -204,11 +228,22 @@
     .st-rs-badge--neutral   { color: var(--mc-text-faint); background: rgba(255,255,255,0.04); border-color: var(--mc-border); }
     .st-rs-badge--neutral::before   { background: var(--mc-text-faint); }
 
+    /* AI Readiness badges — deliberately distinct from file Status above:
+       purple is Royaltē's "intelligence" signal. Dormant = quiet lavender
+       (infrastructure exists, nothing active yet, per Board truthfulness
+       rule); Active = the same vivid-purple pill pattern already used by
+       Health Intelligence™ (.hi-status-pill--purple). */
+    .st-rs-badge--ai-dormant { color: #c4b5fd; background: rgba(168,85,247,0.07); border-color: rgba(168,85,247,0.16); }
+    .st-rs-badge--ai-dormant::before { background: #c4b5fd; opacity: 0.6; }
+    .st-rs-badge--ai-active  { color: var(--mc-purple); background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.28); }
+    .st-rs-badge--ai-active::before  { background: var(--mc-purple); box-shadow: 0 0 6px rgba(168,85,247,0.6); }
+
     /* Version pill */
     .st-rs-version-btn {
-      font-size: 11px; font-weight: 600; color: var(--mc-orange); background: none; border: none; cursor: pointer;
+      font-size: 11px; font-weight: 600; color: var(--mc-purple); background: none; border: none; cursor: pointer;
       padding: 0; text-decoration: underline; text-underline-offset: 2px;
     }
+    .st-rs-version-btn:hover { color: #c4b5fd; }
     .st-rs-version-current { font-size: 11px; color: var(--mc-text-faint); }
 
     /* Desktop table wrapper always scrolls horizontally rather than clipping */
@@ -223,27 +258,49 @@
       .st-rs-table-wrap { display: none; }
       .st-rs-cards { display: flex; }
     }
-    .st-rs-card { border: 1px solid var(--mc-border); border-radius: 10px; padding: 12px 14px; background: rgba(255,255,255,0.02); }
+    .st-rs-card {
+      border: 1px solid rgba(168,85,247,0.14); border-radius: 10px; padding: 12px 14px;
+      background: linear-gradient(160deg, rgba(168,85,247,0.05), rgba(255,255,255,0.015) 60%);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .st-rs-card:hover { border-color: rgba(168,85,247,0.28); box-shadow: 0 0 18px rgba(168,85,247,0.1); }
     .st-rs-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
     .st-rs-card-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 3px 0; }
     .st-rs-card-row-label { color: var(--mc-text-faint); flex-shrink: 0; }
     .st-rs-card-row-value { color: var(--mc-text-secondary); text-align: right; }
     .st-rs-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 
-    /* Future Capabilities card */
-    .st-rs-future-card { border: 1px dashed var(--mc-border); border-radius: 10px; padding: 14px 16px; }
+    /* Future Capabilities card — the most deliberately "AI/premium" surface
+       in this section: solid purple-glow border rather than a dashed
+       placeholder outline, per Board direction ("something exciting is
+       coming" should not read as unfinished/wireframed). */
+    .st-rs-future-card {
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(168,85,247,0.3); border-radius: 10px; padding: 14px 16px;
+      background: linear-gradient(160deg, rgba(168,85,247,0.1), rgba(109,40,217,0.04) 65%);
+      box-shadow: 0 0 36px -16px rgba(168,85,247,0.45);
+    }
     .st-rs-future-title { font-size: 12.5px; font-weight: 700; color: var(--mc-text-primary); margin-bottom: 2px; }
-    .st-rs-future-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mc-orange); margin-bottom: 4px; }
+    .st-rs-future-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mc-purple); margin-bottom: 4px; }
     .st-rs-future-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 14px; margin-top: 10px; list-style: none; padding: 0; }
     @media (max-width: 720px) { .st-rs-future-list { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 460px) { .st-rs-future-list { grid-template-columns: 1fr; } }
     .st-rs-future-list li { font-size: 11.5px; color: var(--mc-text-muted); padding: 3px 0; }
-    .st-rs-future-list li::before { content: '\2022'; color: var(--mc-text-faint); margin-right: 7px; }
+    .st-rs-future-list li::before { content: '\2022'; color: var(--mc-purple); margin-right: 7px; }
 
-    /* Version History dialog */
-    .st-rs-dialog { border: 1px solid var(--mc-border); border-radius: 14px; background: var(--mc-surface-1); color: var(--mc-text-primary); padding: 0; max-width: 480px; width: 92vw; }
-    .st-rs-dialog::backdrop { background: rgba(0,0,0,0.6); }
-    .st-rs-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--mc-border); }
+    /* Version History dialog — elevated purple chrome */
+    .st-rs-dialog {
+      border: 1px solid rgba(168,85,247,0.24); border-radius: 14px; background: var(--mc-surface-1);
+      color: var(--mc-text-primary); padding: 0; max-width: 480px; width: 92vw;
+      box-shadow: 0 24px 64px -12px rgba(0,0,0,0.65), 0 0 44px -18px rgba(168,85,247,0.4);
+    }
+    .st-rs-dialog::backdrop { background: rgba(5,5,10,0.7); }
+    .st-rs-dialog-head {
+      display: flex; align-items: center; justify-content: space-between; padding: 16px 18px;
+      border-bottom: 1px solid rgba(168,85,247,0.2);
+      background: linear-gradient(135deg, rgba(109,40,217,0.22), rgba(168,85,247,0.06) 70%);
+      border-radius: 14px 14px 0 0;
+    }
     .st-rs-dialog-title { font-size: 13.5px; font-weight: 700; }
     .st-rs-dialog-close { background: none; border: none; color: var(--mc-text-muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 2px 4px; }
     .st-rs-dialog-close:hover { color: var(--mc-text-primary); }
@@ -251,6 +308,22 @@
     .st-rs-version-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12.5px; }
     .st-rs-version-row:last-child { border-bottom: none; }
     .st-rs-version-meta { color: var(--mc-text-muted); font-size: 11px; }
+
+    /* Upload area — inviting purple focus/hover states, scoped to the
+       Royalty Statements section only so Profile/Security/etc. keep their
+       existing orange focus color untouched. */
+    #st-statements .st-field input:focus, #st-statements .st-field select:focus {
+      border-color: var(--mc-purple); box-shadow: 0 0 0 3px rgba(168,85,247,0.14);
+    }
+    #st-statements .st-field:has(input[type="file"]) {
+      border-radius: 10px; padding: 2px; transition: box-shadow 0.2s ease, background 0.2s ease;
+    }
+    #st-statements .st-field:has(input[type="file"]:hover),
+    #st-statements .st-field:has(input[type="file"]:focus) {
+      box-shadow: 0 0 0 1px rgba(168,85,247,0.3), 0 0 20px -8px rgba(168,85,247,0.4);
+      background: rgba(168,85,247,0.04);
+    }
+    #st-rs-upload:hover { box-shadow: 0 0 22px -6px rgba(168,85,247,0.45); }
   </style>
 </head>
 <body>
@@ -1524,7 +1597,7 @@ function rsRenderHistory() {
       <td>${esc(rsFmtBytes(s.file_size_bytes))}</td>
       <td>${rsVersionCell(s)}</td>
       <td>${rsBadge(RS_STATUS_CLASS[s.status] || 'st-rs-badge--neutral', RS_STATUS_LABEL[s.status] || s.status)}</td>
-      <td>${rsBadge(s.ai_readiness_state === 'not_processed' ? 'st-rs-badge--neutral' : 'st-rs-badge--uploaded', RS_AI_LABEL[s.ai_readiness_state] || 'Not Processed')}</td>
+      <td>${rsBadge(s.ai_readiness_state === 'not_processed' ? 'st-rs-badge--ai-dormant' : 'st-rs-badge--ai-active', RS_AI_LABEL[s.ai_readiness_state] || 'Not Processed')}</td>
       <td style="white-space:nowrap;">${rsActionButtons(s)}</td>
     </tr>
   `).join('');
@@ -1540,7 +1613,7 @@ function rsRenderHistory() {
       <div class="st-rs-card-row"><span class="st-rs-card-row-label">Currency</span><span class="st-rs-card-row-value">${esc(s.currency || '—')}</span></div>
       <div class="st-rs-card-row"><span class="st-rs-card-row-label">Upload Date</span><span class="st-rs-card-row-value">${esc(fmtDate(s.created_at))}</span></div>
       <div class="st-rs-card-row"><span class="st-rs-card-row-label">File Name</span><span class="st-rs-card-row-value">${esc(s.file_name)}</span></div>
-      <div class="st-rs-card-row"><span class="st-rs-card-row-label">AI Readiness</span><span class="st-rs-card-row-value">${rsBadge(s.ai_readiness_state === 'not_processed' ? 'st-rs-badge--neutral' : 'st-rs-badge--uploaded', RS_AI_LABEL[s.ai_readiness_state] || 'Not Processed')}</span></div>
+      <div class="st-rs-card-row"><span class="st-rs-card-row-label">AI Readiness</span><span class="st-rs-card-row-value">${rsBadge(s.ai_readiness_state === 'not_processed' ? 'st-rs-badge--ai-dormant' : 'st-rs-badge--ai-active', RS_AI_LABEL[s.ai_readiness_state] || 'Not Processed')}</span></div>
       <div class="st-rs-card-row"><span class="st-rs-card-row-label">Version</span><span class="st-rs-card-row-value">${rsVersionCell(s)}</span></div>
       <div class="st-rs-card-actions">${rsActionButtons(s)}</div>
     </div>
