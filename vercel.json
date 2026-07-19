@@ -86,6 +86,10 @@
       "dest": "/api/save-music-rights-profile.js"
     },
     {
+      "src": "/api/save-profile-info",
+      "dest": "/api/save-profile-info.js"
+    },
+    {
       "src": "/api/health",
       "dest": "/api/health.js"
     },

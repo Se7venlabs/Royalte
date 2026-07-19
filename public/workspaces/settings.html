@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings™ — Royaltē OS</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/royalte-rds.css">
+  <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <style>
+    /* ── Settings™ — page-scoped layout (mirrors the pattern already used
+       by every other workspace for grids not shared elsewhere). ────────── */
+    .ws-dept--settings {
+      --ws-accent:        var(--mc-orange);
+      --ws-accent-soft:   rgba(251,146,60,0.12);
+      --ws-accent-border: rgba(251,146,60,0.28);
+      --ws-accent-glow:   rgba(251,146,60,0.32);
+    }
+
+    .st-main { display: flex; flex-direction: column; gap: 20px; padding: 20px 28px 40px; max-width: 920px; }
+
+    /* Exec header, matches other workspaces */
+    .st-exec-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+    .st-exec-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mc-orange); margin-bottom: 4px; }
+    .st-exec-heading { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--mc-text-primary); margin: 0 0 4px 0; }
+    .st-exec-desc { font-size: 12.5px; color: var(--mc-text-muted); max-width: 560px; line-height: 1.4; }
+
+    /* Section jump nav */
+    .st-jumpnav { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0 8px; border-bottom: 1px solid var(--mc-border); margin-bottom: 4px; }
+    .st-jumpnav a {
+      font-size: 12px; font-weight: 600; color: var(--mc-text-muted); text-decoration: none;
+      padding: 7px 12px; border-radius: 8px; transition: background 0.15s ease, color 0.15s ease;
+    }
+    .st-jumpnav a:hover { background: rgba(255,255,255,0.04); color: var(--mc-text-primary); }
+    .st-jumpnav a.st-jump--locked { opacity: 0.5; cursor: default; }
+
+    /* Section card */
+    .st-card {
+      background: var(--mc-surface-1); border: 1px solid var(--mc-border); border-radius: var(--rds-radius-md, 14px);
+      padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.035);
+      scroll-margin-top: 20px;
+    }
+    .st-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+    .st-card-title { font-size: 14px; font-weight: 700; letter-spacing: 0.02em; color: var(--mc-text-primary); }
+    .st-card-desc { font-size: 12px; color: var(--mc-text-muted); margin-bottom: 16px; line-height: 1.5; }
+    .st-card-actions { display: flex; align-items: center; gap: 8px; }
+
+    .st-btn {
+      font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; cursor: pointer;
+      border: 1px solid var(--mc-border); background: rgba(255,255,255,0.03); color: var(--mc-text-secondary);
+      transition: background 0.15s ease, border-color 0.15s ease; letter-spacing: 0.01em;
+    }
+    .st-btn:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.16); }
+    .st-btn--primary { background: linear-gradient(145deg, var(--mc-orange), #ea7d2c); border: none; color: #1a1207; }
+    .st-btn--primary:hover { opacity: 0.92; background: linear-gradient(145deg, var(--mc-orange), #ea7d2c); }
+    .st-btn--primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .st-btn--danger { border-color: rgba(240,80,96,0.35); color: #f05060; }
+    .st-btn--danger:hover { background: rgba(240,80,96,0.08); }
+    .st-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .st-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+    @media (max-width: 640px) { .st-field-grid { grid-template-columns: 1fr; } }
+    .st-field { display: flex; flex-direction: column; gap: 6px; }
+    .st-field label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mc-text-faint); }
+    .st-field input, .st-field select {
+      font-size: 13px; color: var(--mc-text-primary); background: rgba(255,255,255,0.03);
+      border: 1px solid var(--mc-border); border-radius: 8px; padding: 9px 12px; outline: none;
+      font-family: inherit; transition: border-color 0.15s ease;
+    }
+    .st-field input:focus, .st-field select:focus { border-color: var(--mc-orange); }
+    .st-field input:disabled, .st-field select:disabled { color: var(--mc-text-muted); cursor: not-allowed; opacity: 0.75; }
+    .st-field input[readonly] { color: var(--mc-text-muted); cursor: default; background: rgba(255,255,255,0.015); }
+    .st-field-error { font-size: 11px; color: #f05060; min-height: 14px; }
+
+    .st-status { font-size: 11.5px; font-weight: 600; padding: 6px 0; min-height: 18px; }
+    .st-status--success { color: #34d399; }
+    .st-status--error { color: #f05060; }
+
+    /* Group list (Music Rights Profile sub-groups) */
+    .st-group { border-top: 1px solid var(--mc-border); padding-top: 16px; margin-top: 16px; }
+    .st-group:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+    .st-group-title { font-size: 12.5px; font-weight: 700; color: var(--mc-text-primary); margin-bottom: 3px; }
+    .st-group-hint { font-size: 11.5px; color: var(--mc-text-muted); margin-bottom: 10px; line-height: 1.5; }
+    .st-chip-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 8px; }
+    .st-chip {
+      font-size: 12px; font-weight: 500; padding: 7px 13px; border-radius: 20px; cursor: pointer;
+      border: 1.5px solid var(--mc-border); background: rgba(255,255,255,0.02); color: var(--mc-text-secondary);
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .st-chip:hover { border-color: rgba(255,255,255,0.2); }
+    .st-chip.selected { border-color: var(--mc-orange); background: rgba(251,146,60,0.12); color: var(--mc-text-primary); }
+    .st-current-val { font-size: 12.5px; color: var(--mc-text-secondary); margin-bottom: 10px; }
+    .st-current-val b { color: var(--mc-text-primary); font-weight: 600; }
+    .st-current-val .st-empty { color: var(--mc-text-faint); font-style: italic; }
+
+    /* Toggle switch */
+    .st-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .st-toggle-row:last-child { border-bottom: none; }
+    .st-toggle-label { font-size: 12.5px; color: var(--mc-text-secondary); }
+    .st-toggle {
+      position: relative; width: 38px; height: 22px; border-radius: 20px; border: 1px solid var(--mc-border);
+      background: rgba(255,255,255,0.05); cursor: pointer; flex-shrink: 0; transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .st-toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%;
+      background: var(--mc-text-muted); transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .st-toggle.on { background: rgba(251,146,60,0.28); border-color: var(--mc-orange); }
+    .st-toggle.on::after { transform: translateX(16px); background: var(--mc-orange); }
+
+    /* Connected service cards */
+    .st-service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 720px) { .st-service-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 460px) { .st-service-grid { grid-template-columns: 1fr; } }
+    .st-service-card { border: 1px solid var(--mc-border); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .st-service-name { font-size: 12.5px; font-weight: 700; color: var(--mc-text-primary); }
+    .st-service-status { font-size: 10.5px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--mc-text-faint); }
+
+    /* Locked / coming soon */
+    .st-locked-card { opacity: 0.6; }
+    .st-locked-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--mc-text-faint); background: rgba(255,255,255,0.04); border: 1px solid var(--mc-border);
+      border-radius: 20px; padding: 4px 10px;
+    }
+
+    .st-auth-gate {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      padding: 80px 24px; text-align: center; color: var(--mc-text-muted);
+    }
+    .st-auth-gate a { color: var(--mc-orange); text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="ws-shell ws-dept--settings">
+
+  <aside class="ws-rail" role="navigation" aria-label="Royaltē OS navigation">
+
+    <a class="mc-brand" href="/mission-control.html">
+      <div class="mc-brand-mark" aria-hidden="true">ē</div>
+      <div>
+        <div class="mc-brand-text">ROYALTĒ</div>
+        <div class="mc-brand-sub">MISSION CONTROL</div>
+      </div>
+    </a>
+
+    <nav class="mc-nav">
+      <a class="mc-nav-item" href="/mission-control.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-mission-control"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Mission Control</span>
+          <div class="mc-nav-sub">Executive Overview</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/health-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Health Intelligence</span>
+          <div class="mc-nav-sub">System Status</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/identity-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-identity"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Identity Intelligence</span>
+          <div class="mc-nav-sub">Who You Are</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/publishing-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Publishing Intelligence</span>
+          <div class="mc-nav-sub">Your Works</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/catalog-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-catalog"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Catalog Intelligence</span>
+          <div class="mc-nav-sub">Your Releases</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/global-music-footprint.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Global Music Footprint™</span>
+          <div class="mc-nav-sub">Where Your Music Exists</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/media-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-media"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Media Intelligence™</span>
+          <div class="mc-nav-sub">Video &amp; Visual Presence</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/ai-insights.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">AI Insights</span>
+          <div class="mc-nav-sub">Intelligence Brief</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/backend-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-backend"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Backend Intelligence</span>
+          <div class="mc-nav-sub">Infrastructure Connected</div>
+        </span>
+      </a>
+      <a class="mc-nav-item mc-nav-item--active" href="/workspaces/settings.html" aria-current="page">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-settings"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Settings</span>
+          <div class="mc-nav-sub">Account &amp; Preferences</div>
+        </span>
+      </a>
+    </nav>
+
+  </aside>
+
+  <div class="ws-content">
+
+    <header class="ws-breadcrumb">
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Royaltē OS™</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <span class="ws-breadcrumb-current">Settings™</span>
+    </header>
+
+    <div id="st-auth-gate" class="st-auth-gate" hidden style="display:none">
+      <div style="font-size:18px;font-weight:600;color:var(--mc-text-primary);">Sign in required</div>
+      <div style="font-size:13px;max-width:320px;line-height:1.6;">Settings is only available to signed-in artists. Return to Mission Control to sign in.</div>
+      <a href="/mission-control.html">← Mission Control</a>
+    </div>
+
+    <div class="ws-body" id="st-body" style="opacity:0;transition:opacity .15s ease">
+      <div class="st-main">
+
+        <div class="st-exec-header">
+          <div>
+            <div class="st-exec-eyebrow">Settings™</div>
+            <h1 class="st-exec-heading">Account &amp; Music Business Settings</h1>
+            <div class="st-exec-desc">Manage your profile, your Music Rights Profile, security, connected services, and preferences — permanently, from one place.</div>
+          </div>
+        </div>
+
+        <nav class="st-jumpnav" aria-label="Settings sections">
+          <a href="#st-profile">Profile Information</a>
+          <a href="#st-mrp">Music Rights Profile</a>
+          <a href="#st-security">Security</a>
+          <a href="#st-services">Connected Services</a>
+          <a href="#st-billing" class="st-jump--locked">Billing</a>
+          <a href="#st-preferences">Preferences</a>
+          <a href="#st-privacy">Privacy</a>
+        </nav>
+
+        <!-- § PROFILE INFORMATION ────────────────────────────────────── -->
+        <section class="st-card" id="st-profile">
+          <div class="st-card-header">
+            <div class="st-card-title">Profile Information</div>
+            <div class="st-card-actions" id="st-profile-actions">
+              <button class="st-btn" id="st-profile-edit" type="button">Edit</button>
+            </div>
+          </div>
+          <div class="st-card-desc">Your Royaltē account details. Artist Name is derived from your scans, not editable here.</div>
+          <div class="st-field-grid">
+            <div class="st-field"><label>Artist Name</label><input type="text" id="st-f-artist-name" readonly></div>
+            <div class="st-field"><label>Display Name</label><input type="text" id="st-f-display-name" disabled></div>
+            <div class="st-field"><label>Email Address</label><input type="email" id="st-f-email" readonly></div>
+            <div class="st-field"><label>Royaltē Artist URL</label><input type="text" id="st-f-slug" disabled placeholder="your-artist-name"></div>
+            <div class="st-field"><label>Country</label><input type="text" id="st-f-country" disabled placeholder="e.g. CA, US, UK"></div>
+            <div class="st-field"><label>Time Zone</label><input type="text" id="st-f-timezone" disabled placeholder="e.g. America/Toronto"></div>
+            <div class="st-field"><label>Preferred Language</label><input type="text" id="st-f-language" disabled placeholder="e.g. en, fr, es"></div>
+            <div class="st-field"><label>Artist Profile ID</label><input type="text" id="st-f-id" readonly></div>
+            <div class="st-field"><label>Date Created</label><input type="text" id="st-f-created" readonly></div>
+          </div>
+          <div class="st-field-error" id="st-profile-error"></div>
+          <div class="st-status" id="st-profile-status"></div>
+        </section>
+
+        <!-- § MUSIC RIGHTS PROFILE ───────────────────────────────────── -->
+        <section class="st-card" id="st-mrp">
+          <div class="st-card-header">
+            <div class="st-card-title">Music Rights Profile™</div>
+          </div>
+          <div class="st-card-desc">Your music business information — rights organizations, publishing, distribution, and ownership. Update this whenever your business changes; every group below saves independently.</div>
+          <div id="st-mrp-groups"></div>
+        </section>
+
+        <!-- § SECURITY ───────────────────────────────────────────────── -->
+        <section class="st-card" id="st-security">
+          <div class="st-card-header"><div class="st-card-title">Security</div></div>
+          <div class="st-card-desc">Your account authentication is handled by Royaltē's identity provider.</div>
+
+          <div class="st-group">
+            <div class="st-group-title">Security Status</div>
+            <div class="st-current-val" id="st-security-status">Signed in · Email/password authentication</div>
+          </div>
+
+          <div class="st-group">
+            <div class="st-group-title">Change Password</div>
+            <div class="st-field-grid">
+              <div class="st-field"><label>New Password</label><input type="password" id="st-f-new-pass" autocomplete="new-password"></div>
+              <div class="st-field"><label>Confirm New Password</label><input type="password" id="st-f-confirm-pass" autocomplete="new-password"></div>
+            </div>
+            <div class="st-field-error" id="st-pass-error"></div>
+            <div class="st-card-actions" style="margin-top:10px;">
+              <button class="st-btn st-btn--primary" id="st-pass-save" type="button">Update Password</button>
+            </div>
+            <div class="st-status" id="st-pass-status"></div>
+          </div>
+
+          <div class="st-group">
+            <div class="st-group-title">Multi-Factor Authentication</div>
+            <div class="st-current-val"><span class="st-locked-badge">Coming Soon</span> — not yet available for this account.</div>
+          </div>
+
+          <div class="st-group">
+            <div class="st-group-title">Active Sessions &amp; Recent Login Activity</div>
+            <div class="st-current-val"><span class="st-locked-badge">Coming Soon</span> — session and login history is not yet surfaced here.</div>
+          </div>
+        </section>
+
+        <!-- § CONNECTED SERVICES ─────────────────────────────────────── -->
+        <section class="st-card" id="st-services">
+          <div class="st-card-header"><div class="st-card-title">Connected Services</div></div>
+          <div class="st-card-desc">Link your platform accounts directly to Royaltē. Account-linking is not yet available — Royaltē currently discovers your presence on these platforms via Scan, shown in Backend Intelligence™.</div>
+          <div class="st-service-grid" id="st-service-grid"></div>
+        </section>
+
+        <!-- § BILLING (locked) ───────────────────────────────────────── -->
+        <section class="st-card st-locked-card" id="st-billing">
+          <div class="st-card-header">
+            <div class="st-card-title">Billing</div>
+            <span class="st-locked-badge">Available in a Future Release</span>
+          </div>
+          <div class="st-card-desc">Billing and subscription management will arrive in a dedicated future Build Pass, built on Stripe.</div>
+        </section>
+
+        <!-- § PREFERENCES ────────────────────────────────────────────── -->
+        <section class="st-card" id="st-preferences">
+          <div class="st-card-header">
+            <div class="st-card-title">Preferences</div>
+            <div class="st-card-actions"><button class="st-btn st-btn--primary" id="st-prefs-save" type="button">Save Changes</button></div>
+          </div>
+          <div class="st-card-desc">Choose which notifications you receive and how Mission Control opens for you.</div>
+
+          <div class="st-group">
+            <div class="st-group-title">Notifications</div>
+            <div id="st-notif-toggles"></div>
+          </div>
+
+          <div class="st-group">
+            <div class="st-group-title">Mission Control</div>
+            <div class="st-field-grid">
+              <div class="st-field">
+                <label>Default Landing Workspace</label>
+                <select id="st-f-landing">
+                  <option value="mission-control">Mission Control</option>
+                  <option value="health-intelligence">Health Intelligence</option>
+                  <option value="identity-intelligence">Identity Intelligence</option>
+                  <option value="publishing-intelligence">Publishing Intelligence</option>
+                  <option value="catalog-intelligence">Catalog Intelligence</option>
+                  <option value="global-music-footprint">Global Music Footprint</option>
+                </select>
+              </div>
+            </div>
+            <div class="st-toggle-row" style="margin-top:8px;">
+              <span class="st-toggle-label">ATHENA™ Notifications</span>
+              <div class="st-toggle" data-pref="athenaNotifications"></div>
+            </div>
+          </div>
+
+          <div class="st-group">
+            <div class="st-group-title">Tutorials</div>
+            <div class="st-card-actions">
+              <button class="st-btn" id="st-reset-tutorials" type="button">Reset Tutorials</button>
+              <button class="st-btn" id="st-tour" type="button">Take Mission Control Tour</button>
+            </div>
+            <div class="st-current-val" style="margin-top:8px;"><span class="st-locked-badge">Coming Soon</span> — no tutorial system exists yet to reset or launch.</div>
+          </div>
+          <div class="st-status" id="st-prefs-status"></div>
+        </section>
+
+        <!-- § PRIVACY ─────────────────────────────────────────────────── -->
+        <section class="st-card" id="st-privacy">
+          <div class="st-card-header"><div class="st-card-title">Privacy</div></div>
+          <div class="st-card-desc">Control your data and communication preferences.</div>
+
+          <div class="st-group">
+            <div class="st-group-title">Communication Preferences</div>
+            <div id="st-comm-toggles"></div>
+            <div class="st-card-actions" style="margin-top:10px;"><button class="st-btn st-btn--primary" id="st-privacy-save" type="button">Save Changes</button></div>
+            <div class="st-status" id="st-privacy-status"></div>
+          </div>
+
+          <div class="st-group">
+            <div class="st-group-title">Export My Data</div>
+            <div class="st-card-desc" style="margin-bottom:8px;">Download a copy of your profile and Music Rights Profile data as JSON.</div>
+            <div class="st-card-actions"><button class="st-btn" id="st-export" type="button">Export My Data</button></div>
+            <div class="st-status" id="st-export-status"></div>
+          </div>
+
+          <div class="st-group">
+            <div class="st-group-title">Delete Account</div>
+            <div class="st-card-desc" style="margin-bottom:8px;">Account deletion is currently handled by our support team to make sure it's really you. Requesting deletion here notifies support and flags your account — it does not delete anything immediately.</div>
+            <div class="st-card-actions"><button class="st-btn st-btn--danger" id="st-delete-request" type="button">Request Account Deletion</button></div>
+            <div class="st-status" id="st-delete-status"></div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { getSupabase } from '/js/supabase-client.js';
+import { ONBOARDING_SECTIONS, SETTINGS_GROUPS, esc, mergeProfileFragment, saveMusicRightsProfile } from '/js/music-rights-profile.js';
+
+const NOTIF_PREFS = [
+  { key: 'scanComplete',       label: 'Scan Complete' },
+  { key: 'publishingUpdates',  label: 'Publishing Updates' },
+  { key: 'catalogUpdates',     label: 'Catalog Updates' },
+  { key: 'territoryUpdates',   label: 'Territory Updates' },
+  { key: 'healthAlerts',       label: 'Health Alerts' },
+  { key: 'productUpdates',     label: 'Product Updates' },
+];
+const COMM_PREFS = [
+  { key: 'marketingEmails',   label: 'Marketing emails' },
+  { key: 'productAnnouncements', label: 'Product announcements' },
+];
+const SERVICES = ['Spotify', 'Apple Music', 'YouTube', 'TikTok', 'Instagram', 'Facebook'];
+
+// Monitoring Timeline™ integration hook — prepared, not faked. Per Board
+// direction: "prepare an integration hook... do not create a temporary
+// timeline implementation." This records material Music Rights Profile
+// changes in the console for now; a real Monitoring Timeline event
+// publisher (see governance/ARTIST_PROFILE_CARD_MONITORING_SCHEMA.md §4,
+// task #56) replaces this function body when that platform exists — the
+// call site below does not change.
+function notifyMonitoringTimelineHook(change) {
+  console.info('[settings] Music Rights Profile change (Monitoring Timeline hook — not yet wired):', change);
+}
+
+let supabase, accessToken, userId;
+let currentProfile = {};      // full profiles row
+let currentMRP = {};          // profiles.music_rights_profile
+let currentPrefs = {};        // profiles.preferences
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
+  catch (_) { return '—'; }
+}
+
+// ── Profile Information ─────────────────────────────────────────────────
+function renderProfileInfo() {
+  document.getElementById('st-f-artist-name').value = currentProfile.artistName || '—';
+  document.getElementById('st-f-display-name').value = currentProfile.display_name || '';
+  document.getElementById('st-f-email').value = currentProfile.email || '';
+  document.getElementById('st-f-slug').value = currentProfile.artist_url_slug || '';
+  document.getElementById('st-f-country').value = currentProfile.country || '';
+  document.getElementById('st-f-timezone').value = currentProfile.reporting_timezone || '';
+  document.getElementById('st-f-language').value = currentProfile.preferred_language || '';
+  document.getElementById('st-f-id').value = userId || '—';
+  document.getElementById('st-f-created').value = fmtDate(currentProfile.created_at);
+}
+
+function setProfileEditing(editing) {
+  ['st-f-display-name', 'st-f-slug', 'st-f-country', 'st-f-timezone', 'st-f-language'].forEach(id => {
+    document.getElementById(id).disabled = !editing;
+  });
+  const actions = document.getElementById('st-profile-actions');
+  actions.innerHTML = editing
+    ? '<button class="st-btn" id="st-profile-cancel" type="button">Cancel</button><button class="st-btn st-btn--primary" id="st-profile-save" type="button">Save Changes</button>'
+    : '<button class="st-btn" id="st-profile-edit" type="button">Edit</button>';
+  if (editing) {
+    document.getElementById('st-profile-cancel').addEventListener('click', () => { renderProfileInfo(); setProfileEditing(false); document.getElementById('st-profile-status').textContent = ''; });
+    document.getElementById('st-profile-save').addEventListener('click', saveProfileInfo);
+  } else {
+    document.getElementById('st-profile-edit').addEventListener('click', () => setProfileEditing(true));
+  }
+}
+
+async function saveProfileInfo() {
+  const errEl = document.getElementById('st-profile-error');
+  const statusEl = document.getElementById('st-profile-status');
+  errEl.textContent = ''; statusEl.textContent = ''; statusEl.className = 'st-status';
+
+  const slug = document.getElementById('st-f-slug').value.trim();
+  if (slug && !/^[a-z0-9-]{2,40}$/i.test(slug)) {
+    errEl.textContent = 'Artist URL may only contain letters, numbers, and hyphens.';
+    return;
+  }
+
+  const payload = {
+    display_name: document.getElementById('st-f-display-name').value.trim() || null,
+    country: document.getElementById('st-f-country').value.trim() || null,
+    reporting_timezone: document.getElementById('st-f-timezone').value.trim() || null,
+    preferred_language: document.getElementById('st-f-language').value.trim() || null,
+    artist_url_slug: slug || null,
+  };
+
+  try {
+    await callSaveProfileInfo(payload);
+    Object.assign(currentProfile, payload);
+    renderProfileInfo();
+    setProfileEditing(false);
+    statusEl.textContent = 'Saved.';
+    statusEl.classList.add('st-status--success');
+  } catch (e) {
+    statusEl.textContent = e.message || 'Save failed.';
+    statusEl.classList.add('st-status--error');
+  }
+}
+
+async function callSaveProfileInfo(profileFields, requestDeletion) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (accessToken) headers['Authorization'] = 'Bearer ' + accessToken;
+  const body = { profile: profileFields };
+  if (requestDeletion) body.requestDeletion = true;
+  const res = await fetch('/api/save-profile-info', { method: 'POST', headers, body: JSON.stringify(body) });
+  if (!res.ok) {
+    let detail = '';
+    try { detail = (await res.json())?.error || ''; } catch (_) {}
+    throw new Error(detail || ('Save failed (' + res.status + ')'));
+  }
+}
+
+// ── Music Rights Profile ────────────────────────────────────────────────
+function valueLabel(options, value) {
+  const opt = (options || []).find(o => o.value === value);
+  return opt ? opt.label : null;
+}
+
+function renderMrpGroups() {
+  const host = document.getElementById('st-mrp-groups');
+  const allGroups = [
+    ...ONBOARDING_SECTIONS.map(s => ({
+      id: s.key, title: s.eyebrow, hint: s.question, group: s.group, field: s.field,
+      boolField: s.boolField, options: s.options,
+      conditionalKey: s.conditionalKey, conditionalGroup: s.conditionalGroup, conditionalPlaceholder: s.conditionalPlaceholder,
+      conditionalTriggers: s.conditionalTriggers,
+    })),
+    ...SETTINGS_GROUPS,
+  ];
+
+  host.innerHTML = allGroups.map(g => renderMrpGroupHtml(g)).join('');
+
+  allGroups.forEach(g => wireMrpGroup(g));
+}
+
+function renderMrpGroupHtml(g) {
+  const groupData = currentMRP[g.group] || {};
+  const currentVal = g.boolField ? (groupData[g.field] === true ? 'Yes' : (groupData[g.field] === false ? 'No' : null)) : groupData[g.field];
+
+  if (g.freeText) {
+    const val = groupData[g.field] || '';
+    const secVal = g.secondaryField ? (groupData[g.secondaryField] || '') : '';
+    return `
+      <div class="st-group" id="st-mrp-${esc(g.id)}">
+        <div class="st-group-title">${esc(g.title)}</div>
+        <div class="st-group-hint">${esc(g.hint)}</div>
+        <div class="st-field-grid">
+          <div class="st-field"><input type="text" data-mrp-field="${esc(g.field)}" placeholder="${esc(g.placeholder || '')}" value="${esc(val)}"></div>
+          ${g.secondaryField ? `<div class="st-field"><input type="text" data-mrp-field="${esc(g.secondaryField)}" placeholder="${esc(g.secondaryPlaceholder || '')}" value="${esc(secVal)}"></div>` : ''}
+        </div>
+        <div class="st-card-actions" style="margin-top:10px;">
+          <button class="st-btn st-btn--primary" data-mrp-save="${esc(g.id)}" type="button">Save Changes</button>
+        </div>
+        <div class="st-status" data-mrp-status="${esc(g.id)}"></div>
+      </div>`;
+  }
+
+  const label = valueLabel(g.options, currentVal);
+  const condVal = g.conditionalKey ? ((currentMRP[g.conditionalGroup] || {})[g.conditionalKey] || '') : '';
+  const showCond = g.conditionalTriggers && g.conditionalTriggers.includes(currentVal);
+
+  const chips = (g.options || []).map(opt => `
+    <div class="st-chip${currentVal === opt.value ? ' selected' : ''}" data-value="${esc(opt.value)}">${esc(opt.label)}</div>
+  `).join('');
+
+  return `
+    <div class="st-group" id="st-mrp-${esc(g.id)}">
+      <div class="st-group-title">${esc(g.title)}</div>
+      <div class="st-group-hint">${esc(g.hint)}</div>
+      <div class="st-current-val">Current: ${label ? '<b>' + esc(label) + '</b>' : '<span class="st-empty">not set</span>'}</div>
+      <div class="st-chip-row" data-mrp-chips>${chips}</div>
+      ${g.conditionalKey ? `<div class="st-field" style="margin-top:6px;display:${showCond ? 'flex' : 'none'}" data-mrp-conditional>
+        <input type="text" data-mrp-conditional-input placeholder="${esc(g.conditionalPlaceholder || '')}" value="${esc(condVal)}">
+      </div>` : ''}
+      <div class="st-card-actions" style="margin-top:10px;">
+        <button class="st-btn st-btn--primary" data-mrp-save="${esc(g.id)}" type="button" disabled>Save Changes</button>
+      </div>
+      <div class="st-status" data-mrp-status="${esc(g.id)}"></div>
+    </div>`;
+}
+
+function wireMrpGroup(g) {
+  const root = document.getElementById('st-mrp-' + g.id);
+  if (!root) return;
+  const saveBtn = root.querySelector('[data-mrp-save]');
+
+  if (g.freeText) {
+    root.querySelectorAll('input[data-mrp-field]').forEach(inp => {
+      inp.addEventListener('input', () => { saveBtn.disabled = false; });
+    });
+    saveBtn.addEventListener('click', async () => {
+      const fields = {};
+      root.querySelectorAll('input[data-mrp-field]').forEach(inp => {
+        fields[inp.dataset.mrpField] = inp.value.trim() || null;
+      });
+      await saveMrpGroup(g, fields, saveBtn, root);
+    });
+    return;
+  }
+
+  let selectedValue = null;
+  const chipsWrap = root.querySelector('[data-mrp-chips]');
+  chipsWrap.querySelectorAll('.st-chip').forEach(chip => {
+    if (chip.classList.contains('selected')) selectedValue = chip.dataset.value;
+    chip.addEventListener('click', () => {
+      selectedValue = chip.dataset.value;
+      chipsWrap.querySelectorAll('.st-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      const condWrap = root.querySelector('[data-mrp-conditional]');
+      if (condWrap) condWrap.style.display = (g.conditionalTriggers || []).includes(selectedValue) ? 'flex' : 'none';
+      saveBtn.disabled = false;
+    });
+  });
+  const condInput = root.querySelector('[data-mrp-conditional-input]');
+  if (condInput) condInput.addEventListener('input', () => { saveBtn.disabled = false; });
+
+  saveBtn.addEventListener('click', async () => {
+    const fields = {};
+    if (g.boolField) {
+      fields[g.field] = selectedValue === 'Yes';
+    } else {
+      fields[g.field] = selectedValue;
+    }
+    let extraGroup = null, extraFields = null;
+    if (g.conditionalKey && condInput) {
+      extraGroup = g.conditionalGroup;
+      extraFields = { [g.conditionalKey]: condInput.value.trim() || null };
+    }
+    await saveMrpGroup(g, fields, saveBtn, root, extraGroup, extraFields);
+  });
+}
+
+async function saveMrpGroup(g, fields, saveBtn, root, extraGroup, extraFields) {
+  const statusEl = root.querySelector('[data-mrp-status]');
+  statusEl.textContent = ''; statusEl.className = 'st-status';
+  saveBtn.disabled = true;
+
+  const before = JSON.stringify((currentMRP[g.group] || {})[g.field]);
+  let merged = mergeProfileFragment(currentMRP, g.group, fields);
+  if (extraGroup && extraFields) merged = mergeProfileFragment(merged, extraGroup, extraFields);
+
+  try {
+    await saveMusicRightsProfile(merged, accessToken);
+    currentMRP = merged;
+
+    // Targeted Runtime Context refresh — patch the exact key
+    // buildWorkspaceRuntimeContext() already writes, so the next
+    // navigation to Publishing/Identity/Health/etc. reflects the change.
+    try {
+      const raw = sessionStorage.getItem('royalte_workspace_context');
+      if (raw) {
+        const ctx = JSON.parse(raw);
+        ctx.musicRightsProfile = currentMRP;
+        sessionStorage.setItem('royalte_workspace_context', JSON.stringify(ctx));
+      }
+    } catch (_) {}
+
+    const after = JSON.stringify(fields[g.field]);
+    if (before !== after) {
+      notifyMonitoringTimelineHook({ group: g.group, field: g.field, previousValue: JSON.parse(before), newValue: fields[g.field] });
+    }
+
+    renderMrpGroups(); // targeted re-render, not a full page reload
+    document.getElementById('st-mrp-' + g.id).querySelector('[data-mrp-status]').textContent = 'Saved.';
+    document.getElementById('st-mrp-' + g.id).querySelector('[data-mrp-status]').classList.add('st-status--success');
+  } catch (e) {
+    statusEl.textContent = e.message || 'Save failed.';
+    statusEl.classList.add('st-status--error');
+    saveBtn.disabled = false;
+  }
+}
+
+// ── Security ─────────────────────────────────────────────────────────────
+document.getElementById('st-pass-save').addEventListener('click', async () => {
+  const errEl = document.getElementById('st-pass-error');
+  const statusEl = document.getElementById('st-pass-status');
+  errEl.textContent = ''; statusEl.textContent = ''; statusEl.className = 'st-status';
+
+  const p1 = document.getElementById('st-f-new-pass').value;
+  const p2 = document.getElementById('st-f-confirm-pass').value;
+  if (!p1 || p1.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; return; }
+  if (p1 !== p2) { errEl.textContent = 'Passwords do not match.'; return; }
+
+  try {
+    const { error } = await supabase.auth.updateUser({ password: p1 });
+    if (error) throw error;
+    document.getElementById('st-f-new-pass').value = '';
+    document.getElementById('st-f-confirm-pass').value = '';
+    statusEl.textContent = 'Password updated.';
+    statusEl.classList.add('st-status--success');
+  } catch (e) {
+    statusEl.textContent = e.message || 'Update failed.';
+    statusEl.classList.add('st-status--error');
+  }
+});
+
+// ── Connected Services ──────────────────────────────────────────────────
+function renderServices() {
+  const host = document.getElementById('st-service-grid');
+  host.innerHTML = SERVICES.map(name => `
+    <div class="st-service-card">
+      <div class="st-service-name">${esc(name)}</div>
+      <div class="st-service-status">Not Connected</div>
+      <button class="st-btn" disabled title="Account-linking is not yet available">Connect — Coming Soon</button>
+    </div>
+  `).join('');
+}
+
+// ── Preferences ──────────────────────────────────────────────────────────
+function renderToggles(hostId, prefKeys, prefsObj) {
+  const host = document.getElementById(hostId);
+  host.innerHTML = prefKeys.map(p => `
+    <div class="st-toggle-row">
+      <span class="st-toggle-label">${esc(p.label)}</span>
+      <div class="st-toggle${prefsObj[p.key] ? ' on' : ''}" data-pref="${esc(p.key)}"></div>
+    </div>
+  `).join('');
+  host.querySelectorAll('[data-pref]').forEach(el => {
+    el.addEventListener('click', () => el.classList.toggle('on'));
+  });
+}
+
+function collectToggleState(hostId) {
+  const out = {};
+  document.querySelectorAll('#' + hostId + ' [data-pref]').forEach(el => {
+    out[el.dataset.pref] = el.classList.contains('on');
+  });
+  return out;
+}
+
+function renderPreferences() {
+  renderToggles('st-notif-toggles', NOTIF_PREFS, currentPrefs.notifications || {});
+  document.getElementById('st-f-landing').value = currentPrefs.defaultLandingWorkspace || 'mission-control';
+  const athenaToggle = document.querySelector('.st-toggle[data-pref="athenaNotifications"]');
+  if (athenaToggle && currentPrefs.athenaNotifications) athenaToggle.classList.add('on');
+  if (athenaToggle) athenaToggle.addEventListener('click', () => athenaToggle.classList.toggle('on'));
+  renderToggles('st-comm-toggles', COMM_PREFS, currentPrefs.communications || {});
+}
+
+async function savePreferences() {
+  const statusEl = document.getElementById('st-prefs-status');
+  statusEl.textContent = ''; statusEl.className = 'st-status';
+  const athenaOn = document.querySelector('.st-toggle[data-pref="athenaNotifications"]')?.classList.contains('on') || false;
+  currentPrefs = {
+    ...currentPrefs,
+    notifications: collectToggleState('st-notif-toggles'),
+    defaultLandingWorkspace: document.getElementById('st-f-landing').value,
+    athenaNotifications: athenaOn,
+  };
+  try {
+    await callSaveProfileInfo({ preferences: currentPrefs });
+    statusEl.textContent = 'Saved.';
+    statusEl.classList.add('st-status--success');
+  } catch (e) {
+    statusEl.textContent = e.message || 'Save failed.';
+    statusEl.classList.add('st-status--error');
+  }
+}
+document.getElementById('st-prefs-save').addEventListener('click', savePreferences);
+document.getElementById('st-reset-tutorials').addEventListener('click', () => {});
+document.getElementById('st-tour').addEventListener('click', () => {});
+
+// ── Privacy ──────────────────────────────────────────────────────────────
+document.getElementById('st-privacy-save').addEventListener('click', async () => {
+  const statusEl = document.getElementById('st-privacy-status');
+  statusEl.textContent = ''; statusEl.className = 'st-status';
+  currentPrefs = { ...currentPrefs, communications: collectToggleState('st-comm-toggles') };
+  try {
+    await callSaveProfileInfo({ preferences: currentPrefs });
+    statusEl.textContent = 'Saved.';
+    statusEl.classList.add('st-status--success');
+  } catch (e) {
+    statusEl.textContent = e.message || 'Save failed.';
+    statusEl.classList.add('st-status--error');
+  }
+});
+
+document.getElementById('st-export').addEventListener('click', async () => {
+  const statusEl = document.getElementById('st-export-status');
+  statusEl.textContent = ''; statusEl.className = 'st-status';
+  try {
+    const exportData = { profile: currentProfile, musicRightsProfile: currentMRP, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'royalte-data-export.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    statusEl.textContent = 'Export downloaded.';
+    statusEl.classList.add('st-status--success');
+  } catch (e) {
+    statusEl.textContent = 'Export failed.';
+    statusEl.classList.add('st-status--error');
+  }
+});
+
+document.getElementById('st-delete-request').addEventListener('click', async () => {
+  const statusEl = document.getElementById('st-delete-status');
+  statusEl.textContent = ''; statusEl.className = 'st-status';
+  const confirmed = window.confirm('Request account deletion? Our support team will follow up by email — nothing is deleted immediately.');
+  if (!confirmed) return;
+  try {
+    await callSaveProfileInfo({}, true);
+    statusEl.textContent = 'Deletion request submitted. Support will follow up by email.';
+    statusEl.classList.add('st-status--success');
+  } catch (e) {
+    statusEl.textContent = e.message || 'Request failed.';
+    statusEl.classList.add('st-status--error');
+  }
+});
+
+// DEV FIXTURE — localhost or ?dev=1 only, mirrors the established pattern in
+// every other workspace (e.g. global-music-footprint.html, media-intelligence.html).
+// Bypasses the real Supabase session/profile fetch so the full authenticated
+// layout can be verified and screenshotted locally. Never runs in production.
+function devFixtureActive() {
+  const isLocal  = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const devParam = new URLSearchParams(location.search).get('dev') === '1';
+  return isLocal || devParam;
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────
+(async () => {
+  if (devFixtureActive()) {
+    accessToken = null;
+    userId = 'preview-fixture-user-001';
+    currentProfile = {
+      email: 'darryl@example.com',
+      display_name: 'Darryl West',
+      country: 'CA',
+      reporting_timezone: 'America/Toronto',
+      preferred_language: 'en',
+      artist_url_slug: 'black-alternative',
+      created_at: '2026-05-15T00:00:00.000Z',
+      artistName: 'Black Alternative',
+    };
+    currentMRP = {
+      performing_rights: { pro: 'SOCAN', membership_status: 'active' },
+      publishing: { publishing_management: 'admin', organization_name: 'Northern Sound Publishing', mlc_registered: true },
+      mechanical_rights: { organization: 'mlc' },
+      record_label: { status: 'independent' },
+      distribution: { distributor: 'DistroKid', territories: 'Worldwide' },
+      master_rights: { ownership: 'own' },
+      neighboring_rights: { organization: 'soundexchange' },
+      sync_representation: { representative: 'self' },
+    };
+    currentPrefs = {
+      notifications: { scanComplete: true, publishingUpdates: true, healthAlerts: true },
+      defaultLandingWorkspace: 'health-intelligence',
+      athenaNotifications: true,
+      communications: { productAnnouncements: true },
+    };
+    renderProfileInfo();
+    renderMrpGroups();
+    renderServices();
+    renderPreferences();
+    document.getElementById('st-profile-edit').addEventListener('click', () => setProfileEditing(true));
+    document.getElementById('st-body').style.opacity = '1';
+    return;
+  }
+
+  supabase = getSupabase();
+  if (!supabase) { document.getElementById('st-auth-gate').hidden = false; return; }
+
+  const { data } = await supabase.auth.getSession();
+  if (!data?.session) { document.getElementById('st-auth-gate').hidden = false; return; }
+
+  accessToken = data.session.access_token;
+  userId = data.session.user.id;
+
+  const { data: row, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error || !row) { document.getElementById('st-auth-gate').hidden = false; return; }
+
+  currentProfile = row;
+  currentMRP = row.music_rights_profile || {};
+  currentPrefs = row.preferences || {};
+
+  // Artist name — best-effort from the last cached workspace context, since
+  // Settings is not gated on a scan and profiles has no artistName column.
+  try {
+    const raw = sessionStorage.getItem('royalte_workspace_context');
+    if (raw) currentProfile.artistName = JSON.parse(raw)?.artistName || null;
+  } catch (_) {}
+
+  renderProfileInfo();
+  renderMrpGroups();
+  renderServices();
+  renderPreferences();
+
+  document.getElementById('st-profile-edit').addEventListener('click', () => setProfileEditing(true));
+
+  document.getElementById('st-body').style.opacity = '1';
+})();
+</script>
+<script src="/js/rds-preview-console.js" defer></script>
+</body>
+</html>
