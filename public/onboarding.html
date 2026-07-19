@@ -536,54 +536,12 @@
 
 <script type="module">
 import { getSupabase } from '/js/supabase-client.js';
+import { ONBOARDING_SECTIONS, buildOnboardingProfile, esc } from '/js/music-rights-profile.js';
 
-// ── Section definitions ──────────────────────────────────────────────────────
-// Each section has: key (stored in profile), eyebrow, question, hint, options[]
-// Options have: value, label, badge? (optional tag)
-// Sections with conditional: when option.value matches conditionalTrigger (string)
-// or any value in conditionalTriggers (array), show a text input stored under conditionalKey.
-
-const SECTIONS = [
-  {
-    key: 'pro',
-    eyebrow: 'Performing Rights',
-    question: 'Who is your Performance Rights Organization (PRO)?',
-    hint: 'A Performing Rights Organization collects royalties when your music is played publicly — on radio, TV, live venues, and streaming.',
-    options: [
-      { value: 'SOCAN',  label: 'SOCAN',          badge: 'Canada' },
-      { value: 'ASCAP',  label: 'ASCAP',          badge: 'US' },
-      { value: 'BMI',    label: 'BMI',             badge: 'US' },
-      { value: 'SESAC',  label: 'SESAC',           badge: 'US' },
-      { value: 'PRS',    label: 'PRS for Music',   badge: 'UK' },
-      { value: 'APRA',   label: 'APRA AMCOS',      badge: 'AU/NZ' },
-      { value: 'Other',  label: 'Other' },
-    ],
-  },
-  {
-    key: 'publishing_management',
-    eyebrow: 'Publishing',
-    question: 'Who manages your publishing?',
-    hint: 'Tell us how your publishing is managed so Royaltē can identify the right royalty collection paths for your music.',
-    options: [
-      { value: 'self',      label: 'I manage my own publishing' },
-      { value: 'admin',     label: 'Publishing Administrator' },
-      { value: 'publisher', label: 'Publisher' },
-    ],
-    conditionalTriggers: ['admin', 'publisher'],
-    conditionalKey: 'organization_name',
-    conditionalPlaceholder: 'Organization Name',
-  },
-  {
-    key: 'mlc',
-    eyebrow: 'MLC Registration',
-    question: 'Are your works registered with The MLC?',
-    hint: 'The Mechanical Licensing Collective (MLC) collects and distributes mechanical royalties from digital music services in the US.',
-    options: [
-      { value: 'Yes', label: 'Yes' },
-      { value: 'No',  label: 'No' },
-    ],
-  },
-];
+// Section definitions now live in /js/music-rights-profile.js — the single
+// source of truth shared with Settings → Music Rights Profile. Do not
+// redefine them here; see that module's comments for the sharing contract.
+const SECTIONS = ONBOARDING_SECTIONS;
 
 // ── State ────────────────────────────────────────────────────────────────────
 let currentScreen = 'welcome'; // 'welcome' | 0..6 (section index) | 'complete'
@@ -745,14 +703,7 @@ function isTriggerVal(sec, val) {
   return val === sec.conditionalTrigger;
 }
 
-function esc(str) {
-  if (typeof str !== 'string') return '';
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+// esc() imported from /js/music-rights-profile.js — no local copy.
 
 // ── Navigation ───────────────────────────────────────────────────────────────
 function goToSection(idx) {
@@ -794,25 +745,12 @@ async function saveProfile() {
   // Redirect only after both the save and the minimum display time (1.8s) resolve.
   renderComplete();
   await Promise.all([
-    callSaveEndpoint({ profile: buildStructuredProfile(answers) }),
+    callSaveEndpoint({ profile: buildOnboardingProfile(answers) }),
     new Promise(r => setTimeout(r, 1800)),
   ]);
   redirectToMC();
 }
-
-// Maps form answers into the canonical grouped profile structure.
-function buildStructuredProfile(a) {
-  return {
-    performing_rights: {
-      pro: a.pro || null,
-    },
-    publishing: {
-      publishing_management: a.publishing_management || null,
-      organization_name:     a.organization_name     || null,
-      mlc_registered:        a.mlc === 'Yes',
-    },
-  };
-}
+// buildOnboardingProfile() imported from /js/music-rights-profile.js — no local copy.
 
 function renderComplete() {
   currentScreen = 'complete';
