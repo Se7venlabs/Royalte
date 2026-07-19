@@ -17,7 +17,7 @@
       --ws-accent-glow:   rgba(251,146,60,0.32);
     }
 
-    .st-main { display: flex; flex-direction: column; gap: 20px; padding: 20px 28px 40px; max-width: 920px; }
+    .st-main { display: flex; flex-direction: column; gap: 20px; padding: 20px 28px 40px; max-width: 920px; width: 100%; box-sizing: border-box; min-width: 0; }
 
     /* Exec header, matches other workspaces */
     .st-exec-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
@@ -38,7 +38,7 @@
     .st-card {
       background: var(--mc-surface-1); border: 1px solid var(--mc-border); border-radius: var(--rds-radius-md, 14px);
       padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.035);
-      scroll-margin-top: 20px;
+      scroll-margin-top: 20px; min-width: 0;
     }
     .st-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
     .st-card-title { font-size: 14px; font-weight: 700; letter-spacing: 0.02em; color: var(--mc-text-primary); }
@@ -134,7 +134,7 @@
 
     /* Archive summary */
     .st-rs-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
-    @media (max-width: 640px) { .st-rs-summary { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 860px) { .st-rs-summary { grid-template-columns: repeat(2, 1fr); } }
     .st-rs-stat { border: 1px solid var(--mc-border); border-radius: 10px; padding: 12px 14px; background: rgba(255,255,255,0.02); }
     .st-rs-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mc-text-faint); margin-bottom: 6px; }
     .st-rs-stat-value { font-size: 16px; font-weight: 700; color: var(--mc-text-primary); font-variant-numeric: tabular-nums; }
