@@ -90,6 +90,10 @@
       "dest": "/api/save-profile-info.js"
     },
     {
+      "src": "/api/royalty-statements",
+      "dest": "/api/royalty-statements.js"
+    },
+    {
       "src": "/api/health",
       "dest": "/api/health.js"
     },

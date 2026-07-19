@@ -17,7 +17,7 @@
       --ws-accent-glow:   rgba(251,146,60,0.32);
     }
 
-    .st-main { display: flex; flex-direction: column; gap: 20px; padding: 20px 28px 40px; max-width: 920px; }
+    .st-main { display: flex; flex-direction: column; gap: 20px; padding: 20px 28px 40px; max-width: 920px; width: 100%; box-sizing: border-box; min-width: 0; }
 
     /* Exec header, matches other workspaces */
     .st-exec-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
@@ -38,7 +38,7 @@
     .st-card {
       background: var(--mc-surface-1); border: 1px solid var(--mc-border); border-radius: var(--rds-radius-md, 14px);
       padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.035);
-      scroll-margin-top: 20px;
+      scroll-margin-top: 20px; min-width: 0;
     }
     .st-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
     .st-card-title { font-size: 14px; font-weight: 700; letter-spacing: 0.02em; color: var(--mc-text-primary); }
@@ -129,6 +129,201 @@
       padding: 80px 24px; text-align: center; color: var(--mc-text-muted);
     }
     .st-auth-gate a { color: var(--mc-orange); text-decoration: none; font-weight: 600; }
+
+    /* ── Royalty Statements™ — Archive Intelligence enhancement pass ────── */
+    /* Visual Polish pass (Board brief, 2026-07-20): Royalty Statements now
+       reads as a premium intelligence surface, not accounting software.
+       --mc-purple/-soft/-glow/-deep are the SAME tokens AI Insights™ and
+       Identity Intelligence™ already use (royalte-workspace.css) — this is
+       reuse of the established Royaltē OS accent family, not a new palette.
+       Orange remains present (Upload CTA, some semantic warnings) but is no
+       longer the dominant color across this section. Scoped to #st-statements
+       and its dialog only — no other Settings section's styling changes. */
+
+    /* Archive summary — KPI-card treatment matching Health Intelligence™ */
+    .st-rs-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+    @media (max-width: 860px) { .st-rs-summary { grid-template-columns: repeat(2, 1fr); } }
+    .st-rs-stat {
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(168,85,247,0.16); border-top: 2px solid rgba(168,85,247,0.4);
+      border-radius: 10px; padding: 12px 14px;
+      background: linear-gradient(160deg, rgba(168,85,247,0.07), rgba(255,255,255,0.015) 60%);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .st-rs-stat:hover {
+      transform: translateY(-2px); border-color: rgba(168,85,247,0.32);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.32), 0 0 20px rgba(168,85,247,0.12);
+    }
+    .st-rs-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mc-text-faint); margin-bottom: 6px; }
+    .st-rs-stat-value { font-size: 16px; font-weight: 700; color: var(--mc-text-primary); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+    .st-rs-stat-value--sub { font-size: 13px; }
+    @media (prefers-reduced-motion: reduce) { .st-rs-stat { transition: none; } .st-rs-stat:hover { transform: none; } }
+
+    /* Evidence card + disclaimer — purple accent glow, copy unchanged */
+    .st-rs-evidence-card {
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(168,85,247,0.26); border-left: 3px solid var(--mc-purple);
+      border-radius: 10px; padding: 14px 16px 14px 15px;
+      background: linear-gradient(160deg, rgba(168,85,247,0.08), rgba(109,40,217,0.03) 70%);
+      box-shadow: 0 0 32px -16px rgba(168,85,247,0.4);
+    }
+    .st-rs-evidence-title { font-size: 12.5px; font-weight: 700; color: var(--mc-text-primary); margin-bottom: 6px; }
+    .st-rs-evidence-body { font-size: 12px; color: var(--mc-text-secondary); line-height: 1.6; }
+    .st-rs-evidence-body p { margin: 0 0 8px 0; }
+    .st-rs-evidence-body p:last-child { margin-bottom: 0; }
+    .st-rs-disclaimer {
+      font-size: 11px; color: var(--mc-text-faint); line-height: 1.6; margin-top: 10px;
+      padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Upload form extras */
+    .st-rs-limit-hint { font-size: 10.5px; color: var(--mc-text-faint); margin-top: 4px; }
+    .st-rs-dup-banner {
+      display: none; border: 1px solid rgba(251,191,36,0.35); background: rgba(251,191,36,0.08);
+      border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 12px; color: var(--mc-text-secondary); line-height: 1.6;
+    }
+    .st-rs-dup-banner.st-visible { display: block; }
+    .st-rs-dup-banner-title { font-weight: 700; color: var(--mc-text-primary); margin-bottom: 4px; }
+    .st-rs-dup-list { margin: 6px 0 10px 0; padding-left: 18px; }
+    .st-rs-dup-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* Search / filter / sort toolbar */
+    .st-rs-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-bottom: 12px; }
+    .st-rs-toolbar-field { display: flex; flex-direction: column; gap: 4px; }
+    .st-rs-toolbar-field label { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mc-text-faint); }
+    .st-rs-toolbar-field input, .st-rs-toolbar-field select {
+      font-size: 12.5px; color: var(--mc-text-primary); background: rgba(255,255,255,0.03);
+      border: 1px solid var(--mc-border); border-radius: 8px; padding: 7px 10px; outline: none; font-family: inherit;
+    }
+    .st-rs-toolbar-field input:focus, .st-rs-toolbar-field select:focus { border-color: var(--mc-purple); box-shadow: 0 0 0 3px rgba(168,85,247,0.14); }
+    .st-rs-toolbar-search { flex: 1 1 200px; min-width: 160px; }
+    @media (max-width: 720px) { .st-rs-toolbar { flex-direction: column; align-items: stretch; } .st-rs-toolbar-field { width: 100%; } }
+
+    /* Source avatar (initials badge) — purple identity, no longer orange */
+    .st-rs-source-cell { display: flex; align-items: center; gap: 8px; }
+    .st-rs-avatar {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.02em; color: #f5f3ff;
+      background: linear-gradient(145deg, var(--mc-purple), var(--mc-purple-deep));
+      box-shadow: 0 0 0 1px rgba(168,85,247,0.18);
+    }
+
+    /* Status badges — never color alone; always a text label. Semantic
+       (green=active, red=deleted, amber=needs attention, gray=inactive). */
+    .st-rs-badge {
+      display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 700;
+      letter-spacing: 0.02em; padding: 4px 9px; border-radius: 20px; border: 1px solid transparent; white-space: nowrap;
+    }
+    .st-rs-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .st-rs-badge--uploaded  { color: #34d399; background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.3); }
+    .st-rs-badge--uploaded::before  { background: #34d399; }
+    .st-rs-badge--archived  { color: var(--mc-text-muted); background: rgba(255,255,255,0.05); border-color: var(--mc-border); }
+    .st-rs-badge--archived::before  { background: var(--mc-text-muted); }
+    .st-rs-badge--replaced  { color: #9ca3af; background: rgba(156,163,175,0.1); border-color: rgba(156,163,175,0.25); }
+    .st-rs-badge--replaced::before  { background: #9ca3af; }
+    .st-rs-badge--deleted   { color: #f05060; background: rgba(240,80,96,0.1); border-color: rgba(240,80,96,0.28); }
+    .st-rs-badge--deleted::before   { background: #f05060; }
+    .st-rs-badge--pending   { color: #fbbf24; background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.28); }
+    .st-rs-badge--pending::before   { background: #fbbf24; }
+    .st-rs-badge--neutral   { color: var(--mc-text-faint); background: rgba(255,255,255,0.04); border-color: var(--mc-border); }
+    .st-rs-badge--neutral::before   { background: var(--mc-text-faint); }
+
+    /* AI Readiness badges — deliberately distinct from file Status above:
+       purple is Royaltē's "intelligence" signal. Dormant = quiet lavender
+       (infrastructure exists, nothing active yet, per Board truthfulness
+       rule); Active = the same vivid-purple pill pattern already used by
+       Health Intelligence™ (.hi-status-pill--purple). */
+    .st-rs-badge--ai-dormant { color: #c4b5fd; background: rgba(168,85,247,0.07); border-color: rgba(168,85,247,0.16); }
+    .st-rs-badge--ai-dormant::before { background: #c4b5fd; opacity: 0.6; }
+    .st-rs-badge--ai-active  { color: var(--mc-purple); background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.28); }
+    .st-rs-badge--ai-active::before  { background: var(--mc-purple); box-shadow: 0 0 6px rgba(168,85,247,0.6); }
+
+    /* Version pill */
+    .st-rs-version-btn {
+      font-size: 11px; font-weight: 600; color: var(--mc-purple); background: none; border: none; cursor: pointer;
+      padding: 0; text-decoration: underline; text-underline-offset: 2px;
+    }
+    .st-rs-version-btn:hover { color: #c4b5fd; }
+    .st-rs-version-current { font-size: 11px; color: var(--mc-text-faint); }
+
+    /* Desktop table wrapper always scrolls horizontally rather than clipping */
+    .st-rs-table-wrap { overflow-x: auto; }
+    .st-rs-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 920px; }
+    .st-rs-table th { padding: 8px 6px; text-align: left; color: var(--mc-text-faint); text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em; }
+    .st-rs-table td { padding: 9px 6px; border-top: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+
+    /* Mobile stacked cards — shown instead of the table below 720px */
+    .st-rs-cards { display: none; flex-direction: column; gap: 10px; }
+    @media (max-width: 720px) {
+      .st-rs-table-wrap { display: none; }
+      .st-rs-cards { display: flex; }
+    }
+    .st-rs-card {
+      border: 1px solid rgba(168,85,247,0.14); border-radius: 10px; padding: 12px 14px;
+      background: linear-gradient(160deg, rgba(168,85,247,0.05), rgba(255,255,255,0.015) 60%);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .st-rs-card:hover { border-color: rgba(168,85,247,0.28); box-shadow: 0 0 18px rgba(168,85,247,0.1); }
+    .st-rs-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .st-rs-card-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 3px 0; }
+    .st-rs-card-row-label { color: var(--mc-text-faint); flex-shrink: 0; }
+    .st-rs-card-row-value { color: var(--mc-text-secondary); text-align: right; }
+    .st-rs-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+    /* Future Capabilities card — the most deliberately "AI/premium" surface
+       in this section: solid purple-glow border rather than a dashed
+       placeholder outline, per Board direction ("something exciting is
+       coming" should not read as unfinished/wireframed). */
+    .st-rs-future-card {
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(168,85,247,0.3); border-radius: 10px; padding: 14px 16px;
+      background: linear-gradient(160deg, rgba(168,85,247,0.1), rgba(109,40,217,0.04) 65%);
+      box-shadow: 0 0 36px -16px rgba(168,85,247,0.45);
+    }
+    .st-rs-future-title { font-size: 12.5px; font-weight: 700; color: var(--mc-text-primary); margin-bottom: 2px; }
+    .st-rs-future-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mc-purple); margin-bottom: 4px; }
+    .st-rs-future-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 14px; margin-top: 10px; list-style: none; padding: 0; }
+    @media (max-width: 720px) { .st-rs-future-list { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 460px) { .st-rs-future-list { grid-template-columns: 1fr; } }
+    .st-rs-future-list li { font-size: 11.5px; color: var(--mc-text-muted); padding: 3px 0; }
+    .st-rs-future-list li::before { content: '\2022'; color: var(--mc-purple); margin-right: 7px; }
+
+    /* Version History dialog — elevated purple chrome */
+    .st-rs-dialog {
+      border: 1px solid rgba(168,85,247,0.24); border-radius: 14px; background: var(--mc-surface-1);
+      color: var(--mc-text-primary); padding: 0; max-width: 480px; width: 92vw;
+      box-shadow: 0 24px 64px -12px rgba(0,0,0,0.65), 0 0 44px -18px rgba(168,85,247,0.4);
+    }
+    .st-rs-dialog::backdrop { background: rgba(5,5,10,0.7); }
+    .st-rs-dialog-head {
+      display: flex; align-items: center; justify-content: space-between; padding: 16px 18px;
+      border-bottom: 1px solid rgba(168,85,247,0.2);
+      background: linear-gradient(135deg, rgba(109,40,217,0.22), rgba(168,85,247,0.06) 70%);
+      border-radius: 14px 14px 0 0;
+    }
+    .st-rs-dialog-title { font-size: 13.5px; font-weight: 700; }
+    .st-rs-dialog-close { background: none; border: none; color: var(--mc-text-muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 2px 4px; }
+    .st-rs-dialog-close:hover { color: var(--mc-text-primary); }
+    .st-rs-dialog-body { padding: 14px 18px 18px; max-height: 60vh; overflow-y: auto; }
+    .st-rs-version-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12.5px; }
+    .st-rs-version-row:last-child { border-bottom: none; }
+    .st-rs-version-meta { color: var(--mc-text-muted); font-size: 11px; }
+
+    /* Upload area — inviting purple focus/hover states, scoped to the
+       Royalty Statements section only so Profile/Security/etc. keep their
+       existing orange focus color untouched. */
+    #st-statements .st-field input:focus, #st-statements .st-field select:focus {
+      border-color: var(--mc-purple); box-shadow: 0 0 0 3px rgba(168,85,247,0.14);
+    }
+    #st-statements .st-field:has(input[type="file"]) {
+      border-radius: 10px; padding: 2px; transition: box-shadow 0.2s ease, background 0.2s ease;
+    }
+    #st-statements .st-field:has(input[type="file"]:hover),
+    #st-statements .st-field:has(input[type="file"]:focus) {
+      box-shadow: 0 0 0 1px rgba(168,85,247,0.3), 0 0 20px -8px rgba(168,85,247,0.4);
+      background: rgba(168,85,247,0.04);
+    }
+    #st-rs-upload:hover { box-shadow: 0 0 22px -6px rgba(168,85,247,0.45); }
   </style>
 </head>
 <body>
@@ -271,6 +466,7 @@
           <a href="#st-mrp">Music Rights Profile</a>
           <a href="#st-security">Security</a>
           <a href="#st-services">Connected Services</a>
+          <a href="#st-statements">Royalty Statements</a>
           <a href="#st-preferences">Preferences</a>
           <a href="#st-privacy">Privacy</a>
         </nav>
@@ -348,6 +544,260 @@
           <div class="st-card-desc">Link your platform accounts directly to Royaltē. Account-linking is not yet available — Royaltē currently discovers your presence on these platforms via Scan, shown in Backend Intelligence™.</div>
           <div class="st-service-grid" id="st-service-grid"></div>
         </section>
+
+        <!-- § ROYALTY STATEMENTS™ ────────────────────────────────────── -->
+        <section class="st-card" id="st-statements">
+          <div class="st-card-header"><div class="st-card-title">Royalty Statements™</div></div>
+          <div class="st-card-desc">
+            Royalty statements provide a record of how and when you are paid by the organizations that collect royalties on your behalf.
+            Uploading these statements allows Royaltē to securely organize your historical payment records and, in future releases, power
+            deeper royalty analysis, AI insights, and royalty audit tools.
+          </div>
+
+          <!-- Archive Summary -->
+          <div class="st-rs-summary" id="st-rs-summary" role="group" aria-label="Statement archive summary">
+            <div class="st-rs-stat">
+              <div class="st-rs-stat-label">Total Statements</div>
+              <div class="st-rs-stat-value" id="st-rs-sum-total">0</div>
+            </div>
+            <div class="st-rs-stat">
+              <div class="st-rs-stat-label">Storage Used</div>
+              <div class="st-rs-stat-value" id="st-rs-sum-storage">0 B</div>
+            </div>
+            <div class="st-rs-stat">
+              <div class="st-rs-stat-label">Latest Upload</div>
+              <div class="st-rs-stat-value st-rs-stat-value--sub" id="st-rs-sum-latest">—</div>
+            </div>
+            <div class="st-rs-stat">
+              <div class="st-rs-stat-label">Most Recent Source</div>
+              <div class="st-rs-stat-value st-rs-stat-value--sub" id="st-rs-sum-source">—</div>
+            </div>
+          </div>
+
+          <div class="st-group">
+            <div class="st-group-title">Why Upload Your Statements?</div>
+            <div class="st-card-desc" style="margin-bottom:0;">
+              Many artists receive payments without knowing: whether every song was included, whether every territory reported correctly,
+              whether royalties have declined unexpectedly, whether registrations are complete, or whether payments appear consistent over time.
+              Uploading statements gives Royaltē additional evidence that can improve future royalty analysis and help identify trends or
+              inconsistencies that may warrant further investigation.
+            </div>
+          </div>
+
+          <div class="st-group">
+            <div class="st-current-val" style="font-style:italic;">
+              <b>Important:</b> uploading royalty statements does not guarantee Royaltē will identify missing royalties or payment errors.
+              These documents provide valuable information that helps improve future AI-powered royalty intelligence and analysis.
+            </div>
+          </div>
+
+          <div class="st-group">
+            <div class="st-group-title">Benefits of Uploading Statements</div>
+            <div class="st-card-desc" style="margin-bottom:8px;">Future Royaltē releases will use these statements to help:</div>
+            <ul style="margin:0 0 0 18px; padding:0; font-size:12.5px; color:var(--mc-text-secondary); line-height:1.9;">
+              <li>Build a historical royalty timeline</li>
+              <li>Compare royalty performance over time</li>
+              <li>Analyze distributor and publisher performance</li>
+              <li>Compare earnings by territory</li>
+              <li>Detect unusual payment trends</li>
+              <li>Support royalty audit workflows</li>
+              <li>Generate ATHENA™ insights</li>
+              <li>Improve Catalog and Publishing Intelligence™</li>
+            </ul>
+          </div>
+
+          <!-- Evidence card + disclaimer -->
+          <div class="st-group">
+            <div class="st-rs-evidence-card">
+              <div class="st-rs-evidence-title">Help Royaltē Build a Clearer Royalty Picture</div>
+              <div class="st-rs-evidence-body">
+                <p>Royalty payments can be difficult to verify when information is spread across different PROs, publishers, distributors, labels and neighboring-rights organizations.</p>
+                <p>Uploading your statements creates a private historical record that Royaltē can use in future releases to compare reporting periods, identify unusual changes and help surface issues that may deserve a closer review.</p>
+                <p>If you believe a royalty payment may be incomplete or incorrect, uploading the relevant statements is one of the best ways to provide Royaltē with the evidence needed to support future analysis.</p>
+              </div>
+              <div class="st-rs-disclaimer">Royalty statement uploads do not guarantee that Royaltē will identify missing royalties, calculation errors or unpaid income. Royaltē provides informational intelligence and does not replace professional accounting, legal or royalty-audit advice.</div>
+            </div>
+          </div>
+
+          <!-- Upload form -->
+          <div class="st-group">
+            <div class="st-group-title">Upload a Statement</div>
+            <div class="st-current-val" id="st-rs-replace-banner" style="display:none;"></div>
+            <div class="st-field-grid">
+              <div class="st-field">
+                <label for="st-rs-category">Statement Category</label>
+                <select id="st-rs-category">
+                  <option value="">Select…</option>
+                  <option value="pro">Performing Rights Organization</option>
+                  <option value="publishing_admin">Publishing Administrator</option>
+                  <option value="distributor">Music Distributor</option>
+                  <option value="label">Record Label</option>
+                  <option value="neighboring_rights">Neighboring Rights Organization</option>
+                  <option value="sync_agency">Sync Agency</option>
+                </select>
+              </div>
+              <div class="st-field">
+                <label for="st-rs-source-name">Source Name</label>
+                <select id="st-rs-source-name"><option value="">Select a source first…</option></select>
+              </div>
+              <div class="st-field" id="st-rs-source-other-wrap" style="display:none;">
+                <label for="st-rs-source-other">Source Name (Other)</label>
+                <input type="text" id="st-rs-source-other" placeholder="Organization name">
+              </div>
+              <div class="st-field"><label for="st-rs-period">Reporting Period</label><input type="text" id="st-rs-period" placeholder="e.g. Q1 2026" maxlength="60"></div>
+              <div class="st-field">
+                <label for="st-rs-currency">Currency</label>
+                <select id="st-rs-currency">
+                  <option value="">Select…</option>
+                  <option value="CAD">CAD — Canadian Dollar</option>
+                  <option value="USD">USD — US Dollar</option>
+                  <option value="GBP">GBP — British Pound</option>
+                  <option value="EUR">EUR — Euro</option>
+                  <option value="AUD">AUD — Australian Dollar</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="st-field" id="st-rs-currency-other-wrap" style="display:none;">
+                <label for="st-rs-currency-other">Currency Code (Other)</label>
+                <input type="text" id="st-rs-currency-other" placeholder="3-letter ISO code, e.g. JPY" maxlength="3" style="text-transform:uppercase;">
+              </div>
+              <div class="st-field"><label for="st-rs-date">Statement Date</label><input type="date" id="st-rs-date"></div>
+              <div class="st-field" style="grid-column:1/-1;"><label for="st-rs-notes">Notes (optional)</label><input type="text" id="st-rs-notes" placeholder="Anything worth remembering about this statement"></div>
+              <div class="st-field" style="grid-column:1/-1;">
+                <label for="st-rs-file">File — PDF, CSV, or XLSX</label>
+                <input type="file" id="st-rs-file" accept=".pdf,.csv,.xlsx,application/pdf,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                <div class="st-rs-limit-hint">Maximum file size: 25 MB.</div>
+              </div>
+            </div>
+            <div class="st-field-error" id="st-rs-error"></div>
+
+            <div class="st-rs-dup-banner" id="st-rs-dup-banner">
+              <div class="st-rs-dup-banner-title">This looks like a statement you may have already uploaded</div>
+              <div id="st-rs-dup-list-wrap"></div>
+              <div class="st-rs-dup-actions">
+                <button class="st-btn st-btn--primary" id="st-rs-dup-new" type="button">Upload as New Statement</button>
+                <button class="st-btn" id="st-rs-dup-replace" type="button">Replace Existing Statement</button>
+                <button class="st-btn" id="st-rs-dup-cancel" type="button">Cancel</button>
+              </div>
+            </div>
+
+            <div class="st-card-actions" style="margin-top:10px;">
+              <button class="st-btn st-btn--primary" id="st-rs-upload" type="button">Upload Statement</button>
+              <button class="st-btn" id="st-rs-cancel-replace" type="button" style="display:none;">Cancel Replace</button>
+              <button class="st-btn" type="button" disabled title="Direct imports from PROs, publishers and distributors are not yet available.">Import from Service — Coming Soon</button>
+            </div>
+            <div class="st-status" id="st-rs-upload-status"></div>
+          </div>
+
+          <!-- Search / filter / sort -->
+          <div class="st-group">
+            <div class="st-group-title">Statement History</div>
+
+            <div class="st-rs-toolbar">
+              <div class="st-rs-toolbar-field st-rs-toolbar-search">
+                <label for="st-rs-search">Search</label>
+                <input type="text" id="st-rs-search" placeholder="Source, file name, period, notes…">
+              </div>
+              <div class="st-rs-toolbar-field">
+                <label for="st-rs-filter-category">Category</label>
+                <select id="st-rs-filter-category">
+                  <option value="">All categories</option>
+                  <option value="pro">Performing Rights Organization</option>
+                  <option value="publishing_admin">Publishing Administrator</option>
+                  <option value="distributor">Music Distributor</option>
+                  <option value="label">Record Label</option>
+                  <option value="neighboring_rights">Neighboring Rights Organization</option>
+                  <option value="sync_agency">Sync Agency</option>
+                </select>
+              </div>
+              <div class="st-rs-toolbar-field">
+                <label for="st-rs-filter-year">Year</label>
+                <select id="st-rs-filter-year"><option value="">All years</option></select>
+              </div>
+              <div class="st-rs-toolbar-field">
+                <label for="st-rs-filter-status">Status</label>
+                <select id="st-rs-filter-status">
+                  <option value="">All statuses</option>
+                  <option value="uploaded">Uploaded</option>
+                  <option value="archived">Archived</option>
+                  <option value="deleted">Deleted</option>
+                </select>
+              </div>
+              <div class="st-rs-toolbar-field">
+                <label for="st-rs-filter-type">File Type</label>
+                <select id="st-rs-filter-type">
+                  <option value="">All file types</option>
+                  <option value="pdf">PDF</option>
+                  <option value="csv">CSV</option>
+                  <option value="xlsx">XLSX</option>
+                </select>
+              </div>
+              <div class="st-rs-toolbar-field">
+                <label for="st-rs-sort">Sort</label>
+                <select id="st-rs-sort">
+                  <option value="newest">Newest upload</option>
+                  <option value="oldest">Oldest upload</option>
+                  <option value="statement-date">Statement date</option>
+                  <option value="source">Source name</option>
+                  <option value="period">Reporting period</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="st-rs-table-wrap">
+              <table class="st-rs-table" id="st-rs-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Source</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Reporting Period</th>
+                    <th scope="col">Currency</th>
+                    <th scope="col">Statement Date</th>
+                    <th scope="col">Upload Date</th>
+                    <th scope="col">File Name</th>
+                    <th scope="col">File Size</th>
+                    <th scope="col">Version</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">AI Readiness</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="st-rs-tbody"></tbody>
+              </table>
+            </div>
+            <div class="st-rs-cards" id="st-rs-cards"></div>
+            <div class="st-current-val" id="st-rs-empty" style="padding:14px 0; display:none;">No royalty statements have been uploaded yet.</div>
+            <div class="st-current-val" id="st-rs-no-results" style="padding:14px 0; display:none;">No statements match the selected filters.</div>
+            <div class="st-status" id="st-rs-list-status" role="status" aria-live="polite"></div>
+          </div>
+
+          <!-- Future Capabilities -->
+          <div class="st-group">
+            <div class="st-rs-future-card">
+              <div class="st-rs-future-eyebrow">Future Capability</div>
+              <div class="st-rs-future-title">Coming to Royalty Intelligence™</div>
+              <ul class="st-rs-future-list">
+                <li>Statement Analysis</li>
+                <li>Historical Earnings Trends</li>
+                <li>Territory Comparisons</li>
+                <li>Song-Level Royalty Matching</li>
+                <li>Publisher Performance</li>
+                <li>Distributor Performance</li>
+                <li>Payment Anomaly Detection</li>
+                <li>ATHENA™ Royalty Insights</li>
+                <li>Royalty Audit Support</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <dialog class="st-rs-dialog" id="st-rs-version-dialog">
+          <div class="st-rs-dialog-head">
+            <div class="st-rs-dialog-title" id="st-rs-version-dialog-title">Version History</div>
+            <button class="st-rs-dialog-close" id="st-rs-version-dialog-close" type="button" aria-label="Close version history">&times;</button>
+          </div>
+          <div class="st-rs-dialog-body" id="st-rs-version-dialog-body"></div>
+        </dialog>
 
         <!-- § PREFERENCES ────────────────────────────────────────────── -->
         <section class="st-card" id="st-preferences">
@@ -737,6 +1187,527 @@ function renderServices() {
   `).join('');
 }
 
+// ── Royalty Statements™ ─────────────────────────────────────────────────
+// File bytes go directly from the browser to Supabase Storage (bucket
+// "royalty-statements", private, RLS-scoped to the caller's own auth.uid()
+// folder) — never routed through a serverless function, to avoid body-size
+// and timeout limits on multi-megabyte PDF/XLSX files. Only metadata is
+// sent to /api/royalty-statements, which verifies the uploaded object
+// actually exists under the caller's own folder before trusting it.
+//
+// Constitutional note: no parsing, OCR, or analysis of statement contents
+// happens here — this is storage and record-keeping only, per the Board
+// brief's explicit "Out of Scope" list. `ai_readiness_state` is always
+// 'not_processed' for every statement this Build Pass creates.
+
+const RS_SOURCES = {
+  pro: ['SOCAN', 'ASCAP', 'BMI', 'SESAC', 'PRS', 'APRA', 'SACEM', 'GEMA', 'Other'],
+  publishing_admin: ['TuneCore Publishing', 'Songtrust', 'Sentric', 'Kobalt', 'Downtown', 'CD Baby Pro', 'Other'],
+  distributor: ['TuneCore', 'DistroKid', 'CD Baby', 'AWAL', 'UnitedMasters', 'Symphonic', 'Ditto', 'ONErpm', 'Believe', 'Other'],
+  label: ['Other'],
+  neighboring_rights: ['SoundExchange', 'Re:Sound', 'PPL', 'Other'],
+  sync_agency: ['Other'],
+};
+const RS_CATEGORY_LABEL = {
+  pro: 'Performing Rights Organization', publishing_admin: 'Publishing Administrator',
+  distributor: 'Music Distributor', label: 'Record Label',
+  neighboring_rights: 'Neighboring Rights Organization', sync_agency: 'Sync Agency',
+};
+const RS_STATUS_LABEL = {
+  uploaded: 'Uploaded', archived: 'Archived', replaced: 'Replaced', deleted: 'Deleted',
+  pending_analysis: 'Pending Analysis', processing: 'Processing', analysis_complete: 'Analysis Complete',
+  review_required: 'Review Required', processing_failed: 'Processing Failed',
+};
+const RS_STATUS_CLASS = {
+  uploaded: 'st-rs-badge--uploaded', archived: 'st-rs-badge--archived', replaced: 'st-rs-badge--replaced', deleted: 'st-rs-badge--deleted',
+  pending_analysis: 'st-rs-badge--pending', processing: 'st-rs-badge--pending', analysis_complete: 'st-rs-badge--uploaded',
+  review_required: 'st-rs-badge--pending', processing_failed: 'st-rs-badge--deleted',
+};
+const RS_AI_LABEL = {
+  not_processed: 'Not Processed', ready_for_analysis: 'Ready for Analysis', processing: 'Processing',
+  parsed: 'Parsed', insights_available: 'Insights Available', review_required: 'Review Required', unsupported_format: 'Unsupported Format',
+};
+const RS_CURRENCY_PRESETS = new Set(['CAD', 'USD', 'GBP', 'EUR', 'AUD']);
+const RS_MAX_FILE_SIZE_BYTES = 26214400; // 25 MB
+const RS_SOURCE_INITIALS = {
+  SOCAN: 'SO', ASCAP: 'AS', BMI: 'BM', SESAC: 'SE', PRS: 'PR', APRA: 'AP', SACEM: 'SA', GEMA: 'GE',
+  'TuneCore Publishing': 'TC', Songtrust: 'ST', Sentric: 'SN', Kobalt: 'KB', Downtown: 'DT', 'CD Baby Pro': 'CB',
+  TuneCore: 'TC', DistroKid: 'DK', 'CD Baby': 'CB', AWAL: 'AW', UnitedMasters: 'UM', Symphonic: 'SY', Ditto: 'DI', ONErpm: 'ON', Believe: 'BL',
+  SoundExchange: 'SX', 'Re:Sound': 'RS', PPL: 'PL', Other: '?',
+};
+
+// Future-integration event boundary — prepared, not wired. Per Board
+// direction: "prepare clean hooks... do not build a temporary Monitoring
+// Timeline implementation." A real canonical event publisher (Royalty
+// Intelligence™ / Monitoring Timeline™ / ATHENA™, see task #56) replaces
+// this function body when that platform exists — call sites do not change.
+function notifyRoyaltyStatementEventHook(eventName, detail) {
+  console.info('[settings] royalty_statement.' + eventName + ' (integration hook — not yet wired):', detail);
+}
+
+let rsStatements = [];       // current (non-replaced, non-deleted) statements — the active archive
+let rsReplaceTargetId = null; // set when the pending upload is a Replace, not a new statement
+let rsPendingDuplicateOverride = null; // 'new' | 'replace' once the artist has resolved a duplicate warning
+let rsFilters = { search: '', category: '', year: '', status: '', fileType: '', sort: 'newest' };
+
+function rsFmtBytes(n) {
+  if (!n) return '0 B';
+  if (n < 1024) return n + ' B';
+  if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+  return (n / 1048576).toFixed(1) + ' MB';
+}
+
+function rsInitials(name) {
+  if (RS_SOURCE_INITIALS[name]) return RS_SOURCE_INITIALS[name];
+  const words = (name || '').trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return '?';
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+function rsBadge(cls, label) {
+  return `<span class="st-rs-badge ${cls}">${esc(label)}</span>`;
+}
+
+document.getElementById('st-rs-category').addEventListener('change', (e) => {
+  const cat = e.target.value;
+  const nameSelect = document.getElementById('st-rs-source-name');
+  const otherWrap = document.getElementById('st-rs-source-other-wrap');
+  if (!cat) { nameSelect.innerHTML = '<option value="">Select a source first…</option>'; otherWrap.style.display = 'none'; return; }
+  nameSelect.innerHTML = '<option value="">Select…</option>' + RS_SOURCES[cat].map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  otherWrap.style.display = 'none';
+});
+document.getElementById('st-rs-source-name').addEventListener('change', (e) => {
+  document.getElementById('st-rs-source-other-wrap').style.display = e.target.value === 'Other' ? 'flex' : 'none';
+});
+document.getElementById('st-rs-currency').addEventListener('change', (e) => {
+  document.getElementById('st-rs-currency-other-wrap').style.display = e.target.value === 'other' ? 'flex' : 'none';
+});
+
+async function rsCallApi(body) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (accessToken) headers['Authorization'] = 'Bearer ' + accessToken;
+  const res = await fetch('/api/royalty-statements', { method: 'POST', headers, body: JSON.stringify(body) });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || ('Request failed (' + res.status + ')'));
+  return json;
+}
+
+async function rsUploadFileToStorage(file) {
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  const path = userId + '/' + crypto.randomUUID() + '-' + file.name;
+  const { error } = await supabase.storage.from('royalty-statements').upload(path, file, { upsert: false });
+  if (error) throw new Error('Upload failed: ' + error.message);
+  return { path, ext };
+}
+
+function rsReadUploadForm() {
+  const category = document.getElementById('st-rs-category').value;
+  const nameSelect = document.getElementById('st-rs-source-name').value;
+  const nameOther = document.getElementById('st-rs-source-other').value.trim();
+  const sourceName = nameSelect === 'Other' ? nameOther : nameSelect;
+  const currencySelect = document.getElementById('st-rs-currency').value;
+  const currencyOther = document.getElementById('st-rs-currency-other').value.trim().toUpperCase();
+  const currency = currencySelect === 'other' ? currencyOther : currencySelect;
+  return {
+    category, sourceName, currency,
+    reportingPeriod: document.getElementById('st-rs-period').value.trim(),
+    statementDate: document.getElementById('st-rs-date').value,
+    notes: document.getElementById('st-rs-notes').value.trim(),
+    file: document.getElementById('st-rs-file').files[0],
+  };
+}
+
+document.getElementById('st-rs-upload').addEventListener('click', () => rsStartUpload());
+document.getElementById('st-rs-cancel-replace').addEventListener('click', () => { rsReplaceTargetId = null; rsSetReplaceBanner(null); rsResetUploadForm(); });
+document.getElementById('st-rs-dup-cancel').addEventListener('click', () => rsHideDupBanner());
+document.getElementById('st-rs-dup-new').addEventListener('click', () => { rsPendingDuplicateOverride = 'new'; rsHideDupBanner(); rsStartUpload(); });
+document.getElementById('st-rs-dup-replace').addEventListener('click', () => {
+  const firstDup = rsLastDuplicates && rsLastDuplicates[0];
+  rsHideDupBanner();
+  if (firstDup) { rsReplaceTargetId = firstDup.id; rsSetReplaceBanner(firstDup); }
+  rsPendingDuplicateOverride = 'replace';
+  rsStartUpload();
+});
+
+let rsLastDuplicates = [];
+
+function rsHideDupBanner() {
+  document.getElementById('st-rs-dup-banner').classList.remove('st-visible');
+}
+
+function rsShowDupBanner(duplicates) {
+  rsLastDuplicates = duplicates;
+  const wrap = document.getElementById('st-rs-dup-list-wrap');
+  wrap.innerHTML = '<ul class="st-rs-dup-list">' + duplicates.map(d => `
+    <li>${esc(d.source_name)}${d.reporting_period ? ' — ' + esc(d.reporting_period) : ''}${d.statement_date ? ' — ' + esc(fmtDate(d.statement_date)) : ''} <span style="color:var(--mc-text-faint);">(uploaded ${esc(fmtDate(d.created_at))})</span></li>
+  `).join('') + '</ul>';
+  document.getElementById('st-rs-dup-banner').classList.add('st-visible');
+}
+
+async function rsStartUpload() {
+  const errEl = document.getElementById('st-rs-error');
+  const statusEl = document.getElementById('st-rs-upload-status');
+  errEl.textContent = ''; statusEl.textContent = ''; statusEl.className = 'st-status';
+
+  const form = rsReadUploadForm();
+
+  if (!form.category) { errEl.textContent = 'Choose a statement category.'; return; }
+  if (!form.sourceName) { errEl.textContent = 'Choose or enter a source name.'; return; }
+  if (!form.file) { errEl.textContent = 'Choose a file to upload.'; return; }
+  const ext = (form.file.name.split('.').pop() || '').toLowerCase();
+  if (!['pdf', 'csv', 'xlsx'].includes(ext)) { errEl.textContent = 'Only PDF, CSV, and XLSX files are supported.'; return; }
+  if (form.file.size > RS_MAX_FILE_SIZE_BYTES) { errEl.textContent = 'File exceeds the 25 MB maximum.'; return; }
+  if (form.currency && !/^[A-Z]{3}$/.test(form.currency)) { errEl.textContent = 'Currency must be a valid 3-letter ISO code.'; return; }
+  if (form.reportingPeriod.length > 60) { errEl.textContent = 'Reporting period is too long.'; return; }
+
+  // Duplicate pre-flight check — skipped once the artist has already chosen
+  // how to proceed (New / Replace) for this exact upload attempt, and
+  // skipped entirely for an explicit Replace already in progress.
+  if (!rsPendingDuplicateOverride && !rsReplaceTargetId) {
+    if (devFixtureActive()) {
+      const dup = rsStatements.find(s => s.source_category === form.category && s.source_name === form.sourceName
+        && (s.reporting_period === form.reportingPeriod || s.file_name === form.file.name));
+      if (dup) { rsShowDupBanner([dup]); return; }
+    } else {
+      try {
+        const { duplicates } = await rsCallApi({
+          action: 'check_duplicate', sourceCategory: form.category, sourceName: form.sourceName,
+          reportingPeriod: form.reportingPeriod || undefined, statementDate: form.statementDate || undefined,
+          fileName: form.file.name, fileSizeBytes: form.file.size,
+        });
+        if (duplicates && duplicates.length > 0) { rsShowDupBanner(duplicates); return; }
+      } catch (e) {
+        // Duplicate check failing should never block a legitimate upload — proceed.
+      }
+    }
+  }
+  rsPendingDuplicateOverride = null;
+
+  if (devFixtureActive()) {
+    const isReplace = !!rsReplaceTargetId;
+    const replaced = isReplace ? rsStatements.find(s => s.id === rsReplaceTargetId) : null;
+    if (replaced) replaced.status = 'replaced';
+    rsStatements = [{
+      id: 'fixture-' + Date.now(), source_category: form.category, source_name: form.sourceName,
+      reporting_period: form.reportingPeriod || null, currency: form.currency || null,
+      statement_date: form.statementDate || null, notes: form.notes || null,
+      file_name: form.file.name, file_type: ext, file_size_bytes: form.file.size,
+      status: 'uploaded', ai_readiness_state: 'not_processed',
+      version: replaced ? (replaced.version || 1) + 1 : 1,
+      replaces_statement_id: replaced ? replaced.id : null,
+      created_at: new Date().toISOString(),
+    }, ...rsStatements.filter(s => s.status !== 'replaced' || s.id !== rsReplaceTargetId)];
+    rsReplaceTargetId = null;
+    rsSetReplaceBanner(null);
+    rsRenderAll();
+    rsResetUploadForm();
+    statusEl.textContent = 'Uploaded. (Preview mode — not written to Storage.)';
+    statusEl.classList.add('st-status--success');
+    notifyRoyaltyStatementEventHook(isReplace ? 'replaced' : 'uploaded', { sourceName: form.sourceName });
+    return;
+  }
+
+  try {
+    statusEl.textContent = 'Uploading…';
+    const { path } = await rsUploadFileToStorage(form.file);
+    const isReplace = !!rsReplaceTargetId;
+    const payload = {
+      action: isReplace ? 'replace' : 'register',
+      statementId: rsReplaceTargetId || undefined,
+      filePath: path, fileName: form.file.name, fileType: ext, fileSizeBytes: form.file.size,
+      sourceCategory: form.category, sourceName: form.sourceName,
+      reportingPeriod: form.reportingPeriod || undefined,
+      currency: form.currency || undefined,
+      statementDate: form.statementDate || undefined,
+      notes: form.notes || undefined,
+    };
+    await rsCallApi(payload);
+    rsReplaceTargetId = null;
+    rsSetReplaceBanner(null);
+    await loadRsStatements();
+    rsResetUploadForm();
+    statusEl.textContent = 'Statement uploaded.';
+    statusEl.classList.add('st-status--success');
+    notifyRoyaltyStatementEventHook(isReplace ? 'replaced' : 'uploaded', { sourceName: form.sourceName });
+  } catch (e) {
+    statusEl.textContent = e.message || 'Upload failed.';
+    statusEl.classList.add('st-status--error');
+  }
+}
+
+function rsSetReplaceBanner(target) {
+  const banner = document.getElementById('st-rs-replace-banner');
+  const cancelBtn = document.getElementById('st-rs-cancel-replace');
+  if (!target) { banner.style.display = 'none'; cancelBtn.style.display = 'none'; return; }
+  banner.style.display = 'block';
+  banner.innerHTML = `Replacing version ${esc(target.version || 1)} of <b>${esc(target.source_name)}${target.reporting_period ? ' — ' + esc(target.reporting_period) : ''}</b>.`;
+  cancelBtn.style.display = 'inline-flex';
+}
+
+function rsResetUploadForm() {
+  document.getElementById('st-rs-category').value = '';
+  document.getElementById('st-rs-source-name').innerHTML = '<option value="">Select a source first…</option>';
+  document.getElementById('st-rs-source-other-wrap').style.display = 'none';
+  document.getElementById('st-rs-source-other').value = '';
+  document.getElementById('st-rs-period').value = '';
+  document.getElementById('st-rs-currency').value = '';
+  document.getElementById('st-rs-currency-other-wrap').style.display = 'none';
+  document.getElementById('st-rs-currency-other').value = '';
+  document.getElementById('st-rs-date').value = '';
+  document.getElementById('st-rs-notes').value = '';
+  document.getElementById('st-rs-file').value = '';
+}
+
+async function loadRsStatements() {
+  if (devFixtureActive()) { rsRenderAll(); return; }
+  const statusEl = document.getElementById('st-rs-list-status');
+  try {
+    const headers = {};
+    if (accessToken) headers['Authorization'] = 'Bearer ' + accessToken;
+    const res = await fetch('/api/royalty-statements', { headers });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Could not load statements');
+    rsStatements = json.statements || [];
+    rsRenderAll();
+  } catch (e) {
+    statusEl.textContent = e.message;
+    statusEl.classList.add('st-status--error');
+  }
+}
+
+// ── Archive Summary ─────────────────────────────────────────────────────
+function rsRenderSummary() {
+  const active = rsStatements.filter(s => s.status !== 'deleted');
+  document.getElementById('st-rs-sum-total').textContent = String(active.length);
+  const totalBytes = active.reduce((sum, s) => sum + (s.file_size_bytes || 0), 0);
+  document.getElementById('st-rs-sum-storage').textContent = rsFmtBytes(totalBytes);
+  if (active.length === 0) {
+    document.getElementById('st-rs-sum-latest').textContent = '—';
+    document.getElementById('st-rs-sum-source').textContent = '—';
+    return;
+  }
+  const latest = active.reduce((a, b) => (new Date(a.created_at) > new Date(b.created_at) ? a : b));
+  document.getElementById('st-rs-sum-latest').textContent = fmtDate(latest.created_at);
+  document.getElementById('st-rs-sum-source').textContent = latest.source_name;
+}
+
+// ── Search / Filter / Sort ──────────────────────────────────────────────
+function rsPopulateYearFilter() {
+  const sel = document.getElementById('st-rs-filter-year');
+  const years = Array.from(new Set(rsStatements.map(s => (s.statement_date || s.created_at || '').slice(0, 4)).filter(Boolean))).sort().reverse();
+  const current = sel.value;
+  sel.innerHTML = '<option value="">All years</option>' + years.map(y => `<option value="${esc(y)}">${esc(y)}</option>`).join('');
+  sel.value = years.includes(current) ? current : '';
+}
+
+function rsFilteredSorted() {
+  const q = rsFilters.search.trim().toLowerCase();
+  let list = rsStatements.filter(s => {
+    if (rsFilters.category && s.source_category !== rsFilters.category) return false;
+    if (rsFilters.status && s.status !== rsFilters.status) return false;
+    if (rsFilters.fileType && s.file_type !== rsFilters.fileType) return false;
+    if (rsFilters.year && (s.statement_date || s.created_at || '').slice(0, 4) !== rsFilters.year) return false;
+    if (q) {
+      const hay = [s.source_name, s.file_name, s.reporting_period, s.notes].filter(Boolean).join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  list = list.slice().sort((a, b) => {
+    switch (rsFilters.sort) {
+      case 'oldest': return new Date(a.created_at) - new Date(b.created_at);
+      case 'statement-date': return new Date(b.statement_date || 0) - new Date(a.statement_date || 0);
+      case 'source': return (a.source_name || '').localeCompare(b.source_name || '');
+      case 'period': return (a.reporting_period || '').localeCompare(b.reporting_period || '');
+      case 'newest': default: return new Date(b.created_at) - new Date(a.created_at);
+    }
+  });
+  return list;
+}
+
+['st-rs-search', 'st-rs-filter-category', 'st-rs-filter-year', 'st-rs-filter-status', 'st-rs-filter-type', 'st-rs-sort'].forEach(id => {
+  const el = document.getElementById(id);
+  const ev = el.tagName === 'SELECT' ? 'change' : 'input';
+  el.addEventListener(ev, () => {
+    rsFilters = {
+      search: document.getElementById('st-rs-search').value,
+      category: document.getElementById('st-rs-filter-category').value,
+      year: document.getElementById('st-rs-filter-year').value,
+      status: document.getElementById('st-rs-filter-status').value,
+      fileType: document.getElementById('st-rs-filter-type').value,
+      sort: document.getElementById('st-rs-sort').value,
+    };
+    rsRenderHistory();
+  });
+});
+
+// ── History rendering (desktop table + mobile stacked cards) ───────────
+function rsRenderAll() {
+  rsRenderSummary();
+  rsPopulateYearFilter();
+  rsRenderHistory();
+}
+
+function rsVersionCell(s) {
+  const hasHistory = s.version > 1 || s.replaces_statement_id;
+  if (!hasHistory) return `<span class="st-rs-version-current">v${esc(s.version || 1)}</span>`;
+  return `<span class="st-rs-version-current">v${esc(s.version || 1)}</span> · <button class="st-rs-version-btn" type="button" data-rs-action="version-history" data-rs-id="${esc(s.id)}">View Version History</button>`;
+}
+
+function rsActionButtons(s) {
+  return `
+    <button class="st-btn" style="padding:4px 8px;font-size:11px;" data-rs-action="view" data-rs-id="${esc(s.id)}">View</button>
+    <button class="st-btn" style="padding:4px 8px;font-size:11px;" data-rs-action="download" data-rs-id="${esc(s.id)}">Download</button>
+    <button class="st-btn" style="padding:4px 8px;font-size:11px;" data-rs-action="replace" data-rs-id="${esc(s.id)}">Replace</button>
+    <button class="st-btn st-btn--danger" style="padding:4px 8px;font-size:11px;" data-rs-action="delete" data-rs-id="${esc(s.id)}">Delete</button>
+  `;
+}
+
+function rsRenderHistory() {
+  const tbody = document.getElementById('st-rs-tbody');
+  const cards = document.getElementById('st-rs-cards');
+  const empty = document.getElementById('st-rs-empty');
+  const noResults = document.getElementById('st-rs-no-results');
+
+  if (rsStatements.length === 0) {
+    tbody.innerHTML = ''; cards.innerHTML = '';
+    empty.style.display = 'block'; noResults.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const list = rsFilteredSorted();
+  if (list.length === 0) {
+    tbody.innerHTML = ''; cards.innerHTML = '';
+    noResults.style.display = 'block';
+    return;
+  }
+  noResults.style.display = 'none';
+
+  tbody.innerHTML = list.map(s => `
+    <tr>
+      <td><div class="st-rs-source-cell"><span class="st-rs-avatar">${esc(rsInitials(s.source_name))}</span>${esc(s.source_name)}</div></td>
+      <td>${esc(RS_CATEGORY_LABEL[s.source_category] || s.source_category)}</td>
+      <td>${esc(s.reporting_period || '—')}</td>
+      <td>${esc(s.currency || '—')}</td>
+      <td>${esc(s.statement_date ? fmtDate(s.statement_date) : '—')}</td>
+      <td>${esc(fmtDate(s.created_at))}</td>
+      <td title="${esc(s.file_name)}">${esc(s.file_name.length > 22 ? s.file_name.slice(0, 19) + '…' : s.file_name)}</td>
+      <td>${esc(rsFmtBytes(s.file_size_bytes))}</td>
+      <td>${rsVersionCell(s)}</td>
+      <td>${rsBadge(RS_STATUS_CLASS[s.status] || 'st-rs-badge--neutral', RS_STATUS_LABEL[s.status] || s.status)}</td>
+      <td>${rsBadge(s.ai_readiness_state === 'not_processed' ? 'st-rs-badge--ai-dormant' : 'st-rs-badge--ai-active', RS_AI_LABEL[s.ai_readiness_state] || 'Not Processed')}</td>
+      <td style="white-space:nowrap;">${rsActionButtons(s)}</td>
+    </tr>
+  `).join('');
+
+  cards.innerHTML = list.map(s => `
+    <div class="st-rs-card">
+      <div class="st-rs-card-top">
+        <div class="st-rs-source-cell"><span class="st-rs-avatar">${esc(rsInitials(s.source_name))}</span><b>${esc(s.source_name)}</b></div>
+        ${rsBadge(RS_STATUS_CLASS[s.status] || 'st-rs-badge--neutral', RS_STATUS_LABEL[s.status] || s.status)}
+      </div>
+      <div class="st-rs-card-row"><span class="st-rs-card-row-label">Category</span><span class="st-rs-card-row-value">${esc(RS_CATEGORY_LABEL[s.source_category] || s.source_category)}</span></div>
+      <div class="st-rs-card-row"><span class="st-rs-card-row-label">Reporting Period</span><span class="st-rs-card-row-value">${esc(s.reporting_period || '—')}</span></div>
+      <div class="st-rs-card-row"><span class="st-rs-card-row-label">Currency</span><span class="st-rs-card-row-value">${esc(s.currency || '—')}</span></div>
+      <div class="st-rs-card-row"><span class="st-rs-card-row-label">Upload Date</span><span class="st-rs-card-row-value">${esc(fmtDate(s.created_at))}</span></div>
+      <div class="st-rs-card-row"><span class="st-rs-card-row-label">File Name</span><span class="st-rs-card-row-value">${esc(s.file_name)}</span></div>
+      <div class="st-rs-card-row"><span class="st-rs-card-row-label">AI Readiness</span><span class="st-rs-card-row-value">${rsBadge(s.ai_readiness_state === 'not_processed' ? 'st-rs-badge--ai-dormant' : 'st-rs-badge--ai-active', RS_AI_LABEL[s.ai_readiness_state] || 'Not Processed')}</span></div>
+      <div class="st-rs-card-row"><span class="st-rs-card-row-label">Version</span><span class="st-rs-card-row-value">${rsVersionCell(s)}</span></div>
+      <div class="st-rs-card-actions">${rsActionButtons(s)}</div>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('[data-rs-action]').forEach(btn => {
+    btn.addEventListener('click', () => rsHandleAction(btn.dataset.rsAction, btn.dataset.rsId));
+  });
+}
+
+// ── Version History dialog ──────────────────────────────────────────────
+function rsOpenVersionDialog(versions, headId) {
+  const dialog = document.getElementById('st-rs-version-dialog');
+  const body = document.getElementById('st-rs-version-dialog-body');
+  const title = document.getElementById('st-rs-version-dialog-title');
+  const named = versions.find(v => v.id === headId) || versions[0];
+  title.textContent = named ? `Version History — ${named.source_name}${named.reporting_period ? ' — ' + named.reporting_period : ''}` : 'Version History';
+  body.innerHTML = versions.map((v, i) => `
+    <div class="st-rs-version-row">
+      <div>
+        <div>v${esc(v.version || 1)} ${i === 0 ? '<span class="st-rs-badge st-rs-badge--uploaded">Current</span>' : '<span class="st-rs-badge st-rs-badge--replaced">Replaced</span>'}</div>
+        <div class="st-rs-version-meta">${esc(v.file_name)} · ${esc(rsFmtBytes(v.file_size_bytes))}</div>
+      </div>
+      <div class="st-rs-version-meta">Uploaded ${esc(fmtDate(v.created_at))}</div>
+    </div>
+  `).join('');
+  if (typeof dialog.showModal === 'function') dialog.showModal();
+}
+document.getElementById('st-rs-version-dialog-close').addEventListener('click', () => document.getElementById('st-rs-version-dialog').close());
+
+async function rsHandleAction(action, id) {
+  const statusEl = document.getElementById('st-rs-list-status');
+  statusEl.textContent = ''; statusEl.className = 'st-status';
+
+  if (action === 'replace') {
+    const target = rsStatements.find(s => s.id === id);
+    rsReplaceTargetId = id;
+    rsSetReplaceBanner(target || { version: 1, source_name: '' });
+    document.getElementById('st-rs-category').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    statusEl.textContent = 'Choose a new file above, then click Upload Statement to replace this one.';
+    return;
+  }
+
+  if (action === 'view' || action === 'download') {
+    if (devFixtureActive()) { statusEl.textContent = 'Preview mode — no real file to open.'; return; }
+    try {
+      const { url } = await rsCallApi({ action: 'download', statementId: id, intent: action });
+      window.open(url, '_blank', 'noopener');
+      notifyRoyaltyStatementEventHook(action === 'view' ? 'viewed' : 'downloaded', { statementId: id });
+    } catch (e) {
+      statusEl.textContent = e.message;
+      statusEl.classList.add('st-status--error');
+    }
+    return;
+  }
+
+  if (action === 'version-history') {
+    if (devFixtureActive()) {
+      const head = rsStatements.find(s => s.id === id);
+      const chain = [];
+      let cursor = head;
+      while (cursor) { chain.push(cursor); cursor = cursor.replaces_statement_id ? rsStatements.find(s => s.id === cursor.replaces_statement_id) || { id: cursor.replaces_statement_id, version: (cursor.version || 2) - 1, file_name: 'earlier-version.pdf', file_size_bytes: 0, created_at: '2026-04-02T00:00:00.000Z' } : null; }
+      rsOpenVersionDialog(chain, id);
+      return;
+    }
+    try {
+      const { versions } = await rsCallApi({ action: 'version_history', statementId: id });
+      rsOpenVersionDialog(versions, id);
+    } catch (e) {
+      statusEl.textContent = e.message;
+      statusEl.classList.add('st-status--error');
+    }
+    return;
+  }
+
+  if (action === 'delete') {
+    if (!window.confirm('Remove this statement from your active archive? The record will be retained securely for audit and recovery purposes.')) return;
+    if (devFixtureActive()) {
+      rsStatements = rsStatements.filter(s => s.id !== id);
+      rsRenderAll();
+      notifyRoyaltyStatementEventHook('deleted', { statementId: id });
+      return;
+    }
+    try {
+      await rsCallApi({ action: 'delete', statementId: id });
+      await loadRsStatements();
+      notifyRoyaltyStatementEventHook('deleted', { statementId: id });
+    } catch (e) {
+      statusEl.textContent = e.message;
+      statusEl.classList.add('st-status--error');
+    }
+  }
+}
+
 // ── Preferences ──────────────────────────────────────────────────────────
 function renderToggles(hostId, prefKeys, prefsObj) {
   const host = document.getElementById(hostId);
@@ -884,9 +1855,20 @@ function devFixtureActive() {
       athenaNotifications: true,
       communications: { productAnnouncements: true },
     };
+    rsStatements = [
+      { id: 'fixture-3', source_category: 'pro', source_name: 'SOCAN', reporting_period: 'Q2 2026', currency: 'CAD', statement_date: '2026-07-15', status: 'uploaded', ai_readiness_state: 'not_processed', version: 2, replaces_statement_id: 'fixture-1', created_at: '2026-07-18T00:00:00.000Z', file_name: 'socan-q2-2026.pdf', file_type: 'pdf', file_size_bytes: 191488 },
+      { id: 'fixture-2', source_category: 'distributor', source_name: 'DistroKid', reporting_period: 'March 2026', currency: 'USD', statement_date: '2026-04-05', status: 'uploaded', ai_readiness_state: 'not_processed', version: 1, replaces_statement_id: null, created_at: '2026-04-10T00:00:00.000Z', file_name: 'distrokid-march-2026.csv', file_type: 'csv', file_size_bytes: 22016 },
+      { id: 'fixture-4', source_category: 'neighboring_rights', source_name: 'SoundExchange', reporting_period: 'Q1 2026', currency: 'USD', statement_date: '2026-03-30', status: 'uploaded', ai_readiness_state: 'not_processed', version: 1, replaces_statement_id: null, created_at: '2026-04-01T00:00:00.000Z', file_name: 'soundexchange-q1-2026.xlsx', file_type: 'xlsx', file_size_bytes: 55296 },
+      { id: 'fixture-5', source_category: 'publishing_admin', source_name: 'TuneCore Publishing', reporting_period: 'Q1 2026', currency: 'EUR', statement_date: '2026-04-12', status: 'uploaded', ai_readiness_state: 'not_processed', version: 1, replaces_statement_id: null, created_at: '2026-04-14T00:00:00.000Z', file_name: 'tcp-q1-2026.pdf', file_type: 'pdf', file_size_bytes: 98304 },
+    ];
+    // fixture-1 (SOCAN — Q1 2026, replaced by fixture-3) intentionally omitted
+    // from the active archive above — matches production, where the API's
+    // GET only returns current statements. The version-history dev-fixture
+    // path below synthesizes it on demand when "View Version History" is opened.
     renderProfileInfo();
     renderMrpGroups();
     renderServices();
+    rsRenderAll();
     renderPreferences();
     document.getElementById('st-profile-edit').addEventListener('click', () => setProfileEditing(true));
     document.getElementById('st-body').style.opacity = '1';
@@ -924,6 +1906,7 @@ function devFixtureActive() {
   renderProfileInfo();
   renderMrpGroups();
   renderServices();
+  await loadRsStatements();
   renderPreferences();
 
   document.getElementById('st-profile-edit').addEventListener('click', () => setProfileEditing(true));
