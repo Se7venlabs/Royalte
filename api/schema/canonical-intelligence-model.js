@@ -13,7 +13,13 @@
 //
 // Phase 3.7 Board Extension: 'recording' added as §8.2.13 (2026-07-02).
 
-export const CIM_VERSION = '1.0.0';
+// Versioning policy (Platform Recovery Phase 1, 2026-07-20): bump the
+// minor version on any change to CIM_OBJECTS (an object added/removed)
+// or to emptyCIM()'s shape; bump major on a breaking change to an
+// existing object's meaning. Record every bump in governance/CHANGELOG.md.
+// 1.1.0: the Phase 3.7 12→13 object extension ('recording' added) never
+// bumped this constant — corrected here, no further shape change in this bump.
+export const CIM_VERSION = '1.1.0';
 
 // The §8.2 canonical intelligence objects (order is constitutional).
 // Phase 3.7 extended from 12 → 13 with Board authorization (2026-07-02).
