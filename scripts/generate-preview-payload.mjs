@@ -11,6 +11,7 @@ import { runIntelligenceEngine }          from '../api/_lib/intelligence-engine.
 import { assembleIdentityIntelligence }   from '../api/_lib/identity-intelligence.js';
 import { assemblePublishingIntelligence } from '../api/_lib/publishing-intelligence.js';
 import { assembleBackendIntelligence }    from '../api/_lib/backend-intelligence.js';
+import { assembleBackendEvidence }        from '../api/_lib/backend-evidence.js';
 import { assembleCatalogIntelligence }    from '../api/_lib/catalog-intelligence.js';
 import { assembleCatalogEvidence }        from '../api/_lib/catalog-evidence.js';
 import { assembleGlobalMusicFootprint }   from '../api/_lib/global-music-footprint.js';
@@ -36,7 +37,8 @@ const publishingIntelligence = assemblePublishingIntelligence(report, cio);
 const catalogEvidence        = assembleCatalogEvidence(canonical);
 const catalogIntelligence    = assembleCatalogIntelligence(report, cio, catalogEvidence);
 const globalMusicFootprint   = assembleGlobalMusicFootprint(report, cio, canonical);
-const backendIntelligence    = assembleBackendIntelligence(canonical, publishingIntelligence);
+const backendEvidence        = assembleBackendEvidence(canonical);
+const backendIntelligence    = assembleBackendIntelligence(backendEvidence, publishingIntelligence);
 const royalteAI              = assembleRoyalteAI(identityIntelligence, publishingIntelligence, catalogIntelligence, globalMusicFootprint);
 const healthScore            = computeHealthScore(report);
 const healthReport           = generateHealthReport(cio, report);

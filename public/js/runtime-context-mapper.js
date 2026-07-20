@@ -141,6 +141,11 @@
                                  can.cim && can.cim.publishing)                                  || null,
       publishingIntelligence: _r(payload.publishingIntelligence, can.publishingIntelligence)     || null,
       catalogIntelligence:    _r(payload.catalogIntelligence,    can.catalogIntelligence)        || null,
+      // verification:         CIM-native (from cim.verification, the CIM's real key
+      //                       for backend/verification data) -- Phase 2 Recovery,
+      //                       Backend Intelligence workspace reads this directly.
+      verification:            _r(payload.cim  && payload.cim.verification,
+                                 can.cim && can.cim.verification)                                || null,
       backendIntelligence:    _r(payload.backendIntelligence,    can.backendIntelligence)        || null,
       globalMusicFootprint:   _r(payload.globalMusicFootprint,   can.globalMusicFootprint)       || null,
 

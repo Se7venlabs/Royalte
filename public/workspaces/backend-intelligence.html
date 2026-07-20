@@ -729,7 +729,7 @@
     var _body = document.querySelector('.ws-body');
     if (_body) _body.style.opacity = '1';
 
-    var bi = ctx.backendIntelligence;  // guaranteed non-null by contract
+    var bi = ctx.verification;  // CIM-native (Phase 2 Recovery) -- was ctx.backendIntelligence; guaranteed non-null by contract
     var hi = ctx.healthIntelligence  || null;
 
     /* ── Ring target ─────────────────────────────────────────────────── */
