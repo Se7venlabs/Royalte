@@ -126,13 +126,18 @@
       optional:       ['backendIntelligence', 'verification.apisResponding'],
     },
     'global-music-footprint': {
-      required:       ['globalMusicFootprint'],
-      requiredFields: ['globalMusicFootprint.status', 'globalMusicFootprint.territoriesAvailable'],
+      // Phase 2 Recovery (2026-07-20): workspace (and its gmf-distribution-gaps.js
+      // companion script) now read ctx.globalFootprint (CIM-native, matching
+      // cim.globalFootprint's real key name) instead of ctx.globalMusicFootprint --
+      // contract updated to match. globalMusicFootprint remains populated in the
+      // runtime context for ai-insights.html, which is not yet recovered.
+      required:       ['globalFootprint'],
+      requiredFields: ['globalFootprint.status', 'globalFootprint.territoriesAvailable'],
       requiredTypes:  {
-        'globalMusicFootprint.status':               'non-empty-string',
-        'globalMusicFootprint.territoriesAvailable': 'number',
+        'globalFootprint.status':               'non-empty-string',
+        'globalFootprint.territoriesAvailable': 'number',
       },
-      optional:       ['globalMusicFootprint.reachNarrative'],
+      optional:       ['globalMusicFootprint', 'globalFootprint.reachNarrative'],
     },
     'monitoring-timeline': {
       // monitoringIntelligence is always produced by the mapper (baseline when first scan).

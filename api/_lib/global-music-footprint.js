@@ -18,12 +18,23 @@
 //  down to this module's existing output shape — the shape itself does not
 //  change, so Mission Control and Health Intelligence require zero changes.
 //
-//  A legacy fallback path (direct canonical.platforms.appleMusic reads) is
-//  preserved for any caller not yet passing the new 4th argument, but the
+//  A legacy fallback path (globalFootprintEvidence.globalStorefrontAvailability)
+//  is preserved for any caller not yet passing the new 4th argument, but the
 //  Territory Intelligence Engine is the primary and intended data source.
 //
+//  Phase 2 Recovery (Board Option 3, 2026-07-20): this module no longer
+//  reads canonicalForEnrichment directly (former CIO-bypass, certified in
+//  governance/NORMALIZATION_LAYER_PLATFORM_CERTIFICATION.md and
+//  governance/CANONICAL_SCHEMA_CIO_CIM_PLATFORM_CERTIFICATION.md, resolved
+//  same pattern as Catalog/Backend Intelligence). The 3rd argument is now
+//  globalFootprintEvidence (api/_lib/global-footprint-evidence.js), a
+//  normalized sibling canonical object carrying only Apple availability
+//  and the legacy storefront fallback shape. territoryIntelligence (4th
+//  argument) is unchanged — it was never part of this bypass; it already
+//  reads raw evidencePackages directly by deliberate Board design.
+//
 //  Purity invariants:
-//    - Pure function of (intelligenceReport, cio, canonical, territoryIntelligence).
+//    - Pure function of (intelligenceReport, cio, globalFootprintEvidence, territoryIntelligence).
 //    - Never throws on any input (null / undefined / malformed).
 //    - Never mutates inputs.
 //    - Output is deep-frozen.
@@ -204,12 +215,12 @@ function buildDistributionGaps(territoryIntelligence) {
   };
 }
 
-export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical, territoryIntelligence) {
+export function assembleGlobalMusicFootprint(intelligenceReport, cio, globalFootprintEvidence, territoryIntelligence) {
   try {
-    const safeCanonical = (canonical && typeof canonical === 'object' && !Array.isArray(canonical))
-      ? canonical
+    const evidence = (globalFootprintEvidence && typeof globalFootprintEvidence === 'object' && !Array.isArray(globalFootprintEvidence))
+      ? globalFootprintEvidence
       : {};
-    const appleAvailability = safeCanonical?.platforms?.appleMusic?.availability ?? 'NOT_FOUND';
+    const appleAvailability = evidence.appleAvailability ?? 'NOT_FOUND';
 
     // ── Phase 5.2 primary path: Territory Intelligence Engine™ ──────────────
     const hasEngineOutput = territoryIntelligence
@@ -247,8 +258,7 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, canonical,
     //    territoryIntelligence. Unchanged from pre-Phase-5.2 behavior.
     //    distributionGaps is null here — no per-territory evidence exists on
     //    this path to derive it from honestly. ──────────────────────────────
-    const appleDetails = safeCanonical?.platforms?.appleMusic?.details;
-    const globalSfData = appleDetails?.globalStorefrontAvailability;
+    const globalSfData = evidence.globalStorefrontAvailability;
 
     if (!globalSfData || typeof globalSfData !== 'object' || Array.isArray(globalSfData)) {
       return deepFreeze({

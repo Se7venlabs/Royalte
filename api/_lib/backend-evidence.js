@@ -53,15 +53,28 @@ function deepFreeze(obj) {
   return Object.freeze(obj);
 }
 
-// assembleBackendEvidence(canonical) — sole entrypoint. Never throws.
+// assembleBackendEvidence(canonical) — sole entrypoint. Never throws,
+// including against a malformed input whose properties throw on access
+// (e.g. a hostile getter) — matching the "never throws on any input"
+// invariant every other assembler in this codebase upholds. Retrofitted
+// (Phase 2 Recovery, Global Music Footprint target, 2026-07-20) after the
+// same gap was found while building global-footprint-evidence.js.
 export function assembleBackendEvidence(canonical) {
-  const safe = (canonical && typeof canonical === 'object' && !Array.isArray(canonical)) ? canonical : {};
-  const platforms = safe.platforms;
+  try {
+    const safe = (canonical && typeof canonical === 'object' && !Array.isArray(canonical)) ? canonical : {};
+    const platforms = safe.platforms;
 
-  return deepFreeze({
-    musicbrainzAvailability: platforms?.musicbrainz?.availability ?? null,
-    discogsAvailability:     platforms?.discogs?.availability     ?? null,
-    lastfmAvailability:      platforms?.lastfm?.availability      ?? null,
-    scannedAt:                typeof safe.scannedAt === 'string' ? safe.scannedAt : null,
-  });
+    return deepFreeze({
+      musicbrainzAvailability: platforms?.musicbrainz?.availability ?? null,
+      discogsAvailability:     platforms?.discogs?.availability     ?? null,
+      lastfmAvailability:      platforms?.lastfm?.availability      ?? null,
+      scannedAt:                typeof safe.scannedAt === 'string' ? safe.scannedAt : null,
+    });
+  } catch (err) {
+    console.error('[backend-evidence] assembly threw (returning empty shell):', err?.message || err);
+    return deepFreeze({
+      musicbrainzAvailability: null, discogsAvailability: null,
+      lastfmAvailability: null, scannedAt: null,
+    });
+  }
 }

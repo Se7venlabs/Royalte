@@ -65,6 +65,8 @@ const FULL_CTX = {
   catalogIntelligence:    { totalTracks: 4, singles: 4, albums: 0, eps: 0, catalogStatus: 'Stable', isrcCoverage: { status: 'Unknown', percent: null }, bestVerifiedRelease: { releaseTitle: 'Everything Is Over - Single', artistName: 'Black Alternative', releaseType: 'Single', artwork: 'https://example.com/art.jpg' } },
   verification:           { services: [{ key: 'musicbrainz', name: 'MusicBrainz', state: 'VERIFIED' }, { key: 'discogs', name: 'Discogs', state: 'NOT_FOUND' }], connectedCount: 1, totalCount: 2 },
   backendIntelligence:    { services: [{ key: 'musicbrainz', name: 'MusicBrainz', state: 'VERIFIED' }, { key: 'discogs', name: 'Discogs', state: 'NOT_FOUND' }], connectedCount: 1, totalCount: 2 },
+  // globalFootprint: CIM-native mirror of globalMusicFootprint below (Phase 2 Recovery, 2026-07-20).
+  globalFootprint:        { status: 'Strong', territoriesAvailable: 156, coveragePercent: 93, reachNarrative: 'Strong global presence.' },
   globalMusicFootprint:   { status: 'Strong', territoriesAvailable: 156, coveragePercent: 93, reachNarrative: 'Strong global presence.' },
   monitoringIntelligence: { status: 'baseline', scanNumber: 1, baselineEstablished: true, previousScanId: null, currentScanId: 'e0aa20ef', events: [], newThisScan: 0, generatedAt: null },
   healthIntelligence:     { score: 90, grade: 'B', status: 'Excellent', identityScore: 100, publishingScore: 50 },
@@ -238,13 +240,15 @@ console.log('\nSuite 6: Global Music Footprint -- number and string validation')
   assertEqual('state', r.state, 'valid');
 
   // territoriesAvailable as string -> type_mismatch
-  const badTerr = Object.assign({}, FULL_CTX, { globalMusicFootprint: { status: 'Strong', territoriesAvailable: '156' } });
+  // (mutating globalFootprint, not globalMusicFootprint -- Phase 2 Recovery,
+  // 2026-07-20: the contract now checks globalFootprint.*)
+  const badTerr = Object.assign({}, FULL_CTX, { globalFootprint: { status: 'Strong', territoriesAvailable: '156' } });
   const r2 = validateContract(badTerr, 'global-music-footprint');
   assertEqual('string territories -> type_mismatch', r2.state, 'type_mismatch');
-  assert('mismatch field is territoriesAvailable', r2.typeMismatches && r2.typeMismatches[0] && r2.typeMismatches[0].field === 'globalMusicFootprint.territoriesAvailable');
+  assert('mismatch field is territoriesAvailable', r2.typeMismatches && r2.typeMismatches[0] && r2.typeMismatches[0].field === 'globalFootprint.territoriesAvailable');
 
   // Empty status -> type_mismatch
-  const emptyStatus = Object.assign({}, FULL_CTX, { globalMusicFootprint: { status: '', territoriesAvailable: 156 } });
+  const emptyStatus = Object.assign({}, FULL_CTX, { globalFootprint: { status: '', territoriesAvailable: 156 } });
   const r3 = validateContract(emptyStatus, 'global-music-footprint');
   assertEqual('empty status -> type_mismatch', r3.state, 'type_mismatch');
 
@@ -390,9 +394,10 @@ console.log('\nSuite 12: All 8 contracts -- fresh Spotify scan e0aa20ef');
       // publishingIntelligence/backendIntelligence fields below, mirroring
       // what CimAdapter guarantees in the real pipeline.
       cim:                  {
-        identity:     { coverage: 100, verifiedProviders: 5, totalProviders: 5, providers: { apple: 'VERIFIED', spotify: 'VERIFIED', youtube: 'VERIFIED', deezer: 'VERIFIED', tidal: 'VERIFIED' }, issues: [] },
-        publishing:   { coverage: 0, coverageStatus: 'Unavailable', supportedSources: ['mlc'] },
-        verification: { services: [{ key: 'musicbrainz', name: 'MusicBrainz', state: 'VERIFIED' }, { key: 'discogs', name: 'Discogs', state: 'NOT_FOUND' }], connectedCount: 1, totalCount: 2 },
+        identity:       { coverage: 100, verifiedProviders: 5, totalProviders: 5, providers: { apple: 'VERIFIED', spotify: 'VERIFIED', youtube: 'VERIFIED', deezer: 'VERIFIED', tidal: 'VERIFIED' }, issues: [] },
+        publishing:     { coverage: 0, coverageStatus: 'Unavailable', supportedSources: ['mlc'] },
+        verification:   { services: [{ key: 'musicbrainz', name: 'MusicBrainz', state: 'VERIFIED' }, { key: 'discogs', name: 'Discogs', state: 'NOT_FOUND' }], connectedCount: 1, totalCount: 2 },
+        globalFootprint: { status: 'Strong', territoriesAvailable: 156, coveragePercent: 93, reachNarrative: 'Strong global presence.' },
       },
       healthIntelligence:   { score: 90, grade: 'B', status: 'Excellent', identityScore: 100, publishingScore: 50 },
       healthReport:         { grade: 'B', risks: [], strengths: ['Identity fully verified'] },

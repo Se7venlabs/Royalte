@@ -63,26 +63,40 @@ function deepFreeze(obj) {
   return Object.freeze(obj);
 }
 
-// assembleCatalogEvidence(canonical) — sole entrypoint. Never throws.
+// assembleCatalogEvidence(canonical) — sole entrypoint. Never throws,
+// including against a malformed input whose properties throw on access
+// (e.g. a hostile getter) — matching the "never throws on any input"
+// invariant every other assembler in this codebase upholds. Retrofitted
+// (Phase 2 Recovery, Global Music Footprint target, 2026-07-20) after the
+// same gap was found while building global-footprint-evidence.js.
 export function assembleCatalogEvidence(canonical) {
-  const safe = (canonical && typeof canonical === 'object' && !Array.isArray(canonical)) ? canonical : {};
-  const appleDetails   = safe.platforms?.appleMusic?.details;
-  const discogsDetails = safe.platforms?.discogs?.details;
-  const catalogFallback = safe.catalog;
+  try {
+    const safe = (canonical && typeof canonical === 'object' && !Array.isArray(canonical)) ? canonical : {};
+    const appleDetails   = safe.platforms?.appleMusic?.details;
+    const discogsDetails = safe.platforms?.discogs?.details;
+    const catalogFallback = safe.catalog;
 
-  return deepFreeze({
-    appleAlbums:          Array.isArray(appleDetails?.albums) ? appleDetails.albums : [],
-    appleAvailability:    safe.platforms?.appleMusic?.availability ?? null,
-    isrcComparison:       (appleDetails?.catalogComparison && typeof appleDetails.catalogComparison === 'object')
-                             ? appleDetails.catalogComparison
-                             : null,
-    discogsReleases:      Array.isArray(discogsDetails?.releases) ? discogsDetails.releases : [],
-    discogsTotalReleases: typeof discogsDetails?.totalReleases === 'number' ? discogsDetails.totalReleases : null,
-    fallbackCounts: {
-      singles:     typeof catalogFallback?.singlesCount === 'number' ? catalogFallback.singlesCount : 0,
-      eps:         typeof catalogFallback?.epsCount      === 'number' ? catalogFallback.epsCount     : 0,
-      albums:      typeof catalogFallback?.albumsCount   === 'number' ? catalogFallback.albumsCount  : 0,
-      totalTracks: typeof catalogFallback?.totalTracks   === 'number' ? catalogFallback.totalTracks  : 0,
-    },
-  });
+    return deepFreeze({
+      appleAlbums:          Array.isArray(appleDetails?.albums) ? appleDetails.albums : [],
+      appleAvailability:    safe.platforms?.appleMusic?.availability ?? null,
+      isrcComparison:       (appleDetails?.catalogComparison && typeof appleDetails.catalogComparison === 'object')
+                               ? appleDetails.catalogComparison
+                               : null,
+      discogsReleases:      Array.isArray(discogsDetails?.releases) ? discogsDetails.releases : [],
+      discogsTotalReleases: typeof discogsDetails?.totalReleases === 'number' ? discogsDetails.totalReleases : null,
+      fallbackCounts: {
+        singles:     typeof catalogFallback?.singlesCount === 'number' ? catalogFallback.singlesCount : 0,
+        eps:         typeof catalogFallback?.epsCount      === 'number' ? catalogFallback.epsCount     : 0,
+        albums:      typeof catalogFallback?.albumsCount   === 'number' ? catalogFallback.albumsCount  : 0,
+        totalTracks: typeof catalogFallback?.totalTracks   === 'number' ? catalogFallback.totalTracks  : 0,
+      },
+    });
+  } catch (err) {
+    console.error('[catalog-evidence] assembly threw (returning empty shell):', err?.message || err);
+    return deepFreeze({
+      appleAlbums: [], appleAvailability: null, isrcComparison: null,
+      discogsReleases: [], discogsTotalReleases: null,
+      fallbackCounts: { singles: 0, eps: 0, albums: 0, totalTracks: 0 },
+    });
+  }
 }
