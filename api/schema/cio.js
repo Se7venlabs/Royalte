@@ -113,6 +113,8 @@
 //        apple:   { availability, details } | null,
 //        spotify: { availability, details } | null,
 //        youtube: { availability, details } | null,
+//        deezer:  { availability, details } | null,
+//        tidal:   { availability, details } | null,
 //      },
 //    }
 //
@@ -137,11 +139,13 @@
 //      Identity Intelligence™ assembler treats this as
 //      ⏳ Unable to Confirm — NEVER ❌ Not Found.
 //
-//  Reserved provider keys: only 'apple', 'spotify', 'youtube' are
-//  populated in Phase 3. Amazon Music is deferred per Board D1 and
-//  is intentionally NOT a key here — adding it now would imply a
-//  scan ran when none did. Future Adapter Expansion Phase introduces
-//  it; until then Amazon must not appear in this object.
+//  Reserved provider keys: 'apple', 'spotify', 'youtube', 'deezer', and
+//  'tidal' are populated as of Phase 4.0 (deezer/tidal added after this
+//  doc-block was originally written at Phase 3B — see cio-assembler.js's
+//  observations.providers population logic). Amazon Music is deferred
+//  per Board D1 and is intentionally NOT a key here — adding it now
+//  would imply a scan ran when none did. Future Adapter Expansion Phase
+//  introduces it; until then Amazon must not appear in this object.
 //
 //  Invariants:
 //    1. The CIO Assembly Engine populates these entries by COPYING
@@ -182,7 +186,13 @@
 //      assembler boundary, not here.
 // ─────────────────────────────────────────────────────────────────────
 
-export const CIO_VERSION               = '1.0.0';
+// Versioning policy (Platform Recovery Phase 1, 2026-07-20): bump the
+// minor version on any change to the CIO shape (fields added/removed/
+// renamed in emptyCio()); bump major on a breaking change to an existing
+// field's meaning or type. Record every bump in governance/CHANGELOG.md.
+// 1.1.0: observations.providers gained deezer/tidal keys after this
+// constant was locked at 1.0.0 without a version bump — corrected here.
+export const CIO_VERSION               = '1.1.0';
 export const CIO_CONFIDENCE            = 'UNKNOWN';
 export const CIO_ARTIST_CONFIDENCE     = 'UNKNOWN';
 export const CIO_PUBLISHING_CONFIDENCE = 'UNKNOWN';
