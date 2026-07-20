@@ -57,8 +57,13 @@ const FULL_CTX = {
   identity:               { coverage: 100, verifiedProviders: 5, totalProviders: 5, providers: { apple: 'VERIFIED', spotify: 'VERIFIED', youtube: 'VERIFIED', deezer: 'VERIFIED', tidal: 'VERIFIED' }, issues: [] },
   identityIntelligence:   { providers: { apple: 'VERIFIED', spotify: 'VERIFIED', youtube: 'VERIFIED', deezer: 'VERIFIED', tidal: 'VERIFIED' }, coverage: 100 },
   musicRightsProfile:     null,
+  // publishing / verification: CIM-native fields (Phase 2 Recovery, 2026-07-20),
+  // same underlying data as publishingIntelligence / backendIntelligence below --
+  // mirrors the identity / identityIntelligence pattern already present here.
+  publishing:             { coverage: 0, coverageStatus: 'Unavailable', supportedSources: ['mlc'] },
   publishingIntelligence: { coverage: 0, coverageStatus: 'Unavailable', supportedSources: ['mlc'] },
   catalogIntelligence:    { totalTracks: 4, singles: 4, albums: 0, eps: 0, catalogStatus: 'Stable', isrcCoverage: { status: 'Unknown', percent: null }, bestVerifiedRelease: { releaseTitle: 'Everything Is Over - Single', artistName: 'Black Alternative', releaseType: 'Single', artwork: 'https://example.com/art.jpg' } },
+  verification:           { services: [{ key: 'musicbrainz', name: 'MusicBrainz', state: 'VERIFIED' }, { key: 'discogs', name: 'Discogs', state: 'NOT_FOUND' }], connectedCount: 1, totalCount: 2 },
   backendIntelligence:    { services: [{ key: 'musicbrainz', name: 'MusicBrainz', state: 'VERIFIED' }, { key: 'discogs', name: 'Discogs', state: 'NOT_FOUND' }], connectedCount: 1, totalCount: 2 },
   globalMusicFootprint:   { status: 'Strong', territoriesAvailable: 156, coveragePercent: 93, reachNarrative: 'Strong global presence.' },
   monitoringIntelligence: { status: 'baseline', scanNumber: 1, baselineEstablished: true, previousScanId: null, currentScanId: 'e0aa20ef', events: [], newThisScan: 0, generatedAt: null },
@@ -211,13 +216,15 @@ console.log('\nSuite 5: Backend Intelligence -- services array validation');
   assertEqual('state', r.state, 'valid');
 
   // services is object not array -> type_mismatch
-  const badServices = Object.assign({}, FULL_CTX, { backendIntelligence: { services: { musicbrainz: 'VERIFIED' } } });
+  // (mutating verification, not backendIntelligence -- Phase 2 Recovery,
+  // 2026-07-20: the contract now checks verification.services)
+  const badServices = Object.assign({}, FULL_CTX, { verification: { services: { musicbrainz: 'VERIFIED' } } });
   const r2 = validateContract(badServices, 'backend-intelligence');
   assertEqual('object services -> type_mismatch', r2.state, 'type_mismatch');
-  assert('mismatch field is services', r2.typeMismatches && r2.typeMismatches[0] && r2.typeMismatches[0].field === 'backendIntelligence.services');
+  assert('mismatch field is services', r2.typeMismatches && r2.typeMismatches[0] && r2.typeMismatches[0].field === 'verification.services');
 
   // services is empty array -> valid (presence + type correct)
-  const emptyServices = Object.assign({}, FULL_CTX, { backendIntelligence: { services: [] } });
+  const emptyServices = Object.assign({}, FULL_CTX, { verification: { services: [] } });
   const r3 = validateContract(emptyServices, 'backend-intelligence');
   assertEqual('empty services array -> valid', r3.state, 'valid');
 }
@@ -378,7 +385,15 @@ console.log('\nSuite 12: All 8 contracts -- fresh Spotify scan e0aa20ef');
     publishingIntelligence: { coverage: 0, coverageStatus: 'Unavailable', supportedSources: ['mlc'] },
     canonical: {
       subject:              { artistName: 'Black Alternative', recordLabel: 'Castle Park Studioz (GmbH)' },
-      cim:                  { identity: { coverage: 100, verifiedProviders: 5, totalProviders: 5, providers: { apple: 'VERIFIED', spotify: 'VERIFIED', youtube: 'VERIFIED', deezer: 'VERIFIED', tidal: 'VERIFIED' }, issues: [] } },
+      // cim.publishing / cim.verification added (Phase 2 Recovery, 2026-07-20)
+      // alongside the pre-existing cim.identity -- same data as the legacy
+      // publishingIntelligence/backendIntelligence fields below, mirroring
+      // what CimAdapter guarantees in the real pipeline.
+      cim:                  {
+        identity:     { coverage: 100, verifiedProviders: 5, totalProviders: 5, providers: { apple: 'VERIFIED', spotify: 'VERIFIED', youtube: 'VERIFIED', deezer: 'VERIFIED', tidal: 'VERIFIED' }, issues: [] },
+        publishing:   { coverage: 0, coverageStatus: 'Unavailable', supportedSources: ['mlc'] },
+        verification: { services: [{ key: 'musicbrainz', name: 'MusicBrainz', state: 'VERIFIED' }, { key: 'discogs', name: 'Discogs', state: 'NOT_FOUND' }], connectedCount: 1, totalCount: 2 },
+      },
       healthIntelligence:   { score: 90, grade: 'B', status: 'Excellent', identityScore: 100, publishingScore: 50 },
       healthReport:         { grade: 'B', risks: [], strengths: ['Identity fully verified'] },
       healthScore:          { overallScore: 90, overallGrade: 'B', summary: 'Strong Foundation', generatedAt: '2026-07-14T11:13:20Z' },

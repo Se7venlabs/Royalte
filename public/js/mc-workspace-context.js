@@ -94,10 +94,15 @@
       optional:       ['identityIntelligence', 'metrics', 'artwork'],
     },
     'publishing-intelligence': {
-      required:       ['publishingIntelligence'],
+      // Phase 2 Recovery (2026-07-20): workspace now reads ctx.publishing
+      // (CIM-native) instead of ctx.publishingIntelligence -- contract
+      // updated to match what the workspace actually consumes.
+      // publishingIntelligence remains populated in the runtime context
+      // for ai-insights.html, which is not yet recovered.
+      required:       ['publishing'],
       requiredFields: [],
       requiredTypes:  {},
-      optional:       ['musicRightsProfile', 'recordLabel'],
+      optional:       ['publishingIntelligence', 'musicRightsProfile', 'recordLabel'],
     },
     'catalog-intelligence': {
       required:       ['catalogIntelligence'],
@@ -108,12 +113,17 @@
       optional:       ['catalogIntelligence.isrcCoverage', 'catalogIntelligence.bestVerifiedRelease'],
     },
     'backend-intelligence': {
-      required:       ['backendIntelligence'],
-      requiredFields: ['backendIntelligence.services'],
+      // Phase 2 Recovery (2026-07-20): workspace now reads ctx.verification
+      // (CIM-native, matching cim.verification's real key name) instead of
+      // ctx.backendIntelligence -- contract updated to match. backendIntelligence
+      // remains populated in the runtime context for ai-insights.html, which
+      // is not yet recovered.
+      required:       ['verification'],
+      requiredFields: ['verification.services'],
       requiredTypes:  {
-        'backendIntelligence.services': 'array',
+        'verification.services': 'array',
       },
-      optional:       ['backendIntelligence.apisResponding'],
+      optional:       ['backendIntelligence', 'verification.apisResponding'],
     },
     'global-music-footprint': {
       required:       ['globalMusicFootprint'],

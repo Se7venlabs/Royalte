@@ -2,11 +2,11 @@
 //  Backend Intelligence™ — Assembler (Build Pass 3 v2.0)
 // ─────────────────────────────────────────────────────────────────────
 //
-//  Constitutional position:
+//  Constitutional position (Board Option 3, Phase 2 Recovery, 2026-07-20):
 //
 //    Scan Engine
 //        ↓
-//    canonical (normalizeAuditResponse) + publishingIntelligence
+//    api/_lib/backend-evidence.js (Normalization) + publishingIntelligence
 //        ↓
 //    Backend Intelligence™ Assembler  ◀── THIS MODULE
 //        ↓
@@ -14,9 +14,16 @@
 //        ↓
 //    Mission Control™ · Backend Intelligence card
 //
+//  This module no longer reads canonicalForEnrichment directly (former
+//  CIO-bypass, certified in governance/NORMALIZATION_LAYER_PLATFORM_CERTIFICATION.md
+//  and governance/CANONICAL_SCHEMA_CIO_CIM_PLATFORM_CERTIFICATION.md, resolved
+//  per ADR-002 Option 3, same pattern as Catalog Intelligence's recovery).
+//
 //  Displayed services (Build Pass 3 — Board directive):
-//    MusicBrainz   — canonical.platforms.musicbrainz.availability
+//    MusicBrainz   — evidence.musicbrainzAvailability
 //    MLC            — publishingIntelligence.registrations.mlcRegistration
+//                     (correct composition: reads an already-assembled
+//                     downstream intelligence object, not raw canonical)
 //
 //  APIs Responding metric — 4 always-called backend services:
 //    MusicBrainz, Discogs, Last.fm, MLC
@@ -47,7 +54,7 @@
 //      connectedCount: number,          // VERIFIED count among displayed services
 //      totalCount:     number,          // always 2 for Build Pass 3
 //      apisResponding: { responded: number, total: number },  // 4-service metric
-//      lastSync:       string,          // ISO timestamp from canonical.scannedAt
+//      lastSync:       string,          // ISO timestamp from evidence.scannedAt
 //      summaryLabel:   string,          // backward-compat
 //    }
 //
@@ -142,30 +149,24 @@ function deriveSummaryLabel(connectedCount, totalCount) {
   return `${connectedCount} of ${totalCount} Connected`;
 }
 
-// ─── Raw availability reads ─────────────────────────────────────────────
+// ─── Raw availability reads (from Canonical Backend Evidence) ──────────
 
-function readMusicBrainzState(canonical) {
-  const c = safeObj(canonical);
-  if (!c) return BACKEND_STATE.AUTH_UNAVAILABLE;
-  const mb = safeObj(safeObj(c.platforms)?.musicbrainz);
-  if (!mb) return BACKEND_STATE.AUTH_UNAVAILABLE;
-  return resolveState(mb.availability);
+function readMusicBrainzState(evidence) {
+  const e = safeObj(evidence);
+  if (!e) return BACKEND_STATE.AUTH_UNAVAILABLE;
+  return resolveState(e.musicbrainzAvailability);
 }
 
-function readDiscogsState(canonical) {
-  const c = safeObj(canonical);
-  if (!c) return BACKEND_STATE.AUTH_UNAVAILABLE;
-  const dc = safeObj(safeObj(c.platforms)?.discogs);
-  if (!dc) return BACKEND_STATE.AUTH_UNAVAILABLE;
-  return resolveState(dc.availability);
+function readDiscogsState(evidence) {
+  const e = safeObj(evidence);
+  if (!e) return BACKEND_STATE.AUTH_UNAVAILABLE;
+  return resolveState(e.discogsAvailability);
 }
 
-function readLastFmState(canonical) {
-  const c = safeObj(canonical);
-  if (!c) return BACKEND_STATE.AUTH_UNAVAILABLE;
-  const lf = safeObj(safeObj(c.platforms)?.lastfm);
-  if (!lf) return BACKEND_STATE.AUTH_UNAVAILABLE;
-  return resolveState(lf.availability);
+function readLastFmState(evidence) {
+  const e = safeObj(evidence);
+  if (!e) return BACKEND_STATE.AUTH_UNAVAILABLE;
+  return resolveState(e.lastfmAvailability);
 }
 
 function readMlcState(publishingIntelligence) {
@@ -180,10 +181,10 @@ function readMlcState(publishingIntelligence) {
 
 // ─── Public API ──────────────────────────────────────────────────────
 
-export function assembleBackendIntelligence(canonical, publishingIntelligence) {
+export function assembleBackendIntelligence(backendEvidence, publishingIntelligence) {
   try {
     const displayedStates = {
-      musicbrainz: readMusicBrainzState(canonical),
+      musicbrainz: readMusicBrainzState(backendEvidence),
       mlc:         readMlcState(publishingIntelligence),
     };
 
@@ -198,17 +199,17 @@ export function assembleBackendIntelligence(canonical, publishingIntelligence) {
 
     // APIs Responding — counts all 4 monitored backend services
     const monitoredStates = [
-      readMusicBrainzState(canonical),
-      readDiscogsState(canonical),
-      readLastFmState(canonical),
+      readMusicBrainzState(backendEvidence),
+      readDiscogsState(backendEvidence),
+      readLastFmState(backendEvidence),
       readMlcState(publishingIntelligence),
     ];
     const responded = monitoredStates.filter((s) => RESPONDED_STATES.has(s)).length;
     const apisResponding = Object.freeze({ responded, total: APIS_MONITORED.length });
 
-    // Last Sync — scan completion timestamp from canonical
-    const c = safeObj(canonical);
-    const lastSync = (c && typeof c.scannedAt === 'string') ? c.scannedAt : null;
+    // Last Sync — scan completion timestamp from evidence
+    const e = safeObj(backendEvidence);
+    const lastSync = (e && typeof e.scannedAt === 'string') ? e.scannedAt : null;
 
     return deepFreeze({
       services,
