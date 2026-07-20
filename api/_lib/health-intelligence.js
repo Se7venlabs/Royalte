@@ -23,6 +23,8 @@
 //
 // ─────────────────────────────────────────────────────────────────────
 
+import { UNABLE_INSIGHT_SENTINEL } from './royalte-ai-assembler.js';
+
 export const HEALTH_INTELLIGENCE_VERSION = '1.0.0';
 
 // ── Status vocabulary bands ───────────────────────────────────────────
@@ -172,9 +174,16 @@ function extractStrengths(domainScores, ii, pi, ci, gmf, bi, mi, ai) {
   if (domainScores.monitoring >= 85) s.push('Active monitoring and change detection');
   if (domainScores.catalog    >= 80) s.push('Catalog verified with confidence');
 
-  if (s.length < 5 && ai && Array.isArray(ai.strengths) && ai.strengths.length > 0) {
-    const aiStrength = ai.strengths[0];
-    if (typeof aiStrength === 'string' && aiStrength.trim()) s.push(aiStrength.trim());
+  // Phase 2 Recovery (2026-07-20): was reading ai.strengths[0], a field
+  // that has never existed on assembleRoyalteAI()'s output (real shape:
+  // { observation, priority, positiveSignal, nextAction }) -- this
+  // padding branch could never fire. positiveSignal is the real field
+  // semantically closest to a strength; skip it when it's the AI
+  // assembler's own no-data sentinel rather than surfacing "unable to
+  // generate insight" as if it were a real strength.
+  if (s.length < 5 && ai && typeof ai.positiveSignal === 'string'
+      && ai.positiveSignal.trim() && ai.positiveSignal !== UNABLE_INSIGHT_SENTINEL) {
+    s.push(ai.positiveSignal.trim());
   }
 
   return s.slice(0, 5);
@@ -192,9 +201,12 @@ function extractConcerns(domainScores, ii, pi, ci, gmf, bi, mi, ai) {
   if (domainScores.catalog    < 40) c.push('Catalog data could not be verified');
   if (!mi || domainScores.monitoring === 50) c.push('Monitoring not active for this scan');
 
-  if (c.length < 5 && ai && Array.isArray(ai.issues) && ai.issues.length > 0) {
-    const aiIssue = ai.issues[0];
-    if (typeof aiIssue === 'string' && aiIssue.trim()) c.push(aiIssue.trim());
+  // Same fix as extractStrengths above: ai.issues never existed on
+  // assembleRoyalteAI()'s real output. nextAction is the closest real
+  // field to a concern; skip the no-data sentinel.
+  if (c.length < 5 && ai && typeof ai.nextAction === 'string'
+      && ai.nextAction.trim() && ai.nextAction !== UNABLE_INSIGHT_SENTINEL) {
+    c.push(ai.nextAction.trim());
   }
 
   return c.slice(0, 5);

@@ -54,6 +54,10 @@
 export const ROYALTE_AI_VERSION = '1.0.0';
 
 const UNABLE = 'Unable to generate insight from reviewed sources.';
+// Exported (Phase 2 Recovery, 2026-07-20) so health-intelligence.js can
+// distinguish a real positiveSignal/nextAction from the no-data sentinel
+// when padding its strengths[]/concerns[] with an AI-derived fallback.
+export { UNABLE as UNABLE_INSIGHT_SENTINEL };
 
 function deepFreeze(obj) {
   if (obj === null || typeof obj !== 'object') return obj;
