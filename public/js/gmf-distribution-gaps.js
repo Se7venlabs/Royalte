@@ -1,10 +1,11 @@
 // Distribution Gaps™ — Global Music Footprint™ Workspace
 // Board Directive 2026-07-17 — Responsive-First Implementation
 //
-// Pure renderer. Reads royalte_workspace_context.globalMusicFootprint.distributionGaps
-// (produced by api/_lib/global-music-footprint.js's buildDistributionGaps()) and
-// renders it. Never fabricates data, never queries storage independently of the
-// Workspace Contract, never falls back to demo data on a real scan.
+// Pure renderer. Reads royalte_workspace_context.globalFootprint.distributionGaps
+// (CIM-native, Phase 2 Recovery 2026-07-20 -- was .globalMusicFootprint;
+// produced by api/_lib/global-music-footprint.js's buildDistributionGaps())
+// and renders it. Never fabricates data, never queries storage independently
+// of the Workspace Contract, never falls back to demo data on a real scan.
 //
 // If distributionGaps is null (no per-territory evidence for this scan — e.g.
 // the legacy fallback path, or a scan that predates this feature), the summary
@@ -20,7 +21,7 @@
       : { state: 'invalid', ctx: null };
     if (result.state !== 'valid') return; // workspace-level overlay already handles this
 
-    var gf = result.ctx.globalMusicFootprint;
+    var gf = result.ctx.globalFootprint;
     var distributionGaps = gf && gf.distributionGaps ? gf.distributionGaps : null;
 
     renderSummary(distributionGaps);

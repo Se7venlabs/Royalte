@@ -233,19 +233,19 @@ console.log('\nTest 10: All required schema fields present in output');
   const REQUIRED_FIELDS = [
     'schemaVersion', 'scanId', 'generatedAt', 'scannedAt', 'artistName', 'artwork', 'recordLabel',
     'subject', 'identity', 'identityIntelligence', 'musicRightsProfile', 'publishing', 'publishingIntelligence',
-    'catalogIntelligence', 'verification', 'backendIntelligence', 'globalMusicFootprint', 'monitoringIntelligence',
+    'catalogIntelligence', 'verification', 'backendIntelligence', 'globalFootprint', 'globalMusicFootprint', 'monitoringIntelligence',
     'healthIntelligence', 'healthReport', 'healthScore', 'royalteAI', 'executiveBrief',
     'metrics', 'catalog',
   ];
-  // 25 fields as of Phase 2 Recovery (Backend Intelligence target): 'verification' added,
-  // CIM-native mirror of 'backendIntelligence' (matching cim.verification's real key
-  // name), same pattern as 'publishing' before it. Still under schemaVersion 1.1 --
-  // purely additive, no consumer relies on a fixed field count. schemaVersion itself is
-  // intentionally NOT bumped: it's a hardcoded literal in 8+ workspace preview fixtures
-  // and 4 other test files, and bumping it is a cross-workspace change out of scope for
-  // a single-workspace recovery target.
+  // 26 fields as of Phase 2 Recovery (Global Music Footprint target): 'globalFootprint'
+  // added, CIM-native mirror of 'globalMusicFootprint' (matching cim.globalFootprint's
+  // real key name), same pattern as 'publishing'/'verification' before it. Still under
+  // schemaVersion 1.1 -- purely additive, no consumer relies on a fixed field count.
+  // schemaVersion itself is intentionally NOT bumped: it's a hardcoded literal in 8+
+  // workspace preview fixtures and 4 other test files, and bumping it is a cross-workspace
+  // change out of scope for a single-workspace recovery target.
   const missing = REQUIRED_FIELDS.filter(function (f) { return !(f in ctx); });
-  assert('all 25 schema fields present in output', missing.length === 0, 'missing: ' + missing.join(', '));
+  assert('all 26 schema fields present in output', missing.length === 0, 'missing: ' + missing.join(', '));
 
   // Verify no unexpected extra fields
   const extra = Object.keys(ctx).filter(function (k) { return !REQUIRED_FIELDS.includes(k); });

@@ -604,7 +604,7 @@
     var ctx = _result.ctx;
     var _body = document.querySelector('.ws-body');
     if (_body) _body.style.opacity = '1';
-    var gf = ctx.globalMusicFootprint;  // guaranteed non-null by contract
+    var gf = ctx.globalFootprint;  // CIM-native (Phase 2 Recovery) -- was ctx.globalMusicFootprint; guaranteed non-null by contract
     var ii = ctx.identityIntelligence || null;
     var rn = document.getElementById('gf-ring-num');
     var cn = document.getElementById('gf-countries-num');

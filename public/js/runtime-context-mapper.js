@@ -147,6 +147,11 @@
       verification:            _r(payload.cim  && payload.cim.verification,
                                  can.cim && can.cim.verification)                                || null,
       backendIntelligence:    _r(payload.backendIntelligence,    can.backendIntelligence)        || null,
+      // globalFootprint:      CIM-native (from cim.globalFootprint, the CIM's
+      //                       real key name) -- Phase 2 Recovery, Global Music
+      //                       Footprint workspace reads this directly.
+      globalFootprint:         _r(payload.cim  && payload.cim.globalFootprint,
+                                 can.cim && can.cim.globalFootprint)                              || null,
       globalMusicFootprint:   _r(payload.globalMusicFootprint,   can.globalMusicFootprint)       || null,
 
       // Monitoring -- null from engine on first scan -> normalized to baseline object

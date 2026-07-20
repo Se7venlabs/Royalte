@@ -25,6 +25,7 @@
 // Returns: { name, passed, failed, assertions, details[] }
 
 import { assembleGlobalMusicFootprint } from '../../../api/_lib/global-music-footprint.js';
+import { assembleGlobalFootprintEvidence } from '../../../api/_lib/global-footprint-evidence.js';
 import { assembleTerritoryIntelligence, TerritoryState } from '../../../api/_lib/territory-intelligence.js';
 import { Capability } from '../../../provider-acquisition/capability/capabilityVocabulary.js';
 
@@ -66,17 +67,32 @@ function groupA() {
   const results = [];
 
   const engine = assembleTerritoryIntelligence([appleEvidencePackage(MIXED_STOREFRONTS)]);
-  const primary = assembleGlobalMusicFootprint(null, null, { platforms: { appleMusic: { availability: 'VERIFIED' } } }, engine);
+  const primary = assembleGlobalMusicFootprint(null, null, assembleGlobalFootprintEvidence({ platforms: { appleMusic: { availability: 'VERIFIED' } } }), engine);
   results.push(check('primary Engine path populates distributionGaps', primary.distributionGaps !== null && typeof primary.distributionGaps === 'object'));
 
   const legacy = assembleGlobalMusicFootprint(null, null, null, null);
   results.push(check('legacy fallback path (no territoryIntelligence) returns distributionGaps: null — no fabrication', legacy.distributionGaps === null));
 
-  const legacyWithCanonical = assembleGlobalMusicFootprint(null, null, { platforms: { appleMusic: { details: { globalStorefrontAvailability: { available: ['us'], unavailable: ['gb'], total: 2 } } } } }, null);
+  const legacyWithCanonical = assembleGlobalMusicFootprint(null, null, assembleGlobalFootprintEvidence({ platforms: { appleMusic: { details: { globalStorefrontAvailability: { available: ['us'], unavailable: ['gb'], total: 2 } } } } }), null);
   results.push(check('legacy canonical-storefront path also returns distributionGaps: null', legacyWithCanonical.distributionGaps === null));
 
-  const errorPath = assembleGlobalMusicFootprint(undefined, undefined, { get platforms() { throw new Error('boom'); } }, engine);
-  results.push(check('error path (assembly throws) returns distributionGaps: null, does not crash', errorPath.distributionGaps === null));
+  // Phase 2 Recovery (2026-07-20): canonical-reading moved into
+  // assembleGlobalFootprintEvidence(), which now has its own try/catch
+  // (retrofitted alongside this test, matching every other assembler's
+  // "never throws on any input" invariant). A hostile/throwing canonical
+  // input is caught one layer earlier than before -- confirmed here --
+  // and, because that failure is now isolated from the Territory
+  // Intelligence Engine path, a valid `engine` result still produces a
+  // real distributionGaps object instead of being nulled out by an
+  // unrelated evidence-read failure. This is a genuine behavior
+  // improvement over the pre-refactor version of this test, not just a
+  // mechanical port.
+  const hostileEvidence = assembleGlobalFootprintEvidence({ get platforms() { throw new Error('boom'); } });
+  results.push(check('assembleGlobalFootprintEvidence never throws on a hostile input',
+    hostileEvidence && hostileEvidence.appleAvailability === 'NOT_FOUND' && hostileEvidence.globalStorefrontAvailability === null));
+  const errorPath = assembleGlobalMusicFootprint(undefined, undefined, hostileEvidence, engine);
+  results.push(check('evidence-read failure does not crash assembly and does not suppress a valid Engine result',
+    errorPath.distributionGaps !== null));
 
   return { name: 'A-presence', results };
 }
@@ -87,7 +103,7 @@ function groupB() {
   const results = [];
 
   const engine = assembleTerritoryIntelligence([appleEvidencePackage(MIXED_STOREFRONTS)]);
-  const gmf = assembleGlobalMusicFootprint(null, null, { platforms: { appleMusic: { availability: 'VERIFIED' } } }, engine);
+  const gmf = assembleGlobalMusicFootprint(null, null, assembleGlobalFootprintEvidence({ platforms: { appleMusic: { availability: 'VERIFIED' } } }), engine);
   const dg = gmf.distributionGaps;
 
   results.push(check('unavailable count traces exactly to engine.summary.unavailable',
@@ -110,7 +126,7 @@ function groupC() {
   const results = [];
 
   const engine = assembleTerritoryIntelligence([appleEvidencePackage(MIXED_STOREFRONTS)]);
-  const gmf = assembleGlobalMusicFootprint(null, null, { platforms: { appleMusic: { availability: 'VERIFIED' } } }, engine);
+  const gmf = assembleGlobalMusicFootprint(null, null, assembleGlobalFootprintEvidence({ platforms: { appleMusic: { availability: 'VERIFIED' } } }), engine);
 
   results.push(check('territories array includes all 167 evaluated territories, not just gaps',
     gmf.distributionGaps.territories.length === 167, `got ${gmf.distributionGaps.territories.length}`));
@@ -128,7 +144,7 @@ function groupD() {
   const results = [];
 
   const engine = assembleTerritoryIntelligence([appleEvidencePackage(MIXED_STOREFRONTS)]);
-  const gmf = assembleGlobalMusicFootprint(null, null, { platforms: { appleMusic: { availability: 'VERIFIED' } } }, engine);
+  const gmf = assembleGlobalMusicFootprint(null, null, assembleGlobalFootprintEvidence({ platforms: { appleMusic: { availability: 'VERIFIED' } } }), engine);
 
   const us = findRow(gmf, 'us'); // AVAILABLE
   results.push(check('AVAILABLE territory: providers reflects real evidence (apple_music), not the full platform roster',
@@ -171,8 +187,8 @@ function groupE() {
   const results = [];
 
   const engine = assembleTerritoryIntelligence([appleEvidencePackage(MIXED_STOREFRONTS)]);
-  const run1 = assembleGlobalMusicFootprint(null, null, { platforms: { appleMusic: { availability: 'VERIFIED' } } }, engine);
-  const run2 = assembleGlobalMusicFootprint(null, null, { platforms: { appleMusic: { availability: 'VERIFIED' } } }, engine);
+  const run1 = assembleGlobalMusicFootprint(null, null, assembleGlobalFootprintEvidence({ platforms: { appleMusic: { availability: 'VERIFIED' } } }), engine);
+  const run2 = assembleGlobalMusicFootprint(null, null, assembleGlobalFootprintEvidence({ platforms: { appleMusic: { availability: 'VERIFIED' } } }), engine);
 
   results.push(check('identical input produces identical distributionGaps counts (pure function)',
     JSON.stringify({ t: run1.distributionGaps.totalRequiringAttention, u: run1.distributionGaps.unavailable, k: run1.distributionGaps.unknown, n: run1.distributionGaps.notEvaluated })
@@ -189,7 +205,7 @@ function groupF() {
   const results = [];
 
   const engine = assembleTerritoryIntelligence([appleEvidencePackage(MIXED_STOREFRONTS)]);
-  const gmf = assembleGlobalMusicFootprint(null, null, { platforms: { appleMusic: { availability: 'VERIFIED' } } }, engine);
+  const gmf = assembleGlobalMusicFootprint(null, null, assembleGlobalFootprintEvidence({ platforms: { appleMusic: { availability: 'VERIFIED' } } }), engine);
 
   const allowedStatuses = new Set(['Available', 'Unavailable', 'Unknown', 'Pending Review']);
   results.push(check('every territory status is one of the Board\'s exact 4-tier vocabulary (no "Error" tier leaked into the UI)',
@@ -211,7 +227,7 @@ function groupG() {
 
   const engine = assembleTerritoryIntelligence([appleEvidencePackage(MIXED_STOREFRONTS)]);
   const engineSnapshot = JSON.stringify(engine);
-  const gmf = assembleGlobalMusicFootprint(null, null, { platforms: { appleMusic: { availability: 'VERIFIED' } } }, engine);
+  const gmf = assembleGlobalMusicFootprint(null, null, assembleGlobalFootprintEvidence({ platforms: { appleMusic: { availability: 'VERIFIED' } } }), engine);
 
   results.push(check('territoryIntelligence input is not mutated', JSON.stringify(engine) === engineSnapshot));
   results.push(check('distributionGaps is deep-frozen', Object.isFrozen(gmf.distributionGaps)));
