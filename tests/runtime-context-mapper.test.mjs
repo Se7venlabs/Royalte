@@ -232,13 +232,19 @@ console.log('\nTest 10: All required schema fields present in output');
   const ctx = buildWorkspaceRuntimeContext(RAW_API_PAYLOAD, null, DERIVED);
   const REQUIRED_FIELDS = [
     'schemaVersion', 'scanId', 'generatedAt', 'scannedAt', 'artistName', 'artwork', 'recordLabel',
-    'subject', 'identity', 'identityIntelligence', 'musicRightsProfile', 'publishingIntelligence',
+    'subject', 'identity', 'identityIntelligence', 'musicRightsProfile', 'publishing', 'publishingIntelligence',
     'catalogIntelligence', 'backendIntelligence', 'globalMusicFootprint', 'monitoringIntelligence',
     'healthIntelligence', 'healthReport', 'healthScore', 'royalteAI', 'executiveBrief',
     'metrics', 'catalog',
   ];
+  // 24 fields as of Phase 2 Recovery (Publishing Intelligence target): 'publishing' added,
+  // CIM-native mirror of 'identity', still under schemaVersion 1.1 -- purely additive,
+  // no consumer relies on a fixed field count. schemaVersion itself is intentionally NOT
+  // bumped in this pass: it's a hardcoded literal in 8+ workspace preview fixtures and
+  // 4 other test files, and bumping it is a cross-workspace change out of scope for a
+  // single-workspace recovery target.
   const missing = REQUIRED_FIELDS.filter(function (f) { return !(f in ctx); });
-  assert('all 23 schema fields present in output', missing.length === 0, 'missing: ' + missing.join(', '));
+  assert('all 24 schema fields present in output', missing.length === 0, 'missing: ' + missing.join(', '));
 
   // Verify no unexpected extra fields
   const extra = Object.keys(ctx).filter(function (k) { return !REQUIRED_FIELDS.includes(k); });

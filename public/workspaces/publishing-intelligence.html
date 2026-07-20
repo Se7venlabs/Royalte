@@ -1121,7 +1121,7 @@
   }
 
   // ── KPI Cards — wire Publishing Coverage, Registered Works, PRO caption ──
-  var pi = ctx.publishingIntelligence || null;
+  var pi = ctx.publishing || null;  // CIM-native (Phase 2 Recovery) -- was ctx.publishingIntelligence
   var kpiCards = document.querySelectorAll('.hi-kpi-row .hi-kpi-card');
 
   if (pi && kpiCards.length >= 3) {

@@ -133,6 +133,12 @@
       musicRightsProfile:     musicRightsProfile                                                  || null,
 
       // Intelligence domains -- engine-produced, all nullable
+      // publishing:             CIM-native (from cim.publishing) -- Phase 2 Recovery,
+      //                          Publishing Intelligence workspace reads this directly.
+      // publishingIntelligence: CimAdapter-bridged (identical value) -- retained for
+      //                          other workspaces (e.g. AI Insights) not yet recovered.
+      publishing:              _r(payload.cim  && payload.cim.publishing,
+                                 can.cim && can.cim.publishing)                                  || null,
       publishingIntelligence: _r(payload.publishingIntelligence, can.publishingIntelligence)     || null,
       catalogIntelligence:    _r(payload.catalogIntelligence,    can.catalogIntelligence)        || null,
       backendIntelligence:    _r(payload.backendIntelligence,    can.backendIntelligence)        || null,
