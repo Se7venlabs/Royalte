@@ -79,13 +79,19 @@ function deriveIdentityScore(ii) {
 function derivePublishingScore(pi) {
   if (!pi || typeof pi !== 'object') return 50;
   const cov = pi.coverage;
-  if (typeof cov === 'number' && Number.isFinite(cov)) return clamp(cov);
-  const reg = pi.registrations;
-  if (reg && typeof reg === 'object') {
-    const mlc = reg.mlcRegistration;
-    if (mlc && mlc.availability === 'AUTH_UNAVAILABLE') return 50;
-  }
-  return 50;
+  // Identity Recovery pattern repeated here (Phase 2, 2026-07-20):
+  // removed a fallback checking reg.mlcRegistration.availability.
+  // registrations.mlcRegistration is a PUBLISHING_STATE string
+  // ('VERIFIED'/'ACTION_REQUIRED'/'NOT_FOUND'/'UNABLE_TO_CONFIRM' --
+  // publishing-intelligence.js PUBLISHING_STATE), never an object with
+  // an .availability property, and 'AUTH_UNAVAILABLE' is a raw provider
+  // enum that this layer already collapses into UNABLE_TO_CONFIRM
+  // before it would reach here -- the check could never be true. Both
+  // the dead branch and the final catch-all returned 50, so removing
+  // it changes no behavior; coverage is legitimately null (not just
+  // absent) when MLC was unreachable for the scan, per computeCoverage()'s
+  // verificationAvailable parameter.
+  return typeof cov === 'number' && Number.isFinite(cov) ? clamp(cov) : 50;
 }
 
 function deriveCatalogScore(ci) {
