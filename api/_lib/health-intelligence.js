@@ -66,11 +66,14 @@ function statusForScore(score) {
 function deriveIdentityScore(ii) {
   if (!ii || typeof ii !== 'object') return 0;
   const cov = ii.coverage;
-  if (typeof cov === 'number' && Number.isFinite(cov)) return clamp(cov);
-  const verified = typeof ii.verified === 'number' ? ii.verified : 0;
-  const total    = typeof ii.total    === 'number' ? ii.total    : 0;
-  if (total > 0) return clamp((verified / total) * 100);
-  return 0;
+  // Identity Recovery (Phase 2, 2026-07-20): removed a fallback branch
+  // reading ii.verified/ii.total — field names that never existed in
+  // assembleIdentityIntelligence()'s locked v1.0 output shape
+  // (api/_lib/identity-intelligence.js), which has always returned
+  // verifiedProviders/totalProviders plus a guaranteed-finite
+  // coverage. The fallback was dead code from a stale assumption
+  // about field names, never reachable, never tested.
+  return typeof cov === 'number' && Number.isFinite(cov) ? clamp(cov) : 0;
 }
 
 function derivePublishingScore(pi) {
