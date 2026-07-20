@@ -2,38 +2,38 @@
 //  Royaltē Catalog Intelligence™ — Assembler  (Phase 3.4 — v1.1.0)
 // ─────────────────────────────────────────────────────────────────────
 //
-//  Constitutional position:
+//  Constitutional position (Board Option 3, Phase 2 Recovery, 2026-07-20):
 //
 //    Scan Engine
-//        ↓ catalog.{singlesCount,epsCount,albumsCount,featuresCount,totalTracks}
-//        ↓ platforms.appleMusic.details.albums[]
-//        ↓ platforms.appleMusic.details.catalogComparison (ISRC evidence)
-//    Canonical Intelligence Object™  (catalog summary)
 //        ↓
-//    Rule Library™
-//        ↓
-//    Catalog Intelligence™  ◀── THIS MODULE
+//    api/_lib/catalog-evidence.js  (Normalization — structural relocation only)
+//        ↓ Canonical Catalog Evidence: appleAlbums[], isrcComparison,
+//        ↓   discogsReleases[], fallbackCounts
+//    Catalog Intelligence™  ◀── THIS MODULE (business logic lives here)
 //        ↓
 //    Mission Control™ · Catalog Intelligence Card
 //    Website Scan · Catalog panel
 //
-//  Data source hierarchy (Board directive):
-//    Primary:   Apple Music albums (via canonical.platforms.appleMusic.details.albums)
-//               → singles / EPs / albums classification by trackCount
-//    Fallback:  canonical.catalog.singlesCount/epsCount/albumsCount from
-//               Spotify album_group classification when Apple album list
-//               is unavailable (both paths set these fields; Apple wins
-//               when both are present because Apple is canonical).
+//  This module no longer reads canonicalForEnrichment directly (former
+//  CIO-bypass, certified in governance/NORMALIZATION_LAYER_PLATFORM_CERTIFICATION.md
+//  and governance/CANONICAL_SCHEMA_CIO_CIM_PLATFORM_CERTIFICATION.md, resolved
+//  per ADR-002 Option 3: the CIO stays lean, a sibling canonical evidence
+//  object carries what this domain needs, business logic stays here).
+//
+//  Data source hierarchy (Board directive, unchanged):
+//    Primary:   evidence.appleAlbums → singles / EPs / albums classification
+//               by trackCount
+//    Fallback:  evidence.fallbackCounts (Spotify album_group classification,
+//               pre-computed upstream) when Apple album list is unavailable
+//               (Apple wins when both are present because Apple is canonical).
 //
 //  ISRC Coverage evidence:
-//    Primary:   canonical.platforms.appleMusic.details.catalogComparison
-//               Populated when the Apple-Spotify ISRC cross-reference ran
-//               (legacy path; PAL TRACKS capability will repopulate once added).
+//    Primary:   evidence.isrcComparison (Apple-Spotify ISRC cross-reference)
 //               Shape: { tracksChecked, matched: [], notFound: [], matchRate }
 //    When absent: isrcCoverage.status = 'Unknown' (not yet assessed).
 //
 //  Purity invariants:
-//    - Pure function of (intelligenceReport, cio, canonical).
+//    - Pure function of (intelligenceReport, cio, catalogEvidence).
 //    - Never throws on any input (null / undefined / malformed).
 //    - Never mutates inputs.
 //    - Output is deep-frozen.
@@ -124,9 +124,9 @@ function deriveCatalogStatus(ownedCount) {
   return 'Large Catalog';
 }
 
-// deriveConfidence — based on Apple Music availability in the canonical payload.
-function deriveConfidence(canonical) {
-  const avail = canonical?.platforms?.appleMusic?.availability;
+// deriveConfidence — based on Apple Music availability in the catalog evidence.
+function deriveConfidence(evidence) {
+  const avail = evidence?.appleAvailability;
   if (avail === 'VERIFIED')   return 'Verified';
   if (avail === 'NOT_FOUND')  return 'Not Found';
   return 'Partial';
@@ -161,17 +161,17 @@ function deriveYearRange(albums) {
   return { firstReleaseYear: first, latestReleaseYear: latest, catalogAgeYears: latest - first };
 }
 
-// assembleIsrcCoverage — derives ISRC Coverage from provider evidence.
+// assembleIsrcCoverage — derives ISRC Coverage from catalog evidence.
 //
-// Primary source: platforms.appleMusic.details.catalogComparison
+// Primary source: evidence.isrcComparison
 //   (Apple-Spotify ISRC cross-reference from legacy getAppleMusic() or
 //    future PAL TRACKS capability when added).
 //
 // When no evidence is present: returns ISRC_UNKNOWN (status: 'Unknown').
 // trackIsrc (single-track sentinel) is intentionally NOT used as a proxy
 // for catalog-wide ISRC coverage — one verified track ≠ catalog completeness.
-function assembleIsrcCoverage(canonical) {
-  const cc = canonical?.platforms?.appleMusic?.details?.catalogComparison;
+function assembleIsrcCoverage(evidence) {
+  const cc = evidence?.isrcComparison;
   if (cc && typeof cc.matchRate === 'number') {
     const pct = cc.matchRate;
     return Object.freeze({
@@ -187,20 +187,24 @@ function assembleIsrcCoverage(canonical) {
   return ISRC_UNKNOWN;
 }
 
-// assembleCatalogIntelligence(intelligenceReport, cio, canonical)
+// assembleCatalogIntelligence(intelligenceReport, cio, catalogEvidence)
 //
 // Sole entrypoint for Catalog Intelligence™. Certifies all catalog-domain
 // values consumed by every product surface.
 //
+// catalogEvidence is the Canonical Catalog Evidence object produced by
+// api/_lib/catalog-evidence.js (Board Option 3, Phase 2 Recovery) — this
+// module no longer reads canonicalForEnrichment directly.
+//
 // Always returns a deep-frozen object. Never throws.
-export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) {
+export function assembleCatalogIntelligence(intelligenceReport, cio, catalogEvidence) {
   try {
-    const safeCanonical = (canonical && typeof canonical === 'object' && !Array.isArray(canonical))
-      ? canonical
+    const evidence = (catalogEvidence && typeof catalogEvidence === 'object' && !Array.isArray(catalogEvidence))
+      ? catalogEvidence
       : {};
 
     // Primary: Apple Music albums → singles / EPs / albums / totalTracks
-    const appleAlbums = safeCanonical?.platforms?.appleMusic?.details?.albums;
+    const appleAlbums = evidence.appleAlbums;
     let singles, eps, albums, totalTracks;
 
     if (Array.isArray(appleAlbums) && appleAlbums.length > 0) {
@@ -210,12 +214,12 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
       albums      = classified.albums;
       totalTracks = classified.totalTracks;
     } else {
-      // Fallback: Spotify-derived classification from catalog section
-      const cat = safeCanonical.catalog || {};
-      singles     = typeof cat.singlesCount === 'number' ? cat.singlesCount : 0;
-      eps         = typeof cat.epsCount     === 'number' ? cat.epsCount     : 0;
-      albums      = typeof cat.albumsCount  === 'number' ? cat.albumsCount  : 0;
-      totalTracks = typeof cat.totalTracks  === 'number' ? cat.totalTracks  : 0;
+      // Fallback: Spotify-derived classification, pre-computed upstream
+      const fb = evidence.fallbackCounts || {};
+      singles     = typeof fb.singles     === 'number' ? fb.singles     : 0;
+      eps         = typeof fb.eps         === 'number' ? fb.eps         : 0;
+      albums      = typeof fb.albums      === 'number' ? fb.albums      : 0;
+      totalTracks = typeof fb.totalTracks === 'number' ? fb.totalTracks : 0;
     }
 
     // Note: featuresCount (Spotify appears_on) is intentionally excluded.
@@ -224,15 +228,15 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
 
     const ownedCount    = singles + eps + albums;
     const catalogStatus = deriveCatalogStatus(ownedCount);
-    const confidence    = deriveConfidence(safeCanonical);
-    const isrcCoverage  = assembleIsrcCoverage(safeCanonical);
+    const confidence    = deriveConfidence(evidence);
+    const isrcCoverage  = assembleIsrcCoverage(evidence);
 
     // Discogs: physical release count and year range (Phase 3.6/Discogs)
     // Provider precedence for release chronology is owned by CATALOG_EVIDENCE_POLICY.
     // Current order: CATALOG_EVIDENCE_POLICY.releaseChronology = ['apple', 'discogs']
-    const discogsReleases = safeCanonical?.platforms?.discogs?.details?.releases;
-    const physicalReleaseCount = typeof safeCanonical?.platforms?.discogs?.details?.totalReleases === 'number'
-      ? safeCanonical.platforms.discogs.details.totalReleases
+    const discogsReleases = evidence.discogsReleases;
+    const physicalReleaseCount = typeof evidence.discogsTotalReleases === 'number'
+      ? evidence.discogsTotalReleases
       : null;
 
     // Year range: Apple is canonical. Discogs supplements when Apple is absent.
@@ -263,8 +267,17 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, canonical) 
     // selectBestVerifiedRelease scores every eligible Apple Music album and
     // returns the highest-ranked one. Never throws; returns null when no
     // albums are available.
-    const artistName = (safeCanonical?.subject?.artistName) ||
-                       (safeCanonical?.cio?.identity?.name) || '';
+    //
+    // artistName now sourced from cio.identity.canonicalArtistName (the CIO
+    // this function already receives) rather than canonicalForEnrichment,
+    // completing the removal of the direct canonical read. The prior
+    // fallback (safeCanonical?.cio?.identity?.name) was itself dead code:
+    // canonicalForEnrichment has no nested .cio property, and the CIO's
+    // real field is canonicalArtistName, not name -- it could never fire.
+    const artistName = (cio && typeof cio === 'object' && cio.identity
+      && typeof cio.identity.canonicalArtistName === 'string')
+      ? cio.identity.canonicalArtistName
+      : '';
     const bestVerifiedRelease = selectBestVerifiedRelease(
       Array.isArray(appleAlbums) ? appleAlbums : [],
       artistName,
