@@ -15,6 +15,7 @@
 
 import { bridgeToCanonical }         from '../../../lib/rie/EvidenceBridge.js';
 import { assembleCatalogIntelligence } from '../../../api/_lib/catalog-intelligence.js';
+import { assembleCatalogEvidence }    from '../../../api/_lib/catalog-evidence.js';
 import { DISCOGS_CAPABILITIES }       from '../../../provider-acquisition/connectors/discogs/discogs-capabilities.js';
 import { Capability }                 from '../../../provider-acquisition/capability/capabilityVocabulary.js';
 import { createEvidenceContract }     from '../../../provider-acquisition/evidence/EvidenceContract.js';
@@ -394,7 +395,12 @@ function groupF() {
 
   let ci;
   let threw = false;
-  try { ci = assembleCatalogIntelligence(null, null, canonicalWithDiscogs); }
+  // Phase 2 Recovery: assembleCatalogIntelligence now consumes the
+  // Canonical Catalog Evidence object, not raw canonical, per Board
+  // Option 3 (ADR-002). Route through assembleCatalogEvidence() first,
+  // exercising the real Provider -> Normalization -> Evidence -> Intelligence
+  // pipeline end-to-end.
+  try { ci = assembleCatalogIntelligence(null, null, assembleCatalogEvidence(canonicalWithDiscogs)); }
   catch { threw = true; }
 
   assertions.push(check('assembleCatalogIntelligence with Discogs does not throw', !threw));
@@ -425,7 +431,7 @@ function groupF() {
   };
 
   let ci2;
-  try { ci2 = assembleCatalogIntelligence(null, null, canonicalWithBoth); } catch { ci2 = null; }
+  try { ci2 = assembleCatalogIntelligence(null, null, assembleCatalogEvidence(canonicalWithBoth)); } catch { ci2 = null; }
 
   assertions.push(check('firstReleaseYear = 1973 when Apple albums present (Apple wins)',
     ci2?.firstReleaseYear === 1973, `got ${ci2?.firstReleaseYear}`));
@@ -438,7 +444,7 @@ function groupF() {
     catalog: {},
   };
   let ci3;
-  try { ci3 = assembleCatalogIntelligence(null, null, canonicalNoDiscogs); } catch { ci3 = null; }
+  try { ci3 = assembleCatalogIntelligence(null, null, assembleCatalogEvidence(canonicalNoDiscogs)); } catch { ci3 = null; }
   assertions.push(check('physicalReleaseCount = null when no Discogs evidence',
     ci3?.physicalReleaseCount === null));
 
