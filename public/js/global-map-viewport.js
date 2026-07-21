@@ -293,7 +293,14 @@
       var realT   = code ? territoryByCode[code] : null;
       var status  = realT ? realT.status : 'Unknown';
       var lastVerified = realT ? realT.lastVerified : null;
-      var providers = (realT && Array.isArray(realT.providers))
+      /* A colored marker means "confirmed present here" -- only render one
+       * when status is genuinely Available. distributionGaps.territories
+       * carries a providers[] entry even for Unavailable/Unknown territories
+       * (it means "we have evidence from this provider," not "confirmed
+       * available") -- rendering a dot from that would visually imply
+       * presence that doesn't exist. The flag (below) still always renders,
+       * honestly showing "evaluated, not currently available" as no dots. */
+      var providers = (realT && realT.status === 'Available' && Array.isArray(realT.providers))
         ? realT.providers.map(shortProviderKey).filter(Boolean)
         : [];
 
