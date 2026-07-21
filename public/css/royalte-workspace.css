@@ -3259,31 +3259,6 @@ svg { display: block; }
   50% { box-shadow: 0 0 14px 3px rgba(251,146,60,0.28); }
 }
 
-/* Potential Royalty Impact™ hero card */
-.pi-kpi-card--impact {
-  background: linear-gradient(145deg, rgba(251,146,60,0.09), rgba(124,58,237,0.04));
-  border-color: rgba(251,146,60,0.22);
-  border-top: 2px solid rgba(251,146,60,0.48);
-}
-.pi-kpi-card--athena-trigger {
-  cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.pi-kpi-card--athena-trigger:hover {
-  border-color: rgba(251,146,60,0.42);
-  box-shadow: 0 0 32px rgba(251,146,60,0.14);
-}
-.pi-impact-risk-label {
-  font-size: 16px; font-weight: 800; letter-spacing: 0.04em;
-  text-transform: uppercase; text-align: center; margin-top: 2px;
-}
-.pi-impact-risk-label--moderate { color: var(--mc-orange); }
-.pi-impact-risk-label--low { color: var(--mc-green); }
-.pi-impact-risk-label--high { color: #ef4444; }
-.pi-impact-desc {
-  font-size: 11px; color: var(--mc-text-muted);
-  text-align: center; margin: 4px 0;
-}
 
 /* Core Publishing Systems grid */
 .pi-system-grid {
@@ -3463,12 +3438,16 @@ svg { display: block; }
   background: rgba(124,58,237,0.14); border-color: rgba(124,58,237,0.42);
 }
 
+/* KPI row: 3 equal columns after Potential Royalty Impact™/ATHENA card removal */
+.ws-dept--publishing .hi-kpi-row {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 /* Publishing dept typography — KPI Typography Standardization™ */
 .ws-dept--publishing .ii-kpi-big-num   { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
 .ws-dept--publishing .ii-kpi-fraction  { font-size: 12px; font-weight: 600; }
 .ws-dept--publishing .ii-kpi-status-text { font-size: 10px; font-weight: 500; }
 .ws-dept--publishing .ii-kpi-caption   { font-size: 9.5px; }
-.ws-dept--publishing .pi-impact-risk-label { font-size: 13px; font-weight: 700; }
 
 /* ── Publishing One-Screen Optimization™ ─────────────────────────── */
 
