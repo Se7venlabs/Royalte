@@ -500,14 +500,18 @@ export function renderBackend(intelligence) {
 //    {
 //      territoriesAvailable:   number,
 //      territoriesUnavailable: number,
+//      territoriesEvaluated:   number,  // true evaluation universe (167 on the
+//                                        // primary Territory Intelligence Engine
+//                                        // path) -- added Board directive 2026-07-21
 //      coveragePercent:        number,
 //      status:                 string,  // 'Global'|'Strong'|'Regional'|'Limited'
 //      confidence:             string,
 //    }
 //  or null when intelligence is absent (boot module leaves locked HTML).
 //
-//  v1.0 scope: territoriesAvailable reflects the 8 BIG6 markets checked
-//  per scan. Full global territory expansion is Phase 2.
+//  territoriesAvailable reflects the real Territory Intelligence Engine's
+//  full 167-storefront evaluation (Phase 5.2) -- corrected 2026-07-21, this
+//  comment previously and incorrectly claimed an 8-market BIG6-only scope.
 
 export function safeGlobalMusicFootprintIntelligence(gmf) {
   if (!gmf || typeof gmf !== 'object' || Array.isArray(gmf)) return null;
@@ -520,6 +524,7 @@ export function renderGlobalMusicFootprint(intelligence) {
   return {
     territoriesAvailable:   typeof gmf.territoriesAvailable   === 'number' ? gmf.territoriesAvailable   : 0,
     territoriesUnavailable: typeof gmf.territoriesUnavailable === 'number' ? gmf.territoriesUnavailable : 0,
+    territoriesEvaluated:   typeof gmf.territoriesEvaluated   === 'number' ? gmf.territoriesEvaluated   : 0,
     coveragePercent:        typeof gmf.coveragePercent        === 'number' ? gmf.coveragePercent        : 0,
     status:                 typeof gmf.status                 === 'string' ? gmf.status                 : 'Unknown',
     confidence:             typeof gmf.confidence             === 'string' ? gmf.confidence             : 'Unable to Confirm',

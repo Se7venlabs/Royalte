@@ -46,6 +46,13 @@
 //    {
 //      territoriesAvailable:   number,
 //      territoriesUnavailable: number,
+//      territoriesEvaluated:   number,  // true evaluation universe (Territory
+//                                        // Intelligence Engine's totalTerritoriesEvaluated,
+//                                        // always 167 on the primary path; `total` on the
+//                                        // legacy fallback path). Added Board directive
+//                                        // 2026-07-21 (Global Music Footprint™ Constitutional
+//                                        // Refactor) so Mission Control never has to invent
+//                                        // its own denominator for "X of Y" style displays.
 //      coveragePercent:        number,  // (available / evaluated) × 100, rounded
 //      status:                 string,  // 'Global' | 'Strong' | 'Regional' | 'Limited'
 //      confidence:             string,  // 'Verified' | 'Partial' | 'Unable to Confirm' | 'Not Found'
@@ -67,7 +74,7 @@
 //
 // ─────────────────────────────────────────────────────────────────────
 
-export const GLOBAL_MUSIC_FOOTPRINT_VERSION = '1.0.0';
+export const GLOBAL_MUSIC_FOOTPRINT_VERSION = '1.1.0';
 
 // Distribution Gaps™ (Board Directive 2026-07-17) — display-label and
 // recommended-action maps. Every value here is a deterministic function of
@@ -234,6 +241,9 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, globalFoot
       const available   = typeof summary.available   === 'number' ? summary.available   : 0;
       const unavailable = typeof summary.unavailable === 'number' ? summary.unavailable : 0;
       const evaluatedTotal = available + unavailable;
+      const territoriesEvaluated = typeof territoryIntelligence.totalTerritoriesEvaluated === 'number'
+        ? territoryIntelligence.totalTerritoriesEvaluated
+        : evaluatedTotal;
 
       const coveragePercent = evaluatedTotal > 0 ? Math.round((available / evaluatedTotal) * 100) : 0;
       const status     = deriveStatus(coveragePercent);
@@ -246,6 +256,7 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, globalFoot
       return deepFreeze({
         territoriesAvailable:   available,
         territoriesUnavailable: unavailable,
+        territoriesEvaluated,
         coveragePercent,
         status,
         reachNarrative,
@@ -264,6 +275,7 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, globalFoot
       return deepFreeze({
         territoriesAvailable:   0,
         territoriesUnavailable: 0,
+        territoriesEvaluated:   0,
         coveragePercent:        0,
         status:                 'Limited',
         reachNarrative:         'Territory availability could not be determined from reviewed sources.',
@@ -287,6 +299,7 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, globalFoot
     return deepFreeze({
       territoriesAvailable:   available,
       territoriesUnavailable: unavailable,
+      territoriesEvaluated:   total,
       coveragePercent,
       status,
       reachNarrative,
@@ -298,6 +311,7 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, globalFoot
     return deepFreeze({
       territoriesAvailable:   0,
       territoriesUnavailable: 0,
+      territoriesEvaluated:   0,
       coveragePercent:        0,
       status:                 'Limited',
       reachNarrative:         'Territory availability could not be determined from reviewed sources.',
