@@ -413,10 +413,10 @@
         record_label:         { status: 'signed', label_name: 'Castle Park Studioz' },
         mechanical_rights:    { organization: 'mlc' },
         neighboring_rights:   { organization: 'soundexchange' },
-        publisher:            { name: null },
-        songwriter:           { status: null },
-        rights_administration: { organization: null },
-        rights_identifiers:   { isni: null, ipi_number: null, cae_number: null },
+        publisher:            { name: 'TuneCore Publishing' },
+        songwriter:           { status: 'sole' },
+        rights_administration: { organization: 'Self Managed' },
+        rights_identifiers:   { isni: '0000 0001 2345 6789', ipi_number: '00123456789', cae_number: '00123456789' },
       },
       // Matches assemblePublishingIntelligence()'s real output shape (api/_lib/publishing-intelligence.js) --
       // ctx.publishing, not the retired ctx.publishingIntelligence shape. Complete
@@ -745,6 +745,38 @@
               <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-radmin-badge">Artist Disclosure</div>
             </div>
 
+            <!-- Distinct from the SoundExchange-specific cell above: shows whichever
+                 neighboring rights org was disclosed (SoundExchange/Re:Sound/PPL/Other). -->
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Neighboring Rights</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-nr-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-nr-badge">Artist Disclosure</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Songwriter Status</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-sw-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-sw-badge">Artist Disclosure</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">ISNI</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-isni-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-isni-badge">Artist Disclosure</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">IPI Number</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-ipi-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-ipi-badge">Artist Disclosure</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">CAE Number</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-cae-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-cae-badge">Artist Disclosure</div>
+            </div>
+
           </div>
 
           <div class="pi-mrp-footer" id="pi-mrp-footer">
@@ -1007,6 +1039,32 @@
   var radminVal = radminGroup.organization || null;
   setField('pi-mrp-radmin-val', 'pi-mrp-radmin-badge',
     radminVal || '—', radminVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
+
+  // ── Neighboring Rights — Artist Disclosure. Distinct from the SoundExchange-
+  // specific field above: shows whichever org was actually disclosed. ───────
+  var NR_LABELS = { soundexchange: 'SoundExchange', resound: 'Re:Sound', ppl: 'PPL' };
+  var nrVal = nr.organization === 'other'
+    ? (nr.organization_other || null)
+    : (NR_LABELS[nr.organization] || null);
+  setField('pi-mrp-nr-val', 'pi-mrp-nr-badge',
+    nrVal || '—', nrVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
+
+  // ── Songwriter Status — Artist Disclosure (from MRP songwriter group) ──────
+  var SW_LABELS = { sole: 'Sole Songwriter', co: 'Co-Writer', session: 'Session Writer', none: 'Not a Songwriter' };
+  var swGroup = (mrp && mrp.songwriter) ? mrp.songwriter : {};
+  var swVal = SW_LABELS[swGroup.status] || null;
+  setField('pi-mrp-sw-val', 'pi-mrp-sw-badge',
+    swVal || '—', swVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
+
+  // ── Rights Identifiers — Artist Disclosure (from MRP rights_identifiers group).
+  // Future-ready: null is honest and expected until an artist populates these. ─
+  var ridGroup = (mrp && mrp.rights_identifiers) ? mrp.rights_identifiers : {};
+  setField('pi-mrp-isni-val', 'pi-mrp-isni-badge',
+    ridGroup.isni || '—', ridGroup.isni ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
+  setField('pi-mrp-ipi-val', 'pi-mrp-ipi-badge',
+    ridGroup.ipi_number || '—', ridGroup.ipi_number ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
+  setField('pi-mrp-cae-val', 'pi-mrp-cae-badge',
+    ridGroup.cae_number || '—', ridGroup.cae_number ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
   // ── Publishing Health™ — Board Ruling #6 (2026-07-21): no Health Engine exists
   // yet, so this must never calculate or display an invented score/percentage.
