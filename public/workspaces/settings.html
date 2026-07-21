@@ -93,6 +93,60 @@
     .st-current-val b { color: var(--mc-text-primary); font-weight: 600; }
     .st-current-val .st-empty { color: var(--mc-text-faint); font-style: italic; }
 
+    /* ── Music Rights Profile™ Executive Enhancement (Board directive, 2026-07-21) ── */
+
+    /* Group title + registration status badge */
+    .st-group-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 3px; }
+    .st-group-title-row .st-group-title { margin-bottom: 0; }
+    .st-mrp-status-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    }
+    .st-mrp-status--done    { background: rgba(52,211,153,0.12); color: #34d399; }
+    .st-mrp-status--partial { background: rgba(251,146,60,0.12); color: var(--mc-orange); }
+    .st-mrp-status--none    { background: rgba(255,255,255,0.05); color: var(--mc-text-faint); }
+
+    /* Section dividers (Rights Identity™ / Rights Registrations™ / Rights Identifiers™ / etc.) */
+    .st-mrp-section { border-top: 1px solid var(--mc-border); padding-top: 18px; margin-top: 18px; }
+    .st-mrp-section-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--mc-orange); margin-bottom: 3px;
+    }
+    .st-mrp-section-hint { font-size: 11.5px; color: var(--mc-text-muted); margin-bottom: 4px; line-height: 1.5; }
+    /* Rights Identifiers™ — visually secondary: smaller type, tighter groups */
+    .st-mrp-section--compact .st-group { padding-top: 10px; margin-top: 10px; }
+    .st-mrp-section--compact .st-group-title { font-size: 11px; }
+    .st-mrp-section--compact .st-group-hint { font-size: 10.5px; }
+    .st-mrp-section--compact .st-field-grid { grid-template-columns: 1fr; max-width: 320px; }
+
+    /* Profile Completion™ */
+    .st-mrp-completion {
+      border: 1px solid rgba(251,146,60,0.22); border-top: 2px solid rgba(251,146,60,0.5);
+      border-radius: 10px; padding: 16px 18px; margin-bottom: 4px;
+      background: linear-gradient(160deg, rgba(251,146,60,0.06), rgba(255,255,255,0.015) 60%);
+    }
+    .st-mrp-completion-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+    .st-mrp-completion-pct { font-size: 26px; font-weight: 700; color: var(--mc-text-primary); letter-spacing: -0.02em; }
+    .st-mrp-completion-label { font-size: 11.5px; font-weight: 600; color: var(--mc-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .st-mrp-completion-bar-wrap { height: 6px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; margin-bottom: 14px; }
+    .st-mrp-completion-bar { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--mc-orange), #ea7d2c); transition: width 0.3s ease; }
+    .st-mrp-completion-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .st-mrp-completion-cols { grid-template-columns: 1fr; } }
+    .st-mrp-completion-col-title { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mc-text-faint); margin-bottom: 6px; }
+    .st-mrp-check { font-size: 12px; line-height: 1.9; }
+    .st-mrp-check--done    { color: var(--mc-text-secondary); }
+    .st-mrp-check--missing { color: var(--mc-text-muted); }
+
+    /* Verification Sources™ / Executive Insight™ — reuses the evidence-card
+       language already established by Royalty Statements™ (.st-rs-evidence-card),
+       renamed for MRP scope rather than duplicating the visual design. */
+    .st-mrp-evidence-card {
+      font-size: 12px; line-height: 1.6; color: var(--mc-text-secondary);
+      border: 1px solid rgba(251,146,60,0.18); border-left: 3px solid var(--mc-orange);
+      border-radius: 10px; padding: 12px 14px;
+      background: linear-gradient(160deg, rgba(251,146,60,0.05), rgba(255,255,255,0.01) 70%);
+    }
+
     /* Toggle switch */
     .st-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
     .st-toggle-row:last-child { border-bottom: none; }
@@ -495,13 +549,74 @@
           <div class="st-status" id="st-profile-status"></div>
         </section>
 
-        <!-- § MUSIC RIGHTS PROFILE ───────────────────────────────────── -->
+        <!-- § MUSIC RIGHTS PROFILE — Executive Enhancement ───────────────
+             Board directive (2026-07-21): canonical artist-supplied publishing
+             evidence source, presented as an executive summary. The 16
+             editable groups and their save/wire/persist mechanics are
+             completely unchanged (renderMrpGroupHtml/wireMrpGroup/saveMrpGroup)
+             -- only their layout and the read-only summary sections around
+             them are new. -->
         <section class="st-card" id="st-mrp">
           <div class="st-card-header">
             <div class="st-card-title">Music Rights Profile™</div>
           </div>
-          <div class="st-card-desc">Your music business information — rights organizations, publishing, distribution, and ownership. Update this whenever your business changes; every group below saves independently.</div>
-          <div id="st-mrp-groups"></div>
+          <div class="st-card-desc">Your canonical publishing identity — who manages your rights, which organizations you're registered with, and what Royaltē uses to power Publishing Intelligence™.</div>
+
+          <!-- Profile Completion™ -->
+          <div class="st-mrp-completion" id="st-mrp-completion" role="group" aria-label="Music Rights Profile completion">
+            <div class="st-mrp-completion-header">
+              <div class="st-mrp-completion-pct" id="st-mrp-completion-pct">0%</div>
+              <div class="st-mrp-completion-label">Complete</div>
+            </div>
+            <div class="st-mrp-completion-bar-wrap"><div class="st-mrp-completion-bar" id="st-mrp-completion-bar" style="width:0%"></div></div>
+            <div class="st-mrp-completion-cols">
+              <div>
+                <div class="st-mrp-completion-col-title">Completed</div>
+                <div id="st-mrp-completion-done"></div>
+              </div>
+              <div>
+                <div class="st-mrp-completion-col-title">Still Required</div>
+                <div id="st-mrp-completion-missing"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rights Identity™ -->
+          <div class="st-mrp-section">
+            <div class="st-mrp-section-title">Rights Identity™</div>
+            <div class="st-mrp-section-hint">Who manages this artist's publishing.</div>
+            <div id="st-mrp-identity-groups"></div>
+          </div>
+
+          <!-- Rights Registrations™ -->
+          <div class="st-mrp-section">
+            <div class="st-mrp-section-title">Rights Registrations™</div>
+            <div class="st-mrp-section-hint">Which rights organizations are configured, and their status.</div>
+            <div id="st-mrp-registrations-groups"></div>
+          </div>
+
+          <!-- Rights Identifiers™ — visually secondary per Board directive -->
+          <div class="st-mrp-section st-mrp-section--compact">
+            <div class="st-mrp-section-title">Rights Identifiers™</div>
+            <div class="st-mrp-section-hint">Future-ready identifiers for identity resolution. Optional.</div>
+            <div id="st-mrp-identifiers-groups"></div>
+          </div>
+
+          <!-- Verification Sources™ -->
+          <div class="st-mrp-section">
+            <div class="st-mrp-section-title">Verification Sources™</div>
+            <div class="st-mrp-evidence-card">
+              Every value above is manually provided by you (Artist Disclosure). Royaltē does not yet independently
+              verify Music Rights Profile data — future releases will add verified sources alongside your disclosures
+              as those integrations become available.
+            </div>
+          </div>
+
+          <!-- Executive Insight™ — deterministic guidance only, reserved for future ATHENA -->
+          <div class="st-mrp-section">
+            <div class="st-mrp-section-title">Executive Insight™</div>
+            <div class="st-mrp-evidence-card" id="st-mrp-insight-body">—</div>
+          </div>
         </section>
 
         <!-- § SECURITY ───────────────────────────────────────────────── -->
@@ -1001,33 +1116,131 @@ function valueLabel(options, value) {
   return opt ? opt.label : null;
 }
 
+// Executive Enhancement (Board directive, 2026-07-21): the 16 existing
+// editable groups (unchanged mechanics -- renderMrpGroupHtml/wireMrpGroup/
+// saveMrpGroup are untouched) now render into three labeled sections instead
+// of one flat list, partitioned by each group's uiSection tag. This function
+// also drives Profile Completion™, Rights Registrations™ status badges,
+// Verification Sources™, and Executive Insight™ -- all computed client-side
+// from the same currentMRP object already in memory, no new data source.
 function renderMrpGroups() {
-  const host = document.getElementById('st-mrp-groups');
   const allGroups = [
     ...ONBOARDING_SECTIONS.map(s => ({
       id: s.key, title: s.eyebrow, hint: s.question, group: s.group, field: s.field,
-      boolField: s.boolField, options: s.options,
+      boolField: s.boolField, options: s.options, uiSection: s.uiSection,
       conditionalKey: s.conditionalKey, conditionalGroup: s.conditionalGroup, conditionalPlaceholder: s.conditionalPlaceholder,
       conditionalTriggers: s.conditionalTriggers,
     })),
     ...SETTINGS_GROUPS,
   ];
 
-  host.innerHTML = allGroups.map(g => renderMrpGroupHtml(g)).join('');
+  const bySection = { identity: [], registrations: [], identifiers: [] };
+  allGroups.forEach(g => { (bySection[g.uiSection] || bySection.identity).push(g); });
+
+  const identityHost = document.getElementById('st-mrp-identity-groups');
+  const regHost       = document.getElementById('st-mrp-registrations-groups');
+  const idHost        = document.getElementById('st-mrp-identifiers-groups');
+  identityHost.innerHTML = bySection.identity.map(g => renderMrpGroupHtml(g)).join('');
+  regHost.innerHTML      = bySection.registrations.map(g => renderMrpGroupHtml(g)).join('');
+  idHost.innerHTML       = bySection.identifiers.map(g => renderMrpGroupHtml(g)).join('');
 
   allGroups.forEach(g => wireMrpGroup(g));
+
+  renderMrpCompletion(allGroups);
+  renderMrpRegistrationStatuses(bySection.registrations);
+  renderMrpExecutiveInsight(allGroups);
+}
+
+// Profile Completion™ — deterministic, unweighted: (groups with any value
+// saved) / (total groups). No field is worth more than another and no
+// field is treated as "required" beyond the 3 onboarding questions already
+// gated before Settings is reachable -- so nothing here can unfairly
+// penalize an artist for an optional field they haven't filled in yet.
+function groupHasValue(g) {
+  const groupData = currentMRP[g.group] || {};
+  if (g.boolField) return groupData[g.field] === true || groupData[g.field] === false;
+  return !!groupData[g.field];
+}
+
+function renderMrpCompletion(allGroups) {
+  const total = allGroups.length;
+  const completed = allGroups.filter(groupHasValue);
+  const pct = total === 0 ? 0 : Math.round((completed.length / total) * 100);
+
+  const pctEl = document.getElementById('st-mrp-completion-pct');
+  if (pctEl) pctEl.textContent = pct + '%';
+  const barEl = document.getElementById('st-mrp-completion-bar');
+  if (barEl) barEl.style.width = pct + '%';
+
+  const doneEl = document.getElementById('st-mrp-completion-done');
+  const missEl = document.getElementById('st-mrp-completion-missing');
+  const missing = allGroups.filter(g => !groupHasValue(g));
+  if (doneEl) {
+    doneEl.innerHTML = completed.length === 0
+      ? '<span class="st-empty">Nothing completed yet</span>'
+      : completed.map(g => `<div class="st-mrp-check st-mrp-check--done">✓ ${esc(g.title)}</div>`).join('');
+  }
+  if (missEl) {
+    missEl.innerHTML = missing.length === 0
+      ? '<span class="st-empty">Nothing outstanding</span>'
+      : missing.map(g => `<div class="st-mrp-check st-mrp-check--missing">○ ${esc(g.title)}</div>`).join('');
+  }
+}
+
+// Rights Registrations™ status badges -- computed, never fabricated. A group
+// with a real value is "Configured"; MLC/PRO Membership additionally reach
+// "Registered" when the underlying disclosure is explicitly positive.
+function registrationStatus(g) {
+  const groupData = currentMRP[g.group] || {};
+  const val = g.boolField ? groupData[g.field] : groupData[g.field];
+  if (val === undefined || val === null || val === '') return { label: 'Not Configured', cls: 'st-mrp-status--none' };
+  if (g.id === 'mlc' && val === false) return { label: 'Not Registered', cls: 'st-mrp-status--none' };
+  if (g.id === 'mlc' && val === true) return { label: 'Registered', cls: 'st-mrp-status--done' };
+  if (g.id === 'pro_membership') return { label: valueLabel(g.options, val) || 'Unknown', cls: val === 'active' ? 'st-mrp-status--done' : 'st-mrp-status--partial' };
+  return { label: 'Configured', cls: 'st-mrp-status--done' };
+}
+
+function renderMrpRegistrationStatuses(registrationGroups) {
+  registrationGroups.forEach(g => {
+    const badgeEl = document.getElementById('st-mrp-status-' + g.id);
+    if (!badgeEl) return;
+    const st = registrationStatus(g);
+    badgeEl.className = 'st-mrp-status-badge ' + st.cls;
+    badgeEl.textContent = st.label;
+  });
+}
+
+// Executive Insight™ — deterministic guidance only (Board Ruling, this
+// initiative): built entirely from the same missing-field list Profile
+// Completion™ already computed. No AI, no fabricated recommendations.
+// Reserved area for future ATHENA integration (out of scope here).
+function renderMrpExecutiveInsight(allGroups) {
+  const el = document.getElementById('st-mrp-insight-body');
+  if (!el) return;
+  const missing = allGroups.filter(g => !groupHasValue(g));
+  if (missing.length === 0) {
+    el.textContent = 'Your Music Rights Profile™ is complete. Royaltē will use this information as your canonical publishing evidence source.';
+    return;
+  }
+  const pct = Math.round(((allGroups.length - missing.length) / allGroups.length) * 100);
+  const stage = pct >= 75 ? 'substantially complete' : pct >= 40 ? 'partially complete' : 'just getting started';
+  const names = missing.slice(0, 3).map(g => g.title).join(', ');
+  const more = missing.length > 3 ? `, and ${missing.length - 3} more` : '';
+  el.textContent = `Your Music Rights Profile™ is ${stage}. The following items are recommended: ${names}${more}. Completing these improves future identity resolution and publishing verification.`;
 }
 
 function renderMrpGroupHtml(g) {
   const groupData = currentMRP[g.group] || {};
   const currentVal = g.boolField ? (groupData[g.field] === true ? 'Yes' : (groupData[g.field] === false ? 'No' : null)) : groupData[g.field];
+  const statusBadge = g.uiSection === 'registrations'
+    ? `<span class="st-mrp-status-badge" id="st-mrp-status-${esc(g.id)}">—</span>` : '';
 
   if (g.freeText) {
     const val = groupData[g.field] || '';
     const secVal = g.secondaryField ? (groupData[g.secondaryField] || '') : '';
     return `
       <div class="st-group" id="st-mrp-${esc(g.id)}">
-        <div class="st-group-title">${esc(g.title)}</div>
+        <div class="st-group-title-row"><div class="st-group-title">${esc(g.title)}</div>${statusBadge}</div>
         <div class="st-group-hint">${esc(g.hint)}</div>
         <div class="st-field-grid">
           <div class="st-field"><input type="text" data-mrp-field="${esc(g.field)}" placeholder="${esc(g.placeholder || '')}" value="${esc(val)}"></div>
@@ -1050,7 +1263,7 @@ function renderMrpGroupHtml(g) {
 
   return `
     <div class="st-group" id="st-mrp-${esc(g.id)}">
-      <div class="st-group-title">${esc(g.title)}</div>
+      <div class="st-group-title-row"><div class="st-group-title">${esc(g.title)}</div>${statusBadge}</div>
       <div class="st-group-hint">${esc(g.hint)}</div>
       <div class="st-current-val">Current: ${label ? '<b>' + esc(label) + '</b>' : '<span class="st-empty">not set</span>'}</div>
       <div class="st-chip-row" data-mrp-chips>${chips}</div>

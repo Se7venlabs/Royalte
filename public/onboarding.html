@@ -536,7 +536,7 @@
 
 <script type="module">
 import { getSupabase } from '/js/supabase-client.js';
-import { ONBOARDING_SECTIONS, buildOnboardingProfile, esc } from '/js/music-rights-profile.js';
+import { ONBOARDING_SECTIONS, buildOnboardingProfile, esc, saveMusicRightsProfile } from '/js/music-rights-profile.js';
 
 // Section definitions now live in /js/music-rights-profile.js — the single
 // source of truth shared with Settings → Music Rights Profile. Do not
@@ -745,12 +745,17 @@ async function saveProfile() {
   // Redirect only after both the save and the minimum display time (1.8s) resolve.
   renderComplete();
   await Promise.all([
-    callSaveEndpoint({ profile: buildOnboardingProfile(answers) }),
+    // Caller never blocks the redirect on save failure -- swallow and log,
+    // same tolerance callSaveEndpoint() used to provide.
+    saveMusicRightsProfile(buildOnboardingProfile(answers), accessToken)
+      .catch(e => console.error('[onboarding] save failed:', e.message)),
     new Promise(r => setTimeout(r, 1800)),
   ]);
   redirectToMC();
 }
-// buildOnboardingProfile() imported from /js/music-rights-profile.js — no local copy.
+// buildOnboardingProfile() and saveMusicRightsProfile() imported from
+// /js/music-rights-profile.js — no local copies (Board hygiene directive,
+// 2026-07-21: retired the duplicate callSaveEndpoint() fetch wrapper).
 
 function renderComplete() {
   currentScreen = 'complete';
@@ -766,22 +771,6 @@ function renderComplete() {
       <div class="ob-complete-dots"><span></span><span></span><span></span></div>
     </div>
   `;
-}
-
-async function callSaveEndpoint(body) {
-  try {
-    const headers = { 'Content-Type': 'application/json' };
-    if (accessToken) headers['Authorization'] = 'Bearer ' + accessToken;
-    const res = await fetch('/api/save-music-rights-profile', {
-      method:  'POST',
-      headers,
-      body:    JSON.stringify(body),
-    });
-    if (!res.ok) console.error('[onboarding] save failed:', res.status);
-  } catch (e) {
-    console.error('[onboarding] save threw:', e.message);
-  }
-  // Caller handles redirect — never call redirectToMC() here
 }
 
 function redirectToMC() {

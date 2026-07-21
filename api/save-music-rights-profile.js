@@ -1,19 +1,23 @@
 // POST /api/save-music-rights-profile
 //
 // Persists the Music Rights Profile™ for the authenticated artist.
-// Called by public/onboarding.html after the artist answers the 4 required questions.
-// The profile is required — there is no skip path.
+// Called by public/onboarding.html after the artist answers the 3 required
+// onboarding questions (public/js/music-rights-profile.js ONBOARDING_SECTIONS),
+// and by public/workspaces/settings.html for every subsequent edit to any of
+// the additional always-editable groups (SETTINGS_GROUPS in the same file).
+// The onboarding profile is required — there is no skip path.
 //
-// Artist-supplied groups (onboarding):
-//   performing_rights: { pro }
-//   publishing: { publishing_management, organization_name, mlc_registered }
+// Every group in the stored object is artist-supplied (manual disclosure),
+// via either onboarding or Settings. No intelligence engine writes to this
+// column today — see public/js/music-rights-profile.js for the full list of
+// groups and their fields.
 //
-// Intelligence-auto-populated groups (future, added post-scan by intelligence engines):
-//   recording:    { record_label, label_name }       — from Apple Music catalog
-//   distribution: { distributor, distributor_other } — inferred from Apple Music
-//
-// The client sends only the groups it has. This endpoint wraps them with the
-// meta block before writing. Future intelligence groups merge in separately.
+// The client sends only the group(s) it has changed, already merged with the
+// rest of the current profile (see mergeProfileFragment() in
+// music-rights-profile.js) -- this endpoint does a full-column overwrite, not
+// a deep merge, so an incomplete client payload would silently erase other
+// groups. This endpoint just wraps whatever it receives with the meta block
+// before writing.
 //
 // Request:
 //   Authorization: Bearer <user_access_token>
@@ -68,9 +72,10 @@ export default async function handler(req, res) {
 
   // ── Upsert ────────────────────────────────────────────────────────────────────
   const now = new Date().toISOString();
-  // Wrap the client-supplied groups with the meta block.
-  // At onboarding: profile = { performing_rights: { pro, soundexchange } }
-  // Intelligence engines merge additional groups post-scan.
+  // Wrap the client-supplied groups with the meta block. At onboarding:
+  // profile = { performing_rights: { pro }, publishing: { publishing_management,
+  // organization_name, mlc_registered } }. Settings sends the same shape, one
+  // group at a time, already merged with the rest of the current profile.
   const updatePayload = {
     onboarding_completed_at: now,
     updated_at: now,

@@ -21,6 +21,9 @@
 export const ONBOARDING_SECTIONS = [
   {
     key: 'pro',
+    uiSection: 'identity', // Settings™ Executive Enhancement (2026-07-21): which
+    // of Rights Identity™/Rights Registrations™/Rights Identifiers™ this
+    // group's editable card renders under. Layout-only; does not affect save/wire.
     group: 'performing_rights',
     field: 'pro',
     eyebrow: 'Performing Rights',
@@ -38,13 +41,18 @@ export const ONBOARDING_SECTIONS = [
   },
   {
     key: 'publishing_management',
+    uiSection: 'identity',
     group: 'publishing',
     field: 'publishing_management',
     eyebrow: 'Publishing',
     question: 'Who manages your publishing?',
     hint: 'Tell us how your publishing is managed so Royaltē can identify the right royalty collection paths for your music.',
     options: [
-      { value: 'self',      label: 'I manage my own publishing' },
+      // shortLabel: third-person restatement for executive summary contexts
+      // (e.g. Publishing Intelligence's Publishing Type field) where the
+      // first-person onboarding question phrasing reads awkwardly. Other
+      // options' shortLabel is omitted where label already reads fine both ways.
+      { value: 'self',      label: 'I manage my own publishing', shortLabel: 'Self Published' },
       { value: 'admin',     label: 'Publishing Administrator' },
       { value: 'publisher', label: 'Publisher' },
     ],
@@ -55,6 +63,7 @@ export const ONBOARDING_SECTIONS = [
   },
   {
     key: 'mlc',
+    uiSection: 'registrations',
     group: 'publishing',
     field: 'mlc_registered',
     boolField: true, // stored as boolean ('Yes' -> true / 'No' -> false)
@@ -77,6 +86,7 @@ export const ONBOARDING_SECTIONS = [
 export const SETTINGS_GROUPS = [
   {
     id: 'pro_membership',
+    uiSection: 'registrations',
     title: 'PRO Membership Status',
     group: 'performing_rights',
     field: 'membership_status',
@@ -89,6 +99,7 @@ export const SETTINGS_GROUPS = [
   },
   {
     id: 'mechanical_rights',
+    uiSection: 'registrations',
     title: 'Mechanical Rights',
     group: 'mechanical_rights',
     field: 'organization',
@@ -106,6 +117,7 @@ export const SETTINGS_GROUPS = [
   },
   {
     id: 'record_label',
+    uiSection: 'identity',
     title: 'Record Label',
     group: 'record_label',
     field: 'status',
@@ -121,6 +133,7 @@ export const SETTINGS_GROUPS = [
   },
   {
     id: 'distribution',
+    uiSection: 'registrations',
     title: 'Distribution',
     group: 'distribution',
     field: 'distributor',
@@ -132,6 +145,7 @@ export const SETTINGS_GROUPS = [
   },
   {
     id: 'master_rights',
+    uiSection: 'registrations',
     title: 'Master Rights',
     group: 'master_rights',
     field: 'ownership',
@@ -144,6 +158,7 @@ export const SETTINGS_GROUPS = [
   },
   {
     id: 'neighboring_rights',
+    uiSection: 'registrations',
     title: 'Neighboring Rights',
     group: 'neighboring_rights',
     field: 'organization',
@@ -161,6 +176,7 @@ export const SETTINGS_GROUPS = [
   },
   {
     id: 'sync_representation',
+    uiSection: 'registrations',
     title: 'Sync Representation',
     group: 'sync_representation',
     field: 'representative',
@@ -177,6 +193,7 @@ export const SETTINGS_GROUPS = [
   //    this pass -- null is acceptable until populated; no fabricated values.
   {
     id: 'publisher_name',
+    uiSection: 'identity',
     title: 'Publisher Name',
     group: 'publisher',
     field: 'name',
@@ -186,6 +203,7 @@ export const SETTINGS_GROUPS = [
   },
   {
     id: 'songwriter_status',
+    uiSection: 'identity',
     title: 'Songwriter Status',
     group: 'songwriter',
     field: 'status',
@@ -199,6 +217,7 @@ export const SETTINGS_GROUPS = [
   },
   {
     id: 'rights_administrator',
+    uiSection: 'identity',
     title: 'Rights Administrator',
     group: 'rights_administration',
     field: 'organization',
@@ -208,6 +227,7 @@ export const SETTINGS_GROUPS = [
   },
   {
     id: 'isni',
+    uiSection: 'identifiers',
     title: 'ISNI',
     group: 'rights_identifiers',
     field: 'isni',
@@ -217,6 +237,7 @@ export const SETTINGS_GROUPS = [
   },
   {
     id: 'ipi_number',
+    uiSection: 'identifiers',
     title: 'IPI Number',
     group: 'rights_identifiers',
     field: 'ipi_number',
@@ -226,6 +247,7 @@ export const SETTINGS_GROUPS = [
   },
   {
     id: 'cae_number',
+    uiSection: 'identifiers',
     title: 'CAE Number',
     group: 'rights_identifiers',
     field: 'cae_number',
@@ -234,6 +256,24 @@ export const SETTINGS_GROUPS = [
     placeholder: 'e.g. 00123456789',
   },
 ];
+
+// Single canonical lookup for a raw MRP enum value's human-readable label.
+// sectionId matches either an ONBOARDING_SECTIONS `key` or a SETTINGS_GROUPS
+// `id` (e.g. 'publishing_management', 'mechanical_rights', 'neighboring_rights',
+// 'songwriter_status'). Prefers an option's shortLabel when present (executive
+// summary contexts), falling back to its full label. Consumers must call this
+// instead of maintaining their own copy of option→label mappings -- duplicate
+// label maps across workspaces is exactly how Publishing Intelligence's
+// PTYPE_LABELS/MECH_LABELS/NR_LABELS/SW_LABELS drifted from these canonical
+// options before this helper existed (Board hygiene directive, 2026-07-21).
+export function getOptionLabel(sectionId, value) {
+  if (value == null) return null;
+  const section = [...ONBOARDING_SECTIONS, ...SETTINGS_GROUPS]
+    .find(s => s.key === sectionId || s.id === sectionId);
+  if (!section || !Array.isArray(section.options)) return null;
+  const opt = section.options.find(o => o.value === value);
+  return opt ? (opt.shortLabel || opt.label) : null;
+}
 
 export function esc(str) {
   if (typeof str !== 'string') return '';

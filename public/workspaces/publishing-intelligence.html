@@ -908,11 +908,18 @@
 
 </div><!-- /ws-shell -->
 
-<script>
+<script type="module">
 // ── Publishing Intelligence™ — Runtime Renderer v1.0 ──────────────────────
 // Input:  royalte_workspace_context (mc-workspace-context.js)
 // Output: Rendered HTML
 // Never:  queries storage directly, renders demo data, builds artist objects
+//
+// type="module" (Board hygiene directive, 2026-07-21): needed to import
+// getOptionLabel() from music-rights-profile.js instead of maintaining
+// duplicate label maps. Module scripts defer like classic `defer` scripts,
+// so this still runs after mc-workspace-context.js (a blocking classic
+// script loaded earlier in <head>) -- execution order is unchanged.
+import { getOptionLabel } from '/js/music-rights-profile.js';
 (function () {
   'use strict';
 
@@ -1012,8 +1019,7 @@
     adminVal || '—', adminVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
   // ── Publishing Type — plain-language restatement of publishing_management ──
-  var PTYPE_LABELS = { self: 'Self Published', admin: 'Publishing Administrator', publisher: 'Publisher' };
-  var ptypeVal = PTYPE_LABELS[pub.publishing_management] || null;
+  var ptypeVal = getOptionLabel('publishing_management', pub.publishing_management);
   setField('pi-mrp-ptype-val', 'pi-mrp-ptype-badge',
     ptypeVal || '—', ptypeVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
@@ -1026,11 +1032,10 @@
     'Artist Disclosure');
 
   // ── Mechanical Rights — Artist Disclosure (from MRP mechanical_rights group) ─
-  var MECH_LABELS = { mlc: 'The MLC', cmrra: 'CMRRA', hfa: 'Harry Fox' };
   var mechGroup = (mrp && mrp.mechanical_rights) ? mrp.mechanical_rights : {};
   var mechVal = mechGroup.organization === 'other'
     ? (mechGroup.organization_other || null)
-    : (MECH_LABELS[mechGroup.organization] || null);
+    : getOptionLabel('mechanical_rights', mechGroup.organization);
   setField('pi-mrp-mech-val', 'pi-mrp-mech-badge',
     mechVal || '—', mechVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
@@ -1042,17 +1047,15 @@
 
   // ── Neighboring Rights — Artist Disclosure. Distinct from the SoundExchange-
   // specific field above: shows whichever org was actually disclosed. ───────
-  var NR_LABELS = { soundexchange: 'SoundExchange', resound: 'Re:Sound', ppl: 'PPL' };
   var nrVal = nr.organization === 'other'
     ? (nr.organization_other || null)
-    : (NR_LABELS[nr.organization] || null);
+    : getOptionLabel('neighboring_rights', nr.organization);
   setField('pi-mrp-nr-val', 'pi-mrp-nr-badge',
     nrVal || '—', nrVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
   // ── Songwriter Status — Artist Disclosure (from MRP songwriter group) ──────
-  var SW_LABELS = { sole: 'Sole Songwriter', co: 'Co-Writer', session: 'Session Writer', none: 'Not a Songwriter' };
   var swGroup = (mrp && mrp.songwriter) ? mrp.songwriter : {};
-  var swVal = SW_LABELS[swGroup.status] || null;
+  var swVal = getOptionLabel('songwriter_status', swGroup.status);
   setField('pi-mrp-sw-val', 'pi-mrp-sw-badge',
     swVal || '—', swVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
