@@ -31,6 +31,9 @@
 //      releaseTitle:      string,        // album / EP / single title
 //      releaseType:       'Album'|'EP'|'Single',
 //      releaseDate:       string|null,   // ISO date from Apple Music
+//      upc:               string|null,   // Apple Music album UPC (Board directive, 2026-07-21 --
+//                                         // preserved through the selection pipeline; was present
+//                                         // on the raw album object but previously dropped here)
 //      verificationScore: number,        // 0–40 (confidence sub-score)
 //      selectionScore:    number,        // 0–100 total
 //      reasonSelected:    string,        // human-readable debug sentence
@@ -305,6 +308,7 @@ export function selectBestVerifiedRelease(albums, artistName) {
       releaseTitle:      name,
       releaseType:       best.releaseType,
       releaseDate:       typeof best.album.releaseDate === 'string' ? best.album.releaseDate : null,
+      upc:               typeof best.album.upc === 'string' ? best.album.upc : null,
       verificationScore: best.verificationScore,
       selectionScore:    best.selectionScore,
       reasonSelected:    buildReason(best, scored.length),
