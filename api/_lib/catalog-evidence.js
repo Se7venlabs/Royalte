@@ -77,6 +77,19 @@ function deepFreeze(obj) {
   return Object.freeze(obj);
 }
 
+// Apple's JSON:API album response returns artwork as an unresolved
+// "{w}x{h}bb.jpg" dimension template, not a loadable URL -- a wire-format
+// fact of the provider response, not a business decision. EvidenceBridge
+// (migration infrastructure only, no interpretation permitted) forwards
+// this template as-is into canonical.platforms.appleMusic.details.albums,
+// so structural normalization at this evidence boundary is where it must
+// be resolved into a real URL -- same substitution already applied to the
+// artist-level artwork field in api/_lib/apple-pal-acquisition.js.
+function substituteArtworkDimensions(url, w = 600, h = 600) {
+  if (!url || typeof url !== 'string') return null;
+  return url.replace('{w}', String(w)).replace('{h}', String(h));
+}
+
 // assembleCatalogEvidence(canonical) — sole entrypoint. Never throws,
 // including against a malformed input whose properties throw on access
 // (e.g. a hostile getter) — matching the "never throws on any input"
@@ -91,7 +104,9 @@ export function assembleCatalogEvidence(canonical) {
     const catalogFallback = safe.catalog;
 
     return deepFreeze({
-      appleAlbums:          Array.isArray(appleDetails?.albums) ? appleDetails.albums : [],
+      appleAlbums:          Array.isArray(appleDetails?.albums)
+        ? appleDetails.albums.map(al => ({ ...al, artwork: substituteArtworkDimensions(al.artwork) }))
+        : [],
       appleAvailability:    safe.platforms?.appleMusic?.availability ?? null,
       isrcComparison:       (appleDetails?.catalogComparison && typeof appleDetails.catalogComparison === 'object')
                                ? appleDetails.catalogComparison
