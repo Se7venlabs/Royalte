@@ -19,6 +19,32 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-21 — Catalog Intelligence™ — ISRC Intelligence™ v1 (PR #393)
+
+| | |
+|---|---|
+| **Date** | 2026-07-21 |
+| **PR Number** | #393 |
+| **Commit SHA** | `fd70bcd` |
+| **Tag** | `isrc-intelligence-v1.0` |
+| **Added** | `api/_lib/isrc-intelligence.js` (new domain assembler — `assembleIsrcIntelligence()`, sole owner of ISRC Intelligence™ v1 business logic). `EvidenceBridge.js`: `translateAppleTracks()`. `catalog-evidence.js`: `appleTracks[]` / `appleTracksAssessed`. ISRC Intelligence™, ATHENA Executive Insight™, and Catalog Timeline™ cards on `catalog-intelligence.html`. `governance/ISRC_INTELLIGENCE_V1_EXECUTIVE_REVIEW.md` (Executive Review Package). |
+| **Changed** | `apple-pal-acquisition.js`: `Capability.TRACKS` added to the existing parallel evidence batch. `AppleMusicConnector.js`: `#fetchArtistTracks()` limit corrected `25 → 20` (production defect found and fixed via live validation — see review package §14). `catalog-intelligence.js`: `isrcIntelligence` replaces `isrcCoverage` in the output shape (`v1.2.0 → v1.3.0`). `mission-control-renderers.js`, `mc-workspace-context.js`, `public/index.html`: updated to the new field name/shape. |
+| **Removed** | `assembleIsrcCoverage()`, `deriveIsrcStatus()`, `ISRC_THRESHOLDS`, `ISRC_UNKNOWN` from `catalog-intelligence.js` — the permanent-null `catalogComparison` stub path this initiative replaces. |
+| **Constitution Version** | v1.3 (Board Amendment) |
+
+Version 1 scope: single authoritative evidence source (Apple Music
+`Capability.TRACKS`, the artist's own official catalog). No cross-provider
+reconciliation, no conflict detection (`conflictState` is a typed
+placeholder, always `NOT_APPLICABLE`), no inferred relationships. Live
+production-validated post-merge (Michael Jackson, Adele — real scans on
+`royalte.ai`, `ASSESSED_COMPLETE` 20/20 both, zero console errors, no
+regressions in Identity Intelligence™, Publishing Intelligence™, or Global
+Music Footprint™). Version 2 roadmap (multi-provider reconciliation, real
+conflict detection, recording equivalency/version classification) is
+documented only — not implemented.
+
+---
+
 ## 2026-07-12 — Mission Control™ v2.0 Sprint 9 — Mission Control Data API™ (PR #318)
 
 | | |
