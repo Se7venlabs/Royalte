@@ -3438,9 +3438,10 @@ svg { display: block; }
   background: rgba(124,58,237,0.14); border-color: rgba(124,58,237,0.42);
 }
 
-/* KPI row: 3 equal columns after Potential Royalty Impact™/ATHENA card removal */
+/* KPI row: 2 equal columns after Potential Royalty Impact™/ATHENA card removal
+   and Collection Health™ removal (Board Ruling #5 -- no real evidence model). */
 .ws-dept--publishing .hi-kpi-row {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
 }
 
 /* Publishing dept typography — KPI Typography Standardization™ */
