@@ -357,10 +357,6 @@
               </div>
               <div class="ii-platform-card-stats">
                 <div>
-                  <div class="ii-platform-label">Confidence</div>
-                  <div class="ii-platform-confidence">—</div>
-                </div>
-                <div>
                   <div class="ii-platform-label">Last Sync</div>
                   <div class="ii-platform-lastsync">—</div>
                 </div>
@@ -380,10 +376,6 @@
                 </div>
               </div>
               <div class="ii-platform-card-stats">
-                <div>
-                  <div class="ii-platform-label">Confidence</div>
-                  <div class="ii-platform-confidence">—</div>
-                </div>
                 <div>
                   <div class="ii-platform-label">Last Sync</div>
                   <div class="ii-platform-lastsync">—</div>
@@ -405,10 +397,6 @@
               </div>
               <div class="ii-platform-card-stats">
                 <div>
-                  <div class="ii-platform-label">Confidence</div>
-                  <div class="ii-platform-confidence">—</div>
-                </div>
-                <div>
                   <div class="ii-platform-label">Last Sync</div>
                   <div class="ii-platform-lastsync">—</div>
                 </div>
@@ -428,10 +416,6 @@
                 </div>
               </div>
               <div class="ii-platform-card-stats">
-                <div>
-                  <div class="ii-platform-label">Confidence</div>
-                  <div class="ii-platform-confidence">—</div>
-                </div>
                 <div>
                   <div class="ii-platform-label">Last Sync</div>
                   <div class="ii-platform-lastsync">—</div>
@@ -453,10 +437,6 @@
               </div>
               <div class="ii-platform-card-stats">
                 <div>
-                  <div class="ii-platform-label">Confidence</div>
-                  <div class="ii-platform-confidence">—</div>
-                </div>
-                <div>
                   <div class="ii-platform-label">Last Sync</div>
                   <div class="ii-platform-lastsync">—</div>
                 </div>
@@ -476,10 +456,6 @@
                 </div>
               </div>
               <div class="ii-platform-card-stats">
-                <div>
-                  <div class="ii-platform-label">Confidence</div>
-                  <div class="ii-platform-confidence">—</div>
-                </div>
                 <div>
                   <div class="ii-platform-label">Label</div>
                   <div class="ii-platform-lastsync">—</div>
@@ -680,9 +656,6 @@
     // aria-label
     var pName = card.querySelector('.ii-platform-name');
     if (pName) card.setAttribute('aria-label', pName.textContent.trim() + ' — ' + bm.label);
-    // Confidence: no per-provider score available — truthful display is "—"
-    var confEl = card.querySelector('.ii-platform-confidence, .ii-platform-confidence--muted');
-    if (confEl) { confEl.className = 'ii-platform-confidence--muted'; confEl.textContent = '—'; }
     // Last sync
     var statDivs = card.querySelectorAll('.ii-platform-card-stats > div');
     statDivs.forEach(function (div) {
@@ -705,10 +678,6 @@
       if (lbl && lbl.textContent.trim() === 'Label') {
         var val = div.querySelector('.ii-platform-lastsync');
         if (val && ctx.recordLabel) val.textContent = ctx.recordLabel;
-      }
-      if (lbl && lbl.textContent.trim() === 'Confidence') {
-        var confEl2 = div.querySelector('.ii-platform-confidence');
-        if (confEl2) { confEl2.className = 'ii-platform-confidence--muted'; confEl2.textContent = '—'; }
       }
     });
     if (ctx.recordLabel) {

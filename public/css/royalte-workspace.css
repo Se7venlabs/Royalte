@@ -2789,9 +2789,6 @@ svg { display: block; }
 
 .ii-platform-label { font-size: 8.5px; color: var(--mc-text-muted); }
 
-.ii-platform-confidence { font-size: 16px; font-weight: 700; color: var(--mc-purple); line-height: 1.2; letter-spacing: -0.02em; }
-.ii-platform-confidence--muted { color: var(--mc-text-muted); font-size: 13px; }
-
 .ii-platform-sub { font-size: 9px; color: var(--mc-text-muted); }
 
 /* ── Enriched platform card layout ────────────────────────────────── */
