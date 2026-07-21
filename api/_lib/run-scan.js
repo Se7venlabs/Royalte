@@ -38,6 +38,7 @@ import {
 } from './identity/apple.js';
 // Phase 3.3 (Apple Production Migration) — PAL Apple acquisition
 import { acquireAppleEvidence, synthesizeAppleMusicCompat } from './apple-pal-acquisition.js';
+import { seedCanonicalScanSubject } from './canonical-scan-subject-assembler.js';
 // Phase 3.6 (Spotify PAL Migration) — PAL Spotify acquisition
 import { acquireSpotifyEvidence, synthesizeSpotifyCompat } from './spotify-pal-acquisition.js';
 // Phase 3.8 (MusicBrainz PAL Migration) — PAL MusicBrainz acquisition
@@ -207,6 +208,23 @@ export async function runScan(url) {
   // synthesize*Compat functions below are backward-compat synthesis for the V1 module system only.
   const appleIsrc = resolved.trackIsrc || trackData?.external_ids?.isrc || null;
 
+  // ── Canonical Scan Subject™ — SEED (Phase 2 Recovery, 2026-07-20) ────────
+  // Created immediately after Identity Resolution, before Provider
+  // Acquisition begins. subjectType is 'release' whenever appleIsrc is
+  // already known here -- this is the confirmed-defect fix: that ISRC
+  // previously flowed into a Capability.ISRC evidence request that nothing
+  // ever read back out, so Territory Intelligence fell back to an
+  // arbitrary catalog-order album instead of the release the artist
+  // actually scanned. See api/schema/canonical-scan-subject.js.
+  const canonicalScanSubjectSeed = seedCanonicalScanSubject({
+    artistName:      artistName,
+    appleArtistId:   resolved.appleArtistId ?? null,
+    spotifyArtistId: resolved.artistId      ?? null,
+    spotifyTrackId:  resolved.spotifyTrackId ?? null,
+    trackTitle:      resolved.trackTitle || trackData?.name || null,
+    isrc:            appleIsrc,
+  });
+
   const [
     applePalSettled,
     spotifyPalSettled,
@@ -225,6 +243,7 @@ export async function runScan(url) {
       appleArtistId: resolved.appleArtistId ?? null,
       artistName,
       isrc: appleIsrc,
+      canonicalScanSubject: canonicalScanSubjectSeed,
     }),
     // Phase 3.6/Spotify: Spotify enrichment via PAL
     acquireSpotifyEvidence({
@@ -251,7 +270,7 @@ export async function runScan(url) {
     getWikidata(artistName),
   ]);
 
-  const { evidencePackages: appleEvidencePackages = [] } =
+  const { evidencePackages: appleEvidencePackages = [], canonicalScanSubject: canonicalScanSubjectResolved = canonicalScanSubjectSeed } =
     applePalSettled.status === 'fulfilled' ? applePalSettled.value : {};
   const { evidencePackages: spotifyEvidencePackages = [] } =
     spotifyPalSettled.status === 'fulfilled' ? spotifyPalSettled.value : {};
@@ -422,6 +441,13 @@ export async function runScan(url) {
       tidal:       !!tidalData.found,
     },
     catalog: catalogData,
+    // Canonical Scan Subject™ (Phase 2 Recovery, 2026-07-20) — preserved
+    // through to canonicalForEnrichment, never discarded. Not yet consumed
+    // by any intelligence engine beyond Apple territory availability
+    // (Capability.AVAILABILITY's appleAlbumId, resolved in
+    // apple-pal-acquisition.js) -- available here for future engines per
+    // the Board's stated intent, without this PR rewiring them.
+    canonicalScanSubject: canonicalScanSubjectResolved,
     royaltyGap,
     gapBasedExposure,
     proGuide,

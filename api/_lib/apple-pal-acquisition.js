@@ -20,6 +20,7 @@ import { AppleMusicConnector, PROVIDER_NAME as APPLE_PROVIDER } from '../../prov
 import { createEvidenceRequest }      from '../../provider-acquisition/evidence/EvidenceRequest.js';
 import { Capability }                 from '../../provider-acquisition/capability/capabilityVocabulary.js';
 import { bridgeToCanonical }          from '../../lib/rie/EvidenceBridge.js';
+import { enrichWithAppleRelease }     from './canonical-scan-subject-assembler.js';
 
 // ── Env config ───────────────────────────────────────────────────────────────
 function getPalConfig() {
@@ -53,27 +54,46 @@ function extractAppleArtistId(contract) {
 }
 
 // ── First album ID extraction from ALBUMS contract payload ────────────────────
-function extractFirstAlbumId(contract) {
+// Exported for regression testing (tests/canonical-scan-subject-test.mjs) --
+// this is the exact fallback used when no ISRC-resolved release exists.
+export function extractFirstAlbumId(contract) {
   const data = contract?.payload?.data;
   if (!Array.isArray(data)) return null;
   const album = data.find(n => n?.type === 'albums');
   return album?.id ?? null;
 }
 
+// extractFirstIsrcSong: returns the matched Apple Song resource from a
+// Capability.ISRC contract (raw /catalog/{sf}/songs?filter[isrc]=X&include=albums
+// response), or null. Structural extraction only -- does not classify or
+// score anything (matches this file's other extract* helpers' pattern).
+export function extractFirstIsrcSong(contract) {
+  const data = contract?.payload?.data;
+  if (!Array.isArray(data)) return null;
+  const song = data.find(n => n?.type === 'songs');
+  return song ?? null;
+}
+
 /**
  * Acquire Apple Music evidence via PAL for a single scan.
  *
- * @param {{ appleArtistId?: string|null, artistName: string, isrc?: string|null }} subjectHint
- * @returns {Promise<{ evidencePackages: EvidencePackage[], acquired: boolean, elapsedMs: number }>}
+ * @param {{ appleArtistId?: string|null, artistName: string, isrc?: string|null, canonicalScanSubject?: object|null }} subjectHint
+ *   canonicalScanSubject: the seed Canonical Scan Subject™ from
+ *   api/_lib/canonical-scan-subject-assembler.js#seedCanonicalScanSubject(),
+ *   created immediately after Identity Resolution in run-scan.js.
+ * @returns {Promise<{ evidencePackages: EvidencePackage[], acquired: boolean, elapsedMs: number, canonicalScanSubject: object|null }>}
+ *   canonicalScanSubject in the return value is the ENRICHED subject (a new
+ *   frozen object; the seed is never mutated) once the Apple ISRC->song
+ *   lookup resolves. Null when no seed was passed in.
  */
-export async function acquireAppleEvidence({ appleArtistId = null, artistName, isrc = null }) {
+export async function acquireAppleEvidence({ appleArtistId = null, artistName, isrc = null, canonicalScanSubject = null }) {
   const startMs = Date.now();
   const evidencePackages = [];
 
   const config = getPalConfig();
   if (!config.teamId || !config.keyId || !config.privateKey) {
     console.warn('[apple-pal] Apple Music credentials not configured — skipping PAL acquisition');
-    return { evidencePackages: [], acquired: false, elapsedMs: Date.now() - startMs };
+    return { evidencePackages: [], acquired: false, elapsedMs: Date.now() - startMs, canonicalScanSubject };
   }
 
   const pal = new ProviderAcquisitionLayer();
@@ -81,7 +101,7 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
     await pal.activateConnector(new AppleMusicConnector(), config);
   } catch (err) {
     console.error('[apple-pal] PAL activation failed:', err.message);
-    return { evidencePackages: [], acquired: false, elapsedMs: Date.now() - startMs };
+    return { evidencePackages: [], acquired: false, elapsedMs: Date.now() - startMs, canonicalScanSubject };
   }
 
   try {
@@ -98,7 +118,7 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
     if (!resolvedAppleArtistId) {
       // Apple artist not found — record identity evidence and return
       await pal.shutdown().catch(() => {});
-      return { evidencePackages, acquired: false, elapsedMs: Date.now() - startMs };
+      return { evidencePackages, acquired: false, elapsedMs: Date.now() - startMs, canonicalScanSubject };
     }
 
     const enrichedSubjectRef = { ...baseSubjectRef, appleArtistId: resolvedAppleArtistId };
@@ -137,21 +157,39 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
       evidencePackages.push({ evidenceType: Capability.ISRC, contract: isrcSettled.value.contract });
     }
 
+    // ── Canonical Scan Subject™ enrichment (Phase 2 Recovery, 2026-07-20) ──
+    // The confirmed defect: this ISRC-matched song was already resolved
+    // above (Capability.ISRC) and, before this fix, was never read back --
+    // Territory Intelligence fell back to an arbitrary catalog-order album
+    // instead. resolvedAppleSong is the exact release the artist scanned,
+    // when an ISRC was known; null for artist-only scans.
+    const resolvedAppleSong = isrcSettled?.status === 'fulfilled'
+      ? extractFirstIsrcSong(isrcSettled.value.contract)
+      : null;
+    const enrichedScanSubject = enrichWithAppleRelease(canonicalScanSubject, resolvedAppleSong);
+    const resolvedReleaseAlbumId = enrichedScanSubject.providerIds.apple.albumId;
+
     // ── C: AVAILABILITY — global 167-storefront check ────────────────────
-    const firstAlbumId = albumsReport ? extractFirstAlbumId(albumsReport.contract) : null;
-    if (firstAlbumId) {
+    // Canonical Scan Subject™ correction: use the resolved release's album
+    // ID when known. extractFirstAlbumId() is retained ONLY as an explicit,
+    // documented fallback for artist-only scans (no ISRC was resolved, so
+    // there is no specific release to evaluate) -- it must never override a
+    // resolved release.
+    const fallbackFirstAlbumId = albumsReport ? extractFirstAlbumId(albumsReport.contract) : null;
+    const availabilityAlbumId  = resolvedReleaseAlbumId || fallbackFirstAlbumId;
+    if (availabilityAlbumId) {
       const availReport = await pal.acquire(APPLE_PROVIDER, createEvidenceRequest({
-        subjectRef:   { ...enrichedSubjectRef, appleAlbumId: firstAlbumId },
+        subjectRef:   { ...enrichedSubjectRef, appleAlbumId: availabilityAlbumId },
         evidenceType: Capability.AVAILABILITY,
       }));
       evidencePackages.push({ evidenceType: Capability.AVAILABILITY, contract: availReport.contract });
     }
 
-    return { evidencePackages, acquired: true, elapsedMs: Date.now() - startMs };
+    return { evidencePackages, acquired: true, elapsedMs: Date.now() - startMs, canonicalScanSubject: enrichedScanSubject };
 
   } catch (err) {
     console.error('[apple-pal] acquisition error:', err.message);
-    return { evidencePackages, acquired: false, elapsedMs: Date.now() - startMs };
+    return { evidencePackages, acquired: false, elapsedMs: Date.now() - startMs, canonicalScanSubject };
   } finally {
     await pal.shutdown().catch(e => console.error('[apple-pal] shutdown error:', e.message));
   }
