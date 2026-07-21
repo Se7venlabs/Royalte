@@ -740,7 +740,15 @@
   var ctx = _result.ctx;
   var _body = document.querySelector('.ws-body');
   if (_body) _body.style.opacity = '1';
-  var mi = ctx.mediaIntelligence;
+  // Runtime Context Audit (Board directive, 2026-07-21): mediaIntelligence
+  // is now an optional domain (see mc-workspace-context.js's contract) --
+  // a valid, active scan may legitimately not have it yet. Defaulting to
+  // {} here, rather than requiring the domain to reach this line at all,
+  // means every render* call below (all already written defensively,
+  // e.g. `mi.videos || []`, fmtCompact/fmtDelta returning '—' for null)
+  // renders its correct empty state with zero new/duplicated logic --
+  // this is the exact same rendering path a populated scan uses.
+  var mi = ctx.mediaIntelligence || {};
 
   document.getElementById('mi-subscribers').textContent = fmtCompact(mi.subscribers);
   document.getElementById('mi-subscribers-delta').textContent = fmtDelta(mi.subscribersDeltaPct);

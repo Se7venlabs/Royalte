@@ -160,17 +160,26 @@
       optional:       ['royalteAI', 'healthScore'],
     },
     'media-intelligence': {
-      // UI-shell phase (Board Implementation Brief v1.0) -- mediaIntelligence
-      // is not yet an official buildWorkspaceRuntimeContext() output field,
-      // so this contract is only satisfied by the workspace's own dev
-      // fixture until a real acquisition/assembly pipeline is authorized.
-      required:       ['mediaIntelligence'],
-      requiredFields: ['mediaIntelligence.subscribers', 'mediaIntelligence.totalVideos'],
-      requiredTypes:  {
-        'mediaIntelligence.subscribers': 'number',
-        'mediaIntelligence.totalVideos': 'number',
-      },
-      optional:       ['mediaIntelligence.videos', 'mediaIntelligence.monetization', 'mediaIntelligence.opportunities', 'mediaIntelligence.athenaInsights'],
+      // Runtime Context Audit (Board directive, 2026-07-21): mediaIntelligence
+      // is not yet an official buildWorkspaceRuntimeContext() output field --
+      // no PAL/CIM assembler produces it for any artist, real or fixture-free.
+      // Previously required, which meant this contract could never be
+      // satisfied by a real scan and the workspace always showed "No Scan
+      // Loaded" even with a fully valid, active Runtime Context -- the exact
+      // same failure a genuinely missing scan produces, which is misleading:
+      // a scan happened, this one optional domain just isn't populated yet.
+      // Now optional, matching how every other contract in this registry
+      // already treats a field that may legitimately be absent (e.g.
+      // publishing-intelligence's musicRightsProfile/recordLabel) --
+      // Media Intelligence™ becomes just another Runtime Context consumer,
+      // no special case. required/requiredFields/requiredTypes intentionally
+      // empty: a scan with no mediaIntelligence data is still a VALID
+      // context for this workspace to render (as an empty/not-yet-available
+      // state, not a missing scan).
+      required:       [],
+      requiredFields: [],
+      requiredTypes:  {},
+      optional:       ['mediaIntelligence', 'mediaIntelligence.subscribers', 'mediaIntelligence.totalVideos', 'mediaIntelligence.videos', 'mediaIntelligence.monetization', 'mediaIntelligence.opportunities', 'mediaIntelligence.athenaInsights'],
     },
   };
 
