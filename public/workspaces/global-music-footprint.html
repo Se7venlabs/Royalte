@@ -197,14 +197,20 @@
           territories: gapTerritories,
         },
       },
+      // Real shape confirmed via live validation against a production scan
+      // (api/_lib/identity-intelligence.js, Board Final Lock 2026-06-17):
+      // providers[key] is an IDENTITY_STATE string, not { verified: boolean }
+      // -- the previous fixture shape here was wrong and silently made the
+      // Providers™ KPI always show 5/5 regardless of real verification state.
       identityIntelligence: {
         providers: {
-          apple:   { verified: true  },
-          spotify: { verified: true  },
-          youtube: { verified: true  },
-          deezer:  { verified: false },
-          tidal:   { verified: false },
+          apple:   'VERIFIED',
+          spotify: 'VERIFIED',
+          youtube: 'VERIFIED',
+          deezer:  'NOT_FOUND',
+          tidal:   'ACTION_REQUIRED',
         },
+        verifiedProviders: 3,
       },
     }));
   }());
@@ -639,14 +645,21 @@
   var pn = document.getElementById('gf-provider-num');
 
   /* ── Providers™ KPI — verified providers only (Board directive:        *
-   * previously counted every key present regardless of verified state). */
+   * previously counted every key present regardless of verified state).  *
+   * Real shape confirmed via live validation (api/_lib/identity-intelligence.js,
+   * Board Final Lock 2026-06-17): ii.providers[key] is an IDENTITY_STATE
+   * string ('VERIFIED'|'ACTION_REQUIRED'|'NOT_FOUND'|'UNABLE_TO_CONFIRM'),
+   * not a { verified: boolean } object. identityIntelligence also already
+   * exposes a pre-computed verifiedProviders count -- use it directly
+   * rather than re-deriving (never recompute already-assembled intelligence). */
   var verifiedProviders = [];
   if (ii && ii.providers) {
     Object.keys(ii.providers).forEach(function (key) {
-      if (ii.providers[key] && ii.providers[key].verified === true) verifiedProviders.push(key);
+      if (ii.providers[key] === 'VERIFIED') verifiedProviders.push(key);
     });
   }
-  if (pn) pn.textContent = String(verifiedProviders.length);
+  var verifiedCount = (ii && typeof ii.verifiedProviders === 'number') ? ii.verifiedProviders : verifiedProviders.length;
+  if (pn) pn.textContent = String(verifiedCount);
   var pnCard = pn && pn.closest && pn.closest('.hi-kpi-card');
   var pnCap  = pnCard && pnCard.querySelector('#gf-provider-caption');
   if (pnCap) {
