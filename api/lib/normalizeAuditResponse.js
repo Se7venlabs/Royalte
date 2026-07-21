@@ -220,13 +220,29 @@ function _normalizePlatforms(r) {
     details: null,
   });
 
+  // Normalization Layer Completion (Phase 2 Recovery, 2026-07-21) — Discogs
+  // total-release count was already fetched via PAL and computed onto
+  // rawResponse.discogsReleases (run-scan.js), but this function previously
+  // discarded it via simple(p.discogs) (details always null), so
+  // catalog-evidence.js's discogsTotalReleases read (and, in turn,
+  // Catalog Intelligence's physicalReleaseCount) was permanently null.
+  // No new field, no schema change -- this mirrors the existing
+  // appleMusic/youtube/deezer/tidal .details pattern for a field that was
+  // already being computed and simply never carried through.
+  const discogs = {
+    availability: p.discogs ? PLATFORM_AVAILABILITY.VERIFIED : PLATFORM_AVAILABILITY.NOT_FOUND,
+    details: p.discogs ? {
+      totalReleases: _num(r.discogsReleases),
+    } : null,
+  };
+
   return {
     spotify,
     appleMusic,
     musicbrainz: simple(p.musicbrainz),
     deezer:      _normalizeDeezerPlatform(r),
     audiodb:     simple(p.audiodb),
-    discogs:     simple(p.discogs),
+    discogs,
     soundcloud:  simple(p.soundcloud),
     lastfm:      simple(p.lastfm),
     wikipedia:   simple(p.wikipedia),
