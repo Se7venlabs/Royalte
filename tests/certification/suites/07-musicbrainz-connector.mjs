@@ -16,6 +16,8 @@
 import { bridgeToCanonical }       from '../../../lib/rie/EvidenceBridge.js';
 import { assembleRecordingIntelligence }
   from '../../../lib/recording/recording-intelligence.js';
+import { assembleRecordingEvidence }
+  from '../../../api/_lib/recording-evidence.js';
 import { MB_CAPABILITIES }         from '../../../provider-acquisition/connectors/musicbrainz/mb-capabilities.js';
 import { Capability }              from '../../../provider-acquisition/capability/capabilityVocabulary.js';
 import { createEvidenceContract }  from '../../../provider-acquisition/evidence/EvidenceContract.js';
@@ -381,10 +383,15 @@ function groupF() {
     },
   };
 
+  // Recording Intelligence Alignment (Phase 2 Recovery, 2026-07-21, Board
+  // Option B): assembleRecordingIntelligence() no longer accepts a raw
+  // canonicalForEnrichment shape directly -- fed through
+  // assembleRecordingEvidence() first, matching the real production call
+  // chain in lib/rie/index.js.
   let result;
   let threw = false;
   try {
-    result = assembleRecordingIntelligence(canonical);
+    result = assembleRecordingIntelligence(assembleRecordingEvidence(canonical));
   } catch {
     threw = true;
   }
@@ -431,7 +438,7 @@ function groupF() {
   let mbResult;
   let mbThrew = false;
   try {
-    mbResult = assembleRecordingIntelligence(mbOnly);
+    mbResult = assembleRecordingIntelligence(assembleRecordingEvidence(mbOnly));
   } catch {
     mbThrew = true;
   }
@@ -509,7 +516,7 @@ function groupG() {
   };
   let threw8 = false;
   let r8;
-  try { r8 = assembleRecordingIntelligence(noMBRecordings); } catch { threw8 = true; }
+  try { r8 = assembleRecordingIntelligence(assembleRecordingEvidence(noMBRecordings)); } catch { threw8 = true; }
   assertions.push(check('assembleRecordingIntelligence with empty MB recordings does not throw',
     !threw8));
   assertions.push(check('assembleRecordingIntelligence with no evidence returns null',

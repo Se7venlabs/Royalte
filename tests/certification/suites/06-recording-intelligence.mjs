@@ -30,6 +30,8 @@ import { RECORDING_CONFIDENCE_POLICY }
   from '../../../lib/recording/recording-confidence-policy.js';
 import { assembleRecordingIntelligence }
   from '../../../lib/recording/recording-intelligence.js';
+import { assembleRecordingEvidence }
+  from '../../../api/_lib/recording-evidence.js';
 import { runRIE }
   from '../../../lib/rie/index.js';
 
@@ -64,7 +66,11 @@ const SPOTIFY_WITH_CONFLICT = [
   { id: 'cx1', name: 'Conflict Song', isrc: 'GBXXX1900002', artistName: 'Artist X', popularity: 60 },
 ];
 
-// canonicalForEnrichment stub carrying Spotify top-tracks
+// canonicalForEnrichment stub carrying Spotify top-tracks. Recording
+// Intelligence Alignment (Phase 2 Recovery, 2026-07-21, Board Option B):
+// assembleRecordingIntelligence() no longer accepts this shape directly --
+// fed through assembleRecordingEvidence() first (see groupF below),
+// mirroring the real production call chain in lib/rie/index.js.
 const CANONICAL_WITH_SPOTIFY = {
   subject:   { artistName: 'Ed Sheeran' },
   platforms: {
@@ -319,8 +325,9 @@ function groupE() {
 function groupF() {
   const assertions = [];
 
-  // Happy path
-  const result = assembleRecordingIntelligence(CANONICAL_WITH_SPOTIFY);
+  // Happy path — fed through assembleRecordingEvidence() first, matching
+  // the real production call chain (lib/rie/index.js) post-Alignment.
+  const result = assembleRecordingIntelligence(assembleRecordingEvidence(CANONICAL_WITH_SPOTIFY));
   assertions.push(check('assembleRecordingIntelligence returns non-null',
     result !== null));
   assertions.push(check('_version is "1.0"',
@@ -361,7 +368,7 @@ function groupF() {
     !!shapeRec));
 
   // No evidence → null
-  const noResult = assembleRecordingIntelligence(CANONICAL_EMPTY);
+  const noResult = assembleRecordingIntelligence(assembleRecordingEvidence(CANONICAL_EMPTY));
   assertions.push(check('returns null when no track evidence',
     noResult === null));
 

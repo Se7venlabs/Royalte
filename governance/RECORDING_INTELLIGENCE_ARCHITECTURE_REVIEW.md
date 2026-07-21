@@ -199,6 +199,12 @@ It is the last remaining architectural inconsistency. No evidence found in this 
 
 ---
 
-## No implementation performed
+## No implementation performed (at time of this review)
 
 Per this review's explicit non-goals, no production code was created or modified: `api/_lib/recording-evidence.js` does not exist, `lib/recording/recording-intelligence.js` is unchanged, `lib/rie/index.js` is unchanged. This report is submitted for Board review; implementation (Option B, as scoped above) should proceed only after explicit Board approval, following the same branch → commit → regression → PR → Board-approval discipline used for the three precedent migrations.
+
+---
+
+## Postscript — implementation completed 2026-07-21
+
+The Board approved Option B as recommended above. Implementation is documented in `governance/RECORDING_INTELLIGENCE_ALIGNMENT_REPORT.md` (branch `recovery/recording-intelligence-alignment`). This review's analysis above is left as originally written — the as-found, pre-implementation state — per this codebase's append-only convention for governance history.
