@@ -209,7 +209,9 @@
     },
     "discogs": {
       "availability": "VERIFIED",
-      "details": null
+      "details": {
+        "totalReleases": 89
+      }
     },
     "soundcloud": {
       "availability": "NOT_FOUND",

@@ -1,7 +1,8 @@
 # ADR-002 — CIO Scope vs. the 4 Domain Assemblers That Bypass It
 
-**Status:** Decision Pending — Board Review Required
+**Status:** Partially Resolved — Option 3 (sibling evidence object) adopted and implemented for 3 of 4 assemblers; Recording Intelligence remains open.
 **Raised during:** Platform Certification™ Phase 1 (Normalization Layer), Phase 2 (Canonical Schema)
+**Updated:** 2026-07-21, Normalization Layer Completion audit — this file was found stale (still read "Decision Pending" after the resolution below had already merged); corrected to match `lib/rie/index.js`'s own current violation-list comments, the actual source of truth.
 
 ## Problem
 
@@ -61,8 +62,14 @@ No recommendation given without a decision on what Catalog/GlobalFootprint/Backe
 
 ## Board Decision
 
-*Pending.*
+**Option 3 adopted** (Phase 2 Recovery, 2026-07-20 — a variant not originally enumerated above as A/B/C, discovered during implementation and Board-ratified in the moment): sibling canonical evidence objects, one per domain, each a pure structural relocation of already-normalized fields out of `canonicalForEnrichment` into a domain-scoped shape — not merged into the CIO (avoids Option A's bloat risk), not a single shared "Domain Evidence" contract (avoids Option B's need to design one generalized shape up front). Each sibling object is independently versioned by convention (one file, one assembler, one call site), holds zero business logic, and is deep-frozen. This is effectively Option B implemented incrementally, per-domain, without first designing a single shared contract — the generalization Option B envisioned may still be worth doing later if a fourth or fifth sibling object reveals a common shape, but was not a prerequisite for closing the 3 resolved instances below.
 
 ## Final Resolution
 
-*Pending.*
+**Resolved for 3 of 4 assemblers**, verified live in `lib/rie/index.js` (see comments at lines 61-86 as of this update):
+
+- **Catalog Intelligence** — now reads `api/_lib/catalog-evidence.js`'s `assembleCatalogEvidence(canonicalForEnrichment)` output instead of `canonicalForEnrichment` directly. (PR merging Catalog Intelligence recovery, 2026-07-20.)
+- **Backend Intelligence** — now reads `api/_lib/backend-evidence.js`'s `assembleBackendEvidence(canonicalForEnrichment)` output. (PR merging Backend Intelligence recovery, 2026-07-20.)
+- **Global Music Footprint** — now reads `api/_lib/global-footprint-evidence.js`'s `assembleGlobalFootprintEvidence(canonicalForEnrichment)` output. Its other evidence input, `territoryIntelligence`, was never part of this bypass — unchanged, reads raw `evidencePackages` by separate, deliberate Board design since Phase 5.2. (PR #383, merged 2026-07-21.)
+
+**Still open — Recording Intelligence.** `lib/recording/recording-intelligence.js`, called from `lib/rie/index.js`, still receives `canonicalForEnrichment` directly — the one remaining instance of the pattern this ADR addresses. It was added later (Phase 3.7) than the original 3 findings and was not in scope for the 2026-07-20 Recovery Program's target list. **Recommended correction:** apply the identical Option-3 sibling-evidence-object pattern (a `recording-evidence.js`, mirroring `catalog-evidence.js`) — same shape of fix, same low risk, already proven 3 times over in this exact codebase. **Not implemented as part of the 2026-07-21 Normalization Layer Completion audit**, because that audit's Board brief explicitly listed "no new canonical objects" among its non-goals; a 4th sibling evidence object, even following established precedent, was judged to need its own explicit Board go-ahead rather than being folded in unilaterally. Estimated scope: small — one new ~80-100 line file (matching `backend-evidence.js`'s size) plus a one-parameter signature change to `assembleRecordingIntelligence` and its call site in `lib/rie/index.js`.

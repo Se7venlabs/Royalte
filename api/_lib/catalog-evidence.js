@@ -43,8 +43,22 @@
 //                                              // does not re-shape individual album fields
 //      appleAvailability:    string|null,      // PLATFORM_AVAILABILITY value
 //      isrcComparison:       object|null,       // { tracksChecked, matched[], notFound[], matchRate }
-//      discogsReleases:      Array,
-//      discogsTotalReleases: number|null,
+//      discogsReleases:      Array,           // per-release dated Discogs records --
+//                                              // always [] today. Discogs PAL acquisition
+//                                              // (discogs-pal-acquisition.js) only fetches a
+//                                              // pagination COUNT, never individual dated
+//                                              // release records, so there is no upstream
+//                                              // data for this field to relocate. Not a
+//                                              // normalization defect (nothing is being
+//                                              // discarded) -- a provider-acquisition-scope
+//                                              // gap, out of scope for this module. Verified
+//                                              // Normalization Layer Completion, 2026-07-21.
+//      discogsTotalReleases: number|null,     // Discogs total release COUNT -- real data,
+//                                              // now correctly relocated from
+//                                              // platforms.discogs.details.totalReleases
+//                                              // (normalizeAuditResponse.js). Fixed
+//                                              // 2026-07-21 -- previously always null, see
+//                                              // governance/NORMALIZATION_LAYER_COMPLETION_REPORT.md.
 //      fallbackCounts: {                        // Spotify-derived, pre-computed by
 //        singles:     number,                   // run-scan.js's analyzeCatalog() --
 //        eps:         number,                   // evidence, not Catalog Intelligence's
