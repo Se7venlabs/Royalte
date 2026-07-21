@@ -223,7 +223,12 @@ export class AppleMusicConnector extends ProviderConnector {
 
   async #fetchArtistTracks(subjectRef, sf) {
     if (!subjectRef.appleArtistId) return this.#missingRef('appleArtistId');
-    return this.#get(`/catalog/${sf}/artists/${subjectRef.appleArtistId}/songs?limit=25`);
+    // limit=20 -- confirmed against the live Apple Music API (2026-07-21):
+    // unlike /albums (accepts up to 25), /artists/{id}/songs rejects any
+    // value above 20 with HTTP 400 "Invalid Parameter Value". Every real
+    // TRACKS acquisition was silently failing (empty completeness) until
+    // this was caught during ISRC Intelligence™ v1 live validation.
+    return this.#get(`/catalog/${sf}/artists/${subjectRef.appleArtistId}/songs?limit=20`);
   }
 
   // include=albums (Phase 2 Recovery, 2026-07-20 -- Canonical Scan Subject™
