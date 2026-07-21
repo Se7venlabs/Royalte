@@ -492,7 +492,10 @@ function detectInputType(url) {
 //           resolvedFromTitle, canonicalTarget: 'artist',
 //           spotifyTrackId? }
 // ────────────────────────────────────────────────────────
-async function resolveToArtist(inputUrl, token) {
+// Exported for regression testing (tests/release-identity-completion-test.mjs)
+// — Scan Entry Point Audit™ Findings 1/2 (2026-07-21) are inside this
+// function's Apple-input branch; no other caller uses this export.
+export async function resolveToArtist(inputUrl, token) {
   const inputType = detectInputType(inputUrl);
 
   // ─── SPOTIFY ARTIST ────────────────────────────
@@ -675,6 +678,15 @@ async function resolveToArtist(inputUrl, token) {
         appleArtworkUrl:   appleArtwork,
         appleArtistId,
         appleStorefront,
+        // Scan Entry Point Audit™ Finding 2 (2026-07-21) — release identity
+        // resolveAppleArtist() already resolved (appleTrackTitle/appleTrackIsrc,
+        // set above at the top of this Apple block) was previously discarded
+        // on this Spotify-matched branch, even though the degraded
+        // (no-match) branch below always preserved it. Nothing is
+        // re-resolved here — these are the same values Apple already
+        // returned; this branch simply stopped throwing them away.
+        trackTitle:        appleTrackTitle,
+        trackIsrc:         appleTrackIsrc,
       };
     }
     // No Spotify match after retry. Per spec: DO NOT fail the scan.
