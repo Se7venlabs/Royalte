@@ -252,14 +252,26 @@ export default async function handler(req, res) {
             confirmedName,
             candidateCount: artistResult.results.length,
           });
+          // Scan Entry Point Audit™ Finding 1 (2026-07-21) — Rule A already
+          // resolved the exact matching release (`matched`, confirmed via
+          // song search above); returning the artist-only URL discarded
+          // that release identity before it ever reached
+          // Identity Resolution / the Canonical Scan Subject™. Nothing is
+          // re-resolved here — `matched.attributes.url` is the same Apple
+          // song resource already in hand. Falls back to the artist URL
+          // only if Apple's song resource is missing its own url (should
+          // not happen in practice, but Identity Resolution must never be
+          // handed an empty response).
+          const releaseUrl  = matched.attributes?.url || null;
+          const urlToReturn = releaseUrl || artistResult.results[0].url;
           diagLog('RETURNING_URL', name, song, {
-            q7_url_returned:        artistResult.results[0].url,
+            q7_url_returned:        urlToReturn,
+            q7_url_is_release_url:  !!releaseUrl,
             q7_url_artist_name:     artistResult.results[0].name,
             q7_confirmed_name:      confirmedName,
             q7_name_mismatch:       artistResult.results[0].name !== confirmedName,
-            defect_line:            'resolve-artist.js:182 — results[0] taken without name verification',
           });
-          return res.status(200).json({ url: artistResult.results[0].url });
+          return res.status(200).json({ url: urlToReturn });
         }
       } else {
         // Q8 — RULE A produced no match; why
