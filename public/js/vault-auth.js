@@ -2,10 +2,17 @@
 //  Royaltē Intelligence Vault™ — Authentication Module (Phase 4.1)
 // ─────────────────────────────────────────────────────────────────────────
 //
+//  TEMPORARILY BYPASSED (Executive Board directive, 2026-07-21) for the
+//  duration of the platform build-out. initVault() now routes straight to
+//  _enterMissionControlDirect() — see that function's header comment.
+//  Everything below describing the Vault's normal lifecycle is accurate
+//  for when the Board re-enables it; none of it was deleted or altered,
+//  only stopped being called.
+//
 //  The Intelligence Vault is the only entrance to Mission Control.
 //  One path. Every artist. Every visit. Every device. No exceptions.
 //
-//  Vault lifecycle on mission-control.html:
+//  Vault lifecycle on mission-control.html (currently inactive):
 //
 //    1. Show Sentinel State + Vault overlay (always — no session shortcuts)
 //    2. Authenticate — signIn first, signUp fallback
@@ -29,66 +36,48 @@ function param(key) {
 }
 
 // ── Entry point — called once on DOMContentLoaded ──────────────────────
-
+//
+// TEMPORARY WORKFLOW RESET (Executive Board directive, 2026-07-21):
+// Scan → Click "Open Mission Control" → Mission Control opens. Nothing
+// else. The Intelligence Vault (Phase 4.1, below) is intentionally
+// bypassed for the duration of the platform build-out -- explicitly
+// framed by the Board as temporary, to be revisited once Runtime
+// Context / Mission Control / workspace / ATHENA wiring is complete.
+//
+// This function no longer branches on ?vault=1 / ?preactivate=1 / a
+// Developer Mode flag -- every entry now goes straight to
+// _enterMissionControlDirect() (formerly this file's Developer Mode
+// helper; Developer Mode itself is retired now that its behavior is
+// universal, not a separate opt-in path -- see Board directive).
+//
+// Nothing below this function was deleted. _showVault(),
+// _showPreactivateSequence(), _handleUnlock(), and every other Phase
+// 4.1 Vault function remain in this file, intact and unused, so the
+// authenticated Vault experience can be re-wired here (not rebuilt)
+// when the Board returns to it.
 export async function initVault() {
-  // Developer Mode™ (Board-approved, 2026-07-21) — skips Vault, Supabase
-  // auth, session creation, and onboarding entirely. Uses the same real
-  // scan payload every other entry point uses (fetchScanPayload() via
-  // __mcPopulate()) — never fixture data. Checked first, before any
-  // Supabase call, so it works even without credentials configured.
-  // Gated by /js/dev-mode.js: never available on a production hostname,
-  // and requires the explicit ?devmode=1 opt-in.
-  if (window.RoyalteDevMode?.isDevModeActive?.()) {
-    await _enterDeveloperMode();
-    return;
-  }
-
-  const supabase = getSupabase();
-  if (!supabase) return;
-
   // Preview mode — vault-auth.js does not interfere; MC renders from fixture data.
+  // Unrelated to the Vault/auth question -- this is the RDS Preview Console's
+  // fixture-data path, still needed for responsive/design QA.
   const isPreview = param('preview') === '1' ||
     window.location.pathname.includes('mission-control-preview');
   if (isPreview) return;
 
-  const needsVault    = param('vault') === '1';
-  const isPreactivate = param('preactivate') === '1';
-  const sessionId     = param('session_id');
-  const scanId        = param('scanId') || _pendingScanId();
-
-  // Phase 4.1 Board lock: the Intelligence Vault is the only entrance to MC.
-  // Any URL without ?vault=1 is an illegal direct-entry path — redirect to vault.
-  // Covers bookmarks, old ?boot=1 links, and any direct mission-control.html access.
-  if (!needsVault) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('vault', '1');
-    url.searchParams.delete('boot');
-    window.location.replace(url.toString());
-    return;
-  }
-
-  // Phase 4.3: preactivate path — OS activates first, vault rises after.
-  if (isPreactivate) {
-    _showPreactivateSequence(sessionId, scanId);
-    return;
-  }
-
-  // Every artist authenticates every time. No session shortcuts. No auto-entry.
-  _showVault(sessionId, scanId);
+  await _enterMissionControlDirect();
 }
 
-// ── Developer Mode™ ─────────────────────────────────────────────────────
+// ── Direct entry (temporary workflow reset, Board directive 2026-07-21) ──
 //
-//   Scan Artist → Royaltē OS → Mission Control. No Login, no
-//   Registration, no Onboarding, no Founder-account dependency.
+//   Scan Artist → Click "Open Mission Control" → Mission Control opens.
+//   No Login, no Registration, no Onboarding, no Vault interaction.
 //
-//   Runs the identical data path every other entry uses
+//   Runs the identical data path every entry always used
 //   (fetchScanPayload() → __mcPopulate() → buildWorkspaceRuntimeContext()),
 //   so every Mission Control workspace populates from the current scan's
-//   real Runtime Context exactly as it would post-authentication — this
-//   function only removes the UI/auth gate in front of that path, it does
-//   not touch or duplicate it.
-async function _enterDeveloperMode() {
+//   real Runtime Context. This function only removes the UI/auth gate
+//   that used to sit in front of that path — it does not touch or
+//   duplicate the path itself.
+async function _enterMissionControlDirect() {
   // Never show the Vault, never leave the page in the Sentinel "asleep"
   // pre-auth state — a developer should see live data immediately.
   document.body.classList.remove('mc-sentinel');
@@ -131,19 +120,13 @@ async function _enterDeveloperMode() {
   window.__mcBoot?.setReactor?.(MODULE_ORDER.length);
 
   // Founder Account Isolation — Runtime Context Audit (Board directive,
-  // 2026-07-21): the left-rail account widget and hero greeting are no
-  // longer patched here. window.__mcRevealHero() (called above) is now
+  // 2026-07-21): the left-rail account widget and hero greeting are
+  // populated exclusively by window.__mcRevealHero() (called above),
   // the single, universal writer for every identity-displaying element
-  // on this shell — hero greeting, rail name/role, nav sub-label — in
-  // BOTH the authenticated flow and Developer Mode. Special-casing those
-  // elements only for Developer Mode would have reintroduced exactly the
-  // "alternate identity path" problem this audit exists to eliminate;
-  // the correct fix was in the shared writer, not a Developer-Mode-only
-  // label patch. See mission-control.js's __mcRevealHero() for the fix
-  // and governance/MISSION_CONTROL_RUNTIME_CONTEXT_AUDIT.md for the full
-  // dependency inventory this was found through.
+  // on this shell — hero greeting, rail name/role, nav sub-label. No
+  // Founder/session-specific override lives here.
 
-  console.info('[Developer Mode] Active — Vault/auth/onboarding skipped. Real scan data via __mcPopulate().');
+  console.info('[Mission Control] Direct entry — Vault/auth/onboarding bypassed for platform build-out (temporary, Board directive 2026-07-21). Real scan data via __mcPopulate().');
 }
 
 // ── Sentinel State ─────────────────────────────────────────────────────
