@@ -25,6 +25,11 @@
   // fixture invented fields (metadataIntegrity, lyricSyncCoverage,
   // duplicatesDetected, metadataFields, timeline, recentActivity) that never
   // existed in any real assembler output anywhere in the pipeline.
+  //
+  // isrcIntelligence mirrors the real ISRC Intelligence™ v1 schema exactly
+  // (api/_lib/isrc-intelligence.js) -- Apple Catalog Capability.TRACKS
+  // evidence, ASSESSED_PARTIAL example with two real, non-fabricated-looking
+  // missing recordings including a preserved (not collapsed) version variant.
   sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
     schemaVersion: '1.1',
     scanId: 'preview-fixture-catalog-001',
@@ -41,7 +46,20 @@
       eps: 1,
       catalogStatus: 'Growing',
       confidence: 'Verified',
-      isrcCoverage: { status: 'Partial', assessed: true, assessedCount: 18, verifiedCount: 16, coveragePercent: 89 },
+      isrcIntelligence: {
+        status: 'ASSESSED_PARTIAL',
+        assessedCount: 18,
+        verifiedCount: 16,
+        missingCount: 2,
+        coveragePercent: 89,
+        conflictState: 'NOT_APPLICABLE',
+        matchMethod: 'apple_catalog_direct',
+        missingRecordings: [
+          { title: 'Neon Static (Radio Edit)', reason: 'NO_ISRC_ON_APPLE_RESOURCE' },
+          { title: 'Static Bloom', reason: 'NO_ISRC_ON_APPLE_RESOURCE' },
+        ],
+        provenance: { source: 'apple_music', evidenceType: 'TRACKS', assessedAt: new Date().toISOString() },
+      },
       firstReleaseYear: 2021,
       latestReleaseYear: 2025,
       catalogAgeYears: 4,
@@ -88,6 +106,14 @@
   color: var(--mc-text-muted, #8a8da1);
   line-height: 1.4;
 }
+/* Compact catalogStatus/confidence contextual signal (Board directive,
+   2026-07-21) -- deliberately text, not a KPI card. */
+.ci-context-signals {
+  font-size: 11.5px;
+  color: var(--mc-text-muted, #8a8da1);
+  margin-top: 6px;
+}
+.ci-context-signals strong { color: rgba(220,215,255,0.8); font-weight: 600; }
 .ci-header-right {
   display: flex;
   align-items: center;
@@ -374,6 +400,125 @@
 }
 .ci-summary-footer { margin-top: auto; }
 
+/* ISRC Intelligence™ v1 card (Board directive, 2026-07-21) --
+   api/_lib/isrc-intelligence.js is the sole evidence source. States:
+   ASSESSED_COMPLETE / ASSESSED_PARTIAL / NOT_ASSESSED / NO_RECORDINGS. */
+.ci-isrc-state-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.ci-isrc-state-badge--green  { background: rgba(45,212,191,0.14);  color: var(--mc-green); }
+.ci-isrc-state-badge--orange { background: rgba(251,146,60,0.14);  color: var(--mc-orange); }
+.ci-isrc-state-badge--neutral{ background: rgba(255,255,255,0.06); color: var(--mc-text-muted); }
+.ci-isrc-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.ci-isrc-stat {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 9px;
+  padding: 10px 8px;
+  text-align: center;
+}
+.ci-isrc-stat-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #e8e4f4;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.ci-isrc-stat-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+}
+.ci-isrc-empty {
+  font-size: 12.5px;
+  color: var(--mc-text-muted);
+  line-height: 1.5;
+  padding: 6px 0 2px;
+}
+.ci-isrc-missing-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  margin-bottom: 8px;
+}
+.ci-isrc-missing-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+.ci-isrc-missing-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(251,146,60,0.05);
+  border: 1px solid rgba(251,146,60,0.14);
+  border-radius: 7px;
+}
+.ci-isrc-missing-title {
+  font-size: 12px;
+  color: rgba(220,215,255,0.85);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ci-isrc-missing-reason {
+  font-size: 10px;
+  color: var(--mc-orange);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.ci-isrc-provenance {
+  font-size: 10.5px;
+  color: rgba(132,128,168,0.55);
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+/* ATHENA Executive Insight™ (Board directive, 2026-07-21) -- deterministic
+   client-side sentence template. NOT a call to the real ATHENA engine
+   (api/athena/), which is constitutionally scoped to Mission Control Data
+   API™ envelopes only. Same pattern already used on Publishing Intelligence. */
+.ci-athena-body {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.ci-athena-icon-wrap {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: rgba(138,92,255,0.10);
+  color: #8a5cff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ci-athena-text {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(220,215,255,0.85);
+}
+
 /* Board directive (2026-07-21): the ATHENA-style detail panel (Release
    Details + Metadata Integrity Details) that used this Executive Closing
    Section styling was removed -- both were hardcoded narrative text with
@@ -518,6 +663,7 @@
           <div class="ci-page-title-block">
             <div class="ci-page-eyebrow">Catalog Intelligence™</div>
             <div class="ci-page-subtitle">Your music catalog, releases, and metadata at a glance.</div>
+            <div class="ci-context-signals" id="ci-context-signals" hidden></div>
           </div>
           <div class="ci-header-right">
             <div class="ci-sync-status">
@@ -652,6 +798,98 @@
 
         </div>
 
+        <!-- § 5 — ISRC INTELLIGENCE™ ─────────────────────────────────── -->
+        <div class="ci-two-col">
+          <div class="ci-card">
+            <div class="ci-card-header">
+              <div class="ci-card-title">
+                <svg class="royalte-icon royalte-icon--xs ci-card-title-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-isrc"></use></svg>
+                ISRC Intelligence™
+              </div>
+              <span class="ci-isrc-state-badge ci-isrc-state-badge--neutral" id="ci-isrc-state-badge">—</span>
+            </div>
+
+            <div id="ci-isrc-assessed-block" hidden>
+              <div class="ci-isrc-stats-row">
+                <div class="ci-isrc-stat">
+                  <div class="ci-isrc-stat-num" id="ci-isrc-stat-assessed">—</div>
+                  <div class="ci-isrc-stat-label">Assessed</div>
+                </div>
+                <div class="ci-isrc-stat">
+                  <div class="ci-isrc-stat-num" id="ci-isrc-stat-verified">—</div>
+                  <div class="ci-isrc-stat-label">Verified</div>
+                </div>
+                <div class="ci-isrc-stat">
+                  <div class="ci-isrc-stat-num" id="ci-isrc-stat-coverage">—</div>
+                  <div class="ci-isrc-stat-label">Coverage</div>
+                </div>
+              </div>
+              <div id="ci-isrc-missing-block" hidden>
+                <div class="ci-isrc-missing-label">Recordings Missing ISRC</div>
+                <div class="ci-isrc-missing-list" id="ci-isrc-missing-list"></div>
+              </div>
+            </div>
+
+            <div class="ci-isrc-empty" id="ci-isrc-empty-block" hidden></div>
+
+            <div class="ci-isrc-provenance" id="ci-isrc-provenance" hidden></div>
+          </div>
+        </div>
+
+        <!-- § 6 — ATHENA EXECUTIVE INSIGHT™ · CATALOG TIMELINE™ ───────── -->
+        <div class="ci-two-col">
+
+          <!-- ATHENA Executive Insight™ -->
+          <div class="ci-card">
+            <div class="ci-card-header">
+              <div class="ci-card-title">
+                <svg class="royalte-icon royalte-icon--xs ci-card-title-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg>
+                ATHENA Executive Insight™
+              </div>
+            </div>
+            <div class="ci-athena-body">
+              <div class="ci-athena-icon-wrap" aria-hidden="true">
+                <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg>
+              </div>
+              <div class="ci-athena-text" id="ci-athena-text">—</div>
+            </div>
+          </div>
+
+          <!-- Catalog Timeline™ -->
+          <div class="ci-card">
+            <div class="ci-card-header">
+              <div class="ci-card-title">
+                <svg class="royalte-icon royalte-icon--xs ci-card-title-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-release"></use></svg>
+                Catalog Timeline™
+              </div>
+            </div>
+            <div class="ci-summary-stats" style="grid-template-columns: repeat(3, 1fr);">
+              <div class="ci-summary-stat">
+                <div class="ci-summary-stat-icon ci-summary-stat-icon--purple" aria-hidden="true">
+                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-release"></use></svg>
+                </div>
+                <div class="ci-summary-stat-num" id="ci-tl-first">—</div>
+                <div class="ci-summary-stat-label">First Release</div>
+              </div>
+              <div class="ci-summary-stat">
+                <div class="ci-summary-stat-icon ci-summary-stat-icon--teal" aria-hidden="true">
+                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-release"></use></svg>
+                </div>
+                <div class="ci-summary-stat-num" id="ci-tl-latest">—</div>
+                <div class="ci-summary-stat-label">Latest Release</div>
+              </div>
+              <div class="ci-summary-stat">
+                <div class="ci-summary-stat-icon ci-summary-stat-icon--orange" aria-hidden="true">
+                  <svg class="royalte-icon royalte-icon--xs" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-monitoring"></use></svg>
+                </div>
+                <div class="ci-summary-stat-num" id="ci-tl-age">—</div>
+                <div class="ci-summary-stat-label">Catalog Age</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
       </div><!-- /hi-main -->
 
     </div><!-- /ws-body -->
@@ -697,35 +935,56 @@
   }
 
   /* ── § 2 KPI — ISRC Coverage™ ────────────────────────────────────────
-   * Board directive (2026-07-21): field names corrected to match the real
-   * assembleCatalogIntelligence() shape (verifiedCount/assessedCount, not
-   * the never-populated assigned/total). Also now honors `assessed` --
-   * ISRC_UNKNOWN carries verifiedCount:0/assessedCount:0 too, so without
-   * this guard an un-assessed catalog would misleadingly render "0/0
-   * Complete" instead of "not yet assessed". */
-  var isrc = ci.isrcCoverage || {};
+   * Board directive (2026-07-21) — ISRC Intelligence™ v1: sourced from
+   * ci.isrcIntelligence (api/_lib/isrc-intelligence.js), Apple Music
+   * Capability.TRACKS evidence. States: ASSESSED_COMPLETE / ASSESSED_PARTIAL
+   * / NOT_ASSESSED / NO_RECORDINGS. This KPI is a compact summary; the full
+   * ISRC Intelligence™ card below (§5) carries the missing-recordings
+   * detail and provenance. */
+  var isrc = ci.isrcIntelligence || {};
   var isrcAssignedEl = document.getElementById('ci-kpi-isrc-assigned');
   var isrcTotalEl    = document.getElementById('ci-kpi-isrc-total');
   var isrcBadge      = document.getElementById('ci-kpi-isrc-badge');
-  if (isrc.assessed === true) {
-    var isrcAssigned = isrc.verifiedCount  != null ? isrc.verifiedCount  : 0;
-    var isrcTotal    = isrc.assessedCount  != null ? isrc.assessedCount  : 0;
-    if (isrcAssignedEl) isrcAssignedEl.textContent = String(isrcAssigned);
-    if (isrcTotalEl)    isrcTotalEl.textContent    = ' / ' + isrcTotal;
-    var missing = isrcTotal - isrcAssigned;
+  if (isrc.status === 'ASSESSED_COMPLETE' || isrc.status === 'ASSESSED_PARTIAL') {
+    var isrcVerified = isrc.verifiedCount != null ? isrc.verifiedCount : 0;
+    var isrcAssessed = isrc.assessedCount != null ? isrc.assessedCount : 0;
+    if (isrcAssignedEl) isrcAssignedEl.textContent = String(isrcVerified);
+    if (isrcTotalEl)    isrcTotalEl.textContent    = ' / ' + isrcAssessed;
     if (isrcBadge) {
-      if (missing === 0) {
+      if (isrc.status === 'ASSESSED_COMPLETE') {
         isrcBadge.textContent = 'Complete';
         isrcBadge.className   = 'ci-kpi-badge ci-kpi-badge--green';
       } else {
-        isrcBadge.textContent = missing + ' Missing';
+        var missingN = isrc.missingCount != null ? isrc.missingCount : 0;
+        isrcBadge.textContent = missingN + ' Missing';
         isrcBadge.className   = 'ci-kpi-badge ci-kpi-badge--orange';
       }
     }
+  } else if (isrc.status === 'NO_RECORDINGS') {
+    if (isrcAssignedEl) isrcAssignedEl.textContent = '0';
+    if (isrcTotalEl)    isrcTotalEl.textContent    = '';
+    if (isrcBadge) { isrcBadge.textContent = 'No Recordings'; isrcBadge.className = 'ci-kpi-badge'; }
   } else {
     if (isrcAssignedEl) isrcAssignedEl.textContent = '—';
     if (isrcTotalEl)    isrcTotalEl.textContent    = '';
     if (isrcBadge) { isrcBadge.textContent = 'Not Assessed'; isrcBadge.className = 'ci-kpi-badge'; }
+  }
+
+  /* ── § 0 — Compact context signals: catalogStatus / confidence ──────
+   * Board directive (2026-07-21): a text signal, not an oversized KPI card. */
+  var signalsEl = document.getElementById('ci-context-signals');
+  if (signalsEl && (ci.catalogStatus || ci.confidence)) {
+    signalsEl.textContent = '';
+    function appendSignal(label, value) {
+      if (signalsEl.childNodes.length) signalsEl.appendChild(document.createTextNode('  ·  '));
+      signalsEl.appendChild(document.createTextNode(label + ': '));
+      var strong = document.createElement('strong');
+      strong.textContent = value;
+      signalsEl.appendChild(strong);
+    }
+    if (ci.catalogStatus) appendSignal('Catalog Status', ci.catalogStatus);
+    if (ci.confidence)    appendSignal('Confidence', ci.confidence);
+    signalsEl.hidden = false;
   }
 
   /* ── Latest Release™ card ─────────────────────────────────────────── */
@@ -794,6 +1053,106 @@
   if (albumsEl)  albumsEl.textContent  = String(ci.albums     || 0);
   if (epsEl)     epsEl.textContent     = String(ci.eps        || 0);
   if (tracksEl)  tracksEl.textContent  = String(ci.totalTracks|| 0);
+
+  /* ── § 5 ISRC Intelligence™ card ──────────────────────────────────── */
+  var ISRC_STATE_LABEL = {
+    ASSESSED_COMPLETE: 'Complete',
+    ASSESSED_PARTIAL:  'Partial',
+    NO_RECORDINGS:     'No Recordings',
+    NOT_ASSESSED:      'Not Assessed',
+  };
+  var isrcStateBadge = document.getElementById('ci-isrc-state-badge');
+  if (isrcStateBadge) {
+    isrcStateBadge.textContent = ISRC_STATE_LABEL[isrc.status] || 'Not Assessed';
+    var badgeVariant = 'ci-isrc-state-badge--neutral';
+    if (isrc.status === 'ASSESSED_COMPLETE') badgeVariant = 'ci-isrc-state-badge--green';
+    else if (isrc.status === 'ASSESSED_PARTIAL') badgeVariant = 'ci-isrc-state-badge--orange';
+    isrcStateBadge.className = 'ci-isrc-state-badge ' + badgeVariant;
+  }
+
+  var isrcAssessedBlock = document.getElementById('ci-isrc-assessed-block');
+  var isrcEmptyBlock    = document.getElementById('ci-isrc-empty-block');
+  var isrcProvenanceEl  = document.getElementById('ci-isrc-provenance');
+
+  if (isrc.status === 'ASSESSED_COMPLETE' || isrc.status === 'ASSESSED_PARTIAL') {
+    if (isrcAssessedBlock) isrcAssessedBlock.hidden = false;
+    var isrcStatAssessed = document.getElementById('ci-isrc-stat-assessed');
+    var isrcStatVerified = document.getElementById('ci-isrc-stat-verified');
+    var isrcStatCoverage = document.getElementById('ci-isrc-stat-coverage');
+    if (isrcStatAssessed) isrcStatAssessed.textContent = String(isrc.assessedCount != null ? isrc.assessedCount : 0);
+    if (isrcStatVerified) isrcStatVerified.textContent = String(isrc.verifiedCount != null ? isrc.verifiedCount : 0);
+    if (isrcStatCoverage) isrcStatCoverage.textContent = (isrc.coveragePercent != null ? isrc.coveragePercent : 0) + '%';
+
+    var missingRecs = Array.isArray(isrc.missingRecordings) ? isrc.missingRecordings : [];
+    var isrcMissingBlock = document.getElementById('ci-isrc-missing-block');
+    var isrcMissingList  = document.getElementById('ci-isrc-missing-list');
+    if (missingRecs.length > 0 && isrcMissingBlock && isrcMissingList) {
+      isrcMissingBlock.hidden = false;
+      isrcMissingList.textContent = '';
+      missingRecs.forEach(function (rec) {
+        var item = document.createElement('div');
+        item.className = 'ci-isrc-missing-item';
+        var titleEl = document.createElement('span');
+        titleEl.className = 'ci-isrc-missing-title';
+        titleEl.textContent = rec && rec.title ? rec.title : 'Untitled recording';
+        var reasonEl = document.createElement('span');
+        reasonEl.className = 'ci-isrc-missing-reason';
+        reasonEl.textContent = 'No ISRC on file';
+        item.appendChild(titleEl);
+        item.appendChild(reasonEl);
+        isrcMissingList.appendChild(item);
+      });
+    }
+  } else if (isrc.status === 'NO_RECORDINGS') {
+    if (isrcEmptyBlock) {
+      isrcEmptyBlock.hidden = false;
+      isrcEmptyBlock.textContent = 'No recordings were found in your Apple Music catalog to assess.';
+    }
+  } else {
+    if (isrcEmptyBlock) {
+      isrcEmptyBlock.hidden = false;
+      isrcEmptyBlock.textContent = 'ISRC coverage has not yet been assessed for this catalog.';
+    }
+  }
+
+  if (isrcProvenanceEl && isrc.provenance && isrc.provenance.source === 'apple_music') {
+    isrcProvenanceEl.hidden = false;
+    var assessedDate = '';
+    if (isrc.provenance.assessedAt) {
+      var d = new Date(isrc.provenance.assessedAt);
+      if (!isNaN(d.getTime())) assessedDate = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+    isrcProvenanceEl.textContent = 'Source: Apple Music catalog (direct match)' + (assessedDate ? ' · Assessed ' + assessedDate : '');
+  }
+
+  /* ── § 6 ATHENA Executive Insight™ ────────────────────────────────
+   * Deterministic client-side sentence template. NOT the real ATHENA
+   * engine (api/athena/) -- same lightweight pattern used elsewhere in
+   * Mission Control; artists never see model names. */
+  var athenaTextEl = document.getElementById('ci-athena-text');
+  if (athenaTextEl) {
+    var athenaSentence;
+    if (isrc.status === 'ASSESSED_COMPLETE') {
+      athenaSentence = 'All ' + isrc.assessedCount + ' recordings in your Apple Music catalog carry a verified ISRC — full coverage confirmed.';
+    } else if (isrc.status === 'ASSESSED_PARTIAL') {
+      athenaSentence = isrc.verifiedCount + ' of ' + isrc.assessedCount + ' recordings in your Apple Music catalog carry a verified ISRC ('
+        + isrc.coveragePercent + '% coverage). ' + isrc.missingCount + ' recording' + (isrc.missingCount === 1 ? '' : 's')
+        + ' currently show no ISRC on the Apple catalog record.';
+    } else if (isrc.status === 'NO_RECORDINGS') {
+      athenaSentence = 'No recordings were found in your Apple Music catalog, so ISRC coverage could not be assessed.';
+    } else {
+      athenaSentence = 'ISRC coverage has not yet been assessed for this catalog.';
+    }
+    athenaTextEl.textContent = athenaSentence;
+  }
+
+  /* ── § 6 Catalog Timeline™ ────────────────────────────────────────── */
+  var tlFirstEl  = document.getElementById('ci-tl-first');
+  var tlLatestEl = document.getElementById('ci-tl-latest');
+  var tlAgeEl    = document.getElementById('ci-tl-age');
+  if (tlFirstEl)  tlFirstEl.textContent  = ci.firstReleaseYear  != null ? String(ci.firstReleaseYear)  : '—';
+  if (tlLatestEl) tlLatestEl.textContent = ci.latestReleaseYear != null ? String(ci.latestReleaseYear) : '—';
+  if (tlAgeEl)    tlAgeEl.textContent    = ci.catalogAgeYears   != null ? (ci.catalogAgeYears + (ci.catalogAgeYears === 1 ? ' yr' : ' yrs')) : '—';
 
 }());
 </script>
