@@ -877,6 +877,10 @@
   </div>
 </div>
 
+<!-- Runtime Context Audit (Board directive, 2026-07-21): loaded so the
+     best-effort artist-name lookup below can use the shared, validated
+     reader instead of a raw sessionStorage.getItem + JSON.parse. -->
+<script src="/js/mc-workspace-context.js"></script>
 <script type="module">
 import { getSupabase } from '/js/supabase-client.js';
 import { ONBOARDING_SECTIONS, SETTINGS_GROUPS, esc, mergeProfileFragment, saveMusicRightsProfile } from '/js/music-rights-profile.js';
@@ -1898,9 +1902,17 @@ function devFixtureActive() {
 
   // Artist name — best-effort from the last cached workspace context, since
   // Settings is not gated on a scan and profiles has no artistName column.
+  // Runtime Context Audit (Board directive, 2026-07-21): reads through the
+  // shared, validated readWorkspaceContext() (schema version + expiry
+  // checked) instead of a raw sessionStorage.getItem + JSON.parse -- same
+  // source, no alternate/unvalidated identity path. No contract name is
+  // passed (Settings has no required intelligence domain); a 'valid'
+  // state is required before the value is trusted, so an expired or
+  // malformed context correctly falls back to null rather than silently
+  // showing stale data.
   try {
-    const raw = sessionStorage.getItem('royalte_workspace_context');
-    if (raw) currentProfile.artistName = JSON.parse(raw)?.artistName || null;
+    const result = window.RoyalteContext?.readWorkspaceContext?.();
+    currentProfile.artistName = (result?.state === 'valid') ? (result.ctx?.artistName || null) : null;
   } catch (_) {}
 
   renderProfileInfo();

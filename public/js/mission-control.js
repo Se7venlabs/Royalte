@@ -1611,25 +1611,50 @@ if (typeof window !== 'undefined') {
     }
   };
 
-  // window.__mcRevealHero — writes the scanned artist's name to the page
-  // title element. Called by vault-auth.js immediately after __mcPopulate()
-  // resolves, before any module activates, so the page title reflects the
-  // current scan's subject on the first visible frame of Mission Control.
+  // window.__mcRevealHero — writes the scanned artist's name to every
+  // identity-displaying element on the Mission Control shell (hero
+  // greeting + left-rail account widget + nav sub-label). Called by
+  // vault-auth.js immediately after __mcPopulate() resolves, before any
+  // module activates, so the OS reflects the current scan's subject on
+  // the first visible frame.
+  //
+  // Runtime Context Audit (Board directive, 2026-07-21): this function
+  // previously targeted [data-mc-page-title] / [data-mc-founder-name],
+  // neither of which exists anywhere in mission-control.html -- both
+  // writes silently no-op'd, every scan. The hero greeting (#mc-greeting)
+  // and the rail widget (.mc2-rail-user-name / .mc2-rail-user-role /
+  // #mc-nav-account-sub / .mc2-rail-avatar) were consequently static
+  // sample HTML ("BLACK ALTERNATIVE" / "Darryl West" / "Founder Account")
+  // regardless of which artist was actually scanned, in every entry path
+  // -- not a Developer Mode-specific bug. Per Board Constitutional
+  // Guidance ("Mission Control must never depend upon Founder Profile /
+  // Session User... consumes only the Runtime Context"), the rail widget
+  // is retargeted to the same artistName as the hero greeting rather than
+  // any authenticated-session concept -- this collapses "account" and
+  // "current scan subject" into the one Runtime-Context-driven value
+  // this shell is allowed to show, with no alternate identity path.
   //
   // Diagnostic: logs the exact value being written and its source so the
   // Board can confirm which artist is being displayed and where it came from.
   window.__mcRevealHero = function () {
-    const name    = _vaultPlans.artistName || null;
-    const titleEl = document.querySelector('[data-mc-page-title]');
-    const nameEl  = document.querySelector('[data-mc-founder-name]');
-    const prev    = titleEl ? titleEl.textContent : '(element not found)';
+    const name     = _vaultPlans.artistName || null;
+    const greeting = document.getElementById('mc-greeting');
+    const railName = document.querySelector('.mc2-rail-user-name');
+    const railRole = document.querySelector('.mc2-rail-user-role');
+    const navSub   = document.getElementById('mc-nav-account-sub');
+    const avatar   = document.querySelector('.mc2-rail-avatar');
+    const prev     = greeting ? greeting.textContent : '(element not found)';
     console.log(
       '[mc-diag] __mcRevealHero called\n' +
       '  Payload artist (source: _vaultPlans.artistName): ' + (name || '(none)') + '\n' +
-      '  Current page title text: "' + prev + '"\n' +
+      '  Current hero greeting text: "' + prev + '"\n' +
       '  Will render: ' + (name ? name.toUpperCase() : '(no update — name absent)')
     );
-    if (titleEl && name) titleEl.textContent = name.toUpperCase();
-    if (nameEl  && name) nameEl.textContent  = name.toUpperCase();
+    if (!name) return;
+    if (greeting) greeting.textContent = name.toUpperCase();
+    if (railName) railName.textContent = name;
+    if (railRole) railRole.textContent = 'Active Scan';
+    if (navSub)   navSub.textContent   = 'Active Scan';
+    if (avatar)   avatar.textContent   = name.trim().charAt(0).toUpperCase() || '—';
   };
 }
