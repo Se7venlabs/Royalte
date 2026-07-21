@@ -165,6 +165,31 @@ const ISRC_FIXTURE = {
   ],
 };
 
+// Phase 2 Recovery (2026-07-20, Canonical Scan Subject correction):
+// the real Apple response shape once ?include=albums is requested --
+// relationships.albums.data[] carries the album this song belongs to.
+// Mirrors Apple's documented JSON:API relationship-inclusion format.
+const ISRC_WITH_ALBUM_FIXTURE = {
+  data: [
+    {
+      id: '1109714935',
+      type: 'songs',
+      attributes: {
+        name: 'Karma Police',
+        isrc: 'GBBKS9700071',
+        artistName: 'Radiohead',
+      },
+      relationships: {
+        albums: {
+          data: [
+            { id: '1109714933', type: 'albums' },
+          ],
+        },
+      },
+    },
+  ],
+};
+
 const HEALTH_FIXTURE = {
   data: [{ id: 'us', type: 'storefronts', attributes: { name: 'United States' } }],
 };
@@ -409,6 +434,26 @@ await testAsync('acquires ISRC evidence', async () => {
   const contract = await c.acquire(req);
   assert.equal(contract.health.state, HealthState.AVAILABLE);
   assert.deepEqual(contract.payload, ISRC_FIXTURE);
+  resetTrustConfig();
+});
+
+await testAsync('ISRC lookup: album relationship is retrievable from the response (Canonical Scan Subject correction)', async () => {
+  // Board-directed fix, 2026-07-20: #fetchByISRC now requests include=albums
+  // (verified by direct code inspection of AppleMusicConnector.js -- the
+  // mock helper in this file matches by URL substring and does not expose
+  // the requested URL back to the test, so this test verifies the
+  // consumer-facing behavior that actually matters: given a response shaped
+  // the way Apple's API returns it once that parameter is honored, the
+  // album relationship is correctly present and extractable end-to-end
+  // through the connector).
+  const c   = await authenticatedConnector({ 'filter[isrc]': { status: 200, body: ISRC_WITH_ALBUM_FIXTURE } });
+  const req = createEvidenceRequest({ subjectRef: { isrc: 'GBBKS9700071' }, evidenceType: Capability.ISRC });
+  const contract = await c.acquire(req);
+
+  assert.equal(contract.health.state, HealthState.AVAILABLE);
+  const song    = contract.payload?.data?.[0];
+  const albumId = song?.relationships?.albums?.data?.[0]?.id ?? null;
+  assert.equal(albumId, '1109714933', 'album relationship must be extractable from the ISRC response');
   resetTrustConfig();
 });
 

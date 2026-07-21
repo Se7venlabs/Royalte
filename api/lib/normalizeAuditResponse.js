@@ -16,6 +16,7 @@ import {
 } from '../schema/auditResponse.js';
 
 import { randomUUID, createHash } from 'node:crypto';
+import { validateCanonicalScanSubject } from '../schema/canonical-scan-subject.js';
 
 // ── Public API ───────────────────────────────────────────────────────────────
 export function normalizeAuditResponse(raw) {
@@ -40,6 +41,7 @@ export function normalizeAuditResponse(raw) {
   const royaltyGap = _normalizeRoyaltyGap(raw);
   const gapBasedExposure = _normalizeGapBasedExposure(raw);
   const proGuide = _normalizeProGuide(raw);
+  const canonicalScanSubject = _normalizeCanonicalScanSubject(raw);
 
   // ── Canonical Health Object ──────────────────────────────────────────────
   // Board Directive (One Health Engine, 2026-07-02): health is populated by
@@ -68,6 +70,11 @@ export function normalizeAuditResponse(raw) {
     ownership,
     territoryCoverage: null,
     isrcValidation:    null,
+    // Canonical Scan Subject™ (Phase 2 Recovery, 2026-07-20) — pass-through,
+    // never re-derived here. Structural validation only, since this
+    // normalizer's own job is shape translation, not canonical-object
+    // assembly (that's api/_lib/canonical-scan-subject-assembler.js's job).
+    canonicalScanSubject,
   };
 }
 
@@ -581,6 +588,21 @@ function _normalizeProGuide(r) {
     note:    p.note    || '',
     country: p.country || null,
   };
+}
+
+// _normalizeCanonicalScanSubject: pass-through, not re-derivation. The
+// object arrives already-assembled and frozen from
+// api/_lib/canonical-scan-subject-assembler.js (seeded, then enriched,
+// during run-scan.js's pipeline). This function's only job is the
+// structural guard every other _normalizeX helper in this file applies:
+// never let a malformed/missing upstream value reach the canonical
+// contract un-checked. null is a valid, expected value pre-enrichment
+// failure or for scan paths that never seeded a subject.
+function _normalizeCanonicalScanSubject(r) {
+  const s = r.canonicalScanSubject;
+  if (!s) return null;
+  const { valid } = validateCanonicalScanSubject(s);
+  return valid ? s : null;
 }
 
 // ── Utilities ────────────────────────────────────────────────────────────────

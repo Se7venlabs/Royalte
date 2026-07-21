@@ -230,5 +230,6 @@
     }
   },
   "territoryCoverage": null,
-  "isrcValidation": null
+  "isrcValidation": null,
+  "canonicalScanSubject": null
 }

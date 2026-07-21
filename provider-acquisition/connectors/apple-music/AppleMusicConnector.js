@@ -226,9 +226,15 @@ export class AppleMusicConnector extends ProviderConnector {
     return this.#get(`/catalog/${sf}/artists/${subjectRef.appleArtistId}/songs?limit=25`);
   }
 
+  // include=albums (Phase 2 Recovery, 2026-07-20 -- Canonical Scan Subject™
+  // correction): additive query parameter. Without it, Apple's Song
+  // resource carries no relationship data, so the album the resolved
+  // song belongs to was unrecoverable from this response -- the reason
+  // Territory Intelligence previously fell back to an arbitrary
+  // catalog-order album instead of the one the artist actually scanned.
   async #fetchByISRC(subjectRef, sf) {
     if (!subjectRef.isrc) return this.#missingRef('isrc');
-    return this.#get(`/catalog/${sf}/songs?filter[isrc]=${encodeURIComponent(subjectRef.isrc)}`);
+    return this.#get(`/catalog/${sf}/songs?filter[isrc]=${encodeURIComponent(subjectRef.isrc)}&include=albums`);
   }
 
   async #fetchAlbumData(subjectRef, sf) {
