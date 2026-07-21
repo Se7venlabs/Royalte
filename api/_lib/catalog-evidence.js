@@ -43,6 +43,17 @@
 //                                              // does not re-shape individual album fields
 //      appleAvailability:    string|null,      // PLATFORM_AVAILABILITY value
 //      isrcComparison:       object|null,       // { tracksChecked, matched[], notFound[], matchRate }
+//      appleTracks:          Array,           // Apple Music song objects (id/name/isrc/albumName),
+//                                              // relocated as-is from platforms.appleMusic.details.tracks
+//                                              // -- the artist's own official Apple catalog, sole
+//                                              // evidence source for ISRC Intelligence™ v1
+//                                              // (see isrc-intelligence.js). Added 2026-07-21.
+//      appleTracksAssessed:  boolean,         // true only when the Apple TRACKS evidence package
+//                                              // was actually bridged (EvidenceBridge sets
+//                                              // details.tracks only on a successful acquisition) --
+//                                              // distinguishes "assessed, zero songs" (NO_RECORDINGS)
+//                                              // from "never assessed" (NOT_ASSESSED). appleTracks
+//                                              // alone can't carry this: both cases collapse to [].
 //      discogsReleases:      Array,           // per-release dated Discogs records --
 //                                              // always [] today. Discogs PAL acquisition
 //                                              // (discogs-pal-acquisition.js) only fetches a
@@ -111,6 +122,8 @@ export function assembleCatalogEvidence(canonical) {
       isrcComparison:       (appleDetails?.catalogComparison && typeof appleDetails.catalogComparison === 'object')
                                ? appleDetails.catalogComparison
                                : null,
+      appleTracks:          Array.isArray(appleDetails?.tracks) ? appleDetails.tracks : [],
+      appleTracksAssessed:  Array.isArray(appleDetails?.tracks),
       discogsReleases:      Array.isArray(discogsDetails?.releases) ? discogsDetails.releases : [],
       discogsTotalReleases: typeof discogsDetails?.totalReleases === 'number' ? discogsDetails.totalReleases : null,
       fallbackCounts: {
@@ -124,6 +137,7 @@ export function assembleCatalogEvidence(canonical) {
     console.error('[catalog-evidence] assembly threw (returning empty shell):', err?.message || err);
     return deepFreeze({
       appleAlbums: [], appleAvailability: null, isrcComparison: null,
+      appleTracks: [], appleTracksAssessed: false,
       discogsReleases: [], discogsTotalReleases: null,
       fallbackCounts: { singles: 0, eps: 0, albums: 0, totalTracks: 0 },
     });

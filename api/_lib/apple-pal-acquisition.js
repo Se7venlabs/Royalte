@@ -123,13 +123,24 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
 
     const enrichedSubjectRef = { ...baseSubjectRef, appleArtistId: resolvedAppleArtistId };
 
-    // ── B: ALBUMS + optional ISRC + VIDEOS (parallel) ────────────────────
+    // ── B: ALBUMS + TRACKS + optional ISRC + VIDEOS (parallel) ───────────
+    // ISRC Intelligence™ v1 (Board directive, 2026-07-21): TRACKS added --
+    // every other connector (Spotify/Deezer/MusicBrainz/TIDAL/Last.fm)
+    // already requests this capability; Apple was the one provider that
+    // never did, despite the connector supporting it since #fetchArtistTracks()
+    // was written. This is the artist's own official Apple Music song
+    // catalog with real per-track ISRC attributes -- the authoritative v1
+    // evidence source for ISRC Intelligence™ (see isrc-intelligence.js).
     const parallelB = [
       pal.acquire(APPLE_PROVIDER, createEvidenceRequest({
         subjectRef:   enrichedSubjectRef,
         evidenceType: Capability.ALBUMS,
       })),
-      // Media PAL Expansion™ — artist music-videos catalog. Index [1] is
+      pal.acquire(APPLE_PROVIDER, createEvidenceRequest({
+        subjectRef:   enrichedSubjectRef,
+        evidenceType: Capability.TRACKS,
+      })),
+      // Media PAL Expansion™ — artist music-videos catalog. Index [2] is
       // fixed regardless of whether the ISRC request below is appended.
       pal.acquire(APPLE_PROVIDER, createEvidenceRequest({
         subjectRef:   enrichedSubjectRef,
@@ -143,12 +154,15 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
       })));
     }
 
-    const [albumsSettled, videosSettled, isrcSettled] = await Promise.allSettled(parallelB);
+    const [albumsSettled, tracksSettled, videosSettled, isrcSettled] = await Promise.allSettled(parallelB);
 
     let albumsReport = null;
     if (albumsSettled?.status === 'fulfilled') {
       albumsReport = albumsSettled.value;
       evidencePackages.push({ evidenceType: Capability.ALBUMS, contract: albumsReport.contract });
+    }
+    if (tracksSettled?.status === 'fulfilled') {
+      evidencePackages.push({ evidenceType: Capability.TRACKS, contract: tracksSettled.value.contract });
     }
     if (videosSettled?.status === 'fulfilled') {
       evidencePackages.push({ evidenceType: Capability.VIDEOS, contract: videosSettled.value.contract });

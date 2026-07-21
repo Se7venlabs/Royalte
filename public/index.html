@@ -3164,12 +3164,22 @@ function _renderV2Found(data) {
   const ci  = data.canonical?.catalogIntelligence  ?? null;
   const gmf = data.canonical?.globalMusicFootprint ?? null;
 
+  // ISRC Intelligence™ v1 (Board directive, 2026-07-21) status vocabulary
+  // → human label. See api/_lib/isrc-intelligence.js for the full shape.
+  const ISRC_STATUS_LABEL = {
+    ASSESSED_COMPLETE: 'Complete',
+    ASSESSED_PARTIAL:  'Partial',
+    NO_RECORDINGS:     'No Recordings',
+    NOT_ASSESSED:      'Unknown',
+  };
+  const isrcLabel = ISRC_STATUS_LABEL[ci?.isrcIntelligence?.status] ?? 'Unknown';
+
   const rows = [
     { label: 'Albums',               value: ci != null ? ci.albums      : '—' },
     { label: 'EPs',                  value: ci != null ? ci.eps         : '—' },
     { label: 'Singles',              value: ci != null ? ci.singles     : '—' },
     { label: 'Tracks',               value: ci != null ? ci.totalTracks : '—' },
-    { label: 'ISRC coverage',        value: ci?.isrcCoverage?.status   ?? 'Unknown' },
+    { label: 'ISRC coverage',        value: isrcLabel },
     { label: 'Catalog availability', value: gmf?.status                ?? 'Unknown' },
   ];
   gridEl.innerHTML = rows.map((r) => `

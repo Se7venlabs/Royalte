@@ -110,7 +110,7 @@
       requiredTypes:  {
         'catalogIntelligence.totalTracks': 'number',
       },
-      optional:       ['catalogIntelligence.isrcCoverage', 'catalogIntelligence.bestVerifiedRelease'],
+      optional:       ['catalogIntelligence.isrcIntelligence', 'catalogIntelligence.bestVerifiedRelease'],
     },
     'backend-intelligence': {
       // Phase 2 Recovery (2026-07-20): workspace now reads ctx.verification

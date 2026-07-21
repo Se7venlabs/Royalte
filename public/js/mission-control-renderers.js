@@ -313,9 +313,16 @@ export function renderCatalog(intelligence) {
     totalTracks:   typeof ci.totalTracks   === 'number' ? ci.totalTracks   : 0,
     catalogStatus: typeof ci.catalogStatus === 'string' ? ci.catalogStatus : 'Unknown',
     confidence:    typeof ci.confidence    === 'string' ? ci.confidence    : 'Unable to Confirm',
-    isrcCoverage:  (ci.isrcCoverage && typeof ci.isrcCoverage === 'object')
-      ? ci.isrcCoverage
-      : { status: 'Unknown', assessed: false, assessedCount: 0, verifiedCount: 0, coveragePercent: null },
+    // ISRC Intelligence™ v1 (Board directive, 2026-07-21) — see
+    // api/_lib/isrc-intelligence.js for the full shape. Default mirrors
+    // that module's NOT_ASSESSED shell.
+    isrcIntelligence: (ci.isrcIntelligence && typeof ci.isrcIntelligence === 'object')
+      ? ci.isrcIntelligence
+      : {
+          status: 'NOT_ASSESSED', assessedCount: 0, verifiedCount: 0, missingCount: 0,
+          coveragePercent: null, conflictState: 'NOT_APPLICABLE', matchMethod: null,
+          missingRecordings: [], provenance: null,
+        },
   };
 }
 // ─────────────────────────────────────────────────────────────────────
