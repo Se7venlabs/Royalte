@@ -219,7 +219,13 @@ export function synthesizeAppleMusicCompat(evidencePackages) {
     artwork:                     substituteArtworkDimensions(am.artworkUrl),
     genres:                      Array.isArray(am.genres) ? am.genres : [],
     albumCount:                  Array.isArray(am.details?.albums) ? am.details.albums.length : 0,
-    albums:                      Array.isArray(am.details?.albums) ? am.details.albums : [],
+    // Apple returns "{w}x{h}bb.jpg" artwork templates on every album entry,
+    // same as the artist-level artworkUrl above -- substitute here too so
+    // Best Verified Release™ artwork (and any other album-artwork consumer)
+    // receives a real, loadable URL instead of an unresolved template.
+    albums:                      Array.isArray(am.details?.albums)
+      ? am.details.albums.map(al => ({ ...al, artwork: substituteArtworkDimensions(al.artwork) }))
+      : [],
     // Full 167-storefront coverage (from AVAILABILITY evidence)
     globalStorefrontAvailability: am.details?.globalStorefrontAvailability ?? null,
     // [RETIRED CANDIDATE]: BIG6 legacy format — no longer populated by PAL path
