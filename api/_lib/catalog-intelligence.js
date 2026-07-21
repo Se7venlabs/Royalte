@@ -7,8 +7,8 @@
 //    Scan Engine
 //        ↓
 //    api/_lib/catalog-evidence.js  (Normalization — structural relocation only)
-//        ↓ Canonical Catalog Evidence: appleAlbums[], isrcComparison,
-//        ↓   discogsReleases[], fallbackCounts
+//        ↓ Canonical Catalog Evidence: appleAlbums[], appleTracks[],
+//        ↓   appleTracksAssessed, discogsReleases[], fallbackCounts
 //    Catalog Intelligence™  ◀── THIS MODULE (business logic lives here)
 //        ↓
 //    Mission Control™ · Catalog Intelligence Card
@@ -27,10 +27,12 @@
 //               pre-computed upstream) when Apple album list is unavailable
 //               (Apple wins when both are present because Apple is canonical).
 //
-//  ISRC Coverage evidence:
-//    Primary:   evidence.isrcComparison (Apple-Spotify ISRC cross-reference)
-//               Shape: { tracksChecked, matched: [], notFound: [], matchRate }
-//    When absent: isrcCoverage.status = 'Unknown' (not yet assessed).
+//  ISRC Intelligence™ v1 (Board directive, 2026-07-21):
+//    Delegated entirely to api/_lib/isrc-intelligence.js — assembled from
+//    evidence.appleTracks / evidence.appleTracksAssessed (Apple Music
+//    Capability.TRACKS, the artist's own official catalog). This module
+//    no longer computes ISRC coverage itself; see that module's header
+//    for the full v1 scope, states, and Version 2 roadmap.
 //
 //  Purity invariants:
 //    - Pure function of (intelligenceReport, cio, catalogEvidence).
@@ -52,21 +54,21 @@
 //                               // | 'Expanding' | 'Large Catalog'
 //      confidence:    string,  // 'Verified' | 'Partial' | 'Not Found' |
 //                               // 'Unable to Confirm'
-//      isrcCoverage: {          // RIE-certified ISRC assessment
-//        status:          string,         // 'Unknown' | 'Limited' | 'Partial' | 'Complete'
-//        assessed:        boolean,        // true when evidence was available
-//        assessedCount:   number,         // tracks whose ISRC status was evaluated
-//        verifiedCount:   number,         // tracks with confirmed ISRC
-//        coveragePercent: number | null,  // 0–100; null when not assessed
-//      },
+//      isrcIntelligence: object,  // ISRC Intelligence™ v1 — see
+//                                  // api/_lib/isrc-intelligence.js for the
+//                                  // full shape (status/assessedCount/
+//                                  // verifiedCount/missingCount/
+//                                  // coveragePercent/conflictState/
+//                                  // matchMethod/missingRecordings/provenance)
 //    }
 //
 // ─────────────────────────────────────────────────────────────────────
 
-export const CATALOG_INTELLIGENCE_VERSION = '1.2.0';
+export const CATALOG_INTELLIGENCE_VERSION = '1.3.0';
 
 import { CATALOG_EVIDENCE_POLICY } from './catalog-evidence-policy.js';
 import { selectBestVerifiedRelease } from './best-verified-release.js';
+import { assembleIsrcIntelligence } from './isrc-intelligence.js';
 
 // Board-locked release-count thresholds for catalogStatus.
 // Change only through a formal Board Review.
@@ -76,20 +78,6 @@ const STATUS_THRESHOLDS = Object.freeze({
   GROWING:   7,   // 7–20
   EXPANDING: 21,  // 21–40
   LARGE:     41,  // 41+
-});
-
-// Board-locked ISRC coverage thresholds (coverage percent of assessed tracks).
-// Pending formal Board ratification — named constants so the Board can
-// adjust without hunting for hardcoded numbers.
-const ISRC_THRESHOLDS = Object.freeze({
-  COMPLETE: 75,  // ≥ 75% tracks with verified ISRC → 'Complete'
-  PARTIAL:  25,  // 25–74% → 'Partial'
-  LIMITED:   1,  // 1–24% → 'Limited'
-  // < 1% (or no assessment) → 'Unknown'
-});
-
-const ISRC_UNKNOWN = Object.freeze({
-  status: 'Unknown', assessed: false, assessedCount: 0, verifiedCount: 0, coveragePercent: null,
 });
 
 function deepFreeze(obj) {
@@ -132,14 +120,6 @@ function deriveConfidence(evidence) {
   return 'Partial';
 }
 
-// deriveIsrcStatus — maps a coverage percentage to the constitutional vocabulary.
-function deriveIsrcStatus(pct) {
-  if (typeof pct !== 'number' || pct < ISRC_THRESHOLDS.LIMITED) return 'Unknown';
-  if (pct >= ISRC_THRESHOLDS.COMPLETE) return 'Complete';
-  if (pct >= ISRC_THRESHOLDS.PARTIAL)  return 'Partial';
-  return 'Limited';
-}
-
 // deriveYearRange — extracts firstReleaseYear / latestReleaseYear from
 // Apple Music album objects.  Pure presentational metadata; does not
 // classify or score anything.  Null when Apple albums are absent.
@@ -159,32 +139,6 @@ function deriveYearRange(albums) {
   const first  = Math.min(...years);
   const latest = Math.max(...years);
   return { firstReleaseYear: first, latestReleaseYear: latest, catalogAgeYears: latest - first };
-}
-
-// assembleIsrcCoverage — derives ISRC Coverage from catalog evidence.
-//
-// Primary source: evidence.isrcComparison
-//   (Apple-Spotify ISRC cross-reference from legacy getAppleMusic() or
-//    future PAL TRACKS capability when added).
-//
-// When no evidence is present: returns ISRC_UNKNOWN (status: 'Unknown').
-// trackIsrc (single-track sentinel) is intentionally NOT used as a proxy
-// for catalog-wide ISRC coverage — one verified track ≠ catalog completeness.
-function assembleIsrcCoverage(evidence) {
-  const cc = evidence?.isrcComparison;
-  if (cc && typeof cc.matchRate === 'number') {
-    const pct = cc.matchRate;
-    return Object.freeze({
-      status:          deriveIsrcStatus(pct),
-      assessed:        true,
-      assessedCount:   typeof cc.tracksChecked === 'number' ? cc.tracksChecked
-                       : (Array.isArray(cc.matched) && Array.isArray(cc.notFound)
-                          ? cc.matched.length + cc.notFound.length : 0),
-      verifiedCount:   Array.isArray(cc.matched) ? cc.matched.length : 0,
-      coveragePercent: pct,
-    });
-  }
-  return ISRC_UNKNOWN;
 }
 
 // assembleCatalogIntelligence(intelligenceReport, cio, catalogEvidence)
@@ -229,7 +183,7 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, catalogEvid
     const ownedCount    = singles + eps + albums;
     const catalogStatus = deriveCatalogStatus(ownedCount);
     const confidence    = deriveConfidence(evidence);
-    const isrcCoverage  = assembleIsrcCoverage(evidence);
+    const isrcIntelligence = assembleIsrcIntelligence(evidence);
 
     // Discogs: physical release count and year range (Phase 3.6/Discogs)
     // Provider precedence for release chronology is owned by CATALOG_EVIDENCE_POLICY.
@@ -290,7 +244,7 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, catalogEvid
       totalTracks,
       catalogStatus,
       confidence,
-      isrcCoverage,
+      isrcIntelligence,
       firstReleaseYear,
       latestReleaseYear,
       catalogAgeYears,
@@ -303,7 +257,7 @@ export function assembleCatalogIntelligence(intelligenceReport, cio, catalogEvid
       singles: 0, eps: 0, albums: 0, totalTracks: 0,
       catalogStatus: 'Limited Catalog',
       confidence: 'Unable to Confirm',
-      isrcCoverage: ISRC_UNKNOWN,
+      isrcIntelligence: assembleIsrcIntelligence(null),
       firstReleaseYear: null, latestReleaseYear: null, catalogAgeYears: null,
       physicalReleaseCount: null,
       bestVerifiedRelease: null,
