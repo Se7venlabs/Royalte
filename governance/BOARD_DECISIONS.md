@@ -11,6 +11,25 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-21 — Catalog Intelligence™ — ISRC Intelligence™ v1 — APPROVED, MERGED
+
+| | |
+|---|---|
+| **Date** | 2026-07-21 |
+| **Decision** | ISRC Intelligence™ v1 is approved and merged, following a scope reduction from an originally-proposed 6-tier multi-provider matching hierarchy to a single-source model. The Board approved the reduced scope after the engineering review found the original directive assumed cross-provider evidence that does not exist anywhere in the codebase: Apple Music `Capability.TRACKS` — the artist's own official catalog — as the sole v1 evidence source, with `conflictState` reserved as a typed schema field (`NOT_APPLICABLE` in v1, real `CONFLICT` detection deferred to Version 2) rather than fabricating multi-provider reconciliation. |
+| **Reason** | Replaces a permanently-null legacy stub (`catalogComparison: null`, hardcoded and never populated by any code path prior to this work) with real, evidence-backed ISRC coverage assessment — continuing this platform's Evidence-First Philosophy of two truthful signals over one fabricated one. |
+| **Impact** | New domain assembler `api/_lib/isrc-intelligence.js`. New `translateAppleTracks()` in `EvidenceBridge.js`. New ISRC Intelligence™, ATHENA Executive Insight™, and Catalog Timeline™ cards on `catalog-intelligence.html`. Retired `assembleIsrcCoverage()`/`deriveIsrcStatus()`/`ISRC_THRESHOLDS`/`ISRC_UNKNOWN`. Live validation surfaced and fixed a genuine production defect — Apple's `/songs` endpoint rejects `limit` values above 20 (unlike `/albums`, which accepts 25) — invisible to mocked connector tests, only caught via a live API call authenticated with the project's real Apple credentials. Post-merge production validation: Michael Jackson and Adele, real scans on `royalte.ai`, `ASSESSED_COMPLETE` 20/20 both, zero console errors, no regressions in Identity Intelligence™, Publishing Intelligence™, or Global Music Footprint™. Full detail: `governance/ISRC_INTELLIGENCE_V1_EXECUTIVE_REVIEW.md`. |
+| **Vote** | Board Approved |
+| **PR Number** | #393 |
+| **Commit SHA** | `fd70bcd` |
+| **Tag** | `isrc-intelligence-v1.0` |
+| **Test surface** | 222 positive + 8 negative (pipeline test); 20/20 (RIE activation); 35/36 (scan-migration — 1 pre-existing unrelated failure); 17/17 (CIO assembler); live production validation on 2 real artists across desktop/tablet/mobile |
+| **Constitution update required** | No |
+
+**Future initiatives (documented, not authorized for implementation by this decision):** Mission Control™ Assessment Source Attribution (platform-wide), multi-provider ISRC verification (Spotify/Deezer/MusicBrainz full-catalog reconciliation), real conflict detection engine, recording equivalency engine, recording-version classification engine, cross-provider confidence scoring. See `governance/ISRC_INTELLIGENCE_V1_EXECUTIVE_REVIEW.md` §12 and the Executive Board Addendum.
+
+---
+
 ### 2026-07-17 — ROYALTĒ v3.0 §1 — Engine Provider Registry™ — APPROVED WITH CHANGES, MERGED
 
 | | |
