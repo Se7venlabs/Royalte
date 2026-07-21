@@ -31,6 +31,18 @@ function param(key) {
 // ── Entry point — called once on DOMContentLoaded ──────────────────────
 
 export async function initVault() {
+  // Developer Mode™ (Board-approved, 2026-07-21) — skips Vault, Supabase
+  // auth, session creation, and onboarding entirely. Uses the same real
+  // scan payload every other entry point uses (fetchScanPayload() via
+  // __mcPopulate()) — never fixture data. Checked first, before any
+  // Supabase call, so it works even without credentials configured.
+  // Gated by /js/dev-mode.js: never available on a production hostname,
+  // and requires the explicit ?devmode=1 opt-in.
+  if (window.RoyalteDevMode?.isDevModeActive?.()) {
+    await _enterDeveloperMode();
+    return;
+  }
+
   const supabase = getSupabase();
   if (!supabase) return;
 
@@ -63,6 +75,77 @@ export async function initVault() {
 
   // Every artist authenticates every time. No session shortcuts. No auto-entry.
   _showVault(sessionId, scanId);
+}
+
+// ── Developer Mode™ ─────────────────────────────────────────────────────
+//
+//   Scan Artist → Royaltē OS → Mission Control. No Login, no
+//   Registration, no Onboarding, no Founder-account dependency.
+//
+//   Runs the identical data path every other entry uses
+//   (fetchScanPayload() → __mcPopulate() → buildWorkspaceRuntimeContext()),
+//   so every Mission Control workspace populates from the current scan's
+//   real Runtime Context exactly as it would post-authentication — this
+//   function only removes the UI/auth gate in front of that path, it does
+//   not touch or duplicate it.
+async function _enterDeveloperMode() {
+  // Never show the Vault, never leave the page in the Sentinel "asleep"
+  // pre-auth state — a developer should see live data immediately.
+  document.body.classList.remove('mc-sentinel');
+  const vault = document.getElementById('mc-vault');
+  if (vault) vault.setAttribute('aria-hidden', 'true');
+  const cover = document.getElementById('mc-boot-cover');
+  if (cover) cover.style.display = 'none';
+
+  if (typeof window.__mcPopulate === 'function') {
+    await window.__mcPopulate();
+  }
+  if (typeof window.__mcRevealHero === 'function') {
+    window.__mcRevealHero();
+  }
+
+  // Reveal every module instantly — no staged multi-second activation
+  // animation. Developer Mode optimizes for QA speed, not presentation.
+  const MODULE_ORDER = [
+    'ecosystem-status',
+    'health-intelligence', 'identity-intelligence', 'publishing-intelligence',
+    'catalog-intelligence', 'change-detection', 'backend-intelligence',
+    'global-footprint', 'ai-insights',
+  ];
+  if (typeof window.__mcRevealModule === 'function') {
+    for (const id of MODULE_ORDER) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('mc-online');
+      window.__mcRevealModule(id);
+    }
+  }
+  const hero = document.querySelector('.mc-hero');
+  if (hero) hero.classList.add('mc-online');
+  const reactorStatus = document.getElementById('mc-reactor-status');
+  if (reactorStatus) {
+    reactorStatus.textContent = 'Royaltē OS Online';
+    reactorStatus.className   = 'mc-reactor-status mc-rs-online';
+  }
+  const pctEl = document.getElementById('mc-reactor-pct');
+  if (pctEl) pctEl.textContent = '100%';
+  window.__mcBoot?.setReactor?.(MODULE_ORDER.length);
+
+  // Founder Account Isolation — the left-rail account widget is a static
+  // placeholder (Darryl West / Founder Account · Active) never wired to
+  // Runtime Context, because in the normal authenticated flow it
+  // legitimately shows the logged-in artist's own account, not scan
+  // data. In Developer Mode there is no authenticated account at all, so
+  // leaving it as-is would misleadingly imply a founder session is
+  // active. Overridden here only — the real authenticated flow is
+  // untouched by this function.
+  const railName = document.querySelector('.mc2-rail-user-name');
+  const railRole = document.querySelector('.mc2-rail-user-role');
+  const navSub   = document.getElementById('mc-nav-account-sub');
+  if (railName) railName.textContent = 'Developer Mode';
+  if (railRole) railRole.textContent = 'Unauthenticated · Dev Session';
+  if (navSub)   navSub.textContent   = 'Developer Mode';
+
+  console.info('[Developer Mode] Active — Vault/auth/onboarding skipped. Real scan data via __mcPopulate().');
 }
 
 // ── Sentinel State ─────────────────────────────────────────────────────
