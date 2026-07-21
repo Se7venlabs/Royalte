@@ -1,8 +1,8 @@
 # ADR-002 — CIO Scope vs. the 4 Domain Assemblers That Bypass It
 
-**Status:** Fully Resolved — Option 3 / Option B (sibling evidence object) adopted and implemented for all 4 assemblers.
+**Status:** COMPLETE — Option 3 / Option B (sibling evidence object) adopted and implemented for all 4 assemblers. Formally closed 2026-07-21 by Executive Board directive following the merge of PR #387 and PR #388.
 **Raised during:** Platform Certification™ Phase 1 (Normalization Layer), Phase 2 (Canonical Schema)
-**Updated:** 2026-07-21, Recording Intelligence Alignment — the 4th and final instance (Recording Intelligence) resolved, per `governance/RECORDING_INTELLIGENCE_ARCHITECTURE_REVIEW.md`'s Board-reviewed recommendation and `governance/RECORDING_INTELLIGENCE_ALIGNMENT_REPORT.md`'s implementation.
+**Updated:** 2026-07-21, Recording Intelligence Alignment — the 4th and final instance (Recording Intelligence) resolved, per `governance/RECORDING_INTELLIGENCE_ARCHITECTURE_REVIEW.md`'s Board-reviewed recommendation and `governance/RECORDING_INTELLIGENCE_ALIGNMENT_REPORT.md`'s implementation. Closed by Executive Board directive the same day, concluding the CIO Bypass Recovery Program.
 
 ## Problem
 
@@ -75,3 +75,9 @@ No recommendation given without a decision on what Catalog/GlobalFootprint/Backe
 **Resolved — Recording Intelligence** (2026-07-21, Recording Intelligence Alignment, Board-approved following `governance/RECORDING_INTELLIGENCE_ARCHITECTURE_REVIEW.md`'s Option B recommendation). `lib/recording/recording-intelligence.js` now reads `api/_lib/recording-evidence.js`'s `assembleRecordingEvidence(canonicalForEnrichment)` output — `{ artistName, spotifyTopTracks, musicbrainzRecordings }` — instead of `canonicalForEnrichment` directly, same pattern as the other 3, called once from `lib/rie/index.js`. Full detail, including the newly-discovered EvidenceBridge/Spotify dependency this migration documents (but does not resolve — that remains ADR-004's decision) and the MusicBrainz-evidence-preserved-not-fabricated verification (Phase 6 of the Constitutional Review), in `governance/RECORDING_INTELLIGENCE_ALIGNMENT_REPORT.md`.
 
 **ADR-002 is now fully resolved.** All 4 of the original 4 CIO-bypassing domain assemblers (Catalog, Backend, Global Music Footprint, Recording) read a dedicated sibling evidence object; none read `canonicalForEnrichment` directly. No domain assembler in the codebase bypasses this boundary as of this update.
+
+## CIO Bypass Recovery Program — CLOSED
+
+Formally closed 2026-07-21 by Executive Board directive, following the merge of PR #387 (Recording Intelligence Constitutional Review) and PR #388 (Recording Intelligence Alignment). This concludes the multi-PR recovery effort that began with Catalog Intelligence (2026-07-20) and progressed through Backend Intelligence, Global Music Footprint, and finally Recording Intelligence. No domain assembler bypasses the CIO boundary anywhere in the codebase.
+
+This closure applies specifically to the CIO-bypass finding (N4) this ADR tracks. It does not extend to, and should not be read as resolving, `governance/adr/ADR-004-Provider-Merge-Authority.md` (EvidenceBridge's duplicate/discarded computation for 7 of 9 providers — N1/N2 in `governance/NORMALIZATION_LAYER_PLATFORM_CERTIFICATION.md`), which remains open pending a separate Board decision. See `governance/RECORDING_INTELLIGENCE_ALIGNMENT_REPORT.md`'s "CIO Recovery Program Closure" section for the full distinction.

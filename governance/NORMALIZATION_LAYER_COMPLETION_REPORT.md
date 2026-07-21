@@ -167,6 +167,12 @@ The Normalization Layer, as it exists on `main` today, is measurably more sound 
 
 ---
 
+### Postscript — N4 fully resolved, 2026-07-21
+
+The Recording Intelligence instance of N4 (flagged above as "1 of 4 still open") was resolved the same day via the Recording Intelligence Constitutional Review (PR #387) and Recording Intelligence Alignment (PR #388), following the identical Option-3 sibling-evidence-object pattern. `governance/adr/ADR-002-CIO-Scope.md` is now formally CLOSED — the CIO Bypass Recovery Program is complete; no domain assembler in the codebase reads `canonicalForEnrichment` directly. This does not change this report's overall 🟡 rating or its N1/N2 findings (EvidenceBridge's duplicate computation), which remain open pending ADR-004, independent of N4's closure. Full detail in `governance/RECORDING_INTELLIGENCE_ALIGNMENT_REPORT.md`. The Technical Debt row above ("3/4 CIO-bypasses closed") and the Certification Statement's "three-quarters resolved" language are left as originally written, per this repo's append-only convention for governance history — this postscript is the record of what changed after.
+
+---
+
 ## 7. Regression Evidence
 
 New regression test — `tests/normalization-layer-completion-test.mjs` (5/5), proving the one fix in this project:
