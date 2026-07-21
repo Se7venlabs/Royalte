@@ -172,6 +172,67 @@ export const SETTINGS_GROUPS = [
       { value: 'agent',     label: 'A dedicated Sync Agent' },
     ],
   },
+  // ── Board directive (2026-07-21, Publishing Intelligence™ Certification Pass):
+  //    remaining future-ready rights fields. Save/persist/flow-through only in
+  //    this pass -- null is acceptable until populated; no fabricated values.
+  {
+    id: 'publisher_name',
+    title: 'Publisher Name',
+    group: 'publisher',
+    field: 'name',
+    hint: 'The publisher who represents your compositions, if different from your Publishing Administrator.',
+    freeText: true,
+    placeholder: 'Publisher Name',
+  },
+  {
+    id: 'songwriter_status',
+    title: 'Songwriter Status',
+    group: 'songwriter',
+    field: 'status',
+    hint: 'Your role as a songwriter on your catalog.',
+    options: [
+      { value: 'sole',    label: 'Sole Songwriter' },
+      { value: 'co',      label: 'Co-Writer' },
+      { value: 'session', label: 'Session Writer' },
+      { value: 'none',    label: 'Not a Songwriter' },
+    ],
+  },
+  {
+    id: 'rights_administrator',
+    title: 'Rights Administrator',
+    group: 'rights_administration',
+    field: 'organization',
+    hint: 'The administrator overseeing your combined rights registrations, if different from your Publishing Administrator.',
+    freeText: true,
+    placeholder: 'Rights Administrator Name',
+  },
+  {
+    id: 'isni',
+    title: 'ISNI',
+    group: 'rights_identifiers',
+    field: 'isni',
+    hint: 'International Standard Name Identifier -- a unique global ID for you as an artist.',
+    freeText: true,
+    placeholder: 'e.g. 0000 0001 2345 6789',
+  },
+  {
+    id: 'ipi_number',
+    title: 'IPI Number',
+    group: 'rights_identifiers',
+    field: 'ipi_number',
+    hint: 'Interested Parties Information number -- assigned by your PRO to identify you as a songwriter or publisher.',
+    freeText: true,
+    placeholder: 'e.g. 00123456789',
+  },
+  {
+    id: 'cae_number',
+    title: 'CAE Number',
+    group: 'rights_identifiers',
+    field: 'cae_number',
+    hint: 'Compositeur, Auteur et Editeur number -- often identical to your IPI number.',
+    freeText: true,
+    placeholder: 'e.g. 00123456789',
+  },
 ];
 
 export function esc(str) {

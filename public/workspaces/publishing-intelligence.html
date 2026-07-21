@@ -395,51 +395,61 @@
     sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
       schemaVersion: '1.1',
       scanId:        'preview-fixture-publishing-001',
-      artistName:    'Prince',
+      // Official Royaltē Development Artist Profile (Board directive, 2026-07-21,
+      // Publishing Intelligence™ Certification Pass) -- seeded development data
+      // only, clearly separated from production. Not a real artist.
+      artistName:    'Black Alternative',
       scannedAt:     new Date().toISOString(),
       generatedAt:   new Date().toISOString(),
-      recordLabel:   'Warner Records',
+      recordLabel:   'Castle Park Studioz',
       musicRightsProfile: {
         meta: { version: '2.0', completed_at: new Date().toISOString(), last_updated_at: new Date().toISOString() },
         performing_rights: { pro: 'SOCAN' },
         publishing: {
           publishing_management: 'admin',
-          organization_name:     'Paisley Park Music',
+          organization_name:     'TuneCore Publishing',
           mlc_registered:        true,
         },
+        record_label:         { status: 'signed', label_name: 'Castle Park Studioz' },
+        mechanical_rights:    { organization: 'mlc' },
+        neighboring_rights:   { organization: 'soundexchange' },
+        publisher:            { name: null },
+        songwriter:           { status: null },
+        rights_administration: { organization: null },
+        rights_identifiers:   { isni: null, ipi_number: null, cae_number: null },
       },
       // Matches assemblePublishingIntelligence()'s real output shape (api/_lib/publishing-intelligence.js) --
-      // ctx.publishing, not the retired ctx.publishingIntelligence shape.
+      // ctx.publishing, not the retired ctx.publishingIntelligence shape. Complete
+      // Rights Profile scenario -- high coverage, no warnings.
       publishing: {
         registrations: {
           mlcRegistration:       'VERIFIED',
           registeredWorks:       'VERIFIED',
-          iswcCoverage:          'ACTION_REQUIRED',
+          iswcCoverage:          'VERIFIED',
           registeredSongwriters: 'VERIFIED',
-          writerIpi:             'ACTION_REQUIRED',
+          writerIpi:             'VERIFIED',
           compositionMatch:      'VERIFIED',
         },
         metrics: {
           mlcWorksCount:     20,
-          mlcIswcCount:      16,
+          mlcIswcCount:      20,
           mlcWriterCount:    22,
-          mlcWriterIpiCount: 18,
+          mlcWriterIpiCount: 22,
         },
         supportedSources: ['mlc'],
-        registeredCount:  4,
+        registeredCount:  6,
         totalChecked:     6,
-        coverage:         67,
-        coverageStatus:   'Partial',
+        coverage:         100,
+        coverageStatus:   'Verified',
         strengths: [
           { metric: 'mlcRegistration',       label: 'MLC Registration' },
           { metric: 'registeredWorks',       label: 'Registered Works' },
+          { metric: 'iswcCoverage',          label: 'ISWC Coverage' },
           { metric: 'registeredSongwriters', label: 'Registered Songwriters' },
+          { metric: 'writerIpi',             label: 'Writer IPI' },
           { metric: 'compositionMatch',      label: 'Composition Match' },
         ],
-        issues: [
-          { metric: 'iswcCoverage', label: 'ISWC Coverage', ruleId: null, title: 'ISWC Coverage requires attention in reviewed sources', severity: 'MEDIUM' },
-          { metric: 'writerIpi',    label: 'Writer IPI',    ruleId: null, title: 'Writer IPI requires attention in reviewed sources',    severity: 'MEDIUM' },
-        ],
+        issues: [],
         recommendations: [],
       },
     }));
@@ -636,18 +646,6 @@
             <div class="ii-kpi-caption">ISWC: 16 Assigned</div>
           </div>
 
-          <!-- Collection Health™ -->
-          <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--green">Collection Health™</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--green" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check"></use></svg>
-            </div>
-            <div class="ii-kpi-num-row">
-              <span class="ii-kpi-big-num">Strong</span>
-            </div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--green">Active Collection</div>
-            <div class="ii-kpi-caption" id="pi-kpi-pro-caption">SOCAN — Primary Society</div>
-          </div>
 
         </div>
 
@@ -684,8 +682,10 @@
               <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-pro-badge">Artist Disclosure</div>
             </div>
 
-            <!-- Board Flag: SoundExchange removed from MRP v2 (PR #330); field has no current source.
-                 Board decision required: remove field, re-add to MRP, or defer. -->
+            <!-- Board Ruling #2 (2026-07-21): SoundExchange is retired from onboarding but
+                 remains a canonical Music Rights Profile field, disclosed via the
+                 Settings "Neighboring Rights" group (mrp.neighboring_rights). This reads
+                 that canonical value, not the retired onboarding pr.soundexchange field. -->
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">SoundExchange</div>
               <div class="pi-mrp-field-value" id="pi-mrp-sx-val">—</div>
@@ -705,7 +705,9 @@
               <div class="pi-mrp-field-badge pi-mrp-badge--intel" id="pi-mrp-dist-badge">Evidence Verified</div>
             </div>
 
-            <!-- Artist Disclosure — sourced from MRP publishing_management + organization_name -->
+            <!-- Artist Disclosure — prefers the dedicated mrp.publisher.name field, falling
+                 back to the legacy publishing_management==='publisher' + organization_name
+                 answer so previously-saved profiles are not silently dropped. -->
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">Music Publisher</div>
               <div class="pi-mrp-field-value" id="pi-mrp-publisher-val">—</div>
@@ -716,6 +718,31 @@
               <div class="pi-mrp-field-label">Publishing Administrator</div>
               <div class="pi-mrp-field-value" id="pi-mrp-admin-val">—</div>
               <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-admin-badge">Artist Disclosure</div>
+            </div>
+
+            <!-- Plain-language restatement of mrp.publishing.publishing_management -->
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Publishing Type</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-ptype-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-ptype-badge">Artist Disclosure</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Record Label</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-label-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-label-badge">Artist Disclosure</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Mechanical Rights</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-mech-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-mech-badge">Artist Disclosure</div>
+            </div>
+
+            <div class="pi-mrp-field">
+              <div class="pi-mrp-field-label">Rights Administrator</div>
+              <div class="pi-mrp-field-value" id="pi-mrp-radmin-val">—</div>
+              <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-radmin-badge">Artist Disclosure</div>
             </div>
 
           </div>
@@ -908,15 +935,17 @@
   }
 
   // ── SoundExchange — Artist Disclosure ────────────────────────────────────
-  // Board Flag: SoundExchange was removed from MRP v2 (PR #330). pr.soundexchange will
-  // always be null until MRP is updated. Field retained pending Board decision.
-  var sxVal = pr.soundexchange || null;
-  if (sxVal === 'Yes') {
+  // Board Ruling #2 (2026-07-21): the retired onboarding pr.soundexchange field
+  // is never read here. SoundExchange is a canonical Music Rights Profile field
+  // disclosed via Settings' "Neighboring Rights" group.
+  var nr    = (mrp && mrp.neighboring_rights) ? mrp.neighboring_rights : {};
+  var sxOrg = nr.organization || null;
+  if (sxOrg === 'soundexchange') {
     setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Registered', 'pi-mrp-badge--verified', 'Artist Disclosure');
-  } else if (sxVal === 'No') {
+  } else if (sxOrg) {
+    // A different neighboring rights org was disclosed -- SoundExchange specifically
+    // was not, so it is honestly "not registered" rather than blank.
     setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Registered', 'pi-mrp-badge--none', 'Artist Disclosure');
-  } else if (sxVal === 'Unsure') {
-    setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', 'Not Confirmed', 'pi-mrp-badge--none', 'Artist Disclosure');
   } else {
     setField('pi-mrp-sx-val', 'pi-mrp-sx-badge', '—', 'pi-mrp-badge--unknown', 'Artist Disclosure');
   }
@@ -935,9 +964,12 @@
   // ── Distributor — Evidence Verified (pipeline support pending) ───────────
   setField('pi-mrp-dist-val', 'pi-mrp-dist-badge', '—', 'pi-mrp-badge--intel', 'Evidence Verified');
 
-  // ── Music Publisher — Artist Disclosure (from MRP publishing_management / org_name) ─
-  var publisherVal = (pub.publishing_management === 'publisher' && pub.organization_name)
-    ? pub.organization_name : null;
+  // ── Music Publisher — Artist Disclosure. Prefers the dedicated mrp.publisher.name
+  // field; falls back to the legacy publishing_management==='publisher' answer so
+  // previously-saved profiles are not silently dropped. ──────────────────────
+  var publisherGroup = (mrp && mrp.publisher) ? mrp.publisher : {};
+  var publisherVal = publisherGroup.name
+    || ((pub.publishing_management === 'publisher' && pub.organization_name) ? pub.organization_name : null);
   setField('pi-mrp-publisher-val', 'pi-mrp-publisher-badge',
     publisherVal || '—', publisherVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
@@ -947,30 +979,44 @@
   setField('pi-mrp-admin-val', 'pi-mrp-admin-badge',
     adminVal || '—', adminVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
-  // ── Publishing Health™ Score ──────────────────────────────────────────────
-  // Weights (Board-locked): PRO=30, Admin=25, SoundExchange=20, Distributor=15, Publisher=10
-  // Admin + Distributor + Publisher contribute 0 until pipeline support lands.
-  var score = 0;
-  if (proVal && proVal !== 'None') score += 30;
-  if (sxVal === 'Yes')             score += 20;
+  // ── Publishing Type — plain-language restatement of publishing_management ──
+  var PTYPE_LABELS = { self: 'Self Published', admin: 'Publishing Administrator', publisher: 'Publisher' };
+  var ptypeVal = PTYPE_LABELS[pub.publishing_management] || null;
+  setField('pi-mrp-ptype-val', 'pi-mrp-ptype-badge',
+    ptypeVal || '—', ptypeVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
-  var scoreEl = document.getElementById('pi-mrp-health-score');
+  // ── Record Label — Artist Disclosure (from MRP record_label group) ─────────
+  var recLabelGroup = (mrp && mrp.record_label) ? mrp.record_label : {};
+  var recLabelVal = (recLabelGroup.status === 'signed' && recLabelGroup.label_name) ? recLabelGroup.label_name : null;
+  setField('pi-mrp-label-val', 'pi-mrp-label-badge',
+    recLabelVal || (recLabelGroup.status === 'independent' ? 'Independent' : '—'),
+    recLabelVal || recLabelGroup.status === 'independent' ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown',
+    'Artist Disclosure');
+
+  // ── Mechanical Rights — Artist Disclosure (from MRP mechanical_rights group) ─
+  var MECH_LABELS = { mlc: 'The MLC', cmrra: 'CMRRA', hfa: 'Harry Fox' };
+  var mechGroup = (mrp && mrp.mechanical_rights) ? mrp.mechanical_rights : {};
+  var mechVal = mechGroup.organization === 'other'
+    ? (mechGroup.organization_other || null)
+    : (MECH_LABELS[mechGroup.organization] || null);
+  setField('pi-mrp-mech-val', 'pi-mrp-mech-badge',
+    mechVal || '—', mechVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
+
+  // ── Rights Administrator — Artist Disclosure (from MRP rights_administration group) ─
+  var radminGroup = (mrp && mrp.rights_administration) ? mrp.rights_administration : {};
+  var radminVal = radminGroup.organization || null;
+  setField('pi-mrp-radmin-val', 'pi-mrp-radmin-badge',
+    radminVal || '—', radminVal ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
+
+  // ── Publishing Health™ — Board Ruling #6 (2026-07-21): no Health Engine exists
+  // yet, so this must never calculate or display an invented score/percentage.
+  // Shows an honest pending state until the real Royaltē Health Engine ships.
+  var scoreEl  = document.getElementById('pi-mrp-health-score');
   var statusEl = document.getElementById('pi-mrp-status-badge');
-
-  if (mrp) {
-    if (scoreEl) scoreEl.textContent = String(score);
-    if (statusEl) {
-      statusEl.className = 'pi-mrp-status-badge';
-      if (score >= 80) {
-        statusEl.classList.add('pi-mrp-status--optimized'); statusEl.textContent = 'Optimized';
-      } else if (score >= 50) {
-        statusEl.classList.add('pi-mrp-status--partial');   statusEl.textContent = 'Partial';
-      } else if (score >= 20) {
-        statusEl.classList.add('pi-mrp-status--needs');     statusEl.textContent = 'Needs Attention';
-      } else {
-        statusEl.classList.add('pi-mrp-status--unknown');   statusEl.textContent = 'Unverified';
-      }
-    }
+  if (scoreEl) scoreEl.textContent = '—';
+  if (statusEl) {
+    statusEl.className = 'pi-mrp-status-badge pi-mrp-status--unknown';
+    statusEl.textContent = 'Pending';
   }
 
   // ── KPI Cards — wire Publishing Coverage, Registered Works, PRO caption ──
@@ -1009,26 +1055,16 @@
     if (cap3 && pi.metrics) cap3.textContent = 'ISWC: ' + (pi.metrics.mlcIswcCount || 0) + ' Assigned';
   }
 
-  // PRO caption (Card 3 — Collection Health™)
-  var proCapEl = document.getElementById('pi-kpi-pro-caption');
-  if (proCapEl) {
-    if (proVal && proVal !== 'None') proCapEl.textContent = proVal + ' — Primary Society';
-    else proCapEl.textContent = 'No PRO Registered';
-  }
-
-  // ── Header health block ───────────────────────────────────────────────────
-  var pubScore  = pi ? (pi.publishingScore || score || 0) : score;
+  // ── Header health block — Board Ruling #6: honest pending state, no invented
+  // score, until the real Royaltē Health Engine exists. ──────────────────────
   var hScoreEl  = document.getElementById('pi-exec-health-score');
   var hBadgeEl  = document.getElementById('pi-exec-health-badge');
   var hUpdEl    = document.getElementById('pi-exec-health-updated');
   var updEl2    = document.querySelector('.pi-exec-updated');
-  if (hScoreEl) hScoreEl.textContent = mrp || pi ? String(pubScore) : '—';
-  if (hBadgeEl && (mrp || pi)) {
-    hBadgeEl.className = 'pi-mrp-status-badge';
-    if (pubScore >= 80)      { hBadgeEl.classList.add('pi-mrp-status--optimized'); hBadgeEl.textContent = 'Optimized'; }
-    else if (pubScore >= 60) { hBadgeEl.classList.add('pi-mrp-status--partial');   hBadgeEl.textContent = 'Strong'; }
-    else if (pubScore >= 40) { hBadgeEl.classList.add('pi-mrp-status--partial');   hBadgeEl.textContent = 'Partial'; }
-    else                     { hBadgeEl.classList.add('pi-mrp-status--needs');     hBadgeEl.textContent = 'Needs Attention'; }
+  if (hScoreEl) hScoreEl.textContent = '—';
+  if (hBadgeEl) {
+    hBadgeEl.className = 'pi-mrp-status-badge pi-mrp-status--unknown';
+    hBadgeEl.textContent = 'Pending';
   }
   var syncTs = ctx.scannedAt || ctx.generatedAt;
   if (hUpdEl && syncTs) {
@@ -1065,16 +1101,43 @@
     regEntries.push({ category: 'Mechanical Licensing', org: 'The MLC', status: mlcStat });
   }
 
-  // Digital Performance — SoundExchange (Artist Disclosure when available; Official Source when verified)
-  var sxMrp = pr.soundexchange;
-  var sxOff = regData['soundexchange'];
-  if (sxMrp === 'Yes' || sxOff === 'REGISTERED' || sxOff === 'ACTIVE') {
-    regEntries.push({ category: 'Digital Performance', org: 'SoundExchange', status: sxOff || 'REGISTERED' });
+  // Digital Performance — SoundExchange (Board Ruling #2: reads the canonical
+  // Music Rights Profile neighboring_rights group, never the retired onboarding field).
+  if (sxOrg === 'soundexchange') {
+    regEntries.push({ category: 'Digital Performance', org: 'SoundExchange', status: 'REGISTERED' });
+  } else if (sxOrg) {
+    // A different neighboring rights org was disclosed instead of SoundExchange.
+    var nrLabel = sxOrg === 'resound' ? 'Re:Sound' : sxOrg === 'ppl' ? 'PPL' : (nr.organization_other || 'Other');
+    regEntries.push({ category: 'Neighboring Rights', org: nrLabel, status: 'REGISTERED' });
   }
 
   // Publishing Administration — when artist disclosed an admin (Artist Disclosure)
   if (pub.publishing_management === 'admin' && pub.organization_name) {
     regEntries.push({ category: 'Publishing Administration', org: pub.organization_name, status: 'ACTIVE' });
+  }
+
+  // Publisher — prefers the dedicated mrp.publisher.name field, falling back to
+  // the legacy publishing_management==='publisher' answer.
+  var publisherEntryName = publisherGroup.name
+    || ((pub.publishing_management === 'publisher' && pub.organization_name) ? pub.organization_name : null);
+  if (publisherEntryName) {
+    regEntries.push({ category: 'Publisher', org: publisherEntryName, status: 'ACTIVE' });
+  }
+
+  // Record Label — when the artist disclosed a signed label (Artist Disclosure)
+  if (recLabelGroup.status === 'signed' && recLabelGroup.label_name) {
+    regEntries.push({ category: 'Record Label', org: recLabelGroup.label_name, status: 'ACTIVE' });
+  }
+
+  // Mechanical Rights — when disclosed and distinct from The MLC (already its own
+  // "Mechanical Licensing" entry above)
+  if (mechVal && mechGroup.organization !== 'mlc') {
+    regEntries.push({ category: 'Mechanical Rights', org: mechVal, status: 'REGISTERED' });
+  }
+
+  // Rights Administration — when disclosed and distinct from the Publishing Administrator
+  if (radminVal) {
+    regEntries.push({ category: 'Rights Administration', org: radminVal, status: 'ACTIVE' });
   }
 
   var regContainer = document.getElementById('pi-dd-registrations');
