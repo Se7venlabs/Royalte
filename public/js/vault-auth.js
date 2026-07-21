@@ -130,20 +130,18 @@ async function _enterDeveloperMode() {
   if (pctEl) pctEl.textContent = '100%';
   window.__mcBoot?.setReactor?.(MODULE_ORDER.length);
 
-  // Founder Account Isolation — the left-rail account widget is a static
-  // placeholder (Darryl West / Founder Account · Active) never wired to
-  // Runtime Context, because in the normal authenticated flow it
-  // legitimately shows the logged-in artist's own account, not scan
-  // data. In Developer Mode there is no authenticated account at all, so
-  // leaving it as-is would misleadingly imply a founder session is
-  // active. Overridden here only — the real authenticated flow is
-  // untouched by this function.
-  const railName = document.querySelector('.mc2-rail-user-name');
-  const railRole = document.querySelector('.mc2-rail-user-role');
-  const navSub   = document.getElementById('mc-nav-account-sub');
-  if (railName) railName.textContent = 'Developer Mode';
-  if (railRole) railRole.textContent = 'Unauthenticated · Dev Session';
-  if (navSub)   navSub.textContent   = 'Developer Mode';
+  // Founder Account Isolation — Runtime Context Audit (Board directive,
+  // 2026-07-21): the left-rail account widget and hero greeting are no
+  // longer patched here. window.__mcRevealHero() (called above) is now
+  // the single, universal writer for every identity-displaying element
+  // on this shell — hero greeting, rail name/role, nav sub-label — in
+  // BOTH the authenticated flow and Developer Mode. Special-casing those
+  // elements only for Developer Mode would have reintroduced exactly the
+  // "alternate identity path" problem this audit exists to eliminate;
+  // the correct fix was in the shared writer, not a Developer-Mode-only
+  // label patch. See mission-control.js's __mcRevealHero() for the fix
+  // and governance/MISSION_CONTROL_RUNTIME_CONTEXT_AUDIT.md for the full
+  // dependency inventory this was found through.
 
   console.info('[Developer Mode] Active — Vault/auth/onboarding skipped. Real scan data via __mcPopulate().');
 }
