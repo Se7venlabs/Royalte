@@ -613,18 +613,35 @@
     if (ringWrap) ringWrap.setAttribute('aria-label', 'Identity presence: ' + coverage + '%');
     var arc = document.querySelector('.ii-coverage-ring-progress');
     if (arc) arc.style.strokeDasharray = (coverage / 100 * 251.327).toFixed(1) + ' 252';
-    // Status pill
+    // Status pill — Identity Intelligence Field-by-Field Wiring Audit
+    // (Board directive, 2026-07-21): the prior version bucketed `coverage`
+    // into invented grade labels ("Excellent"/"Strong"/"Moderate"/"Needs
+    // Review") at 80/60/40% thresholds that exist nowhere in
+    // api/_lib/identity-intelligence.js. This directly violated that
+    // module's own Board Final Lock (2026-06-17): "coverage... is
+    // INFORMATIONAL ONLY... Mission Control MUST NOT render this as an
+    // executive score — only as a provider-coverage indicator." Now shows
+    // the real verifiedProviders/totalProviders counts as a factual
+    // statement instead of a manufactured grade.
+    var verifiedCount = (identity && identity.verifiedProviders != null) ? identity.verifiedProviders : null;
+    var totalCount    = (identity && identity.totalProviders    != null) ? identity.totalProviders    : null;
     var pill = document.querySelector('.ii-kpi-card--coverage .hi-status-pill');
     if (pill) {
-      var pillLabel = coverage >= 80 ? 'Excellent' : coverage >= 60 ? 'Strong' : coverage >= 40 ? 'Moderate' : 'Needs Review';
-      var pillCls   = coverage >= 80 ? 'hi-status-pill--green' : coverage >= 60 ? 'hi-status-pill--blue' : 'hi-status-pill--orange';
+      var pillLabel = (verifiedCount !== null && totalCount !== null)
+        ? verifiedCount + ' of ' + totalCount + ' Verified'
+        : '—';
       var pdot = pill.querySelector('.hi-status-dot');
-      pill.className = 'hi-status-pill ' + pillCls;
+      pill.className = 'hi-status-pill hi-status-pill--blue';
       pill.textContent = pillLabel;
       if (pdot) pill.insertBefore(pdot, pill.firstChild);
     }
+    // Caption — was hardcoded "Across 5 Identity Services"; identity.
+    // totalProviders is already real evidence in the Runtime Context
+    // (assembleIdentityIntelligence's own output), so this now reflects
+    // the actual supported-provider count rather than a literal that
+    // would silently go stale the moment a 6th provider is added.
     var capEl = document.querySelector('.ii-kpi-card--coverage .ii-kpi-caption');
-    if (capEl) capEl.textContent = 'Across 5 Identity Services';
+    if (capEl) capEl.textContent = (totalCount !== null) ? ('Across ' + totalCount + ' Identity Services') : '—';
   }
 
   // ── 3d. Latest Release™ KPI ──────────────────────────────────────────
