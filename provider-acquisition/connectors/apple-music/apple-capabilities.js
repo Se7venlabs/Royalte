@@ -13,8 +13,10 @@ export const APPLE_MUSIC_CAPABILITIES = Object.freeze([
   Capability.UPC,              // UPC on album attributes
   Capability.ARTWORK,          // artist and album artwork URLs
   Capability.GENRES,           // genre arrays on artist and song resources
-  Capability.AVAILABILITY,     // BIG6 storefront availability
-  Capability.TERRITORIES,      // global storefront availability
+  Capability.AVAILABILITY,     // global (167-storefront) availability -- the only one
+                                // actually requested in production acquisition
+  Capability.TERRITORIES,      // BIG6-only storefront availability -- declared/dispatch-wired
+                                // but never called by the live acquisition flow
   Capability.LABELS,           // record label on album attributes
   // Added Media PAL Expansion™ — artist music-videos relationship view
   // (/catalog/{storefront}/artists/{id}/music-videos). Reuses the shared

@@ -33,95 +33,124 @@
    * LOCKED after Board desktop calibration approval.
    * Tablet and mobile calibration never modify this dataset.
    * Source of truth: this file only. One dataset per viewport, no inheritance.
+   *
+   * Constitutional Refactor (Board directive, 2026-07-21): these anchors
+   * carry ONLY geographic projection data (l/t pixel position, flag) --
+   * this is a fixed cartographic fact (where a country sits on this map
+   * image), not business intelligence, and is exempt from the evidence-
+   * fabrication findings in governance/GLOBAL_MUSIC_FOOTPRINT_EVIDENCE_AUDIT.md.
+   * The per-country provider list and "detected" date that used to live
+   * here (`p`, `d`) WERE the fabrication -- both are now resolved at
+   * render time from real per-territory evidence (see resolveAnchorTerritory
+   * below), keyed by the ANCHOR_CODES ISO lookup, not hardcoded here.
    */
   var DESKTOP_ANCHORS = {
-    'Canada':         { l: 17.1, t: 22.4, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'United States':  { l: 17.1, t: 35.9, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Mexico':         { l: 17.1, t: 47.8, flag: '🇲🇽', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Brazil':         { l: 34.4, t: 72.7, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'Peru':           { l: 27.2, t: 85.5, flag: '🇵🇪', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'United Kingdom': { l: 46.9, t: 28.9, flag: '🇬🇧', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'France':         { l: 48.2, t: 33.5, flag: '🇫🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Germany':        { l: 50.3, t: 30.0, flag: '🇩🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Spain':          { l: 46.1, t: 38.6, flag: '🇪🇸', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'Italy':          { l: 51.0, t: 37.0, flag: '🇮🇹', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'Sweden':         { l: 54.4, t: 16.1, flag: '🇸🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Poland':         { l: 50.0, t: 30.4, flag: '🇵🇱', p: ['apple','spotify','deezer'],          d: 'Mar 2024' },
-    'South Africa':   { l: 53.0, t: 86.9, flag: '🇿🇦', p: ['apple','spotify','deezer'],          d: 'Feb 2024' },
-    'Egypt':          { l: 54.0, t: 47.4, flag: '🇪🇬', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Norway':         { l: 50.0, t: 20.9, flag: '🇳🇴', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Türkiye':        { l: 57.0, t: 36.5, flag: '🇹🇷', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Indonesia':      { l: 80.2, t: 72.1, flag: '🇮🇩', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Singapore':      { l: 76.0, t: 65.1, flag: '🇸🇬', p: ['apple','spotify','deezer','tidal'], d: 'Mar 2024' },
-    'India':          { l: 69.1, t: 54.9, flag: '🇮🇳', p: ['apple','spotify'],                  d: 'Feb 2024' },
-    'China':          { l: 73.9, t: 41.0, flag: '🇨🇳', p: ['apple'],                            d: 'Jan 2024' },
-    'Japan':          { l: 85.2, t: 42.0, flag: '🇯🇵', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'South Korea':    { l: 82.3, t: 42.4, flag: '🇰🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Australia':      { l: 84.5, t: 85.5, flag: '🇦🇺', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'New Zealand':    { l: 86.9, t: 70.9, flag: '🇳🇿', p: ['apple','spotify'],                  d: 'Feb 2024' },
+    'Canada':         { l: 17.1, t: 22.4, flag: '🇨🇦' },
+    'United States':  { l: 17.1, t: 35.9, flag: '🇺🇸' },
+    'Mexico':         { l: 17.1, t: 47.8, flag: '🇲🇽' },
+    'Brazil':         { l: 34.4, t: 72.7, flag: '🇧🇷' },
+    'Peru':           { l: 27.2, t: 85.5, flag: '🇵🇪' },
+    'United Kingdom': { l: 46.9, t: 28.9, flag: '🇬🇧' },
+    'France':         { l: 48.2, t: 33.5, flag: '🇫🇷' },
+    'Germany':        { l: 50.3, t: 30.0, flag: '🇩🇪' },
+    'Spain':          { l: 46.1, t: 38.6, flag: '🇪🇸' },
+    'Italy':          { l: 51.0, t: 37.0, flag: '🇮🇹' },
+    'Sweden':         { l: 54.4, t: 16.1, flag: '🇸🇪' },
+    'Poland':         { l: 50.0, t: 30.4, flag: '🇵🇱' },
+    'South Africa':   { l: 53.0, t: 86.9, flag: '🇿🇦' },
+    'Egypt':          { l: 54.0, t: 47.4, flag: '🇪🇬' },
+    'Norway':         { l: 50.0, t: 20.9, flag: '🇳🇴' },
+    'Türkiye':        { l: 57.0, t: 36.5, flag: '🇹🇷' },
+    'Indonesia':      { l: 80.2, t: 72.1, flag: '🇮🇩' },
+    'Singapore':      { l: 76.0, t: 65.1, flag: '🇸🇬' },
+    'India':          { l: 69.1, t: 54.9, flag: '🇮🇳' },
+    'China':          { l: 73.9, t: 41.0, flag: '🇨🇳' },
+    'Japan':          { l: 85.2, t: 42.0, flag: '🇯🇵' },
+    'South Korea':    { l: 82.3, t: 42.4, flag: '🇰🇷' },
+    'Australia':      { l: 84.5, t: 85.5, flag: '🇦🇺' },
+    'New Zealand':    { l: 86.9, t: 70.9, flag: '🇳🇿' },
   };
 
   /* ── Tablet Anchor Set™ — independent coordinate layer for 641–1024px ──
    * Completely independent from DESKTOP_ANCHORS and MOBILE_ANCHORS.
    * Calibrated only after Desktop is Board-approved and locked.
    * Desktop calibration never modifies this dataset.
-   * Reset to desktop baseline — Board calibration begins from scratch.
    */
   var TABLET_ANCHORS = {
-    'Canada':         { l: 18.1, t: 21.0, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'United States':  { l: 20.0, t: 34.1, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Mexico':         { l: 17.4, t: 46.8, flag: '🇲🇽', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Brazil':         { l: 32.8, t: 73.8, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'Peru':           { l: 25.2, t: 69.6, flag: '🇵🇪', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'United Kingdom': { l: 46.9, t: 28.7, flag: '🇬🇧', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'France':         { l: 48.4, t: 33.2, flag: '🇫🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Germany':        { l: 50.0, t: 26.8, flag: '🇩🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Spain':          { l: 46.3, t: 38.9, flag: '🇪🇸', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'Italy':          { l: 51.7, t: 37.9, flag: '🇮🇹', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'Sweden':         { l: 52.7, t: 15.7, flag: '🇸🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Poland':         { l: 51.3, t: 30.9, flag: '🇵🇱', p: ['apple','spotify','deezer'],          d: 'Mar 2024' },
-    'South Africa':   { l: 53.7, t: 90.2, flag: '🇿🇦', p: ['apple','spotify','deezer'],          d: 'Feb 2024' },
-    'Egypt':          { l: 55.4, t: 47.1, flag: '🇪🇬', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Norway':         { l: 50.1, t: 21.4, flag: '🇳🇴', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Türkiye':        { l: 56.8, t: 36.0, flag: '🇹🇷', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Indonesia':      { l: 80.0, t: 70.0, flag: '🇮🇩', p: ['apple','spotify'],                  d: 'Mar 2024' },
-    'Singapore':      { l: 76.0, t: 63.0, flag: '🇸🇬', p: ['apple','spotify','deezer','tidal'], d: 'Mar 2024' },
-    'India':          { l: 69.4, t: 52.2, flag: '🇮🇳', p: ['apple','spotify'],                  d: 'Feb 2024' },
-    'China':          { l: 74.6, t: 46.5, flag: '🇨🇳', p: ['apple'],                            d: 'Jan 2024' },
-    'Japan':          { l: 84.9, t: 42.0, flag: '🇯🇵', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'South Korea':    { l: 82.2, t: 42.4, flag: '🇰🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Australia':      { l: 84.8, t: 85.5, flag: '🇦🇺', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'New Zealand':    { l: 87.0, t: 71.2, flag: '🇳🇿', p: ['apple','spotify'],                  d: 'Feb 2024' },
+    'Canada':         { l: 18.1, t: 21.0, flag: '🇨🇦' },
+    'United States':  { l: 20.0, t: 34.1, flag: '🇺🇸' },
+    'Mexico':         { l: 17.4, t: 46.8, flag: '🇲🇽' },
+    'Brazil':         { l: 32.8, t: 73.8, flag: '🇧🇷' },
+    'Peru':           { l: 25.2, t: 69.6, flag: '🇵🇪' },
+    'United Kingdom': { l: 46.9, t: 28.7, flag: '🇬🇧' },
+    'France':         { l: 48.4, t: 33.2, flag: '🇫🇷' },
+    'Germany':        { l: 50.0, t: 26.8, flag: '🇩🇪' },
+    'Spain':          { l: 46.3, t: 38.9, flag: '🇪🇸' },
+    'Italy':          { l: 51.7, t: 37.9, flag: '🇮🇹' },
+    'Sweden':         { l: 52.7, t: 15.7, flag: '🇸🇪' },
+    'Poland':         { l: 51.3, t: 30.9, flag: '🇵🇱' },
+    'South Africa':   { l: 53.7, t: 90.2, flag: '🇿🇦' },
+    'Egypt':          { l: 55.4, t: 47.1, flag: '🇪🇬' },
+    'Norway':         { l: 50.1, t: 21.4, flag: '🇳🇴' },
+    'Türkiye':        { l: 56.8, t: 36.0, flag: '🇹🇷' },
+    'Indonesia':      { l: 80.0, t: 70.0, flag: '🇮🇩' },
+    'Singapore':      { l: 76.0, t: 63.0, flag: '🇸🇬' },
+    'India':          { l: 69.4, t: 52.2, flag: '🇮🇳' },
+    'China':          { l: 74.6, t: 46.5, flag: '🇨🇳' },
+    'Japan':          { l: 84.9, t: 42.0, flag: '🇯🇵' },
+    'South Korea':    { l: 82.2, t: 42.4, flag: '🇰🇷' },
+    'Australia':      { l: 84.8, t: 85.5, flag: '🇦🇺' },
+    'New Zealand':    { l: 87.0, t: 71.2, flag: '🇳🇿' },
   };
 
   /* ── Mobile Anchor Set™ — independent coordinate layer for ≤640px ────
    * Completely independent from DESKTOP_ANCHORS and TABLET_ANCHORS.
    * Calibrated only after Desktop and Tablet are Board-approved and locked.
-   * Reset to desktop baseline — Board calibration begins from scratch.
-   */
-  /* MOBILE_ANCHORS — 10 primary markets only (Phase 3 calibration).
-   * 14 additional territories listed below the map in gf-additional-territories.
-   * Awaiting Board coordinate calibration at ≤640px viewport.
-   */
-  /* MOBILE_ANCHORS — 10 primary markets only (Phase 3 calibration).
-   * 14 additional territories listed below the map in gf-additional-territories.
-   * Awaiting Board coordinate calibration at ≤640px viewport.
+   * 10 primary markets only (Phase 3 calibration); the remaining evaluated
+   * territories are available in the Distribution Gaps™ drawer.
    */
   var MOBILE_ANCHORS = {
-    'Canada':         { l: 17.4, t: 22.2, flag: '🇨🇦', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'United States':  { l: 20.0, t: 36.7, flag: '🇺🇸', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Brazil':         { l: 33.1, t: 75.2, flag: '🇧🇷', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'United Kingdom': { l: 46.1, t: 26.7, flag: '🇬🇧', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'France':         { l: 48.5, t: 33.0, flag: '🇫🇷', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Germany':        { l: 50.0, t: 28.0, flag: '🇩🇪', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'Japan':          { l: 84.9, t: 42.7, flag: '🇯🇵', p: ['apple','spotify','deezer','tidal'], d: 'Jan 2024' },
-    'India':          { l: 69.1, t: 50.2, flag: '🇮🇳', p: ['apple','spotify'],                  d: 'Feb 2024' },
-    'Australia':      { l: 84.6, t: 85.7, flag: '🇦🇺', p: ['apple','spotify','deezer'],          d: 'Jan 2024' },
-    'South Africa':   { l: 53.7, t: 88.2, flag: '🇿🇦', p: ['apple','spotify','deezer'],          d: 'Feb 2024' },
+    'Canada':         { l: 17.4, t: 22.2, flag: '🇨🇦' },
+    'United States':  { l: 20.0, t: 36.7, flag: '🇺🇸' },
+    'Brazil':         { l: 33.1, t: 75.2, flag: '🇧🇷' },
+    'United Kingdom': { l: 46.1, t: 26.7, flag: '🇬🇧' },
+    'France':         { l: 48.5, t: 33.0, flag: '🇫🇷' },
+    'Germany':        { l: 50.0, t: 28.0, flag: '🇩🇪' },
+    'Japan':          { l: 84.9, t: 42.7, flag: '🇯🇵' },
+    'India':          { l: 69.1, t: 50.2, flag: '🇮🇳' },
+    'Australia':      { l: 84.6, t: 85.7, flag: '🇦🇺' },
+    'South Africa':   { l: 53.7, t: 88.2, flag: '🇿🇦' },
+  };
+
+  /* ── Anchor → real territory-evidence lookup ─────────────────────────
+   * ISO 3166-1 alpha-2 codes, lowercase, matching the Territory
+   * Intelligence Engine's real per-territory `code` field
+   * (lib/territory/canonical-territory-vocabulary.js ALL_APPLE_STOREFRONTS).
+   * A pure name→code translation table, not business intelligence --
+   * same category as canonical-territory-vocabulary.js's own COUNTRY_NAMES.
+   */
+  var ANCHOR_CODES = {
+    'Canada': 'ca', 'United States': 'us', 'Mexico': 'mx', 'Brazil': 'br',
+    'Peru': 'pe', 'United Kingdom': 'gb', 'France': 'fr', 'Germany': 'de',
+    'Spain': 'es', 'Italy': 'it', 'Sweden': 'se', 'Poland': 'pl',
+    'South Africa': 'za', 'Egypt': 'eg', 'Norway': 'no', 'Türkiye': 'tr',
+    'Indonesia': 'id', 'Singapore': 'sg', 'India': 'in', 'China': 'cn',
+    'Japan': 'jp', 'South Korea': 'kr', 'Australia': 'au', 'New Zealand': 'nz',
   };
 
   var P_COLOR = { apple: '#FC3C44', spotify: '#1DB954', deezer: '#A238FF', tidal: '#00D5FF' };
   var P_NAME  = { apple: 'Apple Music', spotify: 'Spotify', deezer: 'Deezer', tidal: 'TIDAL' };
+
+  /* Real per-territory `providers[]` (from distributionGaps.territories, see
+   * api/_lib/global-music-footprint.js buildDistributionGaps()) carries PAL
+   * provider ids ('apple_music', 'spotify', 'deezer', 'tidal') -- normalize
+   * to the short keys this component's CSS/markup namespace already uses
+   * (.gf-marker--apple, .gf-legend-dot--apple, etc, pre-dating this refactor
+   * and left unchanged to avoid an unnecessary stylesheet edit). */
+  var PROVIDER_ID_TO_KEY = { apple_music: 'apple', spotify: 'spotify', deezer: 'deezer', tidal: 'tidal' };
+  function shortProviderKey(providerId) {
+    return PROVIDER_ID_TO_KEY[providerId] || null;
+  }
 
   /* Provider Cluster™ — diamond offsets around anchor (% units)
    *   Apple (top) · Deezer (left) · Spotify (right) · TIDAL (bottom)
@@ -174,7 +203,7 @@
             '<span class="gf-popover-providers gmv-pop-providers"></span>',
           '</div>',
           '<div class="gf-popover-row">',
-            '<span class="gf-popover-label">First Detected</span>',
+            '<span class="gf-popover-label">Last Verified</span>',
             '<span class="gf-popover-val gmv-pop-detected">—</span>',
           '</div>',
           '<div class="gf-popover-row">',
@@ -193,12 +222,21 @@
             '<span class="gf-scan-sub">Scanning Global Distribution</span>',
           '</span>',
         '</div>',
-        '<div class="gf-territories-badge" aria-label="142 territories verified">',
+        '<div class="gf-territories-badge" aria-label="Territories verified: pending scan data">',
           '<span class="gf-territories-label">Territories Verified™</span>',
-          '<span class="gf-territories-count">142</span>',
+          '<span class="gf-territories-count">—</span>',
         '</div>',
       '</div>',
     ].join('');
+  }
+
+  /* formatMapDate — 'Jan 15, 2026' from an ISO timestamp, honest fallback
+   * when no real lastVerified evidence exists for a territory. */
+  function formatMapDate(iso) {
+    if (!iso) return 'Not yet verified';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return 'Not yet verified';
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
   /* ── initGlobalMapViewport ───────────────────────────────────────── */
@@ -229,11 +267,35 @@
     var activeFilter      = null;
     var filterResetTimer  = null;
 
+    /* ── Real evidence lookup (Board directive, 2026-07-21 Constitutional
+     * Refactor) — options.territories is the real distributionGaps.territories
+     * array (api/_lib/global-music-footprint.js). Never fabricated: an
+     * anchor country with no matching real territory renders its flag only,
+     * with zero provider markers, rather than inventing presence. */
+    var territoryByCode = {};
+    (Array.isArray(options.territories) ? options.territories : []).forEach(function (t) {
+      if (t && typeof t.code === 'string') territoryByCode[t.code.toLowerCase()] = t;
+    });
+
+    var territoriesBadge = hostEl.querySelector('.gf-territories-count');
+    var territoriesBadgeWrap = hostEl.querySelector('.gf-territories-badge');
+    if (territoriesBadge && options.territoriesAvailable != null) {
+      territoriesBadge.textContent = String(options.territoriesAvailable);
+      if (territoriesBadgeWrap) territoriesBadgeWrap.setAttribute('aria-label', options.territoriesAvailable + ' territories verified');
+    }
+
     /* ── Geographic Anchor Engine™ ───────────────────────────────── */
     /* activeAnchors is viewport-selected above. Each tier is fully  */
     /* independent — modifying one dataset never affects the others. */
     Object.keys(activeAnchors).forEach(function (country) {
       var a = activeAnchors[country];
+      var code    = ANCHOR_CODES[country] || null;
+      var realT   = code ? territoryByCode[code] : null;
+      var status  = realT ? realT.status : 'Unknown';
+      var lastVerified = realT ? realT.lastVerified : null;
+      var providers = (realT && Array.isArray(realT.providers))
+        ? realT.providers.map(shortProviderKey).filter(Boolean)
+        : [];
 
       var flagEl = document.createElement('span');
       flagEl.className = 'gf-anchor';
@@ -246,17 +308,21 @@
       flagEl.dataset.anchorT = a.t;
       mapInner.appendChild(flagEl);
 
-      /* Calibration passes: flags only, dots suppressed until Phase 4 */
+      /* Calibration passes: flags only, dots suppressed until Phase 4.
+       * providers is real evidence -- an anchor with no confirmed providers
+       * (unavailable/unknown/pending-review/no-match territory) renders no
+       * markers at all, matching "no fabricated markers" directly. */
       if (!calMode) {
-        a.p.forEach(function (prov) {
+        providers.forEach(function (prov) {
           var off = P_OFF[prov] || [0, 0];
           var el  = document.createElement('span');
           el.className = 'gf-marker gf-marker--' + prov;
           el.style.cssText = 'left:' + (a.l + off[0]) + '%;top:' + (a.t + off[1]) + '%;animation-delay:' + ((a.l / 100) * 4).toFixed(2) + 's';
           el.dataset.country  = country;
           el.dataset.provider = prov;
-          el.dataset.detected = a.d;
-          el.dataset.allp     = a.p.join(',');
+          el.dataset.detected = lastVerified || '';
+          el.dataset.status   = status;
+          el.dataset.allp     = providers.join(',');
           el.dataset.anchorL  = a.l;
           el.dataset.anchorT  = a.t;
           el.setAttribute('aria-label', country + ' — ' + P_NAME[prov]);
@@ -281,8 +347,8 @@
       popover.style.left = left + 'px';
       popover.style.top  = top  + 'px';
       hostEl.querySelector('.gmv-pop-country').textContent  = el.dataset.country;
-      hostEl.querySelector('.gmv-pop-detected').textContent = el.dataset.detected;
-      hostEl.querySelector('.gmv-pop-status').textContent   = 'Verified';
+      hostEl.querySelector('.gmv-pop-detected').textContent = formatMapDate(el.dataset.detected);
+      hostEl.querySelector('.gmv-pop-status').textContent   = el.dataset.status || 'Unknown';
       var provsEl = hostEl.querySelector('.gmv-pop-providers');
       provsEl.innerHTML = '';
       el.dataset.allp.split(',').forEach(function (prov) {

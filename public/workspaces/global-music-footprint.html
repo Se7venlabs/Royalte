@@ -8,6 +8,112 @@
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
   <link rel="stylesheet" href="/css/gmf-distribution-gaps.css">
+<style>
+/* Constitutional Refactor additions (Board directive, 2026-07-21) --
+   Assessment Source attribution, Territory Statistics™, ATHENA Executive
+   Insight™. Scoped to this workspace; mirrors the existing gf-exec-header /
+   hi-kpi-card visual language rather than introducing new patterns. */
+.gf-assessment-source {
+  flex-shrink: 0;
+  text-align: right;
+  padding-top: 2px;
+}
+.gf-assessment-source-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  margin-bottom: 3px;
+}
+.gf-assessment-source-value {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--mc-blue);
+}
+
+.gf-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+.gf-stat-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+}
+.gf-stat-card-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+.gf-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.gf-stat-item {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 9px;
+  padding: 10px 8px;
+  text-align: center;
+}
+.gf-stat-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #e8e4f4;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.gf-stat-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+}
+.gf-stat-footer {
+  font-size: 10.5px;
+  color: rgba(132,128,168,0.55);
+  margin-top: auto;
+}
+
+.gf-athena-body {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.gf-athena-icon-wrap {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: rgba(56,189,248,0.10);
+  color: var(--mc-blue);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.gf-athena-text {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(220,215,255,0.85);
+}
+
+@media (max-width: 1024px) {
+  .gf-two-col { grid-template-columns: 1fr; }
+}
+</style>
   <script>
   /* DEV FIXTURE — localhost OR ?dev=1 (Board Directive 2026-07-17: the
    * Developer Preview must self-seed with no DevTools/sessionStorage
@@ -68,10 +174,18 @@
       artistName: 'Black Alternative',
       scannedAt: new Date().toISOString(),
       generatedAt: new Date().toISOString(),
-      globalMusicFootprint: {
+      // Board directive (2026-07-21, Constitutional Refactor): field renamed
+      // globalMusicFootprint -> globalFootprint. The workspace contract
+      // (mc-workspace-context.js) requires ctx.globalFootprint (CIM-native,
+      // Phase 2 Recovery); the old key name here meant this fixture silently
+      // failed the contract and fell through to the "No Scan Loaded" overlay
+      // even in local/preview dev mode -- found during this audit's live
+      // validation pass.
+      globalFootprint: {
         status: 'Strong',
         territoriesAvailable: 10,
         territoriesUnavailable: 6,
+        territoriesEvaluated: 167,
         coveragePercent: 63,
         reachNarrative: 'Available across 10 territories on major streaming platforms.',
         confidence: 'Verified',
@@ -234,16 +348,19 @@
             <h1 class="gf-exec-heading">Where Your Music Lives Around The World</h1>
             <div class="gf-exec-desc">Worldwide distribution presence and territorial coverage — verified across every active streaming provider.</div>
             <div class="gf-exec-meta-row">
-              <div class="gf-exec-updated">
+              <div class="gf-exec-updated" id="gf-exec-updated">
                 <div class="gf-exec-updated-dot" aria-hidden="true"></div>
-                Global Scan™ Active — Last Sweep: 2 Minutes Ago
+                <span id="gf-exec-updated-text">Global Scan™ Active</span>
               </div>
             </div>
           </div>
-          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
-            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
-            Jun 27 – Jul 4, 2026
-            <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down"></use></svg>
+          <!-- Assessment Source attribution (Board directive, 2026-07-21,
+               Phase 7) -- platform standard for future Mission Control™
+               source attribution. Displays only the evidence source
+               genuinely used in Version 1. -->
+          <div class="gf-assessment-source" role="note">
+            <div class="gf-assessment-source-label">Assessment Source</div>
+            <div class="gf-assessment-source-value">Apple Music Storefronts</div>
           </div>
         </div>
 
@@ -254,7 +371,7 @@
           <div class="hi-kpi-card gf-presence-kpi">
             <div class="hi-kpi-label hi-kpi-label--blue">Global Presence™</div>
 
-            <div class="gf-presence-ring-wrap" aria-label="Global Presence score: 94 out of 100">
+            <div class="gf-presence-ring-wrap" id="gf-presence-ring-wrap" aria-label="Global Presence score">
               <svg class="gf-presence-ring-svg" viewBox="0 0 116 116">
                 <circle class="gf-presence-ring-track" cx="58" cy="58" r="40"/>
                 <circle class="gf-presence-ring-progress" cx="58" cy="58" r="40" id="gf-ring-arc"/>
@@ -283,10 +400,10 @@
             </div>
             <div class="ii-kpi-num-row">
               <span class="ii-kpi-big-num" id="gf-countries-num">0</span>
-              <span class="ii-kpi-fraction"> / 195</span>
+              <span class="ii-kpi-fraction" id="gf-countries-fraction"></span>
             </div>
             <div class="ii-kpi-status-text ii-kpi-status-text--blue">Verified</div>
-            <div class="ii-kpi-caption">72.8% of World</div>
+            <div class="ii-kpi-caption" id="gf-countries-caption">—</div>
           </div>
 
           <!-- Providers -->
@@ -298,8 +415,8 @@
             <div class="ii-kpi-num-row">
               <span class="ii-kpi-big-num" id="gf-provider-num">—</span>
             </div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--blue">Active</div>
-            <div class="ii-kpi-caption">Apple · Spotify · Deezer · TIDAL</div>
+            <div class="ii-kpi-status-text ii-kpi-status-text--blue">Verified</div>
+            <div class="ii-kpi-caption" id="gf-provider-caption">—</div>
           </div>
 
           <!-- Coverage -->
@@ -325,22 +442,22 @@
         <!-- § 3.5 — STREAMING PLATFORMS LEGEND™ — Tablet + Mobile ────────── -->
         <!-- Floating overlay (.gf-legend) is hidden at ≤1024px.            -->
         <!-- This card replaces it in the document flow below the map.      -->
-        <div class="gf-legend-panel" role="region" aria-label="Streaming platforms">
+        <div class="gf-legend-panel" role="region" aria-label="Streaming platforms" id="gf-legend-panel">
           <div class="gf-legend-panel-title">Streaming Platforms</div>
-          <div class="gf-legend-panel-items">
-            <div class="gf-legend-panel-item">
+          <div class="gf-legend-panel-items" id="gf-legend-panel-items">
+            <div class="gf-legend-panel-item" data-provider="apple">
               <span class="gf-legend-dot gf-legend-dot--apple" aria-hidden="true"></span>
               <span class="gf-legend-panel-name">Apple Music</span>
             </div>
-            <div class="gf-legend-panel-item">
+            <div class="gf-legend-panel-item" data-provider="spotify">
               <span class="gf-legend-dot gf-legend-dot--spotify" aria-hidden="true"></span>
               <span class="gf-legend-panel-name">Spotify</span>
             </div>
-            <div class="gf-legend-panel-item">
+            <div class="gf-legend-panel-item" data-provider="deezer">
               <span class="gf-legend-dot gf-legend-dot--deezer" aria-hidden="true"></span>
               <span class="gf-legend-panel-name">Deezer</span>
             </div>
-            <div class="gf-legend-panel-item">
+            <div class="gf-legend-panel-item" data-provider="tidal">
               <span class="gf-legend-dot gf-legend-dot--tidal" aria-hidden="true"></span>
               <span class="gf-legend-panel-name">TIDAL</span>
             </div>
@@ -385,152 +502,57 @@
           <div class="gf-gaps-empty" id="gf-gaps-empty" hidden></div>
         </section>
 
-        <!-- § 4 — ADDITIONAL TERRITORIES™ ──────────────────────────────── -->
-        <!-- Mobile-only (≤640px). 14 secondary markets not on mobile map.  -->
-        <!-- Shown via CSS; hidden on desktop and tablet.                   -->
-        <div class="gf-additional-territories" aria-label="Additional territories">
-          <div class="gf-addl-title">Additional Territories</div>
-          <div class="gf-addl-grid">
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇲🇽</span><span class="gf-addl-name">Mexico</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇵🇪</span><span class="gf-addl-name">Peru</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇪🇸</span><span class="gf-addl-name">Spain</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇮🇹</span><span class="gf-addl-name">Italy</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇳🇴</span><span class="gf-addl-name">Norway</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇸🇪</span><span class="gf-addl-name">Sweden</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇵🇱</span><span class="gf-addl-name">Poland</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇹🇷</span><span class="gf-addl-name">Türkiye</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇪🇬</span><span class="gf-addl-name">Egypt</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇨🇳</span><span class="gf-addl-name">China</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇰🇷</span><span class="gf-addl-name">South Korea</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇸🇬</span><span class="gf-addl-name">Singapore</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇮🇩</span><span class="gf-addl-name">Indonesia</span></div>
-            <div class="gf-addl-item"><span class="gf-addl-flag">🇳🇿</span><span class="gf-addl-name">New Zealand</span></div>
+        <!-- § 4 — TERRITORY STATISTICS™ · ATHENA EXECUTIVE INSIGHT™ ──────
+             Board directive (2026-07-21, Constitutional Refactor Phase 6).
+             Replaces the removed Additional Territories™ grid and Mobile
+             Executive Briefing™ (both 100% static/hardcoded, redundant with
+             Distribution Gaps™ -- see governance/GLOBAL_MUSIC_FOOTPRINT_EVIDENCE_AUDIT.md
+             §2/§8). Both cards below are deterministic derivations of real
+             evidence only -- no predictive or inferred territory intelligence. -->
+        <div class="gf-two-col">
+
+          <!-- Territory Statistics™ -->
+          <div class="gf-stat-card">
+            <div class="gf-stat-card-title">
+              <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
+              Territory Statistics™
+            </div>
+            <div class="gf-stat-grid">
+              <div class="gf-stat-item">
+                <div class="gf-stat-num" id="gf-stat-available">—</div>
+                <div class="gf-stat-label">Available</div>
+              </div>
+              <div class="gf-stat-item">
+                <div class="gf-stat-num" id="gf-stat-unavailable">—</div>
+                <div class="gf-stat-label">Unavailable</div>
+              </div>
+              <div class="gf-stat-item">
+                <div class="gf-stat-num" id="gf-stat-unknown">—</div>
+                <div class="gf-stat-label">Unknown</div>
+              </div>
+              <div class="gf-stat-item">
+                <div class="gf-stat-num" id="gf-stat-pending">—</div>
+                <div class="gf-stat-label">Pending Review</div>
+              </div>
+            </div>
+            <div class="gf-stat-footer" id="gf-stat-footer"></div>
           </div>
-        </div>
 
-        <!-- § 5 — MOBILE EXECUTIVE BRIEFING™ (retired — superseded by §3+§4) ── -->
-        <!-- Hidden on desktop (>640px). Shown on mobile in place of map    -->
-        <!-- markers. Territory data mirrors the 24 GlobalMapViewport™      -->
-        <!-- anchors; coverage total matches the KPI counter (142).         -->
-        <div class="gf-mobile-brief" aria-label="Territory briefing" role="region">
-
-          <div class="gf-mobile-brief-header">Available In</div>
-
-          <ul class="gf-territory-list gf-territory-list--big6" aria-label="Primary streaming territories">
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇨🇦</span>
-              <span class="gf-territory-name">Canada</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇺🇸</span>
-              <span class="gf-territory-name">United States</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇬🇧</span>
-              <span class="gf-territory-name">United Kingdom</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇩🇪</span>
-              <span class="gf-territory-name">Germany</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇦🇺</span>
-              <span class="gf-territory-name">Australia</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇯🇵</span>
-              <span class="gf-territory-name">Japan</span>
-            </li>
-          </ul>
-
-          <button class="gf-territory-more-btn" id="gf-territory-more-btn" aria-expanded="false" aria-controls="gf-territory-more">
-            +18 Additional Territories
-          </button>
-
-          <ul class="gf-territory-list gf-territory-list--hidden" id="gf-territory-more" aria-hidden="true" aria-label="Additional territories">
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇫🇷</span>
-              <span class="gf-territory-name">France</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇸🇪</span>
-              <span class="gf-territory-name">Sweden</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇳🇴</span>
-              <span class="gf-territory-name">Norway</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇸🇬</span>
-              <span class="gf-territory-name">Singapore</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇰🇷</span>
-              <span class="gf-territory-name">South Korea</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇪🇸</span>
-              <span class="gf-territory-name">Spain</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇮🇹</span>
-              <span class="gf-territory-name">Italy</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇵🇱</span>
-              <span class="gf-territory-name">Poland</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇧🇷</span>
-              <span class="gf-territory-name">Brazil</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇿🇦</span>
-              <span class="gf-territory-name">South Africa</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇲🇽</span>
-              <span class="gf-territory-name">Mexico</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇮🇳</span>
-              <span class="gf-territory-name">India</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇮🇩</span>
-              <span class="gf-territory-name">Indonesia</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇨🇳</span>
-              <span class="gf-territory-name">China</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇳🇿</span>
-              <span class="gf-territory-name">New Zealand</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇵🇪</span>
-              <span class="gf-territory-name">Peru</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇪🇬</span>
-              <span class="gf-territory-name">Egypt</span>
-            </li>
-            <li class="gf-territory-item">
-              <span class="gf-territory-flag">🇹🇷</span>
-              <span class="gf-territory-name">Türkiye</span>
-            </li>
-          </ul>
-
-          <div class="gf-mobile-summary">
-            <div class="gf-mobile-summary-eyebrow">Coverage Summary</div>
-            <div class="gf-mobile-summary-val">
-              <span class="gf-mobile-summary-num">142</span>
-              <span class="gf-mobile-summary-sublabel">Territories Worldwide</span>
+          <!-- ATHENA Executive Insight™ -->
+          <div class="gf-stat-card">
+            <div class="gf-stat-card-title">
+              <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg>
+              ATHENA Executive Insight™
+            </div>
+            <div class="gf-athena-body">
+              <div class="gf-athena-icon-wrap" aria-hidden="true">
+                <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg>
+              </div>
+              <div class="gf-athena-text" id="gf-athena-text">—</div>
             </div>
           </div>
 
-        </div><!-- /gf-mobile-brief -->
+        </div>
 
       </div><!-- /hi-main -->
 
@@ -578,78 +600,166 @@
 (function () {
   'use strict';
 
+  /* ── Global Music Footprint™ — Runtime Renderer v2.0 ───────────────
+   * Input:  royalte_workspace_context (mc-workspace-context.js)
+   * Output: Rendered HTML. Never queries storage or renders demo data.
+   * Constitutional Refactor (Board directive, 2026-07-21): GlobalMapViewport™
+   * now mounts AFTER contract validation, real territories/territoriesAvailable
+   * passed in -- it previously mounted unconditionally with zero evidence input.
+   */
+  var _result = window.RoyalteContext
+    ? window.RoyalteContext.readWorkspaceContext({ contract: 'global-music-footprint' })
+    : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
+  if (_result.state !== 'valid') {
+    var _ol = document.getElementById('ws-no-scan-overlay');
+    if (_ol) { _ol.removeAttribute('hidden'); _ol.style.display = 'flex'; }
+    return;
+  }
+  var ctx = _result.ctx;
+  var _body = document.querySelector('.ws-body');
+  if (_body) _body.style.opacity = '1';
+  var gf = ctx.globalFootprint;  // CIM-native (Phase 2 Recovery)
+  var ii = ctx.identityIntelligence || null;
+  var dg = gf.distributionGaps || null;
+
   /* ── GlobalMapViewport™ — component init ────────────────────── */
   /* All map logic (anchors, markers, legend, popover) lives in    */
-  /* /js/global-map-viewport.js. This workspace only mounts it.   */
-  /* calibrate=desktop|tablet|mobile activates cal grid + flags-only at that tier */
+  /* /js/global-map-viewport.js. This workspace only mounts it,    */
+  /* passing the real evidence the component renders from.         */
   var calParam = new URLSearchParams(location.search).get('calibrate');
   initGlobalMapViewport(document.getElementById('gf-map-viewport-host'), {
     calibrationMode: calParam,
+    territories: dg ? dg.territories : [],
+    territoriesAvailable: gf.territoriesAvailable,
   });
 
-  /* ── Global Music Footprint™ — Runtime Renderer v1.0 ───────────────
-   * Input:  royalte_workspace_context (mc-workspace-context.js)
-   * Output: Rendered HTML. Never queries storage or renders demo data.
-   */
-  (function () {
-    // Workspace Contract™ — required: globalMusicFootprint (territory coverage data)
-    var _result = window.RoyalteContext
-      ? window.RoyalteContext.readWorkspaceContext({ contract: 'global-music-footprint' })
-      : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
-    if (_result.state !== 'valid') {
-      var _ol = document.getElementById('ws-no-scan-overlay');
-      if (_ol) { _ol.removeAttribute('hidden'); _ol.style.display = 'flex'; }
-      return;
-    }
-    var ctx = _result.ctx;
-    var _body = document.querySelector('.ws-body');
-    if (_body) _body.style.opacity = '1';
-    var gf = ctx.globalFootprint;  // CIM-native (Phase 2 Recovery) -- was ctx.globalMusicFootprint; guaranteed non-null by contract
-    var ii = ctx.identityIntelligence || null;
-    var rn = document.getElementById('gf-ring-num');
-    var cn = document.getElementById('gf-countries-num');
-    var cv = document.getElementById('gf-coverage-num');
-    var pn = document.getElementById('gf-provider-num');
-    if (pn) {
-      var provCount = (ii && ii.providers) ? Object.keys(ii.providers).length : null;
-      pn.textContent = provCount != null ? String(provCount) : '—';
-    }
-    if (rn) rn.dataset.liveTarget = String(gf.coveragePercent    || 0);
-    if (cn) cn.dataset.liveTarget = String(gf.territoriesAvailable || 0);
-    if (cv) cv.dataset.liveTarget = String(gf.coveragePercent    || 0);
+  var rn = document.getElementById('gf-ring-num');
+  var cn = document.getElementById('gf-countries-num');
+  var cv = document.getElementById('gf-coverage-num');
+  var pn = document.getElementById('gf-provider-num');
 
-    var pill = document.querySelector('.gf-reach-pill');
-    if (pill && gf.status) {
-      var statusMap = { 'Global': 'Global Reach', 'Strong': 'Strong Reach', 'Regional': 'Regional Reach', 'Limited': 'Limited Reach' };
-      pill.textContent = statusMap[gf.status] || gf.status;
-      if (gf.status === 'Limited' || gf.status === 'Regional') pill.classList.add('gf-reach-pill--limited');
-    }
-    var narrative = document.querySelector('.gf-reach-narrative');
-    if (narrative && gf.reachNarrative) narrative.textContent = gf.reachNarrative;
+  /* ── Providers™ KPI — verified providers only (Board directive:        *
+   * previously counted every key present regardless of verified state). */
+  var verifiedProviders = [];
+  if (ii && ii.providers) {
+    Object.keys(ii.providers).forEach(function (key) {
+      if (ii.providers[key] && ii.providers[key].verified === true) verifiedProviders.push(key);
+    });
+  }
+  if (pn) pn.textContent = String(verifiedProviders.length);
+  var pnCard = pn && pn.closest && pn.closest('.hi-kpi-card');
+  var pnCap  = pnCard && pnCard.querySelector('#gf-provider-caption');
+  if (pnCap) {
+    var PROVIDER_DISPLAY_NAME = { apple: 'Apple Music', spotify: 'Spotify', deezer: 'Deezer', tidal: 'TIDAL', youtube: 'YouTube' };
+    pnCap.textContent = verifiedProviders.length
+      ? verifiedProviders.map(function (k) { return PROVIDER_DISPLAY_NAME[k] || k; }).join(' · ')
+      : 'No providers verified';
+  }
 
-    // Wire presence KPI card (label, description, coverage %) from Runtime Context.
-    // These elements had hardcoded placeholder values ("Strong", "Worldwide Distribution", "94%").
-    var presLabel   = document.querySelector('.gf-presence-kpi .gf-presence-label');
-    var presDesc    = document.querySelector('.gf-presence-kpi .gf-presence-desc');
-    var presCovPill = document.querySelector('.gf-presence-kpi .hi-status-pill--blue');
-    var presLabelMap = { 'Global': 'Global Reach', 'Strong': 'Strong Reach', 'Regional': 'Regional Reach', 'Limited': 'Limited Reach' };
-    var presDescMap  = { 'Global': 'Worldwide Distribution', 'Strong': 'Wide Distribution', 'Regional': 'Regional Distribution', 'Limited': 'Limited Distribution' };
-    if (presLabel)   presLabel.textContent = presLabelMap[gf.status] || gf.status;
-    if (presDesc)    presDesc.textContent  = presDescMap[gf.status]  || gf.reachNarrative;
-    if (presCovPill) presCovPill.innerHTML = '<span class="hi-status-dot" aria-hidden="true"></span>' + gf.coveragePercent + '% Global Coverage';
+  /* ── Streaming Platforms legend panel (§3.5) — REWIRE: only show      *
+   * providers actually verified for this artist, not a static 4-name   *
+   * list (Board directive: "Eliminate all hardcoded values"). */
+  var legendItems = document.querySelectorAll('#gf-legend-panel-items .gf-legend-panel-item');
+  legendItems.forEach(function (item) {
+    var key = item.dataset.provider;
+    item.style.display = verifiedProviders.indexOf(key) !== -1 ? '' : 'none';
+  });
 
-    // Countries KPI caption: derive "X% of World" from territoriesAvailable / 195
-    var cnCard = cn && cn.closest && cn.closest('.hi-kpi-card');
-    var cnCap  = cnCard && cnCard.querySelector('.ii-kpi-caption');
-    if (cnCap && gf.territoriesAvailable != null) {
-      cnCap.textContent = (gf.territoriesAvailable / 195 * 100).toFixed(1) + '% of World';
+  if (rn) rn.dataset.liveTarget = String(gf.coveragePercent      || 0);
+  if (cn) cn.dataset.liveTarget = String(gf.territoriesAvailable || 0);
+  if (cv) cv.dataset.liveTarget = String(gf.coveragePercent      || 0);
+
+  var ringWrap = document.getElementById('gf-presence-ring-wrap');
+  if (ringWrap) ringWrap.setAttribute('aria-label', 'Global Presence score: ' + (gf.coveragePercent || 0) + ' out of 100');
+
+  // Wire presence KPI card (label, description, coverage %) from Runtime Context.
+  var presLabel   = document.querySelector('.gf-presence-kpi .gf-presence-label');
+  var presDesc    = document.querySelector('.gf-presence-kpi .gf-presence-desc');
+  var presCovPill = document.querySelector('.gf-presence-kpi .hi-status-pill--blue');
+  var presLabelMap = { 'Global': 'Global Reach', 'Strong': 'Strong Reach', 'Regional': 'Regional Reach', 'Limited': 'Limited Reach' };
+  var presDescMap  = { 'Global': 'Worldwide Distribution', 'Strong': 'Wide Distribution', 'Regional': 'Regional Distribution', 'Limited': 'Limited Distribution' };
+  if (presLabel)   presLabel.textContent = presLabelMap[gf.status] || gf.status;
+  if (presDesc)    presDesc.textContent  = presDescMap[gf.status]  || gf.reachNarrative || '—';
+  if (presCovPill) presCovPill.innerHTML = '<span class="hi-status-dot" aria-hidden="true"></span>' + (gf.coveragePercent || 0) + '% Global Coverage';
+
+  /* ── Countries™ KPI — real evaluation universe, not a fabricated /195 */
+  var countriesFractionEl = document.getElementById('gf-countries-fraction');
+  var countriesCaptionEl  = document.getElementById('gf-countries-caption');
+  var territoriesEvaluated = typeof gf.territoriesEvaluated === 'number' ? gf.territoriesEvaluated : null;
+  if (countriesFractionEl && territoriesEvaluated != null) {
+    countriesFractionEl.textContent = ' / ' + territoriesEvaluated;
+  }
+  if (countriesCaptionEl) {
+    countriesCaptionEl.textContent = (territoriesEvaluated != null && gf.territoriesAvailable != null)
+      ? (Math.round(gf.territoriesAvailable / territoriesEvaluated * 1000) / 10) + '% of Evaluated Storefronts'
+      : 'Evaluation pending';
+  }
+
+  /* ── Executive header — real "last assessed" time, not a hardcoded     *
+   * "2 Minutes Ago". Board directive: eliminate all hardcoded values. */
+  var updatedTextEl = document.getElementById('gf-exec-updated-text');
+  if (updatedTextEl) {
+    var scannedIso = ctx.generatedAt || ctx.scannedAt || null;
+    updatedTextEl.textContent = 'Global Scan™ Active — Last Sweep: ' + formatRelativeTime(scannedIso);
+  }
+
+  /* ── Territory Statistics™ (new, Board directive Phase 6) ───────────── */
+  var statAvail = document.getElementById('gf-stat-available');
+  var statUnavail = document.getElementById('gf-stat-unavailable');
+  var statUnknown = document.getElementById('gf-stat-unknown');
+  var statPending = document.getElementById('gf-stat-pending');
+  var statFooter = document.getElementById('gf-stat-footer');
+  if (statAvail)   statAvail.textContent   = String(gf.territoriesAvailable != null ? gf.territoriesAvailable : 0);
+  if (statUnavail) statUnavail.textContent = String(dg ? dg.unavailable    : (gf.territoriesUnavailable || 0));
+  if (statUnknown) statUnknown.textContent = String(dg ? dg.unknown       : 0);
+  if (statPending) statPending.textContent = String(dg ? dg.notEvaluated  : 0);
+  if (statFooter) {
+    statFooter.textContent = territoriesEvaluated != null
+      ? territoriesEvaluated + ' storefronts evaluated · Source: Apple Music Storefronts'
+      : 'Source: Apple Music Storefronts';
+  }
+
+  /* ── ATHENA Executive Insight™ (new, Board directive Phase 6) ────────
+   * Deterministic client-side sentence built from real assembler fields
+   * only (reachNarrative + distributionGaps counts) -- not a call to the
+   * real ATHENA engine (api/athena/, scoped to Mission Control Data API™
+   * envelopes only). Same lightweight pattern as Catalog Intelligence™'s
+   * ATHENA Executive Insight™ card. Never predicts or infers territory
+   * intelligence -- summarizes canonical evidence only. */
+  var athenaTextEl = document.getElementById('gf-athena-text');
+  if (athenaTextEl) {
+    var sentence = gf.reachNarrative || 'Territory availability could not be determined from reviewed sources.';
+    if (dg && dg.totalRequiringAttention > 0) {
+      sentence += ' ' + dg.totalRequiringAttention + ' ' + (dg.totalRequiringAttention === 1 ? 'territory requires' : 'territories require') + ' attention.';
     }
-  }());
+    athenaTextEl.textContent = sentence;
+  }
+}());
+
+/* formatRelativeTime — "2 minutes ago" / "3 hours ago" / "Jul 21, 2026" from
+ * an ISO timestamp. Honest fallback when no real scan timestamp exists. */
+function formatRelativeTime(iso) {
+  if (!iso) return 'time not available';
+  var then = new Date(iso).getTime();
+  if (isNaN(then)) return 'time not available';
+  var diffMs = Date.now() - then;
+  var diffMin = Math.round(diffMs / 60000);
+  if (diffMin < 1) return 'moments ago';
+  if (diffMin === 1) return '1 minute ago';
+  if (diffMin < 60) return diffMin + ' minutes ago';
+  var diffHr = Math.round(diffMin / 60);
+  if (diffHr === 1) return '1 hour ago';
+  if (diffHr < 24) return diffHr + ' hours ago';
+  return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+(function () {
+  'use strict';
 
   /* ── ring count-up ────────────────────────────────────────── */
   var ringNum = document.getElementById('gf-ring-num');
   var ringArc = document.getElementById('gf-ring-arc');
-  var scoreTarget = (ringNum && ringNum.dataset.liveTarget) ? parseInt(ringNum.dataset.liveTarget, 10) : 94;
+  var scoreTarget = (ringNum && ringNum.dataset.liveTarget) ? parseInt(ringNum.dataset.liveTarget, 10) : 0;
   var arcTarget   = 251 * (1 - scoreTarget / 100);
 
   function ease(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
@@ -672,8 +782,8 @@
   /* ── countries count-up ────────────────────────────────────── */
   var countriesEl    = document.getElementById('gf-countries-num');
   var coverageEl     = document.getElementById('gf-coverage-num');
-  var liveCountries  = (countriesEl && countriesEl.dataset.liveTarget) ? parseInt(countriesEl.dataset.liveTarget, 10) : 142;
-  var liveCoverage   = (coverageEl  && coverageEl.dataset.liveTarget)  ? parseInt(coverageEl.dataset.liveTarget,  10) : 94;
+  var liveCountries  = (countriesEl && countriesEl.dataset.liveTarget) ? parseInt(countriesEl.dataset.liveTarget, 10) : 0;
+  var liveCoverage   = (coverageEl  && coverageEl.dataset.liveTarget)  ? parseInt(coverageEl.dataset.liveTarget,  10) : 0;
   var s2 = null;
 
   function countStep(ts) {
@@ -687,26 +797,6 @@
   }
 
   requestAnimationFrame(countStep);
-
-  /* ── Territory expand toggle ───────────────────────────────────── */
-  var moreBtn  = document.getElementById('gf-territory-more-btn');
-  var moreList = document.getElementById('gf-territory-more');
-  if (moreBtn && moreList) {
-    moreBtn.addEventListener('click', function () {
-      var expanded = moreBtn.getAttribute('aria-expanded') === 'true';
-      if (expanded) {
-        moreList.classList.add('gf-territory-list--hidden');
-        moreList.setAttribute('aria-hidden', 'true');
-        moreBtn.setAttribute('aria-expanded', 'false');
-        moreBtn.textContent = '+18 Additional Territories';
-      } else {
-        moreList.classList.remove('gf-territory-list--hidden');
-        moreList.setAttribute('aria-hidden', 'false');
-        moreBtn.setAttribute('aria-expanded', 'true');
-        moreBtn.textContent = 'Show Less';
-      }
-    });
-  }
 
 }());
 </script>
