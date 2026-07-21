@@ -2021,6 +2021,9 @@ body.scan-confirmed #sc-confirm{opacity:1;}
           <p class="scan-complete-desc">Claim this scan to unlock your complete Royaltē OS experience.</p>
           <!-- Phase 4.3: MC entry — enabled after scan success; navigates to preactivate path. -->
           <button id="open-mc-btn" class="open-mc-btn scan-complete-cta" disabled>CLAIM &amp; ENTER ROYALTĒ OS</button>
+          <!-- Developer Mode™ — hidden by default, shown only when /js/dev-mode.js
+               confirms a non-production environment. Never visible in production. -->
+          <button id="dev-open-mc-btn" class="open-mc-btn scan-complete-cta" style="display:none;" disabled>🛠 DEV: SKIP TO ROYALTĒ OS</button>
           <p class="scan-complete-trust">Your intelligence is ready.</p>
         </div>
         </div>
@@ -3368,6 +3371,9 @@ async function runScan() {
     // Phase 4.3: scan succeeded — unlock the MC entry button.
     const openMcBtn = document.getElementById('open-mc-btn');
     if (openMcBtn) openMcBtn.disabled = false;
+    // Developer Mode™: unlock the dev entry button too (no-op if hidden).
+    const devOpenMcBtn = document.getElementById('dev-open-mc-btn');
+    if (devOpenMcBtn) devOpenMcBtn.disabled = false;
   }
 }
 
@@ -3441,6 +3447,11 @@ async function runScan() {
   });
 })();
 </script>
+
+<!-- Developer Mode™ safety gate — plain script so window.RoyalteDevMode
+     is available to the module script below (classic scripts always run
+     before deferred module scripts execute). -->
+<script src="/js/dev-mode.js"></script>
 
 <!-- ── V5 magic-link signup wiring ─────────────────────────────────
      The V5 continuation CTA sends a Supabase magic link instead of
@@ -3548,6 +3559,23 @@ if (biOsForm) {
     let dest = '/mission-control.html?vault=1&preactivate=1';
     if (scanId)    dest += '&scanId='     + encodeURIComponent(scanId);
     if (sessionId) dest += '&session_id=' + encodeURIComponent(sessionId);
+    window.location.href = dest;
+  });
+})();
+
+// Developer Mode™ — dev-only entry button. Hidden unless /js/dev-mode.js
+// confirms a non-production environment (localhost or a *.vercel.app
+// preview); never shown on the production hostname. Skips Vault/auth/
+// onboarding entirely on the Mission Control side — see vault-auth.js.
+(function() {
+  if (!window.RoyalteDevMode?.isDevModeAvailable?.()) return;
+  const devOpenMcBtn = document.getElementById('dev-open-mc-btn');
+  if (!devOpenMcBtn) return;
+  devOpenMcBtn.style.display = '';
+  devOpenMcBtn.addEventListener('click', function() {
+    const scanId = window.__royalteScan?.scanId || '';
+    let dest = '/mission-control.html?devmode=1';
+    if (scanId) dest += '&scanId=' + encodeURIComponent(scanId);
     window.location.href = dest;
   });
 })();
