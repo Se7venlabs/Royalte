@@ -1375,6 +1375,94 @@ than documented.
 
 Great design explains itself.
 
+### 4.21 Executive Question Framework™
+
+*(Board Amendment, 2026-07-22 — Executive Question Framework™ constitutional brief)*
+
+Every KPI Card™ shall answer one---and only one---executive business
+question.
+
+That question is the card\'s mission.
+
+A card that cannot state its question in one sentence, or that requires
+more than one sentence to state it, shall not exist.
+
+Displaying information is not the same as delivering executive
+intelligence.
+
+Subscriber Count is data.
+
+Audience Reach™ answers "Where is my audience today?"
+
+Upload Date is data.
+
+Content Activity Status™ answers "Is my content strategy active or
+dormant?"
+
+Every Royaltē KPI shall make this same transition, from data to
+question, before it reaches a dashboard.
+
+**Executive Question Framework™ — mandatory for every KPI proposal**
+
+Every KPI Card™ submitted to the Executive Board shall include:
+
+Card Name
+
+Mission Statement
+
+Primary Executive Business Question
+
+Business Value
+
+Evidence Used
+
+Canonical Provider(s)
+
+Why this deserves dashboard space
+
+Future Expansion Opportunities, where applicable
+
+**Board Evaluation Standard**
+
+Before approving any KPI Card™, the Board shall ask:
+
+Does this card answer a meaningful executive business question?
+
+Can Royaltē defend the answer with evidence?
+
+Will this help an artist make a better business decision?
+
+Could ATHENA™ explain why this matters?
+
+Would removing this card reduce the user\'s ability to make an informed
+decision?
+
+If the answer to any of these is no, the proposal shall be challenged
+or rejected.
+
+**Scope**
+
+This framework governs every current and future Mission Control™
+workspace, including Executive Overview™, Identity Intelligence™,
+Publishing Intelligence™, Catalog Intelligence™, Health Intelligence™,
+Global Music Footprint™, Backend Intelligence™, AI Insights™, Media
+Intelligence™, and every future intelligence module.
+
+Success is not measured by the number of KPI Cards™ on a dashboard.
+
+Success is measured by how many meaningful executive questions Royaltē
+can answer with confidence.
+
+Every card represents a decision.
+
+Every decision is backed by evidence.
+
+Every piece of evidence is traceable to Royaltē\'s Canonical
+Intelligence Engine™.
+
+That is what separates executive intelligence from dashboard
+decoration.
+
 ## SECTION 4 CONSTITUTIONAL DECLARATION
 
 Royaltē\'s Design System exists to transform complex music business

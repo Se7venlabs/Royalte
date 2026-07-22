@@ -3,6 +3,7 @@
 **Status:** Executive Board Direction — design/strategy deliverable, no code or UI built.
 **Source of truth:** `governance/MEDIA_INTELLIGENCE_EVIDENCE_AUDIT.md` — every card below traces to a specific finding in that document; nothing here introduces evidence the audit didn't already confirm real.
 **Date:** 2026-07-22
+**Updated 2026-07-22:** each card below now records its **Primary Executive Business Question**, per the newly-ratified Executive Question Framework™ (`constitution/ROYALTE_MASTER_CONSTITUTION.md` §4.21). This document is the first real application of that framework — every question below is the Board's own wording from the framework brief.
 
 ---
 
@@ -20,6 +21,7 @@ Each card is scored qualitatively (High/Medium/Low, never a fabricated numeric s
 
 ### 1. Media Platform Coverage™
 **Mission:** Answer "how visible am I across the platforms that matter?" in one glance.
+**Primary Executive Business Question:** "Where is my public media presence incomplete?" (per Board Executive Question Framework™, 2026-07-22)
 **Business value:** An artist with real evidence on only one of three real media providers has a concrete, immediate gap — a manager can act on "we have no presence signal on TheAudioDB" the same day.
 **Evidence used:** Presence/absence of a real evidence package per provider for this artist, across YouTube, Apple Music, and TheAudioDB (this workspace's real media scope, per the audit — not the full 14-provider roster, which includes non-media providers like MLC).
 **Canonical providers:** YouTube, Apple Music, TheAudioDB — each independently canonical for its own presence signal; no single provider owns "coverage" as a concept.
@@ -30,6 +32,7 @@ Each card is scored qualitatively (High/Medium/Low, never a fabricated numeric s
 
 ### 2. Media Asset Completeness™
 **Mission:** Answer "does my public media presence look complete and professional?"
+**Primary Executive Business Question:** "Is my public brand presentation complete?" (per Board Executive Question Framework™, 2026-07-22)
 **Business value:** Missing brand assets (no banner, no logo) is a concrete, fixable gap an artist's team can act on before a release, not a vanity metric.
 **Evidence used:** Presence/absence of each real asset type — thumbnail/profile image, banner, logo, clearart — across YouTube (thumbnails, banner), Apple Music (artwork), TheAudioDB (thumb, wide thumb, logo, clearart, banner, fan art).
 **Canonical providers:** TheAudioDB (canonical — broadest real asset-type range of any provider in the ecosystem), Apple Music (artwork), YouTube (channel visuals) as secondary contributors.
@@ -40,6 +43,7 @@ Each card is scored qualitatively (High/Medium/Low, never a fabricated numeric s
 
 ### 3. Content Activity Status™
 **Mission:** Answer "is my content strategy healthy right now?" — the Board's own literal example question.
+**Primary Executive Business Question:** "Is my content strategy active or dormant?" (per Board Executive Question Framework™, 2026-07-22)
 **Business value:** A dormant channel is a real, actionable business signal (re-engage, plan a release-tied upload) distinct from a raw date.
 **Evidence used:** Real upload timestamps (YouTube `publishedAt` per video, Apple Music video `releaseDate`, TheAudioDB video list) — once the documented, already-scoped translation step lands for YouTube/Apple (currently acquired only; TheAudioDB's video data is already wired). Classified into a small number of honest, threshold-based buckets (e.g. Active / Slowing / Dormant) derived from days-since-last-upload — a single real timestamp, not a trend.
 **Canonical providers:** YouTube (primary — has the richest, most frequent upload cadence of any wired provider); TheAudioDB and Apple Music as secondary confirmation where their video data overlaps.
@@ -50,6 +54,7 @@ Each card is scored qualitatively (High/Medium/Low, never a fabricated numeric s
 
 ### 4. Digital Presence™
 **Mission:** Answer "do I have a professional, discoverable web/social footprint outside the streaming platforms?"
+**Primary Executive Business Question:** "Can fans easily discover and connect with me?" (per Board Executive Question Framework™, 2026-07-22)
 **Business value:** A missing official website or Facebook page is a concrete, fixable gap for an artist's team, distinct from any streaming-platform metric.
 **Evidence used:** `strWebsite`, `strFacebook` (TheAudioDB) — the only two real, working link fields in the entire provider ecosystem today, per the audit. Twitter is explicitly excluded (provider-broken, filtered to null); Instagram/TikTok are explicitly excluded (no data exists anywhere).
 **Canonical providers:** TheAudioDB — sole real source; no secondary or duplicate provider exists for this signal today.
@@ -60,6 +65,7 @@ Each card is scored qualitatively (High/Medium/Low, never a fabricated numeric s
 
 ### 5. Catalog Media Support™
 **Mission:** Answer "how does my media presence support my music catalog?" — again, the Board's own literal example question, and the strongest, most executive-grade card this audit's evidence supports.
+**Primary Executive Business Question:** "Which releases are under-supported by media?" (per Board Executive Question Framework™, 2026-07-22)
 **Business value:** "3 of your last 5 releases have no supporting video" is a direct, prioritized action list tied to real releases an artist already knows and cares about — the single most business-relevant card in this set.
 **Evidence used:** Cross-references real release data (already acquired via Apple Music's album catalog, the same evidence Catalog Intelligence™ already consumes) against real video data per release — Apple Music video `releaseDate`/`artistName` matched against a real album (high-confidence match), and TheAudioDB's `idAlbum`-linked video entries (already wired, structurally exact match, not text-heuristic). YouTube video-title text matching against a release name is explicitly excluded as a match source here — flagged in the audit as heuristic/lower-confidence, and this card's integrity depends on exact, not fuzzy, matches.
 **Canonical providers:** Apple Music (release catalog + video catalog, single-provider exact match), TheAudioDB (structural album-to-video linkage) as a secondary, independent confirmation source.
@@ -70,6 +76,7 @@ Each card is scored qualitatively (High/Medium/Low, never a fabricated numeric s
 
 ### 6. Audience Reach™
 **Mission:** Answer "where is my audience, and how concentrated is it?" — not "how many fans do I have."
+**Primary Executive Business Question:** "Where is my audience today?" (per Board Executive Question Framework™, 2026-07-22 — deliberately without a growth clause; see the correction at the top of this document)
 **Business value:** Real per-platform reach numbers, read honestly (not summed across incompatible platforms), tell a manager where to focus content/marketing effort.
 **Evidence used:** YouTube `subscriberCount`/`viewCount` (richest, wired), with Spotify `followers.total`, Deezer `fans`, Last.fm `listeners`, SoundCloud `followers_count` as secondary per-platform reach signals, each labeled by its own platform, never summed into one fabricated cross-platform total.
 **Canonical providers:** YouTube canonical for channel-scale reach (subscriber/view depth); each streaming provider canonical only for its own number — no provider is canonical for "total audience," because that concept doesn't exist honestly across incompatible platforms.
@@ -86,9 +93,11 @@ Two list-style detail cards, following the same proven pattern Global Music Foot
 
 ### 7. Missing Media Assets™
 Supports Media Asset Completeness™. A real, itemized list — "TheAudioDB: no banner · YouTube: no banner image" — per provider, per missing asset type. No new evidence; a drill-down view of card 2's already-real data.
+**Primary Executive Business Question:** "What media assets should I create next?" (per Board Executive Question Framework™, 2026-07-22)
 
 ### 8. Unsupported Releases™
 Supports Catalog Media Support™. A real, itemized list of specific releases with zero matched video evidence across the exact-match providers (Apple, TheAudioDB). No new evidence; a drill-down view of card 5's already-real data.
+**Primary Executive Business Question:** "Which releases require media investment first?" (per Board Executive Question Framework™, 2026-07-22)
 
 **Total: 8 cards.** Deliberately at the bottom of the Board's 8–10 range rather than padded to the top — every additional candidate considered (see below) failed at least one evaluation criterion badly enough to exclude.
 
