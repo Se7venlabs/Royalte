@@ -567,15 +567,13 @@
                 </div>
 
                 <div>
-                  <div class="gf2-panel-section-label">Artist Catalog</div>
+                  <div class="gf2-panel-section-label">Artist Catalog Availability</div>
                   <div id="gf2-panel-providers"></div>
                 </div>
 
                 <div>
-                  <div class="gf2-panel-section-label">Market Details</div>
-                  <div class="gf2-panel-field"><span class="gf2-panel-field-label">Assessment Date</span><span class="gf2-panel-field-val" id="gf2-panel-assessed">—</span></div>
-                  <div class="gf2-panel-field"><span class="gf2-panel-field-label">Availability</span><span class="gf2-panel-field-val" id="gf2-panel-availability">—</span></div>
-                  <div class="gf2-panel-field"><span class="gf2-panel-field-label">Confidence</span><span class="gf2-panel-field-val" id="gf2-panel-confidence">—</span></div>
+                  <div class="gf2-panel-section-label">Reason</div>
+                  <div class="gf2-panel-summary" id="gf2-panel-summary">—</div>
                 </div>
 
                 <div>
@@ -584,9 +582,11 @@
                 </div>
 
                 <div>
-                  <div class="gf2-panel-section-label">Assessment Summary</div>
-                  <div class="gf2-panel-summary" id="gf2-panel-summary">—</div>
+                  <div class="gf2-panel-section-label">Assessment Source</div>
+                  <div id="gf2-panel-source"></div>
                 </div>
+
+                <div class="gf2-panel-field"><span class="gf2-panel-field-label">Last Verified</span><span class="gf2-panel-field-val" id="gf2-panel-assessed">—</span></div>
               </div>
             </div>
           </div>
@@ -824,16 +824,20 @@
     // Unavailable status directly above it).
     var isAvailable = t.status === 'Available';
     var hasEvidence = Array.isArray(t.providers) && t.providers.indexOf('apple_music') !== -1;
-    var catalogLabel = isAvailable ? '✅ Available' : (hasEvidence ? '❌ Not Available' : '— Not yet assessed');
+    // "Not Available in this Storefront" (Board directive 2026-07-22, Country
+    // Intelligence Panel v2) -- matches the wording already used elsewhere in
+    // this evidence chain (api/_lib/global-music-footprint.js's REASON_LABELS/
+    // RECOMMENDED_ACTIONS_BY_REASON both already say "storefront") so the
+    // panel doesn't imply the artist or catalog doesn't exist, only that this
+    // specific storefront doesn't carry it.
+    var catalogLabel = isAvailable ? '✅ Available' : (hasEvidence ? '❌ Not Available in this Storefront' : '— Not yet assessed');
     var artistLabel = (typeof ctx !== 'undefined' && ctx && ctx.artistName) ? ctx.artistName : 'This artist';
     var row = document.createElement('div');
     row.className = 'gf2-panel-provider-row';
     row.innerHTML = '<span>' + esc(artistLabel) + '</span><span style="color:' + (isAvailable ? '#22c55e' : '#f87171') + '">' + esc(catalogLabel) + '</span>';
     providersEl.appendChild(row);
 
-    document.getElementById('gf2-panel-assessed').textContent = fmtDate(t.lastVerified);
-    document.getElementById('gf2-panel-availability').textContent = t.status;
-    document.getElementById('gf2-panel-confidence').textContent = t.confidence || 'Unknown';
+    document.getElementById('gf2-panel-summary').textContent = t.reason || 'Not available from reviewed sources.';
 
     var actionBox = document.getElementById('gf2-panel-action');
     if (t.recommendedAction) {
@@ -843,7 +847,33 @@
       actionBox.textContent = 'No action needed — this market is confirmed available.';
       actionBox.classList.remove('gf2-panel-action-box--attention');
     }
-    document.getElementById('gf2-panel-summary').textContent = t.reason || 'Not available from reviewed sources.';
+
+    // Assessment Source (Board directive 2026-07-22) -- who produced this
+    // territory's catalog assessment, real from t.providers (the providers
+    // that actually returned evidence here, same array already gating the
+    // "Not yet assessed" case above), paired with the Engine's own real
+    // confidence value. Never lists a provider that didn't evaluate this
+    // territory -- an empty providers[] renders "Not yet assessed" here too,
+    // matching the Artist Catalog Availability row above rather than
+    // inventing a source.
+    var sourceEl = document.getElementById('gf2-panel-source');
+    sourceEl.innerHTML = '';
+    var sourceProviders = Array.isArray(t.providers) ? t.providers : [];
+    if (sourceProviders.length === 0) {
+      var noneRow = document.createElement('div');
+      noneRow.className = 'gf2-panel-provider-row';
+      noneRow.innerHTML = '<span>Not yet assessed</span>';
+      sourceEl.appendChild(noneRow);
+    } else {
+      sourceProviders.forEach(function (p) {
+        var sRow = document.createElement('div');
+        sRow.className = 'gf2-panel-provider-row';
+        sRow.innerHTML = '<span>' + esc(providerDisplayName(p)) + ' Official Catalog</span><span style="color:var(--mc-text-muted)">' + esc(t.confidence || 'Unknown') + '</span>';
+        sourceEl.appendChild(sRow);
+      });
+    }
+
+    document.getElementById('gf2-panel-assessed').textContent = fmtDate(t.lastVerified);
   }
 
   document.getElementById('gf2-panel-close').addEventListener('click', function () {
