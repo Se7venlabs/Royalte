@@ -67,6 +67,7 @@
 //          providers: string[],              // providers with real evidence for this territory only
 //          reason: string|null,               // derived from the Engine's own reasonCode — never invented
 //          recommendedAction: string|null,    // null for Available (no action needed)
+//          confidence: 'Verified'|'Partial'|'Unknown', // real, from the Engine
 //          lastVerified: string|null,         // real evidence.acquiredAt ISO timestamp, or null
 //        }],
 //      } | null,
@@ -74,7 +75,7 @@
 //
 // ─────────────────────────────────────────────────────────────────────
 
-export const GLOBAL_MUSIC_FOOTPRINT_VERSION = '1.1.0';
+export const GLOBAL_MUSIC_FOOTPRINT_VERSION = '1.2.0';
 
 // Distribution Gaps™ (Board Directive 2026-07-17) — display-label and
 // recommended-action maps. Every value here is a deterministic function of
@@ -205,6 +206,12 @@ function buildDistributionGaps(territoryIntelligence) {
       reason:            reasonLabelFor(reasonCode, evidence.length > 0),
       recommendedAction: recommendedActionFor(state, reasonCode),
       lastVerified:      primaryEvidence?.acquiredAt ?? null,
+      // confidence: real, already computed by the Engine (deriveConfidence,
+      // territory-intelligence.js) but not previously threaded through this
+      // assembler. Added Board directive 2026-07-21 (Executive Visual
+      // Rebuild) -- repurposes existing evidence rather than inventing a
+      // new field, for the Country Intelligence Panel.
+      confidence:        t?.confidence ?? 'Unknown',
     };
   });
 
