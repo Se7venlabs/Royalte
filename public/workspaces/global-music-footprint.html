@@ -782,10 +782,19 @@
     var providersEl = document.getElementById('gf2-panel-providers');
     providersEl.innerHTML = '';
     // Only real provider evidence -- currently Apple Music only (Phase 5.2).
-    var hasApple = Array.isArray(t.providers) && t.providers.indexOf('apple_music') !== -1;
+    // Confirmed-available is the ONLY state that reads "Confirmed" -- a
+    // providers[] entry alone means "Apple returned evidence for this
+    // territory," not "confirmed available" (caught live: Brazil, status
+    // Unavailable, still carries a real apple_music evidence entry because
+    // Apple genuinely checked and found no catalog match -- showing
+    // "Confirmed" there would contradict the Unavailable status directly
+    // above it).
+    var isAvailable = t.status === 'Available';
+    var hasEvidence = Array.isArray(t.providers) && t.providers.indexOf('apple_music') !== -1;
+    var providerLabel = isAvailable ? '✓ Confirmed' : (hasEvidence ? '— ' + t.status : 'Not yet assessed');
     var row = document.createElement('div');
     row.className = 'gf2-panel-provider-row';
-    row.innerHTML = '<span>Apple Music</span><span style="color:' + (hasApple ? '#22c55e' : '#6b7280') + '">' + (hasApple ? '✓ Confirmed' : '— ' + t.status) + '</span>';
+    row.innerHTML = '<span>Apple Music</span><span style="color:' + (isAvailable ? '#22c55e' : '#6b7280') + '">' + esc(providerLabel) + '</span>';
     providersEl.appendChild(row);
 
     document.getElementById('gf2-panel-assessed').textContent = fmtDate(t.lastVerified);
