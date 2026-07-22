@@ -153,6 +153,11 @@
       globalFootprint:         _r(payload.cim  && payload.cim.globalFootprint,
                                  can.cim && can.cim.globalFootprint)                              || null,
       globalMusicFootprint:   _r(payload.globalMusicFootprint,   can.globalMusicFootprint)       || null,
+      // mediaIntelligence:    CIM-native (from cim.media, the CIM's §8.2.14
+      //                       key, Board directive 2026-07-22) -- Media
+      //                       Intelligence workspace reads this directly.
+      mediaIntelligence:       _r(payload.cim  && payload.cim.media,
+                                 can.cim && can.cim.media)                                        || null,
 
       // Monitoring -- null from engine on first scan -> normalized to baseline object
       monitoringIntelligence: _normalizeMonitoring(
