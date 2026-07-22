@@ -572,6 +572,16 @@
                 </div>
 
                 <div>
+                  <div class="gf2-panel-section-label">Revenue Opportunity™</div>
+                  <div class="gf2-panel-status-row" id="gf2-panel-priority-row">
+                    <span class="gf2-panel-status-dot" id="gf2-panel-priority-dot"></span>
+                    <span id="gf2-panel-priority-text">—</span>
+                  </div>
+                  <div class="gf2-panel-field"><span class="gf2-panel-field-label">Market Tier</span><span class="gf2-panel-field-val" id="gf2-panel-tier">—</span></div>
+                  <div class="gf2-panel-summary" id="gf2-panel-revenue-note"></div>
+                </div>
+
+                <div>
                   <div class="gf2-panel-section-label">Reason</div>
                   <div class="gf2-panel-summary" id="gf2-panel-summary">—</div>
                 </div>
@@ -671,6 +681,7 @@
      Markets™ card triggers the same drawer via #gf2-view-all-missing). -->
 <button id="gf-gaps-view-btn" type="button" hidden aria-hidden="true"></button>
 
+<script src="/js/market-priority.js"></script>
 <script src="/js/global-map-choropleth.js"></script>
 <script>
 (function () {
@@ -836,6 +847,25 @@
     row.className = 'gf2-panel-provider-row';
     row.innerHTML = '<span>' + esc(artistLabel) + '</span><span style="color:' + (isAvailable ? '#22c55e' : '#f87171') + '">' + esc(catalogLabel) + '</span>';
     providersEl.appendChild(row);
+
+    // Revenue Opportunity™ / Priority™ (Board directive 2026-07-22) -- an
+    // editorial market-tier lens (public/js/market-priority.js, canonical
+    // metadata, NOT Territory Intelligence Engine output) applied on top
+    // of the real t.status above. Never fabricates a number; every value
+    // shown is a qualitative bucket traced to real status + canonical tier.
+    var MP = window.RoyalteMarketPriority;
+    var tier = MP ? MP.getTier(t.code) : 3;
+    var tierText = MP ? MP.tierLabel(tier) : 'Standard Market';
+    var priorityInfo = MP ? MP.derive(t.status, tier) : { priority: 'Unknown', revenueOpportunity: 'Unknown', explanation: null };
+    var PRIORITY_COLOR = { Critical: '#ef4444', High: '#f97316', Medium: '#facc15', Low: '#9ca3af', Unknown: '#6b7280', 'N/A': '#6b7280' };
+    document.getElementById('gf2-panel-priority-dot').style.background = PRIORITY_COLOR[priorityInfo.priority] || '#6b7280';
+    document.getElementById('gf2-panel-priority-text').textContent =
+      priorityInfo.priority === 'N/A'
+        ? 'No Action Needed'
+        : priorityInfo.priority + ' Priority · ' + priorityInfo.revenueOpportunity + ' Revenue Opportunity';
+    document.getElementById('gf2-panel-tier').textContent = tierText;
+    document.getElementById('gf2-panel-revenue-note').textContent = priorityInfo.explanation
+      || (t.name + ' is classified as a ' + tierText + ' market in Royaltē’s canonical market-priority ruleset.');
 
     document.getElementById('gf2-panel-summary').textContent = t.reason || 'Not available from reviewed sources.';
 
