@@ -12,6 +12,7 @@
 // "No Product Owns Intelligence." — RIE Operating System Rebuild Brief
 //
 // Phase 3.7 Board Extension: 'recording' added as §8.2.13 (2026-07-02).
+// Media Intelligence™ Board Extension: 'media' added as §8.2.14 (2026-07-22).
 
 // Versioning policy (Platform Recovery Phase 1, 2026-07-20): bump the
 // minor version on any change to CIM_OBJECTS (an object added/removed)
@@ -19,10 +20,13 @@
 // existing object's meaning. Record every bump in governance/CHANGELOG.md.
 // 1.1.0: the Phase 3.7 12→13 object extension ('recording' added) never
 // bumped this constant — corrected here, no further shape change in this bump.
-export const CIM_VERSION = '1.1.0';
+// 1.2.0: 'media' added, 13→14 objects (Media Intelligence™ Board directive,
+// 2026-07-22) — see api/_lib/media-intelligence.js.
+export const CIM_VERSION = '1.2.0';
 
 // The §8.2 canonical intelligence objects (order is constitutional).
 // Phase 3.7 extended from 12 → 13 with Board authorization (2026-07-02).
+// Media Intelligence™ extended from 13 → 14 with Board authorization (2026-07-22).
 export const CIM_OBJECTS = Object.freeze([
   'identity',        // artist identity across all providers
   'health',          // Music Backend Health Score™ + grade + category breakdown
@@ -37,6 +41,7 @@ export const CIM_OBJECTS = Object.freeze([
   'revenueSignals',  // Revenue Signals™ — reserved for future module
   'scanAuthority',   // scan provenance: version, timestamp, anchor, subject
   'recording',       // Recording Intelligence™ — ISRC certification, confidence, canonical recordings
+  'media',           // Media Intelligence™ — platform coverage, asset completeness, content activity, digital presence, catalog media support, audience reach
 ]);
 
 // emptyCIM: factory for a blank CIM before the RIE populates it.
@@ -58,6 +63,7 @@ export function emptyCIM() {
     revenueSignals:  null,
     scanAuthority:   null,
     recording:       null,  // §8.2.13 — Phase 3.7 Board Extension
+    media:           null,  // §8.2.14 — Media Intelligence™ Board Extension
   };
 }
 
