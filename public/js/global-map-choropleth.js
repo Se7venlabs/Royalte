@@ -96,17 +96,22 @@
         el.classList.add('gmc-territory');
         el.dataset.code = code;
 
+        // Set fill/stroke as direct inline style properties (not CSS custom
+        // properties) -- inline style always wins the cascade regardless of
+        // DOM injection order, which a var()-based approach did not
+        // (discovered live: the fetched SVG's own embedded stylesheet was
+        // entering the DOM after ours and winning on equal specificity).
         if (t) {
           el.dataset.status = t.status;
-          el.style.setProperty('--gmc-fill', STATE_COLOR[t.status] || STATE_COLOR.Unknown);
-          el.style.setProperty('--gmc-stroke', STATE_STROKE[t.status] || STATE_STROKE.Unknown);
+          el.style.fill = STATE_COLOR[t.status] || STATE_COLOR.Unknown;
+          el.style.stroke = STATE_STROKE[t.status] || STATE_STROKE.Unknown;
           el.classList.add('gmc-territory--evaluated');
         } else {
           // Outside Apple's 167-storefront evaluation universe -- not
           // "Unknown" (a real assessed state); simply not part of this
           // evidence source's scope. Rendered as inert background.
-          el.style.setProperty('--gmc-fill', OUT_OF_SCOPE_FILL);
-          el.style.setProperty('--gmc-stroke', OUT_OF_SCOPE_STROKE);
+          el.style.fill = OUT_OF_SCOPE_FILL;
+          el.style.stroke = OUT_OF_SCOPE_STROKE;
         }
 
         if (t) {
