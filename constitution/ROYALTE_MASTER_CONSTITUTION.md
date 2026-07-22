@@ -1,8 +1,14 @@
 # Royaltē Master Constitution
 
-**Version:** v1.3 (Board Amendment)
+**Version:** v1.4 (Board Amendment)
 **Status:** 🔒 LOCKED — BOARD APPROVED
-**Authority:** This document is the canonical constitutional source of truth for the Royaltē platform. Royaltē Master Constitution v1.3 supersedes all prior architecture guidance.
+**Authority:** This document is the canonical constitutional source of truth for the Royaltē platform. Royaltē Master Constitution v1.4 supersedes all prior architecture guidance.
+
+---
+
+## v1.4 AUTHORITY NOTICE
+
+Royaltē Master Constitution **v1.4** ratifies the **Executive Question Framework™** and its **Executive Decision Framework™** enhancement (§4.21): every KPI Card™ across every Mission Control™ workspace must define the single executive business question it answers and the specific business decision it enables. Royaltē's executive intelligence cycle — **Evidence → Executive Question → Executive Decision → Action → Outcome** — is now constitutional. All v1.3 architecture (Provider Acquisition Layer, RIE, Canonical Intelligence Model, presentation-only products) remains fully in force and unchanged; v1.4 adds a KPI-level design discipline on top of it, not a replacement for it.
 
 ---
 
@@ -1402,6 +1408,38 @@ dormant?"
 Every Royaltē KPI shall make this same transition, from data to
 question, before it reaches a dashboard.
 
+If intelligence cannot influence a decision, it is not executive
+intelligence.
+
+*(Board Amendment, 2026-07-22 — Executive Decision Framework™
+enhancement)* Every KPI Card™ shall also define the specific decision
+Royaltē expects an artist, manager, publisher, or label to make after
+viewing it. A question without a decision is observation, not
+intelligence.
+
+Royaltē\'s executive intelligence cycle is:
+
+Evidence
+
+↓
+
+Executive Question
+
+↓
+
+Executive Decision
+
+↓
+
+Action
+
+↓
+
+Outcome
+
+Royaltē shall never stop at presenting information. Its purpose is to
+enable confident, evidence-backed decisions.
+
 **Executive Question Framework™ — mandatory for every KPI proposal**
 
 Every KPI Card™ submitted to the Executive Board shall include:
@@ -1411,6 +1449,8 @@ Card Name
 Mission Statement
 
 Primary Executive Business Question
+
+Executive Decision Enabled
 
 Business Value
 
@@ -1428,17 +1468,25 @@ Before approving any KPI Card™, the Board shall ask:
 
 Does this card answer a meaningful executive business question?
 
-Can Royaltē defend the answer with evidence?
+Is that answer supported by canonical evidence?
 
-Will this help an artist make a better business decision?
+What specific business decision does this card enable?
 
-Could ATHENA™ explain why this matters?
+Will that decision improve the artist\'s business?
 
-Would removing this card reduce the user\'s ability to make an informed
+Could ATHENA™ explain both the intelligence and the recommended
 decision?
 
-If the answer to any of these is no, the proposal shall be challenged
-or rejected.
+If this card were removed, would the artist lose the ability to make
+an important decision?
+
+If these questions cannot be answered clearly, the proposal shall be
+revised or rejected.
+
+Traditional dashboards answer "what happened?" Royaltē shall answer
+"what does it mean?" and "what should I do next?" That distinction is
+what separates an executive intelligence platform from an analytics
+platform that displays metrics.
 
 **Scope**
 
