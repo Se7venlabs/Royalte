@@ -74,7 +74,7 @@
     .mi-kpi-row .hi-kpi-icon-wrap svg { width: 18px; height: 18px; }
     .mi-kpi-row .ii-kpi-big-num { font-size: 26px; }
 
-    /* Second row — Latest Releases / Monetization / Missing Opportunities */
+    /* Second row — Catalog Media Support detail / Audience Reach / Unsupported Releases */
     .mi-row-2 {
       display: grid;
       grid-template-columns: 1.3fr 1fr 1.3fr;
@@ -84,7 +84,7 @@
     @media (max-width: 1180px) { .mi-row-2 { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 780px)  { .mi-row-2 { grid-template-columns: 1fr; } }
 
-    /* Third row — Performance Summary / ATHENA Media Insights */
+    /* Third row — Missing Media Assets / ATHENA Media Insights */
     .mi-row-3 {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -113,12 +113,10 @@
     .mi-card-link { font-size: 11px; font-weight: 600; color: var(--mc-gold); text-decoration: none; }
     .mi-card-link:hover { text-decoration: underline; }
 
-    /* ── Latest Video Releases™ ─────────────────────────────────────────
-       Fields wired per release, built for a future thumbnail upgrade:
-       thumbnail (v.thumbnail — YouTube API provides this; falls back to a
-       branded placeholder + play glyph until wired), title, type, platform,
-       release date, status. No redesign needed to add real thumbnails —
-       only v.thumbnail needs to start arriving populated. ──────────────── */
+    /* ── Catalog Media Support™ list ─────────────────────────────────────
+       Fields per release: title, release date, real supported/not-supported
+       status only (no video-type classification -- no provider returns
+       this, see governance/MEDIA_INTELLIGENCE_EVIDENCE_AUDIT.md §8). ───── */
     .mi-video-list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: 254px; }
     .mi-video-card {
       display: flex; align-items: center; gap: 10px;
@@ -126,53 +124,14 @@
       transition: background 0.15s ease, border-color 0.15s ease;
     }
     .mi-video-card:hover { background: rgba(255,255,255,0.03); border-color: var(--mc-border); }
-    .mi-video-thumb {
-      position: relative; flex-shrink: 0; width: 54px; height: 40px; border-radius: 7px;
-      overflow: hidden; background: linear-gradient(145deg, rgba(198,168,106,0.18), rgba(0,0,0,0.4));
-      display: flex; align-items: center; justify-content: center;
-    }
-    .mi-video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .mi-video-thumb-play {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,0.9);
-    }
-    .mi-video-thumb-play svg { width: 18px; height: 18px; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6)); }
-    .mi-video-dur {
-      position: absolute; right: 4px; bottom: 3px; font-size: 9px; font-weight: 600;
-      background: rgba(0,0,0,0.75); color: #fff; padding: 1px 4px; border-radius: 4px;
-    }
     .mi-video-body { flex: 1; min-width: 0; }
     .mi-video-title { font-size: 12.5px; font-weight: 600; color: var(--mc-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .mi-video-meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 10.5px; color: var(--mc-text-muted); }
-    .mi-video-meta svg { width: 10px; height: 10px; color: #ff0033; flex-shrink: 0; }
-    .mi-video-date { font-size: 10px; color: var(--mc-text-muted); margin-top: 1px; }
+    .mi-video-date { font-size: 10.5px; color: var(--mc-text-muted); margin-top: 1px; }
     .mi-video-status {
       flex-shrink: 0; font-size: 9.5px; font-weight: 700; padding: 2px 9px; border-radius: 20px;
       border: 1px solid rgba(52,211,153,0.35); color: #34d399; background: rgba(52,211,153,0.08);
       text-transform: capitalize;
     }
-
-    /* ── Monetization Status™ ───────────────────────────────────────── */
-    .mi-mon-card { align-items: center; text-align: center; }
-    .mi-mon-ring-wrap { position: relative; width: 84px; height: 84px; margin: 2px 0 8px; }
-    .mi-mon-ring-svg { width: 84px; height: 84px; transform: rotate(-90deg); }
-    .mi-mon-ring-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 7; }
-    .mi-mon-ring-progress { fill: none; stroke: #34d399; stroke-width: 7; stroke-linecap: round; stroke-dasharray: 251; stroke-dashoffset: 251; transition: stroke-dashoffset 1s ease; }
-    .mi-mon-ring-center {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      font-size: 24px; font-weight: 700; color: #34d399;
-    }
-    .mi-mon-label { font-size: 14px; font-weight: 700; color: var(--mc-text-primary); margin-bottom: 3px; }
-    .mi-mon-desc { font-size: 11px; color: var(--mc-text-muted); margin-bottom: 10px; line-height: 1.35; }
-    .mi-mon-checklist { width: 100%; display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-    .mi-mon-check-row { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: var(--mc-text-secondary); }
-    .mi-mon-check-icon { width: 15px; height: 15px; color: #34d399; flex-shrink: 0; }
-    .mi-mon-details-btn {
-      width: 100%; padding: 8px; border-radius: 9px; border: 1px solid var(--mc-border-warm);
-      background: transparent; color: var(--mc-gold); font-size: 11.5px; font-weight: 600; cursor: pointer;
-      transition: background 0.15s ease;
-    }
-    .mi-mon-details-btn:hover { background: var(--mc-gold-soft); }
 
     /* ── Missing Video Opportunities™ (expandable list) ───────────────── */
     .mi-opp-list { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; max-height: 254px; }
@@ -245,11 +204,12 @@
   </style>
   <script>
   /* DEV FIXTURE — localhost OR ?dev=1 (mirrors the established pattern in
-   * global-music-footprint.html / catalog-intelligence.html). Media
-   * Intelligence™ is a UI-shell phase per Board Implementation Brief v1.0 --
-   * mediaIntelligence is NOT yet an official buildWorkspaceRuntimeContext()
-   * output field, so outside this dev fixture the workspace correctly shows
-   * "No Scan Loaded" (no real pipeline populates this domain yet). */
+   * global-music-footprint.html / catalog-intelligence.html). Matches the
+   * REAL assembleMediaIntelligence() output shape (api/_lib/
+   * media-intelligence.js) exactly -- this is the same shape a real scan's
+   * cim.media produces via runtime-context-mapper.js, not a hand-designed
+   * mockup shape. Board directive 2026-07-22 (Media Intelligence™
+   * Implementation authorization). */
   (function () {
     var isLocal  = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     var devParam = new URLSearchParams(location.search).get('dev') === '1';
@@ -268,50 +228,67 @@
     };
 
     base.mediaIntelligence = {
-      subscribers: 125400,
-      subscribersDeltaPct: 8.2,
-      channelViews: 3200000,
-      channelViewsDeltaPct: 12.7,
-      totalVideos: 48,
-      totalVideosDelta: 4,
-      platformsDetected: ['youtube', 'appleMusic', 'spotify'],
-      missingOpportunitiesCount: 5,
-      officialArtistChannel: true,
-      publicVideos: 44,
-      latestUploadAt: '2026-06-10T00:00:00.000Z',
-      videos: [
-        { title: 'Freedom',                  type: 'Official Music Video', platform: 'youtube', releaseDate: '2026-06-10', status: 'Published', durationSec: 201, thumbnail: null },
-        { title: 'Freedom (Lyric Video)',     type: 'Lyric Video',          platform: 'youtube', releaseDate: '2026-06-10', status: 'Published', durationSec: 178, thumbnail: null },
-        { title: 'Freedom (Live Performance)',type: 'Live Performance',     platform: 'youtube', releaseDate: '2026-05-28', status: 'Published', durationSec: 252, thumbnail: null },
-        { title: 'Behind The Scenes — Freedom',type: 'Behind the Scenes',   platform: 'youtube', releaseDate: '2026-05-20', status: 'Published', durationSec: 154, thumbnail: null },
-        { title: 'Freedom (Shorts)',          type: 'YouTube Shorts',       platform: 'youtube', releaseDate: '2026-05-10', status: 'Published', durationSec: 31,  thumbnail: null },
-      ],
-      monetization: {
-        status: 'Ready',
-        summary: 'Your channel meets the requirements for monetization.',
-        readinessPct: 100,
-        checklist: [
-          { label: 'Official Channel',      met: true },
-          { label: 'Public',                met: true },
-          { label: 'Linked to Releases',     met: true },
-          { label: 'Rights Information Present', met: true },
-          { label: 'Metadata Complete',      met: true },
+      _version: '1.0.0',
+      generatedAt: new Date().toISOString(),
+      available: true,
+      platformCoverage: {
+        platforms: [
+          { key: 'youtube', label: 'YouTube', present: true },
+          { key: 'appleMusic', label: 'Apple Music', present: true },
+          { key: 'audiodb', label: 'TheAudioDB', present: false },
+        ],
+        coveredCount: 2, totalPlatforms: 3, coveragePercent: 67,
+      },
+      assetCompleteness: {
+        slots: [
+          { provider: 'YouTube', label: 'Channel Thumbnail', present: true },
+          { provider: 'YouTube', label: 'Channel Banner', present: true },
+          { provider: 'Apple Music', label: 'Artist Artwork', present: true },
+          { provider: 'TheAudioDB', label: 'Thumbnail', present: false },
+          { provider: 'TheAudioDB', label: 'Logo', present: false },
+          { provider: 'TheAudioDB', label: 'Clearart', present: false },
+          { provider: 'TheAudioDB', label: 'Banner', present: false },
+          { provider: 'TheAudioDB', label: 'Fan Art', present: false },
+        ],
+        presentCount: 3, totalSlots: 8, completenessPercent: 38,
+        missingAssets: [
+          { provider: 'TheAudioDB', asset: 'Thumbnail' }, { provider: 'TheAudioDB', asset: 'Logo' },
+          { provider: 'TheAudioDB', asset: 'Clearart' }, { provider: 'TheAudioDB', asset: 'Banner' },
+          { provider: 'TheAudioDB', asset: 'Fan Art' },
         ],
       },
-      opportunities: [
-        { title: 'Official Music Video', description: 'Your latest single "Take It All" does not have an official music video.', priority: 'High' },
-        { title: 'Lyric Video',          description: '2 singles are missing lyric videos.', priority: 'High' },
-        { title: 'Shorts Content',       description: 'No short-form content detected for recent releases.', priority: 'Medium' },
-        { title: 'Live Performance',     description: 'No live performance video for recent releases.', priority: 'Medium' },
-        { title: 'Behind-The-Scenes',    description: 'No behind-the-scenes content for recent releases.', priority: 'Low' },
-      ],
-      athenaInsights: [
-        'Your newest single "Take It All" does not have a lyric video.',
-        'Three releases are missing short-form content.',
-        'Apple Music video detected for 2 of your 5 latest singles.',
-        'Your last upload was 6 days ago. Consistent uploads grow channels.',
-        'Your channel has grown 8.2% in subscribers over the last 30 days.',
-      ],
+      contentActivity: {
+        status: 'Slowing', latestUploadAt: '2026-06-10T00:00:00.000Z', daysSinceLastUpload: 42,
+        reason: 'Last real upload was 42 days ago.',
+      },
+      digitalPresence: {
+        links: [
+          { platform: 'Website', present: true, url: 'https://blackalternative.example.com' },
+          { platform: 'Facebook', present: false, url: null },
+        ],
+        presentCount: 1, totalLinks: 2,
+      },
+      catalogMediaSupport: {
+        releases: [
+          { id: 'a1', name: 'Freedom', releaseDate: '2026-06-10', supported: true },
+          { id: 'a2', name: 'Take It All', releaseDate: '2026-03-01', supported: false },
+          { id: 'a3', name: 'Solstice', releaseDate: '2025-11-14', supported: false },
+        ],
+        supportedCount: 1, totalReleases: 3,
+        unsupportedReleases: [
+          { id: 'a2', name: 'Take It All', releaseDate: '2026-03-01', supported: false },
+          { id: 'a3', name: 'Solstice', releaseDate: '2025-11-14', supported: false },
+        ],
+      },
+      audienceReach: {
+        platforms: [
+          { platform: 'YouTube', metric: 'Subscribers', value: 125400 },
+          { platform: 'YouTube', metric: 'Views', value: 3200000 },
+          { platform: 'Spotify', metric: 'Followers', value: 45000 },
+          { platform: 'Deezer', metric: 'Fans', value: 12000 },
+          { platform: 'Last.fm', metric: 'Listeners', value: 8000 },
+        ],
+      },
     };
 
     sessionStorage.setItem('royalte_workspace_context', JSON.stringify(base));
@@ -468,116 +445,110 @@
           </div>
         </div>
 
-        <!-- § 2 — EXECUTIVE KPI ROW ────────────────────────────────── -->
+        <!-- § 2 — EXECUTIVE KPI ROW ────────────────────────────────────────
+             Board directive 2026-07-22 (Media Intelligence™ Implementation
+             authorization) — the 8 Board-approved KPI cards from
+             governance/MEDIA_INTELLIGENCE_KPI_DISCOVERY.md replace the
+             earlier mockup's cards (Subscribers/Views/Monetization/Official
+             Channel/video-type breakdown), none of which had real evidence
+             behind them (governance/MEDIA_INTELLIGENCE_EVIDENCE_AUDIT.md).
+             5 KPI-row cards below; the remaining 3 (Catalog Media Support™
+             detail, Unsupported Releases™, Missing Media Assets™) are the
+             list-style cards in §3/§4. -->
         <div class="mi-kpi-row" id="mi-kpi-row" data-mi-state="loading">
 
           <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--orange">Subscribers</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-profile"></use></svg>
-            </div>
-            <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-subscribers">—</span></div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--amber" id="mi-subscribers-delta">—</div>
-            <div class="ii-kpi-caption" id="mi-subscribers-caption">vs prior period</div>
-          </div>
-
-          <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--orange">Channel Views</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-eye"></use></svg>
-            </div>
-            <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-views">—</span></div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--amber" id="mi-views-delta">—</div>
-            <div class="ii-kpi-caption">vs prior period</div>
-          </div>
-
-          <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--orange">Total Videos</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-youtube"></use></svg>
-            </div>
-            <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-total-videos">—</span></div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--amber" id="mi-total-videos-delta">—</div>
-            <div class="ii-kpi-caption">Official Uploads</div>
-          </div>
-
-          <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--orange">Platforms Detected</div>
+            <div class="hi-kpi-label hi-kpi-label--orange">Media Platform Coverage™</div>
             <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
               <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
             </div>
-            <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-platforms">—</span></div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--amber">Connected Platforms</div>
+            <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-coverage-num">—</span></div>
+            <div class="ii-kpi-status-text ii-kpi-status-text--amber" id="mi-coverage-status">—</div>
             <div class="mi-platform-list" id="mi-platform-list"></div>
           </div>
 
-          <div class="hi-kpi-card hi-kpi-card--risk">
-            <div class="hi-kpi-label hi-kpi-label--orange">Missing Video Opportunities™</div>
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--orange">Media Asset Completeness™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-verified"></use></svg>
+            </div>
+            <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-assets-num">—</span></div>
+            <div class="ii-kpi-status-text ii-kpi-status-text--amber" id="mi-assets-status">—</div>
+            <div class="ii-kpi-caption" id="mi-assets-caption">&nbsp;</div>
+          </div>
+
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--orange">Content Activity Status™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg>
+            </div>
+            <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-activity-num">—</span></div>
+            <div class="ii-kpi-status-text ii-kpi-status-text--amber" id="mi-activity-status">—</div>
+            <div class="ii-kpi-caption" id="mi-activity-caption">&nbsp;</div>
+          </div>
+
+          <div class="hi-kpi-card">
+            <div class="hi-kpi-label hi-kpi-label--orange">Digital Presence™</div>
+            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--orange" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-profile"></use></svg>
+            </div>
+            <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-presence-num">—</span></div>
+            <div class="ii-kpi-status-text ii-kpi-status-text--amber" id="mi-presence-status">—</div>
+            <div class="ii-kpi-caption" id="mi-presence-caption">&nbsp;</div>
+          </div>
+
+          <div class="hi-kpi-card hi-kpi-card--risk" id="mi-catalog-kpi">
+            <div class="hi-kpi-label hi-kpi-label--orange">Catalog Media Support™</div>
             <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--crimson" aria-hidden="true">
               <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-warning"></use></svg>
             </div>
-            <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-opp-count" style="color:#f05060;">—</span></div>
-            <div class="ii-kpi-status-text" style="color:#f05060;">Action Required</div>
-            <div class="ii-kpi-caption">&nbsp;</div>
+            <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="mi-catalog-num">—</span></div>
+            <div class="ii-kpi-status-text" id="mi-catalog-status">—</div>
+            <div class="ii-kpi-caption" id="mi-catalog-caption">&nbsp;</div>
           </div>
 
         </div>
 
-        <!-- § 3 — SECOND ROW: LATEST RELEASES / MONETIZATION / MISSING OPPS -->
+        <!-- § 3 — SECOND ROW: CATALOG MEDIA SUPPORT DETAIL / AUDIENCE REACH / UNSUPPORTED RELEASES -->
         <div class="mi-row-2">
 
           <div class="mi-card">
             <div class="mi-card-header">
-              <div class="mi-card-title">Latest Video Releases™</div>
-              <a class="mi-card-link" href="#">View All</a>
+              <div class="mi-card-title">Catalog Media Support™</div>
             </div>
-            <div class="mi-video-list" id="mi-video-list" data-mi-state="loading"></div>
-          </div>
-
-          <div class="mi-card mi-mon-card">
-            <div class="mi-card-header" style="width:100%;">
-              <div class="mi-card-title">Monetization Status™</div>
-            </div>
-            <div class="mi-mon-ring-wrap">
-              <svg class="mi-mon-ring-svg" viewBox="0 0 116 116">
-                <circle class="mi-mon-ring-track" cx="58" cy="58" r="40"/>
-                <circle class="mi-mon-ring-progress" cx="58" cy="58" r="40" id="mi-mon-ring-arc"/>
-              </svg>
-              <div class="mi-mon-ring-center">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              </div>
-            </div>
-            <div class="mi-mon-label" id="mi-mon-status">—</div>
-            <div class="mi-mon-desc" id="mi-mon-summary">&nbsp;</div>
-            <div class="mi-mon-checklist" id="mi-mon-checklist"></div>
-            <button class="mi-mon-details-btn" type="button">View Details</button>
+            <div class="mi-video-list" id="mi-catalog-list" data-mi-state="loading"></div>
           </div>
 
           <div class="mi-card">
             <div class="mi-card-header">
-              <div class="mi-card-title">Missing Video Opportunities™</div>
-              <a class="mi-card-link" href="#">View All</a>
+              <div class="mi-card-title">Audience Reach™</div>
             </div>
-            <div class="mi-opp-list" id="mi-opp-list" data-mi-state="loading"></div>
+            <div class="mi-perf-grid" id="mi-audience-grid" data-mi-state="loading"></div>
+          </div>
+
+          <div class="mi-card">
+            <div class="mi-card-header">
+              <div class="mi-card-title">Unsupported Releases™</div>
+            </div>
+            <div class="mi-opp-list" id="mi-unsupported-list" data-mi-state="loading"></div>
           </div>
 
         </div>
 
-        <!-- § 4 — THIRD ROW: PERFORMANCE SUMMARY / ATHENA MEDIA INSIGHTS -->
+        <!-- § 4 — THIRD ROW: MISSING MEDIA ASSETS / ATHENA MEDIA INSIGHTS -->
         <div class="mi-row-3">
 
           <div class="mi-card">
             <div class="mi-card-header">
-              <div class="mi-card-title">Video Performance Summary™</div>
+              <div class="mi-card-title">Missing Media Assets™</div>
             </div>
-            <div class="mi-perf-grid" id="mi-perf-grid" data-mi-state="loading"></div>
+            <div class="mi-opp-list" id="mi-missing-assets-list" data-mi-state="loading"></div>
           </div>
 
           <div class="mi-card mi-athena-card">
             <div class="mi-athena-glow" aria-hidden="true"></div>
             <div class="mi-card-header" style="position:relative;z-index:1;">
               <div class="mi-card-title">ATHENA Media Insights™</div>
-              <a class="mi-card-link" href="#">View All</a>
             </div>
             <div class="mi-athena-list" id="mi-athena-list" data-mi-state="loading"></div>
           </div>
@@ -605,11 +576,6 @@
     if (n >= 1000)    return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return String(n);
   }
-  function fmtDelta(pct) {
-    if (pct == null) return '—';
-    var arrow = pct >= 0 ? '▲' : '▼';
-    return arrow + ' ' + Math.abs(pct).toFixed(1) + '%';
-  }
   function fmtDate(iso) {
     if (!iso) return '';
     try {
@@ -617,117 +583,112 @@
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     } catch (e) { return ''; }
   }
-  function fmtDuration(sec) {
-    if (sec == null) return '';
-    var m = Math.floor(sec / 60), s = sec % 60;
-    return m + ':' + (s < 10 ? '0' : '') + s;
-  }
-  function daysAgo(iso) {
-    if (!iso) return null;
-    var diff = Date.now() - new Date(iso).getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24));
-  }
-  var PLATFORM_LABEL = { youtube: 'YouTube', appleMusic: 'Apple Music', spotify: 'Spotify' };
 
-  /* Platforms Detected™ — one entry per supported source. Add a future
-   * platform (TikTok, Instagram, VEVO, etc.) by adding one line here and
-   * one .mi-platform-dot--<key> color rule in <style> — no other change
-   * needed anywhere in this card or its renderer. */
+  /* Media Platform Coverage™ — one row per reviewed platform, colored by
+   * real presence, not a static "detected" list. */
   var PLATFORM_META = {
-    youtube:    { label: 'YouTube',     dot: 'youtube' },
-    appleMusic: { label: 'Apple Music', dot: 'appleMusic' },
-    spotify:    { label: 'Spotify',     dot: 'spotify' },
+    youtube:    { dot: 'youtube' },
+    appleMusic: { dot: 'appleMusic' },
+    audiodb:    { dot: 'spotify' }, // reuses the existing green dot style; TheAudioDB has no brand-color rule yet
   };
   function renderPlatformList(platforms) {
     return platforms.map(function (p) {
-      var meta = PLATFORM_META[p] || { label: p, dot: '' };
-      return '<div class="mi-platform-row"><span class="mi-platform-dot mi-platform-dot--' + esc(meta.dot) + '" aria-hidden="true"></span>' + esc(meta.label) + '</div>';
+      var meta = PLATFORM_META[p.key] || { dot: '' };
+      var style = p.present ? '' : 'opacity:0.4';
+      return '<div class="mi-platform-row" style="' + style + '"><span class="mi-platform-dot mi-platform-dot--' + esc(meta.dot) + '" aria-hidden="true"></span>' + esc(p.label) + (p.present ? '' : ' — not found') + '</div>';
     }).join('');
   }
 
-  var YT_ICON = '<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-youtube"></use></svg>';
-  var PLAY_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
-  var WARN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>';
-  var LYRIC_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
-  var CAM_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-4v12l-6-4"/></svg>';
-  var MIC_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>';
   var SPARK_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z"/></svg>';
+  var WARN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>';
+  var IMG_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
 
-  var OPP_ICON = { 'Official Music Video': CAM_ICON, 'Lyric Video': LYRIC_ICON, 'Shorts Content': PLAY_ICON, 'Live Performance': MIC_ICON, 'Behind-The-Scenes': CAM_ICON };
-
-  function renderVideos(videos) {
-    return videos.map(function (v) {
+  // Catalog Media Support™ — per-release list, supported/not-supported only
+  // (no video-type breakdown -- no real evidence supports that classification).
+  function renderCatalogList(releases) {
+    if (!releases.length) return '<div style="font-size:12px;color:var(--mc-text-muted);padding:6px 2px;">No real release data available from reviewed sources.</div>';
+    return releases.map(function (r) {
+      var statusClass = r.supported ? '' : 'style="border-color:rgba(240,80,96,0.35);color:#f05060;background:rgba(240,80,96,0.08);"';
       return '<div class="mi-video-card">'
-        + '<div class="mi-video-thumb">' + (v.thumbnail ? '<img src="' + esc(v.thumbnail) + '" alt="">' : '') + '<span class="mi-video-thumb-play">' + PLAY_ICON.replace('<svg ', '<svg width="16" height="16" ') + '</span>'
-        + (v.durationSec != null ? '<span class="mi-video-dur">' + fmtDuration(v.durationSec) + '</span>' : '')
-        + '</div>'
         + '<div class="mi-video-body">'
-        +   '<div class="mi-video-title">' + esc(v.title) + '</div>'
-        +   '<div class="mi-video-meta">' + YT_ICON.replace('<svg ', '<svg width="11" height="11" ') + '<span>' + esc(v.type) + '</span></div>'
-        +   '<div class="mi-video-date">' + esc(PLATFORM_LABEL[v.platform] || v.platform) + ' · ' + fmtDate(v.releaseDate) + '</div>'
+        +   '<div class="mi-video-title">' + esc(r.name || 'Untitled Release') + '</div>'
+        +   '<div class="mi-video-date">' + fmtDate(r.releaseDate) + '</div>'
         + '</div>'
-        + '<div class="mi-video-status">' + esc(v.status) + '</div>'
+        + '<div class="mi-video-status" ' + statusClass + '>' + (r.supported ? 'Video Support' : 'No Video Found') + '</div>'
         + '</div>';
     }).join('');
   }
 
-  function renderChecklist(items) {
-    return items.map(function (c) {
-      return '<div class="mi-mon-check-row"><span>' + esc(c.label) + '</span>'
-        + (c.met
-          ? '<svg class="mi-mon-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>'
-          : '<svg class="mi-mon-check-icon" style="color:#f05060" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>')
-        + '</div>';
-    }).join('');
-  }
-
-  function renderOpportunities(opps) {
-    return opps.map(function (o) {
-      var pClass = o.priority.toLowerCase();
-      return '<div class="mi-opp-row" role="button" tabindex="0">'
-        + '<div class="mi-opp-icon mi-opp-icon--' + pClass + '">' + (OPP_ICON[o.title] || WARN_ICON) + '</div>'
-        + '<div class="mi-opp-body">'
-        +   '<div class="mi-opp-title">' + esc(o.title) + '</div>'
-        +   '<div class="mi-opp-desc">' + esc(o.description) + '</div>'
-        + '</div>'
-        + '<div class="mi-opp-priority mi-opp-priority--' + pClass + '">' + esc(o.priority) + '</div>'
-        + '</div>';
-    }).join('');
-  }
-
-  function renderPerfGrid(mi) {
-    var stats = [
-      { icon: 'royalte-profile',     val: fmtCompact(mi.subscribers),  delta: fmtDelta(mi.subscribersDeltaPct), label: 'Subscribers' },
-      { icon: 'royalte-eye',         val: fmtCompact(mi.channelViews), delta: fmtDelta(mi.channelViewsDeltaPct),label: 'Channel Views' },
-      { icon: 'royalte-youtube',     val: String(mi.totalVideos != null ? mi.totalVideos : '—'), delta: (mi.totalVideosDelta != null ? '▲ ' + mi.totalVideosDelta : ''), label: 'Total Videos' },
-      { icon: 'royalte-verified',    val: String(mi.publicVideos != null ? mi.publicVideos : '—'), delta: '', label: 'Public Videos' },
-      { icon: 'royalte-check-circle',val: mi.officialArtistChannel ? 'Yes' : 'No', delta: '', label: 'Official Artist Channel', sub: true },
-      { icon: 'royalte-clock',       val: fmtDate(mi.latestUploadAt), delta: (daysAgo(mi.latestUploadAt) != null ? daysAgo(mi.latestUploadAt) + ' days ago' : ''), label: 'Latest Upload', sub: true },
-    ];
-    return stats.map(function (s) {
+  function renderAudienceGrid(platforms) {
+    if (!platforms.length) return '<div style="font-size:12px;color:var(--mc-text-muted);grid-column:1/-1;">No real audience data available from reviewed sources.</div>';
+    return platforms.map(function (p) {
       return '<div class="mi-perf-stat">'
-        + '<div class="mi-perf-icon-wrap"><svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#' + s.icon + '"></use></svg></div>'
-        + '<div class="mi-perf-val' + (s.sub ? ' mi-perf-val--sub' : '') + '">' + esc(s.val) + '</div>'
-        + (s.delta ? '<div class="mi-perf-delta">' + esc(s.delta) + '</div>' : '')
-        + '<div class="mi-perf-label">' + esc(s.label) + '</div>'
+        + '<div class="mi-perf-icon-wrap"><svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-profile"></use></svg></div>'
+        + '<div class="mi-perf-val">' + esc(fmtCompact(p.value)) + '</div>'
+        + '<div class="mi-perf-label">' + esc(p.platform) + ' ' + esc(p.metric) + '</div>'
         + '</div>';
     }).join('');
   }
 
+  // Unsupported Releases™ / Missing Media Assets™ — same list-row pattern,
+  // no priority tiering (no real evidence supports ranking one gap above
+  // another beyond what Catalog Media Support™'s own KPI already conveys).
+  function renderSimpleList(items, iconHtml, titleFn, descFn) {
+    if (!items.length) return '<div style="font-size:12px;color:var(--mc-text-muted);padding:6px 2px;">None found — full coverage from reviewed sources.</div>';
+    return items.map(function (it) {
+      return '<div class="mi-opp-row">'
+        + '<div class="mi-opp-icon mi-opp-icon--medium">' + iconHtml + '</div>'
+        + '<div class="mi-opp-body">'
+        +   '<div class="mi-opp-title">' + esc(titleFn(it)) + '</div>'
+        +   '<div class="mi-opp-desc">' + esc(descFn(it)) + '</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  // ATHENA Media Insights™ — deterministic sentence templates from real
+  // fields only (same pattern as Global Music Footprint™'s ATHENA Insight™
+  // card: not the real ATHENA engine, no fabricated numbers).
+  function buildAthenaInsights(mi) {
+    var out = [];
+    var pc = mi.platformCoverage || {};
+    if (pc.totalPlatforms) {
+      out.push('Confirmed media presence on ' + pc.coveredCount + ' of ' + pc.totalPlatforms + ' reviewed platforms.');
+    }
+    var ca = mi.contentActivity || {};
+    if (ca.reason) out.push(ca.reason + (ca.status ? ' Content activity is currently classified as ' + ca.status + '.' : ''));
+    var cms = mi.catalogMediaSupport || {};
+    if (cms.unsupportedReleases && cms.unsupportedReleases.length > 0) {
+      var top = cms.unsupportedReleases[0];
+      out.push('"' + (top.name || 'Your latest release') + '" has no video support found across reviewed platforms.'
+        + (cms.unsupportedReleases.length > 1 ? ' ' + (cms.unsupportedReleases.length - 1) + ' additional release(s) are also unsupported.' : ''));
+    } else if (cms.totalReleases > 0) {
+      out.push('All ' + cms.totalReleases + ' reviewed releases have video support.');
+    }
+    var dp = mi.digitalPresence || {};
+    if (dp.totalLinks && dp.presentCount < dp.totalLinks) {
+      var missingLinks = (dp.links || []).filter(function (l) { return !l.present; }).map(function (l) { return l.platform; });
+      out.push(missingLinks.join(' and ') + ' link not found in reviewed sources.');
+    }
+    return out;
+  }
   function renderAthena(items) {
+    if (!items.length) return '<div style="font-size:12px;color:var(--mc-text-muted);">No real insight available yet from reviewed sources.</div>';
     return items.map(function (t) {
       return '<div class="mi-athena-item"><span class="mi-athena-spark">' + SPARK_ICON + '</span><span class="mi-athena-text">' + esc(t) + '</span></div>';
     }).join('');
   }
 
-  /* ── Media Intelligence™ — Runtime Renderer v1.0 (UI shell phase) ────────
-   * Input:  royalte_workspace_context.mediaIntelligence (dev-fixture only
-   *         during this phase — see Board Implementation Brief v1.0).
-   * Output: Rendered HTML. Never queries storage or renders demo data
-   *         outside the dev fixture — a production scan without this
-   *         domain correctly shows the standard "No Scan Loaded" overlay,
-   *         per the Board-locked Runtime Context Contract (workspaces
-   *         treat all non-'valid' states identically).
+  /* ── Media Intelligence™ — Runtime Renderer v1.0 ─────────────────────────
+   * Input:  royalte_workspace_context.mediaIntelligence — real cim.media
+   *         output (api/_lib/media-intelligence.js) via
+   *         runtime-context-mapper.js, or the matching dev fixture above.
+   *         Board directive 2026-07-22 (Media Intelligence™ Implementation
+   *         authorization) — the 8 cards from governance/
+   *         MEDIA_INTELLIGENCE_KPI_DISCOVERY.md, evidence-first throughout.
+   * Output: Rendered HTML. A production scan without this domain correctly
+   *         shows the standard "No Scan Loaded" overlay, per the
+   *         Board-locked Runtime Context Contract.
    */
   var _result = window.RoyalteContext
     ? window.RoyalteContext.readWorkspaceContext({ contract: 'media-intelligence' })
@@ -740,49 +701,67 @@
   var ctx = _result.ctx;
   var _body = document.querySelector('.ws-body');
   if (_body) _body.style.opacity = '1';
-  // Runtime Context Audit (Board directive, 2026-07-21): mediaIntelligence
-  // is now an optional domain (see mc-workspace-context.js's contract) --
-  // a valid, active scan may legitimately not have it yet. Defaulting to
-  // {} here, rather than requiring the domain to reach this line at all,
-  // means every render* call below (all already written defensively,
-  // e.g. `mi.videos || []`, fmtCompact/fmtDelta returning '—' for null)
-  // renders its correct empty state with zero new/duplicated logic --
-  // this is the exact same rendering path a populated scan uses.
+  // mediaIntelligence is an optional domain (mc-workspace-context.js) -- a
+  // valid, active scan may legitimately not have it yet (no video/social
+  // evidence for this artist). Defaulting every nested object to {} below
+  // renders the correct empty state with zero duplicated logic.
   var mi = ctx.mediaIntelligence || {};
 
-  document.getElementById('mi-subscribers').textContent = fmtCompact(mi.subscribers);
-  document.getElementById('mi-subscribers-delta').textContent = fmtDelta(mi.subscribersDeltaPct);
-  document.getElementById('mi-views').textContent = fmtCompact(mi.channelViews);
-  document.getElementById('mi-views-delta').textContent = fmtDelta(mi.channelViewsDeltaPct);
-  document.getElementById('mi-total-videos').textContent = mi.totalVideos != null ? mi.totalVideos : '—';
-  document.getElementById('mi-total-videos-delta').textContent = mi.totalVideosDelta != null ? ('▲ ' + mi.totalVideosDelta) : '—';
-  document.getElementById('mi-platforms').textContent = (mi.platformsDetected || []).length;
-  document.getElementById('mi-platform-list').innerHTML = renderPlatformList(mi.platformsDetected || []);
-  document.getElementById('mi-opp-count').textContent = mi.missingOpportunitiesCount != null ? mi.missingOpportunitiesCount : (mi.opportunities || []).length;
+  var pc  = mi.platformCoverage    || { platforms: [], coveredCount: 0, totalPlatforms: 0, coveragePercent: 0 };
+  var ac  = mi.assetCompleteness   || { slots: [], presentCount: 0, totalSlots: 0, completenessPercent: 0, missingAssets: [] };
+  var ca  = mi.contentActivity     || { status: 'Unknown', daysSinceLastUpload: null, reason: 'No real upload data available.' };
+  var dp  = mi.digitalPresence     || { links: [], presentCount: 0, totalLinks: 0 };
+  var cms = mi.catalogMediaSupport || { releases: [], supportedCount: 0, totalReleases: 0, unsupportedReleases: [] };
+  var ar  = mi.audienceReach       || { platforms: [] };
+
+  document.getElementById('mi-coverage-num').textContent = pc.coveredCount + '/' + pc.totalPlatforms;
+  document.getElementById('mi-coverage-status').textContent = pc.coveragePercent + '% covered';
+  document.getElementById('mi-platform-list').innerHTML = renderPlatformList(pc.platforms);
+
+  document.getElementById('mi-assets-num').textContent = ac.completenessPercent + '%';
+  document.getElementById('mi-assets-status').textContent = ac.presentCount + ' of ' + ac.totalSlots + ' assets present';
+  document.getElementById('mi-assets-caption').textContent = ' ';
+
+  document.getElementById('mi-activity-num').textContent = ca.status;
+  document.getElementById('mi-activity-status').textContent = ca.daysSinceLastUpload != null ? (ca.daysSinceLastUpload + ' days since last upload') : '—';
+  document.getElementById('mi-activity-caption').textContent = ' ';
+
+  document.getElementById('mi-presence-num').textContent = dp.presentCount + '/' + dp.totalLinks;
+  document.getElementById('mi-presence-status').textContent = dp.totalLinks ? (dp.presentCount === dp.totalLinks ? 'Fully discoverable' : 'Partially discoverable') : '—';
+  document.getElementById('mi-presence-caption').textContent = ' ';
+
+  var catalogKpi = document.getElementById('mi-catalog-kpi');
+  document.getElementById('mi-catalog-num').textContent = cms.supportedCount + '/' + cms.totalReleases;
+  var catalogOk = cms.totalReleases > 0 && cms.unsupportedReleases.length === 0;
+  document.getElementById('mi-catalog-status').style.color = catalogOk ? '#34d399' : '#f05060';
+  document.getElementById('mi-catalog-status').textContent = catalogOk ? 'Full Coverage' : (cms.totalReleases ? 'Action Required' : 'No Data');
+  if (catalogKpi) catalogKpi.classList.toggle('hi-kpi-card--risk', !catalogOk);
+  document.getElementById('mi-catalog-caption').textContent = ' ';
+
   document.getElementById('mi-kpi-row').removeAttribute('data-mi-state');
 
-  var vList = document.getElementById('mi-video-list');
-  vList.innerHTML = renderVideos(mi.videos || []);
-  vList.removeAttribute('data-mi-state');
+  var catalogList = document.getElementById('mi-catalog-list');
+  catalogList.innerHTML = renderCatalogList(cms.releases);
+  catalogList.removeAttribute('data-mi-state');
 
-  var mon = mi.monetization || {};
-  document.getElementById('mi-mon-status').textContent = mon.status || '—';
-  document.getElementById('mi-mon-summary').textContent = mon.summary || '';
-  document.getElementById('mi-mon-checklist').innerHTML = renderChecklist(mon.checklist || []);
-  var monArc = document.getElementById('mi-mon-ring-arc');
-  var monPct = mon.readinessPct != null ? mon.readinessPct : 0;
-  if (monArc) monArc.style.strokeDashoffset = String(251 * (1 - monPct / 100));
+  var audienceGrid = document.getElementById('mi-audience-grid');
+  audienceGrid.innerHTML = renderAudienceGrid(ar.platforms);
+  audienceGrid.removeAttribute('data-mi-state');
 
-  var oppList = document.getElementById('mi-opp-list');
-  oppList.innerHTML = renderOpportunities(mi.opportunities || []);
-  oppList.removeAttribute('data-mi-state');
+  var unsupportedList = document.getElementById('mi-unsupported-list');
+  unsupportedList.innerHTML = renderSimpleList(cms.unsupportedReleases, WARN_ICON,
+    function (r) { return r.name || 'Untitled Release'; },
+    function (r) { return 'Released ' + fmtDate(r.releaseDate) + ' — no video support found across reviewed platforms.'; });
+  unsupportedList.removeAttribute('data-mi-state');
 
-  var perfGrid = document.getElementById('mi-perf-grid');
-  perfGrid.innerHTML = renderPerfGrid(mi);
-  perfGrid.removeAttribute('data-mi-state');
+  var missingAssetsList = document.getElementById('mi-missing-assets-list');
+  missingAssetsList.innerHTML = renderSimpleList(ac.missingAssets, IMG_ICON,
+    function (a) { return a.provider + ': ' + a.asset; },
+    function () { return 'Consider creating this asset to complete your public brand presentation.'; });
+  missingAssetsList.removeAttribute('data-mi-state');
 
   var athenaList = document.getElementById('mi-athena-list');
-  athenaList.innerHTML = renderAthena(mi.athenaInsights || []);
+  athenaList.innerHTML = renderAthena(buildAthenaInsights(mi));
   athenaList.removeAttribute('data-mi-state');
 
 }());
