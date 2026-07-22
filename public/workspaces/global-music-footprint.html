@@ -9,178 +9,283 @@
   <link rel="stylesheet" href="/css/royalte-workspace.css">
   <link rel="stylesheet" href="/css/gmf-distribution-gaps.css">
 <style>
-/* Constitutional Refactor additions (Board directive, 2026-07-21) --
-   Assessment Source attribution, Territory Statistics™, ATHENA Executive
-   Insight™. Scoped to this workspace; mirrors the existing gf-exec-header /
-   hi-kpi-card visual language rather than introducing new patterns. */
-.gf-assessment-source {
-  flex-shrink: 0;
-  text-align: right;
-  padding-top: 2px;
-}
-.gf-assessment-source-label {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--mc-text-muted);
-  margin-bottom: 3px;
-}
-.gf-assessment-source-value {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--mc-blue);
-}
+/* ─────────────────────────────────────────────────────────────────────
+   Global Music Footprint™ v2.0 — Executive Visual Rebuild
+   Board directive, 2026-07-21. Layout/spacing/hierarchy/glow language
+   modeled on the Board-approved mockup. Every value rendered from this
+   markup is wired to real canonical evidence (see the runtime script) --
+   this stylesheet defines presentation only, no data.
+   ───────────────────────────────────────────────────────────────────── */
 
-.gf-two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 16px;
+.gf2-shell { display: flex; flex-direction: column; gap: 16px; }
+
+/* Header */
+.gf2-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
 }
-.gf-stat-card {
+.gf2-title { font-size: 26px; font-weight: 700; color: var(--mc-text); letter-spacing: -0.01em; }
+.gf2-subtitle { font-size: 13px; color: var(--mc-text-muted); margin-top: 4px; }
+.gf2-header-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.gf2-source-select {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--mc-border-warm, rgba(255,255,255,0.1));
+  border-radius: 10px;
+}
+.gf2-source-icon { width: 16px; height: 16px; color: var(--mc-blue); flex-shrink: 0; }
+.gf2-source-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mc-text-muted); }
+.gf2-source-value { font-size: 12px; font-weight: 600; color: var(--mc-text); }
+.gf2-updated { text-align: right; }
+.gf2-updated-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mc-text-muted); }
+.gf2-updated-value { font-size: 12px; color: var(--mc-text-soft, var(--mc-text)); margin-top: 2px; }
+
+/* KPI row */
+.gf2-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.gf2-kpi-card {
   background: rgba(255,255,255,0.025);
   border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 12px;
-  padding: 20px 22px;
-  display: flex;
-  flex-direction: column;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.gf-stat-card-title {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--mc-text-muted);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 16px;
-}
-.gf-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 12px;
-}
-.gf-stat-item {
-  background: rgba(255,255,255,0.025);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 9px;
-  padding: 10px 8px;
-  text-align: center;
-}
-.gf-stat-num {
-  font-family: 'Space Mono', monospace;
-  font-size: 18px;
-  font-weight: 700;
-  color: #e8e4f4;
-  line-height: 1;
-  margin-bottom: 4px;
-}
-.gf-stat-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--mc-text-muted);
-}
-.gf-stat-footer {
-  font-size: 10.5px;
-  color: rgba(132,128,168,0.55);
-  margin-top: auto;
-}
+.gf2-kpi-card:hover { border-color: rgba(255,255,255,0.14); }
+.gf2-kpi-top { display: flex; align-items: center; justify-content: space-between; }
+.gf2-kpi-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mc-text-muted); }
+.gf2-kpi-icon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.gf2-kpi-icon svg { width: 16px; height: 16px; }
+.gf2-kpi-icon--blue   { background: rgba(56,189,248,0.12); color: var(--mc-blue); }
+.gf2-kpi-icon--red    { background: rgba(248,113,113,0.12); color: #f87171; }
+.gf2-kpi-icon--green  { background: rgba(45,212,191,0.12); color: var(--mc-green); }
+.gf2-kpi-icon--amber  { background: rgba(250,204,21,0.12); color: #facc15; }
+.gf2-kpi-value-row { display: flex; align-items: baseline; gap: 4px; }
+.gf2-kpi-big { font-family: 'Space Mono', monospace; font-size: 30px; font-weight: 700; color: var(--mc-text); line-height: 1; }
+.gf2-kpi-frac { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 600; color: var(--mc-text-muted); }
+.gf2-kpi-bar-track { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; margin-top: 2px; }
+.gf2-kpi-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.gf2-kpi-bar-fill--green { background: var(--mc-green); }
+.gf2-kpi-bar-fill--red   { background: #f87171; }
+.gf2-kpi-bar-fill--amber { background: #facc15; }
+.gf2-kpi-foot-row { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--mc-text-muted); }
+.gf2-kpi-caption { font-size: 11.5px; color: var(--mc-text-muted); margin-top: 2px; }
 
-.gf-athena-body {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
+/* Distribution Health ring card */
+.gf2-health-body { display: flex; align-items: center; gap: 14px; }
+.gf2-health-ring-wrap { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
+.gf2-health-ring-svg { width: 64px; height: 64px; transform: rotate(-90deg); }
+.gf2-health-ring-track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 6; }
+.gf2-health-ring-fill { fill: none; stroke: var(--mc-green); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease; }
+.gf2-health-ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: var(--mc-text); }
+.gf2-health-label { font-size: 15px; font-weight: 700; color: var(--mc-text); }
+.gf2-health-desc { font-size: 11px; color: var(--mc-text-muted); margin-top: 2px; }
+
+/* Map row: map + country intelligence panel */
+.gf2-map-row { display: grid; grid-template-columns: 1fr 300px; gap: 16px; align-items: start; }
+.gf2-map-col { display: flex; flex-direction: column; gap: 12px; }
+.gf2-map-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
 }
-.gf-athena-icon-wrap {
-  width: 36px; height: 36px;
-  border-radius: 9px;
-  background: rgba(56,189,248,0.10);
-  color: var(--mc-blue);
+.gf2-map-host {
+  width: 100%;
+  height: 460px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.gmc-loading, .gmc-error {
+  position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  font-size: 12px; color: var(--mc-text-muted);
 }
-.gf-athena-text {
-  font-size: 13px;
-  line-height: 1.55;
-  color: rgba(220,215,255,0.85);
+.gf2-map-host svg.gmc-svg { width: 100%; height: 100%; display: block; }
+.gmc-territory { fill: var(--gmc-fill, #1c2230); stroke: var(--gmc-stroke, rgba(255,255,255,0.04)); stroke-width: 0.6; transition: opacity 0.2s, filter 0.2s; cursor: default; }
+.gmc-territory--evaluated { cursor: pointer; }
+.gmc-territory--evaluated:hover { filter: brightness(1.25); }
+.gmc-territory--selected { stroke: #fff; stroke-width: 1.4; filter: brightness(1.3); }
+.gf2-map-card--dimmed .gmc-territory--evaluated[data-status="Available"] { opacity: 0.28; }
+.gmc-tooltip {
+  position: absolute; z-index: 20; pointer-events: none;
+  background: rgba(8,10,20,0.95); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px; padding: 8px 12px; font-size: 11.5px;
+  opacity: 0; transition: opacity 0.12s ease; transform: translateY(4px);
 }
+.gmc-tooltip--visible { opacity: 1; }
+.gmc-tooltip-name { font-weight: 700; color: var(--mc-text); margin-bottom: 2px; }
+.gmc-tooltip-status { font-weight: 600; }
+.gmc-tooltip-status--available { color: var(--mc-green); }
+.gmc-tooltip-status--unavailable { color: #f87171; }
+.gmc-tooltip-status--unknown { color: #9ca3af; }
+.gmc-tooltip-status--pending-review { color: #6b7280; }
 
+.gf2-legend { position: absolute; left: 28px; bottom: 28px; z-index: 5; background: rgba(8,10,20,0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px; }
+.gf2-legend-title { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mc-text-muted); margin-bottom: 8px; }
+.gf2-legend-item { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--mc-text-soft, var(--mc-text)); padding: 2px 0; }
+.gf2-legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+.gf2-layer-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.gf2-layer-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mc-text-muted); margin-right: 4px; }
+.gf2-layer-btn {
+  padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03); color: var(--mc-text-muted);
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.gf2-layer-btn:hover { border-color: rgba(255,255,255,0.16); color: var(--mc-text); }
+.gf2-layer-btn--active { background: var(--mc-blue); border-color: var(--mc-blue); color: #06111c; }
+
+/* Country Intelligence Panel */
+.gf2-panel {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex; flex-direction: column; gap: 14px;
+  min-height: 460px;
+  animation: gf2-panel-in 0.25s ease;
+}
+@keyframes gf2-panel-in { from { opacity: 0; transform: translateX(6px); } to { opacity: 1; transform: translateX(0); } }
+.gf2-panel-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; gap: 8px; color: var(--mc-text-muted); font-size: 12.5px; }
+.gf2-panel-header { display: flex; align-items: center; justify-content: space-between; }
+.gf2-panel-country { display: flex; align-items: center; gap: 10px; }
+.gf2-panel-flag { font-size: 22px; }
+.gf2-panel-name { font-size: 16px; font-weight: 700; color: var(--mc-text); }
+.gf2-panel-close { background: none; border: none; color: var(--mc-text-muted); cursor: pointer; font-size: 16px; padding: 2px 6px; }
+.gf2-panel-status-row { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; }
+.gf2-panel-status-dot { width: 8px; height: 8px; border-radius: 50%; }
+.gf2-panel-section-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mc-text-muted); margin-bottom: 8px; margin-top: 4px; }
+.gf2-panel-provider-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 12.5px; color: var(--mc-text-soft, var(--mc-text)); }
+.gf2-panel-provider-row svg { width: 13px; height: 13px; }
+.gf2-panel-field { display: flex; justify-content: space-between; padding: 5px 0; font-size: 11.5px; }
+.gf2-panel-field-label { color: var(--mc-text-muted); }
+.gf2-panel-field-val { color: var(--mc-text-soft, var(--mc-text)); font-weight: 500; text-align: right; max-width: 60%; }
+.gf2-panel-action-box { background: rgba(45,212,191,0.06); border: 1px solid rgba(45,212,191,0.18); border-radius: 9px; padding: 10px 12px; font-size: 11.5px; color: var(--mc-text-soft, var(--mc-text)); }
+.gf2-panel-action-box--attention { background: rgba(250,204,21,0.06); border-color: rgba(250,204,21,0.2); }
+.gf2-panel-summary { font-size: 11.5px; line-height: 1.5; color: var(--mc-text-muted); }
+
+/* Bottom intelligence cards */
+.gf2-bottom-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.gf2-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex; flex-direction: column;
+}
+.gf2-card-title { font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mc-text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
+.gf2-card-title--red { color: #f87171; }
+
+.gf2-provider-bar-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 12px; }
+.gf2-provider-bar-icon { width: 16px; height: 16px; flex-shrink: 0; }
+.gf2-provider-bar-name { width: 76px; flex-shrink: 0; color: var(--mc-text-soft, var(--mc-text)); }
+.gf2-provider-bar-track { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
+.gf2-provider-bar-fill { height: 100%; border-radius: 3px; background: var(--mc-green); }
+.gf2-provider-bar-pct { width: 34px; text-align: right; flex-shrink: 0; color: var(--mc-text-muted); font-size: 11px; }
+.gf2-provider-note { font-size: 10.5px; color: var(--mc-text-muted); margin-top: 10px; font-style: italic; }
+
+.gf2-missing-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px; }
+.gf2-missing-row:last-of-type { border-bottom: none; }
+.gf2-missing-name { display: flex; align-items: center; gap: 8px; color: var(--mc-text-soft, var(--mc-text)); }
+.gf2-missing-flag { font-size: 14px; }
+.gf2-missing-reason { color: var(--mc-text-muted); font-size: 10.5px; max-width: 130px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.gf2-link-btn { margin-top: 12px; background: none; border: none; color: var(--mc-blue); font-size: 11.5px; font-weight: 600; cursor: pointer; text-align: left; padding: 0; display: flex; align-items: center; gap: 4px; }
+.gf2-link-btn:hover { text-decoration: underline; }
+
+.gf2-timeline-onboarding { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; color: var(--mc-text-muted); font-size: 11.5px; padding: 10px 0; }
+.gf2-timeline-onboarding-icon { color: var(--mc-blue); opacity: 0.7; margin-bottom: 4px; }
+.gf2-timeline-fact { font-size: 11px; color: var(--mc-text-soft, var(--mc-text)); margin-top: 8px; }
+
+.gf2-athena-body { display: flex; gap: 12px; align-items: flex-start; }
+.gf2-athena-icon { width: 30px; height: 30px; border-radius: 8px; background: rgba(56,189,248,0.1); color: var(--mc-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.gf2-athena-icon svg { width: 15px; height: 15px; }
+.gf2-athena-text { font-size: 12px; line-height: 1.55; color: var(--mc-text-soft, var(--mc-text)); }
+
+/* Recommended Actions row */
+.gf2-actions-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 18px 20px; }
+.gf2-actions-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.gf2-actions-title { font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mc-text-muted); }
+.gf2-actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.gf2-action-item { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.gf2-action-title { font-size: 12.5px; font-weight: 600; color: var(--mc-text); }
+.gf2-action-meta { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--mc-text-muted); margin-top: 2px; }
+.gf2-action-priority { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
+.gf2-action-priority-dot { width: 6px; height: 6px; border-radius: 50%; }
+.gf2-action-priority--high .gf2-action-priority-dot { background: #f87171; } .gf2-action-priority--high { color: #f87171; }
+.gf2-action-priority--medium .gf2-action-priority-dot { background: #facc15; } .gf2-action-priority--medium { color: #facc15; }
+.gf2-action-priority--low .gf2-action-priority-dot { background: var(--mc-text-muted); } .gf2-action-priority--low { color: var(--mc-text-muted); }
+.gf2-actions-empty { font-size: 12px; color: var(--mc-text-muted); padding: 8px 0; }
+
+@media (max-width: 1200px) {
+  .gf2-map-row { grid-template-columns: 1fr; }
+  .gf2-panel { min-height: 220px; }
+}
 @media (max-width: 1024px) {
-  .gf-two-col { grid-template-columns: 1fr; }
+  .gf2-kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .gf2-bottom-row { grid-template-columns: repeat(2, 1fr); }
+  .gf2-actions-grid { grid-template-columns: repeat(2, 1fr); }
+  .gf2-map-host { height: 360px; }
+}
+@media (max-width: 640px) {
+  .gf2-kpi-row { grid-template-columns: 1fr; }
+  .gf2-bottom-row { grid-template-columns: 1fr; }
+  .gf2-actions-grid { grid-template-columns: 1fr; }
+  .gf2-header { flex-direction: column; }
+  .gf2-header-right { width: 100%; justify-content: space-between; }
+  .gf2-legend { position: static; margin-top: 10px; }
+  .gf2-map-host { height: 280px; }
 }
 </style>
   <script>
-  /* DEV FIXTURE — localhost OR ?dev=1 (Board Directive 2026-07-17: the
-   * Developer Preview must self-seed with no DevTools/sessionStorage
-   * pasting required). Still never runs on production without ?dev=1 —
-   * a normal production visit with no query param gets the real
-   * "No Scan Loaded" state, unchanged.
-   * Seeds royalte_workspace_context so the workspace renders without a real scan.
-   * Does not overwrite a context already written by a real scan session. */
+  /* DEV FIXTURE — localhost OR ?dev=1 (unchanged gating from v1). Mirrors
+   * the real assembleGlobalMusicFootprint() shape exactly (v1.2.0), incl.
+   * the newly-threaded confidence field per Board directive 2026-07-21. */
   (function () {
     var isLocal  = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     var devParam = new URLSearchParams(location.search).get('dev') === '1';
     if (!isLocal && !devParam) return;
     if (sessionStorage.getItem('royalte_workspace_context')) return;
 
-    // Distribution Gaps™ fixture — a representative sample (not all 167
-    // storefronts) spanning every state the real Territory Intelligence
-    // Engine can produce, in the exact shape assembleGlobalMusicFootprint()
-    // produces in production (api/_lib/global-music-footprint.js
-    // buildDistributionGaps()). Counts below are internally consistent with
-    // the territories actually listed, not borrowed from an unrelated total.
     var gapTerritories = [
-      // ── Available (10) — mix of single- and multi-provider evidence to
-      //    demonstrate the provider filter with more than one provider,
-      //    matching the Engine's provider-general reconciliation design
-      //    even though production is Apple-only in Phase 5.2. ──────────────
-      { code: 'us', name: 'United States',  status: 'Available', providers: ['apple_music', 'spotify'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'ca', name: 'Canada',         status: 'Available', providers: ['apple_music', 'spotify'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'gb', name: 'United Kingdom', status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'de', name: 'Germany',        status: 'Available', providers: ['apple_music', 'deezer'],   reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'fr', name: 'France',         status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'au', name: 'Australia',      status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'jp', name: 'Japan',          status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'nl', name: 'Netherlands',    status: 'Available', providers: ['apple_music', 'tidal'],    reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'se', name: 'Sweden',         status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'ie', name: 'Ireland',        status: 'Available', providers: ['apple_music'],             reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-17T09:12:00.000Z' },
-      // ── Unavailable (6) — confirmed-empty catalog probes ────────────────
-      { code: 'br', name: 'Brazil',         status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'mx', name: 'Mexico',         status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'in', name: 'India',          status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'za', name: 'South Africa',   status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'kr', name: 'South Korea',    status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'ng', name: 'Nigeria',        status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-17T09:12:00.000Z' },
-      // ── Unknown (4) — request failures / unrecognized provider responses ─
-      { code: 'it', name: 'Italy',   status: 'Unknown', providers: ['apple_music'], reason: 'Provider request failed during acquisition',     recommendedAction: 'Re-run scan — the provider request failed and can be retried.',   lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'es', name: 'Spain',   status: 'Unknown', providers: ['apple_music'], reason: 'Provider returned an unrecognized response',      recommendedAction: 'Provider response could not be interpreted — re-verify manually.', lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'pl', name: 'Poland',  status: 'Unknown', providers: ['apple_music'], reason: 'Provider request failed during acquisition',     recommendedAction: 'Re-run scan — the provider request failed and can be retried.',   lastVerified: '2026-07-17T09:12:00.000Z' },
-      { code: 'tr', name: 'Türkiye', status: 'Unknown', providers: ['apple_music'], reason: 'Provider returned an unrecognized response',      recommendedAction: 'Provider response could not be interpreted — re-verify manually.', lastVerified: '2026-07-17T09:12:00.000Z' },
-      // ── Pending Review (4) — not yet evaluated this scan ─────────────────
-      { code: 'cn', name: 'China',       status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null },
-      { code: 'id', name: 'Indonesia',   status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null },
-      { code: 'vn', name: 'Vietnam',     status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null },
-      { code: 'ph', name: 'Philippines', status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null },
+      { code: 'us', name: 'United States',  status: 'Available', providers: ['apple_music'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'ca', name: 'Canada',         status: 'Available', providers: ['apple_music'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'gb', name: 'United Kingdom', status: 'Available', providers: ['apple_music'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'de', name: 'Germany',        status: 'Available', providers: ['apple_music'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'fr', name: 'France',         status: 'Available', providers: ['apple_music'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'au', name: 'Australia',      status: 'Available', providers: ['apple_music'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'jp', name: 'Japan',          status: 'Available', providers: ['apple_music'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'nl', name: 'Netherlands',    status: 'Available', providers: ['apple_music'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'se', name: 'Sweden',         status: 'Available', providers: ['apple_music'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'ie', name: 'Ireland',        status: 'Available', providers: ['apple_music'], reason: 'Catalog confirmed in this storefront', recommendedAction: null, lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'br', name: 'Brazil',         status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'mx', name: 'Mexico',         status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'in', name: 'India',          status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'za', name: 'South Africa',   status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'kr', name: 'South Korea',    status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'ng', name: 'Nigeria',        status: 'Unavailable', providers: ['apple_music'], reason: 'Catalog not found in this storefront', recommendedAction: 'Confirm catalog delivery to this storefront with your distributor.', lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Verified' },
+      { code: 'it', name: 'Italy',   status: 'Unknown', providers: ['apple_music'], reason: 'Provider request failed during acquisition', recommendedAction: 'Re-run scan — the provider request failed and can be retried.', lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Partial' },
+      { code: 'es', name: 'Spain',   status: 'Unknown', providers: ['apple_music'], reason: 'Provider returned an unrecognized response', recommendedAction: 'Provider response could not be interpreted — re-verify manually.', lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Partial' },
+      { code: 'pl', name: 'Poland',  status: 'Unknown', providers: ['apple_music'], reason: 'Provider request failed during acquisition', recommendedAction: 'Re-run scan — the provider request failed and can be retried.', lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Partial' },
+      { code: 'tr', name: 'Türkiye', status: 'Unknown', providers: ['apple_music'], reason: 'Provider returned an unrecognized response', recommendedAction: 'Provider response could not be interpreted — re-verify manually.', lastVerified: '2026-07-21T09:12:00.000Z', confidence: 'Partial' },
+      { code: 'cn', name: 'China',       status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null, confidence: 'Unknown' },
+      { code: 'id', name: 'Indonesia',   status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null, confidence: 'Unknown' },
+      { code: 'vn', name: 'Vietnam',     status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null, confidence: 'Unknown' },
+      { code: 'ph', name: 'Philippines', status: 'Pending Review', providers: [], reason: 'Not yet evaluated for this territory', recommendedAction: 'Not yet evaluated — will be checked on the next scan.', lastVerified: null, confidence: 'Unknown' },
     ];
 
     sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
       schemaVersion: '1.1',
-      scanId: 'preview-fixture-gmf-001',
+      scanId: 'preview-fixture-gmf-002',
       artistName: 'Black Alternative',
       scannedAt: new Date().toISOString(),
       generatedAt: new Date().toISOString(),
-      // Board directive (2026-07-21, Constitutional Refactor): field renamed
-      // globalMusicFootprint -> globalFootprint. The workspace contract
-      // (mc-workspace-context.js) requires ctx.globalFootprint (CIM-native,
-      // Phase 2 Recovery); the old key name here meant this fixture silently
-      // failed the contract and fell through to the "No Scan Loaded" overlay
-      // even in local/preview dev mode -- found during this audit's live
-      // validation pass.
       globalFootprint: {
         status: 'Strong',
         territoriesAvailable: 10,
@@ -197,19 +302,8 @@
           territories: gapTerritories,
         },
       },
-      // Real shape confirmed via live validation against a production scan
-      // (api/_lib/identity-intelligence.js, Board Final Lock 2026-06-17):
-      // providers[key] is an IDENTITY_STATE string, not { verified: boolean }
-      // -- the previous fixture shape here was wrong and silently made the
-      // Providers™ KPI always show 5/5 regardless of real verification state.
       identityIntelligence: {
-        providers: {
-          apple:   'VERIFIED',
-          spotify: 'VERIFIED',
-          youtube: 'VERIFIED',
-          deezer:  'NOT_FOUND',
-          tidal:   'ACTION_REQUIRED',
-        },
+        providers: { apple: 'VERIFIED', spotify: 'VERIFIED', youtube: 'VERIFIED', deezer: 'NOT_FOUND', tidal: 'ACTION_REQUIRED' },
         verifiedProviders: 3,
       },
     }));
@@ -339,245 +433,215 @@
       <span class="ws-breadcrumb-sep">/</span>
       <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
       <span class="ws-breadcrumb-sep">/</span>
-      <span class="ws-breadcrumb-current gf-breadcrumb-current">Global Music Footprint™</span>
+      <span class="ws-breadcrumb-current">Global Music Footprint™</span>
     </header>
 
     <div class="ws-body" style="opacity:0;transition:opacity .15s ease">
-
-      <!-- ══ MAIN CONTENT COLUMN ══════════════════════════════════════ -->
       <div class="hi-main">
+        <div class="gf2-shell">
 
-        <!-- § 1 — EXECUTIVE HEADER ─────────────────────────────────── -->
-        <div class="gf-exec-header">
-          <div class="gf-exec-title-block">
-            <div class="gf-exec-eyebrow">Global Music Footprint™</div>
-            <h1 class="gf-exec-heading">Where Your Music Lives Around The World</h1>
-            <div class="gf-exec-desc">Worldwide distribution presence and territorial coverage — verified across every active streaming provider.</div>
-            <div class="gf-exec-meta-row">
-              <div class="gf-exec-updated" id="gf-exec-updated">
-                <div class="gf-exec-updated-dot" aria-hidden="true"></div>
-                <span id="gf-exec-updated-text">Global Scan™ Active</span>
-              </div>
+          <!-- Header -->
+          <div class="gf2-header">
+            <div>
+              <div class="gf2-title">Global Music Footprint™</div>
+              <div class="gf2-subtitle">Your music. Every market. Real intelligence.</div>
             </div>
-          </div>
-          <!-- Assessment Source attribution (Board directive, 2026-07-21,
-               Phase 7) -- platform standard for future Mission Control™
-               source attribution. Displays only the evidence source
-               genuinely used in Version 1. -->
-          <div class="gf-assessment-source" role="note">
-            <div class="gf-assessment-source-label">Assessment Source</div>
-            <div class="gf-assessment-source-value">Apple Music Storefronts</div>
-          </div>
-        </div>
-
-        <!-- § 2 — KPI CARDS ─────────────────────────────────────────── -->
-        <div class="hi-kpi-row">
-
-          <!-- Global Presence™ — Executive Signature™ -->
-          <div class="hi-kpi-card gf-presence-kpi">
-            <div class="hi-kpi-label hi-kpi-label--blue">Global Presence™</div>
-
-            <div class="gf-presence-ring-wrap" id="gf-presence-ring-wrap" aria-label="Global Presence score">
-              <svg class="gf-presence-ring-svg" viewBox="0 0 116 116">
-                <circle class="gf-presence-ring-track" cx="58" cy="58" r="40"/>
-                <circle class="gf-presence-ring-progress" cx="58" cy="58" r="40" id="gf-ring-arc"/>
-              </svg>
-              <div class="gf-presence-ring-center">
-                <span class="gf-presence-ring-num" id="gf-ring-num">0</span>
-                <span class="gf-presence-ring-denom">/ 100</span>
+            <div class="gf2-header-right">
+              <div class="gf2-source-select">
+                <svg class="gf2-source-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+                <div>
+                  <div class="gf2-source-label">Assessment Source</div>
+                  <div class="gf2-source-value">Apple Music Storefronts</div>
+                </div>
               </div>
-            </div>
-
-            <div class="gf-presence-label">Strong</div>
-            <div class="gf-presence-desc">Worldwide Distribution</div>
-
-            <div class="hi-score-meta-row">
-              <div class="hi-status-pill hi-status-pill--blue">
-                <span class="hi-status-dot" aria-hidden="true"></span>94% Global Coverage
+              <div class="gf2-updated">
+                <div class="gf2-updated-label">Last Updated</div>
+                <div class="gf2-updated-value" id="gf2-updated-value">—</div>
               </div>
             </div>
           </div>
 
-          <!-- Countries -->
-          <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--blue">Countries™</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--blue" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
-            </div>
-            <div class="ii-kpi-num-row">
-              <span class="ii-kpi-big-num" id="gf-countries-num">0</span>
-              <span class="ii-kpi-fraction" id="gf-countries-fraction"></span>
-            </div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--blue">Verified</div>
-            <div class="ii-kpi-caption" id="gf-countries-caption">—</div>
-          </div>
+          <!-- KPI row -->
+          <div class="gf2-kpi-row">
 
-          <!-- Providers -->
-          <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--blue">Providers™</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--blue" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-verified"></use></svg>
-            </div>
-            <div class="ii-kpi-num-row">
-              <span class="ii-kpi-big-num" id="gf-provider-num">—</span>
-            </div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--blue">Verified</div>
-            <div class="ii-kpi-caption" id="gf-provider-caption">—</div>
-          </div>
-
-          <!-- Coverage -->
-          <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--blue">Coverage™</div>
-            <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--blue" aria-hidden="true">
-              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-signal"></use></svg>
-            </div>
-            <div class="ii-kpi-num-row">
-              <span class="ii-kpi-big-num" id="gf-coverage-num">0</span>
-              <span class="ii-kpi-fraction">%</span>
-            </div>
-            <div class="ii-kpi-status-text ii-kpi-status-text--blue">Global Provider Coverage</div>
-            <div class="ii-kpi-caption">Across All Providers</div>
-          </div>
-
-        </div>
-
-        <!-- § 3 — GLOBAL INTELLIGENCE ENGINE™ (GlobalMapViewport™ component) -->
-        <!-- Component renders all map internals. Do not add children here. -->
-        <div class="gf-map-section" id="gf-map-viewport-host"></div>
-
-        <!-- § 3.5 — STREAMING PLATFORMS LEGEND™ — Tablet + Mobile ────────── -->
-        <!-- Floating overlay (.gf-legend) is hidden at ≤1024px.            -->
-        <!-- This card replaces it in the document flow below the map.      -->
-        <div class="gf-legend-panel" role="region" aria-label="Streaming platforms" id="gf-legend-panel">
-          <div class="gf-legend-panel-title">Streaming Platforms</div>
-          <div class="gf-legend-panel-items" id="gf-legend-panel-items">
-            <div class="gf-legend-panel-item" data-provider="apple">
-              <span class="gf-legend-dot gf-legend-dot--apple" aria-hidden="true"></span>
-              <span class="gf-legend-panel-name">Apple Music</span>
-            </div>
-            <div class="gf-legend-panel-item" data-provider="spotify">
-              <span class="gf-legend-dot gf-legend-dot--spotify" aria-hidden="true"></span>
-              <span class="gf-legend-panel-name">Spotify</span>
-            </div>
-            <div class="gf-legend-panel-item" data-provider="deezer">
-              <span class="gf-legend-dot gf-legend-dot--deezer" aria-hidden="true"></span>
-              <span class="gf-legend-panel-name">Deezer</span>
-            </div>
-            <div class="gf-legend-panel-item" data-provider="tidal">
-              <span class="gf-legend-dot gf-legend-dot--tidal" aria-hidden="true"></span>
-              <span class="gf-legend-panel-name">TIDAL</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- § 3.6 — DISTRIBUTION GAPS™ — Board Directive 2026-07-17 ──────── -->
-        <!-- Territories requiring attention. Populated from the same        -->
-        <!-- Workspace Contract as the rest of this page — never fabricated. -->
-        <!-- See public/js/gmf-distribution-gaps.js for rendering logic and  -->
-        <!-- public/css/gmf-distribution-gaps.css for responsive behavior.   -->
-        <section class="gf-gaps-section" aria-label="Distribution Gaps">
-          <div class="gf-gaps-header">
-            <div class="gf-gaps-title">Distribution Gaps™</div>
-            <div class="gf-gaps-subtitle">Territories requiring attention across your active providers</div>
-          </div>
-
-          <div class="gf-gaps-summary">
-            <div class="gf-gaps-stat gf-gaps-stat--total">
-              <div class="gf-gaps-stat-num" id="gf-gaps-total">—</div>
-              <div class="gf-gaps-stat-label">Requiring Attention</div>
-            </div>
-            <div class="gf-gaps-stat gf-gaps-stat--unavailable">
-              <div class="gf-gaps-stat-num" id="gf-gaps-unavailable">—</div>
-              <div class="gf-gaps-stat-label">Unavailable</div>
-            </div>
-            <div class="gf-gaps-stat gf-gaps-stat--unknown">
-              <div class="gf-gaps-stat-num" id="gf-gaps-unknown">—</div>
-              <div class="gf-gaps-stat-label">Unknown</div>
-            </div>
-            <div class="gf-gaps-stat gf-gaps-stat--pending">
-              <div class="gf-gaps-stat-num" id="gf-gaps-pending">—</div>
-              <div class="gf-gaps-stat-label">Pending Review</div>
-            </div>
-          </div>
-
-          <button class="gf-gaps-view-btn" id="gf-gaps-view-btn" type="button">
-            View Full List
-            <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down" style="transform:rotate(-90deg);transform-origin:center;"></use></svg>
-          </button>
-
-          <div class="gf-gaps-empty" id="gf-gaps-empty" hidden></div>
-        </section>
-
-        <!-- § 4 — TERRITORY STATISTICS™ · ATHENA EXECUTIVE INSIGHT™ ──────
-             Board directive (2026-07-21, Constitutional Refactor Phase 6).
-             Replaces the removed Additional Territories™ grid and Mobile
-             Executive Briefing™ (both 100% static/hardcoded, redundant with
-             Distribution Gaps™ -- see governance/GLOBAL_MUSIC_FOOTPRINT_EVIDENCE_AUDIT.md
-             §2/§8). Both cards below are deterministic derivations of real
-             evidence only -- no predictive or inferred territory intelligence. -->
-        <div class="gf-two-col">
-
-          <!-- Territory Statistics™ -->
-          <div class="gf-stat-card">
-            <div class="gf-stat-card-title">
-              <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg>
-              Territory Statistics™
-            </div>
-            <div class="gf-stat-grid">
-              <div class="gf-stat-item">
-                <div class="gf-stat-num" id="gf-stat-available">—</div>
-                <div class="gf-stat-label">Available</div>
+            <div class="gf2-kpi-card">
+              <div class="gf2-kpi-top">
+                <div class="gf2-kpi-label">Global Reach™</div>
+                <div class="gf2-kpi-icon gf2-kpi-icon--blue" aria-hidden="true"><svg fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg></div>
               </div>
-              <div class="gf-stat-item">
-                <div class="gf-stat-num" id="gf-stat-unavailable">—</div>
-                <div class="gf-stat-label">Unavailable</div>
+              <div class="gf2-kpi-value-row">
+                <span class="gf2-kpi-big" id="gf2-reach-num">—</span>
+                <span class="gf2-kpi-frac" id="gf2-reach-frac"></span>
               </div>
-              <div class="gf-stat-item">
-                <div class="gf-stat-num" id="gf-stat-unknown">—</div>
-                <div class="gf-stat-label">Unknown</div>
+              <div class="gf2-kpi-bar-track"><div class="gf2-kpi-bar-fill gf2-kpi-bar-fill--green" id="gf2-reach-bar" style="width:0%"></div></div>
+              <div class="gf2-kpi-foot-row"><span id="gf2-reach-pct">—</span><span id="gf2-reach-caption">—</span></div>
+            </div>
+
+            <div class="gf2-kpi-card">
+              <div class="gf2-kpi-top">
+                <div class="gf2-kpi-label">Missing Markets™</div>
+                <div class="gf2-kpi-icon gf2-kpi-icon--red" aria-hidden="true"><svg fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg></div>
               </div>
-              <div class="gf-stat-item">
-                <div class="gf-stat-num" id="gf-stat-pending">—</div>
-                <div class="gf-stat-label">Pending Review</div>
+              <div class="gf2-kpi-value-row">
+                <span class="gf2-kpi-big" id="gf2-missing-num">—</span>
+                <span class="gf2-kpi-frac" id="gf2-missing-frac"></span>
+              </div>
+              <div class="gf2-kpi-bar-track"><div class="gf2-kpi-bar-fill gf2-kpi-bar-fill--red" id="gf2-missing-bar" style="width:0%"></div></div>
+              <div class="gf2-kpi-foot-row"><span id="gf2-missing-pct">—</span><span>Markets Unavailable</span></div>
+            </div>
+
+            <div class="gf2-kpi-card">
+              <div class="gf2-kpi-top">
+                <div class="gf2-kpi-label">Distribution Health™</div>
+                <div class="gf2-kpi-icon gf2-kpi-icon--green" aria-hidden="true"><svg fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg></div>
+              </div>
+              <div class="gf2-health-body">
+                <div class="gf2-health-ring-wrap">
+                  <svg class="gf2-health-ring-svg" viewBox="0 0 64 64">
+                    <circle class="gf2-health-ring-track" cx="32" cy="32" r="27"/>
+                    <circle class="gf2-health-ring-fill" id="gf2-health-ring" cx="32" cy="32" r="27" stroke-dasharray="170" stroke-dashoffset="170"/>
+                  </svg>
+                  <div class="gf2-health-ring-num" id="gf2-health-num">—</div>
+                </div>
+                <div>
+                  <div class="gf2-health-label" id="gf2-health-label">—</div>
+                  <div class="gf2-health-desc" id="gf2-health-desc">—</div>
+                </div>
               </div>
             </div>
-            <div class="gf-stat-footer" id="gf-stat-footer"></div>
+
+            <div class="gf2-kpi-card">
+              <div class="gf2-kpi-top">
+                <div class="gf2-kpi-label">Markets Pending Review™</div>
+                <div class="gf2-kpi-icon gf2-kpi-icon--amber" aria-hidden="true"><svg fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-clock"></use></svg></div>
+              </div>
+              <div class="gf2-kpi-value-row">
+                <span class="gf2-kpi-big" id="gf2-pending-num">—</span>
+              </div>
+              <div class="gf2-kpi-caption" id="gf2-pending-caption">—</div>
+            </div>
+
           </div>
 
-          <!-- ATHENA Executive Insight™ -->
-          <div class="gf-stat-card">
-            <div class="gf-stat-card-title">
-              <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg>
-              ATHENA Executive Insight™
-            </div>
-            <div class="gf-athena-body">
-              <div class="gf-athena-icon-wrap" aria-hidden="true">
-                <svg class="royalte-icon royalte-icon--sm" fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg>
+          <!-- Map row -->
+          <div class="gf2-map-row">
+            <div class="gf2-map-col">
+              <div class="gf2-map-card" id="gf2-map-card">
+                <div class="gf2-map-host" id="gf2-map-host"></div>
+                <div class="gf2-legend">
+                  <div class="gf2-legend-title">Availability</div>
+                  <div class="gf2-legend-item"><span class="gf2-legend-dot" style="background:#22c55e"></span>Available</div>
+                  <div class="gf2-legend-item"><span class="gf2-legend-dot" style="background:#f87171"></span>Missing</div>
+                  <div class="gf2-legend-item"><span class="gf2-legend-dot" style="background:#9ca3af"></span>Unknown</div>
+                  <div class="gf2-legend-item"><span class="gf2-legend-dot" style="background:#6b7280"></span>Pending Review</div>
+                </div>
               </div>
-              <div class="gf-athena-text" id="gf-athena-text">—</div>
+              <div class="gf2-layer-row">
+                <span class="gf2-layer-label">View Layer:</span>
+                <button class="gf2-layer-btn gf2-layer-btn--active" data-layer="availability" type="button">Availability</button>
+                <button class="gf2-layer-btn" data-layer="missing" type="button">Missing Markets</button>
+                <button class="gf2-layer-btn" data-layer="providers" type="button">Provider Coverage</button>
+              </div>
             </div>
+
+            <div class="gf2-panel" id="gf2-panel">
+              <div class="gf2-panel-empty" id="gf2-panel-empty">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+                Select a territory on the map to view detailed market intelligence.
+              </div>
+              <div id="gf2-panel-content" hidden>
+                <div class="gf2-panel-header">
+                  <div class="gf2-panel-country">
+                    <span class="gf2-panel-name" id="gf2-panel-name">—</span>
+                  </div>
+                  <button class="gf2-panel-close" id="gf2-panel-close" type="button" aria-label="Close">&times;</button>
+                </div>
+                <div class="gf2-panel-status-row">
+                  <span class="gf2-panel-status-dot" id="gf2-panel-status-dot"></span>
+                  <span id="gf2-panel-status-text">—</span>
+                </div>
+
+                <div>
+                  <div class="gf2-panel-section-label">Provider Coverage</div>
+                  <div id="gf2-panel-providers"></div>
+                </div>
+
+                <div>
+                  <div class="gf2-panel-section-label">Market Details</div>
+                  <div class="gf2-panel-field"><span class="gf2-panel-field-label">Assessment Date</span><span class="gf2-panel-field-val" id="gf2-panel-assessed">—</span></div>
+                  <div class="gf2-panel-field"><span class="gf2-panel-field-label">Availability</span><span class="gf2-panel-field-val" id="gf2-panel-availability">—</span></div>
+                  <div class="gf2-panel-field"><span class="gf2-panel-field-label">Confidence</span><span class="gf2-panel-field-val" id="gf2-panel-confidence">—</span></div>
+                </div>
+
+                <div>
+                  <div class="gf2-panel-section-label">Recommended Action</div>
+                  <div class="gf2-panel-action-box" id="gf2-panel-action">—</div>
+                </div>
+
+                <div>
+                  <div class="gf2-panel-section-label">Assessment Summary</div>
+                  <div class="gf2-panel-summary" id="gf2-panel-summary">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom intelligence cards -->
+          <div class="gf2-bottom-row">
+
+            <div class="gf2-card">
+              <div class="gf2-card-title">Provider Coverage™</div>
+              <div id="gf2-provider-bars"></div>
+              <div class="gf2-provider-note">Additional providers will appear here as canonical territory evidence expands beyond Apple Music.</div>
+            </div>
+
+            <div class="gf2-card">
+              <div class="gf2-card-title gf2-card-title--red">Top Missing Markets™</div>
+              <div id="gf2-missing-list"></div>
+              <button class="gf2-link-btn" id="gf2-view-all-missing" type="button">View All Missing Markets →</button>
+            </div>
+
+            <div class="gf2-card">
+              <div class="gf2-card-title">Coverage Timeline™</div>
+              <div class="gf2-timeline-onboarding">
+                <svg class="gf2-timeline-onboarding-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+                Territory history will populate here as Monitoring Timeline™ collects assessments across future scans.
+                <div class="gf2-timeline-fact" id="gf2-timeline-fact"></div>
+              </div>
+            </div>
+
+            <div class="gf2-card">
+              <div class="gf2-card-title">ATHENA Insight™</div>
+              <div class="gf2-athena-body">
+                <div class="gf2-athena-icon" aria-hidden="true"><svg fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg></div>
+                <div class="gf2-athena-text" id="gf2-athena-text">—</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Recommended Actions -->
+          <div class="gf2-actions-card">
+            <div class="gf2-actions-header">
+              <div class="gf2-actions-title">Recommended Actions™</div>
+            </div>
+            <div class="gf2-actions-grid" id="gf2-actions-grid"></div>
           </div>
 
         </div>
-
-      </div><!-- /hi-main -->
-
+      </div>
     </div><!-- /ws-body -->
-
   </div><!-- /ws-content -->
-
 </div><!-- /ws-shell -->
 
-<!-- Distribution Gaps™ — full-list drawer (Board Directive 2026-07-17).      -->
-<!-- Fixed-position; DOM placement outside .ws-shell is intentional, matching -->
-<!-- #ws-no-scan-overlay's existing pattern for full-viewport overlays.       -->
+<!-- Distribution Gaps™ full-list drawer (reused, real evidence, unchanged
+     rendering logic from public/js/gmf-distribution-gaps.js) -->
 <div class="gf-gaps-scrim" id="gf-gaps-scrim" hidden></div>
 <div class="gf-gaps-drawer" id="gf-gaps-drawer" hidden role="dialog" aria-modal="true" aria-label="Distribution Gaps — full territory list">
   <div class="gf-gaps-drawer-header">
     <div class="gf-gaps-drawer-title">Distribution Gaps™</div>
     <button class="gf-gaps-drawer-close" id="gf-gaps-drawer-close" type="button" aria-label="Close">&times;</button>
   </div>
-
   <div class="gf-gaps-controls">
     <div class="gf-gaps-search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -586,12 +650,9 @@
     <div class="gf-gaps-filter-row" id="gf-gaps-status-filters" role="group" aria-label="Filter by status"></div>
     <div class="gf-gaps-filter-row" id="gf-gaps-provider-filters" role="group" aria-label="Filter by provider"></div>
   </div>
-
   <div class="gf-gaps-list" id="gf-gaps-list" role="list"></div>
   <div class="gf-gaps-list-empty" id="gf-gaps-list-empty" hidden>No territories match your filters.</div>
 </div>
-
-<!-- Distribution Gaps™ — territory detail sub-panel -->
 <div class="gf-gaps-detail-scrim" id="gf-gaps-detail-scrim" hidden></div>
 <div class="gf-gaps-detail" id="gf-gaps-detail" hidden role="dialog" aria-modal="true" aria-label="Territory detail">
   <div class="gf-gaps-detail-header">
@@ -600,19 +661,16 @@
   </div>
   <div class="gf-gaps-detail-body" id="gf-gaps-detail-body"></div>
 </div>
+<!-- gf-gaps-view-btn is required by gmf-distribution-gaps.js's wireDrawer();
+     not rendered visibly in v2 (View Full List link on the Top Missing
+     Markets™ card triggers the same drawer via #gf2-view-all-missing). -->
+<button id="gf-gaps-view-btn" type="button" hidden aria-hidden="true"></button>
 
-<script src="/js/global-map-viewport.js"></script>
+<script src="/js/global-map-choropleth.js"></script>
 <script>
 (function () {
   'use strict';
 
-  /* ── Global Music Footprint™ — Runtime Renderer v2.0 ───────────────
-   * Input:  royalte_workspace_context (mc-workspace-context.js)
-   * Output: Rendered HTML. Never queries storage or renders demo data.
-   * Constitutional Refactor (Board directive, 2026-07-21): GlobalMapViewport™
-   * now mounts AFTER contract validation, real territories/territoriesAvailable
-   * passed in -- it previously mounted unconditionally with zero evidence input.
-   */
   var _result = window.RoyalteContext
     ? window.RoyalteContext.readWorkspaceContext({ contract: 'global-music-footprint' })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
@@ -624,192 +682,236 @@
   var ctx = _result.ctx;
   var _body = document.querySelector('.ws-body');
   if (_body) _body.style.opacity = '1';
-  var gf = ctx.globalFootprint;  // CIM-native (Phase 2 Recovery)
+  var gf = ctx.globalFootprint;
   var ii = ctx.identityIntelligence || null;
   var dg = gf.distributionGaps || null;
+  var territories = dg ? dg.territories : [];
+  var territoriesEvaluated = typeof gf.territoriesEvaluated === 'number' ? gf.territoriesEvaluated : null;
 
-  /* ── GlobalMapViewport™ — component init ────────────────────── */
-  /* All map logic (anchors, markers, legend, popover) lives in    */
-  /* /js/global-map-viewport.js. This workspace only mounts it,    */
-  /* passing the real evidence the component renders from.         */
-  var calParam = new URLSearchParams(location.search).get('calibrate');
-  initGlobalMapViewport(document.getElementById('gf-map-viewport-host'), {
-    calibrationMode: calParam,
-    territories: dg ? dg.territories : [],
-    territoriesAvailable: gf.territoriesAvailable,
+  function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+  function fmtDate(iso) {
+    if (!iso) return 'Not yet assessed';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return 'Not yet assessed';
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
+  function fmtRelative(iso) {
+    if (!iso) return 'time not available';
+    var then = new Date(iso).getTime();
+    if (isNaN(then)) return 'time not available';
+    var diffMin = Math.round((Date.now() - then) / 60000);
+    if (diffMin < 1) return 'moments ago';
+    if (diffMin === 1) return '1 minute ago';
+    if (diffMin < 60) return diffMin + ' minutes ago';
+    var diffHr = Math.round(diffMin / 60);
+    if (diffHr === 1) return '1 hour ago';
+    if (diffHr < 24) return diffHr + ' hours ago';
+    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  /* ── Header: real last-updated ─────────────────────────────────────── */
+  var updatedEl = document.getElementById('gf2-updated-value');
+  if (updatedEl) updatedEl.textContent = fmtRelative(ctx.generatedAt || ctx.scannedAt);
+
+  /* ── KPI: Global Reach™ (real) ───────────────────────────────────────
+   * Status → executive label. Real, threshold-derived (Board-locked
+   * thresholds already in api/_lib/global-music-footprint.js
+   * STATUS_THRESHOLDS) -- this is a display relabeling of gf.status,
+   * not a new metric. */
+  var REACH_LABEL = { Global: 'Complete Global Presence', Strong: 'Strong Global Presence', Regional: 'Growing Global Presence', Limited: 'Limited Global Presence' };
+  document.getElementById('gf2-reach-num').textContent = gf.territoriesAvailable != null ? gf.territoriesAvailable : '—';
+  document.getElementById('gf2-reach-frac').textContent = territoriesEvaluated != null ? ' / ' + territoriesEvaluated : '';
+  document.getElementById('gf2-reach-bar').style.width = (gf.coveragePercent || 0) + '%';
+  document.getElementById('gf2-reach-pct').textContent = (gf.coveragePercent != null ? gf.coveragePercent : 0) + '%';
+  document.getElementById('gf2-reach-caption').textContent = REACH_LABEL[gf.status] || gf.status || '—';
+
+  /* ── KPI: Missing Markets™ (real) ─────────────────────────────────── */
+  var missingCount = dg ? dg.unavailable : (gf.territoriesUnavailable || 0);
+  var missingPct = territoriesEvaluated ? Math.round(missingCount / territoriesEvaluated * 100) : 0;
+  document.getElementById('gf2-missing-num').textContent = missingCount;
+  document.getElementById('gf2-missing-frac').textContent = territoriesEvaluated != null ? ' / ' + territoriesEvaluated : '';
+  document.getElementById('gf2-missing-bar').style.width = missingPct + '%';
+  document.getElementById('gf2-missing-pct').textContent = missingPct + '%';
+
+  /* ── KPI: Distribution Health™ (real, repurposed per Board directive:
+   * "Do NOT invent a new health score. Derive a truthful executive status
+   * from existing canonical evidence... use the existing coverage evidence
+   * to power this card.") ring shows real coveragePercent; label mapped
+   * from the same real, Board-locked status thresholds. */
+  var HEALTH_LABEL = { Global: 'Excellent', Strong: 'Strong', Regional: 'Growing', Limited: 'Limited' };
+  var healthPct = gf.coveragePercent || 0;
+  var ringCirc = 2 * Math.PI * 27;
+  var ringEl = document.getElementById('gf2-health-ring');
+  if (ringEl) {
+    ringEl.setAttribute('stroke-dasharray', String(ringCirc));
+    ringEl.setAttribute('stroke-dashoffset', String(ringCirc * (1 - healthPct / 100)));
+  }
+  document.getElementById('gf2-health-num').textContent = healthPct;
+  document.getElementById('gf2-health-label').textContent = HEALTH_LABEL[gf.status] || gf.status || '—';
+  document.getElementById('gf2-health-desc').textContent = healthPct + '% of evaluated markets are confirmed available.';
+
+  /* ── KPI: Markets Pending Review™ (real, repurposed from "Expansion
+   * Opportunity™" per Board directive -- no stream/revenue estimates
+   * exist anywhere in this codebase; uses real unknown+notEvaluated
+   * counts instead.) ────────────────────────────────────────────────── */
+  var pendingUnknown = dg ? dg.unknown : 0;
+  var pendingNotEval = dg ? dg.notEvaluated : 0;
+  document.getElementById('gf2-pending-num').textContent = pendingUnknown + pendingNotEval;
+  document.getElementById('gf2-pending-caption').textContent = pendingUnknown + ' Unknown · ' + pendingNotEval + ' Pending Distribution Check';
+
+  /* ── World map (real, choropleth) ────────────────────────────────── */
+  var mapHost = document.getElementById('gf2-map-host');
+  var mapCard = document.getElementById('gf2-map-card');
+  var panelEmpty = document.getElementById('gf2-panel-empty');
+  var panelContent = document.getElementById('gf2-panel-content');
+
+  var mapApi = window.initGlobalMapChoropleth(mapHost, {
+    territories: territories,
+    onCountrySelect: function (t) { showCountryPanel(t); },
   });
 
-  var rn = document.getElementById('gf-ring-num');
-  var cn = document.getElementById('gf-countries-num');
-  var cv = document.getElementById('gf-coverage-num');
-  var pn = document.getElementById('gf-provider-num');
+  function showCountryPanel(t) {
+    panelEmpty.hidden = true;
+    panelContent.hidden = false;
+    document.getElementById('gf2-panel-name').textContent = t.name;
+    var dot = document.getElementById('gf2-panel-status-dot');
+    var STATUS_COLOR = { Available: '#22c55e', Unavailable: '#f87171', Unknown: '#9ca3af', 'Pending Review': '#6b7280' };
+    dot.style.background = STATUS_COLOR[t.status] || '#9ca3af';
+    document.getElementById('gf2-panel-status-text').textContent = t.status;
 
-  /* ── Providers™ KPI — verified providers only (Board directive:        *
-   * previously counted every key present regardless of verified state).  *
-   * Real shape confirmed via live validation (api/_lib/identity-intelligence.js,
-   * Board Final Lock 2026-06-17): ii.providers[key] is an IDENTITY_STATE
-   * string ('VERIFIED'|'ACTION_REQUIRED'|'NOT_FOUND'|'UNABLE_TO_CONFIRM'),
-   * not a { verified: boolean } object. identityIntelligence also already
-   * exposes a pre-computed verifiedProviders count -- use it directly
-   * rather than re-deriving (never recompute already-assembled intelligence). */
-  var verifiedProviders = [];
-  if (ii && ii.providers) {
-    Object.keys(ii.providers).forEach(function (key) {
-      if (ii.providers[key] === 'VERIFIED') verifiedProviders.push(key);
+    var providersEl = document.getElementById('gf2-panel-providers');
+    providersEl.innerHTML = '';
+    // Only real provider evidence -- currently Apple Music only (Phase 5.2).
+    var hasApple = Array.isArray(t.providers) && t.providers.indexOf('apple_music') !== -1;
+    var row = document.createElement('div');
+    row.className = 'gf2-panel-provider-row';
+    row.innerHTML = '<span>Apple Music</span><span style="color:' + (hasApple ? '#22c55e' : '#6b7280') + '">' + (hasApple ? '✓ Confirmed' : '— ' + t.status) + '</span>';
+    providersEl.appendChild(row);
+
+    document.getElementById('gf2-panel-assessed').textContent = fmtDate(t.lastVerified);
+    document.getElementById('gf2-panel-availability').textContent = t.status;
+    document.getElementById('gf2-panel-confidence').textContent = t.confidence || 'Unknown';
+
+    var actionBox = document.getElementById('gf2-panel-action');
+    if (t.recommendedAction) {
+      actionBox.textContent = t.recommendedAction;
+      actionBox.classList.add('gf2-panel-action-box--attention');
+    } else {
+      actionBox.textContent = 'No action needed — this market is confirmed available.';
+      actionBox.classList.remove('gf2-panel-action-box--attention');
+    }
+    document.getElementById('gf2-panel-summary').textContent = t.reason || 'Not available from reviewed sources.';
+  }
+
+  document.getElementById('gf2-panel-close').addEventListener('click', function () {
+    panelContent.hidden = true;
+    panelEmpty.hidden = false;
+    if (mapApi.clearSelection) mapApi.clearSelection();
+  });
+
+  /* ── Layer selector (real behavior, no fabricated layers) ───────────
+   * Availability: default full-color view.
+   * Missing Markets: dims Available territories to focus on gaps.
+   * Provider Coverage: identical coloring to Availability -- honestly
+   *   labeled, since Apple Music is currently the only provider with
+   *   real per-territory evidence (Phase 5.2 scope). */
+  var layerBtns = document.querySelectorAll('.gf2-layer-btn');
+  layerBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      layerBtns.forEach(function (b) { b.classList.remove('gf2-layer-btn--active'); });
+      btn.classList.add('gf2-layer-btn--active');
+      mapCard.classList.toggle('gf2-map-card--dimmed', btn.dataset.layer === 'missing');
+    });
+  });
+
+  /* ── Provider Coverage™ card (real -- Apple only; future providers
+   * populate this list automatically as evidence expands) ───────────── */
+  var providerBarsEl = document.getElementById('gf2-provider-bars');
+  if (territoriesEvaluated) {
+    var appleAvailable = gf.territoriesAvailable || 0;
+    var applePct = Math.round(appleAvailable / territoriesEvaluated * 100);
+    var bar = document.createElement('div');
+    bar.className = 'gf2-provider-bar-row';
+    bar.innerHTML =
+      '<svg class="gf2-provider-bar-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 2a8 8 0 018 8 8 8 0 01-8 8V4z"/></svg>' +
+      '<span class="gf2-provider-bar-name">Apple Music</span>' +
+      '<span class="gf2-provider-bar-track"><span class="gf2-provider-bar-fill" style="width:' + applePct + '%"></span></span>' +
+      '<span class="gf2-provider-bar-pct">' + applePct + '%</span>';
+    providerBarsEl.appendChild(bar);
+  }
+
+  /* ── Top Missing Markets™ card (real) ────────────────────────────── */
+  var missingListEl = document.getElementById('gf2-missing-list');
+  var missingTerritories = territories.filter(function (t) { return t.status === 'Unavailable'; }).slice(0, 5);
+  if (missingTerritories.length === 0) {
+    missingListEl.innerHTML = '<div class="gf2-actions-empty">No unavailable markets found.</div>';
+  } else {
+    missingTerritories.forEach(function (t) {
+      var row = document.createElement('div');
+      row.className = 'gf2-missing-row';
+      row.innerHTML =
+        '<span class="gf2-missing-name">' + esc(t.name) + '</span>' +
+        '<span class="gf2-missing-reason">' + esc(t.reason || 'Not available from reviewed sources') + '</span>';
+      missingListEl.appendChild(row);
     });
   }
-  var verifiedCount = (ii && typeof ii.verifiedProviders === 'number') ? ii.verifiedProviders : verifiedProviders.length;
-  if (pn) pn.textContent = String(verifiedCount);
-  var pnCard = pn && pn.closest && pn.closest('.hi-kpi-card');
-  var pnCap  = pnCard && pnCard.querySelector('#gf-provider-caption');
-  if (pnCap) {
-    var PROVIDER_DISPLAY_NAME = { apple: 'Apple Music', spotify: 'Spotify', deezer: 'Deezer', tidal: 'TIDAL', youtube: 'YouTube' };
-    pnCap.textContent = verifiedProviders.length
-      ? verifiedProviders.map(function (k) { return PROVIDER_DISPLAY_NAME[k] || k; }).join(' · ')
-      : 'No providers verified';
-  }
-
-  /* ── Streaming Platforms legend panel (§3.5) — REWIRE: only show      *
-   * providers actually verified for this artist, not a static 4-name   *
-   * list (Board directive: "Eliminate all hardcoded values"). */
-  var legendItems = document.querySelectorAll('#gf-legend-panel-items .gf-legend-panel-item');
-  legendItems.forEach(function (item) {
-    var key = item.dataset.provider;
-    item.style.display = verifiedProviders.indexOf(key) !== -1 ? '' : 'none';
+  document.getElementById('gf2-view-all-missing').addEventListener('click', function () {
+    var trigger = document.getElementById('gf-gaps-view-btn');
+    if (trigger) trigger.click();
   });
 
-  if (rn) rn.dataset.liveTarget = String(gf.coveragePercent      || 0);
-  if (cn) cn.dataset.liveTarget = String(gf.territoriesAvailable || 0);
-  if (cv) cv.dataset.liveTarget = String(gf.coveragePercent      || 0);
+  /* ── Coverage Timeline™ (real onboarding state, no fabricated history) */
+  var timelineFactEl = document.getElementById('gf2-timeline-fact');
+  if (timelineFactEl) timelineFactEl.textContent = 'Last assessed: ' + fmtRelative(ctx.generatedAt || ctx.scannedAt);
 
-  var ringWrap = document.getElementById('gf-presence-ring-wrap');
-  if (ringWrap) ringWrap.setAttribute('aria-label', 'Global Presence score: ' + (gf.coveragePercent || 0) + ' out of 100');
-
-  // Wire presence KPI card (label, description, coverage %) from Runtime Context.
-  var presLabel   = document.querySelector('.gf-presence-kpi .gf-presence-label');
-  var presDesc    = document.querySelector('.gf-presence-kpi .gf-presence-desc');
-  var presCovPill = document.querySelector('.gf-presence-kpi .hi-status-pill--blue');
-  var presLabelMap = { 'Global': 'Global Reach', 'Strong': 'Strong Reach', 'Regional': 'Regional Reach', 'Limited': 'Limited Reach' };
-  var presDescMap  = { 'Global': 'Worldwide Distribution', 'Strong': 'Wide Distribution', 'Regional': 'Regional Distribution', 'Limited': 'Limited Distribution' };
-  if (presLabel)   presLabel.textContent = presLabelMap[gf.status] || gf.status;
-  if (presDesc)    presDesc.textContent  = presDescMap[gf.status]  || gf.reachNarrative || '—';
-  if (presCovPill) presCovPill.innerHTML = '<span class="hi-status-dot" aria-hidden="true"></span>' + (gf.coveragePercent || 0) + '% Global Coverage';
-
-  /* ── Countries™ KPI — real evaluation universe, not a fabricated /195 */
-  var countriesFractionEl = document.getElementById('gf-countries-fraction');
-  var countriesCaptionEl  = document.getElementById('gf-countries-caption');
-  var territoriesEvaluated = typeof gf.territoriesEvaluated === 'number' ? gf.territoriesEvaluated : null;
-  if (countriesFractionEl && territoriesEvaluated != null) {
-    countriesFractionEl.textContent = ' / ' + territoriesEvaluated;
-  }
-  if (countriesCaptionEl) {
-    countriesCaptionEl.textContent = (territoriesEvaluated != null && gf.territoriesAvailable != null)
-      ? (Math.round(gf.territoriesAvailable / territoriesEvaluated * 1000) / 10) + '% of Evaluated Storefronts'
-      : 'Evaluation pending';
-  }
-
-  /* ── Executive header — real "last assessed" time, not a hardcoded     *
-   * "2 Minutes Ago". Board directive: eliminate all hardcoded values. */
-  var updatedTextEl = document.getElementById('gf-exec-updated-text');
-  if (updatedTextEl) {
-    var scannedIso = ctx.generatedAt || ctx.scannedAt || null;
-    updatedTextEl.textContent = 'Global Scan™ Active — Last Sweep: ' + formatRelativeTime(scannedIso);
-  }
-
-  /* ── Territory Statistics™ (new, Board directive Phase 6) ───────────── */
-  var statAvail = document.getElementById('gf-stat-available');
-  var statUnavail = document.getElementById('gf-stat-unavailable');
-  var statUnknown = document.getElementById('gf-stat-unknown');
-  var statPending = document.getElementById('gf-stat-pending');
-  var statFooter = document.getElementById('gf-stat-footer');
-  if (statAvail)   statAvail.textContent   = String(gf.territoriesAvailable != null ? gf.territoriesAvailable : 0);
-  if (statUnavail) statUnavail.textContent = String(dg ? dg.unavailable    : (gf.territoriesUnavailable || 0));
-  if (statUnknown) statUnknown.textContent = String(dg ? dg.unknown       : 0);
-  if (statPending) statPending.textContent = String(dg ? dg.notEvaluated  : 0);
-  if (statFooter) {
-    statFooter.textContent = territoriesEvaluated != null
-      ? territoriesEvaluated + ' storefronts evaluated · Source: Apple Music Storefronts'
-      : 'Source: Apple Music Storefronts';
-  }
-
-  /* ── ATHENA Executive Insight™ (new, Board directive Phase 6) ────────
-   * Deterministic client-side sentence built from real assembler fields
-   * only (reachNarrative + distributionGaps counts) -- not a call to the
-   * real ATHENA engine (api/athena/, scoped to Mission Control Data API™
-   * envelopes only). Same lightweight pattern as Catalog Intelligence™'s
-   * ATHENA Executive Insight™ card. Never predicts or infers territory
-   * intelligence -- summarizes canonical evidence only. */
-  var athenaTextEl = document.getElementById('gf-athena-text');
-  if (athenaTextEl) {
+  /* ── ATHENA Insight™ (real, deterministic sentence template) ────────
+   * Not a call to the real ATHENA engine (api/athena/) -- same
+   * lightweight pattern used on Catalog Intelligence™. */
+  var athenaEl = document.getElementById('gf2-athena-text');
+  if (athenaEl) {
     var sentence = gf.reachNarrative || 'Territory availability could not be determined from reviewed sources.';
     if (dg && dg.totalRequiringAttention > 0) {
-      sentence += ' ' + dg.totalRequiringAttention + ' ' + (dg.totalRequiringAttention === 1 ? 'territory requires' : 'territories require') + ' attention.';
+      sentence += ' ' + dg.totalRequiringAttention + ' ' + (dg.totalRequiringAttention === 1 ? 'market requires' : 'markets require') + ' attention.';
     }
-    athenaTextEl.textContent = sentence;
-  }
-}());
-
-/* formatRelativeTime — "2 minutes ago" / "3 hours ago" / "Jul 21, 2026" from
- * an ISO timestamp. Honest fallback when no real scan timestamp exists. */
-function formatRelativeTime(iso) {
-  if (!iso) return 'time not available';
-  var then = new Date(iso).getTime();
-  if (isNaN(then)) return 'time not available';
-  var diffMs = Date.now() - then;
-  var diffMin = Math.round(diffMs / 60000);
-  if (diffMin < 1) return 'moments ago';
-  if (diffMin === 1) return '1 minute ago';
-  if (diffMin < 60) return diffMin + ' minutes ago';
-  var diffHr = Math.round(diffMin / 60);
-  if (diffHr === 1) return '1 hour ago';
-  if (diffHr < 24) return diffHr + ' hours ago';
-  return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
-(function () {
-  'use strict';
-
-  /* ── ring count-up ────────────────────────────────────────── */
-  var ringNum = document.getElementById('gf-ring-num');
-  var ringArc = document.getElementById('gf-ring-arc');
-  var scoreTarget = (ringNum && ringNum.dataset.liveTarget) ? parseInt(ringNum.dataset.liveTarget, 10) : 0;
-  var arcTarget   = 251 * (1 - scoreTarget / 100);
-
-  function ease(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
-
-  var startTs = null;
-  var duration = 1400;
-
-  function ringStep(ts) {
-    if (!startTs) startTs = ts;
-    var p = Math.min((ts - startTs) / duration, 1);
-    var ep = ease(p);
-    ringNum.textContent = Math.round(ep * scoreTarget);
-    ringArc.style.strokeDashoffset = 251 - ep * (251 - arcTarget);
-    if (p < 1) requestAnimationFrame(ringStep);
-    else { ringNum.textContent = scoreTarget; ringArc.style.strokeDashoffset = arcTarget; }
+    athenaEl.textContent = sentence;
   }
 
-  requestAnimationFrame(ringStep);
+  /* ── Recommended Actions™ (real, aggregated from per-territory
+   * recommendedAction values -- priority is a real, transparent function
+   * of affected-territory count, not an invented external score.) ────── */
+  var actionsGrid = document.getElementById('gf2-actions-grid');
+  var groups = {};
+  territories.forEach(function (t) {
+    if (!t.recommendedAction) return;
+    if (!groups[t.recommendedAction]) groups[t.recommendedAction] = [];
+    groups[t.recommendedAction].push(t);
+  });
+  var groupList = Object.keys(groups).map(function (action) {
+    return { action: action, territories: groups[action] };
+  }).sort(function (a, b) { return b.territories.length - a.territories.length; }).slice(0, 4);
 
-  /* ── countries count-up ────────────────────────────────────── */
-  var countriesEl    = document.getElementById('gf-countries-num');
-  var coverageEl     = document.getElementById('gf-coverage-num');
-  var liveCountries  = (countriesEl && countriesEl.dataset.liveTarget) ? parseInt(countriesEl.dataset.liveTarget, 10) : 0;
-  var liveCoverage   = (coverageEl  && coverageEl.dataset.liveTarget)  ? parseInt(coverageEl.dataset.liveTarget,  10) : 0;
-  var s2 = null;
-
-  function countStep(ts) {
-    if (!s2) s2 = ts;
-    var p = Math.min((ts - s2) / 1200, 1);
-    var ep = ease(p);
-    countriesEl.textContent = Math.round(ep * liveCountries);
-    coverageEl.textContent  = Math.round(ep * liveCoverage);
-    if (p < 1) requestAnimationFrame(countStep);
-    else { countriesEl.textContent = liveCountries; coverageEl.textContent = liveCoverage; }
+  if (groupList.length === 0) {
+    actionsGrid.innerHTML = '<div class="gf2-actions-empty">No actions required — all evaluated markets are available.</div>';
+  } else {
+    groupList.forEach(function (g, i) {
+      var priority = i === 0 ? 'high' : (i === 1 ? 'medium' : 'low');
+      var item = document.createElement('div');
+      item.className = 'gf2-action-item';
+      item.innerHTML =
+        '<div class="gf2-action-title">' + esc(g.action) + '</div>' +
+        '<div class="gf2-action-meta">' +
+          '<span>' + g.territories.length + ' market' + (g.territories.length === 1 ? '' : 's') + ' affected</span>' +
+          '<span class="gf2-action-priority gf2-action-priority--' + priority + '"><span class="gf2-action-priority-dot"></span>' + priority.charAt(0).toUpperCase() + priority.slice(1) + '</span>' +
+        '</div>';
+      actionsGrid.appendChild(item);
+    });
   }
 
-  requestAnimationFrame(countStep);
+  /* ── Providers™ / legend visibility (real, verified providers only) ── */
+  // Retained for parity with other MC workspaces reading identityIntelligence;
+  // no dedicated Providers KPI in this v2 layout (folded into Provider
+  // Coverage™ card above), but ii is available if future cards need it.
+  void ii;
 
 }());
 </script>
