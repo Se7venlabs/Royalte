@@ -161,25 +161,22 @@
     },
     'media-intelligence': {
       // Runtime Context Audit (Board directive, 2026-07-21): mediaIntelligence
-      // is not yet an official buildWorkspaceRuntimeContext() output field --
-      // no PAL/CIM assembler produces it for any artist, real or fixture-free.
-      // Previously required, which meant this contract could never be
-      // satisfied by a real scan and the workspace always showed "No Scan
-      // Loaded" even with a fully valid, active Runtime Context -- the exact
-      // same failure a genuinely missing scan produces, which is misleading:
-      // a scan happened, this one optional domain just isn't populated yet.
-      // Now optional, matching how every other contract in this registry
-      // already treats a field that may legitimately be absent (e.g.
-      // publishing-intelligence's musicRightsProfile/recordLabel) --
-      // Media Intelligence™ becomes just another Runtime Context consumer,
-      // no special case. required/requiredFields/requiredTypes intentionally
-      // empty: a scan with no mediaIntelligence data is still a VALID
-      // context for this workspace to render (as an empty/not-yet-available
-      // state, not a missing scan).
+      // was not yet an official buildWorkspaceRuntimeContext() output field at
+      // that time -- no PAL/CIM assembler produced it for any artist, real or
+      // fixture-free. Real as of the Media Intelligence™ implementation
+      // (Board directive 2026-07-22): cim.media (CIM §8.2.14) is now produced
+      // by assembleMediaIntelligence() and threaded through by
+      // runtime-context-mapper.js as ctx.mediaIntelligence.
+      // Kept optional (not required) -- a scan with no video/social evidence
+      // for a given artist is still a VALID context for this workspace to
+      // render (as an empty/not-yet-available state, not a missing scan),
+      // matching how every other contract in this registry already treats a
+      // field that may legitimately be absent (e.g. publishing-intelligence's
+      // musicRightsProfile/recordLabel).
       required:       [],
       requiredFields: [],
       requiredTypes:  {},
-      optional:       ['mediaIntelligence', 'mediaIntelligence.subscribers', 'mediaIntelligence.totalVideos', 'mediaIntelligence.videos', 'mediaIntelligence.monetization', 'mediaIntelligence.opportunities', 'mediaIntelligence.athenaInsights'],
+      optional:       ['mediaIntelligence', 'mediaIntelligence.platformCoverage', 'mediaIntelligence.assetCompleteness', 'mediaIntelligence.contentActivity', 'mediaIntelligence.digitalPresence', 'mediaIntelligence.catalogMediaSupport', 'mediaIntelligence.audienceReach'],
     },
   };
 
