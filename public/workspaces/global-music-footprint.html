@@ -681,7 +681,7 @@
      Markets™ card triggers the same drawer via #gf2-view-all-missing). -->
 <button id="gf-gaps-view-btn" type="button" hidden aria-hidden="true"></button>
 
-<script src="/js/market-priority.js"></script>
+<script src="/js/canonical-market-metadata.js"></script>
 <script src="/js/global-map-choropleth.js"></script>
 <script>
 (function () {
@@ -849,14 +849,14 @@
     providersEl.appendChild(row);
 
     // Revenue Opportunity™ / Priority™ (Board directive 2026-07-22) -- an
-    // editorial market-tier lens (public/js/market-priority.js, canonical
+    // editorial market-tier lens from the Canonical Market Metadata
+    // Registry™ (public/js/canonical-market-metadata.js -- pure static
     // metadata, NOT Territory Intelligence Engine output) applied on top
     // of the real t.status above. Never fabricates a number; every value
     // shown is a qualitative bucket traced to real status + canonical tier.
-    var MP = window.RoyalteMarketPriority;
-    var tier = MP ? MP.getTier(t.code) : 3;
-    var tierText = MP ? MP.tierLabel(tier) : 'Standard Market';
-    var priorityInfo = MP ? MP.derive(t.status, tier) : { priority: 'Unknown', revenueOpportunity: 'Unknown', explanation: null };
+    var CMM = window.RoyalteCanonicalMarketMetadata;
+    var tierText = CMM ? CMM.tierLabel(CMM.getTier(t.code)) : 'Standard Market';
+    var priorityInfo = CMM ? CMM.deriveStrategicSignal(t.status, t.code) : { priority: 'Unknown', revenueOpportunity: 'Unknown', explanation: null };
     var PRIORITY_COLOR = { Critical: '#ef4444', High: '#f97316', Medium: '#facc15', Low: '#9ca3af', Unknown: '#6b7280', 'N/A': '#6b7280' };
     document.getElementById('gf2-panel-priority-dot').style.background = PRIORITY_COLOR[priorityInfo.priority] || '#6b7280';
     document.getElementById('gf2-panel-priority-text').textContent =
@@ -865,7 +865,7 @@
         : priorityInfo.priority + ' Priority · ' + priorityInfo.revenueOpportunity + ' Revenue Opportunity';
     document.getElementById('gf2-panel-tier').textContent = tierText;
     document.getElementById('gf2-panel-revenue-note').textContent = priorityInfo.explanation
-      || (t.name + ' is classified as a ' + tierText + ' market in Royaltē’s canonical market-priority ruleset.');
+      || (t.name + ' is classified as a ' + tierText + ' market in Royaltē’s Canonical Market Metadata Registry™.');
 
     document.getElementById('gf2-panel-summary').textContent = t.reason || 'Not available from reviewed sources.';
 

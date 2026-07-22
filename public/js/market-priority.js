@@ -1,74 +1,36 @@
 /* ============================================================
- * Royaltē Market Priority™ — canonical metadata (not evidence)
+ * DEPRECATED — retired by the Canonical Market Metadata Registry™
  * ============================================================
- * Board directive (2026-07-22, Country Intelligence™ Priority & Revenue
- * Opportunity): a configurable, editorial ruleset classifying relative
- * market size/importance, entirely independent of any single artist's
- * real catalog status. This is NOT Territory Intelligence Engine output
- * and must never be presented as evidence -- it is a business-priority
- * lens applied on top of real evidence (t.status), not a substitute
- * for it.
+ * Board directive (2026-07-22, Canonical Market Metadata Registry):
+ * this file's real logic has moved to
+ * public/js/canonical-market-metadata.js, which is now the single
+ * source of truth for market tier/priority metadata.
  *
- * Distinct from BIG6_STOREFRONTS (lib/territory/canonical-territory-
- * vocabulary.js, Brief 011) -- that is a separately Board-locked list
- * for a different consumer. This module intentionally does not reuse
- * or mutate it, to avoid a change here rippling into that lock.
+ * global-music-footprint.html (the only real consumer, confirmed by a
+ * full-repo grep before this migration) no longer loads this file --
+ * it loads canonical-market-metadata.js directly. This shim exists
+ * purely as a safety net per the Board's "maintain backward
+ * compatibility" instruction, in case anything else references
+ * window.RoyalteMarketPriority. It contains no logic of its own; it
+ * only delegates to the real registry, so there is exactly one place
+ * the tier/priority ruleset actually lives.
  *
- * Only territories the Board explicitly named are classified below.
- * Every other real Apple storefront defaults to Tier 3 ("Standard
- * Market") -- not a claim about that market's real size, simply "not
- * yet named in this ruleset." Extend TIER_1 / TIER_2 only through a
- * Board directive, never by inference.
- *
- * No numeric revenue or audience figures are computed or displayed
- * anywhere in this module -- every output is a qualitative bucket
- * traceable to two real/canonical inputs only: catalog status and tier.
+ * Safe to delete once nothing loads this file — check with:
+ *   grep -rn "market-priority" public/
  * ============================================================ */
 
 (function (root) {
   'use strict';
 
-  var TIER_1 = ['us', 'ca', 'gb', 'de', 'jp', 'br', 'in', 'mx', 'fr', 'au'];
-  var TIER_2 = ['it', 'es', 'nl', 'kr', 'se', 'no'];
-
-  var TIER_LABEL = { 1: 'Tier 1', 2: 'Tier 2', 3: 'Standard Market' };
-
-  function getTier(code) {
-    var c = String(code || '').toLowerCase();
-    if (TIER_1.indexOf(c) !== -1) return 1;
-    if (TIER_2.indexOf(c) !== -1) return 2;
-    return 3;
+  if (!root.RoyalteCanonicalMarketMetadata) {
+    console.warn('[market-priority] deprecated shim loaded without canonical-market-metadata.js present -- load order likely needs fixing.');
+    return;
   }
 
-  function tierLabel(tier) {
-    return TIER_LABEL[tier] || 'Standard Market';
-  }
-
-  // Deterministic, documented rule combining real catalog status (t.status,
-  // from the Territory Intelligence Engine) with the canonical tier above.
-  // 'explanation' is set only for cases needing bespoke copy (Available);
-  // callers fall back to a generic tier-based sentence otherwise.
-  function derive(status, tier) {
-    if (status === 'Available') {
-      return { priority: 'N/A', revenueOpportunity: 'N/A', explanation: 'No action needed — catalog is already available here.' };
-    }
-    if (status === 'Unavailable') {
-      if (tier === 1) return { priority: 'Critical', revenueOpportunity: 'High', explanation: null };
-      if (tier === 2) return { priority: 'High', revenueOpportunity: 'Medium', explanation: null };
-      return { priority: 'Medium', revenueOpportunity: 'Low', explanation: null };
-    }
-    if (status === 'Unknown') {
-      if (tier === 1) return { priority: 'High', revenueOpportunity: 'Medium', explanation: null };
-      return { priority: 'Medium', revenueOpportunity: 'Low', explanation: null };
-    }
-    // Pending Review / not yet evaluated -- can't prioritize what hasn't
-    // been assessed yet.
-    return { priority: 'Low', revenueOpportunity: 'Unknown', explanation: null };
-  }
-
+  var CMM = root.RoyalteCanonicalMarketMetadata;
   root.RoyalteMarketPriority = {
-    getTier: getTier,
-    tierLabel: tierLabel,
-    derive: derive,
+    getTier: CMM.getTier,
+    tierLabel: CMM.tierLabel,
+    derive: function (status, code) { return CMM.deriveStrategicSignal(status, code); },
   };
 }(window));
