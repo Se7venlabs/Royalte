@@ -562,7 +562,12 @@
                 </div>
 
                 <div>
-                  <div class="gf2-panel-section-label">Provider Coverage</div>
+                  <div class="gf2-panel-section-label">Platform Availability</div>
+                  <div id="gf2-panel-platform"></div>
+                </div>
+
+                <div>
+                  <div class="gf2-panel-section-label">Artist Catalog</div>
                   <div id="gf2-panel-providers"></div>
                 </div>
 
@@ -770,6 +775,17 @@
     onCountrySelect: function (t) { showCountryPanel(t); },
   });
 
+  // Platform Availability vs Artist Catalog (Board directive 2026-07-22):
+  // two independent facts that were previously conflated into one row.
+  // "Platform Availability" = does this provider operate a storefront in
+  // this territory at all (real, from t.platformSupport, sourced by the
+  // Territory Intelligence Engine -- see api/_lib/territory-intelligence.js).
+  // "Artist Catalog" = is THIS artist's catalog available there (existing
+  // t.status logic, unchanged). Structured as a list so future providers
+  // append rows without a markup change.
+  var PROVIDER_DISPLAY_NAMES = { apple_music: 'Apple Music' };
+  function providerDisplayName(code) { return PROVIDER_DISPLAY_NAMES[code] || code; }
+
   function showCountryPanel(t) {
     panelEmpty.hidden = true;
     panelContent.hidden = false;
@@ -779,22 +795,40 @@
     dot.style.background = STATUS_COLOR[t.status] || '#9ca3af';
     document.getElementById('gf2-panel-status-text').textContent = t.status;
 
+    var platformEl = document.getElementById('gf2-panel-platform');
+    platformEl.innerHTML = '';
+    // Falls back to Apple-supported when platformSupport is absent (older
+    // cached sessions predating this field) -- every territory this panel
+    // can show today is, by construction, an Apple storefront (the Engine
+    // only ever iterates ALL_APPLE_STOREFRONTS), so this fallback reflects
+    // a real invariant, not a guess.
+    var platformSupport = Array.isArray(t.platformSupport) && t.platformSupport.length > 0
+      ? t.platformSupport
+      : [{ provider: 'apple_music', supported: true }];
+    platformSupport.forEach(function (p) {
+      var pRow = document.createElement('div');
+      pRow.className = 'gf2-panel-provider-row';
+      var label = p.supported ? '✅ Supported' : '❌ Not Supported';
+      pRow.innerHTML = '<span>' + esc(providerDisplayName(p.provider)) + '</span><span style="color:' + (p.supported ? '#22c55e' : '#f87171') + '">' + esc(label) + '</span>';
+      platformEl.appendChild(pRow);
+    });
+
     var providersEl = document.getElementById('gf2-panel-providers');
     providersEl.innerHTML = '';
-    // Only real provider evidence -- currently Apple Music only (Phase 5.2).
-    // Confirmed-available is the ONLY state that reads "Confirmed" -- a
-    // providers[] entry alone means "Apple returned evidence for this
-    // territory," not "confirmed available" (caught live: Brazil, status
-    // Unavailable, still carries a real apple_music evidence entry because
-    // Apple genuinely checked and found no catalog match -- showing
-    // "Confirmed" there would contradict the Unavailable status directly
-    // above it).
+    // Catalog availability for THIS artist specifically -- independent of
+    // platform support above. A providers[] entry alone means "the platform
+    // returned evidence for this territory," not "confirmed available"
+    // (caught live: Brazil, status Unavailable, still carries a real
+    // apple_music evidence entry because Apple genuinely checked and found
+    // no catalog match -- showing "Available" there would contradict the
+    // Unavailable status directly above it).
     var isAvailable = t.status === 'Available';
     var hasEvidence = Array.isArray(t.providers) && t.providers.indexOf('apple_music') !== -1;
-    var providerLabel = isAvailable ? '✓ Confirmed' : (hasEvidence ? '— ' + t.status : 'Not yet assessed');
+    var catalogLabel = isAvailable ? '✅ Available' : (hasEvidence ? '❌ Not Available' : '— Not yet assessed');
+    var artistLabel = (typeof ctx !== 'undefined' && ctx && ctx.artistName) ? ctx.artistName : 'This artist';
     var row = document.createElement('div');
     row.className = 'gf2-panel-provider-row';
-    row.innerHTML = '<span>Apple Music</span><span style="color:' + (isAvailable ? '#22c55e' : '#6b7280') + '">' + esc(providerLabel) + '</span>';
+    row.innerHTML = '<span>' + esc(artistLabel) + '</span><span style="color:' + (isAvailable ? '#22c55e' : '#f87171') + '">' + esc(catalogLabel) + '</span>';
     providersEl.appendChild(row);
 
     document.getElementById('gf2-panel-assessed').textContent = fmtDate(t.lastVerified);
