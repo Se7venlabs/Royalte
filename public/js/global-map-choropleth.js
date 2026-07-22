@@ -118,14 +118,48 @@
           el.addEventListener('mouseenter', function (e) { showTooltip(e, t); });
           el.addEventListener('mousemove', function (e) { moveTooltip(e); });
           el.addEventListener('mouseleave', hideTooltip);
-          el.addEventListener('click', function () { selectCountry(el, t); });
           el.setAttribute('tabindex', '0');
           el.setAttribute('role', 'button');
           el.setAttribute('aria-label', t.name + ' — ' + t.status);
-          el.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectCountry(el, t); }
-          });
         }
+      });
+
+      // Click/keydown resolution is delegated to the SVG root rather than
+      // bound per-element. Some territory groups are geographically nested
+      // inside another territory's <g> (e.g. Hong Kong/Macau/Taiwan inside
+      // China) -- with a listener on every element, a click on the nested
+      // child fired the child's own handler correctly, then bubbled to
+      // *also* fire the parent's independent handler, which overwrote the
+      // panel with the parent's data. A single delegated listener walks
+      // from the actual click target outward and resolves to the nearest
+      // ancestor-or-self that has real evidence -- for a click landing
+      // inside Macau, that's Macau itself (nearer than China), so it
+      // never reaches China's data at all. For the ten other nested pairs
+      // in this SVG (e.g. France's overseas territories), the nested
+      // child has no independent Apple evidence, so resolution correctly
+      // continues outward to the parent -- identical to today's behavior,
+      // preserved because the walk is evidence-based, not depth-based.
+      function resolveTerritoryTarget(target) {
+        var el = target;
+        while (el && el !== svgEl) {
+          if (el.nodeType === 1 && el.dataset && el.dataset.code) {
+            var t = territoryByCode[el.dataset.code];
+            if (t) return { el: el, t: t };
+          }
+          el = el.parentNode;
+        }
+        return null;
+      }
+
+      svgEl.addEventListener('click', function (e) {
+        var match = resolveTerritoryTarget(e.target);
+        if (match) selectCountry(match.el, match.t);
+      });
+
+      svgEl.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var match = resolveTerritoryTarget(e.target);
+        if (match) { e.preventDefault(); selectCountry(match.el, match.t); }
       });
 
       function showTooltip(e, t) {
