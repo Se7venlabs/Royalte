@@ -39,7 +39,7 @@ import { ALL_APPLE_STOREFRONTS, getCountryName, normalizeStorefrontCode }
   from '../../lib/territory/canonical-territory-vocabulary.js';
 import { Capability } from '../../provider-acquisition/capability/capabilityVocabulary.js';
 
-export const TERRITORY_INTELLIGENCE_VERSION = '1.0.0';
+export const TERRITORY_INTELLIGENCE_VERSION = '1.1.0';
 
 const APPLE_PROVIDER = 'apple_music';
 
@@ -192,6 +192,16 @@ export function assembleTerritoryIntelligence(evidencePackages) {
         state,
         confidence: deriveConfidence(state, obsForTerritory.length),
         evidence: obsForTerritory,
+        // Platform Availability — real, not inferred: this engine iterates
+        // ALL_APPLE_STOREFRONTS exclusively (line above), so every territory
+        // it ever produces is, by construction, one where Apple operates a
+        // storefront. Threaded as an explicit field (Board directive
+        // 2026-07-22, Platform vs Catalog Availability) so the distinction
+        // between "Apple supports this territory" and "this artist's catalog
+        // is available here" is a real, sourced fact rather than a frontend
+        // assumption -- and so a future multi-provider phase can append
+        // additional { provider, supported } entries without a shape change.
+        platformSupport: [{ provider: APPLE_PROVIDER, supported: true }],
       };
     });
 

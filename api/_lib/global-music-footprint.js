@@ -69,13 +69,16 @@
 //          recommendedAction: string|null,    // null for Available (no action needed)
 //          confidence: 'Verified'|'Partial'|'Unknown', // real, from the Engine
 //          lastVerified: string|null,         // real evidence.acquiredAt ISO timestamp, or null
+//          platformSupport: [{ provider, supported }], // real, from the Engine --
+//                                              // "does this platform operate in this
+//                                              // territory," distinct from catalog status
 //        }],
 //      } | null,
 //    }
 //
 // ─────────────────────────────────────────────────────────────────────
 
-export const GLOBAL_MUSIC_FOOTPRINT_VERSION = '1.2.0';
+export const GLOBAL_MUSIC_FOOTPRINT_VERSION = '1.3.0';
 
 // Distribution Gaps™ (Board Directive 2026-07-17) — display-label and
 // recommended-action maps. Every value here is a deterministic function of
@@ -212,6 +215,11 @@ function buildDistributionGaps(territoryIntelligence) {
       // Rebuild) -- repurposes existing evidence rather than inventing a
       // new field, for the Country Intelligence Panel.
       confidence:        t?.confidence ?? 'Unknown',
+      // platformSupport: real, from the Engine (territory-intelligence.js) --
+      // distinguishes "this platform operates in this territory" from
+      // "this artist's catalog is available here" (status/providers above).
+      // Added Board directive 2026-07-22 (Platform vs Catalog Availability).
+      platformSupport:   Array.isArray(t?.platformSupport) ? t.platformSupport : [],
     };
   });
 
