@@ -67,8 +67,19 @@ Tested against the deployed Vercel preview.
 | Tablet | 834×872 (requested 834×1112 — tool applied its own chrome) | `.miv2-nav-tabs` correctly hides at the 900px breakpoint (nav shows only brand + avatar); `.miv2-content-grid` collapses to one column, sidebar stacks above the billboard; gallery drops to 3 columns |
 | Mobile | Tool floored the requested 390px width to 834px both times (known browser-automation limitation, documented in prior rounds this session — not a page defect). The `@media (max-width: 560px)` rules for `.miv2-gallery` and `.miv2-kpi-row` (2-column) and `@media (max-width: 780px)` for `.miv2-footer` (single column) were independently confirmed present and correctly authored via direct stylesheet inspection |
 
-## 6. Deployment
+## 6. Fidelity refinement pass (round 2)
+
+After a direct side-by-side comparison against the approved image, the Board flagged that the workspace still needed to match the reference's specific mood and material choices, not just its structure. Four gaps were closed:
+
+| Gap | Fix |
+|---|---|
+| Scene read as bright/saturated blue across the whole region, including behind the sidebar | Overlay gradient rebuilt so the region is near-black by default, with city glow concentrated in a low, centered band behind the billboard only — matching the reference's high-contrast, mostly-dark canvas |
+| Sidebar/KPI cards were semi-transparent glass showing the photo through | Switched to solid, ~94%-opaque dark panels, matching the reference's opaque card treatment |
+| Billboard frame read as a thick brushed-metal border | Rebuilt as a slim glowing gold/white LED edge (box-shadow glow, 2px border) matching the reference's illuminated-sign look |
+| Lamps were flat triangular spotlight cones | Rebuilt as hanging pendant fixtures on thin wires with a soft downward glow, matching the reference's gallery-style track lighting |
+
+## 7. Deployment
 
 - Branch: `docs/media-intelligence-billboard-preview` (same branch as the earlier billboard-preview round; both files coexist as separate preview artifacts)
 - No production files modified
-- Preview URL: https://royalte-orkuqw7t1-darrylwest-7086s-projects.vercel.app/workspaces/media-intelligence-v2.html
+- Preview URL: https://royalte-9mmzuzweh-darrylwest-7086s-projects.vercel.app/workspaces/media-intelligence-v2.html
