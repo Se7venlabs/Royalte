@@ -65,9 +65,10 @@
     .miv2-scene {
       position: relative; padding: 28px 32px 40px; overflow: hidden;
       background-image:
-        linear-gradient(180deg, rgba(6,7,10,0.55) 0%, rgba(6,7,10,0.25) 30%, rgba(6,7,10,0.55) 78%, #06070a 100%),
-        url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1800&q=60');
-      background-size: cover; background-position: center 30%;
+        radial-gradient(ellipse 900px 500px at 50% 62%, rgba(20,22,28,0.15), rgba(6,7,10,0.88) 70%),
+        linear-gradient(180deg, #06070a 0%, rgba(6,7,10,0.85) 16%, rgba(6,7,10,0.35) 46%, rgba(6,7,10,0.55) 68%, #06070a 100%),
+        url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1800&q=50&sat=-40');
+      background-size: cover; background-position: center 42%;
     }
     .miv2-page-header { position: relative; z-index: 2; margin-bottom: 18px; }
     .miv2-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mc-gold, #c6a86a); margin-bottom: 4px; }
@@ -78,8 +79,9 @@
     .miv2-content-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 250px 1fr; gap: 16px; align-items: start; }
     @media (max-width: 1080px) { .miv2-content-grid { grid-template-columns: 1fr; } }
 
-    /* Floating glass sidebar cards */
-    .miv2-glass { background: rgba(10,11,15,0.62); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; }
+    /* Sidebar / KPI cards -- solid dark panels, matching the reference's
+       opaque card treatment (not glass-over-photo). */
+    .miv2-glass { background: rgba(9,10,13,0.94); border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; padding: 14px; }
     .miv2-glass + .miv2-glass { margin-top: 10px; }
     .miv2-card-label { display: flex; align-items: center; justify-content: space-between; font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
 
@@ -106,19 +108,20 @@
     .miv2-platform-bar-fill--low { background: linear-gradient(90deg, #d97706, #f59e0b); }
 
     /* ── Billboard structure: poles + lamps + gold frame ─────────────── */
-    .miv2-billboard-wrap { position: relative; padding-top: 34px; padding-bottom: 26px; }
+    .miv2-billboard-wrap { position: relative; padding-top: 46px; padding-bottom: 26px; }
     .miv2-lamps { position: absolute; top: 0; left: 6%; right: 6%; display: flex; justify-content: space-between; z-index: 3; }
-    .miv2-lamp { position: relative; width: 10px; height: 16px; }
-    .miv2-lamp-fixture { width: 10px; height: 10px; border-radius: 3px 3px 8px 8px; background: linear-gradient(180deg,#3a3a42,#1a1a1f); border: 1px solid rgba(255,255,255,0.15); margin: 0 auto; }
-    .miv2-lamp-cone { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 0; height: 0;
-      border-left: 22px solid transparent; border-right: 22px solid transparent; border-top: 46px solid rgba(255,228,168,0.14); filter: blur(1px); }
+    .miv2-lamp { position: relative; width: 2px; height: 30px; margin: 0 auto; }
+    .miv2-lamp-wire { width: 1px; height: 20px; background: rgba(255,255,255,0.22); margin: 0 auto; }
+    .miv2-lamp-fixture { width: 9px; height: 6px; border-radius: 2px 2px 6px 6px; background: linear-gradient(180deg,#2c2c32,#141417); border: 1px solid rgba(255,255,255,0.15); margin: 0 auto; }
+    .miv2-lamp-glow { position: absolute; top: 24px; left: 50%; transform: translateX(-50%); width: 34px; height: 26px;
+      background: radial-gradient(ellipse at 50% 0%, rgba(255,224,168,0.5), rgba(255,224,168,0.12) 55%, transparent 78%); filter: blur(0.5px); }
 
     .miv2-billboard-frame {
-      position: relative; z-index: 2; border-radius: 10px; padding: 4px;
-      background: linear-gradient(145deg, #e8cf94, #a9834a 45%, #7a5f36);
-      box-shadow: 0 0 0 1px rgba(198,168,106,0.3), 0 18px 50px rgba(0,0,0,0.55), 0 0 40px rgba(198,168,106,0.18);
+      position: relative; z-index: 2; border-radius: 8px; padding: 2px;
+      background: linear-gradient(145deg, #fff3d6, #e8cf94 40%, #c6a86a 100%);
+      box-shadow: 0 0 8px 1px rgba(255,228,168,0.55), 0 0 34px 6px rgba(198,168,106,0.32), 0 20px 55px rgba(0,0,0,0.6);
     }
-    .miv2-billboard-inner { background: #0a0b0e; border-radius: 7px; overflow: hidden; }
+    .miv2-billboard-inner { background: #0a0b0e; border-radius: 6px; overflow: hidden; }
     .miv2-billboard-caption { text-align: center; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.6); padding: 10px 0 7px; }
     .miv2-gallery { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
     @media (max-width: 900px) { .miv2-gallery { grid-template-columns: repeat(3, 1fr); } }
@@ -242,13 +245,13 @@
 
     <div class="miv2-billboard-wrap">
       <div class="miv2-lamps" aria-hidden="true">
-        <div class="miv2-lamp"><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-cone"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-cone"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-cone"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-cone"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-cone"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-cone"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-cone"></div></div>
+        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
       </div>
       <div class="miv2-billboard-frame">
         <div class="miv2-billboard-inner">
