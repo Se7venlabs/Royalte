@@ -152,12 +152,27 @@
       optional:       ['healthIntelligence'],
     },
     'ai-insights': {
+      // Phase 1-3 rebuild (Board directive 2026-07-23): declares every field
+      // the workspace actually reads, closing the gap the Discovery Phase
+      // found (healthReport was read live but undeclared here). Migrated
+      // off the CimAdapter-bridged identityIntelligence/publishingIntelligence
+      // to the CIM-native identity/publishing fields every other recovered
+      // workspace already uses. Added the domains Phase 2's cross-domain
+      // synthesis (Intelligence Coverage Snapshot(TM)) now reads: catalogIntelligence,
+      // verification (Backend), globalFootprint, mediaIntelligence,
+      // monitoringIntelligence. Settings is intentionally absent -- it is
+      // user configuration, not a canonical intelligence domain, confirmed
+      // in governance/AI_INSIGHTS_DEPENDENCY_MAP.md.
       required:       ['executiveBrief'],
       requiredFields: ['executiveBrief.headline'],
       requiredTypes:  {
         'executiveBrief.headline': 'non-empty-string',
       },
-      optional:       ['royalteAI', 'healthScore'],
+      optional:       [
+        'royalteAI', 'healthScore', 'healthReport', 'healthIntelligence',
+        'identity', 'publishing', 'catalogIntelligence', 'verification',
+        'globalFootprint', 'mediaIntelligence', 'monitoringIntelligence',
+      ],
     },
     'media-intelligence': {
       // Runtime Context Audit (Board directive, 2026-07-21): mediaIntelligence
