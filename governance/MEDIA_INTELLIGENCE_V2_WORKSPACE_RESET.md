@@ -78,8 +78,14 @@ After a direct side-by-side comparison against the approved image, the Board fla
 | Billboard frame read as a thick brushed-metal border | Rebuilt as a slim glowing gold/white LED edge (box-shadow glow, 2px border) matching the reference's illuminated-sign look |
 | Lamps were flat triangular spotlight cones | Rebuilt as hanging pendant fixtures on thin wires with a soft downward glow, matching the reference's gallery-style track lighting |
 
-## 7. Deployment
+## 7. Structural correction (round 3 — literal implementation pass)
+
+The Board clarified the approved image is the implementation specification, not a reference to reinterpret — every section should occupy the same location as the source. A direct re-measurement against the image found one real structural mismatch: the KPI card row had been built as a full-width row spanning beneath *both* the sidebar and the billboard. In the approved image, the sidebar and the billboard (with the KPI row stacked beneath it) are two independent columns of different heights — the KPI row is only as wide as the billboard above it, not the full page.
+
+Fixed by wrapping the billboard and KPI row in a new `.miv2-right-col`, nested inside the same two-column grid as the sidebar, so the layout now reads `[sidebar column] [billboard + KPI row, stacked]` — matching the reference's actual column structure. Also widened the sidebar column from 250px to 270px to better match the reference's proportions. Verified live: KPI row now starts flush with the billboard's left edge instead of extending under the sidebar; tablet breakpoint re-confirmed correct after the restructure; zero console errors.
+
+## 8. Deployment
 
 - Branch: `docs/media-intelligence-billboard-preview` (same branch as the earlier billboard-preview round; both files coexist as separate preview artifacts)
 - No production files modified
-- Preview URL: https://royalte-9mmzuzweh-darrylwest-7086s-projects.vercel.app/workspaces/media-intelligence-v2.html
+- Preview URL: https://royalte-9z6op0bld-darrylwest-7086s-projects.vercel.app/workspaces/media-intelligence-v2.html
