@@ -11,6 +11,25 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-23 — Marketing Automation Constitution v1.1 — RATIFIED
+
+| | |
+|---|---|
+| **Date** | 2026-07-23 |
+| **Decision** | The Marketing Automation Constitution (`governance/MARKETING_AUTOMATION_CONSTITUTION.md`) is ratified at v1.1, following a v1.0 discovery-only draft and a Board review (Board Score 9.9/10) that required 8 amendments before ratification: Educational Integrity Principle (Art. XXI), AI Disclosure Principle (Art. XXII), Content Ownership Principle (Art. XXIII), Emergency Shutdown Principle (Art. XXIV), Brand Voice (Art. XXV), the Marketing Automation Engine™ architectural abstraction separating the constitutional orchestration layer from its replaceable Execution Provider — currently Make.com (Art. XXVI), the reserved Future Marketing Intelligence™ capability (Art. XXVII), and formal recording of Executive ownership of this module as unresolved (Amendment 8, no Executive assigned). |
+| **Reason** | Establishes permanent architectural boundaries — content authority, human-approval default, AI governance, duplicate prevention, auditability, vendor independence, brand integrity — before any Make.com scenario, Buffer integration, webhook, or automated campaign is implemented, per the Board's own requirement that no such implementation begin without a ratified governing Constitution first. |
+| **Impact** | Governance only — zero implementation code, zero Make Blueprint, zero automation workflow, zero production configuration. Ratification approves the governance model; it does **not** grant Implementation, Production, or Autonomous Publishing Authorization, which remain separately gated behind the full pre-activation checklist in Article XIX (each item subject to its own future Board sign-off). |
+| **Vote** | Board Approved (9.9/10) |
+| **PR Number** | _(pending — opened same day)_ |
+| **Commit SHA** | _(pending)_ |
+| **Tag** | _(none)_ |
+| **Test surface** | N/A — documentation only |
+| **Constitution update required** | No — this ratifies a module-scoped Constitution subordinate to `constitution/ROYALTE_MASTER_CONSTITUTION.md`; the Master Constitution itself is unchanged. |
+
+**Open governance matter, explicitly not resolved by this decision:** no Executive currently holds constitutional ownership of the Marketing Automation module. Per Amendment 8, this is deferred to a future, separate Board governance decision — no existing Executive's scope is expanded to cover it by this ratification.
+
+---
+
 ### 2026-07-21 — Catalog Intelligence™ — ISRC Intelligence™ v1 — APPROVED, MERGED
 
 | | |
