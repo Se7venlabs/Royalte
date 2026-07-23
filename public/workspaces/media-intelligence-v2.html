@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Media Intelligence™ v2 — Presentation Preview (NOT PRODUCTION)</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/royalte-rds.css">
+  <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <style>
+    /* ══════════════════════════════════════════════════════════════════
+       PRESENTATION-FIRST BUILD — Media Intelligence™ Workspace Reset
+       (Board directive 2026-07-24). This is a brand-new, standalone
+       workspace file. The production public/workspaces/media-intelligence.html
+       is completely untouched and remains the live/rollback version.
+
+       Scope of THIS phase, per the Board's own phasing:
+         Phase 1 (this file, now)   -- layout, structure, presentation only
+         Phase 2 (future, separate) -- wire real canonical media assets
+         Phase 3 (future, separate) -- migrate real intelligence
+                                        (EvidenceBridge/CIM/KPIs/ATHENA)
+                                        into this shell section by section
+         Retirement (future, gated) -- only after Phase 3 + regression +
+                                        final Board approval
+
+       Because real intelligence migration hasn't happened yet, EVERY
+       number, delta, and platform percentage on this page is
+       REPRESENTATIVE PLACEHOLDER CONTENT modeled on the Board-approved
+       design reference -- not a live scan, not a claim of what Royaltē
+       can currently detect. Every such element carries a visible "DEMO"
+       tag so this page can never be mistaken for a real report if
+       viewed in isolation (e.g. a shared screenshot). See
+       governance/MEDIA_INTELLIGENCE_V2_WORKSPACE_RESET.md for the full
+       Constitutional Compliance Report and the deliberate deviations
+       from the reference (kept Royaltē's real left-rail app shell
+       instead of the mockup's top nav bar -- global navigation is
+       shared platform chrome, not part of this workspace's commission).
+       ══════════════════════════════════════════════════════════════════ */
+    .ws-dept--media { --ws-accent: var(--mc-gold); --ws-accent-soft: var(--mc-gold-soft); --ws-accent-border: var(--mc-border-gold); --ws-accent-glow: var(--mc-gold-glow); }
+    .ws-dept--media .hi-main { gap: 14px; padding: 20px 28px 28px; }
+
+    .preview-banner {
+      background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.3);
+      color: #facc15; font-size: 12px; font-weight: 700; text-align: center;
+      padding: 8px 16px; letter-spacing: 0.03em;
+    }
+    .demo-tag {
+      display: inline-flex; align-items: center; font-size: 7.5px; font-weight: 800; letter-spacing: 0.06em;
+      padding: 2px 6px; border-radius: 4px; background: rgba(250,204,21,0.85); color: #1a1508;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────────────── */
+    .mi2-hero {
+      position: relative; border-radius: 18px; overflow: hidden;
+      padding: 24px 24px 20px;
+      background:
+        radial-gradient(ellipse 1100px 320px at 50% 0%, rgba(198,168,106,0.09), transparent 70%),
+        linear-gradient(180deg, #0a0c12 0%, #12151d 55%, #191c26 100%);
+      border: 1px solid var(--mc-border);
+    }
+    .mi2-skyline {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 100px;
+      background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 100%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 18px, transparent 18px 40px);
+      clip-path: polygon(0 60%, 4% 60%, 4% 30%, 9% 30%, 9% 50%, 15% 50%, 15% 20%, 20% 20%, 20% 45%, 27% 45%, 27% 10%, 33% 10%, 33% 40%, 40% 40%, 40% 25%, 47% 25%, 47% 55%, 53% 55%, 53% 15%, 60% 15%, 60% 35%, 67% 35%, 67% 5%, 73% 5%, 73% 30%, 80% 30%, 80% 45%, 87% 45%, 87% 20%, 93% 20%, 93% 50%, 100% 50%, 100% 100%, 0 100%);
+      opacity: 0.55; pointer-events: none;
+    }
+    .mi2-hero-title { position: relative; z-index: 1; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mc-gold); margin-bottom: 4px; }
+    .mi2-hero-heading { position: relative; z-index: 1; font-size: 22px; font-weight: 700; color: #fff; margin: 0 0 16px; letter-spacing: -0.01em; }
+
+    .mi2-layout { position: relative; z-index: 1; display: grid; grid-template-columns: 250px 1fr; gap: 14px; align-items: start; }
+    @media (max-width: 1080px) { .mi2-layout { grid-template-columns: 1fr; } }
+
+    .mi2-side-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; }
+    .mi2-side-card + .mi2-side-card { margin-top: 10px; }
+    .mi2-side-label { display: flex; align-items: center; justify-content: space-between; font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 8px; }
+
+    .mi2-ring-wrap { position: relative; width: 100px; height: 100px; margin: 0 auto; }
+    .mi2-ring-svg { width: 100px; height: 100px; transform: rotate(-90deg); }
+    .mi2-ring-track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 7; }
+    .mi2-ring-fill { fill: none; stroke: #34d399; stroke-width: 7; stroke-linecap: round; }
+    .mi2-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .mi2-ring-num { font-size: 24px; font-weight: 700; color: #fff; line-height: 1; }
+    .mi2-ring-qual { font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #34d399; margin-top: 2px; }
+    .mi2-ring-delta { text-align: center; font-size: 10.5px; font-weight: 700; color: #34d399; margin-top: 8px; }
+
+    .mi2-signal-svg { width: 100%; height: 34px; display: block; }
+    .mi2-signal-path { fill: none; stroke: #34d399; stroke-width: 1.6; opacity: 0.85; }
+
+    .mi2-platform-item { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .mi2-platform-item:last-child { margin-bottom: 0; }
+    .mi2-platform-icon { width: 18px; height: 18px; flex-shrink: 0; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #fff; }
+    .mi2-platform-label { flex: 1; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.8); }
+    .mi2-platform-pct { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.8); }
+    .mi2-platform-row { display: flex; flex-direction: column; }
+    .mi2-platform-bar-track { height: 4px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; margin-top: 3px; margin-left: 26px; }
+    .mi2-platform-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #22c55e, #34d399); }
+    .mi2-platform-bar-fill--low { background: linear-gradient(90deg, #d97706, #f59e0b); }
+
+    .mi2-billboard-frame {
+      border: 1px solid rgba(198,168,106,0.45); border-radius: 12px; background: rgba(0,0,0,0.35);
+      box-shadow: 0 0 0 1px rgba(198,168,106,0.12), 0 8px 30px rgba(0,0,0,0.5), inset 0 0 40px rgba(198,168,106,0.05);
+      padding: 4px; height: 100%;
+    }
+    .mi2-billboard-caption { text-align: center; font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); padding: 8px 0 6px; }
+    .mi2-gallery { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
+    @media (max-width: 900px) { .mi2-gallery { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 560px) { .mi2-gallery { grid-template-columns: repeat(2, 1fr); } }
+    .mi2-panel { position: relative; aspect-ratio: 3/4; border-radius: 6px; overflow: hidden; background: #14161c; transition: transform 0.5s ease, box-shadow 0.5s ease; }
+    .mi2-panel--active { transform: scale(1.035); box-shadow: 0 0 0 1.5px rgba(198,168,106,0.65), 0 10px 24px rgba(0,0,0,0.5); z-index: 2; }
+    .mi2-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .mi2-panel-missing { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; padding: 8px; background: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 4px), #16181f; }
+    .mi2-panel-missing svg { width: 20px; height: 20px; color: rgba(240,80,96,0.55); }
+    .mi2-panel-missing-label { font-size: 8.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(240,80,96,0.85); line-height: 1.35; }
+    .mi2-panel-label { position: absolute; left: 0; right: 0; bottom: 0; padding: 5px 6px 4px; font-size: 8.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255,255,255,0.85); background: linear-gradient(0deg, rgba(0,0,0,0.75), transparent); }
+    .mi2-panel-demo-tag { position: absolute; top: 5px; left: 5px; }
+    .mi2-gallery-dots { display: flex; justify-content: center; gap: 5px; padding: 8px 0 4px; }
+    .mi2-gallery-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+    .mi2-gallery-dot--active { background: var(--mc-gold); }
+
+    .mi2-metric-row { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 14px; }
+    @media (max-width: 1080px) { .mi2-metric-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 560px) { .mi2-metric-row { grid-template-columns: repeat(2, 1fr); } }
+    .mi2-metric-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px; }
+    .mi2-metric-label { display: flex; align-items: center; justify-content: space-between; font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 6px; }
+    .mi2-metric-val { font-size: 19px; font-weight: 700; color: #fff; }
+    .mi2-metric-val--sub { font-size: 14px; }
+    .mi2-metric-qual { font-size: 10px; font-weight: 700; margin-top: 2px; }
+    .mi2-metric-qual--good { color: #34d399; }
+    .mi2-metric-qual--fair { color: #f59e0b; }
+    .mi2-metric-qual--risk { color: #f05060; }
+    .mi2-metric-delta { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+
+    .mi2-exec-row { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; align-items: start; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
+    @media (max-width: 780px) { .mi2-exec-row { grid-template-columns: 1fr; } }
+    .mi2-exec-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+    .mi2-exec-text { font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,0.75); }
+    .mi2-exec-cta { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: none; cursor: pointer; background: linear-gradient(145deg, var(--mc-gold-bright), var(--mc-gold-secondary)); color: #1a1508; font-size: 12px; font-weight: 700; white-space: nowrap; }
+
+    /* ── ATHENA section — presentation placeholder ──────────────────── */
+    .mi2-athena { position: relative; border-radius: 16px; padding: 22px 24px; margin-top: 6px; overflow: hidden;
+      background: radial-gradient(ellipse 700px 220px at 15% 0%, rgba(198,168,106,0.08), transparent 70%), rgba(255,255,255,0.02);
+      border: 1px solid rgba(198,168,106,0.25); display: flex; align-items: center; gap: 20px; }
+    .mi2-athena-orb { width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.35), rgba(198,168,106,0.6) 45%, rgba(198,168,106,0.15) 75%);
+      box-shadow: 0 0 24px rgba(198,168,106,0.35); }
+    .mi2-athena-title { font-size: 13px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .mi2-athena-text { font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.6); margin-top: 4px; max-width: 640px; }
+  </style>
+</head>
+<body>
+<div class="preview-banner">PRESENTATION PREVIEW — layout &amp; structure only. All numbers, deltas, and platform data below are representative placeholder content pending the Intelligence Migration phase. Not connected to a live scan. Not production.</div>
+<div class="ws-shell ws-dept--media">
+
+  <aside class="ws-rail" role="navigation" aria-label="Royaltē OS navigation">
+    <a class="mc-brand" href="/mission-control.html">
+      <div class="mc-brand-mark" aria-hidden="true">ē</div>
+      <div><div class="mc-brand-text">ROYALTĒ</div><div class="mc-brand-sub">MISSION CONTROL</div></div>
+    </a>
+    <nav class="mc-nav">
+      <a class="mc-nav-item mc-nav-item--active" href="#" aria-current="page">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-media"></use></svg></span>
+        <span><span class="mc-nav-label">Media Intelligence™</span><div class="mc-nav-sub">v2 — Presentation Preview</div></span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="ws-content">
+    <header class="ws-breadcrumb">
+      <span class="ws-breadcrumb-current">Media Intelligence™ v2 — Workspace Reset Preview</span>
+    </header>
+
+    <div class="ws-body">
+      <div class="hi-main">
+
+        <!-- § DIGITAL BILLBOARD HERO™ ─────────────────────────────────── -->
+        <div class="mi2-hero">
+          <div class="mi2-skyline" aria-hidden="true"></div>
+          <div class="mi2-hero-title">Media Intelligence™</div>
+          <h1 class="mi2-hero-heading">Your Public Presence. Measured.</h1>
+
+          <div class="mi2-layout">
+            <div class="mi2-sidebar">
+              <div class="mi2-side-card">
+                <div class="mi2-side-label">Media Coverage Score <span class="demo-tag">DEMO</span></div>
+                <div class="mi2-ring-wrap">
+                  <svg class="mi2-ring-svg" viewBox="0 0 100 100">
+                    <circle class="mi2-ring-track" cx="50" cy="50" r="40"/>
+                    <circle class="mi2-ring-fill" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="55.3"/>
+                  </svg>
+                  <div class="mi2-ring-center">
+                    <div class="mi2-ring-num">78%</div>
+                    <div class="mi2-ring-qual">Good</div>
+                  </div>
+                </div>
+                <div class="mi2-ring-delta">↑ 12% vs last scan</div>
+              </div>
+              <div class="mi2-side-card">
+                <div class="mi2-side-label">Media Health Signal <span class="demo-tag">DEMO</span></div>
+                <svg class="mi2-signal-svg" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true">
+                  <path class="mi2-signal-path" d="M0,20 L20,20 L26,8 L32,32 L38,20 L60,20 L66,12 L72,28 L78,20 L100,20 L106,6 L112,34 L118,20 L140,20 L146,14 L152,26 L158,20 L200,20"/>
+                </svg>
+              </div>
+              <div class="mi2-side-card">
+                <div class="mi2-side-label">Platform Coverage <span class="demo-tag">DEMO</span></div>
+                <div id="mi2-platform-list">
+                  <div class="mi2-platform-row">
+                    <div class="mi2-platform-item"><span class="mi2-platform-icon" style="background:#ff0000">▶</span><span class="mi2-platform-label">YouTube</span><span class="mi2-platform-pct">82%</span></div>
+                    <div class="mi2-platform-bar-track"><div class="mi2-platform-bar-fill" style="width:82%"></div></div>
+                  </div>
+                  <div class="mi2-platform-row">
+                    <div class="mi2-platform-item"><span class="mi2-platform-icon" style="background:#fa243c">♪</span><span class="mi2-platform-label">Apple Music</span><span class="mi2-platform-pct">74%</span></div>
+                    <div class="mi2-platform-bar-track"><div class="mi2-platform-bar-fill" style="width:74%"></div></div>
+                  </div>
+                  <div class="mi2-platform-row">
+                    <div class="mi2-platform-item"><span class="mi2-platform-icon" style="background:#1db954">♫</span><span class="mi2-platform-label">Spotify</span><span class="mi2-platform-pct">91%</span></div>
+                    <div class="mi2-platform-bar-track"><div class="mi2-platform-bar-fill" style="width:91%"></div></div>
+                  </div>
+                  <div class="mi2-platform-row">
+                    <div class="mi2-platform-item"><span class="mi2-platform-icon" style="background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af)">◎</span><span class="mi2-platform-label">Instagram</span><span class="mi2-platform-pct">56%</span></div>
+                    <div class="mi2-platform-bar-track"><div class="mi2-platform-bar-fill mi2-platform-bar-fill--low" style="width:56%"></div></div>
+                  </div>
+                  <div class="mi2-platform-row">
+                    <div class="mi2-platform-item"><span class="mi2-platform-icon" style="background:#000">♬</span><span class="mi2-platform-label">TikTok</span><span class="mi2-platform-pct">48%</span></div>
+                    <div class="mi2-platform-bar-track"><div class="mi2-platform-bar-fill mi2-platform-bar-fill--low" style="width:48%"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mi2-billboard-frame">
+              <div class="mi2-billboard-caption">Your World. Your Media.</div>
+              <div class="mi2-gallery" id="mi2-gallery"></div>
+              <div class="mi2-gallery-dots" id="mi2-gallery-dots"></div>
+            </div>
+          </div>
+
+          <div class="mi2-metric-row">
+            <div class="mi2-metric-card">
+              <div class="mi2-metric-label">Video Asset Coverage <span class="demo-tag">DEMO</span></div>
+              <div class="mi2-metric-val">65%</div>
+              <div class="mi2-metric-qual mi2-metric-qual--good">Good</div>
+              <div class="mi2-metric-delta">↑ 15%</div>
+            </div>
+            <div class="mi2-metric-card">
+              <div class="mi2-metric-label">Media Asset Completeness <span class="demo-tag">DEMO</span></div>
+              <div class="mi2-metric-val">54%</div>
+              <div class="mi2-metric-qual mi2-metric-qual--fair">Fair</div>
+              <div class="mi2-metric-delta">↑ 8%</div>
+            </div>
+            <div class="mi2-metric-card">
+              <div class="mi2-metric-label">Platform Diversity <span class="demo-tag">DEMO</span></div>
+              <div class="mi2-metric-val">5/7</div>
+              <div class="mi2-metric-qual mi2-metric-qual--good">Good</div>
+              <div class="mi2-metric-delta">↑ 1</div>
+            </div>
+            <div class="mi2-metric-card">
+              <div class="mi2-metric-label">Content Activity <span class="demo-tag">DEMO</span></div>
+              <div class="mi2-metric-val mi2-metric-val--sub">Active</div>
+              <div class="mi2-metric-qual mi2-metric-qual--good">Consistent</div>
+              <div class="mi2-metric-delta">7 days ago</div>
+            </div>
+            <div class="mi2-metric-card">
+              <div class="mi2-metric-label">Unsupported Releases <span class="demo-tag">DEMO</span></div>
+              <div class="mi2-metric-val" style="color:#f05060">3</div>
+              <div class="mi2-metric-qual mi2-metric-qual--risk">Attention Needed</div>
+              <div class="mi2-metric-delta">2 high priority</div>
+            </div>
+          </div>
+
+          <div class="mi2-exec-row">
+            <div>
+              <div class="mi2-exec-label">Executive Insight <span class="demo-tag">DEMO</span></div>
+              <div class="mi2-exec-text">Your media presence is growing. Focus on completing promotional assets and increasing coverage on Instagram and TikTok.</div>
+            </div>
+            <div>
+              <div class="mi2-exec-label">Recommended Action <span class="demo-tag">DEMO</span></div>
+              <div class="mi2-exec-text">Create promotional images for upcoming single and increase short-form content output.</div>
+            </div>
+            <button class="mi2-exec-cta" type="button">View Action Plan →</button>
+          </div>
+        </div>
+
+        <!-- § ATHENA SECTION — presentation placeholder ─────────────────── -->
+        <div class="mi2-athena">
+          <div class="mi2-athena-orb" aria-hidden="true"></div>
+          <div>
+            <div class="mi2-athena-title">ATHENA™ Media Insight <span class="demo-tag">PREVIEW — NOT CONNECTED</span></div>
+            <div class="mi2-athena-text">This section is reserved for ATHENA™'s synthesis of your Media Intelligence™ evidence. It will be wired to the live engine during the Intelligence Migration phase, once every KPI above has been replaced with real, evidence-backed data.</div>
+          </div>
+        </div>
+
+        <div style="padding:16px;border:1px dashed rgba(255,255,255,0.15);border-radius:12px;font-size:12px;color:var(--mc-text-muted);text-align:center;">
+          Structural placeholder only. Full Constitutional Compliance Report, deviation log, and responsive validation: governance/MEDIA_INTELLIGENCE_V2_WORKSPACE_RESET.md
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // Representative design-reference imagery — free-license Unsplash source
+  // photography, explicitly authorized for this presentation-first phase
+  // (Board directive 2026-07-24). No real evidence is available for this
+  // page yet by design — real canonical media wiring is Phase 2.
+  var DEMO = {
+    artistPhoto: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=60',
+    albumArt: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&q=60',
+    musicVideoThumb: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=60',
+    youtubeThumb: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=60&sat=-30',
+  };
+  var MISSING_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+
+  function panel(idx, label, url, missingLabel) {
+    var body = url
+      ? '<img src="' + esc(url) + '" alt="' + esc(label) + '"><span class="demo-tag mi2-panel-demo-tag">DEMO</span>'
+      : '<div class="mi2-panel-missing">' + MISSING_SVG + '<div class="mi2-panel-missing-label">' + esc(missingLabel || ('Missing ' + label)) + '</div></div>';
+    return '<div class="mi2-panel" data-mi2-panel="' + idx + '">' + body + '<div class="mi2-panel-label">' + esc(label) + '</div></div>';
+  }
+
+  document.getElementById('mi2-gallery').innerHTML =
+    panel(0, 'Artist Photo', DEMO.artistPhoto) +
+    panel(1, 'Album Art', DEMO.albumArt) +
+    panel(2, 'Music Video', DEMO.musicVideoThumb) +
+    panel(3, 'YouTube', DEMO.youtubeThumb) +
+    panel(4, 'Promo Image', null, 'Missing Promotional Image') +
+    panel(5, 'Social Presence', null, 'Missing Evidence');
+
+  document.getElementById('mi2-gallery-dots').innerHTML = [0,1,2,3,4,5].map(function (i) {
+    return '<span class="mi2-gallery-dot' + (i === 0 ? ' mi2-gallery-dot--active' : '') + '"></span>';
+  }).join('');
+
+  var panels = Array.prototype.slice.call(document.querySelectorAll('[data-mi2-panel]'));
+  var dots = Array.prototype.slice.call(document.querySelectorAll('.mi2-gallery-dot'));
+  var active = 0;
+  function highlight(i) {
+    panels.forEach(function (p) { p.classList.remove('mi2-panel--active'); });
+    dots.forEach(function (d) { d.classList.remove('mi2-gallery-dot--active'); });
+    if (panels[i]) panels[i].classList.add('mi2-panel--active');
+    if (dots[i]) dots[i].classList.add('mi2-gallery-dot--active');
+  }
+  highlight(active);
+  setInterval(function () { active = (active + 1) % panels.length; highlight(active); }, 2600);
+}());
+</script>
+</body>
+</html>
