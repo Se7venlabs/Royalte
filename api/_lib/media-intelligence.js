@@ -167,11 +167,26 @@ export function assembleMediaIntelligence(mediaEvidence, now = Date.now()) {
       return deepFreeze({ _version: MEDIA_INTELLIGENCE_VERSION, generatedAt: new Date(now).toISOString(), available: false });
     }
 
+    // Defensively shaped one level deeper than just the top-level provider
+    // keys -- every array/sub-object every compute* function below reads
+    // is guaranteed present here, so a caller passing a partially-shaped
+    // evidence object (anything other than assembleMediaEvidence()'s own
+    // always-fully-shaped output) degrades to computing whatever real data
+    // IS present, rather than aborting the entire computation on one
+    // missing nested field.
+    const youtube = ev.youtube ?? {};
+    const appleMusic = ev.appleMusic ?? {};
+    const audiodb = ev.audiodb ?? {};
+    const audienceSecondary = ev.audienceSecondary ?? {};
     const safeEv = {
-      youtube: ev.youtube ?? {},
-      appleMusic: ev.appleMusic ?? {},
-      audiodb: { media: {}, ...ev.audiodb },
-      audienceSecondary: ev.audienceSecondary ?? { spotify: {}, deezer: {}, lastfm: {} },
+      youtube: { ...youtube, videos: Array.isArray(youtube.videos) ? youtube.videos : [] },
+      appleMusic: { ...appleMusic, albums: Array.isArray(appleMusic.albums) ? appleMusic.albums : [], videos: Array.isArray(appleMusic.videos) ? appleMusic.videos : [] },
+      audiodb: { ...audiodb, media: audiodb.media ?? {} },
+      audienceSecondary: {
+        spotify: audienceSecondary.spotify ?? {},
+        deezer: audienceSecondary.deezer ?? {},
+        lastfm: audienceSecondary.lastfm ?? {},
+      },
     };
 
     const platformCoverage = computeMediaPlatformCoverage(safeEv);
