@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "What The MLC Actually Does (And Why Every Songwriter Should Care)",
+    excerpt: "The Mechanical Licensing Collective explained in plain English—what The MLC does and why registration helps you collect royalties you are owed.",
+    category: "MLC",
+    date: "2026-08-12",
+    readTime: "5 min read",
+    slug: "what-the-mlc-actually-does",
+    url: "/blog/what-the-mlc-actually-does.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",
@@ -96,16 +106,6 @@ const blogPosts = [
     readTime: null,
     slug: "metadata-mistakes-killing-royalties",
     url: "/blog/metadata-mistakes-killing-royalties.html",
-    status: "coming_soon"
-  },
-  {
-    title: "What The MLC Actually Does (And Why So Many Artists Miss It)",
-    excerpt: "The Mechanical Licensing Collective handles mechanical royalties for streaming in the US, but most artists don't know what it covers or how to register. A plain-language explanation of what the MLC is, what it pays, and how to make sure you're in the system.",
-    category: "MLC",
-    date: null,
-    readTime: null,
-    slug: "what-the-mlc-actually-does",
-    url: "/blog/what-the-mlc-actually-does.html",
     status: "coming_soon"
   },
   {
