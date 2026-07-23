@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "Streaming Pays More Than You Think—If Your Music Is Registered Everywhere",
+    excerpt: "Streaming pays more than most artists realize—if your music is registered everywhere it should be. Learn the royalty streams you might be missing.",
+    category: "Royalties",
+    date: "2026-08-05",
+    readTime: "6 min read",
+    slug: "streaming-pays-more-than-you-think",
+    url: "/blog/streaming-pays-more-than-you-think.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",
