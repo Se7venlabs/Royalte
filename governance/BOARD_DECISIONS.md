@@ -20,8 +20,8 @@ Entries are listed **newest first** for ease of catching up; chronological order
 | **Reason** | Establishes permanent architectural boundaries — content authority, human-approval default, AI governance, duplicate prevention, auditability, vendor independence, brand integrity — before any Make.com scenario, Buffer integration, webhook, or automated campaign is implemented, per the Board's own requirement that no such implementation begin without a ratified governing Constitution first. |
 | **Impact** | Governance only — zero implementation code, zero Make Blueprint, zero automation workflow, zero production configuration. Ratification approves the governance model; it does **not** grant Implementation, Production, or Autonomous Publishing Authorization, which remain separately gated behind the full pre-activation checklist in Article XIX (each item subject to its own future Board sign-off). |
 | **Vote** | Board Approved (9.9/10) |
-| **PR Number** | _(pending — opened same day)_ |
-| **Commit SHA** | _(pending)_ |
+| **PR Number** | #414 |
+| **Commit SHA** | _(pending — fill in on merge)_ |
 | **Tag** | _(none)_ |
 | **Test surface** | N/A — documentation only |
 | **Constitution update required** | No — this ratifies a module-scoped Constitution subordinate to `constitution/ROYALTE_MASTER_CONSTITUTION.md`; the Master Constitution itself is unchanged. |
