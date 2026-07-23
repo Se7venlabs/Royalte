@@ -69,6 +69,13 @@
     .mib-panel {
       position: relative; aspect-ratio: 3/4; border-radius: 6px; overflow: hidden;
       background: #14161c;
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+    }
+    /* Billboard Asset Rotation™ — cycling spotlight, presentation only */
+    .mib-panel--active {
+      transform: scale(1.035);
+      box-shadow: 0 0 0 1.5px rgba(198,168,106,0.65), 0 10px 24px rgba(0,0,0,0.5);
+      z-index: 2;
     }
     .mib-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .mib-panel-missing {
@@ -285,13 +292,17 @@
   // ── Billboard gallery — real evidence only, honest missing state ────
   var MISSING_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
 
-  function panel(label, url, sourceLabel) {
-    if (url) {
-      return '<div class="mib-panel"><img src="' + esc(url) + '" alt="' + esc(label) + '">'
-        + (sourceLabel ? '<div class="mib-panel-source">' + esc(sourceLabel) + '</div>' : '')
-        + '<div class="mib-panel-label">' + esc(label) + '</div></div>';
-    }
-    return '<div class="mib-panel"><div class="mib-panel-missing">' + MISSING_SVG + '<div class="mib-panel-missing-label">No ' + esc(label) + '<br>Found</div></div>'
+  // Source attribution is shown whether or not the panel is populated —
+  // "where this evidence would come from" is itself real, canonical
+  // information (the provider ownership already established in
+  // media-evidence.js), independent of whether this particular artist
+  // has that evidence today.
+  function panel(idx, label, url, sourceLabel) {
+    var body = url
+      ? '<img src="' + esc(url) + '" alt="' + esc(label) + '">'
+      : '<div class="mib-panel-missing">' + MISSING_SVG + '<div class="mib-panel-missing-label">No ' + esc(label) + '<br>Found</div></div>';
+    return '<div class="mib-panel" data-mib-panel="' + idx + '">' + body
+      + (sourceLabel ? '<div class="mib-panel-source">' + esc(sourceLabel) + '</div>' : '')
       + '<div class="mib-panel-label">' + esc(label) + '</div></div>';
   }
 
@@ -301,16 +312,37 @@
   // (see deviations doc). "Social Presence" is rendered as a status
   // panel, not a photo panel, since Digital Presence™ evidence is a
   // presence/URL fact, not an image.
+  var socialLabel = dp.presentCount > 0 ? dp.presentCount + ' of ' + dp.totalLinks + ' Links Found' : 'No Links Found';
   var galleryHtml =
-    panel('Artist Photo', assets.artistPhoto, 'YouTube / Apple / AudioDB') +
-    panel('Album Art', assets.albumArt, 'Catalog Intelligence™') +
-    panel('Music Video', assets.musicVideoThumb, 'YouTube / Apple') +
-    panel('Channel Banner', assets.channelBanner, 'YouTube') +
-    ('<div class="mib-panel"><div class="mib-panel-missing" style="background:rgba(255,255,255,0.02);">' +
+    panel(0, 'Artist Photo', assets.artistPhoto, 'YouTube / Apple / AudioDB') +
+    panel(1, 'Album Art', assets.albumArt, 'Catalog Intelligence™') +
+    panel(2, 'Music Video', assets.musicVideoThumb, 'YouTube / Apple') +
+    panel(3, 'Channel Banner', assets.channelBanner, 'YouTube') +
+    ('<div class="mib-panel" data-mib-panel="4"><div class="mib-panel-missing" style="background:rgba(255,255,255,0.02);">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>' +
-      '<div class="mib-panel-missing-label">' + (dp.presentCount > 0 ? dp.presentCount + ' of ' + dp.totalLinks + ' Links Found' : 'No Links Found') + '</div></div>' +
-      '<div class="mib-panel-label">Social Presence</div></div>');
+      '<div class="mib-panel-missing-label">' + socialLabel + '</div></div>'
+      + '<div class="mib-panel-source">TheAudioDB</div>'
+      + '<div class="mib-panel-label">Social Presence</div></div>');
   document.getElementById('mib-gallery').innerHTML = galleryHtml;
+
+  // ── Billboard Asset Rotation™ — real, working carousel behavior
+  // (motion inspiration from the reference), independent of whether any
+  // given panel is populated or showing the Missing Evidence Experience.
+  // Purely presentational; never affects which evidence is real.
+  (function rotateSpotlight() {
+    var panels = Array.prototype.slice.call(document.querySelectorAll('[data-mib-panel]'));
+    if (panels.length < 2) return;
+    var active = 0;
+    function highlight(i) {
+      panels.forEach(function (p) { p.classList.remove('mib-panel--active'); });
+      panels[i].classList.add('mib-panel--active');
+    }
+    highlight(active);
+    setInterval(function () {
+      active = (active + 1) % panels.length;
+      highlight(active);
+    }, 2600);
+  }());
 
   // ── Headline stat row — real fields only, zero fabricated deltas ────
   // No "vs last scan" / trend arrows anywhere -- Media Intelligence has
