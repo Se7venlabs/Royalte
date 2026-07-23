@@ -235,6 +235,14 @@ Each event card: timestamp, workspace icon, workspace name, event title, human s
 
 Explicitly out of Phase 1 scope per the Board brief: building every future event now, or wiring every workspace immediately. The stated Phase 1 objective is the platform architecture that lets every workspace publish events consistently — not full domain coverage (§3's six-domain gap remains a separate, larger, later effort).
 
+### 4.8a Downstream Dependency — AI Insights™ Executive Morning Brief™ (added 2026-07-23, Board directive)
+
+The Executive Morning Brief™ enhancement to AI Insights™ (`governance/AI_INSIGHTS_EXECUTIVE_MORNING_BRIEF_DEFERRAL.md`) was deferred specifically pending this workspace becoming the constitutional owner of "since your last review"-style change narration. It should be one of the first enhancements revisited once a Monitoring Timeline™ Build Pass completes and the constitutional event model in §4.3 is real.
+
+**Readiness at deferral time — verified, not assumed:** the underlying delta-detection *mechanism* (`delta-engine.js` → `monitoring-intelligence.js`) is real and already live in the production scan path (`api/audit.js`, `api/cron/scan-subscription.js`), not dormant — confirmed independently during the AI Insights™ Discovery Phase. This is consistent with, not a new finding beyond, §3 above: **coverage is real for exactly 3 of the 9 domains today** (Territory/Global Music Footprint, Catalog, and a raw YouTube-match signal) — the same six-domain gap (Identity, Publishing, Backend, Health, Media, Settings) documented in §3 applies identically here. Executive Morning Brief™ can honestly narrate real changes in Territory and Catalog today; it cannot honestly narrate a change in Identity, Publishing, Backend, Health, Media, or Settings until those domains' emitters are built as part of this workspace's own §3 gap closure.
+
+Practical implication for sequencing: Executive Morning Brief™ does not require the full §4 Future Constitutional Architecture (nine-domain canonical event model) to become truthful — it only needs whichever domains' emitters exist at the time to be exposed through the constitutional ownership boundary this document defines (§4.5 Ownership: Monitoring Timeline™ publishes, AI Insights™/ATHENA™ read). A partial re-launch (Territory + Catalog change narration only, other domains honestly omitted per Executive Morning Brief™'s own "omit rather than fabricate" rule) is a legitimate intermediate milestone, not something that must wait for full nine-domain coverage.
+
 ### 4.9 Board Vision (verbatim intent, for context)
 
 Years from now, an artist should be able to open their profile and replay the evolution of their digital career — when they registered publishing, when their catalog expanded, when new territories appeared, when Health improved, when Media grew, when backend synchronizations occurred. Not an activity feed — the historical intelligence record of the Artist Profile.
@@ -264,5 +272,6 @@ Monitoring Timeline™ documentation — complete:
 - ✅ Two real discrepancies in the Board's own brief flagged rather than silently reconciled: the 13-category taxonomy vs. the 9-domain architecture diagram, and the proposed 5-value severity taxonomy vs. the real, currently-implemented 4-value one
 - ✅ No production code changed; no Mission Control changes; no engine, filtering, or UI built
 - ✅ Ready for Board review
+- ✅ (2026-07-23 addendum) Downstream dependency logged: AI Insights™'s Executive Morning Brief™ enhancement is deferred pending this workspace (§4.8a) — flagged to return to the roadmap immediately following Build Pass completion, with the real 3-of-9-domain coverage caveat carried forward so it isn't overestimated at revisit time
 
 **Monitoring Timeline™ constitutional architecture ready to lock as the implementation blueprint for a future Build Pass.**
