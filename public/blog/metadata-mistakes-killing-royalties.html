@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The 7 Metadata Mistakes That Could Be Costing You Music Royalties — Royaltē Knowledge Hub</title>
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://royalte.ai/blog/metadata-mistakes-killing-royalties.html">
+<meta property="og:title" content="The 7 Metadata Mistakes That Could Be Costing You Music Royalties — Royaltē Knowledge Hub">
+<meta property="og:description" content="Bad metadata can quietly cost artists their royalties. Learn the 7 most common mistakes—from ISRC errors to missing publisher info—and how to avoid them.">
+<meta property="og:image" content="https://royalte.ai/blog/images/metadata-mistakes-killing-royalties-hero.png">
+<meta property="og:image:width" content="1536">
+<meta property="og:image:height" content="1024">
+<meta property="og:site_name" content="Royaltē">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The 7 Metadata Mistakes That Could Be Costing You Music Royalties — Royaltē Knowledge Hub">
+<meta name="twitter:description" content="Bad metadata can quietly cost artists their royalties. Learn the 7 most common mistakes—from ISRC errors to missing publisher info—and how to avoid them.">
+<meta name="twitter:image" content="https://royalte.ai/blog/images/metadata-mistakes-killing-royalties-hero.png">
+
+<meta name="description" content="Bad metadata can quietly cost artists their royalties. Learn the 7 most common mistakes—from ISRC errors to missing publisher info—and how to avoid them.">
+
+<link rel="canonical" href="https://royalte.ai/blog/metadata-mistakes-killing-royalties.html">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#8A5CFF">
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── ROOT TOKENS (mirrors index.html / blog.html — do not redefine in blog.css) ── */
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
+--pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.2);
+}
+
+/* ── BASE (matches index.html) ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
+
+/* ── NAV (matches index.html) ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
+.nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
+.nav-logo-mobile{display:none;}
+.nav-brand-link:hover .nav-logo{opacity:0.85;}
+.nav-right{display:flex;align-items:center;gap:28px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── FOOTER (matches index.html) ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-logo{height:72px;width:auto;display:block;margin-bottom:8px;}
+.f-logo-mobile{display:none;}
+.f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+/* ── MOBILE NAV / FOOTER (matches index.html) ── */
+@media (max-width:900px){
+  nav{padding:0 18px;height:64px;}
+  .nav-logo-full{display:none;}
+  .nav-logo-mobile{display:block;height:32px;}
+  .nav-links{display:none;}
+  .nav-beta{display:none;}
+  .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
+  .nav-right{gap:0;}
+  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+  .f-logo-full{display:none;}
+  .f-logo-mobile{display:block;height:48px;margin:0 auto 6px auto;}
+  .f-links{justify-content:center;}
+}
+</style>
+
+<link rel="stylesheet" href="/css/blog.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand-link" aria-label="Royaltē home">
+    <svg class="nav-logo nav-logo-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="nav-logo nav-logo-mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+      <text x="20" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/contact.html">Contact</a>
+      <a href="/faq.html">FAQ</a>
+      <a href="/blog.html" class="active">Learn</a>
+    </div>
+    <span class="nav-beta">// Beta</span>
+  </div>
+</nav>
+
+<main class="article-main">
+
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <span class="article-category">Metadata</span>
+      <h1 class="article-title">The 7 Metadata Mistakes That Could Be Costing You Music Royalties</h1>
+      <div class="article-meta">2026-07-23 · 7 min read</div>
+    </header>
+
+    <img class="article-hero-image" src="/blog/images/metadata-mistakes-killing-royalties-hero.png" alt="The 7 Metadata Mistakes That Could Be Costing You Music Royalties" loading="eager">
+
+    <div class="article-intro">
+      <p><em>Why the information attached to your music may be just as valuable as the music itself.</em></p>
+      <p>Imagine spending months writing the perfect song.</p>
+      <p>You refine every lyric. You record dozens of vocal takes. You obsess over the mix. The master finally sounds exactly the way you imagined.</p>
+      <p>Release day arrives. Your song goes live on streaming platforms around the world. Friends begin sharing it. Fans start adding it to playlists. Streams slowly begin to climb.</p>
+      <p>Months later, your royalty statement arrives. The numbers don't make sense. You assume streaming simply doesn't pay enough.</p>
+      <p>But what if that wasn't the real problem? What if some of the money couldn't find you because the information attached to your music couldn't find <em>you</em>?</p>
+      <p>That happens far more often than most artists realize. The music industry runs on data. Every stream, every royalty payment, every playlist placement, every recommendation, and every rights claim begins with one thing: <strong>Metadata.</strong></p>
+      <p>Most artists think they're in the music business. In reality, they're also in the information business. The quality of your metadata can directly influence how your music is identified, discovered, tracked, and ultimately paid.</p>
+    </div>
+
+    <!-- Mid-article CTA — baked in, do not edit per article -->
+    <aside class="mid-cta" aria-label="Run a free Royaltē scan">
+      <div class="mid-cta-headline">Think your royalties might be leaking because of metadata, publishing, or missing registrations?</div>
+      <a class="mid-cta-btn" href="/#scan-tool">Run Your Free Royaltē Scan →</a>
+    </aside>
+
+    <div class="article-body">
+
+      <h2>What Is Music Metadata?</h2>
+
+      <p>Think of metadata as the shipping label attached to a package.</p>
+
+      <p>Your song is the package. Your metadata is the address.</p>
+
+      <p>If the address is incomplete, the package may arrive late. It may arrive at the wrong destination. Or it may never arrive at all.</p>
+
+      <p>Music works the same way. Metadata tells the industry:</p>
+
+      <ul>
+        <li>Who recorded the song.</li>
+        <li>Who wrote it.</li>
+        <li>Who owns it.</li>
+        <li>Who published it.</li>
+        <li>Which recording is the official version.</li>
+        <li>Where royalties should be sent.</li>
+        <li>How streaming services should organize your catalog.</li>
+      </ul>
+
+      <p>Without accurate metadata, even an incredible song can become difficult for the music business to understand.</p>
+
+      <h2>Why Metadata Matters More Than Ever</h2>
+
+      <p>Artificial intelligence has dramatically increased the speed at which music can be created.</p>
+
+      <p>Millions of new tracks are released every year. As the volume of music continues to grow, platforms increasingly rely on structured information—not human judgment—to organize recordings.</p>
+
+      <p>That means metadata isn't becoming less important. It's becoming one of the most valuable assets attached to every release.</p>
+
+      <p>Accurate metadata improves:</p>
+
+      <ul>
+        <li>Search results</li>
+        <li>Playlist eligibility</li>
+        <li>Catalog organization</li>
+        <li>Royalty reporting</li>
+        <li>Rights management</li>
+        <li>Global distribution</li>
+        <li>Long-term discoverability</li>
+      </ul>
+
+      <p>AI is only as intelligent as the information it receives.</p>
+
+      <p>Poor metadata creates poor intelligence. Great metadata creates better outcomes.</p>
+
+      <h2>Mistake #1 — Inconsistent Artist Names</h2>
+
+      <p>One of the simplest mistakes can create some of the biggest headaches.</p>
+
+      <p>Consider these examples:</p>
+
+      <ul>
+        <li>Black Alternative</li>
+        <li>BlackAlternative</li>
+        <li>Black Alternative Official</li>
+        <li>Black Alternative Music</li>
+      </ul>
+
+      <p>To a person, those may all describe the same artist. To digital platforms, they can appear to be entirely different identities.</p>
+
+      <p>The result may include:</p>
+
+      <ul>
+        <li>Duplicate artist profiles</li>
+        <li>Split streaming history</li>
+        <li>Confused recommendation systems</li>
+        <li>Lost followers</li>
+        <li>Catalog fragmentation</li>
+      </ul>
+
+      <p>Your artist name should remain consistent everywhere it appears. Consistency builds a stronger digital identity.</p>
+
+      <h2>Mistake #2 — Mismanaging Your ISRC Codes</h2>
+
+      <p>Every sound recording receives an International Standard Recording Code (ISRC).</p>
+
+      <p>Think of an ISRC as your recording's permanent fingerprint. Whenever that recording is streamed, sold, licensed, or reported, the ISRC helps identify exactly which master generated the activity.</p>
+
+      <p>Problems often occur when artists:</p>
+
+      <ul>
+        <li>Upload an existing master through a new distributor and accidentally assign a new ISRC.</li>
+        <li>Lose track of previously assigned codes.</li>
+        <li>Confuse different versions of the same song.</li>
+        <li>Create duplicate recordings without realizing it.</li>
+      </ul>
+
+      <p>For example:</p>
+
+      <p>A live version. An acoustic version. A Dolby Atmos mix. A remastered release.</p>
+
+      <p>Each recording requires careful identification.</p>
+
+      <p>Managing ISRCs properly helps preserve the integrity of your catalog over time.</p>
+
+      <h2>Mistake #3 — Incomplete Songwriter Information</h2>
+
+      <p>Many artists focus heavily on recordings while overlooking compositions. They're not the same thing.</p>
+
+      <p>Every song should clearly identify:</p>
+
+      <ul>
+        <li>Songwriters</li>
+        <li>Composers</li>
+        <li>Lyricists</li>
+        <li>Ownership percentages</li>
+      </ul>
+
+      <p>Missing or disputed songwriter information can delay publishing royalties until ownership is resolved.</p>
+
+      <p>A simple split sheet completed before release can prevent years of confusion later.</p>
+
+      <h2>Mistake #4 — Missing Publisher Information</h2>
+
+      <p>Even artists without traditional publishing deals still have publishing metadata.</p>
+
+      <p>Publishing information determines how many organizations identify who should receive publishing royalties.</p>
+
+      <p>Missing information can complicate:</p>
+
+      <ul>
+        <li>Mechanical royalties</li>
+        <li>Performance royalties</li>
+        <li>International collections</li>
+        <li>Licensing opportunities</li>
+      </ul>
+
+      <p>Publishing metadata isn't only for major labels. Independent artists benefit just as much from keeping it accurate.</p>
+
+      <h2>Mistake #5 — Small Release Errors That Create Big Problems</h2>
+
+      <p>Metadata goes far beyond names and codes. Small details matter.</p>
+
+      <p>Examples include:</p>
+
+      <ul>
+        <li>Incorrect release dates</li>
+        <li>Album title inconsistencies</li>
+        <li>Missing featured artists</li>
+        <li>Wrong version names</li>
+        <li>Inconsistent capitalization</li>
+      </ul>
+
+      <p>While these may appear minor, they affect how platforms organize your catalog and how fans discover your music.</p>
+
+      <p>Small mistakes can follow a release for years.</p>
+
+      <h2>Mistake #6 — Forgetting Global Metadata</h2>
+
+      <p>Music has become a global business. Your metadata should be prepared for international distribution.</p>
+
+      <p>Ask yourself:</p>
+
+      <ul>
+        <li>Is my music available everywhere you intended?</li>
+        <li>Are rights represented correctly across territories?</li>
+        <li>Are alternate versions clearly distinguished?</li>
+        <li>Does every release contain complete international metadata?</li>
+      </ul>
+
+      <p>Global availability isn't just about distribution. It's about ensuring accurate information flows across countless rights systems around the world.</p>
+
+      <h2>Mistake #7 — Never Auditing Your Catalog</h2>
+
+      <p>Many artists assume metadata is entered once and forgotten forever. That's rarely true.</p>
+
+      <p>Your catalog evolves. Platforms merge artist profiles. Distributors update systems. Publishing changes. Rights ownership changes. New versions are released.</p>
+
+      <p>Without regular audits, inconsistencies accumulate over time. Routine catalog reviews can uncover:</p>
+
+      <ul>
+        <li>Duplicate releases</li>
+        <li>Broken artist links</li>
+        <li>Missing identifiers</li>
+        <li>Incorrect credits</li>
+        <li>Catalog conflicts</li>
+        <li>Metadata inconsistencies</li>
+      </ul>
+
+      <p>Treat metadata maintenance the same way you treat instrument maintenance. Regular care prevents larger problems later.</p>
+
+      <h2>Metadata Nobody Talks About</h2>
+
+      <p>When most artists hear "metadata," they think of an artist name and song title.</p>
+
+      <p>In reality, modern music contains dozens of important metadata fields. These may include:</p>
+
+      <ul>
+        <li>Artist Name</li>
+        <li>Song Title</li>
+        <li>Album Title</li>
+        <li>ISRC</li>
+        <li>UPC</li>
+        <li>ISWC</li>
+        <li>Songwriter Credits</li>
+        <li>Composer Credits</li>
+        <li>Producer Credits</li>
+        <li>Record Label</li>
+        <li>Copyright Owner</li>
+        <li>Publisher</li>
+        <li>Featured Artists</li>
+        <li>Release Date</li>
+        <li>Genre</li>
+        <li>Language</li>
+        <li>Explicit Flag</li>
+        <li>Territory Availability</li>
+      </ul>
+
+      <p>Every one of these fields contributes to how your music is identified throughout the industry.</p>
+
+      <h2>Before You Release Your Next Song</h2>
+
+      <p>Use this checklist before your next release:</p>
+
+      <ul>
+        <li>Artist Name</li>
+        <li>Song Title</li>
+        <li>Album Title</li>
+        <li>ISRC</li>
+        <li>UPC</li>
+        <li>Songwriters</li>
+        <li>Split Percentages</li>
+        <li>Publisher Information</li>
+        <li>Producer Credits</li>
+        <li>Featured Artists</li>
+        <li>Copyright Owner</li>
+        <li>Release Date</li>
+        <li>Territory Availability</li>
+        <li>Distributor Information</li>
+      </ul>
+
+      <p>Reviewing this list takes only a few minutes. Correcting mistakes after release can take months.</p>
+
+      <h2>How Royaltē Helps</h2>
+
+      <p>At Royaltē, we believe artists deserve more than spreadsheets and disconnected dashboards. Our AI-powered intelligence platform is designed to help musicians understand the business behind their music.</p>
+
+      <p>Royaltē is built to help artists:</p>
+
+      <ul>
+        <li>Surface potential metadata inconsistencies.</li>
+        <li>Monitor catalog health.</li>
+        <li>Detect royalty-impacting issues.</li>
+        <li>Understand rights-related information.</li>
+        <li>Track catalog changes over time.</li>
+        <li>Make evidence-based business decisions.</li>
+      </ul>
+
+      <p>Our goal isn't simply to present data. It's to transform information into actionable intelligence.</p>
+
+      <h2>Final Thoughts</h2>
+
+      <p>Most artists believe they're in the music business.</p>
+
+      <p>In reality, they're also in the information business.</p>
+
+      <p>Every stream. Every royalty. Every playlist placement. Every recommendation. Every payment. Begins with data.</p>
+
+      <p>Your music may inspire the world. But your metadata tells the music industry who created it, who owns it, and who deserves to be paid.</p>
+
+      <p>Treat your metadata with the same care you give your songwriting.</p>
+
+      <p>Because every great recording deserves great metadata. And every artist deserves to be paid for the music they've worked so hard to create.</p>
+
+      <p class="article-closer"><em>Royaltē. Built by artists, for artists.</em></p>
+    </div>
+
+    <!-- Final CTA — Founding Artist Beta framing, baked in, do not edit per article -->
+    <aside class="final-cta" aria-label="Claim a Founding Artist Beta spot">
+      <h2 class="final-cta-headline">Your music may not be the problem. Your backend might be broken.</h2>
+      <p class="final-cta-body">Founding Artist Beta is now open. Royaltē helps artists and rights holders identify metadata gaps, registration issues, platform coverage problems, and royalty risk signals before more money slips through the cracks.</p>
+      <a class="final-cta-btn" href="/#scan-tool">Claim One Of 1,000 Founding Artist Spots →</a>
+    </aside>
+
+  </article>
+
+  <section class="related-articles" aria-label="Related articles">
+    <h3 class="related-h3">Related Articles</h3>
+    <div id="related-grid" class="related-grid"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <svg class="f-logo f-logo-full" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <defs>
+        <linearGradient id="f-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#f-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#f-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#f-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="f-logo f-logo-mobile" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </div>
+  <div class="f-copy">© 2026 Royaltē. Powered by Se7ven Labs LLC. · info@royalte.ai</div>
+  <div class="f-links">
+    <a href="/contact.html">Contact</a>
+    <a href="/faq.html">FAQ</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+  </div>
+</footer>
+
+<!-- Render related articles from the canonical registry, excluding the current article. -->
+<script src="/js/blog-posts.js"></script>
+<script>
+(function(){
+  var currentSlug = 'metadata-mistakes-killing-royalties';
+  var grid = document.getElementById('related-grid');
+  if (!grid || !Array.isArray(window.blogPosts)) return;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  var others = window.blogPosts.filter(function(p){ return p.slug !== currentSlug; }).slice(0, 4);
+  if (others.length === 0) { grid.parentNode.style.display = 'none'; return; }
+
+  grid.innerHTML = others.map(function(post){
+    var isLive = post.status === 'live';
+    var cls = 'related-card' + (isLive ? '' : ' coming-soon');
+    var disabled = isLive ? '' : ' aria-disabled="true"';
+    var catLabel = isLive ? post.category : (post.category + ' · Coming soon');
+    return '<a class="' + cls + '" href="' + esc(post.url) + '"' + disabled + '>' +
+             '<span class="related-cat">' + esc(catLabel) + '</span>' +
+             '<div class="related-title">' + esc(post.title) + '</div>' +
+           '</a>';
+  }).join('');
+})();
+</script>
+
+</body>
+</html>
