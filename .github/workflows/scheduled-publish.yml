@@ -1,0 +1,97 @@
+name: Scheduled Blog Publish
+
+# Royaltē Publishing Intelligence™ — scheduled merge automation.
+#
+# Merges blog PRs that a human has already approved AND explicitly scheduled
+# (via the `scheduled` label + a Scheduled-Publish-Date line in the PR body),
+# once their publish date arrives. This workflow performs ONLY the merge --
+# it never labels, schedules, or approves a PR itself. Scheduling is a manual
+# step that happens after Executive Board approval; see
+# public/blog/PUBLISHING_INTELLIGENCE.md for the full workflow and recovery
+# procedures.
+#
+# Merging still goes through the exact same path as a manual
+# `gh pr merge --rebase --delete-branch`: branch protection's required
+# "Run pipeline test" check still gates the merge, Vercel's existing
+# push-to-main auto-deploy still fires, and the existing IndexNow workflow
+# (.github/workflows/indexnow-notify.yml) still fires on the blog-posts.js
+# change that comes with the merge. This workflow duplicates none of that --
+# it only decides *when* to press the merge button.
+
+on:
+  schedule:
+    - cron: '0 13 * * *' # once daily, 13:00 UTC (~9am ET)
+  workflow_dispatch: {} # manual trigger, e.g. to force a check without waiting for the cron
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  scheduled-publish:
+    name: Merge scheduled blog PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find and merge scheduled PRs whose date has arrived
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TODAY=$(date -u +%Y-%m-%d)
+          echo "Today (UTC): $TODAY"
+
+          PRS_JSON=$(gh pr list --repo "$GITHUB_REPOSITORY" --label scheduled --state open --json number,title,body)
+          COUNT=$(echo "$PRS_JSON" | jq 'length')
+          echo "Found $COUNT open PR(s) labeled 'scheduled'."
+
+          if [ "$COUNT" -eq 0 ]; then
+            echo "Nothing to do."
+            exit 0
+          fi
+
+          mapfile -t PR_NUMBERS < <(echo "$PRS_JSON" | jq -r '.[].number')
+          FAILED=0
+
+          for NUM in "${PR_NUMBERS[@]}"; do
+            TITLE=$(echo "$PRS_JSON" | jq -r --argjson n "$NUM" '.[] | select(.number == $n) | .title')
+            BODY=$(echo "$PRS_JSON" | jq -r --argjson n "$NUM" '.[] | select(.number == $n) | .body')
+
+            DATE=$(echo "$BODY" | grep -oP '\*\*Publish Date:\*\*\s*\K\d{4}-\d{2}-\d{2}' || true)
+
+            if [ -z "$DATE" ]; then
+              echo "::warning::PR #$NUM ('$TITLE') has the 'scheduled' label but no parsable '**Publish Date:** YYYY-MM-DD' line in its body -- skipping. See PUBLISHING_INTELLIGENCE.md for the required format."
+              continue
+            fi
+
+            if [[ "$DATE" > "$TODAY" ]]; then
+              echo "PR #$NUM ('$TITLE') is scheduled for $DATE -- not yet due."
+              continue
+            fi
+
+            echo "PR #$NUM ('$TITLE') was scheduled for $DATE -- due. Checking file scope before merging."
+
+            # Safety rail: only ever auto-merge PRs confined to the blog content
+            # surface. Anything touching files outside this set is refused --
+            # this workflow's authority is scoped to blog publishing only.
+            CHANGED_FILES=$(gh pr diff "$NUM" --repo "$GITHUB_REPOSITORY" --name-only)
+            OUT_OF_SCOPE=$(echo "$CHANGED_FILES" | grep -vE '^public/blog/|^public/js/blog-posts\.js$|^public/sitemap\.xml$' || true)
+
+            if [ -n "$OUT_OF_SCOPE" ]; then
+              echo "::error::PR #$NUM ('$TITLE') is labeled 'scheduled' but touches files outside the blog content surface, refusing to auto-merge:"
+              echo "$OUT_OF_SCOPE"
+              FAILED=1
+              continue
+            fi
+
+            echo "Scope OK. Merging PR #$NUM."
+            if gh pr merge "$NUM" --repo "$GITHUB_REPOSITORY" --rebase --delete-branch; then
+              echo "✅ Merged PR #$NUM ('$TITLE')."
+            else
+              echo "::error::Failed to merge PR #$NUM ('$TITLE') -- required checks may not be green, or a merge conflict exists. It remains open and scheduled; this workflow will retry on the next daily run once the blocker is resolved. See PUBLISHING_INTELLIGENCE.md 'Recovery procedures'."
+              FAILED=1
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            exit 1
+          fi
