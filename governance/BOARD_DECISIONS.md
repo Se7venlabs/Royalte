@@ -21,7 +21,7 @@ Entries are listed **newest first** for ease of catching up; chronological order
 | **Impact** | Governance only — zero implementation code, zero Make Blueprint, zero automation workflow, zero production configuration. Ratification approves the governance model; it does **not** grant Implementation, Production, or Autonomous Publishing Authorization, which remain separately gated behind the full pre-activation checklist in Article XIX (each item subject to its own future Board sign-off). |
 | **Vote** | Board Approved (9.9/10) |
 | **PR Number** | #414 |
-| **Commit SHA** | _(pending — fill in on merge)_ |
+| **Commit SHA** | `19290f2` |
 | **Tag** | _(none)_ |
 | **Test surface** | N/A — documentation only |
 | **Constitution update required** | No — this ratifies a module-scoped Constitution subordinate to `constitution/ROYALTE_MASTER_CONSTITUTION.md`; the Master Constitution itself is unchanged. |
