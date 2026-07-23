@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "Why Every Independent Artist Needs a Music Rights Audit",
+    excerpt: "Your music catalog is one of your greatest assets. Learn why independent artists need a Music Rights Audit to protect royalties and catalog health.",
+    category: "Artist Education",
+    date: "2026-08-10",
+    readTime: "6 min read",
+    slug: "why-every-independent-artist-needs-a-music-rights-audit",
+    url: "/blog/why-every-independent-artist-needs-a-music-rights-audit.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",
