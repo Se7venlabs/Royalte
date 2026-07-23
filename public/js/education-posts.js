@@ -25,6 +25,17 @@
 
 const educationPosts = [
   {
+    title: "Songtrust vs. KOSIGN vs. Royaltē",
+    excerpt: "Compare Songtrust, KOSIGN, and Royaltē to understand the differences between publishing administration, royalty collection, and music rights intelligence so you can build a stronger music business.",
+    category: "Publishing",
+    date: "2026-07-23",
+    readTime: "5 min read",
+    slug: "songtrust-vs-kosign-vs-royalte",
+    url: "/education/songtrust-vs-kosign-vs-royalte.html",
+    status: "live",
+    featured: false
+  },
+  {
     title: "The Complete Guide to Music Royalties",
     excerpt: "A complete, plain-English handbook covering the two copyrights every song creates, every major royalty type, publishing, metadata, Digital Identity™, distribution, streaming, AI, catalog building, international royalties, and long-term career stewardship.",
     category: "Cornerstone Guide",
