@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "The Music Industry Runs on Data—Not Just Songs",
+    excerpt: "Great music alone isn't enough anymore. Learn why the modern music industry runs on data—and how accurate information protects your royalties.",
+    category: "Metadata",
+    date: "2026-07-24",
+    readTime: "5 min read",
+    slug: "music-industry-runs-on-data",
+    url: "/blog/music-industry-runs-on-data.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",

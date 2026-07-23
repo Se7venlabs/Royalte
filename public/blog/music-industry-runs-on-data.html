@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Music Industry Runs on Data—Not Just Songs — Royaltē Knowledge Hub</title>
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://royalte.ai/blog/music-industry-runs-on-data.html">
+<meta property="og:title" content="The Music Industry Runs on Data—Not Just Songs — Royaltē Knowledge Hub">
+<meta property="og:description" content="Great music alone isn't enough anymore. Learn why the modern music industry runs on data—and how accurate information protects your royalties.">
+<meta property="og:image" content="https://royalte.ai/blog/images/music-industry-runs-on-data-hero.png">
+<meta property="og:image:width" content="1536">
+<meta property="og:image:height" content="1024">
+<meta property="og:site_name" content="Royaltē">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Music Industry Runs on Data—Not Just Songs — Royaltē Knowledge Hub">
+<meta name="twitter:description" content="Great music alone isn't enough anymore. Learn why the modern music industry runs on data—and how accurate information protects your royalties.">
+<meta name="twitter:image" content="https://royalte.ai/blog/images/music-industry-runs-on-data-hero.png">
+
+<meta name="description" content="Great music alone isn't enough anymore. Learn why the modern music industry runs on data—and how accurate information protects your royalties.">
+
+<link rel="canonical" href="https://royalte.ai/blog/music-industry-runs-on-data.html">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#8A5CFF">
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── ROOT TOKENS (mirrors index.html / blog.html — do not redefine in blog.css) ── */
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
+--pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.2);
+}
+
+/* ── BASE (matches index.html) ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
+
+/* ── NAV (matches index.html) ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
+.nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
+.nav-logo-mobile{display:none;}
+.nav-brand-link:hover .nav-logo{opacity:0.85;}
+.nav-right{display:flex;align-items:center;gap:28px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── FOOTER (matches index.html) ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-logo{height:72px;width:auto;display:block;margin-bottom:8px;}
+.f-logo-mobile{display:none;}
+.f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+/* ── MOBILE NAV / FOOTER (matches index.html) ── */
+@media (max-width:900px){
+  nav{padding:0 18px;height:64px;}
+  .nav-logo-full{display:none;}
+  .nav-logo-mobile{display:block;height:32px;}
+  .nav-links{display:none;}
+  .nav-beta{display:none;}
+  .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
+  .nav-right{gap:0;}
+  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+  .f-logo-full{display:none;}
+  .f-logo-mobile{display:block;height:48px;margin:0 auto 6px auto;}
+  .f-links{justify-content:center;}
+}
+</style>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "The Music Industry Runs on Data\u2014Not Just Songs",
+  "description": "Great music alone isn't enough anymore. Learn why the modern music industry runs on data\u2014and how accurate information protects your royalties.",
+  "image": "https://royalte.ai/blog/images/music-industry-runs-on-data-hero.png",
+  "datePublished": "2026-07-24",
+  "dateModified": "2026-07-24",
+  "author": { "@type": "Organization", "name": "Royalt\u0113" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Royalt\u0113",
+    "logo": { "@type": "ImageObject", "url": "https://royalte.ai/favicon.svg" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://royalte.ai/blog/music-industry-runs-on-data.html" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://royalte.ai/" },
+    { "@type": "ListItem", "position": 2, "name": "Knowledge Hub", "item": "https://royalte.ai/blog.html" },
+    { "@type": "ListItem", "position": 3, "name": "The Music Industry Runs on Data\u2014Not Just Songs", "item": "https://royalte.ai/blog/music-industry-runs-on-data.html" }
+  ]
+}
+</script>
+
+<link rel="stylesheet" href="/css/blog.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand-link" aria-label="Royaltē home">
+    <svg class="nav-logo nav-logo-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="nav-logo nav-logo-mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+      <text x="20" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/contact.html">Contact</a>
+      <a href="/faq.html">FAQ</a>
+      <a href="/blog.html" class="active">Learn</a>
+    </div>
+    <span class="nav-beta">// Beta</span>
+  </div>
+</nav>
+
+<main class="article-main">
+
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <span class="article-category">Metadata</span>
+      <h1 class="article-title">The Music Industry Runs on Data—Not Just Songs</h1>
+      <div class="article-meta">2026-07-24 · 5 min read</div>
+    </header>
+
+    <img class="article-hero-image" src="/blog/images/music-industry-runs-on-data-hero.png" alt="The Music Industry Runs on Data—Not Just Songs" loading="eager">
+
+    <div class="article-intro">
+      <p><em>Every great song begins with creativity. But once it's released, something else becomes just as important—the information behind it. In today's music industry, success isn't driven by songs alone. It's driven by the data that allows the world to recognize, understand, and protect them.</em></p>
+    </div>
+
+    <!-- Mid-article CTA — baked in, do not edit per article -->
+    <aside class="mid-cta" aria-label="Run a free Royaltē scan">
+      <div class="mid-cta-headline">Think your royalties might be leaking because of metadata, publishing, or missing registrations?</div>
+      <a class="mid-cta-btn" href="/#scan-tool">Run Your Free Royaltē Scan →</a>
+    </aside>
+
+    <div class="article-body">
+      <h2>Imagine Releasing the Greatest Song of Your Career...</h2>
+
+      <p>You finally finish it.</p>
+
+      <p>The writing is incredible.</p>
+
+      <p>The production is flawless.</p>
+
+      <p>The vocals are perfect.</p>
+
+      <p>You release it to the world.</p>
+
+      <p>Now imagine...</p>
+
+      <p>Nobody knows who owns it.</p>
+
+      <p>Nobody knows who wrote it.</p>
+
+      <p>Nobody knows who published it.</p>
+
+      <p>Nobody knows where the royalties belong.</p>
+
+      <p>The song hasn't changed.</p>
+
+      <p>Only the information behind it has.</p>
+
+      <p>That's the modern music industry.</p>
+
+      <p>Because great music still needs great information.</p>
+
+      <h2>Every Song Creates Data</h2>
+
+      <p>The moment your music is released, it begins creating information.</p>
+
+      <p>Not just streams.</p>
+
+      <p>Data.</p>
+
+      <p>Your recording receives an ISRC.</p>
+
+      <p>Your release receives a UPC.</p>
+
+      <p>Songwriters are identified.</p>
+
+      <p>Publishers are connected.</p>
+
+      <p>Metadata is distributed.</p>
+
+      <p>Streaming services index your music.</p>
+
+      <p>Rights organizations begin processing usage information.</p>
+
+      <p>Artist profiles connect across platforms.</p>
+
+      <p>Every one of these actions creates information that helps the music industry understand what your music is, who owns it, and where royalties should go.</p>
+
+      <h2>Data Is Your Music's Digital Identity™</h2>
+
+      <p>Imagine trying to send a letter without a name or address.</p>
+
+      <p>It probably wouldn't reach its destination.</p>
+
+      <p>Your music works the same way.</p>
+
+      <p>Without accurate information, the global music industry has a harder time identifying your recordings, recognizing ownership, and connecting royalties to the correct rights holders.</p>
+
+      <p>That's why metadata, registrations, publishing information, and catalog consistency matter.</p>
+
+      <p>Together, they form your music's <strong>Digital Identity™</strong>.</p>
+
+      <h2>Every Platform Runs on Information</h2>
+
+      <p>Spotify.</p>
+
+      <p>Apple Music.</p>
+
+      <p>YouTube Music.</p>
+
+      <p>Amazon Music.</p>
+
+      <p>TikTok.</p>
+
+      <p>Instagram.</p>
+
+      <p>Distributors.</p>
+
+      <p>Publishers.</p>
+
+      <p>Performing Rights Organizations.</p>
+
+      <p>Collection societies.</p>
+
+      <p>Record labels.</p>
+
+      <p>Every one of these organizations depends on accurate information to organize, identify, process, recommend, and report on your music.</p>
+
+      <p>Without reliable data, the entire music ecosystem becomes less efficient.</p>
+
+      <h2>What Happens After You Release a Song?</h2>
+
+      <p>```text</p>
+
+      <p>Song Released</p>
+
+      <p>↓</p>
+
+      <p>Metadata</p>
+
+      <p>↓</p>
+
+      <p>Streaming Platforms</p>
+
+      <p>↓</p>
+
+      <p>Publishing</p>
+
+      <p>↓</p>
+
+      <p>Rights Organizations</p>
+
+      <p>↓</p>
+
+      <p>Royalty Systems</p>
+
+      <p>↓</p>
+
+      <p>Analytics</p>
+
+      <p>↓</p>
+
+      <p>Recommendations</p>
+
+      <p>↓</p>
+
+      <p>Artist Gets Paid</p>
+
+      <p>```</p>
+
+      <p>Every step depends on information.</p>
+
+      <p>Without it, the journey becomes much harder.</p>
+
+      <h2>Good Data Creates Better Opportunities</h2>
+
+      <p>Most artists think data only affects royalties.</p>
+
+      <p>It does much more than that.</p>
+
+      <p>Good information helps support:</p>
+
+      <ul>
+
+        <li>Royalty collection</li>
+
+        <li>Playlist recommendations</li>
+
+        <li>Artist discovery</li>
+
+        <li>Publishing administration</li>
+
+        <li>Licensing opportunities</li>
+
+        <li>Rights management</li>
+
+        <li>Catalog organization</li>
+
+        <li>Global distribution</li>
+
+        <li>Better business decisions</li>
+
+      </ul>
+
+      <p>Great music opens the door.</p>
+
+      <p>Great information helps keep it open.</p>
+
+      <h2>Information Debt Is Real</h2>
+
+      <p>Most artists never notice data problems.</p>
+
+      <p>They're invisible.</p>
+
+      <p>A duplicated artist profile.</p>
+
+      <p>An incorrect songwriter.</p>
+
+      <p>Missing publishing information.</p>
+
+      <p>An outdated ISRC.</p>
+
+      <p>Metadata inconsistencies.</p>
+
+      <p>One issue may seem insignificant.</p>
+
+      <p>But over time, those small issues accumulate.</p>
+
+      <p>Think of it as <strong>Information Debt™</strong>.</p>
+
+      <p>The longer inconsistencies remain unresolved, the more difficult they can become to identify and organize as your catalog grows.</p>
+
+      <h2>Your Catalog Never Stops Growing</h2>
+
+      <p>Your music business evolves constantly.</p>
+
+      <p>You release new songs.</p>
+
+      <p>Collaborate with new artists.</p>
+
+      <p>Switch distributors.</p>
+
+      <p>Sign publishing agreements.</p>
+
+      <p>Expand internationally.</p>
+
+      <p>Every change creates new information.</p>
+
+      <p>Managing that information becomes just as important as managing the music itself.</p>
+
+      <p>Because every new release becomes another part of your catalog's Digital Identity™.</p>
+
+      <h2>Data Creates Intelligence</h2>
+
+      <p>Every artist has data.</p>
+
+      <p>Far fewer have intelligence.</p>
+
+      <p>Data becomes information.</p>
+
+      <p>Information becomes knowledge.</p>
+
+      <p>Knowledge becomes intelligence.</p>
+
+      <p>And intelligence leads to better decisions.</p>
+
+      <p>The artists who understand their catalog are better equipped to protect it, grow it, and maximize its long-term value.</p>
+
+      <h2>How Royaltē Helps</h2>
+
+      <p>Royaltē was built on one simple belief:</p>
+
+      <p><strong>Great decisions begin with great information.</strong></p>
+
+      <p>Our platform transforms music data into actionable intelligence by bringing together Identity Intelligence™, Metadata Intelligence™, Publishing Intelligence™, Catalog Intelligence™, Global Music Footprint™, and Music Rights Intelligence™ into one unified experience.</p>
+
+      <p>Because artists shouldn't have to search across dozens of platforms just to understand their own music.</p>
+
+      <p>Your catalog already tells a story.</p>
+
+      <p>Royaltē helps you understand it.</p>
+
+      <h2>Final Thoughts</h2>
+
+      <p>Music will always begin with creativity.</p>
+
+      <p>That will never change.</p>
+
+      <p>But today's music industry runs on something else as well.</p>
+
+      <p>Information.</p>
+
+      <p>Every stream creates data.</p>
+
+      <p>Every release creates information.</p>
+
+      <p>Every royalty depends on accurate records.</p>
+
+      <p>Every career is strengthened by better intelligence.</p>
+
+      <p>Because success isn't built on songs alone.</p>
+
+      <p>It's built on the information that helps the world recognize them.</p>
+
+      <p>Great music deserves to be heard.</p>
+
+      <p>Great artists deserve to be understood.</p>
+
+      <p>And great careers are built on great information.</p>
+
+      <p><strong>Disclaimer:</strong> This article is provided for educational purposes only and should not be considered legal, financial, or professional advice. Music metadata, rights management, registrations, royalty collection, and digital music ecosystems vary depending on your territory, ownership structure, distribution agreements, publishing arrangements, and collection societies. Artists should consult the appropriate organizations or qualified professionals regarding their specific circumstances.</p>
+    </div>
+
+    <!-- Final CTA — Founding Artist Beta framing, baked in, do not edit per article -->
+    <aside class="final-cta" aria-label="Claim a Founding Artist Beta spot">
+      <h2 class="final-cta-headline">Your music may not be the problem. Your backend might be broken.</h2>
+      <p class="final-cta-body">Founding Artist Beta is now open. Royaltē helps artists and rights holders identify metadata gaps, registration issues, platform coverage problems, and royalty risk signals before more money slips through the cracks.</p>
+      <a class="final-cta-btn" href="/#scan-tool">Claim One Of 1,000 Founding Artist Spots →</a>
+    </aside>
+
+  </article>
+
+  <section class="related-articles" aria-label="Related articles">
+    <h3 class="related-h3">Related Articles</h3>
+    <div id="related-grid" class="related-grid"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <svg class="f-logo f-logo-full" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <defs>
+        <linearGradient id="f-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#f-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#f-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#f-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="f-logo f-logo-mobile" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </div>
+  <div class="f-copy">© 2026 Royaltē. Powered by Se7ven Labs LLC. · info@royalte.ai</div>
+  <div class="f-links">
+    <a href="/contact.html">Contact</a>
+    <a href="/faq.html">FAQ</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+  </div>
+</footer>
+
+<!-- Render related articles from the canonical registry, excluding the current article. -->
+<script src="/js/blog-posts.js"></script>
+<script>
+(function(){
+  var currentSlug = 'music-industry-runs-on-data';
+  var grid = document.getElementById('related-grid');
+  if (!grid || !Array.isArray(window.blogPosts)) return;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  var others = window.blogPosts.filter(function(p){ return p.slug !== currentSlug; }).slice(0, 4);
+  if (others.length === 0) { grid.parentNode.style.display = 'none'; return; }
+
+  grid.innerHTML = others.map(function(post){
+    var isLive = post.status === 'live';
+    var cls = 'related-card' + (isLive ? '' : ' coming-soon');
+    var disabled = isLive ? '' : ' aria-disabled="true"';
+    var catLabel = isLive ? post.category : (post.category + ' · Coming soon');
+    return '<a class="' + cls + '" href="' + esc(post.url) + '"' + disabled + '>' +
+             '<span class="related-cat">' + esc(catLabel) + '</span>' +
+             '<div class="related-title">' + esc(post.title) + '</div>' +
+           '</a>';
+  }).join('');
+})();
+</script>
+
+</body>
+</html>
