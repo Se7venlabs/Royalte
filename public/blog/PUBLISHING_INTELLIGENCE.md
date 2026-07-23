@@ -112,9 +112,10 @@ made entirely by a human, upstream of anything the Action can see.
 ## Publication Metadata Standard
 
 Every blog PR should include a `## Publishing Schedule` block in its PR
-body with these seven fields — designed so future fields can be appended
+body with these eight fields — designed so future fields can be appended
 without changing anything the Action already parses (it only ever reads
-`**Publish Date:**`; every other field is for human/audit use):
+`**Publish Date:**`; every other field, including `Publishing Batch`, is
+for human/audit/reporting use only):
 
 ```markdown
 ## Publishing Schedule
@@ -123,6 +124,7 @@ without changing anything the Action already parses (it only ever reads
 - **Status:** Board Review
 - **Publish Date:** _(not yet assigned)_
 - **PR Number:** #399
+- **Publishing Batch:** _(none — pre-batch article)_
 - **Created Date:** 2026-07-23
 - **Last Updated:** 2026-07-23
 ```
@@ -138,6 +140,7 @@ the date of that edit:
 - **Status:** Scheduled
 - **Publish Date:** 2026-08-05
 - **PR Number:** #399
+- **Publishing Batch:** _(none — pre-batch article)_
 - **Created Date:** 2026-07-23
 - **Last Updated:** 2026-07-30
 ```
@@ -146,6 +149,21 @@ the date of that edit:
 Updated` is bumped on every edit to the block (status change, reschedule,
 cancellation) — it's the field to check first when auditing why an
 article's state changed.
+
+### Publishing Batch ID
+
+Articles delivered together as a named batch (e.g. "Batch #001," six
+articles for August/September) share a **Publishing Batch** value so they
+can be reported on and managed as a group later, without changing anything
+about how any individual article is scheduled or merged — each PR is still
+independently labeled, dated, reviewed, and merged on its own. The Action
+does not read this field at all; it exists purely for grouping/reporting.
+
+**Format:** `YYYY-MM-<letter>`, e.g. `2026-08-A`. Increment the letter if a
+second batch ships within the same calendar month (`2026-08-B`, etc.).
+Articles built before batching existed (PR #398, #399) carry
+`_(none — pre-batch article)_` rather than being retroactively assigned a
+batch they weren't actually part of.
 
 **The exact string `**Publish Date:**` followed by an ISO date
 (`YYYY-MM-DD`) is what the Action's parser looks for.** Do not reformat this
