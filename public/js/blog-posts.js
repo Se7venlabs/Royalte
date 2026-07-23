@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "Five Revenue Streams Most Independent Artists Never Collect",
+    excerpt: "Discover the five music revenue streams many independent artists miss—including neighboring rights, publishing income, and mechanical royalties.",
+    category: "Royalties",
+    date: "2026-08-14",
+    readTime: "7 min read",
+    slug: "five-revenue-streams-most-independent-artists-never-collect",
+    url: "/blog/five-revenue-streams-most-independent-artists-never-collect.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",
