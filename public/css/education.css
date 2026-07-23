@@ -1,0 +1,483 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Royaltē Education Library™ — component styles
+   Loaded by /education/index.html and /education/*.html guide pages, alongside
+   blog.css (guide prose reuses .article-header/.article-intro/.article-body
+   typography primitives from blog.css -- same Royaltē visual language, same
+   root tokens). Everything in this file is Education-Library-specific:
+   the landing page, the guide hero/TOC/chapter-nav/glossary/checklist/
+   disclaimer/continue-learning components. Do not redefine colors, fonts, or
+   spacing tokens here -- they come from the inline :root block on each page.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.edu-main{
+  position:relative;
+  z-index:2;
+  padding-top:96px; /* clear fixed nav */
+}
+
+/* ── LANDING HERO ── */
+.edu-hero{
+  max-width:840px;
+  margin:0 auto;
+  padding:80px 24px 48px;
+  text-align:center;
+  position:relative;
+  z-index:2;
+}
+.edu-hero-eyebrow{
+  display:inline-block;
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--pur);
+  background:rgba(138,92,255,0.1);
+  padding:6px 14px;
+  border-radius:100px;
+  border:1px solid var(--border2);
+  margin-bottom:20px;
+}
+.edu-hero-h1{
+  font-family:'Rajdhani',sans-serif;
+  font-size:clamp(36px,5vw,56px);
+  font-weight:700;
+  line-height:1.05;
+  letter-spacing:-0.01em;
+  text-transform:uppercase;
+  color:#ffffff;
+  margin-bottom:20px;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.edu-hero-subhead{
+  font-size:17px;
+  line-height:1.7;
+  color:var(--muted2);
+  max-width:680px;
+  margin:0 auto;
+}
+
+/* ── LANDING SECTIONS ── */
+.edu-section{
+  max-width:1200px;
+  margin:0 auto;
+  padding:0 24px 64px;
+  position:relative;
+  z-index:2;
+}
+.edu-section-h2{
+  font-family:'Rajdhani',sans-serif;
+  font-size:22px;
+  font-weight:700;
+  color:#ffffff;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  margin-bottom:22px;
+}
+
+/* ── FEATURED GUIDE ── */
+.edu-featured-card{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:36px;
+  align-items:center;
+  background:linear-gradient(135deg, rgba(138,92,255,0.08), rgba(224,64,200,0.06));
+  border:1px solid var(--border2);
+  border-radius:14px;
+  padding:44px;
+  box-shadow:var(--glow);
+  text-decoration:none;
+}
+.edu-featured-label{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--pur);
+  margin-bottom:14px;
+  display:block;
+}
+.edu-featured-title{
+  font-family:'Rajdhani',sans-serif;
+  font-size:clamp(24px,3vw,34px);
+  font-weight:700;
+  color:#ffffff;
+  line-height:1.15;
+  margin-bottom:14px;
+}
+.edu-featured-excerpt{
+  font-size:15px;
+  line-height:1.7;
+  color:var(--text2);
+  margin-bottom:20px;
+}
+.edu-featured-meta{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  color:var(--muted2);
+  letter-spacing:0.04em;
+  margin-bottom:22px;
+}
+.edu-featured-btn{
+  display:inline-block;
+  background:var(--grad);
+  color:#fff;
+  padding:13px 26px;
+  border-radius:4px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  font-family:'Space Grotesk',sans-serif;
+  text-decoration:none;
+  transition:opacity 0.2s;
+}
+.edu-featured-btn:hover{opacity:0.88;}
+.edu-featured-visual{
+  width:100%;
+  aspect-ratio:3/2;
+  border-radius:10px;
+  border:1px solid var(--border2);
+  object-fit:cover;
+  display:block;
+  box-shadow:0 20px 60px rgba(0,0,0,0.35);
+}
+
+/* ── CATEGORY GRID ── */
+.edu-category-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));
+  gap:16px;
+}
+.edu-category-tile{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:22px 20px;
+  text-decoration:none;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  transition:border-color 0.2s ease, transform 0.2s ease;
+}
+.edu-category-tile:hover:not([aria-disabled="true"]){
+  border-color:var(--border2);
+  transform:translateY(-2px);
+}
+.edu-category-tile[aria-disabled="true"]{opacity:0.5;}
+.edu-category-name{
+  font-family:'Rajdhani',sans-serif;
+  font-size:17px;
+  font-weight:600;
+  color:var(--text);
+}
+.edu-category-count{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+}
+
+/* ── RECENTLY ADDED / GUIDE CARDS GRID (landing + related) ── */
+.edu-card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+  gap:20px;
+}
+.edu-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:22px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  text-decoration:none;
+  transition:border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.edu-card:hover:not([aria-disabled="true"]){
+  border-color:var(--border2);
+  transform:translateY(-2px);
+  box-shadow:0 12px 32px rgba(138,92,255,0.08);
+}
+.edu-card[aria-disabled="true"]{opacity:0.55;pointer-events:none;}
+.edu-card-cat{
+  display:inline-block;
+  font-family:'Space Mono',monospace;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--pur);
+  background:rgba(138,92,255,0.1);
+  padding:5px 11px;
+  border-radius:3px;
+  align-self:flex-start;
+  border:1px solid var(--border2);
+}
+.edu-card-title{
+  font-family:'Rajdhani',sans-serif;
+  font-size:19px;
+  font-weight:600;
+  color:var(--text);
+  line-height:1.28;
+}
+.edu-card-excerpt{
+  font-size:13.5px;
+  line-height:1.6;
+  color:var(--text2);
+  flex:1;
+}
+.edu-card-meta{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  color:var(--muted2);
+  letter-spacing:0.04em;
+}
+.edu-empty-note{
+  font-size:14px;
+  color:var(--muted);
+  font-style:italic;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   GUIDE ARTICLE PAGE (used by /education/*.html)
+   Prose typography (h2/h3/h4/p/ul/table/blockquote) comes from blog.css's
+   .article-intro / .article-body -- shared Royaltē reading experience.
+   Everything below is guide-specific structure layered on top of it.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.edu-badge-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+.edu-readtime-badge{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  color:var(--muted2);
+  letter-spacing:0.06em;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.edu-readtime-badge::before{
+  content:'';
+  width:5px;height:5px;border-radius:50%;
+  background:var(--grn);
+  display:inline-block;
+}
+
+/* Table of Contents box */
+.edu-toc{
+  margin:32px 0 44px;
+  padding:24px 26px;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:10px;
+}
+.edu-toc-title{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--pur);
+  margin-bottom:14px;
+}
+.edu-toc-list{
+  list-style:none;
+  counter-reset:edu-toc;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px 24px;
+}
+.edu-toc-list li{
+  font-size:13.5px;
+  line-height:1.5;
+}
+.edu-toc-list a{
+  color:var(--text2);
+  text-decoration:none;
+  transition:color 0.2s;
+}
+.edu-toc-list a:hover{color:var(--pur);}
+
+/* Chapter wayfinding tag */
+.edu-chapter-tag{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:-8px 0 18px;
+}
+
+/* Continue Learning (per-chapter, inline in prose) */
+.edu-continue-learning{
+  margin-top:28px !important;
+  padding-top:16px;
+  border-top:1px dashed var(--border2);
+  font-size:14px !important;
+  color:var(--muted2) !important;
+}
+.edu-cl-label{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--pur);
+  margin-right:8px;
+}
+
+/* Continue Learning (block form, single-topic articles with a real reading
+   list rather than one inline per-chapter line) */
+.edu-continue-learning-block{
+  margin-top:40px !important;
+  padding-top:20px;
+  border-top:1px dashed var(--border2);
+}
+.edu-continue-learning-block .edu-cl-label{
+  display:block;
+  margin:0 0 12px;
+}
+.edu-continue-learning-block ul{
+  list-style:none;
+  margin:0 !important;
+  display:grid;
+  gap:8px;
+}
+.edu-continue-learning-block li{
+  font-size:14px;
+  color:var(--muted2);
+  padding-left:16px;
+  position:relative;
+}
+.edu-continue-learning-block li::before{
+  content:'→';
+  position:absolute;
+  left:0;
+  color:var(--pur);
+}
+.edu-continue-learning-block li a{
+  color:var(--pur);
+  text-decoration:none;
+}
+.edu-continue-learning-block li a:hover{
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+
+/* Chapter navigation (prev/next, end of each chapter) */
+.edu-chapter-nav{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  margin:20px 0 40px;
+  padding-top:16px;
+}
+.edu-chapter-nav a{
+  font-size:13px;
+  font-weight:600;
+  color:var(--pur);
+  text-decoration:none;
+  max-width:48%;
+  line-height:1.4;
+}
+.edu-chapter-nav a:hover{opacity:0.8;}
+.edu-chapter-nav-next{margin-left:auto;text-align:right;}
+
+/* Checklist */
+.edu-checklist ul{
+  list-style:none;
+  margin:0 0 20px 0;
+}
+.edu-checklist .checklist-item{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid var(--border3);
+}
+.edu-checklist .checkbox{
+  flex:0 0 auto;
+  width:16px;height:16px;
+  margin-top:3px;
+  border-radius:3px;
+  border:1.5px solid var(--border2);
+  background:transparent;
+}
+
+/* Glossary */
+.edu-glossary-list{
+  display:grid;
+  gap:16px;
+}
+.edu-glossary-item{
+  padding-bottom:14px;
+  border-bottom:1px solid var(--border3);
+}
+.edu-glossary-item dt{
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px;
+  font-weight:700;
+  color:#ffffff;
+  margin-bottom:4px;
+}
+.edu-glossary-item dd{
+  font-size:14.5px;
+  line-height:1.6;
+  color:var(--text2);
+}
+
+/* Disclaimer */
+.edu-disclaimer{
+  margin-top:40px;
+  padding:22px 24px;
+  background:rgba(240,192,64,0.05);
+  border:1px solid rgba(240,192,64,0.25);
+  border-radius:8px;
+}
+.edu-disclaimer p{
+  font-size:13px !important;
+  line-height:1.65;
+  color:var(--muted2) !important;
+  margin-bottom:10px !important;
+}
+.edu-disclaimer p:last-child{margin-bottom:0 !important;}
+
+/* Section dividers between Body / Checklist / Glossary / Disclaimer */
+.edu-section-break{
+  margin:56px 0 32px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.edu-section-break-title{
+  font-family:'Rajdhani',sans-serif;
+  font-size:26px;
+  font-weight:700;
+  color:#ffffff;
+}
+
+/* ── MOBILE ── */
+@media (max-width:640px){
+  .edu-main{padding-top:64px;}
+  .edu-hero{padding:56px 20px 36px;}
+  .edu-hero-h1{font-size:36px;}
+  .edu-hero-subhead{font-size:15px;}
+  .edu-section{padding:0 20px 48px;}
+  .edu-featured-card{grid-template-columns:1fr;padding:28px;}
+  .edu-toc-list{grid-template-columns:1fr;}
+  .edu-chapter-nav{flex-direction:column;gap:10px;}
+  .edu-chapter-nav a{max-width:100%;}
+  .edu-chapter-nav-next{text-align:left;}
+}

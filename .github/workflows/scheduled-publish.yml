@@ -2,13 +2,14 @@ name: Scheduled Blog Publish
 
 # Royaltē Publishing Intelligence™ — scheduled merge automation.
 #
-# Merges blog PRs that a human has already approved AND explicitly scheduled
-# (via the `scheduled` label + a Scheduled-Publish-Date line in the PR body),
-# once their publish date arrives. This workflow performs ONLY the merge --
-# it never labels, schedules, or approves a PR itself. Scheduling is a manual
-# step that happens after Executive Board approval; see
-# public/blog/PUBLISHING_INTELLIGENCE.md for the full workflow and recovery
-# procedures.
+# Merges blog AND Education Library PRs that a human has already approved
+# AND explicitly scheduled (via the `scheduled` label + a Scheduled-Publish-
+# Date line in the PR body), once their publish date arrives. This workflow
+# performs ONLY the merge -- it never labels, schedules, or approves a PR
+# itself. Scheduling is a manual step that happens after Executive Board
+# approval; see public/blog/PUBLISHING_INTELLIGENCE.md for the full
+# workflow and recovery procedures, and public/education/README.md for how
+# the Education Library layers on top of the same pipeline.
 #
 # Merging still goes through the exact same path as a manual
 # `gh pr merge --rebase --delete-branch`: branch protection's required
@@ -70,9 +71,10 @@ jobs:
 
             echo "PR #$NUM ('$TITLE') was scheduled for $DATE -- due. Checking file scope before merging."
 
-            # Safety rail: only ever auto-merge PRs confined to the blog content
-            # surface. Anything touching files outside this set is refused --
-            # this workflow's authority is scoped to blog publishing only.
+            # Safety rail: only ever auto-merge PRs confined to the blog +
+            # Education Library content surface. Anything touching files
+            # outside this set is refused -- this workflow's authority is
+            # scoped to publishing content, nothing else.
             #
             # NOTE: ^public/blog/ only matches the /blog/ directory, NOT the
             # top-level public/blog.html landing page -- every batch article
@@ -81,7 +83,7 @@ jobs:
             # for the Education Library: PR #401 (scheduled 2026-07-24) would
             # have failed to auto-merge without this line.
             CHANGED_FILES=$(gh pr diff "$NUM" --repo "$GITHUB_REPOSITORY" --name-only)
-            OUT_OF_SCOPE=$(echo "$CHANGED_FILES" | grep -vE '^public/blog/|^public/blog\.html$|^public/js/blog-posts\.js$|^public/sitemap\.xml$' || true)
+            OUT_OF_SCOPE=$(echo "$CHANGED_FILES" | grep -vE '^public/blog/|^public/blog\.html$|^public/education/|^public/js/blog-posts\.js$|^public/js/education-posts\.js$|^public/sitemap\.xml$' || true)
 
             if [ -n "$OUT_OF_SCOPE" ]; then
               echo "::error::PR #$NUM ('$TITLE') is labeled 'scheduled' but touches files outside the blog content surface, refusing to auto-merge:"
