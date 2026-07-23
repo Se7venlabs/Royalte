@@ -45,14 +45,20 @@ already happens today, unchanged. Phase 1 automates exactly one step.
 The full conceptual lifecycle for an article:
 
 ```
-Idea → Writing → Board Review → Approved → Queued → Scheduled → Published → Indexed → Archived
+Idea → Research → Writing → Board Review → Approved → Queued → Scheduled → Published → Indexed → Archived
 ```
+
+Every article exists in exactly one of these states at a time — never two
+at once, never an ambiguous in-between. The `Status` field in
+`PUBLISHING_QUEUE.md` and the `**Status:**` field in the PR's Publishing
+Schedule block are the single source of truth for that state.
 
 What each stage means in practice today:
 
 | Stage | Where it lives | Who/what moves it forward |
 |---|---|---|
-| Idea | Not yet in the repo | The Board or a content brief |
+| Idea | Not yet in the repo | The Board proposes a topic |
+| Research | Not yet in the repo | Topic/angle validated before writing begins |
 | Writing | Not yet in the repo | Article + hero image are drafted |
 | **Board Review** | Open PR, no `scheduled` label | I build the HTML/registry/queue entry and open a PR. This is where PR #398 and #399 started. |
 | Approved | Open PR, Board has signed off in conversation but scheduling hasn't been applied yet | A brief, momentary state between review and the label being added |
@@ -64,9 +70,9 @@ What each stage means in practice today:
 
 The Queue table (`PUBLISHING_QUEUE.md`) tracks the bolded stages above —
 **Board Review**, **Scheduled**, and **Published** — since those are the
-ones that correspond to a real, distinguishable state of a PR. Idea/Writing
-happen before anything is in the repo; Indexed/Archived aren't separately
-actioned today.
+ones that correspond to a real, distinguishable state of a PR. Idea/
+Research/Writing happen before anything is in the repo; Indexed/Archived
+aren't separately actioned today.
 
 ---
 
@@ -106,7 +112,9 @@ made entirely by a human, upstream of anything the Action can see.
 ## Publication Metadata Standard
 
 Every blog PR should include a `## Publishing Schedule` block in its PR
-body with these five fields:
+body with these seven fields — designed so future fields can be appended
+without changing anything the Action already parses (it only ever reads
+`**Publish Date:**`; every other field is for human/audit use):
 
 ```markdown
 ## Publishing Schedule
@@ -115,10 +123,13 @@ body with these five fields:
 - **Status:** Board Review
 - **Publish Date:** _(not yet assigned)_
 - **PR Number:** #399
+- **Created Date:** 2026-07-23
+- **Last Updated:** 2026-07-23
 ```
 
-Once the Board approves and assigns a date, `Status` becomes `Scheduled` and
-`Publish Date` is filled in as `YYYY-MM-DD`:
+Once the Board approves and assigns a date, `Status` becomes `Scheduled`,
+`Publish Date` is filled in as `YYYY-MM-DD`, and `Last Updated` is bumped to
+the date of that edit:
 
 ```markdown
 ## Publishing Schedule
@@ -127,7 +138,14 @@ Once the Board approves and assigns a date, `Status` becomes `Scheduled` and
 - **Status:** Scheduled
 - **Publish Date:** 2026-08-05
 - **PR Number:** #399
+- **Created Date:** 2026-07-23
+- **Last Updated:** 2026-07-30
 ```
+
+`Created Date` is set once, when the PR opens, and never changes. `Last
+Updated` is bumped on every edit to the block (status change, reschedule,
+cancellation) — it's the field to check first when auditing why an
+article's state changed.
 
 **The exact string `**Publish Date:**` followed by an ISO date
 (`YYYY-MM-DD`) is what the Action's parser looks for.** Do not reformat this
@@ -219,13 +237,83 @@ The Action never auto-retries within a single run and never force-bypasses
 branch protection — every failure surfaces as a visible, actionable signal
 rather than a silent skip or an unsafe override.
 
+## Manual override procedures
+
+Scheduled merging is a convenience, not the only path — a human can always
+merge a blog PR the normal way (`gh pr merge <N> --rebase --delete-branch`,
+same as any other PR in this repo) without waiting for the Action, for
+example if an article needs to go out same-day.
+
+To manually publish ahead of schedule:
+
+1. Confirm the PR's required checks are green.
+2. Run `gh pr merge <N> --rebase --delete-branch` directly. This is exactly
+   what the Action would eventually do — there's no separate "override
+   mode," just doing the same action a run early.
+3. Update `PUBLISHING_QUEUE.md` to `Published` and update the PR's
+   `**Status:**`/`**Last Updated:**` fields (the PR is closed at this point,
+   so this is for the historical record — edit the merged PR's description
+   if it needs to stay accurate).
+
+There is no separate mechanism to force the Action itself to merge early —
+manual merge is the override, by design, so there's exactly one merge
+code path to reason about rather than two.
+
+## Emergency rollback procedures
+
+If an article is published in error (wrong content, factual error, legal
+concern) after a merge:
+
+1. **Take the article down first, investigate after.** Revert the merge
+   commit on `main` (`git revert <merge-sha>`, PR'd and merged the normal
+   way — do not force-push `main`) to remove the article file, its registry
+   entry, and its `blog.html` card in one atomic change. This redeploys via
+   the existing Vercel push-to-main path exactly like a normal publish.
+2. **IndexNow has no "un-notify."** The URL was already submitted to search
+   engines; there's no retraction call. Once the article is pulled, the URL
+   will 404 and search engines will drop it from their index on their own
+   recrawl schedule — this is a real, known limitation, not something this
+   automation can fix. If speed matters, use each search engine's own URL
+   removal tool (e.g. Google Search Console) directly — outside the scope
+   of this repo's automation.
+3. **Update `PUBLISHING_QUEUE.md`** — mark the row `Archived` (not
+   `Published`) with a note on why, rather than deleting the row, so the
+   queue keeps an honest history.
+4. **Re-publishing a corrected version** goes through the normal pipeline
+   from `Board Review` again — it is a new PR, not a resurrection of the
+   old one.
+
 ---
+
+## Standard Operating Procedure — this is the default from here on
+
+Once Phase 1 merges, this pipeline is the standing publishing process for
+every Royaltē article, not a one-off. A future publishing request only
+needs to supply: the completed article, a hero image, and a desired
+publication date. Everything else — building the HTML, registering it,
+writing the SEO metadata, opening the PR, adding the Publishing Schedule
+block, updating the queue, and (once the Board approves a date) labeling
+and scheduling it — follows this document by default, without needing a
+fresh implementation brief each time. A new brief is only needed if the
+Board is explicitly revising the publishing standard itself, not for
+routine article submissions.
 
 ## Future Roadmap (not part of Phase 1)
 
-Approved conceptually, explicitly out of scope for this phase: editorial
-calendar, publishing dashboard, social media automation, newsletter
-automation, post-publish analytics, search ranking reports, content
-performance intelligence. `PUBLISHING_QUEUE.md` is deliberately a flat
-Markdown table for now — a dashboard is a future evolution, not a Phase 1
-requirement.
+Approved conceptually, explicitly out of scope for this phase:
+
+- **Phase 2** — Editorial calendar, content dashboard, publishing
+  dashboard, calendar view.
+- **Phase 3** — Automatic social media package generation, newsletter
+  draft generation, press release generation, content distribution
+  tracking.
+- **Phase 4** — SEO performance dashboard, Google index verification,
+  search ranking monitoring, content analytics, internal link health,
+  content refresh recommendations.
+- **Phase 5** — Publishing Intelligence™ Dashboard: executive visibility
+  into upcoming releases, published articles, the publishing queue, SEO
+  status, index status, social distribution status, content performance,
+  and the editorial pipeline as a whole.
+
+`PUBLISHING_QUEUE.md` is deliberately a flat Markdown table for now — a
+dashboard is a Phase 5 evolution, not a Phase 1 requirement.
