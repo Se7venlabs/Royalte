@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "The 35-Year Copyright Rule: Can Artists Really Get Their Rights Back?",
+    excerpt: "Many artists believe they automatically regain music rights after 35 years. Learn what copyright termination actually means and how it really works.",
+    category: "Publishing",
+    date: "2026-08-03",
+    readTime: "5 min read",
+    slug: "the-35-year-copyright-rule",
+    url: "/blog/the-35-year-copyright-rule.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",
