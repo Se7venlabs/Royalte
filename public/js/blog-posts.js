@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "Why Artists Still Aren't Getting Paid Correctly in 2026",
+    excerpt: "Music is streamed and performed everywhere, yet many artists still aren't paid correctly. Learn why today's fragmented royalty system leaves money behind.",
+    category: "Royalties",
+    date: "2026-08-07",
+    readTime: "9 min read",
+    slug: "why-artists-still-arent-getting-paid-in-2026",
+    url: "/blog/why-artists-still-arent-getting-paid-in-2026.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",
