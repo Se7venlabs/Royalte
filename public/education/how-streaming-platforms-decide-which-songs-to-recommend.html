@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Streaming Platforms Decide Which Songs to Recommend — Royaltē Education Library</title>
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://royalte.ai/education/how-streaming-platforms-decide-which-songs-to-recommend.html">
+<meta property="og:title" content="How Streaming Platforms Decide Which Songs to Recommend — Royaltē Education Library">
+<meta property="og:description" content="Streaming recommendation engines aren't guessing—they're reading data. Here's how metadata, listener behavior, and catalog quality shape which songs algorithms">
+<meta property="og:image" content="https://royalte.ai/education/images/how-streaming-platforms-decide-which-songs-to-recommend-hero.jpg">
+<meta property="og:image:width" content="1536">
+<meta property="og:image:height" content="1024">
+<meta property="og:site_name" content="Royaltē">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How Streaming Platforms Decide Which Songs to Recommend — Royaltē Education Library">
+<meta name="twitter:description" content="Streaming recommendation engines aren't guessing—they're reading data. Here's how metadata, listener behavior, and catalog quality shape which songs algorithms">
+<meta name="twitter:image" content="https://royalte.ai/education/images/how-streaming-platforms-decide-which-songs-to-recommend-hero.jpg">
+
+<meta name="description" content="Streaming recommendation engines aren't guessing—they're reading data. Here's how metadata, listener behavior, and catalog quality shape which songs algorithms">
+
+<link rel="canonical" href="https://royalte.ai/education/how-streaming-platforms-decide-which-songs-to-recommend.html">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#8A5CFF">
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Schema.org: Article + BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How Streaming Platforms Decide Which Songs to Recommend",
+  "description": "Streaming recommendation engines aren't guessing—they're reading data. Here's how metadata, listener behavior, and catalog quality shape which songs algorithms",
+  "url": "https://royalte.ai/education/how-streaming-platforms-decide-which-songs-to-recommend.html",
+  "datePublished": "2026-07-23",
+  "dateModified": "2026-07-23",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Royaltē",
+    "url": "https://royalte.ai"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://royalte.ai/" },
+    { "@type": "ListItem", "position": 2, "name": "Education Library", "item": "https://royalte.ai/education/index.html" },
+    { "@type": "ListItem", "position": 3, "name": "How Streaming Platforms Decide Which Songs to Recommend", "item": "https://royalte.ai/education/how-streaming-platforms-decide-which-songs-to-recommend.html" }
+  ]
+}
+</script>
+
+<style>
+/* ── ROOT TOKENS (mirrors index.html / blog.html — do not redefine in education.css) ── */
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
+--pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.2);
+}
+
+/* ── BASE (matches index.html) ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
+
+/* ── NAV (matches index.html) ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
+.nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
+.nav-logo-mobile{display:none;}
+.nav-brand-link:hover .nav-logo{opacity:0.85;}
+.nav-right{display:flex;align-items:center;gap:28px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── FOOTER (matches index.html) ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-logo{height:72px;width:auto;display:block;margin-bottom:8px;}
+.f-logo-mobile{display:none;}
+.f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+/* ── MOBILE NAV / FOOTER (matches index.html) ── */
+@media (max-width:900px){
+  nav{padding:0 18px;height:64px;}
+  .nav-logo-full{display:none;}
+  .nav-logo-mobile{display:block;height:32px;}
+  .nav-links{display:none;}
+  .nav-beta{display:none;}
+  .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
+  .nav-right{gap:0;}
+  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+  .f-logo-full{display:none;}
+  .f-logo-mobile{display:block;height:48px;margin:0 auto 6px auto;}
+  .f-links{justify-content:center;}
+}
+</style>
+
+<link rel="stylesheet" href="/css/blog.css">
+<link rel="stylesheet" href="/css/education.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand-link" aria-label="Royaltē home">
+    <svg class="nav-logo nav-logo-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="nav-logo nav-logo-mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+      <text x="20" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/contact.html">Contact</a>
+      <a href="/faq.html">FAQ</a>
+      <a href="/blog.html">Learn</a>
+      <a href="/education/index.html" class="active">Education</a>
+    </div>
+    <span class="nav-beta">// Beta</span>
+  </div>
+</nav>
+
+<main class="article-main edu-main">
+
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <span class="article-category">Streaming</span>
+      <h1 class="article-title">How Streaming Platforms Decide Which Songs to Recommend</h1>
+      <div class="edu-badge-row">
+        <span class="article-meta">2026-07-23</span>
+        <span class="edu-readtime-badge">5 min read</span>
+      </div>
+    </header>
+
+    <img class="article-hero-image" src="/education/images/how-streaming-platforms-decide-which-songs-to-recommend-hero.jpg" alt="How Streaming Platforms Decide Which Songs to Recommend" loading="eager">
+
+    <nav class="edu-toc" aria-label="Table of contents">
+      <div class="edu-toc-title">In This Guide</div>
+      <ol class="edu-toc-list">
+<li><a href="#recommendation-engines-have-one-goal">Recommendation Engines Have One Goal</a></li>
+<li><a href="#its-not-just-about-great-music">It's Not Just About Great Music</a></li>
+<li><a href="#metadata-helps-tell-your-story">Metadata Helps Tell Your Story</a></li>
+<li><a href="#listener-behavior-matters">Listener Behavior Matters</a></li>
+<li><a href="#discovery-is-built-on-connections">Discovery Is Built on Connections</a></li>
+<li><a href="#catalog-quality-matters-more-than-you-think">Catalog Quality Matters More Than You Think</a></li>
+<li><a href="#consistency-builds-confidence">Consistency Builds Confidence</a></li>
+<li><a href="#recommendation-systems-continue-learning">Recommendation Systems Continue Learning</a></li>
+<li><a href="#ai-is-changing-music-discovery">AI Is Changing Music Discovery</a></li>
+<li><a href="#great-songs-still-come-first">Great Songs Still Come First</a></li>
+<li><a href="#how-royalte-helps">How Royaltē Helps</a></li>
+<li><a href="#discovery-begins-long-before-someone-presses-play">Discovery Begins Long Before Someone Presses Play</a></li>
+</ol>
+    </nav>
+
+    <!-- Mid-article CTA — baked in, do not edit per guide -->
+    <aside class="mid-cta" aria-label="Run a free Royaltē scan">
+      <div class="mid-cta-headline">Think your royalties might be leaking because of metadata, publishing, or missing registrations?</div>
+      <a class="mid-cta-btn" href="/#scan-tool">Run Your Free Royaltē Scan →</a>
+    </aside>
+
+    <div class="article-body">
+      <p>Every artist has wondered the same thing.</p>
+<h3>Why does one song suddenly appear on thousands of playlists while another seems impossible to find?</h3>
+<p>Is it luck?</p>
+<p>Is it marketing?</p>
+<p>Is it because the artist already has millions of followers?</p>
+<p>The answer is more complex.</p>
+<p>Today's streaming platforms rely on incredibly sophisticated recommendation systems designed to help listeners discover music they'll enjoy.</p>
+<p>While every platform uses its own technology, they all have one thing in common:</p>
+<p>They rely on <strong>information</strong>.</p>
+<p>Understanding how recommendation engines work won't guarantee your next song becomes a global hit.</p>
+<p>But it will help you understand why building a strong music catalog—and a strong digital identity—is more important than ever.</p>
+<h2 id="recommendation-engines-have-one-goal">Recommendation Engines Have One Goal</h2>
+<p>Every streaming platform wants listeners to keep listening.</p>
+<p>The longer people stay engaged, the better the experience for listeners—and the more valuable the platform becomes.</p>
+<p>To do that, recommendation systems constantly try to answer one question:</p>
+<h3>"What song should this listener hear next?"</h3>
+<p>That decision happens millions of times every day.</p>
+<p>And it isn't random.</p>
+<h2 id="its-not-just-about-great-music">It's Not Just About Great Music</h2>
+<p>Great music will always matter.</p>
+<p>But streaming platforms don't hear music the way humans do.</p>
+<p>Instead, they analyze enormous amounts of information to better understand both the music and the listener.</p>
+<p>That information helps answer questions such as:</p>
+<ul><li>Who created this song?</li><li>What genre does it belong to?</li><li>What other artists sound similar?</li><li>What are listeners enjoying?</li><li>Which songs are frequently played together?</li><li>What does this listener usually skip?</li><li>What does this listener save?</li></ul>
+<p>The more information available, the more accurately recommendation systems can connect music with audiences.</p>
+<h2 id="metadata-helps-tell-your-story">Metadata Helps Tell Your Story</h2>
+<p>One of the most important pieces of that information is <strong>metadata</strong>.</p>
+<p>Metadata describes your music long before someone presses play.</p>
+<p>It may include information such as:</p>
+<ul><li>Artist name</li><li>Song title</li><li>Album</li><li>Genre</li><li>Release date</li><li>Songwriters</li><li>ISRC</li><li>Contributors</li><li>Publishing information</li></ul>
+<p>Royaltē refers to this complete picture as your <strong>Digital Identity™</strong>.</p>
+<p>Your Digital Identity™ helps streaming platforms, rights organizations, and other music services understand exactly who you are and how your music fits into the broader music ecosystem.</p>
+<h2 id="listener-behavior-matters">Listener Behavior Matters</h2>
+<p>Recommendation engines don't only analyze songs.</p>
+<p>They also learn from listeners.</p>
+<p>Every day, platforms observe patterns such as:</p>
+<ul><li>Songs people finish listening to</li><li>Songs people skip</li><li>Music they save</li><li>Artists they follow</li><li>Playlists they create</li><li>Tracks they replay</li><li>Genres they enjoy</li></ul>
+<p>These signals help platforms recommend music that matches individual listening preferences.</p>
+<p>The better a platform understands its listeners, the more personalized those recommendations become.</p>
+<h2 id="discovery-is-built-on-connections">Discovery Is Built on Connections</h2>
+<p>Think of the music industry as one enormous network.</p>
+<p>Every artist, album, playlist, and listener creates new connections.</p>
+<p>Recommendation systems continuously analyze those relationships.</p>
+<p>For example:</p>
+<p>If listeners who enjoy Artist A frequently listen to Artist B, the platform may begin recommending Artist B to more people.</p>
+<p>As those connections grow, discovery opportunities can grow as well.</p>
+<p>No single factor determines recommendations.</p>
+<p>Instead, platforms evaluate many different signals together.</p>
+<h2 id="catalog-quality-matters-more-than-you-think">Catalog Quality Matters More Than You Think</h2>
+<p>Many artists focus only on their newest release.</p>
+<p>Streaming platforms often evaluate your catalog as a whole.</p>
+<p>A well-organized catalog helps create consistency across your music.</p>
+<p>Royaltē refers to this as <strong>Catalog Health™</strong>.</p>
+<p>Catalog Health™ reflects how complete, organized, and consistent your music information is across your releases.</p>
+<p>A healthier catalog provides a stronger foundation for discovery, rights management, and long-term growth.</p>
+<h2 id="consistency-builds-confidence">Consistency Builds Confidence</h2>
+<p>Imagine two artists.</p>
+<p>Both release excellent music.</p>
+<p>One has:</p>
+<ul><li>Consistent artist names</li><li>Complete metadata</li><li>Accurate songwriter information</li><li>Proper registrations</li><li>Organized releases</li></ul>
+<p>The other has:</p>
+<ul><li>Different artist names across platforms</li><li>Missing credits</li><li>Inconsistent metadata</li><li>Duplicate releases</li></ul>
+<p>Which catalog is easier for digital systems to understand?</p>
+<p>The answer is obvious.</p>
+<p>Consistency builds confidence.</p>
+<p>And confidence helps digital systems organize music more effectively.</p>
+<h2 id="recommendation-systems-continue-learning">Recommendation Systems Continue Learning</h2>
+<p>One of the most fascinating things about modern recommendation engines is that they never stop learning.</p>
+<p>Every new stream...</p>
+<p>Every playlist save...</p>
+<p>Every new follower...</p>
+<p>Every replay...</p>
+<p>Every skip...</p>
+<p>Provides another piece of information that helps improve future recommendations.</p>
+<p>As artificial intelligence continues advancing, recommendation systems become increasingly sophisticated at recognizing patterns and connecting listeners with music they'll enjoy.</p>
+<h2 id="ai-is-changing-music-discovery">AI Is Changing Music Discovery</h2>
+<p>Artificial intelligence now plays an important role in how music is organized, analyzed, and recommended.</p>
+<p>AI doesn't replace human creativity.</p>
+<p>Instead, it helps process enormous amounts of information that would be impossible for people to analyze manually.</p>
+<p>That's why metadata, catalog quality, and digital identity are becoming even more valuable.</p>
+<p>AI can only understand your music as well as the information available to it.</p>
+<h2 id="great-songs-still-come-first">Great Songs Still Come First</h2>
+<p>No recommendation engine can turn poor music into timeless music.</p>
+<p>Great songwriting.</p>
+<p>Great performances.</p>
+<p>Great production.</p>
+<p>Those will always matter.</p>
+<p>Technology simply helps great music find the audiences most likely to appreciate it.</p>
+<p>Think of recommendation systems as bridges—not shortcuts.</p>
+<p>They connect listeners with music.</p>
+<p>They don't replace creativity.</p>
+<h2 id="how-royalte-helps">How Royaltē Helps</h2>
+<p>Royaltē helps artists better understand the information supporting their music.</p>
+<p>By reviewing your <strong>Digital Identity™</strong>, <strong>Catalog Health™</strong>, metadata, registrations, ownership information, publishing infrastructure, and overall music ecosystem, Royaltē helps artists identify opportunities to strengthen the foundation behind their catalog.</p>
+<p>Royaltē doesn't control streaming algorithms.</p>
+<p>It helps ensure your music is better prepared for the digital systems that power discovery.</p>
+<p>Because the stronger your digital foundation becomes, the better prepared your catalog is for the future of music.</p>
+<h2 id="discovery-begins-long-before-someone-presses-play">Discovery Begins Long Before Someone Presses Play</h2>
+<p>Every recommendation starts with information.</p>
+<p>Every search begins with metadata.</p>
+<p>Every catalog tells a story.</p>
+<p>The artists who understand how digital music ecosystems work aren't simply creating songs.</p>
+<p>They're building discoverable catalogs.</p>
+<p>Because in today's music industry, discovery isn't just about being heard.</p>
+<p>It's about being understood.</p>
+<div class="edu-continue-learning-block"><span class="edu-cl-label">Continue Learning</span><ul><li><a href="/education/why-metadata-matters-more-than-ever-in-the-age-of-ai.html">Why Metadata Matters More Than Ever in the Age of AI</a></li><li>The Hidden Cost of Bad Metadata</li><li><a href="/education/how-music-copyright-actually-works-in-2026.html">How Music Copyright Actually Works in 2026</a></li><li><a href="/education/why-your-distributor-doesnt-collect-every-royalty.html">Why Your Distributor Doesn't Collect Every Royalty</a></li><li><a href="/education/the-truth-about-music-publishing-most-artists-still-get-it-wrong.html">The Truth About Music Publishing (Most Artists Still Get It Wrong)</a></li><li>Why Every Independent Artist Needs a Music Rights Audit</li><li><a href="/education/complete-guide-to-music-royalties.html">The Complete Guide to Music Royalties (2026 Edition)</a></li></ul></div>
+    </div>
+
+    <!-- Disclaimer — required on every guide -->
+    <aside class="edu-disclaimer" aria-label="Educational disclaimer">
+      <p>This article is provided for educational purposes only and should not be considered technical, legal, or business advice. Streaming platforms use proprietary recommendation systems that evolve over time, and the specific factors influencing recommendations are not publicly disclosed in full. The concepts discussed are intended to help artists better understand the role of metadata, listener behavior, catalog quality, and digital identity in today's music ecosystem.</p>
+    </aside>
+
+    <!-- Final CTA — Founding Artist Beta framing, baked in, do not edit per guide -->
+    <aside class="final-cta" aria-label="Claim a Founding Artist Beta spot">
+      <h2 class="final-cta-headline">Your music may not be the problem. Your backend might be broken.</h2>
+      <p class="final-cta-body">Founding Artist Beta is now open. Royaltē helps artists and rights holders identify metadata gaps, registration issues, platform coverage problems, and royalty risk signals before more money slips through the cracks.</p>
+      <a class="final-cta-btn" href="/#scan-tool">Claim One Of 1,000 Founding Artist Spots →</a>
+    </aside>
+
+  </article>
+
+  <section class="related-articles" aria-label="Related guides">
+    <h3 class="related-h3">More From The Education Library</h3>
+    <div id="related-grid" class="edu-card-grid"></div>
+    <p id="related-empty" class="edu-empty-note" style="display:none;">More guides are on the way. <a href="/education/index.html" style="color:var(--pur);">Explore the Education Library →</a></p>
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <svg class="f-logo f-logo-full" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <defs>
+        <linearGradient id="f-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#f-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#f-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#f-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="f-logo f-logo-mobile" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </div>
+  <div class="f-copy">© 2026 Royaltē. Powered by Se7ven Labs LLC. · info@royalte.ai</div>
+  <div class="f-links">
+    <a href="/contact.html">Contact</a>
+    <a href="/faq.html">FAQ</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+  </div>
+</footer>
+
+<!-- Render related guides from the canonical registry, excluding the current guide. -->
+<script src="/js/education-posts.js"></script>
+<script>
+(function(){
+  var currentSlug = 'how-streaming-platforms-decide-which-songs-to-recommend';
+  var grid = document.getElementById('related-grid');
+  var empty = document.getElementById('related-empty');
+  if (!grid || !Array.isArray(window.educationPosts)) return;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  var others = window.educationPosts.filter(function(p){ return p.slug !== currentSlug; }).slice(0, 4);
+  if (others.length === 0) {
+    grid.style.display = 'none';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+
+  grid.innerHTML = others.map(function(post){
+    var isLive = post.status === 'live';
+    var cls = 'edu-card' + (isLive ? '' : ' coming-soon');
+    var disabled = isLive ? '' : ' aria-disabled="true"';
+    var catLabel = isLive ? post.category : (post.category + ' · Coming soon');
+    return '<a class="' + cls + '" href="' + esc(post.url) + '"' + disabled + '>' +
+             '<span class="edu-card-cat">' + esc(catLabel) + '</span>' +
+             '<div class="edu-card-title">' + esc(post.title) + '</div>' +
+           '</a>';
+  }).join('');
+})();
+</script>
+
+</body>
+</html>
