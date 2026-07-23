@@ -18,16 +18,20 @@
   To publish a new guide:
     1. Copy this file to /public/education/<slug>.html
     2. Find-and-replace every {{TOKEN}} below with the guide's content
-    3. Prepend a matching entry to /public/js/education-posts.js
-    4. Add a mirroring card to /public/education/index.html
+    3. Add a hero image at /public/education/images/<slug>-hero.png (or .jpg)
+       -- see "Hero Images" in /public/education/README.md. The page
+       renders with a broken-image placeholder if this file is missing.
+    4. Prepend a matching entry to /public/js/education-posts.js
+    5. Add a mirroring card to /public/education/index.html
        (Featured Guide, a category tile, or the Recently Added grid)
-    5. Commit and push per the Royaltē Publishing Intelligence™ workflow --
+    6. Commit and push per the Royaltē Publishing Intelligence™ workflow --
        see /public/education/README.md
 
   Tokens used in this file:
     {{GUIDE_TITLE}}        e.g. "The Complete Guide to Music Royalties"
     {{GUIDE_DESCRIPTION}}  meta description, OG description, Twitter description (one sentence)
-    {{GUIDE_SLUG}}         filename minus .html, e.g. "complete-guide-to-music-royalties"
+    {{GUIDE_SLUG}}         filename minus .html, e.g. "complete-guide-to-music-royalties" -- also
+                           used to build the hero-image path (/education/images/{{GUIDE_SLUG}}-hero.png)
     {{GUIDE_CATEGORY}}     must match a category in education-posts.js
     {{GUIDE_DATE}}         ISO date, e.g. "2026-07-23"
     {{GUIDE_READ_TIME}}    e.g. "52 min read"
@@ -36,6 +40,11 @@
     {{CHECKLIST_HTML}}     optional -- omit the whole <section> block below if the guide has no checklist
     {{GLOSSARY_HTML}}      optional -- omit the whole <section> block below if the guide has no glossary
     {{DISCLAIMER_HTML}}    educational-disclaimer paragraph(s), required on every guide
+
+  If a guide's hero image isn't 1536x1024, update the og:image:width /
+  og:image:height meta tags below to match its real dimensions (same
+  per-article adjustment the blog template requires -- see blog/README.md
+  "Hero Images").
 
   The mid-article CTA and final CTA are intentionally baked in, identical to
   the blog template's. Do not edit them per guide.
@@ -52,16 +61,16 @@
 <meta property="og:url" content="https://royalte.ai/education/{{GUIDE_SLUG}}.html">
 <meta property="og:title" content="{{GUIDE_TITLE}} — Royaltē Education Library">
 <meta property="og:description" content="{{GUIDE_DESCRIPTION}}">
-<meta property="og:image" content="https://royalte.ai/og-image.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta property="og:image" content="https://royalte.ai/education/images/{{GUIDE_SLUG}}-hero.png">
+<meta property="og:image:width" content="1536">
+<meta property="og:image:height" content="1024">
 <meta property="og:site_name" content="Royaltē">
 
 <!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{GUIDE_TITLE}} — Royaltē Education Library">
 <meta name="twitter:description" content="{{GUIDE_DESCRIPTION}}">
-<meta name="twitter:image" content="https://royalte.ai/og-image.jpg">
+<meta name="twitter:image" content="https://royalte.ai/education/images/{{GUIDE_SLUG}}-hero.png">
 
 <meta name="description" content="{{GUIDE_DESCRIPTION}}">
 
@@ -218,6 +227,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56p
         <span class="edu-readtime-badge">{{GUIDE_READ_TIME}}</span>
       </div>
     </header>
+
+    <img class="article-hero-image" src="/education/images/{{GUIDE_SLUG}}-hero.png" alt="{{GUIDE_TITLE}}" loading="eager">
 
     <nav class="edu-toc" aria-label="Table of contents">
       <div class="edu-toc-title">In This Guide</div>

@@ -69,7 +69,18 @@ the current scope regex.
    footer. Those are part of the Royaltē voice and stay identical across
    every guide, matching the blog convention.
 
-3. **Prepend an entry to `/public/js/education-posts.js`.**
+3. **Add a hero image.**
+   Save it to `/public/education/images/<slug>-hero.<ext>` — `.png` or `.jpg`.
+   The page renders with a broken-image placeholder if the file is missing.
+   The Complete Guide to Music Royalties' hero is 1536x1024. If a future
+   guide's hero has different dimensions, update that guide's
+   `og:image:width` / `og:image:height` meta tags to match — same
+   per-article adjustment the blog template requires (see
+   `/blog/README.md` "Hero Images"). The landing page's Featured Guide
+   card (`.edu-featured-visual`) also expects a hero image at this path
+   for whichever guide holds the Featured Guide slot.
+
+4. **Prepend an entry to `/public/js/education-posts.js`.**
    Order is newest first. The object shape:
 
    ```js
@@ -86,7 +97,7 @@ the current scope regex.
    }
    ```
 
-4. **Mirror the entry on `/education/index.html`.**
+5. **Mirror the entry on `/education/index.html`.**
    Add it to the Featured Guide slot (only one guide holds this at a time),
    a topic tile's guide count, and/or the Recently Added grid, as
    appropriate. The landing page is intentionally hand-maintained HTML (not
@@ -94,14 +105,14 @@ the current scope regex.
    visibility reason as `/blog.html` — do not "DRY it up" against the
    registry.
 
-5. **Commit and push per the Publishing Intelligence™ workflow.**
+6. **Commit and push per the Publishing Intelligence™ workflow.**
    Open a PR with a `## Publishing Schedule` block (same format as blog
    PRs — see `/blog/PUBLISHING_INTELLIGENCE.md`). It stays unscheduled
    (`Status: Board Review`, no `scheduled` label) until the Board explicitly
    approves it with a publish date — guides are never self-scheduled, same
    hard rule as the blog.
 
-6. **Verify on the Vercel Preview before merge, on production after.**
+7. **Verify on the Vercel Preview before merge, on production after.**
    - Guide URL renders, TOC anchors jump to the right sections, chapter
      nav prev/next links work.
    - It appears as a card on `/education/index.html`.

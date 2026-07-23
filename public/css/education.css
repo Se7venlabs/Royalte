@@ -138,21 +138,13 @@
 }
 .edu-featured-btn:hover{opacity:0.88;}
 .edu-featured-visual{
-  aspect-ratio:4/3;
+  width:100%;
+  aspect-ratio:3/2;
   border-radius:10px;
-  background:var(--bg3);
   border:1px solid var(--border2);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:'Rajdhani',sans-serif;
-  font-size:15px;
-  font-weight:700;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  color:var(--muted);
-  text-align:center;
-  padding:24px;
+  object-fit:cover;
+  display:block;
+  box-shadow:0 20px 60px rgba(0,0,0,0.35);
 }
 
 /* ── CATEGORY GRID ── */
