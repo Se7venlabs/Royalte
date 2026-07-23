@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "The 7 Metadata Mistakes That Could Be Costing You Music Royalties",
+    excerpt: "Bad metadata can quietly cost artists their royalties. Learn the 7 most common mistakes — from ISRC errors to missing publisher info — and how to avoid them.",
+    category: "Metadata",
+    date: "2026-07-23",
+    readTime: "7 min read",
+    slug: "metadata-mistakes-killing-royalties",
+    url: "/blog/metadata-mistakes-killing-royalties.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",
@@ -87,16 +97,6 @@ const blogPosts = [
     slug: "why-your-spotify-streams-dont-match-your-money",
     url: "/blog/why-your-spotify-streams-dont-match-your-money.html",
     status: "live"
-  },
-  {
-    title: "The 7 Metadata Mistakes Killing Artist Royalties",
-    excerpt: "Bad metadata is one of the most common reasons royalties get misrouted or never collected. This guide covers the seven most frequent errors — from missing ISRCs to mismatched credits — and how to spot them before they cost you.",
-    category: "Metadata",
-    date: null,
-    readTime: null,
-    slug: "metadata-mistakes-killing-royalties",
-    url: "/blog/metadata-mistakes-killing-royalties.html",
-    status: "coming_soon"
   },
   {
     title: "What The MLC Actually Does (And Why So Many Artists Miss It)",

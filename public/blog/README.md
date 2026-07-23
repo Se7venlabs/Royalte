@@ -102,16 +102,19 @@ This sequence is strategically designed to build topical authority, emotional pr
 and metadata. This section is a human-readable summary — if the two disagree,
 the registry wins.
 
-**Live (4):**
+**Live (8):**
 
 - Your Music Isn't The Problem. Your Backend Might Be Broken.
 - Why Your Spotify Streams Don't Match Your Money
 - Using Suno AI? Read This Before Releasing Anything. — *AI Music & Royalties, Part 1 of 4*
 - The Silent Money Leaks Killing Independent Artists — *AI Music & Royalties, Part 3 of 4*
+- The Backend Infrastructure Powering Modern Music
+- Sync License vs Sample vs Beat License vs Cover Song vs Interpolation vs Parody: What's the Difference?
+- AI Didn't Kill Music—It Changed the Rules
+- The 7 Metadata Mistakes That Could Be Costing You Music Royalties
 
-**Queued in the registry as `coming_soon` (3):**
+**Queued in the registry as `coming_soon` (2):**
 
-- The 7 Metadata Mistakes Killing Artist Royalties
 - What The MLC Actually Does (And Why So Many Artists Miss It)
 - SoundExchange Explained For Artists
 
