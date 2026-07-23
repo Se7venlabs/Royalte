@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "What Happens After You Leave a Record Label? A Complete Guide for Independent Artists",
+    excerpt: "Leaving a record label creates new opportunities—and risks. Learn what happens after your deal ends and how to protect your music business.",
+    category: "Artist Education",
+    date: "2026-08-17",
+    readTime: "7 min read",
+    slug: "what-happens-after-you-leave-a-record-label",
+    url: "/blog/what-happens-after-you-leave-a-record-label.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",
