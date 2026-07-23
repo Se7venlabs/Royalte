@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "What Is SoundExchange? (And Why Every Artist Should Understand Its Role)",
+    excerpt: "SoundExchange administers specific digital performance royalties—often confused with a PRO. Learn what SoundExchange actually does for artists.",
+    category: "SoundExchange",
+    date: "2026-07-31",
+    readTime: "7 min read",
+    slug: "soundexchange-explained-for-artists",
+    url: "/blog/soundexchange-explained-for-artists.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",
@@ -108,16 +118,6 @@ const blogPosts = [
     url: "/blog/what-the-mlc-actually-does.html",
     status: "coming_soon"
   },
-  {
-    title: "SoundExchange Explained For Artists",
-    excerpt: "SoundExchange collects digital performance royalties for recording artists in the US — but only if you're registered and your tracks are properly attributed. Here's what SoundExchange covers, what it doesn't, and how to make sure you're collecting what you've earned.",
-    category: "SoundExchange",
-    date: null,
-    readTime: null,
-    slug: "soundexchange-explained-for-artists",
-    url: "/blog/soundexchange-explained-for-artists.html",
-    status: "coming_soon"
-  }
 ];
 
 if (typeof window !== 'undefined') {
