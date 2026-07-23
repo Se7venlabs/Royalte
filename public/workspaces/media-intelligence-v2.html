@@ -76,8 +76,9 @@
     .miv2-h1 sup { font-size: 12px; }
     .miv2-sub { font-size: 13px; color: rgba(255,255,255,0.55); }
 
-    .miv2-content-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 250px 1fr; gap: 16px; align-items: start; }
+    .miv2-content-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 270px 1fr; gap: 16px; align-items: start; }
     @media (max-width: 1080px) { .miv2-content-grid { grid-template-columns: 1fr; } }
+    .miv2-right-col { display: flex; flex-direction: column; }
 
     /* Sidebar / KPI cards -- solid dark panels, matching the reference's
        opaque card treatment (not glass-over-photo). */
@@ -243,57 +244,59 @@
       </div>
     </div>
 
-    <div class="miv2-billboard-wrap">
-      <div class="miv2-lamps" aria-hidden="true">
-        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
-        <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+    <div class="miv2-right-col">
+      <div class="miv2-billboard-wrap">
+        <div class="miv2-lamps" aria-hidden="true">
+          <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+          <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+          <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+          <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+          <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+          <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+          <div class="miv2-lamp"><div class="miv2-lamp-wire"></div><div class="miv2-lamp-fixture"></div><div class="miv2-lamp-glow"></div></div>
+        </div>
+        <div class="miv2-billboard-frame">
+          <div class="miv2-billboard-inner">
+            <div class="miv2-billboard-caption">Your World. Your Media.</div>
+            <div class="miv2-gallery" id="miv2-gallery"></div>
+            <div class="miv2-gallery-dots" id="miv2-gallery-dots"></div>
+          </div>
+        </div>
+        <div class="miv2-billboard-poles" aria-hidden="true"><div class="miv2-pole"></div><div class="miv2-pole"></div></div>
       </div>
-      <div class="miv2-billboard-frame">
-        <div class="miv2-billboard-inner">
-          <div class="miv2-billboard-caption">Your World. Your Media.</div>
-          <div class="miv2-gallery" id="miv2-gallery"></div>
-          <div class="miv2-gallery-dots" id="miv2-gallery-dots"></div>
+
+      <div class="miv2-kpi-row">
+        <div class="miv2-glass miv2-kpi-card">
+          <div class="miv2-kpi-label">Video Asset Coverage <span class="demo-tag">DEMO</span></div>
+          <div class="miv2-kpi-val">65%</div>
+          <div class="miv2-kpi-qual miv2-kpi-qual--good">Good</div>
+          <div class="miv2-kpi-delta">↑ 15%</div>
+        </div>
+        <div class="miv2-glass miv2-kpi-card">
+          <div class="miv2-kpi-label">Media Asset Completeness <span class="demo-tag">DEMO</span></div>
+          <div class="miv2-kpi-val">54%</div>
+          <div class="miv2-kpi-qual miv2-kpi-qual--fair">Fair</div>
+          <div class="miv2-kpi-delta">↑ 8%</div>
+        </div>
+        <div class="miv2-glass miv2-kpi-card">
+          <div class="miv2-kpi-label">Platform Diversity <span class="demo-tag">DEMO</span></div>
+          <div class="miv2-kpi-val">5/7</div>
+          <div class="miv2-kpi-qual miv2-kpi-qual--good">Good</div>
+          <div class="miv2-kpi-delta">↑ 1</div>
+        </div>
+        <div class="miv2-glass miv2-kpi-card miv2-kpi-card--dim">
+          <div class="miv2-kpi-label">Content Activity <span class="demo-tag">DEMO</span></div>
+          <div class="miv2-kpi-val miv2-kpi-val--sub">Active</div>
+          <div class="miv2-kpi-qual miv2-kpi-qual--good">Consistent</div>
+          <div class="miv2-kpi-delta">7 days ago</div>
+        </div>
+        <div class="miv2-glass miv2-kpi-card">
+          <div class="miv2-kpi-label">Unsupported Releases <span class="demo-tag">DEMO</span></div>
+          <div class="miv2-kpi-val" style="color:#f05060">3</div>
+          <div class="miv2-kpi-qual miv2-kpi-qual--risk">Attention Needed</div>
+          <div class="miv2-kpi-delta">2 high priority</div>
         </div>
       </div>
-      <div class="miv2-billboard-poles" aria-hidden="true"><div class="miv2-pole"></div><div class="miv2-pole"></div></div>
-    </div>
-  </div>
-
-  <div class="miv2-kpi-row">
-    <div class="miv2-glass miv2-kpi-card">
-      <div class="miv2-kpi-label">Video Asset Coverage <span class="demo-tag">DEMO</span></div>
-      <div class="miv2-kpi-val">65%</div>
-      <div class="miv2-kpi-qual miv2-kpi-qual--good">Good</div>
-      <div class="miv2-kpi-delta">↑ 15%</div>
-    </div>
-    <div class="miv2-glass miv2-kpi-card">
-      <div class="miv2-kpi-label">Media Asset Completeness <span class="demo-tag">DEMO</span></div>
-      <div class="miv2-kpi-val">54%</div>
-      <div class="miv2-kpi-qual miv2-kpi-qual--fair">Fair</div>
-      <div class="miv2-kpi-delta">↑ 8%</div>
-    </div>
-    <div class="miv2-glass miv2-kpi-card">
-      <div class="miv2-kpi-label">Platform Diversity <span class="demo-tag">DEMO</span></div>
-      <div class="miv2-kpi-val">5/7</div>
-      <div class="miv2-kpi-qual miv2-kpi-qual--good">Good</div>
-      <div class="miv2-kpi-delta">↑ 1</div>
-    </div>
-    <div class="miv2-glass miv2-kpi-card miv2-kpi-card--dim">
-      <div class="miv2-kpi-label">Content Activity <span class="demo-tag">DEMO</span></div>
-      <div class="miv2-kpi-val miv2-kpi-val--sub">Active</div>
-      <div class="miv2-kpi-qual miv2-kpi-qual--good">Consistent</div>
-      <div class="miv2-kpi-delta">7 days ago</div>
-    </div>
-    <div class="miv2-glass miv2-kpi-card">
-      <div class="miv2-kpi-label">Unsupported Releases <span class="demo-tag">DEMO</span></div>
-      <div class="miv2-kpi-val" style="color:#f05060">3</div>
-      <div class="miv2-kpi-qual miv2-kpi-qual--risk">Attention Needed</div>
-      <div class="miv2-kpi-delta">2 high priority</div>
     </div>
   </div>
 </div>
