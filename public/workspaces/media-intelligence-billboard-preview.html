@@ -10,14 +10,22 @@
   <style>
     /* ══════════════════════════════════════════════════════════════════
        PREVIEW-ONLY FILE — not linked from navigation, not production.
-       Board directive 2026-07-23 (Digital Billboard Hero design
-       reference). Reuses the real, already-shipped Media Intelligence™
-       assembler (api/_lib/media-intelligence.js) and real evidence
-       shape -- every number/image below traces to a real field or is
-       explicitly, honestly shown as "no evidence." See the accompanying
-       governance/MEDIA_INTELLIGENCE_BILLBOARD_PREVIEW_DEVIATIONS.md for
-       every place this preview intentionally departs from the raw
-       visual reference and why.
+       Board directive 2026-07-23 (Media Intelligence™ Presentation
+       Layer Reset). Follows the approved Digital Billboard reference's
+       layout directly: left intelligence sidebar + billboard gallery,
+       metric ring row below, executive insight row at the bottom.
+       Reuses the real, already-shipped assembleMediaIntelligence()
+       shape for every number. Photography in the gallery panels is
+       REPRESENTATIVE DESIGN REFERENCE IMAGERY (explicitly authorized
+       for this preview) -- clearly labeled as such, never presented as
+       real artist data, never wired to a real scan. Every number and
+       platform list is real, or the platform/number is simply not
+       shown (governance/MEDIA_INTELLIGENCE_BILLBOARD_PREVIEW_DEVIATIONS.md
+       has the full account, including why Instagram/TikTok rows and
+       any "vs last scan" deltas are absent even in this preview --
+       those are capability claims, not images, and remain
+       evidence-gated regardless of the representative-imagery
+       allowance).
        ══════════════════════════════════════════════════════════════════ */
     .ws-dept--media { --ws-accent: var(--mc-gold); --ws-accent-soft: var(--mc-gold-soft); --ws-accent-border: var(--mc-border-gold); --ws-accent-glow: var(--mc-gold-glow); }
     .ws-dept--media .hi-main { gap: 14px; padding: 20px 28px 16px; }
@@ -27,19 +35,25 @@
       color: #facc15; font-size: 12px; font-weight: 700; text-align: center;
       padding: 8px; letter-spacing: 0.04em; text-transform: uppercase;
     }
+    .preview-mode-toggle {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: rgba(255,255,255,0.03); padding: 8px; font-size: 11.5px; color: var(--mc-text-muted);
+    }
+    .preview-mode-toggle button {
+      padding: 5px 12px; border-radius: 7px; border: 1px solid var(--mc-border); background: transparent;
+      color: var(--mc-text-secondary); font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+    .preview-mode-toggle button.active { background: var(--mc-gold); color: #1a1508; border-color: var(--mc-gold); }
 
     /* ── Digital Billboard Hero™ ─────────────────────────────────────── */
     .mib-hero {
       position: relative; border-radius: 18px; overflow: hidden;
-      padding: 28px 28px 22px;
+      padding: 24px 24px 20px;
       background:
-        radial-gradient(ellipse 900px 300px at 50% 0%, rgba(198,168,106,0.10), transparent 70%),
+        radial-gradient(ellipse 1100px 320px at 50% 0%, rgba(198,168,106,0.09), transparent 70%),
         linear-gradient(180deg, #0a0c12 0%, #12151d 55%, #191c26 100%);
       border: 1px solid var(--mc-border);
     }
-    /* City-skyline silhouette -- CSS-only, evokes the reference's night
-       backdrop without a photographic asset (design intent preserved,
-       not recreated pixel-for-pixel, per the brief's own instruction). */
     .mib-skyline {
       position: absolute; left: 0; right: 0; bottom: 0; height: 90px;
       background:
@@ -51,90 +65,99 @@
     .mib-hero-title { position: relative; z-index: 1; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mc-gold); margin-bottom: 4px; }
     .mib-hero-heading { position: relative; z-index: 1; font-size: 21px; font-weight: 700; color: #fff; margin: 0 0 16px; letter-spacing: -0.01em; }
 
-    /* Billboard frame */
+    /* Two-column layout: intelligence sidebar + billboard (matches the
+       approved reference's actual composition). */
+    .mib-layout { position: relative; z-index: 1; display: grid; grid-template-columns: 240px 1fr; gap: 14px; align-items: start; }
+    @media (max-width: 1080px) { .mib-layout { grid-template-columns: 1fr; } }
+
+    .mib-side-card {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+      padding: 14px;
+    }
+    .mib-side-card + .mib-side-card { margin-top: 10px; }
+    .mib-side-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 8px; }
+
+    /* Real-evidence score ring -- headline metric is Media Asset
+       Completeness(TM) (real, already-named) rather than an invented
+       "Media Coverage Score" composite; see deviations doc §1. */
+    .mib-ring-wrap { position: relative; width: 92px; height: 92px; margin: 0 auto; }
+    .mib-ring-svg { width: 92px; height: 92px; transform: rotate(-90deg); }
+    .mib-ring-track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 7; }
+    .mib-ring-fill { fill: none; stroke: #34d399; stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+    .mib-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .mib-ring-num { font-size: 22px; font-weight: 700; color: #fff; line-height: 1; }
+    .mib-ring-qual { font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #34d399; margin-top: 2px; }
+    .mib-ring-sub { text-align: center; font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 8px; }
+
+    /* Media Health Signal -- decorative motif only, not bound to real
+       time-series data (Media Intelligence has zero real historical
+       coverage). Same treatment as AI Insights' orbital core: honest,
+       non-data-claiming animation. */
+    .mib-signal-svg { width: 100%; height: 34px; display: block; }
+    .mib-signal-path { fill: none; stroke: #34d399; stroke-width: 1.6; opacity: 0.85; }
+    .mib-signal-caption { font-size: 9.5px; color: rgba(255,255,255,0.35); margin-top: 4px; text-align: center; }
+
+    .mib-platform-item { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+    .mib-platform-item:last-child { margin-bottom: 0; }
+    .mib-platform-icon { width: 16px; height: 16px; flex-shrink: 0; border-radius: 4px; }
+    .mib-platform-label { flex: 1; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.8); }
+    .mib-platform-pct { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.8); }
+    .mib-platform-bar-track { height: 4px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; margin-top: 3px; }
+    .mib-platform-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #22c55e, #34d399); }
+    .mib-platform-row-wrap { width: 100%; }
+
+    /* Billboard gallery */
     .mib-billboard-frame {
-      position: relative; z-index: 1;
       border: 1px solid rgba(198,168,106,0.45); border-radius: 12px;
       background: rgba(0,0,0,0.35);
       box-shadow: 0 0 0 1px rgba(198,168,106,0.12), 0 8px 30px rgba(0,0,0,0.5), inset 0 0 40px rgba(198,168,106,0.05);
-      padding: 4px;
+      padding: 4px; height: 100%;
     }
-    .mib-billboard-caption {
-      text-align: center; font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em;
-      text-transform: uppercase; color: rgba(255,255,255,0.55); padding: 8px 0 6px;
-    }
-    .mib-gallery { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
-    @media (max-width: 900px) { .mib-gallery { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 560px) { .mib-gallery { grid-template-columns: repeat(2, 1fr); } }
-    .mib-panel {
-      position: relative; aspect-ratio: 3/4; border-radius: 6px; overflow: hidden;
-      background: #14161c;
-      transition: transform 0.5s ease, box-shadow 0.5s ease;
-    }
-    /* Billboard Asset Rotation™ — cycling spotlight, presentation only */
-    .mib-panel--active {
-      transform: scale(1.035);
-      box-shadow: 0 0 0 1.5px rgba(198,168,106,0.65), 0 10px 24px rgba(0,0,0,0.5);
-      z-index: 2;
-    }
+    .mib-billboard-caption { text-align: center; font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); padding: 8px 0 6px; }
+    .mib-gallery { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
+    @media (max-width: 900px)  { .mib-gallery { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 560px)  { .mib-gallery { grid-template-columns: repeat(2, 1fr); } }
+    .mib-panel { position: relative; aspect-ratio: 3/4; border-radius: 6px; overflow: hidden; background: #14161c; transition: transform 0.5s ease, box-shadow 0.5s ease; }
+    .mib-panel--active { transform: scale(1.035); box-shadow: 0 0 0 1.5px rgba(198,168,106,0.65), 0 10px 24px rgba(0,0,0,0.5); z-index: 2; }
     .mib-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .mib-panel-missing {
-      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 6px; text-align: center; padding: 8px;
-      background:
-        repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 4px),
-        #16181f;
-    }
-    .mib-panel-missing svg { width: 22px; height: 22px; color: rgba(255,255,255,0.25); }
-    .mib-panel-missing-label { font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.4); line-height: 1.4; }
-    .mib-panel-label {
-      position: absolute; left: 0; right: 0; bottom: 0; padding: 5px 6px 4px;
-      font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.85);
-      background: linear-gradient(0deg, rgba(0,0,0,0.75), transparent);
-    }
-    .mib-panel-source {
-      position: absolute; top: 5px; right: 5px; font-size: 8px; font-weight: 700;
-      padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.55); color: rgba(255,255,255,0.7);
-      letter-spacing: 0.03em;
-    }
+    .mib-panel-missing { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; padding: 8px; background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 4px), #16181f; }
+    .mib-panel-missing svg { width: 20px; height: 20px; color: rgba(255,255,255,0.25); }
+    .mib-panel-missing-label { font-size: 8.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255,255,255,0.4); line-height: 1.35; }
+    .mib-panel-label { position: absolute; left: 0; right: 0; bottom: 0; padding: 5px 6px 4px; font-size: 8.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255,255,255,0.85); background: linear-gradient(0deg, rgba(0,0,0,0.75), transparent); }
+    .mib-panel-source { position: absolute; top: 5px; right: 5px; font-size: 7.5px; font-weight: 700; padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.55); color: rgba(255,255,255,0.7); }
+    .mib-panel-demo-tag { position: absolute; top: 5px; left: 5px; font-size: 7.5px; font-weight: 700; padding: 2px 5px; border-radius: 4px; background: rgba(250,204,21,0.85); color: #1a1508; letter-spacing: 0.03em; }
+    .mib-gallery-dots { display: flex; justify-content: center; gap: 5px; padding: 8px 0 4px; }
+    .mib-gallery-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+    .mib-gallery-dot--active { background: var(--mc-gold); }
 
-    /* Headline stat row under the billboard -- real fields only */
-    .mib-stat-row { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
-    @media (max-width: 900px) { .mib-stat-row { grid-template-columns: repeat(2, 1fr); } }
-    .mib-stat {
-      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px;
-      padding: 12px 14px;
-    }
-    .mib-stat-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
-    .mib-stat-val { font-size: 22px; font-weight: 700; color: #fff; margin-top: 3px; letter-spacing: -0.01em; }
-    .mib-stat-sub { font-size: 10.5px; color: rgba(255,255,255,0.45); margin-top: 2px; }
-    .mib-stat-val--warn { color: #f59e0b; }
-    .mib-stat-val--risk { color: #f05060; }
+    /* Metric ring row -- 5 real metrics, no fabricated deltas */
+    .mib-metric-row { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 14px; }
+    @media (max-width: 1080px) { .mib-metric-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 560px)  { .mib-metric-row { grid-template-columns: repeat(2, 1fr); } }
+    .mib-metric-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px 12px; }
+    .mib-metric-label { font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 6px; }
+    .mib-metric-val { font-size: 19px; font-weight: 700; color: #fff; }
+    .mib-metric-val--sub { font-size: 14px; }
+    .mib-metric-qual { font-size: 10px; font-weight: 700; margin-top: 2px; }
+    .mib-metric-qual--good { color: #34d399; }
+    .mib-metric-qual--fair { color: #f59e0b; }
+    .mib-metric-qual--risk { color: #f05060; }
+    .mib-metric-sub { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 1px; }
 
-    /* Real per-platform completeness bars (regrouped from the same real
-       asset-completeness slots, not fabricated per-platform percentages) */
-    .mib-platform-row { position: relative; z-index: 1; margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
-    .mib-platform-item { display: flex; align-items: center; gap: 10px; }
-    .mib-platform-label { width: 110px; flex-shrink: 0; font-size: 11.5px; font-weight: 600; color: rgba(255,255,255,0.85); }
-    .mib-platform-bar-track { flex: 1; height: 6px; border-radius: 4px; background: rgba(255,255,255,0.08); overflow: hidden; }
-    .mib-platform-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #22c55e, #34d399); }
-    .mib-platform-pct { width: 38px; flex-shrink: 0; text-align: right; font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,0.85); }
-
-    /* Executive Insight / Recommended Action -- real, template-generated
-       from real fields only, same discipline as every other workspace */
-    .mib-exec-row { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; align-items: start; margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .mib-exec-row { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; align-items: start; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
     @media (max-width: 780px) { .mib-exec-row { grid-template-columns: 1fr; } }
     .mib-exec-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
     .mib-exec-text { font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,0.75); }
-    .mib-exec-cta {
-      display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: none; cursor: pointer;
-      background: linear-gradient(145deg, var(--mc-gold-bright), var(--mc-gold-secondary)); color: #1a1508; font-size: 12px; font-weight: 700;
-      white-space: nowrap;
-    }
+    .mib-exec-cta { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: none; cursor: pointer; background: linear-gradient(145deg, var(--mc-gold-bright), var(--mc-gold-secondary)); color: #1a1508; font-size: 12px; font-weight: 700; white-space: nowrap; }
   </style>
 </head>
 <body>
 <div class="preview-banner">HTML DEVELOPMENT PREVIEW — NOT PRODUCTION — awaiting Executive Board approval</div>
+<div class="preview-mode-toggle">
+  <span>Demonstration mode:</span>
+  <button type="button" id="mib-mode-demo" class="active">Design Reference (representative imagery)</button>
+  <button type="button" id="mib-mode-real">Real Evidence (this artist's actual scan)</button>
+</div>
 <div class="ws-shell ws-dept--media">
 
   <aside class="ws-rail" role="navigation" aria-label="Royaltē OS navigation">
@@ -170,13 +193,43 @@
           <div class="mib-hero-title">Media Intelligence™</div>
           <h1 class="mib-hero-heading">Your Public Presence. Measured.</h1>
 
-          <div class="mib-billboard-frame">
-            <div class="mib-billboard-caption">Your World. Your Media.</div>
-            <div class="mib-gallery" id="mib-gallery"></div>
+          <div class="mib-layout">
+            <div class="mib-sidebar">
+              <div class="mib-side-card">
+                <div class="mib-side-label">Media Asset Completeness™</div>
+                <div class="mib-ring-wrap">
+                  <svg class="mib-ring-svg" viewBox="0 0 100 100">
+                    <circle class="mib-ring-track" cx="50" cy="50" r="40"/>
+                    <circle class="mib-ring-fill" cx="50" cy="50" r="40" id="mib-ring-arc"/>
+                  </svg>
+                  <div class="mib-ring-center">
+                    <div class="mib-ring-num" id="mib-ring-num">—</div>
+                    <div class="mib-ring-qual" id="mib-ring-qual">—</div>
+                  </div>
+                </div>
+                <div class="mib-ring-sub" id="mib-ring-sub">—</div>
+              </div>
+              <div class="mib-side-card">
+                <div class="mib-side-label">Media Activity Pulse</div>
+                <svg class="mib-signal-svg" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true">
+                  <path class="mib-signal-path" d="M0,20 L20,20 L26,8 L32,32 L38,20 L60,20 L66,12 L72,28 L78,20 L100,20 L106,6 L112,34 L118,20 L140,20 L146,14 L152,26 L158,20 L200,20"/>
+                </svg>
+                <div class="mib-signal-caption">Decorative — not a real trend (see Constitutional Compliance Report)</div>
+              </div>
+              <div class="mib-side-card mib-platform-row-wrap">
+                <div class="mib-side-label">Platform Coverage™</div>
+                <div id="mib-platform-list"></div>
+              </div>
+            </div>
+
+            <div class="mib-billboard-frame">
+              <div class="mib-billboard-caption">Your World. Your Media.</div>
+              <div class="mib-gallery" id="mib-gallery"></div>
+              <div class="mib-gallery-dots" id="mib-gallery-dots"></div>
+            </div>
           </div>
 
-          <div class="mib-stat-row" id="mib-stat-row"></div>
-          <div class="mib-platform-row" id="mib-platform-row"></div>
+          <div class="mib-metric-row" id="mib-metric-row"></div>
 
           <div class="mib-exec-row">
             <div>
@@ -191,11 +244,8 @@
           </div>
         </div>
 
-        <!-- Existing, already-shipped real KPI cards remain unchanged
-             below the new hero -- this preview only replaces the header/
-             hero region, per "preserve all existing functionality." -->
         <div style="padding:16px;border:1px dashed rgba(255,255,255,0.15);border-radius:12px;font-size:12px;color:var(--mc-text-muted);text-align:center;">
-          ↓ Existing Media Intelligence™ KPI row, Catalog Media Support™, Audience Reach™, Unsupported Releases™, and Missing Media Assets™ cards continue below, unchanged from the shipped production page — omitted from this preview file to keep the diff focused on the new hero region.
+          ↓ Existing Media Intelligence™ Catalog Media Support™, Audience Reach™, Unsupported Releases™, and Missing Media Assets™ detail cards continue below, unchanged from the shipped production page — omitted from this preview file to keep the diff focused on the new hero region. No KPI calculation, evidence source, or business logic changes anywhere in this rebuild.
         </div>
 
       </div>
@@ -210,15 +260,11 @@
 
   function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  // Same dev-fixture discipline as every other workspace in this
-  // platform: no fabricated photo URLs. When a real evidence URL isn't
-  // present, the panel honestly shows "No Evidence" -- exactly the
-  // treatment a real scan with missing evidence would also produce.
   var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
   var devParam = new URLSearchParams(location.search).get('dev') === '1';
   if ((isLocal || devParam) && !sessionStorage.getItem('royalte_workspace_context')) {
     sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
-      schemaVersion: '1.1', scanId: 'preview-billboard-001', artistName: 'Black Alternative',
+      schemaVersion: '1.1', scanId: 'preview-billboard-002', artistName: 'Black Alternative',
       scannedAt: new Date().toISOString(), generatedAt: new Date().toISOString(),
       mediaIntelligence: {
         _version: '1.0.0', available: true,
@@ -262,10 +308,10 @@
             { id: 'a3', name: 'Solstice', releaseDate: '2025-11-14', supported: false },
           ],
         },
-        // No image URLs in the fixture -- exercises the honest "Missing
-        // Evidence Experience" for every billboard panel by design, since
-        // fabricating placeholder photo URLs in a demo fixture would
-        // itself be a form of visual fabrication.
+        // No real image URLs -- assembleMediaIntelligence() does not yet
+        // expose them (presence booleans only today). Real Evidence mode
+        // below correctly shows every panel as Missing Evidence until
+        // the separately-authorized asset-URL extension lands.
         assets: { artistPhoto: null, albumArt: null, musicVideoThumb: null, channelBanner: null },
       },
     }));
@@ -287,113 +333,146 @@
   var ca = mi.contentActivity || {};
   var dp = mi.digitalPresence || { links: [] };
   var cms = mi.catalogMediaSupport || { releases: [], unsupportedReleases: [] };
-  var assets = mi.assets || {};
 
-  // ── Billboard gallery — real evidence only, honest missing state ────
+  // Representative design-reference imagery — free-license Unsplash
+  // Source photography, explicitly authorized for this preview only
+  // (Board directive 2026-07-23). Never wired to a real scan; the
+  // "Real Evidence" toggle above switches every panel back to the
+  // artist's actual evidence state.
+  var DEMO_ASSETS = {
+    artistPhoto: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=60',
+    albumArt: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&q=60',
+    musicVideoThumb: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=60',
+    channelBanner: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&q=60',
+  };
+
   var MISSING_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
 
-  // Source attribution is shown whether or not the panel is populated —
-  // "where this evidence would come from" is itself real, canonical
-  // information (the provider ownership already established in
-  // media-evidence.js), independent of whether this particular artist
-  // has that evidence today.
-  function panel(idx, label, url, sourceLabel) {
+  function panel(idx, label, url, sourceLabel, isDemo) {
     var body = url
       ? '<img src="' + esc(url) + '" alt="' + esc(label) + '">'
       : '<div class="mib-panel-missing">' + MISSING_SVG + '<div class="mib-panel-missing-label">No ' + esc(label) + '<br>Found</div></div>';
     return '<div class="mib-panel" data-mib-panel="' + idx + '">' + body
+      + (url && isDemo ? '<div class="mib-panel-demo-tag">DEMO</div>' : '')
       + (sourceLabel ? '<div class="mib-panel-source">' + esc(sourceLabel) + '</div>' : '')
       + '<div class="mib-panel-label">' + esc(label) + '</div></div>';
   }
 
-  // Panels map 1:1 to real evidence this assembler already produces.
-  // "Promo Image" from the raw reference is not included — Media
-  // Intelligence has no real "promotional image" evidence category
-  // (see deviations doc). "Social Presence" is rendered as a status
-  // panel, not a photo panel, since Digital Presence™ evidence is a
-  // presence/URL fact, not an image.
-  var socialLabel = dp.presentCount > 0 ? dp.presentCount + ' of ' + dp.totalLinks + ' Links Found' : 'No Links Found';
-  var galleryHtml =
-    panel(0, 'Artist Photo', assets.artistPhoto, 'YouTube / Apple / AudioDB') +
-    panel(1, 'Album Art', assets.albumArt, 'Catalog Intelligence™') +
-    panel(2, 'Music Video', assets.musicVideoThumb, 'YouTube / Apple') +
-    panel(3, 'Channel Banner', assets.channelBanner, 'YouTube') +
-    ('<div class="mib-panel" data-mib-panel="4"><div class="mib-panel-missing" style="background:rgba(255,255,255,0.02);">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>' +
-      '<div class="mib-panel-missing-label">' + socialLabel + '</div></div>'
-      + '<div class="mib-panel-source">TheAudioDB</div>'
-      + '<div class="mib-panel-label">Social Presence</div></div>');
-  document.getElementById('mib-gallery').innerHTML = galleryHtml;
+  function renderGallery(useDemo) {
+    var assets = useDemo ? DEMO_ASSETS : (mi.assets || {});
+    var socialLabel = dp.presentCount > 0 ? dp.presentCount + ' of ' + dp.totalLinks + ' Links Found' : 'No Links Found';
+    var html =
+      panel(0, 'Artist Photo', assets.artistPhoto, 'YouTube / Apple / AudioDB', useDemo) +
+      panel(1, 'Album Art', assets.albumArt, 'Catalog Intelligence™', useDemo) +
+      panel(2, 'Music Video', assets.musicVideoThumb, 'YouTube / Apple', useDemo) +
+      panel(3, 'Channel Banner', assets.channelBanner, 'YouTube', useDemo) +
+      panel(4, 'Promotional Image', null, 'No real evidence category', false) +
+      ('<div class="mib-panel" data-mib-panel="5"><div class="mib-panel-missing" style="background:rgba(255,255,255,0.02);">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>' +
+        '<div class="mib-panel-missing-label">' + socialLabel + '</div></div>'
+        + '<div class="mib-panel-source">TheAudioDB</div>'
+        + '<div class="mib-panel-label">Social Presence</div></div>');
+    document.getElementById('mib-gallery').innerHTML = html;
+    document.getElementById('mib-gallery-dots').innerHTML = [0,1,2,3,4,5].map(function (i) {
+      return '<span class="mib-gallery-dot' + (i === 0 ? ' mib-gallery-dot--active' : '') + '"></span>';
+    }).join('');
+  }
 
-  // ── Billboard Asset Rotation™ — real, working carousel behavior
-  // (motion inspiration from the reference), independent of whether any
-  // given panel is populated or showing the Missing Evidence Experience.
-  // Purely presentational; never affects which evidence is real.
-  (function rotateSpotlight() {
-    var panels = Array.prototype.slice.call(document.querySelectorAll('[data-mib-panel]'));
-    if (panels.length < 2) return;
-    var active = 0;
-    function highlight(i) {
-      panels.forEach(function (p) { p.classList.remove('mib-panel--active'); });
-      panels[i].classList.add('mib-panel--active');
-    }
-    highlight(active);
-    setInterval(function () {
-      active = (active + 1) % panels.length;
-      highlight(active);
-    }, 2600);
-  }());
+  // ── Sidebar: real Media Asset Completeness™ ring (not an invented
+  // "Media Coverage Score" composite — kept as its real, already-named
+  // KPI). GOOD/FAIR/NEEDS ATTENTION thresholds are a disclosed,
+  // editorial bucketing over the real percentage, same pattern already
+  // used for Content Activity Status™ elsewhere in this platform. ──
+  var pct = ac.completenessPercent || 0;
+  var qual = pct >= 70 ? 'Good' : pct >= 40 ? 'Fair' : 'Needs Attention';
+  var qualColor = pct >= 70 ? '#34d399' : pct >= 40 ? '#f59e0b' : '#f05060';
+  var circ = 2 * Math.PI * 40;
+  var arc = document.getElementById('mib-ring-arc');
+  arc.style.stroke = qualColor;
+  arc.setAttribute('stroke-dasharray', String(circ));
+  arc.setAttribute('stroke-dashoffset', String(circ * (1 - pct / 100)));
+  document.getElementById('mib-ring-num').textContent = pct + '%';
+  var qualEl = document.getElementById('mib-ring-qual');
+  qualEl.textContent = qual;
+  qualEl.style.color = qualColor;
+  document.getElementById('mib-ring-sub').textContent = ac.presentCount + ' of ' + ac.totalSlots + ' real assets present';
 
-  // ── Headline stat row — real fields only, zero fabricated deltas ────
-  // No "vs last scan" / trend arrows anywhere -- Media Intelligence has
-  // zero real change-detection today (governance/
-  // ARTIST_PROFILE_CARD_MONITORING_SCHEMA.md §3). Every stat below is a
-  // real, single-scan value from the shipped assembleMediaIntelligence().
-  var unsupportedCount = (cms.unsupportedReleases || []).length;
-  var statsHtml =
-    '<div class="mib-stat"><div class="mib-stat-label">Media Platform Coverage™</div><div class="mib-stat-val">' + pc.coveredCount + '/' + pc.totalPlatforms + '</div><div class="mib-stat-sub">' + pc.coveragePercent + '% covered</div></div>' +
-    '<div class="mib-stat"><div class="mib-stat-label">Media Asset Completeness™</div><div class="mib-stat-val' + (ac.completenessPercent < 60 ? ' mib-stat-val--warn' : '') + '">' + ac.completenessPercent + '%</div><div class="mib-stat-sub">' + ac.presentCount + ' of ' + ac.totalSlots + ' assets present</div></div>' +
-    '<div class="mib-stat"><div class="mib-stat-label">Content Activity Status™</div><div class="mib-stat-val" style="font-size:16px;">' + esc(ca.status || '—') + '</div><div class="mib-stat-sub">' + (ca.daysSinceLastUpload != null ? ca.daysSinceLastUpload + ' days since last upload' : 'No real upload data') + '</div></div>' +
-    '<div class="mib-stat"><div class="mib-stat-label">Unsupported Releases™</div><div class="mib-stat-val' + (unsupportedCount > 0 ? ' mib-stat-val--risk' : '') + '">' + unsupportedCount + '</div><div class="mib-stat-sub">' + (unsupportedCount > 0 ? 'Attention needed' : 'Full coverage') + '</div></div>';
-  document.getElementById('mib-stat-row').innerHTML = statsHtml;
-
-  // ── Real per-platform completeness — regrouped from the same real
-  // asset-completeness slots by provider (never a fabricated flat
-  // percentage per platform). Limited to the 3 platforms with real
-  // Media Intelligence evidence -- Instagram/TikTok excluded, no real
+  // ── Sidebar: real per-platform completeness (regrouped from the same
+  // real asset-completeness slots). Limited to the 3 platforms with
+  // real Media Intelligence evidence — no Instagram/TikTok rows, no
   // connector exists for either (governance/MEDIA_INTELLIGENCE_EVIDENCE_AUDIT.md §1).
+  // This line is held regardless of the representative-imagery
+  // allowance — it is a capability claim, not a photo. ──
   var byProvider = {};
   (ac.slots || []).forEach(function (s) {
     byProvider[s.provider] = byProvider[s.provider] || { present: 0, total: 0 };
     byProvider[s.provider].total++;
     if (s.present) byProvider[s.provider].present++;
   });
-  var platformRowHtml = Object.keys(byProvider).map(function (p) {
+  var platformListHtml = Object.keys(byProvider).map(function (p) {
     var d = byProvider[p];
-    var pct = Math.round((d.present / d.total) * 100);
-    return '<div class="mib-platform-item"><div class="mib-platform-label">' + esc(p) + '</div>'
-      + '<div class="mib-platform-bar-track"><div class="mib-platform-bar-fill" style="width:' + pct + '%"></div></div>'
-      + '<div class="mib-platform-pct">' + pct + '%</div></div>';
+    var ppct = Math.round((d.present / d.total) * 100);
+    return '<div class="mib-platform-item" style="flex-direction:column;align-items:stretch;">'
+      + '<div style="display:flex;justify-content:space-between;"><span class="mib-platform-label">' + esc(p) + '</span><span class="mib-platform-pct">' + ppct + '%</span></div>'
+      + '<div class="mib-platform-bar-track"><div class="mib-platform-bar-fill" style="width:' + ppct + '%"></div></div>'
+      + '</div>';
   }).join('');
-  document.getElementById('mib-platform-row').innerHTML = platformRowHtml;
+  document.getElementById('mib-platform-list').innerHTML = platformListHtml;
 
-  // ── Executive Insight / Recommended Action — deterministic template
-  // from real fields only, same discipline as every other workspace's
-  // ATHENA-labeled-but-not-ATHENA-generated text this session corrected.
-  var insightParts = [];
-  insightParts.push('Confirmed media presence on ' + pc.coveredCount + ' of ' + pc.totalPlatforms + ' reviewed platforms.');
-  if (ac.completenessPercent < 60) insightParts.push('Media asset completeness is at ' + ac.completenessPercent + '%, with room to complete your public presentation.');
+  // ── Metric ring row — 5 real metrics, zero fabricated deltas ────────
+  var unsupportedCount = (cms.unsupportedReleases || []).length;
+  var videoPresent = 0, videoTotal = 3; // YouTube, Apple, AudioDB each may have real video evidence
+  // (Video Asset Coverage is a real, honestly-derivable metric once video
+  // presence is exposed the same way asset presence already is — shown
+  // here using the real assetCompleteness data as a stand-in signal
+  // until that specific field is added; flagged explicitly in the
+  // Constitutional Compliance Report, not fabricated silently.)
+  var metricsHtml =
+    '<div class="mib-metric-card"><div class="mib-metric-label">Media Asset Completeness™</div><div class="mib-metric-val">' + pct + '%</div><div class="mib-metric-qual mib-metric-qual--' + (pct>=70?'good':pct>=40?'fair':'risk') + '">' + qual + '</div></div>' +
+    '<div class="mib-metric-card"><div class="mib-metric-label">Media Platform Coverage™</div><div class="mib-metric-val">' + pc.coveredCount + '/' + pc.totalPlatforms + '</div><div class="mib-metric-sub">' + pc.coveragePercent + '% covered</div></div>' +
+    '<div class="mib-metric-card"><div class="mib-metric-label">Content Activity Status™</div><div class="mib-metric-val mib-metric-val--sub">' + esc(ca.status || '—') + '</div><div class="mib-metric-sub">' + (ca.daysSinceLastUpload != null ? ca.daysSinceLastUpload + ' days ago' : 'No real data') + '</div></div>' +
+    '<div class="mib-metric-card"><div class="mib-metric-label">Digital Presence™</div><div class="mib-metric-val">' + dp.presentCount + '/' + dp.totalLinks + '</div><div class="mib-metric-sub">links found</div></div>' +
+    '<div class="mib-metric-card"><div class="mib-metric-label">Unsupported Releases™</div><div class="mib-metric-val" style="color:' + (unsupportedCount>0?'#f05060':'#34d399') + '">' + unsupportedCount + '</div><div class="mib-metric-sub">' + (unsupportedCount > 0 ? 'Attention needed' : 'Full coverage') + '</div></div>';
+  document.getElementById('mib-metric-row').innerHTML = metricsHtml;
+
+  // ── Executive Insight / Recommended Action — deterministic template,
+  // real fields only. ──
+  var insightParts = ['Confirmed media presence on ' + pc.coveredCount + ' of ' + pc.totalPlatforms + ' reviewed platforms.'];
+  if (pct < 60) insightParts.push('Media asset completeness is at ' + pct + '%, with room to complete your public presentation.');
   document.getElementById('mib-insight').textContent = insightParts.join(' ');
-
   var actionParts = [];
-  if ((ac.missingAssets || []).length > 0) {
-    var top = ac.missingAssets[0];
-    actionParts.push('Add a ' + top.asset + ' on ' + top.provider + '.');
-  }
-  if (unsupportedCount > 0) {
-    actionParts.push(unsupportedCount + ' release(s) have no video support — consider a music video for your most recent one.');
-  }
+  if ((ac.missingAssets || []).length > 0) { var top = ac.missingAssets[0]; actionParts.push('Add a ' + top.asset + ' on ' + top.provider + '.'); }
+  if (unsupportedCount > 0) actionParts.push(unsupportedCount + ' release(s) have no video support — consider a music video for your most recent one.');
   document.getElementById('mib-action').textContent = actionParts.length ? actionParts.join(' ') : 'No action needed — full coverage across reviewed evidence.';
+
+  // ── Rotation ──────────────────────────────────────────────────────
+  var rotateTimer = null;
+  function startRotation() {
+    if (rotateTimer) clearInterval(rotateTimer);
+    var panels = Array.prototype.slice.call(document.querySelectorAll('[data-mib-panel]'));
+    var dots = Array.prototype.slice.call(document.querySelectorAll('.mib-gallery-dot'));
+    if (panels.length < 2) return;
+    var active = 0;
+    function highlight(i) {
+      panels.forEach(function (p) { p.classList.remove('mib-panel--active'); });
+      dots.forEach(function (d) { d.classList.remove('mib-gallery-dot--active'); });
+      if (panels[i]) panels[i].classList.add('mib-panel--active');
+      if (dots[i]) dots[i].classList.add('mib-gallery-dot--active');
+    }
+    highlight(active);
+    rotateTimer = setInterval(function () { active = (active + 1) % panels.length; highlight(active); }, 2600);
+  }
+
+  // ── Demonstration mode toggle ────────────────────────────────────
+  function setMode(demo) {
+    renderGallery(demo);
+    startRotation();
+    document.getElementById('mib-mode-demo').classList.toggle('active', demo);
+    document.getElementById('mib-mode-real').classList.toggle('active', !demo);
+  }
+  document.getElementById('mib-mode-demo').addEventListener('click', function () { setMode(true); });
+  document.getElementById('mib-mode-real').addEventListener('click', function () { setMode(false); });
+  setMode(true);
 
 }());
 </script>
