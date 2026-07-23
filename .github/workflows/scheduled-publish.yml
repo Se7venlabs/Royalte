@@ -73,8 +73,15 @@ jobs:
             # Safety rail: only ever auto-merge PRs confined to the blog content
             # surface. Anything touching files outside this set is refused --
             # this workflow's authority is scoped to blog publishing only.
+            #
+            # NOTE: ^public/blog/ only matches the /blog/ directory, NOT the
+            # top-level public/blog.html landing page -- every batch article
+            # PR edits blog.html to add its card, so it must be listed
+            # explicitly. Discovered 2026-07-23 while extending this regex
+            # for the Education Library: PR #401 (scheduled 2026-07-24) would
+            # have failed to auto-merge without this line.
             CHANGED_FILES=$(gh pr diff "$NUM" --repo "$GITHUB_REPOSITORY" --name-only)
-            OUT_OF_SCOPE=$(echo "$CHANGED_FILES" | grep -vE '^public/blog/|^public/js/blog-posts\.js$|^public/sitemap\.xml$' || true)
+            OUT_OF_SCOPE=$(echo "$CHANGED_FILES" | grep -vE '^public/blog/|^public/blog\.html$|^public/js/blog-posts\.js$|^public/sitemap\.xml$' || true)
 
             if [ -n "$OUT_OF_SCOPE" ]; then
               echo "::error::PR #$NUM ('$TITLE') is labeled 'scheduled' but touches files outside the blog content surface, refusing to auto-merge:"
