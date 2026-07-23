@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "AI Didn't Kill Music—It Changed the Rules",
+    excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
+    category: "AI Music",
+    date: "2026-07-23",
+    readTime: "4 min read",
+    slug: "ai-didnt-kill-music-it-changed-the-rules",
+    url: "/blog/ai-didnt-kill-music-it-changed-the-rules.html",
+    status: "live"
+  },
+  {
     title: "Sync License vs Sample vs Beat License vs Cover Song vs Interpolation vs Parody: What's the Difference?",
     excerpt: "A practical breakdown of six music licensing types — sync licenses, samples, beat licenses, cover songs, interpolations, and parody — including which copyrights are involved and what permissions artists need.",
     category: "Publishing",
