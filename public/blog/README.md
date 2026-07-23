@@ -78,10 +78,16 @@ adding a new article.
 
 ## Cadence
 
-- **2 articles per week.** Mondays and Thursdays.
+- **3 articles per week — Monday, Wednesday, Friday.** Superseded the prior
+  2×/week (Mon/Thu) cadence per Board directive, 2026-07-23. All future
+  Education Library planning should assume Mon/Wed/Fri unless otherwise
+  directed.
 - **90-day initial run.** ~26 articles target.
 - The schedule is what makes the SEO/AI-search compounding effect work. Hold
   the cadence even on weeks where it's tempting to skip.
+- As of Publishing Batch #001, release dates are enforced by the
+  scheduled-merge automation (see `PUBLISHING_INTELLIGENCE.md`), not by
+  manually merging on the day.
 
 ---
 
@@ -102,18 +108,43 @@ This sequence is strategically designed to build topical authority, emotional pr
 and metadata. This section is a human-readable summary — if the two disagree,
 the registry wins.
 
-**Live (4):**
+**Live (5):**
 
 - Your Music Isn't The Problem. Your Backend Might Be Broken.
 - Why Your Spotify Streams Don't Match Your Money
 - Using Suno AI? Read This Before Releasing Anything. — *AI Music & Royalties, Part 1 of 4*
 - The Silent Money Leaks Killing Independent Artists — *AI Music & Royalties, Part 3 of 4*
+- AI Didn't Kill Music—It Changed the Rules
 
-**Queued in the registry as `coming_soon` (3):**
+**Board Review, not yet scheduled (1):**
 
-- The 7 Metadata Mistakes Killing Artist Royalties
-- What The MLC Actually Does (And Why So Many Artists Miss It)
-- SoundExchange Explained For Artists
+- The 7 Metadata Mistakes That Could Be Costing You Music Royalties (PR #399)
+
+**Scheduled — Publishing Batch #001, 2026-07-A (8):**
+
+Built from 13 Board-approved Word documents; 1 excluded as a duplicate of PR #399, 4 blocked pending artwork (see below). Each is its own PR, individually reviewable, rollback-able, and merges automatically on its date via the scheduled-merge Action — see `PUBLISHING_INTELLIGENCE.md`.
+
+- The Music Industry Runs on Data—Not Just Songs — 2026-07-24 (PR #401)
+- AI Music Is Exploding—But Who Actually Owns the Rights? — 2026-07-27 (PR #402)
+- The Hidden Cost of Bad Metadata: How One Wrong ISRC Could Cost You Thousands in Royalties — 2026-07-29 (PR #403)
+- What Is SoundExchange? (And Why Every Artist Should Understand Its Role) — 2026-07-31 (PR #404, fulfills the `coming_soon` SoundExchange slot below)
+- The 35-Year Copyright Rule: Can Artists Really Get Their Rights Back? — 2026-08-03 (PR #405)
+- Streaming Pays More Than You Think—If Your Music Is Registered Everywhere — 2026-08-05 (PR #406)
+- Why Artists Still Aren't Getting Paid Correctly in 2026 — 2026-08-07 (PR #407)
+- Why Every Independent Artist Needs a Music Rights Audit — 2026-08-10 (PR #408)
+
+**Blocked — awaiting approved artwork, not yet PR'd (4):**
+
+- Is AI Stealing Artists' Music? AI Music Copyright Explained
+- Five Revenue Streams Most Independent Artists Never Collect
+- What Happens After You Leave a Record Label
+- What The MLC Actually Does (And Why So Many Artists Miss It) — fulfills the `coming_soon` MLC slot below, once unblocked
+
+**Queued in the registry as `coming_soon` (3, current `main` state):**
+
+- The 7 Metadata Mistakes Killing Artist Royalties — superseded by PR #399 once merged
+- What The MLC Actually Does (And Why So Many Artists Miss It) — superseded once the blocked article above is unblocked and PR'd
+- SoundExchange Explained For Artists — superseded by PR #404 once merged
 
 **AI Music & Royalties series** is a planned 4-part arc. Parts 1 and 3 are
 live; Parts 2 and 4 are not yet written. Part 3 references the series
