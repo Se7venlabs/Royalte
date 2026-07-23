@@ -339,6 +339,44 @@
   margin-right:8px;
 }
 
+/* Continue Learning (block form, single-topic articles with a real reading
+   list rather than one inline per-chapter line) */
+.edu-continue-learning-block{
+  margin-top:40px !important;
+  padding-top:20px;
+  border-top:1px dashed var(--border2);
+}
+.edu-continue-learning-block .edu-cl-label{
+  display:block;
+  margin:0 0 12px;
+}
+.edu-continue-learning-block ul{
+  list-style:none;
+  margin:0 !important;
+  display:grid;
+  gap:8px;
+}
+.edu-continue-learning-block li{
+  font-size:14px;
+  color:var(--muted2);
+  padding-left:16px;
+  position:relative;
+}
+.edu-continue-learning-block li::before{
+  content:'→';
+  position:absolute;
+  left:0;
+  color:var(--pur);
+}
+.edu-continue-learning-block li a{
+  color:var(--pur);
+  text-decoration:none;
+}
+.edu-continue-learning-block li a:hover{
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+
 /* Chapter navigation (prev/next, end of each chapter) */
 .edu-chapter-nav{
   display:flex;
