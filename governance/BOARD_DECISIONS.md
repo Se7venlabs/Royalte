@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-24 — ATHENA™ Phase 3A — Executive Brief Archive™ — RATIFIED, MERGED (migration pending)
+
+| | |
+|---|---|
+| **Date** | 2026-07-24 |
+| **Decision** | ATHENA™ Phase 3A (Executive Brief Archive™ — schema, write path, authenticated read path, Archive Integrity™, idempotent writes) is ratified and merged (PR #423, `8272342`). |
+| **Reason** | Establishes the one persistent, immutable historical record every later Phase 3B/3C/3D capability (Executive History™, Timeline™, Memory™ persistence, Cross-Scan Trend Intelligence™, Comparison™) reads through — approved after two rounds of Board review (initial architecture note, then a technical validation pass that caught and required fixing two real defects: non-canonical integrity hashing, and an id-consistency bug on the rare collision-regeneration path). |
+| **Impact** | **The database migration (`supabase/migrations/20260724180000_executive_brief_archive.sql`) has NOT been applied to any environment** — blocked on a denied Supabase MCP tool permission during implementation. The merged code degrades gracefully in this state (archiving honestly reports failure; nothing else calls the new read endpoint yet), so there is no live regression, but no Executive Brief is actually being persisted yet. This is a real prerequisite blocker for Phase 3B, which has nothing to read until the table exists. Resolving it requires either a permission re-grant for the Supabase MCP tool or manual migration application. |
+| **Vote** | Board Approved |
+| **PR Number** | #423 |
+| **Commit SHA** | `8272342` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-24 — ATHENA™ Executive Intelligence Phase 1 + Phase 2 — RATIFIED, MERGED
 
 | | |
