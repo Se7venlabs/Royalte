@@ -1313,7 +1313,9 @@
       var provBar = document.getElementById('ai-provenance-bar');
       if (provBar) {
         provBar.style.display = 'block';
-        provBar.textContent = 'EIO schema ' + eio.metadata.schemaVersion
+        provBar.textContent = eio.executiveBriefId
+          + ' · exec v' + eio.metadata.executiveVersion
+          + ' · schema ' + eio.metadata.schemaVersion
           + ' · pipeline ' + eio.metadata.pipelineVersion
           + ' · adapter ' + eio.metadata.adapterVersion
           + ' · athena ' + eio.metadata.athenaVersion

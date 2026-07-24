@@ -334,6 +334,36 @@ test('EIO metadata.runtimeContextVersion traces to the real royalte_workspace_co
   assert.equal(eio.metadata.runtimeContextVersion, '1.1');
 });
 
+test('EIO carries an Executive Brief ID(tm) matching EB-YYYY-MM-DD-XXXXXX', () => {
+  const eio = runExecutiveIntelligencePipeline(fullContext());
+  assert.match(eio.executiveBriefId, /^EB-\d{4}-\d{2}-\d{2}-\d{6}$/);
+});
+
+test('Executive Brief ID(tm) date component matches the EIO\'s own generatedAt (UTC)', () => {
+  const eio = runExecutiveIntelligencePipeline(fullContext());
+  const d = new Date(eio.generatedAt);
+  const expected = `EB-${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}-`;
+  assert.ok(eio.executiveBriefId.startsWith(expected));
+});
+
+test('two Executive Brief IDs generated back-to-back are not identical', () => {
+  const eio1 = runExecutiveIntelligencePipeline(fullContext());
+  const eio2 = runExecutiveIntelligencePipeline(fullContext());
+  assert.notEqual(eio1.executiveBriefId, eio2.executiveBriefId);
+});
+
+test('EIO metadata.executiveVersion is present and distinct from schemaVersion/athenaVersion', () => {
+  const eio = runExecutiveIntelligencePipeline(fullContext());
+  assert.equal(eio.metadata.executiveVersion, '2.0');
+  assert.notEqual(eio.metadata.executiveVersion, eio.metadata.schemaVersion);
+  assert.notEqual(eio.metadata.executiveVersion, eio.metadata.athenaVersion);
+});
+
+test('executiveBriefId is immutable once created (frozen EIO)', () => {
+  const eio = runExecutiveIntelligencePipeline(fullContext());
+  assert.throws(() => { eio.executiveBriefId = 'EB-tampered'; });
+});
+
 // ─── 5. Confidence preservation ─────────────────────────────────────────────
 
 console.log('\n§5 Confidence preservation');
