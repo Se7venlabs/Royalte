@@ -966,6 +966,9 @@
     (eio.opportunities || []).forEach(function (o) { oppById[o.opportunityId] = o; });
   }
 
+  // Mirrors api/_lib/executive-domain-labels.js (Phase 3B) -- no bundler in
+  // this repo, so the client/server boundary can't share the module
+  // directly. Keep both in sync by hand if this mapping ever changes.
   var DOMAIN_LABELS = {
     identity: 'Identity Intelligence™', rights: 'Publishing Intelligence™',
     catalog: 'Catalog Intelligence™', distribution: 'Global Music Footprint™',

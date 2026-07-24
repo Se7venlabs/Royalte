@@ -1,10 +1,10 @@
 // GET /api/executive-brief-archive
 //
-// Executive Brief Archive™ read endpoint — ATHENA™ Phase 3A. The one
-// canonical history/comparison service Phase 3B's Executive Timeline™,
-// Executive Memory™, Cross-Scan Trend Intelligence™, and Executive
-// Comparison™ are all meant to read through, rather than each inventing
-// their own archive-access logic (governance/ATHENA_PHASE3A_EXECUTIVE_BRIEF_ARCHIVE_ARCHITECTURE.md §4/§10).
+// Executive Brief Archive™ read endpoint — ATHENA™ Phase 3A, refactored in
+// Phase 3B to be a thin HTTP wrapper over api/_lib/executive-brief-archive-reader.js,
+// the shared data-access layer every Phase 3B service (History™, Timeline™,
+// Memory™, Comparison™, Trend Detection) also reads through directly
+// server-side — "one canonical history and comparison service," not five.
 //
 // Always Bearer-authenticated. Every query is scoped to the caller's own
 // auth.uid() server-side — this endpoint never accepts an artist/profile id
@@ -21,16 +21,10 @@
 //   ?full=1                         -- include the full executive_intelligence_object
 //                                       (omitted by default to keep list responses cheap)
 //
-// Read-only in Phase 3A. No POST/PATCH/DELETE.
+// Read-only. No POST/PATCH/DELETE.
 
 import { createClient } from '@supabase/supabase-js';
-
-const SUMMARY_COLUMNS =
-  'id, executive_brief_id, artist_profile_id, scan_id, generated_at, ' +
-  'executive_version, schema_version, pipeline_version, athena_version, runtime_context_version, ' +
-  'confidence_level, critical_issue_count, risk_count, opportunity_count, recommendation_count, ' +
-  'archive_status, archive_integrity_hash, comparison_group_id, created_at';
-const FULL_COLUMNS = SUMMARY_COLUMNS + ', executive_intelligence_object';
+import { getBriefById, getLatestBrief, listBriefs, getBriefsForComparison } from './_lib/executive-brief-archive-reader.js';
 
 function getAdminClient() {
   const url = process.env.SUPABASE_URL;
@@ -60,19 +54,13 @@ export default async function handler(req, res) {
   }
 
   const q = req.query || {};
-  const columns = q.full === '1' ? FULL_COLUMNS : SUMMARY_COLUMNS;
+  const full = q.full === '1';
 
   try {
     if (q.executiveBriefId) {
-      const { data, error } = await supabase
-        .from('executive_brief_archive')
-        .select(columns)
-        .eq('artist_profile_id', user.id)
-        .eq('executive_brief_id', String(q.executiveBriefId))
-        .maybeSingle();
-      if (error) throw error;
-      if (!data) return res.status(404).json({ error: 'Not found' });
-      return res.status(200).json({ brief: data });
+      const brief = await getBriefById(supabase, user.id, q.executiveBriefId, { full });
+      if (!brief) return res.status(404).json({ error: 'Not found' });
+      return res.status(200).json({ brief });
     }
 
     if (q.ids) {
@@ -80,45 +68,19 @@ export default async function handler(req, res) {
       if (ids.length !== 2) {
         return res.status(400).json({ error: 'ids must contain exactly two Executive Brief IDs' });
       }
-      const { data, error } = await supabase
-        .from('executive_brief_archive')
-        .select(columns)
-        .eq('artist_profile_id', user.id)
-        .in('executive_brief_id', ids);
-      if (error) throw error;
-      if (!data || data.length !== 2) {
-        return res.status(404).json({ error: 'One or both briefs not found' });
-      }
-      return res.status(200).json({ briefs: data });
+      const briefs = await getBriefsForComparison(supabase, user.id, ids);
+      if (!briefs) return res.status(404).json({ error: 'One or both briefs not found' });
+      return res.status(200).json({ briefs });
     }
 
     if (q.latest === '1') {
-      const { data, error } = await supabase
-        .from('executive_brief_archive')
-        .select(columns)
-        .eq('artist_profile_id', user.id)
-        .order('generated_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      if (!data) return res.status(404).json({ error: 'No archived briefs found' });
-      return res.status(200).json({ brief: data });
+      const brief = await getLatestBrief(supabase, user.id, { full });
+      if (!brief) return res.status(404).json({ error: 'No archived briefs found' });
+      return res.status(200).json({ brief });
     }
 
-    // Default: list mode, optionally bounded by a date range.
-    let query = supabase
-      .from('executive_brief_archive')
-      .select(columns)
-      .eq('artist_profile_id', user.id)
-      .order('generated_at', { ascending: false });
-    if (q.from) query = query.gte('generated_at', String(q.from));
-    if (q.to)   query = query.lte('generated_at', String(q.to));
-    const limit = Math.min(parseInt(q.limit, 10) || 20, 100);
-    query = query.limit(limit);
-
-    const { data, error } = await query;
-    if (error) throw error;
-    return res.status(200).json({ briefs: data || [] });
+    const briefs = await listBriefs(supabase, user.id, { from: q.from, to: q.to, limit: q.limit, full });
+    return res.status(200).json({ briefs });
   } catch (err) {
     console.error('[executive-brief-archive] read failed:', err?.message || err);
     return res.status(500).json({ error: 'Internal error' });
