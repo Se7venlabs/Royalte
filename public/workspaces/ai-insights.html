@@ -886,22 +886,47 @@
     monitoringIntelligence: rawCtx.monitoringIntelligence || null,
   };
 
-  // ── ATHENA™ Phase 2 — fetch the Executive Intelligence Object™ ─────────
+  // ── ATHENA™ Phase 3A — resolve the caller's access token, if any ───────
+  // Dynamic import (works in a classic, non-module script) so this page
+  // doesn't need a <script type="module"> tag just for this one optional
+  // call. An authenticated session enables archiving (api/_lib/executive-brief-archive.js);
+  // anonymous browsing continues to work exactly as before -- this is
+  // additive, never a requirement to view Executive Intelligence.
+  var _accessToken = null;
+  try {
+    var _supaMod = await import('/js/supabase-client.js');
+    var _supabase = _supaMod.getSupabase && _supaMod.getSupabase();
+    if (_supabase) {
+      var _sessionResult = await _supabase.auth.getSession();
+      _accessToken = (_sessionResult && _sessionResult.data && _sessionResult.data.session && _sessionResult.data.session.access_token) || null;
+    }
+  } catch (_authErr) {
+    // Non-fatal -- proceed anonymously, matching this endpoint's "auth is optional" contract.
+  }
+
+  // ── ATHENA™ Phase 2/3A — fetch the Executive Intelligence Object™ ──────
   // Transport only: rawCtx IS the real royalte_workspace_context this page
   // already has in memory. The server runs the already-tested Phase 1
-  // pipeline (Adapter -> Engine -> EIO) and returns the result verbatim.
+  // pipeline (Adapter -> Engine -> EIO), archives it when authenticated
+  // (Phase 3A), and returns the result verbatim.
   var eio = null;
   var eioUnavailableReason = null;
+  var eioArchived = false;
+  var eioArchiveIntegrityHash = null;
   try {
+    var _fetchHeaders = { 'Content-Type': 'application/json' };
+    if (_accessToken) _fetchHeaders['Authorization'] = 'Bearer ' + _accessToken;
     var _resp = await fetch('/api/executive-intelligence', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: _fetchHeaders,
       body: JSON.stringify({ workspaceContext: rawCtx }),
     });
     if (_resp.ok) {
       var _json = await _resp.json();
       eio = _json.executiveIntelligence || null;
       if (!eio) eioUnavailableReason = _json.reason || 'Insufficient data for this scan.';
+      eioArchived = !!_json.archived;
+      eioArchiveIntegrityHash = _json.archiveIntegrityHash || null;
     } else {
       eioUnavailableReason = 'Executive Intelligence request failed (status ' + _resp.status + ').';
     }
@@ -1313,7 +1338,11 @@
       var provBar = document.getElementById('ai-provenance-bar');
       if (provBar) {
         provBar.style.display = 'block';
+        // Archived / Archive Integrity(tm) (ATHENA(tm) Phase 3A, Board amendment
+        // 2026-07-24) -- developer-only validation, never artist-facing.
         provBar.textContent = eio.executiveBriefId
+          + ' · Archived: ' + (eioArchived ? 'Yes' : 'No')
+          + (eioArchived && eioArchiveIntegrityHash ? (' (SHA-256 ' + eioArchiveIntegrityHash.slice(0, 8) + '… Verified)') : '')
           + ' · exec v' + eio.metadata.executiveVersion
           + ' · schema ' + eio.metadata.schemaVersion
           + ' · pipeline ' + eio.metadata.pipelineVersion

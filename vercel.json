@@ -90,6 +90,10 @@
       "dest": "/api/executive-intelligence.js"
     },
     {
+      "src": "/api/executive-brief-archive",
+      "dest": "/api/executive-brief-archive.js"
+    },
+    {
       "src": "/api/save-profile-info",
       "dest": "/api/save-profile-info.js"
     },

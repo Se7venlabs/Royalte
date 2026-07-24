@@ -100,7 +100,7 @@ function buildSourceAttribution(recommendations) {
 // Executive Brief archival work (Board-flagged as a future capability this
 // ID enables) is the natural place to add a real DB-backed sequence and, if
 // needed, backfill this format without changing it.
-function generateExecutiveBriefId(generatedAt) {
+export function generateExecutiveBriefId(generatedAt) {
   const d = new Date(generatedAt);
   const y = d.getUTCFullYear();
   const m = String(d.getUTCMonth() + 1).padStart(2, '0');
