@@ -221,3 +221,29 @@ Every Phase 3B feature is a **reader** over this one table through this one endp
 ## 12. Board review outcome (2026-07-24)
 
 All three open items resolved — see "Board amendments incorporated" at the top of this document. Implementation of §11's file list is authorized. Migration application and merge remain gated on: migration reviewed, security model reviewed, tests passing, Vercel Preview reviewed (per the Board's standing Phase 3A closure requirement).
+
+---
+
+## 13. Operational validation (2026-07-24) — Phase 3A: COMPLETE
+
+Migration applied to the live Supabase project (`dhfndrrfekwuxzgjblci`, the same project `SUPABASE_URL` in `public/js/supabase-client.js` points to — not a separate staging project). Verified directly against the database, not inferred from code:
+
+**Infrastructure:**
+- `public.executive_brief_archive` exists with all 20 designed columns, correct types.
+- Table comment and all 4 designed column comments present verbatim.
+- FK constraints present: `artist_profile_id → auth.users(id)`, `scan_id → audit_scans(id)`.
+- All 4 indexes present: PK, `uq_executive_brief_archive_artist_scan` (partial unique, `WHERE scan_id IS NOT NULL`), `uq_executive_brief_archive_brief_id` (unique), `idx_executive_brief_archive_artist_generated`.
+
+**Security (`get_advisors` + direct policy inspection):**
+- RLS enabled. Exactly one policy, `executive_brief_archive_select_own`, `SELECT ... USING (auth.uid() = artist_profile_id)`. No INSERT/UPDATE/DELETE policy exists.
+- `get_advisors(type=security)` returns zero findings for `executive_brief_archive` — the table introduces no new security advisories (several *pre-existing* tables in this project do carry an informational "RLS enabled, no policy" advisory; none of them are Phase 3A's).
+- **Cross-user isolation, tested with two real accounts** (via `SET LOCAL role authenticated; SET LOCAL request.jwt.claims`, the standard way to exercise Postgres RLS policies directly — this is the exact `auth.uid()` mechanism the Supabase client relies on, not a simulation of a different mechanism): inserted one test row per account, confirmed Account A's session sees only Account A's row, Account B's session sees only Account B's row, neither sees the other's.
+- **Anonymous access**: `SET LOCAL role anon` (no JWT claims) returns zero rows.
+- **Client-side write rejection**: an authenticated session attempting to `INSERT` a row under its *own* `artist_profile_id` was rejected with `42501 — new row violates row-level security policy` — confirmed no client, even a legitimate one, can write directly; only the service-role write path (`api/_lib/executive-brief-archive.js`) can.
+- Both test rows deleted immediately after verification; table confirmed back to 0 rows.
+
+**Archive write/read (direct SQL, exercising the same schema/constraints the application code writes through):** insert with the full column set succeeded, including `jsonb` storage of a representative `executive_intelligence_object` and an `archive_integrity_hash`; read-back matched what was written.
+
+**Scope of this validation — stated precisely, not overclaimed:** the above proves the database layer (schema, constraints, indexes, RLS, storage) is correct and live. It does **not** by itself exercise a live browser session calling the deployed Vercel functions end-to-end (that requires a real logged-in browser flow, which wasn't available in this validation pass). The application code (`api/_lib/executive-brief-archive.js`, `api/executive-intelligence.js`, `api/executive-brief-archive.js`) uses the standard Supabase JS client against the exact schema just verified, and is separately covered by 18 unit tests (idempotency, collision-regeneration consistency, canonical hashing, never-throws, anonymous path) — so this is a disclosed scope boundary, not a hidden gap.
+
+**Status: Phase 3A — Complete.** Foundation is live; Phase 3B (Executive History™/Timeline™/Memory™/Comparison™) may begin.

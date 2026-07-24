@@ -30,10 +30,10 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **ATHENA™ Phase 3A — Executive Brief Archive™** |
-| Merged at | `8272342` (PR #423, 2026-07-24) |
-| Active direction | **Executive Intelligence Layer™ is live** (Phase 1+2, `ee58da9`/PR #421). Phase 3A's archive code is merged, but **the database migration has not been applied to any environment** — blocked on a denied Supabase MCP tool permission. Archiving currently degrades gracefully (honestly reports failure, no regression) but nothing is actually being persisted. **This blocks Phase 3B** (Executive History™/Timeline™/Memory™/Comparison™ — all readers over the archive) from meaningfully starting; there is nothing to read until the migration is live. Resolve the migration-application blocker before beginning Phase 3B implementation. |
-| Next Board gate | Migration application (permission re-grant or manual apply), then ATHENA™ Phase 3B may begin. |
+| Most recently completed phase | **ATHENA™ Phase 3A — Executive Brief Archive™ (operationally complete)** |
+| Merged at | `8272342` (PR #423, 2026-07-24); migration applied + validated same day, see `governance/ATHENA_PHASE3A_EXECUTIVE_BRIEF_ARCHIVE_ARCHITECTURE.md` §13 |
+| Active direction | **Executive Intelligence Layer™ is live** (Phase 1+2, `ee58da9`/PR #421) **with a live, validated persistence layer** (Phase 3A) beneath it. `executive_brief_archive` exists on the production Supabase project, RLS-verified with real cross-user isolation. Phase 3B (Executive History™/Timeline™/Memory™ persistence/Cross-Scan Trend Intelligence™/Comparison™ — all readers over the archive via `api/executive-brief-archive.js`) is authorized to begin; no duplicate history stores or alternate persistence mechanisms. |
+| Next Board gate | None required to begin Phase 3B implementation (standing authorization). |
 | Prior phase | Mission Control™ v2.0 Sprint 9 — Mission Control Data API™ (`4047311`, PR #318, 2026-07-12) |
 
 **⚠ ACTIVE INITIATIVE — Mission Control™ Data Integrity Program™ (2026-07-11)**  

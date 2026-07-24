@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-24 — ATHENA™ Phase 3A — Operationally Complete (supersedes the "migration pending" entry below)
+
+| | |
+|---|---|
+| **Date** | 2026-07-24 |
+| **Decision** | ATHENA™ Phase 3A is declared operationally complete. The migration blocked in the prior entry has been applied to the live Supabase project (`dhfndrrfekwuxzgjblci`) and directly validated against the database. |
+| **Reason** | Infrastructure validation: table, all 4 indexes, table/column comments, and both FK constraints confirmed present exactly as designed. Security validation: RLS confirmed enabled with exactly one policy (owner-only SELECT); `get_advisors` returns zero findings for this table; cross-user isolation proven with two real accounts (each sees only their own row, neither sees the other's); anonymous access proven denied (zero rows returned); client-side writes proven rejected at the database level (`42501`) even for a legitimate authenticated user — confirming only the service-role write path can archive. Archive validation: a real insert/read round-trip confirmed JSONB storage and column population; test rows removed immediately after, table confirmed clean (0 rows). Full record: `governance/ATHENA_PHASE3A_EXECUTIVE_BRIEF_ARCHIVE_ARCHITECTURE.md` §13. |
+| **Impact** | The Executive Brief Archive™ is live and ready to receive real archived Executive Briefs from authenticated scans. **Scope note carried forward honestly**: this validation exercised the database layer directly (the same RLS mechanism and schema the application code uses); it did not separately exercise a live browser-authenticated HTTP round trip through the deployed Vercel functions, which would require an actual login flow not available in this pass — the application code is otherwise covered by 18 unit tests. Phase 3B (Executive History™, Timeline™, Memory™ persistence, Cross-Scan Trend Intelligence™, Executive Comparison™) is authorized to begin, building exclusively on this archive as the sole canonical historical source. |
+| **Vote** | Board Approved |
+| **PR Number** | #423 (code), governance-only follow-up for this entry |
+| **Commit SHA** | `8272342` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-24 — ATHENA™ Phase 3A — Executive Brief Archive™ — RATIFIED, MERGED (migration pending)
 
 | | |
