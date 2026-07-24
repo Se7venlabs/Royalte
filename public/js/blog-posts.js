@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "The Hidden Cost of Bad Metadata: How One Wrong ISRC Could Cost You Thousands in Royalties",
+    excerpt: "One wrong ISRC can quietly cost artists thousands in royalties. Learn how metadata errors happen and why your recording's Digital Identity matters.",
+    category: "Metadata",
+    date: "2026-07-29",
+    readTime: "5 min read",
+    slug: "hidden-cost-of-bad-metadata",
+    url: "/blog/hidden-cost-of-bad-metadata.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",
