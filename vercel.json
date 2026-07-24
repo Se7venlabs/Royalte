@@ -94,6 +94,22 @@
       "dest": "/api/executive-brief-archive.js"
     },
     {
+      "src": "/api/executive-timeline",
+      "dest": "/api/executive-timeline.js"
+    },
+    {
+      "src": "/api/executive-comparison",
+      "dest": "/api/executive-comparison.js"
+    },
+    {
+      "src": "/api/executive-memory",
+      "dest": "/api/executive-memory.js"
+    },
+    {
+      "src": "/api/executive-trends",
+      "dest": "/api/executive-trends.js"
+    },
+    {
       "src": "/api/save-profile-info",
       "dest": "/api/save-profile-info.js"
     },
