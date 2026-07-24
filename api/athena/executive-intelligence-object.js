@@ -15,7 +15,7 @@
 // Pure function of (athenaReport, apiResponses, options). Never mutates its
 // inputs. Deep-frozen output, matching every other api/athena/* contract.
 
-import { randomUUID }         from 'node:crypto';
+import { randomUUID, randomInt } from 'node:crypto';
 import { computeConfidence }  from './confidence.js';
 import { ADAPTER_VERSION }    from './runtime-context-adapter.js';
 import { ATHENA_ENGINE_VERSION } from './version.js';
@@ -25,6 +25,12 @@ export const EIO_VERSION = Object.freeze({
   name:          'Executive Intelligence Object',
   effectiveDate: '2026-07-24',
 });
+
+// Executive Brief(tm) presentation version (Board addendum, 2026-07-24) --
+// deliberately distinct from EIO_VERSION/ATHENA_ENGINE_VERSION. Represents
+// the Executive Brief experience itself, not the schema or engine that
+// produces it.
+export const EXECUTIVE_BRIEF_VERSION = '2.0';
 
 // Executive Provenance(tm) / Schema Versioning(tm) (Board addendum, 2026-07-24).
 // Identifies the generating component, distinct from any engine/adapter
@@ -76,6 +82,33 @@ function buildSourceAttribution(recommendations) {
   }));
 }
 
+// Executive Brief ID(tm) (Board addendum, 2026-07-24) -- unique, immutable
+// identifier for this specific Executive Intelligence assessment. Generated
+// exclusively here, inside the Executive Intelligence Pipeline(tm) -- never
+// in Mission Control, AI Insights(tm), or any client-side code.
+//
+// Format: EB-YYYY-MM-DD-XXXXXX, date from this EIO's own generatedAt
+// (UTC, so the ID is traceable to the exact generation event, not wall-clock
+// skew between server and caller).
+//
+// Honesty note (not silently glossed over): XXXXXX is a cryptographically
+// random 6-digit suffix, not a true sequential counter. This pipeline is a
+// stateless pure function with no persistence layer -- a real sequential
+// counter requires a database, which doesn't exist for Executive Briefs yet.
+// Random 6 digits (1,000,000 values/day) makes same-day collisions
+// vanishingly unlikely but not database-guaranteed-unique. Phase 3's
+// Executive Brief archival work (Board-flagged as a future capability this
+// ID enables) is the natural place to add a real DB-backed sequence and, if
+// needed, backfill this format without changing it.
+function generateExecutiveBriefId(generatedAt) {
+  const d = new Date(generatedAt);
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  const seq = String(randomInt(0, 1000000)).padStart(6, '0');
+  return `EB-${y}-${m}-${day}-${seq}`;
+}
+
 // Executive Provenance(tm) (Board addendum, 2026-07-24) -- separate from
 // Source Attribution. Answers: "Which version of the Executive Intelligence
 // platform generated this recommendation?" Audit/debugging metadata; not
@@ -122,6 +155,11 @@ export function buildExecutiveIntelligenceObject(athenaReport, apiResponses = {}
     generatedAt,
     artistId:    athenaReport.executiveAnalysis?.artistId || null,
     scanId:      athenaReport.executiveAnalysis?.scanId   || null,
+
+    // Executive Brief ID(tm) (Board addendum, 2026-07-24) -- the canonical
+    // identity of this specific Executive Intelligence assessment. Immutable
+    // once created; part of Executive Intelligence metadata, not a UI label.
+    executiveBriefId: generateExecutiveBriefId(generatedAt),
 
     // Executive Briefing -- headline read, built from real businessContext +
     // healthSummary only. No comparison-to-previous-scan claim here (that
@@ -196,6 +234,9 @@ export function buildExecutiveIntelligenceObject(athenaReport, apiResponses = {}
       adapterVersion:          versions.adapterVersion,
       athenaVersion:           versions.athenaVersion,
       runtimeContextVersion:   versions.runtimeContextVersion,
+      // Executive Brief(tm) presentation version (Board addendum,
+      // 2026-07-24) -- distinct from schemaVersion/athenaVersion above.
+      executiveVersion:        EXECUTIVE_BRIEF_VERSION,
       athenaReportId:          athenaReport.athenaReportId || null,
       domainStatus: Object.fromEntries(
         Object.entries(apiResponses || {}).map(([domain, r]) => [domain, (r && r.status) || 'NOT_FOUND'])

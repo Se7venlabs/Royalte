@@ -288,3 +288,17 @@ The Board's four-question framework (traceable / explainable / reproducible / au
 - No unrelated refactoring occurred — all changes are additive to the three Phase 1 files plus the addendum's five new tests.
 
 **Stop point respected.** Returning for Executive Board review before Phase 2 authorization.
+
+---
+
+## 15. Addendum record — 2026-07-24 Phase 2 Close-Out: Executive Brief ID™
+
+Final enhancement requested at Phase 2 close-out, implemented in `api/athena/executive-intelligence-object.js`:
+
+- **`eio.executiveBriefId`** — format `EB-YYYY-MM-DD-XXXXXX`, generated exclusively inside `buildExecutiveIntelligenceObject()` (part of the Executive Intelligence Pipeline™) — never in Mission Control, AI Insights™, or client-side code. Date component derives from the EIO's own `generatedAt` (UTC).
+- **`eio.metadata.executiveVersion`** — new constant `EXECUTIVE_BRIEF_VERSION = '2.0'`, distinct from `schemaVersion`/`athenaVersion`; represents the Executive Brief experience, not the engine or schema.
+- Surfaced only in the existing dev-only Executive Provenance™ bar (`?dev=1`/`?debug=1`) — not artist-facing, per the Board's own UI guidance.
+
+**Flagged honestly, not glossed over**: the `XXXXXX` suffix is a cryptographically random 6-digit value (`node:crypto randomInt`), not a true database-backed sequential counter — this pipeline is a stateless pure function with no persistence layer today. Collision risk within a single day is vanishingly small (1 in ~1,000,000) but not uniqueness-guaranteed the way a DB sequence would be. Real sequential numbering is a natural fit for Phase 3's Executive Brief archival work (which the Board's own brief lists as a capability this ID enables) — that's where a DB-backed counter belongs, without needing to change this ID format.
+
+Tests: 5 added (`tests/athena-adapter-test.mjs`, 49/49 total passing) — format regex, date-component correctness, non-collision across two calls, `executiveVersion` distinctness, immutability.
