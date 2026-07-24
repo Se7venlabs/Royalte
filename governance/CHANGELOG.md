@@ -19,6 +19,22 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-24 — ATHENA™ Phase 3A — Executive Brief Archive™ (PR #423)
+
+| | |
+|---|---|
+| **Date** | 2026-07-24 |
+| **PR Number** | #423 |
+| **Commit SHA** | `8272342` |
+| **Added** | `api/_lib/executive-brief-archive.js` (`archiveExecutiveBrief()` — sole write path, database-enforced idempotency via `(artist_profile_id, scan_id)` + `executive_brief_id` unique constraints, canonical-serialization SHA-256 Archive Integrity™ hash). `api/executive-brief-archive.js` (new, separately-authenticated read endpoint — by id / latest / date range / compare-two). `supabase/migrations/20260724180000_executive_brief_archive.sql` (`executive_brief_archive` table, RLS, indexes — **drafted and reviewed, not yet applied to any environment**, see Status below). `tests/executive-brief-archive-test.mjs` (18 tests). `governance/ATHENA_PHASE3A_EXECUTIVE_BRIEF_ARCHIVE_ARCHITECTURE.md`. |
+| **Changed** | `api/executive-intelligence.js` — resolves an optional Bearer token and archives the generated Executive Intelligence Object when a real user is resolved; response gains `archived`/`archiveError`/`archiveIntegrityHash`. `api/athena/executive-intelligence-object.js` — `generateExecutiveBriefId()` exported (was private) so the archive writer can regenerate a replacement id on the rare collision case without duplicating the generator. `public/workspaces/ai-insights.html` — resolves the caller's Supabase session (optional, via dynamic import) to enable archiving; existing dev-only Executive Provenance™ bar gains an `Archived: Yes/No` + truncated integrity-hash line. |
+| **Removed** | none |
+| **Constitution Version** | v1.3 (Board Amendment) |
+
+**Status: code merged; database migration NOT yet applied to any environment.** The archive write/read paths degrade gracefully in this state — `archiveExecutiveBrief()` reports `archived: false, archiveError: "archive write failed"` rather than throwing, and nothing else in the live product calls the new read endpoint yet, so this is not a regression. But it means Executive Briefs are **not actually being persisted anywhere yet** — "Phase 3A complete" describes the code and architecture, not yet a live historical record. Applying the migration is blocked on a denied Supabase MCP tool permission; resolving that (either a permission re-grant or manual application via the Supabase dashboard/CLI using the drafted SQL) is a prerequisite for Phase 3B, which has nothing to read until this table exists. Two real defects were caught and fixed during Board review before merge: the integrity hash originally used `JSON.stringify()` (insertion-order-dependent — Postgres `jsonb` reorders keys internally, which would have produced false integrity failures on any round-trip) and now uses a canonical, sorted-key serialization; and the rare `executive_brief_id` collision/regeneration path originally stored a stale id in the JSON snapshot while writing the corrected id to the structured column — both are now derived from the same corrected object, with regression tests for each.
+
+---
+
 ## 2026-07-24 — ATHENA™ Executive Intelligence — Phase 1 + Phase 2 (PR #421)
 
 | | |

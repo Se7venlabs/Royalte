@@ -30,10 +30,10 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **ATHENA™ Executive Intelligence — Phase 1 (Canonical Executive Intelligence Object™) + Phase 2 (Executive Briefing & Presentation)** |
-| Merged at | `ee58da9` (PR #421, 2026-07-24) |
-| Active direction | **Executive Intelligence Layer™ is now live**, wired into `ai-insights.html` via an isolated adapter (Option C) over the previously-dormant Sprint 10 `api/athena/*` engine. `governance/CANONICAL_EXECUTIVE_ARCHITECTURE.md` ratifies the permanent Evidence → Canonical Intelligence → Executive Intelligence → Presentation layer separation. Phase 3 (archival/comparison, Ask ATHENA™, Executive Timeline™, Executive Memory™ expansion, forecasting) is authorized for planning, not yet briefed. |
-| Next Board gate | ATHENA™ Phase 3 brief required from the Board. |
+| Most recently completed phase | **ATHENA™ Phase 3A — Executive Brief Archive™** |
+| Merged at | `8272342` (PR #423, 2026-07-24) |
+| Active direction | **Executive Intelligence Layer™ is live** (Phase 1+2, `ee58da9`/PR #421). Phase 3A's archive code is merged, but **the database migration has not been applied to any environment** — blocked on a denied Supabase MCP tool permission. Archiving currently degrades gracefully (honestly reports failure, no regression) but nothing is actually being persisted. **This blocks Phase 3B** (Executive History™/Timeline™/Memory™/Comparison™ — all readers over the archive) from meaningfully starting; there is nothing to read until the migration is live. Resolve the migration-application blocker before beginning Phase 3B implementation. |
+| Next Board gate | Migration application (permission re-grant or manual apply), then ATHENA™ Phase 3B may begin. |
 | Prior phase | Mission Control™ v2.0 Sprint 9 — Mission Control Data API™ (`4047311`, PR #318, 2026-07-12) |
 
 **⚠ ACTIVE INITIATIVE — Mission Control™ Data Integrity Program™ (2026-07-11)**  

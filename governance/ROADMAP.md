@@ -174,7 +174,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 - Royaltē Platform Architecture v1.0 — document the complete platform architecture
 - Connector completion roadmap — finish remaining Connectors™
 - Engine completion roadmap — finish remaining Intelligence Engines™
-- ~~ATHENA™ activation, once the underlying intelligence platform is sufficiently mature~~ — **DONE 2026-07-24** (PR #421, ATHENA™ Phase 1 + Phase 2, see `governance/BOARD_DECISIONS.md` and `governance/CANONICAL_EXECUTIVE_ARCHITECTURE.md`). Phase 3 (archival/comparison, Ask ATHENA™, Executive Timeline™, Executive Memory™ expansion, forecasting) authorized for planning, not yet briefed.
+- ~~ATHENA™ activation, once the underlying intelligence platform is sufficiently mature~~ — **DONE 2026-07-24** (PR #421, ATHENA™ Phase 1 + Phase 2, see `governance/BOARD_DECISIONS.md` and `governance/CANONICAL_EXECUTIVE_ARCHITECTURE.md`). Phase 3A (Executive Brief Archive™, PR #423) merged 2026-07-24 — **code complete, database migration not yet applied to any environment** (blocked on Supabase MCP tool permission; see `BOARD_DECISIONS.md`). Phase 3B (History/Timeline/Memory/Comparison, build on the archive) cannot meaningfully start until that migration is applied — there is nothing to read yet. Phase 3C (Ask ATHENA™) and Phase 3D (Executive Forecasting™) remain separately-scoped, not yet briefed.
 
 No sprint begins until the Board issues a formal brief.
 
