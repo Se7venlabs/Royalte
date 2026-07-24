@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-24 — ATHENA™ Executive Intelligence Phase 1 + Phase 2 — RATIFIED, MERGED
+
+| | |
+|---|---|
+| **Date** | 2026-07-24 |
+| **Decision** | ATHENA™ Phase 1 (Canonical Executive Intelligence Object™ — Adapter, EIO schema, pipeline, Executive Provenance™, schema versioning, Executive Brief ID™) and Phase 2 (Executive Briefing & Executive Intelligence Presentation, wired into `ai-insights.html` per Option 3 — "Evolution, not Replacement") are both ratified and merged. `governance/CANONICAL_EXECUTIVE_ARCHITECTURE.md` is ratified as permanent constitutional architecture: Evidence Layer™ → Canonical Intelligence Layer™ → Executive Intelligence Layer™ → Presentation Layer, responsibilities never overlapping. |
+| **Reason** | The Sprint 10 `api/athena/*` engine (real, tested, complete) had zero production callers since its creation, confirmed repeatedly including the 2026-07-18 Repository Review (PR #368) — a data-contract mismatch, not a missing-feature problem. The Board required a full KEEP/WIRE/EXTEND/RETIRE/NEW capability audit and an 8-question architecture reconciliation (ratifying an isolated adapter, Option C) before any implementation, then real code (not UI) for Phase 1, then presentation wiring for Phase 2 that evolves the existing Board-locked AI Insights™ layout rather than replacing it. |
+| **Impact** | Royaltē now has a live, wired Executive Intelligence Layer distinct from the Canonical Intelligence Layer beneath it. Four adapter field mappings (identity.verified any-provider; self-published satisfies publisher-of-record; distribution coverage as a verification-based proxy, exposed under both `dspCoverage` and the honestly-named `estimatedDistributionCoverage`; monitoring severity ceiling at HIGH, never CRITICAL) are Board-ratified defaults, not verified facts — flagged for revisit if real data sources improve. `ai-insights.html`'s duplicate client-side recommendation ranking is retired. Phase 3 (archival/comparison, conversational Ask ATHENA™, Executive Timeline™, Executive Memory™ expansion, forecasting) is authorized for planning. |
+| **Vote** | Board Approved |
+| **PR Number** | #421 |
+| **Commit SHA** | `ee58da9` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-23 — Marketing Automation Constitution v1.1 — RATIFIED
 
 | | |
