@@ -22,6 +22,7 @@ approves and schedules it, and when it publishes.
 | What Happens When Your Music Is Played Internationally? | 2026-07-B | 2026-07-25 | Scheduled | [#416](https://github.com/Se7venlabs/Royalte/pull/416) | Neighbouring Rights |
 | Building a Career Instead of Chasing a Hit Song | 2026-07-B | 2026-07-25 | Scheduled | [#416](https://github.com/Se7venlabs/Royalte/pull/416) | Career Building |
 | Why Older Songs Still Make Money | 2026-07-B | — | **Blocked — source article not delivered** | _(not yet opened)_ | Catalogs |
+| Songtrust vs. KOSIGN vs. Royaltē | _(none — standalone)_ | 2026-07-26 | Scheduled | [#419](https://github.com/Se7venlabs/Royalte/pull/419) | Publishing |
 
 **Status values:** `Draft` · `Board Review` · `Pending Board Approval` · `Scheduled` · `Published` · `Blocked — awaiting source`
 
@@ -36,3 +37,12 @@ Approval` with no date — that was the state before the explicit Board
 decision to consolidate scheduling with the guide's already-approved date.
 The blocked 15th article remains untracked to any PR or date until its
 source material is delivered.
+
+**"Songtrust vs. KOSIGN vs. Royaltē"** — brief specified an intended publish
+date of 2026-07-26 (Sunday) and also explicitly required "Do not merge until
+Executive Board approval has been received." Left at `Board Review` through
+the initial build and the subsequent Board revision pass (new FAQ section,
+expanded flow diagram, new closing section). **2026-07-23 — Board approved
+2026-07-26.** `scheduled` label + Publish Date added to PR #419; it will
+auto-merge via the scheduled-merge Action on that date, same mechanism as
+every other Education Library guide.
