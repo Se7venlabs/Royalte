@@ -19,6 +19,16 @@
 
 const blogPosts = [
   {
+    title: "AI Music Is Exploding—But Who Actually Owns the Rights?",
+    excerpt: "AI-generated music is exploding, but ownership remains unclear. Learn who actually owns AI-created music and how to protect your rights as an artist.",
+    category: "AI Music",
+    date: "2026-07-27",
+    readTime: "7 min read",
+    slug: "ai-music-is-exploding-but-who-actually-owns-the-rights",
+    url: "/blog/ai-music-is-exploding-but-who-actually-owns-the-rights.html",
+    status: "live"
+  },
+  {
     title: "AI Didn't Kill Music—It Changed the Rules",
     excerpt: "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
     category: "AI Music",
