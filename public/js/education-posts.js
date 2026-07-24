@@ -29,7 +29,7 @@ const educationPosts = [
     excerpt: "Compare Songtrust, KOSIGN, and Royaltē to understand the differences between publishing administration, royalty collection, and music rights intelligence so you can build a stronger music business.",
     category: "Publishing",
     date: "2026-07-23",
-    readTime: "5 min read",
+    readTime: "7 min read",
     slug: "songtrust-vs-kosign-vs-royalte",
     url: "/education/songtrust-vs-kosign-vs-royalte.html",
     status: "live",
