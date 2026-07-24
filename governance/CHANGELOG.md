@@ -19,6 +19,31 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-24 — ATHENA™ Executive Intelligence — Phase 1 + Phase 2 (PR #421)
+
+| | |
+|---|---|
+| **Date** | 2026-07-24 |
+| **PR Number** | #421 |
+| **Commit SHA** | `ee58da9` |
+| **Added** | `api/athena/runtime-context-adapter.js` (ATHENA Adapter™, Option C — translates `royalte_workspace_context` v1.1 into the ATHENA Engine's `apiResponses` envelope contract). `api/athena/executive-intelligence-object.js` (Executive Intelligence Object™ schema/builder — includes Executive Provenance™, self-describing schema versioning, and Executive Brief ID™ `EB-YYYY-MM-DD-XXXXXX`). `api/athena/pipeline.js` (`runExecutiveIntelligencePipeline()` — sole orchestrator: Adapter → Engine → EIO). `api/executive-intelligence.js` (new POST endpoint — transport only, no business logic; the only way the EIO pipeline, which needs `node:crypto`, can run from a browser page in a repo with no bundler). `tests/athena-adapter-test.mjs` (49 tests). `governance/ATHENA_EXECUTIVE_INTELLIGENCE_CAPABILITY_MATRIX.md`, `ATHENA_EXECUTIVE_ARCHITECTURE_RECONCILIATION.md`, `ATHENA_EXECUTIVE_INTELLIGENCE_PHASE1_IMPLEMENTATION.md`, `CANONICAL_EXECUTIVE_ARCHITECTURE.md`. |
+| **Changed** | `public/workspaces/ai-insights.html` — evolved in place per Board Option 3 ("Evolution, not Replacement"): ATHENA™ Executive Hero, Executive Actions™, Priority Roadmap™, and Executive Forecast™ keep their existing structure/naming; content now sources from the Executive Intelligence Object™ instead of client-side-ranked risk/opportunity data. Orb label `ROYALTĒ™ → ATHENA™` (previously deliberately withheld pending real wiring). Added Executive Confidence™ (Hero), Executive Change Summary™, an expandable Executive Memory™ panel, an inert Ask ATHENA™ placeholder, and a dev-only Executive Provenance™ inspector (`?dev=1`/`?debug=1`). `vercel.json` — route for `/api/executive-intelligence`. |
+| **Removed** | `ai-insights.html`'s duplicate client-side recommendation ranking (`sevRank`/`allObs`/`badgeFor`) — Executive Actions™ and Priority Roadmap™ now read ATHENA's own already-ordered `recommendations[]` directly; no re-ranking in the presentation layer. |
+| **Constitution Version** | v1.3 (Board Amendment) |
+
+The `api/athena/*` engine (Sprint 10) previously had zero production callers,
+confirmed repeatedly through this platform's history including the
+2026-07-18 Repository Review (PR #368). This phase wires it in via an
+isolated adapter — neither Runtime Context nor the Engine itself was
+modified. Four adapter field mappings are explicitly INTERPRETIVE (not
+verified facts) and were individually reviewed and ratified by the Board —
+see `ATHENA_EXECUTIVE_INTELLIGENCE_PHASE1_IMPLEMENTATION.md` §3 and §14.
+`CANONICAL_EXECUTIVE_ARCHITECTURE.md` formally records the four-layer
+Evidence → Canonical Intelligence → Executive Intelligence → Presentation
+separation as permanent platform architecture.
+
+---
+
 ## 2026-07-21 — Catalog Intelligence™ — ISRC Intelligence™ v1 (PR #393)
 
 | | |

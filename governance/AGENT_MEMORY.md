@@ -26,14 +26,15 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 ## 2. Current Build Phase
 
+**Note:** this table was last fully updated for Sprint 9 (2026-07-12); numerous phases have merged since (Catalog Intelligence™, ISRC Intelligence™, Marketing Automation, ATHENA™ Phase 1+2, others) without a full table reconciliation — see `governance/CHANGELOG.md` for the authoritative newest-first merge history. The single row below is a targeted update, not a backfill of the gap.
+
 | | |
 |---|---|
-| Most recently completed phase | **Mission Control™ v2.0 Sprint 9 — Mission Control Data API™** |
-| Merged at | `4047311` (PR #318, 2026-07-12) |
-| Tag | `mission-control-api-v1.0` |
-| Prior phase | Mission Control™ v2.0 Sprint 8 — Monitoring & Change Detection™ (`1317f07`, PR #315, 2026-07-12) |
-| Active direction | **Canonical Intelligence Platform™ — Sprint 9 merged and constitution ratified.** Mission Control Data API™, Endpoint Registry™, Response Models™, Serialization Layer™, Validation Framework™, Route Layer™, and API Factory™ are constitutional components. No application may bypass this layer. Sprint 10 — Executive Intelligence Engine™ pending Board brief. |
-| Next Board gate | Sprint 10 brief required from the Board. |
+| Most recently completed phase | **ATHENA™ Executive Intelligence — Phase 1 (Canonical Executive Intelligence Object™) + Phase 2 (Executive Briefing & Presentation)** |
+| Merged at | `ee58da9` (PR #421, 2026-07-24) |
+| Active direction | **Executive Intelligence Layer™ is now live**, wired into `ai-insights.html` via an isolated adapter (Option C) over the previously-dormant Sprint 10 `api/athena/*` engine. `governance/CANONICAL_EXECUTIVE_ARCHITECTURE.md` ratifies the permanent Evidence → Canonical Intelligence → Executive Intelligence → Presentation layer separation. Phase 3 (archival/comparison, Ask ATHENA™, Executive Timeline™, Executive Memory™ expansion, forecasting) is authorized for planning, not yet briefed. |
+| Next Board gate | ATHENA™ Phase 3 brief required from the Board. |
+| Prior phase | Mission Control™ v2.0 Sprint 9 — Mission Control Data API™ (`4047311`, PR #318, 2026-07-12) |
 
 **⚠ ACTIVE INITIATIVE — Mission Control™ Data Integrity Program™ (2026-07-11)**  
 Black Alternative is the **Canonical Development Artist™**. Every workspace must accurately represent Black Alternative's verified scan results before any new module development begins.  

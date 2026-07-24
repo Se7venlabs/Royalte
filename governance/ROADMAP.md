@@ -174,7 +174,7 @@ from Apple Production Migration (PR #189, 2026-07-02).
 - Royaltē Platform Architecture v1.0 — document the complete platform architecture
 - Connector completion roadmap — finish remaining Connectors™
 - Engine completion roadmap — finish remaining Intelligence Engines™
-- ATHENA™ activation, once the underlying intelligence platform is sufficiently mature
+- ~~ATHENA™ activation, once the underlying intelligence platform is sufficiently mature~~ — **DONE 2026-07-24** (PR #421, ATHENA™ Phase 1 + Phase 2, see `governance/BOARD_DECISIONS.md` and `governance/CANONICAL_EXECUTIVE_ARCHITECTURE.md`). Phase 3 (archival/comparison, Ask ATHENA™, Executive Timeline™, Executive Memory™ expansion, forecasting) authorized for planning, not yet briefed.
 
 No sprint begins until the Board issues a formal brief.
 
