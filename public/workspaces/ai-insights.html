@@ -112,6 +112,101 @@
     .ai-coverage-body { min-width: 0; }
     .ai-coverage-label { font-size: 11px; font-weight: 700; color: var(--mc-text-primary); }
     .ai-coverage-stat  { font-size: 10.5px; color: var(--mc-text-muted); margin-top: 1px; }
+
+    /* ── ATHENA™ Phase 2 — Executive Confidence™ badge (Hero) ──────────── */
+    .ai-confidence-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .ai-confidence-badge {
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 20px; border: 1px solid; white-space: nowrap;
+    }
+    .ai-confidence-badge--high              { color: #4ade80; background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.28); }
+    .ai-confidence-badge--medium            { color: #facc15; background: rgba(250,204,21,0.1); border-color: rgba(250,204,21,0.28); }
+    .ai-confidence-badge--low               { color: var(--mc-orange); background: rgba(251,146,60,0.1); border-color: rgba(251,146,60,0.28); }
+    .ai-confidence-badge--insufficient_data { color: #9ca3af; background: rgba(156,163,175,0.1); border-color: rgba(156,163,175,0.28); }
+    .ai-confidence-label { font-size: 11px; color: var(--mc-text-muted); }
+
+    /* ── ATHENA™ Phase 2 — Executive Source Attribution™ chip ──────────── */
+    .ai-source-chip {
+      display: inline-block; margin-top: 6px;
+      font-size: 8.5px; font-weight: 600; letter-spacing: 0.06em;
+      color: var(--mc-text-faint);
+    }
+
+    /* ── ATHENA™ Phase 2 — Executive Change Summary™ (beneath Hero) ────── */
+    .ai-change-section {
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 14px 18px; border-radius: 12px;
+      border: 1px solid var(--mc-border); background: var(--mc-surface-2);
+    }
+    .ai-change-list { display: flex; flex-direction: column; gap: 6px; }
+    .ai-change-item { display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px; color: var(--mc-text-soft); line-height: 1.4; }
+    .ai-change-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .ai-change-dot--positive       { background: #4ade80; }
+    .ai-change-dot--action_needed  { background: #f87171; }
+    .ai-change-dot--monitor        { background: var(--mc-orange); }
+    .ai-change-dot--informational  { background: #9ca3af; }
+
+    /* ── ATHENA™ Phase 2 — Executive Memory™ panel ──────────────────────── */
+    .ai-memory-section {
+      border: 1px solid var(--mc-border); border-radius: 12px; background: var(--mc-surface-2);
+      overflow: hidden;
+    }
+    .ai-memory-toggle {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; background: none; border: none; cursor: pointer;
+      color: var(--mc-text); font: inherit;
+    }
+    .ai-memory-toggle-icon { transition: transform 0.2s; color: var(--mc-text-muted); }
+    .ai-memory-section[data-open="true"] .ai-memory-toggle-icon { transform: rotate(180deg); }
+    .ai-memory-body { display: none; padding: 0 18px 16px; flex-direction: column; gap: 10px; }
+    .ai-memory-section[data-open="true"] .ai-memory-body { display: flex; }
+    .ai-memory-group-label { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mc-text-faint); }
+    .ai-memory-item { font-size: 11.5px; color: var(--mc-text-muted); line-height: 1.4; }
+    .ai-memory-unavailable { font-size: 11px; color: var(--mc-text-faint); font-style: italic; }
+
+    /* ── ATHENA™ Phase 2 — Ask ATHENA™ placeholder ──────────────────────── */
+    .ai-ask-section {
+      border: 1px solid rgba(168,85,247,0.14); border-radius: 12px;
+      background: linear-gradient(135deg, rgba(109,40,217,0.06), rgba(168,85,247,0.02));
+      padding: 18px; display: flex; flex-direction: column; gap: 12px;
+    }
+    .ai-ask-conversation-area { min-height: 64px; display: flex; align-items: center; justify-content: center; }
+    .ai-ask-empty { font-size: 12px; color: var(--mc-text-muted); text-align: center; }
+    .ai-ask-suggested { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ai-ask-suggested-chip {
+      font-size: 10.5px; color: var(--mc-text-soft);
+      border: 1px solid var(--mc-border); border-radius: 20px; padding: 5px 12px;
+      background: var(--mc-surface); cursor: not-allowed;
+    }
+    .ai-ask-prompt-row { display: flex; gap: 8px; }
+    .ai-ask-prompt-input {
+      flex: 1; padding: 10px 14px; border-radius: 8px;
+      border: 1px solid var(--mc-border); background: var(--mc-surface);
+      color: var(--mc-text-muted); font-size: 12px;
+    }
+    .ai-ask-prompt-send {
+      padding: 10px 16px; border-radius: 8px; border: 1px solid var(--mc-border);
+      background: var(--mc-surface); color: var(--mc-text-faint); font-size: 12px; font-weight: 700;
+      cursor: not-allowed;
+    }
+    .ai-ask-coming-soon {
+      font-size: 8.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--mc-purple); background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.22);
+      padding: 2px 8px; border-radius: 20px; align-self: flex-start;
+    }
+
+    /* ── ATHENA™ Phase 2 — Executive Provenance™ (dev-only; ?dev=1/?debug=1) ── */
+    #ai-provenance-bar {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0;
+      background: #0a0a0a; color: #c8a8ff; font-family: 'Space Mono', monospace;
+      font-size: 10px; padding: 4px 10px; z-index: 9999;
+      border-top: 1px solid #1a1a1a; letter-spacing: .03em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    @media (max-width: 768px) {
+      .ai-ask-suggested { gap: 6px; }
+    }
   </style>
   <script>
 /* DEV FIXTURE — localhost only, never runs on production (hostname check).
@@ -304,6 +399,12 @@
     <a href="/mission-control.html" style="margin-top:8px;padding:10px 20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e5e7eb;text-decoration:none;font-size:13px;font-weight:500;">← Mission Control</a>
   </div>
 
+  <!-- Executive Provenance™ (ATHENA™ Phase 2, Section 9) — hidden developer
+       inspection view only. Never shown to artists. Visible only when
+       ?debug=1 or ?dev=1 in URL, mirroring the established pattern in
+       public/workspaces/identity-intelligence.html. -->
+  <div id="ai-provenance-bar"></div>
+
   <div class="ws-content">
 
     <header class="ws-breadcrumb">
@@ -328,7 +429,7 @@
             <h1 class="ai-hero-greeting">Good morning, <span data-ai-artist-name>your music business</span>.</h1>
             <p class="ai-hero-analyzed">Royaltē has synthesized your complete music business intelligence.</p>
             <div class="ai-hero-brief-label">Today's Executive Brief</div>
-            <p class="ai-hero-desc">Your Executive Brief has identified <span class="ai-hero-critical"><span data-ai-risk-count>3</span> critical issues</span> requiring immediate attention.</p>
+            <p class="ai-hero-desc" data-ai-hero-desc>Your Executive Brief has identified <span class="ai-hero-critical"><span data-ai-risk-count>3</span> critical issues</span> requiring immediate attention.</p>
             <div class="ai-hero-reading-row">
               <div class="ai-hero-reading-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -337,6 +438,13 @@
                 <div class="ai-hero-reading-label">Estimated Reading Time</div>
                 <div class="ai-hero-reading-time">2–3 Minutes</div>
               </div>
+            </div>
+            <!-- Executive Confidence™ (ATHENA™ Phase 2) — sourced from
+                 the Executive Intelligence Object's aggregate confidence,
+                 never computed here. -->
+            <div class="ai-confidence-row" data-ai-confidence-row hidden>
+              <span class="ai-confidence-badge" data-ai-confidence-badge></span>
+              <span class="ai-confidence-label" data-ai-confidence-label></span>
             </div>
             <button class="ai-hero-cta" type="button">View Full Brief →</button>
           </div>
@@ -493,18 +601,29 @@
               </g>
 
               <!-- ── CORE LABEL ──────────────────────────────────────── -->
-              <!-- Not labeled "ATHENA(TM)" -- the real ATHENA(TM) engine (api/athena/)
-                   has zero production callers (governance/AI_INSIGHTS_ATHENA_BOUNDARY_REVIEW.md).
-                   This orb is Royaltē's own real, deterministic cross-domain
-                   synthesis -- honestly labeled, reserved for real ATHENA(TM)
-                   branding only once that engine is actually wired in. -->
-              <text class="ai-core-name"     x="240" y="306" text-anchor="middle">ROYALTĒ™</text>
+              <!-- Labeled "ATHENA™" as of ATHENA™ Phase 2 (2026-07-24) --
+                   the real ATHENA(TM) engine (api/athena/) is now wired into
+                   this page via the ATHENA Adapter™ + Executive Intelligence
+                   Pipeline™ (Phase 1) and /api/executive-intelligence
+                   (Phase 2). The deferral comment this replaced explicitly
+                   reserved "ATHENA" branding for exactly this moment. -->
+              <text class="ai-core-name"     x="240" y="306" text-anchor="middle">ATHENA™</text>
               <text class="ai-core-sublabel" x="240" y="320" text-anchor="middle">Executive Silver™ Intelligence Core</text>
 
             </svg>
           </div><!-- /ai-core-wrap -->
 
         </div><!-- /ai-hero-section -->
+
+        <!-- § 1b — EXECUTIVE CHANGE SUMMARY™ (ATHENA™ Phase 2) ────────
+             Only rendered when Monitoring data exists for this scan.
+             Sourced from Executive Intelligence Object's
+             executiveMemorySummary.historicalChanges (real Monitoring
+             Intelligence™ events for this scan) -- never fabricated. -->
+        <div class="ai-change-section" id="ai-change-section" hidden>
+          <div class="ai-section-eyebrow">Executive Change Summary™</div>
+          <div class="ai-change-list" id="ai-change-list"></div>
+        </div><!-- /ai-change-section -->
 
         <!-- § 2 — EXECUTIVE RECOMMENDATIONS™ ──────────────────────── -->
         <div class="ai-rec-section">
@@ -598,6 +717,39 @@
           </div><!-- /ai-coverage-grid -->
         </div><!-- /ai-coverage-section -->
 
+        <!-- § 7 — EXECUTIVE MEMORY™ (ATHENA™ Phase 2) — new expandable
+             panel per Executive Board Option 3 clarification. Current
+             scope: this scan's monitoring history only. Goals, dismissed
+             actions, and milestones are honestly marked unavailable --
+             no persistent Executive Memory™ store exists yet. -->
+        <div class="ai-memory-section" id="ai-memory-section" data-open="false">
+          <button class="ai-memory-toggle" type="button" id="ai-memory-toggle" aria-expanded="false" aria-controls="ai-memory-body">
+            <span class="ai-section-eyebrow">Executive Memory™</span>
+            <svg class="ai-memory-toggle-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="ai-memory-body" id="ai-memory-body"></div>
+        </div><!-- /ai-memory-section -->
+
+        <!-- § 10 — ASK ATHENA™ (presentation container only; ATHENA™
+             Phase 2, Section 10). No conversational intelligence is
+             implemented -- future phase. -->
+        <div class="ai-ask-section" aria-labelledby="ai-ask-heading">
+          <div class="ai-ask-coming-soon">Coming Soon</div>
+          <div class="ai-section-eyebrow" id="ai-ask-heading">Ask ATHENA™</div>
+          <div class="ai-ask-conversation-area">
+            <div class="ai-ask-empty">Ask ATHENA™ will let you have a conversation with your Executive Intelligence. Not yet available.</div>
+          </div>
+          <div class="ai-ask-suggested">
+            <span class="ai-ask-suggested-chip">What should I focus on this week?</span>
+            <span class="ai-ask-suggested-chip">Why is my confidence score low?</span>
+            <span class="ai-ask-suggested-chip">What changed since my last scan?</span>
+          </div>
+          <div class="ai-ask-prompt-row">
+            <input class="ai-ask-prompt-input" type="text" placeholder="Ask ATHENA™ a question…" disabled aria-label="Ask ATHENA (not yet available)">
+            <button class="ai-ask-prompt-send" type="button" disabled>Ask</button>
+          </div>
+        </div><!-- /ai-ask-section -->
+
       </div><!-- /hi-main -->
 
     </div><!-- /ws-body -->
@@ -658,8 +810,21 @@
  * Canonical Workspace Architecture™ — §1 Context → §2 Intelligence → §3 Presentation → §4 Render
  * Each layer produces one named output consumed by the next.
  * Answers: "What should I focus on next, and why?"
+ *
+ * ATHENA™ Phase 2 (2026-07-24, Executive Board Option 3 — "Evolution, not
+ * Replacement"): the existing sections below (ATHENA™ Executive Hero,
+ * Executive Actions™, Priority Roadmap™, Executive Forecast™) are unchanged
+ * in name, structure, and layout. Their CONTENT now comes exclusively from
+ * the Executive Intelligence Object™ (api/athena/executive-intelligence-object.js),
+ * fetched via /api/executive-intelligence -- the sole wiring point between
+ * this page's real royalte_workspace_context and the server-side ATHENA
+ * Executive Intelligence Pipeline™ (Phase 1). This page never reorders,
+ * re-ranks, or recalculates anything ATHENA already computed -- see
+ * governance/ATHENA_EXECUTIVE_INTELLIGENCE_PHASE1_IMPLEMENTATION.md and
+ * governance/CANONICAL_EXECUTIVE_ARCHITECTURE.md §5 ("Presentation...
+ * Never calculate recommendations").
  */
-(function () {
+(async function () {
   'use strict';
 
   // ═══════════════════════════════════════════════════════════
@@ -668,19 +833,39 @@
   // If context is invalid: show overlay, stop. Never render demo.
   // ═══════════════════════════════════════════════════════════
 
+  var NO_CTX_GRID =
+    '<div class="ai-intel-empty ai-intel-empty--grid">' +
+    '<div class="ai-intel-empty-body">' +
+    '<div class="ai-intel-empty-title">Intelligence not available</div>' +
+    '<div class="ai-intel-empty-desc">Navigate to Mission Control™ to run a scan and generate your executive intelligence.</div>' +
+    '</div></div>';
+  var NO_CTX_LIST =
+    '<div class="ai-intel-empty">' +
+    '<div class="ai-intel-empty-body">' +
+    '<div class="ai-intel-empty-title">Intelligence not available</div>' +
+    '<div class="ai-intel-empty-desc">Navigate to Mission Control™ to run a scan and generate your executive intelligence.</div>' +
+    '</div></div>';
+
   // Workspace Contract™ — required: executiveBrief (Executive Brief Engine's
-  // deterministic template synthesis -- not ATHENA(TM), which has zero
-  // production callers anywhere in this platform; see governance/
-  // AI_INSIGHTS_ATHENA_BOUNDARY_REVIEW.md). executiveBrief is the primary
-  // intelligence domain for this workspace. royalteAI and cross-domain
-  // intelligence (health, identity, publishing, catalog, backend,
-  // footprint, media, monitoring) are secondary enrichment from context.
+  // deterministic template synthesis). identity/publishing/catalogIntelligence/
+  // globalFootprint/verification/mediaIntelligence/monitoringIntelligence
+  // feed the (unchanged) Intelligence Coverage Snapshot™ below, which is out
+  // of scope for ATHENA™ Phase 2.
   var _result = window.RoyalteContext
     ? window.RoyalteContext.readWorkspaceContext({ contract: 'ai-insights' })
     : { state: 'invalid', ctx: null, reason: 'mc-workspace-context.js not loaded' };
   if (_result.state !== 'valid') {
     var _ol = document.getElementById('ws-no-scan-overlay');
     if (_ol) { _ol.removeAttribute('hidden'); _ol.style.display = 'flex'; }
+    // Clear stuck loading containers immediately on this real early-return
+    // path. (Previously a separate trailing IIFE ran this cleanup using a
+    // "still shows data-ai-state=loading" heuristic; with wiring now async
+    // for the ATHENA fetch below, that heuristic would misfire during a
+    // valid in-flight request, so cleanup now happens explicitly, only here.)
+    var _rg0 = document.getElementById('ai-rec-grid');
+    var _pl0 = document.getElementById('ai-priorities-list');
+    if (_rg0) { _rg0.removeAttribute('data-ai-state'); _rg0.innerHTML = NO_CTX_GRID; }
+    if (_pl0) { _pl0.removeAttribute('data-ai-state'); _pl0.innerHTML = NO_CTX_LIST; }
     return;
   }
   var rawCtx = _result.ctx;
@@ -688,22 +873,10 @@
   if (_body) _body.style.opacity = '1';
   var RI = window.RoyalteIntel;
 
-  // Phase 1 rebuild (Board directive 2026-07-23): identity/publishing
-  // migrated off the CimAdapter-bridged identityIntelligence/
-  // publishingIntelligence fields to the CIM-native identity/publishing
-  // fields every other recovered workspace already reads -- CimAdapter is
-  // documented migration infrastructure marked for removal
-  // (governance/AI_INSIGHTS_DEPENDENCY_MAP.md). catalogIntelligence/
-  // verification (Backend)/globalFootprint/mediaIntelligence/
-  // monitoringIntelligence are now genuinely consumed (Intelligence
-  // Coverage Snapshot(TM) below), not read-and-discarded.
   var context = {
     artistName:           (rawCtx.subject && rawCtx.subject.artistName) || rawCtx.artistName || '',
-    royalteAI:             rawCtx.royalteAI           || null,
     healthIntelligence:    rawCtx.healthIntelligence  || null,
-    healthReport:          rawCtx.healthReport        || null,
     healthScore:           rawCtx.healthScore         || null,
-    executiveBrief:        rawCtx.executiveBrief,     // guaranteed non-null by contract
     identity:              rawCtx.identity            || null,
     publishing:            rawCtx.publishing          || null,
     catalogIntelligence:   rawCtx.catalogIntelligence || null,
@@ -713,18 +886,39 @@
     monitoringIntelligence: rawCtx.monitoringIntelligence || null,
   };
 
+  // ── ATHENA™ Phase 2 — fetch the Executive Intelligence Object™ ─────────
+  // Transport only: rawCtx IS the real royalte_workspace_context this page
+  // already has in memory. The server runs the already-tested Phase 1
+  // pipeline (Adapter -> Engine -> EIO) and returns the result verbatim.
+  var eio = null;
+  var eioUnavailableReason = null;
+  try {
+    var _resp = await fetch('/api/executive-intelligence', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ workspaceContext: rawCtx }),
+    });
+    if (_resp.ok) {
+      var _json = await _resp.json();
+      eio = _json.executiveIntelligence || null;
+      if (!eio) eioUnavailableReason = _json.reason || 'Insufficient data for this scan.';
+    } else {
+      eioUnavailableReason = 'Executive Intelligence request failed (status ' + _resp.status + ').';
+    }
+  } catch (_fetchErr) {
+    eioUnavailableReason = 'Executive Intelligence request failed.';
+  }
+
   // ═══════════════════════════════════════════════════════════
   // § 2 — INTELLIGENCE
   // Synthesize business meaning across all modules.
-  // Consumes: context. Produces: intelligenceModel.
-  // No HTML. No DOM manipulation. Plain values only.
+  // Consumes: context + eio. Produces: intelligenceModel.
+  // No HTML. No DOM manipulation. Plain values only. No re-ranking,
+  // re-scoring, or recalculation of anything the EIO already computed.
   // ═══════════════════════════════════════════════════════════
 
-  var eb = context.executiveBrief         || {};
-  var hr = context.healthReport           || {};
   var hi = context.healthIntelligence     || {};
   var hs = context.healthScore            || {};
-  var ai = context.royalteAI              || {};
   var mo = context.monitoringIntelligence || {};
   var ii = context.identity               || {};
   var pi = context.publishing             || {};
@@ -733,181 +927,107 @@
   var bi = context.verification           || {};
   var mdi = context.mediaIntelligence     || {};
 
-  // ── Overall health ──────────────────────────────────────────
-  var healthScore  = hi.score != null ? Math.round(hi.score) : (hs.overallScore != null ? Math.round(hs.overallScore) : null);
-  var healthGrade  = hr.grade || hs.overallGrade || null;
-  var healthStatus = hi.status || (healthScore !== null ? RI.scoreLabel(healthScore) : null);
-  var healthHeadline = eb.headline || healthStatus || 'Analyzing';  // mapper normalizes healthHeadline → headline
+  // ── Overall health (Intelligence Coverage Snapshot™ only — unchanged) ──
+  var healthScoreNum = hi.score != null ? Math.round(hi.score) : (hs.overallScore != null ? Math.round(hs.overallScore) : null);
 
-  // ── Source observations ─────────────────────────────────────
-  var risks = Array.isArray(hr.risks)         ? hr.risks         : [];
-  var opps  = Array.isArray(hr.opportunities) ? hr.opportunities : [];
-  var strs  = Array.isArray(hr.strengths)     ? hr.strengths     : [];
-
-  // ── Recommendation text from executiveBrief.priorityActions ─
-  var paMap = {};
-  if (Array.isArray(eb.priorityActions)) {
-    eb.priorityActions.forEach(function (pa) {
-      if (pa && pa.observationId) paMap[pa.observationId] = pa.recommendation || '';
-    });
+  // ── ATHENA™ Executive Intelligence Object™ lookups ──────────────────────
+  // Presentation-layer formatting only: joins recommendations back to their
+  // source risk/opportunity for a display title, and priority to a badge
+  // color. Never changes order, priority, or confidence.
+  var riskById = {};
+  var oppById  = {};
+  if (eio) {
+    (eio.risks || []).forEach(function (r) { riskById[r.riskId] = r; });
+    (eio.opportunities || []).forEach(function (o) { oppById[o.opportunityId] = o; });
   }
 
-  // ── Severity ranking ────────────────────────────────────────
-  function sevRank(sev) {
-    return { CRITICAL: 5, HIGH: 4, MEDIUM: 3, LOW: 2, INFO: 1 }[(sev || '').toUpperCase()] || 0;
+  var DOMAIN_LABELS = {
+    identity: 'Identity Intelligence™', rights: 'Publishing Intelligence™',
+    catalog: 'Catalog Intelligence™', distribution: 'Global Music Footprint™',
+    monitoring: 'Monitoring Intelligence™', system_operations: 'Platform Operations',
+  };
+  var PRIORITY_BADGE = { URGENT: 'critical', HIGH: 'critical', MEDIUM: 'opportunity', LOW: 'opportunity', INFORMATIONAL: 'metadata' };
+  var PRIORITY_LABEL = { URGENT: 'Urgent', HIGH: 'High', MEDIUM: 'Medium', LOW: 'Low', INFORMATIONAL: 'Informational' };
+
+  function sourceFor(rec) {
+    return rec.sourceType === 'risk' ? riskById[rec.sourceId] : oppById[rec.sourceId];
+  }
+  function titleFor(rec) {
+    var src = sourceFor(rec);
+    return (src && src.title) || rec.recommendedAction || 'Executive Action';
+  }
+  function domainLabelFor(rec) {
+    var d = rec.affectedDomains && rec.affectedDomains[0];
+    return DOMAIN_LABELS[d] || null;
   }
 
-  // ── Badge classification ─────────────────────────────────────
-  function badgeFor(obs) {
-    var sev = (obs.severity || '').toUpperCase();
-    var cat = (obs.category || obs.ruleId || '').toUpperCase();
-    if (sev === 'CRITICAL') return 'critical';
-    if (cat.includes('PUBLISH')) return 'critical';
-    if (cat.includes('IDENTITY') || cat.includes('APPLE') || cat.includes('SPOTIFY')) return 'identity';
-    if (cat.includes('CATALOG') || cat.includes('METADATA')) return 'metadata';
-    if (sev === 'HIGH') return 'critical';
-    return 'opportunity';
-  }
-  function badgeLabelFor(badge) {
-    return { critical: 'Critical', identity: 'Identity', metadata: 'Metadata', opportunity: 'Opportunity' }[badge] || 'Notice';
-  }
+  // Executive Actions™ (max 4) and Priority Roadmap™ (max 5) both read the
+  // SAME real, ATHENA-ordered recommendations list (eio.recommendations),
+  // sliced to different lengths — no separate ranking logic for either.
+  var athenaRecs = (eio && Array.isArray(eio.recommendations)) ? eio.recommendations : [];
 
-  // ── Build unified observation list — real evidence only ─────
-  // Phase 1 rebuild: removed WEAK_MODULE_MSGS / MODULE_SCORES synthetic
-  // fill entirely (governance/AI_INSIGHTS_EVIDENCE_AUDIT.md flagged this
-  // as hardcoded template text, not evidence). When there are fewer than
-  // 4 real observations, fewer real cards are shown -- never padded with
-  // generic filler.
-  var allObs = risks.concat(opps).sort(function (a, b) { return sevRank(b.severity) - sevRank(a.severity); });
-  var seenRuleIds = {};
-  allObs.forEach(function (o) { if (o.ruleId) seenRuleIds[o.ruleId] = true; });
-
-  if (Array.isArray(ii.issues)) {
-    ii.issues.forEach(function (issue) {
-      if (!seenRuleIds[issue.ruleId]) {
-        allObs.push({ ruleId: issue.ruleId, category: 'IDENTITY', severity: issue.severity || 'MEDIUM', title: issue.title, description: issue.recommendation });
-        seenRuleIds[issue.ruleId] = true;
-      }
-    });
-  }
-  if (Array.isArray(pi.issues)) {
-    pi.issues.forEach(function (issue) {
-      if (!seenRuleIds[issue.ruleId]) {
-        allObs.push({ ruleId: issue.ruleId, category: 'PUBLISHING', severity: issue.severity || 'HIGH', title: issue.title, description: issue.recommendation });
-        seenRuleIds[issue.ruleId] = true;
-      }
-    });
-  }
-  // Media Intelligence™ real observations — Phase 2 cross-domain synthesis.
-  // mediaIntelligence.catalogMediaSupport.unsupportedReleases is real,
-  // evidence-backed (api/_lib/media-intelligence.js, exact releaseDate
-  // matching only) -- closes the "Media Intelligence completely
-  // unconsumed" gap found in discovery, additively, no fabrication.
-  if (mdi.available && mdi.catalogMediaSupport && Array.isArray(mdi.catalogMediaSupport.unsupportedReleases)) {
-    mdi.catalogMediaSupport.unsupportedReleases.forEach(function (rel) {
-      var ruleId = 'media.unsupported.' + (rel.id || rel.name);
-      if (!seenRuleIds[ruleId]) {
-        allObs.push({
-          ruleId: ruleId, category: 'MEDIA', severity: 'MEDIUM',
-          title: (rel.name || 'A release') + ' has no video support',
-          description: 'Released ' + (rel.releaseDate || '') + ' — no video support found across reviewed platforms.',
-        });
-        seenRuleIds[ruleId] = true;
-      }
-    });
-  }
-
-  allObs.sort(function (a, b) { return sevRank(b.severity) - sevRank(a.severity); });
-
-  // ── Recommendations / Executive Actions (max 4, real observations only) ──
-  var recommendations = allObs.slice(0, 4).map(function (obs) {
-    var badge      = badgeFor(obs);
-    var whyMatters = obs.description || obs.title || '';
-    var action     = (obs.observationId && paMap[obs.observationId]) || obs.description || '';
+  var recommendations = athenaRecs.slice(0, 4).map(function (rec) {
+    var badge = PRIORITY_BADGE[rec.priority] || 'metadata';
     return {
-      badge:       badge,
-      badgeLabel:  badgeLabelFor(badge),
-      title:       obs.title || '',
-      description: action || whyMatters,
-      // "Why it matters" and "what happens if ignored" are the same real
-      // evidence sentence -- risk/opportunity descriptions already state
-      // the consequence (e.g. "royalties cannot be collected"). No
-      // separate hardcoded "impact" template (removed per Evidence Audit).
-      whyMatters:  whyMatters,
-      action:      action,
-      priorityLevel: badgeLabelFor(badge),
+      badge:         badge,
+      badgeLabel:    PRIORITY_LABEL[rec.priority] || rec.priority,
+      title:         titleFor(rec),
+      description:   rec.recommendedAction || rec.reason || '',
+      whyMatters:    rec.reason || '',
+      action:        rec.recommendedAction || '',
+      priorityLevel: PRIORITY_LABEL[rec.priority] || rec.priority,
+      // Executive Source Attribution™ (Phase 2 §8) — subtle, not overwhelming.
+      sourceLabel:   domainLabelFor(rec),
+      sourceKind:    rec.sourceType === 'risk' ? 'Risk' : 'Opportunity',
     };
   });
 
-  // ── Priority list (max 5) ───────────────────────────────────
-  var titleMap = {};
-  allObs.concat(strs).forEach(function (o) {
-    var id = o.observationId || o.id || '';
-    if (id && o.title) titleMap[id] = o.title;
-  });
-
-  // Executive Prioritization tiers (Board directive 2026-07-23) — rank-
-  // based grouping of the real, already-ordered priority list. Not a new
-  // fact, a presentational tier over real rank position.
+  // Executive Prioritization tiers — rank-based grouping of the real,
+  // already-ordered priority list. Not a new fact, a presentational tier
+  // over real rank position (unchanged pattern from the prior rebuild).
   function tierForRank(i) {
     if (i === 0) return 'Do First';
     if (i <= 2)  return 'Do Next';
     return 'Do Later';
   }
+  var priorities = athenaRecs.slice(0, 5).map(function (rec, i) {
+    return { title: titleFor(rec), description: rec.recommendedAction || rec.reason || '', tier: tierForRank(i) };
+  });
 
-  var priorities = [];
-  if (Array.isArray(eb.priorityActions) && eb.priorityActions.length > 0) {
-    priorities = eb.priorityActions.slice(0, 5).map(function (pa, i) {
-      var title = titleMap[pa.observationId || ''] || (pa.ruleId || 'Priority Action').replace(/[.\-]/g, ' ');
-      return { title: title, description: pa.recommendation || '', tier: tierForRank(i) };
+  // Executive Confidence™ (Phase 2 §5) — real aggregate confidence from the
+  // EIO. Executive Forecast™ (Phase 2 §1 Hero + Forecast section) — honestly
+  // unavailable (Capability Matrix §9: no score-projection engine exists
+  // yet). Never fabricated; the Forecast section's 3 existing bullet slots
+  // are repurposed to state this + confidence + evidence-coverage honestly,
+  // per Option 3's "map into the existing experience" guidance.
+  var confidence   = eio ? eio.confidence : null;
+  var forecastInfo = eio ? eio.forecast   : null;
+
+  var unavailableDomains = [];
+  if (eio && eio.metadata && eio.metadata.domainStatus) {
+    Object.keys(eio.metadata.domainStatus).forEach(function (d) {
+      if (eio.metadata.domainStatus[d] !== 'SUCCESS') unavailableDomains.push(d);
     });
-  } else {
-    priorities = recommendations.slice(0, 5).map(function (r, i) { return { title: r.title, description: r.description, tier: tierForRank(i) }; });
   }
 
-  // ── Forecast insights (3 bullets, cross-module synthesis) ───
-  var forecast0, forecast1, forecast2;
+  // Executive Change Summary™ (Phase 2 §7) — real Monitoring Intelligence™
+  // events for this scan only, via the EIO's executiveMemorySummary.
+  var historicalChanges = (eio && eio.executiveMemorySummary && Array.isArray(eio.executiveMemorySummary.historicalChanges))
+    ? eio.executiveMemorySummary.historicalChanges : [];
 
-  // Insight 0: Executive narrative — royalteAI preferred, then executiveBrief
-  forecast0 = ai.executiveInsight || eb.executiveSummary || '';
-  if (!forecast0) forecast0 = 'Additional monitoring is required before trends can be established.';
-  else if (forecast0.length > 240) forecast0 = forecast0.slice(0, 237) + '…';
+  // Risk/opportunity counts — read directly from the EIO's own
+  // executiveBriefing, never recomputed here.
+  var riskCount = eio ? String(eio.executiveBriefing.criticalIssues || 0) : null;
+  var opportunityCount = eio && Array.isArray(eio.opportunities) ? String(eio.opportunities.length) : '0';
 
-  // Insight 1: Primary risk signal
-  if (risks.length > 0 && risks[0].title) {
-    var riskRec = (risks[0].observationId && paMap[risks[0].observationId]) || '';
-    forecast1 = risks[0].title + (riskRec ? ': ' + riskRec : '. Address this to improve your health score.');
-  } else if (ai.priority) {
-    forecast1 = ai.priority;
-  } else {
-    forecast1 = 'No significant publishing risks were detected during this scan.';
-  }
-
-  // Insight 2: Opportunity signal — cross-module
-  if (opps.length > 0 && opps[0].title) {
-    var oppRec = (opps[0].observationId && paMap[opps[0].observationId]) || '';
-    forecast2 = opps[0].title + (oppRec ? ': ' + oppRec : '. Completing this will strengthen your profile.');
-  } else if (gi.reachNarrative) {
-    forecast2 = gi.reachNarrative;
-  } else if (ai.nextAction) {
-    forecast2 = ai.nextAction;
-  } else {
-    forecast2 = 'Continue monitoring to identify emerging opportunities across your music business.';
-  }
-
-  // Intelligence Coverage Snapshot™ (Board directive 2026-07-23) — the
-  // one genuinely new cross-domain synthesis metric this rebuild adds
-  // (governance/AI_INSIGHTS_KPI_DISCOVERY.md). Real presence check per
-  // domain, plus a real domain-appropriate summary stat where the field
-  // shape is confirmed (never a generic, invented "issue count" for
-  // domains that don't have one). Settings™ intentionally excluded — user
-  // configuration, not a canonical intelligence domain.
+  // Intelligence Coverage Snapshot™ — unchanged, out of scope for ATHENA™
+  // Phase 2 (sourced from raw context, not the EIO).
   var monitoringPresent = !!(mo.status && !(mo.status === 'baseline' && mo.scanNumber <= 1));
   var coverageDomains = [
     { label: 'Identity',       present: !!context.identity,          stat: Array.isArray(ii.issues) ? ii.issues.length + ' open issue(s)' : null },
     { label: 'Publishing',     present: !!context.publishing,        stat: Array.isArray(pi.issues) ? pi.issues.length + ' open issue(s)' : null },
     { label: 'Catalog',        present: !!context.catalogIntelligence, stat: ci.totalTracks != null ? ci.totalTracks + ' tracks' : null },
-    { label: 'Health',         present: !!context.healthIntelligence, stat: healthScore !== null ? healthScore + '/100' : null },
+    { label: 'Health',         present: !!context.healthIntelligence, stat: healthScoreNum !== null ? healthScoreNum + '/100' : null },
     { label: 'Backend',        present: !!context.verification,      stat: bi.summaryLabel || (bi.connectedCount != null && bi.totalCount != null ? bi.connectedCount + '/' + bi.totalCount + ' connected' : null) },
     { label: 'Global Footprint', present: !!context.globalFootprint, stat: gi.coveragePercent != null ? gi.coveragePercent + '% covered' : null },
     { label: 'Media',          present: !!(mdi.available),            stat: (mdi.platformCoverage && mdi.platformCoverage.coveragePercent != null) ? mdi.platformCoverage.coveragePercent + '% covered' : null },
@@ -915,17 +1035,20 @@
   ];
 
   var intelligenceModel = {
-    artistName:          context.artistName || 'your music business',
-    healthStatus:        healthHeadline,
-    riskCount:           String(risks.length),
-    opportunityCount:    String(opps.length),
-    recommendations:     recommendations,
-    priorities:          priorities,
-    forecastInsights:    [forecast0, forecast1, forecast2],
-    forecastOpportunities: String(opps.length),
-    hasRecs:             recommendations.length > 0,
-    hasPriorities:       priorities.length > 0,
-    coverageDomains:     coverageDomains,
+    artistName:            context.artistName || 'your music business',
+    riskCount:             riskCount,
+    opportunityCount:      opportunityCount,
+    recommendations:       recommendations,
+    priorities:            priorities,
+    forecastOpportunities: opportunityCount,
+    hasRecs:               recommendations.length > 0,
+    hasPriorities:         priorities.length > 0,
+    coverageDomains:       coverageDomains,
+    confidence:            confidence,
+    forecastInfo:          forecastInfo,
+    unavailableDomains:    unavailableDomains,
+    historicalChanges:     historicalChanges,
+    executiveMemorySummary: eio ? eio.executiveMemorySummary : null,
   };
 
   // ═══════════════════════════════════════════════════════════
@@ -948,7 +1071,7 @@
 
   function renderRecCard(rec) {
     var icon = BADGE_SVG[rec.badge] || BADGE_SVG.metadata;
-    var detail = { title: rec.title, badge: rec.badge, badgeLabel: rec.badgeLabel, whyMatters: rec.whyMatters, action: rec.action, priorityLevel: rec.priorityLevel };
+    var detail = { title: rec.title, badge: rec.badge, badgeLabel: rec.badgeLabel, whyMatters: rec.whyMatters, action: rec.action, priorityLevel: rec.priorityLevel, sourceLabel: rec.sourceLabel, sourceKind: rec.sourceKind };
     var detailAttr = JSON.stringify(detail).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     return '<div class="ai-rec-card" role="button" tabindex="0" style="cursor:pointer;" onclick="aiOpenActionDetail(this)" onkeydown="if(event.key===\'Enter\'||event.key===\' \')aiOpenActionDetail(this)" data-ai-action-detail="' + detailAttr + '">'
       + '<div class="ai-rec-badge-row">'
@@ -957,6 +1080,7 @@
       + '</div>'
       + '<div class="ai-rec-title">' + esc(rec.title) + '</div>'
       + '<div class="ai-rec-desc">' + esc(rec.description) + '</div>'
+      + (rec.sourceLabel ? '<div class="ai-source-chip">Source: ' + esc(rec.sourceLabel) + '</div>' : '')
       + '<div class="ai-rec-meta-row">'
       +   '<div class="ai-rec-meta-col">'
       +     '<span class="ai-rec-meta-key">Priority</span>'
@@ -1001,6 +1125,41 @@
     return domains.map(renderCoverageTile).join('');
   }
 
+  var CHANGE_SEVERITY_LABEL = { positive: 'Improved', action_needed: 'Needs Attention', monitor: 'Needs Attention', informational: 'Noted' };
+  function renderChangeList(events) {
+    return events.map(function (ev) {
+      var sev = ev.severity || 'informational';
+      return '<div class="ai-change-item"><span class="ai-change-dot ai-change-dot--' + esc(sev) + '"></span>'
+        + esc((CHANGE_SEVERITY_LABEL[sev] || 'Noted') + ': ' + (ev.title || ev.changeType || 'Change detected'))
+        + '</div>';
+    }).join('');
+  }
+
+  // Executive Memory™ — current scope only (this scan's monitoring
+  // history). goals/dismissedActions/milestones honestly marked
+  // unavailable — no fabricated memory (Phase 2 §6).
+  function renderMemoryBody(mem) {
+    if (!mem) {
+      return '<div class="ai-memory-unavailable">Executive Memory™ is not available for this scan.</div>';
+    }
+    var html = '';
+    html += '<div class="ai-memory-group-label">This Scan’s Monitoring History</div>';
+    if (Array.isArray(mem.historicalChanges) && mem.historicalChanges.length > 0) {
+      mem.historicalChanges.forEach(function (ev) {
+        html += '<div class="ai-memory-item">' + esc(ev.title || ev.changeType || 'Change detected') + '</div>';
+      });
+    } else {
+      html += '<div class="ai-memory-unavailable">No monitoring history recorded for this scan yet.</div>';
+    }
+    html += '<div class="ai-memory-group-label" style="margin-top:6px;">Goals</div>';
+    html += '<div class="ai-memory-unavailable">' + esc((mem.goals && mem.goals.reason) || 'Not available yet.') + '</div>';
+    html += '<div class="ai-memory-group-label" style="margin-top:6px;">Dismissed Recommendations</div>';
+    html += '<div class="ai-memory-unavailable">' + esc((mem.dismissedActions && mem.dismissedActions.reason) || 'Not available yet.') + '</div>';
+    html += '<div class="ai-memory-group-label" style="margin-top:6px;">Milestones</div>';
+    html += '<div class="ai-memory-unavailable">' + esc((mem.milestones && mem.milestones.reason) || 'Not available yet.') + '</div>';
+    return html;
+  }
+
   // Truthful empty states — shown when intelligence produces no items.
   // Never shows demo content. Never appears broken.
   var EMPTY_RECS_HTML =
@@ -1020,20 +1179,38 @@
 
   var im = intelligenceModel;
 
+  // Executive Forecast™ + Executive Confidence™ — 3 existing bullet slots
+  // repurposed per Option 3 ("may appear inside the Hero or Forecast
+  // section"), never redesigned structurally.
+  var forecastLine0, forecastLine1, forecastLine2;
+  if (!eio) {
+    forecastLine0 = eioUnavailableReason || 'Executive Intelligence is not available for this scan.';
+    forecastLine1 = '';
+    forecastLine2 = '';
+  } else {
+    forecastLine0 = 'Forecast not yet available: ' + ((forecastInfo && forecastInfo.reason) || 'no score-projection engine exists yet.');
+    forecastLine1 = confidence
+      ? ('Confidence: ' + (confidence.level || 'INSUFFICIENT_DATA').replace(/_/g, ' ') + ' — ' + (confidence.reasoning || ''))
+      : 'Confidence unavailable.';
+    forecastLine2 = unavailableDomains.length > 0
+      ? ('Limited evidence from: ' + unavailableDomains.map(function (d) { return DOMAIN_LABELS[d] || d; }).join(', ') + '.')
+      : 'All reviewed domains are contributing evidence to this analysis.';
+  }
+
   var presentationModel = {
     artistName:          im.artistName,
-    healthStatus:        im.healthStatus,
     riskCount:           im.riskCount,
-    opportunityCount:    im.opportunityCount,
     recGridHtml:         im.hasRecs ? renderRecGrid(im.recommendations) : EMPTY_RECS_HTML,
     priorityListHtml:    im.hasPriorities ? renderPriorityList(im.priorities) : EMPTY_PRIORITIES_HTML,
-    forecast0:           im.forecastInsights[0],
-    forecast1:           im.forecastInsights[1],
-    forecast2:           im.forecastInsights[2],
-    metricOpportunities: im.forecastOpportunities,
+    forecast0:           forecastLine0,
+    forecast1:           forecastLine1,
+    forecast2:           forecastLine2,
+    metricOpportunities: eio ? im.forecastOpportunities : '—',
     coverageGridHtml:    renderCoverageGrid(im.coverageDomains),
-    hasRecs:             im.hasRecs,
-    hasPriorities:       im.hasPriorities,
+    confidence:          im.confidence,
+    changeListHtml:      im.historicalChanges.length > 0 ? renderChangeList(im.historicalChanges) : '<div class="ai-change-item">No previous executive comparison available.</div>',
+    showChangeSection:   !!eio,
+    memoryBodyHtml:      renderMemoryBody(im.executiveMemorySummary),
   };
 
   // ═══════════════════════════════════════════════════════════
@@ -1051,7 +1228,9 @@
 
   function setInsightText(idx, text) {
     var el = document.querySelector('[data-ai-forecast-insight="' + idx + '"]');
-    if (!el || !text) return;
+    if (!el) return;
+    if (!text) { el.style.display = 'none'; return; }
+    el.style.display = '';
     var nodes = el.childNodes;
     for (var j = nodes.length - 1; j >= 0; j--) {
       if (nodes[j].nodeType === 3) { nodes[j].textContent = '\n              ' + text + '\n            '; return; }
@@ -1059,11 +1238,41 @@
     el.appendChild(document.createTextNode('\n              ' + text + '\n            '));
   }
 
-  // Hero — data-ai-health-status/data-ai-opportunity-count removed
-  // (Evidence Audit confirmed these targeted no existing DOM element —
-  // dead writes with zero effect; not reintroduced).
   setText('[data-ai-artist-name]', pm.artistName);
-  setText('[data-ai-risk-count]',  pm.riskCount);
+
+  // Hero — honest degradation when the EIO itself is unavailable: replace
+  // the whole hero paragraph rather than leave a fabricated/stale count
+  // (Phase 2 §1: "Do not fabricate information. If data is unavailable,
+  // clearly state why.").
+  if (pm.riskCount === null) {
+    var _heroDesc = document.querySelector('[data-ai-hero-desc]');
+    if (_heroDesc) _heroDesc.textContent = eioUnavailableReason || 'Executive Intelligence is not available for this scan.';
+  } else {
+    setText('[data-ai-risk-count]', pm.riskCount);
+  }
+
+  // Executive Confidence™ (Hero)
+  if (pm.confidence) {
+    var confRow = document.querySelector('[data-ai-confidence-row]');
+    var confBadge = document.querySelector('[data-ai-confidence-badge]');
+    var confLabel = document.querySelector('[data-ai-confidence-label]');
+    if (confRow) confRow.hidden = false;
+    if (confBadge) {
+      var lvl = (pm.confidence.level || 'INSUFFICIENT_DATA').toLowerCase();
+      confBadge.textContent = (pm.confidence.level || 'INSUFFICIENT DATA').replace(/_/g, ' ');
+      confBadge.className = 'ai-confidence-badge ai-confidence-badge--' + lvl;
+    }
+    if (confLabel) confLabel.textContent = 'Executive Confidence™';
+  }
+
+  // Executive Change Summary™ — only shown once the EIO confirms this scan
+  // has (or lacks) monitoring history; never shown on a hard fetch failure.
+  var changeSection = document.getElementById('ai-change-section');
+  var changeList = document.getElementById('ai-change-list');
+  if (changeSection && changeList && pm.showChangeSection) {
+    changeSection.hidden = false;
+    changeList.innerHTML = pm.changeListHtml;
+  }
 
   // Executive Actions™ — always write; pm.recGridHtml is live content or empty state
   var recGrid = document.getElementById('ai-rec-grid');
@@ -1073,19 +1282,46 @@
   var prioList = document.getElementById('ai-priorities-list');
   if (prioList) { prioList.removeAttribute('data-ai-state'); prioList.innerHTML = pm.priorityListHtml; }
 
-  // Executive Forecast™ — insight bullets
+  // Executive Forecast™ — insight bullets (repurposed per §3 above)
   setInsightText(0, pm.forecast0);
   setInsightText(1, pm.forecast1);
   setInsightText(2, pm.forecast2);
-
-  // Executive Forecast™ — metrics (Confidence Score™/Evidence Coverage™/
-  // Open Risks™ tiles removed — confirmed duplicates, see Duplicate
-  // Intelligence Audit)
   setText('[data-ai-metric-opportunities]', pm.metricOpportunities);
 
-  // Intelligence Coverage Snapshot™ — new in this rebuild
+  // Intelligence Coverage Snapshot™ — unchanged
   var covGrid = document.getElementById('ai-coverage-grid');
   if (covGrid) { covGrid.removeAttribute('data-ai-state'); covGrid.innerHTML = pm.coverageGridHtml; }
+
+  // Executive Memory™ panel
+  var memBody = document.getElementById('ai-memory-body');
+  if (memBody) memBody.innerHTML = pm.memoryBodyHtml;
+  var memToggle = document.getElementById('ai-memory-toggle');
+  var memSection = document.getElementById('ai-memory-section');
+  if (memToggle && memSection) {
+    memToggle.addEventListener('click', function () {
+      var open = memSection.getAttribute('data-open') === 'true';
+      memSection.setAttribute('data-open', open ? 'false' : 'true');
+      memToggle.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+  }
+
+  // Executive Provenance™ (Phase 2 §9) — hidden developer inspection view
+  // only. Never shown to artists. Visible only when ?debug=1 or ?dev=1.
+  try {
+    var _params = new URLSearchParams(window.location.search);
+    if (eio && (_params.get('debug') === '1' || _params.get('dev') === '1')) {
+      var provBar = document.getElementById('ai-provenance-bar');
+      if (provBar) {
+        provBar.style.display = 'block';
+        provBar.textContent = 'EIO schema ' + eio.metadata.schemaVersion
+          + ' · pipeline ' + eio.metadata.pipelineVersion
+          + ' · adapter ' + eio.metadata.adapterVersion
+          + ' · athena ' + eio.metadata.athenaVersion
+          + ' · runtimeContext ' + eio.metadata.runtimeContextVersion
+          + ' · generated ' + eio.metadata.generatedAt;
+      }
+    }
+  } catch (_provErr) { /* dev-only diagnostics -- never block the page */ }
 
 }());
 
@@ -1106,6 +1342,7 @@ window.aiOpenActionDetail = function (el) {
   // already states the consequence of inaction — no separate fabricated
   // section needed. Priority Level replaces it with a real, evidence-
   // backed field (the same severity badge already shown on the card).
+  // Source (ATHENA™ Phase 2 §8) — subtle intelligence-origin indicator.
   var html = '';
   if (detail.whyMatters) {
     html += '<div class="pi-athena-section">'
@@ -1123,6 +1360,12 @@ window.aiOpenActionDetail = function (el) {
     html += '<div class="pi-athena-section">'
       + '<div class="pi-athena-section-label">Priority Level</div>'
       + '<div class="pi-athena-section-body">' + _escDetail(detail.priorityLevel) + '</div>'
+      + '</div>';
+  }
+  if (detail.sourceLabel) {
+    html += '<div class="pi-athena-section">'
+      + '<div class="pi-athena-section-label">Source</div>'
+      + '<div class="pi-athena-section-body">' + _escDetail(detail.sourceKind || '') + ' · ' + _escDetail(detail.sourceLabel) + '</div>'
       + '</div>';
   }
   document.getElementById('ai-action-detail-body').innerHTML = html;
@@ -1149,32 +1392,6 @@ document.addEventListener('keydown', function (e) {
 document.getElementById('ai-action-detail-overlay').addEventListener('click', function (e) {
   if (e.target === this) aiCloseActionDetail();
 });
-
-/* Royaltē AI™ — No-Context Cleanup
- * Runs unconditionally after the wiring IIFE.
- * If the wiring returned early (no session context), the loading containers
- * are still showing. Replace them with a truthful state so artists never see
- * a stuck loading indicator.
- */
-(function () {
-  'use strict';
-  var NO_CTX_GRID =
-    '<div class="ai-intel-empty ai-intel-empty--grid">' +
-    '<div class="ai-intel-empty-body">' +
-    '<div class="ai-intel-empty-title">Intelligence not available</div>' +
-    '<div class="ai-intel-empty-desc">Navigate to Mission Control™ to run a scan and generate your executive intelligence.</div>' +
-    '</div></div>';
-  var NO_CTX_LIST =
-    '<div class="ai-intel-empty">' +
-    '<div class="ai-intel-empty-body">' +
-    '<div class="ai-intel-empty-title">Intelligence not available</div>' +
-    '<div class="ai-intel-empty-desc">Navigate to Mission Control™ to run a scan and generate your executive intelligence.</div>' +
-    '</div></div>';
-  var recGrid  = document.getElementById('ai-rec-grid');
-  var prioList = document.getElementById('ai-priorities-list');
-  if (recGrid  && recGrid.dataset  && recGrid.dataset.aiState  === 'loading') { recGrid.removeAttribute('data-ai-state');  recGrid.innerHTML  = NO_CTX_GRID; }
-  if (prioList && prioList.dataset && prioList.dataset.aiState === 'loading') { prioList.removeAttribute('data-ai-state'); prioList.innerHTML = NO_CTX_LIST; }
-}());
 </script>
 <script src="/js/rds-preview-console.js" defer></script>
 </body>
