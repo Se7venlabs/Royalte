@@ -488,6 +488,40 @@ await testAsync('acquires AVAILABILITY evidence (BIG6 storefronts)', async () =>
   resetTrustConfig();
 });
 
+await testAsync('acquires AVAILABILITY evidence for MULTIPLE albums (Canonical Artist Territory Intelligence, Board Decree 2026-07-25)', async () => {
+  // A storefront carrying ANY one of the requested albums must classify as
+  // AVAILABLE (OR-aggregation) -- verified end-to-end via the real
+  // classifyAppleStorefrontResult() logic, not re-implemented here.
+  const MULTI_ALBUM_FIXTURE = {
+    data: [{ id: '2222222222', type: 'albums', attributes: { name: 'A Different Release' } }],
+  };
+  const routes = { '/catalog/us/albums': { status: 200, body: MULTI_ALBUM_FIXTURE } };
+  const c   = await authenticatedConnector(routes);
+  const req = createEvidenceRequest({
+    subjectRef:   { appleAlbumIds: ['1109714933', '2222222222', '3333333333'] },
+    evidenceType: Capability.AVAILABILITY,
+  });
+  const contract = await c.acquire(req);
+
+  assert.equal(contract.health.state, HealthState.AVAILABLE);
+  assert.deepEqual(contract.payload.albumIds, ['1109714933', '2222222222', '3333333333'],
+    'payload records every requested album id, not just one');
+  assert.ok(Array.isArray(contract.payload.storefronts.us.data), 'us storefront response is an array');
+  assert.equal(contract.payload.storefronts.us.data.length, 1,
+    'us matched exactly one of the three requested albums (2222222222)');
+  resetTrustConfig();
+});
+
+await testAsync('AVAILABILITY still accepts a single appleAlbumId (backward compatibility)', async () => {
+  const routes = { '/catalog/us/albums': { status: 200, body: STOREFRONT_FIXTURE } };
+  const c   = await authenticatedConnector(routes);
+  const req = createEvidenceRequest({ subjectRef: { appleAlbumId: '1109714933' }, evidenceType: Capability.AVAILABILITY });
+  const contract = await c.acquire(req);
+  assert.equal(contract.health.state, HealthState.AVAILABLE);
+  assert.deepEqual(contract.payload.albumIds, ['1109714933'], 'singular appleAlbumId is normalized into a one-element array');
+  resetTrustConfig();
+});
+
 // ── acquire() — missing subjectRef fields ─────────────────────────────────────
 console.log('\n── acquire() — missing subjectRef ─');
 

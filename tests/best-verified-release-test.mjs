@@ -4,6 +4,7 @@
 
 import {
   selectBestVerifiedRelease,
+  selectTopVerifiedReleases,
   BVR_VERIFICATION_WEIGHTS,
   BVR_RELEASE_TYPE_WEIGHTS,
   BVR_ARTWORK_WEIGHT,
@@ -317,6 +318,59 @@ console.log('\n── Output contract ──');
   assert(result.verificationScore >= 0 && result.verificationScore <= 40, 'verificationScore 0–40');
   assert(['Album', 'EP', 'Single'].includes(result.releaseType), 'releaseType is valid enum');
   assert(Object.isFrozen(result), 'output is deeply frozen');
+}
+
+// ── selectTopVerifiedReleases (Canonical Artist Territory Intelligence™, Board Decree 2026-07-25) ──
+
+console.log('\n── selectTopVerifiedReleases: null / empty inputs ──');
+
+assert(Array.isArray(selectTopVerifiedReleases(null, ARTIST_NAME, 5)) && selectTopVerifiedReleases(null, ARTIST_NAME, 5).length === 0,
+  'null albums → empty array, never throws');
+assert(selectTopVerifiedReleases(undefined, ARTIST_NAME, 5).length === 0,
+  'undefined albums → empty array');
+assert(selectTopVerifiedReleases([], ARTIST_NAME, 5).length === 0,
+  'empty albums → empty array');
+assert(selectTopVerifiedReleases([NO_NAME_ALBUM], ARTIST_NAME, 5).length === 0,
+  'only-ineligible album → empty array (never fabricates a candidate)');
+
+console.log('\n── selectTopVerifiedReleases: ranking and shape ──');
+
+{
+  const all = [OLD_ALBUM_NO_ARTWORK, RECENT_EP, FULL_ALBUM, SINGLE];
+  const top = selectTopVerifiedReleases(all, ARTIST_NAME, 5);
+  assert(top.length === 4, 'returns every eligible candidate when n exceeds candidate count');
+  // Same scoring pipeline as selectBestVerifiedRelease — its own winner
+  // (FULL_ALBUM per the existing tests below) must be top[0] here too.
+  const best = selectBestVerifiedRelease(all, ARTIST_NAME);
+  assert(top[0].releaseTitle === best.releaseTitle, 'top-ranked candidate matches selectBestVerifiedRelease\'s own winner (same scoring)');
+  for (let i = 1; i < top.length; i++) {
+    assert(top[i - 1].selectionScore >= top[i].selectionScore, `sorted descending by selectionScore (index ${i})`);
+  }
+  for (const r of top) {
+    assert(typeof r.id === 'string' && r.id.length > 0, 'every entry has a real id');
+    assert(['Album', 'EP', 'Single'].includes(r.releaseType), 'every entry has a valid releaseType');
+    assert(Object.isFrozen(r), 'every entry is frozen');
+  }
+  assert(Object.isFrozen(top), 'the returned array itself is frozen');
+}
+
+console.log('\n── selectTopVerifiedReleases: sample size (n) is honored ──');
+
+{
+  const all = [OLD_ALBUM_NO_ARTWORK, RECENT_EP, FULL_ALBUM, SINGLE];
+  assertEqual(selectTopVerifiedReleases(all, ARTIST_NAME, 2).length, 2, 'n=2 returns exactly 2');
+  assertEqual(selectTopVerifiedReleases(all, ARTIST_NAME, 1).length, 1, 'n=1 returns exactly 1');
+  assertEqual(selectTopVerifiedReleases(all, ARTIST_NAME, 100).length, all.length, 'n larger than candidate pool returns all eligible');
+  assertEqual(selectTopVerifiedReleases(all, ARTIST_NAME).length, all.length, 'default n=5 covers a 4-album pool fully');
+}
+
+console.log('\n── selectTopVerifiedReleases: excludes ineligible candidates from an otherwise-eligible pool ──');
+
+{
+  const withIneligible = [FULL_ALBUM, NO_NAME_ALBUM, RECENT_EP];
+  const top = selectTopVerifiedReleases(withIneligible, ARTIST_NAME, 10);
+  assertEqual(top.length, 2, 'ineligible NO_NAME_ALBUM excluded, only 2 real candidates returned');
+  assert(!top.some(r => r.id === undefined), 'no undefined ids leaked through');
 }
 
 // ── Summary ──────────────────────────────────────────────────────────

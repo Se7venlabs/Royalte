@@ -302,10 +302,26 @@ export class AppleMusicConnector extends ProviderConnector {
 
   // Global Music Footprint™ availability — all 167 storefronts, wave-based fan-out.
   // AVAILABILITY evidence type. EvidenceBridge reads storefronts shape via storefrontIsAvailable().
+  //
+  // Canonical Artist Territory Intelligence™ (Board Decree, 2026-07-25):
+  // accepts subjectRef.appleAlbumIds (array, one or more album ids) instead
+  // of a single id. Apple's catalog album-lookup endpoint accepts a
+  // comma-separated `ids=` list in a single request (the parameter's own
+  // plural naming reflects this) -- so checking N albums costs the SAME
+  // 167 requests as checking one; only the ids= value grows. A storefront
+  // is present in `data` if it carries ANY of the requested albums, which
+  // is exactly the OR-aggregation Territory Intelligence Engine™ already
+  // performs via classifyAppleStorefrontResult()'s `data.length > 0` check
+  // (api/_lib/territory-intelligence.js) -- no Engine change required.
+  // subjectRef.appleAlbumId (singular) is still accepted for backward
+  // compatibility with any caller not yet passing the array form.
   async #fetchGlobalStorefrontAvailability(subjectRef) {
-    if (!subjectRef.appleAlbumId) return this.#missingRef('appleAlbumId');
+    const albumIds = Array.isArray(subjectRef.appleAlbumIds) && subjectRef.appleAlbumIds.length > 0
+      ? subjectRef.appleAlbumIds
+      : (subjectRef.appleAlbumId ? [subjectRef.appleAlbumId] : null);
+    if (!albumIds) return this.#missingRef('appleAlbumId');
 
-    const idsParam = encodeURIComponent(subjectRef.appleAlbumId);
+    const idsParam = encodeURIComponent(albumIds.join(','));
     const byStorefront = {};
 
     for (let i = 0; i < ALL_APPLE_STOREFRONTS.length; i += GLOBAL_SF_WAVE_SIZE) {
@@ -325,7 +341,7 @@ export class AppleMusicConnector extends ProviderConnector {
       }
     }
 
-    const payload = { albumId: subjectRef.appleAlbumId, storefronts: byStorefront };
+    const payload = { albumIds, storefronts: byStorefront };
     return {
       payload,
       rawText:      JSON.stringify(payload),
