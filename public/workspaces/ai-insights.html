@@ -204,8 +204,47 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
+    /* ── ATHENA™ Phase 3B — Historical Intelligence™ ────────────────────── */
+    .ai-history-section { display: flex; flex-direction: column; gap: 12px; }
+    .ai-history-card {
+      border: 1px solid var(--mc-border); border-radius: 12px; background: var(--mc-surface-2);
+      padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .ai-history-card-title { font-size: 12.5px; font-weight: 700; color: var(--mc-text); }
+
+    .ai-history-summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    @media (max-width: 1180px) { .ai-history-summary-grid { grid-template-columns: repeat(2, 1fr); } }
+    .ai-history-stat { text-align: center; padding: 8px 4px; background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.12); border-radius: 8px; }
+    .ai-history-stat-val { font-size: 15px; font-weight: 800; color: var(--mc-silver); line-height: 1.2; }
+    .ai-history-stat-label { font-size: 8px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mc-text-faint); margin-top: 3px; }
+
+    .ai-history-timeline-list { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
+    .ai-history-timeline-item { display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px; color: var(--mc-text-soft); line-height: 1.4; padding: 4px 0; }
+    .ai-history-timeline-date { font-size: 9.5px; color: var(--mc-text-faint); flex-shrink: 0; width: 74px; font-variant-numeric: tabular-nums; }
+
+    .ai-history-trends-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    @media (max-width: 1180px) { .ai-history-trends-grid { grid-template-columns: repeat(2, 1fr); } }
+    .ai-history-trend-tile { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--mc-border); background: var(--mc-surface); }
+    .ai-history-trend-label { font-size: 10.5px; color: var(--mc-text-soft); }
+    .ai-history-trend-badge { font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; border: 1px solid; }
+    .ai-history-trend-badge--improving { color: #4ade80; background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.28); }
+    .ai-history-trend-badge--declining { color: #f87171; background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.28); }
+    .ai-history-trend-badge--stable     { color: #9ca3af; background: rgba(156,163,175,0.1); border-color: rgba(156,163,175,0.28); }
+    .ai-history-trend-badge--emerging   { color: var(--mc-orange); background: rgba(251,146,60,0.1); border-color: rgba(251,146,60,0.28); }
+    .ai-history-trend-badge--resolved   { color: #4ade80; background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.28); }
+
+    .ai-history-comparison-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--mc-border); font-size: 11.5px; }
+    .ai-history-comparison-row:last-child { border-bottom: none; }
+    .ai-history-comparison-label { color: var(--mc-text-muted); }
+    .ai-history-comparison-delta { font-weight: 700; }
+    .ai-history-comparison-delta--up   { color: #f87171; }
+    .ai-history-comparison-delta--down { color: #4ade80; }
+    .ai-history-comparison-delta--flat { color: var(--mc-text-faint); }
+
     @media (max-width: 768px) {
       .ai-ask-suggested { gap: 6px; }
+      .ai-history-summary-grid { grid-template-columns: repeat(2, 1fr); }
+      .ai-history-trends-grid  { grid-template-columns: 1fr; }
     }
   </style>
   <script>
@@ -717,18 +756,88 @@
           </div><!-- /ai-coverage-grid -->
         </div><!-- /ai-coverage-section -->
 
-        <!-- § 7 — EXECUTIVE MEMORY™ (ATHENA™ Phase 2) — new expandable
-             panel per Executive Board Option 3 clarification. Current
-             scope: this scan's monitoring history only. Goals, dismissed
-             actions, and milestones are honestly marked unavailable --
-             no persistent Executive Memory™ store exists yet. -->
-        <div class="ai-memory-section" id="ai-memory-section" data-open="false">
-          <button class="ai-memory-toggle" type="button" id="ai-memory-toggle" aria-expanded="false" aria-controls="ai-memory-body">
-            <span class="ai-section-eyebrow">Executive Memory™</span>
-            <svg class="ai-memory-toggle-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="ai-memory-body" id="ai-memory-body"></div>
-        </div><!-- /ai-memory-section -->
+        <!-- § 7 — HISTORICAL INTELLIGENCE™ (ATHENA™ Phase 3B, Amendment 1)
+             Executive dashboard for "what has changed over time?", living
+             inside AI Insights™ rather than a separate workspace. All five
+             sub-panels read exclusively through the Phase 3A/3B archive
+             services (api/_lib/executive-brief-archive-reader.js and its
+             consumers) -- nothing here computes intelligence, only displays
+             it. Requires an authenticated session (the archive is
+             per-artist); anonymous visitors see an honest sign-in prompt,
+             not an error, and every other section on this page is
+             unaffected. -->
+        <div class="ai-history-section" id="ai-history-section">
+          <div class="ai-section-eyebrow">Historical Intelligence™</div>
+
+          <div id="ai-history-signin-required" class="ai-intel-empty" hidden>
+            <div class="ai-intel-empty-body">
+              <div class="ai-intel-empty-title">Sign in to view your historical intelligence</div>
+              <div class="ai-intel-empty-desc">Historical Intelligence™ is built from your Executive Brief Archive™, which requires an authenticated Royaltē account.</div>
+            </div>
+          </div>
+
+          <div id="ai-history-content" hidden>
+
+            <!-- Executive History Summary™ -->
+            <div class="ai-history-card" id="ai-history-summary-card">
+              <div class="ai-history-card-title">Executive History Summary™</div>
+              <div class="ai-history-summary-grid" id="ai-history-summary-grid" data-ai-state="loading">
+                <div class="ai-intel-loading" style="grid-column:1/-1">
+                  <div class="ai-intel-loading-dots"><span class="ai-intel-loading-dot"></span><span class="ai-intel-loading-dot"></span><span class="ai-intel-loading-dot"></span></div>
+                  <div class="ai-intel-loading-label">Summarizing archive</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Executive Timeline™ -->
+            <div class="ai-history-card" id="ai-history-timeline-card">
+              <div class="ai-history-card-title">Executive Timeline™</div>
+              <div class="ai-history-timeline-list" id="ai-history-timeline-list" data-ai-state="loading">
+                <div class="ai-intel-loading">
+                  <div class="ai-intel-loading-dots"><span class="ai-intel-loading-dot"></span><span class="ai-intel-loading-dot"></span><span class="ai-intel-loading-dot"></span></div>
+                  <div class="ai-intel-loading-label">Building timeline</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Executive Trends™ -->
+            <div class="ai-history-card" id="ai-history-trends-card">
+              <div class="ai-history-card-title">Executive Trends™</div>
+              <div class="ai-history-trends-grid" id="ai-history-trends-grid" data-ai-state="loading">
+                <div class="ai-intel-loading" style="grid-column:1/-1">
+                  <div class="ai-intel-loading-dots"><span class="ai-intel-loading-dot"></span><span class="ai-intel-loading-dot"></span><span class="ai-intel-loading-dot"></span></div>
+                  <div class="ai-intel-loading-label">Detecting trends</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Executive Memory™ — Phase 3B: now reads recurring/resolved
+                 issues across the FULL archive (api/executive-memory.js),
+                 not just the current scan (Phase 2's original scope). Goals,
+                 dismissed actions, and milestones remain honestly
+                 unavailable -- see api/_lib/executive-memory.js header. -->
+            <div class="ai-memory-section" id="ai-memory-section" data-open="false">
+              <button class="ai-memory-toggle" type="button" id="ai-memory-toggle" aria-expanded="false" aria-controls="ai-memory-body">
+                <span class="ai-history-card-title" style="margin:0;">Executive Memory™</span>
+                <svg class="ai-memory-toggle-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="ai-memory-body" id="ai-memory-body"></div>
+            </div><!-- /ai-memory-section -->
+
+            <!-- Executive Comparison™ — defaults to the two most recent
+                 archived briefs (no comparison-picker UI in this pass). -->
+            <div class="ai-history-card" id="ai-history-comparison-card">
+              <div class="ai-history-card-title">Executive Comparison™</div>
+              <div id="ai-history-comparison-body" data-ai-state="loading">
+                <div class="ai-intel-loading">
+                  <div class="ai-intel-loading-dots"><span class="ai-intel-loading-dot"></span><span class="ai-intel-loading-dot"></span><span class="ai-intel-loading-dot"></span></div>
+                  <div class="ai-intel-loading-label">Comparing briefs</div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /ai-history-content -->
+        </div><!-- /ai-history-section -->
 
         <!-- § 10 — ASK ATHENA™ (presentation container only; ATHENA™
              Phase 2, Section 10). No conversational intelligence is
@@ -1076,7 +1185,11 @@
     forecastInfo:          forecastInfo,
     unavailableDomains:    unavailableDomains,
     historicalChanges:     historicalChanges,
-    executiveMemorySummary: eio ? eio.executiveMemorySummary : null,
+    // Executive Memory™ panel itself moved to the Historical Intelligence™
+    // section (Phase 3B, Amendment 1) and now reads the richer cross-scan
+    // /api/executive-memory response instead of this per-scan field -- see
+    // the ai-history-* fetch block below. Intentionally not carried into
+    // presentationModel below.
   };
 
   // ═══════════════════════════════════════════════════════════
@@ -1163,21 +1276,30 @@
     }).join('');
   }
 
-  // Executive Memory™ — current scope only (this scan's monitoring
-  // history). goals/dismissedActions/milestones honestly marked
-  // unavailable — no fabricated memory (Phase 2 §6).
+  // Executive Memory™ (ATHENA™ Phase 3B) — recurring/resolved issues
+  // derived from the FULL archive history (api/executive-memory.js), not
+  // just the current scan. goals/dismissedActions/milestones remain
+  // honestly marked unavailable -- no fabricated memory.
   function renderMemoryBody(mem) {
-    if (!mem) {
-      return '<div class="ai-memory-unavailable">Executive Memory™ is not available for this scan.</div>';
+    if (!mem || mem.available === false) {
+      return '<div class="ai-memory-unavailable">' + esc((mem && mem.reason) || 'Executive Memory™ is not available yet.') + '</div>';
     }
     var html = '';
-    html += '<div class="ai-memory-group-label">This Scan’s Monitoring History</div>';
-    if (Array.isArray(mem.historicalChanges) && mem.historicalChanges.length > 0) {
-      mem.historicalChanges.forEach(function (ev) {
-        html += '<div class="ai-memory-item">' + esc(ev.title || ev.changeType || 'Change detected') + '</div>';
+    html += '<div class="ai-memory-group-label">Recurring Issues</div>';
+    if (Array.isArray(mem.recurringIssues) && mem.recurringIssues.length > 0) {
+      mem.recurringIssues.forEach(function (item) {
+        html += '<div class="ai-memory-item">' + esc(item.title || 'Issue') + (item.label ? ' — ' + esc(item.label) : '') + '</div>';
       });
     } else {
-      html += '<div class="ai-memory-unavailable">No monitoring history recorded for this scan yet.</div>';
+      html += '<div class="ai-memory-unavailable">No recurring issues detected across archived scans.</div>';
+    }
+    html += '<div class="ai-memory-group-label" style="margin-top:6px;">Resolved Since First Detected</div>';
+    if (Array.isArray(mem.resolvedIssues) && mem.resolvedIssues.length > 0) {
+      mem.resolvedIssues.forEach(function (item) {
+        html += '<div class="ai-memory-item">' + esc(item.title || 'Issue') + '</div>';
+      });
+    } else {
+      html += '<div class="ai-memory-unavailable">No resolved issues recorded yet.</div>';
     }
     html += '<div class="ai-memory-group-label" style="margin-top:6px;">Goals</div>';
     html += '<div class="ai-memory-unavailable">' + esc((mem.goals && mem.goals.reason) || 'Not available yet.') + '</div>';
@@ -1238,7 +1360,6 @@
     confidence:          im.confidence,
     changeListHtml:      im.historicalChanges.length > 0 ? renderChangeList(im.historicalChanges) : '<div class="ai-change-item">No previous executive comparison available.</div>',
     showChangeSection:   !!eio,
-    memoryBodyHtml:      renderMemoryBody(im.executiveMemorySummary),
   };
 
   // ═══════════════════════════════════════════════════════════
@@ -1320,9 +1441,8 @@
   var covGrid = document.getElementById('ai-coverage-grid');
   if (covGrid) { covGrid.removeAttribute('data-ai-state'); covGrid.innerHTML = pm.coverageGridHtml; }
 
-  // Executive Memory™ panel
-  var memBody = document.getElementById('ai-memory-body');
-  if (memBody) memBody.innerHTML = pm.memoryBodyHtml;
+  // Executive Memory™ panel toggle (data itself is populated by the
+  // Historical Intelligence™ fetch block below, once authenticated).
   var memToggle = document.getElementById('ai-memory-toggle');
   var memSection = document.getElementById('ai-memory-section');
   if (memToggle && memSection) {
@@ -1332,6 +1452,147 @@
       memToggle.setAttribute('aria-expanded', open ? 'false' : 'true');
     });
   }
+
+  // ── ATHENA™ Phase 3B — Historical Intelligence™ (Amendment 1) ──────────
+  // "What has changed over time?" -- lives inside AI Insights™, not a
+  // separate workspace. Requires authentication (the archive is
+  // per-artist); anonymous visitors see an honest sign-in prompt. Every
+  // sub-panel reads through its own thin, already-tested authenticated
+  // endpoint (api/executive-history-summary.js, executive-timeline.js,
+  // executive-trends.js, executive-memory.js, executive-comparison.js) --
+  // this block only formats and displays what those return.
+  (function () {
+    var signinEl  = document.getElementById('ai-history-signin-required');
+    var contentEl = document.getElementById('ai-history-content');
+    if (!signinEl || !contentEl) return;
+
+    if (!_accessToken) {
+      signinEl.hidden = false;
+      contentEl.hidden = true;
+      return;
+    }
+    signinEl.hidden = true;
+    contentEl.hidden = false;
+
+    var authHeaders = { 'Authorization': 'Bearer ' + _accessToken };
+
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      try { return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
+      catch (_e) { return iso; }
+    }
+
+    function fetchJson(url) {
+      return fetch(url, { headers: authHeaders })
+        .then(function (r) { return r.json().then(function (body) { return { ok: r.ok, status: r.status, body: body }; }); })
+        .catch(function () { return { ok: false, status: 0, body: null }; });
+    }
+
+    function emptyCard(title, desc) {
+      return '<div class="ai-intel-empty ai-intel-empty--grid"><div class="ai-intel-empty-body">'
+        + '<div class="ai-intel-empty-title">' + esc(title) + '</div>'
+        + '<div class="ai-intel-empty-desc">' + esc(desc) + '</div></div></div>';
+    }
+
+    // Executive History Summary™
+    fetchJson('/api/executive-history-summary').then(function (res) {
+      var grid = document.getElementById('ai-history-summary-grid');
+      if (!grid) return;
+      grid.removeAttribute('data-ai-state');
+      var s = res.body;
+      if (!res.ok || !s || !s.available) {
+        grid.innerHTML = emptyCard('No archived history yet', (s && s.reason) || 'Run and save a scan to begin building Executive History™.');
+        return;
+      }
+      function stat(val, label) {
+        return '<div class="ai-history-stat"><div class="ai-history-stat-val">' + esc(val) + '</div><div class="ai-history-stat-label">' + esc(label) + '</div></div>';
+      }
+      grid.innerHTML =
+        stat(s.archivedBriefCount, 'Archived Briefs') +
+        stat(fmtDate(s.firstExecutiveScanAt), 'First Scan') +
+        stat(fmtDate(s.latestExecutiveScanAt), 'Latest Scan') +
+        stat(s.highestRecordedRiskCount, 'Highest Risk Count') +
+        stat(s.lowestRecordedRiskCount, 'Lowest Risk Count') +
+        stat(s.mostImprovedDomain ? s.mostImprovedDomain.label : '—', 'Most Improved Domain') +
+        stat(s.mostVolatileDomain ? s.mostVolatileDomain.label : '—', 'Most Volatile Domain');
+    });
+
+    // Executive Timeline™
+    fetchJson('/api/executive-timeline').then(function (res) {
+      var list = document.getElementById('ai-history-timeline-list');
+      if (!list) return;
+      list.removeAttribute('data-ai-state');
+      var t = res.body;
+      if (!res.ok || !t || !t.available || !t.events.length) {
+        list.innerHTML = emptyCard('No timeline yet', (t && t.reason) || 'Archive more scans to build a timeline.');
+        return;
+      }
+      list.innerHTML = t.events.slice(-30).reverse().map(function (ev) {
+        var label = ev.type === 'monitoring_event' ? ev.title : ('Executive Brief generated — ' + (ev.overallLevel || 'Analyzed'));
+        return '<div class="ai-history-timeline-item"><span class="ai-history-timeline-date">' + esc(fmtDate(ev.date)) + '</span><span>' + esc(label) + '</span></div>';
+      }).join('');
+    });
+
+    // Executive Trends™
+    fetchJson('/api/executive-trends').then(function (res) {
+      var grid = document.getElementById('ai-history-trends-grid');
+      if (!grid) return;
+      grid.removeAttribute('data-ai-state');
+      var tr = res.body;
+      if (!res.ok || !tr || !tr.available || !tr.domains.length) {
+        grid.innerHTML = emptyCard('Not enough history yet', (tr && tr.reason) || 'At least two archived scans are needed to detect a trend.');
+        return;
+      }
+      grid.innerHTML = tr.domains.map(function (d) {
+        return '<div class="ai-history-trend-tile"><span class="ai-history-trend-label">' + esc(d.label) + '</span>'
+          + '<span class="ai-history-trend-badge ai-history-trend-badge--' + esc(d.classification) + '">' + esc(d.classification) + '</span></div>';
+      }).join('');
+    });
+
+    // Executive Memory™ (Phase 3B cross-scan view — see renderMemoryBody above)
+    fetchJson('/api/executive-memory').then(function (res) {
+      var memBody = document.getElementById('ai-memory-body');
+      if (memBody) memBody.innerHTML = renderMemoryBody(res.ok ? res.body : null);
+    });
+
+    // Executive Comparison™ — defaults to the two most recent archived briefs.
+    fetchJson('/api/executive-brief-archive?limit=2').then(function (listRes) {
+      var body = document.getElementById('ai-history-comparison-body');
+      if (!body) return;
+      body.removeAttribute('data-ai-state');
+      var briefs = (listRes.ok && listRes.body && listRes.body.briefs) || [];
+      if (briefs.length < 2) {
+        body.innerHTML = emptyCard('Not enough archived briefs yet', 'At least two archived Executive Briefs are needed to compare.');
+        return;
+      }
+      var ids = briefs.map(function (b) { return b.executive_brief_id; }).join(',');
+      fetchJson('/api/executive-comparison?ids=' + encodeURIComponent(ids)).then(function (cmpRes) {
+        var c = cmpRes.body && cmpRes.body.comparison;
+        if (!cmpRes.ok || !c) {
+          body.innerHTML = emptyCard('Comparison unavailable', 'Could not compare the two most recent Executive Briefs.');
+          return;
+        }
+        function deltaClass(n) { return n > 0 ? 'up' : (n < 0 ? 'down' : 'flat'); }
+        function numRow(label, before, after, delta) {
+          return '<div class="ai-history-comparison-row"><span class="ai-history-comparison-label">' + esc(label) + '</span>'
+            + '<span>' + esc(before) + ' → ' + esc(after) + ' <span class="ai-history-comparison-delta ai-history-comparison-delta--' + deltaClass(delta) + '">(' + (delta > 0 ? '+' : '') + esc(delta) + ')</span></span></div>';
+        }
+        function catRow(label, before, after) {
+          return '<div class="ai-history-comparison-row"><span class="ai-history-comparison-label">' + esc(label) + '</span>'
+            + '<span>' + esc(before || '—') + ' → ' + esc(after || '—') + '</span></div>';
+        }
+        var html = '';
+        html += catRow('Overall Level', c.overallLevelBefore, c.overallLevelAfter);
+        html += numRow('Critical Issues', c.criticalIssueCountBefore, c.criticalIssueCountAfter, c.criticalIssueDelta);
+        html += numRow('Risks', c.riskCountBefore, c.riskCountAfter, c.riskCountDelta);
+        html += numRow('Opportunities', c.opportunityCountBefore, c.opportunityCountAfter, c.opportunityCountDelta);
+        (c.domains || []).forEach(function (d) {
+          if (d.riskDelta !== 0) html += numRow(d.label + ' Risks', d.riskCountBefore, d.riskCountAfter, d.riskDelta);
+        });
+        body.innerHTML = html || emptyCard('No changes detected', 'These two Executive Briefs show no measurable differences.');
+      });
+    });
+  }());
 
   // Executive Provenance™ (Phase 2 §9) — hidden developer inspection view
   // only. Never shown to artists. Visible only when ?debug=1 or ?dev=1.

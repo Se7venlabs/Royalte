@@ -110,6 +110,10 @@
       "dest": "/api/executive-trends.js"
     },
     {
+      "src": "/api/executive-history-summary",
+      "dest": "/api/executive-history-summary.js"
+    },
+    {
       "src": "/api/save-profile-info",
       "dest": "/api/save-profile-info.js"
     },

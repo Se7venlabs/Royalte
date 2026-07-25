@@ -69,6 +69,19 @@ export async function listBriefs(supabase, artistProfileId, { from, to, limit = 
   return data || [];
 }
 
+// Exact total count of archived briefs for this artist, independent of any
+// row-fetch limit. Executive History Summary™ needs this to report a true
+// "Archived Executive Briefs" total even when its domain/min-max analysis
+// window (listBriefs' 100-row cap) is smaller than the artist's full history.
+export async function countBriefs(supabase, artistProfileId) {
+  const { count, error } = await supabase
+    .from(TABLE)
+    .select('id', { count: 'exact', head: true })
+    .eq('artist_profile_id', artistProfileId);
+  if (error) throw error;
+  return count || 0;
+}
+
 // Exactly two briefs, always full (comparison needs the EIO content, not
 // just summary columns). Returns null if either is missing/not owned by the
 // caller — the service layer decides how to surface that (404, etc.), this
