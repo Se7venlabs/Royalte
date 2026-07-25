@@ -11,6 +11,7 @@ import { detectDomainTrends } from '../api/_lib/executive-trend-detection.js';
 import { getExecutiveHistory } from '../api/_lib/executive-history.js';
 import { buildExecutiveTimeline } from '../api/_lib/executive-timeline.js';
 import { buildExecutiveMemory } from '../api/_lib/executive-memory.js';
+import { getExecutiveHistorySummary } from '../api/_lib/executive-history-summary.js';
 
 let passed = 0;
 let failed = 0;
@@ -38,9 +39,13 @@ function makeMockSupabase(rows) {
       let orderCol = null;
       let orderAsc = true;
       let limitN = null;
+      let countMode = false;
 
       const builder = {
-        select() { return builder; },
+        select(_cols, opts) {
+          if (opts && opts.count === 'exact') countMode = true;
+          return builder;
+        },
         eq(col, val) { filters.push(r => r[col] === val); return builder; },
         in(col, vals) { filters.push(r => vals.includes(r[col])); return builder; },
         gte(col, val) { filters.push(r => r[col] >= val); return builder; },
@@ -60,6 +65,10 @@ function makeMockSupabase(rows) {
         },
         then(resolve) {
           let result = rows.filter(r => filters.every(f => f(r)));
+          if (countMode) {
+            resolve({ data: null, count: result.length, error: null });
+            return;
+          }
           if (orderCol) {
             result = [...result].sort((a, b) => {
               if (a[orderCol] === b[orderCol]) return 0;
@@ -335,6 +344,105 @@ await test('buildExecutiveMemory classifies recurring vs. resolved issues correc
   assert.equal(memory.recurringIssues[0].title, 'No PRO');
   assert.equal(memory.resolvedIssues.length, 1);
   assert.equal(memory.resolvedIssues[0].title, 'Low ISRC');
+});
+
+// ─── Executive History Summary™ (Amendment 2) ───────────────────────────
+
+console.log('\n§7 Executive History Summary™');
+
+await test('getExecutiveHistorySummary is honestly unavailable with an empty archive', async () => {
+  const supabase = makeMockSupabase([]);
+  const summary = await getExecutiveHistorySummary(supabase, 'artist-1');
+  assert.equal(summary.available, false);
+  assert.equal(summary.archivedBriefCount, 0);
+});
+
+await test('getExecutiveHistorySummary handles a single archived brief (no improvement/volatility to report)', async () => {
+  const rows = [makeRow({
+    executive_brief_id: 'EB-1', generated_at: '2026-07-01T00:00:00.000Z', risk_count: 5,
+    executive_intelligence_object: { risks: [{ affectedDomain: 'rights', title: 'r1' }] },
+  })];
+  const supabase = makeMockSupabase(rows);
+  const summary = await getExecutiveHistorySummary(supabase, 'artist-1');
+  assert.equal(summary.available, true);
+  assert.equal(summary.archivedBriefCount, 1);
+  assert.equal(summary.analyzedBriefCount, 1);
+  assert.equal(summary.highestRecordedRiskCount, 5);
+  assert.equal(summary.lowestRecordedRiskCount, 5);
+  assert.equal(summary.mostImprovedDomain, null);
+  assert.equal(summary.mostVolatileDomain, null);
+});
+
+await test('getExecutiveHistorySummary computes counts, dates, and min/max across multiple briefs', async () => {
+  const rows = [
+    makeRow({ executive_brief_id: 'EB-1', generated_at: '2026-01-14T00:00:00.000Z', risk_count: 17, executive_intelligence_object: { risks: [] } }),
+    makeRow({ executive_brief_id: 'EB-2', generated_at: '2026-04-01T00:00:00.000Z', risk_count: 10, executive_intelligence_object: { risks: [] } }),
+    makeRow({ executive_brief_id: 'EB-3', generated_at: '2026-07-24T00:00:00.000Z', risk_count: 3, executive_intelligence_object: { risks: [] } }),
+  ];
+  const supabase = makeMockSupabase(rows);
+  const summary = await getExecutiveHistorySummary(supabase, 'artist-1');
+  assert.equal(summary.archivedBriefCount, 3);
+  assert.equal(summary.firstExecutiveScanAt, '2026-01-14T00:00:00.000Z');
+  assert.equal(summary.latestExecutiveScanAt, '2026-07-24T00:00:00.000Z');
+  assert.equal(summary.highestRecordedRiskCount, 17);
+  assert.equal(summary.lowestRecordedRiskCount, 3);
+  assert.equal(summary.windowLimited, false);
+});
+
+await test('getExecutiveHistorySummary identifies the Most Improved Domain by net first-to-last decrease', async () => {
+  const rows = [
+    makeRow({ executive_brief_id: 'EB-1', generated_at: '2026-01-01T00:00:00.000Z',
+      executive_intelligence_object: { risks: [
+        { affectedDomain: 'rights', title: 'r1' }, { affectedDomain: 'rights', title: 'r2' }, { affectedDomain: 'rights', title: 'r3' }, // rights: 3
+        { affectedDomain: 'catalog', title: 'c1' }, // catalog: 1
+      ] } }),
+    makeRow({ executive_brief_id: 'EB-2', generated_at: '2026-07-01T00:00:00.000Z',
+      executive_intelligence_object: { risks: [
+        { affectedDomain: 'catalog', title: 'c1' }, // catalog: still 1 (no change)
+      ] } }), // rights: 0 (improved by 3 -- the biggest mover)
+  ];
+  const supabase = makeMockSupabase(rows);
+  const summary = await getExecutiveHistorySummary(supabase, 'artist-1');
+  assert.equal(summary.mostImprovedDomain.domain, 'rights');
+  assert.equal(summary.mostImprovedDomain.netImprovement, 3);
+});
+
+await test('getExecutiveHistorySummary identifies the Most Volatile Domain by total variation, not just net change', async () => {
+  const rows = [
+    makeRow({ executive_brief_id: 'EB-1', generated_at: '2026-01-01T00:00:00.000Z',
+      executive_intelligence_object: { risks: [{ affectedDomain: 'catalog', title: 'a' }] } }), // catalog: 1
+    makeRow({ executive_brief_id: 'EB-2', generated_at: '2026-03-01T00:00:00.000Z',
+      executive_intelligence_object: { risks: [
+        { affectedDomain: 'catalog', title: 'a' }, { affectedDomain: 'catalog', title: 'b' }, { affectedDomain: 'catalog', title: 'c' }, { affectedDomain: 'catalog', title: 'd' },
+      ] } }), // catalog: 4 (spiked)
+    makeRow({ executive_brief_id: 'EB-3', generated_at: '2026-07-01T00:00:00.000Z',
+      executive_intelligence_object: { risks: [{ affectedDomain: 'catalog', title: 'a' }] } }), // catalog: 1 (back down -- net change is 0, but real movement happened)
+  ];
+  const supabase = makeMockSupabase(rows);
+  const summary = await getExecutiveHistorySummary(supabase, 'artist-1');
+  // Net improvement is 0 (started and ended at 1), so catalog must NOT be
+  // reported as "most improved" -- but it swung 1->4->1, a real total
+  // variation of 6, so it must be reported as volatile.
+  assert.equal(summary.mostImprovedDomain, null);
+  assert.equal(summary.mostVolatileDomain.domain, 'catalog');
+  assert.equal(summary.mostVolatileDomain.totalVariation, 6);
+});
+
+await test('getExecutiveHistorySummary reports windowLimited honestly when true history exceeds the analysis window', async () => {
+  const rows = [];
+  for (let i = 0; i < 150; i++) {
+    rows.push(makeRow({
+      executive_brief_id: `EB-${i}`,
+      generated_at: new Date(2026, 0, 1 + i).toISOString(),
+      risk_count: 1,
+      executive_intelligence_object: { risks: [] },
+    }));
+  }
+  const supabase = makeMockSupabase(rows);
+  const summary = await getExecutiveHistorySummary(supabase, 'artist-1');
+  assert.equal(summary.archivedBriefCount, 150);
+  assert.equal(summary.analyzedBriefCount, 100); // ANALYSIS_WINDOW_LIMIT
+  assert.equal(summary.windowLimited, true);
 });
 
 // ─── Summary ─────────────────────────────────────────────────────────────
