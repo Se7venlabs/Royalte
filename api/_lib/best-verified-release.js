@@ -273,6 +273,60 @@ export function debugScoreReport(albums, artistName) {
   };
 }
 
+// ── Canonical Artist Territory Intelligence™ sample selection ─────────
+//
+// selectTopVerifiedReleases(albums, artistName, n)
+//
+// Board directive (Global Music Footprint™ Artist-Level Territory
+// Intelligence, 2026-07-25): Best Verified Release™'s existing, Board-
+// locked scoring is reused here strictly as an EVIDENCE-RANKING
+// optimization for choosing which releases to sample for artist-level
+// territory availability — it does not define artist availability itself
+// (that is an OR-aggregation over the sample, computed downstream in
+// AppleMusicConnector#fetchGlobalStorefrontAvailability / Territory
+// Intelligence Engine™, both unchanged by this addition). No scoring
+// weight was changed to build this function — it reuses scoreAlbum()/
+// compareScored() exactly as selectBestVerifiedRelease() does, just
+// returning the top N instead of the top 1.
+//
+// Returns a deep-frozen array of up to n { id, releaseTitle, releaseType,
+// selectionScore } entries, sorted by selectionScore descending (same
+// tiebreaker order as selectBestVerifiedRelease). Empty array when no
+// eligible releases exist — never throws, never fabricates a release.
+//
+export function selectTopVerifiedReleases(albums, artistName, n = 5) {
+  try {
+    if (!Array.isArray(albums) || albums.length === 0) return Object.freeze([]);
+
+    const currentYear = new Date().getFullYear();
+    const scored = albums
+      .map((a) => scoreAlbum(a, currentYear))
+      .filter(Boolean);
+
+    if (scored.length === 0) return Object.freeze([]);
+
+    scored.sort(compareScored);
+    const limit = Math.max(1, Math.min(typeof n === 'number' && n > 0 ? n : 5, scored.length));
+
+    const top = scored.slice(0, limit)
+      .map((s) => {
+        const id = typeof s.album.id === 'string' && s.album.id ? s.album.id : null;
+        if (!id) return null; // territory checks require a real album id
+        return Object.freeze({
+          id,
+          releaseTitle:   typeof s.album.name === 'string' ? s.album.name.trim() : '',
+          releaseType:    s.releaseType,
+          selectionScore: s.selectionScore,
+        });
+      })
+      .filter(Boolean);
+
+    return Object.freeze(top);
+  } catch (err) {
+    return Object.freeze([]);
+  }
+}
+
 // ── Public entrypoint ─────────────────────────────────────────────────
 //
 // selectBestVerifiedRelease(albums, artistName)

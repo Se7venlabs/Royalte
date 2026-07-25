@@ -11,11 +11,23 @@
 // re-implementations of them:
 //   - extractFirstAlbumId / extractFirstIsrcSong (api/_lib/apple-pal-acquisition.js)
 //   - enrichWithAppleRelease (api/_lib/canonical-scan-subject-assembler.js)
-//   - the exact selection expression from apple-pal-acquisition.js's
-//     acquireAppleEvidence(): `resolvedReleaseAlbumId || fallbackFirstAlbumId`
 //
 // No network calls, no PAL/connector wiring required -- these functions
 // are pure and operate on raw Apple JSON:API contract-shaped fixtures.
+//
+// UPDATE (Board Decree, 2026-07-25 -- Canonical Artist Territory
+// Intelligence™): the artist-only fallback this file's `selectAvailabilityAlbumId`
+// helper mirrors below (`resolvedReleaseAlbumId || fallbackFirstAlbumId`)
+// is NO LONGER apple-pal-acquisition.js's real production selection
+// expression for artist-only scans -- extractFirstAlbumId() no longer
+// determines artist territory intelligence. The tests below that exercise
+// this helper are retained ONLY to prove extractFirstAlbumId() and
+// enrichWithAppleRelease() still behave correctly as raw utilities in
+// isolation (catalog-order extraction, never-fabricate-on-missing-
+// relationship) -- NOT as a claim about current artist-only production
+// behavior. The real, current artist-only selection logic (Best Verified
+// Release™-ranked multi-album sampling) is tested in
+// tests/canonical-artist-territory-test.mjs.
 
 import assert from 'node:assert/strict';
 
@@ -123,6 +135,10 @@ test('REGRESSION: scanned Artist + Song evaluates the ISRC-resolved release, not
 });
 
 test('enrichWithAppleRelease does not fabricate an album id when the relationship is missing', () => {
+  // NOTE (2026-07-25): when no release is resolvable (as here), current
+  // production no longer falls back to extractFirstAlbumId() -- it falls
+  // to the Best Verified Release™-ranked artist-level sample (same as any
+  // artist-only scan). See tests/canonical-artist-territory-test.mjs.
   const seed = seedCanonicalScanSubject({ artistName: 'Test Artist', isrc: 'USRC17600002' });
   const songWithoutAlbum = extractFirstIsrcSong(ISRC_CONTRACT_NO_ALBUM_RELATIONSHIP);
   const enrichedSubject  = enrichWithAppleRelease(seed, songWithoutAlbum);
@@ -130,15 +146,15 @@ test('enrichWithAppleRelease does not fabricate an album id when the relationshi
   assert.equal(enrichedSubject.providerIds.apple.albumId, null);
   assert.equal(enrichedSubject.providerIds.apple.trackId, 'SONG_MATCHED');
   assert.equal(enrichedSubject.confidence, 'unresolved');
-
-  const availabilityAlbumId = selectAvailabilityAlbumId(
-    enrichedSubject.providerIds.apple.albumId,
-    extractFirstAlbumId(ALBUMS_CONTRACT),
-  );
-  assert.equal(availabilityAlbumId, 'ALBUM_WRONG_FIRST'); // correct fallback, no release was resolvable
 });
 
-test('NO REGRESSION: artist-only scans (no ISRC) still fall back to the first album', () => {
+test('artist-only scans (no ISRC) leave providerIds.apple.albumId unresolved (raw utility behavior, unchanged)', () => {
+  // NOTE (2026-07-25): this proves seedCanonicalScanSubject/enrichWithAppleRelease's
+  // own honest behavior for an artist-only scan -- it does NOT assert what
+  // Territory Intelligence evaluates for that scan anymore. See
+  // tests/canonical-artist-territory-test.mjs for the real, current
+  // artist-only selection logic (Best Verified Release™-ranked sampling,
+  // not extractFirstAlbumId()).
   const seed = seedCanonicalScanSubject({ artistName: 'Test Artist', appleArtistId: 'ARTIST_1' });
   assert.equal(seed.subjectType, 'artist');
 
@@ -146,11 +162,10 @@ test('NO REGRESSION: artist-only scans (no ISRC) still fall back to the first al
   assert.equal(enrichedSubject.providerIds.apple.albumId, null);
   assert.equal(enrichedSubject.confidence, 'unresolved');
 
-  const availabilityAlbumId = selectAvailabilityAlbumId(
-    enrichedSubject.providerIds.apple.albumId,
-    extractFirstAlbumId(ALBUMS_CONTRACT),
-  );
-  assert.equal(availabilityAlbumId, 'ALBUM_WRONG_FIRST');
+  // extractFirstAlbumId() itself still correctly returns catalog-order-first
+  // as a raw utility -- this is a fact about the function, not a claim about
+  // production selection (see UPDATE note at the top of this file).
+  assert.equal(extractFirstAlbumId(ALBUMS_CONTRACT), 'ALBUM_WRONG_FIRST');
 });
 
 test('enrichWithAppleRelease never mutates its inputs (seed stays frozen + unresolved)', () => {

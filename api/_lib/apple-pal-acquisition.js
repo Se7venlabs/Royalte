@@ -21,6 +21,14 @@ import { createEvidenceRequest }      from '../../provider-acquisition/evidence/
 import { Capability }                 from '../../provider-acquisition/capability/capabilityVocabulary.js';
 import { bridgeToCanonical }          from '../../lib/rie/EvidenceBridge.js';
 import { enrichWithAppleRelease }     from './canonical-scan-subject-assembler.js';
+import { selectTopVerifiedReleases }  from './best-verified-release.js';
+
+// Canonical Artist Territory Intelligence™ (Board Decree, 2026-07-25) --
+// the number of Best Verified Release™-ranked albums sampled for an
+// artist-only scan's territory availability check. Named, Board-auditable
+// constant, matching the existing pattern of GLOBAL_SF_WAVE_SIZE /
+// STATUS_THRESHOLDS / BVR_* weights. Change only through formal Board Review.
+export const TERRITORY_SAMPLE_SIZE = 5;
 
 // ── Env config ───────────────────────────────────────────────────────────────
 function getPalConfig() {
@@ -61,6 +69,34 @@ export function extractFirstAlbumId(contract) {
   if (!Array.isArray(data)) return null;
   const album = data.find(n => n?.type === 'albums');
   return album?.id ?? null;
+}
+
+// ── Album candidates extraction — flat objects for Best Verified Release™
+//    ranking (Canonical Artist Territory Intelligence™, Board Decree
+//    2026-07-25) ──────────────────────────────────────────────────────────
+// Mirrors lib/rie/EvidenceBridge.js's translateAlbums() field mapping
+// (id/name/releaseDate/trackCount/artwork/upc) verbatim. Duplicated
+// deliberately as a small, stable JSON:API extraction (not business logic)
+// rather than importing EvidenceBridge's private helper -- matches this
+// file's existing pattern of owning its own small raw-payload extractors
+// (extractFirstAlbumId, extractFirstIsrcSong), and EvidenceBridge operates
+// one layer downstream (post-acquisition canonical translation), not here.
+// Exported for regression testing, matching extractFirstAlbumId's convention.
+export function extractAlbumCandidates(contract) {
+  const data = contract?.payload?.data;
+  if (!Array.isArray(data)) return [];
+  return data
+    .filter(n => n?.type === 'albums')
+    .map(n => ({
+      id:          typeof n.id === 'string' ? n.id : null,
+      name:        n.attributes?.name         ?? null,
+      releaseDate: n.attributes?.releaseDate  ?? null,
+      trackCount:  n.attributes?.trackCount   ?? 0,
+      artwork:     n.attributes?.artwork?.url ?? null,
+      url:         n.attributes?.url          ?? null,
+      upc:         n.attributes?.upc          ?? null,
+    }))
+    .filter(a => a.id); // territory checks require a real album id
 }
 
 // extractFirstIsrcSong: returns the matched Apple Song resource from a
@@ -184,16 +220,40 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
     const resolvedReleaseAlbumId = enrichedScanSubject.providerIds.apple.albumId;
 
     // ── C: AVAILABILITY — global 167-storefront check ────────────────────
-    // Canonical Scan Subject™ correction: use the resolved release's album
-    // ID when known. extractFirstAlbumId() is retained ONLY as an explicit,
-    // documented fallback for artist-only scans (no ISRC was resolved, so
-    // there is no specific release to evaluate) -- it must never override a
-    // resolved release.
-    const fallbackFirstAlbumId = albumsReport ? extractFirstAlbumId(albumsReport.contract) : null;
-    const availabilityAlbumId  = resolvedReleaseAlbumId || fallbackFirstAlbumId;
-    if (availabilityAlbumId) {
+    //
+    // Canonical Artist Territory Intelligence™ (Board Decree, 2026-07-25):
+    // the scan entry point determines the intelligence scope.
+    //
+    //   Song/Release-scoped scan (resolvedReleaseAlbumId known) -- unchanged
+    //   single-release evaluation, exactly as before this decree.
+    //
+    //   Artist-only scan (no ISRC resolved) -- evaluates a Board-approved,
+    //   evidence-ranked SAMPLE of the artist's catalog (Best Verified
+    //   Release™ scoring, reused strictly as an evidence-ranking
+    //   optimization -- see best-verified-release.js's
+    //   selectTopVerifiedReleases() header). extractFirstAlbumId() no
+    //   longer determines artist territory intelligence (Board directive)
+    //   -- it remains exported only for the raw-utility regression tests
+    //   that exercise it in isolation.
+    //
+    //   If BVR scoring finds zero eligible releases (malformed/empty album
+    //   metadata -- rare), availabilityAlbumIds is empty and NO
+    //   AVAILABILITY evidence package is added at all: Territory
+    //   Intelligence Engine™ then honestly reports NOT_EVALUATED for every
+    //   territory, rather than reintroducing a fabricated single-album
+    //   guess. Never invents evidence where none can be honestly derived.
+    let availabilityAlbumIds;
+    if (resolvedReleaseAlbumId) {
+      availabilityAlbumIds = [resolvedReleaseAlbumId];
+    } else {
+      const albumCandidates = albumsReport ? extractAlbumCandidates(albumsReport.contract) : [];
+      const ranked = selectTopVerifiedReleases(albumCandidates, enrichedSubjectRef.artistName, TERRITORY_SAMPLE_SIZE);
+      availabilityAlbumIds = ranked.map(r => r.id);
+    }
+
+    if (availabilityAlbumIds.length > 0) {
       const availReport = await pal.acquire(APPLE_PROVIDER, createEvidenceRequest({
-        subjectRef:   { ...enrichedSubjectRef, appleAlbumId: availabilityAlbumId },
+        subjectRef:   { ...enrichedSubjectRef, appleAlbumIds: availabilityAlbumIds },
         evidenceType: Capability.AVAILABILITY,
       }));
       evidencePackages.push({ evidenceType: Capability.AVAILABILITY, contract: availReport.contract });
