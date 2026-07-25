@@ -30,11 +30,11 @@ Prior versions are **not** preserved as separate files; their substance lives in
 
 | | |
 |---|---|
-| Most recently completed phase | **ATHENA™ Phase 3A — Executive Brief Archive™ (operationally complete)** |
-| Merged at | `8272342` (PR #423, 2026-07-24); migration applied + validated same day, see `governance/ATHENA_PHASE3A_EXECUTIVE_BRIEF_ARCHIVE_ARCHITECTURE.md` §13 |
-| Active direction | **Executive Intelligence Layer™ is live** (Phase 1+2, `ee58da9`/PR #421) **with a live, validated persistence layer** (Phase 3A) beneath it. `executive_brief_archive` exists on the production Supabase project, RLS-verified with real cross-user isolation. Phase 3B (Executive History™/Timeline™/Memory™ persistence/Cross-Scan Trend Intelligence™/Comparison™ — all readers over the archive via `api/executive-brief-archive.js`) is authorized to begin; no duplicate history stores or alternate persistence mechanisms. |
-| Next Board gate | None required to begin Phase 3B implementation (standing authorization). |
-| Prior phase | Mission Control™ v2.0 Sprint 9 — Mission Control Data API™ (`4047311`, PR #318, 2026-07-12) |
+| Most recently completed phase | **ATHENA™ Phase 3B — Executive History™, Timeline™, Memory™, Comparison™** |
+| Merged at | `f78ce31` (PR #426, 2026-07-25) |
+| Active direction | **Executive Intelligence Layer™ (Phase 1+2) now has a live persistence layer (Phase 3A) AND the first cross-scan reasoning built on it (Phase 3B).** Five services — Executive History™, Timeline™, Memory™ (foundation), Comparison™, Trend Detection, plus Executive History Summary™ (Amendment 2) — all read through one shared archive data-access layer (`api/_lib/executive-brief-archive-reader.js`); zero new persistence. AI Insights™ gained a new authenticated-gated "Historical Intelligence™" section (Amendment 1). Two disclosed, permanent scope boundaries: Executive Comparison™ never fabricates a composite health score (would duplicate the real Health Engine™); Executive Memory™'s Goals/Dismissed/Milestones stay honestly unavailable until a future writable-store decision. Phase 3C (Ask ATHENA™) and Phase 3D (Executive Forecasting™) remain separately-scoped, each needing its own architecture decision (LLM provider/cost for 3C; forecasting methodology for 3D) before implementation. |
+| Next Board gate | Phase 3C or Phase 3D architecture brief required before either begins. |
+| Prior phase | ATHENA™ Phase 3A — Executive Brief Archive™ (`8272342`, PR #423, 2026-07-24; operationally validated same day) |
 
 **⚠ ACTIVE INITIATIVE — Mission Control™ Data Integrity Program™ (2026-07-11)**  
 Black Alternative is the **Canonical Development Artist™**. Every workspace must accurately represent Black Alternative's verified scan results before any new module development begins.  

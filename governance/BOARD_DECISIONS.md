@@ -11,6 +11,21 @@ Entries are listed **newest first** for ease of catching up; chronological order
 
 ## Decision Log
 
+### 2026-07-25 — ATHENA™ Phase 3B — Executive History™, Timeline™, Memory™, Comparison™ — RATIFIED, MERGED
+
+| | |
+|---|---|
+| **Date** | 2026-07-25 |
+| **Decision** | ATHENA™ Phase 3B (Executive History™, Executive Timeline™, Executive Memory™ foundation, Executive Comparison™, Cross-Scan Trend Intelligence™, plus Board Amendment 2's Executive History Summary™ and Amendment 1's AI Insights™ "Historical Intelligence™" integration) is ratified and merged. |
+| **Reason** | Builds exclusively on the Phase 3A Executive Brief Archive™ through one shared, already-tested data-access layer — no new persistence, no duplicate archive-reading logic across the five capabilities, per the Board's explicit instruction. Two amendments were required and completed before merge: Executive History Summary™ (live aggregation, no caching) and AI Insights™ integration (a new authenticated-gated "Historical Intelligence™" section, consolidating rather than duplicating the existing Executive Memory™ panel). |
+| **Impact** | Royaltē's Executive Intelligence Layer™ now has both a persistent record (Phase 3A) and the first cross-scan reasoning built on it (Phase 3B) — trend detection, comparison, and recurring-issue memory. Two disclosed, deliberate scope boundaries carried forward: Executive Comparison™ never fabricates a composite health score (would duplicate the real Health Engine™), and Executive Memory™'s Goals/Dismissed Recommendations/Milestones remain honestly unavailable pending a future writable-store decision, explicitly out of this phase's scope. Live authenticated rendering of the new Historical Intelligence™ section against real archive data was not independently browser-verified before merge (a disclosed tooling/credential-boundary limitation, not an architectural gap) — the Board authorized merge on the strength of 19 new unit tests, production evidence of the underlying page mechanics, and CI/Preview green rather than delaying for that check. |
+| **Vote** | Board Approved |
+| **PR Number** | #426 |
+| **Commit SHA** | `f78ce31` |
+| **Constitution update required** | No |
+
+---
+
 ### 2026-07-24 — ATHENA™ Phase 3A — Operationally Complete (supersedes the "migration pending" entry below)
 
 | | |

@@ -19,6 +19,22 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-25 — ATHENA™ Phase 3B — Executive History™, Timeline™, Memory™, Comparison™ (PR #426)
+
+| | |
+|---|---|
+| **Date** | 2026-07-25 |
+| **PR Number** | #426 |
+| **Commit SHA** | `f78ce31` |
+| **Added** | `api/_lib/executive-brief-archive-reader.js` (shared archive data-access layer, refactored out of Phase 3A's read endpoint). `api/_lib/executive-history.js`, `executive-timeline.js`, `executive-memory.js`, `executive-comparison.js`, `executive-trend-detection.js`, `executive-history-summary.js`, `executive-domain-labels.js` — the five Phase 3B services plus Executive History Summary™ (Board Amendment 2). New authenticated endpoints `api/executive-timeline.js`, `executive-comparison.js`, `executive-memory.js`, `executive-trends.js`, `executive-history-summary.js`. New "Historical Intelligence™" section in `public/workspaces/ai-insights.html` (Board Amendment 1) — five sub-panels (Summary/Timeline/Trends/Memory/Comparison), authenticated-session-gated with an honest sign-in prompt for anonymous visitors. `tests/executive-phase3b-services-test.mjs` (19 tests). `governance/ATHENA_PHASE3B_HISTORY_TIMELINE_MEMORY_COMPARISON.md`. |
+| **Changed** | `api/executive-brief-archive.js` refactored to a thin wrapper over the shared reader (same HTTP contract, unaffected). `ai-insights.html`'s Executive Memory™ panel (Phase 2) relocated into the new Historical Intelligence™ section and upgraded to read the Phase 3B cross-scan `/api/executive-memory` response (recurring/resolved issues across full archive history) instead of current-scan-only data — consolidated, not duplicated. `vercel.json` — 5 new routes. |
+| **Removed** | none |
+| **Constitution Version** | v1.3 (Board Amendment) |
+
+Zero new persistence — Phase 3B is a consumer of the Phase 3A archive only, confirmed by the absence of any new migration in this PR. Two methodology decisions were deliberate and are documented in the governance note: Executive Comparison™ never invents a synthetic composite "Executive Health" score (no such field exists anywhere in the Executive Intelligence Object; one would duplicate the real Health Engine™), and Executive Memory™'s Goals/Dismissed Recommendations/Milestones remain honestly `available: false` (they require artist-authored data and a new writable store, out of this phase's "consumer, not a producer of new persistence" scope) while Recurring/Resolved Issues — genuinely derivable from archive history — are implemented for real.
+
+---
+
 ## 2026-07-24 — ATHENA™ Phase 3A — Executive Brief Archive™ (PR #423)
 
 | | |
