@@ -19,6 +19,22 @@ The Phase 1 probe iterations (PRs #123, #124, #125) are listed individually beca
 
 ---
 
+## 2026-07-26 — Global Music Footprint™ — Canonical Artist Territory Intelligence™ (PR #428)
+
+| | |
+|---|---|
+| **Date** | 2026-07-26 |
+| **PR Number** | #428 |
+| **Commit SHA** | `1e7ed72` |
+| **Added** | `api/_lib/apple-pal-acquisition.js`: `extractAlbumCandidates()`, `TERRITORY_SAMPLE_SIZE = 5`. `api/_lib/best-verified-release.js`: `selectTopVerifiedReleases(albums, artistName, n)`. `tests/canonical-artist-territory-test.mjs` (12 tests — regression proof against a synthetic Prince-shaped fixture, calls the real `assembleTerritoryIntelligence()` directly, plus methodology-metadata and failure-state coverage). `governance/GLOBAL_MUSIC_FOOTPRINT_PRINCE_TERRITORY_REGRESSION_INVESTIGATION.md`, `GLOBAL_MUSIC_FOOTPRINT_ARTIST_LEVEL_TERRITORY_DESIGN_BRIEF.md`, `GLOBAL_MUSIC_FOOTPRINT_CANONICAL_ARTIST_TERRITORY_INTELLIGENCE_IMPLEMENTATION.md`, `GLOBAL_MUSIC_FOOTPRINT_PRE_MERGE_VALIDATION_REPORT.md`. |
+| **Changed** | `api/_lib/apple-pal-acquisition.js`: artist-only scans' AVAILABILITY selection rewired from `extractFirstAlbumId()` (single arbitrary album) to `selectTopVerifiedReleases()` (Best Verified Release™-ranked sample, up to 5); constructs and attaches a `territoryMethodology` object (`evaluationScope`/`sampleSize`/`catalogReleaseCount`/`selectionMethod`/`isCompleteCatalogEvaluation`) explicitly classifying the sample as a bounded approximation, not complete-catalog truth. Song/release-scoped scans (`resolvedReleaseAlbumId` known) unchanged. `provider-acquisition/connectors/apple-music/AppleMusicConnector.js`: `#fetchGlobalStorefrontAvailability()` accepts `subjectRef.appleAlbumIds` (array), batches multiple ids into one comma-separated `ids=` request per storefront (same 167-request count as before), carries `territoryMethodology` through verbatim into its payload; singular `appleAlbumId` still accepted for backward compatibility. `api/_lib/territory-intelligence.js`: new additive `evaluationMethodology` field on `assembleTerritoryIntelligence()`'s output, sourced from the evidence package, no reconciliation-logic change (`TERRITORY_INTELLIGENCE_VERSION` 1.1.0 → 1.2.0). `tests/canonical-scan-subject-test.mjs`: 2 stale assertions that locally re-implemented the old `resolvedReleaseAlbumId \|\| fallbackFirstAlbumId` selection expression corrected in place to stop describing now-false production behavior (the still-true raw-utility and Song-scan assertions were left untouched). `provider-acquisition/connectors/apple-music/__tests__/AppleMusicConnector.test.js`, `tests/best-verified-release-test.mjs`: new tests for the above. |
+| **Removed** | `extractFirstAlbumId()` is no longer called from the artist-only production path (still exported, still exercised in isolation by its original regression test). |
+| **Constitution Version** | v1.3 (no amendment required) |
+
+`extractFirstAlbumId()`'s catalog-order-first selection — traced via git history to commit `584770d` (2026-07-02), predating the Territory Intelligence Engine by five weeks — was architecture drift, not a deliberate design decision; this PR closes the gap between Global Music Footprint™'s always-artist-level positioning and its previous single-release-under-the-hood implementation. Territory Intelligence Engine™, Runtime Context, and Mission Control received zero changes, proven (not just claimed) by `tests/canonical-artist-territory-test.mjs` calling the real, unmodified `assembleTerritoryIntelligence()` directly against a merged multi-album evidence package. Live verification against the PR #428 Preview deployment (real Apple + Spotify credentials) confirmed Apple's `ids=` batch parameter, OR-match semantics, and silent-omission of invalid ids; live regression scans of Prince, Dua Lipa, Ada Lea, and Fela Kuti returned 91–94% territory coverage, resolving the reported Prince regression (was ~1%). Full validation detail, including all six Board-named failure-state scenarios, in `GLOBAL_MUSIC_FOOTPRINT_PRE_MERGE_VALIDATION_REPORT.md`.
+
+---
+
 ## 2026-07-25 — ATHENA™ Phase 3B — Executive History™, Timeline™, Memory™, Comparison™ (PR #426)
 
 | | |
