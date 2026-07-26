@@ -1,6 +1,7 @@
 # Global Music Footprint™ — Canonical Artist Territory Intelligence™ — Implementation Report
 
 **Status:** Implemented, tested, not yet merged. Per Board Decree (2026-07-25).
+**Update (2026-07-26):** §5's and §8's "not yet live-verified" caveats are superseded — live Apple batch verification and live 4-artist regression were completed against the PR #428 Preview deployment. See `GLOBAL_MUSIC_FOOTPRINT_PRE_MERGE_VALIDATION_REPORT.md` for full results, plus the new `territoryMethodology`/`evaluationMethodology` scope-transparency fields added in that same pass.
 **Supersedes:** single-album Artist Scan territory evaluation.
 **Depends on:** `GLOBAL_MUSIC_FOOTPRINT_PRINCE_TERRITORY_REGRESSION_INVESTIGATION.md` (root cause), `GLOBAL_MUSIC_FOOTPRINT_ARTIST_LEVEL_TERRITORY_DESIGN_BRIEF.md` (approved design).
 

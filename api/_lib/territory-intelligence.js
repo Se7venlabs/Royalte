@@ -39,7 +39,9 @@ import { ALL_APPLE_STOREFRONTS, getCountryName, normalizeStorefrontCode }
   from '../../lib/territory/canonical-territory-vocabulary.js';
 import { Capability } from '../../provider-acquisition/capability/capabilityVocabulary.js';
 
-export const TERRITORY_INTELLIGENCE_VERSION = '1.1.0';
+// 1.2.0 (2026-07-25): additive `evaluationMethodology` field (Board
+// Pre-Merge Validation Directive, Part 2) — no reconciliation change.
+export const TERRITORY_INTELLIGENCE_VERSION = '1.2.0';
 
 const APPLE_PROVIDER = 'apple_music';
 
@@ -116,6 +118,22 @@ function extractAppleObservations(evidencePackages) {
     });
   }
   return { observations, acquisitionFailed: false, acquiredAt };
+}
+
+// Territory Evaluation Methodology™ (Board Pre-Merge Validation Directive,
+// Part 2, 2026-07-25) — reads the methodology metadata the acquisition
+// layer attached to the AVAILABILITY evidence package (see
+// apple-pal-acquisition.js / AppleMusicConnector.js) and surfaces it
+// verbatim on the Engine's output. Purely additive: does not participate
+// in reconciliation, does not change any territory's state. Absent
+// (returns null) for evidence packages acquired before this field existed,
+// or if no AVAILABILITY/TERRITORIES package is present at all.
+function extractTerritoryMethodology(evidencePackages) {
+  if (!Array.isArray(evidencePackages)) return null;
+  const pkg = evidencePackages.find(
+    p => p?.evidenceType === Capability.AVAILABILITY || p?.evidenceType === Capability.TERRITORIES
+  );
+  return pkg?.contract?.payload?.territoryMethodology ?? null;
 }
 
 // ── Provider-general reconciliation policy (Board Decision 2, verbatim) ──────
@@ -218,6 +236,7 @@ export function assembleTerritoryIntelligence(evidencePackages) {
       generatedAt: new Date().toISOString(),
       totalTerritoriesEvaluated: territories.length,
       providersContributing: acquisitionFailed || !appleObservations ? [] : [APPLE_PROVIDER],
+      evaluationMethodology: extractTerritoryMethodology(evidencePackages),
       summary,
       territories,
     });
@@ -228,6 +247,7 @@ export function assembleTerritoryIntelligence(evidencePackages) {
       generatedAt: new Date().toISOString(),
       totalTerritoriesEvaluated: 0,
       providersContributing: [],
+      evaluationMethodology: null,
       summary: { available: 0, unavailable: 0, unknown: 0, notEvaluated: 0, error: 0 },
       territories: [],
     });

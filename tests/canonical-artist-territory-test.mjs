@@ -18,7 +18,7 @@
 
 import assert from 'node:assert/strict';
 
-import { extractAlbumCandidates } from '../api/_lib/apple-pal-acquisition.js';
+import { extractAlbumCandidates, TERRITORY_SAMPLE_SIZE } from '../api/_lib/apple-pal-acquisition.js';
 import { selectTopVerifiedReleases } from '../api/_lib/best-verified-release.js';
 import { assembleTerritoryIntelligence, TerritoryState } from '../api/_lib/territory-intelligence.js';
 import { Capability } from '../provider-acquisition/capability/capabilityVocabulary.js';
@@ -165,6 +165,97 @@ test('Engine (real, unmodified): storefronts absent from the acquisition respons
   const report = assembleTerritoryIntelligence(evidencePackages);
   const gb = report.territories.find(t => t.code === 'gb'); // never appeared in the payload at all
   assert.equal(gb.state, TerritoryState.NOT_EVALUATED, 'a code absent from the response is honestly NOT_EVALUATED, not collapsed into Missing');
+});
+
+// ── Territory Evaluation Methodology™ — Board Pre-Merge Validation, Part 2 ────
+
+test('Engine surfaces evaluationMethodology verbatim from the AVAILABILITY package (artist_sample)', () => {
+  const evidencePackages = [{
+    evidenceType: Capability.AVAILABILITY,
+    contract: {
+      acquiredAt: '2026-07-25T00:00:00.000Z',
+      health: { state: 'AVAILABLE' },
+      payload: {
+        albumIds: ['ALBUM_FLAGSHIP'],
+        storefronts: { us: { data: [{ id: 'ALBUM_FLAGSHIP', type: 'albums' }] } },
+        territoryMethodology: {
+          evaluationScope: 'artist_sample',
+          sampleSize: 5,
+          catalogReleaseCount: 37,
+          selectionMethod: 'best_verified_release',
+          isCompleteCatalogEvaluation: false,
+        },
+      },
+    },
+  }];
+  const report = assembleTerritoryIntelligence(evidencePackages);
+  assert.deepEqual(report.evaluationMethodology, {
+    evaluationScope: 'artist_sample',
+    sampleSize: 5,
+    catalogReleaseCount: 37,
+    selectionMethod: 'best_verified_release',
+    isCompleteCatalogEvaluation: false,
+  });
+});
+
+test('Engine reports evaluationMethodology as null when the evidence package predates this field', () => {
+  const evidencePackages = [{
+    evidenceType: Capability.AVAILABILITY,
+    contract: {
+      acquiredAt: '2026-07-25T00:00:00.000Z',
+      health: { state: 'AVAILABLE' },
+      payload: { albumIds: ['ALBUM_FLAGSHIP'], storefronts: {} }, // no territoryMethodology key
+    },
+  }];
+  const report = assembleTerritoryIntelligence(evidencePackages);
+  assert.equal(report.evaluationMethodology, null);
+});
+
+test('Engine reports evaluationMethodology as null when no AVAILABILITY package exists at all', () => {
+  const report = assembleTerritoryIntelligence([]);
+  assert.equal(report.evaluationMethodology, null);
+});
+
+// ── Failure-State Validation — Board Pre-Merge Validation, Part 4 ────────────
+
+test('selectTopVerifiedReleases(n=5) on a catalog with FEWER than 5 eligible releases returns all of them, not padded/fabricated', () => {
+  const twoAlbumCandidates = extractAlbumCandidates({
+    payload: { data: [
+      { id: 'ALBUM_A', type: 'albums', attributes: { name: 'Only Release One', trackCount: 8 } },
+      { id: 'ALBUM_B', type: 'albums', attributes: { name: 'Only Release Two', trackCount: 6 } },
+    ] },
+  });
+  const ranked = selectTopVerifiedReleases(twoAlbumCandidates, 'Small Catalog Artist', TERRITORY_SAMPLE_SIZE);
+  assert.equal(ranked.length, 2, 'sample size is a ceiling, not a floor -- never pads with fabricated candidates');
+  // This is exactly the case where isCompleteCatalogEvaluation should be
+  // TRUE in apple-pal-acquisition.js's methodology object: ranked.length
+  // (2) >= albumCandidates.length (2), because the sample IS the whole
+  // eligible catalog. See §3 of the implementation report.
+  assert.ok(ranked.length >= twoAlbumCandidates.length);
+});
+
+test('Engine (real, unmodified): a rate-limited storefront reconciles to ERROR, never fabricated into UNAVAILABLE', () => {
+  // Mirrors exactly what AppleMusicConnector#fetchGlobalStorefrontAvailability
+  // writes for a storefront whose request exhausted retries against a 429 --
+  // byStorefront[sf] = { error: result.healthState } (healthState: 'RATE_LIMITED').
+  const evidencePackages = [{
+    evidenceType: Capability.AVAILABILITY,
+    contract: {
+      acquiredAt: '2026-07-25T00:00:00.000Z',
+      health: { state: 'AVAILABLE' },
+      payload: {
+        albumIds: ['ALBUM_FLAGSHIP'],
+        storefronts: {
+          us: { data: [{ id: 'ALBUM_FLAGSHIP', type: 'albums' }] },
+          br: { error: 'RATE_LIMITED' },
+        },
+      },
+    },
+  }];
+  const report = assembleTerritoryIntelligence(evidencePackages);
+  const br = report.territories.find(t => t.code === 'br');
+  assert.equal(br.state, TerritoryState.ERROR, 'a rate-limited storefront is an honest ERROR, not a fabricated UNAVAILABLE');
+  assert.notEqual(br.state, TerritoryState.UNAVAILABLE);
 });
 
 console.log(`\n${passed} passed, ${failed} failed`);

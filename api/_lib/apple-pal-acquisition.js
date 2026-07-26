@@ -242,18 +242,41 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
     //   Intelligence Engine™ then honestly reports NOT_EVALUATED for every
     //   territory, rather than reintroducing a fabricated single-album
     //   guess. Never invents evidence where none can be honestly derived.
+    // Territory Evaluation Methodology™ (Board Pre-Merge Validation Directive,
+    // Part 2, 2026-07-25): the 5-release sample is a BOUNDED APPROXIMATION,
+    // not the final canonical methodology -- explicitly classified per the
+    // Board's requirement, not silently presented as complete-catalog truth.
+    // Carried through the evidence package itself (not just the UI) so
+    // Royaltē never loses this transparency, even if no surface currently
+    // renders it. isCompleteCatalogEvaluation is true only when the sample
+    // genuinely covers every eligible candidate (small catalogs).
     let availabilityAlbumIds;
+    let territoryMethodology;
     if (resolvedReleaseAlbumId) {
       availabilityAlbumIds = [resolvedReleaseAlbumId];
+      territoryMethodology = Object.freeze({
+        evaluationScope:            'release_specific',
+        sampleSize:                 1,
+        catalogReleaseCount:        null,
+        selectionMethod:            'isrc_resolved_release',
+        isCompleteCatalogEvaluation: null,
+      });
     } else {
       const albumCandidates = albumsReport ? extractAlbumCandidates(albumsReport.contract) : [];
       const ranked = selectTopVerifiedReleases(albumCandidates, enrichedSubjectRef.artistName, TERRITORY_SAMPLE_SIZE);
       availabilityAlbumIds = ranked.map(r => r.id);
+      territoryMethodology = Object.freeze({
+        evaluationScope:            'artist_sample',
+        sampleSize:                 ranked.length,
+        catalogReleaseCount:        albumCandidates.length,
+        selectionMethod:            'best_verified_release',
+        isCompleteCatalogEvaluation: albumCandidates.length > 0 && ranked.length >= albumCandidates.length,
+      });
     }
 
     if (availabilityAlbumIds.length > 0) {
       const availReport = await pal.acquire(APPLE_PROVIDER, createEvidenceRequest({
-        subjectRef:   { ...enrichedSubjectRef, appleAlbumIds: availabilityAlbumIds },
+        subjectRef:   { ...enrichedSubjectRef, appleAlbumIds: availabilityAlbumIds, territoryMethodology },
         evidenceType: Capability.AVAILABILITY,
       }));
       evidencePackages.push({ evidenceType: Capability.AVAILABILITY, contract: availReport.contract });
