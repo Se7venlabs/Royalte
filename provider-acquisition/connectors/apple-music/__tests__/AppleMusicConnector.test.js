@@ -522,6 +522,32 @@ await testAsync('AVAILABILITY still accepts a single appleAlbumId (backward comp
   resetTrustConfig();
 });
 
+await testAsync('AVAILABILITY carries subjectRef.territoryMethodology through verbatim (Board Pre-Merge Validation, Part 2)', async () => {
+  const routes = { '/catalog/us/albums': { status: 200, body: STOREFRONT_FIXTURE } };
+  const c   = await authenticatedConnector(routes);
+  const methodology = {
+    evaluationScope: 'artist_sample', sampleSize: 5, catalogReleaseCount: 12,
+    selectionMethod: 'best_verified_release', isCompleteCatalogEvaluation: false,
+  };
+  const req = createEvidenceRequest({
+    subjectRef:   { appleAlbumIds: ['1109714933'], territoryMethodology: methodology },
+    evidenceType: Capability.AVAILABILITY,
+  });
+  const contract = await c.acquire(req);
+  assert.deepEqual(contract.payload.territoryMethodology, methodology,
+    'the connector does not compute methodology -- it only carries through what it was told');
+  resetTrustConfig();
+});
+
+await testAsync('AVAILABILITY omits territoryMethodology when the caller did not supply it (backward compatibility)', async () => {
+  const routes = { '/catalog/us/albums': { status: 200, body: STOREFRONT_FIXTURE } };
+  const c   = await authenticatedConnector(routes);
+  const req = createEvidenceRequest({ subjectRef: { appleAlbumId: '1109714933' }, evidenceType: Capability.AVAILABILITY });
+  const contract = await c.acquire(req);
+  assert.ok(!('territoryMethodology' in contract.payload), 'no fabricated methodology key when none was provided');
+  resetTrustConfig();
+});
+
 // ── acquire() — missing subjectRef fields ─────────────────────────────────────
 console.log('\n── acquire() — missing subjectRef ─');
 

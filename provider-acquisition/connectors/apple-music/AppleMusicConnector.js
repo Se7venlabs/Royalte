@@ -341,7 +341,16 @@ export class AppleMusicConnector extends ProviderConnector {
       }
     }
 
-    const payload = { albumIds, storefronts: byStorefront };
+    // Territory Evaluation Methodology™ (Board Pre-Merge Validation
+    // Directive, Part 2, 2026-07-25): carried through verbatim from
+    // subjectRef, never computed here -- the connector acquires evidence
+    // only, it does not decide or interpret methodology. Absent when the
+    // caller didn't supply it (backward compatibility).
+    const payload = {
+      albumIds,
+      storefronts: byStorefront,
+      ...(subjectRef.territoryMethodology ? { territoryMethodology: subjectRef.territoryMethodology } : {}),
+    };
     return {
       payload,
       rawText:      JSON.stringify(payload),
