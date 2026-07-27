@@ -358,6 +358,15 @@ function applyRecommendationsPlan(plan) {
 
 function applyFootprintPlan(plan) {
   if (!plan) return;
+  // FORENSIC TRACE — TEMPORARY, Board Directive 2026-07-27, remove after investigation.
+  if (localStorage.getItem('ROYALTE_FORENSIC_TRACE') === '1') {
+    console.log('==============================');
+    console.log('PARALLEL SURFACE: Mission Control Hero Tile (mission-control.js#applyFootprintPlan)');
+    console.log('==============================');
+    console.log('Input (plan.territoriesAvailable):', plan.territoriesAvailable);
+    console.log('Output (DOM text about to be written): "' + plan.territoriesAvailable + ' Markets"');
+    console.log('Code Location: public/js/mission-control.js#applyFootprintPlan');
+  }
   const countEl = document.querySelector('.mc-globe-territories-count');
   if (countEl) countEl.dataset.mcFootprintTerritories = String(plan.territoriesAvailable);
   const heroStatusText = document.getElementById('mc-global-hn-status-text');
@@ -1488,6 +1497,18 @@ if (typeof window !== 'undefined') {
         }
       );
       sessionStorage.setItem('royalte_workspace_context', JSON.stringify(workspaceContext));
+
+      // FORENSIC TRACE — TEMPORARY, Board Directive 2026-07-27, remove after investigation.
+      if (localStorage.getItem('ROYALTE_FORENSIC_TRACE') === '1') {
+        const gf = workspaceContext.globalFootprint;
+        console.log('==============================');
+        console.log('STAGE: 6 - Mission Control (__mcPopulate, mission-control.js) -- sessionStorage.royalte_workspace_context write');
+        console.log('==============================');
+        console.log('Input (payload.cim.globalFootprint.territoriesAvailable):', payload && payload.cim && payload.cim.globalFootprint ? payload.cim.globalFootprint.territoriesAvailable : 'n/a');
+        console.log('Output Count (workspaceContext.globalFootprint.territoriesAvailable):', gf ? gf.territoriesAvailable : 'null');
+        console.log('Sample Record:', JSON.stringify(gf));
+        console.log('Code Location: public/js/mission-control.js __mcPopulate (sessionStorage write)');
+      }
     } catch (_e) {
       console.error('[mc-diag] buildWorkspaceRuntimeContext threw — royalte_workspace_context NOT written:', _e?.message || _e);
     }
