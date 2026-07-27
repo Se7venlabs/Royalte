@@ -277,13 +277,14 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, globalFoot
         reachNarrative,
         confidence,
         distributionGaps: buildDistributionGaps(territoryIntelligence),
-        // Freshness Certification™ (Board Phase 1, IC-1, 2026-07-27):
-        // carried through verbatim so Mission Control can detect a
-        // persisted scan whose territory evaluation predates the current
-        // engine version, or is simply old, and say so -- rather than
-        // silently presenting it as current. Neither field is computed
-        // here; both come straight from the Territory Intelligence
-        // Engine's own output.
+        // Freshness Certification™ (Board Phase 1, IC-1, 2026-07-27; Board
+        // Addendum, 2026-07-27): the Territory Intelligence Engine™
+        // certifies this data -- that certification (its version and
+        // generation timestamp) is carried through verbatim, never
+        // recomputed. Mission Control evaluates that certification
+        // against the current version (see api/canonical-versions.js,
+        // the single source of truth) and informs the user -- it does
+        // not, and must not, define or determine freshness itself.
         territoryEngineVersion: territoryIntelligence._version ?? null,
         territoryGeneratedAt:   territoryIntelligence.generatedAt ?? null,
       });

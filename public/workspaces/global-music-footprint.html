@@ -737,27 +737,45 @@
   var updatedEl = document.getElementById('gf2-updated-value');
   if (updatedEl) updatedEl.textContent = fmtRelative(ctx.generatedAt || ctx.scannedAt);
 
-  /* ── Freshness Certification™ (Board Phase 1, IC-1, 2026-07-27) ──────
+  /* ── Freshness Certification™ (Board Phase 1, IC-1, 2026-07-27; Board
+     Addendum, 2026-07-27) ─────────────────────────────────────────────
      Mission Control shall never silently present obsolete territory
-     intelligence as current. No build step in this codebase -- this
-     constant is a static JS literal, same convention as every other
-     versioned constant here (matches api/_lib/territory-intelligence.js's
-     TERRITORY_INTELLIGENCE_VERSION; update both together). ────────────── */
-  var CURRENT_TERRITORY_ENGINE_VERSION = '1.2.0';
+     intelligence as current -- and shall never define its own engine
+     version. Territory Intelligence Engine™ certifies the data (via
+     territoryEngineVersion/territoryGeneratedAt, already carried through
+     unmodified from the Engine's own output). Mission Control evaluates
+     that certification against the CURRENT version -- fetched from
+     /api/canonical-versions, the single source of truth re-exporting
+     api/_lib/territory-intelligence.js's own TERRITORY_INTELLIGENCE_VERSION
+     constant -- and informs the user. No version is computed, guessed,
+     or duplicated here. ─────────────────────────────────────────────── */
   var STALE_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days -- storefront catalogs change over time independent of code changes
   (function () {
     var badge = document.getElementById('gf2-stale-badge');
     if (!badge) return;
-    var versionMismatch = gf.territoryEngineVersion != null && gf.territoryEngineVersion !== CURRENT_TERRITORY_ENGINE_VERSION;
-    var generatedAtMs = gf.territoryGeneratedAt ? new Date(gf.territoryGeneratedAt).getTime() : NaN;
-    var tooOld = !isNaN(generatedAtMs) && (Date.now() - generatedAtMs) > STALE_AGE_MS;
-    // No engine metadata at all (a scan persisted before this field existed)
-    // is itself honestly unverifiable freshness -- treat as stale rather
-    // than silently assuming it's current.
-    var noMetadata = gf.territoryEngineVersion == null && gf.territoryGeneratedAt == null;
-    if (versionMismatch || tooOld || noMetadata) {
-      badge.classList.add('gf2-stale-badge--visible');
+
+    function evaluateFreshness(currentEngineVersion) {
+      var versionMismatch = currentEngineVersion != null
+        && gf.territoryEngineVersion != null
+        && gf.territoryEngineVersion !== currentEngineVersion;
+      var generatedAtMs = gf.territoryGeneratedAt ? new Date(gf.territoryGeneratedAt).getTime() : NaN;
+      var tooOld = !isNaN(generatedAtMs) && (Date.now() - generatedAtMs) > STALE_AGE_MS;
+      // No engine metadata at all (a scan persisted before this field existed)
+      // is itself honestly unverifiable freshness -- treat as stale rather
+      // than silently assuming it's current.
+      var noMetadata = gf.territoryEngineVersion == null && gf.territoryGeneratedAt == null;
+      if (versionMismatch || tooOld || noMetadata) {
+        badge.classList.add('gf2-stale-badge--visible');
+      }
     }
+
+    fetch('/api/canonical-versions')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (v) { evaluateFreshness(v && v.territoryIntelligence); })
+      // Never block the rest of the page on this -- if the version
+      // source is unreachable, fall back to age/no-metadata checks only,
+      // never fabricate a version to compare against.
+      .catch(function () { evaluateFreshness(null); });
   })();
 
   /* ── KPI: Global Reach™ (real) ───────────────────────────────────────
