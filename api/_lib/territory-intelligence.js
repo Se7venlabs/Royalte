@@ -231,6 +231,18 @@ export function assembleTerritoryIntelligence(evidencePackages) {
       error:        territories.filter(t => t.state === TerritoryState.ERROR).length,
     };
 
+    // FORENSIC TRACE — TEMPORARY, Board Directive 2026-07-27, remove after investigation.
+    if (process.env.FORENSIC_TRACE === '1') {
+      console.log('==============================');
+      console.log('STAGE: 4 - Canonical Resolution (territory-intelligence.js#assembleTerritoryIntelligence)');
+      console.log('==============================');
+      console.log('Input Count (evidencePackages):', Array.isArray(evidencePackages) ? evidencePackages.length : 'n/a');
+      console.log('Output Count (summary.available):', summary.available);
+      console.log('Sample Records:', territories.filter(t => t.state === TerritoryState.AVAILABLE).slice(0, 10).map(t => t.code));
+      console.log('Full summary:', JSON.stringify(summary));
+      console.log('Code Location: api/_lib/territory-intelligence.js#assembleTerritoryIntelligence');
+    }
+
     return deepFreeze({
       _version: TERRITORY_INTELLIGENCE_VERSION,
       generatedAt: new Date().toISOString(),

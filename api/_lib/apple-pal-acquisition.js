@@ -300,6 +300,26 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
         evidenceType: Capability.AVAILABILITY,
       }));
       evidencePackages.push({ evidenceType: Capability.AVAILABILITY, contract: availReport.contract });
+
+      // FORENSIC TRACE — TEMPORARY, Board Directive 2026-07-27, remove after investigation.
+      if (process.env.FORENSIC_TRACE === '1') {
+        const sf = availReport.contract?.payload?.storefronts || {};
+        const availCodes = Object.keys(sf).filter(c => Array.isArray(sf[c]?.data) && sf[c].data.length > 0);
+        console.log('==============================');
+        console.log('STAGE: 2 - Acquisition Layer (apple-pal-acquisition.js#acquireAppleEvidence)');
+        console.log('==============================');
+        console.log('Input Count (availabilityAlbumIds selected):', availabilityAlbumIds.length);
+        console.log('Output Count (storefronts with data.length>0 in returned contract):', availCodes.length);
+        console.log('Sample Records:', availCodes.slice(0, 10));
+        console.log('Code Location: api/_lib/apple-pal-acquisition.js#acquireAppleEvidence');
+        console.log('territoryMethodology:', JSON.stringify(territoryMethodology));
+      }
+    } else if (process.env.FORENSIC_TRACE === '1') {
+      console.log('==============================');
+      console.log('STAGE: 2 - Acquisition Layer (apple-pal-acquisition.js#acquireAppleEvidence)');
+      console.log('==============================');
+      console.log('Input Count (availabilityAlbumIds selected): 0 -- NO AVAILABILITY EVIDENCE PACKAGE PUSHED');
+      console.log('Output Count: 0 (no evidence package)');
     }
 
     return { evidencePackages, acquired: true, elapsedMs: Date.now() - startMs, canonicalScanSubject: enrichedScanSubject };

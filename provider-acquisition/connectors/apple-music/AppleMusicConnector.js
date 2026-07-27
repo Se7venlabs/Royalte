@@ -346,6 +346,19 @@ export class AppleMusicConnector extends ProviderConnector {
     // subjectRef, never computed here -- the connector acquires evidence
     // only, it does not decide or interpret methodology. Absent when the
     // caller didn't supply it (backward compatibility).
+    // FORENSIC TRACE — TEMPORARY, Board Directive 2026-07-27, remove after investigation.
+    if (process.env.FORENSIC_TRACE === '1') {
+      const availCodes = Object.keys(byStorefront).filter(sf => Array.isArray(byStorefront[sf]?.data) && byStorefront[sf].data.length > 0);
+      console.log('==============================');
+      console.log('STAGE: 1 - Apple API Response (AppleMusicConnector#fetchGlobalStorefrontAvailability)');
+      console.log('==============================');
+      console.log('Input Count (album ids requested):', albumIds.length);
+      console.log('Storefronts Checked:', Object.keys(byStorefront).length);
+      console.log('Output Count (storefronts with data.length>0):', availCodes.length);
+      console.log('Sample Records:', availCodes.slice(0, 10));
+      console.log('Code Location: provider-acquisition/connectors/apple-music/AppleMusicConnector.js#fetchGlobalStorefrontAvailability');
+    }
+
     const payload = {
       albumIds,
       storefronts: byStorefront,

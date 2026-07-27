@@ -786,6 +786,16 @@
   var territories = dg ? dg.territories : [];
   var territoriesEvaluated = typeof gf.territoriesEvaluated === 'number' ? gf.territoriesEvaluated : null;
 
+  // FORENSIC TRACE — TEMPORARY, Board Directive 2026-07-27, remove after investigation.
+  if (localStorage.getItem('ROYALTE_FORENSIC_TRACE') === '1') {
+    console.log('==============================');
+    console.log('STAGE: 7 - Browser Payload (global-music-footprint.html, sessionStorage.royalte_workspace_context read)');
+    console.log('==============================');
+    console.log('Input/Output Count (ctx.globalFootprint.territoriesAvailable, as read from sessionStorage right now):', gf.territoriesAvailable);
+    console.log('Sample Record (ctx.globalFootprint):', JSON.stringify(gf));
+    console.log('Code Location: public/workspaces/global-music-footprint.html, main IIFE, immediately after ctx read');
+  }
+
   function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
   function fmtDate(iso) {
     if (!iso) return 'Not yet assessed';
@@ -877,6 +887,16 @@
   document.getElementById('gf2-reach-bar').style.width = (gf.coveragePercent || 0) + '%';
   document.getElementById('gf2-reach-pct').textContent = (gf.coveragePercent != null ? gf.coveragePercent : 0) + '%';
   document.getElementById('gf2-reach-caption').textContent = REACH_LABEL[gf.status] || gf.status || '—';
+
+  // FORENSIC TRACE — TEMPORARY, Board Directive 2026-07-27, remove after investigation.
+  if (localStorage.getItem('ROYALTE_FORENSIC_TRACE') === '1') {
+    console.log('==============================');
+    console.log('STAGE: 8 - UI Rendering (global-music-footprint.html, #gf2-reach-num DOM write)');
+    console.log('==============================');
+    console.log('Input Count (gf.territoriesAvailable):', gf.territoriesAvailable);
+    console.log('Output (actual DOM textContent written):', document.getElementById('gf2-reach-num').textContent);
+    console.log('Code Location: public/workspaces/global-music-footprint.html, Global Reach KPI render block');
+  }
 
   /* ── KPI: Missing Markets™ (real) ─────────────────────────────────── */
   var missingCount = dg ? dg.unavailable : (gf.territoriesUnavailable || 0);

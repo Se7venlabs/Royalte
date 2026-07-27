@@ -109,7 +109,7 @@
     var ebRaw = _r(payload.executiveBrief, can.executiveBrief) || null;
     var ds  = derivedState || {};
 
-    return {
+    var _ctx = {
       schemaVersion:          '1.1',
       scanId:                 payload.scanId                                                      || null,
       generatedAt:            new Date().toISOString(),
@@ -177,6 +177,20 @@
       metrics:                _r(payload.metrics,                can.metrics)                     || null,
       catalog:                _r(payload.catalog,                can.catalog)                     || null,
     };
+
+    // FORENSIC TRACE — TEMPORARY, Board Directive 2026-07-27, remove after investigation.
+    if (typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('ROYALTE_FORENSIC_TRACE') === '1') {
+      var gf = _ctx.globalFootprint;
+      console.log('==============================');
+      console.log('STAGE: 5 - Runtime Context Builder (runtime-context-mapper.js#buildWorkspaceRuntimeContext)');
+      console.log('==============================');
+      console.log('Input (payload.cim.globalFootprint.territoriesAvailable):', payload.cim && payload.cim.globalFootprint ? payload.cim.globalFootprint.territoriesAvailable : 'n/a (checking can.cim fallback)', can.cim && can.cim.globalFootprint ? can.cim.globalFootprint.territoriesAvailable : '');
+      console.log('Output Count (ctx.globalFootprint.territoriesAvailable):', gf ? gf.territoriesAvailable : 'null');
+      console.log('Sample Record (ctx.globalFootprint):', JSON.stringify(gf));
+      console.log('Code Location: public/js/runtime-context-mapper.js#buildWorkspaceRuntimeContext');
+    }
+
+    return _ctx;
   }
 
   // Browser: expose as global
