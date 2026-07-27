@@ -47,6 +47,12 @@
   var OUT_OF_SCOPE_FILL   = '#1c2230';
   var OUT_OF_SCOPE_STROKE = 'rgba(255,255,255,0.04)';
 
+  var TRACE_CODE = 'ca';
+  function traceOn() {
+    return typeof window !== 'undefined' && window.localStorage &&
+      window.localStorage.getItem('ROYALTE_FORENSIC_TRACE') === '1';
+  }
+
   function buildLoadingState() {
     return '<div class="gmc-loading" role="status">Loading territory map…</div>';
   }
@@ -96,6 +102,16 @@
         el.classList.add('gmc-territory');
         el.dataset.code = code;
 
+        if (code === TRACE_CODE && traceOn()) {
+          console.log('==============================');
+          console.log('MAP STAGE 1: Raw territory object received by map for "' + code + '"');
+          console.log('==============================');
+          console.log('SVG element:', el.tagName, 'id=' + el.getAttribute('id'));
+          console.log('territoryByCode["' + code + '"] found:', !!t);
+          console.log('Raw territory object (t):', JSON.stringify(t));
+          console.log('Code Location: public/js/global-map-choropleth.js#initGlobalMapChoropleth (groups.forEach)');
+        }
+
         // Set fill/stroke as direct inline style properties (not CSS custom
         // properties) -- inline style always wins the cascade regardless of
         // DOM injection order, which a var()-based approach did not
@@ -112,6 +128,18 @@
           // evidence source's scope. Rendered as inert background.
           el.style.fill = OUT_OF_SCOPE_FILL;
           el.style.stroke = OUT_OF_SCOPE_STROKE;
+        }
+
+        if (code === TRACE_CODE && traceOn()) {
+          console.log('==============================');
+          console.log('MAP STAGE 2: Fill-color resolution for "' + code + '"');
+          console.log('==============================');
+          console.log('Branch taken:', t ? 'evaluated (t truthy)' : 'out-of-scope (t falsy)');
+          console.log('t.status used for STATE_COLOR lookup:', t ? t.status : 'n/a');
+          console.log('STATE_COLOR[t.status]:', t ? STATE_COLOR[t.status] : 'n/a');
+          console.log('el.dataset.status (as written to DOM):', el.dataset.status);
+          console.log('el.style.fill (as actually applied to DOM):', el.style.fill);
+          console.log('Code Location: public/js/global-map-choropleth.js#initGlobalMapChoropleth (groups.forEach, if(t) branch)');
         }
 
         if (t) {
@@ -153,6 +181,15 @@
 
       svgEl.addEventListener('click', function (e) {
         var match = resolveTerritoryTarget(e.target);
+        if (match && match.el.dataset.code === TRACE_CODE && traceOn()) {
+          console.log('==============================');
+          console.log('MAP STAGE 3: Click event resolution for "' + TRACE_CODE + '"');
+          console.log('==============================');
+          console.log('e.target (actual clicked element):', e.target.tagName, 'id=' + e.target.getAttribute('id'));
+          console.log('Resolved ancestor-or-self element:', match.el.tagName, 'id=' + match.el.getAttribute('id'));
+          console.log('Exact object bound to click event (match.t):', JSON.stringify(match.t));
+          console.log('Code Location: public/js/global-map-choropleth.js#initGlobalMapChoropleth (svgEl click listener / resolveTerritoryTarget)');
+        }
         if (match) selectCountry(match.el, match.t);
       });
 
@@ -182,6 +219,14 @@
         if (selectedEl) selectedEl.classList.remove('gmc-territory--selected');
         selectedEl = el;
         el.classList.add('gmc-territory--selected');
+        if (el.dataset.code === TRACE_CODE && traceOn()) {
+          console.log('==============================');
+          console.log('MAP STAGE 4: State used when side panel opens for "' + TRACE_CODE + '"');
+          console.log('==============================');
+          console.log('t passed to onCountrySelect (-> showCountryPanel):', JSON.stringify(t));
+          console.log('t.status (drives panel status dot/text):', t.status);
+          console.log('Code Location: public/js/global-map-choropleth.js#initGlobalMapChoropleth (selectCountry)');
+        }
         if (typeof options.onCountrySelect === 'function') options.onCountrySelect(t);
       }
 
