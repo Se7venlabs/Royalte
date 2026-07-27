@@ -205,12 +205,48 @@
 
 .gf2-timeline-onboarding { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; color: var(--mc-text-muted); font-size: 11.5px; padding: 10px 0; }
 .gf2-timeline-onboarding-icon { color: var(--mc-blue); opacity: 0.7; margin-bottom: 4px; }
-.gf2-timeline-fact { font-size: 11px; color: var(--mc-text-soft, var(--mc-text)); margin-top: 8px; }
 
 .gf2-athena-body { display: flex; gap: 12px; align-items: flex-start; }
 .gf2-athena-icon { width: 30px; height: 30px; border-radius: 8px; background: rgba(56,189,248,0.1); color: var(--mc-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .gf2-athena-icon svg { width: 15px; height: 15px; }
 .gf2-athena-text { font-size: 12px; line-height: 1.55; color: var(--mc-text-soft, var(--mc-text)); }
+
+/* Territory Change Intelligence™ — primary, full-width (Board V1.0 Completion) */
+.gf2-changes-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; }
+.gf2-changes-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.gf2-changes-col-title { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+.gf2-changes-col-title--added { color: #34d399; }
+.gf2-changes-col-title--removed { color: #f87171; }
+.gf2-changes-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 12.5px; color: var(--mc-text-soft, var(--mc-text)); }
+.gf2-changes-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.gf2-changes-dot--added { background: #34d399; }
+.gf2-changes-dot--removed { background: #f87171; }
+.gf2-changes-empty { font-size: 12px; color: var(--mc-text-muted); padding: 4px 0; }
+.gf2-changes-onboarding { font-size: 12px; color: var(--mc-text-muted); padding: 8px 0; text-align: center; }
+@media (max-width: 640px) { .gf2-changes-cols { grid-template-columns: 1fr; gap: 14px; } }
+
+/* Territory Alerts™ — secondary aggregate summary */
+.gf2-alerts-headline { font-size: 15px; font-weight: 700; color: var(--mc-text); margin-bottom: 4px; }
+.gf2-alerts-headline--expanded { color: #34d399; }
+.gf2-alerts-headline--reduced { color: #f87171; }
+.gf2-alerts-detail { font-size: 12px; color: var(--mc-text-muted); }
+
+/* Monitoring Intelligence™ — one executive card, four fields only */
+.gf2-monitor-field { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px; }
+.gf2-monitor-field:last-of-type { border-bottom: none; }
+.gf2-monitor-label { color: var(--mc-text-muted); }
+.gf2-monitor-val { color: var(--mc-text-soft, var(--mc-text)); text-align: right; }
+
+/* Global Trend Timeline™ — plain signal, no chart */
+.gf2-trend-signal { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.gf2-trend-signal--growing { color: #34d399; }
+.gf2-trend-signal--declining { color: #f87171; }
+.gf2-trend-signal--stable { color: var(--mc-text-soft, var(--mc-text)); }
+.gf2-trend-detail { font-size: 11.5px; color: var(--mc-text-muted); line-height: 1.5; }
+
+/* Row for Territory Alerts™ + Monitoring Intelligence™ (secondary, 2-col) */
+.gf2-secondary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+@media (max-width: 640px) { .gf2-secondary-row { grid-template-columns: 1fr; } }
 
 /* Recommended Actions row */
 .gf2-actions-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 18px 20px; }
@@ -242,7 +278,7 @@
   .gf2-bottom-row { grid-template-columns: 1fr; }
   .gf2-actions-grid { grid-template-columns: 1fr; }
   .gf2-header { flex-direction: column; }
-  .gf2-header-right { width: 100%; justify-content: space-between; }
+  .gf2-header-right { width: 100%; justify-content: space-between; flex-wrap: wrap; row-gap: 10px; }
   .gf2-legend { position: static; margin-top: 10px; }
   .gf2-map-host { height: 280px; }
 }
@@ -459,6 +495,14 @@
                 </div>
               </div>
               <div class="gf2-updated">
+                <div class="gf2-updated-label">Engine Version</div>
+                <div class="gf2-updated-value" id="gf2-engine-version-value">—</div>
+              </div>
+              <div class="gf2-updated">
+                <div class="gf2-updated-label">Evidence Certified</div>
+                <div class="gf2-updated-value" id="gf2-evidence-certified-value">—</div>
+              </div>
+              <div class="gf2-updated">
                 <div class="gf2-updated-label">Last Updated</div>
                 <div class="gf2-updated-value" id="gf2-updated-value">—</div>
                 <div class="gf2-stale-badge" id="gf2-stale-badge">
@@ -609,6 +653,15 @@
             </div>
           </div>
 
+          <!-- Territory Change Intelligence™ — primary (Board V1.0 Completion:
+               artists care where, not just how many; shown first, full width) -->
+          <div class="gf2-changes-card">
+            <div class="gf2-card-title">Territory Change Intelligence™</div>
+            <div id="gf2-changes-body">
+              <div class="gf2-changes-onboarding">Loading territory changes…</div>
+            </div>
+          </div>
+
           <!-- Bottom intelligence cards -->
           <div class="gf2-bottom-row">
 
@@ -625,19 +678,40 @@
             </div>
 
             <div class="gf2-card">
-              <div class="gf2-card-title">Coverage Timeline™</div>
-              <div class="gf2-timeline-onboarding">
-                <svg class="gf2-timeline-onboarding-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
-                Territory history will populate here as Monitoring Timeline™ collects assessments across future scans.
-                <div class="gf2-timeline-fact" id="gf2-timeline-fact"></div>
+              <div class="gf2-card-title">Global Trend Timeline™</div>
+              <div id="gf2-trend-body">
+                <div class="gf2-timeline-onboarding">
+                  <svg class="gf2-timeline-onboarding-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+                  Loading trend…
+                </div>
               </div>
             </div>
 
             <div class="gf2-card">
-              <div class="gf2-card-title">ATHENA Insight™</div>
+              <div class="gf2-card-title">Footprint Insight™</div>
               <div class="gf2-athena-body">
                 <div class="gf2-athena-icon" aria-hidden="true"><svg fill="currentColor"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg></div>
                 <div class="gf2-athena-text" id="gf2-athena-text">—</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Territory Alerts™ (secondary — aggregate summary of the same
+               evidence shown above) + Monitoring Intelligence™ (one card) -->
+          <div class="gf2-secondary-row">
+
+            <div class="gf2-card">
+              <div class="gf2-card-title">Territory Alerts™</div>
+              <div id="gf2-alerts-body">
+                <div class="gf2-changes-onboarding">Loading…</div>
+              </div>
+            </div>
+
+            <div class="gf2-card">
+              <div class="gf2-card-title">Monitoring Intelligence™</div>
+              <div id="gf2-monitor-body">
+                <div class="gf2-changes-onboarding">Loading…</div>
               </div>
             </div>
 
@@ -737,6 +811,18 @@
   var updatedEl = document.getElementById('gf2-updated-value');
   if (updatedEl) updatedEl.textContent = fmtRelative(ctx.generatedAt || ctx.scannedAt);
 
+  /* ── Header: Evidence Transparency — Engine Version + Evidence Certified
+   * (Board V1.0 Completion, refinement 5). Evidence Certified uses
+   * gf.territoryGeneratedAt -- the Territory Intelligence Engine's own
+   * real certification timestamp -- distinct from "Last Updated" above,
+   * which reflects the browser context's build time, not the evidence's
+   * own certification time. Engine Version fetch is shared with the
+   * Freshness Certification™ check below, not duplicated. ──────────── */
+  var evidenceCertifiedEl = document.getElementById('gf2-evidence-certified-value');
+  if (evidenceCertifiedEl) {
+    evidenceCertifiedEl.textContent = gf.territoryGeneratedAt ? fmtRelative(gf.territoryGeneratedAt) : 'Unknown';
+  }
+
   /* ── Freshness Certification™ (Board Phase 1, IC-1, 2026-07-27; Board
      Addendum, 2026-07-27) ─────────────────────────────────────────────
      Mission Control shall never silently present obsolete territory
@@ -752,9 +838,11 @@
   var STALE_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days -- storefront catalogs change over time independent of code changes
   (function () {
     var badge = document.getElementById('gf2-stale-badge');
-    if (!badge) return;
+    var engineVersionEl = document.getElementById('gf2-engine-version-value');
 
     function evaluateFreshness(currentEngineVersion) {
+      if (engineVersionEl) engineVersionEl.textContent = currentEngineVersion || (gf.territoryEngineVersion || 'Unknown');
+      if (!badge) return;
       var versionMismatch = currentEngineVersion != null
         && gf.territoryEngineVersion != null
         && gf.territoryEngineVersion !== currentEngineVersion;
@@ -1012,13 +1100,16 @@
     if (trigger) trigger.click();
   });
 
-  /* ── Coverage Timeline™ (real onboarding state, no fabricated history) */
-  var timelineFactEl = document.getElementById('gf2-timeline-fact');
-  if (timelineFactEl) timelineFactEl.textContent = 'Last assessed: ' + fmtRelative(ctx.generatedAt || ctx.scannedAt);
+  /* Global Trend Timeline™ populated by /js/gmf-trend-timeline.js
+   * (companion script, queries scan_snapshots history) -- not inline here. */
 
-  /* ── ATHENA Insight™ (real, deterministic sentence template) ────────
-   * Not a call to the real ATHENA engine (api/athena/) -- same
-   * lightweight pattern used on Catalog Intelligence™. */
+  /* ── Footprint Insight™ (real, deterministic sentence template) ─────
+   * Board V1.0 Completion: relabeled from "ATHENA Insight™" -- this was
+   * never a call to the real ATHENA engine (api/athena/), which by
+   * Board-ratified design does not consume Global Music Footprint data
+   * at all. The label now honestly matches what this section is: a
+   * territory-evidence-derived narrative, same lightweight pattern used
+   * on Catalog Intelligence™, attributed to the workspace itself, not ATHENA. */
   var athenaEl = document.getElementById('gf2-athena-text');
   if (athenaEl) {
     var sentence = gf.reachNarrative || 'Territory availability could not be determined from reviewed sources.';
@@ -1026,6 +1117,43 @@
       sentence += ' ' + dg.totalRequiringAttention + ' ' + (dg.totalRequiringAttention === 1 ? 'market requires' : 'markets require') + ' attention.';
     }
     athenaEl.textContent = sentence;
+  }
+
+  /* ── Monitoring Intelligence™ — one concise executive card (Board V1.0
+   * Completion, refinement 1: exactly four fields, not a mini monitoring
+   * dashboard). ctx.monitoringIntelligence already exists in Runtime
+   * Context (produced once per scan by assembleMonitoringIntelligence(),
+   * api/_lib/monitoring-intelligence.js) and is already rendered live in
+   * Mission Control's Ecosystem Status card -- this is the same data, a
+   * deliberately narrower presentation, not a new computation. Detailed
+   * event-by-event monitoring stays where it already lives. ──────────── */
+  (function () {
+    var monitorBody = document.getElementById('gf2-monitor-body');
+    if (!monitorBody) return;
+    var monitoring = ctx.monitoringIntelligence || null;
+    if (!monitoring) {
+      renderMonitorField(monitorBody, [
+        ['Monitoring Status', 'Not enabled for this artist'],
+      ]);
+      return;
+    }
+    var STATUS_LABEL = { baseline: 'Baseline Established', active: 'Active', no_changes: 'Active — No Changes' };
+    var lastChange = 'No changes detected';
+    if (Array.isArray(monitoring.events) && monitoring.events.length > 0) {
+      lastChange = monitoring.events[0].title || 'Change detected';
+    }
+    renderMonitorField(monitorBody, [
+      ['Monitoring Status', STATUS_LABEL[monitoring.status] || 'Unknown'],
+      ['Last Scan', monitoring.capturedAt ? fmtRelative(monitoring.capturedAt) : 'Unknown'],
+      ['Next Scheduled Scan', monitoring.nextScan ? fmtDate(monitoring.nextScan) : 'Not scheduled'],
+      ['Last Change Detected', lastChange],
+    ]);
+  })();
+
+  function renderMonitorField(el, rows) {
+    el.innerHTML = rows.map(function (r) {
+      return '<div class="gf2-monitor-field"><span class="gf2-monitor-label">' + esc(r[0]) + '</span><span class="gf2-monitor-val">' + esc(r[1]) + '</span></div>';
+    }).join('');
   }
 
   /* ── Recommended Actions™ (real, aggregated from per-territory
@@ -1068,6 +1196,8 @@
 }());
 </script>
 <script src="/js/gmf-distribution-gaps.js"></script>
+<script type="module" src="/js/gmf-territory-changes.js"></script>
+<script type="module" src="/js/gmf-trend-timeline.js"></script>
 <script src="/js/rds-preview-console.js" defer></script>
 </body>
 </html>

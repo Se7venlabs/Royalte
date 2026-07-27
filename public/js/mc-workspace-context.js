@@ -131,13 +131,19 @@
       // cim.globalFootprint's real key name) instead of ctx.globalMusicFootprint --
       // contract updated to match. globalMusicFootprint remains populated in the
       // runtime context for ai-insights.html, which is not yet recovered.
+      //
+      // monitoringIntelligence added (Board V1.0 Completion, 2026-07-27) for
+      // the workspace's new one-card Monitoring Intelligence section --
+      // optional, since older/legacy scans may predate it (mapper produces
+      // a baseline shell for the first scan, but a genuinely absent value
+      // must still degrade honestly, not be assumed present).
       required:       ['globalFootprint'],
       requiredFields: ['globalFootprint.status', 'globalFootprint.territoriesAvailable'],
       requiredTypes:  {
         'globalFootprint.status':               'non-empty-string',
         'globalFootprint.territoriesAvailable': 'number',
       },
-      optional:       ['globalMusicFootprint', 'globalFootprint.reachNarrative'],
+      optional:       ['globalMusicFootprint', 'globalFootprint.reachNarrative', 'monitoringIntelligence'],
     },
     'monitoring-timeline': {
       // monitoringIntelligence is always produced by the mapper (baseline when first scan).
