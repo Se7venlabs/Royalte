@@ -955,6 +955,14 @@
   function providerDisplayName(code) { return PROVIDER_DISPLAY_NAMES[code] || code; }
 
   function showCountryPanel(t) {
+    if (t && t.code === 'ca' && typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('ROYALTE_FORENSIC_TRACE') === '1') {
+      console.log('==============================');
+      console.log('MAP STAGE 4: Territory Detail Panel data source for "ca"');
+      console.log('==============================');
+      console.log('Object the panel is rendering (t, param of showCountryPanel):', JSON.stringify(t));
+      console.log('t.status (drives status dot/text and isAvailable):', t.status);
+      console.log('Code Location: public/workspaces/global-music-footprint.html#showCountryPanel (entry, before any field is read)');
+    }
     panelEmpty.hidden = true;
     panelContent.hidden = false;
     document.getElementById('gf2-panel-name').textContent = t.name;
@@ -999,6 +1007,16 @@
     // panel doesn't imply the artist or catalog doesn't exist, only that this
     // specific storefront doesn't carry it.
     var catalogLabel = isAvailable ? '✅ Available' : (hasEvidence ? '❌ Not Available in this Storefront' : '— Not yet assessed');
+    if (t && t.code === 'ca' && typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('ROYALTE_FORENSIC_TRACE') === '1') {
+      console.log('==============================');
+      console.log('MAP STAGE 4b: catalogLabel decision for "ca"');
+      console.log('==============================');
+      console.log('t.status:', t.status, '| t.providers:', JSON.stringify(t.providers));
+      console.log('isAvailable (t.status === "Available"):', isAvailable);
+      console.log('hasEvidence (t.providers includes apple_music):', hasEvidence);
+      console.log('catalogLabel (rendered text):', catalogLabel);
+      console.log('Code Location: public/workspaces/global-music-footprint.html#showCountryPanel (catalogLabel assignment)');
+    }
     var artistLabel = (typeof ctx !== 'undefined' && ctx && ctx.artistName) ? ctx.artistName : 'This artist';
     var row = document.createElement('div');
     row.className = 'gf2-panel-provider-row';
