@@ -548,6 +548,61 @@ await testAsync('AVAILABILITY omits territoryMethodology when the caller did not
   resetTrustConfig();
 });
 
+// ── Canonical Artist Presence™ (Board Decree, 2026-07-27) — batch chunking ────
+
+await testAsync('AVAILABILITY chunks a catalog over 100 ids into multiple ids= requests per storefront, merging results', async () => {
+  // 150 album ids -- exceeds Apple's confirmed 100-id ceiling (live-verified
+  // 2026-07-27: HTTP 400 "Too Many Ids" beyond 100). One match lives in
+  // chunk 1 (ids 0-99), a different match lives in chunk 2 (ids 100-149).
+  const ids = Array.from({ length: 150 }, (_, i) => `ID_${i}`);
+  const routes = {
+    // Route keys are distinct substrings of each chunk's encoded ids= value.
+    'ID_0%2CID_1%2C':   { status: 200, body: { data: [{ id: 'ID_50', type: 'albums' }] } },
+    'ID_100%2CID_101%2C': { status: 200, body: { data: [{ id: 'ID_120', type: 'albums' }] } },
+  };
+  const c   = await authenticatedConnector(routes);
+  const req = createEvidenceRequest({ subjectRef: { appleAlbumIds: ids }, evidenceType: Capability.AVAILABILITY });
+  const contract = await c.acquire(req);
+
+  assert.equal(contract.health.state, HealthState.AVAILABLE);
+  const usMatches = contract.payload.storefronts.us.data.map(a => a.id);
+  assert.ok(usMatches.includes('ID_50'), 'match from chunk 1 is present in the merged result');
+  assert.ok(usMatches.includes('ID_120'), 'match from chunk 2 is present in the merged result -- proves both chunks were actually requested');
+  resetTrustConfig();
+});
+
+await testAsync('AVAILABILITY: a positive match from one chunk is never discarded because another chunk failed', async () => {
+  const ids = Array.from({ length: 150 }, (_, i) => `ID_${i}`);
+  const routes = {
+    'ID_0%2CID_1%2C':     { status: 200, body: { data: [{ id: 'ID_50', type: 'albums' }] } },
+    'ID_100%2CID_101%2C': { status: 500 }, // second chunk fails
+  };
+  const c   = await authenticatedConnector(routes);
+  const req = createEvidenceRequest({ subjectRef: { appleAlbumIds: ids }, evidenceType: Capability.AVAILABILITY });
+  const contract = await c.acquire(req);
+
+  const usResult = contract.payload.storefronts.us;
+  assert.ok(Array.isArray(usResult.data), 'confirmed positive evidence from chunk 1 wins over chunk 2 failing');
+  assert.ok(usResult.data.some(a => a.id === 'ID_50'));
+  resetTrustConfig();
+});
+
+await testAsync('AVAILABILITY: no match anywhere AND a chunk failed reconciles to error, never a false UNAVAILABLE', async () => {
+  const ids = Array.from({ length: 150 }, (_, i) => `ID_${i}`);
+  const routes = {
+    'ID_0%2CID_1%2C':     { status: 200, body: { data: [] } }, // genuinely empty
+    'ID_100%2CID_101%2C': { status: 500 },                      // this chunk never got checked
+  };
+  const c   = await authenticatedConnector(routes);
+  const req = createEvidenceRequest({ subjectRef: { appleAlbumIds: ids }, evidenceType: Capability.AVAILABILITY });
+  const contract = await c.acquire(req);
+
+  const usResult = contract.payload.storefronts.us;
+  assert.ok('error' in usResult, 'cannot honestly claim UNAVAILABLE when part of the requested catalog was never successfully checked');
+  assert.equal(usResult.data, undefined, 'no fabricated empty-data claim sits alongside the error');
+  resetTrustConfig();
+});
+
 // ── acquire() — missing subjectRef fields ─────────────────────────────────────
 console.log('\n── acquire() — missing subjectRef ─');
 

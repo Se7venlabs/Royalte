@@ -9,7 +9,10 @@
 // Sequential acquisition order:
 //   A. ARTIST_IDENTITY   — confirms/discovers appleArtistId
 //   B. ALBUMS + ISRC + VIDEOS — parallel (all need only appleArtistId from A)
-//   C. AVAILABILITY      — global 167-storefront check (needs appleAlbumId from B)
+//   C. AVAILABILITY      — global 167-storefront check (needs the resolved
+//      release from B, or -- Canonical Artist Presence™, Board Decree
+//      2026-07-27 -- the artist's full paginated catalog, acquired via
+//      acquireFullAlbumCatalog() starting from B's first ALBUMS page)
 //
 // VIDEOS added Media PAL Expansion™ — artist music-videos catalog
 // (/catalog/{storefront}/artists/{id}/music-videos), same parallel batch as
@@ -21,14 +24,23 @@ import { createEvidenceRequest }      from '../../provider-acquisition/evidence/
 import { Capability }                 from '../../provider-acquisition/capability/capabilityVocabulary.js';
 import { bridgeToCanonical }          from '../../lib/rie/EvidenceBridge.js';
 import { enrichWithAppleRelease }     from './canonical-scan-subject-assembler.js';
-import { selectTopVerifiedReleases }  from './best-verified-release.js';
 
-// Canonical Artist Territory Intelligence™ (Board Decree, 2026-07-25) --
-// the number of Best Verified Release™-ranked albums sampled for an
-// artist-only scan's territory availability check. Named, Board-auditable
+// Canonical Artist Presence™ (Board Decree, 2026-07-27) -- supersedes the
+// Best Verified Release™-ranked 5-release sample (2026-07-25 decree,
+// PR #428). Artist-only territory evaluation now acquires the artist's
+// FULL Apple Music catalog (paginated beyond the connector's 25-per-page
+// default) rather than a ranked subset. Best Verified Release™ scoring is
+// no longer used to define artist territory presence -- release ranking
+// is not the intelligence Mission Control reports; the release(s) that
+// prove availability are evidence only.
+//
+// MAX_CATALOG_PAGES bounds worst-case acquisition cost for an
+// unrealistically large catalog (25/page -- 12 pages = up to 300 albums,
+// well beyond any real artist observed; Prince, one of the most prolific
+// legacy catalogs on Apple Music, has 80). Named, Board-auditable
 // constant, matching the existing pattern of GLOBAL_SF_WAVE_SIZE /
-// STATUS_THRESHOLDS / BVR_* weights. Change only through formal Board Review.
-export const TERRITORY_SAMPLE_SIZE = 5;
+// APPLE_MAX_IDS_PER_REQUEST. Change only through formal Board Review.
+export const MAX_CATALOG_PAGES = 12;
 
 // ── Env config ───────────────────────────────────────────────────────────────
 function getPalConfig() {
@@ -97,6 +109,61 @@ export function extractAlbumCandidates(contract) {
       upc:         n.attributes?.upc          ?? null,
     }))
     .filter(a => a.id); // territory checks require a real album id
+}
+
+// ── Canonical Artist Presence™ — full-catalog acquisition ─────────────────
+// (Board Decree, 2026-07-27). Given the artist's first ALBUMS page
+// (already acquired, unconditionally, by the parallel B step below --
+// unaffected by this function), follows Apple's `next` pagination link
+// to acquire every remaining page, up to MAX_CATALOG_PAGES as a bounded
+// safety cap. Returns { candidates, catalogReleaseCount, isCompleteCatalogEvaluation }.
+//
+// Deliberately issues each extra page as its own Capability.ALBUMS
+// pal.acquire() call (via subjectRef.albumsOffset) but never pushes them
+// into evidencePackages -- Catalog Intelligence™ and every other
+// Capability.ALBUMS consumer reads only the first package found
+// (findFirst semantics in EvidenceBridge.js), so this stays entirely
+// local to territory evaluation and cannot change any other domain's
+// evidence.
+export async function acquireFullAlbumCatalog(pal, enrichedSubjectRef, firstPageContract) {
+  const pages = [firstPageContract];
+  let next = firstPageContract?.payload?.next;
+
+  for (let page = 1; page < MAX_CATALOG_PAGES && next; page++) {
+    const offset = page * 25;
+    let report;
+    try {
+      report = await pal.acquire(APPLE_PROVIDER, createEvidenceRequest({
+        subjectRef:   { ...enrichedSubjectRef, albumsOffset: offset },
+        evidenceType: Capability.ALBUMS,
+      }));
+    } catch {
+      break; // honest degradation: stop paginating, evaluate what was acquired
+    }
+    if (!report?.contract?.payload?.data) break;
+    pages.push(report.contract);
+    next = report.contract.payload.next;
+  }
+
+  const seen = new Set();
+  const candidates = [];
+  for (const contract of pages) {
+    for (const candidate of extractAlbumCandidates(contract)) {
+      if (seen.has(candidate.id)) continue;
+      seen.add(candidate.id);
+      candidates.push(candidate);
+    }
+  }
+
+  return {
+    candidates,
+    catalogReleaseCount: candidates.length,
+    // true only if pagination genuinely reached the end of the catalog
+    // (Apple stopped returning a `next` link) rather than being
+    // truncated by the safety cap -- an honest completeness signal, not
+    // an assumption.
+    isCompleteCatalogEvaluation: !next,
+  };
 }
 
 // extractFirstIsrcSong: returns the matched Apple Song resource from a
@@ -221,35 +288,33 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
 
     // ── C: AVAILABILITY — global 167-storefront check ────────────────────
     //
-    // Canonical Artist Territory Intelligence™ (Board Decree, 2026-07-25):
-    // the scan entry point determines the intelligence scope.
+    // Canonical Artist Presence™ (Board Decree, 2026-07-27) -- supersedes
+    // the 2026-07-25 Best Verified Release™-ranked sample entirely. The
+    // scan entry point still determines the intelligence scope:
     //
     //   Song/Release-scoped scan (resolvedReleaseAlbumId known) -- unchanged
-    //   single-release evaluation, exactly as before this decree.
+    //   single-release evaluation, exactly as before either decree. A
+    //   release-specific question ("is THIS release available") is a
+    //   legitimate, different question from artist presence, and is out
+    //   of scope for this correction.
     //
-    //   Artist-only scan (no ISRC resolved) -- evaluates a Board-approved,
-    //   evidence-ranked SAMPLE of the artist's catalog (Best Verified
-    //   Release™ scoring, reused strictly as an evidence-ranking
-    //   optimization -- see best-verified-release.js's
-    //   selectTopVerifiedReleases() header). extractFirstAlbumId() no
-    //   longer determines artist territory intelligence (Board directive)
-    //   -- it remains exported only for the raw-utility regression tests
-    //   that exercise it in isolation.
+    //   Artist-only scan (no ISRC resolved) -- acquires the artist's FULL
+    //   Apple Music catalog (paginated via acquireFullAlbumCatalog(), not
+    //   a ranked subset) and evaluates presence via OR-aggregation across
+    //   every acquired release. Best Verified Release™ scoring no longer
+    //   defines artist territory presence -- release selection is an
+    //   acquisition-layer implementation detail, never the intelligence
+    //   Mission Control reports. extractFirstAlbumId() remains exported
+    //   only for the raw-utility regression tests that exercise it in
+    //   isolation; selectTopVerifiedReleases() remains available for other
+    //   Best Verified Release™ consumers but is no longer invoked here.
     //
-    //   If BVR scoring finds zero eligible releases (malformed/empty album
-    //   metadata -- rare), availabilityAlbumIds is empty and NO
-    //   AVAILABILITY evidence package is added at all: Territory
-    //   Intelligence Engine™ then honestly reports NOT_EVALUATED for every
-    //   territory, rather than reintroducing a fabricated single-album
-    //   guess. Never invents evidence where none can be honestly derived.
-    // Territory Evaluation Methodology™ (Board Pre-Merge Validation Directive,
-    // Part 2, 2026-07-25): the 5-release sample is a BOUNDED APPROXIMATION,
-    // not the final canonical methodology -- explicitly classified per the
-    // Board's requirement, not silently presented as complete-catalog truth.
-    // Carried through the evidence package itself (not just the UI) so
-    // Royaltē never loses this transparency, even if no surface currently
-    // renders it. isCompleteCatalogEvaluation is true only when the sample
-    // genuinely covers every eligible candidate (small catalogs).
+    //   If the catalog is genuinely empty (no eligible releases --
+    //   malformed/empty album metadata, rare), availabilityAlbumIds is
+    //   empty and NO AVAILABILITY evidence package is added at all:
+    //   Territory Intelligence Engine™ then honestly reports NOT_EVALUATED
+    //   for every territory, rather than fabricating a guess. Never
+    //   invents evidence where none can be honestly derived.
     let availabilityAlbumIds;
     let territoryMethodology;
     if (resolvedReleaseAlbumId) {
@@ -262,15 +327,16 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
         isCompleteCatalogEvaluation: null,
       });
     } else {
-      const albumCandidates = albumsReport ? extractAlbumCandidates(albumsReport.contract) : [];
-      const ranked = selectTopVerifiedReleases(albumCandidates, enrichedSubjectRef.artistName, TERRITORY_SAMPLE_SIZE);
-      availabilityAlbumIds = ranked.map(r => r.id);
+      const { candidates, catalogReleaseCount, isCompleteCatalogEvaluation } =
+        albumsReport ? await acquireFullAlbumCatalog(pal, enrichedSubjectRef, albumsReport.contract)
+                      : { candidates: [], catalogReleaseCount: 0, isCompleteCatalogEvaluation: true };
+      availabilityAlbumIds = candidates.map(c => c.id);
       territoryMethodology = Object.freeze({
-        evaluationScope:            'artist_sample',
-        sampleSize:                 ranked.length,
-        catalogReleaseCount:        albumCandidates.length,
-        selectionMethod:            'best_verified_release',
-        isCompleteCatalogEvaluation: albumCandidates.length > 0 && ranked.length >= albumCandidates.length,
+        evaluationScope:            'artist_full_catalog',
+        sampleSize:                 candidates.length,
+        catalogReleaseCount,
+        selectionMethod:            'full_catalog_acquisition',
+        isCompleteCatalogEvaluation,
       });
     }
 
