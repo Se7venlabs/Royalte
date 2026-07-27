@@ -16,6 +16,15 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'token mint failed', detail: err.message });
   }
 
+  if (req.query.mode === 'artistsearch') {
+    const sf = req.query.storefront || 'us';
+    const term = encodeURIComponent(req.query.term || 'Prince');
+    const path = `/catalog/${sf}/search?term=${term}&types=artists&limit=5`;
+    const result = await appleGet(path, token, { maxRetries: 1 });
+    const artists = (result.data?.results?.artists?.data || []).map(a => ({ id: a.id, name: a.attributes?.name }));
+    return res.status(200).json({ httpStatus: result.status, ok: result.ok, artists });
+  }
+
   if (req.query.mode === 'albums') {
     const sf = req.query.storefront || 'us';
     const artistId = req.query.artistId;
