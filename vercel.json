@@ -5,6 +5,10 @@
       "includeFiles": "api/apple-token.js",
       "maxDuration": 30
     },
+    "api/debug-prince-ground-truth.js": {
+      "includeFiles": "api/apple-token.js",
+      "maxDuration": 60
+    },
     "api/identify.js": {
       "includeFiles": "api/apple-token.js",
       "maxDuration": 10
