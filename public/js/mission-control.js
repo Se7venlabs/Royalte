@@ -339,20 +339,29 @@ function applyRecommendationsPlan(plan) {
 
 // ─── Global Music Footprint™ apply helpers (GMF Phase v1.0) ──────────
 //
-// Wires the territory count into the existing animated counter by
-// setting data-mc-footprint-territories on .mc-globe-territories-count.
-// The IIFE animation in mission-control.html reads that attribute via
-// getTerritoryCount() on every requestAnimationFrame tick, so the
-// first sweep after boot fires will use the real value.
+// Hero Card wiring (Board Phase 1, IC-3, 2026-07-27): the hero card's
+// status text (#mc-global-hn-status-text) now displays the real,
+// canonical territory count -- confirmed live that no earlier version of
+// this wiring ever reached the DOM (.mc-globe-territories-count matches
+// no element in the current markup; the "68 Markets" text it was
+// intended to update was static HTML, unwired, for every artist,
+// always). The .mc-globe-territories-count/#global-footprint dataset
+// writes below are left in place as originally written (harmless,
+// null-guarded no-ops against elements the current markup doesn't
+// have) -- removing them is unrelated technical-debt cleanup, out of
+// this candidate's scope.
 //
-// Coverage, status, and confidence are stored as data attributes on
-// #global-footprint for future UI wiring (not currently visible per
-// MC Executive OS lock — no layout/visual changes without Board directive).
+// Mission Control never recomputes territory counts or coverage here --
+// plan.territoriesAvailable is a direct passthrough of what
+// renderGlobalMusicFootprint() (mission-control-renderers.js) already
+// read from the canonical payload.
 
 function applyFootprintPlan(plan) {
   if (!plan) return;
   const countEl = document.querySelector('.mc-globe-territories-count');
   if (countEl) countEl.dataset.mcFootprintTerritories = String(plan.territoriesAvailable);
+  const heroStatusText = document.getElementById('mc-global-hn-status-text');
+  if (heroStatusText) heroStatusText.textContent = String(plan.territoriesAvailable) + ' Markets';
   const card = document.querySelector('#global-footprint');
   if (!card) return;
   card.dataset.mcFootprintCoverage   = String(plan.coveragePercent);
