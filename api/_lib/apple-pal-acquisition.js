@@ -47,7 +47,24 @@ function substituteArtworkDimensions(url, w = 600, h = 600) {
 }
 
 // ── Apple artist ID extraction from ARTIST_IDENTITY contract payload ──────────
-function extractAppleArtistId(contract) {
+//
+// Identity-lock (Board Phase 1, IC-2, 2026-07-27): mirrors the exact
+// pattern already used by api/_lib/mb-pal-acquisition.js and
+// api/_lib/discogs-pal-acquisition.js -- a free-text search result is
+// only trusted when its name exactly matches the artist being resolved.
+// Apple's search endpoint ranks by its own relevance scoring, not
+// identity certainty; for a common/ambiguous name, the top hit is not
+// guaranteed to be the correct artist. Every other provider connector in
+// this codebase already refuses to guess here -- Apple was the one
+// exception. No exact match among the returned hits means the artist is
+// honestly unresolved (null), never a fuzzy first pick, consistent with
+// this codebase's established never-fabricate convention.
+//
+// The direct-ID-lookup branch (p.data) is a CONFIRM, not a search --
+// subjectRef.appleArtistId was already known and is being read back from
+// Apple's own /artists/{id} response, so no verification is needed or
+// possible there.
+export function extractAppleArtistId(contract, artistName) {
   const p = contract?.payload;
   if (!p || typeof p !== 'object') return null;
   // Direct artist lookup: { data: [{ id, type: 'artists' }] }
@@ -55,10 +72,13 @@ function extractAppleArtistId(contract) {
     const artist = p.data.find(n => n?.type === 'artists');
     if (artist?.id) return artist.id;
   }
-  // Search result: { results: { artists: { data: [{ id }] } } }
+  // Search result: { results: { artists: { data: [{ id, attributes: { name } }] } } }
   const hits = p.results?.artists?.data;
-  if (Array.isArray(hits) && hits.length > 0) return hits[0]?.id ?? null;
-  return null;
+  if (!Array.isArray(hits) || hits.length === 0) return null;
+  const norm  = s => (typeof s === 'string' ? s.toLowerCase().trim() : '');
+  const target = norm(artistName);
+  const match = hits.find(h => norm(h?.attributes?.name) === target);
+  return match?.id ?? null;
 }
 
 // ── First album ID extraction from ALBUMS contract payload ────────────────────
@@ -150,7 +170,7 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
     }));
     evidencePackages.push({ evidenceType: Capability.ARTIST_IDENTITY, contract: identityReport.contract });
 
-    const resolvedAppleArtistId = appleArtistId ?? extractAppleArtistId(identityReport.contract);
+    const resolvedAppleArtistId = appleArtistId ?? extractAppleArtistId(identityReport.contract, artistName);
     if (!resolvedAppleArtistId) {
       // Apple artist not found — record identity evidence and return
       await pal.shutdown().catch(() => {});
