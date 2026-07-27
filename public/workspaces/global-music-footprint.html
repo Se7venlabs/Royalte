@@ -43,6 +43,10 @@
 .gf2-updated { text-align: right; }
 .gf2-updated-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mc-text-muted); }
 .gf2-updated-value { font-size: 12px; color: var(--mc-text-soft, var(--mc-text)); margin-top: 2px; }
+.gf2-stale-badge { display: none; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; color: #facc15; margin-top: 4px; justify-content: flex-end; }
+.gf2-stale-badge.gf2-stale-badge--visible { display: inline-flex; }
+.gf2-stale-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #facc15; flex-shrink: 0; }
+.gf2-stale-badge-link { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 
 /* KPI row */
 .gf2-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
@@ -457,6 +461,10 @@
               <div class="gf2-updated">
                 <div class="gf2-updated-label">Last Updated</div>
                 <div class="gf2-updated-value" id="gf2-updated-value">—</div>
+                <div class="gf2-stale-badge" id="gf2-stale-badge">
+                  <span class="gf2-stale-badge-dot" aria-hidden="true"></span>
+                  <span>Territory data may be out of date — <a href="/#scan-tool" class="gf2-stale-badge-link" onclick="document.getElementById('scan-tool')?.scrollIntoView({behavior:'smooth',block:'start'})">Rescan Recommended</a></span>
+                </div>
               </div>
             </div>
           </div>
@@ -728,6 +736,29 @@
   /* ── Header: real last-updated ─────────────────────────────────────── */
   var updatedEl = document.getElementById('gf2-updated-value');
   if (updatedEl) updatedEl.textContent = fmtRelative(ctx.generatedAt || ctx.scannedAt);
+
+  /* ── Freshness Certification™ (Board Phase 1, IC-1, 2026-07-27) ──────
+     Mission Control shall never silently present obsolete territory
+     intelligence as current. No build step in this codebase -- this
+     constant is a static JS literal, same convention as every other
+     versioned constant here (matches api/_lib/territory-intelligence.js's
+     TERRITORY_INTELLIGENCE_VERSION; update both together). ────────────── */
+  var CURRENT_TERRITORY_ENGINE_VERSION = '1.2.0';
+  var STALE_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days -- storefront catalogs change over time independent of code changes
+  (function () {
+    var badge = document.getElementById('gf2-stale-badge');
+    if (!badge) return;
+    var versionMismatch = gf.territoryEngineVersion != null && gf.territoryEngineVersion !== CURRENT_TERRITORY_ENGINE_VERSION;
+    var generatedAtMs = gf.territoryGeneratedAt ? new Date(gf.territoryGeneratedAt).getTime() : NaN;
+    var tooOld = !isNaN(generatedAtMs) && (Date.now() - generatedAtMs) > STALE_AGE_MS;
+    // No engine metadata at all (a scan persisted before this field existed)
+    // is itself honestly unverifiable freshness -- treat as stale rather
+    // than silently assuming it's current.
+    var noMetadata = gf.territoryEngineVersion == null && gf.territoryGeneratedAt == null;
+    if (versionMismatch || tooOld || noMetadata) {
+      badge.classList.add('gf2-stale-badge--visible');
+    }
+  })();
 
   /* ── KPI: Global Reach™ (real) ───────────────────────────────────────
    * Status → executive label. Real, threshold-derived (Board-locked

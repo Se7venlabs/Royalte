@@ -277,6 +277,15 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, globalFoot
         reachNarrative,
         confidence,
         distributionGaps: buildDistributionGaps(territoryIntelligence),
+        // Freshness Certification™ (Board Phase 1, IC-1, 2026-07-27):
+        // carried through verbatim so Mission Control can detect a
+        // persisted scan whose territory evaluation predates the current
+        // engine version, or is simply old, and say so -- rather than
+        // silently presenting it as current. Neither field is computed
+        // here; both come straight from the Territory Intelligence
+        // Engine's own output.
+        territoryEngineVersion: territoryIntelligence._version ?? null,
+        territoryGeneratedAt:   territoryIntelligence.generatedAt ?? null,
       });
     }
 
@@ -296,6 +305,8 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, globalFoot
         reachNarrative:         'Territory availability could not be determined from reviewed sources.',
         confidence:             deriveConfidence(appleAvailability, null),
         distributionGaps:       null,
+        territoryEngineVersion: null,
+        territoryGeneratedAt:   null,
       });
     }
 
@@ -320,6 +331,8 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, globalFoot
       reachNarrative,
       confidence,
       distributionGaps:       null,
+      territoryEngineVersion: null,
+      territoryGeneratedAt:   null,
     });
   } catch (err) {
     console.error('[global-music-footprint] assembly threw (returning empty shell):', err?.message || err);
@@ -332,6 +345,8 @@ export function assembleGlobalMusicFootprint(intelligenceReport, cio, globalFoot
       reachNarrative:         'Territory availability could not be determined from reviewed sources.',
       confidence:             'Unable to Confirm',
       distributionGaps:       null,
+      territoryEngineVersion: null,
+      territoryGeneratedAt:   null,
     });
   }
 }
