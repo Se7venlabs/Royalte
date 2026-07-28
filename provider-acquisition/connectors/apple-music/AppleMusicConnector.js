@@ -337,6 +337,19 @@ export class AppleMusicConnector extends ProviderConnector {
         if (s.status === 'fulfilled') {
           const { sf, result } = s.value;
           byStorefront[sf] = result.ok ? result.data : { error: result.healthState };
+          // FORENSIC TRACE — TEMPORARY, Board Directive 2026-07-28 (Phase 4:
+          // raw HTTP-level evidence for Canada), remove after investigation.
+          if (sf === 'ca' && process.env.FORENSIC_TRACE === '1') {
+            console.log('==============================');
+            console.log('STAGE: 1a - Raw HTTP response for storefront "ca" (fetchGlobalStorefrontAvailability wave loop)');
+            console.log('==============================');
+            console.log('result.ok:', result.ok, '| result.status:', result.status, '| result.healthState:', result.healthState);
+            console.log('result.data (raw, as returned by Apple):', JSON.stringify(result.data));
+            console.log('result.data.length:', Array.isArray(result.data) ? result.data.length : 'n/a (not an array)');
+            console.log('rawText (first 500 chars):', typeof result.rawText === 'string' ? result.rawText.slice(0, 500) : 'n/a');
+          }
+        } else if (s.status === 'rejected' && process.env.FORENSIC_TRACE === '1') {
+          console.log('STAGE 1a WARNING: a wave promise was REJECTED (not just non-ok) — reason:', s.reason && s.reason.message);
         }
       }
     }
