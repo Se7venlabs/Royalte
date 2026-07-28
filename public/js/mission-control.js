@@ -565,8 +565,18 @@ function buildEcosystemStatusPlan(payload, plans) {
     ? payload.healthIntelligence.delta : null;
 
   // Last Scan — constitutional owner: Evidence Snapshot Store™
-  // Source: monitoringIntelligence.capturedAt (EvidenceSnapshot.capturedAt field)
-  const lastScanIso = mi?.capturedAt ?? null;
+  // Primary source: monitoringIntelligence.capturedAt (EvidenceSnapshot.capturedAt
+  // field) -- only present for authenticated-at-scan-time flows with a prior
+  // snapshot to diff against. Executive Board Certification Walkthrough finding
+  // (2026-07-28): confirmed live that a freshly-claimed first scan -- the most
+  // common real first-time-artist state -- has monitoringIntelligence entirely
+  // absent (the scan runs anonymously before claim; monitoring intelligence
+  // doesn't attach retroactively), so this showed a bare "—" immediately after
+  // a real, successful scan. Falls back to payload.scannedAt -- the scan's own
+  // real completion timestamp, always present -- rather than accept a
+  // dash-shaped gap next to two fully-populated sibling fields. Still an honest
+  // real timestamp either way; only the source narrows, never fabricated.
+  const lastScanIso = mi?.capturedAt ?? payload?.scannedAt ?? null;
   const lastScan    = _esFormatTimeAgo(lastScanIso);
 
   // Next Scheduled Scan — constitutional owner: Monitoring Policy™
