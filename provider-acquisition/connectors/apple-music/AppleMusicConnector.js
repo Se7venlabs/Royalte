@@ -36,6 +36,19 @@ export const PROVIDER_API_VERSION = 'v1';
 
 const GLOBAL_SF_WAVE_SIZE = 50;
 
+// Apple's hard ceiling on the `ids=` catalog batch-lookup parameter --
+// confirmed live 2026-07-27 (400 "Too Many Ids... (limit: 100)" at 250
+// requested ids; 100 succeeds cleanly). Canonical Artist Presence™ chunks
+// any acquired catalog larger than this into multiple ids= requests per
+// storefront rather than ever exceeding it.
+const APPLE_MAX_IDS_PER_REQUEST = 100;
+
+function chunkArray(arr, size) {
+  const chunks = [];
+  for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
+  return chunks;
+}
+
 // Health probe — lightweight endpoint to verify API connectivity
 const HEALTH_PROBE_PATH = '/storefronts/us';
 
@@ -216,9 +229,19 @@ export class AppleMusicConnector extends ProviderConnector {
     return this.#get(path);
   }
 
+  // Canonical Artist Presence™ (Board Decree, 2026-07-27): optional
+  // subjectRef.albumsOffset paginates beyond Apple's 25-per-page default.
+  // Absent for every existing caller (Capability.ALBUMS, Catalog
+  // Intelligence™, etc.) -- defaults to 0, byte-identical to prior
+  // behavior. Only apple-pal-acquisition.js's full-catalog acquisition
+  // loop (territory evaluation) ever sets it, and does so via additional
+  // requests it never pushes into the shared evidencePackages array --
+  // this method's own contract is unchanged for every other consumer.
   async #fetchArtistAlbums(subjectRef, sf) {
     if (!subjectRef.appleArtistId) return this.#missingRef('appleArtistId');
-    return this.#get(`/catalog/${sf}/artists/${subjectRef.appleArtistId}/albums?limit=25`);
+    const offset = Number.isInteger(subjectRef.albumsOffset) && subjectRef.albumsOffset > 0
+      ? subjectRef.albumsOffset : 0;
+    return this.#get(`/catalog/${sf}/artists/${subjectRef.appleArtistId}/albums?limit=25&offset=${offset}`);
   }
 
   async #fetchArtistTracks(subjectRef, sf) {
@@ -303,14 +326,18 @@ export class AppleMusicConnector extends ProviderConnector {
   // Global Music Footprint™ availability — all 167 storefronts, wave-based fan-out.
   // AVAILABILITY evidence type. EvidenceBridge reads storefronts shape via storefrontIsAvailable().
   //
-  // Canonical Artist Territory Intelligence™ (Board Decree, 2026-07-25):
-  // accepts subjectRef.appleAlbumIds (array, one or more album ids) instead
-  // of a single id. Apple's catalog album-lookup endpoint accepts a
-  // comma-separated `ids=` list in a single request (the parameter's own
-  // plural naming reflects this) -- so checking N albums costs the SAME
-  // 167 requests as checking one; only the ids= value grows. A storefront
-  // is present in `data` if it carries ANY of the requested albums, which
-  // is exactly the OR-aggregation Territory Intelligence Engine™ already
+  // Canonical Artist Presence™ (Board Decree, 2026-07-27): accepts
+  // subjectRef.appleAlbumIds (array, one or more album ids -- the caller's
+  // acquired canonical catalog, not a ranked sample). Apple's catalog
+  // album-lookup endpoint accepts a comma-separated `ids=` list in a
+  // single request, confirmed live with a hard ceiling of 100 ids per
+  // request (400 "Too Many Ids" beyond that, APPLE_MAX_IDS_PER_REQUEST
+  // above) -- so a catalog at or under 100 releases costs the SAME 167
+  // requests as checking one album; a catalog over 100 chunks into
+  // multiple ids= requests per storefront, each chunk's results merged
+  // before classification. A storefront is present in the merged `data`
+  // if it carries ANY of the requested albums from ANY chunk, which is
+  // exactly the OR-aggregation Territory Intelligence Engine™ already
   // performs via classifyAppleStorefrontResult()'s `data.length > 0` check
   // (api/_lib/territory-intelligence.js) -- no Engine change required.
   // subjectRef.appleAlbumId (singular) is still accepted for backward
@@ -321,22 +348,41 @@ export class AppleMusicConnector extends ProviderConnector {
       : (subjectRef.appleAlbumId ? [subjectRef.appleAlbumId] : null);
     if (!albumIds) return this.#missingRef('appleAlbumId');
 
-    const idsParam = encodeURIComponent(albumIds.join(','));
+    const idChunks   = chunkArray(albumIds, APPLE_MAX_IDS_PER_REQUEST).map(c => encodeURIComponent(c.join(',')));
     const byStorefront = {};
 
     for (let i = 0; i < ALL_APPLE_STOREFRONTS.length; i += GLOBAL_SF_WAVE_SIZE) {
       const wave = ALL_APPLE_STOREFRONTS.slice(i, i + GLOBAL_SF_WAVE_SIZE);
       const settled = await Promise.allSettled(
         wave.map(sf =>
-          appleGet(`/catalog/${sf}/albums?ids=${idsParam}`, this.#token, {
-            ...this.#fetchOpts, maxRetries: 1,
-          }).then(r => ({ sf, result: r }))
+          Promise.all(idChunks.map(idsParam =>
+            appleGet(`/catalog/${sf}/albums?ids=${idsParam}`, this.#token, {
+              ...this.#fetchOpts, maxRetries: 1,
+            })
+          )).then(results => ({ sf, results }))
         )
       );
       for (const s of settled) {
         if (s.status === 'fulfilled') {
-          const { sf, result } = s.value;
-          byStorefront[sf] = result.ok ? result.data : { error: result.healthState };
+          const { sf, results } = s.value;
+          const matched = results.flatMap(r => (r.ok ? r.data?.data ?? [] : []));
+          const anyFailed = results.some(r => !r.ok);
+          if (matched.length > 0) {
+            // A confirmed positive match from ANY chunk is genuine evidence
+            // of availability -- never discarded just because a different
+            // chunk (checking other albums) failed. This is the same
+            // "positive evidence wins" principle the five-state model
+            // already applies at the territory-reconciliation layer.
+            byStorefront[sf] = { data: matched };
+          } else if (anyFailed) {
+            // No match found, but not every chunk of the catalog was
+            // successfully checked -- cannot honestly claim UNAVAILABLE
+            // for the whole requested catalog.
+            byStorefront[sf] = { error: results.find(r => !r.ok).healthState };
+          } else {
+            // Every chunk succeeded and none matched -- genuine confirmed absence.
+            byStorefront[sf] = { data: [] };
+          }
         }
       }
     }

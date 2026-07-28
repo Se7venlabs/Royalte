@@ -15,19 +15,19 @@
 // No network calls, no PAL/connector wiring required -- these functions
 // are pure and operate on raw Apple JSON:API contract-shaped fixtures.
 //
-// UPDATE (Board Decree, 2026-07-25 -- Canonical Artist Territory
-// Intelligence™): the artist-only fallback this file's `selectAvailabilityAlbumId`
-// helper mirrors below (`resolvedReleaseAlbumId || fallbackFirstAlbumId`)
-// is NO LONGER apple-pal-acquisition.js's real production selection
-// expression for artist-only scans -- extractFirstAlbumId() no longer
-// determines artist territory intelligence. The tests below that exercise
-// this helper are retained ONLY to prove extractFirstAlbumId() and
+// UPDATE (Board Decree, 2026-07-25, superseded 2026-07-27 -- Canonical
+// Artist Presence™): the artist-only fallback this file's
+// `selectAvailabilityAlbumId` helper mirrors below (`resolvedReleaseAlbumId
+// || fallbackFirstAlbumId`) is NO LONGER apple-pal-acquisition.js's real
+// production selection expression for artist-only scans -- extractFirstAlbumId()
+// no longer determines artist territory intelligence. The tests below that
+// exercise this helper are retained ONLY to prove extractFirstAlbumId() and
 // enrichWithAppleRelease() still behave correctly as raw utilities in
 // isolation (catalog-order extraction, never-fabricate-on-missing-
 // relationship) -- NOT as a claim about current artist-only production
-// behavior. The real, current artist-only selection logic (Best Verified
-// Release™-ranked multi-album sampling) is tested in
-// tests/canonical-artist-territory-test.mjs.
+// behavior. The real, current artist-only selection logic (full-catalog
+// acquisition + OR-aggregation across every acquired release, no ranking
+// or sampling) is tested in tests/canonical-artist-territory-test.mjs.
 
 import assert from 'node:assert/strict';
 
@@ -135,10 +135,10 @@ test('REGRESSION: scanned Artist + Song evaluates the ISRC-resolved release, not
 });
 
 test('enrichWithAppleRelease does not fabricate an album id when the relationship is missing', () => {
-  // NOTE (2026-07-25): when no release is resolvable (as here), current
-  // production no longer falls back to extractFirstAlbumId() -- it falls
-  // to the Best Verified Release™-ranked artist-level sample (same as any
-  // artist-only scan). See tests/canonical-artist-territory-test.mjs.
+  // NOTE (2026-07-27): when no release is resolvable (as here), current
+  // production no longer falls back to extractFirstAlbumId() -- it
+  // acquires the artist's full catalog and evaluates presence across all
+  // of it (same as any artist-only scan). See tests/canonical-artist-territory-test.mjs.
   const seed = seedCanonicalScanSubject({ artistName: 'Test Artist', isrc: 'USRC17600002' });
   const songWithoutAlbum = extractFirstIsrcSong(ISRC_CONTRACT_NO_ALBUM_RELATIONSHIP);
   const enrichedSubject  = enrichWithAppleRelease(seed, songWithoutAlbum);
@@ -149,12 +149,12 @@ test('enrichWithAppleRelease does not fabricate an album id when the relationshi
 });
 
 test('artist-only scans (no ISRC) leave providerIds.apple.albumId unresolved (raw utility behavior, unchanged)', () => {
-  // NOTE (2026-07-25): this proves seedCanonicalScanSubject/enrichWithAppleRelease's
+  // NOTE (2026-07-27): this proves seedCanonicalScanSubject/enrichWithAppleRelease's
   // own honest behavior for an artist-only scan -- it does NOT assert what
   // Territory Intelligence evaluates for that scan anymore. See
   // tests/canonical-artist-territory-test.mjs for the real, current
-  // artist-only selection logic (Best Verified Release™-ranked sampling,
-  // not extractFirstAlbumId()).
+  // artist-only selection logic (full-catalog acquisition, not
+  // extractFirstAlbumId() and not a ranked sample).
   const seed = seedCanonicalScanSubject({ artistName: 'Test Artist', appleArtistId: 'ARTIST_1' });
   assert.equal(seed.subjectType, 'artist');
 
