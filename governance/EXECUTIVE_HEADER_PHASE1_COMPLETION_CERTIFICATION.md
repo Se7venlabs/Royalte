@@ -2,7 +2,23 @@
 
 **Status:** Implementation complete, live-verified on Preview under the **FIX AS WE GO™** policy. **DO NOT MERGE** until Executive Board approval.
 **Builds on:** `governance/EXECUTIVE_HEADER_PHASE1_TRUST_FOUNDATION.md` (v1.0 deliverables — Field Map, Wiring Diagram, Validation Matrix, Before/After, Code Review Summary — all still accurate; this document covers only what changed in this completion pass).
-**Preview:** `https://royalte-digmtgvx4-darrylwest-7086s-projects.vercel.app/mission-control.html`
+**Preview:** `https://royalte-1jvvsxcqs-darrylwest-7086s-projects.vercel.app/mission-control.html`
+
+---
+
+## Executive Board Certification Walkthrough (product review, not code review)
+
+Performed live against the populated header on a fresh, real scan — asking of every visible element: does this belong, is the wording right, does the hierarchy make sense, does it feel premium, does anything look unfinished, would Apple/Stripe/Linear ship it.
+
+**One finding, fixed immediately (not deferred to a Phase 1.1), per FIX AS WE GO™:**
+
+"Last Scan: —" rendered as a bare dash directly beside two fully-populated sibling fields ("Executive Confidence™: Partial", "Scan Status: Complete") immediately after a real, successful scan. Technically honest (the field was genuinely empty) but it read as broken, not as an intentional empty state — a first-time artist would reasonably assume something was wrong.
+
+Root-caused live rather than patched cosmetically: queried the actual persisted payload directly and confirmed `monitoringIntelligence` — the field's sole source — is genuinely absent on this scan (`monitoringIntelligence present: false`). This is not an edge case: monitoring intelligence only attaches for authenticated-at-scan-time flows with a prior snapshot to diff against, and a fresh "scan → claim" flow (the most common real first-visit path) runs the scan anonymously before claim — monitoring intelligence never attaches retroactively. So every first-time artist's first Mission Control visit would have hit this.
+
+Fix: widened the fallback chain to `payload.scannedAt` (the scan's own always-present completion timestamp) before falling through to "—". Same honest-fallback pattern already used for the Media™ node this pass — a real field, not a fabricated one; only the source narrows. Confirmed live: now shows "Just now" on a fresh scan, and confirmed the true-empty state (no payload at all) is unaffected — still shows "—" correctly, since `payload?.scannedAt` is equally absent when there's no payload.
+
+**Considered and explicitly not changed:** the 8 hero-node status words use genuinely different grammatical shapes (adjective/grade "Excellent", participle "Verified"/"Expanding"/"Slowing", count "156 Markets", imperative phrase "Action Required", branded phrase "ATHENA™ Active"). This looked inconsistent on first pass, but each word is the correct, already-established, real vocabulary for that specific domain (several already shipped elsewhere in the product, e.g. Media's "Slowing" is the same word the Media Intelligence workspace itself uses). Forcing a uniform grammatical shape across domains that measure genuinely different kinds of signals would reduce information value for a cosmetic consistency gain — the kind of dashboard mixing count/status/trend that Stripe and Vercel's own dashboards do routinely. Not fixed, on purpose, with reasoning recorded rather than silently skipped.
 
 ---
 
@@ -70,7 +86,7 @@ Supersedes and extends the v1.0 Field Map with this pass's additions:
 | Artist Image | `getBestVerifiedArtistImage(_vaultPlans.payload)` | Executive Workspace Image Selection Standard™ | Scan | Initials → "ē" placeholder |
 | Overall Business Status | `ecosystemStatusPlan.statusLabel` | Monitoring Intelligence™ | Scan | "Awaiting Verification" |
 | Intel sentence | `ecosystemStatusPlan.paCount` | Executive Brief™ | Scan | "Awaiting Verification" |
-| Last Scan | `ecosystemStatusPlan.lastScan` | Evidence Snapshot Store™ | Scan | "—" |
+| Last Scan | `ecosystemStatusPlan.lastScan` | Evidence Snapshot Store™, falling back to Scan Record™ (`payload.scannedAt`) when monitoring intelligence hasn't attached yet | Scan | "—" (only when neither source exists) |
 | Executive Confidence™ | `ecosystemStatusPlan.confidence` | Health Intelligence Engine™ | Scan | "Data Unavailable" |
 | **Scan Status** *(new)* | `ecosystemStatusPlan.scanStatus` | Mission Control Runtime (derived) | Scan (`payload.healthIntelligence` presence) | "—" |
 | Health™ node | `hiPlan.grade` | Health Intelligence Engine™ | Scan | "Not Yet Scanned" |
