@@ -6244,6 +6244,7 @@ a.ci-function-card:hover .ci-artwork-container {
 .mc2-hn-dot--op  { background: #4ade80; }
 .mc2-hn-dot--act { background: var(--mc-orange); }
 .mc2-hn-dot--new { background: var(--mc-purple); animation: hi-live-pulse 2s ease-in-out infinite; }
+.mc2-hn-dot--unk { background: rgba(255,255,255,0.25); }
 
 /* Hero node domain colors */
 .mc2-hn--health    .mc2-hn-icon { background: rgba(34,197,94,0.15);   color: #4ade80; }
@@ -6285,10 +6286,6 @@ a.ci-function-card:hover .ci-artwork-container {
   line-height: 1.8;
   margin-top: 6px;
 }
-.mc2-intel-num         { font-weight: 700; }
-.mc2-intel-num--alert  { color: #f87171; }
-.mc2-intel-num--opport { color: #4ade80; }
-
 /* ─── Line hover — brightens on node mouseenter ─────────────────────── */
 .mc2-hero-globe-line.mc2-line--hovered {
   opacity: 1 !important;
