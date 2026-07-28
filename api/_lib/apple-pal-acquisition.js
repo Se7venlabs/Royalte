@@ -292,6 +292,18 @@ export async function acquireAppleEvidence({ appleArtistId = null, artistName, i
         selectionMethod:            'best_verified_release',
         isCompleteCatalogEvaluation: albumCandidates.length > 0 && ranked.length >= albumCandidates.length,
       });
+
+      // FORENSIC TRACE — TEMPORARY, Board Directive 2026-07-28 (Phase 3: sample
+      // selection identity), remove after investigation.
+      if (process.env.FORENSIC_TRACE === '1') {
+        console.log('==============================');
+        console.log('STAGE: 2a - Sample Selection (apple-pal-acquisition.js#acquireAppleEvidence, Best Verified Release ranking)');
+        console.log('==============================');
+        console.log('albumCandidates.length (raw /albums?limit=25 candidates, pre-scoring):', albumCandidates.length);
+        console.log('albumCandidates raw ids+names (in fetch order):', JSON.stringify(albumCandidates.map(a => ({ id: a.id, name: a.name, releaseDate: a.releaseDate }))));
+        console.log('ranked (top ' + TERRITORY_SAMPLE_SIZE + ' selected, in selection order):', JSON.stringify(ranked));
+        console.log('availabilityAlbumIds (exact ids sent to availability check):', JSON.stringify(availabilityAlbumIds));
+      }
     }
 
     if (availabilityAlbumIds.length > 0) {
