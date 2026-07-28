@@ -596,8 +596,14 @@ function buildEcosystemStatusPlan(payload, plans) {
   const statusLabel   = _esMonitoringStatusLabel(mi?.status ?? null);
   const isOperational = statusLabel === 'Operational';
 
+  // Executive Confidence™ — constitutional owner: Health Intelligence Engine™
+  // (healthPlan.confidence: 'Verified'|'Partial'|'Limited'). Not a separate
+  // computed metric — surfaces the same evidence-confidence field the Health
+  // Intelligence workspace already reads via renderHealth().
+  const confidence = hp?.confidence ?? null;
+
   return { score, grade, delta, lastScan, nextScan, nextScanMeta,
-           changesValue, changesMeta, paCount, statusLabel, isOperational };
+           changesValue, changesMeta, paCount, statusLabel, isOperational, confidence };
 }
 
 function applyEcosystemStatusPlan(plan) {
@@ -660,6 +666,23 @@ function applyEcosystemStatusPlan(plan) {
   if (statusEl) statusEl.textContent = plan.statusLabel;
   const activeEl = q('[data-mc-es-status-active]');
   if (activeEl) activeEl.style.display = plan.isOperational ? 'flex' : 'none';
+
+  // Executive Confidence™ — real evidence-confidence word, never a
+  // fabricated percentage. 'Data Unavailable' when no Health Intelligence
+  // has been assembled yet (e.g. unauthenticated / pre-first-scan state).
+  const confEl = q('[data-mc-es-confidence]');
+  if (confEl) confEl.textContent = plan.confidence || 'Data Unavailable';
+
+  // ATHENA™ intel sentence — real priority-action count only. The
+  // fabricated "N new opportunities" clause (no backing field exists
+  // anywhere in the payload — confirmed via Phase 1 audit) is retired
+  // rather than fabricated a second time.
+  const intelEl = q('[data-mc-es-intel-sentence]');
+  if (intelEl) {
+    intelEl.textContent = plan.paCount > 0
+      ? `Royaltē has identified ${plan.paCount} priority action${plan.paCount === 1 ? '' : 's'} requiring your attention.`
+      : 'No priority actions requiring your attention right now.';
+  }
 }
 
 // ─── Health Intelligence™ v2.0 — Sprint 3.2 ────────────────────────
@@ -1520,6 +1543,11 @@ if (typeof window !== 'undefined') {
         const plan = _vaultPlans.ecosystemStatusPlan;
         if (!plan) break;
         applyEcosystemStatusPlan(plan);
+        // Hero-node dept statuses depend on every domain plan already being
+        // built by __mcPopulate(); ecosystem-status fires first in
+        // MODULE_ORDER on every activation path, so plans are guaranteed
+        // ready here regardless of per-module reveal timing.
+        if (typeof window.__mcApplyHeroNodeStatuses === 'function') window.__mcApplyHeroNodeStatuses();
         // Count-up on health score (mirrors health-intelligence card pattern)
         if (plan.score !== null) {
           const scoreEl = document.querySelector('[data-mc-es-health-score]');
@@ -1680,11 +1708,102 @@ if (typeof window !== 'undefined') {
       '  Current hero greeting text: "' + prev + '"\n' +
       '  Will render: ' + (name ? name.toUpperCase() : '(no update — name absent)')
     );
-    if (!name) return;
+    // Phase 1 Executive Trust Foundation (Board directive, 2026-07-28):
+    // never leave fabricated sample text ("BLACK ALTERNATIVE" / "Darryl
+    // West" / "Founder Account") on screen when no real scan subject is
+    // available. Write an explicit, honest fallback instead.
+    if (!name) {
+      if (greeting) greeting.textContent = 'Not Yet Scanned';
+      if (railName) railName.textContent = 'Not Yet Scanned';
+      if (railRole) railRole.textContent = 'Awaiting Verification';
+      if (navSub)   navSub.textContent   = 'Awaiting Verification';
+      if (avatar)   avatar.textContent   = '—';
+      return;
+    }
     if (greeting) greeting.textContent = name.toUpperCase();
     if (railName) railName.textContent = name;
     if (railRole) railRole.textContent = 'Active Scan';
     if (navSub)   navSub.textContent   = 'Active Scan';
     if (avatar)   avatar.textContent   = name.trim().charAt(0).toUpperCase() || '—';
+  };
+
+  // ── Hero-node dept statuses — Phase 1 Executive Trust Foundation ──────
+  //
+  // The 8 department nodes in the hero globe (Health™/Publishing™/
+  // Catalog™/AI Insights™/Media™/Backend™/Identity™, plus Global™ which
+  // is already wired via applyFootprintPlan) previously shipped hardcoded
+  // status words ("Operational", "Verified", "Ready", etc.) for every
+  // artist, every scan state — confirmed via Phase 1 audit, zero JS
+  // references existed. This reads exclusively from plans __mcPopulate()
+  // already built (no new computation, no new Supabase reads) and applies
+  // an honest "Not Yet Scanned" fallback when a domain's plan is absent —
+  // per Objective 4, never a fabricated status.
+  //
+  // Media™ has no plan here: no renderer for mediaIntelligence exists in
+  // mission-control.js or mission-control-renderers.js today, and
+  // payload.mediaIntelligence is not a root-level payload field (it lives
+  // at payload.cim.media only — confirmed via lib/rie/index.js). Wiring
+  // it honestly requires new read/render logic, which is out of this
+  // phase's minimal-diff scope — documented in the Field Map deliverable
+  // instead of fabricated here.
+  function _hnSet(key, text, dot) {
+    const textEl = document.getElementById(`mc-${key}-hn-status-text`);
+    const dotEl  = document.querySelector(`[data-mc-hn-dot="${key}"]`);
+    if (textEl) textEl.textContent = text;
+    if (dotEl)  dotEl.className    = `mc2-hn-dot mc2-hn-dot--${dot}`;
+  }
+
+  window.__mcApplyHeroNodeStatuses = function () {
+    // Health™ — Health Intelligence Engine™ (hiPlan.grade)
+    const hp = _vaultPlans.hiPlan;
+    if (hp && hp.score !== null) {
+      _hnSet('health', hp.grade, hp.score >= 70 ? 'op' : 'act');
+    } else {
+      _hnSet('health', 'Not Yet Scanned', 'unk');
+    }
+
+    // Publishing™ — Publishing Intelligence Engine™ (piPlan.impact.level)
+    const pi = _vaultPlans.piPlan;
+    if (pi) {
+      const ok = pi.impact?.level === 'low';
+      _hnSet('publishing', ok ? 'Verified' : 'Action Required', ok ? 'op' : 'act');
+    } else {
+      _hnSet('publishing', 'Not Yet Scanned', 'unk');
+    }
+
+    // Catalog™ — Catalog Intelligence Engine™ (catalogPlan.catalogStatus)
+    const cp = _vaultPlans.catalogPlan;
+    if (cp && cp.catalogStatus) {
+      _hnSet('catalog', cp.catalogStatus, 'op');
+    } else {
+      _hnSet('catalog', 'Not Yet Scanned', 'unk');
+    }
+
+    // AI Insights™ — Royaltē AI™ (aiPlan presence; ATHENA™ is the
+    // artist-facing brand for this pipeline per existing product convention)
+    const ai = _vaultPlans.aiPlan;
+    _hnSet('ai', ai ? 'ATHENA™ Active' : 'Not Yet Scanned', ai ? 'new' : 'unk');
+
+    // Media™ — no canonical wiring available at this layer today (see
+    // function-level comment above). Honest fallback only.
+    _hnSet('media', 'Not Yet Scanned', 'unk');
+
+    // Backend™ — Backend Intelligence Engine™ (backendPlan connected/total)
+    const bp = _vaultPlans.backendPlan;
+    if (bp) {
+      const ok = bp.connectedCount === bp.totalCount && bp.totalCount > 0;
+      _hnSet('backend', ok ? 'Stable' : 'Action Required', ok ? 'op' : 'act');
+    } else {
+      _hnSet('backend', 'Not Yet Scanned', 'unk');
+    }
+
+    // Identity™ — Identity Intelligence Engine™ (idPlan.sumAction)
+    const idp = _vaultPlans.idPlan;
+    if (idp && idp.coverage !== null) {
+      const ok = idp.sumAction === 0;
+      _hnSet('identity', ok ? 'Verified' : 'Action Required', ok ? 'op' : 'act');
+    } else {
+      _hnSet('identity', 'Not Yet Scanned', 'unk');
+    }
   };
 }
