@@ -6018,6 +6018,20 @@ a.ci-function-card:hover .ci-artwork-container {
 .mc2-rail-user-name { font-size: 11px; font-weight: 700; color: var(--mc-text-soft); }
 .mc2-rail-user-role { font-size: 9px; color: var(--mc-text-faint); }
 
+/* Hero avatar — same visual language as .mc2-rail-avatar, hero scale.
+   Work Package 2 (Board directive, 2026-07-28): identity presentation
+   hierarchy — canonical artist photo, else initials, else Royaltē mark. */
+.mc2-hero-avatar {
+  width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  display: grid; place-items: center;
+  font-size: 22px; font-weight: 700; color: var(--mc-purple);
+  overflow: hidden;
+}
+.mc2-hero-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mc2-hero-greeting-row { display: flex; align-items: center; gap: 14px; }
+
 /* ═══════════════════════════════════════════════════════════════════════
    Mission Control™ OS Frame — Navigation-first layout
    mc2-os-* namespace | The operating system desktop

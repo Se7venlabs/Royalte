@@ -602,8 +602,25 @@ function buildEcosystemStatusPlan(payload, plans) {
   // Intelligence workspace already reads via renderHealth().
   const confidence = hp?.confidence ?? null;
 
+  // Scan Status — Work Package 4 (Board directive, 2026-07-28). Retained
+  // and defined: purpose is to communicate whether the current scan's
+  // intelligence assembly completed; owner is Mission Control Runtime
+  // (a presentation-layer derivation, not a new intelligence engine);
+  // canonical source is the presence of payload.healthIntelligence, which
+  // is the last domain assembled in the RIE pipeline (lib/rie/index.js) --
+  // its presence implies every upstream domain assembler ran; lifecycle
+  // is recomputed on every __mcPopulate() call, same as every other field
+  // here. 'Executive Status' and 'Profile Status' are retired as distinct
+  // concepts (redundant with Overall Business Status, which is the one
+  // real, wired equivalent); 'Profile Version' is retired (no schema/
+  // versioning concept exists anywhere in the codebase -- defining one
+  // would be new engineering, out of this phase's scope). See
+  // governance/EXECUTIVE_HEADER_PHASE1_TRUST_FOUNDATION.md for the full
+  // decision record.
+  const scanStatus = payload?.healthIntelligence ? 'Complete' : 'Partial';
+
   return { score, grade, delta, lastScan, nextScan, nextScanMeta,
-           changesValue, changesMeta, paCount, statusLabel, isOperational, confidence };
+           changesValue, changesMeta, paCount, statusLabel, isOperational, confidence, scanStatus };
 }
 
 function applyEcosystemStatusPlan(plan) {
@@ -672,6 +689,11 @@ function applyEcosystemStatusPlan(plan) {
   // has been assembled yet (e.g. unauthenticated / pre-first-scan state).
   const confEl = q('[data-mc-es-confidence]');
   if (confEl) confEl.textContent = plan.confidence || 'Data Unavailable';
+
+  // Scan Status — see buildEcosystemStatusPlan() for the retained/defined
+  // decision record (Work Package 4).
+  const scanStatusEl = q('[data-mc-es-scan-status]');
+  if (scanStatusEl) scanStatusEl.textContent = plan.scanStatus;
 
   // ATHENA™ intel sentence — real priority-action count only. The
   // fabricated "N new opportunities" clause (no backing field exists
@@ -1694,6 +1716,29 @@ if (typeof window !== 'undefined') {
   //
   // Diagnostic: logs the exact value being written and its source so the
   // Board can confirm which artist is being displayed and where it came from.
+  // Identity Presentation Hierarchy — Work Package 2 (Board directive,
+  // 2026-07-28): Canonical Artist Image → Apple Music artwork → approved
+  // provider artwork (all three tiers already resolved by
+  // getBestVerifiedArtistImage() per the Board-locked Executive Workspace
+  // Image Selection Standard™ — reused here, never re-derived) → artist
+  // initials → Royaltē placeholder mark.
+  function _applyHeroAvatar(name) {
+    const el = document.getElementById('mc-hero-avatar');
+    if (!el) return;
+    const imgUrl = getBestVerifiedArtistImage(_vaultPlans.payload || null);
+    if (imgUrl) {
+      el.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = imgUrl;
+      img.alt = name ? `${name} artist photo` : '';
+      img.onerror = () => { el.innerHTML = ''; el.textContent = name ? name.trim().charAt(0).toUpperCase() : 'ē'; };
+      el.appendChild(img);
+      return;
+    }
+    el.innerHTML = '';
+    el.textContent = name ? (name.trim().charAt(0).toUpperCase() || 'ē') : 'ē';
+  }
+
   window.__mcRevealHero = function () {
     const name     = _vaultPlans.artistName || null;
     const greeting = document.getElementById('mc-greeting');
@@ -1702,6 +1747,7 @@ if (typeof window !== 'undefined') {
     const navSub   = document.getElementById('mc-nav-account-sub');
     const avatar   = document.querySelector('.mc2-rail-avatar');
     const prev     = greeting ? greeting.textContent : '(element not found)';
+    _applyHeroAvatar(name);
     console.log(
       '[mc-diag] __mcRevealHero called\n' +
       '  Payload artist (source: _vaultPlans.artistName): ' + (name || '(none)') + '\n' +
@@ -1784,9 +1830,22 @@ if (typeof window !== 'undefined') {
     const ai = _vaultPlans.aiPlan;
     _hnSet('ai', ai ? 'ATHENA™ Active' : 'Not Yet Scanned', ai ? 'new' : 'unk');
 
-    // Media™ — no canonical wiring available at this layer today (see
-    // function-level comment above). Honest fallback only.
-    _hnSet('media', 'Not Yet Scanned', 'unk');
+    // Media™ — Media Intelligence Engine™ (Work Package 3, Board directive
+    // 2026-07-28, Option A: the engine already exists and is already wired
+    // into the scan pipeline -- api/_lib/media-intelligence.js, confirmed
+    // live in the Media Intelligence workspace. It is not a root-level
+    // payload field (only payload.cim.media), so this reads that path
+    // directly rather than through the safe*/render* pattern the other
+    // domains use -- a full renderer pair would be disproportionate scope
+    // for one hero-node status word. Reuses contentActivity.status
+    // verbatim; computes nothing new.
+    const media = _vaultPlans.payload?.cim?.media;
+    if (media && media.available && media.contentActivity?.status && media.contentActivity.status !== 'Unknown') {
+      const s = media.contentActivity.status;
+      _hnSet('media', s, s === 'Active' ? 'op' : 'act');
+    } else {
+      _hnSet('media', 'Not Yet Scanned', 'unk');
+    }
 
     // Backend™ — Backend Intelligence Engine™ (backendPlan connected/total)
     const bp = _vaultPlans.backendPlan;
