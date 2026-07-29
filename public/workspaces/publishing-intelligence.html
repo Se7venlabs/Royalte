@@ -395,9 +395,8 @@
     sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
       schemaVersion: '1.1',
       scanId:        'preview-fixture-publishing-001',
-      // Official Royaltē Development Artist Profile (Board directive, 2026-07-21,
-      // Publishing Intelligence™ Certification Pass) -- seeded development data
-      // only, clearly separated from production. Not a real artist.
+      // Seeded development fixture data only, clearly separated from
+      // production. Not a real artist.
       artistName:    'Black Alternative',
       scannedAt:     new Date().toISOString(),
       generatedAt:   new Date().toISOString(),
@@ -682,9 +681,9 @@
               <div class="pi-mrp-field-badge pi-mrp-badge--unknown" id="pi-mrp-pro-badge">Artist Disclosure</div>
             </div>
 
-            <!-- Board Ruling #2 (2026-07-21): SoundExchange is retired from onboarding but
-                 remains a canonical Music Rights Profile field, disclosed via the
-                 Settings "Neighboring Rights" group (mrp.neighboring_rights). This reads
+            <!-- SoundExchange is not collected at onboarding; it remains a
+                 canonical Music Rights Profile field disclosed via Settings'
+                 "Neighboring Rights" group (mrp.neighboring_rights). Reads
                  that canonical value, not the retired onboarding pr.soundexchange field. -->
             <div class="pi-mrp-field">
               <div class="pi-mrp-field-label">SoundExchange</div>
@@ -914,11 +913,11 @@
 // Output: Rendered HTML
 // Never:  queries storage directly, renders demo data, builds artist objects
 //
-// type="module" (Board hygiene directive, 2026-07-21): needed to import
-// getOptionLabel() from music-rights-profile.js instead of maintaining
-// duplicate label maps. Module scripts defer like classic `defer` scripts,
-// so this still runs after mc-workspace-context.js (a blocking classic
-// script loaded earlier in <head>) -- execution order is unchanged.
+// type="module": imports getOptionLabel() from music-rights-profile.js
+// instead of maintaining a duplicate label map. Module scripts defer like
+// classic `defer` scripts, so this still runs after mc-workspace-context.js
+// (a blocking classic script loaded earlier in <head>) -- execution order
+// is unchanged.
 import { getOptionLabel } from '/js/music-rights-profile.js';
 (function () {
   'use strict';
@@ -974,9 +973,9 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
   }
 
   // ── SoundExchange — Artist Disclosure ────────────────────────────────────
-  // Board Ruling #2 (2026-07-21): the retired onboarding pr.soundexchange field
-  // is never read here. SoundExchange is a canonical Music Rights Profile field
-  // disclosed via Settings' "Neighboring Rights" group.
+  // The retired onboarding pr.soundexchange field is never read here.
+  // SoundExchange is a canonical Music Rights Profile field disclosed via
+  // Settings' "Neighboring Rights" group.
   var nr    = (mrp && mrp.neighboring_rights) ? mrp.neighboring_rights : {};
   var sxOrg = nr.organization || null;
   if (sxOrg === 'soundexchange') {
@@ -1069,9 +1068,9 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
   setField('pi-mrp-cae-val', 'pi-mrp-cae-badge',
     ridGroup.cae_number || '—', ridGroup.cae_number ? 'pi-mrp-badge--verified' : 'pi-mrp-badge--unknown', 'Artist Disclosure');
 
-  // ── Publishing Health™ — Board Ruling #6 (2026-07-21): no Health Engine exists
-  // yet, so this must never calculate or display an invented score/percentage.
-  // Shows an honest pending state until the real Royaltē Health Engine ships.
+  // ── Publishing Health™ — no dedicated scoring engine exists for this field;
+  // must never calculate or display an invented score/percentage. Shows an
+  // honest pending state instead.
   var scoreEl  = document.getElementById('pi-mrp-health-score');
   var statusEl = document.getElementById('pi-mrp-status-badge');
   if (scoreEl) scoreEl.textContent = '—';
@@ -1081,7 +1080,7 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
   }
 
   // ── KPI Cards — wire Publishing Coverage, Registered Works, PRO caption ──
-  var pi = ctx.publishing || null;  // CIM-native (Phase 2 Recovery) -- was ctx.publishingIntelligence
+  var pi = ctx.publishing || null;  // CIM-native field (formerly ctx.publishingIntelligence)
   var kpiCards = document.querySelectorAll('.hi-kpi-row .hi-kpi-card');
 
   if (pi && kpiCards.length >= 2) {
@@ -1116,8 +1115,8 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
     if (cap3 && pi.metrics) cap3.textContent = 'ISWC: ' + (pi.metrics.mlcIswcCount || 0) + ' Assigned';
   }
 
-  // ── Header health block — Board Ruling #6: honest pending state, no invented
-  // score, until the real Royaltē Health Engine exists. ──────────────────────
+  // ── Header health block — honest pending state; no dedicated scoring
+  // engine exists for this field, so no invented score is shown. ─────────
   var hScoreEl  = document.getElementById('pi-exec-health-score');
   var hBadgeEl  = document.getElementById('pi-exec-health-badge');
   var hUpdEl    = document.getElementById('pi-exec-health-updated');
@@ -1148,21 +1147,12 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
   var regData = pi && pi.registrations ? pi.registrations : {};
   var regEntries = [];
 
-  // Performance Rights — from MRP PRO (Artist Disclosure only). Phase 2
-  // (Board directive, 2026-07-29): removed a dead official-source lookup
-  // that could never match -- pi.registrations is keyed by domain concept
-  // (mlcRegistration/registeredWorks/etc.), never by PRO name, so
-  // regData[proKey] always fell through to the same hardcoded literal
-  // it now returns directly. No real PRO-verification evidence exists in
-  // the canonical payload today (unlike Mechanical Licensing below, which
-  // has real MLC scan evidence to upgrade against) -- an honest
-  // Artist-Disclosure-only status, not a fabricated upgrade path.
-  // Merge Readiness Sprint (Board directive, 2026-07-29), Work Package 3:
-  // every entry below except Mechanical Licensing's real-evidence branch is
-  // sourced from Artist Disclosure only -- no official-source verification
-  // exists for any of it. Previously displayed as "Registered"/"Active",
-  // words that imply external confirmation. Now uses 'SELF_REPORTED'
-  // throughout except where real evidence genuinely upgrades the status.
+  // Performance Rights — from MRP PRO (Artist Disclosure only). pi.registrations
+  // is keyed by domain concept (mlcRegistration/registeredWorks/etc.), never
+  // by PRO name, so no official-source verification exists for this field.
+  // Every entry below except Mechanical Licensing's real-evidence branch is
+  // Artist-Disclosure-only -- uses 'SELF_REPORTED' rather than "Registered"/
+  // "Active", which would imply external confirmation that doesn't exist.
   if (proVal && proVal !== 'None') {
     regEntries.push({ category: 'Performance Rights', org: proVal, status: 'SELF_REPORTED' });
   }
@@ -1175,8 +1165,8 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
     regEntries.push({ category: 'Mechanical Licensing', org: 'The MLC', status: mlcStat });
   }
 
-  // Digital Performance — SoundExchange (Board Ruling #2: reads the canonical
-  // Music Rights Profile neighboring_rights group, never the retired onboarding field).
+  // Digital Performance — SoundExchange. Reads the canonical Music Rights
+  // Profile neighboring_rights group, never the retired onboarding field.
   if (sxOrg === 'soundexchange') {
     regEntries.push({ category: 'Digital Performance', org: 'SoundExchange', status: 'SELF_REPORTED' });
   } else if (sxOrg) {
@@ -1300,14 +1290,12 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
     if (pubData.publishing_management === 'publisher' && pubData.organization_name) {
       entities.push({ name: pubData.organization_name, role: 'Publisher' });
     }
-    // Record Label — Evidence Verified. Phase 2 (Board directive, 2026-07-29,
-    // Cross-Workspace Integrity finding): this is an independently-sourced
-    // fact from the "Record Label" field above (Artist Disclosure, MRP) --
-    // both are honestly labeled with their own provenance, but previously
-    // gave no indication when they disagreed, which could read as a
-    // contradiction rather than two distinct, correctly-labeled facts.
-    // Adds a small note when both exist and differ; says nothing when they
-    // agree or when only one source has a value.
+    // Record Label — Evidence Verified. Independently sourced from the
+    // "Record Label" field above (Artist Disclosure, MRP) -- both are
+    // honestly labeled with their own provenance. Adds a small note when
+    // both exist and differ, so a mismatch reads as two distinct,
+    // correctly-labeled facts rather than a contradiction; says nothing
+    // when they agree or when only one source has a value.
     if (ctx.recordLabel) {
       var labelNote = null;
       if (recLabelVal && recLabelVal.trim().toLowerCase() !== ctx.recordLabel.trim().toLowerCase()) {

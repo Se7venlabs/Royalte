@@ -148,14 +148,14 @@
                                  can.cim && can.cim.verification)                                || null,
       backendIntelligence:    _r(payload.backendIntelligence,    can.backendIntelligence)        || null,
       // globalFootprint:      CIM-native (from cim.globalFootprint, the CIM's
-      //                       real key name) -- Phase 2 Recovery, Global Music
-      //                       Footprint workspace reads this directly.
+      //                       real key name) -- Global Music Footprint
+      //                       workspace reads this directly.
       globalFootprint:         _r(payload.cim  && payload.cim.globalFootprint,
                                  can.cim && can.cim.globalFootprint)                              || null,
       globalMusicFootprint:   _r(payload.globalMusicFootprint,   can.globalMusicFootprint)       || null,
       // mediaIntelligence:    CIM-native (from cim.media, the CIM's §8.2.14
-      //                       key, Board directive 2026-07-22) -- Media
-      //                       Intelligence workspace reads this directly.
+      //                       key) -- Media Intelligence workspace reads
+      //                       this directly.
       mediaIntelligence:       _r(payload.cim  && payload.cim.media,
                                  can.cim && can.cim.media)                                        || null,
 

@@ -34,15 +34,14 @@
    * Tablet and mobile calibration never modify this dataset.
    * Source of truth: this file only. One dataset per viewport, no inheritance.
    *
-   * Constitutional Refactor (Board directive, 2026-07-21): these anchors
-   * carry ONLY geographic projection data (l/t pixel position, flag) --
-   * this is a fixed cartographic fact (where a country sits on this map
-   * image), not business intelligence, and is exempt from the evidence-
-   * fabrication findings in governance/GLOBAL_MUSIC_FOOTPRINT_EVIDENCE_AUDIT.md.
-   * The per-country provider list and "detected" date that used to live
-   * here (`p`, `d`) WERE the fabrication -- both are now resolved at
-   * render time from real per-territory evidence (see resolveAnchorTerritory
-   * below), keyed by the ANCHOR_CODES ISO lookup, not hardcoded here.
+   * These anchors carry ONLY geographic projection data (l/t pixel
+   * position, flag) -- a fixed cartographic fact (where a country sits on
+   * this map image), not business intelligence; exempt from the
+   * evidence-fabrication findings in
+   * governance/GLOBAL_MUSIC_FOOTPRINT_EVIDENCE_AUDIT.md. Per-country
+   * provider list and "detected" date are resolved at render time from
+   * real per-territory evidence (see resolveAnchorTerritory below), keyed
+   * by the ANCHOR_CODES ISO lookup, never hardcoded here.
    */
   var DESKTOP_ANCHORS = {
     'Canada':         { l: 17.1, t: 22.4, flag: '🇨🇦' },
@@ -267,11 +266,11 @@
     var activeFilter      = null;
     var filterResetTimer  = null;
 
-    /* ── Real evidence lookup (Board directive, 2026-07-21 Constitutional
-     * Refactor) — options.territories is the real distributionGaps.territories
-     * array (api/_lib/global-music-footprint.js). Never fabricated: an
-     * anchor country with no matching real territory renders its flag only,
-     * with zero provider markers, rather than inventing presence. */
+    /* ── Real evidence lookup — options.territories is the real
+     * distributionGaps.territories array (api/_lib/global-music-footprint.js).
+     * Never fabricated: an anchor country with no matching real territory
+     * renders its flag only, with zero provider markers, rather than
+     * inventing presence. */
     var territoryByCode = {};
     (Array.isArray(options.territories) ? options.territories : []).forEach(function (t) {
       if (t && typeof t.code === 'string') territoryByCode[t.code.toLowerCase()] = t;

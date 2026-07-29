@@ -119,12 +119,11 @@ async function _enterMissionControlDirect() {
   if (pctEl) pctEl.textContent = '100%';
   window.__mcBoot?.setReactor?.(MODULE_ORDER.length);
 
-  // Founder Account Isolation — Runtime Context Audit (Board directive,
-  // 2026-07-21): the left-rail account widget and hero greeting are
-  // populated exclusively by window.__mcRevealHero() (called above),
-  // the single, universal writer for every identity-displaying element
-  // on this shell — hero greeting, rail name/role, nav sub-label. No
-  // Founder/session-specific override lives here.
+  // Founder Account Isolation — the left-rail account widget and hero
+  // greeting are populated exclusively by window.__mcRevealHero() (called
+  // above), the single, universal writer for every identity-displaying
+  // element on this shell — hero greeting, rail name/role, nav sub-label.
+  // No Founder/session-specific override lives here.
 
   console.info('[Mission Control] Direct entry — Vault/auth/onboarding bypassed for platform build-out (temporary, Board directive 2026-07-21). Real scan data via __mcPopulate().');
 }

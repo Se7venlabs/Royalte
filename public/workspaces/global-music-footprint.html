@@ -10,11 +10,10 @@
   <link rel="stylesheet" href="/css/gmf-distribution-gaps.css">
 <style>
 /* ─────────────────────────────────────────────────────────────────────
-   Global Music Footprint™ v2.0 — Executive Visual Rebuild
-   Board directive, 2026-07-21. Layout/spacing/hierarchy/glow language
-   modeled on the Board-approved mockup. Every value rendered from this
-   markup is wired to real canonical evidence (see the runtime script) --
-   this stylesheet defines presentation only, no data.
+   Global Music Footprint™ — Executive Visual Layout
+   Every value rendered from this markup is wired to real canonical
+   evidence (see the runtime script) -- this stylesheet defines
+   presentation only, no data.
    ───────────────────────────────────────────────────────────────────── */
 
 .gf2-shell { display: flex; flex-direction: column; gap: 16px; }
@@ -284,9 +283,9 @@
 }
 </style>
   <script>
-  /* DEV FIXTURE — localhost OR ?dev=1 (unchanged gating from v1). Mirrors
-   * the real assembleGlobalMusicFootprint() shape exactly (v1.2.0), incl.
-   * the newly-threaded confidence field per Board directive 2026-07-21. */
+  /* DEV FIXTURE — localhost OR ?dev=1. Mirrors the real
+   * assembleGlobalMusicFootprint() shape exactly (v1.2.0), including the
+   * confidence field. */
   (function () {
     var isLocal  = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     var devParam = new URLSearchParams(location.search).get('dev') === '1';
@@ -549,11 +548,8 @@
               </div>
               <div class="gf2-health-body">
                 <div class="gf2-health-ring-wrap">
-                  <!-- Phase 2 (Board directive, 2026-07-29): aria-hidden added
-                       -- the adjacent #gf2-health-num text node already
-                       announces the same number; every sibling decorative
-                       graphic on this and adjacent workspaces already has
-                       this attribute, this was the one gap. -->
+                  <!-- Decorative -- the adjacent #gf2-health-num text node
+                       already announces the same number. -->
                   <svg class="gf2-health-ring-svg" viewBox="0 0 64 64" aria-hidden="true">
                     <circle class="gf2-health-ring-track" cx="32" cy="32" r="27"/>
                     <circle class="gf2-health-ring-fill" id="gf2-health-ring" cx="32" cy="32" r="27" stroke-dasharray="170" stroke-dashoffset="170"/>
@@ -827,19 +823,18 @@
   if (updatedEl) updatedEl.textContent = fmtRelative(ctx.generatedAt || ctx.scannedAt);
 
   /* ── Header: Evidence Transparency — Engine Version + Evidence Certified
-   * (Board V1.0 Completion, refinement 5). Evidence Certified uses
-   * gf.territoryGeneratedAt -- the Territory Intelligence Engine's own
-   * real certification timestamp -- distinct from "Last Updated" above,
-   * which reflects the browser context's build time, not the evidence's
-   * own certification time. Engine Version fetch is shared with the
-   * Freshness Certification™ check below, not duplicated. ──────────── */
+   * Evidence Certified uses gf.territoryGeneratedAt -- the Territory
+   * Intelligence Engine's own real certification timestamp -- distinct
+   * from "Last Updated" above, which reflects the browser context's build
+   * time, not the evidence's own certification time. Engine Version fetch
+   * is shared with the Freshness Certification™ check below, not
+   * duplicated. ────────────────────────────────────────────────────── */
   var evidenceCertifiedEl = document.getElementById('gf2-evidence-certified-value');
   if (evidenceCertifiedEl) {
     evidenceCertifiedEl.textContent = gf.territoryGeneratedAt ? fmtRelative(gf.territoryGeneratedAt) : 'Unknown';
   }
 
-  /* ── Freshness Certification™ (Board Phase 1, IC-1, 2026-07-27; Board
-     Addendum, 2026-07-27) ─────────────────────────────────────────────
+  /* ── Freshness Certification™ ────────────────────────────────────────
      Mission Control shall never silently present obsolete territory
      intelligence as current -- and shall never define its own engine
      version. Territory Intelligence Engine™ certifies the data (via
@@ -911,11 +906,9 @@
   document.getElementById('gf2-missing-bar').style.width = missingPct + '%';
   document.getElementById('gf2-missing-pct').textContent = missingPct + '%';
 
-  /* ── KPI: Distribution Health™ (real, repurposed per Board directive:
-   * "Do NOT invent a new health score. Derive a truthful executive status
-   * from existing canonical evidence... use the existing coverage evidence
-   * to power this card.") ring shows real coveragePercent; label mapped
-   * from the same real, Board-locked status thresholds. */
+  /* ── KPI: Distribution Health™ — never invents a health score. Ring shows
+   * real coveragePercent; label mapped from the same real, Board-locked
+   * status thresholds. */
   var HEALTH_LABEL = { Global: 'Excellent', Strong: 'Strong', Regional: 'Growing', Limited: 'Limited' };
   var healthPct = gf.coveragePercent || 0;
   var ringCirc = 2 * Math.PI * 27;
@@ -928,10 +921,9 @@
   document.getElementById('gf2-health-label').textContent = HEALTH_LABEL[gf.status] || gf.status || '—';
   document.getElementById('gf2-health-desc').textContent = healthPct + '% of evaluated markets are confirmed available.';
 
-  /* ── KPI: Markets Pending Review™ (real, repurposed from "Expansion
-   * Opportunity™" per Board directive -- no stream/revenue estimates
-   * exist anywhere in this codebase; uses real unknown+notEvaluated
-   * counts instead.) ────────────────────────────────────────────────── */
+  /* ── KPI: Markets Pending Review™ — no stream/revenue estimates exist
+   * anywhere in this codebase; uses real unknown+notEvaluated counts
+   * instead. ─────────────────────────────────────────────────────────── */
   var pendingUnknown = dg ? dg.unknown : 0;
   var pendingNotEval = dg ? dg.notEvaluated : 0;
   document.getElementById('gf2-pending-num').textContent = pendingUnknown + pendingNotEval;
@@ -948,8 +940,8 @@
     onCountrySelect: function (t) { showCountryPanel(t); },
   });
 
-  // Platform Availability vs Artist Catalog (Board directive 2026-07-22):
-  // two independent facts that were previously conflated into one row.
+  // Platform Availability vs Artist Catalog — two independent facts, kept
+  // in separate rows.
   // "Platform Availability" = does this provider operate a storefront in
   // this territory at all (real, from t.platformSupport, sourced by the
   // Territory Intelligence Engine -- see api/_lib/territory-intelligence.js).
@@ -989,10 +981,8 @@
     platformSupport.forEach(function (p) {
       var pRow = document.createElement('div');
       pRow.className = 'gf2-panel-provider-row';
-      // Phase 2 (Board directive, 2026-07-29): emoji glyphs removed -- this
-      // was the only status indicator in the workspace using emoji; every
-      // sibling status (t.status above, panel dot) uses colored text/dots
-      // only. Color already carries the same signal (green/red below).
+      // No emoji -- every sibling status indicator in this workspace uses
+      // colored text/dots only; color already carries the signal below.
       var label = p.supported ? 'Supported' : 'Not Supported';
       pRow.innerHTML = '<span>' + esc(providerDisplayName(p.provider)) + '</span><span style="color:' + (p.supported ? '#22c55e' : '#f87171') + '">' + esc(label) + '</span>';
       platformEl.appendChild(pRow);
@@ -1009,12 +999,11 @@
     // Unavailable status directly above it).
     var isAvailable = t.status === 'Available';
     var hasEvidence = Array.isArray(t.providers) && t.providers.indexOf('apple_music') !== -1;
-    // "Not Available in this Storefront" (Board directive 2026-07-22, Country
-    // Intelligence Panel v2) -- matches the wording already used elsewhere in
-    // this evidence chain (api/_lib/global-music-footprint.js's REASON_LABELS/
-    // RECOMMENDED_ACTIONS_BY_REASON both already say "storefront") so the
-    // panel doesn't imply the artist or catalog doesn't exist, only that this
-    // specific storefront doesn't carry it.
+    // "Not Available in this Storefront" matches the wording used elsewhere
+    // in this evidence chain (api/_lib/global-music-footprint.js's
+    // REASON_LABELS/RECOMMENDED_ACTIONS_BY_REASON both say "storefront") so
+    // the panel doesn't imply the artist or catalog doesn't exist, only
+    // that this specific storefront doesn't carry it.
     var catalogLabel = isAvailable ? 'Available' : (hasEvidence ? 'Not Available in this Storefront' : '— Not yet assessed');
     if (t && t.code === 'ca' && typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('ROYALTE_FORENSIC_TRACE') === '1') {
       console.log('==============================');
@@ -1032,12 +1021,12 @@
     row.innerHTML = '<span>' + esc(artistLabel) + '</span><span style="color:' + (isAvailable ? '#22c55e' : '#f87171') + '">' + esc(catalogLabel) + '</span>';
     providersEl.appendChild(row);
 
-    // Revenue Opportunity™ / Priority™ (Board directive 2026-07-22) -- an
-    // editorial market-tier lens from the Canonical Market Metadata
-    // Registry™ (public/js/canonical-market-metadata.js -- pure static
-    // metadata, NOT Territory Intelligence Engine output) applied on top
-    // of the real t.status above. Never fabricates a number; every value
-    // shown is a qualitative bucket traced to real status + canonical tier.
+    // Revenue Opportunity™ / Priority™ -- an editorial market-tier lens
+    // from the Canonical Market Metadata Registry™
+    // (public/js/canonical-market-metadata.js -- pure static metadata, NOT
+    // Territory Intelligence Engine output) applied on top of the real
+    // t.status above. Never fabricates a number; every value shown is a
+    // qualitative bucket traced to real status + canonical tier.
     var CMM = window.RoyalteCanonicalMarketMetadata;
     var tierText = CMM ? CMM.tierLabel(CMM.getTier(t.code)) : 'Standard Market';
     var priorityInfo = CMM ? CMM.deriveStrategicSignal(t.status, t.code) : { priority: 'Unknown', revenueOpportunity: 'Unknown', explanation: null };
@@ -1062,8 +1051,8 @@
       actionBox.classList.remove('gf2-panel-action-box--attention');
     }
 
-    // Assessment Source (Board directive 2026-07-22) -- who produced this
-    // territory's catalog assessment, real from t.providers (the providers
+    // Assessment Source -- who produced this territory's catalog
+    // assessment, real from t.providers (the providers
     // that actually returned evidence here, same array already gating the
     // "Not yet assessed" case above), paired with the Engine's own real
     // confidence value. Never lists a provider that didn't evaluate this

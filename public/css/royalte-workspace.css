@@ -1674,14 +1674,6 @@ svg { display: block; }
   position: relative;
 }
 
-/* Merge Readiness Sprint (Board directive, 2026-07-29), Work Package 9:
- * removed .hi-timeline-ruler/-day/-dot*, .ht-scan-btn*, .ht-history-banner*,
- * .ht-history-return-btn*, #ht-main/.ht-main--fading, and
- * .hi-timeline-day-label -- all were the CSS half of the 7-dot fake
- * timeline control removed this sprint (Work Package 5) and its JS file
- * (public/js/health-timeline.js, deleted). Confirmed unused anywhere else
- * in the codebase before removal. */
-
 .hi-timeline-footer {
   display: flex;
   justify-content: flex-end;
@@ -3273,8 +3265,8 @@ svg { display: block; }
   background: rgba(124,58,237,0.14); border-color: rgba(124,58,237,0.42);
 }
 
-/* KPI row: 2 equal columns after Potential Royalty Impact™/ATHENA card removal
-   and Collection Health™ removal (Board Ruling #5 -- no real evidence model). */
+/* KPI row: 2 equal columns -- Potential Royalty Impact™/ATHENA and Collection
+   Health™ cards are not shown here; no real evidence model exists for either. */
 .ws-dept--publishing .hi-kpi-row {
   grid-template-columns: repeat(2, 1fr);
 }
@@ -5854,8 +5846,8 @@ a.ci-function-card:hover .ci-artwork-container {
 .mc2-rail-user-role { font-size: 9px; color: var(--mc-text-faint); }
 
 /* Hero avatar — same visual language as .mc2-rail-avatar, hero scale.
-   Work Package 2 (Board directive, 2026-07-28): identity presentation
-   hierarchy — canonical artist photo, else initials, else Royaltē mark. */
+   Identity presentation hierarchy: canonical artist photo, else initials,
+   else Royaltē mark. */
 .mc2-hero-avatar {
   width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
   background: rgba(168, 85, 247, 0.18);

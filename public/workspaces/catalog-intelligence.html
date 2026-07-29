@@ -9,13 +9,11 @@
   <link rel="stylesheet" href="/css/royalte-workspace.css">
 <script>
 (function () {
-  // Phase 2 (Board directive, 2026-07-29): narrowed to match the guard
-  // every sibling workspace (Media Intelligence, Global Music Footprint)
-  // already uses -- localhost, or an explicit ?dev=1 opt-in. The previous
-  // isPreview check (host.endsWith('.vercel.app')) auto-activated fixture
-  // data on every Preview deployment with no query param needed, unlike
-  // every other workspace -- a real Preview URL for this page alone could
-  // silently render fabricated data to anyone who opened it.
+  // Matches the fixture-activation guard every sibling workspace (Media
+  // Intelligence, Global Music Footprint) uses -- localhost, or an explicit
+  // ?dev=1 opt-in. A host-based Preview check would auto-activate fixture
+  // data on any Preview deployment with no query param needed, silently
+  // rendering fabricated data to anyone who opened the URL.
   var host = location.hostname;
   var isLocal  = host === 'localhost' || host === '127.0.0.1';
   var devParam = new URLSearchParams(location.search).get('dev') === '1';
@@ -27,11 +25,11 @@
       if (ex.scanId && !String(ex.scanId).startsWith('preview-fixture-')) return;
     } catch (_) {}
   }
-  // Board directive (2026-07-21): matches the real assembleCatalogIntelligence()
-  // output shape (api/_lib/catalog-intelligence.js) exactly -- the previous
-  // fixture invented fields (metadataIntegrity, lyricSyncCoverage,
-  // duplicatesDetected, metadataFields, timeline, recentActivity) that never
-  // existed in any real assembler output anywhere in the pipeline.
+  // Matches the real assembleCatalogIntelligence() output shape
+  // (api/_lib/catalog-intelligence.js) exactly -- no invented fields
+  // (metadataIntegrity, lyricSyncCoverage, duplicatesDetected,
+  // metadataFields, timeline, recentActivity) that don't exist in any
+  // real assembler output.
   //
   // isrcIntelligence mirrors the real ISRC Intelligence™ v1 schema exactly
   // (api/_lib/isrc-intelligence.js) -- Apple Catalog Capability.TRACKS
@@ -113,8 +111,8 @@
   color: var(--mc-text-muted, #8a8da1);
   line-height: 1.4;
 }
-/* Compact catalogStatus/confidence contextual signal (Board directive,
-   2026-07-21) -- deliberately text, not a KPI card. */
+/* Compact catalogStatus/confidence contextual signal -- deliberately text,
+   not a KPI card. */
 .ci-context-signals {
   font-size: 11.5px;
   color: var(--mc-text-muted, #8a8da1);
@@ -162,10 +160,10 @@
   border-color: rgba(224,64,200,0.7);
 }
 
-/* KPI row -- Board directive (2026-07-21): Metadata Integrity and Lyric
-   Sync Coverage retired (no canonical evidence exists for either concept
-   anywhere in the pipeline). 2 evidence-backed KPIs remain; do not
-   substitute placeholder metrics to refill the row to four. */
+/* KPI row -- Metadata Integrity and Lyric Sync Coverage are not shown: no
+   canonical evidence exists for either concept anywhere in the pipeline.
+   2 evidence-backed KPIs remain; do not substitute placeholder metrics to
+   refill the row to four. */
 .ci-kpi-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -243,10 +241,10 @@
   margin-top: 1px;
 }
 
-/* Two-column rows -- Board directive (2026-07-21): Metadata Integrity™ and
-   Release Timeline cards removed (fabricated, no canonical evidence). The
-   surviving card in each row (Latest Release™, Catalog Summary) spans full
-   width rather than leaving an empty half. */
+/* Two-column rows -- Metadata Integrity™ and Release Timeline cards are not
+   shown (fabricated, no canonical evidence). The surviving card in each row
+   (Latest Release™, Catalog Summary) spans full width rather than leaving
+   an empty half. */
 .ci-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -407,9 +405,9 @@
 }
 .ci-summary-footer { margin-top: auto; }
 
-/* ISRC Intelligence™ v1 card (Board directive, 2026-07-21) --
-   api/_lib/isrc-intelligence.js is the sole evidence source. States:
-   ASSESSED_COMPLETE / ASSESSED_PARTIAL / NOT_ASSESSED / NO_RECORDINGS. */
+/* ISRC Intelligence™ card -- api/_lib/isrc-intelligence.js is the sole
+   evidence source. States: ASSESSED_COMPLETE / ASSESSED_PARTIAL /
+   NOT_ASSESSED / NO_RECORDINGS. */
 .ci-isrc-state-badge {
   display: inline-flex;
   align-items: center;
@@ -503,10 +501,10 @@
   padding-top: 10px;
 }
 
-/* ATHENA Executive Insight™ (Board directive, 2026-07-21) -- deterministic
-   client-side sentence template. NOT a call to the real ATHENA engine
-   (api/athena/), which is constitutionally scoped to Mission Control Data
-   API™ envelopes only. Same pattern already used on Publishing Intelligence. */
+/* ATHENA Executive Insight™ -- deterministic client-side sentence template.
+   NOT a call to the real ATHENA engine (api/athena/), which is
+   constitutionally scoped to Mission Control Data API™ envelopes only.
+   Same pattern used on Publishing Intelligence. */
 .ci-athena-body {
   display: flex;
   gap: 14px;
@@ -526,14 +524,6 @@
   color: rgba(220,215,255,0.85);
 }
 
-/* Board directive (2026-07-21): the ATHENA-style detail panel (Release
-   Details + Metadata Integrity Details) that used this Executive Closing
-   Section styling was removed -- both were hardcoded narrative text with
-   no canonical evidence backing, same class of fabrication as Publishing
-   Intelligence's ATHENA modal. The Executive Closing Section standard
-   itself remains locked for future panels built on real evidence; this
-   file's now-unused .ci-exec-closing-*/.ci-exec-action-list rules were
-   removed as dead CSS, not the standard. */
 </style>
 </head>
 <body>
@@ -735,17 +725,14 @@
                     <span class="ci-lr-field-label">Genre</span>
                     <span class="ci-lr-field-val" id="ci-lr-genre">—</span>
                   </div>
-                  <!-- Phase 2 (Board directive, 2026-07-29): labeled "Scanned
-                       Track ISRC" rather than bare "ISRC" -- this field reads
-                       subject.trackIsrc (the specific song this scan targeted,
-                       often absent for artist-level scans), a different scope
-                       than the catalog-wide "ISRC Coverage™" KPI above it on
-                       this same page. Both were already correct and honestly
-                       sourced; only the label was ambiguous enough to read as
-                       a contradiction. Identity Intelligence's equivalent
-                       field keeps its original "ISRC" label -- that page has
-                       no competing catalog-wide ISRC metric, so no ambiguity
-                       exists there. -->
+                  <!-- Labeled "Scanned Track ISRC" rather than bare "ISRC" --
+                       this field reads subject.trackIsrc (the specific song
+                       this scan targeted, often absent for artist-level
+                       scans), a different scope than the catalog-wide "ISRC
+                       Coverage™" KPI above it on this same page. Identity
+                       Intelligence's equivalent field keeps the plain "ISRC"
+                       label -- that page has no competing catalog-wide ISRC
+                       metric, so no ambiguity exists there. -->
                   <div class="ci-lr-field">
                     <span class="ci-lr-field-label">Scanned Track ISRC</span>
                     <span class="ci-lr-field-val" id="ci-lr-isrc">—</span>
@@ -939,13 +926,9 @@
   var ci = ctx.catalogIntelligence || {};
   var bvr = ci.bestVerifiedRelease || null;
 
-  /* ── Last Catalog Sync — Phase 2 (Board directive, 2026-07-29) ────────
-   * Was static HTML text ("2 hours ago") with zero JS wiring anywhere in
-   * this file -- always showed the same fabricated age regardless of when
-   * the real scan ran. Same real ctx.scannedAt field and date-format
-   * pattern already used by Identity Intelligence's "Last Sync" (same
-   * Evidence Chain Rule™ fix already applied to Mission Control's header
-   * this phase, reused here rather than re-derived). */
+  /* ── Last Catalog Sync — reads the real ctx.scannedAt field, same
+   * date-format pattern already used by Identity Intelligence's "Last
+   * Sync" (Evidence Chain Rule™); reused here rather than re-derived. */
   function fmtSyncDate(iso) {
     if (!iso) return null;
     try {
@@ -978,12 +961,11 @@
   }
 
   /* ── § 2 KPI — ISRC Coverage™ ────────────────────────────────────────
-   * Board directive (2026-07-21) — ISRC Intelligence™ v1: sourced from
-   * ci.isrcIntelligence (api/_lib/isrc-intelligence.js), Apple Music
-   * Capability.TRACKS evidence. States: ASSESSED_COMPLETE / ASSESSED_PARTIAL
-   * / NOT_ASSESSED / NO_RECORDINGS. This KPI is a compact summary; the full
-   * ISRC Intelligence™ card below (§5) carries the missing-recordings
-   * detail and provenance. */
+   * Sourced from ci.isrcIntelligence (api/_lib/isrc-intelligence.js), Apple
+   * Music Capability.TRACKS evidence. States: ASSESSED_COMPLETE /
+   * ASSESSED_PARTIAL / NOT_ASSESSED / NO_RECORDINGS. This KPI is a compact
+   * summary; the full ISRC Intelligence™ card below (§5) carries the
+   * missing-recordings detail and provenance. */
   var isrc = ci.isrcIntelligence || {};
   var isrcAssignedEl = document.getElementById('ci-kpi-isrc-assigned');
   var isrcTotalEl    = document.getElementById('ci-kpi-isrc-total');
@@ -1014,7 +996,7 @@
   }
 
   /* ── § 0 — Compact context signals: catalogStatus / confidence ──────
-   * Board directive (2026-07-21): a text signal, not an oversized KPI card. */
+   * Deliberately a text signal, not an oversized KPI card. */
   var signalsEl = document.getElementById('ci-context-signals');
   if (signalsEl && (ci.catalogStatus || ci.confidence)) {
     signalsEl.textContent = '';
@@ -1041,8 +1023,7 @@
     var labelEl  = document.getElementById('ci-lr-label');
     // Genre/ISRC: bestVerifiedRelease itself never carried these -- real
     // values live in Runtime Context's subject/metrics objects, the same
-    // evidence source Identity Intelligence's Latest Release card already
-    // uses (Board directive, 2026-07-21).
+    // evidence source Identity Intelligence's Latest Release card uses.
     var metrics = ctx.metrics || {};
     var subject = ctx.subject || {};
     var genreVal = (Array.isArray(metrics.genres) && metrics.genres[0])
@@ -1076,9 +1057,6 @@
     if (artSrc) {
       var artImg = document.getElementById('ci-lr-artwork-img');
       if (artImg) {
-        // Work Package 6 (Board directive, 2026-07-29): real alt text --
-        // same gap already fixed on Identity Intelligence's equivalent
-        // image this sprint, missed here at the time.
         var artAltText = bvr.releaseTitle ? (bvr.releaseTitle + ' cover artwork') : 'Release artwork';
         artImg.onload = function() {
           artImg.classList.add('ci-lr-artwork-loaded');

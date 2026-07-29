@@ -208,8 +208,7 @@
    * REAL assembleMediaIntelligence() output shape (api/_lib/
    * media-intelligence.js) exactly -- this is the same shape a real scan's
    * cim.media produces via runtime-context-mapper.js, not a hand-designed
-   * mockup shape. Board directive 2026-07-22 (Media Intelligence™
-   * Implementation authorization). */
+   * mockup shape. */
   (function () {
     var isLocal  = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     var devParam = new URLSearchParams(location.search).get('dev') === '1';
@@ -433,15 +432,12 @@
             <div class="mi-exec-desc">Channel health, release cadence, and visual content opportunities — all in one view.</div>
           </div>
           <div class="mi-exec-actions">
-            <!-- Phase 2 (Board directive, 2026-07-29): date selector's
-                 role="button"/tabindex removed -- no click/keydown handler
-                 exists anywhere in this file, so it was announcing itself
-                 as interactive to keyboard/screen-reader users for nothing.
-                 Export Report has no report-generation feature anywhere in
-                 the codebase to wire to (confirmed via repo-wide grep) --
-                 disabled and honestly labeled "Coming Soon" rather than left
-                 as a silent dead click, matching the same pattern already
-                 used for "Ask ATHENA™" on AI Insights. -->
+            <!-- Date selector is decorative -- no click/keydown handler
+                 exists anywhere in this file. Export Report has no
+                 report-generation feature anywhere in the codebase to wire
+                 to -- disabled and honestly labeled "Coming Soon" rather
+                 than left as a silent dead click, matching the pattern used
+                 for "Ask ATHENA™" on AI Insights. -->
             <div class="hi-date-selector" aria-hidden="true">
               <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
               <span id="mi-date-range">Last 30 Days</span>
@@ -455,12 +451,7 @@
         </div>
 
         <!-- § 2 — EXECUTIVE KPI ROW ────────────────────────────────────────
-             Board directive 2026-07-22 (Media Intelligence™ Implementation
-             authorization) — the 8 Board-approved KPI cards from
-             governance/MEDIA_INTELLIGENCE_KPI_DISCOVERY.md replace the
-             earlier mockup's cards (Subscribers/Views/Monetization/Official
-             Channel/video-type breakdown), none of which had real evidence
-             behind them (governance/MEDIA_INTELLIGENCE_EVIDENCE_AUDIT.md).
+             8 evidence-backed KPI cards; see governance/MEDIA_INTELLIGENCE_KPI_DISCOVERY.md.
              5 KPI-row cards below; the remaining 3 (Catalog Media Support™
              detail, Unsupported Releases™, Missing Media Assets™) are the
              list-style cards in §3/§4. -->
@@ -692,9 +683,6 @@
    * Input:  royalte_workspace_context.mediaIntelligence — real cim.media
    *         output (api/_lib/media-intelligence.js) via
    *         runtime-context-mapper.js, or the matching dev fixture above.
-   *         Board directive 2026-07-22 (Media Intelligence™ Implementation
-   *         authorization) — the 8 cards from governance/
-   *         MEDIA_INTELLIGENCE_KPI_DISCOVERY.md, evidence-first throughout.
    * Output: Rendered HTML. A production scan without this domain correctly
    *         shows the standard "No Scan Loaded" overlay, per the
    *         Board-locked Runtime Context Contract.

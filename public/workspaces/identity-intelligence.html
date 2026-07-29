@@ -259,11 +259,8 @@
               </div>
             </div>
           </div>
-          <!-- Phase 2 (Board directive, 2026-07-29): role="button"/tabindex
-               removed -- confirmed via repo-wide grep this control has no
-               click/keydown handler anywhere; announcing it as interactive
-               to keyboard/screen-reader users was a dead-click affordance,
-               not a real feature deferral. -->
+          <!-- No click/keydown handler exists for this control -- it is
+               decorative, not an interactive affordance. -->
           <div class="hi-date-selector" aria-hidden="true">
             <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
             —
@@ -588,16 +585,13 @@
     if (ringWrap) ringWrap.setAttribute('aria-label', 'Identity presence: ' + coverage + '%');
     var arc = document.querySelector('.ii-coverage-ring-progress');
     if (arc) arc.style.strokeDasharray = (coverage / 100 * 251.327).toFixed(1) + ' 252';
-    // Status pill — Identity Intelligence Field-by-Field Wiring Audit
-    // (Board directive, 2026-07-21): the prior version bucketed `coverage`
-    // into invented grade labels ("Excellent"/"Strong"/"Moderate"/"Needs
-    // Review") at 80/60/40% thresholds that exist nowhere in
-    // api/_lib/identity-intelligence.js. This directly violated that
-    // module's own Board Final Lock (2026-06-17): "coverage... is
-    // INFORMATIONAL ONLY... Mission Control MUST NOT render this as an
-    // executive score — only as a provider-coverage indicator." Now shows
-    // the real verifiedProviders/totalProviders counts as a factual
-    // statement instead of a manufactured grade.
+    // Status pill — per that module's own Board Final Lock (2026-06-17):
+    // "coverage... is INFORMATIONAL ONLY... Mission Control MUST NOT
+    // render this as an executive score — only as a provider-coverage
+    // indicator." No grade-label thresholds exist in
+    // api/_lib/identity-intelligence.js, so this shows the real
+    // verifiedProviders/totalProviders counts as a factual statement,
+    // never a manufactured grade.
     var verifiedCount = (identity && identity.verifiedProviders != null) ? identity.verifiedProviders : null;
     var totalCount    = (identity && identity.totalProviders    != null) ? identity.totalProviders    : null;
     var pill = document.querySelector('.ii-kpi-card--coverage .hi-status-pill');
@@ -733,11 +727,9 @@
 // Artwork loader — reads workspace context; no direct sessionStorage access.
 (function () {
   'use strict';
-  // Phase 2 (Board directive, 2026-07-29): applyImg() now sets a real alt
-  // description once a real image loads -- these are content images (an
-  // artist photo, a release cover), not decorative, so they need a real
-  // label for assistive tech rather than the empty alt="" they shipped
-  // with (identity-intelligence.html img alt audit finding).
+  // These are content images (an artist photo, a release cover), not
+  // decorative, so they need a real alt label for assistive tech once a
+  // real image loads.
   function applyImg(el, src, altText, onLoad) {
     if (!el || !src) return;
     el.onload  = function () { el.classList.add('ii--loaded'); if (altText) el.alt = altText; if (onLoad) onLoad(); };

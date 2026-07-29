@@ -1,10 +1,9 @@
 /* ============================================================
  * GlobalMapChoropleth™ — Royaltē Platform Component v2.0
  * ============================================================
- * Board directive (2026-07-21, Executive Visual Rebuild): replaces
- * GlobalMapViewport™'s scattered-dot treatment with a real per-territory
- * shaded world map. Every territory's fill color is resolved from real
- * distributionGaps.territories evidence — never hardcoded.
+ * Renders a real per-territory shaded world map. Every territory's fill
+ * color is resolved from real distributionGaps.territories evidence --
+ * never hardcoded.
  *
  * Map asset: public/img/world-territories-map.svg (Wikimedia Commons
  * "BlankMap-World-Compact.svg", public domain, no attribution required).
