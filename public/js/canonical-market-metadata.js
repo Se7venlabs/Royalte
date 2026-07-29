@@ -1,7 +1,6 @@
 /* ============================================================
  * Royaltē Canonical Market Metadata Registry™
  * ============================================================
- * Board directive (2026-07-22, Canonical Market Metadata Registry).
  * Single source of truth for STATIC market characteristics -- the
  * authoritative registry every intelligence engine and workspace should
  * eventually reference instead of declaring its own copy. Replaces
@@ -33,7 +32,7 @@
  *     left out entirely rather than populated with empty placeholders,
  *     per "only populate fields required today."
  *
- * Fields explicitly reserved for future expansion (Board directive) --
+ * Fields explicitly reserved for future expansion --
  * NOT implemented, NOT stubbed, added only when a real source exists:
  *   population, streamingAdoption, gdp, primaryLanguages,
  *   musicConsumptionIndex, appleMusicMarketSize, spotifyMarketSize,

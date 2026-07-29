@@ -339,22 +339,14 @@ function applyRecommendationsPlan(plan) {
 
 // ─── Global Music Footprint™ apply helpers (GMF Phase v1.0) ──────────
 //
-// Hero Card wiring (Board Phase 1, IC-3, 2026-07-27): the hero card's
-// status text (#mc-global-hn-status-text) now displays the real,
-// canonical territory count -- confirmed live that no earlier version of
-// this wiring ever reached the DOM (.mc-globe-territories-count matches
-// no element in the current markup; the "68 Markets" text it was
-// intended to update was static HTML, unwired, for every artist,
-// always). The .mc-globe-territories-count/#global-footprint dataset
-// writes below are left in place as originally written (harmless,
-// null-guarded no-ops against elements the current markup doesn't
-// have) -- removing them is unrelated technical-debt cleanup, out of
-// this candidate's scope.
-//
-// Mission Control never recomputes territory counts or coverage here --
-// plan.territoriesAvailable is a direct passthrough of what
-// renderGlobalMusicFootprint() (mission-control-renderers.js) already
-// read from the canonical payload.
+// Writes the real territory count to the hero card's status text
+// (#mc-global-hn-status-text). Mission Control never recomputes territory
+// counts or coverage here -- plan.territoriesAvailable is a direct
+// passthrough of what renderGlobalMusicFootprint() (mission-control-
+// renderers.js) already read from the canonical payload. The
+// .mc-globe-territories-count/#global-footprint dataset writes below are
+// null-guarded no-ops against elements the current markup doesn't have;
+// left in place, harmless.
 
 function applyFootprintPlan(plan) {
   if (!plan) return;
@@ -565,17 +557,12 @@ function buildEcosystemStatusPlan(payload, plans) {
     ? payload.healthIntelligence.delta : null;
 
   // Last Scan — constitutional owner: Evidence Snapshot Store™
-  // Primary source: monitoringIntelligence.capturedAt (EvidenceSnapshot.capturedAt
-  // field) -- only present for authenticated-at-scan-time flows with a prior
-  // snapshot to diff against. Executive Board Certification Walkthrough finding
-  // (2026-07-28): confirmed live that a freshly-claimed first scan -- the most
-  // common real first-time-artist state -- has monitoringIntelligence entirely
-  // absent (the scan runs anonymously before claim; monitoring intelligence
-  // doesn't attach retroactively), so this showed a bare "—" immediately after
-  // a real, successful scan. Falls back to payload.scannedAt -- the scan's own
-  // real completion timestamp, always present -- rather than accept a
-  // dash-shaped gap next to two fully-populated sibling fields. Still an honest
-  // real timestamp either way; only the source narrows, never fabricated.
+  // Primary source: monitoringIntelligence.capturedAt -- only present for
+  // authenticated-at-scan-time flows with a prior snapshot to diff against,
+  // so it's absent on every freshly-claimed first scan (the scan runs
+  // anonymously before claim). Falls back to payload.scannedAt, the scan's
+  // own real completion timestamp, always present -- an honest real
+  // timestamp either way, only the source narrows.
   const lastScanIso = mi?.capturedAt ?? payload?.scannedAt ?? null;
   const lastScan    = _esFormatTimeAgo(lastScanIso);
 
@@ -612,21 +599,14 @@ function buildEcosystemStatusPlan(payload, plans) {
   // Intelligence workspace already reads via renderHealth().
   const confidence = hp?.confidence ?? null;
 
-  // Scan Status — Work Package 4 (Board directive, 2026-07-28). Retained
-  // and defined: purpose is to communicate whether the current scan's
-  // intelligence assembly completed; owner is Mission Control Runtime
-  // (a presentation-layer derivation, not a new intelligence engine);
-  // canonical source is the presence of payload.healthIntelligence, which
-  // is the last domain assembled in the RIE pipeline (lib/rie/index.js) --
-  // its presence implies every upstream domain assembler ran; lifecycle
-  // is recomputed on every __mcPopulate() call, same as every other field
-  // here. 'Executive Status' and 'Profile Status' are retired as distinct
-  // concepts (redundant with Overall Business Status, which is the one
-  // real, wired equivalent); 'Profile Version' is retired (no schema/
-  // versioning concept exists anywhere in the codebase -- defining one
-  // would be new engineering, out of this phase's scope). See
-  // governance/EXECUTIVE_HEADER_PHASE1_TRUST_FOUNDATION.md for the full
-  // decision record.
+  // Scan Status — owner: Mission Control Runtime (presentation-layer
+  // derivation, not a separate intelligence engine). Communicates whether
+  // the current scan's intelligence assembly completed. Canonical source:
+  // presence of payload.healthIntelligence, the last domain assembled in
+  // the RIE pipeline (lib/rie/index.js) -- its presence implies every
+  // upstream domain assembler ran. "Executive Status"/"Profile Status"/
+  // "Profile Version" are not tracked here -- no such concepts exist
+  // anywhere in the codebase; see governance/EXECUTIVE_HEADER_PHASE1_TRUST_FOUNDATION.md.
   const scanStatus = payload?.healthIntelligence ? 'Complete' : 'Partial';
 
   return { score, grade, delta, lastScan, nextScan, nextScanMeta,
@@ -700,8 +680,7 @@ function applyEcosystemStatusPlan(plan) {
   const confEl = q('[data-mc-es-confidence]');
   if (confEl) confEl.textContent = plan.confidence || 'Data Unavailable';
 
-  // Scan Status — see buildEcosystemStatusPlan() for the retained/defined
-  // decision record (Work Package 4).
+  // Scan Status — see buildEcosystemStatusPlan() for the field definition.
   const scanStatusEl = q('[data-mc-es-scan-status]');
   if (scanStatusEl) scanStatusEl.textContent = plan.scanStatus;
 
@@ -1708,29 +1687,21 @@ if (typeof window !== 'undefined') {
   // module activates, so the OS reflects the current scan's subject on
   // the first visible frame.
   //
-  // Runtime Context Audit (Board directive, 2026-07-21): this function
-  // previously targeted [data-mc-page-title] / [data-mc-founder-name],
-  // neither of which exists anywhere in mission-control.html -- both
-  // writes silently no-op'd, every scan. The hero greeting (#mc-greeting)
-  // and the rail widget (.mc2-rail-user-name / .mc2-rail-user-role /
-  // #mc-nav-account-sub / .mc2-rail-avatar) were consequently static
-  // sample HTML ("BLACK ALTERNATIVE" / "Darryl West" / "Founder Account")
-  // regardless of which artist was actually scanned, in every entry path
-  // -- not a Developer Mode-specific bug. Per Board Constitutional
-  // Guidance ("Mission Control must never depend upon Founder Profile /
-  // Session User... consumes only the Runtime Context"), the rail widget
-  // is retargeted to the same artistName as the hero greeting rather than
-  // any authenticated-session concept -- this collapses "account" and
-  // "current scan subject" into the one Runtime-Context-driven value
-  // this shell is allowed to show, with no alternate identity path.
+  // Mission Control must never depend on Founder Profile / Session User --
+  // it consumes only the Runtime Context. The rail widget (.mc2-rail-user-name
+  // / .mc2-rail-user-role / #mc-nav-account-sub / .mc2-rail-avatar) is
+  // therefore targeted to the same artistName as the hero greeting rather
+  // than any authenticated-session concept -- "account" and "current scan
+  // subject" collapse into the one Runtime-Context-driven value this shell
+  // is allowed to show, with no alternate identity path.
   //
-  // Diagnostic: logs the exact value being written and its source so the
-  // Board can confirm which artist is being displayed and where it came from.
-  // Identity Presentation Hierarchy — Work Package 2 (Board directive,
-  // 2026-07-28): Canonical Artist Image → Apple Music artwork → approved
-  // provider artwork (all three tiers already resolved by
-  // getBestVerifiedArtistImage() per the Board-locked Executive Workspace
-  // Image Selection Standard™ — reused here, never re-derived) → artist
+  // Diagnostic: logs the exact value being written and its source, to make
+  // the displayed artist and its origin verifiable at runtime.
+  //
+  // Avatar priority: Canonical Artist Image → Apple Music artwork →
+  // approved provider artwork (all three tiers resolved by
+  // getBestVerifiedArtistImage(), per the Executive Workspace Image
+  // Selection Standard™ -- reused here, never re-derived) → artist
   // initials → Royaltē placeholder mark.
   function _applyHeroAvatar(name) {
     const el = document.getElementById('mc-hero-avatar');
@@ -1764,10 +1735,8 @@ if (typeof window !== 'undefined') {
       '  Current hero greeting text: "' + prev + '"\n' +
       '  Will render: ' + (name ? name.toUpperCase() : '(no update — name absent)')
     );
-    // Phase 1 Executive Trust Foundation (Board directive, 2026-07-28):
-    // never leave fabricated sample text ("BLACK ALTERNATIVE" / "Darryl
-    // West" / "Founder Account") on screen when no real scan subject is
-    // available. Write an explicit, honest fallback instead.
+    // Never leave fabricated sample text on screen when no real scan
+    // subject is available -- write an explicit, honest fallback instead.
     if (!name) {
       if (greeting) greeting.textContent = 'Not Yet Scanned';
       if (railName) railName.textContent = 'Not Yet Scanned';
@@ -1840,15 +1809,12 @@ if (typeof window !== 'undefined') {
     const ai = _vaultPlans.aiPlan;
     _hnSet('ai', ai ? 'ATHENA™ Active' : 'Not Yet Scanned', ai ? 'new' : 'unk');
 
-    // Media™ — Media Intelligence Engine™ (Work Package 3, Board directive
-    // 2026-07-28, Option A: the engine already exists and is already wired
-    // into the scan pipeline -- api/_lib/media-intelligence.js, confirmed
-    // live in the Media Intelligence workspace. It is not a root-level
-    // payload field (only payload.cim.media), so this reads that path
-    // directly rather than through the safe*/render* pattern the other
-    // domains use -- a full renderer pair would be disproportionate scope
-    // for one hero-node status word. Reuses contentActivity.status
-    // verbatim; computes nothing new.
+    // Media™ — owner: Media Intelligence Engine™ (api/_lib/media-intelligence.js),
+    // also live in the Media Intelligence workspace. Not a root-level payload
+    // field (only payload.cim.media), so this reads that path directly rather
+    // than through the safe*/render* pattern the other domains use -- a full
+    // renderer pair would be disproportionate scope for one hero-node status
+    // word. Reuses contentActivity.status verbatim; computes nothing new.
     const media = _vaultPlans.payload?.cim?.media;
     if (media && media.available && media.contentActivity?.status && media.contentActivity.status !== 'Unknown') {
       const s = media.contentActivity.status;

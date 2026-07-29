@@ -313,9 +313,8 @@ export function renderCatalog(intelligence) {
     totalTracks:   typeof ci.totalTracks   === 'number' ? ci.totalTracks   : 0,
     catalogStatus: typeof ci.catalogStatus === 'string' ? ci.catalogStatus : 'Unknown',
     confidence:    typeof ci.confidence    === 'string' ? ci.confidence    : 'Unable to Confirm',
-    // ISRC Intelligence™ v1 (Board directive, 2026-07-21) — see
-    // api/_lib/isrc-intelligence.js for the full shape. Default mirrors
-    // that module's NOT_ASSESSED shell.
+    // ISRC Intelligence™ — see api/_lib/isrc-intelligence.js for the full
+    // shape. Default mirrors that module's NOT_ASSESSED shell.
     isrcIntelligence: (ci.isrcIntelligence && typeof ci.isrcIntelligence === 'object')
       ? ci.isrcIntelligence
       : {
@@ -500,9 +499,9 @@ export function renderBackend(intelligence) {
 //    {
 //      territoriesAvailable:   number,
 //      territoriesUnavailable: number,
-//      territoriesEvaluated:   number,  // true evaluation universe (167 on the
-//                                        // primary Territory Intelligence Engine
-//                                        // path) -- added Board directive 2026-07-21
+//      territoriesEvaluated:   number,  // true evaluation universe (167 on
+//                                        // the primary Territory Intelligence
+//                                        // Engine path)
 //      coveragePercent:        number,
 //      status:                 string,  // 'Global'|'Strong'|'Regional'|'Limited'
 //      confidence:             string,
@@ -510,8 +509,7 @@ export function renderBackend(intelligence) {
 //  or null when intelligence is absent (boot module leaves locked HTML).
 //
 //  territoriesAvailable reflects the real Territory Intelligence Engine's
-//  full 167-storefront evaluation (Phase 5.2) -- corrected 2026-07-21, this
-//  comment previously and incorrectly claimed an 8-market BIG6-only scope.
+//  full 167-storefront evaluation (Phase 5.2).
 
 export function safeGlobalMusicFootprintIntelligence(gmf) {
   if (!gmf || typeof gmf !== 'object' || Array.isArray(gmf)) return null;

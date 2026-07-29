@@ -188,9 +188,8 @@ export const SETTINGS_GROUPS = [
       { value: 'agent',     label: 'A dedicated Sync Agent' },
     ],
   },
-  // ── Board directive (2026-07-21, Publishing Intelligence™ Certification Pass):
-  //    remaining future-ready rights fields. Save/persist/flow-through only in
-  //    this pass -- null is acceptable until populated; no fabricated values.
+  // ── Future-ready rights fields. Save/persist/flow-through only -- null is
+  //    acceptable until populated; no fabricated values.
   {
     id: 'publisher_name',
     uiSection: 'identity',

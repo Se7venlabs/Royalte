@@ -158,17 +158,15 @@
       optional:       ['healthIntelligence'],
     },
     'ai-insights': {
-      // Phase 1-3 rebuild (Board directive 2026-07-23): declares every field
-      // the workspace actually reads, closing the gap the Discovery Phase
-      // found (healthReport was read live but undeclared here). Migrated
-      // off the CimAdapter-bridged identityIntelligence/publishingIntelligence
-      // to the CIM-native identity/publishing fields every other recovered
-      // workspace already uses. Added the domains Phase 2's cross-domain
-      // synthesis (Intelligence Coverage Snapshot(TM)) now reads: catalogIntelligence,
-      // verification (Backend), globalFootprint, mediaIntelligence,
-      // monitoringIntelligence. Settings is intentionally absent -- it is
-      // user configuration, not a canonical intelligence domain, confirmed
-      // in governance/AI_INSIGHTS_DEPENDENCY_MAP.md.
+      // Declares every field the workspace actually reads. Uses the
+      // CIM-native identity/publishing fields every other recovered
+      // workspace uses (not the CimAdapter-bridged identityIntelligence/
+      // publishingIntelligence names). Includes every domain the
+      // cross-domain synthesis (Intelligence Coverage Snapshot™) reads:
+      // catalogIntelligence, verification (Backend), globalFootprint,
+      // mediaIntelligence, monitoringIntelligence. Settings is intentionally
+      // absent -- it is user configuration, not a canonical intelligence
+      // domain; see governance/AI_INSIGHTS_DEPENDENCY_MAP.md.
       required:       ['executiveBrief'],
       requiredFields: ['executiveBrief.headline'],
       requiredTypes:  {
@@ -181,12 +179,8 @@
       ],
     },
     'media-intelligence': {
-      // Runtime Context Audit (Board directive, 2026-07-21): mediaIntelligence
-      // was not yet an official buildWorkspaceRuntimeContext() output field at
-      // that time -- no PAL/CIM assembler produced it for any artist, real or
-      // fixture-free. Real as of the Media Intelligence™ implementation
-      // (Board directive 2026-07-22): cim.media (CIM §8.2.14) is now produced
-      // by assembleMediaIntelligence() and threaded through by
+      // mediaIntelligence is real: cim.media (CIM §8.2.14) is produced by
+      // assembleMediaIntelligence() and threaded through by
       // runtime-context-mapper.js as ctx.mediaIntelligence.
       // Kept optional (not required) -- a scan with no video/social evidence
       // for a given artist is still a VALID context for this workspace to

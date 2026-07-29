@@ -216,17 +216,14 @@
   };
   var CAT_ORDER = ['identity', 'publishing', 'catalog', 'backend', 'footprint', 'media', 'health'];
 
-  // Merge Readiness Sprint (Board directive, 2026-07-29), Work Package 7:
-  // real events carry changeType (e.g. 'territory_gain', 'isrc_dropped'),
-  // never a category field -- confirmed via api/_lib/monitoring-intelligence.js
-  // and api/_lib/delta-engine.js (the only two emitters of these events).
-  // Every real event was previously bucketed under 'Backend Intelligence™'
-  // regardless of its true domain. Mirrors the same changeType vocabulary
-  // mission-control.js's CHANGE_TYPE_ICON_SVG already uses.
-  // Complete list of every change_type the Delta Engine actually emits
-  // today (api/_lib/delta-engine.js) -- 'baseline_established' is excluded
-  // since buildChangeGroups() is only ever called when moduleState ===
-  // 'changed', never 'baseline'.
+  // Real events carry changeType (e.g. 'territory_gain', 'isrc_dropped'),
+  // never a category field -- the only two emitters are
+  // api/_lib/monitoring-intelligence.js and api/_lib/delta-engine.js.
+  // Mirrors the same changeType vocabulary mission-control.js's
+  // CHANGE_TYPE_ICON_SVG uses. Complete list of every change_type the
+  // Delta Engine emits (api/_lib/delta-engine.js) -- 'baseline_established'
+  // is excluded since buildChangeGroups() is only ever called when
+  // moduleState === 'changed', never 'baseline'.
   var CHANGE_TYPE_TO_CATEGORY = {
     territory_gain:     'footprint',
     territory_loss:      'footprint',
@@ -277,14 +274,9 @@
       return 'No significant changes detected during this monitoring cycle. '
         + 'Your music business infrastructure remains stable since your previous scan.';
     }
-    // Merge Readiness Sprint (Board directive, 2026-07-29), Work Package 7:
-    // real severity values are 'informational'|'positive'|'action_needed'|
+    // Real severity values are 'informational'|'positive'|'action_needed'|
     // 'monitor' (api/_lib/monitoring-intelligence.js) -- e.polarity/e.type
-    // never exist, and no real severity value ever uppercases to 'CRITICAL'
-    // or 'HIGH', so both counts were always 0 and real action_needed events
-    // (territory loss, ISRC dropped, release removed) silently downgraded
-    // to a generic "N updates detected" -- hiding real urgency from the
-    // artist. Now reads the real field.
+    // never exist.
     var improved = evts.filter(function (e) { return e.severity === 'positive'; }).length;
     var critical  = evts.filter(function (e) { return e.severity === 'action_needed'; }).length;
     var parts = [];
@@ -391,11 +383,8 @@
 
   function renderChangeGroup(group) {
     var items = group.events.map(function (ev) {
-      // Merge Readiness Sprint (Board directive, 2026-07-29): real severity
-      // values only -- 'positive'/'action_needed'/'monitor'/'informational'.
-      // Every event previously rendered the same neutral blue dot since
-      // ev.polarity/ev.type never exist and no real severity ever matched
-      // 'CRITICAL'/'HIGH'.
+      // Real severity values only -- 'positive'/'action_needed'/'monitor'/
+      // 'informational'. ev.polarity/ev.type never exist.
       var sev      = ev.severity;
       var dot      = sev === 'positive'      ? '#34d399'
                     : sev === 'action_needed' ? '#f05060'

@@ -337,15 +337,8 @@
           </div>
           <div class="bi-exec-meta">
             <div class="bi-exec-label">Backend Status™</div>
-            <!-- Phase 2 (Board directive, 2026-07-29): score-title and status
-                 pill were both 100% static -- never referenced by any JS in
-                 this file (confirmed via grep) -- so every artist saw
-                 "Operational" and "2 Areas Need Attention" regardless of
-                 their real connected-service count. Now wired below to
-                 bi.connectedCount/bi.totalCount, the same real fields the
-                 KPI counters already use. tabindex="-1" removed from the
-                 real, actionable "View Infrastructure Report" button --
-                 was unreachable by keyboard Tab navigation. -->
+            <!-- Wired to bi.connectedCount/bi.totalCount below, the same
+                 real fields the KPI counters use. -->
             <div class="bi-exec-score-title" id="bi-exec-score-title">—</div>
             <div class="bi-exec-score-sub">Music Infrastructure Connected</div>
             <div class="hi-status-pill hi-status-pill--teal" id="bi-exec-status-pill" style="display:inline-flex;align-items:center;gap:5px;">
@@ -398,17 +391,12 @@
             <div class="ii-kpi-caption">Across All Services</div>
           </div>
 
-          <!-- Merge Readiness Sprint (Board directive, 2026-07-29), Work
-               Package 4: the Phase 2 pass gave this card a LOW/MEDIUM/HIGH
-               classification computed client-side -- exactly the kind of
-               business logic in the presentation layer this directive
-               prohibits ("presentation layers must never become
-               intelligence engines"). No Board-specified threshold
-               definition exists for what counts as HIGH vs MEDIUM risk, so
-               inventing one here (or newly in the engine) would be new,
-               unauthorized business logic either way. Simplified to
-               factual information only: the real gap count and the real
-               unconnected service names, no invented severity bucket. -->
+          <!-- No LOW/MEDIUM/HIGH classification here -- that would be
+               business logic in the presentation layer ("presentation
+               layers must never become intelligence engines"), and no
+               Board-specified severity threshold exists to compute it from.
+               Factual information only: the real gap count and the real
+               unconnected service names. -->
           <div class="hi-kpi-card">
             <div class="hi-kpi-label hi-kpi-label--teal">Infrastructure Gaps™</div>
             <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--teal" aria-hidden="true">
@@ -794,9 +782,9 @@
       if (scoreSubEl) scoreSubEl.textContent = bi.summaryLabel;
     }
 
-    /* ── Executive header title/pill + Infrastructure Risk™ card — Phase 2
-     * (Board directive, 2026-07-29). Real gap count: totalCount - connectedCount.
-     * Same real fields the KPI counters above already read; no new data source. */
+    /* ── Executive header title/pill + Infrastructure Gaps™ card ───────
+     * Real gap count: totalCount - connectedCount. Same real fields the
+     * KPI counters above already read; no new data source. */
     var connectedCount = typeof bi.connectedCount === 'number' ? bi.connectedCount : 0;
     var totalCount     = typeof bi.totalCount     === 'number' ? bi.totalCount     : 0;
     var gapCount        = Math.max(0, totalCount - connectedCount);
@@ -822,10 +810,9 @@
       .filter(function (s) { return s.state !== 'VERIFIED'; })
       .map(function (s) { return s.name; });
 
-    // Merge Readiness Sprint (Board directive, 2026-07-29), Work Package 4:
-    // factual information only -- the real gap count and real unconnected
-    // service names. No LOW/MEDIUM/HIGH severity classification (removed;
-    // see HTML comment above).
+    // Factual information only -- the real gap count and real unconnected
+    // service names. No LOW/MEDIUM/HIGH severity classification (see HTML
+    // comment above).
     var riskLevelEl   = document.getElementById('bi-risk-level');
     var riskDenomEl   = document.getElementById('bi-risk-denom');
     var riskCountEl   = document.getElementById('bi-risk-count');
@@ -843,18 +830,15 @@
       }
     }
 
-    /* ── Digital Twin™ node wiring — Merge Readiness Sprint (Board
-     * directive, 2026-07-29), Work Package 2. All 5 non-hub, non-Release
-     * nodes previously shipped hardcoded bi-node--verified/--review classes
-     * and status text -- confirmed via grep, zero JS referenced them before
-     * this pass. Each node below reuses its owning domain's own real,
-     * already-computed classification (never a newly-invented threshold,
-     * per Work Package 4's presentation-layer restriction) -- Cross-domain
-     * Canonical, per this directive's explicit 3-state model. Where no real
-     * classification exists for a node's concept, it is left "Not Yet
-     * Assessed" rather than defaulting to Verified or Needs Review.
-     * BI_ATHENA is in the same closure (confirmed) so its rating lines are
-     * updated in place too -- no cross-IIFE bridging needed. */
+    /* ── Digital Twin™ node wiring ──────────────────────────────────────
+     * Each node reuses its owning domain's own real, already-computed
+     * classification -- never a newly-invented threshold, per the
+     * presentation-layer restriction. 3-state model: verified / needs
+     * review / not yet assessed. Where no real classification exists for
+     * a node's concept, it is left "Not Yet Assessed" rather than
+     * defaulting to Verified or Needs Review.
+     * BI_ATHENA is in the same closure, so its rating lines are updated
+     * in place too -- no cross-IIFE bridging needed. */
     function setDigitalTwinNode(nodeId, athenaKey, verified, statusText, ratingText) {
       var el = document.getElementById(nodeId);
       if (el) {
@@ -952,11 +936,8 @@
   }());
 
   /* ── Executive ring counter ──────────────────────────────────────────
-   * Phase 2 (Board directive, 2026-07-29): removed the fabricated fallback
-   * targets (98 / 94 / 22) previously shown, indistinguishably from real
-   * data, whenever the real score was null. When no real liveTarget was
-   * set, these now honestly show "—" instead of animating to a plausible-
-   * looking invented number. */
+   * When no real liveTarget is set, shows "—" instead of animating to an
+   * invented number. */
   var numEl      = document.getElementById('bi-ring-num');
   var ringTarget = (numEl && numEl.dataset.liveTarget) ? parseInt(numEl.dataset.liveTarget, 10) : null;
   if (ringTarget === null) {
