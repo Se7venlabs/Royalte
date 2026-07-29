@@ -79,18 +79,20 @@ function buildIdentityEnvelope(ctx) {
     return envelope('NOT_FOUND', {}, { scanId: ctx.scanId || null });
   }
 
-  // DERIVED: real CIM carries per-provider artistIds (apple/spotify/...);
-  // ATHENA wants one artistId. Apple preferred as canonical per the
-  // Canonical Identity Architecture lock (Apple = canonical, Spotify = verification).
-  const artistId = (identity.artistIds && (identity.artistIds.apple || identity.artistIds.spotify)) || null;
+  // DERIVED: ctx.identity (the real Identity Intelligence(tm) engine output)
+  // carries no artistId field at all -- only per-provider VERIFIED/etc.
+  // status strings (identity.providers) and counts. The one real canonical
+  // identifier for the scanned artist lives on ctx.subject.artistId
+  // (set by resolveToArtist() during the scan). Using that here instead of
+  // a nonexistent identity.artistIds field.
+  const artistId = (ctx.subject && ctx.subject.artistId) || null;
 
-  // INTERPRETIVE: real CIM carries per-provider verifiedIdentity booleans
-  // (apple/spotify/youtube); ATHENA wants one aggregate boolean. "verified
-  // on at least one provider" was chosen over "all providers" as the more
-  // defensible executive reading -- flagged for Board review.
-  const verifiedAny = !!(identity.verifiedIdentity && (
-    identity.verifiedIdentity.apple || identity.verifiedIdentity.spotify || identity.verifiedIdentity.youtube
-  ));
+  // DERIVED: "verified on at least one provider" from the real
+  // identity.verifiedProviders count, replacing a reference to a
+  // nonexistent identity.verifiedIdentity object. Chosen over "all
+  // providers" as the more defensible executive reading -- flagged for
+  // Board review.
+  const verifiedAny = typeof identity.verifiedProviders === 'number' && identity.verifiedProviders > 0;
 
   return envelope('SUCCESS', {
     artistId,
