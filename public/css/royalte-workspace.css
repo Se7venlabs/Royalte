@@ -2820,34 +2820,6 @@ svg { display: block; }
   margin-top: 2px;
 }
 
-.ii-platform-cta {
-  display: inline-block;
-  margin-top: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: 5px;
-  padding: 6px 12px;
-  transition: opacity 0.15s;
-  align-self: flex-start;
-}
-
-.ii-platform-cta--view {
-  color: var(--mc-purple);
-  background: rgba(168,85,247,0.08);
-  border: 1px solid rgba(168,85,247,0.2);
-}
-
-.ii-platform-cta--view:hover { opacity: 0.8; }
-
-.ii-platform-cta--action {
-  color: #f87171;
-  background: rgba(248,113,113,0.08);
-  border: 1px solid rgba(248,113,113,0.22);
-}
-
-.ii-platform-cta--action:hover { opacity: 0.8; }
-
 .ii-platform-card--alert {
   border-color: rgba(248,113,113,0.22);
 }
@@ -2922,11 +2894,6 @@ svg { display: block; }
 
 .ws-dept--identity .ii-platform-card-stats {
   margin-top: 7px;
-}
-
-.ws-dept--identity .ii-platform-cta {
-  margin-top: 8px;
-  padding: 5px 10px;
 }
 
 /* Identity Snapshot™ — compressed header + body */
