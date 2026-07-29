@@ -16,7 +16,7 @@
 // per-domain risk/opportunity movement) instead.
 
 import { domainLabel } from './executive-domain-labels.js';
-import { compareDomain, DOMAIN_FINGERPRINTS, COMPARISON_STATES } from './canonical-domain-fingerprints.js';
+import { compareDomain, DOMAIN_FINGERPRINTS, COMPARISON_STATES, canonicalDomainLabel } from './canonical-domain-fingerprints.js';
 
 // Phase 3D — Cross-Scan Intelligence™. Extends the risk/opportunity-count
 // diff above with real per-field domain comparisons, sourced from the two
@@ -48,12 +48,14 @@ function compareAiInsightsAndOverview(before, after) {
   return {
     aiInsights: {
       domain: 'aiInsights',
+      label: canonicalDomainLabel('aiInsights'),
       state: levelState(briefingBefore.riskLevel, briefingAfter.riskLevel, RISK_ORDER),
       delta: after.risk_count - before.risk_count,
       detail: `ATHENA risk level ${briefingBefore.riskLevel || 'Unknown'} -> ${briefingAfter.riskLevel || 'Unknown'}; ${before.risk_count} -> ${after.risk_count} total risks.`,
     },
     executiveOverview: {
       domain: 'executiveOverview',
+      label: canonicalDomainLabel('executiveOverview'),
       state: levelState(briefingBefore.overallLevel, briefingAfter.overallLevel, OVERALL_ORDER),
       delta: after.opportunity_count - before.opportunity_count,
       detail: `Overall business level ${briefingBefore.overallLevel || 'Unknown'} -> ${briefingAfter.overallLevel || 'Unknown'}.`,
@@ -151,21 +153,9 @@ function buildCanonicalDomains(before, after, scanPayloads) {
 
   const { aiInsights, executiveOverview } = compareAiInsightsAndOverview(before, after);
 
-  return [...fingerprinted, aiInsights, executiveOverview].map(entry => ({
-    ...entry,
-    label: domainLabel(entry.domain) !== entry.domain ? domainLabel(entry.domain) : CANONICAL_DOMAIN_LABELS[entry.domain] || entry.domain,
-  }));
+  // Every entry already carries its own label -- compareDomain() attaches
+  // it via canonicalDomainLabel() (canonical-domain-fingerprints.js), and
+  // compareAiInsightsAndOverview does the same for its two entries above.
+  // Single source of truth, no second label map to keep in sync.
+  return [...fingerprinted, aiInsights, executiveOverview];
 }
-
-const CANONICAL_DOMAIN_LABELS = Object.freeze({
-  identity: 'Identity Intelligence™',
-  publishing: 'Publishing Intelligence™',
-  catalog: 'Catalog Intelligence™',
-  health: 'Health Intelligence™',
-  backend: 'Backend Intelligence™',
-  media: 'Media Intelligence™',
-  footprint: 'Global Music Footprint™',
-  monitoring: 'Monitoring™',
-  aiInsights: 'AI Insights™',
-  executiveOverview: 'Executive Overview™',
-});

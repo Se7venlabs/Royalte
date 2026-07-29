@@ -214,6 +214,20 @@ test('detectDomainTrends canonicalDomains reflects first-vs-last endpoint compar
   assert.equal(backend.state, COMPARISON_STATES.RESOLVED);
 });
 
+test('every detectDomainTrends canonicalDomains entry carries a real display label -- regression for a live UI bug where trend labels rendered blank', () => {
+  const first = makeArchiveRow({ generated_at: '2026-01-01T00:00:00.000Z' });
+  const last = makeArchiveRow({ executive_brief_id: 'EB-2', generated_at: '2026-07-01T00:00:00.000Z' });
+  const trends = detectDomainTrends([first, last], {
+    scanPayloads: {
+      first: { payload: makePayload(), schemaVersion: '1.1' },
+      last: { payload: makePayload(), schemaVersion: '1.1' },
+    },
+  });
+  trends.canonicalDomains.forEach(d => {
+    assert.ok(typeof d.label === 'string' && d.label.length > 0, `${d.domain} is missing a display label`);
+  });
+});
+
 // ─── Summary ─────────────────────────────────────────────────────────────
 
 console.log(`\n${passed} passed, ${failed} failed\n`);
