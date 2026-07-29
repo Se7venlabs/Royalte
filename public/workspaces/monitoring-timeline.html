@@ -146,14 +146,8 @@
       </div>
     </div>
 
-    <!-- Merge Readiness Sprint (Board directive, 2026-07-29), Work Package 6:
-         opacity:0 gating added -- container.innerHTML below replaces this
-         same element's content with the real render; without this, the
-         static "Coming Soon" text could visibly flash before the real
-         content replaces it, matching every other workspace's reveal
-         pattern (.ws-body opacity gating). -->
     <main class="ws-main">
-      <div class="ws-coming-soon" style="opacity:0;transition:opacity .15s ease">
+      <div class="ws-coming-soon">
         <div class="ws-cs-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
         </div>
@@ -475,7 +469,6 @@
     pm.healthSnapshot,
     pm.supplemental,
   ].join('');
-  container.style.opacity = '1';
 
 }());
 </script>
