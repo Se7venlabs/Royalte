@@ -24,6 +24,7 @@
 // only honest thing to compute.
 
 import { domainLabel } from './executive-domain-labels.js';
+import { compareDomain, DOMAIN_FINGERPRINTS } from './canonical-domain-fingerprints.js';
 
 function countByDomain(items) {
   const counts = {};
@@ -35,17 +36,27 @@ function countByDomain(items) {
   return counts;
 }
 
-// detectDomainTrends(briefs) -- briefs: FULL archive rows, chronological
-// order (oldest first). Caller (executive-timeline.js or the trend endpoint)
-// is responsible for fetching in that order via listBriefs(..., {order:'asc'}).
-export function detectDomainTrends(briefs) {
+// detectDomainTrends(briefs, options) -- briefs: FULL archive rows,
+// chronological order (oldest first). Caller (executive-timeline.js or the
+// trend endpoint) is responsible for fetching in that order via
+// listBriefs(..., {order:'asc'}).
+//
+// options.scanPayloads: optional { first: {payload, schemaVersion}, last: {payload, schemaVersion} }
+// -- the two real audit_scans rows for the window's first/last brief. When
+// present, adds Phase 3D's canonicalDomains (real per-field domain trend,
+// same endpoint-comparison methodology as the risk-count `domains` below --
+// canonical-domain-fingerprints.js). Backward compatible: omitting it leaves
+// this function's original output unchanged.
+export function detectDomainTrends(briefs, options = {}) {
   if (!Array.isArray(briefs) || briefs.length < 2) {
     return {
       available: false,
       reason: 'At least two archived Executive Briefs are required to detect a trend.',
       domains: [],
+      canonicalDomains: null,
     };
   }
+  const { scanPayloads } = options;
 
   const first = briefs[0];
   const last  = briefs[briefs.length - 1];
@@ -78,5 +89,18 @@ export function detectDomainTrends(briefs) {
     windowStart: first.generated_at,
     windowEnd: last.generated_at,
     domains,
+    canonicalDomains: buildCanonicalDomainTrends(scanPayloads),
   };
+}
+
+// Phase 3D — same endpoint-comparison methodology as `domains` above
+// (first vs. last brief in the window, not a full trendline fit -- see this
+// file's header). Returns null (not []) when scanPayloads wasn't supplied.
+function buildCanonicalDomainTrends(scanPayloads) {
+  if (!scanPayloads || !scanPayloads.first || !scanPayloads.last) return null;
+  const schemaCompatible = !!(scanPayloads.first.schemaVersion) &&
+    scanPayloads.first.schemaVersion === scanPayloads.last.schemaVersion;
+  return Object.keys(DOMAIN_FINGERPRINTS).map(domainKey =>
+    compareDomain(domainKey, scanPayloads.first.payload, scanPayloads.last.payload, { schemaCompatible })
+  );
 }

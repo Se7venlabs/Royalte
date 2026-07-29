@@ -57,7 +57,32 @@ export default async function handler(req, res) {
     const [before, after] = new Date(briefA.generated_at) <= new Date(briefB.generated_at)
       ? [briefA, briefB] : [briefB, briefA];
 
-    const comparison = compareExecutiveBriefs(before, after);
+    // Phase 3D — fetch the two real audit_scans rows (payload + generated
+    // schema_version column) via the scan_id already FK'd on each archive
+    // row, so compareExecutiveBriefs can add real per-field canonicalDomains
+    // comparisons. Best-effort: a missing/purged scan row degrades to
+    // canonicalDomains: null (see buildCanonicalDomains), never blocks the
+    // existing risk/opportunity-count comparison this endpoint already returns.
+    let scanPayloads = null;
+    if (before.scan_id && after.scan_id) {
+      const { data: scanRows, error: scanErr } = await supabase
+        .from('audit_scans')
+        .select('id, payload, schema_version')
+        .in('id', [before.scan_id, after.scan_id]);
+      if (!scanErr && Array.isArray(scanRows) && scanRows.length === 2) {
+        const byId = Object.fromEntries(scanRows.map(r => [r.id, r]));
+        const beforeScan = byId[before.scan_id];
+        const afterScan  = byId[after.scan_id];
+        if (beforeScan && afterScan) {
+          scanPayloads = {
+            before: { payload: beforeScan.payload, schemaVersion: beforeScan.schema_version },
+            after:  { payload: afterScan.payload,  schemaVersion: afterScan.schema_version },
+          };
+        }
+      }
+    }
+
+    const comparison = compareExecutiveBriefs(before, after, { scanPayloads });
     return res.status(200).json({ comparison });
   } catch (err) {
     console.error('[executive-comparison] read failed:', err?.message || err);

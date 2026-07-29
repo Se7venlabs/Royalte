@@ -42,7 +42,33 @@ export default async function handler(req, res) {
 
   try {
     const briefs = await listBriefs(supabase, user.id, { from: q.from, to: q.to, limit: q.limit, full: true, order: 'asc' });
-    const trends = detectDomainTrends(briefs);
+
+    // Phase 3D — fetch the real audit_scans rows for the window's first/last
+    // brief, same best-effort pattern as api/executive-comparison.js: a
+    // missing/purged scan row degrades to canonicalDomains: null, never
+    // blocks the existing risk-count trend detection below.
+    let scanPayloads = null;
+    if (briefs.length >= 2) {
+      const first = briefs[0], last = briefs[briefs.length - 1];
+      if (first.scan_id && last.scan_id) {
+        const { data: scanRows, error: scanErr } = await supabase
+          .from('audit_scans')
+          .select('id, payload, schema_version')
+          .in('id', [first.scan_id, last.scan_id]);
+        if (!scanErr && Array.isArray(scanRows) && scanRows.length === 2) {
+          const byId = Object.fromEntries(scanRows.map(r => [r.id, r]));
+          const firstScan = byId[first.scan_id], lastScan = byId[last.scan_id];
+          if (firstScan && lastScan) {
+            scanPayloads = {
+              first: { payload: firstScan.payload, schemaVersion: firstScan.schema_version },
+              last:  { payload: lastScan.payload,  schemaVersion: lastScan.schema_version },
+            };
+          }
+        }
+      }
+    }
+
+    const trends = detectDomainTrends(briefs, { scanPayloads });
     return res.status(200).json(trends);
   } catch (err) {
     console.error('[executive-trends] read failed:', err?.message || err);
