@@ -9,10 +9,17 @@
   <link rel="stylesheet" href="/css/royalte-workspace.css">
 <script>
 (function () {
+  // Phase 2 (Board directive, 2026-07-29): narrowed to match the guard
+  // every sibling workspace (Media Intelligence, Global Music Footprint)
+  // already uses -- localhost, or an explicit ?dev=1 opt-in. The previous
+  // isPreview check (host.endsWith('.vercel.app')) auto-activated fixture
+  // data on every Preview deployment with no query param needed, unlike
+  // every other workspace -- a real Preview URL for this page alone could
+  // silently render fabricated data to anyone who opened it.
   var host = location.hostname;
-  var isLocal   = host === 'localhost' || host === '127.0.0.1';
-  var isPreview = host.endsWith('.vercel.app');
-  if (!isLocal && !isPreview) return;
+  var isLocal  = host === 'localhost' || host === '127.0.0.1';
+  var devParam = new URLSearchParams(location.search).get('dev') === '1';
+  if (!isLocal && !devParam) return;
   var existing = sessionStorage.getItem('royalte_workspace_context');
   if (existing) {
     try {
@@ -575,8 +582,8 @@
           <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
         </span>
         <span>
-          <span class="mc-nav-label">Publishing Ecosystem™</span>
-          <div class="mc-nav-sub">Your Rights</div>
+          <span class="mc-nav-label">Publishing Intelligence</span>
+          <div class="mc-nav-sub">Your Works</div>
         </span>
       </a>
       <a class="mc-nav-item mc-nav-item--active" href="/workspaces/catalog-intelligence.html" aria-current="page">
@@ -728,8 +735,19 @@
                     <span class="ci-lr-field-label">Genre</span>
                     <span class="ci-lr-field-val" id="ci-lr-genre">—</span>
                   </div>
+                  <!-- Phase 2 (Board directive, 2026-07-29): labeled "Scanned
+                       Track ISRC" rather than bare "ISRC" -- this field reads
+                       subject.trackIsrc (the specific song this scan targeted,
+                       often absent for artist-level scans), a different scope
+                       than the catalog-wide "ISRC Coverage™" KPI above it on
+                       this same page. Both were already correct and honestly
+                       sourced; only the label was ambiguous enough to read as
+                       a contradiction. Identity Intelligence's equivalent
+                       field keeps its original "ISRC" label -- that page has
+                       no competing catalog-wide ISRC metric, so no ambiguity
+                       exists there. -->
                   <div class="ci-lr-field">
-                    <span class="ci-lr-field-label">ISRC</span>
+                    <span class="ci-lr-field-label">Scanned Track ISRC</span>
                     <span class="ci-lr-field-val" id="ci-lr-isrc">—</span>
                   </div>
                   <div class="ci-lr-field">
@@ -920,6 +938,31 @@
 
   var ci = ctx.catalogIntelligence || {};
   var bvr = ci.bestVerifiedRelease || null;
+
+  /* ── Last Catalog Sync — Phase 2 (Board directive, 2026-07-29) ────────
+   * Was static HTML text ("2 hours ago") with zero JS wiring anywhere in
+   * this file -- always showed the same fabricated age regardless of when
+   * the real scan ran. Same real ctx.scannedAt field and date-format
+   * pattern already used by Identity Intelligence's "Last Sync" (same
+   * Evidence Chain Rule™ fix already applied to Mission Control's header
+   * this phase, reused here rather than re-derived). */
+  function fmtSyncDate(iso) {
+    if (!iso) return null;
+    try {
+      var d = new Date(iso), now = new Date();
+      var sameDay = d.getFullYear() === now.getFullYear()
+                 && d.getMonth()    === now.getMonth()
+                 && d.getDate()     === now.getDate();
+      var t = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      return sameDay ? 'Today, ' + t
+        : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + t;
+    } catch (_) { return null; }
+  }
+  var syncLabelEl = document.getElementById('ci-sync-label');
+  if (syncLabelEl) {
+    var syncStr = fmtSyncDate(ctx.scannedAt);
+    syncLabelEl.textContent = syncStr ? ('Last Catalog Sync: ' + syncStr) : 'Last Catalog Sync: —';
+  }
 
   /* ── § 1 KPI — Total Releases ─────────────────────────────────────── */
   var totalReleases = (ci.singles || 0) + (ci.albums || 0) + (ci.eps || 0);

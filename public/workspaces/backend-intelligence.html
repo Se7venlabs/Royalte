@@ -337,13 +337,22 @@
           </div>
           <div class="bi-exec-meta">
             <div class="bi-exec-label">Backend Status™</div>
-            <div class="bi-exec-score-title">Operational</div>
+            <!-- Phase 2 (Board directive, 2026-07-29): score-title and status
+                 pill were both 100% static -- never referenced by any JS in
+                 this file (confirmed via grep) -- so every artist saw
+                 "Operational" and "2 Areas Need Attention" regardless of
+                 their real connected-service count. Now wired below to
+                 bi.connectedCount/bi.totalCount, the same real fields the
+                 KPI counters already use. tabindex="-1" removed from the
+                 real, actionable "View Infrastructure Report" button --
+                 was unreachable by keyboard Tab navigation. -->
+            <div class="bi-exec-score-title" id="bi-exec-score-title">—</div>
             <div class="bi-exec-score-sub">Music Infrastructure Connected</div>
-            <div class="hi-status-pill hi-status-pill--teal" style="display:inline-flex;align-items:center;gap:5px;">
+            <div class="hi-status-pill hi-status-pill--teal" id="bi-exec-status-pill" style="display:inline-flex;align-items:center;gap:5px;">
               <span class="hi-status-dot" aria-hidden="true"></span>
-              Infrastructure Verified — 2 Areas Need Attention
+              <span id="bi-exec-status-text">—</span>
             </div>
-            <button class="pi-risk-step pi-risk-step--active" onclick="event.stopPropagation();biOpenAthena('status')" tabindex="-1">View Infrastructure Report →</button>
+            <button class="pi-risk-step pi-risk-step--active" onclick="event.stopPropagation();biOpenAthena('status')">View Infrastructure Report →</button>
           </div>
         </div>
 
@@ -389,16 +398,25 @@
             <div class="ii-kpi-caption">Across All Services</div>
           </div>
 
+          <!-- Phase 2 (Board directive, 2026-07-29): this entire card had no
+               id/JS wiring at all -- pure decoration, identical for every
+               artist. Now derives its risk level and issue count from the
+               same real bi.connectedCount/bi.totalCount gap the Executive
+               header above uses (a presentation-layer bucketing of a real
+               count, the same pattern _hiDotClass already uses elsewhere in
+               this codebase -- not a new score). Caption lists the actual
+               unconnected service names instead of the static, unrelated
+               "Rights · Registrations". -->
           <div class="hi-kpi-card">
             <div class="hi-kpi-label hi-kpi-label--teal">Infrastructure Risk™</div>
             <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--teal" aria-hidden="true">
               <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
             </div>
             <div class="ii-kpi-num-row" style="padding-top:4px;">
-              <span class="ii-kpi-big-num" style="font-size:17px;color:#F59E0B;">MEDIUM</span>
+              <span class="ii-kpi-big-num" id="bi-risk-level" style="font-size:17px;color:#F59E0B;">—</span>
             </div>
-            <div class="ii-kpi-status-text" style="color:#F59E0B;">2 Issues Detected</div>
-            <div class="ii-kpi-caption">Rights · Registrations</div>
+            <div class="ii-kpi-status-text" id="bi-risk-count" style="color:#F59E0B;">—</div>
+            <div class="ii-kpi-caption" id="bi-risk-caption">—</div>
           </div>
 
         </div>
@@ -772,24 +790,79 @@
       var scoreSubEl = document.querySelector('.bi-exec-score-sub');
       if (scoreSubEl) scoreSubEl.textContent = bi.summaryLabel;
     }
+
+    /* ── Executive header title/pill + Infrastructure Risk™ card — Phase 2
+     * (Board directive, 2026-07-29). Real gap count: totalCount - connectedCount.
+     * Same real fields the KPI counters above already read; no new data source. */
+    var connectedCount = typeof bi.connectedCount === 'number' ? bi.connectedCount : 0;
+    var totalCount     = typeof bi.totalCount     === 'number' ? bi.totalCount     : 0;
+    var gapCount        = Math.max(0, totalCount - connectedCount);
+    var isFullyConnected = totalCount > 0 && gapCount === 0;
+
+    var titleEl = document.getElementById('bi-exec-score-title');
+    if (titleEl) titleEl.textContent = totalCount === 0 ? '—' : (isFullyConnected ? 'Operational' : 'Attention Required');
+
+    var statusTextEl = document.getElementById('bi-exec-status-text');
+    var statusPillEl = document.getElementById('bi-exec-status-pill');
+    if (statusTextEl) {
+      if (totalCount === 0) {
+        statusTextEl.textContent = 'Infrastructure Not Yet Assessed';
+      } else if (isFullyConnected) {
+        statusTextEl.textContent = 'Infrastructure Verified — All Services Connected';
+        if (statusPillEl) statusPillEl.className = 'hi-status-pill hi-status-pill--green';
+      } else {
+        statusTextEl.textContent = 'Infrastructure Verified — ' + gapCount + ' Area' + (gapCount === 1 ? '' : 's') + ' Need Attention';
+      }
+    }
+
+    var unconnectedNames = (Array.isArray(bi.services) ? bi.services : [])
+      .filter(function (s) { return s.state !== 'VERIFIED'; })
+      .map(function (s) { return s.name; });
+
+    var riskLevelEl   = document.getElementById('bi-risk-level');
+    var riskCountEl   = document.getElementById('bi-risk-count');
+    var riskCaptionEl = document.getElementById('bi-risk-caption');
+    if (riskLevelEl && riskCountEl && riskCaptionEl) {
+      if (totalCount === 0) {
+        riskLevelEl.textContent = '—'; riskCountEl.textContent = 'Not Yet Assessed'; riskCaptionEl.textContent = '—';
+      } else if (gapCount === 0) {
+        riskLevelEl.textContent = 'LOW'; riskLevelEl.style.color = '#4ade80';
+        riskCountEl.textContent = 'No Issues Detected'; riskCountEl.style.color = '#4ade80';
+        riskCaptionEl.textContent = 'All Services Connected';
+      } else {
+        riskLevelEl.textContent = gapCount >= totalCount ? 'HIGH' : 'MEDIUM';
+        riskCountEl.textContent = gapCount + ' Issue' + (gapCount === 1 ? '' : 's') + ' Detected';
+        riskCaptionEl.textContent = unconnectedNames.length ? unconnectedNames.join(' · ') : '—';
+      }
+    }
   }());
 
-  /* ── Executive ring counter ──────────────────────────────────────── */
-  var numEl    = document.getElementById('bi-ring-num');
-  var ringTarget = (numEl && numEl.dataset.liveTarget) ? parseInt(numEl.dataset.liveTarget, 10) : 98;
-  var count = 0;
-  var step  = Math.ceil(ringTarget / 40);
-  var timer = setInterval(function () {
-    count = Math.min(count + step, ringTarget);
-    numEl.textContent = count;
-    if (count >= ringTarget) clearInterval(timer);
-  }, 40);
+  /* ── Executive ring counter ──────────────────────────────────────────
+   * Phase 2 (Board directive, 2026-07-29): removed the fabricated fallback
+   * targets (98 / 94 / 22) previously shown, indistinguishably from real
+   * data, whenever the real score was null. When no real liveTarget was
+   * set, these now honestly show "—" instead of animating to a plausible-
+   * looking invented number. */
+  var numEl      = document.getElementById('bi-ring-num');
+  var ringTarget = (numEl && numEl.dataset.liveTarget) ? parseInt(numEl.dataset.liveTarget, 10) : null;
+  if (ringTarget === null) {
+    if (numEl) numEl.textContent = '—';
+  } else {
+    var count = 0;
+    var step  = Math.ceil(ringTarget / 40);
+    var timer = setInterval(function () {
+      count = Math.min(count + step, ringTarget);
+      numEl.textContent = count;
+      if (count >= ringTarget) clearInterval(timer);
+    }, 40);
+  }
 
   /* ── KPI counters ────────────────────────────────────────────────── */
-  function animateCounter(id, fallback, duration) {
+  function animateCounter(id, duration) {
     var el = document.getElementById(id);
     if (!el) return;
-    var target = (el.dataset.liveTarget) ? parseInt(el.dataset.liveTarget, 10) : fallback;
+    if (!el.dataset.liveTarget) { el.textContent = '—'; return; }
+    var target = parseInt(el.dataset.liveTarget, 10);
     var start = null;
     requestAnimationFrame(function tick(ts) {
       if (!start) start = ts;
@@ -798,9 +871,9 @@
       if (pct < 1) requestAnimationFrame(tick);
     });
   }
-  setTimeout(function () { animateCounter('bi-verify-num',  94, 1200); }, 200);
-  setTimeout(function () { animateCounter('bi-systems-num',  7,  900); }, 350);
-  setTimeout(function () { animateCounter('bi-records-num', 22, 1100); }, 500);
+  setTimeout(function () { animateCounter('bi-verify-num',  1200); }, 200);
+  setTimeout(function () { animateCounter('bi-systems-num',  900); }, 350);
+  setTimeout(function () { animateCounter('bi-records-num', 1100); }, 500);
 
   /* ── Digital Twin sequential reveal ─────────────────────────────── */
   var SEQUENCE = [

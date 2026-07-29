@@ -549,7 +549,12 @@
               </div>
               <div class="gf2-health-body">
                 <div class="gf2-health-ring-wrap">
-                  <svg class="gf2-health-ring-svg" viewBox="0 0 64 64">
+                  <!-- Phase 2 (Board directive, 2026-07-29): aria-hidden added
+                       -- the adjacent #gf2-health-num text node already
+                       announces the same number; every sibling decorative
+                       graphic on this and adjacent workspaces already has
+                       this attribute, this was the one gap. -->
+                  <svg class="gf2-health-ring-svg" viewBox="0 0 64 64" aria-hidden="true">
                     <circle class="gf2-health-ring-track" cx="32" cy="32" r="27"/>
                     <circle class="gf2-health-ring-fill" id="gf2-health-ring" cx="32" cy="32" r="27" stroke-dasharray="170" stroke-dashoffset="170"/>
                   </svg>
@@ -984,7 +989,11 @@
     platformSupport.forEach(function (p) {
       var pRow = document.createElement('div');
       pRow.className = 'gf2-panel-provider-row';
-      var label = p.supported ? '✅ Supported' : '❌ Not Supported';
+      // Phase 2 (Board directive, 2026-07-29): emoji glyphs removed -- this
+      // was the only status indicator in the workspace using emoji; every
+      // sibling status (t.status above, panel dot) uses colored text/dots
+      // only. Color already carries the same signal (green/red below).
+      var label = p.supported ? 'Supported' : 'Not Supported';
       pRow.innerHTML = '<span>' + esc(providerDisplayName(p.provider)) + '</span><span style="color:' + (p.supported ? '#22c55e' : '#f87171') + '">' + esc(label) + '</span>';
       platformEl.appendChild(pRow);
     });
@@ -1006,7 +1015,7 @@
     // RECOMMENDED_ACTIONS_BY_REASON both already say "storefront") so the
     // panel doesn't imply the artist or catalog doesn't exist, only that this
     // specific storefront doesn't carry it.
-    var catalogLabel = isAvailable ? '✅ Available' : (hasEvidence ? '❌ Not Available in this Storefront' : '— Not yet assessed');
+    var catalogLabel = isAvailable ? 'Available' : (hasEvidence ? 'Not Available in this Storefront' : '— Not yet assessed');
     if (t && t.code === 'ca' && typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('ROYALTE_FORENSIC_TRACE') === '1') {
       console.log('==============================');
       console.log('MAP STAGE 4b: catalogLabel decision for "ca"');

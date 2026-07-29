@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Publishing Ecosystem™ — Royaltē OS</title>
+  <title>Publishing Intelligence™ — Royaltē OS</title>
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/css/royalte-rds.css">
   <link rel="stylesheet" href="/css/royalte-workspace.css">
@@ -503,8 +503,8 @@
           <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg>
         </span>
         <span>
-          <span class="mc-nav-label">Publishing Ecosystem™</span>
-          <div class="mc-nav-sub">Your Rights</div>
+          <span class="mc-nav-label">Publishing Intelligence</span>
+          <div class="mc-nav-sub">Your Works</div>
         </span>
       </a>
       <a class="mc-nav-item" href="/workspaces/catalog-intelligence.html">
@@ -579,7 +579,7 @@
       <span class="ws-breadcrumb-sep">/</span>
       <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
       <span class="ws-breadcrumb-sep">/</span>
-      <span class="ws-breadcrumb-current pi-breadcrumb-current">Publishing Ecosystem™</span>
+      <span class="ws-breadcrumb-current pi-breadcrumb-current">Publishing Intelligence™</span>
     </header>
 
     <div class="ws-body" style="opacity:0;transition:opacity .15s ease">
@@ -595,8 +595,8 @@
             </div>
           </div>
           <div class="pi-exec-title-block">
-            <div class="pi-exec-eyebrow">Publishing Ecosystem™</div>
-            <h1 class="pi-exec-heading">Publishing Ecosystem™</h1>
+            <div class="pi-exec-eyebrow">Publishing Intelligence™</div>
+            <h1 class="pi-exec-heading">Publishing Intelligence™</h1>
             <div class="pi-exec-desc">Your Publishing Rights • Verified Sources • Complete Visibility</div>
             <div class="pi-exec-meta-row">
               <div class="pi-exec-updated">
@@ -1148,11 +1148,17 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
   var regData = pi && pi.registrations ? pi.registrations : {};
   var regEntries = [];
 
-  // Performance Rights — from MRP PRO (Artist Disclosure; status upgradeable via Official Source)
+  // Performance Rights — from MRP PRO (Artist Disclosure only). Phase 2
+  // (Board directive, 2026-07-29): removed a dead official-source lookup
+  // that could never match -- pi.registrations is keyed by domain concept
+  // (mlcRegistration/registeredWorks/etc.), never by PRO name, so
+  // regData[proKey] always fell through to the same hardcoded literal
+  // it now returns directly. No real PRO-verification evidence exists in
+  // the canonical payload today (unlike Mechanical Licensing below, which
+  // has real MLC scan evidence to upgrade against) -- an honest
+  // Artist-Disclosure-only status, not a fabricated upgrade path.
   if (proVal && proVal !== 'None') {
-    var proKey   = proVal.toLowerCase().replace(/[^a-z0-9]/g, '');
-    var proStat  = regData[proKey] || 'REGISTERED';
-    regEntries.push({ category: 'Performance Rights', org: proVal, status: proStat });
+    regEntries.push({ category: 'Performance Rights', org: proVal, status: 'REGISTERED' });
   }
 
   // Mechanical Licensing — The MLC (Artist Disclosure, upgraded to Official Source when
@@ -1287,9 +1293,20 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
     if (pubData.publishing_management === 'publisher' && pubData.organization_name) {
       entities.push({ name: pubData.organization_name, role: 'Publisher' });
     }
-    // Record Label — Evidence Verified
+    // Record Label — Evidence Verified. Phase 2 (Board directive, 2026-07-29,
+    // Cross-Workspace Integrity finding): this is an independently-sourced
+    // fact from the "Record Label" field above (Artist Disclosure, MRP) --
+    // both are honestly labeled with their own provenance, but previously
+    // gave no indication when they disagreed, which could read as a
+    // contradiction rather than two distinct, correctly-labeled facts.
+    // Adds a small note when both exist and differ; says nothing when they
+    // agree or when only one source has a value.
     if (ctx.recordLabel) {
-      entities.push({ name: ctx.recordLabel, role: 'Label' });
+      var labelNote = null;
+      if (recLabelVal && recLabelVal.trim().toLowerCase() !== ctx.recordLabel.trim().toLowerCase()) {
+        labelNote = 'Differs from your Artist Disclosure (' + recLabelVal + ')';
+      }
+      entities.push({ name: ctx.recordLabel, role: 'Label', note: labelNote });
     }
     // Artist — from context
     var artistName2 = (ctx.subject && ctx.subject.artistName) || ctx.artistName || null;
@@ -1312,6 +1329,12 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
         roleEl.className = 'pi-entity-role';
         roleEl.textContent = e.role;
         item.appendChild(nameEl); item.appendChild(roleEl);
+        if (e.note) {
+          var noteEl = document.createElement('div');
+          noteEl.style.cssText = 'font-size:10px;color:rgba(248,180,90,0.85);margin-top:2px';
+          noteEl.textContent = e.note;
+          item.appendChild(noteEl);
+        }
         entitiesEl.appendChild(item);
       });
     }

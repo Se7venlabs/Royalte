@@ -259,7 +259,12 @@
               </div>
             </div>
           </div>
-          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
+          <!-- Phase 2 (Board directive, 2026-07-29): role="button"/tabindex
+               removed -- confirmed via repo-wide grep this control has no
+               click/keydown handler anywhere; announcing it as interactive
+               to keyboard/screen-reader users was a dead-click affordance,
+               not a real feature deferral. -->
+          <div class="hi-date-selector" aria-hidden="true">
             <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
             —
             <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down"></use></svg>
@@ -361,7 +366,6 @@
                   <div class="ii-platform-lastsync">—</div>
                 </div>
               </div>
-              <a class="ii-platform-cta ii-platform-cta--view" href="#">View Details →</a>
             </div>
 
             <!-- Spotify for Artists -->
@@ -381,7 +385,6 @@
                   <div class="ii-platform-lastsync">—</div>
                 </div>
               </div>
-              <a class="ii-platform-cta ii-platform-cta--view" href="#">View Details →</a>
             </div>
 
             <!-- YouTube Official Artist Channel -->
@@ -401,7 +404,6 @@
                   <div class="ii-platform-lastsync">—</div>
                 </div>
               </div>
-              <a class="ii-platform-cta ii-platform-cta--view" href="#">View Details →</a>
             </div>
 
             <!-- Deezer -->
@@ -421,7 +423,6 @@
                   <div class="ii-platform-lastsync">—</div>
                 </div>
               </div>
-              <a class="ii-platform-cta ii-platform-cta--view" href="#">View Details →</a>
             </div>
 
             <!-- TIDAL -->
@@ -441,7 +442,6 @@
                   <div class="ii-platform-lastsync">—</div>
                 </div>
               </div>
-              <a class="ii-platform-cta ii-platform-cta--view" href="#">View Details →</a>
             </div>
 
             <!-- Record Label -->
@@ -461,7 +461,6 @@
                   <div class="ii-platform-lastsync">—</div>
                 </div>
               </div>
-              <a class="ii-platform-cta ii-platform-cta--view" href="#">View Details →</a>
             </div>
 
           </div>
@@ -734,9 +733,14 @@
 // Artwork loader — reads workspace context; no direct sessionStorage access.
 (function () {
   'use strict';
-  function applyImg(el, src, onLoad) {
+  // Phase 2 (Board directive, 2026-07-29): applyImg() now sets a real alt
+  // description once a real image loads -- these are content images (an
+  // artist photo, a release cover), not decorative, so they need a real
+  // label for assistive tech rather than the empty alt="" they shipped
+  // with (identity-intelligence.html img alt audit finding).
+  function applyImg(el, src, altText, onLoad) {
     if (!el || !src) return;
-    el.onload  = function () { el.classList.add('ii--loaded'); if (onLoad) onLoad(); };
+    el.onload  = function () { el.classList.add('ii--loaded'); if (altText) el.alt = altText; if (onLoad) onLoad(); };
     el.onerror = function () { el.removeAttribute('src'); };
     el.src = src;
   }
@@ -745,19 +749,25 @@
     var _r = window.RoyalteContext.readWorkspaceContext();
     if (_r.state !== 'valid') return;
     var _ctx = _r.ctx;
+    var _bvr = _ctx.catalogIntelligence && _ctx.catalogIntelligence.bestVerifiedRelease;
+    var _artistName = _ctx.artistName || (_ctx.subject && _ctx.subject.artistName) || null;
     var artistSrc  = _ctx.artwork || null;
-    var bvrArtwork = (_ctx.catalogIntelligence && _ctx.catalogIntelligence.bestVerifiedRelease &&
-                      _ctx.catalogIntelligence.bestVerifiedRelease.artwork) || null;
+    var bvrArtwork = (_bvr && _bvr.artwork) || null;
     var releaseSrc = bvrArtwork || artistSrc;
     applyImg(
       document.getElementById('ii-artist-img'),
       artistSrc,
+      _artistName ? (_artistName + ' artist photo') : 'Artist photo',
       function () {
         var initials = document.querySelector('.ii-artist-initials');
         if (initials) initials.style.display = 'none';
       }
     );
-    applyImg(document.getElementById('ii-lr-artwork-img'), releaseSrc);
+    applyImg(
+      document.getElementById('ii-lr-artwork-img'),
+      releaseSrc,
+      (_bvr && _bvr.releaseTitle) ? (_bvr.releaseTitle + ' cover artwork') : (_artistName ? (_artistName + ' artwork') : 'Release artwork')
+    );
   } catch (e) {}
 })();
 </script>

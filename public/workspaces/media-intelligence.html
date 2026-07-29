@@ -433,14 +433,23 @@
             <div class="mi-exec-desc">Channel health, release cadence, and visual content opportunities — all in one view.</div>
           </div>
           <div class="mi-exec-actions">
-            <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
+            <!-- Phase 2 (Board directive, 2026-07-29): date selector's
+                 role="button"/tabindex removed -- no click/keydown handler
+                 exists anywhere in this file, so it was announcing itself
+                 as interactive to keyboard/screen-reader users for nothing.
+                 Export Report has no report-generation feature anywhere in
+                 the codebase to wire to (confirmed via repo-wide grep) --
+                 disabled and honestly labeled "Coming Soon" rather than left
+                 as a silent dead click, matching the same pattern already
+                 used for "Ask ATHENA™" on AI Insights. -->
+            <div class="hi-date-selector" aria-hidden="true">
               <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
               <span id="mi-date-range">Last 30 Days</span>
               <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down"></use></svg>
             </div>
-            <button class="mi-export-btn" type="button">
+            <button class="mi-export-btn" type="button" disabled title="Coming Soon" aria-label="Export Report — Coming Soon" style="opacity:0.5;cursor:not-allowed">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Export Report
+              Export Report — Coming Soon
             </button>
           </div>
         </div>

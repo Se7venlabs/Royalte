@@ -188,9 +188,14 @@
               </div>
             </div>
           </div>
-          <div class="hi-date-selector" role="button" aria-label="Date range selector" tabindex="0">
+          <!-- Phase 2 (Board directive, 2026-07-29): role="button"/tabindex
+               removed (no handler anywhere in this file); fabricated fixed
+               date range "Jun 27 - Jul 3, 2026" removed (same root cause as
+               the Executive Timeline™ fix above -- no real historical range
+               exists for this artist). -->
+          <div class="hi-date-selector" aria-hidden="true">
             <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
-            Jun 27 – Jul 3, 2026
+            Current Scan
             <svg class="royalte-icon royalte-icon--xs" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-caret-down"></use></svg>
           </div>
         </div>
@@ -229,7 +234,15 @@
                 <div class="hi-status-pill hi-status-pill--green">
                   <span class="hi-status-dot" aria-hidden="true"></span>Strong
                 </div>
-                <div class="hi-kpi-trend">— Trend Updating</div>
+                <!-- Phase 2 (Board directive, 2026-07-29): was permanently
+                     stuck on "— Trend Updating" (zero JS ever wrote to this
+                     element -- confirmed via grep) -- falsely implied real
+                     data was imminent when in fact healthReport.trend is
+                     hardcoded 'Unknown' in the Health Engine pending a
+                     future phase (api/_lib/health-engine.js). Honest
+                     permanent state instead of a misleading "in progress"
+                     claim. -->
+                <div class="hi-kpi-trend">— Trend Not Yet Available</div>
               </div>
             </div>
 
@@ -239,7 +252,13 @@
                 <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Identity</span><span class="hi-kpi-breakdown-val">67</span></div>
                 <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Publishing</span><span class="hi-kpi-breakdown-val">67</span></div>
                 <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Catalog</span><span class="hi-kpi-breakdown-val">100</span></div>
-                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">AI Insights</span><span class="hi-kpi-breakdown-val">75</span></div>
+                <!-- Phase 2 (Board directive, 2026-07-29): relabeled from
+                     "AI Insights" -- this column's real data source is
+                     hi.monitoringScore (see BREAKDOWN array below); the
+                     Health Engine has no "AI"/royalteAI domain score at all.
+                     The number shown here never described what its label
+                     claimed. -->
+                <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Monitoring</span><span class="hi-kpi-breakdown-val">75</span></div>
                 <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Footprint</span><span class="hi-kpi-breakdown-val">82</span></div>
                 <div class="hi-kpi-breakdown-col"><span class="hi-kpi-breakdown-col-label">Backend</span><span class="hi-kpi-breakdown-val">100</span></div>
               </div>
@@ -385,9 +404,16 @@
               <div class="hi-cat-movement hi-cat-movement--up">▲ 8% this week</div>
             </a>
 
-            <!-- 4. AI Insights™ -->
-            <a class="hi-cat-card" href="/workspaces/ai-insights.html" aria-label="Open AI Insights workspace">
-              <div class="hi-cat-label">AI Insights™</div>
+            <!-- 4. Monitoring™ — Phase 2 (Board directive, 2026-07-29):
+                 relabeled from "AI Insights™" and relinked from
+                 ai-insights.html. This card's score/pill/sparkline were
+                 always hi.monitoringScore (see CARD_SCORES below); the
+                 label and destination described a different workspace than
+                 the data actually shown, which would confuse an artist who
+                 clicked through expecting to see the numbers they just
+                 looked at. -->
+            <a class="hi-cat-card" href="/workspaces/monitoring-timeline.html" aria-label="Open Monitoring workspace">
+              <div class="hi-cat-label">Monitoring™</div>
               <div class="hi-cat-score-wrap">
                 <span class="hi-cat-score-num hi-cat-score-num--blue">75</span>
                 <span class="hi-cat-score-denom">/100</span>
@@ -482,62 +508,70 @@
           </div>
           <div class="hi-timeline-card">
             <div class="hi-timeline-body">
-              <div class="hi-timeline-ruler" role="list" aria-label="Health monitoring timeline Jun 27 – Jul 3">
+              <!-- Phase 2 (Board directive, 2026-07-29): removed the fabricated
+                   specific dates ("Jun 27, 2026" etc.) and invented events
+                   ("Backend connected", "Catalog verified") -- Historical
+                   Health Snapshots™ doesn't exist yet (see health-timeline.js
+                   header comment), so no real per-artist historical dates are
+                   available to show. Kept the 7-day visual rhythm (not a
+                   redesign) but every day is now honestly unlabeled except
+                   the real current scan. -->
+              <div class="hi-timeline-ruler" role="list" aria-label="Health monitoring timeline">
                 <div class="hi-timeline-day" role="listitem">
                   <button class="ht-scan-btn" data-scan-idx="0" type="button"
-                          aria-label="View Jun 27 scan — Backend connected"
-                          title="Jun 27 · Backend connected">
-                    <div class="hi-timeline-dot hi-timeline-dot--event"></div>
+                          aria-label="Historical scan data not yet available"
+                          title="Historical Health Snapshots™ — Coming Soon">
+                    <div class="hi-timeline-dot"></div>
                   </button>
-                  <div class="hi-timeline-day-label">Jun 27</div>
+                  <div class="hi-timeline-day-label">—</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
                   <button class="ht-scan-btn" data-scan-idx="1" type="button"
-                          aria-label="View Jun 28 scan"
-                          title="Jun 28">
+                          aria-label="Historical scan data not yet available"
+                          title="Historical Health Snapshots™ — Coming Soon">
                     <div class="hi-timeline-dot"></div>
                   </button>
-                  <div class="hi-timeline-day-label">Jun 28</div>
+                  <div class="hi-timeline-day-label">—</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
                   <button class="ht-scan-btn" data-scan-idx="2" type="button"
-                          aria-label="View Jun 29 scan — Catalog verified"
-                          title="Jun 29 · Catalog verified">
-                    <div class="hi-timeline-dot hi-timeline-dot--event"></div>
+                          aria-label="Historical scan data not yet available"
+                          title="Historical Health Snapshots™ — Coming Soon">
+                    <div class="hi-timeline-dot"></div>
                   </button>
-                  <div class="hi-timeline-day-label">Jun 29</div>
+                  <div class="hi-timeline-day-label">—</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
                   <button class="ht-scan-btn" data-scan-idx="3" type="button"
-                          aria-label="View Jun 30 scan"
-                          title="Jun 30">
+                          aria-label="Historical scan data not yet available"
+                          title="Historical Health Snapshots™ — Coming Soon">
                     <div class="hi-timeline-dot"></div>
                   </button>
-                  <div class="hi-timeline-day-label">Jun 30</div>
+                  <div class="hi-timeline-day-label">—</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
                   <button class="ht-scan-btn" data-scan-idx="4" type="button"
-                          aria-label="View Jul 1 scan"
-                          title="Jul 1">
+                          aria-label="Historical scan data not yet available"
+                          title="Historical Health Snapshots™ — Coming Soon">
                     <div class="hi-timeline-dot"></div>
                   </button>
-                  <div class="hi-timeline-day-label">Jul 1</div>
+                  <div class="hi-timeline-day-label">—</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
                   <button class="ht-scan-btn" data-scan-idx="5" type="button"
-                          aria-label="View Jul 2 scan"
-                          title="Jul 2">
+                          aria-label="Historical scan data not yet available"
+                          title="Historical Health Snapshots™ — Coming Soon">
                     <div class="hi-timeline-dot"></div>
                   </button>
-                  <div class="hi-timeline-day-label">Jul 2</div>
+                  <div class="hi-timeline-day-label">—</div>
                 </div>
                 <div class="hi-timeline-day" role="listitem">
                   <button class="ht-scan-btn" data-scan-idx="6" type="button"
-                          aria-label="Current scan — Jul 3"
-                          title="Jul 3 · Current scan">
+                          aria-label="Current scan"
+                          title="Current scan">
                     <div class="hi-timeline-dot hi-timeline-dot--active"></div>
                   </button>
-                  <div class="hi-timeline-day-label">Jul 3</div>
+                  <div class="hi-timeline-day-label">Today</div>
                 </div>
               </div>
             </div>
@@ -617,6 +651,16 @@
     hi.identityScore, hi.publishingScore, hi.catalogScore,
     hi.monitoringScore, hi.backendScore, hi.footprintScore
   ];
+  // Phase 2 (Board directive, 2026-07-29, Cross-Workspace Integrity finding):
+  // hi.domainStatuses is health-intelligence.js's own documented
+  // "constitutional source of truth... Consumers read; never classify" for
+  // these exact 6 scores -- was computed server-side and never read by any
+  // frontend file. This page was instead re-deriving its own classification
+  // via RI.setPill's generic score thresholds (a different vocabulary --
+  // e.g. "Good" exists there but not in domainStatuses at all), so the same
+  // score could show two different labels depending on which surface
+  // rendered it. Same key order as CARD_SCORES above.
+  var DOMAIN_STATUS_KEYS = ['identity', 'publishing', 'catalog', 'monitoring', 'backend', 'footprint'];
   var isFirstScan = mi && (mi.status === 'baseline' || mi.scanNumber <= 1);
   var catCards = document.querySelectorAll('.hi-cat-card');
   CARD_SCORES.forEach(function (s, i) {
@@ -633,10 +677,24 @@
       cs, 'hi-cat-progress-fill'
     );
 
-    RI.setPill(card.querySelector('.hi-status-pill'), cs);
+    var domainStatus = hi.domainStatuses && hi.domainStatuses[DOMAIN_STATUS_KEYS[i]];
+    RI.setPill(card.querySelector('.hi-status-pill'), cs, domainStatus || null);
 
+    // Phase 2 (Board directive, 2026-07-29): made unconditional. Per-category
+    // movement/trend has no real data source for ANY scan today -- the Health
+    // Engine's own trend field is hardcoded 'Unknown' pending a future
+    // Monitoring Engine phase (api/_lib/health-engine.js), not just on a
+    // first scan. The static "▲ 3% this week" HTML previously stayed
+    // fabricated for every non-first scan; now every scan gets the same
+    // honest label. Sparkline aria-label corrected to match (real score is
+    // shown numerically above; no real historical shape exists to describe).
     var mvEl = card.querySelector('.hi-cat-movement');
-    if (mvEl && isFirstScan) { mvEl.className = 'hi-cat-movement'; mvEl.textContent = '— First Scan'; }
+    if (mvEl) {
+      mvEl.className = 'hi-cat-movement';
+      mvEl.textContent = isFirstScan ? '— First Scan' : '— Trend Not Yet Available';
+    }
+    var sparkEl = card.querySelector('.hi-cat-sparkline');
+    if (sparkEl) sparkEl.setAttribute('aria-label', 'Trend history not yet available');
   });
 
   // ── ATHENA monitoring card ─────────────────────────────────
