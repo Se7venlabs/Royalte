@@ -256,16 +256,38 @@ export const DOMAIN_FINGERPRINTS = Object.freeze({
   monitoring: { extract: extractMonitoring, compare: compareMonitoring },
 });
 
+// Single source of truth for display labels -- covers all 10 canonical
+// domains (the 8 above plus aiInsights/executiveOverview, which
+// api/_lib/executive-comparison.js compares separately). Both
+// executive-comparison.js and executive-trend-detection.js read through
+// canonicalDomainLabel() rather than keeping their own copy.
+export const CANONICAL_DOMAIN_LABELS = Object.freeze({
+  identity: 'Identity Intelligence™',
+  publishing: 'Publishing Intelligence™',
+  catalog: 'Catalog Intelligence™',
+  health: 'Health Intelligence™',
+  backend: 'Backend Intelligence™',
+  media: 'Media Intelligence™',
+  footprint: 'Global Music Footprint™',
+  monitoring: 'Monitoring™',
+  aiInsights: 'AI Insights™',
+  executiveOverview: 'Executive Overview™',
+});
+export function canonicalDomainLabel(domainKey) {
+  return CANONICAL_DOMAIN_LABELS[domainKey] || domainKey;
+}
+
 // compareDomain(domainKey, payloadBefore, payloadAfter, {schemaCompatible})
-// -> {domain, state, delta, detail}. Single entrypoint both
+// -> {domain, label, state, delta, detail}. Single entrypoint both
 // executive-comparison.js and executive-trend-detection.js call -- neither
 // touches the per-domain extract/compare functions directly.
 export function compareDomain(domainKey, payloadBefore, payloadAfter, { schemaCompatible = true } = {}) {
   const fns = DOMAIN_FINGERPRINTS[domainKey];
-  if (!fns) return { domain: domainKey, state: S.UNKNOWN, delta: null, detail: 'No comparison rule defined for this domain yet.' };
-  if (!schemaCompatible) return { domain: domainKey, state: S.NOT_COMPARABLE, delta: null, detail: 'Schema version differs between the two scans being compared.' };
+  const label = canonicalDomainLabel(domainKey);
+  if (!fns) return { domain: domainKey, label, state: S.UNKNOWN, delta: null, detail: 'No comparison rule defined for this domain yet.' };
+  if (!schemaCompatible) return { domain: domainKey, label, state: S.NOT_COMPARABLE, delta: null, detail: 'Schema version differs between the two scans being compared.' };
   const before = fns.extract(payloadBefore);
   const after  = fns.extract(payloadAfter);
   const result = fns.compare(before, after);
-  return { domain: domainKey, ...result };
+  return { domain: domainKey, label, ...result };
 }
