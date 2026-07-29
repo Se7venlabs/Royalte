@@ -811,7 +811,7 @@
         statusTextEl.textContent = 'Infrastructure Verified — All Services Connected';
         if (statusPillEl) statusPillEl.className = 'hi-status-pill hi-status-pill--green';
       } else {
-        statusTextEl.textContent = 'Infrastructure Verified — ' + gapCount + ' Area' + (gapCount === 1 ? '' : 's') + ' Need Attention';
+        statusTextEl.textContent = 'Infrastructure Verified — ' + gapCount + ' Area' + (gapCount === 1 ? ' Needs' : 's Need') + ' Attention';
       }
     }
 
