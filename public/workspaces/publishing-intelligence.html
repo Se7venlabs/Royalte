@@ -1157,30 +1157,37 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
   // the canonical payload today (unlike Mechanical Licensing below, which
   // has real MLC scan evidence to upgrade against) -- an honest
   // Artist-Disclosure-only status, not a fabricated upgrade path.
+  // Merge Readiness Sprint (Board directive, 2026-07-29), Work Package 3:
+  // every entry below except Mechanical Licensing's real-evidence branch is
+  // sourced from Artist Disclosure only -- no official-source verification
+  // exists for any of it. Previously displayed as "Registered"/"Active",
+  // words that imply external confirmation. Now uses 'SELF_REPORTED'
+  // throughout except where real evidence genuinely upgrades the status.
   if (proVal && proVal !== 'None') {
-    regEntries.push({ category: 'Performance Rights', org: proVal, status: 'REGISTERED' });
+    regEntries.push({ category: 'Performance Rights', org: proVal, status: 'SELF_REPORTED' });
   }
 
-  // Mechanical Licensing — The MLC (Artist Disclosure, upgraded to Official Source when
-  // the real MLC scan evidence (pi.registrations.mlcRegistration) confirms VERIFIED).
+  // Mechanical Licensing — The MLC (Artist Disclosure, upgraded to real
+  // Evidence Verified when the real MLC scan evidence confirms VERIFIED --
+  // the one entry in this list with a genuine official-source upgrade path).
   if (pub.mlc_registered === true) {
-    var mlcStat = (regData.mlcRegistration === 'VERIFIED') ? 'ACTIVE' : 'REGISTERED';
+    var mlcStat = (regData.mlcRegistration === 'VERIFIED') ? 'VERIFIED' : 'SELF_REPORTED';
     regEntries.push({ category: 'Mechanical Licensing', org: 'The MLC', status: mlcStat });
   }
 
   // Digital Performance — SoundExchange (Board Ruling #2: reads the canonical
   // Music Rights Profile neighboring_rights group, never the retired onboarding field).
   if (sxOrg === 'soundexchange') {
-    regEntries.push({ category: 'Digital Performance', org: 'SoundExchange', status: 'REGISTERED' });
+    regEntries.push({ category: 'Digital Performance', org: 'SoundExchange', status: 'SELF_REPORTED' });
   } else if (sxOrg) {
     // A different neighboring rights org was disclosed instead of SoundExchange.
     var nrLabel = sxOrg === 'resound' ? 'Re:Sound' : sxOrg === 'ppl' ? 'PPL' : (nr.organization_other || 'Other');
-    regEntries.push({ category: 'Neighboring Rights', org: nrLabel, status: 'REGISTERED' });
+    regEntries.push({ category: 'Neighboring Rights', org: nrLabel, status: 'SELF_REPORTED' });
   }
 
   // Publishing Administration — when artist disclosed an admin (Artist Disclosure)
   if (pub.publishing_management === 'admin' && pub.organization_name) {
-    regEntries.push({ category: 'Publishing Administration', org: pub.organization_name, status: 'ACTIVE' });
+    regEntries.push({ category: 'Publishing Administration', org: pub.organization_name, status: 'SELF_REPORTED' });
   }
 
   // Publisher — prefers the dedicated mrp.publisher.name field, falling back to
@@ -1188,23 +1195,23 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
   var publisherEntryName = publisherGroup.name
     || ((pub.publishing_management === 'publisher' && pub.organization_name) ? pub.organization_name : null);
   if (publisherEntryName) {
-    regEntries.push({ category: 'Publisher', org: publisherEntryName, status: 'ACTIVE' });
+    regEntries.push({ category: 'Publisher', org: publisherEntryName, status: 'SELF_REPORTED' });
   }
 
   // Record Label — when the artist disclosed a signed label (Artist Disclosure)
   if (recLabelGroup.status === 'signed' && recLabelGroup.label_name) {
-    regEntries.push({ category: 'Record Label', org: recLabelGroup.label_name, status: 'ACTIVE' });
+    regEntries.push({ category: 'Record Label', org: recLabelGroup.label_name, status: 'SELF_REPORTED' });
   }
 
   // Mechanical Rights — when disclosed and distinct from The MLC (already its own
   // "Mechanical Licensing" entry above)
   if (mechVal && mechGroup.organization !== 'mlc') {
-    regEntries.push({ category: 'Mechanical Rights', org: mechVal, status: 'REGISTERED' });
+    regEntries.push({ category: 'Mechanical Rights', org: mechVal, status: 'SELF_REPORTED' });
   }
 
   // Rights Administration — when disclosed and distinct from the Publishing Administrator
   if (radminVal) {
-    regEntries.push({ category: 'Rights Administration', org: radminVal, status: 'ACTIVE' });
+    regEntries.push({ category: 'Rights Administration', org: radminVal, status: 'SELF_REPORTED' });
   }
 
   var regContainer = document.getElementById('pi-dd-registrations');
@@ -1229,10 +1236,10 @@ import { getOptionLabel } from '/js/music-rights-profile.js';
         nameEl.textContent = e.org;
         left.appendChild(catEl); left.appendChild(nameEl);
         var statEl = document.createElement('span');
-        if (e.status === 'ACTIVE') {
-          statEl.className = 'pi-reg-status--active'; statEl.textContent = 'Active';
+        if (e.status === 'VERIFIED') {
+          statEl.className = 'pi-reg-status--active'; statEl.textContent = 'Verified';
         } else {
-          statEl.className = 'pi-reg-status--registered'; statEl.textContent = 'Registered';
+          statEl.className = 'pi-reg-status--registered'; statEl.textContent = 'Self-Reported';
         }
         row.appendChild(left); row.appendChild(statEl);
         regContainer.appendChild(row);

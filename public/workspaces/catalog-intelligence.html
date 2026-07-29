@@ -1076,8 +1076,13 @@
     if (artSrc) {
       var artImg = document.getElementById('ci-lr-artwork-img');
       if (artImg) {
+        // Work Package 6 (Board directive, 2026-07-29): real alt text --
+        // same gap already fixed on Identity Intelligence's equivalent
+        // image this sprint, missed here at the time.
+        var artAltText = bvr.releaseTitle ? (bvr.releaseTitle + ' cover artwork') : 'Release artwork';
         artImg.onload = function() {
           artImg.classList.add('ci-lr-artwork-loaded');
+          artImg.alt = artAltText;
           var icon = artImg.parentElement && artImg.parentElement.querySelector('.ci-lr-artwork-icon');
           if (icon) icon.style.display = 'none';
         };

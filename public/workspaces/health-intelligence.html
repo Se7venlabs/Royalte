@@ -200,18 +200,6 @@
           </div>
         </div>
 
-        <!-- § 2a — HISTORICAL SCAN BANNER ─────────────────────────── -->
-        <!-- Appears when viewing a historical scan. Hidden for current. -->
-        <div id="ht-history-banner" class="ht-history-banner" hidden aria-live="polite">
-          <div>
-            <span class="ht-history-banner-label">Historical View</span>
-            <span class="ht-history-banner-date" id="ht-history-banner-date"></span>
-          </div>
-          <button id="ht-history-return" class="ht-history-return-btn" type="button">
-            Return to Current →
-          </button>
-        </div>
-
         <!-- § 2 — KPI CARDS ────────────────────────────────────────── -->
         <div class="hi-kpi-row">
 
@@ -506,77 +494,25 @@
           <div class="hi-section-header">
             <div class="hi-section-title">Executive Timeline™</div>
           </div>
+          <!-- Merge Readiness Sprint (Board directive, 2026-07-29), Work
+               Package 5: the 7-dot timeline control implied a browsable
+               scan history that doesn't exist -- even honestly-labeled
+               dots ("Coming Soon" on click) are a fake affordance that
+               invites a click expecting something real. Replaced with a
+               true current-state summary: the real scan this workspace
+               already shows, nothing more implied. Real historical
+               monitoring (grouped by domain, with real severity) now lives
+               on Monitoring Timeline™, fixed this same sprint -- the link
+               below is honest, not a placeholder. -->
           <div class="hi-timeline-card">
-            <div class="hi-timeline-body">
-              <!-- Phase 2 (Board directive, 2026-07-29): removed the fabricated
-                   specific dates ("Jun 27, 2026" etc.) and invented events
-                   ("Backend connected", "Catalog verified") -- Historical
-                   Health Snapshots™ doesn't exist yet (see health-timeline.js
-                   header comment), so no real per-artist historical dates are
-                   available to show. Kept the 7-day visual rhythm (not a
-                   redesign) but every day is now honestly unlabeled except
-                   the real current scan. -->
-              <div class="hi-timeline-ruler" role="list" aria-label="Health monitoring timeline">
-                <div class="hi-timeline-day" role="listitem">
-                  <button class="ht-scan-btn" data-scan-idx="0" type="button"
-                          aria-label="Historical scan data not yet available"
-                          title="Historical Health Snapshots™ — Coming Soon">
-                    <div class="hi-timeline-dot"></div>
-                  </button>
-                  <div class="hi-timeline-day-label">—</div>
-                </div>
-                <div class="hi-timeline-day" role="listitem">
-                  <button class="ht-scan-btn" data-scan-idx="1" type="button"
-                          aria-label="Historical scan data not yet available"
-                          title="Historical Health Snapshots™ — Coming Soon">
-                    <div class="hi-timeline-dot"></div>
-                  </button>
-                  <div class="hi-timeline-day-label">—</div>
-                </div>
-                <div class="hi-timeline-day" role="listitem">
-                  <button class="ht-scan-btn" data-scan-idx="2" type="button"
-                          aria-label="Historical scan data not yet available"
-                          title="Historical Health Snapshots™ — Coming Soon">
-                    <div class="hi-timeline-dot"></div>
-                  </button>
-                  <div class="hi-timeline-day-label">—</div>
-                </div>
-                <div class="hi-timeline-day" role="listitem">
-                  <button class="ht-scan-btn" data-scan-idx="3" type="button"
-                          aria-label="Historical scan data not yet available"
-                          title="Historical Health Snapshots™ — Coming Soon">
-                    <div class="hi-timeline-dot"></div>
-                  </button>
-                  <div class="hi-timeline-day-label">—</div>
-                </div>
-                <div class="hi-timeline-day" role="listitem">
-                  <button class="ht-scan-btn" data-scan-idx="4" type="button"
-                          aria-label="Historical scan data not yet available"
-                          title="Historical Health Snapshots™ — Coming Soon">
-                    <div class="hi-timeline-dot"></div>
-                  </button>
-                  <div class="hi-timeline-day-label">—</div>
-                </div>
-                <div class="hi-timeline-day" role="listitem">
-                  <button class="ht-scan-btn" data-scan-idx="5" type="button"
-                          aria-label="Historical scan data not yet available"
-                          title="Historical Health Snapshots™ — Coming Soon">
-                    <div class="hi-timeline-dot"></div>
-                  </button>
-                  <div class="hi-timeline-day-label">—</div>
-                </div>
-                <div class="hi-timeline-day" role="listitem">
-                  <button class="ht-scan-btn" data-scan-idx="6" type="button"
-                          aria-label="Current scan"
-                          title="Current scan">
-                    <div class="hi-timeline-dot hi-timeline-dot--active"></div>
-                  </button>
-                  <div class="hi-timeline-day-label">Today</div>
-                </div>
+            <div class="hi-timeline-body" style="display:flex;align-items:center;justify-content:space-between;padding:16px 4px;">
+              <div>
+                <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(132,128,168,0.7);font-weight:600;margin-bottom:4px;">Current Scan</div>
+                <div id="ht-current-summary" style="font-size:13px;color:rgba(232,228,244,0.85);">—</div>
               </div>
             </div>
             <div class="hi-timeline-footer">
-              <a class="hi-timeline-link" href="/workspaces/monitoring-timeline.html">View Full Timeline →</a>
+              <a class="hi-timeline-link" href="/workspaces/monitoring-timeline.html">View Full Monitoring Timeline →</a>
             </div>
           </div>
         </div>
@@ -733,17 +669,27 @@
   }
 
   // ── Scan date ──────────────────────────────────────────────
+  var dateStr = null;
   if (ctx.scannedAt) {
     try {
       var sd = new Date(ctx.scannedAt);
       var now = new Date();
       var tStr = sd.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-      var dateStr = sd.toDateString() === now.toDateString()
+      dateStr = sd.toDateString() === now.toDateString()
         ? 'Today, ' + tStr
         : sd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + tStr;
       var sdEl = document.getElementById('ht-scan-date');
       if (sdEl) sdEl.textContent = dateStr;
     } catch (_) {}
+  }
+
+  // Work Package 5 (Board directive, 2026-07-29): real current-scan summary,
+  // reusing the same real score/dateStr this section already computed --
+  // replaces the removed 7-dot fake timeline.
+  var htSummaryEl = document.getElementById('ht-current-summary');
+  if (htSummaryEl) {
+    htSummaryEl.textContent = (score !== null ? score + '/100 — ' + (hi.status || RI.scoreLabel(score)) : 'Score not yet available')
+      + (dateStr ? ' · Scanned ' + dateStr : '');
   }
 }());
 </script>
@@ -766,7 +712,6 @@
     requestAnimationFrame(tick);
   });
 </script>
-<script src="/js/health-timeline.js"></script>
 <script src="/js/rds-preview-console.js" defer></script>
 </body>
 </html>
