@@ -146,8 +146,14 @@
       </div>
     </div>
 
+    <!-- Merge Readiness Sprint (Board directive, 2026-07-29), Work Package 6:
+         opacity:0 gating added -- container.innerHTML below replaces this
+         same element's content with the real render; without this, the
+         static "Coming Soon" text could visibly flash before the real
+         content replaces it, matching every other workspace's reveal
+         pattern (.ws-body opacity gating). -->
     <main class="ws-main">
-      <div class="ws-coming-soon">
+      <div class="ws-coming-soon" style="opacity:0;transition:opacity .15s ease">
         <div class="ws-cs-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
         </div>
@@ -212,8 +218,32 @@
     backend:    'Backend Intelligence™',
     footprint:  'Global Music Footprint™',
     health:     'Health Score™',
+    media:      'Media Intelligence™',
   };
-  var CAT_ORDER = ['identity', 'publishing', 'catalog', 'backend', 'footprint', 'health'];
+  var CAT_ORDER = ['identity', 'publishing', 'catalog', 'backend', 'footprint', 'media', 'health'];
+
+  // Merge Readiness Sprint (Board directive, 2026-07-29), Work Package 7:
+  // real events carry changeType (e.g. 'territory_gain', 'isrc_dropped'),
+  // never a category field -- confirmed via api/_lib/monitoring-intelligence.js
+  // and api/_lib/delta-engine.js (the only two emitters of these events).
+  // Every real event was previously bucketed under 'Backend Intelligence™'
+  // regardless of its true domain. Mirrors the same changeType vocabulary
+  // mission-control.js's CHANGE_TYPE_ICON_SVG already uses.
+  // Complete list of every change_type the Delta Engine actually emits
+  // today (api/_lib/delta-engine.js) -- 'baseline_established' is excluded
+  // since buildChangeGroups() is only ever called when moduleState ===
+  // 'changed', never 'baseline'.
+  var CHANGE_TYPE_TO_CATEGORY = {
+    territory_gain:     'footprint',
+    territory_loss:      'footprint',
+    release_added:       'catalog',
+    release_removed:     'catalog',
+    isrc_added:           'catalog',
+    isrc_dropped:         'catalog',
+    isrc_mismatch:        'catalog',
+    video_added:          'media',
+    video_removed:        'media',
+  };
 
   // monitoringIntelligence is always non-null — mapper normalizes first-scan null
   // to { status: 'baseline', scanNumber: 1, baselineEstablished: true, events: [], ... }.
@@ -253,8 +283,16 @@
       return 'No significant changes detected during this monitoring cycle. '
         + 'Your music business infrastructure remains stable since your previous scan.';
     }
-    var improved = evts.filter(function (e) { return e.polarity === 'positive' || e.type === 'RESOLVED'; }).length;
-    var critical  = evts.filter(function (e) { var s = (e.severity || '').toUpperCase(); return s === 'CRITICAL' || s === 'HIGH'; }).length;
+    // Merge Readiness Sprint (Board directive, 2026-07-29), Work Package 7:
+    // real severity values are 'informational'|'positive'|'action_needed'|
+    // 'monitor' (api/_lib/monitoring-intelligence.js) -- e.polarity/e.type
+    // never exist, and no real severity value ever uppercases to 'CRITICAL'
+    // or 'HIGH', so both counts were always 0 and real action_needed events
+    // (territory loss, ISRC dropped, release removed) silently downgraded
+    // to a generic "N updates detected" -- hiding real urgency from the
+    // artist. Now reads the real field.
+    var improved = evts.filter(function (e) { return e.severity === 'positive'; }).length;
+    var critical  = evts.filter(function (e) { return e.severity === 'action_needed'; }).length;
     var parts = [];
     if (improved > 0) parts.push(improved + ' improvement' + (improved > 1 ? 's' : '') + ' detected');
     if (critical > 0) parts.push(critical + ' issue' + (critical > 1 ? 's' : '') + ' require' + (critical === 1 ? 's' : '') + ' attention');
@@ -276,7 +314,10 @@
   function buildChangeGroups(evts) {
     var map = {};
     evts.forEach(function (ev) {
-      var cat = (ev.category || 'backend').toLowerCase();
+      // Honest fallback for a genuinely unmapped future change_type: use
+      // the raw value itself as the bucket (self-describing) rather than
+      // silently filing it under an unrelated domain.
+      var cat = CHANGE_TYPE_TO_CATEGORY[ev.changeType] || ev.changeType || 'general';
       if (!map[cat]) map[cat] = [];
       map[cat].push(ev);
     });
@@ -356,9 +397,16 @@
 
   function renderChangeGroup(group) {
     var items = group.events.map(function (ev) {
-      var sev      = (ev.severity || '').toUpperCase();
-      var positive = ev.polarity === 'positive' || ev.type === 'RESOLVED';
-      var dot      = positive ? '#34d399' : (sev === 'CRITICAL' || sev === 'HIGH') ? '#f05060' : '#38bdf8';
+      // Merge Readiness Sprint (Board directive, 2026-07-29): real severity
+      // values only -- 'positive'/'action_needed'/'monitor'/'informational'.
+      // Every event previously rendered the same neutral blue dot since
+      // ev.polarity/ev.type never exist and no real severity ever matched
+      // 'CRITICAL'/'HIGH'.
+      var sev      = ev.severity;
+      var dot      = sev === 'positive'      ? '#34d399'
+                    : sev === 'action_needed' ? '#f05060'
+                    : sev === 'monitor'       ? '#fb923c'
+                    : '#38bdf8'; /* informational */
       return '<div style="display:flex;gap:12px;padding:10px 14px;'
         + 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);'
         + 'border-radius:8px;margin-bottom:5px;text-align:left;">'
@@ -427,6 +475,7 @@
     pm.healthSnapshot,
     pm.supplemental,
   ].join('');
+  container.style.opacity = '1';
 
 }());
 </script>

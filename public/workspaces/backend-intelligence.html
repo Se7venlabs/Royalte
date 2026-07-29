@@ -398,24 +398,27 @@
             <div class="ii-kpi-caption">Across All Services</div>
           </div>
 
-          <!-- Phase 2 (Board directive, 2026-07-29): this entire card had no
-               id/JS wiring at all -- pure decoration, identical for every
-               artist. Now derives its risk level and issue count from the
-               same real bi.connectedCount/bi.totalCount gap the Executive
-               header above uses (a presentation-layer bucketing of a real
-               count, the same pattern _hiDotClass already uses elsewhere in
-               this codebase -- not a new score). Caption lists the actual
-               unconnected service names instead of the static, unrelated
-               "Rights · Registrations". -->
+          <!-- Merge Readiness Sprint (Board directive, 2026-07-29), Work
+               Package 4: the Phase 2 pass gave this card a LOW/MEDIUM/HIGH
+               classification computed client-side -- exactly the kind of
+               business logic in the presentation layer this directive
+               prohibits ("presentation layers must never become
+               intelligence engines"). No Board-specified threshold
+               definition exists for what counts as HIGH vs MEDIUM risk, so
+               inventing one here (or newly in the engine) would be new,
+               unauthorized business logic either way. Simplified to
+               factual information only: the real gap count and the real
+               unconnected service names, no invented severity bucket. -->
           <div class="hi-kpi-card">
-            <div class="hi-kpi-label hi-kpi-label--teal">Infrastructure Risk™</div>
+            <div class="hi-kpi-label hi-kpi-label--teal">Infrastructure Gaps™</div>
             <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--teal" aria-hidden="true">
               <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
             </div>
-            <div class="ii-kpi-num-row" style="padding-top:4px;">
-              <span class="ii-kpi-big-num" id="bi-risk-level" style="font-size:17px;color:#F59E0B;">—</span>
+            <div class="ii-kpi-num-row">
+              <span class="ii-kpi-big-num" id="bi-risk-level">—</span>
+              <span class="ii-kpi-fraction" id="bi-risk-denom"></span>
             </div>
-            <div class="ii-kpi-status-text" id="bi-risk-count" style="color:#F59E0B;">—</div>
+            <div class="ii-kpi-status-text" id="bi-risk-count">—</div>
             <div class="ii-kpi-caption" id="bi-risk-caption">—</div>
           </div>
 
@@ -647,13 +650,13 @@
     },
     trust: {
       title: 'Backend Trust™',
-      rating: '98 / 100 — High Confidence',
-      ratingColor: '#00BFA5',
+      rating: 'Not Yet Assessed',
+      ratingColor: '#9ca3af',
       sections: [
         { label: 'What This Represents', body: 'The confidence layer of your Canonical Record — the cross-referenced score computed across all connected services. High trust means Royaltē has collected consistent, corroborating evidence from multiple independent sources.' },
         { label: 'Why This Matters',     body: 'Royaltē uses multi-source evidence cross-referencing to validate that all fields in your Canonical Record are accurate and internally consistent. A high trust score means your record is well-supported by independent evidence.' },
         { label: 'Impact on Royalties',  body: "Higher trust scores reflect a more complete and consistently verified Canonical Record. This improves Royaltē's confidence when matching royalty-generating events to your catalog, administering rights information, and validating ownership claims." },
-        { label: 'Recommended Action',   body: 'Trust score is 98/100. Address Rights Ownership and Registrations gaps to achieve full confidence across all evidence layers.' },
+        { label: 'Recommended Action',   body: 'Trust score not yet available for this scan.' },
       ],
       actionLabel: null, actionUrl: null,
     },
@@ -819,21 +822,132 @@
       .filter(function (s) { return s.state !== 'VERIFIED'; })
       .map(function (s) { return s.name; });
 
+    // Merge Readiness Sprint (Board directive, 2026-07-29), Work Package 4:
+    // factual information only -- the real gap count and real unconnected
+    // service names. No LOW/MEDIUM/HIGH severity classification (removed;
+    // see HTML comment above).
     var riskLevelEl   = document.getElementById('bi-risk-level');
+    var riskDenomEl   = document.getElementById('bi-risk-denom');
     var riskCountEl   = document.getElementById('bi-risk-count');
     var riskCaptionEl = document.getElementById('bi-risk-caption');
     if (riskLevelEl && riskCountEl && riskCaptionEl) {
       if (totalCount === 0) {
         riskLevelEl.textContent = '—'; riskCountEl.textContent = 'Not Yet Assessed'; riskCaptionEl.textContent = '—';
-      } else if (gapCount === 0) {
-        riskLevelEl.textContent = 'LOW'; riskLevelEl.style.color = '#4ade80';
-        riskCountEl.textContent = 'No Issues Detected'; riskCountEl.style.color = '#4ade80';
-        riskCaptionEl.textContent = 'All Services Connected';
       } else {
-        riskLevelEl.textContent = gapCount >= totalCount ? 'HIGH' : 'MEDIUM';
-        riskCountEl.textContent = gapCount + ' Issue' + (gapCount === 1 ? '' : 's') + ' Detected';
-        riskCaptionEl.textContent = unconnectedNames.length ? unconnectedNames.join(' · ') : '—';
+        riskLevelEl.textContent = String(gapCount);
+        if (riskDenomEl) riskDenomEl.textContent = ' / ' + totalCount + ' Services';
+        riskCountEl.textContent = gapCount === 0
+          ? 'No Gaps Detected'
+          : gapCount + ' Service' + (gapCount === 1 ? '' : 's') + ' Not Connected';
+        riskCaptionEl.textContent = unconnectedNames.length ? unconnectedNames.join(' · ') : 'All Services Connected';
       }
+    }
+
+    /* ── Digital Twin™ node wiring — Merge Readiness Sprint (Board
+     * directive, 2026-07-29), Work Package 2. All 5 non-hub, non-Release
+     * nodes previously shipped hardcoded bi-node--verified/--review classes
+     * and status text -- confirmed via grep, zero JS referenced them before
+     * this pass. Each node below reuses its owning domain's own real,
+     * already-computed classification (never a newly-invented threshold,
+     * per Work Package 4's presentation-layer restriction) -- Cross-domain
+     * Canonical, per this directive's explicit 3-state model. Where no real
+     * classification exists for a node's concept, it is left "Not Yet
+     * Assessed" rather than defaulting to Verified or Needs Review.
+     * BI_ATHENA is in the same closure (confirmed) so its rating lines are
+     * updated in place too -- no cross-IIFE bridging needed. */
+    function setDigitalTwinNode(nodeId, athenaKey, verified, statusText, ratingText) {
+      var el = document.getElementById(nodeId);
+      if (el) {
+        el.classList.remove('bi-node--verified', 'bi-node--review');
+        el.classList.add(verified === null ? 'bi-node--review' : (verified ? 'bi-node--verified' : 'bi-node--review'));
+        var statusEl = el.querySelector('.bi-node-status');
+        if (statusEl) statusEl.textContent = statusText;
+      }
+      if (athenaKey && BI_ATHENA[athenaKey]) {
+        BI_ATHENA[athenaKey].rating = ratingText;
+        BI_ATHENA[athenaKey].ratingColor = verified === null ? '#9ca3af' : (verified ? '#00BFA5' : '#F59E0B');
+      }
+    }
+
+    // METADATA — real, MusicBrainz (bi.services)
+    var musicbrainz = (Array.isArray(bi.services) ? bi.services : []).find(function (s) { return s.key === 'musicbrainz'; });
+    if (musicbrainz) {
+      var mbVerified = musicbrainz.state === 'VERIFIED';
+      setDigitalTwinNode('bn-meta', 'meta', mbVerified, musicbrainz.statusLabel || (mbVerified ? 'Verified' : 'Needs Review'), musicbrainz.statusLabel || (mbVerified ? 'Verified' : 'Needs Review'));
+    } else {
+      setDigitalTwinNode('bn-meta', 'meta', null, 'Not Yet Assessed', 'Not Yet Assessed');
+    }
+
+    // DISTRIBUTION — cross-domain, Global Music Footprint's own real status
+    // word (Global/Strong/Regional/Limited), not a newly-invented percent
+    // threshold. Global/Strong glow teal; Regional/Limited glow amber.
+    var gf = ctx.globalFootprint || null;
+    if (gf && gf.status) {
+      var gfOk = gf.status === 'Global' || gf.status === 'Strong';
+      setDigitalTwinNode('bn-dist', 'distribution', gfOk, gf.status, gf.status + ' Distribution');
+    } else {
+      setDigitalTwinNode('bn-dist', 'distribution', null, 'Not Yet Assessed', 'Not Yet Assessed');
+    }
+
+    // IDENTITY — cross-domain, Identity Intelligence's own real issue count
+    // (zero invented coverage threshold).
+    var ii = ctx.identityIntelligence || null;
+    if (ii && Array.isArray(ii.issues)) {
+      var idOk = ii.issues.length === 0;
+      setDigitalTwinNode('bn-id', 'identity', idOk, idOk ? 'Verified' : 'Needs Review', idOk ? 'Verified — No Open Issues' : ii.issues.length + ' Open Issue' + (ii.issues.length === 1 ? '' : 's'));
+    } else {
+      setDigitalTwinNode('bn-id', 'identity', null, 'Not Yet Assessed', 'Not Yet Assessed');
+    }
+
+    // RIGHTS OWNERSHIP — cross-domain, Publishing Intelligence's real
+    // compositionMatch registration state (the closest real tracked
+    // concept to master + publishing ownership match).
+    var pi = ctx.publishingIntelligence || null;
+    var compMatch = pi && pi.registrations ? pi.registrations.compositionMatch : null;
+    if (compMatch) {
+      var rightsOk = compMatch === 'VERIFIED';
+      var rightsLabel = compMatch === 'VERIFIED' ? 'Verified' : compMatch === 'ACTION_REQUIRED' ? 'Needs Review' : compMatch === 'NOT_FOUND' ? 'Not Found' : 'Unable to Confirm';
+      setDigitalTwinNode('bn-rights', 'rights', rightsOk, rightsLabel, rightsLabel + ' — Composition Match');
+    } else {
+      setDigitalTwinNode('bn-rights', 'rights', null, 'Not Yet Assessed', 'Not Yet Assessed');
+    }
+
+    // REGISTRATIONS — cross-domain, factual count across the 4 real tracked
+    // registration signals (MLC from Backend + 3 Publishing fields). No
+    // invented severity -- just how many of the real, already-tracked
+    // fields report VERIFIED.
+    var mlcService = (Array.isArray(bi.services) ? bi.services : []).find(function (s) { return s.key === 'mlc'; });
+    var regFields = [
+      mlcService ? mlcService.state : null,
+      pi && pi.registrations ? pi.registrations.mlcRegistration : null,
+      pi && pi.registrations ? pi.registrations.registeredWorks : null,
+      pi && pi.registrations ? pi.registrations.registeredSongwriters : null,
+    ].filter(function (v) { return v != null; });
+    if (regFields.length > 0) {
+      var regVerifiedCount = regFields.filter(function (v) { return v === 'VERIFIED'; }).length;
+      var regOk = regVerifiedCount === regFields.length;
+      setDigitalTwinNode('bn-reg', 'registrations', regOk, regOk ? 'Verified' : regVerifiedCount + ' of ' + regFields.length + ' Verified', regVerifiedCount + ' of ' + regFields.length + ' Registration Signals Verified');
+    } else {
+      setDigitalTwinNode('bn-reg', 'registrations', null, 'Not Yet Assessed', 'Not Yet Assessed');
+    }
+
+    // RELEASE — Backend Status modal rating (BI_ATHENA.status), same real
+    // gapCount/totalCount already computed above for the header.
+    if (BI_ATHENA.status) {
+      BI_ATHENA.status.rating = totalCount === 0 ? 'Not Yet Assessed' : (connectedCount + ' / ' + totalCount + ' Services Connected');
+      BI_ATHENA.status.ratingColor = totalCount === 0 ? '#9ca3af' : (gapCount === 0 ? '#00BFA5' : '#F59E0B');
+    }
+
+    // CANONICAL RECORD™ hub — Backend Trust modal. Real Health Engine
+    // backendScore (api/_lib/health-engine.js via healthIntelligence),
+    // not a newly-computed cross-reference score -- the engine already
+    // computes this domain score, reused rather than re-derived.
+    if (BI_ATHENA.trust && hi && typeof hi.backendScore === 'number') {
+      var trustScore = Math.round(hi.backendScore);
+      BI_ATHENA.trust.rating = trustScore + ' / 100 — ' + (trustScore >= 80 ? 'High Confidence' : trustScore >= 50 ? 'Moderate Confidence' : 'Low Confidence');
+      BI_ATHENA.trust.ratingColor = trustScore >= 80 ? '#00BFA5' : trustScore >= 50 ? '#F59E0B' : '#f05060';
+      BI_ATHENA.trust.sections[3].body = 'Trust score is ' + trustScore + '/100. '
+        + (gapCount > 0 ? 'Address the ' + gapCount + ' disconnected service' + (gapCount === 1 ? '' : 's') + ' to improve confidence across all evidence layers.' : 'All tracked services are connected.');
     }
   }());
 
