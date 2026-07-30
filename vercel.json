@@ -106,6 +106,10 @@
       "dest": "/api/executive-memory.js"
     },
     {
+      "src": "/api/executive-memory-actions",
+      "dest": "/api/executive-memory-actions.js"
+    },
+    {
       "src": "/api/executive-trends",
       "dest": "/api/executive-trends.js"
     },

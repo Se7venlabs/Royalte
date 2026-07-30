@@ -307,13 +307,21 @@ await test('buildExecutiveTimeline surfaces real monitoring events plus one brie
 
 console.log('\n§6 Executive Memory™ (foundation)');
 
-await test('buildExecutiveMemory always reports goals/dismissedActions/milestones as unavailable with a reason', async () => {
+// Superseded by Phase 3C (supabase/migrations/20260730000000_executive_memory_items.sql,
+// api/_lib/executive-memory-store.js): goals/dismissedActions/milestones are
+// no longer permanently unavailable -- a real writable store now exists.
+// `available: true` reflects the capability existing; an empty `items`
+// array (as here, against a mock with no rows) means no items yet, not "no
+// store exists". Full Phase 3C lifecycle coverage lives in
+// tests/executive-memory-store-test.mjs; this assertion just confirms the
+// shape here in the Phase 3B suite didn't silently regress.
+await test('buildExecutiveMemory reports goals/dismissedActions/milestones as available (Phase 3C store), empty when no items exist', async () => {
   const supabase = makeMockSupabase([]);
   const memory = await buildExecutiveMemory(supabase, 'artist-1', {});
-  assert.equal(memory.goals.available, false);
-  assert.ok(memory.goals.reason.length > 0);
-  assert.equal(memory.dismissedActions.available, false);
-  assert.equal(memory.milestones.available, false);
+  assert.equal(memory.goals.available, true);
+  assert.deepEqual(memory.goals.items, []);
+  assert.equal(memory.dismissedActions.available, true);
+  assert.equal(memory.milestones.available, true);
 });
 
 await test('buildExecutiveMemory classifies recurring vs. resolved issues correctly from real archive history', async () => {

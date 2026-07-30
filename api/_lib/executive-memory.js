@@ -1,54 +1,78 @@
-// Executive Memory™ (foundation) — ATHENA™ Phase 3B
+// Executive Memory™ — ATHENA™ Phase 3B (derived) + Phase 3C (persisted)
 //
-// Derives what can be honestly known from the archive alone: which risks
-// recur across scans, and which have been resolved (present in an earlier
-// archived brief, absent from the latest). Reads exclusively through
-// api/_lib/executive-brief-archive-reader.js.
+// Two distinct sources merged into one response:
 //
-// Scope boundary, stated explicitly rather than silently worked around:
-// Goals, Dismissed Recommendations, and Milestones (per the Phase 3 roadmap
-// brief's own examples -- "Release EP", "Launch monitoring") are
-// artist-authored intent and state changes. They are NOT derivable from
-// archived Executive Intelligence Objects, which only ever record what
-// ATHENA observed, never what an artist decided or dismissed. Building real
-// support for them requires a new writable table (e.g. an artist can mark a
-// recommendation "dismissed", or set a free-text goal) -- which is a second
-// persistence layer beyond the immutable Executive Brief Archive™, and this
-// phase's constitutional guidance is explicit: "Phase 3B is a consumer of
-// historical intelligence, not a producer of new persistence." So these
-// three remain honestly `available: false` here, exactly like Forecast™ and
-// Timeline™ did in Phase 1's EIO -- not fabricated, not silently dropped.
-// Authorizing that new table is a real, separate decision for a future brief.
+// 1. Derived from the archive alone (Phase 3B, unchanged): which risks
+//    recur across scans, and which have been resolved (present in an
+//    earlier archived brief, absent from the latest). Reads exclusively
+//    through api/_lib/executive-brief-archive-reader.js.
+//
+// 2. Real, persisted memory items (Phase 3C): Goals, Dismissed
+//    Recommendations, and Milestones are artist-authored intent -- not
+//    derivable from archived Executive Intelligence Objects, which only
+//    ever record what ATHENA observed, never what an artist decided or
+//    dismissed. Phase 3B left these honestly `available: false` pending a
+//    writable store; that store now exists
+//    (supabase/migrations/20260730000000_executive_memory_items.sql,
+//    api/_lib/executive-memory-store.js) and is read here via
+//    listActiveMemoryItems(), grouped by memory_type. `available: true`
+//    now reflects that the capability itself exists -- an empty `items`
+//    array means no items yet, not "no store exists."
 
 import { listBriefs } from './executive-brief-archive-reader.js';
+
+const TABLE = 'executive_memory_items';
 
 function riskKey(risk) {
   return `${risk.affectedDomain || 'unknown'}::${risk.title || ''}`;
 }
 
-const GOALS_UNAVAILABLE_REASON =
-  "No persistent goal-setting store exists yet -- goals are artist-authored intent, not derivable from archived Executive Intelligence, and would require a new writable store outside this phase's scope.";
-const DISMISSED_UNAVAILABLE_REASON =
-  'No persistent dismissal/action-tracking store exists yet -- same reasoning as goals.';
-const MILESTONES_UNAVAILABLE_REASON =
-  'No persistent milestone store exists yet -- same reasoning as goals.';
+// Real persisted items only (never throws -- an empty/failed read degrades
+// to an empty list, exactly like every other honest-empty-state pattern in
+// this codebase; a memory read failure must never break the rest of this
+// response, which the derived recurring/resolved data above can still serve).
+async function listActiveMemoryItems(supabase, artistProfileId) {
+  try {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select('*')
+      .eq('artist_profile_id', artistProfileId)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('[executive-memory] listActiveMemoryItems failed:', error.message || error);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    console.error('[executive-memory] unexpected error reading memory items:', err?.message || err);
+    return [];
+  }
+}
+
+function groupByType(items, memoryType) {
+  return items.filter(i => i.memory_type === memoryType);
+}
 
 export async function buildExecutiveMemory(supabase, artistProfileId, { limit = 20 } = {}) {
   const briefs = await listBriefs(supabase, artistProfileId, { limit, full: true, order: 'asc' });
+  const memoryItems = await listActiveMemoryItems(supabase, artistProfileId);
 
-  const unavailableFoundation = {
-    goals: { available: false, reason: GOALS_UNAVAILABLE_REASON },
-    dismissedActions: { available: false, reason: DISMISSED_UNAVAILABLE_REASON },
-    milestones: { available: false, reason: MILESTONES_UNAVAILABLE_REASON },
+  const persistedFoundation = {
+    goals: { available: true, items: groupByType(memoryItems, 'goal') },
+    dismissedActions: { available: true, items: groupByType(memoryItems, 'dismissed_action') },
+    milestones: { available: true, items: groupByType(memoryItems, 'milestone') },
+    // Every active item, regardless of memory_type -- Memory History™ view.
+    allItems: memoryItems,
   };
 
   if (briefs.length === 0) {
     return {
-      available: false,
-      reason: 'No archived Executive Briefs yet.',
+      available: memoryItems.length > 0,
+      reason: memoryItems.length > 0 ? null : 'No archived Executive Briefs yet.',
       recurringIssues: [],
       resolvedIssues: [],
-      ...unavailableFoundation,
+      ...persistedFoundation,
     };
   }
 
@@ -81,6 +105,6 @@ export async function buildExecutiveMemory(supabase, artistProfileId, { limit = 
     scope: 'derived_from_archive_history',
     recurringIssues,
     resolvedIssues,
-    ...unavailableFoundation,
+    ...persistedFoundation,
   };
 }
