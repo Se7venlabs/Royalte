@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ask ATHENA™ — Royaltē OS</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/royalte-rds.css">
+  <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <script>
+  /* DEV FIXTURE — localhost only, never runs on production (Vercel hostname check). */
+  (function () {
+    var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (!isLocal) return;
+    if (sessionStorage.getItem('royalte_workspace_context')) return;
+    sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+      schemaVersion: '1.1',
+      scanId: 'preview-fixture-ask-athena-001',
+      artistName: 'Prince',
+      scannedAt: new Date().toISOString(),
+      generatedAt: new Date().toISOString(),
+    }));
+  }());
+  </script>
+  <script src="/js/mc-workspace-context.js"></script>
+  <style>
+    .aa-shell { display: flex; flex-direction: column; gap: 16px; height: calc(100vh - 140px); min-height: 480px; }
+    .aa-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 4px 2px; }
+    .aa-msg { max-width: 82%; border-radius: 12px; padding: 12px 14px; font-size: 13px; line-height: 1.55; }
+    .aa-msg--user { align-self: flex-end; background: rgba(168,85,247,0.14); border: 1px solid rgba(168,85,247,0.22); color: var(--mc-text); }
+    .aa-msg--athena { align-self: flex-start; background: var(--mc-surface-2); border: 1px solid var(--mc-border); color: var(--mc-text); width: 100%; max-width: 100%; }
+    .aa-msg-answer { white-space: pre-wrap; }
+    .aa-msg-meta { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .aa-badge { font-size: 8.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; border: 1px solid; }
+    .aa-badge--HIGH { color: #4ade80; background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.28); }
+    .aa-badge--MEDIUM { color: var(--mc-orange); background: rgba(251,146,60,0.1); border-color: rgba(251,146,60,0.28); }
+    .aa-badge--LOW,.aa-badge--INSUFFICIENT_DATA { color: #9ca3af; background: rgba(156,163,175,0.1); border-color: rgba(156,163,175,0.28); }
+    .aa-badge--deterministic { color: var(--mc-purple); background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.28); }
+    .aa-recommendations { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .aa-rec { border: 1px solid var(--mc-border); border-radius: 10px; padding: 10px 12px; background: var(--mc-surface); }
+    .aa-rec-statement { font-weight: 700; font-size: 12.5px; color: var(--mc-text); }
+    .aa-rec-detail { font-size: 11px; color: var(--mc-text-muted); margin-top: 4px; line-height: 1.5; }
+    .aa-rec-open { display: inline-block; margin-top: 8px; font-size: 10.5px; font-weight: 700; color: var(--mc-purple); text-decoration: none; }
+    .aa-evidence { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .aa-evidence-item { font-size: 10.5px; color: var(--mc-text-faint); }
+    .aa-followups { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .aa-chip { font-size: 10.5px; color: var(--mc-text-soft); border: 1px solid var(--mc-border); border-radius: 20px; padding: 5px 12px; background: var(--mc-surface); cursor: pointer; }
+    .aa-chip:hover { border-color: var(--mc-purple); color: var(--mc-text); }
+    .aa-copy { margin-top: 10px; font-size: 10px; color: var(--mc-text-faint); background: none; border: none; cursor: pointer; padding: 0; }
+    .aa-copy:hover { color: var(--mc-text-soft); }
+    .aa-suggested { display: flex; flex-wrap: wrap; gap: 8px; }
+    .aa-input-row { display: flex; gap: 8px; }
+    .aa-input { flex: 1; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--mc-border); background: var(--mc-surface); color: var(--mc-text); font-size: 13px; }
+    .aa-send { padding: 12px 20px; border-radius: 8px; border: 1px solid rgba(168,85,247,0.4); background: rgba(168,85,247,0.14); color: var(--mc-text); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+    .aa-send:disabled { opacity: 0.5; cursor: not-allowed; }
+    .aa-reset { font-size: 10.5px; color: var(--mc-text-faint); background: none; border: none; cursor: pointer; align-self: flex-end; }
+    .aa-reset:hover { color: var(--mc-text-soft); }
+    .aa-empty { text-align: center; padding: 40px 20px; color: var(--mc-text-muted); font-size: 12.5px; }
+    .aa-loading { align-self: flex-start; font-size: 12px; color: var(--mc-text-faint); font-style: italic; }
+    .aa-error { align-self: flex-start; font-size: 12px; color: #f87171; }
+  </style>
+</head>
+<body>
+<div class="ws-shell ws-dept--ai">
+
+  <aside class="ws-rail" role="navigation" aria-label="Royaltē OS navigation">
+    <a class="mc-brand" href="/mission-control.html">
+      <div class="mc-brand-mark" aria-hidden="true">ē</div>
+      <div>
+        <div class="mc-brand-text">ROYALTĒ</div>
+        <div class="mc-brand-sub">MISSION CONTROL</div>
+      </div>
+    </a>
+    <nav class="mc-nav">
+      <a class="mc-nav-item" href="/mission-control.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-mission-control"></use></svg></span>
+        <span><span class="mc-nav-label">Mission Control</span><div class="mc-nav-sub">Executive Overview</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/health-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg></span>
+        <span><span class="mc-nav-label">Health Intelligence</span><div class="mc-nav-sub">System Status</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/identity-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-identity"></use></svg></span>
+        <span><span class="mc-nav-label">Identity Intelligence</span><div class="mc-nav-sub">Who You Are</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/publishing-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg></span>
+        <span><span class="mc-nav-label">Publishing Intelligence</span><div class="mc-nav-sub">Your Works</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/catalog-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-catalog"></use></svg></span>
+        <span><span class="mc-nav-label">Catalog Intelligence</span><div class="mc-nav-sub">Your Releases</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/global-music-footprint.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg></span>
+        <span><span class="mc-nav-label">Global Music Footprint™</span><div class="mc-nav-sub">Where Your Music Exists</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/media-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-media"></use></svg></span>
+        <span><span class="mc-nav-label">Media Intelligence™</span><div class="mc-nav-sub">Video &amp; Visual Presence</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/ai-insights.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg></span>
+        <span><span class="mc-nav-label">AI Insights</span><div class="mc-nav-sub">Intelligence Brief</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/backend-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-backend"></use></svg></span>
+        <span><span class="mc-nav-label">Backend Intelligence</span><div class="mc-nav-sub">Infrastructure Connected</div></span>
+      </a>
+      <a class="mc-nav-item mc-nav-item--active" href="/workspaces/ask-athena.html" aria-current="page">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-insights"></use></svg></span>
+        <span><span class="mc-nav-label">Ask ATHENA™</span><div class="mc-nav-sub">Executive Advisor</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/settings.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-settings"></use></svg></span>
+        <span><span class="mc-nav-label">Settings</span><div class="mc-nav-sub">Account &amp; Preferences</div></span>
+      </a>
+    </nav>
+  </aside>
+
+  <div id="ws-no-scan-overlay" hidden style="display:none;position:fixed;inset:0;background:rgba(10,10,10,.94);z-index:800;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:32px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="40" height="40" style="color:#6b7280" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div style="font-size:18px;font-weight:600;color:#e5e7eb;letter-spacing:-0.02em;">No Scan Loaded</div>
+    <div style="font-size:13px;color:#9ca3af;max-width:280px;line-height:1.6;">Run a scan from Mission Control to talk to ATHENA about your Executive Intelligence.</div>
+    <a href="/mission-control.html" style="margin-top:8px;padding:10px 20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e5e7eb;text-decoration:none;font-size:13px;font-weight:500;">← Mission Control</a>
+  </div>
+
+  <div class="ws-content">
+    <header class="ws-breadcrumb">
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Royaltē OS™</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <span>Ask ATHENA™</span>
+    </header>
+
+    <div class="ws-body" style="opacity:0;transition:opacity .2s ease;">
+      <h1 style="font-size:20px;font-weight:800;color:var(--mc-text);margin-bottom:4px;">Ask ATHENA™</h1>
+      <div style="font-size:12.5px;color:var(--mc-text-muted);margin-bottom:18px;">Your Executive Intelligence Advisor — grounded in verified evidence, not speculation.</div>
+
+      <div class="aa-shell">
+        <div class="aa-messages" id="aa-messages">
+          <div class="aa-empty" id="aa-empty">Ask ATHENA a question about your Executive Intelligence — publishing gaps, cross-scan comparisons, recurring risks, or what to prioritize next.</div>
+        </div>
+        <div class="aa-suggested" id="aa-suggested"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="aa-input-row" style="flex:1;">
+            <input class="aa-input" id="aa-input" type="text" placeholder="Ask ATHENA a question…" aria-label="Ask ATHENA a question">
+            <button class="aa-send" id="aa-send" type="button">Ask</button>
+          </div>
+        </div>
+        <button class="aa-reset" id="aa-reset" type="button">Start a new conversation</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════════════════════════
+// § 1 — CONTEXT
+// Canonical Workspace Architecture™: read-only, no computation.
+// ═══════════════════════════════════════════════════════════
+var _result = window.RoyalteContext.readWorkspaceContext({ contract: 'ask-athena' });
+var _overlay = document.getElementById('ws-no-scan-overlay');
+if (_result.state !== 'valid') {
+  if (_overlay) { _overlay.hidden = false; _overlay.style.display = 'flex'; }
+} else {
+  var _body = document.querySelector('.ws-body');
+  if (_body) _body.style.opacity = '1';
+}
+
+// ── Resolve the caller's Bearer token, same pattern as ai-insights.html ────
+var accessToken = null;
+try {
+  var supaMod = await import('/js/supabase-client.js');
+  var supabase = supaMod.getSupabase && supaMod.getSupabase();
+  if (supabase) {
+    var sessionResult = await supabase.auth.getSession();
+    accessToken = (sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.access_token) || null;
+  }
+} catch (e) { /* proceed unauthenticated -- Ask ATHENA requires a session and will surface a 401 clearly */ }
+
+// ═══════════════════════════════════════════════════════════
+// § 3/4 — PRESENTATION + RENDER (conversation panel is inherently
+// interactive; kept together per this page's nature)
+// ═══════════════════════════════════════════════════════════
+var conversationId = null;
+var messagesEl = document.getElementById('aa-messages');
+var emptyEl = document.getElementById('aa-empty');
+var suggestedEl = document.getElementById('aa-suggested');
+var inputEl = document.getElementById('aa-input');
+var sendBtn = document.getElementById('aa-send');
+var resetBtn = document.getElementById('aa-reset');
+
+function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+
+function renderSuggestedQuestions() {
+  var ctx = (_result.state === 'valid') ? _result.ctx : {};
+  var questions = [];
+  if (ctx.publishing && ctx.publishing.coverage != null && ctx.publishing.coverage < 100) questions.push('What registrations am I missing?');
+  questions.push('Compare my last two scans.');
+  questions.push('What changed since my last scan?');
+  questions.push('What should I work on first?');
+  suggestedEl.innerHTML = questions.map(function (q) {
+    return '<span class="aa-chip" data-question="' + esc(q) + '">' + esc(q) + '</span>';
+  }).join('');
+  suggestedEl.querySelectorAll('.aa-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () { inputEl.value = chip.getAttribute('data-question'); sendQuestion(); });
+  });
+}
+renderSuggestedQuestions();
+
+function addUserMessage(text) {
+  if (emptyEl) { emptyEl.remove(); emptyEl = null; }
+  var el = document.createElement('div');
+  el.className = 'aa-msg aa-msg--user';
+  el.textContent = text;
+  messagesEl.appendChild(el);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function addLoadingMessage() {
+  var el = document.createElement('div');
+  el.className = 'aa-loading';
+  el.id = 'aa-loading-indicator';
+  el.textContent = 'ATHENA is thinking…';
+  messagesEl.appendChild(el);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return el;
+}
+
+function addErrorMessage(text) {
+  var el = document.createElement('div');
+  el.className = 'aa-error';
+  el.textContent = text;
+  messagesEl.appendChild(el);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function badgeClass(confidence) {
+  return 'aa-badge aa-badge--' + (confidence || 'MEDIUM');
+}
+
+function addAthenaMessage(response) {
+  var el = document.createElement('div');
+  el.className = 'aa-msg aa-msg--athena';
+
+  var html = '<div class="aa-msg-answer">' + esc(response.answer) + '</div>';
+  html += '<div class="aa-msg-meta">';
+  html += '<span class="' + badgeClass(response.confidence) + '">' + esc(response.confidence || 'MEDIUM') + '</span>';
+  if (response.providerVersion === 'deterministic') {
+    html += '<span class="aa-badge aa-badge--deterministic">Deterministic — Verified Evidence</span>';
+  }
+  html += '</div>';
+
+  if (response.recommendations && response.recommendations.length > 0) {
+    html += '<div class="aa-recommendations">';
+    response.recommendations.forEach(function (rec) {
+      html += '<div class="aa-rec">';
+      html += '<div class="aa-rec-statement">' + esc(rec.statement) + '</div>';
+      if (rec.why) html += '<div class="aa-rec-detail"><strong>Why:</strong> ' + esc(rec.why) + '</div>';
+      if (rec.assumptions && rec.assumptions.length) html += '<div class="aa-rec-detail"><strong>Assumptions:</strong> ' + esc(rec.assumptions.join('; ')) + '</div>';
+      if (rec.whatCouldChange) html += '<div class="aa-rec-detail"><strong>What could change this:</strong> ' + esc(rec.whatCouldChange) + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (response.evidence && response.evidence.length > 0) {
+    html += '<div class="aa-evidence">';
+    response.evidence.slice(0, 6).forEach(function (e) {
+      html += '<div class="aa-evidence-item">[' + esc(e.sourceType) + '] ' + esc(e.fact) + '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (response.relatedWorkspaces && response.relatedWorkspaces.length > 0) {
+    response.relatedWorkspaces.forEach(function (ws) {
+      html += '<a class="aa-rec-open" href="' + esc(ws) + '">Open Workspace →</a> ';
+    });
+  }
+
+  if (response.followUpQuestions && response.followUpQuestions.length > 0) {
+    html += '<div class="aa-followups">';
+    response.followUpQuestions.forEach(function (q) {
+      html += '<span class="aa-chip" data-question="' + esc(q) + '">' + esc(q) + '</span>';
+    });
+    html += '</div>';
+  }
+
+  html += '<button class="aa-copy" type="button">Copy answer</button>';
+
+  el.innerHTML = html;
+  el.querySelectorAll('.aa-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () { inputEl.value = chip.getAttribute('data-question'); sendQuestion(); });
+  });
+  var copyBtn = el.querySelector('.aa-copy');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      navigator.clipboard.writeText(response.answer).then(function () {
+        copyBtn.textContent = 'Copied!';
+        setTimeout(function () { copyBtn.textContent = 'Copy answer'; }, 1500);
+      });
+    });
+  }
+
+  messagesEl.appendChild(el);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+async function sendQuestion() {
+  var question = inputEl.value.trim();
+  if (!question) return;
+  if (!accessToken) {
+    addErrorMessage('You need to be signed in to Ask ATHENA. Please sign in and try again.');
+    return;
+  }
+
+  inputEl.value = '';
+  sendBtn.disabled = true;
+  addUserMessage(question);
+  var loadingEl = addLoadingMessage();
+
+  try {
+    var resp = await fetch('/api/ask-athena', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken },
+      body: JSON.stringify({ question: question, conversationId: conversationId }),
+    });
+    loadingEl.remove();
+    if (!resp.ok) {
+      var errBody = await resp.json().catch(function () { return {}; });
+      addErrorMessage(errBody.error || ('ATHENA request failed (status ' + resp.status + ').'));
+      return;
+    }
+    var data = await resp.json();
+    conversationId = data.conversationId || conversationId;
+    addAthenaMessage(data);
+  } catch (e) {
+    loadingEl.remove();
+    addErrorMessage('ATHENA request failed. Please try again.');
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+sendBtn.addEventListener('click', sendQuestion);
+inputEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') sendQuestion(); });
+resetBtn.addEventListener('click', function () {
+  conversationId = null;
+  messagesEl.innerHTML = '<div class="aa-empty" id="aa-empty">New conversation started. Ask ATHENA a question about your Executive Intelligence.</div>';
+  emptyEl = document.getElementById('aa-empty');
+});
+</script>
+</body>
+</html>

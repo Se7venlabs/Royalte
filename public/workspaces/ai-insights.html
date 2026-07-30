@@ -200,7 +200,7 @@
     .ai-memory-add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .ai-memory-loading { font-size: 10.5px; color: var(--mc-text-faint); font-style: italic; }
 
-    /* ── ATHENA™ Phase 2 — Ask ATHENA™ placeholder ──────────────────────── */
+    /* ── ATHENA™ Phase 3E — Ask ATHENA™ teaser (live workspace is elsewhere) ── */
     .ai-ask-section {
       border: 1px solid rgba(168,85,247,0.14); border-radius: 12px;
       background: linear-gradient(135deg, rgba(109,40,217,0.06), rgba(168,85,247,0.02));
@@ -208,28 +208,13 @@
     }
     .ai-ask-conversation-area { min-height: 64px; display: flex; align-items: center; justify-content: center; }
     .ai-ask-empty { font-size: 12px; color: var(--mc-text-muted); text-align: center; }
-    .ai-ask-suggested { display: flex; flex-wrap: wrap; gap: 8px; }
-    .ai-ask-suggested-chip {
-      font-size: 10.5px; color: var(--mc-text-soft);
-      border: 1px solid var(--mc-border); border-radius: 20px; padding: 5px 12px;
-      background: var(--mc-surface); cursor: not-allowed;
-    }
     .ai-ask-prompt-row { display: flex; gap: 8px; }
-    .ai-ask-prompt-input {
-      flex: 1; padding: 10px 14px; border-radius: 8px;
-      border: 1px solid var(--mc-border); background: var(--mc-surface);
-      color: var(--mc-text-muted); font-size: 12px;
-    }
     .ai-ask-prompt-send {
-      padding: 10px 16px; border-radius: 8px; border: 1px solid var(--mc-border);
-      background: var(--mc-surface); color: var(--mc-text-faint); font-size: 12px; font-weight: 700;
-      cursor: not-allowed;
+      padding: 10px 16px; border-radius: 8px; border: 1px solid rgba(168,85,247,0.4);
+      background: rgba(168,85,247,0.14); color: var(--mc-text); font-size: 12px; font-weight: 700;
+      flex: 1;
     }
-    .ai-ask-coming-soon {
-      font-size: 8.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--mc-purple); background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.22);
-      padding: 2px 8px; border-radius: 20px; align-self: flex-start;
-    }
+    .ai-ask-prompt-send:hover { border-color: var(--mc-purple); }
 
     /* ── ATHENA™ Phase 2 — Executive Provenance™ (dev-only; ?dev=1/?debug=1) ── */
     #ai-provenance-bar {
@@ -291,7 +276,6 @@
     .ai-history-comparison-delta--flat { color: var(--mc-text-faint); }
 
     @media (max-width: 768px) {
-      .ai-ask-suggested { gap: 6px; }
       .ai-history-summary-grid { grid-template-columns: repeat(2, 1fr); }
       .ai-history-trends-grid  { grid-template-columns: 1fr; }
     }
@@ -465,6 +449,15 @@
         <span>
           <span class="mc-nav-label">Backend Intelligence</span>
           <div class="mc-nav-sub">Infrastructure Connected</div>
+        </span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/ask-athena.html">
+        <span class="mc-nav-icon" aria-hidden="true">
+          <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-insights"></use></svg>
+        </span>
+        <span>
+          <span class="mc-nav-label">Ask ATHENA™</span>
+          <div class="mc-nav-sub">Executive Advisor</div>
         </span>
       </a>
       <a class="mc-nav-item" href="/workspaces/settings.html">
@@ -893,23 +886,19 @@
           </div><!-- /ai-history-content -->
         </div><!-- /ai-history-section -->
 
-        <!-- § 10 — ASK ATHENA™ (presentation container only; ATHENA™
-             Phase 2, Section 10). No conversational intelligence is
-             implemented -- future phase. -->
+        <!-- § 10 — ASK ATHENA™ teaser. ATHENA™ Phase 3E moved the live
+             conversational surface to its own standalone Mission Control
+             workspace (/workspaces/ask-athena.html, own left-rail nav
+             entry) rather than this section -- kept here only as a short
+             pointer, so there is exactly one "Ask ATHENA" surface, not two
+             competing ones. -->
         <div class="ai-ask-section" aria-labelledby="ai-ask-heading">
-          <div class="ai-ask-coming-soon">Coming Soon</div>
           <div class="ai-section-eyebrow" id="ai-ask-heading">Ask ATHENA™</div>
           <div class="ai-ask-conversation-area">
-            <div class="ai-ask-empty">Ask ATHENA™ will let you have a conversation with your Executive Intelligence. Not yet available.</div>
-          </div>
-          <div class="ai-ask-suggested">
-            <span class="ai-ask-suggested-chip">What should I focus on this week?</span>
-            <span class="ai-ask-suggested-chip">Why is my confidence score low?</span>
-            <span class="ai-ask-suggested-chip">What changed since my last scan?</span>
+            <div class="ai-ask-empty">Ask ATHENA™ is now live as its own workspace — a full conversation with your Executive Intelligence, grounded in verified evidence.</div>
           </div>
           <div class="ai-ask-prompt-row">
-            <input class="ai-ask-prompt-input" type="text" placeholder="Ask ATHENA™ a question…" disabled aria-label="Ask ATHENA (not yet available)">
-            <button class="ai-ask-prompt-send" type="button" disabled>Ask</button>
+            <a class="ai-ask-prompt-send" href="/workspaces/ask-athena.html" style="text-decoration:none;text-align:center;">Open Ask ATHENA™ →</a>
           </div>
         </div><!-- /ai-ask-section -->
 

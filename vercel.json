@@ -15,6 +15,9 @@
     "api/submit-audit.js": {
       "maxDuration": 60
     },
+    "api/ask-athena.js": {
+      "maxDuration": 20
+    },
     "api/cron/rescan.js": {
       "maxDuration": 300,
       "includeFiles": "api/apple-token.js"
@@ -116,6 +119,10 @@
     {
       "src": "/api/executive-history-summary",
       "dest": "/api/executive-history-summary.js"
+    },
+    {
+      "src": "/api/ask-athena",
+      "dest": "/api/ask-athena.js"
     },
     {
       "src": "/api/save-profile-info",
