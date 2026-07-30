@@ -193,6 +193,20 @@
       requiredTypes:  {},
       optional:       ['mediaIntelligence', 'mediaIntelligence.platformCoverage', 'mediaIntelligence.assetCompleteness', 'mediaIntelligence.contentActivity', 'mediaIntelligence.digitalPresence', 'mediaIntelligence.catalogMediaSupport', 'mediaIntelligence.audienceReach'],
     },
+    'ask-athena': {
+      // Ask ATHENA™ (Phase 3E) has no required domain -- a valid scan
+      // context is enough to render the conversation panel, even a sparse
+      // one. Missing domain data degrades honestly per-question inside the
+      // Response Contract (Insufficient Evidence), not by blocking the
+      // whole workspace with a "No Scan Loaded" overlay it doesn't need.
+      required:       [],
+      requiredFields: [],
+      requiredTypes:  {},
+      optional:       [
+        'identity', 'publishing', 'catalogIntelligence', 'verification',
+        'globalFootprint', 'mediaIntelligence', 'monitoringIntelligence', 'executiveBrief',
+      ],
+    },
   };
 
   // -- Field path resolver --------------------------------------------------
