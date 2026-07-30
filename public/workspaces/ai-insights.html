@@ -164,6 +164,42 @@
     .ai-memory-item { font-size: 11.5px; color: var(--mc-text-muted); line-height: 1.4; }
     .ai-memory-unavailable { font-size: 11px; color: var(--mc-text-faint); font-style: italic; }
 
+    /* ── ATHENA™ Phase 3C — Executive Memory™ persisted items ──────────── */
+    .ai-memory-item-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--mc-border); }
+    .ai-memory-item-row:last-child { border-bottom: none; }
+    .ai-memory-item-main { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+    .ai-memory-item-statement { font-size: 11.5px; color: var(--mc-text); line-height: 1.4; }
+    .ai-memory-item-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ai-memory-item-timestamp { font-size: 9.5px; color: var(--mc-text-faint); }
+    .ai-memory-badge { font-size: 8px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 20px; border: 1px solid; white-space: nowrap; }
+    .ai-memory-badge--source-canonical-evidence      { color: #4ade80; background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.28); }
+    .ai-memory-badge--source-user-confirmed           { color: #60a5fa; background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.28); }
+    .ai-memory-badge--source-derived-intelligence     { color: #a78bfa; background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.28); }
+    .ai-memory-badge--source-athena-recommendation    { color: var(--mc-orange); background: rgba(251,146,60,0.1); border-color: rgba(251,146,60,0.28); }
+    .ai-memory-badge--source-historical-context,
+    .ai-memory-badge--source-superseded                { color: #6b7280; background: rgba(107,114,128,0.08); border-color: rgba(107,114,128,0.24); }
+    .ai-memory-badge--confidence-high   { color: #4ade80; background: rgba(74,222,128,0.08); border-color: rgba(74,222,128,0.22); }
+    .ai-memory-badge--confidence-medium { color: #facc15; background: rgba(250,204,21,0.08); border-color: rgba(250,204,21,0.22); }
+    .ai-memory-badge--confidence-low,
+    .ai-memory-badge--confidence-insufficient_data     { color: #9ca3af; background: rgba(156,163,175,0.08); border-color: rgba(156,163,175,0.22); }
+    .ai-memory-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .ai-memory-action-btn {
+      font-size: 9px; font-weight: 600; color: var(--mc-text-soft); background: var(--mc-surface);
+      border: 1px solid var(--mc-border); border-radius: 6px; padding: 3px 8px; cursor: pointer;
+    }
+    .ai-memory-action-btn:hover { background: var(--mc-surface-2); color: var(--mc-text); }
+    .ai-memory-add-row { display: flex; gap: 6px; margin-top: 4px; }
+    .ai-memory-add-input {
+      flex: 1; font-size: 11px; padding: 6px 10px; border-radius: 6px;
+      border: 1px solid var(--mc-border); background: var(--mc-surface); color: var(--mc-text);
+    }
+    .ai-memory-add-btn {
+      font-size: 10px; font-weight: 600; color: #fff; background: var(--mc-purple, #8a5cff);
+      border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; white-space: nowrap;
+    }
+    .ai-memory-add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .ai-memory-loading { font-size: 10.5px; color: var(--mc-text-faint); font-style: italic; }
+
     /* ── ATHENA™ Phase 2 — Ask ATHENA™ placeholder ──────────────────────── */
     .ai-ask-section {
       border: 1px solid rgba(168,85,247,0.14); border-radius: 12px;
@@ -1294,10 +1330,58 @@
     }).join('');
   }
 
-  // Executive Memory™ (ATHENA™ Phase 3B) — recurring/resolved issues
-  // derived from the FULL archive history (api/executive-memory.js), not
-  // just the current scan. goals/dismissedActions/milestones remain
-  // honestly marked unavailable -- no fabricated memory.
+  // Executive Memory™ — Phase 3B (recurring/resolved issues, derived from
+  // the FULL archive history, api/executive-memory.js) + Phase 3C (real
+  // persisted Goals / Dismissed Recommendations / Milestones, source and
+  // confidence badges, Confirm/Correct/Expire actions). Pure render
+  // function -- produces HTML with data-ai-mem-* attributes for the click
+  // handler defined inside the Historical Intelligence™ IIFE below, which
+  // owns the authenticated fetch/re-render cycle (has _accessToken in scope).
+  function memSourceBadgeClass(source) {
+    return 'ai-memory-badge--source-' + String(source || 'unknown').toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '');
+  }
+  function memConfidenceBadgeClass(confidence) {
+    return 'ai-memory-badge--confidence-' + String(confidence || 'medium').toLowerCase();
+  }
+  function memFmtDate(iso) {
+    if (!iso) return null;
+    try { return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+    catch (_e) { return null; }
+  }
+  function renderMemoryItemRow(item) {
+    var created = memFmtDate(item.created_at);
+    var confirmed = memFmtDate(item.last_confirmed_at);
+    var timestamp = confirmed ? ('Confirmed ' + confirmed) : (created ? ('Added ' + created) : '');
+    return '<div class="ai-memory-item-row">'
+      + '<div class="ai-memory-item-main">'
+      + '<div class="ai-memory-item-statement">' + esc(item.statement) + '</div>'
+      + '<div class="ai-memory-item-meta">'
+      + '<span class="ai-memory-badge ' + memSourceBadgeClass(item.source) + '">' + esc(item.source) + '</span>'
+      + '<span class="ai-memory-badge ' + memConfidenceBadgeClass(item.confidence) + '">' + esc(item.confidence) + '</span>'
+      + (timestamp ? '<span class="ai-memory-item-timestamp">' + esc(timestamp) + '</span>' : '')
+      + '</div></div>'
+      + '<div class="ai-memory-item-actions">'
+      + '<button type="button" class="ai-memory-action-btn" data-ai-mem-action="confirm" data-ai-mem-id="' + esc(item.id) + '">Confirm</button>'
+      + '<button type="button" class="ai-memory-action-btn" data-ai-mem-action="expire" data-ai-mem-id="' + esc(item.id) + '">Expire</button>'
+      + '</div></div>';
+  }
+  function renderMemoryTypeGroup(label, memoryType, group, opts) {
+    opts = opts || {};
+    var html = '<div class="ai-memory-group-label" style="margin-top:6px;">' + esc(label) + '</div>';
+    var items = (group && Array.isArray(group.items)) ? group.items : [];
+    if (items.length > 0) {
+      items.forEach(function (item) { html += renderMemoryItemRow(item); });
+    } else {
+      html += '<div class="ai-memory-unavailable">' + esc(opts.emptyText || ('No ' + label.toLowerCase() + ' recorded yet.')) + '</div>';
+    }
+    if (opts.addable) {
+      html += '<div class="ai-memory-add-row">'
+        + '<input type="text" class="ai-memory-add-input" placeholder="' + esc(opts.placeholder || 'Add...') + '" data-ai-mem-add-input="' + esc(memoryType) + '">'
+        + '<button type="button" class="ai-memory-add-btn" data-ai-mem-add="' + esc(memoryType) + '">Add</button>'
+        + '</div>';
+    }
+    return html;
+  }
   function renderMemoryBody(mem) {
     if (!mem || mem.available === false) {
       return '<div class="ai-memory-unavailable">' + esc((mem && mem.reason) || 'Executive Memory™ is not available yet.') + '</div>';
@@ -1306,7 +1390,11 @@
     html += '<div class="ai-memory-group-label">Recurring Issues</div>';
     if (Array.isArray(mem.recurringIssues) && mem.recurringIssues.length > 0) {
       mem.recurringIssues.forEach(function (item) {
-        html += '<div class="ai-memory-item">' + esc(item.title || 'Issue') + (item.label ? ' — ' + esc(item.label) : '') + '</div>';
+        html += '<div class="ai-memory-item-row"><div class="ai-memory-item-main">'
+          + '<div class="ai-memory-item-statement">' + esc(item.title || 'Issue') + (item.label ? ' — ' + esc(item.label) : '') + '</div>'
+          + '</div><div class="ai-memory-item-actions">'
+          + '<button type="button" class="ai-memory-action-btn" data-ai-mem-promote-title="' + esc(item.title || 'Issue') + '" data-ai-mem-promote-domain="' + esc(item.domain || '') + '">Promote to Memory</button>'
+          + '</div></div>';
       });
     } else {
       html += '<div class="ai-memory-unavailable">No recurring issues detected across archived scans.</div>';
@@ -1319,12 +1407,9 @@
     } else {
       html += '<div class="ai-memory-unavailable">No resolved issues recorded yet.</div>';
     }
-    html += '<div class="ai-memory-group-label" style="margin-top:6px;">Goals</div>';
-    html += '<div class="ai-memory-unavailable">' + esc((mem.goals && mem.goals.reason) || 'Not available yet.') + '</div>';
-    html += '<div class="ai-memory-group-label" style="margin-top:6px;">Dismissed Recommendations</div>';
-    html += '<div class="ai-memory-unavailable">' + esc((mem.dismissedActions && mem.dismissedActions.reason) || 'Not available yet.') + '</div>';
-    html += '<div class="ai-memory-group-label" style="margin-top:6px;">Milestones</div>';
-    html += '<div class="ai-memory-unavailable">' + esc((mem.milestones && mem.milestones.reason) || 'Not available yet.') + '</div>';
+    html += renderMemoryTypeGroup('Goals', 'goal', mem.goals, { addable: true, placeholder: 'e.g. Release EP by Q4' });
+    html += renderMemoryTypeGroup('Dismissed Recommendations', 'dismissed_action', mem.dismissedActions, {});
+    html += renderMemoryTypeGroup('Milestones', 'milestone', mem.milestones, { addable: true, placeholder: 'e.g. 10k monthly listeners' });
     return html;
   }
 
@@ -1588,11 +1673,79 @@
       }
     });
 
-    // Executive Memory™ (Phase 3B cross-scan view — see renderMemoryBody above)
-    fetchJson('/api/executive-memory').then(function (res) {
-      var memBody = document.getElementById('ai-memory-body');
-      if (memBody) memBody.innerHTML = renderMemoryBody(res.ok ? res.body : null);
-    });
+    // Executive Memory™ — Phase 3B (derived) + Phase 3C (persisted, with
+    // Confirm/Expire/Promote/Add actions — see renderMemoryBody above for
+    // the pure render function; this block owns the authenticated
+    // fetch/re-render cycle, since only this IIFE has _accessToken in scope).
+    var memBodyEl = document.getElementById('ai-memory-body');
+
+    function fetchAndRenderMemory() {
+      if (!memBodyEl) return;
+      memBodyEl.innerHTML = '<div class="ai-memory-loading">Loading Executive Memory™…</div>';
+      return fetchJson('/api/executive-memory').then(function (res) {
+        memBodyEl.innerHTML = renderMemoryBody(res.ok ? res.body : null);
+      });
+    }
+    fetchAndRenderMemory();
+
+    // POST /api/executive-memory-actions -- shared by every action below.
+    // artistProfileId is never sent -- the endpoint derives it from the
+    // Bearer token, matching every other Phase 3 write path.
+    function postMemoryAction(action, fields) {
+      return fetch('/api/executive-memory-actions', {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders),
+        body: JSON.stringify(Object.assign({ action: action }, fields)),
+      }).then(function (r) { return r.json().then(function (body) { return { ok: r.ok, body: body }; }); })
+        .catch(function () { return { ok: false, body: null }; });
+    }
+
+    if (memBodyEl) {
+      memBodyEl.addEventListener('click', function (ev) {
+        var confirmBtn = ev.target.closest('[data-ai-mem-action]');
+        var addBtn = ev.target.closest('[data-ai-mem-add]');
+        var promoteBtn = ev.target.closest('[data-ai-mem-promote-title]');
+
+        if (confirmBtn) {
+          var action = confirmBtn.getAttribute('data-ai-mem-action');
+          var id = confirmBtn.getAttribute('data-ai-mem-id');
+          confirmBtn.disabled = true;
+          postMemoryAction(action, { memoryItemId: id }).then(function () { fetchAndRenderMemory(); });
+          return;
+        }
+
+        if (addBtn) {
+          var memoryType = addBtn.getAttribute('data-ai-mem-add');
+          var input = memBodyEl.querySelector('[data-ai-mem-add-input="' + memoryType + '"]');
+          var statement = input ? input.value.trim() : '';
+          if (!statement) return;
+          addBtn.disabled = true;
+          postMemoryAction('create', {
+            memoryType: memoryType, source: 'User Confirmed', statement: statement, confidence: 'HIGH',
+          }).then(function () { fetchAndRenderMemory(); });
+          return;
+        }
+
+        if (promoteBtn) {
+          var title = promoteBtn.getAttribute('data-ai-mem-promote-title');
+          var domain = promoteBtn.getAttribute('data-ai-mem-promote-domain');
+          promoteBtn.disabled = true;
+          // Recurring Issues are real, archive-derived facts (Derived
+          // Intelligence), not ATHENA-generated suggestions -- Memory
+          // Promotion™'s stricter "ATHENA Recommendation requires explicit
+          // promotedBy" gate (api/_lib/executive-memory-store.js) applies
+          // only to source: 'ATHENA Recommendation', which this is not.
+          postMemoryAction('create', {
+            memoryType: 'recurring_risk_context',
+            source: 'Derived Intelligence',
+            statement: title + (domain ? (' (' + domain + ')') : ''),
+            confidence: 'MEDIUM',
+            evidenceReference: { domain: domain || null },
+          }).then(function () { fetchAndRenderMemory(); });
+          return;
+        }
+      });
+    }
 
     // Executive Comparison™ — defaults to the two most recent archived briefs.
     fetchJson('/api/executive-brief-archive?limit=2').then(function (listRes) {
