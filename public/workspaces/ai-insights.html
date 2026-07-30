@@ -1410,6 +1410,19 @@
     html += renderMemoryTypeGroup('Goals', 'goal', mem.goals, { addable: true, placeholder: 'e.g. Release EP by Q4' });
     html += renderMemoryTypeGroup('Dismissed Recommendations', 'dismissed_action', mem.dismissedActions, {});
     html += renderMemoryTypeGroup('Milestones', 'milestone', mem.milestones, { addable: true, placeholder: 'e.g. 10k monthly listeners' });
+    // Live-verification finding: items created via "Promote to Memory" (on
+    // Recurring Issues) or any future memory_type outside the three named
+    // groups above had no rendered home -- the write succeeded but was
+    // invisible, confirmed via direct API inspection during Phase 3C's
+    // Executive Board Certification Walkthrough. This catch-all group is
+    // also the Board-required Memory History™ view: every active item, not
+    // just the three originally-named categories.
+    var namedTypes = ['goal', 'dismissed_action', 'milestone'];
+    var otherItems = (Array.isArray(mem.allItems) ? mem.allItems : []).filter(function (i) { return namedTypes.indexOf(i.memory_type) === -1; });
+    if (otherItems.length > 0) {
+      html += '<div class="ai-memory-group-label" style="margin-top:6px;">Memory History™</div>';
+      otherItems.forEach(function (item) { html += renderMemoryItemRow(item); });
+    }
     return html;
   }
 
