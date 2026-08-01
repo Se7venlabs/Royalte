@@ -137,6 +137,15 @@ function buildMusicRightsEnvelope(ctx) {
 
   const administrator = (publishingMgmt === 'admin' ? orgName : null) || (pub && pub.administrator) || null;
 
+  // Phase 4A -- real, API-verified MLC registration status, already computed
+  // by api/_lib/publishing-intelligence.js's deriveMlcRegistration() from the
+  // CIO's MLC PAL evidence (api/_lib/mlc-pal-acquisition.js). Read from
+  // ctx.publishingIntelligence.registrations.mlcRegistration rather than
+  // re-deriving anything -- this is the one already-owned source of truth,
+  // not a second parallel derivation.
+  const mlcRegistration = (ctx.publishingIntelligence && ctx.publishingIntelligence.registrations
+    && ctx.publishingIntelligence.registrations.mlcRegistration) || null;
+
   return envelope('SUCCESS', {
     publisher:     publisherKnown,   // INTERPRETIVE (see above)
     pro:           proValue,         // DIRECT -- real onboarding answer (e.g. 'ASCAP'), preferred over cim.publishing.pro (an engine-generated "how to register" card, not a membership record)
@@ -144,6 +153,7 @@ function buildMusicRightsEnvelope(ctx) {
     writer:        null,             // UNAVAILABLE -- no per-work writer field exists anywhere in the live data flow
     administrator,                   // DIRECT/DERIVED
     ownership:     null,             // UNAVAILABLE
+    mlcRegistration,                 // DIRECT -- real PUBLISHING_STATE value (VERIFIED/ACTION_REQUIRED/NOT_FOUND/UNABLE_TO_CONFIRM); Phase 4A
   });
 }
 

@@ -113,6 +113,21 @@ export function identifyRightsRisks(musicRightsResponse) {
     ));
   }
 
+  // Phase 4A -- real, API-verified MLC registration status (see
+  // runtime-context-adapter.js's buildMusicRightsEnvelope for the source).
+  // UNABLE_TO_CONFIRM is deliberately excluded -- matching
+  // publishing-intelligence.js's own "we do not know -- say nothing
+  // executive about it" principle, this only fires for a confirmed gap.
+  if (data.mlcRegistration === 'ACTION_REQUIRED' || data.mlcRegistration === 'NOT_FOUND') {
+    risks.push(makeRisk(
+      RISK_CATEGORIES.RIGHTS, RISK_LEVELS.CRITICAL,
+      'Not Registered with The MLC',
+      'No confirmed registration with The Mechanical Licensing Collective (The MLC) was found. Mechanical royalties on U.S. streams may not be collected.',
+      'rights', [`mlcRegistration: ${data.mlcRegistration}`], ['rights'], completeness,
+      'Register your musical works with The MLC at themlc.com.'
+    ));
+  }
+
   return risks;
 }
 

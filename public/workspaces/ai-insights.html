@@ -225,6 +225,51 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
+    /* ── Phase 4A — Guided Playbooks™ (Playbook Action Engine™) ─────────── */
+    .ai-playbook-section { display: flex; flex-direction: column; gap: 12px; }
+    .ai-playbook-active-list { display: flex; flex-direction: column; gap: 10px; }
+    .ai-playbook-active-card {
+      border: 1px solid rgba(168,85,247,0.2); border-radius: 12px; background: var(--mc-surface-2);
+      padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .ai-playbook-active-title { font-size: 12.5px; font-weight: 700; color: var(--mc-text); }
+    .ai-playbook-progress-track { height: 6px; border-radius: 4px; background: var(--mc-border); overflow: hidden; }
+    .ai-playbook-progress-fill { height: 100%; background: var(--mc-purple); border-radius: 4px; }
+    .ai-playbook-progress-label { font-size: 10.5px; color: var(--mc-text-muted); }
+    .ai-playbook-steps { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+    .ai-playbook-step-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11.5px; color: var(--mc-text-soft); padding: 4px 0; }
+    .ai-playbook-step-row--done { color: var(--mc-text-faint); text-decoration: line-through; }
+    .ai-playbook-step-btn {
+      font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+      border: 1px solid rgba(168,85,247,0.4); background: rgba(168,85,247,0.14); color: var(--mc-text); cursor: pointer;
+    }
+    .ai-playbook-actions-row { display: flex; gap: 8px; margin-top: 4px; }
+    .ai-playbook-complete-btn, .ai-playbook-archive-btn {
+      font-size: 10.5px; font-weight: 700; padding: 6px 14px; border-radius: 8px; cursor: pointer;
+      border: 1px solid var(--mc-border); background: var(--mc-surface);
+    }
+    .ai-playbook-complete-btn { color: #4ade80; border-color: rgba(74,222,128,0.3); }
+    .ai-playbook-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media (max-width: 1180px) { .ai-playbook-grid { grid-template-columns: 1fr; } }
+    .ai-playbook-card {
+      border: 1px solid var(--mc-border); border-radius: 12px; background: var(--mc-surface);
+      padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .ai-playbook-card-title { font-size: 12px; font-weight: 700; color: var(--mc-text); }
+    .ai-playbook-card-summary { font-size: 11px; color: var(--mc-text-muted); line-height: 1.5; }
+    .ai-playbook-card-meta { display: flex; gap: 8px; align-items: center; }
+    .ai-playbook-confidence-badge {
+      font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 20px; border: 1px solid;
+    }
+    .ai-playbook-confidence-badge--HIGH { color: #4ade80; background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.28); }
+    .ai-playbook-confidence-badge--MEDIUM { color: var(--mc-orange); background: rgba(251,146,60,0.1); border-color: rgba(251,146,60,0.28); }
+    .ai-playbook-confidence-badge--LOW, .ai-playbook-confidence-badge--INSUFFICIENT_DATA { color: #9ca3af; background: rgba(156,163,175,0.1); border-color: rgba(156,163,175,0.28); }
+    .ai-playbook-start-btn {
+      align-self: flex-start; font-size: 10.5px; font-weight: 700; padding: 6px 14px; border-radius: 8px;
+      border: 1px solid rgba(168,85,247,0.4); background: rgba(168,85,247,0.14); color: var(--mc-text); cursor: pointer;
+    }
+
     /* ── ATHENA™ Phase 3B — Historical Intelligence™ ────────────────────── */
     .ai-history-section { display: flex; flex-direction: column; gap: 12px; }
     .ai-history-card {
@@ -720,6 +765,21 @@
             </div>
           </div><!-- /ai-rec-grid -->
         </div><!-- /ai-rec-section -->
+
+        <!-- § 2b — GUIDED PLAYBOOKS™ (Phase 4A, Playbook Action Engine™) ── -->
+        <div class="ai-playbook-section" id="ai-playbook-section">
+          <div class="ai-section-eyebrow">Guided Playbooks™</div>
+          <div class="ai-playbook-signin-required" id="ai-playbook-signin-required" style="display:none;">
+            <div class="ai-intel-empty"><div class="ai-intel-empty-body">
+              <div class="ai-intel-empty-title">Sign in to view Playbooks</div>
+              <div class="ai-intel-empty-desc">Guided Playbooks™ require an authenticated session.</div>
+            </div></div>
+          </div>
+          <div class="ai-playbook-content" id="ai-playbook-content" style="display:none;">
+            <div class="ai-playbook-active-list" id="ai-playbook-active-list"></div>
+            <div class="ai-playbook-grid" id="ai-playbook-grid"></div>
+          </div>
+        </div><!-- /ai-playbook-section -->
 
         <!-- § 4+5 — BUSINESS PRIORITIES™ + EXECUTIVE FORECAST™ ──────── -->
         <div class="ai-bottom-row">
@@ -1893,6 +1953,145 @@ document.getElementById('ai-action-detail-overlay').addEventListener('click', fu
   if (e.target === this) aiCloseActionDetail();
 });
 </script>
+
+<!-- Phase 4A — Guided Playbooks™ (Playbook Action Engine™). Self-contained
+     module script, own session establishment (same pattern as
+     /workspaces/ask-athena.html) -- deliberately not woven into the large
+     existing IIFE above, to avoid touching Board-locked recommendation
+     rendering code for an unrelated new feature. -->
+<script type="module">
+(async function () {
+  function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+
+  var signinEl = document.getElementById('ai-playbook-signin-required');
+  var contentEl = document.getElementById('ai-playbook-content');
+  var activeListEl = document.getElementById('ai-playbook-active-list');
+  var gridEl = document.getElementById('ai-playbook-grid');
+  if (!signinEl || !contentEl || !activeListEl || !gridEl) return;
+
+  var accessToken = null;
+  try {
+    var supaMod = await import('/js/supabase-client.js');
+    var supabase = supaMod.getSupabase && supaMod.getSupabase();
+    if (supabase) {
+      var sessionResult = await supabase.auth.getSession();
+      accessToken = (sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.access_token) || null;
+    }
+  } catch (e) { /* proceed unauthenticated -- signed-out state renders below */ }
+
+  if (!accessToken) {
+    signinEl.style.display = '';
+    contentEl.style.display = 'none';
+    return;
+  }
+  signinEl.style.display = 'none';
+  contentEl.style.display = '';
+
+  var authHeaders = { 'Authorization': 'Bearer ' + accessToken };
+
+  function workspaceContext() {
+    try {
+      var raw = sessionStorage.getItem('royalte_workspace_context');
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) { return {}; }
+  }
+
+  function postAction(body) {
+    return fetch('/api/playbook-actions', {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders),
+      body: JSON.stringify(body),
+    }).then(function (r) { return r.json(); });
+  }
+
+  function renderActiveCard(item) {
+    var pct = item.progressPercentage || 0;
+    var steps = item.steps || [];
+    // The step immediately after current_step_id in the definition's own
+    // ordering -- null current_step_id means no step has been completed
+    // yet, so the next step is simply the first one. Always a real stepId
+    // from the Playbook Registry's own step list, never a guessed string.
+    var currentIndex = item.current_step_id ? steps.findIndex(function (s) { return s.stepId === item.current_step_id; }) : -1;
+    var nextStep = steps[currentIndex + 1] || null;
+
+    var stepsHtml = '<div class="ai-playbook-steps">';
+    steps.forEach(function (s, i) {
+      var isDone = i <= currentIndex;
+      stepsHtml += '<div class="ai-playbook-step-row' + (isDone ? ' ai-playbook-step-row--done' : '') + '">'
+        + '<span>' + esc(s.stepNumber) + '. ' + esc(s.title) + '</span>'
+        + (isDone ? '<span>✓</span>' : '') + '</div>';
+    });
+    if (nextStep && item.status !== 'completed') {
+      stepsHtml += '<button type="button" class="ai-playbook-step-btn" data-playbook-advance="' + esc(item.id) + '" data-next-step="' + esc(nextStep.stepId) + '">Mark "' + esc(nextStep.title) + '" complete</button>';
+    }
+    stepsHtml += '</div>';
+
+    var actionsHtml = '';
+    if (item.status === 'in_progress' && pct >= 100) {
+      actionsHtml = '<div class="ai-playbook-actions-row"><button type="button" class="ai-playbook-complete-btn" data-playbook-complete="' + esc(item.id) + '">Mark Playbook Complete</button></div>';
+    } else if (item.status === 'completed') {
+      actionsHtml = '<div class="ai-playbook-actions-row"><button type="button" class="ai-playbook-archive-btn" data-playbook-archive="' + esc(item.id) + '">Archive</button></div>';
+    }
+    return '<div class="ai-playbook-active-card">'
+      + '<div class="ai-playbook-active-title">' + esc(item.playbook_id) + ' — ' + esc(item.status) + '</div>'
+      + '<div class="ai-playbook-progress-track"><div class="ai-playbook-progress-fill" style="width:' + pct + '%;"></div></div>'
+      + '<div class="ai-playbook-progress-label">' + item.completed_steps + ' / ' + item.total_steps + ' steps complete (' + pct + '%)</div>'
+      + stepsHtml + actionsHtml
+      + '</div>';
+  }
+
+  function renderEligibleCard(def) {
+    return '<div class="ai-playbook-card">'
+      + '<div class="ai-playbook-card-title">' + esc(def.title) + '</div>'
+      + '<div class="ai-playbook-card-summary">' + esc(def.executiveSummary) + '</div>'
+      + '<div class="ai-playbook-card-meta">'
+      + '<span class="ai-playbook-confidence-badge ai-playbook-confidence-badge--' + esc(def.evidenceConfidence) + '">' + esc(def.evidenceConfidence) + ' confidence</span>'
+      + '</div>'
+      + '<button type="button" class="ai-playbook-start-btn" data-playbook-start="' + esc(def.playbookId) + '">Start Playbook</button>'
+      + '</div>';
+  }
+
+  function load() {
+    var listPromise = fetch('/api/playbook-actions', { headers: authHeaders }).then(function (r) { return r.json(); });
+    var eligiblePromise = postAction({ action: 'checkEligibility', workspaceContext: workspaceContext() });
+
+    return Promise.all([listPromise, eligiblePromise]).then(function (results) {
+      var listRes = results[0], eligibleRes = results[1];
+      var items = (listRes && listRes.items) || [];
+      var active = items.filter(function (i) { return i.status !== 'archived'; });
+      var eligible = (eligibleRes && eligibleRes.eligible) || [];
+
+      activeListEl.innerHTML = active.length
+        ? active.map(renderActiveCard).join('')
+        : '';
+      gridEl.innerHTML = eligible.length
+        ? eligible.map(renderEligibleCard).join('')
+        : '<div class="ai-intel-empty"><div class="ai-intel-empty-body"><div class="ai-intel-empty-title">No eligible Playbooks right now</div><div class="ai-intel-empty-desc">Royaltē will surface a Playbook here as soon as real evidence supports one.</div></div></div>';
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    var startId = e.target.getAttribute && e.target.getAttribute('data-playbook-start');
+    var advanceId = e.target.getAttribute && e.target.getAttribute('data-playbook-advance');
+    var completeId = e.target.getAttribute && e.target.getAttribute('data-playbook-complete');
+    var archiveId = e.target.getAttribute && e.target.getAttribute('data-playbook-archive');
+
+    if (startId) {
+      postAction({ action: 'start', playbookId: startId, workspaceContext: workspaceContext() }).then(load);
+    } else if (advanceId) {
+      var nextStep = e.target.getAttribute('data-next-step');
+      postAction({ action: 'advance', actionId: advanceId, stepId: nextStep }).then(load);
+    } else if (completeId) {
+      postAction({ action: 'complete', actionId: completeId }).then(load);
+    } else if (archiveId) {
+      postAction({ action: 'archive', actionId: archiveId }).then(load);
+    }
+  });
+
+  load();
+}());
+</script>
+
 <script src="/js/rds-preview-console.js" defer></script>
 </body>
 </html>
