@@ -125,6 +125,10 @@
       "dest": "/api/ask-athena.js"
     },
     {
+      "src": "/api/playbook-actions",
+      "dest": "/api/playbook-actions.js"
+    },
+    {
       "src": "/api/save-profile-info",
       "dest": "/api/save-profile-info.js"
     },
