@@ -17,14 +17,14 @@ canonical process documentation.
 | Streaming Pays More Than You Think—If Your Music Is Registered Everywhere | 2026-07-A | 2026-08-05 | Scheduled | [#406](https://github.com/Se7venlabs/Royalte/pull/406) | `content/streaming-pays-more-than-you-think` |
 | Why Artists Still Aren't Getting Paid Correctly in 2026 | 2026-07-A | 2026-08-07 | Scheduled | [#407](https://github.com/Se7venlabs/Royalte/pull/407) | `content/why-artists-arent-getting-paid-2026` |
 | Why Every Independent Artist Needs a Music Rights Audit | 2026-07-A | 2026-08-10 | Scheduled | [#408](https://github.com/Se7venlabs/Royalte/pull/408) | `content/music-rights-audit` |
-| Is AI Stealing Artists' Music? AI Music Copyright Explained | 2026-07-A | — | **Blocked — awaiting image** | _(not yet opened)_ | _(not yet created)_ |
-| Five Revenue Streams Most Independent Artists Never Collect | 2026-07-A | — | **Blocked — awaiting image** | _(not yet opened)_ | _(not yet created)_ |
-| What Happens After You Leave a Record Label | 2026-07-A | — | **Blocked — awaiting image** | _(not yet opened)_ | _(not yet created)_ |
-| What The MLC Actually Does (And Why So Many Artists Miss It) | 2026-07-A | — | **Blocked — awaiting correct image** | _(not yet opened)_ | _(not yet created)_ |
+| What The MLC Actually Does (And Why Every Songwriter Should Care) | 2026-07-A | 2026-08-12 | Scheduled | [#410](https://github.com/Se7venlabs/Royalte/pull/410) | `content/what-the-mlc-actually-does` |
+| Five Revenue Streams Most Independent Artists Never Collect | 2026-07-A | 2026-08-14 | Scheduled | [#411](https://github.com/Se7venlabs/Royalte/pull/411) | `content/five-revenue-streams` |
+| What Happens After You Leave a Record Label? A Complete Guide for Independent Artists | 2026-07-A | 2026-08-17 | Scheduled | [#412](https://github.com/Se7venlabs/Royalte/pull/412) | `content/leave-a-record-label` |
+| Is AI Stealing Artists' Music? AI Music Copyright Explained | 2026-07-A | — | **Cancelled — duplicate** | _(never opened)_ | _(never created)_ |
 
-**Status values:** `Draft` · `Board Review` · `Approved` · `Scheduled` · `Published` · `Blocked — awaiting image`
+**Status values:** `Draft` · `Board Review` · `Approved` · `Scheduled` · `Published` · `Blocked — awaiting image` · `Cancelled`
 
-**Batch #001 progress: 8 of 13 delivered articles built and scheduled (2026-07-24 through 2026-08-10, Mon/Wed/Fri cadence). 1 excluded as a duplicate of PR #399. 4 remain blocked on artwork** — see governance note below.
+**Batch #001 progress: 11 of 13 delivered articles built and scheduled (2026-07-24 through 2026-08-17, Mon/Wed/Fri cadence). 1 excluded as a duplicate of PR #399's Metadata Mistakes. 1 cancelled by the Board as a duplicate (2026-07-23) — see governance note below.**
 
 (Full conceptual lifecycle, including `Idea`/`Writing` upstream of `Draft` and
 `Indexed`/`Archived` downstream of `Published`, is defined in

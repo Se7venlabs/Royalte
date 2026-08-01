@@ -120,9 +120,9 @@ the registry wins.
 
 - The 7 Metadata Mistakes That Could Be Costing You Music Royalties (PR #399)
 
-**Scheduled — Publishing Batch #001, 2026-07-A (8):**
+**Scheduled — Publishing Batch #001, 2026-07-A (11):**
 
-Built from 13 Board-approved Word documents; 1 excluded as a duplicate of PR #399, 4 blocked pending artwork (see below). Each is its own PR, individually reviewable, rollback-able, and merges automatically on its date via the scheduled-merge Action — see `PUBLISHING_INTELLIGENCE.md`.
+Built from 13 Board-approved Word documents; 1 excluded as a duplicate of PR #399, 1 cancelled by the Board (2026-07-23) as a duplicate. Each is its own PR, individually reviewable, rollback-able, and merges automatically on its date via the scheduled-merge Action — see `PUBLISHING_INTELLIGENCE.md`.
 
 - The Music Industry Runs on Data—Not Just Songs — 2026-07-24 (PR #401)
 - AI Music Is Exploding—But Who Actually Owns the Rights? — 2026-07-27 (PR #402)
@@ -132,18 +132,18 @@ Built from 13 Board-approved Word documents; 1 excluded as a duplicate of PR #39
 - Streaming Pays More Than You Think—If Your Music Is Registered Everywhere — 2026-08-05 (PR #406)
 - Why Artists Still Aren't Getting Paid Correctly in 2026 — 2026-08-07 (PR #407)
 - Why Every Independent Artist Needs a Music Rights Audit — 2026-08-10 (PR #408)
+- What The MLC Actually Does (And Why Every Songwriter Should Care) — 2026-08-12 (PR #410, fulfills the `coming_soon` MLC slot below)
+- Five Revenue Streams Most Independent Artists Never Collect — 2026-08-14 (PR #411)
+- What Happens After You Leave a Record Label? A Complete Guide for Independent Artists — 2026-08-17 (PR #412)
 
-**Blocked — awaiting approved artwork, not yet PR'd (4):**
+**Cancelled (1):**
 
-- Is AI Stealing Artists' Music? AI Music Copyright Explained
-- Five Revenue Streams Most Independent Artists Never Collect
-- What Happens After You Leave a Record Label
-- What The MLC Actually Does (And Why So Many Artists Miss It) — fulfills the `coming_soon` MLC slot below, once unblocked
+- Is AI Stealing Artists' Music? AI Music Copyright Explained — cancelled by the Board 2026-07-23 as a duplicate; never PR'd.
 
 **Queued in the registry as `coming_soon` (3, current `main` state):**
 
 - The 7 Metadata Mistakes Killing Artist Royalties — superseded by PR #399 once merged
-- What The MLC Actually Does (And Why So Many Artists Miss It) — superseded once the blocked article above is unblocked and PR'd
+- What The MLC Actually Does (And Why So Many Artists Miss It) — superseded by PR #410 once merged
 - SoundExchange Explained For Artists — superseded by PR #404 once merged
 
 **AI Music & Royalties series** is a planned 4-part arc. Parts 1 and 3 are
