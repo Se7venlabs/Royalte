@@ -159,7 +159,7 @@ function regenerateArtifacts(allArticles, { generatedAt = new Date().toISOString
   return written;
 }
 
-function writeStepSummary({ publishedSlugs, failedSlugs, writtenFiles }) {
+function writeStepSummary({ publishedSlugs, failedSlugs, writtenFiles, loadErrors = [] }) {
   const summaryPath = process.env.GITHUB_STEP_SUMMARY;
   const lines = [
     '## Content Publishing Engine™ run',
@@ -168,6 +168,9 @@ function writeStepSummary({ publishedSlugs, failedSlugs, writtenFiles }) {
     `**Failed**: ${failedSlugs.length ? failedSlugs.join(', ') : 'none'}`,
     `**Files changed**: ${writtenFiles.length ? writtenFiles.map(f => path.relative(REPO_ROOT, f)).join(', ') : 'none'}`,
   ];
+  if (loadErrors.length > 0) {
+    lines.push(`**Registry load errors** (skipped, did not block other articles): ${loadErrors.map(e => `${e.file} (${e.error})`).join('; ')}`);
+  }
   console.log(lines.join('\n'));
   if (summaryPath) {
     writeFileSync(summaryPath, lines.join('\n') + '\n', { flag: 'a' });
@@ -177,15 +180,44 @@ function writeStepSummary({ publishedSlugs, failedSlugs, writtenFiles }) {
 export { publishDueArticles, regenerateArtifacts, PATHS };
 
 // CLI entry point.
+//
+// Interrupted-publish resilience: if publishDueArticles() throws partway
+// through an unexpected error (not the handled "contentPath missing"
+// case -- something truly unexpected, e.g. a disk error), any articles it
+// already flipped to 'published' before the throw would otherwise sit in
+// the registry without ever being regenerated into a visible artifact
+// until the next scheduled run. The `finally` block guarantees a fresh
+// regeneration pass always runs from whatever the registry's actual
+// current state is, closing that window within the same run rather than
+// leaving it to self-heal (correctly, but with unnecessary delay) later.
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { publishedSlugs, failedSlugs, allArticles } = publishDueArticles({
-    workflowRunId: process.env.GITHUB_RUN_ID || null,
-    commitSha: process.env.GITHUB_SHA || null,
-  });
-  const writtenFiles = regenerateArtifacts(allArticles);
-  writeStepSummary({ publishedSlugs, failedSlugs, writtenFiles });
+  let publishResult = null;
+  let publishError = null;
+  try {
+    publishResult = publishDueArticles({
+      workflowRunId: process.env.GITHUB_RUN_ID || null,
+      commitSha: process.env.GITHUB_SHA || null,
+    });
+  } catch (err) {
+    publishError = err;
+  } finally {
+    const allArticles = publishResult ? publishResult.allArticles : loadRegistry();
+    const publishedSlugs = publishResult ? publishResult.publishedSlugs : [];
+    const failedSlugs = publishResult ? publishResult.failedSlugs : [];
+    const writtenFiles = regenerateArtifacts(allArticles);
+    const loadErrors = allArticles.loadErrors || [];
+    writeStepSummary({ publishedSlugs, failedSlugs, writtenFiles, loadErrors });
 
-  if (failedSlugs.length > 0) {
-    console.error(`::warning::${failedSlugs.length} article(s) were due but failed to publish -- will retry next run.`);
+    if (failedSlugs.length > 0) {
+      console.error(`::warning::${failedSlugs.length} article(s) were due but failed to publish -- will retry next run.`);
+    }
+    if (loadErrors.length > 0) {
+      console.error(`::error::${loadErrors.length} registry file(s) could not be parsed and were skipped -- fix them, this is not a self-healing condition: ${loadErrors.map(e => e.file).join(', ')}`);
+      process.exitCode = 1;
+    }
+    if (publishError) {
+      console.error(`::error::publishDueArticles failed unexpectedly: ${publishError.message} -- artifacts were still regenerated from current registry state before exiting.`);
+      process.exitCode = 1;
+    }
   }
 }

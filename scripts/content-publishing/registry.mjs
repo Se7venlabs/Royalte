@@ -21,10 +21,29 @@ export const HISTORY_PATH = path.resolve(__dirname, '../../content-registry/hist
 // loadRegistry() -> array of article entries, sorted by slug for
 // deterministic ordering (callers that want publishDate/date ordering sort
 // themselves -- this function makes no assumption about consumer order).
+//
+// A single malformed registry file (invalid JSON -- e.g. a bad hand-edit
+// or a merge that went wrong) is skipped and reported, never allowed to
+// throw and take down the entire publish run for every other article.
+// Real failures are surfaced via the returned `errors` metadata rather
+// than swallowed silently -- callers that only need the article list can
+// ignore it; publish.mjs's CLI entry point logs it loudly.
 export function loadRegistry(dir = REGISTRY_DIR) {
   if (!existsSync(dir)) return [];
   const files = readdirSync(dir).filter(f => f.endsWith('.json')).sort();
-  return files.map(f => JSON.parse(readFileSync(path.join(dir, f), 'utf8')));
+  const articles = [];
+  const errors = [];
+  for (const f of files) {
+    try {
+      articles.push(JSON.parse(readFileSync(path.join(dir, f), 'utf8')));
+    } catch (err) {
+      errors.push({ file: f, error: err.message });
+    }
+  }
+  if (errors.length > 0) {
+    Object.defineProperty(articles, 'loadErrors', { value: errors, enumerable: false });
+  }
+  return articles;
 }
 
 export function loadArticle(slug, dir = REGISTRY_DIR) {

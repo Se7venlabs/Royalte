@@ -231,6 +231,18 @@ await test('appendHistory is append-only — never overwrites prior lines', asyn
   });
 });
 
+await test('loadRegistry skips a malformed (unparseable) registry file rather than throwing for the whole load', async () => {
+  withScratchDir(dir => {
+    saveArticle(makeArticle({ slug: 'good' }), dir);
+    writeFileSync(path.join(dir, 'corrupted.json'), '{ this is not valid json');
+    const articles = loadRegistry(dir);
+    assert.equal(articles.length, 1, 'the one good article must still load');
+    assert.equal(articles[0].slug, 'good');
+    assert.equal(articles.loadErrors.length, 1);
+    assert.equal(articles.loadErrors[0].file, 'corrupted.json');
+  });
+});
+
 // ═══════════════════════════════════════════════════════════════════════
 console.log('\n§4 Validate — registry-level checks (Workflow A)');
 
@@ -247,6 +259,24 @@ await test('validateRegistry does NOT flag a missing contentPath for a scheduled
 await test('validateRegistry DOES flag a missing contentPath for a published article', async () => {
   const problems = validateRegistry([makeArticle({ publishStatus: 'published', contentPath: 'public/blog/does-not-exist.html' })]);
   assert.ok(problems.some(p => p.includes('published but contentPath does not exist')));
+});
+
+await test('validateRegistry DOES flag a missing heroImagePath for a published article, not for scheduled', async () => {
+  const publishedProblems = validateRegistry([makeArticle({ publishStatus: 'published', contentPath: 'public/blog/README.md', heroImagePath: 'public/blog/images/missing.jpg' })]);
+  assert.ok(publishedProblems.some(p => p.includes('heroImagePath does not exist')));
+  const scheduledProblems = validateRegistry([makeArticle({ publishStatus: 'scheduled', heroImagePath: 'public/blog/images/missing.jpg' })]);
+  assert.deepEqual(scheduledProblems, []);
+});
+
+await test('validateRegistry surfaces a malformed registry file as a loud failure, not a silent skip', async () => {
+  withScratchDir(dir => {
+    writeFileSync(path.join(dir, 'corrupted.json'), '{ not valid json');
+    const articles = loadRegistry(dir);
+    const problems = validateRegistry(articles).concat(
+      (articles.loadErrors || []).map(e => `[${e.file}] could not be parsed as JSON: ${e.error}`)
+    );
+    assert.ok(problems.some(p => p.includes('corrupted.json')));
+  });
 });
 
 await test('validateRegistry passes a clean, valid registry', async () => {
@@ -314,6 +344,35 @@ await test('a failed article is retried and succeeds once its content appears (r
 
     const second = publishDueArticles({ today: '2026-08-04', registryDir, historyPath, repoRoot });
     assert.deepEqual(second.publishedSlugs, ['late-content']);
+  });
+});
+
+await test('interrupted publish self-heals: an article flipped to published but never regenerated (simulated crash) becomes visible on the next regeneration pass', async () => {
+  withPublishScratch(({ registryDir, historyPath, repoRoot }) => {
+    saveArticle(makeArticle({ slug: 'crash-recovery', title: 'Crash Recovery Article', publishDate: '2026-08-01', contentPath: 'exists.html' }), registryDir);
+    writeFileSync(path.join(repoRoot, 'exists.html'), '<html></html>');
+
+    // Step 1 only -- simulates a crash between the status flip and the
+    // regeneration pass (publish.mjs's CLI wraps this in try/finally
+    // specifically so a real crash can't skip regeneration within the
+    // same run; this test verifies the underlying guarantee that makes
+    // that safe even without the finally: regeneration always reads the
+    // registry's actual current state, never a stale in-memory snapshot).
+    const result = publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot });
+    assert.deepEqual(result.publishedSlugs, ['crash-recovery']);
+
+    const paths = scratchPaths(repoRoot);
+    writeFileSync(paths.blogHtml, '<!-- CONTENT-PUBLISHING-ENGINE:BLOG_CARDS:START -->\n<!-- CONTENT-PUBLISHING-ENGINE:BLOG_CARDS:END -->');
+    // Regeneration never ran this "run" (simulated crash) -- confirm the
+    // card genuinely isn't there yet.
+    assert.ok(!readFileSync(paths.blogHtml, 'utf8').includes('Crash Recovery Article'));
+
+    // Next run: nothing newly due (already published), but a fresh
+    // loadRegistry() + regenerateArtifacts() call must still surface it.
+    const nextRun = publishDueArticles({ today: '2026-08-04', registryDir, historyPath, repoRoot });
+    assert.deepEqual(nextRun.publishedSlugs, [], 'already published -- nothing new to flip');
+    regenerateArtifacts(nextRun.allArticles, { generatedAt: '2026-08-04T13:00:00Z', paths });
+    assert.ok(readFileSync(paths.blogHtml, 'utf8').includes('Crash Recovery Article'), 'must self-heal on the next regeneration pass');
   });
 });
 

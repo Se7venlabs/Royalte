@@ -31,11 +31,27 @@ name: Scheduled Content Publish
 
 on:
   schedule:
-    - cron: '0 13 * * 2,4' # Tuesday and Thursday, 13:00 UTC (9am ET)
+    # 13:00 UTC year-round -- this is 9am ET during Daylight Time and 8am ET
+    # during Standard Time (GitHub Actions cron does not shift for DST; the
+    # previous scheduler had this identical property at the same UTC hour).
+    - cron: '0 13 * * 2,4' # Tuesday and Thursday, 13:00 UTC
   workflow_dispatch: {} # manual trigger, e.g. to force a run without waiting for the cron
 
 permissions:
   contents: write
+
+# Never run two publish attempts concurrently -- without this, a manual
+# workflow_dispatch overlapping the cron (or two manual triggers close
+# together) could both read the registry, both attempt to flip the same
+# due article, and race to push to main. The Engine's own idempotency
+# means this could never produce duplicate content, but it could produce
+# a rejected (non-fast-forward) push needing a manual retry -- this
+# eliminates that failure mode outright rather than relying on it being
+# merely harmless. `cancel-in-progress: false` queues the second run
+# instead of killing the first mid-write.
+concurrency:
+  group: content-publishing-engine
+  cancel-in-progress: false
 
 jobs:
   scheduled-publish:
