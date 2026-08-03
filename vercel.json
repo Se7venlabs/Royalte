@@ -129,6 +129,10 @@
       "dest": "/api/playbook-actions.js"
     },
     {
+      "src": "/api/opportunity-actions",
+      "dest": "/api/opportunity-actions.js"
+    },
+    {
       "src": "/api/save-profile-info",
       "dest": "/api/save-profile-info.js"
     },
