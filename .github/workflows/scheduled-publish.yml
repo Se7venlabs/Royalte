@@ -67,6 +67,20 @@ name: Scheduled Content Publish
 # registry entries live once their publish date arrives, and regenerates
 # the shared listing surfaces — the only files that were ever conflict-
 # prone under the old mechanism.
+#
+# CONTENT APPROVAL CENTER™ (Phase 1) — an article no longer reaches
+# 'approved' via a hand-edited registry PR. Two new steps run before
+# publish.mjs: sync-approvals.mjs folds any Supabase-recorded executive
+# decision (from an emailed Approve/Reject link, api/content/decide.js)
+# into the registry, then publish.mjs's own due-date loop issues a new
+# approval-request email for any 'pending' article whose publish date has
+# arrived, in addition to its existing job of publishing 'approved' ones.
+# Both need SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY (already used
+# elsewhere in this codebase) and CONTENT_APPROVAL_TOKEN_SECRET (new) as
+# repo secrets, and `npm ci` before either runs, since publish.mjs now
+# transitively depends on `resend` and `@supabase/supabase-js` — it did
+# not need node_modules before this phase. Full design:
+# governance/CONTENT_APPROVAL_CENTER_ARCHITECTURE.md.
 
 on:
   schedule:
@@ -156,7 +170,21 @@ jobs:
         with:
           node-version: '20.x'
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run sync-approvals.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/content-publishing/sync-approvals.mjs
+
       - name: Run publish.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CONTENT_APPROVAL_TOKEN_SECRET: ${{ secrets.CONTENT_APPROVAL_TOKEN_SECRET }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: node scripts/content-publishing/publish.mjs
 
       - name: Open, verify, and merge a self-contained publish PR if anything changed

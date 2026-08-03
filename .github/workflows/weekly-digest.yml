@@ -1,0 +1,38 @@
+name: Weekly Publishing Digest
+
+# Content Approval Center™ — Phase 1, Executive Visibility Rule™. The
+# Board explicitly ruled out a dashboard for this phase (Objective 12/11
+# across directive revisions) -- this replaces it. Read-only: checks out
+# main, reads the registry + Publication History
+# (content-registry/history.jsonl) exactly as scheduled-publish.yml does,
+# and sends one email. No git writes, no PR, no merge, no `contents:
+# write` -- there is nothing here for branch protection to gate.
+
+on:
+  schedule:
+    - cron: '0 13 * * 1' # Monday, 13:00 UTC (9am ET) -- same UTC-hour convention as scheduled-publish.yml
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  weekly-digest:
+    name: Send Weekly Executive Publishing Summary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run weekly-digest.mjs
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: node scripts/content-publishing/weekly-digest.mjs

@@ -84,3 +84,9 @@ Getting `CONTENT_PUBLISHING_PAT` actually working surfaced two more issues, neit
 **Final security validation, re-confirmed after all of the above**: `main-protection`'s ruleset unchanged (`bypass_actors: []`, `enforcement: active`, same 3 rule types); `royalte-content-bot`'s repo role still `write`, not `admin`; no `gh pr review`/`--approve` call anywhere in the workflow; `isEligibleForPublishing()` still hard-gates on `approvalStatus === 'approved'`; `allow_auto_merge` still `false` repo-wide.
 
 See `governance/CONTENT_PUBLISHING_FINAL_CERTIFICATION.md` §8-9 for the full live-verification record, and `governance/CONTENT_PUBLISHING_ROOT_CAUSE_REPORT.md` for the original incident this whole initiative traces back to.
+
+## 7. Content Approval Center™ (Phase 1) — `CONTENT_PUBLISHING_PAT` reused on Vercel too
+
+`api/content/decide.js` (a live Vercel function, not a GitHub Actions workflow) needs to fire a `workflow_dispatch` at `scheduled-publish.yml` immediately after an executive approves or rejects an article (ECR-001 — see `governance/CONTENT_APPROVAL_CENTER_ARCHITECTURE.md` §6). Rather than provisioning a second bot identity, the same `royalte-content-bot` Classic PAT already in the `CONTENT_PUBLISHING_PAT` GitHub Actions secret is added, unchanged, as a Vercel environment variable of the same name — a classic PAT's `repo` scope already covers triggering an Actions workflow, no additional scope needed. Same least-privilege identity, same credential, two platforms.
+
+This is the only new capability that credential is used for on the Vercel side — `api/content/decide.js` never uses it to push, open a PR, or merge anything; all registry writes still happen exclusively inside `scheduled-publish.yml` (§ above, and Content Approval Center architecture §2).

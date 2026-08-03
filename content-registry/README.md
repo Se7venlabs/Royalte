@@ -37,16 +37,17 @@ content-registry/
 }
 ```
 
-`approvalStatus` (`pending`/`approved`) and `publishStatus` (`draft`/`scheduled`/`published`/`archived`) are separate fields — Board sign-off and lifecycle state are different concerns. An article is eligible to publish when `approvalStatus === 'approved' && publishStatus === 'scheduled' && publishDate <= today`. See `scripts/content-publishing/schema.mjs` for the authoritative validation logic.
+`approvalStatus` (`pending` → `awaiting_approval` → `approved` or `needs_revision`) and `publishStatus` (`draft`/`scheduled`/`published`/`archived`) are separate fields — Board sign-off and lifecycle state are different concerns. An article is eligible to publish when `approvalStatus === 'approved' && publishStatus === 'scheduled' && publishDate <= today`. See `scripts/content-publishing/schema.mjs` for the authoritative validation logic.
+
+**`approvalStatus` is no longer hand-edited to reach `"approved"`** (Content Approval Center™, Phase 1 — see `governance/CONTENT_APPROVAL_CENTER_ARCHITECTURE.md`). Once an article's `publishDate` arrives, the Engine itself emails a signed Approve/Reject link to `info@royalte.ai`; clicking it is what flips `approvalStatus`, not a PR. `awaiting_approval` means a link is outstanding; `needs_revision` means it was rejected and publishing is paused until a human resets it back to `pending` as part of landing a revision (same PR flow as step 2 below).
 
 ## How to add a new article
 
 1. Write the article (`public/blog/<slug>.html` or `public/education/<slug>.html`), duplicate from `_template.html` as before. This still merges via a **normal, human-reviewed PR** — nothing about content review changed.
-2. Add `content-registry/articles/<slug>.json` (same PR, or a follow-up — either is fine, they're independent files). Set `approvalStatus: "pending"`, `publishStatus: "draft"` until the Board approves it.
-3. Once the Board approves a publish date, set `approvalStatus: "approved"`, `publishStatus: "scheduled"`, `publishDate: "YYYY-MM-DD"`.
-4. That's it. The next scheduled run (Tuesday/Thursday, 9am ET) picks it up automatically once its date arrives — no merge, no label, no PR-body scheduling block. `.github/workflows/content-validation.yml` (Workflow A) lints the registry on every PR touching `content-registry/**`; `.github/workflows/scheduled-publish.yml` (Workflow B) is the only thing that ever flips `publishStatus` to `published`.
+2. Add `content-registry/articles/<slug>.json` (same PR, or a follow-up — either is fine, they're independent files). Set `approvalStatus: "pending"`, `publishStatus: "scheduled"`, `publishDate: "YYYY-MM-DD"`.
+3. That's it — no manual approval step. Once `publishDate` arrives, the next scheduled run emails an Approve/Reject link to `info@royalte.ai` automatically; approving is what makes it eligible to actually publish, on the same or a later run. `.github/workflows/content-validation.yml` (Workflow A) lints the registry on every PR touching `content-registry/**`; `.github/workflows/scheduled-publish.yml` (Workflow B) is the only thing that ever flips `publishStatus` to `published`, and the only thing that ever flips `approvalStatus` away from `pending`.
 
-A `draft`/`pending` article never appears on any public page, not even as a "coming soon" teaser — only `approved` articles do (whether already `published` or still `scheduled`).
+A `draft`/`pending`/`awaiting_approval`/`needs_revision` article never appears on any public page, not even as a "coming soon" teaser — only `approved` articles do (whether already `published` or still `scheduled`).
 
 ## Generated files — never hand-edit
 
