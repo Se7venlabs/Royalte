@@ -15,7 +15,8 @@ adding a new article.
 1. **Duplicate the template.**
    Copy `/public/blog/_template.html` to `/public/blog/<slug>.html`.
    The slug must be lowercase, hyphen-separated, ASCII-only, and match the
-   `slug` field in `blog-posts.js`.
+   `slug` field in the article's `content-registry/articles/<slug>.json`
+   entry (step 3 below).
 
 2. **Find-and-replace the tokens in the new file.** There are 8:
 
@@ -34,40 +35,51 @@ adding a new article.
    Those are part of the Knowledge Hub voice and stay identical across every
    article.
 
-3. **Prepend an entry to `/public/js/blog-posts.js`.**
-   Order is newest first. The object shape:
+3. **Add `content-registry/articles/<slug>.json`.** This is the single
+   source of truth now — `/public/js/blog-posts.js` and the `.blog-grid`
+   cards on `/public/blog.html` are both **generated from it**, never
+   hand-edited. See `content-registry/README.md` for the full schema. At a
+   minimum:
 
-   ```js
+   ```json
    {
-     title: "…",
-     excerpt: "…",            // 2–3 sentences, used on the landing page
-     category: "Publishing",  // must match a filter pill on /blog.html
-     date: "2026-05-11",
-     readTime: "7 min read",
-     slug: "songtrust-vs-tunecore-publishing",
-     url: "/blog/songtrust-vs-tunecore-publishing.html",
-     status: "live"           // or "coming_soon"
+     "slug": "songtrust-vs-tunecore-publishing",
+     "title": "…",
+     "type": "blog",
+     "category": "Publishing",
+     "excerpt": "…",
+     "author": "Royaltē Editorial",
+     "readTime": "7 min read",
+     "contentPath": "public/blog/songtrust-vs-tunecore-publishing.html",
+     "heroImagePath": null,
+     "approvalStatus": "pending",
+     "publishStatus": "draft",
+     "publishDate": null,
+     "publishedAt": null,
+     "articleVersion": 1,
+     "createdAt": "2026-08-03T00:00:00Z",
+     "lastModified": "2026-08-03T00:00:00Z",
+     "sourcePr": null
    }
    ```
 
-4. **Mirror the entry in `/public/blog.html`.**
-   Add one `<article class="blog-card">` block to the `.blog-grid` section
-   mirroring the new entry. The landing page is intentionally hand-maintained
-   in HTML (not JS-rendered from `blog-posts.js`) so that search bots and AI
-   crawlers without JS execution can still see every article. The two sources
-   must agree — `tests/blog-index-sync-test.mjs` runs inside the `Run pipeline
-   test` CI check and fails the build if any card field (title, excerpt,
-   category, status, date, read time) drifts from the registry. Keep them in
-   sync; the registry is the source of truth.
+   Once the Board approves a publish date, set `approvalStatus: "approved"`,
+   `publishStatus: "scheduled"`, `publishDate: "YYYY-MM-DD"` — see
+   `PUBLISHING_INTELLIGENCE.md`. Do **not** hand-edit `blog.html`'s card grid
+   or `blog-posts.js` directly; the next scheduled run overwrites both from
+   the registry regardless.
 
-5. **Commit and push to `main`.**
+4. **Commit and push the article + registry entry.**
    Suggested commit message format:
-   `feat(blog): publish <slug> — <short title>`.
-   Pushing a change to `blog-posts.js` auto-fires the IndexNow workflow
-   (`.github/workflows/indexnow-notify.yml`), which submits the new article
-   URL to Bing, Yandex, and other participating search engines.
+   `feat(blog): add <slug> — <short title>`. This alone does not publish
+   anything — the article stays invisible until the Content Publishing
+   Engine™ flips it live on its scheduled Tuesday/Thursday run. Pushing a
+   change to `blog-posts.js` (which only the Engine itself ever produces)
+   auto-fires the IndexNow workflow (`.github/workflows/indexnow-notify.yml`),
+   which submits newly-live URLs to Bing, Yandex, and other participating
+   search engines.
 
-6. **Verify on production after the Vercel deploy.**
+5. **Verify on production after the next scheduled publish run and Vercel deploy.**
    - Article URL renders.
    - It appears as a card on `/blog.html`.
    - The related-articles strip on the new article shows other articles
@@ -78,16 +90,18 @@ adding a new article.
 
 ## Cadence
 
-- **3 articles per week — Monday, Wednesday, Friday.** Superseded the prior
-  2×/week (Mon/Thu) cadence per Board directive, 2026-07-23. All future
-  Education Library planning should assume Mon/Wed/Fri unless otherwise
+- **2 articles per week — Tuesday, Thursday, 9am ET.** Superseded the prior
+  3×/week (Mon/Wed/Fri) cadence per the Content Publishing Engine™ (Phase 2)
+  directive, 2026-08-03 — see `PUBLISHING_INTELLIGENCE.md` and
+  `governance/CONTENT_PUBLISHING_ROOT_CAUSE_REPORT.md`. All future
+  Education Library planning should assume Tue/Thu unless otherwise
   directed.
 - **90-day initial run.** ~26 articles target.
 - The schedule is what makes the SEO/AI-search compounding effect work. Hold
   the cadence even on weeks where it's tempting to skip.
-- As of Publishing Batch #001, release dates are enforced by the
-  scheduled-merge automation (see `PUBLISHING_INTELLIGENCE.md`), not by
-  manually merging on the day.
+- Release dates are enforced by the Content Publishing Engine™'s Autonomous
+  Publishing Engine (see `PUBLISHING_INTELLIGENCE.md`), driven by
+  `content-registry/articles/*.json`, not by manually merging on the day.
 
 ---
 
@@ -104,9 +118,10 @@ This sequence is strategically designed to build topical authority, emotional pr
 
 ### Locked Article Order
 
-`public/js/blog-posts.js` is the canonical source of truth for article order
-and metadata. This section is a human-readable summary — if the two disagree,
-the registry wins.
+`content-registry/articles/*.json` is the canonical source of truth for
+article order and metadata (`public/js/blog-posts.js` is generated from it,
+not authored separately). This section is a human-readable summary — if the
+two disagree, the registry wins.
 
 **Live (5):**
 
@@ -269,17 +284,22 @@ pills on `/blog.html`. If you need a new category, add the pill there first.
 
 These are deferred follow-ups, not blockers for the launch:
 
-- **`/sitemap.xml`** — done. Live and manually maintained at
-  `public/sitemap.xml`, listing `/`, `/blog.html`, and every live article URL
-  with `<lastmod>`. Completed May 2026 (Part 3 added its own entry; PR #31
-  backfilled the two earlier articles that had been missed). Upkeep is manual:
-  add a `<url>` block when publishing a new article.
+- **`/sitemap.xml`** — done, and as of the Content Publishing Engine™ (Phase
+  2), the article-URL section (marked by
+  `<!-- CONTENT-PUBLISHING-ENGINE:SITEMAP_URLS:START/END -->`) is generated
+  automatically on every publish run, not manually maintained. The
+  non-article URLs (`/`, `/blog.html`, marketing pages) outside that marker
+  region remain hand-maintained.
 - **Filter-pill JS.** The pills on `/blog.html` are currently visual only.
   Once the article count grows past ~10, wire the filter to show/hide cards
   client-side based on `data-cat`.
-- **JS-rendering of the landing-page grid** is **explicitly out of scope.**
-  The grid is hand-maintained in `/blog.html` for crawler/AI-search visibility
-  and that decision is durable — do not "DRY it up" against `blog-posts.js`.
+- **Client-side JS-rendering of the landing-page grid** is **explicitly out
+  of scope**, unchanged. The grid is static HTML for crawler/AI-search
+  visibility — as of Phase 2 a script (`scripts/content-publishing/publish.mjs`)
+  writes that static HTML from the registry at publish time instead of a
+  person typing it, but it is never rendered client-side from
+  `blog-posts.js` at runtime. Do not "DRY it up" into a client-side render.
 - **Author bylines** — currently every article is published as Royaltē
-  editorial. Add an `author` field to `blog-posts.js` and a byline block to
-  `_template.html` when there's a real author to credit.
+  editorial. `content-registry/articles/<slug>.json` already carries a real
+  `author` field on every entry; wire a byline block into `_template.html`
+  when there's a real named author to credit.

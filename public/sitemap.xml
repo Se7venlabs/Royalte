@@ -12,6 +12,11 @@
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+  <!-- Blog/education article URLs below are generated at publish time by
+       the Content Publishing Engine™ (scripts/content-publishing/publish.mjs)
+       from content-registry/articles/*.json -- never hand-edited. Marketing/
+       product page URLs above and below this region remain hand-maintained. -->
+<!-- CONTENT-PUBLISHING-ENGINE:SITEMAP_URLS:START -->
   <url>
     <loc>https://royalte.ai/blog/music-industry-runs-on-data.html</loc>
     <lastmod>2026-07-24</lastmod>
@@ -25,8 +30,14 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://royalte.ai/blog/your-backend-might-be-broken.html</loc>
-    <lastmod>2026-05-11</lastmod>
+    <loc>https://royalte.ai/blog/music-licensing-types-explained.html</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://royalte.ai/blog/the-backend-infrastructure-powering-modern-music.html</loc>
+    <lastmod>2026-05-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -37,17 +48,24 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://royalte.ai/blog/suno-ai-release-risks.html</loc>
-    <lastmod>2026-05-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://royalte.ai/blog/why-your-spotify-streams-dont-match-your-money.html</loc>
     <lastmod>2026-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://royalte.ai/blog/suno-ai-release-risks.html</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://royalte.ai/blog/your-backend-might-be-broken.html</loc>
+    <lastmod>2026-05-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- CONTENT-PUBLISHING-ENGINE:SITEMAP_URLS:END -->
   <url>
     <loc>https://royalte.ai/audit.html</loc>
     <lastmod>2026-05-12</lastmod>

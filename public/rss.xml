@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Royaltē Knowledge Hub</title>
+    <link>https://royalte.ai/blog.html</link>
+    <description>Music royalty, publishing, and rights education from Royaltē.</description>
+    <lastBuildDate>Mon, 03 Aug 2026 16:24:13 GMT</lastBuildDate>
+    <item>
+      <title>The Music Industry Runs on Data—Not Just Songs</title>
+      <link>https://royalte.ai/blog/music-industry-runs-on-data.html</link>
+      <guid>https://royalte.ai/blog/music-industry-runs-on-data.html</guid>
+      <description>Great music alone isn't enough anymore. Learn why the modern music industry runs on data—and how accurate information protects your royalties.</description>
+      <pubDate>Fri, 24 Jul 2026 13:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>AI Didn't Kill Music—It Changed the Rules</title>
+      <link>https://royalte.ai/blog/ai-didnt-kill-music-it-changed-the-rules.html</link>
+      <guid>https://royalte.ai/blog/ai-didnt-kill-music-it-changed-the-rules.html</guid>
+      <description>Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.</description>
+      <pubDate>Thu, 23 Jul 2026 13:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Sync License vs Sample vs Beat License vs Cover Song vs Interpolation vs Parody: What's the Difference?</title>
+      <link>https://royalte.ai/blog/music-licensing-types-explained.html</link>
+      <guid>https://royalte.ai/blog/music-licensing-types-explained.html</guid>
+      <description>A practical breakdown of six music licensing types — sync licenses, samples, beat licenses, cover songs, interpolations, and parody — including which copyrights are involved and what permissions artists need.</description>
+      <pubDate>Tue, 23 Jun 2026 13:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>The Backend Infrastructure Powering Modern Music</title>
+      <link>https://royalte.ai/blog/the-backend-infrastructure-powering-modern-music.html</link>
+      <guid>https://royalte.ai/blog/the-backend-infrastructure-powering-modern-music.html</guid>
+      <description>The systems behind every stream, sync, and royalty payment — and why independent artists need to understand them.</description>
+      <pubDate>Sat, 16 May 2026 13:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>The Silent Money Leaks Killing Independent Artists</title>
+      <link>https://royalte.ai/blog/silent-money-leaks-killing-independent-artists.html</link>
+      <guid>https://royalte.ai/blog/silent-money-leaks-killing-independent-artists.html</guid>
+      <description>AI didn't break music's backend — it exposed how broken it already was. The metadata, publishing, and royalty leaks most artists never see.</description>
+      <pubDate>Fri, 15 May 2026 13:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Why Your Spotify Streams Don't Match Your Money</title>
+      <link>https://royalte.ai/blog/why-your-spotify-streams-dont-match-your-money.html</link>
+      <guid>https://royalte.ai/blog/why-your-spotify-streams-dont-match-your-money.html</guid>
+      <description>The reason Spotify stream counts and royalty payouts often don’t align — and the backend systems most artists never see.</description>
+      <pubDate>Fri, 15 May 2026 13:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Using Suno AI? Read This Before Releasing Anything.</title>
+      <link>https://royalte.ai/blog/suno-ai-release-risks.html</link>
+      <guid>https://royalte.ai/blog/suno-ai-release-risks.html</guid>
+      <description>The ownership, royalty, distribution, and copyright risks artists need to understand before commercially releasing AI-generated music.</description>
+      <pubDate>Thu, 14 May 2026 13:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Your Music Isn't The Problem. Your Backend Might Be Broken.</title>
+      <link>https://royalte.ai/blog/your-backend-might-be-broken.html</link>
+      <guid>https://royalte.ai/blog/your-backend-might-be-broken.html</guid>
+      <description>Streaming numbers look healthy but royalty payouts don't always match. This article breaks down how multiple royalty layers, fragmented backend systems, and incomplete metadata can quietly delay or misroute revenue — and what artists can do to spot it.</description>
+      <pubDate>Mon, 11 May 2026 13:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
