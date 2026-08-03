@@ -71,4 +71,16 @@ With `can_approve_pull_request_reviews` enabled, a live `workflow_dispatch` run 
 - ✅ Engine cannot publish unapproved content — `isEligibleForPublishing()` requires `approvalStatus === 'approved'`, set only via a human-reviewed registry PR (§2).
 - ✅ Engine operates entirely within repository governance — same ruleset, same required check, same absence of a bypass carve-out as every other contributor.
 
-See `governance/CONTENT_PUBLISHING_FINAL_CERTIFICATION.md` §8-9 for the full live-verification record (three runs: two blocked, findings documented; the third against this PAT design), and `governance/CONTENT_PUBLISHING_ROOT_CAUSE_REPORT.md` for the original incident this whole initiative traces back to.
+## 6. Two operational findings on the way to a working PAT, and the final passing run
+
+Getting `CONTENT_PUBLISHING_PAT` actually working surfaced two more issues, neither architectural:
+
+**Secret never actually saved.** Two successive "update secret" attempts left the repo secret's `updated_at` identical to its original `created_at` (checked via `gh api repos/Se7venlabs/Royalte/actions/secrets/CONTENT_PUBLISHING_PAT`) — the value in GitHub's secret store hadn't changed, which explained a `git push` 403 (stale fine-grained PAT, read-only) followed by a harder `could not read Username` failure once that original token was separately revoked. Resolved once the secret was updated via a path that visibly succeeded; `updated_at` moving is now the standing way to confirm a secret edit actually took effect before spending a live run on it.
+
+**Check-runs race.** With the PAT actually live, PR #460 went further than any prior attempt — auth, branch, commit, push, and `gh pr create` all succeeded, and `Run pipeline test` / `Validate content registry` both passed for real. But the workflow had already failed: `gh pr checks --watch --fail-fast`, called immediately after `gh pr create`, polls once and errors with "no checks reported" if GitHub hasn't attached any check suite yet — a startup race, not a real failure. PR #460 was completed with a one-off manual `gh pr merge` once its checks had landed on their own. **Fixed** in a follow-up commit: the workflow now polls `commits/{sha}/check-runs` for at least one check to exist (bounded, 60s) before handing off to `--watch`.
+
+**Run `30855809849`** (`workflow_dispatch` against `main`, post-fix): fully unattended, no manual step. `publish.mjs` found the 4 already-scheduled articles still blocked on their own unmerged content PRs (correctly retried and logged, not published), regenerated `rss.xml`/`search-index.json`, opened PR #462, waited out the check-runs race correctly, watched `Run pipeline test` and `Validate content registry` both pass, and merged — `mergedBy: royalte-content-bot`. This is the Board's original success criterion satisfied for real: registry → PR → required checks → merge → deploy, zero human steps.
+
+**Final security validation, re-confirmed after all of the above**: `main-protection`'s ruleset unchanged (`bypass_actors: []`, `enforcement: active`, same 3 rule types); `royalte-content-bot`'s repo role still `write`, not `admin`; no `gh pr review`/`--approve` call anywhere in the workflow; `isEligibleForPublishing()` still hard-gates on `approvalStatus === 'approved'`; `allow_auto_merge` still `false` repo-wide.
+
+See `governance/CONTENT_PUBLISHING_FINAL_CERTIFICATION.md` §8-9 for the full live-verification record, and `governance/CONTENT_PUBLISHING_ROOT_CAUSE_REPORT.md` for the original incident this whole initiative traces back to.
