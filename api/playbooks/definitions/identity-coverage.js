@@ -29,6 +29,15 @@ function evidenceConfidence(rawInputs) {
   return 'LOW';
 }
 
+// ATHENA Explanation Support™ (Executive Change Request 8).
+function explainRecommendation(rawInputs) {
+  const c = coverage(rawInputs);
+  const identity = rawInputs?.identity || {};
+  if (c === null) return 'Royaltē could not confirm your Identity Coverage™ from reviewed sources.';
+  const gap = (identity.totalProviders || 0) - (identity.verifiedProviders || 0);
+  return `Royaltē confirmed ${identity.verifiedProviders || 0} of ${identity.totalProviders || 0} providers verified (${Math.round(c)}% coverage). ${gap} unclaimed or unverified provider profile(s) reduce Royaltē's confidence that you are the confirmed rights holder for this catalog, which can affect royalty routing and discoverability.`;
+}
+
 const DEFINITION = Object.freeze({
   playbookId: PLAYBOOK_ID,
   playbookVersion: '1.0',
@@ -40,6 +49,8 @@ const DEFINITION = Object.freeze({
     difficulty: 'LOW',
     estimatedMinutes: 20,
     estimatedRevenueImpact: 'LOW',
+    businessImpact: 'MEDIUM',
+    priority: 'MEDIUM',
   }),
   prerequisites: Object.freeze(['Access to the email/phone used for your artist accounts on each platform']),
   requiredDocumentation: Object.freeze([]),
@@ -51,14 +62,18 @@ const DEFINITION = Object.freeze({
     Object.freeze({ stepId: 'IDC-004', stepNumber: 4, title: 'Confirm on your next scan', instructions: 'Run a new scan to confirm improved provider coverage.', resources: Object.freeze([]) }),
   ]),
   helpfulResources: Object.freeze([]),
-  completionVerification: 'Artist confirms provider profiles were claimed. A future scan independently re-verifies coverage via the same identity providers — this playbook\'s completion is self-report, not automated re-verification.',
+  completionVerification: 'Artist confirms provider profiles were claimed. Entering Waiting Verification™ -- only a future real scan showing improved coverage independently confirms the underlying issue is resolved (Evidence First™); artist self-report alone never marks this playbook Verified.',
   isEligible,
   evidenceConfidence,
+  explainRecommendation,
 });
 
 registerPlaybook({
   playbookId: PLAYBOOK_ID,
   playbookVersion: DEFINITION.playbookVersion,
   definitionSchema: DEFINITION.definitionSchema,
+  domain: 'Identity',
+  owner: 'Royaltē Identity Intelligence™',
+  introducedInPhase: '4A',
   load: () => DEFINITION,
 });

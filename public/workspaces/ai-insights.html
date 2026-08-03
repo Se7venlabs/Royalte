@@ -1989,13 +1989,13 @@ document.getElementById('ai-action-detail-overlay').addEventListener('click', fu
 
   var authHeaders = { 'Authorization': 'Bearer ' + accessToken };
 
-  function workspaceContext() {
-    try {
-      var raw = sessionStorage.getItem('royalte_workspace_context');
-      return raw ? JSON.parse(raw) : {};
-    } catch (e) { return {}; }
-  }
-
+  // Executive Change Request 1 -- eligibility is never decided from
+  // sessionStorage. The old workspaceContext() reader was removed outright
+  // (not just unused) -- every real decision (checkEligibility/start/verify)
+  // is recomputed server-side from the artist's actual latest scan
+  // (api/playbook-actions.js's buildCanonicalRawInputs()), so this page has
+  // no remaining reason to read or send a client-side context for those
+  // calls.
   function postAction(body) {
     return fetch('/api/playbook-actions', {
       method: 'POST',
@@ -2004,16 +2004,50 @@ document.getElementById('ai-action-detail-overlay').addEventListener('click', fu
     }).then(function (r) { return r.json(); });
   }
 
-  function renderActiveCard(item) {
+  var STATUS_LABELS = {
+    recommended: 'Recommended', started: 'Started', in_progress: 'In Progress',
+    waiting_verification: 'Waiting Verification', verified: 'Verified', completed: 'Completed',
+  };
+
+  function renderItemCard(item) {
     var pct = item.progressPercentage || 0;
     var steps = item.steps || [];
-    // The step immediately after current_step_id in the definition's own
-    // ordering -- null current_step_id means no step has been completed
-    // yet, so the next step is simply the first one. Always a real stepId
-    // from the Playbook Registry's own step list, never a guessed string.
     var currentIndex = item.current_step_id ? steps.findIndex(function (s) { return s.stepId === item.current_step_id; }) : -1;
     var nextStep = steps[currentIndex + 1] || null;
+    var statusLabel = STATUS_LABELS[item.status] || item.status;
 
+    var headerHtml = '<div class="ai-playbook-active-title">' + esc(item.actionNumberDisplay || '') + ' — ' + esc(item.playbook_id) + ' — ' + esc(statusLabel) + '</div>';
+
+    // Recommended, not yet started -- a real, persisted row (Executive
+    // Change Request 10), rendered like an eligible card with a Start action.
+    if (item.status === 'recommended') {
+      var confidenceBadge = '<span class="ai-playbook-confidence-badge ai-playbook-confidence-badge--' + esc(item.evidence_confidence || 'INSUFFICIENT_DATA') + '">' + esc(item.evidence_confidence || 'INSUFFICIENT_DATA') + ' confidence</span>';
+      return '<div class="ai-playbook-active-card">' + headerHtml
+        + '<div class="ai-playbook-card-meta">' + confidenceBadge + '</div>'
+        + '<button type="button" class="ai-playbook-start-btn" data-playbook-start="' + esc(item.playbook_id) + '">Start Playbook</button>'
+        + '</div>';
+    }
+
+    // Waiting Verification -- Evidence First™: an artist's own confirmation
+    // is never presented as done. Only a real re-check against fresh
+    // canonical evidence (the "Check Verification" action) can move this
+    // forward -- see api/_lib/playbook-action-store.js's verifyPlaybook().
+    if (item.status === 'waiting_verification') {
+      return '<div class="ai-playbook-active-card">' + headerHtml
+        + '<div class="ai-playbook-progress-label">Completed by artist. Awaiting independent verification against your next reviewed evidence.</div>'
+        + '<div class="ai-playbook-actions-row"><button type="button" class="ai-playbook-complete-btn" data-playbook-verify="' + esc(item.id) + '">Check Verification Status</button></div>'
+        + '</div>';
+    }
+
+    if (item.status === 'completed' || item.status === 'verified') {
+      return '<div class="ai-playbook-active-card">' + headerHtml
+        + '<div class="ai-playbook-progress-track"><div class="ai-playbook-progress-fill" style="width:100%;"></div></div>'
+        + '<div class="ai-playbook-progress-label">Independently verified against reviewed evidence.</div>'
+        + '<div class="ai-playbook-actions-row"><button type="button" class="ai-playbook-archive-btn" data-playbook-archive="' + esc(item.id) + '">Archive</button></div>'
+        + '</div>';
+    }
+
+    // started / in_progress -- real step checklist.
     var stepsHtml = '<div class="ai-playbook-steps">';
     steps.forEach(function (s, i) {
       var isDone = i <= currentIndex;
@@ -2021,52 +2055,31 @@ document.getElementById('ai-action-detail-overlay').addEventListener('click', fu
         + '<span>' + esc(s.stepNumber) + '. ' + esc(s.title) + '</span>'
         + (isDone ? '<span>✓</span>' : '') + '</div>';
     });
-    if (nextStep && item.status !== 'completed') {
+    if (nextStep) {
       stepsHtml += '<button type="button" class="ai-playbook-step-btn" data-playbook-advance="' + esc(item.id) + '" data-next-step="' + esc(nextStep.stepId) + '">Mark "' + esc(nextStep.title) + '" complete</button>';
     }
     stepsHtml += '</div>';
 
     var actionsHtml = '';
-    if (item.status === 'in_progress' && pct >= 100) {
+    if (pct >= 100) {
       actionsHtml = '<div class="ai-playbook-actions-row"><button type="button" class="ai-playbook-complete-btn" data-playbook-complete="' + esc(item.id) + '">Mark Playbook Complete</button></div>';
-    } else if (item.status === 'completed') {
-      actionsHtml = '<div class="ai-playbook-actions-row"><button type="button" class="ai-playbook-archive-btn" data-playbook-archive="' + esc(item.id) + '">Archive</button></div>';
     }
-    return '<div class="ai-playbook-active-card">'
-      + '<div class="ai-playbook-active-title">' + esc(item.playbook_id) + ' — ' + esc(item.status) + '</div>'
+    return '<div class="ai-playbook-active-card">' + headerHtml
       + '<div class="ai-playbook-progress-track"><div class="ai-playbook-progress-fill" style="width:' + pct + '%;"></div></div>'
       + '<div class="ai-playbook-progress-label">' + item.completed_steps + ' / ' + item.total_steps + ' steps complete (' + pct + '%)</div>'
       + stepsHtml + actionsHtml
       + '</div>';
   }
 
-  function renderEligibleCard(def) {
-    return '<div class="ai-playbook-card">'
-      + '<div class="ai-playbook-card-title">' + esc(def.title) + '</div>'
-      + '<div class="ai-playbook-card-summary">' + esc(def.executiveSummary) + '</div>'
-      + '<div class="ai-playbook-card-meta">'
-      + '<span class="ai-playbook-confidence-badge ai-playbook-confidence-badge--' + esc(def.evidenceConfidence) + '">' + esc(def.evidenceConfidence) + ' confidence</span>'
-      + '</div>'
-      + '<button type="button" class="ai-playbook-start-btn" data-playbook-start="' + esc(def.playbookId) + '">Start Playbook</button>'
-      + '</div>';
-  }
-
   function load() {
-    var listPromise = fetch('/api/playbook-actions', { headers: authHeaders }).then(function (r) { return r.json(); });
-    var eligiblePromise = postAction({ action: 'checkEligibility', workspaceContext: workspaceContext() });
-
-    return Promise.all([listPromise, eligiblePromise]).then(function (results) {
-      var listRes = results[0], eligibleRes = results[1];
-      var items = (listRes && listRes.items) || [];
-      var active = items.filter(function (i) { return i.status !== 'archived'; });
-      var eligible = (eligibleRes && eligibleRes.eligible) || [];
-
-      activeListEl.innerHTML = active.length
-        ? active.map(renderActiveCard).join('')
+    return postAction({ action: 'checkEligibility' }).then(function (res) {
+      var items = (res && res.items) || [];
+      activeListEl.innerHTML = items.length
+        ? items.map(renderItemCard).join('')
         : '';
-      gridEl.innerHTML = eligible.length
-        ? eligible.map(renderEligibleCard).join('')
-        : '<div class="ai-intel-empty"><div class="ai-intel-empty-body"><div class="ai-intel-empty-title">No eligible Playbooks right now</div><div class="ai-intel-empty-desc">Royaltē will surface a Playbook here as soon as real evidence supports one.</div></div></div>';
+      gridEl.innerHTML = items.length
+        ? ''
+        : '<div class="ai-intel-empty"><div class="ai-intel-empty-body"><div class="ai-intel-empty-title">No Playbooks right now</div><div class="ai-intel-empty-desc">Royaltē will surface a Playbook here as soon as real evidence supports one.</div></div></div>';
     });
   }
 
@@ -2074,15 +2087,18 @@ document.getElementById('ai-action-detail-overlay').addEventListener('click', fu
     var startId = e.target.getAttribute && e.target.getAttribute('data-playbook-start');
     var advanceId = e.target.getAttribute && e.target.getAttribute('data-playbook-advance');
     var completeId = e.target.getAttribute && e.target.getAttribute('data-playbook-complete');
+    var verifyId = e.target.getAttribute && e.target.getAttribute('data-playbook-verify');
     var archiveId = e.target.getAttribute && e.target.getAttribute('data-playbook-archive');
 
     if (startId) {
-      postAction({ action: 'start', playbookId: startId, workspaceContext: workspaceContext() }).then(load);
+      postAction({ action: 'start', playbookId: startId }).then(load);
     } else if (advanceId) {
       var nextStep = e.target.getAttribute('data-next-step');
       postAction({ action: 'advance', actionId: advanceId, stepId: nextStep }).then(load);
     } else if (completeId) {
       postAction({ action: 'complete', actionId: completeId }).then(load);
+    } else if (verifyId) {
+      postAction({ action: 'verify', actionId: verifyId }).then(load);
     } else if (archiveId) {
       postAction({ action: 'archive', actionId: archiveId }).then(load);
     }

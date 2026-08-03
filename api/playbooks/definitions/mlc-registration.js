@@ -10,7 +10,10 @@
 // UNABLE_TO_CONFIRM is deliberately treated as NOT eligible, matching
 // publishing-intelligence.js's own stated principle: "we do not know --
 // say nothing executive about it." Only a real, confirmed gap
-// (ACTION_REQUIRED / NOT_FOUND) makes this playbook eligible.
+// (ACTION_REQUIRED / NOT_FOUND) makes this playbook eligible. The same
+// distinction now also drives verifyPlaybook() (Executive Change Request 3):
+// re-evaluating isEligible() against fresh evidence is how Royaltē detects
+// the underlying issue is actually resolved, never a self-report alone.
 
 import { registerPlaybook } from '../registry.js';
 
@@ -32,6 +35,20 @@ function evidenceConfidence(rawInputs) {
   return 'INSUFFICIENT_DATA';
 }
 
+// ATHENA Explanation Support™ (Executive Change Request 8) -- ATHENA never
+// generates this from scratch; it lives in the Playbook Definition, the
+// same canonical owner as everything else about this playbook.
+function explainRecommendation(rawInputs) {
+  const state = mlcState(rawInputs);
+  if (state === 'NOT_FOUND') {
+    return 'Royaltē could not find an active registration with The MLC. Because mechanical royalties generated in the United States require registration with The MLC, this Playbook has been recommended to help recover potential unpaid royalties.';
+  }
+  if (state === 'ACTION_REQUIRED') {
+    return 'Royaltē detected an MLC registration in progress that needs further action to complete. This Playbook walks through what remains.';
+  }
+  return 'Royaltē could not confirm MLC registration status from reviewed sources.';
+}
+
 const DEFINITION = Object.freeze({
   playbookId: PLAYBOOK_ID,
   playbookVersion: '1.0',
@@ -39,10 +56,15 @@ const DEFINITION = Object.freeze({
   title: 'Register with The MLC',
   executiveSummary: 'Register your musical works with The Mechanical Licensing Collective (The MLC) to become eligible for U.S. mechanical royalties from streaming services.',
   whyItMatters: 'Without an MLC registration, mechanical royalties owed on U.S. streams may go unclaimed. The MLC is the sole administrator of the U.S. blanket mechanical license created by the Music Modernization Act.',
+  // Executive Opportunity Metadata (Executive Change Request 5) -- direct
+  // inputs for the future Executive Opportunity Engine™ (Phase 4B). No
+  // ranking logic here, only the metadata itself.
   metrics: Object.freeze({
     difficulty: 'MEDIUM',
     estimatedMinutes: 30,
     estimatedRevenueImpact: 'MEDIUM',
+    businessImpact: 'HIGH',
+    priority: 'HIGH',
   }),
   prerequisites: Object.freeze(['A list of your musical works (titles, writers, ISWC/ISRC where available)', 'Publisher information, if applicable']),
   requiredDocumentation: Object.freeze(['Work titles and writer credits', 'ISRC or ISWC identifiers for each work, where known']),
@@ -54,14 +76,18 @@ const DEFINITION = Object.freeze({
     Object.freeze({ stepId: 'MLC-004', stepNumber: 4, title: 'Confirm registration status', instructions: 'Review your MLC dashboard to confirm each work shows as registered, and monitor for royalty statements.', resources: Object.freeze([]) }),
   ]),
   helpfulResources: Object.freeze(['https://www.themlc.com/resources']),
-  completionVerification: 'Artist confirms each listed work shows a registered status in the MLC portal. A future scan independently re-verifies via the same MLC evidence source — this playbook\'s completion is self-report, not automated re-verification.',
+  completionVerification: 'Artist confirms each listed work shows a registered status in the MLC portal. Entering Waiting Verification™ -- only a future real scan showing mlcRegistration: VERIFIED independently confirms the underlying issue is resolved (Evidence First™); artist self-report alone never marks this playbook Verified.',
   isEligible,
   evidenceConfidence,
+  explainRecommendation,
 });
 
 registerPlaybook({
   playbookId: PLAYBOOK_ID,
   playbookVersion: DEFINITION.playbookVersion,
   definitionSchema: DEFINITION.definitionSchema,
+  domain: 'Publishing',
+  owner: 'Royaltē Publishing Intelligence™',
+  introducedInPhase: '4A',
   load: () => DEFINITION,
 });
