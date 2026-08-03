@@ -189,6 +189,39 @@ jobs:
           git commit -m "chore(content-publishing): scheduled publish run"
           git push origin "$BRANCH"
 
+          PR_URL=$(gh pr create --title "chore(content-publishing): scheduled publish run" \
+            --body "Automated, self-contained publish run from the Content Publishing Engine™. Touches only Engine-owned generated files -- see content-registry/README.md." \
+            --base main --head "$BRANCH")
+          PR_NUMBER=$(basename "$PR_URL")
+          echo "Opened PR #$PR_NUMBER: $PR_URL"
+
+          # `gh pr checks --watch` errors out immediately -- "no checks
+          # reported" -- if zero checks exist at its very first poll,
+          # rather than waiting for GitHub to attach any. GitHub takes a
+          # few seconds after a PR is opened to trigger and register the
+          # pull_request-triggered check suites (Run pipeline test,
+          # Validate content registry) on the new commit, so calling
+          # --watch right after `gh pr create` loses this race every time
+          # -- confirmed live (PR #460: every check existed and had
+          # already passed by the time anyone looked, but this step had
+          # failed one second after the PR opened). Poll the commit
+          # itself, not `gh pr checks` (which has the identical "no
+          # checks yet" error baked into its own non-watch mode too) for
+          # at least one check run to exist, bounded, before handing off
+          # to --watch for the real wait-for-completion.
+          HEAD_SHA=$(git rev-parse HEAD)
+          ATTEMPTS=0
+          while true; do
+            COUNT=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs" -q '.total_count')
+            [ "$COUNT" -gt 0 ] && break
+            ATTEMPTS=$((ATTEMPTS + 1))
+            if [ "$ATTEMPTS" -ge 12 ]; then
+              echo "::error::No check runs appeared on commit ${HEAD_SHA} (PR #$PR_NUMBER) after 60s -- not just the startup race, something upstream is actually broken (workflow trigger failure or GitHub outage)."
+              exit 1
+            fi
+            sleep 5
+          done
+
           # This PR is always freshly branched from main immediately before
           # this step and touches only files this Engine exclusively owns --
           # there is nothing for it to conflict with. `gh pr checks --watch`
@@ -202,11 +235,5 @@ jobs:
           # red check just because it wasn't the one that was required.
           # Merging only proceeds if every check is green -- this
           # automation gets no bypass, same as every other merge here.
-          PR_URL=$(gh pr create --title "chore(content-publishing): scheduled publish run" \
-            --body "Automated, self-contained publish run from the Content Publishing Engine™. Touches only Engine-owned generated files -- see content-registry/README.md." \
-            --base main --head "$BRANCH")
-          PR_NUMBER=$(basename "$PR_URL")
-          echo "Opened PR #$PR_NUMBER: $PR_URL"
-
           gh pr checks "$PR_NUMBER" --watch --fail-fast
           gh pr merge "$PR_NUMBER" --rebase --delete-branch
