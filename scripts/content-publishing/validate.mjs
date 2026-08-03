@@ -66,6 +66,13 @@ export { isValidSlug };
 if (import.meta.url === `file://${process.argv[1]}`) {
   const articles = loadRegistry();
   const problems = validateRegistry(articles);
+  // loadRegistry() skips unparseable files rather than throwing (so a bad
+  // file never takes down publish.mjs for every other article), but a PR
+  // introducing one must still fail this check loudly -- Workflow A is
+  // exactly where a malformed registry file should be caught.
+  for (const err of articles.loadErrors || []) {
+    problems.push(`[${err.file}] could not be parsed as JSON: ${err.error}`);
+  }
 
   if (problems.length === 0) {
     console.log(`✅ Content registry valid — ${articles.length} article(s) checked.`);
