@@ -2,24 +2,32 @@ name: Scheduled Content Publish
 
 # Content Publishing Engine™ — Layer 3, Autonomous Publishing Engine.
 #
-# State-driven, not merge-driven: this workflow never opens a PR, never
-# merges a branch, never rebases or cherry-picks anything. It runs
+# State-driven, not merge-driven: this workflow never merges N
+# independently-authored branches into the same shared insertion point --
+# that was the actual root cause of the old scheduler's failure (see
+# governance/CONTENT_PUBLISHING_ROOT_CAUSE_REPORT.md). It runs
 # scripts/content-publishing/publish.mjs against content-registry/articles/*.json
 # (the single source of truth for what's approved and when it's due), and
 # if anything changed, commits the regenerated derived artifacts (blog.html
 # card region, blog-posts.js, sitemap.xml's article section, rss.xml,
-# search-index.json) directly to `main` with a single linear push.
+# search-index.json) to a fresh, single-purpose branch, opens a PR, waits
+# for the required `Run pipeline test` check, and merges it itself.
 #
-# This replaces the previous PR-merge-based scheduler (removed outright,
-# not kept as a fallback) after that mechanism became permanently stuck:
-# every scheduled content PR shared the same insertion point in blog.html/
-# blog-posts.js/sitemap.xml, so once any two of them diverged from a common
-# base, every subsequent merge attempt failed with a real git conflict —
-# see governance/CONTENT_PUBLISHING_ROOT_CAUSE_REPORT.md for the full
-# incident writeup. Registry-driven generation makes that class of
-# conflict structurally impossible: every run is a full regeneration from
-# the current registry state, never an incremental patch racing against
-# other patches.
+# This PR can never conflict the way the old scheduler's PRs did: it is
+# always branched fresh from current `main` immediately before running, it
+# is the ONLY writer of the files it touches, and it contains a full
+# regeneration (never an incremental patch), so there is nothing for a
+# second branch to have diverged from. This is a deliberate correction
+# from this feature's original design (a direct `git push` to `main`),
+# found via live production verification of PR #454's certification: `main`'s
+# branch protection ruleset enforces the required status check even against
+# direct pushes (`current_user_can_bypass: never`), which a direct push has
+# no way to satisfy, since a check only ever attaches to a commit that has
+# already been pushed. Going through a real (but always conflict-free) PR
+# is the correct way to satisfy that same protection this automation is not,
+# and should not be, exempt from -- see
+# governance/CONTENT_PUBLISHING_EXECUTIVE_ACCEPTANCE_REVIEW.md §8 for the
+# full governance reasoning this correction is built on.
 #
 # Article content itself (public/blog/*.html, images) still merges via a
 # normal, human-reviewed PR whenever it's ready — safe, because each
@@ -39,15 +47,16 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 # Never run two publish attempts concurrently -- without this, a manual
 # workflow_dispatch overlapping the cron (or two manual triggers close
 # together) could both read the registry, both attempt to flip the same
-# due article, and race to push to main. The Engine's own idempotency
-# means this could never produce duplicate content, but it could produce
-# a rejected (non-fast-forward) push needing a manual retry -- this
-# eliminates that failure mode outright rather than relying on it being
-# merely harmless. `cancel-in-progress: false` queues the second run
+# due article, and open competing publish PRs. The Engine's own
+# idempotency means this could never produce duplicate content, but it
+# could produce a wasted/conflicting second PR needing manual cleanup --
+# this eliminates that failure mode outright rather than relying on it
+# being merely harmless. `cancel-in-progress: false` queues the second run
 # instead of killing the first mid-write.
 concurrency:
   group: content-publishing-engine
@@ -69,18 +78,22 @@ jobs:
       - name: Run publish.mjs
         run: node scripts/content-publishing/publish.mjs
 
-      - name: Commit and push if anything changed
+      - name: Open, verify, and merge a self-contained publish PR if anything changed
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           if git diff --quiet && git diff --cached --quiet; then
-            echo "Nothing changed -- idempotent no-op, nothing to commit."
+            echo "Nothing changed -- idempotent no-op, nothing to publish."
             exit 0
           fi
 
           git config user.name "royalte-content-publishing-engine[bot]"
           git config user.email "actions@github.com"
+
+          BRANCH="content-publish/run-${GITHUB_RUN_ID}"
+          git checkout -b "$BRANCH"
+
           # `git add` fails atomically (stages nothing) if any pathspec in
           # the same invocation doesn't match a file -- so the always-
           # generated files and the optional education files (not live on
@@ -93,4 +106,26 @@ jobs:
           [ -f public/js/education-posts.js ] && git add public/js/education-posts.js || true
           git add content-registry/
           git commit -m "chore(content-publishing): scheduled publish run"
-          git push origin HEAD:main
+          git push origin "$BRANCH"
+
+          # This PR is always freshly branched from main immediately before
+          # this step and touches only files this Engine exclusively owns --
+          # there is nothing for it to conflict with. `gh pr checks --watch`
+          # blocks until every check on the PR completes (the required "Run
+          # pipeline test", plus "Validate content registry" if a registry
+          # file changed, plus Vercel's own preview build); `--fail-fast`
+          # aborts this run the moment any of them goes red, including a
+          # non-required one -- deliberately conservative (fail loud and
+          # retry next scheduled run, matching the Engine's existing
+          # failure philosophy) rather than merging past an unexplained
+          # red check just because it wasn't the one that was required.
+          # Merging only proceeds if every check is green -- this
+          # automation gets no bypass, same as every other merge here.
+          PR_URL=$(gh pr create --title "chore(content-publishing): scheduled publish run" \
+            --body "Automated, self-contained publish run from the Content Publishing Engine™. Touches only Engine-owned generated files -- see content-registry/README.md." \
+            --base main --head "$BRANCH")
+          PR_NUMBER=$(basename "$PR_URL")
+          echo "Opened PR #$PR_NUMBER: $PR_URL"
+
+          gh pr checks "$PR_NUMBER" --watch --fail-fast
+          gh pr merge "$PR_NUMBER" --rebase --delete-branch
