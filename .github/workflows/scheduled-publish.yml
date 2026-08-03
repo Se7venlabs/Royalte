@@ -27,20 +27,38 @@ name: Scheduled Content Publish
 # been pushed. Going through a real PR is the correct way to satisfy that
 # same protection this automation is not, and should not be, exempt from.
 #
-# AUTHENTICATION MODEL -- opening a PR as `github-actions[bot]` additionally
-# requires the repo-level "Allow GitHub Actions to create and approve pull
-# requests" setting (`can_approve_pull_request_reviews`), which is a second,
-# repo-wide gate independent of this workflow's own `permissions:` block.
-# It was off; a live test failed with "GitHub Actions is not permitted to
-# create or approve pull requests" before it was enabled. Board-authorized
-# and turned on 2026-08-03 under the Principle of Least Privilege -- full
-# rationale, exact API call, and what this does and does not grant (it
-# technically also grants review-approval capability, since GitHub bundles
-# both behind one setting; this workflow never calls `gh pr review`) is in
-# governance/CONTENT_PUBLISHING_AUTHENTICATION_MODEL.md. Branch protection,
-# required status checks, and this repo's lack of a required-review rule
-# are all unchanged by that setting -- this workflow gets no bypass any
-# human merging by hand wouldn't also get.
+# AUTHENTICATION MODEL -- this workflow authenticates as a dedicated
+# machine-account collaborator (`royalte-content-bot`, direct repo
+# collaborator with `write` permission, not admin), via the fine-grained PAT
+# in the `CONTENT_PUBLISHING_PAT` repo secret -- not the default
+# `GITHUB_TOKEN`. Two things `GITHUB_TOKEN` could never do turned out to be
+# necessary, in this order:
+#
+#   1. Opening a PR as `github-actions[bot]` requires the repo-level "Allow
+#      GitHub Actions to create and approve pull requests" setting
+#      (`can_approve_pull_request_reviews`), off by default. Enabling it
+#      (done, still in effect, though no longer load-bearing for this
+#      workflow specifically) doesn't fully solve it, because:
+#   2. GitHub gates `pull_request`-triggered workflow runs (i.e. this repo's
+#      own required `Run pipeline test` / `Validate content registry`
+#      checks) behind a manual "Approve and run" click whenever the PR was
+#      opened by `github-actions[bot]` -- confirmed via a live test where
+#      both checks sat at `action_required` with zero jobs ever created,
+#      and the subsequent merge attempt correctly failed on branch
+#      protection rather than bypassing anything. This is GitHub enforcing
+#      almost exactly this program's own governance rule (no automation
+#      silently earns its own required checks) -- not a bug to route
+#      around, so it wasn't routed around. A real collaborator identity
+#      with established write access isn't subject to that gate, which is
+#      why `royalte-content-bot` exists.
+#
+# Full rationale, exact API calls, PAT permission minimum (Contents:
+# read/write, Pull requests: read/write, Metadata: read -- nothing else),
+# and what stays unchanged (branch protection, required status checks, no
+# required-review rule, no bypass_actors) is in
+# governance/CONTENT_PUBLISHING_AUTHENTICATION_MODEL.md. Because all writes
+# now go through the PAT, this workflow's own `GITHUB_TOKEN` no longer
+# needs elevated permissions -- it stays at the repo default (`read`).
 #
 # Article content itself (public/blog/*.html, images) still merges via a
 # normal, human-reviewed PR whenever it's ready — safe, because each
@@ -58,9 +76,12 @@ on:
     - cron: '0 13 * * 2,4' # Tuesday and Thursday, 13:00 UTC
   workflow_dispatch: {} # manual trigger, e.g. to force a run without waiting for the cron
 
+# GITHUB_TOKEN itself never writes anything -- every git push, PR create,
+# and PR merge below authenticates as CONTENT_PUBLISHING_PAT instead (see
+# AUTHENTICATION MODEL above). Left at the repo default (`read`) rather
+# than requesting `contents`/`pull-requests: write` it would never use.
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 # Never run two publish attempts concurrently -- without this, a manual
 # workflow_dispatch overlapping the cron (or two manual triggers close
@@ -82,6 +103,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Overrides the default GITHUB_TOKEN credential actions/checkout
+          # configures for git -- every subsequent git push in this job
+          # authenticates as CONTENT_PUBLISHING_PAT (royalte-content-bot)
+          # as a result, not github-actions[bot]. See AUTHENTICATION MODEL
+          # above for why that distinction is load-bearing.
+          token: ${{ secrets.CONTENT_PUBLISHING_PAT }}
+
+      - name: Verify CONTENT_PUBLISHING_PAT authentication
+        env:
+          GH_TOKEN: ${{ secrets.CONTENT_PUBLISHING_PAT }}
+        run: |
+          set -euo pipefail
+          # Prints only identity/permission metadata -- never the token
+          # itself -- so a misconfigured or revoked secret fails loudly and
+          # verifiably here, before anything is published, rather than
+          # surfacing as a confusing failure three steps later.
+          LOGIN=$(gh api user -q .login)
+          PERMISSION=$(gh api "repos/${GITHUB_REPOSITORY}" -q .permissions.push)
+          echo "Authenticated as: $LOGIN"
+          echo "Write access to ${GITHUB_REPOSITORY}: $PERMISSION"
+          if [ "$LOGIN" != "royalte-content-bot" ]; then
+            echo "::error::Expected to authenticate as royalte-content-bot, got $LOGIN -- check CONTENT_PUBLISHING_PAT."
+            exit 1
+          fi
+          if [ "$PERMISSION" != "true" ]; then
+            echo "::error::royalte-content-bot does not have write access to ${GITHUB_REPOSITORY}."
+            exit 1
+          fi
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -93,7 +143,7 @@ jobs:
 
       - name: Open, verify, and merge a self-contained publish PR if anything changed
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.CONTENT_PUBLISHING_PAT }}
         run: |
           set -euo pipefail
           if git diff --quiet && git diff --cached --quiet; then
@@ -101,8 +151,8 @@ jobs:
             exit 0
           fi
 
-          git config user.name "royalte-content-publishing-engine[bot]"
-          git config user.email "actions@github.com"
+          git config user.name "royalte-content-bot"
+          git config user.email "312678072+royalte-content-bot@users.noreply.github.com"
 
           BRANCH="content-publish/run-${GITHUB_RUN_ID}"
           git checkout -b "$BRANCH"
