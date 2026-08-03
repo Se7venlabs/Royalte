@@ -1,337 +1,86 @@
-# Royaltē Publishing Intelligence™
+# Royaltē Publishing Intelligence™ — Content Publishing Engine™ (Phase 2)
 
-Canonical documentation for scheduled blog publishing. This sits on top of
-the base publishing workflow in `README.md` — read that first for how to
-actually build an article (template, tokens, registry, blog.html card,
-sitemap). This document covers everything added in Phase 1: the publishing
-queue, the approval-then-schedule workflow, and the scheduled-merge GitHub
-Action that automates the release step.
+Canonical documentation for scheduled blog/education publishing. This sits on top of the base publishing workflow in `README.md` — read that first for how to actually build an article (template, tokens, hero image). This document covers the release step: how an approved, scheduled article actually goes live.
 
-**Phase 1 scope, precisely:** this automates *when a PR merges*. It does not
-touch article authoring, does not add a CMS, and does not change the
-GitHub → `main` → Vercel deployment model. Everything that already happens
-on a push to `main` (Vercel deploy, IndexNow notification) still happens
-exactly the same way — the only new thing is a scheduled job that presses
-"merge" on a human's behalf, on a date a human already chose.
+**Phase 2 supersedes Phase 1's PR-merge-based scheduler outright** (not a fallback — that mechanism is removed). Phase 1's approach (a `scheduled` label + a `**Publish Date:**` PR-body block, merged by a daily GitHub Action) got permanently stuck when independently-scheduled PRs shared the same insertion point in `blog.html`/`blog-posts.js`/`sitemap.xml` and diverged from a common base — see `governance/CONTENT_PUBLISHING_ROOT_CAUSE_REPORT.md` for the full incident. Phase 2 is state-driven instead: a **Content Registry™** (`content-registry/articles/*.json`) is the single source of truth for approval and scheduling, and an **Autonomous Publishing Engine™** (`scripts/content-publishing/publish.mjs`) regenerates every listing surface from that registry on a Tuesday/Thursday schedule — no PR, no merge, no rebase, structurally immune to the class of conflict that broke Phase 1.
+
+Everything downstream of a successful run is unchanged: Vercel's push-to-`main` deploy and `.github/workflows/indexnow-notify.yml` still fire exactly as before.
 
 ---
 
 ## Why this design
 
-The site is fully static — no CMS, no database, no server-rendered pages.
-An article's HTML file either exists in the deployed `main` branch (public,
-crawlable, live) or it doesn't (404). There is no in-between "exists but
-hidden" state without adding real complexity (a date-gated client-side
-filter, a server, etc.) — and both of those were explicitly rejected:
-
-- A client-side date filter wouldn't hide anything from search crawlers
-  (`blog.html` is deliberately hand-maintained, non-JS-rendered HTML, so
-  crawlers that don't execute JS still see every card — see `README.md`),
-  and the article's own HTML file would still be directly fetchable by URL
-  before its scheduled date. It doesn't actually keep the content private.
-- A CMS/backend would work, but is a materially bigger architectural change
-  than this problem needs, and was explicitly ruled out by the Board.
-
-So the only thing that actually needs to be time-gated is **the merge to
-`main`** — because that's the one action that makes a static file public.
-Everything upstream of that (writing, building the HTML, adding the hero
-image, registering it, opening the PR, Board review on the Vercel Preview)
-already happens today, unchanged. Phase 1 automates exactly one step.
-
----
+The site is fully static — no CMS, no database, no server-rendered pages. An article's HTML file either exists in the deployed `main` branch (public, crawlable, live) or it doesn't (404). Article content itself still merges via a normal, human-reviewed PR — that part of the model never needed to change, since each article is a uniquely-named new file that never conflicted with another. What needed to change was *only* the shared listing surfaces (the card grid, the JS registry, the sitemap) — the files every scheduled article's old-style PR also had to touch, and the actual source of the conflict.
 
 ## Status Lifecycle
 
-The full conceptual lifecycle for an article:
-
 ```
-Idea → Research → Writing → Board Review → Approved → Queued → Scheduled → Published → Indexed → Archived
+draft → (Board approval) → scheduled → published → archived
 ```
 
-Every article exists in exactly one of these states at a time — never two
-at once, never an ambiguous in-between. The `Status` field in
-`PUBLISHING_QUEUE.md` and the `**Status:**` field in the PR's Publishing
-Schedule block are the single source of truth for that state.
+Tracked in `content-registry/articles/<slug>.json` via two separate fields — `approvalStatus` (`pending`/`approved`, a one-time Board sign-off) and `publishStatus` (`draft`/`scheduled`/`published`/`archived`, the lifecycle the Engine drives). An article is eligible to go live when `approvalStatus === 'approved' && publishStatus === 'scheduled' && publishDate <= today`. See `content-registry/README.md` for the full schema.
 
-What each stage means in practice today:
-
-| Stage | Where it lives | Who/what moves it forward |
-|---|---|---|
-| Idea | Not yet in the repo | The Board proposes a topic |
-| Research | Not yet in the repo | Topic/angle validated before writing begins |
-| Writing | Not yet in the repo | Article + hero image are drafted |
-| **Board Review** | Open PR, no `scheduled` label | I build the HTML/registry/queue entry and open a PR. This is where PR #398 and #399 started. |
-| Approved | Open PR, Board has signed off in conversation but scheduling hasn't been applied yet | A brief, momentary state between review and the label being added |
-| Queued | `PUBLISHING_QUEUE.md` row exists | Effectively merges with Board Review/Approved today — the queue table is the single tracking surface, there's no separate "queued but not yet approved" state in Phase 1 |
-| **Scheduled** | Open PR, `scheduled` label + `**Publish Date:**` line present | The scheduled-publish Action will merge it once the date arrives |
-| **Published** | Merged to `main`, live on royalte.ai | The scheduled-publish Action (or a manual `gh pr merge`) |
-| Indexed | No separate tracking | Happens automatically — pushing the registry change to `main` fires `.github/workflows/indexnow-notify.yml`, which submits the new URL to Bing/Yandex within the same push. Not tracked as a distinct queue state because it's not a distinct action anyone takes. |
-| Archived | Not yet applicable | No article has been archived; this stage is reserved for a future need (e.g. retiring a stale article) |
-
-The Queue table (`PUBLISHING_QUEUE.md`) tracks the bolded stages above —
-**Board Review**, **Scheduled**, and **Published** — since those are the
-ones that correspond to a real, distinguishable state of a PR. Idea/
-Research/Writing happen before anything is in the repo; Indexed/Archived
-aren't separately actioned today.
-
----
-
-## Executive Board Approval Workflow
-
-**Articles are never scheduled automatically.** The workflow is strictly:
-
-```
-Draft → Board Approval → Queue → Scheduled Merge → Published
-```
-
-Concretely:
-
-1. An article is built and PR'd exactly as described in `README.md` —
-   this alone puts it in **Board Review**, nothing more. No PR is ever
-   opened with the `scheduled` label already attached.
-2. The Board reviews the Vercel Preview and, in conversation, approves the
-   article **and gives it an explicit publish date**.
-3. Only after that explicit approval does a human (today: me, on the
-   Board's instruction) do two things to the PR:
-   - Add the `scheduled` label.
-   - Add a `## Publishing Schedule` block to the PR body (see the Publication
-     Metadata Standard below) with `**Status:** Scheduled` and the approved
-     `**Publish Date:**`.
-4. `PUBLISHING_QUEUE.md` is updated to reflect the new status and date.
-5. From that point on, the scheduled-publish Action owns the release — no
-   further manual step is needed unless something needs to change (see
-   Reschedule/Cancel below).
-
-The Action itself never adds the `scheduled` label, never invents a date,
-and never merges anything that isn't already labeled and dated. It only
-asks "is this labeled PR's date here yet?" — the decision to schedule is
-made entirely by a human, upstream of anything the Action can see.
-
----
-
-## Publication Metadata Standard
-
-Every blog PR should include a `## Publishing Schedule` block in its PR
-body with these eight fields — designed so future fields can be appended
-without changing anything the Action already parses (it only ever reads
-`**Publish Date:**`; every other field, including `Publishing Batch`, is
-for human/audit/reporting use only):
-
-```markdown
-## Publishing Schedule
-- **Article Title:** The 7 Metadata Mistakes That Could Be Costing You Music Royalties
-- **URL Slug:** `metadata-mistakes-killing-royalties`
-- **Status:** Board Review
-- **Publish Date:** _(not yet assigned)_
-- **PR Number:** #399
-- **Publishing Batch:** _(none — pre-batch article)_
-- **Created Date:** 2026-07-23
-- **Last Updated:** 2026-07-23
-```
-
-Once the Board approves and assigns a date, `Status` becomes `Scheduled`,
-`Publish Date` is filled in as `YYYY-MM-DD`, and `Last Updated` is bumped to
-the date of that edit:
-
-```markdown
-## Publishing Schedule
-- **Article Title:** The 7 Metadata Mistakes That Could Be Costing You Music Royalties
-- **URL Slug:** `metadata-mistakes-killing-royalties`
-- **Status:** Scheduled
-- **Publish Date:** 2026-08-05
-- **PR Number:** #399
-- **Publishing Batch:** _(none — pre-batch article)_
-- **Created Date:** 2026-07-23
-- **Last Updated:** 2026-07-30
-```
-
-`Created Date` is set once, when the PR opens, and never changes. `Last
-Updated` is bumped on every edit to the block (status change, reschedule,
-cancellation) — it's the field to check first when auditing why an
-article's state changed.
-
-### Publishing Batch ID
-
-Articles delivered together as a named batch (e.g. "Batch #001," six
-articles for August/September) share a **Publishing Batch** value so they
-can be reported on and managed as a group later, without changing anything
-about how any individual article is scheduled or merged — each PR is still
-independently labeled, dated, reviewed, and merged on its own. The Action
-does not read this field at all; it exists purely for grouping/reporting.
-
-**Format:** `YYYY-MM-<letter>`, e.g. `2026-08-A`. Increment the letter if a
-second batch ships within the same calendar month (`2026-08-B`, etc.).
-Articles built before batching existed (PR #398, #399) carry
-`_(none — pre-batch article)_` rather than being retroactively assigned a
-batch they weren't actually part of.
-
-**The exact string `**Publish Date:**` followed by an ISO date
-(`YYYY-MM-DD`) is what the Action's parser looks for.** Do not reformat this
-line — the Action does a literal regex match against it
-(`\*\*Publish Date:\*\*\s*\K\d{4}-\d{2}-\d{2}`). If the `scheduled` label is
-present but this line is missing or malformed, the Action logs a
-`::warning::` and skips the PR rather than guessing — it will keep showing
-up as skipped on every daily run until the line is fixed.
-
----
-
-## How the GitHub Action decides when to merge
-
-`.github/workflows/scheduled-publish.yml`, runs once daily (13:00 UTC) plus
-on-demand via `workflow_dispatch`:
-
-1. Lists open PRs with the `scheduled` label.
-2. For each one, extracts the `**Publish Date:**` line from the PR body.
-3. If today (UTC) is on or after that date, it checks the PR's changed
-   files are all confined to the blog content surface (`public/blog/**`,
-   `public/js/blog-posts.js`, `public/sitemap.xml`) — a safety rail so this
-   automation can never merge something outside its intended scope, even if
-   the `scheduled` label were ever misapplied to an unrelated PR.
-4. If in scope, it runs the same `gh pr merge --rebase --delete-branch`
-   used for every manual merge in this repo. Branch protection's required
-   `Run pipeline test` check still gates this exactly as it would a manual
-   merge — the Action cannot and does not bypass it.
-5. A successful merge triggers Vercel's existing push-to-main deploy and the
-   existing IndexNow workflow automatically — the Action does not call
-   either of those itself.
-
-The Action never merges a PR whose date hasn't arrived yet, never merges an
-unlabeled PR, and fails loudly (a red workflow run, `::error::` annotated)
-rather than silently if a scheduled merge can't complete.
-
----
+A `pending`/`draft` article never appears on any public page, not even as a "coming soon" teaser — only `approved` articles do.
 
 ## How to queue an article
 
-1. Build and PR the article as usual (`README.md`).
-2. Add the `## Publishing Schedule` block to the PR body with
-   `**Status:** Board Review` and no publish date yet.
-3. Add a row to `PUBLISHING_QUEUE.md`.
+1. Build and PR the article as usual (`README.md`) — a normal, human-reviewed content PR.
+2. Add `content-registry/articles/<slug>.json` with `approvalStatus: "pending"`, `publishStatus: "draft"`. Either the same PR or a follow-up — both are fine, they're independent files.
+3. `.github/workflows/content-validation.yml` lints the registry on every PR touching `content-registry/**` — required fields, valid slug, no duplicate slugs, and (for any already-`published` entry) that its content file actually exists.
 
-## How to assign a publication date / approve an article
+## How to approve and schedule an article
 
-This only happens after the Board explicitly approves the article and gives
-a date, in conversation. Once approved:
+Only after the Board explicitly approves the article and gives a date, in conversation:
 
-1. Update the PR body's `## Publishing Schedule` block: `**Status:**
-   Scheduled`, `**Publish Date:** YYYY-MM-DD`.
-2. Add the `scheduled` label to the PR.
-3. Update the `PUBLISHING_QUEUE.md` row to match.
+1. Edit `content-registry/articles/<slug>.json`: `approvalStatus: "approved"`, `publishStatus: "scheduled"`, `publishDate: "YYYY-MM-DD"`.
+2. Commit and push (or merge via PR, same as any other file). No label, no PR body block — the registry entry itself is the schedule.
+3. The next Tuesday/Thursday run picks it up automatically once its date arrives, **provided the article's own content file has already merged to `main`**. If the content PR hasn't merged yet by the publish date, the Engine skips it, logs a `publish_failed` event in `content-registry/history.jsonl`, and retries on the next run — it never fabricates a publish it can't actually perform.
 
 ## How to cancel or reschedule an article
 
-- **Reschedule:** edit the `**Publish Date:**` line in the PR body to the
-  new date. The label stays. Update the queue row. No workflow changes
-  needed — the Action reads the date fresh on every run.
-- **Cancel:** remove the `scheduled` label from the PR. The Action only ever
-  looks at labeled PRs, so an unlabeled PR is inert regardless of what its
-  body says. Update the queue row's status back to `Board Review` (or close
-  the PR entirely if the article itself is being scrapped).
+- **Reschedule:** edit `publishDate` in the registry entry. No workflow changes needed — the Engine reads the registry fresh on every run.
+- **Cancel:** set `publishStatus` back to `"draft"` (or delete the registry file entirely if the article itself is being scrapped — the content file, if merged, is left in place but simply won't appear in any generated listing while its registry entry says `draft`).
 
-## Recovery procedures if a scheduled merge fails
+## How the Autonomous Publishing Engine decides what to publish
 
-A failed merge attempt makes the `scheduled-publish` workflow run fail (red
-X) with an `::error::` annotation naming the PR and the likely cause:
+`.github/workflows/scheduled-publish.yml`, runs Tuesday and Thursday (13:00 UTC / 9am ET) plus on-demand via `workflow_dispatch`:
 
-- **Required check ("Run pipeline test") isn't green.** Look at the PR's
-  checks tab, fix whatever's failing, push a fix commit. The PR stays
-  labeled and dated — the next daily run (or a manual
-  `workflow_dispatch`) will pick it up automatically once checks pass. No
-  need to re-add the label or re-enter the date.
-- **Merge conflict with `main`.** Rebase the branch locally, push, and the
-  next run will retry.
-- **PR touches files outside the blog content surface.** The Action refuses
-  to merge and errors loudly rather than merging something out of scope.
-  Either split the PR so the out-of-scope change ships separately, or (if
-  the extra files are genuinely part of this publish) treat that as a
-  signal to merge manually with `gh pr merge` after manual review, rather
-  than relying on the automation.
-- **Nothing happens at all / no run appears.** Check the Actions tab for
-  `Scheduled Blog Publish` — confirm the cron actually fired (GitHub can
-  delay scheduled workflows under load) or trigger it manually via
-  `workflow_dispatch` to force an immediate check.
+1. Runs `scripts/content-publishing/publish.mjs`, which loads every `content-registry/articles/*.json`, filters to `approvalStatus === 'approved' && publishStatus === 'scheduled' && publishDate <= today`.
+2. For each eligible article, confirms its `contentPath` file actually exists. If yes: flips `publishStatus: 'published'`, sets `publishedAt`. If no: leaves it `scheduled`, logs a failure, moves on — this article will be retried automatically on the next run.
+3. Regardless of whether anything was newly published, **fully regenerates** every derived artifact (`blog.html`'s card region, `education/index.html`'s equivalent, `blog-posts.js`, `education-posts.js`, `sitemap.xml`'s article section, `rss.xml`, `search-index.json`) from the complete current registry state — never an incremental patch, which is what makes re-running always safe.
+4. Appends one `content-registry/history.jsonl` line per attempt, including "ran, nothing was due."
+5. If anything actually changed on disk, commits directly to `main` and pushes — a single linear commit, no PR, no branch. Branch protection's required `Run pipeline test` check still runs on this push exactly as on any other (it isn't bypassed — it just isn't a *gate* on this specific commit landing, the same way any other direct push to `main` by an authorized actor works).
+6. That push triggers Vercel's existing deploy and `.github/workflows/indexnow-notify.yml` exactly as any other push touching `blog-posts.js`/`education-posts.js` would.
 
-The Action never auto-retries within a single run and never force-bypasses
-branch protection — every failure surfaces as a visible, actionable signal
-rather than a silent skip or an unsafe override.
+The Engine never publishes an article whose date hasn't arrived, never publishes an unapproved article, and never loses track of a failed attempt — it stays `scheduled` and is retried, logged every time.
+
+## Recovery procedures if a scheduled publish fails
+
+Check `content-registry/history.jsonl` for the most recent `publish_failed` event for the article's slug — the `reason` field states exactly what blocked it (today, only one cause is possible: `contentPath does not exist`, meaning the article's own content PR hasn't merged yet). Merge that content PR; the article publishes automatically on the next Tuesday/Thursday run, or trigger `workflow_dispatch` to force an immediate retry without waiting.
+
+The Engine never auto-retries within a single run and never silently drops a failure — every attempt is a real, permanent line in Publication History™.
 
 ## Manual override procedures
 
-Scheduled merging is a convenience, not the only path — a human can always
-merge a blog PR the normal way (`gh pr merge <N> --rebase --delete-branch`,
-same as any other PR in this repo) without waiting for the Action, for
-example if an article needs to go out same-day.
-
-To manually publish ahead of schedule:
-
-1. Confirm the PR's required checks are green.
-2. Run `gh pr merge <N> --rebase --delete-branch` directly. This is exactly
-   what the Action would eventually do — there's no separate "override
-   mode," just doing the same action a run early.
-3. Update `PUBLISHING_QUEUE.md` to `Published` and update the PR's
-   `**Status:**`/`**Last Updated:**` fields (the PR is closed at this point,
-   so this is for the historical record — edit the merged PR's description
-   if it needs to stay accurate).
-
-There is no separate mechanism to force the Action itself to merge early —
-manual merge is the override, by design, so there's exactly one merge
-code path to reason about rather than two.
+A human can always run `node scripts/content-publishing/publish.mjs` locally (or trigger `workflow_dispatch`) to force an immediate check without waiting for the Tuesday/Thursday cron — there's no separate "override mode," the manual path and the scheduled path are the identical script.
 
 ## Emergency rollback procedures
 
-If an article is published in error (wrong content, factual error, legal
-concern) after a merge:
+If an article is published in error (wrong content, factual error, legal concern):
 
-1. **Take the article down first, investigate after.** Revert the merge
-   commit on `main` (`git revert <merge-sha>`, PR'd and merged the normal
-   way — do not force-push `main`) to remove the article file, its registry
-   entry, and its `blog.html` card in one atomic change. This redeploys via
-   the existing Vercel push-to-main path exactly like a normal publish.
-2. **IndexNow has no "un-notify."** The URL was already submitted to search
-   engines; there's no retraction call. Once the article is pulled, the URL
-   will 404 and search engines will drop it from their index on their own
-   recrawl schedule — this is a real, known limitation, not something this
-   automation can fix. If speed matters, use each search engine's own URL
-   removal tool (e.g. Google Search Console) directly — outside the scope
-   of this repo's automation.
-3. **Update `PUBLISHING_QUEUE.md`** — mark the row `Archived` (not
-   `Published`) with a note on why, rather than deleting the row, so the
-   queue keeps an honest history.
-4. **Re-publishing a corrected version** goes through the normal pipeline
-   from `Board Review` again — it is a new PR, not a resurrection of the
-   old one.
+1. **Take the article down first, investigate after.** Edit `content-registry/articles/<slug>.json` back to `publishStatus: "draft"` (or `"archived"`) and re-run `publish.mjs` (or wait for the next scheduled run) — the article disappears from every generated listing surface on the next regeneration. Its content file can be reverted or fixed via a normal PR separately.
+2. **IndexNow has no "un-notify."** The URL was already submitted; there's no retraction call. Once the article drops from `sitemap.xml`/`blog-posts.js`, search engines will drop it from their index on their own recrawl schedule. For urgency, use each search engine's own URL removal tool directly (e.g. Google Search Console) — outside the scope of this repo's automation.
+3. **The registry entry and its full Publication History stay** — set `publishStatus: "archived"` rather than deleting the registry file, so the record of what happened and when is never lost.
+4. **Re-publishing a corrected version** is a new content PR plus (if the slug changes) a new registry entry — not a resurrection of the old one.
 
 ---
 
-## Standard Operating Procedure — this is the default from here on
+## Future Roadmap (not part of Phase 2)
 
-Once Phase 1 merges, this pipeline is the standing publishing process for
-every Royaltē article, not a one-off. A future publishing request only
-needs to supply: the completed article, a hero image, and a desired
-publication date. Everything else — building the HTML, registering it,
-writing the SEO metadata, opening the PR, adding the Publishing Schedule
-block, updating the queue, and (once the Board approves a date) labeling
-and scheduling it — follows this document by default, without needing a
-fresh implementation brief each time. A new brief is only needed if the
-Board is explicitly revising the publishing standard itself, not for
-routine article submissions.
+Approved conceptually, explicitly out of scope for this phase — unchanged from Phase 1's own deferral list:
 
-## Future Roadmap (not part of Phase 1)
-
-Approved conceptually, explicitly out of scope for this phase:
-
-- **Phase 2** — Editorial calendar, content dashboard, publishing
-  dashboard, calendar view.
-- **Phase 3** — Automatic social media package generation, newsletter
-  draft generation, press release generation, content distribution
-  tracking.
-- **Phase 4** — SEO performance dashboard, Google index verification,
-  search ranking monitoring, content analytics, internal link health,
-  content refresh recommendations.
-- **Phase 5** — Publishing Intelligence™ Dashboard: executive visibility
-  into upcoming releases, published articles, the publishing queue, SEO
-  status, index status, social distribution status, content performance,
-  and the editorial pipeline as a whole.
-
-`PUBLISHING_QUEUE.md` is deliberately a flat Markdown table for now — a
-dashboard is a Phase 5 evolution, not a Phase 1 requirement.
+- Editorial calendar, content dashboard, calendar view.
+- Automatic social media package generation, newsletter draft generation, press release generation, content distribution tracking.
+- SEO performance dashboard, Google index verification, search ranking monitoring, content analytics, internal link health, content refresh recommendations.
+- **Mission Control dashboard integration** — `content-registry/history.jsonl` is the durable data source a future Mission Control card would read; no such card exists yet, and building one wasn't requested this phase.
+- **Search UI** — `public/search-index.json` is generated as real, structured data every publish run; no query interface consumes it yet. Building one wasn't requested this phase.

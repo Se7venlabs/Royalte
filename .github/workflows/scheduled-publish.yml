@@ -1,104 +1,80 @@
-name: Scheduled Blog Publish
+name: Scheduled Content Publish
 
-# Royaltē Publishing Intelligence™ — scheduled merge automation.
+# Content Publishing Engine™ — Layer 3, Autonomous Publishing Engine.
 #
-# Merges blog PRs that a human has already approved AND explicitly scheduled
-# (via the `scheduled` label + a Scheduled-Publish-Date line in the PR body),
-# once their publish date arrives. This workflow performs ONLY the merge --
-# it never labels, schedules, or approves a PR itself. Scheduling is a manual
-# step that happens after Executive Board approval; see
-# public/blog/PUBLISHING_INTELLIGENCE.md for the full workflow and recovery
-# procedures.
+# State-driven, not merge-driven: this workflow never opens a PR, never
+# merges a branch, never rebases or cherry-picks anything. It runs
+# scripts/content-publishing/publish.mjs against content-registry/articles/*.json
+# (the single source of truth for what's approved and when it's due), and
+# if anything changed, commits the regenerated derived artifacts (blog.html
+# card region, blog-posts.js, sitemap.xml's article section, rss.xml,
+# search-index.json) directly to `main` with a single linear push.
 #
-# Merging still goes through the exact same path as a manual
-# `gh pr merge --rebase --delete-branch`: branch protection's required
-# "Run pipeline test" check still gates the merge, Vercel's existing
-# push-to-main auto-deploy still fires, and the existing IndexNow workflow
-# (.github/workflows/indexnow-notify.yml) still fires on the blog-posts.js
-# change that comes with the merge. This workflow duplicates none of that --
-# it only decides *when* to press the merge button.
+# This replaces the previous PR-merge-based scheduler (removed outright,
+# not kept as a fallback) after that mechanism became permanently stuck:
+# every scheduled content PR shared the same insertion point in blog.html/
+# blog-posts.js/sitemap.xml, so once any two of them diverged from a common
+# base, every subsequent merge attempt failed with a real git conflict —
+# see governance/CONTENT_PUBLISHING_ROOT_CAUSE_REPORT.md for the full
+# incident writeup. Registry-driven generation makes that class of
+# conflict structurally impossible: every run is a full regeneration from
+# the current registry state, never an incremental patch racing against
+# other patches.
+#
+# Article content itself (public/blog/*.html, images) still merges via a
+# normal, human-reviewed PR whenever it's ready — safe, because each
+# article is a uniquely-named new file that never conflicts with another.
+# This workflow only ever flips already-approved, already-scheduled
+# registry entries live once their publish date arrives, and regenerates
+# the shared listing surfaces — the only files that were ever conflict-
+# prone under the old mechanism.
 
 on:
   schedule:
-    - cron: '0 13 * * *' # once daily, 13:00 UTC (~9am ET)
-  workflow_dispatch: {} # manual trigger, e.g. to force a check without waiting for the cron
+    - cron: '0 13 * * 2,4' # Tuesday and Thursday, 13:00 UTC (9am ET)
+  workflow_dispatch: {} # manual trigger, e.g. to force a run without waiting for the cron
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   scheduled-publish:
-    name: Merge scheduled blog PRs
+    name: Run Content Publishing Engine™
     runs-on: ubuntu-latest
     steps:
-      - name: Find and merge scheduled PRs whose date has arrived
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Run publish.mjs
+        run: node scripts/content-publishing/publish.mjs
+
+      - name: Commit and push if anything changed
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          TODAY=$(date -u +%Y-%m-%d)
-          echo "Today (UTC): $TODAY"
-
-          PRS_JSON=$(gh pr list --repo "$GITHUB_REPOSITORY" --label scheduled --state open --json number,title,body)
-          COUNT=$(echo "$PRS_JSON" | jq 'length')
-          echo "Found $COUNT open PR(s) labeled 'scheduled'."
-
-          if [ "$COUNT" -eq 0 ]; then
-            echo "Nothing to do."
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "Nothing changed -- idempotent no-op, nothing to commit."
             exit 0
           fi
 
-          mapfile -t PR_NUMBERS < <(echo "$PRS_JSON" | jq -r '.[].number')
-          FAILED=0
-
-          for NUM in "${PR_NUMBERS[@]}"; do
-            TITLE=$(echo "$PRS_JSON" | jq -r --argjson n "$NUM" '.[] | select(.number == $n) | .title')
-            BODY=$(echo "$PRS_JSON" | jq -r --argjson n "$NUM" '.[] | select(.number == $n) | .body')
-
-            DATE=$(echo "$BODY" | grep -oP '\*\*Publish Date:\*\*\s*\K\d{4}-\d{2}-\d{2}' || true)
-
-            if [ -z "$DATE" ]; then
-              echo "::warning::PR #$NUM ('$TITLE') has the 'scheduled' label but no parsable '**Publish Date:** YYYY-MM-DD' line in its body -- skipping. See PUBLISHING_INTELLIGENCE.md for the required format."
-              continue
-            fi
-
-            if [[ "$DATE" > "$TODAY" ]]; then
-              echo "PR #$NUM ('$TITLE') is scheduled for $DATE -- not yet due."
-              continue
-            fi
-
-            echo "PR #$NUM ('$TITLE') was scheduled for $DATE -- due. Checking file scope before merging."
-
-            # Safety rail: only ever auto-merge PRs confined to the blog content
-            # surface. Anything touching files outside this set is refused --
-            # this workflow's authority is scoped to blog publishing only.
-            #
-            # NOTE: ^public/blog/ only matches the /blog/ directory, NOT the
-            # top-level public/blog.html landing page -- every batch article
-            # PR edits blog.html to add its card, so it must be listed
-            # explicitly. Discovered 2026-07-23 while extending this regex
-            # for the Education Library: PR #401 (scheduled 2026-07-24) would
-            # have failed to auto-merge without this line.
-            CHANGED_FILES=$(gh pr diff "$NUM" --repo "$GITHUB_REPOSITORY" --name-only)
-            OUT_OF_SCOPE=$(echo "$CHANGED_FILES" | grep -vE '^public/blog/|^public/blog\.html$|^public/js/blog-posts\.js$|^public/sitemap\.xml$' || true)
-
-            if [ -n "$OUT_OF_SCOPE" ]; then
-              echo "::error::PR #$NUM ('$TITLE') is labeled 'scheduled' but touches files outside the blog content surface, refusing to auto-merge:"
-              echo "$OUT_OF_SCOPE"
-              FAILED=1
-              continue
-            fi
-
-            echo "Scope OK. Merging PR #$NUM."
-            if gh pr merge "$NUM" --repo "$GITHUB_REPOSITORY" --rebase --delete-branch; then
-              echo "✅ Merged PR #$NUM ('$TITLE')."
-            else
-              echo "::error::Failed to merge PR #$NUM ('$TITLE') -- required checks may not be green, or a merge conflict exists. It remains open and scheduled; this workflow will retry on the next daily run once the blocker is resolved. See PUBLISHING_INTELLIGENCE.md 'Recovery procedures'."
-              FAILED=1
-            fi
-          done
-
-          if [ "$FAILED" -eq 1 ]; then
-            exit 1
-          fi
+          git config user.name "royalte-content-publishing-engine[bot]"
+          git config user.email "actions@github.com"
+          # `git add` fails atomically (stages nothing) if any pathspec in
+          # the same invocation doesn't match a file -- so the always-
+          # generated files and the optional education files (not live on
+          # main yet) are added in separate calls, not one combined list.
+          git add public/blog.html public/sitemap.xml public/js/blog-posts.js public/rss.xml public/search-index.json
+          # `set -e` aborts on a standalone false test, so each optional
+          # add is guarded with `|| true` -- "file doesn't exist yet" is
+          # not a failure here.
+          [ -f public/education/index.html ] && git add public/education/index.html || true
+          [ -f public/js/education-posts.js ] && git add public/js/education-posts.js || true
+          git add content-registry/
+          git commit -m "chore(content-publishing): scheduled publish run"
+          git push origin HEAD:main

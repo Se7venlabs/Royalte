@@ -1,0 +1,77 @@
+{
+  "generatedAt": "2026-08-03T16:24:13.090Z",
+  "articles": [
+    {
+      "slug": "music-industry-runs-on-data",
+      "title": "The Music Industry Runs on Data—Not Just Songs",
+      "excerpt": "Great music alone isn't enough anymore. Learn why the modern music industry runs on data—and how accurate information protects your royalties.",
+      "category": "Metadata",
+      "type": "blog",
+      "url": "/blog/music-industry-runs-on-data.html",
+      "publishDate": "2026-07-24"
+    },
+    {
+      "slug": "ai-didnt-kill-music-it-changed-the-rules",
+      "title": "AI Didn't Kill Music—It Changed the Rules",
+      "excerpt": "Artificial intelligence isn't replacing musicians—it's changing the music business. Here's how artists can adapt while protecting their royalties, metadata, and rights.",
+      "category": "AI Music",
+      "type": "blog",
+      "url": "/blog/ai-didnt-kill-music-it-changed-the-rules.html",
+      "publishDate": "2026-07-23"
+    },
+    {
+      "slug": "music-licensing-types-explained",
+      "title": "Sync License vs Sample vs Beat License vs Cover Song vs Interpolation vs Parody: What's the Difference?",
+      "excerpt": "A practical breakdown of six music licensing types — sync licenses, samples, beat licenses, cover songs, interpolations, and parody — including which copyrights are involved and what permissions artists need.",
+      "category": "Publishing",
+      "type": "blog",
+      "url": "/blog/music-licensing-types-explained.html",
+      "publishDate": "2026-06-23"
+    },
+    {
+      "slug": "the-backend-infrastructure-powering-modern-music",
+      "title": "The Backend Infrastructure Powering Modern Music",
+      "excerpt": "The systems behind every stream, sync, and royalty payment — and why independent artists need to understand them.",
+      "category": "AI Music",
+      "type": "blog",
+      "url": "/blog/the-backend-infrastructure-powering-modern-music.html",
+      "publishDate": "2026-05-16"
+    },
+    {
+      "slug": "silent-money-leaks-killing-independent-artists",
+      "title": "The Silent Money Leaks Killing Independent Artists",
+      "excerpt": "AI didn't break music's backend — it exposed how broken it already was. The metadata, publishing, and royalty leaks most artists never see.",
+      "category": "AI Music",
+      "type": "blog",
+      "url": "/blog/silent-money-leaks-killing-independent-artists.html",
+      "publishDate": "2026-05-15"
+    },
+    {
+      "slug": "why-your-spotify-streams-dont-match-your-money",
+      "title": "Why Your Spotify Streams Don't Match Your Money",
+      "excerpt": "The reason Spotify stream counts and royalty payouts often don’t align — and the backend systems most artists never see.",
+      "category": "Royalties",
+      "type": "blog",
+      "url": "/blog/why-your-spotify-streams-dont-match-your-money.html",
+      "publishDate": "2026-05-15"
+    },
+    {
+      "slug": "suno-ai-release-risks",
+      "title": "Using Suno AI? Read This Before Releasing Anything.",
+      "excerpt": "The ownership, royalty, distribution, and copyright risks artists need to understand before commercially releasing AI-generated music.",
+      "category": "AI Music",
+      "type": "blog",
+      "url": "/blog/suno-ai-release-risks.html",
+      "publishDate": "2026-05-14"
+    },
+    {
+      "slug": "your-backend-might-be-broken",
+      "title": "Your Music Isn't The Problem. Your Backend Might Be Broken.",
+      "excerpt": "Streaming numbers look healthy but royalty payouts don't always match. This article breaks down how multiple royalty layers, fragmented backend systems, and incomplete metadata can quietly delay or misroute revenue — and what artists can do to spot it.",
+      "category": "Royalties",
+      "type": "blog",
+      "url": "/blog/your-backend-might-be-broken.html",
+      "publishDate": "2026-05-11"
+    }
+  ]
+}

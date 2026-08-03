@@ -26,5 +26,5 @@ jobs:
       - name: Run pipeline test
         run: node tests/pipeline-test.mjs
 
-      - name: Run blog index drift test
-        run: node tests/blog-index-sync-test.mjs
+      - name: Run content publishing engine test
+        run: node tests/content-publishing-test.mjs
