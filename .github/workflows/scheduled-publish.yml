@@ -101,6 +101,46 @@ jobs:
     name: Run Content Publishing Engine™
     runs-on: ubuntu-latest
     steps:
+      # Runs before Checkout, deliberately -- actions/checkout's own git
+      # fetch is where an invalid/revoked/empty token surfaces as an opaque
+      # transport-layer error ("could not read Username ... terminal
+      # prompts disabled"), indistinguishable at that point from a dozen
+      # other causes. A plain `gh api` call against the token in isolation,
+      # with nothing else in play, turns that into one unambiguous
+      # diagnosis at one step: present/absent, valid/invalid, right
+      # identity, right permission -- never printing the token itself,
+      # only its length and format prefix (safe: 4 characters of a
+      # 40+-character high-entropy token discloses negligible information,
+      # and this is standard, not a workaround).
+      - name: Verify CONTENT_PUBLISHING_PAT authentication
+        env:
+          GH_TOKEN: ${{ secrets.CONTENT_PUBLISHING_PAT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::CONTENT_PUBLISHING_PAT is empty or not set -- check the repository secret at Settings > Secrets and variables > Actions (repository secrets, not an environment secret)."
+            exit 1
+          fi
+          echo "Token present, length ${#GH_TOKEN}, prefix ${GH_TOKEN:0:4}... (ghp_ = classic, github_pat_ = fine-grained)"
+
+          if ! LOGIN=$(gh api user -q .login 2>&1); then
+            echo "::error::Token was rejected by the GitHub API (invalid, expired, or revoked): $LOGIN"
+            exit 1
+          fi
+          echo "Authenticated as: $LOGIN"
+          if [ "$LOGIN" != "royalte-content-bot" ]; then
+            echo "::error::Expected to authenticate as royalte-content-bot, got $LOGIN -- check CONTENT_PUBLISHING_PAT."
+            exit 1
+          fi
+
+          PERMISSION=$(gh api "repos/${GITHUB_REPOSITORY}" -q .permissions.push)
+          echo "royalte-content-bot's collaborator role on ${GITHUB_REPOSITORY} grants write: $PERMISSION"
+          if [ "$PERMISSION" != "true" ]; then
+            echo "::error::royalte-content-bot does not have write access to ${GITHUB_REPOSITORY}."
+            exit 1
+          fi
+          echo "Note: this confirms the account's collaborator role, not the token's own granted scope -- a token can still be rejected for git push (Contents: Read and write) or gh pr create (Pull requests: Read and write) even when this check passes. Those are exercised for real by the steps below."
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -110,28 +150,6 @@ jobs:
           # as a result, not github-actions[bot]. See AUTHENTICATION MODEL
           # above for why that distinction is load-bearing.
           token: ${{ secrets.CONTENT_PUBLISHING_PAT }}
-
-      - name: Verify CONTENT_PUBLISHING_PAT authentication
-        env:
-          GH_TOKEN: ${{ secrets.CONTENT_PUBLISHING_PAT }}
-        run: |
-          set -euo pipefail
-          # Prints only identity/permission metadata -- never the token
-          # itself -- so a misconfigured or revoked secret fails loudly and
-          # verifiably here, before anything is published, rather than
-          # surfacing as a confusing failure three steps later.
-          LOGIN=$(gh api user -q .login)
-          PERMISSION=$(gh api "repos/${GITHUB_REPOSITORY}" -q .permissions.push)
-          echo "Authenticated as: $LOGIN"
-          echo "Write access to ${GITHUB_REPOSITORY}: $PERMISSION"
-          if [ "$LOGIN" != "royalte-content-bot" ]; then
-            echo "::error::Expected to authenticate as royalte-content-bot, got $LOGIN -- check CONTENT_PUBLISHING_PAT."
-            exit 1
-          fi
-          if [ "$PERMISSION" != "true" ]; then
-            echo "::error::royalte-content-bot does not have write access to ${GITHUB_REPOSITORY}."
-            exit 1
-          fi
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
