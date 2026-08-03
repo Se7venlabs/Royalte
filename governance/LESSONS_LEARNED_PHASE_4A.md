@@ -144,6 +144,43 @@ No formal load testing was performed. Qualitative observation during live verifi
 
 - **Overall implementation quality**: solid. A genuinely new capability class for Royaltē (the first that writes artist-actionable state, not just intelligence), built narrowly per explicit Board scope discipline, with real evidence-backed triggers and a real, working production UI.
 - **Confidence level**: High.
-- **Readiness for merge**: Ready.
+- **Readiness for merge**: Ready, pending the hardening addendum below.
 - **Remaining risks**: Low, with the same persistent exception as every prior Phase 3/4 milestone — the Vault/auth gap means no live production artist can reach this feature through the real product UI today. This is pre-existing platform debt, not a defect introduced by this phase, but it is now the single most repeated, most overdue recommendation across this entire program.
-- **Executive Board recommendation**: approve for merge.
+- **Executive Board recommendation**: approve for merge, subject to the hardening pass documented below.
+
+---
+
+## Addendum — Final Hardening & Merge Readiness pass
+
+A second Board directive ("Final Hardening & Merge Readiness") required ten Executive Change Requests (ECR1–ECR10) before merge, framed explicitly as refinements to the certified design above, not a redesign. This addendum documents that pass using the same 12-section structure, condensed to what's new.
+
+### A.1 Executive Summary
+
+Outcome: successful. All ten ECRs implemented, all syntax-checked, the automated test suite extended from 30 to 45 tests (all passing), zero regressions across all six other suites (pipeline, Ask ATHENA, executive memory, Phase 3D domain comparison, Phase 3B services, workspace contract validator). Full detail in `governance/PLAYBOOK_ACTION_ENGINE_ARCHITECTURE.md` §13–§18 and `governance/PHASE4A_PLAYBOOK_ACTION_ENGINE_CERTIFICATION.md` §0.
+
+### A.2 Major decisions made during hardening
+
+- **`verifyPlaybook()`'s atomic two-history-row write.** The underlying `status` update (`waiting_verification → completed`) happens in a single row write, but two separate `playbook_action_history` rows are recorded (`waiting_verification → verified`, then `verified → completed`) to preserve full timeline fidelity matching the Board's own example event list — a deliberate choice to keep the *data model's* status transitions atomic while keeping the *audit trail* granular.
+- **`recommendPlaybook()` as a genuinely new persisted state**, not just a renamed status. The original 4A design treated "eligible" as an ephemeral computed list (`POST checkEligibility` returned `{eligible: [...]}` without writing anything). ECR10 required this to become permanent history, which meant `checkEligibility` itself gained a write path — a real behavioral expansion beyond the original design, made idempotent so repeat calls never duplicate or regress progress.
+- **No automatic scan-pipeline hook for `verifyPlaybook()`.** Extrapolated from the Board's own demonstrated restraint elsewhere in the same directive (ECR5: "no ranking logic required now"; ECR9: "no UI required this phase") rather than re-asking: `verify` ships as a real, callable API action, not wired into `api/audit.js`'s scan pipeline automatically. Documented in code comments and in the architecture doc as a deliberate scope decision and the correct future extension point, not an oversight.
+
+### A.3 Unexpected discoveries
+
+- A stale code comment was found and fixed during this addendum's own architecture-compliance self-review: the UI's `postAction()` helper carried a comment claiming a `workspaceContext()` function was "retained" when it had in fact been deleted outright during the ECR1 rewrite. Caught by re-reading the diff, not by a test — the same category of finding as §3.5 in the original report (a comment/doc drift, not a logic bug), fixed before this addendum was written.
+- Extending the mock Supabase test harness to support `action_number` (an auto-incrementing `bigserial` in production) required adding a simple in-memory counter to the test file's insert path — the existing mock had no auto-increment simulation of any kind, since no prior store used a serial column.
+
+### A.4 Testing summary (hardening)
+
+- `tests/playbook-action-engine-test.mjs` extended from 30 to **45 tests**, all passing: full 8-status Executive Health States lifecycle, Confidence History™, Automatic Executive Timeline™ labels, Executive Action Numbers formatting, Executive Dashboard Metrics counts, Executive History permanence, expanded registry metadata and `includeDeprecated` filtering, `explainRecommendation()` per definition.
+- Zero regressions confirmed across `pipeline-test.mjs`, `ask-athena-test.mjs`, `executive-memory-store-test.mjs`, `executive-phase3d-domain-comparison-test.mjs`, `executive-phase3b-services-test.mjs`, `workspace-contract-validator.test.mjs`.
+- **Not yet performed at the time of this addendum**: live Preview re-verification of the hardened lifecycle, and application of the follow-up migration (`20260803000000_playbook_actions_hardening.sql`) to production — both require a fresh, explicit founder approval before proceeding, per the established pattern. The original 4A certification's live walkthrough (Certification doc §5) predates this hardening pass and does not cover it — see Certification doc §5a.
+
+### A.5 Governance updates (hardening)
+
+- **Modified**: `governance/PLAYBOOK_ACTION_ENGINE_ARCHITECTURE.md` (expanded to document all ten ECRs, §1/§3/§4/§6/§7/§9/§11 revised, §13–§18 added), `governance/PHASE4A_PLAYBOOK_ACTION_ENGINE_CERTIFICATION.md` (§0 and §5a added, §1–§4 revised for the final 8-status lifecycle and 45-test suite), `governance/LESSONS_LEARNED_PHASE_4A.md` (this addendum).
+- **Created**: `supabase/migrations/20260803000000_playbook_actions_hardening.sql` (not yet applied to production).
+
+### A.6 Final assessment (hardening)
+
+- **Readiness for merge**: implementation, tests, and documentation are ready. Two items remain open before the Board's own "Executive Board Merge Standard" is fully satisfied: production application of the hardening migration, and a fresh live Preview walkthrough of the hardened lifecycle — both gated on explicit founder approval, not yet given as of this addendum.
+- **Executive Board recommendation**: proceed to final certification review once the migration is applied and live-verified; do not merge on this addendum's static/automated-test evidence alone.
