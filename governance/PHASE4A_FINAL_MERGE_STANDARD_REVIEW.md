@@ -6,7 +6,7 @@ Policy: **DO NOT MERGE Until Executive Board Approval**
 
 This document is the Executive Board's requested final validation, covering the six Executive Merge Standard criteria and the seven Executive Deliverables. It is a review of what exists on this branch today — original 4A implementation plus the Final Hardening & Merge Readiness pass (ECR1–ECR10) — not new functionality.
 
-**One open item precedes full sign-off**: the hardening migration (`supabase/migrations/20260803000000_playbook_actions_hardening.sql`) has not yet been applied to production, so the hardened lifecycle (Executive Health States™, Executive Action Numbers™, Confidence History™) has not been live-verified against a real deployment — only the pre-hardening design was live-walked (Certification doc §5). This review is honest about that gap rather than papering over it; see §7 for disposition.
+**Update**: the one open item originally flagged in this review (production migration application + live verification of the hardened lifecycle) has since been closed on explicit founder instruction. The hardening migration is applied to production, and the full hardened Executive Health States™ lifecycle has been walked live end-to-end through the real production UI, including both `verifyPlaybook()` branches, Confidence History™, Automatic Executive Timeline™, Executive Dashboard Metrics™, and cross-artist isolation. Full detail in Certification doc §5a/§5b. §7 below is updated accordingly.
 
 ---
 
@@ -89,9 +89,9 @@ Executed in this session, in full, immediately before this report:
 | State recovery | `archived rows remain fully queryable, never deleted` (Executive History™ permanence) |
 | Timeline generation | `every lifecycle transition automatically produces a history event with a human-readable label`, `Confidence History™: confidence is preserved per transition, not overwritten` |
 
-**Gap disclosed, not hidden**: automated tests exercise the store and registry logic in isolation (mock Supabase); they do not exercise a real network request, real Bearer auth, or the real production UI. That coverage exists only for the pre-hardening design (Certification doc §5) — see §7 for what a hardened live pass still requires.
+Automated tests exercise the store and registry logic in isolation (mock Supabase); real network/Bearer-auth/production-UI coverage of the hardened lifecycle was closed separately, live, after this table was first drafted — see Certification doc §5b for the full walkthrough (real Preview deployment, real Supabase test users, every lifecycle path in this table re-confirmed against the real database and the real UI).
 
-**Verdict: PASS** for automated coverage; **live coverage of the hardened lifecycle is the one outstanding item**, disclosed here and in §7, not omitted.
+**Verdict: PASS** for automated coverage, **and PASS for live coverage** — both now closed, not just automated-test-only.
 
 ---
 
@@ -148,10 +148,8 @@ Performed by direct grep against the actual codebase, not by re-reading the arch
 | Canonical Ownership™ intact across all components | ✅ PASS — §5 |
 | Ready to support future Playbooks without redesign | ✅ PASS — §6 |
 
-**One open item, disclosed rather than hidden**: the hardening migration has not yet been applied to production, so the *hardened* lifecycle (8-status Executive Health States, Executive Action Numbers, Confidence History) has not been walked live end-to-end against a real deployment. The original 4A certification's live walkthrough (Certification doc §5) is real, but it verified the *pre-hardening* system — a direct self-report-to-`completed` transition that the hardened schema's own CHECK constraint now makes impossible. Presenting that walkthrough as evidence for the hardened system would be inaccurate, so it is explicitly flagged as historical in the Certification doc rather than left to imply otherwise.
+**Previously open item — now closed.** The hardening migration was applied to production Supabase with explicit founder approval, and the full hardened lifecycle was walked live end-to-end through the real production UI (recommend → start → advance ×4 → complete → waiting_verification → verify [not-yet-resolved branch] → verify [resolved branch] → completed → archive), plus Confidence History™, Automatic Executive Timeline™, Executive Dashboard Metrics™, and cross-artist isolation at both the read and write layers — all confirmed live, not just by automated test. Full detail in Certification doc §5b. No defect was found. One documentation drift (a stale UI comment, unrelated to this walkthrough) was found and fixed earlier in this same review pass — see §1.
 
-**What closing this gap requires** (both need a single explicit approval, since production writes are gated): (1) apply `supabase/migrations/20260803000000_playbook_actions_hardening.sql` to the production Supabase project; (2) perform a live Preview walkthrough of the full hardened lifecycle (recommend → start → advance → complete → waiting_verification → verify → completed → archive) using fresh disposable test users, matching the rigor of the original certification.
+**Every criterion in this review, including live verification of the hardened system, is now satisfied.**
 
-**Recommendation**: the architecture, code, documentation, and automated-test criteria the Board specified in this review are all satisfied today and required no new functionality to confirm — this review is complete as scoped. Whether to close the remaining live-verification gap before merge, or to accept the static/automated-test certification plus the original (pre-hardening) live pass as sufficient and verify live post-merge, is a Board call — flagging it explicitly rather than assuming either answer.
-
-**Merge status: NOT MERGED.** Per the Merge Standard, this review does not itself authorize merge — awaiting explicit Board instruction on both the open item above and the merge itself.
+**Merge status: NOT MERGED.** Per the Merge Standard, this review does not itself authorize merge — awaiting explicit Board "Merge PR #450" instruction.
