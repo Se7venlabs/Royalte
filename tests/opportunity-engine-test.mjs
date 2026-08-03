@@ -382,6 +382,25 @@ await test('getOpportunityDashboardMetrics reports quickWinsCount and topOpportu
   assert.equal(result.metrics.topOpportunityActionId, 'a1');
 });
 
+await test('getOpportunityDashboardMetrics.resolvedThisMonth counts real completed/verified transitions this month, cross-referencing playbook_action_history', async () => {
+  const now = new Date();
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 15).toISOString();
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 2).toISOString();
+  const supabase = makeMockSupabase({
+    playbook_action_history: [
+      { id: 'h1', action_id: 'resolved-1', artist_profile_id: 'artist-1', to_status: 'completed', created_at: thisMonth },
+      { id: 'h2', action_id: 'resolved-1', artist_profile_id: 'artist-1', to_status: 'verified', created_at: thisMonth }, // same action, both events this month -- must count once, not twice
+      { id: 'h3', action_id: 'resolved-2', artist_profile_id: 'artist-1', to_status: 'verified', created_at: thisMonth },
+      { id: 'h4', action_id: 'resolved-old', artist_profile_id: 'artist-1', to_status: 'completed', created_at: lastMonth }, // resolved, but not this month
+      { id: 'h5', action_id: 'waiting-only', artist_profile_id: 'artist-1', to_status: 'waiting_verification', created_at: thisMonth }, // not a resolution
+      { id: 'h6', action_id: 'other-artist', artist_profile_id: 'artist-2', to_status: 'completed', created_at: thisMonth }, // different artist
+    ],
+  });
+  const result = await getOpportunityDashboardMetrics({ supabase, artistProfileId: 'artist-1' });
+  assert.equal(result.ok, true);
+  assert.equal(result.metrics.resolvedThisMonth, 2, 'must count distinct resolved actions this month, excluding last month, non-resolution transitions, and other artists');
+});
+
 await test('a rankable action moving out of the rankable set disappears from the Roadmap on next recompute', async () => {
   const supabase = makeMockSupabase();
   const started = makeAction({ id: 'a1', playbook_id: 'test-quick-win', status: 'started' });
