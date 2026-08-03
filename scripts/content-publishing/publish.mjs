@@ -17,14 +17,23 @@
 // automatically on the next run.
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { randomUUID, randomBytes } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadRegistry, saveArticle, appendHistory } from './registry.mjs';
-import { isEligibleForPublishing } from './schema.mjs';
+import { isEligibleForPublishing, isDueForApprovalRequest } from './schema.mjs';
+import { signToken } from './approval-tokens.mjs';
+import * as defaultMailer from './approval-mailer.mjs';
 import {
   renderBlogCards, renderBlogPostsJs, renderEducationCards, renderEducationPostsJs,
   renderSitemapUrls, renderRss, renderSearchIndex, substituteMarkerRegion,
 } from './render.mjs';
+
+// Signed approval links are valid for 7 days -- long enough that an
+// executive checking email a few days late doesn't hit a dead link, short
+// enough that a stale, unactioned link isn't usable indefinitely.
+const APPROVAL_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const RECIPIENT_EMAIL = 'info@royalte.ai';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '../..');
@@ -43,62 +52,150 @@ function todayUtc() {
   return new Date().toISOString().slice(0, 10);
 }
 
-// publishDueArticles({today, registryDir, historyPath, repoRoot}) ->
-// { publishedSlugs, failedSlugs, allArticles }
-// The only function that mutates registry state -- flips eligible entries
-// to 'published' and appends a Publication History event per attempt.
-// registryDir/historyPath/repoRoot default to the real project paths but
-// are overridable, so tests can point this at a scratch directory instead
-// of the real content-registry.
-function publishDueArticles({
+// issueApprovalRequest(article, opts) -- Content Approval Center(tm),
+// Phase 1. Creates the Supabase staging row + two signed links (approve/
+// reject sharing one requestId+nonce -- whichever is used first
+// atomically consumes the row, naturally invalidating the other), sends
+// the rich approval-request email (ECR-002), and only then flips
+// approvalStatus: 'pending' -> 'awaiting_approval'. If the Supabase
+// insert or the email send fails, the article is left 'pending' and
+// retried next run -- never flipped to 'awaiting_approval' without a
+// real, backed, delivered request, mirroring the publish path's own
+// "don't advance state on failure" discipline.
+async function issueApprovalRequest(article, { supabase, tokenSecret, baseUrl, registryDir, historyPath, repoRoot, workflowRunId, mailer }) {
+  const requestId = randomUUID();
+  const nonce = randomBytes(16).toString('hex');
+  const expiresAt = new Date(Date.now() + APPROVAL_TOKEN_TTL_MS).toISOString();
+
+  const { error: insertError } = await supabase.from('content_approval_requests').insert({
+    id: requestId, article_slug: article.slug, recipient_email: RECIPIENT_EMAIL,
+    nonce, expires_at: expiresAt,
+    // Denormalized snapshot -- api/content/decide.js is a live Vercel
+    // function with no git access, so it can't read the registry for the
+    // real title/date. These don't change after a request is already
+    // outstanding, so a snapshot is correct, not stale.
+    article_title: article.title, article_publish_date: article.publishDate,
+  });
+  if (insertError) throw new Error(`could not create approval request row: ${insertError.message}`);
+
+  const approveToken = signToken({ requestId, action: 'approve', expiresAt, nonce }, tokenSecret);
+  const rejectToken = signToken({ requestId, action: 'reject', expiresAt, nonce }, tokenSecret);
+  const approveUrl = `${baseUrl}/api/content/decide?token=${encodeURIComponent(approveToken)}`;
+  const rejectUrl = `${baseUrl}/api/content/decide?token=${encodeURIComponent(rejectToken)}`;
+
+  const seo = mailer.readSeoMetadata(article, repoRoot);
+  await mailer.sendApprovalRequestEmail({ article, seo, approveUrl, rejectUrl });
+
+  const nowIso = new Date().toISOString();
+  const updated = { ...article, approvalStatus: 'awaiting_approval', lastModified: nowIso };
+  saveArticle(updated, registryDir);
+  Object.assign(article, updated);
+
+  appendHistory({ event: 'approval_requested', slug: article.slug, approvalRequestId: requestId, workflowRunId }, historyPath);
+}
+
+// publishDueArticles({today, registryDir, historyPath, repoRoot, supabase,
+// tokenSecret, baseUrl, mailer}) -> { publishedSlugs, failedSlugs,
+// approvalRequestedSlugs, allArticles }
+//
+// The only function that mutates registry state. Two independent
+// due-date branches share one loop (Architecture, governance/
+// CONTENT_APPROVAL_CENTER_ARCHITECTURE.md): 'approved' articles publish
+// exactly as before; 'pending' articles due for their publishing window
+// instead have an approval request issued -- never both, since the two
+// eligibility checks require mutually exclusive approvalStatus values.
+//
+// `supabase`/`tokenSecret` are optional: when either is missing (e.g. a
+// test exercising only the publish path), due-for-approval articles are
+// simply left alone and logged, not silently skipped -- this function
+// never assumes Content Approval Center(tm) config is present.
+// `mailer` defaults to the real approval-mailer.mjs but is overridable so
+// tests never make a real Resend call; every mailer call is best-effort
+// (wrapped, logged, never fails the run) since a notification failure
+// must never block or roll back a real publish/approval-request action.
+async function publishDueArticles({
   today = todayUtc(), workflowRunId = null, commitSha = null,
   registryDir = undefined, historyPath = undefined, repoRoot = REPO_ROOT,
+  supabase = undefined, tokenSecret = undefined, baseUrl = 'https://royalte.ai',
+  mailer = defaultMailer,
 } = {}) {
   const startedAt = Date.now();
   const allArticles = loadRegistry(registryDir);
   const publishedSlugs = [];
   const failedSlugs = [];
+  const approvalRequestedSlugs = [];
+  const approvalRequestFailedSlugs = [];
+
+  async function notify(fn, args) {
+    try {
+      await fn(args);
+    } catch (err) {
+      console.error(`::warning::notification failed (${fn.name || 'mailer call'}): ${err.message}`);
+    }
+  }
 
   for (const article of allArticles) {
-    if (!isEligibleForPublishing(article, today)) continue;
+    if (isEligibleForPublishing(article, today)) {
+      if (!existsSync(path.join(repoRoot, article.contentPath))) {
+        failedSlugs.push(article.slug);
+        appendHistory({
+          event: 'publish_failed',
+          slug: article.slug,
+          reason: `contentPath does not exist: ${article.contentPath}`,
+          workflowRunId, commitSha,
+          durationMs: Date.now() - startedAt,
+        }, historyPath);
+        await notify(mailer.sendPublishingFailureEmail, { article, reason: `contentPath does not exist: ${article.contentPath}`, workflowRunId });
+        continue;
+      }
 
-    if (!existsSync(path.join(repoRoot, article.contentPath))) {
-      failedSlugs.push(article.slug);
+      await notify(mailer.sendPublishingStartedEmail, { article, workflowRunId });
+
+      const nowIso = new Date().toISOString();
+      const updated = {
+        ...article,
+        publishStatus: 'published',
+        publishedAt: nowIso,
+        lastModified: nowIso,
+      };
+      saveArticle(updated, registryDir);
+      // Reflect the flip in our in-memory copy so the render pass below sees it.
+      Object.assign(article, updated);
+      publishedSlugs.push(article.slug);
       appendHistory({
-        event: 'publish_failed',
+        event: 'published',
         slug: article.slug,
-        reason: `contentPath does not exist: ${article.contentPath}`,
+        publishDate: article.publishDate,
         workflowRunId, commitSha,
         durationMs: Date.now() - startedAt,
       }, historyPath);
+
+      const totalPublishedCount = allArticles.filter(a => a.publishStatus === 'published').length;
+      await notify(mailer.sendPublishingSuccessEmail, { article, workflowRunId, totalPublishedCount });
       continue;
     }
 
-    const nowIso = new Date().toISOString();
-    const updated = {
-      ...article,
-      publishStatus: 'published',
-      publishedAt: nowIso,
-      lastModified: nowIso,
-    };
-    saveArticle(updated, registryDir);
-    // Reflect the flip in our in-memory copy so the render pass below sees it.
-    Object.assign(article, updated);
-    publishedSlugs.push(article.slug);
-    appendHistory({
-      event: 'published',
-      slug: article.slug,
-      publishDate: article.publishDate,
-      workflowRunId, commitSha,
-      durationMs: Date.now() - startedAt,
-    }, historyPath);
+    if (isDueForApprovalRequest(article, today) && supabase && tokenSecret) {
+      try {
+        await issueApprovalRequest(article, { supabase, tokenSecret, baseUrl, registryDir, historyPath, repoRoot, workflowRunId, mailer });
+        approvalRequestedSlugs.push(article.slug);
+      } catch (err) {
+        approvalRequestFailedSlugs.push(article.slug);
+        appendHistory({
+          event: 'approval_request_failed',
+          slug: article.slug,
+          reason: err.message,
+          workflowRunId,
+        }, historyPath);
+      }
+    }
   }
 
-  if (publishedSlugs.length === 0 && failedSlugs.length === 0) {
+  if (publishedSlugs.length === 0 && failedSlugs.length === 0 && approvalRequestedSlugs.length === 0) {
     appendHistory({ event: 'run_no_due_articles', workflowRunId, commitSha, durationMs: Date.now() - startedAt }, historyPath);
   }
 
-  return { publishedSlugs, failedSlugs, allArticles };
+  return { publishedSlugs, failedSlugs, approvalRequestedSlugs, approvalRequestFailedSlugs, allArticles };
 }
 
 // regenerateArtifacts(allArticles, {generatedAt, paths}) -> string[] of
@@ -159,13 +256,15 @@ function regenerateArtifacts(allArticles, { generatedAt = new Date().toISOString
   return written;
 }
 
-function writeStepSummary({ publishedSlugs, failedSlugs, writtenFiles, loadErrors = [] }) {
+function writeStepSummary({ publishedSlugs, failedSlugs, approvalRequestedSlugs = [], approvalRequestFailedSlugs = [], writtenFiles, loadErrors = [] }) {
   const summaryPath = process.env.GITHUB_STEP_SUMMARY;
   const lines = [
     '## Content Publishing Engine™ run',
     '',
     `**Published**: ${publishedSlugs.length ? publishedSlugs.join(', ') : 'none'}`,
     `**Failed**: ${failedSlugs.length ? failedSlugs.join(', ') : 'none'}`,
+    `**Approval requested**: ${approvalRequestedSlugs.length ? approvalRequestedSlugs.join(', ') : 'none'}`,
+    `**Approval request failed**: ${approvalRequestFailedSlugs.length ? approvalRequestFailedSlugs.join(', ') : 'none'}`,
     `**Files changed**: ${writtenFiles.length ? writtenFiles.map(f => path.relative(REPO_ROOT, f)).join(', ') : 'none'}`,
   ];
   if (loadErrors.length > 0) {
@@ -191,12 +290,28 @@ export { publishDueArticles, regenerateArtifacts, PATHS };
 // current state is, closing that window within the same run rather than
 // leaving it to self-heal (correctly, but with unnecessary delay) later.
 if (import.meta.url === `file://${process.argv[1]}`) {
+  // Content Approval Center(tm) config -- both optional at the type
+  // level, but a due-for-approval article silently never gets a request
+  // if either is missing (see publishDueArticles's own doc comment), so
+  // a misconfigured SUPABASE_* or CONTENT_APPROVAL_TOKEN_SECRET fails
+  // loudly here rather than silently disabling half the Engine.
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const tokenSecret = process.env.CONTENT_APPROVAL_TOKEN_SECRET;
+  if (!supabaseUrl || !supabaseKey || !tokenSecret) {
+    console.error('::error::SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and CONTENT_APPROVAL_TOKEN_SECRET must all be set -- Content Approval Center cannot issue approval requests without them.');
+    process.exitCode = 1;
+  }
+  const { createClient } = await import('@supabase/supabase-js');
+  const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : undefined;
+
   let publishResult = null;
   let publishError = null;
   try {
-    publishResult = publishDueArticles({
+    publishResult = await publishDueArticles({
       workflowRunId: process.env.GITHUB_RUN_ID || null,
       commitSha: process.env.GITHUB_SHA || null,
+      supabase, tokenSecret,
     });
   } catch (err) {
     publishError = err;
@@ -204,12 +319,17 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const allArticles = publishResult ? publishResult.allArticles : loadRegistry();
     const publishedSlugs = publishResult ? publishResult.publishedSlugs : [];
     const failedSlugs = publishResult ? publishResult.failedSlugs : [];
+    const approvalRequestedSlugs = publishResult ? publishResult.approvalRequestedSlugs : [];
+    const approvalRequestFailedSlugs = publishResult ? publishResult.approvalRequestFailedSlugs : [];
     const writtenFiles = regenerateArtifacts(allArticles);
     const loadErrors = allArticles.loadErrors || [];
-    writeStepSummary({ publishedSlugs, failedSlugs, writtenFiles, loadErrors });
+    writeStepSummary({ publishedSlugs, failedSlugs, approvalRequestedSlugs, approvalRequestFailedSlugs, writtenFiles, loadErrors });
 
     if (failedSlugs.length > 0) {
       console.error(`::warning::${failedSlugs.length} article(s) were due but failed to publish -- will retry next run.`);
+    }
+    if (approvalRequestFailedSlugs.length > 0) {
+      console.error(`::warning::${approvalRequestFailedSlugs.length} approval request(s) failed to issue -- will retry next run: ${approvalRequestFailedSlugs.join(', ')}`);
     }
     if (loadErrors.length > 0) {
       console.error(`::error::${loadErrors.length} registry file(s) could not be parsed and were skipped -- fix them, this is not a self-healing condition: ${loadErrors.map(e => e.file).join(', ')}`);

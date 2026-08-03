@@ -22,7 +22,14 @@ export const REGISTRY_SCHEMA_VERSION = '1.0';
 
 export const CONTENT_TYPES = Object.freeze(['blog', 'education']);
 
-export const APPROVAL_STATUSES = Object.freeze(['pending', 'approved']);
+// Content Approval Center(tm), Phase 1: 'pending' (never reviewed) and
+// 'awaiting_approval' (a signed email link is outstanding) are distinct --
+// isEligibleForPublishing() below only ever advances an article past
+// 'pending' via the email-approval flow, never silently. 'needs_revision'
+// is a rejection's landing state -- publishing stops until a human lands
+// a content revision that resets this back to 'pending' (the existing
+// Content Merge Gate), which re-enters the same flow.
+export const APPROVAL_STATUSES = Object.freeze(['pending', 'awaiting_approval', 'approved', 'needs_revision']);
 
 export const PUBLISH_STATUSES = Object.freeze(['draft', 'scheduled', 'published', 'archived']);
 
@@ -78,6 +85,22 @@ export function validateArticleShape(entry) {
 export function isEligibleForPublishing(entry, today) {
   if (!entry) return false;
   if (entry.approvalStatus !== 'approved') return false;
+  if (entry.publishStatus !== 'scheduled') return false;
+  if (!entry.publishDate) return false;
+  return entry.publishDate <= today;
+}
+
+// isDueForApprovalRequest(entry, today) -> boolean. Content Approval
+// Center(tm), Phase 1: an approval email is only ever issued once an
+// article's publishing window is reached (or overdue) -- the same date
+// gate isEligibleForPublishing() uses, not the moment content merges.
+// This is deliberate: it means every article a human ever approves is,
+// by construction, already due -- so firing a workflow_dispatch right
+// after approval publishes it in that same run, with no separate
+// "publish overdue articles immediately" logic required.
+export function isDueForApprovalRequest(entry, today) {
+  if (!entry) return false;
+  if (entry.approvalStatus !== 'pending') return false;
   if (entry.publishStatus !== 'scheduled') return false;
   if (!entry.publishDate) return false;
   return entry.publishDate <= today;

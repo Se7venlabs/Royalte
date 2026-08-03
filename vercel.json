@@ -25,6 +25,9 @@
     "api/cron/scan-subscription.js": {
       "maxDuration": 60,
       "includeFiles": "api/apple-token.js"
+    },
+    "api/content/decide.js": {
+      "maxDuration": 20
     }
   },
   "crons": [
@@ -143,6 +146,10 @@
     {
       "src": "/api/health",
       "dest": "/api/health.js"
+    },
+    {
+      "src": "/api/content/decide",
+      "dest": "/api/content/decide.js"
     },
     {
       "src": "/demo.html",

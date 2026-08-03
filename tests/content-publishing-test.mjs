@@ -9,7 +9,7 @@ import { mkdtempSync, rmSync, writeFileSync, existsSync, readFileSync, mkdirSync
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import { validateArticleShape, isValidSlug, isEligibleForPublishing } from '../scripts/content-publishing/schema.mjs';
+import { validateArticleShape, isValidSlug, isEligibleForPublishing, isDueForApprovalRequest } from '../scripts/content-publishing/schema.mjs';
 import {
   renderBlogCards, renderBlogPostsJs, renderEducationCards, renderCategoryTileCounts,
   renderSitemapUrls, renderRss, renderSearchIndex, substituteMarkerRegion,
@@ -17,6 +17,9 @@ import {
 import { loadRegistry, saveArticle, appendHistory, loadHistory } from '../scripts/content-publishing/registry.mjs';
 import { validateRegistry } from '../scripts/content-publishing/validate.mjs';
 import { publishDueArticles, regenerateArtifacts } from '../scripts/content-publishing/publish.mjs';
+import { syncDecidedApprovals } from '../scripts/content-publishing/sync-approvals.mjs';
+import { signToken, verifyToken } from '../scripts/content-publishing/approval-tokens.mjs';
+import { extractSeoMetadata } from '../scripts/content-publishing/approval-mailer.mjs';
 
 let passed = 0;
 let failed = 0;
@@ -56,6 +59,36 @@ function makeArticle(overrides = {}) {
     lastModified: now,
     sourcePr: null,
     ...overrides,
+  };
+}
+
+// Injected into every publishDueArticles() call in this file -- records
+// what was sent without ever touching the real Resend API. Real email
+// rendering has its own coverage in §6; this file only cares that the
+// right notification fires at the right moment.
+function makeTestMailer() {
+  const calls = [];
+  const record = (type) => async (args) => { calls.push({ type, slug: args.article.slug }); };
+  return {
+    calls,
+    sendPublishingStartedEmail: record('started'),
+    sendPublishingSuccessEmail: record('success'),
+    sendPublishingFailureEmail: record('failure'),
+    sendApprovalRequestEmail: record('approval_request'),
+    readSeoMetadata: () => ({ seoTitle: null, metaDescription: null, keywords: null }),
+  };
+}
+
+// Minimal in-memory Supabase stub -- just enough surface for
+// issueApprovalRequest()'s single `.from(...).insert(...)` call. Tests
+// exercising sync-approvals.mjs build their own richer stub inline.
+function makeTestSupabase() {
+  const insertedRows = [];
+  return {
+    insertedRows,
+    from: () => ({
+      insert: (row) => { insertedRows.push(row); return Promise.resolve({ error: null }); },
+    }),
   };
 }
 
@@ -286,26 +319,26 @@ await test('validateRegistry passes a clean, valid registry', async () => {
 // ═══════════════════════════════════════════════════════════════════════
 console.log('\n§5 Publish — the autonomous engine, against a scratch registry');
 
-function withPublishScratch(fn) {
+async function withPublishScratch(fn) {
   const dir = mkdtempSync(path.join(tmpdir(), 'publish-test-'));
   const registryDir = path.join(dir, 'articles');
   const historyPath = path.join(dir, 'history.jsonl');
   const repoRoot = dir;
   mkdirSync(registryDir, { recursive: true });
   try {
-    return fn({ registryDir, historyPath, repoRoot });
+    return await fn({ registryDir, historyPath, repoRoot });
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 }
 
 await test('publishDueArticles only flips eligible (approved+scheduled+due) articles', async () => {
-  withPublishScratch(({ registryDir, historyPath, repoRoot }) => {
+  await withPublishScratch(async ({ registryDir, historyPath, repoRoot }) => {
     saveArticle(makeArticle({ slug: 'due', publishDate: '2026-08-01', contentPath: 'exists.html' }), registryDir);
     saveArticle(makeArticle({ slug: 'not-due-yet', publishDate: '2026-09-01', contentPath: 'exists.html' }), registryDir);
     writeFileSync(path.join(repoRoot, 'exists.html'), '<html></html>');
 
-    const result = publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot });
+    const result = await publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot, mailer: makeTestMailer() });
     assert.deepEqual(result.publishedSlugs, ['due']);
 
     const due = loadRegistry(registryDir).find(a => a.slug === 'due');
@@ -317,10 +350,10 @@ await test('publishDueArticles only flips eligible (approved+scheduled+due) arti
 });
 
 await test('an article whose contentPath is missing is skipped, not published, and logged as a failure', async () => {
-  withPublishScratch(({ registryDir, historyPath, repoRoot }) => {
+  await withPublishScratch(async ({ registryDir, historyPath, repoRoot }) => {
     saveArticle(makeArticle({ slug: 'missing-content', publishDate: '2026-08-01', contentPath: 'nonexistent.html' }), registryDir);
 
-    const result = publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot });
+    const result = await publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot, mailer: makeTestMailer() });
     assert.deepEqual(result.publishedSlugs, []);
     assert.deepEqual(result.failedSlugs, ['missing-content']);
 
@@ -333,22 +366,22 @@ await test('an article whose contentPath is missing is skipped, not published, a
 });
 
 await test('a failed article is retried and succeeds once its content appears (recovery)', async () => {
-  withPublishScratch(({ registryDir, historyPath, repoRoot }) => {
+  await withPublishScratch(async ({ registryDir, historyPath, repoRoot }) => {
     saveArticle(makeArticle({ slug: 'late-content', publishDate: '2026-08-01', contentPath: 'late.html' }), registryDir);
 
-    const first = publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot });
+    const first = await publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot, mailer: makeTestMailer() });
     assert.deepEqual(first.failedSlugs, ['late-content']);
 
     // Simulate the content PR merging.
     writeFileSync(path.join(repoRoot, 'late.html'), '<html></html>');
 
-    const second = publishDueArticles({ today: '2026-08-04', registryDir, historyPath, repoRoot });
+    const second = await publishDueArticles({ today: '2026-08-04', registryDir, historyPath, repoRoot, mailer: makeTestMailer() });
     assert.deepEqual(second.publishedSlugs, ['late-content']);
   });
 });
 
 await test('interrupted publish self-heals: an article flipped to published but never regenerated (simulated crash) becomes visible on the next regeneration pass', async () => {
-  withPublishScratch(({ registryDir, historyPath, repoRoot }) => {
+  await withPublishScratch(async ({ registryDir, historyPath, repoRoot }) => {
     saveArticle(makeArticle({ slug: 'crash-recovery', title: 'Crash Recovery Article', publishDate: '2026-08-01', contentPath: 'exists.html' }), registryDir);
     writeFileSync(path.join(repoRoot, 'exists.html'), '<html></html>');
 
@@ -358,7 +391,7 @@ await test('interrupted publish self-heals: an article flipped to published but 
     // same run; this test verifies the underlying guarantee that makes
     // that safe even without the finally: regeneration always reads the
     // registry's actual current state, never a stale in-memory snapshot).
-    const result = publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot });
+    const result = await publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot, mailer: makeTestMailer() });
     assert.deepEqual(result.publishedSlugs, ['crash-recovery']);
 
     const paths = scratchPaths(repoRoot);
@@ -369,7 +402,7 @@ await test('interrupted publish self-heals: an article flipped to published but 
 
     // Next run: nothing newly due (already published), but a fresh
     // loadRegistry() + regenerateArtifacts() call must still surface it.
-    const nextRun = publishDueArticles({ today: '2026-08-04', registryDir, historyPath, repoRoot });
+    const nextRun = await publishDueArticles({ today: '2026-08-04', registryDir, historyPath, repoRoot, mailer: makeTestMailer() });
     assert.deepEqual(nextRun.publishedSlugs, [], 'already published -- nothing new to flip');
     regenerateArtifacts(nextRun.allArticles, { generatedAt: '2026-08-04T13:00:00Z', paths });
     assert.ok(readFileSync(paths.blogHtml, 'utf8').includes('Crash Recovery Article'), 'must self-heal on the next regeneration pass');
@@ -377,17 +410,75 @@ await test('interrupted publish self-heals: an article flipped to published but 
 });
 
 await test('idempotency: running twice with nothing newly due produces identical registry state and no re-publish', async () => {
-  withPublishScratch(({ registryDir, historyPath, repoRoot }) => {
+  await withPublishScratch(async ({ registryDir, historyPath, repoRoot }) => {
     saveArticle(makeArticle({ slug: 'already-published', publishStatus: 'published', publishDate: '2026-07-01', contentPath: 'exists.html' }), registryDir);
     writeFileSync(path.join(repoRoot, 'exists.html'), '<html></html>');
 
-    const first = publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot });
-    const second = publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot });
+    const first = await publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot, mailer: makeTestMailer() });
+    const second = await publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot, mailer: makeTestMailer() });
     assert.deepEqual(first.publishedSlugs, []);
     assert.deepEqual(second.publishedSlugs, []);
 
     const history = loadHistory(historyPath);
     assert.equal(history.filter(e => e.event === 'run_no_due_articles').length, 2, 'each run is still a real, logged fact even when nothing is due');
+  });
+});
+
+await test('a pending article due for its publishing window gets an approval request, not a publish', async () => {
+  await withPublishScratch(async ({ registryDir, historyPath, repoRoot }) => {
+    saveArticle(makeArticle({ slug: 'needs-approval', approvalStatus: 'pending', publishDate: '2026-08-01', contentPath: 'exists.html' }), registryDir);
+    writeFileSync(path.join(repoRoot, 'exists.html'), '<html></html>');
+
+    const mailer = makeTestMailer();
+    const supabase = makeTestSupabase();
+    const result = await publishDueArticles({
+      today: '2026-08-03', registryDir, historyPath, repoRoot,
+      supabase, tokenSecret: 'test-secret', mailer,
+    });
+
+    assert.deepEqual(result.publishedSlugs, [], 'must never publish a pending article, however overdue');
+    assert.deepEqual(result.approvalRequestedSlugs, ['needs-approval']);
+    assert.equal(mailer.calls.filter(c => c.type === 'approval_request').length, 1);
+    assert.equal(supabase.insertedRows.length, 1);
+    assert.equal(supabase.insertedRows[0].article_slug, 'needs-approval');
+
+    const article = loadRegistry(registryDir).find(a => a.slug === 'needs-approval');
+    assert.equal(article.approvalStatus, 'awaiting_approval');
+
+    // Re-running the same day must NOT issue a second request -- the
+    // registry flip itself is what prevents duplicates, no separate
+    // "already has an outstanding request" query needed.
+    const second = await publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot, supabase, tokenSecret: 'test-secret', mailer });
+    assert.deepEqual(second.approvalRequestedSlugs, []);
+  });
+});
+
+await test('publishDueArticles never issues an approval request without both supabase and tokenSecret configured', async () => {
+  await withPublishScratch(async ({ registryDir, historyPath, repoRoot }) => {
+    saveArticle(makeArticle({ slug: 'needs-approval', approvalStatus: 'pending', publishDate: '2026-08-01', contentPath: 'exists.html' }), registryDir);
+    writeFileSync(path.join(repoRoot, 'exists.html'), '<html></html>');
+
+    const result = await publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot, mailer: makeTestMailer() });
+    assert.deepEqual(result.approvalRequestedSlugs, []);
+    const article = loadRegistry(registryDir).find(a => a.slug === 'needs-approval');
+    assert.equal(article.approvalStatus, 'pending', 'left untouched, safe to retry once configured');
+  });
+});
+
+await test('a Supabase insert failure leaves the article pending for retry, never flips to awaiting_approval', async () => {
+  await withPublishScratch(async ({ registryDir, historyPath, repoRoot }) => {
+    saveArticle(makeArticle({ slug: 'needs-approval', approvalStatus: 'pending', publishDate: '2026-08-01', contentPath: 'exists.html' }), registryDir);
+    writeFileSync(path.join(repoRoot, 'exists.html'), '<html></html>');
+
+    const failingSupabase = { from: () => ({ insert: () => Promise.resolve({ error: { message: 'connection refused' } }) }) };
+    const result = await publishDueArticles({ today: '2026-08-03', registryDir, historyPath, repoRoot, supabase: failingSupabase, tokenSecret: 'test-secret', mailer: makeTestMailer() });
+
+    assert.deepEqual(result.approvalRequestedSlugs, []);
+    assert.deepEqual(result.approvalRequestFailedSlugs, ['needs-approval']);
+    const article = loadRegistry(registryDir).find(a => a.slug === 'needs-approval');
+    assert.equal(article.approvalStatus, 'pending');
+    const history = loadHistory(historyPath);
+    assert.ok(history.some(e => e.event === 'approval_request_failed' && e.slug === 'needs-approval'));
   });
 });
 
@@ -404,7 +495,7 @@ function scratchPaths(repoRoot) {
 }
 
 await test('regenerateArtifacts substitutes the marker region and leaves surrounding hand-authored HTML untouched', async () => {
-  withPublishScratch(({ repoRoot }) => {
+  await withPublishScratch(async ({ repoRoot }) => {
     const paths = scratchPaths(repoRoot);
     writeFileSync(paths.blogHtml, 'NAV\n<!-- CONTENT-PUBLISHING-ENGINE:BLOG_CARDS:START -->\n<!-- CONTENT-PUBLISHING-ENGINE:BLOG_CARDS:END -->\nFOOTER');
     writeFileSync(paths.sitemapXml, '<urlset>\n<!-- CONTENT-PUBLISHING-ENGINE:SITEMAP_URLS:START -->\n<!-- CONTENT-PUBLISHING-ENGINE:SITEMAP_URLS:END -->\n</urlset>');
@@ -424,7 +515,7 @@ await test('regenerateArtifacts substitutes the marker region and leaves surroun
 });
 
 await test('regenerateArtifacts is a true no-op (no files rewritten) when nothing changed', async () => {
-  withPublishScratch(({ repoRoot }) => {
+  await withPublishScratch(async ({ repoRoot }) => {
     const paths = scratchPaths(repoRoot);
     writeFileSync(paths.blogHtml, '<!-- CONTENT-PUBLISHING-ENGINE:BLOG_CARDS:START -->\n<!-- CONTENT-PUBLISHING-ENGINE:BLOG_CARDS:END -->');
     writeFileSync(paths.sitemapXml, '<!-- CONTENT-PUBLISHING-ENGINE:SITEMAP_URLS:START -->\n<!-- CONTENT-PUBLISHING-ENGINE:SITEMAP_URLS:END -->');
@@ -435,6 +526,125 @@ await test('regenerateArtifacts is a true no-op (no files rewritten) when nothin
 
     assert.ok(!secondRun.includes(paths.blogHtml), 'identical registry state must not rewrite blog.html a second time');
     assert.ok(!secondRun.includes(paths.blogPostsJs), 'identical registry state must not rewrite blog-posts.js a second time');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+console.log('\n§6 Approval — Content Approval Center™, tokens and sync');
+
+await test('isDueForApprovalRequest requires pending + scheduled + due date, exactly', async () => {
+  const today = '2026-08-03';
+  assert.ok(isDueForApprovalRequest(makeArticle({ approvalStatus: 'pending', publishDate: '2026-08-01' }), today));
+  assert.ok(!isDueForApprovalRequest(makeArticle({ approvalStatus: 'pending', publishDate: '2026-09-01' }), today), 'not yet due');
+  assert.ok(!isDueForApprovalRequest(makeArticle({ approvalStatus: 'approved', publishDate: '2026-08-01' }), today), 'already approved -- publish path\'s job, not this one');
+  assert.ok(!isDueForApprovalRequest(makeArticle({ approvalStatus: 'awaiting_approval', publishDate: '2026-08-01' }), today), 'already has an outstanding request');
+  assert.ok(!isDueForApprovalRequest(makeArticle({ approvalStatus: 'pending', publishStatus: 'draft', publishDate: '2026-08-01' }), today), 'draft, not yet scheduled');
+});
+
+await test('signToken/verifyToken round-trip correctly', async () => {
+  const secret = 'test-secret';
+  const token = signToken({ requestId: 'req-1', action: 'approve', expiresAt: '2026-08-10T00:00:00.000Z', nonce: 'abc' }, secret);
+  const result = verifyToken(token, secret, '2026-08-03T00:00:00.000Z');
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.payload, { requestId: 'req-1', action: 'approve', expiresAt: '2026-08-10T00:00:00.000Z', nonce: 'abc' });
+});
+
+await test('verifyToken rejects an expired token', async () => {
+  const secret = 'test-secret';
+  const token = signToken({ requestId: 'req-1', action: 'approve', expiresAt: '2026-08-01T00:00:00.000Z', nonce: 'abc' }, secret);
+  const result = verifyToken(token, secret, '2026-08-03T00:00:00.000Z');
+  assert.equal(result.valid, false);
+  assert.equal(result.reason, 'expired');
+});
+
+await test('verifyToken rejects a tampered payload', async () => {
+  const secret = 'test-secret';
+  const token = signToken({ requestId: 'req-1', action: 'approve', expiresAt: '2026-08-10T00:00:00.000Z', nonce: 'abc' }, secret);
+  const [payloadB64, signature] = token.split('.');
+  const tamperedPayload = Buffer.from(JSON.stringify({ requestId: 'req-1', action: 'reject', expiresAt: '2026-08-10T00:00:00.000Z', nonce: 'abc' })).toString('base64url');
+  const result = verifyToken(`${tamperedPayload}.${signature}`, secret, '2026-08-03T00:00:00.000Z');
+  assert.equal(result.valid, false);
+  assert.equal(result.reason, 'invalid_signature');
+});
+
+await test('verifyToken rejects a token signed with a different secret (replay/forgery protection)', async () => {
+  const token = signToken({ requestId: 'req-1', action: 'approve', expiresAt: '2026-08-10T00:00:00.000Z', nonce: 'abc' }, 'secret-a');
+  const result = verifyToken(token, 'secret-b', '2026-08-03T00:00:00.000Z');
+  assert.equal(result.valid, false);
+  assert.equal(result.reason, 'invalid_signature');
+});
+
+await test('verifyToken rejects malformed input without throwing', async () => {
+  assert.equal(verifyToken('', 'secret', '2026-08-03').valid, false);
+  assert.equal(verifyToken('no-dot-here', 'secret', '2026-08-03').valid, false);
+  assert.equal(verifyToken('a.b.c', 'secret', '2026-08-03').valid, false);
+});
+
+await test('extractSeoMetadata reads title/description/keywords, "Not specified" behavior left to the caller when absent', async () => {
+  const full = '<html><head><title>My SEO Title</title><meta name="description" content="A description."><meta name="keywords" content="royalties, metadata"></head></html>';
+  assert.deepEqual(extractSeoMetadata(full), { seoTitle: 'My SEO Title', metaDescription: 'A description.', keywords: 'royalties, metadata' });
+
+  const bare = '<html><head></head></html>';
+  assert.deepEqual(extractSeoMetadata(bare), { seoTitle: null, metaDescription: null, keywords: null }, 'genuinely absent tags are null, never fabricated');
+});
+
+function makeApprovalRow(overrides = {}) {
+  return {
+    id: 'req-1', article_slug: 'test-article', status: 'approved', decided_at: '2026-08-03T12:00:00Z',
+    ...overrides,
+  };
+}
+
+function makeSyncSupabaseStub(rows) {
+  const updates = [];
+  return {
+    updates,
+    from: () => ({
+      select: function () { return this; },
+      in: function () { return this; },
+      is: () => Promise.resolve({ data: rows, error: null }),
+      update: (payload) => ({
+        eq: (col, id) => ({
+          is: () => { updates.push({ id, payload }); return Promise.resolve({ error: null }); },
+        }),
+      }),
+    }),
+  };
+}
+
+await test('syncDecidedApprovals flips approved -> approved and rejected -> needs_revision', async () => {
+  await withPublishScratch(async ({ registryDir, historyPath }) => {
+    saveArticle(makeArticle({ slug: 'went-approved', approvalStatus: 'awaiting_approval' }), registryDir);
+    saveArticle(makeArticle({ slug: 'went-rejected', approvalStatus: 'awaiting_approval' }), registryDir);
+
+    const rows = [
+      makeApprovalRow({ id: 'req-1', article_slug: 'went-approved', status: 'approved' }),
+      makeApprovalRow({ id: 'req-2', article_slug: 'went-rejected', status: 'rejected' }),
+    ];
+    const supabase = makeSyncSupabaseStub(rows);
+
+    const result = await syncDecidedApprovals({ supabase, registryDir, historyPath, workflowRunId: 'test-run' });
+    assert.deepEqual(result.syncedSlugs.sort(), ['went-approved', 'went-rejected']);
+    assert.equal(supabase.updates.length, 2);
+
+    assert.equal(loadRegistry(registryDir).find(a => a.slug === 'went-approved').approvalStatus, 'approved');
+    assert.equal(loadRegistry(registryDir).find(a => a.slug === 'went-rejected').approvalStatus, 'needs_revision');
+
+    const history = loadHistory(historyPath);
+    assert.ok(history.some(e => e.event === 'approval_synced' && e.slug === 'went-approved'));
+    assert.ok(history.some(e => e.event === 'rejection_synced' && e.slug === 'went-rejected'));
+  });
+});
+
+await test('syncDecidedApprovals skips a decision for a slug with no matching registry entry, reports it, never throws', async () => {
+  await withPublishScratch(async ({ registryDir, historyPath }) => {
+    const rows = [makeApprovalRow({ id: 'req-1', article_slug: 'does-not-exist', status: 'approved' })];
+    const supabase = makeSyncSupabaseStub(rows);
+
+    const result = await syncDecidedApprovals({ supabase, registryDir, historyPath });
+    assert.deepEqual(result.syncedSlugs, []);
+    assert.equal(result.errors.length, 1);
+    assert.equal(result.errors[0].slug, 'does-not-exist');
   });
 });
 

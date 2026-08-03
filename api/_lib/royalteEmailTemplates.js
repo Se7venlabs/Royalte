@@ -48,7 +48,7 @@
 // Inline styles only — <style> tags get stripped or ignored by Gmail
 // app, Outlook, etc. Keep widths under 600px for mobile readability.
 
-const wrap = ({ preview, body, footerNote }) => `<!DOCTYPE html>
+export const wrap = ({ preview, body, footerNote }) => `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -96,7 +96,7 @@ Se7ven Laboratories LLC<br>
 // ── Shared button component ──────────────────────────────────
 // Bulletproof button — works in Outlook (which doesn't support gradients
 // or border-radius). Falls back to solid purple in older clients.
-const button = (text, url) => `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:24px auto;">
+export const button = (text, url) => `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:24px auto;">
 <tr>
 <td align="center" style="background-color:#8a5cff;background-image:linear-gradient(135deg,#8a5cff,#e040c8);border-radius:6px;">
 <a href="${url}" style="display:inline-block;padding:14px 28px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:1px;text-transform:uppercase;">${text}</a>
