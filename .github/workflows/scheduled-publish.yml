@@ -10,24 +10,37 @@ name: Scheduled Content Publish
 # (the single source of truth for what's approved and when it's due), and
 # if anything changed, commits the regenerated derived artifacts (blog.html
 # card region, blog-posts.js, sitemap.xml's article section, rss.xml,
-# search-index.json) to a fresh, single-purpose branch, opens a PR, waits
-# for the required `Run pipeline test` check, and merges it itself.
+# search-index.json) to a fresh, single-purpose branch and pushes it.
 #
 # This PR can never conflict the way the old scheduler's PRs did: it is
 # always branched fresh from current `main` immediately before running, it
 # is the ONLY writer of the files it touches, and it contains a full
 # regeneration (never an incremental patch), so there is nothing for a
-# second branch to have diverged from. This is a deliberate correction
-# from this feature's original design (a direct `git push` to `main`),
-# found via live production verification of PR #454's certification: `main`'s
-# branch protection ruleset enforces the required status check even against
-# direct pushes (`current_user_can_bypass: never`), which a direct push has
-# no way to satisfy, since a check only ever attaches to a commit that has
-# already been pushed. Going through a real (but always conflict-free) PR
-# is the correct way to satisfy that same protection this automation is not,
-# and should not be, exempt from -- see
-# governance/CONTENT_PUBLISHING_EXECUTIVE_ACCEPTANCE_REVIEW.md §8 for the
-# full governance reasoning this correction is built on.
+# second branch to have diverged from.
+#
+# WHY A PR, NOT A DIRECT PUSH -- this feature's original design pushed
+# directly to `main`. Live production verification of PR #454's
+# certification found that fails: `main`'s branch protection ruleset
+# enforces its required status check even against direct pushes
+# (`current_user_can_bypass: never`), which a direct push has no way to
+# satisfy, since a check only ever attaches to a commit that has already
+# been pushed. Going through a real PR is the correct way to satisfy that
+# same protection this automation is not, and should not be, exempt from.
+#
+# AUTHENTICATION MODEL -- opening a PR as `github-actions[bot]` additionally
+# requires the repo-level "Allow GitHub Actions to create and approve pull
+# requests" setting (`can_approve_pull_request_reviews`), which is a second,
+# repo-wide gate independent of this workflow's own `permissions:` block.
+# It was off; a live test failed with "GitHub Actions is not permitted to
+# create or approve pull requests" before it was enabled. Board-authorized
+# and turned on 2026-08-03 under the Principle of Least Privilege -- full
+# rationale, exact API call, and what this does and does not grant (it
+# technically also grants review-approval capability, since GitHub bundles
+# both behind one setting; this workflow never calls `gh pr review`) is in
+# governance/CONTENT_PUBLISHING_AUTHENTICATION_MODEL.md. Branch protection,
+# required status checks, and this repo's lack of a required-review rule
+# are all unchanged by that setting -- this workflow gets no bypass any
+# human merging by hand wouldn't also get.
 #
 # Article content itself (public/blog/*.html, images) still merges via a
 # normal, human-reviewed PR whenever it's ready — safe, because each
