@@ -68,6 +68,16 @@ const blogPosts = [
     status: "coming_soon"
   },
   {
+    title: "The 7 Metadata Mistakes That Could Be Costing You Music Royalties",
+    excerpt: "Bad metadata can quietly cost artists their royalties. Learn the 7 most common mistakes—from ISRC errors to missing publisher info—and how to avoid them.",
+    category: "Metadata",
+    date: "2026-08-04",
+    readTime: "7 min read",
+    slug: "metadata-mistakes-killing-royalties",
+    url: "/blog/metadata-mistakes-killing-royalties.html",
+    status: "live"
+  },
+  {
     title: "The 35-Year Copyright Rule: Can Artists Really Get Their Rights Back?",
     excerpt: "Many artists believe they automatically regain music rights after 35 years. Learn what copyright termination actually means and how it really works.",
     category: "Publishing",

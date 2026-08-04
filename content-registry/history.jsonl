@@ -36,3 +36,5 @@
 {"event":"published","slug":"the-35-year-copyright-rule","publishDate":"2026-08-03","workflowRunId":"30866538912","commitSha":"f34b0dca589022782cc4b659e439ecb64f6bd133","durationMs":1203,"loggedAt":"2026-08-04T00:45:00.320Z"}
 {"event":"run_no_due_articles","workflowRunId":"30921328809","commitSha":"db17fe8f1007d122e1872440661b85254025ae2a","durationMs":0,"loggedAt":"2026-08-04T14:54:20.716Z"}
 {"event":"approval_requested","slug":"metadata-mistakes-killing-royalties","approvalRequestId":"a3b6acce-f281-4718-8f25-d45e39a4eaaf","workflowRunId":"30921796891","loggedAt":"2026-08-04T14:59:44.364Z"}
+{"event":"approval_synced","slug":"metadata-mistakes-killing-royalties","approvalRequestId":"a3b6acce-f281-4718-8f25-d45e39a4eaaf","previousApprovalStatus":"awaiting_approval","newApprovalStatus":"approved","decidedAt":"2026-08-04T15:04:16.242+00:00","workflowRunId":"30922234160","loggedAt":"2026-08-04T15:04:38.776Z"}
+{"event":"published","slug":"metadata-mistakes-killing-royalties","publishDate":"2026-08-04","workflowRunId":"30922234160","commitSha":"05cc3030f30c45edaddd8bbba40b0092d8ca572a","durationMs":14732,"loggedAt":"2026-08-04T15:04:53.776Z"}
