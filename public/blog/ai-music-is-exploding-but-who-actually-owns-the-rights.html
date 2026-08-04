@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Music Is Exploding—But Who Actually Owns the Rights? — Royaltē Knowledge Hub</title>
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://royalte.ai/blog/ai-music-is-exploding-but-who-actually-owns-the-rights.html">
+<meta property="og:title" content="AI Music Is Exploding—But Who Actually Owns the Rights? — Royaltē Knowledge Hub">
+<meta property="og:description" content="AI-generated music is exploding, but ownership remains unclear. Learn who actually owns AI-created music and how to protect your rights as an artist.">
+<meta property="og:image" content="https://royalte.ai/blog/images/ai-music-is-exploding-but-who-actually-owns-the-rights-hero.png">
+<meta property="og:image:width" content="1536">
+<meta property="og:image:height" content="1024">
+<meta property="og:site_name" content="Royaltē">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI Music Is Exploding—But Who Actually Owns the Rights? — Royaltē Knowledge Hub">
+<meta name="twitter:description" content="AI-generated music is exploding, but ownership remains unclear. Learn who actually owns AI-created music and how to protect your rights as an artist.">
+<meta name="twitter:image" content="https://royalte.ai/blog/images/ai-music-is-exploding-but-who-actually-owns-the-rights-hero.png">
+
+<meta name="description" content="AI-generated music is exploding, but ownership remains unclear. Learn who actually owns AI-created music and how to protect your rights as an artist.">
+
+<link rel="canonical" href="https://royalte.ai/blog/ai-music-is-exploding-but-who-actually-owns-the-rights.html">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#8A5CFF">
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── ROOT TOKENS (mirrors index.html / blog.html — do not redefine in blog.css) ── */
+:root{
+--bg:#03030a;--bg2:#07070f;--bg3:#0c0c1a;--bg4:#111126;
+--border:rgba(138,100,255,0.1);--border2:rgba(138,100,255,0.25);--border3:rgba(255,255,255,0.06);
+--text:#e8e4f4;--muted:#8480a8;--muted2:#b0abd0;--text2:#d4d0e8;
+--pur:#8a5cff;--pnk:#e040c8;--cyn:#40d4f0;--grn:#40f0a0;--amb:#f0c040;--red:#f05060;
+--grad:linear-gradient(135deg,#8a5cff,#e040c8);--glow:0 0 80px rgba(138,92,255,0.2);
+}
+
+/* ── BASE (matches index.html) ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,92,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(138,92,255,0.025) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1;}
+
+/* ── NAV (matches index.html) ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 56px;height:96px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,3,10,0.85);backdrop-filter:blur(28px);border-bottom:1px solid var(--border);}
+.nav-brand-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0;}
+.nav-logo{height:76px;width:auto;display:block;transition:opacity 0.2s;}
+.nav-logo-mobile{display:none;}
+.nav-brand-link:hover .nav-logo{opacity:0.85;}
+.nav-right{display:flex;align-items:center;gap:28px;}
+.nav-links{display:flex;align-items:center;gap:38px;}
+.nav-links a{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--pur);}
+.nav-beta{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:rgba(138,92,255,0.1);color:var(--pur);padding:5px 12px;border-radius:2px;border:1px solid var(--border2);}
+.nav-cta{background:var(--grad);color:#fff;padding:10px 24px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{opacity:0.85;}
+
+/* ── FOOTER (matches index.html) ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.f-logo{height:72px;width:auto;display:block;margin-bottom:8px;}
+.f-logo-mobile{display:none;}
+.f-copy{font-size:11px;color:var(--muted2);font-family:'Space Mono',monospace;}
+.f-links{display:flex;gap:26px;}
+.f-links a{font-size:11px;color:var(--muted2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.f-links a:hover{color:var(--text);}
+
+/* ── MOBILE NAV / FOOTER (matches index.html) ── */
+@media (max-width:900px){
+  nav{padding:0 18px;height:64px;}
+  .nav-logo-full{display:none;}
+  .nav-logo-mobile{display:block;height:32px;}
+  .nav-links{display:none;}
+  .nav-beta{display:none;}
+  .nav-cta{padding:8px 14px;font-size:10px;letter-spacing:0.08em;white-space:nowrap;}
+  .nav-right{gap:0;}
+  footer{padding:28px 20px;flex-direction:column;text-align:center;}
+  .f-logo-full{display:none;}
+  .f-logo-mobile{display:block;height:48px;margin:0 auto 6px auto;}
+  .f-links{justify-content:center;}
+}
+</style>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "AI Music Is Exploding\u2014But Who Actually Owns the Rights?",
+  "description": "AI-generated music is exploding, but ownership remains unclear. Learn who actually owns AI-created music and how to protect your rights as an artist.",
+  "image": "https://royalte.ai/blog/images/ai-music-is-exploding-but-who-actually-owns-the-rights-hero.png",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "author": { "@type": "Organization", "name": "Royalt\u0113" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Royalt\u0113",
+    "logo": { "@type": "ImageObject", "url": "https://royalte.ai/favicon.svg" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://royalte.ai/blog/ai-music-is-exploding-but-who-actually-owns-the-rights.html" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://royalte.ai/" },
+    { "@type": "ListItem", "position": 2, "name": "Knowledge Hub", "item": "https://royalte.ai/blog.html" },
+    { "@type": "ListItem", "position": 3, "name": "AI Music Is Exploding\u2014But Who Actually Owns the Rights?", "item": "https://royalte.ai/blog/ai-music-is-exploding-but-who-actually-owns-the-rights.html" }
+  ]
+}
+</script>
+
+<link rel="stylesheet" href="/css/blog.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand-link" aria-label="Royaltē home">
+    <svg class="nav-logo nav-logo-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="nav-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="nav-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#nav-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#nav-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#nav-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="nav-logo nav-logo-mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 340" preserveAspectRatio="xMinYMid meet" aria-hidden="true">
+      <text x="20" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/contact.html">Contact</a>
+      <a href="/faq.html">FAQ</a>
+      <a href="/blog.html" class="active">Learn</a>
+    </div>
+    <span class="nav-beta">// Beta</span>
+  </div>
+</nav>
+
+<main class="article-main">
+
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <span class="article-category">AI Music</span>
+      <h1 class="article-title">AI Music Is Exploding—But Who Actually Owns the Rights?</h1>
+      <div class="article-meta">2026-07-27 · 7 min read</div>
+    </header>
+
+    <img class="article-hero-image" src="/blog/images/ai-music-is-exploding-but-who-actually-owns-the-rights-hero.png" alt="AI Music Is Exploding—But Who Actually Owns the Rights?" loading="eager">
+
+    <div class="article-intro">
+      <p><em>Artificial intelligence is changing the music industry at an incredible pace. Artists can now generate lyrics, melodies, vocals, instrumentals, and even complete songs in minutes. But as AI becomes part of the creative process, one question is becoming more important than any other: </em><strong><em>Who actually owns the rights?</em></strong></p>
+    </div>
+
+    <!-- Mid-article CTA — baked in, do not edit per article -->
+    <aside class="mid-cta" aria-label="Run a free Royaltē scan">
+      <div class="mid-cta-headline">Think your royalties might be leaking because of metadata, publishing, or missing registrations?</div>
+      <a class="mid-cta-btn" href="/#scan-tool">Run Your Free Royaltē Scan →</a>
+    </aside>
+
+    <div class="article-body">
+      <h2>Imagine This...</h2>
+
+      <p>You open your favorite AI music platform.</p>
+
+      <p>You type a simple prompt.</p>
+
+      <p><em>"Create an emotional pop ballad about lost love with cinematic strings and powerful female vocals."</em></p>
+
+      <p>Thirty seconds later...</p>
+
+      <p>You have a complete song.</p>
+
+      <p>The lyrics are written.</p>
+
+      <p>The melody is catchy.</p>
+
+      <p>The vocals sound incredible.</p>
+
+      <p>The production is polished.</p>
+
+      <p>It feels ready for Spotify.</p>
+
+      <p>Now ask yourself one question.</p>
+
+      <p><strong>Who owns it?</strong></p>
+
+      <p><a href="/blog/suno-ai-release-risks.html">Can you copyright it</a>?</p>
+
+      <p>Can you upload it to streaming services?</p>
+
+      <p>Can you collect royalties?</p>
+
+      <p>Could someone else create something remarkably similar using the same AI platform?</p>
+
+      <p>As artificial intelligence becomes more capable, these aren't hypothetical questions anymore.</p>
+
+      <p>They're questions every modern artist should understand.</p>
+
+      <h2>AI Has Arrived—and It's Here to Stay</h2>
+
+      <p>Artificial intelligence is no longer a futuristic concept.</p>
+
+      <p>It's already transforming how music is written, produced, mixed, mastered, marketed, and distributed.</p>
+
+      <p>Artists around the world are using AI to:</p>
+
+      <ul>
+
+        <li>Generate songwriting ideas</li>
+
+        <li>Write lyrics</li>
+
+        <li>Create melodies</li>
+
+        <li>Build chord progressions</li>
+
+        <li>Produce backing tracks</li>
+
+        <li>Generate vocal demos</li>
+
+        <li>Translate songs into multiple languages</li>
+
+        <li>Restore old recordings</li>
+
+        <li>Master tracks</li>
+
+        <li>Speed up production workflows</li>
+
+      </ul>
+
+      <p>For many musicians, AI has become another creative tool—much like a synthesizer, drum machine, sampler, or digital audio workstation.</p>
+
+      <p>The technology isn't replacing creativity.</p>
+
+      <p>It's changing how creativity happens.</p>
+
+      <h2>The Biggest Misconception About AI Music</h2>
+
+      <p>One of the most common misunderstandings is that if an AI creates a song, the AI automatically owns it.</p>
+
+      <p>That's generally not how things work.</p>
+
+      <p>Artificial intelligence isn't a legal person.</p>
+
+      <p>It doesn't collect royalty checks.</p>
+
+      <p>It doesn't sign publishing agreements.</p>
+
+      <p>It doesn't own copyrights in the way a human creator or company can.</p>
+
+      <p>Instead, ownership depends on several important factors, including:</p>
+
+      <ul>
+
+        <li>How the music was created.</li>
+
+        <li>How much creative input came from a human.</li>
+
+        <li>The terms and conditions of the AI platform being used.</li>
+
+        <li>The copyright laws that apply in your country.</li>
+
+        <li>Whether the work qualifies for copyright protection under applicable law.</li>
+
+      </ul>
+
+      <p>Every AI platform is different.</p>
+
+      <p>Every country approaches copyright differently.</p>
+
+      <p>Understanding those differences is becoming an essential part of today's music business.</p>
+
+      <h2>Human Creativity Still Matters</h2>
+
+      <p>Across much of the world, copyright law has traditionally been built around one central idea:</p>
+
+      <p><strong>Human authorship.</strong></p>
+
+      <p>That raises an important question.</p>
+
+      <p>If a computer generates an entire song with little or no creative input from a person, can that work receive copyright protection?</p>
+
+      <p>What if you wrote the lyrics but AI created the instrumental?</p>
+
+      <p>What if AI suggested the melody, but you completely rearranged and produced the final version?</p>
+
+      <p>What if AI simply helped you brainstorm ideas?</p>
+
+      <p>These are some of the biggest questions currently being discussed by copyright offices, lawmakers, courts, and music industry professionals around the world.</p>
+
+      <p>As artificial intelligence continues to evolve, the legal landscape will continue evolving alongside it.</p>
+
+      <h2>Copyright Isn't the Same as Ownership</h2>
+
+      <p>Many people use the words <em>copyright</em> and <em>ownership</em> as though they mean exactly the same thing.</p>
+
+      <p>They don't.</p>
+
+      <p>When AI enters the creative process, several different rights may exist at the same time.</p>
+
+      <p>These may include:</p>
+
+      <ul>
+
+        <li>Copyright in the musical composition</li>
+
+        <li>Rights relating to the sound recording</li>
+
+        <li>Publishing rights</li>
+
+        <li>Master recording rights</li>
+
+        <li>Licensing rights</li>
+
+        <li>Distribution rights</li>
+
+        <li>Contractual rights created by the AI platform's terms of service</li>
+
+      </ul>
+
+      <p>Understanding which rights exist—and who controls them—is becoming increasingly important for anyone creating music with artificial intelligence.</p>
+
+      <h2>Royalties Still Follow Rights</h2>
+
+      <p>Artificial intelligence doesn't change one important fact:</p>
+
+      <p>Royalties are still paid based on rights ownership, registrations, licensing, and commercial use.</p>
+
+      <p>Before releasing AI-assisted music, artists should ask important questions such as:</p>
+
+      <ul>
+
+        <li>Who actually created this work?</li>
+
+        <li>How much of the song was created by me?</li>
+
+        <li>What rights does the AI platform claim?</li>
+
+        <li>Am I allowed to commercially release this music?</li>
+
+        <li>Can I register the work where applicable?</li>
+
+        <li>How should writers and creators be credited?</li>
+
+        <li>Are there any licensing restrictions?</li>
+
+      </ul>
+
+      <p>Understanding these questions today can help prevent expensive problems tomorrow.</p>
+
+      <h2>AI Doesn't Eliminate the Need for Metadata</h2>
+
+      <p>Even if a song is created with artificial intelligence, it still enters the music industry like every other release.</p>
+
+      <p>It still needs accurate information.</p>
+
+      <p>Metadata remains essential.</p>
+
+      <p>That includes:</p>
+
+      <ul>
+
+        <li>Artist name</li>
+
+        <li>Song title</li>
+
+        <li>ISRC</li>
+
+        <li>Songwriter information</li>
+
+        <li>Publisher information</li>
+
+        <li>Ownership percentages</li>
+
+        <li>Distribution information</li>
+
+        <li>Recording ownership</li>
+
+        <li>Publishing ownership</li>
+
+      </ul>
+
+      <p>Artificial intelligence may help create music.</p>
+
+      <p>It doesn't remove the need for proper music rights management.</p>
+
+      <h2>The Future Will Be AI-Assisted, Not AI-Replaced</h2>
+
+      <p>One of the biggest fears surrounding artificial intelligence is that computers will replace musicians.</p>
+
+      <p>History suggests something different.</p>
+
+      <p>Technology has always changed music.</p>
+
+      <p>Electric guitars.</p>
+
+      <p>Synthesizers.</p>
+
+      <p>MIDI.</p>
+
+      <p>Digital recording.</p>
+
+      <p>Sampling.</p>
+
+      <p>Auto-Tune.</p>
+
+      <p>Streaming.</p>
+
+      <p>Each innovation changed how music was created—but none eliminated the need for creativity.</p>
+
+      <p>Artificial intelligence is likely to become another powerful creative tool.</p>
+
+      <p>The artists who succeed won't necessarily be the ones avoiding AI.</p>
+
+      <p>They'll be the ones who understand how to use it responsibly while protecting their rights.</p>
+
+      <h2>How Royaltē Helps Artists Navigate the AI Era</h2>
+
+      <p>Artificial intelligence is creating incredible opportunities.</p>
+
+      <p>It's also creating entirely new questions about ownership, copyright, licensing, royalties, and rights management.</p>
+
+      <p>Royaltē was built to help artists understand the business behind their music.</p>
+
+      <p>As AI becomes a larger part of the creative process, Royaltē's mission remains the same:</p>
+
+      <p>Transform complex music rights information into clear, actionable intelligence.</p>
+
+      <p>Royaltē is designed to help artists:</p>
+
+      <ul>
+
+        <li>Better understand their rights.</li>
+
+        <li>Organize their catalog.</li>
+
+        <li>Improve metadata quality.</li>
+
+        <li>Monitor ownership information.</li>
+
+        <li>Track important changes over time.</li>
+
+        <li>Better understand how music rights connect across the global music ecosystem.</li>
+
+      </ul>
+
+      <p>Technology will continue changing.</p>
+
+      <p>Understanding your rights should never become an afterthought.</p>
+
+      <h2>Final Thoughts</h2>
+
+      <p>Artificial intelligence is one of the most significant technological shifts the music industry has ever experienced.</p>
+
+      <p>It is changing how songs are imagined, written, produced, and shared with the world.</p>
+
+      <p>But while the tools continue to evolve, one thing remains constant.</p>
+
+      <p>Understanding who owns the rights—and who gets paid—will always matter.</p>
+
+      <p>The artists who thrive in the AI era won't simply be the ones using the newest technology.</p>
+
+      <p>They'll be the ones who understand both creativity <strong>and</strong> ownership.</p>
+
+      <p>Because creating great music is only the beginning.</p>
+
+      <p>Protecting it is what builds a lasting career.</p>
+
+      <p><strong>Disclaimer:</strong> This article is provided for educational purposes only and does not constitute legal advice. Copyright laws, AI platform terms of service, licensing agreements, and ownership rules vary by jurisdiction and continue to evolve. Artists should review the applicable terms of any AI platform they use and consult qualified legal professionals regarding their specific circumstances before making commercial decisions based on AI-generated or AI-assisted works.</p>
+    </div>
+
+    <!-- Final CTA — Founding Artist Beta framing, baked in, do not edit per article -->
+    <aside class="final-cta" aria-label="Claim a Founding Artist Beta spot">
+      <h2 class="final-cta-headline">Your music may not be the problem. Your backend might be broken.</h2>
+      <p class="final-cta-body">Founding Artist Beta is now open. Royaltē helps artists and rights holders identify metadata gaps, registration issues, platform coverage problems, and royalty risk signals before more money slips through the cracks.</p>
+      <a class="final-cta-btn" href="/#scan-tool">Claim One Of 1,000 Founding Artist Spots →</a>
+    </aside>
+
+  </article>
+
+  <section class="related-articles" aria-label="Related articles">
+    <h3 class="related-h3">Related Articles</h3>
+    <div id="related-grid" class="related-grid"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <svg class="f-logo f-logo-full" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <defs>
+        <linearGradient id="f-purpink" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-egrad" gradientUnits="userSpaceOnUse" x1="850" y1="130" x2="1000" y2="310">
+          <stop offset="0%" stop-color="#b963ec"/>
+          <stop offset="60%" stop-color="#8a5cff"/>
+          <stop offset="100%" stop-color="#e040c8"/>
+        </linearGradient>
+        <linearGradient id="f-wordblend" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="1040" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="82%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#b963ec"/>
+        </linearGradient>
+      </defs>
+      <text x="600" y="290" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="230" font-weight="700" fill="url(#f-wordblend)" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="url(#f-egrad)">Ē</tspan></text>
+      <line x1="160" y1="330" x2="1040" y2="330" stroke="url(#f-purpink)" stroke-width="1.5" opacity="0.6"/>
+      <text x="600" y="410" font-family="'Space Mono', 'Courier New', monospace" font-size="54" font-weight="500" fill="#9490b8" text-anchor="middle" letter-spacing="4">MUSIC AUDIT INTELLIGENCE</text>
+    </svg>
+    <svg class="f-logo f-logo-mobile" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="Royaltē">
+      <text x="700" y="250" font-family="'Rajdhani', 'Arial Black', sans-serif" font-size="240" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="10">ROYALT<tspan fill="#c350db">Ē</tspan></text>
+    </svg>
+  </div>
+  <div class="f-copy">© 2026 Royaltē. Powered by Se7ven Labs LLC. · info@royalte.ai</div>
+  <div class="f-links">
+    <a href="/contact.html">Contact</a>
+    <a href="/faq.html">FAQ</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+  </div>
+</footer>
+
+<!-- Render related articles from the canonical registry, excluding the current article. -->
+<script src="/js/blog-posts.js"></script>
+<script>
+(function(){
+  var currentSlug = 'ai-music-is-exploding-but-who-actually-owns-the-rights';
+  var grid = document.getElementById('related-grid');
+  if (!grid || !Array.isArray(window.blogPosts)) return;
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  var others = window.blogPosts.filter(function(p){ return p.slug !== currentSlug; }).slice(0, 4);
+  if (others.length === 0) { grid.parentNode.style.display = 'none'; return; }
+
+  grid.innerHTML = others.map(function(post){
+    var isLive = post.status === 'live';
+    var cls = 'related-card' + (isLive ? '' : ' coming-soon');
+    var disabled = isLive ? '' : ' aria-disabled="true"';
+    var catLabel = isLive ? post.category : (post.category + ' · Coming soon');
+    return '<a class="' + cls + '" href="' + esc(post.url) + '"' + disabled + '>' +
+             '<span class="related-cat">' + esc(catLabel) + '</span>' +
+             '<div class="related-title">' + esc(post.title) + '</div>' +
+           '</a>';
+  }).join('');
+})();
+</script>
+
+</body>
+</html>
