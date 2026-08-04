@@ -450,6 +450,33 @@ console.log('\nSuite 12: All 8 contracts -- fresh Spotify scan e0aa20ef');
 }
 
 // ---------------------------------------------------------------------------
+// Suite 13: Action Center -- registered contract, no required domain
+//
+// Regression test for the Phase 4C PR #2 Board review finding: 'action-center'
+// was never registered in WORKSPACE_CONTRACTS, so readWorkspaceContext always
+// returned state:'invalid' ("unknown workspace contract") even with a real
+// scan loaded -- the "Executive Action Center Ready" overlay never lifted.
+// This asserts the contract is now registered and behaves like ask-athena:
+// any valid scan context satisfies it, since the workspace's content (the
+// Executive Opportunity Roadmap) comes from the artist's own Supabase
+// session, not from a runtime-context field.
+// ---------------------------------------------------------------------------
+console.log('\nSuite 13: Action Center -- registered contract, no required domain');
+{
+  assert('action-center is registered', !!WORKSPACE_CONTRACTS['action-center']);
+
+  const r = validateContract(FULL_CTX, 'action-center');
+  assertEqual('full ctx -> valid', r.state, 'valid');
+
+  // Sparse context (only the fields readWorkspaceContext itself requires
+  // pre-validation, e.g. schemaVersion/artistName) still satisfies the
+  // contract -- no domain requirement to fail.
+  const sparseCtx = { schemaVersion: '1.1', artistName: 'Black Alternative' };
+  const r2 = validateContract(sparseCtx, 'action-center');
+  assertEqual('sparse ctx -> valid', r2.state, 'valid');
+}
+
+// ---------------------------------------------------------------------------
 // Summary
 // ---------------------------------------------------------------------------
 console.log('\n----------------------------------------------');
