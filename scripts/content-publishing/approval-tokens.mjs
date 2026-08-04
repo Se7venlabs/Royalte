@@ -85,3 +85,27 @@ export function verifyToken(token, secret, now) {
   }
   return { valid: true, payload };
 }
+
+// decodeTokenUnsafe(token) -> {requestId, action, expiresAt, nonce} | null
+//
+// NEVER use this for an authorization decision -- it does not check the
+// signature. Its only legitimate purpose is audit logging: even a
+// tampered, forged, or malformed token's claimed requestId is useful
+// forensic context (Objective 15's security review wants every attempt
+// logged with as much safe detail as possible, not just "something
+// failed") -- but the requestId itself is never trusted beyond using it
+// to look up the *actual* article from the trusted Supabase row. If the
+// base64url payload segment isn't even parseable JSON, returns null --
+// there is genuinely nothing safe to report in that case, and callers
+// must not fabricate a value.
+export function decodeTokenUnsafe(token) {
+  if (typeof token !== 'string' || !token.includes('.')) return null;
+  const [payloadB64] = token.split('.');
+  if (!payloadB64) return null;
+  try {
+    const payload = JSON.parse(base64UrlDecode(payloadB64));
+    return (payload && typeof payload === 'object') ? payload : null;
+  } catch {
+    return null;
+  }
+}
