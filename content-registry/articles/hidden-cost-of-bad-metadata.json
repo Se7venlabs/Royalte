@@ -9,11 +9,11 @@
   "contentPath": "public/blog/hidden-cost-of-bad-metadata.html",
   "heroImagePath": null,
   "approvalStatus": "approved",
-  "publishStatus": "scheduled",
+  "publishStatus": "published",
   "publishDate": "2026-07-29",
-  "publishedAt": null,
+  "publishedAt": "2026-08-04T00:44:59.698Z",
   "articleVersion": 1,
   "createdAt": "2026-07-23T16:05:58Z",
-  "lastModified": "2026-08-04T00:40:28.775Z",
+  "lastModified": "2026-08-04T00:44:59.698Z",
   "sourcePr": 403
 }
